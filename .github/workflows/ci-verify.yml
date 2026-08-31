@@ -1,0 +1,61 @@
+name: CI Verify
+
+on:
+  pull_request:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+concurrency:
+  group: ci-verify-${{ github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+
+jobs:
+  ci-verify:
+    name: ci-verify
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+
+    steps:
+      - name: Check out the project
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          # save_compat_test compares the shipped record fields against a
+          # baseline commit; a shallow clone would make it skip silently.
+          fetch-depth: 0
+
+      - name: Set up Python
+        uses: actions/setup-python@5fda3b95a4ea91299a34e894583c3862153e4b97 # v7.0.0
+        with:
+          python-version: '3.12'
+
+      - name: Check committed diff hygiene
+        shell: bash
+        run: |
+          if [[ "${{ github.event_name }}" == "pull_request" ]]; then
+            git diff --check "origin/${{ github.base_ref }}"...HEAD
+          else
+            git show --check --format=fuller HEAD
+          fi
+
+      # The gate. Every border in tools/ runs here, and the six that read
+      # the installed game (item scripts, the map's distribution table,
+      # vanilla's own Lua, projectzomboid.jar via javap) report SKIPPED
+      # rather than passing - a check that cannot run must never look
+      # like a check that passed. What remains is every border that reads
+      # only this repository, which is most of them.
+      - name: Run the borders
+        shell: bash
+        run: bash tools/check.sh
+
+      # A border that nobody runs is a claim nobody checks ([B41]:
+      # thirty-three mirrors existed and eleven ran). This asserts the
+      # gate above is the whole set, so a mirror added without being
+      # wired in fails here rather than being cited in a batch record as
+      # though writing one were the same as running it.
+      - name: Every mirror is in the gate
+        shell: bash
+        run: python tools/gate_reach_test.py

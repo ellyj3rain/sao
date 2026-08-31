@@ -1,0 +1,12 @@
+name=Survivor Awareness Overhaul
+id=SurvivorAwareness
+author=ellyj3rain
+modversion=0.6.0.0-pre-alpha
+description=Persistent survivors who perceive, believe and act. What a survivor knows comes from what they have seen, heard or been told, and what they do follows from temperament, standing, and the work a place actually needs - nothing is scripted and no behaviour table is authored. Houses form, elect, quarrel, divide and hold ground; the county governs itself. Once the helicopter has stopped coming, newcomers walk in from outside. PRE-ALPHA: playable, but unproven - no feature here has live-play verification yet. Requires ZombieBuddy for the Java component. No other mod is required; other NPC mods are recognised where present and never depended on. Licensed GPL-3.0; attribution in CREDITS.md.
+icon=icon.png
+poster=poster.png
+versionMin=42.20
+versionMax=42.20
+javaJarFile=media/java/SAO.jar
+javaPkgName=com.sao
+ZBVersionMin=2.3.0

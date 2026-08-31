@@ -1,0 +1,26 @@
+# local machine configuration
+local.properties
+*.local
+
+# build intermediates
+build/
+out/
+bin/
+obj/
+.gradle/
+
+# reference material kept locally; never a build input
+reference/
+_scratch/
+
+# editor / OS
+.vs/
+.idea/
+*.user
+*.swp
+Thumbs.db
+desktop.ini
+
+# [B83] Diagnostic imports of the border tools leave these behind.
+__pycache__/
+*.pyc

@@ -1,0 +1,88 @@
+VERSION = 1,
+
+/*
+ * SURVIVOR AWARENESS OVERHAUL - the world decisions, in the game's own screen.
+ * Every option here is a live lever. World POLICY lives on this screen;
+ * per-person temperament (nerve, appetite, compassion, talkativeness) is
+ * emergent from identity by design and deliberately not tunable here.
+ */
+
+option SurvivorAwareness.Enable {
+    type = boolean, default = true,
+    page = SurvivorAwareness, translation = SurvivorAwareness_Enable,
+}
+
+option SurvivorAwareness.Population {
+    type = integer, min = 0, max = 500, default = 0,
+    page = SurvivorAwareness, translation = SurvivorAwareness_Population,
+}
+
+option SurvivorAwareness.Newcomers {
+    type = integer, min = 0, max = 500, default = 0,
+    page = SurvivorAwareness, translation = SurvivorAwareness_Newcomers,
+}
+
+option SurvivorAwareness.RoadTraffic {
+    type = integer, min = 1, max = 12, default = 2,
+    page = SurvivorAwareness, translation = SurvivorAwareness_RoadTraffic,
+}
+
+option SurvivorAwareness.RoadPressure {
+    type = double, min = 0.0, max = 5.0, default = 0.0,
+    page = SurvivorAwareness, translation = SurvivorAwareness_RoadPressure,
+}
+
+option SurvivorAwareness.MaterializeRadius {
+    type = integer, min = 20, max = 120, default = 45,
+    page = SurvivorAwareness, translation = SurvivorAwareness_MaterializeRadius,
+}
+
+option SurvivorAwareness.HibernateRadius {
+    type = integer, min = 30, max = 160, default = 70,
+    page = SurvivorAwareness, translation = SurvivorAwareness_HibernateRadius,
+}
+
+option SurvivorAwareness.RefillDays {
+    type = double, min = 0.0, max = 30.0, default = 2.0,
+    page = SurvivorAwareness, translation = SurvivorAwareness_RefillDays,
+}
+
+option SurvivorAwareness.Desperation {
+    type = double, min = 0.5, max = 1.0, default = 0.7,
+    page = SurvivorAwareness, translation = SurvivorAwareness_Desperation,
+}
+
+option SurvivorAwareness.TrustToCompany {
+    type = double, min = 0.2, max = 0.9, default = 0.5,
+    page = SurvivorAwareness, translation = SurvivorAwareness_TrustToCompany,
+}
+
+option SurvivorAwareness.ErrandRadius {
+    type = integer, min = 8, max = 20, default = 12,
+    page = SurvivorAwareness, translation = SurvivorAwareness_ErrandRadius,
+}
+
+option SurvivorAwareness.Voice {
+    type = boolean, default = true,
+    page = SurvivorAwareness, translation = SurvivorAwareness_Voice,
+}
+
+option SurvivorAwareness.DayZero {
+    type = boolean, default = false,
+    page = SurvivorAwareness, translation = SurvivorAwareness_DayZero,
+}
+
+option SurvivorAwareness.Telemetry {
+    type = boolean, default = true,
+    page = SurvivorAwareness, translation = SurvivorAwareness_Telemetry,
+}
+
+option SurvivorAwareness.DormantRisk {
+    type = double, min = 0.0, max = 5.0, default = 1.0,
+    page = SurvivorAwareness, translation = SurvivorAwareness_DormantRisk,
+}
+
+option SurvivorAwareness.HoldNeighbourPrompts {
+    type = boolean, default = true,
+    page = SurvivorAwareness, translation = SurvivorAwareness_HoldNeighbourPrompts,
+}

@@ -1,0 +1,12 @@
+#!/usr/bin/env bash
+# [B22] The pre-commit hook: the borders stop being a habit.
+#
+# Install (or re-install after a fresh clone):
+#     cp tools/pre-commit .git/hooks/pre-commit && chmod +x .git/hooks/pre-commit
+#
+# Refuses the commit when a structural Lua check fails, the scope
+# scanner errors, or any of the nine cross-file borders reports a
+# finding. To commit anyway - which should be a deliberate act with a
+# reason written into the batch record, not a reflex:
+#     git commit --no-verify
+exec "$(git rev-parse --show-toplevel)/tools/check.sh" --staged

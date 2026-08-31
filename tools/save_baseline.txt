@@ -1,0 +1,23 @@
+eb92fc2
+[B42] NOT advanced. One name left the persisted surface - `jobEvents` -
+and it was never ours: it is a key in another framework's ModData table
+and entered this project's field census only because our code
+referenced it while rendering their world-event string on the County
+Ledger and in the console. Removing those two reads removed the
+mention, and the field scan - which cannot know whose table a name
+belongs to - reported it as a field a running save could lose.
+
+Advancing would have hidden it. The baseline stays where it is and the
+drop is DECLARED in `save_compat_test.ACCEPTED_DROPS` with its reason,
+so the acceptance lives in the repository and the next real drop is
+still measured against the same two live worlds. A declaration that
+stops being true fails there, which is what keeps it from becoming a
+rubber stamp.
+
+[B41] advanced from the previous baseline after two dead fields were
+removed: rec.diedAt (a session-local tick written into a persisted
+record, meaningless after a reload) and rec.seasonedMonths (a third
+name for contactMonths). Border 31 proves nothing reads either, so a
+world already holding them carries two ignored keys and loses no
+behaviour. Advancing here also captures the strip_comments fix, without
+which this file would keep measuring prose.

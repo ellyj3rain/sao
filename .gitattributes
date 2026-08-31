@@ -1,0 +1,15 @@
+# Repository text uses repository-owned LF. (CRLF checkouts broke tools/check.sh
+# under every POSIX shell on this machine; the gate is the file that cannot drift.)
+*.md        text eol=lf
+*.py        text eol=lf
+*.lua       text eol=lf
+*.sh        text eol=lf
+*.yml       text eol=lf
+*.yaml      text eol=lf
+*.java      text eol=lf
+*.txt       text eol=lf
+mod.info    text eol=lf
+VERSION     text eol=lf
+.github/**  text eol=lf
+*.jar       binary
+*.png       binary
