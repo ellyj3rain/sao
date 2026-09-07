@@ -49,6 +49,45 @@ function D.traits(id)
     }
 end
 
+-- [C31] The child's fear (Growing Up's model, CREDITS.md; the numbers
+-- live in SAO_History): a floor by age, eased for good by every kill
+-- of their own and for now by a comfort object carried, and raised at
+-- night under fifteen. Nothing for anyone grown, so every decision
+-- below reads exactly as it did for an adult. Reads the body and the
+-- engine's clock where there are any; in a bare VM it is the floor
+-- alone, which is what Border 63 samples.
+function D.fear(id)
+    local age = nil
+    pcall(function() age = SAO.History.ageOf(id) end)
+    if type(age) ~= "number" or age >= 18 then return 0 end
+    local floor = 0
+    pcall(function() floor = SAO.History.fearFloorOf(age) end)
+    local body = nil
+    pcall(function() body = SAO.Body.get(id) end)
+    if body then
+        pcall(function()
+            floor = floor - body:getZombieKills() * SAO.History.KILL_EASE
+        end)
+        pcall(function()
+            local inv = body:getInventory()
+            for _, item in ipairs(SAO.History.COMFORT_OBJECTS) do
+                if inv:containsTypeRecurse(item) then
+                    floor = floor - SAO.History.COMFORT_EASE
+                    break
+                end
+            end
+        end)
+    end
+    if floor < 0 then floor = 0 end
+    local night = 0
+    pcall(function()
+        night = SAO.History.nightFearOf(age, getGameTime():getTimeOfDay())
+    end)
+    local fear = floor + night
+    if fear > 1 then fear = 1 end
+    return fear
+end
+
 -- ---------------------------------------------------------------------------
 -- [B48] The ranges below are what this code can actually PRODUCE,
 -- and every one of them used to be wrong in the same way.
@@ -75,20 +114,26 @@ end
 -- High nerve holds longer; high self-preservation breaks earlier.
 function D.fleeDistance(id)
     local t = D.traits(id)
-    return 3.0 + (1.0 - t.nerve) * 5.0 + t.selfPreservation * 3.0   -- 4.2 .. 9.8 tiles
+    return 3.0 + (1.0 - t.nerve) * 5.0 + t.selfPreservation * 3.0
+        + D.fear(id) * 4.0   -- 4.2 .. 11.8 tiles over the county sampled (a grown adult 4.2 .. 9.8; the rest is a child's fear, [C31], whose arithmetic tops at 12.0)
 end
 
 -- How many believed nearby threats before this survivor refuses to hold
 -- ground regardless of armament? Envelope: everyone flees a crowd.
 function D.overwhelmThreshold(id)
     local t = D.traits(id)
-    return math.max(2, math.floor(2 + t.nerve * 3 + t.aggression * 2))  -- 2 .. 6
+    -- A frightened child holds against a smaller crowd ([C31]); the
+    -- envelope's floor of two stands for everyone.
+    return math.max(2, math.floor(2 + t.nerve * 3 + t.aggression * 2
+        - D.fear(id) * 2))  -- 2 .. 6
 end
 
 -- Would this survivor choose to engage one believed threat, given whether it
 -- is armed? Unarmed engagement is outside the envelope entirely.
 function D.wouldEngage(id, armed, believedCount)
     if not armed then return false end
+    -- Past half fear a child does not choose to engage at all ([C31]).
+    if D.fear(id) >= 0.5 then return false end
     local t = D.traits(id)
     if believedCount >= D.overwhelmThreshold(id) then return false end
     return t.aggression > 0.35 or believedCount == 1 and t.nerve > 0.5
@@ -104,6 +149,7 @@ end
 -- Movement pace preference under believed threat.
 function D.paceUnderThreat(id)
     local t = D.traits(id)
+    if D.fear(id) > 0.3 then return "run" end   -- a frightened child runs ([C31])
     if t.selfPreservation > 0.6 then return "run" end
     return t.discipline > 0.5 and "walk" or "run"
 end
@@ -135,6 +181,7 @@ function D.wouldShootWhenOverwhelmed(id)
     local t = D.traits(id)
     local bar = 0.55
     if SAO.Lessons then bar = bar + SAO.Lessons.shootBarBump(id) end
+    bar = bar + D.fear(id) * 0.3   -- a frightened child needs more nerve to stand ([C31])
     return t.nerve > bar
 end
 
@@ -213,8 +260,8 @@ end
 function D.describe(id)
     local t = D.traits(id)
     return string.format(
-        "nerve=%.2f disc=%.2f aggr=%.2f init=%.2f selfp=%.2f | flee@%.1f overwhelm@%d interval=%d",
-        t.nerve, t.discipline, t.aggression, t.initiative, t.selfPreservation,
+        "nerve=%.2f disc=%.2f aggr=%.2f init=%.2f selfp=%.2f fear=%.2f | flee@%.1f overwhelm@%d interval=%d",
+        t.nerve, t.discipline, t.aggression, t.initiative, t.selfPreservation, D.fear(id),
         D.fleeDistance(id), D.overwhelmThreshold(id), D.decisionInterval(id))
 end
 

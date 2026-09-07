@@ -1298,6 +1298,17 @@ if ! "$PY" tools/age_bands_test.py > /dev/null; then
     fail=1
 fi
 
+# [C31] Border 106 - the child's day (DR-032): the fear floor by age,
+# the night and the comfort object, the kills that harden; literacy;
+# the throttle and the birthday floors; the kit from the child's own
+# temperament; the child's head - driven in the engine's own VM and
+# read off every seam that carries it.
+if ! "$PY" tools/childs_day_test.py > /dev/null; then
+    "$PY" tools/childs_day_test.py 2>&1 | grep -E "FAULT" || true
+    note "BORDER FINDING - the child's day is not carried"
+    fail=1
+fi
+
 # Border 103 - the operator's speech is not in the repository: no
 # profanity in the tracked tree and no operator-quote attributions;
 # rulings are paraphrased content, speech stays with the speaker.

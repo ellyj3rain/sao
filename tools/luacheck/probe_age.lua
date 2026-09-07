@@ -44,6 +44,9 @@ SAO.Disposition = {
 SAO.Lessons = {
     learn = function() end,
     all = function() return {} end,
+    -- [C31] the disposition's decisions ask these; nothing learned here.
+    shootBarBump = function() return 0 end,
+    charityEase = function() return 0 end,
 }
 
 SAO.Standing = {}

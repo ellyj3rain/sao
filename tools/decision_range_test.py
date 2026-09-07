@@ -48,6 +48,11 @@ function either.
 
 SKIPs when the engine is absent. FAULTs when the module is missing -
 Border 54's lesson.
+
+[C31] The county has children, and a child's fear widens two of the
+ranges. The history module and Border 105's stub county load before
+the decisions, so the sample includes them and the comments describe
+the whole county rather than its adults.
 """
 import pathlib
 import re
@@ -60,6 +65,11 @@ ROOT = pathlib.Path(__file__).resolve().parent.parent
 LUA = ROOT / "mod" / "42.20" / "media" / "lua"
 DISP = LUA / "shared" / "SAO_Disposition.lua"
 HASH = LUA / "shared" / "SAO_Hash.lua"
+# [C31] The county has children, and a child's fear widens two of the
+# ranges: the history module and Border 105's stub county load before
+# the decisions so the sample includes them.
+HIST = LUA / "shared" / "SAO_History.lua"
+PRELUDE = ROOT / "tools" / "luacheck" / "probe_age.lua"
 SRC = ROOT / "tools" / "luacheck" / "LuaRun.java"
 OUT = ROOT / "java" / "out" / "luacheck"
 JDK = pathlib.Path(r"C:\Users\jleyv\Peanut Butter\JetBrains\Java\bin")
@@ -121,7 +131,7 @@ def measure(names):
             shutil.copy2(c, work / c.name)
         done = subprocess.run(
             [str(JDK / "java.exe"), "-cp", f"{PZ};.", "LuaRun",
-             str(HASH), str(DISP), "--", expr],
+             str(PRELUDE), str(HASH), str(HIST), str(DISP), "--", expr],
             cwd=str(work), capture_output=True, text=True, timeout=600)
     tail = (done.stdout or "").strip().split("\n")[-1] if done.stdout else ""
     if not tail.startswith("VALUE "):
@@ -145,7 +155,7 @@ def main():
         print("  SKIPPED - no JDK, engine jar, stdlib.lua or runner")
         print("  63) decision range: SKIPPED, engine absent")
         return 0
-    for path in (DISP, HASH):
+    for path in (DISP, HASH, HIST, PRELUDE):
         if not path.exists():
             print()
             print("VERDICT:")

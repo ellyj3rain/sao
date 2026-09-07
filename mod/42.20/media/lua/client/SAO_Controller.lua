@@ -2300,27 +2300,37 @@ local function decide(id, agent, body)
                 -- scarcity.
                 local book48 = SAO.Census.bookSkillFor(perk48)
                 detail = "reads up on the work"
-                local studied = ""
-                pcall(function()
-                    studied = SAOJavaBridge:readSkillBook(body, book48)
-                end)
-                if studied == nil or studied == "" then
-                    local got48 = false
-                    pcall(function()
-                        got48 = SAOJavaBridge:takeSkillBookFor(
-                            body, 10, book48)
-                    end)
-                    if got48 then
-                        log(id .. " finds something on " .. tostring(perk48))
-                    else
-                        detail = "turns the work over in their head -"
-                            .. " nothing written to learn it from"
-                    end
+                -- [C31] A child who cannot read yet has no road through
+                -- a book: none before eight (SAO_History.literacyOf -
+                -- the school years lived before the fall), and the study
+                -- passes them over and says why.
+                local literacy48 = "reads"
+                pcall(function() literacy48 = SAO.History.literacyOf(id) end)
+                if literacy48 == "none" then
+                    detail = "too young to read the work up - watches the grown-ups instead"
                 else
+                    local studied = ""
                     pcall(function()
-                        SAO.Voice.onEvent(id, "studies", tick)
+                        studied = SAOJavaBridge:readSkillBook(body, book48)
                     end)
-                    log(id .. " reads up on " .. tostring(studied))
+                    if studied == nil or studied == "" then
+                        local got48 = false
+                        pcall(function()
+                            got48 = SAOJavaBridge:takeSkillBookFor(
+                                body, 10, book48)
+                        end)
+                        if got48 then
+                            log(id .. " finds something on " .. tostring(perk48))
+                        else
+                            detail = "turns the work over in their head -"
+                                .. " nothing written to learn it from"
+                        end
+                    else
+                        pcall(function()
+                            SAO.Voice.onEvent(id, "studies", tick)
+                        end)
+                        log(id .. " reads up on " .. tostring(studied))
+                    end
                 end
             -- [B32] Same lock as the porch above: on cooldown
             -- this still took the slot, so a reader never reached

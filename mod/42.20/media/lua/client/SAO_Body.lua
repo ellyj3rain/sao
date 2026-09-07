@@ -198,6 +198,49 @@ function Body.materialize(rec)
         end
     end
 
+    -- [C31] The child's day: the strength and fitness of the age
+    -- (Growing Up's birthday floors, CREDITS.md), the kit a child
+    -- carries, and the pace they learn at - the last held on the shell
+    -- so every grant of experience reads it. Floors and kit belong to
+    -- a FIRST body; an awakened child carries what their snapshot
+    -- restores. Every accessor is javap-verified (ENGINE_CONTRACT F).
+    if SAO.History and SAO.History.perkFloorsOf then
+        local okA, age = pcall(SAO.History.ageOf, rec.id)
+        if okA and type(age) == "number" and age < 18 then
+            local strength, fitness = nil, nil
+            pcall(function() strength, fitness = SAO.History.perkFloorsOf(age) end)
+            local carried = 0
+            if not rec.hibernation then
+                if strength then
+                    pcall(function()
+                        body:setPerkLevelDebug(Perks.Strength, strength)
+                        body:setPerkLevelDebug(Perks.Fitness, fitness)
+                    end)
+                end
+                local okK, kit = pcall(SAO.History.kitOf, rec.id)
+                if okK and type(kit) == "table" then
+                    local inv = nil
+                    pcall(function() inv = body:getInventory() end)
+                    for _, item in ipairs(kit) do
+                        if inv and pcall(function() inv:AddItem(item) end) then
+                            carried = carried + 1
+                        end
+                    end
+                end
+            end
+            local learning = "-"
+            if SAOJavaBridge then
+                pcall(function()
+                    learning = tostring(SAOJavaBridge:setXpScale(
+                        body, SAO.History.xpScaleOf(age)))
+                end)
+            end
+            log(rec.id .. " is " .. age .. ": strength " .. tostring(strength)
+                .. " fitness " .. tostring(fitness) .. ", carries "
+                .. carried .. " things, " .. learning)
+        end
+    end
+
     if movedBy then
         log(rec.id .. " woke outside " .. tostring(movedBy)
             .. "'s line at " .. wx .. "," .. wy .. " (DR-028)")

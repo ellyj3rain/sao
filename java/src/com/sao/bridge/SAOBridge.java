@@ -889,7 +889,18 @@ public final class SAOBridge {
             if (perk == null) {
                 return false;
             }
-            shell.getXp().AddXP(perk, (float) amount);
+            // [C31] A child learns at the age's pace (the shell's xpScale);
+            // strength, fitness and sprinting are exempt - the birthday
+            // floors pace those, and a quarter of a small packet rounds
+            // to nothing (Growing Up's own finding, CREDITS.md).
+            String id = String.valueOf(perk.getId());
+            float scaled = (float) amount;
+            if (!("Strength".equalsIgnoreCase(id)
+                  || "Fitness".equalsIgnoreCase(id)
+                  || "Sprinting".equalsIgnoreCase(id))) {
+                scaled = scaled * shell.xpScale;
+            }
+            shell.getXp().AddXP(perk, scaled);
             return true;
         } catch (Throwable throwable) {
             return false;
@@ -2012,6 +2023,43 @@ public final class SAOBridge {
             return "scale=" + held;
         } catch (Throwable throwable) {
             return "THREW:" + throwable;
+        }
+    }
+
+    /** [C31] The pace a body learns at, held on the shell; clamped so
+     *  a child never learns nothing and nobody learns faster than an
+     *  adult. Never throws (the [C29] gate finding: no net, no method). */
+    public String setXpScale(Object object, double scale) {
+        try {
+            if (!(object instanceof com.sao.engine.SAOIsoPlayerShell shell)) {
+                return "NOT_A_SHELL";
+            }
+            float held = (float) scale;
+            if (Float.isNaN(held) || held <= 0f) {
+                held = 1f;
+            }
+            if (held < 0.05f) {
+                held = 0.05f;
+            }
+            if (held > 1f) {
+                held = 1f;
+            }
+            shell.xpScale = held;
+            return "learns at " + held;
+        } catch (Throwable throwable) {
+            return "THREW:" + throwable;
+        }
+    }
+
+    /** [C31] The pace a body learns at; 1 for anything that is not ours. */
+    public double getXpScale(Object object) {
+        try {
+            if (object instanceof com.sao.engine.SAOIsoPlayerShell shell) {
+                return shell.xpScale;
+            }
+            return 1.0;
+        } catch (Throwable throwable) {
+            return 1.0;
         }
     }
 

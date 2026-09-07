@@ -266,6 +266,148 @@ local WARS = {
 -- at sixteen and few at thirty.
 local SERVICE_MIN, SERVICE_MAX = 18, 26
 
+-- ---------------------------------------------------------------------------
+-- [C31] The child's day. Growing Up's systems (PZ Chronicles; read with
+-- the authors' permission as the operator settled it, CREDITS.md),
+-- carried at SAO's own seams: the fear floor by age, the night, the
+-- comfort object and the kills that harden; literacy; the experience
+-- throttle and the birthday floors on strength and fitness; the kit a
+-- child carries, drawn from their own temperament. The numbers are
+-- the mod's; where a number is ours it says so.
+
+-- The fear floor: 0.55 at eight (the mod's starting age; the county's
+-- six- and seven-year-olds take the same floor), falling straight to
+-- nothing at eighteen. A fraction of the engine's own panic scale.
+local FEAR_FLOOR_START = 0.55
+local FEAR_START_AGE = 8
+local FEAR_ADULT_AGE = 18
+
+function H.fearFloorOf(age)
+    if type(age) ~= "number" then return 0 end
+    if age >= FEAR_ADULT_AGE then return 0 end
+    if age <= FEAR_START_AGE then return FEAR_FLOOR_START end
+    local t = (age - FEAR_START_AGE) / (FEAR_ADULT_AGE - FEAR_START_AGE)
+    return FEAR_FLOOR_START * (1 - t)
+end
+
+-- The night, ten in the evening to five in the morning: a fifth more
+-- fear under twelve, a tenth to fourteen, none from fifteen. `hour` is
+-- the engine's own time of day (GameTime.getTimeOfDay, 0 to 24).
+local NIGHT_FROM, NIGHT_TO = 22, 5
+
+function H.nightFearOf(age, hour)
+    if type(age) ~= "number" or type(hour) ~= "number" then return 0 end
+    if age >= 15 then return 0 end
+    if not (hour >= NIGHT_FROM or hour < NIGHT_TO) then return 0 end
+    if age < 12 then return 0.20 end
+    return 0.10
+end
+
+-- What eases it: a comfort object carried (the mod's list; every item
+-- verified against the shipped scripts) takes 0.60 off the floor -
+-- the mod's figure, enough that a frightened child with a bear can
+-- sleep - and every zombie the child has killed by their own hand
+-- takes half a hundredth off it for good.
+H.COMFORT_OBJECTS = { "Base.ToyBear", "Base.ToyBear_Crafted_Cotton",
+                      "Base.ToyBear_Crafted_Burlap", "Base.Doll" }
+H.COMFORT_EASE = 0.60
+H.KILL_EASE = 0.005
+
+-- Literacy. The mod counts easy reads until a child can read; the
+-- county's children lived their school years before the fall, so the
+-- reads are the years: none before eight, slow to eleven, reading
+-- from twelve. What a slow reader takes from a book is the throttle's
+-- business below, not a second gate.
+function H.literacyOf(id)
+    local age = H.ageOf(id)
+    if age < 8 then return "none" end
+    if age < 12 then return "slow" end
+    return "reads"
+end
+
+-- The experience throttle: a quarter under ten, half under fourteen,
+-- full from fourteen. Strength, fitness and sprinting are exempt (the
+-- floors below pace those, and the mod found a quarter of a small
+-- packet rounds to nothing). The bridge applies it on every grant.
+function H.xpScaleOf(age)
+    if type(age) ~= "number" then return 1.0 end
+    if age < 10 then return 0.25 end
+    if age < 14 then return 0.50 end
+    return 1.0
+end
+
+-- The birthday floors: the strength and fitness a child of each age
+-- has at least, reaching the engine's adult baseline of five at
+-- eighteen. Under eight takes eight's. Nil for anyone grown.
+local STRENGTH_FLOOR = { [8] = 0, [9] = 0, [10] = 1, [11] = 1, [12] = 2,
+                         [13] = 2, [14] = 3, [15] = 3, [16] = 4, [17] = 4 }
+local FITNESS_FLOOR  = { [8] = 0, [9] = 1, [10] = 1, [11] = 2, [12] = 2,
+                         [13] = 3, [14] = 3, [15] = 4, [16] = 4, [17] = 5 }
+
+function H.perkFloorsOf(age)
+    if type(age) ~= "number" or age >= 18 then return nil end
+    local a = math.floor(math.max(age, 8))
+    return STRENGTH_FLOOR[a], FITNESS_FLOOR[a]
+end
+
+-- The kid types. The mod offers six to a player; here the type falls
+-- out of the child's own eight axes (SAO_Disposition), so it is
+-- derived, never dealt: the aggressive one is the bully, the
+-- nerveless the crybaby, the quiet one shy, the disciplined the nerd,
+-- the bold self-starter the jock, and the rest are scouts, the mod's
+-- own default. A type is the outer fifth of the envelope on the axis
+-- that names it (traits run 0.15 to 0.85, so 0.71 and 0.29), which
+-- keeps any one type from being a third of the county's children.
+-- The type decides only what the child carries; what the mod's
+-- milestones fade with age - the fear, the slow learning - already
+-- fades above.
+function H.archetypeOf(id)
+    local t = nil
+    pcall(function() t = SAO.Disposition.traits(id) end)
+    if not t then return "scout" end
+    if t.aggression > 0.71 then return "bully" end
+    if t.nerve < 0.29 then return "crybaby" end
+    if t.talkativeness < 0.29 then return "shy" end
+    if t.discipline > 0.71 then return "nerd" end
+    if t.initiative > 0.55 and t.nerve > 0.55 then return "jock" end
+    return "scout"
+end
+
+-- What each type carries (the mod's lists; every item verified
+-- against the shipped scripts). Clothing is the census outfit's.
+local KIT = {
+    scout   = { "Base.Rope", "Base.WaterBottle", "Base.FishingRod",
+                "Base.ChocoCakes" },
+    jock    = { "Base.WaterBottle", "Base.Book_Sports" },
+    nerd    = { "Base.Book_Horror", "Base.ComicBook", "Base.Pencil",
+                "Base.PenLight" },
+    shy     = { "Base.ComicBook", "Base.Yoyo" },
+    bully   = { "Base.Plonkies" },
+    crybaby = {},
+}
+-- A bought bear or a doll, not a crafted one: the county fell in 1993.
+local KIT_COMFORT = { "Base.ToyBear", "Base.Doll" }
+-- Who carries one is a fact about the person: most under twelve, some
+-- to fourteen, none older. Ours, and said so.
+local COMFORT_SHARE_UNDER_12 = 75
+local COMFORT_SHARE_UNDER_15 = 30
+
+function H.kitOf(id)
+    local age = H.ageOf(id)
+    if age >= 18 then return nil end
+    local out = { "Base.Bag_Schoolbag_Kids" }
+    local share = 0
+    if age < 12 then share = COMFORT_SHARE_UNDER_12
+    elseif age < 15 then share = COMFORT_SHARE_UNDER_15 end
+    if share > 0 and (hashOf(id, "comfort") % 100) < share then
+        out[#out + 1] = KIT_COMFORT[(hashOf(id, "comfort-which") % #KIT_COMFORT) + 1]
+    end
+    for _, item in ipairs(KIT[H.archetypeOf(id)] or {}) do
+        out[#out + 1] = item
+    end
+    return out
+end
+
 -- Nil for somebody no war reached, which is most of the county.
 function H.warOf(id)
     local found = nil

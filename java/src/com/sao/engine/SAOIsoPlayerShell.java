@@ -39,6 +39,12 @@ public final class SAOIsoPlayerShell extends IsoPlayer {
      *  frame and a shell is the only kind of character that carries one. */
     public volatile float bodyScale = 1f;
 
+    /** [C31] How fast this body learns: 1 for anyone grown, a quarter
+     *  under ten and a half under fourteen (Growing Up's throttle,
+     *  CREDITS.md). Read by the bridge's grantXP on every grant;
+     *  written once at materialize from the person's age. */
+    public volatile float xpScale = 1f;
+
     public SAOIsoPlayerShell(IsoCell cell, SurvivorDesc desc, int x, int y, int z) {
         super(cell, desc, x, y, z, false);
     }

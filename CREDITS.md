@@ -70,9 +70,15 @@ directly with them; no code taken.** The route to a body's size - the
 animation player's bone transforms - was read from Realism V4's
 replaced engine classes and Growing Up's Lua before SAO took its own
 route to the same seam ([C29]). Growing Up's height-by-age table is
-carried in `SAO_History.heightScaleOf` with this attribution; its
-fear, literacy, experience and archetype systems are taken in the age
-batch and credited there.
+carried in `SAO_History.heightScaleOf` with this attribution. Its
+fear model (the floor by age, the night, the comfort object, the
+kills that harden), its literacy gate, its experience throttle and
+birthday floors, its rule for a child's head and its kid types'
+kits are carried in [C31] at SAO's own seams with the mod's numbers
+(`SAO_History`, `SAO_Disposition.fear`, `SAO_Age`, `SAO_Body`,
+`SAO_Appearance`, the bridge's scaled grant); its nightmares,
+growth spurts, cooking, driving and grief systems and its voice
+lines are not.
 
 ## Think Of The Children (Zomboides)
 

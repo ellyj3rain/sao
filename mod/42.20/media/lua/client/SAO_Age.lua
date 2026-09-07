@@ -68,6 +68,23 @@ function Age.drift(rec, body, pass)
     pcall(function() stats = body:getStats() end)
     if not stats then return end
     local salt = "age-drift:" .. tostring(pass)
+    -- [C31] A child's fear has a floor the engine's own panic never
+    -- drops below (Growing Up's, through SAO_Disposition.fear, on the
+    -- engine's 0 to 100 scale): held here at the ten-minute pass
+    -- rather than every second, this module's cadence for everything
+    -- age does to a person.
+    if stage == "child" then
+        local fear = 0
+        pcall(function() fear = SAO.Disposition.fear(rec.id) end)
+        local floor = fear * 100
+        if floor > 0 then
+            pcall(function()
+                if stats:get(CharacterStat.PANIC) < floor then
+                    stats:set(CharacterStat.PANIC, floor)
+                end
+            end)
+        end
+    end
     if rec.dyingOfOldAge then
         -- Getting Old's decline: faster past seventy, and the body's
         -- own health goes with it, so the engine's death path ends it.

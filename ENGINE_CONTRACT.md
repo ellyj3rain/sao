@@ -1,6 +1,6 @@
 | Document | Survivor Awareness Overhaul Engine Contract |
 |---|---|
-| Version | `2.3.0.0-pre-alpha` |
+| Version | `2.4.0.0-pre-alpha` |
 | Author | ellyj3rain |
 | Repository | `ENGINE_CONTRACT.md` |
 | Status | CANONICAL - the verified engine mechanics an IsoPlayer NPC requires. |
@@ -437,4 +437,11 @@ of what a character IS to the engine, and what it is not.
 | `IsoGameCharacter.setSpeedMod(float)` / `getSpeedMod()` | the pace of the age ([C30]): a child's and an elder's walk, set once at materialize | javap |
 | `Stats.get/set/add/remove(CharacterStat, float)`; the `CharacterStat` values include ENDURANCE, FATIGUE, PAIN, STRESS, PANIC, SANITY | what the age drift moves ([C30]); NO `setTripping` or tripping stat exists on 42.20's `Stats` (Getting Old's stumble calls one and would throw here) | javap; the enum's constant list |
 | `IsoGameCharacter.getBodyDamage().getOverallBodyHealth/setOverallBodyHealth`, `getHealth/setHealth` | an elder's decline once marked, so the body dies on the engine's own path | javap (pre-existing surface, reused) |
+| `IsoGameCharacter.setPerkLevelDebug(PerkFactory$Perk, int)`, `getPerkLevel(Perk)`; the Lua-exposed `Perks.<Name>` | the birthday floors on strength and fitness ([C31]); vanilla's own stats screen reads `Perks.Strength` from Lua | javap; grep of the shipped Lua |
+| `IsoGameCharacter.getZombieKills()` | what hardens a child's fear ([C31]) | javap |
+| `HumanVisual.getHairModel/setHairModel(String)`, `getBeardModel/setBeardModel(String)`; `IsoGameCharacter.resetBeardGrowingTime()`; the style names in `media/lua/shared/Definitions/HairOutfitDefinitions.lua` | the child's head ([C31]) | javap; the definitions file read whole |
+| `ItemContainer.AddItem(String)`, `containsTypeRecurse(String)` | the kit a child carries, and the comfort object read back ([C31]) | javap |
+| `GameTime.getTimeOfDay()` (float, 0 to 24) | the night ([C31]) | javap |
+| `Stats.set(CharacterStat, float)` returning boolean, with `CharacterStat.PANIC` on the engine's 0 to 100 scale | the fear floor held on the body ([C31]) | javap |
+| `IsoGameCharacter.isAsleep()` / `forceAwake()` | exist, unused: SAO's sleep is the agent's state, so Growing Up's nightmares have no seat yet ([C31], not in this batch) | javap |
 | NOT in the engine | origin or hometown, schooling, family, service history, media taste, memory or decay of any kind: nothing on the descriptor says so. SAO derives origin region, age, birth year, service eligibility, occupation class, lessons and household itself (`SAO_History`, `SAO_Census`, `SAO_Identity`) | the getters above, read whole |
