@@ -62,6 +62,14 @@ SURFACED = {
     "Ctl.agents": ("Controller.agents",
                    "who is under decision this tick; the panel walks it "
                    "directly for the Near you list"),
+    # [C8] The corpse net's holding pattern. Each entry lives one
+    # named grace between a death and the engine's own die(), so
+    # emptiness IS the normal case - the Ledger prints the count only
+    # when nonzero, because a nonzero number outliving its grace is
+    # exactly the net not firing.
+    "Ctl.pendingCorpses": ("pendingCorpseCount",
+                           "bodies between their death and the ground, "
+                           "waiting for the corpse net"),
 }
 
 

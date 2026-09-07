@@ -14,7 +14,7 @@
 ## Record
 
 The provenance law was completed and extended to property's scarcity. The
-operator's two-depth correction landed here, verbatim: do not instantiate the
+operator's two-depth correction landed here: do not instantiate the
 representative example, and the axis is not the principle - find where the
 simulation fails it. Every place an agent comes to hold something now says
 how (39 acquisition sites; the eight that said neither included a learnPlace

@@ -184,6 +184,33 @@ function T.county()
         inUnits = units,
         perPerson = (living > 0) and (lessons / living) or 0,
     })
+    -- [C16] The dead census (DR-021's instrument): raw counts from
+    -- the bridge; density and projection derived HERE with the
+    -- assumption carried by the field names. loadedDensityPerK is
+    -- crowd per thousand loaded tiles; mapProjection assumes the
+    -- loaded area samples the map, which oversamples wherever the
+    -- player lingers - ratification reads many lines, never one.
+    pcall(function()
+        local me = getSpecificPlayer(0)
+        if not me or not SAOJavaBridge then return end
+        local s = SAOJavaBridge:deadCensus(me)
+        if type(s) ~= "string" or s == "" then return end
+        local crowd = tonumber(s:match("crowd=(%d+)"))
+        local marked = tonumber(s:match("marked=(%d+)"))
+        local loaded = tonumber(s:match("loadedTiles=(%d+)"))
+        local mapT = tonumber(s:match("mapTiles=(%d+)"))
+        if not crowd or not loaded or loaded <= 0 then return end
+        local perK = crowd * 1000.0 / loaded
+        T.event("deadcensus", {
+            crowd = crowd,
+            markedBodies = marked or 0,
+            loadedTiles = loaded,
+            mapTiles = mapT or 0,
+            loadedDensityPerK = perK,
+            mapProjection = (mapT and mapT > 0)
+                and math.floor(perK * mapT / 1000.0) or 0,
+        })
+    end)
     T.flush()
 end
 

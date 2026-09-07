@@ -121,6 +121,233 @@ public final class SAOBridge {
         }
     }
 
+    /**
+     * [C20] The unstick verb's hand (DR-024 parity with the absorbed
+     * framework's own "unstick"): clear BOTH movement-intent surfaces
+     * - the body-level intent and the animation control vars - which
+     * is the stop contract Lua cannot reach (F-004's two-surface law;
+     * the private helper below this class has always owned it).
+     */
+    public String unstick(Object object) {
+        try {
+            if (!(object instanceof SAOIsoPlayerShell shell)) {
+                return "NOT_A_SHELL";
+            }
+            clearMovementIntent(shell);
+            return "CLEARED";
+        } catch (Throwable throwable) {
+            SAOAgent.log("unstick threw: " + throwable);
+            return "UNSTICK_FAILED " + throwable;
+        }
+    }
+
+    /**
+     * [C16] The dead census - DR-021's instrument. Reads and derives
+     * nothing itself: the fungible crowd and the identity-bearing
+     * bodies in the loaded area (the [C9] predicate splits them), the
+     * loaded area's tile extent (IsoChunkMap's public tile bounds,
+     * javap-verified), and the installed map's extent (IsoMetaGrid
+     * cells times IsoCell.getCellSizeInSquares()). One string of raw
+     * numbers; every derived figure is the reader's arithmetic with
+     * its assumptions stated beside it. Changes nothing, teaches
+     * nothing - the [C6] instrument discipline.
+     */
+    public String deadCensus(Object playerObject) {
+        try {
+            if (!(playerObject instanceof zombie.characters.IsoPlayer player)) {
+                return "";
+            }
+            zombie.iso.IsoCell cell = player.getCell();
+            if (cell == null) {
+                return "";
+            }
+            int crowd = 0;
+            int marked = 0;
+            var zombies = cell.getZombieList();
+            for (int i = 0; i < zombies.size(); i++) {
+                var zed = zombies.get(i);
+                if (zed == null || zed.isDead()) {
+                    continue;
+                }
+                if (com.sao.engine.SAOKnox.identityBearing(zed)) {
+                    marked++;
+                } else {
+                    crowd++;
+                }
+            }
+            long loadedTiles = 0;
+            try {
+                zombie.iso.IsoChunkMap chunks = cell.getChunkMap(0);
+                if (chunks != null) {
+                    long w = chunks.getWorldXMaxTiles()
+                        - chunks.getWorldXMinTiles();
+                    long h = chunks.getWorldYMaxTiles()
+                        - chunks.getWorldYMinTiles();
+                    if (w > 0 && h > 0) {
+                        loadedTiles = w * h;
+                    }
+                }
+            } catch (Throwable ignored) {
+            }
+            long mapTiles = 0;
+            try {
+                zombie.iso.IsoMetaGrid grid =
+                    zombie.iso.IsoWorld.instance.getMetaGrid();
+                long cellSquares = zombie.iso.IsoCell.getCellSizeInSquares();
+                mapTiles = (long) grid.getWidth() * grid.getHeight()
+                    * cellSquares * cellSquares;
+            } catch (Throwable ignored) {
+            }
+            return "crowd=" + crowd + "|marked=" + marked
+                + "|loadedTiles=" + loadedTiles + "|mapTiles=" + mapTiles;
+        } catch (Throwable throwable) {
+            SAOAgent.log("deadCensus threw: " + throwable);
+            return "";
+        }
+    }
+
+    /**
+     * [C11] The engine's own bite clock, read rather than mirrored
+     * (F-047). On this build a bite infects with CERTAINTY under any
+     * transmission that includes saliva ({@code BodyPart.SetBitten},
+     * offsets 102-127 - no roll exists), and the infected die exactly at
+     * {@code infectionTime + infectionMortalityDuration} on the
+     * character's own hours-survived clock ({@code BodyDamage.Update},
+     * offsets 1976-2034: progress 1.0 is {@code ReduceGeneralHealth(110)}).
+     * Returns the hours left until that death: "" when the body carries
+     * no Knox infection (unbitten, Transmission None, or Mortality
+     * Never's fake infection), "unpicked" when infected but the course
+     * has not stamped its clock yet - the caller then mirrors the
+     * sandbox window, citing {@code pickMortalityDuration}.
+     */
+    public String biteHoursLeft(Object object) {
+        try {
+            if (!(object instanceof zombie.characters.IsoPlayer person)) {
+                return "";
+            }
+            zombie.characters.BodyDamage.BodyDamage damage =
+                person.getBodyDamage();
+            if (damage == null || !damage.isInfected()) {
+                return "";
+            }
+            float began = damage.getInfectionTime();
+            float duration = damage.getInfectionMortalityDuration();
+            if (began < 0.0f || duration < 0.0f) {
+                return "unpicked";
+            }
+            double left = (began + duration) - person.getHoursSurvived();
+            return String.valueOf(left < 0.0 ? 0.0 : left);
+        } catch (Throwable throwable) {
+            SAOAgent.log("biteHoursLeft threw: " + throwable);
+            return "";
+        }
+    }
+
+    /**
+     * [C10] The promise swings at the BODY. Open the combat loop on the
+     * ONE risen body carrying this person id ([C8]'s modData mark, the
+     * only identity that survives the turn - F-045). This is the argued
+     * exception to [C9]'s identity skip: mercy FIGHTS the risen known
+     * face - the keeper's own promise, kill not puppetry, and never a
+     * stranger's body standing closer.
+     */
+    public String beginCombatWithPersonId(Object object, String personId,
+        double radius) {
+        try {
+            if (!(object instanceof SAOIsoPlayerShell shell)
+                || personId == null || personId.isEmpty()) {
+                return "COMBAT_FAILED INVALID_TARGET";
+            }
+            zombie.iso.IsoCell cell = shell.getCell();
+            if (cell == null) {
+                return "COMBAT_FAILED NO_CELL";
+            }
+            zombie.characters.IsoZombie found = null;
+            float bestDistance = (float) (radius * radius);
+            var zombies = cell.getZombieList();
+            for (int index = 0; index < zombies.size(); index++) {
+                var zed = zombies.get(index);
+                if (zed == null || zed.isDead()) {
+                    continue;
+                }
+                Object mark;
+                try {
+                    mark = zed.getModData().rawget("SAOPersonId");
+                } catch (Throwable ignored) {
+                    continue;
+                }
+                if (!personId.equals(mark)) {
+                    continue;
+                }
+                float dx = zed.getX() - shell.getX();
+                float dy = zed.getY() - shell.getY();
+                float distance = dx * dx + dy * dy;
+                if (distance <= bestDistance) {
+                    bestDistance = distance;
+                    found = zed;
+                }
+            }
+            if (found == null) {
+                return "COMBAT_FAILED BODY_NOT_FOUND id=" + personId;
+            }
+            var combat = combats.computeIfAbsent(shell,
+                ignored -> new com.sao.engine.SAOCombat());
+            return combat.begin(shell, found, true);
+        } catch (Throwable throwable) {
+            SAOAgent.log("beginCombatWithPersonId threw: " + throwable);
+            return "COMBAT_FAILED EXCEPTION " + throwable;
+        }
+    }
+
+    /**
+     * [C8] The turn is real - the lawful corpse net (F-044).
+     *
+     * The engine's whole death law hangs off {@code die()}: it builds the
+     * corpse ({@code becomeCorpse} -> {@code new IsoDeadBody(chr)}, whose
+     * constructor copies the character's modData AND descriptor onto the
+     * corpse), and firing the died-listeners is what arms reanimation -
+     * {@code IsoPlayer}'s own constructor registers a listener that calls
+     * {@code body.reanimateLater()} under {@code shouldBecomeZombieAfterDeath()},
+     * the sandbox Transmission switch over real infection. All of that is
+     * the engine's code; none of it is ours.
+     *
+     * But {@code die()} itself is only invoked from
+     * {@code PlayerOnGroundState.execute} and two server-only sites, so a
+     * shell that dies without its state machine reaching the on-ground
+     * state is a dead character standing in the world: no corpse, no
+     * timer, no turn. This verb closes that gap with the engine's own
+     * method - {@code die()} is public, final, and idempotent (guarded by
+     * {@code onDeathDone} and {@code diedBody}), so calling it here either
+     * does exactly what the state machine would have done or does nothing.
+     *
+     * Never for the risen or the neighbour framework's people: an
+     * {@code IsoZombie} body is not ours to fold into a corpse.
+     */
+    public String ensureCorpse(Object object) {
+        try {
+            if (object instanceof zombie.characters.IsoZombie) {
+                return "NOT_OURS";
+            }
+            if (!(object instanceof zombie.characters.IsoGameCharacter chr)) {
+                return "NOT_A_CHARACTER";
+            }
+            if (!chr.isDead()) {
+                return "ALIVE";
+            }
+            if (chr.getCurrentSquare() == null) {
+                // The corpse constructor removes the character from the
+                // world (ctor offsets 1159-1163), so a dead character with
+                // no square already went through it.
+                return "ALREADY_CORPSE";
+            }
+            chr.die();
+            return chr.getCurrentSquare() == null ? "DIED" : "DIE_PENDING";
+        } catch (Throwable throwable) {
+            SAOAgent.log("ensureCorpse threw: " + throwable);
+            return "DIE_FAILED " + throwable;
+        }
+    }
+
     /** "ranged:<ammo>" when the primary is a firearm, "melee" when a hand
      * weapon, "" when unarmed - one string, no object crossing. */
     public String describeWeapon(Object object) {
@@ -214,7 +441,12 @@ public final class SAOBridge {
             var zombies = cell.getZombieList();
             for (int index = 0; index < zombies.size(); index++) {
                 var zed = zombies.get(index);
-                if (zed == null || zed.isDead()) {
+                if (zed == null || zed.isDead()
+                    // [C9] Choreograph only the fungible crowd: a living
+                    // neighbour is a person (DR-009), and a risen known
+                    // body's brain is vanilla's, not ours to point
+                    // (DR-016 - one brain per body).
+                    || com.sao.engine.SAOKnox.identityBearing(zed)) {
                     continue;
                 }
                 float dx = zed.getX() - shell.getX();
@@ -427,6 +659,117 @@ public final class SAOBridge {
         }
     }
 
+    /** A dress call that returns is not a dressed body ([C26], R-006).
+     * The operator watched two of the county's people stand naked in a
+     * kitchen while the log said dressed=true - dressInRandomOutfit
+     * returned without throwing and the body wore nothing. So the
+     * county verifies OUTCOMES now: count what is actually worn
+     * (getWornItems().size(), javap-verified on
+     * zombie.characters.WornItems.WornItems); if zero, try the random
+     * wardrobe once more, then fall back to the named outfit the
+     * caller offers, and say plainly which happened. Returns
+     * "worn=<n>" when already dressed, "redressed=<n>" when a retry or
+     * fallback clothed them, "NAKED" when nothing did. */
+    public String ensureDressed(Object object, String fallbackOutfit) {
+        try {
+            if (!(object instanceof com.sao.engine.SAOIsoPlayerShell shell)) {
+                return "NOT_OURS";
+            }
+            int worn = shell.getWornItems() == null
+                ? 0 : shell.getWornItems().size();
+            if (worn > 0) {
+                return "worn=" + worn;
+            }
+            shell.dressInRandomOutfit();
+            worn = shell.getWornItems() == null
+                ? 0 : shell.getWornItems().size();
+            if (worn == 0 && fallbackOutfit != null && !fallbackOutfit.isEmpty()) {
+                shell.dressInNamedOutfit(fallbackOutfit);
+                worn = shell.getWornItems() == null
+                    ? 0 : shell.getWornItems().size();
+            }
+            shell.resetModelNextFrame();
+            return worn > 0 ? "redressed=" + worn : "NAKED";
+        } catch (Throwable throwable) {
+            return "NAKED_THREW:" + throwable;
+        }
+    }
+
+    /** Measure what in-process inference costs on this machine
+     * ([C28], SPEECH_ML_DESIGN.md: the frame budget is measured
+     * before any training run fixes a model size). Runs a
+     * model-shaped workload - `layers` chained dim-by-dim
+     * matrix-times-vector passes in float32 with a tanh between,
+     * the dominant cost of a small network's forward pass - on the
+     * CALLING thread, which is the honest worst case (a worker
+     * thread would lift the per-frame ceiling; that choice comes
+     * later, with this number in hand). Deterministic fill, one
+     * warm pass for the JIT, and the checksum rides the report so
+     * nothing is optimized away.
+     * Returns "dim=..|layers=..|runs=..|avgUs=..|minUs=..|maxUs=..|sum=..". */
+    public String inferenceBudgetProbe(double dimD, double layersD, double runsD) {
+        try {
+            int dim = Math.max(8, Math.min(2048, (int) dimD));
+            int layers = Math.max(1, Math.min(64, (int) layersD));
+            int runs = Math.max(1, Math.min(200, (int) runsD));
+            float[][] weights = new float[layers][];
+            for (int l = 0; l < layers; l++) {
+                float[] w = new float[dim * dim];
+                for (int i = 0; i < w.length; i++) {
+                    w[i] = ((i % 97) - 48) / 97.0f;
+                }
+                weights[l] = w;
+            }
+            float[] vec = new float[dim];
+            for (int i = 0; i < dim; i++) {
+                vec[i] = ((i % 13) - 6) / 13.0f;
+            }
+            budgetForward(weights, vec, dim, layers);
+            long min = Long.MAX_VALUE, max = 0, total = 0;
+            float sum = 0;
+            for (int r = 0; r < runs; r++) {
+                long t0 = System.nanoTime();
+                sum += budgetForward(weights, vec, dim, layers);
+                long dt = System.nanoTime() - t0;
+                total += dt;
+                if (dt < min) { min = dt; }
+                if (dt > max) { max = dt; }
+            }
+            return "dim=" + dim + "|layers=" + layers + "|runs=" + runs
+                + "|avgUs=" + (total / runs / 1000L)
+                + "|minUs=" + (min / 1000L)
+                + "|maxUs=" + (max / 1000L)
+                + "|sum=" + (long) sum;
+        } catch (Throwable throwable) {
+            return "PROBE_THREW:" + throwable;
+        }
+    }
+
+    private static float budgetForward(float[][] weights, float[] vec,
+                                       int dim, int layers) {
+        float[] x = vec.clone();
+        float[] y = new float[dim];
+        for (int l = 0; l < layers; l++) {
+            float[] w = weights[l];
+            for (int i = 0; i < dim; i++) {
+                float acc = 0;
+                int row = i * dim;
+                for (int j = 0; j < dim; j++) {
+                    acc += w[row + j] * x[j];
+                }
+                y[i] = (float) Math.tanh(acc);
+            }
+            float[] t = x;
+            x = y;
+            y = t;
+        }
+        float out = 0;
+        for (int i = 0; i < dim; i++) {
+            out += x[i];
+        }
+        return out;
+    }
+
     /** Nearest container object near a shell (deposit target), or null. */
     public Object findNearbyContainer(Object object, double radius) {
         if (object instanceof com.sao.engine.SAOIsoPlayerShell shell) {
@@ -584,6 +927,86 @@ public final class SAOBridge {
                 journal.setNumberOfPages(Math.max(pages,
                     journal.getNumberOfPages()));
             }
+            return true;
+        } catch (Throwable throwable) {
+            return false;
+        }
+    }
+
+    /** [C3] One person, one name - the papers say what the menu says.
+     * Retitles the journal a record already carries and ensures an ID
+     * card (the neighbour framework's own item types, proven on this
+     * install by the card the operator looted) named with the LIVING
+     * name, so the corpse identifies the person everyone knew.
+     * Shell-only; the neighbour's own bodies carry the neighbour's
+     * card. */
+    public boolean refreshIdentityPapers(Object object, String name) {
+        try {
+            if (!(object instanceof com.sao.engine.SAOIsoPlayerShell shell)
+                || name == null || name.isEmpty()) {
+                return false;
+            }
+            boolean touched = false;
+            String journalTitle = name + "'s journal";
+            String cardTitle = name + " - ID";
+            zombie.inventory.InventoryItem card = null;
+            var items = shell.getInventory().getItems();
+            for (int index = 0; index < items.size(); index++) {
+                zombie.inventory.InventoryItem item = items.get(index);
+                if (item == null) {
+                    continue;
+                }
+                String type = String.valueOf(item.getFullType());
+                String shown = String.valueOf(item.getName());
+                if (type.contains("IDcard")) {
+                    card = item;
+                } else if (item instanceof zombie.inventory.types.Literature
+                    && shown.endsWith("'s journal")
+                    && !shown.equals(journalTitle)) {
+                    item.setName(journalTitle);
+                    item.setCustomName(true);
+                    touched = true;
+                }
+            }
+            if (card == null) {
+                card = shell.getInventory().AddItem(
+                    shell.isFemale() ? "Base.IDcard_Female"
+                                     : "Base.IDcard_Male");
+                touched = card != null;
+            }
+            if (card != null && !cardTitle.equals(card.getName())) {
+                card.setName(cardTitle);
+                card.setCustomName(true);
+                touched = true;
+            }
+            return touched;
+        } catch (Throwable throwable) {
+            return false;
+        }
+    }
+
+    /** [C3] The neighbour framework names its people from its own
+     * profile table and never writes the descriptor, so the engine
+     * descriptor carries a random name the neighbour never uses - and
+     * this county was adopting THAT. Aligning the descriptor to the
+     * profile name makes every reader (the scanner, knoxBodyByName,
+     * this county's records) agree with the neighbour's menu and its
+     * ID card: one person, one name. */
+    public boolean alignKnoxName(Object object, String name) {
+        try {
+            if (!(object instanceof zombie.characters.IsoZombie zombie)
+                || name == null || name.isEmpty()) {
+                return false;
+            }
+            if (name.equals(com.sao.engine.SAOKnox.knoxName(zombie))) {
+                return false;
+            }
+            SurvivorDesc desc = zombie.getDescriptor();
+            if (desc == null) {
+                return false;
+            }
+            desc.setForename(name);
+            desc.setSurname("");
             return true;
         } catch (Throwable throwable) {
             return false;
@@ -1476,6 +1899,39 @@ public final class SAOBridge {
         }
     }
 
+    /** [C4] Follow recovery: work the one edge toward a close target
+     * the pathfinder cannot route to - the window the player climbed,
+     * the fence they hopped. Returns the transition verdict. */
+    public String followTraverse(Object object, double tx, double ty) {
+        try {
+            if (!(object instanceof SAOIsoPlayerShell shell)) {
+                return "NOT_A_SHELL";
+            }
+            return SAOMovement.traverseToward(shell, routeState(shell),
+                (int) Math.floor(tx), (int) Math.floor(ty));
+        } catch (Throwable throwable) {
+            SAOAgent.log("followTraverse threw: " + throwable);
+            return "TRAVERSE_FAILED " + throwable;
+        }
+    }
+
+    /** [C4] The nearest vehicle worth walking to: closest to (cx,cy)
+     * with an installed, free, non-driver seat, as "x@y@z@dist" or
+     * empty. */
+    public String nearestBoardableVehicle(Object object, double cx,
+            double cy, double radius) {
+        try {
+            if (!(object instanceof SAOIsoPlayerShell shell)) {
+                return "";
+            }
+            return com.sao.engine.SAONeeds.nearestBoardableVehicle(
+                shell, (float) cx, (float) cy, (float) radius);
+        } catch (Throwable throwable) {
+            SAOAgent.log("nearestBoardableVehicle threw: " + throwable);
+            return "";
+        }
+    }
+
     /** Grants or revokes forced entry (window smash) for the current route.
      * The composition decides; execution only obeys. */
     public boolean setForceEntry(Object object, boolean allowed) {
@@ -1546,6 +2002,16 @@ public final class SAOBridge {
         return com.sao.SAOVersion.VALUE;
     }
 
+    /** [C17] How many bodies the pool has taken this session - the
+     * crowd ledger's raw feed (DR-021's state agreement between the
+     * pool-taking and the presence layer). Monotonic per session;
+     * durable accounting is Lua's. */
+    private static int poolTaken;
+
+    public int poolTakenCount() {
+        return poolTaken;
+    }
+
     /** [B21] Take one of the dead back before adding one of the
      *  living. The operator's directive: the map already carries a
      *  budgeted number of zombies, so a survivor should come OUT of
@@ -1567,6 +2033,12 @@ public final class SAOBridge {
                 zombie.characters.IsoZombie zed = dead.get(i);
                 if (zed == null) continue;
                 if ((int) zed.getZ() != z) continue;
+                // [C9] Never delete what carries a person. The zombie
+                // list holds living neighbours (DR-009), risen players,
+                // and the county's own marked dead ([C8]) alongside the
+                // fungible crowd; only the crowd is the pool. The
+                // predicate fails closed - unreadable means spared.
+                if (com.sao.engine.SAOKnox.identityBearing(zed)) continue;
                 float ddx = zed.getX() - x, ddy = zed.getY() - y;
                 float d2 = ddx * ddx + ddy * ddy;
                 if (d2 <= bestD) {
@@ -1576,6 +2048,10 @@ public final class SAOBridge {
             }
             if (nearest == null) return false;
             nearest.removeFromWorld();
+            // [C17] The crowd ledger's source: every body the pool takes
+            // is counted, session-monotonic; the Lua ledger folds the
+            // deltas into the durable store (DR-021's state agreement).
+            poolTaken++;
             return true;
         } catch (Throwable throwable) {
             SAOAgent.log("takeFromThePool threw: " + throwable);
@@ -1623,10 +2099,15 @@ public final class SAOBridge {
                 SAOAgent.log("spawn refused: CreateSurvivor returned null");
                 return null;
             }
-            if (forename != null) {
+            // [C3] "Unnamed"/"Survivor" are Identity's placeholders, not a
+            // name. Stamping them here destroyed the engine's generated name
+            // one call before backfillName existed to read it - every native
+            // record was "Unnamed Survivor" forever. A placeholder never
+            // overwrites; a real name always does.
+            if (forename != null && !"Unnamed".equals(forename)) {
                 desc.setForename(forename);
             }
-            if (surname != null) {
+            if (surname != null && !"Survivor".equals(surname)) {
                 desc.setSurname(surname);
             }
 
@@ -1638,8 +2119,8 @@ public final class SAOBridge {
             shell.playerIndex = allocateOffSlotIndex();
             shell.serverPlayerIndex = -1;
             shell.setOnlineID((short) -1);
-            String shownName = forename != null ? forename
-                : (desc.getForename() == null ? "Survivor" : desc.getForename());
+            String shownName = desc.getForename() == null
+                ? "Survivor" : desc.getForename();
             shell.setUsername(shownName);
             shell.setGhostMode(false);
 

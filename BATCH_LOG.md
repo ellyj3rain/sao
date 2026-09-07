@@ -1,6 +1,6 @@
 | Document | Survivor Awareness Overhaul Batch Log |
 |---|---|
-| Version | `0.6.0.0-pre-alpha` |
+| Version | `2.1.1.0-pre-alpha` |
 | Author | ellyj3rain |
 | Repository | `BATCH_LOG.md` |
 | Status | REGULATORY - chronological batch index. |
@@ -12,7 +12,8 @@ records under `Batches/`, the decision registry, and the findings ledger, this
 is the project's portable history; it does not depend on a particular Git host.
 Batch identifiers share one alphanumeric namespace across letter eras; a letter
 change does not create another history tree. The A sequence closes at `A29`,
-the B sequence closes at `B52`, and `C1` is the next development batch.
+the B sequence closes at `B52`, and the chronology continues in the C era;
+the last row below is the tip.
 
 This catalog was recatalogued at the seam. The raw sequence - written at the
 rate of a diary, several notes to a single piece of work - was consolidated
@@ -30,8 +31,8 @@ attribution for every merged entry, stated here rather than in a branch name.
 | [A5](Batches/A5-2026-08-26-four-pillar-substrates-live.md) | 2026-08-26 | Four-pillar substrates live | [`T-006`](Batches/THREADS.md#t-006) |
 | [A6](Batches/A6-2026-08-26-combat-transplant-perception-depth-persistent-world.md) | 2026-08-26 | Combat transplant, perception depth, persistent world | [`T-002`](Batches/THREADS.md#t-002), [`T-006`](Batches/THREADS.md#t-006) |
 | [A7](Batches/A7-2026-08-26-world-origin-genesis-standing-emerges-in-play.md) | 2026-08-26 | World-origin genesis; standing emerges in play | [`T-007`](Batches/THREADS.md#t-007) |
-| [A8](Batches/A8-2026-08-26-needs-via-engine-timed-actions-grudges-testimony-gear.md) | 2026-08-26 | Needs via engine timed actions; grudges, testimony, gear | [`T-003`](Batches/THREADS.md#t-003) |
-| [A9](Batches/A9-2026-08-26-canonical-keys-voice-surface-claims-first-aid-sharing.md) | 2026-08-26 | Canonical keys, voice surface, claims, first aid, sharing | [`T-004`](Batches/THREADS.md#t-004), [`T-006`](Batches/THREADS.md#t-006) |
+| [A8](Batches/A8-2026-08-25-needs-via-engine-timed-actions-grudges-testimony-gear.md) | 2026-08-25 | Needs via engine timed actions; grudges, testimony, gear | [`T-003`](Batches/THREADS.md#t-003) |
+| [A9](Batches/A9-2026-08-25-canonical-keys-voice-surface-claims-first-aid-sharing.md) | 2026-08-25 | Canonical keys, voice surface, claims, first aid, sharing | [`T-004`](Batches/THREADS.md#t-004), [`T-006`](Batches/THREADS.md#t-006) |
 | [A10](Batches/A10-2026-08-26-multi-floor-work-ranged-doctrine-audit-alternation.md) | 2026-08-26 | Multi-floor work, ranged doctrine, audit alternation | [`T-002`](Batches/THREADS.md#t-002), [`T-003`](Batches/THREADS.md#t-003) |
 | [A11](Batches/A11-2026-08-26-hibernation-persistence-dormant-drift-estates-sleep.md) | 2026-08-26 | Hibernation persistence, dormant drift, estates, sleep | [`T-002`](Batches/THREADS.md#t-002), [`T-006`](Batches/THREADS.md#t-006) |
 | [A12](Batches/A12-2026-08-26-property-enforcement-completed-policy-screen-gifts-barter.md) | 2026-08-26 | Property enforcement, completed policy screen, gifts, barter | [`T-003`](Batches/THREADS.md#t-003), [`T-004`](Batches/THREADS.md#t-004) |
@@ -82,25 +83,53 @@ attribution for every merged entry, stated here rather than in a branch name.
 | [B28](Batches/B28-2026-08-26-newcomer-reach-arrival-rates-registers-trespass-teaching.md) | 2026-08-26 | Newcomer reach, arrival rates, registers, trespass teaching | [`T-007`](Batches/THREADS.md#t-007) |
 | [B29](Batches/B29-2026-08-26-road-frequency-display-ledger-paging-window-sizing.md) | 2026-08-26 | Road-frequency display; ledger paging; window sizing | [`T-005`](Batches/THREADS.md#t-005) |
 | [B30](Batches/B30-2026-08-26-publishing-metadata-and-false-description-repair.md) | 2026-08-26 | Publishing metadata and false-description repair | [`T-030`](Batches/THREADS.md#t-030) |
-| [B31](Batches/B31-2026-08-26-duplication-border-fuel-accounting-protocol-borders.md) | 2026-08-26 | Duplication border; fuel accounting; protocol borders | [`T-008`](Batches/THREADS.md#t-008), [`T-030`](Batches/THREADS.md#t-030) |
-| [B32](Batches/B32-2026-08-26-between-time-chain-repair-mirror-coverage-analysis-discipline-tr.md) | 2026-08-26 | Between-time chain repair; mirror coverage; analysis discipline; trait correlations | [`T-008`](Batches/THREADS.md#t-008), [`T-030`](Batches/THREADS.md#t-030) |
-| [B33](Batches/B33-2026-08-26-radius-reconciliation-shipped-jar-currency-failure-visibility.md) | 2026-08-26 | Radius reconciliation; shipped-jar currency; failure visibility | [`T-008`](Batches/THREADS.md#t-008) |
-| [B34](Batches/B34-2026-08-26-menu-gating-measured-claim-extents-queue-drop-detection-ledger-a.md) | 2026-08-26 | Menu gating; measured claim extents; queue-drop detection; ledger and trade audits | [`T-008`](Batches/THREADS.md#t-008) |
-| [B35](Batches/B35-2026-08-26-claim-unlearning-and-protection-voice-reachability-carry-light-w.md) | 2026-08-26 | Claim unlearning and protection; voice reachability; carry-light wiring | [`T-004`](Batches/THREADS.md#t-004), [`T-008`](Batches/THREADS.md#t-008) |
-| [B36](Batches/B36-2026-08-26-save-field-guard-deploy-survival-catch-audit-governance-clauses.md) | 2026-08-26 | Save-field guard; deploy survival; catch audit; governance clauses | [`T-030`](Batches/THREADS.md#t-030) |
-| [B37](Batches/B37-2026-08-26-band-constant-claim-visibility-age-arithmetic-death-causes-shuto.md) | 2026-08-26 | Band constant; claim visibility; age arithmetic; death causes; shutoff belief revision | [`T-007`](Batches/THREADS.md#t-007), [`T-008`](Batches/THREADS.md#t-008) |
-| [B38](Batches/B38-2026-08-26-map-derived-scale-1990-grounding-arrival-units-telemetry-age-roo.md) | 2026-08-26 | Map-derived scale; 1990 grounding; arrival units; telemetry; age; room offers | [`T-007`](Batches/THREADS.md#t-007), [`T-008`](Batches/THREADS.md#t-008) |
-| [B39](Batches/B39-2026-08-26-acquisition-provenance-place-depletion-dormant-option-parity.md) | 2026-08-26 | Acquisition provenance; place depletion; dormant option parity | [`T-003`](Batches/THREADS.md#t-003), [`T-006`](Batches/THREADS.md#t-006) |
-| [B40](Batches/B40-2026-08-26-named-constants-lived-provenance-at-genesis-perk-vocabulary-map.md) | 2026-08-26 | Named constants; lived provenance at genesis; perk vocabulary map | [`T-003`](Batches/THREADS.md#t-003), [`T-008`](Batches/THREADS.md#t-008) |
-| [B41](Batches/B41-2026-08-26-book-routing-constant-enforcement-mirror-run-coverage-player-per.md) | 2026-08-26 | Book routing; constant enforcement; mirror-run coverage; player perception repair | [`T-008`](Batches/THREADS.md#t-008), [`T-030`](Batches/THREADS.md#t-030) |
-| [B42](Batches/B42-2026-08-26-silent-surface-repairs-and-census-authority-dr-012.md) | 2026-08-26 | Silent-surface repairs and census authority (DR-012) | [`T-008`](Batches/THREADS.md#t-008), [`T-030`](Batches/THREADS.md#t-030) |
-| [B43](Batches/B43-2026-08-26-jar-version-stamping-session-state-truth-dormant-economic-parity.md) | 2026-08-26 | Jar version stamping; session-state truth; dormant economic parity; reach census | [`T-030`](Batches/THREADS.md#t-030) |
-| [B44](Batches/B44-2026-08-26-legible-option-labels-the-kahlua-runtime-boundary.md) | 2026-08-26 | Legible option labels; the Kahlua runtime boundary | [`T-008`](Batches/THREADS.md#t-008), [`T-030`](Batches/THREADS.md#t-030) |
-| [B45](Batches/B45-2026-08-26-distance-naming-kahlua-gated-compilation-nil-name-repair-neighbo.md) | 2026-08-26 | Distance naming; Kahlua-gated compilation; nil-name repair; neighbor narration hold | [`T-030`](Batches/THREADS.md#t-030) |
-| [B46](Batches/B46-2026-08-26-player-reply-channel-repair.md) | 2026-08-26 | Player-reply channel repair | [`T-005`](Batches/THREADS.md#t-005) |
-| [B47](Batches/B47-2026-08-26-log-reading-defect-pass-census-repair-instrumentation-noise-visi.md) | 2026-08-26 | Log-reading defect pass: census repair, instrumentation, noise, visibility, boot truth | [`T-008`](Batches/THREADS.md#t-008) |
-| [B48](Batches/B48-2026-08-26-distribution-arc-lesson-instrumentation-hash-pathology-fix-verif.md) | 2026-08-26 | Distribution arc: lesson instrumentation, hash-pathology fix, verified ranges | [`T-007`](Batches/THREADS.md#t-007) |
-| [B49](Batches/B49-2026-08-26-frame-time-pacing-disclosure-standing-decay-verification.md) | 2026-08-26 | Frame-time pacing disclosure; standing-decay verification | [`T-006`](Batches/THREADS.md#t-006) |
-| [B50](Batches/B50-2026-08-26-engine-behavior-facts-bridge-throw-graph.md) | 2026-08-26 | Engine behavior facts; bridge throw graph | [`T-008`](Batches/THREADS.md#t-008) |
-| [B51](Batches/B51-2026-08-26-death-time-cleanup-derived-art-dead-relation-rows-save-protocol.md) | 2026-08-26 | Death-time cleanup; derived art; dead-relation rows; save-protocol border | [`T-030`](Batches/THREADS.md#t-030) |
-| [B52](Batches/B52-2026-08-26-derived-counts-distance-naming-scout-completeness-answer-domain.md) | 2026-08-26 | Derived counts; distance naming; scout completeness; answer-domain closure | [`T-030`](Batches/THREADS.md#t-030) |
+| [B31](Batches/B31-2026-08-27-duplication-border-fuel-accounting-protocol-borders.md) | 2026-08-27 | Duplication border; fuel accounting; protocol borders | [`T-008`](Batches/THREADS.md#t-008), [`T-030`](Batches/THREADS.md#t-030) |
+| [B32](Batches/B32-2026-08-27-between-time-chain-repair-mirror-coverage-analysis-discipline-tr.md) | 2026-08-27 | Between-time chain repair; mirror coverage; analysis discipline; trait correlations | [`T-008`](Batches/THREADS.md#t-008), [`T-030`](Batches/THREADS.md#t-030) |
+| [B33](Batches/B33-2026-08-27-radius-reconciliation-shipped-jar-currency-failure-visibility.md) | 2026-08-27 | Radius reconciliation; shipped-jar currency; failure visibility | [`T-008`](Batches/THREADS.md#t-008) |
+| [B34](Batches/B34-2026-08-27-menu-gating-measured-claim-extents-queue-drop-detection-ledger-a.md) | 2026-08-27 | Menu gating; measured claim extents; queue-drop detection; ledger and trade audits | [`T-008`](Batches/THREADS.md#t-008) |
+| [B35](Batches/B35-2026-08-27-claim-unlearning-and-protection-voice-reachability-carry-light-w.md) | 2026-08-27 | Claim unlearning and protection; voice reachability; carry-light wiring | [`T-004`](Batches/THREADS.md#t-004), [`T-008`](Batches/THREADS.md#t-008) |
+| [B36](Batches/B36-2026-08-27-save-field-guard-deploy-survival-catch-audit-governance-clauses.md) | 2026-08-27 | Save-field guard; deploy survival; catch audit; governance clauses | [`T-030`](Batches/THREADS.md#t-030) |
+| [B37](Batches/B37-2026-08-27-band-constant-claim-visibility-age-arithmetic-death-causes-shuto.md) | 2026-08-27 | Band constant; claim visibility; age arithmetic; death causes; shutoff belief revision | [`T-007`](Batches/THREADS.md#t-007), [`T-008`](Batches/THREADS.md#t-008) |
+| [B38](Batches/B38-2026-08-27-map-derived-scale-1990-grounding-arrival-units-telemetry-age-roo.md) | 2026-08-27 | Map-derived scale; 1990 grounding; arrival units; telemetry; age; room offers | [`T-007`](Batches/THREADS.md#t-007), [`T-008`](Batches/THREADS.md#t-008) |
+| [B39](Batches/B39-2026-08-27-acquisition-provenance-place-depletion-dormant-option-parity.md) | 2026-08-27 | Acquisition provenance; place depletion; dormant option parity | [`T-003`](Batches/THREADS.md#t-003), [`T-006`](Batches/THREADS.md#t-006) |
+| [B40](Batches/B40-2026-08-27-named-constants-lived-provenance-at-genesis-perk-vocabulary-map.md) | 2026-08-27 | Named constants; lived provenance at genesis; perk vocabulary map | [`T-003`](Batches/THREADS.md#t-003), [`T-008`](Batches/THREADS.md#t-008) |
+| [B41](Batches/B41-2026-08-27-book-routing-constant-enforcement-mirror-run-coverage-player-per.md) | 2026-08-27 | Book routing; constant enforcement; mirror-run coverage; player perception repair | [`T-008`](Batches/THREADS.md#t-008), [`T-030`](Batches/THREADS.md#t-030) |
+| [B42](Batches/B42-2026-08-27-silent-surface-repairs-and-census-authority-dr-012.md) | 2026-08-27 | Silent-surface repairs and census authority (DR-012) | [`T-008`](Batches/THREADS.md#t-008), [`T-030`](Batches/THREADS.md#t-030) |
+| [B43](Batches/B43-2026-08-27-jar-version-stamping-session-state-truth-dormant-economic-parity.md) | 2026-08-27 | Jar version stamping; session-state truth; dormant economic parity; reach census | [`T-030`](Batches/THREADS.md#t-030) |
+| [B44](Batches/B44-2026-08-28-legible-option-labels-the-kahlua-runtime-boundary.md) | 2026-08-28 | Legible option labels; the Kahlua runtime boundary | [`T-008`](Batches/THREADS.md#t-008), [`T-030`](Batches/THREADS.md#t-030) |
+| [B45](Batches/B45-2026-08-28-distance-naming-kahlua-gated-compilation-nil-name-repair-neighbo.md) | 2026-08-28 | Distance naming; Kahlua-gated compilation; nil-name repair; neighbor narration hold | [`T-030`](Batches/THREADS.md#t-030) |
+| [B46](Batches/B46-2026-08-28-player-reply-channel-repair.md) | 2026-08-28 | Player-reply channel repair | [`T-005`](Batches/THREADS.md#t-005) |
+| [B47](Batches/B47-2026-08-28-log-reading-defect-pass-census-repair-instrumentation-noise-visi.md) | 2026-08-28 | Log-reading defect pass: census repair, instrumentation, noise, visibility, boot truth | [`T-008`](Batches/THREADS.md#t-008) |
+| [B48](Batches/B48-2026-08-28-distribution-arc-lesson-instrumentation-hash-pathology-fix-verif.md) | 2026-08-28 | Distribution arc: lesson instrumentation, hash-pathology fix, verified ranges | [`T-007`](Batches/THREADS.md#t-007) |
+| [B49](Batches/B49-2026-08-28-frame-time-pacing-disclosure-standing-decay-verification.md) | 2026-08-28 | Frame-time pacing disclosure; standing-decay verification | [`T-006`](Batches/THREADS.md#t-006) |
+| [B50](Batches/B50-2026-08-28-engine-behavior-facts-bridge-throw-graph.md) | 2026-08-28 | Engine behavior facts; bridge throw graph | [`T-008`](Batches/THREADS.md#t-008) |
+| [B51](Batches/B51-2026-08-28-death-time-cleanup-derived-art-dead-relation-rows-save-protocol.md) | 2026-08-28 | Death-time cleanup; derived art; dead-relation rows; save-protocol border | [`T-030`](Batches/THREADS.md#t-030) |
+| [B52](Batches/B52-2026-08-28-derived-counts-distance-naming-scout-completeness-answer-domain.md) | 2026-08-28 | Derived counts; distance naming; scout completeness; answer-domain closure | [`T-030`](Batches/THREADS.md#t-030) |
+| [C1](Batches/C1-2026-08-28-catalog-consistency-and-the-three-maps.md) | 2026-08-28 | Catalog consistency and the three maps | [`T-030`](Batches/THREADS.md#t-030) |
+| [C2](Batches/C2-2026-08-28-the-version-machine.md) | 2026-08-28 | The version machine | [`T-030`](Batches/THREADS.md#t-030) |
+| [C3](Batches/C3-2026-08-28-one-person-one-name-the-neighbour-folded.md) | 2026-08-28 | One person, one name; the neighbour folded | [`T-006`](Batches/THREADS.md#t-006) |
+| [C4](Batches/C4-2026-08-28-follow-through-the-crossing-the-wheels-fold-in.md) | 2026-08-28 | Follow through the crossing; the wheels fold in | [`T-001`](Batches/THREADS.md#t-001), [`T-006`](Batches/THREADS.md#t-006) |
+| [C5](Batches/C5-2026-08-29-the-spoken-word-and-the-swallowed-functions.md) | 2026-08-29 | The spoken word, and the swallowed functions | [`T-005`](Batches/THREADS.md#t-005), [`T-006`](Batches/THREADS.md#t-006) |
+| [C6](Batches/C6-2026-08-29-the-inspect-harness.md) | 2026-08-29 | The inspect harness | [`T-009`](Batches/THREADS.md#t-009) |
+| [C7](Batches/C7-2026-08-29-superimposed-not-beside.md) | 2026-08-29 | Superimposed, not beside | [`T-006`](Batches/THREADS.md#t-006) |
+| [C8](Batches/C8-2026-08-29-the-turn-is-real.md) | 2026-08-29 | The turn is real | [`T-002`](Batches/THREADS.md#t-002), [`T-008`](Batches/THREADS.md#t-008) |
+| [C9](Batches/C9-2026-08-29-the-pool-is-only-the-fungible-crowd.md) | 2026-08-29 | The pool is only the fungible crowd | [`T-007`](Batches/THREADS.md#t-007), [`T-008`](Batches/THREADS.md#t-008) |
+| [C10](Batches/C10-2026-08-29-the-promise-swings-at-the-body.md) | 2026-08-29 | The promise swings at the body | [`T-002`](Batches/THREADS.md#t-002), [`T-006`](Batches/THREADS.md#t-006) |
+| [C11](Batches/C11-2026-08-29-the-bite-kills-on-the-engines-clock.md) | 2026-08-29 | The bite kills on the engine's clock | [`T-002`](Batches/THREADS.md#t-002), [`T-008`](Batches/THREADS.md#t-008) |
+| [C12](Batches/C12-2026-08-29-the-front-end-speaks-player.md) | 2026-08-29 | The front end speaks player | [`T-030`](Batches/THREADS.md#t-030) |
+| [C13](Batches/C13-2026-08-29-no-claudeisms-in-the-copy.md) | 2026-08-29 | No Claude-isms in the copy | [`T-030`](Batches/THREADS.md#t-030) |
+| [C14](Batches/C14-2026-08-29-the-sweep-round-one.md) | 2026-08-29 | The sweep, round one | [`T-008`](Batches/THREADS.md#t-008), [`T-030`](Batches/THREADS.md#t-030) |
+| [C15](Batches/C15-2026-08-29-whole-minds-survive-the-reload.md) | 2026-08-29 | Whole minds survive the reload | [`T-006`](Batches/THREADS.md#t-006) |
+| [C16](Batches/C16-2026-08-29-the-dead-census.md) | 2026-08-29 | The dead census | [`T-007`](Batches/THREADS.md#t-007), [`T-009`](Batches/THREADS.md#t-009) |
+| [C17](Batches/C17-2026-08-29-the-crowd-ledger.md) | 2026-08-29 | The crowd ledger | [`T-007`](Batches/THREADS.md#t-007) |
+| [C18](Batches/C18-2026-08-29-the-first-play-receipts.md) | 2026-08-29 | The first play receipts | [`T-001`](Batches/THREADS.md#t-001), [`T-008`](Batches/THREADS.md#t-008) |
+| [C19](Batches/C19-2026-08-29-partial-receipts-are-receipts.md) | 2026-08-29 | Partial receipts are receipts | [`T-030`](Batches/THREADS.md#t-030) |
+| [C20](Batches/C20-2026-08-29-the-county-takes-them-whole.md) | 2026-08-29 | The county takes them whole | [`T-007`](Batches/THREADS.md#t-007), [`T-006`](Batches/THREADS.md#t-006) |
+| [C21](Batches/C21-2026-08-29-fail-completely-never-his-way.md) | 2026-08-29 | Fail completely, never his way | [`T-007`](Batches/THREADS.md#t-007), [`T-030`](Batches/THREADS.md#t-030) |
+| [C22](Batches/C22-2026-08-29-the-switch-gates-the-field.md) | 2026-08-29 | The switch gates the field | [`T-030`](Batches/THREADS.md#t-030) |
+| [C23](Batches/C23-2026-08-29-deleted-not-greyed.md) | 2026-08-29 | Deleted, not greyed | [`T-030`](Batches/THREADS.md#t-030) |
+| [C24](Batches/C24-2026-08-29-the-anchor-was-never-there.md) | 2026-08-29 | The anchor was never there | [`T-030`](Batches/THREADS.md#t-030) |
+| [C25](Batches/C25-2026-08-29-need-reaches-for-what-they-know.md) | 2026-08-29 | Need reaches for what they know | [`T-003`](Batches/THREADS.md#t-003), [`T-001`](Batches/THREADS.md#t-001) |
+| [C26](Batches/C26-2026-08-29-the-click-lands-and-the-line-holds.md) | 2026-08-29 | The click lands and the line holds | [`T-004`](Batches/THREADS.md#t-004), [`T-006`](Batches/THREADS.md#t-006) |
+| [C27](Batches/C27-2026-08-30-what-one-person-knows-as-one-surface.md) | 2026-08-30 | What one person knows, as one surface | [`T-005`](Batches/THREADS.md#t-005), [`T-006`](Batches/THREADS.md#t-006) |
+| [C28](Batches/C28-2026-08-30-the-inference-budget-instrument.md) | 2026-08-30 | The inference budget instrument | [`T-005`](Batches/THREADS.md#t-005), [`T-008`](Batches/THREADS.md#t-008) |

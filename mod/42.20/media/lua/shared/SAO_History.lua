@@ -125,9 +125,8 @@ end
 --
 -- The windows are real and are not mine. US ground involvement ran
 -- 1950-1953 in Korea, 1965-1973 in Vietnam, and the Gulf ground war
--- was 1990-1991. The operator's frame for exactly this: Nirvana was
--- popular, Clinton was president, the Soviet Union collapsed two
--- years ago - it is not that deep. Modelling
+-- was 1990-1991. The operator's ruling for exactly this: model the
+-- early 1990s as they were, not an invented decade. Modelling
 -- a world that actually happened is fidelity, not invention.
 --
 -- Against the county's own age bands - nineteen to sixty-eight in
@@ -292,8 +291,21 @@ function H.generate(id, rec, monthsAliveOverride)
     local used = {}
     for k = 1, count do
         if #fitting == 0 then break end
-        local pick = fitting[(hashOf(id, 30 + k) % #fitting) + 1]
-        if not used[pick.key] then
+        local index = (hashOf(id, 30 + k) % #fitting) + 1
+        local pick = fitting[index]
+        if pick == nil then
+            -- [C18] Seen twice in the operator's first session on this
+            -- build (F-048): the index landed outside a table the line
+            -- above just proved non-empty. The arithmetic is exact
+            -- non-negative integers and `fitting` is built densely, so
+            -- WHY is not established - and guessing is what this
+            -- repository does not do. Skipping the claim keeps one
+            -- person's past from ending generate() for that whole
+            -- population pass, and the line below hands the next
+            -- session the numbers instead of another theory.
+            log("claim pick missed: index " .. tostring(index) .. " of "
+                .. tostring(#fitting) .. " for " .. tostring(id))
+        elseif not used[pick.key] then
             used[pick.key] = true
             settled = settled + 1
             -- Provenance is ROLLED per claim: lived 45 / witnessed 25 /

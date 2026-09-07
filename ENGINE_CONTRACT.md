@@ -1,6 +1,6 @@
 | Document | Survivor Awareness Overhaul Engine Contract |
 |---|---|
-| Version | `0.6.0.0-pre-alpha` |
+| Version | `2.1.1.0-pre-alpha` |
 | Author | ellyj3rain |
 | Repository | `ENGINE_CONTRACT.md` |
 | Status | CANONICAL - the verified engine mechanics an IsoPlayer NPC requires. |
@@ -386,5 +386,47 @@ own Lua use, or by compiling against it - never by assuming a name.
 | `ISBarricadeAction`, `IsoObject.isBarricadeAllowed/getBarricadeForCharacter`, `Barricade.canAddPlank` | boarding windows | vanilla + KS reads |
 | `IsoPlayer.players` (slot array) | telling the real player from other mods' NPCs | javap; the basis of the `foreign:` key domain |
 | `IsoGameCharacter.getHealth()` | the condition bracket | javap + vanilla `player:setHealth(1.0)` proves the 0..1 scale |
-| `SurvivorDesc` on `IsoDeadBody` and zombies | recognizing the turned | javap - identity survives death and reanimation |
+| `SurvivorDesc` on `IsoDeadBody` and zombies | recognizing the turned | CORRECTED [C8]: javap proved the FIELD, not the flow. The corpse ctor copies the character's descriptor AND modData (offsets 1007-1019, 1102-1113); `reanimate()` gives the zombie a FRESH descriptor (gender + voice only, offsets 43-74) and copies the CORPSE's modData onto it. Names survive to the corpse and die at reanimation; the modData id survives the whole turn (F-044/F-045) |
 | `PerkFactory.PerkList` + `getPerkLevel`, `CharacterProfessionDefinition.getXpBoosts` | reading skill live and dormant | javap; `CharacterProfession.get` needs a `ResourceLocation`, corrected at compile |
+
+## Addendum E - the broadcast and print schedule surface (2026-09-06, javap against the installed jar)
+
+Verified for DR-031 before it was recorded: what the engine keys the
+shipped record of the fall to, and where a mod can move it. Nothing
+here is built yet; this is the surface the Day Zero arc's slice 7
+will stand on.
+
+| Surface | What it is | How verified |
+|---|---|---|
+| `ZomboidRadio.daysSinceStart` (private int; `getDaysSinceStart()`) | the schedule's clock: seeded from `GameTime.getNightsSurvived()` in `Init(int)`, written and read as `DaysSinceStart` in the radio save file, incremented at the hour-0 rollover in `UpdateScripts(hour, minute)` (called from `GameTime`; single-player and server only) | javap -c |
+| `RadioAPI.timeToTimeStamp(day, hour, minute)` = day x 1440 + hour x 60 + minute; `timeStampToDays/Hours/Minutes`; `RadioAPI.getInstance().getChannels(category)` returns a Lua table | the stamp arithmetic and the Lua-facing channel list | javap -c |
+| `RadioScript.setStartDayStamp(day)` sets `startDay = day` and `startDayStamp = day x 1440`; `UpdateScript(stamp)` sets `internalStamp = stamp - startDayStamp` and picks the next broadcast from it | a script's own zero; public | javap -c |
+| `RadioChannel.setActiveScript(name, startDay)` and `(name, startDay, loopMin, loopMax)`: `Reset()`, `setStartDayStamp`, loop count from `Rand.Next(loopMin, loopMax)`; `setActiveScriptNull()`; `LoadAiringBroadcast(id, line)` | switch a channel's script and re-key it; public | javap -c |
+| `RadioScriptManager.simulateScriptsUntil(stamp, bool)` / `simulateChannelUntil(freq, stamp, bool)` (skips time-synced channels); `AddChannel(channel, bool)` / `RemoveChannel(freq)`; `getChannels()` keyed by frequency; `getRadioChannel(guid)` | catch a schedule up to a stamp; add or drop stations | javap |
+| `RadioChannel.AddRadioScript`, `RadioScript.AddBroadcast(RadioBroadCast[, bool])`, `RadioBroadCast(id, startStamp, endStamp)` + `AddRadioLine(RadioLine)`, `RadioScript.AddExitOption(name, chance, x)` | build or extend broadcasts in code | javap |
+| `RadioData.fetchAllRadioData()` -> `searchForFiles`; per-file `isVanilla`, `RadioChannel.isVanilla()`; `ZomboidRadio.Init(int)` registers every channel of every file found | the loader takes non-vanilla radio XML too | javap -c |
+| `ZomboidRadio.checkGameModeSpecificStart()` | the engine's own re-keying: when `Core.gameMode` is "Initial Infection" every channel's `init_infection` script is activated at `daysSinceStart` and stamped `daysSinceStart + 1`, with an exit option back to the running script (100, 0); when it is "Six Months Later", `Classified M1A1` goes to `numbers` and `NNR Radio` to `pastor`, both at `daysSinceStart` | javap -c (the string constants of the method) |
+| `ZomboidRadio.disableBroadcasting` / `setDisableBroadcasting`, `postRadioSilence`, `louisvilleObfuscation`, `getRecordedMedia()` | the switches the engine exposes | javap |
+| The shipped schedule: 18 `ChannelEntry` in `media/radio/RadioData.xml` (5 radio, 10 television, 2 amateur, 1 military), 905 broadcasts on days 0-27 (news to day 11, Triple-N's recorded loop on day 12, TURBO's static to day 27); 13,166 lines in `Translate/EN/RadioData.json` keyed `RD_<LineEntry ID>` | what there is to re-key | read with a join script over the two files |
+| `Newspaper` (`zombie.scripting.objects`): four registered papers with fixed issue lists - `KentuckyHerald` July 6/13/14/15/16, `KnoxKnews` July 1-6, `LouisvilleSunTimes` July 6/13/14/15/16, `NationalDispatch` July 6/7/12/13/14/15 - `getIssues()`, `getTitle(issue)`, `getTranslationInfoKey/TextKey`; `Registries.NEWSPAPER` | the print record and its keys into `Print_Text.json` | javap -c (the static initializer's string constants) |
+| `RecipeCodeHelper.nameNewspaper(item, paper)` (public static; called by `ItemCodeOnCreate.onCreate{Dispatch,Herald,Knews,Times}NewNewspaper` and `onCreateRecentNewspaper`, which first draws a random paper from the registry) | picks `Rand.Next(getIssues())`, or `issues.get(size - 1)` - the newest - when the item has `ItemTag.NEWSPAPER_NEW`; then `item.setName(Translator.getText(title))` and `setPrintMediaInfo`, which writes a `printMedia` table (title, info, id, text) and `literatureTitle` into the item's modData. **No call reads the game day.** | javap -c |
+| `Newspaper_{Dispatch,Herald,Knews,Times}_New` in `scripts/generated/items/literature.txt` (`OnCreate = ItemCodeOnCreate.onCreate...NewNewspaper`, tags `base:newspaper;base:fastread`); `newspaper_dispatch` / `newspaper_herald` ... procedural lists in `lua/server/Items/Distributions.lua` | how the papers reach the world: loot rolls, no date | read from the shipped files |
+
+## Addendum F - what the engine holds per person (2026-09-06, javap against the installed jar and the generated scripts)
+
+Verified for DR-032 and for the Speakeasy scoping index: the whole
+of what a character IS to the engine, and what it is not.
+
+| Surface | What it is | How verified |
+|---|---|---|
+| `SurvivorDesc.getForename/getSurname/getFullname`, `isFemale`, `getCharacterGender` | name and gender | javap -p |
+| `IsoGameCharacter.getAge()` / `setAge(int)` | an age integer that NOTHING reads: the only references to the field are inside `IsoGameCharacter` itself (constructor, getter, setter); `IsoPlayer`, `IsoZombie`, `HumanVisual`, `SurvivorDesc`, `SurvivorFactory` reference neither the field nor the getter. No body, animation or behavior changes with age | javap -c, reference count per class |
+| `SurvivorDesc.getCharacterProfession()`, `isCharacterProfession(...)`; `scripts/generated/characters/character_professions.txt` | 25 shipped `character_profession_definition` blocks (burglar, burgerflipper, carpenter, chef, constructionworker, doctor, electrician, engineer, farmer, fireofficer, fisherman, fitnessinstructor, lumberjack, mechanics, metalworker, nurse, parkranger, policeofficer, rancher, repairman, securityguard, smither, tailor, unemployed, veteran), fields `CharacterProfession`, `Cost`, `UIName`, `UIDescription`, `IconPathName`, `GrantedTraits`, `XPBoosts`; mods register through the same script form | javap -p; grep of the generated script |
+| `IsoGameCharacter.getCharacterTraits()`, `hasTrait(CharacterTrait...)`, `applyTraits(List)`; `scripts/generated/characters/character_traits.txt` | 97 shipped `character_trait_definition` blocks, fields `CharacterTrait`, `Cost`, `IsProfessionTrait`, `DisabledInMultiplayer`, `UIName`, `UIDescription` (84), `MutuallyExclusiveTraits` (70), `XPBoosts` (35), `GrantedRecipes` (18), `GrantedTraits` (2). None concerns memory or cognitive decline; the knowledge-bearing ones are illiterate/slowreader/fastreader, deaf/hardofhearing/keenhearing, slowlearner/fastlearner | javap -p; grep of the generated script |
+| `SurvivorDesc.getBravery/getLoner/getAggressiveness/getCompassion/getTemper/getFriendliness/getFavourindoors/getLoyalty` | eight personality floats | javap -p |
+| `SurvivorDesc.getVoicePrefix/getVoiceType/getVoicePitch`, `getHumanVisual`, `getWornItems`, `getObservations()`, `getDescription(String)`, `getMetCount`, `getGroup/isLeader`, `getXPBoostMap` | voice, appearance, the engine's own observations and descriptions, acquaintance counts, group | javap -p |
+| `SurvivorFactory$SurvivorType` | Friendly, Neutral, Aggressive - the only kinds of survivor the factory knows | javap -p |
+| Class-name search of the jar for child, kid, elder, aging | nothing (the only "age" classes are damage, texture pages and `AnimalGrowStage`); the engine ships no child or elder body | `unzip -l` grep |
+| `ModelInstance.scale` (public float), `applyModelScriptScale`; `ModelScript.scale` | NOT a per-character scale: `ModelInstance.scale` is read by `BaseVehicle` alone; `ModelScript.scale` by `IsoObjectModelDrawer` (world objects) and `ItemModelRenderer` (items) only; no reader in the character or skinned-model render path; `ModelInstance` is not in the vanilla Lua exposer. A calf is its own mesh, not a scaled cow. Recorded 2026-09-06 to withdraw an earlier claim in DR-032 | javap -c over every class under skinnedmodel, iso/objects, characters, ui, vehicles, scripting/objects; the exposer's constant pool |
+| `AnimationPlayer.boneTransforms` (public `AnimatorsBoneTransform[]`), `modelTransforms` (private `Matrix4f[]`), `getBoneTransformAt(int)` | the only place a human body's size or proportion could be changed: the bone transforms the renderer draws from. Realism V4 does it by replacing the class; SAO's javaagent could do it by instrumenting the class at load | javap -p |
+| NOT in the engine | origin or hometown, schooling, family, service history, media taste, memory or decay of any kind: nothing on the descriptor says so. SAO derives origin region, age, birth year, service eligibility, occupation class, lessons and household itself (`SAO_History`, `SAO_Census`, `SAO_Identity`) | the getters above, read whole |

@@ -284,6 +284,26 @@ function Identity.idByName(name)
     return nameIndex[name]
 end
 
+-- [C8] The one reader for a corpse/zombie identity tag. The Java side
+-- emits "@<id>" when a body's modData carries the person - the engine
+-- itself copies that table character -> corpse -> risen body (F-044) -
+-- and a bare display name when only a descriptor was there to read.
+-- ':' inside an id (Knox's "ks:<kid>") rides the wire as '~' because
+-- ':' is the protocol's field separator; this is the decoder's other
+-- end. Returns id, rec, name - any may be nil - so every consumer
+-- resolves the same way instead of re-spelling this.
+function Identity.resolveBodyTag(tag)
+    if not tag or tag == "" then return nil, nil, nil end
+    if tag:sub(1, 1) == "@" then
+        local id = (tag:sub(2):gsub("~", ":"))
+        local rec = Identity.get(id)
+        return id, rec, rec and Identity.displayName(rec) or nil
+    end
+    local id = Identity.idByName(tag)
+    local rec = id and Identity.get(id) or nil
+    return id, rec, tag
+end
+
 -- Name backfill happens outside the mutators (materialize writes
 -- rec.forename directly); callers that rename a record must drop the
 -- index themselves.

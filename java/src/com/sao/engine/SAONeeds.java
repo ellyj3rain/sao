@@ -521,7 +521,15 @@ public final class SAONeeds {
 
     /** [B1] Seat a shell into the nearest vehicle to (px,py) with a
      *  free non-driver seat, via the engine's own enter contract.
-     *  Returns the seat index or -1. */
+     *  Returns the seat index or -1.
+     *
+     *  [C4] The occupant flag and the mesh move TOGETHER, the way
+     *  vanilla's ISEnterVehicle pairs them: enter() claims the seat,
+     *  setCharacterPosition(...,"inside") moves the body, and the idle
+     *  passenger anim seats the model. A claim the mesh did not follow
+     *  is rolled back through exit() - a failed action must never
+     *  leave a seat occupied by a body standing in the road. Seat 0
+     *  (the driver) is never taken: nobody here drives. */
     public static int seatInNearestVehicle(IsoPlayer shell,
             float px, float py) {
         try {
@@ -537,8 +545,23 @@ public final class SAONeeds {
             if (best == null) return -1;
             int seats = best.getMaxPassengers();
             for (int i = 1; i < seats; i++) {
-                if (!best.isSeatOccupied(i)) {
-                    if (best.enter(i, shell)) return i;
+                if (best.isSeatInstalled(i) && !best.isSeatOccupied(i)) {
+                    if (best.enter(i, shell)) {
+                        try {
+                            best.setCharacterPosition(shell, i, "inside");
+                            best.playPassengerAnim(i, "idle");
+                        } catch (Throwable positioning) {
+                            best.exit(shell);
+                            SAOAgent.log("board rolled back at seat " + i
+                                + ": " + positioning);
+                            return -1;
+                        }
+                        if (shell.getVehicle() == best) {
+                            return i;
+                        }
+                        best.exit(shell);
+                        return -1;
+                    }
                 }
             }
         } catch (Throwable throwable) {
@@ -547,17 +570,65 @@ public final class SAONeeds {
         return -1;
     }
 
-    /** [B1] Release a seated shell through the engine's exit. */
+    /** [B1] Release a seated shell through the engine's exit.
+     *  [C4] Paired the same way vanilla's ISExitVehicle pairs it: the
+     *  seat is read first, exit() releases the occupant flag, and
+     *  setCharacterPosition(...,"outside") puts the mesh on the
+     *  ground - so a released seat never keeps a phantom passenger. */
     public static boolean unseatFromVehicle(IsoPlayer shell) {
         try {
             zombie.vehicles.BaseVehicle vehicle = shell.getVehicle();
             if (vehicle != null) {
-                return vehicle.exit(shell);
+                int seat = vehicle.getSeat(shell);
+                if (!vehicle.exit(shell)) {
+                    return false;
+                }
+                try {
+                    vehicle.setCharacterPosition(shell, seat, "outside");
+                    shell.PlayAnim("Idle");
+                } catch (Throwable positioning) {
+                    SAOAgent.log("unseat positioning threw: " + positioning);
+                }
+                return shell.getVehicle() == null;
             }
         } catch (Throwable throwable) {
             SAOAgent.log("unseatFromVehicle threw: " + throwable);
         }
         return false;
+    }
+
+    /** [C4] Where the nearest boardable vehicle stands: the closest
+     *  vehicle to (cx,cy) with an installed, free, non-driver seat.
+     *  One record, "x@y", empty when there is nothing to board - the
+     *  caller walks to it before asking to be seated. */
+    public static String nearestBoardableVehicle(IsoPlayer shell,
+            float cx, float cy, float radius) {
+        try {
+            IsoCell cell = shell.getCell();
+            zombie.vehicles.BaseVehicle best = null;
+            float bestD = radius * radius;
+            for (zombie.vehicles.BaseVehicle vehicle : cell.getVehicles()) {
+                if (vehicle == null) continue;
+                float dx = vehicle.getX() - cx, dy = vehicle.getY() - cy;
+                float d = dx * dx + dy * dy;
+                if (d >= bestD) continue;
+                boolean free = false;
+                int seats = vehicle.getMaxPassengers();
+                for (int i = 1; i < seats; i++) {
+                    if (vehicle.isSeatInstalled(i)
+                        && !vehicle.isSeatOccupied(i)) {
+                        free = true;
+                        break;
+                    }
+                }
+                if (free) { best = vehicle; bestD = d; }
+            }
+            if (best == null) return "";
+            return (int) best.getX() + "@" + (int) best.getY();
+        } catch (Throwable throwable) {
+            SAOAgent.log("nearestBoardableVehicle threw: " + throwable);
+            return "";
+        }
     }
 
     /** [B19] APPRAISE the motor pool. Not "how many cars are
@@ -2012,9 +2083,14 @@ public final class SAONeeds {
         OFFERED.remove(shell);
     }
 
-    /** Named corpses lying within radius, as "name:x:y|name:x:y|...".
-     * Identity filtering (which names were OUR people) is Lua's business;
-     * this only reads what a passerby could see on the ground. */
+    /** Named corpses lying within radius, as "tag:x:y|tag:x:y|...", where
+     * the tag is "@<person-id>" when the corpse's modData carries the
+     * mark (the engine copies the dying character's modData onto the
+     * corpse - IsoDeadBody ctor common tail, F-044) and the descriptor's
+     * name otherwise (also copied by that ctor on this build; display
+     * only). Identity filtering (which of these were OUR people) is
+     * Lua's business; this only reads what a passerby could see on the
+     * ground. */
     public static String findNamedCorpsesNear(IsoPlayer shell, int radius) {
         try {
             IsoCell cell = shell.getCell();
@@ -2041,19 +2117,36 @@ public final class SAONeeds {
                         if (dead == null) {
                             continue;
                         }
-                        zombie.characters.SurvivorDesc desc = dead.getDescriptor();
-                        String name = desc == null ? null : desc.getForename();
-                        if (name == null || name.isEmpty()) {
-                            continue;
+                        String tag = null;
+                        try {
+                            Object mark = dead.getModData().rawget("SAOPersonId");
+                            if (mark instanceof String personId
+                                && !personId.isEmpty()) {
+                                // ':' is the field separator; Knox ids
+                                // carry one ("ks:<kid>") - encoded as '~',
+                                // decoded by resolveBodyTag.
+                                tag = "@" + personId.replace(':', '~');
+                            }
+                        } catch (Throwable ignored) {
                         }
-                        String deadSurname = desc.getSurname();
-                        if (deadSurname != null && !deadSurname.isEmpty()) {
-                            name = name + " " + deadSurname;   // [A24]
+                        if (tag == null) {
+                            zombie.characters.SurvivorDesc desc =
+                                dead.getDescriptor();
+                            String name =
+                                desc == null ? null : desc.getForename();
+                            if (name == null || name.isEmpty()) {
+                                continue;
+                            }
+                            String deadSurname = desc.getSurname();
+                            if (deadSurname != null && !deadSurname.isEmpty()) {
+                                name = name + " " + deadSurname;   // [A24]
+                            }
+                            tag = name;
                         }
                         if (out.length() > 0) {
                             out.append('|');
                         }
-                        out.append(name.replace('|', '_').replace(':', '_'))
+                        out.append(tag.replace('|', '_').replace(':', '_'))
                             .append(':').append(square.getX())
                             .append(':').append(square.getY());
                     }

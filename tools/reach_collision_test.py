@@ -75,6 +75,23 @@ FLAT_VAL = re.compile(r"\b\w*[Dd]ist\w*\s*<=\s*([0-9][0-9.]*)")
 # other. A sentence that would not survive being read aloud to someone
 # holding both sites is not an argument and does not belong here.
 ALLOWED = {
+    ("SAO_Controller.lua", 10.0, "FOLLOW_TRAVERSE_REACH"):
+        "[C4] The bare tens that predate the name - the war-party "
+        "fellow-armed check among them - are rules about company at "
+        "reach, sharing WITNESS_REACH's scale since before either name "
+        "existed. FOLLOW_TRAVERSE_REACH is about ONE EDGE between a "
+        "follower and the player. Tighten the traverse and a war party "
+        "must not stop counting its armed; widen the company checks and "
+        "a follower must not start climbing at forty feet.",
+    ("SAO_Harness.lua", 12.0, "VEHICLE_FOLD_REACH"):
+        "[C4] NAME_VEHICLE_REACH - how far from the CLICK a vehicle can "
+        "stand and still be the one the order names - against the "
+        "Controller's fold distance, how far a companion will detour to "
+        "a seat. Same figure, two rules: widen the click tolerance and "
+        "a companion must not start detouring across the street; "
+        "tighten the fold and the order must not stop finding the "
+        "truck you are pointing at. (The crew verb's 12-tile roster "
+        "reach predates both and is a third rule again.)",
     ("SAO_Harness.lua", 3.0, "ARRIVAL_REACH"):
         "`survivorNear` - which survivor the CURSOR is over when the "
         "context menu opens. Three tiles of mouse tolerance and three "

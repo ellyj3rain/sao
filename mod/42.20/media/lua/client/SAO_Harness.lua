@@ -176,6 +176,11 @@ local function talkTo(playerObj, id)
     nowHours = okH and nowHours or 0
     SAO.Harness.talkCooldowns = SAO.Harness.talkCooldowns or {}
     if (SAO.Harness.talkCooldowns[id] or 0) > nowHours then
+        -- [C26] The brush-off is SPOKEN (R-005): this used to go to
+        -- the log file alone, so a click inside the cooldown looked
+        -- exactly like a mod that does not work - [B33] with a
+        -- timestamp.
+        pcall(function() body:Say("We just talked.") end)
         log("they need a while")
         return
     end
@@ -183,7 +188,17 @@ local function talkTo(playerObj, id)
     SAO.Standing.adjustTrust(id, key, 0.02)
 
     local spoke = false
-    if SAO.Standing.trust(id, key) >= 0.3 then
+    -- [C26] The wall came down (R-005). The advertisement above says
+    -- "a warning line, a lesson if trust permits" - and the first cut
+    -- gated the ENTIRE person behind trust 0.3, fifteen clicks and
+    -- fifteen game hours away, so every stranger answered from three
+    -- stock lines and the operator's verdict from play was that talk
+    -- does far less than even what is advertised. Smalltalk, warnings,
+    -- and who they are flow at ANY trust now; what stays earned is
+    -- what the advertisement says is earned - their lessons, their
+    -- pacts, and what their own body admits.
+    local trusted = SAO.Standing.trust(id, key) >= 0.3
+    do
         SAO.Harness.talkTurn = SAO.Harness.talkTurn or {}
         local turn = (SAO.Harness.talkTurn[id] or 0) + 1
         SAO.Harness.talkTurn[id] = turn
@@ -241,8 +256,9 @@ local function talkTo(playerObj, id)
             end
             -- The bitten speak ([B3]): their own body, read direct;
             -- the fearful deny it, the composed face it, the middle
-            -- say nothing - silence is also true.
-            do
+            -- say nothing - silence is also true. Trust-gated ([C26]):
+            -- what a body admits is earned, not smalltalk.
+            if trusted then
                 local bitten3 = false
                 pcall(function()
                     local bd3 = SAO.Body.get(id)
@@ -277,10 +293,15 @@ local function talkTo(playerObj, id)
             -- reached them. The line retires itself the day their
             -- first lesson lands.
             if SAO.Lessons.hasAny and not SAO.Lessons.hasAny(id) then
+                -- [C5] Day-zero flavor that asserts knowledge is not
+                -- knowledge: "the radio said stay indoors" claimed a
+                -- told fact no claim held. The innocent speak in
+                -- OPINIONS - temperament, not information - and the
+                -- lines retire themselves the day a first lesson lands.
                 offers[#offers + 1] =
                     "It has to blow over soon, right? These things do."
                 offers[#offers + 1] =
-                    "The radio said stay indoors. It'll pass."
+                    "Stay put and wait it out - that's my thinking."
             end
             -- The circle is who they are ([A27]): loners and
             -- band-keepers SAY it - the refusal you got is a person,
@@ -325,11 +346,17 @@ local function talkTo(playerObj, id)
                         wall = "We hold our ground and keep our doors.",
                         road = "We stay light and stay quiet.",
                     }
-                    offers[#offers + 1] = "I'm with the " .. fname .. ". "
-                        .. (CREED_LINES[creed.name] or "")
+                    -- [C5] A sentence that trails into nothing when the
+                    -- creed is unknown is not a person talking; the
+                    -- membership stands alone then.
+                    local creedLine9 = CREED_LINES[creed.name]
+                    offers[#offers + 1] = "I'm with the " .. fname
+                        .. (creedLine9 and (". " .. creedLine9) or ".")
                 end
-                -- The deal is common knowledge in the house ([A26]).
-                if SAO.Standing.pactBetween then
+                -- The deal is common knowledge in the house ([A26]) -
+                -- but the house tells its business to people it
+                -- trusts ([C26]).
+                if trusted and SAO.Standing.pactBetween then
                     local s2 = nil
                     pcall(function()
                         s2 = ModData.getOrCreate("SurvivorAwareness_Standing")
@@ -464,7 +491,9 @@ local function talkTo(playerObj, id)
                 end
             end
         end
-        if rec and rec.lessonsKnown then
+        -- "A lesson if trust permits" - the one gate the
+        -- advertisement always named ([C26]).
+        if trusted and rec and rec.lessonsKnown then
             for lessonKey in pairs(rec.lessonsKnown) do
                 local entry = SAO.Lessons.REGISTRY[lessonKey]
                 if entry and entry.line then
@@ -474,19 +503,30 @@ local function talkTo(playerObj, id)
         end
         local beliefs = SAO.Perception.beliefs[id]
         if beliefs then
+            -- [C5] A person talking does not say coordinates. The
+            -- believed positions render as the words THIS speaker,
+            -- standing HERE, would use for them.
+            local sx9, sy9 = rec and rec.x, rec and rec.y
+            pcall(function()
+                local sb9 = SAO.Body.get(id)
+                if sb9 then sx9, sy9 = sb9:getX(), sb9:getY() end
+            end)
             for g, fb in pairs(beliefs.factions or {}) do
                 offers[#offers + 1] = (fb.name
-                    and ("The " .. fb.name .. " hold a place at ")
-                    or "Somebody holds a place at ")
-                    .. fb.baseX .. "," .. fb.baseY .. "."
+                    and ("The " .. fb.name .. " hold a place ")
+                    or "Somebody holds a place ")
+                    .. SAO.Perception.whereWord(fb.baseX, fb.baseY,
+                        sx9, sy9) .. "."
             end
             for ownerKey, pc in pairs(beliefs.places or {}) do
                 local orec = SAO.Identity.get(ownerKey)
                 -- [B42] "Unnamed" is absence, not a name.
                 offers[#offers + 1] = (SAO.Identity.knownName(orec)
-                    or "Somebody") .. "'s place is around "
-                    .. math.floor((pc.minX + pc.maxX) / 2) .. ","
-                    .. math.floor((pc.minY + pc.maxY) / 2) .. ". Leave it be."
+                    or "Somebody") .. "'s place is "
+                    .. SAO.Perception.whereWord(
+                        math.floor((pc.minX + pc.maxX) / 2),
+                        math.floor((pc.minY + pc.maxY) / 2),
+                        sx9, sy9) .. ". Leave it be."
             end
         end
         -- The medium is the moment ([A24]): context outranks the
@@ -632,6 +672,62 @@ local function askToJoin(playerObj, id)
     end
 end
 
+-- [C7] Exported: the superimposed neighbour root (SAO_Neighbours,
+-- DR-015) drives the same talk surface this county's own menu drives -
+-- one definition, superimposed rather than copied.
+H.talkTo = talkTo
+
+-- [B27]/[C7] The tell option, one definition for both menus: the
+-- county's own person submenu and the neighbour's superimposed root.
+-- This is the SAME channel the survivors use on each other - P.tell,
+-- the same provenance, the same `told` rank, the player recorded as
+-- the teller - and the only thing that differs is that a survivor
+-- decides to speak by a trust calculation while you decide by
+-- clicking. Their skepticism is untouched. Nothing here is authored:
+-- what you have to tell is whatever the same perception pass put in
+-- your head, which is why the option is absent when you have nothing
+-- worth passing on.
+function H.addTellOption(menu, playerObj, nearId)
+    local myKey65 = SAO.Standing.playerKey(playerObj)
+    -- [B41] The gate asks Perception what can travel instead of
+    -- iterating the store here.
+    local hasNews65 = myKey65 and SAO.Perception.hasAnythingToPass(
+        myKey65, SAO.Controller.tick()) or false
+    if not hasNews65 or SAO.Standing.isHostileTo(nearId, myKey65) then
+        return
+    end
+    menu:addOption("Tell them what I've seen", nil, function()
+        -- A body to speak the acknowledgment: ours, or the
+        -- neighbour's (Say is IsoGameCharacter's, javap-verified).
+        local tb65 = SAO.Body.get(nearId)
+            or (SAO.Body.knox and SAO.Body.knox[nearId])
+        -- [C5] "They note 3 things" is not speech. What crossed comes
+        -- back as the listener's OWN words - the gravest thing that
+        -- landed, said the way a person standing there would say it.
+        local n, spoken = SAO.Perception.tell(myKey65, nearId,
+            SAO.Controller.tick(), true)
+        if n and n > 0 then
+            if tb65 then
+                pcall(function()
+                    tb65:Say(spoken
+                        or "Right. I'll keep that in mind.")
+                end)
+            end
+            -- Being useful is standing, on the same scale
+            -- everything else in this codebase moves it.
+            SAO.Standing.adjustTrust(nearId, myKey65, 0.03)
+        else
+            if tb65 then
+                pcall(function()
+                    tb65:Say("Nothing I didn't know.")
+                end)
+            end
+            HaloTextHelper.addText(playerObj,
+                "nothing new to them")
+        end
+    end)
+end
+
 local function fillMenu(playerNum, context, worldobjects)
     -- Pre-alpha, private mod: the harness is the operator's play-surface, so
     -- it is available in normal play, not just debug launches.
@@ -640,7 +736,22 @@ local function fillMenu(playerNum, context, worldobjects)
 
     -- S5: any survivor under the cursor gets the three plain verbs.
     local nearId = survivorNear(worldobjects)
+    -- [C7] Superimposed, not beside (DR-015, the operator's correction
+    -- of [C3]'s reading): when this person is the neighbour
+    -- framework's and his per-survivor root will be on this menu,
+    -- that root IS the person's one menu - SAO_Neighbours rewrites
+    -- what is inside it - and the county adds no second one.
+    local superimposedPerson = false
     if nearId then
+        local rec7 = SAO.Identity.get(nearId)
+        if rec7 and rec7.knox and SAO.Neighbours
+            and SAO.Neighbours.willSuperimpose then
+            local okS, s7 = pcall(SAO.Neighbours.willSuperimpose,
+                nearId, worldobjects)
+            superimposedPerson = (okS and s7) or false
+        end
+    end
+    if nearId and not superimposedPerson then
         -- [B42] A menu entry never reads "Talk to Unnamed": the
         -- sentinel means the county has not met them, and the id is a
         -- truer thing to show than a placeholder pretending to be a name.
@@ -661,58 +772,23 @@ local function fillMenu(playerNum, context, worldobjects)
             nil, nil)
         local person = context:getNew(context)
         context:addSubMenu(personOpt, person)
-        -- [B27] You can pass on what you have seen. This is the SAME
-        -- channel the survivors use on each other - P.tell, the same
-        -- provenance, the same `told` rank, the player recorded as
-        -- the teller - and the only thing that differs is that a
-        -- survivor decides to speak by a trust calculation while you
-        -- decide by clicking. Their skepticism is untouched: someone
-        -- who distrusts you will not take your word.
-        --
-        -- Nothing here is authored. What you have to tell is whatever
-        -- the same perception pass put in your head while you walked
-        -- around, which is why the option is absent when you have
-        -- nothing worth passing on.
+        -- [C3]/[C7] The fallback only: a ks: person normally gets the
+        -- neighbour's own root, superimposed (DR-015) - this branch is
+        -- reached when that prediction failed (his runtime lost the
+        -- actor, or he is not loaded), and the county's submenu then
+        -- carries his working verbs through his own public functions.
         do
-            local myKey65 = SAO.Standing.playerKey(playerObj)
-            -- [B41] The gate asks Perception what can travel instead
-            -- of iterating the store here. This was two categories
-            -- spelled in the harness, and both were wrong: it opened on
-            -- `zombies`, which `tell` cannot carry at all, and it never
-            -- counted `factions`, which `tell` can. Before [B41] the
-            -- player's store was empty and the option never appeared,
-            -- so neither mistake could be seen.
-            local hasNews65 = myKey65 and SAO.Perception.hasAnythingToPass(
-                myKey65, SAO.Controller.tick()) or false
-            if hasNews65 and not SAO.Standing.isHostileTo(nearId, myKey65) then
-                person:addOption("Tell them what I've seen", nil, function()
-                    local tb65 = SAO.Body.get(nearId)
-                    local n = SAO.Perception.tell(myKey65, nearId,
-                        SAO.Controller.tick(), true)
-                    if n and n > 0 then
-                        if tb65 then
-                            pcall(function()
-                                tb65:Say("Right. I'll keep that in mind.")
-                            end)
-                        end
-                        HaloTextHelper.addGoodText(playerObj,
-                            "they note " .. tostring(n)
-                            .. (n == 1 and " thing" or " things"))
-                        -- Being useful is standing, on the same scale
-                        -- everything else in this codebase moves it.
-                        SAO.Standing.adjustTrust(nearId, myKey65, 0.03)
-                    else
-                        if tb65 then
-                            pcall(function()
-                                tb65:Say("Nothing I didn't know.")
-                            end)
-                        end
-                        HaloTextHelper.addText(playerObj,
-                            "nothing new to them")
-                    end
+            local rec19 = SAO.Identity.get(nearId)
+            if rec19 and rec19.knox and SAO.Neighbours
+                and SAO.Neighbours.addPersonOptions then
+                pcall(function()
+                    SAO.Neighbours.addPersonOptions(person, playerObj, nearId)
                 end)
             end
         end
+        -- [B27] You can pass on what you have seen - one definition,
+        -- shared with the neighbour's superimposed root ([C7]).
+        H.addTellOption(person, playerObj, nearId)
         -- [B20] You can treat them. The same vanilla action the
         -- survivors now use, with the player as the doctor - so YOUR
         -- Doctor level sets how long the dressing holds, exactly as
@@ -1131,6 +1207,34 @@ local function fillMenu(playerNum, context, worldobjects)
                             end
                         end)
                 end
+                -- [C20] Verb parity with the framework the county
+                -- absorbed (DR-024): his people answered "regroup"
+                -- and "unstick", so ours do - his labels, the
+                -- county's machinery underneath.
+                sub:addOption("regroup on me", nil, function()
+                    coAgent.holdPosition = nil
+                    coAgent.followTight = true
+                    local me20 = getSpecificPlayer(0)
+                    if me20 and SAO.Controller.orderTravel(nearId,
+                        math.floor(me20:getX()), math.floor(me20:getY()),
+                        math.floor(me20:getZ())) then
+                        log(nearId .. " regroups on you")
+                    end
+                end)
+                sub:addOption("get unstuck", nil, function()
+                    -- A stuck walk is a route holding a dead goal:
+                    -- cancel it, clear the body's intent, and let the
+                    -- next decision issue fresh ([C18]'s route law
+                    -- makes the fresh order stick).
+                    pcall(function() SAO.Locomotion.cancel(nearId) end)
+                    pcall(function()
+                        local b20 = SAO.Body.get(nearId)
+                        if b20 and SAOJavaBridge then
+                            SAOJavaBridge:unstick(b20)
+                        end
+                    end)
+                    log(nearId .. " shakes loose; their next step is fresh")
+                end)
                 sub:addOption("check that building", nil, function()
                     local sq = nil
                     for _, o in ipairs(worldobjects or {}) do
@@ -1146,6 +1250,74 @@ local function fillMenu(playerNum, context, worldobjects)
                         end
                     end
                 end)
+                -- [C4] The wheels, as a clear order. "Get in" names
+                -- the vehicle nearest what you clicked (or nearest
+                -- you); the walk and the paired boarding are the
+                -- Controller's. "Step out" is the paired exit - the
+                -- mesh and the seat move together, both ways.
+                do
+                    local vBody = SAO.Body.get(nearId)
+                    local seated = false
+                    if vBody then
+                        pcall(function()
+                            seated = vBody:getVehicle() ~= nil
+                        end)
+                    end
+                    if seated then
+                        sub:addOption("step out of the vehicle", nil,
+                            function()
+                                local okOut = false
+                                pcall(function()
+                                    okOut = SAOJavaBridge:unseatFromVehicle(
+                                        vBody)
+                                end)
+                                if okOut then
+                                    coAgent.riding = nil
+                                    log(nearId .. " steps out on your word")
+                                else
+                                    log(nearId .. " could not step out - "
+                                        .. "the vehicle must be stopped")
+                                end
+                            end)
+                    elseif vBody then
+                        local cx, cy = nil, nil
+                        for _, o in ipairs(worldobjects or {}) do
+                            local ok, s = pcall(function()
+                                return o:getSquare()
+                            end)
+                            if ok and s then
+                                cx, cy = s:getX(), s:getY()
+                                break
+                            end
+                        end
+                        if cx then
+                            -- [C4] How far from the click a vehicle can
+                            -- stand and still be "the one you named".
+                            -- Click tolerance, not the Controller's
+                            -- fold distance - same figure, two rules.
+                            local NAME_VEHICLE_REACH = 12.0
+                            local spot = ""
+                            pcall(function()
+                                spot = tostring(
+                                    SAOJavaBridge:nearestBoardableVehicle(
+                                        vBody, cx, cy, NAME_VEHICLE_REACH))
+                            end)
+                            local vx, vy = spot:match("^(-?%d+)@(-?%d+)$")
+                            if vx then
+                                sub:addOption("get in the vehicle", nil,
+                                    function()
+                                        coAgent.holdPosition = nil
+                                        coAgent.boardAsk = {
+                                            x = tonumber(vx),
+                                            y = tonumber(vy),
+                                        }
+                                        log(nearId .. " makes for the "
+                                            .. "vehicle you named")
+                                    end)
+                            end
+                        end
+                    end
+                end
             end
         end
         -- Player-company designations ([A19], C4/S5): a companion (or
@@ -1237,14 +1409,19 @@ local function fillMenu(playerNum, context, worldobjects)
             -- stretch of fence you actually use - had no verb.
             --
             -- The house is the honest default; this is how it stops
-            -- being the whole story. Bounded by the errand radius,
-            -- which is already the county's word for "near enough to
-            -- be part of daily life", so no new number is invented -
-            -- and refused over anyone else's ground, because taking
-            -- that is a different verb this county does not have.
-            local svE31 = SandboxVars and SandboxVars.SurvivorAwareness
-                or nil
-            local reach31 = (svE31 and tonumber(svE31.ErrandRadius))
+            -- being the whole story. Bounded by the span of daily
+            -- ground - the yard, the shed, the stretch of fence you
+            -- actually use - and refused over anyone else's ground,
+            -- because taking that is a different verb this county
+            -- does not have.
+            --
+            -- [C25] This borrowed the errand dial's name while
+            -- meaning something else entirely: how far past its edge
+            -- a claim may grow in one take is PROPERTY law, not an
+            -- errand, and it did not die with the dial (DR-027). The
+            -- span is the perception probe's own - what you can see
+            -- from your fence line is near enough to call yours.
+            local reach31 = (SAO.Needs and SAO.Needs.PERCEPTION_TILES)
                 or 12
             local dx31 = math.max(mine31.minX - px31,
                 px31 - mine31.maxX, 0)
@@ -1670,6 +1847,15 @@ local function fillMenu(playerNum, context, worldobjects)
     local dbg = county:getNew(county)
     county:addSubMenu(dbgOpt, dbg)
     dbg:addOption("Standing web (console)", nil, H.standingWeb)
+    -- [C6] The inspect harness: the panel opens on the survivor under
+    -- the cursor, and the bound key (options screen, [SAO]) toggles
+    -- it anywhere. Reading, never teaching - the window is not a
+    -- pathway.
+    if nearId and SAO.Inspect and SAO.Inspect.show then
+        dbg:addOption("Inspect (panel)", nil, function()
+            SAO.Inspect.show(nearId)
+        end)
+    end
     -- [B21] What this world contains. Discovered from the live
     -- script registry, so it reports the operator's actual load
     -- rather than anything this mod was told to expect.
@@ -1719,6 +1905,30 @@ local function fillMenu(playerNum, context, worldobjects)
         end)
         dbg:addOption("Pillars report", nil, function()
             log(SAO.Controller.describe(H.activeId))
+        end)
+        -- [C28] The speech budget, measured where inference would
+        -- actually run (SPEECH_ML_DESIGN.md: model size is a
+        -- measurement, not a guess). One click, a ladder of model
+        -- shapes, the numbers in the console - that log is the
+        -- receipt the design waits on.
+        dbg:addOption("Measure the speech budget", nil, function()
+            if not SAOJavaBridge then
+                log("no bridge; the budget needs the jar")
+                return
+            end
+            pcall(function()
+                for _, shape in ipairs({
+                    { 64, 4 }, { 128, 4 }, { 256, 4 },
+                    { 256, 8 }, { 512, 8 },
+                }) do
+                    local report = SAOJavaBridge:inferenceBudgetProbe(
+                        shape[1], shape[2], 30)
+                    SAO.Log.line("BUDGET", tostring(report))
+                end
+                SAO.Log.line("BUDGET",
+                    "measured on the game thread - a worker thread"
+                    .. " would lift the per-frame ceiling")
+            end)
         end)
         dbg:addOption("What they carry", nil, function()
             local rec = SAO.Identity.get(H.activeId)

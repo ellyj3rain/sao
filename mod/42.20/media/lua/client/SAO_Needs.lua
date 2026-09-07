@@ -14,6 +14,19 @@ SAO = SAO or {}
 SAO.Needs = SAO.Needs or {}
 local N = SAO.Needs
 
+-- [C25] How far a body NOTICES (DR-027). This was the ErrandRadius
+-- sandbox dial, and the operator ruled the dial a lie about what it
+-- measured: "They're operating off of social structures and social
+-- incentives and personal desires and understanding and awareness.
+-- It's not, oh, you can move within a radius of twelve." Twelve
+-- tiles is the span of the probe - what is close enough to see and
+-- walk straight to - and that is ALL it is. How far a person will GO
+-- is knowledge and desire now: the county's places, searched nearest
+-- first, committed to by need (SAO.Places.nearestOffering, the
+-- controller's knowledge step). A perception span is not a leash,
+-- and it is nobody's option.
+N.PERCEPTION_TILES = 12
+
 -- [B47] One door out: everything this module says goes
 -- through the shared logger.
 local function log(msg) SAO.Log.line("NEED", msg) end
@@ -90,7 +103,7 @@ end
 function N.findSource(id, body, radius)
     if not SAOJavaBridge then return nil end
     local ok, s = pcall(function()
-        return SAOJavaBridge:findFoodSource(body, radius or 12)
+        return SAOJavaBridge:findFoodSource(body, radius or N.PERCEPTION_TILES)
     end)
     if not ok or type(s) ~= "string" or s == "" then return nil end
     local x, y, z, name = string.match(s, "^(%-?%d+):(%-?%d+):(%-?%d+):(.*)$")
@@ -140,7 +153,7 @@ end
 function N.findWater(id, body, radius)
     if not SAOJavaBridge then return nil end
     local ok, s = pcall(function()
-        return SAOJavaBridge:findWaterSource(body, radius or 12)
+        return SAOJavaBridge:findWaterSource(body, radius or N.PERCEPTION_TILES)
     end)
     if not ok or type(s) ~= "string" or s == "" then return nil end
     local x, y, z = string.match(s, "^(%-?%d+):(%-?%d+):(%-?%d+)$")
@@ -171,7 +184,7 @@ end
 function N.findGear(id, body, radius)
     if not SAOJavaBridge then return nil end
     local ok, s = pcall(function()
-        return SAOJavaBridge:findWeaponUpgrade(body, radius or 12)
+        return SAOJavaBridge:findWeaponUpgrade(body, radius or N.PERCEPTION_TILES)
     end)
     if not ok or type(s) ~= "string" or s == "" then return nil end
     local x, y, z, name = string.match(s, "^(%-?%d+):(%-?%d+):(%-?%d+):(.*)$")
@@ -487,7 +500,7 @@ end
 function N.findHearth(id, body, radius)
     if not SAOJavaBridge then return nil end
     local ok, s = pcall(function()
-        return SAOJavaBridge:hearthNear(body, radius or 12)
+        return SAOJavaBridge:hearthNear(body, radius or N.PERCEPTION_TILES)
     end)
     if not ok or type(s) ~= "string" or s == "" then return nil end
     local x, y, z, fuel, lit =
@@ -586,7 +599,7 @@ end
 function N.findAmmo(id, body, radius)
     if not SAOJavaBridge then return nil end
     local ok, s = pcall(function()
-        return SAOJavaBridge:findAmmoSource(body, radius or 12)
+        return SAOJavaBridge:findAmmoSource(body, radius or N.PERCEPTION_TILES)
     end)
     if not ok or type(s) ~= "string" or s == "" then return nil end
     local x, y, z, name = string.match(s, "^(%-?%d+):(%-?%d+):(%-?%d+):(.*)$")

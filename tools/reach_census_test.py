@@ -56,7 +56,11 @@ from reach_scan import bare_reaches, line_of           # noqa: E402
 # The backlog as [B47] left it, measured by the rebuilt reader.
 # Falling is progress and must be recorded here; rising is a finding.
 CENSUS = {
-    "SAO_Controller.lua": 14,
+    # [C18] 14 -> 13: the shot-origin test ("was the person I can see
+    # standing where the shot I heard came from") was a bare 4.0 and is
+    # now SHOT_ORIGIN_REACH, named apart from the route retarget slack
+    # that shares its value.
+    "SAO_Controller.lua": 13,
     "SAO_Harness.lua": 2,
     "SAO_Population.lua": 1,
     "SAO_UI.lua": 1,

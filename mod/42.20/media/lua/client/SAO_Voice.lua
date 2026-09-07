@@ -159,6 +159,12 @@ local EVENTS = {
     wheels = { "I'll take the car.",
                "Keys are in it. We can get further today.",
                "Beats walking." },
+    board = { "Shove over, then.",
+              "In I get.",
+              "Mind the door." },
+    stepOut = { "Stretching my legs.",
+                "Out I come.",
+                "Solid ground again." },
     learning = { "Show me that again?",
                  "Huh. I'd have done it the hard way.",
                  "You've done this before." },
@@ -317,10 +323,17 @@ local function speak(id, body, line, tick, force, answering)
     if not body or not line then return end
     local sv = SandboxVars and SandboxVars.SurvivorAwareness or nil
     if sv and sv.Voice == false then return end
-    if lastLine[id] == line and not force then return end
+    -- [C26] An answer ANSWERS (R-005). [B46] let the murmur cooldown
+    -- and the repeat-line guard eat replies to a direct click, and
+    -- the operator's verdict from play was exact: talk does far less
+    -- than even what is advertised. Both guards exist to space
+    -- out VOLUNTEERED lines; a person spoken to answers even if they
+    -- just spoke and even in the same words - that is what people do.
+    if lastLine[id] == line and not force and not answering then return end
     local ms = nowMs()
     local last = ms and lastSpokeMs[id] or nil
-    if not force and ms and last and (ms - last) < COOLDOWN_MS then
+    if not force and not answering and ms and last
+        and (ms - last) < COOLDOWN_MS then
         return
     end
     -- The quiet ones keep more to themselves: talkativeness scales the

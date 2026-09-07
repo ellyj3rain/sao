@@ -20,10 +20,39 @@ local STALL_TICKS = 300   -- identical verdict with no arrival for this long = g
 -- through the shared logger.
 local function log(msg) SAO.Log.line("LOCO", msg) end
 
+-- [C18] How far a goal must move before a LIVE route is worth
+-- restarting. Under a tile is the same errand; a re-path costs the
+-- whole route and any transition in flight.
+local RETARGET_REACH = 2.0
+
 function Loco.order(id, body, x, y, z, running)
     if not SAOJavaBridge then
         log("FAIL order " .. tostring(id) .. ": no java bridge")
         return false
+    end
+    -- [C18] Never restart a route that is already running to this goal.
+    --
+    -- The controller re-decides on its own cadence, and every decision
+    -- re-issued the destination whether or not the last one was still
+    -- being walked. Each order recomputes the path from scratch, so the
+    -- body advanced about half a tile per re-order and an in-progress
+    -- window or fence climb ([C4]) was cancelled mid-transition and
+    -- started over - `TURNING_TO_FENCE -> STARTED_FENCE_CLIMB ->
+    -- TURNING_TO_FENCE` forever. The route eventually reported Failed,
+    -- which returned the survivor to IDLE, where the same believed
+    -- threat sent them straight back to FLEE.
+    --
+    -- The operator's first session on this build: 292 FLEE -> IDLE and
+    -- 292 IDLE -> FLEE, and a crowd standing in a yard going nowhere
+    -- (F-049). Holding the live route is what lets a walk finish.
+    local job = Loco.jobs[id]
+    if job and not job.done and job.body == body and job.goal then
+        local dx = (job.goal.x or 0) - x
+        local dy = (job.goal.y or 0) - y
+        if (job.goal.z or 0) == z
+            and dx * dx + dy * dy <= RETARGET_REACH * RETARGET_REACH then
+            return true
+        end
     end
     local ok, verdict = pcall(function()
         if running then return SAOJavaBridge:moveToPaced(body, x, y, z, true) end

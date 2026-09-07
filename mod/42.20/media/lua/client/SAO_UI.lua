@@ -120,6 +120,15 @@ function SAOCountyWindow:build()
         local jv = SAOJavaBridge and SAOJavaBridge:getVersion() or nil
         if jv and jv ~= "" then row("running " .. tostring(jv)) end
     end)
+    -- [C8] The corpse net's holding count, shown only when nonzero.
+    -- Each entry lives about two seconds, so a number that stays up
+    -- means the net is not firing. [C13] Plain copy (DR-018).
+    pcall(function()
+        local pending = SAO.Controller.pendingCorpseCount()
+        if pending > 0 then
+            row(pending .. " corpse conversion(s) pending")
+        end
+    end)
     -- [B33] A seam that disabled itself leaves a world that looks
     -- normal. Said once, at the top, and only when there is something
     -- to say - the console already carries the detail.
@@ -642,6 +651,37 @@ function SAOCountyWindow:build()
     return rows
 end
 
+-- [C6] The row renderer, shared with the inspect window: one drawing
+-- discipline, one fitText, no copied block (Border 14's law applies
+-- to the mod's own windows before anyone else's).
+SAO.UI = SAO.UI or {}
+SAO.UI.fitText = fitText
+function SAO.UI.drawRows(win, rows)
+    local x = 12
+    local y = win:titleBarHeight() + 8
+    local lineS = getTextManager():getFontHeight(FONT_S) + 2
+    local lineM = getTextManager():getFontHeight(FONT_M) + 4
+    for _, r in ipairs(rows or {}) do
+        if y > win.height - 24 then
+            win:drawText("...", x, y, 0.6, 0.6, 0.6, 1, FONT_S)
+            break
+        end
+        if r.kind == "header" then
+            y = y + 4
+            win:drawText(fitText(r.text, FONT_M, win.width - x * 2),
+                x, y, 0.88, 0.86, 0.70, 1, FONT_M)
+            y = y + lineM
+            win:drawRect(x, y - 2, win.width - x * 2, 1,
+                0.5, 0.50, 0.48, 0.40)
+        else
+            win:drawText(
+                fitText(r.text, FONT_S, win.width - (x + 6) - x),
+                x + 6, y, 0.80, 0.82, 0.80, 1, FONT_S)
+            y = y + lineS
+        end
+    end
+end
+
 function SAOCountyWindow:render()
     ISCollapsableWindow.render(self)
     -- [B18] The window LIVES: [B18] put live claims at the top of a
@@ -655,30 +695,7 @@ function SAOCountyWindow:render()
             self.rows = self:build()
         end
     end
-    local rows = self.rows or {}
-    local x = 12
-    local y = self:titleBarHeight() + 8
-    local lineS = getTextManager():getFontHeight(FONT_S) + 2
-    local lineM = getTextManager():getFontHeight(FONT_M) + 4
-    for _, r in ipairs(rows) do
-        if y > self.height - 24 then
-            self:drawText("...", x, y, 0.6, 0.6, 0.6, 1, FONT_S)
-            break
-        end
-        if r.kind == "header" then
-            y = y + 4
-            self:drawText(fitText(r.text, FONT_M, self.width - x * 2),
-                x, y, 0.88, 0.86, 0.70, 1, FONT_M)
-            y = y + lineM
-            self:drawRect(x, y - 2, self.width - x * 2, 1,
-                0.5, 0.50, 0.48, 0.40)
-        else
-            self:drawText(
-                fitText(r.text, FONT_S, self.width - (x + 6) - x),
-                x + 6, y, 0.80, 0.82, 0.80, 1, FONT_S)
-            y = y + lineS
-        end
-    end
+    SAO.UI.drawRows(self, self.rows)
 end
 
 function SAOCountyWindow:refresh()

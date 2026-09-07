@@ -6,6 +6,7 @@ import java.util.List;
 import zombie.characters.IsoPlayer;
 import zombie.characters.component.AIComponent;
 import zombie.iso.IsoCell;
+import zombie.iso.IsoDirections;
 import zombie.iso.IsoGridSquare;
 import zombie.iso.IsoObject;
 import zombie.iso.objects.IsoDoor;
@@ -232,6 +233,25 @@ public final class SAOMovement {
             return door.IsOpen() ? "OPENING_DOOR" : "FAILED_LOCKED_DOOR";
         }
 
+        // [C4] The hoppable edge. The engine's own paths cross low
+        // fences; the drive walked into them forever and the job died
+        // at the stall counter with no name ("stalled:ManualRoute" was
+        // the whole verdict). The square knows its edges exactly - ask
+        // it the way the neighbour framework taught us to ask, face
+        // the crossing, and climb through the engine's own state.
+        IsoObject hoppable = current.getHoppableTo(next);
+        if (hoppable == null) {
+            hoppable = current.getWallHoppableTo(next);
+        }
+        if (hoppable != null) {
+            shell.faceLocationF(nextX + 0.5f, nextY + 0.5f);
+            if (shell.shouldBeTurning()) {
+                return "TURNING_TO_FENCE";
+            }
+            shell.climbOverFence(cardinal(deltaX, deltaY));
+            return "STARTED_FENCE_CLIMB";
+        }
+
         IsoWindow window = current.getWindowTo(next);
         if (window != null) {
             if (window.isBarricaded()) {
@@ -290,6 +310,42 @@ public final class SAOMovement {
             return "STARTED_WINDOW_CLIMB";
         }
         return "CLEAR";
+    }
+
+    private static IsoDirections cardinal(int deltaX, int deltaY) {
+        if (deltaX == 1) return IsoDirections.E;
+        if (deltaX == -1) return IsoDirections.W;
+        if (deltaY == 1) return IsoDirections.S;
+        return IsoDirections.N;
+    }
+
+    /** [C4] Follow recovery. When the pathfinder has no route to a
+     * close same-floor target - the player went through a window or
+     * over a fence, and the polygon map does not route a shell after
+     * them - interact with the one edge between here and there,
+     * through the same transition logic a captured route uses, on a
+     * synthesized single step toward the target. Never a smash: the
+     * follow keeps mayForceEntry wherever the composition left it. */
+    public static String traverseToward(
+        SAOIsoPlayerShell shell, SAORouteState state, int tx, int ty) {
+        IsoGridSquare current = shell.getCurrentSquare();
+        if (current == null) {
+            return "FAILED_NO_CURRENT_SQUARE";
+        }
+        int stepX = Integer.compare(tx, current.getX());
+        int stepY = Integer.compare(ty, current.getY());
+        if (stepX == 0 && stepY == 0) {
+            return "CLEAR";
+        }
+        int nextX = current.getX();
+        int nextY = current.getY();
+        if (Math.abs(tx - current.getX()) >= Math.abs(ty - current.getY())) {
+            nextX += stepX;
+        } else {
+            nextY += stepY;
+        }
+        float[] node = { nextX + 0.5f, nextY + 0.5f, current.getZ() };
+        return handleRouteTransition(shell, state, node);
     }
 
     /** KNF.applyHumanMovementIntent, walk pace: body-level intent plus the

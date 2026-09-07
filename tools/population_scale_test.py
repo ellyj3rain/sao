@@ -102,13 +102,20 @@ def main():
         ceiling_for(target_for(n, c), c) > target_for(n, c)
         for n in range(0, 200))
 
-    # 5. Zero means ask the map, on the screen and in the Lua both.
+    # 5. The screen's default is derive - said in words since [C12]
+    # (DR-017): the governed switch ships OFF, and the number beside
+    # it has no sentinel floor. The INTERNAL zero still means ask the
+    # map, manufactured by the policy reader alone.
     ok["screen default is derive (Population)"] = bool(re.search(
+        r"option SurvivorAwareness\.PopulationGoverned \{\s*\n\s*"
+        r"type = boolean, default = false,", opts)) and bool(re.search(
         r"option SurvivorAwareness\.Population \{\s*\n\s*type = integer,"
-        r" min = 0, max = 500, default = 0,", opts))
+        r" min = 1, max = 500, default = 216,", opts))
     ok["screen default is derive (Newcomers)"] = bool(re.search(
+        r"option SurvivorAwareness\.NewcomersGoverned \{\s*\n\s*"
+        r"type = boolean, default = false,", opts)) and bool(re.search(
         r"option SurvivorAwareness\.Newcomers \{\s*\n\s*type = integer,"
-        r" min = 0, max = 500, default = 0,", opts))
+        r" min = 1, max = 1500, default = 500,", opts))
 
     links = {
         "the map is asked": "local function countRegions()" in src

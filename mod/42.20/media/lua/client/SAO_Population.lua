@@ -27,6 +27,14 @@ local tickCounter = 0
 local booted = false
 local regionPoints = nil    -- flattened { {x,y,z,region=name}, ... }
 local regionPointsByProfession = nil   -- F-030: declared BEFORE its writer
+-- [C17] The crowd ledger's session cursor: the bridge counts pool
+-- takes monotonically per session; this remembers how many were
+-- already folded into the durable ledger.
+local poolTakenSeen = 0
+-- [C17] How many taken zombies restitution returns per daily pulse.
+-- A pace, not a quota: a late enable repays accumulated history at a
+-- walk instead of dumping it into one night.
+local RESTITUTION_PER_DAY = 6
 
 -- [B47] One door out. `log` is what happened once; `tally` is
 -- what happens once per person, counted rather than printed.
@@ -75,11 +83,21 @@ local function cfg()
     end
     return {
         enable = sv == nil or sv.Enable ~= false,
-        population = (sv and tonumber(sv.Population)) or 0,    -- schema default (DR-008)
+        -- [C12] Representation is not implementation (DR-017): the
+        -- screen offers a worded switch and a plain number, and the
+        -- INTERNAL sentinel (0 = derive from the map, the DR-008
+        -- schema default) is manufactured here and only here. An old
+        -- world that wrote a number into the sentinel-era dial should
+        -- flip the new switch to keep governing it.
+        population = (sv and sv.PopulationGoverned == true)
+            and ((tonumber(sv.Population)) or 216) or 0,
         -- [B28] The ceiling arrivals may raise the county TO.
         -- Equal to or below population means a closed county:
         -- the number you start with is the number there is.
-        newcomers = (sv and tonumber(sv.Newcomers)) or 0,
+        -- [C12] Same shape: ungovered follows population 3:1
+        -- downstream, spelled internally as the 0 sentinel.
+        newcomers = (sv and sv.NewcomersGoverned == true)
+            and ((tonumber(sv.Newcomers)) or 500) or 0,
         -- [B29] How many walk together when the road brings
         -- anyone. The month is unchanged; this is magnitude,
         -- which [B28] settled is the honest knob because how
@@ -87,9 +105,12 @@ local function cfg()
         roadTraffic = (sv and tonumber(sv.RoadTraffic)) or 2,
         -- [B33] How hard the country outside is pushing. Not a
         -- schedule and not a second magnitude: it scales how much the
-        -- month shortens as the sky stays quiet. 0 leaves the month
-        -- exactly as it was, which is what an untouched world gets.
-        roadPressure = (sv and tonumber(sv.RoadPressure)) or 0.0,
+        -- month shortens as the sky stays quiet. [C12] The screen
+        -- says it in words (six steps); this is where the word
+        -- becomes the scalar the road maths always ran on - step 1
+        -- leaves the month exactly as it was, which is what an
+        -- untouched world gets.
+        roadPressure = (((sv and tonumber(sv.RoadPressureStep)) or 1) - 1),
         materialize = mat,
         hibernate = hib,
         refillDays = (sv and tonumber(sv.RefillDays)) or 2.0,
@@ -328,6 +349,26 @@ local lastHighwayLogAt = -9
 local function hoursNow()
     local ok, h = pcall(function() return GameTime.getInstance():getWorldAgeHours() end)
     return ok and h or 0
+end
+
+-- [C11] The sandbox mortality window in hours, mirrored from
+-- BodyDamage.pickMortalityDuration (javap, F-047): 1 Instant -> 0;
+-- 2 -> 0-30 seconds; 3 -> 0.5-1 minute; 4 -> 3-12 hours; 5 -> 2-3
+-- DAYS (48-72h, the Apocalypse default); 6 -> 1-2 weeks; 7 Never ->
+-- no window (the engine marks those fake-infected, so biteHoursLeft
+-- never reports them and this mirror is unreached). Used ONLY when a
+-- body went dark infected before the engine stamped its own clock;
+-- the trait scaling (Resilient x1.25, Prone to Illness x0.75) is
+-- omitted here and stated in the batch record.
+local function biteWindowHours()
+    local m = 5
+    pcall(function() m = SandboxVars.ZombieLore.Mortality or 5 end)
+    if m == 1 then return 0 end
+    if m == 2 then return ZombRand(30) / 3600 end
+    if m == 3 then return (0.5 + ZombRand(50) / 100) / 60 end
+    if m == 4 then return 3 + ZombRand(900) / 100 end
+    if m == 6 then return 168 + ZombRand(16800) / 100 end
+    return 48 + ZombRand(2400) / 100
 end
 
 -- [B28] THREE WORDS, and they are not synonyms. The operator drew
@@ -739,6 +780,19 @@ local function materializeBand(px, py, conf)
                         return SAOJavaBridge:awaken(body, rec.hibernation, elapsed)
                     end)
                     log(rec.id .. " awakens: " .. (okA and tostring(journal) or "failed"))
+                    -- [C26] The pack dressed them - or it did not
+                    -- (R-006): a pack with no worn garments wakes a
+                    -- naked person, silently. Verified the same way a
+                    -- fresh body is, and loud only when abnormal.
+                    pcall(function()
+                        local rep = tostring(
+                            SAOJavaBridge:ensureDressed(body, "OfficeWorker"))
+                        if rep:find("NAKED", 1, true)
+                            or rep:find("redressed", 1, true) then
+                            log(rec.id .. " woke " .. rep
+                                .. " - the pack held no clothes (R-006)")
+                        end
+                    end)
                 end
                 -- A person owns things. What they carry follows who they are:
                 -- the aggressive keep a weapon to hand; everyone has a knife
@@ -923,6 +977,18 @@ local function materializeBand(px, py, conf)
                             and tostring(read) or nil
                     end)
                 end
+                -- [C3] One person, one name: the papers a body carries
+                -- say what the menu says. Runs on EVERY materialization
+                -- - it heals journals titled while the name pipeline
+                -- stamped "Unnamed" over the engine's name, and ensures
+                -- the ID card death will drop, named with the living
+                -- name. A nameless record carries no papers.
+                local paperName = SAO.Identity.knownName(rec)
+                if paperName and SAOJavaBridge then
+                    pcall(function()
+                        SAOJavaBridge:refreshIdentityPapers(body, paperName)
+                    end)
+                end
                 SAO.Controller.adopt(rec)
                 log(rec.id .. " is nearby (" .. string.format("%.0f", d) .. " tiles)")
             end
@@ -936,16 +1002,40 @@ local function materializeBand(px, py, conf)
                 pcall(function()
                     local b15 = SAO.Body.get(id)
                     if b15 and SAOJavaBridge then
-                        local bd = b15:getBodyDamage()
-                        if bd and bd:getNumPartsBitten() > 0 then
-                            rec.bitten = true
-                            rec.bittenAtHours = hoursNow()
-                        end
+                        -- [C11] The bite itself is not recorded any
+                        -- more - the belief layer reads it off the
+                        -- body while loaded, and the record's
+                        -- actionable fact is the INFECTION and its
+                        -- clock below. The old bitten flag's one
+                        -- reader was the invented formula this batch
+                        -- removed; the drop is declared in
+                        -- save_compat's ledger.
                         local inf = SAOJavaBridge:woundInfection(b15)
                         if inf and inf > 0 then
                             rec.woundInfected = true
                         else
                             rec.woundInfected = nil
+                        end
+                        -- [C11] The engine's own bite clock rides the
+                        -- record (F-047): the infected die at a
+                        -- deterministic hour, read off the body's own
+                        -- course. "unpicked" means infected but the
+                        -- course had not stamped its clock - mirror
+                        -- the sandbox window from now (the same table
+                        -- pickMortalityDuration draws from; traits
+                        -- omitted, stated in Batches/C11).
+                        local left = SAOJavaBridge:biteHoursLeft(b15)
+                        if left == "" or left == nil then
+                            rec.knoxInfected = nil
+                            rec.biteDeathAtHours = nil
+                        elseif left == "unpicked" then
+                            rec.knoxInfected = true
+                            rec.biteDeathAtHours =
+                                hoursNow() + biteWindowHours()
+                        else
+                            rec.knoxInfected = true
+                            rec.biteDeathAtHours =
+                                hoursNow() + (tonumber(left) or 0)
                         end
                     end
                 end)
@@ -1024,27 +1114,20 @@ local DESPERATE = 10000000
 -- live body reads a 0..1 need off the engine, and a dormant one has
 -- [B37]'s days-without measured against the distance that need has
 -- to run before it kills.
--- [B39] How far a day can reach, from the county's own option.
+-- [C25] How far a day can reach: knowledge, not a dial (DR-027).
 --
--- `chooseDayPlace` used a hardcoded 24. The screen already asks the
--- player this question - ErrandRadius: "How far a survivor looks for
--- food, water, weapons, and ammunition when need sends them
--- searching" - and it governed the live path five times and the
--- dormant path never. The same asymmetry [B39] found in Desperation,
--- one option over.
---
--- Doubled, because the two are not the same span in time: a live
--- survivor's errand is one search and a dormant survivor's day is a
--- walk. At the shipped default of 12 this is exactly the 24 that was
--- hardcoded, so nothing moves unless the player moves it - which is
--- the point of it being an option.
-local DAY_REACH_FACTOR = 2
-
-local function dayReach()
-    local sv = SandboxVars and SandboxVars.SurvivorAwareness or nil
-    local errand = (sv and tonumber(sv.ErrandRadius)) or 12
-    return errand * DAY_REACH_FACTOR
-end
+-- [B39] pointed the ErrandRadius option at this path to cure a
+-- live/dormant asymmetry, and the operator then ruled the option
+-- itself a lie about what it measured: "They're operating off of
+-- social structures and social incentives and personal desires and
+-- understanding and awareness. It's not, oh, you can move within a
+-- radius of twelve." So the dial is gone from the screen entirely,
+-- and a dormant day reaches as far as the county's own derived
+-- horizons: the home neighborhood (half the engine's own cell) for
+-- a day of ordinary living, and need past patience cutting ahead of
+-- curiosity to the nearest KNOWN place that offers the thing -
+-- searched from where they stand, committed to by desperation, the
+-- same law the loaded half walks in the controller.
 
 local function desperationLine()
     local sv = SandboxVars and SandboxVars.SurvivorAwareness or nil
@@ -1057,13 +1140,39 @@ local function daysWithout(rec, field, today)
     return math.max(0, today - last)
 end
 
+-- Whether a place is off limits to this person today: feud ground
+-- always, somebody else's believed claim until desperation. One
+-- function because [C25] gave the county two choosers - need and
+-- curiosity - and two copies of a law is how they drift apart.
+local function placeBarred(id, myG, b, place, desperate)
+    if myG then
+        for eg, fb in pairs((b and b.factions) or {}) do
+            if eg ~= myG
+                and SAO.Standing.feudBetween(myG, eg)
+                and place.cx >= fb.minX - SAO.Standing.FEUD_DETOUR
+                and place.cx <= fb.maxX + SAO.Standing.FEUD_DETOUR
+                and place.cy >= fb.minY - SAO.Standing.FEUD_DETOUR
+                and place.cy <= fb.maxY + SAO.Standing.FEUD_DETOUR then
+                return true
+            end
+        end
+    end
+    -- [B39] Somebody else's ground. Belief-gated, like every other
+    -- claim in this mod: a survivor who does not KNOW a place is
+    -- held walks into it, and the one who knows respects it right up
+    -- until the county's own desperation line, and then does not.
+    if not desperate then
+        local held = nil
+        pcall(function()
+            held = SAO.Perception.believesClaimed(id, place.cx, place.cy)
+        end)
+        if held and held ~= id then return true end
+    end
+    return false
+end
+
 local function chooseDayPlace(id, rec, reach)
     if not (SAO.Places and rec.homeX) then return nil end
-
-    local ok, places = pcall(function()
-        return SAO.Places.around(rec.homeX, rec.homeY, reach)
-    end)
-    if not ok or not places or #places == 0 then return nil end
 
     local myG = SAO.Standing.groupOf(id)
     local b = SAO.Perception.beliefs[id]
@@ -1084,6 +1193,34 @@ local function chooseDayPlace(id, rec, reach)
     end)
     local desperate = urgency >= line
 
+    -- [C25] Need cuts ahead of curiosity (DR-027). Past patience,
+    -- the day goes to the nearest KNOWN place offering the pressing
+    -- thing - searched from where they STAND, because knowledge
+    -- moves with the walker - reaching past the neighborhood only
+    -- when desperation commits them. Thirst outranks hunger on the
+    -- one scale both are measured on: how far along the way to
+    -- dying of it somebody is.
+    if dry > THIRST_PATIENCE or hungry > HUNGER_PATIENCE then
+        local offer = "food"
+        if dry > THIRST_PATIENCE
+            and (dry / THIRST_LETHAL) >= (hungry / HUNGER_LETHAL) then
+            offer = "water"
+        end
+        local okN, known = pcall(SAO.Places.nearestOffering,
+            rec.x or rec.homeX, rec.y or rec.homeY, offer,
+            desperate and SAO.Places.commitHorizon()
+                or SAO.Places.comfortHorizon())
+        if okN and known
+            and not placeBarred(id, myG, b, known, desperate) then
+            return known
+        end
+    end
+
+    local ok, places = pcall(function()
+        return SAO.Places.around(rec.homeX, rec.homeY, reach)
+    end)
+    if not ok or not places or #places == 0 then return nil end
+
     local best, bestScore
     for _, place in ipairs(places) do
         -- [B37] What it offers TODAY, not what its rooms are. After
@@ -1092,33 +1229,7 @@ local function chooseDayPlace(id, rec, reach)
         local anyNow = false
         for _ in pairs(now) do anyNow = true; break end
         if anyNow then
-            local barred = false
-            if myG then
-                for eg, fb in pairs((b and b.factions) or {}) do
-                    if eg ~= myG
-                        and SAO.Standing.feudBetween(myG, eg)
-                        and place.cx >= fb.minX - SAO.Standing.FEUD_DETOUR
-                        and place.cx <= fb.maxX + SAO.Standing.FEUD_DETOUR
-                        and place.cy >= fb.minY - SAO.Standing.FEUD_DETOUR
-                        and place.cy <= fb.maxY + SAO.Standing.FEUD_DETOUR then
-                        barred = true
-                        break
-                    end
-                end
-            end
-            -- [B39] Somebody else's ground. Belief-gated, like
-            -- every other claim in this mod: a survivor who does not
-            -- KNOW a place is held walks into it, and the one who
-            -- knows respects it right up until the county's own
-            -- desperation line, and then does not.
-            if not barred and not desperate then
-                local held = nil
-                pcall(function()
-                    held = SAO.Perception.believesClaimed(
-                        id, place.cx, place.cy)
-                end)
-                if held and held ~= id then barred = true end
-            end
+            local barred = placeBarred(id, myG, b, place, desperate)
             if not barred then
                 -- Somewhere never seen beats anywhere already seen,
                 -- because that is where the county is still unknown to
@@ -1178,7 +1289,11 @@ local function dormantLife(conf)
                     if not rec.dayGoalX
                         or (math.abs(rec.x - rec.dayGoalX) < 3
                             and math.abs(rec.y - rec.dayGoalY) < 3) then
-                        local reach = dayReach()
+                        -- [C25] The day reaches the home
+                        -- neighborhood - the county's derived
+                        -- horizon, not a dial (DR-027). Need can
+                        -- reach further inside chooseDayPlace.
+                        local reach = SAO.Places.comfortHorizon()
                         -- [B37] Arriving is learning. The goal just
                         -- reached was a real building, so they now
                         -- know it is there and what it holds - the
@@ -1395,15 +1510,22 @@ local function dormantAttrition()
                     and SAO.Census.classOf(rec.occupation) or nil
                 if cls == "hardened" then risk = risk * 0.7
                 elseif cls == "settled" then risk = risk * 1.3 end
-                -- [B10] The bite follows you into the dark: a person
-                -- who went dormant bitten is dying out there, and the
-                -- odds are the engine's own turning odds, not a
-                -- number of mine - steep, and steeper as the days
-                -- pass. An infected wound argues more slowly.
-                if rec.bitten then
-                    local since = hoursNow() - (rec.bittenAtHours or 0)
-                    risk = risk + 0.10 + math.min(0.5, since / 480)
-                elseif rec.woundInfected then
+                -- [C11] The bite follows you into the dark - on the
+                -- engine's own clock, not by an accumulating chance.
+                -- F-047: a bite infects with CERTAINTY (no roll exists
+                -- on this build), and the infected die exactly at
+                -- infectionTime + pickMortalityDuration. The record
+                -- carries that hour, read off the body as it went dark
+                -- or mirrored from the sandbox table; past it, death
+                -- is not a risk, it is due. The old "+0.10 +
+                -- min(0.5, since/480)" claimed to be the engine's own
+                -- turning odds and matched nothing in the jar.
+                local biteDue = rec.biteDeathAtHours ~= nil
+                    and nowHours >= rec.biteDeathAtHours
+                if rec.woundInfected then
+                    -- The per-part WOUND infection (the septic kind,
+                    -- not Knox). The engine gives it no dormant clock,
+                    -- so this multiplier is OUR tuning, and says so.
                     risk = risk * 1.6
                 end
                 local pg3 = SAO.Standing.groupOf(id)
@@ -1444,22 +1566,29 @@ local function dormantAttrition()
                     risk = risk * math.min(2.0,
                         1.0 + 0.15 * (hungryDays - HUNGER_PATIENCE))
                 end
-                if ZombRand(100000) < math.floor(risk * 100000) then
+                if biteDue
+                    or ZombRand(100000) < math.floor(risk * 100000) then
                     local deadGroup = SAO.Standing.groupOf(id)
-                    -- [B10] The cause is the truth of it: a bite
-                    -- kills as a bite, and the lessons machinery
-                    -- teaches accordingly. Everything after - news,
-                    -- grief, the election - is the same for any death.
-                    if rec.bitten then
-                        -- [B10] A bite death IS a turning, and people
-                        -- know what a bite means. No body is
-                        -- fabricated out there - only the claim, which
-                        -- rides the word when it finds the county.
+                    -- [C11] Who rises mirrors the engine's own law
+                    -- (shouldBecomeZombieAfterDeath, F-044): the
+                    -- infected turn, and under Everyone's Infected
+                    -- every death turns. No body is fabricated out
+                    -- there - only the claim, which rides the word
+                    -- when it finds the county.
+                    local turns = biteDue or rec.knoxInfected or false
+                    pcall(function()
+                        if SandboxVars.ZombieLore.Transmission == 3 then
+                            turns = true
+                        end
+                    end)
+                    if turns then
                         rec.turnedDormant = true
-                        log(rec.id .. " died of the bite, alone")
+                        log(rec.id .. (biteDue
+                            and " died of the bite, alone"
+                            or " died out there, and rose"))
                     end
                     SAO.Identity.markDead(rec, tickCounter,
-                        rec.bitten and "zombie" or "the county took them")
+                        turns and "zombie" or "the county took them")
                     rec.deathNewsAt = nowHours + 24 + ZombRand(48)
                     if deadGroup
                         and SAO.Standing.leaderOf(deadGroup) == id then
@@ -1869,7 +1998,35 @@ local function inhabitKnox()
                         end)
                     end
                 end
-                local rec = SAO.Identity.ensure(id, name, "", kx, ky, 0)
+                -- [C3] One person, one name. The neighbour framework
+                -- names its people from its own profile table and never
+                -- writes the descriptor - the descriptor carries a
+                -- random engine name the neighbour never shows, and
+                -- adopting THAT put two names on one body: this menu's
+                -- and the neighbour's ID card's. The profile name is
+                -- the person's name; the descriptor is aligned below so
+                -- every reader agrees.
+                local ksName = nil
+                pcall(function()
+                    local KSNS = KnoxSurvivors
+                    if type(KSNS) == "table" and KSNS.GetActor
+                        and KSNS.GetActorProfile then
+                        local actor = KSNS.GetActor(kid)
+                        local prof = actor and KSNS.GetActorProfile(actor)
+                        if prof and prof.name
+                            and tostring(prof.name) ~= "" then
+                            ksName = tostring(prof.name)
+                        end
+                    end
+                end)
+                local rec = SAO.Identity.ensure(id, ksName or name, "", kx, ky, 0)
+                if rec and ksName and rec.forename ~= ksName then
+                    log(id .. " answers to " .. ksName .. " (the county had "
+                        .. tostring(rec.forename) .. ") - one person, one name")
+                    rec.forename = ksName
+                    rec.surname = ""
+                    SAO.Identity.noteRenamed()
+                end
                 if rec and not rec.knox then
                     rec.knox = true
                     local monthsAlive = (tonumber(hours) or 0) / (24.0 * 30.0)
@@ -1920,6 +2077,21 @@ local function inhabitKnox()
 
                     if okB and kbody then
                         SAO.Body.knox[id] = kbody
+                        -- [C3] Align the descriptor to the profile name
+                        -- so the scanner, knoxBodyByName, and the
+                        -- neighbour's own card say one string from here.
+                        if ksName then
+                            pcall(function()
+                                SAOJavaBridge:alignKnoxName(kbody, ksName)
+                            end)
+                        end
+                        -- [C8] Our id on his body, our key only - the
+                        -- hands-off rule ([A17]) is about HIS keys. Death
+                        -- and the turn carry the mark through the
+                        -- engine's own modData copies (F-044).
+                        pcall(function()
+                            kbody:getModData().SAOPersonId = id
+                        end)
                         SAO.Controller.adoptPassive(rec)
                     end
                 end
@@ -2008,6 +2180,64 @@ local function bootDigest(conf)
         .. tostring(resolveTarget(conf))
         .. ((conf.population and conf.population > 0)
             and " (sandbox-governed)" or " (sized from the map)"))
+    -- [C17] Restitution, on the same daily pulse (DR-021's state
+    -- agreement). The ledger is the truth regardless of the dial:
+    -- every body the pool took is counted durable. The dial decides
+    -- whether the county RESTORES them - one virtual zombie on
+    -- unloaded town ground per body taken, capped per day so a late
+    -- enable repays history at a walk, never as a dump; placed far
+    -- from you, jittered off the town point, through the engine's
+    -- own addVirtualZombie (javap: static (int,int)). The layer only
+    -- ever repays the ledger's debt - it invents no bodies the pool
+    -- did not take (the derived totals stay unratified until the
+    -- census has measured, DR-021).
+    pcall(function()
+        local ledger = ModData.getOrCreate("SurvivorAwareness_CrowdLedger")
+        ledger.taken = ledger.taken or 0
+        ledger.added = ledger.added or 0
+        if SAOJavaBridge then
+            local n = tonumber(SAOJavaBridge:poolTakenCount()) or 0
+            local delta = n - (poolTakenSeen or 0)
+            poolTakenSeen = n
+            if delta > 0 then ledger.taken = ledger.taken + delta end
+        end
+        local on = false
+        pcall(function()
+            on = SandboxVars.SurvivorAwareness.RestoreTakenZombies == true
+        end)
+        if not on then return end
+        local owed = ledger.taken - ledger.added
+        if owed <= 0 then return end
+        local points = loadRegionPoints()
+        if not points or #points == 0 then return end
+        local px, py = playerPos()
+        local placed = 0
+        local tries = 0
+        while placed < math.min(owed, RESTITUTION_PER_DAY)
+            and tries < 40 do
+            tries = tries + 1
+            local pt = points[ZombRand(#points) + 1]
+            if pt and pt.x and pt.y then
+                local far = true
+                if px and py then
+                    local dx, dy = pt.x - px, pt.y - py
+                    far = (dx * dx + dy * dy)
+                        > conf.hibernate * conf.hibernate
+                end
+                if far then
+                    addVirtualZombie(
+                        math.floor(pt.x) + ZombRand(21) - 10,
+                        math.floor(pt.y) + ZombRand(21) - 10)
+                    placed = placed + 1
+                end
+            end
+        end
+        if placed > 0 then
+            ledger.added = ledger.added + placed
+            log("restitution: " .. placed .. " of " .. owed
+                .. " taken zombies returned to town ground")
+        end
+    end)
     -- [B33] Whether combat actually installed. The melee gate
     -- needs Instrumentation, which the shipping load path gets by
     -- self-attaching; when that fails the gate stays shut and

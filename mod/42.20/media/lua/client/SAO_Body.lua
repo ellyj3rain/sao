@@ -26,6 +26,61 @@ local function localSlotUser()
     return ok and lp or nil
 end
 
+-- [C26] Where a body may wake (DR-028). Property lines delineate:
+-- the operator watched three strangers stand up in their own kitchen
+-- (R-006), and ruled the line - "a person never wakes uninvited
+-- inside somebody else's held ground." A person's OWN group's claim
+-- is home ground (a settled block populates its own houses), and
+-- everything between claims is fair game; only a FOREIGN line pushes
+-- a waking body out, through its nearest wall, and a home that
+-- predated the claim moves with them. And no two of the county's
+-- bodies wake on one square - three did, in that kitchen.
+-- Just past the wall: outside the line, still on their street -
+-- DR-028's between-ground is fair game, so the push is as small as
+-- being out at all.
+local WAKE_MARGIN = 2
+
+local function wakeSquareFor(rec)
+    local x, y = math.floor(rec.x or 0), math.floor(rec.y or 0)
+    local moved = nil
+    pcall(function()
+        local mine = SAO.Standing.groupOf(rec.id)
+        for who, c in pairs(SAO.Standing.allGroupClaims()) do
+            if who ~= mine
+                and x >= c.minX and x <= c.maxX
+                and y >= c.minY and y <= c.maxY then
+                local nx = ((x - c.minX) <= (c.maxX - x))
+                    and (c.minX - WAKE_MARGIN) or (c.maxX + WAKE_MARGIN)
+                local ny = ((y - c.minY) <= (c.maxY - y))
+                    and (c.minY - WAKE_MARGIN) or (c.maxY + WAKE_MARGIN)
+                -- one axis through the nearer wall is enough
+                if math.abs(nx - x) <= math.abs(ny - y) then
+                    x = nx
+                else
+                    y = ny
+                end
+                moved = who
+                break
+            end
+        end
+    end)
+    local taken = {}
+    for _, b in pairs(Body.active) do
+        pcall(function()
+            taken[math.floor(b:getX()) .. ":" .. math.floor(b:getY())] = true
+        end)
+    end
+    local ox, oy = x, y
+    for _, o in ipairs({ {0,0},{1,0},{-1,0},{0,1},{0,-1},
+                         {1,1},{-1,-1},{2,0},{0,2} }) do
+        if not taken[(ox + o[1]) .. ":" .. (oy + o[2])] then
+            x, y = ox + o[1], oy + o[2]
+            break
+        end
+    end
+    return x, y, moved
+end
+
 function Body.materialize(rec)
     if not rec or not rec.id then
         log("materialize refused: no record")
@@ -36,6 +91,7 @@ function Body.materialize(rec)
         return Body.active[rec.id]
     end
 
+    local wx, wy, movedBy = wakeSquareFor(rec)
     local slotBefore = localSlotUser()
 
     -- Construction. Preferred path is the Java agent's shell class: a bare
@@ -47,7 +103,7 @@ function Body.materialize(rec)
     if SAOJavaBridge then
         local okJ, shell = pcall(function()
             return SAOJavaBridge:spawnShellNamed(rec.forename, rec.surname,
-                math.floor(rec.x), math.floor(rec.y), math.floor(rec.z))
+                wx, wy, math.floor(rec.z))
         end)
         if okJ and shell then
             body, how = shell, "java-shell"
@@ -62,11 +118,13 @@ function Body.materialize(rec)
             return nil
         end
         pcall(function()
-            desc:setForename(rec.forename)
-            desc:setSurname(rec.surname)
+            -- [C3] Placeholders never overwrite the engine's generated
+            -- name - the same rule the Java path enforces.
+            if rec.forename ~= "Unnamed" then desc:setForename(rec.forename) end
+            if rec.surname ~= "Survivor" then desc:setSurname(rec.surname) end
         end)
         local okBody, bare = pcall(function()
-            return IsoPlayer.new(getCell(), desc, math.floor(rec.x), math.floor(rec.y), math.floor(rec.z))
+            return IsoPlayer.new(getCell(), desc, wx, wy, math.floor(rec.z))
         end)
         if not okBody or not bare then
             log("FAIL construct for " .. rec.id .. ": " .. tostring(bare))
@@ -92,10 +150,49 @@ function Body.materialize(rec)
     if not okDress then log("visual: dressInRandomOutfit threw: " .. tostring(dressErr)) end
     if not okModel then log("visual: resetModelNextFrame threw: " .. tostring(modelErr)) end
 
+    -- [C26] Verified, not assumed (R-006): dressInRandomOutfit
+    -- returned cleanly on two bodies the operator watched stand naked
+    -- in a kitchen - "dressed=true" was this log believing the call
+    -- instead of the body. The bridge counts what is actually WORN,
+    -- retries, falls back to a census outfit, and reports which.
+    -- Hibernated people are judged after their pack dresses them at
+    -- awaken, not here.
+    local wornReport = "pack-pending"
+    if not rec.hibernation and SAOJavaBridge then
+        local fallback = nil
+        pcall(function()
+            fallback = SAO.Census and SAO.Census.outfitOf
+                and SAO.Census.outfitOf(rec.occupation) or nil
+        end)
+        local okE, rep = pcall(function()
+            return SAOJavaBridge:ensureDressed(body, fallback or "OfficeWorker")
+        end)
+        wornReport = okE and tostring(rep) or ("threw:" .. tostring(rep))
+    end
+
+    if movedBy then
+        log(rec.id .. " woke outside " .. tostring(movedBy)
+            .. "'s line at " .. wx .. "," .. wy .. " (DR-028)")
+        pcall(function()
+            local c = SAO.Standing.allGroupClaims()[movedBy]
+            if c and rec.homeX and rec.homeX >= c.minX
+                and rec.homeX <= c.maxX and rec.homeY >= c.minY
+                and rec.homeY <= c.maxY then
+                rec.homeX, rec.homeY = wx, wy
+                log(rec.id .. " re-homed off held ground - the line"
+                    .. " stands at all times (DR-028)")
+            end
+        end)
+    end
+    pcall(function()
+        SAO.Identity.updatePosition(rec, wx, wy, math.floor(rec.z or 0))
+    end)
+
     log("materialized " .. rec.id .. " via " .. tostring(how)
         .. " at " .. rec.x .. "," .. rec.y .. "," .. rec.z
         .. " setNpc=" .. tostring(okFlag) .. " isNpc()=" .. tostring(okRead and flag)
-        .. " dressed=" .. tostring(okDress) .. " model=" .. tostring(okModel))
+        .. " dressed=" .. tostring(okDress) .. " model=" .. tostring(okModel)
+        .. " worn=" .. wornReport)
 
     if localSlotUser() ~= slotBefore then
         log("SLOT VIOLATION for " .. rec.id .. ": local player slot changed (F-006)")
@@ -116,6 +213,13 @@ function Body.materialize(rec)
     end
 
     Body.active[rec.id] = body
+    -- [C8] The person rides the body's modData. The engine copies this
+    -- table onto the corpse at death (IsoDeadBody ctor common tail) and
+    -- onto whatever rises (reanimate's copyTable) - F-044 - so this one
+    -- write is the whole identity chain through the turn. Key name
+    -- RATIFIED by the operator (DR-019); the sibling project reads the
+    -- same key verbatim.
+    pcall(function() body:getModData().SAOPersonId = rec.id end)
     return body
 end
 

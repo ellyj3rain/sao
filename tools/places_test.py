@@ -453,8 +453,11 @@ def drive():
             "SAO.Lessons.desperationBump(id)" in pop,
         "somebody else's ground is belief-gated":
             "held = SAO.Perception.believesClaimed(" in pop,
+        # [C25] moved the claim gate into placeBarred, the ONE
+        # barring law both choosers (need and curiosity) share.
         "and respected only below the line":
-            "if not barred and not desperate then" in pop,
+            "local function placeBarred" in pop
+            and "if not desperate then" in pop,
         # [B40] Everybody wakes up somewhere, and until now nobody
         # knew the one place they had certainly been. `originAnchored`
         # was written at genesis and read nowhere in the tree - one

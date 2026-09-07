@@ -28,8 +28,8 @@ of skill.
 - **One alphanumeric batch sequence.** Work lands in numbered batches with a
   record under `Batches/`. Letter changes mark development eras; they do not
   create separate history systems. The A era closed at `[A29]`, the B era
-  closed at `[B52]`, and the chronology continues in the C era: `C1` is the
-  next development batch.
+  closed at `[B52]`, and the chronology continues in the C era; the tip is
+  `BATCH_LOG.md`'s last row.
 - **Batch shape.** A batch is a coherent development unit, closed when the
   work is done, not when a message ends. Closing a batch means the record, the
   `BATCH_LOG.md` row, and the `SESSION_STATE.md` advance, in that order, plus

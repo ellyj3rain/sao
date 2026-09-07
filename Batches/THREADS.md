@@ -18,7 +18,7 @@ were illustrative rather than complete. Every batch is now classified.
 
 Instruments and audits measured against the genuine artifact, engine or code.
 
-**Batches**: `A2`, `A3`, `A4`, `A16`, `A23`, `A24`, `B5`, `B25`, `B26`, `B31`, `B32`, `B33`, `B34`, `B35`, `B37`, `B38`, `B40`, `B41`, `B42`, `B44`, `B47`, `B50`
+**Batches**: `A2`, `A3`, `A4`, `A16`, `A23`, `A24`, `B5`, `B25`, `B26`, `B31`, `B32`, `B33`, `B34`, `B35`, `B37`, `B38`, `B40`, `B41`, `B42`, `B44`, `B47`, `B50`, `C8`, `C9`, `C11`, `C14`, `C18`
 
 **Owes**: play receipts for everything; that debt is the project's standing condition.
 
@@ -26,7 +26,7 @@ Instruments and audits measured against the genuine artifact, engine or code.
 
 Telemetry and the acquisition record - how learning is stored and how every fact says how it arrived.
 
-**Batches**: `A23`
+**Batches**: `A23`, `C6`, `C16`
 
 **Owes**: telemetry interpretation is read from play sessions.
 
@@ -34,7 +34,7 @@ Telemetry and the acquisition record - how learning is stored and how every fact
 
 The gate, its borders, and the repository's own discipline.
 
-**Batches**: `A1`, `A16`, `B5`, `B12`, `B14`, `B16`, `B30`, `B31`, `B32`, `B36`, `B41`, `B42`, `B43`, `B44`, `B45`, `B51`, `B52`
+**Batches**: `A1`, `A16`, `B5`, `B12`, `B14`, `B16`, `B30`, `B31`, `B32`, `B36`, `B41`, `B42`, `B43`, `B44`, `B45`, `B51`, `B52`, `C1`, `C2`
 
 **Owes**: Border 47's counted remainder (named, not manufactured into a group).
 
@@ -44,7 +44,7 @@ The gate, its borders, and the repository's own discipline.
 
 The county before the collapse, the fall itself, and what it teaches.
 
-**Batches**: `A6`, `A10`, `A11`, `A17`, `A29`, `B3`, `B9`
+**Batches**: `A6`, `A10`, `A11`, `A17`, `A29`, `B3`, `B9`, `C8`, `C10`, `C11`
 
 **Owes**: outbreak live-confirmation (the engine's infection on shells, witnessed in play).
 
@@ -52,7 +52,7 @@ The county before the collapse, the fall itself, and what it teaches.
 
 Who a person is, what they believe, how they came to believe it, and what time does to it.
 
-**Batches**: `A5`, `A6`, `A9`, `A11`, `A13`, `A15`, `A24`, `A27`, `B8`, `B9`, `B10`, `B11`, `B21`, `B22`, `B24`, `B27`, `B39`, `B49`
+**Batches**: `A5`, `A6`, `A9`, `A11`, `A13`, `A15`, `A24`, `A27`, `B8`, `B9`, `B10`, `B11`, `B21`, `B22`, `B24`, `B27`, `B39`, `B49`, `C3`, `C4`, `C5`, `C7`, `C10`, `C15`, `C20`
 
 **Owes**: the operator's trait-correlation question; the relations rows of the dead (irreversible).
 
@@ -60,7 +60,7 @@ Who a person is, what they believe, how they came to believe it, and what time d
 
 Who the county holds: census, age, occupation, arrivals, and growth.
 
-**Batches**: `A7`, `A17`, `A18`, `A19`, `B28`, `B37`, `B38`, `B48`
+**Batches**: `A7`, `A17`, `A18`, `A19`, `B28`, `B37`, `B38`, `B48`, `C9`, `C16`, `C17`, `C20`, `C21`
 
 **Owes**: growth rate vs the 360 ceiling - the arithmetic is with the operator.
 
@@ -90,7 +90,7 @@ Companies, creeds, elections, feuds, pacts, schisms, and the player's standing i
 
 Leaving, being watched for, and the worry that sends somebody after.
 
-**Batches**: `A28`, `B1`, `B19`
+**Batches**: `A28`, `B1`, `B19`, `C4`, `C18`
 
 **Owes**: NPC driving (engine-absent; named, never promised); corpse discovery as a search outcome.
 
@@ -98,6 +98,6 @@ Leaving, being watched for, and the worry that sends somebody after.
 
 The county's wire and every other channel that carries knowledge between people.
 
-**Batches**: `A26`, `B18`, `B27`, `B29`, `B46`
+**Batches**: `A26`, `B18`, `B27`, `B29`, `B46`, `C5`
 
 **Owes**: authored broadcasts stay prose (stated, refused to parse); free-text or dictated speech is direction only.

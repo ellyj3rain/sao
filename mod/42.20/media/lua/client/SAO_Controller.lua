@@ -24,6 +24,14 @@ local Ctl = SAO.Controller
 
 -- id -> { rec, state, stateSince, nextDecisionAt, fleeTarget }
 Ctl.agents = Ctl.agents or {}
+-- [C8] Dead shells briefly held for the corpse net. The engine only
+-- makes a corpse - and only a corpse arms the turn - when die() runs,
+-- and the on-ground state that calls it is a state a quiet course
+-- death may never reach (F-044). A body waits here through a short
+-- grace so the death fall gets its animation, then the bridge calls
+-- the engine's own die(), idempotent by its own guards.
+Ctl.pendingCorpses = Ctl.pendingCorpses or {}
+local CORPSE_GRACE_TICKS = 120   -- ~2s of frames at 60fps; a fall, not a wait
 
 local tickCount = 0
 
@@ -71,6 +79,26 @@ local WITNESS_FRESH = 120     -- frames (~2s at 60fps): recently enough to be NO
 -- actually have said something.
 local ARRIVAL_REACH = 3       -- tiles: close enough to have got there
 local TALK_REACH = 6          -- tiles: close enough to be company
+-- [C4] tiles: a follow target this close on this floor whose walk
+-- failed is behind ONE edge - the window they climbed, the fence they
+-- hopped - and the edge is worked instead of ordering another walk
+-- into the same wall. Shares WITNESS_REACH's figure by coincidence of
+-- scale, named apart because it governs a different rule.
+local FOLLOW_TRAVERSE_REACH = 10.0
+-- [C4] tiles: a companion this near the player's vehicle makes for a
+-- seat instead of walking after the bumper.
+local VEHICLE_FOLD_REACH = 12.0
+-- [C18] tiles: how close a person you can SEE must be to a shot you
+-- only HEARD before you judge them its author. Named because it is
+-- the same number as a route's retarget slack and an entirely
+-- different question - moving one must never move the other.
+local SHOT_ORIGIN_REACH = 2.0
+-- [C10] tiles: how far around the promise site the keeper looks for
+-- the ONE risen body carrying the person's mark. Wider than arrival
+-- (the body wanders while the keeper walks), narrower than the
+-- follow reaches because past it the sighting is stale and the walk
+-- should re-arm on the next sighting instead.
+local PROMISE_BODY_REACH = 8.0
 
 -- [B47] Arrival is readable from outside, because the same rule
 -- reads backwards: if three tiles means you have got there, then a
@@ -85,7 +113,6 @@ local function policy()
     return {
         desperation = (sv and tonumber(sv.Desperation)) or 0.7,
         trustToCompany = (sv and tonumber(sv.TrustToCompany)) or 0.5,
-        errandRadius = (sv and tonumber(sv.ErrandRadius)) or 12,
     }
 end
 
@@ -563,6 +590,47 @@ local function nearestHostilePerson(id, tick, fromX, fromY)
     return nil
 end
 
+-- [C25] The knowledge step (DR-027). The probe is what a body
+-- NOTICES; the county's places are what they KNOW. When nothing is
+-- in sight, need reaches for the nearest KNOWN place offering the
+-- thing - nearest first, spent shelves and dry taps already
+-- disbelieved inside Places - and how far a person commits is their
+-- own need against the county's derived horizons (half a cell for
+-- comfort, a cell and a half for real need - the engine's own
+-- neighborhood quantum, never a dial). What comes back walks the
+-- SAME law a noticed source walks at the call sites: stores, claims,
+-- desperation - knowledge earns no exemptions. And standing inside
+-- the chosen place with the probe still blind means the knowledge
+-- did not pan out: answering nil there hands the walk back to
+-- roaming instead of re-ordering the same doorstep forever.
+--
+-- `needValue` is the 0..1 survival need driving the errand; gear and
+-- ammo pass 0 because equipment wants convenience, not a journey -
+-- nobody crosses the county starving for a crowbar.
+local function knownSource(id, body, needValue, offer)
+    if not (SAO.Places and SAO.Places.nearestOffering) then return nil end
+    local okP, bx, by = pcall(function()
+        return body:getX(), body:getY()
+    end)
+    if not okP or not bx then return nil end
+    local committed = needValue >= policy().desperation
+        + SAO.Lessons.desperationBump(id)
+    local horizon = committed and SAO.Places.commitHorizon()
+        or SAO.Places.comfortHorizon()
+    local okK, place = pcall(SAO.Places.nearestOffering,
+        bx, by, offer, horizon)
+    if not okK or not place then return nil end
+    if math.max(math.abs(place.cx - bx), math.abs(place.cy - by))
+            <= SAO.Needs.PERCEPTION_TILES then
+        log(id .. " stands where they knew to look for " .. offer
+            .. " and sees nothing worth taking")
+        return nil
+    end
+    log(id .. " knows a place with " .. offer .. " and sets out"
+        .. (committed and " (committed)" or ""))
+    return place.cx, place.cy, 0
+end
+
 local function decide(id, agent, body)
     local tick = tickCount
     -- Riding ([B1]): a passenger is a passenger - no needs-driven
@@ -570,9 +638,47 @@ local function decide(id, agent, body)
     -- Self-healing: a rider whose vehicle is gone resumes life.
     if agent.riding then
         local okRV, rv = pcall(function() return body:getVehicle() end)
-        if okRV and rv then return end
-        agent.riding = nil
-        setState(agent, id, "IDLE", "back on foot")
+        if okRV and rv then
+            -- [C4] The door works both ways: a companion whose player
+            -- has left this vehicle steps out after them - the paired
+            -- exit puts the mesh on the ground with the flag.
+            if agent.companioning then
+                local playerOut = false
+                pcall(function()
+                    local me0 = getSpecificPlayer(0)
+                    playerOut = me0 ~= nil and me0:getVehicle() ~= rv
+                end)
+                if playerOut then
+                    local okOut = false
+                    pcall(function()
+                        okOut = SAOJavaBridge:unseatFromVehicle(body)
+                    end)
+                    if okOut then
+                        agent.riding = nil
+                        pcall(function()
+                            SAO.Voice.onEvent(id, "stepOut", tick)
+                        end)
+                        setState(agent, id, "IDLE", "steps out after you")
+                    end
+                end
+            end
+            if agent.riding then return end
+        else
+            agent.riding = nil
+            setState(agent, id, "IDLE", "back on foot")
+        end
+    end
+    -- [C4] The seat outranks the flag: `riding` lives on the runtime
+    -- agent table and is lost when a body is re-adopted, which left a
+    -- seated survivor running the whole decision loop from inside a
+    -- car - walk orders issued from a passenger seat. A body found
+    -- seated IS riding, whatever the table says.
+    if not agent.riding then
+        local okSeat, seated = pcall(function() return body:getVehicle() end)
+        if okSeat and seated then
+            agent.riding = true
+            return
+        end
     end
     local bodyX, bodyY = body:getX(), body:getY()
     local threat = SAO.Perception.nearestBelievedZombie(id, tick, bodyX, bodyY)
@@ -964,7 +1070,11 @@ local function decide(id, agent, body)
                 return
             end
             if not agent.nextWaterAt or tick >= agent.nextWaterAt then
-                local wx, wy, wz = SAO.Needs.findWater(id, body, policy().errandRadius)
+                local wx, wy, wz = SAO.Needs.findWater(id, body)
+                -- [C25] Nothing in sight: the nearest KNOWN water.
+                if not wx then
+                    wx, wy, wz = knownSource(id, body, needs.thirst, "water")
+                end
                 if wx and needs.thirst < policy().desperation + SAO.Lessons.desperationBump(id)
                     and not mayEnterBelieved(id, wx, wy) then
                     SAO.Needs.clearWater(body)
@@ -1010,7 +1120,12 @@ local function decide(id, agent, body)
                 return
             end
             if not agent.nextForageAt or tick >= agent.nextForageAt then
-                local fx, fy, fz, fname = SAO.Needs.findSource(id, body, policy().errandRadius)
+                local fx, fy, fz, fname = SAO.Needs.findSource(id, body)
+                -- [C25] Nothing in sight: the nearest KNOWN food.
+                if not fx then
+                    fx, fy, fz = knownSource(id, body, needs.hunger, "food")
+                    if fx then fname = "a place they know" end
+                end
                 -- Store enforcement ([A25]): under watch-first, a
                 -- hungry non-watch member holds off on the COMMUNITY'S
                 -- OWN stores a while longer - the watch eats first.
@@ -1236,9 +1351,10 @@ local function decide(id, agent, body)
             if okC and type(corpses) == "string" and corpses ~= "" then
                 agent.mourned = agent.mourned or {}
                 for entry in string.gmatch(corpses, "[^|]+") do
-                    local name, cxs, cys = string.match(entry, "^([^:]+):(%-?%d+):(%-?%d+)$")
-                    local deadId = name and SAO.Identity.idByName(name)
-                    local deadRec = deadId and SAO.Identity.get(deadId)
+                    local tag, cxs, cys = string.match(entry, "^([^:]+):(%-?%d+):(%-?%d+)$")
+                    -- [C8] "@id" off the corpse's modData, or a bare
+                    -- descriptor name - one resolver reads both.
+                    local deadId, deadRec, name = SAO.Identity.resolveBodyTag(tag)
                     if deadRec and deadRec.dead and deadId ~= id
                         and not agent.mourned[deadId] then
                         local cx2, cy2 = tonumber(cxs), tonumber(cys)
@@ -1398,11 +1514,108 @@ local function decide(id, agent, body)
                     end
                     return
                 end
+                -- [C4] The clear order: asked to get in, a companion
+                -- walks to the named vehicle and takes a free seat -
+                -- never the driver's - through the paired boarding.
+                if agent.boardAsk then
+                    local bx, by = agent.boardAsk.x, agent.boardAsk.y
+                    local bdx, bdy = body:getX() - bx, body:getY() - by
+                    if bdx * bdx + bdy * bdy
+                        <= ARRIVAL_REACH * ARRIVAL_REACH then
+                        local seat = -1
+                        pcall(function()
+                            seat = SAOJavaBridge:seatInNearestVehicle(
+                                body, bx, by)
+                        end)
+                        agent.boardAsk = nil
+                        if seat and seat >= 0 then
+                            agent.riding = true
+                            pcall(function()
+                                SAO.Voice.onEvent(id, "board", tick)
+                            end)
+                            setState(agent, id, "IDLE", "takes a seat")
+                        else
+                            pcall(function()
+                                SAO.Voice.onEvent(id, "noRoom", tick)
+                            end)
+                            setState(agent, id, "IDLE",
+                                "found no seat to take")
+                        end
+                        return
+                    end
+                    if SAO.Locomotion.order(id, body,
+                        math.floor(bx), math.floor(by),
+                        math.floor(body:getZ())) then
+                        setState(agent, id, "PLAYERFOLLOW",
+                            "makes for the vehicle you named")
+                        return
+                    end
+                    agent.boardAsk = nil
+                end
+                -- [C4] The wheels fold into the walk: when the player
+                -- is IN a vehicle, walking after the bumper is not
+                -- following. Make for a free seat while it is near.
+                local pv = nil
+                pcall(function() pv = me:getVehicle() end)
+                if pv and pdist <= VEHICLE_FOLD_REACH then
+                    local vx, vy = px2, py2
+                    pcall(function() vx, vy = pv:getX(), pv:getY() end)
+                    local vdx, vdy = body:getX() - vx, body:getY() - vy
+                    if vdx * vdx + vdy * vdy
+                        <= ARRIVAL_REACH * ARRIVAL_REACH then
+                        local seat = -1
+                        pcall(function()
+                            seat = SAOJavaBridge:seatInNearestVehicle(
+                                body, vx, vy)
+                        end)
+                        if seat and seat >= 0 then
+                            agent.riding = true
+                            pcall(function()
+                                SAO.Voice.onEvent(id, "board", tick)
+                            end)
+                            setState(agent, id, "IDLE",
+                                "rides with the player")
+                            return
+                        end
+                    elseif SAO.Locomotion.order(id, body,
+                        math.floor(vx), math.floor(vy),
+                        math.floor(me:getZ())) then
+                        setState(agent, id, "PLAYERFOLLOW",
+                            "makes for the player's vehicle")
+                        return
+                    end
+                end
                 local companionGap = SAO.Disposition.followGap(id)
                 if agent.followTight then
                     companionGap = math.max(2.0, companionGap * 0.5)
                 end
                 if pdist > companionGap and pdist <= 30.0 then
+                    -- [C4] Follow through what the player crossed. A
+                    -- walk toward a close same-floor player that FAILED
+                    -- or stalled means one edge is in the way - the
+                    -- window they climbed through, the fence they
+                    -- hopped. Work that edge (open, climb, hop - never
+                    -- smash) before ordering another walk into it.
+                    local lastWalk = SAO.Locomotion.status(id)
+                    if type(lastWalk) == "string"
+                        and lastWalk:find("^done:")
+                        and not lastWalk:find("arrived")
+                        and pdist <= FOLLOW_TRAVERSE_REACH
+                        and math.floor(me:getZ()) == math.floor(body:getZ()) then
+                        local crossing = nil
+                        pcall(function()
+                            crossing = tostring(SAOJavaBridge:followTraverse(
+                                body, math.floor(px2), math.floor(py2)))
+                        end)
+                        if crossing and (crossing:find("STARTED_")
+                            or crossing:find("TURNING_")
+                            or crossing:find("OPENING_")
+                            or crossing == "CLIMBING") then
+                            setState(agent, id, "PLAYERFOLLOW",
+                                "works the crossing after you")
+                            return
+                        end
+                    end
                     local gx = math.floor(px2 + ZombRand(-1, 2))
                     local gy = math.floor(py2 + ZombRand(-1, 2))
                     if SAO.Locomotion.order(id, body, gx, gy, math.floor(me:getZ())) then
@@ -1597,7 +1810,13 @@ local function decide(id, agent, body)
         local nightNow = okGH and (gearHour >= 22.0 or gearHour < 6.0)
         if not nightNow and (not agent.nextGearAt or tick >= agent.nextGearAt) then
             agent.nextGearAt = tick + 3600
-            local gx, gy, gz, gname = SAO.Needs.findGear(id, body, policy().errandRadius)
+            local gx, gy, gz, gname = SAO.Needs.findGear(id, body)
+            -- [C25] Equipment knowledge stays in the neighborhood
+            -- (needValue 0: convenience, not a survival journey).
+            if not gx then
+                gx, gy, gz = knownSource(id, body, 0, "weapons")
+                if gx then gname = "a place they know" end
+            end
             if gx and not mayEnterBelieved(id, gx, gy) then
                 SAO.Needs.clearGear(body)
                 log(id .. " covets a weapon in a claimed place; wanting is not taking")
@@ -1622,7 +1841,14 @@ local function decide(id, agent, body)
         if not ammoNight and (not agent.nextAmmoAt or tick >= agent.nextAmmoAt)
             and SAO.Needs.needsAmmo(body) then
             agent.nextAmmoAt = tick + 3600
-            local ax, ay, az, aname = SAO.Needs.findAmmo(id, body, policy().errandRadius)
+            local ax, ay, az, aname = SAO.Needs.findAmmo(id, body)
+            -- [C25] Ammunition lives where weapons live - the offer
+            -- vocabulary has no finer word, and that is honest: the
+            -- gun-shop shelf is where a person would look.
+            if not ax then
+                ax, ay, az = knownSource(id, body, 0, "weapons")
+                if ax then aname = "a place they know" end
+            end
             if ax and not mayEnterBelieved(id, ax, ay) then
                 SAO.Needs.clearAmmo(body)
                 log(id .. " knows of ammo in a claimed place; wanting is not taking")
@@ -2309,7 +2535,11 @@ local function decide(id, agent, body)
                     if okC and type(corpses) == "string" and corpses ~= "" then
                         local mine = SAO.Perception.beliefs[id]
                         for entry in corpses:gmatch("[^|]+") do
-                            local cn = entry:match("^(.-):")
+                            -- [C8] Beliefs stay name-keyed; the resolver
+                            -- turns an "@id" tag back into the name this
+                            -- witness would have known them by.
+                            local _, _, cn = SAO.Identity.resolveBodyTag(
+                                entry:match("^(.-):"))
                             if cn and mine and mine.people[cn] then
                                 knewThem = true
                                 break
@@ -2760,14 +2990,30 @@ local function decide(id, agent, body)
             local pdx = pt.x - body:getX()
             local pdy = pt.y - body:getY()
             if pdx * pdx + pdy * pdy <= ARRIVAL_REACH * ARRIVAL_REACH then
+                -- [C10] The promise swings at the BODY: the [C8] mark
+                -- names the one risen body, and mercy for a stranger's
+                -- body standing closer is nobody's mercy. When the body
+                -- has wandered off, the promise stays carried and the
+                -- next sighting re-arms the walk - never the nearest.
                 agent.promiseTarget = nil
-                SAO.Standing.clearPromise(pt.deadId)
-                pcall(function()
-                    SAO.Voice.onEvent(id, "promiseKept", tick)
+                local okM, verdict = pcall(function()
+                    return SAOJavaBridge:beginCombatWithPersonId(
+                        body, pt.deadId, PROMISE_BODY_REACH)
                 end)
-                SAO.Controller.orderEngageNearest(id, true)
-                log(id .. " keeps the promise to "
-                    .. tostring(pt.name))
+                verdict = tostring(okM and verdict or verdict)
+                if verdict:find("COMBAT_STARTED", 1, true) then
+                    SAO.Standing.clearPromise(pt.deadId)
+                    pcall(function()
+                        SAO.Voice.onEvent(id, "promiseKept", tick)
+                    end)
+                    setState(agent, id, "ENGAGE", "keeps the promise")
+                    log(id .. " keeps the promise to "
+                        .. tostring(pt.name))
+                else
+                    log(id .. " stood where " .. tostring(pt.name)
+                        .. " was seen and the body is gone (" .. verdict
+                        .. ") - the promise is carried, not dropped")
+                end
                 return
             end
             if SAO.Locomotion.order(id, body,
@@ -4243,6 +4489,10 @@ local function updateAgent(id, agent)
         pcall(function()
             SAO.Identity.updatePosition(agent.rec, body:getX(), body:getY(), body:getZ())
         end)
+        -- [C8] Hold the body for the corpse net before the handles go:
+        -- if the engine's own state machine makes the corpse first, the
+        -- net's die() call finds it done and does nothing.
+        Ctl.pendingCorpses[id] = { body = body, at = tickCount }
         SAO.Body.active[id] = nil   -- forget the handle; never removeFromWorld a corpse
         SAO.Body.knox[id] = nil     -- [B51] both handles on both branches
         Ctl.agents[id] = nil
@@ -4694,7 +4944,9 @@ local function updateAgent(id, agent)
                     if okC8 and type(corpses) == "string"
                         and corpses ~= "" then
                         for entry in corpses:gmatch("[^|]+") do
-                            local cn = entry:match("^(.-):")
+                            -- [C8] Same resolver as every corpse read.
+                            local _, _, cn = SAO.Identity.resolveBodyTag(
+                                entry:match("^(.-):"))
                             if cn == sName then
                                 local spb2 = sb.people[sName]
                                 if spb2 then
@@ -5237,7 +5489,8 @@ local function updateAgent(id, agent)
                             if pb.source == "observed"
                                 and (tickCount - pb.at) <= 60 then
                                 local gdx, gdy = pb.x - zb.x, pb.y - zb.y
-                                if gdx * gdx + gdy * gdy <= 4.0 then
+                                if gdx * gdx + gdy * gdy
+                                    <= SHOT_ORIGIN_REACH * SHOT_ORIGIN_REACH then
                                     local pkey = SAO.Standing.keyForObserved(pname)
                                     if SAO.Standing.trust(id, pkey) < 0.3
                                         and not SAO.Standing.isHostileTo(id, pkey) then
@@ -5385,6 +5638,20 @@ local agentFaults = {}
 -- for the caches that just need to stop existing.
 function Ctl.forget(id)
     agentFaults[tostring(id)] = nil
+    -- [C8] Belt to the sweep's braces: the net's own sweep clears an
+    -- entry the moment it fires, and the death funnel forgets one too
+    -- - so a re-fired markDead can never leave a stale hold. The one
+    -- table whose whole population is dead by design still forgets.
+    Ctl.pendingCorpses[tostring(id)] = nil
+end
+
+-- [C8] The net, countable from the Ledger: a body between its death
+-- and the ground. Emptiness here is the normal case (each entry lives
+-- one grace); the Ledger says so only when there is something to say.
+function Ctl.pendingCorpseCount()
+    local n = 0
+    for _ in pairs(Ctl.pendingCorpses) do n = n + 1 end
+    return n
 end
 -- [B27] The tick, readable from outside. The player's half of the
 -- experience loop is driven by a menu click rather than by this
@@ -5430,10 +5697,36 @@ local function onTickInner()
             end
         end
     end
+    -- [C8] The corpse net, past its grace. Without the bridge there is
+    -- no lawful die() to call, and the old gap stands stated rather
+    -- than papered over.
+    if SAOJavaBridge then
+        for pid, pend in pairs(Ctl.pendingCorpses) do
+            if tickCount - pend.at >= CORPSE_GRACE_TICKS then
+                Ctl.pendingCorpses[pid] = nil
+                local okE, verdict = pcall(function()
+                    return SAOJavaBridge:ensureCorpse(pend.body)
+                end)
+                log(pid .. " corpse net: " .. tostring(verdict)
+                    .. (okE and "" or " (threw)"))
+            end
+        end
+    end
 end
 
 local function onTick()
+    -- [C6] What one tick COSTS, for the inspect panel and its JSONL.
+    -- A measurement, not a timer: nothing in the county gates on it,
+    -- so the frame-time pacing law ([B49]) is untouched - this reads
+    -- the wall clock precisely because a cost is a wall-clock fact.
+    local startMs = nil
+    pcall(function() startMs = getTimestampMs() end)
     local ok, err = pcall(onTickInner)
+    if startMs then
+        pcall(function()
+            Ctl.lastTickMs = getTimestampMs() - startMs
+        end)
+    end
     if ok then return end
     ctlFaults = ctlFaults + 1
     if ctlFaults == 1 then

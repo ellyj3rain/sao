@@ -23,7 +23,9 @@ local function policy()
     return {
         desperation = (sv and tonumber(sv.Desperation)) or 0.7,
         trustToCompany = (sv and tonumber(sv.TrustToCompany)) or 0.5,
-        errandRadius = (sv and tonumber(sv.ErrandRadius)) or 12,
+        -- [C25] errandRadius left this table: the exchange never
+        -- read it (a write-only policy field), and the dial itself
+        -- is gone (DR-027).
     }
 end
 

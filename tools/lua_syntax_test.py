@@ -5,8 +5,9 @@ r"""Border 50 - the engine's own parser, before the game gets it.
 its own record: nothing in `check.sh` would have caught a broken one.
 The game would have, at load - which is the worst place to find out,
 and which is exactly the shape of the symptom [B44] came from. An
-operator seeing that some mods did not load cannot tell a syntax
-error in our tree from anything else that went wrong that launch.
+operator told by the game that some mods did not load cannot tell a
+syntax error in our tree from anything else that went wrong that
+launch.
 
 Every batch this project ships edits Lua. Twenty-three files, ten
 thousand lines, and until now the first thing to read any of it was

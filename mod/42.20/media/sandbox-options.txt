@@ -12,13 +12,26 @@ option SurvivorAwareness.Enable {
     page = SurvivorAwareness, translation = SurvivorAwareness_Enable,
 }
 
+/* [C12] Representation is not implementation (DR-017). The internal
+ * sentinel (population 0 = derive from the map) stays internal; the
+ * screen offers a worded switch and a plain number instead. */
+option SurvivorAwareness.PopulationGoverned {
+    type = boolean, default = false,
+    page = SurvivorAwareness, translation = SurvivorAwareness_PopulationGoverned,
+}
+
 option SurvivorAwareness.Population {
-    type = integer, min = 0, max = 500, default = 0,
+    type = integer, min = 1, max = 500, default = 216,
     page = SurvivorAwareness, translation = SurvivorAwareness_Population,
 }
 
+option SurvivorAwareness.NewcomersGoverned {
+    type = boolean, default = false,
+    page = SurvivorAwareness, translation = SurvivorAwareness_NewcomersGoverned,
+}
+
 option SurvivorAwareness.Newcomers {
-    type = integer, min = 0, max = 500, default = 0,
+    type = integer, min = 1, max = 1500, default = 500,
     page = SurvivorAwareness, translation = SurvivorAwareness_Newcomers,
 }
 
@@ -27,9 +40,14 @@ option SurvivorAwareness.RoadTraffic {
     page = SurvivorAwareness, translation = SurvivorAwareness_RoadTraffic,
 }
 
-option SurvivorAwareness.RoadPressure {
-    type = double, min = 0.0, max = 5.0, default = 0.0,
-    page = SurvivorAwareness, translation = SurvivorAwareness_RoadPressure,
+/* [C12] Worded steps, not a coded scale - the old RoadPressure double
+ * ("0 = none, 5 = an exodus") asked the player to carry a decoder. The
+ * step maps to the same internal scalar in one place (the policy
+ * reader). */
+option SurvivorAwareness.RoadPressureStep {
+    type = enum, numValues = 6, default = 1,
+    page = SurvivorAwareness, translation = SurvivorAwareness_RoadPressureStep,
+    valueTranslation = SurvivorAwareness_RoadPressureStep,
 }
 
 option SurvivorAwareness.MaterializeRadius {
@@ -57,11 +75,6 @@ option SurvivorAwareness.TrustToCompany {
     page = SurvivorAwareness, translation = SurvivorAwareness_TrustToCompany,
 }
 
-option SurvivorAwareness.ErrandRadius {
-    type = integer, min = 8, max = 20, default = 12,
-    page = SurvivorAwareness, translation = SurvivorAwareness_ErrandRadius,
-}
-
 option SurvivorAwareness.Voice {
     type = boolean, default = true,
     page = SurvivorAwareness, translation = SurvivorAwareness_Voice,
@@ -85,4 +98,12 @@ option SurvivorAwareness.DormantRisk {
 option SurvivorAwareness.HoldNeighbourPrompts {
     type = boolean, default = true,
     page = SurvivorAwareness, translation = SurvivorAwareness_HoldNeighbourPrompts,
+}
+
+/* [C17] DR-021's presence layer, first slice: restitution against the
+ * crowd ledger. Off by default until the dead census has measured
+ * (stated amendable in DR-021's record). */
+option SurvivorAwareness.RestoreTakenZombies {
+    type = boolean, default = false,
+    page = SurvivorAwareness, translation = SurvivorAwareness_RestoreTakenZombies,
 }

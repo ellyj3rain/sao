@@ -1,6 +1,6 @@
 | Document | Survivor Awareness Overhaul Roadmap |
 |---|---|
-| Version | `0.6.0.0-pre-alpha` |
+| Version | `2.1.1.0-pre-alpha` |
 | Author | ellyj3rain |
 | Repository | `ROADMAP.md` |
 | Status | CANONICAL - thread map, backlog, live gates. |
@@ -212,6 +212,53 @@ is lived, witnessed, and remembered person by person. Slices:
    the sedan is low-key, the RV carries five.
 6. The era remembered: journals, chronicle, and Talk carrying "before"
    and "the day it started" as lived claims.
+7. The shipped record on the county's calendar (DR-031): the game's
+   own broadcast schedule and dated newspapers re-keyed from "days
+   since the save began" to the dates the record itself carries
+   (July 1 to 16, 1993), driven by the living start's own day - the
+   pre-outbreak county first, then the fall in its shipped order.
+   The engine's public re-keying surface (ENGINE_CONTRACT Addendum
+   E) makes it in-process work; the Speakeasy world document
+   knox-event.md keys the record to those dates.
+
+## People through required mods (DR-032, operator-ruled 2026-09-06)
+
+The county is to have children and elders, and people with the
+conditions that shape knowledge and memory - dementia, chronic
+illness, disability, age. The engine holds none of it (ENGINE_CONTRACT
+Addendum F), so it comes through third-party mods made native
+requirements. Order:
+
+1. The catalogue: mods that add child and elder bodies; mods that add
+   cognitive, health and age conditions, and the traits-and-occupations
+   overhauls - each read from its own Workshop page or repository, with
+   Build 42 standing, dependencies and license. Held in the Speakeasy
+   catalogue world/people-mods.md beside the scoping index. Part 1
+   (bodies and age) found one child-body mod, closed and patching the
+   game directory by hand; the engine-native path for a child is a
+   scaled adult mesh (ModelInstance.scale). Elders need no model - the
+   operator ruled it 2026-09-06: the adult body with hair, condition,
+   behavior and age. Part 2 IN PROGRESS.
+2. Selection through Crucible, mod by mod: DONE 2026-09-06 (DR-032).
+   Age: Getting Old's mechanics ported. Memory and cognition: the
+   Build 42 condition mods required (Infirmities, Even More Traits,
+   Humans: Are Weak) and the memory conditions ported (Neurodiverse
+   Traits, Custom Traits' Dyslexia, Scotty's Mental Health Expansion,
+   the ADHD Trait). Substances: the dependency model taken into
+   habits. Children: native model scale plus Growing Up's systems.
+3. The batches: (a) age as a system - SAO's age drives Getting Old's
+   life-stage effects, hair greying and death of old age on SAO's
+   people; children get the age curves for speed and weight, the fear
+   floor, the literacy progression and the experience throttle; the
+   bands extend below 19 and above 68 and the census places children
+   in households. The child BODY comes FIRST, by the operator's ruling
+   on the corrected facts: SAO's Java agent instruments the animation
+   player at load so a character's bone transforms carry a per-person
+   scale (the renderer scales nobody on its own; ENGINE_CONTRACT
+   Addendum F), verified live before the age systems land. (b) the memory conditions
+   and per-person decay. (c) habits and dependency. (d) `require` for
+   the condition mods, their traits read by the census, CREDITS.md
+   entries for every source taken from.
 
 ## Speech (direction, not scheduled)
 

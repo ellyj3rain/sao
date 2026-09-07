@@ -41,6 +41,31 @@ public final class SAOKnox {
         return false;
     }
 
+    /** [C9] A body in the zombie list that is NOT a fungible zombie: a
+     * living neighbour (DR-009), a risen player, or anyone carrying an
+     * identity mark - ours ({@code SAOPersonId}, the [C8] channel) or
+     * theirs. Deletion-grade, so it fails CLOSED: a body whose identity
+     * cannot be read is treated as identity-bearing, because sparing a
+     * fungible zombie costs one zombie and deleting a person costs a
+     * person. */
+    public static boolean identityBearing(IsoZombie zombie) {
+        if (zombie == null) {
+            return false;
+        }
+        if (isKnoxHuman(zombie)) {
+            return true;
+        }
+        try {
+            if (zombie.isReanimatedPlayer()) {
+                return true;
+            }
+            se.krka.kahlua.vm.KahluaTable modData = zombie.getModData();
+            return modData != null && modData.rawget("SAOPersonId") != null;
+        } catch (Throwable ignored) {
+            return true;
+        }
+    }
+
     /** A stable identity for a Knox human: their own profile id when the
      * legacy mod stamped one (modData KnoxSurvivorId/ProfileId), else the
      * forename - two Anas stay two records ([A17] collision seam). */

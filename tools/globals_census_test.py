@@ -80,10 +80,21 @@ NEIGHBOURS = {
           "count reaches the Ledger, and `SAO.Neighbours.restore()` "
           "hands them back. Held, not replaced, and never its settings "
           "- its own three tickboxes still mean what they say.",
+    "KnoxSurvivors": "Knox Survivors' REAL global - [C3] found `KS` is "
+          "a per-file local in his tree and the [B45] hold had never "
+          "engaged. Read for the hold, the profile-name law (DR-014), "
+          "and the folded person-verbs. Since [C20] (DR-022, which "
+          "SUPERSEDED DR-009's never-driven clause) it is also "
+          "WRITTEN, at exactly two seams the absorb border holds: "
+          "`SpawnActor` (his one body door, wrapped so absorbed "
+          "people cannot be re-bodied) and `GetOption` (his two "
+          "population caps answer large so his encounter stream is "
+          "not strangled). His profile rows are mirrored, never "
+          "deleted.",
 }
 
 KNOWN = {n: OURS for n in (
-    "SAO", "SAOCountyWindow", "SAOWire", "SAOJavaBridge",
+    "SAO", "SAOCountyWindow", "SAOInspectWindow", "SAOWire", "SAOJavaBridge",
 )}
 KNOWN.update({n: NEIGHBOUR for n in NEIGHBOURS})
 KNOWN.update({n: LUA_STD for n in (
@@ -91,7 +102,8 @@ KNOWN.update({n: LUA_STD for n in (
     "select", "string", "table", "tonumber", "tostring", "type",
 )})
 KNOWN.update({n: ENGINE for n in (
-    "BodyPartType", "DynamicRadio", "Events", "GameTime",
+    "BodyPartType", "DynamicRadio", "Events", "GameTime", "Keyboard",
+    "keyBinding",
     "HaloTextHelper", "ISApplyBandage", "ISBarricadeAction",
     "ISCollapsableWindow", "ISDrinkFluidAction", "ISEatFoodAction",
     "ISFarmingMenu", "ISGrabItemAction", "ISHarvestPlantAction",
@@ -101,6 +113,24 @@ KNOWN.update({n: ENGINE for n in (
     "ModData", "Perks", "ProceduralDistributions", "RadioBroadCast",
     "RadioLine", "SFarmingSystem", "SandboxVars", "SpawnRegionMgr",
     "SuburbsDistributions", "SurvivorFactory", "UIFont", "ZombRand",
+    # [C17] LuaManager$GlobalObject.addVirtualZombie(int,int), javap-
+    # verified - the engine's own hand into the native crowd, used by
+    # the restitution slice and nothing else.
+    # [C24] the engine's sandbox screen class (OptionScreens/
+    # SandboxOptions.lua:3) - the ONE class that file exposes as a real
+    # global. Its create is wrapped so the county's page panel gets its
+    # prerender gated at the instance (manual fields dead until their
+    # switches are on, [C22]/F-050). The panel class itself is a
+    # per-file LOCAL (line 5) - [C22] hooked that name, read nil, and
+    # skipped silently for a full deploy (F-053): a global is not
+    # verified until the declaring line has been READ. ColorInfo is the
+    # engine color carrier vanilla's own gating idiom recolors with.
+    "SandboxOptionsScreen", "ColorInfo",
+    # [C23] the vanilla screen that builds the sandbox settings table -
+    # its getSandboxSettingsTable is wrapped so overridden neighbour
+    # dials are deleted before any row is built.
+    "ServerSettingsScreen",
+    "addVirtualZombie",
     "addSound", "farming_vegetableconf", "getCell", "getClimateManager",
     "getCore", "getFileWriter", "getGameTime", "getSandboxOptions",
     "getScriptManager", "getSpecificPlayer", "getTextManager",

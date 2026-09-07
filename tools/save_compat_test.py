@@ -39,6 +39,17 @@ BASELINE_FILE = ROOT / "tools" / "save_baseline.txt"
 # reason. A name here must actually be dropped or this file fails on
 # the declaration itself, so the list cannot quietly outlive its case.
 ACCEPTED_DROPS = {
+    "bitten":
+        "[C11] the record-side bite flag. Its ONE reader was the "
+        "invented dormant formula F-047 removed; the actionable fact "
+        "is now knoxInfected + biteDeathAtHours, read off the body's "
+        "own infection course. A live save's stale flag sits unread "
+        "and harms nothing - the person's clock re-stamps the next "
+        "time they go dark.",
+    "bittenAtHours":
+        "[C11] the record-side bite hour, dropped with its flag for "
+        "the same reason: the engine's own clock (biteDeathAtHours) "
+        "replaced the invented one that counted from this.",
     "jobEvents":
         "a key in ANOTHER framework's ModData table, never a field of "
         "ours. It entered this census only because our code referenced "

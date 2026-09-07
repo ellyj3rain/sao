@@ -137,6 +137,12 @@ local CATEGORY_OFFERS = {
 Pl.contentCache = Pl.contentCache or {}
 
 local function offersOfItem(name)
+    -- [C18] The engine's item lookup takes a String and throws on a
+    -- Double. `absorb` used to hand it every other entry of a table it
+    -- assumed was name/weight interleaved; where that assumption was
+    -- wrong it handed over a weight. Refusing a non-string here is the
+    -- second half of that fix and costs nothing (F-048).
+    if type(name) ~= "string" then return nil end
     local item = nil
     pcall(function()
         local sm = getScriptManager()
@@ -168,12 +174,27 @@ end
 local function absorb(out, names)
     if type(names) ~= "table" then return false end
     local any = false
-    -- Flat array of name, weight, name, weight.
-    for i = 1, #names, 2 do
-        local offers = offersOfItem(names[i])
-        if offers then
-            for k in pairs(offers) do out[k] = true end
-            any = true
+    -- [C18] Every STRING in the table, not every other entry.
+    --
+    -- This read "flat array of name, weight, name, weight" and stepped
+    -- by two on that promise. The engine's own lists do not all have
+    -- that shape: some are plain arrays of names, and some do not start
+    -- on a name. So the stride skipped half the names in the first
+    -- shape and handed a weight to getItem() in the second, which threw
+    -- 276 times in the operator's first session on this build (F-048) -
+    -- and every throw abandoned the rest of that room's contents, so
+    -- what a place offers ([B38]) was being read half-blind.
+    --
+    -- Taking the strings is correct for both shapes and needs no
+    -- assumption about the layout at all.
+    for i = 1, #names do
+        local entry = names[i]
+        if type(entry) == "string" then
+            local offers = offersOfItem(entry)
+            if offers then
+                for k in pairs(offers) do out[k] = true end
+                any = true
+            end
         end
     end
     return any
@@ -551,13 +572,127 @@ function Pl.around(x, y, reach)
     return out
 end
 
+-- ---------------------------------------------------------------
+-- What they KNOW ([C25], DR-027)
+-- ---------------------------------------------------------------
+--
+-- The operator's ruling: people operate off social structures and
+-- social incentives and personal desires and understanding and
+-- awareness - never a permitted radius.
+-- The probe is what a person NOTICES around them; this is what they
+-- KNOW - the county's own places - and how far knowledge reaches is
+-- not a dial. The horizon derives from the engine's own neighborhood
+-- quantum (the cell), and it moves with the asker: knowledge anchors
+-- to where you live and where you stand, not to a sandbox number.
+
+-- The engine's cell edge in squares (FACTS: IsoCell exposes it).
+-- 300 is B42's actual value; the pcall answers if the engine ever
+-- changes its mind.
+local cellSpanCache = nil
+function Pl.cellSpan()
+    if cellSpanCache then return cellSpanCache end
+    local span = nil
+    pcall(function() span = getCell():getCellSizeInSquares() end)
+    cellSpanCache = (type(span) == "number" and span > 0) and span or 300
+    return cellSpanCache
+end
+
+-- The two horizons, both DERIVED. Your part of town is half a cell
+-- out from where you anchor; commitment past that - a person in real
+-- need crossing town - reaches a cell and a half. Nothing here is a
+-- sandbox option, and that is the point.
+function Pl.comfortHorizon() return math.floor(Pl.cellSpan() / 2) end
+function Pl.commitHorizon() return math.floor(Pl.cellSpan() * 1.5) end
+
+-- Nearest known place offering a thing, searched nearest-FIRST in
+-- expanding square bands so the cost stops at the closest hit, not
+-- at the horizon. Spent shelves and today's dry taps are skipped -
+-- offersNow, not the floor plan. Claims are deliberately NOT judged
+-- here: whose ground it is belongs to the caller's law, same as a
+-- noticed source.
+local RING_STEP = 30
+
+Pl.know_cache = Pl.know_cache or {}
+
+local function ringScan(x, y, offer, rMin, rMax)
+    local seen, best, bestD = {}, nil, nil
+    local px = -rMax
+    while px <= rMax do
+        local py = -rMax
+        while py <= rMax do
+            -- the band only: inside rMax, outside rMin
+            if math.max(math.abs(px), math.abs(py)) >= rMin then
+                local place = Pl.at(x + px, y + py)
+                if place and not seen[place.id] then
+                    seen[place.id] = true
+                    local now = Pl.offersNow(place)
+                    if now and now[offer] then
+                        local dx = place.cx - x
+                        local dy = place.cy - y
+                        local d = dx * dx + dy * dy
+                        if not bestD or d < bestD then
+                            best, bestD = place, d
+                        end
+                    end
+                end
+            end
+            py = py + PROBE_STRIDE
+        end
+        px = px + PROBE_STRIDE
+    end
+    return best
+end
+
+function Pl.nearestOffering(x, y, offer, horizon)
+    x, y = math.floor(x), math.floor(y)
+    horizon = horizon or Pl.comfortHorizon()
+    -- Knowledge is coarse: anchored to the neighborhood you are in,
+    -- so a walker does not pay a fresh sweep every stride.
+    local qx = math.floor(x / RING_STEP) * RING_STEP
+    local qy = math.floor(y / RING_STEP) * RING_STEP
+    local key = qx .. ":" .. qy .. ":" .. offer .. ":" .. horizon
+    local held = Pl.know_cache[key]
+    if held ~= nil then
+        if held.none then
+            -- "There is none around here" is belief too, and the
+            -- world refills ([B39]) - so the conclusion lasts a day,
+            -- the same unit the dormant half already measures need
+            -- in, and then they wonder again.
+            if nowHours() - (held.at or 0) < 24 then return nil end
+            Pl.know_cache[key] = nil
+        else
+            -- Belief revalidated at use: the place may have been
+            -- eaten bare or lost its tap since it was learned. Stale
+            -- knowledge is forgotten and searched anew, which is
+            -- what people do.
+            local now = Pl.offersNow(held.place)
+            if now and now[offer] then return held.place end
+            Pl.know_cache[key] = nil
+        end
+    end
+    local rMin = 0
+    while rMin < horizon do
+        local rMax = math.min(rMin + RING_STEP, horizon)
+        local place = ringScan(qx, qy, offer, rMin, rMax)
+        if place then
+            Pl.know_cache[key] = { place = place }
+            return place
+        end
+        rMin = rMax
+    end
+    Pl.know_cache[key] = { none = true, at = nowHours() }
+    return nil
+end
+
 -- Forget the map. Only for a world change - the cache is keyed by
 -- building id and origin, both of which belong to one world.
 function Pl.reset()
     Pl.cache = {}
     Pl.around_cache = {}
     Pl.contentCache = {}
+    Pl.know_cache = {}
     gridCache = nil
+    cellSpanCache = nil
 end
 
 return Pl

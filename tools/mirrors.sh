@@ -19,7 +19,7 @@
 # These are offline Python mirrors of the social laws: they re-run the
 # exact hash math and the exact convergence rules outside the game, so
 # a claim about how this county behaves can be CHECKED rather than
-# asserted. B-ERA-OFFLINE-RECEIPTS.md cites their results; before
+# asserted. Batches/OFFLINE-RECEIPTS.md cites their results; before
 # [B19] the scripts themselves lived only in a session temp directory
 # and the cited proof could not be re-run by anyone, including a later
 # session of the author.

@@ -30,7 +30,9 @@ helicopter has stopped coming, newcomers walk in from outside.
 
 ## Status
 
-`0.6.0.0-pre-alpha`.
+`1.10.6.0-pre-alpha` - the coordinate is computed by the version machine
+(`tools/version_replay.py`), never picked; `VERSION_MAP.md` shows the
+classification and the arithmetic.
 
 **Playable, but unproven.** No feature in this mod has live-play
 verification: every batch is OPEN pending play receipts, and

@@ -66,7 +66,16 @@ DECL = re.compile(
 
 # Pairs that really are less than a tile apart on purpose. Keyed by the
 # two values, with why the smaller one must not become the larger.
-ALLOWED = {}
+ALLOWED = {
+    # [C3]/[C7] NEIGHBOUR_MENU_REACH is 3.5 because the neighbour
+    # framework's own findActorNearSquare radius is 3.5 - the
+    # superimposition must look exactly as far as his menu attaches,
+    # no further and no nearer.
+    # It is HIS rule quoted, not this county's rule written twice, so it
+    # may not be wired to any reach of ours.
+    (3.0, 3.5): "the neighbour framework's own menu radius, quoted",
+    (3.5, 4.0): "the neighbour framework's own menu radius, quoted",
+}
 
 
 def main():

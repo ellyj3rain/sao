@@ -1,6 +1,6 @@
 | Document | Survivor Awareness Overhaul Memory |
 |---|---|
-| Version | `0.6.0.0-pre-alpha` |
+| Version | `2.1.1.0-pre-alpha` |
 | Author | ellyj3rain |
 | Repository | `MEMORY.md` |
 | Status | ACTIVE - index of every root document and its standing. |
@@ -30,16 +30,19 @@ current. Nothing at the root is unclassified.
 | `GOVERNANCE.md` | CANONICAL | Operating discipline and model-facing instruction surface. |
 | `DECISION_REGISTRY.md` | CANONICAL, APPEND-ONLY | Ratified decisions from DR-001. |
 | `FINDINGS.md` | CANONICAL, APPEND-ONLY | Verified engine findings from F-001. |
+| `RECEIPTS.md` | CANONICAL, APPEND-ONLY | What play has actually settled, from R-001 (DR-025). |
 | `BATCH_LOG.md` | REGULATORY | Chronological index for the batch sequence. |
 | `VERSION_MAP.md` | REGULATORY | Version units replayed over the closed chronology through `[B52]`. |
 | `ROADMAP.md` | CANONICAL | Thread map, backlog, live gates. |
 | `SESSION_STATE.md` | CANONICAL | Where the work actually stands. |
+| `MAPS.md` | CANONICAL | The three pictures a human reads first: runtime, knowledge, catalog. |
 | `KNOX_SOCIAL_AUDIT.md` | CANONICAL | Reference-design audit of the Knox social/organizational systems ([A14]). |
 | `ENGINE_CONTRACT.md` | CANONICAL, INCOMPLETE | The verified engine mechanics an IsoPlayer NPC requires; lifecycle-ordered, failure-cited. |
 | `VERSION` | CANONICAL | Shipped version string. Every root header's `Version` cell reads this and nothing else ([B43]). |
 | `PLAYABILITY.md` | CANONICAL | What the player can actually do with the county, and what is still rough. |
 | `POSITION.md` | CANONICAL | Where this project stands against what else exists. |
-| `SPEECH.md` | CANONICAL | Direction for how survivors speak. Direction only - there is no free-text or dictated speech. |
+| `SPEECH.md` | CANONICAL | Direction for how survivors speak. Scheduled as the standing blocker (DR-029); still no free-text or dictated speech in the tree. |
+| `SPEECH_ML_DESIGN.md` | CANONICAL | The talking system's ratified design (DR-029/030): survivors modeled as people - world model, will, mood - two learned pieces in-process with constrained decoding; no player-speech harvesting. Build follows it. |
 | `CREDITS.md` | CANONICAL | Attribution. Exempt from the never-name-a-mod rule, being documentation. |
 | `HANDOFF.md` | REFERENCE, HISTORICAL | B-era session handoff of 2026-08-27. Superseded at the C seam; its standing rules migrated into `GOVERNANCE.md`. Not maintained against the tip. |
 | `LICENSE` | CANONICAL | GPL-3.0. |
@@ -59,5 +62,7 @@ current. Nothing at the root is unclassified.
 | `Batches/` | One alphanumeric batch sequence; one record per closed batch. |
 | `mod/` | The shippable mod tree (root + version-dir `mod.info`, Lua under `42.20/media/lua/`). |
 | `java/` | The agent component (DR-004): shell class, bridge, bootstrap; built to `java/dist/SAOAgent.jar`. |
-| `tools/` | Build and dev scripts (`build-java.sh`). |
+| `tools/` | The evidence apparatus: every border's gated mirror, `check.sh`, the offline mirrors, the pre-commit hook - plus the build and deploy scripts (`build-java.sh`, `deploy.sh`). |
+
 - [PUBLISHING.md](PUBLISHING.md) - what a Workshop upload needs, read from the game's own template; blocked on art, deliberately not staged.
+- [GROUNDED_DEAD_PROPOSAL.md](GROUNDED_DEAD_PROPOSAL.md) - PROPOSED: the zombie-population derivation (demography x lore x mechanism fork) awaiting the operator's ratification; nothing in it is behavior.

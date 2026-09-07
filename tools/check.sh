@@ -26,6 +26,17 @@ else
     files=$(find mod -name '*.lua' 2>/dev/null || true)
 fi
 
+# [C1] The gate's verdict must not depend on who invoked it. A pre-commit
+# hook exports GIT_DIR and GIT_INDEX_FILE, and any border that shells git
+# from another directory (Border 54 builds its blinded tree with
+# `git ls-files`, then runs every mirror inside it) inherits them and reads
+# a different repository than it would from a terminal - in this worktree
+# the hook run flipped Border 54's inner verdict from refused to clean.
+# The staged file list above is the one thing that legitimately needs the
+# hook's index; everything after this line runs with the git environment
+# scrubbed, so a border answers the same on every machine and every caller.
+unset "${!GIT_@}" 2>/dev/null || true
+
 if [ -n "$files" ]; then
     for f in $files; do
         [ -f "$f" ] || continue
@@ -1021,6 +1032,255 @@ fi
 if ! "$PY" tools/pressure_answer_test.py > /dev/null; then
     "$PY" tools/pressure_answer_test.py 2>&1 | grep -E "FAULT" || true
     note "BORDER FINDING - a pressure answer outside the four"
+    fail=1
+fi
+
+# 79) MAPS.md is what a new reader trusts first. A link or node naming a
+# file that is gone, or a rule that no longer exists, is the map lying
+# quietly - the class [C1] found in the flicker that outlived its fix.
+if ! "$PY" tools/map_reference_test.py > /dev/null; then
+    "$PY" tools/map_reference_test.py 2>&1 | grep -E "FAULT" || true
+    note "BORDER FINDING - a map points at something that is not there"
+    fail=1
+fi
+
+# [C2] Border 80 - the version is a machine (DR-013). 0.6.0.0 was picked
+# at [B12] by a policy sentence after the diary bumped through hundreds
+# of entries; the old map then walked to it in six flat minors so the
+# number looked earned. Now the tier table in tools/version_replay.py is
+# the input, CAO's caps are the rules, and the coordinate is the output -
+# this border refuses a tree whose VERSION, VERSION_MAP.md or mod.info
+# state anything the replay does not derive.
+if ! "$PY" tools/version_replay.py > /dev/null; then
+    "$PY" tools/version_replay.py 2>&1 | grep -E "FAULT" || true
+    note "BORDER FINDING - a stated version the machine does not derive"
+    fail=1
+fi
+
+# [C3] Border 81 - one person, one name (DR-014). A follower shown as
+# one name dropped an ID card for somebody else: the spawn path stamped
+# placeholders over the engine's generated name, adoption took a
+# descriptor name the neighbour never shows, and the [B45] hold tested
+# a global that does not exist. The pipeline has one owner per name now
+# and this border keeps each leak closed.
+if ! "$PY" tools/name_pipeline_test.py > /dev/null; then
+    "$PY" tools/name_pipeline_test.py 2>&1 | grep -E "FAULT" || true
+    note "BORDER FINDING - two names on one person"
+    fail=1
+fi
+
+# [C4] Border 82 - the seat and the mesh move together; the follow
+# crosses. enter() was bare (no mesh pairing, no rollback), a fence was
+# an eternal unnamed stall, and riding was a flag the truth of the seat
+# could contradict. The operator's wreck - a driven truck with no
+# visible driver who could not exit - is the class this refuses.
+if ! "$PY" tools/seat_and_crossing_test.py > /dev/null; then
+    "$PY" tools/seat_and_crossing_test.py 2>&1 | grep -E "FAULT" || true
+    note "BORDER FINDING - a flag moved without its body, or a stall with a name"
+    fail=1
+fi
+
+# [C5] Border 83 - a top-level function is at the top level. P.tell was
+# never closed and three column-zero functions were being defined
+# inside its body: nil until the first tell of a session, their absence
+# pcall-swallowed. Legal Lua, invisible to every syntax gate.
+if ! "$PY" tools/toplevel_function_test.py > /dev/null; then
+    "$PY" tools/toplevel_function_test.py 2>&1 | grep -E "FAULT" || true
+    note "BORDER FINDING - an unclosed block has swallowed a function"
+    fail=1
+fi
+
+# [C5] Border 84 - world text is a person talking (SPEECH.md). No
+# coordinates in anyone's mouth, the tell surface speaks the thing
+# itself rather than a count of things, the day-zero innocent asserts
+# nothing they hold no claim for.
+if ! "$PY" tools/spoken_word_test.py > /dev/null; then
+    "$PY" tools/spoken_word_test.py 2>&1 | grep -E "FAULT" || true
+    note "BORDER FINDING - world text that is not a person talking"
+    fail=1
+fi
+
+# [C6] Border 85 - the inspect harness reads everything and teaches
+# nothing. A panel that can see every store is one function call from
+# being a pathway; this holds the window shut, holds it to a normal
+# launch, and holds its lines to the one telemetry door.
+if ! "$PY" tools/inspect_inert_test.py > /dev/null; then
+    "$PY" tools/inspect_inert_test.py 2>&1 | grep -E "FAULT" || true
+    note "BORDER FINDING - a window became a pathway, or the harness is gone"
+    fail=1
+fi
+
+# [C7] Border 86 - the neighbour's menu stays, and the county is inside
+# it (DR-015). "Use what KS puts in the game for UI" means superimpose:
+# his per-survivor root is kept, retitled to the person, and rebuilt
+# from the county - never stripped, never doubled.
+if ! "$PY" tools/superimpose_test.py > /dev/null; then
+    "$PY" tools/superimpose_test.py 2>&1 | grep -E "FAULT" || true
+    note "BORDER FINDING - two person menus on one body, or a stripped root"
+    fail=1
+fi
+
+# [C8] Border 87 - the turn is real (DR-016, F-044/F-045). Every dead
+# shell reaches the engine's own die() through the corpse net, the
+# person id rides modData through the engine's own copies, and
+# recognition keys on the id that survives the turn rather than the
+# descriptor that does not.
+if ! "$PY" tools/turn_real_test.py > /dev/null; then
+    "$PY" tools/turn_real_test.py 2>&1 | grep -E "FAULT" || true
+    note "BORDER FINDING - a death that never turns, or an identity that dies with the descriptor"
+    fail=1
+fi
+
+# [C9] Border 88 - the pool is only the fungible crowd. The zombie
+# list holds living neighbours, risen players, and the county's marked
+# dead; one deletion-grade predicate (failing closed) guards every
+# consumer, and the removeFromWorld census is closed.
+if ! "$PY" tools/pool_identity_test.py > /dev/null; then
+    "$PY" tools/pool_identity_test.py 2>&1 | grep -E "FAULT" || true
+    note "BORDER FINDING - a deletion or a choreography that could take a person"
+    fail=1
+fi
+
+# [C10] Border 89 - the kept promise swings at the BODY carrying the
+# person's mark, misses honestly, and never takes the nearest stranger.
+if ! "$PY" tools/promise_body_test.py > /dev/null; then
+    "$PY" tools/promise_body_test.py 2>&1 | grep -E "FAULT" || true
+    note "BORDER FINDING - a mercy kill that would take the wrong body"
+    fail=1
+fi
+
+# [C11] Border 90 - the bite kills on the engine's own deterministic
+# clock (F-047), read off the body or mirrored with citation; no
+# constant claims engine authority it does not have.
+if ! "$PY" tools/bite_clock_test.py > /dev/null; then
+    "$PY" tools/bite_clock_test.py 2>&1 | grep -E "FAULT" || true
+    note "BORDER FINDING - an invented number wearing the engine's name"
+    fail=1
+fi
+
+# [C12] Border 91 - the front end speaks player (DR-017): no decode
+# tables, no mode-sentinels, no apologies for the encoding; the one
+# word-to-sentinel translation lives in the policy reader.
+if ! "$PY" tools/frontend_language_test.py > /dev/null; then
+    "$PY" tools/frontend_language_test.py 2>&1 | grep -E "FAULT" || true
+    note "BORDER FINDING - engine language on the player's screen"
+    fail=1
+fi
+
+# [C13] Border 92 - player-facing copy is ratified, not drafted
+# (DR-018): the shipped strings match the declaration verbatim, and a
+# copy change fails the gate until it is re-declared with the
+# operator's eyes on it.
+if ! "$PY" tools/copy_ratified_test.py > /dev/null; then
+    "$PY" tools/copy_ratified_test.py 2>&1 | grep -E "FAULT" || true
+    note "BORDER FINDING - unratified copy on the player's screen"
+    fail=1
+fi
+
+# [C14] Border 93 - every qualified SAO.<Module>.<fn> call resolves to
+# a definition. A missing target inside this tree's pcall discipline
+# is a silent no-op forever (F-030/F-039's shape).
+if ! "$PY" tools/call_target_test.py > /dev/null; then
+    "$PY" tools/call_target_test.py 2>&1 | grep -E "FAULT" || true
+    note "BORDER FINDING - a call that no-ops silently forever"
+    fail=1
+fi
+
+# [C15] Border 94 - whole minds survive the reload (DR-020): the
+# belief store binds to ModData at game start, the tick axis rebases
+# once, the hours axis crosses intact, and F-033's durability stands.
+if ! "$PY" tools/whole_minds_test.py > /dev/null; then
+    "$PY" tools/whole_minds_test.py 2>&1 | grep -E "FAULT" || true
+    note "BORDER FINDING - a mind that dies with the session, or stale intel reading fresh"
+    fail=1
+fi
+
+# [C16] Border 95 - the dead census (DR-021's instrument): raw
+# numbers through verified surfaces, the identity split honored, the
+# instrument inert, assumptions stated where figures are made.
+if ! "$PY" tools/dead_census_test.py > /dev/null; then
+    "$PY" tools/dead_census_test.py 2>&1 | grep -E "FAULT" || true
+    note "BORDER FINDING - a census missing, mutating, or hiding its assumptions"
+    fail=1
+fi
+
+# [C17] Border 96 - the crowd ledger (DR-021's state agreement): the
+# pool's takes counted durable, restitution debt-bounded and paced on
+# distant ground, the dial off by default, one accounting for both.
+if ! "$PY" tools/crowd_ledger_test.py > /dev/null; then
+    "$PY" tools/crowd_ledger_test.py 2>&1 | grep -E "FAULT" || true
+    note "BORDER FINDING - two systems mutating one crowd without one ledger"
+    fail=1
+fi
+
+# [C19] Border 97 - play receipts accrue (DR-025): the ledger parses
+# and cites real records, and the perpetual-untested blanket claim is
+# banned from the canonical documents.
+if ! "$PY" tools/receipts_test.py > /dev/null; then
+    "$PY" tools/receipts_test.py 2>&1 | grep -E "FAULT" || true
+    note "BORDER FINDING - a broken receipts ledger, or the tautology returned"
+    fail=1
+fi
+
+# [C20] Border 98 - absorption obeys the neighbour's body law
+# (DR-022/023/024, F-051/F-052): the one spawn door wrapped with an
+# honest fallback, remove-never-kill, no marker keys, truth mirrored
+# back, dials blocked, verb parity kept.
+if ! "$PY" tools/absorb_test.py > /dev/null; then
+    "$PY" tools/absorb_test.py 2>&1 | grep -E "FAULT" || true
+    note "BORDER FINDING - an absorption that doubles, kills, or diminishes a person"
+    fail=1
+fi
+
+# [C25] Border 99 - how far a person goes is knowledge and desire
+# (DR-027): the errand dial is dead everywhere, the probe is a named
+# perception span, all four needs fall back to the nearest KNOWN
+# offering under the same property law, horizons derive from the
+# engine's own cell, and held knowledge is revalidated and expires.
+if ! "$PY" tools/knowledge_first_test.py > /dev/null; then
+    "$PY" tools/knowledge_first_test.py 2>&1 | grep -E "FAULT" || true
+    note "BORDER FINDING - a leash returned, or need still gives up at the probe line"
+    fail=1
+fi
+
+# [C26] Border 100 - the click lands, the body is dressed, the line
+# holds (R-005/R-006, DR-028, F-054): answers bypass the murmur
+# guards, the talk wall is down to the advertised split, dressing is
+# outcome-verified with a worn report, and the wake law keeps foreign
+# ground - one species: nothing is REPORTED that was not VERIFIED.
+if ! "$PY" tools/click_lands_test.py > /dev/null; then
+    "$PY" tools/click_lands_test.py 2>&1 | grep -E "FAULT" || true
+    note "BORDER FINDING - a click eaten, a naked body called dressed, or a line crossed"
+    fail=1
+fi
+
+# [C27] Border 101 - the knowledge surface (SPEECH_ML_DESIGN.md rung
+# 1): loads bare in the engine's own VM, answers a stub county with
+# provenance and age, withholds the earned until trust, bundles the
+# ratified conditioning, writes nothing, and the inspect panel reads
+# through it.
+if ! "$PY" tools/knowledge_surface_test.py > /dev/null; then
+    "$PY" tools/knowledge_surface_test.py 2>&1 | grep -E "FAULT" || true
+    note "BORDER FINDING - the knowledge surface does not answer, or it writes"
+    fail=1
+fi
+
+# [C28] Border 102 - the inference budget instrument
+# (SPEECH_ML_DESIGN.md): a deterministic model-shaped workload,
+# warmed, nanosecond-timed, checksum-carried, fired from the debug
+# menu, reported under BUDGET with its conditions named.
+if ! "$PY" tools/inference_budget_test.py > /dev/null; then
+    "$PY" tools/inference_budget_test.py 2>&1 | grep -E "FAULT" || true
+    note "BORDER FINDING - the budget instrument is missing or dishonest"
+    fail=1
+fi
+
+# Border 103 - the operator's speech is not in the repository: no
+# profanity in the tracked tree and no operator-quote attributions;
+# rulings are paraphrased content, speech stays with the speaker.
+if ! "$PY" tools/operator_speech_test.py > /dev/null; then
+    "$PY" tools/operator_speech_test.py 2>&1 | grep -E "FAULT" | head -6 || true
+    note "BORDER FINDING - quoted speech or profanity is in the tree"
     fail=1
 fi
 

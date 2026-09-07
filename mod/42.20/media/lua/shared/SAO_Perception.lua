@@ -32,7 +32,17 @@ local P = SAO.Perception
 
 -- id -> { zombies = { [key]=belief }, people = { [name]=belief },
 --         lastScanAt, scanCount }
+--
+-- [C15] Whole minds survive the reload (DR-020): this table is bound
+-- to a ModData store at game start, so the engine saves and loads it
+-- with the world. Before the bind (module load runs earlier than
+-- ModData), writes land in this plain table and are carried into the
+-- store when it opens. Growth is bounded by the decay pass and the
+-- death funnel (P.forget), as before.
 P.beliefs = P.beliefs or {}
+
+-- The bind itself lives at the bottom of this file, past the one
+-- logging door it reports through.
 
 -- [B49] FRAMES, not seconds - a tick is one rendered frame, so this
 -- is ~10s at 60fps and half that on a 120Hz machine. A belief's
@@ -48,6 +58,35 @@ local SCAN_INTERVAL  = 20      -- acquisition cadence per survivor
 -- the prune in the decay pass both read this, or they drift and
 -- the table leaks.
 local CRY_RECOGNITION = 600
+-- [C5] A person talking does not say coordinates. These bands turn a
+-- believed position into the words somebody standing HERE would use
+-- for it; the figures are judgments about speech, not reaches, and
+-- nothing gates on them.
+local WORD_CLOSE = 20          -- tiles: "just <dir> of here"
+local WORD_WALK  = 75          -- tiles: "a short walk <dir>"
+local WORD_FAR   = 300         -- tiles: "a good walk <dir>"
+
+-- [C5] Where a thing is, said the way a person says it, from where
+-- the speaker stands. World text is a person talking (SPEECH.md):
+-- every renderer that used to print "at 10842,9195" reads this now.
+function P.whereWord(x, y, fromX, fromY)
+    if not (x and y and fromX and fromY) then return "somewhere about" end
+    local dx, dy = x - fromX, y - fromY
+    local d = math.sqrt(dx * dx + dy * dy)
+    local dir
+    if math.abs(dx) > 2 * math.abs(dy) then
+        dir = dx > 0 and "east" or "west"
+    elseif math.abs(dy) > 2 * math.abs(dx) then
+        dir = dy > 0 and "south" or "north"
+    else
+        dir = (dy > 0 and "south" or "north")
+            .. (dx > 0 and "east" or "west")
+    end
+    if d <= WORD_CLOSE then return "just " .. dir .. " of here" end
+    if d <= WORD_WALK then return "a short walk " .. dir end
+    if d <= WORD_FAR then return "a good walk " .. dir end
+    return "a long way " .. dir
+end
 -- [B35] How close a survivor must be to notice a place is nobody's
 -- now. The same eight tiles the dormant drift uses to LEARN a place
 -- ([A15]), because learning and forgetting should not have different
@@ -176,15 +215,19 @@ function P.observe(id, body, tick, asleep)
                 local x, y, d = tonumber(f[2]), tonumber(f[3]), tonumber(f[4])
                 if x and y then
                     b.zombies[x .. "," .. y] = { x = x, y = y, dist = d, at = tick, source = "observed" }
-                    -- The turned are recognizable ([B3]): a named
-                    -- zombie whose name belongs to one of the DEAD is
-                    -- the county's darkest moment, once per witness.
-                    local zname = f[5]
-                    if zname and zname ~= "" then
-                        local zid = SAO.Identity and SAO.Identity.idByName
-                            and SAO.Identity.idByName(zname) or nil
-                        local zrec = zid and SAO.Identity.get(zid) or nil
-                        if zrec and zrec.dead then
+                    -- The turned are recognizable ([B3], corrected
+                    -- [C8]): the zombie's descriptor is built FRESH at
+                    -- reanimation, so a name in field 5 never comes off
+                    -- a turned body any more - the id does, riding the
+                    -- modData the engine copies through the turn
+                    -- (F-044). One resolver reads both forms; a known
+                    -- face on the dead is still the county's darkest
+                    -- moment, once per witness.
+                    local ztag = f[5]
+                    if ztag and ztag ~= "" then
+                        local zid, zrec, zname =
+                            SAO.Identity.resolveBodyTag(ztag)
+                        if zrec and zrec.dead and zname then
                             local pb = b.people[zname]
                             if not pb then
                                 pb = { x = x, y = y, dist = d, at = tick,
@@ -554,6 +597,12 @@ function P.tell(fromId, toId, tick, chosen)
     end
     local to = store(toId)
     local shared = 0
+    -- [C5] What actually landed, so the listener can SAY it. "They
+    -- note 3 things" is not speech; a person acknowledges the thing
+    -- itself. Every adoption below counts and leaves a note; the
+    -- spoken acknowledgment is built at the end, most grave first.
+    local deadName, factionNote, placeShared = nil, nil, false
+    local zSharedN, zX, zY = 0, nil, nil
     -- The introduction: a member shares their OWN house's public facts
     -- firsthand ("we're the Rosewood Circle; we hold the place on the
     -- hill") - the only road a faction's NAME enters the belief web by.
@@ -576,8 +625,16 @@ function P.tell(fromId, toId, tick, chosen)
                         name = tname,
                         stance = existing and existing.stance or "neutral",
                     }
+                    shared = shared + 1
+                    factionNote = factionNote
+                        or { name = tname,
+                             x = math.floor((tc.minX + tc.maxX) / 2),
+                             y = math.floor((tc.minY + tc.maxY) / 2) }
                 elseif not existing.name and tname then
                     existing.name = tname
+                    shared = shared + 1
+                    factionNote = factionNote or { name = tname,
+                        x = existing.baseX, y = existing.baseY }
                 end
             end
         end
@@ -595,8 +652,14 @@ function P.tell(fromId, toId, tick, chosen)
                 name = fb.name,
                 stance = existing and existing.stance or "neutral",
             }
+            shared = shared + 1
+            factionNote = factionNote or { name = fb.name,
+                x = fb.baseX, y = fb.baseY }
         elseif existing and not existing.name and fb.name then
             existing.name = fb.name
+            shared = shared + 1
+            factionNote = factionNote or { name = fb.name,
+                x = existing.baseX, y = existing.baseY }
         end
     end
     -- Place knowledge travels ("that's the Reyes place - leave it be").
@@ -608,9 +671,128 @@ function P.tell(fromId, toId, tick, chosen)
                 maxX = pc.maxX, maxY = pc.maxY,
                 at = pc.at, source = "told", teller = fromId,
             }
+            shared = shared + 1
+            placeShared = true
         end
     end
-    -- The word before the walk ([A28]): nobody leaves without telling
+    -- News of the dead travels ([A19]): a teller who BELIEVES someone
+    -- dead (they watched, or stood over the body) passes it on. The
+    -- receiver's belief is told-weight; hearing of your bonded's death
+    -- grieves through the handler - belief to belief, never a peek at
+    -- the global record (DR-007).
+    -- Fear presumes ([A28]): before passing word, a fearful and
+    -- talkative teller reads their own stale beliefs the worst way -
+    -- someone last SEEN hurt, unseen for a week of world time, is
+    -- spoken of as dead. Presumption, not fabrication: the flag rides
+    -- the belief so the reunion can weigh the teller's sin honestly.
+    -- World-hours gate only (atHours) - beliefs lacking the stamp are
+    -- never presumed (two tick clocks exist; hours is the shared one).
+    do
+        local okT, tt = pcall(function()
+            return SAO.Disposition.traits(fromId)
+        end)
+        if okT and tt and tt.nerve < 0.4 and tt.talkativeness > 0.55 then
+            local okH, nowH = pcall(function()
+                return GameTime.getInstance():getWorldAgeHours()
+            end)
+            if okH then
+                -- The window is FELT, not flat ([A28]): the
+                -- fearful bury sooner. nerve 0.15 presumes near five
+                -- days; nerve up to the gate (0.4) holds past a week.
+                local window = 96 + tt.nerve * 240
+                for _, pb0 in pairs(from.people or {}) do
+                    -- Everyone knows what a bite means ([B3]): the
+                    -- bitten-absent are buried in half the time.
+                    local w0 = window
+                    if pb0.condition == "bitten" then w0 = window / 2 end
+                    if not pb0.dead and pb0.source == "observed"
+                        and pb0.condition and pb0.condition ~= "ok"
+                        and pb0.atHours
+                        and nowH - pb0.atHours > w0 then
+                        pb0.dead = true
+                        pb0.presumed = true
+                    end
+                end
+            end
+        end
+    end
+    for name, pb in pairs(from.people or {}) do
+        if pb.dead then
+            local existing = to.people[name]
+            if existing then
+                if not existing.dead then
+                    existing.dead = true
+                    shared = shared + 1
+                    deadName = deadName or name
+                    if P.deathNewsHandler then
+                        pcall(P.deathNewsHandler, toId, name, tick)
+                    end
+                end
+                -- "They TURNED" is exactly what people say ([B3]).
+                if pb.turned and not existing.turned then
+                    existing.turned = true
+                end
+            else
+                to.people[name] = {
+                    x = pb.x, y = pb.y, dist = pb.dist or 999,
+                    at = tick, source = "told", teller = fromId,
+                    dead = true, presumed = pb.presumed or nil,
+                    turned = pb.turned or nil,
+                }
+                shared = shared + 1
+                deadName = deadName or name
+                if P.deathNewsHandler then
+                    pcall(P.deathNewsHandler, toId, name, tick)
+                end
+            end
+        end
+    end
+    for key, belief in pairs(from.zombies) do
+        if tick - belief.at <= ZOMBIE_HORIZON and belief.source ~= "told" then
+            local existing = to.zombies[key]
+            if not existing or existing.source == "told" then
+                -- dist here is the TELLER's; every consumer recomputes
+                -- from their own position (F-014), so it is only a seed.
+                to.zombies[key] = {
+                    x = belief.x, y = belief.y, dist = belief.dist,
+                    at = belief.at, source = "told", teller = fromId,
+                }
+                shared = shared + 1
+                zSharedN = zSharedN + 1
+                if not zX then zX, zY = belief.x, belief.y end
+            end
+        end
+    end
+    -- [C5] The acknowledgment, gravest first, in the listener's own
+    -- position words. This is what the LISTENER says back - the thing
+    -- itself, never a count of things.
+    local spoken = nil
+    do
+        local lx, ly = nil, nil
+        pcall(function()
+            local lb = SAO.Body and SAO.Body.get and SAO.Body.get(toId)
+            if lb then lx, ly = lb:getX(), lb:getY() end
+        end)
+        if deadName then
+            spoken = "So " .. deadName .. " is gone. I'll carry that."
+        elseif zSharedN > 0 and zX then
+            spoken = "The dead, " .. P.whereWord(zX, zY, lx or zX, ly or zY)
+                .. ". I'll keep clear."
+        elseif factionNote then
+            spoken = (factionNote.name
+                and ("The " .. factionNote.name .. ", ")
+                or "Somebody holding ground, ")
+                .. P.whereWord(factionNote.x, factionNote.y,
+                    lx or factionNote.x, ly or factionNote.y)
+                .. ". Good to know."
+        elseif placeShared then
+            spoken = "Whose ground is whose - I'll leave it be."
+        end
+    end
+    return shared, spoken
+end
+
+-- The word before the walk ([A28]): nobody leaves without telling
 -- whoever is standing close enough to hear. The announcement is a
 -- CLAIM in the hearers' heads - who went, what for, where roughly,
 -- and when they said it. Only those told carry it; leaving unheard
@@ -898,90 +1080,6 @@ function P.announceDeparture(fromId, kind, destX, destY)
     return hearers
 end
 
--- News of the dead travels ([A19]): a teller who BELIEVES someone
-    -- dead (they watched, or stood over the body) passes it on. The
-    -- receiver's belief is told-weight; hearing of your bonded's death
-    -- grieves through the handler - belief to belief, never a peek at
-    -- the global record (DR-007).
-    -- Fear presumes ([A28]): before passing word, a fearful and
-    -- talkative teller reads their own stale beliefs the worst way -
-    -- someone last SEEN hurt, unseen for a week of world time, is
-    -- spoken of as dead. Presumption, not fabrication: the flag rides
-    -- the belief so the reunion can weigh the teller's sin honestly.
-    -- World-hours gate only (atHours) - beliefs lacking the stamp are
-    -- never presumed (two tick clocks exist; hours is the shared one).
-    do
-        local okT, tt = pcall(function()
-            return SAO.Disposition.traits(fromId)
-        end)
-        if okT and tt and tt.nerve < 0.4 and tt.talkativeness > 0.55 then
-            local okH, nowH = pcall(function()
-                return GameTime.getInstance():getWorldAgeHours()
-            end)
-            if okH then
-                -- The window is FELT, not flat ([A28]): the
-                -- fearful bury sooner. nerve 0.15 presumes near five
-                -- days; nerve up to the gate (0.4) holds past a week.
-                local window = 96 + tt.nerve * 240
-                for _, pb0 in pairs(from.people or {}) do
-                    -- Everyone knows what a bite means ([B3]): the
-                    -- bitten-absent are buried in half the time.
-                    local w0 = window
-                    if pb0.condition == "bitten" then w0 = window / 2 end
-                    if not pb0.dead and pb0.source == "observed"
-                        and pb0.condition and pb0.condition ~= "ok"
-                        and pb0.atHours
-                        and nowH - pb0.atHours > w0 then
-                        pb0.dead = true
-                        pb0.presumed = true
-                    end
-                end
-            end
-        end
-    end
-    for name, pb in pairs(from.people or {}) do
-        if pb.dead then
-            local existing = to.people[name]
-            if existing then
-                if not existing.dead then
-                    existing.dead = true
-                    if P.deathNewsHandler then
-                        pcall(P.deathNewsHandler, toId, name, tick)
-                    end
-                end
-                -- "They TURNED" is exactly what people say ([B3]).
-                if pb.turned and not existing.turned then
-                    existing.turned = true
-                end
-            else
-                to.people[name] = {
-                    x = pb.x, y = pb.y, dist = pb.dist or 999,
-                    at = tick, source = "told", teller = fromId,
-                    dead = true, presumed = pb.presumed or nil,
-                    turned = pb.turned or nil,
-                }
-                if P.deathNewsHandler then
-                    pcall(P.deathNewsHandler, toId, name, tick)
-                end
-            end
-        end
-    end
-    for key, belief in pairs(from.zombies) do
-        if tick - belief.at <= ZOMBIE_HORIZON and belief.source ~= "told" then
-            local existing = to.zombies[key]
-            if not existing or existing.source == "told" then
-                -- dist here is the TELLER's; every consumer recomputes
-                -- from their own position (F-014), so it is only a seed.
-                to.zombies[key] = {
-                    x = belief.x, y = belief.y, dist = belief.dist,
-                    at = belief.at, source = "told", teller = fromId,
-                }
-                shared = shared + 1
-            end
-        end
-    end
-    return shared
-end
 
 -- A believed faction base within `near` tiles of (x,y), or nil.
 function P.believedFactionNear(id, x, y, near)
@@ -1179,6 +1277,79 @@ end
 
 function P.forget(id)
     P.beliefs[id] = nil
+end
+
+-- ---------------------------------------------------------------------------
+-- [C15] Whole minds survive the reload (DR-020)
+
+-- The tick axis cannot cross sessions - a frame count from a dead
+-- session is meaningless in a live one, and a stale large `at` would
+-- read as ultra-fresh against the new session's small ticks. On bind,
+-- every tick-stamped field rebases to 0: a new session starts at tick
+-- 0, so 0 IS "just refreshed", and every table gets exactly one
+-- horizon of grace before normal decay resumes. The durable truths
+-- are untouched - dead-flagged people never decay (F-033), places
+-- prune by proximity not time, and the world-hours stamps (atHours
+-- and the out-terms) carry a belief's REAL age across the reload for
+-- every reader that needs it.
+local function rebaseTickFields(b)
+    for key, value in pairs(b) do
+        if type(value) == "number" and type(key) == "string"
+            and key:sub(-2) == "At" and not key:find("Hours") then
+            b[key] = 0
+        end
+    end
+    for _, tableName in ipairs({ "zombies", "people", "factions" }) do
+        local entries = b[tableName]
+        if type(entries) == "table" then
+            for _, entry in pairs(entries) do
+                if type(entry) == "table"
+                    and type(entry.at) == "number" then
+                    entry.at = 0
+                end
+            end
+        end
+    end
+    if type(b.criedTiles) == "table" then
+        for key in pairs(b.criedTiles) do
+            b.criedTiles[key] = 0
+        end
+    end
+end
+
+function P.bindPersistentStore()
+    local ok, persisted = pcall(function()
+        return ModData.getOrCreate("SurvivorAwareness_Beliefs")
+    end)
+    if not ok or type(persisted) ~= "table" then
+        -- Stated, not silent: without the store, minds are
+        -- session-scoped this run, exactly the pre-[C15] behavior.
+        log("belief store unavailable (" .. tostring(persisted)
+            .. "); minds are session-scoped this run")
+        return false
+    end
+    if persisted == P.beliefs then
+        return true   -- already bound; a second start must not re-rebase
+    end
+    local restored = 0
+    for _, b in pairs(persisted) do
+        if type(b) == "table" then
+            rebaseTickFields(b)
+            restored = restored + 1
+        end
+    end
+    for id, b in pairs(P.beliefs) do
+        persisted[id] = b   -- pre-bind session entries carry over
+    end
+    P.beliefs = persisted
+    log(restored .. " mind(s) restored from the save (DR-020)")
+    return true
+end
+
+if Events and Events.OnGameStart then
+    Events.OnGameStart.Add(function()
+        pcall(P.bindPersistentStore)
+    end)
 end
 
 return P

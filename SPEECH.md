@@ -3,7 +3,7 @@
 | Author | ellyj3rain |
 | Repository | `SPEECH.md` |
 | Source | Operator direction, 2026-08-26 (mid-[B20]) |
-| Status | DIRECTION - not scheduled, deliberately. |
+| Status | SCHEDULED as a blocker (2026-08-29, DR-029) - mechanism ruled Deep ML, design-first; the decision map is `SPEECH_ML_DESIGN.md`. |
 
 # Speech
 
@@ -132,12 +132,28 @@ by clicking. The listener's skepticism is not waived by either.
 A speech surface that needs new state, new provenance, or a new way of
 changing standing is, by this law, built wrong.
 
-## Not scheduled
+## Scheduled - and re-ruled (2026-08-29, DR-029)
 
-The operator was explicit that the current work comes first. This
-document exists so the direction is not lost and so the next reader
-knows the current work is the foundation for it, not a detour.
+The operator scheduled this as the standing blocker: without
+communication there is no way to gauge their intelligence - it was
+a blocker always, and it is the blocker now.
 
-The one piece worth doing early, whenever it is picked up, is rung 1,
-because it is useful on its own: it improves the Ledger, the debug
-surface, and the briefing today, with no dialogue attached.
+Three rulings landed the same day and bind everything below:
+
+1. **No AI service** - a live language-model service writing
+   replies is refused. The mod ships self-contained.
+2. **A learned system** - deep machine learning is the mechanism of
+   record. This supersedes the clause above naming the template
+   grammar as the honest product: the grammar is no longer the
+   destination. The RISK clause stands untouched - whatever the
+   learned system is, it must be structurally unable to assert what
+   the person does not know.
+3. **Design first** - no dialogue code, no interim speaking
+   surface, no substrate until the design is ratified through
+   Crucible. The substrate is then built to fit it exactly.
+
+The decision map for that design - what it learns, what data
+teaches it, where it runs, how the grounding is enforced, how a
+person's temperament reaches their wording - is
+`SPEECH_ML_DESIGN.md`. Each decision returns through Crucible; this
+document remains the direction it serves.

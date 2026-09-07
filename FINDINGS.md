@@ -1,6 +1,6 @@
 | Document | Survivor Awareness Overhaul Findings |
 |---|---|
-| Version | `0.6.0.0-pre-alpha` |
+| Version | `2.1.1.0-pre-alpha` |
 | Author | ellyj3rain |
 | Repository | `FINDINGS.md` |
 | Status | CANONICAL, APPEND-ONLY - verified engine findings. |
@@ -562,3 +562,334 @@ verification: the getter MOVED UP to InventoryItem, where inherited-
 public resolution still finds it. Since it is now statically visible,
 the reflection was modernized to a direct call, compile-proving the
 resolution. The claim died in the audit, not in the ledger.)
+
+## F-044 - The turn's whole law, hand-checked ([C8])
+
+**Verified** [C8], structural (javap -p -c on the installed jar,
+2026-08-29). The single-player chain that turns a dead IsoPlayer-class
+body, end to end:
+
+1. `IsoGameCharacter.updateInternal()` calls `die()` ONLY on a
+   dedicated server (offsets 124-131 gate on `GameServer.server`). In
+   single-player, `die()` for a player-class body is called from
+   exactly one live site: `PlayerOnGroundState.execute()` (offset 8 -
+   `isDead()` then `die()`). A shell that dies without its state
+   machine reaching the on-ground state is a dead character standing
+   in the world: no corpse, no timer, no turn. This is the gap [C8]'s
+   corpse net closes.
+2. `die()` (public final, idempotent - guarded by `onDeathDone` +
+   `diedBody`) -> `becomeCorpse()` -> `new IsoDeadBody(this)` ->
+   `invokeOnDiedListeners(diedBody)`. The corpse constructor removes
+   the character from the world (ctor offsets 1159-1163).
+3. `IsoPlayer`'s constructor registers `this::onDied` via
+   `addOnDiedListener(listener, false)` (ctor offsets 715-723) -
+   inherited by any subclass, the shell included. `onDied`: when not
+   a network client and `shouldBecomeZombieAfterDeath()`, it calls
+   `body.reanimateLater()` (offsets 0-14).
+4. `shouldBecomeZombieAfterDeath()` is the sandbox's own law: a
+   tableswitch on `ZombieLore.Transmission` - Blood+Saliva and
+   Saliva-only demand real infection (`CharacterStat.ZOMBIE_INFECTION
+   >= 0.001f` and not `IsFakeInfected`), Everyone's Infected returns
+   true unconditionally, None returns false.
+5. `reanimateLater()` = world-age + `getReanimateDelay()` (reads
+   `ZombieLore.reanimate`); `IsoDeadBody.update()` compares and calls
+   `reanimate()` (F-001's timer, reconfirmed).
+6. `OnPlayerDeath` (the death-screen event) fires only under
+   `isLocalPlayer()` (IsoPlayer offsets 57-64 at the trigger site), so
+   driving a shell through `die()` never touches the player's UI.
+
+Consequence: the engine arms the turn for our dead under its own
+Transmission and Reanimate settings - SAO's only lawful work is making
+sure `die()` actually runs (the [C8] net) and never writing timer
+arithmetic of its own.
+
+## F-045 - Identity through the turn rides modData; the descriptors half-survive ([C8])
+
+**Verified** [C8], structural, correcting the sibling repository's
+F-002/F-003 on the same jar:
+
+- The `IsoDeadBody(IsoGameCharacter)` constructor copies the dying
+  character's modData onto the corpse UNCONDITIONALLY
+  (`LuaManager.copyTable(this.getModData(), chr.getModData())`, ctor
+  offsets 1102-1113 - the common tail every character class reaches).
+  The sibling's F-002 ("the corpse is NOT populated from the dying
+  character; a mod must stamp the corpse itself") counted the class's
+  copyTable sites and missed this one: stamping the LIVING character
+  suffices.
+- The same constructor also copies the character's DESCRIPTOR into the
+  corpse for every non-zombie, non-animal character - IsoPlayer
+  included (offsets 1007-1019; the `instanceof IsoSurvivor` at 989
+  guards only a survivor-list removal, not the desc write; 1022's
+  `instanceof IsoPlayer` branch then adjusts the voice prefix). The
+  sibling's F-003 claim that a player-class corpse carries a null
+  descriptor is false on this build: named corpses work for shells.
+- `reanimate()` still builds the ZOMBIE a fresh descriptor carrying
+  gender and voice prefix only (offsets 43-74; F-003 right about this
+  half), and `SharedDescriptors.createPlayerZombieDescriptor` opens
+  with `if (!GameServer.server) return` - a no-op in single-player.
+  So the corpse knows the name; the risen body does not.
+- The corpse's modData persists in the save: `IsoDeadBody.save` chains
+  to `IsoObject.save`, which writes the modData table when non-empty
+  (offsets 894-925 in IsoObject.save).
+
+Consequence: the person id stamped on the living body walks the whole
+chain - character -> corpse -> risen body - by the engine's own two
+copyTable calls, and survives save/reload while the body lies there.
+Recognition and named-corpse reads key on that id; descriptor names
+remain a display-only channel that dies at reanimation.
+
+## F-046 - The zombie list is not a list of zombies ([C9])
+
+**Verified** [C9], code audit against DR-009's own facts. Every
+consumer of `IsoCell.getZombieList()` inherits a fungibility
+assumption the list does not honor: it holds the neighbour
+framework's LIVING people (zombie-backed bodies), risen players, and
+the county's own marked dead alongside the ambient crowd. Two
+consumers discriminated (`beginCombatNearest`, the perception
+scanner's DR-009 split); two did not - `takeFromThePool` could
+DELETE a person to pay a spawn's population cost, and
+`directNearestZombieAt` could point a living neighbour at a shell as
+incoming combat. Fixed as a class: one deletion-grade predicate
+(`SAOKnox.identityBearing`, failing closed) at every undiscriminating
+consumer, and a closed census of `removeFromWorld` so the assumption
+cannot quietly return. Border 88.
+
+## F-047 - The engine has no turning odds; it has a clock ([C11])
+
+**Verified** [C11], structural (javap -p -c on the installed jar).
+The Knox course for a bitten character, hand-checked end to end:
+
+- `BodyPart.SetBitten(boolean)` sets `isInfected = true` whenever
+  `ZombieLore.Transmission != 4` (offsets 102-127) - **a bite infects
+  with certainty on this build; no probability roll exists.** Under
+  `Mortality 7 (Never)` the infection converts to fake (offsets
+  128-159). The two-arg overload used by the tutorial behaves the
+  same way.
+- `BodyDamage.Update()` (offsets 1947-2055): once infected, the
+  course lazily calls `pickMortalityDuration()` and then drives
+  `ZOMBIE_INFECTION` as `min(1, (now - infectionTime) /
+  infectionMortalityDuration) * 100`; at progress 1.0 it calls
+  `ReduceGeneralHealth(110)` - **death arrives EXACTLY at
+  infectionTime + mortalityDuration.** The clock runs on
+  `getHoursSurvived()` for IsoPlayer characters and world-age hours
+  for everyone else (`getCurrentTimeForInfection`).
+- `pickMortalityDuration()` (hours): Mortality 1 -> 0; 2 -> 0-30s;
+  3 -> 0.5-1min; 4 -> 3-12h; 5 (default) -> **48-72h**; 6 -> 1-2
+  weeks; scaled x1.25 Resilient / x0.75 Prone to Illness.
+- The zombie's own bite (`AddRandomDamageFromZombie`, offset 1834)
+  passes `SetBitten(part, true)` unconditionally.
+
+Consequence: the dormant formula "0.10 + min(0.5, since/480)",
+commented as "the engine's own turning odds", matched nothing in the
+jar - the engine's law is a deterministic per-body window, which the
+record now carries (read via `biteHoursLeft` as a body goes dark, or
+mirrored from the table above when the course had not stamped its
+clock). Who rises mirrors `shouldBecomeZombieAfterDeath` (F-044).
+
+## F-048 - Two exceptions the borders could not see ([C18])
+
+**Verified** [C18], from the operator's own session log - the first
+findings this project has taken from a running game rather than from
+structure.
+
+`SAO_Places.lua` threw 276 times in one session:
+`expected argument of type String, got Double`. `absorb` read the
+engine's item lists as "name, weight, name, weight" and stepped by
+two on that promise. Not all of those lists have that shape - some
+are plain arrays of names, some do not begin on a name - so the
+stride skipped half the names in the first shape and handed a weight
+to `getScriptManager():getItem()` in the second. Every throw
+abandoned the remainder of that room's contents, so what a place
+offers ([B38]) was being derived half-blind wherever the shape did
+not match. Fixed by reading every STRING in the table, which needs no
+assumption about layout.
+
+`SAO_History.lua:296` threw twice: `attempted index: key of
+non-table`. A claim pick indexed outside `fitting`, a table the line
+above proved non-empty, with `(hash % #fitting) + 1` - exact
+non-negative integer arithmetic over a densely built array. The cause
+is NOT established. Guarded so one person's past cannot end
+`generate()` for a whole population pass, and instrumented with the
+index and the length so the next session inherits numbers instead of
+another theory.
+
+## F-049 - A re-issued order restarts the route it is already walking ([C18])
+
+**Verified** [C18], from the operator's session log and their own
+words: "they're clustered up around a house for some reason, but
+they're not moving."
+
+`Loco.order` unconditionally began a new route. The controller
+re-decides on its own cadence and re-issued the SAME destination
+every ~17 frames; each order recomputed the path from scratch, so a
+body advanced roughly half a tile per re-order and never arrived.
+Worse, a traversal in flight ([C4]'s window and fence climbs) was
+cancelled mid-transition and restarted - the log shows
+`TURNING_TO_FENCE -> STARTED_FENCE_CLIMB -> TURNING_TO_FENCE`
+repeating. The route eventually reported `Failed`, which returned the
+survivor to IDLE, where the same believed threat sent them back into
+FLEE: **292 `IDLE -> FLEE` and 292 `FLEE -> IDLE` in one session.**
+
+Fixed in `Loco.order` rather than in the flight state, because the
+defect belongs to ordering and every state that re-orders inherits
+it: a live route whose goal has not moved beyond `RETARGET_REACH`
+(2 tiles) is held rather than restarted.
+
+## F-050 - Another mod's sandbox controls are addressable, and vanilla itself disables options conditionally ([C20] prep)
+
+**Verified** [C19]-adjacent, shipped-Lua reads, for DR-023's "blocked,
+not just documented" requirement.
+
+`OptionScreens/SandboxOptions.lua` keeps every control in
+`self.controls[settingName]` keyed by the FULL option name
+(`:529` builds the map; `:775-776` fills it via
+`option:getName()`), with labels beside them in `self.labels`. So
+`controls["KnoxSurvivors.MaxPersistentSurvivors"]` is reachable from
+any mod's hook - the This Is Your Life mod already reads
+`MainScreen.instance.sandOptions.controls["ThisIsYourLife.EnableCustomAppearance"]`
+in the wild (its TIYLAppearanceSkin.lua:29-36), proving the path
+works across mods.
+
+And disabling is not an invented capability: vanilla ITSELF greys and
+gates options conditionally at `:83-95` - `Map.*` rows grey when
+`Map.AllowWorldMap` is off, `MultiplierConfig.*` rows grey against
+their toggle, via `label:setColor(0.4, 0.4, 0.4)` plus per-widget
+text-color changes. Mirroring that idiom (grey + disable + a tooltip
+naming the overrider) on the specific neighbour options SAO
+neutralizes is the same class of behavior the screen already
+performs on its own options.
+
+Consequence for DR-023: blocking is real. Runtime neutralization in
+SAO's readers stays regardless - the screen surgery is the honest
+face, not the enforcement.
+
+## F-051 - The neighbour's body law: one spawn seam, a ten-minute respawn loop, and removal is not death ([C20] prep)
+
+**Verified** [C19]-adjacent: subagent sweep over the neighbour
+framework's ~90k lines, load-bearing citations hand-checked against
+the live source (KS_Actor.lua:1765-1775, KS_WorldDirector.lua:660-661
+and :851-852, KS_Core.lua:489-496, KS_Actor.lua:2453).
+
+- **One body-creation choke point.** Every body the framework ever
+  makes goes through `KS.SpawnActor(profile, square)`
+  (shared/KS_Actor.lua:1765) - encounters, save restores, world
+  restores, the spouse, beacon visitors, away-team returns. Its own
+  guards return nil for dead profiles, away profiles, and profiles
+  with a live actor, and every caller handles nil gracefully. THIS is
+  the absorption seam: wrap it, and absorbed ids can never be
+  re-bodied by any path.
+- **He re-bodies missing people within ten in-game minutes.**
+  `restoreProfiles` runs on EveryTenMinutes (plus OnGameStart, plus a
+  750ms retry lease for 20s after start, plus post-save restore).
+  Removing a body without closing the seam means a duplicate within
+  the next pulse.
+- **A vanished body is silent.** `KS.GetActor` self-heals (drops the
+  stale runtime entry, returns nil); no error, no death, no log. The
+  profile stays alive in his store - no code path of his ever deletes
+  a profile row.
+- **Removal is not death.** His death handling (`actorDied` -
+  profile.alive=false, group removal, grief, memorials) hangs on
+  `OnZombieDead`, which `removeFromWorld` does not fire. Absorb by
+  REMOVING (`KS.RemoveActorShell` + `KS.DetachRuntimeActor(profile,
+  PROFILE_REMOVAL)`), never by killing, or every absorption becomes a
+  funeral.
+- **The deletion heuristic fires on presence, not absence** (2-of-8
+  marker keys, startup-only, walks getZombieList() only) - removal
+  trips nothing. The standing rule holds from the other side: never
+  write his marker keys (`KnoxSurvivorId`, `KnoxSurvivor` variable,
+  etc.) onto SAO shells, or his UI and targeting bind to our bodies
+  as his.
+- **One sandbox read.** Every option flows through `KS.GetOption`
+  (KS_Core.lua:489), which reads `SandboxVars.KnoxSurvivors.*` at
+  exactly one line - and an INTERNAL_OPTION_DEFAULTS table
+  short-circuits ~30 option names that never reach the sandbox at
+  all. Neutralizing his population dials is therefore also possible
+  at one seam, though DR-023's screen-blocking remains the honest
+  face.
+- **Squad and group state is dual-written**: player squad is
+  `profile.owner`/`profile.groupId` scanned from the store; world
+  groups also keep a `members[]` array with leader promotion and
+  camp-abandonment side effects in `KS.RemoveProfileFromGroup`.
+
+## F-052 - The neighbour's profile is the person, and he drew the copy boundary himself ([C20] prep)
+
+**Verified** as F-051 (same sweep, schema sites hand-checkable at
+KS_Data.lua:2167-2268 and KS_SurvivorModel.lua:11-168).
+
+A profile carries far more than name and inventory: identity and
+appearance (gender, skin, hair, beard, colors, original outfits),
+archetype/traits/backstory, five skills plus XP, trust/loyalty/
+relationship memory/grief, group and base membership, seven needs and
+supplies, wounds/infection/kills, orders and policies, the weapon
+triple, timestamps, and four separate durable inventory ledgers (the
+real one is `profile.durableInventory`, replayed by
+`KS.MaterializeDurableSurvivorInventory`).
+
+Copying selectively would orphan most of the person. The copy rule
+comes from his own code: he maintains `TRANSIENT_FIELDS` (118
+entries), `DEVELOPMENT_FIELDS`, and `RETIRED_FIELDS` with clear
+functions, and his own save migrations deep-copy then clear those
+three sets. Absorption does the same: deep-copy the whole profile,
+run his three clears, and map the result into SAO's record under the
+person's existing identity chain.
+
+## F-053 - The panel class is a per-file local, and the guard died without a sound ([C24])
+
+**Verified** against vanilla source, the declaring lines read
+directly: `media/lua/client/OptionScreens/SandboxOptions.lua` line 3
+is `SandboxOptionsScreen = ISPanelJoypad:derive(...)` - a real global
+- and line 5 is `local SandboxOptionsScreenPanel =
+ISPanelJoypad:derive(...)` - a per-file local, invisible outside that
+file. Same file, two lines apart, opposite visibility.
+
+[C22]'s gating hook read `SandboxOptionsScreenPanel` as a global, got
+nil, and its `if` guard skipped - silently, by design. The gating
+therefore never existed at runtime through a full verified deploy,
+and the operator photographed the proof on `1.12.0.3`: 45445 typed
+into Population (manual) while its switch sat unchecked (R-003).
+This is [C3]'s lesson landing on our own tree: `KS` was a per-file
+local in the neighbour's code and the [B45] hold had never engaged;
+now a vanilla class did the identical thing to us. The census
+classified the name as an engine global on my say-so - the
+classification answered WHO owns it without ever probing WHETHER it
+exists. A global is not verified until the declaring line has been
+read.
+
+The reachable shapes, for the record: `SandboxOptionsScreen:create`
+(line 407) builds one `item.panel` per settings page and each panel
+keys `panel.controls` / `panel.labels` by full option name -
+`self.controls[setting.name]` at the createPanel site - so instance
+wrapping post-create reaches everything the dead hook wanted.
+`ServerSettingsScreen` (its file's line 6) IS a real global, so the
+[C23] dial-deletion hook was live all along.
+
+Two standing rules out of this: an engine global is cited with its
+DECLARING line, not its use sites (use sites look identical for
+locals); and a hook whose anchor may be absent fails LOUDLY through
+the Seams, because a guard that skips in silence converts a missing
+anchor into dead code that passes every text-reading border.
+
+## F-054 - dressInRandomOutfit can return clean and dress nothing ([C26])
+
+**Witnessed, cause-in-engine unproven.** Two of the county's own
+people (`sao-151`, `sao-152`, fresh path, no hibernation) stood
+naked in the operator's kitchen on `1.12.0.4` while the materialize
+log said `dressed=true model=true` - the pcall around
+`dressInRandomOutfit()` succeeded, so the log believed the CALL. The
+body wore nothing (R-006). Other bodies from the identical path were
+clothed the same session, so the failure is per-body, not per-build.
+What decides it inside the engine is not established and is not
+guessed at here.
+
+What IS verified (javap, declaring classes): the dress family on
+`zombie.characters.IsoGameCharacter` (`dressInRandomOutfit()`,
+`dressInNamedOutfit(String)`), and the outcome instrument -
+`getWornItems()` returning `zombie.characters.WornItems.WornItems`
+with `public int size()`.
+
+The standing rule this lands ([B34]'s lesson worn on the skin): a
+dress call that returns is not a dressed body. The county verifies
+OUTCOMES - count what is worn; zero means retry, then a named
+census fallback, and a log line that says which happened. The
+materialize log now carries `worn=<report>` per body, so the next
+naked person arrives with evidence instead of a mystery.

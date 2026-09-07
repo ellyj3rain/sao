@@ -1,9 +1,9 @@
 #!/usr/bin/env python3
 r"""[B33] How long the road actually takes.
 
-The operator questioned a figure rather than a feeling: "twenty five
-years, meaning... that's a lot of people, but it's subjective to what
-people want." That number came from arrivals one a month, one at a
+The operator questioned a figure rather than a feeling: twenty-five
+years is a lot of people, and subjective to what people want. That
+number came from arrivals one a month, one at a
 time, filling a county from 60 to 360 - 300 months, 25 years.
 
 The month was a hardcoded 720.0 hours. [B33] makes the wait derive from
@@ -41,8 +41,12 @@ def constants():
                      r"quietH / ([0-9.]+)\)", s, re.S)
     wait = re.search(r"local wait = ([0-9.]+) / accel", s)
     floor = re.search(r"if wait < ([0-9.]+) then wait = \1 end", s)
-    dflt = re.search(r"roadPressure = \(sv and tonumber\("
-                     r"sv\.RoadPressure\)\) or ([0-9.]+)", s)
+    # [C12] The screen says the pressure in words (six enum steps);
+    # the policy reader maps step N to the scalar N-1 the road maths
+    # always ran on. The mirror reads the default step and applies
+    # the same map.
+    dflt = re.search(r"roadPressure = \(\(\(sv and tonumber\("
+                     r"sv\.RoadPressureStep\)\) or ([0-9.]+)\) - 1\)", s)
     traffic = re.search(r"roadTraffic = \(sv and tonumber\("
                         r"sv\.RoadTraffic\)\) or (\d+)", s)
     if not (base and wait and floor and dflt and traffic):
@@ -51,7 +55,7 @@ def constants():
             "SAO_Population.lua - the rule moved or was removed, and "
             "this mirror is blind")
     return (float(wait.group(1)), float(base.group(1)),
-            float(floor.group(1)), float(dflt.group(1)),
+            float(floor.group(1)), float(dflt.group(1)) - 1.0,
             int(traffic.group(1)))
 
 

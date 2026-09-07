@@ -1,6 +1,6 @@
 | Document | Playability - what a session shows |
 |---|---|
-| Version | `0.6.0.0-pre-alpha` |
+| Version | `2.1.1.0-pre-alpha` |
 | Author | ellyj3rain |
 | Repository | `PLAYABILITY.md` |
 | Status | CANONICAL - what the player can meet; reviewed against the tree, not inherited. |
@@ -13,8 +13,13 @@ live-witnessed until your console says so. Console prefixes to watch:
 `[SAO][POP]`, `[SAO][CTL]`, `[SAO][XCHG]`, `[SAO][NEED]`, `[SAO][census]`.
 The console opens with the boot digest ("day 38: 54 living, 6 dead, 3
 companies, 1 at war / target 216 (sized from the map)" - the target names
-which of the two it is), and "SAO: the county" and "SAO: standing web" are on
-every right-click - no harness spawn needed.
+which of the two it is), and the "The County..." submenu is on every
+right-click - the Ledger under "County Ledger", the standing web and the
+inspect panel under "SAO Debug" - no harness spawn needed. The inspect
+panel also answers a bound key (`J` by default; the options screen's
+"[SAO]" section owns it): the selected survivor's seen / heard / told,
+standing, needs, last decision, and the tick cost, in a normal launch,
+reading everything and teaching the county nothing.
 
 ## The county fills itself
 
@@ -111,11 +116,13 @@ rest. Every option is read, named, and explained in-game.
 
 Re-verified against the tree, 2026-08-28 - not inherited.
 
-**Not yet witnessed in play.** Nothing in the A or B eras has a play
-receipt. Every batch record carries its own pending list, and the offline
-harnesses (individual pasts, county distribution, 120-day society) plus the
-border gate are what stand in the meantime. Code-complete is not the same as
-verified.
+**What play has settled lives in `RECEIPTS.md`** (DR-025), one
+observation at a time - witnessed surfaces, defects exposed in play,
+and open questions. Surfaces without a receipt are stated per batch,
+never as a blanket; the offline harnesses (individual pasts, county
+distribution, 120-day society) plus the border gate stand where play
+has not yet reached. Code-complete is not the same as verified, and
+"no receipt yet" is not the same as "never tested".
 
 **Engine boundaries we cannot cross, and do not fake.**
 

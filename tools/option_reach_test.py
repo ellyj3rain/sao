@@ -148,11 +148,26 @@ def main():
                       "named range, so the docstring's 3 tiles and the "
                       "code's distance can drift apart again")
 
-    # [B39]'s own link, required present rather than assumed.
+    # [B39]'s link, INVERTED by [C25] (DR-027): the ErrandRadius
+    # option is deleted from the screen - how far a person goes is
+    # knowledge and desire, never a dial - so the dormant day must
+    # reach through the county's derived horizons and the knowledge
+    # search, and the dial may not return anywhere in the tree.
+    # Prose is not code: the modules that KILLED the dial name it in
+    # their comments (as the batch records do), so the absence check
+    # reads the tree with comments stripped. Border 99 sweeps the
+    # options and translation surfaces raw.
+    stripped_tree = "".join(
+        "\n".join(line[:line.find("--")] if line.find("--") >= 0
+                  else line for line in body.split("\n"))
+        for body in files.values())
     links = {
-        "the day's reach comes from the option":
-            "local function dayReach()" in dormant
-            and "tonumber(sv.ErrandRadius)" in dormant,
+        "the day's reach derives from the county's horizons":
+            "comfortHorizon()" in dormant,
+        "need cuts ahead of curiosity through the knowledge search":
+            "nearestOffering" in dormant,
+        "the errand dial is gone from the whole tree":
+            "ErrandRadius" not in stripped_tree,
         "and the hardcoded reach is gone":
             "local reach = 24" not in dormant,
     }

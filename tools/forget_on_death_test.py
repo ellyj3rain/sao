@@ -128,6 +128,14 @@ CACHES = {
         "`Loco.cancel` was reached only from `Ctl.drop`, and death "
         "clears the agent registry inline without going through it - "
         "so every dead survivor's job stayed, holding their corpse"),
+    ("SAO_Controller.lua", "Ctl.pendingCorpses"): (
+        "Ctl.forget", "named",
+        "[C8] the corpse net's hold - the ONE table whose whole "
+        "population is dead by design. Its own sweep clears an entry "
+        "the moment the net fires (one grace after the death that "
+        "added it), and the death funnel's forget clears it too as "
+        "belt-and-braces, so a re-fired markDead can never leave a "
+        "stale hold on a body"),
 }
 
 # Module-scope tables this border's shape rule matches and that are

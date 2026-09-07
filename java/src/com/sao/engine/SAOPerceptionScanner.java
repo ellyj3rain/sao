@@ -269,20 +269,34 @@ public final class SAOPerceptionScanner {
                 out.append("+u");
             }
         }
-        // The turned are recognizable ([B3]): zombies carry their
-        // descriptors through death, so a Z row names its zombie as a
-        // trailing field - existing parsers read positionally and are
-        // unaffected; the belief layer decides whether the name means
-        // anything to the witness.
+        // The turned are recognizable ([B3], corrected [C8]): descriptors
+        // do NOT survive the turn - reanimate() builds the zombie a fresh
+        // one carrying gender and voice only (F-044). What DOES survive is
+        // the body's modData, which the engine itself copies character ->
+        // corpse -> risen body, so the person id stamped on the living
+        // shell walks. A Z row therefore tags its zombie "@<id>" when the
+        // mark is there; the bare descriptor name stays as the trailing
+        // field for bodies that never died through that path (the
+        // neighbour framework's living people read as Z too). Existing
+        // parsers read positionally and are unaffected; the belief layer
+        // decides whether the identity means anything to the witness.
         if ("Z".equals(kind)) {
             try {
-                zombie.characters.SurvivorDesc desc = other.getDescriptor();
-                if (desc != null) {
-                    String fore = desc.getForename();
-                    String sur = desc.getSurname();
-                    if (fore != null && sur != null) {
-                        out.append(':')
-                           .append(sanitize(fore + " " + sur));
+                Object mark = other.getModData().rawget("SAOPersonId");
+                if (mark instanceof String personId && !personId.isEmpty()) {
+                    // Knox record ids carry ':' ("ks:<kid>"), which is this
+                    // protocol's field separator - encoded reversibly as
+                    // '~', decoded by the one Lua reader (resolveBodyTag).
+                    out.append(":@").append(sanitize(personId.replace(':', '~')));
+                } else {
+                    zombie.characters.SurvivorDesc desc = other.getDescriptor();
+                    if (desc != null) {
+                        String fore = desc.getForename();
+                        String sur = desc.getSurname();
+                        if (fore != null && sur != null) {
+                            out.append(':')
+                               .append(sanitize(fore + " " + sur));
+                        }
                     }
                 }
             } catch (Throwable ignored) {
