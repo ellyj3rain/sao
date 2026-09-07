@@ -1,13 +1,25 @@
 | Document | Survivor Awareness Overhaul Session State |
 |---|---|
-| Version | `2.4.0.0-pre-alpha` |
+| Version | `2.5.0.0-pre-alpha` |
 | Author | ellyj3rain |
 | Repository | `SESSION_STATE.md` |
 | Status | CANONICAL - where the work actually stands. |
 
 # Session state
 
-**As of** 2026-09-06, `[C31]` close - the child's day (DR-032): a
+**As of** 2026-09-06, `[C32]` close - conditions are facts about a
+person (DR-032): the mind's and the body's conditions are drawn
+from the person's own hash at the record's prevalence, gated by
+age, and read by everything that decides - the axes bend inside the
+envelope, the anxious and the haunted carry fear, the demented and
+the old keep the recent less long and the haunted keep a threat
+longer, the body carries a condition's load every ten minutes, the
+demented lose skill by the day, the psychotic hear a threat nobody
+else does, the dyslexic learn and read slower - and said in plain
+words on the panel and the knowledge surface. Infirmities and Even
+More Traits are required in both manifests for the player's side.
+Border 107 drives it in the engine's own VM. `[C31]` before it - the
+child's day (DR-032): a
 child's fear has a floor by age, deepened at night and eased by a
 comfort object and by their own kills, and the disposition's
 decisions read it while the engine's panic holds it; a child under
@@ -191,16 +203,18 @@ unloaded survivors are governed by the same rules ([B39], [B42]).
 
 ## Deploy state
 
-`2.4.0.0-pre-alpha` at tip - the version machine's output ([C2],
+`2.5.0.0-pre-alpha` at tip - the version machine's output ([C2],
 DR-013; the twelfth minor rolled the tier by the odometer's own
-law). The game install carries the `[C31]` tip, deployed 2026-09-06
+law). The game install carries the `[C32]` tip, deployed 2026-09-06
 with the game closed. The play receipts the C era owes are the next
 thing the tree cannot produce for itself - the operator chose to
 keep building before testing, so `[C29]` (a survivor scaled from
 the harness), `[C30]` (a child in the street, an elder's slower
-walk, a death of old age in the log) and `[C31]` (a child who runs
+walk, a death of old age in the log), `[C31]` (a child who runs
 before an adult would, a bear in a schoolbag, a child's strength on
-the panel) wait together; this session's
+the panel) and `[C32]` (a condition on the panel, a survivor who runs
+from a sound nobody heard, the two required mods enabling) wait
+together; this session's
 play doubles as the live receipt the sibling project's death seam
 needs before its mechanics open.
 
@@ -209,7 +223,7 @@ deploy; `save_compat_test` guards this and runs in the gate.
 
 ## Instruments
 
-**106 numbered borders**, run by **121 gated mirrors** in `tools/`, all invoked
+**107 numbered borders**, run by **122 gated mirrors** in `tools/`, all invoked
 by `tools/check.sh`, which the pre-commit hook runs and CI runs on every push.
 The figures in this paragraph are derived by Border 76 from the tree, not
 maintained by hand. Border 54 keeps the rest honest: it runs every gated

@@ -30,8 +30,14 @@ local function trait(id, name)
     local rec = SAO.Identity and SAO.Identity.get and SAO.Identity.get(id) or nil
     local echo = rec and rec.traitEchoes and rec.traitEchoes[name] or 0
     local learned = rec and rec.lessonEchoes and rec.lessonEchoes[name] or 0
-    if echo ~= 0 or learned ~= 0 then
-        value = math.max(0.15, math.min(0.85, value + echo + learned))
+    -- [C32] A condition bends an axis the way the past does, inside
+    -- the same envelope (SAO_Conditions.bend: a low spell, a scattered
+    -- day, the anxious). Zero for everyone without one.
+    local carried = 0
+    pcall(function() carried = SAO.Conditions.bend(id, name) end)
+    if type(carried) ~= "number" then carried = 0 end
+    if echo ~= 0 or learned ~= 0 or carried ~= 0 then
+        value = math.max(0.15, math.min(0.85, value + echo + learned + carried))
     end
     return value
 end
@@ -59,7 +65,17 @@ end
 function D.fear(id)
     local age = nil
     pcall(function() age = SAO.History.ageOf(id) end)
-    if type(age) ~= "number" or age >= 18 then return 0 end
+    -- [C32] The anxious and the haunted carry fear at any age
+    -- (SAO_Conditions.fear); a child's floor sits under it.
+    local carried = 0
+    pcall(function()
+        local tick = SAO.Controller and SAO.Controller.tick and SAO.Controller.tick() or nil
+        carried = SAO.Conditions.fear(id, tick)
+    end)
+    if type(carried) ~= "number" then carried = 0 end
+    if type(age) ~= "number" or age >= 18 then
+        return math.min(1, carried)
+    end
     local floor = 0
     pcall(function() floor = SAO.History.fearFloorOf(age) end)
     local body = nil
@@ -83,7 +99,7 @@ function D.fear(id)
     pcall(function()
         night = SAO.History.nightFearOf(age, getGameTime():getTimeOfDay())
     end)
-    local fear = floor + night
+    local fear = floor + night + carried
     if fear > 1 then fear = 1 end
     return fear
 end
@@ -172,7 +188,11 @@ end
 -- The hunger level (engine stat, ~0 fed .. 1 starving) at which this person
 -- goes looking for food. The disciplined wait; the indulgent eat early.
 function D.eatAt(id)
-    return 0.30 + trait(id, "appetite") * 0.25   -- 0.3375 .. 0.5125
+    -- [C32] The diabetic looks for food sooner (SAO_Conditions.eatEarlier).
+    local earlier = 0
+    pcall(function() earlier = SAO.Conditions.eatEarlier(id) end)
+    if type(earlier) ~= "number" then earlier = 0 end
+    return 0.30 + trait(id, "appetite") * 0.25 - earlier   -- 0.2875 .. 0.5125
 end
 
 -- Overwhelmed with a loaded gun: stand and shoot, or run anyway? Nerve
@@ -212,7 +232,11 @@ function D.circleCap(id)
 end
 
 -- Habits are hash facts. About a third of the county smoked before the
--- end; the end did not help anyone quit.
+-- end; the end did not help anyone quit. The third is Kentucky's own:
+-- 30.1 percent of adults, BRFSS 1993 (MMWR Surveillance Summaries,
+-- state- and sex-specific prevalence of selected characteristics,
+-- 1992 and 1993; the national figure that year was 25.0 percent,
+-- MMWR, Cigarette Smoking Among Adults - United States, 1993).
 function D.isSmoker(id)
     return hash(id, "smoker") < 0.30
 end

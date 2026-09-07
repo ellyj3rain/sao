@@ -257,8 +257,9 @@ def main():
             and "resetBeardGrowingTime" in read(LOOK),
         "and replaces a banned style": "visual:setHairModel(" in read(LOOK)
             and "BANNED_FOR_CHILDREN" in read(LOOK),
-        "the age module holds the panic floor": 'stage == "child"' in read(AGE)
-            and "CharacterStat.PANIC" in read(AGE) and "SAO.Disposition.fear" in read(AGE),
+        # [C32] widened from the child alone to everyone the fear reads.
+        "the age module holds the panic floor": "CharacterStat.PANIC" in read(AGE)
+            and "SAO.Disposition.fear" in read(AGE),
         "the controller gates the book by literacy": "SAO.History.literacyOf(id)" in read(CONTROLLER)
             and 'literacy48 == "none"' in read(CONTROLLER),
         "the shell carries the learning pace": "public volatile float xpScale = 1f;" in read(SHELL),

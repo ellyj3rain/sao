@@ -58,6 +58,22 @@ local SCAN_INTERVAL  = 20      -- acquisition cadence per survivor
 -- the prune in the decay pass both read this, or they drift and
 -- the table leaks.
 local CRY_RECOGNITION = 600
+
+-- [C32] How long THIS person keeps a recent belief: the horizon above
+-- times a factor that is a fact about them (SAO_Conditions.memoryFactor
+-- - the demented keep the recent half as long, the old past
+-- seventy-five a fifth less, the haunted keep a threat half again as
+-- long). Knowledge decays per person, not at one rate (DR-032). One
+-- for everyone else, so nothing below moves for them. Read once per
+-- pass, not per belief.
+local function horizonFor(id, kind)
+    local base = (kind == "zombies") and ZOMBIE_HORIZON or PEOPLE_HORIZON
+    local factor = 1.0
+    pcall(function() factor = SAO.Conditions.memoryFactor(id, kind) end)
+    if type(factor) ~= "number" or factor <= 0 then factor = 1.0 end
+    return base * factor
+end
+P.horizonFor = horizonFor
 -- [C5] A person talking does not say coordinates. These bands turn a
 -- believed position into the words somebody standing HERE would use
 -- for it; the figures are judgments about speech, not reaches, and
@@ -394,15 +410,17 @@ function P.observe(id, body, tick, asleep)
     end
 
     -- decay pass
+    local zombieHorizon2 = horizonFor(id, "zombies") * 2   -- [C32] this person's
+    local peopleHorizon2 = horizonFor(id, "people") * 2
     for key, belief in pairs(b.zombies) do
-        if tick - belief.at > ZOMBIE_HORIZON * 2 then b.zombies[key] = nil end
+        if tick - belief.at > zombieHorizon2 then b.zombies[key] = nil end
     end
     for name, belief in pairs(b.people) do
         -- F-033: memory of the dead is durable - a dead-flagged belief
         -- never decays, or the news would die with the clock and the
         -- county could not keep retelling its losses.
         if not belief.dead
-            and tick - belief.at > PEOPLE_HORIZON * 2 then
+            and tick - belief.at > peopleHorizon2 then
             b.people[name] = nil
         end
     end
@@ -467,8 +485,9 @@ function P.nearestBelievedZombie(id, tick, fromX, fromY)
     local b = P.beliefs[id]
     if not b then return nil end
     local best, bestDist
+    local horizon = horizonFor(id, "zombies")   -- [C32]
     for _, belief in pairs(b.zombies) do
-        if tick - belief.at <= ZOMBIE_HORIZON then
+        if tick - belief.at <= horizon then
             local d = distanceFor(belief, fromX, fromY)
             if not best or d < bestDist then best, bestDist = belief, d end
         end
@@ -484,8 +503,9 @@ function P.believedThreatCount(id, tick, radius, fromX, fromY)
     local b = P.beliefs[id]
     if not b then return 0 end
     local n = 0
+    local horizon = horizonFor(id, "zombies")   -- [C32]
     for _, belief in pairs(b.zombies) do
-        if tick - belief.at <= ZOMBIE_HORIZON
+        if tick - belief.at <= horizon
             and distanceFor(belief, fromX, fromY) <= (radius or 10) then
             n = n + 1
         end
@@ -499,6 +519,25 @@ function P.hasLookedRecently(id, tick)
     return b ~= nil and (tick - b.lastScanAt) <= SCAN_INTERVAL * 3
 end
 
+-- [C32] A threat nobody else hears (SAO_Conditions.hearsThingsNow;
+-- Scotty's hallucination, at the county's cadence): a heard belief
+-- placed six to twelve tiles off, on a bearing that is a fact about
+-- the person and the moment, held and acted on like any other heard
+-- belief and forgotten by the same decay. Marked so the record can
+-- tell a phantom from a sound.
+function P.hallucinate(id, tick, fromX, fromY)
+    if not (fromX and fromY) then return nil end
+    local b = store(id)
+    local bearing = (SAO.Hash.of(id, "phantom-bearing:" .. tostring(tick)) % 360)
+        * math.pi / 180
+    local dist = 6 + (SAO.Hash.of(id, "phantom-dist:" .. tostring(tick)) % 7)
+    local x = math.floor(fromX + math.cos(bearing) * dist)
+    local y = math.floor(fromY + math.sin(bearing) * dist)
+    b.zombies[x .. "," .. y] = { x = x, y = y, dist = dist, at = tick,
+                                  source = "heard", phantom = true }
+    return x, y
+end
+
 function P.believedPerson(id, name)
     local b = P.beliefs[id]
     return b and b.people[name] or nil
@@ -508,11 +547,12 @@ function P.describe(id, tick)
     local b = P.beliefs[id]
     if not b then return "no-beliefs" end
     local zn, pn = 0, 0
+    local zh, ph = horizonFor(id, "zombies"), horizonFor(id, "people")   -- [C32]
     for _, belief in pairs(b.zombies) do
-        if tick - belief.at <= ZOMBIE_HORIZON then zn = zn + 1 end
+        if tick - belief.at <= zh then zn = zn + 1 end
     end
     for _, belief in pairs(b.people) do
-        if tick - belief.at <= PEOPLE_HORIZON then pn = pn + 1 end
+        if tick - belief.at <= ph then pn = pn + 1 end
     end
     return "beliefs: zombies=" .. zn .. " people=" .. pn
         .. " scans=" .. b.scanCount
@@ -557,9 +597,10 @@ function P.hasAnythingToPass(id, tick)
     if not b then return false end
     for _ in pairs(b.factions or {}) do return true end
     for _ in pairs(b.places or {}) do return true end
+    local horizon = horizonFor(id, "zombies")   -- [C32]
     for _, zb in pairs(b.zombies or {}) do
         if zb.source ~= "told"
-            and tick and (tick - zb.at) <= ZOMBIE_HORIZON then
+            and tick and (tick - zb.at) <= horizon then
             return true
         end
     end
@@ -747,8 +788,9 @@ function P.tell(fromId, toId, tick, chosen)
             end
         end
     end
+    local tellerHorizon = horizonFor(fromId, "zombies")   -- [C32] the teller's own
     for key, belief in pairs(from.zombies) do
-        if tick - belief.at <= ZOMBIE_HORIZON and belief.source ~= "told" then
+        if tick - belief.at <= tellerHorizon and belief.source ~= "told" then
             local existing = to.zombies[key]
             if not existing or existing.source == "told" then
                 -- dist here is the TELLER's; every consumer recomputes

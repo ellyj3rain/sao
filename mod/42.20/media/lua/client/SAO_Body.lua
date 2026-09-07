@@ -241,6 +241,20 @@ function Body.materialize(rec)
         end
     end
 
+    -- [C32] The pace of learning, for everyone: the age's ([C31]) times
+    -- the conditions' (SAO_Conditions.learningScale - dyslexia, a
+    -- focused or a scattered day). The age module refreshes it each
+    -- ten-minute pass, since a focus changes by the day.
+    if SAOJavaBridge and SAO.History and SAO.History.xpScaleOf then
+        pcall(function()
+            local scale = SAO.History.xpScaleOf(SAO.History.ageOf(rec.id))
+            if SAO.Conditions and SAO.Conditions.learningScale then
+                scale = scale * SAO.Conditions.learningScale(rec.id)
+            end
+            SAOJavaBridge:setXpScale(body, scale)
+        end)
+    end
+
     if movedBy then
         log(rec.id .. " woke outside " .. tostring(movedBy)
             .. "'s line at " .. wx .. "," .. wy .. " (DR-028)")

@@ -1,6 +1,6 @@
 | Document | Survivor Awareness Overhaul Engine Contract |
 |---|---|
-| Version | `2.4.0.0-pre-alpha` |
+| Version | `2.5.0.0-pre-alpha` |
 | Author | ellyj3rain |
 | Repository | `ENGINE_CONTRACT.md` |
 | Status | CANONICAL - the verified engine mechanics an IsoPlayer NPC requires. |
@@ -444,4 +444,7 @@ of what a character IS to the engine, and what it is not.
 | `GameTime.getTimeOfDay()` (float, 0 to 24) | the night ([C31]) | javap |
 | `Stats.set(CharacterStat, float)` returning boolean, with `CharacterStat.PANIC` on the engine's 0 to 100 scale | the fear floor held on the body ([C31]) | javap |
 | `IsoGameCharacter.isAsleep()` / `forceAwake()` | exist, unused: SAO's sleep is the agent's state, so Growing Up's nightmares have no seat yet ([C31], not in this batch) | javap |
+| `IsoGameCharacter.getXp()` -> `IsoGameCharacter$XP`: `getXP(Perk)`, `AddXP(Perk, float)` (a negative amount takes experience, as Neurodiverse Traits does), `setXPToLevel(Perk, int)`; `IsoGameCharacter.LoseLevel(Perk)` | dementia's daily skill loss ([C32]) | javap |
+| `PerkFactory$Perk.getParent()`, `getXpForLevel(int)`, `getTotalXpForLevel(int)`; `PerkFactory$Perks.None/Passiv/Agility` (static fields); `PerkFactory.PerkList` | which skills forget and how much ([C32]) | javap |
+| `mod.info` `require=` | the two condition mods for the player's side ([C32], DR-032): `twbInfirmities` (3579088411), `EvenMoreTraits4220` (3777663603) | the Workshop pages' own id lines |
 | NOT in the engine | origin or hometown, schooling, family, service history, media taste, memory or decay of any kind: nothing on the descriptor says so. SAO derives origin region, age, birth year, service eligibility, occupation class, lessons and household itself (`SAO_History`, `SAO_Census`, `SAO_Identity`) | the getters above, read whole |

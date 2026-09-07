@@ -69,6 +69,8 @@ HASH = LUA / "shared" / "SAO_Hash.lua"
 # ranges: the history module and Border 105's stub county load before
 # the decisions so the sample includes them.
 HIST = LUA / "shared" / "SAO_History.lua"
+# [C32] And the conditions, which bend the axes and add fear.
+COND = LUA / "shared" / "SAO_Conditions.lua"
 PRELUDE = ROOT / "tools" / "luacheck" / "probe_age.lua"
 SRC = ROOT / "tools" / "luacheck" / "LuaRun.java"
 OUT = ROOT / "java" / "out" / "luacheck"
@@ -131,7 +133,7 @@ def measure(names):
             shutil.copy2(c, work / c.name)
         done = subprocess.run(
             [str(JDK / "java.exe"), "-cp", f"{PZ};.", "LuaRun",
-             str(PRELUDE), str(HASH), str(HIST), str(DISP), "--", expr],
+             str(PRELUDE), str(HASH), str(HIST), str(COND), str(DISP), "--", expr],
             cwd=str(work), capture_output=True, text=True, timeout=600)
     tail = (done.stdout or "").strip().split("\n")[-1] if done.stdout else ""
     if not tail.startswith("VALUE "):
@@ -155,7 +157,7 @@ def main():
         print("  SKIPPED - no JDK, engine jar, stdlib.lua or runner")
         print("  63) decision range: SKIPPED, engine absent")
         return 0
-    for path in (DISP, HASH, HIST, PRELUDE):
+    for path in (DISP, HASH, HIST, COND, PRELUDE):
         if not path.exists():
             print()
             print("VERDICT:")

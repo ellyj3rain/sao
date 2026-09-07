@@ -177,6 +177,14 @@ function SAOInspectWindow:build()
         row("of " .. tostring(SAO.Standing.factionName(g) or g))
         jsonl.group = tostring(g)
     end
+    -- [C32] What they carry, in plain words (DR-017).
+    pcall(function()
+        local carries = SAO.Conditions.describe(id)
+        if carries then
+            row("carries: " .. carries)
+            jsonl.carries = carries
+        end
+    end)
 
     -- Seen / heard / told: the store raw, counted by provenance.
     local tally = knowledgeTally(id)

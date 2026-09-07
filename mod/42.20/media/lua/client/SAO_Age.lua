@@ -72,8 +72,9 @@ function Age.drift(rec, body, pass)
     -- drops below (Growing Up's, through SAO_Disposition.fear, on the
     -- engine's 0 to 100 scale): held here at the ten-minute pass
     -- rather than every second, this module's cadence for everything
-    -- age does to a person.
-    if stage == "child" then
+    -- age does to a person. [C32] The anxious and the haunted carry
+    -- one at any age, through the same read, so this asks everyone.
+    do
         local fear = 0
         pcall(function() fear = SAO.Disposition.fear(rec.id) end)
         local floor = fear * 100
@@ -85,6 +86,12 @@ function Age.drift(rec, body, pass)
             end)
         end
     end
+    -- [C32] The pace of learning, refreshed each pass: the age's
+    -- ([C31]) times the conditions' (a focus that changes by the day).
+    pcall(function()
+        SAOJavaBridge:setXpScale(body, SAO.History.xpScaleOf(age)
+            * SAO.Conditions.learningScale(rec.id))
+    end)
     if rec.dyingOfOldAge then
         -- Getting Old's decline: faster past seventy, and the body's
         -- own health goes with it, so the engine's death path ends it.
@@ -110,6 +117,57 @@ function Age.drift(rec, body, pass)
             applyStat(stats, name, delta)
         end
     end
+    -- [C32] What a condition carries every ten minutes, in the same
+    -- terms at the same chance (SAO_Conditions.drift: the low and the
+    -- sleepless tire, the anxious carry stress, the short of breath
+    -- lose stamina, a spell turns both).
+    local carried = nil
+    pcall(function() carried = SAO.Conditions.drift(rec.id) end)
+    if type(carried) == "table" then
+        for name, delta in pairs(carried) do
+            if chance(DRIFT_CHANCE, rec.id, salt .. ":carried:" .. name) then
+                applyStat(stats, name, delta)
+            end
+        end
+    end
+end
+
+-- [C32] Dementia's day (Neurodiverse Traits' Alzheimer's, CREDITS.md):
+-- the skills lose some of what they hold, through the bridge, which
+-- walks them the way the mod does. Bodies only - a skill lives on a
+-- body. The roll is seeded from the person and the day.
+function Age.forgetSkills(rec, body, today)
+    if not (rec and body and SAOJavaBridge) then return 0 end
+    local loses = false
+    pcall(function() loses = SAO.Conditions.losesSkillsToday(rec.id) end)
+    if not loses then return 0 end
+    local seed = SAO.Hash.of(rec.id, "skill-loss:" .. tostring(today))
+    local forgot = 0
+    pcall(function()
+        forgot = SAOJavaBridge:loseSkillMemory(body,
+            SAO.Conditions.SKILL_LOSS_SHARE, SAO.Conditions.SKILL_LOSS_CHANCE, seed)
+    end)
+    if type(forgot) == "number" and forgot > 0 then
+        log(rec.id .. " forgets some of what they knew (" .. forgot .. " skills)")
+    end
+    return forgot
+end
+
+-- [C32] Psychosis's hour: a threat nobody else hears, placed in the
+-- person's own beliefs (SAO_Perception.hallucinate) and acted on like
+-- any heard one.
+function Age.hearThings(rec, body, pass)
+    local hears = false
+    pcall(function() hears = SAO.Conditions.hearsThingsNow(rec.id, pass) end)
+    if not hears then return false end
+    local placed = false
+    pcall(function()
+        local tick = SAO.Controller.tick()
+        local x, y = SAO.Perception.hallucinate(rec.id, tick, body:getX(), body:getY())
+        placed = x ~= nil
+    end)
+    if placed then log(rec.id .. " hears something nobody else does") end
+    return placed
 end
 
 -- The day's roll for everyone alive, dormant or not. Marks the living
@@ -142,11 +200,16 @@ local function everyTenMinutes()
     end)
     if not okH then return end
     local today = math.floor(hours / 24.0)
+    local newDay = lastDay ~= today
     for id, body in pairs(SAO.Body.active) do
         local rec = SAO.Identity.get(id)
-        if rec then pcall(Age.drift, rec, body, passCounter) end
+        if rec then
+            pcall(Age.drift, rec, body, passCounter)
+            pcall(Age.hearThings, rec, body, passCounter)
+            if newDay then pcall(Age.forgetSkills, rec, body, today) end
+        end
     end
-    if lastDay ~= today then
+    if newDay then
         lastDay = today
         local tick = passCounter
         for id, rec in pairs(SAO.Identity.all()) do
@@ -159,6 +222,7 @@ if Events and Events.EveryTenMinutes then
     Events.EveryTenMinutes.Add(everyTenMinutes)
 end
 
-log("age module loaded (stage drift every ten minutes, the day's roll for old age)")
+log("age module loaded (stage drift every ten minutes, the day's roll for old age,"
+    .. " what a condition carries, dementia's day, psychosis's hour)")
 
 return Age

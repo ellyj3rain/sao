@@ -1309,6 +1309,19 @@ if ! "$PY" tools/childs_day_test.py > /dev/null; then
     fail=1
 fi
 
+# [C32] Border 107 - conditions are facts about a person (DR-032):
+# drawn at the record's prevalence and gated by age, deterministic,
+# named in plain words; bending the axes inside the envelope, adding
+# fear, setting how long a belief is kept, what the body carries,
+# what the skills lose and what a book costs - driven in the engine's
+# own VM and read off every seam, with the two required mods named in
+# both manifests.
+if ! "$PY" tools/conditions_test.py > /dev/null; then
+    "$PY" tools/conditions_test.py 2>&1 | grep -E "FAULT" || true
+    note "BORDER FINDING - the conditions are not facts about a person"
+    fail=1
+fi
+
 # Border 103 - the operator's speech is not in the repository: no
 # profanity in the tracked tree and no operator-quote attributions;
 # rulings are paraphrased content, speech stays with the speaker.

@@ -51,10 +51,72 @@ assets are redistributed.
 
 ## Other NPC mods
 
-Recognised, never required. There is no `require=` in `mod.info`, and
-another mod's people are handled by property - an `IsoPlayer` that is
-not in the engine's slot array and is not one of ours - so no mod is
+Recognised, never required. `require=` in `mod.info` names no NPC
+mod (only the two condition mods below, since [C32]), and another
+mod's people are handled by property - an `IsoPlayer` that is not in
+the engine's slot array and is not one of ours - so no NPC mod is
 named anywhere in this codebase's logic.
+
+## Infirmities (Twuben)
+
+Workshop 3579088411, mod id `twbInfirmities`, Build 42.20; itself
+requires Moodle Framework and TchernoLib. **Hard runtime dependency
+since [C32]** (DR-032: the player carries the conditions the
+county's people carry). Its terms allow use, collections and
+extension with credit. No code taken.
+
+## Even More Traits (Darkyosh, after Dr. Lalaoz)
+
+Workshop 3777663603, mod id `EvenMoreTraits4220`, Build 42.20 - a
+port of Dr. Lalaoz's Build 41 mod, whose traits, effects and writing
+the port credits whole. **Hard runtime dependency since [C32]**
+(DR-032). No code taken.
+
+## Neurodiverse Traits (Mxswat)
+
+Source public (github.com/mxswat/pz-neurodiverse-traits), Build 41.
+**Mechanisms taken, with the author's permission as the operator
+settled it:** Alzheimer's daily skill loss (each skill outside the
+passive and agility families, an even chance a day of losing 2.5
+percent of the next level), ADHD's daily focus (35 percent plus half
+a percent a day survived, to 70) and bipolar's daily phase, carried
+in `SAO_Conditions` and the bridge's `loseSkillMemory` ([C32]). The
+mod trades in vanilla traits and pills; the county's people have
+axes and no pills, so those parts are not carried.
+
+## Custom Traits Mod (0x00sec)
+
+Workshop 3408520770, Build 41; source not public. **Two figures
+taken from the page's own description:** dyslexia reads a quarter
+slower and gains a tenth less experience ([C32]). No code read.
+
+## Scotty's Mental Health Expansion (ScottyVenable)
+
+MIT (github.com/ScottyVenable/Project-Zomboid-Mod--Scottys-Mental-
+Health-Expansion), Build 41. **Mechanisms taken:** depression and
+insomnia as chronic fatigue, anxiety as raised panic, PTSD as a
+constant low panic with spikes at fresh horror, psychosis as a heard
+threat nobody else hears ([C32]); its numbers are per update on a
+player and the county's are per ten-minute pass on a person, so the
+figures here are ours and say so. Its medications, self-help books
+and journals are not carried.
+
+## ADHD Trait (JoshuaSHenderson)
+
+MIT (github.com/JoshuaSHenderson/ProjectZomboid-ADHD-Trait), Build
+42. **Read; nothing taken.** The catalogue listed it as a cognition
+mod; its mechanic is a comic one (actions three times faster and the
+character dies after fifteen seconds standing still), not a memory
+condition.
+
+## Humans: Are Weak (SeahDokki)
+
+Source-available (github.com/SeahDokki/seah_haw_pz), Build 42, not
+on the Workshop. **Read for its design; nothing taken and not
+required.** It cannot be a `require=` (no upload), and its
+non-commercial source-available terms are not compatible with this
+mod's GPL-3.0, so no code crosses. Recorded so the ruling that
+named it (DR-032) has its answer.
 
 ## Byte Buddy
 

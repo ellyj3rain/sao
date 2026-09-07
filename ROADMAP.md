@@ -1,6 +1,6 @@
 | Document | Survivor Awareness Overhaul Roadmap |
 |---|---|
-| Version | `2.4.0.0-pre-alpha` |
+| Version | `2.5.0.0-pre-alpha` |
 | Author | ellyj3rain |
 | Repository | `ROADMAP.md` |
 | Status | CANONICAL - thread map, backlog, live gates. |
@@ -253,8 +253,12 @@ requirements. Order:
    receipts; `[C31]` SHIPPED the child's day - the fear floor with
    the night and the comfort object, literacy, the throttle and the
    birthday floors, the kit from the child's own temperament, the
-   child's head - awaiting its live receipts; the conditions (the
-   memory ports and the required Build 42 mods) are next. As scoped: (a) age as a system - SAO's age
+   child's head - awaiting its live receipts; `[C32]` SHIPPED the
+   conditions - drawn at the record's prevalence, bending, fearing,
+   keeping, carrying, forgetting and pricing at every seam, the two
+   Build 42 condition mods required for the player's side - awaiting
+   its live receipts; substances (the dependency model into habits)
+   are next. As scoped: (a) age as a system - SAO's age
    drives Getting Old's
    life-stage effects, hair greying and death of old age on SAO's
    people; children get the age curves for speed and weight, the fear

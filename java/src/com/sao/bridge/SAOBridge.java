@@ -2051,6 +2051,58 @@ public final class SAOBridge {
         }
     }
 
+    /** [C32] Dementia's day (Neurodiverse Traits' Alzheimer's, CREDITS.md):
+     *  every skill with a level, except the passive and agility families
+     *  the mod also leaves alone, has the given chance of losing the
+     *  given share of the next level's experience; a level whose
+     *  experience falls under its own floor is lost through the engine's
+     *  LoseLevel. Seeded from the person and the day so two sessions
+     *  agree. Returns how many skills forgot something, -1 when the body
+     *  is not ours; never throws. */
+    public int loseSkillMemory(Object object, double share, int chancePercent, long seed) {
+        try {
+            if (!(object instanceof com.sao.engine.SAOIsoPlayerShell shell)) {
+                return -1;
+            }
+            java.util.Random roll = new java.util.Random(seed);
+            int forgot = 0;
+            for (zombie.characters.skills.PerkFactory.Perk perk
+                    : zombie.characters.skills.PerkFactory.PerkList) {
+                if (perk == null) {
+                    continue;
+                }
+                zombie.characters.skills.PerkFactory.Perk parent = perk.getParent();
+                if (parent == null
+                    || parent == zombie.characters.skills.PerkFactory.Perks.None
+                    || parent == zombie.characters.skills.PerkFactory.Perks.Passiv
+                    || parent == zombie.characters.skills.PerkFactory.Perks.Agility) {
+                    continue;
+                }
+                int level = shell.getPerkLevel(perk);
+                float xp = shell.getXp().getXP(perk);
+                if (level <= 0 || xp <= 0f) {
+                    continue;
+                }
+                if (roll.nextInt(100) >= chancePercent) {
+                    continue;
+                }
+                float loss = perk.getXpForLevel(level + 1) * (float) share;
+                if (loss <= 0f) {
+                    continue;
+                }
+                shell.getXp().AddXP(perk, -loss);
+                if (shell.getXp().getXP(perk) < perk.getTotalXpForLevel(level)) {
+                    shell.LoseLevel(perk);
+                }
+                forgot++;
+            }
+            return forgot;
+        } catch (Throwable throwable) {
+            SAOAgent.log("loseSkillMemory threw: " + throwable);
+            return -1;
+        }
+    }
+
     /** [C31] The pace a body learns at; 1 for anything that is not ours. */
     public double getXpScale(Object object) {
         try {

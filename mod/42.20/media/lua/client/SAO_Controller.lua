@@ -2291,7 +2291,12 @@ local function decide(id, agent, body)
                 -- accumulating. When there is no book there is no
                 -- road, and the job goes to someone else - which is
                 -- the scarcity doing its work.
-                agent.nextStudyAt = tick + 2400
+                -- [C32] A book takes a quarter longer for the dyslexic
+                -- (SAO_Conditions.readingTime, Custom Traits' figure).
+                local readingTime48 = 1.0
+                pcall(function() readingTime48 = SAO.Conditions.readingTime(id) end)
+                if type(readingTime48) ~= "number" then readingTime48 = 1.0 end
+                agent.nextStudyAt = tick + math.floor(2400 * readingTime48)
                 local perk48 = SAO.Census.JOB_PERK[idleRec.designation]
                 -- [B40] Books speak a different vocabulary than perks
                 -- do. The medic's perk is `Doctor` and every first-aid

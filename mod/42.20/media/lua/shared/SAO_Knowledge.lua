@@ -360,6 +360,9 @@ end
 function K.conditioning(id, listenerKey, tick)
     local out = { moment = {} }
     pcall(function() out.traits = SAO.Disposition.traits(id) end)
+    -- [C32] What they carry, in plain words (SAO_Conditions.words):
+    -- a speaker model reads it beside the axes.
+    pcall(function() out.conditions = SAO.Conditions.words(id) end)
     if listenerKey then
         pcall(function()
             out.trust = SAO.Standing.trust(id, listenerKey)
