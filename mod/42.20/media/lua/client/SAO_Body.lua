@@ -170,6 +170,22 @@ function Body.materialize(rec)
         wornReport = okE and tostring(rep) or ("threw:" .. tostring(rep))
     end
 
+    -- [C29] The body's size, from the age. The woven advice reads it on
+    -- the render path from the next frame; an adult answers 1 and the
+    -- call is skipped, so nothing changes for anyone grown. The bridge
+    -- reports the value it held, which is what the log carries.
+    if SAOJavaBridge and SAO.History and SAO.History.heightScaleOf then
+        local okS, scale = pcall(SAO.History.heightScaleOf, rec.id)
+        if okS and type(scale) == "number" and math.abs(scale - 1.0) > 0.001 then
+            local okB, held = pcall(function()
+                return SAOJavaBridge:setBodyScale(body, scale)
+            end)
+            log(rec.id .. " sized " .. tostring(okB and held
+                or ("threw:" .. tostring(held))) .. " (age "
+                .. tostring(SAO.History.ageOf(rec.id)) .. ")")
+        end
+    end
+
     if movedBy then
         log(rec.id .. " woke outside " .. tostring(movedBy)
             .. "'s line at " .. wx .. "," .. wy .. " (DR-028)")

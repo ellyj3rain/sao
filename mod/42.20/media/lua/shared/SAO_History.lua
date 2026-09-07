@@ -116,6 +116,41 @@ function H.ageInYear(id, year)
     return (tonumber(year) or 0) - H.birthYearOf(id)
 end
 
+-- [C29] The body's size from the age. An adult is 1; a child is the
+-- fraction of an adult's height, taken from the Growing Up mod's
+-- height-by-age table (128 cm at 8 to 178 cm at 18, walked on its
+-- growth curve - childhood slow, the teens fast) with the author's
+-- permission as the operator settled it (CREDITS.md). 170 cm is that
+-- table's adult reference, so 18 answers 1.0 and 8 answers 0.753.
+-- Under 8 the table has nothing; the line is carried down three
+-- percent a year, which is ours and said so. Nobody in the county is
+-- under 19 yet ([B37]'s bands), so today this answers 1 for everyone;
+-- the child bands arrive with the age batch. The body reads it once,
+-- when it materializes (SAO_Body), and the woven advice applies it on
+-- the render path from then on.
+local GROWTH_START, GROWTH_ADULT = 8, 18
+local GROWTH_CURVE = 1.20
+local ADULT_REFERENCE_CM = 170
+local HEIGHT_CM = {
+    [8] = 128, [9] = 133, [10] = 138, [11] = 143, [12] = 149, [13] = 156,
+    [14] = 163, [15] = 168, [16] = 172, [17] = 175, [18] = 178,
+}
+
+function H.heightScaleOf(id)
+    local age = H.ageOf(id)
+    if age >= GROWTH_ADULT then return 1.0 end
+    if age < GROWTH_START then
+        local atStart = HEIGHT_CM[GROWTH_START] / ADULT_REFERENCE_CM
+        return math.max(0.5, atStart - (GROWTH_START - age) * 0.03)
+    end
+    local t = ((age - GROWTH_START) / (GROWTH_ADULT - GROWTH_START)) ^ GROWTH_CURVE
+    local visual = GROWTH_START + t * (GROWTH_ADULT - GROWTH_START)
+    local lo = math.floor(visual)
+    local hi = math.min(GROWTH_ADULT, lo + 1)
+    local cm = HEIGHT_CM[lo] + (HEIGHT_CM[hi] - HEIGHT_CM[lo]) * (visual - lo)
+    return math.min(1.0, cm / ADULT_REFERENCE_CM)
+end
+
 -- [B39] The war they were old enough for.
 --
 -- [B37] built `ageInYear` and closed saying nothing read it. This

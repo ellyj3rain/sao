@@ -33,6 +33,7 @@ public final class SAOAgent {
         }
         instrumentation.addTransformer(new SAOMeleeTransformer(), false);
         log("melee callback transformer installed");
+        SAOBodyScaleWeave.install(instrumentation);
         SAOBridgeBootstrap.start();
     }
 

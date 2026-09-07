@@ -32,6 +32,13 @@ public final class SAOIsoPlayerShell extends IsoPlayer {
 
     private final CharacterInputComponent isolatedInput = new CharacterInputComponent();
 
+    /** [C29] The body's size, 1 for an adult. Read on the render path by
+     *  SAOBodyScale after the animation player builds this body's model
+     *  transforms; written by the bridge (setBodyScale) from the
+     *  person's age. A public field because the advice reads it per
+     *  frame and a shell is the only kind of character that carries one. */
+    public volatile float bodyScale = 1f;
+
     public SAOIsoPlayerShell(IsoCell cell, SurvivorDesc desc, int x, int y, int z) {
         super(cell, desc, x, y, z, false);
     }

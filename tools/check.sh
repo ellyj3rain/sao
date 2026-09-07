@@ -1275,6 +1275,18 @@ if ! "$PY" tools/inference_budget_test.py > /dev/null; then
     fail=1
 fi
 
+# [C29] Border 104 - the body is scaled from inside the animation
+# player (DR-032): one exit advice on AnimationPlayer's model-transform
+# build, only the shell carries a size, the arithmetic is uniform about
+# the feet, both load paths install it, the body is sized after it is
+# dressed, the harness carries the click and the report, and the
+# installed game's class weaves, links and verifies off the game.
+if ! "$PY" tools/body_scale_test.py > /dev/null; then
+    "$PY" tools/body_scale_test.py 2>&1 | grep -E "FAULT" || true
+    note "BORDER FINDING - the body scale is missing, misplaced, or does not weave"
+    fail=1
+fi
+
 # Border 103 - the operator's speech is not in the repository: no
 # profanity in the tracked tree and no operator-quote attributions;
 # rulings are paraphrased content, speech stays with the speaker.

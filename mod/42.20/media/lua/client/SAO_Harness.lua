@@ -1930,6 +1930,30 @@ local function fillMenu(playerNum, context, worldobjects)
                     .. " would lift the per-frame ceiling")
             end)
         end)
+        -- [C29] The body's size, applied from inside the animation
+        -- player. One click holds this survivor at three quarters and
+        -- prints the weave's state and the scaler's counters - the
+        -- receipt that the render path honours the scale is the
+        -- operator seeing a smaller person and this line saying why.
+        dbg:addOption("Scale this survivor to three quarters", nil, function()
+            local body = SAO.Body.get(H.activeId)
+            if not body or not SAOJavaBridge then
+                log("no body or no bridge; the size needs both")
+                return
+            end
+            pcall(function()
+                log("size: " .. tostring(SAOJavaBridge:setBodyScale(body, 0.75)))
+                log("size report: " .. tostring(SAOJavaBridge:bodyScaleReport()))
+            end)
+        end)
+        dbg:addOption("Restore this survivor's size", nil, function()
+            local body = SAO.Body.get(H.activeId)
+            if not body or not SAOJavaBridge then return end
+            pcall(function()
+                log("size: " .. tostring(SAOJavaBridge:setBodyScale(body, 1.0)))
+                log("size report: " .. tostring(SAOJavaBridge:bodyScaleReport()))
+            end)
+        end)
         dbg:addOption("What they carry", nil, function()
             local rec = SAO.Identity.get(H.activeId)
             if rec then

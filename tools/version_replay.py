@@ -167,6 +167,7 @@ UNITS = [
     ("C26", "patch", "The click lands and the line holds (R-005/R-006, F-054, DR-028): talk answers bypass the murmur guards and the trust wall falls to the advertised split, dressing is outcome-verified by worn count with retry and fallback, and the wake law pushes foreign-claim wakes out, moves homes off held ground, and seats one body per square (Border 100)."),
     ("C27", "minor", "What one person knows, as one surface (SPEECH_ML_DESIGN.md rung 1): SAO_Knowledge answers nine topics with provenance and age, bundles the ratified conditioning (eight axes, trust, the moment), stays read-only by the one-loop law, is driven offline in the engine's own VM by Border 101, and the inspect panel gauges a person through it."),
     ("C28", "kohai", "The inference budget instrument (SPEECH_ML_DESIGN.md): a deterministic model-shaped workload timed on the game's own JVM from the debug menu, reported under BUDGET - the measurement the sizing decision cites; instrument, not capability (A23's precedent)."),
+    ("C29", "minor", "The body is scaled from inside the animation player (DR-032): a Byte Buddy exit advice on the animation player's model-transform build applies a per-person size held only on SAO's own shell, uniform about the feet; the bridge sets and reports it, the body takes it from the age once dressed, the harness clicks it, and Border 104 weaves the installed class off the game and verifies it - the child bands follow in the age batch."),
 ]
 
 TIER_MEANINGS = [

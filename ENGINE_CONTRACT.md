@@ -1,6 +1,6 @@
 | Document | Survivor Awareness Overhaul Engine Contract |
 |---|---|
-| Version | `2.1.1.0-pre-alpha` |
+| Version | `2.2.0.0-pre-alpha` |
 | Author | ellyj3rain |
 | Repository | `ENGINE_CONTRACT.md` |
 | Status | CANONICAL - the verified engine mechanics an IsoPlayer NPC requires. |
@@ -428,5 +428,10 @@ of what a character IS to the engine, and what it is not.
 | `SurvivorFactory$SurvivorType` | Friendly, Neutral, Aggressive - the only kinds of survivor the factory knows | javap -p |
 | Class-name search of the jar for child, kid, elder, aging | nothing (the only "age" classes are damage, texture pages and `AnimalGrowStage`); the engine ships no child or elder body | `unzip -l` grep |
 | `ModelInstance.scale` (public float), `applyModelScriptScale`; `ModelScript.scale` | NOT a per-character scale: `ModelInstance.scale` is read by `BaseVehicle` alone; `ModelScript.scale` by `IsoObjectModelDrawer` (world objects) and `ItemModelRenderer` (items) only; no reader in the character or skinned-model render path; `ModelInstance` is not in the vanilla Lua exposer. A calf is its own mesh, not a scaled cow. Recorded 2026-09-06 to withdraw an earlier claim in DR-032 | javap -c over every class under skinnedmodel, iso/objects, characters, ui, vehicles, scripting/objects; the exposer's constant pool |
-| `AnimationPlayer.boneTransforms` (public `AnimatorsBoneTransform[]`), `modelTransforms` (private `Matrix4f[]`), `getBoneTransformAt(int)` | the only place a human body's size or proportion could be changed: the bone transforms the renderer draws from. Realism V4 does it by replacing the class; SAO's javaagent could do it by instrumenting the class at load | javap -p |
+| `AnimationPlayer.boneTransforms` (public `AnimatorsBoneTransform[]`), `modelTransforms` (private `Matrix4f[]`), `getBoneTransformAt(int)` | the only place a human body's size or proportion could be changed: the bone transforms the renderer draws from. Realism V4 does it by replacing the class; SAO does it by weaving the class ([C29]) | javap -p |
+| `AnimationPlayer.updateModelTransformsInternal()` (private) | builds `modelTransforms[i]` = `boneTransforms[i].getMatrix()` times `modelTransforms[parent]` (`BoneTransform.mul`), bone by bone - the seam [C29]'s exit advice sits on | javap -c |
+| `AnimationPlayer.getSkinTransforms(SkinningData)` | `skinTransformData.transforms[j]` = `modelTransforms[boneMap[j]]` times `skinningData.boneOffset[j]` (`Matrix4f.mul`); consumed by `Model` (21 references), `AnimatedModel` (3) and `ModelInstanceRenderData` (2) - the render path, which is why scaling the model transforms scales the drawn body | javap -c |
+| `getModelTransformsCount()`, `getModelTransformAt(int)`, `getIsoGameCharacter()`, public `parentPlayer` | the public surface the woven scaler uses: the matrices by reference, and the character they belong to | javap |
+| `AnimationPlayer` is `final` and pooled (`PooledObject`, `s_pool`) | instances are reused across characters, so a size is keyed on the character (the shell's `bodyScale` field), never on the player | javap -p |
+| Byte Buddy 1.18.8 inside `ZombieBuddy.jar` (`net.bytebuddy.ByteBuddy`, `agent.ByteBuddyAgent`, `asm.Advice`, `agent.builder.AgentBuilder`); the ZombieBuddy manifest declares `Can-Retransform-Classes: true` | the weaver and the self-attach the body scale rides - the path Main already takes for the melee patch | jar listing; manifest |
 | NOT in the engine | origin or hometown, schooling, family, service history, media taste, memory or decay of any kind: nothing on the descriptor says so. SAO derives origin region, age, birth year, service eligibility, occupation class, lessons and household itself (`SAO_History`, `SAO_Census`, `SAO_Identity`) | the getters above, read whole |

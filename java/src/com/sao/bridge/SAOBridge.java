@@ -1998,6 +1998,46 @@ public final class SAOBridge {
      *  Stamped from VERSION by tools/build-java.sh now, so it cannot be
      *  typed wrong, and read by the Lua so the county can say what it
      *  is running. */
+    /** [C29] Set a body's size. Only SAO's own shells carry one; the
+     *  scale is held to SAOBodyScale's range and applied on the render
+     *  path by the woven advice from the next frame on. Returns
+     *  "scale=<held value>" or "NOT_A_SHELL". */
+    public String setBodyScale(Object object, double scale) {
+        try {
+            if (!(object instanceof com.sao.engine.SAOIsoPlayerShell shell)) {
+                return "NOT_A_SHELL";
+            }
+            float held = com.sao.agent.SAOBodyScale.clamp((float) scale);
+            shell.bodyScale = held;
+            return "scale=" + held;
+        } catch (Throwable throwable) {
+            return "THREW:" + throwable;
+        }
+    }
+
+    /** [C29] The size a body holds; 1 for anything that is not ours. */
+    public double getBodyScale(Object object) {
+        try {
+            if (object instanceof com.sao.engine.SAOIsoPlayerShell shell) {
+                return shell.bodyScale;
+            }
+            return 1.0;
+        } catch (Throwable throwable) {
+            return 1.0;
+        }
+    }
+
+    /** [C29] The weave's state and the scaler's counters, for the
+     *  harness and the receipt: "weave=..|target=..|calls=..|scaled=..". */
+    public String bodyScaleReport() {
+        try {
+            return com.sao.agent.SAOBodyScaleWeave.report() + "|"
+                + com.sao.agent.SAOBodyScale.report();
+        } catch (Throwable throwable) {
+            return "THREW:" + throwable;
+        }
+    }
+
     public String getVersion() {
         return com.sao.SAOVersion.VALUE;
     }

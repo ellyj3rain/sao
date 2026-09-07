@@ -42,6 +42,10 @@ public final class Main {
         } else if (!SAOCombatGate.isPatchReady()) {
             installMeleePatch();
         }
+        // [C29] The body's size is applied from inside the animation
+        // player; the weave self-attaches the same way the melee patch
+        // does and, if it cannot, bodies simply keep their size.
+        com.sao.agent.SAOBodyScaleWeave.install();
         SAOBridgeBootstrap.start();
     }
 

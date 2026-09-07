@@ -55,3 +55,32 @@ Recognised, never required. There is no `require=` in `mod.info`, and
 another mod's people are handled by property - an `IsoPlayer` that is
 not in the engine's slot array and is not one of ours - so no mod is
 named anywhere in this codebase's logic.
+
+## Byte Buddy
+
+Rafael Winterhalter and contributors. Apache-2.0. **Used at runtime
+through ZombieBuddy's bundled copy; not redistributed.** The
+body-scale weave ([C29]) is a Byte Buddy exit advice installed
+through the same self-attached instrumentation the melee patch uses.
+
+## Growing Up and Realism V4 (PZ Chronicles)
+
+**Read, with the authors' permission as the operator settled it
+directly with them; no code taken.** The route to a body's size - the
+animation player's bone transforms - was read from Realism V4's
+replaced engine classes and Growing Up's Lua before SAO took its own
+route to the same seam ([C29]). Growing Up's height-by-age table is
+carried in `SAO_History.heightScaleOf` with this attribution; its
+fear, literacy, experience and archetype systems are taken in the age
+batch and credited there.
+
+## Think Of The Children (Zomboides)
+
+MIT. **Source read; no code taken.** Its model-instance scale was
+checked against the installed jar and not borne out for characters
+(ENGINE_CONTRACT Addendum F).
+
+## Getting Old (Devlin)
+
+**Source read for the age batch; nothing taken yet.** Its life-stage
+effects are ported there with this attribution.

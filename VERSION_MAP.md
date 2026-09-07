@@ -16,9 +16,9 @@ the machine. Names, dates, and threads below come from
 | Form | `major.minor.kohai.patch-maturity` |
 | Hard caps | minor 12; kohai 16; patch 24 |
 | Replay start | `0.1.0.0-pre-alpha` |
-| Current version | `2.1.1.0-pre-alpha` |
-| Closed chronology | `A1-C28` |
-| Next batch | `C29` |
+| Current version | `2.2.0.0-pre-alpha` |
+| Closed chronology | `A1-C29` |
+| Next batch | `C30` |
 | Executable source | [`tools/version_replay.py`](tools/version_replay.py) |
 
 ## Tier meanings
@@ -144,6 +144,7 @@ the machine. Names, dates, and threads below come from
 | `C26` | 2026-08-29 | patch | `2.0.0.1-pre-alpha` | The click lands and the line holds | The click lands and the line holds (R-005/R-006, F-054, DR-028): talk answers bypass the murmur guards and the trust wall falls to the advertised split, dressing is outcome-verified by worn count with retry and fallback, and the wake law pushes foreign-claim wakes out, moves homes off held ground, and seats one body per square (Border 100). |
 | `C27` | 2026-08-30 | minor | `2.1.0.0-pre-alpha` | What one person knows, as one surface | What one person knows, as one surface (SPEECH_ML_DESIGN.md rung 1): SAO_Knowledge answers nine topics with provenance and age, bundles the ratified conditioning (eight axes, trust, the moment), stays read-only by the one-loop law, is driven offline in the engine's own VM by Border 101, and the inspect panel gauges a person through it. |
 | `C28` | 2026-08-30 | kohai | `2.1.1.0-pre-alpha` | The inference budget instrument | The inference budget instrument (SPEECH_ML_DESIGN.md): a deterministic model-shaped workload timed on the game's own JVM from the debug menu, reported under BUDGET - the measurement the sizing decision cites; instrument, not capability (A23's precedent). |
+| `C29` | 2026-09-06 | minor | `2.2.0.0-pre-alpha` | The body is scaled from inside the animation player | The body is scaled from inside the animation player (DR-032): a Byte Buddy exit advice on the animation player's model-transform build applies a per-person size held only on SAO's own shell, uniform about the feet; the bridge sets and reports it, the body takes it from the age once dressed, the harness clicks it, and Border 104 weaves the installed class off the game and verifies it - the child bands follow in the age batch. |
 
 ## The former number
 
@@ -164,11 +165,11 @@ the meantime, and they are not play.
 
 ## Next movement
 
-`C29` is the next batch. Its content determines its tier after it
+`C30` is the next batch. Its content determines its tier after it
 exists:
 
-| If C29 is | Result |
+| If C30 is | Result |
 |---|---|
-| patch or hotfix | `2.1.1.1-pre-alpha` |
-| kohai | `2.1.2.0-pre-alpha` |
-| minor | `2.2.0.0-pre-alpha` |
+| patch or hotfix | `2.2.0.1-pre-alpha` |
+| kohai | `2.2.1.0-pre-alpha` |
+| minor | `2.3.0.0-pre-alpha` |

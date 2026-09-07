@@ -1,14 +1,23 @@
 | Document | Survivor Awareness Overhaul Session State |
 |---|---|
-| Version | `2.1.1.0-pre-alpha` |
+| Version | `2.2.0.0-pre-alpha` |
 | Author | ellyj3rain |
 | Repository | `SESSION_STATE.md` |
 | Status | CANONICAL - where the work actually stands. |
 
 # Session state
 
-**As of** 2026-09-06 - a records-only step after the `[C28]` close:
-DR-031 records the operator's ruling that the game's shipped record
+**As of** 2026-09-06, `[C29]` close - the body is scaled from inside
+the animation player (DR-032): the renderer scales no character on
+its own, so SAO weaves a Byte Buddy exit advice onto the one method
+that builds a body's per-bone model transforms and applies a size
+held only on its own shell, uniform about the feet; the bridge sets
+and reports it, the body takes it from the age once dressed, the
+harness carries the click, and Border 104 weaves the installed class
+off the game and has the JVM verify it. Nobody is under 19 yet, so
+every body still answers 1; the receipt this waits on is the harness
+click seen at three quarters. The same day, records only: DR-031
+records the operator's ruling that the game's shipped record
 of the fall (the broadcast schedule and the dated newspapers) is the
 living start's to schedule, verified against the installed jar
 before it was written down (ENGINE_CONTRACT Addendum E) and scoped
@@ -166,7 +175,7 @@ unloaded survivors are governed by the same rules ([B39], [B42]).
 
 ## Deploy state
 
-`2.1.1.0-pre-alpha` at tip - the version machine's output ([C2],
+`2.2.0.0-pre-alpha` at tip - the version machine's output ([C2],
 DR-013; the twelfth minor rolled the tier by the odometer's own
 law). The game install carries the `[C24]` tip (its
 coordinate is in the map), deployed 2026-08-29 while the operator
@@ -181,7 +190,7 @@ deploy; `save_compat_test` guards this and runs in the gate.
 
 ## Instruments
 
-**103 numbered borders**, run by **118 gated mirrors** in `tools/`, all invoked
+**104 numbered borders**, run by **119 gated mirrors** in `tools/`, all invoked
 by `tools/check.sh`, which the pre-commit hook runs and CI runs on every push.
 The figures in this paragraph are derived by Border 76 from the tree, not
 maintained by hand. Border 54 keeps the rest honest: it runs every gated
