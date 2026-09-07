@@ -1,6 +1,6 @@
 | Document | Survivor Awareness Overhaul Decision Registry |
 |---|---|
-| Version | `2.6.0.0-pre-alpha` |
+| Version | `2.6.0.1-pre-alpha` |
 | Author | ellyj3rain |
 | Repository | `DECISION_REGISTRY.md` |
 | Status | CANONICAL, APPEND-ONLY - ratified decisions. |
@@ -988,3 +988,23 @@ playing.
 **Origin.** Operator direction in chat, 2026-09-06, paraphrased. The
 forks it leaves open - who may order whom, whether a person may refuse,
 and how far the engineless county runs - go to Crucible.
+
+**Ruled 2026-09-06 (Crucible, the three forks).** No authority table
+is authored. Whether people follow the player - or anyone - depends
+on the circumstances of the game and the people in it: if you can
+get people to follow you, then your own competence and background,
+your relations to those around you, and their competence make
+coordinated combat follow by proxy, and it gets more patterned as
+those improve. CAO's Authority pillar is the model the operator
+named: an explicit record of who may command whom, a relayed order
+weighed by the giver's standing and the follower's discipline and
+opinion of the giver, refusal a visible event, and support measured
+separately. In SAO that record is the Standing pillar as it exists -
+houses, leaders, designations, trust - and the competence the
+census, the skills and the kills already carry. Refusal is
+contextual to the dynamics of the world: no fixed rule; the
+disposition and standing decide case by case, as they do for
+everything else. The engineless county is not scoped: the point is
+to load the game anyway; the offline borders remain the test surface
+for the county's logic and nothing larger is built on this ruling.
+The register is the one part that builds now: [C34].

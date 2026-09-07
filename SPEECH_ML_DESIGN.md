@@ -212,6 +212,18 @@ never rambles, grief never chats. The seed corpus must
 demonstrate the voice differences the model is expected to learn;
 the rule floors are authored and bordered like any other law.
 
+**AMENDED 2026-09-06 (DR-033): the moment carries the strain.**
+People talk in their own idiom in ordinary company and
+pragmatically at work and under threat, weighing the cost of every
+word. So the situation - working, under threat, resting - and
+whether the speaker is spent are inputs beside war, grief, debt and
+the bite, and the rule floors shorten the register under strain:
+under threat one short sentence and no asking back; at work at most
+two, and only what the work needs; spent, no chat. The seed corpus
+must show the same person in both registers. The knowledge surface
+carries the situation and the energy from [C34]; the floors are
+bordered when the speaker exists to hold them.
+
 ## Decision 6 - What is the exchange?
 
 Answering is the floor. Whether they also ask, request, remember

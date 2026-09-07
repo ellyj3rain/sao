@@ -1,13 +1,21 @@
 | Document | Survivor Awareness Overhaul Session State |
 |---|---|
-| Version | `2.6.0.0-pre-alpha` |
+| Version | `2.6.0.1-pre-alpha` |
 | Author | ellyj3rain |
 | Repository | `SESSION_STATE.md` |
 | Status | CANONICAL - where the work actually stands. |
 
 # Session state
 
-**As of** 2026-09-06, `[C33]` close - habits are facts about a person
+**As of** 2026-09-06, `[C34]` close - the moment carries the strain
+(DR-033): the knowledge surface reads the situation the controller's
+pressure names (under threat, working, resting) and whether the
+speaker is spent, beside the axes, trust and the moment; Decision 5
+is amended with the register floors under strain; Border 101 asks for
+both. DR-033 also records the day's direction - talk is text, orders
+follow standing, the county runs without the engine - and the three
+forks ruled through Crucible without a rule to author. `[C33]` before
+it - habits are facts about a person
 (DR-032, S6): the drinker is drawn at the record's prevalence and
 then lives on the record - The Alcoholic's four withdrawal phases by
 the hours dry, a drink taken through the engine's own fluid action
@@ -213,11 +221,12 @@ unloaded survivors are governed by the same rules ([B39], [B42]).
 
 ## Deploy state
 
-`2.6.0.0-pre-alpha` at tip - the version machine's output ([C2],
+`2.6.0.1-pre-alpha` at tip - the version machine's output ([C2],
 DR-013; the twelfth minor rolled the tier by the odometer's own
 law). The game install carries the `[C32]` tip, deployed 2026-09-06; the
-`[C33]` deploy was refused because the game was running, so it waits
-for the next window the game is closed (`bash tools/deploy.sh`). The play receipts the C era owes are the next
+`[C33]` and `[C34]` deploys were refused because the game was
+running, so they wait for the next window the game is closed
+(`bash tools/deploy.sh`). The play receipts the C era owes are the next
 thing the tree cannot produce for itself - the operator chose to
 keep building before testing, so `[C29]` (a survivor scaled from
 the harness), `[C30]` (a child in the street, an elder's slower

@@ -157,6 +157,15 @@ def main():
              'tostring(SAO.Knowledge.conditioning("p1","player:you")'
              '.moment.debt)',
              "VALUE true"),
+            # [C34] the strain (DR-033): the situation and the energy.
+            ("conditioning knows the strain",
+             'tostring(SAO.Knowledge.conditioning("p1","player:you")'
+             '.moment.situation)',
+             "VALUE under threat"),
+            ("and whether the speaker is spent",
+             'tostring(SAO.Knowledge.conditioning("p1","player:you")'
+             '.moment.spent)',
+             "VALUE true"),
             ("trust 0.2 answers guardedly",
              'tostring(SAO.Knowledge.conditioning("p1","player:you")'
              '.trusted)',

@@ -97,7 +97,20 @@ SAO.Disposition = {
     end,
 }
 
-SAO.Body = { get = function(id) return nil end }
+-- [C34] p1 has a body and a live agent, under threat and spent; the
+-- knowledge surface reads the strain off both. The body is a bare
+-- table: every engine call on it throws into a pcall, which is the
+-- surface's own law.
+SAO.Body = { get = function(id) if id == "p1" then return {} end return nil end }
+SAO.Needs = {
+    read = function(body)
+        return { hunger = 0.2, thirst = 0.2, fatigue = 0.8, endurance = 0.2, nicotine = 0 }
+    end,
+}
+SAO.Controller = {
+    agents = { p1 = { state = "ENGAGE", pressure = { answer = "need" } } },
+    tick = function() return 2000 end,
+}
 
 SAO.Places = {
     comfortHorizon = function() return 150 end,

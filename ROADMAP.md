@@ -1,6 +1,6 @@
 | Document | Survivor Awareness Overhaul Roadmap |
 |---|---|
-| Version | `2.6.0.0-pre-alpha` |
+| Version | `2.6.0.1-pre-alpha` |
 | Author | ellyj3rain |
 | Repository | `ROADMAP.md` |
 | Status | CANONICAL - thread map, backlog, live gates. |
@@ -221,6 +221,15 @@ is lived, witnessed, and remembered person by person. Slices:
    E) makes it in-process work; the Speakeasy world document
    knox-event.md keys the record to those dates.
 
+Named by the operator 2026-09-06: Week One (Slayer, on the Bandits
+NPC engine) as existing art for the living county before the fall -
+civilian animations, vehicle models, sounds, outfits, several
+credited authors' work under one mod. Catalogued in Speakeasy's
+people-mods.md (part 4) from the pages; nothing of its logic
+crosses (its people are programmed zombies on a scripted timeline).
+The art waits on the two mods being on disk to read and on the
+operator's selection through Crucible.
+
 ## People through required mods (DR-032, operator-ruled 2026-09-06)
 
 The county is to have children and elders, and people with the
@@ -313,6 +322,9 @@ scoped from it, unscheduled until their forks pass Crucible:
   county, reporting who died, who quit what, what was forgotten.
 
 And the register itself: the knowledge surface's conditioning gains
-the situation and the speaker's energy, a small slice on the
-substrate already built.
+the situation and the speaker's energy - SHIPPED as `[C34]`. The
+three forks returned through Crucible the same day (DR-033, ruled):
+no authority table, command as CAO's Authority pillar does it on the
+Standing that exists; refusal contextual; the engineless county not
+scoped, the game being loaded anyway.
 

@@ -365,6 +365,36 @@ function K.conditioning(id, listenerKey, tick)
     pcall(function() out.conditions = SAO.Conditions.words(id) end)
     -- [C33] And the habits, the same way.
     pcall(function() out.habits = SAO.Habits.words(id) end)
+    -- [C34] The strain the speaker is under (DR-033): the situation
+    -- the controller's own pressure answer names - working, under
+    -- threat, resting - and whether they are spent, read off the
+    -- body's own stats. The register follows it; the rule floors in
+    -- SPEECH_ML_DESIGN.md (Decision 5, amended) shorten it under
+    -- strain. Nothing where there is no live agent or body: a reader
+    -- that cannot tell says nothing.
+    pcall(function()
+        local agent = SAO.Controller.agents[id]
+        if not agent then return end
+        local state = tostring(agent.state or "")
+        local answer = agent.pressure and agent.pressure.answer or nil
+        if state == "ENGAGE" or state == "ALERT" or state == "FLEE" then
+            out.moment.situation = "under threat"
+        elseif answer == "designation" then
+            out.moment.situation = "working"
+        elseif answer == "chosen rest" then
+            out.moment.situation = "resting"
+        end
+    end)
+    pcall(function()
+        local body = SAO.Body.get(id)
+        if not body then return end
+        local needs = SAO.Needs.read(body)
+        if not needs then return end
+        -- Spent: tired past six tenths, or under three tenths of
+        -- stamina left (ours; the engine's own 0 to 1 stats).
+        out.moment.spent = (needs.fatigue or 0) > 0.6
+            or (needs.endurance or 1) < 0.3
+    end)
     if listenerKey then
         pcall(function()
             out.trust = SAO.Standing.trust(id, listenerKey)
