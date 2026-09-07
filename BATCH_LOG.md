@@ -1,6 +1,6 @@
 | Document | Survivor Awareness Overhaul Batch Log |
 |---|---|
-| Version | `2.5.0.0-pre-alpha` |
+| Version | `2.6.0.0-pre-alpha` |
 | Author | ellyj3rain |
 | Repository | `BATCH_LOG.md` |
 | Status | REGULATORY - chronological batch index. |
@@ -137,3 +137,4 @@ attribution for every merged entry, stated here rather than in a branch name.
 | [C30](Batches/C30-2026-09-06-age-is-a-system-on-the-countys-people.md) | 2026-09-06 | Age is a system on the county's people | [`T-002`](Batches/THREADS.md#t-002), [`T-007`](Batches/THREADS.md#t-007), [`T-006`](Batches/THREADS.md#t-006) |
 | [C31](Batches/C31-2026-09-06-the-childs-day.md) | 2026-09-06 | The child's day | [`T-002`](Batches/THREADS.md#t-002), [`T-007`](Batches/THREADS.md#t-007), [`T-006`](Batches/THREADS.md#t-006) |
 | [C32](Batches/C32-2026-09-06-conditions-are-facts-about-a-person.md) | 2026-09-06 | Conditions are facts about a person | [`T-002`](Batches/THREADS.md#t-002), [`T-007`](Batches/THREADS.md#t-007), [`T-006`](Batches/THREADS.md#t-006) |
+| [C33](Batches/C33-2026-09-06-habits-are-facts-about-a-person.md) | 2026-09-06 | Habits are facts about a person | [`T-002`](Batches/THREADS.md#t-002), [`T-007`](Batches/THREADS.md#t-007), [`T-006`](Batches/THREADS.md#t-006) |

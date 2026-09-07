@@ -61,6 +61,31 @@ public final class SAONeeds {
     }
 
     /** True when this food is worth a survivor's stomach. */
+    /** [C33] A drink: a fluid container with something alcoholic in it
+     *  (Build 42 keeps beer, wine and whiskey as fluids in the
+     *  Alcoholic category, not as food; InventoryItem.isAlcoholic is
+     *  the bandages' flag). Never throws. */
+    private static boolean drinkable(InventoryItem item) {
+        try {
+            if (item == null || !item.isFluidContainer()) {
+                return false;
+            }
+            zombie.entity.components.fluids.FluidContainer container = item.getFluidContainer();
+            if (container == null || container.isEmpty()) {
+                return false;
+            }
+            return container.isCategory(zombie.entity.components.fluids.FluidCategory.Alcoholic);
+        } catch (Throwable throwable) {
+            return false;
+        }
+    }
+
+    /** [C33] The Lua wrap of the drink action asks this about the item
+     *  it just finished, so the habit hears the county's drinks. */
+    public static boolean isDrinkAlcoholic(Object object) {
+        return object instanceof InventoryItem item && drinkable(item);
+    }
+
     private static boolean edible(InventoryItem item) {
         if (!(item instanceof Food food)) {
             return false;
@@ -75,6 +100,28 @@ public final class SAONeeds {
      * Best food the shell already carries, or null. The most filling piece
      * wins; a person eats their biggest meal first when hungry.
      */
+    /** [C33] The fullest alcoholic drink carried, or null. */
+    public static InventoryItem bestCarriedDrinkAlcohol(IsoPlayer shell) {
+        try {
+            InventoryItem best = null;
+            float bestAmount = 0.0f;
+            java.util.ArrayList<InventoryItem> items = shell.getInventory().getItems();
+            for (int i = 0; i < items.size(); i++) {
+                InventoryItem item = items.get(i);
+                if (drinkable(item)) {
+                    float amount = item.getFluidContainer().getAmount();
+                    if (best == null || amount > bestAmount) {
+                        bestAmount = amount;
+                        best = item;
+                    }
+                }
+            }
+            return best;
+        } catch (Throwable throwable) {
+            return null;
+        }
+    }
+
     public static InventoryItem bestCarriedFood(IsoPlayer shell) {
         try {
             InventoryItem best = null;
@@ -103,6 +150,30 @@ public final class SAONeeds {
      * down (stairs walk since [A9]); cross-floor finds carry a heavy
      * distance penalty so the detour happens only when this floor is bare.
      */
+    /** [C33] The nearest container holding a drink, on the same floor
+     *  ring as food and into the same source record, so the vanilla
+     *  take that food uses takes this. "x:y:z:name" or "". */
+    public static String findDrinkSourceNear(IsoPlayer shell, int radius) {
+        try {
+            FoodSource best = nearestOnFloorRing(shell, radius,
+                square -> firstDrinkIn(square));
+            if (best == null) {
+                SOURCES.remove(shell);
+                return "";
+            }
+            SOURCES.put(shell, best);
+            String name;
+            try {
+                name = best.item.getDisplayName();
+            } catch (Throwable throwable) {
+                name = "a drink";
+            }
+            return best.x + ":" + best.y + ":" + best.z + ":" + name;
+        } catch (Throwable throwable) {
+            return "";
+        }
+    }
+
     public static String findFoodSourceNear(IsoPlayer shell, int radius) {
         try {
             // [B31] The last of [B31]'s four sweeps that was
@@ -1227,6 +1298,35 @@ public final class SAONeeds {
     }
 
     /** First edible item in any container on this square, else null. */
+    /** [C33] The first drink in any container on the square. */
+    private static FoodSource firstDrinkIn(IsoGridSquare square) {
+        java.util.List<IsoObject> objects = square.getObjects();
+        for (int i = 0; i < objects.size(); i++) {
+            IsoObject object = objects.get(i);
+            int count = object.getContainerCount();
+            for (int c = 0; c < count; c++) {
+                ItemContainer container = object.getContainerByIndex(c);
+                if (container == null) {
+                    continue;
+                }
+                java.util.ArrayList<InventoryItem> items = container.getItems();
+                for (int k = 0; k < items.size(); k++) {
+                    InventoryItem item = items.get(k);
+                    if (drinkable(item)) {
+                        FoodSource source = new FoodSource();
+                        source.container = container;
+                        source.item = item;
+                        source.x = square.getX();
+                        source.y = square.getY();
+                        source.z = square.getZ();
+                        return source;
+                    }
+                }
+            }
+        }
+        return null;
+    }
+
     private static FoodSource firstFoodIn(IsoGridSquare square) {
         java.util.List<IsoObject> objects = square.getObjects();
         for (int i = 0; i < objects.size(); i++) {

@@ -16,9 +16,9 @@ the machine. Names, dates, and threads below come from
 | Form | `major.minor.kohai.patch-maturity` |
 | Hard caps | minor 12; kohai 16; patch 24 |
 | Replay start | `0.1.0.0-pre-alpha` |
-| Current version | `2.5.0.0-pre-alpha` |
-| Closed chronology | `A1-C32` |
-| Next batch | `C33` |
+| Current version | `2.6.0.0-pre-alpha` |
+| Closed chronology | `A1-C33` |
+| Next batch | `C34` |
 | Executable source | [`tools/version_replay.py`](tools/version_replay.py) |
 
 ## Tier meanings
@@ -148,6 +148,7 @@ the machine. Names, dates, and threads below come from
 | `C30` | 2026-09-06 | minor | `2.3.0.0-pre-alpha` | Age is a system on the county's people | Age is a system on the county's people (DR-032): the bands run from six to ninety weighted from the 1990 resident population, five life stages (Getting Old's, credited) drift the living every ten minutes on the engine's own stats, the age decides the work, the pace and the size, and the old die of it on the life table (NCHS 1997, the nearest machine-readable year) - Border 105 drives it in the engine's own VM. |
 | `C31` | 2026-09-06 | minor | `2.4.0.0-pre-alpha` | The child's day | The child's day (DR-032): Growing Up's fear floor by age with the night, the comfort object and the kills that harden, read by the disposition's decisions and held on the engine's panic; literacy by the school years lived; the experience throttle on the shell and the birthday floors on strength and fitness; the kit from the child's own temperament; the child's head - Border 106 drives it in the engine's own VM. |
 | `C32` | 2026-09-06 | minor | `2.5.0.0-pre-alpha` | Conditions are facts about a person | Conditions are facts about a person (DR-032): drawn at the record's prevalence and gated by age, the mind's and the body's conditions bend the axes, add fear, set how long a belief is kept, what the body carries every ten minutes, what the skills lose and what a book costs; named in plain words on every surface; the two Build 42 condition mods required for the player's side - Border 107 drives it in the engine's own VM. |
+| `C33` | 2026-09-06 | minor | `2.6.0.0-pre-alpha` | Habits are facts about a person | Habits are facts about a person (DR-032, S6): the drinker at the record's prevalence with The Alcoholic's phases, the drink taken through the engine's own fluid action or found where one is, the habit lost after three weeks dry and gained by drinking often; the users the county fell with on N and C's schedule, gone by the twentieth clean day; what a habit carries every pass, and the day that settles it - Border 108 drives it in the engine's own VM. |
 
 ## The former number
 
@@ -168,11 +169,11 @@ the meantime, and they are not play.
 
 ## Next movement
 
-`C33` is the next batch. Its content determines its tier after it
+`C34` is the next batch. Its content determines its tier after it
 exists:
 
-| If C33 is | Result |
+| If C34 is | Result |
 |---|---|
-| patch or hotfix | `2.5.0.1-pre-alpha` |
-| kohai | `2.5.1.0-pre-alpha` |
-| minor | `2.6.0.0-pre-alpha` |
+| patch or hotfix | `2.6.0.1-pre-alpha` |
+| kohai | `2.6.1.0-pre-alpha` |
+| minor | `2.7.0.0-pre-alpha` |

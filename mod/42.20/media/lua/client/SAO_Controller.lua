@@ -1409,6 +1409,38 @@ local function decide(id, agent, body)
         end
     end
 
+    -- [C33] The drink ([A14] S6; The Alcoholic's shakes, CREDITS.md): a
+    -- drinker twelve hours dry takes a drink from the pack through the
+    -- vanilla fluid action, and with none carried goes to where one is
+    -- - the same forage path food takes, into the same take. Below
+    -- real needs, like the smoke; another person's claim still stands.
+    if agent.state == "IDLE" or agent.state == "ROAM" then
+        local wantsDrink = false
+        pcall(function() wantsDrink = SAO.Habits.wantsDrink(id) end)
+        if wantsDrink then
+            if SAO.Needs.drinkCarriedAlcohol(id, body) then
+                agent.taskDeadline = tick + 1200
+                setState(agent, id, "EAT", "a drink, for the shakes")
+                return
+            end
+            if not agent.nextDrinkSeekAt or tick >= agent.nextDrinkSeekAt then
+                agent.nextDrinkSeekAt = tick + 1200
+                local dx, dy, dz, dname = SAO.Needs.findDrinkSource(id, body)
+                if dx and not mayEnterBelieved(id, dx, dy) then
+                    SAO.Needs.clearSource(body)
+                    log(id .. " will not take a drink from a claimed place")
+                    dx = nil
+                end
+                if dx and SAO.Locomotion.order(id, body, dx, dy, dz) then
+                    agent.taskDeadline = tick + 3600
+                    setState(agent, id, "FORAGE",
+                        "the shakes: heads for " .. tostring(dname))
+                    return
+                end
+            end
+        end
+    end
+
     -- A gift on the ground: something useful within arm's reach gets
     -- picked up through the vanilla grab (leisure priority - the needy
     -- already found their own food above). Attribution happens at grab

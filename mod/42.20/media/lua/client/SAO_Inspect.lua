@@ -179,8 +179,15 @@ function SAOInspectWindow:build()
     end
     -- [C32] What they carry, in plain words (DR-017).
     pcall(function()
-        local carries = SAO.Conditions.describe(id)
-        if carries then
+        local parts = {}
+        local conditions = SAO.Conditions.describe(id)
+        if conditions then parts[#parts + 1] = conditions end
+        -- [C33] the habits beside the conditions, in the same words.
+        local habits = nil
+        pcall(function() habits = SAO.Habits.describe(id) end)
+        if habits then parts[#parts + 1] = habits end
+        if #parts > 0 then
+            local carries = table.concat(parts, ", ")
             row("carries: " .. carries)
             jsonl.carries = carries
         end

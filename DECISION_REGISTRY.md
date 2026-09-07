@@ -1,6 +1,6 @@
 | Document | Survivor Awareness Overhaul Decision Registry |
 |---|---|
-| Version | `2.5.0.0-pre-alpha` |
+| Version | `2.6.0.0-pre-alpha` |
 | Author | ellyj3rain |
 | Repository | `DECISION_REGISTRY.md` |
 | Status | CANONICAL, APPEND-ONLY - ratified decisions. |
@@ -940,3 +940,51 @@ lands; nothing wrong is drawn meanwhile.
 
 **Origin.** Operator rulings via Crucible, 2026-09-06; the elder
 clarification in chat the same day.
+
+## DR-033 - Talk is text, the register follows the strain, and orders follow standing
+
+**Decision.** Communication with the county's people is text: the
+player writes or dictates in their own words and a person answers in
+theirs - the shape a dialogue-driven role-playing game takes - carried
+by the ratified two-piece system (DR-029, DR-030) and the one-loop law
+([B27]). Three refinements bind the design from here.
+
+1. **The register follows the strain.** In ordinary company people
+   talk in their own idiom; at work and under threat they talk
+   pragmatically, spending as few words as the moment allows and
+   weighing the cost of each. The speaker's conditioning
+   (SPEECH_ML_DESIGN.md, Decision 5, "the moment") therefore carries
+   the situation - working, under threat, resting - and the speaker's
+   own energy, and the authored rule floors shorten the register
+   accordingly. The same rule governs what survivors say to each
+   other: one loop.
+
+2. **Orders follow standing.** Whether a person does what they are
+   told in a fight is a social fact - the houses, their leaders and
+   designations the Standing pillar already keeps - and a matter of
+   the competence the giver has shown, never a control scheme. Where
+   the giver holds both, combat can be run in real time by spoken
+   orders, several people directed at once, as a squad game would be
+   if it never paused. Without them an order is a request the person
+   weighs like any other. The harness's operator orders (engage,
+   travel, regroup, take a crew) are the debug shape of this; the
+   player's version goes through standing.
+
+3. **The county without the engine.** The game is still loaded and
+   played; alongside it, the county's own logic is to generate and
+   run a living world with no engine at all - the record side
+   (people, pasts, relations, houses, conditions, habits, knowledge
+   and its decay) driven over simulated days - as a test surface and
+   as the proof that the world is derived rather than authored.
+
+**Why.** The operator's direction of 2026-09-06: by the nature of the
+game and of people, talk is idiosyncratic in the ordinary run and
+pragmatic under struggle with the expense of energy weighed; the
+design should let the player communicate naturally, dictation
+included; combat authority is a social fact; and a living world should
+be generable and testable by the county's own logic, not only by
+playing.
+
+**Origin.** Operator direction in chat, 2026-09-06, paraphrased. The
+forks it leaves open - who may order whom, whether a person may refuse,
+and how far the engineless county runs - go to Crucible.

@@ -363,6 +363,8 @@ function K.conditioning(id, listenerKey, tick)
     -- [C32] What they carry, in plain words (SAO_Conditions.words):
     -- a speaker model reads it beside the axes.
     pcall(function() out.conditions = SAO.Conditions.words(id) end)
+    -- [C33] And the habits, the same way.
+    pcall(function() out.habits = SAO.Habits.words(id) end)
     if listenerKey then
         pcall(function()
             out.trust = SAO.Standing.trust(id, listenerKey)

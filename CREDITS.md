@@ -109,6 +109,33 @@ mod; its mechanic is a comic one (actions three times faster and the
 character dies after fifteen seconds standing still), not a memory
 condition.
 
+## The Alcoholic (axxessdenied)
+
+MIT (github.com/axxessdenied/thealcoholic), Build 41. **Mechanisms
+taken ([C33]):** the hours since the last drink, the four withdrawal
+phases at 12, 24, 48 and 72 hours with their stress and fatigue,
+the habit lost after 504 hours dry and gained by drinking often
+(four a drink, one off an hour, gained at 200), the stress a drink
+takes, and the wrap of the drink action that counts a drink -
+carried in `SAO_Habits` and `SAO_Needs` at SAO's own cadence. Its
+tolerance, poisoning, headaches and death by withdrawal are not.
+
+## N and C's Narcotics (Neely, a_COW_says)
+
+Workshop 3404956403, Build 42; source not public. **The page's own
+schedule taken ([C33]):** a dependency lost after eighteen to
+twenty clean days, with withdrawal medium from day one (three for
+sedatives), bad from day five (six) and mild from day ten. The page
+gives the tiers and not their sizes; the sizes in `SAO_Habits` are
+ours and say so. Its drugs, items and interactions are not carried
+- the county has no supply of any of them. No code read.
+
+## Drugs of '93 (Red Jones), Just Drugs (Leuan), Psychology Skill (WindLother)
+
+Read in the catalogue for the period set, the dependency pattern and
+the nicotine and alcohol dependency they model; nothing taken, none
+required.
+
 ## Humans: Are Weak (SeahDokki)
 
 Source-available (github.com/SeahDokki/seah_haw_pz), Build 42, not

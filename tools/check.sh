@@ -1322,6 +1322,19 @@ if ! "$PY" tools/conditions_test.py > /dev/null; then
     fail=1
 fi
 
+# [C33] Border 108 - habits are facts about a person (DR-032, S6): the
+# drinker at the record's prevalence with The Alcoholic's phases, the
+# drink taken and the habit lost or gained on the record; the users
+# the county fell with on N and C's schedule; what a habit carries
+# every pass; the drink found and taken through the engine's own
+# fluid surfaces - driven in the engine's own VM and read off every
+# seam.
+if ! "$PY" tools/habits_test.py > /dev/null; then
+    "$PY" tools/habits_test.py 2>&1 | grep -E "FAULT" || true
+    note "BORDER FINDING - the habits are not facts about a person"
+    fail=1
+fi
+
 # Border 103 - the operator's speech is not in the repository: no
 # profanity in the tracked tree and no operator-quote attributions;
 # rulings are paraphrased content, speech stays with the speaker.

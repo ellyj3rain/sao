@@ -1,6 +1,6 @@
 | Document | Survivor Awareness Overhaul Roadmap |
 |---|---|
-| Version | `2.5.0.0-pre-alpha` |
+| Version | `2.6.0.0-pre-alpha` |
 | Author | ellyj3rain |
 | Repository | `ROADMAP.md` |
 | Status | CANONICAL - thread map, backlog, live gates. |
@@ -257,8 +257,13 @@ requirements. Order:
    conditions - drawn at the record's prevalence, bending, fearing,
    keeping, carrying, forgetting and pricing at every seam, the two
    Build 42 condition mods required for the player's side - awaiting
-   its live receipts; substances (the dependency model into habits)
-   are next. As scoped: (a) age as a system - SAO's age
+   its live receipts; `[C33]` SHIPPED the habits - the drinker with
+   The Alcoholic's phases and the drink taken or found, the users the
+   county fell with on N and C's schedule - awaiting its live
+   receipts. The people-through-required-mods arc is built through;
+   what remains is the operator's: the live receipts of five batches,
+   the two required mods subscribed, and the figures still waiting on
+   a primary (psychosis, insomnia). As scoped: (a) age as a system - SAO's age
    drives Getting Old's
    life-stage effects, hair greying and death of old age on SAO's
    people; children get the age curves for speed and weight, the fear
@@ -287,4 +292,27 @@ The one piece worth building early is the **knowledge query surface**
 old - because every renderer needs it, it is testable offline against
 the mirrors, and it improves the Ledger and the briefing today with
 no dialogue attached.
+
+Refined 2026-09-06 (DR-033): the register follows the strain, orders
+follow standing, and the county runs without the engine. Two arcs
+scoped from it, unscheduled until their forks pass Crucible:
+
+- **Command through standing.** An order is an utterance the
+  understander reads beside questions and requests; who may give it
+  and who must weigh it is the Standing pillar's business - leader,
+  designation, trust, the giver's shown competence - and real-time
+  direction of several people by dictation follows where authority
+  holds. First slice: the harness's operator orders re-routed through
+  standing for the player, with refusal inside the disposition's
+  envelope.
+- **The county without the engine.** The record side generated and
+  run over simulated days in the bare VM the borders already use -
+  people, pasts, relations, houses, conditions, habits, knowledge and
+  its decay - as a test surface for the world as a world. First
+  slice: a day-loop runner over the shared modules with a stub
+  county, reporting who died, who quit what, what was forgotten.
+
+And the register itself: the knowledge surface's conditioning gains
+the situation and the speaker's energy, a small slice on the
+substrate already built.
 

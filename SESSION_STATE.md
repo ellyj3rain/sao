@@ -1,13 +1,23 @@
 | Document | Survivor Awareness Overhaul Session State |
 |---|---|
-| Version | `2.5.0.0-pre-alpha` |
+| Version | `2.6.0.0-pre-alpha` |
 | Author | ellyj3rain |
 | Repository | `SESSION_STATE.md` |
 | Status | CANONICAL - where the work actually stands. |
 
 # Session state
 
-**As of** 2026-09-06, `[C32]` close - conditions are facts about a
+**As of** 2026-09-06, `[C33]` close - habits are facts about a person
+(DR-032, S6): the drinker is drawn at the record's prevalence and
+then lives on the record - The Alcoholic's four withdrawal phases by
+the hours dry, a drink taken through the engine's own fluid action
+or found where one is through the forage path, the habit gone after
+three weeks dry and gained by drinking often; the users the county
+fell with sweat it out on N and C's schedule and are clean by the
+twentieth day; every drink a body finishes is counted; the age
+module carries the load every pass and settles the habits daily; the
+panel and the knowledge surface say it plainly. Border 108 drives it
+in the engine's own VM. `[C32]` before it - conditions are facts about a
 person (DR-032): the mind's and the body's conditions are drawn
 from the person's own hash at the record's prevalence, gated by
 age, and read by everything that decides - the axes bend inside the
@@ -203,18 +213,20 @@ unloaded survivors are governed by the same rules ([B39], [B42]).
 
 ## Deploy state
 
-`2.5.0.0-pre-alpha` at tip - the version machine's output ([C2],
+`2.6.0.0-pre-alpha` at tip - the version machine's output ([C2],
 DR-013; the twelfth minor rolled the tier by the odometer's own
-law). The game install carries the `[C32]` tip, deployed 2026-09-06
-with the game closed. The play receipts the C era owes are the next
+law). The game install carries the `[C32]` tip, deployed 2026-09-06; the
+`[C33]` deploy was refused because the game was running, so it waits
+for the next window the game is closed (`bash tools/deploy.sh`). The play receipts the C era owes are the next
 thing the tree cannot produce for itself - the operator chose to
 keep building before testing, so `[C29]` (a survivor scaled from
 the harness), `[C30]` (a child in the street, an elder's slower
 walk, a death of old age in the log), `[C31]` (a child who runs
 before an adult would, a bear in a schoolbag, a child's strength on
-the panel) and `[C32]` (a condition on the panel, a survivor who runs
-from a sound nobody heard, the two required mods enabling) wait
-together; this session's
+the panel), `[C32]` (a condition on the panel, a survivor who runs
+from a sound nobody heard, the two required mods enabling) and
+`[C33]` (a drinker's shakes on the panel, a drink taken from the pack,
+a walk to a cabinet for a bottle) wait together; this session's
 play doubles as the live receipt the sibling project's death seam
 needs before its mechanics open.
 
@@ -223,7 +235,7 @@ deploy; `save_compat_test` guards this and runs in the gate.
 
 ## Instruments
 
-**107 numbered borders**, run by **122 gated mirrors** in `tools/`, all invoked
+**108 numbered borders**, run by **123 gated mirrors** in `tools/`, all invoked
 by `tools/check.sh`, which the pre-commit hook runs and CI runs on every push.
 The figures in this paragraph are derived by Border 76 from the tree, not
 maintained by hand. Border 54 keeps the rest honest: it runs every gated

@@ -534,6 +534,29 @@ public final class SAOBridge {
         return "";
     }
 
+    /** [C33] The fullest alcoholic drink carried, for the vanilla fluid
+     *  action; null when there is none or the body is not ours. */
+    public Object findCarriedAlcohol(Object object) {
+        if (object instanceof SAOIsoPlayerShell shell) {
+            return com.sao.engine.SAONeeds.bestCarriedDrinkAlcohol(shell);
+        }
+        return null;
+    }
+
+    /** [C33] Scan for a container holding a drink; "x:y:z:name" or "". */
+    public String findAlcoholSource(Object object, double radius) {
+        if (object instanceof SAOIsoPlayerShell shell) {
+            return com.sao.engine.SAONeeds.findDrinkSourceNear(shell, (int) radius);
+        }
+        return "";
+    }
+
+    /** [C33] Whether an item is an alcoholic drink (a fluid container in
+     *  the Alcoholic category with something in it). */
+    public boolean isAlcoholicDrink(Object item) {
+        return com.sao.engine.SAONeeds.isDrinkAlcoholic(item);
+    }
+
     /** Best carried food as an opaque object for vanilla action constructors. */
     public Object findCarriedFood(Object object) {
         if (object instanceof SAOIsoPlayerShell shell) {

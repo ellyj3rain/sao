@@ -157,3 +157,35 @@ teaches it, where it runs, how the grounding is enforced, how a
 person's temperament reaches their wording - is
 `SPEECH_ML_DESIGN.md`. Each decision returns through Crucible; this
 document remains the direction it serves.
+
+## The register and the order (2026-09-06, DR-033)
+
+The operator refined the direction the same day the people arc
+closed, and DR-033 records it. Talk is text - written or dictated,
+in the player's own words, answered in the person's own - which this
+document already held; what is new binds the design in three places.
+
+- **The register follows the strain.** People talk in their own
+  idiom in ordinary company and pragmatically at work and under
+  threat, weighing the cost of every word. So "the moment" the
+  speaker is conditioned on (SPEECH_ML_DESIGN.md, Decision 5) carries
+  the situation and the speaker's own energy, and the rule floors
+  shorten the register under strain. The knowledge surface is where
+  that reaches the models; survivors' lines to each other obey the
+  same rule.
+- **Orders follow standing.** In a fight, whether a person does what
+  they are told is decided by social structure and position - the
+  Standing pillar's houses, leaders and designations - and by the
+  competence the giver has shown. With both, combat runs in real
+  time on spoken orders to several people at once; without them an
+  order is a request weighed like any other. The understander
+  therefore learns orders beside questions, statements, requests,
+  offers and threats, and every order lands through standing.
+- **The county without the engine.** A living county is to be
+  generated and run by the county's own logic with no game loaded -
+  the record side over simulated days - so the world can be tested
+  as a world and not only watched.
+
+The forks these leave - who may order whom, whether a person may
+refuse, how far the engineless county runs - return through
+Crucible, as every speech decision has.

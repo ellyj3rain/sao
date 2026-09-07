@@ -130,6 +130,36 @@ function Age.drift(rec, body, pass)
             end
         end
     end
+    -- [C33] What a habit carries: the shakes by the hours dry and a
+    -- dependency's withdrawal by the days clean (SAO_Habits.drift),
+    -- every pass - withdrawal is not a chance.
+    local habit = nil
+    pcall(function() habit = SAO.Habits.drift(rec.id, nil, pass) end)
+    if type(habit) == "table" then
+        for name, delta in pairs(habit) do
+            applyStat(stats, name, delta)
+        end
+    end
+end
+
+-- [C33] The day settles the habits: three weeks dry and the drinker
+-- is one no longer; eighteen to twenty clean days and a dependency
+-- is gone. Records, not bodies - a habit lives on the person.
+function Age.settleHabits(rec, today)
+    if not rec or rec.dead then return 0 end
+    local settled = 0
+    pcall(function()
+        if SAO.Habits.settleDrinker(rec.id) then
+            settled = settled + 1
+            log(rec.id .. " has been dry three weeks - the drink has let go")
+        end
+        local n = SAO.Habits.settleUsers(rec.id)
+        if n > 0 then
+            settled = settled + n
+            log(rec.id .. " is clean - " .. n .. " dependency gone")
+        end
+    end)
+    return settled
 end
 
 -- [C32] Dementia's day (Neurodiverse Traits' Alzheimer's, CREDITS.md):
@@ -214,6 +244,7 @@ local function everyTenMinutes()
         local tick = passCounter
         for id, rec in pairs(SAO.Identity.all()) do
             pcall(Age.dailyRoll, rec, today, tick)
+            pcall(Age.settleHabits, rec, today)
         end
     end
 end
@@ -223,6 +254,7 @@ if Events and Events.EveryTenMinutes then
 end
 
 log("age module loaded (stage drift every ten minutes, the day's roll for old age,"
-    .. " what a condition carries, dementia's day, psychosis's hour)")
+    .. " what a condition carries, dementia's day, psychosis's hour,"
+    .. " the shakes and the day that settles a habit)")
 
 return Age

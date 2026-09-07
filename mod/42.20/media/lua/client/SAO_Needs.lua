@@ -722,12 +722,62 @@ function N.clearSource(body)
     pcall(function() SAOJavaBridge:clearFoodSource(body) end)
 end
 
+-- [C33] A drink, for the shakes: the fullest alcoholic drink carried,
+-- a quarter of it, through the vanilla fluid action (the same one
+-- the context menu queues; shared TimedActions/ISDrinkFluidAction).
+-- A quarter is a drink - ours. Returns true when queued.
+function N.drinkCarriedAlcohol(id, body)
+    if not SAOJavaBridge then return false end
+    local okF, item = pcall(function() return SAOJavaBridge:findCarriedAlcohol(body) end)
+    if not okF or item == nil then return false end
+    local queued = N.queueVerified(ISDrinkFluidAction:new(body, item, 0.25))
+    if queued then log(id .. " takes a drink (vanilla fluid action)") end
+    return queued
+end
+
+-- [C33] Where a drink is: the nearest container holding one, into the
+-- same source record food uses, so queueTake takes it. Returns
+-- x, y, z, name or nil.
+function N.findDrinkSource(id, body, radius)
+    if not SAOJavaBridge then return nil end
+    local ok, s = pcall(function()
+        return SAOJavaBridge:findAlcoholSource(body, radius or N.PERCEPTION_TILES)
+    end)
+    if not ok or type(s) ~= "string" or s == "" then return nil end
+    local x, y, z, name = string.match(s, "^(%-?%d+):(%-?%d+):(%-?%d+):(.*)$")
+    if not x then return nil end
+    return tonumber(x), tonumber(y), tonumber(z), name
+end
+
 -- Whether the body's own action stack still holds queued work.
 function N.busy(body)
     local ok, pending = pcall(function()
         return SAOJavaBridge:hasPendingActions(body)
     end)
     return ok and pending == true
+end
+
+-- [C33] The county's drinks are counted (The Alcoholic wraps the eat
+-- action the same way, CREDITS.md): when one of OUR bodies finishes
+-- a drink of anything alcoholic - by its own hand or the player's
+-- gift - the habit hears it. A field on the vanilla class, wrapped
+-- once; the player's own drinks pass straight through.
+if ISDrinkFluidAction and not ISDrinkFluidAction.SAOHabitsWrapped then
+    ISDrinkFluidAction.SAOHabitsWrapped = true
+    local baseComplete = ISDrinkFluidAction.complete
+    function ISDrinkFluidAction:complete()
+        local result = baseComplete(self)
+        pcall(function()
+            local body = self.character
+            local id = body and body:getModData().SAOPersonId or nil
+            if id and SAOJavaBridge and SAOJavaBridge:isAlcoholicDrink(self.item) then
+                if SAO.Habits.drank(tostring(id)) then
+                    log(tostring(id) .. " has had a drink")
+                end
+            end
+        end)
+        return result
+    end
 end
 
 log("needs module loaded")
