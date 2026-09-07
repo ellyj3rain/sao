@@ -1,6 +1,6 @@
 | Document | Survivor Awareness Overhaul Roadmap |
 |---|---|
-| Version | `2.6.0.1-pre-alpha` |
+| Version | `2.7.0.0-pre-alpha` |
 | Author | ellyj3rain |
 | Repository | `ROADMAP.md` |
 | Status | CANONICAL - thread map, backlog, live gates. |
@@ -227,8 +227,9 @@ civilian animations, vehicle models, sounds, outfits, several
 credited authors' work under one mod. Catalogued in Speakeasy's
 people-mods.md (part 4) from the pages; nothing of its logic
 crosses (its people are programmed zombies on a scripted timeline).
-The art waits on the two mods being on disk to read and on the
-operator's selection through Crucible.
+The art was read on disk and selected through Crucible (DR-034):
+SHIPPED as `[C35]` - the county's gestures, seats, tunes, dances,
+claps and coughs, from Hobbies and Week One, copied and credited.
 
 ## People through required mods (DR-032, operator-ruled 2026-09-06)
 

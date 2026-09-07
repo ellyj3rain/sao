@@ -1335,6 +1335,17 @@ if ! "$PY" tools/habits_test.py > /dev/null; then
     fail=1
 fi
 
+# [C35] Border 109 - the county's gestures (DR-034): every copied file
+# present, rigged and credited; every node parsing and naming a file;
+# every name the module uses bound; the sounds defined; and the
+# moments - the meeting, the voice's events, the seat, the tune -
+# wired to the gesture that shows them.
+if ! "$PY" tools/gestures_test.py > /dev/null; then
+    "$PY" tools/gestures_test.py 2>&1 | grep -E "FAULT" || true
+    note "BORDER FINDING - the county's gestures are not carried"
+    fail=1
+fi
+
 # Border 103 - the operator's speech is not in the repository: no
 # profanity in the tracked tree and no operator-quote attributions;
 # rulings are paraphrased content, speech stays with the speaker.

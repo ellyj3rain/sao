@@ -136,6 +136,30 @@ Read in the catalogue for the period set, the dependency pattern and
 the nicotine and alcohol dependency they model; nothing taken, none
 required.
 
+## Lifestyle: Hobbies (Angry)
+
+Workshop 3403870858, mod id `LifestyleHobbies`, Build 42.19+. Its
+page asks that its work be added to or extended only with the
+creator's express permission, with credit in the files and wherever
+the mod goes. **Files copied, with the author's permission as the
+operator settled it ([C35], DR-034):** twenty-two conversation
+gestures, eight sitting loops, eight instrument plays and sixteen
+dances, under `media/anims_X/Bob`, named as the mod names them;
+the bindings are SAO's own. Nothing of its code, items, skills or
+systems is taken.
+
+## Week One (Slayer), for its art
+
+Workshop 3403180543, mod id `BanditsWeekOne`; on the Bandits engine
+(3268487204), whose page holds that all the author's work is
+copyrighted and not to be reused without written permission.
+**Files copied, with the authors' permission as the operator settled
+it ([C35], DR-034):** the waiter's serving animation (SaneGuy, the
+mod's animator) and the coughs and claps (Lauren Sinclair and AuD,
+as the mod credits its sounds), under `media/anims_X/Bob` and
+`media/sound/sao`. Nothing of its logic crosses: its people are
+programmed zombies on a scripted timeline, and SAO's are not.
+
 ## Humans: Are Weak (SeahDokki)
 
 Source-available (github.com/SeahDokki/seah_haw_pz), Build 42, not

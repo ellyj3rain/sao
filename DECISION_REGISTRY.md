@@ -1,6 +1,6 @@
 | Document | Survivor Awareness Overhaul Decision Registry |
 |---|---|
-| Version | `2.6.0.1-pre-alpha` |
+| Version | `2.7.0.0-pre-alpha` |
 | Author | ellyj3rain |
 | Repository | `DECISION_REGISTRY.md` |
 | Status | CANONICAL, APPEND-ONLY - ratified decisions. |
@@ -1008,3 +1008,28 @@ everything else. The engineless county is not scoped: the point is
 to load the game anyway; the offline borders remain the test surface
 for the county's logic and nothing larger is built on this ruling.
 The register is the one part that builds now: [C34].
+
+## DR-034 - Existing art crosses into SAO copied, with permission, and credited
+
+**Decision.** The county's people wear art that already exists where it
+is better than anything SAO would author: the operator named Week One
+and then Lifestyle: Hobbies, and ruled through Crucible that four
+groups cross - conversation gestures; seated, work and street life;
+the sounds of buildings and the fall; dances and instruments - copied
+into SAO's own tree with each credited author's permission as the
+operator settles it, credited in CREDITS.md per author, and bound by
+SAO's own animation-set nodes on variables only SAO sets. Where a
+group exists in both, Hobbies' files are the source: rigged for the
+player, richer, one author. Requiring either mod is not a route -
+Bandits spawns its own programmed people and Week One rewrites the
+world and its timeline, and both collide with the county.
+
+**Why.** The operator, 2026-09-06 and 07: Week One has animations and a
+society already living, and there is existing art we could use; some
+of it exists already with Hobbies; go with permission. A gesture is
+never authored on its own - it is what a decision the county already
+made looks like - so the art dresses the meeting, the voice's events,
+the evening seat and the porch tune, and nothing else changes.
+
+**Origin.** Operator direction in chat and two Crucible rulings,
+2026-09-06 and 07; the files read on disk before anything was chosen.

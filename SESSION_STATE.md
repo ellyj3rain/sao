@@ -1,13 +1,20 @@
 | Document | Survivor Awareness Overhaul Session State |
 |---|---|
-| Version | `2.6.0.1-pre-alpha` |
+| Version | `2.7.0.0-pre-alpha` |
 | Author | ellyj3rain |
 | Repository | `SESSION_STATE.md` |
 | Status | CANONICAL - where the work actually stands. |
 
 # Session state
 
-**As of** 2026-09-06, `[C34]` close - the moment carries the strain
+**As of** 2026-09-07, `[C35]` close - the county's gestures (DR-034):
+existing art copied with permission and credited - Hobbies'
+conversation gestures, sitting loops, instrument plays and dances,
+Week One's serving, coughs and claps - bound by SAO's own nodes on
+variables only SAO sets, and wired to the moments the county already
+has: the meeting's verdict, the voice's events, the evening seat, the
+porch tune and its listeners. Border 109 holds file, node and name to
+each other. `[C34]` before it - the moment carries the strain
 (DR-033): the knowledge surface reads the situation the controller's
 pressure names (under threat, working, resting) and whether the
 speaker is spent, beside the axes, trust and the moment; Decision 5
@@ -221,11 +228,11 @@ unloaded survivors are governed by the same rules ([B39], [B42]).
 
 ## Deploy state
 
-`2.6.0.1-pre-alpha` at tip - the version machine's output ([C2],
+`2.7.0.0-pre-alpha` at tip - the version machine's output ([C2],
 DR-013; the twelfth minor rolled the tier by the odometer's own
 law). The game install carries the `[C32]` tip, deployed 2026-09-06; the
-`[C33]` and `[C34]` deploys were refused because the game was
-running, so they wait for the next window the game is closed
+`[C33]`, `[C34]` and `[C35]` deploys were refused because the game
+was running, so they wait for the next window the game is closed
 (`bash tools/deploy.sh`). The play receipts the C era owes are the next
 thing the tree cannot produce for itself - the operator chose to
 keep building before testing, so `[C29]` (a survivor scaled from
@@ -244,7 +251,7 @@ deploy; `save_compat_test` guards this and runs in the gate.
 
 ## Instruments
 
-**108 numbered borders**, run by **123 gated mirrors** in `tools/`, all invoked
+**109 numbered borders**, run by **124 gated mirrors** in `tools/`, all invoked
 by `tools/check.sh`, which the pre-commit hook runs and CI runs on every push.
 The figures in this paragraph are derived by Border 76 from the tree, not
 maintained by hand. Border 54 keeps the rest honest: it runs every gated

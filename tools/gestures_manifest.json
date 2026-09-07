@@ -1,0 +1,594 @@
+{
+ "files": [
+  {
+   "file": "mod/42.20/media/anims_X/Bob/Bob_Converse_Acknowledging.fbx",
+   "source": "C:/Program Files (x86)/Steam/steamapps/workshop/content/108600/3403870858/mods/Lifestyle/common/media/anims_X/Bob_Converse_Acknowledging.fbx",
+   "group": "gesture",
+   "author": "Angry (Lifestyle: Hobbies), copied with permission",
+   "bytes": 346396
+  },
+  {
+   "file": "mod/42.20/media/anims_X/Bob/Bob_Converse_Agony.fbx",
+   "source": "C:/Program Files (x86)/Steam/steamapps/workshop/content/108600/3403870858/mods/Lifestyle/common/media/anims_X/Bob_Converse_Agony.fbx",
+   "group": "gesture",
+   "author": "Angry (Lifestyle: Hobbies), copied with permission",
+   "bytes": 364524
+  },
+  {
+   "file": "mod/42.20/media/anims_X/Bob/Bob_Converse_Agreeing.fbx",
+   "source": "C:/Program Files (x86)/Steam/steamapps/workshop/content/108600/3403870858/mods/Lifestyle/common/media/anims_X/Bob_Converse_Agreeing.fbx",
+   "group": "gesture",
+   "author": "Angry (Lifestyle: Hobbies), copied with permission",
+   "bytes": 372316
+  },
+  {
+   "file": "mod/42.20/media/anims_X/Bob/Bob_Converse_AgreeingHandGesture.fbx",
+   "source": "C:/Program Files (x86)/Steam/steamapps/workshop/content/108600/3403870858/mods/Lifestyle/common/media/anims_X/Bob_Converse_AgreeingHandGesture.fbx",
+   "group": "gesture",
+   "author": "Angry (Lifestyle: Hobbies), copied with permission",
+   "bytes": 340956
+  },
+  {
+   "file": "mod/42.20/media/anims_X/Bob/Bob_Converse_Angry01.fbx",
+   "source": "C:/Program Files (x86)/Steam/steamapps/workshop/content/108600/3403870858/mods/Lifestyle/common/media/anims_X/Bob_Converse_Angry01.fbx",
+   "group": "gesture",
+   "author": "Angry (Lifestyle: Hobbies), copied with permission",
+   "bytes": 351372
+  },
+  {
+   "file": "mod/42.20/media/anims_X/Bob/Bob_Converse_Angry02.fbx",
+   "source": "C:/Program Files (x86)/Steam/steamapps/workshop/content/108600/3403870858/mods/Lifestyle/common/media/anims_X/Bob_Converse_Angry02.fbx",
+   "group": "gesture",
+   "author": "Angry (Lifestyle: Hobbies), copied with permission",
+   "bytes": 332940
+  },
+  {
+   "file": "mod/42.20/media/anims_X/Bob/Bob_Converse_ArmForward.fbx",
+   "source": "C:/Program Files (x86)/Steam/steamapps/workshop/content/108600/3403870858/mods/Lifestyle/common/media/anims_X/Bob_Converse_ArmForward.fbx",
+   "group": "gesture",
+   "author": "Angry (Lifestyle: Hobbies), copied with permission",
+   "bytes": 346588
+  },
+  {
+   "file": "mod/42.20/media/anims_X/Bob/Bob_Converse_ArmGesture.fbx",
+   "source": "C:/Program Files (x86)/Steam/steamapps/workshop/content/108600/3403870858/mods/Lifestyle/common/media/anims_X/Bob_Converse_ArmGesture.fbx",
+   "group": "gesture",
+   "author": "Angry (Lifestyle: Hobbies), copied with permission",
+   "bytes": 353052
+  },
+  {
+   "file": "mod/42.20/media/anims_X/Bob/Bob_Converse_Dismissive01.fbx",
+   "source": "C:/Program Files (x86)/Steam/steamapps/workshop/content/108600/3403870858/mods/Lifestyle/common/media/anims_X/Bob_Converse_Dismissive01.fbx",
+   "group": "gesture",
+   "author": "Angry (Lifestyle: Hobbies), copied with permission",
+   "bytes": 326172
+  },
+  {
+   "file": "mod/42.20/media/anims_X/Bob/Bob_Converse_Dismissive02.fbx",
+   "source": "C:/Program Files (x86)/Steam/steamapps/workshop/content/108600/3403870858/mods/Lifestyle/common/media/anims_X/Bob_Converse_Dismissive02.fbx",
+   "group": "gesture",
+   "author": "Angry (Lifestyle: Hobbies), copied with permission",
+   "bytes": 350044
+  },
+  {
+   "file": "mod/42.20/media/anims_X/Bob/Bob_Converse_HeadNod.fbx",
+   "source": "C:/Program Files (x86)/Steam/steamapps/workshop/content/108600/3403870858/mods/Lifestyle/common/media/anims_X/Bob_Converse_HeadNod.fbx",
+   "group": "gesture",
+   "author": "Angry (Lifestyle: Hobbies), copied with permission",
+   "bytes": 340620
+  },
+  {
+   "file": "mod/42.20/media/anims_X/Bob/Bob_Converse_InformalBow.fbx",
+   "source": "C:/Program Files (x86)/Steam/steamapps/workshop/content/108600/3403870858/mods/Lifestyle/common/media/anims_X/Bob_Converse_InformalBow.fbx",
+   "group": "gesture",
+   "author": "Angry (Lifestyle: Hobbies), copied with permission",
+   "bytes": 337228
+  },
+  {
+   "file": "mod/42.20/media/anims_X/Bob/Bob_Converse_Listening01.fbx",
+   "source": "C:/Program Files (x86)/Steam/steamapps/workshop/content/108600/3403870858/mods/Lifestyle/common/media/anims_X/Bob_Converse_Listening01.fbx",
+   "group": "gesture",
+   "author": "Angry (Lifestyle: Hobbies), copied with permission",
+   "bytes": 344396
+  },
+  {
+   "file": "mod/42.20/media/anims_X/Bob/Bob_Converse_Listening02.fbx",
+   "source": "C:/Program Files (x86)/Steam/steamapps/workshop/content/108600/3403870858/mods/Lifestyle/common/media/anims_X/Bob_Converse_Listening02.fbx",
+   "group": "gesture",
+   "author": "Angry (Lifestyle: Hobbies), copied with permission",
+   "bytes": 331068
+  },
+  {
+   "file": "mod/42.20/media/anims_X/Bob/Bob_Converse_LookingDown.fbx",
+   "source": "C:/Program Files (x86)/Steam/steamapps/workshop/content/108600/3403870858/mods/Lifestyle/common/media/anims_X/Bob_Converse_LookingDown.fbx",
+   "group": "gesture",
+   "author": "Angry (Lifestyle: Hobbies), copied with permission",
+   "bytes": 398044
+  },
+  {
+   "file": "mod/42.20/media/anims_X/Bob/Bob_Converse_Meditation.fbx",
+   "source": "C:/Program Files (x86)/Steam/steamapps/workshop/content/108600/3403870858/mods/Lifestyle/common/media/anims_X/Bob_Converse_Meditation.fbx",
+   "group": "gesture",
+   "author": "Angry (Lifestyle: Hobbies), copied with permission",
+   "bytes": 335180
+  },
+  {
+   "file": "mod/42.20/media/anims_X/Bob/Bob_Converse_ShakeHeadNo.fbx",
+   "source": "C:/Program Files (x86)/Steam/steamapps/workshop/content/108600/3403870858/mods/Lifestyle/common/media/anims_X/Bob_Converse_ShakeHeadNo.fbx",
+   "group": "gesture",
+   "author": "Angry (Lifestyle: Hobbies), copied with permission",
+   "bytes": 327132
+  },
+  {
+   "file": "mod/42.20/media/anims_X/Bob/Bob_Converse_Yawn.fbx",
+   "source": "C:/Program Files (x86)/Steam/steamapps/workshop/content/108600/3403870858/mods/Lifestyle/common/media/anims_X/Bob_Converse_Yawn.fbx",
+   "group": "gesture",
+   "author": "Angry (Lifestyle: Hobbies), copied with permission",
+   "bytes": 445996
+  },
+  {
+   "file": "mod/42.20/media/anims_X/Bob/Bob_ConverseEnd_Frustrated01.fbx",
+   "source": "C:/Program Files (x86)/Steam/steamapps/workshop/content/108600/3403870858/mods/Lifestyle/common/media/anims_X/Bob_ConverseEnd_Frustrated01.fbx",
+   "group": "gesture",
+   "author": "Angry (Lifestyle: Hobbies), copied with permission",
+   "bytes": 405036
+  },
+  {
+   "file": "mod/42.20/media/anims_X/Bob/Bob_ConverseEnd_Frustrated02.fbx",
+   "source": "C:/Program Files (x86)/Steam/steamapps/workshop/content/108600/3403870858/mods/Lifestyle/common/media/anims_X/Bob_ConverseEnd_Frustrated02.fbx",
+   "group": "gesture",
+   "author": "Angry (Lifestyle: Hobbies), copied with permission",
+   "bytes": 421308
+  },
+  {
+   "file": "mod/42.20/media/anims_X/Bob/Bob_ConverseEnd_Frustrated03.fbx",
+   "source": "C:/Program Files (x86)/Steam/steamapps/workshop/content/108600/3403870858/mods/Lifestyle/common/media/anims_X/Bob_ConverseEnd_Frustrated03.fbx",
+   "group": "gesture",
+   "author": "Angry (Lifestyle: Hobbies), copied with permission",
+   "bytes": 363068
+  },
+  {
+   "file": "mod/42.20/media/anims_X/Bob/Bob_ConverseEnd_Frustrated04.fbx",
+   "source": "C:/Program Files (x86)/Steam/steamapps/workshop/content/108600/3403870858/mods/Lifestyle/common/media/anims_X/Bob_ConverseEnd_Frustrated04.fbx",
+   "group": "gesture",
+   "author": "Angry (Lifestyle: Hobbies), copied with permission",
+   "bytes": 372188
+  },
+  {
+   "file": "mod/42.20/media/anims_X/Bob/Bob_PlayGuitarDefault.fbx",
+   "source": "C:/Program Files (x86)/Steam/steamapps/workshop/content/108600/3403870858/mods/Lifestyle/common/media/anims_X/Bob_PlayGuitarDefault.fbx",
+   "group": "instrument",
+   "author": "Angry (Lifestyle: Hobbies), copied with permission",
+   "bytes": 366620
+  },
+  {
+   "file": "mod/42.20/media/anims_X/Bob/Bob_PlayGuitarExperiencedA.fbx",
+   "source": "C:/Program Files (x86)/Steam/steamapps/workshop/content/108600/3403870858/mods/Lifestyle/common/media/anims_X/Bob_PlayGuitarExperiencedA.fbx",
+   "group": "instrument",
+   "author": "Angry (Lifestyle: Hobbies), copied with permission",
+   "bytes": 413548
+  },
+  {
+   "file": "mod/42.20/media/anims_X/Bob/Bob_PlayGuitarExperiencedB.fbx",
+   "source": "C:/Program Files (x86)/Steam/steamapps/workshop/content/108600/3403870858/mods/Lifestyle/common/media/anims_X/Bob_PlayGuitarExperiencedB.fbx",
+   "group": "instrument",
+   "author": "Angry (Lifestyle: Hobbies), copied with permission",
+   "bytes": 415788
+  },
+  {
+   "file": "mod/42.20/media/anims_X/Bob/Bob_PlayGuitarProficientA.fbx",
+   "source": "C:/Program Files (x86)/Steam/steamapps/workshop/content/108600/3403870858/mods/Lifestyle/common/media/anims_X/Bob_PlayGuitarProficientA.fbx",
+   "group": "instrument",
+   "author": "Angry (Lifestyle: Hobbies), copied with permission",
+   "bytes": 419484
+  },
+  {
+   "file": "mod/42.20/media/anims_X/Bob/Bob_PlayGuitarAcoustic.fbx",
+   "source": "C:/Program Files (x86)/Steam/steamapps/workshop/content/108600/3403870858/mods/Lifestyle/common/media/anims_X/Bob_PlayGuitarAcoustic.fbx",
+   "group": "instrument",
+   "author": "Angry (Lifestyle: Hobbies), copied with permission",
+   "bytes": 386428
+  },
+  {
+   "file": "mod/42.20/media/anims_X/Bob/Bob_PlayHarmonicaDefault.fbx",
+   "source": "C:/Program Files (x86)/Steam/steamapps/workshop/content/108600/3403870858/mods/Lifestyle/common/media/anims_X/Bob_PlayHarmonicaDefault.fbx",
+   "group": "instrument",
+   "author": "Angry (Lifestyle: Hobbies), copied with permission",
+   "bytes": 283564
+  },
+  {
+   "file": "mod/42.20/media/anims_X/Bob/Bob_PlayHarmonicaExperiencedA.fbx",
+   "source": "C:/Program Files (x86)/Steam/steamapps/workshop/content/108600/3403870858/mods/Lifestyle/common/media/anims_X/Bob_PlayHarmonicaExperiencedA.fbx",
+   "group": "instrument",
+   "author": "Angry (Lifestyle: Hobbies), copied with permission",
+   "bytes": 298844
+  },
+  {
+   "file": "mod/42.20/media/anims_X/Bob/Bob_PlayHarmonicaProficientA.fbx",
+   "source": "C:/Program Files (x86)/Steam/steamapps/workshop/content/108600/3403870858/mods/Lifestyle/common/media/anims_X/Bob_PlayHarmonicaProficientA.fbx",
+   "group": "instrument",
+   "author": "Angry (Lifestyle: Hobbies), copied with permission",
+   "bytes": 333580
+  },
+  {
+   "file": "mod/42.20/media/anims_X/Bob/Bob_DancingFreestyleA.fbx",
+   "source": "C:/Program Files (x86)/Steam/steamapps/workshop/content/108600/3403870858/mods/Lifestyle/common/media/anims_X/Bob_DancingFreestyleA.fbx",
+   "group": "dance",
+   "author": "Angry (Lifestyle: Hobbies), copied with permission",
+   "bytes": 787020
+  },
+  {
+   "file": "mod/42.20/media/anims_X/Bob/Bob_DancingFreestyleB.fbx",
+   "source": "C:/Program Files (x86)/Steam/steamapps/workshop/content/108600/3403870858/mods/Lifestyle/common/media/anims_X/Bob_DancingFreestyleB.fbx",
+   "group": "dance",
+   "author": "Angry (Lifestyle: Hobbies), copied with permission",
+   "bytes": 712476
+  },
+  {
+   "file": "mod/42.20/media/anims_X/Bob/Bob_DancingFreestyleC.fbx",
+   "source": "C:/Program Files (x86)/Steam/steamapps/workshop/content/108600/3403870858/mods/Lifestyle/common/media/anims_X/Bob_DancingFreestyleC.fbx",
+   "group": "dance",
+   "author": "Angry (Lifestyle: Hobbies), copied with permission",
+   "bytes": 755132
+  },
+  {
+   "file": "mod/42.20/media/anims_X/Bob/Bob_DancingFreestyleD.fbx",
+   "source": "C:/Program Files (x86)/Steam/steamapps/workshop/content/108600/3403870858/mods/Lifestyle/common/media/anims_X/Bob_DancingFreestyleD.fbx",
+   "group": "dance",
+   "author": "Angry (Lifestyle: Hobbies), copied with permission",
+   "bytes": 339532
+  },
+  {
+   "file": "mod/42.20/media/anims_X/Bob/Bob_DancingFreestyleE.fbx",
+   "source": "C:/Program Files (x86)/Steam/steamapps/workshop/content/108600/3403870858/mods/Lifestyle/common/media/anims_X/Bob_DancingFreestyleE.fbx",
+   "group": "dance",
+   "author": "Angry (Lifestyle: Hobbies), copied with permission",
+   "bytes": 611660
+  },
+  {
+   "file": "mod/42.20/media/anims_X/Bob/Bob_DancingFreestyleF.fbx",
+   "source": "C:/Program Files (x86)/Steam/steamapps/workshop/content/108600/3403870858/mods/Lifestyle/common/media/anims_X/Bob_DancingFreestyleF.fbx",
+   "group": "dance",
+   "author": "Angry (Lifestyle: Hobbies), copied with permission",
+   "bytes": 388668
+  },
+  {
+   "file": "mod/42.20/media/anims_X/Bob/Bob_DancingFreestyleG.fbx",
+   "source": "C:/Program Files (x86)/Steam/steamapps/workshop/content/108600/3403870858/mods/Lifestyle/common/media/anims_X/Bob_DancingFreestyleG.fbx",
+   "group": "dance",
+   "author": "Angry (Lifestyle: Hobbies), copied with permission",
+   "bytes": 334828
+  },
+  {
+   "file": "mod/42.20/media/anims_X/Bob/Bob_DancingFreestyleH.fbx",
+   "source": "C:/Program Files (x86)/Steam/steamapps/workshop/content/108600/3403870858/mods/Lifestyle/common/media/anims_X/Bob_DancingFreestyleH.fbx",
+   "group": "dance",
+   "author": "Angry (Lifestyle: Hobbies), copied with permission",
+   "bytes": 407052
+  },
+  {
+   "file": "mod/42.20/media/anims_X/Bob/Bob_DancingFreestyleI.fbx",
+   "source": "C:/Program Files (x86)/Steam/steamapps/workshop/content/108600/3403870858/mods/Lifestyle/common/media/anims_X/Bob_DancingFreestyleI.fbx",
+   "group": "dance",
+   "author": "Angry (Lifestyle: Hobbies), copied with permission",
+   "bytes": 572876
+  },
+  {
+   "file": "mod/42.20/media/anims_X/Bob/Bob_DancingSideStep.fbx",
+   "source": "C:/Program Files (x86)/Steam/steamapps/workshop/content/108600/3403870858/mods/Lifestyle/common/media/anims_X/Bob_DancingSideStep.fbx",
+   "group": "dance",
+   "author": "Angry (Lifestyle: Hobbies), copied with permission",
+   "bytes": 333500
+  },
+  {
+   "file": "mod/42.20/media/anims_X/Bob/Bob_DancingHandWave.fbx",
+   "source": "C:/Program Files (x86)/Steam/steamapps/workshop/content/108600/3403870858/mods/Lifestyle/common/media/anims_X/Bob_DancingHandWave.fbx",
+   "group": "dance",
+   "author": "Angry (Lifestyle: Hobbies), copied with permission",
+   "bytes": 310156
+  },
+  {
+   "file": "mod/42.20/media/anims_X/Bob/Bob_DancingHandsInAir.fbx",
+   "source": "C:/Program Files (x86)/Steam/steamapps/workshop/content/108600/3403870858/mods/Lifestyle/common/media/anims_X/Bob_DancingHandsInAir.fbx",
+   "group": "dance",
+   "author": "Angry (Lifestyle: Hobbies), copied with permission",
+   "bytes": 378620
+  },
+  {
+   "file": "mod/42.20/media/anims_X/Bob/Bob_DancingMoveAround.fbx",
+   "source": "C:/Program Files (x86)/Steam/steamapps/workshop/content/108600/3403870858/mods/Lifestyle/common/media/anims_X/Bob_DancingMoveAround.fbx",
+   "group": "dance",
+   "author": "Angry (Lifestyle: Hobbies), copied with permission",
+   "bytes": 637388
+  },
+  {
+   "file": "mod/42.20/media/anims_X/Bob/Bob_DancingShake.fbx",
+   "source": "C:/Program Files (x86)/Steam/steamapps/workshop/content/108600/3403870858/mods/Lifestyle/common/media/anims_X/Bob_DancingShake.fbx",
+   "group": "dance",
+   "author": "Angry (Lifestyle: Hobbies), copied with permission",
+   "bytes": 609388
+  },
+  {
+   "file": "mod/42.20/media/anims_X/Bob/Bob_DancingRunningMan.fbx",
+   "source": "C:/Program Files (x86)/Steam/steamapps/workshop/content/108600/3403870858/mods/Lifestyle/common/media/anims_X/Bob_DancingRunningMan.fbx",
+   "group": "dance",
+   "author": "Angry (Lifestyle: Hobbies), copied with permission",
+   "bytes": 528428
+  },
+  {
+   "file": "mod/42.20/media/anims_X/Bob/Bob_DancingMacarena.fbx",
+   "source": "C:/Program Files (x86)/Steam/steamapps/workshop/content/108600/3403870858/mods/Lifestyle/common/media/anims_X/Bob_DancingMacarena.fbx",
+   "group": "dance",
+   "author": "Angry (Lifestyle: Hobbies), copied with permission",
+   "bytes": 456124
+  },
+  {
+   "file": "mod/42.20/media/anims_X/Bob/Bob_IsSittingLoop.fbx",
+   "source": "C:/Program Files (x86)/Steam/steamapps/workshop/content/108600/3403870858/mods/Lifestyle/common/media/anims_X/Bob_IsSittingLoop.fbx",
+   "group": "seat",
+   "author": "Angry (Lifestyle: Hobbies), copied with permission",
+   "bytes": 291324
+  },
+  {
+   "file": "mod/42.20/media/anims_X/Bob/Bob_IsSittingLoopArmsCrossed.fbx",
+   "source": "C:/Program Files (x86)/Steam/steamapps/workshop/content/108600/3403870858/mods/Lifestyle/common/media/anims_X/Bob_IsSittingLoopArmsCrossed.fbx",
+   "group": "seat",
+   "author": "Angry (Lifestyle: Hobbies), copied with permission",
+   "bytes": 296556
+  },
+  {
+   "file": "mod/42.20/media/anims_X/Bob/Bob_IsSittingLoopHandsOnFace.fbx",
+   "source": "C:/Program Files (x86)/Steam/steamapps/workshop/content/108600/3403870858/mods/Lifestyle/common/media/anims_X/Bob_IsSittingLoopHandsOnFace.fbx",
+   "group": "seat",
+   "author": "Angry (Lifestyle: Hobbies), copied with permission",
+   "bytes": 296668
+  },
+  {
+   "file": "mod/42.20/media/anims_X/Bob/Bob_IsSittingLoopHandsOnThigh.fbx",
+   "source": "C:/Program Files (x86)/Steam/steamapps/workshop/content/108600/3403870858/mods/Lifestyle/common/media/anims_X/Bob_IsSittingLoopHandsOnThigh.fbx",
+   "group": "seat",
+   "author": "Angry (Lifestyle: Hobbies), copied with permission",
+   "bytes": 282828
+  },
+  {
+   "file": "mod/42.20/media/anims_X/Bob/Bob_IsSittingLoopLeanForward_Pensive.fbx",
+   "source": "C:/Program Files (x86)/Steam/steamapps/workshop/content/108600/3403870858/mods/Lifestyle/common/media/anims_X/Bob_IsSittingLoopLeanForward_Pensive.fbx",
+   "group": "seat",
+   "author": "Angry (Lifestyle: Hobbies), copied with permission",
+   "bytes": 282860
+  },
+  {
+   "file": "mod/42.20/media/anims_X/Bob/Bob_IsSittingLoopLeanForward_CleanTear.fbx",
+   "source": "C:/Program Files (x86)/Steam/steamapps/workshop/content/108600/3403870858/mods/Lifestyle/common/media/anims_X/Bob_IsSittingLoopLeanForward_CleanTear.fbx",
+   "group": "seat",
+   "author": "Angry (Lifestyle: Hobbies), copied with permission",
+   "bytes": 344908
+  },
+  {
+   "file": "mod/42.20/media/anims_X/Bob/Bob_IsSittingLoopLegAbove.fbx",
+   "source": "C:/Program Files (x86)/Steam/steamapps/workshop/content/108600/3403870858/mods/Lifestyle/common/media/anims_X/Bob_IsSittingLoopLegAbove.fbx",
+   "group": "seat",
+   "author": "Angry (Lifestyle: Hobbies), copied with permission",
+   "bytes": 298284
+  },
+  {
+   "file": "mod/42.20/media/anims_X/Bob/Bob_IsSittingLoopHandsOnThigh_SlightLeanForward.fbx",
+   "source": "C:/Program Files (x86)/Steam/steamapps/workshop/content/108600/3403870858/mods/Lifestyle/common/media/anims_X/Bob_IsSittingLoopHandsOnThigh_SlightLeanForward.fbx",
+   "group": "seat",
+   "author": "Angry (Lifestyle: Hobbies), copied with permission",
+   "bytes": 282908
+  },
+  {
+   "file": "mod/42.20/media/anims_X/Bob/WaiterServing.fbx",
+   "source": "C:/Program Files (x86)/Steam/steamapps/workshop/content/108600/3403180543/mods/BanditsWeekOne/common/media/anims_X/Zombie/WaiterServing.fbx",
+   "group": "gesture",
+   "author": "SaneGuy and Slayer (Week One), copied with permission",
+   "bytes": 358604
+  },
+  {
+   "file": "mod/42.20/media/sound/sao/cough_male_1.wav",
+   "source": "C:/Program Files (x86)/Steam/steamapps/workshop/content/108600/3403180543/mods/BanditsWeekOne/common/media/sound/cough_male_1.wav",
+   "group": "sound",
+   "author": "Lauren Sinclair and AuD, as Week One credits them, copied with permission",
+   "bytes": 269288
+  },
+  {
+   "file": "mod/42.20/media/sound/sao/cough_male_2.wav",
+   "source": "C:/Program Files (x86)/Steam/steamapps/workshop/content/108600/3403180543/mods/BanditsWeekOne/common/media/sound/cough_male_2.wav",
+   "group": "sound",
+   "author": "Lauren Sinclair and AuD, as Week One credits them, copied with permission",
+   "bytes": 219208
+  },
+  {
+   "file": "mod/42.20/media/sound/sao/cough_male_3.wav",
+   "source": "C:/Program Files (x86)/Steam/steamapps/workshop/content/108600/3403180543/mods/BanditsWeekOne/common/media/sound/cough_male_3.wav",
+   "group": "sound",
+   "author": "Lauren Sinclair and AuD, as Week One credits them, copied with permission",
+   "bytes": 281204
+  },
+  {
+   "file": "mod/42.20/media/sound/sao/cough_male_4.wav",
+   "source": "C:/Program Files (x86)/Steam/steamapps/workshop/content/108600/3403180543/mods/BanditsWeekOne/common/media/sound/cough_male_4.wav",
+   "group": "sound",
+   "author": "Lauren Sinclair and AuD, as Week One credits them, copied with permission",
+   "bytes": 340320
+  },
+  {
+   "file": "mod/42.20/media/sound/sao/cough_female_1.wav",
+   "source": "C:/Program Files (x86)/Steam/steamapps/workshop/content/108600/3403180543/mods/BanditsWeekOne/common/media/sound/cough_female_1.wav",
+   "group": "sound",
+   "author": "Lauren Sinclair and AuD, as Week One credits them, copied with permission",
+   "bytes": 400752
+  },
+  {
+   "file": "mod/42.20/media/sound/sao/cough_female_2.wav",
+   "source": "C:/Program Files (x86)/Steam/steamapps/workshop/content/108600/3403180543/mods/BanditsWeekOne/common/media/sound/cough_female_2.wav",
+   "group": "sound",
+   "author": "Lauren Sinclair and AuD, as Week One credits them, copied with permission",
+   "bytes": 252200
+  },
+  {
+   "file": "mod/42.20/media/sound/sao/cough_female_3.wav",
+   "source": "C:/Program Files (x86)/Steam/steamapps/workshop/content/108600/3403180543/mods/BanditsWeekOne/common/media/sound/cough_female_3.wav",
+   "group": "sound",
+   "author": "Lauren Sinclair and AuD, as Week One credits them, copied with permission",
+   "bytes": 436952
+  },
+  {
+   "file": "mod/42.20/media/sound/sao/cough_female_4.wav",
+   "source": "C:/Program Files (x86)/Steam/steamapps/workshop/content/108600/3403180543/mods/BanditsWeekOne/common/media/sound/cough_female_4.wav",
+   "group": "sound",
+   "author": "Lauren Sinclair and AuD, as Week One credits them, copied with permission",
+   "bytes": 358308
+  },
+  {
+   "file": "mod/42.20/media/sound/sao/clap_1.wav",
+   "source": "C:/Program Files (x86)/Steam/steamapps/workshop/content/108600/3403180543/mods/BanditsWeekOne/common/media/sound/clap_1.wav",
+   "group": "sound",
+   "author": "Lauren Sinclair and AuD, as Week One credits them, copied with permission",
+   "bytes": 28422
+  },
+  {
+   "file": "mod/42.20/media/sound/sao/clap_2.wav",
+   "source": "C:/Program Files (x86)/Steam/steamapps/workshop/content/108600/3403180543/mods/BanditsWeekOne/common/media/sound/clap_2.wav",
+   "group": "sound",
+   "author": "Lauren Sinclair and AuD, as Week One credits them, copied with permission",
+   "bytes": 26978
+  },
+  {
+   "file": "mod/42.20/media/sound/sao/clap_3.wav",
+   "source": "C:/Program Files (x86)/Steam/steamapps/workshop/content/108600/3403180543/mods/BanditsWeekOne/common/media/sound/clap_3.wav",
+   "group": "sound",
+   "author": "Lauren Sinclair and AuD, as Week One credits them, copied with permission",
+   "bytes": 26010
+  },
+  {
+   "file": "mod/42.20/media/sound/sao/clap_4.wav",
+   "source": "C:/Program Files (x86)/Steam/steamapps/workshop/content/108600/3403180543/mods/BanditsWeekOne/common/media/sound/clap_4.wav",
+   "group": "sound",
+   "author": "Lauren Sinclair and AuD, as Week One credits them, copied with permission",
+   "bytes": 27942
+  },
+  {
+   "file": "mod/42.20/media/sound/sao/clap_5.wav",
+   "source": "C:/Program Files (x86)/Steam/steamapps/workshop/content/108600/3403180543/mods/BanditsWeekOne/common/media/sound/clap_5.wav",
+   "group": "sound",
+   "author": "Lauren Sinclair and AuD, as Week One credits them, copied with permission",
+   "bytes": 31646
+  },
+  {
+   "file": "mod/42.20/media/sound/sao/clap_6.wav",
+   "source": "C:/Program Files (x86)/Steam/steamapps/workshop/content/108600/3403180543/mods/BanditsWeekOne/common/media/sound/clap_6.wav",
+   "group": "sound",
+   "author": "Lauren Sinclair and AuD, as Week One credits them, copied with permission",
+   "bytes": 23764
+  },
+  {
+   "file": "mod/42.20/media/sound/sao/clap_7.wav",
+   "source": "C:/Program Files (x86)/Steam/steamapps/workshop/content/108600/3403180543/mods/BanditsWeekOne/common/media/sound/clap_7.wav",
+   "group": "sound",
+   "author": "Lauren Sinclair and AuD, as Week One credits them, copied with permission",
+   "bytes": 26980
+  },
+  {
+   "file": "mod/42.20/media/sound/sao/clap_8.wav",
+   "source": "C:/Program Files (x86)/Steam/steamapps/workshop/content/108600/3403180543/mods/BanditsWeekOne/common/media/sound/clap_8.wav",
+   "group": "sound",
+   "author": "Lauren Sinclair and AuD, as Week One credits them, copied with permission",
+   "bytes": 27296
+  },
+  {
+   "file": "mod/42.20/media/sound/sao/clap_9.wav",
+   "source": "C:/Program Files (x86)/Steam/steamapps/workshop/content/108600/3403180543/mods/BanditsWeekOne/common/media/sound/clap_9.wav",
+   "group": "sound",
+   "author": "Lauren Sinclair and AuD, as Week One credits them, copied with permission",
+   "bytes": 21416
+  },
+  {
+   "file": "mod/42.20/media/sound/sao/clap_10.wav",
+   "source": "C:/Program Files (x86)/Steam/steamapps/workshop/content/108600/3403180543/mods/BanditsWeekOne/common/media/sound/clap_10.wav",
+   "group": "sound",
+   "author": "Lauren Sinclair and AuD, as Week One credits them, copied with permission",
+   "bytes": 25370
+  },
+  {
+   "file": "mod/42.20/media/sound/sao/clap_11.wav",
+   "source": "C:/Program Files (x86)/Steam/steamapps/workshop/content/108600/3403180543/mods/BanditsWeekOne/common/media/sound/clap_11.wav",
+   "group": "sound",
+   "author": "Lauren Sinclair and AuD, as Week One credits them, copied with permission",
+   "bytes": 23930
+  },
+  {
+   "file": "mod/42.20/media/sound/sao/clap_12.wav",
+   "source": "C:/Program Files (x86)/Steam/steamapps/workshop/content/108600/3403180543/mods/BanditsWeekOne/common/media/sound/clap_12.wav",
+   "group": "sound",
+   "author": "Lauren Sinclair and AuD, as Week One credits them, copied with permission",
+   "bytes": 26494
+  },
+  {
+   "file": "mod/42.20/media/sound/sao/clap_13.wav",
+   "source": "C:/Program Files (x86)/Steam/steamapps/workshop/content/108600/3403180543/mods/BanditsWeekOne/common/media/sound/clap_13.wav",
+   "group": "sound",
+   "author": "Lauren Sinclair and AuD, as Week One credits them, copied with permission",
+   "bytes": 19638
+  }
+ ],
+ "nodes": {
+  "Converse_Acknowledging": "Bob_Converse_Acknowledging",
+  "Converse_Agony": "Bob_Converse_Agony",
+  "Converse_Agreeing": "Bob_Converse_Agreeing",
+  "Converse_AgreeingHandGesture": "Bob_Converse_AgreeingHandGesture",
+  "Converse_Angry01": "Bob_Converse_Angry01",
+  "Converse_Angry02": "Bob_Converse_Angry02",
+  "Converse_ArmForward": "Bob_Converse_ArmForward",
+  "Converse_ArmGesture": "Bob_Converse_ArmGesture",
+  "Converse_Dismissive01": "Bob_Converse_Dismissive01",
+  "Converse_Dismissive02": "Bob_Converse_Dismissive02",
+  "Converse_HeadNod": "Bob_Converse_HeadNod",
+  "Converse_InformalBow": "Bob_Converse_InformalBow",
+  "Converse_Listening01": "Bob_Converse_Listening01",
+  "Converse_Listening02": "Bob_Converse_Listening02",
+  "Converse_LookingDown": "Bob_Converse_LookingDown",
+  "Converse_Meditation": "Bob_Converse_Meditation",
+  "Converse_ShakeHeadNo": "Bob_Converse_ShakeHeadNo",
+  "Converse_Yawn": "Bob_Converse_Yawn",
+  "ConverseEnd_Frustrated01": "Bob_ConverseEnd_Frustrated01",
+  "ConverseEnd_Frustrated02": "Bob_ConverseEnd_Frustrated02",
+  "ConverseEnd_Frustrated03": "Bob_ConverseEnd_Frustrated03",
+  "ConverseEnd_Frustrated04": "Bob_ConverseEnd_Frustrated04",
+  "PlayGuitarDefault": "Bob_PlayGuitarDefault",
+  "PlayGuitarExperiencedA": "Bob_PlayGuitarExperiencedA",
+  "PlayGuitarExperiencedB": "Bob_PlayGuitarExperiencedB",
+  "PlayGuitarProficientA": "Bob_PlayGuitarProficientA",
+  "PlayGuitarAcoustic": "Bob_PlayGuitarAcoustic",
+  "PlayHarmonicaDefault": "Bob_PlayHarmonicaDefault",
+  "PlayHarmonicaExperiencedA": "Bob_PlayHarmonicaExperiencedA",
+  "PlayHarmonicaProficientA": "Bob_PlayHarmonicaProficientA",
+  "DancingFreestyleA": "Bob_DancingFreestyleA",
+  "DancingFreestyleB": "Bob_DancingFreestyleB",
+  "DancingFreestyleC": "Bob_DancingFreestyleC",
+  "DancingFreestyleD": "Bob_DancingFreestyleD",
+  "DancingFreestyleE": "Bob_DancingFreestyleE",
+  "DancingFreestyleF": "Bob_DancingFreestyleF",
+  "DancingFreestyleG": "Bob_DancingFreestyleG",
+  "DancingFreestyleH": "Bob_DancingFreestyleH",
+  "DancingFreestyleI": "Bob_DancingFreestyleI",
+  "DancingSideStep": "Bob_DancingSideStep",
+  "DancingHandWave": "Bob_DancingHandWave",
+  "DancingHandsInAir": "Bob_DancingHandsInAir",
+  "DancingMoveAround": "Bob_DancingMoveAround",
+  "DancingShake": "Bob_DancingShake",
+  "DancingRunningMan": "Bob_DancingRunningMan",
+  "DancingMacarena": "Bob_DancingMacarena",
+  "WaiterServing": "BWO_WaiterServing",
+  "Seat_IsSittingLoop": "Bob_IsSittingLoop",
+  "Seat_IsSittingLoopArmsCrossed": "Bob_IsSittingLoopArmsCrossed",
+  "Seat_IsSittingLoopHandsOnFace": "Bob_IsSittingLoopHandsOnFace",
+  "Seat_IsSittingLoopHandsOnThigh": "Bob_IsSittingLoopHandsOnThigh",
+  "Seat_IsSittingLoopLeanForward_Pensive": "Bob_IsSittingLoopLeanForward_Pensive",
+  "Seat_IsSittingLoopLeanForward_CleanTear": "Bob_IsSittingLoopLeanForward_CleanTear",
+  "Seat_IsSittingLoopLegAbove": "Bob_IsSittingLoopLegAbove",
+  "Seat_IsSittingLoopHandsOnThigh_SlightLeanForward": "Bob_IsSittingLoopHandsOnThigh_SlightLeanForward"
+ },
+ "waiterAnim": "BWO_WaiterServing"
+}

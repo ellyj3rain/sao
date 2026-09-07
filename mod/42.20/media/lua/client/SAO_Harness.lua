@@ -1954,6 +1954,24 @@ local function fillMenu(playerNum, context, worldobjects)
                 log("size report: " .. tostring(SAOJavaBridge:bodyScaleReport()))
             end)
         end)
+        -- [C35] The gestures, one click each: the receipt is a survivor
+        -- seen agreeing, arguing, dancing, playing, and the log line.
+        dbg:addOption("Gesture: agree", nil, function()
+            local body = SAO.Body.get(H.activeId)
+            if body then log("agree: " .. tostring(SAO.Gesture.play(H.activeId, body, "Converse_Agreeing", 90))) end
+        end)
+        dbg:addOption("Gesture: argue", nil, function()
+            local body = SAO.Body.get(H.activeId)
+            if body then log("argue: " .. tostring(SAO.Gesture.play(H.activeId, body, "Converse_Angry01", 90))) end
+        end)
+        dbg:addOption("Dance a while", nil, function()
+            local body = SAO.Body.get(H.activeId)
+            if body then log("dance: " .. tostring(SAO.Gesture.dance(H.activeId, body))) end
+        end)
+        dbg:addOption("Play the guitar", nil, function()
+            local body = SAO.Body.get(H.activeId)
+            if body then log("tune: " .. tostring(SAO.Gesture.playInstrument(H.activeId, body, "guitar"))) end
+        end)
         dbg:addOption("What they carry", nil, function()
             local rec = SAO.Identity.get(H.activeId)
             if rec then

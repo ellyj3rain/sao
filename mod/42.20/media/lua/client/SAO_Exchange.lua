@@ -194,6 +194,11 @@ function Exchange.betweenPair(id, agent, body, otherId, otherBody, tickCount)
         if not SAO.Standing.sameGroup(id, otherId) then
             local warmM, sharpM = meetingTemper(body, otherBody)
             local verdict = SAO.Standing.politick(id, otherId, tickCount)
+            -- [C35] The talk, seen: the speaker gestures and the
+            -- listener answers the verdict.
+            pcall(function()
+                SAO.Gesture.meet(id, body, otherId, otherBody, verdict, warmM, sharpM)
+            end)
             -- The state's share of what just happened ([B9]): a
             -- top-up on the politick's own move, so doctrine still
             -- decides the direction and the state decides how hard.

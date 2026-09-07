@@ -79,6 +79,9 @@ local WITNESS_FRESH = 120     -- frames (~2s at 60fps): recently enough to be NO
 -- actually have said something.
 local ARRIVAL_REACH = 3       -- tiles: close enough to have got there
 local TALK_REACH = 6          -- tiles: close enough to be company
+-- [C35] Already at the porch when the tune starts: close enough to
+-- dance or clap where they stand rather than be drawn over.
+local PORCH_REACH = 4         -- tiles
 -- [C4] tiles: a follow target this close on this floor whose walk
 -- failed is behind ONE edge - the window they climbed, the fence they
 -- hopped - and the edge is worked instead of ordering another walk
@@ -403,6 +406,7 @@ local function setState(agent, id, state, why, answer)
                     pcall(function() SAOJavaBridge:setShellAsleep(restingBody, false) end)
                 end
                 pcall(function() restingBody:setSitOnGround(false) end)
+                pcall(function() SAO.Gesture.standUp(restingBody) end)   -- [C35]
             end
         end
         log(id .. " " .. agent.state .. " -> " .. state .. " (" .. why .. ")")
@@ -2066,6 +2070,8 @@ local function decide(id, agent, body)
                 agent.pressure = { answer = "chosen rest",
                     detail = "the evening seat, door in view", at = tick }
                 pcall(function() body:setSitOnGround(true) end)
+                -- [C35] How they sit is who they are (SAO_Gesture.seat).
+                pcall(function() SAO.Gesture.seat(id, body) end)
                 log(id .. " settles in for the night")
             end
             -- Sleep proper (F-016): tired enough, at home, seated - the
@@ -2087,6 +2093,7 @@ local function decide(id, agent, body)
                         end)
                     end
                     pcall(function() body:setSitOnGround(false) end)
+                    pcall(function() SAO.Gesture.standUp(body) end)   -- [C35]
                     log(id .. " wakes - too cold to sleep")
                     setState(agent, id, "IDLE", "woken by the cold", "need")
                     return
@@ -2186,6 +2193,7 @@ local function decide(id, agent, body)
                 pcall(function() SAOJavaBridge:setShellAsleep(body, false) end)
             end
             pcall(function() body:setSitOnGround(false) end)
+            pcall(function() SAO.Gesture.standUp(body) end)   -- [C35]
             log(id .. " rises with the morning")
         end
         -- [B22] The seating chart. Work sent people to real places
@@ -2263,6 +2271,8 @@ local function decide(id, agent, body)
                     pcall(function()
                         heard43 = SAOJavaBridge:easeListeners(body, 12)
                     end)
+                    -- [C35] The tune, seen: the instrument's own animation.
+                    pcall(function() SAO.Gesture.playInstrument(id, body, what) end)
                     -- People come. Nothing else had to be built for
                     -- the consequence: co-location is what the
                     -- meeting, telling and trust machinery has always
@@ -2296,6 +2306,16 @@ local function decide(id, agent, body)
                                                 "chosen rest")
                                             came43 = came43 + 1
                                         end
+                                    elseif od2 <= PORCH_REACH * PORCH_REACH then
+                                        -- [C35] Already close: half dance, the
+                                        -- rest clap - the porch, seen and heard.
+                                        pcall(function()
+                                            if (SAO.Hash.of(oid43, "dance:" .. tostring(tick)) % 100) < 50 then
+                                                SAO.Gesture.dance(oid43, ob43)
+                                            else
+                                                SAO.Gesture.clap(ob43)
+                                            end
+                                        end)
                                     end
                                 end
                             end

@@ -1,6 +1,6 @@
 | Document | Survivor Awareness Overhaul Engine Contract |
 |---|---|
-| Version | `2.6.0.1-pre-alpha` |
+| Version | `2.7.0.0-pre-alpha` |
 | Author | ellyj3rain |
 | Repository | `ENGINE_CONTRACT.md` |
 | Status | CANONICAL - the verified engine mechanics an IsoPlayer NPC requires. |
@@ -449,4 +449,8 @@ of what a character IS to the engine, and what it is not.
 | `mod.info` `require=` | the two condition mods for the player's side ([C32], DR-032): `twbInfirmities` (3579088411), `EvenMoreTraits4220` (3777663603) | the Workshop pages' own id lines |
 | `GameEntity.getFluidContainer()` (final; `InventoryItem extends GameEntity`), `InventoryItem.isFluidContainer()`; `FluidContainer.isEmpty/getAmount/getFilledRatio/isCategory(FluidCategory)`; `FluidCategory.Alcoholic`; the fluids in `scripts/generated/fluids_Alcoholic.txt` (Beer alcohol 0.05, ...) | Build 42 keeps beer, wine and whiskey as fluids in the Alcoholic category, not as food: the drink a drinker takes and the source it is taken from ([C33]). `InventoryItem.isAlcoholic()` is the bandages' flag (`AlcoholBandage`), not a drink's | javap; the generated scripts |
 | `ISDrinkFluidAction:new(character, item, percentage)` (shared TimedActions; `complete()` applies the fluid's properties) | the drink itself, and the wrap that counts it ([C33]) | the shipped Lua |
+| `BaseAction.setAnimVariable(String, String)`, `setActionAnim(String)`; `stopOnWalk`, `stopOnAim`, `forceStop`; the player's `actions` animation state entered by any timed action | a gesture is a timed action carrying one animation variable, and SAO's nodes under `AnimSets/player/actions` read it ([C35]) | javap; the shipped Lua's `ISBaseTimedAction:setAnimVariable` |
+| `AnimSets/player/sitonground-sitting` (`sit_loop`, `sit_action` keyed on `hasTimedActions`, `m_Priority`) | the seat's variants ride the engine's own sitting state, keyed on a variable SAO sets ([C35]) | the shipped animation sets |
+| `IsoGameCharacter.setVariable(String, String)`, `clearVariable(String)`, `playEmote(String)`, `playSound(String)` | the seat variable, the engine's own emotes for greetings and partings, the coughs and claps ([C35]) | javap |
+| Animations load from any mod's `media/anims_X` by name; the copied files carry the Bip01 rig (`Bip01_Pelvis` ... `Bip01_Prop2`) the player model and its animations use, though Week One kept them under a `Zombie` folder and binds them to the zombie tree | the art crosses skeleton-true; the binding is what a mod writes ([C35]) | the files' own bone names; Hobbies' flat `anims_X` and its player-tree nodes |
 | NOT in the engine | origin or hometown, schooling, family, service history, media taste, memory or decay of any kind: nothing on the descriptor says so. SAO derives origin region, age, birth year, service eligibility, occupation class, lessons and household itself (`SAO_History`, `SAO_Census`, `SAO_Identity`) | the getters above, read whole |

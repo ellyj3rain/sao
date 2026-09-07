@@ -95,6 +95,8 @@ NEIGHBOURS = {
 
 KNOWN = {n: OURS for n in (
     "SAO", "SAOCountyWindow", "SAOInspectWindow", "SAOWire", "SAOJavaBridge",
+    # [C35] the gesture's timed action, a vanilla-derived class of ours.
+    "SAOGestureAction",
 )}
 KNOWN.update({n: NEIGHBOUR for n in NEIGHBOURS})
 KNOWN.update({n: LUA_STD for n in (
@@ -105,6 +107,8 @@ KNOWN.update({n: ENGINE for n in (
     "BodyPartType", "DynamicRadio", "Events", "GameTime", "Keyboard",
     "keyBinding",
     "HaloTextHelper", "ISApplyBandage", "ISBarricadeAction",
+    # [C35] the timed-action base the gesture action derives from.
+    "ISBaseTimedAction",
     "ISCollapsableWindow", "ISDrinkFluidAction", "ISEatFoodAction",
     "ISFarmingMenu", "ISGrabItemAction", "ISHarvestPlantAction",
     "ISInventoryTransferAction", "ISPlowAction", "ISReloadWeaponAction",

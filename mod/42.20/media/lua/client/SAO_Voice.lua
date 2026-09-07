@@ -405,6 +405,9 @@ end
 
 function V.onEvent(id, event, tick)
     raise(id, event, tick, false)
+    -- [C35] The same moment, seen: the gesture module reads the
+    -- event and the body does what the moment looks like.
+    pcall(function() SAO.Gesture.onEvent(id, event, tick) end)
 end
 
 -- The player's entry point. Everything in SAO_Harness.lua is a menu

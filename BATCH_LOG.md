@@ -1,6 +1,6 @@
 | Document | Survivor Awareness Overhaul Batch Log |
 |---|---|
-| Version | `2.6.0.1-pre-alpha` |
+| Version | `2.7.0.0-pre-alpha` |
 | Author | ellyj3rain |
 | Repository | `BATCH_LOG.md` |
 | Status | REGULATORY - chronological batch index. |
@@ -139,3 +139,4 @@ attribution for every merged entry, stated here rather than in a branch name.
 | [C32](Batches/C32-2026-09-06-conditions-are-facts-about-a-person.md) | 2026-09-06 | Conditions are facts about a person | [`T-002`](Batches/THREADS.md#t-002), [`T-007`](Batches/THREADS.md#t-007), [`T-006`](Batches/THREADS.md#t-006) |
 | [C33](Batches/C33-2026-09-06-habits-are-facts-about-a-person.md) | 2026-09-06 | Habits are facts about a person | [`T-002`](Batches/THREADS.md#t-002), [`T-007`](Batches/THREADS.md#t-007), [`T-006`](Batches/THREADS.md#t-006) |
 | [C34](Batches/C34-2026-09-06-the-moment-carries-the-strain.md) | 2026-09-06 | The moment carries the strain | [`T-007`](Batches/THREADS.md#t-007), [`T-002`](Batches/THREADS.md#t-002) |
+| [C35](Batches/C35-2026-09-07-the-countys-gestures.md) | 2026-09-07 | The county's gestures | [`T-002`](Batches/THREADS.md#t-002), [`T-007`](Batches/THREADS.md#t-007) |

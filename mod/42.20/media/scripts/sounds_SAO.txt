@@ -1,0 +1,297 @@
+module Base
+{
+    sound SAOCoughM1
+    {
+        category = Object,
+        loop = false,
+        is3D = true,
+        clip
+        {
+            file = media/sound/sao/cough_male_1.wav,
+            distanceMin = 1,
+            distanceMax = 7,
+            reverbFactor = 0.1,
+            volume = 0.3,
+        }
+    }
+    sound SAOCoughF1
+    {
+        category = Object,
+        loop = false,
+        is3D = true,
+        clip
+        {
+            file = media/sound/sao/cough_female_1.wav,
+            distanceMin = 1,
+            distanceMax = 7,
+            reverbFactor = 0.1,
+            volume = 0.3,
+        }
+    }
+    sound SAOCoughM2
+    {
+        category = Object,
+        loop = false,
+        is3D = true,
+        clip
+        {
+            file = media/sound/sao/cough_male_2.wav,
+            distanceMin = 1,
+            distanceMax = 7,
+            reverbFactor = 0.1,
+            volume = 0.3,
+        }
+    }
+    sound SAOCoughF2
+    {
+        category = Object,
+        loop = false,
+        is3D = true,
+        clip
+        {
+            file = media/sound/sao/cough_female_2.wav,
+            distanceMin = 1,
+            distanceMax = 7,
+            reverbFactor = 0.1,
+            volume = 0.3,
+        }
+    }
+    sound SAOCoughM3
+    {
+        category = Object,
+        loop = false,
+        is3D = true,
+        clip
+        {
+            file = media/sound/sao/cough_male_3.wav,
+            distanceMin = 1,
+            distanceMax = 7,
+            reverbFactor = 0.1,
+            volume = 0.3,
+        }
+    }
+    sound SAOCoughF3
+    {
+        category = Object,
+        loop = false,
+        is3D = true,
+        clip
+        {
+            file = media/sound/sao/cough_female_3.wav,
+            distanceMin = 1,
+            distanceMax = 7,
+            reverbFactor = 0.1,
+            volume = 0.3,
+        }
+    }
+    sound SAOCoughM4
+    {
+        category = Object,
+        loop = false,
+        is3D = true,
+        clip
+        {
+            file = media/sound/sao/cough_male_4.wav,
+            distanceMin = 1,
+            distanceMax = 7,
+            reverbFactor = 0.1,
+            volume = 0.3,
+        }
+    }
+    sound SAOCoughF4
+    {
+        category = Object,
+        loop = false,
+        is3D = true,
+        clip
+        {
+            file = media/sound/sao/cough_female_4.wav,
+            distanceMin = 1,
+            distanceMax = 7,
+            reverbFactor = 0.1,
+            volume = 0.3,
+        }
+    }
+    sound SAOClap1
+    {
+        category = Object,
+        loop = false,
+        is3D = true,
+        clip
+        {
+            file = media/sound/sao/clap_1.wav,
+            distanceMin = 1,
+            distanceMax = 13,
+            reverbFactor = 0.1,
+            volume = 0.5,
+        }
+    }
+    sound SAOClap2
+    {
+        category = Object,
+        loop = false,
+        is3D = true,
+        clip
+        {
+            file = media/sound/sao/clap_2.wav,
+            distanceMin = 1,
+            distanceMax = 13,
+            reverbFactor = 0.1,
+            volume = 0.5,
+        }
+    }
+    sound SAOClap3
+    {
+        category = Object,
+        loop = false,
+        is3D = true,
+        clip
+        {
+            file = media/sound/sao/clap_3.wav,
+            distanceMin = 1,
+            distanceMax = 13,
+            reverbFactor = 0.1,
+            volume = 0.5,
+        }
+    }
+    sound SAOClap4
+    {
+        category = Object,
+        loop = false,
+        is3D = true,
+        clip
+        {
+            file = media/sound/sao/clap_4.wav,
+            distanceMin = 1,
+            distanceMax = 13,
+            reverbFactor = 0.1,
+            volume = 0.5,
+        }
+    }
+    sound SAOClap5
+    {
+        category = Object,
+        loop = false,
+        is3D = true,
+        clip
+        {
+            file = media/sound/sao/clap_5.wav,
+            distanceMin = 1,
+            distanceMax = 13,
+            reverbFactor = 0.1,
+            volume = 0.5,
+        }
+    }
+    sound SAOClap6
+    {
+        category = Object,
+        loop = false,
+        is3D = true,
+        clip
+        {
+            file = media/sound/sao/clap_6.wav,
+            distanceMin = 1,
+            distanceMax = 13,
+            reverbFactor = 0.1,
+            volume = 0.5,
+        }
+    }
+    sound SAOClap7
+    {
+        category = Object,
+        loop = false,
+        is3D = true,
+        clip
+        {
+            file = media/sound/sao/clap_7.wav,
+            distanceMin = 1,
+            distanceMax = 13,
+            reverbFactor = 0.1,
+            volume = 0.5,
+        }
+    }
+    sound SAOClap8
+    {
+        category = Object,
+        loop = false,
+        is3D = true,
+        clip
+        {
+            file = media/sound/sao/clap_8.wav,
+            distanceMin = 1,
+            distanceMax = 13,
+            reverbFactor = 0.1,
+            volume = 0.5,
+        }
+    }
+    sound SAOClap9
+    {
+        category = Object,
+        loop = false,
+        is3D = true,
+        clip
+        {
+            file = media/sound/sao/clap_9.wav,
+            distanceMin = 1,
+            distanceMax = 13,
+            reverbFactor = 0.1,
+            volume = 0.5,
+        }
+    }
+    sound SAOClap10
+    {
+        category = Object,
+        loop = false,
+        is3D = true,
+        clip
+        {
+            file = media/sound/sao/clap_10.wav,
+            distanceMin = 1,
+            distanceMax = 13,
+            reverbFactor = 0.1,
+            volume = 0.5,
+        }
+    }
+    sound SAOClap11
+    {
+        category = Object,
+        loop = false,
+        is3D = true,
+        clip
+        {
+            file = media/sound/sao/clap_11.wav,
+            distanceMin = 1,
+            distanceMax = 13,
+            reverbFactor = 0.1,
+            volume = 0.5,
+        }
+    }
+    sound SAOClap12
+    {
+        category = Object,
+        loop = false,
+        is3D = true,
+        clip
+        {
+            file = media/sound/sao/clap_12.wav,
+            distanceMin = 1,
+            distanceMax = 13,
+            reverbFactor = 0.1,
+            volume = 0.5,
+        }
+    }
+    sound SAOClap13
+    {
+        category = Object,
+        loop = false,
+        is3D = true,
+        clip
+        {
+            file = media/sound/sao/clap_13.wav,
+            distanceMin = 1,
+            distanceMax = 13,
+            reverbFactor = 0.1,
+            volume = 0.5,
+        }
+    }
+}
