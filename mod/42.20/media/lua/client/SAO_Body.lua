@@ -297,6 +297,17 @@ function Body.materialize(rec)
         end
     end
 
+    -- [C39] And the condition rides the trait, by the same law: what
+    -- the record drew is stamped onto the body as the engine's own
+    -- character trait (vanilla's where vanilla has one), so anything
+    -- that reads a trait sees the truth about this person.
+    pcall(function()
+        local stamped = SAO.Traits.stamp(rec.id, body)
+        if stamped > 0 then
+            log(rec.id .. " wears " .. stamped .. " condition(s)")
+        end
+    end)
+
     Body.active[rec.id] = body
     -- [C8] The person rides the body's modData. The engine copies this
     -- table onto the corpse at death (IsoDeadBody ctor common tail) and

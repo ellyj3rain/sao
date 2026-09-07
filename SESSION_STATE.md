@@ -1,13 +1,24 @@
 | Document | Survivor Awareness Overhaul Session State |
 |---|---|
-| Version | `2.10.0.0-pre-alpha` |
+| Version | `2.11.0.0-pre-alpha` |
 | Author | ellyj3rain |
 | Repository | `SESSION_STATE.md` |
 | Status | CANONICAL - where the work actually stands. |
 
 # Session state
 
-**As of** 2026-09-07, `[C38]` close - the era remembered (Day Zero
+**As of** 2026-09-07, `[C39]` close - the conditions are SAO's own
+(DR-032 amended by the operator): the two required mods are gone.
+`[C32]` had made them hard requirements so the player could carry
+the conditions the county's people carry, took no code from either
+and gained nothing mechanical; SAO now registers those conditions as
+engine character traits from shared Lua - vanilla's own where
+vanilla has one, every cost taken from the vanilla trait its shape
+is anchored to - stamps a survivor's drawn conditions onto their
+shell, and drives the player's chosen ones through the same
+functions the county's people use. Border 113 holds it; Border
+107's requirement seam is inverted to its opposite. `[C38]` before
+it - the era remembered (Day Zero
 slice 6): the knowledge surface carries "before" - born, the war,
 where from, home, innocent or hardened - and "the day it started" -
 the person's own first horror with its date and what it taught, the
@@ -252,10 +263,10 @@ unloaded survivors are governed by the same rules ([B39], [B42]).
 
 ## Deploy state
 
-`2.10.0.0-pre-alpha` at tip - the version machine's output ([C2],
+`2.11.0.0-pre-alpha` at tip - the version machine's output ([C2],
 DR-013; the twelfth minor rolled the tier by the odometer's own
-law). The game install carries the `[C38]` tip, deployed 2026-09-07 at
-the `[C38]` close; `[C33]` through `[C37]` reached the install the
+law). The game install carries the `[C39]` tip, deployed 2026-09-07 at
+the `[C39]` close; `[C33]` through `[C38]` reached the install the
 same day, the first window the game was closed since the `[C32]`
 deploy of 2026-09-06. The play receipts the C era owes are the next
 thing the tree cannot produce for itself - the operator chose to
@@ -275,7 +286,7 @@ deploy; `save_compat_test` guards this and runs in the gate.
 
 ## Instruments
 
-**112 numbered borders**, run by **127 gated mirrors** in `tools/`, all invoked
+**113 numbered borders**, run by **128 gated mirrors** in `tools/`, all invoked
 by `tools/check.sh`, which the pre-commit hook runs and CI runs on every push.
 The figures in this paragraph are derived by Border 76 from the tree, not
 maintained by hand. Border 54 keeps the rest honest: it runs every gated

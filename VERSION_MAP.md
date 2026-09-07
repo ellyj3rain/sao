@@ -16,9 +16,9 @@ the machine. Names, dates, and threads below come from
 | Form | `major.minor.kohai.patch-maturity` |
 | Hard caps | minor 12; kohai 16; patch 24 |
 | Replay start | `0.1.0.0-pre-alpha` |
-| Current version | `2.10.0.0-pre-alpha` |
-| Closed chronology | `A1-C38` |
-| Next batch | `C39` |
+| Current version | `2.11.0.0-pre-alpha` |
+| Closed chronology | `A1-C39` |
+| Next batch | `C40` |
 | Executable source | [`tools/version_replay.py`](tools/version_replay.py) |
 
 ## Tier meanings
@@ -154,6 +154,7 @@ the machine. Names, dates, and threads below come from
 | `C36` | 2026-09-07 | minor | `2.8.0.0-pre-alpha` | The record on the county's calendar | The record on the county's calendar (DR-031, Day Zero slice 7): every vanilla channel re-keyed once per save to begin on the save day July 9, 1993 falls on, through the engine's own surface; every paper a container is filled with dated to the newest issue printed by the county's day or taken off the shelf; a sandbox switch on by default - Border 110 runs the arithmetic off the game against the installed jar. |
 | `C37` | 2026-09-07 | minor | `2.9.0.0-pre-alpha` | An order lands through standing | An order lands through standing (DR-033, ruled): every ask the player makes of a person goes through SAO_Command - CAO's obedience check on the Standing that exists, a proven hand standing as a second, the envelope's own refusals - voiced with its reason and seen; Border 111 runs the check in the engine's own VM over the county sampled. |
 | `C38` | 2026-09-07 | minor | `2.10.0.0-pre-alpha` | The era remembered | The era remembered (Day Zero slice 6): the knowledge surface carries before - born, the war, where from, home, innocent or hardened - and the day it started - the person's own first horror with its date and what it taught, the county's stamps aired as news, the record's first day for a radio owner - as claims with provenance; the chronicle reads its days as the county's own dates through the same calendar; Border 112 drives both topics in the engine's own VM. |
+| `C39` | 2026-09-07 | minor | `2.11.0.0-pre-alpha` | The conditions are SAO's own | The conditions are SAO's own (DR-032 amended): the two required mods are gone and SAO registers the county's conditions as engine character traits from shared Lua, vanilla's where vanilla has one, every cost taken from the vanilla trait its shape is anchored to; a survivor's drawn conditions ride their shell as traits, the player's chosen ones are asserted and driven through the same functions; Border 113 holds it and Border 107's requirement seam is inverted. |
 
 ## The former number
 
@@ -174,11 +175,11 @@ the meantime, and they are not play.
 
 ## Next movement
 
-`C39` is the next batch. Its content determines its tier after it
+`C40` is the next batch. Its content determines its tier after it
 exists:
 
-| If C39 is | Result |
+| If C40 is | Result |
 |---|---|
-| patch or hotfix | `2.10.0.1-pre-alpha` |
-| kohai | `2.10.1.0-pre-alpha` |
-| minor | `2.11.0.0-pre-alpha` |
+| patch or hotfix | `2.11.0.1-pre-alpha` |
+| kohai | `2.11.1.0-pre-alpha` |
+| minor | `2.12.0.0-pre-alpha` |

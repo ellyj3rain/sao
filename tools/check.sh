@@ -1379,6 +1379,17 @@ if ! "$PY" tools/era_test.py > /dev/null; then
     fail=1
 fi
 
+# [C39] Border 113 - SAO carries its own conditions (DR-032 amended):
+# the traits registered from shared Lua and priced off vanilla's own
+# file, vanilla's trait used where vanilla has one, the condition
+# stamped onto a body, the player's traits asserted and driven, and
+# neither manifest requiring another mod.
+if ! "$PY" tools/traits_test.py > /dev/null; then
+    "$PY" tools/traits_test.py 2>&1 | grep -E "FAULT" || true
+    note "BORDER FINDING - the conditions are not SAO's own"
+    fail=1
+fi
+
 # Border 103 - the operator's speech is not in the repository: no
 # profanity in the tracked tree and no operator-quote attributions;
 # rulings are paraphrased content, speech stays with the speaker.

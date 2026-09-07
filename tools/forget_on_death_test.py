@@ -90,6 +90,13 @@ CACHES = {
         "S.forgetPolitics", "named",
         "a PAIR-keyed doctrine clock, the same shape and the same "
         "problem"),
+    ("SAO_Conditions.lua", "Cn.asserted"): (
+        "Cn.forget", "named",
+        "the conditions a trait asserts onto a person rather than the "
+        "draw giving them ([C39]) - the player's own, and any survivor "
+        "another mod's trait speaks for. A drawn condition is computed "
+        "from the id and costs nothing to keep; an assertion is a "
+        "table, and the dead assert nothing"),
     ("SAO_Controller.lua", "Ctl.agents"): (
         "updateAgent", "calls",
         "the live agent registry. Cleared on both death branches "

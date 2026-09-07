@@ -1,6 +1,6 @@
 | Document | Survivor Awareness Overhaul Decision Registry |
 |---|---|
-| Version | `2.10.0.0-pre-alpha` |
+| Version | `2.11.0.0-pre-alpha` |
 | Author | ellyj3rain |
 | Repository | `DECISION_REGISTRY.md` |
 | Status | CANONICAL, APPEND-ONLY - ratified decisions. |
@@ -988,6 +988,24 @@ playing.
 **Origin.** Operator direction in chat, 2026-09-06, paraphrased. The
 forks it leaves open - who may order whom, whether a person may refuse,
 and how far the engineless county runs - go to Crucible.
+
+**Amended 2026-09-07 by the operator ([C39]).** The requirement was
+the wrong trade and is gone. Asked why two mods had to be ENABLED
+for their conditions to be analysed, the answer was that they did
+not: [C32] took no code from either and gained nothing mechanical -
+the `require=` existed only so the player had a trait framework for
+the conditions SAO already derives. The operator ruled that the
+source is to be ported instead, unless a page forbids reuse
+outright. Neither does: Infirmities' terms allow use and extension
+with credit, and Even More Traits is itself a credited community
+port. So SAO registers the conditions as its own engine traits
+(vanilla's where vanilla has one), stamps a survivor's drawn
+conditions onto their shell, drives the player's own through the
+same functions the county's people use, and requires nothing. One
+technique is taken with credit (registration from shared Lua, for
+the load-order reason its author gives), verified against the jar
+before use. The ruling's shape stands - conditions come through what
+the mod scene has learned - but as ported work, not as a dependency.
 
 **Ruled 2026-09-06 (Crucible, the three forks).** No authority table
 is authored. Whether people follow the player - or anyone - depends

@@ -9,8 +9,9 @@ already decide read it - the disposition (bends inside the envelope,
 fear), the perception (how long a belief is kept), the age drift (what
 the body carries, dementia's day, psychosis's hour), the bridge (what
 the skills lose), the controller (what a book costs), the knowledge
-surface and the inspect panel (plain words) - and the two Build 42
-condition mods are required for the player's side.
+surface and the inspect panel (plain words). [C39] The player's side
+is SAO's own too: the conditions are registered as engine traits
+(Border 113), so nothing is required of anyone.
 
 Checked in the engine's own VM (tools/luacheck/LuaRun) against Border
 105's stub county, over six thousand people:
@@ -26,8 +27,8 @@ Checked in the engine's own VM (tools/luacheck/LuaRun) against Border
     the dyslexic learn a tenth slower and read a quarter longer;
   * every word a player can read is plain: letters and spaces.
 
-And by text, every seam that carries it, and the manifests naming the
-two required mods. An optional argv[1] points the checker at another
+And by text, every seam that carries it, and both manifests requiring
+nothing. An optional argv[1] points the checker at another
 tree root, which is how its control runs: the pre-batch tree faults at
 every seam.
 """
@@ -66,7 +67,6 @@ PZ = PZ_DIR / "projectzomboid.jar"
 STDLIB = PZ_DIR / "stdlib.lua"
 
 IDS = 6000
-REQUIRED = "require=twbInfirmities,EvenMoreTraits4220"
 
 
 def build():
@@ -326,9 +326,19 @@ def main():
     seams["leaving the passive and agility families alone"] = all(
         "Perks." + p in gbody for p in ("None", "Passiv", "Agility"))
     seams["without throwing"] = "catch (Throwable" in gbody
-    for m in MANIFESTS:
-        seams["%s requires the two mods" % m.name if m.parent.name == "mod" else "42.20 manifest requires the two mods"] = \
-            REQUIRED in read(m)
+    # [C39] INVERTED. This seam was written when [C32] made two
+    # third-party mods hard requirements for the player's side of the
+    # conditions. The operator ruled that trade wrong (DR-032 amended)
+    # - no code was ever taken from either and nothing mechanical was
+    # gained - so SAO carries its own traits now and requires nothing.
+    # Left as it was, this seam would hold the tree to a decision that
+    # has been reversed, which is the one thing a border must never
+    # do. What replaces it is its opposite; Border 113 holds the
+    # ported surface itself.
+    seams["neither manifest requires another mod"] = all(
+        "require=" not in read(m) for m in MANIFESTS)
+    seams["the conditions have a trait surface of SAO's own"] = (
+        SHARED / "NPCs" / "SAO_Traits.lua").exists()
     if bare != 3:
         print("     bare ZOMBIE_HORIZON references: %d (wanted 3)" % bare)
 

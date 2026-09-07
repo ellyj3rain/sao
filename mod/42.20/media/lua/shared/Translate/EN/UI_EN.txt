@@ -1,3 +1,36 @@
 UI_EN = {
     UI_optionscreen_binding_SAOInspect = "SAO: toggle the inspect panel",
+
+    /* [C39] The conditions the county's people carry, offered to the
+       player at creation. The name is the condition's own name and
+       the description is what it does in this mod, in the same plain
+       words the panel uses (DR-017). Asthma and insomnia are absent
+       on purpose: those are vanilla's own traits and SAO uses them. */
+    UI_trait_SAO_dementia = "Dementia",
+    UI_trait_SAO_dementiaDesc = "You forget things. Recent memory fades "
+        .. "twice as fast, and each day some of what your skills hold slips away.",
+    UI_trait_SAO_adhd = "ADHD",
+    UI_trait_SAO_adhdDesc = "Some days you are sharp and learn faster; "
+        .. "other days you are scattered and learn slower.",
+    UI_trait_SAO_bipolar = "Bipolar",
+    UI_trait_SAO_bipolarDesc = "Your spells turn. A high spell lifts your "
+        .. "drive and sheds stress; a low one takes your appetite and tires you.",
+    UI_trait_SAO_depression = "Depression",
+    UI_trait_SAO_depressionDesc = "You tire sooner and it is harder to "
+        .. "start anything. You eat less.",
+    UI_trait_SAO_anxiety = "Anxiety",
+    UI_trait_SAO_anxietyDesc = "You are frightened more easily and carry "
+        .. "stress even when nothing is happening.",
+    UI_trait_SAO_ptsd = "Haunted",
+    UI_trait_SAO_ptsdDesc = "Something happened to you. You carry a low "
+        .. "fear always, it spikes when you see someone die, and you remember "
+        .. "where the danger was for longer than most.",
+    UI_trait_SAO_dyslexia = "Dyslexia",
+    UI_trait_SAO_dyslexiaDesc = "Books take you a quarter longer, and you "
+        .. "learn a little slower.",
+    UI_trait_SAO_psychosis = "Psychosis",
+    UI_trait_SAO_psychosisDesc = "Sometimes you hear something that is not "
+        .. "there, and it sounds exactly like something that is.",
+    UI_trait_SAO_diabetes = "Diabetes",
+    UI_trait_SAO_diabetesDesc = "You need to eat sooner than other people do.",
 }

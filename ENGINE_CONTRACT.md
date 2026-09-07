@@ -1,6 +1,6 @@
 | Document | Survivor Awareness Overhaul Engine Contract |
 |---|---|
-| Version | `2.10.0.0-pre-alpha` |
+| Version | `2.11.0.0-pre-alpha` |
 | Author | ellyj3rain |
 | Repository | `ENGINE_CONTRACT.md` |
 | Status | CANONICAL - the verified engine mechanics an IsoPlayer NPC requires. |
@@ -457,4 +457,7 @@ of what a character IS to the engine, and what it is not.
 | `ItemCodeOnCreate.onCreate{Knews,Herald,Times,Dispatch}NewNewspaper` call `nameNewspaper` on the paper's static; `onCreateRecentNewspaper` draws a random paper from `Registries.NEWSPAPER.values()`; these are Java, not Lua, so the re-dating happens at the container fill (`Events.OnFillContainer(roomType, containerType, container)`, server side) | when a paper can be re-dated ([C36]) | javap -c; the shipped Lua's `LootLog` |
 | `GameTime.getStartYear/getStartMonth/getStartDay`, `getYear/getMonth/getDay` - month and day zero-based (the shipped debug Lua prints `getDay()+1`) | the county's calendar ([C36]) | javap; the shipped Lua |
 | `RadioScriptManager.getChannelsList()`, `RadioChannel.isVanilla()`, `getCurrentScript()`, `RadioScript.GetName()`, `RadioChannel.setActiveScript(name, startDay)` | the once-per-save re-key of every vanilla channel to the save day July 9 falls on; the county wire is not vanilla and is left alone ([C36]) | javap |
+| `CharacterTrait.register(String)` returns the trait; `CharacterTraitDefinition.addCharacterTraitDefinition(trait, name, cost, desc, free, disabledInMultiplayer)`, `setDescription`, `getCharacterTraitDefinition`, `getTraits`, `characterTraitDefinitions` (public static map) | how a mod adds a character trait in Build 42.20 - the B41 `TraitFactory` is gone ([C39]) | javap |
+| `IsoGameCharacter.hasTrait(CharacterTrait)`, `getCharacterTraits().set(CharacterTrait, boolean)` / `add` / `remove` / `get`; `SAOIsoPlayerShell extends IsoPlayer`, so a shell carries traits like anyone | the condition rides the trait, on the player and on the county's people ([C39]) | javap |
+| Vanilla ships `ASTHMATIC` and `INSOMNIAC` among its `CharacterTrait` constants, and prices every trait in `media/scripts/generated/characters/character_traits.txt` | SAO uses vanilla's trait where vanilla has one, and takes its costs from that file ([C39]) | javap; the shipped script |
 | NOT in the engine | origin or hometown, schooling, family, service history, media taste, memory or decay of any kind: nothing on the descriptor says so. SAO derives origin region, age, birth year, service eligibility, occupation class, lessons and household itself (`SAO_History`, `SAO_Census`, `SAO_Identity`) | the getters above, read whole |

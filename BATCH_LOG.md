@@ -1,6 +1,6 @@
 | Document | Survivor Awareness Overhaul Batch Log |
 |---|---|
-| Version | `2.10.0.0-pre-alpha` |
+| Version | `2.11.0.0-pre-alpha` |
 | Author | ellyj3rain |
 | Repository | `BATCH_LOG.md` |
 | Status | REGULATORY - chronological batch index. |
@@ -143,3 +143,4 @@ attribution for every merged entry, stated here rather than in a branch name.
 | [C36](Batches/C36-2026-09-07-the-record-on-the-countys-calendar.md) | 2026-09-07 | The record on the county's calendar | [`T-002`](Batches/THREADS.md#t-002), [`T-006`](Batches/THREADS.md#t-006) |
 | [C37](Batches/C37-2026-09-07-an-order-lands-through-standing.md) | 2026-09-07 | An order lands through standing | [`T-004`](Batches/THREADS.md#t-004), [`T-006`](Batches/THREADS.md#t-006) |
 | [C38](Batches/C38-2026-09-07-the-era-remembered.md) | 2026-09-07 | The era remembered | [`T-002`](Batches/THREADS.md#t-002), [`T-006`](Batches/THREADS.md#t-006) |
+| [C39](Batches/C39-2026-09-07-the-conditions-are-saos-own.md) | 2026-09-07 | The conditions are SAO's own | [`T-007`](Batches/THREADS.md#t-007), [`T-006`](Batches/THREADS.md#t-006) |

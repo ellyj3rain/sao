@@ -60,17 +60,27 @@ named anywhere in this codebase's logic.
 ## Infirmities (Twuben)
 
 Workshop 3579088411, mod id `twbInfirmities`, Build 42.20; itself
-requires Moodle Framework and TchernoLib. **Hard runtime dependency
-since [C32]** (DR-032: the player carries the conditions the
-county's people carry). Its terms allow use, collections and
-extension with credit. No code taken.
+requires Moodle Framework and TchernoLib. Its terms allow use,
+collections and extension with credit. **A hard runtime dependency
+from [C32] to [C39], and no longer one**: it was required so the
+player could carry the conditions the county's people carry, and
+[C39] builds that surface in SAO instead - a requirement on every
+user for something we can hold ourselves is the wrong trade. Read
+for what a Build 42 condition mod does; no code taken, then or now.
 
-## Even More Traits (Darkyosh, after Dr. Lalaoz)
+## Even More Traits (Lazolo; the 42.20 update is a community port)
 
 Workshop 3777663603, mod id `EvenMoreTraits4220`, Build 42.20 - a
-port of Dr. Lalaoz's Build 41 mod, whose traits, effects and writing
-the port credits whole. **Hard runtime dependency since [C32]**
-(DR-032). No code taken.
+community update of Lazolo's mod (workshop 2855320431), which its
+own header credits whole. **A hard runtime dependency from [C32] to
+[C39], and no longer one** (see Infirmities above). One TECHNIQUE is
+taken and credited here: registering character traits from shared
+Lua rather than through `media/registries.lua` and a
+`character_trait_definition` script, because the engine runs every
+mod's registries file in one pass in load order and a mod that
+throws there takes down every mod after it. The reasoning is theirs;
+the calls it rests on were verified here against the installed jar
+before use, and SAO's implementation is its own.
 
 ## Neurodiverse Traits (Mxswat)
 

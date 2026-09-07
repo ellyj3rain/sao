@@ -140,7 +140,38 @@ local function per10kFor(key, age)
 end
 
 -- Does this person carry this condition? A fact about who they are.
+-- [C39] A trait beats the draw.
+--
+-- The county's people have their conditions drawn from their own
+-- hash at the record's prevalence, which is what makes a condition a
+-- fact about who somebody is. The PLAYER's are not drawn: they are
+-- the ones that person chose at creation, and they arrive as engine
+-- traits (SAO_Traits). Anyone whose conditions are asserted answers
+-- from the assertion instead of the draw, so every surface in the
+-- tree - the fear, the memory, the learning, the drift, the words -
+-- reads the player exactly as it reads anyone else.
+Cn.asserted = Cn.asserted or {}
+
+function Cn.assert(id, set)
+    if not id then return end
+    Cn.asserted[tostring(id)] = set
+end
+
+-- And who forgets one. The county keeps its dead on purpose, so a
+-- table keyed by a survivor id needs a death to reach it or it
+-- holds entries nothing will read again ([B51]'s law). The death
+-- funnel in SAO_Identity calls this the way it calls the
+-- perception's and the voice's. The player's own key is not a
+-- survivor id and is re-read at every creation, so it is only
+-- cleared when a player's own conditions are read again.
+function Cn.forget(id)
+    if not id then return end
+    Cn.asserted[tostring(id)] = nil
+end
+
 function Cn.has(id, key)
+    local said = Cn.asserted[tostring(id)]
+    if said ~= nil then return said[key] == true end
     local share = per10kFor(key, ageOf(id))
     if share <= 0 then return false end
     return (hashOf(id, "condition:" .. key) % 10000) < share

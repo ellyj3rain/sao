@@ -139,10 +139,17 @@ KNOWN.update({n: ENGINE for n in (
     # rest, read by SAO_Age for the per-stage drift through
     # Stats.add/remove(CharacterStat, float).
     "CharacterStat",
+    # [C39] the engine's trait surfaces (javap-verified on 42.20):
+    # zombie.scripting.objects.CharacterTrait holds the vanilla
+    # constants and `register(String)`, and
+    # zombie.characters.traits.CharacterTraitDefinition builds and
+    # prices the definition the creation screen reads. SAO_Traits
+    # registers the county's conditions through both.
+    "CharacterTrait", "CharacterTraitDefinition",
     "addVirtualZombie",
     "addSound", "farming_vegetableconf", "getCell", "getClimateManager",
     "getCore", "getFileWriter", "getGameTime", "getSandboxOptions",
-    "getScriptManager", "getSpecificPlayer", "getTextManager",
+    "getScriptManager", "getSpecificPlayer", "getText", "getTextManager",
     "getTimestampMs", "getWorld", "instanceof",
 )})
 

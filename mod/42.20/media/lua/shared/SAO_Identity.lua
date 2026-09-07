@@ -186,6 +186,13 @@ function Identity.markDead(rec, tick, cause)
     if SAO.Voice and SAO.Voice.forget then
         pcall(SAO.Voice.forget, rec.id)
     end
+    -- [C39] And the conditions asserted onto a person by a trait:
+    -- the drawn ones are computed from the id and cost nothing to
+    -- keep, but an assertion is a table, and the dead assert
+    -- nothing.
+    if SAO.Conditions and SAO.Conditions.forget then
+        pcall(SAO.Conditions.forget, rec.id)
+    end
     if SAO.Population and SAO.Population.forgetPairs then
         pcall(SAO.Population.forgetPairs, rec.id)
     end

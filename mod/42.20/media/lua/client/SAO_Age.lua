@@ -220,6 +220,37 @@ function Age.dailyRoll(rec, today, tick)
     return true
 end
 
+-- [C39] The player's own conditions, on the same cadence and through
+-- the same functions the county's people get: what the condition
+-- carries every ten minutes, dementia's day, psychosis's hour. Only
+-- the conditions - SAO does not own the player's ageing, so no stage
+-- drift, no fear floor over their own panic and no day of old age.
+-- Silent for a player who took none, which is most of them.
+function Age.playerPass(player, key, pass, today)
+    if not (player and key) then return false end
+    local carried = nil
+    pcall(function() carried = SAO.Conditions.drift(key) end)
+    local acted = false
+    if type(carried) == "table" then
+        local stats = nil
+        pcall(function() stats = player:getStats() end)
+        if stats then
+            for name, delta in pairs(carried) do
+                if chance(DRIFT_CHANCE, key, "carried:" .. name
+                    .. ":" .. tostring(pass)) then
+                    applyStat(stats, name, delta)
+                    acted = true
+                end
+            end
+        end
+    end
+    pcall(Age.hearThings, { id = key }, player, pass)
+    if today then
+        pcall(Age.forgetSkills, { id = key }, player, today)
+    end
+    return acted
+end
+
 local lastDay = nil
 local passCounter = 0
 
@@ -239,6 +270,15 @@ local function everyTenMinutes()
             if newDay then pcall(Age.forgetSkills, rec, body, today) end
         end
     end
+    -- [C39] The player carries what they took.
+    pcall(function()
+        local me = getSpecificPlayer(0)
+        if not me then return end
+        local key = SAO.Standing.playerKey(me)
+        if key then
+            Age.playerPass(me, key, passCounter, newDay and today or nil)
+        end
+    end)
     if newDay then
         lastDay = today
         local tick = passCounter
