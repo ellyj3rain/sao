@@ -120,9 +120,13 @@ local function hold(label, current)
 end
 
 local function take()
+    -- [C40] DR-035: asked for, not assumed. This used to hold unless
+    -- the switch said otherwise, which meant a fresh world with both
+    -- mods installed replaced two of their functions with no one
+    -- having asked for it.
     local sv = SandboxVars and SandboxVars.SurvivorAwareness or nil
-    if sv and sv.HoldNeighbourPrompts == false then
-        log("not holding: the sandbox screen says let them through")
+    if not (sv and sv.HoldNeighbourPrompts == true) then
+        log("not holding: this county touches nothing of theirs")
         return
     end
     local ns = Nb.namespace()
@@ -276,7 +280,17 @@ end
 
 -- The Harness asks this before building its own person menu: will the
 -- neighbour's root carry this person on this click?
+-- [C40] DR-035: the same door as the absorption's. Closed - which is
+-- the default - this county never rewrites another mod's menu and
+-- never predicts one, so every person the player right-clicks gets
+-- this county's own menu and nobody's surface is touched.
+function Nb.bridgeOpen()
+    local sv = SandboxVars and SandboxVars.SurvivorAwareness or nil
+    return sv ~= nil and sv.NeighbourBridge == true
+end
+
 function Nb.willSuperimpose(recId, worldobjects)
+    if not Nb.bridgeOpen() then return false end
     local sq = squareOf(worldobjects)
     if not sq then return false end
     local actor, kid = nearestActorTo(sq)
@@ -285,6 +299,7 @@ function Nb.willSuperimpose(recId, worldobjects)
 end
 
 local function superimposePersonRoot(playerNum, context, worldobjects)
+    if not Nb.bridgeOpen() then return end
     local sq = squareOf(worldobjects)
     if not sq then return end
     local actor, kid, ns = nearestActorTo(sq)

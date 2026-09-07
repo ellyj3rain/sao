@@ -1,6 +1,6 @@
 | Document | Survivor Awareness Overhaul Roadmap |
 |---|---|
-| Version | `2.11.0.0-pre-alpha` |
+| Version | `2.12.0.0-pre-alpha` |
 | Author | ellyj3rain |
 | Repository | `ROADMAP.md` |
 | Status | CANONICAL - thread map, backlog, live gates. |
@@ -49,6 +49,15 @@ the human envelope.
 
 Relationships, group membership, territory and orders gate what a survivor may do,
 separately from what it wants to do.
+
+## Standing on our own (DR-035, 2026-09-07)
+
+No capability planned here may require another survivor mod, and no
+slice may be scoped around one being installed. The neighbour
+framework's people and menus are reachable behind a switch that
+defaults off ([C40]) and are not a factor in anything above.
+ZombieBuddy remains the one requirement: it loads this mod's own
+Java component and cannot be replaced from inside a mod.
 
 ## Deferred
 

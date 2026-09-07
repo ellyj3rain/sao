@@ -58,6 +58,11 @@ OWNED_ELSEWHERE = {
     # server-side record module does once per save and at every
     # container fill. Neither half of the simulation reads it.
     "RecordOnCalendar": "server/SAO_Record.lua",
+    # [C40] Not a property of any person either: it decides whether
+    # this county runs anything through another survivor mod at all
+    # (DR-035). Read by the two modules that would, and by neither
+    # half of the simulation.
+    "NeighbourBridge": "client/SAO_Absorb.lua",
 }
 
 

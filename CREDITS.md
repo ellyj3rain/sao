@@ -36,6 +36,17 @@ is recognised where present and **never required**: its people get
 their own key domain so they are never confused with ours or with the
 player (DR-009).
 
+**Since [C40] (DR-035) nothing of this county's runs through it.**
+Two paths used to reach into its namespace on every world start -
+taking its people over through its own teardown and spawn functions,
+and rewriting the inside of its per-survivor menu. Both are now off
+unless the player asks for them, because a mod should not use
+another author's code by default, and because this one no longer
+needs to: its own people, bodies, menus and art are complete alone.
+What stays always on uses none of its code - the county simply
+never treats its people as threats, and keeps their keys apart from
+its own.
+
 ## ZombieBuddy
 
 **Hard runtime dependency.** The Java component (`media/java/SAO.jar`)
@@ -51,11 +62,11 @@ assets are redistributed.
 
 ## Other NPC mods
 
-Recognised, never required. `require=` in `mod.info` names no NPC
-mod (only the two condition mods below, since [C32]), and another
-mod's people are handled by property - an `IsoPlayer` that is not in
-the engine's slot array and is not one of ours - so no NPC mod is
-named anywhere in this codebase's logic.
+Recognised, never required. Since [C39] `require=` in `mod.info`
+names nothing at all, and another mod's people are handled by
+property - an `IsoPlayer` that is not in the engine's slot array and
+is not one of ours - so no NPC mod is named anywhere in this
+codebase's logic.
 
 ## Infirmities (Twuben)
 

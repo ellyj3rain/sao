@@ -1390,6 +1390,16 @@ if ! "$PY" tools/traits_test.py > /dev/null; then
     fail=1
 fi
 
+# [C40] Border 114 - the county stands on its own (DR-035): nothing
+# this mod does requires another mod's namespace, every reach into
+# one is behind the bridge that defaults off, and what stays always
+# on uses none of their code.
+if ! "$PY" tools/self_contained_test.py > /dev/null; then
+    "$PY" tools/self_contained_test.py 2>&1 | grep -E "FAULT" || true
+    note "BORDER FINDING - the county leans on another mod"
+    fail=1
+fi
+
 # Border 103 - the operator's speech is not in the repository: no
 # profanity in the tracked tree and no operator-quote attributions;
 # rulings are paraphrased content, speech stays with the speaker.

@@ -169,6 +169,19 @@ RATIFIED = {
         + "Newspapers show the newest issue printed by the current date." + NL
         + "Off: the schedule counts from the day the world began and "
         "newspapers are dated at random, as in the unmodded game.",
+    # [C40] Ratified unchanged by the operator in chat, 2026-09-07.
+    # The tooltip is broken at its sentence ends because
+    # Border 16 fits 150 characters to a line; the words are as seen.
+    P + "NeighbourBridge": "Take over another survivor mod's people",
+    P + "NeighbourBridge_tooltip":
+        "Off, this mod runs nothing through another survivor mod. It "
+        "still never treats that mod's people as enemies." + NL
+        + "On, and if such a mod is installed, its people become this "
+        "mod's people." + NL
+        + "They get the same memory, temperament and history everyone "
+        "here has, and their own menu carries this mod's options." + NL
+        + "Turning this on makes this mod call the other mod's code. "
+        "Leave it off unless you want the two joined.",
 }
 
 # Struck register, held out of the named UI sources by literal match -

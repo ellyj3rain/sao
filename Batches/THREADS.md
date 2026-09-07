@@ -34,7 +34,7 @@ Telemetry and the acquisition record - how learning is stored and how every fact
 
 The gate, its borders, and the repository's own discipline.
 
-**Batches**: `A1`, `A16`, `B5`, `B12`, `B14`, `B16`, `B30`, `B31`, `B32`, `B36`, `B41`, `B42`, `B43`, `B44`, `B45`, `B51`, `B52`, `C1`, `C2`
+**Batches**: `A1`, `A16`, `B5`, `B12`, `B14`, `B16`, `B30`, `B31`, `B32`, `B36`, `B41`, `B42`, `B43`, `B44`, `B45`, `B51`, `B52`, `C1`, `C2`, `C40`
 
 **Owes**: Border 47's counted remainder (named, not manufactured into a group).
 
@@ -60,7 +60,7 @@ Who a person is, what they believe, how they came to believe it, and what time d
 
 Who the county holds: census, age, occupation, arrivals, and growth.
 
-**Batches**: `A7`, `A17`, `A18`, `A19`, `B28`, `B37`, `B38`, `B48`, `C9`, `C16`, `C17`, `C20`, `C21`, `C29`, `C30`, `C31`, `C32`, `C33`, `C34`, `C35`, `C39`
+**Batches**: `A7`, `A17`, `A18`, `A19`, `B28`, `B37`, `B38`, `B48`, `C9`, `C16`, `C17`, `C20`, `C21`, `C29`, `C30`, `C31`, `C32`, `C33`, `C34`, `C35`, `C39`, `C40`
 
 **Owes**: growth rate vs the 360 ceiling - the arithmetic is with the operator.
 

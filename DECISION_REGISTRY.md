@@ -1,6 +1,6 @@
 | Document | Survivor Awareness Overhaul Decision Registry |
 |---|---|
-| Version | `2.11.0.0-pre-alpha` |
+| Version | `2.12.0.0-pre-alpha` |
 | Author | ellyj3rain |
 | Repository | `DECISION_REGISTRY.md` |
 | Status | CANONICAL, APPEND-ONLY - ratified decisions. |
@@ -156,6 +156,43 @@ of eight is not nearly enough people to start any measure of society;
 the aim is far more significant.
 
 **Origin.** `[A16]`, operator direction in session.
+
+## DR-035 - The county stands on its own
+
+**Decision.** This mod is developed self-contained. No capability of
+it may require another survivor mod, and nothing of it runs through
+one unless the player asks: the two paths that did - taking the
+neighbour framework's people over through its own spawn and teardown
+functions (DR-022, DR-024) and rewriting the inside of its
+per-survivor menu (DR-015) - are behind one switch that defaults
+off, as does the older prompt hold, which replaced two of their
+functions with wrappers of ours and used to default on. What remains
+always on uses none of their code and is kept
+because it protects a neighbour's game rather than using it: their
+people are never treated as threats and never confused with ours
+(DR-009's defensive half). DR-015 and DR-022 are not repealed - with
+the switch on they hold exactly as written - but neither is a factor
+in what this county can do.
+
+**Why.** The operator's assessment of 2026-09-07, paraphrased: the
+neighbour framework is not needed at all now and is close to
+redundant given the art and systems this county already has, its
+author is restrictive about other people using it, and development
+should be self-contained rather than factoring in that dependency.
+The reading taken from that: a mod should not use another author's
+code by default, and a county that is complete alone has no reason
+to. It follows the same law as DR-032's amendment ([C39]) one step
+further - there the cost was a requirement on the user, here it is a
+dependency in the design.
+
+**What it does not say.** ZombieBuddy stays a hard requirement:
+it is what loads this mod's own Java component (`javaJarFile`,
+`ZBVersionMin` in the manifest), and a mod cannot attach a Java
+agent to the running game by itself. That is a loader, not a
+borrowed system.
+
+**Origin.** Operator assessment in chat, 2026-09-07, paraphrased.
+Built as [C40]; Border 114 holds it.
 
 ## DR-009 - Legacy coexistence, SAO precedence
 

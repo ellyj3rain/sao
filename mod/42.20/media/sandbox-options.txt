@@ -95,8 +95,13 @@ option SurvivorAwareness.DormantRisk {
     page = SurvivorAwareness, translation = SurvivorAwareness_DormantRisk,
 }
 
+/* [C40] DR-035: default OFF. Holding a prompt means replacing two of
+ * another mod's functions with wrappers of ours, which is a reach
+ * into their code whatever it is for - so a fresh world does not do
+ * it. The words on the screen are unchanged and still true: the
+ * player can turn it on, and their own options can do the same job. */
 option SurvivorAwareness.HoldNeighbourPrompts {
-    type = boolean, default = true,
+    type = boolean, default = false,
     page = SurvivorAwareness, translation = SurvivorAwareness_HoldNeighbourPrompts,
 }
 
@@ -106,6 +111,15 @@ option SurvivorAwareness.HoldNeighbourPrompts {
 option SurvivorAwareness.RestoreTakenZombies {
     type = boolean, default = false,
     page = SurvivorAwareness, translation = SurvivorAwareness_RestoreTakenZombies,
+}
+
+/* [C40] DR-035: this county stands on its own. Off, nothing of it
+ * runs through another survivor mod's code - it is simply never
+ * treated as an enemy. On, its people become this county's and its
+ * own person menu carries this county's verbs. */
+option SurvivorAwareness.NeighbourBridge {
+    type = boolean, default = false,
+    page = SurvivorAwareness, translation = SurvivorAwareness_NeighbourBridge,
 }
 
 /* [C36] DR-031: the game's own broadcasts and papers reach the county

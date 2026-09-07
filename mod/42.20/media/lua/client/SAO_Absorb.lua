@@ -331,8 +331,22 @@ local function namespace()
     return nil
 end
 
+-- [C40] DR-035: this county stands on its own, so taking another
+-- mod's people over is something the player asks for and not
+-- something that happens because both mods are installed. Off, this
+-- file never reads their namespace and never wraps a function of
+-- theirs; the county is complete without them.
+local function bridgeOpen()
+    local sv = SandboxVars and SandboxVars.SurvivorAwareness or nil
+    return sv ~= nil and sv.NeighbourBridge == true
+end
+
 if Events and Events.OnGameStart then
     Events.OnGameStart.Add(function()
+        if not bridgeOpen() then
+            log("the county stands on its own; nothing is absorbed")
+            return
+        end
         local ns = namespace()
         if not ns then
             log("the neighbour framework is not installed; nothing to absorb")
@@ -346,6 +360,7 @@ end
 
 if Events and Events.EveryTenMinutes then
     Events.EveryTenMinutes.Add(function()
+        if not bridgeOpen() then return end
         local ns = namespace()
         if ns then pcall(Ab.mirrorBack, ns) end
     end)
