@@ -1,6 +1,6 @@
 | Document | Survivor Awareness Overhaul Engine Contract |
 |---|---|
-| Version | `2.7.0.0-pre-alpha` |
+| Version | `2.8.0.0-pre-alpha` |
 | Author | ellyj3rain |
 | Repository | `ENGINE_CONTRACT.md` |
 | Status | CANONICAL - the verified engine mechanics an IsoPlayer NPC requires. |
@@ -453,4 +453,8 @@ of what a character IS to the engine, and what it is not.
 | `AnimSets/player/sitonground-sitting` (`sit_loop`, `sit_action` keyed on `hasTimedActions`, `m_Priority`) | the seat's variants ride the engine's own sitting state, keyed on a variable SAO sets ([C35]) | the shipped animation sets |
 | `IsoGameCharacter.setVariable(String, String)`, `clearVariable(String)`, `playEmote(String)`, `playSound(String)` | the seat variable, the engine's own emotes for greetings and partings, the coughs and claps ([C35]) | javap |
 | Animations load from any mod's `media/anims_X` by name; the copied files carry the Bip01 rig (`Bip01_Pelvis` ... `Bip01_Prop2`) the player model and its animations use, though Week One kept them under a `Zombie` folder and binds them to the zombie tree | the art crosses skeleton-true; the binding is what a mod writes ([C35]) | the files' own bone names; Hobbies' flat `anims_X` and its player-tree nodes |
+| `RecipeCodeHelper.setPrintMediaInfo(item, title, info, text, id)` (public static; the bytecode writes `printMedia` = {title, info, id, text} and `literatureTitle` into the item's modData) | how a paper is dated by a mod: the same writes the engine makes, with the issue the calendar picks ([C36]) | javap -c |
+| `ItemCodeOnCreate.onCreate{Knews,Herald,Times,Dispatch}NewNewspaper` call `nameNewspaper` on the paper's static; `onCreateRecentNewspaper` draws a random paper from `Registries.NEWSPAPER.values()`; these are Java, not Lua, so the re-dating happens at the container fill (`Events.OnFillContainer(roomType, containerType, container)`, server side) | when a paper can be re-dated ([C36]) | javap -c; the shipped Lua's `LootLog` |
+| `GameTime.getStartYear/getStartMonth/getStartDay`, `getYear/getMonth/getDay` - month and day zero-based (the shipped debug Lua prints `getDay()+1`) | the county's calendar ([C36]) | javap; the shipped Lua |
+| `RadioScriptManager.getChannelsList()`, `RadioChannel.isVanilla()`, `getCurrentScript()`, `RadioScript.GetName()`, `RadioChannel.setActiveScript(name, startDay)` | the once-per-save re-key of every vanilla channel to the save day July 9 falls on; the county wire is not vanilla and is left alone ([C36]) | javap |
 | NOT in the engine | origin or hometown, schooling, family, service history, media taste, memory or decay of any kind: nothing on the descriptor says so. SAO derives origin region, age, birth year, service eligibility, occupation class, lessons and household itself (`SAO_History`, `SAO_Census`, `SAO_Identity`) | the getters above, read whole |

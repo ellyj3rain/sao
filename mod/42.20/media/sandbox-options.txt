@@ -107,3 +107,11 @@ option SurvivorAwareness.RestoreTakenZombies {
     type = boolean, default = false,
     page = SurvivorAwareness, translation = SurvivorAwareness_RestoreTakenZombies,
 }
+
+/* [C36] DR-031: the game's own broadcasts and papers reach the county
+ * on the record's own dates rather than on days since the save began.
+ * On the shipped July 9 start nothing changes. */
+option SurvivorAwareness.RecordOnCalendar {
+    type = boolean, default = true,
+    page = SurvivorAwareness, translation = SurvivorAwareness_RecordOnCalendar,
+}

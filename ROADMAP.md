@@ -1,6 +1,6 @@
 | Document | Survivor Awareness Overhaul Roadmap |
 |---|---|
-| Version | `2.7.0.0-pre-alpha` |
+| Version | `2.8.0.0-pre-alpha` |
 | Author | ellyj3rain |
 | Repository | `ROADMAP.md` |
 | Status | CANONICAL - thread map, backlog, live gates. |
@@ -212,7 +212,7 @@ is lived, witnessed, and remembered person by person. Slices:
    the sedan is low-key, the RV carries five.
 6. The era remembered: journals, chronicle, and Talk carrying "before"
    and "the day it started" as lived claims.
-7. The shipped record on the county's calendar (DR-031): the game's
+7. SHIPPED as `[C36]`: the shipped record on the county's calendar (DR-031): the game's
    own broadcast schedule and dated newspapers re-keyed from "days
    since the save began" to the dates the record itself carries
    (July 1 to 16, 1993), driven by the living start's own day - the

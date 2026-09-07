@@ -1,13 +1,20 @@
 | Document | Survivor Awareness Overhaul Session State |
 |---|---|
-| Version | `2.7.0.0-pre-alpha` |
+| Version | `2.8.0.0-pre-alpha` |
 | Author | ellyj3rain |
 | Repository | `SESSION_STATE.md` |
 | Status | CANONICAL - where the work actually stands. |
 
 # Session state
 
-**As of** 2026-09-07, `[C35]` close - the county's gestures (DR-034):
+**As of** 2026-09-07, `[C36]` close - the record on the county's
+calendar (DR-031, Day Zero slice 7): every vanilla channel re-keyed
+once per save to begin on the save day July 9, 1993 falls on, through
+the engine's own surface; every paper a container is filled with
+dated to the newest issue printed by the county's day, or taken off
+the shelf; a sandbox switch on by default; Border 110 runs the
+arithmetic off the game against the installed jar. `[C35]` before it
+- the county's gestures (DR-034):
 existing art copied with permission and credited - Hobbies'
 conversation gestures, sitting loops, instrument plays and dances,
 Week One's serving, coughs and claps - bound by SAO's own nodes on
@@ -228,12 +235,12 @@ unloaded survivors are governed by the same rules ([B39], [B42]).
 
 ## Deploy state
 
-`2.7.0.0-pre-alpha` at tip - the version machine's output ([C2],
+`2.8.0.0-pre-alpha` at tip - the version machine's output ([C2],
 DR-013; the twelfth minor rolled the tier by the odometer's own
-law). The game install carries the `[C32]` tip, deployed 2026-09-06; the
-`[C33]`, `[C34]` and `[C35]` deploys were refused because the game
-was running, so they wait for the next window the game is closed
-(`bash tools/deploy.sh`). The play receipts the C era owes are the next
+law). The game install carries the `[C36]` tip, deployed 2026-09-07 at
+the `[C36]` close, the first window the game was closed since the
+`[C32]` deploy of 2026-09-06; `[C33]` through `[C35]` reached the
+install with it. The play receipts the C era owes are the next
 thing the tree cannot produce for itself - the operator chose to
 keep building before testing, so `[C29]` (a survivor scaled from
 the harness), `[C30]` (a child in the street, an elder's slower
@@ -251,7 +258,7 @@ deploy; `save_compat_test` guards this and runs in the gate.
 
 ## Instruments
 
-**109 numbered borders**, run by **124 gated mirrors** in `tools/`, all invoked
+**110 numbered borders**, run by **125 gated mirrors** in `tools/`, all invoked
 by `tools/check.sh`, which the pre-commit hook runs and CI runs on every push.
 The figures in this paragraph are derived by Border 76 from the tree, not
 maintained by hand. Border 54 keeps the rest honest: it runs every gated

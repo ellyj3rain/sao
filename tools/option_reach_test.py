@@ -53,6 +53,11 @@ OWNED_ELSEWHERE = {
     # simulation has an opinion about it, and forcing it into one would
     # be inventing a reading to satisfy a rule.
     "HoldNeighbourPrompts": "client/SAO_Neighbours.lua",
+    # [C36] Not a property of any person: it decides whether the game's
+    # own broadcasts and papers are keyed to the calendar, which the
+    # server-side record module does once per save and at every
+    # container fill. Neither half of the simulation reads it.
+    "RecordOnCalendar": "server/SAO_Record.lua",
 }
 
 

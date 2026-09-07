@@ -2152,6 +2152,78 @@ public final class SAOBridge {
 
     /** [C29] The weave's state and the scaler's counters, for the
      *  harness and the receipt: "weave=..|target=..|calls=..|scaled=..". */
+    /** [C36] The save day the record's day 0 falls on, from the engine's
+     *  own start date; a large negative sentinel when the clock is not
+     *  there, which the Lua side treats as "not now". */
+    public int recordStartDay() {
+        try {
+            int[] start = com.sao.engine.SAORecord.saveStart();
+            if (start == null) {
+                return -100000;
+            }
+            return com.sao.engine.SAORecord.startDayFor(start[0], start[1], start[2]);
+        } catch (Throwable throwable) {
+            return -100000;
+        }
+    }
+
+    /** [C36] Days since the record's own day 0, today. */
+    public int recordDayToday() {
+        try {
+            int[] today = com.sao.engine.SAORecord.today();
+            if (today == null) {
+                return -100000;
+            }
+            return com.sao.engine.SAORecord.recordDayOf(today[0], today[1], today[2]);
+        } catch (Throwable throwable) {
+            return -100000;
+        }
+    }
+
+    /** [C36] Re-key every vanilla channel to start on the save day; the
+     *  count, or -1. */
+    public int rekeyRecord(double startDay) {
+        try {
+            return com.sao.engine.SAORecord.rekeyRadio((int) startDay);
+        } catch (Throwable throwable) {
+            return -1;
+        }
+    }
+
+    /** [C36] Every paper in a container dated to today: "keyed=n removed=m". */
+    public String keyNewspapers(Object container) {
+        try {
+            if (!(container instanceof zombie.inventory.ItemContainer box)) {
+                return "";
+            }
+            int[] today = com.sao.engine.SAORecord.today();
+            if (today == null) {
+                return "";
+            }
+            return com.sao.engine.SAORecord.keyContainer(box, today[0], today[1], today[2]);
+        } catch (Throwable throwable) {
+            return "";
+        }
+    }
+
+    /** [C36] The record's state, for the harness and the log. */
+    public String recordReport() {
+        try {
+            int[] today = com.sao.engine.SAORecord.today();
+            String day = today == null ? "?" : String.valueOf(
+                com.sao.engine.SAORecord.recordDayOf(today[0], today[1], today[2]));
+            String knews = today == null ? "?" : String.valueOf(com.sao.engine.SAORecord.issueFor(
+                zombie.scripting.objects.Newspaper.KNOX_KNEWS, today[0], today[1], today[2]));
+            String herald = today == null ? "?" : String.valueOf(com.sao.engine.SAORecord.issueFor(
+                zombie.scripting.objects.Newspaper.KENTUCKY_HERALD, today[0], today[1], today[2]));
+            return "record day " + day + "; start day " + recordStartDay()
+                + "; county paper " + knews + "; Herald " + herald + "; "
+                + com.sao.engine.SAORecord.report();
+        } catch (Throwable throwable) {
+            return "THREW:" + throwable;
+        }
+    }
+
     public String bodyScaleReport() {
         try {
             return com.sao.agent.SAOBodyScaleWeave.report() + "|"

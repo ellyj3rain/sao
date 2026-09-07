@@ -1972,6 +1972,12 @@ local function fillMenu(playerNum, context, worldobjects)
             local body = SAO.Body.get(H.activeId)
             if body then log("tune: " .. tostring(SAO.Gesture.playInstrument(H.activeId, body, "guitar"))) end
         end)
+        -- [C36] The record's day: where the county is on the shipped
+        -- calendar and which issue a paper found today would show.
+        dbg:addOption("The record's day", nil, function()
+            if not SAOJavaBridge then log("no bridge") return end
+            pcall(function() log("record: " .. tostring(SAOJavaBridge:recordReport())) end)
+        end)
         dbg:addOption("What they carry", nil, function()
             local rec = SAO.Identity.get(H.activeId)
             if rec then

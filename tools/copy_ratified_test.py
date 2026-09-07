@@ -154,6 +154,21 @@ RATIFIED = {
         "when this is turned off." + NL
         + "The same messages can usually also be disabled in those mods' "
         "own options.",
+    # [C36] Ratified by the operator in chat on 2026-09-07, after a first
+    # draft was refused for its register.
+    P + "RecordOnCalendar": "Date broadcasts and newspapers by the calendar",
+    # The words as ratified; the second line is broken at its sentence
+    # ends because Border 16 fits 150 characters to a tooltip line.
+    P + "RecordOnCalendar_tooltip":
+        "The game's radio and TV schedule and its dated newspapers follow "
+        "the in-game date instead of counting from the day the world "
+        "began." + NL
+        + "The Knox Event schedule starts July 9, 1993." + NL
+        + "A world that starts earlier receives it from that date; a world "
+        "that starts later receives it already in progress." + NL
+        + "Newspapers show the newest issue printed by the current date." + NL
+        + "Off: the schedule counts from the day the world began and "
+        "newspapers are dated at random, as in the unmodded game.",
 }
 
 # Struck register, held out of the named UI sources by literal match -

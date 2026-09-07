@@ -44,7 +44,7 @@ The gate, its borders, and the repository's own discipline.
 
 The county before the collapse, the fall itself, and what it teaches.
 
-**Batches**: `A6`, `A10`, `A11`, `A17`, `A29`, `B3`, `B9`, `C8`, `C10`, `C11`, `C29`, `C30`, `C31`, `C32`, `C33`, `C34`, `C35`
+**Batches**: `A6`, `A10`, `A11`, `A17`, `A29`, `B3`, `B9`, `C8`, `C10`, `C11`, `C29`, `C30`, `C31`, `C32`, `C33`, `C34`, `C35`, `C36`
 
 **Owes**: outbreak live-confirmation (the engine's infection on shells, witnessed in play).
 
@@ -52,7 +52,7 @@ The county before the collapse, the fall itself, and what it teaches.
 
 Who a person is, what they believe, how they came to believe it, and what time does to it.
 
-**Batches**: `A5`, `A6`, `A9`, `A11`, `A13`, `A15`, `A24`, `A27`, `B8`, `B9`, `B10`, `B11`, `B21`, `B22`, `B24`, `B27`, `B39`, `B49`, `C3`, `C4`, `C5`, `C7`, `C10`, `C15`, `C20`, `C30`, `C31`, `C32`, `C33`
+**Batches**: `A5`, `A6`, `A9`, `A11`, `A13`, `A15`, `A24`, `A27`, `B8`, `B9`, `B10`, `B11`, `B21`, `B22`, `B24`, `B27`, `B39`, `B49`, `C3`, `C4`, `C5`, `C7`, `C10`, `C15`, `C20`, `C30`, `C31`, `C32`, `C33`, `C36`
 
 **Owes**: the operator's trait-correlation question; the relations rows of the dead (irreversible).
 

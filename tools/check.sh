@@ -1346,6 +1346,17 @@ if ! "$PY" tools/gestures_test.py > /dev/null; then
     fail=1
 fi
 
+# [C36] Border 110 - the record on the county's calendar (DR-031): the
+# date arithmetic run off the game against the installed jar, and
+# every seam - the once-per-save re-key with its retry, the container
+# fill, the option, the harness, the contract, the helper's own
+# argument order.
+if ! "$PY" tools/record_calendar_test.py > /dev/null; then
+    "$PY" tools/record_calendar_test.py 2>&1 | grep -E "FAULT" || true
+    note "BORDER FINDING - the record is not on the county's calendar"
+    fail=1
+fi
+
 # Border 103 - the operator's speech is not in the repository: no
 # profanity in the tracked tree and no operator-quote attributions;
 # rulings are paraphrased content, speech stays with the speaker.
