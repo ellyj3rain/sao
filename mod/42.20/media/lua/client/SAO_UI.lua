@@ -64,6 +64,17 @@ function SAOCountyWindow:new(x, y, w, h)
 end
 
 -- Assemble display rows: { {kind="header"|"row", text=..}, ... }
+-- [C38] A day in the county's own words: the calendar date from the
+-- bridge (the save's start, [C36]'s arithmetic), or the day count
+-- where there is no bridge. The chronicle and the knowledge surface
+-- read the same call.
+local function dayWord(hours)
+    local d = nil
+    pcall(function() d = SAOJavaBridge:countyDate(hours or 0) end)
+    if type(d) == "string" and d ~= "" then return d end
+    return "day " .. math.max(1, math.floor((hours or 0) / 24))
+end
+
 function SAOCountyWindow:build()
     local rows = {}
     local function header(text) rows[#rows + 1] = { kind = "header", text = text } end
@@ -454,8 +465,7 @@ function SAOCountyWindow:build()
                 chron[#chron + 1] = { at = war.liftedAtHours,
                     text = fname2 .. " fought " .. tostring(
                         SAO.Standing.factionName(war.other) or war.other)
-                    .. " - peace on day "
-                    .. math.floor((war.liftedAtHours or 0) / 24) }
+                    .. " - peace, " .. dayWord(war.liftedAtHours) }
             end
         end
         -- Governance in your absence ([A25]): the house's own
@@ -463,16 +473,16 @@ function SAOCountyWindow:build()
         for _, ev in ipairs(SAO.Standing.govHistoryOf(g)) do
             if ev.kind == "policy" then
                 chron[#chron + 1] = { at = ev.atHours,
-                    text = "day " .. math.floor((ev.atHours or 0) / 24)
+                    text = dayWord(ev.atHours)
                     .. ": " .. fname2 .. " turned " .. tostring(ev.policy) }
             elseif ev.kind == "schism" then
                 chron[#chron + 1] = { at = ev.atHours,
-                    text = "day " .. math.floor((ev.atHours or 0) / 24)
+                    text = dayWord(ev.atHours)
                     .. ": " .. fname2 .. " broke - "
                     .. tostring(ev.left) .. " walked out" }
             elseif ev.kind == "pact" and tostring(g) < tostring(ev.other) then
                 chron[#chron + 1] = { at = ev.atHours,
-                    text = "day " .. math.floor((ev.atHours or 0) / 24)
+                    text = dayWord(ev.atHours)
                     .. ": " .. fname2 .. " and " .. tostring(
                         SAO.Standing.factionName(ev.other) or ev.other)
                     .. " shook on bread-for-watch" }
@@ -481,7 +491,7 @@ function SAOCountyWindow:build()
                 -- the election and, until this line, dropped silently
                 -- by the reader.
                 chron[#chron + 1] = { at = ev.atHours,
-                    text = "day " .. math.floor((ev.atHours or 0) / 24)
+                    text = dayWord(ev.atHours)
                     .. ": " .. fname2 .. " turned " .. tostring(ev.creed)
                     .. " - they were " .. tostring(ev.from) }
             elseif ev.kind == "form" then
@@ -496,7 +506,7 @@ function SAOCountyWindow:build()
                     flight = "gave up - lean, dry and dark",
                 }
                 chron[#chron + 1] = { at = ev.atHours,
-                    text = "day " .. math.floor((ev.atHours or 0) / 24)
+                    text = dayWord(ev.atHours)
                     .. ": " .. fname2 .. " "
                     .. (FORM_SAID[ev.form] or tostring(ev.form)) }
             elseif ev.kind == "abandon" then
@@ -505,7 +515,7 @@ function SAOCountyWindow:build()
                 -- never which ground - the one fact that makes it a
                 -- place you could go and look at.
                 chron[#chron + 1] = { at = ev.atHours,
-                    text = "day " .. math.floor((ev.atHours or 0) / 24)
+                    text = dayWord(ev.atHours)
                     .. ": " .. fname2 .. " gave up their ground"
                     .. ((ev.atX and ev.atY)
                         and (" at " .. ev.atX .. "," .. ev.atY) or "") }
@@ -515,16 +525,16 @@ function SAOCountyWindow:build()
                 -- `creed`. Both of the kinds this Chronicle silently
                 -- discarded are the two that are about YOU.
                 chron[#chron + 1] = { at = ev.atHours,
-                    text = "day " .. math.floor((ev.atHours or 0) / 24)
+                    text = dayWord(ev.atHours)
                     .. ": " .. fname2 .. " gave you a seat" }
             elseif ev.kind == "unseated" then
                 chron[#chron + 1] = { at = ev.atHours,
-                    text = "day " .. math.floor((ev.atHours or 0) / 24)
+                    text = dayWord(ev.atHours)
                     .. ": " .. fname2 .. " took your seat back" }
             elseif ev.kind == "pactBroke"
                 and tostring(g) < tostring(ev.other) then
                 chron[#chron + 1] = { at = ev.atHours,
-                    text = "day " .. math.floor((ev.atHours or 0) / 24)
+                    text = dayWord(ev.atHours)
                     .. ": the pact with " .. tostring(
                         SAO.Standing.factionName(ev.other) or ev.other)
                     .. " broke" }
@@ -535,20 +545,17 @@ function SAOCountyWindow:build()
     -- horror, chronicled from its stamp - derives, never asserted.
     if s and s.tapsDryAtHours then
         chron[#chron + 1] = { at = s.tapsDryAtHours,
-            text = "day " .. math.max(1,
-                math.floor(s.tapsDryAtHours / 24))
+            text = dayWord(s.tapsDryAtHours)
             .. ": the taps ran dry" }
     end
     if s and s.firstTurnedAtHours then
         chron[#chron + 1] = { at = s.firstTurnedAtHours,
-            text = "day " .. math.max(1,
-                math.floor(s.firstTurnedAtHours / 24))
+            text = dayWord(s.firstTurnedAtHours)
             .. ": the dead stopped staying dead" }
     end
     if s and s.outbreakAtHours then
         chron[#chron + 1] = { at = s.outbreakAtHours,
-            text = "day " .. math.max(1,
-                math.floor(s.outbreakAtHours / 24))
+            text = dayWord(s.outbreakAtHours)
             .. ": the first of them was seen to kill" }
     end
     if #chron > 0 then

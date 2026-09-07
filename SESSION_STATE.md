@@ -1,13 +1,21 @@
 | Document | Survivor Awareness Overhaul Session State |
 |---|---|
-| Version | `2.9.0.0-pre-alpha` |
+| Version | `2.10.0.0-pre-alpha` |
 | Author | ellyj3rain |
 | Repository | `SESSION_STATE.md` |
 | Status | CANONICAL - where the work actually stands. |
 
 # Session state
 
-**As of** 2026-09-07, `[C37]` close - an order lands through standing
+**As of** 2026-09-07, `[C38]` close - the era remembered (Day Zero
+slice 6): the knowledge surface carries "before" - born, the war,
+where from, home, innocent or hardened - and "the day it started" -
+the person's own first horror with its date and what it taught, the
+county's stamps aired as news, the record's first day for a radio
+owner - as claims with provenance; the chronicle reads its days as
+the county's own dates through the same calendar; Border 112 drives
+both topics in the engine's own VM. `[C37]` before it - an order
+lands through standing
 (DR-033, ruled; the command arc's first slice): every ask the player
 makes of a person in the county's menus goes through `SAO_Command`,
 Standing's command surface - CAO's obedience check carried over
@@ -244,10 +252,10 @@ unloaded survivors are governed by the same rules ([B39], [B42]).
 
 ## Deploy state
 
-`2.9.0.0-pre-alpha` at tip - the version machine's output ([C2],
+`2.10.0.0-pre-alpha` at tip - the version machine's output ([C2],
 DR-013; the twelfth minor rolled the tier by the odometer's own
-law). The game install carries the `[C37]` tip, deployed 2026-09-07 at
-the `[C37]` close; `[C33]` through `[C36]` reached the install the
+law). The game install carries the `[C38]` tip, deployed 2026-09-07 at
+the `[C38]` close; `[C33]` through `[C37]` reached the install the
 same day, the first window the game was closed since the `[C32]`
 deploy of 2026-09-06. The play receipts the C era owes are the next
 thing the tree cannot produce for itself - the operator chose to
@@ -267,7 +275,7 @@ deploy; `save_compat_test` guards this and runs in the gate.
 
 ## Instruments
 
-**111 numbered borders**, run by **126 gated mirrors** in `tools/`, all invoked
+**112 numbered borders**, run by **127 gated mirrors** in `tools/`, all invoked
 by `tools/check.sh`, which the pre-commit hook runs and CI runs on every push.
 The figures in this paragraph are derived by Border 76 from the tree, not
 maintained by hand. Border 54 keeps the rest honest: it runs every gated

@@ -1369,6 +1369,16 @@ if ! "$PY" tools/command_test.py > /dev/null; then
     fail=1
 fi
 
+# [C38] Border 112 - the era remembered (Day Zero slice 6): the
+# knowledge surface answers "before" and "the day it started" in
+# the engine's own VM with provenance and the county's dates, writes
+# nothing; the chronicle and the surface read one calendar.
+if ! "$PY" tools/era_test.py > /dev/null; then
+    "$PY" tools/era_test.py 2>&1 | grep -E "FAULT" || true
+    note "BORDER FINDING - the era is not remembered"
+    fail=1
+fi
+
 # Border 103 - the operator's speech is not in the repository: no
 # profanity in the tracked tree and no operator-quote attributions;
 # rulings are paraphrased content, speech stays with the speaker.

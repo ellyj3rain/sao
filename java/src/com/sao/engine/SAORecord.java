@@ -109,6 +109,23 @@ public final class SAORecord {
 
     // ---------------------------------------------------------------- clock
 
+    /** [C38] The date a world-age hour falls on, from the save's own
+     *  start, in a person's words: "July 12, 1993". */
+    public static String countyDate(int year, int month0, int day0, double hours) {
+        LocalDate date = dateOf(year, month0, day0).plusDays((long) Math.floor(hours / 24.0));
+        return wordsOf(date);
+    }
+
+    /** [C38] The record's own first day, in the same words. */
+    public static String recordDayZero() {
+        return wordsOf(RECORD_DAY_ZERO);
+    }
+
+    public static String wordsOf(LocalDate date) {
+        return date.getMonth().getDisplayName(java.time.format.TextStyle.FULL, java.util.Locale.US)
+            + " " + date.getDayOfMonth() + ", " + date.getYear();
+    }
+
     /** The save's start, from the engine's own clock; null off the game. */
     public static int[] saveStart() {
         try {

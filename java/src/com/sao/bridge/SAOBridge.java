@@ -2207,6 +2207,29 @@ public final class SAOBridge {
     }
 
     /** [C36] The record's state, for the harness and the log. */
+    /** [C38] The county's date for a world-age hour, in a person's
+     *  words ("July 12, 1993"); "" off the clock. */
+    public String countyDate(double hours) {
+        try {
+            int[] start = com.sao.engine.SAORecord.saveStart();
+            if (start == null) {
+                return "";
+            }
+            return com.sao.engine.SAORecord.countyDate(start[0], start[1], start[2], hours);
+        } catch (Throwable throwable) {
+            return "";
+        }
+    }
+
+    /** [C38] The record's own first day, in the same words. */
+    public String recordDayZero() {
+        try {
+            return com.sao.engine.SAORecord.recordDayZero();
+        } catch (Throwable throwable) {
+            return "";
+        }
+    }
+
     public String recordReport() {
         try {
             int[] today = com.sao.engine.SAORecord.today();

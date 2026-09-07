@@ -2974,6 +2974,16 @@ function S.mayEnter(id, x, y)
     return S.isHostileTo(id, other) or S.isHostileTo(other, id)
 end
 
+-- [C38] The county's own stamps, for a reader that may not open the
+-- store itself (the knowledge surface is read-only by law): the
+-- first of them seen to kill, the first turning, the taps.
+function S.chronicle()
+    local s = store(); if not s then return nil end
+    return { outbreakAtHours = s.outbreakAtHours,
+             firstTurnedAtHours = s.firstTurnedAtHours,
+             tapsDryAtHours = s.tapsDryAtHours }
+end
+
 function S.describe(id)
     local s = store(); if not s then return "no-store" end
     local nRel = 0

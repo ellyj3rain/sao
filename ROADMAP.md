@@ -1,6 +1,6 @@
 | Document | Survivor Awareness Overhaul Roadmap |
 |---|---|
-| Version | `2.9.0.0-pre-alpha` |
+| Version | `2.10.0.0-pre-alpha` |
 | Author | ellyj3rain |
 | Repository | `ROADMAP.md` |
 | Status | CANONICAL - thread map, backlog, live gates. |
@@ -210,8 +210,14 @@ is lived, witnessed, and remembered person by person. Slices:
    dark", "don't expect us back").
 5. Vehicles as composition (never dependency): party size meets seats,
    the sedan is low-key, the RV carries five.
-6. The era remembered: journals, chronicle, and Talk carrying "before"
-   and "the day it started" as lived claims.
+6. SHIPPED as `[C38]`: the era remembered - the knowledge surface
+   carries "before" (born, the war, where from, home, innocent or
+   hardened) and "the day it started" (their own first horror with
+   its date and what it taught, the county's own stamps aired as
+   news, the record's first day for anyone with a radio) as claims
+   with provenance, and the chronicle reads its days as the county's
+   own dates through the same calendar; a journal waits on an item
+   to write it in.
 7. SHIPPED as `[C36]`: the shipped record on the county's calendar (DR-031): the game's
    own broadcast schedule and dated newspapers re-keyed from "days
    since the save began" to the dates the record itself carries

@@ -27,7 +27,9 @@ local K = SAO.Knowledge
 -- understander's target space: free text resolves to these (plus a
 -- name for "person"), or to nothing, honestly.
 K.TOPICS = { "self", "person", "zombies", "dead", "food", "water",
-             "house", "ground", "lessons" }
+             "house", "ground", "lessons",
+             -- [C38] the life before, and the day it started.
+             "before", "started" }
 
 function K.topics()
     local out = {}
@@ -76,6 +78,23 @@ local function whereWord(x, y, sx, sy)
     local w = nil
     pcall(function() w = SAO.Perception.whereWord(x, y, sx, sy) end)
     return w
+end
+
+-- [C38] The county's date for a world-age hour, in the words a
+-- person uses ("July 12, 1993"), from the bridge's calendar - the
+-- save's own start date and [C36]'s arithmetic; nil where there is
+-- no bridge, and the fact carries the day count instead. The
+-- chronicle reads the same call.
+function K.dateOf(hours)
+    if type(hours) ~= "number" then return nil end
+    local d = nil
+    pcall(function() d = SAOJavaBridge:countyDate(hours) end)
+    if type(d) == "string" and d ~= "" then return d end
+    return nil
+end
+
+local function dayOf(hours)
+    return math.max(1, math.floor((hours or 0) / 24))
 end
 
 -- ---------------------------------------------------------------
@@ -329,6 +348,104 @@ local function aboutLessons(id, opts)
     return out
 end
 
+-- [C38] The life before (Day Zero slice 6): what a person was before
+-- the fall, read off the record and the history - the year they were
+-- born, the war their life put them in, where they were from, where
+-- home is from here - and whether the fall has taught them anything
+-- yet: the innocent-to-hardened arc, visible in talk. The formative
+-- claims themselves are the lessons topic, past the earned line.
+local function aboutBefore(id, opts)
+    local rec = nil
+    pcall(function() rec = SAO.Identity.get(id) end)
+    if not rec then return nil end
+    local out = {}
+    pcall(function()
+        local year = SAO.History.birthYearOf(id)
+        if year then
+            out[#out + 1] = { fact = "born", source = "lived", year = year }
+        end
+    end)
+    pcall(function()
+        local war = SAO.History.servedIn(id, rec.occupation)
+        if war then
+            out[#out + 1] = { fact = "war", source = "lived",
+                              war = tostring(war) }
+        end
+    end)
+    if rec.originRegion then
+        out[#out + 1] = { fact = "from", source = "lived",
+                          region = tostring(rec.originRegion) }
+    end
+    if rec.homeX and rec.homeY then
+        local sx, sy = K.speakerAt(id)
+        local w = sx and whereWord(rec.homeX, rec.homeY, sx, sy) or nil
+        if w then
+            out[#out + 1] = { fact = "home", source = "lived", whereWord = w }
+        end
+    end
+    pcall(function()
+        if SAO.Lessons.hasAny(id) then
+            local n = 0
+            for _ in pairs(rec.lessonsKnown or {}) do n = n + 1 end
+            out[#out + 1] = { fact = "hardened", source = "lived", lessons = n }
+        else
+            out[#out + 1] = { fact = "innocent", source = "lived" }
+        end
+    end)
+    if #out == 0 then return nil end
+    return out
+end
+
+-- [C38] The day it started, as this person knows it: their own first
+-- horror (lived - the day, the county's date, and what it taught,
+-- with a name when there was one); the county's own stamps, aired
+-- once as county news (told) - the first of them seen to kill, the
+-- dead not staying dead, the taps; and the record's own first day,
+-- for anyone with a radio to have heard it (told).
+local function aboutStarted(id, opts)
+    local rec = nil
+    pcall(function() rec = SAO.Identity.get(id) end)
+    if not rec then return nil end
+    local out = {}
+    pcall(function()
+        local fh = SAO.Lessons.firstLessonHours(id)
+        if not fh then return end
+        out[#out + 1] = { fact = "mine", source = "lived",
+                          day = dayOf(fh), date = K.dateOf(fh) }
+        for key, meta in pairs(rec.lessonMeta or {}) do
+            if meta.atHours == fh then
+                local entry = SAO.Lessons.REGISTRY[key]
+                out[#out + 1] = { fact = "first", source = meta.src or "lived",
+                    key = tostring(key), line = entry and entry.line or nil,
+                    of = meta.of }
+                break
+            end
+        end
+    end)
+    pcall(function()
+        local c = SAO.Standing.chronicle()
+        if not c then return end
+        for _, row in ipairs({ { "county", c.outbreakAtHours },
+                               { "turned", c.firstTurnedAtHours },
+                               { "taps", c.tapsDryAtHours } }) do
+            if row[2] then
+                out[#out + 1] = { fact = row[1], source = "told",
+                                  day = dayOf(row[2]), date = K.dateOf(row[2]) }
+            end
+        end
+    end)
+    pcall(function()
+        if not SAO.Standing.ownsRadio(id) then return end
+        local d = nil
+        pcall(function() d = SAOJavaBridge:recordDayZero() end)
+        if type(d) == "string" and d ~= "" then
+            out[#out + 1] = { fact = "news", source = "told", date = d }
+        end
+    end)
+    if #out == 0 then return nil end
+    return out
+end
+
 local ABOUT = {
     self = aboutSelf,
     person = aboutPerson,
@@ -339,6 +456,8 @@ local ABOUT = {
     house = aboutHouse,
     ground = aboutGround,
     lessons = aboutLessons,
+    before = aboutBefore,
+    started = aboutStarted,
 }
 
 -- What does person N know about topic T? opts carries tick (for

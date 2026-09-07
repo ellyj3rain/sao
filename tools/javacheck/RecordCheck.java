@@ -36,6 +36,11 @@ public final class RecordCheck {
         expect("record day of August 1", SAORecord.recordDayOf(1993, 7, 0), 23);
         expect("record day of June 30", SAORecord.recordDayOf(1993, 5, 29), -9);
         expect("record day of July 9, 1994", SAORecord.recordDayOf(1994, 6, 8), 365);
+        // [C38] the county's own words for a day.
+        expect("the county's date three days into a July 1 start", SAORecord.countyDate(1993, 6, 0, 72.0), "July 4, 1993");
+        expect("the county's date at the shipped start", SAORecord.countyDate(1993, 6, 8, 0.0), "July 9, 1993");
+        expect("the county's date a month on", SAORecord.countyDate(1993, 6, 8, 31 * 24.0), "August 9, 1993");
+        expect("the record's own first day", SAORecord.recordDayZero(), "July 9, 1993");
 
         expect("an issue's date", SAORecord.issueDate("KnoxKnews_July3"), LocalDate.of(1993, 7, 3));
         expect("a name with no date", SAORecord.issueDate("Newspaper"), null);
