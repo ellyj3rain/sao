@@ -1,6 +1,6 @@
 | Document | Survivor Awareness Overhaul Roadmap |
 |---|---|
-| Version | `2.2.0.0-pre-alpha` |
+| Version | `2.3.0.0-pre-alpha` |
 | Author | ellyj3rain |
 | Repository | `ROADMAP.md` |
 | Status | CANONICAL - thread map, backlog, live gates. |
@@ -247,8 +247,12 @@ requirements. Order:
    the ADHD Trait). Substances: the dependency model taken into
    habits. Children: native model scale plus Growing Up's systems.
 3. The batches: `[C29]` SHIPPED the body seam - the size woven into
-   the animation player, awaiting its live receipt; then (a) age as a
-   system - SAO's age drives Getting Old's
+   the animation player, awaiting its live receipt; `[C30]` SHIPPED
+   age as a system - the bands from six to ninety, the stages, the
+   work, the pace, the drift and death of old age, awaiting its live
+   receipts; the child's day (fear, literacy, the experience throttle,
+   the archetypes) is next. As scoped: (a) age as a system - SAO's age
+   drives Getting Old's
    life-stage effects, hair greying and death of old age on SAO's
    people; children get the age curves for speed and weight, the fear
    floor, the literacy progression and the experience throttle; the

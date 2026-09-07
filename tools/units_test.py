@@ -47,7 +47,7 @@ def weighted(src, name, field):
 def bands(src):
     m = re.search(r"local AGE_BANDS = \{(.*?)\n\}", src, re.S)
     return [(int(a), int(b), int(w)) for a, b, w in re.findall(
-        r"from = (\d+), to = (\d+), weight = (\d+)", m.group(1))]
+        r"from = (\d+),\s*to = (\d+),\s*weight = (\d+)", m.group(1))]
 
 
 def hash_of(text, salt):
@@ -58,7 +58,9 @@ def hash_of(text, salt):
 
 
 def age_of(sid, bnds):
-    roll = hash_of(sid, "age") % 100
+    # [C30] the Lua rolls against the sum of the weights (AGE_TOTAL),
+    # which stopped being 100 when the bands took the 1990 table.
+    roll = hash_of(sid, "age") % sum(w for _, _, w in bnds)
     seen = 0
     for lo, hi, w in bnds:
         seen += w

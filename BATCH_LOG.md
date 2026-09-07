@@ -1,6 +1,6 @@
 | Document | Survivor Awareness Overhaul Batch Log |
 |---|---|
-| Version | `2.2.0.0-pre-alpha` |
+| Version | `2.3.0.0-pre-alpha` |
 | Author | ellyj3rain |
 | Repository | `BATCH_LOG.md` |
 | Status | REGULATORY - chronological batch index. |
@@ -134,3 +134,4 @@ attribution for every merged entry, stated here rather than in a branch name.
 | [C27](Batches/C27-2026-08-30-what-one-person-knows-as-one-surface.md) | 2026-08-30 | What one person knows, as one surface | [`T-005`](Batches/THREADS.md#t-005), [`T-006`](Batches/THREADS.md#t-006) |
 | [C28](Batches/C28-2026-08-30-the-inference-budget-instrument.md) | 2026-08-30 | The inference budget instrument | [`T-005`](Batches/THREADS.md#t-005), [`T-008`](Batches/THREADS.md#t-008) |
 | [C29](Batches/C29-2026-09-06-the-body-is-scaled-from-inside-the-animation-player.md) | 2026-09-06 | The body is scaled from inside the animation player | [`T-002`](Batches/THREADS.md#t-002), [`T-007`](Batches/THREADS.md#t-007), [`T-008`](Batches/THREADS.md#t-008) |
+| [C30](Batches/C30-2026-09-06-age-is-a-system-on-the-countys-people.md) | 2026-09-06 | Age is a system on the county's people | [`T-002`](Batches/THREADS.md#t-002), [`T-007`](Batches/THREADS.md#t-007), [`T-006`](Batches/THREADS.md#t-006) |

@@ -1,0 +1,147 @@
+-- SAO_Age - age as a system on the county's people ([C30], DR-032).
+--
+-- [B37] gave everybody an age and [B38] put it on their heads; [C29]
+-- put a child's size on the render path. This is the rest of what age
+-- does to a person while they live: the drift of a body's stamina,
+-- tiredness, pain and stress by life stage, and death of old age.
+--
+-- The stage effects are Getting Old's (Devlin; source public, taken
+-- with the author's permission as the operator settled it - see
+-- CREDITS.md): five stages, and per stage a small drift on the
+-- engine's own stats at a sixty percent chance, with an elder marked
+-- for death decaying faster until the body gives out. The mod applies
+-- its numbers on every player update; the numbers read as intent at
+-- a cadence, and ours is once per ten in-game minutes, which is where
+-- this file puts them. Its stumble uses a Stats method this build
+-- does not have (javap: no setTripping on 42.20's Stats), so there is
+-- no stumble here - nothing is called that the jar does not carry.
+--
+-- The death roll is NOT the mod's per-frame chance. It is the life
+-- table: the yearly probability of dying at an age, spread over the
+-- days of the year, taken from SAO_History.oldAgeRiskPerDay (NCHS,
+-- United States Life Tables, 1997, the nearest year whose table is
+-- machine-readable; the 1993 table is an image scan). The roll is a
+-- fact about the person and the day - the same hash everything else
+-- about a person is drawn from - so two sessions agree who died
+-- when. A dormant elder dies on the roll; a living one is marked, and
+-- the drift finishes it the way the mod does, so the body dies on the
+-- engine's own path and the corpse net records it ([C8]).
+
+SAO = SAO or {}
+SAO.Age = SAO.Age or {}
+local Age = SAO.Age
+
+local function log(msg) SAO.Log.line("AGE", msg) end
+
+-- Getting Old's per-stage drift, at its chance. Signs: endurance is a
+-- reserve (down is worse); fatigue, pain and stress are loads (up is
+-- worse). Children take the young stage's drift - the mod starts at
+-- twelve - and the county's own children begin at six.
+local DRIFT = {
+    child  = { ENDURANCE = 0.015, FATIGUE = -0.015, PAIN = -0.015 },
+    young  = { ENDURANCE = 0.015, FATIGUE = -0.015, PAIN = -0.015 },
+    adult  = {},
+    middle = { ENDURANCE = -0.010, FATIGUE = 0.010, PAIN = 0.010, STRESS = 0.010 },
+    elder  = { ENDURANCE = -0.020, FATIGUE = 0.020, PAIN = 0.020, STRESS = 0.020 },
+}
+local DRIFT_CHANCE = 60           -- percent, per pass, per stat
+local DYING_BASE = 0.030          -- per pass once marked, scaled by age
+local DYING_CHANCE = 50
+
+local function chance(percent, id, salt)
+    return (SAO.Hash.of(id, salt) % 100) < percent
+end
+
+local function applyStat(stats, name, delta)
+    local stat = CharacterStat and CharacterStat[name]
+    if not stat then return false end
+    if delta >= 0 then stats:add(stat, delta) else stats:remove(stat, -delta) end
+    return true
+end
+
+-- One pass of drift on a living body, once per ten in-game minutes.
+function Age.drift(rec, body, pass)
+    if not rec or not body or rec.dead then return end
+    local age = SAO.History.ageOf(rec.id)
+    local stage = SAO.History.stageOf(age)
+    local stats = nil
+    pcall(function() stats = body:getStats() end)
+    if not stats then return end
+    local salt = "age-drift:" .. tostring(pass)
+    if rec.dyingOfOldAge then
+        -- Getting Old's decline: faster past seventy, and the body's
+        -- own health goes with it, so the engine's death path ends it.
+        local ageFactor = math.max((age - 70) / 30, 0)
+        local decay = DYING_BASE * (1 + ageFactor * 5)
+        if chance(DYING_CHANCE, rec.id, salt) then
+            applyStat(stats, "ENDURANCE", -decay)
+            applyStat(stats, "FATIGUE", decay)
+            applyStat(stats, "PAIN", decay)
+            applyStat(stats, "STRESS", decay)
+            pcall(function()
+                local bd = body:getBodyDamage()
+                bd:setOverallBodyHealth(bd:getOverallBodyHealth() - decay)
+                body:setHealth(body:getHealth() - decay / 2)
+            end)
+        end
+        return
+    end
+    local drift = DRIFT[stage]
+    if not drift then return end
+    for name, delta in pairs(drift) do
+        if chance(DRIFT_CHANCE, rec.id, salt .. ":" .. name) then
+            applyStat(stats, name, delta)
+        end
+    end
+end
+
+-- The day's roll for everyone alive, dormant or not. Marks the living
+-- (the drift finishes them); takes the dormant on the spot, with the
+-- cause the death report will carry.
+function Age.dailyRoll(rec, today, tick)
+    if not rec or rec.dead or rec.dyingOfOldAge then return false end
+    local age = SAO.History.ageOf(rec.id)
+    local risk = SAO.History.oldAgeRiskPerDay(age)
+    if risk <= 0 then return false end
+    local roll = (SAO.Hash.of(rec.id, "old-age:" .. tostring(today)) % 1000000) / 1000000
+    if roll >= risk then return false end
+    if SAO.Body.get(rec.id) then
+        rec.dyingOfOldAge = true
+        log(rec.id .. " (" .. age .. ") is failing - old age")
+    else
+        SAO.Identity.markDead(rec, tick, "old age")
+        log(rec.id .. " (" .. age .. ") died of old age, at home")
+    end
+    return true
+end
+
+local lastDay = nil
+local passCounter = 0
+
+local function everyTenMinutes()
+    passCounter = passCounter + 1
+    local okH, hours = pcall(function()
+        return GameTime.getInstance():getWorldAgeHours()
+    end)
+    if not okH then return end
+    local today = math.floor(hours / 24.0)
+    for id, body in pairs(SAO.Body.active) do
+        local rec = SAO.Identity.get(id)
+        if rec then pcall(Age.drift, rec, body, passCounter) end
+    end
+    if lastDay ~= today then
+        lastDay = today
+        local tick = passCounter
+        for id, rec in pairs(SAO.Identity.all()) do
+            pcall(Age.dailyRoll, rec, today, tick)
+        end
+    end
+end
+
+if Events and Events.EveryTenMinutes then
+    Events.EveryTenMinutes.Add(everyTenMinutes)
+end
+
+log("age module loaded (stage drift every ten minutes, the day's roll for old age)")
+
+return Age

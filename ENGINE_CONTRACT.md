@@ -1,6 +1,6 @@
 | Document | Survivor Awareness Overhaul Engine Contract |
 |---|---|
-| Version | `2.2.0.0-pre-alpha` |
+| Version | `2.3.0.0-pre-alpha` |
 | Author | ellyj3rain |
 | Repository | `ENGINE_CONTRACT.md` |
 | Status | CANONICAL - the verified engine mechanics an IsoPlayer NPC requires. |
@@ -434,4 +434,7 @@ of what a character IS to the engine, and what it is not.
 | `getModelTransformsCount()`, `getModelTransformAt(int)`, `getIsoGameCharacter()`, public `parentPlayer` | the public surface the woven scaler uses: the matrices by reference, and the character they belong to | javap |
 | `AnimationPlayer` is `final` and pooled (`PooledObject`, `s_pool`) | instances are reused across characters, so a size is keyed on the character (the shell's `bodyScale` field), never on the player | javap -p |
 | Byte Buddy 1.18.8 inside `ZombieBuddy.jar` (`net.bytebuddy.ByteBuddy`, `agent.ByteBuddyAgent`, `asm.Advice`, `agent.builder.AgentBuilder`); the ZombieBuddy manifest declares `Can-Retransform-Classes: true` | the weaver and the self-attach the body scale rides - the path Main already takes for the melee patch | jar listing; manifest |
+| `IsoGameCharacter.setSpeedMod(float)` / `getSpeedMod()` | the pace of the age ([C30]): a child's and an elder's walk, set once at materialize | javap |
+| `Stats.get/set/add/remove(CharacterStat, float)`; the `CharacterStat` values include ENDURANCE, FATIGUE, PAIN, STRESS, PANIC, SANITY | what the age drift moves ([C30]); NO `setTripping` or tripping stat exists on 42.20's `Stats` (Getting Old's stumble calls one and would throw here) | javap; the enum's constant list |
+| `IsoGameCharacter.getBodyDamage().getOverallBodyHealth/setOverallBodyHealth`, `getHealth/setHealth` | an elder's decline once marked, so the body dies on the engine's own path | javap (pre-existing surface, reused) |
 | NOT in the engine | origin or hometown, schooling, family, service history, media taste, memory or decay of any kind: nothing on the descriptor says so. SAO derives origin region, age, birth year, service eligibility, occupation class, lessons and household itself (`SAO_History`, `SAO_Census`, `SAO_Identity`) | the getters above, read whole |

@@ -12,9 +12,12 @@ of the world's own start year, and which decades somebody lived
 through is arithmetic instead of a table per person.
 
 This mirrors the band weights out of the shipped Lua - not a copy -
-and checks the distribution is the county the operator described:
-most of the old are already dead; people in their sixties exist,
-but few.
+and checks the distribution is the county the record and the ruling
+describe ([C30], DR-032): the 1990 resident population by age, cut
+to a county that keeps no infants - children from six, adults the
+body of it, the old past sixty about a sixth. Who dies first is no
+longer authored into the bands; the age module decides that, person
+by person.
 
 It also checks the two things that make age a FACT rather than a roll:
 the same id gives the same age every time, and a different world start
@@ -36,7 +39,7 @@ def bands():
         raise SystemExit("age_test: AGE_BANDS moved; this mirror is blind")
     out = []
     for f, t, w in re.findall(
-            r"from = (\d+), to = (\d+), weight = (\d+)", m.group(1)):
+            r"from = (\d+),\s*to = (\d+),\s*weight = (\d+)", m.group(1)):
         out.append((int(f), int(t), int(w)))
     return out
 
@@ -50,7 +53,9 @@ def hash_of(sid, salt):
 
 
 def age_of(sid, bnds):
-    roll = hash_of(sid, "age") % 100
+    # [C30] the Lua rolls against the sum of the weights (AGE_TOTAL),
+    # which stopped being 100 when the bands took the 1990 table.
+    roll = hash_of(sid, "age") % sum(w for _, _, w in bnds)
     seen = 0
     for lo, hi, w in bnds:
         seen += w
@@ -68,9 +73,12 @@ def main():
     for lo, hi, w in bnds:
         print(f"  {lo}-{hi}   weight {w}")
     print(f"  total weight: {total}")
-    if total != 100:
-        print("  FAIL: weights must sum to 100 or the last band absorbs")
-        print("  the remainder silently and the shape is not what it says")
+    # [C30] The Lua rolls against the sum of the weights, so there is
+    # no remainder for a last band to absorb; what must hold is that
+    # the weights are the table's (thousands of people, not shares)
+    # and every band carries some.
+    if total <= 0 or any(w <= 0 for _, _, w in bnds):
+        print("  FAIL: a band with no weight is a band nobody is born into")
         return 1
 
     ages = [age_of(f"sao-{i}", bnds) for i in range(1, 1001)]
@@ -81,23 +89,28 @@ def main():
     for lo, hi, w in bnds:
         n = sum(1 for a in ages if lo <= a <= hi)
         print(f"  {lo}-{hi}   {n:>4}  ({100.0 * n / len(ages):>4.1f}%"
-              f"  intended {w}%)")
+              f"  intended {100.0 * w / total:>4.1f}%)")
     print(f"\n  youngest {min(ages)}, oldest {max(ages)}, "
           f"mean {sum(ages) / len(ages):.1f}")
 
-    # The shape the operator described.
+    # The shape the record and the ruling describe ([C30]).
+    infants = sum(1 for a in ages if a < 6)
+    kids = sum(1 for a in ages if 6 <= a <= 17)
+    mid = sum(1 for a in ages if 18 <= a <= 59)
     old = sum(1 for a in ages if a >= 60)
-    mid = sum(1 for a in ages if 19 <= a <= 49)
-    kids = sum(1 for a in ages if a < 19)
     print()
-    print("  the county the apocalypse leaves:")
-    print(f"    under 19 (not modelled):  {kids}")
-    print(f"    19-49 (the body of it):   {mid} "
+    print("  the county the record describes:")
+    print(f"    under 6 (not modelled):   {infants}")
+    print(f"    6-17 (the children):      {kids} "
+          f"({100.0 * kids / len(ages):.0f}%)")
+    print(f"    18-59 (the body of it):   {mid} "
           f"({100.0 * mid / len(ages):.0f}%)")
-    print(f"    60+ (the thin tail):      {old} "
+    print(f"    60+ (the old):            {old} "
           f"({100.0 * old / len(ages):.0f}%)")
 
-    ok_shape = kids == 0 and mid > len(ages) * 0.6 and 0 < old < len(ages) * 0.12
+    n = len(ages)
+    ok_shape = (infants == 0 and n * 0.12 <= kids <= n * 0.32
+                and mid > n * 0.5 and n * 0.10 <= old <= n * 0.25)
 
     # Age is a fact, not a roll: same id, same answer.
     stable = all(age_of("sao-42", bnds) == age_of("sao-42", bnds)
@@ -107,12 +120,14 @@ def main():
 
     print()
     print("VERDICT:")
-    print(f"  weights sum to 100:              YES")
-    print(f"  nobody under 19:                 {'YES' if kids == 0 else 'NO'}")
-    print(f"  body of the county is 19-49:     "
-          f"{'YES' if mid > len(ages) * 0.6 else 'NO'}")
-    print(f"  the old are a thin tail:         "
-          f"{'YES' if 0 < old < len(ages) * 0.12 else 'NO'}")
+    print(f"  every band carries weight:       YES")
+    print(f"  nobody under 6:                  {'YES' if infants == 0 else 'NO'}")
+    print(f"  children are a real share:       "
+          f"{'YES' if n * 0.12 <= kids <= n * 0.32 else 'NO'}")
+    print(f"  body of the county is 18-59:     "
+          f"{'YES' if mid > n * 0.5 else 'NO'}")
+    print(f"  the old are about a sixth:       "
+          f"{'YES' if n * 0.10 <= old <= n * 0.25 else 'NO'}")
     print(f"  same person, same age:           {'YES' if stable else 'NO'}")
     print(f"  distinct ages across the county: "
           f"{len(set(ages))} {'YES' if spread else 'NO'}")

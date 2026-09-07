@@ -1287,6 +1287,17 @@ if ! "$PY" tools/body_scale_test.py > /dev/null; then
     fail=1
 fi
 
+# [C30] Border 105 - age is a system on the county's people (DR-032):
+# children and elders in the bands as facts about the person, the age
+# deciding the work, the size and the pace, the stages drifting the
+# living every ten minutes, and the old dying of it on the life table -
+# driven in the engine's own VM against a stub county.
+if ! "$PY" tools/age_bands_test.py > /dev/null; then
+    "$PY" tools/age_bands_test.py 2>&1 | grep -E "FAULT" || true
+    note "BORDER FINDING - the county's ages are not a system"
+    fail=1
+fi
+
 # Border 103 - the operator's speech is not in the repository: no
 # profanity in the tracked tree and no operator-quote attributions;
 # rulings are paraphrased content, speech stays with the speaker.

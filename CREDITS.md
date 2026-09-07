@@ -82,5 +82,10 @@ checked against the installed jar and not borne out for characters
 
 ## Getting Old (Devlin)
 
-**Source read for the age batch; nothing taken yet.** Its life-stage
-effects are ported there with this attribution.
+**Mechanics taken, with the author's permission as the operator
+settled it; source public (github.com/Bruce-Devlin/ProjectZomboidMods).**
+Its five life stages and their per-stage drift on stamina, tiredness,
+pain and stress, and the decline of an elder marked for death, are
+carried in `SAO_History.stageOf` and `SAO_Age` ([C30]) at SAO's own
+cadence. Its death chance is not taken (the life table stands in) and
+its stumble is not (this build's Stats has no such method).

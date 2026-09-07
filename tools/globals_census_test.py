@@ -130,6 +130,11 @@ KNOWN.update({n: ENGINE for n in (
     # its getSandboxSettingsTable is wrapped so overridden neighbour
     # dials are deleted before any row is built.
     "ServerSettingsScreen",
+    # [C30] the engine's stat enum (zombie.characters.CharacterStat,
+    # javap-verified on 42.20): ENDURANCE, FATIGUE, PAIN, STRESS and the
+    # rest, read by SAO_Age for the per-stage drift through
+    # Stats.add/remove(CharacterStat, float).
+    "CharacterStat",
     "addVirtualZombie",
     "addSound", "farming_vegetableconf", "getCell", "getClimateManager",
     "getCore", "getFileWriter", "getGameTime", "getSandboxOptions",

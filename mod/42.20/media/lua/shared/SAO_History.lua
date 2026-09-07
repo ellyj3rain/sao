@@ -66,25 +66,54 @@ end
 -- own start year, and which decades a person actually lived through
 -- is then arithmetic rather than a table per person.
 --
--- The shape is the county the apocalypse leaves behind rather than a
--- census of 1993: the old die first and die fastest, so the body of
--- it sits in the twenties to forties, thins through the fifties, and
--- keeps a narrow tail into the sixties. No children - the mod does
--- not model them, and inventing one would be worse than the gap.
+-- The shape used to be the county the apocalypse leaves behind rather
+-- than a census of 1993: [B37] hand-set five bands from nineteen to
+-- sixty-eight, skewed young because "the old die first", and kept no
+-- children because the mod modelled none. [C30] replaces both with
+-- the record and the ruling (DR-032): the weights below are the 1990
+-- resident population of the United States by age (NCHS, Health,
+-- United States, 2003, Table 1, "all persons, number in thousands":
+-- 5-14 35,095; 15-24 37,013; 25-34 43,161; 35-44 37,435; 45-54
+-- 25,057; 55-64 21,113; 65-74 18,045; 75-84 10,012; 85 and over
+-- 3,021), spread evenly across the years inside each group and cut
+-- to the county's own bands. Kentucky's own 1990 table sits on a
+-- Census host that would not answer the day this was written; its
+-- shares differ from the nation's by well under a point at both
+-- ends. The county keeps no infants: it starts at six. Whoever dies
+-- first is no longer authored into the bands - the attrition and the
+-- age module decide that, person by person.
 --
 -- Deterministic from the same hash the traits use, so age is a fact
 -- about WHO SOMEBODY IS rather than a roll at read time, and two
 -- sessions agree about the same person.
 local AGE_BANDS = {
-    { from = 19, to = 29, weight = 26 },
-    { from = 30, to = 39, weight = 30 },
-    { from = 40, to = 49, weight = 23 },
-    { from = 50, to = 59, weight = 14 },
-    { from = 60, to = 68, weight = 7 },
+    { from = 6, to = 14, weight = 31586 },
+    { from = 15, to = 17, weight = 11104 },
+    { from = 18, to = 24, weight = 25909 },
+    { from = 25, to = 29, weight = 21581 },
+    { from = 30, to = 39, weight = 40299 },
+    { from = 40, to = 49, weight = 31247 },
+    { from = 50, to = 59, weight = 23086 },
+    { from = 60, to = 68, weight = 17775 },
+    { from = 69, to = 74, weight = 10827 },
+    { from = 75, to = 84, weight = 10012 },
+    { from = 85, to = 90, weight = 3021 },
 }
+local AGE_TOTAL = 0
+for _, band in ipairs(AGE_BANDS) do AGE_TOTAL = AGE_TOTAL + band.weight end
+
+-- The bands as declared, for the border that checks the county
+-- against them.
+function H.bands()
+    local out = {}
+    for i, band in ipairs(AGE_BANDS) do
+        out[i] = { from = band.from, to = band.to, weight = band.weight }
+    end
+    return out
+end
 
 function H.ageOf(id)
-    local roll = hashOf(id, "age") % 100
+    local roll = hashOf(id, "age") % AGE_TOTAL
     local seen = 0
     for _, band in ipairs(AGE_BANDS) do
         seen = seen + band.weight
@@ -135,6 +164,66 @@ local HEIGHT_CM = {
     [8] = 128, [9] = 133, [10] = 138, [11] = 143, [12] = 149, [13] = 156,
     [14] = 163, [15] = 168, [16] = 172, [17] = 175, [18] = 178,
 }
+
+-- [C30] The life stages, Getting Old's five (Devlin; source public,
+-- taken with the author's permission as the operator settled it -
+-- CREDITS.md), with the county's own children below its first: child
+-- under 18, young 18 to 25, adult 26 to 40, middle 41 to 60, elder 61
+-- and over. The stage is what the drift and the work read.
+function H.stageOf(age)
+    age = tonumber(age) or 0
+    if age < 18 then return "child" end
+    if age <= 25 then return "young" end
+    if age <= 40 then return "adult" end
+    if age <= 60 then return "middle" end
+    return "elder"
+end
+
+-- [C30] The pace of the age, as the engine's speed modifier. A child's
+-- is Growing Up's (0.70 at 8 to 1.00 at 18 on its visual age; under 8
+-- the line is carried down and is ours). An adult's is 1. An elder's
+-- slows from 68 to 0.80 at 90 - that line is ours, and said so: Getting
+-- Old slows nobody, it tires them, and the drift carries that part.
+function H.speedModOf(id)
+    local age = H.ageOf(id)
+    if age < GROWTH_START then return 0.65 end
+    if age < GROWTH_ADULT then
+        local t = ((age - GROWTH_START) / (GROWTH_ADULT - GROWTH_START)) ^ GROWTH_CURVE
+        return 0.70 + t * 0.30
+    end
+    if age <= 68 then return 1.0 end
+    local t = math.min(1, (age - 68) / (90 - 68))
+    return 1.0 - 0.20 * t
+end
+
+-- [C30] The chance of dying of age itself, per day. Zero under sixty;
+-- from sixty, the life table's yearly probability of dying at that
+-- age, spread over the year's days. The table is NCHS, United States
+-- Life Tables, 1997 (National Vital Statistics Reports vol. 47 no.
+-- 28), total population - the nearest year whose table is
+-- machine-readable; the 1993 table exists (Vital Statistics of the
+-- United States 1993, Life Tables) and is an image scan, and the four
+-- years between move these figures by a few percent, which is noted
+-- and accepted. Between the table's ages the line is straight.
+local LIFE_TABLE_YEARLY = {
+    { 60, 0.01101 }, { 65, 0.01679 }, { 70, 0.02565 }, { 75, 0.03843 },
+    { 80, 0.05938 }, { 85, 0.09653 }, { 90, 0.15085 }, { 95, 0.22354 },
+}
+
+function H.oldAgeRiskPerDay(age)
+    age = tonumber(age) or 0
+    if age < 60 then return 0 end
+    local yearly = LIFE_TABLE_YEARLY[#LIFE_TABLE_YEARLY][2]
+    for i = 1, #LIFE_TABLE_YEARLY - 1 do
+        local a0, q0 = LIFE_TABLE_YEARLY[i][1], LIFE_TABLE_YEARLY[i][2]
+        local a1, q1 = LIFE_TABLE_YEARLY[i + 1][1], LIFE_TABLE_YEARLY[i + 1][2]
+        if age >= a0 and age < a1 then
+            yearly = q0 + (q1 - q0) * ((age - a0) / (a1 - a0))
+            break
+        end
+    end
+    return yearly / 365
+end
 
 function H.heightScaleOf(id)
     local age = H.ageOf(id)
@@ -260,6 +349,18 @@ function H.generate(id, rec, monthsAliveOverride)
         if row then
             rec.occupation = row.key
             if rec.knox then rec.occupationPresumed = true end
+        end
+        -- [C30] The age decides the work before the draw does: a child
+        -- is a student whatever the census dealt, and past sixty-eight
+        -- a working life is over - a retiree, unless the draw already
+        -- kept them home. Both rows are the census's own (DR-011: a
+        -- retiree's day is not a student's), so everything downstream
+        -- that reads a row reads a real one.
+        local age = H.ageOf(id)
+        if age < 18 then
+            rec.occupation = "student"
+        elseif age > 68 and rec.occupation ~= "homemaker" then
+            rec.occupation = "retiree"
         end
     end
     local worldMonths = H.clockMonths()

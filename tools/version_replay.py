@@ -168,6 +168,7 @@ UNITS = [
     ("C27", "minor", "What one person knows, as one surface (SPEECH_ML_DESIGN.md rung 1): SAO_Knowledge answers nine topics with provenance and age, bundles the ratified conditioning (eight axes, trust, the moment), stays read-only by the one-loop law, is driven offline in the engine's own VM by Border 101, and the inspect panel gauges a person through it."),
     ("C28", "kohai", "The inference budget instrument (SPEECH_ML_DESIGN.md): a deterministic model-shaped workload timed on the game's own JVM from the debug menu, reported under BUDGET - the measurement the sizing decision cites; instrument, not capability (A23's precedent)."),
     ("C29", "minor", "The body is scaled from inside the animation player (DR-032): a Byte Buddy exit advice on the animation player's model-transform build applies a per-person size held only on SAO's own shell, uniform about the feet; the bridge sets and reports it, the body takes it from the age once dressed, the harness clicks it, and Border 104 weaves the installed class off the game and verifies it - the child bands follow in the age batch."),
+    ("C30", "minor", "Age is a system on the county's people (DR-032): the bands run from six to ninety weighted from the 1990 resident population, five life stages (Getting Old's, credited) drift the living every ten minutes on the engine's own stats, the age decides the work, the pace and the size, and the old die of it on the life table (NCHS 1997, the nearest machine-readable year) - Border 105 drives it in the engine's own VM."),
 ]
 
 TIER_MEANINGS = [

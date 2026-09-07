@@ -56,11 +56,13 @@ def hash_of(text, salt):
 def bands(src):
     m = re.search(r"local AGE_BANDS = \{(.*?)\n\}", src, re.S)
     return [(int(a), int(b), int(w)) for a, b, w in re.findall(
-        r"from = (\d+), to = (\d+), weight = (\d+)", m.group(1))]
+        r"from = (\d+),\s*to = (\d+),\s*weight = (\d+)", m.group(1))]
 
 
 def age_of(sid, bnds):
-    roll = hash_of(sid, "age") % 100
+    # [C30] the Lua rolls against the sum of the weights (AGE_TOTAL),
+    # which stopped being 100 when the bands took the 1990 table.
+    roll = hash_of(sid, "age") % sum(w for _, _, w in bnds)
     seen = 0
     for lo, hi, w in bnds:
         seen += w
@@ -100,9 +102,14 @@ def main():
 
     ids = [f"sao-{i}" for i in range(1, 1201)]
     ages = {i: age_of(i, bnds) for i in ids}
+    # [C30] the county runs from six to ninety; the gradient is read
+    # across all of it, and the oldest window is where "mostly grey"
+    # is measured.
+    WINDOWS = ((6, 18), (19, 29), (30, 39), (40, 49), (50, 59),
+               (60, 69), (70, 90))
 
     print("  age band   any grey   mean greyness")
-    for lo, hi in ((19, 29), (30, 39), (40, 49), (50, 59), (60, 68)):
+    for lo, hi in WINDOWS:
         band = [i for i in ids if lo <= ages[i] <= hi]
         if not band:
             continue
@@ -116,8 +123,7 @@ def main():
         band = [i for i in ids if lo <= ages[i] <= hi]
         return sum(grey(i, ages[i]) for i in band) / max(len(band), 1)
 
-    steps = [mean_at(*b) for b in
-             ((19, 29), (30, 39), (40, 49), (50, 59), (60, 68))]
+    steps = [mean_at(*b) for b in WINDOWS]
     ok["greying rises with age"] = all(
         b >= a for a, b in zip(steps, steps[1:]))
     ok["the young are not grey"] = steps[0] < 0.05
@@ -135,7 +141,7 @@ def main():
     ok["people of one age differ"] = spread > 0.2
 
     ok["nobody goes fully white"] = max(
-        grey(i, 68) for i in ids) <= greyest + 1e-9
+        grey(i, 90) for i in ids) <= greyest + 1e-9
 
     # 3. The natural colour is never written.
     writes_natural = re.findall(r"setNaturalHairColor|setNaturalBeardColor",

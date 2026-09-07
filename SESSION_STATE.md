@@ -1,13 +1,21 @@
 | Document | Survivor Awareness Overhaul Session State |
 |---|---|
-| Version | `2.2.0.0-pre-alpha` |
+| Version | `2.3.0.0-pre-alpha` |
 | Author | ellyj3rain |
 | Repository | `SESSION_STATE.md` |
 | Status | CANONICAL - where the work actually stands. |
 
 # Session state
 
-**As of** 2026-09-06, `[C29]` close - the body is scaled from inside
+**As of** 2026-09-06, `[C30]` close - age is a system on the county's
+people (DR-032): the bands run from six to ninety, weighted from the
+1990 resident population; Getting Old's five stages drift the living
+every ten minutes on the engine's own stats; the age decides the
+work (student, retiree), the pace and the size; and the old die of
+it on the life table, a fact about the person and the day. Border
+105 drives it in the engine's own VM. Children now exist in the
+county and are drawn small through [C29]'s seam; the child's day is
+the next batch. `[C29]` before it - the body is scaled from inside
 the animation player (DR-032): the renderer scales no character on
 its own, so SAO weaves a Byte Buddy exit advice onto the one method
 that builds a body's per-bone model transforms and applies a size
@@ -175,22 +183,23 @@ unloaded survivors are governed by the same rules ([B39], [B42]).
 
 ## Deploy state
 
-`2.2.0.0-pre-alpha` at tip - the version machine's output ([C2],
+`2.3.0.0-pre-alpha` at tip - the version machine's output ([C2],
 DR-013; the twelfth minor rolled the tier by the odometer's own
-law). The game install carries the `[C24]` tip (its
-coordinate is in the map), deployed 2026-08-29 while the operator
-loads it - the `[C25]`
-knowledge-first build deploys at the next window the game is closed.
-The play receipts the C era owes are the next thing the tree cannot
-produce for itself; this session's play doubles as the live receipt
-the sibling project's death seam needs before its mechanics open.
+law). The game install carries the `[C30]` tip, deployed 2026-09-06
+with the game closed. The play receipts the C era owes are the next
+thing the tree cannot produce for itself - the operator chose to
+keep building before testing, so `[C29]` (a survivor scaled from
+the harness) and `[C30]` (a child in the street, an elder's slower
+walk, a death of old age in the log) wait together; this session's
+play doubles as the live receipt the sibling project's death seam
+needs before its mechanics open.
 
 Two live saves - one fresh in Irvington, one with companions - survive every
 deploy; `save_compat_test` guards this and runs in the gate.
 
 ## Instruments
 
-**104 numbered borders**, run by **119 gated mirrors** in `tools/`, all invoked
+**105 numbered borders**, run by **120 gated mirrors** in `tools/`, all invoked
 by `tools/check.sh`, which the pre-commit hook runs and CI runs on every push.
 The figures in this paragraph are derived by Border 76 from the tree, not
 maintained by hand. Border 54 keeps the rest honest: it runs every gated

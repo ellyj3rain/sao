@@ -186,6 +186,18 @@ function Body.materialize(rec)
         end
     end
 
+    -- [C30] The pace of the age: short legs and old ones both walk
+    -- slower than a grown adult's. The engine's own speed modifier,
+    -- read from the age once; an adult answers 1 and nothing is set.
+    if SAO.History and SAO.History.speedModOf then
+        local okP, pace = pcall(SAO.History.speedModOf, rec.id)
+        if okP and type(pace) == "number" and math.abs(pace - 1.0) > 0.001 then
+            local okM = pcall(function() body:setSpeedMod(pace) end)
+            log(rec.id .. " paced " .. string.format("%.2f", pace)
+                .. (okM and "" or " (setSpeedMod threw)"))
+        end
+    end
+
     if movedBy then
         log(rec.id .. " woke outside " .. tostring(movedBy)
             .. "'s line at " .. wx .. "," .. wy .. " (DR-028)")
