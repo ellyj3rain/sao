@@ -271,6 +271,13 @@ local EVENTS = {
     joinNo    = { "Not yet. We don't know you.", "Earn it first." },
     walkNudge = { "...Alright, I was thinking it anyway.", "You beat me to asking." },
     walkNo    = { "Not yet. Maybe when I know you better." },
+    -- [C37] A word given lands through standing (SAO_Command): the
+    -- three verdicts, answered.
+    orderYes  = { "On it.", "Alright.", "Say no more." },
+    orderGrudging = { "...Fine. This once.", "If you say so.",
+                      "I will do it. I do not like it." },
+    orderNo   = { "No. Not on your say-so.", "Do it yourself.",
+                  "You are not the one who tells me." },
     smokeShare= { "Here. Bad habit, good company.", "Last pack in Knox County, probably." },
     bonded    = { "You and me, then. To the end of it.", "Whatever comes, we split it." },
     traumaRage= { "No. NO. They don't get to keep breathing." },
@@ -414,6 +421,9 @@ end
 -- handler, so everything it raises is somebody answering a click.
 function V.answer(id, event, tick)
     raise(id, event, tick, true)
+    -- [C37] An answer is seen as well as heard: the same gesture map
+    -- the murmur path reads ([C35]), so a refusal shakes its head.
+    pcall(function() SAO.Gesture.onEvent(id, event, tick) end)
 end
 
 function V.forget(id)

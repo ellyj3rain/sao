@@ -164,6 +164,8 @@ G.EVENTS = {
     grumble = "frustrated", unanswered = "frustrated", workDoubted = "frustrated",
     noRoom = "frustrated", stepUp = "bow", parting = "emote:wavebye",
     reunion = "emote:wavehi", companion = "emote:wavehi", sick = "sound:cough",
+    -- [C37] a word given: taken, taken grudgingly, refused.
+    orderYes = "positive", orderGrudging = "frustrated", orderNo = "negative",
 }
 local LISTS = {
     positive = function(id) return pick(G.LISTEN.positive, id, "event") end,

@@ -1,6 +1,6 @@
 | Document | Survivor Awareness Overhaul Architecture |
 |---|---|
-| Version | `2.8.0.0-pre-alpha` |
+| Version | `2.9.0.0-pre-alpha` |
 | Author | ellyj3rain |
 | Repository | `ARCHITECTURE.md` |
 | Status | ACTIVE - ratified framework shape. |
@@ -68,7 +68,9 @@ low-nerve survivor does not walk into a doorway it believes is covered.
 Relationships, group membership, orders, territory claims, hostility state, and
 who may direct whom. Standing channels a preference into a permitted action. It
 owns whether this survivor may enter that building, take that item, or fire on
-that person. It does not own execution and it never invents knowledge.
+that person. It does not own execution and it never invents knowledge. Its
+command surface is `SAO_Command` (`[C37]`, DR-033): whose word a person takes,
+in what matter, and why not - CAO's check on the standing that exists.
 
 ### Execution — what is done
 

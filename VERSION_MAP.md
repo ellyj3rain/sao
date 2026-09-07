@@ -16,9 +16,9 @@ the machine. Names, dates, and threads below come from
 | Form | `major.minor.kohai.patch-maturity` |
 | Hard caps | minor 12; kohai 16; patch 24 |
 | Replay start | `0.1.0.0-pre-alpha` |
-| Current version | `2.8.0.0-pre-alpha` |
-| Closed chronology | `A1-C36` |
-| Next batch | `C37` |
+| Current version | `2.9.0.0-pre-alpha` |
+| Closed chronology | `A1-C37` |
+| Next batch | `C38` |
 | Executable source | [`tools/version_replay.py`](tools/version_replay.py) |
 
 ## Tier meanings
@@ -152,6 +152,7 @@ the machine. Names, dates, and threads below come from
 | `C34` | 2026-09-06 | patch | `2.6.0.1-pre-alpha` | The moment carries the strain | The moment carries the strain (DR-033): the knowledge surface reads the situation the controller's pressure names and whether the speaker is spent, beside the axes, trust and the moment; Decision 5 amended with the register floors under strain; Border 101 asks for both. |
 | `C35` | 2026-09-07 | minor | `2.7.0.0-pre-alpha` | The county's gestures | The county's gestures (DR-034): existing art copied with permission and credited - Hobbies' conversation gestures, sitting loops, instrument plays and dances, Week One's serving, coughs and claps - bound by SAO's own nodes and wired to the meeting, the voice's events, the evening seat and the porch tune; Border 109 holds file, node and name to each other. |
 | `C36` | 2026-09-07 | minor | `2.8.0.0-pre-alpha` | The record on the county's calendar | The record on the county's calendar (DR-031, Day Zero slice 7): every vanilla channel re-keyed once per save to begin on the save day July 9, 1993 falls on, through the engine's own surface; every paper a container is filled with dated to the newest issue printed by the county's day or taken off the shelf; a sandbox switch on by default - Border 110 runs the arithmetic off the game against the installed jar. |
+| `C37` | 2026-09-07 | minor | `2.9.0.0-pre-alpha` | An order lands through standing | An order lands through standing (DR-033, ruled): every ask the player makes of a person goes through SAO_Command - CAO's obedience check on the Standing that exists, a proven hand standing as a second, the envelope's own refusals - voiced with its reason and seen; Border 111 runs the check in the engine's own VM over the county sampled. |
 
 ## The former number
 
@@ -172,11 +173,11 @@ the meantime, and they are not play.
 
 ## Next movement
 
-`C37` is the next batch. Its content determines its tier after it
+`C38` is the next batch. Its content determines its tier after it
 exists:
 
-| If C37 is | Result |
+| If C38 is | Result |
 |---|---|
-| patch or hotfix | `2.8.0.1-pre-alpha` |
-| kohai | `2.8.1.0-pre-alpha` |
-| minor | `2.9.0.0-pre-alpha` |
+| patch or hotfix | `2.9.0.1-pre-alpha` |
+| kohai | `2.9.1.0-pre-alpha` |
+| minor | `2.10.0.0-pre-alpha` |

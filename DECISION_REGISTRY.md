@@ -1,6 +1,6 @@
 | Document | Survivor Awareness Overhaul Decision Registry |
 |---|---|
-| Version | `2.8.0.0-pre-alpha` |
+| Version | `2.9.0.0-pre-alpha` |
 | Author | ellyj3rain |
 | Repository | `DECISION_REGISTRY.md` |
 | Status | CANONICAL, APPEND-ONLY - ratified decisions. |
@@ -1007,7 +1007,11 @@ disposition and standing decide case by case, as they do for
 everything else. The engineless county is not scoped: the point is
 to load the game anyway; the offline borders remain the test surface
 for the county's logic and nothing larger is built on this ruling.
-The register is the one part that builds now: [C34].
+The register is the one part that builds now: [C34]. The command
+arc's first slice followed as [C37]: the player's asks land through
+standing as CAO's Authority pillar decides it, on the Standing that
+exists - no table authored, a proven hand standing as a second,
+refusal contextual with its reason.
 
 ## DR-034 - Existing art crosses into SAO copied, with permission, and credited
 

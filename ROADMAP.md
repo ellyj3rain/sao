@@ -1,6 +1,6 @@
 | Document | Survivor Awareness Overhaul Roadmap |
 |---|---|
-| Version | `2.8.0.0-pre-alpha` |
+| Version | `2.9.0.0-pre-alpha` |
 | Author | ellyj3rain |
 | Repository | `ROADMAP.md` |
 | Status | CANONICAL - thread map, backlog, live gates. |
@@ -314,7 +314,13 @@ scoped from it, unscheduled until their forks pass Crucible:
   direction of several people by dictation follows where authority
   holds. First slice: the harness's operator orders re-routed through
   standing for the player, with refusal inside the disposition's
-  envelope.
+  envelope. SHIPPED as `[C37]`: every ask of a person in the county's
+  menus lands through `SAO_Command` - CAO's check on the Standing
+  that exists, a proven hand standing as a second, the envelope's own
+  reasons - with the debug orders left as the operator's hand;
+  a survivor's word to a survivor through the same check, and the
+  direction of several people at once by dictation, wait on the
+  understander.
 - **The county without the engine.** The record side generated and
   run over simulated days in the bare VM the borders already use -
   people, pasts, relations, houses, conditions, habits, knowledge and

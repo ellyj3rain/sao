@@ -175,6 +175,7 @@ UNITS = [
     ("C34", "patch", "The moment carries the strain (DR-033): the knowledge surface reads the situation the controller's pressure names and whether the speaker is spent, beside the axes, trust and the moment; Decision 5 amended with the register floors under strain; Border 101 asks for both."),
     ("C35", "minor", "The county's gestures (DR-034): existing art copied with permission and credited - Hobbies' conversation gestures, sitting loops, instrument plays and dances, Week One's serving, coughs and claps - bound by SAO's own nodes and wired to the meeting, the voice's events, the evening seat and the porch tune; Border 109 holds file, node and name to each other."),
     ("C36", "minor", "The record on the county's calendar (DR-031, Day Zero slice 7): every vanilla channel re-keyed once per save to begin on the save day July 9, 1993 falls on, through the engine's own surface; every paper a container is filled with dated to the newest issue printed by the county's day or taken off the shelf; a sandbox switch on by default - Border 110 runs the arithmetic off the game against the installed jar."),
+    ("C37", "minor", "An order lands through standing (DR-033, ruled): every ask the player makes of a person goes through SAO_Command - CAO's obedience check on the Standing that exists, a proven hand standing as a second, the envelope's own refusals - voiced with its reason and seen; Border 111 runs the check in the engine's own VM over the county sampled."),
 ]
 
 TIER_MEANINGS = [

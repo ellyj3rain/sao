@@ -1689,8 +1689,13 @@ local function decide(id, agent, body)
                         if perkObj33 then
                             mine33 = me:getPerkLevel(perkObj33)
                         end
+                        -- [C37] The margin is the county's one
+                        -- measure of an outranking hand, named in
+                        -- SAO_Command; the literal 3 was here.
+                        local margin33 = (SAO.Command
+                            and SAO.Command.TEACH_MARGIN) or 3
                         if mine33 >= 0 and theirs33 >= 0
-                            and mine33 >= theirs33 + 3 then
+                            and mine33 >= theirs33 + margin33 then
                             SAOJavaBridge:grantXP(body, perk33, 6.0)
                             SAO.Standing.adjustTrust(id, myKey, 0.02)
                             SAO.Voice.onEvent(id, "learning", tick)

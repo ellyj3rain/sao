@@ -180,7 +180,10 @@ document already held; what is new binds the design in three places.
   time on spoken orders to several people at once; without them an
   order is a request weighed like any other. The understander
   therefore learns orders beside questions, statements, requests,
-  offers and threats, and every order lands through standing.
+  offers and threats, and every order lands through standing. The
+  first slice is built: `[C37]` lands every ask the player can make
+  of a person through standing - CAO's check on the Standing that
+  exists - with refusal voiced and its reason given.
 - **The county without the engine.** A living county is to be
   generated and run by the county's own logic with no game loaded -
   the record side over simulated days - so the world can be tested

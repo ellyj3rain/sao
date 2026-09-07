@@ -177,6 +177,17 @@ function SAOInspectWindow:build()
         row("of " .. tostring(SAO.Standing.factionName(g) or g))
         jsonl.group = tostring(g)
     end
+    -- [C37] On your word: whether they would take an order from you,
+    -- and why not, in plain words (DR-017; SAO_Command).
+    if pKey then
+        pcall(function()
+            local word = SAO.Command.describe(id, pKey)
+            if word then
+                row("on your word: " .. word)
+                jsonl.onYourWord = word
+            end
+        end)
+    end
     -- [C32] What they carry, in plain words (DR-017).
     pcall(function()
         local parts = {}

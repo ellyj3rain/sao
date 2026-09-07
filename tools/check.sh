@@ -1357,6 +1357,18 @@ if ! "$PY" tools/record_calendar_test.py > /dev/null; then
     fail=1
 fi
 
+# [C37] Border 111 - an order lands through standing (DR-033, ruled):
+# CAO's obedience check on the Standing that exists, run in the
+# engine's own VM over the county sampled - the leader's word, the
+# disliked stranger's, the proven hand's, the chair's - and the
+# envelope's refusals; by text, every ask in the harness through the
+# gate, the three answers, the gesture, the panel and the margin.
+if ! "$PY" tools/command_test.py > /dev/null; then
+    "$PY" tools/command_test.py 2>&1 | grep -E "FAULT" || true
+    note "BORDER FINDING - an order does not land through standing"
+    fail=1
+fi
+
 # Border 103 - the operator's speech is not in the repository: no
 # profanity in the tracked tree and no operator-quote attributions;
 # rulings are paraphrased content, speech stays with the speaker.

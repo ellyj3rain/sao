@@ -672,6 +672,34 @@ local function askToJoin(playerObj, id)
     end
 end
 
+-- [C37] An order lands through standing (DR-033, ruled): every ask of
+-- a person goes through SAO.Command - who is asking, of whom, in what
+-- matter - and the verdict is voiced before the act, a refusal with
+-- its reason and a grudging yes as itself. The act voices its own
+-- clean yes, since some asks already had a line of their own. The
+-- debug orders under SAO Debug stay the operator's hand and never
+-- come through here. Returns whether the act ran.
+local function onYourWord(playerObj, id, kind, arg, act)
+    local key = playerKeyOf(playerObj)
+    local verdict, reason = "complies", nil
+    pcall(function()
+        verdict, reason = SAO.Command.order(key, id, kind, arg)
+    end)
+    if verdict == "refuses" then
+        pcall(function() SAO.Voice.answer(id, "orderNo") end)
+        log(id .. " refuses (" .. tostring(kind) .. "): "
+            .. tostring(reason))
+        return false
+    end
+    if verdict == "reluctant" then
+        pcall(function() SAO.Voice.answer(id, "orderGrudging") end)
+        log(id .. " goes along, grudgingly (" .. tostring(kind) .. "): "
+            .. tostring(reason))
+    end
+    if act then act() end
+    return true
+end
+
 -- [C7] Exported: the superimposed neighbour root (SAO_Neighbours,
 -- DR-015) drives the same talk surface this county's own menu drives -
 -- one definition, superimposed rather than copied.
@@ -1000,13 +1028,18 @@ local function fillMenu(playerNum, context, worldobjects)
                         .. (nrec6 and nrec6.designation == job
                             and " (now)" or ""),
                         nil, function()
-                        local r6 = SAO.Identity.get(nearId)
-                        if r6 then
-                            r6.designation = job
-                            r6.designatedBy = "chair"
-                            log(nearId .. " takes the " .. job
-                                .. " work - the chair dealt it")
-                        end
+                        onYourWord(playerObj, nearId, "work", job, function()
+                            local r6 = SAO.Identity.get(nearId)
+                            if r6 then
+                                r6.designation = job
+                                r6.designatedBy = "chair"
+                                pcall(function()
+                                    SAO.Voice.answer(nearId, "orderYes")
+                                end)
+                                log(nearId .. " takes the " .. job
+                                    .. " work - the chair dealt it")
+                            end
+                        end)
                     end)
                 end
             end
@@ -1161,20 +1194,28 @@ local function fillMenu(playerNum, context, worldobjects)
                 person:addSubMenu(opt, sub)
                 sub:addOption(coAgent.holdPosition
                     and "wait here (holding)" or "wait here", nil, function()
-                    coAgent.holdPosition = true
-                    pcall(function() SAO.Voice.answer(nearId, "walkNudge") end)
-                    log(nearId .. " will hold this spot")
+                    onYourWord(playerObj, nearId, "hold", nil, function()
+                        coAgent.holdPosition = true
+                        pcall(function() SAO.Voice.answer(nearId, "walkNudge") end)
+                        log(nearId .. " will hold this spot")
+                    end)
                 end)
                 sub:addOption(coAgent.followTight
                     and "stay close (doing it)" or "stay close", nil, function()
-                    coAgent.holdPosition = nil
-                    coAgent.followTight = true
-                    log(nearId .. " will stay close")
+                    onYourWord(playerObj, nearId, "close", nil, function()
+                        coAgent.holdPosition = nil
+                        coAgent.followTight = true
+                        pcall(function() SAO.Voice.answer(nearId, "orderYes") end)
+                        log(nearId .. " will stay close")
+                    end)
                 end)
                 sub:addOption("walk with me (normal)", nil, function()
-                    coAgent.holdPosition = nil
-                    coAgent.followTight = nil
-                    log(nearId .. " walks with you")
+                    onYourWord(playerObj, nearId, "walk", nil, function()
+                        coAgent.holdPosition = nil
+                        coAgent.followTight = nil
+                        pcall(function() SAO.Voice.answer(nearId, "orderYes") end)
+                        log(nearId .. " walks with you")
+                    end)
                 end)
                 -- [B42] Go home. The county has had `HOMEWARD` and a
                 -- `homeX` on every record since genesis, and the player
@@ -1194,17 +1235,21 @@ local function fillMenu(playerNum, context, worldobjects)
                 if homeRec and homeRec.homeX and homeRec.homeY then
                     sub:addOption("go back to your own place", nil,
                         function()
-                            coAgent.holdPosition = nil
-                            coAgent.followTight = nil
-                            coAgent.companioning = nil
-                            if SAO.Controller.orderTravel(nearId,
-                                homeRec.homeX, homeRec.homeY,
-                                homeRec.homeZ or 0) then
-                                pcall(function()
-                                    SAO.Voice.answer(nearId, "parting")
-                                end)
-                                log(nearId .. " heads home")
-                            end
+                            onYourWord(playerObj, nearId, "travel",
+                                { x = homeRec.homeX, y = homeRec.homeY },
+                                function()
+                                coAgent.holdPosition = nil
+                                coAgent.followTight = nil
+                                coAgent.companioning = nil
+                                if SAO.Controller.orderTravel(nearId,
+                                    homeRec.homeX, homeRec.homeY,
+                                    homeRec.homeZ or 0) then
+                                    pcall(function()
+                                        SAO.Voice.answer(nearId, "parting")
+                                    end)
+                                    log(nearId .. " heads home")
+                                end
+                            end)
                         end)
                 end
                 -- [C20] Verb parity with the framework the county
@@ -1212,28 +1257,37 @@ local function fillMenu(playerNum, context, worldobjects)
                 -- and "unstick", so ours do - his labels, the
                 -- county's machinery underneath.
                 sub:addOption("regroup on me", nil, function()
-                    coAgent.holdPosition = nil
-                    coAgent.followTight = true
                     local me20 = getSpecificPlayer(0)
-                    if me20 and SAO.Controller.orderTravel(nearId,
-                        math.floor(me20:getX()), math.floor(me20:getY()),
-                        math.floor(me20:getZ())) then
-                        log(nearId .. " regroups on you")
-                    end
+                    if not me20 then return end
+                    local gx20 = math.floor(me20:getX())
+                    local gy20 = math.floor(me20:getY())
+                    onYourWord(playerObj, nearId, "travel",
+                        { x = gx20, y = gy20 }, function()
+                        coAgent.holdPosition = nil
+                        coAgent.followTight = true
+                        if SAO.Controller.orderTravel(nearId, gx20, gy20,
+                            math.floor(me20:getZ())) then
+                            pcall(function() SAO.Voice.answer(nearId, "orderYes") end)
+                            log(nearId .. " regroups on you")
+                        end
+                    end)
                 end)
                 sub:addOption("get unstuck", nil, function()
                     -- A stuck walk is a route holding a dead goal:
                     -- cancel it, clear the body's intent, and let the
                     -- next decision issue fresh ([C18]'s route law
                     -- makes the fresh order stick).
-                    pcall(function() SAO.Locomotion.cancel(nearId) end)
-                    pcall(function()
-                        local b20 = SAO.Body.get(nearId)
-                        if b20 and SAOJavaBridge then
-                            SAOJavaBridge:unstick(b20)
-                        end
+                    onYourWord(playerObj, nearId, "walk", nil, function()
+                        pcall(function() SAO.Locomotion.cancel(nearId) end)
+                        pcall(function()
+                            local b20 = SAO.Body.get(nearId)
+                            if b20 and SAOJavaBridge then
+                                SAOJavaBridge:unstick(b20)
+                            end
+                        end)
+                        pcall(function() SAO.Voice.answer(nearId, "orderYes") end)
+                        log(nearId .. " shakes loose; their next step is fresh")
                     end)
-                    log(nearId .. " shakes loose; their next step is fresh")
                 end)
                 sub:addOption("check that building", nil, function()
                     local sq = nil
@@ -1242,12 +1296,16 @@ local function fillMenu(playerNum, context, worldobjects)
                         if ok and s then sq = s break end
                     end
                     if sq then
-                        coAgent.holdPosition = nil
-                        if SAO.Controller.orderTravel(nearId,
-                            sq:getX(), sq:getY(), sq:getZ()) then
-                            log(nearId .. " goes to look at the place you"
-                                .. " pointed out - their eyes, their judgment")
-                        end
+                        onYourWord(playerObj, nearId, "travel",
+                            { x = sq:getX(), y = sq:getY() }, function()
+                            coAgent.holdPosition = nil
+                            if SAO.Controller.orderTravel(nearId,
+                                sq:getX(), sq:getY(), sq:getZ()) then
+                                pcall(function() SAO.Voice.answer(nearId, "orderYes") end)
+                                log(nearId .. " goes to look at the place you"
+                                    .. " pointed out - their eyes, their judgment")
+                            end
+                        end)
                     end
                 end)
                 -- [C4] The wheels, as a clear order. "Get in" names
@@ -1266,18 +1324,24 @@ local function fillMenu(playerNum, context, worldobjects)
                     if seated then
                         sub:addOption("step out of the vehicle", nil,
                             function()
-                                local okOut = false
-                                pcall(function()
-                                    okOut = SAOJavaBridge:unseatFromVehicle(
-                                        vBody)
+                                onYourWord(playerObj, nearId, "unboard", nil,
+                                    function()
+                                    local okOut = false
+                                    pcall(function()
+                                        okOut = SAOJavaBridge:unseatFromVehicle(
+                                            vBody)
+                                    end)
+                                    if okOut then
+                                        coAgent.riding = nil
+                                        pcall(function()
+                                            SAO.Voice.answer(nearId, "orderYes")
+                                        end)
+                                        log(nearId .. " steps out on your word")
+                                    else
+                                        log(nearId .. " could not step out - "
+                                            .. "the vehicle must be stopped")
+                                    end
                                 end)
-                                if okOut then
-                                    coAgent.riding = nil
-                                    log(nearId .. " steps out on your word")
-                                else
-                                    log(nearId .. " could not step out - "
-                                        .. "the vehicle must be stopped")
-                                end
                             end)
                     elseif vBody then
                         local cx, cy = nil, nil
@@ -1306,13 +1370,20 @@ local function fillMenu(playerNum, context, worldobjects)
                             if vx then
                                 sub:addOption("get in the vehicle", nil,
                                     function()
-                                        coAgent.holdPosition = nil
-                                        coAgent.boardAsk = {
-                                            x = tonumber(vx),
-                                            y = tonumber(vy),
-                                        }
-                                        log(nearId .. " makes for the "
-                                            .. "vehicle you named")
+                                        onYourWord(playerObj, nearId, "board",
+                                            { x = tonumber(vx), y = tonumber(vy) },
+                                            function()
+                                            coAgent.holdPosition = nil
+                                            coAgent.boardAsk = {
+                                                x = tonumber(vx),
+                                                y = tonumber(vy),
+                                            }
+                                            pcall(function()
+                                                SAO.Voice.answer(nearId, "orderYes")
+                                            end)
+                                            log(nearId .. " makes for the "
+                                                .. "vehicle you named")
+                                        end)
                                     end)
                             end
                         end
@@ -1343,11 +1414,13 @@ local function fillMenu(playerNum, context, worldobjects)
                         sub:addOption(job
                             .. (rec.designation == job and " (their job now)" or ""),
                             nil, function()
-                                rec.designation = job
-                                pcall(function()
-                                    SAO.Voice.answer(nearId, "company")
+                                onYourWord(playerObj, nearId, "work", job, function()
+                                    rec.designation = job
+                                    pcall(function()
+                                        SAO.Voice.answer(nearId, "company")
+                                    end)
+                                    log(nearId .. " takes the " .. job .. " work")
                                 end)
-                                log(nearId .. " takes the " .. job .. " work")
                             end)
                     end
                     sub:addOption("their own devices", nil, function()
@@ -1528,23 +1601,35 @@ local function fillMenu(playerNum, context, worldobjects)
                     return
                 end
                 SAO.Harness.rallyAt = nowR
-                local n7 = 0
+                local n7, stay7 = 0, 0
+                local gx7 = math.floor(playerObj:getX())
+                local gy7 = math.floor(playerObj:getY())
                 for _, r7 in pairs(SAO.Identity.all()) do
                     if not r7.dead
                         and SAO.Standing.groupOf(r7.id) == rGroup then
                         local b7 = SAO.Body.get(r7.id)
-                        if b7 and SAO.Locomotion.order(r7.id, b7,
-                            math.floor(playerObj:getX()),
-                            math.floor(playerObj:getY()),
-                            math.floor(playerObj:getZ())) then
-                            n7 = n7 + 1
+                        if b7 then
+                            -- [C37] The chair's call lands through
+                            -- standing one person at a time; who
+                            -- stays put is said.
+                            local came7 = onYourWord(playerObj, r7.id,
+                                "travel", { x = gx7, y = gy7 }, function()
+                                if SAO.Locomotion.order(r7.id, b7, gx7, gy7,
+                                    math.floor(playerObj:getZ())) then
+                                    n7 = n7 + 1
+                                end
+                            end)
+                            if not came7 then stay7 = stay7 + 1 end
                         end
                     end
                 end
                 pcall(function()
                     HaloTextHelper.addText(playerObj,
-                        n7 > 0 and ("The house is coming (" .. n7 .. ").")
-                        or "Nobody close enough to hear.")
+                        n7 > 0 and ("The house is coming (" .. n7 .. ")"
+                            .. (stay7 > 0 and ("; " .. stay7 .. " stay put.")
+                                or "."))
+                        or (stay7 > 0 and "The house stays put."
+                            or "Nobody close enough to hear."))
                 end)
             end)
         end
@@ -1608,9 +1693,10 @@ local function fillMenu(playerNum, context, worldobjects)
                     local seated8, tried8 = 0, 0
                     local names8 = {}
                     for _, r8 in pairs(SAO.Identity.all()) do
+                        -- [C37] Willingness is the gate below, not a
+                        -- trust line: the ask lands through standing.
                         if not r8.dead
-                            and SAO.Standing.groupOf(r8.id) == myHouse8
-                            and SAO.Standing.trust(r8.id, pKey8) >= 0.4 then
+                            and SAO.Standing.groupOf(r8.id) == myHouse8 then
                             local b8 = SAO.Body.get(r8.id)
                             if b8 then
                                 local dx8 = b8:getX() - px8
@@ -1625,29 +1711,32 @@ local function fillMenu(playerNum, context, worldobjects)
                                                 "ownCompany")
                                         end)
                                     else
-                                        local seat8 = -1
-                                        pcall(function()
-                                            seat8 = SAOJavaBridge
-                                                :seatInNearestVehicle(
-                                                    b8, px8, py8)
-                                        end)
-                                        if seat8 and seat8 >= 0 then
-                                            local a8 = SAO.Controller
-                                                .agents[r8.id]
-                                            if a8 then
-                                                a8.riding = true
-                                            end
+                                        onYourWord(playerObj, r8.id, "board",
+                                            { x = px8, y = py8 }, function()
+                                            local seat8 = -1
                                             pcall(function()
-                                                SAO.Perception
-                                                    .announceDeparture(
-                                                    r8.id, "crew",
-                                                    math.floor(px8),
-                                                    math.floor(py8))
+                                                seat8 = SAOJavaBridge
+                                                    :seatInNearestVehicle(
+                                                        b8, px8, py8)
                                             end)
-                                            seated8 = seated8 + 1
-                                            names8[#names8 + 1] =
-                                                tostring(r8.forename)
-                                        end
+                                            if seat8 and seat8 >= 0 then
+                                                local a8 = SAO.Controller
+                                                    .agents[r8.id]
+                                                if a8 then
+                                                    a8.riding = true
+                                                end
+                                                pcall(function()
+                                                    SAO.Perception
+                                                        .announceDeparture(
+                                                        r8.id, "crew",
+                                                        math.floor(px8),
+                                                        math.floor(py8))
+                                                end)
+                                                seated8 = seated8 + 1
+                                                names8[#names8 + 1] =
+                                                    tostring(r8.forename)
+                                            end
+                                        end)
                                     end
                                 end
                             end
