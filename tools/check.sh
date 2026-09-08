@@ -1584,6 +1584,15 @@ if ! "$PY" tools/day_zero_owes_test.py > /dev/null; then
     fail=1
 fi
 
+# [C65] Border 133 - the years pass leaves a trajectory: a run
+# boundary, what the run was run under, and a county line per
+# simulated day that says what the years actually produced.
+if ! "$PY" tools/years_trajectory_test.py > /dev/null; then
+    "$PY" tools/years_trajectory_test.py 2>&1 | grep -E "FAULT|SKIPPED" || true
+    note "BORDER FINDING - a span of years leaves no trajectory"
+    fail=1
+fi
+
 # Border 103 - the operator's speech is not in the repository: no
 # profanity in the tracked tree and no operator-quote attributions;
 # rulings are paraphrased content, speech stays with the speaker.

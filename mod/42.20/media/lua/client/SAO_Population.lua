@@ -2496,6 +2496,25 @@ local function lookAtSomeGround(day)
     rec.groundSeenOnDay = day
 end
 
+-- [C65] The county line, once a day.
+--
+-- [B38] wrote "the county once a day, laid beside the events rather
+-- than instead of them" and wired it into `bootDigest`, which runs on
+-- the first population tick of a session and never again. So it was
+-- once per load for the whole B era and the sentence describing it
+-- was wrong.
+--
+-- It is daily now, on the county's own clock ([C62]), which means the
+-- years pass drives it exactly as the live county does rather than
+-- reaching for something only the years need.
+local lastCountyDay = nil
+local function dailyCounty()
+    local day = math.floor(hoursNow() / 24.0)
+    if lastCountyDay == day then return end
+    lastCountyDay = day
+    pcall(function() SAO.Telemetry.county() end)
+end
+
 -- One simulated day, and every call in it is the live county's own.
 local function oneYearsDay(conf, day)
     tickCounter = tickCounter + YEARS_TICKS_PER_DAY
@@ -2509,6 +2528,12 @@ local function oneYearsDay(conf, day)
     end
     -- [C46] And one claim's ground actually looked at.
     pcall(lookAtSomeGround, day)
+    -- [C65] And the day written down, through the same function the
+    -- live county runs on its own cadence. Border 118 refused the
+    -- first draft of this, which called SAO.Telemetry.county here and
+    -- nowhere else, and it was right: a call that exists only in the
+    -- years is the pass inventing rather than running the county.
+    dailyCounty()
 end
 
 -- Returns true while there are still years to live, which is what
@@ -2526,6 +2551,34 @@ local function runTheYears(conf)
     if owed == nil then return false end
     local run = tonumber(s.yearsRun) or 0
     if run >= owed then return false end
+
+    -- [C65] The run this span's lines belong to.
+    --
+    -- Made once and kept in the save, because a span sliced across
+    -- hundreds of passes and possibly a reload is ONE run, and a
+    -- fresh identifier per pass would cut a single county's history
+    -- into two thousand runs of one day each. Restored rather than
+    -- regenerated on every entry for the same reason.
+    if s.yearsRunId == nil then
+        local stamp = 0
+        pcall(function() stamp = getTimestampMs() end)
+        s.yearsRunId = tostring(math.floor(stamp)) .. "-"
+            .. tostring(ZombRand(100000))
+        pcall(function()
+            SAO.Telemetry.runId = s.yearsRunId
+            local c = SAO.Telemetry.conditions()
+            c.run = s.yearsRunId
+            c.owed = owed
+            SAO.Telemetry.run("opened", c)
+        end)
+    else
+        pcall(function()
+            if SAO.Telemetry.runId == nil then
+                SAO.Telemetry.runId = s.yearsRunId
+            end
+        end)
+    end
+
     local okT, startedMs = pcall(function() return getTimestampMs() end)
     local began = run
     while run < owed do
@@ -2550,6 +2603,16 @@ local function runTheYears(conf)
         local alive = SAO.Identity.livingCount()
         log("the county has lived its " .. owed .. " days: " .. alive
             .. " alive to meet")
+        -- [C65] The run is closed and the identifier cleared, so the
+        -- play that follows is not filed under a run that has ended.
+        pcall(function()
+            SAO.Telemetry.run("closed",
+                { run = s.yearsRunId, owed = owed, lived = run,
+                  living = alive })
+        end)
+        -- Cleared in its own guard: a throw in the line above must not
+        -- leave live play filed under a span of years that has ended.
+        pcall(function() SAO.Telemetry.runId = nil end)
         return false
     end
     if run - began > 0 then
@@ -2599,6 +2662,9 @@ local function populationTick()
         end
     end)
     runSub("encounters", dormantEncounters)
+    -- [C65] And the county writes itself down once a day, which is
+    -- what [B38] said it did.
+    runSub("digest", dailyCounty)
     local px, py = playerPos()
     if px then
         bandSkips = 0
