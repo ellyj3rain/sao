@@ -1,10 +1,10 @@
-# C46 - The ground, looked at
+# C46 - The ground is read during the years
 
 | Field | Record |
 |---|---|
 | Batch | `C46` |
 | Date | 2026-09-07 |
-| Name | The ground, looked at |
+| Name | The ground is read during the years |
 | Status | Closed append-only batch - awaiting live receipts (a 1996 start whose survivors' panels say what their places are - the ways in and how many are shut - read off ground nobody was standing on; a 1993 start unchanged) |
 | Threads | [`T-007`](THREADS.md#t-007), [`T-003`](THREADS.md#t-003) |
 

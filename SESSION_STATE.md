@@ -267,7 +267,7 @@ a fence that throws refuses rather than permits. Built before any
 model, because it is what makes a wrong one harmless - and because
 it needed neither a corpus nor a budget measurement, both of which
 still wait. Border 120 proves it over a corpus off the game,
-near-misses included. `[C46]` before it - the ground, looked at. The
+near-misses included. `[C46]` before it - the ground is read during the years. The
 engine holds only an eight by eight chunk window around each player,
 so during the years no claim is in any cell; a chunk is loaded on
 its own instead, read, and let go - one claim a simulated day on a
