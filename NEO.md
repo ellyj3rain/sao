@@ -51,7 +51,14 @@ of skill.
   control.
 - **The gate.** `tools/check.sh` runs every border; the pre-commit hook runs
   it; CI runs it on every push. Run it before every commit and read the whole
-  verdict, including the exit code.
+  verdict, including the exit code. A border that reads the installed game
+  reports SKIPPED and returns 0 where the game is absent, because CI has no
+  game and a machine without one has no defect; Border 128 holds that.
+- **Publishing (operator ruling, 2026-09-08).** A closed batch is pushed to
+  `origin/main` as ONE squashed commit, at the close, after the deploy. The
+  public repository never receives branch history; the local tree keeps it
+  all. Check `git rev-list --count origin/main..HEAD` at session start and say
+  so if the public copy has fallen behind.
 - **Operator-mediated.** Arbitrary consequential choices are surfaced.
   Obvious defaults are taken and stated.
 - **Say what is not known.** An honest gap is worth more than a confident
@@ -71,7 +78,20 @@ of skill.
 
 ## Laws
 
-1. No omniscience, no oblivion. Both are failures of the decision model.
-2. Low skill never licenses behavior outside the human envelope.
-3. Identity is a record. The engine object is a temporary body.
-4. Execution owns *how*, never *whether*.
+Rewritten plainly at `[C56]` on the operator's direction; the content
+is unchanged. They had been written in the register the writing rule
+above bans - two of them as mirrored turns - and a law that breaks the
+rule it sits beside teaches every session to break it too.
+
+1. A survivor acts on what they have actually perceived. Knowing what
+   they could not have seen is a defect, and so is failing to react to
+   what they did see. Both are faults in the decision model rather
+   than in the numbers.
+2. Low skill changes how well somebody does a thing, never whether
+   they do something no person would do. Skill moves latency,
+   precision and breadth inside the human envelope and does not widen
+   it.
+3. The person is the record. The engine character is a body the record
+   is loaded into and is never what persists.
+4. Execution decides how an action is carried out. Whether it happens
+   at all is decided before Execution is called.

@@ -1534,6 +1534,17 @@ if ! "$PY" tools/blame_test.py > /dev/null; then
     fail=1
 fi
 
+# [C56] Border 128 - a border that cannot run says so: every tool that
+# reads the installed game returns 0 and prints SKIPPED when it is
+# absent, so a machine without Project Zomboid reports what ran rather
+# than the gate refusing. Fifteen exited 1 instead, which would have
+# failed CI on every machine but the operator's.
+if ! "$PY" tools/skips_cleanly_test.py > /dev/null; then
+    "$PY" tools/skips_cleanly_test.py 2>&1 | grep -E "FAULT" || true
+    note "BORDER FINDING - a border reads a finding into a missing game"
+    fail=1
+fi
+
 # Border 103 - the operator's speech is not in the repository: no
 # profanity in the tracked tree and no operator-quote attributions;
 # rulings are paraphrased content, speech stays with the speaker.

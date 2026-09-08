@@ -71,6 +71,7 @@ def read(path):
 
 def main():
     faults = []
+    skipped = []
     print("=" * 74)
     print("THE BODY IS SCALED FROM INSIDE THE ANIMATION PLAYER")
     print("=" * 74)
@@ -141,7 +142,10 @@ def main():
     missing = [str(p) for p in (JAR, CHECK, PZ_JAR, ZB_JAR, JDK / "javac.exe", JDK / "java.exe")
                if not p.exists()]
     if missing:
-        faults.append("cannot run the weave check; missing: " + ", ".join(missing))
+        # [C56] SKIPPED, not a finding: a machine without the
+        # installed game is not a machine with a defect. Printed
+        # loudly so the gate shows it, and never counted as a pass.
+        skipped.append("the weave check; missing: " + ", ".join(missing))
     else:
         with tempfile.TemporaryDirectory() as tmp:
             classpath = os.pathsep.join(str(p) for p in (PZ_JAR, ZB_JAR, JAR))
@@ -164,6 +168,8 @@ def main():
                 if "woven-class-verified=true" not in out:
                     faults.append("the woven class did not link and verify")
 
+    for s_ in skipped:
+        print("  SKIPPED - " + s_)
     if faults:
         for fault in faults:
             print("  FAULT: " + fault)

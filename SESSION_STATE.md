@@ -1,13 +1,32 @@
 | Document | Survivor Awareness Overhaul Session State |
 |---|---|
-| Version | `3.9.3.0-pre-alpha` |
+| Version | `3.9.3.1-pre-alpha` |
 | Author | ellyj3rain |
 | Repository | `SESSION_STATE.md` |
 | Status | CANONICAL - where the work actually stands. |
 
 # Session state
 
-**As of** 2026-09-08, `[C55]` close - seeing a death is not seeing
+**As of** 2026-09-08, `[C56]` close - borders skip when the game is
+absent. The operator asked why nothing had reached the public
+repository. `origin/main` stood at the single squashed root pushed
+2026-08-31 and the local tree was 112 commits ahead, the whole C era
+from `[C8]` to `[C55]`. Publishing was never in the close order, so
+nothing pushed for eight days; NEO.md carries the step now on the
+operator's ruling of 2026-09-08 - one squashed commit to
+`origin/main` at each close, after the deploy, and the divergence
+checked at session start. And a push would have failed CI: the
+workflow runs the gate on a machine without the game, its own comment
+says the borders that read the install report SKIPPED, and fifteen
+exited 1 instead, which `check.sh` reads as the gate refusing. That
+comment said six; thirty-four tools read the install now, so a count
+in prose went stale in silence and eleven borders acquired the wrong
+behaviour unseen. All thirty-four skip cleanly. Border 128 holds it
+and was itself wrong three times first, each time accusing a tool.
+The four Laws in NEO.md are rewritten plainly on the operator's
+direction, content unchanged - two were mirrored turns, the register
+the writing rule directly above them bans. `[C55]` before it - seeing
+a death is not seeing
 who did it (Law 1). The standing gap since [B39] said the witness
 rule keys on a recent sighting of the victim rather than on the
 killing. Read at the code it is narrower one way - the freshness
@@ -514,7 +533,7 @@ unloaded survivors are governed by the same rules ([B39], [B42]).
 
 ## Deploy state
 
-`3.9.3.0-pre-alpha` at tip - the version machine's output ([C2],
+`3.9.3.1-pre-alpha` at tip - the version machine's output ([C2],
 DR-013; the twelfth minor rolled the tier by the odometer's own
 law). The game install carries the `[C55]` tip: `[C45]` through
 `[C51]` reached it on 2026-09-07 and `[C52]` through `[C55]` on 2026-09-08, each
@@ -522,7 +541,8 @@ after its own commit passed the gate, the game having been closed
 since the `[C44]` deploy. Verified rather than assumed at each
 deploy - the deployed `mod.info` reads the version the machine
 derived and the deployed `SAO.jar` is byte-identical to the
-committed build. Nothing behavioural is waiting.
+committed build. `[C56]` touches only the instruments and the
+documents, so there is nothing behavioural in it to deploy.
 The play receipts the C era owes are the next
 thing the tree cannot produce for itself - the operator chose to
 keep building before testing, so `[C29]` (a survivor scaled from
@@ -541,7 +561,7 @@ deploy; `save_compat_test` guards this and runs in the gate.
 
 ## Instruments
 
-**127 numbered borders**, run by **142 gated mirrors** in `tools/`, all invoked
+**128 numbered borders**, run by **143 gated mirrors** in `tools/`, all invoked
 by `tools/check.sh`, which the pre-commit hook runs and CI runs on every push.
 The figures in this paragraph are derived by Border 76 from the tree, not
 maintained by hand. Border 54 keeps the rest honest: it runs every gated

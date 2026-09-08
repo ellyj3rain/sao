@@ -100,6 +100,14 @@ def main():
         for fault in faults:
             print("  FAULT: " + fault)
         return 1
+    # [C56] SKIPPED, not a finding, and checked BEFORE build() - which
+    # runs javac and throws rather than returning false when the JDK is
+    # not there. This border had no guard at all and crashed.
+    if not (JDK.exists() and PZ.exists() and STDLIB.exists() and SRC.exists()):
+        print("  SKIPPED - no JDK, engine jar, stdlib or runner")
+        print("  105) age is a system on the county's people: SKIPPED,"
+              " the engine install is absent")
+        return 0
     if not build():
         print("  FAULT: LuaRun does not compile against the installed jar")
         return 1

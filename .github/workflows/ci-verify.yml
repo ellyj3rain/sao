@@ -41,12 +41,20 @@ jobs:
             git show --check --format=fuller HEAD
           fi
 
-      # The gate. Every border in tools/ runs here, and the six that read
+      # The gate. Every border in tools/ runs here. The ones that read
       # the installed game (item scripts, the map's distribution table,
       # vanilla's own Lua, projectzomboid.jar via javap) report SKIPPED
       # rather than passing - a check that cannot run must never look
       # like a check that passed. What remains is every border that reads
       # only this repository, which is most of them.
+      #
+      # [C56] The count that used to stand here is gone on purpose. It
+      # said six, which was true when it was written; the C era took it
+      # to thirty-four and nobody reading the comment could see that it
+      # had stopped being true. Fifteen of those exited 1 instead of
+      # skipping, so this step would have refused on any machine
+      # without the game - which is every machine but the operator's.
+      # Border 128 holds the property now and counts them itself.
       - name: Run the borders
         shell: bash
         run: bash tools/check.sh

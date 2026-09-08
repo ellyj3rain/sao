@@ -134,6 +134,7 @@ ASSERT = (
 
 def main():
     faults = []
+    skipped = []
     print("=" * 74)
     print("THE CONDITIONS ARE SAO'S OWN")
     print("=" * 74)
@@ -184,8 +185,15 @@ def main():
     # 3. Every cost is its anchor's, off the shipped script.
     prices = vanilla_costs()
     if not prices:
-        faults.append("vanilla's own character_traits.txt did not parse, so no "
-                      "cost was checked against the game")
+        # [C56] SKIPPED where the file is simply not installed, and a
+        # FAULT where it is there and did not parse - those are two
+        # different facts and only the second is about this tree.
+        if VANILLA_TRAITS.exists():
+            faults.append("vanilla's own character_traits.txt is there and did "
+                          "not parse, so no cost was checked against the game")
+        else:
+            skipped.append("the cost anchors - vanilla's own "
+                           "character_traits.txt is not installed")
     anchors = dict(re.findall(r"^\s{4}(\w+) = \"(\w+)\",",
                               traits.split("T.ANCHOR = {")[-1].split("}")[0], re.M))
     declared = dict((k, int(v)) for k, v in re.findall(
@@ -193,7 +201,7 @@ def main():
         traits.split("T.ANCHOR_COST = {")[-1].split("}")[0], re.M))
     print("     costs: " + " ".join(
         "%s=%s(%s)" % (k, declared.get(anchors[k]), anchors[k]) for k in sorted(anchors)))
-    for key, anchor in sorted(anchors.items()):
+    for key, anchor in sorted(anchors.items()) if prices else ():
         want = prices.get(anchor)
         if want is None:
             faults.append("%s is priced as '%s' and vanilla prices no such trait"
@@ -204,7 +212,7 @@ def main():
                           "at %d - a cost that has drifted from its anchor is a "
                           "picked number wearing a reason"
                           % (key, anchor, declared.get(anchor), want))
-    for key in vanillas:
+    for key in (vanillas if prices else ()):
         constant = re.search(r'%s = "([A-Z_]+)"' % key, traits)
         if constant and constant.group(1).lower().replace("_", "") not in prices:
             faults.append("%s claims vanilla's '%s' and vanilla has no such trait"
@@ -221,9 +229,11 @@ def main():
 
     # 5. The assertion beats the draw, driven.
     if not (JDK.exists() and PZ.exists() and STDLIB.exists() and SRC.exists()):
-        faults.append("no JDK, engine jar, stdlib or runner - nothing drove the "
-                      "assertion, and a border that cannot run is not a border "
-                      "that passed")
+        # [C56] SKIPPED, not a finding. Only the DRIVEN half needs the
+        # game; every text seam below reads this repository and still
+        # runs, so the border is narrowed rather than abandoned.
+        skipped.append("the driven assertion - no JDK, engine jar, stdlib"
+                       " or runner")
     elif not build():
         faults.append("LuaRun does not compile against the installed jar")
     else:
@@ -280,6 +290,8 @@ def main():
 
     print()
     print("VERDICT:")
+    for s_ in skipped:
+        print("  SKIPPED - " + s_)
     if faults:
         for f in faults:
             print("  FAULT: " + f)

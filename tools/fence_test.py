@@ -66,6 +66,7 @@ def flat(java):
 
 def main():
     faults = []
+    skipped = []
     print("=" * 74)
     print("A PERSON CAN ONLY SAY WHAT THEY KNOW")
     print("=" * 74)
@@ -83,8 +84,10 @@ def main():
     missing = [str(p) for p in (JAR, PZ_JAR, JDK / "javac.exe", JDK / "java.exe")
                if not p.exists()]
     if missing:
-        faults.append("the Java check cannot run: missing " + ", ".join(missing)
-                      + " - a border that cannot run is not one that passed")
+        # [C56] SKIPPED, not a finding: a machine without the
+        # installed game is not a machine with a defect. Printed
+        # loudly so the gate shows it, and never counted as a pass.
+        skipped.append("the Java check; missing " + ", ".join(missing))
     else:
         with tempfile.TemporaryDirectory() as tmp:
             classpath = os.pathsep.join(str(p) for p in (PZ_JAR, JAR))
@@ -152,6 +155,8 @@ def main():
 
     print()
     print("VERDICT:")
+    for s_ in skipped:
+        print("  SKIPPED - " + s_)
     if faults:
         for f in dict.fromkeys(faults):
             print("  FAULT: " + f)

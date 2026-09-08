@@ -166,7 +166,9 @@ def main():
     print("WHAT A SIMULATED YEAR COSTS")
     print("=" * 74)
     if not (JDK.exists() and PZ.exists() and STDLIB.exists() and SRC.exists()):
-        print("  no JDK, engine jar, stdlib or runner - nothing could be timed")
+        # [C56] The agreed word, so a machine without the game is
+        # told apart from one where the timing ran.
+        print("  SKIPPED - no JDK, engine jar, stdlib or runner, nothing could be timed")
         return 0
     if not build():
         print("  the runner will not compile against the installed jar")

@@ -221,8 +221,14 @@ def main():
             print("  FAULT: " + fault)
         return 1
     if not (JDK.exists() and PZ.exists() and STDLIB.exists() and SRC.exists()):
-        print("  FAULT: no JDK, engine jar, stdlib or runner - nothing ran on the engine")
-        return 1
+        # [C56] SKIPPED, not a finding. This border reads the installed
+        # game, and a machine without it - CI, or anybody's clone - is
+        # not a machine with a defect. A check that cannot run must
+        # never look like a check that passed either, so it says so
+        # twice and the gate prints it.
+        print("  SKIPPED - no JDK, engine jar, stdlib or runner")
+        print("  111) an order lands through standing: SKIPPED, the engine install is absent")
+        return 0
     if not build():
         print("  FAULT: LuaRun does not compile against the installed jar")
         return 1

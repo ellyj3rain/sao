@@ -16,9 +16,9 @@ the machine. Names, dates, and threads below come from
 | Form | `major.minor.kohai.patch-maturity` |
 | Hard caps | minor 12; kohai 16; patch 24 |
 | Replay start | `0.1.0.0-pre-alpha` |
-| Current version | `3.9.3.0-pre-alpha` |
-| Closed chronology | `A1-C55` |
-| Next batch | `C56` |
+| Current version | `3.9.3.1-pre-alpha` |
+| Closed chronology | `A1-C56` |
+| Next batch | `C57` |
 | Executable source | [`tools/version_replay.py`](tools/version_replay.py) |
 
 ## Tier meanings
@@ -171,6 +171,7 @@ the machine. Names, dates, and threads below come from
 | `C53` | 2026-09-08 | kohai | `3.9.2.0-pre-alpha` | Who goes along weighs who is asking | Who goes along weighs who is asking (DR-036, Day Zero slice 4; DR-033): [B19]'s joining weighed everything about the hearer and nothing about the trip or the caller. The caller's office over the hearer now enters the pull in SAO_Command's own currency - a leader's call above a second's above a peer's, no number invented at the site, the divided house arriving with it - and a warpath asks the hearer's own envelope, so nobody is persuaded into a fight they would not take. Ported to the joining mirror in the same batch, per that script's doctrine, with each house's leader derived the way Standing derives it. The mirror then refused the first claim made about the change and produced F-056 instead: in the converged county the pull's median is 1.28 against a threshold of 0.55 and 96 percent of invitations clear it before any term is consulted, so the office carried nobody there; a sixth sweep over a house that formed recently is where it carries 46. An extension of an existing capability, so kohai. |
 | `C54` | 2026-09-08 | patch | `3.9.2.1-pre-alpha` | The objection picks the car | The objection picks the car (Day Zero slice 5): SAO_Standing.roadworthy appraised a house's whole motor pool and returned one car, and the venture then applied the goer's own objection to that one - so somebody who has learned that noise is a debt discarded the yard and walked past a quiet runner they would have taken (F-057). The loudness ceiling goes in with the ask now, so what comes back is the roomiest car this person would actually take; passing nothing gives the old answer, which is what the panel does; a yard of only loud runners still ends in a walk, said as a choice about the yard rather than about one car; and the second loudness test at the call site is deleted rather than left sitting dead. An in-place correction of a capability that already existed and no boundary moved, so patch. Border 126 holds it, with the pre-batch tree as its control. |
 | `C55` | 2026-09-08 | kohai | `3.9.3.0-pre-alpha` | Seeing a death is not seeing who did it | Seeing a death is not seeing who did it (Law 1): the standing gap said the witness rule keys on a recent sighting of the victim rather than on the killing, and the freshness window is two seconds so that half is nearly not a gap - but nothing ever asked whether the witness saw the KILLER. The engine's attacker tag named who did it and both the death site and the wounding site spent that name on a witness whose only belief was about the victim, so somebody ten tiles from a victim shot from forty could declare a blood feud on a person behind a wall they had never seen. The death still lands, mourns and travels, because Law 1 calls oblivion a failure too; the name lands only where they could have seen who, asked in each half of the county's own currency - a fresh observed belief of the killer at the place for a live witness, the positional question for a dormant one. Border 127 lifts both predicates out of the controller and runs them in the engine's VM. A correction inside an existing capability that widens no boundary but changes what a whole class of survivors comes to believe, so kohai rather than patch. |
+| `C56` | 2026-09-08 | patch | `3.9.3.1-pre-alpha` | Borders skip when the game is absent | Borders skip when the game is absent: the operator asked why nothing had reached the public repository, and there were two reasons. Publishing was never in the close order, so the local tree stood 112 commits ahead of the single squashed root pushed on 2026-08-31 - the whole C era - and NEO.md carries the step now on the operator's ruling: one squashed commit to origin/main at each close, after the deploy. And a push would have failed CI: the workflow runs the gate on a machine without the game, its own comment says such borders report SKIPPED, and fifteen exited 1 instead, which check.sh reads as the gate refusing. The comment said six and thirty-four tools read the install now, so a count in prose went stale in silence and eleven borders acquired the wrong behaviour unseen. All thirty-four skip cleanly; Border 128 holds it, and was itself wrong three times first, each time accusing a tool. The four Laws in NEO.md are rewritten plainly on the operator's direction, content unchanged. An in-place correction of the instruments with no capability boundary moved, so patch. |
 
 ## The former number
 
@@ -191,11 +192,11 @@ the meantime, and they are not play.
 
 ## Next movement
 
-`C56` is the next batch. Its content determines its tier after it
+`C57` is the next batch. Its content determines its tier after it
 exists:
 
-| If C56 is | Result |
+| If C57 is | Result |
 |---|---|
-| patch or hotfix | `3.9.3.1-pre-alpha` |
+| patch or hotfix | `3.9.3.2-pre-alpha` |
 | kohai | `3.9.4.0-pre-alpha` |
 | minor | `3.10.0.0-pre-alpha` |
