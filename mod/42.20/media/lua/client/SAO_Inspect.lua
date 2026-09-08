@@ -177,6 +177,19 @@ function SAOInspectWindow:build()
         row("of " .. tostring(SAO.Standing.factionName(g) or g))
         jsonl.group = tostring(g)
     end
+    -- [C44] What they have actually built, which is a fact about them
+    -- and not a promise: the windows they boarded with their own
+    -- hands. Absent for everyone who has never managed one, which is
+    -- the honest reading of a county that has not.
+    pcall(function()
+        local agent = SAO.Controller.agents[id]
+        local boarded = agent and agent.boarded or 0
+        if boarded > 0 then
+            row("boarded " .. boarded .. " window"
+                .. (boarded == 1 and "" or "s"))
+            jsonl.boarded = boarded
+        end
+    end)
     -- [C37] On your word: whether they would take an order from you,
     -- and why not, in plain words (DR-017; SAO_Command).
     if pKey then

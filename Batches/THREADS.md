@@ -70,7 +70,7 @@ Who the county holds: census, age, occupation, arrivals, and growth.
 
 Bodies, hunger, water, fire, ground worked, and the places that give.
 
-**Batches**: `A8`, `A10`, `A12`, `A28`, `B2`, `B4`, `B6`, `B7`, `B11`, `B13`, `B15`, `B17`, `B19`, `B20`, `B21`, `B39`, `B40`
+**Batches**: `A8`, `A10`, `A12`, `A28`, `B2`, `B4`, `B6`, `B7`, `B11`, `B13`, `B15`, `B17`, `B19`, `B20`, `B21`, `B39`, `B40`, `C44`
 
 **Owes**: construction past barricades; water charity (no honest seam); the player's own looting not counted.
 
@@ -80,7 +80,7 @@ Bodies, hunger, water, fire, ground worked, and the places that give.
 
 Companies, creeds, elections, feuds, pacts, schisms, and the player's standing in it.
 
-**Batches**: `A9`, `A12`, `A13`, `A14`, `A19`, `A20`, `A21`, `A22`, `A25`, `A27`, `B7`, `B13`, `B23`, `B35`, `C37`, `C42`
+**Batches**: `A9`, `A12`, `A13`, `A14`, `A19`, `A20`, `A21`, `A22`, `A25`, `A27`, `B7`, `B13`, `B23`, `B35`, `C37`, `C42`, `C44`
 
 **Owes**: the carry-light dissent class; division's rate is unpriced.
 

@@ -1420,6 +1420,16 @@ if ! "$PY" tools/before_the_fall_test.py > /dev/null; then
     fail=1
 fi
 
+# [C44] Border 117 - they either build or they do not (DR-036 ruled):
+# the capability is the engine's own barricade at its own price, every
+# clause of the decision can fail, and nothing anywhere places a
+# fortification that nobody built.
+if ! "$PY" tools/they_build_test.py > /dev/null; then
+    "$PY" tools/they_build_test.py 2>&1 | grep -E "FAULT" || true
+    note "BORDER FINDING - building is forced, free, or absent"
+    fail=1
+fi
+
 # Border 103 - the operator's speech is not in the repository: no
 # profanity in the tracked tree and no operator-quote attributions;
 # rulings are paraphrased content, speech stays with the speaker.

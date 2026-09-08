@@ -1,6 +1,6 @@
 | Document | Survivor Awareness Overhaul Roadmap |
 |---|---|
-| Version | `3.2.0.0-pre-alpha` |
+| Version | `3.3.0.0-pre-alpha` |
 | Author | ellyj3rain |
 | Repository | `ROADMAP.md` |
 | Status | CANONICAL - thread map, backlog, live gates. |
@@ -95,6 +95,14 @@ Preconditions and slices, none of them the whole thing:
    papers and media carrying either on where they survive.
 7. The dead of those years: burials, graves, and a county that
    remembers who is in them.
+
+What those years actually contain is DR-037: houses first, because
+people take the buildings that are there; bespoke building only where
+it is necessary; and the whole shape driven by how many people exist
+and what risk they are under rather than by any settlement schedule.
+The pass runs for real - the ground is loaded and the work happens -
+and what that costs is to be measured rather than assumed. The stakes
+come from the zombie side and are developed in the sibling project.
 
 Governance stays the Standing pillar's - creeds, forms, elections -
 and may gain a learned component. Where the people understand the

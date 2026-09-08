@@ -1,6 +1,6 @@
 | Document | Survivor Awareness Overhaul Findings |
 |---|---|
-| Version | `3.2.0.0-pre-alpha` |
+| Version | `3.3.0.0-pre-alpha` |
 | Author | ellyj3rain |
 | Repository | `FINDINGS.md` |
 | Status | CANONICAL, APPEND-ONLY - verified engine findings. |
@@ -893,3 +893,49 @@ OUTCOMES - count what is worn; zero means retry, then a named
 census fallback, and a log line that says which happened. The
 materialize log now carries `worn=<report>` per body, so the next
 naked person arrives with evidence instead of a mystery.
+
+---
+
+## F-055 - The years pass is bounded by its own cadence, not by loading ground ([C44]/DR-037)
+
+**Claim.** Running the county forward over simulated years is limited by
+how often its own per-person work runs, and not by loading map. Loading
+the ground a county's households stand on is negligible; running that
+work at the ten-minute cadence is not.
+
+Measured on this machine, 2026-09-07, county of 216 at the shipped
+default:
+
+| | |
+|---|---|
+| One ten-minute pass, whole county | 0.1235 s |
+| One simulated day at 144 passes | 17.8 s |
+| One simulated year | about 1.8 hours |
+| Three simulated years | about 5.4 hours |
+| Chunks the county's claims touch | 432 |
+| Map data behind those claims | 406 KB |
+| The whole shipped map, for scale | 3.7 GB across 4065 cells |
+
+**Verification.** `tools/years_cost.py`. The record-side figures are
+timed in the engine's own Kahlua VM through `tools/luacheck/LuaRun`, the
+instrument every border uses, driving the real `SAO_Conditions` and
+`SAO_Habits` over 216 people. Two sample sizes are run and the shorter
+subtracted from the longer, so process start-up cancels out of the
+per-pass number. The world-side figures are read off the shipped
+`media/maps` lotpack files and are a VOLUME, not a duration: loading
+needs the running game and nothing here times it.
+
+**What follows.** The cost is the cadence. The ten-minute pass exists to
+drift a BODY's stats, and during the years nobody has a body - the
+dormant day runs explicitly for people `SAO.Body.get` returns nothing
+for. So the years should run the record side at the cadence of what is
+actually being simulated, which is daily: deaths by the age table,
+habits settling, standings softening, meetings on the road. At one pass
+per simulated day the same three years cost about two minutes rather
+than five hours, and nothing that has no body is skipped.
+
+**What this corrects.** The question put to the operator called loading
+the places "almost certainly unaffordable". That was a guess, and it was
+wrong: 432 chunks and 406 KB is nothing, and it is the same ground every
+time. The operator's ruling to run it for real stands and is cheaper
+than the alternative it was weighed against.

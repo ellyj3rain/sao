@@ -1,6 +1,6 @@
 | Document | Survivor Awareness Overhaul Decision Registry |
 |---|---|
-| Version | `3.2.0.0-pre-alpha` |
+| Version | `3.3.0.0-pre-alpha` |
 | Author | ellyj3rain |
 | Repository | `DECISION_REGISTRY.md` |
 | Status | CANONICAL, APPEND-ONLY - ratified decisions. |
@@ -157,6 +157,78 @@ the aim is far more significant.
 
 **Origin.** `[A16]`, operator direction in session.
 
+## DR-037 - What the years contain: houses first, and people and risk as the drivers
+
+**Houses matter, and they are the default.** The county's people take
+advantage of the buildings that are already there, because that is
+what people do. Occupying a house, holding it, and making it harder to
+get into is the ordinary case and is where the work goes. Building
+something bespoke is possible where it is genuinely necessary, and it
+is not the point of the arc - a design that spends itself on
+construction has misread what a survivor does with a town full of
+standing homes.
+
+**What the years produce is decided by how many people there are and
+what risk they are under.** Those two are the drivers. A thin county
+under light pressure will not produce what a crowded one under heavy
+pressure does, and neither outcome is to be aimed at: they follow from
+the population and the danger, which the player already sets and which
+the systems already read. Nothing about settlement size, count or kind
+is scheduled.
+
+**The stakes come from the zombie side.** The danger that makes any of
+this matter is developed in the sibling project (`../zombie-awareness`),
+and this arc meets it there. The two mechanisms stay unmerged, as they
+always have.
+
+**The mod community is a stepping stone, not a competitor.** Build 42
+stable is moving quickly and much of what appears daily is ancillary
+to this project and foldable into it. It is to be watched and used
+rather than reinvented, under the rules that already govern taking
+from other people's work: permissions are the operator's, what a page
+states is recorded, credit runs through CREDITS.md, and nothing
+becomes a requirement (DR-032 as amended, DR-035).
+
+**The county gets the game's own affordances, and decides for itself
+what to do with them.** Survival in these situations has a shape people
+recognise, and what is being modelled is how a particular person's
+psychology and awareness meets it. People can talk, agree that clearing
+the neighbourhood is the sensible thing, and once it is clear read the
+choke points it has. Whether they get there depends on how skilled they
+are, who they are, and how they settle who leads. A neighbourhood that
+ends up gated, with its houses put to different purposes, is one
+outcome of that - and it is never a thing placed in the world, for the
+same reason a settlement is not (the Crucible ruling above).
+
+**The space is large and it is not infinite.** The game already offers
+a player a bounded set of things they can do, and the work is to offer
+those same things to the county's people. That will cost, and it is
+worth it: a person who can do what the player can do is a person whose
+decisions mean something.
+
+**Nothing is scripted.** A person decides in the moment, from who they
+are and what they know, and the decision has to make sense where they
+are standing. This is the law the whole mod already runs on, restated
+here because the temptation grows with the size of what is being
+offered: the more a person CAN do, the more inviting it becomes to
+write down what they SHOULD do, and that is the one thing that must
+not happen. A learned component may in time drive the deciding itself,
+which is where this meets the speech arc (DR-033).
+
+**And the years run for real.** Ruled through Crucible, 2026-09-07: the
+ground is loaded and the work actually happens, rather than the pass
+recording an outcome and dressing the world to match on arrival. The
+cost of that was called unaffordable in the question and that was a
+guess rather than a measurement; it is to be measured before it is
+believed.
+
+**Why.** The operator, 2026-09-07, correcting a reading that had
+narrowed onto construction machinery. Recorded because this shape has
+had to be restated several times, and a decision that keeps being
+re-derived is one that was never written down.
+
+**Origin.** Operator direction in chat, 2026-09-07, paraphrased.
+
 ## DR-036 - Day zero forward, and the county has lived whatever came before
 
 **The goal, first.** A player checks the box for the start of it -
@@ -241,6 +313,18 @@ forward or to watch while the county is still accreting six people
 at a time around whoever is standing there. It is not the goal and
 does not claim to be. DR-033's third fork - a county run with no
 engine loaded - stays unscoped; this runs in the game.
+
+**Ruled 2026-09-07 (Crucible), on what must exist before the years
+between are simulated.** Nothing is forced. The county is not to be
+handed settlements, and the fast-forward is not to author them: the
+people are given what they need to build, and either they manage it
+or they do not. Whether a settlement exists at the end of three
+simulated years is an OUTCOME and a measurement, not a feature. If
+they never manage it, that is a finding about the systems and is
+the point of running the years at all. This is the county's own law
+(derive, never author) applied to the thing it was most tempting to
+author, and it makes the fast-forward an instrument as much as a
+feature.
 
 **Origin.** Operator direction in chat, 2026-09-07, paraphrased.
 Grounded before recording: the engine's own start year and

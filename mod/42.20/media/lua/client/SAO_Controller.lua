@@ -81,6 +81,13 @@ local ARRIVAL_REACH = 3       -- tiles: close enough to have got there
 local TALK_REACH = 6          -- tiles: close enough to be company
 -- [C35] Already at the porch when the tune starts: close enough to
 -- dance or clap where they stand rather than be drawn over.
+-- [C44] How far from where they are standing a window counts as one
+-- of theirs to board. Arm's reach plus a room: a person fortifies
+-- the place they are in, not the far side of the claim.
+local BOARD_REACH = 6 -- tiles
+-- How long they stand at the window having done it, before the
+-- next decision is theirs again.
+local BOARD_TICKS = 300
 local PORCH_REACH = 4         -- tiles
 -- [C4] tiles: a follow target this close on this floor whose walk
 -- failed is behind ONE edge - the window they climbed, the fence they
@@ -1917,6 +1924,56 @@ local function decide(id, agent, body)
                 setState(agent, id, "AMMOWARD",
                     "gun is dry - heads for " .. tostring(aname))
                 return
+            end
+        end
+    end
+
+    -- [C44] THE PLACE THEY HOLD, MADE HARDER TO GET INTO.
+    --
+    -- The operator's ruling (DR-036, Crucible): nothing is forced.
+    -- Nobody is handed a fortification and no pass authors one - the
+    -- people are given what they need and either they manage it or
+    -- they do not. So this is a decision like any other and every
+    -- clause of it can fail: they must hold ground, the fall must
+    -- have come, they must be standing on their own claim, they must
+    -- be carrying a hammer, a plank and two nails they found
+    -- themselves, and there must be a window left to board. A county
+    -- that never boards a single window is telling us something
+    -- about the systems, and that is the point of being able to look.
+    --
+    -- The act itself is the engine's own - the same barricade the
+    -- player's own action builds, at the same price in materials.
+    if agent.state == "IDLE" and SAO.Standing.fallHasCome() then
+        local claim = SAO.Standing.claimOf(id)
+        if claim and SAO.Standing.insideClaim(id, body:getX(), body:getY())
+            and SAOJavaBridge then
+            local makings = false
+            pcall(function()
+                makings = SAOJavaBridge:carriesTheMakings(body)
+            end)
+            if makings then
+                local spot = ""
+                pcall(function()
+                    spot = tostring(SAOJavaBridge:findBoardable(body,
+                        claim.minX, claim.minY, claim.maxX, claim.maxY,
+                        claim.z or 0, BOARD_REACH))
+                end)
+                local bx, by, bz = spot:match("^(-?%d+),(-?%d+),(-?%d+)$")
+                if bx then
+                    local planks = 0
+                    pcall(function()
+                        planks = SAOJavaBridge:boardWindow(body,
+                            tonumber(bx), tonumber(by), tonumber(bz))
+                    end)
+                    if planks and planks > 0 then
+                        agent.boarded = (agent.boarded or 0) + 1
+                        agent.taskDeadline = tick + BOARD_TICKS
+                        setState(agent, id, "BOARDING",
+                            "boards a window on their own ground ("
+                            .. planks .. " plank(s) on it)")
+                        return
+                    end
+                end
             end
         end
     end
@@ -4700,6 +4757,32 @@ local function updateAgent(id, agent)
     -- label - it ends when the cold lifts, when the fire dies, when
     -- the hold runs out, or when something closes on them. The
     -- environment still collects: a threat outranks warmth.
+    -- [C44] The window boarded, and the leaving of it.
+    --
+    -- The plank goes on the moment the decision is taken, so this state
+    -- is the person standing at the window having done it rather than
+    -- an errand in progress - but it still has to END, and a state that
+    -- is entered and never exited is a survivor frozen at a window for
+    -- the rest of the save. The invariant sweep caught exactly that on
+    -- this batch's first gate run.
+    --
+    -- They leave when the work has had its moment, and immediately if
+    -- something they believe in comes close: nobody finishes nailing
+    -- while the thing they were nailing against walks up.
+    if agent.state == "BOARDING" then
+        local bThreat = SAO.Perception.nearestBelievedZombie(
+            id, tickCount, body:getX(), body:getY())
+        if bThreat and bThreat.dist <= SAO.Disposition.fleeDistance(id) then
+            setState(agent, id, "IDLE", "leaves the window - something close")
+            return
+        end
+        if tickCount >= (agent.taskDeadline or 0) then
+            setState(agent, id, "IDLE", "done at that window")
+            return
+        end
+        return
+    end
+
     if agent.state == "WARMING" then
         local wThreat = SAO.Perception.nearestBelievedZombie(
             id, tickCount, body:getX(), body:getY())

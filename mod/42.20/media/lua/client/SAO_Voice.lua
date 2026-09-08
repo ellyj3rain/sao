@@ -56,6 +56,8 @@ local LINES = {
     MEDICWARD = { "Coming - hold on.", "Don't move, I'm on my way." },
     PLAYERFOLLOW = { "Right behind you.", "Lead on." },
     RIP      = { "This'll have to do.", "Sorry, shirt." },
+    BOARDING = { "One less way in.", "Should've done this sooner.",
+                 "Let them try that window now." },
     RELOAD   = { "Loading!", "Come on, come on-" },
     AMMOWARD = { "Need rounds for this thing.", "There has to be a box somewhere." },
     TAKE     = { "Let's see what's in here.", "This'll help." },

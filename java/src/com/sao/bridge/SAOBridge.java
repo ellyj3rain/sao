@@ -2274,6 +2274,35 @@ public final class SAOBridge {
         }
     }
 
+    /** [C44] Has this person the makings of a barricade on them - a
+     *  hammer, a plank and two nails - anywhere in their inventory? */
+    public boolean carriesTheMakings(Object object) {
+        return object instanceof zombie.characters.IsoGameCharacter person
+            && com.sao.engine.SAOBuild.carriesTheMakings(person);
+    }
+
+    /** [C44] The nearest window or door inside the given box that
+     *  could take another plank: "x,y,z", or "". */
+    public String findBoardable(Object object, double minX, double minY,
+                                double maxX, double maxY, double z,
+                                double reach) {
+        if (object instanceof zombie.characters.IsoGameCharacter person) {
+            return com.sao.engine.SAOBuild.findBoardable(person, (int) minX,
+                (int) minY, (int) maxX, (int) maxY, (int) z, (int) reach);
+        }
+        return "";
+    }
+
+    /** [C44] Put one plank on it, paid for out of their own bag. The
+     *  plank count now on it, or 0 when nothing happened. */
+    public int boardWindow(Object object, double x, double y, double z) {
+        if (object instanceof zombie.characters.IsoGameCharacter person) {
+            com.sao.engine.SAOBuild.readyToBoard(person);
+            return com.sao.engine.SAOBuild.board(person, (int) x, (int) y, (int) z);
+        }
+        return 0;
+    }
+
     public String bodyScaleReport() {
         try {
             return com.sao.agent.SAOBodyScaleWeave.report() + "|"
