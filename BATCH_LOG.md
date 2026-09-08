@@ -150,7 +150,7 @@ attribution for every merged entry, stated here rather than in a branch name.
 | [C43](Batches/C43-2026-09-07-the-records-timeline-shifts-to-the-game.md) | 2026-09-07 | The record's timeline moves onto the start date | [`T-002`](Batches/THREADS.md#t-002), [`T-005`](Batches/THREADS.md#t-005) |
 | [C44](Batches/C44-2026-09-07-they-either-build-or-they-do-not.md) | 2026-09-07 | They either build or they do not | [`T-003`](Batches/THREADS.md#t-003), [`T-004`](Batches/THREADS.md#t-004) |
 | [C45](Batches/C45-2026-09-07-the-years-between.md) | 2026-09-07 | The years between | [`T-007`](Batches/THREADS.md#t-007), [`T-002`](Batches/THREADS.md#t-002) |
-| [C46](Batches/C46-2026-09-07-the-ground-looked-at.md) | 2026-09-07 | The ground, looked at | [`T-007`](Batches/THREADS.md#t-007), [`T-003`](Batches/THREADS.md#t-003) |
+| [C46](Batches/C46-2026-09-07-the-ground-is-read-during-the-years.md) | 2026-09-07 | The ground is read during the years | [`T-007`](Batches/THREADS.md#t-007), [`T-003`](Batches/THREADS.md#t-003) |
 | [C47](Batches/C47-2026-09-07-the-fence.md) | 2026-09-07 | The fence | [`T-006`](Batches/THREADS.md#t-006), [`T-002`](Batches/THREADS.md#t-002) |
 | [C48](Batches/C48-2026-09-07-how-hard-a-place-is-to-get-into.md) | 2026-09-07 | How hard a place is to get into | [`T-004`](Batches/THREADS.md#t-004), [`T-003`](Batches/THREADS.md#t-003) |
 | [C49](Batches/C49-2026-09-07-survivor-orders-use-the-command-check.md) | 2026-09-07 | Survivor orders use the command check | [`T-004`](Batches/THREADS.md#t-004), [`T-006`](Batches/THREADS.md#t-006) |
