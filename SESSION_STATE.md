@@ -1,13 +1,24 @@
 | Document | Survivor Awareness Overhaul Session State |
 |---|---|
-| Version | `3.9.3.2-pre-alpha` |
+| Version | `3.9.3.3-pre-alpha` |
 | Author | ellyj3rain |
 | Repository | `SESSION_STATE.md` |
 | Status | CANONICAL - where the work actually stands. |
 
 # Session state
 
-**As of** 2026-09-08, `[C57]` close - a skip is not a vacuous pass.
+**As of** 2026-09-08, `[C58]` close - the codeql-action halves
+travel together. Two dependabot pull requests had stood open and
+failing since 2026-08-31 with the same error: a configuration loaded
+for 4.37.7 while running 4.37.9. `init` and `analyze` are two
+dependencies to dependabot and one action to CodeQL, so a pull request
+bumping either half alone produces a mismatch CodeQL refuses, and
+neither could ever have passed because the fix is in neither. Both
+pins move to v4.37.9 in one commit - the tag read off the upstream
+repository rather than taken from the pull requests - and the config
+groups the action so a future bump carries both halves. CodeQL itself
+was passing on `main` throughout; the failures were on those two
+branches only. `[C57]` before it - a skip is not a vacuous pass.
 The C era was published to `origin/main` at `[C56]`: twenty-nine
 commits, one per batch from `[C29]`, and one carrying `[C28]`'s tree
 for everything before it, because Border 103 refuses the tree of
@@ -550,7 +561,7 @@ unloaded survivors are governed by the same rules ([B39], [B42]).
 
 ## Deploy state
 
-`3.9.3.2-pre-alpha` at tip - the version machine's output ([C2],
+`3.9.3.3-pre-alpha` at tip - the version machine's output ([C2],
 DR-013; the twelfth minor rolled the tier by the odometer's own
 law). The game install carries the `[C55]` tip: `[C45]` through
 `[C51]` reached it on 2026-09-07 and `[C52]` through `[C55]` on 2026-09-08, each

@@ -13,3 +13,15 @@ updates:
     open-pull-requests-limit: 5
     commit-message:
       prefix: "[REPO]"
+    # [C58] The parts of codeql-action travel together or not at all.
+    # `init` and `analyze` are two dependencies to dependabot and one
+    # action to CodeQL, which refuses a run whose init and analyze
+    # report different versions: "Loaded a configuration file for
+    # version '4.37.7', but running version '4.37.9'". Two separate
+    # pull requests each bumped one half and each failed for that
+    # reason, and both sat open from 2026-08-31. Grouped, one pull
+    # request carries both halves and the mismatch cannot arise.
+    groups:
+      codeql-action:
+        patterns:
+          - "github/codeql-action*"

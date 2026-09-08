@@ -1,6 +1,6 @@
 | Document | Survivor Awareness Overhaul Memory |
 |---|---|
-| Version | `3.9.3.2-pre-alpha` |
+| Version | `3.9.3.3-pre-alpha` |
 | Author | ellyj3rain |
 | Repository | `MEMORY.md` |
 | Status | ACTIVE - index of every root document and its standing. |
