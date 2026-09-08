@@ -2397,6 +2397,70 @@ local function yearsOwed(s)
     return days
 end
 
+-- [C46] THE GROUND, LOOKED AT WHILE THE YEARS RUN.
+--
+-- The years are lived with nobody materialised, so no claim's
+-- ground is loaded and the county knows nothing about the places it
+-- holds. The operator ruled the years run for real rather than
+-- being recorded and dressed on arrival, and F-055 measured the
+-- ground a whole county's households stand on at 432 chunks and
+-- 406 KB, which is nothing. So the ground is loaded, one claim a
+-- simulated day on a rotation, and what is there is kept on the
+-- record of the person who holds it.
+--
+-- READ ONLY, and the Java side says why at length: a barricade is
+-- not added and no chunk is saved, because saving writes into the
+-- player's own save directory and nothing here has a live receipt
+-- yet. What this buys is a county that knows what its places are
+-- like; doing something about them is the next piece.
+--
+-- One a day, because that is the rotation a day deserves and it
+-- keeps the whole span's ground cost proportional to the days
+-- rather than to the county.
+-- How long a reading stands before that ground is worth another
+-- look. A month of simulated days: long enough that a small
+-- county does not re-read the same yard on the rotation, short
+-- enough that a place changing over years is noticed.
+local GROUND_STALE_DAYS = 30
+
+local function lookAtSomeGround(day)
+    if not SAOJavaBridge then return end
+    local holders = {}
+    for id, rec in pairs(SAO.Identity.all()) do
+        if not rec.dead then
+            local claim = nil
+            pcall(function() claim = SAO.Standing.claimOf(id) end)
+            -- Ground read recently is not read again: a small county
+            -- comes round the rotation often, and looking at the same
+            -- yard three days running costs chunks and learns nothing.
+            -- This is what `groundSeenOnDay` is for.
+            local seen = tonumber(rec.groundSeenOnDay)
+            local stale = (not seen) or (day - seen) >= GROUND_STALE_DAYS
+            if claim and stale then
+                holders[#holders + 1] = { id = id, claim = claim }
+            end
+        end
+    end
+    if #holders == 0 then return end
+    local pick = holders[(day % #holders) + 1]
+    local said = ""
+    pcall(function()
+        said = tostring(SAOJavaBridge:surveyClaim(pick.claim.minX,
+            pick.claim.minY, pick.claim.maxX, pick.claim.maxY,
+            pick.claim.z or 0))
+    end)
+    local ways = tonumber(said:match("ways=(%d+)"))
+    local boarded = tonumber(said:match("boarded=(%d+)"))
+    if not ways then return end
+    local rec = SAO.Identity.get(pick.id)
+    if not rec then return end
+    -- What their place is: the ways into it, and how many of those
+    -- are already shut. Facts about ground that was actually read.
+    rec.waysIntoHome = ways
+    rec.boardedAtHome = boarded or 0
+    rec.groundSeenOnDay = day
+end
+
 -- One simulated day, and every call in it is the live county's own.
 local function oneYearsDay(conf, day)
     tickCounter = tickCounter + YEARS_TICKS_PER_DAY
@@ -2408,6 +2472,8 @@ local function oneYearsDay(conf, day)
         pcall(function() SAO.Age.dailyRoll(rec, day, tickCounter) end)
         pcall(function() SAO.Age.settleHabits(rec, day) end)
     end
+    -- [C46] And one claim's ground actually looked at.
+    pcall(lookAtSomeGround, day)
 end
 
 -- Returns true while there are still years to live, which is what

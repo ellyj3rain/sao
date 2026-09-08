@@ -46,6 +46,16 @@ ALLOWED_IN_A_DAY = {
     "dormantLife", "dormantEncounters", "dormantAttrition",
     "SAO.Standing.driftStandings", "SAO.Identity.all",
     "SAO.Age.dailyRoll", "SAO.Age.settleHabits",
+    # [C46] The one exception, and it is admitted on evidence rather
+    # than on assertion. Looking at a claim's ground is new to the
+    # years - the live county never needs it, because a person with a
+    # body can see where they are standing - so this rule caught it,
+    # correctly, on its first run. It is allowed because it OBSERVES
+    # and does not act: Border 119 holds that the whole survey path
+    # saves no chunk, adds no barricade and places nothing. If that
+    # border ever goes, this entry is a hole, and the two are meant to
+    # be read together.
+    "lookAtSomeGround",
 }
 
 # Shapes that would mean the pass had started inventing rather than

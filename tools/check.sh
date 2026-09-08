@@ -1440,6 +1440,16 @@ if ! "$PY" tools/years_between_test.py > /dev/null; then
     fail=1
 fi
 
+# [C46] Border 119 - the ground is looked at and not written to
+# (DR-036, DR-037): a claim's chunks are loaded off disk during the
+# years where the world does not hold them, read, and let go - and
+# nothing in that path saves a chunk or places anything.
+if ! "$PY" tools/ground_survey_test.py > /dev/null; then
+    "$PY" tools/ground_survey_test.py 2>&1 | grep -E "FAULT" || true
+    note "BORDER FINDING - the ground is written to, or never read"
+    fail=1
+fi
+
 # Border 103 - the operator's speech is not in the repository: no
 # profanity in the tracked tree and no operator-quote attributions;
 # rulings are paraphrased content, speech stays with the speaker.

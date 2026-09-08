@@ -1,13 +1,25 @@
 | Document | Survivor Awareness Overhaul Session State |
 |---|---|
-| Version | `3.4.0.0-pre-alpha` |
+| Version | `3.5.0.0-pre-alpha` |
 | Author | ellyj3rain |
 | Repository | `SESSION_STATE.md` |
 | Status | CANONICAL - where the work actually stands. |
 
 # Session state
 
-**As of** 2026-09-07, `[C45]` close - the years between (DR-036's
+**As of** 2026-09-07, `[C46]` close - the ground, looked at. The
+engine holds only an eight by eight chunk window around each player,
+so during the years no claim is in any cell; a chunk is loaded on
+its own instead, read, and let go - one claim a simulated day on a
+rotation, ground read inside thirty days left alone. The county
+learns the ways into the place a person holds and how many are shut,
+off ground actually read, and the panel says it. It writes NOTHING:
+saving a chunk writes into the player's own save through shared
+static buffers and no part of this mod has a live receipt, so Border
+119 refuses any save, barricade or placement in that path and Border
+118 admits the look only on that evidence. Doing something to the
+ground during the years is the next piece and is where the risk
+lives. `[C45]` before it - the years between (DR-036's
 other half). A save beginning after the record's year now runs the
 county's own machinery forward over the days it owes before anybody
 is materialised: the dormant day, the meetings on the road,
@@ -337,12 +349,16 @@ unloaded survivors are governed by the same rules ([B39], [B42]).
 
 ## Deploy state
 
-`3.4.0.0-pre-alpha` at tip - the version machine's output ([C2],
+`3.5.0.0-pre-alpha` at tip - the version machine's output ([C2],
 DR-013; the twelfth minor rolled the tier by the odometer's own
-law). The game install carries the `[C45]` tip, deployed 2026-09-07 at
-the `[C45]` close; `[C33]` through `[C44]` reached the install the
-same day, the first window the game was closed since the `[C32]`
-deploy of 2026-09-06. The play receipts the C era owes are the next
+law). The game install carries the `[C44]` tip: `[C33]` through
+`[C44]` reached it on 2026-09-07, the first window the game was closed
+since the `[C32]` deploy of 2026-09-06. `[C45]` and `[C46]` are
+committed and gated but NOT deployed - the game was running at both
+closes and `deploy.sh` refuses while it is, so they wait for the next
+window. The close script wrote the `[C45]` line as though it had
+deployed and it had not; a claim about the install that nothing checks
+is exactly the kind this document is supposed to be trusted for. The play receipts the C era owes are the next
 thing the tree cannot produce for itself - the operator chose to
 keep building before testing, so `[C29]` (a survivor scaled from
 the harness), `[C30]` (a child in the street, an elder's slower
@@ -360,7 +376,7 @@ deploy; `save_compat_test` guards this and runs in the gate.
 
 ## Instruments
 
-**118 numbered borders**, run by **133 gated mirrors** in `tools/`, all invoked
+**119 numbered borders**, run by **134 gated mirrors** in `tools/`, all invoked
 by `tools/check.sh`, which the pre-commit hook runs and CI runs on every push.
 The figures in this paragraph are derived by Border 76 from the tree, not
 maintained by hand. Border 54 keeps the rest honest: it runs every gated

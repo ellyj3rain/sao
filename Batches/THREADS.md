@@ -60,7 +60,7 @@ Who a person is, what they believe, how they came to believe it, and what time d
 
 Who the county holds: census, age, occupation, arrivals, and growth.
 
-**Batches**: `A7`, `A17`, `A18`, `A19`, `B28`, `B37`, `B38`, `B48`, `C9`, `C16`, `C17`, `C20`, `C21`, `C29`, `C30`, `C31`, `C32`, `C33`, `C34`, `C35`, `C39`, `C40`, `C41`, `C45`
+**Batches**: `A7`, `A17`, `A18`, `A19`, `B28`, `B37`, `B38`, `B48`, `C9`, `C16`, `C17`, `C20`, `C21`, `C29`, `C30`, `C31`, `C32`, `C33`, `C34`, `C35`, `C39`, `C40`, `C41`, `C45`, `C46`
 
 **Owes**: growth rate vs the 360 ceiling - the arithmetic is with the operator.
 
@@ -70,7 +70,7 @@ Who the county holds: census, age, occupation, arrivals, and growth.
 
 Bodies, hunger, water, fire, ground worked, and the places that give.
 
-**Batches**: `A8`, `A10`, `A12`, `A28`, `B2`, `B4`, `B6`, `B7`, `B11`, `B13`, `B15`, `B17`, `B19`, `B20`, `B21`, `B39`, `B40`, `C44`
+**Batches**: `A8`, `A10`, `A12`, `A28`, `B2`, `B4`, `B6`, `B7`, `B11`, `B13`, `B15`, `B17`, `B19`, `B20`, `B21`, `B39`, `B40`, `C44`, `C46`
 
 **Owes**: construction past barricades; water charity (no honest seam); the player's own looting not counted.
 

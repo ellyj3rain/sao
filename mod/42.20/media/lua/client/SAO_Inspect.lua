@@ -177,6 +177,18 @@ function SAOInspectWindow:build()
         row("of " .. tostring(SAO.Standing.factionName(g) or g))
         jsonl.group = tostring(g)
     end
+    -- [C46] Their place, as the county actually read it during the
+    -- years: the ways into it and how many are shut. Absent for a
+    -- county that never had years to live.
+    pcall(function()
+        local rec46 = SAO.Identity.get(id)
+        if rec46 and rec46.waysIntoHome then
+            row("their place: " .. rec46.waysIntoHome .. " way"
+                .. (rec46.waysIntoHome == 1 and "" or "s") .. " in, "
+                .. (rec46.boardedAtHome or 0) .. " shut")
+            jsonl.waysIntoHome = rec46.waysIntoHome
+        end
+    end)
     -- [C44] What they have actually built, which is a fact about them
     -- and not a promise: the windows they boarded with their own
     -- hands. Absent for everyone who has never managed one, which is

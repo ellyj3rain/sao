@@ -2312,6 +2312,19 @@ public final class SAOBridge {
         return 0;
     }
 
+    /** [C46] Look at the ground a claim stands on, loading its chunks
+     *  off disk where the world does not already hold them, and
+     *  letting them go again. Writes nothing. */
+    public String surveyClaim(double minX, double minY, double maxX,
+                              double maxY, double z) {
+        try {
+            return com.sao.engine.SAOGround.surveyClaim((int) minX, (int) minY,
+                (int) maxX, (int) maxY, (int) z);
+        } catch (Throwable throwable) {
+            return "";
+        }
+    }
+
     public String bodyScaleReport() {
         try {
             return com.sao.agent.SAOBodyScaleWeave.report() + "|"
