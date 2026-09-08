@@ -1,6 +1,6 @@
 | Document | Survivor Awareness Overhaul Batch Log |
 |---|---|
-| Version | `3.1.0.0-pre-alpha` |
+| Version | `3.2.0.0-pre-alpha` |
 | Author | ellyj3rain |
 | Repository | `BATCH_LOG.md` |
 | Status | REGULATORY - chronological batch index. |
@@ -147,3 +147,4 @@ attribution for every merged entry, stated here rather than in a branch name.
 | [C40](Batches/C40-2026-09-07-the-county-stands-on-its-own.md) | 2026-09-07 | The county stands on its own | [`T-030`](Batches/THREADS.md#t-030), [`T-007`](Batches/THREADS.md#t-007) |
 | [C41](Batches/C41-2026-09-07-the-world-before-the-spawn.md) | 2026-09-07 | The world before the spawn | [`T-007`](Batches/THREADS.md#t-007), [`T-002`](Batches/THREADS.md#t-002) |
 | [C42](Batches/C42-2026-09-07-before-the-fall-an-ordinary-life.md) | 2026-09-07 | Before the fall, an ordinary life | [`T-002`](Batches/THREADS.md#t-002), [`T-004`](Batches/THREADS.md#t-004) |
+| [C43](Batches/C43-2026-09-07-the-records-timeline-shifts-to-the-game.md) | 2026-09-07 | The record's timeline moves onto the start date | [`T-002`](Batches/THREADS.md#t-002), [`T-005`](Batches/THREADS.md#t-005) |

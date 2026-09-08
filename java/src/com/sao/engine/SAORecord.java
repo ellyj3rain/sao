@@ -39,6 +39,39 @@ public final class SAORecord {
     /** The record's own day 0 (DR-031; the Speakeasy document knox-event.md). */
     public static final LocalDate RECORD_DAY_ZERO = LocalDate.of(1993, 7, 9);
 
+    /** [C43] The record's own FIRST day - the earliest thing it
+     *  carries, the July 1 Knox Knews and the outages around it. The
+     *  eight days between this and day 0 are the ordinary county the
+     *  shipped record already has, and they are the record's own
+     *  number rather than anybody's setting. */
+    public static final LocalDate RECORD_FIRST_DAY = LocalDate.of(1993, 7, 1);
+
+    /** [C43] How the record's timeline is placed against this save.
+     *
+     * ANCHORED (shift 0) is the shipped calendar and what [C36]
+     * built: the Knox Event happens on the dates it carries, so a
+     * save beginning July 1 lives eight ordinary days and then the
+     * fall arrives on July 9 because that is when it arrived.
+     *
+     * SHIFTED re-bases the whole record onto the game actually being
+     * played. The outbreak lands a chosen number of days into the
+     * save, and everything the record carries - the broadcasts, the
+     * dated papers, the outages before it and the cordon after -
+     * keeps its own order and spacing around that point. A save
+     * beginning in March 1993 with a fortnight's lead-in gets a
+     * fortnight of ordinary county, then the fall, then the record
+     * in its shipped order. The lead-in is not fixed at the eight
+     * days the shipped record happens to have.
+     *
+     * One integer does all of it: every record read asks for the
+     * EFFECTIVE date, which is the real one plus this shift, and
+     * every function [C36] and [C38] already wrote works unchanged
+     * on it.
+     */
+    private static int shiftDays = 0;
+    private static int leadInDays = 0;
+    private static boolean shifted = false;
+
     private static int keyedChannels = 0;
     private static int keyedPapers = 0;
     private static int removedPapers = 0;
@@ -107,6 +140,87 @@ public final class SAORecord {
         return paper == null ? null : issueFor(paper.getIssues(), dateOf(year, month0, day0));
     }
 
+    // ---------------------------------------------------------------- shift
+
+    /** [C43] Place the record against this save. `leadIn` is the days
+     *  of ordinary county before the outbreak reaches it; the record's
+     *  day 0 is put exactly that far into the save. Returns the shift
+     *  in days, or 0 when the clock cannot be read. */
+    public static int shiftTo() {
+        int[] start = saveStart();
+        if (start == null || !mayShift(start[0], start[1], start[2])) {
+            return 0;
+        }
+        shiftDays = shiftFor(start[0], start[1], start[2]);
+        leadInDays = leadIn();
+        shifted = true;
+        return shiftDays;
+    }
+
+    /** [C43] The days to add to a real date so the save's start lands
+     *  on the record's own first day. Pure, so Border 110 can check it
+     *  off the game. */
+    public static int shiftFor(int year, int month0, int day0) {
+        return (int) ChronoUnit.DAYS.between(
+            dateOf(year, month0, day0), RECORD_FIRST_DAY);
+    }
+
+    /** [C43] The record's own ordinary county, in days: first day to
+     *  day 0. Derived from the record, not chosen. */
+    public static int leadIn() {
+        return (int) ChronoUnit.DAYS.between(RECORD_FIRST_DAY, RECORD_DAY_ZERO);
+    }
+
+    /** [C43] MAY this save's timeline be shifted at all?
+     *
+     * Any 1993 start. That is the year the record is canonically in,
+     * and a player who picks a date inside it and asks for the
+     * day-zero start gets the record moved onto that date: the
+     * ordinary county it carries, then the collapse, then the rest in
+     * its own order. January, March or October - the timeline moves to
+     * them rather than them waiting for July.
+     *
+     * A save that begins in 1994 or 2000 is a different case entirely
+     * and must NOT be shifted: the Knox Event happened when it
+     * happened, and what that player is owed is the years between
+     * simulated forward, which is DR-036's other half. Moving the lore
+     * onto their start would erase exactly the history they came for.
+     */
+    public static boolean mayShift(int year, int month0, int day0) {
+        return year == RECORD_FIRST_DAY.getYear();
+    }
+
+    /** [C43] Which record day a save day falls on when shifted.
+     *  Negative through the ordinary county, 0 the day the outbreak
+     *  reaches it. */
+    public static int recordDayOnSaveDay(int year, int month0, int day0,
+                                         int saveDay) {
+        LocalDate real = dateOf(year, month0, day0).plusDays(saveDay);
+        LocalDate at = real.plusDays(shiftFor(year, month0, day0));
+        return (int) ChronoUnit.DAYS.between(RECORD_DAY_ZERO, at);
+    }
+
+    /** [C43] Back to the shipped calendar. */
+    public static void anchor() {
+        shiftDays = 0;
+        leadInDays = 0;
+        shifted = false;
+    }
+
+    public static boolean isShifted() {
+        return shifted;
+    }
+
+    public static int leadInApplied() {
+        return leadInDays;
+    }
+
+    /** [C43] The date the record should be read at, which is the real
+     *  one while anchored. */
+    public static LocalDate effective(LocalDate real) {
+        return shiftDays == 0 ? real : real.plusDays(shiftDays);
+    }
+
     // ---------------------------------------------------------------- clock
 
     /** [C38] The date a world-age hour falls on, from the save's own
@@ -116,9 +230,18 @@ public final class SAORecord {
         return wordsOf(date);
     }
 
-    /** [C38] The record's own first day, in the same words. */
+    /** [C38] The record's own first day, in the same words - and
+     *  [C43] the day it actually falls on in this world, which is not
+     *  July 9 once the timeline has been shifted onto this save. */
     public static String recordDayZero() {
-        return wordsOf(RECORD_DAY_ZERO);
+        if (!shifted) {
+            return wordsOf(RECORD_DAY_ZERO);
+        }
+        int[] start = saveStart();
+        if (start == null) {
+            return wordsOf(RECORD_DAY_ZERO);
+        }
+        return wordsOf(dateOf(start[0], start[1], start[2]).plusDays(leadInDays));
     }
 
     public static String wordsOf(LocalDate date) {
@@ -136,10 +259,19 @@ public final class SAORecord {
         }
     }
 
+    /** [C43] The date the RECORD is read at: the county's real day
+     *  while anchored, and the day the record has reached while
+     *  shifted. Every caller here wants the second - which paper is on
+     *  the shelf, how far into the schedule the county is - and the
+     *  chronicle's own dates go through countyDate instead, which does
+     *  not shift, because a person who lived a day lived it on the day
+     *  the calendar actually said. */
     public static int[] today() {
         try {
             GameTime gt = GameTime.getInstance();
-            return new int[] { gt.getYear(), gt.getMonth(), gt.getDay() };
+            LocalDate real = dateOf(gt.getYear(), gt.getMonth(), gt.getDay());
+            LocalDate at = effective(real);
+            return new int[] { at.getYear(), at.getMonthValue() - 1, at.getDayOfMonth() - 1 };
         } catch (Throwable throwable) {
             return null;
         }

@@ -1,6 +1,6 @@
 | Document | Survivor Awareness Overhaul Roadmap |
 |---|---|
-| Version | `3.1.0.0-pre-alpha` |
+| Version | `3.2.0.0-pre-alpha` |
 | Author | ellyj3rain |
 | Repository | `ROADMAP.md` |
 | Status | CANONICAL - thread map, backlog, live gates. |
@@ -270,6 +270,15 @@ is lived, witnessed, and remembered person by person. Slices:
    journey for a weapon or ammunition, and scouting somewhere
    defensible all wait for it. Normal-life behaviour on open
    streets is still unbuilt.
+   And by `[C43]` the record's timeline moves onto the start date: a
+   player picks any date in 1993 and, with the switch on, the record's
+   own first day lands there, so its week of ordinary county plays
+   out, then the collapse, then the rest in shipped order, with the
+   broadcasts and dated papers moving with it. A start later in the
+   year moves it backwards onto them. With the switch off, the shipped
+   calendar is untouched; a 1994 or later start is refused the move,
+   because that save is owed the years between simulated forward
+   instead.
 2. Outbreak dynamics live-verified: zombie bites/infection/turning on
    shells (BodyDamage + reanimation timers javap-verified; needs live
    confirmation), the first named death teaching the first lessons.

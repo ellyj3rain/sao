@@ -1,13 +1,26 @@
 | Document | Survivor Awareness Overhaul Session State |
 |---|---|
-| Version | `3.1.0.0-pre-alpha` |
+| Version | `3.2.0.0-pre-alpha` |
 | Author | ellyj3rain |
 | Repository | `SESSION_STATE.md` |
 | Status | CANONICAL - where the work actually stands. |
 
 # Session state
 
-**As of** 2026-09-07, `[C42]` close - before the fall, an ordinary
+**As of** 2026-09-07, `[C43]` close - the record's timeline moves
+onto the start date (DR-036). The lore is canonically 1993 and
+`[C36]` pinned it to the dates it carries, so a player who set a
+March start sat in a quiet world until July. A player now picks any
+date in 1993 and, with the Day Zero switch on, the record's own
+first day lands on it: its week of ordinary county, then the
+collapse, then the rest in shipped order, with the broadcasts and
+the dated papers moving with it, and a start later in the year
+moving the timeline backwards onto it. The week is the record's own
+number rather than a setting - a dial for it was invented in a first
+draft and removed. A 1994 or later start is refused the move, because
+that save is owed the years between simulated forward instead, which
+is DR-036's other half and unbuilt. `[C42]` before it - before the
+fall, an ordinary
 life (DR-036): an audit of what the day-zero switch actually reached
 found two things - no lessons seeded, duty-only arms - and that not
 one decision in the tree asked whether the fall had happened, though
@@ -297,10 +310,10 @@ unloaded survivors are governed by the same rules ([B39], [B42]).
 
 ## Deploy state
 
-`3.1.0.0-pre-alpha` at tip - the version machine's output ([C2],
+`3.2.0.0-pre-alpha` at tip - the version machine's output ([C2],
 DR-013; the twelfth minor rolled the tier by the odometer's own
-law). The game install carries the `[C42]` tip, deployed 2026-09-07 at
-the `[C42]` close; `[C33]` through `[C41]` reached the install the
+law). The game install carries the `[C43]` tip, deployed 2026-09-07 at
+the `[C43]` close; `[C33]` through `[C42]` reached the install the
 same day, the first window the game was closed since the `[C32]`
 deploy of 2026-09-06. The play receipts the C era owes are the next
 thing the tree cannot produce for itself - the operator chose to

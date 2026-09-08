@@ -42,6 +42,40 @@ public final class RecordCheck {
         expect("the county's date a month on", SAORecord.countyDate(1993, 6, 8, 31 * 24.0), "August 9, 1993");
         expect("the record's own first day", SAORecord.recordDayZero(), "July 9, 1993");
 
+        // [C43] The timeline placed against the game being played: the
+        // outbreak lands the lead-in into the save, wherever in the year
+        // it began, and the record keeps its order around that point.
+        expect("the record's own ordinary county is eight days", SAORecord.leadIn(), 8);
+        expect("a March start: the fall on save day eight",
+            SAORecord.recordDayOnSaveDay(1993, 2, 0, 8), 0);
+        expect("and day seven is still ordinary",
+            SAORecord.recordDayOnSaveDay(1993, 2, 0, 7), -1);
+        expect("and the first day is the record's first day",
+            SAORecord.recordDayOnSaveDay(1993, 2, 0, 0), -8);
+        expect("and a fortnight past the fall is record day 14",
+            SAORecord.recordDayOnSaveDay(1993, 2, 0, 22), 14);
+        expect("a January start shifts the same way",
+            SAORecord.recordDayOnSaveDay(1993, 0, 0, 8), 0);
+        // The shift is only for a 1993 start that begins before the
+        // record does. A later start is owed the years simulated
+        // forward instead, and moving the lore onto it would erase
+        // the history it came for.
+        expect("a January 1993 start may shift", SAORecord.mayShift(1993, 0, 0), true);
+        expect("a March 1993 start may shift", SAORecord.mayShift(1993, 2, 0), true);
+        expect("an October 1993 start may shift too", SAORecord.mayShift(1993, 9, 0), true);
+        expect("and so may the shipped July 9 one, when asked",
+            SAORecord.mayShift(1993, 6, 8), true);
+        expect("a 1994 start may not shift", SAORecord.mayShift(1994, 2, 0), false);
+        expect("a 2000 start may not shift", SAORecord.mayShift(2000, 0, 0), false);
+        // The timeline moves backwards for a start later in the year:
+        // an October save gets the record's own week and then the fall,
+        // rather than the fall having happened three months before it
+        // began.
+        expect("an October start moves the record back onto it",
+            SAORecord.recordDayOnSaveDay(1993, 9, 0, 8), 0);
+        expect("and its first day is the record's first day",
+            SAORecord.recordDayOnSaveDay(1993, 9, 0, 0), -8);
+
         expect("an issue's date", SAORecord.issueDate("KnoxKnews_July3"), LocalDate.of(1993, 7, 3));
         expect("a name with no date", SAORecord.issueDate("Newspaper"), null);
 

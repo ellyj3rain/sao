@@ -2157,6 +2157,12 @@ public final class SAOBridge {
      *  there, which the Lua side treats as "not now". */
     public int recordStartDay() {
         try {
+            // [C43] Shifted, the record's day 0 is the lead-in itself:
+            // the outbreak lands that many days into the save, wherever
+            // in the year it began.
+            if (com.sao.engine.SAORecord.isShifted()) {
+                return com.sao.engine.SAORecord.leadInApplied();
+            }
             int[] start = com.sao.engine.SAORecord.saveStart();
             if (start == null) {
                 return -100000;
@@ -2177,6 +2183,27 @@ public final class SAOBridge {
             return com.sao.engine.SAORecord.recordDayOf(today[0], today[1], today[2]);
         } catch (Throwable throwable) {
             return -100000;
+        }
+    }
+
+    /** [C43] Place the record's timeline against this save: its own
+     *  first day on the save's start day, so the ordinary county it
+     *  already carries plays out and then the outbreak arrives.
+     *  Refused, and 0, for a save that does not begin before the
+     *  record does. */
+    public int shiftRecord() {
+        try {
+            return com.sao.engine.SAORecord.shiftTo();
+        } catch (Throwable throwable) {
+            return 0;
+        }
+    }
+
+    /** [C43] Back to the shipped calendar. */
+    public void anchorRecord() {
+        try {
+            com.sao.engine.SAORecord.anchor();
+        } catch (Throwable ignored) {
         }
     }
 

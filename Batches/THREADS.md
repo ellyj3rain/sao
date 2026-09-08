@@ -44,7 +44,7 @@ The gate, its borders, and the repository's own discipline.
 
 The county before the collapse, the fall itself, and what it teaches.
 
-**Batches**: `A6`, `A10`, `A11`, `A17`, `A29`, `B3`, `B9`, `C8`, `C10`, `C11`, `C29`, `C30`, `C31`, `C32`, `C33`, `C34`, `C35`, `C36`, `C38`, `C41`, `C42`
+**Batches**: `A6`, `A10`, `A11`, `A17`, `A29`, `B3`, `B9`, `C8`, `C10`, `C11`, `C29`, `C30`, `C31`, `C32`, `C33`, `C34`, `C35`, `C36`, `C38`, `C41`, `C42`, `C43`
 
 **Owes**: outbreak live-confirmation (the engine's infection on shells, witnessed in play).
 
@@ -98,6 +98,6 @@ Leaving, being watched for, and the worry that sends somebody after.
 
 The county's wire and every other channel that carries knowledge between people.
 
-**Batches**: `A26`, `B18`, `B27`, `B29`, `B46`, `C5`
+**Batches**: `A26`, `B18`, `B27`, `B29`, `B46`, `C5`, `C43`
 
 **Owes**: authored broadcasts stay prose (stated, refused to parse); free-text or dictated speech is direction only.

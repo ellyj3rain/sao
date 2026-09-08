@@ -35,11 +35,55 @@ local function store()
     return nil
 end
 
+-- [C43] WHERE THE RECORD'S TIMELINE SITS AGAINST THIS SAVE.
+--
+-- Anchored, which is the shipped calendar and what [C36] built, the
+-- Knox Event happens on the dates it carries: begin on July 9 and it
+-- is already here, begin on July 1 and it arrives in eight days
+-- because that is when it arrived.
+--
+-- Shifted, the whole record is re-based onto the game being played.
+-- The outbreak lands the player's own number of days into the save
+-- and everything the record carries keeps its order and spacing
+-- around that point, so a world beginning anywhere in 1993 gets its
+-- ordinary county first, then the fall, then the record in its
+-- shipped order, with the ordinary county it already carries - its
+-- own eight days from the July 1 issues to the outbreak - played out
+-- first. That number is the record's, not a setting.
+--
+-- WHICH OF THE TWO a save gets is the Day Zero switch and the start
+-- date, and nothing else. The switch is the one that already means
+-- "this county starts before the outbreak"; a player who leaves it
+-- off is playing the shipped 1993 and their record must not move
+-- under them. The date is the Java side's refusal: only a 1993 start
+-- may be shifted, because 1993 is the year the record is canonically
+-- in. A 1994 or 2000 start is owed the years between simulated
+-- forward instead, and moving the lore onto it would erase exactly
+-- the history it came for.
+local function placeTimeline()
+    local sv = SandboxVars and SandboxVars.SurvivorAwareness or nil
+    if not (sv and sv.DayZero == true) then
+        pcall(function() SAOJavaBridge:anchorRecord() end)
+        return nil
+    end
+    local shift = nil
+    pcall(function() shift = SAOJavaBridge:shiftRecord() end)
+    if not shift or shift == 0 then
+        -- Refused, or nothing to move: not a 1993 start, or a start
+        -- already sitting on the record's own first day.
+        return nil
+    end
+    return true, shift
+end
+
 -- Once per save: the flag is the save day the record was keyed to.
 function R.rekey()
     if not SAOJavaBridge or not enabled() then return false end
     local s = store()
     if not s then return false end
+    -- Placed before it is keyed, and on every retry, because the
+    -- start day the keying uses comes out of where the timeline sits.
+    local moved, shift = placeTimeline()
     local okS, startDay = pcall(function() return SAOJavaBridge:recordStartDay() end)
     if not okS or type(startDay) ~= "number" then return false end
     if s.recordKeyedForStart == startDay then return true end
@@ -47,7 +91,10 @@ function R.rekey()
     if okR and type(keyed) == "number" and keyed > 0 then
         s.recordKeyedForStart = startDay
         log("the record keyed to the county's calendar: its first day is save day "
-            .. startDay .. " (" .. keyed .. " channels)")
+            .. startDay .. " (" .. keyed .. " channels"
+            .. (moved and (", timeline shifted " .. tostring(shift)
+                .. " days onto this save")
+                or ", shipped calendar") .. ")")
         return true
     end
     -- The channels were not there yet, or the bridge could not reach
