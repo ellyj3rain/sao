@@ -85,6 +85,33 @@ local function livingDay()
     return run
 end
 
+-- [C63] The switch that says this county starts before its own
+-- outbreak. The same one `SAO_Record.placeTimeline` reads, so the
+-- record's timeline and the days the county owes cannot disagree
+-- about which saves the record is moved onto.
+local function dayZeroAsked()
+    local sv = SandboxVars and SandboxVars.SurvivorAwareness or nil
+    return (sv and sv.DayZero == true) or false
+end
+
+-- [C63] How many days of history this save begins with behind it,
+-- and -1 when the clock cannot be read.
+--
+-- One reader, because there were two and they answered differently.
+-- `[C45]`'s years pass asked the bridge for this number and
+-- remembered it for the life of the save; `SAORecord.countyMonth0`
+-- worked it out again from `recordDayOf`, which knows nothing about
+-- the day-zero switch. A shifted July 20 start would have read its
+-- months eleven days early for the whole save while its clock read
+-- them correctly.
+function H.daysOwed()
+    local days = nil
+    pcall(function()
+        days = SAOJavaBridge:daysBehindAtStart(dayZeroAsked())
+    end)
+    return (type(days) == "number") and days or -1
+end
+
 -- How far behind the record this save began, in hours. Constant for
 -- a save, so it is asked once; a bridge that is not up yet answers
 -- nothing and is asked again next time rather than being remembered
@@ -92,9 +119,8 @@ end
 local behindMemo = nil
 local function hoursBehind()
     if behindMemo then return behindMemo end
-    local days = nil
-    pcall(function() days = SAOJavaBridge:daysBehindAtStart() end)
-    if type(days) ~= "number" or days < 0 then return 0 end
+    local days = H.daysOwed()
+    if days < 0 then return 0 end
     behindMemo = days * 24.0
     return behindMemo
 end
@@ -119,7 +145,7 @@ end
 function H.countyMonth()
     local month = nil
     pcall(function()
-        month = SAOJavaBridge:countyMonth(H.countyHours())
+        month = SAOJavaBridge:countyMonth(H.countyHours(), dayZeroAsked())
     end)
     if type(month) == "number" and month >= 0 and month <= 11 then
         return month
