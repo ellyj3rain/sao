@@ -22,7 +22,38 @@ local function log(msg) SAO.Log.line("HISTORY", msg) end
 local function tally(kind) SAO.Log.tally("HISTORY", kind) end
 
 -- Months since the outbreak began, as of NOW (fractional).
+--
+-- [C61] Off the record's own calendar, not the sandbox dial. This
+-- number ages what every person in the county KNOWS - the split clock
+-- below turns it into contact months, and the lesson pool and the
+-- claims a person carries are drawn from that. It read
+-- `SandboxVars.TimeSinceApo` while [C42] had already ruled that when
+-- the fall happened is read from the record's calendar "and never
+-- from the sandbox dial", and [C45] runs the county forward over the
+-- days a later save owes off that same calendar.
+--
+-- So a 1996 save simulated about a thousand days of collapse and then
+-- told every survivor in it that they were one month in, because the
+-- dial's default is one. Three spellings of one fact, and the one
+-- that decides what people know was reading a different source from
+-- the two that decide what happened.
+--
+-- Before the fall the answer is zero, which is not a fallback: a
+-- county that has not had its outbreak has nobody who has lived
+-- through one, and that is day zero's whole premise ([A29] - innocent
+-- by construction).
+--
+-- The dial remains the answer where the calendar cannot be read at
+-- all - a bare VM, the offline mirrors, a load before the bridge is
+-- up - so this module stays offline by construction and nothing that
+-- ran before runs differently there.
 function H.clockMonths()
+    local day = nil
+    pcall(function() day = SAOJavaBridge:recordDayToday() end)
+    if type(day) == "number" and day > -90000 then
+        if day < 0 then return 0 end
+        return day / 30.0
+    end
     local sv = SandboxVars or nil
     local startMonths = (sv and tonumber(sv.TimeSinceApo)) or 1
     local elapsed = 0

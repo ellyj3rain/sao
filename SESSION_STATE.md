@@ -1,13 +1,30 @@
 | Document | Survivor Awareness Overhaul Session State |
 |---|---|
-| Version | `3.10.0.0-pre-alpha` |
+| Version | `3.10.1.0-pre-alpha` |
 | Author | ellyj3rain |
 | Repository | `SESSION_STATE.md` |
 | Status | CANONICAL - where the work actually stands. |
 
 # Session state
 
-**As of** 2026-09-08, `[C60]` close - the player's looting spends a
+**As of** 2026-09-08, `[C61]` close - one clock for how long this
+has been going on. Three readers answer how far into the collapse a
+save is, and `SAO_History.clockMonths` - the number that ages what
+every person KNOWS, through the split clock into contact months and
+from there the lesson pool and the claims a person carries - was
+reading `SandboxVars.TimeSinceApo` while [C42] had already ruled the
+fall is read from the record's calendar and never from the dial. So a
+1996 save ran about a thousand days of county forward ([C45]) and
+then told every survivor in it they were one month in: the county's
+history and the county's people disagreeing about the same fact. It
+reads the calendar now, and answers zero before the fall, because a
+county that has not had its outbreak has nobody who has lived through
+one. The dial remains the answer only where the calendar cannot be
+read at all, so the module stays offline by construction. Border 130
+holds it; its own first seam compared identifiers rather than call
+forms and failed on this batch's own comment, which is the prose-is-
+not-code rule in GOVERNANCE.md paid for again. `[C60]` before it -
+the player's looting spends a
 place. The standing gap since [B39]: a survivor taking something
 calls `SAO_Places.take` and the place is spent for everybody, and the
 player's looting called nothing, so a shop the player had stripped
@@ -592,7 +609,7 @@ unloaded survivors are governed by the same rules ([B39], [B42]).
 
 ## Deploy state
 
-`3.10.0.0-pre-alpha` at tip - the version machine's output ([C2],
+`3.10.1.0-pre-alpha` at tip - the version machine's output ([C2],
 DR-013; the twelfth minor rolled the tier by the odometer's own
 law). The game install carries the `[C55]` tip: `[C45]` through
 `[C51]` reached it on 2026-09-07 and `[C52]` through `[C55]` on 2026-09-08, each
@@ -620,7 +637,7 @@ deploy; `save_compat_test` guards this and runs in the gate.
 
 ## Instruments
 
-**129 numbered borders**, run by **144 gated mirrors** in `tools/`, all invoked
+**130 numbered borders**, run by **145 gated mirrors** in `tools/`, all invoked
 by `tools/check.sh`, which the pre-commit hook runs and CI runs on every push.
 The figures in this paragraph are derived by Border 76 from the tree, not
 maintained by hand. Border 54 keeps the rest honest: it runs every gated
