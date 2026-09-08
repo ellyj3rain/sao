@@ -4269,7 +4269,57 @@ local function decide(id, agent, body)
                                 -- run.
                                 local onWall = hRec.designation == "watch"
                                     and vkind ~= "warpath"
+                                -- [C53] A warpath is not a bread run.
+                                -- The site already knew the difference
+                                -- - the wall is abandoned for a raid
+                                -- and for nothing else, the line above
+                                -- - and never asked the person being
+                                -- invited. Asked now, through the
+                                -- envelope SAO_Command uses for the
+                                -- same question ([C37]): unarmed, past
+                                -- the fear a child carries, or the
+                                -- disposition's own refusal of that
+                                -- fight, and they stay home. Not a
+                                -- weight on the pull: somebody who
+                                -- will not take a fight is not
+                                -- persuaded into one by liking you.
+                                local noFight = false
+                                if vkind == "warpath" then
+                                    local okE = true
+                                    pcall(function()
+                                        okE = SAO.Command.envelope(hid,
+                                            "engage", nil)
+                                    end)
+                                    noFight = (okE == false)
+                                end
+                                -- [C53] Who is asking is part of
+                                -- whether you go (DR-033: whose word
+                                -- carries is a social fact, and it is
+                                -- the houses, their leaders and their
+                                -- designations). An invitation is not
+                                -- an order and does not go through the
+                                -- gate's verdict, but the office the
+                                -- caller holds over this person is the
+                                -- same fact either way, so it is read
+                                -- from the same place and in the same
+                                -- currency - a leader's call above a
+                                -- second's above a peer's, and no
+                                -- number invented here. `officeOf`
+                                -- rather than `standingOf` because
+                                -- standing folds trust in and trust is
+                                -- already the first term; this adds
+                                -- the office alone. A divided house
+                                -- comes with it: the chair of a house
+                                -- at war with itself calls to the half
+                                -- leaning away with a peer's voice.
+                                local office = 0
+                                pcall(function()
+                                    local C = SAO.Command
+                                    office = (C.OFFICE[C.officeOf(id, hid)]
+                                        or C.OFFICE.none) - C.OFFICE.none
+                                end)
                                 local pull = SAO.Standing.trust(hid, id)
+                                    + office
                                     + (SAO.Standing.isBondedTo(hid, id)
                                         and 0.3 or 0)
                                     + 0.2 * SAO.Lessons.weight(hid,
@@ -4279,7 +4329,7 @@ local function decide(id, agent, body)
                                     + 0.2 * (SAO.Disposition.traits(hid)
                                         .nerve - 0.5)
                                 if not bound and not solo and not onWall
-                                    and pull > 0.55 then
+                                    and not noFight and pull > 0.55 then
                                     willing[#willing + 1] =
                                         { id = hid, pull = pull }
                                 end

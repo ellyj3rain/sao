@@ -1,6 +1,6 @@
 | Document | Survivor Awareness Overhaul Roadmap |
 |---|---|
-| Version | `3.9.1.0-pre-alpha` |
+| Version | `3.9.2.0-pre-alpha` |
 | Author | ellyj3rain |
 | Repository | `ROADMAP.md` |
 | Status | CANONICAL - thread map, backlog, live gates. |
@@ -78,6 +78,16 @@ Preconditions and slices, none of them the whole thing:
    stay derived and are not authored at genesis.
 2. The Day Zero arc's own slices: outbreak dynamics live-verified,
    chaos legibility, ventures socialized, vehicles as composition.
+   Ventures socialized is SHIPPED as `[C53]`: who goes along now
+   weighs who is asking and what is being asked. The caller's office
+   over the hearer enters the pull in `SAO_Command`'s own currency -
+   a leader's call above a second's above a peer's, no number
+   invented at the site, and a divided house comes with it - and a
+   warpath asks the hearer's own envelope, so nobody is persuaded
+   into a fight they would not take. F-056 came out of measuring it:
+   in a converged county the willingness threshold almost never
+   binds, so the office carries nobody there and 46 hearers in a
+   young house, which is the house a day-zero county is made of.
    Chaos legibility is half done. SHIPPED as `[C50]`: what a survivor
    says follows what they have learned. Every line table in
    SAO_Voice was flat, so a county that had learned nothing still

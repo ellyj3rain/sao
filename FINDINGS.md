@@ -1,6 +1,6 @@
 | Document | Survivor Awareness Overhaul Findings |
 |---|---|
-| Version | `3.9.1.0-pre-alpha` |
+| Version | `3.9.2.0-pre-alpha` |
 | Author | ellyj3rain |
 | Repository | `FINDINGS.md` |
 | Status | CANONICAL, APPEND-ONLY - verified engine findings. |
@@ -939,3 +939,39 @@ the places "almost certainly unaffordable". That was a guess, and it was
 wrong: 432 chunks and 406 KB is nothing, and it is the same ground every
 time. The operator's ruling to run it for real stands and is cheaper
 than the alternative it was weighed against.
+
+## F-056 - The venture's willingness gate is saturated in a converged county ([C53])
+
+Measured on the joining mirror's own county - the 60-person society the
+equilibrium mirror converges over 120 days - across 138 invitations:
+
+| pull without the office | value |
+|---|---|
+| 5th percentile | 0.78 |
+| median | 1.28 |
+| 95th percentile | 1.50 |
+| already above the 0.55 threshold | 133 of 138 (96%) |
+| anywhere in 0.15 .. 0.55 | 5 of 138 (4%) |
+
+The threshold almost never binds. Who comes along on a venture is
+decided by the three refusals - answering a need, being a loner, being
+on the wall - and then by the caps: the goer's circle cap, the free
+seats, and the house keeping somebody to mind it. The pull's own terms
+(trust, the two lessons, nerve) discriminate almost nothing once trust
+has converged, because housemate trust saturates near its ceiling and
+the dominant term takes the sum far past 0.55 on its own.
+
+Found while adding the caller's office to the pull ([C53]): the first
+version of that measurement compared party sizes across houses and
+answered nothing, and isolating the term - the same hearer, the same
+trip, one term removed - showed it carried nobody at all. Not because
+the term is wrong but because nothing in the pull can matter at that
+end of the trust range.
+
+Two things follow and neither is taken here. The threshold is an
+authored number and moving it changes how every house feels, which is
+a design call rather than a border's. And the saturation is the
+equilibrium mirror's own convergence as much as the county's: a house
+that formed yesterday has none of it, which is why [C53] adds a
+young-house sweep rather than tuning anything.
+

@@ -1,13 +1,34 @@
 | Document | Survivor Awareness Overhaul Session State |
 |---|---|
-| Version | `3.9.1.0-pre-alpha` |
+| Version | `3.9.2.0-pre-alpha` |
 | Author | ellyj3rain |
 | Repository | `SESSION_STATE.md` |
 | Status | CANONICAL - where the work actually stands. |
 
 # Session state
 
-**As of** 2026-09-08, `[C52]` close - psychosis and insomnia get
+**As of** 2026-09-08, `[C53]` close - who goes along weighs who is
+asking (Day Zero slice 4; DR-033). [B19]'s joining weighed everything
+about the hearer and nothing about the trip or the caller. The
+caller's office over that person now enters the pull in
+SAO_Command's own currency - a leader's call above a second's above a
+peer's, no number invented at the site, and the divided house
+arriving with it - and a warpath asks the hearer's own envelope, so
+nobody is persuaded into a fight they would not take. Ported to the
+joining mirror in the same batch, per that script's own doctrine.
+The mirror then refused the first claim made about the change: an
+average party size compared across houses answered that the office
+cost company, which was a bad measurement, and isolating the term
+gave a worse and truer one - it carried nobody in 690 invitations.
+That is F-056. The pull's median in the converged county is 1.28
+against a threshold of 0.55 and 96 percent of invitations clear it
+before any term is consulted, so nothing in the calculation can
+decide anything once trust has saturated; who comes along is settled
+by the three refusals and the caps. The threshold is an authored
+number and moving it is a design call, so a sixth sweep was added
+instead - a house that formed recently, which is the house a
+day-zero county is made of, and where the office carries 46.
+`[C52]` before it - psychosis and insomnia get
 their figures. Two rows in the conditions table had stood at zero
 since [C32], each with the reason in the file: no primary figure of
 the era had been read, so nobody was drawn and neither mechanism
@@ -454,10 +475,10 @@ unloaded survivors are governed by the same rules ([B39], [B42]).
 
 ## Deploy state
 
-`3.9.1.0-pre-alpha` at tip - the version machine's output ([C2],
+`3.9.2.0-pre-alpha` at tip - the version machine's output ([C2],
 DR-013; the twelfth minor rolled the tier by the odometer's own
-law). The game install carries the `[C52]` tip: `[C45]` through
-`[C51]` reached it on 2026-09-07 and `[C52]` on 2026-09-08, each
+law). The game install carries the `[C53]` tip: `[C45]` through
+`[C51]` reached it on 2026-09-07 and `[C52]`, `[C53]` on 2026-09-08, each
 after its own commit passed the gate, the game having been closed
 since the `[C44]` deploy. Verified rather than assumed at each
 deploy - the deployed `mod.info` reads the version the machine
