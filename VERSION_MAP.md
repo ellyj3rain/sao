@@ -16,9 +16,9 @@ the machine. Names, dates, and threads below come from
 | Form | `major.minor.kohai.patch-maturity` |
 | Hard caps | minor 12; kohai 16; patch 24 |
 | Replay start | `0.1.0.0-pre-alpha` |
-| Current version | `3.7.0.0-pre-alpha` |
-| Closed chronology | `A1-C48` |
-| Next batch | `C49` |
+| Current version | `3.8.0.0-pre-alpha` |
+| Closed chronology | `A1-C49` |
+| Next batch | `C50` |
 | Executable source | [`tools/version_replay.py`](tools/version_replay.py) |
 
 ## Tier meanings
@@ -164,6 +164,7 @@ the machine. Names, dates, and threads below come from
 | `C46` | 2026-09-07 | minor | `3.5.0.0-pre-alpha` | The ground, looked at | The ground, looked at (DR-036, DR-037): the engine holds only an eight by eight chunk window around each player, so during the years no claim is in any cell - a chunk is loaded on its own instead, read, and let go, one claim a simulated day on a rotation with ground read inside thirty days left alone; the county learns the ways into the place a person holds and how many are shut, off ground actually read, and the panel says it; it writes nothing at all, because saving a chunk writes into the player's own save through shared static buffers and nothing here has a live receipt - Border 119 refuses any save, barricade or placement in that path, and Border 118 admits the look only on that evidence. |
 | `C47` | 2026-09-07 | minor | `3.6.0.0-pre-alpha` | The fence | The fence (SPEECH_ML_DESIGN Decision 4, ratified): no-invention is enforced by constrained decoding rather than instruction, so a speaker is handed a vocabulary it cannot escape - every fact position fillable only from that person's own claims, the slots read off the knowledge surface rather than listed, the comparison exact and never advisory, an unknown slot refused rather than allowed and a fence that throws refusing rather than permitting; built before any model because it is what makes a wrong one harmless; Border 120 proves it over a corpus off the game with the near-misses included. |
 | `C48` | 2026-09-07 | minor | `3.7.0.0-pre-alpha` | How hard a place is to get into | How hard a place is to get into (DR-037): the scout weighed rooms, area and water and could not see a door, so a glass-fronted shop beat a house whenever it had one more room; it now counts the ways in off the loaded ground with the boarding's own predicate and breaks ties within one room's worth by them - a tie-break rather than a weight, because pricing a door against a room would be inventing a rate nothing gives; Border 121 fails if the count ever appears inside the score. |
+| `C49` | 2026-09-07 | minor | `3.8.0.0-pre-alpha` | Survivor orders use the command check | Survivor orders use the command check (DR-033): [C37] routed the player's asks through SAO_Command and left survivor-to-survivor orders alone, so three decided for themselves - the keeper rousing the house checked nothing, an owner telling a trespasser to go was obeyed by anyone not starving, and a housemate objecting to somebody leaving used a hardcoded authority test written at that one site, which is the kind of table DR-033 rules out; it is deleted and all three go through SAO_Command, with no weights or thresholds added - three Standing facts became inputs, each worth what a proven hand is worth: a divided house withholds the leader's office from members leaning the other way, a designation gives standing in its own matter, and a claim gives standing in the matter of leaving it. Same class as C42 - an audit found decisions that did not consult a fact the county already kept, and wired them to it. Border 122 holds it. |
 
 ## The former number
 
@@ -184,11 +185,11 @@ the meantime, and they are not play.
 
 ## Next movement
 
-`C49` is the next batch. Its content determines its tier after it
+`C50` is the next batch. Its content determines its tier after it
 exists:
 
-| If C49 is | Result |
+| If C50 is | Result |
 |---|---|
-| patch or hotfix | `3.7.0.1-pre-alpha` |
-| kohai | `3.7.1.0-pre-alpha` |
-| minor | `3.8.0.0-pre-alpha` |
+| patch or hotfix | `3.8.0.1-pre-alpha` |
+| kohai | `3.8.1.0-pre-alpha` |
+| minor | `3.9.0.0-pre-alpha` |

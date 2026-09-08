@@ -305,8 +305,12 @@ def main():
             and "Cmd.COMPLIES_AT = 0.44" in cmd and "Cmd.RELUCTANT_AT = 0.34" in cmd,
         "conformity is read off the initiative axis, inverted":
             "1 - (t.initiative or 0.5)" in cmd,
+        # [C49] The fourth parameter is what the matter is about - the
+        # job for `work`, the square for `leave` - so it is `arg` down
+        # the whole chain now, rather than `job` at the top and `arg`
+        # at the bottom. Same seam: the word first, then the envelope.
         "the word comes first, then the envelope":
-            "Cmd.obedience(giverKey, id, kind, job)" in cmd
+            "Cmd.obedience(giverKey, id, kind, arg)" in cmd
             and "Cmd.envelope(id, kind, arg)" in cmd,
         "the harness routes every ask through the gate (thirteen asks and the wrapper)":
             asks >= 14 and "SAO.Command.order(key, id, kind, arg)" in hs,

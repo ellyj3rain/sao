@@ -164,6 +164,41 @@ end
 
 local setStateRef
 
+-- [C49] The controller's equivalent of the harness's `onYourWord`
+-- (DR-033): the same SAO.Command check and the same three replies,
+-- for orders one survivor gives another. Returns whether the order
+-- was accepted; the caller performs the act.
+--
+-- Replies go through `V.onEvent`, not `V.answer`. `V.answer` skips
+-- the talkativeness cooldown because a menu click deserves a reply
+-- ([B46], Border 46); giving the tick loop that exemption would make
+-- quiet survivors as talkative as everyone else. A taciturn survivor
+-- refuses without speaking, and the gesture still plays because
+-- `onEvent` raises it ([C35]).
+local function onTheirWord(giverId, id, kind, arg, act)
+    local verdict, reason = "complies", nil
+    pcall(function()
+        verdict, reason = SAO.Command.order(giverId, id, kind, arg)
+    end)
+    if verdict == "refuses" then
+        pcall(function() SAO.Voice.onEvent(id, "orderNo", tickCount) end)
+        log(id .. " does not take " .. tostring(giverId) .. "'s word ("
+            .. tostring(kind) .. "): " .. tostring(reason))
+        return false
+    end
+    if verdict == "reluctant" then
+        pcall(function()
+            SAO.Voice.onEvent(id, "orderGrudging", tickCount)
+        end)
+        log(id .. " goes along with " .. tostring(giverId)
+            .. ", grudgingly (" .. tostring(kind) .. "): "
+            .. tostring(reason))
+    end
+    if act then act() end
+    return true
+end
+Ctl.onTheirWord = onTheirWord
+
 -- When one runs, the company looks up: a fleeing survivor's present
 -- fellows hear it immediately - beliefs shared without ceremony (same
 -- group always passes the tell gates), decisions re-made this tick, the
@@ -172,7 +207,16 @@ local setStateRef
 -- that rouses a company. A night keeper who SEES something and keeps
 -- their nerve has to be able to wake the house too - otherwise the
 -- braver the sentry, the more useless the watch.
-local function rouseCompany(id, body, reason)
+--
+-- [C49] `spoken` separates the two callers. Seeing somebody run is
+-- not an order and is not checked; the tell carries its own
+-- skepticism either way. Being woken by a shout is an order, so a
+-- housemate gets up either because the warning itself landed or
+-- because they accept the keeper's word. This gates only the
+-- courtesy ALERT: `nextDecisionAt` is cleared for everyone in
+-- earshot, so anyone who already knows about the threat still reacts
+-- on their own reading.
+local function rouseCompany(id, body, reason, spoken)
     for otherId in pairs(Ctl.agents) do
         if otherId ~= id and SAO.Standing.sameGroup(id, otherId) then
             local other = Ctl.agents[otherId]
@@ -182,12 +226,19 @@ local function rouseCompany(id, body, reason)
                 local dy = otherBody:getY() - body:getY()
                 if dx * dx + dy * dy
                     <= SAO.Perception.EARSHOT * SAO.Perception.EARSHOT then
-                    SAO.Perception.tell(id, otherId, tickCount)
+                    local landed = SAO.Perception.tell(id, otherId, tickCount)
                     other.nextDecisionAt = 0
                     if other.state == "IDLE" or other.state == "ROAM" then
-                        setStateRef(other, otherId, "ALERT",
-                            reason
-                            or (id .. " is running - company reacts"))
+                        local rise = true
+                        if spoken and not (type(landed) == "number"
+                            and landed > 0) then
+                            rise = onTheirWord(id, otherId, "rouse", nil, nil)
+                        end
+                        if rise then
+                            setStateRef(other, otherId, "ALERT",
+                                reason
+                                or (id .. " is running - company reacts"))
+                        end
                     end
                 end
             end
@@ -444,7 +495,7 @@ local function setState(agent, id, state, why, answer)
             local kBody = SAO.Body.get(id)
             if kBody then
                 pcall(function()
-                    rouseCompany(id, kBody, id .. " wakes the house")
+                    rouseCompany(id, kBody, id .. " wakes the house", true)
                 end)
             end
         end
@@ -3321,46 +3372,34 @@ local function decide(id, agent, body)
                                         SAO.Voice.onEvent(objector,
                                             "stayPut", tick)
                                     end)
-                                    -- [B23] A deputy who tells you not
-                                    -- to go is a real thing about a
-                                    -- real kind of house. In a flat
-                                    -- house nobody has that standing,
-                                    -- which is equally real - and
-                                    -- `secondOf` returns nil there, so
-                                    -- the difference costs no branch.
-                                    local grpHV = SAO.Standing.groupOf(id) or ""
-                                    -- [B23] In a DIVIDED house the chair
-                                    -- stops being the voice that
-                                    -- carries. There is no vote - whose
-                                    -- word reaches you is decided by who
-                                    -- you lean with, and you listen to
-                                    -- your own side. That is the room
-                                    -- splitting, and nothing had to be
-                                    -- scripted for it.
-                                    local formHV = SAO.Standing.formOf
-                                        and SAO.Standing.formOf(grpHV) or "empty"
-                                    local sameSide = false
-                                    if formHV == "divided"
-                                        and SAO.Standing.leansToward then
-                                        local a = SAO.Standing.leansToward(id)
-                                        local b = SAO.Standing.leansToward(
-                                            objector)
-                                        sameSide = (a ~= nil and a == b)
-                                    end
-                                    local heavyVoice =
-                                        SAO.Standing.isBondedTo(id, objector)
-                                        or (sameSide
-                                            and SAO.Standing.trust(id, objector)
-                                                > 0.5)
-                                        or (formHV ~= "divided"
-                                            and (SAO.Standing.leaderOf(grpHV)
-                                                    == objector
-                                                or (SAO.Standing.secondOf
-                                                    and SAO.Standing.secondOf(
-                                                        grpHV) == objector))
-                                            and SAO.Standing.trust(id, objector)
-                                                > 0.5)
-                                    if overRatio <= 1.25 and heavyVoice then
+                                    -- [C49] SAO.Command decides
+                                    -- whether the objection carries
+                                    -- (DR-033). This site used to
+                                    -- decide it here: bonded, or same
+                                    -- side with trust above 0.5, or
+                                    -- leader/second with trust above
+                                    -- 0.5. That is a hardcoded
+                                    -- authority table, which DR-033
+                                    -- rules out, and it covered this
+                                    -- one order only. Both facts it
+                                    -- used are in SAO.Command now -
+                                    -- `secondOf` is already nil in a
+                                    -- divided house, and the leader's
+                                    -- office is withheld there from
+                                    -- members leaning the other way.
+                                    -- Bonds needed no separate clause:
+                                    -- both ways a bond forms require
+                                    -- high trust (0.6 and up at
+                                    -- genesis, 0.75 in play), and the
+                                    -- check weighs trust.
+                                    --
+                                    -- The worry test stays here.
+                                    -- Nobody frantic is talked down by
+                                    -- anyone, so the order is only put
+                                    -- when the question is open.
+                                    if overRatio <= 1.25
+                                        and onTheirWord(objector, id,
+                                            "hold", nil, nil) then
                                         desisted = true
                                         agent.nextSearchAt = tick + 21600
                                         SAO.Standing.adjustTrust(
@@ -5637,7 +5676,31 @@ local function updateAgent(id, agent)
                                         local desperate = tNeeds
                                             and (tNeeds.hunger >= desperationAt
                                                 or tNeeds.thirst >= desperationAt)
-                                        if not desperate then
+                                        -- [C49] "Out" is an order and
+                                        -- goes through SAO.Command
+                                        -- like the rest (DR-033). The
+                                        -- owner holds no office over a
+                                        -- stranger, so what carries it
+                                        -- is the claim: standing on
+                                        -- ground you hold counts as a
+                                        -- second's standing in the
+                                        -- matter of leaving it. Most
+                                        -- trespassers go, some
+                                        -- grudgingly, and one who
+                                        -- thinks little of the owner
+                                        -- keeps looting. Desperation
+                                        -- stays here rather than in
+                                        -- SAO.Command: the threshold
+                                        -- is the controller's, dial
+                                        -- and lesson bump included,
+                                        -- and a starving survivor is
+                                        -- not refusing anyone.
+                                        local heeds = not desperate
+                                            and onTheirWord(id, trespasserId,
+                                                "leave",
+                                                { x = belief.x, y = belief.y },
+                                                nil)
+                                        if heeds then
                                             pcall(function() ISTimedActionQueue.clear(tBody) end)
                                             SAO.Needs.clearSource(tBody)
                                             SAO.Needs.clearWater(tBody)

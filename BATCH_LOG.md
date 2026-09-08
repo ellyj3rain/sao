@@ -1,6 +1,6 @@
 | Document | Survivor Awareness Overhaul Batch Log |
 |---|---|
-| Version | `3.7.0.0-pre-alpha` |
+| Version | `3.8.0.0-pre-alpha` |
 | Author | ellyj3rain |
 | Repository | `BATCH_LOG.md` |
 | Status | REGULATORY - chronological batch index. |
@@ -153,3 +153,4 @@ attribution for every merged entry, stated here rather than in a branch name.
 | [C46](Batches/C46-2026-09-07-the-ground-looked-at.md) | 2026-09-07 | The ground, looked at | [`T-007`](Batches/THREADS.md#t-007), [`T-003`](Batches/THREADS.md#t-003) |
 | [C47](Batches/C47-2026-09-07-the-fence.md) | 2026-09-07 | The fence | [`T-006`](Batches/THREADS.md#t-006), [`T-002`](Batches/THREADS.md#t-002) |
 | [C48](Batches/C48-2026-09-07-how-hard-a-place-is-to-get-into.md) | 2026-09-07 | How hard a place is to get into | [`T-004`](Batches/THREADS.md#t-004), [`T-003`](Batches/THREADS.md#t-003) |
+| [C49](Batches/C49-2026-09-07-survivor-orders-use-the-command-check.md) | 2026-09-07 | Survivor orders use the command check | [`T-004`](Batches/THREADS.md#t-004), [`T-006`](Batches/THREADS.md#t-006) |

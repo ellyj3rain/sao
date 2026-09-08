@@ -1,6 +1,6 @@
 | Document | Survivor Awareness Overhaul Roadmap |
 |---|---|
-| Version | `3.7.0.0-pre-alpha` |
+| Version | `3.8.0.0-pre-alpha` |
 | Author | ellyj3rain |
 | Repository | `ROADMAP.md` |
 | Status | CANONICAL - thread map, backlog, live gates. |
@@ -416,10 +416,18 @@ scoped from it, unscheduled until their forks pass Crucible:
   envelope. SHIPPED as `[C37]`: every ask of a person in the county's
   menus lands through `SAO_Command` - CAO's check on the Standing
   that exists, a proven hand standing as a second, the envelope's own
-  reasons - with the debug orders left as the operator's hand;
-  a survivor's word to a survivor through the same check, and the
-  direction of several people at once by dictation, wait on the
-  understander.
+  reasons - with the debug orders left as the operator's hand.
+  SHIPPED as `[C49]`: survivor-to-survivor orders use the same
+  check. The keeper rousing the house, a housemate objecting to
+  someone leaving, and an owner telling a trespasser to go all go
+  through `SAO_Command`, and the hardcoded authority test written in
+  SAO_Controller for the objection is deleted. Three existing
+  Standing facts carry them - divided houses, designations and
+  claims - each worth what a proven hand is worth. Watching another
+  survivor act is not an order and is not checked; an invitation is
+  not an order and stays with the day zero arc. Directing several
+  people at once by dictation, and reading an order as an utterance,
+  still wait on the models.
 - **The county without the engine.** The record side generated and
   run over simulated days in the bare VM the borders already use -
   people, pasts, relations, houses, conditions, habits, knowledge and

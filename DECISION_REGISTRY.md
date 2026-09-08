@@ -1,6 +1,6 @@
 | Document | Survivor Awareness Overhaul Decision Registry |
 |---|---|
-| Version | `3.7.0.0-pre-alpha` |
+| Version | `3.8.0.0-pre-alpha` |
 | Author | ellyj3rain |
 | Repository | `DECISION_REGISTRY.md` |
 | Status | CANONICAL, APPEND-ONLY - ratified decisions. |
@@ -660,6 +660,46 @@ Border 92 freezes the ratified copy so the register cannot drift
 back silently - changing player-facing copy means re-ratifying it
 there, with the operator's eyes.
 
+**Amended twice by the operator; recorded 2026-09-07 ([C49]).** The
+closing sentence above - that the repository's internal documents
+keep their own register - was true for this entry's original scope
+and no longer holds. It was widened twice and neither widening was
+written back here, so every session since has read a permission the
+operator had already withdrawn.
+
+- **2026-08-30.** On a ruling name written in the form "X, not Y":
+  the failure is not front-end-only. Aphoristic X-not-Y slogans,
+  chiasmus and poetic parallel constructions in titles - registry
+  entries, section headings, ruling names, commit messages - are the
+  same failure as the shipped copy was. The boundary the operator
+  drew: the same content as an ordinary sentence is fine ("the
+  project is built so others can build on it too"); it fails when
+  compressed into a mirrored turn ("built to be built on", caught
+  live on a public repository description).
+- **2026-09-06.** After an idiom used as a Crucible option label
+  leaked from the question into a plan document and a public commit
+  message: the rule covers option labels, commit messages and ledger
+  prose too. Plain-descriptive everywhere the operator reads,
+  including the labels of the questions they are asked. Apply the
+  standard written here for player-facing copy to every word of
+  record.
+
+So the scope is: any string the operator reads. Player-facing copy,
+names, titles, headings, ruling names, border names, commit
+messages, code comments, ledger prose, question labels, and replies
+in conversation. State what the thing is or does in ordinary words
+and stop; a title is a description, not a phrase with a turn in it.
+Colour is the operator's to write or ratify. Diegetic survivor
+speech remains exempt.
+
+The copy half has Border 92. The rest has no border and failed
+again at `[C49]`, which was drafted in the banned register
+throughout - batch name, border name, comments and ledger prose -
+partly on the strength of this entry's stale exemption. `NEO.md`
+carries the rule directly now, so it loads before anything else is
+read. Whether a border can hold titles mechanically is unsettled and
+was not attempted here.
+
 ## DR-019 - The identity key is SAOPersonId, ratified
 
 **Decision.** The person-identity key on every body's modData is
@@ -1242,6 +1282,31 @@ arc's first slice followed as [C37]: the player's asks land through
 standing as CAO's Authority pillar decides it, on the Standing that
 exists - no table authored, a proven hand standing as a second,
 refusal contextual with its reason.
+
+The second slice is [C49], covering the ruling's "the same rule
+governs what survivors say to each other: one loop". Three orders one
+survivor gives another each decided for itself: the keeper rousing
+the house, a housemate objecting to someone leaving, and an owner
+telling a trespasser to go. The objection used a hardcoded authority
+test written in SAO_Controller for that order alone - bonded, or same
+side above a trust threshold, or the leader above one - which is the
+kind of table this ruling excludes, and it covered one order out of
+everything the county says. It is deleted, and all three orders go
+through SAO_Command.
+
+No weights or thresholds were added. Three Standing facts became
+inputs: a divided house withholds the leader's office from members
+leaning the other way and keeps it over members with no lean ([B23],
+[B24]); a designation gives standing in its own matter, the watch in
+a rousing and a dealt job in that job; and a claim gives standing in
+the matter of leaving it. Each is worth the same as a proven hand.
+
+Watching another survivor act is not an order and is not checked:
+seeing someone run still rouses their company, and a warning the
+listener believes still raises the house without a standing test. An
+invitation is not an order either - who joins a venture stays the
+hearer's own decision, and belongs to the day zero arc's socialized-
+ventures slice.
 
 ## DR-034 - Existing art crosses into SAO copied, with permission, and credited
 

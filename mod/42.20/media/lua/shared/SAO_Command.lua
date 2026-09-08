@@ -14,9 +14,19 @@
 -- and Standing's business, asked here the way the controller asks it
 -- for their own decisions.
 --
--- Nothing here executes and nothing here speaks: the harness voices
--- the verdict and the controller walks the order. Reads Standing,
--- Disposition, Perception and the census; writes nothing.
+-- [C49] Survivor-to-survivor orders use this check too (DR-033).
+-- [C37] routed only the player's asks through here. Three orders one
+-- survivor gives another did not use it: the keeper rousing the
+-- house, a housemate objecting to someone leaving, and an owner
+-- telling a trespasser to go. The objection used its own hardcoded
+-- authority test in SAO_Controller; that test is deleted. No weights
+-- or thresholds were added here. Three Standing facts became inputs:
+-- whether the house is divided, the giver's designation, and whether
+-- the giver's claim covers the ground in question.
+--
+-- Nothing here executes and nothing here speaks: the harness and the
+-- controller voice the verdict and walk the order. Reads Standing,
+-- Disposition, Perception, Identity and the census; writes nothing.
 
 SAO = SAO or {}
 SAO.Command = SAO.Command or {}
@@ -51,10 +61,17 @@ Cmd.TEACH_MARGIN = 3
 
 -- What is asked, and what it is asked in. `engage` is a fight and the
 -- ground of the fight is kills; `work` is a job and its matter is the
--- census's own perk for that job; everything else - hold, keep close,
--- walk, board, step out, travel - is asked in no matter at all.
+-- census's own perk for that job; `rouse` is being woken for
+-- something somebody else has seen and its matter is the watch;
+-- `leave` is being told off ground and its matter is the ground;
+-- everything else - hold, keep close, walk, board, step out, travel -
+-- is asked in no matter at all.
+--
+-- [C49] `rouse` and `leave` are issued only by SAO_Controller; no
+-- menu uses them. `rouse` is the keeper waking the house, `leave` is
+-- an owner telling a trespasser off their claim.
 Cmd.KINDS = { "hold", "close", "walk", "travel", "board", "unboard",
-              "work", "engage" }
+              "work", "engage", "rouse", "leave" }
 
 local function playerBody(giverKey)
     local body = nil
@@ -80,9 +97,38 @@ local function bodyOf(key)
     return body
 end
 
+-- [C49] Divided houses. `formOf` reports a house as divided ([B23])
+-- and `leansToward` reports which side one member is on ([B24]).
+-- SAO_Controller read both, for one order only, to decide whether
+-- the leader's word carried. That test lives here now, so it applies
+-- to every order including the player's: a player in the chair of a
+-- divided house holds no leader's office over members leaning the
+-- other way.
+--
+-- `leansToward` returns nil for anyone with no strong creed pull,
+-- which is most of the county ([B24]); those members keep their
+-- leader. `secondOf` already returns nil in a divided house, so the
+-- second needed no change.
+function Cmd.leansAway(group, id, giverKey)
+    local S = SAO.Standing
+    local form = nil
+    pcall(function() form = S.formOf and S.formOf(group) or nil end)
+    if form ~= "divided" then return false end
+    local mine = nil
+    pcall(function() mine = S.leansToward and S.leansToward(id) or nil end)
+    if not mine then return false end
+    local theirs = nil
+    pcall(function()
+        theirs = S.leansToward and S.leansToward(giverKey) or nil
+    end)
+    return theirs ~= nil and theirs ~= mine
+end
+
 -- The office the giver holds over this person: their house's leader
 -- (or the player seated in its chair, which is the same office), its
--- second, or none. A person of no house is under nobody's office.
+-- second, or none. A person of no house is under nobody's office, and
+-- ([C49]) a person leaning away in a divided house is under nobody's
+-- either.
 function Cmd.officeOf(giverKey, id)
     local S = SAO.Standing
     local group = nil
@@ -94,6 +140,7 @@ function Cmd.officeOf(giverKey, id)
     pcall(function() chair = S.playerChairOf(group) end)
     if (lead and tostring(lead) == giverKey)
         or (chair and tostring(chair) == giverKey) then
+        if Cmd.leansAway(group, id, giverKey) then return "none" end
         return "leader"
     end
     pcall(function() second = S.secondOf(group) end)
@@ -101,13 +148,46 @@ function Cmd.officeOf(giverKey, id)
     return "none"
 end
 
--- The competence the giver has shown in the matter (DR-033: the
--- skills and the kills already carry it). A job's perk against the
--- follower's own by the teaching margin; a fight by kills, the giver
--- having more than the follower and at least one. Read live - the
--- player's off the player, a survivor's through the census. What
--- cannot be read is not shown.
-function Cmd.provenIn(giverKey, id, kind, job)
+-- [C49] What standing the giver has in this specific matter, read
+-- from records that already exist. DR-033 names designations,
+-- competence and the Standing pillar as the inputs.
+--
+--   engage  their zombie kills, higher than the follower's and at
+--           least one
+--   work    the census perk for that job, at least TEACH_MARGIN
+--           levels above the follower's ([B19]) - or the giver holds
+--           that designation, which is the house having already
+--           given them the job
+--   rouse   the giver holds the "watch" designation
+--   leave   the giver's claim covers the square in question
+--
+-- Read live where the value is live (the player's kills off the
+-- player, a survivor's skills through the census) and off the record
+-- otherwise. Anything unreadable counts as no standing.
+local function designationOf(key)
+    local rec = nil
+    pcall(function() rec = SAO.Identity and SAO.Identity.get(key) or nil end)
+    return rec and rec.designation or nil
+end
+
+function Cmd.provenIn(giverKey, id, kind, arg)
+    if kind == "rouse" then
+        return designationOf(giverKey) == "watch"
+    end
+    if kind == "leave" then
+        if not (type(arg) == "table" and arg.x and arg.y) then return false end
+        local inside = false
+        pcall(function()
+            inside = SAO.Standing.insideClaim(giverKey, arg.x, arg.y) and true
+                or false
+        end)
+        return inside
+    end
+    -- A dealt designation needs no body and no skill comparison: the
+    -- house has already assigned the job.
+    if kind == "work" and arg and designationOf(giverKey) == arg then
+        return true
+    end
     local giver = bodyOf(giverKey)
     if not giver then return false end
     if kind == "engage" then
@@ -119,9 +199,9 @@ function Cmd.provenIn(giverKey, id, kind, job)
         end)
         return type(mine) == "number" and mine > 0 and mine > theirs
     end
-    if kind ~= "work" or not job then return false end
+    if kind ~= "work" or not arg then return false end
     local perk = SAO.Census and SAO.Census.JOB_PERK
-        and SAO.Census.JOB_PERK[job] or nil
+        and SAO.Census.JOB_PERK[arg] or nil
     if not perk then return false end
     local mine, theirs = -1, -1
     pcall(function()
@@ -137,10 +217,10 @@ end
 -- proven hand's, followed like a second (the ruling's "competence and
 -- background" in the currency CAO's ladder already has); then the
 -- person's own trust in the giver, half a point either way.
-function Cmd.standingOf(giverKey, id, kind, job)
+function Cmd.standingOf(giverKey, id, kind, arg)
     local office = Cmd.officeOf(giverKey, id)
     local base = Cmd.OFFICE[office] or Cmd.OFFICE.none
-    if office == "none" and Cmd.provenIn(giverKey, id, kind, job) then
+    if office == "none" and Cmd.provenIn(giverKey, id, kind, arg) then
         base = Cmd.OFFICE.second
         office = "proven"
     end
@@ -156,8 +236,8 @@ end
 -- initiative axis is, and its own definition is "self-starts vs
 -- waits" - the one who waits is the one who takes telling - so
 -- conformity is read off it, inverted, inside the same envelope.
-function Cmd.obedience(giverKey, id, kind, job)
-    local standing, office, trust = Cmd.standingOf(giverKey, id, kind, job)
+function Cmd.obedience(giverKey, id, kind, arg)
+    local standing, office, trust = Cmd.standingOf(giverKey, id, kind, arg)
     local t = nil
     pcall(function() t = SAO.Disposition.traits(id) end)
     t = t or {}
@@ -258,8 +338,7 @@ end
 -- clean yes. The word comes first (a person who will not be told is
 -- not asked whether they could), then the envelope.
 function Cmd.order(giverKey, id, kind, arg)
-    local job = (kind == "work") and arg or nil
-    local verdict, reason = Cmd.obedience(giverKey, id, kind, job)
+    local verdict, reason = Cmd.obedience(giverKey, id, kind, arg)
     if verdict == "refuses" then return verdict, reason end
     local ok, why = Cmd.envelope(id, kind, arg)
     if not ok then return "refuses", why end

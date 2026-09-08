@@ -56,6 +56,18 @@ of skill.
   Obvious defaults are taken and stated.
 - **Say what is not known.** An honest gap is worth more than a confident
   guess, and a guess presented as a finding is a defect.
+- **Write plainly (DR-018, widened 2026-08-30 and 2026-09-06).** State
+  what a thing is or does in ordinary words and stop. This covers every
+  word the operator reads: batch names, section headings, ruling names,
+  border names, commit messages, code comments, ledger prose, question
+  labels and chat replies - not only player-facing copy. Banned: titles
+  with a turn in them ("X, not Y"; mirrored or chiastic phrases),
+  possessive-abstract names ("the county's own word"),
+  noun-comma-participle names ("the ground, looked at"), present-tense
+  narration of what code does as if it were a scene, and metaphor
+  standing in for information. A title is a description. Do not attempt
+  colour on your own judgement - colour is the operator's to write or
+  ratify. Survivor speech in-game is exempt; it is a person talking.
 
 ## Laws
 

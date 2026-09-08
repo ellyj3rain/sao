@@ -1,13 +1,33 @@
 | Document | Survivor Awareness Overhaul Session State |
 |---|---|
-| Version | `3.7.0.0-pre-alpha` |
+| Version | `3.8.0.0-pre-alpha` |
 | Author | ellyj3rain |
 | Repository | `SESSION_STATE.md` |
 | Status | CANONICAL - where the work actually stands. |
 
 # Session state
 
-**As of** 2026-09-07, `[C48]` close - how hard a place is to get
+**As of** 2026-09-07, `[C49]` close - survivor orders use the
+command check (DR-033). [C37] routed the player's asks through
+SAO_Command and left survivor-to-survivor orders alone; three
+existed and each decided for itself. The keeper rousing the house
+checked nothing. An owner telling a trespasser to go was obeyed by
+anyone not starving. A housemate objecting to somebody leaving used
+a hardcoded authority test written at that one site - bonded, or
+same side above 0.5, or leader/second above 0.5 - which is the kind
+of table DR-033 rules out. It is deleted and all three go through
+SAO_Command. No weights or thresholds changed: three Standing facts
+became inputs, each worth what a proven hand is worth. A divided
+house withholds the leader's office from members leaning the other
+way and keeps it over members with no lean ([B23], [B24]), which now
+governs the player in a chair too. A designation gives standing in
+its own matter. A claim gives standing in the matter of leaving it.
+Seeing another survivor act is still not an order and is not
+checked, and a warning the listener believes still raises the house
+without a standing test, since Perception already carries the
+skepticism. Border 122 holds it; Border 46 caught the first version
+replying on the player's voice path and it uses the murmur path
+instead. `[C48]` before it - how hard a place is to get
 into (DR-037). The scout weighed rooms, area and water and could not
 see a door, so a glass-fronted shop with eleven ways in beat a house
 with three whenever it had one more room. It counts them now, off
@@ -372,16 +392,15 @@ unloaded survivors are governed by the same rules ([B39], [B42]).
 
 ## Deploy state
 
-`3.7.0.0-pre-alpha` at tip - the version machine's output ([C2],
+`3.8.0.0-pre-alpha` at tip - the version machine's output ([C2],
 DR-013; the twelfth minor rolled the tier by the odometer's own
-law). The game install carries the `[C44]` tip: `[C33]` through
-`[C44]` reached it on 2026-09-07, the first window the game was closed
-since the `[C32]` deploy of 2026-09-06. `[C45]` through `[C48]` are
-committed and gated but NOT deployed - the game was running at both
-closes and `deploy.sh` refuses while it is, so they wait for the next
-window. The close script wrote the `[C45]` line as though it had
-deployed and it had not; a claim about the install that nothing checks
-is exactly the kind this document is supposed to be trusted for. The play receipts the C era owes are the next
+law). The game install carries the `[C49]` tip: `[C45]` through
+`[C49]` reached it on 2026-09-07 after the `[C49]` commit passed the
+gate, the first window the game was closed since the `[C44]` deploy
+earlier the same day. Verified rather than assumed - the deployed
+`mod.info` reads `3.8.0.0-pre-alpha` and the deployed `SAO.jar` is
+byte-identical to the committed build. Nothing behavioural is
+waiting. The play receipts the C era owes are the next
 thing the tree cannot produce for itself - the operator chose to
 keep building before testing, so `[C29]` (a survivor scaled from
 the harness), `[C30]` (a child in the street, an elder's slower
@@ -399,7 +418,7 @@ deploy; `save_compat_test` guards this and runs in the gate.
 
 ## Instruments
 
-**121 numbered borders**, run by **136 gated mirrors** in `tools/`, all invoked
+**122 numbered borders**, run by **137 gated mirrors** in `tools/`, all invoked
 by `tools/check.sh`, which the pre-commit hook runs and CI runs on every push.
 The figures in this paragraph are derived by Border 76 from the tree, not
 maintained by hand. Border 54 keeps the rest honest: it runs every gated

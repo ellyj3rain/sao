@@ -1470,6 +1470,16 @@ if ! "$PY" tools/ways_in_test.py > /dev/null; then
     fail=1
 fi
 
+# [C49] Border 122 - survivor orders use the command check: orders one
+# survivor gives another go through SAO_Command like the player's,
+# reading divided houses, designations and claims from Standing, and
+# the hardcoded authority test in SAO_Controller is deleted.
+if ! "$PY" tools/survivor_orders_test.py > /dev/null; then
+    "$PY" tools/survivor_orders_test.py 2>&1 | grep -E "FAULT" || true
+    note "BORDER FINDING - an authority test is hardcoded, or an order skips the check"
+    fail=1
+fi
+
 # Border 103 - the operator's speech is not in the repository: no
 # profanity in the tracked tree and no operator-quote attributions;
 # rulings are paraphrased content, speech stays with the speaker.
