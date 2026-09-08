@@ -272,6 +272,48 @@ function Age.playerPass(player, key, pass, today)
     return acted
 end
 
+-- [C60] The place the player is standing in, spent by what the engine
+-- says they emptied. `SAO_Places.take` records a survivor's taking and
+-- the player's went nowhere, so a stripped shop still read as stocked
+-- and the county kept walking to it ([B39]'s standing gap).
+--
+-- Read on the player's own ten-minute pass, which is where everything
+-- else about them already happens. The radius is the reach the needs
+-- layer already uses for the containers around somebody; the place is
+-- the one SAO_Places puts at their feet, and where there is no place
+-- there is nothing to spend.
+local LOOT_REACH = 8
+
+function Age.playerLoots(player)
+    if not player then return 0 end
+    local x, y = nil, nil
+    pcall(function() x, y = player:getX(), player:getY() end)
+    if not (x and y) then return 0 end
+    local place = nil
+    pcall(function() place = SAO.Places.at(math.floor(x), math.floor(y)) end)
+    if not place then return 0 end
+    local reading = nil
+    pcall(function()
+        reading = SAOJavaBridge:lootedNearby(player, LOOT_REACH)
+    end)
+    if type(reading) ~= "string" then return 0 end
+    local looted, total = string.match(reading, "^(%d+)@(%d+)$")
+    looted, total = tonumber(looted) or 0, tonumber(total) or 0
+    -- Both halves are read. `total` is what separates a room that was
+    -- stripped from one that never had anything to strip, and the log
+    -- is the only place that difference is legible - a receipt that
+    -- says "3 of 3" is a different claim from "3 of 40".
+    if looted <= 0 or total <= 0 then return 0 end
+    local spent = 0
+    pcall(function() spent = SAO.Places.observeLooted(place, looted) end)
+    if spent and spent > 0 then
+        SAO.Log.line("AGE", "the player has emptied " .. looted .. " of "
+            .. total .. " container(s) here - " .. tostring(place.id)
+            .. " is spent by " .. spent .. " more")
+    end
+    return spent or 0
+end
+
 -- [C51] A drink the PLAYER took. The county's people go through
 -- `SAO.Habits.drank` because the controller walks them to a bottle
 -- and queues the action; the player just drinks, and there is no
@@ -331,6 +373,7 @@ local function everyTenMinutes()
             -- taken this pass stops this pass's shakes rather than
             -- the next one's.
             Age.playerDrinks(me, key)
+            Age.playerLoots(me)                       -- [C60]
             Age.playerPass(me, key, passCounter, newDay and today or nil)
         end
     end)

@@ -1545,6 +1545,16 @@ if ! "$PY" tools/skips_cleanly_test.py > /dev/null; then
     fail=1
 fi
 
+# [C60] Border 129 - the player's looting spends a place ([B39]'s
+# standing gap): read off the engine's own looted flag, raising the
+# county's tally for the place the player is standing in and never
+# lowering it.
+if ! "$PY" tools/player_looting_test.py > /dev/null; then
+    "$PY" tools/player_looting_test.py 2>&1 | grep -E "FAULT|SKIPPED" || true
+    note "BORDER FINDING - the county cannot see what the player emptied"
+    fail=1
+fi
+
 # Border 103 - the operator's speech is not in the repository: no
 # profanity in the tracked tree and no operator-quote attributions;
 # rulings are paraphrased content, speech stays with the speaker.

@@ -1,13 +1,28 @@
 | Document | Survivor Awareness Overhaul Session State |
 |---|---|
-| Version | `3.9.3.4-pre-alpha` |
+| Version | `3.10.0.0-pre-alpha` |
 | Author | ellyj3rain |
 | Repository | `SESSION_STATE.md` |
 | Status | CANONICAL - where the work actually stands. |
 
 # Session state
 
-**As of** 2026-09-08, `[C59]` close - main is protected and batches
+**As of** 2026-09-08, `[C60]` close - the player's looting spends a
+place. The standing gap since [B39]: a survivor taking something
+calls `SAO_Places.take` and the place is spent for everybody, and the
+player's looting called nothing, so a shop the player had stripped
+still read as full stock and the county kept sending foragers to it.
+Read rather than hooked - the engine marks a container looted when it
+has been emptied (`isHasBeenLooted`, javap-verified, a flag SAO never
+writes), so the ground itself is the reading, walked the way the
+needs layer already walks containers and taken to the place ledger on
+the player's own ten-minute pass. The tally is raised and never
+lowered, held at the place's capacity, and the refill stamp moves
+only when the count raises it, so standing in an untouched room does
+not reset its clock. What the county BELIEVES about a place is
+untouched: a survivor who thought a shop was stocked still thinks so
+until they go and look, which is Perception's business. Border 129
+holds it. `[C59]` before it - main is protected and batches
 arrive by pull request. `[C56]` through `[C58]` were pushed straight
 to `origin/main`: thirty-one commits, no branch, no pull request, no
 merge. CAO is the standard for how this repository publishes and its
@@ -577,7 +592,7 @@ unloaded survivors are governed by the same rules ([B39], [B42]).
 
 ## Deploy state
 
-`3.9.3.4-pre-alpha` at tip - the version machine's output ([C2],
+`3.10.0.0-pre-alpha` at tip - the version machine's output ([C2],
 DR-013; the twelfth minor rolled the tier by the odometer's own
 law). The game install carries the `[C55]` tip: `[C45]` through
 `[C51]` reached it on 2026-09-07 and `[C52]` through `[C55]` on 2026-09-08, each
@@ -605,7 +620,7 @@ deploy; `save_compat_test` guards this and runs in the gate.
 
 ## Instruments
 
-**128 numbered borders**, run by **143 gated mirrors** in `tools/`, all invoked
+**129 numbered borders**, run by **144 gated mirrors** in `tools/`, all invoked
 by `tools/check.sh`, which the pre-commit hook runs and CI runs on every push.
 The figures in this paragraph are derived by Border 76 from the tree, not
 maintained by hand. Border 54 keeps the rest honest: it runs every gated
