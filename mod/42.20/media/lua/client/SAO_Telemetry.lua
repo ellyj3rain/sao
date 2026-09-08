@@ -103,6 +103,15 @@ function T.event(kind, fields)
     end)
     fields.hours = ok and h or 0
     fields.day = math.floor((ok and h or 0) / 24.0)
+    -- [C65] Which run this line belongs to, while a run is open.
+    --
+    -- A trajectory is only a trajectory if you can tell where one
+    -- ends and the next begins. The file is append-only across every
+    -- session on this machine, so without this the lines from three
+    -- different counties interleave into one stream that reads like a
+    -- single county behaving impossibly. Absent outside a run, which
+    -- is what live play is.
+    if T.runId then fields.run = T.runId end
     T.buffer[#T.buffer + 1] = encode(fields)
     if #T.buffer >= FLUSH_AT then T.flush() end
 end
@@ -159,11 +168,90 @@ function T.died(id, cause)
     T.event("died", f)
 end
 
--- The county once a day, laid beside the events rather than instead
+-- [C65] A run opens and closes, and carries what it was run under.
+--
+-- A model fitted to these trajectories has to condition on the
+-- circumstances that produced them, and every one of those is a
+-- sandbox dial or a fact about the save. None of it is derivable
+-- afterwards from the county lines themselves: two runs with the same
+-- population curve can have had opposite risk settings.
+--
+-- The identifier is stored by the caller, not made here, because a
+-- run that is resumed across a reload is the same run and this module
+-- does not know that. It only stamps what it is told.
+function T.run(phase, fields)
+    if not on() then return end
+    fields = fields or {}
+    fields.phase = tostring(phase)
+    T.event("run", fields)
+    T.flush()
+end
+
+-- What a run was run under, read off the sandbox and the record.
+-- Returns a flat table; the caller adds the run identifier and the
+-- days owed, which are its own.
+function T.conditions()
+    local out = {}
+    local sv = SandboxVars and SandboxVars.SurvivorAwareness or nil
+    if sv then
+        -- Every fallback here is the number `sandbox-options.txt`
+        -- declares, not a zero. Border 33 refuses any other value and
+        -- it caught five of these: a run whose dials were left alone
+        -- would have been recorded as having had desperation 0 and no
+        -- population target, and a model fitted to that would have
+        -- learned the wrong conditioning for the commonest case there
+        -- is.
+        out.dormantRisk = tonumber(sv.DormantRisk) or 1.0
+        out.trustToCompany = tonumber(sv.TrustToCompany) or 0.5
+        out.desperation = tonumber(sv.Desperation) or 0.7
+        out.refillDays = tonumber(sv.RefillDays) or 2.0
+        out.roadTraffic = tonumber(sv.RoadTraffic) or 2
+        out.populationGoverned = sv.PopulationGoverned == true
+        out.population = tonumber(sv.Population) or 216
+        out.newcomersGoverned = sv.NewcomersGoverned == true
+        out.newcomers = tonumber(sv.Newcomers) or 500
+        out.dayZero = sv.DayZero == true
+    end
+    pcall(function()
+        local gt = GameTime.getInstance()
+        out.startYear = gt:getStartYear()
+        out.startMonth = gt:getStartMonth()
+        out.startDay = gt:getStartDay()
+    end)
+    pcall(function() out.daysOwed = SAO.History.daysOwed() end)
+    return out
+end
+
+-- The county as one line, laid beside the events rather than instead
 -- of them. Counts only - anything per-person is an event.
+--
+-- [C65] This said "once a day" and its only caller was `bootDigest`,
+-- which runs on the first population tick of a session and never
+-- again. So in live play it is once per load, and the sentence
+-- describing it had been wrong since [B38]. [C45]'s years pass calls
+-- it once per simulated day, which is what makes a span of years a
+-- trajectory rather than an endpoint. Giving live play a real daily
+-- hook is a separate change and is not made here.
 function T.county()
     if not on() then return end
-    local living, dead, lessons, units, dry, hungry = 0, 0, 0, 0, 0, 0
+    local living, dead, lessons, units = 0, 0, 0, 0
+    -- [C65] `dry` and `hungry` were declared here and never assigned
+    -- or emitted, so the county line said nothing about need - which
+    -- is the pressure that drives most of what the county does.
+    -- Counted as PEOPLE who have gone a day or more without, plus the
+    -- worst case, because the tail is what kills and the mean hides
+    -- it. No threshold is invented here: the patience constants
+    -- belong to the attrition roll and stay there.
+    local dry, hungry, dryMax, hungryMax = 0, 0, 0, 0
+    -- [C65] What the county holds and how shut it is. Both are the
+    -- outcome the years are run to produce, and neither reached the
+    -- record of a run.
+    local groups, grouped, claims, waysIn, waysShut = {}, 0, 0, 0, 0
+    local groupCount, largest = 0, 0
+    local today = 0
+    pcall(function()
+        today = math.floor(SAO.History.countyHours() / 24.0)
+    end)
     local ok = pcall(function()
         for id, rec in pairs(SAO.Identity.all()) do
             if rec.dead then
@@ -174,7 +262,37 @@ function T.county()
                 for _ in pairs(rec.lessonsKnown or {}) do
                     lessons = lessons + 1
                 end
+                local w = tonumber(rec.lastWaterDay)
+                if w and today - w >= 1 then
+                    dry = dry + 1
+                    if today - w > dryMax then dryMax = today - w end
+                end
+                local f = tonumber(rec.lastFoodDay)
+                if f and today - f >= 1 then
+                    hungry = hungry + 1
+                    if today - f > hungryMax then hungryMax = today - f end
+                end
+                local g = SAO.Standing and SAO.Standing.groupOf
+                    and SAO.Standing.groupOf(id) or nil
+                if g then
+                    grouped = grouped + 1
+                    groups[g] = (groups[g] or 0) + 1
+                end
+                if SAO.Standing and SAO.Standing.claimOf
+                    and SAO.Standing.claimOf(id) then
+                    claims = claims + 1
+                end
+                -- [C46] surveyed this and only the panel ever read it.
+                local ways = tonumber(rec.waysIntoHome)
+                if ways then
+                    waysIn = waysIn + ways
+                    waysShut = waysShut + (tonumber(rec.boardedAtHome) or 0)
+                end
             end
+        end
+        for _, n in pairs(groups) do
+            groupCount = groupCount + 1
+            if n > largest then largest = n end
         end
     end)
     if not ok then return end
@@ -183,6 +301,11 @@ function T.county()
         lessonsHeld = lessons,
         inUnits = units,
         perPerson = (living > 0) and (lessons / living) or 0,
+        dry = dry, dryDaysMax = dryMax,
+        hungry = hungry, hungryDaysMax = hungryMax,
+        groups = groupCount, grouped = grouped, largestGroup = largest,
+        claimsHeld = claims,
+        waysIn = waysIn, waysShut = waysShut,
     })
     -- [C16] The dead census (DR-021's instrument): raw counts from
     -- the bridge; density and projection derived HERE with the

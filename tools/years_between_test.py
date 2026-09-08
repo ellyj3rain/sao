@@ -56,6 +56,18 @@ ALLOWED_IN_A_DAY = {
     # border ever goes, this entry is a hole, and the two are meant to
     # be read together.
     "lookAtSomeGround",
+    # [C65] The county line, written once a day. This is not an
+    # exception like the one above: `dailyCounty` is run by
+    # `populationTick` on the live county's own cadence, and the years
+    # call the same function rather than reaching past it. It is here
+    # because this list is by name and the name is new.
+    #
+    # The first draft of [C65] called `SAO.Telemetry.county` from the
+    # simulated day directly and this rule refused it, correctly. What
+    # it caught was a real gap: [B38] said the county was written once
+    # a day and had wired it to `bootDigest`, which runs once per
+    # session load.
+    "dailyCounty",
 }
 
 # Shapes that would mean the pass had started inventing rather than

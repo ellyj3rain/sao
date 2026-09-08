@@ -90,6 +90,11 @@ SUBS = {
         "NOT budgeted: it must see everyone near the player now, and "
         "spreading it across passes would delay a survivor appearing "
         "where somebody is standing"),
+    "dailyCounty": (0, "none",
+        "[C65] walks no store in this file. It gates on the county's "
+        "own day and calls SAO.Telemetry.county, whose single walk is "
+        "declared in ELSEWHERE below - the walk is real and belongs on "
+        "the record, it is just not in this file"),
 }
 
 # Walks over persisted structures outside the population file, with
@@ -103,6 +108,20 @@ ELSEWHERE = {
         "thirty thousand - a quarter-second freeze on one frame - and "
         "spread it over passes at DRIFT_BUDGET rows each, which "
         "measured flat at about 2 ms a pass as the graveyard grew"),
+    ("SAO_Telemetry.lua", "T.county"): ("unbudgeted",
+        "[C65] writes the county's one line a day and walks the whole "
+        "identity store once to count it - living, dead, need, groups, "
+        "claims and how shut the places are. Every grave is in that "
+        "walk, because the store is what the dead never leave. "
+        "Deliberately NOT budgeted, and the two reasons are different "
+        "from driftStandings'. It is LINEAR where that one was "
+        "quadratic: this border's own cost table puts a single pass at "
+        "2.6 ms over thirty thousand records, once per county day, "
+        "against 231 ms for the walk [B51] had to slice. And a cursor "
+        "would make it wrong rather than slow - a county line assembled "
+        "from half a county on one day and half on the next is not a "
+        "count of anything, and the whole point of the line is that it "
+        "is a snapshot somebody can fit a model to"),
 }
 
 RUNSUB = re.compile(r'runSub\(\s*"([^"]+)"\s*,\s*([A-Za-z_][\w.]*)')

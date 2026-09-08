@@ -26,7 +26,7 @@ Instruments and audits measured against the genuine artifact, engine or code.
 
 Telemetry and the acquisition record - how learning is stored and how every fact says how it arrived.
 
-**Batches**: `A23`, `C6`, `C16`
+**Batches**: `A23`, `C6`, `C16`, `C65`
 
 **Owes**: telemetry interpretation is read from play sessions.
 
@@ -60,7 +60,7 @@ Who a person is, what they believe, how they came to believe it, and what time d
 
 Who the county holds: census, age, occupation, arrivals, and growth.
 
-**Batches**: `A7`, `A17`, `A18`, `A19`, `B28`, `B37`, `B38`, `B48`, `C9`, `C16`, `C17`, `C20`, `C21`, `C29`, `C30`, `C31`, `C32`, `C33`, `C34`, `C35`, `C39`, `C40`, `C41`, `C45`, `C46`, `C62`, `C63`
+**Batches**: `A7`, `A17`, `A18`, `A19`, `B28`, `B37`, `B38`, `B48`, `C9`, `C16`, `C17`, `C20`, `C21`, `C29`, `C30`, `C31`, `C32`, `C33`, `C34`, `C35`, `C39`, `C40`, `C41`, `C45`, `C46`, `C62`, `C63`, `C65`
 
 **Owes**: growth rate vs the 360 ceiling - the arithmetic is with the operator.
 

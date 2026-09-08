@@ -1,13 +1,36 @@
 | Document | Survivor Awareness Overhaul Session State |
 |---|---|
-| Version | `3.10.2.2-pre-alpha` |
+| Version | `3.11.0.0-pre-alpha` |
 | Author | ellyj3rain |
 | Repository | `SESSION_STATE.md` |
 | Status | CANONICAL - where the work actually stands. |
 
 # Session state
 
-**As of** 2026-09-08, `[C64]` close - the blanket claim is gone
+**As of** 2026-09-08, `[C65]` close - the years pass leaves a
+trajectory. The operator ruled that a late start cannot afford
+first-principles generation at distance and chose a learned trajectory
+model fitted to the generator's own per-year runs; there were no runs.
+`[C45]` mutates state in place, so the county at the end answers what
+it is like now and destroys what happened, which is the thing being
+modelled, and the only lines reaching the telemetry file during a span
+were incidental death and lesson events with no boundary around them.
+`SAO_Telemetry` was already built on that exact argument at `[B38]` -
+"a daily snapshot answers what the county is like now and destroys
+what happened" - and had never been pointed at the years. Every line
+now carries the run it belongs to while one is open and none outside
+it; `T.run` opens and closes a span and `T.conditions` records what it
+was run under, none of which is recoverable from the county lines
+afterwards. The identifier is made once and kept in the save, because
+a span sliced across hundreds of passes and a reload is one run. The
+county line gained need, groups, claims and fortification - `dry` and
+`hungry` among them, declared in `T.county` since `[B38]` and never
+assigned - and `oneYearsDay` writes one line per simulated day. Border
+133 drives the real module in the engine's VM with `getFileWriter`
+stubbed, so every assertion is made against the JSONL actually
+emitted. Reading the module also found its own comment wrong: it says
+the county is written once a day and its only caller runs once per
+session load. `[C64]` before it - the blanket claim is gone
 from every document that carried it. DR-025 banned the
 perpetual-untested claim on 2026-08-29 and Border 97 has held it out
 of this file and `PLAYABILITY.md` ever since; the operator found it
@@ -687,7 +710,7 @@ unloaded survivors are governed by the same rules ([B39], [B42]).
 
 ## Deploy state
 
-`3.10.2.2-pre-alpha` at tip - the version machine's output ([C2],
+`3.11.0.0-pre-alpha` at tip - the version machine's output ([C2],
 DR-013; the twelfth minor rolled the tier by the odometer's own
 law). The game install carries the `[C62]` tip. `[C45]` through
 `[C51]` reached it on 2026-09-07 and `[C52]` through `[C62]` on 2026-09-08, each
@@ -702,9 +725,10 @@ gate and its pull request merged, and was checked rather than assumed:
 both `mod.info` files read the coordinate the machine derived,
 `SAO_History.lua` carries the county's clock, `SAO_Standing.lua` reads
 it at all thirty-four of its sites, and `SAO.jar` is byte-identical to
-the committed build. `[C63]` and `[C64]` are what is owed now. `[C63]` rebuilds the jar,
-and `[C64]` changes the `mod.info` description a player reads, so that
-deploy carries both.
+the committed build. `[C63]`, `[C64]` and `[C65]` are what is owed now. `[C63]` rebuilds
+the jar, `[C64]` changes the `mod.info` description a player reads, and
+`[C65]` changes what the telemetry file holds, so that deploy carries
+all three.
 The play receipts the C era owes are the next
 thing the tree cannot produce for itself - the operator chose to
 keep building before testing, so `[C29]` (a survivor scaled from
@@ -723,7 +747,7 @@ deploy; `save_compat_test` guards this and runs in the gate.
 
 ## Instruments
 
-**132 numbered borders**, run by **147 gated mirrors** in `tools/`, all invoked
+**133 numbered borders**, run by **148 gated mirrors** in `tools/`, all invoked
 by `tools/check.sh`, which the pre-commit hook runs and CI runs on every push.
 The figures in this paragraph are derived by Border 76 from the tree, not
 maintained by hand. Border 54 keeps the rest honest: it runs every gated
