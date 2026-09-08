@@ -244,6 +244,27 @@ public final class SAORecord {
         return wordsOf(date);
     }
 
+    /** [C62] Which calendar month a county hour falls in, numbered 0
+     *  to 11 the way the engine numbers them. -1 off the clock.
+     *
+     *  [C45] lives the days a later save owes with the game clock
+     *  stopped, so GameTime.getMonth() reports the save's start month
+     *  for the whole span. Three simulated years of attrition ran
+     *  with one month's weather. This reads the month off the hours
+     *  the county has actually reached.
+     *
+     *  County hour 0 is the first of the days a save owes, not the
+     *  save's own start, so the anchor is the start put back by the
+     *  days behind it. A save that owes nothing anchors on its own
+     *  start and this answers what GameTime answers, every day of
+     *  play. */
+    public static int countyMonth0(int year, int month0, int day0, double hours) {
+        int behind = Math.max(0, recordDayOf(year, month0, day0));
+        LocalDate anchor = dateOf(year, month0, day0).minusDays(behind);
+        LocalDate date = anchor.plusDays((long) Math.floor(hours / 24.0));
+        return date.getMonthValue() - 1;
+    }
+
     /** [C38] The record's own first day, in the same words - and
      *  [C43] the day it actually falls on in this world, which is not
      *  July 9 once the timeline has been shifted onto this save. */

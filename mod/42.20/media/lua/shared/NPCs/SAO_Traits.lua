@@ -348,7 +348,7 @@ function T.readPlayer(player)
         md.SAOHabits = md.SAOHabits or {}
         if md.SAOHabits.lastDrinkHours == nil then
             md.SAOHabits.lastDrinkHours =
-                GameTime.getInstance():getWorldAgeHours()
+                SAO.History.countyHours()
         end
         SAO.Habits.bindRecord(key, md.SAOHabits)
     end)

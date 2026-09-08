@@ -300,7 +300,7 @@ function P.observe(id, body, tick, asleep)
                             prev.teller, prev.presumed == true, tick)
                     end
                     local okRH, rh = pcall(function()
-                        return GameTime.getInstance():getWorldAgeHours()
+                        return SAO.History.countyHours()
                     end)
                     -- Returns teach ([A28]): seeing someone whose
                     -- departure you were told closes the out-claim
@@ -734,7 +734,7 @@ function P.tell(fromId, toId, tick, chosen)
         end)
         if okT and tt and tt.nerve < 0.4 and tt.talkativeness > 0.55 then
             local okH, nowH = pcall(function()
-                return GameTime.getInstance():getWorldAgeHours()
+                return SAO.History.countyHours()
             end)
             if okH then
                 -- The window is FELT, not flat ([A28]): the
@@ -1004,7 +1004,7 @@ function P.announceDeparture(fromId, kind, destX, destY)
     local g = SAO.Standing.groupOf and SAO.Standing.groupOf(fromId) or nil
     if not g then return end
     local okH, nowH = pcall(function()
-        return GameTime.getInstance():getWorldAgeHours()
+        return SAO.History.countyHours()
     end)
     if not okH then return end
     -- Announced terms ([B1]): the goer knows how long their own

@@ -1,6 +1,6 @@
 | Document | Survivor Awareness Overhaul Findings |
 |---|---|
-| Version | `3.10.1.0-pre-alpha` |
+| Version | `3.10.2.0-pre-alpha` |
 | Author | ellyj3rain |
 | Repository | `FINDINGS.md` |
 | Status | CANONICAL, APPEND-ONLY - verified engine findings. |
@@ -1004,3 +1004,39 @@ runner and the walk is correct. The venture's seat cap reads the
 chosen car rather than choosing, and roomiest-first means the largest
 acceptable car is always the one offered.
 
+
+## F-058 - A pass that calls a system is not a pass that runs it ([C45]/[C62])
+
+**The defect.** `[C45]` lives the days a later save owes by calling the
+county's own systems once per simulated day. It never moved the clock
+those systems read, and most of them gate on a CHANGE of day. A 1996
+save ran about a thousand simulated days and came out of them with the
+same people, the same feelings and the same needs.
+
+| System | Gate | Across the whole span |
+|---|---|---|
+| `dormantAttrition` | `today > rec.lastRiskDay` | one stamp, no deaths after it |
+| `dormantLife` | `lastWaterDay`, `lastFoodDay` | one stamp, nobody grew thirsty |
+| `chooseDayPlace` | `daysWithout(...)` | zero dry days, so need drove nothing |
+| `driftStandings` | `s.lastDriftDay == day` | one day's drift, then zero |
+| the winter multiplier | `GameTime:getMonth()` | three simulated years in one month |
+| `clockMonths` ([C61]) | `recordDayToday()` | held at the save's own record day |
+
+**Why the border could not catch it.** Border 118 is `[C45]`'s own and
+it checks that the years pass CALLS those systems. It does, on every
+simulated day. Whether a call does anything is a different question,
+and answering it needs a different instrument: Border 131 runs
+`driftStandings` on three consecutive simulated days and counts what
+moved, which is the smallest measurement that distinguishes the two.
+
+**The shape, named.** A pass that drives other systems owns the clock
+they read. Sixty-eight places in this tree asked `GameTime` for the
+world age in hours, each of them meaning "how far along is this
+county", and any of them could have been the one that broke. The fix
+is not a stamp per site: it is one module that answers what hour it is
+and sixty-seven sites that ask it.
+
+**Verification.** `tools/county_clock_test.py` (Border 131), driving
+the real `SAO_History` and `SAO_Standing` in the engine's own Kahlua
+VM. Its control is the pre-batch tree, where the second and third
+simulated days move nothing.

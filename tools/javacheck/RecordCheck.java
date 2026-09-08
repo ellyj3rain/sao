@@ -91,6 +91,24 @@ public final class RecordCheck {
         expect("the Herald on July 10", SAORecord.issueFor(herald, LocalDate.of(1993, 7, 10)), "KentuckyHerald_July6");
         expect("the Herald a year on", SAORecord.issueFor(herald, LocalDate.of(1994, 7, 9)), "KentuckyHerald_July16");
 
+        // [C62] The month a COUNTY hour falls in. County hour 0 is
+        // the first of the days a save owes, so the anchor is the
+        // save's start put back by the days behind it - a 1996 save
+        // is at the record's own day zero on county hour 0, and back
+        // at its own start once it has lived them all.
+        expect("the shipped start's own month", SAORecord.countyMonth0(1993, 6, 8, 0.0), 6);
+        expect("a month into the shipped start", SAORecord.countyMonth0(1993, 6, 8, 31 * 24.0), 7);
+        expect("a 1996 save's first county hour is the record's July",
+            SAORecord.countyMonth0(1996, 6, 8, 0.0), 6);
+        expect("and a hundred and eighty days in is January",
+            SAORecord.countyMonth0(1996, 6, 8, 180 * 24.0), 0);
+        expect("and the day it has lived them all is its own start month",
+            SAORecord.countyMonth0(1996, 6, 8, 1096 * 24.0), 6);
+        expect("a January 1993 start owes nothing and reads its own month",
+            SAORecord.countyMonth0(1993, 0, 0, 0.0), 0);
+        expect("and two hundred days into it is July",
+            SAORecord.countyMonth0(1993, 0, 0, 200 * 24.0), 6);
+
         // The engine's own registry, if it loads off the game.
         try {
             Object issues = zombie.scripting.objects.Newspaper.KNOX_KNEWS.getIssues();

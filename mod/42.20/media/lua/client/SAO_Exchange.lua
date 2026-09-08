@@ -108,7 +108,7 @@ function Exchange.betweenPair(id, agent, body, otherId, otherBody, tickCount)
             if opb3 and opb3.condition == "bitten" then
                 agent.bittenSaidAt = agent.bittenSaidAt or {}
                 local okBH, bh3 = pcall(function()
-                    return GameTime.getInstance():getWorldAgeHours()
+                    return SAO.History.countyHours()
                 end)
                 local nowB3 = okBH and bh3 or 0
                 if nowB3 - (agent.bittenSaidAt[otherId] or -99) >= 24 then
@@ -541,7 +541,7 @@ function Exchange.betweenPair(id, agent, body, otherId, otherBody, tickCount)
         -- reason a loner's circle costs them more than safety.
         if SAO.Standing.sameGroup(id, otherId) and SAO.Census.skillOf then
             local okTH, nowTH = pcall(function()
-                return GameTime.getInstance():getWorldAgeHours()
+                return SAO.History.countyHours()
             end)
             agent.taughtAt = agent.taughtAt or {}
             if okTH and nowTH - (agent.taughtAt[otherId] or -9) >= 1 then

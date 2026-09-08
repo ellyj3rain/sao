@@ -123,7 +123,10 @@ def probe(expr):
         prelude.write_text(PRELUDE, encoding="utf-8")
         done = subprocess.run(
             [str(JDK / "java.exe"), "-cp", f"{PZ};.", "LuaRun",
-             str(prelude), str(STANDING), "--", expr],
+             # [C62] SAO_History answers what hour it is; the stub clock
+             # above is what it reads.
+             str(prelude), str(LUA / "shared" / "SAO_History.lua"),
+             str(STANDING), "--", expr],
             cwd=str(work), capture_output=True, text=True, timeout=900)
     return (done.stdout or "").strip().split("\n")[-1] if done.stdout else "ERROR no output"
 

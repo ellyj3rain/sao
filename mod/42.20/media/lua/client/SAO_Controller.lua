@@ -2309,7 +2309,7 @@ local function decide(id, agent, body)
                 -- not once per tick - a full housemate scan every
                 -- tick is exactly what the [B5] audit convicted.
                 local okNH, nh = pcall(function()
-                    return GameTime.getInstance():getWorldAgeHours()
+                    return SAO.History.countyHours()
                 end)
                 -- The +2 is not a fudge: a night runs 22:00 to
                 -- 06:00, so it STRADDLES midnight. Bucketing on the
@@ -2372,7 +2372,7 @@ local function decide(id, agent, body)
                         log(id .. " falls asleep")
                     end
                     local okWH, nowH = pcall(function()
-                        return GameTime.getInstance():getWorldAgeHours()
+                        return SAO.History.countyHours()
                     end)
                     if okWH then
                         local delta = nowH - (agent.lastRestHours or nowH)
@@ -3193,7 +3193,7 @@ local function decide(id, agent, body)
                     end)
                     local month4 = 5
                     pcall(function()
-                        month4 = GameTime.getInstance():getMonth()
+                        month4 = SAO.History.countyMonth() or month4
                     end)
                     local growing4 = month4 >= 2 and month4 <= 7
                     -- Robustness ([B5]): vanilla constructors run
@@ -3311,7 +3311,7 @@ local function decide(id, agent, body)
             agent.nextSearchAt = tick + 43200
             local sb0 = SAO.Perception.beliefs[id]
             local okSH, nowSH = pcall(function()
-                return GameTime.getInstance():getWorldAgeHours()
+                return SAO.History.countyHours()
             end)
             if sb0 and okSH then
                 -- Worry is FELT, not thresholded ([A28]): you act
@@ -3886,7 +3886,7 @@ local function decide(id, agent, body)
                             -- touched.
                             local seasonScale = 1.0
                             pcall(function()
-                                local m6 = GameTime.getInstance():getMonth()
+                                local m6 = SAO.History.countyMonth()
                                 if m6 == 9 or m6 == 10 then
                                     seasonScale = 1.5
                                 end
@@ -3974,9 +3974,7 @@ local function decide(id, agent, body)
                                             -- a bare assignment on a
                                             -- table already checked,
                                             -- which cannot throw.
-                                            local atH = GameTime
-                                                .getInstance()
-                                                :getWorldAgeHours()
+                                            local atH = SAO.History.countyHours()
                                             SAO.Standing.pushRadioNews({
                                                 kind = "tapsDry" })
                                             sM.tapsDryAtHours = atH
@@ -4526,7 +4524,7 @@ SAO.Perception.turnedHandler = function(witnessId, name, deadId, x, y, tick)
             -- guard only ever opens once, so anything that throws
             -- between the stamp and the telling keeps the day and
             -- loses the chronicle entry with no way back.
-            local atH = GameTime.getInstance():getWorldAgeHours()
+            local atH = SAO.History.countyHours()
             SAO.Standing.pushRadioNews({ kind = "turned", name = name })
             sT.firstTurnedAtHours = atH
         end
@@ -4627,7 +4625,7 @@ local function witnessDeath(id, agent, body)
             sOB.outbreakAired = true
             pcall(function()
                 sOB.outbreakAtHours =
-                    GameTime.getInstance():getWorldAgeHours()
+                    SAO.History.countyHours()
             end)
             pcall(function()
                 SAO.Standing.pushRadioNews({ kind = "outbreak" })

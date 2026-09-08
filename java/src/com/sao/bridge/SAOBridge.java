@@ -2270,6 +2270,20 @@ public final class SAOBridge {
         }
     }
 
+    /** [C62] The calendar month a county hour falls in, 0 to 11; -1
+     *  off the clock. */
+    public int countyMonth(double hours) {
+        try {
+            int[] start = com.sao.engine.SAORecord.saveStart();
+            if (start == null) {
+                return -1;
+            }
+            return com.sao.engine.SAORecord.countyMonth0(start[0], start[1], start[2], hours);
+        } catch (Throwable throwable) {
+            return -1;
+        }
+    }
+
     /** [C38] The record's own first day, in the same words. */
     public String recordDayZero() {
         try {

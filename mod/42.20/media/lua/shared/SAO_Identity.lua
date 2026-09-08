@@ -147,7 +147,7 @@ function Identity.markDead(rec, tick, cause)
     -- SAO_UI:83). The parameter stays: callers pass a tick and this
     -- may want it again, but not in the save.
     rec.deathCause = tostring(cause or "unknown")
-    local okH, h = pcall(function() return GameTime.getInstance():getWorldAgeHours() end)
+    local okH, h = pcall(function() return SAO.History.countyHours() end)
     rec.diedAtHours = okH and h or 0
     -- [B38] Every death path funnels here, so the instrument goes
     -- here too rather than on the one call site that prompted it.

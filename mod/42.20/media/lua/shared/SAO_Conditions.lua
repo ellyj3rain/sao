@@ -230,7 +230,7 @@ end
 local function today()
     local day = 0
     pcall(function()
-        day = math.floor(GameTime.getInstance():getWorldAgeHours() / 24)
+        day = math.floor(SAO.History.countyHours() / 24)
     end)
     return day
 end

@@ -128,7 +128,7 @@ function Ab.absorbProfile(ns, profile)
     rec.knox = true
     if not rec.absorbedAtHours then
         pcall(function()
-            rec.absorbedAtHours = GameTime.getInstance():getWorldAgeHours()
+            rec.absorbedAtHours = SAO.History.countyHours()
         end)
         rec.absorbedAtHours = rec.absorbedAtHours or 0
         -- His archetype label is kept as HIS assertion, not as the
@@ -297,8 +297,7 @@ function Ab.mirrorBack(ns)
                 profile.y = rec.y or profile.y
                 profile.z = rec.z or profile.z
                 pcall(function()
-                    profile.lastSeenAt = GameTime.getInstance()
-                        :getWorldAgeHours()
+                    profile.lastSeenAt = SAO.History.countyHours()
                 end)
             end
         end

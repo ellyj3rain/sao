@@ -171,7 +171,7 @@ local function talkTo(playerObj, id)
     if not body then return end
     local key = playerKeyOf(playerObj)
     local okH, nowHours = pcall(function()
-        return GameTime.getInstance():getWorldAgeHours()
+        return SAO.History.countyHours()
     end)
     nowHours = okH and nowHours or 0
     SAO.Harness.talkCooldowns = SAO.Harness.talkCooldowns or {}
@@ -321,7 +321,7 @@ local function talkTo(playerObj, id)
             -- say so, and how long ago.
             if rec.newcomer and rec.arrivedAtHours then
                 local okNH, nh = pcall(function()
-                    return GameTime.getInstance():getWorldAgeHours()
+                    return SAO.History.countyHours()
                 end)
                 local days87 = okNH
                     and math.max(1, math.floor((nh - rec.arrivedAtHours) / 24))
@@ -1590,7 +1590,7 @@ local function fillMenu(playerNum, context, worldobjects)
                 -- The chair calls once an hour; the house is not a
                 -- yo-yo.
                 local okRH, rh = pcall(function()
-                    return GameTime.getInstance():getWorldAgeHours()
+                    return SAO.History.countyHours()
                 end)
                 local nowR = okRH and rh or 0
                 if nowR - (SAO.Harness.rallyAt or -9) < 1 then
@@ -1776,7 +1776,7 @@ local function fillMenu(playerNum, context, worldobjects)
             if not s then return nil end
             s.onAir = s.onAir or {}
             local okH, h = pcall(function()
-                return GameTime.getInstance():getWorldAgeHours()
+                return SAO.History.countyHours()
             end)
             local now = okH and h or 0
             if now - (s.onAir.lastCallAt or -9) < 2 then

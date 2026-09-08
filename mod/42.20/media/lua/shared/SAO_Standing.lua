@@ -122,7 +122,7 @@ function S.adjustTrust(id, otherKey, delta)
     local r = rel(s, id, otherKey, true)
     r.trust = math.max(-1.0, math.min(1.0, (r.trust or 0) + delta))
     local okTS, hTS = pcall(function()
-        return GameTime.getInstance():getWorldAgeHours()
+        return SAO.History.countyHours()
     end)
     if okTS then r.atHours = hTS end
     return r.trust
@@ -244,7 +244,7 @@ local DRIFT_BUDGET = 200
 function S.driftStandings()
     local s = store(); if not s then return 0 end
     local okH, nowH = pcall(function()
-        return GameTime.getInstance():getWorldAgeHours()
+        return SAO.History.countyHours()
     end)
     if not okH then return 0 end
     local day = math.floor(nowH / 24)
@@ -327,7 +327,7 @@ function S.releasePlayer(playerKey)
         if meta.playerChair == playerKey then
             meta.playerChair = nil
             local okH, h = pcall(function()
-                return GameTime.getInstance():getWorldAgeHours()
+                return SAO.History.countyHours()
             end)
             meta.govHistory = meta.govHistory or {}
             meta.govHistory[#meta.govHistory + 1] = {
@@ -646,7 +646,7 @@ function S.electLeader(groupName)
         if live and live.name then
             local settled = metaT.creedName
             local okTH, th = pcall(function()
-                return GameTime.getInstance():getWorldAgeHours()
+                return SAO.History.countyHours()
             end)
             local nowT = okTH and th or 0
             if not settled then
@@ -868,7 +868,7 @@ function S.electLeader(groupName)
                     -- still gets counted, as lean, as dry, as dark.
                     -- Only an absent quartermaster leaves no count.
                     local okQH, qh = pcall(function()
-                        return GameTime.getInstance():getWorldAgeHours()
+                        return SAO.History.countyHours()
                     end)
                     if okQH then
                         local metaQ = s.groupMeta
@@ -959,7 +959,7 @@ function S.electLeader(groupName)
                 -- decided in their absence.
                 meta0.govHistory = meta0.govHistory or {}
                 local okGH, gh = pcall(function()
-                    return GameTime.getInstance():getWorldAgeHours()
+                    return SAO.History.countyHours()
                 end)
                 meta0.govHistory[#meta0.govHistory + 1] = {
                     kind = "policy", policy = policy,
@@ -1148,7 +1148,7 @@ function S.electLeader(groupName)
             and s.groupClaims and s.groupClaims[groupName] then
             local metaA8 = s.groupMeta[groupName] or {}
             local okA8, hA8 = pcall(function()
-                return GameTime.getInstance():getWorldAgeHours()
+                return SAO.History.countyHours()
             end)
             -- [B42] WHERE they gave up. Every other kind in this
             -- history carries its subject - `creed` the creed, `form`
@@ -1263,7 +1263,7 @@ function S.electLeader(groupName)
             end
             local avgC = nC > 0 and (sumC / nC) or 0
             local okCH, ch = pcall(function()
-                return GameTime.getInstance():getWorldAgeHours()
+                return SAO.History.countyHours()
             end)
             local nowC = okCH and ch or 0
             if metaC.playerChair then
@@ -1289,7 +1289,7 @@ function S.electLeader(groupName)
     if old ~= bestId then
         meta.leaderId = bestId
         local okH, h = pcall(function()
-            return GameTime.getInstance():getWorldAgeHours()
+            return SAO.History.countyHours()
         end)
         meta.sinceHours = okH and h or 0
         s.groupMeta[groupName] = meta
@@ -1371,7 +1371,7 @@ local creedBase = { atHours = -1e9, share = nil }
 
 local function countyCreedShare()
     local okH, h = pcall(function()
-        return GameTime.getInstance():getWorldAgeHours()
+        return SAO.History.countyHours()
     end)
     local now = okH and h or 0
     if creedBase.share and (now - creedBase.atHours) < 24 then
@@ -1448,7 +1448,7 @@ function S.callForBread(groupName)
     s.groupMeta = s.groupMeta or {}
     local meta = s.groupMeta[groupName] or {}
     local okH, h = pcall(function()
-        return GameTime.getInstance():getWorldAgeHours()
+        return SAO.History.countyHours()
     end)
     local now = okH and h or 0
     -- A house does not spend all day saying it is hungry.
@@ -1477,7 +1477,7 @@ function S.isAsking(groupName)
     local meta = s.groupMeta and s.groupMeta[tostring(groupName)] or nil
     if not (meta and meta.askedAtHours) then return false end
     local okH, h = pcall(function()
-        return GameTime.getInstance():getWorldAgeHours()
+        return SAO.History.countyHours()
     end)
     if not okH then return false end
     return (h - meta.askedAtHours) <= 96
@@ -1535,7 +1535,7 @@ function S.urgeForm(groupName, playerKey, form)
     s.groupMeta = s.groupMeta or {}
     local meta = s.groupMeta[groupName] or {}
     local okH, h = pcall(function()
-        return GameTime.getInstance():getWorldAgeHours()
+        return SAO.History.countyHours()
     end)
     meta.urgedForm = form
     meta.urgedAtHours = okH and h or 0
@@ -1623,7 +1623,7 @@ function S.formOf(groupName)
     local meta = s.groupMeta and s.groupMeta[groupName] or nil
     if meta and meta.urgedForm then
         local okU, hu = pcall(function()
-            return GameTime.getInstance():getWorldAgeHours()
+            return SAO.History.countyHours()
         end)
         local fresh = okU and (hu - (meta.urgedAtHours or 0)) <= 168
         if fresh then
@@ -1808,7 +1808,7 @@ end
 -- and peace timestamps on the meta of each side.
 local function noteFeudEvent(s, gA, gB, field)
     local okH, h = pcall(function()
-        return GameTime.getInstance():getWorldAgeHours()
+        return SAO.History.countyHours()
     end)
     local at = okH and h or 0
     S.pushRadioNews({
@@ -1898,7 +1898,7 @@ function S.politick(idA, idB, tick)
     -- clock everyone shares - world age hours. Half an hour of world
     -- time between arguments; the tick param stays for API shape only.
     local okH, nowH = pcall(function()
-        return GameTime.getInstance():getWorldAgeHours()
+        return SAO.History.countyHours()
     end)
     if not okH then return nil end
     if nowH - (politickAt[pairKey] or -1e9) < 0.5 then return nil end
@@ -1956,7 +1956,7 @@ function S.politick(idA, idB, tick)
                             metaB.pactWith[tostring(gA)] = nil
                         end
                         local okBH, bh = pcall(function()
-                            return GameTime.getInstance():getWorldAgeHours()
+                            return SAO.History.countyHours()
                         end)
                         local bAt = okBH and bh or 0
                         for _, pr in ipairs({ { metaA, gB }, { metaB, gA } }) do
@@ -2109,7 +2109,7 @@ function S.checkSchism(groupName)
         local metaS = s.groupMeta[groupName] or {}
         metaS.govHistory = metaS.govHistory or {}
         local okGH, gh = pcall(function()
-            return GameTime.getInstance():getWorldAgeHours()
+            return SAO.History.countyHours()
         end)
         metaS.govHistory[#metaS.govHistory + 1] = {
             kind = "schism", left = #leavers,
@@ -2204,7 +2204,7 @@ function S.acceptChair(groupName, playerKey)
     meta.chairOffer = nil
     meta.playerChair = tostring(playerKey)
     local okH, h = pcall(function()
-        return GameTime.getInstance():getWorldAgeHours()
+        return SAO.History.countyHours()
     end)
     meta.govHistory = meta.govHistory or {}
     meta.govHistory[#meta.govHistory + 1] = {
@@ -2221,7 +2221,7 @@ function S.declineChair(groupName)
     if not meta then return false end
     meta.chairOffer = nil
     local okH, h = pcall(function()
-        return GameTime.getInstance():getWorldAgeHours()
+        return SAO.History.countyHours()
     end)
     meta.chairDeclinedAt = okH and h or 0
     s.groupMeta[tostring(groupName)] = meta
@@ -2277,7 +2277,7 @@ function S.setMotorPool(groupName, cars)
     s.groupMeta = s.groupMeta or {}
     local meta = s.groupMeta[tostring(groupName)] or {}
     local okH, h = pcall(function()
-        return GameTime.getInstance():getWorldAgeHours()
+        return SAO.History.countyHours()
     end)
     meta.motorPool = { cars = cars, atHours = okH and h or 0 }
     s.groupMeta[tostring(groupName)] = meta
@@ -2336,7 +2336,7 @@ function S.motorPoolOf(groupName)
     local m = meta and meta.motorPool or nil
     if not m then return nil end
     local okH, h = pcall(function()
-        return GameTime.getInstance():getWorldAgeHours()
+        return SAO.History.countyHours()
     end)
     if okH and h - (m.atHours or 0) > 48 then return nil end
     return m
@@ -2352,7 +2352,7 @@ function S.setHearth(groupName, burning)
     s.groupMeta = s.groupMeta or {}
     local meta = s.groupMeta[tostring(groupName)] or {}
     local okH, h = pcall(function()
-        return GameTime.getInstance():getWorldAgeHours()
+        return SAO.History.countyHours()
     end)
     meta.hearth = { burning = burning and true or false,
         atHours = okH and h or 0 }
@@ -2365,7 +2365,7 @@ function S.hearthOf(groupName)
     local hh = meta and meta.hearth or nil
     if not hh then return nil end
     local okH, h = pcall(function()
-        return GameTime.getInstance():getWorldAgeHours()
+        return SAO.History.countyHours()
     end)
     if okH and h - (hh.atHours or 0) > 48 then return nil end
     return hh
@@ -2378,7 +2378,7 @@ function S.setWaterStore(groupName, word, units)
     s.groupMeta = s.groupMeta or {}
     local meta = s.groupMeta[tostring(groupName)] or {}
     local okH, h = pcall(function()
-        return GameTime.getInstance():getWorldAgeHours()
+        return SAO.History.countyHours()
     end)
     meta.waterStore = { word = word, units = units,
         atHours = okH and h or 0 }
@@ -2391,7 +2391,7 @@ function S.waterStoreOf(groupName)
     local w = meta and meta.waterStore or nil
     if not w then return nil end
     local okH, h = pcall(function()
-        return GameTime.getInstance():getWorldAgeHours()
+        return SAO.History.countyHours()
     end)
     if okH and h - (w.atHours or 0) > 48 then return nil end
     return w
@@ -2402,7 +2402,7 @@ function S.setLarder(groupName, word, count)
     s.groupMeta = s.groupMeta or {}
     local meta = s.groupMeta[tostring(groupName)] or {}
     local okH, h = pcall(function()
-        return GameTime.getInstance():getWorldAgeHours()
+        return SAO.History.countyHours()
     end)
     meta.larder = { word = word, count = count, atHours = okH and h or 0 }
     s.groupMeta[tostring(groupName)] = meta
@@ -2414,7 +2414,7 @@ function S.larderOf(groupName)
     local l = meta and meta.larder or nil
     if not l then return nil end
     local okH, h = pcall(function()
-        return GameTime.getInstance():getWorldAgeHours()
+        return SAO.History.countyHours()
     end)
     if okH and h - (l.atHours or 0) > 48 then return nil end
     return l
@@ -2471,7 +2471,7 @@ function S.tryPact(idA, idB, gA, gB)
     metaA.pactWith[tostring(gB)] = true
     metaB.pactWith[tostring(gA)] = true
     local okH, h = pcall(function()
-        return GameTime.getInstance():getWorldAgeHours()
+        return SAO.History.countyHours()
     end)
     local at = okH and h or 0
     for _, pair in ipairs({ { metaA, gB }, { metaB, gA } }) do
@@ -2553,7 +2553,7 @@ end
 function S.hearPlayerOnAir(playerKey)
     local s = store(); if not s then return end
     local okH, h = pcall(function()
-        return GameTime.getInstance():getWorldAgeHours()
+        return SAO.History.countyHours()
     end)
     local now = okH and h or 0
     s.onAir = s.onAir or {}
@@ -2819,7 +2819,7 @@ end
 function S.setGroupClaim(groupName, minX, minY, maxX, maxY, z)
     local s = store(); if not s then return false end
     s.groupClaims = s.groupClaims or {}
-    local okH, h = pcall(function() return GameTime.getInstance():getWorldAgeHours() end)
+    local okH, h = pcall(function() return SAO.History.countyHours() end)
     s.groupClaims[tostring(groupName)] = {
         minX = minX, minY = minY, maxX = maxX, maxY = maxY, z = z or 0,
         sinceHours = okH and h or 0,
@@ -2861,7 +2861,7 @@ function S.nameFaction(groupName, region)
     end
     local suffix = FACTION_SUFFIX[(value % #FACTION_SUFFIX) + 1]
     meta.factionName = tostring(region or "Knox") .. " " .. suffix
-    local okH, h = pcall(function() return GameTime.getInstance():getWorldAgeHours() end)
+    local okH, h = pcall(function() return SAO.History.countyHours() end)
     meta.namedAtHours = okH and h or 0
     s.groupMeta[groupName] = meta
     return meta.factionName
@@ -2884,7 +2884,7 @@ function S.bond(id, otherId)
     if S.bondedWith(id) or S.bondedWith(otherId) then return false end
     rel(s, id, otherId, true).bonded = true
     rel(s, otherId, id, true).bonded = true
-    local okH, h = pcall(function() return GameTime.getInstance():getWorldAgeHours() end)
+    local okH, h = pcall(function() return SAO.History.countyHours() end)
     rel(s, id, otherId, false).bondedAtHours = okH and h or 0
     return true
 end
@@ -2912,7 +2912,7 @@ function S.setPlayerMember(groupName, playerKey)
     s.groupMeta = s.groupMeta or {}
     local meta = s.groupMeta[tostring(groupName)] or {}
     meta.playerMemberOf = tostring(playerKey)
-    local okH, h = pcall(function() return GameTime.getInstance():getWorldAgeHours() end)
+    local okH, h = pcall(function() return SAO.History.countyHours() end)
     meta.playerSinceHours = okH and h or 0
     s.groupMeta[tostring(groupName)] = meta
     return true
@@ -3015,13 +3015,16 @@ function S.fallHasCome()
         or s.tapsDryAtHours) then
         return true, "seen"
     end
+    -- [C62] Through SAO_History, which is the one reader of the
+    -- record's calendar and knows the day being lived while [C45]
+    -- runs the years. Asking the bridge here read a stopped clock
+    -- for the whole span.
     local day = nil
-    pcall(function() day = SAOJavaBridge:recordDayToday() end)
-    if type(day) == "number" and day > -90000 and day >= 0 then
+    pcall(function() day = SAO.History.recordDay() end)
+    if type(day) == "number" and day >= 0 then
         return true, "calendar"
     end
-    return false, (type(day) == "number" and day > -90000)
-        and "before" or "unknown"
+    return false, (type(day) == "number") and "before" or "unknown"
 end
 
 -- [C38] The county's own stamps, for a reader that may not open the
