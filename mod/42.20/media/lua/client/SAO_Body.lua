@@ -307,6 +307,13 @@ function Body.materialize(rec)
             log(rec.id .. " wears " .. stamped .. " condition(s)")
         end
     end)
+    -- [C51] And the habit, by the same law and at the same moment.
+    pcall(function()
+        local stampedH = SAO.Traits.stampHabits(rec.id, body)
+        if stampedH > 0 then
+            log(rec.id .. " wears " .. stampedH .. " habit(s)")
+        end
+    end)
 
     Body.active[rec.id] = body
     -- [C8] The person rides the body's modData. The engine copies this

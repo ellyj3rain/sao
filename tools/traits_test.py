@@ -252,7 +252,11 @@ def main():
         "the player's traits are read onto their key":
             "function T.readPlayer(player)" in traits
             and "SAO.Conditions.assert(key, asserted)" in traits,
-        "the player has a pass of their own, conditions only":
+        # [C51] The label said "conditions only" and the check never
+        # meant that - what it holds is that SAO does not age the
+        # player, which is why `stageOf` must not appear in their
+        # pass. The habits joined that pass; the claim is unchanged.
+        "the player has a pass of their own, and it does not age them":
             "function Age.playerPass(player, key, pass, today)" in age
             and "Age.playerPass(me, key, passCounter" in age
             and "SAO.History.stageOf" not in age.split("function Age.playerPass")[1]

@@ -237,7 +237,32 @@ end
 -- state- and sex-specific prevalence of selected characteristics,
 -- 1992 and 1993; the national figure that year was 25.0 percent,
 -- MMWR, Cigarette Smoking Among Adults - United States, 1993).
+-- [C51] Smoking is the one habit the engine already ships a trait
+-- for, so SAO uses vanilla's rather than registering a second name
+-- for one fact - the law [C39] set for asthma and insomnia. The
+-- county's people are still drawn from the hash; the player's answer
+-- is whether they took `base:smoker` at creation, asserted here by
+-- SAO_Traits the way the conditions and the habits are asserted in
+-- their own modules.
+D.assertedSmoker = D.assertedSmoker or {}
+
+function D.assertSmoker(id, value)
+    if not id then return end
+    D.assertedSmoker[tostring(id)] = value
+end
+
+-- The dead assert nothing ([B51]'s law). The death funnel in
+-- SAO_Identity calls this the way it calls the conditions' and the
+-- habits'; a drawn smoker costs nothing to keep, an assertion is an
+-- entry.
+function D.forgetSmoker(id)
+    if not id then return end
+    D.assertedSmoker[tostring(id)] = nil
+end
+
 function D.isSmoker(id)
+    local said = D.assertedSmoker[tostring(id)]
+    if said ~= nil then return said == true end
     return hash(id, "smoker") < 0.30
 end
 

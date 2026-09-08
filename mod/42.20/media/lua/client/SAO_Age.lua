@@ -226,29 +226,80 @@ end
 -- the conditions - SAO does not own the player's ageing, so no stage
 -- drift, no fear floor over their own panic and no day of old age.
 -- Silent for a player who took none, which is most of them.
+--
+-- [C51] And the habits, which [C39] left out: a player could not take
+-- one at all, and nothing would have driven it if they could. The
+-- withdrawal is the same call the county's people get in `Age.drift`
+-- - SAO_Habits.drift on the same ten-minute pass - and the day that
+-- settles a habit is the same call `settleHabits` makes for a record.
+-- The player's key is not in SAO_Identity.all(), which is why the
+-- daily settle has to be made here rather than inherited from the
+-- loop below.
 function Age.playerPass(player, key, pass, today)
     if not (player and key) then return false end
     local carried = nil
     pcall(function() carried = SAO.Conditions.drift(key) end)
+    local habit = nil
+    pcall(function() habit = SAO.Habits.drift(key, nil, pass) end)
     local acted = false
-    if type(carried) == "table" then
-        local stats = nil
-        pcall(function() stats = player:getStats() end)
-        if stats then
-            for name, delta in pairs(carried) do
-                if chance(DRIFT_CHANCE, key, "carried:" .. name
-                    .. ":" .. tostring(pass)) then
-                    applyStat(stats, name, delta)
-                    acted = true
-                end
+    local stats = nil
+    pcall(function() stats = player:getStats() end)
+    if type(carried) == "table" and stats then
+        for name, delta in pairs(carried) do
+            if chance(DRIFT_CHANCE, key, "carried:" .. name
+                .. ":" .. tostring(pass)) then
+                applyStat(stats, name, delta)
+                acted = true
             end
+        end
+    end
+    -- The withdrawal is not a chance the way a condition's carry is:
+    -- SAO_Habits already rolled the shakes inside `drift`, and what
+    -- it returns is what this pass costs. Rolling it again here would
+    -- halve every figure the sources gave.
+    if type(habit) == "table" and stats then
+        for name, delta in pairs(habit) do
+            applyStat(stats, name, delta)
+            acted = true
         end
     end
     pcall(Age.hearThings, { id = key }, player, pass)
     if today then
         pcall(Age.forgetSkills, { id = key }, player, today)
+        pcall(function() SAO.Habits.settleDrinker(key) end)
+        pcall(function() SAO.Habits.settleUsers(key) end)
     end
     return acted
+end
+
+-- [C51] A drink the PLAYER took. The county's people go through
+-- `SAO.Habits.drank` because the controller walks them to a bottle
+-- and queues the action; the player just drinks, and there is no
+-- event for it. So this reads the engine's own alcohol level
+-- (`CharacterStat.INTOXICATION`, javap-verified on
+-- `zombie.characters.CharacterStat`) and calls it a drink when the
+-- level has RISEN since the last pass. A read rather than a hook: it
+-- cannot miss an action shape it was not written for, and it cannot
+-- break anything if the stat is ever renamed - the level simply never
+-- rises and the clock never resets, which is the same as today.
+--
+-- The threshold is the engine's own resolution and not a tuned
+-- number: any rise at all is a drink. Falling or level is not.
+local lastIntoxication = nil
+
+function Age.playerDrinks(player, key)
+    if not (player and key) then return false end
+    local level = nil
+    pcall(function()
+        level = player:getStats():get(CharacterStat.INTOXICATION)
+    end)
+    if type(level) ~= "number" then return false end
+    local was = lastIntoxication
+    lastIntoxication = level
+    if was == nil or level <= was then return false end
+    local drank = false
+    pcall(function() drank = SAO.Habits.drank(key) end)
+    return drank == true
 end
 
 local lastDay = nil
@@ -276,6 +327,10 @@ local function everyTenMinutes()
         if not me then return end
         local key = SAO.Standing.playerKey(me)
         if key then
+            -- [C51] The drink is read BEFORE the pass, so a drink
+            -- taken this pass stops this pass's shakes rather than
+            -- the next one's.
+            Age.playerDrinks(me, key)
             Age.playerPass(me, key, passCounter, newDay and today or nil)
         end
     end)

@@ -1491,6 +1491,17 @@ if ! "$PY" tools/speech_register_test.py > /dev/null; then
     fail=1
 fi
 
+# [C51] Border 124 - the habits are the player's too: the county's
+# habits registered as engine traits at vanilla's own price, cannabis
+# skipped because it costs nothing, smoking left to vanilla's trait,
+# the player's habit state bound to their own modData so it can lapse,
+# and the withdrawal driven on their own ten-minute pass.
+if ! "$PY" tools/habit_traits_test.py > /dev/null; then
+    "$PY" tools/habit_traits_test.py 2>&1 | grep -E "FAULT" || true
+    note "BORDER FINDING - a habit the player cannot take, or one that never lets go"
+    fail=1
+fi
+
 # Border 103 - the operator's speech is not in the repository: no
 # profanity in the tracked tree and no operator-quote attributions;
 # rulings are paraphrased content, speech stays with the speaker.

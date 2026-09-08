@@ -85,6 +85,7 @@ T.ANCHOR_COST = {
     hemophobic = -5,
     hardofhearing = -4,
     heartyappetite = -4,
+    smoker = -3,                                       -- [C51]
 }
 
 -- The conditions vanilla already has a trait for: SAO uses the
@@ -94,16 +95,56 @@ T.VANILLA = {
     insomnia = "INSOMNIAC",
 }
 
+-- [C51] THE HABITS, on the same terms. [C39] gave the player the
+-- county's conditions and left the habits behind: nothing on the
+-- creation screen offered one, and nothing drove one on the player if
+-- it had. SAO_Habits is the same kind of module as SAO_Conditions -
+-- drawn from the person's own hash at the record's prevalence, lived
+-- on the record, drifting every ten minutes - so it takes the same
+-- treatment.
+--
+-- ONE ANCHOR FOR ALL OF THEM, and that is the honest reading rather
+-- than laziness. The conditions differ in KIND, so each named the
+-- vanilla trait closest to its own shape. The habits do not: every
+-- one of them is a body that demands a substance and pays stress and
+-- fatigue without it, differing only in schedule. The engine ships
+-- exactly one trait of that shape - `base:smoker` - and prices it at
+-- -3. Reaching for a sleep trait's number to make the drinker cost
+-- more would be inventing a rate the game does not give, which is
+-- what [C48] refused for doors and rooms. Border 113 holds the cost
+-- to its anchor's either way.
+T.HABIT_ANCHOR = {
+    drinker    = "smoker",
+    cocaine    = "smoker",
+    opioids    = "smoker",
+    stimulants = "smoker",
+    sedatives  = "smoker",
+}
+
+-- Cannabis is NOT registered, and the reason is in SAO_Habits: N and
+-- C's page gives it no withdrawal, so `USER_SCHEDULE.cannabis` is nil
+-- and `Hb.drift` returns nothing for it. A costed trait on the
+-- creation screen that does nothing to the player would be a lie
+-- about the game, so the county draws it and the player is not
+-- offered it.
+T.HABIT_UNPRICED = { cannabis = "no withdrawal, so no cost to price" }
+
+-- Smoking is the habit vanilla already has ([A14] draws it from the
+-- hash at a third of the county). SAO uses the engine's trait, and
+-- SAO_Disposition answers from it for the player.
+T.HABIT_VANILLA = { smoker = "SMOKER" }
+
 function T.costOf(key)
-    local anchor = T.ANCHOR[key]
+    local anchor = T.ANCHOR[key] or T.HABIT_ANCHOR[key]
     if not anchor then return nil end
     return T.ANCHOR_COST[anchor]
 end
 
--- The engine trait for a condition: vanilla's where there is one,
--- ours otherwise. nil when nothing is registered yet.
+-- The engine trait for a condition or a habit ([C51]): vanilla's
+-- where there is one, ours otherwise. nil when nothing is registered
+-- yet.
 function T.objectFor(key)
-    local vanillaName = T.VANILLA[key]
+    local vanillaName = T.VANILLA[key] or T.HABIT_VANILLA[key]
     if vanillaName then
         local found = nil
         pcall(function() found = CharacterTrait[vanillaName] end)
@@ -191,6 +232,11 @@ function T.build()
     for key in pairs(T.ANCHOR) do
         if define(key) then made = made + 1 end
     end
+    -- [C51] The habits, on the same builder. `costOf` reads both
+    -- anchor tables, so nothing here needed a second definition path.
+    for key in pairs(T.HABIT_ANCHOR) do
+        if define(key) then made = made + 1 end
+    end
     return made
 end
 
@@ -235,10 +281,45 @@ function T.stamp(id, character)
     return stamped
 end
 
+-- [C51] The habit rides the trait too, and cannabis is skipped
+-- because nothing was registered for it.
+function T.stampHabits(id, character)
+    if character == nil then return 0 end
+    local stamped = 0
+    for _, key in ipairs(SAO.Habits.ORDER) do
+        local drawn = false
+        pcall(function() drawn = SAO.Habits.has(id, key) end)
+        if drawn then
+            local trait = T.objectFor(key)
+            if trait ~= nil then
+                local ok = pcall(function()
+                    character:getCharacterTraits():set(trait, true)
+                end)
+                if ok then stamped = stamped + 1 end
+            end
+        end
+    end
+    -- Smoking is vanilla's trait and is not in SAO_Habits' order, so
+    -- it is stamped from where the county actually keeps it.
+    local smokes = false
+    pcall(function() smokes = SAO.Disposition.isSmoker(id) end)
+    if smokes then
+        local trait = T.objectFor("smoker")
+        if trait ~= nil then
+            local ok = pcall(function()
+                character:getCharacterTraits():set(trait, true)
+            end)
+            if ok then stamped = stamped + 1 end
+        end
+    end
+    return stamped
+end
+
 -- The player's conditions are the ones they chose, not a draw: read
 -- the traits off the character and assert them, so every surface that
 -- asks SAO_Conditions about this person gets the same answer it gets
--- for anyone else.
+-- for anyone else. [C51] The habits are read the same way, and
+-- smoking off vanilla's own trait.
 function T.readPlayer(player)
     if player == nil then return nil end
     local key = nil
@@ -249,6 +330,28 @@ function T.readPlayer(player)
         asserted[condition] = T.has(player, condition)
     end
     SAO.Conditions.assert(key, asserted)
+    local habits = {}
+    for _, habit in ipairs(SAO.Habits.ORDER) do
+        habits[habit] = T.has(player, habit)
+    end
+    SAO.Habits.assert(key, habits)
+    SAO.Disposition.assertSmoker(key, T.has(player, "smoker"))
+    -- [C51] Somewhere for the habit to live. The player's own modData
+    -- is what the save persists, so a drink taken, a habit lapsed and
+    -- a habit acquired all survive the reload the way a survivor's do
+    -- on their record. The dry clock starts when the character does
+    -- rather than at world zero, which is what a fresh drinker's
+    -- clock means.
+    pcall(function()
+        local md = player:getModData()
+        if md == nil then return end
+        md.SAOHabits = md.SAOHabits or {}
+        if md.SAOHabits.lastDrinkHours == nil then
+            md.SAOHabits.lastDrinkHours =
+                GameTime.getInstance():getWorldAgeHours()
+        end
+        SAO.Habits.bindRecord(key, md.SAOHabits)
+    end)
     return key
 end
 

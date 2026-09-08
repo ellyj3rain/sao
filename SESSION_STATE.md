@@ -1,13 +1,35 @@
 | Document | Survivor Awareness Overhaul Session State |
 |---|---|
-| Version | `3.8.1.0-pre-alpha` |
+| Version | `3.9.0.0-pre-alpha` |
 | Author | ellyj3rain |
 | Repository | `SESSION_STATE.md` |
 | Status | CANONICAL - where the work actually stands. |
 
 # Session state
 
-**As of** 2026-09-07, `[C50]` close - what a survivor says follows
+**As of** 2026-09-07, `[C51]` close - the habits are the player's
+too (DR-032, the society arc's S6). [C39] registered the county's
+conditions as engine traits so the player could carry what the
+county's people carry, and left the habits behind: nothing offered
+one at creation, nothing stamped one onto a survivor's shell, and
+nothing would have driven one if it had. Five are registered now -
+drinker, cocaine, opioids, stimulants, sedatives - each anchored to
+`base:smoker` and taking its cost of -3, because the habits differ
+only in schedule and the engine ships exactly one trait of that
+shape. Cannabis is skipped: its source gives it no withdrawal, so a
+costed trait doing nothing would be a lie about the game, and the
+county still draws it. Smoking is left to vanilla's own SMOKER. The
+player gets somewhere for the habit to live - their own modData,
+bound as a stand-in record - without which the dry clock would run
+from world zero and never reset, a drink would do nothing, and the
+habit could never lapse. The withdrawal drives on their own
+ten-minute pass, applied without a second roll, and a drink is read
+off `CharacterStat.INTOXICATION` rising rather than hooked to an
+action. A player who drinks often enough becomes a drinker, which
+follows from binding a store rather than from anything written for
+it. Border 124 holds it; Border 72 caught three per-id tables with
+no forget, and they have one. `[C50]` before it - what a survivor
+says follows
 what they have learned (DR-036, Day Zero slice 3). Every line table
 in SAO_Voice was flat, so a county that had learned nothing still
 fled saying "Too many" and warned each other with "Dead nearby" -
@@ -411,10 +433,10 @@ unloaded survivors are governed by the same rules ([B39], [B42]).
 
 ## Deploy state
 
-`3.8.1.0-pre-alpha` at tip - the version machine's output ([C2],
+`3.9.0.0-pre-alpha` at tip - the version machine's output ([C2],
 DR-013; the twelfth minor rolled the tier by the odometer's own
-law). The game install carries the `[C50]` tip: `[C45]` through
-`[C50]` reached it on 2026-09-07, each after its own commit passed
+law). The game install carries the `[C51]` tip: `[C45]` through
+`[C51]` reached it on 2026-09-07, each after its own commit passed
 the gate, the game having been closed since the `[C44]` deploy
 earlier the same day. Verified rather than assumed at each deploy -
 the deployed `mod.info` reads the version the machine derived and
@@ -438,7 +460,7 @@ deploy; `save_compat_test` guards this and runs in the gate.
 
 ## Instruments
 
-**123 numbered borders**, run by **138 gated mirrors** in `tools/`, all invoked
+**124 numbered borders**, run by **139 gated mirrors** in `tools/`, all invoked
 by `tools/check.sh`, which the pre-commit hook runs and CI runs on every push.
 The figures in this paragraph are derived by Border 76 from the tree, not
 maintained by hand. Border 54 keeps the rest honest: it runs every gated

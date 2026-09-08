@@ -40,10 +40,27 @@ local function ageOf(id)
     return age or 34
 end
 
+-- [C51] A habit LIVES on a record - the last drink, the days clean,
+-- the habit quit or acquired - and the player has no SAO record.
+-- Without somewhere to write, the player's dry clock would run from
+-- world zero and never reset, a drink would do nothing, and the habit
+-- could never lapse: maximum withdrawal from the first minute,
+-- forever, with no counterplay. So a key with no record may have a
+-- table bound to stand in for one. SAO_Traits binds the player's own
+-- modData, which the save persists, and every write path below works
+-- unchanged.
+Hb.bound = Hb.bound or {}
+
+function Hb.bindRecord(id, tbl)
+    if not id then return end
+    Hb.bound[tostring(id)] = tbl
+end
+
 local function recordOf(id)
     local rec = nil
     pcall(function() rec = SAO.Identity.get(id) end)
-    return rec
+    if rec then return rec end
+    return Hb.bound[tostring(id)]
 end
 
 local function worldHours()
@@ -145,12 +162,45 @@ local function per10kFor(key, age)
     return row.per10k or 0
 end
 
--- Drawn from the hash, then overridden by what the record says has
--- happened since: quit, or acquired.
+-- [C51] The county's people have their habits drawn from their own
+-- hash at the record's prevalence. The PLAYER's are not drawn: they
+-- are the ones that person chose at creation, and they arrive as
+-- engine traits (SAO_Traits), exactly as [C39] did the conditions.
+-- Anyone whose habits are asserted answers from the assertion instead
+-- of the draw, so the drift, the words and the panel read the player
+-- the way they read anyone else.
+--
+-- The record still overrides an assertion, because quitting and
+-- acquiring are things that happen to a person after creation and the
+-- player is not exempt from them.
+Hb.asserted = Hb.asserted or {}
+
+function Hb.assert(id, set)
+    if not id then return end
+    Hb.asserted[tostring(id)] = set
+end
+
+-- The death funnel in SAO_Identity clears these the way it clears the
+-- conditions', so a table keyed by a survivor id cannot hold entries
+-- nothing will read again ([B51]'s law).
+function Hb.forget(id)
+    if not id then return end
+    Hb.asserted[tostring(id)] = nil
+    -- And the stand-in record bound for a key that has none. The
+    -- player's is rebound at every creation; a survivor never has one
+    -- because they have a real record, so this is a death's business
+    -- either way.
+    Hb.bound[tostring(id)] = nil
+end
+
+-- Drawn from the hash, or asserted for the player, then overridden by
+-- what the record says has happened since: quit, or acquired.
 function Hb.has(id, key)
     local rec = recordOf(id)
     if rec and rec.habitsQuit and rec.habitsQuit[key] then return false end
     if rec and rec.habitsGained and rec.habitsGained[key] then return true end
+    local said = Hb.asserted[tostring(id)]
+    if said ~= nil then return said[key] == true end
     local share = per10kFor(key, ageOf(id))
     if share <= 0 then return false end
     return (hashOf(id, "habit:" .. key) % 10000) < share

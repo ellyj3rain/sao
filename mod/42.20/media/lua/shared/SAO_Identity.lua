@@ -193,6 +193,14 @@ function Identity.markDead(rec, tick, cause)
     if SAO.Conditions and SAO.Conditions.forget then
         pcall(SAO.Conditions.forget, rec.id)
     end
+    -- [C51] The habits asserted the same way, dropped the same way,
+    -- and the smoker vanilla's own trait asserts.
+    if SAO.Habits and SAO.Habits.forget then
+        pcall(SAO.Habits.forget, rec.id)
+    end
+    if SAO.Disposition and SAO.Disposition.forgetSmoker then
+        pcall(SAO.Disposition.forgetSmoker, rec.id)
+    end
     if SAO.Population and SAO.Population.forgetPairs then
         pcall(SAO.Population.forgetPairs, rec.id)
     end

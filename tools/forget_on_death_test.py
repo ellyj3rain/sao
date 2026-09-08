@@ -97,6 +97,23 @@ CACHES = {
         "another mod's trait speaks for. A drawn condition is computed "
         "from the id and costs nothing to keep; an assertion is a "
         "table, and the dead assert nothing"),
+    ("SAO_Habits.lua", "Hb.asserted"): (
+        "Hb.forget", "named",
+        "the habits a trait asserts onto a person rather than the "
+        "draw giving them ([C51]) - the player's own. Same shape and "
+        "same reason as the conditions' assertion above"),
+    ("SAO_Habits.lua", "Hb.bound"): (
+        "Hb.forget", "named",
+        "a stand-in record for a key that has none ([C51]). The "
+        "player's is their own modData and is rebound at every "
+        "creation; a survivor never gets one, because a survivor has "
+        "a real record. Cleared on death with the assertion it "
+        "accompanies"),
+    ("SAO_Disposition.lua", "D.assertedSmoker"): (
+        "D.forgetSmoker", "named",
+        "whether the player took vanilla's own SMOKER trait ([C51]). "
+        "Smoking is drawn from the hash for everyone else and costs "
+        "nothing to keep; an assertion is an entry"),
     ("SAO_Controller.lua", "Ctl.agents"): (
         "updateAgent", "calls",
         "the live agent registry. Cleared on both death branches "

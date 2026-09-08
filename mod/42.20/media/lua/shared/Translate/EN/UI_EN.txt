@@ -33,4 +33,30 @@ UI_EN = {
         .. "there, and it sounds exactly like something that is.",
     UI_trait_SAO_diabetes = "Diabetes",
     UI_trait_SAO_diabetesDesc = "You need to eat sooner than other people do.",
+
+    /* [C51] The habits, on the same terms. Cannabis is absent on
+       purpose: the source gives it no withdrawal, so it would cost
+       the player nothing. Smoking is absent too - that is vanilla's
+       own trait and SAO reads it. */
+    UI_trait_SAO_drinker = "Alcohol dependency",
+    UI_trait_SAO_drinkerDesc = "You need a drink. Twelve hours without one "
+        .. "and the shakes start, and it gets worse in stages after that. "
+        .. "A drink stops it. Three weeks dry and the dependency is gone.",
+    UI_trait_SAO_cocaine = "Cocaine dependency",
+    UI_trait_SAO_cocaineDesc = "You need cocaine, and there is none left in "
+        .. "the county. Withdrawal starts on the first day, is worst from "
+        .. "the fifth, eases after the tenth, and is over in about three weeks.",
+    UI_trait_SAO_opioids = "Heroin dependency",
+    UI_trait_SAO_opioidsDesc = "You need heroin, and there is none left in "
+        .. "the county. Withdrawal starts on the first day, is worst from "
+        .. "the fifth, eases after the tenth, and is over in about three "
+        .. "weeks. It hurts as well as everything else.",
+    UI_trait_SAO_stimulants = "Speed dependency",
+    UI_trait_SAO_stimulantsDesc = "You need speed, and there is none left in "
+        .. "the county. Withdrawal starts on the first day, is worst from "
+        .. "the fifth, eases after the tenth, and is over in about three weeks.",
+    UI_trait_SAO_sedatives = "Sedative dependency",
+    UI_trait_SAO_sedativesDesc = "You need downers, and there is none left in "
+        .. "the county. Withdrawal starts on the third day, is worst from "
+        .. "the sixth, eases after the tenth, and is over in about three weeks.",
 }
