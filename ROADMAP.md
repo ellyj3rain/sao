@@ -1,6 +1,6 @@
 | Document | Survivor Awareness Overhaul Roadmap |
 |---|---|
-| Version | `3.3.0.0-pre-alpha` |
+| Version | `3.4.0.0-pre-alpha` |
 | Author | ellyj3rain |
 | Repository | `ROADMAP.md` |
 | Status | CANONICAL - thread map, backlog, live gates. |
@@ -82,10 +82,16 @@ Preconditions and slices, none of them the whole thing:
 3. The elapsed clock: read how far from the fall this save begins
    (the engine's own start year and months-since-apocalypse) and
    make it one number every system can ask for.
-4. Running the days for a later start: the dormant day, encounters,
-   standings drift, attrition, the age table's deaths, conditions,
-   habits and lessons driven forward over that span, bounded so a
-   long start is a wait and not a hang.
+4. SHIPPED as `[C45]`: running the days for a later start - the
+   dormant day, the meetings, attrition, the softening, the age
+   table's roll and the settling of habits driven forward over the
+   days the save owes, at the daily cadence F-055 measured, sliced so
+   it cannot hang, after genesis and holding the band. Houses and
+   leaders arrive out of the encounters as they do in play. Still
+   record-side only: nobody has a body during the years, so nothing
+   anyone does to a building happens yet - loading the ground per
+   claim while they run is the next piece, and F-055 puts that ground
+   at 432 chunks and 406 KB.
 5. What a place becomes: ground held, fenced and built on over time;
    settlements of a size the elapsed time supports; enclaves that
    stay small; groups that confederate and come apart; trade between

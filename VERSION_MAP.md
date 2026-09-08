@@ -16,9 +16,9 @@ the machine. Names, dates, and threads below come from
 | Form | `major.minor.kohai.patch-maturity` |
 | Hard caps | minor 12; kohai 16; patch 24 |
 | Replay start | `0.1.0.0-pre-alpha` |
-| Current version | `3.3.0.0-pre-alpha` |
-| Closed chronology | `A1-C44` |
-| Next batch | `C45` |
+| Current version | `3.4.0.0-pre-alpha` |
+| Closed chronology | `A1-C45` |
+| Next batch | `C46` |
 | Executable source | [`tools/version_replay.py`](tools/version_replay.py) |
 
 ## Tier meanings
@@ -160,6 +160,7 @@ the machine. Names, dates, and threads below come from
 | `C42` | 2026-09-07 | minor | `3.1.0.0-pre-alpha` | Before the fall, an ordinary life | Before the fall, an ordinary life (DR-036): an audit of the day-zero switch found it reached two things and that no decision anywhere asked whether the fall had happened, though the county had written three stamps for it since [B1] and read them only to print a chronicle; the county can be asked now - derived from those stamps and the calendar, never from the dial - and the night watch, the journey for a weapon or ammunition and scouting somewhere defensible all wait for it, while eating, warmth, treatment and mourning deliberately do not; Border 116 holds it. |
 | `C43` | 2026-09-07 | minor | `3.2.0.0-pre-alpha` | The record's timeline moves onto the start date | The record's timeline moves onto the start date (DR-036): the lore is canonically 1993 and [C36] pinned it to the dates it carries, so a March start sat in a quiet world until July; a player now picks any date in 1993 and, with the Day Zero switch on, the record's own first day lands there - its week of ordinary county, then the collapse, then the rest in shipped order, with the broadcasts and dated papers moving with it and a later start moving it backwards; the week is the record's own number and not a setting, and a 1994 or later start is refused the move because that save is owed the years between simulated forward; Border 110 runs the placement and the year gate off the game. |
 | `C44` | 2026-09-07 | minor | `3.3.0.0-pre-alpha` | They either build or they do not | They either build or they do not (DR-036, ruled through Crucible): nothing is forced and no pass authors a fortification, so the county gets a capability instead - a person who holds ground, after the fall has come, standing on their own claim and carrying a hammer, a plank and two nails they found, boards a window through the engine's own barricade calls at the shipped action's own price, the materials leaving their bag; the panel reports what they managed and nothing when they managed none; Border 117 holds that every clause can fail and that no genesis, population, absorption or harness path places one. |
+| `C45` | 2026-09-07 | minor | `3.4.0.0-pre-alpha` | The years between | The years between (DR-036): a save beginning after the record's year runs the county's own machinery forward over the days it owes before anybody is materialised - the dormant day, the meetings, attrition, the softening, the age table and the settling of habits, every one of them the live county's own call - at the daily cadence F-055 measured, sliced so it cannot hang, after genesis and holding the band; houses and leaders arrive out of the encounters as they do in play and nothing is placed; Border 118 refuses a day that reaches for a group, a bond, a claim or a death directly. |
 
 ## The former number
 
@@ -180,11 +181,11 @@ the meantime, and they are not play.
 
 ## Next movement
 
-`C45` is the next batch. Its content determines its tier after it
+`C46` is the next batch. Its content determines its tier after it
 exists:
 
-| If C45 is | Result |
+| If C46 is | Result |
 |---|---|
-| patch or hotfix | `3.3.0.1-pre-alpha` |
-| kohai | `3.3.1.0-pre-alpha` |
-| minor | `3.4.0.0-pre-alpha` |
+| patch or hotfix | `3.4.0.1-pre-alpha` |
+| kohai | `3.4.1.0-pre-alpha` |
+| minor | `3.5.0.0-pre-alpha` |

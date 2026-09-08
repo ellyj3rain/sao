@@ -1430,6 +1430,16 @@ if ! "$PY" tools/they_build_test.py > /dev/null; then
     fail=1
 fi
 
+# [C45] Border 118 - the years between are lived, not invented
+# (DR-036): every call in a simulated day is the live county's own,
+# at the measured daily cadence, sliced so it cannot hang, after
+# genesis and before the band.
+if ! "$PY" tools/years_between_test.py > /dev/null; then
+    "$PY" tools/years_between_test.py 2>&1 | grep -E "FAULT" || true
+    note "BORDER FINDING - the years are invented or not lived"
+    fail=1
+fi
+
 # Border 103 - the operator's speech is not in the repository: no
 # profanity in the tracked tree and no operator-quote attributions;
 # rulings are paraphrased content, speech stays with the speaker.

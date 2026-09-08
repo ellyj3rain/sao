@@ -2330,6 +2330,127 @@ local bandSkips = 0
 local bandSaid = false
 local BAND_PATIENCE = 15   -- passes (~60s at 60fps) before saying so
 
+-- [C45] THE YEARS BETWEEN.
+--
+-- A save that begins in 1996 has three years of county behind it,
+-- and DR-036 says the people the player meets are the people who
+-- lived them. So the county's own machinery runs forward over those
+-- days before anybody is materialised - the same dormant day, the
+-- same meetings on the road, the same attrition, the same softening
+-- of old feelings, the same table that kills the old - and whoever
+-- is alive at the end of it is who the player walks into.
+--
+-- Nothing here is a second simulation and nothing is authored. Every
+-- call below is the one the live county already makes; houses,
+-- leaders, feuds and pacts arrive because `dormantEncounters` forms
+-- them, exactly as it does in play.
+--
+-- AT A DAILY CADENCE, and that number is measured rather than
+-- chosen (F-055). The ten-minute pass the live county uses exists to
+-- drift a BODY's stats, and nobody in the years has a body - the
+-- dormant day runs for exactly the people `SAO.Body.get` answers
+-- nothing for. At the live cadence three years cost about five and a
+-- half hours of real time on the machine this was measured on; at a
+-- day a day they cost about two minutes, and nothing bodiless is
+-- skipped, because everything that happens to a person without a
+-- body happens on a daily clock anyway.
+--
+-- The dormant systems pace themselves in FRAMES, not game time - a
+-- person moves every 1800 to 3600 of them and a pair may meet once
+-- per 1800 - so a simulated day advances that counter far enough to
+-- open each gate about once. One move and at most one meeting per
+-- pair is what a day deserves when nobody is watching it.
+local YEARS_TICKS_PER_DAY = 3600
+
+-- And it is sliced, never blocking: each pass spends at most this
+-- long and picks up where it stopped. A county catching up is a few
+-- seconds of the game running normally, not a frozen window.
+local YEARS_BUDGET_MS = 60
+
+local function yearsStore()
+    local ok, s = pcall(function()
+        return ModData.getOrCreate("SurvivorAwareness_Standing")
+    end)
+    return (ok and type(s) == "table") and s or nil
+end
+
+-- How many days this save begins with behind it, asked once and
+-- remembered. Zero is a real answer (a 1993 start has no years to
+-- catch up on) and so the flag, not the number, says whether it has
+-- been asked.
+local function yearsOwed(s)
+    if s.yearsAsked then return tonumber(s.yearsOwed) or 0 end
+    local days = -1
+    pcall(function() days = SAOJavaBridge:daysBehindAtStart() end)
+    if type(days) ~= "number" or days < 0 then
+        -- The clock was not there yet; ask again next pass rather
+        -- than recording a nothing that would stand for the save.
+        return nil
+    end
+    s.yearsAsked = true
+    s.yearsOwed = days
+    s.yearsRun = 0
+    if days > 0 then
+        log("this save begins " .. days .. " days after the fall; the"
+            .. " county will live them before anybody is spawned")
+    end
+    return days
+end
+
+-- One simulated day, and every call in it is the live county's own.
+local function oneYearsDay(conf, day)
+    tickCounter = tickCounter + YEARS_TICKS_PER_DAY
+    pcall(dormantLife, conf)
+    pcall(dormantEncounters)
+    pcall(dormantAttrition)
+    pcall(function() SAO.Standing.driftStandings() end)
+    for id, rec in pairs(SAO.Identity.all()) do
+        pcall(function() SAO.Age.dailyRoll(rec, day, tickCounter) end)
+        pcall(function() SAO.Age.settleHabits(rec, day) end)
+    end
+end
+
+-- Returns true while there are still years to live, which is what
+-- holds the band back: nobody is materialised into a county that has
+-- not finished happening.
+local function runTheYears(conf)
+    local s = yearsStore()
+    if not s then return false end
+    if not genesisSettled() then
+        -- The county has to exist before it can have a history
+        -- ([C41]); genesis runs ahead of this in the same pass.
+        return false
+    end
+    local owed = yearsOwed(s)
+    if owed == nil then return false end
+    local run = tonumber(s.yearsRun) or 0
+    if run >= owed then return false end
+    local okT, startedMs = pcall(function() return getTimestampMs() end)
+    local began = run
+    while run < owed do
+        run = run + 1
+        oneYearsDay(conf, run)
+        if okT and startedMs then
+            local okN, nowMs = pcall(function() return getTimestampMs() end)
+            if okN and nowMs and (nowMs - startedMs) >= YEARS_BUDGET_MS then
+                break
+            end
+        end
+    end
+    s.yearsRun = run
+    if run >= owed then
+        local alive = SAO.Identity.livingCount()
+        log("the county has lived its " .. owed .. " days: " .. alive
+            .. " alive to meet")
+        return false
+    end
+    if run - began > 0 then
+        log("the county is living the years: " .. run .. "/" .. owed
+            .. " days")
+    end
+    return true
+end
+
 local function populationTick()
     tickCounter = tickCounter + 1
     if tickCounter % TICK_INTERVAL ~= 0 then return end
@@ -2346,6 +2467,16 @@ local function populationTick()
     -- the rest of the county keeps moving. The names make the log
     -- legible at a glance.
     runSub("genesis", ensurePopulation, conf)
+    -- [C45] The years between, before anything else. While they are
+    -- still being lived the live subsystems below are skipped - the
+    -- years are already driving every one of them - and the band is
+    -- held, so nobody is materialised into a county that has not
+    -- finished happening.
+    local livingTheYears = false
+    runSub("years", function()
+        livingTheYears = runTheYears(conf)
+    end)
+    if livingTheYears then return end
     runSub("inhabit", inhabitKnox)
     runSub("dormant-life", dormantLife, conf)
     runSub("attrition", dormantAttrition)

@@ -2199,6 +2199,15 @@ public final class SAOBridge {
         }
     }
 
+    /** [C45] The days of history a save begins with behind it. */
+    public int daysBehindAtStart() {
+        try {
+            return com.sao.engine.SAORecord.daysBehindAtStart();
+        } catch (Throwable throwable) {
+            return -1;
+        }
+    }
+
     /** [C43] Back to the shipped calendar. */
     public void anchorRecord() {
         try {

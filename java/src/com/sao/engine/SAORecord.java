@@ -165,6 +165,20 @@ public final class SAORecord {
             dateOf(year, month0, day0), RECORD_FIRST_DAY);
     }
 
+    /** [C45] How many days of history a save begins with behind it:
+     *  the record's day 0 to the save's own start. Zero for a 1993
+     *  start, about a thousand for a 1996 one. Never negative - a
+     *  world that begins before the fall has no years to catch up on,
+     *  it has them ahead of it. -1 when the clock cannot be read, so
+     *  the Lua side can tell that from a genuine nothing. */
+    public static int daysBehindAtStart() {
+        int[] start = saveStart();
+        if (start == null) {
+            return -1;
+        }
+        return Math.max(0, recordDayOf(start[0], start[1], start[2]));
+    }
+
     /** [C43] The record's own ordinary county, in days: first day to
      *  day 0. Derived from the record, not chosen. */
     public static int leadIn() {

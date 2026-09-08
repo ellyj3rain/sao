@@ -1,13 +1,27 @@
 | Document | Survivor Awareness Overhaul Session State |
 |---|---|
-| Version | `3.3.0.0-pre-alpha` |
+| Version | `3.4.0.0-pre-alpha` |
 | Author | ellyj3rain |
 | Repository | `SESSION_STATE.md` |
 | Status | CANONICAL - where the work actually stands. |
 
 # Session state
 
-**As of** 2026-09-07, `[C44]` close - they either build or they do
+**As of** 2026-09-07, `[C45]` close - the years between (DR-036's
+other half). A save beginning after the record's year now runs the
+county's own machinery forward over the days it owes before anybody
+is materialised: the dormant day, the meetings on the road,
+attrition, the softening of old feelings, the age table's roll and
+the settling of habits, every one of them the call the live county
+already makes. Houses, leaders and feuds arrive out of the dormant
+encounters as they do in play, and nothing is placed. The cadence is
+daily and measured (F-055): the ten-minute pass exists to drift a
+body's stats and nobody in the years has a body, so three years cost
+about two minutes rather than five and a half hours. Sliced at sixty
+milliseconds a pass so it cannot hang, after genesis, holding the
+band. Border 118 refuses a simulated day that reaches for a group, a
+bond, a claim or a death directly. `[C44]` before it - they either
+build or they do
 not (DR-036, ruled through Crucible). Asked what had to exist before
 the years between are simulated, the operator rejected the framing:
 nothing is forced, the county is not handed settlements, and a pass
@@ -323,10 +337,10 @@ unloaded survivors are governed by the same rules ([B39], [B42]).
 
 ## Deploy state
 
-`3.3.0.0-pre-alpha` at tip - the version machine's output ([C2],
+`3.4.0.0-pre-alpha` at tip - the version machine's output ([C2],
 DR-013; the twelfth minor rolled the tier by the odometer's own
-law). The game install carries the `[C44]` tip, deployed 2026-09-07 at
-the `[C44]` close; `[C33]` through `[C43]` reached the install the
+law). The game install carries the `[C45]` tip, deployed 2026-09-07 at
+the `[C45]` close; `[C33]` through `[C44]` reached the install the
 same day, the first window the game was closed since the `[C32]`
 deploy of 2026-09-06. The play receipts the C era owes are the next
 thing the tree cannot produce for itself - the operator chose to
@@ -346,7 +360,7 @@ deploy; `save_compat_test` guards this and runs in the gate.
 
 ## Instruments
 
-**117 numbered borders**, run by **132 gated mirrors** in `tools/`, all invoked
+**118 numbered borders**, run by **133 gated mirrors** in `tools/`, all invoked
 by `tools/check.sh`, which the pre-commit hook runs and CI runs on every push.
 The figures in this paragraph are derived by Border 76 from the tree, not
 maintained by hand. Border 54 keeps the rest honest: it runs every gated
