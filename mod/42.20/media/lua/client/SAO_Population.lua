@@ -347,8 +347,35 @@ end
 local lastHighwayLogAt = -9
 
 local function hoursNow()
-    local ok, h = pcall(function() return GameTime.getInstance():getWorldAgeHours() end)
+    local ok, h = pcall(function() return SAO.History.countyHours() end)
     return ok and h or 0
+end
+
+-- [C62] The county's clock is one module's answer now, and every
+-- system in this file that gates on a change of day reads it through
+-- a pcall that answers zero when it cannot be reached. A zero here
+-- is not a small wrong number: it is a clock that never moves, which
+-- is exactly the defect [C62] was written to fix, and it would be
+-- silent.
+--
+-- So it is asked once, at boot, and said out loud if it is not
+-- there. The seam is marked dark for the same reason - the Ledger is
+-- the only place a player would ever find this out ([B33]).
+local clockSaid = false
+local function clockAnswers()
+    if clockSaid then return end
+    clockSaid = true
+    local ok, h = pcall(function() return SAO.History.countyHours() end)
+    if ok and type(h) == "number" then return end
+    log("THE COUNTY HAS NO CLOCK: SAO.History.countyHours() cannot be"
+        .. " reached, so every day-gated system in this file - the"
+        .. " attrition roll, thirst and hunger, the softening of old"
+        .. " feelings - reads hour zero forever and none of them will"
+        .. " ever see a new day. SAO_History.lua did not load.")
+    if SAO.Seams then
+        SAO.Seams.wentDark("county-clock",
+            "SAO.History.countyHours() is not reachable")
+    end
 end
 
 -- [C11] The sandbox mortality window in hours, mirrored from
@@ -582,7 +609,7 @@ local function ensurePopulation(conf)
         end
         chance = chance - feuds87 * 20 + mercy87 * 10
         pcall(function()
-            local m87 = GameTime.getInstance():getMonth()
+            local m87 = SAO.History.countyMonth()
             if m87 == 11 or m87 == 0 or m87 == 1
                 or m87 == 10 or m87 == 2 then
                 chance = math.floor(chance * 0.5)
@@ -837,7 +864,7 @@ local function materializeBand(px, py, conf)
                 if rec.hibernation and SAOJavaBridge then
                     local elapsed = 0
                     pcall(function()
-                        elapsed = GameTime.getInstance():getWorldAgeHours()
+                        elapsed = SAO.History.countyHours()
                             - (rec.releasedAtHours or 0)
                     end)
                     if elapsed < 0 then elapsed = 0 end
@@ -1339,8 +1366,12 @@ local function chooseDayPlace(id, rec, reach)
 end
 
 local function dormantLife(conf)
-    local okH, hour = pcall(function() return GameTime.getInstance():getTimeOfDay() end)
-    if not okH then return end
+    -- [C62] The county's hour, not the engine's. This runs once
+    -- per simulated day while [C45] lives the years and the
+    -- engine's clock is stopped, so a save begun at night sent
+    -- everybody home for the whole span.
+    local hour = SAO.History.countyTimeOfDay()
+    if type(hour) ~= "number" then return end
     local night = hour >= 21.0 or hour < 6.0
     for id, rec in pairs(SAO.Identity.all()) do
         if not rec.dead and not rec.knox and not SAO.Body.get(id) and rec.homeX then
@@ -1471,7 +1502,7 @@ local function dormantAttrition()
     -- Winter bites ([A24]): the county is harder in the cold months.
     -- Engine month (0-11): Dec/Jan/Feb x1.5, Nov/Mar x1.25, else x1.0.
     pcall(function()
-        local month = GameTime.getInstance():getMonth()
+        local month = SAO.History.countyMonth()
         if month == 11 or month == 0 or month == 1 then
             riskMult = riskMult * 1.5
         elseif month == 10 or month == 2 then
@@ -1479,7 +1510,7 @@ local function dormantAttrition()
         end
     end)
     local okH, nowHours = pcall(function()
-        return GameTime.getInstance():getWorldAgeHours()
+        return SAO.History.countyHours()
     end)
     if not okH then return end
     local today = math.floor(nowHours / 24.0)
@@ -2211,7 +2242,7 @@ end
 -- which is the most alarming thing it could say and was false.
 local function bootDigest(conf)
     local okH2, h2 = pcall(function()
-        return GameTime.getInstance():getWorldAgeHours()
+        return SAO.History.countyHours()
     end)
     local day = okH2 and math.floor(h2 / 24) or 0
     local dead = 0
@@ -2495,6 +2526,13 @@ local function runTheYears(conf)
     local began = run
     while run < owed do
         run = run + 1
+        -- [C62] The day being lived IS the county's clock while the
+        -- years run (SAO_History.countyHours reads it from here), so
+        -- it is written before the day is lived and on every day.
+        -- Written once after the loop, as it was, a slice of up to
+        -- sixty milliseconds - which can be hundreds of days - had
+        -- one hour on it from beginning to end.
+        s.yearsRun = run
         oneYearsDay(conf, run)
         if okT and startedMs then
             local okN, nowMs = pcall(function() return getTimestampMs() end)
@@ -2524,6 +2562,8 @@ local function populationTick()
     if not conf.enable then return end
     local booting = not booted
     booted = true
+    -- [C62] Before anything reads it.
+    clockAnswers()
 
     -- The county does not stop for anyone's death ([A17]): genesis,
     -- dormant days, and road meetings run playerless; only the presence

@@ -324,7 +324,7 @@ function Pl.waterIsOn()
     if not shutDay or shutDay <= 0 then return true end
     local days = 0
     pcall(function()
-        days = GameTime.getInstance():getWorldAgeHours() / 24.0
+        days = SAO.History.countyHours() / 24.0
     end)
     return days < shutDay
 end
@@ -397,7 +397,7 @@ end
 local function nowHours()
     local h = 0
     pcall(function()
-        h = GameTime.getInstance():getWorldAgeHours()
+        h = SAO.History.countyHours()
     end)
     return h
 end

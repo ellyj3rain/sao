@@ -21,6 +21,160 @@ local H = SAO.History
 local function log(msg) SAO.Log.line("HISTORY", msg) end
 local function tally(kind) SAO.Log.tally("HISTORY", kind) end
 
+-- ---------------------------------------------------------------------------
+-- [C62] WHAT HOUR IT IS FOR THE COUNTY.
+--
+-- Sixty-eight places in this tree ask GameTime for the world age in
+-- hours, and every one of them means "how far along is this county".
+-- They stamp when somebody last drank, when a feeling was last aged,
+-- when a death's word is due, when a bite is due to kill.
+--
+-- [C45] lives the days a later save owes before anybody is spawned,
+-- and the game clock does not move while it does. So all sixty-eight
+-- read the same hour for the whole span, and the systems gated on a
+-- CHANGE of day never saw one:
+--
+--   * attrition stamped `lastRiskDay` on the first simulated day and
+--     its `today > lastRiskDay` gate was false every day after, so
+--     nobody died in three years;
+--   * `lastWaterDay` and `lastFoodDay` never advanced, so nobody
+--     grew thirsty and nobody went looking for water;
+--   * `lastDriftDay` matched, so no feeling aged;
+--   * the winter multiplier read GameTime's month, which was the
+--     save's start month for the whole span.
+--
+-- A thousand simulated days changed almost nothing. [C45] said the
+-- county lives the years; what it actually did was call the systems
+-- that live them and hand each one a clock that had stopped.
+--
+-- This is the hour those systems read now. While the years are being
+-- lived it is the day being lived, times twenty-four. Otherwise it is
+-- the days this save began behind the record plus the game's own
+-- hours, which carries on from where the years stopped: a stamp made
+-- during the years has to stay in the past once play begins, and
+-- dropping back to the game's own zero would put every one of them in
+-- the future.
+--
+-- A save with no years behind it reads the game's own hours and
+-- nothing else, so nothing that ran before this runs differently.
+-- ---------------------------------------------------------------------------
+
+-- The shared store, which is where [C45] keeps how far the years have
+-- got. Memoised on success only: a bare VM has no ModData and must
+-- keep falling through rather than caching the absence.
+local storeMemo = nil
+local function yearsState()
+    if storeMemo ~= nil then return storeMemo end
+    local ok, s = pcall(function()
+        return ModData.getOrCreate("SurvivorAwareness_Standing")
+    end)
+    if not ok or type(s) ~= "table" then return nil end
+    storeMemo = s
+    return s
+end
+
+-- The day the county is living, while it is living the years. Nil at
+-- every other time, which is what tells the two clocks below to read
+-- the game's own.
+local function livingDay()
+    local s = yearsState()
+    if not s or not s.yearsAsked then return nil end
+    local run = tonumber(s.yearsRun) or 0
+    local owed = tonumber(s.yearsOwed) or 0
+    if run >= owed then return nil end
+    return run
+end
+
+-- How far behind the record this save began, in hours. Constant for
+-- a save, so it is asked once; a bridge that is not up yet answers
+-- nothing and is asked again next time rather than being remembered
+-- as zero.
+local behindMemo = nil
+local function hoursBehind()
+    if behindMemo then return behindMemo end
+    local days = nil
+    pcall(function() days = SAOJavaBridge:daysBehindAtStart() end)
+    if type(days) ~= "number" or days < 0 then return 0 end
+    behindMemo = days * 24.0
+    return behindMemo
+end
+
+-- The county's clock, in hours. Never negative and never goes
+-- backwards, which is what every stamp in this mod assumes.
+function H.countyHours()
+    local day = livingDay()
+    if day then return day * 24.0 end
+    local hours = 0
+    pcall(function()
+        hours = GameTime.getInstance():getWorldAgeHours()
+    end)
+    return hoursBehind() + (tonumber(hours) or 0)
+end
+
+-- The county's calendar month, numbered 0 to 11 the way the engine
+-- numbers them. The engine's own month is right whenever the game
+-- clock is running and wrong for the whole of the years, so this
+-- asks the record which month the county's hours have reached and
+-- falls back to the engine where the record cannot answer.
+function H.countyMonth()
+    local month = nil
+    pcall(function()
+        month = SAOJavaBridge:countyMonth(H.countyHours())
+    end)
+    if type(month) == "number" and month >= 0 and month <= 11 then
+        return month
+    end
+    pcall(function() month = GameTime.getInstance():getMonth() end)
+    if type(month) == "number" and month >= 0 and month <= 11 then
+        return month
+    end
+    return nil
+end
+
+-- The county's time of day, on the engine's own 0 to 24.
+--
+-- The same defect as the clock above and it needs a different answer.
+-- [C45] runs ONE call per simulated day, so a simulated day has no
+-- hours in it to be at; the engine's own time of day is whatever
+-- o'clock the save was created at, held there for the whole span. A
+-- save begun at three in the morning sent every survivor home to
+-- sleep and kept them there for a thousand days, and a child's night
+-- fear stood at its maximum for the same thousand.
+--
+-- So while the years run this says noon. That is a claim and not a
+-- derivation: what a simulated day models is a day's worth of going
+-- out and coming back, which happens in daylight, and the alternative
+-- is running each of those days through its own twenty-four hours,
+-- which F-055 measured and DR-037 ruled out.
+--
+-- Outside the years it is the engine's, unchanged.
+local YEARS_HOUR = 12.0
+
+function H.countyTimeOfDay()
+    if livingDay() then return YEARS_HOUR end
+    local hour = nil
+    pcall(function() hour = GameTime.getInstance():getTimeOfDay() end)
+    if type(hour) == "number" then return hour end
+    return nil
+end
+
+-- Which day of the record's own calendar the county has reached.
+-- Negative through an ordinary county that has not had its outbreak
+-- yet, and nil when no calendar can be read at all.
+--
+-- This is not `countyHours` divided by twenty-four. That one counts
+-- elapsed time from zero; this one is a position on a calendar that
+-- runs from before day zero, and a shifted [C43] start begins at a
+-- negative number on it while no time at all has elapsed.
+function H.recordDay()
+    local day = livingDay()
+    if day then return day end
+    local told = nil
+    pcall(function() told = SAOJavaBridge:recordDayToday() end)
+    if type(told) == "number" and told > -90000 then return told end
+    return nil
+end
+
 -- Months since the outbreak began, as of NOW (fractional).
 --
 -- [C61] Off the record's own calendar, not the sandbox dial. This
@@ -48,9 +202,12 @@ local function tally(kind) SAO.Log.tally("HISTORY", kind) end
 -- up - so this module stays offline by construction and nothing that
 -- ran before runs differently there.
 function H.clockMonths()
-    local day = nil
-    pcall(function() day = SAOJavaBridge:recordDayToday() end)
-    if type(day) == "number" and day > -90000 then
+    -- [C62] Through `recordDay`, so the months a person has had to
+    -- learn anything advance while the years are being lived. It
+    -- read the bridge directly and the bridge reads the game clock,
+    -- which is stopped for the whole span.
+    local day = H.recordDay()
+    if day ~= nil then
         if day < 0 then return 0 end
         return day / 30.0
     end

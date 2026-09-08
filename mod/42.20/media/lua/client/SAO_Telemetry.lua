@@ -99,7 +99,7 @@ function T.event(kind, fields)
     fields = fields or {}
     fields.kind = kind
     local ok, h = pcall(function()
-        return GameTime.getInstance():getWorldAgeHours()
+        return SAO.History.countyHours()
     end)
     fields.hours = ok and h or 0
     fields.day = math.floor((ok and h or 0) / 24.0)

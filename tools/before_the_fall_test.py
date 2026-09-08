@@ -42,6 +42,10 @@ ROOT = pathlib.Path(sys.argv[1]).resolve() if len(sys.argv) > 1 \
 LUA = ROOT / "mod" / "42.20" / "media" / "lua"
 STANDING = LUA / "shared" / "SAO_Standing.lua"
 CONTROLLER = LUA / "client" / "SAO_Controller.lua"
+# [C62] The record's calendar has one reader; the question below asks
+# it rather than the bridge, so the sentinel it guards against lives
+# there and is checked there.
+HISTORY = LUA / "shared" / "SAO_History.lua"
 REGISTRY = ROOT / "DECISION_REGISTRY.md"
 CHECK = ROOT / "tools" / "check.sh"
 
@@ -75,6 +79,7 @@ def main():
     print("=" * 74)
 
     standing, controller = read(STANDING), read(CONTROLLER)
+    history = strip_comments(read(HISTORY))
 
     # 1 + 2 + 3. The question, and what it is allowed to read.
     question = body_of(standing, "function S.fallHasCome()", "\nend\n")
@@ -90,7 +95,10 @@ def main():
             "s.outbreakAtHours" in bare and "s.firstTurnedAtHours" in bare
             and "s.tapsDryAtHours" in bare,
         "the record's calendar answers it":
-            "recordDayToday()" in bare,
+            "SAO.History.recordDay()" in bare,
+        "through the one reader of it":
+            "SAOJavaBridge:recordDayToday()" in history
+            and "SAOJavaBridge:recordDayToday()" not in bare,
         "and the sandbox dial is not consulted":
             "SandboxVars" not in bare and "DayZero" not in bare,
         "the calendar clause can answer true on its own":
@@ -98,7 +106,9 @@ def main():
         "the stamps clause can answer true on its own":
             re.search(r"return true, \"seen\"", bare) is not None,
         "an unreadable clock is not read as a fallen world":
-            "-90000" in bare,
+            'type(day) == "number"' in bare
+            and "-90000" in history
+            and 'return false, (type(day) == "number") and "before"' in bare,
     }
 
     # 4. Who asks.

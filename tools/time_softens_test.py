@@ -53,7 +53,10 @@ PZ_DIR = pathlib.Path(
 PZ = PZ_DIR / "projectzomboid.jar"
 STDLIB = PZ_DIR / "stdlib.lua"
 
+# [C62] SAO_History is what answers "what hour is it" now, and the
+# stubbed clock in probe_standing.lua is what it reads.
 MODULES = ("shared/SAO_Log.lua", "shared/SAO_Hash.lua",
+           "shared/SAO_History.lua",
            "shared/SAO_Disposition.lua", "shared/SAO_Standing.lua")
 
 GRACE_DAYS = 13        # inside the fortnight nothing may move

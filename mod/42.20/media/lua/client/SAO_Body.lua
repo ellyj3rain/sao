@@ -343,7 +343,7 @@ function Body.release(rec)
         local packed = SAOJavaBridge:hibernate(body)
         if type(packed) == "string" and packed ~= "" then
             rec.hibernation = packed
-            rec.releasedAtHours = GameTime.getInstance():getWorldAgeHours()
+            rec.releasedAtHours = SAO.History.countyHours()
         end
     end)
     -- Java-shell bodies need the full teardown (ModelManager.Remove + intent

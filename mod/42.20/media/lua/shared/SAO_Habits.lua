@@ -65,7 +65,7 @@ end
 
 local function worldHours()
     local hours = 0
-    pcall(function() hours = GameTime.getInstance():getWorldAgeHours() end)
+    pcall(function() hours = SAO.History.countyHours() end)
     return hours
 end
 

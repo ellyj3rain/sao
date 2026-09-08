@@ -97,7 +97,11 @@ function D.fear(id)
     if floor < 0 then floor = 0 end
     local night = 0
     pcall(function()
-        night = SAO.History.nightFearOf(age, getGameTime():getTimeOfDay())
+        -- [C62] The county's hour: a child's night fear stood at
+        -- its maximum for the whole of the years on a save begun
+        -- after dark.
+        night = SAO.History.nightFearOf(age,
+            SAO.History.countyTimeOfDay())
     end)
     local fear = floor + night + carried
     if fear > 1 then fear = 1 end

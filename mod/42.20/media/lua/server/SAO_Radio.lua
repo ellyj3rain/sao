@@ -147,7 +147,7 @@ function SAOWire.air(_channel, force)
     end)
     if not ok or type(s) ~= "table" then return false end
     local okH, h = pcall(function()
-        return GameTime.getInstance():getWorldAgeHours()
+        return SAO.History.countyHours()
     end)
     local now = okH and h or 0
     local news = s.radioNews

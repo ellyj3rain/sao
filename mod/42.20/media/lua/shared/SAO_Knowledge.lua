@@ -124,7 +124,7 @@ local function aboutSelf(id, opts)
     end)
     if rec.newcomer and rec.arrivedAtHours then
         pcall(function()
-            local nh = GameTime.getInstance():getWorldAgeHours()
+            local nh = SAO.History.countyHours()
             out[#out + 1] = { fact = "arrival", source = "lived",
                 days = math.max(1,
                     math.floor((nh - rec.arrivedAtHours) / 24)) }

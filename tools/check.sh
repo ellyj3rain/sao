@@ -1565,6 +1565,15 @@ if ! "$PY" tools/one_clock_test.py > /dev/null; then
     fail=1
 fi
 
+# [C62] Border 131 - the county's clock moves while the years are
+# lived: one answer to what hour it is, read by every module, so the
+# systems that gate on a change of day see one during [C45]'s span.
+if ! "$PY" tools/county_clock_test.py > /dev/null; then
+    "$PY" tools/county_clock_test.py 2>&1 | grep -E "FAULT|SKIPPED" || true
+    note "BORDER FINDING - the county's clock stops while the years run"
+    fail=1
+fi
+
 # Border 103 - the operator's speech is not in the repository: no
 # profanity in the tracked tree and no operator-quote attributions;
 # rulings are paraphrased content, speech stays with the speaker.

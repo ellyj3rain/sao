@@ -136,7 +136,7 @@ function L.learn(id, key, weight, src, of)
     known[key] = weight
     rec.lessonMeta = rec.lessonMeta or {}
     local okLH, lh = pcall(function()
-        return GameTime.getInstance():getWorldAgeHours()
+        return SAO.History.countyHours()
     end)
     rec.lessonMeta[key] = {
         src = tostring(src or (weight >= 1.0 and "lived"

@@ -350,7 +350,7 @@ local passCounter = 0
 local function everyTenMinutes()
     passCounter = passCounter + 1
     local okH, hours = pcall(function()
-        return GameTime.getInstance():getWorldAgeHours()
+        return SAO.History.countyHours()
     end)
     if not okH then return end
     local today = math.floor(hours / 24.0)
