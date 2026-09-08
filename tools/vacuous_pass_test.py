@@ -99,6 +99,12 @@ NOT_ABOUT_LUA = {
     "gate_reach_test.py":
         "reads tools/ and check.sh. It is the border about borders, and "
         "the mod's Lua is not its subject",
+    "fence_test.py":
+        "[C47] reads SAOFence.java and drives it over a corpus off the "
+        "game. The fence is the constrained-decoding vocabulary a "
+        "speaker is handed, and it lives in the jar per Decision 3's "
+        "in-process floor; the Lua only renders a claim set into it and "
+        "is not what this border is about",
     "pool_identity_test.py":
         "[C9] reads the Java tree and nothing else - the deletion-grade "
         "predicate, its consumers, and the removeFromWorld census all "

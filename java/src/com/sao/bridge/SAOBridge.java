@@ -2325,6 +2325,37 @@ public final class SAOBridge {
         }
     }
 
+    /** [C47] What a person may put in a fact position, from their own
+     *  claims: "field:v1|v2" lines. This is the vocabulary a speaker
+     *  is handed, and it is the whole of what it can say. */
+    public String speechVocabulary(String claims) {
+        try {
+            return com.sao.engine.SAOFence.vocabulary(claims);
+        } catch (Throwable throwable) {
+            return "";
+        }
+    }
+
+    /** [C47] Anything in a proposed filling this person could not have
+     *  said. Empty means the sentence is theirs to say. */
+    public String speechViolations(String claims, String filling) {
+        try {
+            return com.sao.engine.SAOFence.violations(claims, filling);
+        } catch (Throwable throwable) {
+            // A fence that throws must refuse, never permit.
+            return filling == null ? "" : filling;
+        }
+    }
+
+    /** [C47] How much this person can say at all. */
+    public String speechMeasure(String claims) {
+        try {
+            return com.sao.engine.SAOFence.measure(claims);
+        } catch (Throwable throwable) {
+            return "";
+        }
+    }
+
     public String bodyScaleReport() {
         try {
             return com.sao.agent.SAOBodyScaleWeave.report() + "|"

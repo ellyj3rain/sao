@@ -16,9 +16,9 @@ the machine. Names, dates, and threads below come from
 | Form | `major.minor.kohai.patch-maturity` |
 | Hard caps | minor 12; kohai 16; patch 24 |
 | Replay start | `0.1.0.0-pre-alpha` |
-| Current version | `3.5.0.0-pre-alpha` |
-| Closed chronology | `A1-C46` |
-| Next batch | `C47` |
+| Current version | `3.6.0.0-pre-alpha` |
+| Closed chronology | `A1-C47` |
+| Next batch | `C48` |
 | Executable source | [`tools/version_replay.py`](tools/version_replay.py) |
 
 ## Tier meanings
@@ -162,6 +162,7 @@ the machine. Names, dates, and threads below come from
 | `C44` | 2026-09-07 | minor | `3.3.0.0-pre-alpha` | They either build or they do not | They either build or they do not (DR-036, ruled through Crucible): nothing is forced and no pass authors a fortification, so the county gets a capability instead - a person who holds ground, after the fall has come, standing on their own claim and carrying a hammer, a plank and two nails they found, boards a window through the engine's own barricade calls at the shipped action's own price, the materials leaving their bag; the panel reports what they managed and nothing when they managed none; Border 117 holds that every clause can fail and that no genesis, population, absorption or harness path places one. |
 | `C45` | 2026-09-07 | minor | `3.4.0.0-pre-alpha` | The years between | The years between (DR-036): a save beginning after the record's year runs the county's own machinery forward over the days it owes before anybody is materialised - the dormant day, the meetings, attrition, the softening, the age table and the settling of habits, every one of them the live county's own call - at the daily cadence F-055 measured, sliced so it cannot hang, after genesis and holding the band; houses and leaders arrive out of the encounters as they do in play and nothing is placed; Border 118 refuses a day that reaches for a group, a bond, a claim or a death directly. |
 | `C46` | 2026-09-07 | minor | `3.5.0.0-pre-alpha` | The ground, looked at | The ground, looked at (DR-036, DR-037): the engine holds only an eight by eight chunk window around each player, so during the years no claim is in any cell - a chunk is loaded on its own instead, read, and let go, one claim a simulated day on a rotation with ground read inside thirty days left alone; the county learns the ways into the place a person holds and how many are shut, off ground actually read, and the panel says it; it writes nothing at all, because saving a chunk writes into the player's own save through shared static buffers and nothing here has a live receipt - Border 119 refuses any save, barricade or placement in that path, and Border 118 admits the look only on that evidence. |
+| `C47` | 2026-09-07 | minor | `3.6.0.0-pre-alpha` | The fence | The fence (SPEECH_ML_DESIGN Decision 4, ratified): no-invention is enforced by constrained decoding rather than instruction, so a speaker is handed a vocabulary it cannot escape - every fact position fillable only from that person's own claims, the slots read off the knowledge surface rather than listed, the comparison exact and never advisory, an unknown slot refused rather than allowed and a fence that throws refusing rather than permitting; built before any model because it is what makes a wrong one harmless; Border 120 proves it over a corpus off the game with the near-misses included. |
 
 ## The former number
 
@@ -182,11 +183,11 @@ the meantime, and they are not play.
 
 ## Next movement
 
-`C47` is the next batch. Its content determines its tier after it
+`C48` is the next batch. Its content determines its tier after it
 exists:
 
-| If C47 is | Result |
+| If C48 is | Result |
 |---|---|
-| patch or hotfix | `3.5.0.1-pre-alpha` |
-| kohai | `3.5.1.0-pre-alpha` |
-| minor | `3.6.0.0-pre-alpha` |
+| patch or hotfix | `3.6.0.1-pre-alpha` |
+| kohai | `3.6.1.0-pre-alpha` |
+| minor | `3.7.0.0-pre-alpha` |

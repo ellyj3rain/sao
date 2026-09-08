@@ -270,6 +270,23 @@ function SAOInspectWindow:build()
         row("holds: " .. (#parts > 0
             and table.concat(parts, ", ") or "nothing yet"))
         jsonl.knowledge = parts
+        -- [C47] And the fence around it: how much this person could
+        -- ever say, which is the whole of what a speaker will be
+        -- handed. A wide fence is a person with a lot to tell.
+        pcall(function()
+            if not SAOJavaBridge then return end
+            local flat = SAO.Knowledge.flatClaims(id, pKey,
+                SAO.Controller.tick())
+            local said = tostring(SAOJavaBridge:speechMeasure(flat))
+            local slots = tonumber(said:match("slots=(%d+)"))
+            local values = tonumber(said:match("values=(%d+)"))
+            if slots and values then
+                row("could say: " .. values .. " thing"
+                    .. (values == 1 and "" or "s") .. " across "
+                    .. slots .. " kind" .. (slots == 1 and "" or "s"))
+                jsonl.sayableValues = values
+            end
+        end)
     end)
 
     return rows, jsonl

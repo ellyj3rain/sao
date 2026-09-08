@@ -1450,6 +1450,16 @@ if ! "$PY" tools/ground_survey_test.py > /dev/null; then
     fail=1
 fi
 
+# [C47] Border 120 - a person can only say what they know: the
+# constrained-decoding fence (SPEECH_ML_DESIGN Decision 4, ratified)
+# proved mechanically over a corpus off the game, near-misses
+# included, with its slots read off the claim set.
+if ! "$PY" tools/fence_test.py > /dev/null; then
+    "$PY" tools/fence_test.py 2>&1 | grep -E "FAULT|FAIL" || true
+    note "BORDER FINDING - a person could say what they do not know"
+    fail=1
+fi
+
 # Border 103 - the operator's speech is not in the repository: no
 # profanity in the tracked tree and no operator-quote attributions;
 # rulings are paraphrased content, speech stays with the speaker.

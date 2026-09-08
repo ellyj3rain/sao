@@ -562,6 +562,46 @@ function K.conditioning(id, listenerKey, tick)
     return out
 end
 
+-- [C47] THE CLAIM SET, FLAT, FOR THE FENCE.
+--
+-- SPEECH_ML_DESIGN Decision 4 (ratified): a speaker may only put
+-- this person's own facts into fact positions. The fence that
+-- enforces it lives in the jar and needs the claims as flat
+-- "field=value" lines, so this renders them - every value the
+-- surface holds for this person, under the field it came from.
+--
+-- Nothing is invented here and nothing is filtered: the fence IS
+-- the claim set read sideways, so a value that reaches this
+-- function is one the person actually holds, and a value that does
+-- not reach it is one they can never say.
+function K.flatClaims(id, listenerKey, tick, topics)
+    local bundle = K.claims(id, listenerKey, tick, topics)
+    local lines = {}
+    local seen = {}
+    local function put(field, value)
+        if value == nil then return end
+        value = tostring(value)
+        if value == "" then return end
+        local key = field .. "=" .. value
+        if seen[key] then return end
+        seen[key] = true
+        lines[#lines + 1] = key
+    end
+    for _, facts in pairs(bundle.facts or {}) do
+        for _, fact in ipairs(facts) do
+            for field, value in pairs(fact) do
+                -- Booleans and tables are not sayable values; the
+                -- fence holds words and numbers.
+                local kind = type(value)
+                if kind == "string" or kind == "number" then
+                    put(field, value)
+                end
+            end
+        end
+    end
+    return table.concat(lines, "\n")
+end
+
 -- One exchange turn's full input: conditioning plus the facts for
 -- the asked topics (default: every topic). This is the surface both
 -- models are built against, and what the inspect panel reads today.

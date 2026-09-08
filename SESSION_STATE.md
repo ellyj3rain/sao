@@ -1,13 +1,25 @@
 | Document | Survivor Awareness Overhaul Session State |
 |---|---|
-| Version | `3.5.0.0-pre-alpha` |
+| Version | `3.6.0.0-pre-alpha` |
 | Author | ellyj3rain |
 | Repository | `SESSION_STATE.md` |
 | Status | CANONICAL - where the work actually stands. |
 
 # Session state
 
-**As of** 2026-09-07, `[C46]` close - the ground, looked at. The
+**As of** 2026-09-07, `[C47]` close - the fence (SPEECH_ML_DESIGN
+Decision 4, ratified 2026-08-29 and called there the hardest single
+piece in the design). No-invention is enforced by constrained
+decoding rather than by instruction: a speaker is handed a
+vocabulary it cannot escape, every fact position fillable only from
+that person's own claims. The slots are read off the knowledge
+surface rather than listed anywhere, the comparison is exact and
+never advisory, an unknown slot is refused rather than allowed, and
+a fence that throws refuses rather than permits. Built before any
+model, because it is what makes a wrong one harmless - and because
+it needed neither a corpus nor a budget measurement, both of which
+still wait. Border 120 proves it over a corpus off the game,
+near-misses included. `[C46]` before it - the ground, looked at. The
 engine holds only an eight by eight chunk window around each player,
 so during the years no claim is in any cell; a chunk is loaded on
 its own instead, read, and let go - one claim a simulated day on a
@@ -349,11 +361,11 @@ unloaded survivors are governed by the same rules ([B39], [B42]).
 
 ## Deploy state
 
-`3.5.0.0-pre-alpha` at tip - the version machine's output ([C2],
+`3.6.0.0-pre-alpha` at tip - the version machine's output ([C2],
 DR-013; the twelfth minor rolled the tier by the odometer's own
 law). The game install carries the `[C44]` tip: `[C33]` through
 `[C44]` reached it on 2026-09-07, the first window the game was closed
-since the `[C32]` deploy of 2026-09-06. `[C45]` and `[C46]` are
+since the `[C32]` deploy of 2026-09-06. `[C45]`, `[C46]` and `[C47]` are
 committed and gated but NOT deployed - the game was running at both
 closes and `deploy.sh` refuses while it is, so they wait for the next
 window. The close script wrote the `[C45]` line as though it had
@@ -376,7 +388,7 @@ deploy; `save_compat_test` guards this and runs in the gate.
 
 ## Instruments
 
-**119 numbered borders**, run by **134 gated mirrors** in `tools/`, all invoked
+**120 numbered borders**, run by **135 gated mirrors** in `tools/`, all invoked
 by `tools/check.sh`, which the pre-commit hook runs and CI runs on every push.
 The figures in this paragraph are derived by Border 76 from the tree, not
 maintained by hand. Border 54 keeps the rest honest: it runs every gated
