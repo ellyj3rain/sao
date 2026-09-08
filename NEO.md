@@ -54,11 +54,18 @@ of skill.
   verdict, including the exit code. A border that reads the installed game
   reports SKIPPED and returns 0 where the game is absent, because CI has no
   game and a machine without one has no defect; Border 128 holds that.
-- **Publishing (operator ruling, 2026-09-08).** A closed batch is pushed to
-  `origin/main` as ONE squashed commit, at the close, after the deploy. The
-  public repository never receives branch history; the local tree keeps it
-  all. Check `git rev-list --count origin/main..HEAD` at session start and say
-  so if the public copy has fallen behind.
+- **Publishing (operator ruling, 2026-09-08; corrected at `[C59]`).** A
+  closed batch reaches `origin/main` as ONE squashed commit through a BRANCH
+  AND A PULL REQUEST, merged once its checks pass - never by pushing to
+  `main`. This is CAO's model and was always the standard here; `[C56]` to
+  `[C58]` were pushed straight to `main` because nothing stopped them, and
+  `main` is protected now the way CAO's is (pull request required, `ci-verify`
+  and `codeql-python` required and strict, admins included, linear history, no
+  force pushes, no deletions). The public repository never receives branch
+  history; the local tree keeps it all. Open the pull request, wait for the
+  checks, merge it, and do not leave it open for the operator to chase. Check
+  `git rev-list --count origin/main..HEAD` at session start and say so if the
+  public copy has fallen behind.
 - **Operator-mediated.** Arbitrary consequential choices are surfaced.
   Obvious defaults are taken and stated.
 - **Say what is not known.** An honest gap is worth more than a confident
