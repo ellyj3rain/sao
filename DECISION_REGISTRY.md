@@ -1,6 +1,6 @@
 | Document | Survivor Awareness Overhaul Decision Registry |
 |---|---|
-| Version | `3.9.3.4-pre-alpha` |
+| Version | `3.10.0.0-pre-alpha` |
 | Author | ellyj3rain |
 | Repository | `DECISION_REGISTRY.md` |
 | Status | CANONICAL, APPEND-ONLY - ratified decisions. |

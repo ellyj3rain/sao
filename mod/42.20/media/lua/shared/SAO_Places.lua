@@ -431,6 +431,38 @@ function Pl.take(place)
     store.taken[key] = row
 end
 
+-- [C60] The player's own looting, which the county could not see.
+--
+-- A survivor taking something calls `Pl.take` and the place is spent
+-- for everybody. The player's looting called nothing, so a supermarket
+-- the player had stripped still read as full stock and the county kept
+-- walking to it - the standing gap [B39] recorded and left.
+--
+-- Nothing here counts the player's actions. The ENGINE marks a
+-- container looted when it has been emptied (`isHasBeenLooted`, a flag
+-- SAO never writes), so the honest reading is the ground itself:
+-- how many containers around this place the game says are done with.
+-- That is a read, and it cannot miss a way of taking things that
+-- nobody thought to hook.
+--
+-- `n` is raised to the count, never lowered by it. A place the county
+-- already spent does not refill because the player walked in, and the
+-- refill clock still gives time back the way it always did. The stamp
+-- moves only when the count actually raises it, so an untouched place
+-- does not have its clock reset by being stood in.
+function Pl.observeLooted(place, lootedCount)
+    if not (place and place.id) then return 0 end
+    if type(lootedCount) ~= "number" or lootedCount <= 0 then return 0 end
+    local cap = Pl.capacityOf(place)
+    if lootedCount > cap then lootedCount = cap end
+    local had = Pl.takesAt(place.id)
+    if lootedCount <= had then return 0 end
+    local store = stockStore()
+    if not store then return 0 end
+    store.taken[tostring(place.id)] = { n = lootedCount, at = nowHours() }
+    return lootedCount - had
+end
+
 -- Is there anything left here?
 function Pl.isSpent(place)
     if not place or not place.id then return false end

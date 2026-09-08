@@ -581,6 +581,44 @@ public final class SAONeeds {
         return total;
     }
 
+    /**
+     * [C60] How many containers around this position the ENGINE says
+     * have been looted, and how many there are. `isHasBeenLooted` is
+     * the game's own flag on ItemContainer, set when a container has
+     * been emptied out; SAO never writes it. Returned as
+     * "looted@total" so the caller can tell an empty room from a
+     * stripped one.
+     *
+     * Written for the player, whose looting the county could not see:
+     * a survivor's own taking goes through SAO_Places.take, and the
+     * player's went nowhere, so the county kept walking to a
+     * supermarket the player had emptied.
+     */
+    public static String lootedNearby(IsoPlayer shell, int radius) {
+        int looted = 0, total = 0;
+        try {
+            IsoCell cell = shell.getCell();
+            int cx = (int) shell.getX(), cy = (int) shell.getY();
+            int cz = (int) shell.getZ();
+            for (int dx = -radius; dx <= radius; dx++) {
+                for (int dy = -radius; dy <= radius; dy++) {
+                    IsoGridSquare sq = cell.getGridSquare(cx + dx, cy + dy, cz);
+                    if (sq == null) continue;
+                    for (int i = 0; i < sq.getObjects().size(); i++) {
+                        ItemContainer c = sq.getObjects().get(i).getContainer();
+                        if (c == null) continue;
+                        total++;
+                        if (c.isHasBeenLooted()) looted++;
+                    }
+                }
+            }
+        } catch (Throwable throwable) {
+            SAOAgent.log("lootedNearby threw: " + throwable);
+            return "0@0";
+        }
+        return looted + "@" + total;
+    }
+
     /** [B6] The county's mains: true while the taps still run. */
     public static boolean countyWaterOn() {
         try {

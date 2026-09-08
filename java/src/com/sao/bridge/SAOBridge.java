@@ -1727,6 +1727,19 @@ public final class SAOBridge {
         return 0.0;
     }
 
+    /** [C60] Containers the engine says have been looted, "looted@total". */
+    public String lootedNearby(Object object, int radius) {
+        try {
+            if (object instanceof IsoPlayer) {
+                return com.sao.engine.SAONeeds.lootedNearby(
+                    (IsoPlayer) object, radius);
+            }
+        } catch (Throwable throwable) {
+            SAOAgent.log("lootedNearby threw: " + throwable);
+        }
+        return "0@0";
+    }
+
     /** [B21] What THIS world contains - discovered from the live
      *  script registry, classified by how content describes itself.
      *  Never names a mod, so a changed load needs no code change. */
