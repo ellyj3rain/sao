@@ -52,10 +52,10 @@ that does not exist, so art can land in any order.
 
 ## Why nothing here is staged
 
-Publishing is the operator's call. The mod's own `mod.info` still says
-*PRE-ALPHA: playable, but unproven - no feature here has live-play
-verification yet*, and that remains true: the border gate and the
-offline harnesses establish that the code does what it says offline,
-and none of it is a play receipt. This file exists so that when the
-call is made, the mechanics are already known and nobody has to
-rediscover the layout.
+Publishing is the operator's call. The mod's own `mod.info` says
+*PRE-ALPHA: expect defects*, which is the honest state: the border gate
+and the offline harnesses establish that the code does what it says
+offline, and `RECEIPTS.md` records what play has settled, one
+observation at a time. This file exists so that when the call is made,
+the mechanics are already known and nobody has to rediscover the
+layout.

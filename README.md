@@ -30,21 +30,24 @@ helicopter has stopped coming, newcomers walk in from outside.
 
 ## Status
 
-`1.10.6.0-pre-alpha` - the coordinate is computed by the version machine
+`3.10.2.2-pre-alpha` - the coordinate is computed by the version machine
 (`tools/version_replay.py`), never picked; `VERSION_MAP.md` shows the
 classification and the arithmetic.
 
-**Playable, but unproven.** No feature in this mod has live-play
-verification: every batch is OPEN pending play receipts, and
-`PLAYABILITY.md` says so in its own words. What exists is checked a
-different way - a border gate of numbered mechanical and behavioural
-checks runs on every commit (the current count lives in
-`SESSION_STATE.md`, computed rather than written by hand), and every
-engine surface used here is verified against the shipped
-`projectzomboid.jar` before use rather than assumed.
+Pre-alpha, and the evidence comes in two kinds.
 
-That is a real standard and it is not the same as being tested by
-playing. Treat it as pre-alpha.
+Play evidence accrues one observation at a time in `RECEIPTS.md`, which
+holds 6 so far: surfaces witnessed doing what their record claims,
+defects exposed in play, and observations still open. A batch stays open
+until receipts touch its surfaces, and a fix made from a receipt is
+pending until re-witnessed. Both are ordinary states, and a surface not
+named there is one nobody has watched yet rather than one that failed.
+
+Everything else is held by the gate: numbered mechanical and behavioural
+checks run on every commit (the count lives in `SESSION_STATE.md`,
+computed rather than written by hand), and every engine surface used
+here is verified against the shipped `projectzomboid.jar` before use
+rather than assumed.
 
 ## Requirements
 

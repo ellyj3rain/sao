@@ -1,6 +1,6 @@
 | Document | Survivor Awareness Overhaul Batch Log |
 |---|---|
-| Version | `3.10.2.1-pre-alpha` |
+| Version | `3.10.2.2-pre-alpha` |
 | Author | ellyj3rain |
 | Repository | `BATCH_LOG.md` |
 | Status | REGULATORY - chronological batch index. |
@@ -168,3 +168,4 @@ attribution for every merged entry, stated here rather than in a branch name.
 | [C61](Batches/C61-2026-09-08-one-clock-for-how-long-this-has-been-going-on.md) | 2026-09-08 | One clock for how long this has been going on | [`T-002`](Batches/THREADS.md#t-002), [`T-005`](Batches/THREADS.md#t-005) |
 | [C62](Batches/C62-2026-09-08-one-clock-for-the-county-and-the-years-pass-moves-it.md) | 2026-09-08 | One clock for the county, and the years pass moves it | [`T-007`](Batches/THREADS.md#t-007), [`T-002`](Batches/THREADS.md#t-002) |
 | [C63](Batches/C63-2026-09-08-a-day-zero-start-owes-no-years.md) | 2026-09-08 | A day-zero start owes no years | [`T-002`](Batches/THREADS.md#t-002), [`T-007`](Batches/THREADS.md#t-007) |
+| [C64](Batches/C64-2026-09-08-the-blanket-claim-is-gone-from-every-document-that-carried-it.md) | 2026-09-08 | The blanket claim is gone from every document that carried it | [`T-030`](Batches/THREADS.md#t-030) |
