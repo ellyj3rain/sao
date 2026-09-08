@@ -1555,6 +1555,16 @@ if ! "$PY" tools/player_looting_test.py > /dev/null; then
     fail=1
 fi
 
+# [C61] Border 130 - one clock for how long this has been going on:
+# what a person knows is aged off the record's own calendar, the way
+# [C42] ruled the fall is read, with the sandbox dial answering only
+# where the calendar cannot be read at all.
+if ! "$PY" tools/one_clock_test.py > /dev/null; then
+    "$PY" tools/one_clock_test.py 2>&1 | grep -E "FAULT|SKIPPED" || true
+    note "BORDER FINDING - the county keeps two clocks"
+    fail=1
+fi
+
 # Border 103 - the operator's speech is not in the repository: no
 # profanity in the tracked tree and no operator-quote attributions;
 # rulings are paraphrased content, speech stays with the speaker.

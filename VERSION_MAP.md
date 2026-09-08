@@ -16,9 +16,9 @@ the machine. Names, dates, and threads below come from
 | Form | `major.minor.kohai.patch-maturity` |
 | Hard caps | minor 12; kohai 16; patch 24 |
 | Replay start | `0.1.0.0-pre-alpha` |
-| Current version | `3.10.0.0-pre-alpha` |
-| Closed chronology | `A1-C60` |
-| Next batch | `C61` |
+| Current version | `3.10.1.0-pre-alpha` |
+| Closed chronology | `A1-C61` |
+| Next batch | `C62` |
 | Executable source | [`tools/version_replay.py`](tools/version_replay.py) |
 
 ## Tier meanings
@@ -176,6 +176,7 @@ the machine. Names, dates, and threads below come from
 | `C58` | 2026-09-08 | patch | `3.9.3.3-pre-alpha` | The codeql-action halves travel together | The codeql-action halves travel together: two dependabot pull requests had stood open and failing since 2026-08-31, both with the same error - a configuration loaded for 4.37.7 while running 4.37.9. init and analyze are two dependencies to dependabot and one action to CodeQL, so a pull request bumping either half on its own produces a version mismatch CodeQL refuses, and neither could ever have passed because the fix is in neither. Both pins move to v4.37.9 in one commit, the tag read off the upstream repository rather than taken from the pull requests, and the dependabot config groups the action so a future bump carries both halves. Repository mechanics with no capability touched, so patch. |
 | `C59` | 2026-09-08 | patch | `3.9.3.4-pre-alpha` | Main is protected and batches arrive by pull request | Main is protected and batches arrive by pull request: [C56] through [C58] were pushed straight to origin/main - thirty-one commits, no branch, no pull request, no merge - and CAO, which is the standard for how this repository publishes, lands work on main through squash-merged pull requests. Nothing stopped the direct pushes because nothing was set to: CAO's main is protected and SAO's answered 404. Main is protected now on the same shape with this repository's own checks, and NEO.md's publishing convention - which had written the mistake down as the rule two batches after it was made - says branch, pull request, merge. The thirty-one commits stay, because force-pushing the public record to make it look like the process was followed is worse than the record showing it was not. Repository mechanics, so patch. |
 | `C60` | 2026-09-08 | minor | `3.10.0.0-pre-alpha` | The player's looting spends a place | The player's looting spends a place ([B39]'s standing gap): a survivor taking something calls SAO_Places.take and the place is spent for everybody, and the player's looting called nothing - so a shop the player had stripped still read as full stock and the county kept sending foragers to it. Read rather than hooked: the engine marks a container looted when it has been emptied (ItemContainer.isHasBeenLooted, javap-verified, a flag SAO never writes), so the ground itself is the reading, walked the way the needs layer already walks containers and taken to the place ledger on the player's own ten-minute pass. The tally is raised and never lowered, held at capacity, and the refill stamp moves only when the count raises it. Border 129 holds it. A player-visible simulation capability the county did not have, so minor. |
+| `C61` | 2026-09-08 | kohai | `3.10.1.0-pre-alpha` | One clock for how long this has been going on | One clock for how long this has been going on: three readers answer how far into the collapse a save is, and SAO_History.clockMonths - the number that ages what every person KNOWS, through the split clock into contact months and from there the lesson pool and the claims a person carries - was reading SandboxVars.TimeSinceApo while [C42] had already ruled the fall is read from the record's calendar and never from the dial. A 1996 save ran a thousand days of county forward ([C45]) and then told every survivor in it they were one month in. It reads the calendar now, answers zero before the fall because a county without its outbreak has nobody who lived through one, and keeps the dial only where the calendar cannot be read at all, so the module stays offline by construction. Border 130 holds it, and its own first seam compared identifiers rather than call forms and failed on this batch's comment. A correction inside an existing capability that changes what the whole county knows, so kohai. |
 
 ## The former number
 
@@ -196,11 +197,11 @@ the meantime, and they are not play.
 
 ## Next movement
 
-`C61` is the next batch. Its content determines its tier after it
+`C62` is the next batch. Its content determines its tier after it
 exists:
 
-| If C61 is | Result |
+| If C62 is | Result |
 |---|---|
-| patch or hotfix | `3.10.0.1-pre-alpha` |
-| kohai | `3.10.1.0-pre-alpha` |
+| patch or hotfix | `3.10.1.1-pre-alpha` |
+| kohai | `3.10.2.0-pre-alpha` |
 | minor | `3.11.0.0-pre-alpha` |
