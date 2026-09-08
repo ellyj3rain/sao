@@ -2017,11 +2017,16 @@ local function decide(id, agent, body)
                         -- other one the scout could see. Border 15 has
                         -- printed `scoutBase: prefix 6/10` on every run
                         -- of the gate saying so.
+                        -- [C48] And how hard it is to get into, which
+                        -- the scout now counts off the loaded ground:
+                        -- the same doors and windows somebody would
+                        -- later have to shut.
                         local bx, by, bw, bh, cx2, cy2,
-                            brooms, barea, bwater, bscore =
+                            brooms, barea, bwater, bscore, bways =
                             string.match(found,
                                 "^(%-?%d+):(%-?%d+):(%d+):(%d+):(%-?%d+):"
-                                .. "(%-?%d+):(%d+):(%d+):([01]):([%d%.%-]+)$")
+                                .. "(%-?%d+):(%d+):(%d+):([01]):([%d%.%-]+):"
+                                .. "(%-?%d+)$")
                         -- No settling in a feud's shadow ([A20]): the
                         -- scout knows who the company's enemies are
                         -- (standing truth); a candidate within 30 tiles
@@ -2122,7 +2127,8 @@ local function decide(id, agent, body)
                                 .. tostring(barea) .. " area, "
                                 .. (bwater == "1" and "water"
                                     or "no water")
-                                .. ", score " .. tostring(bscore))
+                                .. ", score " .. tostring(bscore)
+                                .. ", " .. tostring(bways) .. " ways in")
                             -- [C42] And nobody goes looking for
                             -- somewhere defensible to live while the
                             -- world still works. People have homes

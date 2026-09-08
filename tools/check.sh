@@ -1460,6 +1460,16 @@ if ! "$PY" tools/fence_test.py > /dev/null; then
     fail=1
 fi
 
+# [C48] Border 121 - a place is judged by how hard it is to get
+# into: the scout counts the ways in off the loaded ground with the
+# boarding's own predicate, and breaks ties within one room's worth
+# by them - never pricing a door against a room.
+if ! "$PY" tools/ways_in_test.py > /dev/null; then
+    "$PY" tools/ways_in_test.py 2>&1 | grep -E "FAULT" || true
+    note "BORDER FINDING - a door has a price, or the scout is blind"
+    fail=1
+fi
+
 # Border 103 - the operator's speech is not in the repository: no
 # profanity in the tracked tree and no operator-quote attributions;
 # rulings are paraphrased content, speech stays with the speaker.

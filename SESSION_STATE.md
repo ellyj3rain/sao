@@ -1,13 +1,24 @@
 | Document | Survivor Awareness Overhaul Session State |
 |---|---|
-| Version | `3.6.0.0-pre-alpha` |
+| Version | `3.7.0.0-pre-alpha` |
 | Author | ellyj3rain |
 | Repository | `SESSION_STATE.md` |
 | Status | CANONICAL - where the work actually stands. |
 
 # Session state
 
-**As of** 2026-09-07, `[C47]` close - the fence (SPEECH_ML_DESIGN
+**As of** 2026-09-07, `[C48]` close - how hard a place is to get
+into (DR-037). The scout weighed rooms, area and water and could not
+see a door, so a glass-fronted shop with eleven ways in beat a house
+with three whenever it had one more room. It counts them now, off
+the loaded ground and with the boarding's own predicate, so what the
+scout counts and what somebody would later have to shut are the same
+things. It is a TIE-BREAK and not a weight: pricing a door against a
+room would invent a rate nothing in the county gives, so where two
+places are within one room's worth the one with fewer ways in wins,
+and the margin is the score's own named unit. Border 121 fails if
+the count ever appears inside the score. `[C47]` before it - the
+fence (SPEECH_ML_DESIGN
 Decision 4, ratified 2026-08-29 and called there the hardest single
 piece in the design). No-invention is enforced by constrained
 decoding rather than by instruction: a speaker is handed a
@@ -361,11 +372,11 @@ unloaded survivors are governed by the same rules ([B39], [B42]).
 
 ## Deploy state
 
-`3.6.0.0-pre-alpha` at tip - the version machine's output ([C2],
+`3.7.0.0-pre-alpha` at tip - the version machine's output ([C2],
 DR-013; the twelfth minor rolled the tier by the odometer's own
 law). The game install carries the `[C44]` tip: `[C33]` through
 `[C44]` reached it on 2026-09-07, the first window the game was closed
-since the `[C32]` deploy of 2026-09-06. `[C45]`, `[C46]` and `[C47]` are
+since the `[C32]` deploy of 2026-09-06. `[C45]` through `[C48]` are
 committed and gated but NOT deployed - the game was running at both
 closes and `deploy.sh` refuses while it is, so they wait for the next
 window. The close script wrote the `[C45]` line as though it had
@@ -388,7 +399,7 @@ deploy; `save_compat_test` guards this and runs in the gate.
 
 ## Instruments
 
-**120 numbered borders**, run by **135 gated mirrors** in `tools/`, all invoked
+**121 numbered borders**, run by **136 gated mirrors** in `tools/`, all invoked
 by `tools/check.sh`, which the pre-commit hook runs and CI runs on every push.
 The figures in this paragraph are derived by Border 76 from the tree, not
 maintained by hand. Border 54 keeps the rest honest: it runs every gated
