@@ -1,6 +1,6 @@
 | Document | Survivor Awareness Overhaul Roadmap |
 |---|---|
-| Version | `3.8.0.0-pre-alpha` |
+| Version | `3.8.1.0-pre-alpha` |
 | Author | ellyj3rain |
 | Repository | `ROADMAP.md` |
 | Status | CANONICAL - thread map, backlog, live gates. |
@@ -76,9 +76,21 @@ Preconditions and slices, none of them the whole thing:
    the band. Nothing can be watched or run forward while the county
    is still accreting around the player. Houses, leaders and feuds
    stay derived and are not authored at genesis.
-2. The Day Zero arc's own unbuilt slices (below): outbreak dynamics
-   live-verified, chaos legibility, ventures socialized, vehicles as
-   composition.
+2. The Day Zero arc's own slices: outbreak dynamics live-verified,
+   chaos legibility, ventures socialized, vehicles as composition.
+   Chaos legibility is half done. SHIPPED as `[C50]`: what a survivor
+   says follows what they have learned. Every line table in
+   SAO_Voice was flat, so a county that had learned nothing still
+   said "Too many" and "Dead nearby" - counts and names somebody
+   acquires. The five tables about the dead and about violence are
+   split by register now, and the register is the county's own
+   innocence boundary ([B1]/T-002, "having learned nothing yet"), so
+   no threshold is invented and nothing new is stored. The crossing
+   is audible: SAO_Lessons already dated the first lesson and called
+   it the day the world changed for that person, and they say so
+   once. Border 123 holds it. The other half is the wire: before the
+   fall it is a hobbyist beacon ([A29]) and it has no collapse to
+   carry yet.
 3. The elapsed clock: read how far from the fall this save begins
    (the engine's own start year and months-since-apocalypse) and
    make it one number every system can ask for.

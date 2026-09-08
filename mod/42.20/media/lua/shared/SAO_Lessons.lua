@@ -127,6 +127,12 @@ function L.learn(id, key, weight, src, of)
     local known = migrate(rec)
     local current = known[key] or 0
     if weight <= current then return false end
+    -- [C50] Whether this is the first thing they have ever learned,
+    -- read before the write. `L.firstLessonHours` already calls that
+    -- moment the day the world changed for them ([B1]); it is audible
+    -- now.
+    local wasInnocent = true
+    for _ in pairs(known) do wasInnocent = false break end
     known[key] = weight
     rec.lessonMeta = rec.lessonMeta or {}
     local okLH, lh = pcall(function()
@@ -147,7 +153,15 @@ function L.learn(id, key, weight, src, of)
         pcall(SAO.Telemetry.learned, id, key, weight,
             rec.lessonMeta[key].src, of)
     end
-    log(id .. " learned '" .. key .. "' at weight " .. weight)
+    -- [C50] Guarded the same way and for the same reason: Voice is
+    -- client/ and may not be loaded, and saying a thing must never be
+    -- able to break the learning of it. The line is a murmur, so the
+    -- quiet cross over in silence.
+    if wasInnocent and SAO.Voice and SAO.Voice.onEvent then
+        pcall(function() SAO.Voice.onEvent(id, "firstLesson", nil) end)
+    end
+    log(id .. " learned '" .. key .. "' at weight " .. weight
+        .. (wasInnocent and " - their first" or ""))
     return true
 end
 

@@ -1480,6 +1480,17 @@ if ! "$PY" tools/survivor_orders_test.py > /dev/null; then
     fail=1
 fi
 
+# [C50] Border 123 - what a survivor says follows what they have
+# learned: the line tables about the dead are split by register and
+# the register is the county's own innocence boundary, the taught
+# lines are unchanged, an unreadable lesson store keeps the taught
+# register, and the first lesson is audible once.
+if ! "$PY" tools/speech_register_test.py > /dev/null; then
+    "$PY" tools/speech_register_test.py 2>&1 | grep -E "FAULT" || true
+    note "BORDER FINDING - the innocent speak like veterans, or the register is invented"
+    fail=1
+fi
+
 # Border 103 - the operator's speech is not in the repository: no
 # profanity in the tracked tree and no operator-quote attributions;
 # rulings are paraphrased content, speech stays with the speaker.

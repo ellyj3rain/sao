@@ -38,11 +38,35 @@ end
 -- mechanical; the pick is hashed off the tick so it stays deterministic
 -- enough to not need randomness plumbing.
 local LINES = {
-    FLEE     = { "Run!", "No no no-", "Too many!", "Not like this!",
-                 "Go go go!", "Not today. NOT today." },
-    ALERT    = { "Something's out there.", "You hear that?", "Hold on.",
-                 "Quiet. Quiet!", "Where. WHERE." },
-    ENGAGE   = { "Come on then!", "Stay back!", "I've got this one." },
+    -- [C50] Split by register. The taught lists are the lines that
+    -- were here before, unchanged; the innocent lists are what these
+    -- moments sound like in a mouth that has no word for what it is
+    -- looking at yet. "Too many" is a count somebody has learned to
+    -- take; a person meeting their first is not counting.
+    FLEE     = {
+        taught   = { "Run!", "No no no-", "Too many!", "Not like this!",
+                     "Go go go!", "Not today. NOT today." },
+        innocent = { "What is that. WHAT IS THAT-",
+                     "Somebody help! SOMEBODY-",
+                     "It's not stopping. It's not stopping!",
+                     "No. No, people don't- no.",
+                     "Get away from me!" },
+    },
+    ALERT    = {
+        taught   = { "Something's out there.", "You hear that?", "Hold on.",
+                     "Quiet. Quiet!", "Where. WHERE." },
+        innocent = { "Did you hear that?", "Probably a dog. ...Probably.",
+                     "Hello? Is somebody hurt out there?",
+                     "That sound isn't right.",
+                     "Is somebody there?" },
+    },
+    ENGAGE   = {
+        taught   = { "Come on then!", "Stay back!", "I've got this one." },
+        innocent = { "Stay back! I don't want to hurt you!",
+                     "I'm sorry- I'm sorry-",
+                     "Get off- GET OFF-",
+                     "Why won't you stop?" },
+    },
     HOMEWARD = { "Getting dark.", "Time to head back.", "Home. Now." },
     FORAGE   = { "I need to eat something.", "There has to be food somewhere." },
     WATERWARD= { "So thirsty.", "Water first." },
@@ -68,13 +92,37 @@ local LINES = {
 
 -- Social moments outside the state machine.
 local EVENTS = {
-    warned    = { "They're close. Be careful.", "Dead nearby. Keep your eyes open." },
+    -- [C50] A warning names what the warner knows. Somebody who has
+    -- learned nothing cannot say "dead nearby"; they can only report
+    -- what they saw.
+    warned    = {
+        taught   = { "They're close. Be careful.",
+                     "Dead nearby. Keep your eyes open." },
+        innocent = { "There's someone out there acting wrong. Steer clear.",
+                     "Something's happening down the road. Don't go that way.",
+                     "I saw somebody hurt. Bad hurt. Be careful." },
+    },
+    -- [C50] The moment the first lesson lands - the day the world
+    -- changed for this person, which SAO_Lessons already dates.
+    firstLesson = { "That's what it is. That's what's happening.",
+                    "...Okay. Okay. This is real.",
+                    "I didn't understand before. I do now.",
+                    "Nobody's coming, are they." },
     briefing = { "Two streets past the church, watch the lot.",
                  "I know that ground. Listen before you go.",
                  "There were three of them by the fence last week." },
-    turnedSeen = { "That's... that WAS them. God.",
-                   "Don't look. You don't want that face in your head.",
-                   "That's their coat. That's THEIR coat." },
+    -- [C50] Seeing a face you know walking wrong. The taught know
+    -- what they are looking at; the innocent are still arguing with
+    -- it.
+    turnedSeen = {
+        taught   = { "That's... that WAS them. God.",
+                     "Don't look. You don't want that face in your head.",
+                     "That's their coat. That's THEIR coat." },
+        innocent = { "They're sick. They're just sick, that's all.",
+                     "They know me. They have to know me.",
+                     "We need a doctor. We need a doctor NOW.",
+                     "That's not- look at me. LOOK at me." },
+    },
     promiseKept = { "I promised.", "Look away. This is mine to do.",
                     "Rest now. It's done." },
     scratchDenial = { "It's just a scratch. Barely broke skin.",
@@ -293,6 +341,34 @@ local function pick(list, tick)
     return list[(tick % #list) + 1]
 end
 
+-- [C50] Which register a speaker is in (Day Zero slice 3). The county
+-- draws this line already: SAO_Lessons calls innocence "having
+-- learned nothing yet" ([B1]/T-002), and [A29] made the era per
+-- person for exactly this reason - the first witnessed horror teaches
+-- the first lesson, so the crossing is a fact the record already
+-- keeps. Nothing new is stored and no threshold is invented.
+--
+-- Failing to read the store returns "taught", which is the register
+-- every line in this file was written in before this change: a
+-- missing answer keeps the old behaviour rather than making the whole
+-- county sound like it has seen nothing.
+local function registerOf(id)
+    local ok, any = pcall(function() return SAO.Lessons.hasAny(id) end)
+    if not ok or any == nil then return "taught" end
+    return any and "taught" or "innocent"
+end
+
+-- A line table is either a flat list, which every speaker shares, or a
+-- table of registers. Only the tables where innocence actually reads
+-- differently are split; the rest stay flat and cost nothing.
+local function resolve(list, id)
+    if not list then return nil end
+    if list[1] ~= nil then return list end
+    local chosen = list[registerOf(id)]
+    if chosen and chosen[1] ~= nil then return chosen end
+    return list.taught
+end
+
 local function chatty(id)
     -- Talkativeness is a disposition trait like any other.
     local ok, value = pcall(function()
@@ -392,7 +468,7 @@ end
 
 -- State transitions: urgent states force through cooldown; leisure murmurs.
 function V.onTransition(id, state, tick)
-    local list = LINES[state]
+    local list = resolve(LINES[state], id)   -- [C50]
     if not list then return end
     local body = SAO.Body.get(id)
     if not body then return end
@@ -403,7 +479,7 @@ end
 
 -- Social events: always allowed to try (cooldown still applies unless urgent).
 local function raise(id, event, tick, answering)
-    local list = EVENTS[event]
+    local list = resolve(EVENTS[event], id)  -- [C50]
     if not list then return end
     local body = SAO.Body.get(id)
     if not body then return end
