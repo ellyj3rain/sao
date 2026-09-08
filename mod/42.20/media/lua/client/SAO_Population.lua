@@ -386,6 +386,38 @@ end
 -- reserves for zombies, so the single term for an arriving survivor
 -- meant the opposite of a survivor. It is gone.
 
+-- [C41] How many a pass may settle once the county exists, and the
+-- slack a unit is allowed so a family is never cut in half at the
+-- budget's edge. Named, because a bare 6 and a bare 8 two hundred
+-- lines apart were the same rule written twice.
+local PACE_PER_PASS = 6
+local PACE_MATES = 2
+
+-- Has this save's county ever been settled? One flag, in the store
+-- the county already keeps, written only once the target is
+-- actually reached - so a run interrupted half way (the options
+-- screen's target raised mid-save, a fault inside the loop) settles
+-- the rest on the next pass rather than pacing a half-built county
+-- for the rest of the save.
+local function genesisSettled()
+    local ok, s = pcall(function()
+        return ModData.getOrCreate("SurvivorAwareness_Standing")
+    end)
+    return ok and type(s) == "table" and s.countySettled == true
+end
+
+local function markGenesisSettled(reached, target)
+    local ok, s = pcall(function()
+        return ModData.getOrCreate("SurvivorAwareness_Standing")
+    end)
+    if not (ok and type(s) == "table") then return false end
+    s.countySettled = true
+    s.countySettledSize = reached
+    log("the county was generated before anyone was spawned: "
+        .. reached .. " of " .. target .. " settled in one pass")
+    return true
+end
+
 local function ensurePopulation(conf)
     -- [B28] THE ROAD. This runs BEFORE the refill clock and outside
     -- the death gate, because it is not about this county.
@@ -569,11 +601,36 @@ local function ensurePopulation(conf)
     end
     local count = SAO.Identity.livingCount()
     local bornThisPass = 0
-    while count < capNow and bornThisPass < 6 do
-        -- County-scale genesis is PACED ([A16]): six identities per pass
-        -- (240 frames, ~4s at 60fps) - a save reaches a 60-person
-        -- county inside a minute of
-        -- play without a single-tick spike.
+    -- [C41] THE WORLD IS GENERATED BEFORE IT IS SPAWNED.
+    --
+    -- The pacing below was written for a county that grows while
+    -- somebody plays, and that is what it did: six people per pass,
+    -- so a sixty-person county took a minute of play to exist and the
+    -- first survivors the player met had woken into a world with
+    -- almost nobody in it. The county accreted around the player
+    -- instead of being there first.
+    --
+    -- The operator named that as unbuilt (DR-036). So on a save that
+    -- has never been settled the budget is the whole county: genesis
+    -- runs to the target in one pass, and because this subsystem runs
+    -- ahead of `band` in the tick rotation, it finishes before the
+    -- first body is ever materialised. What the player walks into on
+    -- day one is a county that already existed.
+    --
+    -- Afterwards the pacing stands unchanged, because afterwards it is
+    -- refill and not creation - the road, the newcomer, the replaced
+    -- dead - and those are events in a world that already exists.
+    --
+    -- The one-pass cost is paid where a pause is expected and cheap:
+    -- the first tick of a new save. It is bounded by the target the
+    -- options screen already sets, so it cannot run away.
+    local settled = genesisSettled()
+    local budget = settled and PACE_PER_PASS or capNow
+    local wholeCounty = not settled
+    local startedAt = count
+    while count < capNow and bornThisPass < budget do
+        -- County-scale genesis is PACED ([A16]) once the county
+        -- exists: six identities per pass (240 frames, ~4s at 60fps).
         bornThisPass = bornThisPass + 1
         local origin = pickOrigin()
         if not origin then return end
@@ -676,7 +733,7 @@ local function ensurePopulation(conf)
         end
         local mates = { rec }
         for _ = 2, size do
-            if count >= capNow or bornThisPass >= 8 then break end
+            if count >= capNow or bornThisPass >= budget + PACE_MATES then break end
             local mate = SAO.Identity.create(nil, nil,
                 origin.x, origin.y, origin.z)
             if not mate then break end
@@ -711,6 +768,14 @@ local function ensurePopulation(conf)
                 .. "night with " .. rec.id .. " (" .. kind .. " of "
                 .. #mates .. ", " .. count .. "/" .. capNow .. ")")
         end
+    end
+    -- [C41] Settled only when the county actually reached its target,
+    -- so this cannot mark a world that ran out of origins half way.
+    if wholeCounty and count >= capNow then
+        markGenesisSettled(count, capNow)
+    elseif wholeCounty and count > startedAt then
+        log("the county is still being generated: " .. count .. "/"
+            .. capNow .. " - the next pass carries on before anyone spawns")
     end
 end
 

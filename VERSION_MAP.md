@@ -16,9 +16,9 @@ the machine. Names, dates, and threads below come from
 | Form | `major.minor.kohai.patch-maturity` |
 | Hard caps | minor 12; kohai 16; patch 24 |
 | Replay start | `0.1.0.0-pre-alpha` |
-| Current version | `2.12.0.0-pre-alpha` |
-| Closed chronology | `A1-C40` |
-| Next batch | `C41` |
+| Current version | `3.0.0.0-pre-alpha` |
+| Closed chronology | `A1-C41` |
+| Next batch | `C42` |
 | Executable source | [`tools/version_replay.py`](tools/version_replay.py) |
 
 ## Tier meanings
@@ -156,6 +156,7 @@ the machine. Names, dates, and threads below come from
 | `C38` | 2026-09-07 | minor | `2.10.0.0-pre-alpha` | The era remembered | The era remembered (Day Zero slice 6): the knowledge surface carries before - born, the war, where from, home, innocent or hardened - and the day it started - the person's own first horror with its date and what it taught, the county's stamps aired as news, the record's first day for a radio owner - as claims with provenance; the chronicle reads its days as the county's own dates through the same calendar; Border 112 drives both topics in the engine's own VM. |
 | `C39` | 2026-09-07 | minor | `2.11.0.0-pre-alpha` | The conditions are SAO's own | The conditions are SAO's own (DR-032 amended): the two required mods are gone and SAO registers the county's conditions as engine character traits from shared Lua, vanilla's where vanilla has one, every cost taken from the vanilla trait its shape is anchored to; a survivor's drawn conditions ride their shell as traits, the player's chosen ones are asserted and driven through the same functions; Border 113 holds it and Border 107's requirement seam is inverted. |
 | `C40` | 2026-09-07 | minor | `2.12.0.0-pre-alpha` | The county stands on its own | The county stands on its own (DR-035): nothing of this mod runs through another survivor mod unless the player asks - the absorption, the menu superimposition and the prompt hold are all behind switches that default off, so a fresh world reaches into another mod zero times; what stays always on calls none of their code, the manifests require nothing but the loader, and the description no longer claims a requirement [C39] removed; Border 114 holds the law. |
+| `C41` | 2026-09-07 | minor | `3.0.0.0-pre-alpha` | The world before the spawn | The world before the spawn (DR-036, one precondition): on a save that has never been settled genesis reaches its target in one pass instead of six people at a time, and it runs ahead of the band in the tick, so the county exists in full before the first body is materialised; the pace and its unit slack are named once and stand unchanged for refill; Border 115 holds the budget, the flag and the ordering law the claim rests on. |
 
 ## The former number
 
@@ -176,11 +177,11 @@ the meantime, and they are not play.
 
 ## Next movement
 
-`C41` is the next batch. Its content determines its tier after it
+`C42` is the next batch. Its content determines its tier after it
 exists:
 
-| If C41 is | Result |
+| If C42 is | Result |
 |---|---|
-| patch or hotfix | `2.12.0.1-pre-alpha` |
-| kohai | `2.12.1.0-pre-alpha` |
-| minor | `3.0.0.0-pre-alpha` |
+| patch or hotfix | `3.0.0.1-pre-alpha` |
+| kohai | `3.0.1.0-pre-alpha` |
+| minor | `3.1.0.0-pre-alpha` |

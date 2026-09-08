@@ -1,13 +1,25 @@
 | Document | Survivor Awareness Overhaul Session State |
 |---|---|
-| Version | `2.12.0.0-pre-alpha` |
+| Version | `3.0.0.0-pre-alpha` |
 | Author | ellyj3rain |
 | Repository | `SESSION_STATE.md` |
 | Status | CANONICAL - where the work actually stands. |
 
 # Session state
 
-**As of** 2026-09-07, `[C40]` close - the county stands on its own
+**As of** 2026-09-07, `[C41]` close - the world before the spawn
+(DR-036, one precondition of it): genesis paced at six people a pass
+whatever the state of the save, so a sixty-person county took about
+a minute of play to exist and the first survivors a player met had
+woken into a world with almost nobody in it. On a save that has
+never been settled the budget is now the county's own target, and
+genesis already runs ahead of the band in the tick, so the county
+exists in full before the first body is materialised; the pace
+stands unchanged for refill afterwards. DR-036 is the goal this
+serves and is much larger than this batch: day zero is the
+generator, a later start is that same machinery run forward before
+the player arrives, and a start with the box unchecked is a
+first-class case too. `[C40]` before it - the county stands on its own
 (DR-035, the operator's assessment): nothing of this mod runs
 through another survivor mod unless the player asks. The absorption
 and the menu superimposition are behind one switch that defaults
@@ -274,10 +286,10 @@ unloaded survivors are governed by the same rules ([B39], [B42]).
 
 ## Deploy state
 
-`2.12.0.0-pre-alpha` at tip - the version machine's output ([C2],
+`3.0.0.0-pre-alpha` at tip - the version machine's output ([C2],
 DR-013; the twelfth minor rolled the tier by the odometer's own
-law). The game install carries the `[C40]` tip, deployed 2026-09-07 at
-the `[C40]` close; `[C33]` through `[C39]` reached the install the
+law). The game install carries the `[C41]` tip, deployed 2026-09-07 at
+the `[C41]` close; `[C33]` through `[C40]` reached the install the
 same day, the first window the game was closed since the `[C32]`
 deploy of 2026-09-06. The play receipts the C era owes are the next
 thing the tree cannot produce for itself - the operator chose to
@@ -297,7 +309,7 @@ deploy; `save_compat_test` guards this and runs in the gate.
 
 ## Instruments
 
-**114 numbered borders**, run by **129 gated mirrors** in `tools/`, all invoked
+**115 numbered borders**, run by **130 gated mirrors** in `tools/`, all invoked
 by `tools/check.sh`, which the pre-commit hook runs and CI runs on every push.
 The figures in this paragraph are derived by Border 76 from the tree, not
 maintained by hand. Border 54 keeps the rest honest: it runs every gated

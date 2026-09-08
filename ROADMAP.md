@@ -1,6 +1,6 @@
 | Document | Survivor Awareness Overhaul Roadmap |
 |---|---|
-| Version | `2.12.0.0-pre-alpha` |
+| Version | `3.0.0.0-pre-alpha` |
 | Author | ellyj3rain |
 | Repository | `ROADMAP.md` |
 | Status | CANONICAL - thread map, backlog, live gates. |
@@ -49,6 +49,58 @@ the human envelope.
 
 Relationships, group membership, territory and orders gate what a survivor may do,
 separately from what it wants to do.
+
+## Day zero forward (DR-036, 2026-09-07)
+
+The case this mod is for: a player checks the box for the start of
+it and begins in the county before the fall, then watches the whole
+decay happen.
+
+Day zero is also the GENERATOR, which is what makes the rest of this
+arc cheap. A county started at the fall already produces the
+structure by itself - people collaborate, choose ground and settle
+it, hold or lose it, survive or do not - so nothing here fabricates
+those results. Where a player starts at a distance from the fall
+instead, the same machinery runs forward over the elapsed span with
+nobody watching, and whoever is alive at the end is who they meet.
+A start with the box unchecked is a first-class case too and is not
+to be sacrificed to either.
+
+So the Day Zero arc below is the priority: every hour spent making
+that path richer is an hour spent on all three.
+
+Preconditions and slices, none of them the whole thing:
+
+1. SHIPPED as `[C41]`: the county exists before anybody meets it -
+   on a fresh save genesis reaches its target in one pass, ahead of
+   the band. Nothing can be watched or run forward while the county
+   is still accreting around the player. Houses, leaders and feuds
+   stay derived and are not authored at genesis.
+2. The Day Zero arc's own unbuilt slices (below): outbreak dynamics
+   live-verified, chaos legibility, ventures socialized, vehicles as
+   composition.
+3. The elapsed clock: read how far from the fall this save begins
+   (the engine's own start year and months-since-apocalypse) and
+   make it one number every system can ask for.
+4. Running the days for a later start: the dormant day, encounters,
+   standings drift, attrition, the age table's deaths, conditions,
+   habits and lessons driven forward over that span, bounded so a
+   long start is a wait and not a hang.
+5. What a place becomes: ground held, fenced and built on over time;
+   settlements of a size the elapsed time supports; enclaves that
+   stay small; groups that confederate and come apart; trade between
+   places.
+6. Knowledge over the span: what the old world knew decaying at the
+   county's own rate, what this one learns accumulating, and books,
+   papers and media carrying either on where they survive.
+7. The dead of those years: burials, graves, and a county that
+   remembers who is in them.
+
+Governance stays the Standing pillar's - creeds, forms, elections -
+and may gain a learned component. Where the people understand the
+world and use the engine's own tools, this arc meets Speech
+(DR-033). Week One's art is already crossed ([C35]) and dresses the
+near end.
 
 ## Standing on our own (DR-035, 2026-09-07)
 

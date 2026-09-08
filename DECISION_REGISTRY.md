@@ -1,6 +1,6 @@
 | Document | Survivor Awareness Overhaul Decision Registry |
 |---|---|
-| Version | `2.12.0.0-pre-alpha` |
+| Version | `3.0.0.0-pre-alpha` |
 | Author | ellyj3rain |
 | Repository | `DECISION_REGISTRY.md` |
 | Status | CANONICAL, APPEND-ONLY - ratified decisions. |
@@ -156,6 +156,97 @@ of eight is not nearly enough people to start any measure of society;
 the aim is far more significant.
 
 **Origin.** `[A16]`, operator direction in session.
+
+## DR-036 - Day zero forward, and the county has lived whatever came before
+
+**The goal, first.** A player checks the box for the start of it -
+day zero, week zero, week one - and it natively works: they begin in
+the county before the fall and watch the whole decay happen. That is
+the case this mod is for. If starting there is not how it starts,
+the thing is being built wrong. The option is exposed the way the
+game already exposes when a world begins, in the sandbox screen, and
+this county's own switch sits beside it.
+
+**Day zero is the generator.** This is the load-bearing part. A
+county started at the fall already produces the structure by itself:
+people collaborate, choose ground and settle it, hold or lose it,
+and survive or do not. None of that has to be invented - it is what
+the systems in this mod do when they are allowed to run from the
+beginning. So the work is to make that path rich and correct, not to
+build a second machine that fabricates its results.
+
+**And the other direction of the same range is that path, run.** The
+engine has always let a save begin at a distance from the fall - a
+start year and a count of months since the apocalypse - and it
+decays the world to match. Where a player chooses that, the county
+runs the day-zero machinery forward over the elapsed span before
+they arrive, and whoever is alive at the end of it is who they meet.
+Choose 1994 and see the county a few months or a year in; choose
+2000 and see it at that scale. Not a different simulation: the same
+one, without a player watching, and free to be better than the
+watched one because nothing has to be rendered while it happens.
+
+**A start without it must work too.** Some players will not check
+the box and will want the ordinary start with this mod on it. That
+case is not a degraded one and is not to be sacrificed to the other
+two.
+
+**By running what already exists, not by writing a scenario.**
+Nothing here is a preset. The county's own machinery is what runs:
+the dormant day, encounters on the road, the standings that soften
+with time, elections and seconds, creeds and the quarrels between
+them, feuds and the peace that ends them, pacts, ventures and the
+ones who do not come back, attrition, the age table and the deaths
+it deals, conditions, habits kept and lost, and the lessons a person
+only learns by living through something. What those produce is the
+history - watched, if the player started at day zero, and already
+behind them if they did not. A settlement that exists does so
+because the systems built it; one that failed failed the same way.
+
+**Proportionate.** A week in is a week in. A year in is a year of
+it. Ten years in is a county with settlements of some size,
+enclaves, groups that confederate and come apart, ground somebody
+fenced and holds, trade between places, and knowledge a long way
+from what the county knew. Nobody should expect the ten-year county
+after a year, and nothing is scaled to one chosen distance.
+
+**What knowledge does over that time.** It accumulates and it
+decays, both systemically. What the old world knew is lost at the
+rate this county already forgets; what this one learns is learned
+the way it already learns. Carrying it on through literature and
+media is possible and is not preset - a book or a paper is a thing
+that survives and teaches, or does not.
+
+**Governance and mind.** How these places are run comes out varied
+and uneven rather than from a table, which is what the Standing
+pillar already does with creeds, forms and elections; the operator
+holds that a learned component may drive it. And the people are to
+understand the world they are in and use what the engine actually
+gives them, which is where this arc and the speech arc (DR-033) meet.
+
+**Why.** The operator, 2026-09-07, correcting a narrow reading twice
+over: first that the goal is the lived world rather than one
+generation trick, then that the example distance was an example and
+day zero is the case that must work. The instruction attached is
+general and is recorded as a rule of work, not only of this
+decision: do not fixate narrowly, and do not let one idea crowd out
+everything else the mod already is - Week One's art, the Day Zero
+arc, and every system listed above are all already here.
+
+**Its relation to what is built.** The Day Zero arc (ROADMAP) is
+this goal's near end and carries its own unbuilt slices. [C41] is
+one precondition and only that: the county exists at full size
+before the player meets anybody, because there is nothing to run
+forward or to watch while the county is still accreting six people
+at a time around whoever is standing there. It is not the goal and
+does not claim to be. DR-033's third fork - a county run with no
+engine loaded - stays unscoped; this runs in the game.
+
+**Origin.** Operator direction in chat, 2026-09-07, paraphrased.
+Grounded before recording: the engine's own start year and
+months-since-apocalypse are player settings it already decays the
+world by, and this county's Day Zero switch already sits beside
+them.
 
 ## DR-035 - The county stands on its own
 

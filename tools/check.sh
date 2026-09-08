@@ -1400,6 +1400,16 @@ if ! "$PY" tools/self_contained_test.py > /dev/null; then
     fail=1
 fi
 
+# [C41] Border 115 - the world is generated before it is spawned
+# (DR-036): the whole county on a fresh save, the pace only once it
+# exists, and genesis ahead of the band in the tick - the ordering
+# law the claim rests on.
+if ! "$PY" tools/world_before_spawn_test.py > /dev/null; then
+    "$PY" tools/world_before_spawn_test.py 2>&1 | grep -E "FAULT" || true
+    note "BORDER FINDING - the world is spawned as it is generated"
+    fail=1
+fi
+
 # Border 103 - the operator's speech is not in the repository: no
 # profanity in the tracked tree and no operator-quote attributions;
 # rulings are paraphrased content, speech stays with the speaker.
