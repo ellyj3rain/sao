@@ -1523,6 +1523,17 @@ if ! "$PY" tools/motor_pool_test.py > /dev/null; then
     fail=1
 fi
 
+# [C55] Border 127 - seeing a death is not seeing who did it (Law 1):
+# a killer is named only by a witness who could have seen them - a
+# fresh observed belief of them at the place for a live witness, the
+# positional question for a dormant one - while the death itself still
+# lands on everybody who saw the victim.
+if ! "$PY" tools/blame_test.py > /dev/null; then
+    "$PY" tools/blame_test.py 2>&1 | grep -E "FAULT" || true
+    note "BORDER FINDING - blame lands on somebody the witness never saw"
+    fail=1
+fi
+
 # Border 103 - the operator's speech is not in the repository: no
 # profanity in the tracked tree and no operator-quote attributions;
 # rulings are paraphrased content, speech stays with the speaker.

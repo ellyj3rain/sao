@@ -1,13 +1,33 @@
 | Document | Survivor Awareness Overhaul Session State |
 |---|---|
-| Version | `3.9.2.1-pre-alpha` |
+| Version | `3.9.3.0-pre-alpha` |
 | Author | ellyj3rain |
 | Repository | `SESSION_STATE.md` |
 | Status | CANONICAL - where the work actually stands. |
 
 # Session state
 
-**As of** 2026-09-08, `[C54]` close - the objection picks the car
+**As of** 2026-09-08, `[C55]` close - seeing a death is not seeing
+who did it (Law 1). The standing gap since [B39] said the witness
+rule keys on a recent sighting of the victim rather than on the
+killing. Read at the code it is narrower one way - the freshness
+window is two seconds, so a fresh close sighting of the victim IS
+being there - and much worse another: nothing ever asked whether the
+witness saw the KILLER. The engine's attacker tag named who did it
+and both the death site and the wounding site spent that name on a
+witness whose only belief was about the victim, so a survivor ten
+tiles from somebody shot from forty could drop eight tenths of trust
+in, and declare a blood feud on, a person behind a wall they had
+never laid eyes on. The death still lands, mourns and travels down
+the roads, because Law 1 calls oblivion a failure too; the name
+lands only where they could have seen who, and the log says when it
+does not. Each half of the county is asked in the currency it has -
+a fresh observed belief of the killer at the place for a live
+witness, the positional question for a dormant one, which is [B47]'s
+rule. Border 127 lifts both predicates out of the controller and
+runs them in the engine's VM; its own first lift was wrong and it
+said so rather than passing. `[C54]` before it - the objection picks
+the car
 (Day Zero slice 5). Most of the slice was already built: the
 quartermaster appraises the yard, a runnable car doubles a venture's
 range, the party is capped by the car's real free seats, the trip
@@ -494,10 +514,10 @@ unloaded survivors are governed by the same rules ([B39], [B42]).
 
 ## Deploy state
 
-`3.9.2.1-pre-alpha` at tip - the version machine's output ([C2],
+`3.9.3.0-pre-alpha` at tip - the version machine's output ([C2],
 DR-013; the twelfth minor rolled the tier by the odometer's own
-law). The game install carries the `[C54]` tip: `[C45]` through
-`[C51]` reached it on 2026-09-07 and `[C52]` through `[C54]` on 2026-09-08, each
+law). The game install carries the `[C55]` tip: `[C45]` through
+`[C51]` reached it on 2026-09-07 and `[C52]` through `[C55]` on 2026-09-08, each
 after its own commit passed the gate, the game having been closed
 since the `[C44]` deploy. Verified rather than assumed at each
 deploy - the deployed `mod.info` reads the version the machine
@@ -521,7 +541,7 @@ deploy; `save_compat_test` guards this and runs in the gate.
 
 ## Instruments
 
-**126 numbered borders**, run by **141 gated mirrors** in `tools/`, all invoked
+**127 numbered borders**, run by **142 gated mirrors** in `tools/`, all invoked
 by `tools/check.sh`, which the pre-commit hook runs and CI runs on every push.
 The figures in this paragraph are derived by Border 76 from the tree, not
 maintained by hand. Border 54 keeps the rest honest: it runs every gated

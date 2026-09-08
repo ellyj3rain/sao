@@ -57,6 +57,70 @@ local tickCount = 0
 local WITNESS_REACH = 10.0    -- tiles: close enough to have made it out
 local WITNESS_FRESH = 120     -- frames (~2s at 60fps): recently enough to be NOW
 
+-- [C55] Seeing a death is not seeing who did it (Law 1: no omniscience,
+-- no oblivion - both are failures of the decision model).
+--
+-- Two sites judged a killer on a belief about the VICTIM. A survivor
+-- with a fresh close sighting of somebody who was then shot from forty
+-- tiles away, by a person behind a wall they had never laid eyes on,
+-- dropped their trust in that person by eight tenths and could declare
+-- a blood feud on them. The engine's own attacker tag named the
+-- killer; nothing asked whether the witness could have known it.
+--
+-- The two halves of the law split here. What the witness saw - that
+-- somebody they were watching is dead - still lands, still mourns,
+-- still travels down the roads as their own belief: being unable to
+-- name the killer is not a reason to be oblivious of the death. What
+-- they could not have seen no longer lands on a name.
+--
+-- Each branch asks it in the currency it has, which is [B47]'s rule
+-- for the two halves of the county. A live witness holds beliefs, so
+-- the question is whether they hold a fresh OBSERVED one of the
+-- killer, at the place it happened. A dormant witness holds none -
+-- a record has no beliefs to carry a sighting - so the question is
+-- the positional one: was the killer themselves within reach of the
+-- death, near enough that somebody near enough to see the death saw
+-- them too.
+local function sawThemThere(witnessId, whoName, atX, atY, tick)
+    if not whoName then return false end
+    local beliefs = SAO.Perception.beliefs[witnessId]
+    local seen = beliefs and beliefs.people[whoName] or nil
+    if not (seen and seen.source == "observed") then return false end
+    if (tick - (seen.at or -1e9)) > WITNESS_FRESH then return false end
+    local dx = (seen.x or 1e9) - atX
+    local dy = (seen.y or 1e9) - atY
+    return (dx * dx + dy * dy) <= WITNESS_REACH * WITNESS_REACH
+end
+
+-- Where somebody actually is: their body if it is loaded, the player
+-- if it is the player, their record otherwise. Used only for the
+-- dormant half, which cannot ask anybody what they saw.
+local function whereIs(key)
+    local x, y = nil, nil
+    pcall(function()
+        if SAO.Standing.isPlayerKey(key) then
+            local me = getSpecificPlayer(0)
+            if me then x, y = me:getX(), me:getY() end
+            return
+        end
+        local body = SAO.Body.get(key)
+        if body then
+            x, y = body:getX(), body:getY()
+            return
+        end
+        local rec = SAO.Identity.get(key)
+        if rec then x, y = rec.x, rec.y end
+    end)
+    return x, y
+end
+
+local function wasThere(key, atX, atY)
+    local x, y = whereIs(key)
+    if not (x and y) then return false end
+    local dx, dy = x - atX, y - atY
+    return (dx * dx + dy * dy) <= WITNESS_REACH * WITNESS_REACH
+end
+
 -- [B45] Two more rules that were being typed rather than named.
 --
 -- ARRIVAL_REACH is the live half of a question the dormant half
@@ -4623,7 +4687,22 @@ local function witnessDeath(id, agent, body)
             if qualifies then
                 local lovedVictim = SAO.Standing.trust(witnessId, id) > 0.5
                     or SAO.Standing.isBondedTo(witnessId, id)
-                if attackerKey
+                -- [C55] And could they have seen WHO. The death lands
+                -- either way; the name only lands on this.
+                local sawWho = false
+                if attackerKey then
+                    if witness.passive then
+                        sawWho = wasThere(attackerKey, dxs, dys)
+                    else
+                        sawWho = sawThemThere(witnessId, killerName,
+                            dxs, dys, tickCount)
+                    end
+                end
+                if attackerKey and not sawWho then
+                    log(witnessId .. " saw " .. tostring(victimName or id)
+                        .. " die and not who did it - no blame lands")
+                end
+                if attackerKey and sawWho
                     and not SAO.Standing.sameGroup(witnessId, attackerKey) then
                     local after = SAO.Standing.adjustTrust(
                         witnessId, attackerKey, -0.8)
@@ -5592,9 +5671,17 @@ local function updateAgent(id, agent)
                         local beliefs = SAO.Perception.beliefs[witnessId]
                         local seen = beliefs and victimName
                             and beliefs.people[victimName] or nil
+                        -- [C55] Seeing the hurt is not seeing who
+                        -- dealt it. The same split as the death site:
+                        -- the sighting of the victim makes them a
+                        -- witness, and a sighting of the attacker at
+                        -- the place is what puts a name to it.
+                        local sawWho = sawThemThere(witnessId, name,
+                            body:getX(), body:getY(), tickCount)
                         if seen and seen.source == "observed"
                             and (tickCount - seen.at) <= WITNESS_FRESH
                             and seen.dist <= WITNESS_REACH
+                            and sawWho
                             and not SAO.Standing.sameGroup(witnessId, attackerKey) then
                             local after = SAO.Standing.adjustTrust(witnessId, attackerKey, -0.6)
                             local lovedVictim = SAO.Standing.trust(witnessId, id) > 0.5
