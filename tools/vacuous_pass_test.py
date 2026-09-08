@@ -194,7 +194,7 @@ def run_here(name):
 
 
 def run_blind(dest, name):
-    """One of: 'clean', 'refused', 'absent', 'silent'.
+    """One of: 'clean', 'refused', 'absent', 'silent', 'skipped'.
 
     The first draft returned a bool - `returncode == 0 and a verdict
     line`. That reads four different things as one, and [B50] paid for
@@ -214,6 +214,17 @@ def run_blind(dest, name):
                           capture_output=True, text=True, timeout=600)
     if not (done.stdout or "").strip():
         return name, "silent"
+    # [C57] A fifth state, and the same argument the docstring above
+    # makes. A border that reads the installed game returns 0 and says
+    # SKIPPED where the game is absent ([C56], Border 128) - CI, and
+    # this blinded tree, and anybody's clone. That is not a verdict
+    # about an empty set; it is a border declining to give a verdict at
+    # all, which is the loud opposite of a vacuous pass in the same way
+    # a traceback is. Read as 'clean' it made eleven borders look like
+    # they were passing on nothing, and CI refused the first published
+    # commit for it.
+    if done.returncode == 0 and "SKIPPED" in done.stdout:
+        return name, "skipped"
     if done.returncode == 0 and VERDICT.search(done.stdout):
         return name, "clean"
     return name, "refused"
@@ -257,11 +268,14 @@ def main():
             "nowhere else. Anyone who clones this tree gets a gate that "
             "references a border it does not have. `git add` it")
     silent = sorted(n for n, st in results.items() if st == "silent")
+    skipped = sorted(n for n, st in results.items() if st == "skipped")
     print(f"  gated mirrors run blind: {len(mirrors)}")
     print(f"  passed with no Lua     : {len(survivors)}  "
           f"({', '.join(survivors) or 'none'})")
     print(f"  threw with no Lua      : {len(silent)}  (not a fault here - a "
           "traceback is the loud opposite of a vacuous pass)")
+    print(f"  declined to judge      : {len(skipped)}  (said SKIPPED - they "
+          "read the installed game, which this machine has not got)")
     print(f"  declared not-about-Lua : {len(NOT_ABOUT_LUA)}")
 
     for name in survivors:

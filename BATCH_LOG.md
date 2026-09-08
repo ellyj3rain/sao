@@ -1,6 +1,6 @@
 | Document | Survivor Awareness Overhaul Batch Log |
 |---|---|
-| Version | `3.9.3.1-pre-alpha` |
+| Version | `3.9.3.2-pre-alpha` |
 | Author | ellyj3rain |
 | Repository | `BATCH_LOG.md` |
 | Status | REGULATORY - chronological batch index. |
@@ -161,3 +161,4 @@ attribution for every merged entry, stated here rather than in a branch name.
 | [C54](Batches/C54-2026-09-08-the-objection-picks-the-car.md) | 2026-09-08 | The objection picks the car | [`T-003`](Batches/THREADS.md#t-003), [`T-002`](Batches/THREADS.md#t-002) |
 | [C55](Batches/C55-2026-09-08-seeing-a-death-is-not-seeing-who-did-it.md) | 2026-09-08 | Seeing a death is not seeing who did it | [`T-001`](Batches/THREADS.md#t-001), [`T-007`](Batches/THREADS.md#t-007) |
 | [C56](Batches/C56-2026-09-08-borders-skip-when-the-game-is-absent.md) | 2026-09-08 | Borders skip when the game is absent | [`T-030`](Batches/THREADS.md#t-030) |
+| [C57](Batches/C57-2026-09-08-a-skip-is-not-a-vacuous-pass.md) | 2026-09-08 | A skip is not a vacuous pass | [`T-030`](Batches/THREADS.md#t-030) |

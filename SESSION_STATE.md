@@ -1,13 +1,30 @@
 | Document | Survivor Awareness Overhaul Session State |
 |---|---|
-| Version | `3.9.3.1-pre-alpha` |
+| Version | `3.9.3.2-pre-alpha` |
 | Author | ellyj3rain |
 | Repository | `SESSION_STATE.md` |
 | Status | CANONICAL - where the work actually stands. |
 
 # Session state
 
-**As of** 2026-09-08, `[C56]` close - borders skip when the game is
+**As of** 2026-09-08, `[C57]` close - a skip is not a vacuous pass.
+The C era was published to `origin/main` at `[C56]`: twenty-nine
+commits, one per batch from `[C29]`, and one carrying `[C28]`'s tree
+for everything before it, because Border 103 refuses the tree of
+every batch up to `[C27]` - they hold the quoted speech and profanity
+this repository was deleted and recreated over on 2026-08-31, and
+publishing them one at a time would have put it back. The published
+tree matches this one exactly.
+CI then refused it, for a defect beside the one `[C56]` fixed: Border
+54 runs every gated mirror against a tree with no Lua and refuses any
+that still pass, and it read a border that DECLINES to judge - returns
+0 and says SKIPPED because it reads the installed game - as one
+passing on nothing. Eleven did, on a machine without the game. A fifth
+state now, on the argument `run_blind`'s own docstring already makes.
+Eight of the eleven predate `[C56]`, so they were read that way on
+every machine but this one, and CI Verify has never succeeded on this
+repository - not on the 2026-08-31 publish, not on either dependabot
+pull request. `[C56]` before it - borders skip when the game is
 absent. The operator asked why nothing had reached the public
 repository. `origin/main` stood at the single squashed root pushed
 2026-08-31 and the local tree was 112 commits ahead, the whole C era
@@ -533,7 +550,7 @@ unloaded survivors are governed by the same rules ([B39], [B42]).
 
 ## Deploy state
 
-`3.9.3.1-pre-alpha` at tip - the version machine's output ([C2],
+`3.9.3.2-pre-alpha` at tip - the version machine's output ([C2],
 DR-013; the twelfth minor rolled the tier by the odometer's own
 law). The game install carries the `[C55]` tip: `[C45]` through
 `[C51]` reached it on 2026-09-07 and `[C52]` through `[C55]` on 2026-09-08, each
