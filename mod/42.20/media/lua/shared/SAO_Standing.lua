@@ -2974,6 +2974,45 @@ function S.mayEnter(id, x, y)
     return S.isHostileTo(id, other) or S.isHostileTo(other, id)
 end
 
+-- [C42] HAS THE FALL REACHED THIS COUNTY?
+--
+-- The question nothing was asking. The county wrote three stamps at
+-- the moments that matter ([B1], [B3]) and read them only to print a
+-- chronicle; not one decision consulted them, so a household in a
+-- working world posted a sentry every night and people went looking
+-- for a better weapon on an ordinary Tuesday. The switch on the
+-- sandbox screen never fixed that, because a switch says how the
+-- world STARTED and this asks what the county now knows.
+--
+-- Two ways it becomes true, and either is enough:
+--
+--   the calendar   the record's own day has come. A world that
+--                  begins on or after the day the fall began is a
+--                  fallen world from its first minute, whatever
+--                  anybody here has personally seen ([C36] put the
+--                  county on that calendar).
+--   the county     somebody here saw it. A world that begins BEFORE
+--                  that day is an ordinary county until its own
+--                  first horror, which is exactly the day-zero
+--                  start watching itself happen.
+--
+-- Derived from the record and never from the dial, so the answer is
+-- the same whether a player checked the box or set the date by hand.
+function S.fallHasCome()
+    local s = store()
+    if s and (s.outbreakAtHours or s.firstTurnedAtHours
+        or s.tapsDryAtHours) then
+        return true, "seen"
+    end
+    local day = nil
+    pcall(function() day = SAOJavaBridge:recordDayToday() end)
+    if type(day) == "number" and day > -90000 and day >= 0 then
+        return true, "calendar"
+    end
+    return false, (type(day) == "number" and day > -90000)
+        and "before" or "unknown"
+end
+
 -- [C38] The county's own stamps, for a reader that may not open the
 -- store itself (the knowledge surface is read-only by law): the
 -- first of them seen to kill, the first turning, the taps.

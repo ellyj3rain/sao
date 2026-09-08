@@ -272,6 +272,11 @@ local function whereTheWorkIs(id, body)
 end
 
 local function nightKeeper(id, nightIndex)
+    -- [C42] Nobody sits up in a world where nothing has gone wrong.
+    -- A watch is a thing people start keeping AFTER a reason to, and
+    -- before this the county posted one on the first night of a
+    -- working world.
+    if not SAO.Standing.fallHasCome() then return nil end
     local g = SAO.Standing.groupOf(id)
     if not g then return nil end
     local pool, watchPool = {}, {}
@@ -1863,6 +1868,13 @@ local function decide(id, agent, body)
                 log(id .. " covets a weapon in a claimed place; wanting is not taking")
                 gx = nil
             end
+            -- [C42] Not before the fall: a civilian does not cross
+            -- town for a better weapon in a working world. What they
+            -- already carry, they carry ([A29]'s duty trades).
+            if gx and not SAO.Standing.fallHasCome() then
+                SAO.Needs.clearGear(body)
+                gx = nil
+            end
             if gx and SAO.Locomotion.order(id, body, gx, gy, gz) then
                 agent.taskDeadline = tick + 3600
                 setState(agent, id, "GEARWARD",
@@ -1893,6 +1905,11 @@ local function decide(id, agent, body)
             if ax and not mayEnterBelieved(id, ax, ay) then
                 SAO.Needs.clearAmmo(body)
                 log(id .. " knows of ammo in a claimed place; wanting is not taking")
+                ax = nil
+            end
+            -- [C42] Nor for ammunition, for the same reason.
+            if ax and not SAO.Standing.fallHasCome() then
+                SAO.Needs.clearAmmo(body)
                 ax = nil
             end
             if ax and SAO.Locomotion.order(id, body, ax, ay, az) then
@@ -2049,6 +2066,13 @@ local function decide(id, agent, body)
                                 .. (bwater == "1" and "water"
                                     or "no water")
                                 .. ", score " .. tostring(bscore))
+                            -- [C42] And nobody goes looking for
+                            -- somewhere defensible to live while the
+                            -- world still works. People have homes
+                            -- until the day they need walls.
+                            if not SAO.Standing.fallHasCome() then
+                                return
+                            end
                             setState(agent, id, "SETTLEWARD",
                                 "scouts a base for " .. tostring(
                                     SAO.Standing.factionName(sGroup)))

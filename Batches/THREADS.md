@@ -44,7 +44,7 @@ The gate, its borders, and the repository's own discipline.
 
 The county before the collapse, the fall itself, and what it teaches.
 
-**Batches**: `A6`, `A10`, `A11`, `A17`, `A29`, `B3`, `B9`, `C8`, `C10`, `C11`, `C29`, `C30`, `C31`, `C32`, `C33`, `C34`, `C35`, `C36`, `C38`, `C41`
+**Batches**: `A6`, `A10`, `A11`, `A17`, `A29`, `B3`, `B9`, `C8`, `C10`, `C11`, `C29`, `C30`, `C31`, `C32`, `C33`, `C34`, `C35`, `C36`, `C38`, `C41`, `C42`
 
 **Owes**: outbreak live-confirmation (the engine's infection on shells, witnessed in play).
 
@@ -80,7 +80,7 @@ Bodies, hunger, water, fire, ground worked, and the places that give.
 
 Companies, creeds, elections, feuds, pacts, schisms, and the player's standing in it.
 
-**Batches**: `A9`, `A12`, `A13`, `A14`, `A19`, `A20`, `A21`, `A22`, `A25`, `A27`, `B7`, `B13`, `B23`, `B35`, `C37`
+**Batches**: `A9`, `A12`, `A13`, `A14`, `A19`, `A20`, `A21`, `A22`, `A25`, `A27`, `B7`, `B13`, `B23`, `B35`, `C37`, `C42`
 
 **Owes**: the carry-light dissent class; division's rate is unpriced.
 

@@ -1410,6 +1410,16 @@ if ! "$PY" tools/world_before_spawn_test.py > /dev/null; then
     fail=1
 fi
 
+# [C42] Border 116 - before the fall, an ordinary life (DR-036): the
+# county can be asked whether the fall has reached it, the answer is
+# derived from the record and never from the sandbox dial, and every
+# survival-shaped decision asks it.
+if ! "$PY" tools/before_the_fall_test.py > /dev/null; then
+    "$PY" tools/before_the_fall_test.py 2>&1 | grep -E "FAULT" || true
+    note "BORDER FINDING - the county lives a survival day before the fall"
+    fail=1
+fi
+
 # Border 103 - the operator's speech is not in the repository: no
 # profanity in the tracked tree and no operator-quote attributions;
 # rulings are paraphrased content, speech stays with the speaker.

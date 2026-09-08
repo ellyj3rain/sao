@@ -1,6 +1,6 @@
 | Document | Survivor Awareness Overhaul Roadmap |
 |---|---|
-| Version | `3.0.0.0-pre-alpha` |
+| Version | `3.1.0.0-pre-alpha` |
 | Author | ellyj3rain |
 | Repository | `ROADMAP.md` |
 | Status | CANONICAL - thread map, backlog, live gates. |
@@ -261,6 +261,15 @@ is lived, witnessed, and remembered person by person. Slices:
 
 1. `[A29]` the innocent county - DayZero sandbox mode: innocent
    histories, duty-only arms, era-per-person via lessons. SHIPPED.
+   Extended by `[C42]`: an audit found the switch reached only
+   those two things and that no decision anywhere asked whether
+   the fall had happened, though the county had written three
+   stamps for it since `[B1]`. The county can be asked now
+   (`fallHasCome`, derived from those stamps and the record's
+   calendar, never from the dial), and the night watch, the
+   journey for a weapon or ammunition, and scouting somewhere
+   defensible all wait for it. Normal-life behaviour on open
+   streets is still unbuilt.
 2. Outbreak dynamics live-verified: zombie bites/infection/turning on
    shells (BodyDamage + reanimation timers javap-verified; needs live
    confirmation), the first named death teaching the first lessons.

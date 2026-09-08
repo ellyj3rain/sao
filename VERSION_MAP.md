@@ -16,9 +16,9 @@ the machine. Names, dates, and threads below come from
 | Form | `major.minor.kohai.patch-maturity` |
 | Hard caps | minor 12; kohai 16; patch 24 |
 | Replay start | `0.1.0.0-pre-alpha` |
-| Current version | `3.0.0.0-pre-alpha` |
-| Closed chronology | `A1-C41` |
-| Next batch | `C42` |
+| Current version | `3.1.0.0-pre-alpha` |
+| Closed chronology | `A1-C42` |
+| Next batch | `C43` |
 | Executable source | [`tools/version_replay.py`](tools/version_replay.py) |
 
 ## Tier meanings
@@ -157,6 +157,7 @@ the machine. Names, dates, and threads below come from
 | `C39` | 2026-09-07 | minor | `2.11.0.0-pre-alpha` | The conditions are SAO's own | The conditions are SAO's own (DR-032 amended): the two required mods are gone and SAO registers the county's conditions as engine character traits from shared Lua, vanilla's where vanilla has one, every cost taken from the vanilla trait its shape is anchored to; a survivor's drawn conditions ride their shell as traits, the player's chosen ones are asserted and driven through the same functions; Border 113 holds it and Border 107's requirement seam is inverted. |
 | `C40` | 2026-09-07 | minor | `2.12.0.0-pre-alpha` | The county stands on its own | The county stands on its own (DR-035): nothing of this mod runs through another survivor mod unless the player asks - the absorption, the menu superimposition and the prompt hold are all behind switches that default off, so a fresh world reaches into another mod zero times; what stays always on calls none of their code, the manifests require nothing but the loader, and the description no longer claims a requirement [C39] removed; Border 114 holds the law. |
 | `C41` | 2026-09-07 | minor | `3.0.0.0-pre-alpha` | The world before the spawn | The world before the spawn (DR-036, one precondition): on a save that has never been settled genesis reaches its target in one pass instead of six people at a time, and it runs ahead of the band in the tick, so the county exists in full before the first body is materialised; the pace and its unit slack are named once and stand unchanged for refill; Border 115 holds the budget, the flag and the ordering law the claim rests on. |
+| `C42` | 2026-09-07 | minor | `3.1.0.0-pre-alpha` | Before the fall, an ordinary life | Before the fall, an ordinary life (DR-036): an audit of the day-zero switch found it reached two things and that no decision anywhere asked whether the fall had happened, though the county had written three stamps for it since [B1] and read them only to print a chronicle; the county can be asked now - derived from those stamps and the calendar, never from the dial - and the night watch, the journey for a weapon or ammunition and scouting somewhere defensible all wait for it, while eating, warmth, treatment and mourning deliberately do not; Border 116 holds it. |
 
 ## The former number
 
@@ -177,11 +178,11 @@ the meantime, and they are not play.
 
 ## Next movement
 
-`C42` is the next batch. Its content determines its tier after it
+`C43` is the next batch. Its content determines its tier after it
 exists:
 
-| If C42 is | Result |
+| If C43 is | Result |
 |---|---|
-| patch or hotfix | `3.0.0.1-pre-alpha` |
-| kohai | `3.0.1.0-pre-alpha` |
-| minor | `3.1.0.0-pre-alpha` |
+| patch or hotfix | `3.1.0.1-pre-alpha` |
+| kohai | `3.1.1.0-pre-alpha` |
+| minor | `3.2.0.0-pre-alpha` |

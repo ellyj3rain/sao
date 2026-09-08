@@ -1,13 +1,24 @@
 | Document | Survivor Awareness Overhaul Session State |
 |---|---|
-| Version | `3.0.0.0-pre-alpha` |
+| Version | `3.1.0.0-pre-alpha` |
 | Author | ellyj3rain |
 | Repository | `SESSION_STATE.md` |
 | Status | CANONICAL - where the work actually stands. |
 
 # Session state
 
-**As of** 2026-09-07, `[C41]` close - the world before the spawn
+**As of** 2026-09-07, `[C42]` close - before the fall, an ordinary
+life (DR-036): an audit of what the day-zero switch actually reached
+found two things - no lessons seeded, duty-only arms - and that not
+one decision in the tree asked whether the fall had happened, though
+the county had written three stamps for it since `[B1]` and read
+them only to print a chronicle. The county can be asked now
+(`fallHasCome`), derived from those stamps and the record's calendar
+and never from the sandbox dial, and the night watch, the journey
+for a weapon or for ammunition, and scouting somewhere defensible
+all wait for it - while eating, drinking, warmth, treatment,
+mourning and going home deliberately do not. `[C41]` before it - the
+world before the spawn
 (DR-036, one precondition of it): genesis paced at six people a pass
 whatever the state of the save, so a sixty-person county took about
 a minute of play to exist and the first survivors a player met had
@@ -286,10 +297,10 @@ unloaded survivors are governed by the same rules ([B39], [B42]).
 
 ## Deploy state
 
-`3.0.0.0-pre-alpha` at tip - the version machine's output ([C2],
+`3.1.0.0-pre-alpha` at tip - the version machine's output ([C2],
 DR-013; the twelfth minor rolled the tier by the odometer's own
-law). The game install carries the `[C41]` tip, deployed 2026-09-07 at
-the `[C41]` close; `[C33]` through `[C40]` reached the install the
+law). The game install carries the `[C42]` tip, deployed 2026-09-07 at
+the `[C42]` close; `[C33]` through `[C41]` reached the install the
 same day, the first window the game was closed since the `[C32]`
 deploy of 2026-09-06. The play receipts the C era owes are the next
 thing the tree cannot produce for itself - the operator chose to
@@ -309,7 +320,7 @@ deploy; `save_compat_test` guards this and runs in the gate.
 
 ## Instruments
 
-**115 numbered borders**, run by **130 gated mirrors** in `tools/`, all invoked
+**116 numbered borders**, run by **131 gated mirrors** in `tools/`, all invoked
 by `tools/check.sh`, which the pre-commit hook runs and CI runs on every push.
 The figures in this paragraph are derived by Border 76 from the tree, not
 maintained by hand. Border 54 keeps the rest honest: it runs every gated
