@@ -2290,12 +2290,23 @@ end
 -- drive. Person-blind by design - whether THIS survivor can start
 -- it is the Controller's question, because it depends on who they
 -- are.
-function S.roadworthy(groupName)
+-- [C54] `loudCeiling` skips any car at or above it. The pool holds
+-- more than one car and this function returned exactly one, so a goer
+-- who refuses the car it picked walked - even with a quieter runner
+-- in the same yard. The refusal is a real decision ([B19]: somebody
+-- who learned that noise is a debt would rather take longer than
+-- announce themselves) and it should choose the next car, not discard
+-- the pool. Passing nothing keeps the old answer, so the panel's
+-- reading of what the house can drive is unchanged.
+function S.roadworthy(groupName, loudCeiling)
     local m = S.motorPoolOf(groupName)
     if not (m and m.cars) then return nil end
     local best = nil
     for _, c in ipairs(m.cars) do
         local runs = (c.fuel or 0) > 5 and (c.engine or 0) > 20
+        if runs and loudCeiling and (c.loud or 0) >= loudCeiling then
+            runs = false
+        end
         if runs then
             local open = (c.ignition or 0) == 1 or (c.hotwired or 0) == 1
             local better = false

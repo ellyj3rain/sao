@@ -1,6 +1,6 @@
 | Document | Survivor Awareness Overhaul Findings |
 |---|---|
-| Version | `3.9.2.0-pre-alpha` |
+| Version | `3.9.2.1-pre-alpha` |
 | Author | ellyj3rain |
 | Repository | `FINDINGS.md` |
 | Status | CANONICAL, APPEND-ONLY - verified engine findings. |
@@ -974,4 +974,33 @@ a design call rather than a border's. And the saturation is the
 equilibrium mirror's own convergence as much as the county's: a house
 that formed yesterday has none of it, which is why [C53] adds a
 young-house sweep rather than tuning anything.
+
+
+## F-057 - A chooser returned one candidate where the caller held a veto ([C54])
+
+`SAO_Standing.roadworthy` appraised a house's whole motor pool and
+returned exactly one car: the roomiest openable runner. The venture
+then applied the goer's own objection to that one car - somebody who
+has learned that noise is a debt refuses a loud one and walks ([B19],
+and the refusal is right).
+
+With one car returned, the refusal discarded the yard. A house holding
+a loud six-seater and a quiet hatchback sent that person out on foot,
+past a car they would have taken. Nothing logged a choice, because no
+choice was made; the log said the loud car was left where it sat,
+which was true and complete about the wrong question.
+
+The shape is general and worth naming: a chooser that returns its own
+best candidate, to a caller that holds a veto over the result, turns
+that veto into a refusal of the entire set. Either the criterion goes
+in with the ask or the whole set comes back. Here the criterion goes
+in - a loudness ceiling - because the pool is Standing's to own and
+the ceiling is the person's.
+
+Two others in the tree were checked and are not this shape.
+`canHotwire` gates the same car, but `roadworthy` already prefers an
+open one, so a locked car only comes back when there is no open
+runner and the walk is correct. The venture's seat cap reads the
+chosen car rather than choosing, and roomiest-first means the largest
+acceptable car is always the one offered.
 

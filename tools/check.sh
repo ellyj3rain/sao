@@ -1513,6 +1513,16 @@ if ! "$PY" tools/prevalence_sourced_test.py > /dev/null; then
     fail=1
 fi
 
+# [C54] Border 126 - the objection picks the car: the appraisal takes
+# the goer's own loudness ceiling, so somebody who refuses a loud car
+# gets the quiet one out of the same yard instead of walking past it,
+# and walks only when there is nothing quiet to take.
+if ! "$PY" tools/motor_pool_test.py > /dev/null; then
+    "$PY" tools/motor_pool_test.py 2>&1 | grep -E "FAULT" || true
+    note "BORDER FINDING - a refused car ends the question instead of choosing the next"
+    fail=1
+fi
+
 # Border 103 - the operator's speech is not in the repository: no
 # profanity in the tracked tree and no operator-quote attributions;
 # rulings are paraphrased content, speech stays with the speaker.

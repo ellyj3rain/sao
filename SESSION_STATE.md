@@ -1,13 +1,32 @@
 | Document | Survivor Awareness Overhaul Session State |
 |---|---|
-| Version | `3.9.2.0-pre-alpha` |
+| Version | `3.9.2.1-pre-alpha` |
 | Author | ellyj3rain |
 | Repository | `SESSION_STATE.md` |
 | Status | CANONICAL - where the work actually stands. |
 
 # Session state
 
-**As of** 2026-09-08, `[C53]` close - who goes along weighs who is
+**As of** 2026-09-08, `[C54]` close - the objection picks the car
+(Day Zero slice 5). Most of the slice was already built: the
+quartermaster appraises the yard, a runnable car doubles a venture's
+range, the party is capped by the car's real free seats, the trip
+burns the real tank by the real distance. One link was a defect.
+`roadworthy` read the whole motor pool and returned one car, and the
+venture then applied the goer's own objection to that one, so
+somebody who has learned that noise is a debt discarded the yard and
+walked past a quiet runner they would have taken - and nothing looked
+wrong, because the log said the loud car was left where it sat, which
+was true and complete about the wrong question. That is F-057, and
+the shape is general: a chooser returning its own best candidate to a
+caller holding a veto turns the veto into a refusal of the whole set.
+The loudness ceiling goes in with the ask now; passing nothing gives
+the old answer, which is what the panel does; a yard of only loud
+runners still ends in a walk; and the second loudness test at the
+call site is deleted rather than left reading like a live guard.
+Border 126 holds it, its control the pre-batch tree handing the loud
+car to the person who refuses it. `[C53]` before it - who goes along
+weighs who is
 asking (Day Zero slice 4; DR-033). [B19]'s joining weighed everything
 about the hearer and nothing about the trip or the caller. The
 caller's office over that person now enters the pull in
@@ -475,10 +494,10 @@ unloaded survivors are governed by the same rules ([B39], [B42]).
 
 ## Deploy state
 
-`3.9.2.0-pre-alpha` at tip - the version machine's output ([C2],
+`3.9.2.1-pre-alpha` at tip - the version machine's output ([C2],
 DR-013; the twelfth minor rolled the tier by the odometer's own
-law). The game install carries the `[C53]` tip: `[C45]` through
-`[C51]` reached it on 2026-09-07 and `[C52]`, `[C53]` on 2026-09-08, each
+law). The game install carries the `[C54]` tip: `[C45]` through
+`[C51]` reached it on 2026-09-07 and `[C52]` through `[C54]` on 2026-09-08, each
 after its own commit passed the gate, the game having been closed
 since the `[C44]` deploy. Verified rather than assumed at each
 deploy - the deployed `mod.info` reads the version the machine
@@ -502,7 +521,7 @@ deploy; `save_compat_test` guards this and runs in the gate.
 
 ## Instruments
 
-**125 numbered borders**, run by **140 gated mirrors** in `tools/`, all invoked
+**126 numbered borders**, run by **141 gated mirrors** in `tools/`, all invoked
 by `tools/check.sh`, which the pre-commit hook runs and CI runs on every push.
 The figures in this paragraph are derived by Border 76 from the tree, not
 maintained by hand. Border 54 keeps the rest honest: it runs every gated

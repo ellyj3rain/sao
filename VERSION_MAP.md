@@ -16,9 +16,9 @@ the machine. Names, dates, and threads below come from
 | Form | `major.minor.kohai.patch-maturity` |
 | Hard caps | minor 12; kohai 16; patch 24 |
 | Replay start | `0.1.0.0-pre-alpha` |
-| Current version | `3.9.2.0-pre-alpha` |
-| Closed chronology | `A1-C53` |
-| Next batch | `C54` |
+| Current version | `3.9.2.1-pre-alpha` |
+| Closed chronology | `A1-C54` |
+| Next batch | `C55` |
 | Executable source | [`tools/version_replay.py`](tools/version_replay.py) |
 
 ## Tier meanings
@@ -169,6 +169,7 @@ the machine. Names, dates, and threads below come from
 | `C51` | 2026-09-07 | minor | `3.9.0.0-pre-alpha` | The habits are the player's too | The habits are the player's too (DR-032, the society arc's S6): [C39] registered the county's conditions as engine traits and left the habits behind, so nothing offered one at creation, nothing stamped one onto a survivor's shell and nothing would have driven one on the player if it had. Five are registered now - drinker, cocaine, opioids, stimulants, sedatives - each anchored to base:smoker and taking its cost of -3, because the habits differ only in schedule and the engine ships exactly one trait of that shape; cannabis is skipped because its source gives it no withdrawal and a costed trait that does nothing would be a lie about the game; smoking is left to vanilla's own SMOKER. The player gets a store for the habit to live in (their own modData, bound as a stand-in record) without which the dry clock never resets and the habit never lapses, the withdrawal drives on their own ten-minute pass, and a drink is read off CharacterStat.INTOXICATION rising rather than hooked to an action. Border 124 holds it; Border 72 caught three per-id tables with no forget and they have one. |
 | `C52` | 2026-09-08 | kohai | `3.9.1.0-pre-alpha` | Psychosis and insomnia get their figures | Psychosis and insomnia get their figures: two rows in the conditions table had stood at zero since [C32] with the reason in the file - no primary figure of the era had been read - so neither mechanism could ever fire for anybody. Psychosis draws at 70 per ten thousand off Kendler et al., Arch Gen Psychiatry 1996;53(11):1022-31 (broad nonaffective psychosis, clinician diagnosis, lifetime, 0.7 percent), and insomnia at 1020 off Ford and Kamerow, JAMA 1989;262(11):1479-84 (10.2 percent of 7954 ECA respondents noting insomnia at the first interview), the row saying plainly that this is a complaint recorded once rather than a chronic diagnosis and naming the persistence figure that would replace it. Border 125 turns the sourcing rule into a mechanism: every row names a year or points at the table above it, and every constant must be reachable from the comment's own figures by a derivation the row names - it caught four habit rows citing nothing of their own. An extension of an existing capability with no new mechanism, so kohai. |
 | `C53` | 2026-09-08 | kohai | `3.9.2.0-pre-alpha` | Who goes along weighs who is asking | Who goes along weighs who is asking (DR-036, Day Zero slice 4; DR-033): [B19]'s joining weighed everything about the hearer and nothing about the trip or the caller. The caller's office over the hearer now enters the pull in SAO_Command's own currency - a leader's call above a second's above a peer's, no number invented at the site, the divided house arriving with it - and a warpath asks the hearer's own envelope, so nobody is persuaded into a fight they would not take. Ported to the joining mirror in the same batch, per that script's doctrine, with each house's leader derived the way Standing derives it. The mirror then refused the first claim made about the change and produced F-056 instead: in the converged county the pull's median is 1.28 against a threshold of 0.55 and 96 percent of invitations clear it before any term is consulted, so the office carried nobody there; a sixth sweep over a house that formed recently is where it carries 46. An extension of an existing capability, so kohai. |
+| `C54` | 2026-09-08 | patch | `3.9.2.1-pre-alpha` | The objection picks the car | The objection picks the car (Day Zero slice 5): SAO_Standing.roadworthy appraised a house's whole motor pool and returned one car, and the venture then applied the goer's own objection to that one - so somebody who has learned that noise is a debt discarded the yard and walked past a quiet runner they would have taken (F-057). The loudness ceiling goes in with the ask now, so what comes back is the roomiest car this person would actually take; passing nothing gives the old answer, which is what the panel does; a yard of only loud runners still ends in a walk, said as a choice about the yard rather than about one car; and the second loudness test at the call site is deleted rather than left sitting dead. An in-place correction of a capability that already existed and no boundary moved, so patch. Border 126 holds it, with the pre-batch tree as its control. |
 
 ## The former number
 
@@ -189,11 +190,11 @@ the meantime, and they are not play.
 
 ## Next movement
 
-`C54` is the next batch. Its content determines its tier after it
+`C55` is the next batch. Its content determines its tier after it
 exists:
 
-| If C54 is | Result |
+| If C55 is | Result |
 |---|---|
-| patch or hotfix | `3.9.2.1-pre-alpha` |
+| patch or hotfix | `3.9.2.2-pre-alpha` |
 | kohai | `3.9.3.0-pre-alpha` |
 | minor | `3.10.0.0-pre-alpha` |

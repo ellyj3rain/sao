@@ -1,6 +1,6 @@
 | Document | Survivor Awareness Overhaul Batch Log |
 |---|---|
-| Version | `3.9.2.0-pre-alpha` |
+| Version | `3.9.2.1-pre-alpha` |
 | Author | ellyj3rain |
 | Repository | `BATCH_LOG.md` |
 | Status | REGULATORY - chronological batch index. |
@@ -158,3 +158,4 @@ attribution for every merged entry, stated here rather than in a branch name.
 | [C51](Batches/C51-2026-09-07-the-habits-are-the-players-too.md) | 2026-09-07 | The habits are the player's too | [`T-002`](Batches/THREADS.md#t-002), [`T-007`](Batches/THREADS.md#t-007) |
 | [C52](Batches/C52-2026-09-08-psychosis-and-insomnia-get-their-figures.md) | 2026-09-08 | Psychosis and insomnia get their figures | [`T-002`](Batches/THREADS.md#t-002) |
 | [C53](Batches/C53-2026-09-08-who-goes-along-weighs-who-is-asking.md) | 2026-09-08 | Who goes along weighs who is asking | [`T-002`](Batches/THREADS.md#t-002), [`T-004`](Batches/THREADS.md#t-004) |
+| [C54](Batches/C54-2026-09-08-the-objection-picks-the-car.md) | 2026-09-08 | The objection picks the car | [`T-003`](Batches/THREADS.md#t-003), [`T-002`](Batches/THREADS.md#t-002) |

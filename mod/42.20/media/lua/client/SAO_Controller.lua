@@ -4115,27 +4115,50 @@ local function decide(id, agent, body)
             local takingWheels = nil
             do
                 local gW = SAO.Standing.groupOf(id)
+                -- [C54] The objection picks the car now instead of
+                -- ending the question. The pool holds more than one
+                -- runner and the appraisal returned exactly one - the
+                -- roomiest openable - so a goer who has learned that
+                -- noise is a debt walked past a quiet car to refuse a
+                -- loud one. Their own ceiling goes in with the ask,
+                -- and what comes back is the roomiest car they would
+                -- actually take. Where the yard holds only loud
+                -- runners the answer is nothing, which is the same
+                -- walk they took before and for the same reason.
+                local ceiling = nil
+                if SAO.Lessons.has(id, "noise-is-a-debt") then
+                    ceiling = 50
+                end
                 local wheels = gW and SAO.Standing.roadworthy
-                    and SAO.Standing.roadworthy(gW) or nil
+                    and SAO.Standing.roadworthy(gW, ceiling) or nil
+                if not wheels and ceiling and gW then
+                    local anyCar = SAO.Standing.roadworthy(gW)
+                    if anyCar then
+                        log(id .. " leaves the "
+                            .. tostring(anyCar.name or "car")
+                                :gsub("^Base%.", "")
+                            .. " where it sits - nothing in the yard is"
+                            .. " quiet enough to be worth it")
+                    end
+                end
                 if wheels then
                     local canTake = wheels.open
                         or (SAO.Census.canHotwire
                             and SAO.Census.canHotwire(id))
-                    local tooLoud = (wheels.loud or 0) >= 50
-                        and SAO.Lessons.has(id, "noise-is-a-debt")
                     local plain = tostring(wheels.name or "car")
                         :gsub("^Base%.", "")
-                    if canTake and not tooLoud then
+                    -- [C54] The loudness test is gone from here: the
+                    -- appraisal above never returns a car this person
+                    -- would refuse, so a second test could only ever
+                    -- be dead. What is left is whether they can get
+                    -- into it at all.
+                    if canTake then
                         range = math.floor(range * 2)
                         takingWheels = wheels
                         why = why .. " - taking the " .. plain
                         pcall(function()
                             SAO.Voice.onEvent(id, "wheels", tick)
                         end)
-                    elseif canTake and tooLoud then
-                        log(id .. " leaves the " .. plain
-                            .. " where it sits - too loud to"
-                            .. " announce themselves")
                     end
                 end
             end

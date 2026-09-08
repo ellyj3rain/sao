@@ -1,6 +1,6 @@
 | Document | Survivor Awareness Overhaul Roadmap |
 |---|---|
-| Version | `3.9.2.0-pre-alpha` |
+| Version | `3.9.2.1-pre-alpha` |
 | Author | ellyj3rain |
 | Repository | `ROADMAP.md` |
 | Status | CANONICAL - thread map, backlog, live gates. |
@@ -88,6 +88,14 @@ Preconditions and slices, none of them the whole thing:
    in a converged county the willingness threshold almost never
    binds, so the office carries nobody there and 46 hearers in a
    young house, which is the house a day-zero county is made of.
+   Vehicles as composition is SHIPPED as `[C54]`: the appraisal takes
+   the goer's own loudness ceiling, so somebody who refuses a loud
+   car gets the quiet one out of the same yard instead of walking
+   past it (F-057). The rest of the slice was already built - a
+   runnable car doubles the range, the party is capped by the car's
+   real free seats, the trip burns the real tank by the real
+   distance - and party size does not choose the car because
+   roomiest-first already offers the largest one the goer will take.
    Chaos legibility is half done. SHIPPED as `[C50]`: what a survivor
    says follows what they have learned. Every line table in
    SAO_Voice was flat, so a county that had learned nothing still
