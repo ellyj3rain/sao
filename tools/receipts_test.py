@@ -22,9 +22,17 @@ WHAT THIS HOLDS
   3. Every finding a receipt cites exists in FINDINGS.md and every
      batch it cites exists in BATCH_LOG.md - receipts point at real
      records, not at memory.
-  4. The blanket claim is banned: SESSION_STATE.md and PLAYABILITY.md
-     may no longer assert that NOTHING has a play receipt. Absence of
-     a specific receipt stays a per-surface, per-batch statement.
+  4. The blanket claim is banned in every document that speaks for
+     the project - every root .md and both mod.info descriptions -
+     rather than in the two files this border first happened to name.
+     Absence of a specific receipt stays a per-surface, per-batch
+     statement.
+  5. The README states how many receipts the ledger holds, and that
+     number is checked against the ledger. [C64] found the claim alive
+     in five places thirty-five batches after DR-025 banned it,
+     including the description a player reads on the Workshop page,
+     because a negative nobody can check does not decay - it just
+     stops being true.
 
 An optional argv[1] points the checker at another tree root, which is
 how the control runs against the pre-[C19] tree.
@@ -43,10 +51,43 @@ BATCH_LOG = ROOT / "BATCH_LOG.md"
 # passed against the OLD document because "play receipt" wrapped
 # across a line break there - the instrument missed its own
 # motivating case until the words were allowed to break.
+#
+# [C64] Four more spellings, every one of them found in the tree on
+# 2026-09-08, thirty-five batches after DR-025 banned the claim:
+#
+#   README.md          "No feature in this mod has live-play verification"
+#   mod/mod.info       "no feature here has live-play verification yet"
+#   mod/42.20/mod.info the same string, and it is what a player reads
+#   PLAYABILITY.md     "none of it is live-witnessed"
+#   PUBLISHING.md      "none of it is a play receipt"
+#
+# The first three were in files this border never opened; the fourth
+# was in a file it did open and the pattern walked past. A ban that
+# matches one wording of a claim bans a wording.
 BLANKET = re.compile(
     r"[Nn]othing[^.]{0,80}\bplay\s+receipt"
     r"|[Nn]othing[^.]{0,80}\bwitnessed\s+in\s+play"
-    r"|no\s+play\s+receipts?\s+exist")
+    r"|no\s+play\s+receipts?\s+exist"
+    r"|[Nn]o\s+feature[^.]{0,80}\blive[-\s]+play"
+    r"|[Nn]o\s+surface[^.]{0,80}\bplay\s+receipt"
+    r"|[Nn]one\s+of\s+it\s+is\s+live[-\s]+witnessed"
+    r"|[Nn]one\s+of\s+it\s+is\s+a\s+play\s+receipt")
+
+# Every document that speaks for the project, not a list of two. The
+# mod.info descriptions are here because they are the string a player
+# reads on the Workshop page and in the in-game mod list, and they
+# carried the claim for thirty-five batches.
+#
+# Two files QUOTE the claim while explaining why it is banned. They are
+# named rather than skipped by accident, so the exemption is a decision
+# somebody made and not a hole.
+QUOTES_THE_BAN = {"RECEIPTS.md", "DECISION_REGISTRY.md"}
+ALSO_SPEAKS = ("mod/mod.info", "mod/42.20/mod.info")
+
+# The README states how many receipts the ledger holds. A number is
+# checkable and "nothing has been tested" was not, which is the whole
+# reason it stood for thirty-five batches.
+README_COUNT = re.compile(r"holds\s+(\d+)\s+so\s+far")
 
 
 def main():
@@ -116,17 +157,43 @@ def main():
                       "receipts' history; restore the builds the sessions "
                       "actually ran")
 
-    for name in ("SESSION_STATE.md", "PLAYABILITY.md"):
-        doc = ROOT / name
+    speakers = [p for p in sorted(ROOT.glob("*.md"))
+                if p.name not in QUOTES_THE_BAN]
+    speakers += [ROOT / rel for rel in ALSO_SPEAKS]
+    scanned = 0
+    for doc in speakers:
         if not doc.exists():
             continue
+        scanned += 1
         hit = BLANKET.search(doc.read_text(encoding="utf-8",
                                            errors="ignore"))
         if hit:
-            faults.append(f"{name} still makes the blanket claim "
-                          f"({hit.group(0)!r}) - absence of evidence is "
-                          "stated per surface, never as 'nothing has "
-                          "ever been tested'")
+            rel = doc.relative_to(ROOT).as_posix()
+            faults.append(f"{rel} still makes the blanket claim "
+                          f"({' '.join(hit.group(0).split())!r}) - absence "
+                          "of evidence is stated per surface, never as "
+                          "'nothing has ever been tested'")
+    print(f"  documents that speak for the project: {scanned}")
+    if scanned < 3:
+        faults.append("this border is reading fewer than three documents; "
+                      "it is meant to reach every root document and both "
+                      "mod.info files, and it once read only two")
+
+    # The README says how many receipts the ledger holds. That number is
+    # the thing that goes stale, so the gate owns it.
+    readme = ROOT / "README.md"
+    if readme.exists():
+        said = README_COUNT.search(readme.read_text(encoding="utf-8",
+                                                    errors="ignore"))
+        if not said:
+            faults.append("README.md does not say how many receipts the "
+                          "ledger holds - a number can be checked and "
+                          "'nothing has been tested' could not, which is "
+                          "why that one stood for thirty-five batches")
+        elif int(said.group(1)) != len(ids):
+            faults.append(f"README.md says the ledger holds "
+                          f"{said.group(1)} receipts and it holds "
+                          f"{len(ids)}")
 
     print(f"  receipts on the ledger: {len(ids)}")
     print()

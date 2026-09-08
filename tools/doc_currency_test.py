@@ -36,7 +36,13 @@ import pathlib
 import re
 import sys
 
-ROOT = pathlib.Path(__file__).resolve().parent.parent
+# [C64] An optional argv[1] points the checker at another tree root,
+# which is how its control runs. It had none: ROOT was the tree this
+# file lives in and nothing else, so the border could not be pointed at
+# a broken tree and its control was never run. That is how the README's
+# coordinate reached two tiers stale.
+ROOT = pathlib.Path(sys.argv[1]).resolve() if len(sys.argv) > 1 \
+    else pathlib.Path(__file__).resolve().parent.parent
 VERSION_FILE = ROOT / "VERSION"
 MEMORY = ROOT / "MEMORY.md"
 
@@ -102,6 +108,29 @@ def main():
                 "a tip in twelve headers is twelve things to maintain and "
                 "was a hundred and eleven batches stale when this was "
                 "written")
+
+    # [C64] The README has no Version cell - it is the public entry
+    # point, not a doc-pack file - so nothing held its coordinate and
+    # it read `1.10.6.0-pre-alpha` against a tree at `3.10.2.1`, two
+    # tiers stale. Its Status section names the coordinate in prose;
+    # that is where this reads it.
+    readme = ROOT / "README.md"
+    if readme.exists():
+        src = readme.read_text(encoding="utf-8", errors="ignore")
+        at = src.find("## Status")
+        if at < 0:
+            faults.append("README.md has no Status section, so nothing "
+                          "states which build it describes")
+        else:
+            stated = re.search(r"`([^`]+)`", src[at:])
+            if not stated:
+                faults.append("README.md's Status section names no "
+                              "coordinate")
+            elif stated.group(1) != declared:
+                faults.append(
+                    f"README.md states `{stated.group(1)}` and VERSION "
+                    f"says `{declared}` - it is the first thing anyone "
+                    "reads about this project")
 
     print(f"  root documents with a Version cell: {headed}")
     if headed == 0:

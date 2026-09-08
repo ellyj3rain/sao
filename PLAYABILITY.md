@@ -1,6 +1,6 @@
 | Document | Playability - what a session shows |
 |---|---|
-| Version | `3.10.2.1-pre-alpha` |
+| Version | `3.10.2.2-pre-alpha` |
 | Author | ellyj3rain |
 | Repository | `PLAYABILITY.md` |
 | Status | CANONICAL - what the player can meet; reviewed against the tree, not inherited. |
@@ -8,8 +8,9 @@
 # Playability
 
 Written for the operator sitting down to play, surface by surface. Every
-claim below is deployed code as of the last guarded deploy; none of it is
-live-witnessed until your console says so. Console prefixes to watch:
+claim below is deployed code as of the last guarded deploy. What play
+has actually settled is in `RECEIPTS.md`; a surface not named there is
+one you would be the first to watch. Console prefixes to watch:
 `[SAO][POP]`, `[SAO][CTL]`, `[SAO][XCHG]`, `[SAO][NEED]`, `[SAO][census]`.
 The console opens with the boot digest ("day 38: 54 living, 6 dead, 3
 companies, 1 at war / target 216 (sized from the map)" - the target names

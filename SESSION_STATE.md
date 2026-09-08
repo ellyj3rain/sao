@@ -1,13 +1,36 @@
 | Document | Survivor Awareness Overhaul Session State |
 |---|---|
-| Version | `3.10.2.1-pre-alpha` |
+| Version | `3.10.2.2-pre-alpha` |
 | Author | ellyj3rain |
 | Repository | `SESSION_STATE.md` |
 | Status | CANONICAL - where the work actually stands. |
 
 # Session state
 
-**As of** 2026-09-08, `[C63]` close - a day-zero start owes no
+**As of** 2026-09-08, `[C64]` close - the blanket claim is gone
+from every document that carried it. DR-025 banned the
+perpetual-untested claim on 2026-08-29 and Border 97 has held it out
+of this file and `PLAYABILITY.md` ever since; the operator found it
+alive thirty-five batches later in `README.md`. It was in five
+places - `README.md`, both `mod.info` descriptions, `PLAYABILITY.md`
+and `PUBLISHING.md` - and three of those are files the border never
+opened, because it read exactly two documents named as literals in a
+loop. The claim is false and has been since `[C19]`: `RECEIPTS.md`
+holds six receipts, several of them defects found by playing, and the
+`mod.info` description told anyone reading the Workshop page that none
+of it had happened. Border 97 reads every root document and both
+`mod.info` files now, twenty-six of them, with the two that quote the
+claim while explaining the ban exempted by name; it gained the four
+spellings that got through, and it refuses to run against fewer than
+three documents because reading two was its actual failure. It also
+holds a number: the README states how many receipts the ledger holds
+and the border checks it, which is the durable half, because a
+negative nobody can check does not decay - it stops being true. Border
+43 reads the README's own coordinate, which stood two tiers behind
+the tree because the README carries no header cell for that border to
+catch it by, and Border 43 gained the `argv[1]`
+control mechanism it had never had. `[C63]` before it - a day-zero
+start owes no
 years. DR-036 has two halves and they were deciding the same fact
 separately: `[C43]` moves the record's own first day onto a 1993
 save's start when the day-zero switch is on, so the outbreak arrives
@@ -664,7 +687,7 @@ unloaded survivors are governed by the same rules ([B39], [B42]).
 
 ## Deploy state
 
-`3.10.2.1-pre-alpha` at tip - the version machine's output ([C2],
+`3.10.2.2-pre-alpha` at tip - the version machine's output ([C2],
 DR-013; the twelfth minor rolled the tier by the odometer's own
 law). The game install carries the `[C62]` tip. `[C45]` through
 `[C51]` reached it on 2026-09-07 and `[C52]` through `[C62]` on 2026-09-08, each
@@ -679,8 +702,9 @@ gate and its pull request merged, and was checked rather than assumed:
 both `mod.info` files read the coordinate the machine derived,
 `SAO_History.lua` carries the county's clock, `SAO_Standing.lua` reads
 it at all thirty-four of its sites, and `SAO.jar` is byte-identical to
-the committed build. `[C63]` is what is owed now, and it rebuilds the
-jar, so that deploy carries a new `SAO.jar` as well as the Lua.
+the committed build. `[C63]` and `[C64]` are what is owed now. `[C63]` rebuilds the jar,
+and `[C64]` changes the `mod.info` description a player reads, so that
+deploy carries both.
 The play receipts the C era owes are the next
 thing the tree cannot produce for itself - the operator chose to
 keep building before testing, so `[C29]` (a survivor scaled from
