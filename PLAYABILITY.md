@@ -1,6 +1,6 @@
 | Document | Playability - what a session shows |
 |---|---|
-| Version | `3.9.3.3-pre-alpha` |
+| Version | `3.9.3.4-pre-alpha` |
 | Author | ellyj3rain |
 | Repository | `PLAYABILITY.md` |
 | Status | CANONICAL - what the player can meet; reviewed against the tree, not inherited. |

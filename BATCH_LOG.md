@@ -1,6 +1,6 @@
 | Document | Survivor Awareness Overhaul Batch Log |
 |---|---|
-| Version | `3.9.3.3-pre-alpha` |
+| Version | `3.9.3.4-pre-alpha` |
 | Author | ellyj3rain |
 | Repository | `BATCH_LOG.md` |
 | Status | REGULATORY - chronological batch index. |
@@ -163,3 +163,4 @@ attribution for every merged entry, stated here rather than in a branch name.
 | [C56](Batches/C56-2026-09-08-borders-skip-when-the-game-is-absent.md) | 2026-09-08 | Borders skip when the game is absent | [`T-030`](Batches/THREADS.md#t-030) |
 | [C57](Batches/C57-2026-09-08-a-skip-is-not-a-vacuous-pass.md) | 2026-09-08 | A skip is not a vacuous pass | [`T-030`](Batches/THREADS.md#t-030) |
 | [C58](Batches/C58-2026-09-08-the-codeql-action-halves-travel-together.md) | 2026-09-08 | The codeql-action halves travel together | [`T-030`](Batches/THREADS.md#t-030) |
+| [C59](Batches/C59-2026-09-08-main-is-protected-and-batches-arrive-by-pull-request.md) | 2026-09-08 | Main is protected and batches arrive by pull request | [`T-030`](Batches/THREADS.md#t-030) |

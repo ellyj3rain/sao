@@ -1,13 +1,29 @@
 | Document | Survivor Awareness Overhaul Session State |
 |---|---|
-| Version | `3.9.3.3-pre-alpha` |
+| Version | `3.9.3.4-pre-alpha` |
 | Author | ellyj3rain |
 | Repository | `SESSION_STATE.md` |
 | Status | CANONICAL - where the work actually stands. |
 
 # Session state
 
-**As of** 2026-09-08, `[C58]` close - the codeql-action halves
+**As of** 2026-09-08, `[C59]` close - main is protected and batches
+arrive by pull request. `[C56]` through `[C58]` were pushed straight
+to `origin/main`: thirty-one commits, no branch, no pull request, no
+merge. CAO is the standard for how this repository publishes and its
+`main` carries squash-merged pull requests; this one was taking
+direct pushes. Nothing stopped them because nothing was set to -
+CAO's `main` is protected and SAO's answered 404, so on CAO those
+pushes would have been rejected at the server. `main` is protected
+now on the same shape with this repository's own checks: pull request
+required, `ci-verify` and `codeql-python` required and strict,
+admins included, linear history, no force pushes, no deletions.
+NEO.md's publishing convention said to push to `main` - the mistake
+written down as the rule two batches after it was made - and now says
+branch, pull request, merge, and to merge it rather than leave it
+open. The thirty-one commits stay: force-pushing the public record to
+make it look like the process was followed is worse than the record
+showing that it was not. `[C58]` before it - the codeql-action halves
 travel together. Two dependabot pull requests had stood open and
 failing since 2026-08-31 with the same error: a configuration loaded
 for 4.37.7 while running 4.37.9. `init` and `analyze` are two
@@ -561,7 +577,7 @@ unloaded survivors are governed by the same rules ([B39], [B42]).
 
 ## Deploy state
 
-`3.9.3.3-pre-alpha` at tip - the version machine's output ([C2],
+`3.9.3.4-pre-alpha` at tip - the version machine's output ([C2],
 DR-013; the twelfth minor rolled the tier by the odometer's own
 law). The game install carries the `[C55]` tip: `[C45]` through
 `[C51]` reached it on 2026-09-07 and `[C52]` through `[C55]` on 2026-09-08, each
