@@ -1,13 +1,37 @@
 | Document | Survivor Awareness Overhaul Session State |
 |---|---|
-| Version | `3.10.2.0-pre-alpha` |
+| Version | `3.10.2.1-pre-alpha` |
 | Author | ellyj3rain |
 | Repository | `SESSION_STATE.md` |
 | Status | CANONICAL - where the work actually stands. |
 
 # Session state
 
-**As of** 2026-09-08, `[C62]` close - one clock for the county, and
+**As of** 2026-09-08, `[C63]` close - a day-zero start owes no
+years. DR-036 has two halves and they were deciding the same fact
+separately: `[C43]` moves the record's own first day onto a 1993
+save's start when the day-zero switch is on, so the outbreak arrives
+eight days in, while `[C45]` counted the calendar days from the
+record's day 0 to that same start and lived them before anybody was
+spawned. `daysBehindAtStart` knew nothing about the switch. Measured
+off the game against the built class, a July 20 1993 start ran eleven
+days of collapse, an October 1 start eighty-four and a December 15
+start a hundred and fifty-nine, each handed to a player whose record
+said the outbreak was still eight days away - which is the artificial
+structure DR-036 exists to avoid, produced by DR-036's own two halves.
+`daysBehindAtStart` takes the switch now and asks `mayShift`, the same
+refusal `shiftTo` makes, so a save the record may be moved onto owes
+nothing and a 1996 start still owes its thousand. `countyMonth0` is
+handed that number rather than deriving it again, which would have
+read a shifted July start's months eleven days early for the whole
+save, and `SAO_History.daysOwed` is the one reader on the Lua side,
+off the same sandbox switch `SAO_Record.placeTimeline` reads. The
+switch was taken over a flag set by `shiftTo` because `shiftTo` runs
+from a module that legitimately never runs when the record option is
+off. Border 132 holds it, controlled against the `[C62]` tree where
+the same December start still owes its 3816 hours. The first draft of
+the fix was killed by the same measurement that found the defect.
+`[C62]` before it - one clock for the county, and
 the years pass moves it. `[C45]` lives the days a later save owes by
 calling the county's own systems one simulated day at a time, and it
 never moved the clock those systems read. Sixty-eight places in the
@@ -640,24 +664,23 @@ unloaded survivors are governed by the same rules ([B39], [B42]).
 
 ## Deploy state
 
-`3.10.2.0-pre-alpha` at tip - the version machine's output ([C2],
+`3.10.2.1-pre-alpha` at tip - the version machine's output ([C2],
 DR-013; the twelfth minor rolled the tier by the odometer's own
-law). The game install carries the `[C61]` tip. `[C45]` through
-`[C51]` reached it on 2026-09-07 and `[C52]` through `[C61]` on 2026-09-08, each
+law). The game install carries the `[C62]` tip. `[C45]` through
+`[C51]` reached it on 2026-09-07 and `[C52]` through `[C62]` on 2026-09-08, each
 after its own commit passed the gate, the game having been closed
 since the `[C44]` deploy. Verified rather than assumed at each
 deploy - the deployed `mod.info` reads the version the machine
 derived and the deployed `SAO.jar` is byte-identical to the
 committed build. `[C56]` touches only the instruments and the
 documents, so there is nothing behavioural in it to deploy.
-That was checked rather than assumed at this close: its two
-`mod.info` files read the coordinate the machine derived for `[C61]`
-and not the one it derives now, its
-`SAO_History.lua` carries `[C61]`'s clock and none of `[C62]`'s, its
-`SAO_Age.lua` carries `[C60]`'s looting, and its `SAO.jar` is
-byte-identical to the one committed on `origin/main`. `[C62]` is
-what is owed, and it rebuilds the jar, so that deploy carries a new
-`SAO.jar` as well as the Lua.
+`[C62]` reached it on the same day, after its own commit passed the
+gate and its pull request merged, and was checked rather than assumed:
+both `mod.info` files read the coordinate the machine derived,
+`SAO_History.lua` carries the county's clock, `SAO_Standing.lua` reads
+it at all thirty-four of its sites, and `SAO.jar` is byte-identical to
+the committed build. `[C63]` is what is owed now, and it rebuilds the
+jar, so that deploy carries a new `SAO.jar` as well as the Lua.
 The play receipts the C era owes are the next
 thing the tree cannot produce for itself - the operator chose to
 keep building before testing, so `[C29]` (a survivor scaled from
@@ -676,7 +699,7 @@ deploy; `save_compat_test` guards this and runs in the gate.
 
 ## Instruments
 
-**131 numbered borders**, run by **146 gated mirrors** in `tools/`, all invoked
+**132 numbered borders**, run by **147 gated mirrors** in `tools/`, all invoked
 by `tools/check.sh`, which the pre-commit hook runs and CI runs on every push.
 The figures in this paragraph are derived by Border 76 from the tree, not
 maintained by hand. Border 54 keeps the rest honest: it runs every gated

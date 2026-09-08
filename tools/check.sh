@@ -1574,6 +1574,16 @@ if ! "$PY" tools/county_clock_test.py > /dev/null; then
     fail=1
 fi
 
+# [C63] Border 132 - a save the record is moved onto owes no years:
+# the day-zero switch decides the timeline and the days owed together,
+# so a county cannot live months of collapse before an outbreak its
+# own record says has not happened.
+if ! "$PY" tools/day_zero_owes_test.py > /dev/null; then
+    "$PY" tools/day_zero_owes_test.py 2>&1 | grep -E "FAULT|SKIPPED" || true
+    note "BORDER FINDING - a day-zero start owes years it should not"
+    fail=1
+fi
+
 # Border 103 - the operator's speech is not in the repository: no
 # profanity in the tracked tree and no operator-quote attributions;
 # rulings are paraphrased content, speech stays with the speaker.

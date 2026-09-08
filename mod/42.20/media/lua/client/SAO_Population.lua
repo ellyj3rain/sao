@@ -2411,8 +2411,12 @@ end
 -- been asked.
 local function yearsOwed(s)
     if s.yearsAsked then return tonumber(s.yearsOwed) or 0 end
+    -- [C63] Through SAO_History, which is the one place that reads
+    -- the day-zero switch. Asked the bridge directly, this remembered
+    -- a number the record's own timeline disagreed with, and it
+    -- remembers it for the life of the save.
     local days = -1
-    pcall(function() days = SAOJavaBridge:daysBehindAtStart() end)
+    pcall(function() days = SAO.History.daysOwed() end)
     if type(days) ~= "number" or days < 0 then
         -- The clock was not there yet; ask again next pass rather
         -- than recording a nothing that would stand for the save.

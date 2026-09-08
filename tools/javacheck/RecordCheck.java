@@ -96,18 +96,50 @@ public final class RecordCheck {
         // save's start put back by the days behind it - a 1996 save
         // is at the record's own day zero on county hour 0, and back
         // at its own start once it has lived them all.
-        expect("the shipped start's own month", SAORecord.countyMonth0(1993, 6, 8, 0.0), 6);
-        expect("a month into the shipped start", SAORecord.countyMonth0(1993, 6, 8, 31 * 24.0), 7);
+        expect("the shipped start's own month", SAORecord.countyMonth0(1993, 6, 8, 0.0, 0), 6);
+        expect("a month into the shipped start", SAORecord.countyMonth0(1993, 6, 8, 31 * 24.0, 0), 7);
         expect("a 1996 save's first county hour is the record's July",
-            SAORecord.countyMonth0(1996, 6, 8, 0.0), 6);
+            SAORecord.countyMonth0(1996, 6, 8, 0.0, 1096), 6);
         expect("and a hundred and eighty days in is January",
-            SAORecord.countyMonth0(1996, 6, 8, 180 * 24.0), 0);
+            SAORecord.countyMonth0(1996, 6, 8, 180 * 24.0, 1096), 0);
         expect("and the day it has lived them all is its own start month",
-            SAORecord.countyMonth0(1996, 6, 8, 1096 * 24.0), 6);
+            SAORecord.countyMonth0(1996, 6, 8, 1096 * 24.0, 1096), 6);
         expect("a January 1993 start owes nothing and reads its own month",
-            SAORecord.countyMonth0(1993, 0, 0, 0.0), 0);
+            SAORecord.countyMonth0(1993, 0, 0, 0.0, 0), 0);
         expect("and two hundred days into it is July",
-            SAORecord.countyMonth0(1993, 0, 0, 200 * 24.0), 6);
+            SAORecord.countyMonth0(1993, 0, 0, 200 * 24.0, 0), 6);
+        // [C63] A shifted July 20 start owes nothing, so its months are
+        // its own. Anchored on eleven days behind, they would read
+        // eleven days early for the whole save.
+        expect("a shifted July 20 start reads its own month",
+            SAORecord.countyMonth0(1993, 6, 19, 0.0, 0), 6);
+        expect("and a fortnight into it is August",
+            SAORecord.countyMonth0(1993, 6, 19, 14 * 24.0, 0), 7);
+        expect("the same start anchored eleven days behind is still July",
+            SAORecord.countyMonth0(1993, 6, 19, 14 * 24.0, 11), 6);
+
+        // [C63] The days a save owes, and the day-zero switch that is
+        // half the answer. `daysBehindAtStart` needs the engine's own
+        // clock for the save start, so the arithmetic under it is what
+        // is checked here: `recordDayOf` is what the switch-off path
+        // returns, and `mayShift` is the refusal the switch-on path
+        // asks. Border 132 drives the whole function through the
+        // bridge.
+        expect("July 20 1993 is eleven days past the record's day 0",
+            SAORecord.recordDayOf(1993, 6, 19), 11);
+        expect("October 1 1993 is eighty-four",
+            SAORecord.recordDayOf(1993, 9, 0), 84);
+        expect("December 15 1993 is a hundred and fifty-nine",
+            SAORecord.recordDayOf(1993, 11, 14), 159);
+        expect("and every one of those may be shifted onto",
+            SAORecord.mayShift(1993, 6, 19) && SAORecord.mayShift(1993, 9, 0)
+                && SAORecord.mayShift(1993, 11, 14), true);
+        expect("so a shifted start's own first day is the lead-in before day 0",
+            SAORecord.recordDayOnSaveDay(1993, 11, 14, 0), -SAORecord.leadIn());
+        expect("while 1996 may not be shifted onto at all",
+            SAORecord.mayShift(1996, 6, 8), false);
+        expect("and owes its thousand whatever the switch says",
+            SAORecord.recordDayOf(1996, 6, 8), 1096);
 
         // The engine's own registry, if it loads off the game.
         try {

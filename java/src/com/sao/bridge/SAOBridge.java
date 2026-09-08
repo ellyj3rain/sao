@@ -2213,9 +2213,9 @@ public final class SAOBridge {
     }
 
     /** [C45] The days of history a save begins with behind it. */
-    public int daysBehindAtStart() {
+    public int daysBehindAtStart(boolean dayZeroAsked) {
         try {
-            return com.sao.engine.SAORecord.daysBehindAtStart();
+            return com.sao.engine.SAORecord.daysBehindAtStart(dayZeroAsked);
         } catch (Throwable throwable) {
             return -1;
         }
@@ -2272,13 +2272,15 @@ public final class SAOBridge {
 
     /** [C62] The calendar month a county hour falls in, 0 to 11; -1
      *  off the clock. */
-    public int countyMonth(double hours) {
+    public int countyMonth(double hours, boolean dayZeroAsked) {
         try {
             int[] start = com.sao.engine.SAORecord.saveStart();
             if (start == null) {
                 return -1;
             }
-            return com.sao.engine.SAORecord.countyMonth0(start[0], start[1], start[2], hours);
+            int behind = com.sao.engine.SAORecord.daysBehindAtStart(dayZeroAsked);
+            return com.sao.engine.SAORecord.countyMonth0(start[0], start[1], start[2],
+                hours, behind);
         } catch (Throwable throwable) {
             return -1;
         }

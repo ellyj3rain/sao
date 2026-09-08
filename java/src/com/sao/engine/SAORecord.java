@@ -167,14 +167,41 @@ public final class SAORecord {
 
     /** [C45] How many days of history a save begins with behind it:
      *  the record's day 0 to the save's own start. Zero for a 1993
-     *  start, about a thousand for a 1996 one. Never negative - a
-     *  world that begins before the fall has no years to catch up on,
-     *  it has them ahead of it. -1 when the clock cannot be read, so
-     *  the Lua side can tell that from a genuine nothing. */
-    public static int daysBehindAtStart() {
+     *  start on or before July 9, about a thousand for a 1996 one.
+     *  Never negative - a world that begins before the fall has no
+     *  years to catch up on, it has them ahead of it. -1 when the
+     *  clock cannot be read, so the Lua side can tell that from a
+     *  genuine nothing.
+     *
+     *  [C63] `dayZeroAsked` is the sandbox switch that says this
+     *  county starts before its own outbreak, and it has to be part
+     *  of this answer because the two halves of DR-036 were deciding
+     *  it separately.
+     *
+     *  A 1993 start LATER in the year than the record's day 0 is
+     *  behind it by the calendar - July 20 by eleven days, December
+     *  15 by a hundred and fifty-nine - and that is the right answer
+     *  for a player running the shipped timeline. It is the wrong
+     *  answer for a player who asked for the day-zero start, because
+     *  `shiftTo` then moves the record's own first day onto their
+     *  start and the outbreak lands `leadIn()` days into their save.
+     *  Those two ran at once: the county lived a hundred and
+     *  fifty-nine days of collapse and was then handed to a player
+     *  whose record said the outbreak had not happened yet.
+     *
+     *  So a save the record MAY be moved onto, whose player asked for
+     *  that, owes nothing. `mayShift` is the same refusal `shiftTo`
+     *  makes, asked here rather than mirrored, so the timeline and
+     *  the days owed cannot disagree about which saves move. A 1996
+     *  start still owes its thousand with the switch on, because
+     *  `mayShift` refuses any year but the record's own. */
+    public static int daysBehindAtStart(boolean dayZeroAsked) {
         int[] start = saveStart();
         if (start == null) {
             return -1;
+        }
+        if (dayZeroAsked && mayShift(start[0], start[1], start[2])) {
+            return 0;
         }
         return Math.max(0, recordDayOf(start[0], start[1], start[2]));
     }
@@ -257,10 +284,17 @@ public final class SAORecord {
      *  save's own start, so the anchor is the start put back by the
      *  days behind it. A save that owes nothing anchors on its own
      *  start and this answers what GameTime answers, every day of
-     *  play. */
-    public static int countyMonth0(int year, int month0, int day0, double hours) {
-        int behind = Math.max(0, recordDayOf(year, month0, day0));
-        LocalDate anchor = dateOf(year, month0, day0).minusDays(behind);
+     *  play.
+     *
+     *  [C63] `behind` is passed in rather than recomputed. It used to
+     *  call `recordDayOf` itself, which does not know about the
+     *  day-zero switch, so a shifted July 20 start would have read
+     *  its months eleven days early for the whole save while its
+     *  clock read them correctly. One number, computed once, in
+     *  `daysBehindAtStart`. */
+    public static int countyMonth0(int year, int month0, int day0, double hours,
+                                   int behind) {
+        LocalDate anchor = dateOf(year, month0, day0).minusDays(Math.max(0, behind));
         LocalDate date = anchor.plusDays((long) Math.floor(hours / 24.0));
         return date.getMonthValue() - 1;
     }

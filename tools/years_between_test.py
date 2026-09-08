@@ -168,12 +168,16 @@ def main():
         # 5. Nothing owed, versus nothing known.
         "a 1993 start owes nothing":
             "Math.max(0, recordDayOf(" in read(RECORD),
+        # [C63] took the day-zero switch as a parameter, so these name
+        # the function rather than one spelling of its signature.
         "an unreadable clock is not nothing owed":
             "return -1;" in body_of(read(RECORD),
-                                    "public static int daysBehindAtStart()", "\n    }\n")
+                                    "public static int daysBehindAtStart(",
+                                    "\n    }\n")
             and "days < 0 then" in pop,
         "the bridge asks the record and decides nothing":
-            "public int daysBehindAtStart()" in read(BRIDGE),
+            "public int daysBehindAtStart(" in read(BRIDGE)
+            and "SAORecord.daysBehindAtStart(" in read(BRIDGE),
         "the gate runs this border":
             "tools/years_between_test.py" in read(CHECK),
     }
