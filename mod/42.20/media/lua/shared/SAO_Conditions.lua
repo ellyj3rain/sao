@@ -90,18 +90,53 @@ Cn.PREVALENCE = {
     -- slightly lower": Kessler RC et al., Psychol Med 1997;27(5):
     -- 1079-89 - 0.4% (abstract).
     bipolar    = { per10k = 40, minAge = 15 },
-    -- Psychosis: no primary figure of the era was read (the ECA
-    -- abstracts give totals for all disorders only), so nobody is
-    -- drawn until one is. The mechanism waits on the figure.
-    psychosis  = { per10k = 0, minAge = 18 },
+    -- [C52] Nonaffective psychosis, broadly defined (all nonaffective
+    -- psychoses), lifetime, BY CLINICIAN DIAGNOSIS: Kendler KS,
+    -- Gallagher TJ, Abelson JM, Kessler RC, "Lifetime prevalence,
+    -- demographic risk factors, and diagnostic validity of
+    -- nonaffective psychosis as assessed in a US community sample.
+    -- The National Comorbidity Survey", Arch Gen Psychiatry
+    -- 1996;53(11):1022-31 - 0.7% (abstract).
+    --
+    -- Three choices in that sentence, each the conservative one. The
+    -- BROAD definition rather than the narrow (schizophrenia or
+    -- schizophreniform, 0.2%), because what this mod's psychosis does
+    -- is hallucinate a threat, which is not confined to
+    -- schizophrenia. The CLINICIAN diagnosis rather than the computer
+    -- algorithm's 2.2%, because the paper's own point is that the two
+    -- differ substantially and the clinicians are the check. And
+    -- lifetime rather than twelve-month, for the reason the bipolar
+    -- row gives: this is a standing fact about a person, not a spell.
+    --
+    -- The NCS sampled ages 15-54 and no upper bound is applied here.
+    -- A lifetime figure measured under 55 is a floor for anyone
+    -- older, never a ceiling - they have had more years to reach it -
+    -- so drawing it at every adult age understates rather than
+    -- overstates.
+    psychosis  = { per10k = 70, minAge = 15 },
     -- A reading disability stays with a person: learning disability,
     -- ever, children 3-17, parent-reported, NHIS 1988 - 6.5% (Zill N,
     -- Schoenborn CA, NCHS Advance Data 190, 1990, text); drawn at all
     -- ages for that reason.
     dyslexia   = { per10k = 650 },
-    -- Insomnia: no primary figure was read, so nobody is drawn until
-    -- one is.
-    insomnia   = { per10k = 0, minAge = 15 },
+    -- [C52] Insomnia, complaint at interview, adults: Ford DE,
+    -- Kamerow DB, "Epidemiologic study of sleep disturbances and
+    -- psychiatric disorders. An opportunity for prevention?", JAMA
+    -- 1989;262(11):1479-84 - 10.2% of a community sample of 7954 in
+    -- the NIMH Epidemiologic Catchment Area study noted insomnia at
+    -- the first interview (abstract).
+    --
+    -- WHAT THIS FIGURE IS NOT, said plainly because it is the weakest
+    -- row in this table. It is a complaint recorded once, not a
+    -- diagnosed chronic disorder, and this mod's insomnia is a
+    -- standing trait that costs fatigue every ten minutes. The
+    -- paper's own persistent group - insomnia at both interviews, a
+    -- year apart - is the right analogue and its abstract gives no
+    -- percentage for it, so it could not be read. Until it is, this
+    -- draws about one adult in ten and that is more than the county
+    -- should carry. Replacing it needs the persistence figure off the
+    -- paper's text, not another estimate.
+    insomnia   = { per10k = 1020, minAge = 18 },
     -- Asthma, reported, per thousand by age, NHIS 1993 (NCHS, Current
     -- Estimates from the National Health Interview Survey, 1993,
     -- Series 10 No. 190, Table 57, text): under 18 71.6, 18-44 42.5,

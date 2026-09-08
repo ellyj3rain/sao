@@ -99,19 +99,22 @@ Hb.PREVALENCE = {
                            { from = 18, to = 25, per10k = 1110 },
                            { from = 26, to = 34, per10k = 670 },
                            { from = 35, to = 200, per10k = 190 } } },
-    -- Cocaine, any form, past month: 12-17 0.4, 18-25 1.5, 26-34 1.0,
-    -- 35 and over 0.4 percent.
+    -- Cocaine, any form, past month, the same report and the same
+    -- 1993 columns: 12-17 0.4, 18-25 1.5, 26-34 1.0, 35 and over 0.4
+    -- percent.
     cocaine  = { bands = { { from = 12, to = 17, per10k = 40 },
                            { from = 18, to = 25, per10k = 150 },
                            { from = 26, to = 34, per10k = 100 },
                            { from = 35, to = 200, per10k = 40 } } },
-    -- Heroin, past YEAR (no past-month figure; the report calls its
-    -- heroin estimates very conservative): 0.1 percent, ages 12+.
+    -- Heroin, past YEAR, the same report (no past-month figure; it
+    -- calls its own heroin estimates very conservative): 0.1 percent,
+    -- ages 12+.
     opioids  = { per10k = 10, minAge = 12 },
-    -- Stimulants, nonmedical, past YEAR: 1.1 percent, ages 12+.
+    -- Stimulants, nonmedical, past YEAR, the same report: 1.1
+    -- percent, ages 12+.
     stimulants = { per10k = 110, minAge = 12 },
     -- Sedatives 0.8 and tranquilizers about 1.2 percent, nonmedical,
-    -- past YEAR, ages 12+, summed as the downers.
+    -- past YEAR, ages 12+, the same report, summed as the downers.
     sedatives  = { per10k = 200, minAge = 12 },
 }
 

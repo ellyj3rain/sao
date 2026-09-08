@@ -1,13 +1,34 @@
 | Document | Survivor Awareness Overhaul Session State |
 |---|---|
-| Version | `3.9.0.0-pre-alpha` |
+| Version | `3.9.1.0-pre-alpha` |
 | Author | ellyj3rain |
 | Repository | `SESSION_STATE.md` |
 | Status | CANONICAL - where the work actually stands. |
 
 # Session state
 
-**As of** 2026-09-07, `[C51]` close - the habits are the player's
+**As of** 2026-09-08, `[C52]` close - psychosis and insomnia get
+their figures. Two rows in the conditions table had stood at zero
+since [C32], each with the reason in the file: no primary figure of
+the era had been read, so nobody was drawn and neither mechanism
+could fire for anybody in the county. Psychosis draws at 70 per ten
+thousand now, off Kendler et al., Arch Gen Psychiatry
+1996;53(11):1022-31 - broad nonaffective psychosis, clinician
+diagnosis rather than the algorithm's, lifetime, 0.7 percent, each
+of those three the conservative choice and each stated in the row.
+Insomnia draws at 1020, off Ford and Kamerow, JAMA
+1989;262(11):1479-84, where 10.2 percent of 7954 ECA respondents
+noted insomnia at the first interview - and the row says plainly
+that this is a complaint recorded once rather than a chronic
+diagnosis, that it draws about one adult in ten and that this is
+more than the county should carry, and names the persistence figure
+that would replace it. Border 125 turns the sourcing rule into a
+mechanism rather than a habit: every row names a year or points at
+the table above it, every constant must be reachable from the
+comment's own figures by a derivation the row names, and a zero must
+say out loud that no figure was read. Thirty-two figures across
+seventeen rows; it caught four habit rows citing nothing of their
+own. `[C51]` before it - the habits are the player's
 too (DR-032, the society arc's S6). [C39] registered the county's
 conditions as engine traits so the player could carry what the
 county's people carry, and left the habits behind: nothing offered
@@ -433,15 +454,15 @@ unloaded survivors are governed by the same rules ([B39], [B42]).
 
 ## Deploy state
 
-`3.9.0.0-pre-alpha` at tip - the version machine's output ([C2],
+`3.9.1.0-pre-alpha` at tip - the version machine's output ([C2],
 DR-013; the twelfth minor rolled the tier by the odometer's own
-law). The game install carries the `[C51]` tip: `[C45]` through
-`[C51]` reached it on 2026-09-07, each after its own commit passed
-the gate, the game having been closed since the `[C44]` deploy
-earlier the same day. Verified rather than assumed at each deploy -
-the deployed `mod.info` reads the version the machine derived and
-the deployed `SAO.jar` is byte-identical to the committed build.
-Nothing behavioural is waiting.
+law). The game install carries the `[C52]` tip: `[C45]` through
+`[C51]` reached it on 2026-09-07 and `[C52]` on 2026-09-08, each
+after its own commit passed the gate, the game having been closed
+since the `[C44]` deploy. Verified rather than assumed at each
+deploy - the deployed `mod.info` reads the version the machine
+derived and the deployed `SAO.jar` is byte-identical to the
+committed build. Nothing behavioural is waiting.
 The play receipts the C era owes are the next
 thing the tree cannot produce for itself - the operator chose to
 keep building before testing, so `[C29]` (a survivor scaled from
@@ -460,7 +481,7 @@ deploy; `save_compat_test` guards this and runs in the gate.
 
 ## Instruments
 
-**124 numbered borders**, run by **139 gated mirrors** in `tools/`, all invoked
+**125 numbered borders**, run by **140 gated mirrors** in `tools/`, all invoked
 by `tools/check.sh`, which the pre-commit hook runs and CI runs on every push.
 The figures in this paragraph are derived by Border 76 from the tree, not
 maintained by hand. Border 54 keeps the rest honest: it runs every gated

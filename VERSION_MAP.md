@@ -16,9 +16,9 @@ the machine. Names, dates, and threads below come from
 | Form | `major.minor.kohai.patch-maturity` |
 | Hard caps | minor 12; kohai 16; patch 24 |
 | Replay start | `0.1.0.0-pre-alpha` |
-| Current version | `3.9.0.0-pre-alpha` |
-| Closed chronology | `A1-C51` |
-| Next batch | `C52` |
+| Current version | `3.9.1.0-pre-alpha` |
+| Closed chronology | `A1-C52` |
+| Next batch | `C53` |
 | Executable source | [`tools/version_replay.py`](tools/version_replay.py) |
 
 ## Tier meanings
@@ -167,6 +167,7 @@ the machine. Names, dates, and threads below come from
 | `C49` | 2026-09-07 | minor | `3.8.0.0-pre-alpha` | Survivor orders use the command check | Survivor orders use the command check (DR-033): [C37] routed the player's asks through SAO_Command and left survivor-to-survivor orders alone, so three decided for themselves - the keeper rousing the house checked nothing, an owner telling a trespasser to go was obeyed by anyone not starving, and a housemate objecting to somebody leaving used a hardcoded authority test written at that one site, which is the kind of table DR-033 rules out; it is deleted and all three go through SAO_Command, with no weights or thresholds added - three Standing facts became inputs, each worth what a proven hand is worth: a divided house withholds the leader's office from members leaning the other way, a designation gives standing in its own matter, and a claim gives standing in the matter of leaving it. Same class as C42 - an audit found decisions that did not consult a fact the county already kept, and wired them to it. Border 122 holds it. |
 | `C50` | 2026-09-07 | kohai | `3.8.1.0-pre-alpha` | What a survivor says follows what they have learned | What a survivor says follows what they have learned (DR-036, Day Zero slice 3): every line table in SAO_Voice was flat, so a county that had learned nothing still fled saying a count and warned each other with a name that somebody acquires; the five tables about the dead and about violence are split by register now and the register is the county's own innocence boundary ([B1]/T-002), the taught lists unchanged, an unreadable lesson store keeping the taught register, and the first lesson audible once because after it the store is not empty. A coherent extension of an existing capability - the voice surface gains a dimension, no new state and no new threshold - so kohai rather than minor. Border 123 holds it. |
 | `C51` | 2026-09-07 | minor | `3.9.0.0-pre-alpha` | The habits are the player's too | The habits are the player's too (DR-032, the society arc's S6): [C39] registered the county's conditions as engine traits and left the habits behind, so nothing offered one at creation, nothing stamped one onto a survivor's shell and nothing would have driven one on the player if it had. Five are registered now - drinker, cocaine, opioids, stimulants, sedatives - each anchored to base:smoker and taking its cost of -3, because the habits differ only in schedule and the engine ships exactly one trait of that shape; cannabis is skipped because its source gives it no withdrawal and a costed trait that does nothing would be a lie about the game; smoking is left to vanilla's own SMOKER. The player gets a store for the habit to live in (their own modData, bound as a stand-in record) without which the dry clock never resets and the habit never lapses, the withdrawal drives on their own ten-minute pass, and a drink is read off CharacterStat.INTOXICATION rising rather than hooked to an action. Border 124 holds it; Border 72 caught three per-id tables with no forget and they have one. |
+| `C52` | 2026-09-08 | kohai | `3.9.1.0-pre-alpha` | Psychosis and insomnia get their figures | Psychosis and insomnia get their figures: two rows in the conditions table had stood at zero since [C32] with the reason in the file - no primary figure of the era had been read - so neither mechanism could ever fire for anybody. Psychosis draws at 70 per ten thousand off Kendler et al., Arch Gen Psychiatry 1996;53(11):1022-31 (broad nonaffective psychosis, clinician diagnosis, lifetime, 0.7 percent), and insomnia at 1020 off Ford and Kamerow, JAMA 1989;262(11):1479-84 (10.2 percent of 7954 ECA respondents noting insomnia at the first interview), the row saying plainly that this is a complaint recorded once rather than a chronic diagnosis and naming the persistence figure that would replace it. Border 125 turns the sourcing rule into a mechanism: every row names a year or points at the table above it, and every constant must be reachable from the comment's own figures by a derivation the row names - it caught four habit rows citing nothing of their own. An extension of an existing capability with no new mechanism, so kohai. |
 
 ## The former number
 
@@ -187,11 +188,11 @@ the meantime, and they are not play.
 
 ## Next movement
 
-`C52` is the next batch. Its content determines its tier after it
+`C53` is the next batch. Its content determines its tier after it
 exists:
 
-| If C52 is | Result |
+| If C53 is | Result |
 |---|---|
-| patch or hotfix | `3.9.0.1-pre-alpha` |
-| kohai | `3.9.1.0-pre-alpha` |
+| patch or hotfix | `3.9.1.1-pre-alpha` |
+| kohai | `3.9.2.0-pre-alpha` |
 | minor | `3.10.0.0-pre-alpha` |

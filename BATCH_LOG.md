@@ -1,6 +1,6 @@
 | Document | Survivor Awareness Overhaul Batch Log |
 |---|---|
-| Version | `3.9.0.0-pre-alpha` |
+| Version | `3.9.1.0-pre-alpha` |
 | Author | ellyj3rain |
 | Repository | `BATCH_LOG.md` |
 | Status | REGULATORY - chronological batch index. |
@@ -156,3 +156,4 @@ attribution for every merged entry, stated here rather than in a branch name.
 | [C49](Batches/C49-2026-09-07-survivor-orders-use-the-command-check.md) | 2026-09-07 | Survivor orders use the command check | [`T-004`](Batches/THREADS.md#t-004), [`T-006`](Batches/THREADS.md#t-006) |
 | [C50](Batches/C50-2026-09-07-what-a-survivor-says-follows-what-they-have-learned.md) | 2026-09-07 | What a survivor says follows what they have learned | [`T-002`](Batches/THREADS.md#t-002), [`T-007`](Batches/THREADS.md#t-007) |
 | [C51](Batches/C51-2026-09-07-the-habits-are-the-players-too.md) | 2026-09-07 | The habits are the player's too | [`T-002`](Batches/THREADS.md#t-002), [`T-007`](Batches/THREADS.md#t-007) |
+| [C52](Batches/C52-2026-09-08-psychosis-and-insomnia-get-their-figures.md) | 2026-09-08 | Psychosis and insomnia get their figures | [`T-002`](Batches/THREADS.md#t-002) |

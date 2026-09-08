@@ -1502,6 +1502,17 @@ if ! "$PY" tools/habit_traits_test.py > /dev/null; then
     fail=1
 fi
 
+# [C52] Border 125 - every prevalence figure is traceable to a stated
+# source: each row in both prevalence tables names a year or points at
+# the table above it, states a figure, and its constant is reachable
+# from that figure by a derivation the row itself names; a zero draws
+# nobody, so a zero must say out loud that no figure was read.
+if ! "$PY" tools/prevalence_sourced_test.py > /dev/null; then
+    "$PY" tools/prevalence_sourced_test.py 2>&1 | grep -E "FAULT" || true
+    note "BORDER FINDING - a prevalence figure has drifted from its citation"
+    fail=1
+fi
+
 # Border 103 - the operator's speech is not in the repository: no
 # profanity in the tracked tree and no operator-quote attributions;
 # rulings are paraphrased content, speech stays with the speaker.
