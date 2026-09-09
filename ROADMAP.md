@@ -1,6 +1,6 @@
 | Document | Survivor Awareness Overhaul Roadmap |
 |---|---|
-| Version | `4.2.0.0-pre-alpha` |
+| Version | `4.2.0.1-pre-alpha` |
 | Author | ellyj3rain |
 | Repository | `ROADMAP.md` |
 | Status | CANONICAL - thread map, backlog, live gates. |
@@ -551,11 +551,33 @@ has to do is let the answer be more than one place, and let the
 relationship between a group and each place be the shape of the use
 rather than a label.
 
-The two questions to answer first, in this order. What makes a place
-STOP being the group's - because a set that only grows is not an
-ontology, it is a log. And what a group's SEAT is when it holds
+Two questions looked like they had to be answered first. What makes a
+place STOP being the group's, because a set that only grows is a log
+rather than an ontology. And what a group's SEAT is when it holds
 several, because twenty-nine sites ask where a group is and expect one
 answer.
+
+**Both dissolve if the set is derived rather than stored.** A group's
+places are the buildings its living members have actually been to,
+ranked by `learnBuilding`'s own visits and recency, recomputed when
+asked. Nothing accumulates, so nothing has to expire: a place stops
+being the group's when its people stop going, which is the same fact
+that made it theirs. And the seat is the top of that ranking - which
+is `[C76]`'s scorer already, so the seat function exists and is
+bordered.
+
+So the batch is smaller than it looks: generalise `[C76]`'s scorer from
+picking one to ranking all, keep `groupClaimOf` and `allGroupClaims`
+answering the seat so the twenty-nine sites do not move, and add the
+ranked set for the readers where holding several changes the answer -
+trespass, the feud keep-out, and where a venture brings things back to.
+
+What a place IS to the group then has no tag at all. A seat is where
+they mostly are, a stash is somewhere they go back to and do not sleep,
+a water run is somewhere they go when they are dry. Those are the same
+numbers read three ways, and a group whose numbers do not separate has
+one place and no stashes - which is a correct outcome, not a missing
+feature.
 
 ### 3 - Recruitment, and why a house cannot grow past a pair
 
@@ -568,7 +590,7 @@ should seek a person they do NOT yet trust because that person has
 something they need, is a cognition question (DR-038) rather than a
 number to raise.
 
-### 3b - What the walking costs, measured
+### 3b - What the walking costs, measured - DONE at `[C77]`
 
 `[C75]` made a county's people cross their neighbourhoods, and a county
 sweep went from about a minute to about eight. The cause is read and
@@ -576,14 +598,21 @@ recorded: `nearestOffering` caches against an anchor quantised to
 thirty tiles, so a walker who moves pays a ring sweep per quantum
 crossed instead of one per week.
 
-Three things are unmeasured and should be before any of them is
-optimised. How many ticks a real catching-up county now takes, which is
-what a player would feel. How large `Pl.know_cache` grows over a long
-session - keyed by that anchor, never evicted, and `Pl.reset` has no
-caller anywhere in the tree, though it is session state and no save
-carries it. And how large `Perception`'s `b.known` grows, which is the
-one that matters: an entry per building per person, pruned nowhere,
-and persisted through `[C15]`'s bind.
+Measured at `[C77]`, and neither growth is a problem (F-065). A whole
+county holds a median of 110 known buildings and the survivor who knows
+most knows 109 of the map's 2,831; the place-knowledge cache holds
+about eight hundred keys in a session.
+
+`know_cache` is session state and `IngameState.exit()` reinitialises
+Lua when a world is left, so it cannot reach the next world (F-064).
+`b.known` is persisted but `Perception.forget` drops the whole belief
+store and `Identity.markDead` calls it, so it is bounded by the living
+rather than by everyone who ever lived - `[C75]`'s record said it was
+pruned nowhere and that was a misreading, corrected in F-065.
+
+**What remains is the one thing a sweep cannot measure**: how many
+ticks a real catching-up county takes before anyone can be
+materialised. That is a play receipt.
 
 `b.known` is also what `[C76]` settles a house on, so the growth is the
 feature and the cost at once. Measure before trimming.
