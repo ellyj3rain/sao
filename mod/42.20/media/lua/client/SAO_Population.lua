@@ -786,6 +786,24 @@ local function ensurePopulation(conf)
                             trust)
                         SAO.Standing.adjustTrust(mates[b].id, mates[a].id,
                             trust)
+                        -- [C72] And they have seen each other. People
+                        -- who come through the first night together
+                        -- are standing on the same tile; a belief that
+                        -- the other is somewhere is the plainest fact
+                        -- the county has about them, and without it
+                        -- the pairs that already trust each other most
+                        -- have nowhere to go looking. `sawPerson` is
+                        -- the same write a road meeting makes, at the
+                        -- same provenance, because this is the same
+                        -- kind of thing: they were both there.
+                        SAO.Perception.sawPerson(mates[a].id,
+                            SAO.Identity.beliefKey(mates[b]),
+                            mates[b].x, mates[b].y, tickCounter,
+                            mates[b].id)
+                        SAO.Perception.sawPerson(mates[b].id,
+                            SAO.Identity.beliefKey(mates[a]),
+                            mates[a].x, mates[a].y, tickCounter,
+                            mates[a].id)
                     end)
                 end
             end
@@ -1279,7 +1297,96 @@ local function placeBarred(id, myG, b, place, desperate)
     return false
 end
 
-local function chooseDayPlace(id, rec, reach)
+-- [C72] Somebody worth the day.
+--
+-- Every term here is a fact the county already produces about this
+-- person. Nothing is enumerated and nothing is scheduled.
+--
+--   * WHO IS A CANDIDATE is whoever they believe is somewhere, which
+--     until [C71] was nobody at all. A belief comes from having stood
+--     next to them; no survivor knows where anyone is for any other
+--     reason, so knowledge is the whole of the reach (DR-027 - how
+--     far a person GOES is knowledge and desire, never a radius).
+--   * WHETHER THEY ARE WORTH IT is the trust already between them
+--     against the county's own company line, which is the trust at
+--     which two people would keep house. Somebody you would live
+--     with is somebody you would cross town to see, and reusing that
+--     line means the operator's dial moves both together.
+--   * WHICH ONE is the one they most want to see that they can most
+--     plausibly find: trust over the age of the sighting. An address
+--     a week old is where somebody was, not where they are.
+--   * WHETHER THEY SET OUT AT ALL is `initiative`, which Disposition
+--     glosses as self-starts rather than waits. This is the one
+--     decision in a dormant day that nothing outside prompts, so it
+--     is the trait's plainest use. A hesitant person goes some days
+--     and not others; nobody is barred and nobody is scheduled.
+--
+-- A belief they have already walked to and found nobody at is not
+-- knowledge any more, and is skipped until a fresh sighting revives
+-- it - the same discipline [C25] set for a known place that did not
+-- pan out, which exists so nobody re-orders the same doorstep
+-- forever.
+local function chooseWhoToGoTo(id, rec, myG, b, desperate)
+    if not (b and b.people) then return nil end
+    local sv = SandboxVars and SandboxVars.SurvivorAwareness or nil
+    local companyAt = (sv and tonumber(sv.TrustToCompany)) or 0.5
+    local today = math.floor(hoursNow() / 24.0)
+    local best, bestRank = nil, nil
+    for key, pb in pairs(b.people) do
+        -- Somebody believed to be where this person is standing is not
+        -- somewhere to go. It is also what keeps a genesis belief
+        -- durable: people who came through the first night together
+        -- believe each other to be at the home they were both standing
+        -- in, so on the first day there is nothing to walk to and the
+        -- belief is not spent - and a month later, when the day's
+        -- roaming has carried them apart, that same address is exactly
+        -- where to look. The tolerance is the one `dormantLife` uses
+        -- to decide a goal has been reached; a shorter one would send
+        -- somebody on a walk they have already finished.
+        local near = pb.x and pb.y
+            and math.abs(rec.x - pb.x) < 3 and math.abs(rec.y - pb.y) < 3
+        if not pb.dead and pb.x and pb.y and not near
+            and not (pb.lookedAt and pb.at and pb.lookedAt >= pb.at) then
+            local other = pb.id or SAO.Identity.idByName(key)
+            local orec = other and SAO.Identity.get(other) or nil
+            if orec and not orec.dead and other ~= id
+                and not SAO.Standing.isHostileTo(id, other)
+                and not placeBarred(id, myG, b,
+                    { cx = pb.x, cy = pb.y }, desperate) then
+                local trust = SAO.Standing.trust(id, other) or 0
+                if trust >= companyAt then
+                    local since = 0
+                    if pb.atHours then
+                        since = math.max(0,
+                            today - math.floor(pb.atHours / 24.0))
+                    end
+                    local rank = trust / (1.0 + since)
+                    if not bestRank or rank > bestRank then
+                        best, bestRank = key, rank
+                    end
+                end
+            end
+        end
+    end
+    if not best then return nil end
+    -- Asked once there is somebody to ask it about, so a survivor who
+    -- knows of nobody spends no draw and the county's own sequence
+    -- ([C66]) is not moved by a decision that was never available.
+    local initiative = 0
+    pcall(function()
+        initiative = SAO.Disposition.traits(id).initiative or 0
+    end)
+    if SAO.Rand.unit() >= initiative then return nil end
+    local pb = b.people[best]
+    return { x = pb.x, y = pb.y, person = best, seenAt = pb.at }
+end
+
+-- [C72] Where the day goes. Named for what it answers now: the goal
+-- may be a place or it may be a person, and until this batch a
+-- dormant survivor had no way to decide to go to anybody. Every
+-- meeting in the county was two need-driven walks coinciding within
+-- three tiles.
+local function chooseDayGoal(id, rec, reach)
     if not (SAO.Places and rec.homeX) then return nil end
 
     local myG = SAO.Standing.groupOf(id)
@@ -1320,9 +1427,17 @@ local function chooseDayPlace(id, rec, reach)
                 or SAO.Places.comfortHorizon())
         if okN and known
             and not placeBarred(id, myG, b, known, desperate) then
-            return known
+            return { x = known.cx, y = known.cy, placeId = known.id }
         end
     end
+
+    -- [C72] Need first, and then somebody. Thirst outranks company:
+    -- a person two days dry is not visiting anybody. Past that, going
+    -- to somebody cuts ahead of curiosity for the same reason need
+    -- does ([C25]) - it is a decision about a thing that matters
+    -- rather than about ground they have not seen.
+    local who = chooseWhoToGoTo(id, rec, myG, b, desperate)
+    if who then return who end
 
     local ok, places = pcall(function()
         return SAO.Places.around(rec.homeX, rec.homeY, reach)
@@ -1378,7 +1493,8 @@ local function chooseDayPlace(id, rec, reach)
             end
         end
     end
-    return best
+    if not best then return nil end
+    return { x = best.cx, y = best.cy, placeId = best.id }
 end
 
 local function dormantLife(conf)
@@ -1417,6 +1533,33 @@ local function dormantLife(conf)
                         -- the map cache. Hanging a nested table off a
                         -- saved record would put the whole county in
                         -- every save file.
+                        -- [C72] They went to where they last saw
+                        -- somebody, and got there. Whether it paid off
+                        -- is whether they have seen that person SINCE
+                        -- they set out - the encounter pass writes a
+                        -- fresh sighting the moment two people are
+                        -- within meeting range, so a stamp that has
+                        -- not moved means the address was empty.
+                        --
+                        -- An address that was empty stops being the
+                        -- answer until a fresh sighting revives it,
+                        -- which is [C25]'s rule for a known place that
+                        -- did not pan out: without it somebody
+                        -- re-orders the same doorstep every day
+                        -- forever. Marking it on arrival regardless
+                        -- would spend the belief of a person they had
+                        -- just found.
+                        if rec.dayGoalPerson then
+                            pcall(function()
+                                local b2 = SAO.Perception.beliefs[id]
+                                local pb = b2 and b2.people
+                                    and b2.people[rec.dayGoalPerson]
+                                if pb and (pb.at or 0)
+                                    <= (rec.dayGoalSeenAt or 0) then
+                                    pb.lookedAt = tickCounter
+                                end
+                            end)
+                        end
                         if rec.dayGoalPlaceId then
                             pcall(function()
                                 local arrived = SAO.Places.at(
@@ -1461,10 +1604,15 @@ local function dormantLife(conf)
                                 end
                             end)
                         end
-                        local chosen = chooseDayPlace(id, rec, reach)
+                        local chosen = chooseDayGoal(id, rec, reach)
                         if chosen then
-                            rec.dayGoalX, rec.dayGoalY = chosen.cx, chosen.cy
-                            rec.dayGoalPlaceId = chosen.id
+                            rec.dayGoalX, rec.dayGoalY = chosen.x, chosen.y
+                            rec.dayGoalPlaceId = chosen.placeId
+                            -- [C72] All three are written every
+                            -- time, so yesterday's subject cannot
+                            -- survive into today's walk.
+                            rec.dayGoalPerson = chosen.person
+                            rec.dayGoalSeenAt = chosen.seenAt
                         else
                             -- Wilderness, or a neighbourhood whose
                             -- every place is enemy ground. Nothing to
@@ -1474,6 +1622,8 @@ local function dormantLife(conf)
                             rec.dayGoalY = rec.homeY
                                 + SAO.Rand.int(-reach, reach + 1)
                             rec.dayGoalPlaceId = nil
+                            rec.dayGoalPerson = nil
+                            rec.dayGoalSeenAt = nil
                         end
                     end
                     tx, ty = rec.dayGoalX, rec.dayGoalY

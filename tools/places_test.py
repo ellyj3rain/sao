@@ -101,7 +101,7 @@ DESPERATION = 0.7
 
 def choose(places, believed, feuds=None, dry=0, hungry=0, held=None,
            line=DESPERATION):
-    """Mirror of `chooseDayPlace`'s ordering, without the dice.
+    """Mirror of the shipped chooser's PLACE ordering, without the dice.
 
     The shipped one randomises among places never seen so that two
     survivors sharing a home do not walk in step; the ordering it is
@@ -110,6 +110,14 @@ def choose(places, believed, feuds=None, dry=0, hungry=0, held=None,
     [B37] adds the half that makes the offers load-bearing: need
     outranks novelty by construction, and thirst outranks hunger
     because it arrives first.
+
+    [C72] What this does NOT model, said rather than left to be
+    discovered: the day's goal may also be a PERSON, chosen before the
+    place loop is reached. That branch is held by Border 138, which
+    runs the real module in the engine's VM, because a Python mirror of
+    it would be a second answer to a question about trust, hostility
+    and a temperament draw. Everything below is the ordering that
+    decides where somebody goes when there is nobody to go to.
     """
     best, best_score = None, None
     for p in places:
@@ -394,8 +402,20 @@ def drive():
         encoding="utf-8", errors="ignore")
     plc = PLACES.read_text(encoding="utf-8")
     links = {
-        "the day asks for a place": "chooseDayPlace(id, rec, reach)" in pop,
-        "the goal IS the place": "rec.dayGoalX, rec.dayGoalY = chosen.cx" in pop,
+        # [C72] The shape, not one spelling. These named
+        # `chooseDayPlace(id, rec, reach)` and
+        # `rec.dayGoalX, rec.dayGoalY = chosen.cx` as literals, and both
+        # went red on a correct rename - the seam-names-a-declaration
+        # defect this repository has paid for three times. What must
+        # hold is that the dormant day asks ONE chooser, with the
+        # person and the reach, and writes the goal out of the answer
+        # it gets back, whatever either is called.
+        "the day asks one chooser where it goes":
+            re.search(r"local chosen = choose\w+\(id, rec, reach\)", pop)
+            is not None,
+        "the goal is written from that answer":
+            re.search(r"rec\.dayGoalX, rec\.dayGoalY = chosen\.\w+, "
+                      r"chosen\.\w+", pop) is not None,
         "arriving teaches it": "SAO.Perception.learnBuilding(id," in pop,
         # [C66] moved every draw to the county's own generator. The
         # property is that the old drift is still the fallback where no

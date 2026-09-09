@@ -1635,6 +1635,17 @@ if ! "$PY" tools/person_belief_test.py > /dev/null; then
     fail=1
 fi
 
+# [C72] Border 138 - the dormant day can go to a person: the goal path
+# decided from thirst, hunger, lessons, beliefs and barred ground and
+# had no social term in it, so nobody in the county had ever decided to
+# go to another person and every meeting was two need-driven walks
+# coinciding within three tiles.
+if ! "$PY" tools/seek_test.py > /dev/null; then
+    "$PY" tools/seek_test.py 2>&1 | grep -E "FAULT|SKIPPED" || true
+    note "BORDER FINDING - nobody in the county decides to go to anybody"
+    fail=1
+fi
+
 # Border 103 - the operator's speech is not in the repository: no
 # profanity in the tracked tree and no operator-quote attributions;
 # rulings are paraphrased content, speech stays with the speaker.

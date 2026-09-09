@@ -1,6 +1,6 @@
 | Document | Survivor Awareness Overhaul Findings |
 |---|---|
-| Version | `4.0.1.0-pre-alpha` |
+| Version | `4.1.0.0-pre-alpha` |
 | Author | ellyj3rain |
 | Repository | `FINDINGS.md` |
 | Status | CANONICAL, APPEND-ONLY - verified engine findings. |
@@ -1094,3 +1094,82 @@ the shipped dormant modules in the engine's own VM through the tick
 handler the mod registers, and reading the belief store rather than
 counting calls. Its control is the pre-batch tree, which prints
 `keyA=Unnamed keyB=Unnamed` and fails every property.
+
+## F-060 - The dormant goal path had no social term ([C72])
+
+`chooseDayPlace` decided where a dormant survivor walks from thirst,
+hunger, lessons, beliefs and barred ground. It was a real,
+attribute-aware decision and the only decision a dormant person made,
+and there was no person in it. Nobody in this county had ever decided
+to go to another person; every meeting was two need-driven walks
+coinciding within three tiles.
+
+**Measured**, over eight counties of 1096 days against the shipped map:
+
+| | |
+|---|---|
+| housemate pairs seeded at genesis, bonded, trusting 0.6 to 0.9, on the same tile | 152 |
+| of those, pairs that ever stood near each other again | 27 |
+| people who lived and died without ever meeting anybody | 179 of 287 |
+| pairs above the company line at the end that had ever met | 16 of 129 |
+
+The trust economy was working the whole time and coincidence could not
+deliver anybody to it.
+
+**What the fix did not do.** `[C72]` built the decision and the sweep
+did not move: 24 counties before and after gave houses standing 6 of 24
+against 5 of 24, and a mean of 0.3 against 0.2. Instrumented at each
+exit of the chooser, seeking is not being out-ranked - need takes 47
+percent of day-goals and a place 52 - and in 790 of 806 choices there
+was no eligible person to go to at all. The candidate list is empty
+because a belief about a living person comes from a meeting, and
+meetings almost never happen. Which is F-061.
+
+**Verification.** `tools/seek_test.py` (Border 138), reading
+`rec.dayGoalPerson` off the record after driving the real modules in
+the engine's VM. Its control is the `[C71]` tree, which already holds
+the belief: a survivor who believes somebody they trust at 0.85 is a
+hundred and fifty tiles away sets out toward them 0 times in 40.
+
+## F-061 - A survivor in the unwatched years walks four tiles a day
+
+The years pass advances `tickCounter` by `YEARS_TICKS_PER_DAY` - 3600 -
+per simulated day and calls `dormantLife` once. `dormantLife` moves a
+record when `tickCounter >= rec.nextDormantMoveAt` and then sets that
+stamp `1800 + rand(1800)` ticks ahead, so the condition is true exactly
+once per simulated day, and one move is `math.min(4, len)` tiles.
+
+**A simulated day is one move of at most four tiles.**
+
+The live county runs the same code on a 240-frame population pass, so a
+move arrives every 1800 to 3600 frames - about eighty moves in a game
+day at default length, up to 320 tiles. The years give the same person
+one eightieth of their own movement.
+
+**Measured** rather than derived from the arithmetic: **1.8 tiles per
+person per simulated day**, over four counties on each of the `[C71]`
+and `[C72]` trees, sampled on the county's own day counter. Three
+simulated years carry somebody under two kilometres, across a map
+fifteen thousand tiles wide with towns hundreds of tiles apart.
+
+**What it invalidates.** Every measurement this project has taken of
+its own social life was taken in a county whose people barely move.
+`[C67]` found that no company had ever formed and fixed it; `[C68]`
+found the roster kept its dead; `[C72]` found the goal path had no
+social term. All three are real and all three were measured against a
+county where two people who live in the same house drift apart and
+never walk far enough to find each other again. 179 of 287 people
+never meeting anybody is not a fact about the social model.
+
+**The shape, named.** This is `[C62]`'s class and the third instance of
+it. A pass that lives a day on behalf of the county owes that day
+everything the day contains - `[C62]` gave it the clock, `[C63]` gave
+it the right number of days, and this is the movement. A cadence
+written in frames does not survive being driven a day at a time, and
+the years drive nine systems that way.
+
+**Instrument note.** The first sampler for this divided distance by
+sample points rather than person-days, and the years live fifty
+simulated days inside one budgeted tick, so it reported 103 tiles a day
+against a true 1.8. The probe's own comment header warned about that
+exact trap on the line above the one that fell into it.
