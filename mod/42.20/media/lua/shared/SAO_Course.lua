@@ -53,6 +53,14 @@ local Co = SAO.Course
 -- A county where a bite is survivable by anybody who has been drinking
 -- is a county where Knox has stopped meaning anything, which is a
 -- worse outcome than the defect this batch fixes.
+--
+-- [C79] Border 143 ran a county and found nobody had ever thrown an
+-- infection off. Raising this looked like the fix and was not: the
+-- defect was in `advance`, which integrated the course's REMAINING
+-- half instead of its elapsed one, so every body forfeited the first
+-- part of every course and could not win at any value. The number is
+-- back where the reasoning put it, and the arithmetic it was chosen
+-- against now actually happens.
 Co.PERFECT_COURSE_GAIN = 0.55
 
 -- And the spread, which is what stops this being a threshold.
@@ -254,8 +262,19 @@ function Co.advance(rec, nowHours, inputs, dPos)
     local pos = Co.positionOf(rec, nowHours)
     if pos == nil then return "running" end
 
+    -- The step covers the ground just WALKED, not the ground ahead.
+    -- `pos` is where the body has already got to, so the segment is
+    -- [pos - dPos, pos]. Passing `pos` as the start integrates the
+    -- course's remaining half instead of its elapsed one, and with a
+    -- daily cadence against a two-day window the first observation is
+    -- already at the midpoint - so the body silently forfeited the
+    -- first half of every course it ever ran and could not win at any
+    -- constant. Border 143 found it by running a county and finding
+    -- nobody had ever thrown one off.
+    local from = pos - dPos
+    if from < 0 then from = 0 end
     rec.immuneProgress = (tonumber(rec.immuneProgress) or 0)
-        + Co.gainFor(inputs, pos, dPos)
+        + Co.gainFor(inputs, from, pos - from)
 
     if rec.immuneProgress >= 1.0 then
         -- Beaten. The clock goes, the flags go, and the body carries

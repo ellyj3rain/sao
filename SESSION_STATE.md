@@ -1,13 +1,45 @@
 | Document | Survivor Awareness Overhaul Session State |
 |---|---|
-| Version | `4.2.1.0-pre-alpha` |
+| Version | `4.2.2.0-pre-alpha` |
 | Author | ellyj3rain |
 | Repository | `SESSION_STATE.md` |
 | Status | CANONICAL - where the work actually stands. |
 
 # Session state
 
-**As of** 2026-09-09, `[C78]` close - the body fights the infection.
+**As of** 2026-09-09, `[C79]` close - the unwatched county can catch
+it. `[C78]`'s own record had to say that its fight reached almost
+nobody: `knoxInfected` had exactly one writer, the block releasing a
+body to the dormant county, so the unwatched county could not contract
+Knox at all and its people died of thirst, of hunger and of the county's
+risk but never of the thing the game is about.
+
+A bad day is not only a fatal day now. When the county takes somebody
+the encounter either kills them or they get away from it having been
+opened up, and a bite infects with certainty on this build (F-047), so
+getting away is catching it. Which happens follows from how well they
+handle danger, read off the modifiers the pass already computes -
+`risk` is how likely the county is to take them and `handles` is the
+same facts counted again for a different question. A due bite is not a
+roll and never takes the bite path, which Border 90 holds.
+
+**And it found a defect in `[C78]`.** Border 143 ran 120 people for 200
+days and nobody had ever thrown an infection off. Raising the constant
+looked like the fix and was not: `Course.advance` integrated the
+course's REMAINING half instead of its elapsed one, passing `pos` as the
+segment start where `pos` is ground already covered - so against a
+daily cadence and a two-day window every body forfeited the first half
+of every course and could not win at any value. Border 142 could not
+have caught it; it holds the model, and the model was right. What was
+wrong was the caller's idea of which segment had elapsed, and that is
+only visible when somebody runs a course over days.
+
+Measured on the shipped tree over 200 days: a housed county threw off
+**8** and an unhoused one **2**, with 37 still carrying it and 37 dead
+and risen. Care is a fourfold difference. The rate is not asserted -
+that is a distribution and belongs to the sweep.
+
+**Before that**, `[C78]` - the body fights the infection.
 `[C11]` and F-047 established that a bite infects with certainty on this
 build and kills at exactly `infectionTime + pickMortalityDuration`, and
 `dormantAttrition` read the record's mirror of that hour as a due date -
@@ -1030,7 +1062,7 @@ unloaded survivors are governed by the same rules ([B39], [B42]).
 
 ## Deploy state
 
-`4.2.1.0-pre-alpha` at tip - the version machine's output ([C2],
+`4.2.2.0-pre-alpha` at tip - the version machine's output ([C2],
 DR-013; the twelfth minor rolled the tier by the odometer's own
 law). The game install carries the `[C62]` tip. `[C45]` through
 `[C51]` reached it on 2026-09-07 and `[C52]` through `[C62]` on 2026-09-08, each
@@ -1072,7 +1104,7 @@ deploy; `save_compat_test` guards this and runs in the gate.
 
 ## Instruments
 
-**142 numbered borders**, run by **157 gated mirrors** in `tools/`, all invoked
+**143 numbered borders**, run by **158 gated mirrors** in `tools/`, all invoked
 by `tools/check.sh`, which the pre-commit hook runs and CI runs on every push.
 The figures in this paragraph are derived by Border 76 from the tree, not
 maintained by hand. Border 54 keeps the rest honest: it runs every gated
