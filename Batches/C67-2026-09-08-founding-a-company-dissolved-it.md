@@ -73,10 +73,15 @@ difference between the two columns is this batch.
 | | before | after |
 | --- | --- | --- |
 | counties forming at least one company | 0 / 24 | 24 / 24 |
-| companies, median | 0 | 17 |
+| houses founded over the run, median | 0 | 17 |
 | pairs above the company line, median | 264 | 266 |
 | survivors at day 1096, median | 1 | 4 |
 | counties with anybody alive | 16 / 24 | 21 / 24 |
+
+The second row counts distinct house names in the store at the end
+of a run, which is houses EVER FOUNDED rather than houses standing:
+`markDead` forgets nine things about a dead survivor and never touches
+`s.groups`, so a dead member's row stays on the roster. See below.
 
 The third row is the one that names the defect. Two hundred and
 sixty-four pairs already stood above the 0.5 company line in the broken
@@ -145,3 +150,15 @@ gradient, and the gradient can be measured now that it is not zero.
 The attrition. 216 people to a median of four over three years is the
 county deciding, not this batch, and the ratio is already ruled good by
 default and named as a candidate for a sandbox dial.
+
+A death leaving the company. `Identity.markDead` is the funnel every
+death path reaches and it forgets nine things - perception, voice,
+conditions, habits, the smoker assert, the pair cooldowns, politics,
+the locomotion job, the controller agent - and never touches
+`s.groups`. So a dead member stays on the roster forever: the widow is
+released when a housemate LEAVES and not when one DIES, `leaderOf` can
+name a corpse because nothing re-elects on a death, and the store grows
+for the life of the save the way `dormantLastMet` did before `[B51]`.
+None of it was reachable while no company existed. All of it is
+reachable now, and it is the next batch rather than a late addition to
+this one.
