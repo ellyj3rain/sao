@@ -95,6 +95,8 @@ NEIGHBOURS = {
 
 KNOWN = {n: OURS for n in (
     "SAO", "SAOCountyWindow", "SAOInspectWindow", "SAOWire", "SAOJavaBridge",
+    # [C80] the medical reading's window, ours, beside the other two.
+    "SAOMedicalWindow",
     # [C35] the gesture's timed action, a vanilla-derived class of ours.
     "SAOGestureAction",
 )}

@@ -1,14 +1,36 @@
 | Document | Survivor Awareness Overhaul Session State |
 |---|---|
-| Version | `4.2.2.0-pre-alpha` |
+| Version | `4.2.3.0-pre-alpha` |
 | Author | ellyj3rain |
 | Repository | `SESSION_STATE.md` |
 | Status | CANONICAL - where the work actually stands. |
 
 # Session state
 
-**As of** 2026-09-09, `[C79]` close - the unwatched county can catch
-it. `[C78]`'s own record had to say that its fight reached almost
+**As of** 2026-09-09, `[C80]` close - what an examiner can tell.
+`[C78]` and `[C79]` gave the county a sickness and nobody could see any
+of it. `SAO_Medical.readingOf` reports what THIS examiner could tell
+rather than what the record knows, gated on their own First Aid - the
+skill `[B20]` already reads to decide how well they dress a wound.
+Untrained, something is wrong and they could not say what; trained,
+they can name the fever; practised, they can place it in the course;
+only a medic gets a judgement about whether the body is winning.
+
+`SAO_Inspect` is the opposite instrument and says so of itself - it
+sees everything, and a window is not a pathway. This is DR-007's second
+ledger made visible: what anyone is permitted to know, never a
+percentage on the forehead.
+
+The module splits because Border 144 forced it. The judgement lives in
+a file that loads in a bare VM; the window lives in one that cannot,
+because it needs `ISCollapsableWindow`. So the rule is checked every
+run and the renderer stays a renderer. The border holds that no digit
+reaches a reading at any skill, and that looking at somebody does not
+change them - which is not decoration, because `Course.positionOf`
+repairs a missing span by writing one and the first draft mutated its
+own patient.
+
+**Before that**, `[C79]` - the unwatched county can catch it. `[C78]`'s own record had to say that its fight reached almost
 nobody: `knoxInfected` had exactly one writer, the block releasing a
 body to the dormant county, so the unwatched county could not contract
 Knox at all and its people died of thirst, of hunger and of the county's
@@ -1062,7 +1084,7 @@ unloaded survivors are governed by the same rules ([B39], [B42]).
 
 ## Deploy state
 
-`4.2.2.0-pre-alpha` at tip - the version machine's output ([C2],
+`4.2.3.0-pre-alpha` at tip - the version machine's output ([C2],
 DR-013; the twelfth minor rolled the tier by the odometer's own
 law). The game install carries the `[C62]` tip. `[C45]` through
 `[C51]` reached it on 2026-09-07 and `[C52]` through `[C62]` on 2026-09-08, each
@@ -1104,7 +1126,7 @@ deploy; `save_compat_test` guards this and runs in the gate.
 
 ## Instruments
 
-**143 numbered borders**, run by **158 gated mirrors** in `tools/`, all invoked
+**144 numbered borders**, run by **159 gated mirrors** in `tools/`, all invoked
 by `tools/check.sh`, which the pre-commit hook runs and CI runs on every push.
 The figures in this paragraph are derived by Border 76 from the tree, not
 maintained by hand. Border 54 keeps the rest honest: it runs every gated

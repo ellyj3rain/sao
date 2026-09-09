@@ -1700,6 +1700,16 @@ if ! "$PY" tools/dormant_infection_test.py > /dev/null; then
     fail=1
 fi
 
+# [C80] Border 144 - what an examiner can tell is bounded by the
+# examiner: [C78] and [C79] gave the county a sickness nobody could
+# see. The reading carries no number (DR-007), changes nobody, and
+# tells each examiner only what their own First Aid earns them.
+if ! "$PY" tools/medical_reading_test.py > /dev/null; then
+    "$PY" tools/medical_reading_test.py 2>&1         | grep -E "FAULT|CONTROL|SKIPPED" || true
+    note "BORDER FINDING - a reading tells more than the looker could see"
+    fail=1
+fi
+
 # Border 103 - the operator's speech is not in the repository: no
 # profanity in the tracked tree and no operator-quote attributions;
 # rulings are paraphrased content, speech stays with the speaker.
