@@ -1,6 +1,6 @@
 | Document | Survivor Awareness Overhaul Findings |
 |---|---|
-| Version | `4.1.1.1-pre-alpha` |
+| Version | `4.1.2.0-pre-alpha` |
 | Author | ellyj3rain |
 | Repository | `FINDINGS.md` |
 | Status | CANONICAL, APPEND-ONLY - verified engine findings. |
@@ -1189,8 +1189,114 @@ what bought that, and any correction has to keep it - which means
 moving a day's distance inside one pass rather than running a day's
 passes.
 
+**What it was costing, measured after `[C75]` fixed it.** Twenty-four
+counties before and after, same seeds: houses founded went from a
+median of 20 to 43, houses standing after three years from a mean of
+0.3 to 1.1, counties with a house still standing from 8 of 24 to 14,
+people alive at the end from a median of 2 to 5, and deaths down from
+284 to 269.
+
+Nothing in `[C75]` touched a company, a meeting, a trust number or the
+goal path. So `[C67]`, `[C68]`, `[C71]` and `[C72]` were each doing
+more than their own measurements could show, because every one of them
+was measured in a county whose people covered four tiles a day. The
+social model was not the thing that was failing.
+
 **Instrument note.** The first sampler for this divided distance by
 sample points rather than person-days, and the years live fifty
 simulated days inside one budgeted tick, so it reported 103 tiles a day
 against a true 1.8. The probe's own comment header warned about that
 exact trap on the line above the one that fell into it.
+
+## F-062 - The shipped map is not to a consistent real-world scale
+
+Established while looking for a bridge from tiles to metres, so that a
+sourced human walking distance could anchor how far a day carries
+somebody (F-061). There is no such bridge, and this is why.
+
+**The map's own geography does not supply one.** The shipped map models
+real Kentucky towns, and their spawn points are at known coordinates in
+`media/maps/<town>/spawnpoints.lua`. Comparing in-game separation
+against real great-circle distance over five real towns - Muldraugh,
+West Point, Irvington, Ekron, Brandenburg - gives ten pairs:
+
+| pair | tiles | real metres | m/tile |
+|---|---|---|---|
+| Muldraugh-Ekron | 10372 | 13225 | 1.28 |
+| West Point-Ekron | 11327 | 19374 | 1.71 |
+| Muldraugh-Brandenburg | 9579 | 16842 | 1.76 |
+| Irvington-Brandenburg | 8295 | 16565 | 2.00 |
+| West Point-Brandenburg | 9174 | 19690 | 2.15 |
+| Muldraugh-West Point | 3640 | 7930 | 2.18 |
+| Ekron-Brandenburg | 4064 | 9013 | 2.22 |
+| West Point-Irvington | 12154 | 32500 | 2.67 |
+| Muldraugh-Irvington | 9765 | 26277 | 2.69 |
+| Irvington-Ekron | 4858 | 13180 | 2.71 |
+
+**1.28 to 2.71 metres per tile - a 2.1x spread.** The map is a
+rendition rather than a survey, so it cannot be used as a ruler.
+
+**Two other routes were tried and neither answers it.** The engine
+reports vehicle speed in km/h, which would convert tiles to metres, but
+`BaseVehicle.getCurrentSpeedKmHour` returns a JNI physics value rather
+than a conversion over tiles. And nothing in the shipped translations
+or the shipped Lua states a unit for a tile at all.
+
+**What follows.** A real-world walking distance cannot be converted
+into this map's tiles by anything the installed build establishes, so a
+figure anchored that way would be resting on an invented conversion. It
+is not that a person's daily walking distance is unknown; it is that
+this county has no verified length.
+
+`[C75]` therefore anchors a day's walking in the county's own units
+instead - `Places.comfortHorizon`, which `[C25]` ratified as the home
+neighbourhood reached by a day of ordinary living and which derives
+from the engine's own `getCellSizeInSquares`.
+
+**Reported rather than omitted.** If a tile's length is ever
+established from the build, this finding is what the figure should be
+re-derived against.
+
+## F-063 - `[C72]`'s own sweep table was measured on a tree that predated two of its changes
+
+**Self-found** after `[C72]` merged, while chasing why two runs of the
+same sweep disagreed. They did not: the sweep is reproducible, and a
+fresh run of the `[C74]` tree reproduces an earlier one exactly, figure
+for figure. The trees differed.
+
+The 24-county before-and-after table in `[C72]`'s record and its pull
+request was launched, and then the batch kept being worked on. Two of
+`[C72]`'s own changes landed after it: the genesis sighting - people
+who arrive together have seen each other - and the refusal of a goal
+the walker is already standing on, which is what makes that genesis
+belief a durable anchor rather than one spent on the first day. The
+table therefore reports a tree that is not the tree that shipped.
+
+**What it said, and what the shipped tree does:**
+
+| | in the record | shipped tree |
+|---|---|---|
+| counties with a house standing | 5 of 24 | 8 of 24 |
+| houses standing, mean | 0.2 | 0.4 |
+| survivors in a house, mean | 0.5 | 0.8 |
+| alive at the end, mean | 1.9 | 2.8 |
+
+`[C71]`'s own figures, measured the same way, are 6 of 24 and a mean of
+0.3. So the record's conclusion - *nothing moved that this batch was
+written to move* - is wrong in its direction: the shipped `[C72]`
+raises houses standing rather than leaving them flat, though 6 against
+8 over 24 counties is a difference this sample cannot separate from
+noise, and that part of the record stands.
+
+**What does not change.** The branch-exit instrumentation - 806 day
+choices per county, need taking 47 percent, a place 52, and somebody
+7.6 - was measured on a tree carrying both fixes and is unaffected. So
+is F-061.
+
+**The shape, named.** A measurement that closes a batch has to be taken
+on the tree that is committed, after the last edit. Launching it early
+and shipping the result is measuring a tree nobody has.
+
+**Correction, not rewrite.** `[C72]`'s record and pull request stand as
+written; this entry is what the ledger's append-only rule provides for,
+and `SESSION_STATE.md` carries the corrected figures.

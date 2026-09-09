@@ -1,6 +1,6 @@
 | Document | Survivor Awareness Overhaul Decision Registry |
 |---|---|
-| Version | `4.1.1.1-pre-alpha` |
+| Version | `4.1.2.0-pre-alpha` |
 | Author | ellyj3rain |
 | Repository | `DECISION_REGISTRY.md` |
 | Status | CANONICAL, APPEND-ONLY - ratified decisions. |
@@ -1402,3 +1402,51 @@ beliefs on the person rather than on what they are called; it did not
 cure it, and the operator ruled for the cure.
 
 **Origin.** Operator ruling, 2026-09-08, on `[C71]`'s measurement.
+
+---
+
+## DR-040 - A day of walking is the county's own day-reach, and distance is never a budget
+
+**Date** 2026-09-09
+**Status** RATIFIED, with a waiver recorded below
+
+**Decision.** How far a dormant survivor walks is a RATE over the
+county's own clock, not a constant per pass and not an allowance per
+day. The rate is `Places.comfortHorizon` - what `[C25]` ratified as the
+home neighbourhood, reached by a day of ordinary living, derived from
+the engine's own `getCellSizeInSquares` - scaled by the pace of the age
+`[C30]` already sets on a live body.
+
+A day of clock carries a day's walking. An hour carries an hour's. A
+goal further off than the day's reach takes the days it takes.
+
+**Nobody is capped.** Where a person goes is decided by need and
+knowledge (DR-027); the rate only says how long getting there takes.
+Distance is the consequence of a decision and never a budget on it.
+
+**Why.** `[C45]` gave a simulated day one movement pass, deliberately,
+reasoning about how often each frame-paced gate should open - and never
+asking what one pass is worth in ground. It is four tiles. Measured:
+1.8 tiles per person per simulated day, so three simulated years
+carried somebody under two kilometres across a map fifteen thousand
+tiles wide (F-061). The operator: *people move as much as they need to
+move to satisfy their needs to survive*, and a survivor who covers two
+tiles a day is going to die.
+
+**Waiver, recorded rather than glossed.** The operator ruled for a
+sourced real-world walking figure, anchored the way this repository
+anchors its other population facts. It cannot be built: nothing in the
+installed build establishes what a tile is in metres. The shipped map
+is not to a consistent scale - 1.28 to 2.71 metres per tile across ten
+real Kentucky town pairs - the engine's km/h is a JNI physics value
+rather than a conversion over tiles, and no shipped translation or Lua
+states a unit for a tile. That is F-062.
+
+So the county's own ratified day-reach stands in, and the ruling's
+intent is kept: the figure is not authored here, it is `[C25]`'s and it
+derives from the engine. If a tile's length is ever established from
+the build, the figure is to be re-derived against F-062 and this entry
+superseded.
+
+**Origin.** Operator ruling, 2026-09-09, on F-061; the waiver
+established the same day when the anchor's precondition failed.

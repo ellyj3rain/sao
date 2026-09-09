@@ -11,8 +11,15 @@ licenses behavior no person would produce.
 Nothing here is scripted and no behaviour table is authored. What a survivor
 does follows from temperament, standing, and the work a place actually needs;
 what they own comes from what the place actually yielded. Houses form, elect,
-quarrel, divide and hold ground, and the county governs itself. Once the
-helicopter has stopped coming, newcomers walk in from outside.
+quarrel and divide, and the county governs itself. Once the helicopter has
+stopped coming, newcomers walk in from outside.
+
+What is built and what is watched are different things, and this file says
+which is which. Taking ground, lighting a hearth and stocking a larder are
+reached only where a player is present: their call sites are in the controller,
+which needs materialised bodies, so a house in the unwatched county forms and
+holds together without yet having anywhere to be. `SESSION_STATE.md` carries
+the measurements.
 
 ## Where to read first
 
@@ -24,13 +31,14 @@ helicopter has stopped coming, newcomers walk in from outside.
 | `ROADMAP.md` | Gate order and what is deliberately deferred. |
 | `SESSION_STATE.md` | Where the work actually stands right now. |
 | `PLAYABILITY.md` | What a player would actually meet, and what is unproven. |
+| `PROJECTS.md` | The architecture across the three repositories: SAO, ZAO and Speakeasy. |
 | `CREDITS.md` | Attribution and integration status per source. |
 
 `MEMORY.md` indexes every root document and its standing.
 
 ## Status
 
-`4.1.1.1-pre-alpha` - the coordinate is computed by the version machine
+`4.1.2.0-pre-alpha` - the coordinate is computed by the version machine
 (`tools/version_replay.py`), never picked; `VERSION_MAP.md` shows the
 classification and the arithmetic.
 

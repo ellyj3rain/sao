@@ -1,6 +1,6 @@
 | Document | Survivor Awareness Overhaul Architecture |
 |---|---|
-| Version | `4.1.1.1-pre-alpha` |
+| Version | `4.1.2.0-pre-alpha` |
 | Author | ellyj3rain |
 | Repository | `ARCHITECTURE.md` |
 | Status | ACTIVE - ratified framework shape. |
@@ -163,7 +163,15 @@ hours (metabolism at approximate engine rates, offset by eating carried
 food - the architecture's sanctioned direct-mutation mode for the UNLOADED
 world only). Dormant records drift through coarse days ([A11]): waypoints
 near home in daylight, home at night, no geometry - an abstraction of a
-person, not a hidden puppet. Death is durable: corpses belong to the
+person, not a hidden puppet. Where that day GOES is a decision: need
+past patience reaches the nearest known place offering the thing
+([C25]), somebody trusted and recently seen is somewhere to go
+([C72]), and otherwise the neighbourhood's own places, ranked by what
+they offer today and how long since they were seen. How far the walking
+gets them is a rate over the county's clock - the ratified day-reach
+scaled by the pace of the age (DR-040) - so a day of clock carries a
+day's walking in either half of the county, and a goal further off
+takes the days it takes. Death is durable: corpses belong to the
 engine, records become death records, claims lapse ([A11]), refill waits
 its sandbox-governed days and happens at spawn regions, never at the loss.
 All policy numbers are sandbox options.

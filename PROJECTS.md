@@ -1,6 +1,6 @@
 | Document | The three projects and what each owns |
 |---|---|
-| Version | `4.1.1.1-pre-alpha` |
+| Version | `4.1.2.0-pre-alpha` |
 | Author | ellyj3rain |
 | Repository | `PROJECTS.md` |
 | Status | CANONICAL - the architecture across the three repositories. Held here; `../zombie-awareness` and `../zomboid-speakeasy` point at it. |
@@ -121,5 +121,9 @@ edge now is what stops it being invented twice.
 | | Version | Standing |
 |---|---|---|
 | SAO | see `VERSION` | four pillars built, the county runs on them, play receipts outstanding |
-| ZAO | `../zombie-awareness/VERSION` | governed repository, no mod code; G0 verifies the turn surface |
-| Speakeasy | `../zomboid-speakeasy/RECORD.md` | charter and structure, world documents drafted, no models |
+| ZAO | `../zombie-awareness/VERSION` | G0 closed at `[A6]` - the turn, the control surface, the player's dials and the recovery mods all have evidence. No mod code, which is what the gate ladder asks for here. Three decisions gate G1. |
+| Speakeasy | `../zomboid-speakeasy/RECORD.md` | the dataset's source and row shape ratified (DR-038); a ceiling for the inference budget measured; no rows and no models |
+
+Each of those is its own repository's to update. This table says where
+the three stand relative to each other, which is the thing no single
+repository can say about itself.

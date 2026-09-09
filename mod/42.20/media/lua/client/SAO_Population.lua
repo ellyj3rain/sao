@@ -1628,10 +1628,62 @@ local function dormantLife(conf)
                     end
                     tx, ty = rec.dayGoalX, rec.dayGoalY
                 end
+                -- [C75] The clock is read on every pass, whether or
+                -- not there is anywhere to walk. Reading it only when
+                -- somebody moves would let a person standing at their
+                -- goal BANK the hours and then cross the county in one
+                -- stride the moment they were given a new one, which
+                -- is not walking. Idle time is spent, not saved.
+                local nowH = hoursNow()
+                local sinceH = 0
+                if rec.lastWalkHours then
+                    sinceH = math.max(0, nowH - rec.lastWalkHours)
+                end
+                rec.lastWalkHours = nowH
                 local dx, dy = tx - rec.x, ty - rec.y
                 local len = math.sqrt(dx * dx + dy * dy)
                 if len > 1.0 then
-                    local step = math.min(4, len)
+                    -- [C75] How far the walking gets them, as a RATE
+                    -- over the county's own clock rather than a fixed
+                    -- number of tiles per pass.
+                    --
+                    -- It was `math.min(4, len)`, a constant per pass,
+                    -- and a pass means two different things in the two
+                    -- halves of the county. Live, `dormantLife` runs
+                    -- every 240 frames and a move gate opens every
+                    -- 1800 to 3600, so a game day holds hundreds of
+                    -- them. In the years, `[C45]` advances the counter
+                    -- 3600 ticks per simulated day and calls this
+                    -- once, so a day held exactly one - four tiles.
+                    -- Measured: 1.8 tiles per person per simulated day
+                    -- (F-061), against a map fifteen thousand tiles
+                    -- wide with towns hundreds of tiles apart.
+                    --
+                    -- The rate is not a figure chosen here. `[C25]`
+                    -- ratified `comfortHorizon` as the home
+                    -- neighbourhood, reached by a day of ordinary
+                    -- living, and it derives from the engine's own
+                    -- cell quantum (`getCellSizeInSquares`). So a day
+                    -- of walking reaches it, half a day reaches half
+                    -- of it, and a goal further off takes the days it
+                    -- takes - nobody is capped, and where they go is
+                    -- still decided by need and knowledge.
+                    --
+                    -- The pace of the age scales it, the same
+                    -- modifier `[C30]` already sets on a live body:
+                    -- short legs and old ones both walk slower.
+                    --
+                    -- Both halves read one rule, which is the law
+                    -- ([B39], [B42]) - and the years keep `[C45]`'s
+                    -- cost, because a day's distance is covered in
+                    -- one pass rather than a day's passes.
+                    local pace = 1.0
+                    pcall(function()
+                        pace = SAO.History.speedModOf(id) or 1.0
+                    end)
+                    local perDay = SAO.Places.comfortHorizon()
+                    local step = math.min(len,
+                        perDay * pace * (sinceH / 24.0))
                     rec.x = math.floor(rec.x + dx / len * step + 0.5)
                     rec.y = math.floor(rec.y + dy / len * step + 0.5)
                 end
