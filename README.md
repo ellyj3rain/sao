@@ -3,10 +3,10 @@
 A Project Zomboid Build 42 NPC framework.
 
 Survivors decide on what they have actually perceived - what they saw, heard,
-and were told - rather than on map truth they could not know. They are durable
-inhabitants of the county with their own positions and intentions, not a
-refill effect around the player. Skill governs how well they execute; it never
-licenses behavior no person would produce.
+and were told. Map truth they could not know is unavailable to them. They are
+durable inhabitants of the county, holding their own positions and intentions
+whether or not a player is nearby. Skill governs how well they execute; it
+never licenses behavior no person would produce.
 
 Nothing here is scripted and no behaviour table is authored. What a survivor
 does follows from temperament, standing, and the work a place actually needs;
@@ -14,12 +14,12 @@ what they own comes from what the place actually yielded. Houses form, elect,
 quarrel and divide, and the county governs itself. Once the helicopter has
 stopped coming, newcomers walk in from outside.
 
-What is built and what is watched are different things, and this file says
-which is which. Taking ground, lighting a hearth and stocking a larder are
-reached only where a player is present: their call sites are in the controller,
-which needs materialised bodies, so a house in the unwatched county forms and
-holds together without yet having anywhere to be. `SESSION_STATE.md` carries
-the measurements.
+Some capabilities need a player present and some do not, and this file says
+which. A house in the unwatched county forms, settles its dead, and takes
+ground on the building its members keep returning to. Lighting a hearth and
+stocking a larder still need a materialised body, because their call sites
+read state only a loaded character produces. `SESSION_STATE.md` carries the
+measurements.
 
 ## Where to read first
 
