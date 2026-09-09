@@ -1916,8 +1916,8 @@ local function dormantEncounters()
                                 .. " part ways friendly - somebody keeps"
                                 .. " their own company")
                         else
-                            SAO.Standing.joinGroup(idA, groupName)
-                            SAO.Standing.joinGroup(idB, groupName)
+                            SAO.Standing.formCompany(
+                                { idA, idB }, groupName)
                             -- [B47] 120 of these in one session, and
                             -- they never stop - the dormant half meets
                             -- people forever.

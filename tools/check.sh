@@ -1603,6 +1603,17 @@ if ! "$PY" tools/county_draw_test.py > /dev/null; then
     fail=1
 fi
 
+# [C67] Border 135 - a founded company is still standing afterwards:
+# the roster is written whole and elected once, so the widow release
+# cannot fire in the middle of a founding and dissolve the house being
+# born. Measured in the VM, because the defect called the right verb
+# the right number of times.
+if ! "$PY" tools/company_forms_test.py > /dev/null; then
+    "$PY" tools/company_forms_test.py 2>&1 | grep -E "FAULT|SKIPPED" || true
+    note "BORDER FINDING - founding a company dissolves it"
+    fail=1
+fi
+
 # Border 103 - the operator's speech is not in the repository: no
 # profanity in the tracked tree and no operator-quote attributions;
 # rulings are paraphrased content, speech stays with the speaker.

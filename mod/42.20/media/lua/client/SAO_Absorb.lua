@@ -148,8 +148,22 @@ function Ab.absorbProfile(ns, profile)
         -- from the county's election - stated, not hidden.
         if profile.groupId
             and not tostring(profile.groupId):find("^player:") then
+            -- [C67] Their house arrives a member at a time, so
+            -- joining each one alone left a roster of one and the
+            -- widow release freed them before the next arrived - the
+            -- Knox company could never assemble here no matter how
+            -- many of it the county adopted. The groupId is kept on
+            -- the record (their assertion, stored as theirs) and the
+            -- house forms from everyone the county has met of it.
+            rec.ksGroup = "ksg:" .. tostring(profile.groupId)
             pcall(function()
-                SAO.Standing.joinGroup(id, "ksg:" .. tostring(profile.groupId))
+                local roster = {}
+                for otherId, other in pairs(SAO.Identity.all()) do
+                    if other.ksGroup == rec.ksGroup and not other.dead then
+                        roster[#roster + 1] = otherId
+                    end
+                end
+                SAO.Standing.formCompany(roster, rec.ksGroup)
             end)
         elseif profile.owner then
             pcall(function()

@@ -1,13 +1,35 @@
 | Document | Survivor Awareness Overhaul Session State |
 |---|---|
-| Version | `3.12.0.0-pre-alpha` |
+| Version | `4.0.0.0-pre-alpha` |
 | Author | ellyj3rain |
 | Repository | `SESSION_STATE.md` |
 | Status | CANONICAL - where the work actually stands. |
 
 # Session state
 
-**As of** 2026-09-08, `[C66]` close - the county carries its own
+**As of** 2026-09-08, `[C67]` close - founding a company dissolved
+it. No company had ever formed in this project, in a sweep or in a
+save, since companies were built. A company was founded by joining one
+member and then the other; `joinGroup` elects, and `electLeader`
+performs the widow release at a roster of one, so the first join made a
+house of one and freed its only member and the second join did it
+again. The house was empty before the second line finished. Everything
+downstream of a company was therefore unreachable code that read as if
+it worked - the election, the creed, the designations, the chair, the
+steward, feuds, pacts, schisms, and the radio news of all of them.
+`S.formCompany` writes the roster whole and elects once, at the three
+sites where a company is born: the road, the table, and Knox adoption.
+The widow release is not removed and is not the defect - it is a rule
+about a roster that SHRANK, and it is right; `electLeader` is called
+from both directions and cannot tell growth from loss, so a house being
+born read as a house ending. Twenty-four counties against the real
+shipped map went from 0 of 24 forming a company to 24 of 24, and the
+row that names the defect is the trust line: 264 pairs already stood
+above the company bar in the broken tree and not one of them could keep
+company. Border 135 measures the house rather than the call, because
+the defect called the right verb the right number of times.
+
+**Before that**, `[C66]` - the county carries its own
 randomness. Forty-two places asked the engine through `ZombRand`,
 which carries no state SAO can see, set or write down, so no county
 could be run twice: a reported defect could not be reproduced, and a
@@ -732,7 +754,7 @@ unloaded survivors are governed by the same rules ([B39], [B42]).
 
 ## Deploy state
 
-`3.12.0.0-pre-alpha` at tip - the version machine's output ([C2],
+`4.0.0.0-pre-alpha` at tip - the version machine's output ([C2],
 DR-013; the twelfth minor rolled the tier by the odometer's own
 law). The game install carries the `[C62]` tip. `[C45]` through
 `[C51]` reached it on 2026-09-07 and `[C52]` through `[C62]` on 2026-09-08, each
@@ -747,10 +769,10 @@ gate and its pull request merged, and was checked rather than assumed:
 both `mod.info` files read the coordinate the machine derived,
 `SAO_History.lua` carries the county's clock, `SAO_Standing.lua` reads
 it at all thirty-four of its sites, and `SAO.jar` is byte-identical to
-the committed build. `[C63]` through `[C66]` reached it as they closed. `[C66]` is what
-is owed now, and it changes every random draw the mod makes, so an
-existing save picks up the county's own generator from its next
-session rather than the engine's.
+the committed build. `[C63]` through `[C67]` reached it as they closed. `[C67]` is what
+is owed now, and it is the one an existing save feels immediately:
+survivors who already trust each other can keep company from the
+next session, where before they never could.
 The play receipts the C era owes are the next
 thing the tree cannot produce for itself - the operator chose to
 keep building before testing, so `[C29]` (a survivor scaled from
@@ -769,7 +791,7 @@ deploy; `save_compat_test` guards this and runs in the gate.
 
 ## Instruments
 
-**134 numbered borders**, run by **149 gated mirrors** in `tools/`, all invoked
+**135 numbered borders**, run by **150 gated mirrors** in `tools/`, all invoked
 by `tools/check.sh`, which the pre-commit hook runs and CI runs on every push.
 The figures in this paragraph are derived by Border 76 from the tree, not
 maintained by hand. Border 54 keeps the rest honest: it runs every gated

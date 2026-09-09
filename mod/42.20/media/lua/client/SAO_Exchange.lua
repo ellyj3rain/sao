@@ -634,8 +634,7 @@ function Exchange.betweenPair(id, agent, body, otherId, otherBody, tickCount)
                 end
                 return
             end
-            SAO.Standing.joinGroup(id, groupName)
-            SAO.Standing.joinGroup(otherId, groupName)
+            SAO.Standing.formCompany({ id, otherId }, groupName)
             log(id .. " and " .. otherId
                 .. " now keep company (mutual trust)")
             -- Moving in: the JOINER moves; the standing
