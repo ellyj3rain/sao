@@ -162,3 +162,36 @@ against the hour `[C11]` read off the engine, and Border 142 holds it.
 infection is still the engine's own, and the same model reading a live
 body's real condition is the follow-up. The dormant half is where every
 input already exists and where the defect was total.
+
+## How far this actually reaches, which is less than it looks
+
+`rec.knoxInfected` and `rec.biteDeathAtHours` are written in exactly one
+place: the block that releases a body to the dormant county, reading
+`SAOJavaBridge:biteHoursLeft` off the character as it goes dark. There
+is no other writer in the tree.
+
+So **the unwatched county cannot produce an infection of its own.** A
+dormant survivor dies of thirst, of hunger, of the risk the county
+carries - and can never be bitten, because a bite happens to a
+materialised body. What this batch changes is therefore reachable only
+for somebody who was bitten near a player and then went dormant still
+carrying it.
+
+That is a real capability and a narrow one, and it is stated rather
+than implied by a record that talks about the county at large. The
+dormant county contracting Knox at all is its own batch, and it is the
+thing that would make this one matter everywhere instead of at the
+edges.
+
+## Why there is no sweep table
+
+`tools/county_sweep.py` never materialises a body, never calls the
+bridge, and never sets `knoxInfected` - checked rather than assumed. So
+a dormant sweep cannot exercise this at all: nobody in one is ever
+infected, and a before-and-after would print two identical tables and
+call it a result.
+
+The evidence here is Border 142 over the model, and the rest is a play
+receipt. `[C69]`'s reason for the sweep not being a border cuts the
+other way too - an instrument that cannot reach the mechanism is not
+weak evidence about it, it is no evidence about it.
