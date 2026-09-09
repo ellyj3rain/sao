@@ -1,13 +1,35 @@
 | Document | Survivor Awareness Overhaul Session State |
 |---|---|
-| Version | `3.11.0.0-pre-alpha` |
+| Version | `3.12.0.0-pre-alpha` |
 | Author | ellyj3rain |
 | Repository | `SESSION_STATE.md` |
 | Status | CANONICAL - where the work actually stands. |
 
 # Session state
 
-**As of** 2026-09-08, `[C65]` close - the years pass leaves a
+**As of** 2026-09-08, `[C66]` close - the county carries its own
+randomness. Forty-two places asked the engine through `ZombRand`,
+which carries no state SAO can see, set or write down, so no county
+could be run twice: a reported defect could not be reproduced, and a
+sweep moving one sandbox dial could not tell the dial from the draw.
+`[C65]` recorded that as a fact about the corpus; the operator ruled
+the other way and took the wider option, so `SAO_Rand` is the county's
+draw and nothing else in the tree asks the engine. It is
+counter-based, so the state is a seed string and a count that persist
+into ModData as-is, and the arithmetic is `[B48]`'s already-verified
+split-multiply FNV rather than a second answer to a question this
+repository has answered. The seed comes off `IsoWorld.getWorld()` and
+the save's start date, both javap-verified, and stays private. The
+first draft RAMPED - `SAO.Hash.of(seed, counter)` read FNV's low
+digits and 1626 of 1999 draws mod one hundred were exactly the one
+before plus one, which is `[B48]`'s arithmetic progression through a
+different door on top of `[B38]`'s parity finding - and only measuring
+caught it. Four forms were measured before one was picked; the counter
+goes first and the answer comes from above the low sixteen bits, at
+chi-square 0.0, 1.9 and 101.6 for moduli 2, 6 and 100 against critical
+values of 10.83, 20.52 and 148.2. Border 134 measures the draw rather
+than reading the formula, because a border that read the formula would
+have passed the ramp. `[C65]` before it - the years pass leaves a
 trajectory. The operator ruled that a late start cannot afford
 first-principles generation at distance and chose a learned trajectory
 model fitted to the generator's own per-year runs; there were no runs.
@@ -710,7 +732,7 @@ unloaded survivors are governed by the same rules ([B39], [B42]).
 
 ## Deploy state
 
-`3.11.0.0-pre-alpha` at tip - the version machine's output ([C2],
+`3.12.0.0-pre-alpha` at tip - the version machine's output ([C2],
 DR-013; the twelfth minor rolled the tier by the odometer's own
 law). The game install carries the `[C62]` tip. `[C45]` through
 `[C51]` reached it on 2026-09-07 and `[C52]` through `[C62]` on 2026-09-08, each
@@ -725,10 +747,10 @@ gate and its pull request merged, and was checked rather than assumed:
 both `mod.info` files read the coordinate the machine derived,
 `SAO_History.lua` carries the county's clock, `SAO_Standing.lua` reads
 it at all thirty-four of its sites, and `SAO.jar` is byte-identical to
-the committed build. `[C63]`, `[C64]` and `[C65]` are what is owed now. `[C63]` rebuilds
-the jar, `[C64]` changes the `mod.info` description a player reads, and
-`[C65]` changes what the telemetry file holds, so that deploy carries
-all three.
+the committed build. `[C63]` through `[C66]` reached it as they closed. `[C66]` is what
+is owed now, and it changes every random draw the mod makes, so an
+existing save picks up the county's own generator from its next
+session rather than the engine's.
 The play receipts the C era owes are the next
 thing the tree cannot produce for itself - the operator chose to
 keep building before testing, so `[C29]` (a survivor scaled from
@@ -747,7 +769,7 @@ deploy; `save_compat_test` guards this and runs in the gate.
 
 ## Instruments
 
-**133 numbered borders**, run by **148 gated mirrors** in `tools/`, all invoked
+**134 numbered borders**, run by **149 gated mirrors** in `tools/`, all invoked
 by `tools/check.sh`, which the pre-commit hook runs and CI runs on every push.
 The figures in this paragraph are derived by Border 76 from the tree, not
 maintained by hand. Border 54 keeps the rest honest: it runs every gated

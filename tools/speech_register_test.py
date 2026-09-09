@@ -81,6 +81,12 @@ STUB = (
     "local said = {} local recs = {} local ms = 0 "
     "getTimestampMs = function() ms = ms + 60000 return ms end "
     "ZombRand = function(n) return 0 end "
+    # [C66] The module draws through the county's own generator now.
+    # Stubbed to answer what this probe already made ZombRand answer,
+    # so the pick stays the deterministic one this border relies on
+    # rather than becoming a real seeded draw.
+    "SAO.Rand = { int = function(a, b) return (b == nil) and 0 or a end, "
+    "unit = function() return 0 end } "
     "SAO.Identity.get = function(id) return recs[id] end "
     "SAO.Body = { get = function(id) "
     "return { Say = function(self, line) said[#said + 1] = line end } end } "

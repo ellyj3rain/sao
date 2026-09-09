@@ -217,7 +217,7 @@ local UNIT_TRUST = {
 local function pickWeighted(rows, field)
     local total = 0
     for _, row in ipairs(rows) do total = total + row.weight end
-    local roll = ZombRand(total)
+    local roll = SAO.Rand.int(total)
     local seen = 0
     for _, row in ipairs(rows) do
         seen = seen + row.weight
@@ -322,7 +322,7 @@ local function pickOriginFor(enginePath)
     local list = regionPointsByProfession
         and regionPointsByProfession[enginePath] or nil
     if not list or #list == 0 then return nil end
-    return list[ZombRand(#list) + 1]
+    return list[SAO.Rand.int(#list) + 1]
 end
 
 -- Region-balanced pick: choose a region uniformly first, then a point within
@@ -338,8 +338,8 @@ local function pickOrigin()
     local names = {}
     for name in pairs(byRegion) do names[#names + 1] = name end
     if #names == 0 then return nil end
-    local regionList = byRegion[names[ZombRand(#names) + 1]]
-    return regionList[ZombRand(#regionList) + 1]
+    local regionList = byRegion[names[SAO.Rand.int(#names) + 1]]
+    return regionList[SAO.Rand.int(#regionList) + 1]
 end
 
 -- ---------------------------------------------------------------------------
@@ -391,11 +391,11 @@ local function biteWindowHours()
     local m = 5
     pcall(function() m = SandboxVars.ZombieLore.Mortality or 5 end)
     if m == 1 then return 0 end
-    if m == 2 then return ZombRand(30) / 3600 end
-    if m == 3 then return (0.5 + ZombRand(50) / 100) / 60 end
-    if m == 4 then return 3 + ZombRand(900) / 100 end
-    if m == 6 then return 168 + ZombRand(16800) / 100 end
-    return 48 + ZombRand(2400) / 100
+    if m == 2 then return SAO.Rand.int(30) / 3600 end
+    if m == 3 then return (0.5 + SAO.Rand.int(50) / 100) / 60 end
+    if m == 4 then return 3 + SAO.Rand.int(900) / 100 end
+    if m == 6 then return 168 + SAO.Rand.int(16800) / 100 end
+    return 48 + SAO.Rand.int(2400) / 100
 end
 
 -- [B28] THREE WORDS, and they are not synonyms. The operator drew
@@ -616,7 +616,7 @@ local function ensurePopulation(conf)
             end
         end)
         chance = math.max(10, math.min(100, chance))
-        if ZombRand(100) >= chance then
+        if SAO.Rand.int(100) >= chance then
             if SAO.Identity.livingCount() < capNow
                 and hoursNow() - lastHighwayLogAt >= 1 then
                 lastHighwayLogAt = hoursNow()
@@ -1151,7 +1151,7 @@ end
 -- were WALKING somewhere, not because a spawner owed you an encounter.
 -- [B37] Where a day goes.
 --
--- It used to go to `homeX + ZombRand(-24, 25)`: a coordinate, not a
+-- It used to go to `homeX + SAO.Rand.int(-24, 25)`: a coordinate, not a
 -- place. The county's own map has always known where the buildings
 -- are and what their rooms are called, and the mod had never read it
 -- once - so a day can now go somewhere that HAS something rather than
@@ -1334,7 +1334,7 @@ local function chooseDayPlace(id, rec, reach)
                 if age then
                     score = math.min(age, UNVISITED - 1)
                 else
-                    score = UNVISITED + ZombRand(100000)
+                    score = UNVISITED + SAO.Rand.int(100000)
                 end
                 -- [B37] and then need overrides all of it.
                 --
@@ -1377,7 +1377,7 @@ local function dormantLife(conf)
         if not rec.dead and not rec.knox and not SAO.Body.get(id) and rec.homeX then
             rec.nextDormantMoveAt = rec.nextDormantMoveAt or 0
             if tickCounter >= rec.nextDormantMoveAt then
-                rec.nextDormantMoveAt = tickCounter + 1800 + ZombRand(1800)
+                rec.nextDormantMoveAt = tickCounter + 1800 + SAO.Rand.int(1800)
                 local tx, ty
                 if night then
                     tx, ty = rec.homeX, rec.homeY
@@ -1454,9 +1454,9 @@ local function dormantLife(conf)
                             -- every place is enemy ground. Nothing to
                             -- walk to, so the old drift stands.
                             rec.dayGoalX = rec.homeX
-                                + ZombRand(-reach, reach + 1)
+                                + SAO.Rand.int(-reach, reach + 1)
                             rec.dayGoalY = rec.homeY
-                                + ZombRand(-reach, reach + 1)
+                                + SAO.Rand.int(-reach, reach + 1)
                             rec.dayGoalPlaceId = nil
                         end
                     end
@@ -1663,7 +1663,7 @@ local function dormantAttrition()
                         1.0 + 0.15 * (hungryDays - HUNGER_PATIENCE))
                 end
                 if biteDue
-                    or ZombRand(100000) < math.floor(risk * 100000) then
+                    or SAO.Rand.int(100000) < math.floor(risk * 100000) then
                     local deadGroup = SAO.Standing.groupOf(id)
                     -- [C11] Who rises mirrors the engine's own law
                     -- (shouldBecomeZombieAfterDeath, F-044): the
@@ -1685,7 +1685,7 @@ local function dormantAttrition()
                     end
                     SAO.Identity.markDead(rec, tickCounter,
                         turns and "zombie" or "the county took them")
-                    rec.deathNewsAt = nowHours + 24 + ZombRand(48)
+                    rec.deathNewsAt = nowHours + 24 + SAO.Rand.int(48)
                     if deadGroup
                         and SAO.Standing.leaderOf(deadGroup) == id then
                         SAO.Standing.electLeader(deadGroup)
@@ -1815,7 +1815,7 @@ local function dormantEncounters()
                 -- pulse compounded trust ~40x the
                 -- observed world's encounter rate ([A13] find).
                 dormantLastMet[pairKey] = tickCounter
-                    + MEET_COOLDOWN + ZombRand(MEET_COOLDOWN)
+                    + MEET_COOLDOWN + SAO.Rand.int(MEET_COOLDOWN)
                 if SAO.Standing.isHostileTo(idA, idB)
                     or SAO.Standing.isHostileTo(idB, idA) then
                     -- A wide berth: the abstraction steps them apart.
@@ -2312,7 +2312,7 @@ local function bootDigest(conf)
         while placed < math.min(owed, RESTITUTION_PER_DAY)
             and tries < 40 do
             tries = tries + 1
-            local pt = points[ZombRand(#points) + 1]
+            local pt = points[SAO.Rand.int(#points) + 1]
             if pt and pt.x and pt.y then
                 local far = true
                 if px and py then
@@ -2322,8 +2322,8 @@ local function bootDigest(conf)
                 end
                 if far then
                     addVirtualZombie(
-                        math.floor(pt.x) + ZombRand(21) - 10,
-                        math.floor(pt.y) + ZombRand(21) - 10)
+                        math.floor(pt.x) + SAO.Rand.int(21) - 10,
+                        math.floor(pt.y) + SAO.Rand.int(21) - 10)
                     placed = placed + 1
                 end
             end
@@ -2563,7 +2563,7 @@ local function runTheYears(conf)
         local stamp = 0
         pcall(function() stamp = getTimestampMs() end)
         s.yearsRunId = tostring(math.floor(stamp)) .. "-"
-            .. tostring(ZombRand(100000))
+            .. tostring(SAO.Rand.int(100000))
         pcall(function()
             SAO.Telemetry.runId = s.yearsRunId
             local c = SAO.Telemetry.conditions()

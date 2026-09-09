@@ -153,7 +153,7 @@ function SAOWire.air(_channel, force)
     local news = s.radioNews
     if news and #news > 0 then
         local bc = RadioBroadCast.new(
-            "SAOW-" .. tostring(ZombRand(100000, 999999)), -1, -1)
+            "SAOW-" .. tostring(SAO.Rand.int(100000, 999999)), -1, -1)
         say(bc, "This is the county wire.")
         local aired = math.min(#news, 6)
         for i = 1, aired do say(bc, SAOWire.render(news[i])) end
@@ -182,7 +182,7 @@ function SAOWire.air(_channel, force)
         -- Dead air is diegetic for a survivor band; the beacon is the
         -- find-the-frequency hook, not a chatterbox.
         local bc = RadioBroadCast.new(
-            "SAOW-" .. tostring(ZombRand(100000, 999999)), -1, -1)
+            "SAOW-" .. tostring(SAO.Rand.int(100000, 999999)), -1, -1)
         -- The era decides the beacon's voice ([B3]/T-002): a county
         -- that has not fallen hears a hobbyist ham; a county that has
         -- hears the lifeline.

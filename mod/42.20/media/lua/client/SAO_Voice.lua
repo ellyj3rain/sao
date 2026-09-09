@@ -390,7 +390,7 @@ end
 -- point and `V.onEvent` is everyone else's; the difference is one
 -- gate:
 --
---     if not force and ZombRand(100) >= chatty(id) * 100 then return end
+--     if not force and SAO.Rand.int(100) >= chatty(id) * 100 then return end
 --
 -- `D.talkativeness` runs 0.20 to 0.85, so under that roll a reserved
 -- survivor ignored a direct question four times in five, in silence,
@@ -424,7 +424,7 @@ local function speak(id, body, line, tick, force, answering)
     -- The quiet ones keep more to themselves: talkativeness scales the
     -- chance a non-urgent line is voiced at all.
     if not force and not answering
-        and ZombRand(100) >= math.floor(chatty(id) * 100) then
+        and SAO.Rand.int(100) >= math.floor(chatty(id) * 100) then
         return
     end
     local ok = pcall(function() body:Say(line) end)
