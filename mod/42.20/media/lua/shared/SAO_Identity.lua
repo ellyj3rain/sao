@@ -39,6 +39,73 @@ local function store()
     return s
 end
 
+-- [C73] Which half of the county somebody is (DR-039).
+--
+-- A hash fact, the same idiom as every durable trait: deterministic per
+-- id, stored nowhere, identical in every session and every replay. It
+-- exists because the engine's name pools are split by sex
+-- (`SurvivorFactory.getRandomForename(boolean)`, javap-verified) and
+-- because the shell the engine builds later has a sex of its own, which
+-- had nothing to agree with.
+--
+-- The rate is Kentucky's own, not a half. Kentucky's resident
+-- population on July 1 1993 was 1,837,344 male and 1,954,944 female -
+-- 51.551 percent female - summed over every county and every age band
+-- from the Census Bureau's own intercensal estimates (CO-99-12,
+-- Population Estimates for Counties by Age, Race, Sex, and Hispanic
+-- Origin, July 1 1990 to July 1 1999, file casrh21.txt, the Kentucky
+-- table). Codes 1 to 10 partition the population; 11 and 12 recount
+-- Hispanics of any race and are excluded. The same file's July 1 1990
+-- total is 3,686,686 against the April 1 1990 census count of
+-- 3,685,296, which is the estimate-against-count difference and is how
+-- the arithmetic was checked. Seven of its 14,400 data lines are
+-- corrupt as served, none of them in 1993.
+local FEMALE_SHARE = 0.51551
+
+function Identity.femaleOf(rec)
+    local id = rec and rec.id or rec
+    if not id then return false end
+    if rec and type(rec) == "table" and rec.female ~= nil then
+        return rec.female == true
+    end
+    return SAO.Hash.unit(tostring(id), "sex") < FEMALE_SHARE
+end
+
+-- [C73] The name, from the engine's pools, drawn by the county.
+--
+-- The pools are the game's own and are reached through the bridge;
+-- SAO.Rand picks the index, so a county still runs twice the same way
+-- ([C66]) and this project ships no name list of its own. Where there
+-- is no bridge - a border, the sweep, a load before the agent is up -
+-- the record keeps the sentinel and `beliefKey` carries it ([C71]), so
+-- nothing breaks and nothing is invented.
+function Identity.nameFromEngine(rec)
+    if not rec or not rec.id then return false end
+    if rec.forename and rec.forename ~= "Unnamed" then return false end
+    if not SAOJavaBridge then return false end
+    local female = Identity.femaleOf(rec)
+    local fore, sur = nil, nil
+    pcall(function()
+        local n = SAOJavaBridge:forenameCount(female)
+        if type(n) == "number" and n > 0 then
+            local got = SAOJavaBridge:forenameAt(female,
+                SAO.Rand.int(n))
+            if type(got) == "string" and got ~= "" then fore = got end
+        end
+        local m = SAOJavaBridge:surnameCount()
+        if type(m) == "number" and m > 0 then
+            local got = SAOJavaBridge:surnameAt(SAO.Rand.int(m))
+            if type(got) == "string" and got ~= "" then sur = got end
+        end
+    end)
+    if not fore then return false end
+    rec.female = female
+    rec.forename = fore
+    if sur then rec.surname = sur end
+    dropNameIndex()
+    return true
+end
+
 function Identity.create(forename, surname, x, y, z)
     local s = store()
     if not s then return nil end
@@ -54,6 +121,13 @@ function Identity.create(forename, surname, x, y, z)
         updatedAt = 0,
     }
     s.records[id] = rec
+    -- [C73] Named here, where a person is made, rather than off the
+    -- first shell ever built for them (DR-039). A caller that passed a
+    -- name keeps it: Knox adoption brings people who arrive already
+    -- named.
+    if rec.forename == "Unnamed" then
+        pcall(function() Identity.nameFromEngine(rec) end)
+    end
     -- [B47] Once per person, and there were 234 of these in the
     -- operator's log. The name is what turns one fact into a flood.
     tally("created")
