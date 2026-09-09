@@ -34,7 +34,7 @@ Telemetry and the acquisition record - how learning is stored and how every fact
 
 The gate, its borders, and the repository's own discipline.
 
-**Batches**: `A1`, `A16`, `B5`, `B12`, `B14`, `B16`, `B30`, `B31`, `B32`, `B36`, `B41`, `B42`, `B43`, `B44`, `B45`, `B51`, `B52`, `C1`, `C2`, `C40`, `C64`
+**Batches**: `A1`, `A16`, `B5`, `B12`, `B14`, `B16`, `B30`, `B31`, `B32`, `B36`, `B41`, `B42`, `B43`, `B44`, `B45`, `B51`, `B52`, `C1`, `C2`, `C40`, `C64`, `C74`
 
 **Owes**: Border 47's counted remainder (named, not manufactured into a group).
 
