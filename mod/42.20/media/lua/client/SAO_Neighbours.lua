@@ -306,7 +306,7 @@ local function superimposePersonRoot(playerNum, context, worldobjects)
     if not actor or not kid or not ns then return end
     local recId = "ks:" .. tostring(kid)
     local rec = SAO.Identity.get(recId)
-    if not (rec and rec.knox) then
+    if not (rec and SAO.Claims.isHeld(rec)) then
         -- Not adopted yet: his person, his menu, untouched.
         return
     end

@@ -73,7 +73,7 @@ MODULES = [
     "shared/SAO_Log.lua", "shared/SAO_Hash.lua", "shared/SAO_Rand.lua",
     "shared/SAO_Census.lua", "shared/SAO_History.lua",
     "shared/SAO_Disposition.lua", "shared/SAO_Conditions.lua",
-    "shared/SAO_Habits.lua", "shared/SAO_Identity.lua",
+    "shared/SAO_Habits.lua", "shared/SAO_Claims.lua", "shared/SAO_Identity.lua",
 ]
 
 # The engine's pools, stood in for by two small ones whose members

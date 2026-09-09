@@ -108,12 +108,12 @@ function SAOCountyWindow:build()
     -- it is empty. Absent-because-nobody-is-near and
     -- absent-because-nobody-exists look identical. One number on the
     -- line above tells the two apart.
-    local loadedOurs, loadedKnox = 0, 0
+    local loadedOurs, loadedForeign = 0, 0
     pcall(function()
         loadedOurs = SAO.Body.activeCount()
-        loadedKnox = SAO.Body.knoxCount()
+        loadedForeign = SAO.Body.foreignCount()
     end)
-    local here = loadedOurs + loadedKnox
+    local here = loadedOurs + loadedForeign
     header("The County - " .. living .. " living, " .. dead .. " dead"
         .. " - " .. here .. " loaded here")
     -- [B43] Which jar is actually loaded, said out loud. [B33] found

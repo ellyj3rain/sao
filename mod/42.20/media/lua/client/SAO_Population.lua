@@ -875,7 +875,7 @@ local function materializeBand(px, py, conf)
       if not rec.dead then
         local hasBody = SAO.Body.get(id) ~= nil
         local d = dist(rec.x, rec.y, px, py)
-        if rec.knox then
+        if SAO.Claims.isHeld(rec) then
             -- Inhabitants are never conjured ([A17]): a Knox person's
             -- body is the legacy mod's business; absence means they are
             -- elsewhere, not ours to spawn. Passive adoption handles
@@ -1513,7 +1513,8 @@ local function dormantLife(conf)
     if type(hour) ~= "number" then return end
     local night = hour >= 21.0 or hour < 6.0
     for id, rec in pairs(SAO.Identity.all()) do
-        if not rec.dead and not rec.knox and not SAO.Body.get(id) and rec.homeX then
+        if not rec.dead and not SAO.Claims.isHeld(rec)
+            and not SAO.Body.get(id) and rec.homeX then
             rec.nextDormantMoveAt = rec.nextDormantMoveAt or 0
             if tickCounter >= rec.nextDormantMoveAt then
                 rec.nextDormantMoveAt = tickCounter + 1800 + SAO.Rand.int(1800)
@@ -1828,7 +1829,7 @@ local function dormantAttrition()
         if rec.dead then
             -- Nothing here: word of a death is delivered above, before
             -- the risk dial can silence it.
-        elseif not rec.knox and not SAO.Body.get(id) then
+        elseif not SAO.Claims.isHeld(rec) and not SAO.Body.get(id) then
             -- [B37] A world that predates this batch has never
             -- recorded either of these, and somebody who has "never"
             -- drunk must not start dying the day it lands. First
@@ -2669,8 +2670,8 @@ local function inhabitKnox()
                     rec.surname = ""
                     SAO.Identity.noteRenamed()
                 end
-                if rec and not rec.knox then
-                    rec.knox = true
+                if rec and not SAO.Claims.isHeld(rec) then
+                    SAO.Claims.claim(rec, SAO.Claims.KNOX_SURVIVORS)
                     local monthsAlive = (tonumber(hours) or 0) / (24.0 * 30.0)
                     seedKnoxBase(id, rec, kid)
                     pcall(function()
@@ -2684,7 +2685,7 @@ local function inhabitKnox()
                     -- eras catch up here - seedKnoxBase is guarded
                     -- per-feature (ksTrustImported, homeX, occupation
                     -- same-value), so this is a no-op once caught up.
-                    if rec.knox and not rec.ksTrustImported then
+                    if SAO.Claims.isHeld(rec) and not rec.ksTrustImported then
                         seedKnoxBase(id, rec, kid)
                     end
                     -- [B42] The residue of [A20], in worlds that
@@ -2702,7 +2703,7 @@ local function inhabitKnox()
                     -- somebody is mid-save is the one thing worth
                     -- avoiding here - and only the warning label goes
                     -- back on, which is what [A22] wanted all along.
-                    if rec.knox and rec.occupation
+                    if SAO.Claims.isHeld(rec) and rec.occupation
                         and not rec.occupationPresumed then
                         rec.occupationPresumed = true
                         log(id .. " was never known to have been a "
@@ -2718,7 +2719,7 @@ local function inhabitKnox()
                     -- is theirs for good.
 
                     if okB and kbody then
-                        SAO.Body.knox[id] = kbody
+                        SAO.Body.foreign[id] = kbody
                         -- [C3] Align the descriptor to the profile name
                         -- so the scanner, knoxBodyByName, and the
                         -- neighbour's own card say one string from here.
@@ -2742,9 +2743,9 @@ local function inhabitKnox()
     end
     -- Bodies that left the cell (or died) fall out of the live registry;
     -- records persist, deaths are noticed by the passive pass.
-    for id in pairs(SAO.Body.knox) do
+    for id in pairs(SAO.Body.foreign) do
         if not seen[id] then
-            SAO.Body.knox[id] = nil
+            SAO.Body.foreign[id] = nil
         end
     end
 end

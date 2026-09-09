@@ -125,7 +125,7 @@ function Ab.absorbProfile(ns, profile)
             .. ": no record could be made - nobody spawns (DR-026)")
         return nil
     end
-    rec.knox = true
+    SAO.Claims.claim(rec, SAO.Claims.KNOX_SURVIVORS)
     if not rec.absorbedAtHours then
         pcall(function()
             rec.absorbedAtHours = SAO.History.countyHours()

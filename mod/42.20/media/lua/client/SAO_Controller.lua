@@ -4773,7 +4773,7 @@ local function updateAgent(id, agent)
             local cause = witnessDeath(id, agent, body) or "unknown"
             SAO.Identity.markDead(agent.rec, tickCount, cause)
             tellPlayerOfDeath(id, agent.rec, body)
-            SAO.Body.knox[id] = nil
+            SAO.Body.foreign[id] = nil
             -- [B51] Both handles on both branches. This branch is
             -- the passive one and a passive agent is very probably
             -- never in `active` - but "very probably" is the kind of
@@ -4855,7 +4855,7 @@ local function updateAgent(id, agent)
         -- net's die() call finds it done and does nothing.
         Ctl.pendingCorpses[id] = { body = body, at = tickCount }
         SAO.Body.active[id] = nil   -- forget the handle; never removeFromWorld a corpse
-        SAO.Body.knox[id] = nil     -- [B51] both handles on both branches
+        SAO.Body.foreign[id] = nil     -- [B51] both handles on both branches
         Ctl.agents[id] = nil
         log(id .. " has died")
         return

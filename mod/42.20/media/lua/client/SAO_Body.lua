@@ -368,13 +368,15 @@ function Body.release(rec)
     return okW and okS
 end
 
--- Knox bodies ([A17]): live legacy people resolvable by our id without
--- ever being ours to release or drive.
-Body.knox = Body.knox or {}
+-- Bodies another system drives ([A17]): live people resolvable by our
+-- id without ever being ours to release or drive. [C81] renamed this
+-- off one mod's name; what it holds is the property, and the holder
+-- is on the record.
+Body.foreign = Body.foreign or {}
 
 function Body.get(id)
     id = tostring(id)
-    return Body.active[id] or Body.knox[id]
+    return Body.active[id] or Body.foreign[id]
 end
 
 function Body.activeCount()
@@ -387,9 +389,9 @@ end
 -- shell is as loaded as one of ours - the player can walk up to them
 -- either way - and a count that left them out would say the world was
 -- emptier than it is.
-function Body.knoxCount()
+function Body.foreignCount()
     local n = 0
-    for _ in pairs(Body.knox) do n = n + 1 end
+    for _ in pairs(Body.foreign) do n = n + 1 end
     return n
 end
 
