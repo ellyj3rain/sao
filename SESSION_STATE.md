@@ -1,13 +1,26 @@
 | Document | Survivor Awareness Overhaul Session State |
 |---|---|
-| Version | `4.0.0.2-pre-alpha` |
+| Version | `4.0.0.3-pre-alpha` |
 | Author | ellyj3rain |
 | Repository | `SESSION_STATE.md` |
 | Status | CANONICAL - where the work actually stands. |
 
 # Session state
 
-**As of** 2026-09-08, `[C69]` close - the county sweep is a tool in
+**As of** 2026-09-08, `[C70]` close - every death path settles the
+house in one place. `[C68]` moved the settling of a house on a death
+into the funnel every death path reaches and deleted the one call site
+doing it itself, but there were two, and its border could only see the
+one it deleted: it read `SAO_Controller.lua` for the phrase that site
+used, while the same call site in `SAO_Population`'s dormant attrition
+- the half of the county nearly every death happens in - was worded
+differently and survived a batch written to delete it. It was wrong by
+then rather than redundant, because it captured the group BEFORE the
+death and re-elected over a house that had already ended. Border 136's
+seam now reads the whole tree for the shape rather than one file for
+one phrase.
+
+**Before that**, `[C69]` - the county sweep is a tool in
 the tree. The sweep found `[C67]` and `[C68]`, the two largest defects
 this project has had, and it lived in a scratch directory; it has been
 rebuilt from nothing more than once and both rebuilds reintroduced a
@@ -791,7 +804,7 @@ unloaded survivors are governed by the same rules ([B39], [B42]).
 
 ## Deploy state
 
-`4.0.0.2-pre-alpha` at tip - the version machine's output ([C2],
+`4.0.0.3-pre-alpha` at tip - the version machine's output ([C2],
 DR-013; the twelfth minor rolled the tier by the odometer's own
 law). The game install carries the `[C62]` tip. `[C45]` through
 `[C51]` reached it on 2026-09-07 and `[C52]` through `[C62]` on 2026-09-08, each
@@ -806,7 +819,7 @@ gate and its pull request merged, and was checked rather than assumed:
 both `mod.info` files read the coordinate the machine derived,
 `SAO_History.lua` carries the county's clock, `SAO_Standing.lua` reads
 it at all thirty-four of its sites, and `SAO.jar` is byte-identical to
-the committed build. `[C63]` through `[C69]` reached it as they closed. `[C67]` and
+the committed build. `[C63]` through `[C70]` reached it as they closed. `[C67]` and
 `[C68]` are what is owed now, and together they are the pair an
 existing save feels immediately: survivors who already trust each
 other can keep company from the next session, where before they

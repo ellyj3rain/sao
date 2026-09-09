@@ -252,6 +252,35 @@ def read(path):
         if path.exists() else ""
 
 
+def elects_after_a_death():
+    """Sites that settle a house themselves, right after a death.
+
+    [C70]: [C68] deleted this call site from `SAO_Controller`, and its
+    border checked for it by reading `SAO_Controller` and looking for
+    the phrase that one site happened to use. The SAME call site in
+    `SAO_Population`'s dormant death path - the half of the county
+    nearly every death happens in - was worded differently and
+    survived a batch written to delete it.
+
+    So this reads the whole Lua tree and looks for the SHAPE: an
+    election within a dozen lines after a death. The funnel settles the
+    house now, so a caller doing it again is redundant at best, and at
+    worst is re-electing a group it captured before the death.
+    """
+    found = []
+    for path in sorted(LUA.rglob("*.lua")):
+        lines = read(path).splitlines()
+        for i, line in enumerate(lines):
+            if "markDead(" not in line:
+                continue
+            for j in range(i + 1, min(i + 13, len(lines))):
+                if "electLeader(" in lines[j]:
+                    found.append("%s:%d"
+                                 % (path.relative_to(LUA).as_posix(), j + 1))
+                    break
+    return found
+
+
 def main():
     faults = []
     print("=" * 74)
@@ -261,13 +290,18 @@ def main():
         print("  FAULT: SAO_Identity.lua does not exist")
         return 1
 
+    elects = elects_after_a_death()
+    print("  sites electing a leader right after a death: %d" % len(elects))
+    for name in elects[:6]:
+        print("      " + name)
+
     seams = {
         "the death funnel releases the dead from their house":
             "leaveOnDeath" in read(IDENTITY) or "S.releaseDead" in read(STANDING),
         "the widow release is still in the election":
             "s.groups[widow] = nil" in read(STANDING),
-        "no call site re-elects on a death of its own":
-            "leadership passes from the dead" not in read(CONTROLLER),
+        "no call site settles a house the death already settled":
+            not elects_after_a_death(),
         "the gate runs this border":
             "tools/death_leaves_company_test.py" in read(CHECK),
     }

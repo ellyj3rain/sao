@@ -1664,7 +1664,6 @@ local function dormantAttrition()
                 end
                 if biteDue
                     or SAO.Rand.int(100000) < math.floor(risk * 100000) then
-                    local deadGroup = SAO.Standing.groupOf(id)
                     -- [C11] Who rises mirrors the engine's own law
                     -- (shouldBecomeZombieAfterDeath, F-044): the
                     -- infected turn, and under Everyone's Infected
@@ -1686,10 +1685,14 @@ local function dormantAttrition()
                     SAO.Identity.markDead(rec, tickCounter,
                         turns and "zombie" or "the county took them")
                     rec.deathNewsAt = nowHours + 24 + SAO.Rand.int(48)
-                    if deadGroup
-                        and SAO.Standing.leaderOf(deadGroup) == id then
-                        SAO.Standing.electLeader(deadGroup)
-                    end
+                    -- [C70] The house settles inside `markDead`. What
+                    -- stood here re-elected only when the corpse had
+                    -- been the leader, on a group captured BEFORE the
+                    -- death - so it ran a second election over a house
+                    -- that had already settled, and it was the same
+                    -- call site [C68] removed from the controller.
+                    -- [C68]'s border only read the controller, so this
+                    -- one survived a batch written to delete it.
                     log(id .. " (" .. tostring(rec.forename)
                         .. ") didn't make it out there - the county collects")
                 end

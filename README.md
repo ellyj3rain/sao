@@ -30,7 +30,7 @@ helicopter has stopped coming, newcomers walk in from outside.
 
 ## Status
 
-`4.0.0.2-pre-alpha` - the coordinate is computed by the version machine
+`4.0.0.3-pre-alpha` - the coordinate is computed by the version machine
 (`tools/version_replay.py`), never picked; `VERSION_MAP.md` shows the
 classification and the arithmetic.
 
