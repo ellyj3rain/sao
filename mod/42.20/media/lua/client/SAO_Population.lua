@@ -1853,8 +1853,6 @@ local function dormantAttrition()
                 -- is not a risk, it is due. The old "+0.10 +
                 -- min(0.5, since/480)" claimed to be the engine's own
                 -- turning odds and matched nothing in the jar.
-                local biteDue = rec.biteDeathAtHours ~= nil
-                    and nowHours >= rec.biteDeathAtHours
                 if rec.woundInfected then
                     -- The per-part WOUND infection (the septic kind,
                     -- not Knox). The engine gives it no dormant clock,
@@ -1869,9 +1867,13 @@ local function dormantAttrition()
                 -- the cold multiplier applies. A stale claim softens
                 -- nothing - nobody is warmed by a fire nobody has
                 -- seen lately.
-                if pg3 and riskMult > 1.0 and SAO.Standing.hearthOf then
+                local warmedByHearth = false
+                if pg3 and SAO.Standing.hearthOf then
                     local hh3 = SAO.Standing.hearthOf(pg3)
-                    if hh3 and hh3.burning then risk = risk * 0.8 end
+                    warmedByHearth = (hh3 and hh3.burning) and true or false
+                end
+                if warmedByHearth and riskMult > 1.0 then
+                    risk = risk * 0.8
                 end
                 if SAO.Standing.groupOf(id) then risk = risk * 0.6 end
                 if (rec.contactMonths or 0) > 3 then risk = risk * 0.7 end
@@ -1899,6 +1901,53 @@ local function dormantAttrition()
                     risk = risk * math.min(2.0,
                         1.0 + 0.15 * (hungryDays - HUNGER_PATIENCE))
                 end
+                -- [C78] The body fights. [C11] read the engine's own
+                -- bite clock onto the record and `biteDue` treated it
+                -- as a due date - past it, death was not a risk, it
+                -- was due - so every bitten person in the county died
+                -- on schedule and nothing they had done beforehand
+                -- made any difference to it.
+                --
+                -- The clock still stands: the course does not move it
+                -- (Border 142 holds that), and a body that loses dies
+                -- at exactly the hour the engine picked. What it can
+                -- do is get there first. Every input below is already
+                -- computed above for the risk, so the fight costs the
+                -- pass nothing it was not already paying.
+                if rec.knoxInfected and SAO.Course then
+                    local span = tonumber(rec.infectionSpanHours)
+                    if not span or span <= 0 then
+                        span = math.max(0.0001,
+                            (tonumber(rec.biteDeathAtHours) or 0) - nowHours)
+                        rec.infectionSpanHours = span
+                    end
+                    local burden = 0
+                    pcall(function()
+                        burden = #(SAO.Conditions.of(id) or {})
+                    end)
+                    local years = nil
+                    pcall(function() years = SAO.History.ageOf(id) end)
+                    local verdict = SAO.Course.advance(rec, nowHours, {
+                        id = id,
+                        dryDays = dryDays,
+                        hungryDays = hungryDays,
+                        woundInfected = rec.woundInfected,
+                        inHouse = pg3 ~= nil,
+                        warmed = warmedByHearth,
+                        pactFed = pg3 and pactFed[pg3] or false,
+                        age = years,
+                        conditionBurden = burden,
+                        infectionsSurvived = rec.infectionsSurvived,
+                    }, 24.0 / span)
+                    if verdict == "won" then
+                        log(rec.id .. " fought off the infection"
+                            .. " (" .. tostring(rec.infectionsSurvived)
+                            .. " survived)")
+                        tally("threwOff")
+                    end
+                end
+                local biteDue = rec.biteDeathAtHours ~= nil
+                    and nowHours >= rec.biteDeathAtHours
                 if biteDue
                     or SAO.Rand.int(100000) < math.floor(risk * 100000) then
                     -- [C11] Who rises mirrors the engine's own law

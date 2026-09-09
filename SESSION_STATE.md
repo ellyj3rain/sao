@@ -1,13 +1,52 @@
 | Document | Survivor Awareness Overhaul Session State |
 |---|---|
-| Version | `4.2.0.1-pre-alpha` |
+| Version | `4.2.1.0-pre-alpha` |
 | Author | ellyj3rain |
 | Repository | `SESSION_STATE.md` |
 | Status | CANONICAL - where the work actually stands. |
 
 # Session state
 
-**As of** 2026-09-09, `[C77]` close - what the walking costs. `[C75]`
+**As of** 2026-09-09, `[C78]` close - the body fights the infection.
+`[C11]` and F-047 established that a bite infects with certainty on this
+build and kills at exactly `infectionTime + pickMortalityDuration`, and
+`dormantAttrition` read the record's mirror of that hour as a due date -
+its own comment says past it, death is not a risk, it is due. So every
+bitten person in the county died on schedule and nothing they had done
+beforehand made any difference. The hour still stands and the body can
+now get there first: a contest on inputs the pass already computes for
+its risk - days since water, days since food, a septic wound, a house
+keeping them, a burning hearth, a pact, their age, what they carry -
+against a course whose length is the sandbox's own mortality window.
+The model is Antibodies' (lonegamedev, MIT), credited in `CREDITS.md`
+and rebuilt rather than imported, because it is built player-first on
+`player:getModData()` and the county has hundreds of people.
+
+Three defects were caught before it shipped. The first `gainFor`
+sampled the curve at each step's midpoint, which made the CADENCE
+decide the answer - one step across a course returns `pi/2` where
+twenty-four steps sum to 1, so a dormant body would have out-fought a
+loaded one, which is `[C75]`'s defect in another module. It is the exact
+integral now, `(cos(pi*a) - cos(pi*b))/2`, additive over any partition.
+`qualityOf` clamped to `[0, 1]`, which made four bonus terms dead code
+that read as a model - a body wanting for nothing was already at the
+cap, so a house, a hearth, a pact and having survived it before all
+bought nothing. And the first constant made every well-kept survivor
+immune: 1.15 against a win at 1.0 meant anything above quality 0.87
+won, and a healthy survivor sits at exactly 1.0. Constitution is
+hash-drawn per person now, so two people living the same way do not die
+the same way, and the constant is 0.55 - a median body kept well still
+loses. **The odds are the operator's** and that is a starting position.
+
+Border 142 (`tools/course_test.py`) runs the shipped module in the
+engine's own VM and holds seven properties, the load-bearing one being
+that one step, twenty-four and a thousand give the same total. It loads
+only `SAO_Log`, `SAO_Hash` and `SAO_Course`, so the module's claim to be
+offline by construction is checked every time the gate runs. The loaded
+path is untouched: a materialised body's infection is still the
+engine's, and the same model reading a live body is the follow-up.
+
+**Before that**, `[C77]` - what the walking costs. `[C75]`
 named two growths it could not measure at the time and both are
 measured now, over six counties: a whole county holds a median of 110
 known buildings and the survivor who knows most knows 109 of the map's
@@ -991,7 +1030,7 @@ unloaded survivors are governed by the same rules ([B39], [B42]).
 
 ## Deploy state
 
-`4.2.0.1-pre-alpha` at tip - the version machine's output ([C2],
+`4.2.1.0-pre-alpha` at tip - the version machine's output ([C2],
 DR-013; the twelfth minor rolled the tier by the odometer's own
 law). The game install carries the `[C62]` tip. `[C45]` through
 `[C51]` reached it on 2026-09-07 and `[C52]` through `[C62]` on 2026-09-08, each
@@ -1033,7 +1072,7 @@ deploy; `save_compat_test` guards this and runs in the gate.
 
 ## Instruments
 
-**141 numbered borders**, run by **156 gated mirrors** in `tools/`, all invoked
+**142 numbered borders**, run by **157 gated mirrors** in `tools/`, all invoked
 by `tools/check.sh`, which the pre-commit hook runs and CI runs on every push.
 The figures in this paragraph are derived by Border 76 from the tree, not
 maintained by hand. Border 54 keeps the rest honest: it runs every gated
