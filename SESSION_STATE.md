@@ -1,13 +1,33 @@
 | Document | Survivor Awareness Overhaul Session State |
 |---|---|
-| Version | `4.1.0.0-pre-alpha` |
+| Version | `4.1.1.0-pre-alpha` |
 | Author | ellyj3rain |
 | Repository | `SESSION_STATE.md` |
 | Status | CANONICAL - where the work actually stands. |
 
 # Session state
 
-**As of** 2026-09-08, `[C72]` close - the dormant day can go to a
+**As of** 2026-09-09, `[C73]` close - a person is named when they are
+made (DR-039). `backfillName` read a name off the engine descriptor the
+first time a body was materialised for somebody, so a survivor nobody
+had ever stood near carried the `Unnamed` sentinel for the life of the
+save - 271 of 271 in a dormant county. A name is a fact about a person
+and not about their body, and `Identity.create` is the one funnel every
+person is made through, so they are named there. The names are the
+engine's own - `SurvivorFactory`'s three public static pools, reached
+through four bridge methods as a length and an index so `SAO.Rand`
+makes the draw and a county still runs twice the same way ([C66]);
+this project ships no name list. The pools are split by sex, so the
+record carries one as a hash fact, drawn at Kentucky's own rate rather
+than a half: 51.551 percent female on July 1 1993, off the Census
+Bureau's intercensal county estimates. The shell agrees with the
+record now, where the descriptor used to draw its own sex and
+contradict the name. Where there is no engine there are no names and
+nothing throws, which `[C71]` made survivable. Border 139 reads the
+records rather than the call, controlled against the `[C72]` tree,
+which comes out `Unnamed`.
+
+**Before that**, `[C72]` - the dormant day can go to a
 person. `chooseDayPlace` decided where a dormant survivor walks from
 thirst, hunger, lessons, beliefs and barred ground, and it had no
 social term in it, so nobody in this county had ever decided to go to
@@ -875,7 +895,7 @@ unloaded survivors are governed by the same rules ([B39], [B42]).
 
 ## Deploy state
 
-`4.1.0.0-pre-alpha` at tip - the version machine's output ([C2],
+`4.1.1.0-pre-alpha` at tip - the version machine's output ([C2],
 DR-013; the twelfth minor rolled the tier by the odometer's own
 law). The game install carries the `[C62]` tip. `[C45]` through
 `[C51]` reached it on 2026-09-07 and `[C52]` through `[C62]` on 2026-09-08, each
@@ -917,7 +937,7 @@ deploy; `save_compat_test` guards this and runs in the gate.
 
 ## Instruments
 
-**138 numbered borders**, run by **153 gated mirrors** in `tools/`, all invoked
+**139 numbered borders**, run by **154 gated mirrors** in `tools/`, all invoked
 by `tools/check.sh`, which the pre-commit hook runs and CI runs on every push.
 The figures in this paragraph are derived by Border 76 from the tree, not
 maintained by hand. Border 54 keeps the rest honest: it runs every gated
@@ -983,8 +1003,8 @@ measurement argues otherwise - stated as amendable, not ratified.)
   safe; that is a judgement about somebody's save, not a border.
 - **[B48] changes every survivor's traits, occupation and face in
   an existing save**, because the hash they are drawn from was corrected.
-- **The county has no names, and a person gets one from the first
-  shell built for them.** `backfillName` reads a forename and surname
+- **Settled at `[C73]`, kept here for the record: the county had no
+  names, and a person got one from the first shell built for them.** `backfillName` reads a forename and surname
   off the engine descriptor when a body is first materialised, so a
   survivor nobody has ever stood near is `Unnamed` for the life of the
   save - 271 of 271 in a swept county. `[C71]` makes the absence

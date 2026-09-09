@@ -1646,6 +1646,16 @@ if ! "$PY" tools/seek_test.py > /dev/null; then
     fail=1
 fi
 
+# [C73] Border 139 - a person is named when they are made (DR-039):
+# backfillName read a name off the engine descriptor the first time a
+# body was built for somebody, so a county that materialises nobody had
+# 271 of 271 people carrying the Unnamed sentinel.
+if ! "$PY" tools/named_at_genesis_test.py > /dev/null; then
+    "$PY" tools/named_at_genesis_test.py 2>&1 | grep -E "FAULT|SKIPPED" || true
+    note "BORDER FINDING - the county's people have no names"
+    fail=1
+fi
+
 # Border 103 - the operator's speech is not in the repository: no
 # profanity in the tracked tree and no operator-quote attributions;
 # rulings are paraphrased content, speech stays with the speaker.

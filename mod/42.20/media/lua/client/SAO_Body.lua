@@ -102,8 +102,13 @@ function Body.materialize(rec)
     local body, how
     if SAOJavaBridge then
         local okJ, shell = pcall(function()
+            -- [C73] The record's sex goes with its name, so the
+            -- body the engine builds is the person the county already
+            -- has (DR-039). The descriptor's own sex came from
+            -- CreateSurvivor and had nothing to agree with.
             return SAOJavaBridge:spawnShellNamed(rec.forename, rec.surname,
-                wx, wy, math.floor(rec.z))
+                wx, wy, math.floor(rec.z),
+                SAO.Identity.femaleOf(rec))
         end)
         if okJ and shell then
             body, how = shell, "java-shell"

@@ -1,6 +1,6 @@
 | Document | Survivor Awareness Overhaul Batch Log |
 |---|---|
-| Version | `4.1.0.0-pre-alpha` |
+| Version | `4.1.1.0-pre-alpha` |
 | Author | ellyj3rain |
 | Repository | `BATCH_LOG.md` |
 | Status | REGULATORY - chronological batch index. |
@@ -177,3 +177,4 @@ attribution for every merged entry, stated here rather than in a branch name.
 | [C70](Batches/C70-2026-09-08-every-death-path-settles-the-house-in-one-place.md) | 2026-09-08 | Every death path settles the house in one place | [`T-004`](Batches/THREADS.md#t-004), [`T-008`](Batches/THREADS.md#t-008) |
 | [C71](Batches/C71-2026-09-08-every-person-has-their-own-belief-key.md) | 2026-09-08 | Every person has their own belief key | [`T-006`](Batches/THREADS.md#t-006), [`T-008`](Batches/THREADS.md#t-008) |
 | [C72](Batches/C72-2026-09-08-the-dormant-day-can-go-to-a-person.md) | 2026-09-08 | The dormant day can go to a person | [`T-006`](Batches/THREADS.md#t-006), [`T-004`](Batches/THREADS.md#t-004) |
+| [C73](Batches/C73-2026-09-08-a-person-is-named-when-they-are-made.md) | 2026-09-08 | A person is named when they are made | [`T-006`](Batches/THREADS.md#t-006), [`T-007`](Batches/THREADS.md#t-007) |

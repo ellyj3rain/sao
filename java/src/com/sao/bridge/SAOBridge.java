@@ -467,6 +467,70 @@ public final class SAOBridge {
         }
     }
 
+    /**
+     * [C73] How many forenames the engine ships for this sex.
+     *
+     * The pools are the game's own (SurvivorFactory.MaleForenames,
+     * FemaleForenames, Surnames - public static, no body needed). They are
+     * exposed as a length and an index rather than drawn here, because
+     * [C66] made every draw in this mod SAO's own: the engine's generator
+     * carries no state SAO can see, set or write down, and a county that
+     * drew a name from it could not be run twice. The engine owns the
+     * names; SAO.Rand owns the draw.
+     */
+    public int forenameCount(boolean female) {
+        try {
+            var pool = female ? SurvivorFactory.FemaleForenames
+                : SurvivorFactory.MaleForenames;
+            return pool == null ? 0 : pool.size();
+        } catch (Throwable throwable) {
+            SAOAgent.log("forenameCount threw: " + throwable);
+            return 0;
+        }
+    }
+
+    /** [C73] One forename out of the engine's pool, by index. */
+    public String forenameAt(boolean female, int index) {
+        try {
+            var pool = female ? SurvivorFactory.FemaleForenames
+                : SurvivorFactory.MaleForenames;
+            if (pool == null || index < 0 || index >= pool.size()) {
+                return "";
+            }
+            String name = pool.get(index);
+            return name == null ? "" : name;
+        } catch (Throwable throwable) {
+            SAOAgent.log("forenameAt threw: " + throwable);
+            return "";
+        }
+    }
+
+    /** [C73] How many surnames the engine ships. */
+    public int surnameCount() {
+        try {
+            var pool = SurvivorFactory.Surnames;
+            return pool == null ? 0 : pool.size();
+        } catch (Throwable throwable) {
+            SAOAgent.log("surnameCount threw: " + throwable);
+            return 0;
+        }
+    }
+
+    /** [C73] One surname out of the engine's pool, by index. */
+    public String surnameAt(int index) {
+        try {
+            var pool = SurvivorFactory.Surnames;
+            if (pool == null || index < 0 || index >= pool.size()) {
+                return "";
+            }
+            String name = pool.get(index);
+            return name == null ? "" : name;
+        } catch (Throwable throwable) {
+            SAOAgent.log("surnameAt threw: " + throwable);
+            return "";
+        }
+    }
+
     /** The engine-generated name of a shell's descriptor, for record backfill. */
     public String getShellName(Object object) {
         try {
@@ -2455,7 +2519,24 @@ public final class SAOBridge {
         }
     }
 
+    /**
+     * [C73] The shell takes the record's sex as well as its name.
+     *
+     * `spawnShellNamed` stamps a real forename onto the descriptor and
+     * refuses the placeholders ([C3]). The descriptor's SEX came from
+     * `CreateSurvivor`, which draws its own, so a record named Rosa could
+     * be given a male body and there was nothing to notice it with. The
+     * record decides now, and the name it carries was drawn against the
+     * same fact (DR-039).
+     *
+     * The old arity stays and defers to the engine's own draw, because
+     * the Knox adoption edge takes a person who arrives already made.
+     */
     public IsoPlayer spawnShellNamed(String forename, String surname, double dx, double dy, double dz) {
+        return spawnShellNamed(forename, surname, dx, dy, dz, null);
+    }
+
+    public IsoPlayer spawnShellNamed(String forename, String surname, double dx, double dy, double dz, Object female) {
         try {
             IsoWorld world = IsoWorld.instance;
             IsoCell cell = world == null ? null : world.getCell();
@@ -2500,6 +2581,10 @@ public final class SAOBridge {
             // one call before backfillName existed to read it - every native
             // record was "Unnamed Survivor" forever. A placeholder never
             // overwrites; a real name always does.
+            // Before the name, because the name was drawn against it.
+            if (female instanceof Boolean) {
+                desc.setFemale((Boolean) female);
+            }
             if (forename != null && !"Unnamed".equals(forename)) {
                 desc.setForename(forename);
             }
