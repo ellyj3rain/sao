@@ -1,13 +1,47 @@
 | Document | Survivor Awareness Overhaul Session State |
 |---|---|
-| Version | `4.0.1.0-pre-alpha` |
+| Version | `4.1.0.0-pre-alpha` |
 | Author | ellyj3rain |
 | Repository | `SESSION_STATE.md` |
 | Status | CANONICAL - where the work actually stands. |
 
 # Session state
 
-**As of** 2026-09-08, `[C71]` close - every person has their own
+**As of** 2026-09-08, `[C72]` close - the dormant day can go to a
+person. `chooseDayPlace` decided where a dormant survivor walks from
+thirst, hunger, lessons, beliefs and barred ground, and it had no
+social term in it, so nobody in this county had ever decided to go to
+another person and every meeting was two need-driven walks coinciding
+within three tiles. It is `chooseDayGoal` now and the goal may be a
+place or a person, chosen from whoever they believe is somewhere,
+against the county's own company line, ranked by trust over the age of
+the sighting, with `initiative` deciding whether they set out at all.
+People who arrive together have seen each other, and somebody believed
+to be where you are standing is not somewhere to go - which is what
+makes a genesis belief a durable anchor rather than one spent on the
+first day. Border 138 measures the goal rather than the call and is
+controlled against the `[C71]` tree, which already holds the belief and
+sets out 0 times in 40.
+
+**The sweep did not move, and the reason is the finding.** Twenty-four
+counties before and after: houses standing 6 of 24 against 5 of 24.
+Instrumented at each exit of the chooser, seeking is not out-ranked -
+need takes 47 percent of day-goals and a place 52 - and in 790 of 806
+choices there was no eligible person to go to at all, because a belief
+about a living person comes from a meeting and meetings almost never
+happen. **A dormant survivor walks 1.8 tiles per simulated day**,
+measured on both trees. The years pass advances its counter by 3600
+ticks per simulated day and calls `dormantLife` once, so a day gets one
+move of at most four tiles, against about eighty moves the same code
+gives that person in live play. Three simulated years carry somebody
+under two kilometres across a map fifteen thousand tiles wide. That is
+`[C62]`'s class for the third time - a cadence written in frames does
+not survive being driven a day at a time - it is F-061, and it means
+every measurement this project has taken of its own social life,
+`[C67]`'s and `[C68]`'s included, was taken in a county whose people
+barely move.
+
+**Before that**, `[C71]` - every person has their own
 belief key. A survivor's beliefs about people are keyed by
 `Identity.displayName`, which renders `"Unnamed"` for a record with no
 name, and `backfillName` reads a name off the engine shell the first
@@ -841,7 +875,7 @@ unloaded survivors are governed by the same rules ([B39], [B42]).
 
 ## Deploy state
 
-`4.0.1.0-pre-alpha` at tip - the version machine's output ([C2],
+`4.1.0.0-pre-alpha` at tip - the version machine's output ([C2],
 DR-013; the twelfth minor rolled the tier by the odometer's own
 law). The game install carries the `[C62]` tip. `[C45]` through
 `[C51]` reached it on 2026-09-07 and `[C52]` through `[C62]` on 2026-09-08, each
@@ -856,9 +890,10 @@ gate and its pull request merged, and was checked rather than assumed:
 both `mod.info` files read the coordinate the machine derived,
 `SAO_History.lua` carries the county's clock, `SAO_Standing.lua` reads
 it at all thirty-four of its sites, and `SAO.jar` is byte-identical to
-the committed build. `[C63]` through `[C70]` reached it as they closed. `[C71]` is what is
-owed now: it changes what every dormant survivor can know about
-another person, which an existing save feels from the next session. `[C67]` and
+the committed build. `[C63]` through `[C70]` reached it as they closed. `[C71]` and `[C72]` are what is
+owed now: together they change what every dormant survivor can know
+about another person and give them a reason to walk to one, which an
+existing save feels from the next session. `[C67]` and
 `[C68]` are what is owed now, and together they are the pair an
 existing save feels immediately: survivors who already trust each
 other can keep company from the next session, where before they
@@ -882,7 +917,7 @@ deploy; `save_compat_test` guards this and runs in the gate.
 
 ## Instruments
 
-**137 numbered borders**, run by **152 gated mirrors** in `tools/`, all invoked
+**138 numbered borders**, run by **153 gated mirrors** in `tools/`, all invoked
 by `tools/check.sh`, which the pre-commit hook runs and CI runs on every push.
 The figures in this paragraph are derived by Border 76 from the tree, not
 maintained by hand. Border 54 keeps the rest honest: it runs every gated
