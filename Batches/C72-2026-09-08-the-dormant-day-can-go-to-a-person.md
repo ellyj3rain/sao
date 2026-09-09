@@ -142,11 +142,20 @@ eightieth of the same person's own live movement. Three simulated
 years carry somebody under two kilometres across a map fifteen
 thousand tiles wide.
 
-That is `[C62]`'s class again - the years pass driving a system whose
-cadence is written in frames - and it is not this batch. It is recorded
-as F-061 and it is the next thing, because every measurement this
-project has taken of its own social life, `[C67]`'s and `[C68]`'s
-included, was taken in a county whose people barely move.
+That figure is `[C45]`'s and it is deliberate: its record says a
+simulated day advances the counter far enough to open each frame-paced
+gate about once, and that one move and one meeting per pair is what a
+day deserves when nobody is watching. What it never asked is what one
+move is worth. Four tiles. The reasoning is about cadence and the
+consequence is a distance, and the two were never compared - which is
+the same shape as `[C45]`'s own defect, where Border 118 asserted the
+years CALL those systems and `[C62]` found that calling them moved
+nothing.
+
+It is F-061 and it is not this batch. It matters here because every
+measurement this project has taken of its own social life, `[C67]`'s
+and `[C68]`'s included, was taken in a county whose people cover four
+tiles a day.
 
 `[C71]`'s own sweep is the control that matters: it changed what every
 dormant survivor can KNOW about another person and moved not one number

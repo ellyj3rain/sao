@@ -1131,7 +1131,7 @@ the engine's VM. Its control is the `[C71]` tree, which already holds
 the belief: a survivor who believes somebody they trust at 0.85 is a
 hundred and fifty tiles away sets out toward them 0 times in 40.
 
-## F-061 - A survivor in the unwatched years walks four tiles a day
+## F-061 - One move per simulated day is four tiles, and nobody checked
 
 The years pass advances `tickCounter` by `YEARS_TICKS_PER_DAY` - 3600 -
 per simulated day and calls `dormantLife` once. `dormantLife` moves a
@@ -1161,12 +1161,33 @@ county where two people who live in the same house drift apart and
 never walk far enough to find each other again. 179 of 287 people
 never meeting anybody is not a fact about the social model.
 
-**The shape, named.** This is `[C62]`'s class and the third instance of
-it. A pass that lives a day on behalf of the county owes that day
-everything the day contains - `[C62]` gave it the clock, `[C63]` gave
-it the right number of days, and this is the movement. A cadence
-written in frames does not survive being driven a day at a time, and
-the years drive nine systems that way.
+**It was chosen, and the choice was never measured.** This is not an
+oversight and it is not `[C62]`'s class. `[C45]`'s own record says so
+in as many words: *the dormant systems pace in frames, so a day has to
+buy them - a person moves every 1800 to 3600 of them and a pair may
+meet once per 1800, so a simulated day advances that counter far
+enough to open each gate about once. One move and at most one meeting
+per pair is what a day deserves when nobody is watching it.* The
+figure is deliberate and it is written down.
+
+What was never asked is what one move is WORTH. The reasoning is about
+cadence - how often each frame-paced gate opens - and it never crosses
+into distance. One move is four tiles. So the decision reads as "a day
+opens each gate once" and lands as "a person covers four tiles a day",
+and those are not the same sentence.
+
+That is the class, and this project has hit it before: a decision
+about a mechanism's cadence, checked against the cadence and never
+against its effect. `[C45]` itself was the last instance - Border 118
+asserted the years CALL those systems, which they did, and `[C62]`
+found that calling them moved nothing.
+
+**The cost that produced it.** `[C45]` measured the alternative: at the
+live cadence three simulated years cost about five and a half hours of
+real time, and at a day a day about two minutes. One pass per day is
+what bought that, and any correction has to keep it - which means
+moving a day's distance inside one pass rather than running a day's
+passes.
 
 **Instrument note.** The first sampler for this divided distance by
 sample points rather than person-days, and the years live fifty
