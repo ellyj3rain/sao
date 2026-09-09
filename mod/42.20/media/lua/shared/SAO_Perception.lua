@@ -543,6 +543,128 @@ function P.believedPerson(id, name)
     return b and b.people[name] or nil
 end
 
+-- [C71] Laying eyes on somebody, from the half of the county that has
+-- no eyes to scan with.
+--
+-- The live half writes this belief off the scanner - the `P` rows in
+-- `observe` above. The dormant half has no body and no scanner, and it
+-- has been producing firsthand meetings all along: two people standing
+-- three tiles apart, teaching each other lessons, arguing doctrine,
+-- passing grudges and credits, forming houses. None of it was ever
+-- written down. Measured over eight counties of 1096 days: not one
+-- survivor in any of them held a belief that a LIVING person was
+-- anywhere, and the only person-beliefs that existed at all were death
+-- notices. Law 1's second half calls that a defect - failing to act on
+-- what they did see is as wrong as knowing what they did not.
+--
+-- Same write, same provenance, for a caller that knows who and where
+-- rather than reading it off a scan. Durable knowledge survives it as
+-- it does there: a fresh look is a position update, not amnesia.
+function P.sawPerson(id, name, x, y, tick, otherId)
+    if not (id and name and x and y and tick) then return false end
+    if name == "" or name == "Unnamed" then return false end
+    local b = store(id)
+    local prev = b.people[name]
+    local hours = nil
+    pcall(function() hours = SAO.History.countyHours() end)
+    -- The reunion ([A28]): somebody you believed dead is standing in
+    -- front of you. `observe` makes this a moment rather than a silent
+    -- overwrite, and one rule with two spellings is how they drift.
+    if prev and prev.dead and P.reunionHandler then
+        pcall(P.reunionHandler, id, name, prev.teller,
+            prev.presumed == true, tick)
+    end
+    b.people[name] = {
+        x = x, y = y, dist = (prev and prev.dist) or 0,
+        at = tick, atHours = hours,
+        source = "observed",
+        condition = (prev and prev.condition) or "ok",
+        seenInFaction = prev and prev.seenInFaction or nil,
+        -- The dormant caller knows exactly who this is; the scanner
+        -- never does, because it reads a name off a shell. Carried
+        -- only where it is known, so `Identity.idByName` stays the
+        -- answer everywhere else and this is never a second index.
+        id = otherId and tostring(otherId) or (prev and prev.id) or nil,
+    }
+    return true
+end
+
+-- [C71] Somebody the county knew by their id has been given a name.
+--
+-- A person is keyed in this store by `Identity.beliefKey`, which is
+-- their id until the engine hands `backfillName` a name off the first
+-- shell built for them. Without this, everybody who had ever met them
+-- would lose them at that moment and the county's memory of a person
+-- would reset the first time a player walked near them.
+--
+-- Shaped on `Standing.migrateKey`, which does the same job for
+-- relation rows. The sentinel is refused rather than moved: beliefs
+-- keyed "Unnamed" were written before this batch and belong to no
+-- particular person, so handing them to whoever materialises first
+-- would invent a memory rather than carry one.
+function P.migratePersonKey(oldKey, newKey)
+    if not (oldKey and newKey) then return 0 end
+    oldKey, newKey = tostring(oldKey), tostring(newKey)
+    if oldKey == newKey or oldKey == "Unnamed" then return 0 end
+    local moved = 0
+    for _, b in pairs(P.beliefs) do
+        local old = b.people and b.people[oldKey]
+        if old then
+            local held = b.people[newKey]
+            -- The fresher sighting wins, and what only the older one
+            -- knows is kept: a belief that somebody died does not
+            -- expire because a newer look found their body walking.
+            if not held or (old.at or 0) > (held.at or 0) then
+                if held then
+                    old.dead = old.dead or held.dead
+                    old.turned = old.turned or held.turned
+                    old.seenInFaction = old.seenInFaction
+                        or held.seenInFaction
+                end
+                b.people[newKey] = old
+            elseif old.dead and not held.dead then
+                held.dead = true
+                held.turned = held.turned or old.turned
+            end
+            b.people[oldKey] = nil
+            moved = moved + 1
+        end
+    end
+    return moved
+end
+
+-- [C71] Learning that somebody is dead, from the half of the county
+-- that has no eyes.
+--
+-- `P.tell` carries death news between two people who are talking and
+-- has always written this belief itself. The dormant attrition pass
+-- wrote its own copy of the same thing - word reaching the bonded and
+-- the company a day or two after somebody never came back - and it
+-- read `P.beliefs[hearer]` directly rather than opening a store, so
+-- for a survivor who had never been told anything by anybody the news
+-- landed nowhere. In a dormant county that is nearly everybody: the
+-- median county had ONE person in it holding any belief about any
+-- person at all.
+function P.learnOfDeath(id, key, x, y, tick, turned)
+    if not (id and key and tick) then return false end
+    if key == "" or key == "Unnamed" then return false end
+    local b = store(id)
+    local pb = b.people[key]
+    if pb then
+        pb.dead = true
+        if turned then pb.turned = true end
+    else
+        b.people[key] = {
+            x = x, y = y, dist = 999, at = tick,
+            source = "told", dead = true, turned = turned or nil,
+        }
+    end
+    if P.deathNewsHandler then
+        pcall(P.deathNewsHandler, id, key, tick)
+    end
+    return true
+end
+
 function P.describe(id, tick)
     local b = P.beliefs[id]
     if not b then return "no-beliefs" end
@@ -912,7 +1034,9 @@ end
 function P.cryForHelp(fromId, tick)
     local fromRec = SAO.Identity and SAO.Identity.get
         and SAO.Identity.get(fromId) or nil
-    local fromName = fromRec and SAO.Identity.displayName(fromRec) or nil
+    -- [C71] The key this store holds them under, not the name a
+    -- player would be shown.
+    local fromName = fromRec and SAO.Identity.beliefKey(fromRec) or nil
     if not fromName then return 0 end
     local fromBody = SAO.Body and SAO.Body.get and SAO.Body.get(fromId)
     if not fromBody then return 0 end
@@ -996,7 +1120,8 @@ end
 function P.announceDeparture(fromId, kind, destX, destY)
     local fromRec = SAO.Identity and SAO.Identity.get
         and SAO.Identity.get(fromId) or nil
-    local fromName = fromRec and SAO.Identity.displayName(fromRec) or nil
+    -- [C71] The belief key, as above.
+    local fromName = fromRec and SAO.Identity.beliefKey(fromRec) or nil
     if not fromName then return end
     local fromBody = SAO.Body and SAO.Body.get and SAO.Body.get(fromId)
     if not fromBody then return end

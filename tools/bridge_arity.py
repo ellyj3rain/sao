@@ -16,6 +16,17 @@ This compares the Lua call sites against the COMPILED bridge class,
 because the compiled surface is the one that ships. javap, not the
 source: the source is what was meant, the class file is what runs.
 
+[C71] And it reads the SHIPPED jar, which is what "the compiled
+surface" means. It read `java/out` - a build directory, gitignored,
+holding whatever was last compiled on this machine. In a fresh clone
+or a fresh worktree that is empty or stale, and a stale one is worse
+than an empty one: this reported `countyMonth` as a method that does
+not exist and `daysBehindAtStart` as taking no arguments, both of them
+correct in the tree and correct in the jar, because the build output
+predated `[C61]` to `[C63]`. An instrument accusing correct code is a
+defect in the instrument. The build output is still read where there
+is no jar, and the line says which of the two answered.
+
 What it checks
   1. NAME     - every method Lua calls exists on the bridge.
   2. ARITY    - the argument count matches some overload.
@@ -39,6 +50,10 @@ import sys
 ROOT = pathlib.Path(__file__).resolve().parent.parent
 LUA = ROOT / "mod" / "42.20" / "media" / "lua"
 OUT = ROOT / "java" / "out"
+# What ships. `tools/build-java.sh` packages this on every build, so it
+# is never behind the build output, and it is tracked, so it is the
+# same on every machine.
+JAR = ROOT / "mod" / "42.20" / "media" / "java" / "SAO.jar"
 JAVAP = pathlib.Path(
     r"C:\Users\jleyv\Peanut Butter\JetBrains\Java\bin\javap.exe")
 BRIDGE = "com.sao.bridge.SAOBridge"
@@ -206,15 +221,33 @@ def split_params(text):
     return out
 
 
+def bridge_source():
+    """The compiled surface to read, and what to call it.
+
+    The shipped jar first, because that is the artifact anyone
+    installing this mod runs. The build output only when there is no
+    jar, and named as such, so a run against a stale build directory
+    cannot be mistaken for a run against what ships.
+    """
+    if JAR.exists():
+        return str(JAR), "the shipped jar"
+    if (OUT / "com" / "sao" / "bridge" / "SAOBridge.class").exists():
+        return str(OUT), "the build output (no shipped jar present)"
+    return None, None
+
+
 def bridge_methods():
     """name -> list of parameter-type lists, from the CLASS FILE."""
     if not JAVAP.exists():
         return None, f"javap not found at {JAVAP}"
-    if not (OUT / "com" / "sao" / "bridge" / "SAOBridge.class").exists():
-        return None, ("java/out/com/sao/bridge/SAOBridge.class is "
-                      "missing - run tools/build-java.sh first")
+    where, _ = bridge_source()
+    if where is None:
+        return None, ("no compiled bridge: neither "
+                      "mod/42.20/media/java/SAO.jar nor "
+                      "java/out/com/sao/bridge/SAOBridge.class - run "
+                      "tools/build-java.sh first")
     proc = subprocess.run(
-        [str(JAVAP), "-p", "-cp", str(OUT), BRIDGE],
+        [str(JAVAP), "-p", "-cp", where, BRIDGE],
         capture_output=True, text=True, errors="ignore")
     if proc.returncode != 0:
         return None, f"javap failed: {proc.stderr.strip()[:200]}"
@@ -294,7 +327,7 @@ def main():
 
     called = {s["name"] for s in sites}
     print(f"18) bridge: {len(methods)} public methods on "
-          f"{BRIDGE.split('.')[-1]} (from the class file)")
+          f"{BRIDGE.split('.')[-1]} (from {bridge_source()[1]})")
     print(f"call sites:     {len(sites)} across the Lua tree, "
           f"{len(called)} distinct methods")
     print(f"never called:   {len(set(methods) - called)} bridge "

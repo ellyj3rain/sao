@@ -1624,6 +1624,17 @@ if ! "$PY" tools/death_leaves_company_test.py > /dev/null; then
     fail=1
 fi
 
+# [C71] Border 137 - a belief is about a person: every person has a
+# belief key of their own, a dormant meeting is written down, and word
+# of a death opens a store in a head that has nothing in it. Before
+# this the whole county keyed on the sentinel "Unnamed", so one death
+# notice was everybody's entire memory of the dead.
+if ! "$PY" tools/person_belief_test.py > /dev/null; then
+    "$PY" tools/person_belief_test.py 2>&1 | grep -E "FAULT|SKIPPED" || true
+    note "BORDER FINDING - beliefs about people are not about people"
+    fail=1
+fi
+
 # Border 103 - the operator's speech is not in the repository: no
 # profanity in the tracked tree and no operator-quote attributions;
 # rulings are paraphrased content, speech stays with the speaker.

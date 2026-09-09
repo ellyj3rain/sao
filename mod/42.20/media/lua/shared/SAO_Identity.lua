@@ -285,6 +285,32 @@ function Identity.knownName(rec)
     return Identity.displayName(rec)
 end
 
+-- [C71] The one way a record renders as a BELIEF key.
+--
+-- `displayName` above says it is this, and for the live half it is:
+-- the scanner reads a name off a shell and the record carries the same
+-- one. The dormant half has no shells. `backfillName` takes a name off
+-- the engine when a body is first built, so a survivor the county has
+-- never materialised carries the sentinel, and measured over a swept
+-- county of 271 people all 271 of them did. Every belief about every
+-- one of them keyed on the single string "Unnamed", so one death
+-- notice was the county's whole memory of its dead and the next one
+-- overwrote it.
+--
+-- A belief is about a person, so the key is the person: the name where
+-- there is one and the id where there is not. `idByName` indexes both,
+-- so a key still resolves to whoever it names, and a record that gains
+-- its engine name carries its beliefs across through
+-- `Perception.migratePersonKey`. `knownName` above is untouched and
+-- still refuses the sentinel, so no id reaches a player-facing surface
+-- (DR-017).
+function Identity.beliefKey(rec)
+    if not rec then return nil end
+    local named = Identity.knownName(rec)
+    if named then return named end
+    return rec.id and tostring(rec.id) or nil
+end
+
 function Identity.idByName(name)
     if not name or name == "" or name == "Unnamed" then return nil end
     if not nameIndex then
@@ -293,7 +319,11 @@ function Identity.idByName(name)
             -- Full names first-class ([A24]); bare forenames kept as
             -- fallback for player-typed and legacy surfaces. Collisions
             -- resolve lexically-least, deterministic across rebuilds.
-            for _, key in ipairs({ Identity.displayName(rec), rec.forename }) do
+            -- [C71] The id is a key here because it is a belief key
+            -- for anybody the county has not named yet, and a key
+            -- nothing can resolve is not a key.
+            for _, key in ipairs({ Identity.displayName(rec), rec.forename,
+                                   id }) do
                 if key and key ~= "" then
                     local existing = nameIndex[key]
                     if not existing or id < existing then

@@ -1,6 +1,6 @@
 | Document | Survivor Awareness Overhaul Decision Registry |
 |---|---|
-| Version | `4.0.0.3-pre-alpha` |
+| Version | `4.0.1.0-pre-alpha` |
 | Author | ellyj3rain |
 | Repository | `DECISION_REGISTRY.md` |
 | Status | CANONICAL, APPEND-ONLY - ratified decisions. |
@@ -1332,3 +1332,73 @@ the evening seat and the porch tune, and nothing else changes.
 
 **Origin.** Operator direction in chat and two Crucible rulings,
 2026-09-06 and 07; the files read on disk before anything was chosen.
+
+---
+
+## DR-038 - The cognition dataset is generated in character and validated by the sweep
+
+**Date** 2026-09-08
+**Status** RATIFIED
+
+**Decision.** Speakeasy builds the cognition dataset by putting a
+person's own SAO record - traits, conditions, habits, occupation,
+history, age, lessons, and the belief set they hold at that moment -
+to a language model and asking it to decide as that person, in that
+situation, among the options actually available. The rows it produces
+are decisions and the words a group uses for a thing it has just
+invented. They are distilled into a small model that ships inside
+SAO's own tree, so nothing reaches an external service at play time
+and no capability requires another mod (DR-035). The county sweep
+measures whether the resulting distributions are sane, and the
+distribution is the check, never a border: a border is a point and a
+county is a distribution.
+
+Rows arrive as a proposal the operator rules on. AI-written behaviour
+is not ratified intent, and a dataset does not become intent by being
+large.
+
+**Why.** The authored enumerations are the error to stop repeating:
+SAO deals a company's work from a five-word list mapped off occupation
+class, and renders creeds from four fixed names. The operator's
+requirement is that one group create a position because it needed one
+and have its own word for it, while another creates a functionally
+identical position and calls it something else. That is generative,
+and the source of the rows decides what is possible. The county's own
+runs can only teach what the county already does, so they cannot
+produce a word the tree never contained. The era's real behavioural
+data gives rates and prevalences - which is what the conditions table
+is already built on - and gives no decisions at all. A model deciding
+in character is the only source that can produce the position and the
+name together.
+
+**Origin.** Operator ruling, 2026-09-08, on the finding that the
+dormant goal path had no social term and that every meeting in the
+county was two need-driven walks coinciding.
+
+---
+
+## DR-039 - A survivor is named at genesis, and SAO decides their sex
+
+**Date** 2026-09-08
+**Status** RATIFIED
+
+**Decision.** A person is named when they are created, not when a body
+is first built for them. SAO draws a sex and a forename at genesis
+from the engine's own name pools
+(`SurvivorFactory.getRandomForename(boolean)` and `getRandomSurname()`,
+javap-verified as public statics on the installed jar), with the draw
+made by `SAO.Rand` so a county stays reproducible ([C66]) and the
+names stay the game's own rather than a list this project authored.
+The shell the engine builds later is driven to agree with the sex the
+record already holds. `backfillName` remains for the adoption edge,
+where another mod's person arrives already named.
+
+**Why.** `backfillName` reads a name off the engine descriptor when a
+body is first materialised, so a survivor nobody has ever stood near
+carries the `Unnamed` sentinel for the life of the save - measured at
+271 of 271 in a swept county. A name is a fact about a person and not
+about their body. `[C71]` made the absence survivable by keying
+beliefs on the person rather than on what they are called; it did not
+cure it, and the operator ruled for the cure.
+
+**Origin.** Operator ruling, 2026-09-08, on `[C71]`'s measurement.

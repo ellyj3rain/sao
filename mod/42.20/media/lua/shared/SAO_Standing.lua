@@ -2787,18 +2787,36 @@ end
 -- bodies). Empty table when ungrouped or alone.
 -- Fellowship ends at death; the living remember, but the roster is of
 -- the living.
-function S.fellowsOf(id)
-    local s = store(); if not s then return {} end
-    local g = s.groups[id]
-    if not g then return {} end
+-- [C71] Who is in a house, asked by the house's name.
+--
+-- `fellowsOf` below answers the same question through a member, which
+-- is what every living caller has. A house whose only way in was one
+-- of its members could not be reached about a member who had died:
+-- [C68] takes a corpse off the roster at the moment of death, and it
+-- is right to, so a dead person has no fellows by the time word of
+-- their death is due.
+--
+-- The roster means LIVING membership, as it always has, so the dead
+-- are filtered here rather than at each caller.
+function S.membersOf(groupName)
+    local s = store(); if not s or not groupName then return {} end
     local out = {}
     for otherId, otherGroup in pairs(s.groups) do
-        if otherId ~= id and otherGroup == g then
+        if otherGroup == groupName then
             local rec = SAO.Identity and SAO.Identity.get(otherId) or nil
             if not (rec and rec.dead) then
                 out[#out + 1] = otherId
             end
         end
+    end
+    return out
+end
+
+function S.fellowsOf(id)
+    local s = store(); if not s then return {} end
+    local out = {}
+    for _, otherId in ipairs(S.membersOf(s.groups[id])) do
+        if otherId ~= id then out[#out + 1] = otherId end
     end
     return out
 end

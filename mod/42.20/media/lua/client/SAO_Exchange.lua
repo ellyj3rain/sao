@@ -39,7 +39,7 @@ local function refusesColors(id, agent, otherId, tickCount)
     local myG = SAO.Standing.groupOf(id)
     if not myG then return false end
     local orec = SAO.Identity.get(otherId)
-    local oname = SAO.Identity.displayName(orec)
+    local oname = SAO.Identity.beliefKey(orec)   -- [C71]
     if not oname then return false end
     local b = SAO.Perception.beliefs[id]
     local pb = b and b.people[oname] or nil
@@ -102,7 +102,7 @@ function Exchange.betweenPair(id, agent, body, otherId, otherBody, tickCount)
         -- not a script's. No exile verb exists by design.
         if SAO.Standing.sameGroup(id, otherId) then
             local orec3 = SAO.Identity.get(otherId)
-            local oname3 = orec3 and SAO.Identity.displayName(orec3)
+            local oname3 = orec3 and SAO.Identity.beliefKey(orec3)   -- [C71]
             local b3 = SAO.Perception.beliefs[id]
             local opb3 = b3 and oname3 and b3.people[oname3] or nil
             if opb3 and opb3.condition == "bitten" then
@@ -298,7 +298,7 @@ function Exchange.betweenPair(id, agent, body, otherId, otherBody, tickCount)
             and tickCount >= (agent.nextShareAt or 0)
             and (SAO.Disposition.wouldGiveToStranger(id) or larderOpen)
             and not refusesColors(id, agent, otherId, tickCount) then
-            local otherName = SAO.Identity.displayName(
+            local otherName = SAO.Identity.beliefKey(   -- [C71]
                 SAO.Identity.get(otherId))
             local seenOther = otherName
                 and SAO.Perception.beliefs[id]

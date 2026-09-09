@@ -1,6 +1,6 @@
 | Document | Survivor Awareness Overhaul Batch Log |
 |---|---|
-| Version | `4.0.0.3-pre-alpha` |
+| Version | `4.0.1.0-pre-alpha` |
 | Author | ellyj3rain |
 | Repository | `BATCH_LOG.md` |
 | Status | REGULATORY - chronological batch index. |
@@ -175,3 +175,4 @@ attribution for every merged entry, stated here rather than in a branch name.
 | [C68](Batches/C68-2026-09-08-a-death-leaves-the-company.md) | 2026-09-08 | A death leaves the company | [`T-004`](Batches/THREADS.md#t-004), [`T-008`](Batches/THREADS.md#t-008) |
 | [C69](Batches/C69-2026-09-08-the-county-sweep-is-a-tool-in-the-tree.md) | 2026-09-08 | The county sweep is a tool in the tree | [`T-008`](Batches/THREADS.md#t-008), [`T-009`](Batches/THREADS.md#t-009) |
 | [C70](Batches/C70-2026-09-08-every-death-path-settles-the-house-in-one-place.md) | 2026-09-08 | Every death path settles the house in one place | [`T-004`](Batches/THREADS.md#t-004), [`T-008`](Batches/THREADS.md#t-008) |
+| [C71](Batches/C71-2026-09-08-every-person-has-their-own-belief-key.md) | 2026-09-08 | Every person has their own belief key | [`T-006`](Batches/THREADS.md#t-006), [`T-008`](Batches/THREADS.md#t-008) |
