@@ -1,6 +1,6 @@
 | Document | Survivor Awareness Overhaul Roadmap |
 |---|---|
-| Version | `4.1.1.1-pre-alpha` |
+| Version | `4.1.2.0-pre-alpha` |
 | Author | ellyj3rain |
 | Repository | `ROADMAP.md` |
 | Status | CANONICAL - thread map, backlog, live gates. |
@@ -471,4 +471,122 @@ three forks returned through Crucible the same day (DR-033, ruled):
 no authority table, command as CAO's Authority pillar does it on the
 Standing that exists; refusal contextual; the engineless county not
 scoped, the game being loaded anyway.
+
+---
+
+## The queue as of `[C75]` (2026-09-09)
+
+Ordered, and each one has its finding or its ruling behind it already.
+This exists so the next move is never a question.
+
+### 1 - A house in the unwatched county can take ground
+
+`setGroupClaim`, `setHearth`, `setLarder` and `setWaterStore` have call
+sites in `SAO_Controller` alone, which needs materialised bodies. So a
+dormant house that now forms and stands has nowhere to be, and every
+survival modifier reading those is inert unless a player is watching.
+This is S4's own subject and it is blocked on nothing.
+
+The live decision is already shaped and read at `[C75]`, so the dormant
+one is a port rather than a design: a scored building, refused if it
+would claim over somebody's home, refused if it sits inside a feud
+enemy's keep-out, and the reason logged because a decision whose
+reasons are computed and thrown away is indistinguishable from one that
+was scripted. What the dormant half cannot reuse is the locomotion
+order the live path gates on - a dormant walker has no body to order,
+and arriving is `[C75]`'s walk. `Perception.learnBuilding` already
+records every arrival, so which buildings a house's members actually
+reach is a fact that exists and is unread.
+
+### 2 - The place ontology (DR-006 S4, operator-named error)
+
+`s.groupClaims[groupName]` is a single rectangle and S4 says "one
+settled bounds fact per group name". A group holding a base in one town
+plus stash houses around it is unrepresentable, and so is a group
+deciding to leave. The operator ruled this a real error rather than a
+missing feature.
+
+Ratified direction: what a place IS to a group is derived from use
+rather than declared by a tag - a house comes to hold ground through
+where its members already go, and `Perception.learnBuilding` already
+records every arrival, so the fact exists and is unread.
+
+Nothing is enforced. A frightened pair with one room they sleep in is a
+correct outcome; competency follows from who is in the house.
+
+**It is an extension, not a rewrite, and that was read rather than
+assumed.** A group's ground has twenty-nine read sites across eight
+files, and they ask only two questions: *is this point inside group
+G's ground* - `allGroupClaims` iterated with a rect containment test -
+and *where is group G* - `groupClaimOf` used as a centre or a
+destination. A set of places answers both: containment is any of them
+containing the point, and where-is-it is the group's seat.
+
+So `groupClaimOf` can keep answering the seat and `allGroupClaims` can
+keep answering one rect per group, while the set is additive and read
+by the things that need it. Twenty-nine sites do not have to move for
+a group to hold more than one place, and the ones that eventually
+should are the ones where holding several changes the answer -
+trespass, the feud keep-out, and where a venture brings things back
+to.
+
+What a place IS to a group comes from use, not a tag: the county
+already measures how often a group's members go somewhere
+(`learnBuilding`'s visit count), where they sleep (`homeX`), and what
+they got there (`Places.take`, `lastWaterDay`). A base, a stash and a
+water run are those numbers falling out differently, not three names
+in a table.
+
+### 3 - Recruitment, and why a house cannot grow past a pair
+
+A road meeting is worth `ROAD_TRUST` - 0.005 - so reaching the company
+line from nothing takes two hundred meetings with the same person.
+Houses therefore only ever form between people who already trusted each
+other at genesis. `[C72]` reconvenes those people; it introduces
+nobody. Whether a meeting should be worth more, or whether somebody
+should seek a person they do NOT yet trust because that person has
+something they need, is a cognition question (DR-038) rather than a
+number to raise.
+
+### 3b - What the walking costs, measured
+
+`[C75]` made a county's people cross their neighbourhoods, and a county
+sweep went from about a minute to about eight. The cause is read and
+recorded: `nearestOffering` caches against an anchor quantised to
+thirty tiles, so a walker who moves pays a ring sweep per quantum
+crossed instead of one per week.
+
+Three things are unmeasured and should be before any of them is
+optimised. How many ticks a real catching-up county now takes, which is
+what a player would feel. How large `Pl.know_cache` grows over a long
+session - keyed by that anchor, never evicted, and `Pl.reset` has no
+caller anywhere in the tree, though it is session state and no save
+carries it. And how large `Perception`'s `b.known` grows, which is the
+one that matters: an entry per building per person, pruned nowhere,
+and persisted through `[C15]`'s bind.
+
+`b.known` is also what `[C76]` settles a house on, so the growth is the
+feature and the cost at once. Measure before trimming.
+
+### 4 - The county's pace is frame time, not real time
+
+Standing operator item. Everything except the voice cooldown counts
+frames, so a 144Hz machine runs a county 2.4x faster than a 60Hz one.
+`[C75]` moved the dormant walk onto the county's clock; the rest of the
+timers did not move. Changing them touches every timer in the mod and
+changes how the game feels, which is why it is the operator's.
+
+### 5 - The play receipts the C era owes
+
+Unchanged and unblocked by any of the above. `[C29]` through `[C33]`
+wait together, and `[C71]` through `[C75]` join them: what a county
+does when somebody is watching it is the one thing the tree cannot
+produce for itself.
+
+### Beside this tree
+
+`../zombie-awareness` G0 is not closed - what the loaded recovery mods
+expose is unchecked, because the Antibodies family is not installed.
+`../zomboid-speakeasy` has the dataset's source and row shape ratified
+(DR-038, its record entries 24 and 25) and no rows yet.
 

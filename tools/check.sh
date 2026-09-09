@@ -1656,6 +1656,17 @@ if ! "$PY" tools/named_at_genesis_test.py > /dev/null; then
     fail=1
 fi
 
+# [C75] Border 140 - a day of walking is a day of walking (F-061): the
+# dormant step was a constant per PASS, and a pass is hundreds of
+# frames live and one whole simulated day in the years, so a day
+# delivered four tiles and three years carried somebody under two
+# kilometres. It is a rate over the county's clock now.
+if ! "$PY" tools/walk_rate_test.py > /dev/null; then
+    "$PY" tools/walk_rate_test.py 2>&1 | grep -E "FAULT|SKIPPED" || true
+    note "BORDER FINDING - a day does not carry a day's walking"
+    fail=1
+fi
+
 # Border 103 - the operator's speech is not in the repository: no
 # profanity in the tracked tree and no operator-quote attributions;
 # rulings are paraphrased content, speech stays with the speaker.

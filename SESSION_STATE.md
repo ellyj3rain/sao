@@ -1,13 +1,46 @@
 | Document | Survivor Awareness Overhaul Session State |
 |---|---|
-| Version | `4.1.1.1-pre-alpha` |
+| Version | `4.1.2.0-pre-alpha` |
 | Author | ellyj3rain |
 | Repository | `SESSION_STATE.md` |
 | Status | CANONICAL - where the work actually stands. |
 
 # Session state
 
-**As of** 2026-09-09, `[C74]` close - the three projects and what each
+**As of** 2026-09-09, `[C75]` close - a day of walking is a day of
+walking. The dormant walk stepped four tiles per PASS, and a pass is
+hundreds of frames in the live county and one whole simulated day in
+the years, so a day delivered four tiles: 1.8 tiles per person per
+simulated day, measured, across a map fifteen thousand tiles wide.
+`[C45]` chose one move per simulated day deliberately and reasoned
+about how often each frame-paced gate opens; it never asked what one
+move is worth in ground. The step is a rate over the county's own clock
+now, at `[C25]`'s ratified day-reach scaled by the pace of the age
+(DR-040), so a day of clock carries a day's walking in either half and
+a goal further off takes the days it takes. A sourced real-world figure
+was tried first and abandoned: nothing in the installed build says what
+a tile is in metres, and the shipped map is not to a consistent scale
+(F-062).
+
+**What that was costing.** Twenty-four counties before and after, same
+seeds: houses founded went from a median of 20 to 43, houses standing
+after three years from a mean of 0.3 to 1.1 and from 8 of 24 counties
+to 14, people alive at the end from a median of 2 to 5, deaths from 284
+to 269. Nothing in the batch touched a company, a meeting, a trust
+number or the goal path - so `[C67]`, `[C68]`, `[C71]` and `[C72]` were
+each doing more than their own measurements could show. The social
+model was never the thing that was failing.
+
+**What it costs.** A county sweep went from about a minute to between
+seven and seventeen, because a walker who crosses their neighbourhood
+crosses five of `nearestOffering`'s cache quanta a day instead of one a
+week. Two growths follow and neither is measured yet: `Pl.know_cache`,
+never evicted with `Pl.reset` uncalled anywhere, which is session state;
+and `Perception`'s `b.known`, an entry per building per person, pruned
+nowhere, and persisted through `[C15]`'s bind. Both are queued in
+`ROADMAP.md` with the measurement first.
+
+**Before that**, `[C74]` - the three projects and what each
 owns. Three repositories describe one county and no document held them
 together or named the edges between them. `PROJECTS.md` does, canonical
 here and pointed at from the other two: SAO owns the living, ZAO
@@ -58,8 +91,13 @@ first day. Border 138 measures the goal rather than the call and is
 controlled against the `[C71]` tree, which already holds the belief and
 sets out 0 times in 40.
 
-**The sweep did not move, and the reason is the finding.** Twenty-four
-counties before and after: houses standing 6 of 24 against 5 of 24.
+**The sweep barely moved, and the reason is the finding.** Twenty-four
+counties before and after, on the tree that actually shipped: houses
+standing 6 of 24 against 8 of 24, a difference this sample cannot
+separate from noise. The figures in `[C72]`'s own record are 5 of 24
+and were measured before two of that batch's changes landed; F-063
+carries the correction, and the ledger's append-only rule is why it is
+an entry rather than an edit.
 Instrumented at each exit of the chooser, seeking is not out-ranked -
 need takes 47 percent of day-goals and a place 52 - and in 790 of 806
 choices there was no eligible person to go to at all, because a belief
@@ -910,7 +948,7 @@ unloaded survivors are governed by the same rules ([B39], [B42]).
 
 ## Deploy state
 
-`4.1.1.1-pre-alpha` at tip - the version machine's output ([C2],
+`4.1.2.0-pre-alpha` at tip - the version machine's output ([C2],
 DR-013; the twelfth minor rolled the tier by the odometer's own
 law). The game install carries the `[C62]` tip. `[C45]` through
 `[C51]` reached it on 2026-09-07 and `[C52]` through `[C62]` on 2026-09-08, each
@@ -952,7 +990,7 @@ deploy; `save_compat_test` guards this and runs in the gate.
 
 ## Instruments
 
-**139 numbered borders**, run by **154 gated mirrors** in `tools/`, all invoked
+**140 numbered borders**, run by **155 gated mirrors** in `tools/`, all invoked
 by `tools/check.sh`, which the pre-commit hook runs and CI runs on every push.
 The figures in this paragraph are derived by Border 76 from the tree, not
 maintained by hand. Border 54 keeps the rest honest: it runs every gated
