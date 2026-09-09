@@ -1,13 +1,33 @@
 | Document | Survivor Awareness Overhaul Session State |
 |---|---|
-| Version | `4.2.0.0-pre-alpha` |
+| Version | `4.2.0.1-pre-alpha` |
 | Author | ellyj3rain |
 | Repository | `SESSION_STATE.md` |
 | Status | CANONICAL - where the work actually stands. |
 
 # Session state
 
-**As of** 2026-09-09, `[C76]` close - a house takes ground where its
+**As of** 2026-09-09, `[C77]` close - what the walking costs. `[C75]`
+named two growths it could not measure at the time and both are
+measured now, over six counties: a whole county holds a median of 110
+known buildings and the survivor who knows most knows 109 of the map's
+2,831, while the place-knowledge cache holds about eight hundred keys.
+Neither is a problem. `know_cache` is session state and
+`IngameState.exit()` reinitialises Lua when a world is left, so it
+cannot reach the next world (F-064) - and `Places.reset` having no
+caller is the engine doing the job rather than an oversight. `b.known`
+is persisted, and `[C75]`'s record calling it "pruned nowhere in the
+tree" was wrong: `Perception.forget` drops the whole belief store and
+`Identity.markDead` calls it, so it is bounded by the living rather
+than by everyone who ever lived (F-065). Both misreadings came from
+searching a narrow spelling instead of the mechanism - one level too
+low in one case, the wrong method in the other - which is `[C70]`'s
+defect and the prose-is-not-code clause reached from two more
+directions. Nothing under `mod/` changes; what remains from `[C75]`'s
+cost is how many ticks a real catching-up county takes, which is a
+play receipt.
+
+**Before that**, `[C76]` - a house takes ground where its
 people already go. `setGroupClaim`, `setHearth`, `setLarder` and
 `setWaterStore` had call sites in `SAO_Controller` alone, which needs
 materialised bodies, so a dormant house - and after `[C71]`, `[C72]`
@@ -971,7 +991,7 @@ unloaded survivors are governed by the same rules ([B39], [B42]).
 
 ## Deploy state
 
-`4.2.0.0-pre-alpha` at tip - the version machine's output ([C2],
+`4.2.0.1-pre-alpha` at tip - the version machine's output ([C2],
 DR-013; the twelfth minor rolled the tier by the odometer's own
 law). The game install carries the `[C62]` tip. `[C45]` through
 `[C51]` reached it on 2026-09-07 and `[C52]` through `[C62]` on 2026-09-08, each

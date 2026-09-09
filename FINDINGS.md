@@ -1,6 +1,6 @@
 | Document | Survivor Awareness Overhaul Findings |
 |---|---|
-| Version | `4.2.0.0-pre-alpha` |
+| Version | `4.2.0.1-pre-alpha` |
 | Author | ellyj3rain |
 | Repository | `FINDINGS.md` |
 | Status | CANONICAL, APPEND-ONLY - verified engine findings. |
@@ -1300,3 +1300,91 @@ and shipping the result is measuring a tree nobody has.
 **Correction, not rewrite.** `[C72]`'s record and pull request stand as
 written; this entry is what the ledger's append-only rule provides for,
 and `SESSION_STATE.md` carries the corrected figures.
+
+## F-064 - The engine rebuilds the Lua state on entering a world, so module state is per-world
+
+**Verified** [C77] by `javap` against the installed
+`projectzomboid.jar`. `zombie.gameStates.IngameState` is the only game
+state that calls `zombie.Lua.LuaManager.init()`, and the call is in
+`IngameState.exit()` - **leaving** a world, not entering one. It sits
+at the end of a teardown block that also resets `ContainerOverlays`,
+`BentFences`, `BrokenFences`, `TileOverlays`, `LuaHookManager`,
+`CustomPerks`, `PerkFactory`, `CustomSandboxOptions` and
+`SandboxOptions`.
+
+The first reading of this said entering a world rebuilds the state.
+That is the wrong mechanism for the right conclusion, and the
+difference is which method the call sits in - one more `javap` past
+where it was tempting to stop.
+
+So a world's module state is torn down when that world is left, and
+every module-scope table in this mod is fresh for the next one. That
+is the fact `[C15]` was built on when it bound the perception store to
+ModData - "module load runs earlier than ModData" and a plain table
+"dies with the session" - and it is stated here explicitly because it
+was nearly re-litigated as a defect.
+
+**What it settles.** `Places.reset` has no caller anywhere in the tree
+and does not need one: its own docstring says it is for a world change,
+and leaving a world reinitialises Lua underneath it. `Pl.cache`,
+`Pl.around_cache`, `Pl.contentCache` and `Pl.know_cache` cannot carry
+one world's buildings into another, and `know_cache`'s growth - which
+`[C75]` made real by letting people move - is bounded by a single
+world session rather than accumulating.
+
+**What it does not settle.** `Perception`'s `b.known` is the one that
+persists, because `[C15]` deliberately bound it to ModData. An entry
+per building per person, pruned nowhere, riding the save. That is the
+growth worth measuring and it is unaffected by this finding.
+
+**Reported because two wrong readings were each one step from the
+record.** An uncalled cleanup function reads like an oversight, and it
+is the engine doing the job instead. Then the engine's own answer read
+as init-on-entry when it is teardown-on-exit. Both were a single
+`javap` away from being written down wrong, and the second one nearly
+was.
+
+## F-065 - What the walking costs: both growths are bounded, and one of them was misread
+
+`[C75]` let the county's people cross their neighbourhoods, and its
+record named two growths as unmeasured: `Places.know_cache`, and
+`Perception`'s `b.known`. Measured now, over six counties of 1096 days
+on the shipped tree:
+
+| | min | median | max |
+|---|---|---|---|
+| buildings known, whole county | 4 | 110 | 347 |
+| ... most held by any one person | 2 | 48 | 109 |
+| people holding any | 2 | 3 | 16 |
+| place-knowledge cache keys | 766 | 805 | 863 |
+
+**Neither is a problem, and the reasons are different.**
+
+`know_cache` is session state, and F-064 establishes that leaving a
+world reinitialises Lua, so it cannot reach the next one. Eight hundred
+keys in a world session is nothing.
+
+`b.known` is persisted, and `[C75]`'s record said it was "pruned
+nowhere in the tree". **That was wrong.** `Perception.forget(id)` drops
+the whole belief store for a person - `P.beliefs[id] = nil` - and
+`Identity.markDead` calls it, which is the funnel every death path
+reaches, added at `[B51]` for exactly this. So `b.known` is pruned by
+dying.
+
+The count is therefore bounded by the LIVING, not by everyone who ever
+lived, and the measurement shows it: the people holding any known
+places are exactly the people still alive. The shipped map has 2,831
+buildings, and the survivor who knows most knows 109 of them.
+
+**How the misreading happened.** The search was for `known[...] = nil`
+and `known = {}` inside `SAO_Perception.lua`, and neither exists,
+because the pruning is one level up: the whole store goes, not the
+field. Searching for the narrow spelling instead of the mechanism is
+the same shape as `[C70]`'s defect and GOVERNANCE's prose-is-not-code
+clause, arrived at from a third direction.
+
+**What this retires.** Both entries come off `ROADMAP.md`'s queue.
+Nothing needs pruning, nothing needs a budget, and no save grows
+without bound. What remains from `[C75]`'s cost is the one thing this
+cannot measure: how many ticks a real catching-up county takes, which
+is a play receipt.
