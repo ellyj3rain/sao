@@ -1,6 +1,6 @@
 | Document | Survivor Awareness Overhaul Roadmap |
 |---|---|
-| Version | `4.1.2.0-pre-alpha` |
+| Version | `4.2.0.0-pre-alpha` |
 | Author | ellyj3rain |
 | Repository | `ROADMAP.md` |
 | Status | CANONICAL - thread map, backlog, live gates. |
@@ -479,13 +479,19 @@ scoped, the game being loaded anyway.
 Ordered, and each one has its finding or its ruling behind it already.
 This exists so the next move is never a question.
 
-### 1 - A house in the unwatched county can take ground
+### 1 - A house in the unwatched county can take ground - DONE at `[C76]`
 
 `setGroupClaim`, `setHearth`, `setLarder` and `setWaterStore` have call
 sites in `SAO_Controller` alone, which needs materialised bodies. So a
 dormant house that now forms and stands has nowhere to be, and every
 survival modifier reading those is inert unless a player is watching.
-This is S4's own subject and it is blocked on nothing.
+This is S4's own subject. `[C76]` did the first half: a house settles
+on the building its members keep returning to, read off
+`learnBuilding`'s own visit counts, with nothing placed and nothing
+scouted. What remains under this heading is what a settled house then
+DOES with its ground - the hearth, the larder and the water store,
+whose call sites are still the controller's because they read state a
+body produces.
 
 The live decision is already shaped and read at `[C75]`, so the dormant
 one is a port rather than a design: a scored building, refused if it
@@ -536,6 +542,20 @@ already measures how often a group's members go somewhere
 they got there (`Places.take`, `lastWaterDay`). A base, a stash and a
 water run are those numbers falling out differently, not three names
 in a table.
+
+**`[C76]` proved the substrate.** It settles a house on the building
+its members keep returning to, read off exactly those visit counts, and
+Border 141 holds it. So the ontology batch does not have to establish
+that use is readable - it is, and something already reads it. What it
+has to do is let the answer be more than one place, and let the
+relationship between a group and each place be the shape of the use
+rather than a label.
+
+The two questions to answer first, in this order. What makes a place
+STOP being the group's - because a set that only grows is not an
+ontology, it is a log. And what a group's SEAT is when it holds
+several, because twenty-nine sites ask where a group is and expect one
+answer.
 
 ### 3 - Recruitment, and why a house cannot grow past a pair
 

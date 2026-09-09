@@ -1996,6 +1996,171 @@ function Pop.forgetPairs(id)
     return #doomed
 end
 
+-- [C76] Ground a house may not take, in the live path's own terms.
+--
+-- Another living company's claim, a living person's home, and a
+-- feuding company's keep-out. Written once here because the settling
+-- pass is the second reader of this law and two copies of a law is how
+-- they drift ([C25]).
+local function barredGround(myGroup, cx, cy)
+    for og, oc in pairs(SAO.Standing.allGroupClaims()) do
+        if og ~= myGroup
+            and cx >= oc.minX and cx <= oc.maxX
+            and cy >= oc.minY and cy <= oc.maxY then
+            return true
+        end
+        -- [A20] And not in a feud's shadow either.
+        if og ~= myGroup and SAO.Standing.feudBetween(myGroup, og)
+            and cx >= oc.minX - SAO.Standing.FEUD_KEEP_OUT
+            and cx <= oc.maxX + SAO.Standing.FEUD_KEEP_OUT
+            and cy >= oc.minY - SAO.Standing.FEUD_KEEP_OUT
+            and cy <= oc.maxY + SAO.Standing.FEUD_KEEP_OUT then
+            return true
+        end
+    end
+    -- [B35] The player holds ground under a `player:` key and has no
+    -- Identity record, so a guard written to skip the DEAD skipped the
+    -- one owner who is never dead. Both are refused here.
+    for owner, oc in pairs(SAO.Standing.allPersonalClaims()) do
+        local orec = SAO.Identity.get(owner)
+        if (SAO.Standing.isPlayerKey(owner) or (orec and not orec.dead))
+            and cx >= oc.minX and cx <= oc.maxX
+            and cy >= oc.minY and cy <= oc.maxY then
+            return true
+        end
+    end
+    return false
+end
+
+-- [C76] A house takes ground where its people already go.
+--
+-- `setGroupClaim`, `setHearth`, `setLarder` and `setWaterStore` had
+-- call sites in `SAO_Controller` alone, which needs materialised
+-- bodies. So a dormant house - and after `[C71]` and `[C72]` houses do
+-- form and stand - had nowhere to be, and every survival modifier
+-- reading those was inert unless a player happened to be watching.
+--
+-- The live path scouts through `SAOJavaBridge:scoutBase`, which reads
+-- the loaded ground and needs a body. The dormant half has no body and
+-- does not need one, because the fact already exists: `learnBuilding`
+-- has recorded every arrival since `[B37]`, with the building's bounds,
+-- what it offers, and how many times that person has been - and its
+-- own comment says what that count means, that somewhere returned to
+-- is somewhere that gave them something.
+--
+-- So a house settles on the building its members have actually
+-- returned to most. Nothing is scored that the county did not already
+-- measure by walking, and nothing is placed: a house whose people have
+-- never gone back anywhere has no candidate and takes no ground, which
+-- is a correct outcome rather than a failure. Competency follows from
+-- who is in the house.
+--
+-- The two refusals are the live path's own, in its own words: never
+-- over another living company's claim or a living person's home
+-- ([A24], [B35]), and never inside a feuding company's keep-out
+-- ([A20]). Contested ground comes from politics, not from blindness.
+--
+-- A house settles once and this pass never looks at it again, because
+-- `groupClaimOf` answering is the skip. A house deciding to LEAVE is
+-- not representable at all while a group's ground is one rectangle
+-- under one name (DR-006 S4), and that is the operator's named
+-- ontology error and its own batch - not something to smuggle in
+-- here.
+-- One house a pass ([B51]'s discipline). The walk is a house's members
+-- times the buildings they have each entered, and `b.known` grows with
+-- the walking - so an unbudgeted sweep over every unsettled house
+-- would get more expensive exactly as the county got more interesting.
+-- A house settling a day later than it could have is not a cost
+-- anybody can see.
+-- How many houses may settle in one pass. One: the work inside is a
+-- house's members times the buildings each of them has entered, and
+-- `b.known` grows with the walking ([C75]), so the walk is stopped at
+-- the first house that takes ground rather than carried to the end of
+-- the store.
+local SETTLE_BUDGET = 1
+
+local function dormantSettle()
+    if not (SAO.Standing and SAO.Standing.setGroupClaim) then return end
+    local seen, settled = {}, 0
+    for id, rec in pairs(SAO.Identity.all()) do
+        if not rec.dead and not SAO.Body.get(id) then
+            local g = SAO.Standing.groupOf(id)
+            if g and not seen[g]
+                and not SAO.Standing.groupClaimOf(g)
+                and SAO.Standing.groupSize(g) > 1 then
+                seen[g] = true
+                -- Every place this house's living members have been,
+                -- with the visits summed across them: a building two
+                -- of them keep returning to outranks one that only
+                -- one of them ever saw.
+                local returns = {}
+                local members = SAO.Standing.membersOf(g)
+                for _, mid in ipairs(members) do
+                    for pid, kp in pairs(SAO.Perception.knownPlaces(mid)) do
+                        if kp.minX and kp.cx then
+                            local t = returns[pid]
+                            if not t then
+                                t = { place = kp, visits = 0, who = 0 }
+                                returns[pid] = t
+                            end
+                            t.visits = t.visits + (kp.visits or 1)
+                            t.who = t.who + 1
+                        end
+                    end
+                end
+                local best, bestScore, bestId = nil, nil, nil
+                for pid, t in pairs(returns) do
+                    local kp = t.place
+                    if not barredGround(g, kp.cx, kp.cy) then
+                        -- Returned to, by more than one of them, and
+                        -- worth returning to. Water is the only offer
+                        -- weighed, because it is the need that kills
+                        -- first ([B37]) and the one a base either has
+                        -- or does not.
+                        local score = t.visits * t.who
+                        if kp.offers and kp.offers.water then
+                            score = score * 2
+                        end
+                        if not bestScore or score > bestScore then
+                            best, bestScore, bestId = kp, score, pid
+                        end
+                    end
+                end
+                if best then
+                    SAO.Standing.setGroupClaim(g,
+                        best.minX - 1, best.minY - 1,
+                        best.maxX + 1, best.maxY + 1, 0)
+                    -- Homes converge, as they do on the live path: the
+                    -- base is where the house lives now, and the
+                    -- dormant day's own anchor follows with no further
+                    -- wiring.
+                    for _, mid in ipairs(members) do
+                        local mrec = SAO.Identity.get(mid)
+                        if mrec then
+                            mrec.homeX, mrec.homeY, mrec.homeZ =
+                                best.cx, best.cy, 0
+                        end
+                    end
+                    -- Say WHY this building and not another. A decision
+                    -- whose reasons are computed and thrown away is
+                    -- indistinguishable from one that was scripted.
+                    log(tostring(SAO.Standing.factionName(g) or g)
+                        .. " settles at " .. tostring(best.cx) .. ","
+                        .. tostring(best.cy) .. ": " .. #members
+                        .. " of them, " .. tostring(bestId)
+                        .. " returned to "
+                        .. tostring(returns[bestId].visits) .. " times"
+                        .. ((best.offers and best.offers.water)
+                            and ", and it has water" or ""))
+                    tally("settled")
+                    settled = settled + 1
+                end
+            end
+        end
+        if settled >= SETTLE_BUDGET then break end
+    end
+end
+
 local function dormantEncounters()
     local sv = SandboxVars and SandboxVars.SurvivorAwareness or nil
     local companyAt = (sv and tonumber(sv.TrustToCompany)) or 0.5
@@ -2772,6 +2937,7 @@ end
 local function oneYearsDay(conf, day)
     tickCounter = tickCounter + YEARS_TICKS_PER_DAY
     pcall(dormantLife, conf)
+    pcall(dormantSettle)
     pcall(dormantEncounters)
     pcall(dormantAttrition)
     pcall(function() SAO.Standing.driftStandings() end)
@@ -2914,6 +3080,7 @@ local function populationTick()
             log("time softens " .. moved .. " old feelings")
         end
     end)
+    runSub("settle", dormantSettle)
     runSub("encounters", dormantEncounters)
     -- [C65] And the county writes itself down once a day, which is
     -- what [B38] said it did.

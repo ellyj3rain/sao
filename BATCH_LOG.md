@@ -1,6 +1,6 @@
 | Document | Survivor Awareness Overhaul Batch Log |
 |---|---|
-| Version | `4.1.2.0-pre-alpha` |
+| Version | `4.2.0.0-pre-alpha` |
 | Author | ellyj3rain |
 | Repository | `BATCH_LOG.md` |
 | Status | REGULATORY - chronological batch index. |
@@ -180,3 +180,4 @@ attribution for every merged entry, stated here rather than in a branch name.
 | [C73](Batches/C73-2026-09-08-a-person-is-named-when-they-are-made.md) | 2026-09-08 | A person is named when they are made | [`T-006`](Batches/THREADS.md#t-006), [`T-007`](Batches/THREADS.md#t-007) |
 | [C74](Batches/C74-2026-09-09-the-three-projects-and-what-each-owns.md) | 2026-09-09 | The three projects and what each owns | [`T-030`](Batches/THREADS.md#t-030) |
 | [C75](Batches/C75-2026-09-09-a-day-of-walking-is-a-day-of-walking.md) | 2026-09-09 | A day of walking is a day of walking | [`T-007`](Batches/THREADS.md#t-007), [`T-008`](Batches/THREADS.md#t-008) |
+| [C76](Batches/C76-2026-09-09-a-house-takes-ground-where-its-people-already-go.md) | 2026-09-09 | A house takes ground where its people already go | [`T-004`](Batches/THREADS.md#t-004), [`T-003`](Batches/THREADS.md#t-003) |

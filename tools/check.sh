@@ -1667,6 +1667,16 @@ if ! "$PY" tools/walk_rate_test.py > /dev/null; then
     fail=1
 fi
 
+# [C76] Border 141 - a house takes ground where its people already go:
+# taking ground had call sites in the controller alone, so a house in
+# the unwatched county had nowhere to be and every modifier reading its
+# hearth, larder and water store was inert.
+if ! "$PY" tools/settle_test.py > /dev/null; then
+    "$PY" tools/settle_test.py 2>&1 | grep -E "FAULT|SKIPPED" || true
+    note "BORDER FINDING - a dormant house has nowhere to be"
+    fail=1
+fi
+
 # Border 103 - the operator's speech is not in the repository: no
 # profanity in the tracked tree and no operator-quote attributions;
 # rulings are paraphrased content, speech stays with the speaker.

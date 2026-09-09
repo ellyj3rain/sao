@@ -90,6 +90,15 @@ SUBS = {
         "NOT budgeted: it must see everyone near the player now, and "
         "spreading it across passes would delay a survivor appearing "
         "where somebody is standing"),
+    "dormantSettle": (1, "budgeted",
+        "[C76] gives a house ground where its members already go. One "
+        "walk of the store to find a house that has none, and it stops "
+        "at the FIRST one it settles - `settledOne` - because the work "
+        "inside is that house's members times the buildings each of "
+        "them has entered, and `b.known` grows with the walking "
+        "([C75]). A settled house is skipped for nothing, because "
+        "`groupClaimOf` answering IS the skip, so the pass costs the "
+        "walk alone once a county has settled"),
     "dailyCounty": (0, "none",
         "[C65] walks no store in this file. It gates on the county's "
         "own day and calls SAO.Telemetry.county, whose single walk is "
