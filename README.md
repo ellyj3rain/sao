@@ -38,7 +38,7 @@ the measurements.
 
 ## Status
 
-`4.1.2.0-pre-alpha` - the coordinate is computed by the version machine
+`4.2.0.0-pre-alpha` - the coordinate is computed by the version machine
 (`tools/version_replay.py`), never picked; `VERSION_MAP.md` shows the
 classification and the arithmetic.
 

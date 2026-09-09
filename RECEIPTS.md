@@ -1,6 +1,6 @@
 | Document | Survivor Awareness Overhaul Play Receipts |
 |---|---|
-| Version | `4.1.2.0-pre-alpha` |
+| Version | `4.2.0.0-pre-alpha` |
 | Author | ellyj3rain |
 | Repository | `RECEIPTS.md` |
 | Status | CANONICAL, APPEND-ONLY - what play has actually settled, from R-001. |

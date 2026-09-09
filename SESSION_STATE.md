@@ -1,13 +1,36 @@
 | Document | Survivor Awareness Overhaul Session State |
 |---|---|
-| Version | `4.1.2.0-pre-alpha` |
+| Version | `4.2.0.0-pre-alpha` |
 | Author | ellyj3rain |
 | Repository | `SESSION_STATE.md` |
 | Status | CANONICAL - where the work actually stands. |
 
 # Session state
 
-**As of** 2026-09-09, `[C75]` close - a day of walking is a day of
+**As of** 2026-09-09, `[C76]` close - a house takes ground where its
+people already go. `setGroupClaim`, `setHearth`, `setLarder` and
+`setWaterStore` had call sites in `SAO_Controller` alone, which needs
+materialised bodies, so a dormant house - and after `[C71]`, `[C72]`
+and `[C75]` houses form, reconvene and stand - still had nowhere to be,
+and every survival modifier reading a hearth, a larder or a water store
+was inert unless a player was watching. The live path scouts through
+the bridge with a body; the dormant half needs none, because
+`Perception.learnBuilding` has recorded every arrival since `[B37]`
+with the bounds, the offers and a visit count whose own comment says
+what it means - somewhere returned to is somewhere that gave them
+something. So a house settles on the building its members keep
+returning to, visits summed across them and multiplied by how many have
+been, because a place a house SHARES is what a base is. Nothing is
+placed: a house whose people never went back anywhere takes no ground,
+and a house of one takes none either. The refusals are the live path's
+own, lifted into `barredGround` so the two readers share one law. One
+house a pass, `[B51]`'s discipline, because `b.known` grows with the
+walking. A house cannot LEAVE and this does not pretend it can - that
+is DR-006 S4's ontology error and its own batch. Border 141 measures
+the claim rather than the call, controlled against the `[C75]` tree
+where no dormant house ever takes ground.
+
+**Before that**, `[C75]` - a day of walking is a day of
 walking. The dormant walk stepped four tiles per PASS, and a pass is
 hundreds of frames in the live county and one whole simulated day in
 the years, so a day delivered four tiles: 1.8 tiles per person per
@@ -948,7 +971,7 @@ unloaded survivors are governed by the same rules ([B39], [B42]).
 
 ## Deploy state
 
-`4.1.2.0-pre-alpha` at tip - the version machine's output ([C2],
+`4.2.0.0-pre-alpha` at tip - the version machine's output ([C2],
 DR-013; the twelfth minor rolled the tier by the odometer's own
 law). The game install carries the `[C62]` tip. `[C45]` through
 `[C51]` reached it on 2026-09-07 and `[C52]` through `[C62]` on 2026-09-08, each
@@ -990,7 +1013,7 @@ deploy; `save_compat_test` guards this and runs in the gate.
 
 ## Instruments
 
-**140 numbered borders**, run by **155 gated mirrors** in `tools/`, all invoked
+**141 numbered borders**, run by **156 gated mirrors** in `tools/`, all invoked
 by `tools/check.sh`, which the pre-commit hook runs and CI runs on every push.
 The figures in this paragraph are derived by Border 76 from the tree, not
 maintained by hand. Border 54 keeps the rest honest: it runs every gated
