@@ -1,6 +1,6 @@
 | Document | Survivor Awareness Overhaul Memory |
 |---|---|
-| Version | `4.1.1.0-pre-alpha` |
+| Version | `4.1.1.1-pre-alpha` |
 | Author | ellyj3rain |
 | Repository | `MEMORY.md` |
 | Status | ACTIVE - index of every root document and its standing. |
@@ -36,6 +36,7 @@ current. Nothing at the root is unclassified.
 | `ROADMAP.md` | CANONICAL | Thread map, backlog, live gates. |
 | `SESSION_STATE.md` | CANONICAL | Where the work actually stands. |
 | `MAPS.md` | CANONICAL | The three pictures a human reads first: runtime, knowledge, catalog. |
+| `PROJECTS.md` | CANONICAL | The architecture across the three repositories: what SAO, ZAO and Speakeasy each own, and the three seams. |
 | `KNOX_SOCIAL_AUDIT.md` | CANONICAL | Reference-design audit of the Knox social/organizational systems ([A14]). |
 | `ENGINE_CONTRACT.md` | CANONICAL, INCOMPLETE | The verified engine mechanics an IsoPlayer NPC requires; lifecycle-ordered, failure-cited. |
 | `VERSION` | CANONICAL | Shipped version string. Every root header's `Version` cell reads this and nothing else ([B43]). |

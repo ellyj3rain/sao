@@ -1,13 +1,28 @@
 | Document | Survivor Awareness Overhaul Session State |
 |---|---|
-| Version | `4.1.1.0-pre-alpha` |
+| Version | `4.1.1.1-pre-alpha` |
 | Author | ellyj3rain |
 | Repository | `SESSION_STATE.md` |
 | Status | CANONICAL - where the work actually stands. |
 
 # Session state
 
-**As of** 2026-09-09, `[C73]` close - a person is named when they are
+**As of** 2026-09-09, `[C74]` close - the three projects and what each
+owns. Three repositories describe one county and no document held them
+together or named the edges between them. `PROJECTS.md` does, canonical
+here and pointed at from the other two: SAO owns the living, ZAO
+(`../zombie-awareness`) owns the turned, Speakeasy
+(`../zomboid-speakeasy`) owns how anybody decides, and none of them
+places an outcome. Three seams - the turn, already litigated on both
+sides; the dataset, where no code crosses and the licences are the
+whole reason the repositories are separate; and the degraded cognition
+between ZAO and Speakeasy, which is not yet built and should not be
+until ZAO's G2 lands. It adds no border, because a border asserting
+that sibling repositories carry agreeing pointers would be about
+governance rather than the mod's behaviour, and this repository wrote
+one of those once and had it deleted.
+
+**Before that**, `[C73]` - a person is named when they are
 made (DR-039). `backfillName` read a name off the engine descriptor the
 first time a body was materialised for somebody, so a survivor nobody
 had ever stood near carried the `Unnamed` sentinel for the life of the
@@ -895,7 +910,7 @@ unloaded survivors are governed by the same rules ([B39], [B42]).
 
 ## Deploy state
 
-`4.1.1.0-pre-alpha` at tip - the version machine's output ([C2],
+`4.1.1.1-pre-alpha` at tip - the version machine's output ([C2],
 DR-013; the twelfth minor rolled the tier by the odometer's own
 law). The game install carries the `[C62]` tip. `[C45]` through
 `[C51]` reached it on 2026-09-07 and `[C52]` through `[C62]` on 2026-09-08, each
