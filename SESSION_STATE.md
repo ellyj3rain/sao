@@ -1,13 +1,30 @@
 | Document | Survivor Awareness Overhaul Session State |
 |---|---|
-| Version | `4.0.0.1-pre-alpha` |
+| Version | `4.0.0.2-pre-alpha` |
 | Author | ellyj3rain |
 | Repository | `SESSION_STATE.md` |
 | Status | CANONICAL - where the work actually stands. |
 
 # Session state
 
-**As of** 2026-09-08, `[C68]` close - a death leaves the company.
+**As of** 2026-09-08, `[C69]` close - the county sweep is a tool in
+the tree. The sweep found `[C67]` and `[C68]`, the two largest defects
+this project has had, and it lived in a scratch directory; it has been
+rebuilt from nothing more than once and both rebuilds reintroduced a
+gap that invalidated their own results. `tools/county_sweep.py` runs N
+counties in the engine's own VM, one process each, against a world read
+off the installed game - every town's spawn points as its own region
+and the buildings of every cell they occupy, out of the `.lotheader`
+files. It is not a border and is not in the gate: a border is a point
+and a county is a distribution, so it reports min, median, max and mean
+and asserts nothing. Its durable half is the module check - every
+`SAO.X` the loaded code references is resolved against what is loaded
+before any county runs, because twice a sweep reported a complete set
+of numbers that meant nothing for want of one module, and the eight
+modules a dormant county correctly does not run are declared by name
+with the argument for each.
+
+**Before that**, `[C68]` - a death leaves the company.
 `Identity.markDead` is the funnel every death path reaches and it
 forgets nine things about a dead survivor while never touching
 `s.groups`. `electLeader` and `groupSize` have always filtered the dead
@@ -774,7 +791,7 @@ unloaded survivors are governed by the same rules ([B39], [B42]).
 
 ## Deploy state
 
-`4.0.0.1-pre-alpha` at tip - the version machine's output ([C2],
+`4.0.0.2-pre-alpha` at tip - the version machine's output ([C2],
 DR-013; the twelfth minor rolled the tier by the odometer's own
 law). The game install carries the `[C62]` tip. `[C45]` through
 `[C51]` reached it on 2026-09-07 and `[C52]` through `[C62]` on 2026-09-08, each
@@ -789,11 +806,12 @@ gate and its pull request merged, and was checked rather than assumed:
 both `mod.info` files read the coordinate the machine derived,
 `SAO_History.lua` carries the county's clock, `SAO_Standing.lua` reads
 it at all thirty-four of its sites, and `SAO.jar` is byte-identical to
-the committed build. `[C63]` through `[C68]` reached it as they closed. `[C67]` and
+the committed build. `[C63]` through `[C69]` reached it as they closed. `[C67]` and
 `[C68]` are what is owed now, and together they are the pair an
 existing save feels immediately: survivors who already trust each
 other can keep company from the next session, where before they
 never could, and their houses now settle when one of them dies.
+`[C69]` changes nothing under `mod/` and owes no receipt.
 The play receipts the C era owes are the next
 thing the tree cannot produce for itself - the operator chose to
 keep building before testing, so `[C29]` (a survivor scaled from
