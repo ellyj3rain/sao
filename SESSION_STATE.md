@@ -1,13 +1,33 @@
 | Document | Survivor Awareness Overhaul Session State |
 |---|---|
-| Version | `4.0.0.0-pre-alpha` |
+| Version | `4.0.0.1-pre-alpha` |
 | Author | ellyj3rain |
 | Repository | `SESSION_STATE.md` |
 | Status | CANONICAL - where the work actually stands. |
 
 # Session state
 
-**As of** 2026-09-08, `[C67]` close - founding a company dissolved
+**As of** 2026-09-08, `[C68]` close - a death leaves the company.
+`Identity.markDead` is the funnel every death path reaches and it
+forgets nine things about a dead survivor while never touching
+`s.groups`. `electLeader` and `groupSize` have always filtered the dead
+when they run, so the roster has always MEANT living membership, and
+nothing ran them on a death: a corpse answered as a member, could hold
+`leads` while `leaderOf` still named them, and the store grew for the
+life of the save. The part that cost a survivor something is the widow
+release, which fired when a housemate LEFT and never when one DIED - so
+somebody whose company died around them was left alone in a house the
+rule says may not exist, never released, never inheriting its ground.
+One call site re-elected, and only when the corpse had been the leader,
+so the dormant half of the county had no equivalent at all.
+`S.releaseDead` removes the row and settles the house; `markDead` calls
+it beside the other nine forgets. Roster rows belonging to the dead
+fall from a median of 25 per county to 0, and houses standing at day
+1096 are unchanged, so this removes phantom houses rather than real
+ones. Border 136 kills a chair as well as a member, because this batch
+deleted the one call site that handled a leader's death.
+
+**Before that**, `[C67]` - founding a company dissolved
 it. No company had ever formed in this project, in a sweep or in a
 save, since companies were built. A company was founded by joining one
 member and then the other; `joinGroup` elects, and `electLeader`
@@ -754,7 +774,7 @@ unloaded survivors are governed by the same rules ([B39], [B42]).
 
 ## Deploy state
 
-`4.0.0.0-pre-alpha` at tip - the version machine's output ([C2],
+`4.0.0.1-pre-alpha` at tip - the version machine's output ([C2],
 DR-013; the twelfth minor rolled the tier by the odometer's own
 law). The game install carries the `[C62]` tip. `[C45]` through
 `[C51]` reached it on 2026-09-07 and `[C52]` through `[C62]` on 2026-09-08, each
@@ -769,10 +789,11 @@ gate and its pull request merged, and was checked rather than assumed:
 both `mod.info` files read the coordinate the machine derived,
 `SAO_History.lua` carries the county's clock, `SAO_Standing.lua` reads
 it at all thirty-four of its sites, and `SAO.jar` is byte-identical to
-the committed build. `[C63]` through `[C67]` reached it as they closed. `[C67]` is what
-is owed now, and it is the one an existing save feels immediately:
-survivors who already trust each other can keep company from the
-next session, where before they never could.
+the committed build. `[C63]` through `[C68]` reached it as they closed. `[C67]` and
+`[C68]` are what is owed now, and together they are the pair an
+existing save feels immediately: survivors who already trust each
+other can keep company from the next session, where before they
+never could, and their houses now settle when one of them dies.
 The play receipts the C era owes are the next
 thing the tree cannot produce for itself - the operator chose to
 keep building before testing, so `[C29]` (a survivor scaled from
@@ -791,7 +812,7 @@ deploy; `save_compat_test` guards this and runs in the gate.
 
 ## Instruments
 
-**135 numbered borders**, run by **150 gated mirrors** in `tools/`, all invoked
+**136 numbered borders**, run by **151 gated mirrors** in `tools/`, all invoked
 by `tools/check.sh`, which the pre-commit hook runs and CI runs on every push.
 The figures in this paragraph are derived by Border 76 from the tree, not
 maintained by hand. Border 54 keeps the rest honest: it runs every gated

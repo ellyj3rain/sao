@@ -207,6 +207,13 @@ function Identity.markDead(rec, tick, cause)
     if SAO.Standing and SAO.Standing.forgetPolitics then
         pcall(SAO.Standing.forgetPolitics, rec.id)
     end
+    -- [C68] And the company. The dead are not members - electLeader
+    -- and groupSize both already filtered them - but nothing removed
+    -- the row or settled the house, so a survivor whose company died
+    -- around them was never released and never inherited its ground.
+    if SAO.Standing and SAO.Standing.releaseDead then
+        pcall(SAO.Standing.releaseDead, rec.id)
+    end
     -- A queued move outlives the walker: `Loco.cancel` is reached only
     -- from `Ctl.drop`, and death clears the agent registry inline
     -- without going through it. So a dead survivor's job stayed, and
