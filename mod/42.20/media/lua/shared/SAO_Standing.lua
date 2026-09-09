@@ -468,6 +468,72 @@ end
 
 -- Leaving is a verb ([A17]): membership ends, leadership reruns over
 -- the remainder, and the leaver's own claims/home are untouched.
+-- Founding a company ([C67]). The roster is written whole and the
+-- election runs once, over a house that already exists.
+--
+-- Every company in this project was founded by joining one member and
+-- then the other. The first join left a roster of ONE, and a roster of
+-- one is where `electLeader` performs the widow release - so the
+-- founder was freed, and then the second join left a roster of one
+-- again, and the second founder was freed too. The company was
+-- dissolved by the act of founding it, every time, at every site: the
+-- road, the table, and Knox adoption alike. Nothing downstream of a
+-- company could ever run - no leader, no creed, no designation, no
+-- feud, no pact, no schism - and a county of two hundred people who
+-- trusted each other stayed two hundred strangers for the life of the
+-- save.
+--
+-- The widow release is not wrong. It is a rule about a roster that
+-- SHRANK: the last member of a dissolved house is released rather than
+-- left alone in it. `electLeader` is the verb that settles a roster and
+-- it is called from both directions, so it cannot tell growth from
+-- loss - and read as loss, a house being born looks exactly like a
+-- house ending. `checkSchism` already knew and worked around it in its
+-- own body. This is that workaround named and given to the three
+-- places a company is BORN.
+--
+-- Returns true when the house stands.
+function S.formCompany(ids, groupName)
+    local s = store(); if not s then return false end
+    if type(ids) ~= "table" then return false end
+    groupName = tostring(groupName)
+    local roster = {}
+    for i = 1, #ids do
+        local id = ids[i]
+        if id ~= nil and not roster[id] then
+            local rec = SAO.Identity and SAO.Identity.get
+                and SAO.Identity.get(id) or nil
+            if not (rec and rec.dead) then roster[id] = true end
+        end
+    end
+    local n = 0
+    for id in pairs(roster) do
+        n = n + 1
+        s.groups[id] = groupName
+    end
+    if n == 0 then return false end
+    -- A house of one is still a memory rather than a membership, and
+    -- the election says so - this verb does not smuggle one past the
+    -- rule, it only stops the rule from firing mid-sentence.
+    S.electLeader(groupName)
+    return S.groupSize(groupName) > 1
+end
+
+-- How many LIVING members a company holds.
+function S.groupSize(groupName)
+    local s = store(); if not s then return 0 end
+    groupName = tostring(groupName)
+    local n = 0
+    for id, g in pairs(s.groups or {}) do
+        if g == groupName then
+            local rec = SAO.Identity and SAO.Identity.get
+                and SAO.Identity.get(id) or nil
+            if not (rec and rec.dead) then n = n + 1 end
+        end
+    end
+    return n
+end
+
 function S.leaveGroup(id)
     local s = store(); if not s then return false end
     local groupName = s.groups[id]
