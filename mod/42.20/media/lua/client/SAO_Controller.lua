@@ -4649,9 +4649,12 @@ local function witnessDeath(id, agent, body)
     end
     local dxs = (agent.rec and agent.rec.x) or 0
     local dys = (agent.rec and agent.rec.y) or 0
+    -- [C71] The key a witness holds them under. The sentinel test
+    -- that stood here was this rule half-written: a person the county
+    -- had not named could not be witnessed dying, when what was
+    -- actually missing was a key for them.
     local victimName = agent.rec
-        and SAO.Identity.displayName(agent.rec) or nil
-    if victimName == "Unnamed" then victimName = nil end
+        and SAO.Identity.beliefKey(agent.rec) or nil
     for witnessId, witness in pairs(Ctl.agents) do
         if witnessId ~= id and witnessId ~= attackerKey then
             local qualifies = false
@@ -4890,8 +4893,7 @@ local function updateAgent(id, agent)
             -- of witnessed violence, and it crosses group lines - people
             -- trust demonstrated competence.
             local fighterName = agent.rec
-                and SAO.Identity.displayName(agent.rec) or nil
-            if fighterName == "Unnamed" then fighterName = nil end
+                and SAO.Identity.beliefKey(agent.rec) or nil   -- [C71]
             for witnessId in pairs(Ctl.agents) do
                 if witnessId ~= id and fighterName then
                     local wb = SAO.Perception.beliefs[witnessId]
@@ -5672,8 +5674,7 @@ local function updateAgent(id, agent)
                 -- OBSERVED belief of the victim is what makes them a
                 -- witness rather than a rumor-hearer.
                 local victimName = agent.rec
-                    and SAO.Identity.displayName(agent.rec) or nil
-                if victimName == "Unnamed" then victimName = nil end
+                    and SAO.Identity.beliefKey(agent.rec) or nil   -- [C71]
                 for witnessId in pairs(Ctl.agents) do
                     if witnessId ~= id and witnessId ~= attackerKey then
                         local beliefs = SAO.Perception.beliefs[witnessId]

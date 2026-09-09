@@ -1,13 +1,50 @@
 | Document | Survivor Awareness Overhaul Session State |
 |---|---|
-| Version | `4.0.0.3-pre-alpha` |
+| Version | `4.0.1.0-pre-alpha` |
 | Author | ellyj3rain |
 | Repository | `SESSION_STATE.md` |
 | Status | CANONICAL - where the work actually stands. |
 
 # Session state
 
-**As of** 2026-09-08, `[C70]` close - every death path settles the
+**As of** 2026-09-08, `[C71]` close - every person has their own
+belief key. A survivor's beliefs about people are keyed by
+`Identity.displayName`, which renders `"Unnamed"` for a record with no
+name, and `backfillName` reads a name off the engine shell the first
+time a body is built for somebody - so a county that materialises
+nobody has no names. Measured in the engine's own VM against the
+shipped map: 271 people, 271 of them `"Unnamed"`, one distinct display
+name for the whole county. Every belief about every one of them landed
+on one string, so the county's memory of its dead was a single slot per
+head and each death overwrote the last. Three things compounded it,
+each found by the new border refusing to pass: the death news read
+`P.beliefs[hearer]` without opening one, so it reached nobody who had
+never been told anything by anybody and the median county held ONE
+person with any belief about any person at all; that pass returns
+before anything when `DormantRisk` is zero, so a dial meaning the
+county stops collecting also silenced news of deaths that had already
+happened; and its hearers were `fellowsOf` on a corpse, which `[C68]`
+takes off the roster at the moment of death, so the company half of
+the news has reached nobody since. `Identity.beliefKey` is the name
+where there is one and the id where there is not, `knownName` still
+refuses the sentinel so no id reaches a player (DR-017),
+`migratePersonKey` carries beliefs across a rename, `learnOfDeath`
+opens the store, `deliverDeathNews` runs before the risk gate and asks
+the house by its name through `Standing.membersOf`, and
+`Perception.sawPerson` writes the sighting a dormant meeting leaves -
+which had never been written at all, so over eight counties of 1096
+days not one survivor believed a living person was anywhere. People
+holding any belief about any person go from a median of 1 per county
+to 100. Border 137 measures the belief rather than the call and is
+controlled against the `[C70]` tree, which prints `keyA=Unnamed
+keyB=Unnamed`. Two instruments were wrong and travel with it: Border
+18 read `java/out`, a gitignored build directory, and called it the
+shipping surface, so in a fresh worktree it accused two correct bridge
+calls of not existing; it reads the shipped jar now and says which
+surface answered. Border 28 read a key migration as an acquisition,
+when a belief moved between keys keeps the provenance it already had.
+
+**Before that**, `[C70]` - every death path settles the
 house in one place. `[C68]` moved the settling of a house on a death
 into the funnel every death path reaches and deleted the one call site
 doing it itself, but there were two, and its border could only see the
@@ -804,7 +841,7 @@ unloaded survivors are governed by the same rules ([B39], [B42]).
 
 ## Deploy state
 
-`4.0.0.3-pre-alpha` at tip - the version machine's output ([C2],
+`4.0.1.0-pre-alpha` at tip - the version machine's output ([C2],
 DR-013; the twelfth minor rolled the tier by the odometer's own
 law). The game install carries the `[C62]` tip. `[C45]` through
 `[C51]` reached it on 2026-09-07 and `[C52]` through `[C62]` on 2026-09-08, each
@@ -819,7 +856,9 @@ gate and its pull request merged, and was checked rather than assumed:
 both `mod.info` files read the coordinate the machine derived,
 `SAO_History.lua` carries the county's clock, `SAO_Standing.lua` reads
 it at all thirty-four of its sites, and `SAO.jar` is byte-identical to
-the committed build. `[C63]` through `[C70]` reached it as they closed. `[C67]` and
+the committed build. `[C63]` through `[C70]` reached it as they closed. `[C71]` is what is
+owed now: it changes what every dormant survivor can know about
+another person, which an existing save feels from the next session. `[C67]` and
 `[C68]` are what is owed now, and together they are the pair an
 existing save feels immediately: survivors who already trust each
 other can keep company from the next session, where before they
@@ -843,7 +882,7 @@ deploy; `save_compat_test` guards this and runs in the gate.
 
 ## Instruments
 
-**136 numbered borders**, run by **151 gated mirrors** in `tools/`, all invoked
+**137 numbered borders**, run by **152 gated mirrors** in `tools/`, all invoked
 by `tools/check.sh`, which the pre-commit hook runs and CI runs on every push.
 The figures in this paragraph are derived by Border 76 from the tree, not
 maintained by hand. Border 54 keeps the rest honest: it runs every gated
@@ -909,6 +948,18 @@ measurement argues otherwise - stated as amendable, not ratified.)
   safe; that is a judgement about somebody's save, not a border.
 - **[B48] changes every survivor's traits, occupation and face in
   an existing save**, because the hash they are drawn from was corrected.
+- **The county has no names, and a person gets one from the first
+  shell built for them.** `backfillName` reads a forename and surname
+  off the engine descriptor when a body is first materialised, so a
+  survivor nobody has ever stood near is `Unnamed` for the life of the
+  save - 271 of 271 in a swept county. `[C71]` makes the absence
+  survivable by keying beliefs on the person rather than on what they
+  are called; it does not cure it. Curing it means SAO drawing a
+  forename at genesis, and the engine's name pools are split by sex
+  (`SurvivorFactory.getRandomForename(boolean)`, javap-verified), so
+  SAO would have to decide a survivor's sex at genesis and then make
+  the shell the engine builds later agree with it. That is a design
+  call about what the county's people are, not a repair.
 
 ## The condition
 

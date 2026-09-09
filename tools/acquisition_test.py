@@ -34,13 +34,22 @@ The manner of acquisition was stated in prose and lost in the data.
 A Knox camp read out of another mod's registry was recorded as
 something the survivor had seen.
 
-TWO THINGS DELIBERATELY NOT FAULTS
-----------------------------------
+THREE THINGS DELIBERATELY NOT FAULTS
+-----------------------------------
 Reads and forgets. The first draft matched any indexing of a belief
 table and reported 31 violations, most of them `local pb =
 b.people[name]` and `b.zombies[key] = nil`. Reading what you already
 believe acquires nothing and forgetting is its opposite; counting
 either measures something else.
+
+[C71] And moves. A belief written back into the same store under a
+different key is the same belief: `Perception.migratePersonKey` moves
+what everybody knows about a person from the id they were known by
+onto the name the engine has just given them, and nothing is learned
+by it. The provenance the belief already carries travels with it, so
+demanding a fresh one would demand that a told belief be relabelled as
+seen. Narrow on purpose: the value has to be a local this same window
+took out of a belief table.
 """
 import pathlib
 import re
@@ -97,6 +106,14 @@ def classify(lines, i, line):
     # exist to receive provenance, so demanding a literal inside them
     # would demand the opposite of the thing.
     if re.search(r"source = tostring\(source or|source = source\b", window):
+        return "carried", marks
+    # A write whose value was READ OUT of a belief table in this same
+    # window is a move, not an acquisition: the belief keeps the
+    # provenance it already had. Same reasoning as reads and forgets.
+    moved = re.match(r"^[^=]*\]\s*=\s*([A-Za-z_]\w*)\s*$", line.strip())
+    if moved and re.search(
+            r"local\s+%s\s*=.*\.(?:people|zombies|places|factions)\["
+            % re.escape(moved.group(1)), window):
         return "carried", marks
     return "NEITHER", marks
 

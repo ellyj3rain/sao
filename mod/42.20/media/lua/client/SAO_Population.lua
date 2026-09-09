@@ -811,6 +811,10 @@ local function backfillName(rec, body)
     local ok, name = pcall(function() return SAOJavaBridge:getShellName(body) end)
     if ok and type(name) == "string" and name ~= "" then
         local sep = string.find(name, "|", 1, true)
+        -- [C71] What the county has been calling them until now. Every
+        -- belief anybody holds about this person is keyed by it, and
+        -- the line below is where it stops being their key.
+        local wasKey = SAO.Identity.beliefKey(rec)
         if sep then
             rec.forename = string.sub(name, 1, sep - 1)
             rec.surname = string.sub(name, sep + 1)
@@ -830,6 +834,18 @@ local function backfillName(rec, body)
                 end
             end
             SAO.Identity.noteRenamed()   -- [A22] name index drops
+            -- [C71] And everyone who knew them keeps knowing them.
+            -- Without this the county forgets a person at the moment
+            -- a player first walks near them, because that is when
+            -- their key changes.
+            pcall(function()
+                local moved = SAO.Perception.migratePersonKey(
+                    wasKey, SAO.Identity.beliefKey(rec))
+                if moved > 0 then
+                    log(moved .. " belief(s) about " .. rec.id
+                        .. " follow the name they were just given")
+                end
+            end)
             log(rec.id .. " is " .. rec.forename .. " " .. rec.surname
                 .. " of " .. tostring(rec.originRegion))
         end
@@ -1495,7 +1511,59 @@ end
 -- finds the bonded and the company a day or two later, at told
 -- weight, through the existing news machinery. Sandbox DormantRisk
 -- scales it; 0 disables.
+-- Word finds them: past-due news of a death reaches the bonded and the
+-- company, once.
+--
+-- [C71] Lifted out of the attrition pass, which returns before
+-- anything when `DormantRisk` is zero. That dial means the county
+-- stops collecting; a death that has already happened is not part of
+-- the risk, and turning the dial down left every pending notice
+-- undelivered for the life of the save.
+--
+-- What it tells them is keyed by the person and written through
+-- Perception's own verb. It read `rec.forename` - the sentinel for
+-- anybody the county has never materialised, so the whole county's
+-- dead shared one belief slot and each death overwrote the last - and
+-- it wrote into `P.beliefs[hearer]` without opening one, so the news
+-- reached nobody who had never been told anything by anybody. In a
+-- dormant county that is nearly everybody.
+local function deliverDeathNews(nowHours)
+    for id, rec in pairs(SAO.Identity.all()) do
+        if rec.dead and rec.deathNewsAt and not rec.deathNewsDelivered
+            and nowHours >= rec.deathNewsAt then
+            rec.deathNewsDelivered = true
+            local hearers = {}
+            local bondedKey = SAO.Standing.bondedWith(id)
+            if bondedKey then hearers[bondedKey] = true end
+            -- [C71] The house they died in, by name. This asked
+            -- `fellowsOf(id)`, which reads the roster - and [C68]
+            -- takes a corpse off the roster at the moment of death,
+            -- so by the time the news is due a dead person has no
+            -- fellows and the company half of "word finds the bonded
+            -- and the company" had reached nobody since. The record
+            -- keeps the house it died in, written by the same verb
+            -- that removes the row.
+            for _, fid in ipairs(SAO.Standing.membersOf(
+                    rec.diedInGroup or SAO.Standing.groupOf(id))) do
+                hearers[fid] = true
+            end
+            local key = SAO.Identity.beliefKey(rec)
+            for hearer in pairs(hearers) do
+                pcall(function()
+                    SAO.Perception.learnOfDeath(hearer, key,
+                        rec.x, rec.y, tickCounter, rec.turnedDormant)
+                end)
+            end
+            log("word finds the county: " .. id .. " never came back")
+        end
+    end
+end
+
 local function dormantAttrition()
+    local okNews, newsHours = pcall(function()
+        return SAO.History.countyHours()
+    end)
+    if okNews then deliverDeathNews(newsHours) end
     local sv = SandboxVars and SandboxVars.SurvivorAwareness or nil
     local riskMult = sv and tonumber(sv.DormantRisk) or 1.0
     if riskMult <= 0 then return end
@@ -1549,41 +1617,8 @@ local function dormantAttrition()
     end
     for id, rec in pairs(SAO.Identity.all()) do
         if rec.dead then
-            -- Word finds them: past-due news reaches the bonded and
-            -- the company, once.
-            if rec.deathNewsAt and not rec.deathNewsDelivered
-                and nowHours >= rec.deathNewsAt then
-                rec.deathNewsDelivered = true
-                local hearers = {}
-                local bondedKey = SAO.Standing.bondedWith(id)
-                if bondedKey then hearers[bondedKey] = true end
-                for _, fid in ipairs(SAO.Standing.fellowsOf(id)) do
-                    hearers[fid] = true
-                end
-                local name = rec.forename
-                for hearer in pairs(hearers) do
-                    local hb = SAO.Perception.beliefs[hearer]
-                    if hb and name then
-                        local pb = hb.people[name]
-                        if pb then
-                            pb.dead = true
-                            if rec.turnedDormant then pb.turned = true end
-                        else
-                            hb.people[name] = {
-                                x = rec.x, y = rec.y, dist = 999,
-                                at = tickCounter, source = "told",
-                                dead = true,
-                                turned = rec.turnedDormant or nil,
-                            }
-                        end
-                    end
-                    if SAO.Perception.deathNewsHandler and name then
-                        pcall(SAO.Perception.deathNewsHandler,
-                            hearer, name, tickCounter)
-                    end
-                end
-                log("word finds the county: " .. id .. " never came back")
-            end
+            -- Nothing here: word of a death is delivered above, before
+            -- the risk dial can silence it.
         elseif not rec.knox and not SAO.Body.get(id) then
             -- [B37] A world that predates this batch has never
             -- recorded either of these, and somebody who has "never"
@@ -1819,6 +1854,19 @@ local function dormantEncounters()
                 -- observed world's encounter rate ([A13] find).
                 dormantLastMet[pairKey] = tickCounter
                     + MEET_COOLDOWN + SAO.Rand.int(MEET_COOLDOWN)
+                -- [C71] They saw each other. Written before the
+                -- branch below, because keeping a wide berth from
+                -- somebody is still having seen them - and a survivor
+                -- who cannot remember meeting anyone has no person to
+                -- decide about tomorrow.
+                pcall(function()
+                    SAO.Perception.sawPerson(idA,
+                        SAO.Identity.beliefKey(SAO.Identity.get(idB)),
+                        recB.x, recB.y, tickCounter, idB)
+                    SAO.Perception.sawPerson(idB,
+                        SAO.Identity.beliefKey(SAO.Identity.get(idA)),
+                        recA.x, recA.y, tickCounter, idA)
+                end)
                 if SAO.Standing.isHostileTo(idA, idB)
                     or SAO.Standing.isHostileTo(idB, idA) then
                     -- A wide berth: the abstraction steps them apart.

@@ -1,6 +1,6 @@
 | Document | Survivor Awareness Overhaul Findings |
 |---|---|
-| Version | `4.0.0.3-pre-alpha` |
+| Version | `4.0.1.0-pre-alpha` |
 | Author | ellyj3rain |
 | Repository | `FINDINGS.md` |
 | Status | CANONICAL, APPEND-ONLY - verified engine findings. |
@@ -1040,3 +1040,57 @@ and sixty-seven sites that ask it.
 the real `SAO_History` and `SAO_Standing` in the engine's own Kahlua
 VM. Its control is the pre-batch tree, where the second and third
 simulated days move nothing.
+
+## F-059 - A whole dormant county shares one belief key ([C71])
+
+Beliefs about people are keyed by `Identity.displayName`, which
+renders `"Unnamed"` for a record that has no name. `backfillName`
+takes a name off the engine shell the first time a body is built for
+somebody, so a survivor the county has never materialised carries the
+sentinel by design - and a dormant county materialises nobody.
+
+**Measured.** One county run in the engine's own Kahlua VM against the
+shipped map, 1096 days: **271 people, 271 of them `"Unnamed"`, one
+distinct display name for the whole county.** Every belief anybody
+held about any of them landed on one string, so the county's memory of
+its dead was one slot per head and each death overwrote the last.
+
+Three separate causes compounded into the same symptom, and each was
+found only by the border refusing to pass:
+
+| Cause | What it cost |
+|---|---|
+| the shared sentinel key | one belief slot for every person in the county |
+| the news read `P.beliefs[hearer]` rather than opening it | a median of ONE person per county holding any belief about any person |
+| `dormantAttrition` returns before anything at `DormantRisk` 0 | a dial meaning "the county stops collecting" also silenced news of deaths that had already happened |
+| the hearers were `fellowsOf(id)` on a corpse | `[C68]` takes a corpse off the roster at death, so the company half of the news has reached nobody since |
+
+**Beside it, and the reason this was looked at.** A dormant meeting is
+a firsthand sighting - two people three tiles apart, trading lessons,
+arguing doctrine, passing grudges and credits, founding houses - and
+it wrote nothing down. Over eight counties of 1096 days, **not one
+survivor in any of them believed a living person was anywhere.** The
+only person-beliefs in the county were death notices.
+
+**The shape, named.** A rendering is not an identity. `displayName`
+carried a comment saying it was the belief key, and for the live half
+it is: the scanner reads a name off a shell and the record carries the
+same one. The dormant half has no shells, so the key it rendered was
+the same string for everybody, and a store keyed by it could hold one
+belief where the county needed two hundred. The fix is a second
+renderer - `beliefKey`, the name where there is one and the id where
+there is not - rather than a name pool, because a name is a fact about
+a person and where it comes from is a design question that is not this
+one.
+
+**What it does not settle.** The county still has no names, and
+getting one from the first shell built for you is backwards. Curing
+that means SAO deciding a survivor's sex at genesis so a drawn
+forename matches the body the engine builds later, which is a design
+call and is the operator's. `beliefKey` makes the absence survivable.
+
+**Verification.** `tools/person_belief_test.py` (Border 137), running
+the shipped dormant modules in the engine's own VM through the tick
+handler the mod registers, and reading the belief store rather than
+counting calls. Its control is the pre-batch tree, which prints
+`keyA=Unnamed keyB=Unnamed` and fails every property.

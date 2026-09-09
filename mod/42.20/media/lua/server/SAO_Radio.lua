@@ -228,9 +228,14 @@ local function hearTheWire(key, b, items, reactive)
     for _, item in ipairs(items) do
         if item.kind == "death" and item.id ~= key then
             local drec = SAO.Identity.get(item.id)
-            local dname = drec
-                and SAO.Identity.displayName(drec) or nil
-            if dname and dname ~= "Unnamed" then
+            -- [C71] Two questions with two answers. Whether this death
+            -- goes out on the air at all is whether the county has a
+            -- name to say, and that is unchanged - a bulletin does not
+            -- read out an id (DR-017). What the listener then believes
+            -- is keyed by the person, like every other belief.
+            local dname = drec and SAO.Identity.knownName(drec) or nil
+            local dkey = drec and SAO.Identity.beliefKey(drec) or nil
+            if dname and dkey then
                 -- [B28] `wasNews` is per-DEATH. This used to read
                 -- the cumulative `heardSomething`, which a feud
                 -- earlier in the same bulletin had already set - so a
@@ -238,14 +243,14 @@ local function hearTheWire(key, b, items, reactive)
                 -- handler anyway. The guard said "if we heard
                 -- something" and meant "if THIS death was news".
                 local wasNews = false
-                local pb = b.people[dname]
+                local pb = b.people[dkey]
                 if pb then
                     if not pb.dead then
                         pb.dead = true
                         wasNews = true
                     end
                 else
-                    b.people[dname] = {
+                    b.people[dkey] = {
                         x = drec.x, y = drec.y, dist = 999,
                         at = 0, source = "told",
                         dead = true,
@@ -256,7 +261,7 @@ local function hearTheWire(key, b, items, reactive)
                 if reactive and wasNews
                     and SAO.Perception.deathNewsHandler then
                     pcall(SAO.Perception.deathNewsHandler,
-                        key, dname, 0)
+                        key, dkey, 0)
                 end
             end
         elseif item.kind == "feud" or item.kind == "peace" then
