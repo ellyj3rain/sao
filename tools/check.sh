@@ -1677,6 +1677,19 @@ if ! "$PY" tools/settle_test.py > /dev/null; then
     fail=1
 fi
 
+# [C78] Border 142 - the body fights, and the cadence cannot change
+# how well: [C11]/F-047 established that a bite infects with certainty
+# and kills at a fixed hour, so every bitten person in the county died
+# on schedule and nothing they had done beforehand mattered. The course
+# is a race now, on inputs the record already produces by living, and
+# the property this holds is that a dormant day and a loaded tick fight
+# at the same strength.
+if ! "$PY" tools/course_test.py > /dev/null; then
+    "$PY" tools/course_test.py 2>&1 | grep -E "FAULT|CONTROL|SKIPPED" || true
+    note "BORDER FINDING - the cadence decides how well a body fights"
+    fail=1
+fi
+
 # Border 103 - the operator's speech is not in the repository: no
 # profanity in the tracked tree and no operator-quote attributions;
 # rulings are paraphrased content, speech stays with the speaker.

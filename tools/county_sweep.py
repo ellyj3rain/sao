@@ -104,6 +104,7 @@ MODULES = [
     "shared/SAO_Log.lua", "shared/SAO_Hash.lua", "shared/SAO_Rand.lua",
     "shared/SAO_Census.lua", "shared/SAO_History.lua",
     "shared/SAO_Disposition.lua", "shared/SAO_Conditions.lua",
+    "shared/SAO_Course.lua",
     "shared/SAO_Habits.lua", "shared/SAO_Identity.lua",
     "shared/SAO_Lessons.lua", "shared/SAO_Knowledge.lua",
     "shared/SAO_Seams.lua", "shared/SAO_Standing.lua",
