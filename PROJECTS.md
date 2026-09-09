@@ -120,10 +120,18 @@ edge now is what stops it being invented twice.
 
 | | Version | Standing |
 |---|---|---|
-| SAO | see `VERSION` | four pillars built, the county runs on them, play receipts outstanding |
-| ZAO | `../zombie-awareness/VERSION` | G0 closed at `[A6]` - the turn, the control surface, the player's dials and the recovery mods all have evidence. No mod code, which is what the gate ladder asks for here. Three decisions gate G1. |
-| Speakeasy | `../zomboid-speakeasy/RECORD.md` | the dataset's source and row shape ratified (DR-038); a ceiling for the inference budget measured; no rows and no models |
+| SAO | see `VERSION` | four pillars built, the county runs on them, play receipts outstanding. A bitten body now races the engine's own death hour instead of arriving at it, the unwatched county can catch Knox on its own, and one person can read another as far as their own First Aid allows. |
+| ZAO | `../zombie-awareness/VERSION` | G0 closed at `[A6]` - the turn, the control surface, the player's dials and the recovery mods all have evidence. No mod code, which is what the gate ladder asks for here. Three decisions gate G1. `[A7]`-`[A9]` read the mods that already run behaviour on turned bodies and set what this project does with them (DR-014, DR-015). |
+| Speakeasy | `../zomboid-speakeasy/RECORD.md` | the dataset's source and row shape ratified (record 24); a ceiling for the inference budget measured (record 26); `decisions/` carries the row shape and no rows |
 
 Each of those is its own repository's to update. This table says where
 the three stand relative to each other, which is the thing no single
 repository can say about itself.
+
+It is also the first thing to go stale when one of them moves, and it
+does so silently, because no border in any of the three reads it. Twice
+on 2026-09-09 a surface stating what a project IS was found describing
+a charter that had already changed - Speakeasy's public description a
+day after its own record redefined it, and ZAO's readme four batches
+after the gate it named had closed. When a gate or a charter moves,
+this table moves in the same turn.
