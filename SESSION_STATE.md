@@ -1,13 +1,38 @@
 | Document | Survivor Awareness Overhaul Session State |
 |---|---|
-| Version | `4.2.3.0-pre-alpha` |
+| Version | `4.2.3.1-pre-alpha` |
 | Author | ellyj3rain |
 | Repository | `SESSION_STATE.md` |
 | Status | CANONICAL - where the work actually stands. |
 
 # Session state
 
-**As of** 2026-09-09, `[C80]` close - what an examiner can tell.
+**As of** 2026-09-09, `[C81]` close - another controller holds them.
+The county held one fact as `rec.knox`, a boolean named after a single
+mod, read in twenty-four places across seven files to decide four
+different things. None of them is a question about that mod; every one
+asks whether somebody else is driving this body. `SAO.Claims` answers
+the property, `heldBy` names who, the holder's name is a constant in
+one file, and `SAO.Body.knox` is `SAO.Body.foreign`. A legacy save is
+not rewritten - the old boolean answers the new question.
+
+**Renaming a field the whole tree reads is not a rename.** Four other
+borders carried declarations naming `Body.knox` and each was checking
+nothing until told the new name, and NINE module lists went stale at
+once: every VM border enumerates what it loads, none knew about
+`SAO_Claims`, so the surface was nil, every call errored inside a pcall
+and the population pass went quiet - six unrelated borders refusing to
+report that nobody walks, seeks or catches anything. Same failure a
+missing `SAO_Census` caused twice. `SAO_History` is guarded rather than
+listed, being offline by construction.
+
+F-066 records what the flag conflated and this did not untangle: two
+readers ask a claim, one asks provenance, one asks an adoption state,
+and the tree's own prose disagrees with itself about which. Splitting
+them changes who the county spawns, walks and kills, so it wants a
+measurement and a ruling rather than a rename.
+
+**Before that**, `[C80]` - what an examiner can tell.
 `[C78]` and `[C79]` gave the county a sickness and nobody could see any
 of it. `SAO_Medical.readingOf` reports what THIS examiner could tell
 rather than what the record knows, gated on their own First Aid - the
@@ -1084,7 +1109,7 @@ unloaded survivors are governed by the same rules ([B39], [B42]).
 
 ## Deploy state
 
-`4.2.3.0-pre-alpha` at tip - the version machine's output ([C2],
+`4.2.3.1-pre-alpha` at tip - the version machine's output ([C2],
 DR-013; the twelfth minor rolled the tier by the odometer's own
 law). The game install carries the `[C62]` tip. `[C45]` through
 `[C51]` reached it on 2026-09-07 and `[C52]` through `[C62]` on 2026-09-08, each
@@ -1126,7 +1151,7 @@ deploy; `save_compat_test` guards this and runs in the gate.
 
 ## Instruments
 
-**144 numbered borders**, run by **159 gated mirrors** in `tools/`, all invoked
+**145 numbered borders**, run by **160 gated mirrors** in `tools/`, all invoked
 by `tools/check.sh`, which the pre-commit hook runs and CI runs on every push.
 The figures in this paragraph are derived by Border 76 from the tree, not
 maintained by hand. Border 54 keeps the rest honest: it runs every gated

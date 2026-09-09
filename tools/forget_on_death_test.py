@@ -142,10 +142,11 @@ CACHES = {
         "probably right about which agents are in which - and nilling "
         "an absent key costs nothing, while being very probably right "
         "costs a batch the day it stops being true"),
-    ("SAO_Body.lua", "Body.knox"): (
+    ("SAO_Body.lua", "Body.foreign"): (
         "SAO_Controller.lua:updateAgent", "calls",
-        "the engine handle for a Knox inhabitant the county adopted, "
-        "cleared on both death branches for the same reason"),
+        "the engine handle for a body another system drives, cleared on "
+        "both death branches for the same reason. [C81] renamed it off "
+        "one mod's name and moved nothing"),
     ("SAO_Locomotion.lua", "Loco.jobs"): (
         "Loco.cancel", "named",
         "a survivor's queued move, holding a reference to their body. "

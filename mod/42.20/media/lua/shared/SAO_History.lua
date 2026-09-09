@@ -704,7 +704,13 @@ function H.generate(id, rec, monthsAliveOverride)
         local row = SAO.Census.assign(id)
         if row then
             rec.occupation = row.key
-            if rec.knox then rec.occupationPresumed = true end
+            -- Guarded: this module is offline by construction and a bare
+            -- VM may hold it without the claim surface. A county
+            -- with no claims module has no held people, which is
+            -- the right answer rather than a crash.
+            if SAO.Claims and SAO.Claims.isHeld(rec) then
+                rec.occupationPresumed = true
+            end
         end
         -- [C30] The age decides the work before the draw does: a child
         -- is a student whatever the census dealt, and past sixty-eight

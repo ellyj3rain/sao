@@ -149,7 +149,7 @@ local function survivorNear(worldobjects)
     -- F-032: BOTH registries - the under-cursor verbs must reach Knox
     -- inhabitants too, or "one social world" ends at the menu.
     for id, body in pairs(SAO.Body.active) do consider(id, body) end
-    for id, body in pairs(SAO.Body.knox or {}) do consider(id, body) end
+    for id, body in pairs(SAO.Body.foreign or {}) do consider(id, body) end
     return bestId
 end
 
@@ -403,7 +403,7 @@ local function talkTo(playerObj, id)
             -- own people do not retell these (no belief carries them) -
             -- a named gap, honest: this is THEIR history.
             local ksData = nil
-            if rec.knox then
+            if SAO.Claims.isHeld(rec) then
                 local okD, d = pcall(function()
                     return ModData.getOrCreate("KnoxSurvivorsWorld")
                 end)
@@ -728,7 +728,7 @@ function H.addTellOption(menu, playerObj, nearId)
         -- A body to speak the acknowledgment: ours, or the
         -- neighbour's (Say is IsoGameCharacter's, javap-verified).
         local tb65 = SAO.Body.get(nearId)
-            or (SAO.Body.knox and SAO.Body.knox[nearId])
+            or (SAO.Body.foreign and SAO.Body.foreign[nearId])
         -- [C5] "They note 3 things" is not speech. What crossed comes
         -- back as the listener's OWN words - the gravest thing that
         -- landed, said the way a person standing there would say it.
@@ -772,7 +772,7 @@ local function fillMenu(playerNum, context, worldobjects)
     local superimposedPerson = false
     if nearId then
         local rec7 = SAO.Identity.get(nearId)
-        if rec7 and rec7.knox and SAO.Neighbours
+        if rec7 and SAO.Claims.isHeld(rec7) and SAO.Neighbours
             and SAO.Neighbours.willSuperimpose then
             local okS, s7 = pcall(SAO.Neighbours.willSuperimpose,
                 nearId, worldobjects)
@@ -817,7 +817,7 @@ local function fillMenu(playerNum, context, worldobjects)
         -- carries his working verbs through his own public functions.
         do
             local rec19 = SAO.Identity.get(nearId)
-            if rec19 and rec19.knox and SAO.Neighbours
+            if rec19 and SAO.Claims.isHeld(rec19) and SAO.Neighbours
                 and SAO.Neighbours.addPersonOptions then
                 pcall(function()
                     SAO.Neighbours.addPersonOptions(person, playerObj, nearId)
@@ -2282,7 +2282,7 @@ function H.standingWeb()
             local shown = 0
             for _, r in pairs(SAO.Identity.all()) do
                 if not r.dead and not SAO.Body.get(r.id)
-                    and not r.knox and shown < 12 then
+                    and not SAO.Claims.isHeld(r) and shown < 12 then
                     shown = shown + 1
                     log(tostring(r.forename) .. " - out there near "
                         .. tostring(r.x) .. "," .. tostring(r.y)

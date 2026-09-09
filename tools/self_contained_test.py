@@ -84,6 +84,12 @@ ALLOWED = {
     "SAO_Sandbox.lua": ("reads",
                         "names two of their sandbox dials to leave them "
                         "alone, which is the opposite of using them"),
+    "SAO_Claims.lua": ("reads",
+                       "[C81] the holder constant, named ONCE so that the "
+                       "twenty-four branches that used to say `rec.knox` "
+                       "can ask a property instead. It is a string in a "
+                       "table and reaches no namespace of theirs; a county "
+                       "with them absent reads it and finds nobody held"),
 }
 
 

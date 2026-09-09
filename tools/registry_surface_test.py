@@ -56,9 +56,11 @@ REGISTRY = re.compile(r"^(\w+)\.(\w+)\s*=\s*\1\.\2\s+or\s+\{\}", re.M)
 SURFACED = {
     "Body.active": ("activeCount",
                     "how many of ours are standing in the world"),
-    "Body.knox": ("knoxCount",
-                  "Knox inhabitants with a shell - as loaded as ours, "
-                  "because the player can walk up to them either way"),
+    "Body.foreign": ("foreignCount",
+                     "people with a shell another system drives - as "
+                     "loaded as ours, because the player can walk up to "
+                     "them either way. [C81] renamed this off one mod's "
+                     "name; the holder is on the record now"),
     "Ctl.agents": ("Controller.agents",
                    "who is under decision this tick; the panel walks it "
                    "directly for the Near you list"),

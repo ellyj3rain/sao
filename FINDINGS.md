@@ -1,6 +1,6 @@
 | Document | Survivor Awareness Overhaul Findings |
 |---|---|
-| Version | `4.2.3.0-pre-alpha` |
+| Version | `4.2.3.1-pre-alpha` |
 | Author | ellyj3rain |
 | Repository | `FINDINGS.md` |
 | Status | CANONICAL, APPEND-ONLY - verified engine findings. |
@@ -1388,3 +1388,46 @@ Nothing needs pruning, nothing needs a budget, and no save grows
 without bound. What remains from `[C75]`'s cost is the one thing this
 cannot measure: how many ticks a real catching-up county takes, which
 is a play receipt.
+
+---
+
+## F-066 - One flag was doing three jobs, and `[C81]` only renamed it
+
+**Found** `[C81]`, by enumerating every reader of `rec.knox` before
+replacing it. Structural; no live receipt.
+
+`rec.knox` was set in two places and read in twenty-four, and the
+readers do not all mean the same thing by it.
+
+| Reader | What it is actually asking |
+|---|---|
+| `SAO_Population` materialise pass | is this body somebody else's to spawn |
+| `SAO_Population` dormant walk, `dormantAttrition` | is this body somebody else's to move and to kill |
+| `SAO_History` occupation | did this record originate outside the county |
+| `SAO_Neighbours` menu | have we adopted them yet |
+
+**The first two are a claim. The third is provenance. The fourth is an
+adoption state.** They coincide today because one mod produces all
+three at once, and they are not the same fact.
+
+The conflict is visible in the tree's own prose. `SAO_Absorb`'s header
+says the county takes his people over **completely** - "from then on
+they are ours entirely" - and `SAO_Population`'s materialise pass says
+of the same flag that "a Knox person's body is the legacy mod's
+business". A record that has been absorbed is ours by the first
+statement and not ours by the second, and both read one boolean.
+
+`SAO.Body.foreign` is the honest claim: a live handle to a body this
+county did not make and will not drive. Whether the RECORD's flag
+should agree with it is the open question.
+
+**`[C81]` did not resolve this and says so.** It removed the mod's name
+from the logic, which is what DR-035 asks and what was actually wrong;
+every reader now asks `SAO.Claims.isHeld` and gets exactly the answer
+it got before. Splitting provenance from claim changes which people the
+county spawns, walks and kills, which is a behaviour change needing a
+measurement and a ruling rather than a rename.
+
+The rename is what makes the split possible later: three call sites
+asking three differently-named questions can be changed independently,
+where twenty-four branches on one boolean could not.

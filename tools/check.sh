@@ -1710,6 +1710,17 @@ if ! "$PY" tools/medical_reading_test.py > /dev/null; then
     fail=1
 fi
 
+# [C81] Border 145 - another mod's name is not a condition in this
+# one: the county held "somebody else drives this body" as rec.knox, a
+# boolean named after one mod, and branched on it in two dozen places.
+# It is a property now, the holder is data, and a name may only appear
+# in the files that exist to talk to that mod.
+if ! "$PY" tools/foreign_claim_test.py > /dev/null; then
+    "$PY" tools/foreign_claim_test.py 2>&1         | grep -E "FAULT|CONTROL|SKIPPED" || true
+    note "BORDER FINDING - a mod's name is doing a property's job"
+    fail=1
+fi
+
 # Border 103 - the operator's speech is not in the repository: no
 # profanity in the tracked tree and no operator-quote attributions;
 # rulings are paraphrased content, speech stays with the speaker.
