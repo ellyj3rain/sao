@@ -800,6 +800,16 @@ local function fillMenu(playerNum, context, worldobjects)
             nil, nil)
         local person = context:getNew(context)
         context:addSubMenu(personOpt, person)
+        -- [C80] Looking somebody over. What it reports is what THIS
+        -- examiner could tell, gated on their own First Aid - the same
+        -- skill [B20] already reads to decide how well they dress a
+        -- wound. It is not the inspect panel, which sees everything
+        -- and says so; this one is bounded by the looker.
+        person:addOption("Look them over", nil, function()
+            if SAO.showMedical then
+                SAO.showMedical(playerObj, nearId)
+            end
+        end)
         -- [C3]/[C7] The fallback only: a ks: person normally gets the
         -- neighbour's own root, superimposed (DR-015) - this branch is
         -- reached when that prediction failed (his runtime lost the
