@@ -1,6 +1,6 @@
 | Document | Survivor Awareness Overhaul Batch Log |
 |---|---|
-| Version | `4.0.0.0-pre-alpha` |
+| Version | `4.0.0.1-pre-alpha` |
 | Author | ellyj3rain |
 | Repository | `BATCH_LOG.md` |
 | Status | REGULATORY - chronological batch index. |
@@ -172,3 +172,4 @@ attribution for every merged entry, stated here rather than in a branch name.
 | [C65](Batches/C65-2026-09-08-the-years-pass-leaves-a-trajectory.md) | 2026-09-08 | The years pass leaves a trajectory | [`T-009`](Batches/THREADS.md#t-009), [`T-007`](Batches/THREADS.md#t-007) |
 | [C66](Batches/C66-2026-09-08-the-county-carries-its-own-randomness.md) | 2026-09-08 | The county carries its own randomness | [`T-007`](Batches/THREADS.md#t-007), [`T-009`](Batches/THREADS.md#t-009) |
 | [C67](Batches/C67-2026-09-08-founding-a-company-dissolved-it.md) | 2026-09-08 | Founding a company dissolved it | [`T-004`](Batches/THREADS.md#t-004), [`T-008`](Batches/THREADS.md#t-008) |
+| [C68](Batches/C68-2026-09-08-a-death-leaves-the-company.md) | 2026-09-08 | A death leaves the company | [`T-004`](Batches/THREADS.md#t-004), [`T-008`](Batches/THREADS.md#t-008) |

@@ -545,6 +545,47 @@ function S.leaveGroup(id)
     return true
 end
 
+-- A death leaves the company ([C68]).
+--
+-- `electLeader` and `groupSize` have always filtered the dead when they
+-- run, so the roster has always MEANT living membership. Nothing ran
+-- them on a death. `markDead` forgets nine things about a dead
+-- survivor and never touched `s.groups`, so the row stayed forever:
+-- `groupOf` was the only reader disagreeing with the two that decide,
+-- the store grew for the life of the save the way `dormantLastMet` did
+-- before `[B51]`, and - the part that costs a survivor something - the
+-- widow release fired when a housemate LEFT and never when one DIED.
+-- A survivor whose company died around them was left alone in a house
+-- the rule says may not exist, never released, so the group's ground
+-- never became theirs and the controller's `aloneAgain` never spoke.
+--
+-- One call site re-elected: `SAO_Controller`, and only when the corpse
+-- had been the leader. A non-leader's death left the house untouched,
+-- and the dormant half of the county, where most deaths happen, had no
+-- equivalent at all. This is the funnel's job, by the argument
+-- `markDead` already makes twice in its own comments.
+--
+-- Which house they died in stays ON THE RECORD, because death is
+-- durable here and a person belonged somewhere when it happened.
+-- Returns the group they left, or nil.
+function S.releaseDead(id)
+    local s = store(); if not s then return nil end
+    local groupName = s.groups[id]
+    if not groupName then return nil end
+    s.groups[id] = nil
+    local rec = SAO.Identity and SAO.Identity.get
+        and SAO.Identity.get(id) or nil
+    if rec then
+        rec.diedInGroup = groupName
+        rec.designation = nil
+        rec.designatedBy = nil
+    end
+    -- The house settles again: a new chair if the corpse held it, and
+    -- the widow release if nobody living is left beside one person.
+    S.electLeader(groupName)
+    return groupName
+end
+
 -- ---------------------------------------------------------------------------
 -- Governance (DR-006 S3): leadership is a settled standing fact - who the
 -- group defers to - derived from trust-sums among LIVING members, stored

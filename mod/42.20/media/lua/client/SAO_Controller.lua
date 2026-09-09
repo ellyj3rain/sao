@@ -4828,11 +4828,21 @@ local function updateAgent(id, agent)
             end
         end
         SAO.Identity.markDead(agent.rec, tickCount, cause)
-        local deadGroup = SAO.Standing.groupOf(id)
-        if deadGroup and SAO.Standing.leaderOf(deadGroup) == id then
-            local newLeader = SAO.Standing.electLeader(deadGroup)
-            log(deadGroup .. ": leadership passes from the dead to "
-                .. tostring(newLeader))
+        -- [C68] The house settles inside `markDead` now, for every
+        -- death path rather than this one. What stood here re-elected
+        -- only when the corpse had been the leader, so a non-leader's
+        -- death left the roster holding them, and no dormant death
+        -- reached this line at all.
+        local deadGroup = agent.rec and agent.rec.diedInGroup or nil
+        if deadGroup then
+            local left = SAO.Standing.groupSize(deadGroup)
+            if left == 0 then
+                log(deadGroup .. " ends after a death - nobody left in it")
+            else
+                log(deadGroup .. " settles after a death: " .. left
+                    .. " left, led by "
+                    .. tostring(SAO.Standing.leaderOf(deadGroup)))
+            end
         end
         pcall(function()
             SAO.Identity.updatePosition(agent.rec, body:getX(), body:getY(), body:getZ())

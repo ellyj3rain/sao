@@ -1614,6 +1614,16 @@ if ! "$PY" tools/company_forms_test.py > /dev/null; then
     fail=1
 fi
 
+# [C68] Border 136 - a death leaves the company: the roster means
+# living membership, so a dead member's row goes and the house settles
+# again. Before this the widow release fired when a housemate LEFT and
+# never when one DIED.
+if ! "$PY" tools/death_leaves_company_test.py > /dev/null; then
+    "$PY" tools/death_leaves_company_test.py 2>&1 | grep -E "FAULT|SKIPPED" || true
+    note "BORDER FINDING - a death does not leave the company"
+    fail=1
+fi
+
 # Border 103 - the operator's speech is not in the repository: no
 # profanity in the tracked tree and no operator-quote attributions;
 # rulings are paraphrased content, speech stays with the speaker.
