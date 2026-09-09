@@ -1214,6 +1214,13 @@ local UNVISITED = 1000000
 -- county already produces: the last day they actually REACHED
 -- somewhere with water or food in it. Need is derived from where
 -- they have been, which is the only way they could know it too.
+-- [C79] How often a bad encounter is survived rather than fatal, for
+-- somebody with no advantages at all. Divided by how well they handle
+-- danger, so the capable get away from more of them. OURS: the engine
+-- settles this on a loaded body's own damage and there is no body in
+-- the dormant county, so no figure in the build establishes it.
+local ESCAPE_BASE = 0.30
+
 local THIRST_PATIENCE = 2
 local HUNGER_PATIENCE = 7
 -- The distance each need actually has to run before it kills. These
@@ -1833,16 +1840,31 @@ local function dormantAttrition()
             elseif today > rec.lastRiskDay then
                 rec.lastRiskDay = today
                 local risk = 0.004 * riskMult
+                -- [C79] The same facts, counted twice for two
+                -- different questions. `risk` is how likely the county
+                -- is to take them; `handles` is how well they deal
+                -- with danger when it arrives, and it is the product
+                -- of exactly the modifiers below that are about the
+                -- PERSON rather than their condition or the weather.
+                -- Lower is better in both.
+                local handles = 1.0
                 if SAO.Lessons.has(id, "measure-the-danger") then
                     risk = risk * 0.5
+                    handles = handles * 0.5
                 end
                 if SAO.Lessons.has(id, "routine-is-armor") then
                     risk = risk * 0.7
+                    handles = handles * 0.7
                 end
                 local cls = SAO.Census and SAO.Census.classOf
                     and SAO.Census.classOf(rec.occupation) or nil
-                if cls == "hardened" then risk = risk * 0.7
-                elseif cls == "settled" then risk = risk * 1.3 end
+                if cls == "hardened" then
+                    risk = risk * 0.7
+                    handles = handles * 0.7
+                elseif cls == "settled" then
+                    risk = risk * 1.3
+                    handles = handles * 1.3
+                end
                 -- [C11] The bite follows you into the dark - on the
                 -- engine's own clock, not by an accumulating chance.
                 -- F-047: a bite infects with CERTAINTY (no roll exists
@@ -1875,8 +1897,14 @@ local function dormantAttrition()
                 if warmedByHearth and riskMult > 1.0 then
                     risk = risk * 0.8
                 end
-                if SAO.Standing.groupOf(id) then risk = risk * 0.6 end
-                if (rec.contactMonths or 0) > 3 then risk = risk * 0.7 end
+                if SAO.Standing.groupOf(id) then
+                    risk = risk * 0.6
+                    handles = handles * 0.6
+                end
+                if (rec.contactMonths or 0) > 3 then
+                    risk = risk * 0.7
+                    handles = handles * 0.7
+                end
                 -- [B37] And here is the cause the death never had.
                 -- Every modifier above this line is circumstance -
                 -- what they know, who they are with, how cold it is.
@@ -1948,8 +1976,59 @@ local function dormantAttrition()
                 end
                 local biteDue = rec.biteDeathAtHours ~= nil
                     and nowHours >= rec.biteDeathAtHours
-                if biteDue
-                    or SAO.Rand.int(100000) < math.floor(risk * 100000) then
+                -- [C79] The county can catch it.
+                --
+                -- `knoxInfected` had exactly one writer - the block
+                -- releasing a body to the dormant county, reading the
+                -- bite off the character as it went dark - so the
+                -- unwatched county could never contract Knox at all.
+                -- Nobody out there was ever bitten. `[C78]` gave the
+                -- infected a fight and it reached almost nobody,
+                -- because almost nobody out there was ever infected.
+                --
+                -- A bad day is not only a fatal day. When the county
+                -- takes somebody, the encounter either kills them or
+                -- they get away from it having been opened up - and on
+                -- this build a bite infects with certainty (F-047), so
+                -- getting away IS catching it. Which of the two
+                -- happens follows from how well they handle danger,
+                -- read off the modifiers already computed above rather
+                -- than from a second stack invented for it.
+                --
+                -- `ESCAPE_BASE` is ours and says so: nothing in the
+                -- build establishes how often a survivable encounter
+                -- draws blood, because the engine settles that on a
+                -- loaded body's own damage and there is no body here.
+                -- Due beats rolled, and it is not a roll at all: a
+                -- course that has run out is a death the engine already
+                -- decided, so it never touches the ambient chance and
+                -- never takes the bite path below.
+                local tookThem = false
+                if biteDue then
+                    tookThem = true
+                else
+                    tookThem = SAO.Rand.int(100000)
+                        < math.floor(risk * 100000)
+                end
+                if tookThem and not biteDue and not rec.knoxInfected
+                    and SAO.Course then
+                    local window = biteWindowHours()
+                    if window and window > 0 then
+                        local escape = ESCAPE_BASE / math.max(0.05, handles)
+                        if escape > 0.85 then escape = 0.85 end
+                        if SAO.Rand.unit() < escape then
+                            rec.knoxInfected = true
+                            rec.biteDeathAtHours = nowHours + window
+                            rec.infectionSpanHours = window
+                            rec.immuneProgress = 0
+                            tookThem = false
+                            tally("bitten")
+                            log(rec.id .. " got away from something out"
+                                .. " there, and it had teeth")
+                        end
+                    end
+                end
+                if tookThem then
                     -- [C11] Who rises mirrors the engine's own law
                     -- (shouldBecomeZombieAfterDeath, F-044): the
                     -- infected turn, and under Everyone's Infected

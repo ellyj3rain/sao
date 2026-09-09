@@ -1,6 +1,6 @@
 | Document | Survivor Awareness Overhaul Batch Log |
 |---|---|
-| Version | `4.2.1.0-pre-alpha` |
+| Version | `4.2.2.0-pre-alpha` |
 | Author | ellyj3rain |
 | Repository | `BATCH_LOG.md` |
 | Status | REGULATORY - chronological batch index. |
@@ -183,3 +183,4 @@ attribution for every merged entry, stated here rather than in a branch name.
 | [C76](Batches/C76-2026-09-09-a-house-takes-ground-where-its-people-already-go.md) | 2026-09-09 | A house takes ground where its people already go | [`T-004`](Batches/THREADS.md#t-004), [`T-003`](Batches/THREADS.md#t-003) |
 | [C77](Batches/C77-2026-09-09-what-the-walking-costs.md) | 2026-09-09 | What the walking costs | [`T-008`](Batches/THREADS.md#t-008), [`T-009`](Batches/THREADS.md#t-009) |
 | [C78](Batches/C78-2026-09-09-the-body-fights-the-infection.md) | 2026-09-09 | The body fights the infection | [`T-007`](Batches/THREADS.md#t-007), [`T-003`](Batches/THREADS.md#t-003) |
+| [C79](Batches/C79-2026-09-09-the-unwatched-county-can-catch-it.md) | 2026-09-09 | The unwatched county can catch it | [`T-007`](Batches/THREADS.md#t-007), [`T-003`](Batches/THREADS.md#t-003) |

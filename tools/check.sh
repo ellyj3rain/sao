@@ -1690,6 +1690,16 @@ if ! "$PY" tools/course_test.py > /dev/null; then
     fail=1
 fi
 
+# [C79] Border 143 - the unwatched county can catch it: knoxInfected
+# had one writer, the block releasing a body to the dormant county, so
+# nobody out there was ever bitten and [C78]'s fight reached almost
+# nobody. A bad day is not only a fatal day now.
+if ! "$PY" tools/dormant_infection_test.py > /dev/null; then
+    "$PY" tools/dormant_infection_test.py 2>&1         | grep -E "FAULT|CONTROL|SKIPPED" || true
+    note "BORDER FINDING - the county cannot catch what it dies of"
+    fail=1
+fi
+
 # Border 103 - the operator's speech is not in the repository: no
 # profanity in the tracked tree and no operator-quote attributions;
 # rulings are paraphrased content, speech stays with the speaker.
