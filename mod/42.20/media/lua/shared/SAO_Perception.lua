@@ -1023,7 +1023,7 @@ function P.announceDeparture(fromId, kind, destX, destY)
         if kind == "scout" and destX then
             local ddx, ddy = destX - fx, destY - fy
             if ddx * ddx + ddy * ddy > 40000
-                and ZombRand(4) == 0 then
+                and SAO.Rand.int(4) == 0 then
                 noClock = true
                 backBy = nil
             end

@@ -1,6 +1,6 @@
 | Document | Survivor Awareness Overhaul Batch Log |
 |---|---|
-| Version | `3.11.0.0-pre-alpha` |
+| Version | `3.12.0.0-pre-alpha` |
 | Author | ellyj3rain |
 | Repository | `BATCH_LOG.md` |
 | Status | REGULATORY - chronological batch index. |
@@ -170,3 +170,4 @@ attribution for every merged entry, stated here rather than in a branch name.
 | [C63](Batches/C63-2026-09-08-a-day-zero-start-owes-no-years.md) | 2026-09-08 | A day-zero start owes no years | [`T-002`](Batches/THREADS.md#t-002), [`T-007`](Batches/THREADS.md#t-007) |
 | [C64](Batches/C64-2026-09-08-the-blanket-claim-is-gone-from-every-document-that-carried-it.md) | 2026-09-08 | The blanket claim is gone from every document that carried it | [`T-030`](Batches/THREADS.md#t-030) |
 | [C65](Batches/C65-2026-09-08-the-years-pass-leaves-a-trajectory.md) | 2026-09-08 | The years pass leaves a trajectory | [`T-009`](Batches/THREADS.md#t-009), [`T-007`](Batches/THREADS.md#t-007) |
+| [C66](Batches/C66-2026-09-08-the-county-carries-its-own-randomness.md) | 2026-09-08 | The county carries its own randomness | [`T-007`](Batches/THREADS.md#t-007), [`T-009`](Batches/THREADS.md#t-009) |

@@ -1779,8 +1779,8 @@ local function decide(id, agent, body)
                             return
                         end
                     end
-                    local gx = math.floor(px2 + ZombRand(-1, 2))
-                    local gy = math.floor(py2 + ZombRand(-1, 2))
+                    local gx = math.floor(px2 + SAO.Rand.int(-1, 2))
+                    local gy = math.floor(py2 + SAO.Rand.int(-1, 2))
                     if SAO.Locomotion.order(id, body, gx, gy, math.floor(me:getZ())) then
                         setState(agent, id, "PLAYERFOLLOW",
                             string.format("walks with the player (%.0f back)", pdist))
@@ -1915,8 +1915,8 @@ local function decide(id, agent, body)
             end
             if anchorDist > gap then
                 -- Aim beside the anchor, not on top of it.
-                local gx = math.floor(anchorBody:getX() + ZombRand(-1, 2))
-                local gy = math.floor(anchorBody:getY() + ZombRand(-1, 2))
+                local gx = math.floor(anchorBody:getX() + SAO.Rand.int(-1, 2))
+                local gy = math.floor(anchorBody:getY() + SAO.Rand.int(-1, 2))
                 if SAO.Locomotion.order(id, body, gx, gy, anchorBody:getZ()) then
                     setState(agent, id, "FOLLOW",
                         string.format("keeps pace with %s (%.0f tiles back)",
@@ -2750,7 +2750,7 @@ local function decide(id, agent, body)
         -- purpose is a way of resting.
         if agent.mourned and (not agent.nextMemorialAt
             or tick >= agent.nextMemorialAt) then
-            agent.nextMemorialAt = tick + 14400 + ZombRand(14400)
+            agent.nextMemorialAt = tick + 14400 + SAO.Rand.int(14400)
             for deadId in pairs(agent.mourned) do
                 local deadRec = SAO.Identity.get(deadId)
                 if deadRec and deadRec.dead and deadRec.x then
@@ -3558,7 +3558,7 @@ local function decide(id, agent, body)
                 if wg then
                     for eg in pairs(SAO.Standing.allGroupClaims()) do
                         if eg ~= wg and SAO.Standing.feudBetween(wg, eg)
-                            and ZombRand(6) == 0 then
+                            and SAO.Rand.int(6) == 0 then
                             local ec = SAO.Standing.groupClaimOf(eg)
                             if ec then
                                 c = ec
@@ -3575,23 +3575,23 @@ local function decide(id, agent, body)
                     local wAlly = SAO.Standing.pactPartnerOf(wg)
                     local wAllyClaim = wAlly
                         and SAO.Standing.groupClaimOf(wAlly) or nil
-                    if wAllyClaim and ZombRand(3) == 0 then
+                    if wAllyClaim and SAO.Rand.int(3) == 0 then
                         c = wAllyClaim
                         allyWall = true
                     end
                 end
                 c = c or SAO.Standing.claimOf(id)
                 if c then
-                    local side = ZombRand(4)
+                    local side = SAO.Rand.int(4)
                     local ex, ey
                     if side == 0 then
-                        ex, ey = c.minX, c.minY + ZombRand(c.maxY - c.minY + 1)
+                        ex, ey = c.minX, c.minY + SAO.Rand.int(c.maxY - c.minY + 1)
                     elseif side == 1 then
-                        ex, ey = c.maxX, c.minY + ZombRand(c.maxY - c.minY + 1)
+                        ex, ey = c.maxX, c.minY + SAO.Rand.int(c.maxY - c.minY + 1)
                     elseif side == 2 then
-                        ex, ey = c.minX + ZombRand(c.maxX - c.minX + 1), c.minY
+                        ex, ey = c.minX + SAO.Rand.int(c.maxX - c.minX + 1), c.minY
                     else
-                        ex, ey = c.minX + ZombRand(c.maxX - c.minX + 1), c.maxY
+                        ex, ey = c.minX + SAO.Rand.int(c.maxX - c.minX + 1), c.maxY
                     end
                     watchEdge = { x = ex, y = ey }
                 end
@@ -4225,8 +4225,8 @@ local function decide(id, agent, body)
                 end
             end
             local bx, by = body:getX(), body:getY()
-            local gx = math.floor(bx + ZombRand(-range, range + 1))
-            local gy = math.floor(by + ZombRand(-range, range + 1))
+            local gx = math.floor(bx + SAO.Rand.int(-range, range + 1))
+            local gy = math.floor(by + SAO.Rand.int(-range, range + 1))
             if watchEdge then
                 gx, gy = math.floor(watchEdge.x), math.floor(watchEdge.y)
             end

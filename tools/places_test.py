@@ -397,8 +397,11 @@ def drive():
         "the day asks for a place": "chooseDayPlace(id, rec, reach)" in pop,
         "the goal IS the place": "rec.dayGoalX, rec.dayGoalY = chosen.cx" in pop,
         "arriving teaches it": "SAO.Perception.learnBuilding(id," in pop,
+        # [C66] moved every draw to the county's own generator. The
+        # property is that the old drift is still the fallback where no
+        # place can be chosen, which it is; only its spelling moved.
         "the drift survives as the fallback":
-            "rec.homeX\n                                + ZombRand" in pop,
+            "rec.homeX\n                                + SAO.Rand.int" in pop,
         "belief can hold a place as a place": "function P.learnBuilding" in per,
         "and can age it": "function P.placeAge" in per,
         "places come from the map": "getBuildingAt" in plc

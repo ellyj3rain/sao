@@ -1593,6 +1593,16 @@ if ! "$PY" tools/years_trajectory_test.py > /dev/null; then
     fail=1
 fi
 
+# [C66] Border 134 - the county's draw is its own, and it is measured:
+# statistics over what the real module produces, at the three moduli
+# that matter, because the first draft of it ramped and a border that
+# read the formula would have passed it.
+if ! "$PY" tools/county_draw_test.py > /dev/null; then
+    "$PY" tools/county_draw_test.py 2>&1 | grep -E "FAULT|SKIPPED" || true
+    note "BORDER FINDING - the county's draw is the engine's, or it is not flat"
+    fail=1
+fi
+
 # Border 103 - the operator's speech is not in the repository: no
 # profanity in the tracked tree and no operator-quote attributions;
 # rulings are paraphrased content, speech stays with the speaker.

@@ -3,7 +3,7 @@
 -- [B37]. The mod had a full social ontology and no material one. A
 -- dormant survivor's whole day was:
 --
---     rec.dayGoalX = rec.homeX + ZombRand(-24, 25)
+--     rec.dayGoalX = rec.homeX + SAO.Rand.int(-24, 25)
 --
 -- a RANDOM COORDINATE inside a 48-tile box, walked at four tiles a
 -- move, forever, under a daily dice roll that eventually kills them.
