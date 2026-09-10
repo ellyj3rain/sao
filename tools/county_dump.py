@@ -23,6 +23,14 @@ toward each other, the company's creed and claim, and the county
 hour - then the real election runs, and what the tree dealt lands
 beside it as the authored outcome the dataset exists to replace.
 
+[C88] The row also holds the house's need state as the election
+opened - the shelves' and water's words, whether the hearth burns,
+who the house feuds with - read through the same Standing verbs the
+need-pull reads inside the election, so the rows where a trade is
+the hinge (a person's own pay redirecting their dealt work, a
+need pulling the best-paid hand into a gap) carry the situation
+whole rather than a designation that moved.
+
 The choice is not captured, because it is not the county's to make.
 That fourth part of a row is the language model's, decided as the
 person, and it arrives in Speakeasy as a proposal the operator rules
@@ -249,6 +257,35 @@ RUN = r'''(function()
         return c and c.name or nil end),
       claim = s.groupClaims and s.groupClaims[groupName] or nil,
       relations = relationsFor(members),
+      -- [C88] The house's need state as the election opened, read
+      -- through the same verbs the need-pull reads when it runs
+      -- inside the election: the shelves' word, the water's word,
+      -- whether the hearth burns, and who the house stands at feud
+      -- with. A row already held every member's pay for every job
+      -- the tree can deal; it now also holds why a house would pull
+      -- somebody into a gap, so a promotion reads as the trade's
+      -- answer to a need rather than a designation that moved. The
+      -- have-set the need-pull counts is written by the deal itself
+      -- mid-election, so it stays derived - the county's own
+      -- arithmetic over the roster, citable - while the state the
+      -- question is asked of is captured here, once, as it stood.
+      need = {
+        larder = ok1(function()
+          return SAO.Standing.larderOf(groupName) end),
+        water = ok1(function()
+          return SAO.Standing.waterStoreOf(groupName) end),
+        hearth = ok1(function()
+          return SAO.Standing.hearthOf(groupName) end),
+        feuds = ok1(function()
+          local out = {}
+          for g2 in pairs(s.groupClaims or {}) do
+            if g2 ~= groupName then
+              out[g2] = SAO.Standing.feudBetween(groupName, g2)
+                == true
+            end
+          end
+          return out end),
+      },
       roster = {},
     }
     for _, id in ipairs(members) do

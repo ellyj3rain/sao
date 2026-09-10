@@ -1,13 +1,42 @@
 | Document | Survivor Awareness Overhaul Session State |
 |---|---|
-| Version | `4.2.4.0-pre-alpha` |
+| Version | `4.2.4.1-pre-alpha` |
 | Author | ellyj3rain |
 | Repository | `SESSION_STATE.md` |
 | Status | CANONICAL - where the work actually stands. |
 
 # Session state
 
-**As of** 2026-09-10, `[C87]` close - what a belief carries. The
+**As of** 2026-09-10, `[C88]` close - what decided a moment. The
+next dataset proposal takes a new target the trades open up, and
+this is its instrument. The survey measured the dormant
+trades-hinge surface rather than assuming it: exactly two moments
+inside the election the dump already wraps - the deal yielding to
+a member's own best hand when their pay for another job beats the
+dealt pay by three or more, and an unmet house need pulling the
+best-suited hand into the gap - and the `[C86]` harvest counted
+four redirects in six engine counties, all cook pay 4 against a
+dealt forager pay 0, and eight need-pull promotions, all zero-pay,
+with no Foraging pay anywhere in the whole harvest: no profession
+in the catalog boosts it, so the forager pull is the class the
+county's own rule points at, never a trade's decision. The row now
+carries the house's need state as the election opened - the
+shelves' and water's words, whether the hearth burns, who the house
+feuds with - read through the same verbs the need-pull reads,
+once, at entry, with a house holding nothing reading as absence
+rather than a dressed-up zero; a full engine county reproduces
+`[C86]`'s County000 exactly, so the capture consumed no draw.
+Border 148 forces both moments through the tree's own instrument -
+the forcing wrapped around the county's tick so a forced election
+lands as a real captured row - and its control is the `[C87]`
+tree failing five things, among them that its rows cannot see the
+lean shelves the border set. The 120-county harvest with the
+capture in place is running; the next batch authors the dataset
+proposal from it, and the `--engine` flag still moves to the
+default only after the operator has read those rows. Tools and a
+border only, no mod code, so patch.
+
+**Before that**, `[C87]` - what a belief carries. The
 operator ruled on the gaps `[C86]` came back with, same day:
 distances kept - the meeting caller computed the distance between
 two people and threw it away, so a first meeting read distance zero
@@ -1217,7 +1246,7 @@ unloaded survivors are governed by the same rules ([B39], [B42]).
 
 ## Deploy state
 
-`4.2.4.0-pre-alpha` at tip - the version machine's output ([C2],
+`4.2.4.1-pre-alpha` at tip - the version machine's output ([C2],
 DR-013; the twelfth minor rolled the tier by the odometer's own
 law). The game install carries the `[C62]` tip. `[C45]` through
 `[C51]` reached it on 2026-09-07 and `[C52]` through `[C62]` on 2026-09-08, each
@@ -1261,7 +1290,7 @@ deploy; `save_compat_test` guards this and runs in the gate.
 
 ## Instruments
 
-**147 numbered borders**, run by **162 gated mirrors** in `tools/`, all invoked
+**148 numbered borders**, run by **163 gated mirrors** in `tools/`, all invoked
 by `tools/check.sh`, which the pre-commit hook runs and CI runs on every push.
 The figures in this paragraph are derived by Border 76 from the tree, not
 maintained by hand. Border 54 keeps the rest honest: it runs every gated
