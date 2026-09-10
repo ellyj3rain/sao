@@ -1,13 +1,34 @@
 | Document | Survivor Awareness Overhaul Session State |
 |---|---|
-| Version | `4.2.3.5-pre-alpha` |
+| Version | `4.2.3.6-pre-alpha` |
 | Author | ellyj3rain |
 | Repository | `SESSION_STATE.md` |
 | Status | CANONICAL - where the work actually stands. |
 
 # Session state
 
-**As of** 2026-09-09, `[C85]` close - the sister's rows are
+**As of** 2026-09-10, `[C86]` close - the engine's own names and
+trades, by mode. The operator ruled richer evidence first - make the
+evidence the rows are authored from richer before multiplying the
+rows - and deepen the harness to get it; of the four things that made
+the dump's rows thinner than the people in them, two were the
+harness's and now answer from the engine's own data. `--engine` on
+the dump and the sweep exposes the real shipped bridge and loads the
+game's own name pools and profession definitions, so a county run
+this way names its people out of the engine's own pools and reads
+their trades' pay through the engine's own definitions - and is a
+different county from the same save run plain, because a name costs
+two county draws and the catalog grew, which is why the mode is a
+flag: the ratified 112 rows cite the preserved plain dump. A run that
+would name nobody refuses instead. Border 146 holds it in the gate,
+its control the `[C85]` tree failing six things; the two mod-side
+gaps - the dead a person has seen, the distances their beliefs
+carry - come back named as proposals, not built. A full one-county
+validation measured 305 moments and 768 member-rows with real names,
+real skills and name-keyed beliefs, zero capture failures. Instrument
+and border, no mod code, so patch.
+
+**Before that**, `[C85]` - the sister's rows are
 ratified. The operator read the 112 rows' record the same day the
 proposal landed and ruled: ratified, with the scope they gave - the
 rows stand, and ratifying them does not preclude improving the
@@ -1177,7 +1198,7 @@ unloaded survivors are governed by the same rules ([B39], [B42]).
 
 ## Deploy state
 
-`4.2.3.5-pre-alpha` at tip - the version machine's output ([C2],
+`4.2.3.6-pre-alpha` at tip - the version machine's output ([C2],
 DR-013; the twelfth minor rolled the tier by the odometer's own
 law). The game install carries the `[C62]` tip. `[C45]` through
 `[C51]` reached it on 2026-09-07 and `[C52]` through `[C62]` on 2026-09-08, each
@@ -1221,7 +1242,7 @@ deploy; `save_compat_test` guards this and runs in the gate.
 
 ## Instruments
 
-**145 numbered borders**, run by **160 gated mirrors** in `tools/`, all invoked
+**146 numbered borders**, run by **161 gated mirrors** in `tools/`, all invoked
 by `tools/check.sh`, which the pre-commit hook runs and CI runs on every push.
 The figures in this paragraph are derived by Border 76 from the tree, not
 maintained by hand. Border 54 keeps the rest honest: it runs every gated

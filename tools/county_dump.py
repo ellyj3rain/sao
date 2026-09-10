@@ -39,8 +39,28 @@ same county ([C66] - same code, same map, same spawn points), which
 is what makes a row's citation of county and hour answerable rather
 than invented.
 
+THE ENGINE MODE
+
+`--engine` exposes the real shipped bridge and loads the game's own
+data through it: the name pools, filled by the game's own fill
+functions, and the profession definitions, registered by the game's
+own two-phase script pass. A row from an engine dump carries real
+names in `name` and real boosts under `skills`, where a plain dump
+carries the sentinel and zeros.
+
+It is a DIFFERENT county from the same save name run without the
+flag. A name costs two county draws at `Identity.create`, and
+`listProfessions` grows the catalog the occupation draw runs against,
+so the draws diverge from the first person onward. [C66] holds per
+harness shape: same name plus `--engine` reproduces the engine county,
+same name without it reproduces the plain one, and neither reproduces
+the other. The ratified rows cite the plain dump, which is preserved
+data against the install that produced it; rows from an engine dump
+cite the engine dump.
+
   python tools/county_dump.py --runs 12
   python tools/county_dump.py --runs 24 --out C:/wherever
+  python tools/county_dump.py --runs 12 --engine
 """
 import argparse
 import concurrent.futures
@@ -285,7 +305,7 @@ RUN = r'''(function()
 end)()'''
 
 
-def one(name, lua, owed, refill):
+def one(name, lua, owed, refill, engine=False):
     prelude = (Sweep.SWEEP / "prelude.lua").read_text(encoding="utf-8")
     prelude = prelude.replace("_G.__owed = 1096", "_G.__owed = %d" % owed)
     if refill is not None:
@@ -298,9 +318,20 @@ def one(name, lua, owed, refill):
             shutil.copy2(c, work / c.name)
         pre = work / "prelude.lua"
         pre.write_text(prelude, encoding="utf-8")
-        args = [str(Sweep.JDK / "java.exe"), "-cp", "%s;." % Sweep.PZ,
-                "LuaRun", str(pre), str(Sweep.CACHE / "map.lua"),
-                str(Sweep.SWEEP / "places.lua")]
+        cp = "%s;%s;." % (Sweep.PZ, Sweep.SAO_JAR) if engine \
+            else "%s;." % Sweep.PZ
+        args = [str(Sweep.JDK / "java.exe"), "-cp", cp, "LuaRun"]
+        if engine:
+            args += ["--engine", str(Sweep.GAME)]
+        args += [str(pre)]
+        if engine:
+            # The game's own fill file, then the chunk that calls its
+            # fill functions - before the mod's modules, which is the
+            # game's own load order: engine Lua first, mod Lua after.
+            args += [str(Sweep.ENGINE_FILL_LUA),
+                     str(Sweep.SWEEP / "engine_fill.lua")]
+        args += [str(Sweep.CACHE / "map.lua"),
+                 str(Sweep.SWEEP / "places.lua")]
         args += [str(lua / m) for m in Sweep.MODULES
                  if (lua / m).exists()]
         args += [str(Sweep.CACHE / "regions.lua"), "--",
@@ -334,6 +365,12 @@ def main():
     ap.add_argument("--out", default=None,
                     help="where the dump lands; default a stamped "
                          "directory beside the sweep cache")
+    ap.add_argument("--engine", action="store_true",
+                    help="expose the real bridge and load the game's own "
+                         "name pools and profession definitions; rows "
+                         "carry real names and boosts, and the county "
+                         "differs from a plain run of the same name "
+                         "(see the engine mode above)")
     args = ap.parse_args()
 
     print("=" * 74)
@@ -349,6 +386,15 @@ def main():
               "is asserted,")
         print("  so there is nothing to fail.")
         return 0
+    if args.engine and not Sweep.SAO_JAR.exists():
+        print("  the mod jar is not built (%s)." % Sweep.SAO_JAR)
+        print("  Engine mode exposes the shipped bridge, so build it "
+              "first: bash tools/build-java.sh")
+        return 1
+    if args.engine and not Sweep.ENGINE_FILL_LUA.exists():
+        print("  the game's own fill file is not where this install "
+              "has it (%s)" % Sweep.ENGINE_FILL_LUA)
+        return 1
 
     lua = pathlib.Path(args.lua).resolve() if args.lua \
         else Sweep.ROOT / "mod" / "42.20" / "media" / "lua"
@@ -405,15 +451,23 @@ def main():
     dest = base / time.strftime("%Y%m%d-%H%M%S")
     dest.mkdir(parents=True, exist_ok=True)
 
-    print("  %d counties, %d days owed, one process each; dump to %s"
-          % (args.runs, args.days, dest))
+    print("  %d counties, %d days owed, one process each; dump to %s%s"
+          % (args.runs, args.days, dest,
+             "; engine data on" if args.engine else ""))
+    if args.engine:
+        print("  engine data on: rows carry real names and real "
+              "profession boosts.")
+        print("  Same name plus --engine reproduces this county; "
+              "without it the")
+        print("  plain county - a different one - answers ([C66] per "
+              "harness shape).")
     print()
 
     moments, members, failed = 0, 0, 0
     with concurrent.futures.ThreadPoolExecutor(
             max_workers=args.workers) as pool:
         futures = {pool.submit(one, "County%03d" % k, lua, args.days,
-                               args.refill): k
+                               args.refill, args.engine): k
                    for k in range(args.runs)}
         for f in concurrent.futures.as_completed(futures):
             k = futures[f]

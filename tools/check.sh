@@ -1721,6 +1721,25 @@ if ! "$PY" tools/foreign_claim_test.py > /dev/null; then
     fail=1
 fi
 
+# [C86] Border 146 - the engine's own names reach the county by mode,
+# and a run that would name nobody says so. LuaRun's --engine exposes
+# the shipped bridge and runs the game's own script pass; the sweep
+# prelude forwards the six engine questions instead of stubbing them
+# away. A county run this way names its people out of the engine's own
+# pools and reads their trades' pay through the engine's own
+# definitions - and it is a DIFFERENT county from the same save run
+# plain, because a name costs two draws and the catalog grew, so the
+# ratified rows keep citing the plain dump until the operator rules
+# otherwise. With no engine behind it nothing changes: the forwards
+# answer nil, the sentinels stand, no draw is spent. An engine run
+# whose pools never filled refuses rather than reporting a county of
+# sentinels as an engine run.
+if ! "$PY" tools/engine_data_test.py > /dev/null; then
+    "$PY" tools/engine_data_test.py 2>&1 | grep -E "FAULT|SKIPPED" || true
+    note "BORDER FINDING - the engine's own data is not reaching the county"
+    fail=1
+fi
+
 # Border 103 - the operator's speech is not in the repository: no
 # profanity in the tracked tree and no operator-quote attributions;
 # rulings are paraphrased content, speech stays with the speaker.

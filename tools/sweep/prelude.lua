@@ -114,6 +114,31 @@ SandboxVars = {
 SAO.Body = { active = {}, get = function() return nil end }
 
 _G.__owed = 1096
+
+-- [C86] The real bridge, when the harness exposed one (LuaRun's
+-- --engine mode). The stub below answers what only the harness can
+-- know - the county clock, the survey's claim - and forwards to the
+-- engine everything the engine owns: the name pools, the profession
+-- boosts, the profession list the catalog grows from.
+--
+-- With no bridge behind it - a border run, or a county that did not
+-- ask for engine data - the forwards answer nil and the shipped code
+-- keeps its own sentinels, exactly as it did before this existed.
+-- Those callers are pcall-wrapped and type-check what comes back, so
+-- nil is the missing answer, not a crash; and the county draw is
+-- taken only after a count comes back, so a nil here consumes no
+-- draw and a plain run's sequence is unchanged.
+local __engineBridge = SAOJavaBridge
+
+local function __forward(method)
+    return function(self, ...)
+        if not __engineBridge then return nil end
+        local fn = __engineBridge[method]
+        if not fn then return nil end
+        return fn(__engineBridge, ...)
+    end
+end
+
 SAOJavaBridge = {
     daysBehindAtStart = function(self, asked) return _G.__owed end,
     recordDayToday = function(self) return _G.__owed end,
@@ -125,4 +150,10 @@ SAOJavaBridge = {
     end,
     listKnoxHumans = function() return "" end,
     isCombatPatchReady = function() return false end,
+    forenameCount = __forward("forenameCount"),
+    forenameAt = __forward("forenameAt"),
+    surnameCount = __forward("surnameCount"),
+    surnameAt = __forward("surnameAt"),
+    professionBoost = __forward("professionBoost"),
+    listProfessions = __forward("listProfessions"),
 }
