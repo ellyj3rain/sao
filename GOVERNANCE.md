@@ -1,6 +1,6 @@
 | Document | Survivor Awareness Overhaul Governance |
 |---|---|
-| Version | `4.2.3.3-pre-alpha` |
+| Version | `4.2.3.4-pre-alpha` |
 | Design authority | ellyj3rain |
 | Repository | `GOVERNANCE.md` |
 | Status | ACTIVE - operating discipline for this repository. |

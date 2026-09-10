@@ -1,6 +1,6 @@
 | Document | Survivor Awareness Overhaul Roadmap |
 |---|---|
-| Version | `4.2.3.3-pre-alpha` |
+| Version | `4.2.3.4-pre-alpha` |
 | Author | ellyj3rain |
 | Repository | `ROADMAP.md` |
 | Status | CANONICAL - thread map, backlog, live gates. |
@@ -637,5 +637,6 @@ produce for itself.
 `../zombie-awareness` G0 is not closed - what the loaded recovery mods
 expose is unchecked, because the Antibodies family is not installed.
 `../zomboid-speakeasy` has the dataset's source and row shape ratified
-(DR-038, its record entries 24 and 25) and no rows yet.
+(DR-038, its record entries 24 and 25); its first 112 rows are in
+as a proposal the operator has not ruled on (its record 28).
 

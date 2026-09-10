@@ -18,7 +18,7 @@ were illustrative rather than complete. Every batch is now classified.
 
 Instruments and audits measured against the genuine artifact, engine or code.
 
-**Batches**: `A2`, `A3`, `A4`, `A16`, `A23`, `A24`, `B5`, `B25`, `B26`, `B31`, `B32`, `B33`, `B34`, `B35`, `B37`, `B38`, `B40`, `B41`, `B42`, `B44`, `B47`, `B50`, `C8`, `C9`, `C11`, `C14`, `C18`, `C29`, `C67`, `C68`, `C69`, `C70`, `C71`, `C75`, `C77`, `C82`, `C83`
+**Batches**: `A2`, `A3`, `A4`, `A16`, `A23`, `A24`, `B5`, `B25`, `B26`, `B31`, `B32`, `B33`, `B34`, `B35`, `B37`, `B38`, `B40`, `B41`, `B42`, `B44`, `B47`, `B50`, `C8`, `C9`, `C11`, `C14`, `C18`, `C29`, `C67`, `C68`, `C69`, `C70`, `C71`, `C75`, `C77`, `C82`, `C83`, `C84`
 
 **Owes**: play receipts for everything; that debt is the project's standing condition.
 
@@ -34,7 +34,7 @@ Telemetry and the acquisition record - how learning is stored and how every fact
 
 The gate, its borders, and the repository's own discipline.
 
-**Batches**: `A1`, `A16`, `B5`, `B12`, `B14`, `B16`, `B30`, `B31`, `B32`, `B36`, `B41`, `B42`, `B43`, `B44`, `B45`, `B51`, `B52`, `C1`, `C2`, `C40`, `C64`, `C74`
+**Batches**: `A1`, `A16`, `B5`, `B12`, `B14`, `B16`, `B30`, `B31`, `B32`, `B36`, `B41`, `B42`, `B43`, `B44`, `B45`, `B51`, `B52`, `C1`, `C2`, `C40`, `C64`, `C74`, `C84`
 
 **Owes**: Border 47's counted remainder (named, not manufactured into a group).
 
