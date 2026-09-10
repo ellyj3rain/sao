@@ -1,6 +1,6 @@
 | Document | The Grounded Dead - a derivation for ratification |
 |---|---|
-| Version | `4.2.3.6-pre-alpha` |
+| Version | `4.2.4.0-pre-alpha` |
 | Author | ellyj3rain |
 | Repository | `GROUNDED_DEAD_PROPOSAL.md` |
 | Status | RATIFIED WITH AMENDMENTS (DR-021) - mechanism B plus the presence layer and the state-agreement constraint; this file is now the derivation appendix. Final numbers await the [C16] measurement. |

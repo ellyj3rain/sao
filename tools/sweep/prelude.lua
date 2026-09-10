@@ -157,3 +157,20 @@ SAOJavaBridge = {
     professionBoost = __forward("professionBoost"),
     listProfessions = __forward("listProfessions"),
 }
+
+-- [C87] The plain reading of an engine name, for the display layer.
+-- The engine stores a person's name as its own translation key
+-- (`SurvivorName_Elliot`) and its own English rendering of that key is
+-- the key's own suffix - every entry of the engine's SurvivorNames
+-- table answers exactly that, measured entry for entry. A row reads
+-- the plain form; the key stays beside it, because the key is what
+-- the engine itself holds in play. A name that is not a key - the
+-- plain county's sentinels - reads as itself, unchanged.
+plainNameOf = function(forename, surname)
+    if type(forename) ~= "string" or type(surname) ~= "string" then
+        return nil
+    end
+    local f = forename:gsub("^SurvivorName_", "")
+    local s = surname:gsub("^SurvivorSurname_", "")
+    return f .. " " .. s
+end

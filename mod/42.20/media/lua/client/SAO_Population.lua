@@ -796,14 +796,21 @@ local function ensurePopulation(conf)
                         -- the same write a road meeting makes, at the
                         -- same provenance, because this is the same
                         -- kind of thing: they were both there.
+                        -- [C87] The distance is stated from their own
+                        -- positions rather than defaulted, so the two
+                        -- spellings of one write cannot drift apart
+                        -- if mates ever spawn apart.
+                        local fdx = mates[a].x - mates[b].x
+                        local fdy = mates[a].y - mates[b].y
+                        local fdist = math.sqrt(fdx * fdx + fdy * fdy)
                         SAO.Perception.sawPerson(mates[a].id,
                             SAO.Identity.beliefKey(mates[b]),
                             mates[b].x, mates[b].y, tickCounter,
-                            mates[b].id)
+                            mates[b].id, fdist)
                         SAO.Perception.sawPerson(mates[b].id,
                             SAO.Identity.beliefKey(mates[a]),
                             mates[a].x, mates[a].y, tickCounter,
-                            mates[a].id)
+                            mates[a].id, fdist)
                     end)
                 end
             end
@@ -2355,13 +2362,18 @@ local function dormantEncounters()
                 -- somebody is still having seen them - and a survivor
                 -- who cannot remember meeting anyone has no person to
                 -- decide about tomorrow.
+                -- [C87] The meet test already computed the pair's
+                -- distance; it is passed rather than thrown away, so
+                -- the belief carries how far apart they actually
+                -- stood instead of a carried or zero seed.
+                local metDist = math.sqrt(dx * dx + dy * dy)
                 pcall(function()
                     SAO.Perception.sawPerson(idA,
                         SAO.Identity.beliefKey(SAO.Identity.get(idB)),
-                        recB.x, recB.y, tickCounter, idB)
+                        recB.x, recB.y, tickCounter, idB, metDist)
                     SAO.Perception.sawPerson(idB,
                         SAO.Identity.beliefKey(SAO.Identity.get(idA)),
-                        recA.x, recA.y, tickCounter, idA)
+                        recA.x, recA.y, tickCounter, idA, metDist)
                 end)
                 if SAO.Standing.isHostileTo(idA, idB)
                     or SAO.Standing.isHostileTo(idB, idA) then

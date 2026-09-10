@@ -1,13 +1,32 @@
 | Document | Survivor Awareness Overhaul Session State |
 |---|---|
-| Version | `4.2.3.6-pre-alpha` |
+| Version | `4.2.4.0-pre-alpha` |
 | Author | ellyj3rain |
 | Repository | `SESSION_STATE.md` |
 | Status | CANONICAL - where the work actually stands. |
 
 # Session state
 
-**As of** 2026-09-10, `[C86]` close - the engine's own names and
+**As of** 2026-09-10, `[C87]` close - what a belief carries. The
+operator ruled on the gaps `[C86]` came back with, same day:
+distances kept - the meeting caller computed the distance between
+two people and threw it away, so a first meeting read distance zero
+and a re-meeting carried the first one forever - and name keys
+translated at the display layer, a row reading `Elliot Segura` with
+the engine's own key staying beside it. Both are built: the
+distance travels the seam both ways, a caller that knows no
+distance keeps the carried-then-zero seed, and the plain reading is
+measured against the engine's own English table entry for entry -
+6008 of 6008. The dead are ruled to the sister seam, decided with
+the ZAO trilateral work rather than unilaterally here, and the next
+dataset proposal takes a new target the trades open up - rows where
+the person's trade is the situation's hinge - which is the next
+batch's instrument, not this one's. Border 147 holds both rulings
+in the gate; its control is the `[C86]` tree failing thirteen
+things. The first mod change in five batches, one seam, the seed
+doctrine unchanged, so kohai.
+
+**Before that**, `[C86]` - the engine's own names and
 trades, by mode. The operator ruled richer evidence first - make the
 evidence the rows are authored from richer before multiplying the
 rows - and deepen the harness to get it; of the four things that made
@@ -1198,7 +1217,7 @@ unloaded survivors are governed by the same rules ([B39], [B42]).
 
 ## Deploy state
 
-`4.2.3.6-pre-alpha` at tip - the version machine's output ([C2],
+`4.2.4.0-pre-alpha` at tip - the version machine's output ([C2],
 DR-013; the twelfth minor rolled the tier by the odometer's own
 law). The game install carries the `[C62]` tip. `[C45]` through
 `[C51]` reached it on 2026-09-07 and `[C52]` through `[C62]` on 2026-09-08, each
@@ -1242,7 +1261,7 @@ deploy; `save_compat_test` guards this and runs in the gate.
 
 ## Instruments
 
-**146 numbered borders**, run by **161 gated mirrors** in `tools/`, all invoked
+**147 numbered borders**, run by **162 gated mirrors** in `tools/`, all invoked
 by `tools/check.sh`, which the pre-commit hook runs and CI runs on every push.
 The figures in this paragraph are derived by Border 76 from the tree, not
 maintained by hand. Border 54 keeps the rest honest: it runs every gated
