@@ -68,8 +68,24 @@ from the id, so almost nothing has to be stored for a mind to be
 re-derived and then degraded.
 
 ZAO reads SAO's mechanics and copies no files. Where the audit of the
-sister found defects, they went back to SAO as repairs rather than
-being worked around.
+sister found defects, they went back to SAO as repairs rather than being
+worked around.
+
+### SAO to ZAO - the ones who came back and the ones who went past
+
+The second crossing between these two, opened at ZAO's `[A11]` and
+running the other way from the turn. A person becomes ZAO's while
+remaining inside SAO's county: an afflicted body is a person again, in a
+house, holding bonds, being argued over; a crossed one looks like a
+person and acts with the sister's own action vocabulary - driving,
+explosives, loudspeakers - with what humanity gave it stripped out. The
+sister's machinery for houses, standing, fear and temperament reaches a
+body the sister no longer owns.
+
+Nothing is designed here yet. Which machinery runs an afflicted body,
+how the county asks ZAO what a body is (the claim surface, ZAO's F-012),
+and how much of the sister the crossed may use are the seam's open
+questions, and they are the next design work between the two.
 
 ### SAO to Speakeasy - the dataset
 
@@ -121,7 +137,7 @@ edge now is what stops it being invented twice.
 | | Version | Standing |
 |---|---|---|
 | SAO | see `VERSION` | four pillars built, the county runs on them, play receipts outstanding. A bitten body now races the engine's own death hour instead of arriving at it, the unwatched county can catch Knox on its own, and one person can read another as far as their own First Aid allows. |
-| ZAO | `../zombie-awareness/VERSION` | G0 closed at `[A6]` - the turn, the control surface, the player's dials and the recovery mods all have evidence. No mod code, which is what the gate ladder asks for here. Three decisions gate G1. `[A7]`-`[A9]` read the mods that already run behaviour on turned bodies and set what this project does with them (DR-014, DR-015). |
+| ZAO | `../zombie-awareness/VERSION` | G0 closed at `[A6]` - the turn, the control surface, the player's dials and the recovery mods all have evidence. No mod code, which is what the gate ladder asks for here. Three decisions gate G1. `[A7]`-`[A9]` read the mods that already run behaviour on turned bodies and set what this project does with them (DR-014, DR-015). `[A10]` confirmed the actuators are Java-side. `[A11]` defined the mutation system - `MUTATION.md` is canonical - and the county gained two populations: the afflicted, who are people again, and the crossed, who only look like one. |
 | Speakeasy | `../zomboid-speakeasy/RECORD.md` | the dataset's source and row shape ratified (record 24); a ceiling for the inference budget measured (record 26); `decisions/` carries the row shape and no rows |
 
 Each of those is its own repository's to update. This table says where
