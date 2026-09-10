@@ -1,6 +1,6 @@
 | Document | Survivor Awareness Overhaul Representation Contract |
 |---|---|
-| Version | `4.2.4.3-pre-alpha` |
+| Version | `4.2.4.4-pre-alpha` |
 | Author | ellyj3rain |
 | Repository | `REPRESENTATION.md` |
 | Status | CANONICAL - what the county represents and which state carries each part. |
@@ -58,6 +58,7 @@ the objective of the simulation.
 | What do they do with ease? | disposition, habits, culture, relationships, available space |
 | What pattern, if any, forms? | repeated action under the same pressure |
 | What organization, if any, appears? | recognition or assignment of a pattern by a group |
+| What claim is being made, and who recognizes it? | office, membership, resource, role, bond, recognition, response |
 
 ## Existing state surfaces
 

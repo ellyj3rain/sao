@@ -52,7 +52,7 @@ The county before the collapse, the fall itself, and what it teaches.
 
 Who a person is, what they believe, how they came to believe it, and what time does to it.
 
-**Batches**: `A5`, `A6`, `A9`, `A11`, `A13`, `A15`, `A24`, `A27`, `B8`, `B9`, `B10`, `B11`, `B21`, `B22`, `B24`, `B27`, `B39`, `B49`, `C3`, `C4`, `C5`, `C7`, `C10`, `C15`, `C20`, `C30`, `C31`, `C32`, `C33`, `C36`, `C37`, `C38`, `C39`, `C47`, `C71`, `C72`, `C73`, `C87`, `C89`, `C90`
+**Batches**: `A5`, `A6`, `A9`, `A11`, `A13`, `A15`, `A24`, `A27`, `B8`, `B9`, `B10`, `B11`, `B21`, `B22`, `B24`, `B27`, `B39`, `B49`, `C3`, `C4`, `C5`, `C7`, `C10`, `C15`, `C20`, `C30`, `C31`, `C32`, `C33`, `C36`, `C37`, `C38`, `C39`, `C47`, `C71`, `C72`, `C73`, `C87`, `C89`, `C90`, `C91`
 
 **Owes**: the operator's trait-correlation question; the relations rows of the dead (irreversible).
 
@@ -80,7 +80,7 @@ Bodies, hunger, water, fire, ground worked, and the places that give.
 
 Companies, creeds, elections, feuds, pacts, schisms, and the player's standing in it.
 
-**Batches**: `A9`, `A12`, `A13`, `A14`, `A19`, `A20`, `A21`, `A22`, `A25`, `A27`, `B7`, `B13`, `B23`, `B35`, `C37`, `C42`, `C44`, `C48`, `C67`, `C68`, `C70`, `C72`, `C76`, `C83`, `C88`, `C89`, `C90`
+**Batches**: `A9`, `A12`, `A13`, `A14`, `A19`, `A20`, `A21`, `A22`, `A25`, `A27`, `B7`, `B13`, `B23`, `B35`, `C37`, `C42`, `C44`, `C48`, `C67`, `C68`, `C70`, `C72`, `C76`, `C83`, `C88`, `C89`, `C90`, `C91`
 
 **Owes**: the carry-light dissent class; division's rate is unpriced.
 

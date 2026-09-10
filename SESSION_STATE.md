@@ -1,13 +1,22 @@
 | Document | Survivor Awareness Overhaul Session State |
 |---|---|
-| Version | `4.2.4.3-pre-alpha` |
+| Version | `4.2.4.4-pre-alpha` |
 | Author | ellyj3rain |
 | Repository | `SESSION_STATE.md` |
 | Status | CANONICAL - where the work actually stands. |
 
 # Session state
 
-**As of** 2026-09-10, `[C90]` close - organization and deference. The operator
+**As of** 2026-09-10, `[C91]` close - claims and recognition. The operator
+corrected the organization contract: some social facts are not self-declared. A
+person may claim an office, membership, a resource, a role, or a bond; the
+claim is separate from recognition, and the model now records the claim, the
+recognizers, and the response. Coercion can make a claim effective without
+making it legitimate. The governance names are analytical, not speech lines;
+no character says `I am despotic` or `I am localist`. Documents only, no mod
+code, so patch.
+
+**Before that**, `[C90]` - organization and deference. The operator
 named the next missing model: hierarchy, governance form, offices, and
 deference. Democratic, despotic, and localist were examples, not implementation
 targets. `ORGANIZATION.md` is the canonical contract now. It defines an
@@ -1275,7 +1284,7 @@ unloaded survivors are governed by the same rules ([B39], [B42]).
 
 ## Deploy state
 
-`4.2.4.3-pre-alpha` at tip - the version machine's output ([C2],
+`4.2.4.4-pre-alpha` at tip - the version machine's output ([C2],
 DR-013; the twelfth minor rolled the tier by the odometer's own
 law). The game install carries the `[C62]` tip. `[C45]` through
 `[C51]` reached it on 2026-09-07 and `[C52]` through `[C62]` on 2026-09-08, each

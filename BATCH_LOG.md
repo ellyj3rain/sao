@@ -1,6 +1,6 @@
 | Document | Survivor Awareness Overhaul Batch Log |
 |---|---|
-| Version | `4.2.4.3-pre-alpha` |
+| Version | `4.2.4.4-pre-alpha` |
 | Author | ellyj3rain |
 | Repository | `BATCH_LOG.md` |
 | Status | REGULATORY - chronological batch index. |
@@ -195,3 +195,4 @@ attribution for every merged entry, stated here rather than in a branch name.
 | [C88](Batches/C88-2026-09-10-what-decided-a-moment.md) | 2026-09-10 | What decided a moment | [`T-004`](Batches/THREADS.md#t-004), [`T-008`](Batches/THREADS.md#t-008) |
 | [C89](Batches/C89-2026-09-10-what-the-county-represents.md) | 2026-09-10 | What the county represents | [`T-004`](Batches/THREADS.md#t-004), [`T-006`](Batches/THREADS.md#t-006), [`T-008`](Batches/THREADS.md#t-008) |
 | [C90](Batches/C90-2026-09-10-organization-and-deference.md) | 2026-09-10 | Organization and deference | [`T-004`](Batches/THREADS.md#t-004), [`T-006`](Batches/THREADS.md#t-006) |
+| [C91](Batches/C91-2026-09-10-claims-and-recognition.md) | 2026-09-10 | Claims and recognition | [`T-004`](Batches/THREADS.md#t-004), [`T-006`](Batches/THREADS.md#t-006) |
