@@ -1,13 +1,25 @@
 | Document | Survivor Awareness Overhaul Session State |
 |---|---|
-| Version | `4.2.4.2-pre-alpha` |
+| Version | `4.2.4.3-pre-alpha` |
 | Author | ellyj3rain |
 | Repository | `SESSION_STATE.md` |
 | Status | CANONICAL - where the work actually stands. |
 
 # Session state
 
-**As of** 2026-09-10, `[C89]` close - what the county represents. The
+**As of** 2026-09-10, `[C90]` close - organization and deference. The operator
+named the next missing model: hierarchy, governance form, offices, and
+deference. Democratic, despotic, and localist were examples, not implementation
+targets. `ORGANIZATION.md` is the canonical contract now. It defines an
+organization as a durable group with members, a decision method, and a
+boundary; an office as a decision right with jurisdiction; governance as
+unsettled, democratic, despotic, localist, federated, or communal; legitimacy as
+consent, competence, custom, election, inheritance, coercion, resource control,
+emergency, or tradition; and deference as a decision about one matter, with
+refusal, appeal, contest, exit, and resistance as real outcomes. Documents only,
+no mod code, so patch.
+
+**Before that**, `[C89]` - what the county represents. The
 operator set the representation target after the trades-hinge proposal
 landed: the game represents a living county under survival pressure; work
 comes from pressure, person, relationship, and material state; organization
@@ -1263,7 +1275,7 @@ unloaded survivors are governed by the same rules ([B39], [B42]).
 
 ## Deploy state
 
-`4.2.4.2-pre-alpha` at tip - the version machine's output ([C2],
+`4.2.4.3-pre-alpha` at tip - the version machine's output ([C2],
 DR-013; the twelfth minor rolled the tier by the odometer's own
 law). The game install carries the `[C62]` tip. `[C45]` through
 `[C51]` reached it on 2026-09-07 and `[C52]` through `[C62]` on 2026-09-08, each
