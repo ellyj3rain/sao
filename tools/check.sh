@@ -1754,6 +1754,22 @@ if ! "$PY" tools/belief_payload_test.py > /dev/null; then
     fail=1
 fi
 
+# [C88] Border 148 - the trades the engine pays for, as the hinge of
+# a row. The next rows point where the trades open up, and the
+# survey measured the two moments inside the election the dump
+# already wraps: the dealt work yielding to the member's own best
+# hand, and an unmet house need pulling a hand into the gap. A row
+# that would say what decided a moment needs what the house was
+# missing when it asked, so the row now holds the house's need state
+# as the election opened, read through the same verbs the need-pull
+# reads. This border forces both moments through the tree's own
+# instrument and holds the captured rows.
+if ! "$PY" tools/trades_moment_test.py > /dev/null; then
+    "$PY" tools/trades_moment_test.py 2>&1 | grep -E "FAULT|SKIPPED" || true
+    note "BORDER FINDING - a row does not carry what decided a moment"
+    fail=1
+fi
+
 # Border 103 - the operator's speech is not in the repository: no
 # profanity in the tracked tree and no operator-quote attributions;
 # rulings are paraphrased content, speech stays with the speaker.
