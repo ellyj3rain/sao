@@ -1,6 +1,6 @@
 | Document | Survivor Awareness Overhaul Findings |
 |---|---|
-| Version | `4.2.3.1-pre-alpha` |
+| Version | `4.2.3.2-pre-alpha` |
 | Author | ellyj3rain |
 | Repository | `FINDINGS.md` |
 | Status | CANONICAL, APPEND-ONLY - verified engine findings. |
@@ -1431,3 +1431,41 @@ measurement and a ruling rather than a rename.
 The rename is what makes the split possible later: three call sites
 asking three differently-named questions can be changed independently,
 where twenty-four branches on one boolean could not.
+
+---
+
+## F-067 - The engine requires no player at the wheel
+
+**Found** `[C82]`, by disassembling every method along the shipped
+B42.20 jar's driving path. Structural; no live receipt.
+
+T-001's ledger called NPC driving engine-absent, and nothing had ever
+read the code to ask. The driving path's identity gates, disassembled:
+
+| Gate | What it actually tests | An NPC in seat 0 |
+|---|---|---|
+| `BaseVehicle.isKeyboardControlled()` | the seat-0 character IS `IsoPlayer.players[0]` (identity compare) and the vehicle tows nothing | answers false |
+| `BaseVehicle.updateControls()` | a controller exists, `isOperational()`, and the driver cast to `IsoPlayer` is blocking movement | the cast is null; passes |
+| `BaseVehicle.tryStartEngine(boolean)` | the driver cast to `IsoPlayer` blocks movement; then the cheat, `vehicleEasyUse`, keys in the ignition or hotwired; condition and quality can refuse | passes; the gameplay stands |
+| `CarController.updateControls()` | keyboard only under `isKeyboardControlled()`, joypad only at `getJoypad() != -1` | neither input branch runs |
+| `BaseVehicle.update()` | none - the physics read `isEnable` with no driver-identity gate | ticks |
+
+Every gate that names a player is an exclusion of the blocked local
+player, never a requirement that one is present. With both input
+branches skipped, the public `ClientControls` fields - `steering`,
+`forward`, `backward`, `brake`, `shift`, and `forceBrake` as a
+milliseconds window the method's tail honours - stand as written,
+which is the doorway any non-player driver's machinery has. Seating is
+already contract surface: `enter(seat, char)` is Addendum D's fact,
+and seat 0 is the driver's by `getDriver()`'s own typing.
+
+**What this does not establish.** Reachability is verified at the
+bytecode level and by nobody's behaviour: no shipped code drives a
+vehicle NPC-side - the reference mod's own sources contain no driving,
+its health controller only rejecting vehicle targets
+(`KnoxHealthController.java:255`) - so whether an NPC-driven car
+actually drives, at what cadence, and what it does to the county are
+hypothesis until a live receipt. The ledger's correction is one
+clause: engine-absent was prose about code nobody had read, which is
+the prose-is-not-code rule from `[C70]` reached from a fourth
+direction.
