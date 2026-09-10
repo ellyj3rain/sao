@@ -1,6 +1,6 @@
 | Document | Survivor Awareness Overhaul Roadmap |
 |---|---|
-| Version | `4.2.4.1-pre-alpha` |
+| Version | `4.2.4.2-pre-alpha` |
 | Author | ellyj3rain |
 | Repository | `ROADMAP.md` |
 | Status | CANONICAL - thread map, backlog, live gates. |
@@ -639,4 +639,3 @@ expose is unchecked, because the Antibodies family is not installed.
 `../zomboid-speakeasy` has the dataset's source and row shape ratified
 (DR-038, its record entries 24 and 25); its first 112 rows are
 ratified by the operator (its record 29).
-

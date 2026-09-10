@@ -1,13 +1,30 @@
 | Document | Survivor Awareness Overhaul Session State |
 |---|---|
-| Version | `4.2.4.1-pre-alpha` |
+| Version | `4.2.4.2-pre-alpha` |
 | Author | ellyj3rain |
 | Repository | `SESSION_STATE.md` |
 | Status | CANONICAL - where the work actually stands. |
 
 # Session state
 
-**As of** 2026-09-10, `[C88]` close - what decided a moment. The
+**As of** 2026-09-10, `[C89]` close - what the county represents. The
+operator set the representation target after the trades-hinge proposal
+landed: the game represents a living county under survival pressure; work
+comes from pressure, person, relationship, and material state; organization
+appears after a repeated pattern exists; and a survivor may know of nobody
+and want nobody nearby. `REPRESENTATION.md` is the canonical contract now.
+It names what each existing state surface carries, what it may cause, and
+what it may never cause. It names `designation` as the one overconcentrated
+surface: a work word should describe repeated work after it happens, while
+today the same string also causes controller behavior, study choices,
+rationing, and command standing. The contract also states the labor target:
+labor is broader than a fixed job list, and ease is a valid state because
+rebuilding requires surplus, choice, and work that is not immediately forced
+by survival. The gate also gained one repair: the
+undeclared-local border now uses the same interpreter variable as the rest of
+the gate. Documents and a gate repair, no mod code, so patch.
+
+**Before that**, `[C88]` - what decided a moment. The
 next dataset proposal takes a new target the trades open up, and
 this is its instrument. The survey measured the dormant
 trades-hinge surface rather than assuming it: exactly two moments
@@ -1246,7 +1263,7 @@ unloaded survivors are governed by the same rules ([B39], [B42]).
 
 ## Deploy state
 
-`4.2.4.1-pre-alpha` at tip - the version machine's output ([C2],
+`4.2.4.2-pre-alpha` at tip - the version machine's output ([C2],
 DR-013; the twelfth minor rolled the tier by the odometer's own
 law). The game install carries the `[C62]` tip. `[C45]` through
 `[C51]` reached it on 2026-09-07 and `[C52]` through `[C62]` on 2026-09-08, each
