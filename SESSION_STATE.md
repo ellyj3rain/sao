@@ -1,14 +1,37 @@
 | Document | Survivor Awareness Overhaul Session State |
 |---|---|
-| Version | `4.2.3.2-pre-alpha` |
+| Version | `4.2.3.3-pre-alpha` |
 | Author | ellyj3rain |
 | Repository | `SESSION_STATE.md` |
 | Status | CANONICAL - where the work actually stands. |
 
 # Session state
 
-**As of** 2026-09-09, `[C82]` close - no player at the wheel.
-T-001's ledger had held NPC driving as engine-absent - named, never
+**As of** 2026-09-09, `[C83]` close - a decision-moment dump
+beside the county sweep. The sister's record 24 ratified where the dataset's rows come
+from: a person's own record put to a language model, which decides as
+that person, in that situation, among the options actually available.
+The operator chose the first target and the scale - the work words a
+company deals, record 21's founding example, at a hundred-plus rows -
+and a row's first three parts are the county's to supply.
+`tools/county_dump.py` is the instrument: it runs the same counties
+the sweep runs and watches the verb that deals the work, taking the
+moment down whole before the deal - every member's record, traits,
+conditions, habits, lessons and age, the census's class and skills,
+the whole belief set with each belief's provenance, the trust each
+member holds toward each other, the creed, the claim, the county
+hour - and what the tree dealt lands beside it as the authored
+outcome the dataset exists to replace. Serialization is generic so
+the instrument cannot quietly curate what the model sees, and a
+capture that cannot happen is counted loudly. Not a border, not in
+the gate; the dump is data against the install that produced it, and
+re-running a county name reproduces the county (`[C66]`), which is
+what makes a row's citation answerable. The choice - a row's fourth
+part - is the language model's to make in the sister repository,
+arriving as a proposal the operator rules on.
+
+**Before that**, `[C82]` - no player at the wheel. T-001's ledger
+had held NPC driving as engine-absent - named, never
 promised - and the second seam is why that got asked: ZAO's `[A12]`
 ruled the crossed's vocabulary a bidirectional goal, and what the
 crossed need from driving feeds forward into this project's half of
@@ -1120,7 +1143,7 @@ unloaded survivors are governed by the same rules ([B39], [B42]).
 
 ## Deploy state
 
-`4.2.3.2-pre-alpha` at tip - the version machine's output ([C2],
+`4.2.3.3-pre-alpha` at tip - the version machine's output ([C2],
 DR-013; the twelfth minor rolled the tier by the odometer's own
 law). The game install carries the `[C62]` tip. `[C45]` through
 `[C51]` reached it on 2026-09-07 and `[C52]` through `[C62]` on 2026-09-08, each

@@ -1,6 +1,6 @@
 | Document | Survivor Awareness Overhaul Batch Log |
 |---|---|
-| Version | `4.2.3.2-pre-alpha` |
+| Version | `4.2.3.3-pre-alpha` |
 | Author | ellyj3rain |
 | Repository | `BATCH_LOG.md` |
 | Status | REGULATORY - chronological batch index. |
@@ -187,3 +187,4 @@ attribution for every merged entry, stated here rather than in a branch name.
 | [C80](Batches/C80-2026-09-09-what-an-examiner-can-tell.md) | 2026-09-09 | What an examiner can tell | [`T-007`](Batches/THREADS.md#t-007), [`T-002`](Batches/THREADS.md#t-002) |
 | [C81](Batches/C81-2026-09-09-another-controller-holds-them.md) | 2026-09-09 | Another controller holds them | [`T-002`](Batches/THREADS.md#t-002), [`T-001`](Batches/THREADS.md#t-001) |
 | [C82](Batches/C82-2026-09-09-no-player-at-the-wheel.md) | 2026-09-09 | No player at the wheel | [`T-001`](Batches/THREADS.md#t-001), [`T-008`](Batches/THREADS.md#t-008) |
+| [C83](Batches/C83-2026-09-09-a-decision-moment-dump-beside-the-county-sweep.md) | 2026-09-09 | A decision-moment dump beside the county sweep | [`T-008`](Batches/THREADS.md#t-008), [`T-004`](Batches/THREADS.md#t-004) |
