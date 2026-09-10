@@ -1,6 +1,6 @@
 | Document | Survivor Awareness Overhaul Batch Log |
 |---|---|
-| Version | `4.2.3.6-pre-alpha` |
+| Version | `4.2.4.0-pre-alpha` |
 | Author | ellyj3rain |
 | Repository | `BATCH_LOG.md` |
 | Status | REGULATORY - chronological batch index. |
@@ -191,3 +191,4 @@ attribution for every merged entry, stated here rather than in a branch name.
 | [C84](Batches/C84-2026-09-09-the-sister-s-first-rows-are-in.md) | 2026-09-09 | The sister's first rows are in | [`T-008`](Batches/THREADS.md#t-008), [`T-030`](Batches/THREADS.md#t-030) |
 | [C85](Batches/C85-2026-09-09-the-sister-s-rows-are-ratified.md) | 2026-09-09 | The sister's rows are ratified | [`T-008`](Batches/THREADS.md#t-008), [`T-030`](Batches/THREADS.md#t-030) |
 | [C86](Batches/C86-2026-09-10-the-engine-s-own-names-and-trades-by-mode.md) | 2026-09-10 | The engine's own names and trades, by mode | [`T-008`](Batches/THREADS.md#t-008), [`T-030`](Batches/THREADS.md#t-030) |
+| [C87](Batches/C87-2026-09-10-what-a-belief-carries.md) | 2026-09-10 | What a belief carries | [`T-006`](Batches/THREADS.md#t-006), [`T-008`](Batches/THREADS.md#t-008) |

@@ -18,7 +18,7 @@ were illustrative rather than complete. Every batch is now classified.
 
 Instruments and audits measured against the genuine artifact, engine or code.
 
-**Batches**: `A2`, `A3`, `A4`, `A16`, `A23`, `A24`, `B5`, `B25`, `B26`, `B31`, `B32`, `B33`, `B34`, `B35`, `B37`, `B38`, `B40`, `B41`, `B42`, `B44`, `B47`, `B50`, `C8`, `C9`, `C11`, `C14`, `C18`, `C29`, `C67`, `C68`, `C69`, `C70`, `C71`, `C75`, `C77`, `C82`, `C83`, `C84`, `C85`, `C86`
+**Batches**: `A2`, `A3`, `A4`, `A16`, `A23`, `A24`, `B5`, `B25`, `B26`, `B31`, `B32`, `B33`, `B34`, `B35`, `B37`, `B38`, `B40`, `B41`, `B42`, `B44`, `B47`, `B50`, `C8`, `C9`, `C11`, `C14`, `C18`, `C29`, `C67`, `C68`, `C69`, `C70`, `C71`, `C75`, `C77`, `C82`, `C83`, `C84`, `C85`, `C86`, `C87`
 
 **Owes**: play receipts for everything; that debt is the project's standing condition.
 
@@ -52,7 +52,7 @@ The county before the collapse, the fall itself, and what it teaches.
 
 Who a person is, what they believe, how they came to believe it, and what time does to it.
 
-**Batches**: `A5`, `A6`, `A9`, `A11`, `A13`, `A15`, `A24`, `A27`, `B8`, `B9`, `B10`, `B11`, `B21`, `B22`, `B24`, `B27`, `B39`, `B49`, `C3`, `C4`, `C5`, `C7`, `C10`, `C15`, `C20`, `C30`, `C31`, `C32`, `C33`, `C36`, `C37`, `C38`, `C39`, `C47`, `C71`, `C72`, `C73`
+**Batches**: `A5`, `A6`, `A9`, `A11`, `A13`, `A15`, `A24`, `A27`, `B8`, `B9`, `B10`, `B11`, `B21`, `B22`, `B24`, `B27`, `B39`, `B49`, `C3`, `C4`, `C5`, `C7`, `C10`, `C15`, `C20`, `C30`, `C31`, `C32`, `C33`, `C36`, `C37`, `C38`, `C39`, `C47`, `C71`, `C72`, `C73`, `C87`
 
 **Owes**: the operator's trait-correlation question; the relations rows of the dead (irreversible).
 

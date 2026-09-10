@@ -170,6 +170,12 @@ RUN = r'''(function()
     local snap = { id = id }
     snap.name = ok1(function()
       return rec.forename .. " " .. rec.surname end)
+    -- [C87] The plain reading beside the key: a row reads "Elliot
+    -- Segura", the engine's own English rendering of its own key
+    -- (the prelude's `plainNameOf`). The raw key stays in `name` -
+    -- the engine's storage, unchanged and recoverable.
+    snap.displayName = ok1(function()
+      return plainNameOf(rec.forename, rec.surname) end)
     snap.record = rec
     snap.age = ok1(function() return SAO.History.ageOf(id) end)
     snap.circle = ok1(function() return SAO.Disposition.circle(id) end)

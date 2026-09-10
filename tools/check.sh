@@ -1740,6 +1740,20 @@ if ! "$PY" tools/engine_data_test.py > /dev/null; then
     fail=1
 fi
 
+# [C87] Border 147 - what a belief carries. The operator ruled on two
+# of the gaps [C86] came back with: the meeting caller computed the
+# distance between two people and threw it away, so a first meeting
+# read distance zero and a re-meeting carried the first one forever;
+# and a row read a person as the engine's own translation key. The
+# distance now travels the seam both ways, a silent caller keeps the
+# carried-then-zero seed, and the plain reading is measured against
+# the engine's own English table, entry for entry.
+if ! "$PY" tools/belief_payload_test.py > /dev/null; then
+    "$PY" tools/belief_payload_test.py 2>&1 | grep -E "FAULT|SKIPPED" || true
+    note "BORDER FINDING - a belief does not carry what the county knows"
+    fail=1
+fi
+
 # Border 103 - the operator's speech is not in the repository: no
 # profanity in the tracked tree and no operator-quote attributions;
 # rulings are paraphrased content, speech stays with the speaker.

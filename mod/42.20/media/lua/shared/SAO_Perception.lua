@@ -560,7 +560,7 @@ end
 -- Same write, same provenance, for a caller that knows who and where
 -- rather than reading it off a scan. Durable knowledge survives it as
 -- it does there: a fresh look is a position update, not amnesia.
-function P.sawPerson(id, name, x, y, tick, otherId)
+function P.sawPerson(id, name, x, y, tick, otherId, dist)
     if not (id and name and x and y and tick) then return false end
     if name == "" or name == "Unnamed" then return false end
     local b = store(id)
@@ -575,7 +575,14 @@ function P.sawPerson(id, name, x, y, tick, otherId)
             prev.presumed == true, tick)
     end
     b.people[name] = {
-        x = x, y = y, dist = (prev and prev.dist) or 0,
+        x = x, y = y,
+        -- [C87] The caller states the distance it measured; a road
+        -- meeting passes the value it already computed rather than
+        -- throwing it away, so a re-meeting refreshes the distance
+        -- instead of carrying the first one forever. A caller that
+        -- knows no distance - the same write from any other hand -
+        -- keeps the seed honest: carried, then zero.
+        dist = dist or (prev and prev.dist) or 0,
         at = tick, atHours = hours,
         source = "observed",
         condition = (prev and prev.condition) or "ok",
