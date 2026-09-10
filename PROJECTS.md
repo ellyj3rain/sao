@@ -82,10 +82,20 @@ explosives, loudspeakers - with what humanity gave it stripped out. The
 sister's machinery for houses, standing, fear and temperament reaches a
 body the sister no longer owns.
 
-Nothing is designed here yet. Which machinery runs an afflicted body,
-how the county asks ZAO what a body is (the claim surface, ZAO's F-012),
-and how much of the sister the crossed may use are the seam's open
-questions, and they are the next design work between the two.
+The seam is shaped - ZAO's `[A12]` carries the rulings, under one
+principle of the operator's own framing: three repositories, one
+project, separation of concerns, each machinery running what it owns.
+SAO executes the afflicted, because a person again is a person - the
+house argues over them because they never left the county's machinery
+- while ZAO owns the pathogen state on them and executes the crossed,
+who came through death as the risen did. The crossed's vocabulary is
+a bidirectional goal: they read SAO's action machinery stripped of
+what humanity gave it, and what they need from driving feeds forward
+into SAO's not-yet mapping of it, a standing goal between the two
+repositories and never a dependency in either direction. How they
+hold ground is variable - some groups settle, some stay nomadic - and
+never placed. The claim surface's concrete shape (ZAO's F-012) stays
+open until mod code is near.
 
 ### SAO to Speakeasy - the dataset
 
@@ -137,7 +147,7 @@ edge now is what stops it being invented twice.
 | | Version | Standing |
 |---|---|---|
 | SAO | see `VERSION` | four pillars built, the county runs on them, play receipts outstanding. A bitten body now races the engine's own death hour instead of arriving at it, the unwatched county can catch Knox on its own, and one person can read another as far as their own First Aid allows. |
-| ZAO | `../zombie-awareness/VERSION` | G0 closed at `[A6]` - the turn, the control surface, the player's dials and the recovery mods all have evidence. No mod code, which is what the gate ladder asks for here. Three decisions gate G1. `[A7]`-`[A9]` read the mods that already run behaviour on turned bodies and set what this project does with them (DR-014, DR-015). `[A10]` confirmed the actuators are Java-side. `[A11]` defined the mutation system - `MUTATION.md` is canonical - and the county gained two populations: the afflicted, who are people again, and the crossed, who only look like one. |
+| ZAO | `../zombie-awareness/VERSION` | G0 closed at `[A6]` - the turn, the control surface, the player's dials and the recovery mods all have evidence. No mod code, which is what the gate ladder asks for here. Three decisions gate G1. `[A7]`-`[A9]` read the mods that already run behaviour on turned bodies and set what this project does with them (DR-014, DR-015). `[A10]` confirmed the actuators are Java-side. `[A11]` defined the mutation system - `MUTATION.md` is canonical - and the county gained two populations: the afflicted, who are people again, and the crossed, who only look like one. `[A12]` shaped the second seam under separation of concerns: SAO executes the afflicted while ZAO owns the pathogen state on them and executes the crossed, the crossed's vocabulary is a bidirectional goal, and their ground-holding is variable and never placed. |
 | Speakeasy | `../zomboid-speakeasy/RECORD.md` | the dataset's source and row shape ratified (record 24); a ceiling for the inference budget measured (record 26); `decisions/` carries the row shape and no rows |
 
 Each of those is its own repository's to update. This table says where
