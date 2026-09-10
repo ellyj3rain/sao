@@ -1,13 +1,33 @@
 | Document | Survivor Awareness Overhaul Session State |
 |---|---|
-| Version | `4.2.3.3-pre-alpha` |
+| Version | `4.2.3.4-pre-alpha` |
 | Author | ellyj3rain |
 | Repository | `SESSION_STATE.md` |
 | Status | CANONICAL - where the work actually stands. |
 
 # Session state
 
-**As of** 2026-09-09, `[C83]` close - a decision-moment dump
+**As of** 2026-09-09, `[C84]` close - the sister's first rows are
+in. The operator's chosen target for the dataset's first proposal -
+the work words a company deals, record 21's founding example, at a
+hundred-plus rows - is authored and landed in
+`../zomboid-speakeasy` as `decisions/work-words.jsonl`: 112
+member-rows taken from `[C83]`'s dump across all six county runs,
+one row per person per run, 71 of the dump's one shared population
+of 187. Each row's fourth part was written as that person from the
+row's own evidence, with the tree's dealing held in a separate file
+until every choice was written, then joined as a column beside the
+authored choice so the ruling can read one against the other: 83
+rows chose a dealt word and 29 founded a position the group created
+and named, and of the 58 rows where the tree dealt a work word the
+authored choice took that word 42 times. Nothing in it is ratified -
+rows arrive as a proposal the operator rules on - and this batch
+changes only the two places this repository said the sister carries
+no rows, `PROJECTS.md`'s standing table and `ROADMAP.md`'s
+beside-this-tree, plus the state surfaces every close walks.
+Documents only, so patch.
+
+**Before that**, `[C83]` - a decision-moment dump
 beside the county sweep. The sister's record 24 ratified where the dataset's rows come
 from: a person's own record put to a language model, which decides as
 that person, in that situation, among the options actually available.
@@ -1143,7 +1163,7 @@ unloaded survivors are governed by the same rules ([B39], [B42]).
 
 ## Deploy state
 
-`4.2.3.3-pre-alpha` at tip - the version machine's output ([C2],
+`4.2.3.4-pre-alpha` at tip - the version machine's output ([C2],
 DR-013; the twelfth minor rolled the tier by the odometer's own
 law). The game install carries the `[C62]` tip. `[C45]` through
 `[C51]` reached it on 2026-09-07 and `[C52]` through `[C62]` on 2026-09-08, each
@@ -1167,6 +1187,7 @@ existing save feels immediately: survivors who already trust each
 other can keep company from the next session, where before they
 never could, and their houses now settle when one of them dies.
 `[C69]` changes nothing under `mod/` and owes no receipt.
+`[C84]` is documents only and owes no deploy.
 The play receipts the C era owes are the next
 thing the tree cannot produce for itself - the operator chose to
 keep building before testing, so `[C29]` (a survivor scaled from
