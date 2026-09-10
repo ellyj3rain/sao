@@ -1,6 +1,6 @@
 | Document | The three projects and what each owns |
 |---|---|
-| Version | `4.2.3.1-pre-alpha` |
+| Version | `4.2.3.2-pre-alpha` |
 | Author | ellyj3rain |
 | Repository | `PROJECTS.md` |
 | Status | CANONICAL - the architecture across the three repositories. Held here; `../zombie-awareness` and `../zomboid-speakeasy` point at it. |
@@ -91,8 +91,10 @@ house argues over them because they never left the county's machinery
 who came through death as the risen did. The crossed's vocabulary is
 a bidirectional goal: they read SAO's action machinery stripped of
 what humanity gave it, and what they need from driving feeds forward
-into SAO's not-yet mapping of it, a standing goal between the two
-repositories and never a dependency in either direction. How they
+into SAO's mapping of it - `[C82]` has mapped what the engine gives a
+driver who is not the player, and F-067 holds the finding - a
+standing goal between the two repositories and never a dependency
+in either direction. How they
 hold ground is variable - some groups settle, some stay nomadic - and
 never placed. The claim surface's concrete shape (ZAO's F-012) stays
 open until mod code is near.

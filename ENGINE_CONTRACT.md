@@ -1,6 +1,6 @@
 | Document | Survivor Awareness Overhaul Engine Contract |
 |---|---|
-| Version | `4.2.3.1-pre-alpha` |
+| Version | `4.2.3.2-pre-alpha` |
 | Author | ellyj3rain |
 | Repository | `ENGINE_CONTRACT.md` |
 | Status | CANONICAL - the verified engine mechanics an IsoPlayer NPC requires. |
@@ -461,3 +461,24 @@ of what a character IS to the engine, and what it is not.
 | `IsoGameCharacter.hasTrait(CharacterTrait)`, `getCharacterTraits().set(CharacterTrait, boolean)` / `add` / `remove` / `get`; `SAOIsoPlayerShell extends IsoPlayer`, so a shell carries traits like anyone | the condition rides the trait, on the player and on the county's people ([C39]) | javap |
 | Vanilla ships `ASTHMATIC` and `INSOMNIAC` among its `CharacterTrait` constants, and prices every trait in `media/scripts/generated/characters/character_traits.txt` | SAO uses vanilla's trait where vanilla has one, and takes its costs from that file ([C39]) | javap; the shipped script |
 | NOT in the engine | origin or hometown, schooling, family, service history, media taste, memory or decay of any kind: nothing on the descriptor says so. SAO derives origin region, age, birth year, service eligibility, occupation class, lessons and household itself (`SAO_History`, `SAO_Census`, `SAO_Identity`) | the getters above, read whole |
+
+## Addendum G - the wheel: operating a vehicle from any body (2026-09-09, javap against the installed jar)
+
+Mapped for `[C82]` at the second seam's bidirectional goal: what the
+engine gives a driver who is not the player, read before anything uses
+it. Addendum D covered boarding; this is the operation half. F-067
+holds the finding, and the honest limit stands with it - the surface
+is verified reachable and exercised by no shipped code, so live
+behaviour is a hypothesis until a receipt.
+
+| Surface | What it is | How verified |
+|---|---|---|
+| `BaseVehicle.enter(int, IsoGameCharacter)` / `exit(IsoGameCharacter)`; `getDriver()` returns `getPassenger(0).character`, typed `IsoGameCharacter` and not `IsoPlayer` | seat 0 is the driver's, and any character may sit it | javap (boarding in Addendum D) |
+| `BaseVehicle.isKeyboardControlled()` | true only when the seat-0 character IS `IsoPlayer.players[0]` (identity compare) and the vehicle tows nothing; an NPC at the wheel answers false | javap -c |
+| `BaseVehicle.updateControls()` | the gate chain: a controller exists, `isOperational()`, and the driver cast to `IsoPlayer` not blocking movement - every identity test an exclusion of the blocked local player, none a requirement | javap -c |
+| `CarController.updateControls()` (`zombie.core.physics`) | reads `GameKeyboard` only under `isKeyboardControlled()` and the joypad only when `getJoypad() != -1`; with an NPC driver neither input branch runs, and the tail honours `forceBrake` as a milliseconds window, writing nothing else | javap -c |
+| `CarController$ClientControls`: `public float steering; public boolean forward, backward, brake, shift; public long forceBrake; public void reset()`; `CarController.clientControls` (public final field) / `getClientControls()`; `BaseVehicle.getController()` | the controls a non-player driver's machinery writes, standing as written when no input branch overwrites them | javap |
+| `BaseVehicle.throttle` (public float), `setCurrentSteering(float)` | direct writes the engine's own paths also make | javap |
+| `BaseVehicle.tryStartEngine()` / `tryStartEngine(boolean)`, `isKeysInIgnition()`, `tryHotwire(int)`, `isHotwired()` / `isHotwiredBroken()`, `isEngineRunning()` | the start bounded by real gameplay for ANY driver: the debug `startWithoutKey` cheat, or `SandboxOptions.vehicleEasyUse`, or keys in the ignition, or hotwired - with the engine part's condition and quality able to refuse under named reasons (`VehicleEngineStateChangeReason.EngineConditionLow` / `EngineQualityLow`), a battery check, and `checkVehicleFailsToStartWithZombiesTargeting` | javap -c |
+| `BaseVehicle.update()`, `updatePhysicsNetwork()`; `CarController.isEnable` | the physics tick reads the controller and `isEnable` with no driver-identity gate, as it must for a car that coasts with nobody in it | javap -c |
+| KnoxSurvivors' sources | NO precedent: nothing in the reference mod drives a vehicle; its health controller only REJECTS vehicle targets (`KnoxHealthController.java:255`) | grep of the reference's shipped sources |

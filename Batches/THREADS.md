@@ -18,7 +18,7 @@ were illustrative rather than complete. Every batch is now classified.
 
 Instruments and audits measured against the genuine artifact, engine or code.
 
-**Batches**: `A2`, `A3`, `A4`, `A16`, `A23`, `A24`, `B5`, `B25`, `B26`, `B31`, `B32`, `B33`, `B34`, `B35`, `B37`, `B38`, `B40`, `B41`, `B42`, `B44`, `B47`, `B50`, `C8`, `C9`, `C11`, `C14`, `C18`, `C29`, `C67`, `C68`, `C69`, `C70`, `C71`, `C75`, `C77`
+**Batches**: `A2`, `A3`, `A4`, `A16`, `A23`, `A24`, `B5`, `B25`, `B26`, `B31`, `B32`, `B33`, `B34`, `B35`, `B37`, `B38`, `B40`, `B41`, `B42`, `B44`, `B47`, `B50`, `C8`, `C9`, `C11`, `C14`, `C18`, `C29`, `C67`, `C68`, `C69`, `C70`, `C71`, `C75`, `C77`, `C82`
 
 **Owes**: play receipts for everything; that debt is the project's standing condition.
 
@@ -90,9 +90,9 @@ Companies, creeds, elections, feuds, pacts, schisms, and the player's standing i
 
 Leaving, being watched for, and the worry that sends somebody after.
 
-**Batches**: `A28`, `B1`, `B19`, `C4`, `C18`
+**Batches**: `A28`, `B1`, `B19`, `C4`, `C18`, `C82`
 
-**Owes**: NPC driving (engine-absent; named, never promised); corpse discovery as a search outcome.
+**Owes**: NPC driving: the engine surface is mapped (`[C82]`, F-067 - no player required at the wheel) and nothing exercises it yet, so the live receipt is the debt; corpse discovery as a search outcome.
 
 ### <a id="t-005"></a>T-005 - Radio and communication
 

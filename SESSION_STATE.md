@@ -1,36 +1,47 @@
 | Document | Survivor Awareness Overhaul Session State |
 |---|---|
-| Version | `4.2.3.1-pre-alpha` |
+| Version | `4.2.3.2-pre-alpha` |
 | Author | ellyj3rain |
 | Repository | `SESSION_STATE.md` |
 | Status | CANONICAL - where the work actually stands. |
 
 # Session state
 
-**As of** 2026-09-09, `[C81]` close - another controller holds them.
-The county held one fact as `rec.knox`, a boolean named after a single
-mod, read in twenty-four places across seven files to decide four
-different things. None of them is a question about that mod; every one
-asks whether somebody else is driving this body. `SAO.Claims` answers
-the property, `heldBy` names who, the holder's name is a constant in
-one file, and `SAO.Body.knox` is `SAO.Body.foreign`. A legacy save is
-not rewritten - the old boolean answers the new question.
+**As of** 2026-09-09, `[C82]` close - no player at the wheel.
+T-001's ledger had held NPC driving as engine-absent - named, never
+promised - and the second seam is why that got asked: ZAO's `[A12]`
+ruled the crossed's vocabulary a bidirectional goal, and what the
+crossed need from driving feeds forward into this project's half of
+it. Disassembled method by method off the installed jar, every
+identity gate along the driving path exists to exclude the blocked
+local player, and none requires one: `isKeyboardControlled()` is an
+identity compare against `IsoPlayer.players[0]`, so an NPC answers
+false; `BaseVehicle.updateControls()` gates on the
+driver-cast-to-player blocking movement, so an NPC passes;
+`CarController.updateControls()` reads keyboard and joypad only for
+player and pad, so an NPC's written `ClientControls` stand;
+`tryStartEngine()` bounds any driver by the same keys, hotwire,
+sandbox and condition rules a player faces; and the physics tick
+reads `isEnable` with no driver-identity gate at all. F-067.
 
-**Renaming a field the whole tree reads is not a rename.** Four other
-borders carried declarations naming `Body.knox` and each was checking
-nothing until told the new name, and NINE module lists went stale at
-once: every VM border enumerates what it loads, none knew about
-`SAO_Claims`, so the surface was nil, every call errored inside a pcall
-and the population pass went quiet - six unrelated borders refusing to
-report that nobody walks, seeks or catches anything. Same failure a
-missing `SAO_Census` caused twice. `SAO_History` is guarded rather than
-listed, being offline by construction.
+**What this does not establish is that NPC driving works.** Nothing
+shipped exercises the doorway - the reference mod's own sources
+contain no driving, only a health controller that rejects vehicle
+targets - so live behaviour and cadence stay hypothesis until a
+receipt, and T-001's ledger moves from engine-absent to
+surface-mapped, receipt-owed. The crossed's requirements ride in the
+record as named consumers - the turned aimed with a car, arrival and
+departure, noise that moves - and none of it is designed here; the
+seam stays a goal in both directions.
 
-F-066 records what the flag conflated and this did not untangle: two
-readers ask a claim, one asks provenance, one asks an adoption state,
-and the tree's own prose disagrees with itself about which. Splitting
-them changes who the county spawns, walks and kills, so it wants a
-measurement and a ruling rather than a rename.
+**Before that**, `[C81]` - another controller holds them. The
+county's one fact named after a single mod answered four different
+questions, all of them `is somebody else driving this body`.
+`SAO.Claims` answers the property, `heldBy` names who, and a legacy
+save is not rewritten. F-066 records what the flag conflated and the
+rename did not untangle - a claim, a provenance and an adoption
+state - which wants a measurement and a ruling rather than a
+rename.
 
 **Before that**, `[C80]` - what an examiner can tell.
 `[C78]` and `[C79]` gave the county a sickness and nobody could see any
@@ -1109,7 +1120,7 @@ unloaded survivors are governed by the same rules ([B39], [B42]).
 
 ## Deploy state
 
-`4.2.3.1-pre-alpha` at tip - the version machine's output ([C2],
+`4.2.3.2-pre-alpha` at tip - the version machine's output ([C2],
 DR-013; the twelfth minor rolled the tier by the odometer's own
 law). The game install carries the `[C62]` tip. `[C45]` through
 `[C51]` reached it on 2026-09-07 and `[C52]` through `[C62]` on 2026-09-08, each
