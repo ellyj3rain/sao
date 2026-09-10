@@ -1,6 +1,6 @@
 | Document | Survivor Awareness Overhaul Memory |
 |---|---|
-| Version | `4.2.4.1-pre-alpha` |
+| Version | `4.2.4.2-pre-alpha` |
 | Author | ellyj3rain |
 | Repository | `MEMORY.md` |
 | Status | ACTIVE - index of every root document and its standing. |
@@ -27,6 +27,7 @@ current. Nothing at the root is unclassified.
 | `MEMORY.md` | CANONICAL | This index. |
 | `CORE.md` | CANONICAL | Project identity, canonical composition, governing constraints. |
 | `ARCHITECTURE.md` | CANONICAL | Ratified framework shape; the four pillars. |
+| `REPRESENTATION.md` | CANONICAL | What the county represents, and which state surface carries each part. |
 | `GOVERNANCE.md` | CANONICAL | Operating discipline and model-facing instruction surface. |
 | `DECISION_REGISTRY.md` | CANONICAL, APPEND-ONLY | Ratified decisions from DR-001. |
 | `FINDINGS.md` | CANONICAL, APPEND-ONLY | Verified engine findings from F-001. |

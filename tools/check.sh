@@ -183,8 +183,8 @@ fi
 # global and indexing it throws. This missed a runtime-fatal bug
 # inside an election, so the unambiguous half of the undeclared audit
 # now gates. The advisory half still just prints.
-if ! python tools/undeclared_audit.py > /dev/null 2>&1; then
-    python tools/undeclared_audit.py 2>&1 | grep -E "used at line|used-before-declared" || true
+if ! "$PY" tools/undeclared_audit.py > /dev/null 2>&1; then
+    "$PY" tools/undeclared_audit.py 2>&1 | grep -E "used at line|used-before-declared" || true
     note "BORDER FINDING - a local is used above its own declaration"
     fail=1
 fi
