@@ -1,13 +1,27 @@
 | Document | Survivor Awareness Overhaul Session State |
 |---|---|
-| Version | `4.2.3.4-pre-alpha` |
+| Version | `4.2.3.5-pre-alpha` |
 | Author | ellyj3rain |
 | Repository | `SESSION_STATE.md` |
 | Status | CANONICAL - where the work actually stands. |
 
 # Session state
 
-**As of** 2026-09-09, `[C84]` close - the sister's first rows are
+**As of** 2026-09-09, `[C85]` close - the sister's rows are
+ratified. The operator read the 112 rows' record the same day the
+proposal landed and ruled: ratified, with the scope they gave - the
+rows stand, and ratifying them does not preclude improving the
+dataset later. `decisions/work-words.jsonl` is intent now, the
+dataset's first: 83 choices that took a dealt word and 29 that
+founded a position the group created and named, in 22 words by 22
+persons, with the limitations the sister's record 28 states standing
+as named. The ruling is the sister's record entry 29, landed
+same-turn with this close; this batch changes only the two pointers
+that said the proposal awaited the ruling, `PROJECTS.md`'s standing
+table and `ROADMAP.md`'s beside-this-tree, plus the state surfaces
+every close walks. Documents only, so patch.
+
+**Before that**, `[C84]` - the sister's first rows are
 in. The operator's chosen target for the dataset's first proposal -
 the work words a company deals, record 21's founding example, at a
 hundred-plus rows - is authored and landed in
@@ -1163,7 +1177,7 @@ unloaded survivors are governed by the same rules ([B39], [B42]).
 
 ## Deploy state
 
-`4.2.3.4-pre-alpha` at tip - the version machine's output ([C2],
+`4.2.3.5-pre-alpha` at tip - the version machine's output ([C2],
 DR-013; the twelfth minor rolled the tier by the odometer's own
 law). The game install carries the `[C62]` tip. `[C45]` through
 `[C51]` reached it on 2026-09-07 and `[C52]` through `[C62]` on 2026-09-08, each
@@ -1188,6 +1202,7 @@ other can keep company from the next session, where before they
 never could, and their houses now settle when one of them dies.
 `[C69]` changes nothing under `mod/` and owes no receipt.
 `[C84]` is documents only and owes no deploy.
+`[C85]` is documents only and owes no deploy.
 The play receipts the C era owes are the next
 thing the tree cannot produce for itself - the operator chose to
 keep building before testing, so `[C29]` (a survivor scaled from

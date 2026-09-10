@@ -1,6 +1,6 @@
 | Document | Survivor Awareness Overhaul Batch Log |
 |---|---|
-| Version | `4.2.3.4-pre-alpha` |
+| Version | `4.2.3.5-pre-alpha` |
 | Author | ellyj3rain |
 | Repository | `BATCH_LOG.md` |
 | Status | REGULATORY - chronological batch index. |
@@ -189,3 +189,4 @@ attribution for every merged entry, stated here rather than in a branch name.
 | [C82](Batches/C82-2026-09-09-no-player-at-the-wheel.md) | 2026-09-09 | No player at the wheel | [`T-001`](Batches/THREADS.md#t-001), [`T-008`](Batches/THREADS.md#t-008) |
 | [C83](Batches/C83-2026-09-09-a-decision-moment-dump-beside-the-county-sweep.md) | 2026-09-09 | A decision-moment dump beside the county sweep | [`T-008`](Batches/THREADS.md#t-008), [`T-004`](Batches/THREADS.md#t-004) |
 | [C84](Batches/C84-2026-09-09-the-sister-s-first-rows-are-in.md) | 2026-09-09 | The sister's first rows are in | [`T-008`](Batches/THREADS.md#t-008), [`T-030`](Batches/THREADS.md#t-030) |
+| [C85](Batches/C85-2026-09-09-the-sister-s-rows-are-ratified.md) | 2026-09-09 | The sister's rows are ratified | [`T-008`](Batches/THREADS.md#t-008), [`T-030`](Batches/THREADS.md#t-030) |
