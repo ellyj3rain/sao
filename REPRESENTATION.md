@@ -1,6 +1,6 @@
 | Document | Survivor Awareness Overhaul Representation Contract |
 |---|---|
-| Version | `4.2.4.2-pre-alpha` |
+| Version | `4.2.4.3-pre-alpha` |
 | Author | ellyj3rain |
 | Repository | `REPRESENTATION.md` |
 | Status | CANONICAL - what the county represents and which state carries each part. |
@@ -131,6 +131,9 @@ forages because hunger, knowledge, ground, and ability meet.
 A role is the name a household gives to a pattern after it repeats. A
 settlement is a group that recognizes patterns and may assign or elect work.
 The settlement exists because pressure and people produced it.
+
+The organization and deference model is defined in
+[ORGANIZATION.md](ORGANIZATION.md).
 
 ## Labor, surplus, and ease
 
