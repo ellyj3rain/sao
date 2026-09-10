@@ -29,6 +29,23 @@ Each county differs only by its save identity, which is what [C66]
 seeds the whole draw from. Same code, same map, same spawn points,
 same weights, different world.
 
+THE ENGINE MODE
+
+`--engine` exposes the real shipped bridge and loads the game's own
+data through it: the name pools, filled by the game's own fill
+functions, and the profession definitions, registered by the game's
+own two-phase script pass over its own generated files. A county run
+this way names its people and skills its work with the engine's data.
+
+It is a DIFFERENT county from the same save name run without the
+flag. A name costs two county draws at `Identity.create`, and
+`listProfessions` grows the catalog the occupation draw runs against,
+so the draws diverge from the first person onward. [C66] holds per
+harness shape: same name plus `--engine` reproduces the engine county,
+same name without it reproduces the plain one, and neither reproduces
+the other. The ratified rows cite plain dumps, which is why the mode
+is a flag and not the default.
+
 WHY EACH COUNTY GETS ITS OWN PROCESS
 
 `SAO_Population`, `SAO_Places` and `SAO_Rand` all hold module-level
@@ -89,6 +106,14 @@ GAME = pathlib.Path(
     r"C:\Program Files (x86)\Steam\steamapps\common\ProjectZomboid")
 PZ = GAME / "projectzomboid.jar"
 STDLIB = GAME / "stdlib.lua"
+# The mod's own jar, tracked in the mod tree where build-java.sh
+# copies it ([B33]) - the same bridge the game loads. Engine mode puts
+# it on the classpath so LuaRun can expose it.
+SAO_JAR = ROOT / "mod" / "42.20" / "media" / "java" / "SAO.jar"
+# The game's own name-pool fill file, and the harness chunk that calls
+# its fill functions by name - boot events never fire headless.
+ENGINE_FILL_LUA = GAME / "media" / "lua" / "shared" / "NPCs" / \
+    "MainCreationMethods.lua"
 
 # Where the generated world lives. Not in the tree: it is the game's
 # data, it is large, and it is only meaningful against the install
@@ -229,7 +254,7 @@ def modules_referenced(lua):
     return sorted(named - loaded - set(NOT_DORMANT)), sorted(loaded)
 
 
-def one(name, lua, owed, refill):
+def one(name, lua, owed, refill, engine=False):
     prelude = (SWEEP / "prelude.lua").read_text(encoding="utf-8")
     prelude = prelude.replace("_G.__owed = 1096", "_G.__owed = %d" % owed)
     if refill is not None:
@@ -242,8 +267,17 @@ def one(name, lua, owed, refill):
             shutil.copy2(c, work / c.name)
         pre = work / "prelude.lua"
         pre.write_text(prelude, encoding="utf-8")
-        args = [str(JDK / "java.exe"), "-cp", "%s;." % PZ, "LuaRun",
-                str(pre), str(CACHE / "map.lua"), str(SWEEP / "places.lua")]
+        cp = "%s;%s;." % (PZ, SAO_JAR) if engine else "%s;." % PZ
+        args = [str(JDK / "java.exe"), "-cp", cp, "LuaRun"]
+        if engine:
+            args += ["--engine", str(GAME)]
+        args += [str(pre)]
+        if engine:
+            # The game's own fill file, then the chunk that calls its
+            # fill functions - before the mod's modules, which is the
+            # game's own load order: engine Lua first, mod Lua after.
+            args += [str(ENGINE_FILL_LUA), str(SWEEP / "engine_fill.lua")]
+        args += [str(CACHE / "map.lua"), str(SWEEP / "places.lua")]
         args += [str(lua / m) for m in MODULES if (lua / m).exists()]
         args += [str(CACHE / "regions.lua"), "--", RUN.replace("RUN_NAME", name)]
         try:
@@ -271,6 +305,11 @@ def main():
     ap.add_argument("--lua", default=None,
                     help="another tree's lua root, for a before/after")
     ap.add_argument("--workers", type=int, default=6)
+    ap.add_argument("--engine", action="store_true",
+                    help="expose the real bridge and load the game's own "
+                         "name pools and profession definitions; a "
+                         "different county from the same name (see the "
+                         "engine mode above)")
     args = ap.parse_args()
 
     print("=" * 74)
@@ -287,6 +326,15 @@ def main():
               "is asserted,")
         print("  so there is nothing to fail.")
         return 0
+    if args.engine and not SAO_JAR.exists():
+        print("  the mod jar is not built (%s)." % SAO_JAR)
+        print("  Engine mode exposes the shipped bridge, so build it "
+              "first: bash tools/build-java.sh")
+        return 1
+    if args.engine and not ENGINE_FILL_LUA.exists():
+        print("  the game's own fill file is not where this install "
+              "has it (%s)" % ENGINE_FILL_LUA)
+        return 1
 
     lua = pathlib.Path(args.lua).resolve() if args.lua \
         else ROOT / "mod" / "42.20" / "media" / "lua"
@@ -340,16 +388,26 @@ def main():
         print("  LuaRun will not compile against the installed jar")
         return 1
 
-    print("  %d counties, %d days owed, one process each%s"
+    print("  %d counties, %d days owed, one process each%s%s"
           % (args.runs, args.days,
-             "" if args.refill is None else ", RefillDays=%s" % args.refill))
+             "" if args.refill is None else ", RefillDays=%s" % args.refill,
+             ", engine data on" if args.engine else ""))
+    if args.engine:
+        print("  engine data on: real name pools and profession "
+              "definitions,")
+        print("  exposed through the shipped bridge. Same name plus "
+              "--engine")
+        print("  reproduces this county; without it the plain county - "
+              "a different")
+        print("  one - answers ([C66] per harness shape).")
     print()
 
     rows = []
     with concurrent.futures.ThreadPoolExecutor(
             max_workers=args.workers) as pool:
         futures = {pool.submit(one, "County%03d" % k, lua, args.days,
-                               args.refill): k for k in range(args.runs)}
+                               args.refill, args.engine)
+                   : k for k in range(args.runs)}
         for f in concurrent.futures.as_completed(futures):
             r = f.result()
             if r:
