@@ -1,13 +1,24 @@
 | Document | Survivor Awareness Overhaul Session State |
 |---|---|
-| Version | `4.2.6.0-pre-alpha` |
+| Version | `4.2.7.0-pre-alpha` |
 | Author | ellyj3rain |
 | Repository | `SESSION_STATE.md` |
 | Status | CANONICAL - where the work actually stands. |
 
 # Session state
 
-**As of** 2026-09-10, `[C95]` close - place attachment becomes a live state.
+**As of** 2026-09-10, `[C96]` close - world development becomes a live state.
+The third category from the dependency substrate is built.
+`SAO_WorldDevelopment.lua` reads identity, place attachment and standing;
+reports home, ground, larder, water, hearth, motor pool, fortification and a
+coarse development summary; and writes nothing. The seven underlying facts
+remain visible beside the summary. `SAO_Inspect.lua` shows the state and
+writes it to the JSONL stream. Border 151 drives the shipped module in the
+engine's own VM against stub identity, place-attachment and standing facts,
+and holds a rootless person, a homed person, a stocked person, a developed
+person and a dead person. Mod state, instrument and border, so kohai.
+
+**Before that**, `[C95]` - place attachment becomes a live state.
 The second category from the dependency substrate is built.
 `SAO_PlaceAttachment.lua` reads identity, perception, places and standing;
 reports home, the current building, known and visited places, personal and
@@ -1327,7 +1338,7 @@ unloaded survivors are governed by the same rules ([B39], [B42]).
 
 ## Deploy state
 
-`4.2.6.0-pre-alpha` at tip - the version machine's output ([C2],
+`4.2.7.0-pre-alpha` at tip - the version machine's output ([C2],
 DR-013; the twelfth minor rolled the tier by the odometer's own
 law). The game install carries the `[C62]` tip. `[C45]` through
 `[C51]` reached it on 2026-09-07 and `[C52]` through `[C62]` on 2026-09-08, each
@@ -1371,7 +1382,7 @@ deploy; `save_compat_test` guards this and runs in the gate.
 
 ## Instruments
 
-**150 numbered borders**, run by **165 gated mirrors** in `tools/`, all invoked
+**151 numbered borders**, run by **166 gated mirrors** in `tools/`, all invoked
 by `tools/check.sh`, which the pre-commit hook runs and CI runs on every push.
 The figures in this paragraph are derived by Border 76 from the tree, not
 maintained by hand. Border 54 keeps the rest honest: it runs every gated

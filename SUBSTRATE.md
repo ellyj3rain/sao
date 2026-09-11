@@ -1,6 +1,6 @@
 | Document | Survivor Awareness Overhaul Dependency Substrate |
 |---|---|
-| Version | `4.2.6.0-pre-alpha` |
+| Version | `4.2.7.0-pre-alpha` |
 | Author | ellyj3rain |
 | Repository | `SUBSTRATE.md` |
 | Status | CANONICAL - what exists, what is planned, and what each area of concern needs. |
@@ -61,7 +61,7 @@ ported, and whether it is required.
 |---|---|---|
 | Isolation | person record, perception, standing, disposition, history, live isolation state | effect on world-development and social choices |
 | Place attachment | identity, perception, places, standing, live place-attachment state | effect on world-development choices |
-| World development | claims, larders, hearths, water stores, motor pools, construction, farming | project choice, material inventory, and development branch |
+| World development | identity, place attachment, standing, live world-development state | project choice and development branch |
 | Material provisioning | needs, places, claims, containers, bridge verbs | stock, share, hoard, trade, and conserve branches |
 | Movement and exploration | controller, locomotion, population, perception | isolation-aware goal choice and route memory |
 | Social affiliation | standing, exchange, perception, circle | affiliation branch and live isolation input |

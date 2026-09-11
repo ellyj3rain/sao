@@ -1792,6 +1792,16 @@ if ! "$PY" tools/place_attachment_test.py > /dev/null; then
     fail=1
 fi
 
+# [C96] Border 151 - world development is a live state, not a scatter of
+# unrelated material facts. Home, ground, larder, water, hearth, motor pool
+# and fortification are read together, and the coarse summary never replaces
+# the seven facts beneath it.
+if ! "$PY" tools/world_development_test.py > /dev/null; then
+    "$PY" tools/world_development_test.py 2>&1 | grep -E "FAULT|SKIPPED" || true
+    note "BORDER FINDING - world development is not a live, visible state"
+    fail=1
+fi
+
 # Border 103 - the operator's speech is not in the repository: no
 # profanity in the tracked tree and no operator-quote attributions;
 # rulings are paraphrased content, speech stays with the speaker.

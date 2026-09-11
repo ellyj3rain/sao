@@ -1,6 +1,6 @@
 | Document | Playability - what a session shows |
 |---|---|
-| Version | `4.2.6.0-pre-alpha` |
+| Version | `4.2.7.0-pre-alpha` |
 | Author | ellyj3rain |
 | Repository | `PLAYABILITY.md` |
 | Status | CANONICAL - what the player can meet; reviewed against the tree, not inherited. |
@@ -31,6 +31,11 @@ The same panel reads the live place-attachment state: whether somebody has a
 home, whether they know and return to it, what ground they hold, how many places
 they know and visit, and which place they return to most. A house, a stash and
 an abandoned building are shown as different facts.
+
+The panel also reads the live world-development state: whether a connected
+house is held, stocked with food or water, warmed, driving, and how many of its
+ways in are shut. The material facts stay visible beside the development
+summary.
 
 ## The county fills itself
 

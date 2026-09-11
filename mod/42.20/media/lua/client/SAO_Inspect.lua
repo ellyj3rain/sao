@@ -187,6 +187,41 @@ function SAOInspectWindow:build()
         jsonl.placeAttachment = pa.attachment
     end)
 
+    -- World development: the material state of the place this person is
+    -- connected to. The summary never replaces the seven facts beneath it.
+    pcall(function()
+        local wd = SAO.WorldDevelopment.of(id)
+        if not wd then return end
+        row(string.format(
+            "development %.2f - home %s, ground %s, larder %s,"
+                .. " water %s, hearth %s, cars %d, shut %d/%d",
+            wd.development,
+            wd.home and "yes" or "no",
+            wd.ground and "held" or "none",
+            wd.larder and "yes" or "no",
+            wd.water and "yes" or "no",
+            wd.hearth and (wd.hearthBurning and "burning" or "present")
+                or "none",
+            wd.motorCars, wd.boardedAtHome, wd.waysIntoHome))
+        jsonl.worldDevelopment = wd.development
+        jsonl.worldDevelopmentGroup = wd.group or "none"
+        jsonl.worldDevelopmentHome = wd.home
+        jsonl.worldDevelopmentGround = wd.ground
+        jsonl.worldDevelopmentLarder = wd.larder
+        jsonl.worldDevelopmentLarderWord = wd.larderWord or "none"
+        jsonl.worldDevelopmentLarderCount = wd.larderCount
+        jsonl.worldDevelopmentWater = wd.water
+        jsonl.worldDevelopmentWaterWord = wd.waterWord or "none"
+        jsonl.worldDevelopmentWaterUnits = wd.waterUnits
+        jsonl.worldDevelopmentHearth = wd.hearth
+        jsonl.worldDevelopmentHearthBurning = wd.hearthBurning
+        jsonl.worldDevelopmentMotorPool = wd.motorPool
+        jsonl.worldDevelopmentMotorCars = wd.motorCars
+        jsonl.worldDevelopmentWaysIntoHome = wd.waysIntoHome
+        jsonl.worldDevelopmentBoardedAtHome = wd.boardedAtHome
+        jsonl.worldDevelopmentFortified = wd.fortified
+    end)
+
     -- The last decision, in the words the pressure law requires.
     local agent = SAO.Controller.agents and SAO.Controller.agents[id]
     if agent then
