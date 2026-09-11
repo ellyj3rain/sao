@@ -1782,6 +1782,16 @@ if ! "$PY" tools/isolation_state_test.py > /dev/null; then
     fail=1
 fi
 
+# [C95] Border 150 - place attachment is a live state, not a scatter of
+# unrelated facts. Home, current building, known places, visits and claims
+# are read together, and the coarse attachment summary never replaces the
+# four facts beneath it.
+if ! "$PY" tools/place_attachment_test.py > /dev/null; then
+    "$PY" tools/place_attachment_test.py 2>&1 | grep -E "FAULT|SKIPPED" || true
+    note "BORDER FINDING - place attachment is not a live, visible state"
+    fail=1
+fi
+
 # Border 103 - the operator's speech is not in the repository: no
 # profanity in the tracked tree and no operator-quote attributions;
 # rulings are paraphrased content, speech stays with the speaker.

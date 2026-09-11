@@ -1,6 +1,6 @@
 | Document | Survivor Awareness Overhaul Representation Contract |
 |---|---|
-| Version | `4.2.5.0-pre-alpha` |
+| Version | `4.2.6.0-pre-alpha` |
 | Author | ellyj3rain |
 | Repository | `REPRESENTATION.md` |
 | Status | CANONICAL - what the county represents and which state carries each part. |
@@ -79,6 +79,7 @@ designation is one fact about repeated work. Each is useful and incomplete.
 | [SAO_Perception.lua](mod/42.20/media/lua/shared/SAO_Perception.lua) | private beliefs about zombies, people, factions, and places | what this person has perceived or been told | only admitted beliefs may be read; map truth never enters a decision |
 | [SAO_Disposition.lua](mod/42.20/media/lua/shared/SAO_Disposition.lua) | five trait numbers and a wanted circle | temperament and social appetite | shapes a response; never invents facts or permission |
 | [SAO_Isolation.lua](mod/42.20/media/lua/shared/SAO_Isolation.lua) | live contact, isolation, appetite, trusted and recent people | how much company this person actually has | reports state; never writes social facts |
+| [SAO_PlaceAttachment.lua](mod/42.20/media/lua/shared/SAO_PlaceAttachment.lua) | home, current building, known and visited places, claims, most-returned-to place | this person's live relationship to the ground they use | reports state; never writes places or claims |
 | [SAO_Conditions.lua](mod/42.20/media/lua/shared/SAO_Conditions.lua) | condition sets and drift | mind and body state | changes latency, memory, learning, and perception; never widens the human envelope |
 | [SAO_Habits.lua](mod/42.20/media/lua/shared/SAO_Habits.lua) | gained and quit habits, drink clocks | personal behavior and addiction | creates recurring pressure; never assigns a job |
 | [SAO_Census.lua](mod/42.20/media/lua/shared/SAO_Census.lua) | occupation, class, skills, outfit | background and capability | informs what a person can do; never fixes what they must do |
