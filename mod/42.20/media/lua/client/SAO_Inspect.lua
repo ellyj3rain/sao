@@ -155,6 +155,38 @@ function SAOInspectWindow:build()
         jsonl.isolationHoursSinceContact = iso.hoursSinceContact or -1
     end)
 
+    -- Place attachment: the live relationship between this person and the
+    -- ground they actually use. Home, claims and known places are separate
+    -- facts; the attachment reading is only a summary of those four.
+    pcall(function()
+        local pa = SAO.PlaceAttachment.of(id)
+        if not pa then return end
+        row(string.format(
+            "home %s%s, ground %s, known %d, visited %d;"
+                .. " attachment %.2f%s",
+            pa.home and "yes" or "no",
+            pa.homeKnown and (", known" ..
+                (pa.homeVisits > 0 and (", " .. pa.homeVisits .. " visits")
+                    or "")) or "",
+            pa.claimKind, pa.knownPlaces, pa.visitedPlaces, pa.attachment,
+            pa.mostVisitedPlaceId
+                and (", most visited " .. tostring(pa.mostVisitedPlaceId)
+                    .. " x" .. tostring(pa.mostVisitedPlaceVisits)) or ""))
+        jsonl.placeAttachmentHome = pa.home
+        jsonl.placeAttachmentHomeKnown = pa.homeKnown
+        jsonl.placeAttachmentHomeVisits = pa.homeVisits
+        jsonl.placeAttachmentHomeOffers = pa.homeOffers
+        jsonl.placeAttachmentHomeDistance = pa.homeDistance or -1
+        jsonl.placeAttachmentClaimKind = pa.claimKind
+        jsonl.placeAttachmentInsideClaim = pa.insideClaim
+        jsonl.placeAttachmentKnownPlaces = pa.knownPlaces
+        jsonl.placeAttachmentVisitedPlaces = pa.visitedPlaces
+        jsonl.placeAttachmentMostVisitedId = pa.mostVisitedPlaceId or "none"
+        jsonl.placeAttachmentMostVisitedVisits = pa.mostVisitedPlaceVisits
+        jsonl.placeAttachmentMostVisitedAge = pa.mostVisitedPlaceAge or -1
+        jsonl.placeAttachment = pa.attachment
+    end)
+
     -- The last decision, in the words the pressure law requires.
     local agent = SAO.Controller.agents and SAO.Controller.agents[id]
     if agent then

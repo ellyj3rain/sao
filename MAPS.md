@@ -1,6 +1,6 @@
 | Document | Survivor Awareness Overhaul Maps |
 |---|---|
-| Version | `4.2.5.0-pre-alpha` |
+| Version | `4.2.6.0-pre-alpha` |
 | Author | ellyj3rain |
 | Repository | `MAPS.md` |
 | Status | CANONICAL - the three pictures a human reads first: runtime, knowledge, catalog. |
@@ -38,6 +38,7 @@ flowchart LR
         CTL["Controller - one action owns a body"]
         PER["Perception - beliefs with provenance and decay"]
         ISO["Isolation - live social-contact spectrum"]
+        ATT["Place attachment - live home, ground and use state"]
         STA["Standing - trust, claims, elections, feuds"]
         EXC["Exchange - the conversation between two people"]
         VOI["Voice - decisions rendered audible"]
@@ -59,7 +60,9 @@ flowchart LR
     D --> CTL
     CTL --> PER & STA & EXC & VOI & LOC & NDS
     UIX --> ISO
+    UIX --> ATT
     ISO --> IDE & PER & STA
+    ATT --> IDE & PER & PLA & STA
     POP --> IDE & BOD & TEL
     EXC --> PER & STA & VOI
     IDE --> MD
