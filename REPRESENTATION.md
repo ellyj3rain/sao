@@ -1,6 +1,6 @@
 | Document | Survivor Awareness Overhaul Representation Contract |
 |---|---|
-| Version | `4.2.4.6-pre-alpha` |
+| Version | `4.2.5.0-pre-alpha` |
 | Author | ellyj3rain |
 | Repository | `REPRESENTATION.md` |
 | Status | CANONICAL - what the county represents and which state carries each part. |
@@ -78,6 +78,7 @@ designation is one fact about repeated work. Each is useful and incomplete.
 | [SAO_Body.lua](mod/42.20/media/lua/client/SAO_Body.lua) | active shell, pack, clothes, physical state | the body the record occupies | owns material presence; never decides why an action happens |
 | [SAO_Perception.lua](mod/42.20/media/lua/shared/SAO_Perception.lua) | private beliefs about zombies, people, factions, and places | what this person has perceived or been told | only admitted beliefs may be read; map truth never enters a decision |
 | [SAO_Disposition.lua](mod/42.20/media/lua/shared/SAO_Disposition.lua) | five trait numbers and a wanted circle | temperament and social appetite | shapes a response; never invents facts or permission |
+| [SAO_Isolation.lua](mod/42.20/media/lua/shared/SAO_Isolation.lua) | live contact, isolation, appetite, trusted and recent people | how much company this person actually has | reports state; never writes social facts |
 | [SAO_Conditions.lua](mod/42.20/media/lua/shared/SAO_Conditions.lua) | condition sets and drift | mind and body state | changes latency, memory, learning, and perception; never widens the human envelope |
 | [SAO_Habits.lua](mod/42.20/media/lua/shared/SAO_Habits.lua) | gained and quit habits, drink clocks | personal behavior and addiction | creates recurring pressure; never assigns a job |
 | [SAO_Census.lua](mod/42.20/media/lua/shared/SAO_Census.lua) | occupation, class, skills, outfit | background and capability | informs what a person can do; never fixes what they must do |
@@ -116,11 +117,13 @@ the behavior.
 A survivor may know of nobody and want nobody nearby. That is a complete
 behavior mode.
 
-The state is explicit:
+The state is explicit and live, read through
+[SAO_Isolation.lua](mod/42.20/media/lua/shared/SAO_Isolation.lua):
 
 ```text
-knownPeople: []
-socialOrientation: solitary or avoid
+appetite: 0.10 .. 1.00
+contact: 0.00 .. 1.00
+isolation: 1.00 - contact
 ```
 
 That person still has a full day. They eat, drink, sleep, heal, scavenge,

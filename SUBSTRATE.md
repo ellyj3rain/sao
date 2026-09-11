@@ -1,6 +1,6 @@
 | Document | Survivor Awareness Overhaul Dependency Substrate |
 |---|---|
-| Version | `4.2.4.6-pre-alpha` |
+| Version | `4.2.5.0-pre-alpha` |
 | Author | ellyj3rain |
 | Repository | `SUBSTRATE.md` |
 | Status | CANONICAL - what exists, what is planned, and what each area of concern needs. |
@@ -59,7 +59,7 @@ ported, and whether it is required.
 
 | Area of concern | Current substrate | Still needed |
 |---|---|---|
-| Isolation | person record, perception, `contactFactor`, wanted circle | live isolation spectrum and its effect on choices |
+| Isolation | person record, perception, standing, disposition, history, live isolation state | effect on world-development and social choices |
 | Place attachment | known places, claims, home, visits, place offers | place-use ranking and attachment state |
 | World development | claims, larders, hearths, water stores, motor pools, construction, farming | project choice, material inventory, and development branch |
 | Material provisioning | needs, places, claims, containers, bridge verbs | stock, share, hoard, trade, and conserve branches |

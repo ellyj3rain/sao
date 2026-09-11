@@ -16,9 +16,9 @@ the machine. Names, dates, and threads below come from
 | Form | `major.minor.kohai.patch-maturity` |
 | Hard caps | minor 12; kohai 16; patch 24 |
 | Replay start | `0.1.0.0-pre-alpha` |
-| Current version | `4.2.4.6-pre-alpha` |
-| Closed chronology | `A1-C93` |
-| Next batch | `C94` |
+| Current version | `4.2.5.0-pre-alpha` |
+| Closed chronology | `A1-C94` |
+| Next batch | `C95` |
 | Executable source | [`tools/version_replay.py`](tools/version_replay.py) |
 
 ## Tier meanings
@@ -209,6 +209,7 @@ the machine. Names, dates, and threads below come from
 | `C91` | 2026-09-10 | patch | `4.2.4.4-pre-alpha` | Claims and recognition | Claims and recognition: the operator corrected the organization contract - some social facts are not self-declared. A person may claim an office, membership, a resource, a role, or a bond, but the claim is separate from its recognition, and the contract now records the claim, the recognizers, and the affected person's response. Coercion can make a claim effective without making it legitimate. The governance names are analytical labels rather than speech lines; no character says `I am despotic` or `I am localist`, and a character says what they do or expect instead. Documents only, no mod code, no capability moved, so patch. |
 | `C92` | 2026-09-10 | patch | `4.2.4.5-pre-alpha` | The branching system | The branching system: the operator corrected the scope - the branching shape applies to the entire simulation, not to labor alone. The whole county is one branching graph of state, pressure, and action. A branch is a causal path from pressure to consequence; state surfaces feed the graph and actions write back into it; every branch carries spectrums rather than binaries; a repeated branch can become a pattern, a pattern can be recognized as a role, a role can gain jurisdiction and become an office, and organization authorizes, forbids, funds, or contests branches without creating ability; the player perturbs the graph through free-form conversation, and every player action is a claim with recognition and response. Documents only, no mod code, no capability moved, so patch. |
 | `C93` | 2026-09-10 | patch | `4.2.4.6-pre-alpha` | The dependency substrate | The dependency substrate: the operator directed the next step - ground the work in the underlying dependency substrate before building the category areas. The new canonical map records the current runtime substrate (Project Zomboid, ZombieBuddy, SAO's Java component, and SAO's Lua component), the current non-runtime substrate (ZAO's design and evidence, Speakeasy's dataset and world material, SAO's tools, and the external mod catalogue), the planned substrate (ZAO's turned-body ownership and claim surface, recovery mods as optional inputs, Speakeasy's understander and speaker models, in-process inference, an optional sidecar, and the branching graph), what makes each area of concern possible, the cross-repository seams, and the external mod posture. Documents only, no mod code, no capability moved, so patch. |
+| `C94` | 2026-09-10 | kohai | `4.2.5.0-pre-alpha` | Isolation becomes a live state | Isolation becomes a live state: the first category from the dependency substrate is built. SAO_Isolation reads identity, perception, standing, disposition and history; reports appetite, group size, known people, trusted people, recent people, hours since contact, contact and isolation; and writes nothing. Appetite and isolation are separate facts, so a loner alone and a house person alone are not the same reading. SAO_Inspect shows the state and writes it to the JSONL stream. Border 149 drives the shipped module in the engine's own VM against stub identity, perception, standing, disposition and history facts, and holds a solitary person, a grouped person, a saturated social person, a dead person and the separation of appetite from isolation. A coherent extension of the person state and inspect surface, so kohai. |
 
 ## The former number
 
@@ -229,11 +230,11 @@ the meantime, and they are not play.
 
 ## Next movement
 
-`C94` is the next batch. Its content determines its tier after it
+`C95` is the next batch. Its content determines its tier after it
 exists:
 
-| If C94 is | Result |
+| If C95 is | Result |
 |---|---|
-| patch or hotfix | `4.2.4.7-pre-alpha` |
-| kohai | `4.2.5.0-pre-alpha` |
+| patch or hotfix | `4.2.5.1-pre-alpha` |
+| kohai | `4.2.6.0-pre-alpha` |
 | minor | `4.3.0.0-pre-alpha` |

@@ -1770,6 +1770,18 @@ if ! "$PY" tools/trades_moment_test.py > /dev/null; then
     fail=1
 fi
 
+# [C94] Border 149 - isolation is a live state, not a static contact
+# factor. The person's appetite for company and their actual social
+# contact are separate facts; a loner alone and a house person alone are
+# not the same thing. The surface reads identity, perception, standing,
+# disposition and history, writes nothing, and reaches the inspect
+# panel and the JSONL stream.
+if ! "$PY" tools/isolation_state_test.py > /dev/null; then
+    "$PY" tools/isolation_state_test.py 2>&1 | grep -E "FAULT|SKIPPED" || true
+    note "BORDER FINDING - isolation is not a live, visible state"
+    fail=1
+fi
+
 # Border 103 - the operator's speech is not in the repository: no
 # profanity in the tracked tree and no operator-quote attributions;
 # rulings are paraphrased content, speech stays with the speaker.
