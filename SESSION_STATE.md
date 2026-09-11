@@ -1411,3 +1411,18 @@ measurement argues otherwise - stated as amendable, not ratified.)
 
 The idea is the success condition, entire. The pass continues until the
 operator ends it.
+claim is separate from recognition, and the model now records the claim, the
+recognizers, and the response. Coercion can make a claim effective without
+making it legitimate. The governance names are analytical, not speech lines;
+no character says `I am despotic` or `I am localist`. Some parts of the model
+are also a player-facing loop: the player may petition, support, contest, claim,
+vote, enforce, resist, join, or leave. Documents only, no mod
+code, so patch.
+claim is separate from recognition, and the model now records the claim, the
+recognizers, and the response. Coercion can make a claim effective without
+making it legitimate. The governance names are analytical, not speech lines;
+no character says `I am despotic` or `I am localist`. Some parts of the model
+are also a player-facing loop: the player may petition, support, contest, claim,
+vote, enforce, resist, join, or leave. Those actions are reachable through
+free-form conversation, not only through a menu. Documents only, no mod
+code, so patch.

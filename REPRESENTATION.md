@@ -59,6 +59,8 @@ the objective of the simulation.
 | What pattern, if any, forms? | repeated action under the same pressure |
 | What organization, if any, appears? | recognition or assignment of a pattern by a group |
 | What claim is being made, and who recognizes it? | office, membership, resource, role, bond, recognition, response |
+| What can the player do here? | membership, office, standing, pressure, available action |
+| How does the player speak to a survivor? | free-form text or dictation, read by the understander and answered by the speaker |
 
 ## Existing state surfaces
 

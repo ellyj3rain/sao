@@ -122,6 +122,39 @@ No person in the county says, `I am despotic` or `I am localist`. A person says
 what they actually do or expect: `I decide here`, `we vote`, `the house decides`,
 `ask the council`, or `this ground is ours`.
 
+## Player surface
+
+Some organization facts are simulation state. Some are actions the player can
+take.
+
+The player may:
+
+- observe an organization
+- ask to join or leave
+- petition a decision
+- support or contest a claim
+- ask for work
+- accept or refuse an order
+- claim an office
+- call a vote where the organization allows one
+- appeal to a custom or another office
+- enforce or resist a decision
+
+Each player action is a claim. The model records the claim, the recognition,
+and the response. The player is not the implicit center of every organization.
+An organization may ignore, refuse, or oppose the player, and it may continue
+without them.
+
+A player-facing menu names the action, not the analytical governance form. It
+says `petition`, `support`, `contest`, `claim`, `vote`, or `leave`; it does not
+say `despotic`, `localist`, or `communal`.
+
+These actions are also reachable through conversation. The intended player
+surface is free-form speech, not a fixed dialogue tree: the player types or
+dictates what they want to say, the understander reads it against that person's
+knowledge, and the speaker answers from that person's claims. A menu may expose
+a known action, but conversation is the primary interface.
+
 ## Legitimacy sources
 
 An office can draw legitimacy from more than one source:
