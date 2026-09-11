@@ -32,13 +32,14 @@ measurements.
 | `SESSION_STATE.md` | Where the work actually stands right now. |
 | `PLAYABILITY.md` | What a player would actually meet, and what is unproven. |
 | `PROJECTS.md` | The architecture across the three repositories: SAO, ZAO and Speakeasy. |
+| `SUBSTRATE.md` | Existing and planned dependencies, and what each area of concern needs. |
 | `CREDITS.md` | Attribution and integration status per source. |
 
 `MEMORY.md` indexes every root document and its standing.
 
 ## Status
 
-`4.2.4.5-pre-alpha` - the coordinate is computed by the version machine
+`4.2.4.6-pre-alpha` - the coordinate is computed by the version machine
 (`tools/version_replay.py`), never picked; `VERSION_MAP.md` shows the
 classification and the arithmetic.
 
