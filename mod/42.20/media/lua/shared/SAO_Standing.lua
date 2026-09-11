@@ -134,6 +134,13 @@ function S.trust(id, otherKey)
     return r and r.trust or 0
 end
 
+-- The relation rows a person holds. Read-only; the isolation surface uses
+-- it to count trusted contacts without walking the whole county.
+function S.relationsOf(id)
+    local s = store(); if not s then return {} end
+    return s.relations[id] or {}
+end
+
 -- [B20] Familiarity, NOT affection. A relation row exists once two
 -- people have had anything to do with each other, whatever its sign,
 -- so this answers "do I know this person" without asking whether I

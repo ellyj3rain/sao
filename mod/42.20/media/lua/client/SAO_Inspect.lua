@@ -132,6 +132,29 @@ function SAOInspectWindow:build()
         .. (rec.designation and (", " .. tostring(rec.designation)) or "")
         .. (rec.occupation and (", was a " .. tostring(rec.occupation)) or ""))
 
+    -- Isolation: the live social-contact spectrum, kept separate from the
+    -- person's appetite for company. A loner alone and a house person alone
+    -- are not the same fact.
+    pcall(function()
+        local iso = SAO.Isolation.of(id)
+        if not iso then return end
+        local since = iso.hoursSinceContact
+        row(string.format(
+            "company %d, trusted %d, recent %d; contact %.2f,"
+                .. " isolation %.2f, appetite %.2f%s",
+            iso.groupSize, iso.trustedPeople, iso.recentPeople,
+            iso.contact, iso.isolation, iso.appetite,
+            (since and ("; last contact " .. string.format("%.1f", since)
+                .. "h ago") or "")))
+        jsonl.isolationContact = iso.contact
+        jsonl.isolationAppetite = iso.appetite
+        jsonl.isolationGroupSize = iso.groupSize
+        jsonl.isolationKnownPeople = iso.knownPeople
+        jsonl.isolationRecentPeople = iso.recentPeople
+        jsonl.isolationTrustedPeople = iso.trustedPeople
+        jsonl.isolationHoursSinceContact = iso.hoursSinceContact or -1
+    end)
+
     -- The last decision, in the words the pressure law requires.
     local agent = SAO.Controller.agents and SAO.Controller.agents[id]
     if agent then

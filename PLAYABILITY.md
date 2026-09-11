@@ -1,6 +1,6 @@
 | Document | Playability - what a session shows |
 |---|---|
-| Version | `4.2.4.6-pre-alpha` |
+| Version | `4.2.5.0-pre-alpha` |
 | Author | ellyj3rain |
 | Repository | `PLAYABILITY.md` |
 | Status | CANONICAL - what the player can meet; reviewed against the tree, not inherited. |
@@ -21,6 +21,11 @@ panel also answers a bound key (`J` by default; the options screen's
 "[SAO]" section owns it): the selected survivor's seen / heard / told,
 standing, needs, last decision, and the tick cost, in a normal launch,
 reading everything and teaching the county nothing.
+
+The panel also reads the live isolation state: how many people somebody is
+actually with, how many they know, trust, or have seen recently, how much
+company they want, and how long it has been since contact. A loner alone and
+a house person alone are shown as different facts.
 
 ## The county fills itself
 
