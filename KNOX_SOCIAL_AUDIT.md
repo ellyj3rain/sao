@@ -1,6 +1,6 @@
 | Document | Knox Survivors Social-System Audit |
 |---|---|
-| Version | `4.2.4.3-pre-alpha` · authored at `[A14]` |
+| Version | `4.2.4.4-pre-alpha` · authored at `[A14]` |
 | Author | ellyj3rain |
 | Repository | `KNOX_SOCIAL_AUDIT.md` |
 | Status | CANONICAL - reference-design audit; mechanics translatable, files never copied. |

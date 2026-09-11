@@ -1,6 +1,6 @@
 | Document | Survivor Awareness Overhaul Organization and Deference Contract |
 |---|---|
-| Version | `4.2.4.3-pre-alpha` |
+| Version | `4.2.4.4-pre-alpha` |
 | Author | ellyj3rain |
 | Repository | `ORGANIZATION.md` |
 | Status | CANONICAL - organization, hierarchy, offices, governance forms, and deference. |
@@ -40,6 +40,30 @@ An office has:
 - a vacancy rule: what happens when no one holds it
 
 An office is not a job. A job is labor. An office is authority over a matter.
+
+## Claims and recognition
+
+A claim is one person's assertion. Recognition is another person's acceptance.
+
+A person may claim an office, a membership, a resource, a role, or a bond. That
+claim becomes a social fact only when other people recognize it, when a recorded
+institution confers it, or when coercion makes refusal costly.
+
+The model records three separate facts:
+
+| Fact | Meaning |
+|---|---|
+| Claim | what one person says or asserts |
+| Recognition | who accepts it and on what basis |
+| Response | what the affected person does |
+
+For example:
+
+- `I lead here` is a claim.
+- The members' deference is recognition.
+- One member's refusal is dissent.
+
+Coercion can make a claim effective without making it legitimate.
 
 ## What deference is
 
@@ -90,6 +114,46 @@ implementation targets.
 A hierarchy is an ordering of offices. It is not a ranking of people. A person
 may hold several offices. An office may have more than one holder. Authority may
 overlap.
+
+These names are analytical labels. They describe the shape of authority. They
+are not self-descriptions and they are not speech lines.
+
+No person in the county says, `I am despotic` or `I am localist`. A person says
+what they actually do or expect: `I decide here`, `we vote`, `the house decides`,
+`ask the council`, or `this ground is ours`.
+
+## Player surface
+
+Some organization facts are simulation state. Some are actions the player can
+take.
+
+The player may:
+
+- observe an organization
+- ask to join or leave
+- petition a decision
+- support or contest a claim
+- ask for work
+- accept or refuse an order
+- claim an office
+- call a vote where the organization allows one
+- appeal to a custom or another office
+- enforce or resist a decision
+
+Each player action is a claim. The model records the claim, the recognition,
+and the response. The player is not the implicit center of every organization.
+An organization may ignore, refuse, or oppose the player, and it may continue
+without them.
+
+A player-facing menu names the action, not the analytical governance form. It
+says `petition`, `support`, `contest`, `claim`, `vote`, or `leave`; it does not
+say `despotic`, `localist`, or `communal`.
+
+These actions are also reachable through conversation. The intended player
+surface is free-form speech, not a fixed dialogue tree: the player types or
+dictates what they want to say, the understander reads it against that person's
+knowledge, and the speaker answers from that person's claims. A menu may expose
+a known action, but conversation is the primary interface.
 
 ## Legitimacy sources
 
@@ -188,6 +252,8 @@ These exclusions protect the model:
 - Do not treat a work word as an office.
 - Do not treat a hierarchy as a ranking of human worth.
 - Do not make deference universal or unconditional.
+- Do not treat a self-declared claim as a recognized office.
+- Do not use a governance label as a character's own words.
 - Do not create an organization from a target.
 - Do not make the player the implicit center of every organization.
 - Do not treat survival or settlement success as the objective.
