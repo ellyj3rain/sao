@@ -1,6 +1,6 @@
 | Document | Survivor Awareness Overhaul Branching System |
 |---|---|
-| Version | `4.2.4.5-pre-alpha` |
+| Version | `4.2.4.6-pre-alpha` |
 | Author | ellyj3rain |
 | Repository | `BRANCHING.md` |
 | Status | CANONICAL - the whole simulation's branching model. |

@@ -1,6 +1,6 @@
 | Document | Survivor Awareness Overhaul Batch Log |
 |---|---|
-| Version | `4.2.4.5-pre-alpha` |
+| Version | `4.2.4.6-pre-alpha` |
 | Author | ellyj3rain |
 | Repository | `BATCH_LOG.md` |
 | Status | REGULATORY - chronological batch index. |
@@ -197,3 +197,4 @@ attribution for every merged entry, stated here rather than in a branch name.
 | [C90](Batches/C90-2026-09-10-organization-and-deference.md) | 2026-09-10 | Organization and deference | [`T-004`](Batches/THREADS.md#t-004), [`T-006`](Batches/THREADS.md#t-006) |
 | [C91](Batches/C91-2026-09-10-claims-and-recognition.md) | 2026-09-10 | Claims and recognition | [`T-004`](Batches/THREADS.md#t-004), [`T-006`](Batches/THREADS.md#t-006) |
 | [C92](Batches/C92-2026-09-10-the-branching-system.md) | 2026-09-10 | The branching system | [`T-004`](Batches/THREADS.md#t-004), [`T-006`](Batches/THREADS.md#t-006) |
+| [C93](Batches/C93-2026-09-10-the-dependency-substrate.md) | 2026-09-10 | The dependency substrate | [`T-008`](Batches/THREADS.md#t-008), [`T-030`](Batches/THREADS.md#t-030) |

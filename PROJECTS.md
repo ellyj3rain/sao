@@ -1,6 +1,6 @@
 | Document | The three projects and what each owns |
 |---|---|
-| Version | `4.2.4.5-pre-alpha` |
+| Version | `4.2.4.6-pre-alpha` |
 | Author | ellyj3rain |
 | Repository | `PROJECTS.md` |
 | Status | CANONICAL - the architecture across the three repositories. Held here; `../zombie-awareness` and `../zomboid-speakeasy` point at it. |
@@ -19,6 +19,9 @@ licences and separate gates, not because they are three products.
 The county is the same county in all three. A person walks through it,
 dies in it, and gets up again in it, and no repository owns more than
 its share of that sentence.
+
+The dependency substrate - what exists, what is planned, and what each area of
+concern needs - is mapped in `SUBSTRATE.md`.
 
 ## What each one is
 

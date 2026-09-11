@@ -16,9 +16,9 @@ the machine. Names, dates, and threads below come from
 | Form | `major.minor.kohai.patch-maturity` |
 | Hard caps | minor 12; kohai 16; patch 24 |
 | Replay start | `0.1.0.0-pre-alpha` |
-| Current version | `4.2.4.5-pre-alpha` |
-| Closed chronology | `A1-C92` |
-| Next batch | `C93` |
+| Current version | `4.2.4.6-pre-alpha` |
+| Closed chronology | `A1-C93` |
+| Next batch | `C94` |
 | Executable source | [`tools/version_replay.py`](tools/version_replay.py) |
 
 ## Tier meanings
@@ -208,6 +208,7 @@ the machine. Names, dates, and threads below come from
 | `C90` | 2026-09-10 | patch | `4.2.4.3-pre-alpha` | Organization and deference | Organization and deference: the operator named the next missing model - hierarchy, governance form, offices, and deference - with democratic, despotic, and localist as example terms rather than implementation targets. The tree had a leader, a second, a proven hand, and group metadata, but no general model for how authority is constituted, why it is accepted, how it transfers, or how people refuse it. The new organization contract defines an organization as a durable group with members, a decision method, and a boundary; an office as a decision right with jurisdiction; governance forms as unsettled, democratic, despotic, localist, federated, or communal; legitimacy sources as consent, competence, custom, election, inheritance, coercion, resource control, emergency, or tradition; and deference as a decision about one matter with refusal, appeal, contest, exit, and resistance as real outcomes. Documents only, no mod code, no capability moved, so patch. |
 | `C91` | 2026-09-10 | patch | `4.2.4.4-pre-alpha` | Claims and recognition | Claims and recognition: the operator corrected the organization contract - some social facts are not self-declared. A person may claim an office, membership, a resource, a role, or a bond, but the claim is separate from its recognition, and the contract now records the claim, the recognizers, and the affected person's response. Coercion can make a claim effective without making it legitimate. The governance names are analytical labels rather than speech lines; no character says `I am despotic` or `I am localist`, and a character says what they do or expect instead. Documents only, no mod code, no capability moved, so patch. |
 | `C92` | 2026-09-10 | patch | `4.2.4.5-pre-alpha` | The branching system | The branching system: the operator corrected the scope - the branching shape applies to the entire simulation, not to labor alone. The whole county is one branching graph of state, pressure, and action. A branch is a causal path from pressure to consequence; state surfaces feed the graph and actions write back into it; every branch carries spectrums rather than binaries; a repeated branch can become a pattern, a pattern can be recognized as a role, a role can gain jurisdiction and become an office, and organization authorizes, forbids, funds, or contests branches without creating ability; the player perturbs the graph through free-form conversation, and every player action is a claim with recognition and response. Documents only, no mod code, no capability moved, so patch. |
+| `C93` | 2026-09-10 | patch | `4.2.4.6-pre-alpha` | The dependency substrate | The dependency substrate: the operator directed the next step - ground the work in the underlying dependency substrate before building the category areas. The new canonical map records the current runtime substrate (Project Zomboid, ZombieBuddy, SAO's Java component, and SAO's Lua component), the current non-runtime substrate (ZAO's design and evidence, Speakeasy's dataset and world material, SAO's tools, and the external mod catalogue), the planned substrate (ZAO's turned-body ownership and claim surface, recovery mods as optional inputs, Speakeasy's understander and speaker models, in-process inference, an optional sidecar, and the branching graph), what makes each area of concern possible, the cross-repository seams, and the external mod posture. Documents only, no mod code, no capability moved, so patch. |
 
 ## The former number
 
@@ -228,11 +229,11 @@ the meantime, and they are not play.
 
 ## Next movement
 
-`C93` is the next batch. Its content determines its tier after it
+`C94` is the next batch. Its content determines its tier after it
 exists:
 
-| If C93 is | Result |
+| If C94 is | Result |
 |---|---|
-| patch or hotfix | `4.2.4.6-pre-alpha` |
+| patch or hotfix | `4.2.4.7-pre-alpha` |
 | kohai | `4.2.5.0-pre-alpha` |
 | minor | `4.3.0.0-pre-alpha` |

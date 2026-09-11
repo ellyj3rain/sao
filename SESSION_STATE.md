@@ -1,13 +1,21 @@
 | Document | Survivor Awareness Overhaul Session State |
 |---|---|
-| Version | `4.2.4.5-pre-alpha` |
+| Version | `4.2.4.6-pre-alpha` |
 | Author | ellyj3rain |
 | Repository | `SESSION_STATE.md` |
 | Status | CANONICAL - where the work actually stands. |
 
 # Session state
 
-**As of** 2026-09-10, `[C92]` close - the branching system. The operator
+**As of** 2026-09-10, `[C93]` close - the dependency substrate. The operator
+directed the next step: ground the work in the underlying dependency substrate
+before building the category areas. `SUBSTRATE.md` is the canonical map now. It
+records the current runtime substrate, the current non-runtime substrate, the
+planned substrate, what makes each area of concern possible, the
+cross-repository seams, and the external mod posture. Documents only, no mod
+code, so patch.
+
+**Before that**, `[C92]` - the branching system. The operator
 corrected the scope: the branching shape applies to the entire simulation, not
 to labor alone. `BRANCHING.md` is the canonical contract now. The whole county
 is one branching graph of state, pressure, and action; a branch is a causal path
@@ -1294,7 +1302,7 @@ unloaded survivors are governed by the same rules ([B39], [B42]).
 
 ## Deploy state
 
-`4.2.4.5-pre-alpha` at tip - the version machine's output ([C2],
+`4.2.4.6-pre-alpha` at tip - the version machine's output ([C2],
 DR-013; the twelfth minor rolled the tier by the odometer's own
 law). The game install carries the `[C62]` tip. `[C45]` through
 `[C51]` reached it on 2026-09-07 and `[C52]` through `[C62]` on 2026-09-08, each
