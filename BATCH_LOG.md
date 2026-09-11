@@ -1,6 +1,6 @@
 | Document | Survivor Awareness Overhaul Batch Log |
 |---|---|
-| Version | `4.2.6.0-pre-alpha` |
+| Version | `4.2.7.0-pre-alpha` |
 | Author | ellyj3rain |
 | Repository | `BATCH_LOG.md` |
 | Status | REGULATORY - chronological batch index. |
@@ -200,3 +200,4 @@ attribution for every merged entry, stated here rather than in a branch name.
 | [C93](Batches/C93-2026-09-10-the-dependency-substrate.md) | 2026-09-10 | The dependency substrate | [`T-008`](Batches/THREADS.md#t-008), [`T-030`](Batches/THREADS.md#t-030) |
 | [C94](Batches/C94-2026-09-10-isolation-becomes-a-live-state.md) | 2026-09-10 | Isolation becomes a live state | [`T-006`](Batches/THREADS.md#t-006), [`T-008`](Batches/THREADS.md#t-008) |
 | [C95](Batches/C95-2026-09-10-place-attachment-becomes-a-live-state.md) | 2026-09-10 | Place attachment becomes a live state | [`T-006`](Batches/THREADS.md#t-006), [`T-008`](Batches/THREADS.md#t-008) |
+| [C96](Batches/C96-2026-09-10-world-development-becomes-a-live-state.md) | 2026-09-10 | World development becomes a live state | [`T-006`](Batches/THREADS.md#t-006), [`T-008`](Batches/THREADS.md#t-008) |
