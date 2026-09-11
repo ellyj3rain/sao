@@ -1,6 +1,6 @@
 | Document | Survivor Awareness Overhaul Organization and Deference Contract |
 |---|---|
-| Version | `4.2.4.4-pre-alpha` |
+| Version | `4.2.4.5-pre-alpha` |
 | Author | ellyj3rain |
 | Repository | `ORGANIZATION.md` |
 | Status | CANONICAL - organization, hierarchy, offices, governance forms, and deference. |
@@ -10,6 +10,8 @@
 This file defines the model for organizations, offices, governance forms, and
 deference. It does not specify a fixed role list, a UI vocabulary, or a
 settlement objective.
+
+The whole-system branching graph is defined in [BRANCHING.md](BRANCHING.md).
 
 ## What an organization is
 

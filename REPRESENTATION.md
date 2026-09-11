@@ -1,6 +1,6 @@
 | Document | Survivor Awareness Overhaul Representation Contract |
 |---|---|
-| Version | `4.2.4.4-pre-alpha` |
+| Version | `4.2.4.5-pre-alpha` |
 | Author | ellyj3rain |
 | Repository | `REPRESENTATION.md` |
 | Status | CANONICAL - what the county represents and which state carries each part. |
@@ -10,6 +10,9 @@
 This file states what Survivor Awareness Overhaul represents and how the tree's
 current facts serve that target. It is written from the operator's direction on
 2026-09-10.
+
+The whole-system branching model is defined in
+[BRANCHING.md](BRANCHING.md).
 
 If a feature needs a fact this file does not name, this contract is extended
 before the feature is built.
