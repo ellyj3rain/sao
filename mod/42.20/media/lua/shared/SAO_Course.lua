@@ -284,6 +284,15 @@ function Co.advance(rec, nowHours, inputs, dPos)
         rec.infectionSpanHours = nil
         rec.immuneProgress = nil
         rec.infectionsSurvived = (tonumber(rec.infectionsSurvived) or 0) + 1
+        if SAO.PathogenEvents and SAO.PathogenEvents.emit then
+            pcall(function()
+                SAO.PathogenEvents.emit(
+                    "recovery",
+                    rec.id,
+                    math.floor((tonumber(nowHours) or 0) / 24.0),
+                    { record = rec })
+            end)
+        end
         return "won"
     end
 

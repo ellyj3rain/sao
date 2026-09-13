@@ -223,6 +223,15 @@ function Identity.markDead(rec, tick, cause)
     rec.deathCause = tostring(cause or "unknown")
     local okH, h = pcall(function() return SAO.History.countyHours() end)
     rec.diedAtHours = okH and h or 0
+    if SAO.PathogenEvents and SAO.PathogenEvents.emit then
+        pcall(function()
+            SAO.PathogenEvents.emit(
+                "death",
+                rec.id,
+                math.floor((tonumber(rec.diedAtHours) or 0) / 24.0),
+                { record = rec })
+        end)
+    end
     -- [B38] Every death path funnels here, so the instrument goes
     -- here too rather than on the one call site that prompted it.
     if SAO.Telemetry and SAO.Telemetry.died then
@@ -294,6 +303,36 @@ function Identity.markDead(rec, tick, cause)
     -- with it a reference to their corpse.
     if SAO.Locomotion and SAO.Locomotion.cancel then
         pcall(SAO.Locomotion.cancel, rec.id)
+    end
+    -- [C114] Wheels are the same shape as feet: a drive in progress
+    -- holds the driver's body handle and the Java-side drive it
+    -- ordered, so the dead driver's car is stopped where it is and
+    -- the job dropped with the handle.
+    if SAO.Driving and SAO.Driving.cancel then
+        pcall(SAO.Driving.cancel, rec.id)
+    end
+    -- [C105] And the stores: the corpse's items belong to the
+    -- engine's body, and the provisioning model is about the living.
+    if SAO.Material and SAO.Material.forget then
+        pcall(SAO.Material.forget, rec.id)
+    end
+    -- [C90] The organizations are the county's durable records and
+    -- outlive their members; the MEMBERSHIP does not. `Org.leave`
+    -- drops the member row and the office-holdings, and
+    -- `Settlement.leave` drops the occupancy row and - by its own
+    -- rule - dissolves the base when the last member is gone. The
+    -- [C68] shape again, one layer out: the dead are not members, and
+    -- no settlement is held open by graves.
+    if SAO.Organization and SAO.Organization.organizationsOf then
+        pcall(function()
+            local held = SAO.Organization.organizationsOf(rec.id)
+            for _, organizationId in ipairs(held) do
+                SAO.Organization.leave(organizationId, rec.id)
+                if SAO.Settlement and SAO.Settlement.leave then
+                    pcall(SAO.Settlement.leave, organizationId, rec.id)
+                end
+            end
+        end)
     end
     if SAO.Controller and SAO.Controller.forget then
         pcall(SAO.Controller.forget, rec.id)

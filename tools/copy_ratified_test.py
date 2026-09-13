@@ -182,6 +182,57 @@ RATIFIED = {
         "here has, and their own menu carries this mod's options." + NL
         + "Turning this on makes this mod call the other mod's code. "
         "Leave it off unless you want the two joined.",
+    # [C105] The eight record toggles the recognition bridge shipped
+    # with, ratified by the operator in chat on 2026-09-13 - the end
+    # pass put all sixteen strings in front of their eyes, names and
+    # tooltips together, and they were approved as shipped. The
+    # register is the family's own: each option says what is recorded,
+    # and each Off line holds the law that recording never changes
+    # behavior, only the record.
+    P + "Branching": "Keep the county record",
+    P + "Branching_tooltip":
+        "The county keeps a record of what pressure each survivor is "
+        "under and where their life is heading." + NL
+        + "Off: survivors still perceive, decide, group and settle "
+        "exactly the same - nothing is written to the record.",
+    P + "Pressure": "Record pressure",
+    P + "Pressure_tooltip":
+        "Threat, needs, injury, weather and the rest are summed into "
+        "the record each pass." + NL
+        + "Off: the pressure sums are not kept.",
+    P + "Labor": "Record work",
+    P + "Labor_tooltip":
+        "Repeated work - cooking, foraging, watching, treating - is "
+        "counted toward the trades people end up known by." + NL
+        + "Off: work still happens, but is not counted.",
+    P + "Organization": "Record organizations",
+    P + "Organization_tooltip":
+        "When a house settles an election, accepts a chair, takes an "
+        "order, or forms a pact, the fact is recorded as the "
+        "organization it is." + NL
+        + "Off: houses still form and leaders still lead - none of it "
+        "is recorded as organization.",
+    P + "Settlement": "Record settlements",
+    P + "Settlement_tooltip":
+        "A house living on ground it claimed - fire lit, water hauled, "
+        "shelves stocked - is recorded as a settlement." + NL
+        + "Off: houses still claim and provision - the base is not "
+        "recorded.",
+    P + "PlayerInteraction": "Record your claims",
+    P + "PlayerInteraction_tooltip":
+        "Your petitions, refusals and offices are recorded against the "
+        "county's organizations." + NL
+        + "Off: your asks still land - they are not recorded.",
+    P + "Material": "Record stores",
+    P + "Material_tooltip":
+        "Real food and goods shelved on held ground are counted as the "
+        "house's store." + NL
+        + "Off: shelves still get stocked - nothing is counted.",
+    P + "Communication": "Record what is told",
+    P + "Communication_tooltip":
+        "Grudges, credits and news passed between survivors are "
+        "recorded as messages." + NL
+        + "Off: the words still pass - nothing is written down.",
 }
 
 # Struck register, held out of the named UI sources by literal match -

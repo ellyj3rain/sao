@@ -169,7 +169,7 @@ dances, under `media/anims_X/Bob`, named as the mod names them;
 the bindings are SAO's own. Nothing of its code, items, skills or
 systems is taken.
 
-## Week One (Slayer), for its art
+## Week One (Slayer), for its art, its street hour, and its wheel
 
 Workshop 3403180543, mod id `BanditsWeekOne`; on the Bandits engine
 (3268487204), whose page holds that all the author's work is
@@ -178,8 +178,30 @@ copyrighted and not to be reused without written permission.
 it ([C35], DR-034):** the waiter's serving animation (SaneGuy, the
 mod's animator) and the coughs and claps (Lauren Sinclair and AuD,
 as the mod credits its sounds), under `media/anims_X/Bob` and
-`media/sound/sao`. Nothing of its logic crosses: its people are
-programmed zombies on a scripted timeline, and SAO's are not.
+`media/sound/sao`.
+
+**Code ported, under the operator's ruling ([C110], [C113],
+[C114]):** the street hour - `BWOPopControl`'s `getHourScore` hmap,
+twenty-four authored values carried whole into
+`SAO.History.streetAffinity` - the street-occupations idea,
+re-expressed as the census trade's own ground rather than the
+spawner-side weights it ships on; and the driving - the
+engine-start-and-drive idiom and the 30 km/h town figure their
+regulator drove at, carried as `SAODriver`'s speed cap. SAO's
+driving, come, is a real SAO person in a real seat ([C82], [C114]):
+the engine started through the engine's own no-argument
+`tryStartEngine`, a refusal honored, the steering written as the
+bearing to the destination. No runtime dependency and none of their
+files loaded. What does not cross, named so it is not mistaken for
+lost: their people's logic - its civilians are programmed zombies
+on a scripted timeline, and SAO's are its own people on the county's
+clock - the scripted world-age timeline, the spawn/despawn
+controllers, the density math, the ghost-driver mechanism's ghost
+player (a scene-culled, god-moded, invisible body that is not a
+person), their forced-engine trio (`tryStartEngine(true)` with
+`engineDoStartingSuccess` and `engineDoRunning` - the cheat path),
+their regulator, which its own comments say does not steer, and
+their horn-at-zombies.
 
 ## Humans: Are Weak (SeahDokki)
 

@@ -588,7 +588,9 @@ function Exchange.betweenPair(id, agent, body, otherId, otherBody, tickCount)
             pcall(function() SAO.Voice.onEvent(id, "grudgeTold", tickCount) end)
         end
         -- Emergent company: mutual trust past the threshold
-        -- and at least one of them unattached. Two strangers
+        -- and at least one of them unattached ([C111]: trust
+        -- AND need - each side's own pull reads alongside their
+        -- trust, the same law the road door holds). Two strangers
         -- found a company; a third wheel with the trust of a
         -- member JOINS that member's company (both-grouped
         -- pairs stay as they are - mergers are politics, not
@@ -609,8 +611,8 @@ function Exchange.betweenPair(id, agent, body, otherId, otherBody, tickCount)
             end
         end
         if not (myGroup and otherGroup) and (not myGroup or not otherGroup)
-            and SAO.Standing.trust(id, otherId) > companyBar
-            and SAO.Standing.trust(otherId, id) > companyBar then
+            and SAO.Standing.companyStanding(id, otherId) > companyBar
+            and SAO.Standing.companyStanding(otherId, id) > companyBar then
             local groupName = myGroup or otherGroup
                 or ("company-" .. tostring(id))
             -- Their own company ([A27]): trust opened the door; the
@@ -636,7 +638,7 @@ function Exchange.betweenPair(id, agent, body, otherId, otherBody, tickCount)
             end
             SAO.Standing.formCompany({ id, otherId }, groupName)
             log(id .. " and " .. otherId
-                .. " now keep company (mutual trust)")
+                .. " now keep company (trust and need)")
             -- Moving in: the JOINER moves; the standing
             -- member keeps their house. Only when both were
             -- unattached does lexical order pick the host.

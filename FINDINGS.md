@@ -1,6 +1,6 @@
 | Document | Survivor Awareness Overhaul Findings |
 |---|---|
-| Version | `4.2.7.0-pre-alpha` |
+| Version | `4.5.0.0-pre-alpha` |
 | Author | ellyj3rain |
 | Repository | `FINDINGS.md` |
 | Status | CANONICAL, APPEND-ONLY - verified engine findings. |
@@ -1145,6 +1145,18 @@ The live county runs the same code on a 240-frame population pass, so a
 move arrives every 1800 to 3600 frames - about eighty moves in a game
 day at default length, up to 320 tiles. The years give the same person
 one eightieth of their own movement.
+
+**After [C112], the mechanism above is history.** A tick is now a
+9000th of a county hour (`floor(countyHours * 9000)`), both counters
+read that one clock, the population pass is a last-fired stamp on it,
+and `YEARS_TICKS_PER_DAY` and its calibrated advance are deleted - the
+years advance the clock themselves, and a simulated day is 216,000
+ticks. At the default day length a frame was a 9000th of a county hour,
+so every span constant here keeps its number and its default-day pace;
+what changed is the domain, not the tuning. [C75]'s one-pass-per-day
+correction and this entry's cost argument still stand. Border 153
+(`tools/tick_law_test.py`) holds the law. Noted in the end pass,
+2026-09-13.
 
 **Measured** rather than derived from the arithmetic: **1.8 tiles per
 person per simulated day**, over four counties on each of the `[C71]`

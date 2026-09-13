@@ -104,6 +104,13 @@ ALLOWED = {
         "`MEET_RANGE` decides that two records with no bodies crossed "
         "paths in a county nobody is watching. There is no cursor "
         "within a hundred miles of that question.",
+    ("SAO_Harness.lua", 3.0, "ENCOUNTER_RANGE"):
+        "The same cursor tolerance against the pathogen's carrier "
+        "encounter. `ENCOUNTER_RANGE` decides how close a living record "
+        "stands to a carrier before the two of them have MET - a claim "
+        "about bodies on the ground in the county's own history. The "
+        "cursor is a claim about a mouse; the two must not move "
+        "together.",
     ("SAO_UI.lua", 40.0, "GROUND_REACH"):
         "The Ledger's list. Forty tiles here is how far away a survivor "
         "can be and still be worth a LINE ON A PANEL; forty in "

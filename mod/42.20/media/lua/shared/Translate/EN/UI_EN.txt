@@ -1,5 +1,13 @@
 UI_EN = {
     UI_optionscreen_binding_SAOInspect = "SAO: toggle the inspect panel",
+    SurvivorAwareness_Branching = "Enable the branching graph",
+    SurvivorAwareness_Pressure = "Enable pressure model",
+    SurvivorAwareness_Labor = "Enable labor model",
+    SurvivorAwareness_Organization = "Enable organizations",
+    SurvivorAwareness_Settlement = "Enable settlements",
+    SurvivorAwareness_PlayerInteraction = "Enable player claims",
+    SurvivorAwareness_Material = "Enable material model",
+    SurvivorAwareness_Communication = "Enable communication",
 
     /* [C39] The conditions the county's people carry, offered to the
        player at creation. The name is the condition's own name and

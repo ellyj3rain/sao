@@ -129,3 +129,43 @@ option SurvivorAwareness.RecordOnCalendar {
     type = boolean, default = true,
     page = SurvivorAwareness, translation = SurvivorAwareness_RecordOnCalendar,
 }
+
+option SurvivorAwareness.Branching {
+    type = boolean, default = true,
+    page = SurvivorAwareness, translation = SurvivorAwareness_Branching,
+}
+
+option SurvivorAwareness.Pressure {
+    type = boolean, default = true,
+    page = SurvivorAwareness, translation = SurvivorAwareness_Pressure,
+}
+
+option SurvivorAwareness.Labor {
+    type = boolean, default = true,
+    page = SurvivorAwareness, translation = SurvivorAwareness_Labor,
+}
+
+option SurvivorAwareness.Organization {
+    type = boolean, default = true,
+    page = SurvivorAwareness, translation = SurvivorAwareness_Organization,
+}
+
+option SurvivorAwareness.Settlement {
+    type = boolean, default = true,
+    page = SurvivorAwareness, translation = SurvivorAwareness_Settlement,
+}
+
+option SurvivorAwareness.PlayerInteraction {
+    type = boolean, default = true,
+    page = SurvivorAwareness, translation = SurvivorAwareness_PlayerInteraction,
+}
+
+option SurvivorAwareness.Material {
+    type = boolean, default = true,
+    page = SurvivorAwareness, translation = SurvivorAwareness_Material,
+}
+
+option SurvivorAwareness.Communication {
+    type = boolean, default = true,
+    page = SurvivorAwareness, translation = SurvivorAwareness_Communication,
+}

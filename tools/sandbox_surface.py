@@ -71,6 +71,23 @@ def read_in_lua():
             seen.add(m.group(1))
         for m in re.finditer(PREFIX + r"\.(\w+)", src):
             seen.add(m.group(1))
+        # [C104]'s two helper spellings. The eight record dials reached
+        # the tree as a local helper (Recognition) and a local table
+        # (Integration, PlayerInteraction), and neither carries the
+        # mod's name at the call site. Each counts ONLY in a file that
+        # really binds the helper to this mod's own options table, and
+        # the binding is the control: delete the `local function dial`
+        # or the `local options =` line and that file's calls stop
+        # counting, so this stays a verified read rather than a name
+        # match. The window is short (300 chars) so a dial defined at
+        # the top of a file cannot borrow a mention from far below it.
+        if re.search(r"local function dial\(\w+\).{0,300}?" + PREFIX,
+                     src, re.S):
+            for m in re.finditer(r'\bdial\(\s*"(\w+)"\s*\)', src):
+                seen.add(m.group(1))
+        if re.search(r"local options = SandboxVars[^\n]*" + PREFIX, src):
+            for m in re.finditer(r"\boptions\.(\w+)", src):
+                seen.add(m.group(1))
     return seen
 
 

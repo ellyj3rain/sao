@@ -267,6 +267,139 @@ function SAOInspectWindow:build()
         row("of " .. tostring(SAO.Standing.factionName(g) or g))
         jsonl.group = tostring(g)
     end
+
+    -- The whole-system graph and its projections.
+    pcall(function()
+        header("The branching graph")
+        local pressure = SAO.Pressure and SAO.Pressure.total(
+            id, SAO.Controller.tick(), 0, 0) or 0
+        local agent = SAO.Controller.agents[id]
+        local branch = agent and agent.branch
+        row(string.format("pressure %.2f", pressure)
+            .. (branch and (", branch " .. branch) or ", no branch"))
+        row("work: " .. (agent and agent.work or "none"))
+        jsonl.pressure = pressure
+        jsonl.branch = branch
+        jsonl.work = agent and agent.work or nil
+    end)
+    pcall(function()
+        local organizations = SAO.Organization
+            and SAO.Organization.organizationsOf(id) or {}
+        row("organizations: " .. (#organizations > 0
+            and table.concat(organizations, ", ") or "none"))
+        jsonl.organizations = organizations
+    end)
+    pcall(function()
+        local offices = {}
+        if SAO.Organization then
+            for key, office in pairs(SAO.Organization.offices) do
+                if office.holders[id] then
+                    offices[#offices + 1] = office.id
+                end
+            end
+        end
+        row("offices: " .. (#offices > 0
+            and table.concat(offices, ", ") or "none"))
+        jsonl.offices = offices
+    end)
+    pcall(function()
+        local claims = {}
+        if SAO.Organization then
+            for _, claim in pairs(SAO.Organization.claims) do
+                if claim.claimant == id then
+                    claims[#claims + 1] = claim.kind
+                end
+            end
+        end
+        row("claims: " .. (#claims > 0
+            and table.concat(claims, ", ") or "none"))
+        jsonl.claims = claims
+    end)
+    pcall(function()
+        local base
+        for _, candidate in pairs(SAO.Settlement.bases or {}) do
+            if candidate.members[id] then base = candidate end
+        end
+        row("settlement: " .. (base
+            and (base.organization .. ", score " .. base.score)
+            or "none"))
+        jsonl.settlement = base and base.organization or nil
+    end)
+    pcall(function()
+        local store = SAO.Material and SAO.Material.storeOf(id) or nil
+        local items = {}
+        if store then
+            for item, amount in pairs(store.items) do
+                items[#items + 1] = item .. " " .. amount
+            end
+        end
+        row("material: " .. (#items > 0
+            and table.concat(items, ", ") or "empty"))
+        jsonl.material = items
+    end)
+    pcall(function()
+        local pending = SAO.Communication
+            and SAO.Communication.pendingFor(id) or {}
+        row("messages: " .. tostring(#pending))
+        jsonl.messages = #pending
+    end)
+    pcall(function()
+        local adaptation = SAO.Adaptation
+            and SAO.Adaptation.describe(id) or "no mutation knowledge"
+        row("mutation knowledge: " .. adaptation)
+        jsonl.mutationKnowledge = adaptation
+    end)
+    pcall(function()
+        local rec = SAO.Identity.get(id)
+        local state = rec and rec.pathogenState or nil
+        if not state and rec and ZAO and ZAO.State then
+            local hour = 0
+            pcall(function() hour = SAO.History.countyHours() end)
+            state = ZAO.State.of(rec, hour)
+        end
+        if state then
+            local text = tostring(state.terminalState or "living")
+                .. " " .. tostring(state.currentForm or "none")
+                .. " " .. string.format(
+                    "%.2f", tonumber(state.formPerformance) or 0.0)
+            row("pathogen state: " .. text)
+            jsonl.pathogenState = state
+        end
+    end)
+    pcall(function()
+        local rec = SAO.Identity.get(id)
+        local graph = rec and rec.worldGraph or nil
+        if graph then
+            local organizations = table.concat(
+                graph.organizations or {}, ", ")
+            local material = graph.material
+                and graph.material.items or {}
+            local items = {}
+            for item, amount in pairs(material) do
+                items[#items + 1] = item .. " " .. amount
+            end
+            row("world graph: " .. tostring(graph.branch or "none")
+                .. " / " .. tostring(graph.work or "none")
+                .. " / group " .. tostring(graph.group or "none")
+                .. " / leader " .. tostring(graph.leader or "none")
+                .. " / claim " .. tostring(graph.claim ~= nil)
+                .. " / org " .. (#(graph.organizations or {}) > 0
+                    and organizations or "none")
+                .. " / settlement " .. tostring(graph.settlement or "none")
+                .. " / material " .. (#items > 0
+                    and table.concat(items, ", ") or "empty")
+                .. " / messages " .. tostring(graph.messages or 0)
+                .. " / isolation " .. string.format("%.2f",
+                    graph.isolation and graph.isolation.isolation or 0)
+                .. " / attachment " .. string.format("%.2f",
+                    graph.placeAttachment
+                        and graph.placeAttachment.attachment or 0)
+                .. " / development " .. string.format("%.2f",
+                    graph.worldDevelopment
+                        and graph.worldDevelopment.development or 0))
+            jsonl.worldGraph = graph
+        end
+    end)
     -- [C46] Their place, as the county actually read it during the
     -- years: the ways into it and how many are shut. Absent for a
     -- county that never had years to live.

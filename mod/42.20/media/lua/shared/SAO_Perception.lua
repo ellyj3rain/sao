@@ -10,11 +10,14 @@
 --   zombies[key]  { x, y, dist, at, source, teller? } - source is
 --                 "observed" | "heard" (sound origin, imprecise) |
 --                 "told" (teller named; observed > heard > told, and told
---                 beliefs are never retold - no chains of whispers)
+--                 beliefs are never retold - no chains of whispers);
+--                 a ZAO body may also carry form, performance, and
+--                 attribute mutations
 --   people[name]  { x, y, dist, at, source, condition ("ok|hurt|bad"
 --                 with "+u" when visibly unkempt), seenInFaction? -
 --                 durable across re-scans: a fresh look updates position,
---                 it does not cause amnesia }
+--                 it does not cause amnesia; a living body changed by
+--                 ZAO may also carry form, performance, and attributes }
 --   factions[g]   { baseX/Y, bounds, at, source, name?, stance } - where
 --                 a held place is (observed near it, or told); its NAME
 --                 travels only by a member's introduction; no decay
@@ -41,18 +44,26 @@ local P = SAO.Perception
 -- death funnel (P.forget), as before.
 P.beliefs = P.beliefs or {}
 
+-- [C108] Counted whenever any belief record is written, dropped, or
+-- the whole store is swapped for a save's. Derived group answers
+-- (a company's ranked places) recompute against this number, so a
+-- derivation is never served after the facts moved under it - the
+-- cost law of [C77] without a cache that lies.
+P.beliefVersion = P.beliefVersion or 0
+
 -- The bind itself lives at the bottom of this file, past the one
 -- logging door it reports through.
 
--- [B49] FRAMES, not seconds - a tick is one rendered frame, so this
--- is ~10s at 60fps and half that on a 120Hz machine. A belief's
--- shelf life following the graphics card is a real oddity and is
--- left as it is: the whole perception loop is paced in frames, and
--- moving one horizon to the wall clock would put it out of step with
--- the scan that feeds it.
-local ZOMBIE_HORIZON = 600     -- frames a zombie belief stays actionable
+-- [B49] measured this as frames and called the oddity by name: "a
+-- belief's shelf life following the graphics card." [C112] ends the
+-- oddity the whole-mod way - the tick is the county's clock now (a
+-- 9000th of a county hour, `SAO.History.ticks`), so these spans keep
+-- their numbers and their default-day pace on every machine, and the
+-- horizons stay in step with the scan that feeds them because both
+-- read the same axis.
+local ZOMBIE_HORIZON = 600     -- county ticks a zombie belief stays actionable
 local PEOPLE_HORIZON = 1800
-local SCAN_INTERVAL  = 20      -- acquisition cadence per survivor
+local SCAN_INTERVAL  = 20      -- acquisition cadence per survivor, county ticks
 -- [B20] How long a recognised cry keeps its tile from being read
 -- as a threat. ONE definition: the guard in the S-row path and
 -- the prune in the decay pass both read this, or they drift and
@@ -74,6 +85,15 @@ local function horizonFor(id, kind)
     return base * factor
 end
 P.horizonFor = horizonFor
+
+local function parseAttributes(text)
+    local attributes = {}
+    for name, value in string.gmatch(
+            tostring(text or ""), "([^=;]+)=([^;]+)") do
+        attributes[name] = tonumber(value) or 0.0
+    end
+    return attributes
+end
 -- [C5] A person talking does not say coordinates. These bands turn a
 -- believed position into the words somebody standing HERE would use
 -- for it; the figures are judgments about speech, not reaches, and
@@ -230,7 +250,27 @@ function P.observe(id, body, tick, asleep)
             if f[1] == "Z" and #f >= 4 then
                 local x, y, d = tonumber(f[2]), tonumber(f[3]), tonumber(f[4])
                 if x and y then
-                    b.zombies[x .. "," .. y] = { x = x, y = y, dist = d, at = tick, source = "observed" }
+                    local belief = { x = x, y = y, dist = d, at = tick, source = "observed" }
+                    if f[6] == "zao" and f[7] and f[8] then
+                        belief.form = f[7]
+                        belief.formPerformance = tonumber(f[8]) or 0
+                    end
+                    if f[9] == "attrs" and f[10] then
+                        belief.attributeMutations = parseAttributes(f[10])
+                    end
+                    if belief.form and belief.form ~= "none" then
+                        pcall(function()
+                            local day = math.floor(
+                                (SAO.History.countyHours() or 0) / 24.0)
+                            SAO.Adaptation.observe(
+                                id,
+                                belief.form,
+                                belief.formPerformance,
+                                "lived",
+                                day)
+                        end)
+                    end
+                    b.zombies[x .. "," .. y] = belief
                     -- The turned are recognizable ([B3], corrected
                     -- [C8]): the zombie's descriptor is built FRESH at
                     -- reanimation, so a name in field 5 never comes off
@@ -338,10 +378,21 @@ function P.observe(id, body, tick, asleep)
                             end
                         end
                     end
+                    local form, formPerformance, attributeMutations
+                    if f[7] == "zao" and f[8] and f[9] then
+                        form = f[8]
+                        formPerformance = tonumber(f[9]) or 0
+                        if f[10] == "attrs" and f[11] then
+                            attributeMutations = parseAttributes(f[11])
+                        end
+                    end
                     b.people[name] = { x = x, y = y, dist = d, at = tick,
                         atHours = okRH and rh or nil,
                         source = "observed", condition = f[6] or "ok",
-                        seenInFaction = prev and prev.seenInFaction or nil }
+                        seenInFaction = prev and prev.seenInFaction or nil,
+                        form = form,
+                        formPerformance = formPerformance,
+                        attributeMutations = attributeMutations }
                 end
             end
         end
@@ -494,7 +545,9 @@ function P.nearestBelievedZombie(id, tick, fromX, fromY)
     end
     if best then
         return { x = best.x, y = best.y, dist = bestDist, at = best.at,
-                 source = best.source, teller = best.teller }
+                 source = best.source, teller = best.teller,
+                 form = best.form, formPerformance = best.formPerformance,
+                 attributeMutations = best.attributeMutations }
     end
     return nil
 end
@@ -716,7 +769,7 @@ end
 --
 -- That second half is the whole complaint. `tell` shares a sighting
 -- only while `tick - at <= ZOMBIE_HORIZON` - about ten seconds at
--- 60fps - and
+-- 60fps frames on the default day - and
 -- forgets it entirely at twice that. A gate that ignores the horizon
 -- opens on a memory the transfer will refuse, so the option appears,
 -- you speak, and nothing crosses. Opening on exactly what can cross is
@@ -927,10 +980,25 @@ function P.tell(fromId, toId, tick, chosen)
                 to.zombies[key] = {
                     x = belief.x, y = belief.y, dist = belief.dist,
                     at = belief.at, source = "told", teller = fromId,
+                    form = belief.form,
+                    formPerformance = belief.formPerformance,
+                    attributeMutations = belief.attributeMutations,
                 }
                 shared = shared + 1
                 zSharedN = zSharedN + 1
                 if not zX then zX, zY = belief.x, belief.y end
+                if belief.form and belief.form ~= "none" then
+                    pcall(function()
+                        local day = math.floor(
+                            (SAO.History.countyHours() or 0) / 24.0)
+                        SAO.Adaptation.observe(
+                            toId,
+                            belief.form,
+                            belief.formPerformance,
+                            "told",
+                            day)
+                    end)
+                end
             end
         end
     end
@@ -1004,8 +1072,23 @@ function P.reportReturn(fromId, toId, tick, aroundX, aroundY)
                 if not existing or existing.source == "told" then
                     to.zombies[key] = { x = zb.x, y = zb.y,
                         dist = zb.dist, at = zb.at,
-                        source = "told", teller = fromId }
+                        source = "told", teller = fromId,
+                        form = zb.form,
+                        formPerformance = zb.formPerformance,
+                        attributeMutations = zb.attributeMutations }
                     moved = moved + 1
+                    if zb.form and zb.form ~= "none" then
+                        pcall(function()
+                            local day = math.floor(
+                                (SAO.History.countyHours() or 0) / 24.0)
+                            SAO.Adaptation.observe(
+                                toId,
+                                zb.form,
+                                zb.formPerformance,
+                                "told",
+                                day)
+                        end)
+                    end
                 end
             end
         end
@@ -1431,6 +1514,8 @@ function P.learnBuilding(id, place, tick, source)
         -- somewhere that gave them something.
         visits = (was and was.visits or 0) + 1,
     }
+    -- [C108] An arrival is a write; derived readers recompute.
+    P.beliefVersion = P.beliefVersion + 1
 end
 
 -- Everything this survivor knows is out there. Empty for someone who
@@ -1451,25 +1536,122 @@ end
 
 function P.forget(id)
     P.beliefs[id] = nil
+    -- [C108] A dropped mind is a write; derived readers recompute.
+    P.beliefVersion = P.beliefVersion + 1
+end
+
+-- [C108] A company's places, ranked - the generalised [C76] scorer.
+--
+-- [C76] picked ONE building for a settling house: the places its
+-- members actually reach, visits summed across them times the
+-- distinct members who reach them, water doubled. That same walk
+-- answers a bigger question the operator named as a real error
+-- rather than a missing feature (DR-006 S4): a group's ground is not
+-- one rectangle under one name. So the same facts - every arrival
+-- `learnBuilding` has recorded since [B37], the same score, the same
+-- water doubling - are ranked here instead of picked from, and the
+-- settling pass reads the top of the ranking, which keeps the seat
+-- and the set from becoming two laws ([C25]).
+--
+-- Recency breaks ties: `lastAt` is when the last of them was last
+-- there, so of two places equally returned to, the one somebody
+-- still goes to ranks above the one they have stopped going to. A
+-- place stops being the group's when its people stop going, and it
+-- stops the same way it started - through the walking. Nothing is
+-- stored, so nothing expires.
+--
+-- Living members only - callers pass `membersOf`, which already
+-- refuses the dead - so the estate rule (F-034) holds on the derived
+-- side too: the dead keep no ground.
+--
+-- Returns a list sorted best-first, each entry
+--   { id = building id, place = the known record, visits, who,
+--     lastAt, score }
+-- Recomputed when asked; group-shaped readers cache against
+-- `P.beliefVersion` so they do not pay this walk per call ([C77]).
+function P.returnsOf(members)
+    if not members then return {} end
+    local returns = {}
+    for _, mid in ipairs(members) do
+        local b = P.beliefs[mid]
+        if b and b.known then
+            for pid, kp in pairs(b.known) do
+                if kp.minX and kp.cx then
+                    local t = returns[pid]
+                    if not t then
+                        t = { id = pid, place = kp, visits = 0,
+                              who = 0, lastAt = kp.at or 0 }
+                        returns[pid] = t
+                    end
+                    t.visits = t.visits + (kp.visits or 1)
+                    t.who = t.who + 1
+                    if (kp.at or 0) > t.lastAt then
+                        t.lastAt = kp.at
+                    end
+                end
+            end
+        end
+    end
+    local ranked = {}
+    for _, t in pairs(returns) do
+        local kp = t.place
+        -- [C76]'s own score, unchanged: returned to, by more than
+        -- one of them, worth returning to. Water is the only offer
+        -- weighed, because it is the need that kills first ([B37])
+        -- and the one a base either has or does not.
+        t.score = t.visits * t.who
+        if kp.offers and kp.offers.water then
+            t.score = t.score * 2
+        end
+        ranked[#ranked + 1] = t
+    end
+    table.sort(ranked, function(a, b)
+        if a.score ~= b.score then return a.score > b.score end
+        return a.lastAt > b.lastAt
+    end)
+    return ranked
 end
 
 -- ---------------------------------------------------------------------------
 -- [C15] Whole minds survive the reload (DR-020)
 
--- The tick axis cannot cross sessions - a frame count from a dead
--- session is meaningless in a live one, and a stale large `at` would
--- read as ultra-fresh against the new session's small ticks. On bind,
--- every tick-stamped field rebases to 0: a new session starts at tick
--- 0, so 0 IS "just refreshed", and every table gets exactly one
--- horizon of grace before normal decay resumes. The durable truths
--- are untouched - dead-flagged people never decay (F-033), places
--- prune by proximity not time, and the world-hours stamps (atHours
--- and the out-terms) carry a belief's REAL age across the reload for
--- every reader that needs it.
-local function rebaseTickFields(b)
+-- [C112] The rebase that lived here is GONE, and its reason with it:
+-- it zeroed every tick-stamped field on bind because "the tick axis
+-- cannot cross sessions - a frame count from a dead session is
+-- meaningless in a live one." The tick is the county's clock now
+-- (`SAO.History.ticks`, world-age quantized), so the axis crosses
+-- sessions as of course as the atHours stamps always did: a belief
+-- saved yesterday reads as yesterday, with no grace period and no
+-- reset. Zeroing fresh stamps on every reload would now be the bug
+-- the rebase cured - it would age a two-minute-old belief to the
+-- beginning of the world on every load.
+--
+-- What a save from an older build carries instead is FRAME-domain
+-- stamps, and they cut both ways. Most sit below the county's ticks
+-- and read as ANCIENT - stale, pruned by their horizon, rescan: the
+-- safe direction. But a long pre-[C112] session's frame count can sit
+-- ABOVE a young county's ticks, and an `at` ahead of now reads as
+-- ultra-fresh forever (every freshness test passes a negative age) -
+-- the exact defect the old rebase existed to prevent. In the county
+-- domain a stamp can never be ahead of now (stamps are made at now,
+-- and the clock never runs backwards), so ahead-of-now is a domain
+-- mark, not a value: the check below drops every such stamp to 0,
+-- which reads as long ago. One reload's relearn per old save, both
+-- directions safe, then never again. The durable truths are as they
+-- were - dead-flagged people never decay (F-033), places prune by
+-- proximity not time, and the world-hours stamps (atHours and the
+-- out-terms) still carry a belief's REAL age for every reader that
+-- needs it.
+--
+-- The scan self-throttle is the same law right side up: a stamp of 0
+-- (or a defaulted one) reads as long ago, so "do it now" is the
+-- default, never "never".
+local function dropForeignStamps(b, now)
+    if type(b) ~= "table" then return end
     for key, value in pairs(b) do
         if type(value) == "number" and type(key) == "string"
-            and key:sub(-2) == "At" and not key:find("Hours") then
+            and key:sub(-2) == "At" and not key:find("Hours")
+            and value > now then
             b[key] = 0
         end
     end
@@ -1478,15 +1660,36 @@ local function rebaseTickFields(b)
         if type(entries) == "table" then
             for _, entry in pairs(entries) do
                 if type(entry) == "table"
-                    and type(entry.at) == "number" then
+                    and type(entry.at) == "number"
+                    and entry.at > now then
                     entry.at = 0
                 end
             end
         end
     end
     if type(b.criedTiles) == "table" then
-        for key in pairs(b.criedTiles) do
-            b.criedTiles[key] = 0
+        for key, value in pairs(b.criedTiles) do
+            if type(value) == "number" and value > now then
+                b.criedTiles[key] = 0
+            end
+        end
+    end
+    -- The owned-ground map and the known-buildings map both carry a
+    -- tick-domain `at` on every entry (keyed by owner or building id,
+    -- which is why the generic "At"-suffix walk above cannot reach
+    -- them), and `placeAge` subtracts them from now exactly as the
+    -- sighting stamps are subtracted - so a foreign ahead-of-now one
+    -- reads as just-visited by the same arithmetic.
+    for _, tableName in ipairs({ "places", "known" }) do
+        local entries = b[tableName]
+        if type(entries) == "table" then
+            for _, entry in pairs(entries) do
+                if type(entry) == "table"
+                    and type(entry.at) == "number"
+                    and entry.at > now then
+                    entry.at = 0
+                end
+            end
         end
     end
 end
@@ -1503,12 +1706,19 @@ function P.bindPersistentStore()
         return false
     end
     if persisted == P.beliefs then
-        return true   -- already bound; a second start must not re-rebase
+        return true   -- already bound; a second start must not rebind
     end
+    -- [C112] The domain check's now. Read through a pcall: a bind
+    -- that happens before the bridge is up understates the county's
+    -- hours by the days it owes, which can zero a legitimate stamp -
+    -- and zeroing reads as ancient, the safe direction, so an early
+    -- bind costs freshness, never correctness.
+    local now = 0
+    pcall(function() now = SAO.History.ticks() end)
     local restored = 0
     for _, b in pairs(persisted) do
         if type(b) == "table" then
-            rebaseTickFields(b)
+            dropForeignStamps(b, now)
             restored = restored + 1
         end
     end
@@ -1516,6 +1726,8 @@ function P.bindPersistentStore()
         persisted[id] = b   -- pre-bind session entries carry over
     end
     P.beliefs = persisted
+    -- [C108] The store was swapped; derived readers recompute.
+    P.beliefVersion = P.beliefVersion + 1
     log(restored .. " mind(s) restored from the save (DR-020)")
     return true
 end

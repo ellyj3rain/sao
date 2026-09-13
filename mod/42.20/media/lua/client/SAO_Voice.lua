@@ -11,16 +11,20 @@ local V = SAO.Voice
 
 -- [B49] Ten seconds, in REAL time, and not in ticks.
 --
--- A tick is one rendered FRAME. Measured from the operator's own
--- session log: the boot digest fires at `tickCounter % 240 == 0` and
--- appears at frame 240, so the two counters are the same counter - and
--- that machine ran at 64.5 frames a second, not 60.
+-- A tick was one rendered FRAME then. Measured from the operator's own
+-- session log: the boot digest fired at `tickCounter % 240 == 0` and
+-- appeared at frame 240, so the two counters were the same counter -
+-- and that machine ran at 64.5 frames a second, not 60.
 --
 -- So `600 ticks` was never ten seconds. It was 9.3s there, 20s on a
 -- 30fps machine and 4.2s on a 144Hz one: the survivors got chattier
 -- the better your hardware was. A cooldown that exists so a person
 -- does not talk over themselves is about the player's ears, and ears
--- keep real time.
+-- keep real time. ([C112] later moved the tick itself onto the
+-- county's clock, which ends the machine-dependence for every OTHER
+-- timer; this one keeps the wall clock anyway, because the player's
+-- ears are still in real time no matter whose clock the county
+-- keeps.)
 --
 -- `getTimestampMs` is the engine's own wall clock and is already read
 -- by the Ledger. If it ever fails, this falls open rather than shut -
@@ -335,6 +339,31 @@ local EVENTS = {
     companion = { "Mind if I walk with you?", "I'll come along, if that's alright.",
                   "Two sets of eyes beat one." },
     parting   = { "I'll manage from here.", "Take care of yourself." },
+    -- [C106] The organization loop's answers (ORGANIZATION.md): a
+    -- petition heard or brushed off, a claim the player stood behind,
+    -- a leading called into question, a vote put to the table, an
+    -- appeal over the chair, an open resistance, a leaving, and an
+    -- office claimed uninvited. The moment names the line; the house
+    -- answers for itself, and none of these decide anything.
+    petitionHeard = { "Alright. Say it once more, for the table.",
+                      "You're not the first to ask. You might be the first I hear out." },
+    petitionIgnored = { "You're saying words. I'm doing work.",
+                        "Noted. Filed with everything else." },
+    backed     = { "Means something, hearing that from you.",
+                   "Then it's not just me saying it." },
+    contested  = { "You want to argue how this house runs? Get in line.",
+                   "Easy. Words are free. Living here isn't." },
+    voteCalled = { "Then we count again.", "Fine. Put it to the table." },
+    appealHeard = { "I heard the chair's answer too. It wasn't right.",
+                    "They're not the only voice in this house." },
+    appealAlone = { "That's between you and the chair.",
+                    "Nobody here is crossing the chair for you." },
+    resisted   = { "Say it louder. See what it buys you.",
+                   "You live here too. So live with it." },
+    farewell   = { "Door's open behind you.", "No hard feelings. Mind the roads.",
+                   "Your cot's yours for a day if you come back." },
+    officeClaim= { "You'd have to earn that here.",
+                   "The chair isn't asked for. It's given." },
 }
 
 local function pick(list, tick)

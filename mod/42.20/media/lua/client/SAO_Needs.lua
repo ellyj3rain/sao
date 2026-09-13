@@ -574,7 +574,25 @@ function N.depositSpareFood(id, body)
         ISTimedActionQueue.add(ISInventoryTransferAction:new(
             body, item, body:getInventory(), container))
     end)
-    if okQ then log(id .. " stocks the stores") end
+    if okQ then
+        log(id .. " stocks the stores")
+        -- [C105] A real item left a body for a real shelf: the
+        -- material fact, attributed to the house that holds the
+        -- ground - and to nobody if no house does.
+        if SAO.Recognition then
+            local okG, gR = pcall(function()
+                return SAO.Standing.groupOf(tostring(id))
+            end)
+            local nameR = "food"
+            pcall(function()
+                nameR = item:getDisplayName() or "food"
+            end)
+            pcall(function()
+                SAO.Recognition.onShelved(tostring(id),
+                    okG and gR or nil, nameR, 1)
+            end)
+        end
+    end
     return okQ
 end
 

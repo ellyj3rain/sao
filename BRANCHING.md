@@ -1,6 +1,6 @@
 | Document | Survivor Awareness Overhaul Branching System |
 |---|---|
-| Version | `4.2.7.0-pre-alpha` |
+| Version | `4.5.0.0-pre-alpha` |
 | Author | ellyj3rain |
 | Repository | `BRANCHING.md` |
 | Status | CANONICAL - the whole simulation's branching model. |
@@ -21,6 +21,10 @@ state surfaces -> pressure -> branch candidates -> weighted selection -> action 
 
 Every state surface feeds the graph. Every action writes back into it.
 
+The dormant county observes the same graph. A later start is not handed an
+outcome; its people live the elapsed days, and the graph records what they
+actually did.
+
 ## What a branch is
 
 A branch is a causal path through the county's state.
@@ -37,6 +41,8 @@ A branch is not a job title, a fixed role, or a menu option.
 |---|---|
 | Person | branch capacity |
 | Perception | branch visibility |
+| Pathogen | pathogen state and event history |
+| Adaptation | learned mutation pressure |
 | Material | branch availability |
 | Relationship | branch weight |
 | Organization | branch authorization |

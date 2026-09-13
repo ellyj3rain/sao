@@ -138,7 +138,21 @@ SAOJavaBridge = {
 '''
 
 PROBE = r'''(function()
-  local tick = _G.__handlers.OnTick
+  -- [C112] moved every cadence onto the county's clock, and this
+  -- harness used to leave that clock frozen: __hours never moved, so
+  -- History.ticks read zero for the whole probe, the population pass
+  -- gate opened exactly once, and every settle() after the first
+  -- measured nothing while its cases read as real passes. The engine
+  -- advances the county's hours as it burns frames; the wrapper does
+  -- the same - one call is a tenth of a county hour (900 ticks, past
+  -- the 240-tick pass interval, so every call is a real pass), and
+  -- settle()'s 720 calls are the three county days it always claimed
+  -- to be.
+  local realTick = _G.__handlers.OnTick
+  local tick = function()
+    _G.__hours = (_G.__hours or 0) + 0.1
+    realTick()
+  end
 
   local function person(x, y)
     local r = SAO.Identity.create(nil, nil, x, y, 0)
@@ -150,14 +164,15 @@ PROBE = r'''(function()
 
   -- A building somebody has been in, written the way arriving writes
   -- it. `visits` is what the real path increments; this sets it in one
-  -- go rather than walking somebody there a hundred times.
+  -- go rather than walking somebody there a hundred times. The tick is
+  -- the county's own, the axis the real arrival path stamps on.
   local function beenTo(id, pid, cx, cy, visits, water)
     for _ = 1, visits do
       SAO.Perception.learnBuilding(id, {
         id = pid, cx = cx, cy = cy,
         minX = cx - 5, minY = cy - 5, maxX = cx + 5, maxY = cy + 5,
         offers = water and { water = true } or {},
-      }, 1, "observed")
+      }, SAO.History.ticks(), "observed")
     end
   end
 
@@ -277,8 +292,14 @@ def main():
     seams = {
         "the unwatched county can take ground":
             "setGroupClaim" in pop,
+        # [C108] renamed the read: the scorer became a ranking
+        # (`SAO.Perception.returnsOf`) and the settle pass reads the
+        # top of it, so the seam follows the name. The law is
+        # unchanged - the ranking is built out of the return visits
+        # `learnBuilding` has been recording, which is the same
+        # "where its people have been" the first spelling read.
         "it reads where its people have been":
-            "knownPlaces" in pop,
+            "returnsOf" in pop,
         "the refusals are one law, not a second copy":
             "barredGround" in pop,
         "the gate runs this border":

@@ -1,13 +1,270 @@
 | Document | Survivor Awareness Overhaul Session State |
 |---|---|
-| Version | `4.2.7.0-pre-alpha` |
+| Version | `4.5.0.0-pre-alpha` |
 | Author | ellyj3rain |
 | Repository | `SESSION_STATE.md` |
 | Status | CANONICAL - where the work actually stands. |
 
 # Session state
 
-**As of** 2026-09-10, `[C96]` close - world development becomes a live state.
+**As of** 2026-09-13, `[C114]` close - a real person at the wheel.
+The driving half of the Week One port (`[C110]`) is built, and the
+doorway `[C82]` mapped is exercised at last: a live goer who took
+wheels on a venture walks to the claimed car, enters seat 0, starts
+the engine lawfully (the no-argument `tryStartEngine` - a refusal is
+honored, never routed around), and drives it to the venture's ground
+by the bearing, capped at Week One's own credited 30 km/h town
+figure, `[C31]`'s order-time fuel burn becoming real fuel spent on a
+real trip. Every load-bearing engine fact was disassembled from the
+installed B42.20 jar before a line was written - the ungated
+control reads, the steering sign (Left -1, Right +1), the
+physics-activity rules that would dead-lock a resting NPC-driven
+car, answered with the engine's own public `setPhysicsActive` at
+board and at ignition. The promised company rides (`[B19]`'s seat
+cap made real): escorts board passenger seats, the driver holds at
+the wheel for them, latecomers' rides fail honestly and they walk.
+A drive is committed - the seat law on the books since `[B1]` holds
+the decisions off while the body is at the wheel, and `setState`'s
+new exit rule parks the car on any transition out. Every refusal
+falls back to the ordinary walk, and on arrival the last stretch is
+walked so the venture's close-out runs unchanged. The drive is era
+general by design: `[B19]`'s claims, `[C31]`'s burn and `[C82]`'s
+doorway were never era-gated; pre-fall is where the Day Zero receipt
+watches it. The ghost driver, the forced-engine trio, the
+never-steering regulator and the horn are named as
+deliberately-not-taken in the code and in CREDITS. Until the end
+pass rebuilds the jar, the Lua degrades to the ordinary walk -
+the new bridge verbs need it, deferred there by the standing order.
+Open pending the play receipt: a goer under wheels, watched. With
+this close, all three build rulings of `[C110]` are built - need
+alongside trust (`[C111]`), every timer on the county's clock
+(`[C112]`), and the pre-fall streets and driving (`[C113]`,
+`[C114]`). Next: the nine world documents with the operator (the
+review `[C110]` named as waiting, which gates the sister's corpus,
+voice, and training), then the end pass.
+
+**As of** 2026-09-13, `[C113]` close - the street hour and the trade's
+ground. The Day Zero arc's last unbuilt named slice, normal life on
+open streets, is built, as the streets half of the Week One port the
+operator ruled at `[C110]`. Slayer's authored street-hour curve
+(twenty-four values, read from the installed mod and carried whole,
+credited) is re-expressed from a spawner's count into a per-person
+propensity - `SAO.History.streetAffinity` - rolled at the leg
+boundary on both halves of the county: out means the day-goal chooser
+answers, staying in means home, and the authored curve itself thins
+the small hours and feeds the evening streets. The street-occupations
+idea crosses as the census trade's own ground: a stable workplace
+(`rec.workX`, one fact both halves share) walked to behind need and
+ahead of company, so the mail carrier and the gardener of the prior
+art are SAO's own people in SAO's own trades. All of it gated by
+`fallHasCome`'s reason being "before" - an unreadable calendar gets
+the survival law, not a street crowd - and all of it dead the moment
+the county's own stamps say the fall has come, the thinning left to
+the county's machinery rather than any timeline. The weights, the
+spawner, the scripted timeline, and the density math never cross,
+named as such in CREDITS. What does not cross is credited as
+deliberately-not-taken; the driving half of the port is `[C114]`, the
+next batch. Open pending its play receipt - an ordinary county
+watched at eight in the morning and three at night.
+
+**As of** 2026-09-12, `[C112]` close - the tick is the county's clock.
+The queue's item 4 is paid, as the operator ruled - every timer moves,
+with the preference stated for a robust system over a quick one: one
+law in `SAO_History.ticks` - a tick is a 9000th of a county hour, the
+derivation being what a frame was at 60fps on the default day - so
+every span constant keeps its number while the domain becomes the
+county's clock. No sixty site conversions: Controller's and
+Population's counters both READ the one clock (which also ends the two
+frame clocks stamping the belief axis with diverging numbers), the two
+modulo cadences became last-fired-plus-a-span stamps (a skipping clock
+steps over a modulo), the years' calibrated 3600-a-day fake advance is
+deleted in favor of the clock's own day, and [C15]'s reload rebase is
+replaced by a foreign-stamp domain check because the tick axis crosses
+sessions now - ahead-of-now is a domain mark, and dropping it to 0
+reads as long ago (same guard on `rec.nextDormantMoveAt`, the one
+persisted future due-time). Voice keeps [B49]'s wall clock: the
+player's ears are in real time. One reload's relearn per old save, by
+design. The feel on the county's clock is a play receipt. Next: the
+pre-fall streets and NPC driving (the Week One port), then the world
+documents with the operator, then the end pass.
+
+**As of** 2026-09-12, `[C111]` close - need stands alongside trust.
+The queue's item 3 is paid: a road meeting is worth 0.02 (twenty-five
+meetings to the default line, not two hundred), and need is a
+co-determinant of company through one law in Standing -
+`companyStanding(id, other)`, the trust one person holds toward
+another plus their own pull (appetite from `contactFactor`, isolation
+from `[C94]`'s state surface - which gated nothing until now - and the
+county's openness: months since the fall on the split clock over a
+horizon of six, so an ordinary county forms houses through acquaintance
+and a county deep in collapse lets need carry the line). Need
+substitutes for trust not yet built and never cancels trust already
+spent against somebody. Every company door reads it - the road, the
+table, the visit gate, the companion seam, and the player's asks
+(walk, join, designation) - while judgment, office, and defection
+doors keep trust alone, and temperament (circles, capacity, hostility,
+mercy) gates exactly where it did. A house can now grow past a pair
+out of meetings and the lonely can found one; the play receipt and a
+border for the law belong to the end pass. Next: the timers onto the
+county's clock, then the pre-fall streets.
+
+**As of** 2026-09-12, `[C110]` close - the rulings land. The operator
+took the end-of-feature-work ask and ruled the same day: the 78
+trades-hinge rows are ratified and the cross-module contract is
+ratified (the sister's records 41 and 42 - 190 ratified rows in all);
+and on this tree's side, three builds open. Group formation reads
+need alongside trust, weighted by the world's own age at the start
+(DR-038) - a meeting is worth more, and most people need to be around
+people, so trust is not the sole determinant of whether a group forms.
+Every timer moves onto the county's clock, as one robust system, not
+scattered arithmetic. And the pre-fall county gets its streets:
+Week One's CODE is taken and ported under SAO's ontology, the same
+multi-mod port plan as the people mods before it ([C29] through
+[C33]) - the hour-of-day street curve, the street occupations, the
+NPC-driven vehicles, the thinning past the outbreak day, on SAO's own
+people through the four pillars, gated by `fallHasCome`, credited per
+author, never programmed zombies on a scripted timeline. This batch
+moved the pointers only (the roadmap's sister-note now states both
+ratifications); the three builds are their own batches, and the
+world-document review is taken up next on the dataset's side.
+
+**As of** 2026-09-12, `[C109]` close - beside this tree, corrected.
+Records only, no code: the roadmap's closing note still said the
+sister's G0 was open because Antibodies was not installed, false since
+its `[A6]` (2026-09-09) found it installed, read what it exposes, and
+closed the gate - and false again in the other direction since its
+`[A29]` moved recovery reads to this side's own record, so the named
+read `[A6]` left open never shipped. The note now says what closed and
+where. The Speakeasy half carried forward too: the cross-module
+contract is active, the rows are cut against the event-driven pathogen
+state (its records 38 and 39), and the seventy-eight trades-hinge rows
+wait on the ruling. With this, every planned feature the tree can
+build without an operator design call is built: what remains is the
+operator's own calls (recruitment's cognition question, frame-time
+pacing, the trades-hinge ruling, the world-document review, the shape
+of normal life on open streets before the fall) and the end pass.
+
+**As of** 2026-09-12, `[C108]` close - the place ontology. DR-006 S4,
+the operator's named error, is paid: a group's ground is no longer
+one rectangle under one name. `[C76]`'s scorer became a ranking
+(`Perception.returnsOf`) - the same visits, the same water doubling,
+recency breaking ties - recomputed from use and never stored, so
+nothing accumulates and nothing expires; a place stops being the
+group's when its people stop going, the same fact that made it
+theirs. `Standing.placesOf`/`onGroundOf` answer where a group HOLDS
+(cached against a belief version and the member roster, so a
+derivation is never served stale), while `groupClaimOf` keeps
+answering where a group IS - the twenty-nine seat-reading sites did
+not move. The readers where holding several changes the answer now
+read the set: no house settles over another's stash while honouring
+their base, a feud's shadow falls around every place the enemy
+holds, and a pact delivery is kept standing on any of the ally's
+ground. The settling pass reads the top of the ranking itself, so
+the seat and the set are one law. Queue item 2 of the roadmap's
+remaining work is paid; what is left of the queue is the operator's
+own design calls (recruitment's cognition question, frame-time
+pacing) and the end pass.
+
+**As of** 2026-09-12, `[C107]` close - what a settled house does with
+its ground. `[C76]` settled the dormant house, but the hearth, the
+larder and the water store stayed the controller's, because the live
+round reads real shelves through a body and a dormant house has none -
+so every consumer of those words (flight, the lean-house ladder, the
+forager need-pull, the abandon council, the bread ask and the charity
+that answers it) was inert in the half of the county nearly every
+house lives in. `dormantProvision` now derives the words from facts
+that already existed: the members' real reachings (`lastFoodDay`/
+`lastWaterDay`, the same stamps attrition trusts) against the
+county's own patience constants, and the seat's own `offersNow`
+ledger - lean when nobody reached food inside food patience, full
+when everybody did AND the seat still offers, the hearth honestly
+dark because no member has a body. No counts are faked: the claims are
+word-only, `[C105]`'s "actually counted" stays the live round's, and a
+house really living on its ground enters the settlement graph by
+explicit derivation. A lean house calls for bread like a live one; a
+house with any materialised member is left to the live round. Queue
+item 1 of the roadmap's remaining work is paid whole.
+
+**As of** 2026-09-12, `[C106]` close - the player verbs of the house.
+ORGANIZATION.md's player-surface contract named thirteen verbs and
+the menu carried two of them; the rest are wired now through
+`SAO.PlayerInteraction.claim`, under the `[C105]` law unchanged -
+every player action is a claim, the house may ignore it, the claim
+decides nothing by itself, and the trust gate is the house's own
+ear, not a new threshold. Petition (peace, ground, form), ask for
+work, take or refuse the dealt work, support or contest a lead,
+back the chair's word over a refused order, appeal over the chair,
+claim the chair, leave, call a vote where the form allows one, and
+stand against the pact - all recorded, all gated on the
+PlayerInteraction dial whole. A settled election now records the
+leader's lead claim with the roster as recognizers, and petition
+acceptance joins the player into the organization's membership.
+The office never moves through its claimant's assertion; the
+boundary holds.
+
+**As of** 2026-09-12, `[C105]` close - the recognition bridge. The
+graph's write side, which had zero callers since the `[C104]` era, now
+runs through `SAO_Recognition.lua`: a recording bridge driven only by
+real county events - settled elections, chair offers taken or
+declined, join petitions answered, order verdicts from the chair, real
+provisioning on claimed ground, pacts, schisms, promises, tells, and
+real items shelved - so organizations, offices, settlements, stores,
+and player claims come to exist in a running game without any pass
+authoring them. Three read-side violations fell with it:
+`PlayerInteraction.response()` no longer writes on read,
+`recognizedBy()` counts only other-recognizers, and support no longer
+self-recognizes.
+
+**As of** 2026-09-12, the dormant county carries the branching graph.
+`SAO_WorldGenesis.lua` observes the same graph over unloaded records that the
+live controller runs over bodies. It records what the county’s own systems
+already produced - including standing group, leader, and claim - and it does
+not create an organization, an office, a settlement, or a success state.
+
+**As of** 2026-09-12, the pathogen seam is event-driven. SAO emits infection,
+death, and turn events, and mutation knowledge comes only from proximity or
+testimony during the elapsed-years pass or live Perception.
+
+**As of** 2026-09-11, `[C104]` close - Perception carries the form.
+SAO's scanner reads ZAO's form and performance from a turned body's modData,
+stores them in the survivor's belief set, and the controller widens the flee
+distance by up to half again as form performance rises.
+
+**Before that**, `[C103]` - the form overlay. ZAO's `[A22]` adds world-space
+form labels and the corrected gate that only infected, dead, or turned bodies
+carry a form.
+
+**Before that**, `[C102]` - the form registry and the pathogen roll. ZAO's
+`[A20]` adds six source-port forms, a 10 percent default roll, and normalized
+performance.
+
+**Before that**, `[C101]` - the state surface. ZAO's `[A19]` adds
+`ZAO_State.lua`, the runtime state surface, and a matching state producer.
+
+**Before that**, `[C100]` - the ZAO state producer. ZAO's `[A18]` adds
+`tools/state_dump.py`, which emits one pathogen-state row per SAO decision
+moment, keyed by person id and decision hour.
+
+**Before that**, `[C99]` - the first cross-module rows. Speakeasy record 33
+adds the first cross-module rows to `decisions/cross-module/`. The ZAO state
+in these rows is derived from the pathogen facts SAO already records, and the
+mutation-specific fields stay null until ZAO supplies them.
+
+**Before that**, `[C98]` - the cross-module row exporter. Speakeasy record 32
+adds `tools/cross_module_rows.py`, which takes an SAO decision dump and a ZAO
+state dump keyed by the same person id, adds the `pathogen` block to the
+person half, adds the `visibleForms` block to the situation half, and writes
+one cross-module row per line.
+
+**Before that**, `[C97]` - the pathogen's forms enter the branching graph.
+ZAO's `[A17]` settled the six integration rulings, and `PROJECTS.md` now
+names the seam: the pathogen owns the mutation roll, crossed is terminal,
+retained form traits are state rather than new branches, forms and attribute
+mutations stack, and forms enter Perception as visible facts. Speakeasy's
+record 31 proposes the cross-module row contract that follows from the same
+rulings.
+
+**Before that**, `[C96]` - world development becomes a live state.
 The third category from the dependency substrate is built.
 `SAO_WorldDevelopment.lua` reads identity, place attachment and standing;
 reports home, ground, larder, water, hearth, motor pool, fortification and a
@@ -1338,9 +1595,9 @@ unloaded survivors are governed by the same rules ([B39], [B42]).
 
 ## Deploy state
 
-`4.2.7.0-pre-alpha` at tip - the version machine's output ([C2],
-DR-013; the twelfth minor rolled the tier by the odometer's own
-law). The game install carries the `[C62]` tip. `[C45]` through
+`4.5.0.0-pre-alpha` at tip - the version machine's output ([C2],
+DR-013; the ten units `[C105]` through `[C114]` moved it here, the
+Week One port's two minors among them). The game install carries the `[C62]` tip. `[C45]` through
 `[C51]` reached it on 2026-09-07 and `[C52]` through `[C62]` on 2026-09-08, each
 after its own commit passed the gate, the game having been closed
 since the `[C44]` deploy. Verified rather than assumed at each
@@ -1382,7 +1639,7 @@ deploy; `save_compat_test` guards this and runs in the gate.
 
 ## Instruments
 
-**151 numbered borders**, run by **166 gated mirrors** in `tools/`, all invoked
+**153 numbered borders**, run by **168 gated mirrors** in `tools/`, all invoked
 by `tools/check.sh`, which the pre-commit hook runs and CI runs on every push.
 The figures in this paragraph are derived by Border 76 from the tree, not
 maintained by hand. Border 54 keeps the rest honest: it runs every gated

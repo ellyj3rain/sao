@@ -95,12 +95,35 @@ MODULES = [
 # the pair and the belief is read out of the store. The direct calls
 # pin the optional path: a distance stated, then not.
 PROBE = r"""(function()
-  local tick = _G.__handlers.OnTick
+  -- [C112] moved every cadence onto the county's clock, and this
+  -- harness used to leave that clock frozen: __hours never moved, so
+  -- History.ticks read one number for the whole probe, the population
+  -- pass gate opened exactly once, and the re-meeting phase below
+  -- never ran - the second read reported the first meeting's write
+  -- while looking like a second meeting. The engine advances the
+  -- county's hours as it burns frames; the wrapper does the same -
+  -- one call is a tenth of a county hour (900 ticks, past the
+  -- 240-tick pass interval, so every call is a real pass). Both
+  -- phases together stay inside the one county day this prelude
+  -- opens on, so no day-gated roll ever gets a second day to run in.
+  local realTick = _G.__handlers.OnTick
+  local tick = function()
+    _G.__hours = (_G.__hours or 0) + 0.1
+    realTick()
+  end
   local function make(x, y)
     local r = SAO.Identity.create(nil, nil, x, y, 0)
     pcall(function() SAO.History.generate(r.id, r) end)
     r.homeX, r.homeY, r.homeZ = x, y, 0
-    r.lastWaterDay, r.lastFoodDay, r.lastRiskDay = 0, 0, 0
+    -- The prelude runs a county 1096 days into the fall, and a
+    -- person created into it is created TODAY: the day stamps name
+    -- the day they arrive, which is exactly what the attrition pass
+    -- itself does for a person it has never counted. The old fixture
+    -- stamped zero and got away with it by freezing the clock; on a
+    -- live clock zero reads as three years without water, and
+    -- attrition is not what this border measures.
+    local today = math.floor((SAO.History.countyHours() or 0) / 24.0)
+    r.lastWaterDay, r.lastFoodDay, r.lastRiskDay = today, today, today
     return r
   end
   local function keyOf(r)
@@ -111,23 +134,40 @@ PROBE = r"""(function()
   local keyA, keyB = keyOf(a), keyOf(b)
 
   local function hold(second)
+    -- Pin the pair where the meeting is meant to happen. Position
+    -- alone is not enough on a live clock: dormantLife moves a
+    -- walker inside the pass, after this pin, about a tile and a
+    -- quarter per move-gate toward a drift goal, and the meeting
+    -- writes the distance of wherever they actually stand - the
+    -- measured values would be the drift's, not the fixture's. The
+    -- move gate opens on the record's own nextDormantMoveAt, so the
+    -- stamp is renewed just past the clock every call to hold it
+    -- shut. Renewed rather than set once, because the county's own
+    -- foreign-stamp drop at [C112] resets anything further ahead
+    -- than now + 3600 to now - a pin of a million ticks would open
+    -- the gate instead of closing it.
+    local due = (SAO.History.ticks() or 0) + 3600
+    a.nextDormantMoveAt, b.nextDormantMoveAt = due, due
     a.x, a.y = 10500, 9000
     if second then b.x, b.y = 10501, 9000
     else b.x, b.y = 10503, 9000 end
   end
 
   -- Three tiles apart is the meet range's own boundary: the pass's
-  -- test reads 9 <= 9 and the pair meets. The county hours stay put
-  -- so nothing attrits; only the encounter pulse runs.
-  for _ = 1, 240 * 40 do hold(false); tick() end
+  -- test reads 9 <= 9 and the pair meets. The first meeting lands on
+  -- the first sweep and every meeting of the phase is at three; a
+  -- few passes let the cooldown lapse and meet again, still at
+  -- three, before the belief is read.
+  for _ = 1, 8 do hold(false); tick() end
   local ba = SAO.Perception.beliefs[a.id]
   local sawB = ba and ba.people[keyB] or nil
   local first = sawB and tostring(sawB.dist) or "none"
 
-  -- They meet again at one tile. The cooldown lapses well inside
-  -- this run, and the new belief must carry the NEW distance - the
-  -- old spelling carried the first meeting's forever.
-  for _ = 1, 240 * 40 do hold(true); tick() end
+  -- They meet again at one tile. The cooldown from the last meeting
+  -- of the phase above lapses well inside this run, and the new
+  -- belief must carry the NEW distance - the old spelling carried
+  -- the first meeting's forever.
+  for _ = 1, 20 do hold(true); tick() end
   ba = SAO.Perception.beliefs[a.id]
   sawB = ba and ba.people[keyB] or nil
   local second = sawB and tostring(sawB.dist) or "none"

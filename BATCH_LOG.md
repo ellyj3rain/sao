@@ -1,6 +1,6 @@
 | Document | Survivor Awareness Overhaul Batch Log |
 |---|---|
-| Version | `4.2.7.0-pre-alpha` |
+| Version | `4.5.0.0-pre-alpha` |
 | Author | ellyj3rain |
 | Repository | `BATCH_LOG.md` |
 | Status | REGULATORY - chronological batch index. |
@@ -201,3 +201,21 @@ attribution for every merged entry, stated here rather than in a branch name.
 | [C94](Batches/C94-2026-09-10-isolation-becomes-a-live-state.md) | 2026-09-10 | Isolation becomes a live state | [`T-006`](Batches/THREADS.md#t-006), [`T-008`](Batches/THREADS.md#t-008) |
 | [C95](Batches/C95-2026-09-10-place-attachment-becomes-a-live-state.md) | 2026-09-10 | Place attachment becomes a live state | [`T-006`](Batches/THREADS.md#t-006), [`T-008`](Batches/THREADS.md#t-008) |
 | [C96](Batches/C96-2026-09-10-world-development-becomes-a-live-state.md) | 2026-09-10 | World development becomes a live state | [`T-006`](Batches/THREADS.md#t-006), [`T-008`](Batches/THREADS.md#t-008) |
+| [C97](Batches/C97-2026-09-11-the-pathogens-forms-enter-the-branching-graph.md) | 2026-09-11 | The pathogen's forms enter the branching graph | [`T-008`](Batches/THREADS.md#t-008), [`T-030`](Batches/THREADS.md#t-030) |
+| [C98](Batches/C98-2026-09-11-the-cross-module-row-exporter.md) | 2026-09-11 | The cross-module row exporter | [`T-008`](Batches/THREADS.md#t-008), [`T-030`](Batches/THREADS.md#t-030) |
+| [C99](Batches/C99-2026-09-11-the-first-cross-module-rows.md) | 2026-09-11 | The first cross-module rows | [`T-008`](Batches/THREADS.md#t-008), [`T-030`](Batches/THREADS.md#t-030) |
+| [C100](Batches/C100-2026-09-11-the-zao-state-producer.md) | 2026-09-11 | The ZAO state producer | [`T-008`](Batches/THREADS.md#t-008), [`T-030`](Batches/THREADS.md#t-030) |
+| [C101](Batches/C101-2026-09-11-the-state-surface.md) | 2026-09-11 | The state surface | [`T-008`](Batches/THREADS.md#t-008), [`T-030`](Batches/THREADS.md#t-030) |
+| [C102](Batches/C102-2026-09-11-the-form-registry-and-the-pathogen-roll.md) | 2026-09-11 | The form registry and the pathogen roll | [`T-008`](Batches/THREADS.md#t-008), [`T-030`](Batches/THREADS.md#t-030) |
+| [C103](Batches/C103-2026-09-11-the-form-overlay.md) | 2026-09-11 | The form overlay | [`T-008`](Batches/THREADS.md#t-008), [`T-030`](Batches/THREADS.md#t-030) |
+| [C104](Batches/C104-2026-09-11-perception-carries-the-form.md) | 2026-09-11 | Perception carries the form | [`T-008`](Batches/THREADS.md#t-008), [`T-030`](Batches/THREADS.md#t-030) |
+| [C105](Batches/C105-2026-09-12-the-recognition-bridge.md) | 2026-09-12 | The recognition bridge | [`T-008`](Batches/THREADS.md#t-008), [`T-030`](Batches/THREADS.md#t-030) |
+| [C106](Batches/C106-2026-09-12-the-player-verbs-of-the-house.md) | 2026-09-12 | The player verbs of the house | [`T-004`](Batches/THREADS.md#t-004), [`T-008`](Batches/THREADS.md#t-008) |
+| [C107](Batches/C107-2026-09-12-what-a-settled-house-does-with-its-ground.md) | 2026-09-12 | What a settled house does with its ground | [`T-003`](Batches/THREADS.md#t-003), [`T-008`](Batches/THREADS.md#t-008) |
+| [C108](Batches/C108-2026-09-12-the-place-ontology.md) | 2026-09-12 | The place ontology | [`T-003`](Batches/THREADS.md#t-003), [`T-004`](Batches/THREADS.md#t-004), [`T-008`](Batches/THREADS.md#t-008) |
+| [C109](Batches/C109-2026-09-12-beside-this-tree-corrected.md) | 2026-09-12 | Beside this tree, corrected | [`T-030`](Batches/THREADS.md#t-030) |
+| [C110](Batches/C110-2026-09-12-the-rulings-land.md) | 2026-09-12 | The rulings land | [`T-030`](Batches/THREADS.md#t-030) |
+| [C111](Batches/C111-2026-09-12-need-stands-alongside-trust.md) | 2026-09-12 | Need stands alongside trust | [`T-004`](Batches/THREADS.md#t-004), [`T-006`](Batches/THREADS.md#t-006) |
+| [C112](Batches/C112-2026-09-12-the-tick-is-the-countys-clock.md) | 2026-09-12 | The tick is the county's clock | [`T-002`](Batches/THREADS.md#t-002), [`T-007`](Batches/THREADS.md#t-007) |
+| [C113](Batches/C113-2026-09-13-the-street-hour-and-the-trade-s-ground.md) | 2026-09-13 | The street hour and the trade's ground | [`T-002`](Batches/THREADS.md#t-002), [`T-007`](Batches/THREADS.md#t-007) |
+| [C114](Batches/C114-2026-09-13-a-real-person-at-the-wheel.md) | 2026-09-13 | A real person at the wheel | [`T-001`](Batches/THREADS.md#t-001), [`T-002`](Batches/THREADS.md#t-002) |

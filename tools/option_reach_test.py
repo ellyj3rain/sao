@@ -63,16 +63,60 @@ OWNED_ELSEWHERE = {
     # (DR-035). Read by the two modules that would, and by neither
     # half of the simulation.
     "NeighbourBridge": "client/SAO_Absorb.lua",
+    # [C104] The eight record dials. None is a property of a person:
+    # each decides whether one subsystem's doings are WRITTEN to the
+    # county record - the screen's own promise is "off: it still
+    # happens, it is just not recorded" - so none belongs to either
+    # half's behavior, and each is owned by the seam that gates its
+    # recording. Branching, Pressure and Labor gate the graph the
+    # Integration pass assembles (the whole record, the pressure sums
+    # in it, and the work counted toward trades); Organization,
+    # Settlement, Material and Communication gate the Recognition
+    # seams that write the org, base, counted-store and message
+    # records; PlayerInteraction gates the player-claims module
+    # itself.
+    "Branching": "shared/SAO_Integration.lua",
+    "Pressure": "shared/SAO_Integration.lua",
+    "Labor": "shared/SAO_Integration.lua",
+    "Organization": "shared/SAO_Recognition.lua",
+    "Settlement": "shared/SAO_Recognition.lua",
+    "Material": "shared/SAO_Recognition.lua",
+    "Communication": "shared/SAO_Recognition.lua",
+    "PlayerInteraction": "shared/SAO_PlayerInteraction.lua",
 }
 
 
 def reads(text, option):
-    """Every way this tree spells reading an option."""
+    """Every way this tree spells reading an option.
+
+    Boundary-counted, not substring-counted: the first draft counted
+    `sv.Material` inside `sv.MaterializeRadius` and so held Material
+    read while Border 16 - which was boundary-aware - held it dead.
+    Two borders disagreeing about the same dial is one of them not
+    looking at the code, and it was this one.
+
+    [C104]'s two helper spellings are counted only where the text
+    itself binds the helper to this mod's own options table, the same
+    control Border 16 now applies: the binding line is what makes a
+    `dial("X")` or `options.X` a read of OUR table rather than a name
+    match, and deleting it is what stops the calls from counting.
+    """
     lower = option[0].lower() + option[1:]
-    return (text.count(f"sv.{option}")
-            + text.count(f"SurvivorAwareness.{option}")
-            + text.count(f"conf.{lower}")
-            + text.count(f"policy().{lower}"))
+
+    def count(pattern):
+        return len(re.findall(pattern, text))
+
+    n = (count(rf"sv\.{option}\b")
+         + count(rf"SurvivorAwareness\.{option}\b")
+         + count(rf"conf\.{lower}\b")
+         + count(rf"policy\(\)\.{lower}\b"))
+    if re.search(r"local function dial\(\w+\).{0,300}?SurvivorAwareness",
+                 text, re.S):
+        n += count(rf'dial\(\s*"{option}"\s*\)')
+    if re.search(r"local options = SandboxVars[^\n]*SurvivorAwareness",
+                 text):
+        n += count(rf"options\.{option}\b")
+    return n
 
 
 def main():

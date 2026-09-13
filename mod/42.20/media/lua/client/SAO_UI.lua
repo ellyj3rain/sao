@@ -531,6 +531,12 @@ function SAOCountyWindow:build()
                 chron[#chron + 1] = { at = ev.atHours,
                     text = dayWord(ev.atHours)
                     .. ": " .. fname2 .. " took your seat back" }
+            elseif ev.kind == "left" then
+                -- [C106] Voluntary, not unseated - the seat was given
+                -- up, not taken back.
+                chron[#chron + 1] = { at = ev.atHours,
+                    text = dayWord(ev.atHours)
+                    .. ": you left the chair at " .. fname2 }
             elseif ev.kind == "pactBroke"
                 and tostring(g) < tostring(ev.other) then
                 chron[#chron + 1] = { at = ev.atHours,

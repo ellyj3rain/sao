@@ -19,11 +19,21 @@ SAO = SAO or {}
 SAO.Population = SAO.Population or {}
 local Pop = SAO.Population
 
-local TICK_INTERVAL = 240   -- population pass cadence, in FRAMES (~4s at
-                            -- 60fps; [B49] measured 64.5fps on the
-                            -- operator's machine, so nearer 3.7s there)
+local TICK_INTERVAL = 240   -- [C112] population pass cadence, in county
+                            -- ticks (a 9000th of a county hour apiece:
+                            -- ~4s of real pace on the default day, on
+                            -- EVERY machine now, where [B49] measured
+                            -- 64.5fps on the operator's and 3.7s there)
 
+-- [C112] Read from the county's clock every pass, never incremented -
+-- the quantized law lives in SAO_History.ticks. The local stays for
+-- the fallback frame axis a session needs when SAO_History did not
+-- load, which [C62] already says out loud is a dead county.
 local tickCounter = 0
+-- [C112] The last tick a population pass ran at - the cadence law's
+-- stamp (last fired plus a span, never a modulo, which a clock that
+-- can skip values would step straight over).
+local lastPassAt = nil
 local booted = false
 local regionPoints = nil    -- flattened { {x,y,z,region=name}, ... }
 local regionPointsByProfession = nil   -- F-030: declared BEFORE its writer
@@ -657,7 +667,8 @@ local function ensurePopulation(conf)
     local startedAt = count
     while count < capNow and bornThisPass < budget do
         -- County-scale genesis is PACED ([A16]) once the county
-        -- exists: six identities per pass (240 frames, ~4s at 60fps).
+        -- exists: six identities per pass (240 county ticks, ~4s at
+        -- 60fps frames on the default day).
         bornThisPass = bornThisPass + 1
         local origin = pickOrigin()
         if not origin then return end
@@ -1157,6 +1168,7 @@ local function materializeBand(px, py, conf)
                         -- the sandbox window from now (the same table
                         -- pickMortalityDuration draws from; traits
                         -- omitted, stated in Batches/C11).
+                        local wasInfected = rec.knoxInfected == true
                         local left = SAOJavaBridge:biteHoursLeft(b15)
                         if left == "" or left == nil then
                             rec.knoxInfected = nil
@@ -1169,6 +1181,15 @@ local function materializeBand(px, py, conf)
                             rec.knoxInfected = true
                             rec.biteDeathAtHours =
                                 hoursNow() + (tonumber(left) or 0)
+                        end
+                        if rec.knoxInfected and not wasInfected then
+                            pcall(function()
+                                SAO.PathogenEvents.emit(
+                                    "infection",
+                                    rec.id,
+                                    math.floor(hoursNow() / 24.0),
+                                    { record = rec })
+                            end)
                         end
                     end
                 end)
@@ -1325,7 +1346,11 @@ end
 --     against the county's own company line, which is the trust at
 --     which two people would keep house. Somebody you would live
 --     with is somebody you would cross town to see, and reusing that
---     line means the operator's dial moves both together.
+--     line means the operator's dial moves both together. [C111]
+--     added this person's own need on top of the trust - appetite,
+--     isolation, and the county's openness - so the lonely go
+--     looking before trust alone would carry them, by the same law
+--     the formation doors hold.
 --   * WHICH ONE is the one they most want to see that they can most
 --     plausibly find: trust over the age of the sighting. An address
 --     a week old is where somebody was, not where they are.
@@ -1368,7 +1393,14 @@ local function chooseWhoToGoTo(id, rec, myG, b, desperate)
                 and not placeBarred(id, myG, b,
                     { cx = pb.x, cy = pb.y }, desperate) then
                 local trust = SAO.Standing.trust(id, other) or 0
-                if trust >= companyAt then
+                -- [C111] The gate reads the pair standing (trust plus
+                -- this person's own pull, zeroed where trust is
+                -- already spent against the candidate); the RANK
+                -- below stays pure trust over sighting age, because
+                -- the pull is the same for every candidate and orders
+                -- nobody.
+                if SAO.Standing.companyStanding(id, other)
+                    >= companyAt then
                     local since = 0
                     if pb.atHours then
                         since = math.max(0,
@@ -1442,6 +1474,50 @@ local function chooseDayGoal(id, rec, reach)
         if okN and known
             and not placeBarred(id, myG, b, known, desperate) then
             return { x = known.cx, y = known.cy, placeId = known.id }
+        end
+    end
+
+    -- [C113] Before somebody, in an ordinary county: the trade's
+    -- ground. Week One's street occupations, ported - the mail
+    -- carrier on a postal round, the gardener out with the beds, are
+    -- in their mod SPAWN-SIDE weights on a zombie spawner, and none
+    -- of that crosses; what crosses is the idea re-expressed on this
+    -- ontology's own fact - the census already decided who is what
+    -- trade, and a person's trade already has ground filed under the
+    -- engine's own profession path ([A18], `pickOriginFor`). So an
+    -- ordinary day's second-priority walk, behind need and ahead of
+    -- company, is TO WORK: a stable workplace picked once from the
+    -- trade's own filed points and kept - a commuter does not re-apply
+    -- for a different office every morning. A person the county
+    -- anchored at their trade ground at genesis ([A18]) already lives
+    -- where they work, and the near-check below sends them straight
+    -- through to the social life [C72] built; a person with no filed
+    -- trade ground falls through the same way. Nobody is barred from
+    -- company by having a job - the next branch stands.
+    --
+    -- Gated by the county's own fall ([C42]): `fallHasCome` is read
+    -- from the record's stamps, never the dial, and once it has come
+    -- this branch is dead and the chooser is exactly what it was -
+    -- need, then somebody, then places.
+    do
+        local fallen = true
+        pcall(function() fallen = SAO.Standing.fallHasCome() end)
+        if not fallen then
+            local row = rec.occupation
+                and SAO.Census.rowOf(rec.occupation) or nil
+            if row and row.enginePath then
+                if not (rec.workX and rec.workY) then
+                    local w = pickOriginFor(row.enginePath)
+                    if w then rec.workX, rec.workY = w.x, w.y end
+                end
+                if rec.workX and rec.workY
+                    and (math.abs((rec.x or rec.homeX) - rec.workX) >= 3
+                        or math.abs((rec.y or rec.homeY) - rec.workY) >= 3)
+                    and not placeBarred(id, myG, b,
+                        { cx = rec.workX, cy = rec.workY }, desperate) then
+                    return { x = rec.workX, y = rec.workY }
+                end
+            end
         end
     end
 
@@ -1519,14 +1595,39 @@ local function dormantLife(conf)
     local hour = SAO.History.countyTimeOfDay()
     if type(hour) ~= "number" then return end
     local night = hour >= 21.0 or hour < 6.0
+    -- [C113] An ordinary county, in the county's own words. The
+    -- street law only runs where the county says so: `fallHasCome`
+    -- answers with its REASON, and "before" - the record's calendar
+    -- exists and the fall is not on it - is the only county whose
+    -- streets these are. "unknown" (no calendar readable) is not
+    -- before; a county that cannot say when its fall is gets the
+    -- survival law, not a street crowd it may not have earned.
+    local preFall = false
+    do
+        local okF, fallen, why = pcall(function()
+            return SAO.Standing.fallHasCome()
+        end)
+        preFall = okF and fallen == false and why == "before"
+    end
     for id, rec in pairs(SAO.Identity.all()) do
         if not rec.dead and not SAO.Claims.isHeld(rec)
             and not SAO.Body.get(id) and rec.homeX then
             rec.nextDormantMoveAt = rec.nextDormantMoveAt or 0
+            -- [C112] This is the one persisted FUTURE due-time in the
+            -- county, and a stamp written by an older build counted
+            -- FRAMES - a number that can read as years ahead on the
+            -- county's axis and would stall a walker forever. This
+            -- field is only ever set to now + at most 3600, so
+            -- anything further ahead than that is not of this domain:
+            -- it is dropped, and the move is due now. One reload's
+            -- reset per old save, then never again.
+            if rec.nextDormantMoveAt > tickCounter + 3600 then
+                rec.nextDormantMoveAt = 0
+            end
             if tickCounter >= rec.nextDormantMoveAt then
                 rec.nextDormantMoveAt = tickCounter + 1800 + SAO.Rand.int(1800)
                 local tx, ty
-                if night then
+                if night and not preFall then
                     tx, ty = rec.homeX, rec.homeY
                 else
                     if not rec.dayGoalX
@@ -1619,7 +1720,34 @@ local function dormantLife(conf)
                                 end
                             end)
                         end
-                        local chosen = chooseDayGoal(id, rec, reach)
+                        -- [C113] The street roll, at the leg
+                        -- boundary - the one moment a decision is
+                        -- actually being made, not every move gate
+                        -- (a gate opens every dozen county minutes;
+                        -- rolling there would churn a person between
+                        -- home and street hourly at any affinity under
+                        -- one). A person who has just ARRIVED, or has
+                        -- no leg yet, rolls Week One's street hour:
+                        -- out means the day-goal chooser answers
+                        -- (work, somebody, places - the ordinary
+                        -- errand), staying in means the next leg is
+                        -- home, and home it stays until a later leg
+                        -- rolls out. The night rule above no longer
+                        -- holds pre-fall: the authored curve itself
+                        -- thins the small hours (0.20, 0.15, 0.10,
+                        -- 0.05, 0.05) and keeps the evening streets
+                        -- fed (0.90, 0.70, 0.40) - which is the open
+                        -- street the slice asked for, in the shape
+                        -- its prior art authored.
+                        local out = true
+                        if preFall then
+                            local affinity =
+                                SAO.History.streetAffinity(hour)
+                            out = (affinity ~= nil)
+                                and (SAO.Rand.unit() < affinity)
+                        end
+                        local chosen = out
+                            and chooseDayGoal(id, rec, reach) or nil
                         if chosen then
                             rec.dayGoalX, rec.dayGoalY = chosen.x, chosen.y
                             rec.dayGoalPlaceId = chosen.placeId
@@ -1628,7 +1756,7 @@ local function dormantLife(conf)
                             -- survive into today's walk.
                             rec.dayGoalPerson = chosen.person
                             rec.dayGoalSeenAt = chosen.seenAt
-                        else
+                        elseif out then
                             -- Wilderness, or a neighbourhood whose
                             -- every place is enemy ground. Nothing to
                             -- walk to, so the old drift stands.
@@ -1636,6 +1764,16 @@ local function dormantLife(conf)
                                 + SAO.Rand.int(-reach, reach + 1)
                             rec.dayGoalY = rec.homeY
                                 + SAO.Rand.int(-reach, reach + 1)
+                            rec.dayGoalPlaceId = nil
+                            rec.dayGoalPerson = nil
+                            rec.dayGoalSeenAt = nil
+                        else
+                            -- Staying in: the leg is home, and the
+                            -- goal machinery above is skipped
+                            -- entirely - an evening in is an evening
+                            -- in, not a failed errand.
+                            rec.dayGoalX, rec.dayGoalY =
+                                rec.homeX, rec.homeY
                             rec.dayGoalPlaceId = nil
                             rec.dayGoalPerson = nil
                             rec.dayGoalSeenAt = nil
@@ -1665,11 +1803,12 @@ local function dormantLife(conf)
                     -- It was `math.min(4, len)`, a constant per pass,
                     -- and a pass means two different things in the two
                     -- halves of the county. Live, `dormantLife` runs
-                    -- every 240 frames and a move gate opens every
+                    -- every 240 county ticks ([C112]; it was frames)
+                    -- and a move gate opens every
                     -- 1800 to 3600, so a game day holds hundreds of
-                    -- them. In the years, `[C45]` advances the counter
-                    -- 3600 ticks per simulated day and calls this
-                    -- once, so a day held exactly one - four tiles.
+                    -- them. In the years, `[C45]` calls this once per
+                    -- simulated day, so a day held exactly one
+                    -- move - four tiles.
                     -- Measured: 1.8 tiles per person per simulated day
                     -- (F-061), against a map fifteen thousand tiles
                     -- wide with towns hundreds of tiles apart.
@@ -2029,6 +2168,13 @@ local function dormantAttrition()
                             rec.biteDeathAtHours = nowHours + window
                             rec.infectionSpanHours = window
                             rec.immuneProgress = 0
+                            pcall(function()
+                                SAO.PathogenEvents.emit(
+                                    "infection",
+                                    id,
+                                    today,
+                                    { record = rec })
+                            end)
                             tookThem = false
                             tally("bitten")
                             log(rec.id .. " got away from something out"
@@ -2080,8 +2226,8 @@ end
 -- accrues, hostile pairs give each other a wide berth (no off-screen
 -- combat in v1 - nobody dies unwitnessed), and company can form at the
 -- same trust line the observed world uses. Standing ops only; no bodies.
--- pairKey -> frame; a MEETING is minutes, not a 240-frame pulse (~4s
--- at 60fps)
+-- pairKey -> county tick ([C112]); a MEETING is minutes, not a
+-- 240-tick pass (~4s at 60fps frames on the default day)
 local dormantLastMet = {}
 local encounterCursor = nil -- rotate the outer loop across passes ([A16])
 
@@ -2100,15 +2246,22 @@ local MEET_RANGE = 3
 -- passes at constant cost ([A16]).
 local ENCOUNTER_BUDGET = 12
 
--- One meeting per pair per roughly thirty to sixty seconds at 60fps of
--- adjacency. Without it the four-second population pulse compounded
+-- One meeting per pair per roughly thirty to sixty seconds of
+-- adjacency (county ticks since [C112], a 9000th of a county hour
+-- apiece - the seconds hold at the 60fps frames the derivation
+-- assumed on the default day). Without it the four-second population pulse compounded
 -- trust about forty times the observed world's encounter rate
 -- ([A13]) - so this is not a cadence, it is the correction for one.
 local MEET_COOLDOWN = 1800
 
--- What a road meeting is worth. Deliberately tiny: trust is built by
--- crossing paths repeatedly over weeks, not by one conversation.
-local ROAD_TRUST = 0.005
+-- What a road meeting is worth. [C111] raised it from 0.005 on the
+-- operator's ruling (2026-09-12): at the old rate the company line
+-- from nothing was two hundred meetings with the same person, so a
+-- house only ever formed between people who already trusted each
+-- other at genesis. At 0.02 the default line (0.5) is twenty-five
+-- meetings - still built by crossing paths repeatedly over weeks,
+-- never by one conversation.
+local ROAD_TRUST = 0.02
 
 -- How far the abstraction steps a hostile pair apart. Nobody dies
 -- unwitnessed, so the only thing an encounter between enemies does is
@@ -2139,18 +2292,20 @@ end
 -- pass is the second reader of this law and two copies of a law is how
 -- they drift ([C25]).
 local function barredGround(myGroup, cx, cy)
-    for og, oc in pairs(SAO.Standing.allGroupClaims()) do
+    for og in pairs(SAO.Standing.allGroupClaims()) do
+        -- [C108] A company's ground is every place its living
+        -- members go, not only the seat it settled - the derived
+        -- set answers here, so a house does not settle over
+        -- another's stash while honouring their base.
         if og ~= myGroup
-            and cx >= oc.minX and cx <= oc.maxX
-            and cy >= oc.minY and cy <= oc.maxY then
+            and SAO.Standing.onGroundOf(og, cx, cy) then
             return true
         end
-        -- [A20] And not in a feud's shadow either.
+        -- [A20] And not in a feud's shadow either - around every
+        -- place they hold.
         if og ~= myGroup and SAO.Standing.feudBetween(myGroup, og)
-            and cx >= oc.minX - SAO.Standing.FEUD_KEEP_OUT
-            and cx <= oc.maxX + SAO.Standing.FEUD_KEEP_OUT
-            and cy >= oc.minY - SAO.Standing.FEUD_KEEP_OUT
-            and cy <= oc.maxY + SAO.Standing.FEUD_KEEP_OUT then
+            and SAO.Standing.onGroundOf(og, cx, cy,
+                SAO.Standing.FEUD_KEEP_OUT) then
             return true
         end
     end
@@ -2225,47 +2380,26 @@ local function dormantSettle()
                 and not SAO.Standing.groupClaimOf(g)
                 and SAO.Standing.groupSize(g) > 1 then
                 seen[g] = true
-                -- Every place this house's living members have been,
-                -- with the visits summed across them: a building two
-                -- of them keep returning to outranks one that only
-                -- one of them ever saw.
-                local returns = {}
+                -- [C108] The scorer became a ranking, and the settle
+                -- pass reads the top of it: one definition, so the
+                -- seat and the set cannot drift apart ([C25]). The
+                -- law is [C76]'s own - visits summed across the
+                -- members who reach a place, water doubled - with
+                -- recency breaking ties, and the first unbarred
+                -- candidate is the one it always picked.
                 local members = SAO.Standing.membersOf(g)
-                for _, mid in ipairs(members) do
-                    for pid, kp in pairs(SAO.Perception.knownPlaces(mid)) do
-                        if kp.minX and kp.cx then
-                            local t = returns[pid]
-                            if not t then
-                                t = { place = kp, visits = 0, who = 0 }
-                                returns[pid] = t
-                            end
-                            t.visits = t.visits + (kp.visits or 1)
-                            t.who = t.who + 1
-                        end
-                    end
-                end
-                local best, bestScore, bestId = nil, nil, nil
-                for pid, t in pairs(returns) do
-                    local kp = t.place
-                    if not barredGround(g, kp.cx, kp.cy) then
-                        -- Returned to, by more than one of them, and
-                        -- worth returning to. Water is the only offer
-                        -- weighed, because it is the need that kills
-                        -- first ([B37]) and the one a base either has
-                        -- or does not.
-                        local score = t.visits * t.who
-                        if kp.offers and kp.offers.water then
-                            score = score * 2
-                        end
-                        if not bestScore or score > bestScore then
-                            best, bestScore, bestId = kp, score, pid
-                        end
+                local best, bestId = nil, nil
+                for _, t in ipairs(SAO.Perception.returnsOf(members)) do
+                    if not barredGround(g, t.place.cx, t.place.cy) then
+                        best, bestId = t, t.id
+                        break
                     end
                 end
                 if best then
+                    local bp = best.place
                     SAO.Standing.setGroupClaim(g,
-                        best.minX - 1, best.minY - 1,
-                        best.maxX + 1, best.maxY + 1, 0)
+                        bp.minX - 1, bp.minY - 1,
+                        bp.maxX + 1, bp.maxY + 1, 0)
                     -- Homes converge, as they do on the live path: the
                     -- base is where the house lives now, and the
                     -- dormant day's own anchor follows with no further
@@ -2274,19 +2408,19 @@ local function dormantSettle()
                         local mrec = SAO.Identity.get(mid)
                         if mrec then
                             mrec.homeX, mrec.homeY, mrec.homeZ =
-                                best.cx, best.cy, 0
+                                bp.cx, bp.cy, 0
                         end
                     end
                     -- Say WHY this building and not another. A decision
                     -- whose reasons are computed and thrown away is
                     -- indistinguishable from one that was scripted.
                     log(tostring(SAO.Standing.factionName(g) or g)
-                        .. " settles at " .. tostring(best.cx) .. ","
-                        .. tostring(best.cy) .. ": " .. #members
+                        .. " settles at " .. tostring(bp.cx) .. ","
+                        .. tostring(bp.cy) .. ": " .. #members
                         .. " of them, " .. tostring(bestId)
                         .. " returned to "
-                        .. tostring(returns[bestId].visits) .. " times"
-                        .. ((best.offers and best.offers.water)
+                        .. tostring(best.visits) .. " times"
+                        .. ((bp.offers and bp.offers.water)
                             and ", and it has water" or ""))
                     tally("settled")
                     settled = settled + 1
@@ -2297,9 +2431,157 @@ local function dormantSettle()
     end
 end
 
+-- [C107] What a settled house then DOES with its ground, in the
+-- dormant half.
+--
+-- `[C76]` settled the house; the hearth, the larder and the water
+-- store stayed the controller's, because the live round reads real
+-- containers through a body (`countEdibleNearby` and friends), and a
+-- dormant house has no body to stand a round on. So every consumer of
+-- those words - the flight form, the lean-house ladder, the forager
+-- promotion, the bread ask and the charity that answers it, the
+-- winter warming - was inert in the half of the county nearly every
+-- house lives in, and a dormant house could starve on spent ground
+-- forever without the county's own machinery ever saying so.
+--
+-- The dormant half cannot count items and does not pretend to. What
+-- it has is what its people actually DID: `lastFoodDay` and
+-- `lastWaterDay` are stamped only when a walk really arrived at a
+-- place that really still offered ([B37]/[C25] law, the same stamps
+-- attrition already trusts), and the seat's own ledger - `offersNow`,
+-- which reads the mains and the spent tally exactly the way the
+-- dormant day reads them. The words are derived from those, against
+-- the county's own patience constants, and no new number exists here.
+--
+-- The larder is LEAN when nobody in the house has reached food inside
+-- the county's food patience - a house whose every member is failing,
+-- not one unlucky member. It is FULL when every member is fed AND the
+-- seat itself still offers food - surplus you could answer a
+-- stranger's hunger from, not a run of luck elsewhere. Between is
+-- FAIR. The water word follows the same shape at thirst's own,
+-- shorter patience. The hearth claim is the honest dark one: no
+-- member of this house has a body, so no fire of this house is
+-- burning - true by construction, and the live round overwrites the
+-- claim the moment a body lights one.
+--
+-- A house with any materialised member is left to the live round: two
+-- writers with two strengths, and the live one counts real shelves.
+--
+-- No budget, unlike the settle walk: there is no per-house walk here
+-- - the work is a roster read and a cached place lookup per house -
+-- so the pass costs what `dormantLife`'s own sweep already costs
+-- each tick, and the words stay inside their 48-hour honesty window
+-- ([A28]) in live play and in the years alike. A word that goes
+-- stale between rounds is the county saying nobody read those shelves
+-- lately, which is true.
+local function dormantProvision()
+    if not (SAO.Standing and SAO.Standing.setLarder
+        and SAO.Standing.setWaterStore and SAO.Standing.setHearth
+        and SAO.Standing.membersOf and SAO.Standing.groupClaimOf) then
+        return
+    end
+    local today = math.floor(hoursNow() / 24.0)
+    local seen = {}
+    for id, rec in pairs(SAO.Identity.all()) do
+        if not rec.dead and not SAO.Body.get(id) then
+            local g = SAO.Standing.groupOf(id)
+            if g and not seen[g] then
+                seen[g] = true
+                local claim = SAO.Standing.groupClaimOf(g)
+                if claim then
+                    local members = SAO.Standing.membersOf(g)
+                    local n, fed, watered, anyBody = 0, 0, 0, false
+                    for _, mid in ipairs(members) do
+                        if SAO.Body.get(mid) then
+                            anyBody = true
+                            break
+                        end
+                        local mrec = SAO.Identity.get(mid)
+                        if mrec and not mrec.dead then
+                            n = n + 1
+                            -- [B37] A nil stamp is first-sight-as-today
+                            -- (`daysWithout` reads it as 0), the same
+                            -- grace attrition gives - nobody starts
+                            -- starving the day this lands.
+                            if daysWithout(mrec, "lastFoodDay", today)
+                                <= HUNGER_PATIENCE then
+                                fed = fed + 1
+                            end
+                            if daysWithout(mrec, "lastWaterDay", today)
+                                <= THIRST_PATIENCE then
+                                watered = watered + 1
+                            end
+                        end
+                    end
+                    if not anyBody and n > 0 then
+                        -- The seat's own shelves, read the way the
+                        -- dormant day reads them: mains, spent tally
+                        -- and all ([B39]/[B37]).
+                        local seatOffers = {}
+                        pcall(function()
+                            local seat = SAO.Places.at(
+                                (claim.minX + claim.maxX) / 2,
+                                (claim.minY + claim.maxY) / 2)
+                            if seat then
+                                seatOffers = SAO.Places.offersNow(seat)
+                                    or {}
+                            end
+                        end)
+                        local oldLard = SAO.Standing.larderOf(g)
+                        local foodWord = (fed == 0) and "lean"
+                            or (fed == n and seatOffers.food)
+                            and "full" or "fair"
+                        local waterWord = (watered == 0) and "dry"
+                            or (watered == n and seatOffers.water)
+                            and "full" or "fair"
+                        -- No count is passed: the dormant half has no
+                        -- item count and the claim is word-only rather
+                        -- than carrying a number that would read as
+                        -- one ([C105]'s "actually counted" stays the
+                        -- live round's).
+                        SAO.Standing.setLarder(g, foodWord, nil)
+                        SAO.Standing.setWaterStore(g, waterWord, nil)
+                        SAO.Standing.setHearth(g, false)
+                        if foodWord == "lean" then
+                            -- The lean house asks, as the live round
+                            -- does; `callForBread`'s own 72-hour
+                            -- window paces the asking.
+                            pcall(function()
+                                SAO.Standing.callForBread(g)
+                            end)
+                            if not (oldLard and oldLard.word == "lean") then
+                                log(tostring(
+                                    SAO.Standing.factionName(g) or g)
+                                    .. " counts the shelves lean: "
+                                    .. fed .. " of " .. n
+                                    .. " have reached food")
+                            end
+                        end
+                        -- [C105] The house is really living on its
+                        -- ground - its people really reached food and
+                        -- water - so the settlement enters the graph
+                        -- the same way a counted round enters it.
+                        -- Fired here rather than smuggled through the
+                        -- setter's count hook, because this round
+                        -- derives rather than counts and the record
+                        -- should say so.
+                        if fed > 0 and watered > 0 and SAO.Recognition then
+                            pcall(function()
+                                SAO.Recognition.onProvisioned(
+                                    tostring(g))
+                            end)
+                        end
+                    end
+                end
+            end
+        end
+    end
+end
+
 local function dormantEncounters()
     local sv = SandboxVars and SandboxVars.SurvivorAwareness or nil
     local companyAt = (sv and tonumber(sv.TrustToCompany)) or 0.5
+    local day = math.floor(hoursNow() / 24.0)
     local met = {}
     -- [B51] The inner sweep used to be `pairs(SAO.Identity.all())`,
     -- run once per outer record. `all()` is the whole store and the
@@ -2351,8 +2633,10 @@ local function dormantEncounters()
             if dx * dx + dy * dy <= MEET_RANGE * MEET_RANGE
                 and tickCounter >= ((dormantLastMet[pairKey] or 0)) then
                 met[pairKey] = true
-                -- One meeting per pair per ~30-60s at 60fps of
-                -- adjacency: without this the 240-frame population
+                -- One meeting per pair per ~30-60s of adjacency
+                -- (county ticks since [C112], a 9000th of a county
+                -- hour apiece - 60fps frames on the default day): without
+                -- this the 240-tick population
                 -- pulse compounded trust ~40x the
                 -- observed world's encounter rate ([A13] find).
                 dormantLastMet[pairKey] = tickCounter
@@ -2394,6 +2678,12 @@ local function dormantEncounters()
                     -- carry this knowledge purely through conversation.
                     local taughtAB = SAO.Lessons.tellOne(idA, idB)
                     if not taughtAB then SAO.Lessons.tellOne(idB, idA) end
+                    if SAO.Adaptation and SAO.Adaptation.tell then
+                        pcall(function()
+                            SAO.Adaptation.tell(idA, idB, day)
+                            SAO.Adaptation.tell(idB, idA, day)
+                        end)
+                    end
                     -- Doctrine travels the roads too ([A18]): company
                     -- members from different camps argue or agree out
                     -- there, unwitnessed - the standing shifts are what
@@ -2465,9 +2755,15 @@ local function dormantEncounters()
                                     or gA))
                         end
                     end
+                    -- [C111] Need reads alongside trust at the door
+                    -- (`companyStanding`): each side's pull is their
+                    -- own, and the mutual gate still clears on both
+                    -- sides or not at all.
                     if not (gA and gB)
-                        and SAO.Standing.trust(idA, idB) > roadBar
-                        and SAO.Standing.trust(idB, idA) > roadBar then
+                        and SAO.Standing.companyStanding(idA, idB)
+                            > roadBar
+                        and SAO.Standing.companyStanding(idB, idA)
+                            > roadBar then
                         local groupName = gA or gB or ("company-" .. idA)
                         if SAO.Standing.circleRefuses(idA, groupName)
                             or SAO.Standing.circleRefuses(idB, groupName) then
@@ -2918,7 +3214,7 @@ end
 -- loading", and then never again.
 local bandSkips = 0
 local bandSaid = false
-local BAND_PATIENCE = 15   -- passes (~60s at 60fps) before saying so
+local BAND_PATIENCE = 15   -- passes (~60s at 60fps frames on the default day) before saying so
 
 -- [C45] THE YEARS BETWEEN.
 --
@@ -2945,12 +3241,17 @@ local BAND_PATIENCE = 15   -- passes (~60s at 60fps) before saying so
 -- skipped, because everything that happens to a person without a
 -- body happens on a daily clock anyway.
 --
--- The dormant systems pace themselves in FRAMES, not game time - a
+-- [C112] The dormant systems pace themselves in county ticks now - a
 -- person moves every 1800 to 3600 of them and a pair may meet once
--- per 1800 - so a simulated day advances that counter far enough to
--- open each gate about once. One move and at most one meeting per
--- pair is what a day deserves when nobody is watching it.
-local YEARS_TICKS_PER_DAY = 3600
+-- per 1800 - and a simulated day on the county's clock is 216,000 of
+-- them, which opens each gate certainly rather than about. That is
+-- the pace the years always meant to buy: the pass itself still runs
+-- once per simulated day, which is what actually holds each person to
+-- one move and each pair to at most one meeting - the gates only
+-- ever throttled a pass that ran more often than they opened, which
+-- is live play, not the years. Before [C112] the years advanced the
+-- frame counter by a calibrated 3600 a day to fake this; the clock
+-- now advances itself, and the fake is deleted.
 
 -- And it is sliced, never blocking: each pass spends at most this
 -- long and picks up where it stopped. A county catching up is a few
@@ -3072,13 +3373,33 @@ local function dailyCounty()
     if lastCountyDay == day then return end
     lastCountyDay = day
     pcall(function() SAO.Telemetry.county() end)
+    -- [C65] twice over. The pathogen's day and the world's day-graph
+    -- moved in behind the same gate the county line already was,
+    -- because until they did they were called only from the simulated
+    -- day - which Border 118 refused, and it was right: the live
+    -- county's carriers would never have advanced and the world graph
+    -- would never have been written, so the machinery the player met
+    -- in a mature county was three years of work the living county
+    -- itself had never once run. The years call this same function,
+    -- and the day it computes here is the county's own - during the
+    -- years `hoursNow` reads the day being lived, so the number is
+    -- the simulated day itself, and across the boundary it is
+    -- continuous with it.
+    pcall(function() SAO.PathogenEvents.simulateDay(day) end)
+    pcall(function() SAO.WorldGenesis.applyDay(day) end)
 end
 
 -- One simulated day, and every call in it is the live county's own.
 local function oneYearsDay(conf, day)
-    tickCounter = tickCounter + YEARS_TICKS_PER_DAY
+    -- [C112] No advance here: the county's clock IS the day being
+    -- lived (livingDay, [C62]), so `SAO.History.ticks` has already
+    -- moved 216,000 ticks by the time this function runs - the gates
+    -- below open on the clock's own authority, not a calibrated jump.
     pcall(dormantLife, conf)
     pcall(dormantSettle)
+    -- After the day's walks (stamps) and the houses they settle
+    -- into, the houses speak their shelves.
+    pcall(dormantProvision)
     pcall(dormantEncounters)
     pcall(dormantAttrition)
     pcall(function() SAO.Standing.driftStandings() end)
@@ -3088,11 +3409,17 @@ local function oneYearsDay(conf, day)
     end
     -- [C46] And one claim's ground actually looked at.
     pcall(lookAtSomeGround, day)
-    -- [C65] And the day written down, through the same function the
-    -- live county runs on its own cadence. Border 118 refused the
-    -- first draft of this, which called SAO.Telemetry.county here and
-    -- nowhere else, and it was right: a call that exists only in the
-    -- years is the pass inventing rather than running the county.
+    -- [C65] And the day's once-a-day work - the county line, the
+    -- pathogen's advance and the world's day-graph - through the same
+    -- function the live county runs on its own cadence. Border 118
+    -- refused the first draft of this, which called the telemetry
+    -- county line here and nowhere else, and it refused the second
+    -- draft too, which called `simulateDay` and `applyDay` here and
+    -- nowhere else, and it was right both times: a call that exists
+    -- only in the years is the pass inventing rather than running the
+    -- county. (The county line is named in prose rather than spelled,
+    -- because the telemetry border counts references by their dotted
+    -- path and a comment is no reference.)
     dailyCounty()
 end
 
@@ -3183,8 +3510,21 @@ local function runTheYears(conf)
 end
 
 local function populationTick()
-    tickCounter = tickCounter + 1
-    if tickCounter % TICK_INTERVAL ~= 0 then return end
+    -- [C112] Read, not incremented: the county's clock quantized. The
+    -- fallback keeps a monotone frame axis for the session of a county
+    -- whose SAO_History did not load - the dead county [C62] names.
+    do
+        local okT, t = pcall(function() return SAO.History.ticks() end)
+        tickCounter = (okT and type(t) == "number") and t
+            or (tickCounter + 1)
+    end
+    -- [C112] The cadence law: last fired plus a span, never a modulo -
+    -- the county's clock can skip values (fast-forward, a lag spike),
+    -- and a modulo gate only fires when a multiple lands exactly.
+    if tickCounter - (lastPassAt or -TICK_INTERVAL) < TICK_INTERVAL then
+        return
+    end
+    lastPassAt = tickCounter
     local conf = cfg()
     if not conf.enable then return end
     local booting = not booted
@@ -3222,6 +3562,7 @@ local function populationTick()
         end
     end)
     runSub("settle", dormantSettle)
+    runSub("provision", dormantProvision)
     runSub("encounters", dormantEncounters)
     -- [C65] And the county writes itself down once a day, which is
     -- what [B38] said it did.
@@ -3268,6 +3609,15 @@ end
 
 Events.OnTick.Remove(onTick)
 Events.OnTick.Add(onTick)
+
+-- [C113] The one public face of the profession-points machinery: a
+-- point filed under this trade's own engine path, anywhere in the
+-- county, or nil when none was ever filed. The dormant half calls it
+-- from `chooseDayGoal`; the live half (SAO_Controller's street leg)
+-- calls it through this same export so both halves read ONE fact - a
+-- person's trade ground - rather than two copies of it. Callers hold
+-- it in a pcall; the points table loads lazily inside.
+Pop.tradeGroundFor = pickOriginFor
 
 log("population module loaded")
 

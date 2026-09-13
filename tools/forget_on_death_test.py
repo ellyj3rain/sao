@@ -161,6 +161,19 @@ CACHES = {
         "added it), and the death funnel's forget clears it too as "
         "belt-and-braces, so a re-fired markDead can never leave a "
         "stale hold on a body"),
+    ("SAO_Driving.lua", "Drv.jobs"): (
+        "Drv.cancel", "named",
+        "[C114] a drive in progress, holding the driver's body handle "
+        "and the Java-side drive it ordered. `Drv.cancel` was reached "
+        "only from the drop path, exactly `Loco.cancel`'s shape one "
+        "entry up - so every dead driver's job stayed, wheels for "
+        "feet, and the car went on being driven by a corpse's handle"),
+    ("SAO_Material.lua", "Material.stores"): (
+        "Material.forget", "named",
+        "[C105] what a LIVING person holds in the provisioning "
+        "economy - the model, not the corpse's actual items, which "
+        "belong to the engine's body. No trade ever asks a grave, so "
+        "a dead person's stock was a table nothing would read again"),
 }
 
 # Module-scope tables this border's shape rule matches and that are
@@ -176,6 +189,24 @@ NOT_A_SURVIVOR_ID = {
         "world change, which is the right lifetime for it. The shape "
         "rule matched a local named `id`; being keyed by an id is not "
         "the same as being keyed by a survivor"),
+    ("SAO_Organization.lua", "Org.organizations"): (
+        "keyed by an ORGANIZATION id - the county's durable group "
+        "records, outliving their members by design, the way "
+        "Identity's store outlives its dead. The shape rule matched "
+        "the local named `id` in `createOrganization`. What is "
+        "per-person lives INSIDE each record, `organization.members`, "
+        "and [C90] made the death funnel shed that: markDead walks "
+        "`organizationsOf` and `Org.leave` drops the member row and "
+        "the office-holdings"),
+    ("SAO_Settlement.lua", "Settlement.bases"): (
+        "keyed by an ORGANIZATION id - the shape rule matched the "
+        "local named `organizationId` in `claim`. A base belongs to a "
+        "group, not to a person, and the group's ground outlives any "
+        "one occupant. The per-person part is `base.members`, and the "
+        "same [C90] death-funnel walk reaches `Settlement.leave`, "
+        "which drops the occupancy row and - by its own count rule - "
+        "dissolves the base when the last member is gone, so no "
+        "settlement is held open by graves"),
 }
 
 # What an index has to look like to be a survivor id. `subFaults[name]`
