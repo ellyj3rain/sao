@@ -137,6 +137,47 @@ function H.countyHours()
     return hoursBehind() + (tonumber(hours) or 0)
 end
 
+-- [C112] THE TICK, which is the county's clock quantized.
+--
+-- Until this batch a tick was a frame, and every span in the mod - the
+-- 1800 of a dormant move, the 240 of the population pass, the 20 of a
+-- scan - was authored in that unit. That made the county's pace the
+-- MACHINE's pace: a 26fps machine lived every timer 2.3x slower than a
+-- 144hz one, fast-forward outran the timers while the county rushed
+-- ahead of them, and the two frame counters that stamped the belief
+-- axis (Controller's and Population's, each with its own OnTick)
+-- diverged by whole simulated days during the years.
+--
+-- So the unit is redefined, ONCE, here - not converted at sixty sites:
+-- a tick is a 9000th of a county hour, which is what a frame was at
+-- sixty frames a second on the default day length (a real minute a
+-- game hour: 150 real seconds x 60 frames). Every span constant
+-- already authored in that unit keeps its number and its default-day
+-- pace; what changes is the domain. The tick now advances with the
+-- county: a slow machine paces the county correctly, fast-forward
+-- speeds the timers with the world they time, a pause stops them with
+-- it, and the axis is stable across sessions, because county hours are
+-- world-age - a stamp made yesterday still reads as yesterday, which
+-- no frame count ever did.
+--
+-- Two corollaries, both stated once here because they are the law's
+-- arithmetic and not any caller's business:
+--   * A CADENCE IS A LAST-FIRED STAMP PLUS A SPAN, never a modulo of
+--     the tick: the clock can skip values (a lag spike, fast-forward),
+--     and a modulo gate only fires when a multiple lands exactly.
+--   * A stamp of 0 reads as long ago - "do it now" - in every
+--     comparison in this mod, so a defaulted stamp is safe by
+--     construction.
+--
+-- Degrades to 0 when the clock cannot be read, which is the county
+-- with no clock that [C62] already says out loud: no ticks, no county
+-- motion, rather than motion on a clock nobody vouches for.
+local TICKS_PER_HOUR = 9000
+
+function H.ticks()
+    return math.floor((H.countyHours() or 0) * TICKS_PER_HOUR)
+end
+
 -- The county's calendar month, numbered 0 to 11 the way the engine
 -- numbers them. The engine's own month is right whenever the game
 -- clock is running and wrong for the whole of the years, so this
@@ -182,6 +223,39 @@ function H.countyTimeOfDay()
     pcall(function() hour = GameTime.getInstance():getTimeOfDay() end)
     if type(hour) == "number" then return hour end
     return nil
+end
+
+-- [C113] The street hour - how much of ordinary life is outdoors at
+-- this hour of the day.
+--
+-- The values are Week One's, not authored here: Slayer's
+-- `BWOPopControl.getHourScore` hmap, read from the installed mod
+-- (Workshop 3403180543) and carried whole, credited in CREDITS.md.
+-- In its own mod that curve scaled how many street civilians SPAWNED
+-- around the player; here it is re-expressed, under this ontology, as
+-- a per-person propensity - the chance that this person's next
+-- ordinary leg of the day goes OUT rather than staying in - so the
+-- same authored shape of a day (nobody at three in the morning,
+-- everybody at eight, the second wave at four in the afternoon)
+-- comes out of SAO's own people instead of out of a spawner. The
+-- dormant half reads it on the county's hour; the live half reads it
+-- on the engine's - the hour of the day is the hour of the day in
+-- whichever half you are standing in.
+--
+-- Values above 1.0 mean certain out, and the comparison
+-- `unit() < affinity` answers that by construction; the table is
+-- hour-indexed 0..23 exactly as the prior art held it.
+local STREET_HOUR = {
+    [0] = 0.20, [1] = 0.15, [2] = 0.10, [3] = 0.05, [4] = 0.05,
+    [5] = 0.35, [6] = 0.85, [7] = 1.20, [8] = 1.20, [9] = 1.00,
+    [10] = 1.00, [11] = 0.80, [12] = 0.80, [13] = 0.80, [14] = 0.80,
+    [15] = 1.00, [16] = 1.20, [17] = 1.20, [18] = 1.00, [19] = 1.00,
+    [20] = 1.00, [21] = 0.90, [22] = 0.70, [23] = 0.40,
+}
+
+function H.streetAffinity(hour)
+    if type(hour) ~= "number" then return nil end
+    return STREET_HOUR[math.floor(hour) % 24] or 1.0
 end
 
 -- Which day of the record's own calendar the county has reached.

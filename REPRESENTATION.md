@@ -1,6 +1,6 @@
 | Document | Survivor Awareness Overhaul Representation Contract |
 |---|---|
-| Version | `4.2.7.0-pre-alpha` |
+| Version | `4.5.0.0-pre-alpha` |
 | Author | ellyj3rain |
 | Repository | `REPRESENTATION.md` |
 | Status | CANONICAL - what the county represents and which state carries each part. |
@@ -96,6 +96,9 @@ designation is one fact about repeated work. Each is useful and incomplete.
 | [SAO_Controller.lua](mod/42.20/media/lua/client/SAO_Controller.lua) | action state and pressure answers | execution | moves the body; never chooses the reason |
 | [SAO_Needs.lua](mod/42.20/media/lua/client/SAO_Needs.lua) | hunger, thirst, wounds, gear, water, warmth | survival pressure | initiates action; never defines the person |
 | [SAO_Medical.lua](mod/42.20/media/lua/client/SAO_Medical.lua) and [SAO_Course.lua](mod/42.20/media/lua/shared/SAO_Course.lua) | wound readings and infection course | the body over time | changes pressure; never sets an outcome objective |
+| [SAO_PathogenEvents.lua](mod/42.20/media/lua/shared/SAO_PathogenEvents.lua) | infection, death, turn, carrier exposure, encounter, and testimony | the pathogen seam between the living county and ZAO | emits actual events; never invents a form or knowledge |
+| [SAO_Adaptation.lua](mod/42.20/media/lua/shared/SAO_Adaptation.lua) | mutation knowledge and its event history | what this person has learned about forms | changes threat pressure; never assigns pathogen state |
+| [SAO_WorldGenesis.lua](mod/42.20/media/lua/shared/SAO_WorldGenesis.lua) | per-person world graph summaries, standing group, leader, and claim | what the dormant county’s people actually did | observes the same branching graph as live bodies; never authors an outcome |
 | [SAO_History.lua](mod/42.20/media/lua/shared/SAO_History.lua) | outbreak, clock, calendar, record day | world time | orders events; never assigns goals |
 | [SAO_Telemetry.lua](mod/42.20/media/lua/client/SAO_Telemetry.lua) | events, county lines, run state | evidence | observes the county; never drives behavior |
 | [SAO_Population.lua](mod/42.20/media/lua/client/SAO_Population.lua) | dormant day, meetings, movement, places | off-screen life | simulates pressure and movement; never assigns a result |

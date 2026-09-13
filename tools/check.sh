@@ -1802,6 +1802,31 @@ if ! "$PY" tools/world_development_test.py > /dev/null; then
     fail=1
 fi
 
+# [C111] Border 152 - need stands alongside trust. The batch record
+# deferred this border to the end pass, and this is it: the pull is
+# appetite times isolation times openness, summed onto trust only
+# where trust is not negative, zero when unreadable, held within the
+# county hour, and read by every company door - measured in the VM
+# against the shipped Standing, not described from its spelling.
+if ! "$PY" tools/company_pull_test.py > /dev/null; then
+    "$PY" tools/company_pull_test.py 2>&1 | grep -E "FAULT|SKIPPED" || true
+    note "BORDER FINDING - need does not stand alongside trust at the doors"
+    fail=1
+fi
+
+# [C112] Border 153 - the tick is the county's clock. The batch record
+# deferred this border to the end pass, and this is it: one clock,
+# floor(countyHours * 9000), read fresh by both counters; cadences
+# are stamps plus spans that fire on a skipped clock; the one
+# persisted due-time is domain-guarded; the voice keeps the wall
+# clock - the arithmetic and the skip measured in the VM, the seams
+# held in text.
+if ! "$PY" tools/tick_law_test.py > /dev/null; then
+    "$PY" tools/tick_law_test.py 2>&1 | grep -E "FAULT|SKIPPED" || true
+    note "BORDER FINDING - a cadence is not on the county's clock"
+    fail=1
+fi
+
 # Border 103 - the operator's speech is not in the repository: no
 # profanity in the tracked tree and no operator-quote attributions;
 # rulings are paraphrased content, speech stays with the speaker.

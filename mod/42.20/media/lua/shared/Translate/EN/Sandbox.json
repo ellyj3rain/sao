@@ -45,5 +45,21 @@
     "Sandbox_SurvivorAwareness_NeighbourBridge_tooltip": "Off, this mod runs nothing through another survivor mod. It still never treats that mod's people as enemies.\\nOn, and if such a mod is installed, its people become this mod's people.\\nThey get the same memory, temperament and history everyone here has, and their own menu carries this mod's options.\\nTurning this on makes this mod call the other mod's code. Leave it off unless you want the two joined.",
     "Sandbox_SurvivorAwareness_RecordOnCalendar": "Date broadcasts and newspapers by the calendar",
     "Sandbox_SurvivorAwareness_RecordOnCalendar_tooltip": "The game's radio and TV schedule and its dated newspapers follow the in-game date instead of counting from the day the world began.\\nThe Knox Event schedule starts July 9, 1993.\\nA world that starts earlier receives it from that date; a world that starts later receives it already in progress.\\nNewspapers show the newest issue printed by the current date.\\nOff: the schedule counts from the day the world began and newspapers are dated at random, as in the unmodded game.",
-    "Sandbox_SurvivorAwareness_RestoreTakenZombies_tooltip": "Each survivor spawn removes one nearby zombie, so the population is exchanged rather than added.\\nOn: the county places one replacement zombie on distant town ground for each one taken, a few per day, never near you.\\nThe map keeps the total it had, moved to where people crowded.\\nOff: taken zombies stay gone. The running balance is kept either way, so turning this on later repays gradually."
+    "Sandbox_SurvivorAwareness_RestoreTakenZombies_tooltip": "Each survivor spawn removes one nearby zombie, so the population is exchanged rather than added.\\nOn: the county places one replacement zombie on distant town ground for each one taken, a few per day, never near you.\\nThe map keeps the total it had, moved to where people crowded.\\nOff: taken zombies stay gone. The running balance is kept either way, so turning this on later repays gradually.",
+    "Sandbox_SurvivorAwareness_Branching": "Keep the county record",
+    "Sandbox_SurvivorAwareness_Branching_tooltip": "The county keeps a record of what pressure each survivor is under and where their life is heading.\\nOff: survivors still perceive, decide, group and settle exactly the same - nothing is written to the record.",
+    "Sandbox_SurvivorAwareness_Pressure": "Record pressure",
+    "Sandbox_SurvivorAwareness_Pressure_tooltip": "Threat, needs, injury, weather and the rest are summed into the record each pass.\\nOff: the pressure sums are not kept.",
+    "Sandbox_SurvivorAwareness_Labor": "Record work",
+    "Sandbox_SurvivorAwareness_Labor_tooltip": "Repeated work - cooking, foraging, watching, treating - is counted toward the trades people end up known by.\\nOff: work still happens, but is not counted.",
+    "Sandbox_SurvivorAwareness_Organization": "Record organizations",
+    "Sandbox_SurvivorAwareness_Organization_tooltip": "When a house settles an election, accepts a chair, takes an order, or forms a pact, the fact is recorded as the organization it is.\\nOff: houses still form and leaders still lead - none of it is recorded as organization.",
+    "Sandbox_SurvivorAwareness_Settlement": "Record settlements",
+    "Sandbox_SurvivorAwareness_Settlement_tooltip": "A house living on ground it claimed - fire lit, water hauled, shelves stocked - is recorded as a settlement.\\nOff: houses still claim and provision - the base is not recorded.",
+    "Sandbox_SurvivorAwareness_PlayerInteraction": "Record your claims",
+    "Sandbox_SurvivorAwareness_PlayerInteraction_tooltip": "Your petitions, refusals and offices are recorded against the county's organizations.\\nOff: your asks still land - they are not recorded.",
+    "Sandbox_SurvivorAwareness_Material": "Record stores",
+    "Sandbox_SurvivorAwareness_Material_tooltip": "Real food and goods shelved on held ground are counted as the house's store.\\nOff: shelves still get stocked - nothing is counted.",
+    "Sandbox_SurvivorAwareness_Communication": "Record what is told",
+    "Sandbox_SurvivorAwareness_Communication_tooltip": "Grudges, credits and news passed between survivors are recorded as messages.\\nOff: the words still pass - nothing is written down."
 }

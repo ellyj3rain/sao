@@ -1,6 +1,8 @@
 package com.sao.bridge;
 
 import com.sao.agent.SAOAgent;
+import com.sao.engine.SAODriver;
+import com.sao.engine.SAODriveState;
 import com.sao.engine.SAOIsoPlayerShell;
 import com.sao.engine.SAOMovement;
 import com.sao.engine.SAORouteState;
@@ -36,6 +38,8 @@ public final class SAOBridge {
 
     private final Map<SAOIsoPlayerShell, SAORouteState> routes = new WeakHashMap<>();
     private final Map<SAOIsoPlayerShell, com.sao.engine.SAOCombat> combats = new WeakHashMap<>();
+    /** [C114] Per-shell driving state, the same lifetime rule as routes. */
+    private final Map<SAOIsoPlayerShell, SAODriveState> drives = new WeakHashMap<>();
 
     /** Combat verbs (typed transplant; gated on the melee-callback patch). */
     public String beginCombatNearest(Object object, boolean live) {
@@ -1580,6 +1584,92 @@ public final class SAOBridge {
 
     private SAORouteState routeState(SAOIsoPlayerShell shell) {
         return routes.computeIfAbsent(shell, ignored -> new SAORouteState());
+    }
+
+    /** [C114] Driving verbs, the movement idiom: nothing in the hot
+     *  path is Lua-reachable, verdicts are one-line strings. */
+    private SAODriveState driveState(SAOIsoPlayerShell shell) {
+        return drives.computeIfAbsent(shell, ignored -> new SAODriveState());
+    }
+
+    /** [C114] A goer's drive: walk to the claimed car, start it
+     *  lawfully, drive to (tx,ty), stop. One-line verdict. */
+    public String driveBegin(Object object, int radius, String name,
+            double tx, double ty) {
+        try {
+            if (!(object instanceof SAOIsoPlayerShell shell)) {
+                return "NOT_A_SHELL";
+            }
+            return SAODriver.begin(shell, routeState(shell),
+                driveState(shell), radius, name,
+                (int) tx, (int) ty);
+        } catch (Throwable throwable) {
+            SAOAgent.log("driveBegin threw: " + throwable);
+            return "DRIVE_FAILED " + throwable;
+        }
+    }
+
+    /** [C114] Company boards the car ([B19]'s seat cap made real). */
+    public String rideBegin(Object object, int radius, String name) {
+        try {
+            if (!(object instanceof SAOIsoPlayerShell shell)) {
+                return "NOT_A_SHELL";
+            }
+            return SAODriver.beginRide(shell, routeState(shell),
+                driveState(shell), radius, name);
+        } catch (Throwable throwable) {
+            SAOAgent.log("rideBegin threw: " + throwable);
+            return "RIDE_FAILED " + throwable;
+        }
+    }
+
+    /** [C114] The driver holds for this many seated passengers before
+     * departing; called after the join decision names the party. */
+    public boolean driveWaitSeats(Object object, int seats) {
+        try {
+            if (!(object instanceof SAOIsoPlayerShell shell)) {
+                return false;
+            }
+            SAODriveState state = drives.get(shell);
+            if (state == null) return false;
+            SAODriver.waitSeats(shell, state, seats);
+            return true;
+        } catch (Throwable throwable) {
+            SAOAgent.log("driveWaitSeats threw: " + throwable);
+            return false;
+        }
+    }
+
+    public String tickDrive(Object object) {
+        try {
+            if (!(object instanceof SAOIsoPlayerShell shell)) {
+                return "NOT_A_SHELL";
+            }
+            SAODriveState state = drives.get(shell);
+            if (state == null || !state.requested) {
+                return "IDLE";
+            }
+            return SAODriver.tick(shell, routeState(shell), state);
+        } catch (Throwable throwable) {
+            SAOAgent.log("tickDrive threw: " + throwable);
+            return "TICK_FAILED " + throwable;
+        }
+    }
+
+    public String cancelDrive(Object object) {
+        try {
+            if (!(object instanceof SAOIsoPlayerShell shell)) {
+                return "NOT_A_SHELL";
+            }
+            SAODriveState state = drives.get(shell);
+            if (state == null) {
+                return "DRIVE_CANCELLED";
+            }
+            return SAODriver.cancel(shell, routeState(shell), state);
+        } catch (Throwable throwable) {
+            SAOAgent.log("cancelDrive threw: " + throwable);
+            return "CANCEL_FAILED " + throwable;
+        }
     }
 
     /** Perception acquisition: one compact string, no engine objects to Lua. */

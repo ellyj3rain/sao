@@ -1,6 +1,6 @@
 | Document | Survivor Awareness Overhaul Dependency Substrate |
 |---|---|
-| Version | `4.2.7.0-pre-alpha` |
+| Version | `4.5.0.0-pre-alpha` |
 | Author | ellyj3rain |
 | Repository | `SUBSTRATE.md` |
 | Status | CANONICAL - what exists, what is planned, and what each area of concern needs. |
@@ -38,7 +38,7 @@ ported, and whether it is required.
 
 | Layer | What it holds |
 |---|---|
-| ZAO | design and engine evidence for the turned; no mod code yet |
+| ZAO | the shipped sister mod for the turned - Lua controller, per-form behaviors, overlay, pathogen, forms and recovery, the Java bridge (`ZAO.jar`), and the ratified read-only claim surface (`ZAO.owns`, `ZAO.formOf`, `ZAO.performanceOf`, DR-024); optional add-on - reads SAO where present, runs whole where absent, and SAO does not depend on it at runtime |
 | Speakeasy | dataset source, world documents, corpus, voice material, training plan; no models yet |
 | SAO tools and borders | verification, county sweeps, dataset captures, deploy and build machinery |
 | External mod catalogue | optional inputs, compatibility targets, art and mechanics sources |
@@ -47,8 +47,6 @@ ported, and whether it is required.
 
 | Layer | Planned role | Dependency shape |
 |---|---|---|
-| ZAO mod | owns the turned body and pathogen state | optional add-on; reads SAO where present, runs whole where absent |
-| ZAO claim surface | lets other mods ask who owns a body | public contract decision still open |
 | Recovery mods | antibody, cure, recovery, and repeat-infection inputs | optional inputs, never requirements |
 | Speakeasy models | understander and speaker for free-form conversation | port into SAO; no code crosses |
 | In-process inference | models run in SAO's Java jar | pure Java, self-contained, no service |

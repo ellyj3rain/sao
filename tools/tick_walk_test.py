@@ -99,6 +99,17 @@ SUBS = {
         "([C75]). A settled house is skipped for nothing, because "
         "`groupClaimOf` answering IS the skip, so the pass costs the "
         "walk alone once a county has settled"),
+    "dormantProvision": (1, "unbudgeted",
+        "[C107] the dormant houses speak their shelves. One walk of "
+        "the whole store, once per pass, to find the groups with no "
+        "bodies near - and the `seen` guard means the work inside "
+        "fires once per GROUP, not once per record, so once a county "
+        "has settled the walk is the whole cost, the same shape "
+        "`dormantSettle`'s declaration argues. Deliberately NOT "
+        "budgeted: the shelf words are derived from stamps the county "
+        "day already wrote, so a rotating budget here would not shave "
+        "a frame off anything - the walk itself is the only linear "
+        "part, and it is one"),
     "dailyCounty": (0, "none",
         "[C65] walks no store in this file. It gates on the county's "
         "own day and calls SAO.Telemetry.county, whose single walk is "

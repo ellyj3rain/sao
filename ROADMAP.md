@@ -1,6 +1,6 @@
 | Document | Survivor Awareness Overhaul Roadmap |
 |---|---|
-| Version | `4.2.7.0-pre-alpha` |
+| Version | `4.5.0.0-pre-alpha` |
 | Author | ellyj3rain |
 | Repository | `ROADMAP.md` |
 | Status | CANONICAL - thread map, backlog, live gates. |
@@ -128,7 +128,9 @@ Preconditions and slices, none of them the whole thing:
    places.
 6. Knowledge over the span: what the old world knew decaying at the
    county's own rate, what this one learns accumulating, and books,
-   papers and media carrying either on where they survive.
+   papers and media carrying either on where they survive. Mutation
+   knowledge follows the same rule: it accumulates from proximity and
+   testimony, never from a hash.
 7. The dead of those years: burials, graves, and a county that
    remembers who is in them.
 
@@ -313,7 +315,38 @@ is lived, witnessed, and remembered person by person. Slices:
    calendar, never from the dial), and the night watch, the
    journey for a weapon or ammunition, and scouting somewhere
    defensible all wait for it. Normal-life behaviour on open
-   streets is still unbuilt.
+   streets is SHIPPED as `[C113]`, the streets half of the Week One
+   port the operator ruled at `[C110]`: Slayer's authored street-hour
+   curve carried whole into `SAO.History.streetAffinity` (who is out,
+   by the hour of the day, as a per-person propensity rather than a
+   spawner's count), and the street-occupations idea re-expressed as
+   the census trade's own ground - a stable workplace walked to by
+   need's leave, behind need and ahead of company, on both halves of
+   the county (the dormant leg boundary and the live roam gate), all
+   of it dead the moment `fallHasCome` says so, the thinning left to
+   the county's own machinery rather than any timeline. The other
+   half of the port - pre-fall DRIVING, a live goer who took a car
+   actually entering seat 0 and driving it through the `[C82]`
+   doorway - is SHIPPED as `[C114]`: the engine-start-and-drive idiom
+   and the 30 km/h town figure ported from Week One with credit, on
+   the engine's own lawful surface only (the no-argument
+   `tryStartEngine`, a refusal honored and answered with the ordinary
+   walk; controls and steering sign verified from the installed
+   jar's bytecode; the ghost driver, the forced-engine trio and the
+   never-steering regulator named as deliberately-not-taken). A
+   goer who claimed wheels on a venture walks to the car, boards
+   seat 0, starts it, and drives it to the venture's ground - era
+   general, because `[B19]`'s claims, `[C31]`'s burn and `[C82]`'s
+   doorway were never era-gated and `[C31]`'s fuel burn becomes real
+   fuel spent on a real trip - with the promised company in the
+   passenger seats (the driver holds for them; latecomers take the
+   walk, the honest outcome), the last stretch walked on arrival so
+   the venture's own close-out runs unchanged, and no mid-drive
+   decision interrupting a committed drive except through
+   `setState`, whose exit rule parks the car. Both halves owe their
+   play receipts to the end pass (which also rebuilds the jar the
+   new bridge verbs require; until then the Lua degrades to the
+   ordinary walk).
    And by `[C43]` the record's timeline moves onto the start date: a
    player picks any date in 1993 and, with the switch on, the record's
    own first day lands there, so its week of ordinary county plays
@@ -354,11 +387,19 @@ Named by the operator 2026-09-06: Week One (Slayer, on the Bandits
 NPC engine) as existing art for the living county before the fall -
 civilian animations, vehicle models, sounds, outfits, several
 credited authors' work under one mod. Catalogued in Speakeasy's
-people-mods.md (part 4) from the pages; nothing of its logic
-crosses (its people are programmed zombies on a scripted timeline).
-The art was read on disk and selected through Crucible (DR-034):
-SHIPPED as `[C35]` - the county's gestures, seats, tunes, dances,
-claps and coughs, from Hobbies and Week One, copied and credited.
+people-mods.md (part 4) from the pages. The art was read on disk and
+selected through Crucible (DR-034): SHIPPED as `[C35]` - the
+county's gestures, seats, tunes, dances, claps and coughs, from
+Hobbies and Week One, copied and credited. The operator's ruling of
+2026-09-12 (`[C110]`) then took its CODE as well, ported under this
+ontology as the people mods were before it: the street hour and the
+street occupations SHIPPED as `[C113]` (slice 1 above), the driving -
+the engine-start-and-drive idiom and the 30 km/h town figure, on the
+engine's lawful surface, the ghost driver and forced-engine trio
+deliberately not taken - SHIPPED as `[C114]`. Its people's logic
+still never crosses - its civilians are programmed zombies on a
+scripted timeline, and SAO's are its own people on the county's
+clock.
 
 ## People through required mods (DR-032, operator-ruled 2026-09-06)
 
@@ -479,7 +520,8 @@ scoped, the game being loaded anyway.
 Ordered, and each one has its finding or its ruling behind it already.
 This exists so the next move is never a question.
 
-### 1 - A house in the unwatched county can take ground - DONE at `[C76]`
+### 1 - A house in the unwatched county can take ground - DONE at
+`[C76]` and `[C107]`
 
 `setGroupClaim`, `setHearth`, `setLarder` and `setWaterStore` have call
 sites in `SAO_Controller` alone, which needs materialised bodies. So a
@@ -504,7 +546,23 @@ and arriving is `[C75]`'s walk. `Perception.learnBuilding` already
 records every arrival, so which buildings a house's members actually
 reach is a fact that exists and is unread.
 
-### 2 - The place ontology (DR-006 S4, operator-named error)
+`[C107]` paid the remainder. The dormant half cannot count shelves -
+it has no body to stand a round on - so it does not pretend to: the
+larder and water words are derived from what its people actually
+reached (`lastFoodDay`/`lastWaterDay`, the same stamps attrition
+trusts) against the county's own patience constants, and the seat's
+own ledger (`offersNow`, mains-aware and spent-aware as the dormant
+day reads it). LEAN is nobody in the house reaching food inside food
+patience; FULL is everybody fed AND the seat itself still offering.
+The hearth claim is the honest dark one - no member has a body, so
+no fire of the house is burning. The lean house calls for bread like
+a live one, the words feed every consumer that was inert (flight,
+ladder, forager need-pull, abandon council, charity), and a house
+really living on its ground enters the `[C105]` settlement graph. A
+house with any materialised member is left to the live round.
+
+### 2 - The place ontology (DR-006 S4, operator-named error) - DONE
+at `[C108]`
 
 `s.groupClaims[groupName]` is a single rectangle and S4 says "one
 settled bounds fact per group name". A group holding a base in one town
@@ -579,7 +637,25 @@ numbers read three ways, and a group whose numbers do not separate has
 one place and no stashes - which is a correct outcome, not a missing
 feature.
 
-### 3 - Recruitment, and why a house cannot grow past a pair
+`[C108]` paid it exactly as ratified. `Perception.returnsOf` is the
+generalised scorer - `[C76]`'s own visits, members and water
+doubling, ranked best-first with recency breaking ties, derived from
+use and never stored. `Standing.placesOf`/`onGroundOf` answer where a
+group holds (cached against a belief version and the member roster);
+`groupClaimOf` still answers where a group is, and the twenty-nine
+seat-reading sites did not move. The settling pass reads the top of
+the ranking, so the seat and the set are one law. The three readers
+where holding several changes the answer now read the set: neither
+half settles over another company's stash while honouring their
+base, a feud's shadow falls around every place the enemy holds, and
+a pact delivery is kept standing on any of the ally's ground. What
+this batch did not invent: a seam that moves a healthy house's seat -
+a failing house still leaves through the existing abandon council,
+and a deliberate relocation has no writer and was not in the
+ratified scope.
+
+### 3 - Recruitment, and why a house cannot grow past a pair - DONE
+at `[C111]`
 
 A road meeting is worth `ROAD_TRUST` - 0.005 - so reaching the company
 line from nothing takes two hundred meetings with the same person.
@@ -589,6 +665,28 @@ nobody. Whether a meeting should be worth more, or whether somebody
 should seek a person they do NOT yet trust because that person has
 something they need, is a cognition question (DR-038) rather than a
 number to raise.
+
+The operator ruled on it directly (2026-09-12): a meeting is worth
+more, most people not only want but NEED to be around people, and
+trust is not always the principal determinant of whether a group
+forms - which depends on how far along into the apocalypse the world
+is. The cognition rows may later refine the words; the mechanism no
+longer waits on them.
+
+`[C111]` paid it. A road meeting is worth 0.02, so the default line is
+twenty-five meetings instead of two hundred - still acquaintance,
+never one conversation. And need stands alongside trust at every
+company door through one law, `Standing.companyStanding`: each side's
+own pull - appetite (`contactFactor`, who they are), isolation
+(`[C94]`'s state surface, finally gating something), and the county's
+openness (months since the fall on the split clock, over a horizon of
+six) - substitutes for trust not yet built and never cancels trust
+already spent against somebody. The doors that read it: the road, the
+table, the visit gate, the companion seam, and the player's own asks
+(walk, join, designation). Temperament is untouched - circles,
+capacity, hostility, and mercy still gate after the line clears. A
+house can now grow past a pair out of meetings, and the lonely can
+found one; whether a fresh county actually does is a play receipt.
 
 ### 3b - What the walking costs, measured - DONE at `[C77]`
 
@@ -617,13 +715,32 @@ materialised. That is a play receipt.
 `b.known` is also what `[C76]` settles a house on, so the growth is the
 feature and the cost at once. Measure before trimming.
 
-### 4 - The county's pace is frame time, not real time
+### 4 - The county's pace is frame time, not real time - DONE at `[C112]`
 
 Standing operator item. Everything except the voice cooldown counts
 frames, so a 144Hz machine runs a county 2.4x faster than a 60Hz one.
 `[C75]` moved the dormant walk onto the county's clock; the rest of the
 timers did not move. Changing them touches every timer in the mod and
 changes how the game feels, which is why it is the operator's.
+
+The operator ruled (2026-09-12) that the whole set should move and
+move as one robust system. `[C112]` pays that by not converting sixty
+timer sites at all: it redefines the unit once, in `SAO_History.ticks`
+- a tick is a 9000th of a county hour, which is what a frame was at
+sixty frames a second on the default day length - so every span
+constant already authored in ticks keeps its number and its pace while
+the domain becomes the county's clock. The two frame counters
+(Controller's and Population's, which stamped the same belief axis with
+diverging numbers during the years) both read the one clock now; the
+modulo cadences became last-fired-plus-a-span stamps, because a clock
+that can skip values steps straight over a modulo; the years' calibrated
+3600-tick-per-day fake advance is deleted in favor of the clock's own
+day; Perception's reload rebase is replaced by a foreign-stamp domain
+check, because the tick axis crosses sessions now and fresh stamps must
+not be zeroed on every load. The voice cooldown keeps the wall clock
+([B49]'s named exception: the player's ears are in real time). What
+this feels like in play is a receipt the C era still owes with the
+rest.
 
 ### 5 - The play receipts the C era owes
 
@@ -634,8 +751,16 @@ produce for itself.
 
 ### Beside this tree
 
-`../zombie-awareness` G0 is not closed - what the loaded recovery mods
-expose is unchecked, because the Antibodies family is not installed.
-`../zomboid-speakeasy` has the dataset's source and row shape ratified
-(DR-038, its record entries 24 and 25); its first 112 rows are
-ratified by the operator (its record 29).
+`../zombie-awareness` G0 closed at its `[A6]` (2026-09-09): Antibodies
+is installed in the Workshop tree (`2392676812`, v1.97), exposes no API
+(character `ModData` readable only by naming the mod, sixty-seven
+sandbox options), and recovery is now read from this side's own record
+outright (its `[A29]`), so no named read ships. `../zomboid-speakeasy`
+has the dataset's source and row shape ratified (DR-038, its record
+entries 24 and 25); its first 112 rows are ratified by the operator
+(its record 29), the 78 trades-hinge rows are ratified too (its
+records 30 and 41), and the cross-module row contract is ratified
+(its entry 42) with rows cut against the event-driven pathogen state
+(its records 38 and 39). What waits there now is the operator's
+review of the nine drafted world documents, which gates corpus,
+voice, and training.

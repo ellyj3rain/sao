@@ -409,9 +409,17 @@ def drive():
         # defect this repository has paid for three times. What must
         # hold is that the dormant day asks ONE chooser, with the
         # person and the reach, and writes the goal out of the answer
-        # it gets back, whatever either is called.
+        # it gets back, whatever either is called. [C113] added a
+        # fourth payment: the call gained a guard (pre-fall, the open
+        # street's authored curve decides whether this person goes out
+        # at all before any place is asked about), so the literal went
+        # red on a correct gate. The optional guard is one `name and`
+        # ahead of the call and nothing more - a second chooser, a
+        # different asking shape, or the chooser asked without the
+        # person still reads red.
         "the day asks one chooser where it goes":
-            re.search(r"local chosen = choose\w+\(id, rec, reach\)", pop)
+            re.search(r"local chosen = (?:\w+\s+and\s+)?"
+                      r"choose\w+\(id, rec, reach\)", pop)
             is not None,
         "the goal is written from that answer":
             re.search(r"rec\.dayGoalX, rec\.dayGoalY = chosen\.\w+, "

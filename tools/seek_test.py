@@ -166,7 +166,20 @@ SAOJavaBridge = {
 '''
 
 PROBE = r'''(function()
-  local tick = _G.__handlers.OnTick
+  -- [C112] moved every cadence onto the county's clock, and this
+  -- harness used to leave that clock frozen: __hours never moved, so
+  -- History.ticks read zero for the whole probe, the population pass
+  -- gate opened exactly once, and every round after the first
+  -- measured nothing while looking like forty decisions. The engine
+  -- advances the county's hours as it burns frames; the wrapper does
+  -- the same - one call is a tenth of a county hour (900 ticks, past
+  -- the 240-tick pass interval, so every call is a real pass), and a
+  -- round's 240 calls are one county day.
+  local realTick = _G.__handlers.OnTick
+  local tick = function()
+    _G.__hours = (_G.__hours or 0) + 0.1
+    realTick()
+  end
   local function make(x, y)
     local r = SAO.Identity.create(nil, nil, x, y, 0)
     pcall(function() SAO.History.generate(r.id, r) end)
@@ -196,12 +209,19 @@ PROBE = r'''(function()
 
   local function believe()
     if not SAO.Perception.sawPerson then return false end
-    SAO.Perception.sawPerson(me.id, kFriend, 10650, 9100, 1, friend.id)
-    SAO.Perception.sawPerson(me.id, kStranger, 10660, 9110, 1, stranger.id)
-    SAO.Perception.sawPerson(me.id, kEnemy, 10670, 9120, 1, enemy.id)
+    -- The tick the real perception pass would stamp: the county's
+    -- own, not a constant - a constant at is a stale sighting the
+    -- moment the clock moves, and lookedAt >= at would read every
+    -- address spent forever after one walk to it.
+    local now = SAO.History.ticks()
+    SAO.Perception.sawPerson(me.id, kFriend, 10650, 9100, now, friend.id)
+    SAO.Perception.sawPerson(me.id, kStranger, 10660, 9110, now, stranger.id)
+    SAO.Perception.sawPerson(me.id, kEnemy, 10670, 9120, now, enemy.id)
     return true
   end
   local haveVerb = believe() and "yes" or "no"
+
+  local function dayNow() return math.floor(_G.__hours / 24.0) end
 
   -- Many day-choices, because whether somebody sets out on any one day
   -- is their own initiative drawn against the county's generator.
@@ -216,66 +236,93 @@ PROBE = r'''(function()
       me.dayGoalPlaceId, me.dayGoalPerson = nil, nil
       me.nextDormantMoveAt = 0
       me.x, me.y = 10500, 9000
-      for _ = 1, 240 do tick() end
-      local who = me.dayGoalPerson
-      if who then seen[who] = (seen[who] or 0) + 1 end
-      seen.__any = (seen.__any or 0) + (who and 1 or 0)
+      -- Counted on every pass of the day, not once at its end: on a
+      -- live clock the walker really covers ground and the walk
+      -- itself re-chooses on arrival, so what a day was ABOUT is not
+      -- what its last pass happened to be holding.
+      for _ = 1, 240 do
+        tick()
+        local who = me.dayGoalPerson
+        if who then
+          seen[who] = (seen[who] or 0) + 1
+          seen.__any = (seen.__any or 0) + 1
+        end
+      end
     end
     return seen
   end
 
-  local today = math.floor(_G.__hours / 24.0)
-  local well = choices(40, function()
-    me.lastWaterDay, me.lastFoodDay = today, today
+  -- Two hundred days of choices: the social goal is a minority event
+  -- against this fixture, and a short window catches it barely more
+  -- often than not, which made the border a coin flip that passed or
+  -- failed on the draw rather than on the code. The never-taken
+  -- properties below stay at forty days because a zero they break is
+  -- systematic, not marginal.
+  local well = choices(200, function()
+    me.lastWaterDay, me.lastFoodDay = dayNow(), dayNow()
   end)
   local toFriend = well[kFriend] or 0
   local toStranger = well[kStranger] or 0
   local toEnemy = well[kEnemy] or 0
 
-  -- Two days without water. Thirst is not a visit.
+  -- Three days without water. Thirst is not a visit.
   local dry = choices(40, function()
-    me.lastWaterDay = today - 3
-    me.lastFoodDay = today
+    me.lastWaterDay = dayNow() - 3
+    me.lastFoodDay = dayNow()
   end)
   local dryToAnyone = dry.__any or 0
 
   -- A sighting already walked to and found empty is not an address.
   local spent = 0
   do
-    local b = SAO.Perception.beliefs[me.id]
     for i = 1, 40 do
       believe()
+      local b = SAO.Perception.beliefs[me.id]
       if b and b.people then
         for _, pb in pairs(b.people) do
           pb.lookedAt = (pb.at or 0) + 1
         end
       end
-      me.lastWaterDay, me.lastFoodDay = today, today
+      me.lastWaterDay, me.lastFoodDay = dayNow(), dayNow()
       me.dayGoalX, me.dayGoalY = nil, nil
       me.dayGoalPlaceId, me.dayGoalPerson = nil, nil
       me.nextDormantMoveAt = 0
       me.x, me.y = 10500, 9000
-      for _ = 1, 240 do tick() end
-      if me.dayGoalPerson then spent = spent + 1 end
+      for _ = 1, 240 do
+        tick()
+        if me.dayGoalPerson then spent = spent + 1 end
+      end
     end
   end
 
-  -- And where the goal actually points when it is a person.
+  -- And where the goal actually points when it is a person, captured
+  -- the pass it is chosen on; the window breaks the moment it lands.
   local atX, atY = "none", "none"
   do
-    believe()
-    me.lastWaterDay, me.lastFoodDay = today, today
-    for i = 1, 40 do
+    -- This block measures WHERE the goal points, not how long trust
+    -- survives: the eighty days of the dry and spent blocks above
+    -- held no contact with the friend, and drift softened the pair
+    -- below the company line. The precondition is restored to
+    -- exactly what the fixture set up, 0.85.
+    SAO.Standing.adjustTrust(me.id, friend.id,
+      0.85 - (SAO.Standing.trust(me.id, friend.id) or 0))
+    for i = 1, 200 do
       believe()
+      me.lastWaterDay, me.lastFoodDay = dayNow(), dayNow()
       me.dayGoalX, me.dayGoalY = nil, nil
       me.dayGoalPlaceId, me.dayGoalPerson = nil, nil
       me.nextDormantMoveAt = 0
       me.x, me.y = 10500, 9000
-      for _ = 1, 240 do tick() end
-      if me.dayGoalPerson == kFriend then
-        atX, atY = tostring(me.dayGoalX), tostring(me.dayGoalY)
-        break
+      local found = false
+      for _ = 1, 240 do
+        tick()
+        if me.dayGoalPerson == kFriend then
+          atX, atY = tostring(me.dayGoalX), tostring(me.dayGoalY)
+          found = true
+          break
+        end
       end
+      if found then break end
     end
   end
 
@@ -368,7 +415,8 @@ def main():
     line = probe(PROBE)
     got = numbers(line)
     print()
-    print("     forty day-choices per case, one walker, three people:")
+    print("     one walker, three people, a live county clock (well-fed 200 "
+          "days, the rest 40):")
     print("       " + line)
     print()
 
@@ -382,8 +430,9 @@ def main():
                       "there is nobody for a day to be about ([C71])")
     if int(got.get("toFriend") or 0) == 0:
         faults.append(
-            "in forty day-choices, a well-fed survivor never once set out "
-            "toward somebody they trust at 0.85 and saw yesterday. That is "
+            "in two hundred days of choices, a well-fed survivor never once "
+            "set out toward somebody they trust at 0.85 and saw yesterday. "
+            "That is "
             "the defect this border exists for: the dormant goal path has "
             "no social term, so nobody in the county ever decides to go to "
             "another person and every meeting is a coincidence")

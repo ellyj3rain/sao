@@ -1,6 +1,6 @@
 | Document | Survivor Awareness Overhaul Organization and Deference Contract |
 |---|---|
-| Version | `4.2.7.0-pre-alpha` |
+| Version | `4.5.0.0-pre-alpha` |
 | Author | ellyj3rain |
 | Repository | `ORGANIZATION.md` |
 | Status | CANONICAL - organization, hierarchy, offices, governance forms, and deference. |
@@ -215,18 +215,33 @@ coherently.
 
 ## Current state
 
-The tree currently has a thin organization surface:
+The organization surface is no longer thin. What the tree carries now:
 
+- [SAO_Organization.lua](mod/42.20/media/lua/shared/SAO_Organization.lua)
+  holds the model's own records - organizations, offices, claims with
+  recognizers and dissenters, and decision records with a basis.
+- [SAO_Recognition.lua](mod/42.20/media/lua/shared/SAO_Recognition.lua) is
+  the write side, and one law governs it: nothing there decides anything.
+  Every record is written after a real county event - a settled election,
+  a chair offer taken or declined, a join petition answered, an order
+  verdict, real provisioning, a pact, a schism.
+- [SAO_PlayerInteraction.lua](mod/42.20/media/lua/shared/SAO_PlayerInteraction.lua)
+  is the sanctioned player-side claim surface, and the menu wires the
+  player-surface verbs above through it: observe, ask to join or leave,
+  petition, support or contest a claim, ask for work, accept or refuse an
+  order, claim an office, call a vote where the form allows one, appeal,
+  enforce, and resist. Every action is a claim with recognition and
+  response; the house may ignore any of them; an office never moves
+  through its claimant's assertion.
 - [SAO_Command.lua](mod/42.20/media/lua/shared/SAO_Command.lua) recognizes a
   leader, a second, a proven hand, or nobody.
 - [SAO_Standing.lua](mod/42.20/media/lua/shared/SAO_Standing.lua) stores group
   membership, a leader, a creed, ration policy, government history, and claims.
-- The current office model has no governance form, no jurisdiction, no
-  succession method, no legitimacy source, no appeal path, no overlapping
-  authority, and no localist layer.
 
-The current leader/second model is a first approximation. It is not the final
-organization model.
+The office model still has no overlapping authority and no localist layer;
+the rest of what this list once named as absent - governance form,
+succession, appeal - exists in the records the recognition bridge writes,
+in the county's own events, without an authoring pass.
 
 ## Model primitives
 

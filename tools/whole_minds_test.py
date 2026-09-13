@@ -3,19 +3,30 @@ r"""Border 94 - whole minds survive the reload (DR-020).
 
 The operator's pick, past the recommended subset: everything a
 survivor believes - zombies, people, factions, places - survives
-save/reload. The store binds to ModData at game start, and the tick
-axis (which cannot cross sessions - a dead session's frame count
-reads as ultra-fresh against a new session's small ticks) rebases to
-0 on load: a new session starts at tick 0, so 0 is "just refreshed",
-every table gets one horizon of grace, and normal decay resumes. The
-world-hours stamps carry real age; dead-flagged people never decay
-(F-033); places prune by proximity, not time.
+save/reload. The store binds to ModData at game start. The world-hours
+stamps carry real age; dead-flagged people never decay (F-033); places
+prune by proximity, not time.
+
+[C112] changed what the tick half of this border holds, and the
+change is the operator's own ruling, not a drift: every timer moved
+onto the county's clock (`SAO.History.ticks`, world-age quantized),
+so the tick axis crosses sessions now as a matter of course and the
+wholesale zero-on-load rebase would itself be the defect - it would
+age a two-minute-old belief to the beginning of the world on every
+reload. What survives from the old rebase is the one case it existed
+for: a stamp AHEAD of now cannot exist in the county domain (stamps
+are made at now, the clock never runs backwards), so ahead-of-now is
+a foreign-domain mark, and it reads as ultra-fresh forever if left
+standing. The bind drops every such stamp to 0, which reads as long
+ago - one reload's relearn per pre-[C112] save, both directions
+safe, then never again.
 
 WHAT THIS HOLDS
 ---------------
   1. The bind exists, targets the SurvivorAwareness_Beliefs store,
      runs at game start, and reports through the one logging door.
-  2. The rebase zeroes tick fields, spares the Hours stamps, and
+  2. The foreign-stamp drop zeroes ahead-of-now stamps against the
+     county's own ticks, spares the Hours stamps, and
      cannot run twice (the re-bind guard).
   3. Pre-bind session entries are carried into the store, not lost.
   4. The durability laws the persistence leans on still stand: the
@@ -56,10 +67,21 @@ def main():
             or "Events.OnGameStart" not in src:
         faults.append("no game-start bind exists - the store may exist and "
                       "never be opened")
-    if "rebaseTickFields" not in src or "entry.at = 0" not in src:
-        faults.append("the tick axis is not rebased on load - a dead "
-                      "session's frame stamps would read as ultra-fresh "
-                      "and stale intel would act like a live sighting")
+    # [C112] The wholesale rebase became a foreign-stamp drop, and the
+    # drop has to keep BOTH edges of the old cure: the ahead-of-now
+    # comparison (a drop that zeroed everything would age fresh
+    # county-domain stamps - the old bug, reborn as its own fix) and
+    # the `entry.at = 0` reset (a comparison that only TESTED for
+    # foreign stamps without dropping them would leave the ultra-fresh
+    # defect standing).
+    if "dropForeignStamps" not in src \
+            or "entry.at > now" not in src \
+            or "entry.at = 0" not in src \
+            or "SAO.History.ticks" not in src:
+        faults.append("the foreign-stamp drop is not what [C112] left - a "
+                      "stamp ahead of the county's own ticks would read as "
+                      "ultra-fresh forever, and stale intel would act like "
+                      "a live sighting")
     if 'key:find("Hours")' not in src:
         faults.append("the rebase does not spare the world-hours stamps - "
                       "the one axis that truly crosses sessions would be "
@@ -86,8 +108,9 @@ def main():
             print(f"  FAULT: {f}")
         return 1
     print("  94) whole minds: the store binds at game start, the tick axis")
-    print("      rebases once and only once, the hours axis crosses intact,")
-    print("      and the durability laws underneath still stand")
+    print("      crosses sessions on the county's own clock ([C112]) with")
+    print("      foreign ahead-of-now stamps dropped, the hours axis crosses")
+    print("      intact, and the durability laws underneath still stand")
     return 0
 
 

@@ -1,6 +1,6 @@
 | Document | The three projects and what each owns |
 |---|---|
-| Version | `4.2.7.0-pre-alpha` |
+| Version | `4.5.0.0-pre-alpha` |
 | Author | ellyj3rain |
 | Repository | `PROJECTS.md` |
 | Status | CANONICAL - the architecture across the three repositories. Held here; `../zombie-awareness` and `../zomboid-speakeasy` point at it. |
@@ -102,6 +102,12 @@ hold ground is variable - some groups settle, some stay nomadic - and
 never placed. The claim surface's concrete shape (ZAO's F-012) stays
 open until mod code is near.
 
+ZAO's `[A17]` records how the pathogen meets the branching graph: the
+pathogen owns the mutation roll and the roll for form performance, crossed
+is terminal, retained form traits are state rather than new branches, forms
+and attribute mutations stack, and forms enter Perception as visible facts
+that change pressure inside the living branching graph.
+
 ### SAO to Speakeasy - the dataset
 
 No code crosses, and the licences are why the repositories are separate
@@ -151,9 +157,9 @@ edge now is what stops it being invented twice.
 
 | | Version | Standing |
 |---|---|---|
-| SAO | see `VERSION` | four pillars built, the county runs on them, play receipts outstanding. A bitten body now races the engine's own death hour instead of arriving at it, the unwatched county can catch Knox on its own, and one person can read another as far as their own First Aid allows. |
-| ZAO | `../zombie-awareness/VERSION` | G0 closed at `[A6]` - the turn, the control surface, the player's dials and the recovery mods all have evidence. No mod code yet. Three decisions gate G1. `[A7]`-`[A9]` read the mods that already run behaviour on turned bodies and set what this project does with them (DR-014, DR-015). `[A10]` confirmed the actuators are Java-side. `[A11]` defined the mutation system - `MUTATION.md` is canonical - and the county gained two populations: the afflicted, who are people again, and the crossed, who only look like one. `[A12]` shaped the second seam under separation of concerns: SAO executes the afflicted while ZAO owns the pathogen state on them and executes the crossed, the crossed's vocabulary is a bidirectional goal, and their ground-holding is variable and never placed. `[A13]` carried the sister's driving map into the seam's goal the same turn it landed: what the crossed need from driving now rides as named consumers of a mapped surface, with its live receipt owed. `[A14]` and `[A15]` removed the invented gate that attributed a live-receipt rule to the operator. `[A16]` recorded the operator's mutation rulings: the mutants source port supplies the gradient's forms, attributes and forms are distinct but linked, a returned mutant is one of the afflicted, the gradient's contents are enumerated from what is possible, dial numbers extrapolate from the operator's suggested numbers, afflicted memory is fractured at the turn, and necessity holds an afflicted settlement. |
-| Speakeasy | `../zomboid-speakeasy/RECORD.md` | the dataset's source and row shape ratified (record 24); a ceiling for the inference budget measured (record 26); the first 112 rows are in `decisions/`, ratified by the operator (its record 29) |
+| SAO | see `VERSION` | four pillars built, the county runs on them, play receipts outstanding. A bitten body now races the engine's own death hour instead of arriving at it, the unwatched county can catch Knox on its own, one person can read another as far as their own First Aid allows, and Perception now carries ZAO's form and performance into the living county's threat model. |
+| ZAO | `../zombie-awareness/VERSION` | G0 closed at `[A6]` - the turn, the control surface, the player's dials and the recovery mods all have evidence. `[A7]`-`[A9]` read the mods that already run behaviour on turned bodies and set what this project does with them (DR-014, DR-015). `[A10]` confirmed the actuators are Java-side. `[A11]` defined the mutation system - `MUTATION.md` is canonical - and the county gained two populations: the afflicted, who are people again, and the crossed, who only look like one. `[A12]` shaped the second seam under separation of concerns: SAO executes the afflicted while ZAO owns the pathogen state on them and executes the crossed, the crossed's vocabulary is a bidirectional goal, and their ground-holding is variable and never placed. `[A13]` carried the sister's driving map into the seam's goal the same turn it landed: what the crossed need from driving now rides as named consumers of a mapped surface, with its live receipt owed. `[A14]` and `[A15]` removed the invented gate that attributed a live-receipt rule to the operator. `[A16]` recorded the operator's mutation rulings, `[A17]` integrated the pathogen with the branching graph, `[A18]` added the state producer, `[A19]` added the state mapping, `[A20]` added the form registry and the pathogen roll, `[A21]` added the development loadout, `[A22]` added the form overlay, `[A23]` added the runtime controller that claims identity-bearing zombies and drives each body according to its form, and `[A24]` chose the stable mod id `ZombieAwareness`. `[A25]` published the claim surface (`ZAO.owns`, `ZAO.formOf`, `ZAO.performanceOf`), `[A26]` chose the sandbox defaults, `[A27]` corrected the controller to drive only `IsoZombie`, `[A28]` built the Java bridge (`ZAO.jar`), `[A29]` shipped the runtime dials and the per-form capabilities, and `[A30]` verified the sandbox-name lookup against the engine's own bytecode. G1's controller is built and gated; its proof by observation is owed with the era's play receipts. Two forks stand open in the ledger: Rarity (the spread's tails; settlement frequency) and Publication. |
+| Speakeasy | `../zomboid-speakeasy/RECORD.md` | the dataset's source and row shape ratified (record 24); a ceiling for the inference budget measured (record 26); the first 112 rows are in `decisions/`, ratified by the operator (its record 29); the cross-module row contract is active in `decisions/CONTRACT.md`; the first cross-module rows are in `decisions/cross-module/`, and the state producer now reads event-driven pathogen state |
 
 Each of those is its own repository's to update. This table says where
 the three stand relative to each other, which is the thing no single

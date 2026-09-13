@@ -268,6 +268,7 @@ public final class SAOPerceptionScanner {
             if (SAONeeds.isUnkempt(other)) {
                 out.append("+u");
             }
+            appendZaoForm(out, other);
         }
         // The turned are recognizable ([B3], corrected [C8]): descriptors
         // do NOT survive the turn - reanimate() builds the zombie a fresh
@@ -281,26 +282,64 @@ public final class SAOPerceptionScanner {
         // parsers read positionally and are unaffected; the belief layer
         // decides whether the identity means anything to the witness.
         if ("Z".equals(kind)) {
+            out.append(':');
+            String tag = "";
             try {
                 Object mark = other.getModData().rawget("SAOPersonId");
                 if (mark instanceof String personId && !personId.isEmpty()) {
                     // Knox record ids carry ':' ("ks:<kid>"), which is this
                     // protocol's field separator - encoded reversibly as
                     // '~', decoded by the one Lua reader (resolveBodyTag).
-                    out.append(":@").append(sanitize(personId.replace(':', '~')));
+                    tag = "@" + sanitize(personId.replace(':', '~'));
                 } else {
                     zombie.characters.SurvivorDesc desc = other.getDescriptor();
                     if (desc != null) {
                         String fore = desc.getForename();
                         String sur = desc.getSurname();
                         if (fore != null && sur != null) {
-                            out.append(':')
-                               .append(sanitize(fore + " " + sur));
+                            tag = sanitize(fore + " " + sur);
                         }
                     }
                 }
             } catch (Throwable ignored) {
             }
+            out.append(tag);
+            appendZaoForm(out, other);
+        }
+    }
+
+    /** [C104] The sister mod's form and performance, appended the
+     *  same way for the living and the turned: whichever kind of body
+     *  carries the marks, the crossing reads identically, and the one
+     *  place this was two copies was the one place the two spellings
+     *  could have drifted apart (Border 14's finding). The guard lives
+     *  here so both callers share one try; a body without the marks
+     *  appends nothing.
+     */
+    private static void appendZaoForm(StringBuilder out, IsoGameCharacter other) {
+        try {
+            Object form = other.getModData().rawget("ZAOForm");
+            Object performance =
+                other.getModData().rawget("ZAOFormPerformance");
+            if (form instanceof String formName
+                && !formName.isEmpty()
+                && performance instanceof Number performanceNumber) {
+                out.append(":zao:")
+                   .append(sanitize(formName))
+                   .append(':')
+                   .append(Math.round(performanceNumber.doubleValue() * 100.0) / 100.0);
+                Object attributes =
+                    other.getModData().rawget("ZAOAttributes");
+                if (attributes instanceof String attributeText
+                    && !attributeText.isBlank()) {
+                    String encoded = attributeText
+                        .replace('|', ';')
+                        .replace(':', '=');
+                    out.append(":attrs:")
+                       .append(sanitize(encoded));
+                }
+            }
+        } catch (Throwable ignored) {
         }
     }
 

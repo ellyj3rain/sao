@@ -28,6 +28,7 @@ local K = SAO.Knowledge
 -- name for "person"), or to nothing, honestly.
 K.TOPICS = { "self", "person", "zombies", "dead", "food", "water",
              "house", "ground", "lessons",
+             "mutations",
              -- [C38] the life before, and the day it started.
              "before", "started" }
 
@@ -157,6 +158,9 @@ local function aboutPerson(id, opts)
                    source = pb.source, teller = pb.teller,
                    presumed = pb.presumed == true,
                    condition = pb.condition,
+                   form = pb.form,
+                   formPerformance = pb.formPerformance,
+                   attributeMutations = pb.attributeMutations,
                    ageTicks = tick and pb.at and (tick - pb.at) or nil }
     fact.ageWord = K.ageWord(fact.ageTicks)
     if not pb.dead and pb.x then
@@ -348,6 +352,27 @@ local function aboutLessons(id, opts)
     return out
 end
 
+local function aboutMutations(id, opts)
+    local rec = nil
+    pcall(function() rec = SAO.Identity.get(id) end)
+    if not rec or not rec.mutationKnowledge then return nil end
+    local out = {}
+    for form, entry in pairs(rec.mutationKnowledge) do
+        out[#out + 1] = {
+            fact = "mutation",
+            form = form,
+            source = entry.source,
+            weight = entry.weight,
+            firstDay = entry.firstDay,
+            lastDay = entry.lastDay,
+            performance = entry.performance,
+            events = entry.events,
+        }
+    end
+    if #out == 0 then return nil end
+    return out
+end
+
 -- [C38] The life before (Day Zero slice 6): what a person was before
 -- the fall, read off the record and the history - the year they were
 -- born, the war their life put them in, where they were from, where
@@ -456,6 +481,7 @@ local ABOUT = {
     house = aboutHouse,
     ground = aboutGround,
     lessons = aboutLessons,
+    mutations = aboutMutations,
     before = aboutBefore,
     started = aboutStarted,
 }

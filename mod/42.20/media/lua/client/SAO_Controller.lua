@@ -31,9 +31,19 @@ Ctl.agents = Ctl.agents or {}
 -- grace so the death fall gets its animation, then the bridge calls
 -- the engine's own die(), idempotent by its own guards.
 Ctl.pendingCorpses = Ctl.pendingCorpses or {}
-local CORPSE_GRACE_TICKS = 120   -- ~2s of frames at 60fps; a fall, not a wait
+local CORPSE_GRACE_TICKS = 120   -- [C112] ~2s at 60fps frames on the default day; a fall, not a wait
 
+-- [C112] The tick this file runs on is the county's clock quantized
+-- (`SAO.History.ticks`, a 9000th of a county hour) - read fresh every
+-- frame, never incremented. The local stays because a county where
+-- SAO_History cannot be reached still needs SOME monotone axis for its
+-- session, and falls back to counting frames exactly as the whole mod
+-- did before [C112]; a county with no History module is a stated dead
+-- county already ([C62] says it at boot).
 local tickCount = 0
+-- [C112] The last tick the tallies were flushed at - the cadence law's
+-- stamp (last fired plus a span, never a modulo).
+local lastLogFlushAt = nil
 
 -- [B43] What it takes to have WITNESSED something happen to somebody.
 --
@@ -55,7 +65,7 @@ local tickCount = 0
 -- anything the more noticeable of the two. So the twelve was a third
 -- spelling, not a decision, and it joins the rule.
 local WITNESS_REACH = 10.0    -- tiles: close enough to have made it out
-local WITNESS_FRESH = 120     -- frames (~2s at 60fps): recently enough to be NOW
+local WITNESS_FRESH = 120     -- [C112] county ticks (~2s at 60fps frames on the default day): recently enough to be NOW
 
 -- [C55] Seeing a death is not seeing who did it (Law 1: no omniscience,
 -- no oblivion - both are failures of the decision model).
@@ -244,6 +254,14 @@ local function onTheirWord(giverId, id, kind, arg, act)
     pcall(function()
         verdict, reason = SAO.Command.order(giverId, id, kind, arg)
     end)
+    -- [C105] The verdict is the deference fact; the record hears it
+    -- (and ignores it unless the giver actually holds the chair).
+    if SAO.Recognition then
+        pcall(function()
+            SAO.Recognition.onOrder(tostring(giverId), tostring(id),
+                kind, arg, verdict)
+        end)
+    end
     if verdict == "refuses" then
         pcall(function() SAO.Voice.onEvent(id, "orderNo", tickCount) end)
         log(id .. " does not take " .. tostring(giverId) .. "'s word ("
@@ -321,6 +339,14 @@ local MOVEMENT_STATES = {
     AMMOWARD = true, MOURNWARD = true, PLAYERFOLLOW = true,
     SETTLEWARD = true, MEDICWARD = true, SEARCHWARD = true,
     HEARTHWARD = true,
+    -- [C114] Wheels are movement too: a driving body is excluded from
+    -- being drifted toward like any walking one (nobody trails a car),
+    -- and leaving DRIVE/RIDE for a non-member state cancels whatever
+    -- Lua-side route the Locomotion layer holds - the drive's own legs
+    -- are Java-side SAOMovement inside SAODriver and are cancelled by
+    -- the setState exit rule below, so this firing on a drive-exit is a
+    -- no-op there and a correct cleanup for any stale walk.
+    DRIVE = true, RIDE = true,
 }
 
 -- The four answers (DR-011, [A18]): what is the pressure doing to this
@@ -518,10 +544,24 @@ local function setState(agent, id, state, why, answer)
     -- [B19] A venture ends when the state does. The ones who came
     -- along are following an announced TRIP, not a person - so the
     -- trip has to be able to end, or they would follow forever.
-    if state ~= "ROAM" then agent.onVenture = nil end
+    -- [C114] DRIVE is the venture under wheels: the trip is the same
+    -- trip, so it survives the state change ROAM -> DRIVE -> ROAM the
+    -- way it survives ROAM itself.
+    if state ~= "ROAM" and state ~= "DRIVE" then agent.onVenture = nil end
     if agent.state ~= state then
         if MOVEMENT_STATES[agent.state] and not MOVEMENT_STATES[state] then
             SAO.Locomotion.cancel(id)
+        end
+        -- [C114] The wheel states own their bodies the way the
+        -- movement states do. Leaving one mid-drive - a threat answer
+        -- is allowed to interrupt anything - parks the car and climbs
+        -- out through the driving layer's own cancel, which is the
+        -- engine's park and exit, never a phantom seat.
+        if (agent.state == "DRIVE" or agent.state == "RIDE")
+            and state ~= "DRIVE" and state ~= "RIDE" then
+            if SAO.Driving then SAO.Driving.cancel(id) end
+            agent.onWheels = nil
+            agent.driveGX, agent.driveGY = nil, nil
         end
         if agent.resting then
             agent.resting = nil
@@ -812,6 +852,13 @@ local function decide(id, agent, body)
         end
     end
     local bodyX, bodyY = body:getX(), body:getY()
+    if SAO.Integration and SAO.Integration.apply then
+        local graph = SAO.Integration.apply(id, agent, tick, bodyX, bodyY)
+        if graph then
+            agent.pressure = agent.pressure or {}
+            agent.pressure.graph = graph.pressure
+        end
+    end
     local threat = SAO.Perception.nearestBelievedZombie(id, tick, bodyX, bodyY)
     local threatCount = SAO.Perception.believedThreatCount(id, tick, 10, bodyX, bodyY)
 
@@ -827,7 +874,13 @@ local function decide(id, agent, body)
 
     -- Threat beliefs outrank everything except an active flee.
     if threat then
-        local fleeAt = SAO.Disposition.fleeDistance(id)
+        if SAO.Adaptation and threat.form and threat.form ~= "none" then
+            SAO.Adaptation.observe(
+                id, threat.form, threat.formPerformance, "witnessed", tick)
+        end
+        local fleeAt = SAO.PathogenPressure
+            and SAO.PathogenPressure.fleeDistance(id, threat)
+            or SAO.Disposition.fleeDistance(id)
         local overwhelmed = threatCount >= SAO.Disposition.overwhelmThreshold(id)
         -- Doctrine of the grudge: a hostile PERSON, close, faced by an
         -- armed survivor whose temperament says fight - the confrontation
@@ -1083,6 +1136,16 @@ local function decide(id, agent, body)
         setState(agent, id, "IDLE",
             SAO.Perception.hasLookedRecently(id, tick) and "believes clear" or "no recent look")
         return
+    end
+
+    -- The branching graph's work projection. When no threat owns the
+    -- moment, labor is the graph's own answer rather than a side table.
+    if agent.graph and agent.graph.branch == "work" and agent.graph.work then
+        agent.pressure = {
+            answer = "designation",
+            detail = agent.graph.work,
+            at = tick,
+        }
     end
 
     -- One needs read per decision ([A15]): every appetite block below
@@ -1590,11 +1653,13 @@ local function decide(id, agent, body)
     end
 
     -- The companion: everything the trust web builds toward. An UNGROUPED
-    -- survivor whose trust in the player crossed the company line, with
-    -- the player freshly SEEN nearby, walks with them - offered aloud
-    -- once, resumed quietly after. Their own beliefs still govern fear
-    -- and fight; companionship is a route choice, not a leash. They part
-    -- (aloud) when trust falls or the player has been gone a while.
+    -- survivor whose trust in the player crossed the company line ([C111]:
+    -- trust and their own need together, as anywhere the company line
+    -- decides), with the player freshly SEEN nearby, walks with them -
+    -- offered aloud once, resumed quietly after. Their own beliefs still
+    -- govern fear and fight; companionship is a route choice, not a
+    -- leash. They part (aloud) when trust falls or the player has been
+    -- gone a while.
     if (agent.state == "IDLE" or agent.state == "ROAM"
         or agent.state == "PLAYERFOLLOW") then
         local me = getSpecificPlayer(0)
@@ -1627,7 +1692,6 @@ local function decide(id, agent, body)
             end
         end
         if myKey and not SAO.Standing.groupOf(id) then
-            local trustInPlayer = SAO.Standing.trust(id, myKey)
             local pb = SAO.Perception.beliefs[id]
             local seenPlayer = nil
             if pb then
@@ -1640,7 +1704,12 @@ local function decide(id, agent, body)
                 end
             end
             local playerFresh = seenPlayer and (tick - seenPlayer.at) <= 1800
-            if trustInPlayer > policy().trustToCompany and playerFresh then
+            -- [C111] Their own need reads alongside trust here too
+            -- (`companyStanding`): an ungrouped survivor short of
+            -- company walks with somebody half-trusted rather than
+            -- stay alone, by the same law the road and the table hold.
+            if SAO.Standing.companyStanding(id, myKey)
+                > policy().trustToCompany and playerFresh then
                 local px2, py2 = me:getX(), me:getY()
                 local pdx, pdy = px2 - body:getX(), py2 - body:getY()
                 local pdist = math.sqrt(pdx * pdx + pdy * pdy)
@@ -1867,11 +1936,39 @@ local function decide(id, agent, body)
             -- unless the person ahead was searching. Company on any
             -- announced venture is the same act, so the same
             -- machinery carries it.
+            -- [C114] And under wheels the same act is boarding: the
+            -- venture's car holds the party it was promised to hold,
+            -- so an escort of a driving goer rides instead of walking
+            -- behind taillights nobody can keep pace with.
             if not sAgent
                 or (sAgent.state ~= "SEARCHWARD"
                     and not (sAgent.state == "ROAM"
+                        and sAgent.onVenture)
+                    and not (sAgent.state == "DRIVE"
                         and sAgent.onVenture)) then
                 agent.escortId = nil
+                agent.rideWith = nil
+            elseif agent.rideWith and sAgent.onWheels
+                and sAgent.onWheels == agent.rideWith
+                and SAO.Driving then
+                -- [C114] Ride with the company: walk to the claimed
+                -- car, take a passenger seat, ride until the driver
+                -- parks and climbs out. A refused ride (the car is
+                -- gone, every seat taken) keeps the ordinary follow -
+                -- the honest fallback, a walk after wheels, arriving
+                -- after the venture has begun.
+                if SAO.Driving.orderRide(id, body, agent.rideWith) then
+                    -- The ride's legs are Java-side like the drive's;
+                    -- the escort's live follow-walk is retired HERE,
+                    -- not replaced by a new order (F-012).
+                    SAO.Locomotion.cancel(id)
+                    setState(agent, id, "RIDE",
+                        "rides with " .. tostring(agent.escortId))
+                    return
+                end
+                agent.rideWith = nil
+                log(id .. " rides with " .. tostring(agent.escortId)
+                    .. " refused - keeps the walk")
             else
                 local ebody = SAO.Body.get(agent.escortId)
                 if ebody then
@@ -1883,25 +1980,40 @@ local function decide(id, agent, body)
             end
         end
         if not anchorBody and leaderId and leaderId ~= id then
-            local lbody = SAO.Body.get(leaderId)
-            if lbody then
-                local dx = lbody:getX() - body:getX()
-                local dy = lbody:getY() - body:getY()
-                anchor, anchorBody, anchorDist =
-                    leaderId, lbody, math.sqrt(dx * dx + dy * dy)
+            local lAgent = Ctl.agents[leaderId]
+            -- [C114] Nobody anchors to wheels they are not seated in:
+            -- a leader under wheels is a car receding at driving speed,
+            -- and an anchor that outruns the follower pins them in
+            -- FOLLOW across the county. The escort rides ([B19]); the
+            -- chain waits for the car to park.
+            if not lAgent
+                or (lAgent.state ~= "DRIVE" and lAgent.state ~= "RIDE") then
+                local lbody = SAO.Body.get(leaderId)
+                if lbody then
+                    local dx = lbody:getX() - body:getX()
+                    local dy = lbody:getY() - body:getY()
+                    anchor, anchorBody, anchorDist =
+                        leaderId, lbody, math.sqrt(dx * dx + dy * dy)
+                end
             end
         end
         if not anchorBody and (not leaderId or leaderId ~= id) then
             for i = 1, #fellows do
                 local fid = fellows[i]
                 if fid < id then
-                    local fbody = SAO.Body.get(fid)
-                    if fbody then
-                        local dx = fbody:getX() - body:getX()
-                        local dy = fbody:getY() - body:getY()
-                        local d = math.sqrt(dx * dx + dy * dy)
-                        if not anchorDist or d < anchorDist then
-                            anchor, anchorBody, anchorDist = fid, fbody, d
+                    local fAgent = Ctl.agents[fid]
+                    -- [C114] Same law for the lexical chain.
+                    if not fAgent
+                        or (fAgent.state ~= "DRIVE"
+                            and fAgent.state ~= "RIDE") then
+                        local fbody = SAO.Body.get(fid)
+                        if fbody then
+                            local dx = fbody:getX() - body:getX()
+                            local dy = fbody:getY() - body:getY()
+                            local d = math.sqrt(dx * dx + dy * dy)
+                            if not anchorDist or d < anchorDist then
+                                anchor, anchorBody, anchorDist = fid, fbody, d
+                            end
                         end
                     end
                 end
@@ -2155,10 +2267,12 @@ local function decide(id, agent, body)
                         -- rects are the world-read edge, [A15].)
                         if bx then
                             local fcx0, fcy0 = tonumber(cx2), tonumber(cy2)
-                            for og, oc in pairs(SAO.Standing.allGroupClaims()) do
+                            for og in pairs(SAO.Standing.allGroupClaims()) do
+                                -- [C108] A company's ground is every
+                                -- place its living members go, not
+                                -- only the seat it settled.
                                 if og ~= sGroup
-                                    and fcx0 >= oc.minX and fcx0 <= oc.maxX
-                                    and fcy0 >= oc.minY and fcy0 <= oc.maxY then
+                                    and SAO.Standing.onGroundOf(og, fcx0, fcy0) then
                                     agent.rejectedBases = (agent.rejectedBases
                                         and (agent.rejectedBases .. ";") or "")
                                         .. bx .. "," .. by
@@ -2199,14 +2313,15 @@ local function decide(id, agent, body)
                         end
                         if bx then
                             local fcx, fcy = tonumber(cx2), tonumber(cy2)
-                            for enemyGroup, ec in pairs(
+                            for enemyGroup in pairs(
                                 SAO.Standing.allGroupClaims()) do
+                                -- [C108] The shadow falls around every
+                                -- place the enemy holds, not only their
+                                -- seat.
                                 if enemyGroup ~= sGroup
                                     and SAO.Standing.feudBetween(sGroup, enemyGroup)
-                                    and fcx >= ec.minX - SAO.Standing.FEUD_KEEP_OUT
-                                    and fcx <= ec.maxX + SAO.Standing.FEUD_KEEP_OUT
-                                    and fcy >= ec.minY - SAO.Standing.FEUD_KEEP_OUT
-                                    and fcy <= ec.maxY + SAO.Standing.FEUD_KEEP_OUT then
+                                    and SAO.Standing.onGroundOf(enemyGroup,
+                                        fcx, fcy, SAO.Standing.FEUD_KEEP_OUT) then
                                     agent.rejectedBases = (agent.rejectedBases
                                         and (agent.rejectedBases .. ";") or "")
                                         .. bx .. "," .. by
@@ -3536,6 +3651,66 @@ local function decide(id, agent, body)
         agent.nextRoamAt = agent.nextRoamAt or (tick + interval)
         if tick >= agent.nextRoamAt then
             agent.nextRoamAt = tick + interval
+            -- [C113] An ordinary county's street leg, before any of
+            -- the survival-era machinery below decides anything. The
+            -- same three facts the dormant half reads, on this half's
+            -- own clock: the county says the fall has not come
+            -- (`fallHasCome`'s REASON must be "before" - a county that
+            -- cannot read its calendar is not a street crowd either),
+            -- the person carries no designation (a watch or a scout is
+            -- the county's own organization and stands as it stands in
+            -- any era), and Week One's street hour says out. Staying
+            -- in is the leg NOT taken: the gate re-arms and asks again
+            -- at the next one, and the body keeps its evening - the
+            -- live half already holds the night at 22:00 with sleep of
+            -- its own, which no port overrides.
+            --
+            -- Going out is a commute when the census filed ground
+            -- under this person's trade ([A18]), else the same stretch
+            -- of legs the undesignated always had. The workplace is
+            -- the SAME persisted fact the dormant half derives
+            -- (`rec.workX`) - one job, both halves, whichever got
+            -- there first.
+            local preFall = false
+            do
+                local okF, fallen, whyF = pcall(function()
+                    return SAO.Standing.fallHasCome()
+                end)
+                preFall = okF and fallen == false and whyF == "before"
+            end
+            local streetWork = nil
+            if preFall and not desig then
+                local out = false
+                pcall(function()
+                    local affinity = SAO.History.streetAffinity(
+                        GameTime.getInstance():getHour())
+                    if affinity then
+                        out = SAO.Rand.unit() < affinity
+                    end
+                end)
+                if not out then
+                    return
+                end
+                local recSt = SAO.Identity.get(id)
+                local rowSt = recSt and recSt.occupation
+                    and SAO.Census.rowOf(recSt.occupation) or nil
+                if rowSt and rowSt.enginePath then
+                    if not (recSt.workX and recSt.workY) then
+                        pcall(function()
+                            local w = SAO.Population.tradeGroundFor(
+                                rowSt.enginePath)
+                            if w then
+                                recSt.workX, recSt.workY = w.x, w.y
+                            end
+                        end)
+                    end
+                    if recSt.workX and recSt.workY then
+                        streetWork = { x = recSt.workX, y = recSt.workY,
+                                       label = rowSt.label
+                                           or tostring(recSt.occupation) }
+                    end
+                end
+            end
             local range = SAO.Disposition.roamRange(id)
             local why, answer = nil, nil
             local watchEdge = nil
@@ -3783,10 +3958,11 @@ local function decide(id, agent, body)
                 local allyClaim = bringTo
                     and SAO.Standing.groupClaimOf(bringTo) or nil
                 if allyClaim then
-                    local inAlly = body:getX() >= allyClaim.minX
-                        and body:getX() <= allyClaim.maxX
-                        and body:getY() >= allyClaim.minY
-                        and body:getY() <= allyClaim.maxY
+                    -- [C108] The delivery is kept standing on ANY of
+                    -- the ally's ground - a stash or a second house
+                    -- answers the pact as well as their seat does.
+                    local inAlly = SAO.Standing.onGroundOf(bringTo,
+                        body:getX(), body:getY())
                     if inAlly
                         and SAO.Needs.depositSpareFood(id, body) then
                         agent.taskDeadline = tick + 900
@@ -4230,6 +4406,23 @@ local function decide(id, agent, body)
             if watchEdge then
                 gx, gy = math.floor(watchEdge.x), math.floor(watchEdge.y)
             end
+            -- [C113] The commute, over whatever the stretch drew -
+            -- unless they are already AT the ground (the same 3-tile
+            -- reach the dormant half uses), in which case this leg is
+            -- the stretch after all: arrived at work, the ordinary
+            -- thing is the stroll around it, not re-ordering the
+            -- doorstep.
+            if streetWork then
+                local swdx = streetWork.x - bx
+                local swdy = streetWork.y - by
+                if swdx * swdx + swdy * swdy
+                    > ARRIVAL_REACH * ARRIVAL_REACH then
+                    gx, gy = math.floor(streetWork.x),
+                        math.floor(streetWork.y)
+                    why = "goes to work - the "
+                        .. tostring(streetWork.label) .. "'s ground"
+                end
+            end
             -- [B31] The trip costs the tank. [B31] found that
             -- `roadworthy` gates on fuel above 5 and NOTHING ever
             -- spent it, so a car sitting at 6% carried doubled-range
@@ -4323,8 +4516,39 @@ local function decide(id, agent, body)
                 and not nearFaction
                 and mayEnterBelieved(id, gx, gy) then
                 pcall(function() SAOJavaBridge:setForceEntry(body, false) end)
-                if SAO.Locomotion.order(id, body, gx, gy, math.floor(body:getZ())) then
+                -- [C114] A goer who took wheels DRIVES. The claim
+                -- ([B19]) was facts about a car - name, seats, fuel -
+                -- and the body walked anyway; the port's driving half
+                -- closes that through the [C82] doorway: a real SAO
+                -- person in seat 0, the engine started LAWFULLY (a
+                -- refusal is honored, not routed around), steered by
+                -- the bearing to this very destination, the tank spent
+                -- by the [B31] burn that already ran. Every refusal -
+                -- no car where the claim said, a taken seat, an engine
+                -- that will not catch - comes back as a verdict and
+                -- the ordinary walk takes the trip instead: the same
+                -- trip they always took, not an error.
+                local tookOrder = false
+                if takingWheels and SAO.Driving
+                    and SAO.Driving.order(id, body,
+                        tostring(takingWheels.name or "car"), gx, gy) then
+                    tookOrder = true
+                    -- The drive's legs are Java-side SAOMovement inside
+                    -- SAODriver, so the Lua walk is not replaced by a
+                    -- new order the way the ROAM branch replaces it -
+                    -- any live route is retired HERE (F-012: an
+                    -- orphaned job is the independent-wandering defect).
+                    SAO.Locomotion.cancel(id)
+                    agent.onWheels = tostring(takingWheels.name or "car")
+                    agent.driveGX, agent.driveGY = gx, gy
+                    setState(agent, id, "DRIVE", why)
+                end
+                if not tookOrder
+                    and SAO.Locomotion.order(id, body, gx, gy, math.floor(body:getZ())) then
+                    tookOrder = true
                     setState(agent, id, "ROAM", why, answer)
+                end
+                if tookOrder then
                     -- [B19] "They could go with them or they can stay
                     -- behind, let them handle it, learn." The briefing
                     -- was built; the joining never was. Each hearer
@@ -4470,6 +4694,15 @@ local function decide(id, agent, body)
                             local wAgent = Ctl.agents[wid]
                             if i <= cap and wAgent then
                                 wAgent.escortId = id
+                                -- [C114] The car the party boards, when
+                                -- the goer drove: the ride walks them to
+                                -- it and seats them, so the seats the cap
+                                -- counted ([B19]) are the seats actually
+                                -- filled. No car, no seat: the walk after
+                                -- them, as before.
+                                if agent.onWheels then
+                                    wAgent.rideWith = agent.onWheels
+                                end
                                 pcall(function()
                                     SAO.Voice.onEvent(wid, "comeAlong", tick)
                                 end)
@@ -4485,6 +4718,18 @@ local function decide(id, agent, body)
                                             .. (#willing - cap) .. " more")
                                         or "more than " .. id
                                             .. " wants around them"))
+                            end
+                        end
+                        -- [C114] The party is known now, so the driver
+                        -- is told how many seats to hold at the wheel
+                        -- before rolling - the goer ordered the drive
+                        -- before anyone answered the call, and the
+                        -- count could not have been known then.
+                        if agent.onWheels and SAO.Driving
+                            and #willing > 0 then
+                            local seated = math.min(cap, #willing)
+                            if seated > 0 then
+                                SAO.Driving.holdFor(id, body, seated)
                             end
                         end
                     end
@@ -5248,6 +5493,102 @@ local function updateAgent(id, agent)
         elseif agent.taskDeadline and tickCount > agent.taskDeadline then
             SAO.Needs.clearSource(body)
             setState(agent, id, "IDLE", "action overstayed its deadline")
+        end
+        return
+    end
+
+    -- [C114] Wheels. The drive ticks from the state block, the same
+    -- place every hold does. While the body is at the wheel `decide`
+    -- has already returned early ([B1]: the seat outranks the flag), so
+    -- nothing here competes with a decision - a drive is committed,
+    -- and the county's threats reach it only through setState, which
+    -- parks the car through its exit rule. Every ending returns the
+    -- body to the ordinary walk from wherever it stands.
+    if agent.state == "DRIVE" then
+        local s = "none"
+        if SAO.Driving then
+            SAO.Driving.tick(id)
+            s = SAO.Driving.status(id)
+        end
+        if s == "none" then
+            -- Self-heal: a DRIVE state with no live job under it (lost
+            -- to a fault) is the walk, taken now, not a wedged state.
+            local dgx, dgy = agent.driveGX, agent.driveGY
+            agent.onWheels, agent.driveGX, agent.driveGY = nil, nil, nil
+            agent.riding = nil
+            if dgx and dgy
+                and SAO.Locomotion.order(id, body, dgx, dgy,
+                    math.floor(body:getZ())) then
+                setState(agent, id, "ROAM",
+                    "no drive under the state - takes the walk")
+            else
+                setState(agent, id, "IDLE", "no drive under the state")
+            end
+        elseif s:sub(1, 5) == "done:" then
+            local res = s:sub(6)
+            local dgx, dgy = agent.driveGX, agent.driveGY
+            agent.onWheels, agent.driveGX, agent.driveGY = nil, nil, nil
+            -- The seat is behind the body and `decide` must not answer
+            -- the empty vehicle with its own "back on foot" state
+            -- write ([C4]): the riding flag is cleared here, at the
+            -- door, so the walk ordered below survives.
+            agent.riding = nil
+            pcall(function()
+                SAO.Identity.updatePosition(agent.rec,
+                    body:getX(), body:getY(), body:getZ())
+            end)
+            if res == "arrived" then
+                -- Parked NEAR, not on: the last stretch is walked so
+                -- the venture's own close-out (the forager's haul, the
+                -- watch post) runs on WALK arrival, unchanged.
+                if dgx and dgy
+                    and SAO.Locomotion.order(id, body, dgx, dgy,
+                        math.floor(body:getZ())) then
+                    setState(agent, id, "ROAM",
+                        "parked; walks the last stretch of it")
+                else
+                    setState(agent, id, "IDLE", "parked")
+                end
+            else
+                -- A refusal is a fact about the car, not an obstacle
+                -- to route around ([C82]): the ordinary walk takes the
+                -- trip from wherever the body stands.
+                if dgx and dgy
+                    and SAO.Locomotion.order(id, body, dgx, dgy,
+                        math.floor(body:getZ())) then
+                    setState(agent, id, "ROAM",
+                        res .. " - takes the walk instead")
+                else
+                    setState(agent, id, "IDLE", res)
+                end
+            end
+        end
+        return
+    end
+
+    -- [C114] Company under wheels: the rider's seat is the driver's
+    -- destination. When the driver parks and climbs out, the rider
+    -- climbs out beside them and their escortId anchor keeps them by
+    -- the goer until the venture ends ([B19]).
+    if agent.state == "RIDE" then
+        local s = "none"
+        if SAO.Driving then
+            SAO.Driving.tick(id)
+            s = SAO.Driving.status(id)
+        end
+        if s == "none" then
+            agent.rideWith, agent.riding = nil, nil
+            setState(agent, id, "IDLE", "no ride under the state")
+        elseif s:sub(1, 5) == "done:" then
+            local res = s:sub(6)
+            agent.rideWith, agent.riding = nil, nil
+            pcall(function()
+                SAO.Identity.updatePosition(agent.rec,
+                    body:getX(), body:getY(), body:getZ())
+            end)
+            setState(agent, id, "IDLE", res == "arrived"
+                and "climbs out with the company"
+                or (res .. " - back on foot"))
         end
         return
     end
@@ -6078,12 +6419,25 @@ function Ctl.tick()
 end
 
 local function onTickInner()
-    tickCount = tickCount + 1
+    -- [C112] Read, not incremented: the county's clock quantized.
+    -- The pcall fallback keeps a monotone frame axis for a session in
+    -- a county whose History module did not load, which is the only
+    -- county that can reach it.
+    do
+        local okT, t = pcall(function() return SAO.History.ticks() end)
+        tickCount = (okT and type(t) == "number") and t or (tickCount + 1)
+    end
     -- [B47] The tallies go out on a cadence, so a county that is
     -- quietly meeting people all day says so once every ten seconds
-    -- of frames (600 of them; ~10s at 60fps)
-    -- instead of once per meeting.
-    if tickCount % SAO.Log.EVERY == 0 then SAO.Log.flush() end
+    -- (600 ticks, a 9000th-of-an-hour apiece - the seconds hold at
+    -- the 60fps frames the derivation assumed on the default day)
+    -- instead of once per meeting. [C112] a cadence is a last-fired
+    -- stamp plus a span - never a modulo, which a skipping clock can
+    -- step straight over.
+    if tickCount - (lastLogFlushAt or -SAO.Log.EVERY) >= SAO.Log.EVERY then
+        lastLogFlushAt = tickCount
+        SAO.Log.flush()
+    end
     -- [B27] The player perceives through the SAME function every
     -- survivor does. Not a parallel player pathway - `P.observe` was
     -- already generic over the id, `store` is a plain table, and a

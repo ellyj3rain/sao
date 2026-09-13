@@ -209,6 +209,11 @@ function S.tellGrudges(fromId, toId)
             end
         end
     end
+    -- [C105] The tell happened; the record hears it. Only a tell
+    -- that actually moved someone is a message worth carrying.
+    if moved > 0 and SAO.Recognition then
+        SAO.Recognition.onTold(fromId, toId, "grudge", { moved = moved })
+    end
     return moved
 end
 
@@ -425,6 +430,10 @@ function S.tellCredits(fromId, toId)
             end
         end
     end
+    -- [C105] The credit was passed; the record hears it.
+    if moved > 0 and SAO.Recognition then
+        SAO.Recognition.onTold(fromId, toId, "credit", { moved = moved })
+    end
     return moved
 end
 
@@ -445,11 +454,101 @@ end
 -- ---------------------------------------------------------------------------
 -- Groups
 
+-- [C111] Need, alongside trust, as what carries a person to company.
+--
+-- The operator's ruling (2026-09-12, on the queue's item 3): a road
+-- meeting is worth more, most people not only want but NEED to be
+-- around people, and trust is not always the principal determinant of
+-- whether a group forms - which depends on how far along into the
+-- apocalypse the world is. Until this batch every formation gate read
+-- trust alone, so with a meeting worth 0.005 the line was two hundred
+-- meetings off and a house could only ever grow out of trust settled
+-- at genesis: nobody lonely ever founded anything.
+--
+-- The pull is three factors, each a fact the county already holds:
+--
+--   appetite    who somebody is - `SAO_History.contactFactor`, the
+--               same 0.10-1.00 hash that scales how fast their past
+--               settled. A hermit's need carries almost nothing.
+--   isolation   where they are right now - `SAO_Isolation`'s own
+--               reading, one minus saturating contact. That state
+--               surface has existed since [C94] and nothing gated
+--               anything on it; this is the job it was built for.
+--   openness    how far the county's condition makes company a need
+--               rather than a risk: months since the fall on the
+--               split clock ([C61], `clockMonths`), over a horizon of
+--               six. An ordinary county forms its houses through
+--               acquaintance and need carries nobody; a county six
+--               months into collapse is a county where being alone is
+--               what kills you, and a fully isolated sociable
+--               person's need can carry the whole company line.
+--
+-- The horizon is the one number here that is not already the
+-- county's - half a year of collapse, stated so the operator can move
+-- it. Openness rides the clock as the world is played, and a world
+-- generated already deep reads deep from its first minute, so one
+-- law covers both and nothing consults a dial.
+--
+-- Zero whenever any factor cannot be read - offline, a bare VM, a
+-- dead or unknown id - so every gate degrades to trust alone, which
+-- is the law that ran before this batch.
+--
+-- Read once a county hour and held: a person's need does not change
+-- inside one, and the live seams ask for it often enough that
+-- recomputing the whole belief store per ask would be the cost of
+-- the feature.
+local pullHour, pullMemo = nil, {}
+
+function S.companyPull(id)
+    local hour = nil
+    pcall(function()
+        hour = SAO.History and SAO.History.countyHours() or nil
+    end)
+    if type(hour) ~= "number" then hour = 0 end
+    if hour ~= pullHour then pullHour, pullMemo = hour, {} end
+    local key = tostring(id)
+    if pullMemo[key] ~= nil then return pullMemo[key] end
+    local reading = nil
+    pcall(function()
+        reading = SAO.Isolation and SAO.Isolation.of(id) or nil
+    end)
+    local pull = 0
+    if reading then
+        local months = 0
+        pcall(function()
+            months = SAO.History and SAO.History.clockMonths() or 0
+        end)
+        if type(months) ~= "number" or months < 0 then months = 0 end
+        local openness = math.min(1.0, months / 6.0)
+        pull = (tonumber(reading.appetite) or 0)
+            * (tonumber(reading.isolation) or 0)
+            * openness
+    end
+    pullMemo[key] = pull
+    return pull
+end
+
+-- [C111] The standing one person brings to a company door: their
+-- trust toward the other, plus their own pull - NEED substitutes for
+-- trust not yet built; it never cancels trust already spent against
+-- somebody, so the pull only reads where trust is not negative. Each
+-- door keeps its own comparison and its own bar (mercy softens it
+-- where it did before); this is the value both sides of every such
+-- door read, so the road, the table, and the player's own company
+-- cannot disagree about the same person on the same day.
+function S.companyStanding(id, otherKey)
+    local t = S.trust(id, otherKey)
+    if t < 0 then return t end
+    return t + S.companyPull(id)
+end
+
 -- Temperament gates company ([A27]): trust opens the door, the
 -- circle decides whether to walk through. Loners refuse membership
 -- outright; band-people refuse when the joined roster would exceed
 -- their circle of three. Bonds are not groups - a loner's bond
--- stands.
+-- stands. [C111] does not touch this: need does not overrule
+-- temperament, and every formation seam still asks it after the
+-- trust-and-need line clears.
 function S.circleRefuses(id, groupName)
     local circle = SAO.Disposition and SAO.Disposition.circle
         and SAO.Disposition.circle(id) or "house"
@@ -661,6 +760,10 @@ function S.electLeader(groupName)
         -- its base in old heads remains ([A15] beliefs, deliberately).
         s.groupMeta[groupName] = nil
         if s.groupClaims then s.groupClaims[groupName] = nil end
+        -- [C105] The record lapses with the house.
+        if SAO.Recognition then
+            SAO.Recognition.onHouseDissolved(groupName)
+        end
         return nil, nil
     end
     if #members == 1 then
@@ -681,6 +784,10 @@ function S.electLeader(groupName)
         if wrec then
             wrec.designation = nil
             wrec.designatedBy = nil
+        end
+        -- [C105] The record lapses with the house.
+        if SAO.Recognition then
+            SAO.Recognition.onHouseDissolved(groupName)
         end
         return nil, nil
     end
@@ -1389,11 +1496,20 @@ function S.electLeader(groupName)
                     }
                     S.pushRadioNews({ kind = "unseated",
                         group = groupName })
+                    -- [C105] The office empties with the fact.
+                    if SAO.Recognition then
+                        SAO.Recognition.onChairWithdrawn(groupName, pKey)
+                    end
                 end
             elseif not metaC.chairOffer
                 and avgC > 0.55
                 and nowC - (metaC.chairDeclinedAt or -1e9) > 48 then
                 metaC.chairOffer = pKey
+                -- [C105] The offer is the recognition half of the
+                -- claim, filed the moment the house makes it.
+                if SAO.Recognition then
+                    SAO.Recognition.onChairOffered(groupName, pKey)
+                end
             end
             s.groupMeta[groupName] = metaC
         end
@@ -1409,6 +1525,11 @@ function S.electLeader(groupName)
         s.groupMeta[groupName] = meta
         S.pushRadioNews({ kind = "election", group = groupName,
             leader = bestId })
+    end
+    -- [C105] The settle is the recognition event: the record layer
+    -- hears what the house just did. A hook, never a cause.
+    if SAO.Recognition then
+        SAO.Recognition.onElection(groupName, bestId, members)
     end
     return bestId, old
 end
@@ -2257,6 +2378,11 @@ function S.checkSchism(groupName)
     s.groupMeta[groupName] = metaOld
     s.groupMeta[newGroup] = metaNew
     noteFeudEvent(s, groupName, newGroup, "declaredAtHours")
+    -- [C105] The leavers answered with exit; the record hears the
+    -- break on the house that broke.
+    if SAO.Recognition then
+        SAO.Recognition.onSchism(groupName, core, #leavers)
+    end
     return newGroup, core, #leavers
 end
 
@@ -2326,6 +2452,12 @@ function S.acceptChair(groupName, playerKey)
     }
     s.groupMeta[tostring(groupName)] = meta
     S.pushRadioNews({ kind = "chair", group = groupName })
+    -- [C105] The offer was the house's recognition; the sitting is
+    -- the response. The record hears both.
+    if SAO.Recognition then
+        SAO.Recognition.onChairTaken(tostring(groupName),
+            tostring(playerKey))
+    end
     return true
 end
 
@@ -2333,12 +2465,17 @@ function S.declineChair(groupName)
     local s = store(); if not s then return false end
     local meta = s.groupMeta and s.groupMeta[tostring(groupName)] or nil
     if not meta then return false end
+    local wasOffer = meta.chairOffer
     meta.chairOffer = nil
     local okH, h = pcall(function()
         return SAO.History.countyHours()
     end)
     meta.chairDeclinedAt = okH and h or 0
     s.groupMeta[tostring(groupName)] = meta
+    -- [C105] The refusal is the response half of the chair claim.
+    if SAO.Recognition and wasOffer then
+        SAO.Recognition.onChairDeclined(tostring(groupName), wasOffer)
+    end
     return true
 end
 
@@ -2348,6 +2485,11 @@ function S.recordPromise(bittenId, keeperId)
     local s = store(); if not s then return end
     s.promises = s.promises or {}
     s.promises[tostring(bittenId)] = tostring(keeperId)
+    -- [C105] The ask is the claim ([B3]).
+    if SAO.Recognition then
+        SAO.Recognition.onPromiseAsked(tostring(bittenId),
+            tostring(keeperId))
+    end
 end
 
 function S.promiseKeeperOf(bittenId)
@@ -2471,6 +2613,10 @@ function S.setHearth(groupName, burning)
     meta.hearth = { burning = burning and true or false,
         atHours = okH and h or 0 }
     s.groupMeta[tostring(groupName)] = meta
+    -- [C105] A fire actually burning is real provisioning.
+    if burning and SAO.Recognition then
+        SAO.Recognition.onProvisioned(tostring(groupName))
+    end
 end
 
 function S.hearthOf(groupName)
@@ -2497,6 +2643,10 @@ function S.setWaterStore(groupName, word, units)
     meta.waterStore = { word = word, units = units,
         atHours = okH and h or 0 }
     s.groupMeta[tostring(groupName)] = meta
+    -- [C105] Water actually counted is real provisioning.
+    if (units or 0) > 0 and SAO.Recognition then
+        SAO.Recognition.onProvisioned(tostring(groupName))
+    end
 end
 
 function S.waterStoreOf(groupName)
@@ -2520,6 +2670,10 @@ function S.setLarder(groupName, word, count)
     end)
     meta.larder = { word = word, count = count, atHours = okH and h or 0 }
     s.groupMeta[tostring(groupName)] = meta
+    -- [C105] Shelves actually counted is real provisioning.
+    if (count or 0) > 0 and SAO.Recognition then
+        SAO.Recognition.onProvisioned(tostring(groupName))
+    end
 end
 
 function S.larderOf(groupName)
@@ -2599,6 +2753,10 @@ function S.tryPact(idA, idB, gA, gB)
     S.adjustTrust(idA, idB, 0.1)
     S.adjustTrust(idB, idA, 0.1)
     S.pushRadioNews({ kind = "pact", a = tostring(gA), b = tostring(gB) })
+    -- [C105] The pact is external relations, decided leader to leader.
+    if SAO.Recognition then
+        SAO.Recognition.onPactFormed(tostring(gA), tostring(gB))
+    end
     return true
 end
 
@@ -2971,6 +3129,80 @@ function S.groupClaimOf(groupName)
     return s.groupClaims and s.groupClaims[tostring(groupName)] or nil
 end
 
+-- [C108] A group's places, ranked best-first. DERIVED, not stored
+-- (DR-006 S4): what a place IS to a group comes from where its
+-- living members actually go, so the ranking is recomputed from
+-- `Perception.returnsOf` whenever any belief changes, and nothing
+-- accumulates and nothing expires. The seat is unchanged -
+-- `groupClaimOf` above still answers "where is the group" for every
+-- reader that asks it; this answers "where does the group HOLD",
+-- which is a different question exactly where holding several
+-- changes the answer: trespass, the feud keep-out, and where a
+-- venture brings things back to.
+--
+-- The cache is keyed on `Perception.beliefVersion`, so a derivation
+-- is never served after the facts moved under it, and it costs one
+-- walk per group per change rather than one walk per reader per call
+-- ([C77]'s law).
+local placesCache = {}
+local function sameRoster(a, b)
+    if #a ~= #b then return false end
+    for i = 1, #a do
+        if a[i] ~= b[i] then return false end
+    end
+    return true
+end
+function S.placesOf(groupName)
+    if not groupName then return {} end
+    groupName = tostring(groupName)
+    local members = S.membersOf(groupName)
+    -- Membership can change without any belief changing (a death, a
+    -- join), so the roster is part of the cache's truth: the list
+    -- recomputes when the members move, not only when their knowledge
+    -- does. `pairs` order is not stable, so a shifted order recomputes
+    -- too - a wasted walk, never a stale answer.
+    local ver = (SAO.Perception and SAO.Perception.beliefVersion) or 0
+    local c = placesCache[groupName]
+    if c and c.version == ver and sameRoster(members, c.members) then
+        return c.list
+    end
+    local list = {}
+    if SAO.Perception and SAO.Perception.returnsOf then
+        list = SAO.Perception.returnsOf(members) or {}
+    end
+    placesCache[groupName] = { version = ver, members = members,
+        list = list }
+    return list
+end
+
+-- [C108] Is this point inside group G's ground - ANY of its places,
+-- each grown by `margin` (the feud keep-out passes its own shadow;
+-- nil means the plain ground). One definition, so the two halves'
+-- refusals cannot drift ([C25]).
+--
+-- The settled seat is tested first and always: it is the one rect
+-- every reader already honoured, and a scouted settlement ([B52])
+-- is chosen off the loaded ground, not derived from visits - so a
+-- company's seat is theirs whether or not `learnBuilding` ever
+-- recorded an arrival in it.
+function S.onGroundOf(groupName, x, y, margin)
+    if not (groupName and x and y) then return false end
+    local m = margin or 0
+    local c = S.groupClaimOf(groupName)
+    if c and x >= c.minX - m and x <= c.maxX + m
+        and y >= c.minY - m and y <= c.maxY + m then
+        return true
+    end
+    for _, t in ipairs(S.placesOf(groupName)) do
+        local pc = t.place
+        if x >= pc.minX - m and x <= pc.maxX + m
+            and y >= pc.minY - m and y <= pc.maxY + m then
+            return true
+        end
+    end
+    return false
+end
+
 -- Faction naming: a settled fact, once, at 3+ members. Deterministic from
 -- the group's name hash - terse, never a story.
 local FACTION_SUFFIX = { "Company", "Circle", "Crew", "House", "Watch" }
@@ -3054,6 +3286,46 @@ function S.playerMemberOf(groupName)
     local s = store(); if not s then return nil end
     local meta = s.groupMeta and s.groupMeta[tostring(groupName)] or nil
     return meta and meta.playerMemberOf or nil
+end
+
+-- [C106] The player leaving a house ends the member-guest fact with
+-- the claim. Removal is explicit - never setPlayerMember(group, nil),
+-- which would write the literal string "nil" and poison the reader
+-- for every house that ever checked.
+function S.clearPlayerMember(groupName, playerKey)
+    local s = store(); if not s then return false end
+    local meta = s.groupMeta and s.groupMeta[tostring(groupName)] or nil
+    if not meta or meta.playerMemberOf ~= tostring(playerKey) then
+        return false
+    end
+    meta.playerMemberOf = nil
+    s.groupMeta[tostring(groupName)] = meta
+    return true
+end
+
+-- [C106] A chair who leaves the house leaves the chair with it - the
+-- same fact the trust collapse unseats through, entered voluntarily.
+-- The office itself is the [C105] bridge's to empty, not this side's.
+function S.clearPlayerChair(groupName, playerKey)
+    local s = store(); if not s then return false end
+    local meta = s.groupMeta and s.groupMeta[tostring(groupName)] or nil
+    if not meta or meta.playerChair ~= tostring(playerKey) then
+        return false
+    end
+    meta.playerChair = nil
+    local okH, h = pcall(function() return SAO.History.countyHours() end)
+    meta.govHistory = meta.govHistory or {}
+    meta.govHistory[#meta.govHistory + 1] = {
+        kind = "left", atHours = okH and h or 0,
+    }
+    s.groupMeta[tostring(groupName)] = meta
+    S.pushRadioNews({ kind = "left", group = groupName })
+    -- [C105] The office empties with the fact.
+    if SAO.Recognition then
+        SAO.Recognition.onChairWithdrawn(tostring(groupName),
+            tostring(playerKey))
+    end
+    return true
 end
 
 -- Is this person key (survivor id or player key) counted inside this

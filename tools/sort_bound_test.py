@@ -103,6 +103,16 @@ BOUNDED = {
     ("SAO_World.lua", "ranked"):
         "the item categories a world survey found, which is the game's "
         "own category list rather than the number of items",
+    ("SAO_Adaptation.lua", "parts"):
+        "the mutation vocabulary the operator ruled - six forms - so "
+        "single digits however far the knowledge spreads; describe() "
+        "prints them for one person",
+    ("SAO_Perception.lua", "ranked"):
+        "the union of the buildings one group's members have walked "
+        "into, each entry written only at the door by learnBuilding, "
+        "one building at a time as a person actually stands in it; a "
+        "group is at most the county, so the widest honest bound is a "
+        "town's own buildings - the map's number, not the code's",
 }
 
 

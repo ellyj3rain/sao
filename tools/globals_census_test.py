@@ -91,6 +91,19 @@ NEIGHBOURS = {
           "population caps answer large so his encounter stream is "
           "not strangled). His profile rows are mirrored, never "
           "deleted.",
+    "ZAO": "Zombie Awareness Overhaul - the sister mod of this same "
+          "author, the other side of the trilateral. The county READS "
+          "its state surface where it is present and never writes it: "
+          "the inspect panel shows a turned body's form and "
+          "performance from `ZAO.State`, the pathogen seam "
+          "(`SAO_PathogenEvents`) turns the county's own events into "
+          "its state, `SAO_PathogenPressure` reads the pressure it "
+          "reports, Perception stores the form a survivor saw, and "
+          "`SAO_Integration` carries it at the world's seams. Every "
+          "read is guarded by presence, so a player without it loses "
+          "the crossing and nothing else - the same recognised-never-"
+          "required posture the doc-pack holds for every other mod, "
+          "and this one is ours.",
 }
 
 KNOWN = {n: OURS for n in (

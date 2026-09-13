@@ -765,7 +765,11 @@ public final class SAONeeds {
      *  matching raw getScriptName() would agree only for names that
      *  happen to need no sanitising, and would silently never fire for
      *  exactly the names the sanitiser exists for. */
-    private static String poolName(zombie.vehicles.BaseVehicle vehicle) {
+    /** Package-visible since [C114]: SAODriver re-finds the claimed car
+     *  by this same name when a goer boards it, and a drive matching
+     *  raw getScriptName() would silently never find exactly the names
+     *  the sanitiser exists for. */
+    static String poolName(zombie.vehicles.BaseVehicle vehicle) {
         if (vehicle == null) return "vehicle";
         String name = vehicle.getScriptName();
         if (name == null) name = "vehicle";

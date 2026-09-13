@@ -123,6 +123,11 @@ function SAOWire.render(item)
     elseif item.kind == "unseated" then
         return houseOf(item.group) .. " took the chair back. The house"
             .. " steers itself again."
+    elseif item.kind == "left" then
+        -- [C106] A chair who leaves the house leaves the chair - the
+        -- wire reports the seat, not the argument.
+        return houseOf(item.group) .. "'s chair is empty. They gave it"
+            .. " up and walked."
     elseif item.kind == "aidCall" then
         return "A call for aid went out on the band. Someone's moving."
     elseif item.kind == "onAir" then

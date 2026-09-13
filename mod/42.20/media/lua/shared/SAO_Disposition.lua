@@ -179,9 +179,11 @@ end
 -- stretching their legs, not a screensaver.
 function D.roamInterval(id)
     local t = D.traits(id)
-    -- [B49] Frames, not seconds - a tick is one rendered frame.
+    -- [C112] County ticks (a 9000th of a county hour apiece), the
+    -- same numbers they always were on the default day.
     return math.floor(1800 + (1.0 - t.initiative) * 3600)
-        -- 2340 .. 4860 frames, which is 39s .. 81s at 60fps
+        -- 2340 .. 4860 ticks, which is 39s .. 81s at 60fps frames
+        -- on the default day
 end
 
 function D.roamRange(id)

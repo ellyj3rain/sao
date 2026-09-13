@@ -16,7 +16,14 @@ WHAT THIS HOLDS
      and that is the failure this border exists for (DR-037's ruling:
      they either manage it or they do not).
   2. It is DAILY, and the number is the measured one (F-055), with the
-     frame arithmetic named rather than spelled.
+     frame arithmetic named rather than spelled. [C112] moved where the
+     arithmetic lives: the tick counter is no longer a local this file
+     advances by a calibrated jump but the county's own clock
+     (`SAO.History.ticks`, hours x 9000, 216,000 a day), and a
+     simulated day advances it by being LIVED - `runTheYears` writes
+     `s.yearsRun`, which `livingDay` reads and `countyHours` derives
+     from, BEFORE the day runs, so the gates inside open on the
+     clock's own authority.
   3. It is SLICED and cannot hang: a budget per pass, and it picks up
      where it stopped.
   4. It runs AFTER genesis and BEFORE the band, and holds the band
@@ -35,6 +42,8 @@ import sys
 ROOT = pathlib.Path(sys.argv[1]).resolve() if len(sys.argv) > 1 \
     else pathlib.Path(__file__).resolve().parent.parent
 POP = ROOT / "mod" / "42.20" / "media" / "lua" / "client" / "SAO_Population.lua"
+HIST = (ROOT / "mod" / "42.20" / "media" / "lua" / "shared"
+        / "SAO_History.lua")
 RECORD = ROOT / "java" / "src" / "com" / "sao" / "engine" / "SAORecord.java"
 BRIDGE = ROOT / "java" / "src" / "com" / "sao" / "bridge" / "SAOBridge.java"
 FINDINGS = ROOT / "FINDINGS.md"
@@ -75,6 +84,12 @@ ALLOWED_IN_A_DAY = {
     # a day and had wired it to `bootDigest`, which runs once per
     # session load.
     "dailyCounty",
+    # [C107] The dormant houses speak their shelves. The same
+    # not-an-exception as `dormantSettle` and `dailyCounty`:
+    # `populationTick` runs it as the "provision" sub on the live
+    # county's own cadence and the years call the same function. It is
+    # here because this list is by name and the name is new.
+    "dormantProvision",
 }
 
 # Shapes that would mean the pass had started inventing rather than
@@ -162,11 +177,24 @@ def main():
                 "the player meets was written rather than lived" % bad)
 
     checks = {
-        # 2. Daily, measured, named.
+        # 2. Daily, measured, named - on the [C112] clock. The first
+        # draft of this border held a `YEARS_TICKS_PER_DAY` constant
+        # advanced inside the day; [C112] ruled the calibrated jump
+        # out and moved the tick onto the county's own clock, so the
+        # honest spellings now are the frame arithmetic named where
+        # the clock lives (History) and the advance being the day
+        # itself - `s.yearsRun` written before the day is lived, so
+        # `SAO.History.ticks` has already moved 216,000 ticks when the
+        # day opens. The day itself must advance nothing, or the two
+        # clocks would be one clock plus a jump.
         "the cadence is named with its frame arithmetic":
-            re.search(r"local YEARS_TICKS_PER_DAY = \d+", pop) is not None,
-        "a day actually advances that counter":
-            "tickCounter = tickCounter + YEARS_TICKS_PER_DAY" in day,
+            re.search(r"local TICKS_PER_HOUR = \d+", read(HIST)) is not None,
+        "a day actually advances the county's clock, before it is lived":
+            re.search(r"run = run \+ 1(?:(?:[ \t]*--[^\n]*\n)|[ \t]*\n)*"
+                      r"[ \t]*s\.yearsRun = run\s*\n[ \t]*"
+                      r"oneYearsDay\(conf, run\)", pop) is not None,
+        "and the day itself advances nothing":
+            re.search(r"(tickCounter|yearsRun)\s*=", day) is None,
         "and the measurement is on record":
             "F-055" in read(FINDINGS) and "F-055" in pop,
 
@@ -199,6 +227,23 @@ def main():
             and "SAORecord.daysBehindAtStart(" in read(BRIDGE),
         "the gate runs this border":
             "tools/years_between_test.py" in read(CHECK),
+
+        # 1b. The [C65] pattern held all the way through: the
+        # pathogen's day and the world's day-graph are the live
+        # county's own now, run from `dailyCounty`'s day gate, which
+        # is why they are NOT in the allowed list above - they are no
+        # longer called from the simulated day at all, and a return of
+        # either call to `oneYearsDay` would read as a stray. The
+        # first draft of the [C65] landing called them only from the
+        # years and this rule refused it, correctly: the live county's
+        # carriers would never have advanced and the world graph would
+        # never have been written.
+        "the pathogen's day runs on the county's own clock":
+            "SAO.PathogenEvents.simulateDay"
+            in body_of(pop, "local function dailyCounty()"),
+        "and the world's day-graph runs there too":
+            "SAO.WorldGenesis.applyDay"
+            in body_of(pop, "local function dailyCounty()"),
     }
 
     # The ordering law, read off the tick rather than assumed.
@@ -221,8 +266,9 @@ def main():
             print("  FAULT: " + f)
         return 1
     print("  118) the years between are lived: every call in a simulated day "
-          "is the live county's own, at the measured daily cadence, sliced, "
-          "after genesis and before the band")
+          "is the live county's own, at the measured daily cadence on the "
+          "county's own clock ([C112]), sliced, after genesis and before "
+          "the band")
     return 0
 
 

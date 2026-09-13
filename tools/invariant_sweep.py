@@ -7,11 +7,16 @@ root = pathlib.Path(__file__).resolve().parent.parent
 lroot = root / "mod/42.20/media/lua"
 ctl = (lroot / "client/SAO_Controller.lua").read_text(encoding="utf-8")
 
-# 1. MOVEMENT_STATES keys vs the locomotion tick's state list.
+# 1. MOVEMENT_STATES keys vs the movement tick's state list. Since
+#    [C114] the region has two halves: the wheels block, whose legs
+#    are Java-side (SAO.Driving.tick - DRIVE and RIDE verdicts there),
+#    and the Locomotion verdicts that follow it. Both halves are the
+#    per-agent movement tick; a movement state handled in neither is
+#    the finding.
 mv_block = re.search(r"local MOVEMENT_STATES = \{(.*?)\}", ctl, re.S).group(1)
 mv_keys = set(re.findall(r"(\w+) = true", mv_block))
 tick_block = re.search(
-    r"-- Locomotion verdicts drive state exits.*?SAO\.Locomotion\.tick",
+    r"-- \[C114\] Wheels\.[^\n]*.*?SAO\.Locomotion\.tick",
     ctl, re.S).group(0)
 tick_states = set(re.findall(r'agent\.state == "(\w+)"', tick_block))
 print("1) MOVEMENT keys missing from locomotion tick:",
@@ -168,12 +173,24 @@ for f in (list((lroot / "client").glob("*.lua"))
           + list((lroot / "shared").glob("*.lua"))
           + list((lroot / "server").glob("*.lua"))):
     txt = f.read_text(encoding="utf-8")
-    # plain form: kind = "x"
-    kinds_written |= set(re.findall(r'kind\s*=\s*"(\w+)"', txt))
-    # conditional form: kind = cond and "a" or "b"
-    for m in re.finditer(r'kind\s*=\s*[^,\n]*?and\s+"(\w+)"\s+or\s+"(\w+)"',
-                         txt):
-        kinds_written |= {m.group(1), m.group(2)}
+    # Only the NEWS STREAMS count as writers: a kind handed to
+    # pushRadioNews, or a kind in a govHistory row. [C106]'s claim
+    # ledger spells its kinds `claim`/`contest` in Organization
+    # storage, and those are claims, not news - the whole-tree scan
+    # this replaced read them as promises the wire never made.
+    # plain form inside a pushed radio-news table
+    for m in re.finditer(r'pushRadioNews\(\s*\{[^)]*?kind\s*=\s*"(\w+)"',
+                         txt, re.S):
+        kinds_written.add(m.group(1))
+    # plain form inside a govHistory row
+    for m in re.finditer(r'govHistory\[[^\]]*\]\s*=\s*\{[^}]*?kind\s*=\s*"(\w+)"',
+                         txt, re.S):
+        kinds_written.add(m.group(1))
+    # conditional form: kind = cond and "a" or "b" inside either shape
+    for shape in (r'pushRadioNews\(\s*\{[^)]*?kind\s*=\s*[^,\n]*?and\s+"(\w+)"\s+or\s+"(\w+)"',
+                  r'govHistory\[[^\]]*\]\s*=\s*\{[^}]*?kind\s*=\s*[^,\n]*?and\s+"(\w+)"\s+or\s+"(\w+)"'):
+        for m in re.finditer(shape, txt, re.S):
+            kinds_written |= {m.group(1), m.group(2)}
 for name in ("client/SAO_UI.lua", "server/SAO_Radio.lua"):
     txt = (lroot / name).read_text(encoding="utf-8")
     kinds_read |= set(re.findall(r'kind\s*==\s*"(\w+)"', txt))
