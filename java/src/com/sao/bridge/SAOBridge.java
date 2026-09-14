@@ -1593,16 +1593,18 @@ public final class SAOBridge {
     }
 
     /** [C114] A goer's drive: walk to the claimed car, start it
-     *  lawfully, drive to (tx,ty), stop. One-line verdict. */
+     *  lawfully, drive to (tx,ty), stop. One-line verdict. [C115] The
+     *  speed cap crosses here - the sandbox dial, read by the Lua
+     *  face, because Java cannot read SandboxVars. */
     public String driveBegin(Object object, int radius, String name,
-            double tx, double ty) {
+            double tx, double ty, double speedCapKmh) {
         try {
             if (!(object instanceof SAOIsoPlayerShell shell)) {
                 return "NOT_A_SHELL";
             }
             return SAODriver.begin(shell, routeState(shell),
                 driveState(shell), radius, name,
-                (int) tx, (int) ty);
+                (int) tx, (int) ty, (float) speedCapKmh);
         } catch (Throwable throwable) {
             SAOAgent.log("driveBegin threw: " + throwable);
             return "DRIVE_FAILED " + throwable;

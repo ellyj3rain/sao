@@ -2260,8 +2260,14 @@ local MEET_COOLDOWN = 1800
 -- house only ever formed between people who already trusted each
 -- other at genesis. At 0.02 the default line (0.5) is twenty-five
 -- meetings - still built by crossing paths repeatedly over weeks,
--- never by one conversation.
-local ROAD_TRUST = 0.02
+-- never by one conversation. [C115] The number the ruling moved is
+-- the operator's dial now (the screen ruling of 2026-09-13): read
+-- here per meeting, so a world being played can be retuned; the
+-- fallback is the ruled figure, which is also the declared default.
+local function roadTrust()
+    local sv = SandboxVars and SandboxVars.SurvivorAwareness or nil
+    return (sv and tonumber(sv.RoadMeetingWorth)) or 0.02
+end
 
 -- How far the abstraction steps a hostile pair apart. Nobody dies
 -- unwitnessed, so the only thing an encounter between enemies does is
@@ -2667,8 +2673,8 @@ local function dormantEncounters()
                     log(idA .. " and " .. idB
                         .. " crossed paths dormant - hostile, kept apart")
                 else
-                    SAO.Standing.adjustTrust(idA, idB, ROAD_TRUST)
-                    SAO.Standing.adjustTrust(idB, idA, ROAD_TRUST)
+                    SAO.Standing.adjustTrust(idA, idB, roadTrust())
+                    SAO.Standing.adjustTrust(idB, idA, roadTrust())
                     -- A road meeting is a conversation ([A17]): one
                     -- lesson may change hands, and the full word-of-mouth
                     -- verb runs both ways - places, faction names, and

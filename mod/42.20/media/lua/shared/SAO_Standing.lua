@@ -484,10 +484,14 @@ end
 --               person's need can carry the whole company line.
 --
 -- The horizon is the one number here that is not already the
--- county's - half a year of collapse, stated so the operator can move
--- it. Openness rides the clock as the world is played, and a world
--- generated already deep reads deep from its first minute, so one
--- law covers both and nothing consults a dial.
+-- county's - half a year of collapse, stated at [C111] so the
+-- operator could move it. [C115] makes the move real: the horizon is
+-- the sandbox dial OpennessHorizonMonths, read per pull-hour recompute
+-- with the stated half year as its fallback (also the declared
+-- default, so a fresh world and a configured world agree). Openness
+-- still rides the clock as the world is played, and a world generated
+-- already deep still reads deep from its first minute - the dial
+-- moves where the horizon sits, not how openness rides it.
 --
 -- Zero whenever any factor cannot be read - offline, a bare VM, a
 -- dead or unknown id - so every gate degrades to trust alone, which
@@ -519,7 +523,12 @@ function S.companyPull(id)
             months = SAO.History and SAO.History.clockMonths() or 0
         end)
         if type(months) ~= "number" or months < 0 then months = 0 end
-        local openness = math.min(1.0, months / 6.0)
+        -- [C115] The horizon is the operator's dial; the fallback is
+        -- the ruled half year, which is the declared default.
+        local sv = SandboxVars and SandboxVars.SurvivorAwareness or nil
+        local horizon = (sv and tonumber(sv.OpennessHorizonMonths)) or 6.0
+        if type(horizon) ~= "number" or horizon <= 0 then horizon = 6.0 end
+        local openness = math.min(1.0, months / horizon)
         pull = (tonumber(reading.appetite) or 0)
             * (tonumber(reading.isolation) or 0)
             * openness

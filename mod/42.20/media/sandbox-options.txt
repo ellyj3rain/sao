@@ -75,6 +75,30 @@ option SurvivorAwareness.TrustToCompany {
     page = SurvivorAwareness, translation = SurvivorAwareness_TrustToCompany,
 }
 
+/* [C115] The dials the rulings named. The operator ruled 2026-09-13
+ * that the numbers ruled over the 09-11/09-13 era belong on this
+ * screen. Each default is the ruled figure, not a new choice: what
+ * a road meeting is worth ([C111], moved by ruling from 0.005 to
+ * 0.02), the months over which a county's need for company opens
+ * ([C111], stated then so the operator could move it), and the drive's
+ * speed cap ([C114], Week One's own credited 30 km/h town figure -
+ * the credit stands in CREDITS and in the code; the dial moves the
+ * number, not the credit). */
+option SurvivorAwareness.RoadMeetingWorth {
+    type = double, min = 0.0, max = 0.1, default = 0.02,
+    page = SurvivorAwareness, translation = SurvivorAwareness_RoadMeetingWorth,
+}
+
+option SurvivorAwareness.OpennessHorizonMonths {
+    type = double, min = 1.0, max = 24.0, default = 6.0,
+    page = SurvivorAwareness, translation = SurvivorAwareness_OpennessHorizonMonths,
+}
+
+option SurvivorAwareness.DriveSpeedCap {
+    type = double, min = 5.0, max = 80.0, default = 30.0,
+    page = SurvivorAwareness, translation = SurvivorAwareness_DriveSpeedCap,
+}
+
 option SurvivorAwareness.Voice {
     type = boolean, default = true,
     page = SurvivorAwareness, translation = SurvivorAwareness_Voice,

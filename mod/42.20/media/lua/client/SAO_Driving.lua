@@ -33,9 +33,15 @@ function Drv.order(id, body, carName, gx, gy)
         log("FAIL order " .. tostring(id) .. ": no java bridge")
         return false
     end
+    -- [C115] The drive's speed cap is the operator's dial now. Java
+    -- cannot read SandboxVars, so the value crosses the bridge here,
+    -- with the order; the fallback is Week One's credited town figure,
+    -- which is also the declared default.
+    local sv = SandboxVars and SandboxVars.SurvivorAwareness or nil
+    local speedCap = (sv and tonumber(sv.DriveSpeedCap)) or 30.0
     local ok, verdict = pcall(function()
         return SAOJavaBridge:driveBegin(body, CLAIM_RADIUS,
-            tostring(carName or ""), gx, gy)
+            tostring(carName or ""), gx, gy, speedCap)
     end)
     if not ok or not tostring(verdict):find("DRIVE_STARTED", 1, true) then
         log("declined " .. tostring(id) .. ": " .. tostring(verdict))

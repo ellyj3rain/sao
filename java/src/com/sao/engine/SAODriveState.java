@@ -19,6 +19,11 @@ public final class SAODriveState {
     /** Seats the driver waits on before departing ([B19]'s company
      *  cap made real: the car holds who it was promised to hold). */
     public int waitSeats;
+    /** [C115] The drive's speed cap in km/h, ordered in from the
+     *  sandbox dial by the Lua face (Java cannot read SandboxVars);
+     *  SAODriver falls back to the credited default when unset or
+     *  not positive. */
+    public float speedCapKmh;
     public int engineTries;
     public int waitTicks;
     public int stuckTicks;

@@ -1,6 +1,6 @@
 | Document | Survivor Awareness Overhaul Batch Log |
 |---|---|
-| Version | `4.5.0.0-pre-alpha` |
+| Version | `4.5.1.0-pre-alpha` |
 | Author | ellyj3rain |
 | Repository | `BATCH_LOG.md` |
 | Status | REGULATORY - chronological batch index. |
@@ -219,3 +219,4 @@ attribution for every merged entry, stated here rather than in a branch name.
 | [C112](Batches/C112-2026-09-12-the-tick-is-the-countys-clock.md) | 2026-09-12 | The tick is the county's clock | [`T-002`](Batches/THREADS.md#t-002), [`T-007`](Batches/THREADS.md#t-007) |
 | [C113](Batches/C113-2026-09-13-the-street-hour-and-the-trade-s-ground.md) | 2026-09-13 | The street hour and the trade's ground | [`T-002`](Batches/THREADS.md#t-002), [`T-007`](Batches/THREADS.md#t-007) |
 | [C114](Batches/C114-2026-09-13-a-real-person-at-the-wheel.md) | 2026-09-13 | A real person at the wheel | [`T-001`](Batches/THREADS.md#t-001), [`T-002`](Batches/THREADS.md#t-002) |
+| [C115](Batches/C115-2026-09-13-the-dials-the-rulings-named.md) | 2026-09-13 | The dials the rulings named | [`T-001`](Batches/THREADS.md#t-001), [`T-004`](Batches/THREADS.md#t-004) |

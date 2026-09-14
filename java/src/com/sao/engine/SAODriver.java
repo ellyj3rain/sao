@@ -49,9 +49,12 @@ public final class SAODriver {
     /** A car parks NEAR an errand, not on it. */
     private static final float ARRIVE_RADIUS = 6.0f;
     /** [C110] Week One's own town figure: their regulator drove at
-     * 30 km/h. Carried as the cap with credit; everything it scales
+     * 30 km/h. Carried with credit as the cap's DEFAULT; [C115] makes
+     * the cap itself the operator's dial, ordered in from the sandbox
+     * screen by the Lua face (Java cannot read SandboxVars), and this
+     * figure stands when the order carries none. Everything it scales
      * (the real speedometer) is read. */
-    private static final float SPEED_CAP_KMH = 30.0f;
+    private static final float DEFAULT_SPEED_CAP_KMH = 30.0f;
     private static final float STEER_GAIN = 1.5f;
     /** Ticks the starter gets before the attempt is read as refused. */
     private static final int ENGINE_PATIENCE = 240;
@@ -78,15 +81,21 @@ public final class SAODriver {
 
     /** A driver's trip: walk to the claimed car, start it lawfully,
      * drive to (tx,ty), stop. The car is found now so the walk has
-     * somewhere to go; its tile rides back in the verdict. */
+     * somewhere to go; its tile rides back in the verdict. [C115] The
+     * speed cap crosses here, read off the sandbox screen by the Lua
+     * face - the operator's dial; a non-positive value falls back to
+     * the credited default. */
     public static String begin(SAOIsoPlayerShell shell, SAORouteState route,
-            SAODriveState state, int radius, String name, int tx, int ty) {
+            SAODriveState state, int radius, String name, int tx, int ty,
+            float speedCapKmh) {
         state.mode = "drive";
         state.requested = true;
         state.name = name;
         state.targetX = tx + 0.5f;
         state.targetY = ty + 0.5f;
         state.waitSeats = 0;
+        state.speedCapKmh = speedCapKmh > 0.0f
+            ? speedCapKmh : DEFAULT_SPEED_CAP_KMH;
         resetTimers(state);
         BaseVehicle vehicle = vehicleNamed(shell, radius, name);
         if (vehicle == null) {
@@ -341,7 +350,12 @@ public final class SAODriver {
         float cross = forward.x * dy - forward.z * dx;
         controls.steering = clamp(cross * STEER_GAIN, -1.0f, 1.0f);
         float speed = Math.abs(vehicle.getCurrentSpeedKmHour());
-        if (speed > SPEED_CAP_KMH) {
+        // [C115] The operator's dial, ordered in at begin; the credited
+        // default stands when the state never carried one (a ride
+        // never sets it, and a drive ordered by older Lua).
+        float cap = state.speedCapKmh > 0.0f
+            ? state.speedCapKmh : DEFAULT_SPEED_CAP_KMH;
+        if (speed > cap) {
             controls.forward = false;
             controls.brake = true;
             state.stuckTicks = 0;

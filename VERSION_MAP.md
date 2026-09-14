@@ -16,9 +16,9 @@ the machine. Names, dates, and threads below come from
 | Form | `major.minor.kohai.patch-maturity` |
 | Hard caps | minor 12; kohai 16; patch 24 |
 | Replay start | `0.1.0.0-pre-alpha` |
-| Current version | `4.5.0.0-pre-alpha` |
-| Closed chronology | `A1-C114` |
-| Next batch | `C115` |
+| Current version | `4.5.1.0-pre-alpha` |
+| Closed chronology | `A1-C115` |
+| Next batch | `C116` |
 | Executable source | [`tools/version_replay.py`](tools/version_replay.py) |
 
 ## Tier meanings
@@ -230,6 +230,7 @@ the machine. Names, dates, and threads below come from
 | `C112` | 2026-09-12 | kohai | `4.3.4.0-pre-alpha` | The tick is the county's clock | The tick is the county's clock: everything but the voice cooldown counted frames, so a 144Hz machine ran the county 2.4x fast. One law - a tick is a 9000th of a county hour - with both counters reading it, the modulo cadences as stamps, and the reload rebase replaced by a domain check. A structural maturation of the whole timing substrate, so kohai. |
 | `C113` | 2026-09-13 | minor | `4.4.0.0-pre-alpha` | The street hour and the trade's ground | The street hour and the trade's ground: the streets half of the Week One port. Slayer's authored twenty-four-value curve becomes a per-person propensity to be out by the hour of the day, rolled at the leg boundary on both halves of the county, and the street-occupations idea becomes the census trade's own stable workplace, walked to behind need and ahead of company, all dead at the fall. A new player-visible capability - ordinary life on open streets before the collapse - so minor. |
 | `C114` | 2026-09-13 | minor | `4.5.0.0-pre-alpha` | A real person at the wheel | A real person at the wheel: the driving half of the Week One port, exercising the doorway C82 mapped. A goer who claimed wheels on a venture walks to the car, boards seat 0, starts the engine lawfully, and drives it to the venture's ground by the bearing, capped at the prior art's own credited 30 km/h, with the promised company in the passenger seats and every refusal answered by the ordinary walk. A new player-visible capability - NPC driving - so minor. |
+| `C115` | 2026-09-13 | kohai | `4.5.1.0-pre-alpha` | The dials the rulings named | The dials the rulings named: the screen-revision ruling of 2026-09-13 moves the era's ruled numbers onto the sandbox screen - what a road meeting is worth (C111's 0.02), the openness horizon (C111's stated half year), and the drive's speed cap (C114's credited 30 km/h), each default the ruled figure and the drive cap crossing the bridge Lua-to-Java because Java cannot read SandboxVars. The capability is the screen's own, matured to carry what the rulings reserved; nothing new is simulated, so kohai. |
 
 ## The former number
 
@@ -250,11 +251,11 @@ the meantime, and they are not play.
 
 ## Next movement
 
-`C115` is the next batch. Its content determines its tier after it
+`C116` is the next batch. Its content determines its tier after it
 exists:
 
-| If C115 is | Result |
+| If C116 is | Result |
 |---|---|
-| patch or hotfix | `4.5.0.1-pre-alpha` |
-| kohai | `4.5.1.0-pre-alpha` |
+| patch or hotfix | `4.5.1.1-pre-alpha` |
+| kohai | `4.5.2.0-pre-alpha` |
 | minor | `4.6.0.0-pre-alpha` |
