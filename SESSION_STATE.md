@@ -1,11 +1,44 @@
 | Document | Survivor Awareness Overhaul Session State |
 |---|---|
-| Version | `4.5.0.0-pre-alpha` |
+| Version | `4.5.1.0-pre-alpha` |
 | Author | ellyj3rain |
 | Repository | `SESSION_STATE.md` |
 | Status | CANONICAL - where the work actually stands. |
 
 # Session state
+
+**As of** 2026-09-13, `[C115]` close - the dials the rulings named.
+The operator's screen-revision ruling of the same sitting (the
+sister project's record 45): the sandbox screen carried "an absence
+of everything I said should be configurable over this past three
+days" - the numbers the operator ruled over the 09-11/13 era sat in
+code as constants while the screen showed other things. Three dials
+now carry them, each default the ruled figure so nothing about the
+county changes: RoadMeetingWorth (the 0.02 the operator moved
+personally at `[C111]`, read per meeting), OpennessHorizonMonths
+(the half year `[C111]` stated "so the operator can move it," read
+per pull-hour recompute), and DriveSpeedCap (`[C114]`'s credited
+30 km/h, crossing the bridge at order time because Java cannot read
+SandboxVars - Lua reads the dial, `driveBegin` gains the parameter,
+the per-shell drive state carries it, and `SPEED_CAP_KMH` stands
+renamed `DEFAULT_SPEED_CAP_KMH` with its credit intact). Named as
+deliberately NOT dials, in the record and the options header: the
+county clock (`[C112]`), the street hour (prior art carried whole),
+era and calendar facts (the record's stamps, never the dial), and
+per-person temperament (emergent from identity by design). Three
+borders were amended to the new truth rather than the code bent
+back: Border 29 claims the two module-owned dials and graduates
+ROAD_TRUST out of its magic-number table; Border 152 reads the dial
+seams; Border 92 declares the six new strings under the ruling, the
+wording following the ratified plain register. The gate ran clean
+with the batch in the tree, 31 options on the surface; the jar was
+rebuilt and shipped before it ran; the version machine derives
+4.5.1.0-pre-alpha (kohai - the screen matured to carry what the
+rulings reserved, nothing new simulated). This batch is the first
+named step of the pre-alpha-to-alpha order the same sitting set:
+this revision, then readiness, then the training passes - the dials
+exist so the tuning has something to turn. Open, as ever, on the
+play receipts: nobody has watched a goer drive at a non-default cap.
 
 **As of** 2026-09-13, `[C114]` close - a real person at the wheel.
 The driving half of the Week One port (`[C110]`) is built, and the
@@ -1595,9 +1628,14 @@ unloaded survivors are governed by the same rules ([B39], [B42]).
 
 ## Deploy state
 
-`4.5.0.0-pre-alpha` at tip - the version machine's output ([C2],
-DR-013; the ten units `[C105]` through `[C114]` moved it here, the
-Week One port's two minors among them). The game install carries the `[C62]` tip. `[C45]` through
+`4.5.1.0-pre-alpha` at tip - the version machine's output ([C2],
+DR-013; the eleven units `[C105]` through `[C115]` moved it here,
+the Week One port's two minors and `[C115]`'s dial kohai among
+them). `[C115]` reached the install on 2026-09-13, the same day it
+closed, after its own gate run - verified rather than assumed: the
+deployed `mod.info` reads `4.5.1.0-pre-alpha`, and the deployed
+`SAO.jar` is byte-identical to the committed build (md5
+`dd2d9414...` at all three of dist, tree, and install). The game install carries the `[C62]` tip. `[C45]` through
 `[C51]` reached it on 2026-09-07 and `[C52]` through `[C62]` on 2026-09-08, each
 after its own commit passed the gate, the game having been closed
 since the `[C44]` deploy. Verified rather than assumed at each

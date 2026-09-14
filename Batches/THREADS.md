@@ -86,9 +86,9 @@ still owed.
 
 Companies, creeds, elections, feuds, pacts, schisms, and the player's standing in it.
 
-**Batches**: `A9`, `A12`, `A13`, `A14`, `A19`, `A20`, `A21`, `A22`, `A25`, `A27`, `B7`, `B13`, `B23`, `B35`, `C37`, `C42`, `C44`, `C48`, `C67`, `C68`, `C70`, `C72`, `C76`, `C83`, `C88`, `C89`, `C90`, `C91`, `C92`, `C106`, `C108`, `C111`
+**Batches**: `A9`, `A12`, `A13`, `A14`, `A19`, `A20`, `A21`, `A22`, `A25`, `A27`, `B7`, `B13`, `B23`, `B35`, `C37`, `C42`, `C44`, `C48`, `C67`, `C68`, `C70`, `C72`, `C76`, `C83`, `C88`, `C89`, `C90`, `C91`, `C92`, `C106`, `C108`, `C111`, `C115`
 
-**Owes**: the carry-light dissent class; division's rate is unpriced.
+**Owes**: the carry-light dissent class; division's rate is unpriced. The `[C111]` numbers the rulings moved are the operator's dials now (`[C115]`: what a road meeting is worth, and the months over which company becomes a need) - the dials exist so the tuning passes of the pre-alpha-to-alpha order have something to turn.
 
 ## TF-05 - Ventures, media, and surfaces
 
@@ -96,9 +96,9 @@ Companies, creeds, elections, feuds, pacts, schisms, and the player's standing i
 
 Leaving, being watched for, and the worry that sends somebody after.
 
-**Batches**: `A28`, `B1`, `B19`, `C4`, `C18`, `C82`, `C114`
+**Batches**: `A28`, `B1`, `B19`, `C4`, `C18`, `C82`, `C114`, `C115`
 
-**Owes**: the driving play receipt - the engine surface `[C82]` mapped is now exercised (`[C114]`: a real person at seat 0, the engine started lawfully, company in the passenger seats), and the operator watching it happen is the debt that remains, payable after the end pass rebuilds the jar; corpse discovery as a search outcome.
+**Owes**: the driving play receipt - the engine surface `[C82]` mapped is now exercised (`[C114]`: a real person at seat 0, the engine started lawfully, company in the passenger seats), and the operator watching it happen is the debt that remains - the jar the end pass rebuilt now carries `[C115]`'s dial too (the drive's speed cap, the operator's screen ruling of 2026-09-13, the credited 30 km/h its default); corpse discovery as a search outcome.
 
 ### <a id="t-005"></a>T-005 - Radio and communication
 

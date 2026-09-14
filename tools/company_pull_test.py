@@ -17,7 +17,9 @@ The law this border holds, from both sides:
     openness (how far the county's condition makes company a need
     rather than a risk, months since the fall over a horizon of six
     - the one number here that is not already the county's, stated
-    so the operator can move it).
+    so the operator can move it; [C115] made the move real, and the
+    horizon and the meeting's worth are the operator's dials now,
+    each default the ruled figure).
   * Need substitutes for trust not yet built; it NEVER cancels trust
     already spent against somebody - the pull reads only where trust
     is not negative.
@@ -247,16 +249,26 @@ def main():
     seams = {
         "the pull reads the live isolation surface, not a static factor":
             "SAO.Isolation.of(id)" in standing,
-        "the horizon of six months is stated so the operator can move it":
-            "months / 6.0" in standing,
+        # [C115] The move [C111] stated is real now: the horizon is
+        # the operator's dial, read with the ruled half year as the
+        # fallback (also the declared default), and the openness
+        # divides by what was read, not by a hardcoded six.
+        "the horizon is the operator's dial, the ruled half year its default":
+            "tonumber(sv.OpennessHorizonMonths)) or 6.0" in standing
+            and "months / horizon" in standing
+            and "months / 6.0" not in standing,
         "need never cancels trust already spent":
             "if t < 0 then return t end" in standing,
         "the pull is read once a county hour and held":
             "if hour ~= pullHour then" in standing,
+        # [C115] Same graduation: what a road meeting is worth is the
+        # RoadMeetingWorth dial now (the number the operator's own
+        # ruling moved from 0.005 to 0.02), read per meeting with the
+        # ruled figure as the fallback, applied both ways.
         "a road meeting is worth more, both ways":
-            "local ROAD_TRUST = 0.02" in population
-            and population.count("adjustTrust(idA, idB, ROAD_TRUST)") == 1
-            and population.count("adjustTrust(idB, idA, ROAD_TRUST)") == 1,
+            "tonumber(sv.RoadMeetingWorth)) or 0.02" in population
+            and population.count("adjustTrust(idA, idB, roadTrust())") == 1
+            and population.count("adjustTrust(idB, idA, roadTrust())") == 1,
         "the road reads the pair standing":
             population.count("companyStanding(") >= 3,
         "the companion seam reads the pair standing":

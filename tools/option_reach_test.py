@@ -83,6 +83,16 @@ OWNED_ELSEWHERE = {
     "Material": "shared/SAO_Recognition.lua",
     "Communication": "shared/SAO_Recognition.lua",
     "PlayerInteraction": "shared/SAO_PlayerInteraction.lua",
+    # [C115] The two dials the screen-revision ruling added whose
+    # readers live in their own modules. The openness horizon is read
+    # where the pull is computed - Standing's companyPull is the one
+    # law of a person's need, served to both halves through the same
+    # shared seam - so neither half reads the dial directly and the
+    # module that computes the need owns it. The drive's speed cap is
+    # read by the driving face at order time, because Java cannot
+    # read SandboxVars: the value crosses the bridge with the order.
+    "OpennessHorizonMonths": "shared/SAO_Standing.lua",
+    "DriveSpeedCap": "client/SAO_Driving.lua",
 }
 
 
@@ -177,11 +187,17 @@ def main():
     # comment with a semicolon.
     print()
     print("  TUNABLES IN THE DORMANT SOCIAL PATH")
+    # [C115] ROAD_TRUST graduated out of this table: what a road
+    # meeting is worth is the RoadMeetingWorth dial now (the number
+    # the operator's own [C111] ruling moved from 0.005 to 0.02, made
+    # a dial by the screen-revision ruling of 2026-09-13). It is
+    # tracked one block above, read off the dormant file with the
+    # ruled figure as its fallback - the named-constant job this
+    # table did for it is done by the option half of this border.
     tunables = {
         "MEET_RANGE": "how near two drifting days must cross",
         "ENCOUNTER_BUDGET": "outer records swept per pass",
         "MEET_COOLDOWN": "one meeting per pair per this many ticks",
-        "ROAD_TRUST": "what a road meeting is worth",
         "WIDE_BERTH": "how far a hostile pair is stepped apart",
     }
     for name, what in tunables.items():

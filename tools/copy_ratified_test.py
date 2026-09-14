@@ -233,6 +233,34 @@ RATIFIED = {
         "Grudges, credits and news passed between survivors are "
         "recorded as messages." + NL
         + "Off: the words still pass - nothing is written down.",
+    # [C115] The three dials the screen-revision ruling named, 2026-09-13
+    # (the operator's own queue: the numbers the rulings moved over
+    # 09-11/09-13 belong on the screen, each default the ruled figure).
+    # The wording follows the ratified plain-register family the
+    # sixteen strings above set: a name that says what it is, a
+    # tooltip that says what it does and what the default is.
+    P + "RoadMeetingWorth": "What a road meeting is worth",
+    P + "RoadMeetingWorth_tooltip":
+        "How much trust two survivors build each time they cross paths "
+        "on the road." + NL
+        + "At the default (0.02) the companionship line takes about "
+        "twenty-five meetings - weeks of crossing paths, never one "
+        "conversation." + NL
+        + "At zero a meeting builds nothing; higher builds trust faster.",
+    P + "OpennessHorizonMonths": "Months until company becomes a need",
+    P + "OpennessHorizonMonths_tooltip":
+        "How many months into the collapse before a lonely survivor's "
+        "need for company can carry the whole companionship line." + NL
+        + "The default is the ruled half year: a county six months into "
+        "collapse is one where being alone is what kills you.",
+    P + "DriveSpeedCap": "Driving speed cap (km/h)",
+    P + "DriveSpeedCap_tooltip":
+        "The fastest a survivor drives a claimed car on a venture." + NL
+        + "The default is 30, the figure carried whole from Week One "
+        "with credit - their town-driving speed, read off the real "
+        "speedometer." + NL
+        + "Higher drives faster; the engine's own brake at unloaded "
+        "space stands at any speed.",
 }
 
 # Struck register, held out of the named UI sources by literal match -
