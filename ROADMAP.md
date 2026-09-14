@@ -1,6 +1,6 @@
 | Document | Survivor Awareness Overhaul Roadmap |
 |---|---|
-| Version | `4.7.0.0-pre-alpha` |
+| Version | `4.8.0.0-pre-alpha` |
 | Author | ellyj3rain |
 | Repository | `ROADMAP.md` |
 | Status | CANONICAL - thread map, backlog, live gates. |
@@ -769,6 +769,10 @@ risen corpse of a re-adopted afflicted is its `[A33]`, owed there and
 named in both repos. The afflicted's social half is closed at this
 side's `[C117]` (2026-09-13): the house argument, the company door's
 fear-shaped value, and the cast-out's drift - the county's society
-answers its mid-course people. What waits there now is the operator's
+answers its mid-course people. The raider vocabulary is closed at
+this side's `[C118]` (2026-09-14): the real forcing bar, the breach
+through the engine's own batter, the demand and the yield, and the
+warpath haul - the county raids itself, and no raider class exists.
+What waits there now is the operator's
 review of the nine drafted world documents, which gates corpus,
 voice, and training.

@@ -9,6 +9,8 @@ import zombie.iso.IsoCell;
 import zombie.iso.IsoDirections;
 import zombie.iso.IsoGridSquare;
 import zombie.iso.IsoObject;
+import zombie.inventory.InventoryItem;
+import zombie.inventory.types.HandWeapon;
 import zombie.iso.objects.IsoDoor;
 import zombie.iso.objects.IsoWindow;
 import zombie.pathfind.Path;
@@ -317,6 +319,72 @@ public final class SAOMovement {
         if (deltaX == -1) return IsoDirections.W;
         if (deltaY == 1) return IsoDirections.S;
         return IsoDirections.N;
+    }
+
+    /** [C118] The batter: one engine-true hit with the held weapon on
+     * the locked or barricaded barrier between the shell and the
+     * direction it was walking, through the engine's own WeaponHit -
+     * the same price a player pays: barricade planks by the engine's
+     * own damage math, door health down, and the thump noise of it
+     * drawing whatever hears it. Never a decision: the composition
+     * decides who batters (Disposition) and whether the ground beyond
+     * was theirs to enter (Standing); this only swings. The edge
+     * toward the goal is asked first, then every cardinal edge of the
+     * square the shell stands on. An empty hand is an honest limit -
+     * fists do not batter, and the walk gives up wanting the door. */
+    public static String batter(SAOIsoPlayerShell shell, int towardX, int towardY) {
+        try {
+            InventoryItem held = shell.getPrimaryHandItem();
+            if (!(held instanceof HandWeapon weapon)) {
+                return "UNARMED";
+            }
+            IsoCell cell = shell.getCell();
+            int cx = (int) shell.getX();
+            int cy = (int) shell.getY();
+            int cz = (int) shell.getZ();
+            IsoGridSquare here = cell.getGridSquare(cx, cy, cz);
+            if (here == null) {
+                return "NOTHING_TO_BATTER";
+            }
+            int signX = Integer.signum(towardX - cx);
+            int signY = Integer.signum(towardY - cy);
+            int[][] edges = {
+                {signX, 0}, {0, signY},
+                {1, 0}, {-1, 0}, {0, 1}, {0, -1}
+            };
+            for (int i = 0; i < edges.length; i++) {
+                int dx = edges[i][0];
+                int dy = edges[i][1];
+                if (dx == 0 && dy == 0) {
+                    continue;
+                }
+                IsoGridSquare next = cell.getGridSquare(cx + dx, cy + dy, cz);
+                if (next == null) {
+                    continue;
+                }
+                IsoObject doorObject = here.getDoorTo(next);
+                if (doorObject instanceof IsoDoor door) {
+                    if (door.isBarricaded() || (door.isLocked() && !door.IsOpen())) {
+                        shell.faceThisObject(door);
+                        door.WeaponHit(shell, weapon);
+                        if (door.isDestroyed()) {
+                            return "DOOR_DOWN";
+                        }
+                        return "DOOR";
+                    }
+                }
+                IsoWindow window = here.getWindowTo(next);
+                if (window != null && window.isBarricaded()) {
+                    shell.faceThisObject(window);
+                    window.WeaponHit(shell, weapon);
+                    return "WINDOW";
+                }
+            }
+            return "NOTHING_TO_BATTER";
+        } catch (Throwable throwable) {
+            SAOAgent.log("batter threw: " + throwable);
+            return "BATTER_FAILED";
+        }
     }
 
     /** [C4] Follow recovery. When the pathfinder has no route to a
