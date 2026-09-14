@@ -40,6 +40,8 @@
     "Sandbox_SurvivorAwareness_Voice_tooltip": "Survivors say short lines at meaningful moments: fleeing, warnings, thanks, grief.\\nOff: identical behavior, no lines.",
     "Sandbox_SurvivorAwareness_DayZero": "Day Zero start",
     "Sandbox_SurvivorAwareness_DayZero_tooltip": "The county starts before the outbreak: no fear, no losses, no learned lessons yet.\\nPairs well with low zombie counts and slow turning.",
+    "Sandbox_SurvivorAwareness_WeekOneNuke": "The government's answer",
+    "Sandbox_SurvivorAwareness_WeekOneNuke_tooltip": "Off by default. On, this world's strike is drawn once: the day, the towns, how many, how wide.\\nThe countdown runs on the fall's own calendar, whenever it came to this county. The same save carries one fate; a new county is a novel apocalypse.\\nAfter the strike the fire burns what fire burns and the fallout rises where the circles hold. Off: nothing of it runs at all.",
     "Sandbox_SurvivorAwareness_Telemetry": "Write telemetry log",
     "Sandbox_SurvivorAwareness_Telemetry_tooltip": "Writes events (lessons learned, deaths, daily summaries) to SAO_telemetry.jsonl in your Zomboid folder.\\nHas no effect on gameplay. Turn off if you do not want the file.",
     "Sandbox_SurvivorAwareness_DormantRisk": "Off-screen danger multiplier",

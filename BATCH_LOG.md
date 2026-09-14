@@ -1,6 +1,6 @@
 | Document | Survivor Awareness Overhaul Batch Log |
 |---|---|
-| Version | `4.8.0.0-pre-alpha` |
+| Version | `4.9.0.0-pre-alpha` |
 | Author | ellyj3rain |
 | Repository | `BATCH_LOG.md` |
 | Status | REGULATORY - chronological batch index. |
@@ -223,3 +223,4 @@ attribution for every merged entry, stated here rather than in a branch name.
 | [C116](Batches/C116-2026-09-13-the-afflicted-come-back.md) | 2026-09-13 | The afflicted come back | [`T-001`](Batches/THREADS.md#t-001), [`T-002`](Batches/THREADS.md#t-002), [`T-008`](Batches/THREADS.md#t-008) |
 | [C117](Batches/C117-2026-09-13-the-afflicted-among-the-living.md) | 2026-09-13 | The afflicted among the living | [`T-002`](Batches/THREADS.md#t-002), [`T-004`](Batches/THREADS.md#t-004), [`T-006`](Batches/THREADS.md#t-006), [`T-008`](Batches/THREADS.md#t-008) |
 | [C118](Batches/C118-2026-09-14-the-demand-the-break-in-and-the-haul.md) | 2026-09-14 | The demand, the break-in, and the haul | [`T-002`](Batches/THREADS.md#t-002), [`T-004`](Batches/THREADS.md#t-004), [`T-008`](Batches/THREADS.md#t-008) |
+| [C119](Batches/C119-2026-09-14-week-ones-moments-and-the-governments-answer.md) | 2026-09-14 | Week One's moments and the government's answer | [`T-002`](Batches/THREADS.md#t-002), [`T-004`](Batches/THREADS.md#t-004), [`T-007`](Batches/THREADS.md#t-007) |

@@ -1,6 +1,6 @@
 | Document | Survivor Awareness Overhaul Roadmap |
 |---|---|
-| Version | `4.8.0.0-pre-alpha` |
+| Version | `4.9.0.0-pre-alpha` |
 | Author | ellyj3rain |
 | Repository | `ROADMAP.md` |
 | Status | CANONICAL - thread map, backlog, live gates. |
@@ -773,6 +773,12 @@ answers its mid-course people. The raider vocabulary is closed at
 this side's `[C118]` (2026-09-14): the real forcing bar, the breach
 through the engine's own batter, the demand and the yield, and the
 warpath haul - the county raids itself, and no raider class exists.
+Week One's totality is closed at this side's `[C119]` (2026-09-14):
+the seventeen credited clips worn by moments the county already
+occasions (the counter, the protest, the CPR, the bard's own
+instrument, the four dances) and the government's answer - a dial
+default off, a per-world draw persisted in ModData, the countdown on
+the fall's own calendar, and only engine truth after the strike.
 What waits there now is the operator's
 review of the nine drafted world documents, which gates corpus,
 voice, and training.

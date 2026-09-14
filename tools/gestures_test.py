@@ -96,6 +96,15 @@ def main():
     # (BWO_WaiterServing), which the manifest carries from the source node.
     if (ANIMS / "WaiterServing.fbx").exists() and manifest.get("waiterAnim"):
         anim_files.add(manifest["waiterAnim"])
+    # [C119] The same case, generalized: every copied file entry may
+    # declare the clip name inside it (`anim`), which is the name the
+    # engine - and therefore the node's m_AnimName - knows it by when
+    # it is not the file's own name. Counted only for a file that
+    # exists, so a missing file still faults above rather than
+    # quietly binding its clip.
+    for entry in files:
+        if entry.get("anim") and (ROOT / entry["file"]).exists():
+            anim_files.add(entry["anim"])
     print("     rigged animations: %d; missing files: %d" % (rigged, missing))
 
     # Every node: parses, SAO_ named, SAO's own variable, names a file.
@@ -126,11 +135,20 @@ def main():
     g = read(GESTURE)
     asked = set()
     for lst in ("SPEAK", "GRIEF", "FRUSTRATED", "TEACH", "BOW", "SPENT", "SERVE",
-                "GUITAR", "HARMONICA", "DANCES"):
+                "GUITAR", "HARMONICA", "DANCES",
+                # [C119] The three new moments' vocabularies.
+                "CASHIER", "PROTEST", "CPR"):
         asked.update(lua_list(g, lst))
     listen = re.search(r"G\.LISTEN\s*=\s*\{(.*?)\n\}", g, re.S)
     if listen:
         asked.update(re.findall(r'"([A-Za-z0-9_]+)"', listen.group(1)))
+    # [C119] The bard's map is keyed by item type, so only its VALUES
+    # are gesture names - the keys ("Base.Flute") are the engine's own
+    # item names and would read as unbound gestures if the flat
+    # list reader picked them up.
+    bard = re.search(r"G\.BARD\s*=\s*\{(.*?)\n\}", g, re.S)
+    if bard:
+        asked.update(re.findall(r'=\s*"([A-Za-z0-9_]+)"', bard.group(1)))
     seats = set(lua_list(g, "SEATS"))
     for name in re.findall(r'"(IsSittingLoop[A-Za-z_]*)"', g):
         seats.add(name)
@@ -169,7 +187,10 @@ def main():
         "the meeting is seen on both people": "SAO.Gesture.meet(id, body, otherId, otherBody, verdict, warmM, sharpM)" in read(EXCHANGE),
         "the evening seat sets the seat": "SAO.Gesture.seat(id, body)" in ctl,
         "and every stand clears it": ctl.count("SAO.Gesture.standUp(") >= 3,
-        "the tune plays the instrument": "SAO.Gesture.playInstrument(id, body, what)" in ctl,
+        # [C119] The tune now carries the instrument the bard actually
+        # holds, so the seam is the call with its fourth argument.
+        "the tune plays the instrument": "SAO.Gesture.playInstrument(id, body, what,"
+                                         + "\n                            carriedInstrument)" in ctl,
         "and those close dance or clap": "SAO.Gesture.dance(oid43, ob43)" in ctl and "SAO.Gesture.clap(ob43)" in ctl,
         "the harness gives the four receipts": all(s in read(HARNESS) for s in
             ('"Gesture: agree"', '"Gesture: argue"', '"Dance a while"', '"Play the guitar"')),

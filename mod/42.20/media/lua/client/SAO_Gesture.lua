@@ -83,12 +83,39 @@ G.GUITAR = { "PlayGuitarDefault", "PlayGuitarExperiencedA", "PlayGuitarExperienc
              "PlayGuitarProficientA", "PlayGuitarAcoustic" }
 G.HARMONICA = { "PlayHarmonicaDefault", "PlayHarmonicaExperiencedA",
                 "PlayHarmonicaProficientA" }
+-- [C119] The bard's own instrument: the county picks up whatever the
+-- world holds (Population's instrument take reads the engine's own
+-- InstrumentWeapon category), and until now every flute and sax
+-- played the guitar's clip. The carried type names the clip; the
+-- types with no clip of their own keep the guitar list as before.
+-- The clips are Week One's, copied with permission (CREDITS.md).
+G.BARD = {
+    ["Base.Flute"] = "BardFlute",
+    ["Base.Saxophone"] = "BardSaxophone",
+    ["Base.Trumpet"] = "BardTrumpet",
+    ["Base.Violin"] = "BardViolin",
+    ["Base.GuitarElectricBass"] = "BardGuitarBass",
+    ["Base.GuitarElectric"] = "BardGuitarElectric",
+}
 G.DANCES = { "DancingFreestyleA", "DancingFreestyleB", "DancingFreestyleC",
              "DancingFreestyleD", "DancingFreestyleE", "DancingFreestyleF",
              "DancingFreestyleG", "DancingFreestyleH", "DancingFreestyleI",
              "DancingSideStep", "DancingHandWave", "DancingHandsInAir",
              "DancingMoveAround", "DancingShake", "DancingRunningMan",
-             "DancingMacarena" }
+             "DancingMacarena",
+             -- [C119] Week One's four, joining the porch-tune crowd
+             -- through the same pick every dance already uses.
+             "DancingWeekOne1", "DancingWeekOne2",
+             "DancingWeekOne3", "DancingWeekOne4" }
+-- [C119] The trade's shape and the crowd's: the cashier at the
+-- counter ([C113]'s trade ground), the protest when two dissenters
+-- stand together ([A25]'s policy grumble grown a body). Week One's
+-- clips, copied with permission (CREDITS.md); a gesture is never
+-- authored on its own - each rides a decision the county already
+-- made.
+G.CASHIER = { "Cashier" }
+G.PROTEST = { "Protest1", "Protest2", "Protest3" }
+G.CPR = { "StartCpr", "LoopCpr", "EndCpr" }
 -- The seats: nodes under AnimSets/player/sitonground-sitting, read
 -- while the engine's own sitting state runs.
 G.SEATS = { "IsSittingLoop", "IsSittingLoopArmsCrossed", "IsSittingLoopHandsOnFace",
@@ -99,7 +126,11 @@ G.SEATS = { "IsSittingLoop", "IsSittingLoopArmsCrossed", "IsSittingLoopHandsOnFa
 -- How long, in the action's ticks: the Hobbies mod's own timings for
 -- its talking table (60 a gesture, 30 a sharp one), longer for a tune
 -- and a dance.
-local TICKS = { gesture = 60, sharp = 30, serve = 90, tune = 600, dance = 300 }
+local TICKS = { gesture = 60, sharp = 30, serve = 90, tune = 600, dance = 300,
+                -- [C119] The medic's three-stage machine: the kneel,
+                -- the work, the letting-go. The loop holds long
+                -- enough to be real work on a body.
+                cprStart = 60, cprLoop = 300, cprEnd = 60 }
 
 local function pick(list, id, salt)
     if not list or #list == 0 then return nil end
@@ -240,14 +271,59 @@ function G.standUp(body)
 end
 
 -- The porch tune ([A19]/[B21]): the instrument SAO already names.
-function G.playInstrument(id, body, what)
+-- [C119] The carried type is read when there is one: a bard with a
+-- flute plays the flute's clip, not the guitar's - the clip the
+-- county now owns because the world actually holds the instrument.
+-- `what` still names the tune's sound and label (banjo, harmonica,
+-- the rest); only the SHAPE follows the carried thing.
+function G.playInstrument(id, body, what, itemType)
     local list = (what == "harmonica") and G.HARMONICA or G.GUITAR
+    if itemType and G.BARD[itemType] then
+        list = { G.BARD[itemType] }
+    end
     return G.play(id, body, pick(list, id, "tune"), TICKS.tune)
 end
 
 -- Those already close when the tune starts: half dance, the rest clap.
 function G.dance(id, body)
     return G.play(id, body, pick(G.DANCES, id, "dance"), TICKS.dance)
+end
+
+-- [C119] The counter ([C113]): a person at their filed trade ground
+-- with somebody in front of them. Called by the work arrival seam on
+-- the controller; the moment is the commute's own, the shape is
+-- Week One's cashier.
+function G.cashier(id, body)
+    return G.play(id, body, pick(G.CASHIER, id, "cashier"), TICKS.serve)
+end
+
+-- [C119] The protest ([A25]): called by the election seam when TWO
+-- dissenters stand within reach - a grumble with a body, and a crowd
+-- of exactly the size the county's own politics produced. Both of
+-- the pair hold the shape; the voice still says the grievance.
+function G.protest(id, body)
+    return G.play(id, body, pick(G.PROTEST, id, "protest"), TICKS.gesture)
+end
+
+-- [C119] The medic's three-stage machine: the kneel beside the
+-- body, the work, the end of it. Called by the aid seam when the
+-- hurt body is down - desperate aid is what the moment is, and
+-- CPR is what desperate aid looks like. Week One's three clips,
+-- one queue: the actions run in order and the last one lets go.
+function G.cpr(id, body)
+    if not body or not free(body) then return false end
+    local ok = true
+    for i, name in ipairs(G.CPR) do
+        local ticks = (i == 1 and TICKS.cprStart)
+            or (i == 2 and TICKS.cprLoop) or TICKS.cprEnd
+        local queued = pcall(function()
+            ISTimedActionQueue.add(
+                SAOGestureAction:new(body, name, ticks))
+        end)
+        if not queued then ok = false end
+    end
+    if ok then log(tostring(id) .. " cpr") end
+    return ok
 end
 
 function G.clap(body)
@@ -269,6 +345,6 @@ function G.cough(body)
     return pcall(function() body:playSound((female and "SAOCoughF" or "SAOCoughM") .. n) end)
 end
 
-log("gesture module loaded (the county's gestures, seats, tunes, dances, claps and coughs)")
+log("gesture module loaded (the county's gestures, seats, tunes, dances, claps, coughs, the counter, the protest and the medic's hands)")
 
 return G

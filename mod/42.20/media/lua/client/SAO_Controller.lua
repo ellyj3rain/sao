@@ -183,6 +183,13 @@ local SHOT_ORIGIN_REACH = 2.0
 -- follow reaches because past it the sighting is stale and the walk
 -- should re-arm on the next sighting instead.
 local PROMISE_BODY_REACH = 8.0
+-- [C119] tiles: how far from the person at the filed trade ground a
+-- customer must stand for the counter's moment to be real - the
+-- player, or any live body the county actually put there. Shares
+-- PORCH_REACH's figure by coincidence of scale (a shop's floor and
+-- a porch are both an arm's crowd), named apart because the counter
+-- is the trade's own rule, not the tune's.
+local COUNTER_REACH = 4.0
 
 -- [B47] Arrival is readable from outside, because the same rule
 -- reads backwards: if three tiles means you have got there, then a
@@ -2679,6 +2686,16 @@ local function decide(id, agent, body)
                 local what = idleRec.instrument == "Base.Banjo" and "banjo"
                     or idleRec.instrument == "Base.Harmonica" and "harmonica"
                     or "guitar"
+                -- [C119] The bard's own shape: the carried type goes
+                -- with the tune so the flute-player plays the flute's
+                -- clip, not the guitar's. The label keeps the
+                -- county's word for it; only the body tells the
+                -- truth about what is held.
+                local carriedInstrument = idleRec.instrument
+                if carriedInstrument and what == "guitar"
+                    and carriedInstrument:match("%.(.+)$") then
+                    what = carriedInstrument:match("%.(.+)$")
+                end
                 detail = "picks the " .. what .. " on the porch, "
                     .. (agent.armed and "weapon" or "bat") .. " in reach"
                 -- [B21] And it CARRIES. This used to set a string and
@@ -2696,8 +2713,13 @@ local function decide(id, agent, body)
                     pcall(function()
                         heard43 = SAOJavaBridge:easeListeners(body, 12)
                     end)
-                    -- [C35] The tune, seen: the instrument's own animation.
-                    pcall(function() SAO.Gesture.playInstrument(id, body, what) end)
+                    -- [C35] The tune, seen: the instrument's own
+                    -- animation - [C119] and the bard's own clip
+                    -- when the carried type has one.
+                    pcall(function()
+                        SAO.Gesture.playInstrument(id, body, what,
+                            carriedInstrument)
+                    end)
                     -- People come. Nothing else had to be built for
                     -- the consequence: co-location is what the
                     -- meeting, telling and trust machinery has always
@@ -4516,6 +4538,11 @@ local function decide(id, agent, body)
             -- thing is the stroll around it, not re-ordering the
             -- doorstep.
             if streetWork then
+                -- [C119] The ground rides the leg, both cases: the
+                -- arrival seam asks whether this walk was the
+                -- work's, and a stroll around the ground one is
+                -- already standing on is the work's too.
+                agent.workingGround = streetWork
                 local swdx = streetWork.x - bx
                 local swdy = streetWork.y - by
                 if swdx * swdx + swdy * swdy
@@ -4525,6 +4552,12 @@ local function decide(id, agent, body)
                     why = "goes to work - the "
                         .. tostring(streetWork.label) .. "'s ground"
                 end
+            else
+                -- [C119] A leg with no work behind it clears the
+                -- stamp: the trade ground is a pre-fall fact
+                -- ([C113]), and it does not follow the person into
+                -- the world after.
+                agent.workingGround = nil
             end
             -- [B31] The trip costs the tank. [B31] found that
             -- `roadworthy` gates on fuel above 5 and NOTHING ever
@@ -5869,6 +5902,58 @@ local function updateAgent(id, agent)
                         end
                     end
                 end
+                -- [C119] The counter. A street leg that ARRIVED at
+                -- the filed trade ground ([C113]) with somebody in
+                -- front of them is the trade's own moment, and the
+                -- moment wears Week One's credited cashier shape.
+                -- No new machinery: the commute was the decision,
+                -- the customer is whoever the county actually put
+                -- there, and the pacing is the stamp the porch tune
+                -- already uses - two county hours between turns at
+                -- the counter, so a busy shop is busy without
+                -- looping one body at the counter all day.
+                if agent.workingGround then
+                    local wg = agent.workingGround
+                    local wgdx, wgdy = (wg.x or 0) - body:getX(),
+                        (wg.y or 0) - body:getY()
+                    if wgdx * wgdx + wgdy * wgdy
+                        <= ARRIVAL_REACH * ARRIVAL_REACH
+                        and tickCount >= (agent.nextCashierAt or 0) then
+                        local customerNear = false
+                        pcall(function()
+                            local me4 = getSpecificPlayer(0)
+                            if me4 then
+                                local cdx = me4:getX() - body:getX()
+                                local cdy = me4:getY() - body:getY()
+                                if cdx * cdx + cdy * cdy
+                                    <= COUNTER_REACH * COUNTER_REACH then
+                                    customerNear = true
+                                end
+                            end
+                            if not customerNear then
+                                for _, otherB in pairs(SAO.Body.active) do
+                                    if otherB ~= body then
+                                        local cdx = otherB:getX() - body:getX()
+                                        local cdy = otherB:getY() - body:getY()
+                                        if cdx * cdx + cdy * cdy
+                                            <= COUNTER_REACH * COUNTER_REACH then
+                                            customerNear = true
+                                            break
+                                        end
+                                    end
+                                end
+                            end
+                        end)
+                        if customerNear then
+                            agent.nextCashierAt = tickCount + 18000
+                            pcall(function()
+                                SAO.Gesture.cashier(id, body)
+                            end)
+                            log(id .. " takes the counter at the "
+                                .. tostring(wg.label or "trade") .. "'s")
+                        end
+                    end
+                end
             end
             if agent.state == "SEARCHWARD" then
                 -- The search ends where the trail does ([A28]): the
@@ -6042,6 +6127,18 @@ local function updateAgent(id, agent)
                             end)
                             pcall(function()
                                 SAO.Voice.onEvent(id, "aid", tickCount)
+                            end)
+                            -- [C119] And when the body is DOWN - on the
+                            -- floor or near gone - the aid is desperate,
+                            -- and desperate aid looks like Week One's
+                            -- credited three-stage hands: the kneel, the
+                            -- work, the letting-go. The bandage is still
+                            -- real (aidWound ran); this is the same
+                            -- moment's shape, not a second one.
+                            pcall(function()
+                                local low = hurtBody:isKnockedDown()
+                                    or hurtBody:getHealth() < 0.3
+                                if low then SAO.Gesture.cpr(id, body) end
                             end)
                             log(id .. " hands a bandage to " .. tostring(hurtKey))
                         end

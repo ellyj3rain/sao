@@ -140,6 +140,17 @@ ALLOWED = {
         "sightlines. Three tens, three rules: present, audible, "
         "visible. They share a scale because a room is a room, and "
         "nothing more than that.",
+    ("SAO_Controller.lua", 4.0, "COUNTER_REACH"):
+        "[C119] Two fours that predate the name. The teaching stand-off "
+        "(how close you stand while your player teaches you) is a rule "
+        "about a LESSON's duration, not a shop's floor; the porch "
+        "crowd band (outside the arm's crowd at sixteen, inside "
+        "earshot at one-ninety-six, squared tiles) is a rule about "
+        "where a tune's listeners are DRAWN from. COUNTER_REACH is "
+        "who stands in front of the counter. Three questions, one "
+        "scale, because a room's crowd is a room's crowd. Tighten the "
+        "counter and a lesson must not get harder to sit; widen the "
+        "crowd band and a customer must not step back from the till.",
 }
 
 

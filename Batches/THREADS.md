@@ -44,9 +44,9 @@ The gate, its borders, and the repository's own discipline.
 
 The county before the collapse, the fall itself, and what it teaches.
 
-**Batches**: `A6`, `A10`, `A11`, `A17`, `A29`, `B3`, `B9`, `C8`, `C10`, `C11`, `C29`, `C30`, `C31`, `C32`, `C33`, `C34`, `C35`, `C36`, `C38`, `C41`, `C42`, `C43`, `C45`, `C47`, `C62`, `C63`, `C112`, `C113`, `C114`, `C116`, `C117`, `C118`
+**Batches**: `A6`, `A10`, `A11`, `A17`, `A29`, `B3`, `B9`, `C8`, `C10`, `C11`, `C29`, `C30`, `C31`, `C32`, `C33`, `C34`, `C35`, `C36`, `C38`, `C41`, `C42`, `C43`, `C45`, `C47`, `C62`, `C63`, `C112`, `C113`, `C114`, `C116`, `C117`, `C118`, `C119`
 
-**Owes**: outbreak live-confirmation (the engine's infection on shells, witnessed in play); the streets' play receipt (an ordinary county watched at eight in the morning and three at night); the driving play receipt (a goer under wheels watched in an ordinary county - the port's driving half is built, `[C114]`, T-001's doorway exercised; the watching is the debt); the afflicted play receipt (the reverted coming back, a formed neighbor feared and never fought, watched in an ordinary county - the return is built, `[C116]`, and the watching is the debt, now widened by `[C117]`: the house's argument, the doors' answers, and the cast-out's ground belong in the same watching); the raiding play receipt (a batter heard across a street, a robbery survived by handing it over, a warpath walk home heavier than it left - the vocabulary is built, `[C118]`, and the watching is the debt).
+**Owes**: outbreak live-confirmation (the engine's infection on shells, witnessed in play); the streets' play receipt (an ordinary county watched at eight in the morning and three at night); the driving play receipt (a goer under wheels watched in an ordinary county - the port's driving half is built, `[C114]`, T-001's doorway exercised; the watching is the debt); the afflicted play receipt (the reverted coming back, a formed neighbor feared and never fought, watched in an ordinary county - the return is built, `[C116]`, and the watching is the debt, now widened by `[C117]`: the house's argument, the doors' answers, and the cast-out's ground belong in the same watching); the raiding play receipt (a batter heard across a street, a robbery survived by handing it over, a warpath walk home heavier than it left - the vocabulary is built, `[C118]`, and the watching is the debt); the moments play receipt (a cashier with a customer, two dissenters standing together, a medic's hands over a body that is down, a flute that looks like a flute - the shapes are built, `[C119]`, and the watching is the debt); and the one world that asks for it: the government's answer drawn for that world and arriving on the day the draw said (`[C119]`, the dial off by default, the receipt the operator's own world start).
 
 ### <a id="t-006"></a>T-006 - Temperament and provenance
 
@@ -60,7 +60,7 @@ Who a person is, what they believe, how they came to believe it, and what time d
 
 Who the county holds: census, age, occupation, arrivals, and growth.
 
-**Batches**: `A7`, `A17`, `A18`, `A19`, `B28`, `B37`, `B38`, `B48`, `C9`, `C16`, `C17`, `C20`, `C21`, `C29`, `C30`, `C31`, `C32`, `C33`, `C34`, `C35`, `C39`, `C40`, `C41`, `C45`, `C46`, `C62`, `C63`, `C65`, `C66`, `C73`, `C75`, `C112`, `C113`
+**Batches**: `A7`, `A17`, `A18`, `A19`, `B28`, `B37`, `B38`, `B48`, `C9`, `C16`, `C17`, `C20`, `C21`, `C29`, `C30`, `C31`, `C32`, `C33`, `C34`, `C35`, `C39`, `C40`, `C41`, `C45`, `C46`, `C62`, `C63`, `C65`, `C66`, `C73`, `C75`, `C112`, `C113`, `C119`
 
 **Owes**: growth rate vs the 360 ceiling - the arithmetic is with the operator.
 
@@ -86,7 +86,7 @@ still owed.
 
 Companies, creeds, elections, feuds, pacts, schisms, and the player's standing in it.
 
-**Batches**: `A9`, `A12`, `A13`, `A14`, `A19`, `A20`, `A21`, `A22`, `A25`, `A27`, `B7`, `B13`, `B23`, `B35`, `C37`, `C42`, `C44`, `C48`, `C67`, `C68`, `C70`, `C72`, `C76`, `C83`, `C88`, `C89`, `C90`, `C91`, `C92`, `C106`, `C108`, `C111`, `C115`, `C117`, `C118`
+**Batches**: `A9`, `A12`, `A13`, `A14`, `A19`, `A20`, `A21`, `A22`, `A25`, `A27`, `B7`, `B13`, `B23`, `B35`, `C37`, `C42`, `C44`, `C48`, `C67`, `C68`, `C70`, `C72`, `C76`, `C83`, `C88`, `C89`, `C90`, `C91`, `C92`, `C106`, `C108`, `C111`, `C115`, `C117`, `C118`, `C119`
 
 **Owes**: the carry-light dissent class; division's rate is unpriced. The `[C111]` numbers the rulings moved are the operator's dials now (`[C115]`: what a road meeting is worth, and the months over which company becomes a need) - the dials exist so the tuning passes of the pre-alpha-to-alpha order have something to turn. The feud now has a vocabulary (`[C118]`: the demand, the yield, the batter, the haul - character against situation, no raider class), and what it looks like on a Tuesday is the watching's debt, T-002's raiding receipt.
 

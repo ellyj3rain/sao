@@ -294,4 +294,37 @@ module Base
             volume = 0.5,
         }
     }
+    /* [C119] The government's answer, heard: Week One's own two
+     * strike sounds, copied with the authors' permission as the
+     * settlement holds ([C35], DR-034) - their near kaboom
+     * (DOKaboom over day_one_kaboom.wav) and their distant one
+     * (BWOKaboomDist over nuke_dist.ogg), re-keyed to SAO's names.
+     * The near one plays for a strike the player is close to, the
+     * far one for the rest - one def pair, one honest distance. */
+    sound SAONukeNear
+    {
+        category = Object,
+        loop = false,
+        is3D = true,
+        clip
+        {
+            file = media/sound/sao/day_one_kaboom.wav,
+            distanceMax = 100,
+            reverbFactor = 0.1,
+            volume = 1,
+        }
+    }
+    sound SAONukeDist
+    {
+        category = Object,
+        loop = false,
+        is3D = true,
+        clip
+        {
+            file = media/sound/sao/nuke_dist.ogg,
+            distanceMax = 100,
+            reverbFactor = 0.1,
+            volume = 1,
+        }
+    }
 }
