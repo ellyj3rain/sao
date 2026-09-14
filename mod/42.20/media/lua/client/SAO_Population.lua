@@ -3404,6 +3404,16 @@ local function dailyCounty()
             SAO.AfflictedReturn.stampLive(day)
         end
     end)
+    -- [C117] The cast-out and the gather on the same clock: after the
+    -- return and the marks, standing's own daily question - the
+    -- groupless afflicted taking the abandoned ground they have
+    -- walked to. The years pass drives it exactly as the live county
+    -- does, the [C65] law.
+    pcall(function()
+        if SAO.Standing and SAO.Standing.outcastDrift then
+            SAO.Standing.outcastDrift()
+        end
+    end)
     pcall(function() SAO.WorldGenesis.applyDay(day) end)
 end
 

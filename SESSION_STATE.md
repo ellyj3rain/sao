@@ -1,11 +1,67 @@
 | Document | Survivor Awareness Overhaul Session State |
 |---|---|
-| Version | `4.6.0.0-pre-alpha` |
+| Version | `4.7.0.0-pre-alpha` |
 | Author | ellyj3rain |
 | Repository | `SESSION_STATE.md` |
 | Status | CANONICAL - where the work actually stands. |
 
 # Session state
+
+**As of** 2026-09-13, `[C117]` close - the afflicted among the living.
+The social half of the afflicted arc, the batch `[C116]` named as
+standing's own: the return brought them back, and this is the county's
+answer to them. Three laws, all through machinery that already exists
+- no badge decides anything, and nobody is exiled, refused, or moved
+by category. The belief reader `P.believedFormOf(id, otherKey, tick)`
+is the one query every standing-side question asks: the form read off
+a person-belief keyed the way beliefs are keyed, fresh on the people
+horizon, so an argument quiets by itself when the marks stop being
+seen - a member who has not seen the shaped face does not argue, and
+there is no argument without fear in the room. The house argument
+runs in `electLeader` beside the creed quarrel `[B23]` built: each
+housemate holding a fresh belief of the form answers out of character
+(`[B3]`'s law for the bitten at the deeper bend) - weight
+`(1 - nerve) + fear - compassion`, above zero and they are afraid,
+else they stand by - trust bends on the sibling quarrel's magnitudes
+and cadence (afraid -0.03 toward the subject, the subject -0.02 back
+at every afraid face, afraid and standing faces -0.02 at each
+other), the blows cross each side's OWN `hostilityBar` per person,
+and everything after the blows is the split machinery's business:
+no exile verb exists by design, `checkSchism` decides, and its
+schism of one IS the exile - the cast-out is whoever the roster
+trusts less, no preferred victim. The company door reads the same
+law everywhere at once, because `[C111]` made the value the one law:
+`companyStanding` discounts by the judge's own fear (weight scaled
+0.6, only when positive), so the composed can still take a shaped
+stranger in and the most frightened cannot be carried past the line
+even by the deepest need - the road, the table, the visit gate, the
+companion walk, and the player's own asks all read the same value,
+and an afflicted judge at an afflicted door discounts by their own
+fear the same as anyone; no solidarity is encoded. And once a county
+day, on the clock the return and the marks run, `S.outcastDrift`
+asks the cast-out's question for every groupless person whose own
+state says afflicted: their own known places ranked by the
+`[C76]`/`[C108]` scorer, minus every place a living hand holds and
+what they already hold, and the best remaining place becomes their
+home through the same claim verb genesis uses, the log saying why -
+measure, then guide, the settle pass's law applied to one person,
+and a cast-out who never went back anywhere keeps the ground they
+stand on. The gather needs nothing new: outcasts crossing paths at
+the same abandoned ground go through the ordinary doors, and what
+gathers, gathers. Work and claims are answered by the machinery
+that owns them - the split clears the designation, `[B21]` judges
+the state of the work never the attribution, and `mayEnter` still
+refuses a break-in without hostility, whoever holds the ground. The
+gate ran clean with the batch in the tree, the jar rebuilt and
+shipped with the new stamp; the version machine derives
+4.7.0.0-pre-alpha (minor - a new player-visible simulation
+capability: the county's society answers its mid-course people).
+Open, as ever, on the play receipts: nobody has watched a house
+argue over a returned member, a door refuse one, or an outcast take
+abandoned ground. Next: the totality order the same sitting set -
+the raider vocabulary (the ten swept gaps), Week One's moments and
+gestures, age attachments, drugs in totality - then the off-switch
+list before runtime verification.
 
 **As of** 2026-09-13, `[C116]` close - the afflicted come back. The
 operator's totality ruling of the same sitting names the afflicted as
@@ -54,7 +110,7 @@ turned body and releases it once this side has re-adopted); until it
 lands, corpse and returnee share a county, honestly. The gate ran
 clean with the batch in the tree, all 63 Lua files compiling under
 the engine's own Kahlua, the jar rebuilt and shipped first; the
-version machine derives 4.6.0.0-pre-alpha (minor - a new
+version machine derives 4.7.0.0-pre-alpha (minor - a new
 player-visible capability: the county's mid-course people return to
 it, and the crossed can drive). Open, as ever, on the play receipts:
 nobody has watched the dead come back or a crossed body under
@@ -88,7 +144,7 @@ seams; Border 92 declares the six new strings under the ruling, the
 wording following the ratified plain register. The gate ran clean
 with the batch in the tree, 31 options on the surface; the jar was
 rebuilt and shipped before it ran; the version machine derives
-4.6.0.0-pre-alpha (kohai - the screen matured to carry what the
+4.7.0.0-pre-alpha (kohai - the screen matured to carry what the
 rulings reserved, nothing new simulated). This batch is the first
 named step of the pre-alpha-to-alpha order the same sitting set:
 this revision, then readiness, then the training passes - the dials
@@ -1683,12 +1739,12 @@ unloaded survivors are governed by the same rules ([B39], [B42]).
 
 ## Deploy state
 
-`4.6.0.0-pre-alpha` at tip - the version machine's output ([C2],
+`4.7.0.0-pre-alpha` at tip - the version machine's output ([C2],
 DR-013; the eleven units `[C105]` through `[C115]` moved it here,
 the Week One port's two minors and `[C115]`'s dial kohai among
 them). `[C115]` reached the install on 2026-09-13, the same day it
 closed, after its own gate run - verified rather than assumed: the
-deployed `mod.info` reads `4.6.0.0-pre-alpha`, and the deployed
+deployed `mod.info` reads `4.7.0.0-pre-alpha`, and the deployed
 `SAO.jar` is byte-identical to the committed build (md5
 `dd2d9414...` at all three of dist, tree, and install). The game install carries the `[C62]` tip. `[C45]` through
 `[C51]` reached it on 2026-09-07 and `[C52]` through `[C62]` on 2026-09-08, each

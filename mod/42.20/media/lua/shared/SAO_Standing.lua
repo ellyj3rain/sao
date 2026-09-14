@@ -548,7 +548,48 @@ end
 function S.companyStanding(id, otherKey)
     local t = S.trust(id, otherKey)
     if t < 0 then return t end
-    return t + S.companyPull(id)
+    local v = t + S.companyPull(id)
+    -- [C117] The afflicted at the company door. The judge's own
+    -- belief poses the question and the judge's own character answers
+    -- it - [B3]'s law for the bitten, at the deeper bend: a survivor
+    -- who believes the other carries a form reads their door value
+    -- down by their own fear, nerve holding it and compassion
+    -- opening it, and nothing is refused by badge. Need does not
+    -- overrule who somebody is ([C111]) and neither does this: the
+    -- composed can still take the shaped stranger in, the frightened
+    -- cannot, and both are the same person on the same day at every
+    -- door - the road, the table, the visit, the companion walk, and
+    -- the player's own asks - because this is the value, and the
+    -- value is the one law.
+    if SAO.Perception and SAO.Perception.believedFormOf then
+        local tick = nil
+        pcall(function()
+            tick = SAO.Controller and SAO.Controller.tick
+                and SAO.Controller.tick() or nil
+        end)
+        if type(tick) == "number" then
+            local form = nil
+            pcall(function()
+                form = SAO.Perception.believedFormOf(id, otherKey, tick)
+            end)
+            if form then
+                local tr = SAO.Disposition and SAO.Disposition.traits
+                    and SAO.Disposition.traits(id) or nil
+                local fear = 0
+                pcall(function()
+                    fear = SAO.Disposition and SAO.Disposition.fear
+                        and SAO.Disposition.fear(id) or 0
+                end)
+                if tr then
+                    local weight = (1.0 - (tonumber(tr.nerve) or 0.5))
+                        + (tonumber(fear) or 0)
+                        - (tonumber(tr.compassion) or 0.5)
+                    if weight > 0 then v = v - weight * 0.6 end
+                end
+            end
+        end
+    end
+    return v
 end
 
 -- Temperament gates company ([A27]): trust opens the door, the
@@ -1017,6 +1058,117 @@ function S.electLeader(groupName)
                 log(tostring(groupName) .. " is two rooms now: "
                     .. tostring(faceOurs) .. " and "
                     .. tostring(faceTheirs))
+            end
+        end
+    end
+    -- [C117] The afflicted member in the room. [B23]'s quarrel runs
+    -- on creed; this one runs on the pathogen's marks: a member the
+    -- house can SEE is shaped ([C116]'s scanner stamps the form on
+    -- the person-belief) is a question the house answers out of
+    -- character, the same law [B3] set for the bitten - the fearful
+    -- pull away, the composed stand by, and nobody is exiled by
+    -- badge. Only members who hold a FRESH belief of the form take a
+    -- stance at all; a member who has not seen them recently does
+    -- not argue, and when the belief ages past the people horizon the
+    -- argument quiets on its own. The bending runs on this cadence
+    -- and at the sibling's magnitudes, the blows cross the same
+    -- per-person bar, and everything after the blows is the split
+    -- machinery's own ([A22]): checkSchism at the meeting seams,
+    -- whose schism of one is the exile ([A21]) - the cast-out.
+    do
+        local tickNow = nil
+        pcall(function()
+            tickNow = SAO.Controller and SAO.Controller.tick
+                and SAO.Controller.tick() or nil
+        end)
+        if type(tickNow) == "number"
+            and SAO.Perception and SAO.Perception.believedFormOf then
+            for _, mid in ipairs(members) do
+                local afraid, standBy = {}, {}
+                for _, oid in ipairs(members) do
+                    if oid ~= mid then
+                        local form = nil
+                        pcall(function()
+                            form = SAO.Perception.believedFormOf(
+                                oid, mid, tickNow)
+                        end)
+                        if form then
+                            local tr = SAO.Disposition
+                                and SAO.Disposition.traits
+                                and SAO.Disposition.traits(oid) or nil
+                            if tr then
+                                local fear = 0
+                                pcall(function()
+                                    fear = SAO.Disposition.fear(oid) or 0
+                                end)
+                                local weight =
+                                    (1.0 - (tonumber(tr.nerve) or 0.5))
+                                    + (tonumber(fear) or 0)
+                                    - (tonumber(tr.compassion) or 0.5)
+                                if weight > 0 then
+                                    afraid[#afraid + 1] = oid
+                                    S.adjustTrust(oid, mid, -0.03)
+                                else
+                                    standBy[#standBy + 1] = oid
+                                end
+                            end
+                        end
+                    end
+                end
+                if #afraid > 0 then
+                    -- The subject is a person too, and the argument is
+                    -- about them: they hear the room turn, and their
+                    -- own trust bends against whoever pulled away. A
+                    -- hollow returnee bends the same - trust is the
+                    -- county's store, not the disposition's.
+                    for _, a in ipairs(afraid) do
+                        S.adjustTrust(mid, a, -0.02)
+                    end
+                    -- The two faces sour at each other, as divided
+                    -- faces do.
+                    for _, a in ipairs(afraid) do
+                        for _, b in ipairs(standBy) do
+                            S.adjustTrust(a, b, -0.02)
+                            S.adjustTrust(b, a, -0.02)
+                        end
+                    end
+                    -- [B23]'s come-to-blows clause, the same
+                    -- per-person bar: when the subject and their
+                    -- afraid face, or the two faces, cross their own
+                    -- bars, hostility speaks, and the meeting seams'
+                    -- checkSchism settles what the house becomes. The
+                    -- roster can trust either side more - the cast-out
+                    -- is whoever the split casts out, not a script's.
+                    local pairsToTest = {}
+                    for _, a in ipairs(afraid) do
+                        pairsToTest[#pairsToTest + 1] = { a, mid }
+                        for _, b in ipairs(standBy) do
+                            pairsToTest[#pairsToTest + 1] = { a, b }
+                        end
+                    end
+                    for _, p in ipairs(pairsToTest) do
+                        local a, b = p[1], p[2]
+                        local barA = SAO.Disposition
+                            and SAO.Disposition.hostilityBar
+                            and SAO.Disposition.hostilityBar(a) or -0.5
+                        local barB = SAO.Disposition
+                            and SAO.Disposition.hostilityBar
+                            and SAO.Disposition.hostilityBar(b) or -0.5
+                        if S.trust(a, b) < barA and S.trust(b, a) < barB
+                            and not (S.isHostileTo(a, b)
+                                or S.isHostileTo(b, a)) then
+                            S.setHostile(a, b, true)
+                            S.setHostile(b, a, true)
+                            log(tostring(groupName) .. ": "
+                                .. tostring(a) .. " and " .. tostring(b)
+                                .. " are done pretending about "
+                                .. tostring(mid))
+                        end
+                    end
+                    log(tostring(groupName) .. " argued over "
+                        .. tostring(mid) .. ": " .. #afraid .. " afraid, "
+                        .. #standBy .. " standing by")
+                end
             end
         end
     end
@@ -3210,6 +3362,72 @@ function S.onGroundOf(groupName, x, y, margin)
         end
     end
     return false
+end
+
+-- [C117] The cast-out and the gather: a groupless person whose own
+-- state says afflicted drifts, once a county day, toward the best
+-- ground THEY have actually walked to that no living hand holds -
+-- their own `returnsOf` ranking, minus every company's seat and
+-- every other living person's claim (`claimedByOther`), minus what
+-- they already hold (`insideClaim`, which is where they live). The
+-- law is the settle pass's own ([C76]/[C108]): nothing is scored the
+-- county did not already measure by walking, nothing is placed, and
+-- a cast-out who has never gone back anywhere has no candidate and
+-- keeps the ground they stand on - measure, then guide (DR-021).
+--
+-- The home they leave was theirs to keep ([A21]'s exile clause), and
+-- leaving it is their own answer to the doors closing: the drift
+-- reads only their own facts - groupless, mid-course, and the places
+-- their own feet reached - never a badge and never a script. What
+-- they abandon goes back to the county unclaimed. The GATHER is the
+-- doors' own question and needs nothing here: outcasts who drift to
+-- the same abandoned ground cross paths, and the road and the table
+-- decide by the same `companyStanding` every other pair is decided
+-- by - a house of outcasts is a county's own answer, not a category.
+function S.outcastDrift()
+    local s = store(); if not s then return false end
+    if not (ZAO and ZAO.StateStore and ZAO.StateStore.read) then
+        return false
+    end
+    if not (SAO.Perception and SAO.Perception.returnsOf) then
+        return false
+    end
+    local moved = 0
+    for id, rec in pairs(SAO.Identity.all()) do
+        if not rec.dead and not s.groups[id] then
+            local saved = ZAO.StateStore.read(id)
+            local terminal = saved and saved.terminalState or nil
+            if terminal == "afflicted" then
+                local ranked = SAO.Perception.returnsOf({ id }) or {}
+                for _, t in ipairs(ranked) do
+                    local pc = t.place
+                    if pc and pc.cx and pc.minX
+                        and not S.claimedByOther(id, pc.cx, pc.cy)
+                        and not S.insideClaim(id, pc.cx, pc.cy) then
+                        local mnX, mnY, mxX, mxY =
+                            S.groundAround(SAO.Body.get(id),
+                                pc.cx, pc.cy, 4)
+                        S.releaseClaim(id)
+                        S.claim(id, mnX, mnY, mxX, mxY, 0)
+                        rec.homeX, rec.homeY, rec.homeZ =
+                            pc.cx, pc.cy, 0
+                        -- Say WHY this ground and not another, the
+                        -- settle pass's own law: the visits are the
+                        -- person's own, and the claim is the county's
+                        -- answer to who holds the rest.
+                        log(id .. " takes the abandoned ground at "
+                            .. tostring(pc.cx) .. "," .. tostring(pc.cy)
+                            .. " - they had been back "
+                            .. tostring(t.visits)
+                            .. " time(s) and nobody holds it")
+                        moved = moved + 1
+                        break
+                    end
+                end
+            end
+        end
+    end
+    return moved > 0
 end
 
 -- Faction naming: a settled fact, once, at 3+ members. Deterministic from

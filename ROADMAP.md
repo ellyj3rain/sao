@@ -1,6 +1,6 @@
 | Document | Survivor Awareness Overhaul Roadmap |
 |---|---|
-| Version | `4.6.0.0-pre-alpha` |
+| Version | `4.7.0.0-pre-alpha` |
 | Author | ellyj3rain |
 | Repository | `ROADMAP.md` |
 | Status | CANONICAL - thread map, backlog, live gates. |
@@ -766,6 +766,9 @@ records 30 and 41), and the cross-module row contract is ratified
 are closed at `[C116]` - the driving map's widening and the
 `record.verbs` stamp - so its driveTick finds both ends waiting; the
 risen corpse of a re-adopted afflicted is its `[A33]`, owed there and
-named in both repos. What waits there now is the operator's
+named in both repos. The afflicted's social half is closed at this
+side's `[C117]` (2026-09-13): the house argument, the company door's
+fear-shaped value, and the cast-out's drift - the county's society
+answers its mid-course people. What waits there now is the operator's
 review of the nine drafted world documents, which gates corpus,
 voice, and training.
