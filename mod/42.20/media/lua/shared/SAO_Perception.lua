@@ -601,6 +601,26 @@ function P.nearestFormedPerson(id, tick, fromX, fromY)
     return nil
 end
 
+-- [C117] Does this survivor currently BELIEVE a person carries a
+-- form, and which? The belief reader for every standing-side
+-- question about the afflicted among the living: keyed the way
+-- beliefs are keyed (the person's belief key), fresh on the people
+-- horizon, answering the form or nil. Never a scan, never the truth
+-- - what they believe, which is what the house argues over and the
+-- company door reads.
+function P.believedFormOf(id, otherKey, tick)
+    local rec = SAO.Identity and SAO.Identity.get
+        and SAO.Identity.get(otherKey) or nil
+    local key = rec and SAO.Identity.beliefKey(rec) or nil
+    if not key then return nil end
+    local pb = P.believedPerson(id, key)
+    if not pb then return nil end
+    if not (pb.form and pb.form ~= "none") then return nil end
+    local horizon = horizonFor(id, "people")   -- [C32]
+    if tick - (pb.at or 0) > horizon then return nil end
+    return pb.form
+end
+
 -- [C116] The nearest believed carrier of a form, living or dead: the
 -- zombie the survivor believes in and the person they believe is
 -- shaped, whichever is closer. This is the pathogen pressure's read -

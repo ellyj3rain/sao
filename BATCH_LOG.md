@@ -1,6 +1,6 @@
 | Document | Survivor Awareness Overhaul Batch Log |
 |---|---|
-| Version | `4.6.0.0-pre-alpha` |
+| Version | `4.7.0.0-pre-alpha` |
 | Author | ellyj3rain |
 | Repository | `BATCH_LOG.md` |
 | Status | REGULATORY - chronological batch index. |
@@ -221,3 +221,4 @@ attribution for every merged entry, stated here rather than in a branch name.
 | [C114](Batches/C114-2026-09-13-a-real-person-at-the-wheel.md) | 2026-09-13 | A real person at the wheel | [`T-001`](Batches/THREADS.md#t-001), [`T-002`](Batches/THREADS.md#t-002) |
 | [C115](Batches/C115-2026-09-13-the-dials-the-rulings-named.md) | 2026-09-13 | The dials the rulings named | [`T-001`](Batches/THREADS.md#t-001), [`T-004`](Batches/THREADS.md#t-004) |
 | [C116](Batches/C116-2026-09-13-the-afflicted-come-back.md) | 2026-09-13 | The afflicted come back | [`T-001`](Batches/THREADS.md#t-001), [`T-002`](Batches/THREADS.md#t-002), [`T-008`](Batches/THREADS.md#t-008) |
+| [C117](Batches/C117-2026-09-13-the-afflicted-among-the-living.md) | 2026-09-13 | The afflicted among the living | [`T-002`](Batches/THREADS.md#t-002), [`T-004`](Batches/THREADS.md#t-004), [`T-006`](Batches/THREADS.md#t-006), [`T-008`](Batches/THREADS.md#t-008) |

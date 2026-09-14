@@ -40,7 +40,10 @@
 -- both.
 --
 -- The house argument, the cast-out and the gather are NOT here: those
--- are standing's questions, and standing gets its own batch.
+-- are standing's questions, and standing's batch is [C117] - the
+-- argument over an afflicted member runs in electLeader beside the
+-- creed quarrel, the company door reads its value down by the judge's
+-- own fear, and the cast-out's drift is Standing's own daily verb.
 
 SAO = SAO or {}
 SAO.AfflictedReturn = SAO.AfflictedReturn or {}
