@@ -116,6 +116,12 @@ G.DANCES = { "DancingFreestyleA", "DancingFreestyleB", "DancingFreestyleC",
 G.CASHIER = { "Cashier" }
 G.PROTEST = { "Protest1", "Protest2", "Protest3" }
 G.CPR = { "StartCpr", "LoopCpr", "EndCpr" }
+-- [C120] The child's throw: a kid with a ball and somebody to throw it
+-- to. Week One's clip, copied with permission (CREDITS.md); it was
+-- orphaned art in their own mod, bound by nothing there, and the
+-- county binds it the way it bound the cashier - at a moment it
+-- already has.
+G.BALL = { "BallThrow" }
 -- The seats: nodes under AnimSets/player/sitonground-sitting, read
 -- while the engine's own sitting state runs.
 G.SEATS = { "IsSittingLoop", "IsSittingLoopArmsCrossed", "IsSittingLoopHandsOnFace",
@@ -130,7 +136,9 @@ local TICKS = { gesture = 60, sharp = 30, serve = 90, tune = 600, dance = 300,
                 -- [C119] The medic's three-stage machine: the kneel,
                 -- the work, the letting-go. The loop holds long
                 -- enough to be real work on a body.
-                cprStart = 60, cprLoop = 300, cprEnd = 60 }
+                cprStart = 60, cprLoop = 300, cprEnd = 60,
+                -- [C120] A throw: a gesture's length, the arm's own.
+                ball = 60 }
 
 local function pick(list, id, salt)
     if not list or #list == 0 then return nil end
@@ -326,6 +334,17 @@ function G.cpr(id, body)
     return ok
 end
 
+-- [C120] The throw ([C120]'s ball): called by the ROAM arrival seam
+-- when a child carrying a ball reaches a street with a playmate at
+-- hand. The moment is the walk's own - a kid stretching their legs
+-- arrives somewhere with a friend nearby - and the shape is Week
+-- One's throw. What the OTHER half of the game does (the catch, the
+-- return) has no machinery here and is named in the batch record
+-- rather than faked: one child throws, which is what a throw is.
+function G.ball(id, body)
+    return G.play(id, body, pick(G.BALL, id, "ball"), TICKS.ball)
+end
+
 function G.clap(body)
     if not body then return false end
     local n = 1
@@ -345,6 +364,6 @@ function G.cough(body)
     return pcall(function() body:playSound((female and "SAOCoughF" or "SAOCoughM") .. n) end)
 end
 
-log("gesture module loaded (the county's gestures, seats, tunes, dances, claps, coughs, the counter, the protest and the medic's hands)")
+log("gesture module loaded (the county's gestures, seats, tunes, dances, claps, coughs, the counter, the protest, the medic's hands and the kid's throw)")
 
 return G

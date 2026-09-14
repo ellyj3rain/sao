@@ -15,6 +15,20 @@ yet" ([B1]/T-002) - so no threshold is invented and nothing new is
 stored. Five tables are split: FLEE, ALERT, ENGAGE, warned and
 turnedSeen. The rest stay flat.
 
+[C120] And by AGE, which is a mouth the county drew before any of
+this: [C30] gave every person an age and a stage, and a child's
+moments read differently from a grown one's (Growing Up's lines split
+by age band, credited; the words are SAO's own). Age outranks the
+lesson where the table says so - a child draws the child register
+whether or not the world has taught them anything - and where
+childhood reads the same the table falls back to the lesson register,
+so nothing that never split by age changes at all. Eight tables carry
+a child register; the border now walks three speakers (innocent,
+taught, child) where it walked two, checks the three draw disjoint
+sets on the split tables, holds the flat control (a child draws the
+flat lines like everyone), and keeps the child lines clear of the
+acquired vocabulary too - a child's age is not knowledge either.
+
 The crossing is audible too. SAO_Lessons already dates the first
 lesson and calls it the day the world changed for that person; when
 one lands on somebody who had nothing, they say so, once.
@@ -51,6 +65,10 @@ HERE = pathlib.Path(__file__).resolve().parent
 SHARED = ROOT / "mod" / "42.20" / "media" / "lua" / "shared"
 CLIENT = ROOT / "mod" / "42.20" / "media" / "lua" / "client"
 HASH = SHARED / "SAO_Hash.lua"
+# [C120] The child register is drawn from the history module's own
+# stage, so the border loads it - a register it cannot draw is a
+# register it is not checking.
+HIST = SHARED / "SAO_History.lua"
 LESSONS = SHARED / "SAO_Lessons.lua"
 VOICE = CLIENT / "SAO_Voice.lua"
 ROADMAP = ROOT / "ROADMAP.md"
@@ -65,6 +83,10 @@ STDLIB = PZ_DIR / "stdlib.lua"
 
 SPLIT = ("FLEE", "ALERT", "ENGAGE")
 SPLIT_EVENTS = ("warned", "turnedSeen")
+# [C120] Every table that carries a child register, state and event
+# both, swept by VM and read structurally.
+CHILD = ("FLEE", "ALERT", "ENGAGE", "TREAT",
+         "warned", "turnedSeen", "firstLesson", "grief")
 
 # Words a person acquires. Somebody who has learned nothing has no
 # name for what they are looking at, so none of these may appear in an
@@ -96,6 +118,16 @@ STUB = (
     "local function person(id, taught) "
     "recs[id] = { id = id, lessonsKnown = taught "
     "and { ['measure-the-danger'] = 1.0 } or {} } return id end "
+    # [C120] The age is the history module's own hash draw, so the
+    # probe scans for the speaker it wants - grown or child - the same
+    # way for both, and the border cannot pass by happening to draw
+    # adults when it means to draw anybody.
+    "local function stage(id) local s = 'none' "
+    "pcall(function() s = SAO.History.stageOf(SAO.History.ageOf(id)) end) "
+    "return s end "
+    "local function grown(prefix) local i = 0 while true do i = i + 1 "
+    "local id = prefix .. '-' .. i "
+    "if stage(id) ~= 'child' then return id end end end "
     "local V = SAO.Voice "
     "local function heard(id, fn) local n = #said fn() "
     "local out = {} for i = n + 1, #said do out[#out + 1] = said[i] end "
@@ -121,7 +153,8 @@ def probe(expr):
             shutil.copy2(c, work / c.name)
         done = subprocess.run(
             [str(JDK / "java.exe"), "-cp", f"{PZ};.", "LuaRun",
-             str(PRELUDE), str(HASH), str(LESSONS), str(VOICE), "--", expr],
+             str(PRELUDE), str(HASH), str(HIST), str(LESSONS), str(VOICE),
+             "--", expr],
             cwd=str(work), capture_output=True, text=True, timeout=900)
     return (done.stdout or "").strip().split("\n")[-1] if done.stdout else "ERROR no output"
 
@@ -138,40 +171,54 @@ def numbers(line):
     return {k: v for k, v in re.findall(r"([\w.]+)=([-\w./']+)", line or "")}
 
 
-# Every split table walked over enough ticks to reach every line, an
-# innocent speaker and a taught one, and the two sets compared. A flat
-# table is walked the same way and must come back identical.
+# Every split table walked over enough ticks to reach every line, by
+# three speakers ([C120]): a grown innocent, a grown taught, and a
+# child. The three sets are compared pairwise - a split that is not a
+# split in any direction says so. A flat table is walked the same way
+# and all three speakers must come back identical.
 DISJOINT = (
     "(function() " + STUB +
     "local out = {} "
-    "local function sweep(who, kind, name) local seen = {} "
-    "for t = 0, 11 do local id = who .. '-' .. kind .. '-' .. name .. '-' .. t "
-    "person(id, who == 'taught') "
+    "local function sweep(who, kind, name, want) local seen = {} "
+    "local used = 0 "
+    "for t = 0, 199 do if used >= 12 then break end "
+    "local id = who .. '-' .. kind .. '-' .. name .. '-' .. t "
+    "local take = (want == 'child') == (stage(id) == 'child') "
+    "if take then used = used + 1 person(id, who == 'taught') "
     "local lines = heard(id, function() "
     "if kind == 'state' then V.onTransition(id, name, t) "
     "else V.onEvent(id, name, t) end end) "
-    "for _, l in ipairs(lines) do seen[l] = true end end return seen end "
+    "for _, l in ipairs(lines) do seen[l] = true end end end "
+    "return seen end "
+    "local function size(a) local n = 0 "
+    "for _ in pairs(a) do n = n + 1 end return n end "
+    "local function shared(a, b) local n = 0 "
+    "for l in pairs(a) do if b[l] then n = n + 1 end end return n end "
     "local function compare(kind, name) "
-    "local a, b = sweep('innocent', kind, name), sweep('taught', kind, name) "
-    "local na, nb, shared = 0, 0, 0 "
-    "for l in pairs(a) do na = na + 1 if b[l] then shared = shared + 1 end end "
-    "for _ in pairs(b) do nb = nb + 1 end "
-    "out[#out + 1] = string.format('%s=%d/%d/%d', name, na, nb, shared) end "
+    "local a = sweep('innocent', kind, name, 'grown') "
+    "local b = sweep('taught', kind, name, 'grown') "
+    "local c = sweep('innocent', kind, name, 'child') "
+    "out[#out + 1] = string.format('%s=%d/%d/%d/%d/%d/%d', name, "
+    "size(a), size(b), shared(a, b), size(c), shared(c, a), "
+    "shared(c, b)) end "
     "for _, s in ipairs({ 'FLEE', 'ALERT', 'ENGAGE' }) do compare('state', s) end "
     "for _, e in ipairs({ 'warned', 'turnedSeen' }) do compare('event', e) end "
     "compare('state', 'HOMEWARD') "
     "return table.concat(out, ' ') end)()")
 
 # A store that cannot be read must not make the county sound innocent.
+# [C120] The speakers are GROWN on purpose: a child keeps the child
+# register whatever the store says, so the fallback law is about the
+# grown mouth it was always about.
 FALLBACK = (
     "(function() " + STUB +
-    "local id = person('nolessons', false) "
+    "local id = person(grown('nolessons'), false) "
     "local innocent = heard(id, function() V.onTransition(id, 'FLEE', 0) end)[1] "
     "SAO.Lessons.hasAny = function() error('no store') end "
-    "local id2 = person('broken', false) "
+    "local id2 = person(grown('broken'), false) "
     "local fallback = heard(id2, function() V.onTransition(id2, 'FLEE', 0) end)[1] "
     "SAO.Lessons.hasAny = nil "
-    "local id3 = person('missing', false) "
+    "local id3 = person(grown('missing'), false) "
     "local gone = heard(id3, function() V.onTransition(id3, 'FLEE', 0) end)[1] "
     "return 'innocent=' .. tostring(innocent ~= nil) "
     ".. ' throws_taught=' .. tostring(fallback ~= nil and fallback ~= innocent) "
@@ -182,10 +229,10 @@ FALLBACK = (
 CROSSING = (
     "(function() " + STUB +
     "local L = SAO.Lessons "
-    "local a = person('crosser', false) "
+    "local a = person(grown('crosser'), false) "
     "local first = heard(a, function() L.learn(a, 'measure-the-danger', 1.0, 'lived') end) "
     "local second = heard(a, function() L.learn(a, 'trust-carefully', 1.0, 'lived') end) "
-    "local b = person('veteran', true) "
+    "local b = person(grown('veteran'), true) "
     "local never = heard(b, function() L.learn(b, 'trust-carefully', 1.0, 'lived') end) "
     "return 'first=' .. #first .. ' second=' .. #second .. ' veteran=' .. #never end)()")
 
@@ -217,6 +264,7 @@ def main():
     print("WHAT A SURVIVOR SAYS FOLLOWS WHAT THEY HAVE LEARNED")
     print("=" * 74)
     for path, what in ((LESSONS, "SAO_Lessons.lua"), (VOICE, "SAO_Voice.lua"),
+                       (HIST, "SAO_History.lua"),
                        (PRELUDE, "the probe")):
         if not path.exists():
             faults.append(what + " does not exist")
@@ -240,11 +288,11 @@ def main():
     vo = read(VOICE)
 
     dis = numbers(value(probe(DISJOINT)))
-    print("     registers (innocent/taught/shared): "
+    print("     registers (grown innocent/taught/shared, child/with-each): "
           + " ".join("%s=%s" % kv for kv in dis.items()))
     for name in SPLIT + SPLIT_EVENTS:
         try:
-            na, nb, shared = (int(x) for x in dis[name].split("/"))
+            na, nb, shared, nc, ca, cb = (int(x) for x in dis[name].split("/"))
         except (KeyError, ValueError):
             faults.append("%s did not answer: %r" % (name, dis.get(name)))
             continue
@@ -254,11 +302,25 @@ def main():
         if shared:
             faults.append("%s: %d line(s) are in both registers - the split "
                           "is not a split" % (name, shared))
+        # [C120] The third mouth: a child speaker draws a child set of
+        # its own, and it parts from both grown registers - age is the
+        # mouth, so the lists must part.
+        if nc == 0:
+            faults.append("%s: a child speaker said nothing - the age "
+                          "register does not answer" % name)
+        if ca or cb:
+            faults.append("%s: %d child line(s) are also in a grown "
+                          "register - age is the mouth and the lists "
+                          "must part" % (name, ca + cb))
     try:
-        na, nb, shared = (int(x) for x in dis["HOMEWARD"].split("/"))
+        na, nb, shared, nc, ca, cb = (int(x) for x in dis["HOMEWARD"].split("/"))
         if shared == 0 or na != nb or shared != na:
             faults.append("HOMEWARD is flat and should be shared by everyone, "
                           "but answered %d/%d/%d" % (na, nb, shared))
+        if nc != na or ca != na or cb != na:
+            faults.append("HOMEWARD is flat and a child should draw the same "
+                          "lines as everyone, but answered child "
+                          "%d/%d/%d" % (nc, ca, cb))
     except (KeyError, ValueError):
         faults.append("the flat-table control did not answer: %r" % dis.get("HOMEWARD"))
 
@@ -299,6 +361,33 @@ def main():
         faults.append("no taught line uses any acquired word, so the "
                       "vocabulary check has no control and proves nothing")
 
+    # [C120] The child registers, structurally: every table that says
+    # childhood reads differently carries a child list that is neither
+    # empty nor borrowed - no line may sit in two registers of the same
+    # table, or the child mouth is a copy of a grown one under another
+    # name. The child lines clear the acquired vocabulary too: an age
+    # is not knowledge, so a child cannot name the thing either. The
+    # taught control above stands for this check as well.
+    child_words = []
+    for name in CHILD:
+        regs = lists_in(vo, name)
+        if not regs.get("child"):
+            faults.append("%s carries no child register, or it is empty" % name)
+            continue
+        child_words += regs["child"]
+        seen = {}
+        for reg, lines in regs.items():
+            for line in lines:
+                if seen.setdefault(line, reg) != reg:
+                    faults.append("%s: %r sits in two registers (%s and %s)"
+                                  % (name, line, seen[line], reg))
+    child_named = [l for l in child_words
+                   if any(w in l.lower() for w in ACQUIRED)]
+    print("     child vocabulary: lines=%d named=%d"
+          % (len(child_words), len(child_named)))
+    for line in child_named:
+        faults.append("a child line names the thing: %r" % line)
+
     seams = {
         "the register comes from the lesson store, not a new field":
             "SAO.Lessons.hasAny(id)" in vo
@@ -310,6 +399,11 @@ def main():
         "the first lesson is read before the write":
             "local wasInnocent = true" in read(LESSONS)
             and 'SAO.Voice.onEvent(id, "firstLesson", nil)' in read(LESSONS),
+        # [C120] The child register comes from the stage the census
+        # already drew, not a new field anybody could forget to stamp.
+        "the child register comes from the stage, not a new field":
+            "SAO.History.stageOf(SAO.History.ageOf(id))" in vo
+            and "local function childOf(id)" in vo,
         "the roadmap records the slice":
             "SHIPPED as `[C50]`" in read(ROADMAP),
         "the gate runs this border":

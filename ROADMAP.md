@@ -1,6 +1,6 @@
 | Document | Survivor Awareness Overhaul Roadmap |
 |---|---|
-| Version | `4.9.0.0-pre-alpha` |
+| Version | `4.10.0.0-pre-alpha` |
 | Author | ellyj3rain |
 | Repository | `ROADMAP.md` |
 | Status | CANONICAL - thread map, backlog, live gates. |
@@ -779,6 +779,14 @@ occasions (the counter, the protest, the CPR, the bard's own
 instrument, the four dances) and the government's answer - a dial
 default off, a per-world draw persisted in ModData, the countdown on
 the fall's own calendar, and only engine truth after the strike.
-What waits there now is the operator's
+The age attachments are closed at this side's `[C120]` (2026-09-14):
+the child at the wheel (under ten no claim at all, ten to seventeen
+at the credited thirty percent off the cap), the spurt as real
+engine hunger off their credited daily draw, the carried wound as
+real fear on every decision until the scan counts it healed, the
+child register on eight line tables drawn from the census's own
+stage, and the ball - Week One's orphaned throw as the eighteenth
+credited file, thrown at a ROAM arrival to a playmate within five
+named tiles. What waits there now is the operator's
 review of the nine drafted world documents, which gates corpus,
 voice, and training.

@@ -183,6 +183,75 @@ function Age.forgetSkills(rec, body, today)
     return forgot
 end
 
+-- [C120] The spurt (Growing Up's growth system, credited): one day in
+-- eight, a child under sixteen is suddenly starving. Their chance and
+-- their hunger boost, on the engine's own 0-to-1 hunger stat; the roll
+-- is a fact about the person and the day, the dailyRoll idiom, so the
+-- same kid spurts on the same day in every session. The dormant half
+-- feels nothing - a body's hunger is a body's - named here so it is
+-- not mistaken for lost.
+function Age.growthSpurt(rec, body, today)
+    if not (rec and body and not rec.dead) then return false end
+    local age = SAO.History.ageOf(rec.id)
+    if type(age) ~= "number"
+        or age >= SAO.History.GROWTH_SPURT_MAX_AGE then return false end
+    if (SAO.Hash.of(rec.id, "growth-spurt:" .. tostring(today)) % 100)
+        >= SAO.History.GROWTH_SPURT_CHANCE then return false end
+    local stats = nil
+    pcall(function() stats = body:getStats() end)
+    if not stats or not CharacterStat then return false end
+    local boosted = false
+    pcall(function()
+        local hungry = stats:get(CharacterStat.HUNGER)
+        stats:set(CharacterStat.HUNGER,
+            math.min(1.0, hungry + SAO.History.GROWTH_SPURT_HUNGER))
+        boosted = true
+    end)
+    if boosted then
+        pcall(function() SAO.Voice.onEvent(rec.id, "growthSpurt") end)
+        log(rec.id .. " (" .. age .. ") hits a growth spurt - hungry"
+            .. " all of a sudden")
+    end
+    return boosted
+end
+
+-- [C120] The wound (Growing Up's wound grief, credited for the shape
+-- and the priority only): a child's zombie-shaped wounds - bites and
+-- scratches, the shapes the dead leave; a cut is any edge's and its
+-- cause is not readable at a scan - counted every pass. A new one is
+-- a voice moment; a carried one sits over the fear floor until it
+-- heals, which SAO_Disposition.fear reads off the stamp. Their
+-- four-stage grief machine and its doom spiral are authored outcomes
+-- and do not cross, named; nor does their delayed relief - a healed
+-- wound is healed.
+function Age.woundWatch(rec, body)
+    if not (rec and body and not rec.dead) then return false end
+    local age = SAO.History.ageOf(rec.id)
+    if type(age) ~= "number" or age >= 18 then return false end
+    local count = 0
+    local okScan, scanned = pcall(function()
+        local parts = body:getBodyDamage():getBodyParts()
+        local n = 0
+        for i = 0, parts:size() - 1 do
+            local part = parts:get(i)
+            if part:bitten() or part:scratched() then n = n + 1 end
+        end
+        return n
+    end)
+    if okScan and type(scanned) == "number" then count = scanned end
+    local was = rec.woundCarried or 0
+    if count > was then
+        pcall(function() SAO.Voice.onEvent(rec.id, "woundGrief") end)
+        log(rec.id .. " (" .. age .. ") carries " .. count
+            .. " zombie wound(s) - the fear carries too")
+    elseif was > 0 and count == 0 then
+        pcall(function() SAO.Voice.onEvent(rec.id, "woundHealed") end)
+        log(rec.id .. "'s wounds have healed")
+    end
+    rec.woundCarried = count
+    return count > 0
+end
+
 -- [C32] Psychosis's hour: a threat nobody else hears, placed in the
 -- person's own beliefs (SAO_Perception.hallucinate) and acted on like
 -- any heard one.
@@ -360,7 +429,12 @@ local function everyTenMinutes()
         if rec then
             pcall(Age.drift, rec, body, passCounter)
             pcall(Age.hearThings, rec, body, passCounter)
-            if newDay then pcall(Age.forgetSkills, rec, body, today) end
+            pcall(Age.woundWatch, rec, body)
+            if newDay then
+                pcall(Age.forgetSkills, rec, body, today)
+                -- [C120] The spurt is a day fact, like the death roll.
+                pcall(Age.growthSpurt, rec, body, today)
+            end
         end
     end
     -- [C39] The player carries what they took.
@@ -393,6 +467,7 @@ end
 
 log("age module loaded (stage drift every ten minutes, the day's roll for old age,"
     .. " what a condition carries, dementia's day, psychosis's hour,"
-    .. " the shakes and the day that settles a habit)")
+    .. " the shakes and the day that settles a habit, the spurt and"
+    .. " the wound a child carries)")
 
 return Age

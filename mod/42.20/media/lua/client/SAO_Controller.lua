@@ -190,6 +190,13 @@ local PROMISE_BODY_REACH = 8.0
 -- a porch are both an arm's crowd), named apart because the counter
 -- is the trade's own rule, not the tune's.
 local COUNTER_REACH = 4.0
+-- [C120] tiles: how far away a playmate stands for a child's throw
+-- to be worth making - the player, or any other live child the
+-- county actually put there. A fresh figure, deliberately: four
+-- would have duplicated the counter's arm's crowd and the porch's,
+-- and a throw travels further than either - a kid throws across a
+-- yard, not across a till.
+local PLAY_REACH = 5.0
 
 -- [B47] Arrival is readable from outside, because the same rule
 -- reads backwards: if three tiles means you have got there, then a
@@ -4476,6 +4483,10 @@ local function decide(id, agent, body)
             -- taken and how many seats are free is exactly what caps
             -- the party.
             local takingWheels = nil
+            -- [C120] The learning driver's cap scale, hoisted beside
+            -- the wheels: set when the taker is a child of driving
+            -- age, read by the order call below.
+            local wheelCapScale = nil
             do
                 local gW = SAO.Standing.groupOf(id)
                 -- [C54] The objection picks the car now instead of
@@ -4516,12 +4527,38 @@ local function decide(id, agent, body)
                     -- be dead. What is left is whether they can get
                     -- into it at all.
                     if canTake then
-                        range = math.floor(range * 2)
-                        takingWheels = wheels
-                        why = why .. " - taking the " .. plain
+                        -- [C120] The wheel is earned by age (Growing
+                        -- Up's DRIVING_AGE, credited): a kid under ten
+                        -- does not take the car at all - the ordinary
+                        -- walk takes the trip, the honest fallback
+                        -- this seam always had - and ten to seventeen
+                        -- drive under the learning penalty at the one
+                        -- seat SAO owns, the cap the order reads
+                        -- (their BASE_PENALTY, credited). Riding is
+                        -- not driving: the passengers' side is
+                        -- untouched.
+                        local wAge = nil
                         pcall(function()
-                            SAO.Voice.onEvent(id, "wheels", tick)
+                            wAge = SAO.History.ageOf(id)
                         end)
+                        if type(wAge) == "number" and wAge < 18
+                            and wAge < SAO.History.DRIVING_AGE then
+                            log(id .. " (" .. wAge .. ") leaves the "
+                                .. plain
+                                .. " where it sits - too young for"
+                                .. " the wheel")
+                        else
+                            range = math.floor(range * 2)
+                            takingWheels = wheels
+                            if type(wAge) == "number" and wAge < 18 then
+                                wheelCapScale = 1.0
+                                    - SAO.History.CHILD_DRIVE_PENALTY
+                            end
+                            why = why .. " - taking the " .. plain
+                            pcall(function()
+                                SAO.Voice.onEvent(id, "wheels", tick)
+                            end)
+                        end
                     end
                 end
             end
@@ -4667,7 +4704,8 @@ local function decide(id, agent, body)
                 local tookOrder = false
                 if takingWheels and SAO.Driving
                     and SAO.Driving.order(id, body,
-                        tostring(takingWheels.name or "car"), gx, gy) then
+                        tostring(takingWheels.name or "car"), gx, gy,
+                        wheelCapScale) then
                     tookOrder = true
                     -- The drive's legs are Java-side SAOMovement inside
                     -- SAODriver, so the Lua walk is not replaced by a
@@ -5951,6 +5989,87 @@ local function updateAgent(id, agent)
                             end)
                             log(id .. " takes the counter at the "
                                 .. tostring(wg.label or "trade") .. "'s")
+                        end
+                    end
+                end
+                -- [C120] The throw. A child arriving on a stretch with
+                -- a ball in their pack and a playmate at hand - the
+                -- player, or any other live child the county actually
+                -- put there - is the whole moment, and the shape is
+                -- Week One's credited throw (an orphan clip in their
+                -- own mod, bound by nothing there; SAO binds it the
+                -- way it bound the cashier). The pacing is the
+                -- counter's own stamp: two county hours between
+                -- throws, so a kid with a ball is a kid and not a
+                -- pitching machine. The catch and the return have no
+                -- machinery here and are named in the batch record:
+                -- one throw is what a throw is.
+                if rRec and not rRec.dead
+                    and tickCount >= (agent.nextBallAt or 0) then
+                    local stage = nil
+                    pcall(function()
+                        stage = SAO.History.stageOf(
+                            SAO.History.ageOf(id))
+                    end)
+                    if stage == "child" then
+                        local hasBall = false
+                        pcall(function()
+                            local inv = body:getInventory()
+                            if inv:containsTypeRecurse("Base.Baseball")
+                                or inv:containsTypeRecurse(
+                                    "Base.Basketball") then
+                                hasBall = true
+                            end
+                        end)
+                        if hasBall then
+                            local playmateNear = false
+                            pcall(function()
+                                local meB = getSpecificPlayer(0)
+                                if meB then
+                                    local pdx = meB:getX()
+                                        - body:getX()
+                                    local pdy = meB:getY()
+                                        - body:getY()
+                                    if pdx * pdx + pdy * pdy
+                                        <= PLAY_REACH * PLAY_REACH then
+                                        playmateNear = true
+                                    end
+                                end
+                                if not playmateNear then
+                                    for oid, otherB in pairs(
+                                        SAO.Body.active) do
+                                        if otherB ~= body then
+                                            local ostage = nil
+                                            pcall(function()
+                                                ostage =
+                                                    SAO.History.stageOf(
+                                                        SAO.History.ageOf(oid))
+                                            end)
+                                            if ostage == "child" then
+                                                local pdx = otherB:getX()
+                                                    - body:getX()
+                                                local pdy = otherB:getY()
+                                                    - body:getY()
+                                                if pdx * pdx + pdy * pdy
+                                                    <= PLAY_REACH
+                                                    * PLAY_REACH then
+                                                    playmateNear = true
+                                                    break
+                                                end
+                                            end
+                                        end
+                                    end
+                                end
+                            end)
+                            if playmateNear then
+                                agent.nextBallAt = tickCount + 18000
+                                pcall(function()
+                                    SAO.Gesture.ball(id, body)
+                                end)
+                                log(id .. " throws the ball - a"
+                                    .. " kid, a playmate, a stretch"
+                                    .. " of street")
+                            end
                         end
                     end
                 end

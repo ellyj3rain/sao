@@ -53,6 +53,16 @@ Border 54's lesson.
 ranges. The history module and Border 105's stub county load before
 the decisions, so the sample includes them and the comments describe
 the whole county rather than its adults.
+
+[C120] And one fear the sample CANNOT carry: the wound term D.fear
+adds for a child the Age pass has stamped with a carried zombie bite
+or scratch. It is runtime record state (`rec.woundCarried`, stamped by
+the every-ten-minute wound scan on a real body), and Border 105's
+stub county has no records - `SAO.Identity.get` answers nil - so no
+sampled child ever holds one. The 4.2 .. 11.8 range stays the
+honest description of what the sample reaches; the wound term is
+named in the comment prose beside it instead, and the border holds
+for the range the sample can measure.
 """
 import pathlib
 import re

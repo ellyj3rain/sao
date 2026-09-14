@@ -103,7 +103,19 @@ function D.fear(id)
         night = SAO.History.nightFearOf(age,
             SAO.History.countyTimeOfDay())
     end)
-    local fear = floor + night + carried
+    -- [C120] A carried zombie wound (the Age pass scans for bites and
+    -- scratches and stamps the record): Growing Up's wound grief at
+    -- the one figure that survives the translation - a hurt child is a
+    -- frightened child. Their staged machine does not cross; the fear
+    -- does, through this read, until the scan counts it healed.
+    local wound = 0
+    pcall(function()
+        local rec = SAO.Identity.get(id)
+        if rec and rec.woundCarried then
+            wound = SAO.History.WOUND_FEAR
+        end
+    end)
+    local fear = floor + night + carried + wound
     if fear > 1 then fear = 1 end
     return fear
 end
@@ -135,7 +147,7 @@ end
 function D.fleeDistance(id)
     local t = D.traits(id)
     return 3.0 + (1.0 - t.nerve) * 5.0 + t.selfPreservation * 3.0
-        + D.fear(id) * 4.0   -- 4.2 .. 11.8 tiles over the county sampled (a grown adult 4.2 .. 9.8; the rest is a child's fear, [C31], whose arithmetic tops at 12.0)
+        + D.fear(id) * 4.0   -- 4.2 .. 11.8 tiles over the county sampled (a grown adult 4.2 .. 9.8; the rest is a child's fear, [C31], whose arithmetic tops at 12.0 before [C120]'s wound term - a hurt child carries WOUND_FEAR on top, runtime state the sampled county holds none of, so the sample cannot reach it and this range describes the sample it can)
 end
 
 -- How many believed nearby threats before this survivor refuses to hold

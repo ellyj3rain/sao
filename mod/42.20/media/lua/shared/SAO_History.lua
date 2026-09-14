@@ -440,9 +440,12 @@ end
 -- permission as the operator settled it (CREDITS.md). 170 cm is that
 -- table's adult reference, so 18 answers 1.0 and 8 answers 0.753.
 -- Under 8 the table has nothing; the line is carried down three
--- percent a year, which is ours and said so. Nobody in the county is
--- under 19 yet ([B37]'s bands), so today this answers 1 for everyone;
--- the child bands arrive with the age batch. The body reads it once,
+-- percent a year, which is ours and said so. (A records correction,
+-- the [C109] way: this comment once said nobody in the county was
+-- under 19 and the child bands "arrive with the age batch" - they
+-- arrived at [C30]'s census, so this has answered a real scale for
+-- the county's children ever since. The prose was wrong; the table
+-- never was.) The body reads it once,
 -- when it materializes (SAO_Body), and the woven advice applies it on
 -- the render path from then on.
 local GROWTH_START, GROWTH_ADULT = 8, 18
@@ -666,7 +669,7 @@ end
 local KIT = {
     scout   = { "Base.Rope", "Base.WaterBottle", "Base.FishingRod",
                 "Base.ChocoCakes" },
-    jock    = { "Base.WaterBottle", "Base.Book_Sports" },
+    jock    = { "Base.WaterBottle", "Base.Book_Sports", "Base.Baseball" },
     nerd    = { "Base.Book_Horror", "Base.ComicBook", "Base.Pencil",
                 "Base.PenLight" },
     shy     = { "Base.ComicBook", "Base.Yoyo" },
@@ -695,6 +698,41 @@ function H.kitOf(id)
     end
     return out
 end
+
+-- ---------------------------------------------------------------------------
+-- [C120] The rest of what Growing Up says age does to a person, carried
+-- at SAO's own seams (PZ Chronicles; read with the authors' permission as
+-- the operator settled it, CREDITS.md). Their mechanics are player-facing
+-- - steering lag, brake scale, a four-stage grief machine, TTS audio -
+-- and none of that crosses, named in SAO_Age and SAO_Voice. What
+-- crosses is the figures that survive the translation, and where a
+-- number is ours it says so.
+
+-- The wheel. Their DRIVING_AGE: under it a kid does not drive at all.
+-- Their BASE_PENALTY: the steering reduction a learning driver carries
+-- until adapted - and the one seat SAO owns is the speed cap the drive
+-- order already reads, so the penalty lands there, for as long as the
+-- person is a child (their fifteen-minute adaptation and its Sunday
+-- Driver / Speed Demon milestones are player traits, not carried).
+H.DRIVING_AGE = 10
+H.CHILD_DRIVE_PENALTY = 0.30
+
+-- The spurt. Their GROWTH_SPURT_CHANCE_PER_DAY (8 percent) below their
+-- GROWTH_SPURT_MAX_AGE (16), and their hunger boost (15 on the engine's
+-- own 0-to-1 hunger stat) - a growing body is a hungry body, one day in
+-- eight. Deterministic per person per day, the dailyRoll idiom, so the
+-- dormant half agrees with the live one.
+H.GROWTH_SPURT_CHANCE = 8
+H.GROWTH_SPURT_MAX_AGE = 16
+H.GROWTH_SPURT_HUNGER = 0.15
+
+-- The wound. A zombie-shaped wound (a bite or a scratch - a cut is any
+-- edge's, and cause is not readable at the scan) carried by a child
+-- sits over the fear floor until it heals. Ours, beside KILL_EASE: the
+-- mod's answer was a staged machine that played out Kübler-Ross, and
+-- authored outcomes do not cross - what crosses is that a hurt child
+-- is a frightened one, which SAO's own fear machinery can carry.
+H.WOUND_FEAR = 0.25
 
 -- Nil for somebody no war reached, which is most of the county.
 function H.warOf(id)
