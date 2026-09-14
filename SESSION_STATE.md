@@ -1,11 +1,77 @@
 | Document | Survivor Awareness Overhaul Session State |
 |---|---|
-| Version | `4.9.0.0-pre-alpha` |
+| Version | `4.10.0.0-pre-alpha` |
 | Author | ellyj3rain |
 | Repository | `SESSION_STATE.md` |
 | Status | CANONICAL - where the work actually stands. |
 
 # Session state
+
+**As of** 2026-09-14, `[C120]` close - a child at the wheel, a ball
+in the street. The age attachments, the totality order's age half:
+Growing Up's figures carried where a figure survives the
+translation, rendered through the county's own machinery and never
+their staged machines. The prior-art sweep was paid first and
+found C31's not-carried list stale in four places - driving,
+growth spurts, wound grief, voice lines all have county machinery
+now - and still honestly blocked: their nightmares, Getting Old's
+stumble, the cooking penalty, their adaptation milestones, their
+four-stage grief machine with its doom spiral. The wheel: the
+venture's own claim gate reads the census's age before the door
+opens, so a child under their credited ten does not claim wheels
+at all and the car stays where it sits, and a driver of ten to
+seventeen takes the wheel with their credited thirty percent
+penalty on the drive's speed cap (`CHILD_DRIVE_PENALTY` beside
+`DRIVING_AGE` in `SAO_History`; the steering lag and brake scale
+are not carried). The spurt: once a county day a child under
+sixteen draws their credited eight percent and a spurt lands as
+real engine hunger - their fifteen points on the 0..1 stat every
+meal decision already reads - and says so once; the dormant half
+feels nothing, no body no hunger. The wound: the age pass's
+ten-minute cadence now scans a child's own body for bites and
+scratches (a cut is any edge's and the scan cannot know whose) and
+stamps the count on the record, and a hurt child carries the fear
+- `WOUND_FEAR` on every decision that reads it - until the same
+scan counts it healed and the voice says so; their stages, spiral
+and delayed relief do not cross. The mouth: age outranks the
+lesson where the table says so - eight line tables carry a child
+register drawn from the census's own stage (FLEE, ALERT, ENGAGE,
+TREAT, warned, turnedSeen, firstLesson, grief; Growing Up's lines
+split by age band, credited, the words SAO's own), three flat
+banks the spurt, wound and healing raise only at child sites, and
+where childhood reads the same the table falls back to the lesson
+register exactly as before. And the ball: Week One's orphaned
+throw FBX crosses as the eighteenth credited file and rides the
+ROAM arrival - a child who actually carries a ball, a playmate
+actually within `PLAY_REACH`'s five named tiles (a throw travels
+further than a counter's arm crowd; its two bare-five collisions
+argued in ALLOWED - the manual hand-off and the kindness window),
+the jock kit now handing a baseball out, paced at two county
+hours, the catch and the return named as having no machinery. The
+gate refused the batch's first pass once - Border 49 caught the
+two bare fives against the new name, and both were argued in
+ALLOWED rather than wired, neither a play reach - and Border 123
+was taught the third speaker before the register landed: three
+walks (grown innocent, grown taught, child) over every split
+table with three-way disjointness held, the flat control shared,
+every child register swept structurally so a child line cannot
+copy a grown one under another name, and the child lines held
+clear of the acquired vocabulary - an age is not knowledge. Border
+63 gained the honest note that the wound term is runtime record
+state the stub county cannot carry, so the sampled 4.2..11.8 range
+describes the sample it can reach. The gate ran clean with the
+batch in the tree, the jar rebuilt and shipped after the stamp;
+the version machine derives 4.10.0.0-pre-alpha (minor - a new
+player-visible simulation capability: the county's children live
+their age at the wheel, in hunger, in hurt, in mouth and in the
+street). Open, as ever, on the play receipts: nobody has watched a
+child leave a car where it sits, a teen drive at seventy percent
+of the cap, a spurt voiced, a hurt child frightened until the
+scan counts it healed, a child's own words at a grown moment, or a
+ball thrown to somebody on a stretch of street. Next: the totality
+order continues - drugs in totality (`[C121]`) - then the
+crossed-doctrine batches, the common-enemy weight, the off-switch
+list before runtime verification.
 
 **As of** 2026-09-14, `[C119]` close - Week One's moments and the
 government's answer. Two halves under one law, both the totality
@@ -56,7 +122,7 @@ reflowed to the layout and its copy ratified, and the gestures
 border taught the manifest's `anim` key and the carried-instrument
 seam. The gate ran clean with the batch in the tree, the jar
 rebuilt and shipped after the stamp; the version machine derives
-4.9.0.0-pre-alpha (minor - a new player-visible simulation
+4.10.0.0-pre-alpha (minor - a new player-visible simulation
 capability: the county's trades, politics and medicine wear bodies,
 and a world can ask for the government's answer). Open, as ever, on
 the play receipts: nobody has watched a cashier with a customer, two
@@ -108,7 +174,7 @@ plank-fall is its honest seed), entry only and never claim-flipping,
 the unarmed cannot batter, the yield hands over spare food only,
 forty swings is the one authored number in the breach. The gate ran
 clean with the batch in the tree, the jar rebuilt and shipped; the
-version machine derives 4.9.0.0-pre-alpha (minor - a new
+version machine derives 4.10.0.0-pre-alpha (minor - a new
 player-visible simulation capability: the county raids itself). Open,
 as ever, on the play receipts: nobody has watched a batter heard
 across a street, a robbery survived by handing it over, or a warpath
@@ -163,7 +229,7 @@ the state of the work never the attribution, and `mayEnter` still
 refuses a break-in without hostility, whoever holds the ground. The
 gate ran clean with the batch in the tree, the jar rebuilt and
 shipped with the new stamp; the version machine derives
-4.9.0.0-pre-alpha (minor - a new player-visible simulation
+4.10.0.0-pre-alpha (minor - a new player-visible simulation
 capability: the county's society answers its mid-course people).
 Open, as ever, on the play receipts: nobody has watched a house
 argue over a returned member, a door refuse one, or an outcast take
@@ -219,7 +285,7 @@ turned body and releases it once this side has re-adopted); until it
 lands, corpse and returnee share a county, honestly. The gate ran
 clean with the batch in the tree, all 63 Lua files compiling under
 the engine's own Kahlua, the jar rebuilt and shipped first; the
-version machine derives 4.9.0.0-pre-alpha (minor - a new
+version machine derives 4.10.0.0-pre-alpha (minor - a new
 player-visible capability: the county's mid-course people return to
 it, and the crossed can drive). Open, as ever, on the play receipts:
 nobody has watched the dead come back or a crossed body under
@@ -253,7 +319,7 @@ seams; Border 92 declares the six new strings under the ruling, the
 wording following the ratified plain register. The gate ran clean
 with the batch in the tree, 31 options on the surface; the jar was
 rebuilt and shipped before it ran; the version machine derives
-4.9.0.0-pre-alpha (kohai - the screen matured to carry what the
+4.10.0.0-pre-alpha (kohai - the screen matured to carry what the
 rulings reserved, nothing new simulated). This batch is the first
 named step of the pre-alpha-to-alpha order the same sitting set:
 this revision, then readiness, then the training passes - the dials
@@ -1848,14 +1914,15 @@ unloaded survivors are governed by the same rules ([B39], [B42]).
 
 ## Deploy state
 
-`4.9.0.0-pre-alpha` at tip - the version machine's output ([C2],
-DR-013; the eleven units `[C105]` through `[C115]` moved it here,
-the Week One port's two minors and `[C115]`'s dial kohai among
-them). `[C115]` reached the install on 2026-09-13, the same day it
-closed, after its own gate run - verified rather than assumed: the
-deployed `mod.info` reads `4.9.0.0-pre-alpha`, and the deployed
-`SAO.jar` is byte-identical to the committed build (md5
-`dd2d9414...` at all three of dist, tree, and install). The game install carries the `[C62]` tip. `[C45]` through
+`4.10.0.0-pre-alpha` at tip - the version machine's output ([C2],
+DR-013; the units `[C113]` through `[C120]` moved it here, the
+Week One port's two minors, the raider, moments and age minors,
+and `[C115]`'s dial kohai among them). `[C120]` reached the
+install on 2026-09-14, the same day it closed, after its own gate
+run - verified rather than assumed: the deployed `mod.info` reads
+`4.10.0.0-pre-alpha`, and the deployed `SAO.jar` is byte-identical
+to the committed build (md5 `61822ad8...` at all three of dist,
+tree, and install). The game install carries the `[C62]` tip. `[C45]` through
 `[C51]` reached it on 2026-09-07 and `[C52]` through `[C62]` on 2026-09-08, each
 after its own commit passed the gate, the game having been closed
 since the `[C44]` deploy. Verified rather than assumed at each

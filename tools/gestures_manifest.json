@@ -541,6 +541,14 @@
       "anim": "BWO_Cashier"
     },
     {
+      "file": "mod/42.20/media/anims_X/Bob/BallThrow.fbx",
+      "source": "C:/Program Files (x86)/Steam/steamapps/workshop/content/108600/3403180543/mods/BanditsWeekOne/common/media/anims_X/Zombie/BallThrow.fbx",
+      "group": "gesture",
+      "author": "SaneGuy and Slayer (Week One), copied with permission",
+      "bytes": 347708,
+      "anim": "BWO_BallThrow"
+    },
+    {
       "file": "mod/42.20/media/anims_X/Bob/Protest1.fbx",
       "source": "C:/Program Files (x86)/Steam/steamapps/workshop/content/108600/3403180543/mods/BanditsWeekOne/common/media/anims_X/Zombie/Protest1.fbx",
       "group": "gesture",
@@ -740,6 +748,7 @@
     "Seat_IsSittingLoopLegAbove": "Bob_IsSittingLoopLegAbove",
     "Seat_IsSittingLoopHandsOnThigh_SlightLeanForward": "Bob_IsSittingLoopHandsOnThigh_SlightLeanForward",
     "Cashier": "BWO_Cashier",
+    "BallThrow": "BWO_BallThrow",
     "Protest1": "BWO_Protest1",
     "Protest2": "BWO_Protest2",
     "Protest3": "BWO_Protest3",

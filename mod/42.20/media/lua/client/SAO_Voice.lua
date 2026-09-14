@@ -47,6 +47,12 @@ local LINES = {
     -- moments sound like in a mouth that has no word for what it is
     -- looking at yet. "Too many" is a count somebody has learned to
     -- take; a person meeting their first is not counting.
+    -- [C120] And by age, where childhood actually reads differently:
+    -- a child's mouth is a child's mouth whether or not the world
+    -- has taught it anything yet (Growing Up's lines split by age
+    -- band, credited; the words are SAO's own). Age outranks the
+    -- lesson where the table says so, and the rest of the tables
+    -- fall back to the register the lesson drew, unchanged.
     FLEE     = {
         taught   = { "Run!", "No no no-", "Too many!", "Not like this!",
                      "Go go go!", "Not today. NOT today." },
@@ -55,6 +61,8 @@ local LINES = {
                      "It's not stopping. It's not stopping!",
                      "No. No, people don't- no.",
                      "Get away from me!" },
+        child    = { "Run! RUN!", "Don't let it get me!",
+                     "I don't want to die!" },
     },
     ALERT    = {
         taught   = { "Something's out there.", "You hear that?", "Hold on.",
@@ -63,6 +71,8 @@ local LINES = {
                      "Hello? Is somebody hurt out there?",
                      "That sound isn't right.",
                      "Is somebody there?" },
+        child    = { "Did you hear that too?", "I don't like it out here.",
+                     "Can we go home now?" },
     },
     ENGAGE   = {
         taught   = { "Come on then!", "Stay back!", "I've got this one." },
@@ -70,6 +80,7 @@ local LINES = {
                      "I'm sorry- I'm sorry-",
                      "Get off- GET OFF-",
                      "Why won't you stop?" },
+        child    = { "Get away! Get AWAY!", "Leave us alone!" },
     },
     HOMEWARD = { "Getting dark.", "Time to head back.", "Home. Now." },
     FORAGE   = { "I need to eat something.", "There has to be food somewhere." },
@@ -80,7 +91,15 @@ local LINES = {
     DRINK    = { "Better.", "Needed that." },
     FOLLOW   = { "Right behind you.", "Wait up.", "Coming.",
                  "Lead on.", "Slow down, will you." },
-    TREAT    = { "Hold on. Bleeding.", "Patch it up. Keep moving.", "Just a scratch. Just a scratch." },
+    -- [C120] A child patching a hurt reads differently from an adult
+    -- binding a wound; the adult lines are the flat list as it was,
+    -- now the taught register.
+    TREAT    = {
+        taught   = { "Hold on. Bleeding.", "Patch it up. Keep moving.",
+                     "Just a scratch. Just a scratch." },
+        child    = { "It stings.", "I'm okay. I'm tough.",
+                     "Just a scratch. Really." },
+    },
     MEDICWARD = { "Coming - hold on.", "Don't move, I'm on my way." },
     PLAYERFOLLOW = { "Right behind you.", "Lead on." },
     RIP      = { "This'll have to do.", "Sorry, shirt." },
@@ -105,13 +124,21 @@ local EVENTS = {
         innocent = { "There's someone out there acting wrong. Steer clear.",
                      "Something's happening down the road. Don't go that way.",
                      "I saw somebody hurt. Bad hurt. Be careful." },
+        child    = { "Don't go out there. Somebody's walking wrong.",
+                     "I saw one. Stay inside, okay?" },
     },
     -- [C50] The moment the first lesson lands - the day the world
     -- changed for this person, which SAO_Lessons already dates.
-    firstLesson = { "That's what it is. That's what's happening.",
-                    "...Okay. Okay. This is real.",
-                    "I didn't understand before. I do now.",
-                    "Nobody's coming, are they." },
+    -- [C120] A child's crossing is a child's, and age is the mouth.
+    firstLesson = {
+        taught   = { "That's what it is. That's what's happening.",
+                     "...Okay. Okay. This is real.",
+                     "I didn't understand before. I do now.",
+                     "Nobody's coming, are they." },
+        child    = { "I didn't know it could be this way.",
+                     "Is it always going to be like this now?",
+                     "Nobody told me it could happen here." },
+    },
     briefing = { "Two streets past the church, watch the lot.",
                  "I know that ground. Listen before you go.",
                  "There were three of them by the fence last week." },
@@ -126,6 +153,9 @@ local EVENTS = {
                      "They know me. They have to know me.",
                      "We need a doctor. We need a doctor NOW.",
                      "That's not- look at me. LOOK at me." },
+        child    = { "That's the man from the shop. Why is he walking like that?",
+                     "They said the sick ones come back. Nobody said"
+                     .. " come back like that." },
     },
     promiseKept = { "I promised.", "Look away. This is mine to do.",
                     "Rest now. It's done." },
@@ -311,8 +341,28 @@ local EVENTS = {
     movein    = { "Plenty of room at mine.", "We hold the place together now." },
     share     = { "Here. Eat.", "You need it more than I do.", "Take it. Don't argue." },
     thanks    = { "For me? Thank you.", "I won't forget this.", "You didn't have to. Thank you." },
-    grief     = { "Oh no. No, no.", "I knew them. God.", "They deserved better than this.",
-                  "Somebody should say something. ...Rest now." },
+    -- [C120] A child's grief is a child's, and reads differently from
+    -- a grown mourner's; the grown lines are the flat list as it was,
+    -- now the taught register.
+    grief     = {
+        taught   = { "Oh no. No, no.", "I knew them. God.",
+                     "They deserved better than this.",
+                     "Somebody should say something. ...Rest now." },
+        child    = { "They're gone. They're really gone.",
+                     "Who's going to look after us now?",
+                     "I want to go home." },
+    },
+    -- [C120] The child's own moments (SAO_Age raises these, children
+    -- only): the hungry day of a spurt, a hurt that carries fear with
+    -- it, and the healing. Flat, because no grown mouth says them.
+    growthSpurt = { "I'm hungry again. Already.",
+                    "I could eat the whole pantry.",
+                    "Growing, I guess. I'm always hungry." },
+    woundGrief  = { "It hurts. It really hurts.",
+                    "Don't let them near me. Don't.",
+                    "Make it stop hurting." },
+    woundHealed = { "It doesn't hurt anymore. Look.",
+                    "It's better. It's really better." },
     barter    = { "Trade you.", "Fair's fair.", "Even swap?" },
     settle    = { "We're square now.", "Told you I'd make it right.", "Debt's paid." },
     lessonTold= { "Learned this one the hard way - listen.", "Somebody died teaching me this." },
@@ -392,12 +442,31 @@ local function registerOf(id)
     return any and "taught" or "innocent"
 end
 
+-- [C120] Whether the speaker is a child: the stage is the county's own
+-- ([C30], drawn from the age every person already has), so nothing is
+-- stored and no threshold is invented - the same shape the lesson
+-- register took at [C50]. Age is the MOUTH, not a new fact about
+-- anyone: it only decides which list a line table offers, and only
+-- on the tables that say childhood reads differently there.
+local function childOf(id)
+    local ok, stage = pcall(function()
+        return SAO.History.stageOf(SAO.History.ageOf(id))
+    end)
+    return ok and stage == "child"
+end
+
 -- A line table is either a flat list, which every speaker shares, or a
 -- table of registers. Only the tables where innocence actually reads
 -- differently are split; the rest stay flat and cost nothing.
+-- [C120] A child draws the child register where the table has one;
+-- where it does not, the lesson register answers as before, so a
+-- table that never split by childhood reads exactly as it did.
 local function resolve(list, id)
     if not list then return nil end
     if list[1] ~= nil then return list end
+    if childOf(id) and list.child and list.child[1] ~= nil then
+        return list.child
+    end
     local chosen = list[registerOf(id)]
     if chosen and chosen[1] ~= nil then return chosen end
     return list.taught

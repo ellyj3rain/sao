@@ -28,7 +28,13 @@ local CLAIM_RADIUS = 15
 -- [C114] A goer's drive. Returns true when the trip was ACCEPTED
 -- (DRIVE_STARTED); false for every refusal, which the caller answers
 -- with the ordinary walk — the honest fallback, not an error.
-function Drv.order(id, body, carName, gx, gy)
+-- [C120] `capScale` (optional) multiplies the cap: a child of ten to
+-- seventeen drives under Growing Up's learning penalty (their
+-- BASE_PENALTY 0.30, so 0.70 of the dial) for as long as they are a
+-- child. The one seat SAO owns is the cap the order already reads -
+-- their steering lag and brake scale are player-facing and not
+-- carried.
+function Drv.order(id, body, carName, gx, gy, capScale)
     if not SAOJavaBridge then
         log("FAIL order " .. tostring(id) .. ": no java bridge")
         return false
@@ -38,7 +44,8 @@ function Drv.order(id, body, carName, gx, gy)
     -- with the order; the fallback is Week One's credited town figure,
     -- which is also the declared default.
     local sv = SandboxVars and SandboxVars.SurvivorAwareness or nil
-    local speedCap = (sv and tonumber(sv.DriveSpeedCap)) or 30.0
+    local speedCap = ((sv and tonumber(sv.DriveSpeedCap)) or 30.0)
+        * (capScale or 1.0)
     local ok, verdict = pcall(function()
         return SAOJavaBridge:driveBegin(body, CLAIM_RADIUS,
             tostring(carName or ""), gx, gy, speedCap)

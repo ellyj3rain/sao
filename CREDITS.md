@@ -184,9 +184,12 @@ the three CPR stages, the four dances and the six instrument plays
 (SaneGuy and Slayer, the mod's animator and author), and the two
 kabooms, near and distant (Slayer - the mod's own credit for its
 explosion sounds names no one else), under the same two folders.
-The bindings are SAO's own nodes, keyed on SAO's own variable, and
-the instrument plays follow the carried instrument: a bard with a
-flute plays the flute's clip.
+**And one more, under the same settlement ([C120]):** the ball
+throw (SaneGuy and Slayer) - the mod's zombie-target throw, made
+a child's play moment here, a ball and a playmate on a stretch of
+street. The bindings are SAO's own nodes, keyed on SAO's own
+variable, and the instrument plays follow the carried instrument:
+a bard with a flute plays the flute's clip.
 
 **Code ported, under the operator's ruling ([C110], [C113],
 [C114]):** the street hour - `BWOPopControl`'s `getHourScore` hmap,
@@ -259,9 +262,20 @@ kills that harden), its literacy gate, its experience throttle and
 birthday floors, its rule for a child's head and its kid types'
 kits are carried in [C31] at SAO's own seams with the mod's numbers
 (`SAO_History`, `SAO_Disposition.fear`, `SAO_Age`, `SAO_Body`,
-`SAO_Appearance`, the bridge's scaled grant); its nightmares,
-growth spurts, cooking, driving and grief systems and its voice
-lines are not.
+`SAO_Appearance`, the bridge's scaled grant).
+
+**More figures carried ([C120]):** its driving age of ten and the
+thirty percent penalty a driver under eighteen carries on the
+wheel's speed cap, its growth-spurt chance (eight percent a day, to
+sixteen) and the hunger a spurt adds, and its wound grief as the
+one figure that survives the translation - a hurt child is a
+frightened child (the fear figure is SAO's own, beside the rest).
+Its lines split by age band are carried as the idea - a child's
+moments read differently from a grown one's - and the words are
+SAO's own (`SAO_Voice`). Still not carried, named so it is not
+mistaken for lost: its nightmares, its staged grief machine and
+doom spiral, its cooking penalty, its driving adaptation
+milestones, and its lines as lines.
 
 ## Think Of The Children (Zomboides)
 
