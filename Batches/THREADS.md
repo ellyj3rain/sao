@@ -18,7 +18,7 @@ were illustrative rather than complete. Every batch is now classified.
 
 Instruments and audits measured against the genuine artifact, engine or code.
 
-**Batches**: `A2`, `A3`, `A4`, `A16`, `A23`, `A24`, `B5`, `B25`, `B26`, `B31`, `B32`, `B33`, `B34`, `B35`, `B37`, `B38`, `B40`, `B41`, `B42`, `B44`, `B47`, `B50`, `C8`, `C9`, `C11`, `C14`, `C18`, `C29`, `C67`, `C68`, `C69`, `C70`, `C71`, `C75`, `C77`, `C82`, `C83`, `C84`, `C85`, `C86`, `C87`, `C88`, `C89`, `C93`, `C94`, `C95`, `C96`, `C97`, `C98`, `C99`, `C100`, `C101`, `C102`, `C103`, `C104`, `C105`, `C106`, `C107`, `C108`
+**Batches**: `A2`, `A3`, `A4`, `A16`, `A23`, `A24`, `B5`, `B25`, `B26`, `B31`, `B32`, `B33`, `B34`, `B35`, `B37`, `B38`, `B40`, `B41`, `B42`, `B44`, `B47`, `B50`, `C8`, `C9`, `C11`, `C14`, `C18`, `C29`, `C67`, `C68`, `C69`, `C70`, `C71`, `C75`, `C77`, `C82`, `C83`, `C84`, `C85`, `C86`, `C87`, `C88`, `C89`, `C93`, `C94`, `C95`, `C96`, `C97`, `C98`, `C99`, `C100`, `C101`, `C102`, `C103`, `C104`, `C105`, `C106`, `C107`, `C108`, `C116`
 
 **Owes**: play receipts for everything; that debt is the project's standing condition.
 
@@ -44,9 +44,9 @@ The gate, its borders, and the repository's own discipline.
 
 The county before the collapse, the fall itself, and what it teaches.
 
-**Batches**: `A6`, `A10`, `A11`, `A17`, `A29`, `B3`, `B9`, `C8`, `C10`, `C11`, `C29`, `C30`, `C31`, `C32`, `C33`, `C34`, `C35`, `C36`, `C38`, `C41`, `C42`, `C43`, `C45`, `C47`, `C62`, `C63`, `C112`, `C113`, `C114`
+**Batches**: `A6`, `A10`, `A11`, `A17`, `A29`, `B3`, `B9`, `C8`, `C10`, `C11`, `C29`, `C30`, `C31`, `C32`, `C33`, `C34`, `C35`, `C36`, `C38`, `C41`, `C42`, `C43`, `C45`, `C47`, `C62`, `C63`, `C112`, `C113`, `C114`, `C116`
 
-**Owes**: outbreak live-confirmation (the engine's infection on shells, witnessed in play); the streets' play receipt (an ordinary county watched at eight in the morning and three at night); the driving play receipt (a goer under wheels watched in an ordinary county - the port's driving half is built, `[C114]`, T-001's doorway exercised; the watching is the debt).
+**Owes**: outbreak live-confirmation (the engine's infection on shells, witnessed in play); the streets' play receipt (an ordinary county watched at eight in the morning and three at night); the driving play receipt (a goer under wheels watched in an ordinary county - the port's driving half is built, `[C114]`, T-001's doorway exercised; the watching is the debt); the afflicted play receipt (the reverted coming back, a formed neighbor feared and never fought, watched in an ordinary county - the return is built, `[C116]`, and the watching is the debt).
 
 ### <a id="t-006"></a>T-006 - Temperament and provenance
 
@@ -96,9 +96,9 @@ Companies, creeds, elections, feuds, pacts, schisms, and the player's standing i
 
 Leaving, being watched for, and the worry that sends somebody after.
 
-**Batches**: `A28`, `B1`, `B19`, `C4`, `C18`, `C82`, `C114`, `C115`
+**Batches**: `A28`, `B1`, `B19`, `C4`, `C18`, `C82`, `C114`, `C115`, `C116`
 
-**Owes**: the driving play receipt - the engine surface `[C82]` mapped is now exercised (`[C114]`: a real person at seat 0, the engine started lawfully, company in the passenger seats), and the operator watching it happen is the debt that remains - the jar the end pass rebuilt now carries `[C115]`'s dial too (the drive's speed cap, the operator's screen ruling of 2026-09-13, the credited 30 km/h its default); corpse discovery as a search outcome.
+**Owes**: the driving play receipt - the engine surface `[C82]` mapped is now exercised (`[C114]`: a real person at seat 0, the engine started lawfully, company in the passenger seats), and the operator watching it happen is the debt that remains - the jar the end pass rebuilt now carries `[C115]`'s dial too (the drive's speed cap, the operator's screen ruling of 2026-09-13, the credited 30 km/h its default); the crossed drive's play receipt (the sister's `[A32]` machinery and this side's `[C116]` widening both shipped - a crossed body boarding a car, watched); corpse discovery as a search outcome.
 
 ### <a id="t-005"></a>T-005 - Radio and communication
 

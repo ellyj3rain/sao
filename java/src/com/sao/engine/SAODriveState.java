@@ -29,4 +29,8 @@ public final class SAODriveState {
     public int stuckTicks;
     public int stopTicks;
     public int rideTicks;
+    /** [C116] The crossed body's walk to the car - the dead walk on
+     * the engine's own zombie pathing, one leg per scan, so this is
+     * the patience counter for a leg the survivor path never owns. */
+    public int walkTicks;
 }

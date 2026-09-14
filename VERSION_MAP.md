@@ -16,9 +16,9 @@ the machine. Names, dates, and threads below come from
 | Form | `major.minor.kohai.patch-maturity` |
 | Hard caps | minor 12; kohai 16; patch 24 |
 | Replay start | `0.1.0.0-pre-alpha` |
-| Current version | `4.5.1.0-pre-alpha` |
-| Closed chronology | `A1-C115` |
-| Next batch | `C116` |
+| Current version | `4.6.0.0-pre-alpha` |
+| Closed chronology | `A1-C116` |
+| Next batch | `C117` |
 | Executable source | [`tools/version_replay.py`](tools/version_replay.py) |
 
 ## Tier meanings
@@ -231,6 +231,7 @@ the machine. Names, dates, and threads below come from
 | `C113` | 2026-09-13 | minor | `4.4.0.0-pre-alpha` | The street hour and the trade's ground | The street hour and the trade's ground: the streets half of the Week One port. Slayer's authored twenty-four-value curve becomes a per-person propensity to be out by the hour of the day, rolled at the leg boundary on both halves of the county, and the street-occupations idea becomes the census trade's own stable workplace, walked to behind need and ahead of company, all dead at the fall. A new player-visible capability - ordinary life on open streets before the collapse - so minor. |
 | `C114` | 2026-09-13 | minor | `4.5.0.0-pre-alpha` | A real person at the wheel | A real person at the wheel: the driving half of the Week One port, exercising the doorway C82 mapped. A goer who claimed wheels on a venture walks to the car, boards seat 0, starts the engine lawfully, and drives it to the venture's ground by the bearing, capped at the prior art's own credited 30 km/h, with the promised company in the passenger seats and every refusal answered by the ordinary walk. A new player-visible capability - NPC driving - so minor. |
 | `C115` | 2026-09-13 | kohai | `4.5.1.0-pre-alpha` | The dials the rulings named | The dials the rulings named: the screen-revision ruling of 2026-09-13 moves the era's ruled numbers onto the sandbox screen - what a road meeting is worth (C111's 0.02), the openness horizon (C111's stated half year), and the drive's speed cap (C114's credited 30 km/h), each default the ruled figure and the drive cap crossing the bridge Lua-to-Java because Java cannot read SandboxVars. The capability is the screen's own, matured to carry what the rulings reserved; nothing new is simulated, so kohai. |
+| `C116` | 2026-09-13 | minor | `4.6.0.0-pre-alpha` | The afflicted come back | The afflicted come back: the totality ruling of 2026-09-13 names the afflicted as important as the crossed, and this batch carries them - the reverted dead re-adopted through the same materialize every awakening uses (mint first, the death flag overturned only on success, all the forgetting kept so they return hollow), the pathogen's own form marks stamped on every live afflicted body so the ghoul shape is visible, the formed neighbor entering the county's fear (feared and never fought), the live afflicted near a crossed carrier exposed, and both seam halves the sister's A32 named as ours closed - the record.verbs stamp and the driving map's widening, the crossed walking the dead's own pathing to the car and driving it lawfully. A new player-visible simulation capability - the county's mid-course people return to it, and the crossed can drive - so minor. |
 
 ## The former number
 
@@ -251,11 +252,11 @@ the meantime, and they are not play.
 
 ## Next movement
 
-`C116` is the next batch. Its content determines its tier after it
+`C117` is the next batch. Its content determines its tier after it
 exists:
 
-| If C116 is | Result |
+| If C117 is | Result |
 |---|---|
-| patch or hotfix | `4.5.1.1-pre-alpha` |
-| kohai | `4.5.2.0-pre-alpha` |
-| minor | `4.6.0.0-pre-alpha` |
+| patch or hotfix | `4.6.0.1-pre-alpha` |
+| kohai | `4.6.1.0-pre-alpha` |
+| minor | `4.7.0.0-pre-alpha` |

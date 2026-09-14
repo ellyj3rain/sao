@@ -386,6 +386,24 @@ function P.observe(id, body, tick, asleep)
                             attributeMutations = parseAttributes(f[11])
                         end
                     end
+                    -- [C116] A living person carrying a form teaches
+                    -- the witness what that form is, the same moment a
+                    -- formed zombie does - the returned afflicted are
+                    -- the county's own mid-course people, and what
+                    -- their neighbors learn from seeing them is the
+                    -- same learning, on the same cadence.
+                    if form and form ~= "none" then
+                        pcall(function()
+                            local day = math.floor(
+                                (SAO.History.countyHours() or 0) / 24.0)
+                            SAO.Adaptation.observe(
+                                id,
+                                form,
+                                formPerformance,
+                                "lived",
+                                day)
+                        end)
+                    end
                     b.people[name] = { x = x, y = y, dist = d, at = tick,
                         atHours = okRH and rh or nil,
                         source = "observed", condition = f[6] or "ok",
@@ -550,6 +568,53 @@ function P.nearestBelievedZombie(id, tick, fromX, fromY)
                  attributeMutations = best.attributeMutations }
     end
     return nil
+end
+
+-- [C116] The nearest LIVING person this survivor believes carries a
+-- form - the returned afflicted, ghoul-shaped in a person's clothes
+-- ([MUTATION.md]: the residue rides what capability survived). The
+-- belief is a person-belief and decays on the people horizon; what it
+-- carries is the form the scanner appended from the marks the
+-- adoption stamped. The name rides along because a person is not a
+-- tile: who they are is half of what seeing them means.
+function P.nearestFormedPerson(id, tick, fromX, fromY)
+    local b = P.beliefs[id]
+    if not b then return nil end
+    local best, bestDist, bestName
+    local horizon = horizonFor(id, "people")   -- [C32]
+    for name, belief in pairs(b.people) do
+        if belief.form and belief.form ~= "none"
+            and tick - belief.at <= horizon then
+            local d = distanceFor(belief, fromX, fromY)
+            if not best or d < bestDist then
+                best, bestDist, bestName = belief, d, name
+            end
+        end
+    end
+    if best then
+        return { x = best.x, y = best.y, dist = bestDist, at = best.at,
+                 source = best.source, name = bestName,
+                 form = best.form, formPerformance = best.formPerformance,
+                 attributeMutations = best.attributeMutations,
+                 fromPerson = true }
+    end
+    return nil
+end
+
+-- [C116] The nearest believed carrier of a form, living or dead: the
+-- zombie the survivor believes in and the person they believe is
+-- shaped, whichever is closer. This is the pathogen pressure's read -
+-- a body that carries the form presses the same nerve whatever
+-- clothes it is wearing - and it is a SEPARATE query because the
+-- callers that must never conflate the two (the engage machinery,
+-- the threat count) still use the two single-kind queries.
+function P.nearestBelievedThreat(id, tick, fromX, fromY)
+    local zombie = P.nearestBelievedZombie(id, tick, fromX, fromY)
+    local formed = P.nearestFormedPerson(id, tick, fromX, fromY)
+    if formed and (not zombie or formed.dist < zombie.dist) then
+        return formed
+    end
+    return zombie
 end
 
 function P.believedThreatCount(id, tick, radius, fromX, fromY)

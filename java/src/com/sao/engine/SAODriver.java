@@ -1,7 +1,6 @@
 package com.sao.engine;
 
 import com.sao.agent.SAOAgent;
-import org.joml.Vector3f;
 import zombie.vehicles.BaseVehicle;
 import zombie.core.physics.CarController;
 
@@ -46,34 +45,14 @@ public final class SAODriver {
      * tiles of the body: the claim is facts about a car, not a handle
      * to it ([B19]). */
     private static final float BOARD_RADIUS = 8.0f;
-    /** A car parks NEAR an errand, not on it. */
-    private static final float ARRIVE_RADIUS = 6.0f;
-    /** [C110] Week One's own town figure: their regulator drove at
-     * 30 km/h. Carried with credit as the cap's DEFAULT; [C115] makes
-     * the cap itself the operator's dial, ordered in from the sandbox
-     * screen by the Lua face (Java cannot read SandboxVars), and this
-     * figure stands when the order carries none. Everything it scales
-     * (the real speedometer) is read. */
-    private static final float DEFAULT_SPEED_CAP_KMH = 30.0f;
-    private static final float STEER_GAIN = 1.5f;
     /** Ticks the starter gets before the attempt is read as refused. */
     private static final int ENGINE_PATIENCE = 240;
     /** Ticks the driver waits for the promised seats before departing
      * without their late occupants - who then take the walk. */
     private static final int WAIT_PATIENCE = 900;
-    /** Ticks of no motion under throttle before the drive is given up
-     * as stuck. The engine's own isInvalidChunkAhead brake (verified
-     * in updateControls' bytecode) already stops a car at unloaded
-     * space; this catches everything else - a wall, a tree, a wreck. */
-    private static final int STUCK_PATIENCE = 300;
-    /** Ticks the stop phase gets to halt the car before park() takes
-     * it by force. */
-    private static final int STOP_PATIENCE = 120;
     /** A passenger seated with nothing happening for this long climbs
      * out and walks - the safety net under a driver who never came. */
     private static final int RIDE_PATIENCE = 3600;
-
-    private static final Vector3f FORWARD = new Vector3f();
 
     // ------------------------------------------------------------------
     // Begin
@@ -95,7 +74,7 @@ public final class SAODriver {
         state.targetY = ty + 0.5f;
         state.waitSeats = 0;
         state.speedCapKmh = speedCapKmh > 0.0f
-            ? speedCapKmh : DEFAULT_SPEED_CAP_KMH;
+            ? speedCapKmh : SAODriveLaw.DEFAULT_SPEED_CAP_KMH;
         resetTimers(state);
         BaseVehicle vehicle = vehicleNamed(shell, radius, name);
         if (vehicle == null) {
@@ -313,94 +292,21 @@ public final class SAODriver {
         return "Waiting";
     }
 
-    /** The drive itself: steer by the bearing to the venture's ground,
-     * hold the town speed, brake to a stop near it. */
+    /** The drive itself: the vehicle law the crossed driver holds too,
+     * called with the living's own unseat - park, the key off, and
+     * the needs pairing on the way out ([SAODriveLaw]). */
     private static String driveTick(SAOIsoPlayerShell shell,
             SAODriveState state) {
-        BaseVehicle vehicle = shell.getVehicle();
-        if (vehicle == null || vehicle.getDriver() != shell) {
-            state.requested = false;
-            return "DRIVE_LOST_CAR";
-        }
-        CarController.ClientControls controls =
-            vehicle.getController().getClientControls();
-        float dx = state.targetX - vehicle.getX();
-        float dy = state.targetY - vehicle.getY();
-        float distance = (float) Math.sqrt(dx * dx + dy * dy);
-        if (distance <= ARRIVE_RADIUS) {
-            state.phase = "STOP";
-            state.stopTicks = 0;
-            controls.forward = false;
-            controls.backward = false;
-            controls.brake = true;
-            controls.steering = 0.0f;
-            return "Arriving";
-        }
-        // The bearing. getForwardVector is (x east, y up, z south) -
-        // the same plane as tile (x, y) - so the 2D cross of forward
-        // and to-target is positive exactly when the target lies to
-        // the vehicle's RIGHT, which is the positive-steering side
-        // (verified: the Left key writes -1, the Right key +1).
-        Vector3f forward = vehicle.getForwardVector(FORWARD);
-        if (forward == null) {
-            controls.forward = false;
-            controls.brake = true;
-            return "Driving";
-        }
-        float cross = forward.x * dy - forward.z * dx;
-        controls.steering = clamp(cross * STEER_GAIN, -1.0f, 1.0f);
-        float speed = Math.abs(vehicle.getCurrentSpeedKmHour());
-        // [C115] The operator's dial, ordered in at begin; the credited
-        // default stands when the state never carried one (a ride
-        // never sets it, and a drive ordered by older Lua).
-        float cap = state.speedCapKmh > 0.0f
-            ? state.speedCapKmh : DEFAULT_SPEED_CAP_KMH;
-        if (speed > cap) {
-            controls.forward = false;
-            controls.brake = true;
-            state.stuckTicks = 0;
-        } else {
-            controls.forward = true;
-            controls.backward = false;
-            controls.brake = false;
-            // No motion under throttle is a wall, a wreck, a tree, or
-            // the engine's own unloaded-space brake - none of which a
-            // steering wheel fixes. Patience, then out, and the walk.
-            if (speed < 2.0f) {
-                state.stuckTicks++;
-            } else {
-                state.stuckTicks = 0;
-            }
-            if (state.stuckTicks > STUCK_PATIENCE) {
-                finish(shell, vehicle);
-                state.requested = false;
-                return "DRIVE_STUCK";
-            }
-        }
-        return "Driving";
+        return SAODriveLaw.driveTick(shell, state,
+            vehicle -> finish(shell, vehicle));
     }
 
+    /** Halting near the venture's ground: the law's halt, the living's
+     * own unseat at the end of it. */
     private static String stopTick(SAOIsoPlayerShell shell,
             SAODriveState state) {
-        BaseVehicle vehicle = shell.getVehicle();
-        if (vehicle == null || vehicle.getDriver() != shell) {
-            state.requested = false;
-            return "DRIVE_LOST_CAR";
-        }
-        CarController.ClientControls controls =
-            vehicle.getController().getClientControls();
-        controls.forward = false;
-        controls.backward = false;
-        controls.brake = true;
-        controls.steering = 0.0f;
-        float speed = Math.abs(vehicle.getCurrentSpeedKmHour());
-        state.stopTicks++;
-        if (speed <= 3.0f || state.stopTicks > STOP_PATIENCE) {
-            finish(shell, vehicle);
-            state.requested = false;
-            return "Succeeded";
-        }
-        return "Arriving";
+        return SAODriveLaw.stopTick(shell, state,
+            vehicle -> finish(shell, vehicle));
     }
 
     /** Park and climb out, the engine's own calls: park() halts the
@@ -568,34 +474,10 @@ public final class SAODriver {
 
     /** The claimed car by its pool name, nearest within radius of the
      * body - the same re-finding tolerance spendVehicleFuel uses, the
-     * same spelling ([B31]). */
+     * same spelling ([B31]); the finding itself is the law's, shared
+     * with the crossed driver. */
     private static BaseVehicle vehicleNamed(SAOIsoPlayerShell shell,
             int radius, String name) {
-        try {
-            if (name == null) return null;
-            zombie.iso.IsoCell cell = shell.getCell();
-            if (cell == null) return null;
-            float sx = shell.getX(), sy = shell.getY();
-            BaseVehicle best = null;
-            float bestD2 = (float) radius * radius;
-            for (BaseVehicle vehicle : cell.getVehicles()) {
-                if (vehicle == null) continue;
-                if (!name.equals(SAONeeds.poolName(vehicle))) continue;
-                float dx = vehicle.getX() - sx, dy = vehicle.getY() - sy;
-                float d2 = dx * dx + dy * dy;
-                if (d2 <= bestD2) {
-                    bestD2 = d2;
-                    best = vehicle;
-                }
-            }
-            return best;
-        } catch (Throwable throwable) {
-            SAOAgent.log("vehicleNamed threw: " + throwable);
-            return null;
-        }
-    }
-
-    private static float clamp(float value, float low, float high) {
-        return value < low ? low : (value > high ? high : value);
+        return SAODriveLaw.vehicleNamed(shell, radius, name);
     }
 }

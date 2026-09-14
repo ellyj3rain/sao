@@ -1,11 +1,66 @@
 | Document | Survivor Awareness Overhaul Session State |
 |---|---|
-| Version | `4.5.1.0-pre-alpha` |
+| Version | `4.6.0.0-pre-alpha` |
 | Author | ellyj3rain |
 | Repository | `SESSION_STATE.md` |
 | Status | CANONICAL - where the work actually stands. |
 
 # Session state
+
+**As of** 2026-09-13, `[C116]` close - the afflicted come back. The
+operator's totality ruling of the same sitting names the afflicted as
+important as the crossed, and this batch carries them, closing on the
+way both seam halves the sister's `[A32]` recorded as owed by this
+side. The return is a fact-reading, not a decision: once per county
+day, `SAO_AfflictedReturn.adopt` mints a live body where a reverted
+person's risen corpse stands (or at their last ground), through the
+same `materialize` every awakening uses - the mint runs FIRST and the
+flags turn only on success, so a refused mint leaves a death record a
+death record and the next county day tries again. `rec.dead` flips -
+not an undoing of the death (`diedAtHours` and `deathCause` stay
+durable) but the county's present-tense judgment the reversion
+overturned - and everything the death funnel dropped stays dropped:
+they come back with no beliefs, no voice, no company, a stranger to
+their own house, which is what coming back from that is, and the
+material the next batch's social half argues over. The presentation
+chain's one missing link closes with two stamp paths - the adoption
+mints the returnee with the pathogen's own form marks, and
+`Return.stampLive` re-stamps every live afflicted body once a
+county day (covering the recovery-flipped infected who never died),
+so the scanner's marks and the belief parser's form read make the
+ghoul shape visible on the living. A formed neighbor enters the
+county's fear - `nearestFormedPerson` behind the hostile override,
+`isZombieThreat` excluding `fromPerson` so they are feared and never
+fought - the pathogen pressure reads `nearestBelievedThreat` at full
+weight, the parser observes the form through Adaptation, the live
+afflicted near a crossed carrier are exposed through the sister's own
+`expose` (odds never copied), and the reunion machinery already
+standing fires for the returned everywhere they go. The seam halves:
+`Drv.order` stamps the demonstrated `drive` verb (ending
+`ZAO_Mind`'s always-empty retained-verbs), and `SAOBridge`'s
+`driveBegin`/`tickDrive` dispatch IsoZombies first over a
+`crossedDrives` map of their own - `SAOCrossedDriver`, the driving
+map's second entry, walks the dead's own pathing (`pathToLocationF`,
+one leg per scan; SAOMovement is player-surface and was NOT
+widenable, by design law), boards seat 0 through the character-typed
+engine surface `[C82]`/`[C114]` verified (javap before a line was
+written), starts the engine lawfully, drives the bearing to the
+named ground capped at the drive dial's default, parks and shuts off
+- no WAIT phase, the crossed wait for nobody, and a thrown tick is
+answered `DRIVE_FAILED` because the sister's verdict machine ends a
+trip only on Succeeded, IDLE, or a `DRIVE_` verdict. The risen corpse
+is the sister's half, named `[A33]` in both repos (ZAO owns the
+turned body and releases it once this side has re-adopted); until it
+lands, corpse and returnee share a county, honestly. The gate ran
+clean with the batch in the tree, all 63 Lua files compiling under
+the engine's own Kahlua, the jar rebuilt and shipped first; the
+version machine derives 4.6.0.0-pre-alpha (minor - a new
+player-visible capability: the county's mid-course people return to
+it, and the crossed can drive). Open, as ever, on the play receipts:
+nobody has watched the dead come back or a crossed body under
+wheels. Next: the afflicted among the living - the house argument,
+the cast-out and the gather, the standing reaction - then the
+totality order the same sitting set.
 
 **As of** 2026-09-13, `[C115]` close - the dials the rulings named.
 The operator's screen-revision ruling of the same sitting (the
@@ -33,7 +88,7 @@ seams; Border 92 declares the six new strings under the ruling, the
 wording following the ratified plain register. The gate ran clean
 with the batch in the tree, 31 options on the surface; the jar was
 rebuilt and shipped before it ran; the version machine derives
-4.5.1.0-pre-alpha (kohai - the screen matured to carry what the
+4.6.0.0-pre-alpha (kohai - the screen matured to carry what the
 rulings reserved, nothing new simulated). This batch is the first
 named step of the pre-alpha-to-alpha order the same sitting set:
 this revision, then readiness, then the training passes - the dials
@@ -1628,12 +1683,12 @@ unloaded survivors are governed by the same rules ([B39], [B42]).
 
 ## Deploy state
 
-`4.5.1.0-pre-alpha` at tip - the version machine's output ([C2],
+`4.6.0.0-pre-alpha` at tip - the version machine's output ([C2],
 DR-013; the eleven units `[C105]` through `[C115]` moved it here,
 the Week One port's two minors and `[C115]`'s dial kohai among
 them). `[C115]` reached the install on 2026-09-13, the same day it
 closed, after its own gate run - verified rather than assumed: the
-deployed `mod.info` reads `4.5.1.0-pre-alpha`, and the deployed
+deployed `mod.info` reads `4.6.0.0-pre-alpha`, and the deployed
 `SAO.jar` is byte-identical to the committed build (md5
 `dd2d9414...` at all three of dist, tree, and install). The game install carries the `[C62]` tip. `[C45]` through
 `[C51]` reached it on 2026-09-07 and `[C52]` through `[C62]` on 2026-09-08, each
