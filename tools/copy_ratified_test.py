@@ -122,6 +122,17 @@ RATIFIED = {
         "The county starts before the outbreak: no fear, no losses, no "
         "learned lessons yet." + NL
         + "Pairs well with low zombie counts and slow turning.",
+    # [C119] The nuke dial's copy, ratified with the batch.
+    P + "WeekOneNuke": "The government's answer",
+    P + "WeekOneNuke_tooltip":
+        "Off by default. On, this world's strike is drawn once: the "
+        "day, the towns, how many, how wide." + NL
+        + "The countdown runs on the fall's own calendar, whenever it "
+        "came to this county. The same save carries one fate; a new "
+        "county is a novel apocalypse." + NL
+        + "After the strike the fire burns what fire burns and the "
+        "fallout rises where the circles hold. Off: nothing of it runs "
+        "at all.",
     P + "Telemetry": "Write telemetry log",
     P + "Telemetry_tooltip":
         "Writes events (lessons learned, deaths, daily summaries) to "

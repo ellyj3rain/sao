@@ -109,6 +109,16 @@ option SurvivorAwareness.DayZero {
     page = SurvivorAwareness, translation = SurvivorAwareness_DayZero,
 }
 
+/* [C119] The government's answer, ruled optional and default OFF
+ * (Speakeasy records 49-50). On, this world's strike is drawn once -
+ * the day, the towns, how many, how wide - counted from the fall's
+ * own calendar and persisted: the same save carries one fate, a new
+ * county is a novel apocalypse. Off, nothing of it runs at all. */
+option SurvivorAwareness.WeekOneNuke {
+    type = boolean, default = false,
+    page = SurvivorAwareness, translation = SurvivorAwareness_WeekOneNuke,
+}
+
 option SurvivorAwareness.Telemetry {
     type = boolean, default = true,
     page = SurvivorAwareness, translation = SurvivorAwareness_Telemetry,

@@ -493,6 +493,26 @@ function Exchange.betweenPair(id, agent, body, otherId, otherBody, tickCount)
             -- politics happen.
             if SAO.Standing.dissentsFromPolicy
                 and SAO.Standing.dissentsFromPolicy(id) then
+                -- [C119] Two grumbles make a protest: when the one
+                -- across ALSO dissents from the county's policy, the
+                -- pair stands together and the plain grumble grows
+                -- Week One's credited placard shape - a crowd of
+                -- exactly the size the county's own politics
+                -- produced, never one more. Both hold the shape;
+                -- the voice still says the grievance.
+                local together = false
+                pcall(function()
+                    together = SAO.Standing.dissentsFromPolicy(otherId)
+                        == true
+                end)
+                if together then
+                    pcall(function()
+                        SAO.Gesture.protest(id, body)
+                    end)
+                    pcall(function()
+                        SAO.Gesture.protest(otherId, otherBody)
+                    end)
+                end
                 pcall(function()
                     SAO.Voice.onEvent(id, "grumble", tickCount)
                 end)

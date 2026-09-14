@@ -93,6 +93,13 @@ OWNED_ELSEWHERE = {
     # read SandboxVars: the value crosses the bridge with the order.
     "OpennessHorizonMonths": "shared/SAO_Standing.lua",
     "DriveSpeedCap": "client/SAO_Driving.lua",
+    # [C119] Not a property of any person: it decides whether this
+    # world's government answers the Knox Event at all, and when it
+    # does the strike's day, towns and circles are drawn for the
+    # WORLD, not per person - so neither half of the simulation has
+    # an opinion about it and the nuke module, which owns the draw,
+    # the strike and the fallout, owns the dial too.
+    "WeekOneNuke": "client/SAO_Nuke.lua",
 }
 
 

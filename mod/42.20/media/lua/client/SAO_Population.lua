@@ -3414,6 +3414,13 @@ local function dailyCounty()
             SAO.Standing.outcastDrift()
         end
     end)
+    -- [C119] The government's answer on the same clock: the draw, the
+    -- strike, the fallout - one pass, gated on its own dial (default
+    -- off) and its own world-persisted fate, so the years pass drives
+    -- a struck county exactly as the live one does, the [C65] law.
+    pcall(function()
+        if SAO.Nuke and SAO.Nuke.onDay then SAO.Nuke.onDay() end
+    end)
     pcall(function() SAO.WorldGenesis.applyDay(day) end)
 end
 

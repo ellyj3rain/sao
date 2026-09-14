@@ -16,9 +16,9 @@ the machine. Names, dates, and threads below come from
 | Form | `major.minor.kohai.patch-maturity` |
 | Hard caps | minor 12; kohai 16; patch 24 |
 | Replay start | `0.1.0.0-pre-alpha` |
-| Current version | `4.8.0.0-pre-alpha` |
-| Closed chronology | `A1-C118` |
-| Next batch | `C119` |
+| Current version | `4.9.0.0-pre-alpha` |
+| Closed chronology | `A1-C119` |
+| Next batch | `C120` |
 | Executable source | [`tools/version_replay.py`](tools/version_replay.py) |
 
 ## Tier meanings
@@ -234,6 +234,7 @@ the machine. Names, dates, and threads below come from
 | `C116` | 2026-09-13 | minor | `4.6.0.0-pre-alpha` | The afflicted come back | The afflicted come back: the totality ruling of 2026-09-13 names the afflicted as important as the crossed, and this batch carries them - the reverted dead re-adopted through the same materialize every awakening uses (mint first, the death flag overturned only on success, all the forgetting kept so they return hollow), the pathogen's own form marks stamped on every live afflicted body so the ghoul shape is visible, the formed neighbor entering the county's fear (feared and never fought), the live afflicted near a crossed carrier exposed, and both seam halves the sister's A32 named as ours closed - the record.verbs stamp and the driving map's widening, the crossed walking the dead's own pathing to the car and driving it lawfully. A new player-visible simulation capability - the county's mid-course people return to it, and the crossed can drive - so minor. |
 | `C117` | 2026-09-13 | minor | `4.7.0.0-pre-alpha` | The afflicted among the living | The afflicted among the living: the social half of the totality ruling's afflicted arc, the questions [C116] named as standing's own. A member the house can SEE is shaped becomes a question the house answers out of character - [B3]'s law for the bitten at the deeper bend: the fearful pull away, the composed stand by, trust bends along the fault line on the creed quarrel's own cadence, and the blows cross the same per-person bar, with everything after the blows the split machinery's own (checkSchism's schism of one is the exile - the cast-out, whoever the roster trusts less). The company door reads its value down by the judge's own fear (companyStanding, the one law every door already reads - road, table, visit, companion, the player's asks). And a groupless person whose own state says afflicted drifts to the best ground they have actually walked to that no living hand holds, once a county day - measure, then guide, the settle pass's law applied to one. A new player-visible simulation capability - the county's society answers its mid-course people - so minor. |
 | `C118` | 2026-09-14 | minor | `4.8.0.0-pre-alpha` | The demand, the break-in, and the haul | The demand, the break-in, and the haul: the raider vocabulary, the ten swept gaps of the totality ruling built as per-person decision machinery. The forcing bar is real - aggression against discipline with initiative half-weighted, pressed half a person's worth by standing hostility at the destination or the desperation of real hunger, fleeing always licensed - so the composed still decline every lock and the pressed or the aggressive take it on. The breach is plumbed: a barrier verdict ends the route, not the want, and the willing batter through the engine's own WeaponHit at the price the player pays (planks, door health, the thump drawing whatever hears it), bounded at forty swings a walk; the declined window re-licenses and smashes by the machinery the FLEE state already owns. The word before the blow: an armed character with a grudge at talking distance whose own aggression and nerve say demand speaks it, once per pair per county day, and the frightened on the other side answer out of their own fear - the same vanilla transfer every kindness uses, with none of the kindness, spare food only, trust bent and once a day. And the feud's answer carries home: a warpath walk that arrives on ground that answers hostile takes the enemy's stores through the forager's own take, the same cap a skilled sweep tops out at. A new player-visible simulation capability - the county raids itself - so minor. |
+| `C119` | 2026-09-14 | minor | `4.9.0.0-pre-alpha` | Week One's moments and the government's answer | The Week One moments and the government's answer: the totality ruling's art and event batches. Seventeen more of the credited animator's clips cross, each worn by a moment the county already occasions - the cashier at the filed trade ground when a customer stands in front of them (COUNTER_REACH, the counter's own four tiles, paced at two county hours), the protest when both members of an election pair dissent (a grumble with a body, [A25]'s seam grown), the three-stage CPR at a medic's desperate aid when the hurt body is down or nearly dead (the bandage still real), the four dances joining the porch-tune crowd through the pick every dance already uses, and the bard's own clip following the carried instrument - the county already picks up whatever InstrumentWeapon the world holds, so a bard with a flute plays the flute and not the guitar's shape. And the nuke, re-expressed under the ruling that made it optional: a dial default OFF; when on, the strike is drawn once per world - the day, the towns, how many, how wide, off the engine's own dice and persisted in ModData - the countdown running on the fall's own calendar, and after the strike only engine truth: their credited fire (SetOnFire on every body in the circles), the ground's BurnWalls as squares stream in, the two credited kabooms near and far, and the sickness on the engine's own food-sickness stat, rising where the circles hold. No script anywhere: no fixed circles, no fixed week, no winter, no hazmat, no dream quest, no siren. A new player-visible simulation capability - the county's trades, politics and medicine wear bodies, and a world can ask for the government's answer - so minor. |
 
 ## The former number
 
@@ -254,11 +255,11 @@ the meantime, and they are not play.
 
 ## Next movement
 
-`C119` is the next batch. Its content determines its tier after it
+`C120` is the next batch. Its content determines its tier after it
 exists:
 
-| If C119 is | Result |
+| If C120 is | Result |
 |---|---|
-| patch or hotfix | `4.8.0.1-pre-alpha` |
-| kohai | `4.8.1.0-pre-alpha` |
-| minor | `4.9.0.0-pre-alpha` |
+| patch or hotfix | `4.9.0.1-pre-alpha` |
+| kohai | `4.9.1.0-pre-alpha` |
+| minor | `4.10.0.0-pre-alpha` |

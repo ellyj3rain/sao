@@ -178,7 +178,15 @@ copyrighted and not to be reused without written permission.
 it ([C35], DR-034):** the waiter's serving animation (SaneGuy, the
 mod's animator) and the coughs and claps (Lauren Sinclair and AuD,
 as the mod credits its sounds), under `media/anims_X/Bob` and
-`media/sound/sao`.
+`media/sound/sao`. **More files copied, under the same settlement
+([C119]):** the cashier at the counter, the three protest stands,
+the three CPR stages, the four dances and the six instrument plays
+(SaneGuy and Slayer, the mod's animator and author), and the two
+kabooms, near and distant (Slayer - the mod's own credit for its
+explosion sounds names no one else), under the same two folders.
+The bindings are SAO's own nodes, keyed on SAO's own variable, and
+the instrument plays follow the carried instrument: a bard with a
+flute plays the flute's clip.
 
 **Code ported, under the operator's ruling ([C110], [C113],
 [C114]):** the street hour - `BWOPopControl`'s `getHourScore` hmap,
@@ -202,6 +210,25 @@ person), their forced-engine trio (`tryStartEngine(true)` with
 `engineDoStartingSuccess` and `engineDoRunning` - the cheat path),
 their regulator, which its own comments say does not steer, and
 their horn-at-zombies.
+
+**The nuke, re-expressed under the operator's ruling ([C119],
+Speakeasy records 49-50):** their `FinalSolution` is a script - hour
+168 of every world, eight to ten fixed circles, default on - and
+none of the script crosses. What crosses is the event's engine
+idioms, credited here: the fire (`SetOnFire` on every body in the
+circles), the ground (`BurnWalls` as squares stream in), the sound
+(the two kaboom files above), the sickness (the engine's own
+food-sickness stat, their radiation idiom) and their town list
+(their `SetupNukes` target coordinates - map facts, like the street
+hour). What replaces the script is the ruling: a dial, default
+off; when on, the strike is drawn once per world - the day, the
+towns, how many, how wide - and persisted; the countdown runs on
+the fall's own calendar, not the save's. What does not cross,
+named so it is not mistaken for lost: the nuclear winter (their
+climate override), the hazmat immunity, the hydro deaths, the
+player screen flash, the vehicle burn (a script-swap to a burnt
+wreck, not an engine call), the dream quest, the siren countdown
+and the staggered distant booms.
 
 ## Humans: Are Weak (SeahDokki)
 

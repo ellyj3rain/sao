@@ -1,11 +1,72 @@
 | Document | Survivor Awareness Overhaul Session State |
 |---|---|
-| Version | `4.8.0.0-pre-alpha` |
+| Version | `4.9.0.0-pre-alpha` |
 | Author | ellyj3rain |
 | Repository | `SESSION_STATE.md` |
 | Status | CANONICAL - where the work actually stands. |
 
 # Session state
+
+**As of** 2026-09-14, `[C119]` close - Week One's moments and the
+government's answer. Two halves under one law, both the totality
+ruling's: the moments the county already occasions, dressed in the
+credited art's shapes, and the nuke re-expressed as a per-world fate
+behind a dial, per the spectrum ruling (optional, randomized, never
+the default). Seventeen more of the animator's files crossed
+(SaneGuy and Slayer, credited): the cashier, three protest stands,
+three CPR stages, four dances, six instrument plays - every node
+SAO's own, keyed on `SAOGesture`, and the manifest now holding the
+clip name inside each file (the waiter's `waiterAnim` case
+generalized, 95 files and 72 nodes). The moments: the counter at the
+ROAM arrival seam (a street leg at the filed trade ground with
+somebody within `COUNTER_REACH` - the counter's own named four tiles,
+argued against the teaching stand-off and the porch band in ALLOWED -
+paced at two county hours, the customer whoever the county actually
+put there); the protest when BOTH members of a dissenting pair hold
+the shape (`[A25]`'s grumble grown a body, the voice still saying
+the grievance); the CPR at a medic's aid when the hurt body is down
+or nearly dead (three queued actions - start, long loop, letting-go -
+and the bandage still real); and the bard's own clip following the
+carried instrument (the county already picks up whatever
+InstrumentWeapon the world holds, so a bard with a flute plays the
+flute, not the guitar's shape; the four dances join the porch crowd
+through the pick every dance already uses). The nuke, NEW
+`SAO_Nuke.lua`: a dial `SurvivorAwareness.WeekOneNuke`, default OFF;
+when on, the first county day after the fall draws the fate once -
+delay 5 to 21 days, 1 to 4 circles, towns drawn without replacement
+from the ten credited coordinates, radii 500 to 1000 - off the
+engine's own dice and persisted in ModData (one fate per save, a new
+county a novel apocalypse), the countdown on the fall's own calendar
+(an overdue strike in a begun-fallen world fires the first county day
+- the player walks into a struck county), and after the strike only
+engine truth: their credited fire (`SetOnFire` on every body in the
+circles), `BurnWalls` as squares stream in (the burnt set kept per
+square), the two credited kabooms near and far, and the sickness on
+the engine's own food-sickness stat rising where the circles hold,
+once a county day on the `dailyCounty` hook, so the years pass
+drives a struck county exactly as the live one does. No script
+anywhere: no winter, no hazmat, no hydro, no screen flash, no
+vehicles burned, no dream quest, no siren, no staggered booms, and
+the dormant half feels no fire or fallout (the dormant-risk dial is
+theirs). The gate refused the batch's first pass five times and each
+finding was fixed at its root: the two typed customer reaches became
+`COUNTER_REACH` (Border 47) and their collisions argued (Border 49),
+the dial's owner declared to the option-reach border, the tooltip
+reflowed to the layout and its copy ratified, and the gestures
+border taught the manifest's `anim` key and the carried-instrument
+seam. The gate ran clean with the batch in the tree, the jar
+rebuilt and shipped after the stamp; the version machine derives
+4.9.0.0-pre-alpha (minor - a new player-visible simulation
+capability: the county's trades, politics and medicine wear bodies,
+and a world can ask for the government's answer). Open, as ever, on
+the play receipts: nobody has watched a cashier with a customer, two
+dissenters standing together, a medic kneeling over a body that is
+down, a flute that looks like a flute, or - for the one world that
+asks - the government's answer arriving on the day the draw said.
+Next: the totality order continues - age attachments (`[C120]`),
+drugs in totality (`[C121]`) - then the crossed-doctrine batches,
+the common-enemy weight, the off-switch list before runtime
+verification.
 
 **As of** 2026-09-14, `[C118]` close - the demand, the break-in, and
 the haul. The raider vocabulary, the ten swept gaps of the totality
@@ -47,7 +108,7 @@ plank-fall is its honest seed), entry only and never claim-flipping,
 the unarmed cannot batter, the yield hands over spare food only,
 forty swings is the one authored number in the breach. The gate ran
 clean with the batch in the tree, the jar rebuilt and shipped; the
-version machine derives 4.8.0.0-pre-alpha (minor - a new
+version machine derives 4.9.0.0-pre-alpha (minor - a new
 player-visible simulation capability: the county raids itself). Open,
 as ever, on the play receipts: nobody has watched a batter heard
 across a street, a robbery survived by handing it over, or a warpath
@@ -102,7 +163,7 @@ the state of the work never the attribution, and `mayEnter` still
 refuses a break-in without hostility, whoever holds the ground. The
 gate ran clean with the batch in the tree, the jar rebuilt and
 shipped with the new stamp; the version machine derives
-4.8.0.0-pre-alpha (minor - a new player-visible simulation
+4.9.0.0-pre-alpha (minor - a new player-visible simulation
 capability: the county's society answers its mid-course people).
 Open, as ever, on the play receipts: nobody has watched a house
 argue over a returned member, a door refuse one, or an outcast take
@@ -158,7 +219,7 @@ turned body and releases it once this side has re-adopted); until it
 lands, corpse and returnee share a county, honestly. The gate ran
 clean with the batch in the tree, all 63 Lua files compiling under
 the engine's own Kahlua, the jar rebuilt and shipped first; the
-version machine derives 4.8.0.0-pre-alpha (minor - a new
+version machine derives 4.9.0.0-pre-alpha (minor - a new
 player-visible capability: the county's mid-course people return to
 it, and the crossed can drive). Open, as ever, on the play receipts:
 nobody has watched the dead come back or a crossed body under
@@ -192,7 +253,7 @@ seams; Border 92 declares the six new strings under the ruling, the
 wording following the ratified plain register. The gate ran clean
 with the batch in the tree, 31 options on the surface; the jar was
 rebuilt and shipped before it ran; the version machine derives
-4.8.0.0-pre-alpha (kohai - the screen matured to carry what the
+4.9.0.0-pre-alpha (kohai - the screen matured to carry what the
 rulings reserved, nothing new simulated). This batch is the first
 named step of the pre-alpha-to-alpha order the same sitting set:
 this revision, then readiness, then the training passes - the dials
@@ -1787,12 +1848,12 @@ unloaded survivors are governed by the same rules ([B39], [B42]).
 
 ## Deploy state
 
-`4.8.0.0-pre-alpha` at tip - the version machine's output ([C2],
+`4.9.0.0-pre-alpha` at tip - the version machine's output ([C2],
 DR-013; the eleven units `[C105]` through `[C115]` moved it here,
 the Week One port's two minors and `[C115]`'s dial kohai among
 them). `[C115]` reached the install on 2026-09-13, the same day it
 closed, after its own gate run - verified rather than assumed: the
-deployed `mod.info` reads `4.8.0.0-pre-alpha`, and the deployed
+deployed `mod.info` reads `4.9.0.0-pre-alpha`, and the deployed
 `SAO.jar` is byte-identical to the committed build (md5
 `dd2d9414...` at all three of dist, tree, and install). The game install carries the `[C62]` tip. `[C45]` through
 `[C51]` reached it on 2026-09-07 and `[C52]` through `[C62]` on 2026-09-08, each
