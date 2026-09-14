@@ -903,6 +903,33 @@ local function decide(id, agent, body)
             and SAO.PathogenPressure.fleeDistance(id, threat)
             or SAO.Disposition.fleeDistance(id)
         local overwhelmed = threatCount >= SAO.Disposition.overwhelmThreshold(id)
+        -- [C118] The word before the blow. An armed person with a
+        -- standing grudge, at talking distance, whose own character
+        -- says demand rather than strike, speaks what they want and
+        -- stands - this decision is the offer. What the other person
+        -- does with it is THEIR machinery: the frightened hand over
+        -- (the yield branch reads its own fear below), the brave
+        -- fight or run, and if nobody answers the silence is answered
+        -- by the confrontation branch on a later decision, exactly
+        -- as it always has - the demand buys a window, never an
+        -- outcome. Once per pair per county day: a mugger does not
+        -- nag. [B3]'s bitten cadence, robbed.
+        if governingPerson and threat.dist <= TALK_REACH and not overwhelmed
+            and agent.armed and SAO.Standing.mayEngagePerson(id, governingPersonKey)
+            and SAO.Disposition.wouldDemand(id) then
+            local okD, dayD = pcall(function()
+                return math.floor(SAO.History.countyHours() / 24.0)
+            end)
+            agent.demandedAt = agent.demandedAt or {}
+            if okD and dayD ~= (agent.demandedAt[governingPersonKey] or -1) then
+                agent.demandedAt[governingPersonKey] = dayD
+                pcall(function() SAO.Voice.onEvent(id, "demand", tick) end)
+                log(id .. " demands of " .. tostring(governingPerson)
+                    .. string.format(" at %.1f tiles", threat.dist)
+                    .. " - the word before the blow")
+                return
+            end
+        end
         -- Doctrine of the grudge: a hostile PERSON, close, faced by an
         -- armed survivor whose temperament says fight - the confrontation
         -- goes through the same evidence-based combat loop. Standing is the
@@ -972,6 +999,58 @@ local function decide(id, agent, body)
                     setState(agent, id, "ENGAGE",
                         string.format("overwhelmed (%d believed) - opens fire", threatCount))
                     return
+                end
+            end
+        end
+
+        -- [C118] The robbed hand. A believed-hostile person at talking
+        -- distance, faced by a character whose fear and
+        -- self-preservation say give rather than run or fight, hands
+        -- over a spare piece of what they carry - the same vanilla
+        -- transfer every kindness in this county uses, with none of
+        -- the kindness. Whether the other person demanded is not this
+        -- side's question: the yield reads only the yielded's own
+        -- character and the threat they see, so a demand may meet no
+        -- hand, and a hand may rise with no word before it. The spare
+        -- is the second-best: the robbed keep their own last meal.
+        -- Once per pair per county day; the trust bend is the memory
+        -- of it. Flow continues - fear's answer walks away right after.
+        if governingPerson and threat.dist <= TALK_REACH
+            and SAO.Disposition.wouldYieldTo(id) then
+            local okD2, dayY = pcall(function()
+                return math.floor(SAO.History.countyHours() / 24.0)
+            end)
+            agent.yieldedAt = agent.yieldedAt or {}
+            if okD2 and dayY ~= (agent.yieldedAt[governingPersonKey] or -1) then
+                local okF2, item = pcall(function()
+                    return SAOJavaBridge:findSpareFood(body)
+                end)
+                if okF2 and item ~= nil then
+                    local rBody = nil
+                    pcall(function()
+                        rBody = SAO.Body.get(governingPersonKey)
+                    end)
+                    if rBody then
+                        local okQ2 = pcall(function()
+                            ISTimedActionQueue.add(ISInventoryTransferAction:new(
+                                body, item, body:getInventory(),
+                                rBody:getInventory()))
+                        end)
+                        if okQ2 then
+                            agent.yieldedAt[governingPersonKey] = dayY
+                            pcall(function()
+                                SAO.Standing.adjustTrust(
+                                    id, governingPersonKey, -0.05)
+                            end)
+                            pcall(function()
+                                SAO.Voice.onEvent(id, "yielded", tick)
+                            end)
+                            log(id .. " hands over what they carry to "
+                                .. tostring(governingPerson)
+                                .. string.format(" at %.1f tiles", threat.dist)
+                                .. " - fear's answer")
+                        end
+                    end
                 end
             end
         end
@@ -5631,11 +5710,100 @@ local function updateAgent(id, agent)
             pcall(function()
                 SAO.Identity.updatePosition(agent.rec, body:getX(), body:getY(), body:getZ())
             end)
-            -- The restraint decision, visible: a locked or barricaded door on
-            -- a non-urgent walk is declined, not forced and not window-smashed.
-            if s:find("LOCKED", 1, true) or s:find("BARRICADED", 1, true) then
-                if not SAO.Disposition.wouldForceEntry(id, agent.state == "FLEE") then
-                    log(id .. " declined forcing a locked door (no urgency, no standing)")
+            -- [C118] The barrier answer. A locked door, a barricade,
+            -- or a declined window ends the walk's ROUTE, not the
+            -- want; what happens next is the person's own character
+            -- against the situation. The standing question was
+            -- answered when the walk was ordered (mayEnterBelieved);
+            -- this is only the LOCK, and the lock is answered by
+            -- D.wouldForceEntry with the walk's own pressing - standing
+            -- hostility toward whoever holds the ground beyond, or
+            -- the desperation of real hunger. The composed decline as
+            -- they always have; the aggressive or the pressed take the
+            -- barrier on - the window smashed under the license the
+            -- engine already knows, the door or barricade battered
+            -- through the engine's own WeaponHit, at the price the
+            -- player pays: planks, door health, and the noise of it,
+            -- drawing whatever hears. Bounded: a barrier that holds
+            -- past forty swings is a wall, and the walk gives up
+            -- wanting it; the count resets the moment a walk ends any
+            -- other way.
+            do
+                local barrierVerdict = nil
+                if s:find("LOCKED", 1, true) or s:find("BARRICADED", 1, true) then
+                    barrierVerdict = "barrier"
+                elseif s:find("WINDOW_DECLINED", 1, true) then
+                    barrierVerdict = "window"
+                end
+                if barrierVerdict then
+                    local job = SAO.Locomotion.jobs[id]
+                    local goal = job and job.goal or nil
+                    local pressing = 0
+                    if goal then
+                        local okH2, holder = pcall(function()
+                            return SAO.Standing.claimedByOther(
+                                id, goal.x, goal.y)
+                        end)
+                        if okH2 and holder then
+                            pressing = pressing + 0.5
+                        end
+                        local okN2, needs2 = pcall(function()
+                            return SAO.Needs.read(body)
+                        end)
+                        if okN2 and needs2 and needs2.hunger
+                            and needs2.hunger >= policy().desperation then
+                            pressing = pressing + 0.5
+                        end
+                    end
+                    if SAO.Disposition.wouldForceEntry(
+                        id, agent.state == "FLEE", pressing) then
+                        agent.batterTries = (agent.batterTries or 0) + 1
+                        if goal and agent.batterTries <= 40 then
+                            local swing = "WINDOW"
+                            if barrierVerdict == "window" then
+                                pcall(function()
+                                    SAOJavaBridge:setForceEntry(body, true)
+                                end)
+                                log(id .. " forces the window - the"
+                                    .. " disposition answers the lock")
+                            else
+                                local okB, vB = pcall(function()
+                                    return SAOJavaBridge:batterBarrier(
+                                        body, goal.x, goal.y)
+                                end)
+                                swing = okB and tostring(vB)
+                                    or "BATTER_FAILED"
+                                if swing == "UNARMED" then
+                                    log(id .. " faces the barrier with"
+                                        .. " nothing in hand - the walk"
+                                        .. " gives up")
+                                    agent.batterTries = 0
+                                else
+                                    log(id .. " batters the barrier ("
+                                        .. swing .. ") - the disposition"
+                                        .. " answers the lock")
+                                end
+                            end
+                            if swing == "WINDOW" or swing == "DOOR"
+                                or swing == "DOOR_DOWN" then
+                                pcall(function()
+                                    SAO.Locomotion.order(id, body,
+                                        goal.x, goal.y, goal.z or 0)
+                                end)
+                                return
+                            end
+                        else
+                            log(id .. " gives up - the barrier held ("
+                                .. tostring(agent.batterTries or 0)
+                                .. " swings)")
+                            agent.batterTries = 0
+                        end
+                    else
+                        agent.batterTries = 0
+                        log(id .. " declined forcing a locked door (no urgency, no standing)")
+                    end
+                else
+                    agent.batterTries = 0
                 end
             end
             -- The forager's haul ([A28]): a sweep that ARRIVES
@@ -5668,6 +5836,37 @@ local function updateAgent(id, agent)
                         end)
                         log(id .. " gathered " .. took
                             .. " from the sweep")
+                    end
+                end
+                -- [C118] The raid's haul. A warpath walk ([A27]) that
+                -- ARRIVES on hostile ground takes what the enemy's
+                -- shelves hold, through the same take every forager
+                -- uses - the standing question was answered when the
+                -- walk was ordered (mayEnterBelieved under the feud's
+                -- hostility), and the taking is the feud made
+                -- physical. The same cap a skilled sweep tops out at:
+                -- a raid walks home with a full pack, not the whole
+                -- shop, and the haul shelves through the same deposit
+                -- machinery the forager's does. Nothing here is a
+                -- badge: "warpath" is one watch leg in six ([A27]),
+                -- and the ground must actually answer hostile.
+                if rRec and agent.onVenture == "warpath" then
+                    local okH3, holder = pcall(function()
+                        return SAO.Standing.claimedByOther(
+                            id, body:getX(), body:getY())
+                    end)
+                    if okH3 and holder
+                        and (SAO.Standing.isHostileTo(id, holder)
+                            or SAO.Standing.isHostileTo(holder, id)) then
+                        local okT3, took3 = pcall(function()
+                            return SAOJavaBridge:takeWantedFromNearby(
+                                body, 4, "food", 4)
+                        end)
+                        if okT3 and type(took3) == "number" and took3 > 0 then
+                            log(id .. " takes " .. took3
+                                .. " from the enemy's stores - the"
+                                .. " feud's answer")
+                        end
                     end
                 end
             end

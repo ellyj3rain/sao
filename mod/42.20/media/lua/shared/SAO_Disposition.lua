@@ -304,12 +304,46 @@ function D.followGap(id)
     return 4.0 + trait(id, "initiative") * 4.0   -- 4.6 .. 7.4 tiles
 end
 
--- Facing a locked door while not under threat: does this person force it?
--- Within the envelope, breaking into things is a decision, not a reflex -
--- and without urgency or standing hostility the answer is no.
-function D.wouldForceEntry(id, fleeing)
+-- Facing a barrier the walk could not cross: does this person force it?
+-- Fleeing always does - a person goes through the glass ahead of a horde.
+-- Otherwise the answer is character against situation, the [C117] idiom:
+-- aggression against discipline is the person's own fight, initiative
+-- adds half its weight beyond the population's middle, and `pressing`
+-- is the walk's own situation carried in by the caller - standing
+-- hostility toward whoever holds the ground beyond, or the desperation
+-- of real hunger - on the same 0..1 scale, so half a person's worth of
+-- pressing turns a neutral soul into a raider and never moves a
+-- disciplined one. Nothing here turns hostile by itself: the standing
+-- question (mayEnter) was answered when the walk was ordered; this is
+-- only the LOCK.
+function D.wouldForceEntry(id, fleeing, pressing)
     if fleeing then return true end
-    return false
+    local t = D.traits(id)
+    local push = (t.aggression - t.discipline)
+        + (t.initiative - 0.5) * 0.5
+    return push + (pressing or 0) > 0
+end
+
+-- Would this person demand rather than strike first ([C118])? A demand
+-- is aggression with the nerve to stand close and say it, and fear low
+-- enough to mean it. What the other person does with the demand is
+-- their own machinery - this only opens the mouth. The armed only
+-- demand: an empty hand asks, it does not menace.
+function D.wouldDemand(id)
+    local t = D.traits(id)
+    return (t.aggression - t.discipline)
+        + (t.nerve - 0.5) * 0.5 - D.fear(id) * 0.5 > 0
+end
+
+-- Would this person hand over what they carry rather than run or fight
+-- ([C118])? Fear plus low nerve plus self-preservation: the body's own
+-- answer to an armed hostile at talking distance. The brave flee or
+-- stand; this is the third answer. One whole person's worth of fright
+-- (1.0 on the same scale) - a settled adult does not yield to a shadow.
+function D.wouldYieldTo(id)
+    local t = D.traits(id)
+    return (1.0 - t.nerve) + (t.selfPreservation - 0.5)
+        + D.fear(id) * 0.5 > 1.0
 end
 
 function D.describe(id)

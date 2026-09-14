@@ -2197,6 +2197,23 @@ public final class SAOBridge {
         }
     }
 
+    /** [C118] One batter at the barrier between this survivor and the
+     * goal it was walking to. The composition decides (Disposition's
+     * wouldForceEntry, Standing's mayEnter already answered when the
+     * walk was ordered); this only swings - see SAOMovement.batter for
+     * the law and the honest limits. */
+    public String batterBarrier(Object object, double towardX, double towardY) {
+        try {
+            if (!(object instanceof SAOIsoPlayerShell shell)) {
+                return "NOT_A_SHELL";
+            }
+            return SAOMovement.batter(shell, (int) towardX, (int) towardY);
+        } catch (Throwable throwable) {
+            SAOAgent.log("batterBarrier threw: " + throwable);
+            return "BATTER_FAILED";
+        }
+    }
+
     private SAOBridge() {
     }
 

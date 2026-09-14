@@ -1,11 +1,59 @@
 | Document | Survivor Awareness Overhaul Session State |
 |---|---|
-| Version | `4.7.0.0-pre-alpha` |
+| Version | `4.8.0.0-pre-alpha` |
 | Author | ellyj3rain |
 | Repository | `SESSION_STATE.md` |
 | Status | CANONICAL - where the work actually stands. |
 
 # Session state
+
+**As of** 2026-09-14, `[C118]` close - the demand, the break-in, and
+the haul. The raider vocabulary, the ten swept gaps of the totality
+ruling, built as per-person decision machinery under the emergence
+rule: no raider class, no raid timeline, no badge, no authored
+outcome. The forcing bar is real now - `D.wouldForceEntry` was the
+honest hard-false it shipped as; it is character against situation,
+aggression fighting discipline with initiative half-weighted, and
+the walk's own pressing carried in by the caller (half a person's
+worth for a destination claimed by a standing enemy, half again for
+hunger past the county's desperation line; fleeing always licensed,
+zero authored constants) - so the composed still decline every lock
+and the pressed or the aggressive take it on. The breach is plumbed:
+a barrier verdict ends the route, not the want - the seam reads the
+destination from the locomotion job's own goal, the declined window
+re-licenses and smashes by the machinery the FLEE state already
+owns, and the locked or barricaded door and the barricaded window
+answer the new bridge verb `batterBarrier` (NEW `SAOMovement.batter`
+- one engine hit per verdict-hit-re-order cycle, the engine's own
+`WeaponHit` with the held weapon, the edge toward the goal asked
+first, at the price the player pays: planks, door health, and the
+thump drawing whatever hears it; bounded at forty swings a walk,
+and an empty hand stops honestly - fists do not batter). The word
+before the blow: at the confrontation seam an armed character with a
+grudge at talking distance whose own `D.wouldDemand` says so speaks
+the demand - Voice "demand", once per pair per county day, no combat
+that tick, and the window is the other side's machinery to answer;
+before the flee seam the frightened answer out of their own
+`D.wouldYieldTo` (one whole person's worth of fright) - spare food
+only, the second-best, through the same vanilla transfer every
+kindness uses with none of the kindness, once a day, trust bent
+-0.05, and each side reads only its own beliefs so a demand may meet
+no hand and a hand may rise with no word. And the feud's answer
+carries home: a warpath walk (`[A27]`'s one leg in six) that arrives
+on ground answering hostile takes the enemy's stores through the
+forager's own `takeWantedFromNearby`, the same cap a skilled sweep
+tops out at. Honest limits recorded: no sabotage verb (the batter's
+plank-fall is its honest seed), entry only and never claim-flipping,
+the unarmed cannot batter, the yield hands over spare food only,
+forty swings is the one authored number in the breach. The gate ran
+clean with the batch in the tree, the jar rebuilt and shipped; the
+version machine derives 4.8.0.0-pre-alpha (minor - a new
+player-visible simulation capability: the county raids itself). Open,
+as ever, on the play receipts: nobody has watched a batter heard
+across a street, a robbery survived by handing it over, or a warpath
+walk come home heavier than it left. Next: the totality order
+continues - Week One's moments and gestures, age attachments, drugs
+in totality - then the off-switch list before runtime verification.
 
 **As of** 2026-09-13, `[C117]` close - the afflicted among the living.
 The social half of the afflicted arc, the batch `[C116]` named as
@@ -54,7 +102,7 @@ the state of the work never the attribution, and `mayEnter` still
 refuses a break-in without hostility, whoever holds the ground. The
 gate ran clean with the batch in the tree, the jar rebuilt and
 shipped with the new stamp; the version machine derives
-4.7.0.0-pre-alpha (minor - a new player-visible simulation
+4.8.0.0-pre-alpha (minor - a new player-visible simulation
 capability: the county's society answers its mid-course people).
 Open, as ever, on the play receipts: nobody has watched a house
 argue over a returned member, a door refuse one, or an outcast take
@@ -110,7 +158,7 @@ turned body and releases it once this side has re-adopted); until it
 lands, corpse and returnee share a county, honestly. The gate ran
 clean with the batch in the tree, all 63 Lua files compiling under
 the engine's own Kahlua, the jar rebuilt and shipped first; the
-version machine derives 4.7.0.0-pre-alpha (minor - a new
+version machine derives 4.8.0.0-pre-alpha (minor - a new
 player-visible capability: the county's mid-course people return to
 it, and the crossed can drive). Open, as ever, on the play receipts:
 nobody has watched the dead come back or a crossed body under
@@ -144,7 +192,7 @@ seams; Border 92 declares the six new strings under the ruling, the
 wording following the ratified plain register. The gate ran clean
 with the batch in the tree, 31 options on the surface; the jar was
 rebuilt and shipped before it ran; the version machine derives
-4.7.0.0-pre-alpha (kohai - the screen matured to carry what the
+4.8.0.0-pre-alpha (kohai - the screen matured to carry what the
 rulings reserved, nothing new simulated). This batch is the first
 named step of the pre-alpha-to-alpha order the same sitting set:
 this revision, then readiness, then the training passes - the dials
@@ -1739,12 +1787,12 @@ unloaded survivors are governed by the same rules ([B39], [B42]).
 
 ## Deploy state
 
-`4.7.0.0-pre-alpha` at tip - the version machine's output ([C2],
+`4.8.0.0-pre-alpha` at tip - the version machine's output ([C2],
 DR-013; the eleven units `[C105]` through `[C115]` moved it here,
 the Week One port's two minors and `[C115]`'s dial kohai among
 them). `[C115]` reached the install on 2026-09-13, the same day it
 closed, after its own gate run - verified rather than assumed: the
-deployed `mod.info` reads `4.7.0.0-pre-alpha`, and the deployed
+deployed `mod.info` reads `4.8.0.0-pre-alpha`, and the deployed
 `SAO.jar` is byte-identical to the committed build (md5
 `dd2d9414...` at all three of dist, tree, and install). The game install carries the `[C62]` tip. `[C45]` through
 `[C51]` reached it on 2026-09-07 and `[C52]` through `[C62]` on 2026-09-08, each

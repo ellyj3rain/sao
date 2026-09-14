@@ -18,7 +18,7 @@ were illustrative rather than complete. Every batch is now classified.
 
 Instruments and audits measured against the genuine artifact, engine or code.
 
-**Batches**: `A2`, `A3`, `A4`, `A16`, `A23`, `A24`, `B5`, `B25`, `B26`, `B31`, `B32`, `B33`, `B34`, `B35`, `B37`, `B38`, `B40`, `B41`, `B42`, `B44`, `B47`, `B50`, `C8`, `C9`, `C11`, `C14`, `C18`, `C29`, `C67`, `C68`, `C69`, `C70`, `C71`, `C75`, `C77`, `C82`, `C83`, `C84`, `C85`, `C86`, `C87`, `C88`, `C89`, `C93`, `C94`, `C95`, `C96`, `C97`, `C98`, `C99`, `C100`, `C101`, `C102`, `C103`, `C104`, `C105`, `C106`, `C107`, `C108`, `C116`, `C117`
+**Batches**: `A2`, `A3`, `A4`, `A16`, `A23`, `A24`, `B5`, `B25`, `B26`, `B31`, `B32`, `B33`, `B34`, `B35`, `B37`, `B38`, `B40`, `B41`, `B42`, `B44`, `B47`, `B50`, `C8`, `C9`, `C11`, `C14`, `C18`, `C29`, `C67`, `C68`, `C69`, `C70`, `C71`, `C75`, `C77`, `C82`, `C83`, `C84`, `C85`, `C86`, `C87`, `C88`, `C89`, `C93`, `C94`, `C95`, `C96`, `C97`, `C98`, `C99`, `C100`, `C101`, `C102`, `C103`, `C104`, `C105`, `C106`, `C107`, `C108`, `C116`, `C117`, `C118`
 
 **Owes**: play receipts for everything; that debt is the project's standing condition.
 
@@ -44,9 +44,9 @@ The gate, its borders, and the repository's own discipline.
 
 The county before the collapse, the fall itself, and what it teaches.
 
-**Batches**: `A6`, `A10`, `A11`, `A17`, `A29`, `B3`, `B9`, `C8`, `C10`, `C11`, `C29`, `C30`, `C31`, `C32`, `C33`, `C34`, `C35`, `C36`, `C38`, `C41`, `C42`, `C43`, `C45`, `C47`, `C62`, `C63`, `C112`, `C113`, `C114`, `C116`, `C117`
+**Batches**: `A6`, `A10`, `A11`, `A17`, `A29`, `B3`, `B9`, `C8`, `C10`, `C11`, `C29`, `C30`, `C31`, `C32`, `C33`, `C34`, `C35`, `C36`, `C38`, `C41`, `C42`, `C43`, `C45`, `C47`, `C62`, `C63`, `C112`, `C113`, `C114`, `C116`, `C117`, `C118`
 
-**Owes**: outbreak live-confirmation (the engine's infection on shells, witnessed in play); the streets' play receipt (an ordinary county watched at eight in the morning and three at night); the driving play receipt (a goer under wheels watched in an ordinary county - the port's driving half is built, `[C114]`, T-001's doorway exercised; the watching is the debt); the afflicted play receipt (the reverted coming back, a formed neighbor feared and never fought, watched in an ordinary county - the return is built, `[C116]`, and the watching is the debt, now widened by `[C117]`: the house's argument, the doors' answers, and the cast-out's ground belong in the same watching).
+**Owes**: outbreak live-confirmation (the engine's infection on shells, witnessed in play); the streets' play receipt (an ordinary county watched at eight in the morning and three at night); the driving play receipt (a goer under wheels watched in an ordinary county - the port's driving half is built, `[C114]`, T-001's doorway exercised; the watching is the debt); the afflicted play receipt (the reverted coming back, a formed neighbor feared and never fought, watched in an ordinary county - the return is built, `[C116]`, and the watching is the debt, now widened by `[C117]`: the house's argument, the doors' answers, and the cast-out's ground belong in the same watching); the raiding play receipt (a batter heard across a street, a robbery survived by handing it over, a warpath walk home heavier than it left - the vocabulary is built, `[C118]`, and the watching is the debt).
 
 ### <a id="t-006"></a>T-006 - Temperament and provenance
 
@@ -86,9 +86,9 @@ still owed.
 
 Companies, creeds, elections, feuds, pacts, schisms, and the player's standing in it.
 
-**Batches**: `A9`, `A12`, `A13`, `A14`, `A19`, `A20`, `A21`, `A22`, `A25`, `A27`, `B7`, `B13`, `B23`, `B35`, `C37`, `C42`, `C44`, `C48`, `C67`, `C68`, `C70`, `C72`, `C76`, `C83`, `C88`, `C89`, `C90`, `C91`, `C92`, `C106`, `C108`, `C111`, `C115`, `C117`
+**Batches**: `A9`, `A12`, `A13`, `A14`, `A19`, `A20`, `A21`, `A22`, `A25`, `A27`, `B7`, `B13`, `B23`, `B35`, `C37`, `C42`, `C44`, `C48`, `C67`, `C68`, `C70`, `C72`, `C76`, `C83`, `C88`, `C89`, `C90`, `C91`, `C92`, `C106`, `C108`, `C111`, `C115`, `C117`, `C118`
 
-**Owes**: the carry-light dissent class; division's rate is unpriced. The `[C111]` numbers the rulings moved are the operator's dials now (`[C115]`: what a road meeting is worth, and the months over which company becomes a need) - the dials exist so the tuning passes of the pre-alpha-to-alpha order have something to turn.
+**Owes**: the carry-light dissent class; division's rate is unpriced. The `[C111]` numbers the rulings moved are the operator's dials now (`[C115]`: what a road meeting is worth, and the months over which company becomes a need) - the dials exist so the tuning passes of the pre-alpha-to-alpha order have something to turn. The feud now has a vocabulary (`[C118]`: the demand, the yield, the batter, the haul - character against situation, no raider class), and what it looks like on a Tuesday is the watching's debt, T-002's raiding receipt.
 
 ## TF-05 - Ventures, media, and surfaces
 
