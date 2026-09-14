@@ -53,6 +53,21 @@ function Drv.order(id, body, carName, gx, gy)
         lastVerdict = "", sameVerdictTicks = 0,
         done = false, result = nil,
     }
+    -- [C116] The person's vocabulary, as a fact of the record: they
+    -- drove. The sister's mind reads `record.verbs` when it asks what
+    -- a dead person could still do ([A13], [A32] named this half ours),
+    -- and an empty list was answering nobody. Only what the person
+    -- demonstrably did enters - the accepted order, not the census.
+    pcall(function()
+        local rec = SAO.Identity and SAO.Identity.get(id) or nil
+        if rec then
+            rec.verbs = rec.verbs or {}
+            for _, verb in ipairs(rec.verbs) do
+                if verb == "drive" then return end
+            end
+            table.insert(rec.verbs, "drive")
+        end
+    end)
     log("order " .. tostring(id) .. " -> " .. tostring(verdict))
     return true
 end

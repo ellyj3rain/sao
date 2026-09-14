@@ -872,6 +872,27 @@ local function decide(id, agent, body)
         governingPerson, governingPersonKey = hostileName, hostileKey
     end
 
+    -- [C116] A believed FORMED person - a living neighbor carrying the
+    -- residue - presses the same nerve the dead do. They are marked
+    -- fromPerson so no engage branch mistakes them for a zombie (the
+    -- strips are the gates' below), and a hostile person still
+    -- governs first: an enemy is an enemy before they are shaped like
+    -- anything. What this adds is the fear - the flee threshold and
+    -- the pressure read them, and the county's answer to what it sees
+    -- is to keep its distance, which is what [MUTATION.md] says the
+    -- living do.
+    if not governingPerson and SAO.Perception.nearestFormedPerson then
+        local formed = nil
+        pcall(function()
+            formed = SAO.Perception.nearestFormedPerson(
+                id, tick, bodyX, bodyY)
+        end)
+        if formed and (not threat or formed.dist < threat.dist) then
+            threat = formed
+            threatCount = math.max(threatCount, 1)
+        end
+    end
+
     -- Threat beliefs outrank everything except an active flee.
     if threat then
         if SAO.Adaptation and threat.form and threat.form ~= "none" then
@@ -912,8 +933,11 @@ local function decide(id, agent, body)
         -- Standing ground is a choice, not a default: armed, willing per
         -- their own aggression and nerve, not overwhelmed, and the threat is
         -- a zombie (person-fights stay flee/hold until doctrine exists).
+        -- [C116] A formed person is neither: no combat against the
+        -- neighbor the pathogen left half-shaped - the fear is real
+        -- and the standing is not.
         local isZombieThreat = threat.source ~= nil and not threat.teller
-            and governingPerson == nil
+            and governingPerson == nil and not threat.fromPerson
         if isZombieThreat and threat.dist <= fleeAt and not overwhelmed
             and agent.armed and SAO.Disposition.wouldEngage(id, true, threatCount)
             and SAO.Standing.mayEngageZombie(id) then

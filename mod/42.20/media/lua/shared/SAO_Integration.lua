@@ -106,8 +106,12 @@ function Integration.ensure()
     end)
     SAO.Branching.registerPressure("pathogen", function(id, tick, x, y)
         if not SAO.PathogenPressure then return 0 end
+        -- [C116] The nearest believed carrier of a form, living or
+        -- dead: the pathogen presses by what a body carries, not by
+        -- what kind of body carries it, and a returned neighbor shaped
+        -- like the county's worst news is read at full weight.
         local threat = SAO.Perception
-            and SAO.Perception.nearestBelievedZombie(id, tick, x, y)
+            and SAO.Perception.nearestBelievedThreat(id, tick, x, y)
             or nil
         if not threat or not threat.form or threat.form == "none" then
             return 0

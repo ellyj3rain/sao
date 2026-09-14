@@ -3392,6 +3392,18 @@ local function dailyCounty()
     -- the simulated day itself, and across the boundary it is
     -- continuous with it.
     pcall(function() SAO.PathogenEvents.simulateDay(day) end)
+    -- [C116] The reverted come back on the same clock the pathogen's
+    -- own day runs - after the advance, so a reversion this day's
+    -- draw produced is taken back the same day, and the years pass
+    -- drives the return exactly as the live county does.
+    pcall(function()
+        if SAO.AfflictedReturn and SAO.AfflictedReturn.adopt then
+            SAO.AfflictedReturn.adopt(day)
+        end
+        if SAO.AfflictedReturn and SAO.AfflictedReturn.stampLive then
+            SAO.AfflictedReturn.stampLive(day)
+        end
+    end)
     pcall(function() SAO.WorldGenesis.applyDay(day) end)
 end
 

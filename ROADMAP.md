@@ -1,6 +1,6 @@
 | Document | Survivor Awareness Overhaul Roadmap |
 |---|---|
-| Version | `4.5.1.0-pre-alpha` |
+| Version | `4.6.0.0-pre-alpha` |
 | Author | ellyj3rain |
 | Repository | `ROADMAP.md` |
 | Status | CANONICAL - thread map, backlog, live gates. |
@@ -761,6 +761,11 @@ entries 24 and 25); its first 112 rows are ratified by the operator
 (its record 29), the 78 trades-hinge rows are ratified too (its
 records 30 and 41), and the cross-module row contract is ratified
 (its entry 42) with rows cut against the event-driven pathogen state
-(its records 38 and 39). What waits there now is the operator's
+(its records 38 and 39). The crossed are executed at its `[A32]`
+(2026-09-13), and both seam halves that record named as this side's
+are closed at `[C116]` - the driving map's widening and the
+`record.verbs` stamp - so its driveTick finds both ends waiting; the
+risen corpse of a re-adopted afflicted is its `[A33]`, owed there and
+named in both repos. What waits there now is the operator's
 review of the nine drafted world documents, which gates corpus,
 voice, and training.

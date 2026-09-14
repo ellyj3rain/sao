@@ -177,6 +177,45 @@ function Events.simulateDay(day)
         end
     end
 
+    -- [C116] The exposed half, for the living: a person WITH a body
+    -- never entered the loop above (it is the dormant county's), so a
+    -- live afflicted could stand beside a crossed carrier all day and
+    -- never be exposed - the sister's own exposure verdict was gated
+    -- behind bodylessness. The observation half stays where it is:
+    -- the living observe through their eyes ([B41]'s scanner), not
+    -- through this pass. Only the exposure crosses here, and only
+    -- for the afflicted: the crossed work on them ([MUTATION.md]),
+    -- and the odds and susceptibility stay the pathogen's own
+    -- ([ZAO.Pathogen.expose], read once, never copied).
+    for id, record in pairs(SAO.Identity.all()) do
+        if SAO.Body.get(id) then
+            local saved = ZAO.StateStore
+                and ZAO.StateStore.read(id) or nil
+            local observerTerminal =
+                saved and saved.terminalState or "living"
+            if observerTerminal == "afflicted" then
+                for _, carrier in ipairs(carriers) do
+                    if carrier.id ~= id
+                        and carrier.state.terminalState == "crossed" then
+                        local dx = (tonumber(record.x) or 0)
+                            - (tonumber(carrier.x) or 0)
+                        local dy = (tonumber(record.y) or 0)
+                            - (tonumber(carrier.y) or 0)
+                        if dx * dx + dy * dy
+                            <= ENCOUNTER_RANGE * ENCOUNTER_RANGE then
+                            if ZAO.Pathogen
+                                and ZAO.Pathogen.expose then
+                                ZAO.Pathogen.expose(
+                                    id, carrier.state, day)
+                            end
+                            break
+                        end
+                    end
+                end
+            end
+        end
+    end
+
     return observations > 0
 end
 

@@ -40,6 +40,12 @@ public final class SAOBridge {
     private final Map<SAOIsoPlayerShell, com.sao.engine.SAOCombat> combats = new WeakHashMap<>();
     /** [C114] Per-shell driving state, the same lifetime rule as routes. */
     private final Map<SAOIsoPlayerShell, SAODriveState> drives = new WeakHashMap<>();
+    /** [C116] Per-crossed-body driving state, the same lifetime rule,
+     * keyed on the IsoZombie the sister's controller owns - a separate
+     * map so the two entry types can never collide on one key and the
+     * survivor's trips are untouched. */
+    private final Map<zombie.characters.IsoZombie, SAODriveState> crossedDrives =
+        new WeakHashMap<>();
 
     /** Combat verbs (typed transplant; gated on the melee-callback patch). */
     public String beginCombatNearest(Object object, boolean live) {
@@ -1595,10 +1601,25 @@ public final class SAOBridge {
     /** [C114] A goer's drive: walk to the claimed car, start it
      *  lawfully, drive to (tx,ty), stop. One-line verdict. [C115] The
      *  speed cap crosses here - the sandbox dial, read by the Lua
-     *  face, because Java cannot read SandboxVars. */
+     *  face, because Java cannot read SandboxVars.
+     *
+     *  [C116] The map's second entry: a crossed body - an IsoZombie
+     *  the sister's controller owns - is the named consumer of this
+     *  verb ([A13], [A32] named the widening ours), and the two
+     *  entry types are dispatched, never conflated: the survivor's
+     *  trip runs SAODriver unchanged, the crossed body runs the
+     *  engine's own zombie pathing through SAOCrossedDriver, and
+     *  anything else is still NOT_A_SHELL. */
     public String driveBegin(Object object, int radius, String name,
             double tx, double ty, double speedCapKmh) {
         try {
+            if (object instanceof zombie.characters.IsoZombie zombie) {
+                SAODriveState state = crossedDrives.computeIfAbsent(
+                    zombie, ignored -> new SAODriveState());
+                return com.sao.engine.SAOCrossedDriver.begin(
+                    zombie, state, radius, name,
+                    (int) tx, (int) ty, (float) speedCapKmh);
+            }
             if (!(object instanceof SAOIsoPlayerShell shell)) {
                 return "NOT_A_SHELL";
             }
@@ -1644,6 +1665,25 @@ public final class SAOBridge {
 
     public String tickDrive(Object object) {
         try {
+            if (object instanceof zombie.characters.IsoZombie zombie) {
+                SAODriveState state = crossedDrives.get(zombie);
+                if (state == null || !state.requested) {
+                    return "IDLE";
+                }
+                // A thrown tick ends the crossed trip under a verdict
+                // the sister's machine already reads as terminal: a
+                // body that cannot be ticked is not a body that is
+                // still driving, and a foreign verdict would hold its
+                // movement committed forever.
+                try {
+                    return com.sao.engine.SAOCrossedDriver.tick(
+                        zombie, state);
+                } catch (Throwable crossedTick) {
+                    SAOAgent.log("crossed tickDrive threw: " + crossedTick);
+                    state.requested = false;
+                    return "DRIVE_FAILED " + crossedTick;
+                }
+            }
             if (!(object instanceof SAOIsoPlayerShell shell)) {
                 return "NOT_A_SHELL";
             }
