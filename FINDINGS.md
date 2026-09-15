@@ -1,6 +1,6 @@
 | Document | Survivor Awareness Overhaul Findings |
 |---|---|
-| Version | `5.0.0.0-pre-alpha` |
+| Version | `5.1.0.0-pre-alpha` |
 | Author | ellyj3rain |
 | Repository | `FINDINGS.md` |
 | Status | CANONICAL, APPEND-ONLY - verified engine findings. |
@@ -1510,3 +1510,23 @@ and Border 154 proves the Java-to-Lua choice and source seams. Neither
 one proves that a particular live vehicle starts, drives, or lets a
 person retrieve food from a vehicle compartment. Those remain play
 receipts.
+
+---
+
+## F-069 - Build 42's IsoAnimal inherits IsoPlayer and shares the global player list
+
+**Verified** `[C123]`, by inspecting `zombie.characters.animals.IsoAnimal` and `IsoCell.getRanchList` in the Build 42.20 jar.
+
+`IsoAnimal` extends `IsoPlayer`, meaning animal instances appear in `IsoWorld.instance.CurrentCell.getPlayers()`. Without an explicit `instanceof IsoAnimal` exclusion, survivor perception scanners and combat targeting treat animals as foreign human players.
+
+Ranch structures are held in `IsoCell.getRanchList()`, which returns `ArrayList<Ranch>` containing animal references, food troughs, and hutches.
+
+---
+
+## F-070 - Prone character targeting and stealth zombie suppression
+
+**Verified** `[C124]`, by inspecting `IsoGameCharacter`, `IsoZombie`, and `AIBrainPlayerControlVars` in the Build 42.20 jar.
+
+Prone or crawling characters (`IsoZombie.isCrawling()`, `IsoGameCharacter.isOnFloor()`, or prone animation variables) require floor-level combat aiming. `AIBrainPlayerControlVars` provides `setAimAtFloor(boolean)` and `setAuthorizeShoveStomp(boolean)` to direct attacks downward rather than horizontal swings.
+
+Stealth or motivation mods mark inactive zombies with `isUseless()` or manage targets via `IsoZombie.getTarget()`. Modifying or retargeting these zombies breaks third-party mod logic.

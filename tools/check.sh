@@ -1852,6 +1852,15 @@ if ! "$PY" tools/animal_care_ground_test.py > /dev/null; then
     fail=1
 fi
 
+# [C124] Border 157 - Combat perception compatibility: acoustic attenuation,
+# floor targeting for crawlers/prone targets, prone/crawl stance perception,
+# useless/stealth zombie deactivation, aggro non-duplication, and weapons.
+if ! "$PY" tools/combat_perception_test.py > /dev/null; then
+    "$PY" tools/combat_perception_test.py 2>&1 | grep -E "FAULT|CONTROL|SKIPPED" || true
+    note "BORDER FINDING - combat perception compatibility contract broken"
+    fail=1
+fi
+
 # Border 103 - the operator's speech is not in the repository: no
 # profanity in the tracked tree and no operator-quote attributions;
 # rulings are paraphrased content, speech stays with the speaker.
