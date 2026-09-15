@@ -127,9 +127,30 @@ end
 
 -- The county's clock, in hours. Never negative and never goes
 -- backwards, which is what every stamp in this mod assumes.
+--
+-- Named above the functions that close over it: a local declared
+-- after `countyHours` is a different TICKS_PER_HOUR (the global,
+-- which is nil) and `ticks / nil` threw inside attrition's pcall,
+-- so a 30-day county at live cadence collected nobody.
+local TICKS_PER_HOUR = 9000
+
 function H.countyHours()
-    local day = livingDay()
-    if day then return day * 24.0 end
+    local s = yearsState()
+    if s and s.yearsAsked then
+        local run = tonumber(s.yearsRun) or 0
+        local owed = tonumber(s.yearsOwed) or 0
+        if run < owed then
+            -- [C128] The years are lived on the same tick the live
+            -- county uses. Hours are ticks / 9000, not a day-count
+            -- times 24. A save mid-catch-up from before this batch
+            -- has no yearsTicks and still has a day with no hours.
+            local ticks = tonumber(s.yearsTicks)
+            if type(ticks) == "number" then
+                return ticks / TICKS_PER_HOUR
+            end
+            return run * 24.0
+        end
+    end
     local hours = 0
     pcall(function()
         hours = GameTime.getInstance():getWorldAgeHours()
@@ -172,7 +193,6 @@ end
 -- Degrades to 0 when the clock cannot be read, which is the county
 -- with no clock that [C62] already says out loud: no ticks, no county
 -- motion, rather than motion on a clock nobody vouches for.
-local TICKS_PER_HOUR = 9000
 
 function H.ticks()
     return math.floor((H.countyHours() or 0) * TICKS_PER_HOUR)
@@ -200,25 +220,25 @@ end
 
 -- The county's time of day, on the engine's own 0 to 24.
 --
--- The same defect as the clock above and it needs a different answer.
--- [C45] runs ONE call per simulated day, so a simulated day has no
--- hours in it to be at; the engine's own time of day is whatever
--- o'clock the save was created at, held there for the whole span. A
--- save begun at three in the morning sent every survivor home to
--- sleep and kept them there for a thousand days, and a child's night
--- fear stood at its maximum for the same thousand.
---
--- So while the years run this says noon. That is a claim and not a
--- derivation: what a simulated day models is a day's worth of going
--- out and coming back, which happens in daylight, and the alternative
--- is running each of those days through its own twenty-four hours,
--- which F-055 measured and DR-037 ruled out.
---
--- Outside the years it is the engine's, unchanged.
-local YEARS_HOUR = 12.0
-
+-- [C45] froze this at noon because a simulated day had no hours in
+-- it, and a save begun at three in the morning sent every survivor
+-- home for a thousand days. [C128] lives the years on the live
+-- cadence, so a day has its hours: ticks / 9000 wrapped onto 0..24.
+-- Night sends people home; morning sends them out. The street hour
+-- ([C113]) is the hour of the day.
 function H.countyTimeOfDay()
-    if livingDay() then return YEARS_HOUR end
+    local s = yearsState()
+    if s and s.yearsAsked then
+        local run = tonumber(s.yearsRun) or 0
+        local owed = tonumber(s.yearsOwed) or 0
+        if run < owed then
+            local ticks = tonumber(s.yearsTicks)
+            if type(ticks) == "number" then
+                return (ticks / TICKS_PER_HOUR) % 24.0
+            end
+            return 12.0
+        end
+    end
     local hour = nil
     pcall(function() hour = GameTime.getInstance():getTimeOfDay() end)
     if type(hour) == "number" then return hour end

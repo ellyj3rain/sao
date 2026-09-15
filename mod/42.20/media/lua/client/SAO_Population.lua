@@ -3279,15 +3279,15 @@ local BAND_PATIENCE = 15   -- passes (~60s at 60fps frames on the default day) b
 -- leaders, feuds and pacts arrive because `dormantEncounters` forms
 -- them, exactly as it does in play.
 --
--- AT A DAILY CADENCE, and that number is measured rather than
--- chosen (F-055). The ten-minute pass the live county uses exists to
--- drift a BODY's stats, and nobody in the years has a body - the
--- dormant day runs for exactly the people `SAO.Body.get` answers
--- nothing for. At the live cadence three years cost about five and a
--- half hours of real time on the machine this was measured on; at a
--- day a day they cost about two minutes, and nothing bodiless is
--- skipped, because everything that happens to a person without a
--- body happens on a daily clock anyway.
+-- AT THE LIVE CADENCE ([C128]), and F-055 is why we know what that
+-- costs. [C45] compressed a day into one bundle so three years took
+-- two minutes instead of five and a half hours. A bundle jumps the
+-- clock 24 hours, freezes the hour at noon, and opens every
+-- cooldown at once: one move, one meeting wave, one attrition roll.
+-- That is not how a game day runs. The live county's population
+-- pass is 240 ticks (~4s of default-day pace). A day is 900 of
+-- those. The years now take that step, sliced on the same 60ms
+-- budget, holding the band until the ticks owed are lived.
 --
 -- [C112] The dormant systems pace themselves in county ticks now - a
 -- person moves every 1800 to 3600 of them and a pair may meet once
@@ -3466,37 +3466,24 @@ local function dailyCounty()
     pcall(function() SAO.WorldGenesis.applyDay(day) end)
 end
 
--- One simulated day, and every call in it is the live county's own.
-local function oneYearsDay(conf, day)
-    -- [C112] No advance here: the county's clock IS the day being
-    -- lived (livingDay, [C62]), so `SAO.History.ticks` has already
-    -- moved 216,000 ticks by the time this function runs - the gates
-    -- below open on the clock's own authority, not a calibrated jump.
+-- One live-cadence pass during the years ([C128]). The same dormant
+-- stack the live county runs on TICK_INTERVAL. Not a day.
+local function yearsCadencePass(conf)
     pcall(dormantLife, conf)
     pcall(dormantSettle)
-    -- After the day's walks (stamps) and the houses they settle
-    -- into, the houses speak their shelves.
     pcall(dormantProvision)
     pcall(dormantEncounters)
     pcall(dormantAttrition)
     pcall(function() SAO.Standing.driftStandings() end)
+end
+
+-- Once, when a day of ticks has actually rolled.
+local function yearsDayRolled(conf, day)
     for id, rec in pairs(SAO.Identity.all()) do
         pcall(function() SAO.Age.dailyRoll(rec, day, tickCounter) end)
         pcall(function() SAO.Age.settleHabits(rec, day) end)
     end
-    -- [C46] And one claim's ground actually looked at.
     pcall(lookAtSomeGround, day)
-    -- [C65] And the day's once-a-day work - the county line, the
-    -- pathogen's advance and the world's day-graph - through the same
-    -- function the live county runs on its own cadence. Border 118
-    -- refused the first draft of this, which called the telemetry
-    -- county line here and nowhere else, and it refused the second
-    -- draft too, which called `simulateDay` and `applyDay` here and
-    -- nowhere else, and it was right both times: a call that exists
-    -- only in the years is the pass inventing rather than running the
-    -- county. (The county line is named in prose rather than spelled,
-    -- because the telemetry border counts references by their dotted
-    -- path and a comment is no reference.)
     dailyCounty()
 end
 
@@ -3564,16 +3551,25 @@ local function runTheYears(conf)
 
     local okT, startedMs = pcall(function() return getTimestampMs() end)
     local began = run
+    -- [C112] 9000 ticks an hour, 24 hours a day. [C128] the years
+    -- take the live population step (TICK_INTERVAL), not a day.
+    local ticksADay = 9000 * 24
+    local ticks = tonumber(s.yearsTicks) or (run * ticksADay)
     while run < owed do
-        run = run + 1
-        -- [C62] The day being lived IS the county's clock while the
-        -- years run (SAO_History.countyHours reads it from here), so
-        -- it is written before the day is lived and on every day.
-        -- Written once after the loop, as it was, a slice of up to
-        -- sixty milliseconds - which can be hundreds of days - had
-        -- one hour on it from beginning to end.
+        local oldRun = run
+        ticks = ticks + TICK_INTERVAL
+        s.yearsTicks = ticks
+        run = math.floor(ticks / ticksADay)
+        if run > owed then run = owed end
         s.yearsRun = run
-        oneYearsDay(conf, run)
+        do
+            local okC, t = pcall(function() return SAO.History.ticks() end)
+            if okC and type(t) == "number" then tickCounter = t end
+        end
+        yearsCadencePass(conf)
+        if run > oldRun then
+            yearsDayRolled(conf, run)
+        end
         if okT and startedMs then
             local okN, nowMs = pcall(function() return getTimestampMs() end)
             if okN and nowMs and (nowMs - startedMs) >= YEARS_BUDGET_MS then

@@ -5,8 +5,11 @@
 -- a time. Fast extrapolation is opt-in (sandbox FastSimulation) and
 -- interpolates the measured headless curve rather than inventing one.
 --
--- The curve is not a single exponential. Headless Knox runs against
--- the shipped 11 towns (198 genesis) produced:
+-- The curve is the compressed-day years ([C45]): one bundle per
+-- calendar day, noon frozen, cooldowns opened at once. [C128] lives
+-- those days on the live 240-tick cadence. These anchors stay until
+-- that cadence is remeasured. FastSimulation interpolates them and
+-- remains opt-in.
 --
 --   day     1    7   30   90  180  365 1096
 --   alive 198  177   45    7    2    1  0 / 5

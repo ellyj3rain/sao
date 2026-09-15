@@ -129,74 +129,70 @@ def main():
     print("=" * 74)
 
     pop = read(POP)
-    day = strip_comments(body_of(pop, "local function oneYearsDay(conf, day)"))
-    if not day:
-        print("  FAULT: there is no simulated day, so a save beginning years "
-              "after the fall meets a county that has not lived them")
+    cadence = strip_comments(body_of(pop, "local function yearsCadencePass(conf)"))
+    rolled = strip_comments(body_of(pop, "local function yearsDayRolled(conf, day)"))
+    if not cadence:
+        print("  FAULT: there is no live-cadence years pass, so a save "
+              "beginning years after the fall meets a county that has "
+              "not lived them")
         return 1
 
-    # 1. The day calls the live county's own work, and nothing else.
-    #
-    # Read past the declaration line, or the function matches its own
-    # name and reports itself as a stray call - which is what this
-    # border did on its first run against correct code. And count the
-    # `pcall(name, ...)` form, because three of the four subsystems are
-    # handed to pcall as values rather than called with parentheses, so
-    # a parenthesis-only scan saw none of them and would have passed a
-    # day that drove nothing at all.
-    inner = day[day.find("\n") + 1:]
+    inner = cadence[cadence.find("\n") + 1:] if cadence else ""
     called = set(re.findall(r"([A-Za-z_][\w.]*)\s*\(", inner))
     called |= set(re.findall(r"pcall\(\s*([A-Za-z_][\w.]*)\s*[,)]", inner))
     called -= {"pcall", "function", "pairs", "ipairs", "tonumber", "tostring", "if"}
     stray = sorted(c for c in called if c not in ALLOWED_IN_A_DAY)
-    print("     a simulated day calls: " + ", ".join(sorted(called)))
+    print("     a cadence pass calls: " + ", ".join(sorted(called)))
 
-    # And it must actually drive them: a day that calls nothing is not
-    # a day, and every one of these is a thing the live county does to
-    # people who have no body.
+    rolled_called = set()
+    if rolled:
+        ri = rolled[rolled.find("\n") + 1:]
+        rolled_called = set(re.findall(r"([A-Za-z_][\w.]*)\s*\(", ri))
+        rolled_called |= set(re.findall(r"pcall\(\s*([A-Za-z_][\w.]*)\s*[,)]", ri))
+    print("     a day roll calls: " + ", ".join(sorted(rolled_called)))
+
     for required in ("dormantLife", "dormantEncounters", "dormantAttrition",
-                     "SAO.Standing.driftStandings", "SAO.Age.dailyRoll",
-                     "SAO.Age.settleHabits"):
+                     "SAO.Standing.driftStandings", "dormantSettle",
+                     "dormantProvision"):
         if required not in called:
             faults.append(
-                "a simulated day does not drive %s, so that part of the "
+                "a cadence pass does not drive %s, so that part of the "
                 "county simply did not happen for however many years the "
                 "save begins with behind it" % required)
+    for required in ("SAO.Age.dailyRoll", "SAO.Age.settleHabits"):
+        if required not in rolled_called:
+            faults.append(
+                "a day roll does not drive %s" % required)
     if stray:
         faults.append(
-            "a simulated day calls %s, which the live county does not run on "
+            "a cadence pass calls %s, which the live county does not run on "
             "its own cadence. The years are the county's machinery run "
             "forward; a call that only exists here is the pass inventing "
             "history instead of living it" % ", ".join(stray))
     for bad in FORBIDDEN_IN_A_DAY:
-        if bad in day:
+        if bad in cadence or (rolled and bad in rolled):
             faults.append(
-                "a simulated day reaches for '%s' directly. Houses, leaders, "
+                "the years reach for '%s' directly. Houses, leaders, "
                 "bonds, claims and deaths must arrive the way they arrive in "
                 "play - out of the meetings and the age table - or the county "
                 "the player meets was written rather than lived" % bad)
 
     checks = {
-        # 2. Daily, measured, named - on the [C112] clock. The first
-        # draft of this border held a `YEARS_TICKS_PER_DAY` constant
-        # advanced inside the day; [C112] ruled the calibrated jump
-        # out and moved the tick onto the county's own clock, so the
-        # honest spellings now are the frame arithmetic named where
-        # the clock lives (History) and the advance being the day
-        # itself - `s.yearsRun` written before the day is lived, so
-        # `SAO.History.ticks` has already moved 216,000 ticks when the
-        # day opens. The day itself must advance nothing, or the two
-        # clocks would be one clock plus a jump.
         "the cadence is named with its frame arithmetic":
             re.search(r"local TICKS_PER_HOUR = \d+", read(HIST)) is not None,
-        "a day actually advances the county's clock, before it is lived":
-            re.search(r"run = run \+ 1(?:(?:[ \t]*--[^\n]*\n)|[ \t]*\n)*"
-                      r"[ \t]*s\.yearsRun = run\s*\n[ \t]*"
-                      r"oneYearsDay\(conf, run\)", pop) is not None,
-        "and the day itself advances nothing":
-            re.search(r"(tickCounter|yearsRun)\s*=", day) is None,
+        "the years take the live population step":
+            "ticks = ticks + TICK_INTERVAL" in pop
+            and "s.yearsTicks = ticks" in pop
+            and "yearsCadencePass(conf)" in pop,
+        "and hours come from those ticks":
+            "s.yearsTicks" in read(HIST)
+            and "ticks / TICKS_PER_HOUR" in read(HIST),
+        "and the cadence pass advances nothing":
+            re.search(r"(tickCounter|yearsRun)\s*=", cadence) is None,
         "and the measurement is on record":
             "F-055" in read(FINDINGS) and "F-055" in pop,
+        "a compressed oneYearsDay is gone":
+            "function oneYearsDay" not in pop,
 
         # 3. Sliced, cannot hang.
         "there is a budget per pass":

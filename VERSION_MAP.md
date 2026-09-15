@@ -16,9 +16,9 @@ the machine. Names, dates, and threads below come from
 | Form | `major.minor.kohai.patch-maturity` |
 | Hard caps | minor 12; kohai 16; patch 24 |
 | Replay start | `0.1.0.0-pre-alpha` |
-| Current version | `5.3.0.1-pre-alpha` |
-| Closed chronology | `A1-C127` |
-| Next batch | `C128` |
+| Current version | `5.3.1.0-pre-alpha` |
+| Closed chronology | `A1-C128` |
+| Next batch | `C129` |
 | Executable source | [`tools/version_replay.py`](tools/version_replay.py) |
 
 ## Tier meanings
@@ -243,6 +243,7 @@ the machine. Names, dates, and threads below come from
 | `C125` | 2026-09-14 | minor | `5.2.0.0-pre-alpha` | The neuroinflammation knot | The neuroinflammation knot: brain health as one continuous graph in the shape of Antibodies, representing and visualizing drug damage, sepsis, and Knox impact, signifying afflicted health and crossed destruction, with derived cognitive clarity and memory degradation, inspected in UI and gated by an off-switch. A new player-visible simulation capability and runtime contract, so minor. |
 | `C126` | 2026-09-14 | minor | `5.3.0.0-pre-alpha` | Learned trajectory and headless simulation for post-1993 starts | Learned trajectory and headless simulation for post-1993 starts: macro trajectory distributions fitted from headless VM sweeps, fast macro extrapolation for late starts, zero missing headless modules, and Speakeasy ML dataset pipeline. A new player-visible simulation capability and runtime contract, so minor. |
 | `C127` | 2026-09-15 | patch | `5.3.0.1-pre-alpha` | The road joins a house | The road joins a house: a dormant meeting still writes trust, need, lessons and doctrine, but two unhoused people who clear the company door no longer mint company-<id>. They join a house that already exists, or a unit of three or more who arrived together becomes that house — the 3+ gate the rest of the county already uses for a company you can see. Two who arrived as a pair keep the bond. The sweep reports houses of three and pacts separately from pairs. An in-place correction of the founding site the years pass actually runs, so patch. |
+| `C128` | 2026-09-15 | kohai | `5.3.1.0-pre-alpha` | The years are lived on the live cadence | The years are lived on the live cadence: a late start no longer jumps 24 hours, freezes noon, and opens every cooldown in one bundle per calendar day. Each slice advances 240 ticks - the population pass the live county already takes - and the hour of the day is ticks/9000 wrapped onto 0..24. Night sends people home; morning sends them out. Daily rolls (age, attrition's day gate, the county line) fire when a day of ticks has actually completed. F-055 measured this cadence; [C45] compressed it so three years took two minutes. The compressed numbers were not a game. A coherent maturation of the years, so kohai. |
 
 ## The former number
 
@@ -263,11 +264,11 @@ the meantime, and they are not play.
 
 ## Next movement
 
-`C128` is the next batch. Its content determines its tier after it
+`C129` is the next batch. Its content determines its tier after it
 exists:
 
-| If C128 is | Result |
+| If C129 is | Result |
 |---|---|
-| patch or hotfix | `5.3.0.2-pre-alpha` |
-| kohai | `5.3.1.0-pre-alpha` |
+| patch or hotfix | `5.3.1.1-pre-alpha` |
+| kohai | `5.3.2.0-pre-alpha` |
 | minor | `5.4.0.0-pre-alpha` |

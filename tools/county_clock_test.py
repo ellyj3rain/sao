@@ -262,8 +262,8 @@ def main():
             "THE COUNTY HAS NO CLOCK" in pop
             and "clockAnswers()" in pop
             and 'SAO.Seams.wentDark("county-clock"' in pop,
-        "the years pass writes the day before it lives it":
-            "s.yearsRun = run\n        oneYearsDay(conf, run)" in pop,
+        "the years pass writes the ticks before it lives the pass":
+            "s.yearsTicks = ticks" in pop and "yearsCadencePass(conf)" in pop,
         "the gate runs this border":
             "tools/county_clock_test.py" in read(CHECK),
     }

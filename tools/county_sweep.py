@@ -152,6 +152,36 @@ MODULES = [
     "client/SAO_Population.lua",
 ]
 
+# ZAO's dormant half, loaded when the sister tree is present
+# (`ZAO_ROOT` or `../zombie-awareness`). The years already call
+# `SAO.PathogenEvents.simulateDay`; without these modules that call
+# returns false and the unwatched county has no pathogen.
+ZAO_MODULES = [
+    "shared/ZAO_Sandbox.lua",
+    "shared/ZAO_StateStore.lua",
+    "shared/ZAO_State.lua",
+    "shared/ZAO_Forms.lua",
+    "shared/ZAO_Pathogen.lua",
+    "shared/ZAO_Recovery.lua",
+    "shared/ZAO_Settlement.lua",
+    "shared/ZAO_Binding.lua",
+    "shared/ZAO_API.lua",
+]
+
+
+def zao_root():
+    env = os.environ.get("ZAO_ROOT")
+    if env:
+        p = pathlib.Path(env)
+        if (p / "mod" / "42.20" / "media" / "lua" / "shared"
+                / "ZAO_Pathogen.lua").exists():
+            return p
+    sibling = ROOT.parent / "zombie-awareness"
+    if (sibling / "mod" / "42.20" / "media" / "lua" / "shared"
+            / "ZAO_Pathogen.lua").exists():
+        return sibling
+    return None
+
 # Modules a dormant county does not run, and the argument for each.
 # An unnamed absence is what this check exists to catch, so an absence
 # that is CORRECT has to be declared and argued rather than filtered
