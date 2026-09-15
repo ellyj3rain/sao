@@ -1,6 +1,6 @@
 | Document | Survivor Awareness Overhaul Roadmap |
 |---|---|
-| Version | `4.12.0.0-pre-alpha` |
+| Version | `5.0.0.0-pre-alpha` |
 | Author | ellyj3rain |
 | Repository | `ROADMAP.md` |
 | Status | CANONICAL - thread map, backlog, live gates. |
@@ -837,13 +837,12 @@ the first hour - a player-side event the county perceives as any
 other person's claim would be.
 
 **The county's animals - livestock care, horses, the class
-correction (`[C123]`).** The sweep found the defect that orders this
+correction (`[C123]`, closed).** The sweep found the defect that ordered this
 batch: the county's scanner takes every moving object that is an
-`IsoPlayer` as a person, and B42's animals ARE `IsoPlayer`s - so
-today every cow, hen, and horse in the county is filed as a nameless
-stranger in its beliefs, and a cow can ease a person's loneliness.
-The county learns the animal class before the person fallthrough,
-then models care on the engine's own surfaces: an animal's own
+`IsoPlayer` as a person, and B42's animals ARE `IsoPlayer`s - so a
+cow, hen, and horse was filed as a nameless stranger in its beliefs,
+and could ease a person's loneliness. The county now learns the animal
+class before the person fallthrough, then models care on the engine's own surfaces: an animal's own
 hunger, thirst, and stress; the taming acceptance; the milk, the
 wool, the eggs; the trough and the hutch; the ranch zone's own
 lists - with the care verbs performed through the engine's own

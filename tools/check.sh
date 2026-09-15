@@ -1838,6 +1838,20 @@ if ! "$PY" tools/vehicle_ground_test.py > /dev/null; then
     fail=1
 fi
 
+# [C123] Borders 155-156 - Build 42 animals inherit IsoPlayer but are
+# never people; the designated ranch's own lists and the engine's own
+# care actions hold hunger, water, products, and horse observation.
+if ! "$PY" tools/animal_ground_test.py > /dev/null; then
+    "$PY" tools/animal_ground_test.py 2>&1 | grep -E "FAULT|CONTROL|SKIPPED" || true
+    note "BORDER FINDING - an animal has entered the human path"
+    fail=1
+fi
+if ! "$PY" tools/animal_care_ground_test.py > /dev/null; then
+    "$PY" tools/animal_care_ground_test.py 2>&1 | grep -E "FAULT|CONTROL|SKIPPED" || true
+    note "BORDER FINDING - ranch care no longer has real engine ground"
+    fail=1
+fi
+
 # Border 103 - the operator's speech is not in the repository: no
 # profanity in the tracked tree and no operator-quote attributions;
 # rulings are paraphrased content, speech stays with the speaker.

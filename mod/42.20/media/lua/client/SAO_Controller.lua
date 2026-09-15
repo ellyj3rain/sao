@@ -3402,6 +3402,26 @@ local function decide(id, agent, body)
             local isFarmHand = rec4 and (rec4.occupation == "farmer"
                 or (SAO.Census.classOf
                     and SAO.Census.classOf(rec4.occupation) == "settled"))
+            -- [C123] A ranch is its own engine designation, not an
+            -- extension of the crop table: when a farm hand stands on
+            -- their own ground, the ranch's animals, troughs and
+            -- hutches decide whether there is a real care action to
+            -- queue. The animal module holds every product and item
+            -- check behind the engine's action constructors.
+            if isFarmHand and SAO.Animals and SAO.Animals.care
+                and tick >= (agent.nextAnimalCareAt or 0)
+                and SAO.Standing.insideClaim(id, body:getX(), body:getY()) then
+                agent.nextAnimalCareAt = tick + 7200
+                local care = nil
+                pcall(function() care = SAO.Animals.care(id, body, 3) end)
+                if care then
+                    agent.taskDeadline = tick + 1800
+                    agent.takePurpose = "animal"
+                    setState(agent, id, "TAKE", "tends the ranch: " .. care,
+                        "designation")
+                    return
+                end
+            end
             if isFarmHand and tick >= (agent.nextFarmAt or 0)
                 and SAO.Standing.insideClaim(id, body:getX(), body:getY())
                 and SFarmingSystem and SFarmingSystem.instance
@@ -5244,6 +5264,28 @@ local function updateAgent(id, agent)
     local body = SAO.Body.get(id)
     if not body then return end
 
+    -- [C123] Horse riding belongs to the optional Horse Mod. Its own
+    -- mount pair, animation flag and engine animal id say when somebody
+    -- is mounted; while that pair holds, no foot route competes with it.
+    -- SAO does not queue a mount: the mod's supported entry is local
+    -- player input, and a shell mount has no live receipt.
+    if SAO.Animals and SAO.Animals.mountedHorse then
+        local mount = nil
+        pcall(function() mount = SAO.Animals.mountedHorse(body) end)
+        if mount then
+            if not agent.horseRiding then
+                log(id .. " rides horse " .. tostring(mount.animalId)
+                    .. " through Horse Mod")
+            end
+            agent.horseRiding = mount
+            return
+        end
+        if agent.horseRiding then
+            agent.horseRiding = nil
+            log(id .. " is back on foot from the horse")
+        end
+    end
+
     -- The passive path ([A17]): Knox people are subjects and speakers in
     -- the economy, never our puppets. Death is noticed and mourned like
     -- anyone's; on a slow cadence they INITIATE exchanges (lessons,
@@ -5713,6 +5755,10 @@ local function updateAgent(id, agent)
                 -- ([B4]); the shelving machinery takes it from here.
                 agent.takePurpose = nil
                 setState(agent, id, "IDLE", "the ground is worked")
+            elseif agent.state == "TAKE"
+                and agent.takePurpose == "animal" then
+                agent.takePurpose = nil
+                setState(agent, id, "IDLE", "the ranch is tended")
             elseif agent.state == "TAKE"
                 and agent.takePurpose == "build" then
                 -- The board is up (or the action lapsed) ([B2]): the

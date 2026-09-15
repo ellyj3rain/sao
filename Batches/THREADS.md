@@ -18,7 +18,7 @@ were illustrative rather than complete. Every batch is now classified.
 
 Instruments and audits measured against the genuine artifact, engine or code.
 
-**Batches**: `A2`, `A3`, `A4`, `A16`, `A23`, `A24`, `B5`, `B25`, `B26`, `B31`, `B32`, `B33`, `B34`, `B35`, `B37`, `B38`, `B40`, `B41`, `B42`, `B44`, `B47`, `B50`, `C8`, `C9`, `C11`, `C14`, `C18`, `C29`, `C67`, `C68`, `C69`, `C70`, `C71`, `C75`, `C77`, `C82`, `C83`, `C84`, `C85`, `C86`, `C87`, `C88`, `C89`, `C93`, `C94`, `C95`, `C96`, `C97`, `C98`, `C99`, `C100`, `C101`, `C102`, `C103`, `C104`, `C105`, `C106`, `C107`, `C108`, `C116`, `C117`, `C118`, `C121`, `C122`
+**Batches**: `A2`, `A3`, `A4`, `A16`, `A23`, `A24`, `B5`, `B25`, `B26`, `B31`, `B32`, `B33`, `B34`, `B35`, `B37`, `B38`, `B40`, `B41`, `B42`, `B44`, `B47`, `B50`, `C8`, `C9`, `C11`, `C14`, `C18`, `C29`, `C67`, `C68`, `C69`, `C70`, `C71`, `C75`, `C77`, `C82`, `C83`, `C84`, `C85`, `C86`, `C87`, `C88`, `C89`, `C93`, `C94`, `C95`, `C96`, `C97`, `C98`, `C99`, `C100`, `C101`, `C102`, `C103`, `C104`, `C105`, `C106`, `C107`, `C108`, `C116`, `C117`, `C118`, `C121`, `C122`, `C123`
 
 **Owes**: play receipts for everything; that debt is the project's standing condition.
 
@@ -60,7 +60,7 @@ Who a person is, what they believe, how they came to believe it, and what time d
 
 Who the county holds: census, age, occupation, arrivals, and growth.
 
-**Batches**: `A7`, `A17`, `A18`, `A19`, `B28`, `B37`, `B38`, `B48`, `C9`, `C16`, `C17`, `C20`, `C21`, `C29`, `C30`, `C31`, `C32`, `C33`, `C34`, `C35`, `C39`, `C40`, `C41`, `C45`, `C46`, `C62`, `C63`, `C65`, `C66`, `C73`, `C75`, `C112`, `C113`, `C119`
+**Batches**: `A7`, `A17`, `A18`, `A19`, `B28`, `B37`, `B38`, `B48`, `C9`, `C16`, `C17`, `C20`, `C21`, `C29`, `C30`, `C31`, `C32`, `C33`, `C34`, `C35`, `C39`, `C40`, `C41`, `C45`, `C46`, `C62`, `C63`, `C65`, `C66`, `C73`, `C75`, `C112`, `C113`, `C119`, `C123`
 
 **Owes**: growth rate vs the 360 ceiling - the arithmetic is with the operator.
 
@@ -70,7 +70,7 @@ Who the county holds: census, age, occupation, arrivals, and growth.
 
 Bodies, hunger, water, fire, ground worked, and the places that give.
 
-**Batches**: `A8`, `A10`, `A12`, `A28`, `B2`, `B4`, `B6`, `B7`, `B11`, `B13`, `B15`, `B17`, `B19`, `B20`, `B21`, `B39`, `B40`, `C44`, `C46`, `C48`, `C76`, `C107`, `C108`, `C122`
+**Batches**: `A8`, `A10`, `A12`, `A28`, `B2`, `B4`, `B6`, `B7`, `B11`, `B13`, `B15`, `B17`, `B19`, `B20`, `B21`, `B39`, `B40`, `C44`, `C46`, `C48`, `C76`, `C107`, `C108`, `C122`, `C123`
 
 **Owes**: construction past barricades (deferred by design - the
 engine surface is deep, the honest slice shipped, PLAYABILITY);
@@ -96,7 +96,7 @@ Companies, creeds, elections, feuds, pacts, schisms, and the player's standing i
 
 Leaving, being watched for, and the worry that sends somebody after.
 
-**Batches**: `A28`, `B1`, `B19`, `C4`, `C18`, `C82`, `C114`, `C115`, `C116`, `C120`, `C122`
+**Batches**: `A28`, `B1`, `B19`, `C4`, `C18`, `C82`, `C114`, `C115`, `C116`, `C120`, `C122`, `C123`
 
 **Owes**: the driving play receipt - the engine surface `[C82]` mapped is now exercised (`[C114]`: a real person at seat 0, the engine started lawfully, company in the passenger seats), and the operator watching it happen is the debt that remains - the jar the end pass rebuilt now carries `[C115]`'s dial too (the drive's speed cap, the operator's screen ruling of 2026-09-13, the credited 30 km/h its default), and `[C120]` reads the age at the claim: under ten the car stays where it sits, ten to seventeen rides the cap at seventy percent; the crossed drive's play receipt (the sister's `[A32]` machinery and this side's `[C116]` widening both shipped - a crossed body boarding a car, watched); corpse discovery as a search outcome.
 

@@ -133,6 +133,13 @@ NEIGHBOURS.update({name: NNC_CARRY for name in (
     "OpioidEffect", "WeeeeedEffect", "SteroidEffect",
     "NnCPainRemoval",
 )})
+NEIGHBOURS["Mounts"] = (
+    "Horse Mod. [C123] SAO_Animals READS Mounts.hasMount and "
+    "Mounts.getMount on bodies - checked as functions, called, "
+    "never written - to associate a mounted horse's engine animal "
+    "id with the survivor. Without Horse Mod the global reads "
+    "nil and no mount is inferred."
+)
 
 KNOWN = {n: OURS for n in (
     "SAO", "SAOCountyWindow", "SAOInspectWindow", "SAOWire", "SAOJavaBridge",
@@ -189,6 +196,9 @@ KNOWN.update({n: ENGINE for n in (
     # prices the definition the creation screen reads. SAO_Traits
     # registers the county's conditions through both.
     "CharacterTrait", "CharacterTraitDefinition",
+    # [C123] Vanilla animal care timed actions and animation variable.
+    "AnimationVariable", "ISAddWaterToTrough", "ISFeedAnimalFromHand",
+    "ISHutchGrabEgg", "ISMilkAnimal", "ISPetAnimal", "ISShearAnimal",
     "addVirtualZombie",
     "addSound", "farming_vegetableconf", "getCell", "getClimateManager",
     "getCore", "getFileWriter", "getGameTime", "getSandboxOptions",
