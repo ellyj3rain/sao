@@ -1,6 +1,6 @@
 | Document | Survivor Awareness Overhaul Roadmap |
 |---|---|
-| Version | `4.10.0.0-pre-alpha` |
+| Version | `4.11.0.0-pre-alpha` |
 | Author | ellyj3rain |
 | Repository | `ROADMAP.md` |
 | Status | CANONICAL - thread map, backlog, live gates. |
@@ -787,6 +787,112 @@ real fear on every decision until the scan counts it healed, the
 child register on eight line tables drawn from the census's own
 stage, and the ball - Week One's orphaned throw as the eighteenth
 credited file, thrown at a ROAM arrival to a playmate within five
-named tiles. What waits there now is the operator's
-review of the nine drafted world documents, which gates corpus,
-voice, and training.
+named tiles. The nine drafted world documents are reviewed and
+APPROVED (2026-09-13, its record 43), and corpus, voice, and
+training are unblocked on its side.
+
+## The whole list accounted (operator ruling 2026-09-14, its record 51)
+
+The operator ruled the entire installed list accounted for and
+behaviorally considered, and the sweep was paid before this section
+was written: 232 workshop items, 355 mods, the local mods, the
+installed engine jar, and this side's own perception seams. The
+accounting, family by family, with the batch each rides:
+
+**Drugs and real smoking - `[C121]`, next.** The narcotics mod's
+three-counter architecture (effect, addiction, amount) is the
+credited prior art: its dose windows and per-drug schedules, the
+hangover tail, the withdrawal tiers with their stat packets, the
+overdose latch and its warning, the antidote that drops the counter
+and the maintenance drug that freezes it. Its items reach the county
+through the engine's own categories - the display category and the
+family tags are on the items themselves, so the county's people
+carry, supply, and trade them with no per-mod code. Nicotine is the
+one drug the engine itself owns - the withdrawal stat, the
+time-since-smoke, the smoker trait - and the county's tobacco is the
+engine's own. REAL SMOKING IS OPTIONAL, on a dial: the county's
+person lights a real cigarette and smokes it for its real duration
+through the engine's own timed action. The alcoholic's
+tolerance-poisoning-death ladder (read at `[C33]`, named there as not
+carried) is on the table as the one lethal prior art. Vanilla
+alcohol rides the engine's own intoxication stat.
+
+**The county's ground moves - vehicles, RVs, keys (`[C122]`).**
+Every RV, camper, trailer, and the 235-vehicle pack ship real vehicle
+scripts, so `[C114]`'s machinery already drives them. The campers
+and trailers are towables with no engine part - cargo and livable
+ground, not wheels; their bed seats and containers are the county's
+own claim-and-store surfaces. The teleport-interior mod's rooms are
+distant map cells reached by scripted teleport with a scripted
+zombie purge - player machinery the county does not cross; no county
+person teleports. The keys are always the engine's own key items,
+and the key-ring mod vacuums loose keys into ring containers, so
+every key read recurses into containers. The spawn-with-keys mod
+hands the player the engine key for the nearest vehicle once, inside
+the first hour - a player-side event the county perceives as any
+other person's claim would be.
+
+**The county's animals - livestock care, horses, the class
+correction (`[C123]`).** The sweep found the defect that orders this
+batch: the county's scanner takes every moving object that is an
+`IsoPlayer` as a person, and B42's animals ARE `IsoPlayer`s - so
+today every cow, hen, and horse in the county is filed as a nameless
+stranger in its beliefs, and a cow can ease a person's loneliness.
+The county learns the animal class before the person fallthrough,
+then models care on the engine's own surfaces: an animal's own
+hunger, thirst, and stress; the taming acceptance; the milk, the
+wool, the eggs; the trough and the hutch; the ranch zone's own
+lists - with the care verbs performed through the engine's own
+timed actions. Horses are plain engine animals (adults rideable
+through their mod's machinery, the rider readable by anim variable
+and animal id); the mods carry no ownership or companionship
+semantics anywhere, so if the county's people value a horse beyond
+a resource that value is OURS, named as ours. Predators IF ENABLED
+is answered honestly: vanilla ships none and no installed mod adds
+one - the awareness hooks are the engine's own animal-threat
+surfaces and they stay dormant until some future mod lights them.
+
+**Combat perception - compatibility, verified (`[C124]`).** The
+suppressors rewrite the live weapon's own noise figures, so a
+suppressed shot genuinely reaches fewer county ears - the county
+already perceives suppression for free, and the same holds for the
+point-blank kill, the ballistic overhaul, the buttstroke, and the
+tripping dead: all engine-visible, none ported. The two states that
+live only in mod variables - prone and crawl - are optional reads.
+The stealth mod that switches zombie AI off entirely is flagged and
+left alone: there is nothing to perceive while it is active. The
+zombie-motivation mods own their domain; the county drives aggro
+through engine targets and does not double-apply. Weapons and
+clothing are compatible by construction, verified line-by-line: the
+melee score reads the item's own script stats, the reload is the
+vanilla action, and clothing is never read at all.
+
+**The neuroinflammation knot - brain health as one graph (`[C125]`,
+ZAO-led).** The operator's ruling of 2026-09-13: a genuine
+per-person neuroinflammation graph in the shape of Antibodies,
+representing and visualizing drug damage and Knox impact on the
+brain, signifying afflicted health and crossed destruction, tied
+into memory and the existing health markers - the batch the
+operator called the closing knot of the whole tie. The design
+commitments this slot ratifies: the prior-art sweep is paid FIRST
+and re-verifies F-011 against the Antibodies that is actually
+installed on this machine, because the original plan adapted its
+shape into ZAO's own source and a LOW-confidence claim never
+teaches; wherever the sweep finds a record wrong, the correction
+lands as a NEW dated record and the original stands - the record
+law. The batch is ZAO-led because the brain is the pathogen's
+ground: the graph is a per-person brain-health and inflammatory
+load that the drug side already feeds (C121's poison totals and
+withdrawal loads are the drug damage it reads), the afflicted
+decline and the crossed destruction are the pathogen's side of
+the same graph, memory is the function the load degrades, and the
+existing health markers are the surfaces it ties into - never a
+new authored decline curve, because morality is never encoded and
+no pass authors outcomes: the load accumulates from what actually
+happened to the body. The visualization rides the window line the
+county already owns (the inspect and medical panels), as a graph
+and not a score.
+
+After `[C125]`: the crossed-doctrine batches, the off-switch list
+before runtime verification, and the corpus and training passes
+beyond - the order the totality already holds.

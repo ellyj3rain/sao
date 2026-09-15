@@ -138,18 +138,52 @@ phases at 12, 24, 48 and 72 hours with their stress and fatigue,
 the habit lost after 504 hours dry and gained by drinking often
 (four a drink, one off an hour, gained at 200), the stress a drink
 takes, and the wrap of the drink action that counts a drink -
-carried in `SAO_Habits` and `SAO_Needs` at SAO's own cadence. Its
-tolerance, poisoning, headaches and death by withdrawal are not.
+carried in `SAO_Habits` and `SAO_Needs` at SAO's own cadence.
+**[C121] The late ladder, source-read:** the sickness that builds
+through the phases at their rate and caps (0.001 a ten-minute pass
+at one in 5 minus the phase, capped 0.3 / 0.5 / 0.7 / 1.0 by
+phase), the poison past their 0.6 line (one in 50 a pass, their 12
+to 25 food-sickness hit, capped 95, kept as a running total on the
+body), the death past their 0.9 line (one in 100 a pass, the cause
+marked before the body goes, through their own die call), the
+per-drink relief at their figures (stress and unhappiness halved
+and then 0.10 off, fatigue halved, pain 0.10 off, the poison worked
+out at half the body's total, intoxication at their 0.65 less the
+tolerance), and the daily tolerance build (eight drinks a day
+moves 0.01 toward their 0.1 cap) - carried in `SAO_Drugs`.
+**Not carried, named:** their poison scaling by player trait (the
+county's people have no player traits), their alcoholicStress
+persistence channel, and their headaches as BodyPart pain ([C33]'s
+shakes are ours in size).
 
 ## N and C's Narcotics (Neely, a_COW_says)
 
-Workshop 3404956403, Build 42; source not public. **The page's own
-schedule taken ([C33]):** a dependency lost after eighteen to
-twenty clean days, with withdrawal medium from day one (three for
-sedatives), bad from day five (six) and mild from day ten. The page
-gives the tiers and not their sizes; the sizes in `SAO_Habits` are
-ours and say so. Its drugs, items and interactions are not carried
-- the county has no supply of any of them. No code read.
+Workshop 3404956403, Build 42. [C33] recorded "source not public" and
+"No code read" - wrong: the Workshop folder ships the mod's Lua
+uncompiled, and [C121] read it. That supersedes the finding; the
+line stands here as what was believed. **The page's own schedule
+taken ([C33]):** a dependency lost after eighteen to twenty clean
+days, with withdrawal medium from day one (three for sedatives),
+bad from day five (six) and mild from day ten. The page gives the
+tiers and not their sizes; the sizes in `SAO_Habits` are ours and
+say so. **[C121] The source read:** their dependency vocabulary
+(their registered traits, their item tags, read through their own
+registry globals), their driver's clock shape (the seven dependency
+steps a ten in-game-minute pass, the seven effects and the pain
+removal a minute), and their machinery itself - where their mod is
+loaded, `SAO_Drugs` drives their own globals on the county's
+bodies, so their counters, highs and withdrawal tiers run on a
+shell exactly as they run on the player, and the county's own
+schedule yields family by family where their trait takes the
+dependency over ([C121] in `SAO_Habits`). Their methadone freeze is
+carried through `SAO_Habits`' own freeze and resume pair. Their
+families are read by their item tags through the engine's own
+`ItemTag`/`ResourceLocation`, and a use of any of their items
+stamps the family's clock through the eat-action wrap in
+`SAO_Needs`. **Not carried, named:** their narcan (the knowledge
+rule - no verified 1993 figure teaches the county a reversing
+medic) and their joint rolling (the county's cannabis is what the
+item is; nobody rolls).
 
 ## Drugs of '93 (Red Jones), Just Drugs (Leuan), Psychology Skill (WindLother)
 

@@ -5,19 +5,26 @@
 -- on comes into SAO's habits (CREDITS.md): The Alcoholic (axxessdenied,
 -- MIT) for the drinker - hours since the last drink, four withdrawal
 -- phases, the habit lost after three weeks dry and gained by drinking
--- often; N and C's Narcotics (page figures) for the users the county
--- fell with - a dependency gained by frequent use, lost after eighteen
--- to twenty clean days, with withdrawal at days one, five and ten.
+-- often; N and C's Narcotics for the users the county fell with - a
+-- dependency gained by frequent use, lost after eighteen to twenty
+-- clean days, with withdrawal at days one, five and ten. [C121] Both
+-- are now source-read, and where their mods are loaded SAO_Drugs
+-- drives their own machinery per body - the figures below are the
+-- county's own schedule for a supply nobody has recorded, which yields
+-- family by family the moment their trait takes the dependency over.
 -- Smoking ([A14]) stays as it was: a third of the county, and the end
 -- did not help anyone quit.
 --
 -- A habit is drawn from the person's own hash at the record's
 -- prevalence like a condition ([C32]) and then LIVES on the record:
--- the last drink, the days clean, the habit quit or acquired. Nobody
--- in the county has a supply of anything but drink, so a user's
--- withdrawal runs from the world's first day and the dependency is
+-- the last drink, the last use of each drug family, the habit quit or
+-- acquired. The fall cut the supply the day it came, so a never-user's
+-- clean clock runs from the world's first day and the dependency is
 -- gone by the twentieth - which is exactly the county the living
--- start ([C28], DR-031) walks into.
+-- start ([C28], DR-031) walks into. [C121] Where the drug mod's items
+-- exist, a use is recorded (the eat-action wrap in SAO_Needs) and
+-- that family's clock runs from the last use instead - the same clean
+-- read C33's comment here said it was waiting for.
 --
 -- Read by the age drift (what the body carries every ten minutes),
 -- the controller (a drink when the shakes come, and where to find
@@ -287,14 +294,58 @@ end
 -- The users the county fell with.
 -- ---------------------------------------------------------------------------
 
--- Clean days: since the world began. Nobody in the county has a
--- supply of any of these, so nothing records a use and the count
--- reads no field for one - a field nobody writes is a lie waiting.
-function Hb.cleanDays(id, now)
+-- Clean days, per family: since the world began for a never-user (the
+-- fall cut the supply the day it came - a person the county starts
+-- with has been clean as long as the world has), since the last
+-- recorded use for a user. [C121] supplies the writer C33's comment
+-- here said the read was waiting for: SAO_Needs stamps the family on
+-- every use through the vanilla eat action.
+function Hb.cleanDays(id, key, now)
     now = now or worldHours()
-    local days = now / 24
+    local rec = recordOf(id)
+    local last = rec and rec.lastUseHours and rec.lastUseHours[key] or nil
+    local days = (now - (last or 0)) / 24
     if days < 0 then days = 0 end
     return days
+end
+
+-- A use of the family: the clean clock for it starts over.
+function Hb.used(id, key, now)
+    now = now or worldHours()
+    local rec = recordOf(id)
+    if not rec then return false end
+    rec.lastUseHours = rec.lastUseHours or {}
+    rec.lastUseHours[key] = now
+    return true
+end
+
+-- [C121] Methadone holds the opioid clock still: while the drug mod's
+-- own methadone is in the body, the clean days an opioid user runs on
+-- must not advance (their machine freezes the counter for exactly
+-- this purpose). SAO_Drugs observes the methadone level and calls the
+-- pair below - the freeze is idempotent, and the resume shifts the
+-- last use forward by exactly the time spent frozen, so the clock
+-- reads as if the frozen hours never happened.
+function Hb.freezeUse(id, key, now)
+    local rec = recordOf(id)
+    if not rec then return end
+    rec.useFrozen = rec.useFrozen or {}
+    if not rec.useFrozen[key] then
+        rec.useFrozen[key] = now or worldHours()
+    end
+end
+
+function Hb.resumeUse(id, key, now)
+    now = now or worldHours()
+    local rec = recordOf(id)
+    if not rec then return end
+    local frozen = rec.useFrozen and rec.useFrozen[key]
+    if not frozen then return end
+    rec.useFrozen[key] = nil
+    rec.lastUseHours = rec.lastUseHours or {}
+    local shifted = (rec.lastUseHours[key] or 0) + (now - frozen)
+    if shifted > now then shifted = now end
+    rec.lastUseHours[key] = shifted
 end
 
 function Hb.daysToLose(id)
@@ -302,12 +353,15 @@ function Hb.daysToLose(id)
     return lo + (hashOf(id, "clean-days") % (hi - lo + 1))
 end
 
--- "medium", "bad", "mild" or nil for a user of this key today.
+-- "medium", "bad", "mild" or nil for a user of this key today. The
+-- days are the family's own clean days ([C121]) - a user who finds a
+-- supply runs the same schedule from the last use, which is what the
+-- schedule always meant: withdrawal after use stops.
 function Hb.userTier(id, key, now)
     if not Hb.has(id, key) then return nil end
     local schedule = USER_SCHEDULE[key]
     if not schedule then return nil end
-    local days = Hb.cleanDays(id, now)
+    local days = Hb.cleanDays(id, key, now)
     if days < schedule.medium then return nil end
     if days < schedule.bad then return "medium" end
     if days < schedule.mild then return "bad" end
@@ -319,15 +373,25 @@ function Hb.settleUsers(id, now)
     local rec = recordOf(id)
     if not rec then return 0 end
     local settled = 0
-    local days = Hb.cleanDays(id, now)
     for _, key in ipairs(Hb.ORDER) do
-        if key ~= "drinker" and Hb.has(id, key) and days > Hb.daysToLose(id) then
+        if key ~= "drinker" and Hb.has(id, key)
+           and Hb.cleanDays(id, key, now) > Hb.daysToLose(id) then
             rec.habitsQuit = rec.habitsQuit or {}
             rec.habitsQuit[key] = true
             settled = settled + 1
         end
     end
     return settled
+end
+
+-- [C121] True while the drug mod's own dependency trait holds this
+-- family on the body. SAO_Drugs observes the trait each pass and
+-- stamps it on the record - the engine read lives there, not here,
+-- because this file loads in a bare VM and the record is the county's
+-- own surface.
+local function carriedByNnC(id, key)
+    local rec = recordOf(id)
+    return rec and rec.nncWithdrawal and rec.nncWithdrawal[key] == true or false
 end
 
 -- ---------------------------------------------------------------------------
@@ -350,7 +414,14 @@ function Hb.drift(id, now, pass)
     for _, key in ipairs(Hb.ORDER) do
         if key ~= "drinker" then
             local tier = Hb.userTier(id, key, now)
-            if tier then
+            -- [C121] The drug mod's own trait carries this family's
+            -- withdrawal (SAO_Drugs drives their tier packets on the
+            -- body while the trait is held), so the county's schedule
+            -- yields - the two must not stack. A stamped use without
+            -- the trait does NOT yield: their machinery withdraws only
+            -- on the trait, so the county schedule from the last use is
+            -- the only withdrawal the person has.
+            if tier and not carriedByNnC(id, key) then
                 add("STRESS", TIER_LOAD[tier])
                 add("FATIGUE", TIER_LOAD[tier])
                 if key == "opioids" then add("PAIN", TIER_LOAD[tier]) end
@@ -364,6 +435,28 @@ end
 -- mod's phase one is twelve hours dry; the shakes start then.
 function Hb.wantsDrink(id, now)
     return Hb.withdrawalPhase(id, now) >= 1
+end
+
+-- [C121] The family whose withdrawal bites hardest right now, for the
+-- use verb: bad before medium before mild, and the county's own order
+-- settles a tie. The yield does not reach here - a body whose
+-- withdrawal the drug mod's own trait carries still wants the dose
+-- that stops it; the yield only keeps the two LOADS from stacking.
+local TIER_RANK = { mild = 1, medium = 2, bad = 3 }
+function Hb.wantsFix(id, now)
+    local best, bestRank = nil, 0
+    for _, key in ipairs(Hb.ORDER) do
+        if key ~= "drinker" then
+            local tier = Hb.userTier(id, key, now)
+            if tier then
+                local rank = TIER_RANK[tier] or 0
+                if rank > bestRank then
+                    best, bestRank = key, rank
+                end
+            end
+        end
+    end
+    return best
 end
 
 -- ---------------------------------------------------------------------------

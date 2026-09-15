@@ -1,11 +1,70 @@
 | Document | Survivor Awareness Overhaul Session State |
 |---|---|
-| Version | `4.10.0.0-pre-alpha` |
+| Version | `4.11.0.0-pre-alpha` |
 | Author | ellyj3rain |
 | Repository | `SESSION_STATE.md` |
 | Status | CANONICAL - where the work actually stands. |
 
 # Session state
+
+**As of** 2026-09-14, `[C121]` close - the carry, the ladder, and the
+smoke break. Drugs in totality, the batch the operator ruled real
+smoking onto as an option and nothing more - so the smoke break is a
+dial, on by default, moving nobody's habit. The
+prior-art sweep was paid first and found C33's record wrong in the
+way the record law names: N and C's Narcotics was held "source not
+public" and "no code read", and the Workshop folder ships its Lua
+uncompiled - [C121] read it, and the correction stands dated beside
+the original in CREDITS.md, the original line left standing. THE
+CARRY: where N and C's Narcotics is loaded, the county's own bodies
+run their machinery - NEW `SAO_Drugs.lua` drives their own globals on
+the county's shells, on their own clock shape (one pass per ten
+in-game minutes, one per minute, exactly their OnTick cadence for the
+player), and no body is driven twice because their driver finds only
+the four player slots and the county's shells never appear in it
+(their withdrawal fires only on their own trait, observed on the body
+and stamped on the record). THE YIELD: the county's own habit
+schedule yields family by family the moment their trait is observed,
+so the two withdrawals never stack - SAO_Habits reads the stamp, and
+a use stamped without the trait does not yield. METHADONE: their
+level freezes the county's opioid clock through Habits' own
+freeze/resume pair. THE LADDER: The Alcoholic's late withdrawal
+carried at their own read figures - the sickness building through the
+phases at their rate and caps, the poison past their line onto the
+engine's own food-sickness stat with the running total the relief
+reads, the death past their line with the cause marked FIRST (the
+funnel's later marking no-ops; the body dies through their own call),
+and the per-drink relief at their column - stress and unhappiness
+halved then eased, fatigue halved, the poison worked out at half, a
+tolerant drink holding less, the tolerance itself building at their
+eight drinks a day. THE VERBS: a person in withdrawal who carries
+their dose takes it, and one who does not seeks it where the county
+believes a supply might be - never from a place somebody has claimed -
+and a smoker not yet in withdrawal takes a smoke break now and then
+at their own pace (the dial governs only the visible act; who smokes
+is a fact about the person either way). The gate refused the batch's
+first pass and every finding was fixed at its root: the dynamic
+global lookup died on Kahlua - the engine registers no `_G` (read in
+the jar), so an index by string would throw nil and kill the whole
+pass silently inside the pcall - and the carry now names their
+fifteen globals directly, checked as functions, never written, argued
+in the globals census; the smoke dial was read live-only and moved to
+the needs module that owns the body's acts; the tooltip copy was
+ratified; and Border 13 was taught the loaded-neighbour vocabulary -
+their `Drugs` display category is a word vanilla has no item for, so
+the literal is verified against their own shipped scripts, named, and
+faults if the mod is absent and the want unsatisfiable. The version
+machine derives 4.11.0.0-pre-alpha (minor - a new player-visible
+simulation capability: the county's habits are lived in the body, not
+just scheduled). Open, as ever, on the play receipts: nobody has
+watched a county body take a benzo and calm, seek a bag from a
+believed supply, smoke on a porch at their own pace, or drink
+themselves past the poison line and live or die by it. Next: the
+totality order continues - ground moves (`[C122]`), the county's
+animals (`[C123]`), combat-perception compat (`[C124]`) - then the
+neuroinflammation knot (ZAO-led, the prior-art sweep re-verifying
+F-011 against the installed Antibodies), the crossed-doctrine
+batches, the off-switch list before runtime verification.
 
 **As of** 2026-09-14, `[C120]` close - a child at the wheel, a ball
 in the street. The age attachments, the totality order's age half:
@@ -61,7 +120,7 @@ clear of the acquired vocabulary - an age is not knowledge. Border
 state the stub county cannot carry, so the sampled 4.2..11.8 range
 describes the sample it can reach. The gate ran clean with the
 batch in the tree, the jar rebuilt and shipped after the stamp;
-the version machine derives 4.10.0.0-pre-alpha (minor - a new
+the version machine derives 4.11.0.0-pre-alpha (minor - a new
 player-visible simulation capability: the county's children live
 their age at the wheel, in hunger, in hurt, in mouth and in the
 street). Open, as ever, on the play receipts: nobody has watched a
@@ -122,7 +181,7 @@ reflowed to the layout and its copy ratified, and the gestures
 border taught the manifest's `anim` key and the carried-instrument
 seam. The gate ran clean with the batch in the tree, the jar
 rebuilt and shipped after the stamp; the version machine derives
-4.10.0.0-pre-alpha (minor - a new player-visible simulation
+4.11.0.0-pre-alpha (minor - a new player-visible simulation
 capability: the county's trades, politics and medicine wear bodies,
 and a world can ask for the government's answer). Open, as ever, on
 the play receipts: nobody has watched a cashier with a customer, two
@@ -174,7 +233,7 @@ plank-fall is its honest seed), entry only and never claim-flipping,
 the unarmed cannot batter, the yield hands over spare food only,
 forty swings is the one authored number in the breach. The gate ran
 clean with the batch in the tree, the jar rebuilt and shipped; the
-version machine derives 4.10.0.0-pre-alpha (minor - a new
+version machine derives 4.11.0.0-pre-alpha (minor - a new
 player-visible simulation capability: the county raids itself). Open,
 as ever, on the play receipts: nobody has watched a batter heard
 across a street, a robbery survived by handing it over, or a warpath
@@ -229,7 +288,7 @@ the state of the work never the attribution, and `mayEnter` still
 refuses a break-in without hostility, whoever holds the ground. The
 gate ran clean with the batch in the tree, the jar rebuilt and
 shipped with the new stamp; the version machine derives
-4.10.0.0-pre-alpha (minor - a new player-visible simulation
+4.11.0.0-pre-alpha (minor - a new player-visible simulation
 capability: the county's society answers its mid-course people).
 Open, as ever, on the play receipts: nobody has watched a house
 argue over a returned member, a door refuse one, or an outcast take
@@ -285,7 +344,7 @@ turned body and releases it once this side has re-adopted); until it
 lands, corpse and returnee share a county, honestly. The gate ran
 clean with the batch in the tree, all 63 Lua files compiling under
 the engine's own Kahlua, the jar rebuilt and shipped first; the
-version machine derives 4.10.0.0-pre-alpha (minor - a new
+version machine derives 4.11.0.0-pre-alpha (minor - a new
 player-visible capability: the county's mid-course people return to
 it, and the crossed can drive). Open, as ever, on the play receipts:
 nobody has watched the dead come back or a crossed body under
@@ -319,7 +378,7 @@ seams; Border 92 declares the six new strings under the ruling, the
 wording following the ratified plain register. The gate ran clean
 with the batch in the tree, 31 options on the surface; the jar was
 rebuilt and shipped before it ran; the version machine derives
-4.10.0.0-pre-alpha (kohai - the screen matured to carry what the
+4.11.0.0-pre-alpha (kohai - the screen matured to carry what the
 rulings reserved, nothing new simulated). This batch is the first
 named step of the pre-alpha-to-alpha order the same sitting set:
 this revision, then readiness, then the training passes - the dials
@@ -1914,13 +1973,13 @@ unloaded survivors are governed by the same rules ([B39], [B42]).
 
 ## Deploy state
 
-`4.10.0.0-pre-alpha` at tip - the version machine's output ([C2],
+`4.11.0.0-pre-alpha` at tip - the version machine's output ([C2],
 DR-013; the units `[C113]` through `[C120]` moved it here, the
 Week One port's two minors, the raider, moments and age minors,
 and `[C115]`'s dial kohai among them). `[C120]` reached the
 install on 2026-09-14, the same day it closed, after its own gate
 run - verified rather than assumed: the deployed `mod.info` reads
-`4.10.0.0-pre-alpha`, and the deployed `SAO.jar` is byte-identical
+`4.11.0.0-pre-alpha`, and the deployed `SAO.jar` is byte-identical
 to the committed build (md5 `61822ad8...` at all three of dist,
 tree, and install). The game install carries the `[C62]` tip. `[C45]` through
 `[C51]` reached it on 2026-09-07 and `[C52]` through `[C62]` on 2026-09-08, each

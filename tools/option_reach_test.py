@@ -100,6 +100,14 @@ OWNED_ELSEWHERE = {
     # an opinion about it and the nuke module, which owns the draw,
     # the strike and the fallout, owns the dial too.
     "WeekOneNuke": "client/SAO_Nuke.lua",
+    # [C121] A smoke break is a body's act - a cigarette in a hand,
+    # an animation a witness can see - so the dormant half has no
+    # body to read it from. The habit itself is drawn and carried
+    # for every person in both halves through the shared SAO_Habits,
+    # and the dial governs only the visible act: the needs module,
+    # which owns the body's acts, reads it, and the controller asks
+    # that seam.
+    "RealSmoking": "client/SAO_Needs.lua",
 }
 
 

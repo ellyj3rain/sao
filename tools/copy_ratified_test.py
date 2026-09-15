@@ -133,6 +133,20 @@ RATIFIED = {
         + "After the strike the fire burns what fire burns and the "
         "fallout rises where the circles hold. Off: nothing of it runs "
         "at all.",
+    # [C121] The smoking dial's copy, ratified with the batch - the
+    # plain family register the sixteen strings above set: a name
+    # that says what it is, a tooltip that says what it does and
+    # what the default is, and the law the dial obeys (it moves
+    # nobody's habit).
+    P + "RealSmoking": "Smokers smoke",
+    P + "RealSmoking_tooltip":
+        "On by default. A smoker who is not in withdrawal still takes "
+        "a smoke break now and then - a few a day, at their own pace."
+        + NL
+        + "Off: a smoker only lights one up when the craving bites, "
+        "and no other time." + NL
+        + "The dial moves nobody's habit: who smokes is a fact about "
+        "the person either way.",
     P + "Telemetry": "Write telemetry log",
     P + "Telemetry_tooltip":
         "Writes events (lessons learned, deaths, daily summaries) to "

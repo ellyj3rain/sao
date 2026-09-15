@@ -119,6 +119,18 @@ option SurvivorAwareness.WeekOneNuke {
     page = SurvivorAwareness, translation = SurvivorAwareness_WeekOneNuke,
 }
 
+/* [C121] The casual smoke. A third of the county smoked and the end
+ * did not help anyone quit, so default ON a smoker below the craving
+ * line still takes smoke breaks at their own cadence. OFF, only the
+ * withdrawal line is left - a smoker lights one up when the shakes
+ * come and no other time, exactly the county as it was. The dial
+ * moves nobody's habit: the draw and the craving are facts about the
+ * person either way. */
+option SurvivorAwareness.RealSmoking {
+    type = boolean, default = true,
+    page = SurvivorAwareness, translation = SurvivorAwareness_RealSmoking,
+}
+
 option SurvivorAwareness.Telemetry {
     type = boolean, default = true,
     page = SurvivorAwareness, translation = SurvivorAwareness_Telemetry,
