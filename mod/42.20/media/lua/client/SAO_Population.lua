@@ -2590,6 +2590,37 @@ local function dormantProvision()
     end
 end
 
+-- [C127] Who, if anyone, a road meeting founds or joins.
+--
+-- A meeting always writes trust (the caller already did). A company
+-- is a house that already exists — the unhoused join it — or a unit
+-- of three or more who arrived together, which is the 3+ gate the
+-- rest of the county uses for a company you can see. Two unhoused
+-- strangers, and two who arrived as a pair, keep the bond and do not
+-- mint `company-<id>`. Headless years at a few thousand living were
+-- minting a pair every other day for a year because this door treated
+-- a first hello as a founding.
+local function roadCompanyTarget(idA, idB, gA, gB)
+    if gA and gB then return nil, nil end
+    if gA or gB then
+        return (gA or gB), { idA, idB }
+    end
+    local recA = SAO.Identity.get(idA)
+    local recB = SAO.Identity.get(idB)
+    local uid = recA and recA.unitId
+    if not uid or not recB or recB.unitId ~= uid then
+        return nil, nil
+    end
+    local roster = {}
+    for id, rec in pairs(SAO.Identity.all()) do
+        if not rec.dead and rec.unitId == uid then
+            roster[#roster + 1] = id
+        end
+    end
+    if #roster < 3 then return nil, nil end
+    return uid, roster
+end
+
 local function dormantEncounters()
     local sv = SandboxVars and SandboxVars.SurvivorAwareness or nil
     local companyAt = (sv and tonumber(sv.TrustToCompany)) or 0.5
@@ -2771,24 +2802,29 @@ local function dormantEncounters()
                     -- (`companyStanding`): each side's pull is their
                     -- own, and the mutual gate still clears on both
                     -- sides or not at all.
+                    -- [C127] Clearing the door is not a founding. Two
+                    -- unhoused people who pass it keep company as
+                    -- trust. A house that already exists can take them
+                    -- in; a unit of three that arrived together can
+                    -- become that house. `company-<id>` is no longer
+                    -- minted from a first hello.
                     if not (gA and gB)
                         and SAO.Standing.companyStanding(idA, idB)
                             > roadBar
                         and SAO.Standing.companyStanding(idB, idA)
                             > roadBar then
-                        local groupName = gA or gB or ("company-" .. idA)
-                        if SAO.Standing.circleRefuses(idA, groupName)
-                            or SAO.Standing.circleRefuses(idB, groupName) then
-                            log(idA .. " and " .. idB
-                                .. " part ways friendly - somebody keeps"
-                                .. " their own company")
-                        else
-                            SAO.Standing.formCompany(
-                                { idA, idB }, groupName)
-                            -- [B47] 120 of these in one session, and
-                            -- they never stop - the dormant half meets
-                            -- people forever.
-                            tally("kept company on the road")
+                        local groupName, roster = roadCompanyTarget(
+                            idA, idB, gA, gB)
+                        if groupName then
+                            if SAO.Standing.circleRefuses(idA, groupName)
+                                or SAO.Standing.circleRefuses(idB, groupName) then
+                                log(idA .. " and " .. idB
+                                    .. " part ways friendly - somebody keeps"
+                                    .. " their own company")
+                            else
+                                SAO.Standing.formCompany(roster, groupName)
+                                tally("kept company on the road")
+                            end
                         end
                     end
                 end

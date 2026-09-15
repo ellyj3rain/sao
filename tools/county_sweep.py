@@ -221,10 +221,25 @@ RUN = r'''(function()
       stale = stale + 1
     end
   end
-  local standing, biggest = 0, 0
+  local standing, biggest, of3 = 0, 0, 0
   for _, n in pairs(liveGroups) do
     if n > 1 then standing = standing + 1 end
+    if n >= 3 then of3 = of3 + 1 end
     if n > biggest then biggest = n end
+  end
+  local pacts = 0
+  do
+    local seenP = {}
+    for g, n in pairs(liveGroups) do
+      if n > 1 and not seenP[g] and SAO.Standing.pactPartnerOf then
+        local p = SAO.Standing.pactPartnerOf(g)
+        if p then
+          seenP[g] = true
+          seenP[tostring(p)] = true
+          pacts = pacts + 1
+        end
+      end
+    end
   end
   local best, atLine = 0, 0
   for _, rels in pairs(s.relations or {}) do
@@ -247,6 +262,8 @@ RUN = r'''(function()
     .. ',"alive":' .. alive .. ',"dead":' .. dead
     .. ',"housesFounded":' .. foundedEver
     .. ',"housesStanding":' .. standing
+    .. ',"housesOf3":' .. of3
+    .. ',"pacts":' .. pacts
     .. ',"inAHouse":' .. inHouse
     .. ',"biggestHouse":' .. biggest
     .. ',"deadOnRosters":' .. stale
@@ -261,6 +278,8 @@ COLUMNS = [
     ("dead", "died over the run"),
     ("housesFounded", "houses founded"),
     ("housesStanding", "houses standing at the end"),
+    ("housesOf3", "standing houses of three or more"),
+    ("pacts", "pacts between standing houses"),
     ("inAHouse", "survivors in a house"),
     ("biggestHouse", "largest house"),
     ("pairsAtLine", "pairs above the company line"),

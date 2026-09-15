@@ -1,14 +1,26 @@
 | Document | Survivor Awareness Overhaul Session State |
 |---|---|
-| Version | `5.3.0.0-pre-alpha` |
+| Version | `5.3.0.1-pre-alpha` |
 | Author | ellyj3rain |
 | Repository | `SESSION_STATE.md` |
 | Status | CANONICAL - where the work actually stands. |
 
 # Session state
 
+**As of** 2026-09-15, `[C127]` close - the road joins a house.
+A dormant road meeting still writes trust. It no longer mints `company-<id>`
+from two unhoused people who clear the company door. They join a house that
+already exists, or a unit of three or more who arrived together becomes that
+house. Two who arrived as a pair keep the bond. The sweep reports houses of
+three and pacts separately from pairs. Headless 1:15 at a year (795 founded,
+506 standing, mean size 2.3) was that mill, not Knox growing 500 towns, and
+it ran without ZAO. Shipped scale is still 11 x 18. Version `5.3.0.1-pre-alpha`.
+Open pending the play receipt: a road meeting that writes trust without
+founding a two-person house.
+Next: remeasure the remainder curve under the new door, and ZAO in the years.
+
 **As of** 2026-09-15, `[C126]` close - learned trajectory and headless simulation for post-1993 starts.
-The years pass no longer freezes at one 60-day slice: catch-up runs every frame until the span ends ([C112] cadence vs [C62] years clock). Headless LuaRun compiles against bundled Kahlua when the game jar is absent; `SAO_SWEEP_CACHE` is the Knox extract. 11 towns size the county at 198. Measured curve: 198 alive at day 1, 45 at day 30, 7 at day 90, 0 and 5 at two 1096-day seeds. The invented exponential $k=0.00205$ with an 8% floor is refused (Border 159). `SAO_Trajectory` interpolates those anchors. Fast extrapolation is opt-in. Default is first-principles years, which now complete (~27s headless for 1096 days). Corpus: `tools/sweep/trajectories.jsonl`. Version `5.3.0.0-pre-alpha`. Open pending the play receipt: nobody has started a late-year save in a live game.
+The years pass no longer freezes at one 60-day slice: catch-up runs every frame until the span ends ([C112] cadence vs [C62] years clock). Headless LuaRun compiles against bundled Kahlua when the game jar is absent; `SAO_SWEEP_CACHE` is the Knox extract. 11 towns size the county at 198. Measured curve: 198 alive at day 1, 45 at day 30, 7 at day 90, 0 and 5 at two 1096-day seeds. The invented exponential $k=0.00205$ with an 8% floor is refused (Border 159). `SAO_Trajectory` interpolates those anchors. Fast extrapolation is opt-in. Default is first-principles years, which now complete (~27s headless for 1096 days). Corpus: `tools/sweep/trajectories.jsonl`. Open pending the play receipt: nobody has started a late-year save in a live game.
 Next: playtest of a 1996 start, and more seeds on the curve.
 
 **As of** 2026-09-14, `[C125]` close - the neuroinflammation knot.
@@ -31,7 +43,7 @@ renders an Antibodies-style visual curve progress bar. `SAO_Inspect.lua` display
 load, clarity, and motor stability. Advances occur daily in dormant attrition and
 every ten minutes in active passes. The sandbox off-switch `SurvivorAwareness.Neuroinflammation`
 disables the entire graph cleanly. Border 158 holds the kinetics, math, memory
-integration, and UI controls. The version machine derives `5.3.0.0-pre-alpha` as a minor
+integration, and UI controls. The version machine derived a minor
 capability: brain health operates as a continuous, unified graph across pathogen,
 drug, and trauma insults. Open pending the play receipt: nobody has treated an
 inflamed survivor or watched their memory degrade in a live save.
@@ -2092,12 +2104,12 @@ unloaded survivors are governed by the same rules ([B39], [B42]).
 
 ## Deploy state
 
-`5.3.0.0-pre-alpha` at tip - the version machine's output ([C2],
+`5.3.0.1-pre-alpha` at tip - the version machine's output ([C2],
 DR-013; the units `[C113]` through `[C126]` moved it here: the
 Week One port's two minors, the raider, moments, age, drugs,
 vehicle-ground, animal, combat perception, neuroinflammation, and trajectory minors, with `[C115]`'s dial kohai among them).
 `[C126]` reached the install on 2026-09-15 after the source rebuild and
-the full gate: the deployed `mod.info` reads `5.3.0.0-pre-alpha`, and
+the full gate: the deployed `mod.info` reads `5.3.0.1-pre-alpha`, and
 the distribution, shipped, and installed jars match at MD5
 `ECDBB1F4991A2EC51BB2F732A819EC63`. The prescribed deploy also copies
 root `LICENSE` and `CREDITS.md`; their installed copies match the root,
