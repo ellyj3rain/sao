@@ -100,10 +100,13 @@ import world as World                                   # noqa: E402
 
 SWEEP = HERE / "sweep"
 SRC = HERE / "luacheck" / "LuaRun.java"
+ENGINE_SRC = HERE / "luacheck" / "LuaRunEngine.java"
 OUT = ROOT / "java" / "out" / "luacheck"
+KAHLUA = HERE / "lib" / "kahlua-j2se.jar"
 JDK = pathlib.Path(r"C:\Users\jleyv\Peanut Butter\JetBrains\Java\bin")
 GAME = pathlib.Path(
-    r"C:\Program Files (x86)\Steam\steamapps\common\ProjectZomboid")
+    os.environ.get("SAO_GAME")
+    or r"C:\Program Files (x86)\Steam\steamapps\common\ProjectZomboid")
 PZ = GAME / "projectzomboid.jar"
 STDLIB = GAME / "stdlib.lua"
 # The mod's own jar, tracked in the mod tree where build-java.sh
@@ -129,11 +132,22 @@ MODULES = [
     "shared/SAO_Log.lua", "shared/SAO_Hash.lua", "shared/SAO_Rand.lua",
     "shared/SAO_Census.lua", "shared/SAO_History.lua",
     "shared/SAO_Disposition.lua", "shared/SAO_Conditions.lua",
-    "shared/SAO_Course.lua",
+    "shared/SAO_Course.lua", "shared/SAO_Neuro.lua",
+    "shared/SAO_Trajectory.lua",
+    "shared/SAO_Adaptation.lua", "shared/SAO_Isolation.lua",
+    "shared/SAO_Organization.lua", "shared/SAO_Settlement.lua",
+    "shared/SAO_Material.lua", "shared/SAO_Recognition.lua",
+    "shared/SAO_Communication.lua", "shared/SAO_GraphPersistence.lua",
+    "shared/SAO_Integration.lua", "shared/SAO_Branching.lua",
+    "shared/SAO_Labor.lua", "shared/SAO_PathogenPressure.lua",
+    "shared/SAO_PlaceAttachment.lua", "shared/SAO_PlayerInteraction.lua",
+    "shared/SAO_Pressure.lua", "shared/SAO_WorldDevelopment.lua",
     "shared/SAO_Habits.lua", "shared/SAO_Claims.lua", "shared/SAO_Identity.lua",
     "shared/SAO_Lessons.lua", "shared/SAO_Knowledge.lua",
+    "shared/SAO_PathogenEvents.lua", "shared/SAO_WorldGenesis.lua",
     "shared/SAO_Seams.lua", "shared/SAO_Standing.lua",
     "shared/SAO_Perception.lua", "shared/SAO_Places.lua",
+    "client/SAO_AfflictedReturn.lua", "client/SAO_Nuke.lua",
     "client/SAO_Age.lua", "client/SAO_Telemetry.lua",
     "client/SAO_Population.lua",
 ]
@@ -152,6 +166,20 @@ NOT_DORMANT = {
     "Body": "the prelude answers for it - nobody is materialised",
     "Population": "the module doing the loading names itself",
     "Telemetry": "same",
+    "Driving": "drives materialised vehicles; dormant half has no vehicle drivers",
+    "UI": "renders player UI widgets; dormant half has no screen",
+    "MedicalWindow": "renders doctor UI window; dormant half has no screen",
+    "Inspect": "renders inspection window; dormant half has no screen",
+    "Harness": "manages local client test harness and body loops",
+    "Gesture": "plays physical character animations; dormant half has no bodies",
+    "Exchange": "handles active trade window; dormant half has no screen",
+    "Drugs": "administers ingested items to active bodies; dormant half has no inventory",
+    "Medical": "performs timed first aid actions; dormant half has no bodies",
+    "Absorb": "absorbs items from containers into body",
+    "Animals": "interacts with animal bodies; dormant half has no animals",
+    "Neighbours": "scans spatial grids for loaded zombies",
+    "Sandbox": "manages sandbox options GUI",
+    "RadioEar": "listens to audio frequencies on held radio",
 }
 
 RUN = r'''(function()
@@ -193,10 +221,25 @@ RUN = r'''(function()
       stale = stale + 1
     end
   end
-  local standing, biggest = 0, 0
+  local standing, biggest, of3 = 0, 0, 0
   for _, n in pairs(liveGroups) do
     if n > 1 then standing = standing + 1 end
+    if n >= 3 then of3 = of3 + 1 end
     if n > biggest then biggest = n end
+  end
+  local pacts = 0
+  do
+    local seenP = {}
+    for g, n in pairs(liveGroups) do
+      if n > 1 and not seenP[g] and SAO.Standing.pactPartnerOf then
+        local p = SAO.Standing.pactPartnerOf(g)
+        if p then
+          seenP[g] = true
+          seenP[tostring(p)] = true
+          pacts = pacts + 1
+        end
+      end
+    end
   end
   local best, atLine = 0, 0
   for _, rels in pairs(s.relations or {}) do
@@ -206,15 +249,28 @@ RUN = r'''(function()
       if t >= 0.5 then atLine = atLine + 1 end
     end
   end
+  local totalNeuro, afflictedCount = 0, 0
+  for _, r in pairs(SAO.Identity.all()) do
+    if not r.dead then
+      local n = tonumber(r.neuroinflammation) or 0
+      totalNeuro = totalNeuro + n
+      if n >= 0.30 then afflictedCount = afflictedCount + 1 end
+    end
+  end
+  local meanNeuro = alive > 0 and (totalNeuro / alive) or 0
   return '{"ranTo":' .. tostring(s.yearsRun)
     .. ',"alive":' .. alive .. ',"dead":' .. dead
     .. ',"housesFounded":' .. foundedEver
     .. ',"housesStanding":' .. standing
+    .. ',"housesOf3":' .. of3
+    .. ',"pacts":' .. pacts
     .. ',"inAHouse":' .. inHouse
     .. ',"biggestHouse":' .. biggest
     .. ',"deadOnRosters":' .. stale
     .. ',"pairsAtLine":' .. atLine
-    .. ',"bestTrust":' .. string.format('%.3f', best) .. '}'
+    .. ',"bestTrust":' .. string.format('%.3f', best)
+    .. ',"meanNeuro":' .. string.format('%.3f', meanNeuro)
+    .. ',"afflicted":' .. afflictedCount .. '}'
 end)()'''
 
 COLUMNS = [
@@ -222,21 +278,72 @@ COLUMNS = [
     ("dead", "died over the run"),
     ("housesFounded", "houses founded"),
     ("housesStanding", "houses standing at the end"),
+    ("housesOf3", "standing houses of three or more"),
+    ("pacts", "pacts between standing houses"),
     ("inAHouse", "survivors in a house"),
     ("biggestHouse", "largest house"),
     ("pairsAtLine", "pairs above the company line"),
     ("deadOnRosters", "dead still on a roster"),
+    ("meanNeuro", "mean neuroinflammation"),
+    ("afflicted", "afflicted survivors"),
 ]
+
+
+def java_home_bin(name):
+    """`java` / `javac` from the Windows install, JAVA_HOME, or PATH."""
+    win = JDK / (name + ".exe")
+    if win.exists():
+        return str(win)
+    home = os.environ.get("JAVA_HOME")
+    if home:
+        for n in (name + ".exe", name):
+            p = pathlib.Path(home) / "bin" / n
+            if p.exists():
+                return str(p)
+    found = shutil.which(name)
+    if found:
+        return found
+    return None
+
+
+def vm_classpath(engine=False):
+    """Classpath for LuaRun. Game jar if present, else bundled Kahlua."""
+    sep = os.pathsep
+    if engine and PZ.exists() and SAO_JAR.exists():
+        return sep.join([str(PZ), str(SAO_JAR), "."])
+    if PZ.exists():
+        return sep.join([str(PZ), "."])
+    if KAHLUA.exists():
+        return sep.join([str(KAHLUA), "."])
+    return "."
+
+
+def has_world():
+    return (CACHE / "map.lua").exists() and (CACHE / "regions.lua").exists()
+
+
+def has_vm():
+    return PZ.exists() or KAHLUA.exists()
 
 
 def build_runner():
     cls = OUT / "LuaRun.class"
-    if cls.exists() and cls.stat().st_mtime >= SRC.stat().st_mtime:
+    javac = java_home_bin("javac")
+    if not javac:
+        return False
+    sources = [SRC]
+    cp = str(PZ) if PZ.exists() else str(KAHLUA)
+    if PZ.exists() and ENGINE_SRC.exists():
+        sources.append(ENGINE_SRC)
+    newest_src = max(p.stat().st_mtime for p in sources if p.exists())
+    if cls.exists() and cls.stat().st_mtime >= newest_src:
         return True
     OUT.mkdir(parents=True, exist_ok=True)
     done = subprocess.run(
-        [str(JDK / "javac.exe"), "-cp", str(PZ), "-d", str(OUT), str(SRC)],
+        [javac, "-cp", cp, "-d", str(OUT)] + [str(p) for p in sources],
         capture_output=True, text=True, timeout=300)
+    if done.returncode != 0:
+        sys.stderr.write(done.stderr or done.stdout or "javac failed\n")
     return done.returncode == 0
 
 
@@ -255,6 +362,9 @@ def modules_referenced(lua):
 
 
 def one(name, lua, owed, refill, engine=False):
+    java = java_home_bin("java")
+    if not java:
+        return None
     prelude = (SWEEP / "prelude.lua").read_text(encoding="utf-8")
     prelude = prelude.replace("_G.__owed = 1096", "_G.__owed = %d" % owed)
     if refill is not None:
@@ -262,13 +372,13 @@ def one(name, lua, owed, refill, engine=False):
                                   "RefillDays = %s" % refill)
     with tempfile.TemporaryDirectory() as tmp:
         work = pathlib.Path(tmp)
-        shutil.copy2(STDLIB, work / "stdlib.lua")
+        if STDLIB.exists():
+            shutil.copy2(STDLIB, work / "stdlib.lua")
         for c in OUT.glob("*.class"):
             shutil.copy2(c, work / c.name)
         pre = work / "prelude.lua"
         pre.write_text(prelude, encoding="utf-8")
-        cp = "%s;%s;." % (PZ, SAO_JAR) if engine else "%s;." % PZ
-        args = [str(JDK / "java.exe"), "-cp", cp, "LuaRun"]
+        args = [java, "-cp", vm_classpath(engine), "LuaRun"]
         if engine:
             args += ["--engine", str(GAME)]
         args += [str(pre)]
@@ -288,6 +398,9 @@ def one(name, lua, owed, refill, engine=False):
     out = done.stdout or ""
     at = out.find("VALUE ")
     if at < 0:
+        err = (done.stderr or "") + out
+        if err:
+            sys.stderr.write(err[-4000:] + "\n")
         return None
     try:
         return json.loads(out[at + 6:].strip().split("\n")[0])
@@ -317,13 +430,10 @@ def main():
           % args.runs)
     print("=" * 74)
 
-    if not (JDK.exists() and PZ.exists() and STDLIB.exists()
-            and SRC.exists() and GAME.exists()):
-        print("  SKIPPED - no JDK, engine jar, stdlib, runner or game.")
-        print("  This runs the shipped modules in the engine's own VM "
-              "against the")
-        print("  shipped map, so it needs the game installed. Nothing "
-              "is asserted,")
+    if not (SRC.exists() and has_vm() and (GAME.exists() or has_world())):
+        print("  SKIPPED - no Kahlua VM (game jar or tools/lib/kahlua-j2se.jar),")
+        print("  runner, or world cache. The sweep needs the shipped map")
+        print("  (SAO_SWEEP_CACHE) or the game install. Nothing is asserted,")
         print("  so there is nothing to fail.")
         return 0
     if args.engine and not SAO_JAR.exists():

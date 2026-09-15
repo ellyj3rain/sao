@@ -1,6 +1,6 @@
 | Document | Survivor Awareness Overhaul Findings |
 |---|---|
-| Version | `5.2.0.0-pre-alpha` |
+| Version | `5.3.0.1-pre-alpha` |
 | Author | ellyj3rain |
 | Repository | `FINDINGS.md` |
 | Status | CANONICAL, APPEND-ONLY - verified engine findings. |
@@ -1556,3 +1556,36 @@ Because Antibodies keeps its state encapsulated on player modData and provides n
    - Late-stage withdrawal stress at `0.03` per hour.
 3. **Baselines & Decay**: Afflicted survivors maintain a persistent floor of `0.30`; Crossed bodies sit at `0.90`. When insults resolve, load clears exponentially via `math.exp(-0.04 * deltaHours)` toward baseline.
 4. **Cognitive projection & memory**: Cognitive clarity is derived as `1.0 - load`. `SAO.Conditions.memoryFactor` attenuates lesson retention duration by `math.max(0.2, clarity)`.
+
+---
+
+## F-073 - Headless simulation module harmonization and full-fidelity dormant execution
+
+**Verified** `[C126]`, in `tools/county_sweep.py` and `tools/county_dump.py` against Kahlua VM.
+
+The headless simulation harness previously loaded 20 modules and reported 12 missing references across recent additions (`SAO_Neuro.lua`, `SAO_PathogenEvents.lua`, `SAO_AfflictedReturn.lua`, `SAO_WorldGenesis.lua`, `SAO_Adaptation.lua`, `SAO_Isolation.lua`, `SAO_Organization.lua`, `SAO_Settlement.lua`, `SAO_Material.lua`, `SAO_Recognition.lua`, `SAO_Nuke.lua`).
+Expanding `MODULES` to the complete set of 42 shared and client dormant modules and declaring client-only and driving surfaces in `NOT_DORMANT` produces zero missing module references. A 1096-day county finishes in ~27 seconds on bundled Kahlua against the Knox cache. An earlier "~8 seconds" figure did not include the C112 cadence freeze (below).
+
+---
+
+## F-074 - Measured Knox trajectory; years catch-up; invented exponential refused
+
+**Verified** `[C126]`, headless runs in `tools/sweep/trajectories.jsonl`, Border 159.
+
+After [C112] the years cadence compared `History.ticks()` from hours-behind to the day-being-lived clock. The clock went backwards and a save owing more than one 60ms slice froze at that slice, in the sweep and in play. Catch-up now runs every frame until the span ends.
+
+Measured plain Knox (11 towns, 198 genesis), one seed per horizon except 1096 (two):
+
+| days | alive | houses standing |
+| --- | --- | --- |
+| 1 | 198 | 8 |
+| 7 | 177 | 25 |
+| 30 | 45 | 12 |
+| 90 | 7 | 1 |
+| 180 | 2 | 0 |
+| 365 | 1 | 0 |
+| 1096 | 0, 5 | 0, 1 |
+
+A single exponential $N_0 \exp(-0.00205 d)$ with an 8% floor predicts 175 alive on day 30 and 16 at 1096. The county had 45 and then a handful or none. Houses collapse with the people. `SAO_Trajectory` interpolates these anchors. Fast extrapolation is opt-in (`FastSimulation`). Default is first-principles years.
+
+

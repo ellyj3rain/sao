@@ -2590,6 +2590,37 @@ local function dormantProvision()
     end
 end
 
+-- [C127] Who, if anyone, a road meeting founds or joins.
+--
+-- A meeting always writes trust (the caller already did). A company
+-- is a house that already exists — the unhoused join it — or a unit
+-- of three or more who arrived together, which is the 3+ gate the
+-- rest of the county uses for a company you can see. Two unhoused
+-- strangers, and two who arrived as a pair, keep the bond and do not
+-- mint `company-<id>`. Headless years at a few thousand living were
+-- minting a pair every other day for a year because this door treated
+-- a first hello as a founding.
+local function roadCompanyTarget(idA, idB, gA, gB)
+    if gA and gB then return nil, nil end
+    if gA or gB then
+        return (gA or gB), { idA, idB }
+    end
+    local recA = SAO.Identity.get(idA)
+    local recB = SAO.Identity.get(idB)
+    local uid = recA and recA.unitId
+    if not uid or not recB or recB.unitId ~= uid then
+        return nil, nil
+    end
+    local roster = {}
+    for id, rec in pairs(SAO.Identity.all()) do
+        if not rec.dead and rec.unitId == uid then
+            roster[#roster + 1] = id
+        end
+    end
+    if #roster < 3 then return nil, nil end
+    return uid, roster
+end
+
 local function dormantEncounters()
     local sv = SandboxVars and SandboxVars.SurvivorAwareness or nil
     local companyAt = (sv and tonumber(sv.TrustToCompany)) or 0.5
@@ -2771,24 +2802,29 @@ local function dormantEncounters()
                     -- (`companyStanding`): each side's pull is their
                     -- own, and the mutual gate still clears on both
                     -- sides or not at all.
+                    -- [C127] Clearing the door is not a founding. Two
+                    -- unhoused people who pass it keep company as
+                    -- trust. A house that already exists can take them
+                    -- in; a unit of three that arrived together can
+                    -- become that house. `company-<id>` is no longer
+                    -- minted from a first hello.
                     if not (gA and gB)
                         and SAO.Standing.companyStanding(idA, idB)
                             > roadBar
                         and SAO.Standing.companyStanding(idB, idA)
                             > roadBar then
-                        local groupName = gA or gB or ("company-" .. idA)
-                        if SAO.Standing.circleRefuses(idA, groupName)
-                            or SAO.Standing.circleRefuses(idB, groupName) then
-                            log(idA .. " and " .. idB
-                                .. " part ways friendly - somebody keeps"
-                                .. " their own company")
-                        else
-                            SAO.Standing.formCompany(
-                                { idA, idB }, groupName)
-                            -- [B47] 120 of these in one session, and
-                            -- they never stop - the dormant half meets
-                            -- people forever.
-                            tally("kept company on the road")
+                        local groupName, roster = roadCompanyTarget(
+                            idA, idB, gA, gB)
+                        if groupName then
+                            if SAO.Standing.circleRefuses(idA, groupName)
+                                or SAO.Standing.circleRefuses(idB, groupName) then
+                                log(idA .. " and " .. idB
+                                    .. " part ways friendly - somebody keeps"
+                                    .. " their own company")
+                            else
+                                SAO.Standing.formCompany(roster, groupName)
+                                tally("kept company on the road")
+                            end
                         end
                     end
                 end
@@ -3507,6 +3543,25 @@ local function runTheYears(conf)
         end)
     end
 
+    -- [C126] Learned trajectory fast simulation for late starts.
+    -- Where fast simulation is active, the macro trajectory model
+    -- computes terminal population, groups, fortifications, and
+    -- neuroinflammation in one pass rather than stepping hundreds
+    -- of daily frames.
+    if SAO.Trajectory and SAO.Trajectory.shouldFastSimulate
+        and SAO.Trajectory.shouldFastSimulate(owed, s, conf) then
+        local okFast = false
+        pcall(function()
+            okFast = SAO.Trajectory.extrapolate(s, owed, conf)
+        end)
+        if okFast then
+            local alive = SAO.Identity and SAO.Identity.livingCount and SAO.Identity.livingCount() or 0
+            log("the county has lived its " .. owed .. " days via trajectory extrapolation: "
+                .. alive .. " alive to meet")
+            return false
+        end
+    end
+
     local okT, startedMs = pcall(function() return getTimestampMs() end)
     local began = run
     while run < owed do
@@ -3562,10 +3617,30 @@ local function populationTick()
     -- [C112] The cadence law: last fired plus a span, never a modulo -
     -- the county's clock can skip values (fast-forward, a lag spike),
     -- and a modulo gate only fires when a multiple lands exactly.
-    if tickCounter - (lastPassAt or -TICK_INTERVAL) < TICK_INTERVAL then
-        return
+    --
+    -- [C126] While the years are still being lived, this pass has to
+    -- run every frame. The years clock is the day being lived
+    -- ([C62]) - tens of hours - and the pre-years tick was
+    -- hours-behind, thousands. Comparing them, the cadence sees a
+    -- clock that went backwards and never fires again, so a save that
+    -- owes more days than one 60ms slice can chew freezes at that
+    -- slice. Catch-up is every frame until the span ends; live play
+    -- keeps the interval.
+    do
+        local s = yearsStore()
+        local catchingUp = false
+        if s and s.yearsAsked then
+            local run = tonumber(s.yearsRun) or 0
+            local owed = tonumber(s.yearsOwed) or 0
+            catchingUp = run < owed
+        end
+        if not catchingUp then
+            if tickCounter - (lastPassAt or -TICK_INTERVAL) < TICK_INTERVAL then
+                return
+            end
+            lastPassAt = tickCounter
+        end
     end
-    lastPassAt = tickCounter
     local conf = cfg()
     if not conf.enable then return end
     local booting = not booted
