@@ -16,9 +16,9 @@ the machine. Names, dates, and threads below come from
 | Form | `major.minor.kohai.patch-maturity` |
 | Hard caps | minor 12; kohai 16; patch 24 |
 | Replay start | `0.1.0.0-pre-alpha` |
-| Current version | `5.0.0.0-pre-alpha` |
-| Closed chronology | `A1-C123` |
-| Next batch | `C124` |
+| Current version | `5.1.0.0-pre-alpha` |
+| Closed chronology | `A1-C124` |
+| Next batch | `C125` |
 | Executable source | [`tools/version_replay.py`](tools/version_replay.py) |
 
 ## Tier meanings
@@ -239,6 +239,7 @@ the machine. Names, dates, and threads below come from
 | `C121` | 2026-09-14 | minor | `4.11.0.0-pre-alpha` | The carry, the ladder, and the smoke break | The drugs batch, the totality order's own: both mods now source-read and their figures carried whole where the county can hold them. The carry: where N and C's Narcotics is loaded, SAO_Drugs drives their own dependency globals on the county's bodies at their own clock shape - the seven dependency steps a ten in-game-minute pass, the seven effects and their pain removal a minute - so their counters, highs and withdrawal tiers run on a county shell exactly as they run on the player; their driver finds only the player slots, so no body is driven twice and their absence is a checked nil that does nothing. Their dependency traits are observed onto the record and the county's own schedule yields family by family where the trait takes the withdrawal over - a use stamped without the trait NOT yielding, because their machinery withdraws only on the trait - and their methadone holds the opioid clock still through the habits' own freeze and resume pair. The family read runs through their own item tags on the engine's own registry, and every eat action a county body finishes stamps that family's clock - the writer C33's comment said the read was waiting for. The ladder: The Alcoholic's late withdrawal at their own read figures - the sickness that builds through the phases and caps by phase, the poison past their line onto the engine's own food sickness with a running total kept on the body, the death past their line with the cause marked before the body goes, the per-drink relief at their own column, and the daily tolerance build at eight drinks - with their narcan and their joint rolling named as not carried. The verb: a user whose family's withdrawal has come on takes a carried dose through the vanilla eat action and forages for the family at the drink's own grammar, claim checks and all. And the smoke: a RealSmoking dial, default on - a smoker below the craving line still takes smoke breaks at their own per-person cadence; off, the withdrawal line is all that is left, exactly the county C33 built. A new player-visible simulation capability - the county's habits are lived in the body, not just scheduled - so minor. |
 | `C122` | 2026-09-14 | minor | `4.12.0.0-pre-alpha` | Vehicles, keys, and containers | Vehicles, keys, and containers: a held vehicle key now reaches the ordinary engine start path through the appraisal and motor pool, and material reads include real vehicle-part containers. Campers and trailers with no engine part supply their actual storage. A new player-visible simulation capability, so minor. |
 | `C123` | 2026-09-14 | minor | `5.0.0.0-pre-alpha` | The county's animals | The county's animals: IsoAnimal is no longer a person in perception or named combat; a farm hand reads a designated ranch's own animals, troughs and hutches and carries ready milk, wool, eggs, water, hand-feed, and pet care through the engine's own timed actions. An optional Horse Mod mount is observed through its flag, mount pair, and engine animal id without assuming a shell can mount. A new player-visible simulation capability, so minor. |
+| `C124` | 2026-09-14 | minor | `5.1.0.0-pre-alpha` | Combat perception compatibility | Combat perception compatibility: acoustic attenuation under suppressors, floor targeting for crawlers, tripping dead, and prone targets, optional perception reads for prone and crawl stances with reduced visual silhouette, non-interference with useless zombies under stealth mods and external aggro targets from zombie-motivation mods, and line-by-line verification of script weapon stats, vanilla reloads, and uninspected clothing. A new player-visible simulation capability and runtime contract, so minor. |
 
 ## The former number
 
@@ -259,11 +260,11 @@ the meantime, and they are not play.
 
 ## Next movement
 
-`C124` is the next batch. Its content determines its tier after it
+`C125` is the next batch. Its content determines its tier after it
 exists:
 
-| If C124 is | Result |
+| If C125 is | Result |
 |---|---|
-| patch or hotfix | `5.0.0.1-pre-alpha` |
-| kohai | `5.0.1.0-pre-alpha` |
-| minor | `5.1.0.0-pre-alpha` |
+| patch or hotfix | `5.1.0.1-pre-alpha` |
+| kohai | `5.1.1.0-pre-alpha` |
+| minor | `5.2.0.0-pre-alpha` |

@@ -138,6 +138,14 @@ public final class SAOPerceptionScanner {
             if (zombie == null || zombie.isDead()) {
                 continue;
             }
+            try {
+                if (zombie.isUseless()) {
+                    // [C124] Stealth mod / debug AI deactivation: useless
+                    // zombies are left alone; nothing to perceive while active.
+                    continue;
+                }
+            } catch (Throwable ignored) {
+            }
             if (SAOKnox.isKnoxHuman(zombie)) {
                 // DR-009: a legacy Knox human is a PERSON in our eyes,
                 // never one of the dead - the trust web opens cross-mod.
@@ -240,7 +248,10 @@ public final class SAOPerceptionScanner {
         float dx = ox - sx;
         float dy = oy - sy;
         float dist = (float) Math.sqrt(dx * dx + dy * dy);
-        if (dist > RANGE) {
+        // [C124] Ground stance: a prone or crawling body presents a reduced
+        // visual silhouette. Beyond near-sense, perception range is reduced.
+        float maxRange = isProneOrCrawling(other) ? Math.max(NEAR_SENSE, RANGE * 0.6f) : RANGE;
+        if (dist > maxRange) {
             return;
         }
         if (dist > NEAR_SENSE) {
@@ -269,6 +280,9 @@ public final class SAOPerceptionScanner {
             out.append(':').append(conditionBracket(other));
             if (SAONeeds.isUnkempt(other)) {
                 out.append("+u");
+            }
+            if (isProneOrCrawling(other)) {
+                out.append("+p");
             }
             appendZaoForm(out, other);
         }
@@ -307,6 +321,9 @@ public final class SAOPerceptionScanner {
             }
             out.append(tag);
             appendZaoForm(out, other);
+            if (isProneOrCrawling(other)) {
+                out.append(":prone");
+            }
         }
     }
 
@@ -411,6 +428,54 @@ public final class SAOPerceptionScanner {
         } catch (Throwable throwable) {
             return "ok";
         }
+    }
+
+    /**
+     * [C124] Ground stance recognition: engine knocked down/crawler states,
+     * or mod-authored prone and crawl states stored in animation variables
+     * or modData.
+     */
+    public static boolean isProneOrCrawling(IsoGameCharacter character) {
+        if (character == null) {
+            return false;
+        }
+        try {
+            if (character.isOnFloor()) {
+                return true;
+            }
+        } catch (Throwable ignored) {
+        }
+        try {
+            if (character instanceof IsoZombie zombie && zombie.isCrawling()) {
+                return true;
+            }
+        } catch (Throwable ignored) {
+        }
+        try {
+            if (character.getVariableBoolean("isProne")
+                || character.getVariableBoolean("Prone")
+                || character.getVariableBoolean("isCrawling")
+                || character.getVariableBoolean("Crawling")
+                || character.getVariableBoolean("Crawl")) {
+                return true;
+            }
+        } catch (Throwable ignored) {
+        }
+        try {
+            var modData = character.getModData();
+            if (modData != null) {
+                Object p = modData.rawget("isProne");
+                if (Boolean.TRUE.equals(p) || "true".equals(String.valueOf(p))) {
+                    return true;
+                }
+                Object c = modData.rawget("isCrawling");
+                if (Boolean.TRUE.equals(c) || "true".equals(String.valueOf(c))) {
+                    return true;
+                }
+            }
+        } catch (Throwable ignored) {
+        }
+        return false;
     }
 
     private static String sanitize(String value) {

@@ -258,6 +258,13 @@ function P.observe(id, body, tick, asleep)
                     if f[9] == "attrs" and f[10] then
                         belief.attributeMutations = parseAttributes(f[10])
                     end
+                    -- [C124] Ground stance: crawler, tripping, or prone zombie.
+                    for idx = 5, #f do
+                        if f[idx] == "prone" then
+                            belief.prone = true
+                            break
+                        end
+                    end
                     if belief.form and belief.form ~= "none" then
                         pcall(function()
                             local day = math.floor(
@@ -404,13 +411,15 @@ function P.observe(id, body, tick, asleep)
                                 day)
                         end)
                     end
+                    local prone = (f[6] and string.find(f[6], "+p", 1, true) ~= nil) or false
                     b.people[name] = { x = x, y = y, dist = d, at = tick,
                         atHours = okRH and rh or nil,
                         source = "observed", condition = f[6] or "ok",
                         seenInFaction = prev and prev.seenInFaction or nil,
                         form = form,
                         formPerformance = formPerformance,
-                        attributeMutations = attributeMutations }
+                        attributeMutations = attributeMutations,
+                        prone = prone }
                 end
             end
         end
@@ -565,7 +574,8 @@ function P.nearestBelievedZombie(id, tick, fromX, fromY)
         return { x = best.x, y = best.y, dist = bestDist, at = best.at,
                  source = best.source, teller = best.teller,
                  form = best.form, formPerformance = best.formPerformance,
-                 attributeMutations = best.attributeMutations }
+                 attributeMutations = best.attributeMutations,
+                 prone = best.prone and true or false }
     end
     return nil
 end
@@ -596,7 +606,8 @@ function P.nearestFormedPerson(id, tick, fromX, fromY)
                  source = best.source, name = bestName,
                  form = best.form, formPerformance = best.formPerformance,
                  attributeMutations = best.attributeMutations,
-                 fromPerson = true }
+                 fromPerson = true,
+                 prone = best.prone and true or false }
     end
     return nil
 end

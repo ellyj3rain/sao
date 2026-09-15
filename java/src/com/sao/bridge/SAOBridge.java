@@ -64,6 +64,7 @@ public final class SAOBridge {
             for (int index = 0; index < zombies.size(); index++) {
                 var zombie = zombies.get(index);
                 if (zombie == null || zombie.isDead()
+                    || zombie.isUseless()
                     || com.sao.engine.SAOKnox.isKnoxHuman(zombie)) {
                     continue;
                 }
@@ -454,11 +455,16 @@ public final class SAOBridge {
             for (int index = 0; index < zombies.size(); index++) {
                 var zed = zombies.get(index);
                 if (zed == null || zed.isDead()
+                    // [C124] Stealth mod: useless zombies left alone.
+                    || zed.isUseless()
                     // [C9] Choreograph only the fungible crowd: a living
                     // neighbour is a person (DR-009), and a risen known
                     // body's brain is vanilla's, not ours to point
                     // (DR-016 - one brain per body).
-                    || com.sao.engine.SAOKnox.identityBearing(zed)) {
+                    || com.sao.engine.SAOKnox.identityBearing(zed)
+                    // [C124] Non-duplication of aggro: zombie-motivation mods own
+                    // their domain; the county does not steal existing targets.
+                    || (zed.getTarget() != null && zed.getTarget() != shell)) {
                     continue;
                 }
                 float dx = zed.getX() - shell.getX();

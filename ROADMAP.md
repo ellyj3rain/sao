@@ -1,6 +1,6 @@
 | Document | Survivor Awareness Overhaul Roadmap |
 |---|---|
-| Version | `5.0.0.0-pre-alpha` |
+| Version | `5.1.0.0-pre-alpha` |
 | Author | ellyj3rain |
 | Repository | `ROADMAP.md` |
 | Status | CANONICAL - thread map, backlog, live gates. |
@@ -855,7 +855,7 @@ is answered honestly: vanilla ships none and no installed mod adds
 one - the awareness hooks are the engine's own animal-threat
 surfaces and they stay dormant until some future mod lights them.
 
-**Combat perception - compatibility, verified (`[C124]`).** The
+**Combat perception - compatibility, verified (`[C124]`, closed).** The
 suppressors rewrite the live weapon's own noise figures, so a
 suppressed shot genuinely reaches fewer county ears - the county
 already perceives suppression for free, and the same holds for the

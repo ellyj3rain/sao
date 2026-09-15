@@ -91,7 +91,12 @@ public final class SAOCombat {
         shell.setZombiesDontAttack(false);
         if (target instanceof IsoZombie zombieTarget) {
             zombieTarget.setCanWalk(true);
-            zombieTarget.setUseless(false);
+            try {
+                if (!zombieTarget.isUseless()) {
+                    zombieTarget.setUseless(false);
+                }
+            } catch (Throwable ignored) {
+            }
         }
 
         SAOMovement.clearIntent(shell);
@@ -205,7 +210,11 @@ public final class SAOCombat {
             return "COMBAT_RECOVERING ticks=" + (defenseWindowUntil - ticks);
         }
 
-        boolean targetOnFloor = target.isOnFloor();
+        // [C124] Ground targeting: crawler zombies, tripping/knocked-down bodies,
+        // and mod-authored prone/crawling targets are attacked at the floor.
+        boolean targetOnFloor = target.isOnFloor()
+            || (target instanceof IsoZombie z && z.isCrawling())
+            || SAOPerceptionScanner.isProneOrCrawling(target);
         faceTarget();
         applyCombatStance(false, targetOnFloor);
 

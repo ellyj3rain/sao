@@ -989,7 +989,8 @@ local function decide(id, agent, body)
             if verdict:find("COMBAT_STARTED", 1, true) then
                 agent.lastCombatVerdict = ""
                 setState(agent, id, "ENGAGE",
-                    string.format("stands ground: believed threat at %.1f tiles", threat.dist))
+                    string.format("stands ground: believed threat at %.1f tiles%s",
+                        threat.dist, threat.prone and " (downed)" or ""))
                 return
             end
         end

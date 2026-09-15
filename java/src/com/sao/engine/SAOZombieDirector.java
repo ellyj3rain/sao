@@ -35,7 +35,16 @@ public final class SAOZombieDirector {
             return "REFUSED_KNOX_HUMAN";
         }
         try {
+            if (zombie.isUseless()) {
+                // [C124] Stealth mod / debug AI off: leave useless zombies alone.
+                return "REFUSED_USELESS_ZOMBIE";
+            }
             if (zombie.getTarget() != shell) {
+                // [C124] Non-duplication of aggro: zombie-motivation mods own their
+                // domain; do not usurp a zombie already pursuing another target.
+                if (zombie.getTarget() != null) {
+                    return "REFUSED_EXTERNAL_TARGET";
+                }
                 // Acquisition only; already-targeted zombies stay vanilla.
                 shell.setZombiesDontAttack(false);
                 zombie.setUseless(false);
