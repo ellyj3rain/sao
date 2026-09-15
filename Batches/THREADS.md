@@ -18,7 +18,7 @@ were illustrative rather than complete. Every batch is now classified.
 
 Instruments and audits measured against the genuine artifact, engine or code.
 
-**Batches**: `A2`, `A3`, `A4`, `A16`, `A23`, `A24`, `B5`, `B25`, `B26`, `B31`, `B32`, `B33`, `B34`, `B35`, `B37`, `B38`, `B40`, `B41`, `B42`, `B44`, `B47`, `B50`, `C8`, `C9`, `C11`, `C14`, `C18`, `C29`, `C67`, `C68`, `C69`, `C70`, `C71`, `C75`, `C77`, `C82`, `C83`, `C84`, `C85`, `C86`, `C87`, `C88`, `C89`, `C93`, `C94`, `C95`, `C96`, `C97`, `C98`, `C99`, `C100`, `C101`, `C102`, `C103`, `C104`, `C105`, `C106`, `C107`, `C108`, `C116`, `C117`, `C118`, `C121`, `C122`, `C123`, `C124`
+**Batches**: `A2`, `A3`, `A4`, `A16`, `A23`, `A24`, `B5`, `B25`, `B26`, `B31`, `B32`, `B33`, `B34`, `B35`, `B37`, `B38`, `B40`, `B41`, `B42`, `B44`, `B47`, `B50`, `C8`, `C9`, `C11`, `C14`, `C18`, `C29`, `C67`, `C68`, `C69`, `C70`, `C71`, `C75`, `C77`, `C82`, `C83`, `C84`, `C85`, `C86`, `C87`, `C88`, `C89`, `C93`, `C94`, `C95`, `C96`, `C97`, `C98`, `C99`, `C100`, `C101`, `C102`, `C103`, `C104`, `C105`, `C106`, `C107`, `C108`, `C116`, `C117`, `C118`, `C121`, `C122`, `C123`, `C124`, `C125`
 
 **Owes**: play receipts for everything; that debt is the project's standing condition.
 
@@ -44,7 +44,7 @@ The gate, its borders, and the repository's own discipline.
 
 The county before the collapse, the fall itself, and what it teaches.
 
-**Batches**: `A6`, `A10`, `A11`, `A17`, `A29`, `B3`, `B9`, `C8`, `C10`, `C11`, `C29`, `C30`, `C31`, `C32`, `C33`, `C34`, `C35`, `C36`, `C38`, `C41`, `C42`, `C43`, `C45`, `C47`, `C62`, `C63`, `C112`, `C113`, `C114`, `C116`, `C117`, `C118`, `C119`, `C120`, `C121`
+**Batches**: `A6`, `A10`, `A11`, `A17`, `A29`, `B3`, `B9`, `C8`, `C10`, `C11`, `C29`, `C30`, `C31`, `C32`, `C33`, `C34`, `C35`, `C36`, `C38`, `C41`, `C42`, `C43`, `C45`, `C47`, `C62`, `C63`, `C112`, `C113`, `C114`, `C116`, `C117`, `C118`, `C119`, `C120`, `C121`, `C125`
 
 **Owes**: outbreak live-confirmation (the engine's infection on shells, witnessed in play); the streets' play receipt (an ordinary county watched at eight in the morning and three at night); the driving play receipt (a goer under wheels watched in an ordinary county - the port's driving half is built, `[C114]`, T-001's doorway exercised; the watching is the debt); the afflicted play receipt (the reverted coming back, a formed neighbor feared and never fought, watched in an ordinary county - the return is built, `[C116]`, and the watching is the debt, now widened by `[C117]`: the house's argument, the doors' answers, and the cast-out's ground belong in the same watching); the raiding play receipt (a batter heard across a street, a robbery survived by handing it over, a warpath walk home heavier than it left - the vocabulary is built, `[C118]`, and the watching is the debt); the moments play receipt (a cashier with a customer, two dissenters standing together, a medic's hands over a body that is down, a flute that looks like a flute - the shapes are built, `[C119]`, and the watching is the debt); the age play receipt (a child's car left where it sits, a teen at seventy percent of the cap, a spurt voiced, a hurt child frightened until the scan counts it healed, a child's own words at a grown moment, a ball thrown to somebody on a street - the attachments are built, `[C120]`, and the watching is the debt); and the one world that asks for it: the government's answer drawn for that world and arriving on the day the draw said (`[C119]`, the dial off by default, the receipt the operator's own world start).
 
@@ -52,7 +52,7 @@ The county before the collapse, the fall itself, and what it teaches.
 
 Who a person is, what they believe, how they came to believe it, and what time does to it.
 
-**Batches**: `A5`, `A6`, `A9`, `A11`, `A13`, `A15`, `A24`, `A27`, `B8`, `B9`, `B10`, `B11`, `B21`, `B22`, `B24`, `B27`, `B39`, `B49`, `C3`, `C4`, `C5`, `C7`, `C10`, `C15`, `C20`, `C30`, `C31`, `C32`, `C33`, `C36`, `C37`, `C38`, `C39`, `C47`, `C71`, `C72`, `C73`, `C87`, `C89`, `C90`, `C91`, `C92`, `C94`, `C95`, `C96`, `C111`, `C117`, `C124`
+**Batches**: `A5`, `A6`, `A9`, `A11`, `A13`, `A15`, `A24`, `A27`, `B8`, `B9`, `B10`, `B11`, `B21`, `B22`, `B24`, `B27`, `B39`, `B49`, `C3`, `C4`, `C5`, `C7`, `C10`, `C15`, `C20`, `C30`, `C31`, `C32`, `C33`, `C36`, `C37`, `C38`, `C39`, `C47`, `C71`, `C72`, `C73`, `C87`, `C89`, `C90`, `C91`, `C92`, `C94`, `C95`, `C96`, `C111`, `C117`, `C124`, `C125`
 
 **Owes**: the operator's trait-correlation question; the relations rows of the dead (irreversible).
 

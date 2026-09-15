@@ -1,6 +1,6 @@
 | Document | Survivor Awareness Overhaul Batch Log |
 |---|---|
-| Version | `5.1.0.0-pre-alpha` |
+| Version | `5.2.0.0-pre-alpha` |
 | Author | ellyj3rain |
 | Repository | `BATCH_LOG.md` |
 | Status | REGULATORY - chronological batch index. |
@@ -229,3 +229,4 @@ attribution for every merged entry, stated here rather than in a branch name.
 | [C122](Batches/C122-2026-09-14-vehicles-keys-and-containers.md) | 2026-09-14 | Vehicles, keys, and containers | [`T-001`](Batches/THREADS.md#t-001), [`T-003`](Batches/THREADS.md#t-003), [`T-008`](Batches/THREADS.md#t-008) |
 | [C123](Batches/C123-2026-09-14-the-countys-animals.md) | 2026-09-14 | The county's animals | [`T-001`](Batches/THREADS.md#t-001), [`T-003`](Batches/THREADS.md#t-003), [`T-007`](Batches/THREADS.md#t-007), [`T-008`](Batches/THREADS.md#t-008) |
 | [C124](Batches/C124-2026-09-14-combat-perception-compatibility.md) | 2026-09-14 | Combat perception compatibility | [`T-006`](Batches/THREADS.md#t-006), [`T-008`](Batches/THREADS.md#t-008) |
+| [C125](Batches/C125-2026-09-14-the-neuroinflammation-knot.md) | 2026-09-14 | The neuroinflammation knot | [`T-002`](Batches/THREADS.md#t-002), [`T-006`](Batches/THREADS.md#t-006), [`T-008`](Batches/THREADS.md#t-008) |

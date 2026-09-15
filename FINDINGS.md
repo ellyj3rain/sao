@@ -1,6 +1,6 @@
 | Document | Survivor Awareness Overhaul Findings |
 |---|---|
-| Version | `5.1.0.0-pre-alpha` |
+| Version | `5.2.0.0-pre-alpha` |
 | Author | ellyj3rain |
 | Repository | `FINDINGS.md` |
 | Status | CANONICAL, APPEND-ONLY - verified engine findings. |
@@ -1530,3 +1530,29 @@ Ranch structures are held in `IsoCell.getRanchList()`, which returns `ArrayList<
 Prone or crawling characters (`IsoZombie.isCrawling()`, `IsoGameCharacter.isOnFloor()`, or prone animation variables) require floor-level combat aiming. `AIBrainPlayerControlVars` provides `setAimAtFloor(boolean)` and `setAuthorizeShoveStomp(boolean)` to direct attacks downward rather than horizontal swings.
 
 Stealth or motivation mods mark inactive zombies with `isUseless()` or manage targets via `IsoZombie.getTarget()`. Modifying or retargeting these zombies breaks third-party mod logic.
+
+---
+
+## F-071 - Antibodies v1.98 architecture and state isolation
+
+**Verified** `[C125]`, by inspecting installed Workshop `2392676812` (`lgd_antibodies`) across `42.0` and `42.13`.
+
+In `42.13`, Antibodies encapsulates its logic under `require("lgd_antibodies/...")` modules without exposing a mutable global table. Per-character medical state lives privately on `player:getModData().Antibodies.medicalFile`. Antibody production rate follows a sinusoidal activation equation:
+`math.sin((infectionLevel / 100) * math.pi)`.
+
+Because Antibodies keeps its state encapsulated on player modData and provides no public survivor API, SAO isolates its survivor brain health in `SAO_Neuro.lua`, mirroring Antibodies' continuous sine activation kinetics over `SAO.Course` without mutating or colliding with Antibodies' private data structures.
+
+---
+
+## F-072 - Neuroinflammation as a continuous graph with multi-insult kinetics
+
+**Verified** `[C125]`, structural and mathematical derivation against `SAO_Neuro.lua`, `SAO_Conditions.lua`, and `SAO_MedicalWindow.lua`.
+
+1. **Continuous scalar**: Brain health is represented as a single continuous value `rec.neuroinflammation` in `[0.0, 1.0]`. It is never partitioned into discrete buckets or enum stages.
+2. **Kinetics**: Neuroinflammation insults accumulate from:
+   - Knox infection via sine curve activation `math.sin(pos * math.pi) * 0.08` per hour.
+   - Sepsis via `rec.woundInfected` at `0.015` per hour.
+   - Drug/alcohol toxicity from the C121 ladder (`rec.drinkPoisonTotal`) at `0.02 * min(1.0, poison / 50.0)` per hour.
+   - Late-stage withdrawal stress at `0.03` per hour.
+3. **Baselines & Decay**: Afflicted survivors maintain a persistent floor of `0.30`; Crossed bodies sit at `0.90`. When insults resolve, load clears exponentially via `math.exp(-0.04 * deltaHours)` toward baseline.
+4. **Cognitive projection & memory**: Cognitive clarity is derived as `1.0 - load`. `SAO.Conditions.memoryFactor` attenuates lesson retention duration by `math.max(0.2, clarity)`.

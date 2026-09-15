@@ -71,5 +71,7 @@
     "Sandbox_SurvivorAwareness_Material": "Record stores",
     "Sandbox_SurvivorAwareness_Material_tooltip": "Real food and goods shelved on held ground are counted as the house's store.\\nOff: shelves still get stocked - nothing is counted.",
     "Sandbox_SurvivorAwareness_Communication": "Record what is told",
-    "Sandbox_SurvivorAwareness_Communication_tooltip": "Grudges, credits and news passed between survivors are recorded as messages.\\nOff: the words still pass - nothing is written down."
+    "Sandbox_SurvivorAwareness_Communication_tooltip": "Grudges, credits and news passed between survivors are recorded as messages.\\nOff: the words still pass - nothing is written down.",
+    "Sandbox_SurvivorAwareness_Neuroinflammation": "Neuroinflammation",
+    "Sandbox_SurvivorAwareness_Neuroinflammation_tooltip": "Infection, sepsis, and drug toxicity produce a continuous brain inflammatory load affecting cognitive clarity and memory.\\nOff: survivors do not experience inflammatory brain fog or memory degradation."
 }

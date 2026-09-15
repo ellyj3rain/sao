@@ -1,6 +1,6 @@
 | Document | Survivor Awareness Overhaul Roadmap |
 |---|---|
-| Version | `5.1.0.0-pre-alpha` |
+| Version | `5.2.0.0-pre-alpha` |
 | Author | ellyj3rain |
 | Repository | `ROADMAP.md` |
 | Status | CANONICAL - thread map, backlog, live gates. |
@@ -871,7 +871,7 @@ melee score reads the item's own script stats, the reload is the
 vanilla action, and clothing is never read at all.
 
 **The neuroinflammation knot - brain health as one graph (`[C125]`,
-ZAO-led).** The operator's ruling of 2026-09-13: a genuine
+closed).** The operator's ruling of 2026-09-13: a genuine
 per-person neuroinflammation graph in the shape of Antibodies,
 representing and visualizing drug damage and Knox impact on the
 brain, signifying afflicted health and crossed destruction, tied

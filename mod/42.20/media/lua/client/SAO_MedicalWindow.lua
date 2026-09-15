@@ -25,6 +25,8 @@ function SAOMedicalWindow:new(x, y, w, h)
     o.resizable = false
     o.lines = {}
     o.who = ""
+    o.neuroLoad = 0
+    o.showGraph = false
     return o
 end
 
@@ -43,6 +45,21 @@ function SAOMedicalWindow:render()
         self:drawText(line, x, y, 0.82, 0.82, 0.82, 1, FONT_S)
         y = y + 18
     end
+    if self.showGraph and self.neuroLoad and self.neuroLoad > 0 then
+        y = y + 4
+        self:drawText("Brain Inflammatory Load:", x, y, 0.75, 0.75, 0.75, 1, FONT_S)
+        y = y + 16
+        local barW = self.width - 24
+        local barH = 8
+        self:drawRect(x, y, barW, barH, 0.5, 0.15, 0.15, 0.15)
+        self:drawRectBorder(x, y, barW, barH, 0.8, 0.35, 0.35, 0.35)
+        local fillW = math.floor(barW * math.max(0.0, math.min(1.0, self.neuroLoad)))
+        if fillW > 0 then
+            local r = 0.6 + 0.4 * self.neuroLoad
+            local g = 0.8 * (1.0 - self.neuroLoad)
+            self:drawRect(x + 1, y + 1, fillW - 2, barH - 2, 0.8, r, g, 0.15)
+        end
+    end
 end
 
 ---Open the window on one person, read by one examiner.
@@ -55,14 +72,25 @@ function SAO.showMedical(playerObj, id)
     pcall(function() hours = SAO.History.countyHours() end)
     local lines = SAO.Medical.readingOf(rec, skill, hours)
 
+    local neuroLoad = 0
+    pcall(function()
+        if SAO.Neuro and SAO.Neuro.isActive and SAO.Neuro.isActive() then
+            neuroLoad = SAO.Neuro.loadOf(rec)
+        end
+    end)
+    local showGraph = (neuroLoad >= 0.15 and skill >= SAO.Medical.CAN_PLACE_IT)
+
     if SAOMedicalWindow.instance then
         SAOMedicalWindow.instance:removeFromUIManager()
         SAOMedicalWindow.instance = nil
     end
-    local w = SAOMedicalWindow:new(120, 160, 340, 60 + 18 * (#lines + 1))
+    local extraH = showGraph and 36 or 0
+    local w = SAOMedicalWindow:new(120, 160, 340, 60 + 18 * (#lines + 1) + extraH)
     w:initialise()
     w:addToUIManager()
     w.who = SAO.Identity.knownName(rec) or tostring(id)
     w.lines = lines
+    w.neuroLoad = neuroLoad
+    w.showGraph = showGraph
     SAOMedicalWindow.instance = w
 end

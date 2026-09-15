@@ -1,11 +1,36 @@
 | Document | Survivor Awareness Overhaul Session State |
 |---|---|
-| Version | `5.1.0.0-pre-alpha` |
+| Version | `5.2.0.0-pre-alpha` |
 | Author | ellyj3rain |
 | Repository | `SESSION_STATE.md` |
 | Status | CANONICAL - where the work actually stands. |
 
 # Session state
+
+**As of** 2026-09-14, `[C125]` close - the neuroinflammation knot.
+Brain health is represented as a single continuous scalar `rec.neuroinflammation`
+bounded in `[0.0, 1.0]`, never an enum, stage, or discrete bucket. Multi-source
+insults accumulate from active Knox infection via Antibodies' sine activation
+curve (`math.sin(pos * math.pi) * 0.08`), peripheral wound sepsis (`0.015`),
+drug/alcohol toxicity from the C121 ladder (`0.02 * min(1.0, poison / 50.0)`),
+and severe late-stage withdrawal stress (`0.03`). Afflicted survivors maintain
+a persistent `0.30` baseline floor representing permanent neurological scarring;
+Crossed bodies sit at `0.90` (humanity burned out by runaway inflammation).
+When insult sources clear and bodies rest, neuroinflammation clears exponentially
+toward baseline (`math.exp(-0.04 * deltaHours)`). Cognitive clarity (`1.0 - load`)
+feeds into `SAO.Conditions.memoryFactor`, causing memories and lessons to degrade
+rapidly under severe inflammation. Clinical diagnosis in `SAO_Medical.lua` gates
+observations across Doctor skill tiers (<2, 2..4, 5..7, 8+), and `SAOMedicalWindow`
+renders an Antibodies-style visual curve progress bar. `SAO_Inspect.lua` displays
+load, clarity, and motor stability. Advances occur daily in dormant attrition and
+every ten minutes in active passes. The sandbox off-switch `SurvivorAwareness.Neuroinflammation`
+disables the entire graph cleanly. Border 158 holds the kinetics, math, memory
+integration, and UI controls. The version machine derives `5.2.0.0-pre-alpha` as a minor
+capability: brain health operates as a continuous, unified graph across pathogen,
+drug, and trauma insults. Open pending the play receipt: nobody has treated an
+inflamed survivor or watched their memory degrade in a live save.
+Next: playtest preparation with primitive simulation capability integrating with
+the sibling Zomboid-Speakeasy repository.
 
 **As of** 2026-09-14, `[C124]` close - combat perception compatibility.
 Combat perception operates across the engine and mod ecosystem without
@@ -24,7 +49,7 @@ honored rather than stolen. Script weapon stats in melee scoring, vanilla
 reload timed actions, and uninspected clothing ensure line-by-line
 compatibility. Border 157 holds the acoustic attenuation, floor aiming,
 silhouette reduction, useless zombie skipping, target preservation, and
-mutation tests. The version machine derives `5.1.0.0-pre-alpha` as a minor
+mutation tests. The version machine derives the coordinate derived at that close as a minor
 capability: combat perception and targeting cleanly co-exist with the
 modded ecosystem. Open pending the play receipt: nobody has watched a
 survivor target a crawling zombie at floor level or observe a suppressed
@@ -2061,25 +2086,18 @@ unloaded survivors are governed by the same rules ([B39], [B42]).
 
 ## Deploy state
 
-`5.1.0.0-pre-alpha` at tip - the version machine's output ([C2],
-DR-013; the units `[C113]` through `[C124]` moved it here: the
+`5.2.0.0-pre-alpha` at tip - the version machine's output ([C2],
+DR-013; the units `[C113]` through `[C125]` moved it here: the
 Week One port's two minors, the raider, moments, age, drugs,
-vehicle-ground, animal, and combat perception minors, with `[C115]`'s dial kohai among them).
-`[C120]` reached the
-install on 2026-09-14, the same day it closed, after its own gate
-run - verified rather than assumed: the deployed `mod.info` reads
-the coordinate the machine derived then, and the deployed `SAO.jar` is
-byte-identical to the committed build (md5 `61822ad8...` at all three
-of dist, tree, and install). The game install carries the `[C62]` tip. `[C45]` through
-`[C51]` reached it on 2026-09-07 and `[C52]` through `[C62]` on 2026-09-08, each
-after its own commit passed the gate, the game having been closed
-since the `[C44]` deploy. Verified rather than assumed at each
-deploy - the deployed `mod.info` reads the version the machine
-derived and the deployed `SAO.jar` is byte-identical to the
-committed build. `[C56]` touches only the instruments and the
-documents, so there is nothing behavioural in it to deploy.
+vehicle-ground, animal, combat perception, and neuroinflammation minors, with `[C115]`'s dial kohai among them).
+`[C125]` reached the install on 2026-09-14 after the source rebuild and
+the full gate: the deployed `mod.info` reads `5.2.0.0-pre-alpha`, and
+the distribution, shipped, and installed jars match at MD5
+`ECDBB1F4991A2EC51BB2F732A819EC63`. The prescribed deploy also copies
+root `LICENSE` and `CREDITS.md`; their installed copies match the root,
+and no other installed file differs from `mod/`.
 `[C124]` reached the install on 2026-09-14 after the source rebuild and
-the full gate: the deployed `mod.info` reads `5.1.0.0-pre-alpha`, and
+the full gate: the deployed `mod.info` reads the coordinate derived at that close, and
 the distribution, shipped, and installed jars match at MD5
 `F323E54DEAAAD958DC9A94E6C3BBB172`. The prescribed deploy also copies
 root `LICENSE` and `CREDITS.md`; their installed copies match the root,
@@ -2130,7 +2148,7 @@ deploy; `save_compat_test` guards this and runs in the gate.
 
 ## Instruments
 
-**157 numbered borders**, run by **172 gated mirrors** in `tools/`, all invoked
+**158 numbered borders**, run by **173 gated mirrors** in `tools/`, all invoked
 by `tools/check.sh`, which the pre-commit hook runs and CI runs on every push.
 The figures in this paragraph are derived by Border 76 from the tree, not
 maintained by hand. Border 54 keeps the rest honest: it runs every gated

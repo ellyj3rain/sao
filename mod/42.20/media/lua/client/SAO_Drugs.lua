@@ -345,6 +345,13 @@ local function onTick()
                 if rec then
                     Dg.ladder(rec, body, tick)
                     if newDay then Dg.daily(rec) end
+                    if SAO.Neuro and SAO.Neuro.advance then
+                        local h = 0
+                        pcall(function() h = SAO.History and SAO.History.countyHours() or 0 end)
+                        pcall(function()
+                            SAO.Neuro.advance(rec, 10.0 / 60.0, h)
+                        end)
+                    end
                 end
             end
             if oneDue then
