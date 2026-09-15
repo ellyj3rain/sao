@@ -1,11 +1,40 @@
 | Document | Survivor Awareness Overhaul Session State |
 |---|---|
-| Version | `4.11.0.0-pre-alpha` |
+| Version | `4.12.0.0-pre-alpha` |
 | Author | ellyj3rain |
 | Repository | `SESSION_STATE.md` |
 | Status | CANONICAL - where the work actually stands. |
 
 # Session state
+
+**As of** 2026-09-14, `[C122]` close - vehicles, keys, and containers.
+The vehicle port's key call was incomplete. The installed jar shows that
+the no-argument `tryStartEngine()` supplies `false`; the boolean form
+reads `true` as a held-key condition after the debug, easy-use, and
+ignition paths. `haveThisKeyId` reads a loose key and recursively reads
+a key-ring container, so the driver now carries that inventory answer
+into the engine's start call. The appraisal carries the same fact to the
+motor pool, which favours the keyed runner over a larger locked vehicle
+while keeping the engine start as the final verdict. A person without a
+key does not gain a start permission.
+
+Vehicle parts now count as material ground when they have real item
+containers and stand inside the ordinary scan radius. The larder, food,
+drink, and dose-source reads, cook, and nearest-store reads now include
+those containers, so camper and cargo trailer storage works even where a
+vehicle has no engine part. The pass
+does not enter scripted interiors, teleport a person, search a place for
+a key, fabricate supplies, or read unloaded cells. Border 154 holds the
+Java and Lua transfer, the radius and part guards, and a Kahlua-VM case
+where a keyed two-seat runner outranks a larger locked runner; its held-
+key-start, part-container, and food-source controls all flip the verdict. The version
+machine derives `4.12.0.0-pre-alpha` as a minor capability: vehicles now
+supply lawful starts and mobile storage to existing execution and needs.
+The play receipt remains open: nobody has watched a survivor start a
+vehicle from a held key or use a vehicle compartment in a live save.
+Next: the totality order continues with animals (`[C123]`), combat-
+perception compatibility (`[C124]`), then the neuroinflammation knot
+(`C125`, ZAO-led, with its source sweep first).
 
 **As of** 2026-09-14, `[C121]` close - the carry, the ladder, and the
 smoke break. Drugs in totality, the batch the operator ruled real
@@ -54,7 +83,7 @@ ratified; and Border 13 was taught the loaded-neighbour vocabulary -
 their `Drugs` display category is a word vanilla has no item for, so
 the literal is verified against their own shipped scripts, named, and
 faults if the mod is absent and the want unsatisfiable. The version
-machine derives 4.11.0.0-pre-alpha (minor - a new player-visible
+machine derives the coordinate for that close (minor - a new player-visible
 simulation capability: the county's habits are lived in the body, not
 just scheduled). Open, as ever, on the play receipts: nobody has
 watched a county body take a benzo and calm, seek a bag from a
@@ -120,7 +149,7 @@ clear of the acquired vocabulary - an age is not knowledge. Border
 state the stub county cannot carry, so the sampled 4.2..11.8 range
 describes the sample it can reach. The gate ran clean with the
 batch in the tree, the jar rebuilt and shipped after the stamp;
-the version machine derives 4.11.0.0-pre-alpha (minor - a new
+the version machine derives the coordinate for that close (minor - a new
 player-visible simulation capability: the county's children live
 their age at the wheel, in hunger, in hurt, in mouth and in the
 street). Open, as ever, on the play receipts: nobody has watched a
@@ -181,7 +210,7 @@ reflowed to the layout and its copy ratified, and the gestures
 border taught the manifest's `anim` key and the carried-instrument
 seam. The gate ran clean with the batch in the tree, the jar
 rebuilt and shipped after the stamp; the version machine derives
-4.11.0.0-pre-alpha (minor - a new player-visible simulation
+the coordinate for that close (minor - a new player-visible simulation
 capability: the county's trades, politics and medicine wear bodies,
 and a world can ask for the government's answer). Open, as ever, on
 the play receipts: nobody has watched a cashier with a customer, two
@@ -233,7 +262,7 @@ plank-fall is its honest seed), entry only and never claim-flipping,
 the unarmed cannot batter, the yield hands over spare food only,
 forty swings is the one authored number in the breach. The gate ran
 clean with the batch in the tree, the jar rebuilt and shipped; the
-version machine derives 4.11.0.0-pre-alpha (minor - a new
+version machine derives the coordinate for that close (minor - a new
 player-visible simulation capability: the county raids itself). Open,
 as ever, on the play receipts: nobody has watched a batter heard
 across a street, a robbery survived by handing it over, or a warpath
@@ -288,7 +317,7 @@ the state of the work never the attribution, and `mayEnter` still
 refuses a break-in without hostility, whoever holds the ground. The
 gate ran clean with the batch in the tree, the jar rebuilt and
 shipped with the new stamp; the version machine derives
-4.11.0.0-pre-alpha (minor - a new player-visible simulation
+the coordinate for that close (minor - a new player-visible simulation
 capability: the county's society answers its mid-course people).
 Open, as ever, on the play receipts: nobody has watched a house
 argue over a returned member, a door refuse one, or an outcast take
@@ -344,7 +373,7 @@ turned body and releases it once this side has re-adopted); until it
 lands, corpse and returnee share a county, honestly. The gate ran
 clean with the batch in the tree, all 63 Lua files compiling under
 the engine's own Kahlua, the jar rebuilt and shipped first; the
-version machine derives 4.11.0.0-pre-alpha (minor - a new
+version machine derives the coordinate for that close (minor - a new
 player-visible capability: the county's mid-course people return to
 it, and the crossed can drive). Open, as ever, on the play receipts:
 nobody has watched the dead come back or a crossed body under
@@ -378,7 +407,7 @@ seams; Border 92 declares the six new strings under the ruling, the
 wording following the ratified plain register. The gate ran clean
 with the batch in the tree, 31 options on the surface; the jar was
 rebuilt and shipped before it ran; the version machine derives
-4.11.0.0-pre-alpha (kohai - the screen matured to carry what the
+the coordinate for that close (kohai - the screen matured to carry what the
 rulings reserved, nothing new simulated). This batch is the first
 named step of the pre-alpha-to-alpha order the same sitting set:
 this revision, then readiness, then the training passes - the dials
@@ -1973,15 +2002,16 @@ unloaded survivors are governed by the same rules ([B39], [B42]).
 
 ## Deploy state
 
-`4.11.0.0-pre-alpha` at tip - the version machine's output ([C2],
-DR-013; the units `[C113]` through `[C120]` moved it here, the
-Week One port's two minors, the raider, moments and age minors,
-and `[C115]`'s dial kohai among them). `[C120]` reached the
+`4.12.0.0-pre-alpha` at tip - the version machine's output ([C2],
+DR-013; the units `[C113]` through `[C122]` moved it here: the
+Week One port's two minors, the raider, moments, age, drugs, and
+vehicle-ground minors, with `[C115]`'s dial kohai among them).
+`[C120]` reached the
 install on 2026-09-14, the same day it closed, after its own gate
 run - verified rather than assumed: the deployed `mod.info` reads
-`4.11.0.0-pre-alpha`, and the deployed `SAO.jar` is byte-identical
-to the committed build (md5 `61822ad8...` at all three of dist,
-tree, and install). The game install carries the `[C62]` tip. `[C45]` through
+the coordinate the machine derived then, and the deployed `SAO.jar` is
+byte-identical to the committed build (md5 `61822ad8...` at all three
+of dist, tree, and install). The game install carries the `[C62]` tip. `[C45]` through
 `[C51]` reached it on 2026-09-07 and `[C52]` through `[C62]` on 2026-09-08, each
 after its own commit passed the gate, the game having been closed
 since the `[C44]` deploy. Verified rather than assumed at each
@@ -1989,6 +2019,12 @@ deploy - the deployed `mod.info` reads the version the machine
 derived and the deployed `SAO.jar` is byte-identical to the
 committed build. `[C56]` touches only the instruments and the
 documents, so there is nothing behavioural in it to deploy.
+`[C122]` reached the install on 2026-09-14 after the source rebuild and
+the full gate: the deployed `mod.info` reads `4.12.0.0-pre-alpha`, and
+the distribution, shipped, and installed jars match at MD5
+`2EEE6219A5A0516837018D76A34F799E`. The prescribed deploy also copies
+root `LICENSE` and `CREDITS.md`; their installed copies match the root,
+and no other installed file differs from `mod/`.
 `[C62]` reached it on the same day, after its own commit passed the
 gate and its pull request merged, and was checked rather than assumed:
 both `mod.info` files read the coordinate the machine derived,
@@ -2023,7 +2059,7 @@ deploy; `save_compat_test` guards this and runs in the gate.
 
 ## Instruments
 
-**153 numbered borders**, run by **168 gated mirrors** in `tools/`, all invoked
+**154 numbered borders**, run by **169 gated mirrors** in `tools/`, all invoked
 by `tools/check.sh`, which the pre-commit hook runs and CI runs on every push.
 The figures in this paragraph are derived by Border 76 from the tree, not
 maintained by hand. Border 54 keeps the rest honest: it runs every gated

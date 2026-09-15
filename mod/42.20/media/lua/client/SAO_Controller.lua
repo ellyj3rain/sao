@@ -4446,11 +4446,16 @@ local function decide(id, agent, body)
                             if okV and type(vlist) == "string" then
                                 local cars = {}
                                 for entry in vlist:gmatch("[^,]+") do
+                                    -- [C122] The `vhk` column: whether
+                                    -- the appraising body carries this
+                                    -- very car's key - the engine's own
+                                    -- holder read, rings recursed by the
+                                    -- engine itself.
                                     local vn, vs, vf, vfu, ve, vl,
-                                        vst, vig, vh, vd = entry:match(
+                                        vst, vig, vh, vhk, vd = entry:match(
                                         "^(.-)@(%d+)@(%d+)@(%d+)@(%d+)"
                                         .. "@(%d+)@(%d+)@(%d+)@(%d+)"
-                                        .. "@(%d+)$")
+                                        .. "@(%d+)@(%d+)$")
                                     if vn then
                                         cars[#cars + 1] = {
                                             name = vn,
@@ -4462,6 +4467,7 @@ local function decide(id, agent, body)
                                             storage = tonumber(vst),
                                             ignition = tonumber(vig),
                                             hotwired = tonumber(vh),
+                                            key = tonumber(vhk),
                                             dist = tonumber(vd),
                                         }
                                     end

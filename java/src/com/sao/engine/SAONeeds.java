@@ -155,8 +155,11 @@ public final class SAONeeds {
      *  take that food uses takes this. "x:y:z:name" or "". */
     public static String findDrinkSourceNear(IsoPlayer shell, int radius) {
         try {
-            FoodSource best = nearestOnFloorRing(shell, radius,
+            FoodSource ground = nearestOnFloorRing(shell, radius,
                 square -> firstDrinkIn(square));
+            FoodSource vehicle = nearestVehicleSource(shell, radius,
+                item -> drinkable(item));
+            FoodSource best = nearerSource(shell, ground, vehicle);
             if (best == null) {
                 SOURCES.remove(shell);
                 return "";
@@ -181,8 +184,11 @@ public final class SAONeeds {
     public static String findDrugSourceNear(IsoPlayer shell, int radius,
                                             String family) {
         try {
-            FoodSource best = nearestOnFloorRing(shell, radius,
+            FoodSource ground = nearestOnFloorRing(shell, radius,
                 square -> firstDrugIn(square, family));
+            FoodSource vehicle = nearestVehicleSource(shell, radius,
+                item -> family.equals(drugFamilyOf(item)));
+            FoodSource best = nearerSource(shell, ground, vehicle);
             if (best == null) {
                 SOURCES.remove(shell);
                 return "";
@@ -211,8 +217,11 @@ public final class SAONeeds {
             // the shared form skips the cell lookup entirely when the
             // distance already cannot beat the best, which is strictly
             // less work across a radius cubed by the floor ring.
-            FoodSource best = nearestOnFloorRing(shell, radius,
+            FoodSource ground = nearestOnFloorRing(shell, radius,
                 square -> firstFoodIn(square));
+            FoodSource vehicle = nearestVehicleSource(shell, radius,
+                item -> edible(item));
+            FoodSource best = nearerSource(shell, ground, vehicle);
             if (best == null) {
                 SOURCES.remove(shell);
                 return "";
@@ -914,6 +923,17 @@ public final class SAONeeds {
                 try {
                     if (vehicle.isHotwired()) hot = 1;
                 } catch (Throwable ignored) { }
+                // [C122] The appraising body's own key for this car -
+                // vanilla's holder read, which recurses key rings by
+                // its own bytecode, so a key the ring mods vacuums
+                // into a ring counts here too.
+                int hasKey = 0;
+                try {
+                    if (shell.getInventory()
+                        .haveThisKeyId(vehicle.getKeyId()) != null) {
+                        hasKey = 1;
+                    }
+                } catch (Throwable ignored) { }
                 if (out.length() > 0) out.append(",");
                 out.append(poolName(vehicle))
                    .append("@").append(Math.max(0, seats))
@@ -924,12 +944,46 @@ public final class SAONeeds {
                    .append("@").append(Math.max(0, storage))
                    .append("@").append(ignition)
                    .append("@").append(hot)
+                   .append("@").append(hasKey)
                    .append("@").append((int) Math.sqrt(d2));
             }
         } catch (Throwable throwable) {
             SAOAgent.log("appraiseVehiclesNear threw: " + throwable);
         }
         return out.toString();
+    }
+
+    /** [C122] Vehicle parts are real ground: a camper's glovebox and
+     *  passenger compartments, a cargo trailer's trunk -
+     *  the parts' own containers, enumerated the engine's own way
+     *  (`isContainer()` then `getItemContainer()`, both verified on
+     *  the jar). Towables carry these with no engine part at all, so
+     *  the larder and the stores read them the same as shelves. */
+    private static java.util.ArrayList<ItemContainer> vehicleContainersNear(
+            IsoPlayer shell, int radius) {
+        java.util.ArrayList<ItemContainer> found =
+            new java.util.ArrayList<>();
+        try {
+            IsoCell cell = shell.getCell();
+            if (cell == null) return found;
+            float sx = shell.getX(), sy = shell.getY();
+            float r2 = (float) radius * (float) radius;
+            for (zombie.vehicles.BaseVehicle vehicle : cell.getVehicles()) {
+                if (vehicle == null) continue;
+                float dx = vehicle.getX() - sx, dy = vehicle.getY() - sy;
+                if (dx * dx + dy * dy > r2) continue;
+                zombie.vehicles.VehicleParts parts = vehicle.getParts();
+                for (int i = 0; i < parts.size(); i++) {
+                    zombie.vehicles.VehiclePart part = parts.get(i);
+                    if (part == null || !part.isContainer()) continue;
+                    ItemContainer c = part.getItemContainer();
+                    if (c != null) found.add(c);
+                }
+            }
+        } catch (Throwable throwable) {
+            SAOAgent.log("vehicleContainersNear threw: " + throwable);
+        }
+        return found;
     }
 
     /** [A28] READ the larder: count edible items in the real
@@ -952,6 +1006,14 @@ public final class SAONeeds {
                             if (items.get(j) instanceof Food) count++;
                         }
                     }
+                }
+            }
+            // [C122] The vehicles' own containers count the same as
+            // shelves - the larder is wherever the food really is.
+            for (ItemContainer c : vehicleContainersNear(shell, radius)) {
+                java.util.ArrayList<InventoryItem> items = c.getItems();
+                for (int j = 0; j < items.size(); j++) {
+                    if (items.get(j) instanceof Food) count++;
                 }
             }
         } catch (Throwable throwable) {
@@ -997,6 +1059,24 @@ public final class SAONeeds {
                             cooked++;
                         }
                     }
+                }
+            }
+            // [C122] The cook's round reaches the vehicles' own
+            // containers too - dinner riding in a camper's
+            // compartment gets the same knowledge as dinner on a
+            // shelf.
+            for (ItemContainer c : vehicleContainersNear(shell, radius)) {
+                if (cooked >= allowance) break;
+                java.util.ArrayList<InventoryItem> items = c.getItems();
+                for (int j = 0; j < items.size()
+                    && cooked < allowance; j++) {
+                    InventoryItem item = items.get(j);
+                    if (!(item instanceof Food food)) continue;
+                    if (food.isCooked() || food.isBurnt()
+                        || food.isRotten()) continue;
+                    if (!food.isbDangerousUncooked()) continue;
+                    food.cooked = true;
+                    cooked++;
                 }
             }
         } catch (Throwable throwable) {
@@ -1359,6 +1439,34 @@ public final class SAONeeds {
                     }
                 }
             }
+            // [C122] Vehicle containers are store ground the same as
+            // shelves - the deposit and the draw fall to
+            // whichever real container is nearest, and a parked
+            // camper's compartment may be nearer than any cabinet.
+            {
+                float fsx = shell.getX(), fsy = shell.getY();
+                float r2 = (float) radius * (float) radius;
+                for (zombie.vehicles.BaseVehicle vehicle : cell.getVehicles()) {
+                    if (vehicle == null) continue;
+                    float dx = vehicle.getX() - fsx;
+                    float dy = vehicle.getY() - fsy;
+                    float d2 = dx * dx + dy * dy;
+                    if (d2 > r2) continue;
+                    int d = (int) d2;
+                    if (d >= bestD) continue;
+                    zombie.vehicles.VehicleParts parts = vehicle.getParts();
+                    for (int i = 0; i < parts.size(); i++) {
+                        zombie.vehicles.VehiclePart part = parts.get(i);
+                        if (part == null || !part.isContainer()) continue;
+                        ItemContainer container = part.getItemContainer();
+                        if (container != null) {
+                            best = container;
+                            bestD = d;
+                            break;
+                        }
+                    }
+                }
+            }
             return best;
         } catch (Throwable throwable) {
             return null;
@@ -1691,6 +1799,68 @@ public final class SAONeeds {
     /** [B31] What a floor-ring sweep is looking for on one square. */
     private interface SquareProbe {
         FoodSource on(IsoGridSquare square);
+    }
+
+    /** [C122] Vehicle parts are ground for a source query too. The
+     *  source remembers the same real container the ordinary square
+     *  scan remembers, at the vehicle's actual position. */
+    private interface ItemProbe {
+        boolean accepts(InventoryItem item);
+    }
+
+    private static FoodSource nearestVehicleSource(
+            IsoPlayer shell, int radius, ItemProbe probe) {
+        IsoCell cell = shell.getCell();
+        if (cell == null) return null;
+        float sx = shell.getX(), sy = shell.getY();
+        float r2 = (float) radius * (float) radius;
+        FoodSource best = null;
+        float bestDist = Float.MAX_VALUE;
+        for (zombie.vehicles.BaseVehicle vehicle : cell.getVehicles()) {
+            if (vehicle == null) continue;
+            float dx = vehicle.getX() - sx;
+            float dy = vehicle.getY() - sy;
+            float dist = dx * dx + dy * dy;
+            if (dist > r2 || dist >= bestDist) continue;
+            zombie.vehicles.VehicleParts parts = vehicle.getParts();
+            for (int i = 0; i < parts.size(); i++) {
+                zombie.vehicles.VehiclePart part = parts.get(i);
+                if (part == null || !part.isContainer()) continue;
+                ItemContainer container = part.getItemContainer();
+                if (container == null) continue;
+                java.util.ArrayList<InventoryItem> items = container.getItems();
+                for (int k = 0; k < items.size(); k++) {
+                    InventoryItem item = items.get(k);
+                    if (!probe.accepts(item)) continue;
+                    FoodSource source = new FoodSource();
+                    source.container = container;
+                    source.item = item;
+                    source.x = (int) vehicle.getX();
+                    source.y = (int) vehicle.getY();
+                    source.z = (int) vehicle.getZ();
+                    best = source;
+                    bestDist = dist;
+                    break;
+                }
+                if (best != null && bestDist == dist) break;
+            }
+        }
+        return best;
+    }
+
+    private static FoodSource nearerSource(
+            IsoPlayer shell, FoodSource first, FoodSource second) {
+        if (first == null) return second;
+        if (second == null) return first;
+        return sourceDistance(shell, second) < sourceDistance(shell, first)
+            ? second : first;
+    }
+
+    private static float sourceDistance(IsoPlayer shell, FoodSource source) {
+        float dx = source.x - shell.getX();
+        float dy = source.y - shell.getY();
+        return dx * dx + dy * dy
+            + ((int) shell.getZ() == source.z ? 0.0f : CROSS_FLOOR_PENALTY);
     }
 
     /** [B31] The nearest something across this floor and the two

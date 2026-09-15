@@ -1827,6 +1827,17 @@ if ! "$PY" tools/tick_law_test.py > /dev/null; then
     fail=1
 fi
 
+# [C122] Border 154 - a vehicle key in the driver's inventory is the
+# engine's own start argument, including a key a ring contains; the
+# motor pool carries that fact to its selection. Campers and trailers
+# are ground through their vehicle-part containers even when they have
+# no engine, and food, cooking and stores read them inside their radius.
+if ! "$PY" tools/vehicle_ground_test.py > /dev/null; then
+    "$PY" tools/vehicle_ground_test.py 2>&1 | grep -E "FAULT|CONTROL|SKIPPED" || true
+    note "BORDER FINDING - a vehicle key or container is not real ground"
+    fail=1
+fi
+
 # Border 103 - the operator's speech is not in the repository: no
 # profanity in the tracked tree and no operator-quote attributions;
 # rulings are paraphrased content, speech stays with the speaker.
