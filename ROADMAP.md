@@ -1,6 +1,6 @@
 | Document | Survivor Awareness Overhaul Roadmap |
 |---|---|
-| Version | `4.11.0.0-pre-alpha` |
+| Version | `4.12.0.0-pre-alpha` |
 | Author | ellyj3rain |
 | Repository | `ROADMAP.md` |
 | Status | CANONICAL - thread map, backlog, live gates. |
@@ -817,7 +817,11 @@ tolerance-poisoning-death ladder (read at `[C33]`, named there as not
 carried) is on the table as the one lethal prior art. Vanilla
 alcohol rides the engine's own intoxication stat.
 
-**The county's ground moves - vehicles, RVs, keys (`[C122]`).**
+**Vehicles, keys, and containers - `[C122]`, closed.** A held key now
+reaches the ordinary engine start call through the driver and motor
+pool; vehicle-part containers now supply the larder, food and drink
+sources, dose sources, cook, and store reads inside their actual scan
+radius.
 Every RV, camper, trailer, and the 235-vehicle pack ship real vehicle
 scripts, so `[C114]`'s machinery already drives them. The campers
 and trailers are towables with no engine part - cargo and livable

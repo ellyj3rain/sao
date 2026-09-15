@@ -1,6 +1,6 @@
 | Document | Survivor Awareness Overhaul Batch Log |
 |---|---|
-| Version | `4.11.0.0-pre-alpha` |
+| Version | `4.12.0.0-pre-alpha` |
 | Author | ellyj3rain |
 | Repository | `BATCH_LOG.md` |
 | Status | REGULATORY - chronological batch index. |
@@ -226,3 +226,4 @@ attribution for every merged entry, stated here rather than in a branch name.
 | [C119](Batches/C119-2026-09-14-week-ones-moments-and-the-governments-answer.md) | 2026-09-14 | Week One's moments and the government's answer | [`T-002`](Batches/THREADS.md#t-002), [`T-004`](Batches/THREADS.md#t-004), [`T-007`](Batches/THREADS.md#t-007) |
 | [C120](Batches/C120-2026-09-14-a-child-at-the-wheel-a-ball-in-the-street.md) | 2026-09-14 | A child at the wheel, a ball in the street | [`T-001`](Batches/THREADS.md#t-001), [`T-002`](Batches/THREADS.md#t-002) |
 | [C121](Batches/C121-2026-09-14-the-carry-the-ladder-and-the-smoke-break.md) | 2026-09-14 | The carry, the ladder, and the smoke break | [`T-002`](Batches/THREADS.md#t-002), [`T-008`](Batches/THREADS.md#t-008) |
+| [C122](Batches/C122-2026-09-14-vehicles-keys-and-containers.md) | 2026-09-14 | Vehicles, keys, and containers | [`T-001`](Batches/THREADS.md#t-001), [`T-003`](Batches/THREADS.md#t-003), [`T-008`](Batches/THREADS.md#t-008) |

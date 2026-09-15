@@ -2725,7 +2725,15 @@ function S.roadworthy(groupName, loudCeiling)
             runs = false
         end
         if runs then
-            local open = (c.ignition or 0) == 1 or (c.hotwired or 0) == 1
+            -- [C122] A car the appraiser holds the key for claims
+            -- like one with keys dangling - the engine's own holder
+            -- read, and the ring mods' vacuums are recursed by the
+            -- engine's own read, not by us. The driver's own pocket
+            -- is still the truth at the start; this is the pool's
+            -- preference, not its permission.
+            local open = (c.ignition or 0) == 1
+                or (c.hotwired or 0) == 1
+                or (c.key or 0) == 1
             local better = false
             if not best then
                 better = true

@@ -16,6 +16,17 @@ import zombie.core.physics.CarController;
  * player faces: the engine part's condition and quality may refuse
  * under their own named reasons, and a refusal is HONORED - the goer
  * takes the walk instead, which the Lua face orders as the fallback.
+ * [C122] correction, dated 2026-09-14: the sentence above is wrong
+ * about the boolean and stands as what was believed. The jar's own
+ * disassembly reads tryStartEngine(boolean) gating on
+ * startWithoutKey-cheat OR vehicleEasyUse OR isKeysInIgnition OR the
+ * argument OR isHotwired - the argument is the "I hold the key" read,
+ * and vanilla's own ISStartVehicleEngine:complete() passes exactly
+ * `character:getInventory():haveThisKeyId(vehicle:getKeyId())` as it.
+ * The cheat path is Week One's trio below, which FORCES the success
+ * calls after the argument; the bare keyed argument is a player's own
+ * start. The no-argument call remains lawful too - it is the same
+ * gate with the key read answered false.
  * `CarController.getClientControls()` stands as written for an NPC at
  * seat 0 - [C82] and this batch's own disassembly both read
  * updateControls() setting its gas/brake fields straight from
@@ -210,10 +221,25 @@ public final class SAODriver {
             state.requested = false;
             return "DRIVE_BOARD_FAILED";
         }
-        // The lawful start: no argument, no cheat flag. The bounds are
-        // the same ones a player faces, and the venture's own canTake
-        // gate ([B19]) already answered keys and hotwire.
-        vehicle.tryStartEngine();
+        // The lawful start, [C122]: the body's own key, read the
+        // engine's own way. `haveThisKeyId` is vanilla's holder read
+        // (ISStartVehicleEngine:complete()'s exact call) and it
+        // recurses key rings by its own bytecode - a key the ring
+        // mods vacuums into a ring still turns this car - and the
+        // boolean it hands tryStartEngine is vanilla's "I hold the
+        // key" argument, nothing forced. No key in the inventory, no
+        // argument passed in its place: the start stands or falls by
+        // the same bounds a player faces ([B19]), hotwire and
+        // keys-in-ignition included.
+        boolean haveKey = false;
+        try {
+            zombie.inventory.InventoryItem key = shell.getInventory()
+                .haveThisKeyId(vehicle.getKeyId());
+            haveKey = key != null;
+        } catch (Throwable keyRead) {
+            haveKey = false;
+        }
+        vehicle.tryStartEngine(haveKey);
         // An occupied car's physics needs waking the same way a
         // player's entry wakes it - the engine's own public call,
         // verified: it grants the activity window the starter and the

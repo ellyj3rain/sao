@@ -1,6 +1,6 @@
 | Document | Survivor Awareness Overhaul Findings |
 |---|---|
-| Version | `4.11.0.0-pre-alpha` |
+| Version | `4.12.0.0-pre-alpha` |
 | Author | ellyj3rain |
 | Repository | `FINDINGS.md` |
 | Status | CANONICAL, APPEND-ONLY - verified engine findings. |
@@ -1481,3 +1481,32 @@ hypothesis until a live receipt. The ledger's correction is one
 clause: engine-absent was prose about code nobody had read, which is
 the prose-is-not-code rule from `[C70]` reached from a fourth
 direction.
+
+---
+
+## F-068 - The boolean vehicle-start argument represents a held key
+
+**Verified** `[C122]`, by disassembling `BaseVehicle.tryStartEngine`
+and `ItemContainer.haveThisKeyId` in the installed Build 42.20 jar.
+Structural; no live receipt.
+
+F-067 correctly found that a non-player driver has no identity gate in
+the driving path, but its start table omitted the boolean argument.
+The no-argument method pushes `false` and calls the boolean form. In
+that form, the engine accepts a start when debug start-without-key,
+easy-use, ignition key, the boolean argument, or hotwire is true. The
+argument is therefore the ordinary answer to whether the driver holds
+the right key, not a bypass of the key rule.
+
+`ItemContainer.haveThisKeyId(int)` checks loose `Key` items first. For
+an item whose type is `KeyRing` or whose tag is `KEY_RING`, it obtains
+the `InventoryContainer` inventory and calls `haveThisKeyId` again.
+The key-ring path is already the engine's inventory path. C122 reads
+that method for the driver and carries its answer into the motor-pool
+appraisal; it does not make a key, move a key, or search nearby ground.
+
+**What this does not establish.** The jar proves the permission path,
+and Border 154 proves the Java-to-Lua choice and source seams. Neither
+one proves that a particular live vehicle starts, drives, or lets a
+person retrieve food from a vehicle compartment. Those remain play
+receipts.
