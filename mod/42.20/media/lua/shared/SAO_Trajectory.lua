@@ -1,38 +1,49 @@
--- SAO_Trajectory.lua - learned trajectory & simulation for late starts ([C126]).
+-- SAO_Trajectory.lua - late-start years and the measured Knox curve ([C126]).
 -- ---------------------------------------------------------------------------
--- When a save begins at a distance from the fall (e.g. 1994, 1995, 1996, or
--- months-since-apocalypse > 0), the county owes hundreds or thousands of days.
--- First-principles stepping through 1096 daily loops under YEARS_BUDGET_MS = 60ms
--- takes dozens of frames and seconds of real time, delaying spawn and taxing CPU.
+-- A save that begins after the fall owes days. Those days are lived
+-- through the years pass ([C45], [C65]): first-principles, one day at
+-- a time. Fast extrapolation is opt-in (sandbox FastSimulation) and
+-- interpolates the measured headless curve rather than inventing one.
 --
--- This module holds the learned macro trajectory distributions fitted from
--- headless county sweeps in the engine's real VM (tools/county_sweep.py and
--- sibling Zomboid-Speakeasy trajectory corpus):
+-- The curve is not a single exponential. Headless Knox runs against
+-- the shipped 11 towns (198 genesis) produced:
 --
---   1. POPULATION DECAY: Exponential attrition curve N(d) = max(N_floor, N0 * exp(-k*d))
---      where k = 0.00205 and N_floor is the resilient survivor base (~8%).
---   2. COMPANY CONVERGENCE: Solitary survival decays as mutual defense houses
---      form; group ratio scales monotonically over elapsed days.
---   3. CLAIMS & FORTIFICATIONS: Settlements take ground and board entrances
---      over time (waysIntoHome, boardedAtHome).
---   4. BRAIN HEALTH & LESSONS: Living survivors settle toward their baseline
---      neuroinflammation (0.30 floor for afflicted, 0.90 for crossed, <=0.15 for
---      resilient survivors) and carry hardened survival lessons.
+--   day     1    7   30   90  180  365 1096
+--   alive 198  177   45    7    2    1  0 / 5
 --
--- Used in headless sweeps, Speakeasy modeling datasets, and for fast macro
--- initialization when late starts request fast simulation.
+-- Most of the county dies in the first month. A handful remain at a
+-- year, sometimes none at three. An exponential fitted across the
+-- whole span predicts 175 alive on day 30; the county had 45. The
+-- 8% floor that would keep 16 people standing at 1096 did not happen.
+--
+-- Houses collapse with the people: 25 standing at week one, 12 at
+-- day 30, one or none by day 90. They do not converge toward 85%.
+--
+-- Used by the years pass when FastSimulation is on, by the headless
+-- sweep, and as the Speakeasy trajectory corpus.
 -- ---------------------------------------------------------------------------
 
 SAO = SAO or {}
 SAO.Trajectory = SAO.Trajectory or {}
 local Trajectory = SAO.Trajectory
 
--- Mathematical model parameters fitted from headless VM sweeps across 1096 days.
-Trajectory.DECAY_RATE = 0.00205
-Trajectory.MIN_SURVIVAL_RATIO = 0.08
-Trajectory.HOUSE_FORMATION_K = 0.0018
-Trajectory.FORTIFICATION_RATE = 0.0030
-Trajectory.AFFLICTED_RATIO = 0.06
+-- Genesis the 11 shipped towns actually produced ([B38] 18 a region).
+Trajectory.CORPUS_N0 = 198
+
+-- Measured headless points, plain (not --engine) Kahlua, Knox cache
+-- dated 2026-09-09. One seed per horizon except 1096 (two seeds:
+-- 0 and 5 alive); 1096 uses the midpoint 2.5 rounded at read time.
+-- houses / inHouse / largestHouse are standing-at-end, not founded-ever.
+Trajectory.ANCHORS = {
+    { d = 0,    alive = 198, houses = 0,  inHouse = 0,  largest = 0, meanNeuro = 0.000 },
+    { d = 1,    alive = 198, houses = 8,  inHouse = 17, largest = 3, meanNeuro = 0.000 },
+    { d = 7,    alive = 177, houses = 25, inHouse = 54, largest = 3, meanNeuro = 0.056 },
+    { d = 30,   alive =  45, houses = 12, inHouse = 24, largest = 2, meanNeuro = 0.022 },
+    { d = 90,   alive =   7, houses =  1, inHouse =  2, largest = 2, meanNeuro = 0.143 },
+    { d = 180,  alive =   2, houses =  0, inHouse =  0, largest = 0, meanNeuro = 0.000 },
+    { d = 365,  alive =   1, houses =  0, inHouse =  0, largest = 0, meanNeuro = 0.000 },
+    { d = 1096, alive =   2, houses =  0, inHouse =  1, largest = 1, meanNeuro = 0.000 },
+}
 
 local function clamp01(v)
     local n = tonumber(v) or 0.0
@@ -41,41 +52,63 @@ local function clamp01(v)
     return n
 end
 
----Predict expected macro distribution at elapsed day `days` from initial population `initialPop`.
+local function lerp(a, b, t)
+    return a + (b - a) * t
+end
+
+local function atDay(days)
+    local a = Trajectory.ANCHORS
+    if days <= a[1].d then return a[1] end
+    if days >= a[#a].d then return a[#a] end
+    for i = 1, #a - 1 do
+        local lo, hi = a[i], a[i + 1]
+        if days >= lo.d and days <= hi.d then
+            local t = (days - lo.d) / (hi.d - lo.d)
+            return {
+                d = days,
+                alive = lerp(lo.alive, hi.alive, t),
+                houses = lerp(lo.houses, hi.houses, t),
+                inHouse = lerp(lo.inHouse, hi.inHouse, t),
+                largest = lerp(lo.largest, hi.largest, t),
+                meanNeuro = lerp(lo.meanNeuro, hi.meanNeuro, t),
+            }
+        end
+    end
+    return a[#a]
+end
+
+---Predict expected macro distribution at elapsed day `days`.
 ---@param days number
 ---@param initialPop number|nil
 ---@return table
 function Trajectory.predict(days, initialPop)
     days = math.max(0, tonumber(days) or 0)
-    initialPop = math.max(1, tonumber(initialPop) or 216)
-
-    local floorPop = math.max(6, math.floor(initialPop * Trajectory.MIN_SURVIVAL_RATIO + 0.5))
-    local decay = math.exp(-Trajectory.DECAY_RATE * days)
-    local living = math.max(floorPop, math.floor(initialPop * decay + 0.5))
-    local dead = math.max(0, initialPop - living)
-
-    local houseRatio = math.min(0.85, 1.0 - math.exp(-Trajectory.HOUSE_FORMATION_K * days))
-    local inHouse = math.floor(living * houseRatio + 0.5)
-    local avgGroupSize = 2.0 + math.min(4.0, days / 300.0)
-    local houses = (inHouse >= 2) and math.max(1, math.floor(inHouse / avgGroupSize + 0.5)) or 0
-
-    local boarded = math.min(8, math.floor(days * Trajectory.FORTIFICATION_RATE + 0.5))
-    local meanNeuro = math.min(0.35, 0.06 + (0.04 * math.sin(days / 60.0)))
-
+    initialPop = math.max(1, tonumber(initialPop) or Trajectory.CORPUS_N0)
+    local scale = initialPop / Trajectory.CORPUS_N0
+    local p = atDay(days)
+    local living = math.max(0, math.floor(p.alive * scale + 0.5))
+    if living > initialPop then living = initialPop end
+    local inHouse = math.min(living, math.max(0, math.floor(p.inHouse * scale + 0.5)))
+    local houses = math.max(0, math.floor(p.houses * scale + 0.5))
+    if living < 2 then
+        houses = 0
+        inHouse = 0
+    end
     return {
         days = days,
         initial = initialPop,
         alive = living,
-        dead = dead,
+        dead = math.max(0, initialPop - living),
         houses = houses,
         inHouse = inHouse,
-        largestHouse = math.min(living, math.floor(avgGroupSize + 1.5)),
-        boarded = boarded,
-        meanNeuro = meanNeuro,
+        largestHouse = math.min(living, math.max(0, math.floor(p.largest + 0.5))),
+        boarded = 0,
+        meanNeuro = p.meanNeuro,
+        fitted = true,
     }
 end
 
----Check whether fast trajectory extrapolation should be performed instead of stepping.
+---Fast extrapolation is opt-in. Off, the years live every owed day.
 ---@param owed number
 ---@param s table|nil
 ---@param conf table|nil
@@ -89,7 +122,7 @@ function Trajectory.shouldFastSimulate(owed, s, conf)
     return false
 end
 
----Extrapolate post-collapse county state forward across `owed` days in a single macro pass.
+---Apply the measured curve in one pass. Only when shouldFastSimulate is true.
 ---@param s table
 ---@param owed number
 ---@param conf table|nil
@@ -105,12 +138,8 @@ function Trajectory.extrapolate(s, owed, conf)
     end
     local total = #ids
     if total == 0 then return false end
-
-    -- Census populations are bounded by initial spawn (≤500); assert before sort.
-    -- The county never exceeds ~216 default, and even modded maximums stay under 500.
     assert(total <= 500, "extrapolate: id list exceeds census bound of 500 (" .. total .. ")")
 
-    -- Deterministic sort by hash so the same save produces the same survivors
     table.sort(ids, function(a, b)
         local ha = SAO.Hash and SAO.Hash.of and SAO.Hash.of(tostring(a), "trajectory") or 0
         local hb = SAO.Hash and SAO.Hash.of and SAO.Hash.of(tostring(b), "trajectory") or 0
@@ -121,9 +150,6 @@ function Trajectory.extrapolate(s, owed, conf)
     local prediction = Trajectory.predict(owed, total)
     local targetAlive = prediction.alive
     local targetDead = total - targetAlive
-
-    -- Partition casualties and survivors
-    local deathCauses = { "infection", "starvation", "violence", "exposure", "sepsis" }
     local survivors = {}
 
     for i = 1, total do
@@ -132,80 +158,38 @@ function Trajectory.extrapolate(s, owed, conf)
         if rec then
             if i <= targetDead then
                 rec.dead = true
-                -- Distribute time of death across elapsed span
-                local dieDay = math.max(1, math.min(owed, math.floor((i / targetDead) * owed)))
+                local dieDay = 1
+                if targetDead > 0 then
+                    dieDay = math.max(1, math.min(owed, math.floor((i / targetDead) * owed)))
+                end
                 rec.diedAtHours = dieDay * 24.0
-                local causeIdx = ((SAO.Rand and SAO.Rand.int and SAO.Rand.int(#deathCauses)) or (i % #deathCauses)) + 1
-                rec.deathCause = deathCauses[causeIdx] or "starvation"
+                rec.deathCause = "starvation"
             else
                 rec.dead = false
                 rec.diedAtHours = nil
                 rec.deathCause = nil
                 survivors[#survivors + 1] = id
-
-                -- Aging and habit formation
-                if SAO.Age then
-                    pcall(function() SAO.Age.dailyRoll(rec, owed, owed * 9000) end)
-                    pcall(function() SAO.Age.settleHabits(rec, owed) end)
-                end
-
-                -- Fortifications on ground
-                local b = math.min(8, math.floor(owed * Trajectory.FORTIFICATION_RATE))
-                rec.boardedAtHome = b
-                rec.waysIntoHome = math.max(b + 1, 4 + (i % 3))
                 rec.groundSeenOnDay = owed
-
-                -- Hardened survival lessons with lived provenance
-                if SAO.Lessons and SAO.Lessons.learn then
-                    pcall(function()
-                        SAO.Lessons.learn(id, "the-county-collects", 1.0, "lived")
-                        SAO.Lessons.learn(id, "bind-wounds-fast", 1.0, "lived")
-                        if owed >= 180 then
-                            SAO.Lessons.learn(id, "trust-carefully", 0.8, "lived")
-                        end
-                    end)
-                end
-
-                -- Neuroinflammation baseline
-                if rec.terminalState == "crossed" then
-                    rec.neuroinflammation = 0.90
-                elseif (i % 14 == 0) then
-                    -- Small proportion of afflicted who reversed
-                    rec.afflictedReturn = true
-                    rec.neuroinflammation = 0.32
-                else
-                    -- Resilient survivor baseline (cleared acute inflammation)
-                    rec.neuroinflammation = clamp01(0.04 + ((i % 5) * 0.02))
-                end
+                rec.neuroinflammation = clamp01(prediction.meanNeuro)
             end
         end
     end
 
-    -- Group formation among living survivors
     if SAO.Standing and #survivors >= 2 then
-        local groupSize = 3
+        local groupSize = math.max(2, prediction.largestHouse)
         local currentRoster = {}
         local groupIdx = 1
-
+        local housesWanted = prediction.houses
         for idx = 1, #survivors do
+            if groupIdx > housesWanted and housesWanted > 0 then
+                break
+            end
             local sid = survivors[idx]
             currentRoster[#currentRoster + 1] = sid
             if #currentRoster >= groupSize or idx == #survivors then
-                if #currentRoster >= 2 then
+                if #currentRoster >= 2 and SAO.Standing.formCompany then
                     local gName = "Company-" .. tostring(groupIdx)
-                    if SAO.Standing.formCompany then
-                        pcall(function() SAO.Standing.formCompany(currentRoster, gName) end)
-                    end
-                    -- Establish mutual trust within house
-                    for a = 1, #currentRoster do
-                        for b = 1, #currentRoster do
-                            if a ~= b and SAO.Standing.adjustTrust then
-                                pcall(function()
-                                    SAO.Standing.adjustTrust(currentRoster[a], currentRoster[b], 0.6)
-                                end)
-                            end
-                        end
-                    end
+                    pcall(function() SAO.Standing.formCompany(currentRoster, gName) end)
                     groupIdx = groupIdx + 1
                 end
                 currentRoster = {}
@@ -213,7 +197,6 @@ function Trajectory.extrapolate(s, owed, conf)
         end
     end
 
-    -- Close telemetry run cleanly
     if s.yearsRunId then
         pcall(function()
             if SAO.Telemetry and SAO.Telemetry.run then
@@ -227,9 +210,7 @@ function Trajectory.extrapolate(s, owed, conf)
             end
         end)
         pcall(function()
-            if SAO.Telemetry then
-                SAO.Telemetry.runId = nil
-            end
+            if SAO.Telemetry then SAO.Telemetry.runId = nil end
         end)
     end
 

@@ -1564,18 +1564,28 @@ Because Antibodies keeps its state encapsulated on player modData and provides n
 **Verified** `[C126]`, in `tools/county_sweep.py` and `tools/county_dump.py` against Kahlua VM.
 
 The headless simulation harness previously loaded 20 modules and reported 12 missing references across recent additions (`SAO_Neuro.lua`, `SAO_PathogenEvents.lua`, `SAO_AfflictedReturn.lua`, `SAO_WorldGenesis.lua`, `SAO_Adaptation.lua`, `SAO_Isolation.lua`, `SAO_Organization.lua`, `SAO_Settlement.lua`, `SAO_Material.lua`, `SAO_Recognition.lua`, `SAO_Nuke.lua`).
-Expanding `MODULES` to the complete set of 42 shared and client dormant modules and declaring client-only and driving surfaces in `NOT_DORMANT` produces zero missing module references. Headless sweeps execute a 1096-day county in ~8 seconds with full fidelity across neuroinflammation, reverted afflicted adoption, and organization dynamics.
+Expanding `MODULES` to the complete set of 42 shared and client dormant modules and declaring client-only and driving surfaces in `NOT_DORMANT` produces zero missing module references. A 1096-day county finishes in ~27 seconds on bundled Kahlua against the Knox cache. An earlier "~8 seconds" figure did not include the C112 cadence freeze (below).
 
 ---
 
-## F-074 - Empirical macro trajectory curves and sub-5ms late start extrapolation
+## F-074 - Measured Knox trajectory; years catch-up; invented exponential refused
 
-**Verified** `[C126]`, empirical data from `tools/county_trajectory.py` and structural evaluation in `SAO_Trajectory.lua`.
+**Verified** `[C126]`, headless runs in `tools/sweep/trajectories.jsonl`, Border 159.
 
-Sweeps across 30 to 1096 days demonstrate consistent macro distributions:
-1. **Exponential attrition decay**: $N(d) = \max(N_{\text{floor}}, N_0 \cdot \exp(-k \cdot d))$ with $k = 0.00205$ and a resilient survivor floor $N_{\text{floor}} = N_0 \times 0.08$.
-2. **Mutual-defense house convergence**: solitary survival declines as survivors coalesce into houses ($k = 0.0018$).
-3. **Fortification scaling**: entrances boarded over elapsed years ($0.0030$ per day, capped at 8).
-4. **Brain health settling**: afflicted survivors hold their $0.30$ floor, crossed bodies sit at $0.90$, and living uninfected survivors settle below $0.15$.
-Instantiating terminal world state via `SAO.Trajectory.extrapolate` completes in under 5 milliseconds, avoiding dozens of frame budgets and CPU lag during late-start save loading.
+After [C112] the years cadence compared `History.ticks()` from hours-behind to the day-being-lived clock. The clock went backwards and a save owing more than one 60ms slice froze at that slice, in the sweep and in play. Catch-up now runs every frame until the span ends.
+
+Measured plain Knox (11 towns, 198 genesis), one seed per horizon except 1096 (two):
+
+| days | alive | houses standing |
+| --- | --- | --- |
+| 1 | 198 | 8 |
+| 7 | 177 | 25 |
+| 30 | 45 | 12 |
+| 90 | 7 | 1 |
+| 180 | 2 | 0 |
+| 365 | 1 | 0 |
+| 1096 | 0, 5 | 0, 1 |
+
+A single exponential $N_0 \exp(-0.00205 d)$ with an 8% floor predicts 175 alive on day 30 and 16 at 1096. The county had 45 and then a handful or none. Houses collapse with the people. `SAO_Trajectory` interpolates these anchors. Fast extrapolation is opt-in (`FastSimulation`). Default is first-principles years.
+
 

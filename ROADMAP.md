@@ -897,13 +897,6 @@ county already owns (the inspect and medical panels), as a graph
 and not a score.
 
 **Learned trajectory and headless simulation for post-1993 starts (`[C126]`, closed).**
-Headless simulation module harmonization loads the entire shared and client
-dormant substrate (42 modules) with zero missing references, running a 1096-day
-county in ~8 seconds. `county_trajectory.py` generates multi-year macro datasets
-compatible with sibling `Zomboid-Speakeasy`. `SAO_Trajectory.lua` provides learned
-analytical curves (exponential attrition decay with resilient 8% floor, mutual-defense
-grouping, fortifications, and brain health baselines) and fast extrapolation, wired
-directly into `runTheYears` for instantaneous late-start save creation.
+The years catch up every frame, so a 1996 start no longer freezes at sixty days. Headless runs against bundled Kahlua and the Knox cache. The measured curve is a first-month crash then a handful (0 or 5 at two 1096-day seeds), not an 8% exponential floor. Fast extrapolation interpolates those anchors and stays opt-in.
 
-After `[C126]`: playtesting, runtime observation of autonomous survivor behavior,
-and next totality orders.
+After `[C126]`: playtesting a late start, more seeds on the curve.

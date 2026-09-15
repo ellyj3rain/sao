@@ -3581,10 +3581,30 @@ local function populationTick()
     -- [C112] The cadence law: last fired plus a span, never a modulo -
     -- the county's clock can skip values (fast-forward, a lag spike),
     -- and a modulo gate only fires when a multiple lands exactly.
-    if tickCounter - (lastPassAt or -TICK_INTERVAL) < TICK_INTERVAL then
-        return
+    --
+    -- [C126] While the years are still being lived, this pass has to
+    -- run every frame. The years clock is the day being lived
+    -- ([C62]) - tens of hours - and the pre-years tick was
+    -- hours-behind, thousands. Comparing them, the cadence sees a
+    -- clock that went backwards and never fires again, so a save that
+    -- owes more days than one 60ms slice can chew freezes at that
+    -- slice. Catch-up is every frame until the span ends; live play
+    -- keeps the interval.
+    do
+        local s = yearsStore()
+        local catchingUp = false
+        if s and s.yearsAsked then
+            local run = tonumber(s.yearsRun) or 0
+            local owed = tonumber(s.yearsOwed) or 0
+            catchingUp = run < owed
+        end
+        if not catchingUp then
+            if tickCounter - (lastPassAt or -TICK_INTERVAL) < TICK_INTERVAL then
+                return
+            end
+            lastPassAt = tickCounter
+        end
     end
-    lastPassAt = tickCounter
     local conf = cfg()
     if not conf.enable then return end
     local booting = not booted

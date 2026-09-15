@@ -7,28 +7,11 @@
 
 # Session state
 
-**As of** 2026-09-14, `[C126]` close - learned trajectory and headless simulation for post-1993 starts.
-The headless simulation capability and module registry are fully harmonized: every
-shared module and dormant client module is loaded into the engine's real VM
-(`tools/county_sweep.py` and `tools/county_dump.py`), with non-dormant systems
-declared in `NOT_DORMANT`, producing zero missing module references across the mod.
-Headless sweeps simulate a 1096-day county in ~8 seconds, capturing macro population
-decay, mutual-defense company formation, claims, fortifications, and neuroinflammation.
-`tools/county_trajectory.py` extracts empirical trajectory datasets across multi-year
-horizons and outputs structured JSONL for sibling `Zomboid-Speakeasy` ML/trajectory
-models. In `shared/SAO_Trajectory.lua`, the learned macro trajectory curves are modeled
-analytically: exponential attrition decay $N(d) = \max(N_{\text{floor}}, N_0 \cdot \exp(-0.00205 \cdot d))$
-with an 8% resilient survivor floor, group aggregation, entrance boarding, and settled
-neuroinflammation baselines (0.30 floor for afflicted, 0.90 for crossed, $\le 0.15$ for living).
-`SAO_Population.lua` wires `SAO.Trajectory.extrapolate` into `runTheYears`, allowing late-start
-saves (1994–1996) requesting fast simulation to instantiate their post-collapse world state
-instantaneously (<5ms) rather than spending hundreds of game frames under `YEARS_BUDGET_MS = 60ms`.
-Border 159 verifies fitted parameters, mathematical monotonicity, survivor floor retention,
-group scaling, zero missing headless modules, and mutation resistance. The version machine
-derives `5.3.0.0-pre-alpha` as a minor capability: macro trajectory modeling and headless
-simulation seamlessly extrapolate multi-year world states. Open pending the play receipt:
-nobody has started a late-year save with extrapolated post-collapse society in a live game.
-Next: playtest execution and observation of autonomous survivor behavior and society.
+**As of** 2026-09-15, `[C126]` close - learned trajectory and headless simulation for post-1993 starts.
+The years pass no longer freezes at one 60-day slice: catch-up runs every frame until the span ends ([C112] cadence vs [C62] years clock). Headless LuaRun compiles against bundled Kahlua when the game jar is absent; `SAO_SWEEP_CACHE` is the Knox extract. 11 towns size the county at 198. Measured curve: 198 alive at day 1, 45 at day 30, 7 at day 90, 0 and 5 at two 1096-day seeds. The invented exponential $k=0.00205$ with an 8% floor is refused (Border 159). `SAO_Trajectory` interpolates those anchors. Fast extrapolation is opt-in. Default is first-principles years, which now complete (~27s headless for 1096 days). Corpus: `tools/sweep/trajectories.jsonl`. Version `5.3.0.0-pre-alpha`. Open pending the play receipt: nobody has started a late-year save in a live game.
+Next: playtest of a 1996 start, and more seeds on the curve.
+
+**As of** 2026-09-14, `[C125]` close - the neuroinflammation knot.
 
 **As of** 2026-09-14, `[C125]` close - the neuroinflammation knot.
 Brain health is represented as a single continuous scalar `rec.neuroinflammation`

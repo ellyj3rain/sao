@@ -100,10 +100,13 @@ import world as World                                   # noqa: E402
 
 SWEEP = HERE / "sweep"
 SRC = HERE / "luacheck" / "LuaRun.java"
+ENGINE_SRC = HERE / "luacheck" / "LuaRunEngine.java"
 OUT = ROOT / "java" / "out" / "luacheck"
+KAHLUA = HERE / "lib" / "kahlua-j2se.jar"
 JDK = pathlib.Path(r"C:\Users\jleyv\Peanut Butter\JetBrains\Java\bin")
 GAME = pathlib.Path(
-    r"C:\Program Files (x86)\Steam\steamapps\common\ProjectZomboid")
+    os.environ.get("SAO_GAME")
+    or r"C:\Program Files (x86)\Steam\steamapps\common\ProjectZomboid")
 PZ = GAME / "projectzomboid.jar"
 STDLIB = GAME / "stdlib.lua"
 # The mod's own jar, tracked in the mod tree where build-java.sh
@@ -267,14 +270,61 @@ COLUMNS = [
 ]
 
 
+def java_home_bin(name):
+    """`java` / `javac` from the Windows install, JAVA_HOME, or PATH."""
+    win = JDK / (name + ".exe")
+    if win.exists():
+        return str(win)
+    home = os.environ.get("JAVA_HOME")
+    if home:
+        for n in (name + ".exe", name):
+            p = pathlib.Path(home) / "bin" / n
+            if p.exists():
+                return str(p)
+    found = shutil.which(name)
+    if found:
+        return found
+    return None
+
+
+def vm_classpath(engine=False):
+    """Classpath for LuaRun. Game jar if present, else bundled Kahlua."""
+    sep = os.pathsep
+    if engine and PZ.exists() and SAO_JAR.exists():
+        return sep.join([str(PZ), str(SAO_JAR), "."])
+    if PZ.exists():
+        return sep.join([str(PZ), "."])
+    if KAHLUA.exists():
+        return sep.join([str(KAHLUA), "."])
+    return "."
+
+
+def has_world():
+    return (CACHE / "map.lua").exists() and (CACHE / "regions.lua").exists()
+
+
+def has_vm():
+    return PZ.exists() or KAHLUA.exists()
+
+
 def build_runner():
     cls = OUT / "LuaRun.class"
-    if cls.exists() and cls.stat().st_mtime >= SRC.stat().st_mtime:
+    javac = java_home_bin("javac")
+    if not javac:
+        return False
+    sources = [SRC]
+    cp = str(PZ) if PZ.exists() else str(KAHLUA)
+    if PZ.exists() and ENGINE_SRC.exists():
+        sources.append(ENGINE_SRC)
+    newest_src = max(p.stat().st_mtime for p in sources if p.exists())
+    if cls.exists() and cls.stat().st_mtime >= newest_src:
         return True
     OUT.mkdir(parents=True, exist_ok=True)
     done = subprocess.run(
-        [str(JDK / "javac.exe"), "-cp", str(PZ), "-d", str(OUT), str(SRC)],
+        [javac, "-cp", cp, "-d", str(OUT)] + [str(p) for p in sources],
         capture_output=True, text=True, timeout=300)
+    if done.returncode != 0:
+        sys.stderr.write(done.stderr or done.stdout or "javac failed\n")
     return done.returncode == 0
 
 
@@ -293,6 +343,9 @@ def modules_referenced(lua):
 
 
 def one(name, lua, owed, refill, engine=False):
+    java = java_home_bin("java")
+    if not java:
+        return None
     prelude = (SWEEP / "prelude.lua").read_text(encoding="utf-8")
     prelude = prelude.replace("_G.__owed = 1096", "_G.__owed = %d" % owed)
     if refill is not None:
@@ -300,13 +353,13 @@ def one(name, lua, owed, refill, engine=False):
                                   "RefillDays = %s" % refill)
     with tempfile.TemporaryDirectory() as tmp:
         work = pathlib.Path(tmp)
-        shutil.copy2(STDLIB, work / "stdlib.lua")
+        if STDLIB.exists():
+            shutil.copy2(STDLIB, work / "stdlib.lua")
         for c in OUT.glob("*.class"):
             shutil.copy2(c, work / c.name)
         pre = work / "prelude.lua"
         pre.write_text(prelude, encoding="utf-8")
-        cp = "%s;%s;." % (PZ, SAO_JAR) if engine else "%s;." % PZ
-        args = [str(JDK / "java.exe"), "-cp", cp, "LuaRun"]
+        args = [java, "-cp", vm_classpath(engine), "LuaRun"]
         if engine:
             args += ["--engine", str(GAME)]
         args += [str(pre)]
@@ -326,6 +379,9 @@ def one(name, lua, owed, refill, engine=False):
     out = done.stdout or ""
     at = out.find("VALUE ")
     if at < 0:
+        err = (done.stderr or "") + out
+        if err:
+            sys.stderr.write(err[-4000:] + "\n")
         return None
     try:
         return json.loads(out[at + 6:].strip().split("\n")[0])
@@ -355,13 +411,10 @@ def main():
           % args.runs)
     print("=" * 74)
 
-    if not (JDK.exists() and PZ.exists() and STDLIB.exists()
-            and SRC.exists() and GAME.exists()):
-        print("  SKIPPED - no JDK, engine jar, stdlib, runner or game.")
-        print("  This runs the shipped modules in the engine's own VM "
-              "against the")
-        print("  shipped map, so it needs the game installed. Nothing "
-              "is asserted,")
+    if not (SRC.exists() and has_vm() and (GAME.exists() or has_world())):
+        print("  SKIPPED - no Kahlua VM (game jar or tools/lib/kahlua-j2se.jar),")
+        print("  runner, or world cache. The sweep needs the shipped map")
+        print("  (SAO_SWEEP_CACHE) or the game install. Nothing is asserted,")
         print("  so there is nothing to fail.")
         return 0
     if args.engine and not SAO_JAR.exists():

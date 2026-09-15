@@ -12,34 +12,37 @@
 
 The operator ruled on 2026-09-14 that the project must prepare for playtesting with primitive simulation capability integrating with the sibling `Zomboid-Speakeasy` repository, connecting `survivor-awareness` headless simulation with ML and trajectory modeling to extrapolate county generation data for late starts (1994–1996) without taxing the CPU or causing in-game loading latency.
 
-1. **Headless simulation module harmonization**:
-   - `tools/county_sweep.py` and `tools/county_dump.py` had fallen behind recent module additions (`SAO_Neuro.lua`, `SAO_PathogenEvents.lua`, `SAO_AfflictedReturn.lua`, `SAO_WorldGenesis.lua`, `SAO_Adaptation.lua`, `SAO_Isolation.lua`, `SAO_Organization.lua`, `SAO_Settlement.lua`, `SAO_Material.lua`, `SAO_Recognition.lua`, `SAO_Nuke.lua`).
-   - Every shared module and dormant client module is now loaded into the headless Kahlua VM, with `Driving` and GUI/screen-only modules declared in `NOT_DORMANT`. `Sweep.modules_referenced` now finds zero missing modules across the entire mod.
-   - Headless sweeps run full-fidelity dormant counties (including neuroinflammation, reversion returns, and organization) in ~8 seconds for 1096 simulated days.
+1. **The years actually run past sixty days.** After [C112] the cadence gate compared `History.ticks()` from hours-behind (thousands) to the years clock (the day being lived, tens). The clock went backwards, the gate never fired again, and any save that owed more days than one 60ms slice could chew froze at that slice — in the sweep and in play. `runTheYears` now keeps catching up every frame until the span ends. A 1096-day county finishes.
 
-2. **Empirical trajectory dataset pipeline & Speakeasy seam**:
-   - Built `tools/county_trajectory.py` to drive headless sweeps across varied horizons (30, 90, 180, 365, 730, 1096 days) in the engine's real VM.
-   - The tool extracts macro trajectory points (living survivors, casualties, houses founded/standing, grouped population, largest house, mean trust, mean neuroinflammation, and afflicted survivor counts) and fits exponential attrition decay curves.
-   - Emits structured JSONL datasets compatible with `Zomboid-Speakeasy` decision and world training pipelines (`decisions/trajectories.jsonl`).
+2. **Headless VM without the game jar.** `LuaRun` compiles against Kahlua alone (`tools/lib/kahlua-j2se.jar`, MIT kahlua2, the same `se.krka.kahlua` classes). `--engine` still loads `LuaRunEngine` by name when `projectzomboid.jar` is on the classpath. `county_sweep.py` honours `SAO_SWEEP_CACHE` for the Knox extract (`regions.lua`, `map.lua`) and no longer hard-requires the Windows JDK path. Module list covers the dormant county (42 loaded, `NOT_DORMANT` declared).
 
-3. **In-mod trajectory modeling & fast simulation**:
-   - `shared/SAO_Trajectory.lua` encapsulates the empirical trajectory distributions fitted from headless runs:
-     - Exponential attrition decay: `N(d) = math.max(floorPop, math.floor(initialPop * math.exp(-0.00205 * days) + 0.5))` where `floorPop = initialPop * 0.08`.
-     - Mutual defense group convergence: `houseRatio = math.min(0.85, 1.0 - math.exp(-0.0018 * days))`.
-     - Fortification scaling: `boarded = math.min(8, math.floor(days * 0.0030))`.
-     - Neuroinflammation baseline: afflicted survivors hold their `0.30` scarring floor, crossed sit at `0.90`, and living resilient survivors settle below `0.15`.
-   - Fast macro extrapolation: `SAO.Trajectory.extrapolate(s, owed, conf)` instantiates post-collapse county states in a single atomic pass, distributing dated casualties, forming houses, assigning fortifications, imparting survival lessons, settling brain health baselines, and recording telemetry.
-   - `client/SAO_Population.lua`: `runTheYears` queries `SAO.Trajectory.shouldFastSimulate` before the daily frame loop. When fast simulation is active, the county instantiates instantaneously (<5ms) rather than spending hundreds of game frames under `YEARS_BUDGET_MS = 60ms`.
+3. **Measured Knox curve, not an invented exponential.** Headless runs against the 11 shipped towns (198 genesis):
 
-4. **Verification**:
-   - Border 159 (`tools/trajectory_simulation_test.py`) verifies fitted constants, strict mathematical monotonicity of population decay, survival floor retention, house aggregation scaling, zero headless sweep missing modules, and mutation resistance.
-   - Border 118 re-verified: simulated days remain lived through existing cadences, holding genesis and budget invariants.
+   | days | alive | houses standing |
+   | --- | --- | --- |
+   | 1 | 198 | 8 |
+   | 7 | 177 | 25 |
+   | 30 | 45 | 12 |
+   | 90 | 7 | 1 |
+   | 180 | 2 | 0 |
+   | 365 | 1 | 0 |
+   | 1096 | 0, 5 | 0, 1 |
+
+   Most of the county dies in the first month. A handful remain at a year; three years is none or a few. A single exponential `N0 * exp(-0.00205 d)` with an 8% floor predicts 175 alive on day 30 and 16 at 1096. Neither happened. Houses collapse with the people; they do not converge toward 85%. `SAO_Trajectory.lua` interpolates these anchors. Fast extrapolation stays opt-in (`FastSimulation`). Default is first-principles years, which now complete.
+
+4. **Speakeasy seam.** `tools/county_trajectory.py` drives the horizons and writes JSONL. `tools/sweep/trajectories.jsonl` is the corpus from the runs above.
+
+5. **Verification.** Border 159 refuses the invented 0.00205 / 8% floor, refuses LuaRun compiling against `zombie.*`, refuses a cadence that cannot catch up, and checks the measured anchors.
 
 ## What changed
 
-- `mod/42.20/media/lua/shared/SAO_Trajectory.lua`: implements learned macro trajectory prediction and fast extrapolation.
-- `mod/42.20/media/lua/client/SAO_Population.lua`: wires fast simulation path into `runTheYears`.
-- `tools/county_sweep.py`: harmonizes `MODULES` (42 modules) and `NOT_DORMANT` (22 declarations), adding `meanNeuro` and `afflicted` tracking.
-- `tools/county_trajectory.py`: dataset extraction pipeline and exponential curve fitting tool.
-- `tools/trajectory_simulation_test.py`: implements Border 159.
-- `tools/check.sh`: wires Border 159 into the verification gate.
+- `mod/42.20/media/lua/client/SAO_Population.lua`: years catch up every frame; opt-in fast path still wired.
+- `mod/42.20/media/lua/shared/SAO_Trajectory.lua`: measured Knox anchors; predict interpolates; extrapolate is opt-in.
+- `tools/luacheck/LuaRun.java`: compiles against Kahlua alone.
+- `tools/luacheck/LuaRunEngine.java`: `--engine` helpers, compiled only with the game jar.
+- `tools/lib/kahlua-j2se.jar`: bundled Kahlua2 (MIT).
+- `tools/county_sweep.py`: portable Java, Kahlua fallback, `SAO_SWEEP_CACHE`.
+- `tools/county_trajectory.py`: corpus extractor.
+- `tools/sweep/trajectories.jsonl`: measured points.
+- `tools/trajectory_simulation_test.py`: Border 159.
+- `tools/check.sh`: Border 159 in the gate.
