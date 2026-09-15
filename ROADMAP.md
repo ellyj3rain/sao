@@ -1,6 +1,6 @@
 | Document | Survivor Awareness Overhaul Roadmap |
 |---|---|
-| Version | `5.2.0.0-pre-alpha` |
+| Version | `5.3.0.0-pre-alpha` |
 | Author | ellyj3rain |
 | Repository | `ROADMAP.md` |
 | Status | CANONICAL - thread map, backlog, live gates. |
@@ -896,6 +896,7 @@ happened to the body. The visualization rides the window line the
 county already owns (the inspect and medical panels), as a graph
 and not a score.
 
-After `[C125]`: the crossed-doctrine batches, the off-switch list
-before runtime verification, and the corpus and training passes
-beyond - the order the totality already holds.
+**Learned trajectory and headless simulation for post-1993 starts (`[C126]`, closed).**
+The years catch up every frame, so a 1996 start no longer freezes at sixty days. Headless runs against bundled Kahlua and the Knox cache. The measured curve is a first-month crash then a handful (0 or 5 at two 1096-day seeds), not an 8% exponential floor. Fast extrapolation interpolates those anchors and stays opt-in.
+
+After `[C126]`: playtesting a late start, more seeds on the curve.

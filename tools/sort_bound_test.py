@@ -113,6 +113,11 @@ BOUNDED = {
         "one building at a time as a person actually stands in it; a "
         "group is at most the county, so the widest honest bound is a "
         "town's own buildings - the map's number, not the code's",
+    ("SAO_Trajectory.lua", "ids"):
+        "the county's identity roster at extrapolation time. The census "
+        "caps population at 500 (asserted before the sort); headless "
+        "sweeps confirm the default county spawns ~216 and modded "
+        "maximums stay well under 500",
 }
 
 
