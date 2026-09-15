@@ -3507,6 +3507,25 @@ local function runTheYears(conf)
         end)
     end
 
+    -- [C126] Learned trajectory fast simulation for late starts.
+    -- Where fast simulation is active, the macro trajectory model
+    -- computes terminal population, groups, fortifications, and
+    -- neuroinflammation in one pass rather than stepping hundreds
+    -- of daily frames.
+    if SAO.Trajectory and SAO.Trajectory.shouldFastSimulate
+        and SAO.Trajectory.shouldFastSimulate(owed, s, conf) then
+        local okFast = false
+        pcall(function()
+            okFast = SAO.Trajectory.extrapolate(s, owed, conf)
+        end)
+        if okFast then
+            local alive = SAO.Identity and SAO.Identity.livingCount and SAO.Identity.livingCount() or 0
+            log("the county has lived its " .. owed .. " days via trajectory extrapolation: "
+                .. alive .. " alive to meet")
+            return false
+        end
+    end
+
     local okT, startedMs = pcall(function() return getTimestampMs() end)
     local began = run
     while run < owed do

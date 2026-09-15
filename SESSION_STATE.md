@@ -1,11 +1,34 @@
 | Document | Survivor Awareness Overhaul Session State |
 |---|---|
-| Version | `5.2.0.0-pre-alpha` |
+| Version | `5.3.0.0-pre-alpha` |
 | Author | ellyj3rain |
 | Repository | `SESSION_STATE.md` |
 | Status | CANONICAL - where the work actually stands. |
 
 # Session state
+
+**As of** 2026-09-14, `[C126]` close - learned trajectory and headless simulation for post-1993 starts.
+The headless simulation capability and module registry are fully harmonized: every
+shared module and dormant client module is loaded into the engine's real VM
+(`tools/county_sweep.py` and `tools/county_dump.py`), with non-dormant systems
+declared in `NOT_DORMANT`, producing zero missing module references across the mod.
+Headless sweeps simulate a 1096-day county in ~8 seconds, capturing macro population
+decay, mutual-defense company formation, claims, fortifications, and neuroinflammation.
+`tools/county_trajectory.py` extracts empirical trajectory datasets across multi-year
+horizons and outputs structured JSONL for sibling `Zomboid-Speakeasy` ML/trajectory
+models. In `shared/SAO_Trajectory.lua`, the learned macro trajectory curves are modeled
+analytically: exponential attrition decay $N(d) = \max(N_{\text{floor}}, N_0 \cdot \exp(-0.00205 \cdot d))$
+with an 8% resilient survivor floor, group aggregation, entrance boarding, and settled
+neuroinflammation baselines (0.30 floor for afflicted, 0.90 for crossed, $\le 0.15$ for living).
+`SAO_Population.lua` wires `SAO.Trajectory.extrapolate` into `runTheYears`, allowing late-start
+saves (1994–1996) requesting fast simulation to instantiate their post-collapse world state
+instantaneously (<5ms) rather than spending hundreds of game frames under `YEARS_BUDGET_MS = 60ms`.
+Border 159 verifies fitted parameters, mathematical monotonicity, survivor floor retention,
+group scaling, zero missing headless modules, and mutation resistance. The version machine
+derives `5.3.0.0-pre-alpha` as a minor capability: macro trajectory modeling and headless
+simulation seamlessly extrapolate multi-year world states. Open pending the play receipt:
+nobody has started a late-year save with extrapolated post-collapse society in a live game.
+Next: playtest execution and observation of autonomous survivor behavior and society.
 
 **As of** 2026-09-14, `[C125]` close - the neuroinflammation knot.
 Brain health is represented as a single continuous scalar `rec.neuroinflammation`
@@ -25,7 +48,7 @@ renders an Antibodies-style visual curve progress bar. `SAO_Inspect.lua` display
 load, clarity, and motor stability. Advances occur daily in dormant attrition and
 every ten minutes in active passes. The sandbox off-switch `SurvivorAwareness.Neuroinflammation`
 disables the entire graph cleanly. Border 158 holds the kinetics, math, memory
-integration, and UI controls. The version machine derives `5.2.0.0-pre-alpha` as a minor
+integration, and UI controls. The version machine derives `5.3.0.0-pre-alpha` as a minor
 capability: brain health operates as a continuous, unified graph across pathogen,
 drug, and trauma insults. Open pending the play receipt: nobody has treated an
 inflamed survivor or watched their memory degrade in a live save.
@@ -2086,12 +2109,12 @@ unloaded survivors are governed by the same rules ([B39], [B42]).
 
 ## Deploy state
 
-`5.2.0.0-pre-alpha` at tip - the version machine's output ([C2],
-DR-013; the units `[C113]` through `[C125]` moved it here: the
+`5.3.0.0-pre-alpha` at tip - the version machine's output ([C2],
+DR-013; the units `[C113]` through `[C126]` moved it here: the
 Week One port's two minors, the raider, moments, age, drugs,
-vehicle-ground, animal, combat perception, and neuroinflammation minors, with `[C115]`'s dial kohai among them).
-`[C125]` reached the install on 2026-09-14 after the source rebuild and
-the full gate: the deployed `mod.info` reads `5.2.0.0-pre-alpha`, and
+vehicle-ground, animal, combat perception, neuroinflammation, and trajectory minors, with `[C115]`'s dial kohai among them).
+`[C126]` reached the install on 2026-09-15 after the source rebuild and
+the full gate: the deployed `mod.info` reads `5.3.0.0-pre-alpha`, and
 the distribution, shipped, and installed jars match at MD5
 `ECDBB1F4991A2EC51BB2F732A819EC63`. The prescribed deploy also copies
 root `LICENSE` and `CREDITS.md`; their installed copies match the root,
@@ -2148,7 +2171,7 @@ deploy; `save_compat_test` guards this and runs in the gate.
 
 ## Instruments
 
-**158 numbered borders**, run by **173 gated mirrors** in `tools/`, all invoked
+**159 numbered borders**, run by **174 gated mirrors** in `tools/`, all invoked
 by `tools/check.sh`, which the pre-commit hook runs and CI runs on every push.
 The figures in this paragraph are derived by Border 76 from the tree, not
 maintained by hand. Border 54 keeps the rest honest: it runs every gated

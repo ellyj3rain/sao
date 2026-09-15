@@ -1,6 +1,6 @@
 | Document | Survivor Awareness Overhaul Findings |
 |---|---|
-| Version | `5.2.0.0-pre-alpha` |
+| Version | `5.3.0.0-pre-alpha` |
 | Author | ellyj3rain |
 | Repository | `FINDINGS.md` |
 | Status | CANONICAL, APPEND-ONLY - verified engine findings. |
@@ -1556,3 +1556,26 @@ Because Antibodies keeps its state encapsulated on player modData and provides n
    - Late-stage withdrawal stress at `0.03` per hour.
 3. **Baselines & Decay**: Afflicted survivors maintain a persistent floor of `0.30`; Crossed bodies sit at `0.90`. When insults resolve, load clears exponentially via `math.exp(-0.04 * deltaHours)` toward baseline.
 4. **Cognitive projection & memory**: Cognitive clarity is derived as `1.0 - load`. `SAO.Conditions.memoryFactor` attenuates lesson retention duration by `math.max(0.2, clarity)`.
+
+---
+
+## F-073 - Headless simulation module harmonization and full-fidelity dormant execution
+
+**Verified** `[C126]`, in `tools/county_sweep.py` and `tools/county_dump.py` against Kahlua VM.
+
+The headless simulation harness previously loaded 20 modules and reported 12 missing references across recent additions (`SAO_Neuro.lua`, `SAO_PathogenEvents.lua`, `SAO_AfflictedReturn.lua`, `SAO_WorldGenesis.lua`, `SAO_Adaptation.lua`, `SAO_Isolation.lua`, `SAO_Organization.lua`, `SAO_Settlement.lua`, `SAO_Material.lua`, `SAO_Recognition.lua`, `SAO_Nuke.lua`).
+Expanding `MODULES` to the complete set of 42 shared and client dormant modules and declaring client-only and driving surfaces in `NOT_DORMANT` produces zero missing module references. Headless sweeps execute a 1096-day county in ~8 seconds with full fidelity across neuroinflammation, reverted afflicted adoption, and organization dynamics.
+
+---
+
+## F-074 - Empirical macro trajectory curves and sub-5ms late start extrapolation
+
+**Verified** `[C126]`, empirical data from `tools/county_trajectory.py` and structural evaluation in `SAO_Trajectory.lua`.
+
+Sweeps across 30 to 1096 days demonstrate consistent macro distributions:
+1. **Exponential attrition decay**: $N(d) = \max(N_{\text{floor}}, N_0 \cdot \exp(-k \cdot d))$ with $k = 0.00205$ and a resilient survivor floor $N_{\text{floor}} = N_0 \times 0.08$.
+2. **Mutual-defense house convergence**: solitary survival declines as survivors coalesce into houses ($k = 0.0018$).
+3. **Fortification scaling**: entrances boarded over elapsed years ($0.0030$ per day, capped at 8).
+4. **Brain health settling**: afflicted survivors hold their $0.30$ floor, crossed bodies sit at $0.90$, and living uninfected survivors settle below $0.15$.
+Instantiating terminal world state via `SAO.Trajectory.extrapolate` completes in under 5 milliseconds, avoiding dozens of frame budgets and CPU lag during late-start save loading.
+

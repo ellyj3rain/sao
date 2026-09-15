@@ -129,11 +129,22 @@ MODULES = [
     "shared/SAO_Log.lua", "shared/SAO_Hash.lua", "shared/SAO_Rand.lua",
     "shared/SAO_Census.lua", "shared/SAO_History.lua",
     "shared/SAO_Disposition.lua", "shared/SAO_Conditions.lua",
-    "shared/SAO_Course.lua",
+    "shared/SAO_Course.lua", "shared/SAO_Neuro.lua",
+    "shared/SAO_Trajectory.lua",
+    "shared/SAO_Adaptation.lua", "shared/SAO_Isolation.lua",
+    "shared/SAO_Organization.lua", "shared/SAO_Settlement.lua",
+    "shared/SAO_Material.lua", "shared/SAO_Recognition.lua",
+    "shared/SAO_Communication.lua", "shared/SAO_GraphPersistence.lua",
+    "shared/SAO_Integration.lua", "shared/SAO_Branching.lua",
+    "shared/SAO_Labor.lua", "shared/SAO_PathogenPressure.lua",
+    "shared/SAO_PlaceAttachment.lua", "shared/SAO_PlayerInteraction.lua",
+    "shared/SAO_Pressure.lua", "shared/SAO_WorldDevelopment.lua",
     "shared/SAO_Habits.lua", "shared/SAO_Claims.lua", "shared/SAO_Identity.lua",
     "shared/SAO_Lessons.lua", "shared/SAO_Knowledge.lua",
+    "shared/SAO_PathogenEvents.lua", "shared/SAO_WorldGenesis.lua",
     "shared/SAO_Seams.lua", "shared/SAO_Standing.lua",
     "shared/SAO_Perception.lua", "shared/SAO_Places.lua",
+    "client/SAO_AfflictedReturn.lua", "client/SAO_Nuke.lua",
     "client/SAO_Age.lua", "client/SAO_Telemetry.lua",
     "client/SAO_Population.lua",
 ]
@@ -152,6 +163,20 @@ NOT_DORMANT = {
     "Body": "the prelude answers for it - nobody is materialised",
     "Population": "the module doing the loading names itself",
     "Telemetry": "same",
+    "Driving": "drives materialised vehicles; dormant half has no vehicle drivers",
+    "UI": "renders player UI widgets; dormant half has no screen",
+    "MedicalWindow": "renders doctor UI window; dormant half has no screen",
+    "Inspect": "renders inspection window; dormant half has no screen",
+    "Harness": "manages local client test harness and body loops",
+    "Gesture": "plays physical character animations; dormant half has no bodies",
+    "Exchange": "handles active trade window; dormant half has no screen",
+    "Drugs": "administers ingested items to active bodies; dormant half has no inventory",
+    "Medical": "performs timed first aid actions; dormant half has no bodies",
+    "Absorb": "absorbs items from containers into body",
+    "Animals": "interacts with animal bodies; dormant half has no animals",
+    "Neighbours": "scans spatial grids for loaded zombies",
+    "Sandbox": "manages sandbox options GUI",
+    "RadioEar": "listens to audio frequencies on held radio",
 }
 
 RUN = r'''(function()
@@ -206,6 +231,15 @@ RUN = r'''(function()
       if t >= 0.5 then atLine = atLine + 1 end
     end
   end
+  local totalNeuro, afflictedCount = 0, 0
+  for _, r in pairs(SAO.Identity.all()) do
+    if not r.dead then
+      local n = tonumber(r.neuroinflammation) or 0
+      totalNeuro = totalNeuro + n
+      if n >= 0.30 then afflictedCount = afflictedCount + 1 end
+    end
+  end
+  local meanNeuro = alive > 0 and (totalNeuro / alive) or 0
   return '{"ranTo":' .. tostring(s.yearsRun)
     .. ',"alive":' .. alive .. ',"dead":' .. dead
     .. ',"housesFounded":' .. foundedEver
@@ -214,7 +248,9 @@ RUN = r'''(function()
     .. ',"biggestHouse":' .. biggest
     .. ',"deadOnRosters":' .. stale
     .. ',"pairsAtLine":' .. atLine
-    .. ',"bestTrust":' .. string.format('%.3f', best) .. '}'
+    .. ',"bestTrust":' .. string.format('%.3f', best)
+    .. ',"meanNeuro":' .. string.format('%.3f', meanNeuro)
+    .. ',"afflicted":' .. afflictedCount .. '}'
 end)()'''
 
 COLUMNS = [
@@ -226,6 +262,8 @@ COLUMNS = [
     ("biggestHouse", "largest house"),
     ("pairsAtLine", "pairs above the company line"),
     ("deadOnRosters", "dead still on a roster"),
+    ("meanNeuro", "mean neuroinflammation"),
+    ("afflicted", "afflicted survivors"),
 ]
 
 
