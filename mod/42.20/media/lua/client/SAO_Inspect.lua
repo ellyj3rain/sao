@@ -222,6 +222,20 @@ function SAOInspectWindow:build()
         jsonl.worldDevelopmentFortified = wd.fortified
     end)
 
+    -- [C125] Neuroinflammation graph
+    pcall(function()
+        if SAO.Neuro and SAO.Neuro.isActive and SAO.Neuro.isActive() then
+            local nload = SAO.Neuro.loadOf(rec)
+            local clarity = SAO.Neuro.clarityOf(rec)
+            local motor = SAO.Neuro.motorSteadiness(rec)
+            row(string.format("neuroinflammation %.2f (clarity %.2f, motor %.2f)",
+                nload, clarity, motor))
+            jsonl.neuroinflammation = nload
+            jsonl.neuroClarity = clarity
+            jsonl.neuroMotor = motor
+        end
+    end)
+
     -- The last decision, in the words the pressure law requires.
     local agent = SAO.Controller.agents and SAO.Controller.agents[id]
     if agent then

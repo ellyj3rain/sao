@@ -108,6 +108,10 @@ OWNED_ELSEWHERE = {
     # which owns the body's acts, reads it, and the controller asks
     # that seam.
     "RealSmoking": "client/SAO_Needs.lua",
+    # [C125] The neuroinflammation graph is owned by SAO_Neuro:
+    # both active and dormant passes advance through SAO_Neuro,
+    # and SAO_Neuro.isActive() queries the sandbox option.
+    "Neuroinflammation": "shared/SAO_Neuro.lua",
 }
 
 

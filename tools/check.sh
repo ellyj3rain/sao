@@ -1861,6 +1861,15 @@ if ! "$PY" tools/combat_perception_test.py > /dev/null; then
     fail=1
 fi
 
+# [C125] Border 158 - Neuroinflammation knot: brain health continuous graph,
+# derived cognitive clarity and memory degradation, drug/sepsis/Knox kinetics,
+# afflicted/crossed baselines, inspect/medical UI, and sandbox off-switch.
+if ! "$PY" tools/neuroinflammation_test.py > /dev/null; then
+    "$PY" tools/neuroinflammation_test.py 2>&1 | grep -E "FAULT|CONTROL|SKIPPED" || true
+    note "BORDER FINDING - neuroinflammation knot contract broken"
+    fail=1
+fi
+
 # Border 103 - the operator's speech is not in the repository: no
 # profanity in the tracked tree and no operator-quote attributions;
 # rulings are paraphrased content, speech stays with the speaker.

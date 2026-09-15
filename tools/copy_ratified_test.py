@@ -286,6 +286,14 @@ RATIFIED = {
         "speedometer." + NL
         + "Higher drives faster; the engine's own brake at unloaded "
         "space stands at any speed.",
+    # [C125] The neuroinflammation knot - continuous graph of brain health
+    # from infection, sepsis, and drug damage, gated by an off-switch.
+    P + "Neuroinflammation": "Neuroinflammation",
+    P + "Neuroinflammation_tooltip":
+        "Infection, sepsis, and drug toxicity produce a continuous brain "
+        "inflammatory load affecting cognitive clarity and memory." + NL
+        + "Off: survivors do not experience inflammatory brain fog or "
+        "memory degradation.",
 }
 
 # Struck register, held out of the named UI sources by literal match -

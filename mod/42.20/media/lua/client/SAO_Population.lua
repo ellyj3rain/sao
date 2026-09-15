@@ -2121,6 +2121,12 @@ local function dormantAttrition()
                         tally("threwOff")
                     end
                 end
+                -- [C125] Advance the neuroinflammation graph
+                if SAO.Neuro and SAO.Neuro.advance then
+                    pcall(function()
+                        SAO.Neuro.advance(rec, 24.0, nowHours)
+                    end)
+                end
                 local biteDue = rec.biteDeathAtHours ~= nil
                     and nowHours >= rec.biteDeathAtHours
                 -- [C79] The county can catch it.

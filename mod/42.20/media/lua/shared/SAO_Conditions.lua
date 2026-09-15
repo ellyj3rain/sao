@@ -333,8 +333,17 @@ function Cn.memoryFactor(id, kind)
     if Cn.has(id, "dementia") then factor = factor * 0.5 end
     if ageOf(id) >= 75 then factor = factor * 0.8 end
     if kind == "zombies" and Cn.has(id, "ptsd") then factor = factor * 1.5 end
+    -- [C125] Neuroinflammation degrades cognitive clarity and retention
+    if SAO.Neuro and SAO.Neuro.isActive and SAO.Neuro.isActive() then
+        local clarity = 1.0
+        pcall(function() clarity = SAO.Neuro.clarityOfId(id) end)
+        if type(clarity) == "number" then
+            factor = factor * math.max(0.2, clarity)
+        end
+    end
     return factor
 end
+
 
 -- The pace of learning a condition sets, multiplied into the shell's
 -- learning pace beside the child's ([C31]): dyslexia a tenth slower

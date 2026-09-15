@@ -137,6 +137,24 @@ function Med.readingOf(rec, skill, nowHours)
         out[#out + 1] = "They have come through this before."
     end
 
+    -- [C125] Neuroinflammation reading
+    if SAO.Neuro and SAO.Neuro.isActive and SAO.Neuro.isActive() then
+        local load = SAO.Neuro.loadOf(rec)
+        if load >= 0.15 then
+            if skill < Med.CAN_NAME_IT then
+                out[#out + 1] = "They appear confused and dazed."
+            elseif skill < Med.CAN_PLACE_IT then
+                out[#out + 1] = "Signs of neuroinflammation and brain fog."
+            elseif skill < Med.CAN_JUDGE_IT then
+                local severity = (load >= 0.70) and "severe" or ((load >= 0.40) and "moderate" or "mild")
+                out[#out + 1] = "Brain inflammatory load is " .. severity .. "."
+            else
+                local cause = rec.knoxInfected and "pathogen-driven" or (rec.woundInfected and "septic" or "toxic")
+                out[#out + 1] = string.format("Neuroinflammatory load: %.0f%% (%s).", load * 100, cause)
+            end
+        end
+    end
+
     return out
 end
 

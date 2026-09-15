@@ -16,9 +16,9 @@ the machine. Names, dates, and threads below come from
 | Form | `major.minor.kohai.patch-maturity` |
 | Hard caps | minor 12; kohai 16; patch 24 |
 | Replay start | `0.1.0.0-pre-alpha` |
-| Current version | `5.1.0.0-pre-alpha` |
-| Closed chronology | `A1-C124` |
-| Next batch | `C125` |
+| Current version | `5.2.0.0-pre-alpha` |
+| Closed chronology | `A1-C125` |
+| Next batch | `C126` |
 | Executable source | [`tools/version_replay.py`](tools/version_replay.py) |
 
 ## Tier meanings
@@ -240,6 +240,7 @@ the machine. Names, dates, and threads below come from
 | `C122` | 2026-09-14 | minor | `4.12.0.0-pre-alpha` | Vehicles, keys, and containers | Vehicles, keys, and containers: a held vehicle key now reaches the ordinary engine start path through the appraisal and motor pool, and material reads include real vehicle-part containers. Campers and trailers with no engine part supply their actual storage. A new player-visible simulation capability, so minor. |
 | `C123` | 2026-09-14 | minor | `5.0.0.0-pre-alpha` | The county's animals | The county's animals: IsoAnimal is no longer a person in perception or named combat; a farm hand reads a designated ranch's own animals, troughs and hutches and carries ready milk, wool, eggs, water, hand-feed, and pet care through the engine's own timed actions. An optional Horse Mod mount is observed through its flag, mount pair, and engine animal id without assuming a shell can mount. A new player-visible simulation capability, so minor. |
 | `C124` | 2026-09-14 | minor | `5.1.0.0-pre-alpha` | Combat perception compatibility | Combat perception compatibility: acoustic attenuation under suppressors, floor targeting for crawlers, tripping dead, and prone targets, optional perception reads for prone and crawl stances with reduced visual silhouette, non-interference with useless zombies under stealth mods and external aggro targets from zombie-motivation mods, and line-by-line verification of script weapon stats, vanilla reloads, and uninspected clothing. A new player-visible simulation capability and runtime contract, so minor. |
+| `C125` | 2026-09-14 | minor | `5.2.0.0-pre-alpha` | The neuroinflammation knot | The neuroinflammation knot: brain health as one continuous graph in the shape of Antibodies, representing and visualizing drug damage, sepsis, and Knox impact, signifying afflicted health and crossed destruction, with derived cognitive clarity and memory degradation, inspected in UI and gated by an off-switch. A new player-visible simulation capability and runtime contract, so minor. |
 
 ## The former number
 
@@ -260,11 +261,11 @@ the meantime, and they are not play.
 
 ## Next movement
 
-`C125` is the next batch. Its content determines its tier after it
+`C126` is the next batch. Its content determines its tier after it
 exists:
 
-| If C125 is | Result |
+| If C126 is | Result |
 |---|---|
-| patch or hotfix | `5.1.0.1-pre-alpha` |
-| kohai | `5.1.1.0-pre-alpha` |
-| minor | `5.2.0.0-pre-alpha` |
+| patch or hotfix | `5.2.0.1-pre-alpha` |
+| kohai | `5.2.1.0-pre-alpha` |
+| minor | `5.3.0.0-pre-alpha` |

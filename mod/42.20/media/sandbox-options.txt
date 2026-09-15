@@ -215,3 +215,8 @@ option SurvivorAwareness.Communication {
     type = boolean, default = true,
     page = SurvivorAwareness, translation = SurvivorAwareness_Communication,
 }
+
+option SurvivorAwareness.Neuroinflammation {
+    type = boolean, default = true,
+    page = SurvivorAwareness, translation = SurvivorAwareness_Neuroinflammation,
+}
