@@ -1870,6 +1870,23 @@ if ! "$PY" tools/neuroinflammation_test.py > /dev/null; then
     fail=1
 fi
 
+# [C126] Border 159 - Learned trajectory & headless simulation for late starts:
+# macro trajectory distributions fitted from VM sweeps, fast extrapolation logic,
+# zero missing headless modules, and Speakeasy ML dataset pipeline.
+if ! "$PY" tools/trajectory_simulation_test.py > /dev/null; then
+    "$PY" tools/trajectory_simulation_test.py 2>&1 | grep -E "FAULT|CONTROL|SKIPPED" || true
+    note "BORDER FINDING - learned trajectory simulation contract broken"
+    fail=1
+fi
+
+# [C127] Border 160 - the road joins a house: a meeting writes trust;
+# it does not mint company-<id> from two unhoused people.
+if ! "$PY" tools/road_company_test.py > /dev/null; then
+    "$PY" tools/road_company_test.py 2>&1 | grep -E "FAULT|CONTROL|SKIPPED" || true
+    note "BORDER FINDING - the road still mints a house from a hello"
+    fail=1
+fi
+
 # Border 103 - the operator's speech is not in the repository: no
 # profanity in the tracked tree and no operator-quote attributions;
 # rulings are paraphrased content, speech stays with the speaker.

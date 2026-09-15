@@ -150,7 +150,7 @@ KNOWN = {n: OURS for n in (
 )}
 KNOWN.update({n: NEIGHBOUR for n in NEIGHBOURS})
 KNOWN.update({n: LUA_STD for n in (
-    "error", "ipairs", "math", "pairs", "pcall", "print", "require",
+    "assert", "error", "ipairs", "math", "pairs", "pcall", "print", "require",
     "select", "string", "table", "tonumber", "tostring", "type",
 )})
 KNOWN.update({n: ENGINE for n in (

@@ -106,6 +106,7 @@ SandboxVars = {
         MaterializeRadius = 45, HibernateRadius = 70,
     },
     ZombieLore = { Transmission = 1 },
+    ZombieAwareness = {},
 }
 
 -- Nobody is materialised: a sweep is the dormant county, which is the

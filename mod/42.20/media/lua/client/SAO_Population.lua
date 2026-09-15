@@ -2590,6 +2590,37 @@ local function dormantProvision()
     end
 end
 
+-- [C127] Who, if anyone, a road meeting founds or joins.
+--
+-- A meeting always writes trust (the caller already did). A company
+-- is a house that already exists — the unhoused join it — or a unit
+-- of three or more who arrived together, which is the 3+ gate the
+-- rest of the county uses for a company you can see. Two unhoused
+-- strangers, and two who arrived as a pair, keep the bond and do not
+-- mint `company-<id>`. Headless years at a few thousand living were
+-- minting a pair every other day for a year because this door treated
+-- a first hello as a founding.
+local function roadCompanyTarget(idA, idB, gA, gB)
+    if gA and gB then return nil, nil end
+    if gA or gB then
+        return (gA or gB), { idA, idB }
+    end
+    local recA = SAO.Identity.get(idA)
+    local recB = SAO.Identity.get(idB)
+    local uid = recA and recA.unitId
+    if not uid or not recB or recB.unitId ~= uid then
+        return nil, nil
+    end
+    local roster = {}
+    for id, rec in pairs(SAO.Identity.all()) do
+        if not rec.dead and rec.unitId == uid then
+            roster[#roster + 1] = id
+        end
+    end
+    if #roster < 3 then return nil, nil end
+    return uid, roster
+end
+
 local function dormantEncounters()
     local sv = SandboxVars and SandboxVars.SurvivorAwareness or nil
     local companyAt = (sv and tonumber(sv.TrustToCompany)) or 0.5
@@ -2771,24 +2802,29 @@ local function dormantEncounters()
                     -- (`companyStanding`): each side's pull is their
                     -- own, and the mutual gate still clears on both
                     -- sides or not at all.
+                    -- [C127] Clearing the door is not a founding. Two
+                    -- unhoused people who pass it keep company as
+                    -- trust. A house that already exists can take them
+                    -- in; a unit of three that arrived together can
+                    -- become that house. `company-<id>` is no longer
+                    -- minted from a first hello.
                     if not (gA and gB)
                         and SAO.Standing.companyStanding(idA, idB)
                             > roadBar
                         and SAO.Standing.companyStanding(idB, idA)
                             > roadBar then
-                        local groupName = gA or gB or ("company-" .. idA)
-                        if SAO.Standing.circleRefuses(idA, groupName)
-                            or SAO.Standing.circleRefuses(idB, groupName) then
-                            log(idA .. " and " .. idB
-                                .. " part ways friendly - somebody keeps"
-                                .. " their own company")
-                        else
-                            SAO.Standing.formCompany(
-                                { idA, idB }, groupName)
-                            -- [B47] 120 of these in one session, and
-                            -- they never stop - the dormant half meets
-                            -- people forever.
-                            tally("kept company on the road")
+                        local groupName, roster = roadCompanyTarget(
+                            idA, idB, gA, gB)
+                        if groupName then
+                            if SAO.Standing.circleRefuses(idA, groupName)
+                                or SAO.Standing.circleRefuses(idB, groupName) then
+                                log(idA .. " and " .. idB
+                                    .. " part ways friendly - somebody keeps"
+                                    .. " their own company")
+                            else
+                                SAO.Standing.formCompany(roster, groupName)
+                                tally("kept company on the road")
+                            end
                         end
                     end
                 end
@@ -3243,15 +3279,15 @@ local BAND_PATIENCE = 15   -- passes (~60s at 60fps frames on the default day) b
 -- leaders, feuds and pacts arrive because `dormantEncounters` forms
 -- them, exactly as it does in play.
 --
--- AT A DAILY CADENCE, and that number is measured rather than
--- chosen (F-055). The ten-minute pass the live county uses exists to
--- drift a BODY's stats, and nobody in the years has a body - the
--- dormant day runs for exactly the people `SAO.Body.get` answers
--- nothing for. At the live cadence three years cost about five and a
--- half hours of real time on the machine this was measured on; at a
--- day a day they cost about two minutes, and nothing bodiless is
--- skipped, because everything that happens to a person without a
--- body happens on a daily clock anyway.
+-- AT THE LIVE CADENCE ([C128]), and F-055 is why we know what that
+-- costs. [C45] compressed a day into one bundle so three years took
+-- two minutes instead of five and a half hours. A bundle jumps the
+-- clock 24 hours, freezes the hour at noon, and opens every
+-- cooldown at once: one move, one meeting wave, one attrition roll.
+-- That is not how a game day runs. The live county's population
+-- pass is 240 ticks (~4s of default-day pace). A day is 900 of
+-- those. The years now take that step, sliced on the same 60ms
+-- budget, holding the band until the ticks owed are lived.
 --
 -- [C112] The dormant systems pace themselves in county ticks now - a
 -- person moves every 1800 to 3600 of them and a pair may meet once
@@ -3430,37 +3466,24 @@ local function dailyCounty()
     pcall(function() SAO.WorldGenesis.applyDay(day) end)
 end
 
--- One simulated day, and every call in it is the live county's own.
-local function oneYearsDay(conf, day)
-    -- [C112] No advance here: the county's clock IS the day being
-    -- lived (livingDay, [C62]), so `SAO.History.ticks` has already
-    -- moved 216,000 ticks by the time this function runs - the gates
-    -- below open on the clock's own authority, not a calibrated jump.
+-- One live-cadence pass during the years ([C128]). The same dormant
+-- stack the live county runs on TICK_INTERVAL. Not a day.
+local function yearsCadencePass(conf)
     pcall(dormantLife, conf)
     pcall(dormantSettle)
-    -- After the day's walks (stamps) and the houses they settle
-    -- into, the houses speak their shelves.
     pcall(dormantProvision)
     pcall(dormantEncounters)
     pcall(dormantAttrition)
     pcall(function() SAO.Standing.driftStandings() end)
+end
+
+-- Once, when a day of ticks has actually rolled.
+local function yearsDayRolled(conf, day)
     for id, rec in pairs(SAO.Identity.all()) do
         pcall(function() SAO.Age.dailyRoll(rec, day, tickCounter) end)
         pcall(function() SAO.Age.settleHabits(rec, day) end)
     end
-    -- [C46] And one claim's ground actually looked at.
     pcall(lookAtSomeGround, day)
-    -- [C65] And the day's once-a-day work - the county line, the
-    -- pathogen's advance and the world's day-graph - through the same
-    -- function the live county runs on its own cadence. Border 118
-    -- refused the first draft of this, which called the telemetry
-    -- county line here and nowhere else, and it refused the second
-    -- draft too, which called `simulateDay` and `applyDay` here and
-    -- nowhere else, and it was right both times: a call that exists
-    -- only in the years is the pass inventing rather than running the
-    -- county. (The county line is named in prose rather than spelled,
-    -- because the telemetry border counts references by their dotted
-    -- path and a comment is no reference.)
     dailyCounty()
 end
 
@@ -3507,18 +3530,46 @@ local function runTheYears(conf)
         end)
     end
 
+    -- [C126] Learned trajectory fast simulation for late starts.
+    -- Where fast simulation is active, the macro trajectory model
+    -- computes terminal population, groups, fortifications, and
+    -- neuroinflammation in one pass rather than stepping hundreds
+    -- of daily frames.
+    if SAO.Trajectory and SAO.Trajectory.shouldFastSimulate
+        and SAO.Trajectory.shouldFastSimulate(owed, s, conf) then
+        local okFast = false
+        pcall(function()
+            okFast = SAO.Trajectory.extrapolate(s, owed, conf)
+        end)
+        if okFast then
+            local alive = SAO.Identity and SAO.Identity.livingCount and SAO.Identity.livingCount() or 0
+            log("the county has lived its " .. owed .. " days via trajectory extrapolation: "
+                .. alive .. " alive to meet")
+            return false
+        end
+    end
+
     local okT, startedMs = pcall(function() return getTimestampMs() end)
     local began = run
+    -- [C112] 9000 ticks an hour, 24 hours a day. [C128] the years
+    -- take the live population step (TICK_INTERVAL), not a day.
+    local ticksADay = 9000 * 24
+    local ticks = tonumber(s.yearsTicks) or (run * ticksADay)
     while run < owed do
-        run = run + 1
-        -- [C62] The day being lived IS the county's clock while the
-        -- years run (SAO_History.countyHours reads it from here), so
-        -- it is written before the day is lived and on every day.
-        -- Written once after the loop, as it was, a slice of up to
-        -- sixty milliseconds - which can be hundreds of days - had
-        -- one hour on it from beginning to end.
+        local oldRun = run
+        ticks = ticks + TICK_INTERVAL
+        s.yearsTicks = ticks
+        run = math.floor(ticks / ticksADay)
+        if run > owed then run = owed end
         s.yearsRun = run
-        oneYearsDay(conf, run)
+        do
+            local okC, t = pcall(function() return SAO.History.ticks() end)
+            if okC and type(t) == "number" then tickCounter = t end
+        end
+        yearsCadencePass(conf)
+        if run > oldRun then
+            yearsDayRolled(conf, run)
+        end
         if okT and startedMs then
             local okN, nowMs = pcall(function() return getTimestampMs() end)
             if okN and nowMs and (nowMs - startedMs) >= YEARS_BUDGET_MS then
@@ -3562,10 +3613,30 @@ local function populationTick()
     -- [C112] The cadence law: last fired plus a span, never a modulo -
     -- the county's clock can skip values (fast-forward, a lag spike),
     -- and a modulo gate only fires when a multiple lands exactly.
-    if tickCounter - (lastPassAt or -TICK_INTERVAL) < TICK_INTERVAL then
-        return
+    --
+    -- [C126] While the years are still being lived, this pass has to
+    -- run every frame. The years clock is the day being lived
+    -- ([C62]) - tens of hours - and the pre-years tick was
+    -- hours-behind, thousands. Comparing them, the cadence sees a
+    -- clock that went backwards and never fires again, so a save that
+    -- owes more days than one 60ms slice can chew freezes at that
+    -- slice. Catch-up is every frame until the span ends; live play
+    -- keeps the interval.
+    do
+        local s = yearsStore()
+        local catchingUp = false
+        if s and s.yearsAsked then
+            local run = tonumber(s.yearsRun) or 0
+            local owed = tonumber(s.yearsOwed) or 0
+            catchingUp = run < owed
+        end
+        if not catchingUp then
+            if tickCounter - (lastPassAt or -TICK_INTERVAL) < TICK_INTERVAL then
+                return
+            end
+            lastPassAt = tickCounter
+        end
     end
-    lastPassAt = tickCounter
     local conf = cfg()
     if not conf.enable then return end
     local booting = not booted
