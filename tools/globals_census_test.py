@@ -106,6 +106,34 @@ NEIGHBOURS = {
           "and this one is ours.",
 }
 
+# [C121] N and C's Narcotics - the carry. Their dependency machinery
+# is driven on the county's bodies the same way their own driver
+# drives the player slots: each global is NAMED (Kahlua exposes no
+# _G, read in the engine jar, so a lookup by string would index a
+# nil and die in the pcall), checked as a function, and called -
+# READ ONLY, never written, because their driver finds only the
+# player slots ([B46] law) so no body is driven twice, and their
+# withdrawal fires only on their own trait, so the trait is what the
+# county's yield reads (`NnCReg` holds their registered traits). The
+# seven names in NNC_TEN are their ten-minute dependency steps, the
+# seven in NNC_MINUTE are their per-minute effect packets plus their
+# pain removal. Without their mod every name reads nil and the
+# checks do nothing - the county runs exactly as C33 built it.
+NNC_CARRY = ("N and C's Narcotics. [C121] SAO_Drugs READS their own "
+             "dependency machinery on the county's bodies - named, "
+             "checked as a function, called, never written - because "
+             "their driver finds only the player slots and their "
+             "withdrawal fires only on their own trait. Without their "
+             "mod the name is nil and the call is nothing.")
+NEIGHBOURS.update({name: NNC_CARRY for name in (
+    "NnCReg",
+    "BenzoAddict", "CokeHead", "MethHead", "MDMAAddict",
+    "OpioidAddict", "PotHead", "SteroidAddict",
+    "BenzoEffect", "CokeEffect", "MethEffect", "MDMAEffect",
+    "OpioidEffect", "WeeeeedEffect", "SteroidEffect",
+    "NnCPainRemoval",
+)})
+
 KNOWN = {n: OURS for n in (
     "SAO", "SAOCountyWindow", "SAOInspectWindow", "SAOWire", "SAOJavaBridge",
     # [C80] the medical reading's window, ours, beside the other two.

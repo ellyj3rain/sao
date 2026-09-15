@@ -174,6 +174,32 @@ public final class SAONeeds {
         }
     }
 
+    /** [C121] Scan for a container holding a drug of the family; the
+     *  same remembered-source grammar as the drink, so the arrival
+     *  take, the reach check and the claim machinery all read the one
+     *  forage slot they already read. "x:y:z:name" or "". */
+    public static String findDrugSourceNear(IsoPlayer shell, int radius,
+                                            String family) {
+        try {
+            FoodSource best = nearestOnFloorRing(shell, radius,
+                square -> firstDrugIn(square, family));
+            if (best == null) {
+                SOURCES.remove(shell);
+                return "";
+            }
+            SOURCES.put(shell, best);
+            String name;
+            try {
+                name = best.item.getDisplayName();
+            } catch (Throwable throwable) {
+                name = "a stash";
+            }
+            return best.x + ":" + best.y + ":" + best.z + ":" + name;
+        } catch (Throwable throwable) {
+            return "";
+        }
+    }
+
     public static String findFoodSourceNear(IsoPlayer shell, int radius) {
         try {
             // [B31] The last of [B31]'s four sweeps that was
@@ -1369,6 +1395,36 @@ public final class SAONeeds {
         return null;
     }
 
+    /** [C121] The first drug of a county family in any container on
+     *  the square, else null. */
+    private static FoodSource firstDrugIn(IsoGridSquare square, String family) {
+        java.util.List<IsoObject> objects = square.getObjects();
+        for (int i = 0; i < objects.size(); i++) {
+            IsoObject object = objects.get(i);
+            int count = object.getContainerCount();
+            for (int c = 0; c < count; c++) {
+                ItemContainer container = object.getContainerByIndex(c);
+                if (container == null) {
+                    continue;
+                }
+                java.util.ArrayList<InventoryItem> items = container.getItems();
+                for (int k = 0; k < items.size(); k++) {
+                    InventoryItem item = items.get(k);
+                    if (family.equals(drugFamilyOf(item))) {
+                        FoodSource source = new FoodSource();
+                        source.container = container;
+                        source.item = item;
+                        source.x = square.getX();
+                        source.y = square.getY();
+                        source.z = square.getZ();
+                        return source;
+                    }
+                }
+            }
+        }
+        return null;
+    }
+
     private static FoodSource firstFoodIn(IsoGridSquare square) {
         java.util.List<IsoObject> objects = square.getObjects();
         for (int i = 0; i < objects.size(); i++) {
@@ -2359,6 +2415,63 @@ public final class SAONeeds {
             return count;
         } catch (Throwable throwable) {
             return 0;
+        }
+    }
+
+    /** [C121] The county's drug families, read through the tag
+     *  vocabulary the drug mod's own scripts declare on its items
+     *  (`NnC:Benzos` and the rest, credited in CREDITS.md). A tag
+     *  resolves only when that mod is loaded; unresolvable reads
+     *  answer null and the family reads "", so without the mod no
+     *  item below ever matches. Never throws. */
+    private static final String[] NNC_TAG = { "NnC:Benzos", "NnC:Opioids",
+                                              "NnC:Cocaine", "NnC:ADHD" };
+    private static final String[] NNC_FAMILY = { "sedatives", "opioids",
+                                                 "cocaine", "stimulants" };
+
+    /** [C121] The county family of an item: "sedatives", "opioids",
+     *  "cocaine", "stimulants" or "cannabis" (the weed smokables carry
+     *  no family tag of their own - vanilla's SMOKABLE tag plus the
+     *  mod's own Drugs display category is their whole declaration),
+     *  or "" when the item is not a drug the county models. The
+     *  psychedelics and the steroids are deliberately absent: usable
+     *  by whoever holds them, never sought, because the county's 1993
+     *  figures name no dependency on them. */
+    public static String drugFamilyOf(Object object) {
+        try {
+            if (!(object instanceof InventoryItem item)) {
+                return "";
+            }
+            for (int i = 0; i < NNC_TAG.length; i++) {
+                zombie.scripting.objects.ItemTag tag =
+                    zombie.scripting.objects.ItemTag.get(
+                        zombie.scripting.objects.ResourceLocation.of(NNC_TAG[i]));
+                if (tag != null && item.hasTag(tag)) {
+                    return NNC_FAMILY[i];
+                }
+            }
+            if (item.hasTag(zombie.scripting.objects.ItemTag.SMOKABLE)
+                    && "Drugs".equals(item.getDisplayCategory())) {
+                return "cannabis";
+            }
+            return "";
+        } catch (Throwable throwable) {
+            return "";
+        }
+    }
+
+    /** [C121] The first carried item of a county family, or null. */
+    public static InventoryItem carriedDrugFor(IsoPlayer shell, String family) {
+        try {
+            java.util.ArrayList<InventoryItem> items = shell.getInventory().getItems();
+            for (int i = 0; i < items.size(); i++) {
+                if (family.equals(drugFamilyOf(items.get(i)))) {
+                    return items.get(i);
+                }
+            }
+            return null;
+        } catch (Throwable throwable) {
+            return null;
         }
     }
 

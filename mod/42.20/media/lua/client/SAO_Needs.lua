@@ -701,6 +701,20 @@ function N.smokableCount(body)
     return ok and tonumber(n) or 0
 end
 
+-- [C121] The RealSmoking dial, read at the seam that owns the body's
+-- acts. A smoke break is a body's act - a cigarette in a hand, an
+-- animation a witness can see - so the dormant half has nothing to
+-- read: its people carry the same habits through the shared
+-- SAO_Habits (drawn for every person in both halves), and the dial
+-- governs only the visible act, which exists only where a body
+-- does. The fallback is the declared default: on.
+function N.casualSmokingOn()
+    if SandboxVars and SandboxVars.SurvivorAwareness then
+        return SandboxVars.SurvivorAwareness.RealSmoking ~= false
+    end
+    return true
+end
+
 -- Hand a smoke over (the smokers' bond) through the vanilla transfer.
 function N.shareSmokeWith(id, body, fellowBody)
     if not SAOJavaBridge then return false end
@@ -775,11 +789,44 @@ function N.busy(body)
     return ok and pending == true
 end
 
+-- [C121] A dose, for the shakes: the first carried drug of a county
+-- family, through the vanilla eat action - the same one the context
+-- menu queues. The item's own OnEat hooks run the drug mod's own
+-- counters and highs, exactly as they would for the player. Returns
+-- true when queued.
+function N.useCarriedDrug(id, body, family)
+    if not SAOJavaBridge then return false end
+    local okF, item = pcall(function()
+        return SAOJavaBridge:findCarriedDrug(body, family)
+    end)
+    if not okF or item == nil then return false end
+    local queued = N.queueVerified(ISEatFoodAction:new(body, item, 1))
+    if queued then log(id .. " takes a dose (vanilla eat action)") end
+    return queued
+end
+
+-- [C121] Where a stash is: the nearest container holding a drug of
+-- the family, into the same source record the drink uses, so
+-- queueTake takes it. Returns x, y, z, name or nil.
+function N.findDrugSource(id, body, radius, family)
+    if not SAOJavaBridge then return nil end
+    local ok, s = pcall(function()
+        return SAOJavaBridge:findDrugSource(body, radius or N.PERCEPTION_TILES, family)
+    end)
+    if not ok or type(s) ~= "string" or s == "" then return nil end
+    local x, y, z, name = string.match(s, "^(%-?%d+):(%-?%d+):(%-?%d+):(.*)$")
+    if not x then return nil end
+    return tonumber(x), tonumber(y), tonumber(z), name
+end
+
 -- [C33] The county's drinks are counted (The Alcoholic wraps the eat
 -- action the same way, CREDITS.md): when one of OUR bodies finishes
 -- a drink of anything alcoholic - by its own hand or the player's
 -- gift - the habit hears it. A field on the vanilla class, wrapped
 -- once; the player's own drinks pass straight through.
+-- [C121] The drink also reaches the ladder SAO_Drugs carries (the
+-- per-drink relief at The Alcoholic's own figures), the same way the
+-- player's drinks reach theirs.
 if ISDrinkFluidAction and not ISDrinkFluidAction.SAOHabitsWrapped then
     ISDrinkFluidAction.SAOHabitsWrapped = true
     local baseComplete = ISDrinkFluidAction.complete
@@ -791,6 +838,42 @@ if ISDrinkFluidAction and not ISDrinkFluidAction.SAOHabitsWrapped then
             if id and SAOJavaBridge and SAOJavaBridge:isAlcoholicDrink(self.item) then
                 if SAO.Habits.drank(tostring(id)) then
                     log(tostring(id) .. " has had a drink")
+                end
+                if SAO.Drugs and SAO.Drugs.onDrink then
+                    SAO.Drugs.onDrink(tostring(id), body)
+                end
+            end
+        end)
+        return result
+    end
+end
+
+-- [C121] The county's uses are recorded: when one of OUR bodies
+-- finishes eating anything - a pill, a joint, whatever the drug
+-- mod's own items are - the family it belongs to is stamped on the
+-- record and that family's clean clock starts over. The item's own
+-- OnEat globals have already run inside the base call (the engine
+-- fires them from perform), so the drug mod's counters rise before
+-- the stamp does, and the stamp only says when the use happened.
+-- The Alcoholic wraps this same perform the same way; a field on the
+-- vanilla class, wrapped once, and the player's own meals pass
+-- straight through.
+if ISEatFoodAction and not ISEatFoodAction.SAODrugsWrapped then
+    ISEatFoodAction.SAODrugsWrapped = true
+    local basePerform = ISEatFoodAction.perform
+    function ISEatFoodAction:perform()
+        local result = basePerform(self)
+        pcall(function()
+            local body = self.character
+            local id = body and body:getModData().SAOPersonId or nil
+            if id and SAOJavaBridge then
+                local ok, family = pcall(function()
+                    return SAOJavaBridge:drugFamilyOf(self.item)
+                end)
+                if ok and family and family ~= "" then
+                    if SAO.Habits.used(tostring(id), family) then
+                        log(tostring(id) .. " has had a use of " .. family)
+                    end
                 end
             end
         end)

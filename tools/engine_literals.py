@@ -41,6 +41,49 @@ SCRIPTS = GAME / "media" / "scripts"
 
 LABEL = "13) engine-string literals matching nothing the engine produces:"
 
+# A literal may also be produced by a LOADED NEIGHBOUR - a vocabulary
+# the vanilla game has no word for, declared on another mod's own
+# items. [C121] N and C's Narcotics tags every drug it ships with
+# `DisplayCategory = Drugs`, a category vanilla does not define, and
+# the county's cannabis family read recognizes exactly that: where the
+# mod is loaded its weed smokables answer "Drugs" and the family is
+# read, and where it is not the same read answers nothing and the
+# county runs as it ran before - the recognised-never-required posture
+# every other neighbour seam holds.
+#
+# The entry names the mod and the check verifies the claim the way it
+# verifies every other: against that mod's own shipped scripts, not
+# against our belief about them. A neighbour folder that no longer
+# produces the category is a fault (the argument outlived what it
+# argued about), and a neighbour that is not installed at all is a
+# fault too - on that install the want is never satisfied, which is
+# [B26]'s finding in its exact original shape, and the fix is the
+# operator's decision, not a silent pass.
+NEIGHBOUR_CATEGORIES = {
+    "Drugs": "N and C's Narcotics (Workshop 3404956403) declares "
+             "DisplayCategory = Drugs on every drug it ships; the "
+             "county's cannabis family read [C121] recognizes it and "
+             "never requires it.",
+}
+N_AND_C = pathlib.Path(
+    r"C:\Program Files (x86)\Steam\steamapps\workshop\content\108600"
+    r"\3404956403")
+
+
+def neighbour_categories():
+    """Display categories a loaded neighbour's scripts produce."""
+    cats = set()
+    if not N_AND_C.is_dir():
+        return cats
+    for f in N_AND_C.rglob("*.txt"):
+        try:
+            txt = f.read_text(encoding="utf-8", errors="ignore")
+        except OSError:
+            continue
+        cats.update(m.strip() for m in re.findall(
+            r"DisplayCategory\s*=\s*([A-Za-z0-9_]+)\s*,", txt))
+    return cats
+
 
 def engine_vocabularies():
     """(item names, display categories) the game actually ships."""
@@ -95,13 +138,31 @@ def main():
         print(LABEL, "SKIPPED (game data unreadable)")
         return 0
     full, disp, wrong = ours()
+    n_cats = neighbour_categories()
     dead = []
     for name, where in sorted(full.items()):
         if name not in items:
             dead.append(f"{where}:Base.{name} (no such item)")
     for name, where in sorted(disp.items()):
-        if name not in cats:
-            dead.append(f"{where}:{name} (no such DisplayCategory)")
+        if name in cats:
+            continue
+        if name in NEIGHBOUR_CATEGORIES:
+            if name in n_cats:
+                continue
+            if N_AND_C.is_dir():
+                dead.append(
+                    f"{where}:{name} (declared a neighbour's category - "
+                    f"{NEIGHBOUR_CATEGORIES[name]} - but their scripts no "
+                    "longer produce it: the argument outlived what it "
+                    "argued about)")
+            else:
+                dead.append(
+                    f"{where}:{name} (declared a neighbour's category - "
+                    f"{NEIGHBOUR_CATEGORIES[name]} - but that mod is not "
+                    "installed here, so the want is never satisfied on "
+                    "this install)")
+            continue
+        dead.append(f"{where}:{name} (no such DisplayCategory)")
     # Second rule: a real DisplayCategory read through getCategory(),
     # which returns the Java-class category and can never produce one.
     # This is how [B26]'s `medical` and `tool` stayed dead - the value

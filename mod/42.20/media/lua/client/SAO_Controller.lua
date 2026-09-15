@@ -1720,6 +1720,33 @@ local function decide(id, agent, body)
         end
     end
 
+    -- [C121] The casual smoke (the RealSmoking dial, read at the
+    -- needs seam that owns the body's acts): a third of the county
+    -- smoked and the end did not help anyone quit, so below the
+    -- craving line a smoker still smokes - on a break, watching the
+    -- road - at their own per-person cadence, throttled like every
+    -- leisure beat and below every real need. With the dial off, the
+    -- craving line above is all that is left: exactly the county C33
+    -- built.
+    if agent.state == "IDLE" or agent.state == "ROAM" then
+        local realSmoking = true
+        pcall(function() realSmoking = SAO.Needs.casualSmokingOn() end)
+        if realSmoking and SAO.Disposition.isSmoker(id)
+            and (not needs or (needs.nicotine or 0) < 0.3) then
+            if not agent.nextCasualSmokeAt
+                or tick >= agent.nextCasualSmokeAt then
+                -- Two to four county hours between smokes, per person.
+                agent.nextCasualSmokeAt = tick + 18000
+                    + (SAO.Hash.of(id, "casual-smoke") % 18000)
+                if SAO.Needs.smokeCarried(id, body) then
+                    agent.taskDeadline = tick + 1200
+                    setState(agent, id, "EAT", "a smoke, watching the road")
+                    return
+                end
+            end
+        end
+    end
+
     -- [C33] The drink ([A14] S6; The Alcoholic's shakes, CREDITS.md): a
     -- drinker twelve hours dry takes a drink from the pack through the
     -- vanilla fluid action, and with none carried goes to where one is
@@ -1746,6 +1773,40 @@ local function decide(id, agent, body)
                     agent.taskDeadline = tick + 3600
                     setState(agent, id, "FORAGE",
                         "the shakes: heads for " .. tostring(dname))
+                    return
+                end
+            end
+        end
+    end
+
+    -- [C121] The dose ([A14] S6; the users' schedule, CREDITS.md): a
+    -- user whose family's withdrawal has come on takes a dose of it
+    -- from the pack through the vanilla eat action, and with none
+    -- carried goes to where one is - the same forage path food and
+    -- the drink take, into the same take. Below real needs, like the
+    -- drink and the smoke; another person's claim still stands.
+    if agent.state == "IDLE" or agent.state == "ROAM" then
+        local fixFamily = nil
+        pcall(function() fixFamily = SAO.Habits.wantsFix(id) end)
+        if fixFamily then
+            if SAO.Needs.useCarriedDrug(id, body, fixFamily) then
+                agent.taskDeadline = tick + 1200
+                setState(agent, id, "EAT", "a dose, for the shakes")
+                return
+            end
+            if not agent.nextDrugSeekAt or tick >= agent.nextDrugSeekAt then
+                agent.nextDrugSeekAt = tick + 1200
+                local dx, dy, dz, dname = SAO.Needs.findDrugSource(id, body,
+                    nil, fixFamily)
+                if dx and not mayEnterBelieved(id, dx, dy) then
+                    SAO.Needs.clearSource(body)
+                    log(id .. " will not take a dose from a claimed place")
+                    dx = nil
+                end
+                if dx and SAO.Locomotion.order(id, body, dx, dy, dz) then
+                    agent.taskDeadline = tick + 3600
+                    setState(agent, id, "FORAGE",
+                        "the habit: heads for " .. tostring(dname))
                     return
                 end
             end

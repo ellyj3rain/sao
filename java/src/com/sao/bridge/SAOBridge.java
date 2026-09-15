@@ -631,6 +631,35 @@ public final class SAOBridge {
         return com.sao.engine.SAONeeds.isDrinkAlcoholic(item);
     }
 
+    /** [C121] The county family of an item, read through the drug
+     *  mod's own tag vocabulary; "" when the item is not a drug the
+     *  county models. */
+    public String drugFamilyOf(Object item) {
+        return com.sao.engine.SAONeeds.drugFamilyOf(item);
+    }
+
+    /** [C121] The first carried drug of a county family, for the
+     *  vanilla eat action; null when there is none or the body is not
+     *  ours. */
+    public Object findCarriedDrug(Object object, String family) {
+        if (object instanceof SAOIsoPlayerShell shell) {
+            return com.sao.engine.SAONeeds.carriedDrugFor(shell, family);
+        }
+        return null;
+    }
+
+    /** [C121] Scan for a container holding a drug of the family, in
+     *  the same remembered-source slot the drink forage uses - the
+     *  arrival take and the reach check read the ones they already
+     *  read. "x:y:z:name" or "". */
+    public String findDrugSource(Object object, double radius, String family) {
+        if (object instanceof SAOIsoPlayerShell shell) {
+            return com.sao.engine.SAONeeds.findDrugSourceNear(
+                shell, (int) radius, family);
+        }
+        return "";
+    }
+
     /** Best carried food as an opaque object for vanilla action constructors. */
     public Object findCarriedFood(Object object) {
         if (object instanceof SAOIsoPlayerShell shell) {
