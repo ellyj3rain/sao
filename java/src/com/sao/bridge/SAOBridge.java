@@ -12,6 +12,7 @@ import zombie.characters.IsoGameCharacter;
 import zombie.characters.IsoPlayer;
 import zombie.characters.SurvivorDesc;
 import zombie.characters.SurvivorFactory;
+import zombie.characters.animals.IsoAnimal;
 import zombie.characters.component.AIComponent;
 import zombie.characters.ecs.ECSComponent;
 import zombie.core.skinnedmodel.ModelManager;
@@ -104,7 +105,8 @@ public final class SAOBridge {
             float bestDistance = (float) (radius * radius);
             for (zombie.iso.IsoMovingObject moving : cell.getObjectList()) {
                 if (!(moving instanceof zombie.characters.IsoPlayer person)
-                    || person == shell || person.isDead()) {
+                    || person instanceof IsoAnimal || person == shell
+                    || person.isDead()) {
                     continue;
                 }
                 String username = person.getUsername();
@@ -606,6 +608,87 @@ public final class SAOBridge {
             return com.sao.engine.SAONeeds.read(shell);
         }
         return "";
+    }
+
+    /** [C123] A compact read of the nearby designated ranch, or empty. */
+    public String animalCareNear(Object object, double radius) {
+        try {
+            if (object instanceof SAOIsoPlayerShell shell) {
+                return com.sao.engine.SAOAnimals.near(shell, (int) radius);
+            }
+        } catch (Throwable ignored) {
+        }
+        return "";
+    }
+
+    /** [C123] The selected ranch animal for a vanilla timed action. */
+    public Object animalCareTarget(Object object, int animalId, double radius) {
+        try {
+            if (object instanceof SAOIsoPlayerShell shell) {
+                return com.sao.engine.SAOAnimals.target(shell, animalId,
+                    (int) radius);
+            }
+        } catch (Throwable ignored) {
+        }
+        return null;
+    }
+
+    /** [C123] A nearby trough from the selected animal's own ranch. */
+    public Object animalCareTrough(Object object, int animalId, double radius) {
+        try {
+            if (object instanceof SAOIsoPlayerShell shell) {
+                return com.sao.engine.SAOAnimals.trough(shell, animalId,
+                    (int) radius);
+            }
+        } catch (Throwable ignored) {
+        }
+        return null;
+    }
+
+    /** [C123] A hutch nest box holding an actual egg, never a made one. */
+    public Object animalCareNestBox(Object object, int animalId, double radius) {
+        try {
+            if (object instanceof SAOIsoPlayerShell shell) {
+                return com.sao.engine.SAOAnimals.nestBoxWithEgg(shell, animalId,
+                    (int) radius);
+            }
+        } catch (Throwable ignored) {
+        }
+        return null;
+    }
+
+    /** [C123] The hutch that owns the returned egg nest box. */
+    public Object animalCareHutch(Object object, int animalId, double radius) {
+        try {
+            if (object instanceof SAOIsoPlayerShell shell) {
+                return com.sao.engine.SAOAnimals.hutchWithEgg(shell, animalId,
+                    (int) radius);
+            }
+        } catch (Throwable ignored) {
+        }
+        return null;
+    }
+
+    /** [C123] An engine-listed carried food candidate for the animal. */
+    public Object animalCareFeed(Object object, int animalId, double radius) {
+        try {
+            if (object instanceof SAOIsoPlayerShell shell) {
+                return com.sao.engine.SAOAnimals.handFeed(shell, animalId,
+                    (int) radius);
+            }
+        } catch (Throwable ignored) {
+        }
+        return null;
+    }
+
+    /** [C123] A real carried fluid item, if one exists. */
+    public Object animalCareWater(Object object) {
+        try {
+            return object instanceof SAOIsoPlayerShell shell
+                ? com.sao.engine.SAOAnimals.carriedWater(shell) : null;
+        } catch (Throwable ignored) {
+            return null;
+        }
     }
 
     /** [C33] The fullest alcoholic drink carried, for the vanilla fluid

@@ -5,6 +5,10 @@ set -euo pipefail
 
 ROOT="$(cd "$(dirname "$0")/.." && pwd)"
 JDK="/c/Users/jleyv/Peanut Butter/JetBrains/Java/bin"
+if [ ! -x "$JDK/javac.exe" ] \
+    && [ -x "/mnt/c/Users/jleyv/Peanut Butter/JetBrains/Java/bin/javac.exe" ]; then
+    JDK="/mnt/c/Users/jleyv/Peanut Butter/JetBrains/Java/bin"
+fi
 PZ_JAR="C:/Program Files (x86)/Steam/steamapps/common/ProjectZomboid/projectzomboid.jar"
 ZB_JAR="C:/Program Files (x86)/Steam/steamapps/common/ProjectZomboid/ZombieBuddy.jar"
 OUT="$ROOT/java/out"
@@ -36,10 +40,25 @@ EOF
 echo "[build] stamped version $SAO_VERSION"
 
 echo "[build] compiling against projectzomboid.jar"
+to_windows_path() {
+    if command -v cygpath > /dev/null 2>&1; then
+        cygpath -m "$1"
+    else
+        # Git Bash normally supplies cygpath, but a POSIX shell started
+        # from Windows can still have the same /c/ path shape without it.
+        # javac.exe accepts C:/... paths directly.
+        printf '%s\n' "$1" | sed -E \
+            -e 's|^/mnt/([[:alpha:]])/|\1:/|' \
+            -e 's|^/([[:alpha:]])/|\1:/|'
+    fi
+}
+WIN_OUT="$(to_windows_path "$OUT")"
+WIN_DIST="$(to_windows_path "$DIST")"
 { find "$ROOT/java/src" -name '*.java'; echo "$GEN/SAOVersion.java"; } \
-    | while read -r f; do cygpath -m "$f"; done \
+    | while read -r f; do to_windows_path "$f"; done \
     | sed 's|.*|"&"|' > "$OUT/sources.txt"
-"$JDK/javac.exe" -cp "$PZ_JAR;$ZB_JAR" -d "$OUT" "@$OUT/sources.txt"
+"$JDK/javac.exe" -cp "$PZ_JAR;$ZB_JAR" -d "$WIN_OUT" \
+    "@$WIN_OUT/sources.txt"
 
 cat > "$OUT/MANIFEST.MF" <<'EOF'
 Manifest-Version: 1.0
@@ -49,7 +68,8 @@ EOF
 
 echo "[build] packaging SAOAgent.jar"
 rm -f "$DIST/SAOAgent.jar"
-"$JDK/jar.exe" --create --file "$DIST/SAOAgent.jar" --manifest "$OUT/MANIFEST.MF" -C "$OUT" com
+"$JDK/jar.exe" --create --file "$WIN_DIST/SAOAgent.jar" \
+    --manifest "$WIN_OUT/MANIFEST.MF" -C "$WIN_OUT" com
 
 # [B33] The jar also lands in the mod tree, which is the SHIPPING
 # location: deploy copies mod/ wholesale, and publishing IS shipping
@@ -65,6 +85,6 @@ MODJAR="$ROOT/mod/42.20/media/java/SAO.jar"
 mkdir -p "$(dirname "$MODJAR")"
 cp "$DIST/SAOAgent.jar" "$MODJAR"
 
-"$JDK/jar.exe" --list --file "$DIST/SAOAgent.jar"
+"$JDK/jar.exe" --list --file "$WIN_DIST/SAOAgent.jar"
 echo "[build] done: $DIST/SAOAgent.jar"
 echo "[build] shipped: $MODJAR"

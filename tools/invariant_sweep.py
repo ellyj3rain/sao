@@ -65,7 +65,10 @@ print("5) voice events used but undefined:", sorted(used - ev_keys) or "none")
 # site, look back 15 lines in the same file for a queuing call.
 QUEUERS = ("depositSpareFood", "depositWater", "takeStoredWater",
            "queueTake", "queueDrinkFrom", "queueEat", "shareBandageWith",
-           "ISTimedActionQueue.add", "queueReload", "queueGrab")
+           "ISTimedActionQueue.add", "queueReload", "queueGrab",
+           # [C123] `SAO.Animals.care` returns a truthy action kind only
+           # after its module has added the verified engine timed action.
+           "SAO.Animals.care")
 ctl = (lroot / "client/SAO_Controller.lua").read_text(encoding="utf-8")
 lines = ctl.split("\n")
 bare = []

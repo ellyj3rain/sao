@@ -1,11 +1,46 @@
 | Document | Survivor Awareness Overhaul Session State |
 |---|---|
-| Version | `4.12.0.0-pre-alpha` |
+| Version | `5.0.0.0-pre-alpha` |
 | Author | ellyj3rain |
 | Repository | `SESSION_STATE.md` |
 | Status | CANONICAL - where the work actually stands. |
 
 # Session state
+
+**As of** 2026-09-14, `[C123]` close - the county's animals.
+Build 42's `IsoAnimal` is an `IsoPlayer`. The scanner had therefore
+treated every cow, hen, and horse as a person, and its generic foreign
+person route could file an animal as a nameless stranger in a survivor's
+beliefs. C123 stops animals before that person fallthrough in the one
+shared foreign-person predicate and in the named-combat lookup. A live
+animal is no longer a social target, but an actual off-slot person still
+is.
+
+Ranch care reads a designated ranch from the engine's own lists. The
+adapter reads its animals, troughs, hutches, and each animal's present
+hunger, thirst, stress, acceptance, product readiness, wildness, and
+adult state. It does not create a ranch, animal, product, food, water,
+or tool. A farm hand standing on their own claimed ground can select one
+nearby, non-wild need on the existing farm cadence: ready milk, wool,
+eggs already in a hutch, water for a trough with space, an animal-listed
+hand feed, or a pet where stress or acceptance calls for it. The engine's
+own timed action makes the final validity decision.
+
+Horse riding remains the optional Horse Mod's machinery. C123 observes a
+loaded adult mount only when the mod's `HorseRiding` animation flag and
+`Mounts` association agree, and retains the engine `animalId` as the
+mount fact. That suppresses competing foot decisions. The mod's normal
+mount entry is local-player input, so C123 does not claim or attempt a
+non-local shell mount, ownership, companionship, or a new horse system.
+Border 155 holds the animal-not-person predicate, and Border 156 holds
+the ranch care selection and action construction. The version machine
+derives `5.0.0.0-pre-alpha` as a minor capability: the county's living
+animals are distinguished from people and cared for lawfully by farm
+hands. Open pending the play receipt: nobody has watched a survivor care
+for a designated animal, retrieve its product, or drink from its tended
+trough in a live save. Next: the totality order continues with
+combat-perception compatibility (`[C124]`), then the neuroinflammation knot
+(`C125`, ZAO-led, with its source sweep first).
 
 **As of** 2026-09-14, `[C122]` close - vehicles, keys, and containers.
 The vehicle port's key call was incomplete. The installed jar shows that
@@ -28,7 +63,7 @@ a key, fabricate supplies, or read unloaded cells. Border 154 holds the
 Java and Lua transfer, the radius and part guards, and a Kahlua-VM case
 where a keyed two-seat runner outranks a larger locked runner; its held-
 key-start, part-container, and food-source controls all flip the verdict. The version
-machine derives `4.12.0.0-pre-alpha` as a minor capability: vehicles now
+machine derives `5.0.0.0-pre-alpha` as a minor capability: vehicles now
 supply lawful starts and mobile storage to existing execution and needs.
 The play receipt remains open: nobody has watched a survivor start a
 vehicle from a held key or use a vehicle compartment in a live save.
@@ -2002,10 +2037,10 @@ unloaded survivors are governed by the same rules ([B39], [B42]).
 
 ## Deploy state
 
-`4.12.0.0-pre-alpha` at tip - the version machine's output ([C2],
-DR-013; the units `[C113]` through `[C122]` moved it here: the
-Week One port's two minors, the raider, moments, age, drugs, and
-vehicle-ground minors, with `[C115]`'s dial kohai among them).
+`5.0.0.0-pre-alpha` at tip - the version machine's output ([C2],
+DR-013; the units `[C113]` through `[C123]` moved it here: the
+Week One port's two minors, the raider, moments, age, drugs,
+vehicle-ground, and animal minors, with `[C115]`'s dial kohai among them).
 `[C120]` reached the
 install on 2026-09-14, the same day it closed, after its own gate
 run - verified rather than assumed: the deployed `mod.info` reads
@@ -2019,8 +2054,14 @@ deploy - the deployed `mod.info` reads the version the machine
 derived and the deployed `SAO.jar` is byte-identical to the
 committed build. `[C56]` touches only the instruments and the
 documents, so there is nothing behavioural in it to deploy.
+`[C123]` reached the install on 2026-09-14 after the source rebuild and
+the full gate: the deployed `mod.info` reads `5.0.0.0-pre-alpha`, and
+the distribution, shipped, and installed jars match at MD5
+`570E4D0B276D6C5BBCA2115A2541CFF0`. The prescribed deploy also copies
+root `LICENSE` and `CREDITS.md`; their installed copies match the root,
+and no other installed file differs from `mod/`.
 `[C122]` reached the install on 2026-09-14 after the source rebuild and
-the full gate: the deployed `mod.info` reads `4.12.0.0-pre-alpha`, and
+the full gate: the deployed `mod.info` reads `5.0.0.0-pre-alpha`, and
 the distribution, shipped, and installed jars match at MD5
 `2EEE6219A5A0516837018D76A34F799E`. The prescribed deploy also copies
 root `LICENSE` and `CREDITS.md`; their installed copies match the root,
@@ -2059,7 +2100,7 @@ deploy; `save_compat_test` guards this and runs in the gate.
 
 ## Instruments
 
-**154 numbered borders**, run by **169 gated mirrors** in `tools/`, all invoked
+**156 numbered borders**, run by **171 gated mirrors** in `tools/`, all invoked
 by `tools/check.sh`, which the pre-commit hook runs and CI runs on every push.
 The figures in this paragraph are derived by Border 76 from the tree, not
 maintained by hand. Border 54 keeps the rest honest: it runs every gated

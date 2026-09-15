@@ -72,6 +72,9 @@ BUILDERS = {
     ("SAONeeds.java", "findNamedCorpsesNear"): (
         "|:",
         "the forename and surname of the county's dead"),
+    ("SAOAnimals.java", "near"): (
+        "|@",
+        "an animal type from the engine's designated ranch"),
 }
 
 METHOD = re.compile(r"^\s{4}(?:public|private|protected|static).*?"

@@ -3,6 +3,7 @@ package com.sao.engine;
 import zombie.characters.IsoGameCharacter;
 import zombie.characters.IsoPlayer;
 import zombie.characters.IsoZombie;
+import zombie.characters.animals.IsoAnimal;
 import zombie.iso.IsoCell;
 import zombie.iso.IsoGridSquare;
 
@@ -43,7 +44,8 @@ public final class SAOPerceptionScanner {
      *  labels with it and the bridge looks bodies up with it, so the
      *  two cannot drift apart. */
     public static boolean isForeignPerson(IsoPlayer person) {
-        if (person == null || person instanceof SAOIsoPlayerShell) {
+        if (person == null || person instanceof IsoAnimal
+            || person instanceof SAOIsoPlayerShell) {
             return false;
         }
         try {

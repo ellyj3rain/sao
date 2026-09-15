@@ -16,9 +16,9 @@ the machine. Names, dates, and threads below come from
 | Form | `major.minor.kohai.patch-maturity` |
 | Hard caps | minor 12; kohai 16; patch 24 |
 | Replay start | `0.1.0.0-pre-alpha` |
-| Current version | `4.12.0.0-pre-alpha` |
-| Closed chronology | `A1-C122` |
-| Next batch | `C123` |
+| Current version | `5.0.0.0-pre-alpha` |
+| Closed chronology | `A1-C123` |
+| Next batch | `C124` |
 | Executable source | [`tools/version_replay.py`](tools/version_replay.py) |
 
 ## Tier meanings
@@ -238,6 +238,7 @@ the machine. Names, dates, and threads below come from
 | `C120` | 2026-09-14 | minor | `4.10.0.0-pre-alpha` | A child at the wheel, a ball in the street | The age attachments: the totality order's age half, Growing Up's figures carried where a figure survives the translation and rendered through the county's own machinery, never their staged machines. The wheel: a child under ten does not claim wheels on a venture at all - the venture's own claim gate reads the census's age before the door opens - and a driver aged ten to seventeen takes the wheel with their credited thirty percent penalty on the drive's speed cap (CHILD_DRIVE_PENALTY beside DRIVING_AGE in SAO_History; their adaptation milestones named as not carried). The spurt: a per-child daily hash draw (their eight percent, to sixteen) that lands as real engine hunger on the stat the county already reads, voiced once. The wound: a ten-minute scan of the body's own bites and scratches stamps what a child carries, and a hurt child carries real fear on every decision until the same scan counts it healed - the one figure of their grief machine that survives the translation, the fear and not the stages, ours at WOUND_FEAR. The mouth: age outranks the lesson where childhood reads differently - eight line tables carry a child register drawn from the census's own stage, and three flat banks the spurt, the wound and the healing raise live only at child sites, all words SAO's own, Border 123 taught the third speaker and holds the child lines clear of the acquired vocabulary. And the ball: Week One's orphaned throw FBX crosses as the eighteenth credited file and rides the ROAM arrival - a child who actually carries a ball with a playmate actually within five named tiles (PLAY_REACH, a throw travels further than a counter's arm crowd, its two bare-five collisions argued in the reach border), paced at two county hours, the catch and the return named as having no machinery. A new player-visible simulation capability - the county's children live their age at the wheel, in hunger, in hurt, in mouth and in the street - so minor. |
 | `C121` | 2026-09-14 | minor | `4.11.0.0-pre-alpha` | The carry, the ladder, and the smoke break | The drugs batch, the totality order's own: both mods now source-read and their figures carried whole where the county can hold them. The carry: where N and C's Narcotics is loaded, SAO_Drugs drives their own dependency globals on the county's bodies at their own clock shape - the seven dependency steps a ten in-game-minute pass, the seven effects and their pain removal a minute - so their counters, highs and withdrawal tiers run on a county shell exactly as they run on the player; their driver finds only the player slots, so no body is driven twice and their absence is a checked nil that does nothing. Their dependency traits are observed onto the record and the county's own schedule yields family by family where the trait takes the withdrawal over - a use stamped without the trait NOT yielding, because their machinery withdraws only on the trait - and their methadone holds the opioid clock still through the habits' own freeze and resume pair. The family read runs through their own item tags on the engine's own registry, and every eat action a county body finishes stamps that family's clock - the writer C33's comment said the read was waiting for. The ladder: The Alcoholic's late withdrawal at their own read figures - the sickness that builds through the phases and caps by phase, the poison past their line onto the engine's own food sickness with a running total kept on the body, the death past their line with the cause marked before the body goes, the per-drink relief at their own column, and the daily tolerance build at eight drinks - with their narcan and their joint rolling named as not carried. The verb: a user whose family's withdrawal has come on takes a carried dose through the vanilla eat action and forages for the family at the drink's own grammar, claim checks and all. And the smoke: a RealSmoking dial, default on - a smoker below the craving line still takes smoke breaks at their own per-person cadence; off, the withdrawal line is all that is left, exactly the county C33 built. A new player-visible simulation capability - the county's habits are lived in the body, not just scheduled - so minor. |
 | `C122` | 2026-09-14 | minor | `4.12.0.0-pre-alpha` | Vehicles, keys, and containers | Vehicles, keys, and containers: a held vehicle key now reaches the ordinary engine start path through the appraisal and motor pool, and material reads include real vehicle-part containers. Campers and trailers with no engine part supply their actual storage. A new player-visible simulation capability, so minor. |
+| `C123` | 2026-09-14 | minor | `5.0.0.0-pre-alpha` | The county's animals | The county's animals: IsoAnimal is no longer a person in perception or named combat; a farm hand reads a designated ranch's own animals, troughs and hutches and carries ready milk, wool, eggs, water, hand-feed, and pet care through the engine's own timed actions. An optional Horse Mod mount is observed through its flag, mount pair, and engine animal id without assuming a shell can mount. A new player-visible simulation capability, so minor. |
 
 ## The former number
 
@@ -258,11 +259,11 @@ the meantime, and they are not play.
 
 ## Next movement
 
-`C123` is the next batch. Its content determines its tier after it
+`C124` is the next batch. Its content determines its tier after it
 exists:
 
-| If C123 is | Result |
+| If C124 is | Result |
 |---|---|
-| patch or hotfix | `4.12.0.1-pre-alpha` |
-| kohai | `4.12.1.0-pre-alpha` |
-| minor | `5.0.0.0-pre-alpha` |
+| patch or hotfix | `5.0.0.1-pre-alpha` |
+| kohai | `5.0.1.0-pre-alpha` |
+| minor | `5.1.0.0-pre-alpha` |
