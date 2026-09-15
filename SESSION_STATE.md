@@ -1,18 +1,29 @@
 | Document | Survivor Awareness Overhaul Session State |
 |---|---|
-| Version | `5.3.1.0-pre-alpha` |
+| Version | `5.3.2.0-pre-alpha` |
 | Author | ellyj3rain |
 | Repository | `SESSION_STATE.md` |
 | Status | CANONICAL - where the work actually stands. |
 
 # Session state
 
+**As of** 2026-09-15, `[C129]` close - a year is 365 days.
+Catch-up lives days. A year is 365 of them. Game time inside a day
+is 24 hours at 9000 ticks an hour. Wall-clock per game day is the
+engine's DayLength, default 1.5 real hours, and is variable. [C112]
+had derived the tick from one real hour per game day. The 9000 stays
+as the game-hour quantum. Version `5.3.2.0-pre-alpha`. Open pending
+the play receipt: a 1996 start counted in days, and a non-default
+DayLength whose wall-clock a game day actually takes.
+Next: remeasure the remainder curve under the live cadence; ZAO in
+those days.
+
 **As of** 2026-09-15, `[C128]` close - the years are lived on the live cadence.
 A late start no longer jumps 24 hours and freezes noon in one bundle per
 calendar day. Each slice advances 240 ticks, the live population pass, and
 the hour of the day is ticks/9000. Night sends people home. A 7-day
 remainder at 198: 186 alive, 12 dead, 13 houses of three or more. Version
-`5.3.1.0-pre-alpha`. Open pending the play receipt: a 1996 start whose
+`5.3.2.0-pre-alpha`. Open pending the play receipt: a 1996 start whose
 catch-up has hours in it.
 Next: remeasure the remainder curve under this cadence; ZAO in the years.
 
@@ -2113,12 +2124,12 @@ unloaded survivors are governed by the same rules ([B39], [B42]).
 
 ## Deploy state
 
-`5.3.1.0-pre-alpha` at tip - the version machine's output ([C2],
+`5.3.2.0-pre-alpha` at tip - the version machine's output ([C2],
 DR-013; the units `[C113]` through `[C126]` moved it here: the
 Week One port's two minors, the raider, moments, age, drugs,
 vehicle-ground, animal, combat perception, neuroinflammation, and trajectory minors, with `[C115]`'s dial kohai among them).
 `[C126]` reached the install on 2026-09-15 after the source rebuild and
-the full gate: the deployed `mod.info` reads `5.3.1.0-pre-alpha`, and
+the full gate: the deployed `mod.info` reads `5.3.2.0-pre-alpha`, and
 the distribution, shipped, and installed jars match at MD5
 `ECDBB1F4991A2EC51BB2F732A819EC63`. The prescribed deploy also copies
 root `LICENSE` and `CREDITS.md`; their installed copies match the root,
@@ -2175,7 +2186,7 @@ deploy; `save_compat_test` guards this and runs in the gate.
 
 ## Instruments
 
-**159 numbered borders**, run by **174 gated mirrors** in `tools/`, all invoked
+**161 numbered borders**, run by **176 gated mirrors** in `tools/`, all invoked
 by `tools/check.sh`, which the pre-commit hook runs and CI runs on every push.
 The figures in this paragraph are derived by Border 76 from the tree, not
 maintained by hand. Border 54 keeps the rest honest: it runs every gated

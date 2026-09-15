@@ -132,7 +132,57 @@ end
 -- after `countyHours` is a different TICKS_PER_HOUR (the global,
 -- which is nil) and `ticks / nil` threw inside attrition's pcall,
 -- so a 30-day county at live cadence collected nobody.
+--
+-- [C129] Three clocks, named here so they cannot be mixed:
+--
+--   Calendar. A year is 365 days. A save that "owes three years"
+--   owes 365 x 3 days, each lived. The persisted fields yearsOwed
+--   and yearsRun count DAYS; the names are [C45]'s save keys.
+--   There is no years-step.
+--
+--   Game time. A day is 24 game hours. A tick is 1/9000 of a game
+--   hour ([C112]). Catch-up and live play share this axis.
+--
+--   Wall clock. Real time per game day is the engine's DayLength,
+--   a sandbox setting, variable. Default from Build 42.10 is one
+--   hour and thirty minutes of real time per twenty-four game
+--   hours. Game time is not wall-clock time.
+--
+-- [C112] derived 9000 from one real hour of wall-clock per game day
+-- at sixty frames a second. That default was wrong for this build.
+-- 1.5 real hours / 24 game hours is the default DayLength from
+-- Build 42.10. The tick stays 9000 because it is the game-hour
+-- quantum, not a frame count. Span constants keep their numbers;
+-- wall-clock pace follows DayLength.
+local DAYS_PER_YEAR = 365
 local TICKS_PER_HOUR = 9000
+local DEFAULT_REAL_HOURS_PER_GAME_DAY = 1.5
+
+H.DAYS_PER_YEAR = DAYS_PER_YEAR
+H.TICKS_PER_HOUR = TICKS_PER_HOUR
+H.DEFAULT_REAL_HOURS_PER_GAME_DAY = DEFAULT_REAL_HOURS_PER_GAME_DAY
+
+function H.daysPerYear()
+    return DAYS_PER_YEAR
+end
+
+function H.ticksPerHour()
+    return TICKS_PER_HOUR
+end
+
+function H.ticksPerGameDay()
+    return TICKS_PER_HOUR * 24
+end
+
+-- The engine's DayLength enum is not decoded here. The jar is not
+-- in this tree, and a lookup invented from memory is forbidden.
+-- The default is the operator's figure, matching Build 42.10. A
+-- later batch that reads the installed game can fill the other
+-- settings. Until then the county uses the default and does not
+-- pretend to know them.
+function H.realHoursPerGameDay()
+    return DEFAULT_REAL_HOURS_PER_GAME_DAY
+end
 
 function H.countyHours()
     local s = yearsState()
@@ -170,16 +220,18 @@ end
 -- diverged by whole simulated days during the years.
 --
 -- So the unit is redefined, ONCE, here - not converted at sixty sites:
--- a tick is a 9000th of a county hour, which is what a frame was at
--- sixty frames a second on the default day length (a real minute a
--- game hour: 150 real seconds x 60 frames). Every span constant
--- already authored in that unit keeps its number and its default-day
--- pace; what changes is the domain. The tick now advances with the
--- county: a slow machine paces the county correctly, fast-forward
--- speeds the timers with the world they time, a pause stops them with
--- it, and the axis is stable across sessions, because county hours are
--- world-age - a stamp made yesterday still reads as yesterday, which
--- no frame count ever did.
+-- a tick is a 9000th of a county hour. [C112] wrote that this is what
+-- a frame was at sixty frames a second on the default day length, and
+-- counted one real hour of wall-clock per game day. [C129] keeps the
+-- 9000 as the game-hour quantum and drops that derivation: the default
+-- day length on this build is 1.5 real hours per 24 game hours, and
+-- wall-clock is a different clock. Every span constant already authored
+-- in ticks keeps its number. What changes is the domain. The tick now
+-- advances with the county: a slow machine paces the county correctly,
+-- fast-forward speeds the timers with the world they time, a pause
+-- stops them with it, and the axis is stable across sessions, because
+-- county hours are world-age - a stamp made yesterday still reads as
+-- yesterday, which no frame count ever did.
 --
 -- Two corollaries, both stated once here because they are the law's
 -- arithmetic and not any caller's business:
@@ -222,7 +274,7 @@ end
 --
 -- [C45] froze this at noon because a simulated day had no hours in
 -- it, and a save begun at three in the morning sent every survivor
--- home for a thousand days. [C128] lives the years on the live
+-- home for a thousand days. [C128] lives catch-up on the live
 -- cadence, so a day has its hours: ticks / 9000 wrapped onto 0..24.
 -- Night sends people home; morning sends them out. The street hour
 -- ([C113]) is the hour of the day.
@@ -533,7 +585,7 @@ function H.oldAgeRiskPerDay(age)
             break
         end
     end
-    return yearly / 365
+    return yearly / DAYS_PER_YEAR
 end
 
 function H.heightScaleOf(id)

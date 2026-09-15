@@ -1,6 +1,6 @@
 | Document | Survivor Awareness Overhaul Findings |
 |---|---|
-| Version | `5.3.1.0-pre-alpha` |
+| Version | `5.3.2.0-pre-alpha` |
 | Author | ellyj3rain |
 | Repository | `FINDINGS.md` |
 | Status | CANONICAL, APPEND-ONLY - verified engine findings. |
@@ -1588,4 +1588,25 @@ Measured plain Knox (11 towns, 198 genesis), one seed per horizon except 1096 (t
 
 A single exponential $N_0 \exp(-0.00205 d)$ with an 8% floor predicts 175 alive on day 30 and 16 at 1096. The county had 45 and then a handful or none. Houses collapse with the people. `SAO_Trajectory` interpolates these anchors. Fast extrapolation is opt-in (`FastSimulation`). Default is first-principles years.
 
+---
+
+## F-075 - The tick derivation used one real hour per game day
+
+**Verified** `[C129]`, operator ruling, PZwiki Game time (Build 42.10.0 default).
+
+[C112] derived `TICKS_PER_HOUR = 9000` from sixty frames a second on
+the default day length, counted as one real hour per game day (150
+real seconds of frames per game hour). From Build 42.10 the engine's
+default DayLength is one hour and thirty minutes of real time per
+twenty-four game hours. The operator restated that default and that
+the setting is variable.
+
+The 9000 is kept as the game-hour quantum. Span constants keep their
+numbers. Wall-clock pace follows DayLength. The DayLength enum table
+is not in this tree; the default is named and the other settings are
+not decoded.
+
+**What it invalidates.** Any real-time duration computed from 9000
+ticks as if the default day were one real hour. At the actual default,
+240 ticks is 6 real seconds of play, not 4.
 

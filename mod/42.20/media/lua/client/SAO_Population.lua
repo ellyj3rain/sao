@@ -3268,14 +3268,11 @@ local BAND_PATIENCE = 15   -- passes (~60s at 60fps frames on the default day) b
 --
 -- A save that begins in 1996 has three years of county behind it,
 -- and DR-036 says the people the player meets are the people who
--- lived them. So the county's own machinery runs forward over those
--- days before anybody is materialised - the same dormant day, the
--- same meetings on the road, the same attrition, the same softening
--- of old feelings, the same table that kills the old - and whoever
--- is alive at the end of it is who the player walks into.
+-- lived them. [C129] A year is 365 days. Those days are lived one
+-- after another, each 24 game hours, on the live cadence. Nothing
+-- here is a second simulation and nothing is a collapsed year.
 --
--- Nothing here is a second simulation and nothing is authored. Every
--- call below is the one the live county already makes; houses,
+-- Every call below is the one the live county already makes; houses,
 -- leaders, feuds and pacts arrive because `dormantEncounters` forms
 -- them, exactly as it does in play.
 --
@@ -3285,25 +3282,25 @@ local BAND_PATIENCE = 15   -- passes (~60s at 60fps frames on the default day) b
 -- clock 24 hours, freezes the hour at noon, and opens every
 -- cooldown at once: one move, one meeting wave, one attrition roll.
 -- That is not how a game day runs. The live county's population
--- pass is 240 ticks (~4s of default-day pace). A day is 900 of
--- those. The years now take that step, sliced on the same 60ms
--- budget, holding the band until the ticks owed are lived.
+-- pass is 240 ticks. A day is 900 of those passes. Catch-up takes
+-- that step, sliced on the same 60ms budget, holding the band until
+-- the ticks owed are lived.
 --
 -- [C112] The dormant systems pace themselves in county ticks now - a
 -- person moves every 1800 to 3600 of them and a pair may meet once
--- per 1800 - and a simulated day on the county's clock is 216,000 of
--- them, which opens each gate certainly rather than about. That is
--- the pace the years always meant to buy: the pass itself still runs
--- once per simulated day, which is what actually holds each person to
--- one move and each pair to at most one meeting - the gates only
--- ever throttled a pass that ran more often than they opened, which
--- is live play, not the years. Before [C112] the years advanced the
--- frame counter by a calibrated 3600 a day to fake this; the clock
--- now advances itself, and the fake is deleted.
+-- per 1800 - and a game day on the county's clock is 216,000 of
+-- them. Catch-up takes the live step 900 times a day so those gates
+-- open the way they open in play, not once with every cooldown
+-- forced. Before [C112] catch-up advanced the frame counter by a
+-- calibrated 3600 a day to fake this; the clock now advances itself.
+--
+-- Wall-clock per game day is the engine's DayLength, default 1.5
+-- hours, and is variable. Catch-up compute time is the 60ms budget,
+-- not that wall clock.
 
 -- And it is sliced, never blocking: each pass spends at most this
--- long and picks up where it stopped. A county catching up is a few
--- seconds of the game running normally, not a frozen window.
+-- long and picks up where it stopped. A long catch-up takes as many
+-- frames as the days need.
 local YEARS_BUDGET_MS = 60
 
 local function yearsStore()
@@ -3314,9 +3311,10 @@ local function yearsStore()
 end
 
 -- How many days this save begins with behind it, asked once and
--- remembered. Zero is a real answer (a 1993 start has no years to
--- catch up on) and so the flag, not the number, says whether it has
--- been asked.
+-- remembered. The persisted key is still yearsOwed ([C45]); the
+-- number is days. [C129] A year is 365 of them. Zero is a real
+-- answer (a 1993 start owes nothing) and so the flag, not the
+-- number, says whether it has been asked.
 local function yearsOwed(s)
     if s.yearsAsked then return tonumber(s.yearsOwed) or 0 end
     -- [C63] Through SAO_History, which is the one place that reads
@@ -3466,8 +3464,9 @@ local function dailyCounty()
     pcall(function() SAO.WorldGenesis.applyDay(day) end)
 end
 
--- One live-cadence pass during the years ([C128]). The same dormant
--- stack the live county runs on TICK_INTERVAL. Not a day.
+-- One live-cadence pass during catch-up ([C128]). The same dormant
+-- stack the live county runs on TICK_INTERVAL. Not a day. A day is
+-- 900 of these. A year is 365 of those days ([C129]).
 local function yearsCadencePass(conf)
     pcall(dormantLife, conf)
     pcall(dormantSettle)
@@ -3487,7 +3486,7 @@ local function yearsDayRolled(conf, day)
     dailyCounty()
 end
 
--- Returns true while there are still years to live, which is what
+-- Returns true while there are still days to live, which is what
 -- holds the band back: nobody is materialised into a county that has
 -- not finished happening.
 local function runTheYears(conf)
@@ -3551,8 +3550,10 @@ local function runTheYears(conf)
 
     local okT, startedMs = pcall(function() return getTimestampMs() end)
     local began = run
-    -- [C112] 9000 ticks an hour, 24 hours a day. [C128] the years
-    -- take the live population step (TICK_INTERVAL), not a day.
+    -- [C112] 9000 ticks a game hour, 24 game hours a day. [C128]
+    -- catch-up takes the live population step (TICK_INTERVAL), not a
+    -- bundled day. [C129] A year is 365 of those days; wall-clock
+    -- per day is DayLength, default 1.5 real hours, and is not this.
     local ticksADay = 9000 * 24
     local ticks = tonumber(s.yearsTicks) or (run * ticksADay)
     while run < owed do
@@ -3595,7 +3596,7 @@ local function runTheYears(conf)
         return false
     end
     if run - began > 0 then
-        log("the county is living the years: " .. run .. "/" .. owed
+        log("the county is living the days it owes: " .. run .. "/" .. owed
             .. " days")
     end
     return true

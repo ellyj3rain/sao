@@ -1887,6 +1887,14 @@ if ! "$PY" tools/road_company_test.py > /dev/null; then
     fail=1
 fi
 
+# [C129] Border 161 - a year is 365 days. Catch-up lives days. Wall-clock
+# per game day is DayLength, default 1.5 real hours. The tick stays 9000.
+if ! "$PY" tools/day_year_clock_test.py > /dev/null; then
+    "$PY" tools/day_year_clock_test.py 2>&1 | grep -E "FAULT|CONTROL|SKIPPED" || true
+    note "BORDER FINDING - the clocks are mixed: a year is not 365 days, or wall-clock is still 1:1"
+    fail=1
+fi
+
 # Border 103 - the operator's speech is not in the repository: no
 # profanity in the tracked tree and no operator-quote attributions;
 # rulings are paraphrased content, speech stays with the speaker.

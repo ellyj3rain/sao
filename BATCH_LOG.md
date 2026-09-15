@@ -1,6 +1,6 @@
 | Document | Survivor Awareness Overhaul Batch Log |
 |---|---|
-| Version | `5.3.1.0-pre-alpha` |
+| Version | `5.3.2.0-pre-alpha` |
 | Author | ellyj3rain |
 | Repository | `BATCH_LOG.md` |
 | Status | REGULATORY - chronological batch index. |
@@ -233,4 +233,5 @@ attribution for every merged entry, stated here rather than in a branch name.
 | [C126](Batches/C126-2026-09-14-learned-trajectory-and-headless-simulation-for-post-1993-starts.md) | 2026-09-14 | Learned trajectory and headless simulation for post-1993 starts | [`T-007`](Batches/THREADS.md#t-007), [`T-008`](Batches/THREADS.md#t-008), [`T-009`](Batches/THREADS.md#t-009) |
 | [C127](Batches/C127-2026-09-15-the-road-joins-a-house.md) | 2026-09-15 | The road joins a house | [`T-004`](Batches/THREADS.md#t-004), [`T-007`](Batches/THREADS.md#t-007), [`T-008`](Batches/THREADS.md#t-008) |
 | [C128](Batches/C128-2026-09-15-the-years-are-lived-on-the-live-cadence.md) | 2026-09-15 | The years are lived on the live cadence | [`T-007`](Batches/THREADS.md#t-007), [`T-002`](Batches/THREADS.md#t-002) |
+| [C129](Batches/C129-2026-09-15-a-year-is-365-days.md) | 2026-09-15 | A year is 365 days | [`T-007`](Batches/THREADS.md#t-007), [`T-002`](Batches/THREADS.md#t-002), [`T-008`](Batches/THREADS.md#t-008) |
 

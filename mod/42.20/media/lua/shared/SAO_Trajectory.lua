@@ -1,11 +1,13 @@
--- SAO_Trajectory.lua - late-start years and the measured Knox curve ([C126]).
+-- SAO_Trajectory.lua - late-start days and the measured Knox curve ([C126]).
 -- ---------------------------------------------------------------------------
--- A save that begins after the fall owes days. Those days are lived
--- through the years pass ([C45], [C65]): first-principles, one day at
--- a time. Fast extrapolation is opt-in (sandbox FastSimulation) and
--- interpolates the measured headless curve rather than inventing one.
+-- A save that begins after the fall owes days. [C129] A year is 365
+-- of them. Those days are lived through catch-up ([C45], [C65],
+-- [C128]): first-principles, one live-cadence pass at a time. Fast
+-- extrapolation is opt-in (sandbox FastSimulation). It interpolates
+-- a measured curve. It is not a year of simulation and it does not
+-- live the days.
 --
--- The curve is the compressed-day years ([C45]): one bundle per
+-- The curve is the compressed-day catch-up ([C45]): one bundle per
 -- calendar day, noon frozen, cooldowns opened at once. [C128] lives
 -- those days on the live 240-tick cadence. These anchors stay until
 -- that cadence is remeasured. FastSimulation interpolates them and
@@ -22,7 +24,7 @@
 -- Houses collapse with the people: 25 standing at week one, 12 at
 -- day 30, one or none by day 90. They do not converge toward 85%.
 --
--- Used by the years pass when FastSimulation is on, by the headless
+-- Used by catch-up when FastSimulation is on, by the headless
 -- sweep, and as the Speakeasy trajectory corpus.
 -- ---------------------------------------------------------------------------
 
@@ -111,7 +113,8 @@ function Trajectory.predict(days, initialPop)
     }
 end
 
----Fast extrapolation is opt-in. Off, the years live every owed day.
+---Fast extrapolation is opt-in. Off, catch-up lives every owed day.
+---This is interpolation of a curve, not a year of simulation.
 ---@param owed number
 ---@param s table|nil
 ---@param conf table|nil

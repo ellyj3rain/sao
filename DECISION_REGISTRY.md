@@ -1,6 +1,6 @@
 | Document | Survivor Awareness Overhaul Decision Registry |
 |---|---|
-| Version | `5.3.1.0-pre-alpha` |
+| Version | `5.3.2.0-pre-alpha` |
 | Author | ellyj3rain |
 | Repository | `DECISION_REGISTRY.md` |
 | Status | CANONICAL, APPEND-ONLY - ratified decisions. |
@@ -1450,3 +1450,34 @@ superseded.
 
 **Origin.** Operator ruling, 2026-09-09, on F-061; the waiver
 established the same day when the anchor's precondition failed.
+
+---
+
+## DR-041 - A year is 365 days, and wall-clock per day is DayLength
+
+**Date** 2026-09-15
+**Status** RATIFIED
+
+**Decision.** Calendar time is one-to-one. A year is 365 days.
+Catch-up for N years lives 365 x N days, each 24 game hours, on
+the live population cadence. There is no years-simulation and no
+collapsed day.
+
+Game time inside a day is not wall-clock time. Real time per
+in-game 24 hours is the engine's DayLength sandbox setting. It is
+variable. The default on this build is one hour and thirty minutes
+of real time per twenty-four game hours.
+
+A tick remains 1/9000 of a game hour ([C112]). That number is the
+resolution of the county's clock, not a count of real frames at a
+particular DayLength.
+
+**Why.** [C45] named catch-up "the years" and compressed each day
+into one bundle. [C112] derived 9000 from one real hour of
+wall-clock per game day. [C128] lived the days on the live cadence
+and left both of those as the working ontology. Collapsing days
+into years as a unit of simulation makes the numbers unreadable as
+a game.
+
+**Origin.** Operator ruling, 2026-09-15, on the years/days clock.
+

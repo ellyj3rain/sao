@@ -1,6 +1,6 @@
 | Document | Survivor Awareness Overhaul Representation Contract |
 |---|---|
-| Version | `5.3.1.0-pre-alpha` |
+| Version | `5.3.2.0-pre-alpha` |
 | Author | ellyj3rain |
 | Repository | `REPRESENTATION.md` |
 | Status | CANONICAL - what the county represents and which state carries each part. |
