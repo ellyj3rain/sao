@@ -1,0 +1,64 @@
+[build] stamped version 2.7.14.3-pre-alpha
+[build] compiling against projectzomboid.jar
+Note: C:\Users\jleyv\Peanut Butter\AI Assisted Software Engineering Mass Repository\Projects\survivor-awareness\java\src\com\sao\engine\SAOCombat.java uses or overrides a deprecated API.
+Note: Recompile with -Xlint:deprecation for details.
+[build] packaging SAOAgent.jar
+META-INF/
+META-INF/MANIFEST.MF
+com/
+com/sao/
+com/sao/Main.class
+com/sao/SAOVersion.class
+com/sao/agent/
+com/sao/agent/SAOAgent.class
+com/sao/agent/SAOBodyScale.class
+com/sao/agent/SAOBodyScaleWeave$Exit.class
+com/sao/agent/SAOBodyScaleWeave.class
+com/sao/agent/SAOCombatGate.class
+com/sao/agent/SAOMeleeTransformer$ConstantPool.class
+com/sao/agent/SAOMeleeTransformer$PatchResult.class
+com/sao/agent/SAOMeleeTransformer.class
+com/sao/bridge/
+com/sao/bridge/SAOBridge.class
+com/sao/bridge/SAOBridgeBootstrap.class
+com/sao/engine/
+com/sao/engine/SAOAnimals.class
+com/sao/engine/SAOBuild.class
+com/sao/engine/SAOCombat.class
+com/sao/engine/SAOCrossedDriver.class
+com/sao/engine/SAODriveLaw$Unseat.class
+com/sao/engine/SAODriveLaw.class
+com/sao/engine/SAODriveState.class
+com/sao/engine/SAODriver.class
+com/sao/engine/SAODurableText.class
+com/sao/engine/SAOEquipment.class
+com/sao/engine/SAOFence.class
+com/sao/engine/SAOGround.class
+com/sao/engine/SAOHibernation$LegacyItem.class
+com/sao/engine/SAOHibernation$LegacySnapshot.class
+com/sao/engine/SAOHibernation.class
+com/sao/engine/SAOIsoPlayerShell.class
+com/sao/engine/SAOKnox.class
+com/sao/engine/SAOMovement.class
+com/sao/engine/SAONativeSnapshot$Equipment.class
+com/sao/engine/SAONativeSnapshot$ItemFact.class
+com/sao/engine/SAONativeSnapshot$Manifest.class
+com/sao/engine/SAONativeSnapshot$Slot.class
+com/sao/engine/SAONativeSnapshot$Snapshot.class
+com/sao/engine/SAONativeSnapshot$Writer.class
+com/sao/engine/SAONativeSnapshot.class
+com/sao/engine/SAONeeds$FoodSource.class
+com/sao/engine/SAONeeds$ItemProbe.class
+com/sao/engine/SAONeeds$SquareProbe.class
+com/sao/engine/SAONeeds.class
+com/sao/engine/SAOPerceptionScanner.class
+com/sao/engine/SAORecord.class
+com/sao/engine/SAOReturnBody$Phase.class
+com/sao/engine/SAOReturnBody$Stage.class
+com/sao/engine/SAOReturnBody.class
+com/sao/engine/SAORouteState.class
+com/sao/engine/SAOSettlement.class
+com/sao/engine/SAOWorldCensus.class
+com/sao/engine/SAOZombieDirector.class
+[build] done: /c/Users/jleyv/Peanut Butter/AI Assisted Software Engineering Mass Repository/Projects/survivor-awareness/java/dist/SAOAgent.jar
+[build] shipped: /c/Users/jleyv/Peanut Butter/AI Assisted Software Engineering Mass Repository/Projects/survivor-awareness/mod/42.20/media/java/SAO.jar

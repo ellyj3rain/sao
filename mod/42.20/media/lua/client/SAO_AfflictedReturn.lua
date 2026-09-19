@@ -1,174 +1,260 @@
--- SAO_AfflictedReturn.lua - the reverted come back ([C116]).
---
--- The afflicted are the county's own mid-course people ([MUTATION.md]):
--- a body the pathogen was turning that drew back out of the turn, the
--- form's residue riding what capability survived it. The sister's
--- pathogen already reverts them (terminalState "afflicted", the
--- retained ability scaling the residue) - and until this pass the
--- county they came from never took them back: the record stayed a
--- death record, the body stayed the risen corpse the sister drives,
--- and a person who came back was nobody's.
---
--- This pass is the return, and it is a fact-reading, not a decision:
--- the pathogen's own draw licensed the reversion, and the adoption
--- follows the state. Once per county day, for every person the sister
--- holds whose state says afflicted:
---
---   - a live body is minted where their risen corpse stands (or at
---     their last ground, if the corpse is out of the world), through
---     the same materialize every awakening uses.
---   - the record's death flag turns - not an undoing of the death
---     (diedAtHours and deathCause stay; the person DID die - out
---     there, and it is still true) but the county's present-tense
---     judgment that they are gone, which the reversion overturned.
---     Everything markDead's funnel dropped stays dropped: they come
---     back with no beliefs, no voice, no company, a stranger to their
---     own house, which is what coming back from that is. The flags
---     turn only after the mint succeeded - a refused materialize
---     leaves the record exactly as it was and the next county day
---     tries again.
---   - the pathogen's own form marks are stamped on the live body's
---     modData, so what the scanner reports about them is what they
---     carry - the ghoul shape is visible, and what survivors do with
---     what they see is the pressure chain's business, not ours.
---
--- The risen corpse itself is the sister's body to lay down: ZAO owns
--- the turned body, and its release of a reverted body this county has
--- re-adopted is named in both repos' records as the sister's half.
--- Until it lands, the corpse and the returned person can share a
--- county, and the county's reunions and fears will be honest about
--- both.
---
--- The house argument, the cast-out and the gather are NOT here: those
--- are standing's questions, and standing's batch is [C117] - the
--- argument over an afflicted member runs in electLeader beside the
--- creed quarrel, the company door reads its value down by the judge's
--- own fear, and the cast-out's drift is Standing's own daily verb.
-
+-- SAO_AfflictedReturn - authorized transfer from ZAO to a living person.
+-- The durable phase owns the person until source removal and controller
+-- adoption succeed. Detached staged shells never enter ordinary Body.get.
 SAO = SAO or {}
 SAO.AfflictedReturn = SAO.AfflictedReturn or {}
 local Return = SAO.AfflictedReturn
+local running = false
 
-local function log(msg) SAO.Log.line("PATH", msg) end
-
--- Where the risen corpse stands, if the sister has it in the world.
-local function corpseOf(personId)
-    local controlled = ZAO and ZAO.Controller
-        and ZAO.Controller.controlled or nil
-    return controlled and controlled[personId] or nil
+local function finite(value)
+    return type(value) == "number" and value == value
+        and value ~= math.huge and value ~= -math.huge
 end
 
--- Whether this person's return is this pass's to mint: the state said
--- afflicted, the record says they went through the county's death, no
--- live body exists, and no earlier return is already standing.
-local function owed(rec, personId, state)
-    if not (rec and rec.id) then return false end
-    if not rec.dead then return false end
-    if rec.afflictedReturn then return false end
-    if state.terminalState ~= "afflicted" then return false end
-    if SAO.Body.hasRepresentation(personId) then return false end
+local function dependencies()
+    return ZAO and ZAO.StateStore and ZAO.StateStore.returnAuthorization
+        and ZAO.Controller and ZAO.Controller.returnSource and SAOJavaBridge
+        and SAO.Identity and SAO.Body and SAO.Controller
+end
+
+function Return.authorized(rec)
+    local p = rec and rec.returnTransition
+    if not p or p.version ~= 1 or not dependencies() then return false end
+    if p.sourceRemoved then return true end
+    local event = ZAO.StateStore.returnAuthorization(rec.id)
+    return event and event.token == p.event
+        and (event.deathSequence == nil or event.deathSequence == (rec.deathSequence or 0))
+end
+
+local function begin(rec)
+    if not rec.dead or SAO.Body.hasRepresentation(rec.id) then return false, "represented" end
+    if not ZAO.Controller.restoreReturnHealth then return false, "recovery-state-unavailable" end
+    if SAO.Controller.pendingCorpses and SAO.Controller.pendingCorpses[rec.id] then
+        return false, "corpse-pending"
+    end
+    local event = ZAO.StateStore.returnAuthorization(rec.id)
+    if not event or event.token == rec.returnEvent then return false, "no-new-reversion" end
+    if event.deathSequence ~= nil and event.deathSequence ~= (rec.deathSequence or 0) then
+        return false, "reversion-belongs-to-prior-death"
+    end
+    if rec.afflictedReturn and rec.returnEvent == nil
+        and tostring(event.token):sub(1, 7) == "legacy:" then
+        rec.returnEvent = event.token
+        return false, "legacy-reversion-already-consumed"
+    end
+    if tonumber(event.day) == nil or event.day < math.floor((rec.diedAtHours or 0) / 24) then
+        return false, "reversion-predates-death"
+    end
+    local source = ZAO.Controller.returnSource(rec.id)
+    if source and (not ZAO.Controller.canReturnSource
+        or not ZAO.Controller.canReturnSource(source)) then
+        return false, "source-persistence-unavailable"
+    end
+    local kind = source and "loaded" or "dormant"
+    if not source and rec.turnedDormant ~= true then return false, "source-unavailable" end
+    if source and rec.returnLivingDeath ~= (rec.deathSequence or 0) then
+        return false, "living-state-belongs-to-prior-death"
+    end
+    local living = source and rec.returnLiving or rec.hibernation
+    if not SAOJavaBridge:validateHibernation(living) then return false, "living-state-unavailable" end
+    local x, y, z = rec.x, rec.y, rec.z
+    if source then x, y, z = source:getX(), source:getY(), source:getZ() end
+    local hours = SAO.History.countyHours()
+    if not (finite(x) and finite(y) and finite(z) and finite(hours)) then return false, "invalid-return-position" end
+    rec.returnTransition = { version = 1, event = event.token,
+        token = rec.id .. ":" .. event.token, phase = "preparing", source = kind, destination = kind,
+        x = x, y = y, z = z, hours = hours, living = living }
     return true
 end
 
-function Return.adopt(day)
-    if not (ZAO and ZAO.Controller and ZAO.StateStore
-        and SAO.Identity and SAO.Body) then
-        return false
+local function stamp(body, state)
+    local data = body:getModData()
+    data.ZAOForm = state.currentForm or "none"
+    data.ZAOFormPerformance = tonumber(state.formPerformance) or 0
+    data.ZAOAttributes = ZAO.Pathogen and ZAO.Pathogen.attributeString(state) or ""
+    data.ZAOTerminalState = state.terminalState
+    data.ZAODormantKnox = state.terminalState == "afflicted" or nil
+end
+
+local function commit(rec, p, body, destination)
+    rec.hibernation, rec.releasedAtHours = p.packed, SAO.History.countyHours()
+    rec.bodyVisual, rec.bodyCheckpointFailure = p.visual, nil
+    rec.woundInfected, rec.hasRadio = p.facts.woundInfected or nil, p.facts.hasRadio == true
+    rec.x, rec.y, rec.z = p.x, p.y, p.z
+    rec.dead, rec.turnedDormant = false, false
+    rec.afflictedReturn, rec.returnedAtHours, rec.returnEvent = true, p.hours, p.event
+    rec.knoxInfected, rec.biteDeathAtHours = nil, nil
+    rec.deathNewsAt = nil
+    -- Activation remains retryable under the phase; callbacks see no body
+    -- until both native publication and controller enrollment have succeeded.
+    if destination == "loaded" and not SAOJavaBridge:activateReturnBody(body) then
+        return false, "activation-pending"
     end
+    SAO.Body.returning[rec.id] = nil
+    rec.returnTransition = nil
+    return true, "returned"
+end
 
-    local hours = 0
-    pcall(function() hours = SAO.History.countyHours() end)
-
-    local adopted = 0
-    for personId, _ in pairs(ZAO.Controller.controlled) do
-        personId = tostring(personId)
-        local okState, state = pcall(function()
-            return ZAO.StateStore.read(personId)
-        end)
-        local rec = nil
-        pcall(function() rec = SAO.Identity.get(personId) end)
-
-        if okState and state and owed(rec, personId, state) then
-            -- Where they come back: at their risen corpse if it is in
-            -- the world, else at their last ground. The corpse is the
-            -- sister's to lay down; the position is a fact either way.
-            local x, y, z = nil, nil, nil
-            local corpse = corpseOf(personId)
-            if corpse then
-                pcall(function()
-                    x, y, z = corpse:getX(), corpse:getY(), corpse:getZ()
-                end)
-            end
-            if not (x and y) then
-                x, y = tonumber(rec.x), tonumber(rec.y)
-                z = tonumber(rec.z)
-            end
-
-            if x and y then
-                if not z then z = 0 end
-                -- The mint runs first, on the record as it stands; the
-                -- flags that say "returned" turn only on success, so a
-                -- refused materialize leaves a death record a death
-                -- record and the next county day tries again.
-                rec.x, rec.y, rec.z = x, y, z
-                local body = nil
-                pcall(function() body = SAO.Body.materialize(rec) end)
-
-                if body then
-                    rec.dead = false
-                    rec.turnedDormant = false
-                    rec.afflictedReturn = true
-                    rec.returnedAtHours = hours
-
-                    -- The form's residue, as marks on the live body:
-                    -- the scanner appends what the modData holds, and
-                    -- the belief layer already reads it. What
-                    -- survivors do with a person shaped like that is
-                    -- their pressure chain's business.
-                    pcall(function()
-                        local data = body:getModData()
-                        if type(data) == "table" then
-                            data.ZAOForm = state.currentForm or "none"
-                            data.ZAOFormPerformance =
-                                tonumber(state.formPerformance) or 0.0
-                            data.ZAOAttributes = ZAO.Pathogen
-                                and ZAO.Pathogen.attributeString(state)
-                                or ""
-                        end
-                    end)
-
-                    adopted = adopted + 1
-                    -- The return's own statement reads its hour back:
-                    -- how long they were gone is the fact the return
-                    -- establishes, and the county log states it beside
-                    -- the death's own durable hour, which stays.
-                    local gone = ""
-                    pcall(function()
-                        local returnedAt =
-                            tonumber(rec.returnedAtHours)
-                        local diedAt = tonumber(rec.diedAtHours)
-                        if returnedAt and diedAt
-                            and returnedAt >= diedAt then
-                            gone = " - gone "
-                                .. tostring(math.floor(
-                                    (returnedAt - diedAt) / 24.0))
-                                .. " days"
-                        end
-                    end)
-                    log(rec.id .. " came back out there" .. gone .. " - "
-                        .. tostring(ZAO.Pathogen and ZAO.Pathogen.describe
-                            and ZAO.Pathogen.describe(personId)
-                            or "afflicted"))
-                else
-                    log(rec.id .. " could not be minted back - the"
-                        .. " next county day tries again")
-                end
+local function step(rec)
+    local p = rec.returnTransition
+    if not p then return true end
+    if not dependencies() then return false, "return-owner-unavailable" end
+    if not Return.authorized(rec) then
+        if p.sourceRemoved then return false, "return-authorization-unavailable" end
+        if not SAO.Body.discardReturn(rec) then return false, "stage-cleanup-pending" end
+        if p.source == "loaded" then
+            local old = ZAO.Controller.returnSource(rec.id)
+            if not old or not ZAO.Controller.cancelReturn(rec.id, old, p.token) then
+                return false, "source-resume-pending"
             end
         end
+        rec.returnTransition = nil
+        return false, "authorization-revoked"
     end
-
-    return adopted > 0
+    if p.sourceRemoved and (p.destination or p.source) == "dormant" then
+        -- Complete the existing temporary shell's teardown. Creating another
+        -- shell here would restart deferred cleanup on every retry.
+        if not SAO.Body.discardReturn(rec) then return false, "stage-cleanup-pending" end
+        return commit(rec, p, nil, "dormant")
+    end
+    if p.cleanup then
+        if not SAO.Body.discardReturn(rec) then return false, "stage-cleanup-pending" end
+        p.cleanup = nil
+        if p.recapture then
+            p.packed, p.visual, p.facts, p.phase, p.recapture = nil, nil, nil, "preparing", nil
+        end
+    end
+    local source
+    if p.source == "loaded" and not p.sourceRemoved then
+        source = ZAO.Controller.returnSource(rec.id)
+        if not source then return false, "source-unavailable" end
+        if not SAO.Body.canTransfer(source) then return false, "source-busy" end
+        if not ZAO.Controller.holdReturn(rec.id, source, p.token) then return false, "source-hold-pending" end
+        p.destination = ZAO.Controller.returnSourceDormant(rec.id, source, p.token)
+            and "dormant" or "loaded"
+        if p.phase == "preparing" then
+            local x, y, z = source:getX(), source:getY(), source:getZ()
+            if not (finite(x) and finite(y) and finite(z)) then return false, "invalid-return-position" end
+            p.x, p.y, p.z = x, y, z
+        end
+    end
+    local body, reason = SAO.Body.stageReturn(rec)
+    if not body then return false, reason end
+    if p.phase == "preparing" then
+        if not SAOJavaBridge:restoreReturnLiving(body, p.living) then
+            p.cleanup = true
+            return false, "living-restore-failed"
+        end
+        if p.source == "dormant" and rec.bodyVisual
+            and not SAOJavaBridge:restoreReturnVisual(body, rec.bodyVisual) then
+            p.cleanup = true
+            return false, "living-visual-restore-failed"
+        end
+        -- Recovery physiology belongs to the pathogen owner. A successful
+        -- body transfer cannot silently substitute a fresh healthy body.
+        if not ZAO.Controller.restoreReturnHealth
+            or not ZAO.Controller.restoreReturnHealth(rec, body, p.event) then
+            return false, "recovery-state-unavailable"
+        end
+        local packed = source and SAOJavaBridge:captureReturn(source, body)
+            or SAOJavaBridge:hibernate(body)
+        local visual = SAOJavaBridge:captureReturnVisual(source or body)
+        if not SAOJavaBridge:validateHibernation(packed)
+            or not SAOJavaBridge:validateReturnVisual(visual) then
+            p.cleanup = true
+            return false, "return-capture-failed"
+        end
+        if source then p.x, p.y, p.z = source:getX(), source:getY(), source:getZ() end
+        p.packed, p.visual, p.phase = packed, visual, "captured"
+    end
+    if body:getModData().SAOReturnReady ~= p.token then
+        if not SAOJavaBridge:restoreReturnLiving(body, p.packed)
+            or not SAOJavaBridge:restoreReturnVisual(body, p.visual) then
+            p.cleanup = true
+            return false, "return-restore-failed"
+        end
+        body:getModData().SAOReturnReady = p.token
+    end
+    local state = ZAO.StateStore.read(rec.id)
+    if not state then return false, "pathogen-state-unavailable" end
+    stamp(body, state)
+    if not p.facts then
+        p.facts = SAO.Population.captureBodyFacts(rec, body, SAO.History.countyHours())
+    end
+    if not p.sourceRemoved then
+        if source then
+            if not SAO.Body.canTransfer(source) then return false, "source-busy" end
+            if not SAOJavaBridge:returnMaterialsMatch(source, p.packed, p.visual) then
+                p.cleanup, p.recapture = true, true
+                return false, "source-changed"
+            end
+            if not ZAO.Controller.removeReturn(rec.id, source, p.token) then
+                return false, "source-removal-pending"
+            end
+        end
+        p.sourceRemoved, p.phase = true, "removed"
+    end
+    local destination = p.destination or p.source
+    if destination == "dormant" then
+        if not SAO.Body.discardReturn(rec) then return false, "stage-cleanup-pending" end
+    else
+        if not SAOJavaBridge:publishReturnBody(body) then return false, "publication-pending" end
+        SAO.Body.active[rec.id] = body
+        local agent = SAO.Controller.agents[rec.id]
+        if agent and (agent.rec ~= rec or agent.passive) then SAO.Controller.drop(rec.id) end
+        if SAO.Controller.adopt(rec) ~= true then return false, "adoption-pending" end
+        agent = SAO.Controller.agents[rec.id]
+        if not agent or agent.rec ~= rec or agent.passive then return false, "adoption-pending" end
+    end
+    return commit(rec, p, body, destination)
 end
+
+function Return.resume(rec)
+    local ok, result, reason = pcall(step, rec)
+    if not ok then reason, result = "return-step-failed: " .. tostring(result), false end
+    local p = rec and rec.returnTransition
+    if p and not result and p.lastReason ~= reason then
+        p.lastReason = reason
+        if SAO.Log and SAO.Log.line then
+            SAO.Log.line("RETURN", rec.id .. " " .. tostring(p.phase) .. ": " .. tostring(reason))
+        end
+    end
+    return result, reason
+end
+
+function Return.resumePending()
+    if running or not dependencies() then return false end
+    running = true
+    local completed, pending = 0, 0
+    local ok = pcall(function()
+        for _, rec in pairs(SAO.Identity.all()) do
+            if rec.returnTransition then
+                if Return.resume(rec) then completed = completed + 1
+                else pending = pending + 1 end
+            end
+        end
+    end)
+    running = false
+    return ok and pending == 0, completed, pending
+end
+
+function Return.adopt(day)
+    if not dependencies() then return false end
+    local adopted = false
+    for _, rec in pairs(SAO.Identity.all()) do
+        local ok, started = pcall(function()
+            if rec.returnTransition then return true end
+            return begin(rec)
+        end)
+        if ok and started then
+            local done = Return.resume(rec)
+            if done then adopted = true end
+        end
+    end
+    return adopted
+end
+
+Events.OnGameStart.Add(function() Return.resumePending() end)
 
 -- [C116] The marks on every live afflicted body, once per county day.
 -- The afflicted are not only the returned: a live infected person the

@@ -38,7 +38,7 @@ on the simulation.
 
 ## Status
 
-`2.7.14.2-pre-alpha` - the coordinate is computed by the version machine
+`2.7.14.3-pre-alpha` - the coordinate is computed by the version machine
 (`tools/version_replay.py`), never picked; `VERSION_MAP.md` shows the
 classification and the arithmetic.
 

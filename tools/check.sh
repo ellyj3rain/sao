@@ -1900,6 +1900,24 @@ if ! "$PY" tools/person_snapshot_test.py; then
     fail=1
 fi
 
+# [C52] Authorized transfer and native staged-body ownership.
+if ! "$PY" tools/afflicted_return_test.py; then
+    note "BORDER FINDING - afflicted return ownership failed"
+    fail=1
+fi
+if ! "$PY" tools/return_body_test.py; then
+    note "BORDER FINDING - staged return body ownership failed"
+    fail=1
+fi
+if ! "$PY" tools/person_checkpoint_test.py; then
+    note "BORDER FINDING - save-time person checkpoint failed"
+    fail=1
+fi
+if ! "$PY" tools/durable_text_test.py; then
+    note "BORDER FINDING - durable snapshot string storage failed"
+    fail=1
+fi
+
 # Border 103 - the operator's speech is not in the repository: no
 # profanity in the tracked tree and no operator-quote attributions;
 # rulings are paraphrased content, speech stays with the speaker.

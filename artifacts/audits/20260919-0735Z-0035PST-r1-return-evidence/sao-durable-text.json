@@ -1,0 +1,478 @@
+{
+  "border": 167,
+  "commands": [
+    {
+      "argv": [
+        "C:\\Users\\jleyv\\Peanut Butter\\JetBrains\\Java\\bin\\javap.exe",
+        "-classpath",
+        "C:\\Program Files (x86)\\Steam\\steamapps\\common\\ProjectZomboid\\projectzomboid.jar",
+        "-c",
+        "-p",
+        "zombie.world.moddata.GlobalModData"
+      ],
+      "cwd": "C:\\Users\\jleyv\\AppData\\Local\\Temp\\sao-durable-text-bkoq8ycb",
+      "returncode": 0,
+      "stderr": "",
+      "stdout_omitted": "Installed-engine bytecode; regenerate with the recorded command.",
+      "stdout_sha256": "49c775086cfcb60fee27d1fa43ea18d99f1fdaf609f7734c9e99ba81e10bb50f",
+      "stdout_characters": 38257
+    },
+    {
+      "argv": [
+        "C:\\Users\\jleyv\\Peanut Butter\\JetBrains\\Java\\bin\\javap.exe",
+        "-classpath",
+        "C:\\Program Files (x86)\\Steam\\steamapps\\common\\ProjectZomboid\\projectzomboid.jar",
+        "-c",
+        "-p",
+        "se.krka.kahlua.j2se.KahluaTableImpl"
+      ],
+      "cwd": "C:\\Users\\jleyv\\AppData\\Local\\Temp\\sao-durable-text-bkoq8ycb",
+      "returncode": 0,
+      "stderr": "",
+      "stdout_omitted": "Installed-engine bytecode; regenerate with the recorded command.",
+      "stdout_sha256": "81cfd67f643fa41a4cd9ce0eaee4d5e2749e2e85dec4e9294ef037e7c813bb1b",
+      "stdout_characters": 40056
+    },
+    {
+      "argv": [
+        "C:\\Users\\jleyv\\Peanut Butter\\JetBrains\\Java\\bin\\javap.exe",
+        "-classpath",
+        "C:\\Program Files (x86)\\Steam\\steamapps\\common\\ProjectZomboid\\projectzomboid.jar",
+        "-c",
+        "-p",
+        "zombie.GameWindow$StringUTF"
+      ],
+      "cwd": "C:\\Users\\jleyv\\AppData\\Local\\Temp\\sao-durable-text-bkoq8ycb",
+      "returncode": 0,
+      "stderr": "",
+      "stdout_omitted": "Installed-engine bytecode; regenerate with the recorded command.",
+      "stdout_sha256": "b2450edbbb7d3b376d3ef6a327a2b8f7040cc705e50663b99fa52be1bf75eeba",
+      "stdout_characters": 14966
+    },
+    {
+      "argv": [
+        "C:\\Users\\jleyv\\Peanut Butter\\JetBrains\\Java\\bin\\javac.exe",
+        "-encoding",
+        "UTF-8",
+        "-cp",
+        "C:\\Program Files (x86)\\Steam\\steamapps\\common\\ProjectZomboid\\projectzomboid.jar",
+        "-d",
+        "C:\\Users\\jleyv\\AppData\\Local\\Temp\\sao-durable-text-bkoq8ycb\\visual-classes",
+        "C:\\Users\\jleyv\\Peanut Butter\\AI Assisted Software Engineering Mass Repository\\Projects\\survivor-awareness\\java\\src\\com\\sao\\engine\\SAONativeSnapshot.java",
+        "C:\\Users\\jleyv\\AppData\\Local\\Temp\\sao-durable-text-bkoq8ycb\\NativeVisualValidationProbe.java"
+      ],
+      "cwd": "C:\\Users\\jleyv\\AppData\\Local\\Temp\\sao-durable-text-bkoq8ycb",
+      "returncode": 0,
+      "stdout": "",
+      "stderr": ""
+    },
+    {
+      "argv": [
+        "C:\\Users\\jleyv\\Peanut Butter\\JetBrains\\Java\\bin\\java.exe",
+        "-cp",
+        "C:\\Users\\jleyv\\AppData\\Local\\Temp\\sao-durable-text-bkoq8ycb\\visual-classes;C:\\Program Files (x86)\\Steam\\steamapps\\common\\ProjectZomboid\\projectzomboid.jar",
+        "NativeVisualValidationProbe"
+      ],
+      "cwd": "C:\\Users\\jleyv\\AppData\\Local\\Temp\\sao-durable-text-bkoq8ycb",
+      "returncode": 0,
+      "stdout": "PASS actual read-only native visual validation\n",
+      "stderr": "WARNING: A restricted method in java.lang.System has been called\nWARNING: java.lang.System::load has been called by org.lwjgl.system.Library$$Lambda/0x000000008e066988 in an unnamed module (file:/C:/Program%20Files%20(x86)/Steam/steamapps/common/ProjectZomboid/projectzomboid.jar)\nWARNING: Use --enable-native-access=ALL-UNNAMED to avoid a warning for callers in this module\nWARNING: Restricted methods will be blocked in a future release unless native access is enabled\n\n"
+    },
+    {
+      "argv": [
+        "C:\\Users\\jleyv\\Peanut Butter\\JetBrains\\Java\\bin\\javac.exe",
+        "-encoding",
+        "UTF-8",
+        "-cp",
+        "C:\\Program Files (x86)\\Steam\\steamapps\\common\\ProjectZomboid\\projectzomboid.jar",
+        "-d",
+        "C:\\Users\\jleyv\\AppData\\Local\\Temp\\sao-durable-text-bkoq8ycb\\production\\classes",
+        "C:\\Users\\jleyv\\AppData\\Local\\Temp\\sao-durable-text-bkoq8ycb\\production\\SAOAgent.java",
+        "C:\\Users\\jleyv\\AppData\\Local\\Temp\\sao-durable-text-bkoq8ycb\\production\\SAOIsoPlayerShell.java",
+        "C:\\Users\\jleyv\\AppData\\Local\\Temp\\sao-durable-text-bkoq8ycb\\production\\SAODurableProbeSink.java",
+        "C:\\Users\\jleyv\\AppData\\Local\\Temp\\sao-durable-text-bkoq8ycb\\production\\SAOHibernation.java",
+        "C:\\Users\\jleyv\\AppData\\Local\\Temp\\sao-durable-text-bkoq8ycb\\production\\SAONativeSnapshot.java",
+        "C:\\Users\\jleyv\\AppData\\Local\\Temp\\sao-durable-text-bkoq8ycb\\production\\SAODurableText.java",
+        "C:\\Users\\jleyv\\AppData\\Local\\Temp\\sao-durable-text-bkoq8ycb\\production\\DurableBridgeSurface.java",
+        "C:\\Users\\jleyv\\Peanut Butter\\AI Assisted Software Engineering Mass Repository\\Projects\\survivor-awareness\\tools\\luacheck\\DurableTextProbe.java"
+      ],
+      "cwd": "C:\\Users\\jleyv\\AppData\\Local\\Temp\\sao-durable-text-bkoq8ycb\\production",
+      "returncode": 0,
+      "stdout": "",
+      "stderr": ""
+    },
+    {
+      "argv": [
+        "C:\\Users\\jleyv\\Peanut Butter\\JetBrains\\Java\\bin\\java.exe",
+        "--enable-native-access=ALL-UNNAMED",
+        "-Duser.home=C:\\Users\\jleyv\\AppData\\Local\\Temp\\sao-durable-text-bkoq8ycb\\production",
+        "-cp",
+        "C:\\Users\\jleyv\\AppData\\Local\\Temp\\sao-durable-text-bkoq8ycb\\production\\classes;C:\\Program Files (x86)\\Steam\\steamapps\\common\\ProjectZomboid\\projectzomboid.jar",
+        "DurableTextProbe"
+      ],
+      "cwd": "C:\\Users\\jleyv\\AppData\\Local\\Temp\\sao-durable-text-bkoq8ycb\\production",
+      "returncode": 0,
+      "stdout": "PASS native Kahlua long-string defect reproduced; native save/load uses signed-short UTF-8 strings\nPASS bounded UTF-8 durable text, legacy strings, missing/reordered/truncated/version/shape controls\nreturn living state refused: java.lang.IllegalArgumentException: Unsupported durable text version\nreturn visual restore refused: java.lang.IllegalArgumentException: Unsupported durable text version\nawaken refused: java.lang.IllegalArgumentException: Unsupported durable text version\nPASS actual bridge adapter methods wrap all writers, unwrap all readers and refuse malformed data before restoration\n",
+      "stderr": ""
+    },
+    {
+      "argv": [
+        "C:\\Users\\jleyv\\Peanut Butter\\JetBrains\\Java\\bin\\javac.exe",
+        "-encoding",
+        "UTF-8",
+        "-cp",
+        "C:\\Program Files (x86)\\Steam\\steamapps\\common\\ProjectZomboid\\projectzomboid.jar",
+        "-d",
+        "C:\\Users\\jleyv\\AppData\\Local\\Temp\\sao-durable-text-bkoq8ycb\\no-fragmentation\\classes",
+        "C:\\Users\\jleyv\\AppData\\Local\\Temp\\sao-durable-text-bkoq8ycb\\no-fragmentation\\SAOAgent.java",
+        "C:\\Users\\jleyv\\AppData\\Local\\Temp\\sao-durable-text-bkoq8ycb\\no-fragmentation\\SAOIsoPlayerShell.java",
+        "C:\\Users\\jleyv\\AppData\\Local\\Temp\\sao-durable-text-bkoq8ycb\\no-fragmentation\\SAODurableProbeSink.java",
+        "C:\\Users\\jleyv\\AppData\\Local\\Temp\\sao-durable-text-bkoq8ycb\\no-fragmentation\\SAOHibernation.java",
+        "C:\\Users\\jleyv\\AppData\\Local\\Temp\\sao-durable-text-bkoq8ycb\\no-fragmentation\\SAONativeSnapshot.java",
+        "C:\\Users\\jleyv\\AppData\\Local\\Temp\\sao-durable-text-bkoq8ycb\\no-fragmentation\\SAODurableText.java",
+        "C:\\Users\\jleyv\\AppData\\Local\\Temp\\sao-durable-text-bkoq8ycb\\no-fragmentation\\DurableBridgeSurface.java",
+        "C:\\Users\\jleyv\\Peanut Butter\\AI Assisted Software Engineering Mass Repository\\Projects\\survivor-awareness\\tools\\luacheck\\DurableTextProbe.java"
+      ],
+      "cwd": "C:\\Users\\jleyv\\AppData\\Local\\Temp\\sao-durable-text-bkoq8ycb\\no-fragmentation",
+      "returncode": 0,
+      "stdout": "",
+      "stderr": ""
+    },
+    {
+      "argv": [
+        "C:\\Users\\jleyv\\Peanut Butter\\JetBrains\\Java\\bin\\java.exe",
+        "--enable-native-access=ALL-UNNAMED",
+        "-Duser.home=C:\\Users\\jleyv\\AppData\\Local\\Temp\\sao-durable-text-bkoq8ycb\\no-fragmentation",
+        "-cp",
+        "C:\\Users\\jleyv\\AppData\\Local\\Temp\\sao-durable-text-bkoq8ycb\\no-fragmentation\\classes;C:\\Program Files (x86)\\Steam\\steamapps\\common\\ProjectZomboid\\projectzomboid.jar",
+        "DurableTextProbe"
+      ],
+      "cwd": "C:\\Users\\jleyv\\AppData\\Local\\Temp\\sao-durable-text-bkoq8ycb\\no-fragmentation",
+      "returncode": 1,
+      "stdout": "PASS native Kahlua long-string defect reproduced; native save/load uses signed-short UTF-8 strings\n",
+      "stderr": "Exception in thread \"main\" java.lang.AssertionError: oversize string was not fragmented\n\tat DurableTextProbe.check(DurableTextProbe.java:13)\n\tat DurableTextProbe.main(DurableTextProbe.java:55)\n"
+    },
+    {
+      "argv": [
+        "C:\\Users\\jleyv\\Peanut Butter\\JetBrains\\Java\\bin\\javac.exe",
+        "-encoding",
+        "UTF-8",
+        "-cp",
+        "C:\\Program Files (x86)\\Steam\\steamapps\\common\\ProjectZomboid\\projectzomboid.jar",
+        "-d",
+        "C:\\Users\\jleyv\\AppData\\Local\\Temp\\sao-durable-text-bkoq8ycb\\oversized-fragments\\classes",
+        "C:\\Users\\jleyv\\AppData\\Local\\Temp\\sao-durable-text-bkoq8ycb\\oversized-fragments\\SAOAgent.java",
+        "C:\\Users\\jleyv\\AppData\\Local\\Temp\\sao-durable-text-bkoq8ycb\\oversized-fragments\\SAOIsoPlayerShell.java",
+        "C:\\Users\\jleyv\\AppData\\Local\\Temp\\sao-durable-text-bkoq8ycb\\oversized-fragments\\SAODurableProbeSink.java",
+        "C:\\Users\\jleyv\\AppData\\Local\\Temp\\sao-durable-text-bkoq8ycb\\oversized-fragments\\SAOHibernation.java",
+        "C:\\Users\\jleyv\\AppData\\Local\\Temp\\sao-durable-text-bkoq8ycb\\oversized-fragments\\SAONativeSnapshot.java",
+        "C:\\Users\\jleyv\\AppData\\Local\\Temp\\sao-durable-text-bkoq8ycb\\oversized-fragments\\SAODurableText.java",
+        "C:\\Users\\jleyv\\AppData\\Local\\Temp\\sao-durable-text-bkoq8ycb\\oversized-fragments\\DurableBridgeSurface.java",
+        "C:\\Users\\jleyv\\Peanut Butter\\AI Assisted Software Engineering Mass Repository\\Projects\\survivor-awareness\\tools\\luacheck\\DurableTextProbe.java"
+      ],
+      "cwd": "C:\\Users\\jleyv\\AppData\\Local\\Temp\\sao-durable-text-bkoq8ycb\\oversized-fragments",
+      "returncode": 0,
+      "stdout": "",
+      "stderr": ""
+    },
+    {
+      "argv": [
+        "C:\\Users\\jleyv\\Peanut Butter\\JetBrains\\Java\\bin\\java.exe",
+        "--enable-native-access=ALL-UNNAMED",
+        "-Duser.home=C:\\Users\\jleyv\\AppData\\Local\\Temp\\sao-durable-text-bkoq8ycb\\oversized-fragments",
+        "-cp",
+        "C:\\Users\\jleyv\\AppData\\Local\\Temp\\sao-durable-text-bkoq8ycb\\oversized-fragments\\classes;C:\\Program Files (x86)\\Steam\\steamapps\\common\\ProjectZomboid\\projectzomboid.jar",
+        "DurableTextProbe"
+      ],
+      "cwd": "C:\\Users\\jleyv\\AppData\\Local\\Temp\\sao-durable-text-bkoq8ycb\\oversized-fragments",
+      "returncode": 1,
+      "stdout": "PASS native Kahlua long-string defect reproduced; native save/load uses signed-short UTF-8 strings\n",
+      "stderr": "Exception in thread \"main\" java.lang.AssertionError: fragment exceeds native byte bound\n\tat DurableTextProbe.check(DurableTextProbe.java:13)\n\tat DurableTextProbe.fragments(DurableTextProbe.java:27)\n\tat DurableTextProbe.main(DurableTextProbe.java:56)\n"
+    },
+    {
+      "argv": [
+        "C:\\Users\\jleyv\\Peanut Butter\\JetBrains\\Java\\bin\\javac.exe",
+        "-encoding",
+        "UTF-8",
+        "-cp",
+        "C:\\Program Files (x86)\\Steam\\steamapps\\common\\ProjectZomboid\\projectzomboid.jar",
+        "-d",
+        "C:\\Users\\jleyv\\AppData\\Local\\Temp\\sao-durable-text-bkoq8ycb\\ignore-order-integrity\\classes",
+        "C:\\Users\\jleyv\\AppData\\Local\\Temp\\sao-durable-text-bkoq8ycb\\ignore-order-integrity\\SAOAgent.java",
+        "C:\\Users\\jleyv\\AppData\\Local\\Temp\\sao-durable-text-bkoq8ycb\\ignore-order-integrity\\SAOIsoPlayerShell.java",
+        "C:\\Users\\jleyv\\AppData\\Local\\Temp\\sao-durable-text-bkoq8ycb\\ignore-order-integrity\\SAODurableProbeSink.java",
+        "C:\\Users\\jleyv\\AppData\\Local\\Temp\\sao-durable-text-bkoq8ycb\\ignore-order-integrity\\SAOHibernation.java",
+        "C:\\Users\\jleyv\\AppData\\Local\\Temp\\sao-durable-text-bkoq8ycb\\ignore-order-integrity\\SAONativeSnapshot.java",
+        "C:\\Users\\jleyv\\AppData\\Local\\Temp\\sao-durable-text-bkoq8ycb\\ignore-order-integrity\\SAODurableText.java",
+        "C:\\Users\\jleyv\\AppData\\Local\\Temp\\sao-durable-text-bkoq8ycb\\ignore-order-integrity\\DurableBridgeSurface.java",
+        "C:\\Users\\jleyv\\Peanut Butter\\AI Assisted Software Engineering Mass Repository\\Projects\\survivor-awareness\\tools\\luacheck\\DurableTextProbe.java"
+      ],
+      "cwd": "C:\\Users\\jleyv\\AppData\\Local\\Temp\\sao-durable-text-bkoq8ycb\\ignore-order-integrity",
+      "returncode": 0,
+      "stdout": "",
+      "stderr": ""
+    },
+    {
+      "argv": [
+        "C:\\Users\\jleyv\\Peanut Butter\\JetBrains\\Java\\bin\\java.exe",
+        "--enable-native-access=ALL-UNNAMED",
+        "-Duser.home=C:\\Users\\jleyv\\AppData\\Local\\Temp\\sao-durable-text-bkoq8ycb\\ignore-order-integrity",
+        "-cp",
+        "C:\\Users\\jleyv\\AppData\\Local\\Temp\\sao-durable-text-bkoq8ycb\\ignore-order-integrity\\classes;C:\\Program Files (x86)\\Steam\\steamapps\\common\\ProjectZomboid\\projectzomboid.jar",
+        "DurableTextProbe"
+      ],
+      "cwd": "C:\\Users\\jleyv\\AppData\\Local\\Temp\\sao-durable-text-bkoq8ycb\\ignore-order-integrity",
+      "returncode": 1,
+      "stdout": "PASS native Kahlua long-string defect reproduced; native save/load uses signed-short UTF-8 strings\n",
+      "stderr": "Exception in thread \"main\" java.lang.AssertionError: reordered chunks accepted\n\tat DurableTextProbe.check(DurableTextProbe.java:13)\n\tat DurableTextProbe.refuses(DurableTextProbe.java:32)\n\tat DurableTextProbe.main(DurableTextProbe.java:65)\n"
+    },
+    {
+      "argv": [
+        "C:\\Users\\jleyv\\Peanut Butter\\JetBrains\\Java\\bin\\javac.exe",
+        "-encoding",
+        "UTF-8",
+        "-cp",
+        "C:\\Program Files (x86)\\Steam\\steamapps\\common\\ProjectZomboid\\projectzomboid.jar",
+        "-d",
+        "C:\\Users\\jleyv\\AppData\\Local\\Temp\\sao-durable-text-bkoq8ycb\\ignore-version\\classes",
+        "C:\\Users\\jleyv\\AppData\\Local\\Temp\\sao-durable-text-bkoq8ycb\\ignore-version\\SAOAgent.java",
+        "C:\\Users\\jleyv\\AppData\\Local\\Temp\\sao-durable-text-bkoq8ycb\\ignore-version\\SAOIsoPlayerShell.java",
+        "C:\\Users\\jleyv\\AppData\\Local\\Temp\\sao-durable-text-bkoq8ycb\\ignore-version\\SAODurableProbeSink.java",
+        "C:\\Users\\jleyv\\AppData\\Local\\Temp\\sao-durable-text-bkoq8ycb\\ignore-version\\SAOHibernation.java",
+        "C:\\Users\\jleyv\\AppData\\Local\\Temp\\sao-durable-text-bkoq8ycb\\ignore-version\\SAONativeSnapshot.java",
+        "C:\\Users\\jleyv\\AppData\\Local\\Temp\\sao-durable-text-bkoq8ycb\\ignore-version\\SAODurableText.java",
+        "C:\\Users\\jleyv\\AppData\\Local\\Temp\\sao-durable-text-bkoq8ycb\\ignore-version\\DurableBridgeSurface.java",
+        "C:\\Users\\jleyv\\Peanut Butter\\AI Assisted Software Engineering Mass Repository\\Projects\\survivor-awareness\\tools\\luacheck\\DurableTextProbe.java"
+      ],
+      "cwd": "C:\\Users\\jleyv\\AppData\\Local\\Temp\\sao-durable-text-bkoq8ycb\\ignore-version",
+      "returncode": 0,
+      "stdout": "",
+      "stderr": ""
+    },
+    {
+      "argv": [
+        "C:\\Users\\jleyv\\Peanut Butter\\JetBrains\\Java\\bin\\java.exe",
+        "--enable-native-access=ALL-UNNAMED",
+        "-Duser.home=C:\\Users\\jleyv\\AppData\\Local\\Temp\\sao-durable-text-bkoq8ycb\\ignore-version",
+        "-cp",
+        "C:\\Users\\jleyv\\AppData\\Local\\Temp\\sao-durable-text-bkoq8ycb\\ignore-version\\classes;C:\\Program Files (x86)\\Steam\\steamapps\\common\\ProjectZomboid\\projectzomboid.jar",
+        "DurableTextProbe"
+      ],
+      "cwd": "C:\\Users\\jleyv\\AppData\\Local\\Temp\\sao-durable-text-bkoq8ycb\\ignore-version",
+      "returncode": 1,
+      "stdout": "PASS native Kahlua long-string defect reproduced; native save/load uses signed-short UTF-8 strings\n",
+      "stderr": "Exception in thread \"main\" java.lang.AssertionError: unsupported version accepted\n\tat DurableTextProbe.check(DurableTextProbe.java:13)\n\tat DurableTextProbe.refuses(DurableTextProbe.java:32)\n\tat DurableTextProbe.main(DurableTextProbe.java:67)\n"
+    },
+    {
+      "argv": [
+        "C:\\Users\\jleyv\\Peanut Butter\\JetBrains\\Java\\bin\\javac.exe",
+        "-encoding",
+        "UTF-8",
+        "-cp",
+        "C:\\Program Files (x86)\\Steam\\steamapps\\common\\ProjectZomboid\\projectzomboid.jar",
+        "-d",
+        "C:\\Users\\jleyv\\AppData\\Local\\Temp\\sao-durable-text-bkoq8ycb\\ignore-declared-length\\classes",
+        "C:\\Users\\jleyv\\AppData\\Local\\Temp\\sao-durable-text-bkoq8ycb\\ignore-declared-length\\SAOAgent.java",
+        "C:\\Users\\jleyv\\AppData\\Local\\Temp\\sao-durable-text-bkoq8ycb\\ignore-declared-length\\SAOIsoPlayerShell.java",
+        "C:\\Users\\jleyv\\AppData\\Local\\Temp\\sao-durable-text-bkoq8ycb\\ignore-declared-length\\SAODurableProbeSink.java",
+        "C:\\Users\\jleyv\\AppData\\Local\\Temp\\sao-durable-text-bkoq8ycb\\ignore-declared-length\\SAOHibernation.java",
+        "C:\\Users\\jleyv\\AppData\\Local\\Temp\\sao-durable-text-bkoq8ycb\\ignore-declared-length\\SAONativeSnapshot.java",
+        "C:\\Users\\jleyv\\AppData\\Local\\Temp\\sao-durable-text-bkoq8ycb\\ignore-declared-length\\SAODurableText.java",
+        "C:\\Users\\jleyv\\AppData\\Local\\Temp\\sao-durable-text-bkoq8ycb\\ignore-declared-length\\DurableBridgeSurface.java",
+        "C:\\Users\\jleyv\\Peanut Butter\\AI Assisted Software Engineering Mass Repository\\Projects\\survivor-awareness\\tools\\luacheck\\DurableTextProbe.java"
+      ],
+      "cwd": "C:\\Users\\jleyv\\AppData\\Local\\Temp\\sao-durable-text-bkoq8ycb\\ignore-declared-length",
+      "returncode": 0,
+      "stdout": "",
+      "stderr": ""
+    },
+    {
+      "argv": [
+        "C:\\Users\\jleyv\\Peanut Butter\\JetBrains\\Java\\bin\\java.exe",
+        "--enable-native-access=ALL-UNNAMED",
+        "-Duser.home=C:\\Users\\jleyv\\AppData\\Local\\Temp\\sao-durable-text-bkoq8ycb\\ignore-declared-length",
+        "-cp",
+        "C:\\Users\\jleyv\\AppData\\Local\\Temp\\sao-durable-text-bkoq8ycb\\ignore-declared-length\\classes;C:\\Program Files (x86)\\Steam\\steamapps\\common\\ProjectZomboid\\projectzomboid.jar",
+        "DurableTextProbe"
+      ],
+      "cwd": "C:\\Users\\jleyv\\AppData\\Local\\Temp\\sao-durable-text-bkoq8ycb\\ignore-declared-length",
+      "returncode": 1,
+      "stdout": "PASS native Kahlua long-string defect reproduced; native save/load uses signed-short UTF-8 strings\n",
+      "stderr": "Exception in thread \"main\" java.lang.AssertionError: false length accepted\n\tat DurableTextProbe.check(DurableTextProbe.java:13)\n\tat DurableTextProbe.refuses(DurableTextProbe.java:32)\n\tat DurableTextProbe.main(DurableTextProbe.java:68)\n"
+    },
+    {
+      "argv": [
+        "C:\\Users\\jleyv\\Peanut Butter\\JetBrains\\Java\\bin\\javac.exe",
+        "-encoding",
+        "UTF-8",
+        "-cp",
+        "C:\\Program Files (x86)\\Steam\\steamapps\\common\\ProjectZomboid\\projectzomboid.jar",
+        "-d",
+        "C:\\Users\\jleyv\\AppData\\Local\\Temp\\sao-durable-text-bkoq8ycb\\accept-large-chunk\\classes",
+        "C:\\Users\\jleyv\\AppData\\Local\\Temp\\sao-durable-text-bkoq8ycb\\accept-large-chunk\\SAOAgent.java",
+        "C:\\Users\\jleyv\\AppData\\Local\\Temp\\sao-durable-text-bkoq8ycb\\accept-large-chunk\\SAOIsoPlayerShell.java",
+        "C:\\Users\\jleyv\\AppData\\Local\\Temp\\sao-durable-text-bkoq8ycb\\accept-large-chunk\\SAODurableProbeSink.java",
+        "C:\\Users\\jleyv\\AppData\\Local\\Temp\\sao-durable-text-bkoq8ycb\\accept-large-chunk\\SAOHibernation.java",
+        "C:\\Users\\jleyv\\AppData\\Local\\Temp\\sao-durable-text-bkoq8ycb\\accept-large-chunk\\SAONativeSnapshot.java",
+        "C:\\Users\\jleyv\\AppData\\Local\\Temp\\sao-durable-text-bkoq8ycb\\accept-large-chunk\\SAODurableText.java",
+        "C:\\Users\\jleyv\\AppData\\Local\\Temp\\sao-durable-text-bkoq8ycb\\accept-large-chunk\\DurableBridgeSurface.java",
+        "C:\\Users\\jleyv\\Peanut Butter\\AI Assisted Software Engineering Mass Repository\\Projects\\survivor-awareness\\tools\\luacheck\\DurableTextProbe.java"
+      ],
+      "cwd": "C:\\Users\\jleyv\\AppData\\Local\\Temp\\sao-durable-text-bkoq8ycb\\accept-large-chunk",
+      "returncode": 0,
+      "stdout": "",
+      "stderr": ""
+    },
+    {
+      "argv": [
+        "C:\\Users\\jleyv\\Peanut Butter\\JetBrains\\Java\\bin\\java.exe",
+        "--enable-native-access=ALL-UNNAMED",
+        "-Duser.home=C:\\Users\\jleyv\\AppData\\Local\\Temp\\sao-durable-text-bkoq8ycb\\accept-large-chunk",
+        "-cp",
+        "C:\\Users\\jleyv\\AppData\\Local\\Temp\\sao-durable-text-bkoq8ycb\\accept-large-chunk\\classes;C:\\Program Files (x86)\\Steam\\steamapps\\common\\ProjectZomboid\\projectzomboid.jar",
+        "DurableTextProbe"
+      ],
+      "cwd": "C:\\Users\\jleyv\\AppData\\Local\\Temp\\sao-durable-text-bkoq8ycb\\accept-large-chunk",
+      "returncode": 1,
+      "stdout": "PASS native Kahlua long-string defect reproduced; native save/load uses signed-short UTF-8 strings\n",
+      "stderr": "Exception in thread \"main\" java.lang.AssertionError: oversize chunk accepted\n\tat DurableTextProbe.check(DurableTextProbe.java:13)\n\tat DurableTextProbe.refuses(DurableTextProbe.java:32)\n\tat DurableTextProbe.main(DurableTextProbe.java:73)\n"
+    },
+    {
+      "argv": [
+        "C:\\Users\\jleyv\\Peanut Butter\\JetBrains\\Java\\bin\\javac.exe",
+        "-encoding",
+        "UTF-8",
+        "-cp",
+        "C:\\Program Files (x86)\\Steam\\steamapps\\common\\ProjectZomboid\\projectzomboid.jar",
+        "-d",
+        "C:\\Users\\jleyv\\AppData\\Local\\Temp\\sao-durable-text-bkoq8ycb\\bridge-writer-bypass\\classes",
+        "C:\\Users\\jleyv\\AppData\\Local\\Temp\\sao-durable-text-bkoq8ycb\\bridge-writer-bypass\\SAOAgent.java",
+        "C:\\Users\\jleyv\\AppData\\Local\\Temp\\sao-durable-text-bkoq8ycb\\bridge-writer-bypass\\SAOIsoPlayerShell.java",
+        "C:\\Users\\jleyv\\AppData\\Local\\Temp\\sao-durable-text-bkoq8ycb\\bridge-writer-bypass\\SAODurableProbeSink.java",
+        "C:\\Users\\jleyv\\AppData\\Local\\Temp\\sao-durable-text-bkoq8ycb\\bridge-writer-bypass\\SAOHibernation.java",
+        "C:\\Users\\jleyv\\AppData\\Local\\Temp\\sao-durable-text-bkoq8ycb\\bridge-writer-bypass\\SAONativeSnapshot.java",
+        "C:\\Users\\jleyv\\AppData\\Local\\Temp\\sao-durable-text-bkoq8ycb\\bridge-writer-bypass\\SAODurableText.java",
+        "C:\\Users\\jleyv\\AppData\\Local\\Temp\\sao-durable-text-bkoq8ycb\\bridge-writer-bypass\\DurableBridgeSurface.java",
+        "C:\\Users\\jleyv\\Peanut Butter\\AI Assisted Software Engineering Mass Repository\\Projects\\survivor-awareness\\tools\\luacheck\\DurableTextProbe.java"
+      ],
+      "cwd": "C:\\Users\\jleyv\\AppData\\Local\\Temp\\sao-durable-text-bkoq8ycb\\bridge-writer-bypass",
+      "returncode": 0,
+      "stdout": "",
+      "stderr": ""
+    },
+    {
+      "argv": [
+        "C:\\Users\\jleyv\\Peanut Butter\\JetBrains\\Java\\bin\\java.exe",
+        "--enable-native-access=ALL-UNNAMED",
+        "-Duser.home=C:\\Users\\jleyv\\AppData\\Local\\Temp\\sao-durable-text-bkoq8ycb\\bridge-writer-bypass",
+        "-cp",
+        "C:\\Users\\jleyv\\AppData\\Local\\Temp\\sao-durable-text-bkoq8ycb\\bridge-writer-bypass\\classes;C:\\Program Files (x86)\\Steam\\steamapps\\common\\ProjectZomboid\\projectzomboid.jar",
+        "DurableTextProbe"
+      ],
+      "cwd": "C:\\Users\\jleyv\\AppData\\Local\\Temp\\sao-durable-text-bkoq8ycb\\bridge-writer-bypass",
+      "returncode": 1,
+      "stdout": "PASS native Kahlua long-string defect reproduced; native save/load uses signed-short UTF-8 strings\nPASS bounded UTF-8 durable text, legacy strings, missing/reordered/truncated/version/shape controls\n",
+      "stderr": "Exception in thread \"main\" java.lang.AssertionError: bridge writer bypassed durable packing: 0\n\tat DurableTextProbe.check(DurableTextProbe.java:13)\n\tat DurableTextProbe.main(DurableTextProbe.java:83)\n"
+    },
+    {
+      "argv": [
+        "C:\\Users\\jleyv\\Peanut Butter\\JetBrains\\Java\\bin\\javac.exe",
+        "-encoding",
+        "UTF-8",
+        "-cp",
+        "C:\\Program Files (x86)\\Steam\\steamapps\\common\\ProjectZomboid\\projectzomboid.jar",
+        "-d",
+        "C:\\Users\\jleyv\\AppData\\Local\\Temp\\sao-durable-text-bkoq8ycb\\bridge-reader-bypass\\classes",
+        "C:\\Users\\jleyv\\AppData\\Local\\Temp\\sao-durable-text-bkoq8ycb\\bridge-reader-bypass\\SAOAgent.java",
+        "C:\\Users\\jleyv\\AppData\\Local\\Temp\\sao-durable-text-bkoq8ycb\\bridge-reader-bypass\\SAOIsoPlayerShell.java",
+        "C:\\Users\\jleyv\\AppData\\Local\\Temp\\sao-durable-text-bkoq8ycb\\bridge-reader-bypass\\SAODurableProbeSink.java",
+        "C:\\Users\\jleyv\\AppData\\Local\\Temp\\sao-durable-text-bkoq8ycb\\bridge-reader-bypass\\SAOHibernation.java",
+        "C:\\Users\\jleyv\\AppData\\Local\\Temp\\sao-durable-text-bkoq8ycb\\bridge-reader-bypass\\SAONativeSnapshot.java",
+        "C:\\Users\\jleyv\\AppData\\Local\\Temp\\sao-durable-text-bkoq8ycb\\bridge-reader-bypass\\SAODurableText.java",
+        "C:\\Users\\jleyv\\AppData\\Local\\Temp\\sao-durable-text-bkoq8ycb\\bridge-reader-bypass\\DurableBridgeSurface.java",
+        "C:\\Users\\jleyv\\Peanut Butter\\AI Assisted Software Engineering Mass Repository\\Projects\\survivor-awareness\\tools\\luacheck\\DurableTextProbe.java"
+      ],
+      "cwd": "C:\\Users\\jleyv\\AppData\\Local\\Temp\\sao-durable-text-bkoq8ycb\\bridge-reader-bypass",
+      "returncode": 0,
+      "stdout": "",
+      "stderr": ""
+    },
+    {
+      "argv": [
+        "C:\\Users\\jleyv\\Peanut Butter\\JetBrains\\Java\\bin\\java.exe",
+        "--enable-native-access=ALL-UNNAMED",
+        "-Duser.home=C:\\Users\\jleyv\\AppData\\Local\\Temp\\sao-durable-text-bkoq8ycb\\bridge-reader-bypass",
+        "-cp",
+        "C:\\Users\\jleyv\\AppData\\Local\\Temp\\sao-durable-text-bkoq8ycb\\bridge-reader-bypass\\classes;C:\\Program Files (x86)\\Steam\\steamapps\\common\\ProjectZomboid\\projectzomboid.jar",
+        "DurableTextProbe"
+      ],
+      "cwd": "C:\\Users\\jleyv\\AppData\\Local\\Temp\\sao-durable-text-bkoq8ycb\\bridge-reader-bypass",
+      "returncode": 1,
+      "stdout": "PASS native Kahlua long-string defect reproduced; native save/load uses signed-short UTF-8 strings\nPASS bounded UTF-8 durable text, legacy strings, missing/reordered/truncated/version/shape controls\n",
+      "stderr": "Exception in thread \"main\" java.lang.AssertionError: bridge reader bypassed durable unpacking\n\tat DurableTextProbe.check(DurableTextProbe.java:13)\n\tat DurableTextProbe.main(DurableTextProbe.java:89)\n"
+    }
+  ],
+  "results": [
+    {
+      "case": "native-visual-validation",
+      "passed": true
+    },
+    {
+      "case": "production",
+      "passed": true
+    },
+    {
+      "case": "no-fragmentation",
+      "passed": true,
+      "reason": "oversize string was not fragmented"
+    },
+    {
+      "case": "oversized-fragments",
+      "passed": true,
+      "reason": "fragment exceeds native byte bound"
+    },
+    {
+      "case": "ignore-order-integrity",
+      "passed": true,
+      "reason": "reordered chunks accepted"
+    },
+    {
+      "case": "ignore-version",
+      "passed": true,
+      "reason": "unsupported version accepted"
+    },
+    {
+      "case": "ignore-declared-length",
+      "passed": true,
+      "reason": "false length accepted"
+    },
+    {
+      "case": "accept-large-chunk",
+      "passed": true,
+      "reason": "oversize chunk accepted"
+    },
+    {
+      "case": "bridge-writer-bypass",
+      "passed": true,
+      "reason": "bridge writer bypassed durable packing"
+    },
+    {
+      "case": "bridge-reader-bypass",
+      "passed": true,
+      "reason": "bridge reader bypassed durable unpacking"
+    }
+  ],
+  "limits": "Actual native Kahlua serializer and actual bridge method source; recording native-codec sinks isolate adapters. No game, world or save launch.",
+  "hashes": {
+    "C:\\Program Files (x86)\\Steam\\steamapps\\common\\ProjectZomboid\\projectzomboid.jar": "80e405a4bfc42f6072e75b3735f458a6514143da011d3226007ded305a442f44",
+    "C:\\Users\\jleyv\\Peanut Butter\\AI Assisted Software Engineering Mass Repository\\Projects\\survivor-awareness\\java\\src\\com\\sao\\engine\\SAODurableText.java": "fa5e89d9123af855b25dd7772b35d6c0b56275feb15eab6ad70717a6869aebc9",
+    "C:\\Users\\jleyv\\Peanut Butter\\AI Assisted Software Engineering Mass Repository\\Projects\\survivor-awareness\\java\\src\\com\\sao\\bridge\\SAOBridge.java": "a6d790f4cbf5e31a39fd459148da159ad4145b4bf322b917230082abe05fb0ac",
+    "C:\\Users\\jleyv\\Peanut Butter\\AI Assisted Software Engineering Mass Repository\\Projects\\survivor-awareness\\tools\\luacheck\\DurableTextProbe.java": "e00e4f4c49d78dde796210b80116398a82a540a4a30771b947f027bb5fb28d0c",
+    "C:\\Users\\jleyv\\Peanut Butter\\AI Assisted Software Engineering Mass Repository\\Projects\\survivor-awareness\\java\\src\\com\\sao\\engine\\SAONativeSnapshot.java": "ebf94d9cc2131e9d11f2e4d0da20eede595ae771f5f2c242a7533a89cdf8de33",
+    "C:\\Users\\jleyv\\Peanut Butter\\AI Assisted Software Engineering Mass Repository\\Projects\\survivor-awareness\\tools\\durable_text_test.py": "255045000a3996a5db7551108fd65db099055790634c957e80865e42b9f738fd"
+  },
+  "status": "PASS",
+  "raw_receipt_sha256": "9d5c34216fb676b062a1599412a0fa76c7fe00629da8e1ad0b915460810a911e",
+  "raw_receipt_local_path": "C:\\Users\\jleyv\\Peanut Butter\\AI Assisted Software Engineering Mass Repository\\Projects\\survivor-awareness\\_scratch\\r1-durable-text-final.json",
+  "reproduce": "python tools/durable_text_test.py --receipt _scratch/r1-durable-text-final.json"
+}

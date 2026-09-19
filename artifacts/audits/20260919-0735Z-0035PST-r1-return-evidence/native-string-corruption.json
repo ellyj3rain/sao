@@ -1,0 +1,42 @@
+{
+  "border": 163,
+  "results": [
+    {
+      "case": "production",
+      "passed": true
+    }
+  ],
+  "commands": [
+    {
+      "argv": [
+        "C:\\Users\\jleyv\\Peanut Butter\\JetBrains\\Java\\bin\\javac.exe",
+        "-encoding",
+        "UTF-8",
+        "-cp",
+        "C:\\Program Files (x86)\\Steam\\steamapps\\common\\ProjectZomboid\\projectzomboid.jar",
+        "-d",
+        "C:\\Users\\jleyv\\AppData\\Local\\Temp\\sao-person-snapshot-aqpmj184\\production\\classes",
+        "C:\\Users\\jleyv\\AppData\\Local\\Temp\\sao-person-snapshot-aqpmj184\\production\\SAONativeSnapshot.java",
+        "C:\\Users\\jleyv\\Peanut Butter\\AI Assisted Software Engineering Mass Repository\\Projects\\survivor-awareness\\tools\\luacheck\\PersonSnapshotProbe.java"
+      ],
+      "cwd": "C:\\Users\\jleyv\\AppData\\Local\\Temp\\sao-person-snapshot-aqpmj184\\production",
+      "returncode": 0,
+      "stdout": "",
+      "stderr": ""
+    },
+    {
+      "argv": [
+        "C:\\Users\\jleyv\\Peanut Butter\\JetBrains\\Java\\bin\\java.exe",
+        "-Duser.home=C:\\Users\\jleyv\\AppData\\Local\\Temp\\sao-person-snapshot-aqpmj184\\production",
+        "-cp",
+        "C:\\Users\\jleyv\\AppData\\Local\\Temp\\sao-person-snapshot-aqpmj184\\production\\classes;C:\\Program Files (x86)\\Steam\\steamapps\\common\\ProjectZomboid\\projectzomboid.jar",
+        "PersonSnapshotProbe"
+      ],
+      "cwd": "C:\\Users\\jleyv\\AppData\\Local\\Temp\\sao-person-snapshot-aqpmj184\\production",
+      "returncode": 0,
+      "stdout": "ENGINE oversized native item string: load succeeds, keyId 67890 -> 1633771873\nPASS native snapshot: 6 items; nested key/food/modData; exact hands/worn/attached; native item processing/removal; stats/wounds/XP/traits; corruption/version/missing-nested-script/custom-perk/custom-trait controls\n",
+      "stderr": "WARNING: A restricted method in java.lang.System has been called\nWARNING: java.lang.System::load has been called by org.lwjgl.system.Library$$Lambda/0x000000001e1caad0 in an unnamed module (file:/C:/Program%20Files%20(x86)/Steam/steamapps/common/ProjectZomboid/projectzomboid.jar)\nWARNING: Use --enable-native-access=ALL-UNNAMED to avoid a warning for callers in this module\nWARNING: Restricted methods will be blocked in a future release unless native access is enabled\n\n"
+    }
+  ],
+  "status": "PASS"
+}

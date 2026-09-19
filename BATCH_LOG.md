@@ -1,6 +1,6 @@
 | Document | Survivor Awareness Overhaul Batch Log |
 |---|---|
-| Version | `2.7.14.2-pre-alpha` |
+| Version | `2.7.14.3-pre-alpha` |
 | Author | ellyj3rain |
 | Repository | `BATCH_LOG.md` |
 | Status | REGULATORY - chronological batch index. |
@@ -158,3 +158,4 @@ source mapping and hashes. Consolidation does not close implementation defects.
 | [C49](Batches/C49-2026-09-14-brain-health-integration.md) | 2026-09-14 | Brain health integration | [`T-002`](Batches/THREADS.md#t-002), [`T-006`](Batches/THREADS.md#t-006), [`T-008`](Batches/THREADS.md#t-008) |
 | [C50](Batches/C50-2026-09-18-historical-simulation-recovery-and-evidence.md) | 2026-09-18 | Historical simulation recovery and evidence | [`T-007`](Batches/THREADS.md#t-007), [`T-008`](Batches/THREADS.md#t-008), [`T-009`](Batches/THREADS.md#t-009) |
 | [C51](Batches/C51-2026-09-19-person-preservation.md) | 2026-09-19 | Person preservation | [`T-006`](Batches/THREADS.md#t-006), [`T-007`](Batches/THREADS.md#t-007), [`T-008`](Batches/THREADS.md#t-008) |
+| [C52](Batches/C52-2026-09-19-authorized-afflicted-return.md) | 2026-09-19 | Authorized afflicted return | [`T-001`](Batches/THREADS.md#t-001), [`T-002`](Batches/THREADS.md#t-002), [`T-006`](Batches/THREADS.md#t-006), [`T-007`](Batches/THREADS.md#t-007), [`T-008`](Batches/THREADS.md#t-008) |

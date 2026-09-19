@@ -190,6 +190,7 @@ UNITS = [
     ('C49', 'kohai', 'Attempted the requested event-driven brain-health integration and visualization. The off switch is repaired, but the model remains disputed: update partition changes the outcome, authoritative pathogen state is read from the wrong owner, loaded health inputs are stale, and lifetime poison is reapplied as current damage. The scalar display and incomplete consumers do not fulfill the requested graph.'),
     ('C50', 'patch', 'Removed the rejected fixed-formula trajectory generator and repaired catch-up progress, company admission and diagnostic evidence refusal and provenance. Preserve the verified repairs and independent 90/365-day observations within their stated limits. No learned model or completed ML bridge resulted. The audit also identifies unresolved time consumers, population refill assumptions, the older decision exporter and missing life-simulation producers.'),
     ('C51', 'patch', 'Repaired person capture, teardown and restoration ownership; native supported-state snapshots preserve inventory, wounds, statistics and experience with controlled failure and legacy compatibility.'),
+    ('C52', 'patch', 'Repaired Afflicted return as one authorized, durable transfer: ZAO retains the exact turned source until SAO restores supported living state, reaches critical viability with injuries preserved, and adopts the one returning person. This closes the existing return capability without crediting the still-unreachable and incomplete Crossed action system.'),
 ]
 
 TIER_MEANINGS = [

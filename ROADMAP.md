@@ -1,6 +1,6 @@
 ﻿| Document | Survivor Awareness Overhaul Roadmap |
 |---|---|
-| Version | `2.7.14.2-pre-alpha` |
+| Version | `2.7.14.3-pre-alpha` |
 | Author | ellyj3rain |
 | Repository | `ROADMAP.md` |
 | Status | CANONICAL - readiness work and retained scope. |
@@ -13,26 +13,71 @@ This follows Speakeasy RECORD entry 45. Batch closure and a green gate do not
 establish readiness where causal mechanisms are missing or contradicted by
 evidence. SESSION_STATE.md states the current assessment.
 
-## Infrastructure and dependencies
+## Execution plan after C51
 
-SUBSTRATE.md maps contract, producer, loaded/dormant caller, persistence,
-observation and gap. Each implementation slice names the rows it completes
-and the consumers that depend on them. Engine mechanics are grounded in the
-installed build. Identity and county state belong to the durable record.
+The work below is planned and unfinished. Each item names an implementation
+owner, its dependency and the evidence required to close it. The detailed
+mechanisms and bounded investigations are in [SUBSTRATE.md](SUBSTRATE.md#implementation-contracts).
+R identifiers refer to work in this plan; batch identifiers follow coherent
+implementation units when those units close. They do not reserve future batches.
 
-| Order | Work | Completion evidence |
+**Immediate execution:** R1 repairs the afflicted-return interaction introduced
+by C51's general dead-record safeguard. R2 establishes shared time. R3 completes
+the remaining person-state contract. R11-R12 can proceed alongside that work.
+
+R1 is in progress in local SAO C52 / ZAO A35 branches. Its
+[working record](artifacts/audits/20260919-0735Z-0035PST-r1-return-evidence/README.md)
+names the implemented mechanisms, controls, native-source continuation and the
+selected critical-but-injured recovery rule. No R1 closure or deployment is claimed.
+Remaining technical investigations have named outputs below; they are part of
+the work, rather than indefinite deferrals.
+
+| Work and owner | Depends on | Implementation and completion evidence |
 |---|---|---|
-| 1 | Durable-state ownership and shared time | C51 repairs supported-state body handoffs with failure controls; complete the remaining character component persistence. Coherent time units across callbacks and catch-up; serialized state and registrations reconstruct; pathogen state has one owner. |
-| 2 | Perception and physical opportunity | Person-specific acquisition and age; explicit unavailable ground; real container access; distinct animal and human facts. |
-| 3 | Action lifecycle and causal producers | Approach, action, cancellation and completion have one owner; observed consequences update experience, relationships and material state. |
-| 4 | Full life-simulation branches | Provisioning, affiliation, development, governance, learning, culture and care have actual available actions and consequences in both representations. |
-| 5 | Trustworthy decision capture | Immutable snapshots, executable options, event-derived pathogen joins, completion provenance and protection of approved data. |
-| 6 | Speakeasy training and consumption | Reproducible data and evaluation, versioned model export, in-process inference and constrained expression; learned choices reach execution. |
-| 7 | Late-start acceleration | Comparison with the repaired causal simulation, preserving history and later behavior without assigned survival or social outcomes. |
+| **R1. Authorized return — SAO + ZAO** | C51 | Quiesce the old owner and incoming actions; stage/validate current state under a paused owner; acknowledge old-body teardown; then publish/adopt once. Enumerate durable eligible people for bodyless recovery. Refusal, partial cleanup, reload and retry preserve one owner and never duplicate possessions. Ordinary dead records remain refused. |
+| **R2. Shared time — SAO; ZAO consumers** | C51 | Inventory clock readers and durable timestamps; make decision-time reads current within every historical substep; convert the WorldGenesis day argument at its boundary. Separate engine pacing from county time. Test actual callback order, day-zero on/off, nondefault day length, midnight, partial catch-up and reload. |
+| **R3. Complete person persistence — SAO** | C51; R2 for next-update proof | Extend the versioned snapshot with nutrition, fitness, appearance, recipes, reading progress, perk boosts and declared character metadata. Validate fluid contents as well as item identity. Preserve v1-v3 migration provenance. Prove zero-time fidelity, the next native update, repeated wakes, missing definitions and failure recovery. |
+| **R4. Durable/runtime ownership — SAO + ZAO** | R1-R3 | Inventory each durable table, temporary registry and reconstruction caller. Keep callback registrations outside serialized history; register extensions explicitly at startup. Verify actual serialization/reload, owner reconstruction, pending actions and same-process world changes without duplicating callbacks or retaining prior-world records. |
+| **R5. Health and dormant physiology — SAO + ZAO** | R2-R3; R4 for persistence | Repair daily scheduling and frozen abstinence; read current physical inputs and ZAO-owned pathogen state; integrate exposures over elapsed intervals. Replace the Crossed/Afflicted three-tile daily proxy with an intentional exposure result produced by an actual action; no spontaneous Afflicted roll exists. Implement the event-derived brain-health history, effects and graph. Reconcile dormant food/drink consumption with quantity, nutrition and spoilage. Equal event histories must agree across interval partitions and reload. |
+| **R10a. World sources and reconciliation — SAO** | Source inventory now; R2, R4 for runtime integration | Establish source-backed unloaded geography/resource/access state and how performed changes reconcile when chunks load. Explicitly represent missing data. This supplies the world substrate needed by dormant R6/R9 proofs before historical integration. |
+| **R6. Perception and access — SAO** | R2 for timestamps; R10a for dormant proof; loaded repair can begin now | Correct actual animal/human scan output, prone/deactivation reads, partner visibility/floor checks and moving/locked vehicle sources. Keep acquisition, permission and physical access distinct. Prove hidden, stale or inaccessible facts cannot offer an action or change its result; unavailable ground is explicit. |
+| **R7. Action ownership and receipts — SAO; ZAO retained verbs** | R1-R2, R4, R6 | Connect intent, approach, queue, execution, interruption and observed result. Crossed actions use retained learned capability and the shared action contracts; the Afflicted exposure path has its own non-feeding result and cannot fall through to ordinary zombie attack or eating. Update inventory projections, experience and relationships only from the appropriate result. Interrupt each stage; repeat completion notifications; reload pending work. No cancelled action earns completed-work credit. |
+| **R8. Repair audited actions — SAO + ZAO callers** | R5-R7 as used | Repair driving routes/progress/passengers/steering, ordinary homeward activity, child health/play, aid/CPR composition, robbery/raid response, animal approach and optional event consumers. Each path must reach a world consequence or a reasoned refusal. The contract table in SUBSTRATE names the counterexamples and retained working pieces. |
+| **R9. Complete life-simulation producers — SAO + ZAO domain owners** | R5-R8 and R10a, incrementally by concern | Implement the producer rows in SUBSTRATE: provisioning and places, exploration, affiliation, care, learning, culture, rest, governance, communication and conflict. Rebuild Crossed execution from its canonical body and mind: human appearance, retained cognition, experience, drives and action vocabulary; weapons, tools, strategy, coordination, use of the dead, variable settlement/leisure and deliberate work on Afflicted. Each concern first produces the bounded mechanism inventory below. Connect candidates to executors; prove conservation, private knowledge and socially grounded recognition in both representations. |
+| **R10b. Historical integration and population — SAO + ZAO** | R2, R4, R8-R9, R10a | Exercise grounded dormant opportunity and observable later changes across the integrated county. Account separately for initial people, arrivals, births, deaths and exits. Resolve the existing refill policy against the prohibition on target-seeking outcomes. Compare actual cohorts and open populations correctly; fixtures and target counts cannot establish fidelity. |
+| **R11. Decision capture and joins — SAO + Speakeasy** | Start now; final eligibility follows R2, R6-R10 | Capture immutable person/situation/options before choice; attach action results separately. Include county/run/event identity, revisions, settings, source confidence, failures and requested/reached horizons. Validate entire joins before atomic export. Nested mutation, reader failure, duplicate/cross-county identities and incomplete runs must be detected. |
+| **R12. Approved data and world knowledge — Speakeasy; SAO knowledge reader** | Start now; R11 for new captures | Preserve 190 approved choices and nine approved world documents with hashes/ruling references. Audit conditioning separately from approved intent. Build versioned corpus/claim views and person-specific acquisition. Future facts, LOW claims and lineage leakage are refused. Correct mutable sibling README/training status against RECORD 43; historical corrections are append-only. |
+| **R13. Training and export — Speakeasy** | R11-R12; eligible R8-R10b coverage | Build decision authoring, deterministic voice expansion, understander utterance-to-meaning and speaker claims/conditioning-to-expression datasets, preserving actual approval status. Implement lineage-separated evaluation and reproducible training. Complete the architecture/export investigation; deliver deterministic versioned artifacts and reference inference with separate behavioral/grounding measures. |
+| **R14. Learned execution and exchange — SAO Java/Lua + Speakeasy artifacts** | R7, R9, R13 | Load a compatible model in Java, infer at the real decision point, revalidate and execute the selected option. Complete both understanding and constrained expression through existing belief, standing and command channels. A changed model output must change an actual action or exchange; false claim recombination, stale options and failed inference cannot manufacture success. |
+| **R15. Late-start acceleration — SAO + Speakeasy** | R10b; versioned policy/export from R13-R14 | Evaluate acceleration against the repaired causal stepper with matched seeds, initial conditions and policy version. Compare histories, distributions and subsequent behavior. Preserve provenance and quantify error/performance. Retain causal stepping until a candidate passes; fixed survival floors, settlement quotas and authored completed work remain invalid. |
 
-Dependencies govern order. Capture and corpus preparation may proceed alongside
-producer work. The scope remains the whole life simulation; limited diagnostic
-training experiments do not establish acceptance over that scope.
+R9 closes only when every producer row has its own evidence. R8 similarly
+accounts for every audited action family. A thin demonstration in one family
+does not discharge the rest of the row. Historical and learned runs declare
+their supported coverage explicitly.
+
+Corpus work, protected exports, capture mechanics, evaluation design and model
+format experiments can advance while producers are repaired. Final training
+eligibility depends on the truth of the captured mechanisms. Experimental
+datasets retain their limitations; they do not establish full-scope readiness.
+
+## Defined investigations
+
+| Investigation | Owner and required output | Work it resolves |
+|---|---|---|
+| Native component continuation | SAO: field inventory distinguishing serialized, reconstructed and omitted state; differential next-update probes for weight flags, fitness clocks, hair growth, reading collections and fluid definitions. | R3, R5 |
+| Return and action failure order | SAO + ZAO: callback/teardown inventory and a phase-by-phase recovery table, including current corpse possessions, failed removal and save/reload. | R1, R4, R7 |
+| Unloaded world opportunity | SAO: source-backed map/resource/access inventory, resource depletion/renewal ownership and a reconciliation protocol for later loaded chunks. Unknown geometry remains unavailable until grounded. | R6, R9, R10 |
+| Per-concern producer mechanisms | SAO/ZAO domain owner: for each R9 concern, classify existing producer/consumer as supported, defective or missing; specify trigger/pressure, private opportunity, actor decision, executor, durable result, interruption/reload and a discriminating test. Produce separate contracts for childcare, art/ceremony/burial, overlapping/local/federated authority, retained turned behaviors and animal companionship/ownership. Surface any missing substantive ruling before implementing it. | R8-R9 |
+| Brain-health integration | ZAO leads: reverify installed prior art and event/state owners; define exposure/clearance integration, persisted history and actual cognitive/motor/affective consumers, with measured numerical tolerances. Existing rate constants and a scalar panel do not settle this. | R5 |
+| Population policy | SAO: reconcile ratified delayed refill with the no-target-seeking generation contract. Document admissions and demographic sources, distinguish simulation rules from diagnostic population controls, and surface any real conflicting policy ruling. | R10 |
+| Model architecture and interchange | Speakeasy + SAO: build a candidate inference/export harness; compare task-appropriate implementations, conditioning/tokenization, dimensions, memory and layout using reference/Java parity and measured actual-model allocations/latency. Candidate dimensions stay provisional until the target budget is verified. Loaded-game budget acceptance remains distinct from offline evidence and does not block corpus/schema/research work. Identify unresolved consequential choices before commitment. | R13-R14 |
+| Accelerator suitability | SAO + Speakeasy: matched causal baseline, explicit equivalence measures and candidate error/performance results. A failed comparison leaves the causal stepper authoritative. | R15 |
+
+Consumable production and synthesis mechanics remain outside the authorized
+scope in GOVERNANCE.md. The provisioning plan covers existing-world access,
+transport, storage, sharing, trade, conservation and permitted integration
+wiring; it does not introduce creation recipes or synthesis rules.
 
 ## Ratified scope retained
 
@@ -42,7 +87,7 @@ training experiments do not establish acceptance over that scope.
 | Person and life | Age, childhood, conditions, habits, hobbies, addictions, culture, relationships and material pressures condition choice. Work and roles are downstream observations. |
 | Places and resources | Ground follows use; organizations can hold several places, move or abandon them. Provisioning follows real access, consumption and work. |
 | Authority and recognition | Claims, recognition, response, jurisdiction, legitimacy and coercion remain distinct. Repetition alone does not appoint an office. |
-| Afflicted and crossed | SAO executes afflicted people; ZAO owns pathogen state and crossed execution. Capability follows actual experience. Strategy, diversion, capture, diet and living responses remain in scope. |
+| Afflicted and crossed | SAO executes afflicted people; ZAO owns pathogen state and crossed execution. Capability follows actual experience. Crossed remain human-looking, cognitive, organized and able to use retained human actions, weapons and tools. Strategy, diversion, capture, diet and living responses remain in scope; Afflicted are not food, and their conversion requires the distinct intentional exposure action and an SAO-to-ZAO ownership transfer. |
 | Brain health | ZAO-led per-person event-driven brain-health and inflammatory state, integrating drug and pathogen effects, memory, health markers and a graph visualization. Authored decline curves do not replace causes. |
 | Optional integrations | Every installed family is accounted for at its actual seam with its ratified settings and absence behavior. The nuke is optional and defaults off. |
 | Cognition and speech | Person, perceived situation, available options and choice form the data contract. Models cover decisions as well as expression; no player-speech harvesting. |

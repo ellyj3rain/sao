@@ -7021,16 +7021,22 @@ local function onTickInner()
             end
         end
     end
+    Ctl.settleCorpses(tickCount)
+end
+
+function Ctl.settleCorpses(now)
     -- [C8] The corpse net, past its grace. Without the bridge there is
     -- no lawful die() to call, and the old gap stands stated rather
     -- than papered over.
     if SAOJavaBridge then
         for pid, pend in pairs(Ctl.pendingCorpses) do
-            if tickCount - pend.at >= CORPSE_GRACE_TICKS then
-                Ctl.pendingCorpses[pid] = nil
+            if now - pend.at >= CORPSE_GRACE_TICKS then
                 local okE, verdict = pcall(function()
                     return SAOJavaBridge:ensureCorpse(pend.body)
                 end)
+                if okE and (verdict == "DIED" or verdict == "ALREADY_CORPSE") then
+                    Ctl.pendingCorpses[pid] = nil
+                end
                 log(pid .. " corpse net: " .. tostring(verdict)
                     .. (okE and "" or " (threw)"))
             end

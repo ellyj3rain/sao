@@ -3,6 +3,7 @@ package com.sao.bridge;
 import com.sao.agent.SAOAgent;
 import com.sao.engine.SAODriver;
 import com.sao.engine.SAODriveState;
+import com.sao.engine.SAODurableText;
 import com.sao.engine.SAOIsoPlayerShell;
 import com.sao.engine.SAOMovement;
 import com.sao.engine.SAORouteState;
@@ -1332,15 +1333,104 @@ public final class SAOBridge {
     }
 
     /** Pack what this body carries and is, for the record (F-013). */
-    public String hibernate(Object object) {
+    public Object hibernate(Object object) {
         if (object instanceof SAOIsoPlayerShell shell) {
-            return com.sao.engine.SAOHibernation.hibernate(shell);
+            try { return SAODurableText.pack(com.sao.engine.SAOHibernation.hibernate(shell)); }
+            catch (Throwable error) { SAOAgent.log("hibernate capture refused: " + error); }
         }
         return "";
     }
 
-    public boolean validateHibernation(String packed) {
-        return com.sao.engine.SAOHibernation.validate(packed);
+    public boolean validateHibernation(Object packed) {
+        try { return com.sao.engine.SAOHibernation.validate(SAODurableText.unpack(packed)); }
+        catch (Throwable error) { return false; }
+    }
+
+    public Object createReturnBody(String first, String last, double x, double y, double z, boolean female) {
+        return com.sao.engine.SAOReturnBody.create(first, last, x, y, z, female);
+    }
+
+    public boolean publishReturnBody(Object object) {
+        return object instanceof SAOIsoPlayerShell shell && com.sao.engine.SAOReturnBody.publish(shell);
+    }
+
+    public Object findReturnDestination(String personId, String token) {
+        try {
+            return com.sao.engine.SAOReturnBody.find(personId, token);
+        } catch (Throwable error) {
+            SAOAgent.log("findReturnDestination refused: " + error);
+            // Lookup failure must not masquerade as absence and create another body.
+            throw new IllegalStateException("Return destination lookup failed", error);
+        }
+    }
+
+    public boolean returnBodyNeedsCleanup(Object object) {
+        return !(object instanceof SAOIsoPlayerShell shell)
+            || com.sao.engine.SAOReturnBody.needsCleanup(shell);
+    }
+
+    public boolean activateReturnBody(Object object) {
+        return object instanceof SAOIsoPlayerShell shell && com.sao.engine.SAOReturnBody.activate(shell);
+    }
+
+    public boolean discardReturnBody(Object object) {
+        return object instanceof SAOIsoPlayerShell shell && com.sao.engine.SAOReturnBody.discard(shell);
+    }
+
+    public boolean restoreReturnLiving(Object object, Object value) {
+        if (!(object instanceof SAOIsoPlayerShell shell)) return false;
+        try {
+            String packed = SAODurableText.unpack(value);
+            if (packed != null && packed.startsWith("v3;")) {
+                com.sao.engine.SAONativeSnapshot.restoreStaged(shell, packed);
+                return true;
+            }
+            // Original legacy fidelity is retained; no elapsed metabolism is
+            // charged while a returned person is held between representations.
+            String result = com.sao.engine.SAOHibernation.awaken(shell, packed, 0);
+            com.sao.engine.SAONativeSnapshot.unregister(shell);
+            return result.startsWith("AWAKENED ");
+        } catch (Throwable error) {
+            SAOAgent.log("return living state refused: " + error);
+            return false;
+        }
+    }
+
+    public Object captureReturn(Object source, Object destination) {
+        if (!(source instanceof zombie.characters.IsoZombie zombie)
+                || !(destination instanceof SAOIsoPlayerShell shell)) return "";
+        try { return SAODurableText.pack(com.sao.engine.SAONativeSnapshot.captureReturn(zombie, shell)); }
+        catch (Throwable error) { SAOAgent.log("return capture refused: " + error); return ""; }
+    }
+
+    public Object captureReturnLiving(Object object) {
+        if (!(object instanceof SAOIsoPlayerShell shell)) return "";
+        try { return SAODurableText.pack(com.sao.engine.SAONativeSnapshot.captureReturnLiving(shell)); }
+        catch (Throwable error) { SAOAgent.log("living return capture refused: " + error); return ""; }
+    }
+
+    public Object captureReturnVisual(Object source) {
+        if (!(source instanceof IsoGameCharacter character)) return "";
+        try { return SAODurableText.pack(com.sao.engine.SAONativeSnapshot.captureReturnVisual(character)); }
+        catch (Throwable error) { SAOAgent.log("return visual refused: " + error); return ""; }
+    }
+
+    public boolean validateReturnVisual(Object packed) {
+        try { return com.sao.engine.SAONativeSnapshot.validateReturnVisual(SAODurableText.unpack(packed)); }
+        catch (Throwable error) { return false; }
+    }
+
+    public boolean restoreReturnVisual(Object destination, Object packed) {
+        if (!(destination instanceof SAOIsoPlayerShell shell)) return false;
+        try { com.sao.engine.SAONativeSnapshot.restoreReturnVisual(shell, SAODurableText.unpack(packed)); return true; }
+        catch (Throwable error) { SAOAgent.log("return visual restore refused: " + error); return false; }
+    }
+
+    public boolean returnMaterialsMatch(Object source, Object packed, Object visual) {
+        if (!(source instanceof zombie.characters.IsoZombie zombie)) return false;
+        try { return com.sao.engine.SAONativeSnapshot.returnMaterialsMatch(zombie, SAODurableText.unpack(packed))
+            && com.sao.engine.SAONativeSnapshot.captureReturnVisual(zombie).equals(SAODurableText.unpack(visual)); }
+        catch (Throwable error) { return false; }
     }
 
     /** A vehicle occupant or running engine action still owns world state. */
@@ -1369,9 +1459,10 @@ public final class SAOBridge {
     }
 
     /** Restore a snapshot onto a fresh body and run dormant metabolism. */
-    public String awaken(Object object, String packed, double elapsedHours) {
+    public String awaken(Object object, Object packed, double elapsedHours) {
         if (object instanceof SAOIsoPlayerShell shell) {
-            return com.sao.engine.SAOHibernation.awaken(shell, packed, elapsedHours);
+            try { return com.sao.engine.SAOHibernation.awaken(shell, SAODurableText.unpack(packed), elapsedHours); }
+            catch (Throwable error) { SAOAgent.log("awaken refused: " + error); return "AWAKEN_FAILED " + error; }
         }
         return "NOT_A_SHELL";
     }

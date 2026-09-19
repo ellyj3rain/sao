@@ -26,9 +26,10 @@ the functions exist. The only thing missing is a caller.
 WHAT THIS CHECKS
 ----------------
 Every module-scope table indexed by a survivor id is declared with the
-function that clears it, and that function must be **reachable from a
-death**: either `Identity.markDead` names it, or the function that
-clears the table calls `Identity.markDead` itself.
+function that clears it. Living caches must be reachable from a death:
+either `Identity.markDead` names it, or its clearing function calls
+`Identity.markDead`. Return ownership starts after death and has a separate,
+checked lifetime ending at acknowledged cancellation or completed return.
 
 Two directions, so the list describes the tree rather than the tree of
 some earlier batch:
@@ -52,7 +53,7 @@ import re
 import sys
 
 sys.path.insert(0, str(pathlib.Path(__file__).resolve().parent))
-from lua_read import function_body
+from lua_read import function_body, strip_lua
 
 ROOT = pathlib.Path(__file__).resolve().parent.parent
 LUA = ROOT / "mod" / "42.20" / "media" / "lua"
@@ -67,6 +68,10 @@ MARK_DEAD = "markDead"
 #   "calls"  - the clearing function calls Identity.markDead itself,
 #              so the clear and the death are the same event
 CACHES = {
+    ("SAO_Body.lua", "Body.returning"): (
+        "Body.discardReturn", "return",
+        "a staged return body created after death, retained through failed "
+        "cleanup and cleared by acknowledged discard or completed return"),
     ("SAO_Body.lua", "Body.discarding"): (
         "Body.discard", "named",
         "teardown ownership, retained across failure even after death. "
@@ -166,8 +171,8 @@ CACHES = {
         "Ctl.forget", "named",
         "[C8] the corpse net's hold - the ONE table whose whole "
         "population is dead by design. Its own sweep clears an entry "
-        "the moment the net fires (one grace after the death that "
-        "added it), and the death funnel's forget clears it too as "
+        "when native corpse creation acknowledges completion (after its "
+        "grace period), and the death funnel's forget clears it too as "
         "belt-and-braces, so a re-fired markDead can never leave a "
         "stale hold on a body"),
     ("SAO_Driving.lua", "Drv.jobs"): (
@@ -394,6 +399,21 @@ def main():
                     f"the death itself, and it no longer calls {MARK_DEAD}. "
                     "So the clear and the death are now two events, and "
                     "there is nothing left tying them together")
+        elif how == "return":
+            return_src = files.get("SAO_AfflictedReturn.lua", "")
+            owner = strip_lua(function_body(return_src, "step") or "")
+            recover = strip_lua(function_body(src, "Body.recover") or "")
+            if not re.search(r"SAO\.Body\.discardReturn\s*\(\s*rec\s*\)", owner):
+                faults.append("return cancellation no longer reaches Body.discardReturn")
+            completion = owner
+            if re.search(r"\breturn\s+commit\s*\(\s*rec\s*,", owner):
+                completion += strip_lua(function_body(return_src, "commit") or "")
+            if not re.search(r"SAO\.Body\.returning\[rec\.id\]\s*=\s*nil", completion):
+                faults.append("completed return no longer clears its staged body handle")
+            if not re.search(r"SAO\.AfflictedReturn\.resume\s*\(\s*rec\s*\)", recover):
+                faults.append("body recovery no longer reaches the durable return owner")
+        elif how != "self":
+            faults.append(f"{table} has an unknown lifetime rule {how!r}")
         print(f"     {fname}:{table:<18} <- {forget} ({how})")
 
     print()
@@ -402,8 +422,8 @@ def main():
         for f in faults:
             print(f"  FAULT: {f}")
         return 1
-    print(f"  72) forget on death: all {len(CACHES)} per-id caches are "
-          "cleared by a function a death actually reaches")
+    print(f"  72) person cache lifetime: all {len(CACHES)} per-id caches "
+          "have reachable death or return cleanup")
     return 0
 
 
