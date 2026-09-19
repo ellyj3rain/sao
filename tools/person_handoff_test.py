@@ -388,7 +388,7 @@ def main():
              'harness dropped early'),
             ('SAO_Body.lua','return SAOJavaBridge:awaken(body, rec.hibernation, elapsed)',
              'return "AWAKENED skipped"','harness did not restore current person'),
-            ('SAO_Body.lua','if pending.visual ~= nil then rec.bodyVisual = pending.visual end',
+            ('SAO_Body.lua','rec.bodyVisual = pending.visual',
              '', 'release lost captured appearance'),
             ('SAO_Body.lua','if not ok or restored ~= true then',
              'if false then', 'failed visual restore exposed body'),

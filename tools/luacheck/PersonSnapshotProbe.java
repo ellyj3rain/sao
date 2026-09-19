@@ -1,5 +1,10 @@
 import com.sao.engine.SAONativeSnapshot;
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
+import java.io.DataInputStream;
+import java.io.DataOutputStream;
 import java.lang.reflect.Field;
+import java.lang.reflect.Method;
 import java.nio.ByteBuffer;
 import java.security.MessageDigest;
 import java.util.Arrays;
@@ -14,6 +19,10 @@ import zombie.inventory.types.Food;
 import zombie.inventory.types.HandWeapon;
 import zombie.inventory.types.InventoryContainer;
 import zombie.inventory.types.Key;
+import zombie.entity.Component;
+import zombie.entity.GameEntity;
+import zombie.entity.components.fluids.Fluid;
+import zombie.entity.components.fluids.FluidContainer;
 import zombie.scripting.ScriptManager;
 import zombie.scripting.objects.CharacterTrait;
 import zombie.scripting.objects.Item;
@@ -82,6 +91,7 @@ public final class PersonSnapshotProbe {
 
     private static IsoPlayer person() {
         SurvivorDesc desc = new SurvivorDesc();
+        desc.setFemale(false);
         desc.getHumanVisual().setSkinTextureName("fixture");
         return new IsoPlayer(null, desc, 0, 0, 0, false);
     }
@@ -96,7 +106,96 @@ public final class PersonSnapshotProbe {
         byte[] digest = MessageDigest.getInstance("SHA-256")
                 .digest(Arrays.copyOf(bytes, bytes.length - 32));
         System.arraycopy(digest, 0, bytes, bytes.length - 32, 32);
-        return "v3;" + Base64.getEncoder().encodeToString(bytes);
+        return packed.substring(0, 3) + Base64.getEncoder().encodeToString(bytes);
+    }
+
+    private static Field field(Class<?> type, String name) throws Exception {
+        Field value = type.getDeclaredField(name);
+        value.setAccessible(true);
+        return value;
+    }
+
+    @SuppressWarnings("unchecked")
+    private static <T> T value(Object owner, Class<?> type, String name) throws Exception {
+        return (T) field(type, name).get(owner);
+    }
+
+    private static void set(Object owner, Class<?> type, String name, Object value) throws Exception {
+        field(type, name).set(owner, value);
+    }
+
+    private static void attachFluid(InventoryItem item, Fluid... fluids) throws Exception {
+        FluidContainer container = FluidContainer.CreateContainer();
+        container.setCapacity(4.0f);
+        for (int i = 0; i < fluids.length; i++) container.addFluid(fluids[i], .4f + i * .3f);
+        Method add = GameEntity.class.getDeclaredMethod("addComponent", Component.class);
+        add.setAccessible(true);
+        check((Boolean) add.invoke(item, container), "fluid component fixture attachment");
+    }
+
+    private static String downgradeV3(String packed) throws Exception {
+        byte[] encoded = Base64.getDecoder().decode(packed.substring(3));
+        int payloadLength = encoded.length - 32;
+        byte[][] sections = new byte[5][];
+        try (DataInputStream in = new DataInputStream(
+                new ByteArrayInputStream(encoded, 0, payloadLength))) {
+            in.readInt(); in.readInt(); in.readInt();
+            check(in.readInt() == 10, "v4 section count");
+            for (int i = 0; i < 5; i++) sections[i] = in.readNBytes(in.readInt());
+        }
+        // v3's manifest ended after equipment. A no-fluid v4 manifest carries
+        // only the appended zero count, which is removed for this fixture.
+        check(ByteBuffer.wrap(sections[4], sections[4].length - 4, 4).getInt() == 0,
+                "legacy fixture unexpectedly has fluid facts");
+        sections[4] = Arrays.copyOf(sections[4], sections[4].length - 4);
+        ByteArrayOutputStream payload = new ByteArrayOutputStream();
+        try (DataOutputStream out = new DataOutputStream(payload)) {
+            out.writeInt(0x53414f33); out.writeInt(1); out.writeInt(249); out.writeInt(5);
+            for (byte[] section : sections) { out.writeInt(section.length); out.write(section); }
+        }
+        byte[] digest = MessageDigest.getInstance("SHA-256").digest(payload.toByteArray());
+        payload.write(digest);
+        return "v3;" + Base64.getEncoder().encodeToString(payload.toByteArray());
+    }
+
+    private static String mutateSectionFloat(String packed, int sectionIndex,
+            int offset, float value) throws Exception {
+        byte[] encoded = Base64.getDecoder().decode(packed.substring(3));
+        int payloadLength = encoded.length - 32;
+        byte[][] sections;
+        int magic, format, world, count;
+        try (DataInputStream in = new DataInputStream(
+                new ByteArrayInputStream(encoded, 0, payloadLength))) {
+            magic = in.readInt(); format = in.readInt(); world = in.readInt(); count = in.readInt();
+            sections = new byte[count][];
+            for (int i = 0; i < count; i++) sections[i] = in.readNBytes(in.readInt());
+        }
+        ByteBuffer.wrap(sections[sectionIndex]).putFloat(offset, value);
+        ByteArrayOutputStream payload = new ByteArrayOutputStream();
+        try (DataOutputStream out = new DataOutputStream(payload)) {
+            out.writeInt(magic); out.writeInt(format); out.writeInt(world); out.writeInt(count);
+            for (byte[] section : sections) { out.writeInt(section.length); out.write(section); }
+        }
+        payload.write(MessageDigest.getInstance("SHA-256").digest(payload.toByteArray()));
+        return packed.substring(0, 3) + Base64.getEncoder().encodeToString(payload.toByteArray());
+    }
+
+    @SuppressWarnings("unchecked")
+    private static void missingFluidRefused(String packed) throws Exception {
+        Field registryField = Fluid.class.getDeclaredField("fluidEnumMap");
+        registryField.setAccessible(true);
+        var registry = (java.util.Map<zombie.entity.components.fluids.FluidType, Fluid>)
+                registryField.get(null);
+        var type = Fluid.Beer.getFluidType();
+        Fluid prior = registry.remove(type);
+        try {
+            boolean refused = false;
+            try { SAONativeSnapshot.restoreStaged(person(), packed); }
+            catch (Exception expected) { refused = true; }
+            check(refused, "missing fluid definition accepted");
+        } finally {
+            registry.put(type, prior);
+        }
     }
 
     @SuppressWarnings("unchecked")
@@ -148,6 +247,31 @@ public final class PersonSnapshotProbe {
                 new zombie.core.skinnedmodel.population.HairStyles();
         zombie.core.skinnedmodel.population.BeardStyles.instance =
                 new zombie.core.skinnedmodel.population.BeardStyles();
+        var fixtureHair = new zombie.core.skinnedmodel.population.HairStyle();
+        fixtureHair.name = "C54Hair"; fixtureHair.model = "C54HairModel";
+        fixtureHair.texture = "C54HairTexture";
+        zombie.core.skinnedmodel.population.HairStyles.instance.maleStyles.add(fixtureHair);
+        zombie.core.skinnedmodel.population.HairStyles.instance.femaleStyles.add(fixtureHair);
+        var fixtureBeard = new zombie.core.skinnedmodel.population.BeardStyle();
+        fixtureBeard.name = "C54Beard"; fixtureBeard.model = "C54BeardModel";
+        fixtureBeard.texture = "C54BeardTexture";
+        zombie.core.skinnedmodel.population.BeardStyles.instance.styles.add(fixtureBeard);
+        zombie.core.skinnedmodel.population.OutfitManager.instance =
+                new zombie.core.skinnedmodel.population.OutfitManager();
+        var fixtureOutfit = new zombie.core.skinnedmodel.population.Outfit();
+        fixtureOutfit.name = "C54Outfit";
+        zombie.core.skinnedmodel.population.OutfitManager.instance.maleOutfits.add(fixtureOutfit);
+        zombie.core.skinnedmodel.population.OutfitManager.instance.femaleOutfits.add(fixtureOutfit);
+        java.util.Map<String, zombie.core.skinnedmodel.population.Outfit> maleOutfitMap = value(
+                zombie.core.skinnedmodel.population.OutfitManager.instance,
+                zombie.core.skinnedmodel.population.OutfitManager.class, "maleOutfitMap");
+        java.util.Map<String, zombie.core.skinnedmodel.population.Outfit> femaleOutfitMap = value(
+                zombie.core.skinnedmodel.population.OutfitManager.instance,
+                zombie.core.skinnedmodel.population.OutfitManager.class, "femaleOutfitMap");
+        maleOutfitMap.put(fixtureOutfit.name, fixtureOutfit);
+        femaleOutfitMap.put(fixtureOutfit.name, fixtureOutfit);
+        zombie.GameTime.setInstance(new zombie.GameTime());
+        zombie.GameTime.getInstance().updateCalendar(1993, 0, 1, 12, 0);
         zombie.characters.WornItems.BodyLocations.getGroup("Human")
                 .getOrCreateLocation(ItemBodyLocation.BACK);
         zombie.characters.AttachedItems.AttachedLocations.getGroup("Human")
@@ -156,6 +280,7 @@ public final class PersonSnapshotProbe {
         var earnedPerk = new PerkFactory.Perk("C51Earned");
         var levelPerk = new PerkFactory.Perk("C51Level");
         var multiplierPerk = new PerkFactory.Perk("C51Multiplier");
+        var boostPerk = new PerkFactory.Perk("C54BoostOnly");
         CharacterTrait customTrait = CharacterTrait.register("C51:FixtureTrait");
         Field data = WorldDictionary.class.getDeclaredField("data");
         data.setAccessible(true);
@@ -208,6 +333,58 @@ public final class PersonSnapshotProbe {
         source.getXp().xpMap.put(earnedPerk, 12.75f);
         source.setPerkLevelDebug(levelPerk, 3);
         source.getXp().addXpMultiplier(multiplierPerk, 1.75f, 2, 6);
+        attachFluid(rootFood, Fluid.Water, Fluid.Beer);
+        attachFluid(food, Fluid.TaintedWater);
+
+        source.getNutrition().setCalories(1450.25f);
+        source.getNutrition().setProteins(83.5f);
+        source.getNutrition().setLipids(44.25f);
+        source.getNutrition().setCarbohydrates(206.75f);
+        source.getNutrition().setWeight(79.5);
+        source.getNutrition().setIncWeight(true);
+        source.getNutrition().setIncWeightLot(false);
+        source.getNutrition().setDecWeight(true);
+        set(source.getNutrition(), zombie.characters.BodyDamage.Nutrition.class, "updatedWeight", 17);
+        set(source.getNutrition(), zombie.characters.BodyDamage.Nutrition.class, "caloriesMax", 1925.5f);
+        set(source.getNutrition(), zombie.characters.BodyDamage.Nutrition.class, "caloriesMin", -415.25f);
+
+        var fitness = source.getFitness();
+        fitness.getRegularityMap().put("pushups", .73f);
+        java.util.Map<String, Integer> stiffnessTimers = value(fitness,
+                zombie.characters.BodyDamage.Fitness.class, "stiffnessTimerMap");
+        java.util.Map<String, Float> stiffnessInc = value(fitness,
+                zombie.characters.BodyDamage.Fitness.class, "stiffnessIncMap");
+        java.util.List<String> affectedParts = value(fitness,
+                zombie.characters.BodyDamage.Fitness.class, "bodypartToIncStiffness");
+        java.util.Map<String, Long> exerciseTimes = value(fitness,
+                zombie.characters.BodyDamage.Fitness.class, "exeTimer");
+        stiffnessTimers.put("arms", 2);
+        stiffnessInc.put("arms", .6f);
+        affectedParts.add("arms");
+        exerciseTimes.put("pushups", 123456789L);
+        set(fitness, zombie.characters.BodyDamage.Fitness.class, "lastUpdate", 99);
+
+        source.getKnownRecipes().add("C54.MissingRecipeStillKnown");
+        source.addKnownMediaLine("C54.Media.Line");
+        source.setAlreadyReadPages("C54.Book", 37);
+        source.getAlreadyReadBook().add("C54.CompletedBook");
+        source.getReadLiterature().put("C54.Literature", 3);
+        source.getReadPrintMedia().add("C54.Print");
+        source.getDescriptor().getXPBoostMap().put(boostPerk, 2);
+        set(source, zombie.characters.IsoGameCharacter.class, "beardGrowTiming", 22.5f);
+        set(source, zombie.characters.IsoGameCharacter.class, "hairGrowTiming", 41.75f);
+        source.getHumanVisual().setSkinTextureName("c54-skin");
+        source.getHumanVisual().setHairModel("C54Hair");
+        source.getHumanVisual().setBeardModel("C54Beard");
+        source.getHumanVisual().setHairColor(new zombie.core.ImmutableColor(.11f, .22f, .33f));
+        source.getHumanVisual().setOutfit(fixtureOutfit);
+
+        var treatment = zombie.Lua.LuaManager.platform.newTable();
+        treatment.rawset("dose", 2.5d);
+        treatment.rawset("active", true);
+        source.getModData().rawset("NnCMethadoneEffect", treatment);
+        source.getModData().rawset("DurableLabel", "C54 durable");
+        source.getModData().rawset("SAOPersonId", "source-runtime-id");
 
         for (String safe : new String[]{"a".repeat(32767), "\u00e9".repeat(16383) + "a"}) {
             key.getModData().rawset("boundary", safe);
@@ -258,8 +435,46 @@ public final class PersonSnapshotProbe {
         check(unsafeRestored.getKeyId() != 67890, "native oversized-string motivating defect changed");
         System.out.println("ENGINE oversized native item string: load succeeds, keyId 67890 -> " + unsafeRestored.getKeyId());
 
+        source.getModData().rawset("UnsupportedDurable", new Object());
+        boolean unsupportedCharacterData = false;
+        try { SAONativeSnapshot.capture(source); }
+        catch (java.io.IOException expected) {
+            unsupportedCharacterData = expected.getMessage().contains("Unsupported durable");
+        }
+        check(unsupportedCharacterData, "unsupported durable character ModData accepted");
+        source.getModData().rawset("UnsupportedDurable", null);
+        var cyclicCharacterData = zombie.Lua.LuaManager.platform.newTable();
+        cyclicCharacterData.rawset("self", cyclicCharacterData);
+        source.getModData().rawset("CyclicDurable", cyclicCharacterData);
+        boolean cyclicCharacterRejected = false;
+        try { SAONativeSnapshot.capture(source); }
+        catch (java.io.IOException expected) { cyclicCharacterRejected = true; }
+        check(cyclicCharacterRejected, "cyclic durable character ModData accepted");
+        source.getModData().rawset("CyclicDurable", null);
+        source.getModData().rawset("OversizedDurable", "x".repeat(32768));
+        boolean oversizedCharacterRejected = false;
+        try { SAONativeSnapshot.capture(source); }
+        catch (java.io.IOException expected) { oversizedCharacterRejected = true; }
+        check(oversizedCharacterRejected, "oversized durable character ModData accepted");
+        source.getModData().rawset("OversizedDurable", null);
+        // Runtime ownership keys are reconstructed by their owners and may
+        // carry values outside the durable table codec.
+        source.getModData().rawset("SAOPersonId", new Object());
+
         String packed = SAONativeSnapshot.capture(source);
-        check(SAONativeSnapshot.validate(packed), "captured snapshot refused");
+        check(SAONativeSnapshot.validate(packed) && SAONativeSnapshot.formatVersion(packed) == 4,
+                "captured v4 snapshot refused");
+        String lowWeight = mutateSectionFloat(packed, 5, 16, 34f);
+        check(!SAONativeSnapshot.validate(lowWeight), "unsafe nutrition weight accepted");
+        IsoPlayer endangered = person();
+        float healthBeforeUnsafeRestore = endangered.getBodyDamage().getHealth();
+        boolean unsafeRestoreRefused = false;
+        try { SAONativeSnapshot.restoreStaged(endangered, lowWeight); }
+        catch (Exception expected) { unsafeRestoreRefused = true; }
+        check(unsafeRestoreRefused
+                && endangered.getBodyDamage().getHealth() == healthBeforeUnsafeRestore,
+                "unsafe nutrition preflight mutated destination");
+        missingFluidRefused(packed);
         check(source.getInventory().getItems().size() == 4, "capture mutated source inventory");
         check(source.getPrimaryHandItem() == second, "capture changed held object");
         // Empty native cell, with no chunks/world/save loaded. The constructor
@@ -267,6 +482,11 @@ public final class PersonSnapshotProbe {
         zombie.iso.IsoCell cell = new zombie.iso.IsoCell(1, 1);
         zombie.iso.WorldReuserThread.instance.stop();
         IsoPlayer restored = person();
+        restored.getModData().rawset("SAOPersonId", "destination-runtime-id");
+        restored.getFitness().getRegularityMap().put("stale-destination", .9f);
+        ((java.util.List<String>) value(restored.getFitness(),
+                zombie.characters.BodyDamage.Fitness.class, "bodypartToIncStiffness"))
+                .add("stale-destination");
         check(SAONativeSnapshot.restore(restored, packed) == 6, "item count");
         InventoryContainer restoredBag = (InventoryContainer) restored.getWornItem(ItemBodyLocation.BACK);
         check(restoredBag != null && restoredBag.id == bag.id, "worn bag identity");
@@ -307,6 +527,132 @@ public final class PersonSnapshotProbe {
                 && restored.getXp().getMultiplierMap().get(multiplierPerk).minLevel == 2
                 && restored.getXp().getMultiplierMap().get(multiplierPerk).maxLevel == 6
                 && restored.getCharacterTraits().get(customTrait), "custom XP channels and trait");
+        check(Math.abs(restoredRootFood.getFluidContainer().getAmount() - 1.1f) < .0001f
+                && Math.abs(restoredRootFood.getFluidContainer().getSpecificFluidAmount(Fluid.Water) - .4f) < .0001f
+                && Math.abs(restoredRootFood.getFluidContainer().getSpecificFluidAmount(Fluid.Beer) - .7f) < .0001f
+                && Math.abs(restoredFood.getFluidContainer().getSpecificFluidAmount(Fluid.TaintedWater) - .4f) < .0001f,
+                "root and nested fluid mixture");
+        check(restored.getNutrition().getCalories() == 1450.25f
+                && restored.getNutrition().getProteins() == 83.5f
+                && restored.getNutrition().getLipids() == 44.25f
+                && restored.getNutrition().getCarbohydrates() == 206.75f
+                && restored.getNutrition().getWeight() == 79.5
+                && (Integer) value(restored.getNutrition(), zombie.characters.BodyDamage.Nutrition.class,
+                    "updatedWeight") == 17
+                && (Float) value(restored.getNutrition(), zombie.characters.BodyDamage.Nutrition.class,
+                    "caloriesMax") == 1925.5f
+                && (Float) value(restored.getNutrition(), zombie.characters.BodyDamage.Nutrition.class,
+                    "caloriesMin") == -415.25f
+                && restored.getNutrition().isIncWeight() && restored.getNutrition().isDecWeight(),
+                "nutrition continuation state");
+        var restoredFitness = restored.getFitness();
+        check(restoredFitness.getRegularity("pushups") == .73f
+                && ((java.util.Map<String, Integer>) value(restoredFitness,
+                    zombie.characters.BodyDamage.Fitness.class, "stiffnessTimerMap")).get("arms") == 2
+                && ((java.util.Map<String, Float>) value(restoredFitness,
+                    zombie.characters.BodyDamage.Fitness.class, "stiffnessIncMap")).get("arms") == .6f
+                && ((java.util.List<String>) value(restoredFitness,
+                    zombie.characters.BodyDamage.Fitness.class, "bodypartToIncStiffness")).contains("arms")
+                && ((java.util.Map<String, Long>) value(restoredFitness,
+                    zombie.characters.BodyDamage.Fitness.class, "exeTimer")).get("pushups") == 123456789L
+                && !restoredFitness.getRegularityMap().containsKey("stale-destination")
+                && !((java.util.List<String>) value(restoredFitness,
+                    zombie.characters.BodyDamage.Fitness.class, "bodypartToIncStiffness"))
+                    .contains("stale-destination")
+                && (Integer) value(restoredFitness, zombie.characters.BodyDamage.Fitness.class,
+                    "lastUpdate") == -1,
+                "fitness continuation state and fresh update baseline");
+        check(restored.getKnownRecipes().contains("C54.MissingRecipeStillKnown")
+                && restored.isKnownMediaLine("C54.Media.Line")
+                && restored.getAlreadyReadPages("C54.Book") == 37
+                && restored.getAlreadyReadBook().contains("C54.CompletedBook")
+                && restored.getReadLiterature().get("C54.Literature") == 3
+                && restored.getReadPrintMedia().contains("C54.Print")
+                && restored.getDescriptor().getXPBoostMap().get(boostPerk) == 2,
+                "recipe reading media and descriptor boost state");
+        check("c54-skin".equals(value(restored.getHumanVisual(),
+                    zombie.core.skinnedmodel.visual.HumanVisual.class, "skinTextureName")),
+                "human skin texture");
+        check("C54Hair".equals(restored.getHumanVisual().getHairModel()), "human hair model");
+        check("C54Beard".equals(restored.getHumanVisual().getBeardModel()), "human beard model");
+        check(restored.getHumanVisual().getOutfit() == fixtureOutfit, "human outfit reference");
+        check((Float) value(restored, zombie.characters.IsoGameCharacter.class,
+                    "beardGrowTiming") == 22.5f
+                && (Float) value(restored, zombie.characters.IsoGameCharacter.class,
+                    "hairGrowTiming") == 41.75f,
+                "human hair growth timing");
+        var restoredTreatment = (se.krka.kahlua.vm.KahluaTable)
+                restored.getModData().rawget("NnCMethadoneEffect");
+        check(restoredTreatment != null, "durable character ModData and runtime ownership");
+        check(restoredTreatment != treatment
+                && restoredTreatment.rawget("dose").equals(2.5d)
+                && restoredTreatment.rawget("active").equals(true)
+                && "C54 durable".equals(restored.getModData().rawget("DurableLabel"))
+                && "destination-runtime-id".equals(restored.getModData().rawget("SAOPersonId")),
+                "durable character ModData and runtime ownership");
+
+        String repeatedPacked = SAONativeSnapshot.capture(restored);
+        IsoPlayer repeated = person();
+        repeated.getModData().rawset("SAOPersonId", "second-runtime-id");
+        check(SAONativeSnapshot.restoreStaged(repeated, repeatedPacked) == 6,
+                "repeated wake item count");
+        var repeatedTreatment = (se.krka.kahlua.vm.KahluaTable)
+                repeated.getModData().rawget("NnCMethadoneEffect");
+        restoredTreatment.rawset("dose", 9.0d);
+        check(repeatedTreatment.rawget("dose").equals(2.5d)
+                && "second-runtime-id".equals(repeated.getModData().rawget("SAOPersonId"))
+                && repeated.getAlreadyReadPages("C54.Book") == 37
+                && repeated.getFitness().getRegularity("pushups") == .73f,
+                "repeated wake and ModData alias isolation");
+
+        zombie.GameTime.getInstance().updateCalendar(1993, 0, 1, 12, 0);
+        restored.getFitness().update();
+        repeated.getFitness().update();
+        check((Integer) value(restored.getFitness(), zombie.characters.BodyDamage.Fitness.class,
+                    "lastUpdate") == 0
+                && (Integer) value(repeated.getFitness(), zombie.characters.BodyDamage.Fitness.class,
+                    "lastUpdate") == 0,
+                "fitness first update establishes current baseline");
+        zombie.GameTime.getInstance().updateCalendar(1993, 0, 1, 12, 10);
+        restored.getFitness().update();
+        repeated.getFitness().update();
+        check(((java.util.Map<String, Integer>) value(restored.getFitness(),
+                    zombie.characters.BodyDamage.Fitness.class, "stiffnessTimerMap")).equals(
+                (java.util.Map<String, Integer>) value(repeated.getFitness(),
+                    zombie.characters.BodyDamage.Fitness.class, "stiffnessTimerMap"))
+                && restored.getFitness().getRegularityMap().equals(repeated.getFitness().getRegularityMap()),
+                "fitness next update differs after repeated wake");
+        restored.getNutrition().update();
+        repeated.getNutrition().update();
+        check(restored.getNutrition().getCalories() == repeated.getNutrition().getCalories()
+                && restored.getNutrition().getWeight() == repeated.getNutrition().getWeight()
+                && restored.getNutrition().isIncWeight() == repeated.getNutrition().isIncWeight(),
+                "nutrition next update differs after repeated wake");
+        float beforeRestored = restored.getXp().getXP(boostPerk);
+        float beforeRepeated = repeated.getXp().getXP(boostPerk);
+        restored.getXp().AddXP(boostPerk, 10f, false, false);
+        repeated.getXp().AddXP(boostPerk, 10f, false, false);
+        check(restored.getXp().getXP(boostPerk) - beforeRestored
+                == repeated.getXp().getXP(boostPerk) - beforeRepeated,
+                "next boosted XP grant differs after wake");
+
+        zombie.core.skinnedmodel.population.OutfitManager.instance.maleOutfits.remove(fixtureOutfit);
+        zombie.core.skinnedmodel.population.OutfitManager.instance.femaleOutfits.remove(fixtureOutfit);
+        maleOutfitMap.remove(fixtureOutfit.name);
+        femaleOutfitMap.remove(fixtureOutfit.name);
+        boolean missingOutfit = false;
+        try { SAONativeSnapshot.restoreStaged(person(), packed); }
+        catch (java.io.IOException expected) { missingOutfit = expected.getMessage().contains("Outfit unavailable"); }
+        check(missingOutfit, "missing outfit reference accepted");
+        zombie.core.skinnedmodel.population.OutfitManager.instance.maleOutfits.add(fixtureOutfit);
+        zombie.core.skinnedmodel.population.OutfitManager.instance.femaleOutfits.add(fixtureOutfit);
+        maleOutfitMap.put(fixtureOutfit.name, fixtureOutfit);
+        femaleOutfitMap.put(fixtureOutfit.name, fixtureOutfit);
+
+        String v3 = downgradeV3(SAONativeSnapshot.capture(person()));
+        check(SAONativeSnapshot.validate(v3) && SAONativeSnapshot.formatVersion(v3) == 3,
+                "native v3 reader compatibility");
+        check(SAONativeSnapshot.restoreStaged(person(), v3) == 0, "native v3 restore compatibility");
         SAONativeSnapshot.unregister(restored);
         SAONativeSnapshot.unregister(restored);
         check(cell.getProcessItemsRemove().size() == 6
@@ -316,14 +662,15 @@ public final class PersonSnapshotProbe {
         missingPerkRefused(packed, earnedPerk);
         missingPerkRefused(packed, levelPerk);
         missingPerkRefused(packed, multiplierPerk);
+        missingPerkRefused(packed, boostPerk);
         missingTraitRefused(packed, customTrait);
         check(!SAONativeSnapshot.validate(packed.substring(0, packed.length() - 4)), "truncation accepted");
         byte[] damaged = Base64.getDecoder().decode(packed.substring(3));
         damaged[30] ^= 1;
-        check(!SAONativeSnapshot.validate("v3;" + Base64.getEncoder().encodeToString(damaged)),
+        check(!SAONativeSnapshot.validate("v4;" + Base64.getEncoder().encodeToString(damaged)),
                 "checksum corruption accepted");
         check(!SAONativeSnapshot.validate(alteredVersion(packed)), "unsupported native version accepted");
-        check(!SAONativeSnapshot.validate("v3;%%invalid"), "bad Base64 accepted");
+        check(!SAONativeSnapshot.validate("v4;%%invalid"), "bad Base64 accepted");
         // Return materials come from the actual turned body. Its absent living
         // components must never replace the supported living-state snapshot.
         SurvivorDesc turnedDesc = new SurvivorDesc();
@@ -366,6 +713,8 @@ public final class PersonSnapshotProbe {
         check(returnee.getXp().getXP(PerkFactory.Perks.Aiming) == 88.5f
                 && returnee.getBodyDamage().getBodyPart(BodyPartType.Hand_R).getHealth() == 63f,
                 "return lost supported living components");
+        check(SAONativeSnapshot.captureReturnVisual(returnee).equals(returnVisual),
+                "return appearance in v4 snapshot did not roundtrip");
         SAONativeSnapshot.restoreReturnVisual(returnee, returnVisual);
         check(SAONativeSnapshot.captureReturnVisual(returnee).equals(returnVisual),
                 "return appearance did not roundtrip");
@@ -380,8 +729,8 @@ public final class PersonSnapshotProbe {
         try { SAONativeSnapshot.restore(person(), packed); }
         catch (Exception expected) { refused = true; }
         check(refused, "missing nested unequipped script accepted");
-        System.out.println("PASS native snapshot: 6 items; nested key/food/modData; exact hands/worn/attached; "
-                + "native item processing/removal; stats/wounds/XP/traits; "
-                + "corruption/version/missing-nested-script/custom-perk/custom-trait controls");
+        System.out.println("PASS native snapshot: v3/v4; root/nested items and fluids; equipment; "
+                + "stats/wounds/XP/traits; nutrition/fitness/learning/visual/ModData; repeated wake; "
+                + "next native updates; corruption/version/missing-definition controls");
     }
 }

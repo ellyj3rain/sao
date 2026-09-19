@@ -16,9 +16,9 @@ the machine. Names, dates, and threads below come from
 | Form | `major.minor.kohai.patch-maturity` |
 | Hard caps | minor 12; kohai 16; patch 24 |
 | Replay start | `0.1.0.0-pre-alpha` |
-| Current version | `2.7.14.4-pre-alpha` |
-| Closed chronology | `A1-C53` |
-| Next batch | `C54` |
+| Current version | `2.7.14.5-pre-alpha` |
+| Closed chronology | `A1-C54` |
+| Next batch | `C55` |
 | Executable source | [`tools/version_replay.py`](tools/version_replay.py) |
 
 ## Tier meanings
@@ -169,6 +169,7 @@ the machine. Names, dates, and threads below come from
 | `C51` | 2026-09-19 | patch | `2.7.14.2-pre-alpha` | Person preservation | Repaired person capture, teardown and restoration ownership; native supported-state snapshots preserve inventory, wounds, statistics and experience with controlled failure and legacy compatibility. |
 | `C52` | 2026-09-19 | patch | `2.7.14.3-pre-alpha` | Authorized afflicted return | Repaired Afflicted return as one authorized, durable transfer: ZAO retains the exact turned source until SAO restores supported living state, reaches critical viability with injuries preserved, and adopts the one returning person. This closes the existing return capability without crediting the still-unreachable and incomplete Crossed action system. |
 | `C53` | 2026-09-19 | patch | `2.7.14.4-pre-alpha` | Shared county time | Closed shared county time as one explicit contract: decision reads observe the current historical substep, day producers convert at the tick boundary, and native pacing remains separate. The timestamp inventory records legacy exceptions without claiming later physiology or action work complete. |
+| `C54` | 2026-09-19 | patch | `2.7.14.5-pre-alpha` | Native person continuity | Completed native person continuity within the existing handoff: the v4 envelope preserves nutrition, fitness, learning, appearance, declared durable metadata and exact fluid components, while older readers retain their original limits and migration provenance. |
 
 ## The former number
 
@@ -189,11 +190,11 @@ establish release maturity.
 
 ## Next movement
 
-`C54` is the next batch. Its content determines its tier after it
+`C55` is the next batch. Its content determines its tier after it
 exists:
 
-| If C54 is | Result |
+| If C55 is | Result |
 |---|---|
-| patch or hotfix | `2.7.14.5-pre-alpha` |
+| patch or hotfix | `2.7.14.6-pre-alpha` |
 | kohai | `2.7.15.0-pre-alpha` |
 | minor | `2.8.0.0-pre-alpha` |

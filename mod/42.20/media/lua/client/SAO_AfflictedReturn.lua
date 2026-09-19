@@ -11,6 +11,17 @@ local function finite(value)
         and value ~= math.huge and value ~= -math.huge
 end
 
+local function hibernationVersion(packed)
+    if SAOJavaBridge and SAOJavaBridge.hibernationVersion then
+        local ok, version = pcall(function()
+            return SAOJavaBridge:hibernationVersion(packed)
+        end)
+        if ok and type(version) == "number" then return version end
+        return 0
+    end
+    return 3
+end
+
 local function dependencies()
     return ZAO and ZAO.StateStore and ZAO.StateStore.returnAuthorization
         and ZAO.Controller and ZAO.Controller.returnSource and SAOJavaBridge
@@ -78,7 +89,9 @@ end
 
 local function commit(rec, p, body, destination)
     rec.hibernation, rec.releasedAtHours = p.packed, SAO.History.countyHours()
-    rec.bodyVisual, rec.bodyCheckpointFailure = p.visual, nil
+    if hibernationVersion(p.packed) >= 4 then rec.bodyVisual = nil
+    else rec.bodyVisual = p.visual end
+    rec.bodyCheckpointFailure = nil
     rec.woundInfected, rec.hasRadio = p.facts.woundInfected or nil, p.facts.hasRadio == true
     rec.x, rec.y, rec.z = p.x, p.y, p.z
     rec.dead, rec.turnedDormant = false, false
@@ -146,6 +159,7 @@ local function step(rec)
             return false, "living-restore-failed"
         end
         if p.source == "dormant" and rec.bodyVisual
+            and hibernationVersion(p.living) < 4
             and not SAOJavaBridge:restoreReturnVisual(body, rec.bodyVisual) then
             p.cleanup = true
             return false, "living-visual-restore-failed"
@@ -160,6 +174,7 @@ local function step(rec)
             or SAOJavaBridge:hibernate(body)
         local visual = SAOJavaBridge:captureReturnVisual(source or body)
         if not SAOJavaBridge:validateHibernation(packed)
+            or hibernationVersion(packed) == 0
             or not SAOJavaBridge:validateReturnVisual(visual) then
             p.cleanup = true
             return false, "return-capture-failed"

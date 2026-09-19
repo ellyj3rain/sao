@@ -50,7 +50,7 @@ def source_faults(src, native):
     pack, validate, wake = (bodies[name] for name in ("hibernate", "validate", "awaken"))
     if "return SAONativeSnapshot.capture(shell);" not in pack or "getFullType(" in pack:
         faults.append("new snapshots do not delegate exclusively to native capture")
-    if 'packed.startsWith("v3;")' not in validate or "return SAONativeSnapshot.validate(packed);" not in validate:
+    if "SAONativeSnapshot.isNative(packed)" not in validate or "return SAONativeSnapshot.validate(packed);" not in validate:
         faults.append("native envelope validation is not delegated")
     if "parseLegacy(packed);" not in validate or "return false;" not in validate:
         faults.append("legacy validation does not fail closed")
@@ -74,7 +74,8 @@ def source_faults(src, native):
     missing = re.search(r"if \(added == null\)\s*\{([^}]*)\}", wake)
     if not missing or "throw new IllegalStateException" not in missing.group(1):
         faults.append("legacy missing-item restoration can report success")
-    if "v3;" not in native or any(" " + name + "(" not in native for name in ("capture", "validate", "restore")):
+    if 'PREFIX_V3 = "v3;"' not in native or 'PREFIX_V4 = "v4;"' not in native or any(
+            " " + name + "(" not in native for name in ("capture", "validate", "restore")):
         faults.append("the native owner lacks the versioned envelope interface")
     return faults
 
@@ -144,6 +145,17 @@ def run_probe(src, javac, java, directory):
     return result.returncode, result.stdout.strip() + result.stderr.strip()
 
 
+def usable(command):
+    if not command:
+        return False
+    try:
+        result = subprocess.run([str(command), "-version"], capture_output=True,
+                                text=True, timeout=10)
+        return result.returncode == 0
+    except (OSError, subprocess.TimeoutExpired):
+        return False
+
+
 def main():
     if not SRC.exists() or not NATIVE.exists():
         print("FAULT: snapshot adapter or native owner is missing")
@@ -164,7 +176,7 @@ def main():
     jdk = pathlib.Path(r"C:\Users\jleyv\Peanut Butter\JetBrains\Java\bin")
     javac = jdk / "javac.exe" if (jdk / "javac.exe").exists() else shutil.which("javac")
     java = jdk / "java.exe" if (jdk / "java.exe").exists() else shutil.which("java")
-    if not javac or not java:
+    if not usable(javac) or not usable(java):
         print("SKIPPED: legacy parser execution needs a JDK; source contract checked")
     else:
         try:

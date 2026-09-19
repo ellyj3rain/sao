@@ -1,6 +1,6 @@
 | Document | Survivor Awareness Overhaul Batch Log |
 |---|---|
-| Version | `2.7.14.4-pre-alpha` |
+| Version | `2.7.14.5-pre-alpha` |
 | Author | ellyj3rain |
 | Repository | `BATCH_LOG.md` |
 | Status | REGULATORY - chronological batch index. |
@@ -160,3 +160,4 @@ source mapping and hashes. Consolidation does not close implementation defects.
 | [C51](Batches/C51-2026-09-19-person-preservation.md) | 2026-09-19 | Person preservation | [`T-006`](Batches/THREADS.md#t-006), [`T-007`](Batches/THREADS.md#t-007), [`T-008`](Batches/THREADS.md#t-008) |
 | [C52](Batches/C52-2026-09-19-authorized-afflicted-return.md) | 2026-09-19 | Authorized afflicted return | [`T-001`](Batches/THREADS.md#t-001), [`T-002`](Batches/THREADS.md#t-002), [`T-006`](Batches/THREADS.md#t-006), [`T-007`](Batches/THREADS.md#t-007), [`T-008`](Batches/THREADS.md#t-008) |
 | [C53](Batches/C53-2026-09-19-shared-county-time.md) | 2026-09-19 | Shared county time | [`T-002`](Batches/THREADS.md#t-002), [`T-006`](Batches/THREADS.md#t-006), [`T-007`](Batches/THREADS.md#t-007), [`T-008`](Batches/THREADS.md#t-008) |
+| [C54](Batches/C54-2026-09-19-native-person-continuity.md) | 2026-09-19 | Native person continuity | [`T-006`](Batches/THREADS.md#t-006), [`T-007`](Batches/THREADS.md#t-007), [`T-008`](Batches/THREADS.md#t-008) |

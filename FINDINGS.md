@@ -1,6 +1,6 @@
 | Document | Survivor Awareness Overhaul Findings |
 |---|---|
-| Version | `2.7.14.4-pre-alpha` |
+| Version | `2.7.14.5-pre-alpha` |
 | Author | ellyj3rain |
 | Repository | `FINDINGS.md` |
 | Status | CANONICAL, APPEND-ONLY - verified engine findings. |
@@ -1896,3 +1896,29 @@ legacy engine-calendar millisecond string, and `Identity.updatedAt` is a
 revision counter. SUBSTRATE now records those exceptions. Existing ZAO
 consumers already enter through the refreshed SAO tick or explicit county
 hours/days, so R2 requires no ZAO source change.
+
+## F-086 | 2026-09-19 | Native component codecs omit continuation state and can accept silent loss
+
+The installed world-version-249 person codecs are individually narrower than
+the person they update. `Nutrition.save/load` omits its update counter, extrema
+and weight-direction flags; `Fitness.save/load` inserts into existing maps and
+omits its update baseline and current exercise; XP omits recipes, reading/media
+collections and descriptor boosts; `HumanVisual` omits outfit, forced-script
+and growth timing; Kahlua silently skips unsupported table pairs. Native item
+loading can also retain an item while dropping an unavailable fluid definition.
+
+C54 introduces the v4 native-person envelope around those verified seams. It
+preflights unsafe nutrition before the engine's low-weight setter can damage a
+staged body, loads fitness into a fresh component with a documented current-
+body minute baseline, restores learning collections directly, carries stable
+visual references and timers, separates durable metadata from runtime owner
+keys, and compares each root or nested fluid component after load. The old v3
+reader remains supported within its five sections; absent fields produce a
+migration record rather than invented history.
+
+Border 169 compiles and executes the production snapshot against the installed
+engine. It proves repeated wakes and the next nutrition, fitness and boosted-XP
+updates, then removes each continuation or refusal seam. A whole-inventory byte
+comparison was rejected during the work because immediate native reserialization
+is not byte-stable; per-item fluid-component facts provide the discriminating
+check without rejecting healthy inventory state.

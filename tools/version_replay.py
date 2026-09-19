@@ -192,6 +192,7 @@ UNITS = [
     ('C51', 'patch', 'Repaired person capture, teardown and restoration ownership; native supported-state snapshots preserve inventory, wounds, statistics and experience with controlled failure and legacy compatibility.'),
     ('C52', 'patch', 'Repaired Afflicted return as one authorized, durable transfer: ZAO retains the exact turned source until SAO restores supported living state, reaches critical viability with injuries preserved, and adopts the one returning person. This closes the existing return capability without crediting the still-unreachable and incomplete Crossed action system.'),
     ('C53', 'patch', 'Closed shared county time as one explicit contract: decision reads observe the current historical substep, day producers convert at the tick boundary, and native pacing remains separate. The timestamp inventory records legacy exceptions without claiming later physiology or action work complete.'),
+    ('C54', 'patch', 'Completed native person continuity within the existing handoff: the v4 envelope preserves nutrition, fitness, learning, appearance, declared durable metadata and exact fluid components, while older readers retain their original limits and migration provenance.'),
 ]
 
 TIER_MEANINGS = [

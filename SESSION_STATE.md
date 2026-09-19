@@ -1,15 +1,15 @@
-﻿| Document | Survivor Awareness Overhaul Session State |
+| Document | Survivor Awareness Overhaul Session State |
 |---|---|
-| Version | `2.7.14.4-pre-alpha` |
+| Version | `2.7.14.5-pre-alpha` |
 | Author | ellyj3rain |
 | Repository | `SESSION_STATE.md` |
 | Status | CANONICAL - current implementation and continuation. |
 
 # Session state
 
-**As of** 2026-09-19, `[C53]` closes shared county time after the authorized Afflicted return and consolidated C1-C50 catalog.
+**As of** 2026-09-19, `[C54]` closes complete native person continuity after shared county time, the authorized Afflicted return and the consolidated C1-C50 catalog.
 The C catalog is consolidated by adjacency and content using
-the A/B precedent: 29 A-batches, 52 B-batches and 51 C units, including the first post-consolidation repair. BATCH_LOG.md owns
+the A/B precedent: 29 A-batches, 52 B-batches and 54 C units. BATCH_LOG.md owns
 the chronology. Batches/FORMER_LABELS.md maps every former entry;
 Batches/C_RECATALOG.json preserves original paths and source hashes. The
 original records remain at local ref `archive/c-era-raw-20260919`.
@@ -32,7 +32,7 @@ producers, persistence, evidence and gaps.
 | Area | Existing substrate | Open implementation |
 |---|---|---|
 | Engine execution | NPC shell, bridge, movement, combat, timed-action adapters | Driving route ownership and progress; action cancellation and completion receipts. |
-| Person continuity | Durable identity, C51's supported body transaction and C52's authorized return/adoption/teardown with bodyless recovery | R3's remaining component persistence. |
+| Person continuity | Durable identity, C51's body transaction, C52's authorized return/adoption/teardown and C54's v4 nutrition, fitness, learning, appearance, metadata and fluid continuity | R4's runtime registries, pending work and same-process reconstruction. |
 | Time and health | Current decision ticks, explicit day/tick conversion, catch-up/reload progress, separate host pacing, infection course | Cadence-dependent brain health, drug scheduling and stale live inputs remain R5 work. |
 | Afflicted and Crossed | ZAO pathogen state, Afflicted return transaction, four-pillar mind, a Crossed driving adapter | A32's Crossed decision pass is unreachable and lacks the retained human action system. Proximity exposure lacks an intentional action and SAO-to-ZAO ownership transfer. F-084 and SUBSTRATE assign the complete repair across R4-R10. |
 | Knowledge and access | Private beliefs, scanner, remembered sources, permission | Animals enter human beliefs; integrations can read inaccessible or unperceived state. |
@@ -114,9 +114,22 @@ SUBSTRATE.md supplies the mechanisms, producer inventory and bounded technical
 investigations. Remaining work is planned, with implementation and verification
 still to do.
 
-The immediate repair is R3: extend native person continuity and validate the
-next native update on the repaired time axis. R4 follows with durable/runtime
-reconstruction, including same-process world changes and pending work. R11-R12,
+R3 closes in C54. The v4 native-person envelope preserves nutrition and its
+hidden cadence fields, fitness in a fresh component, every reading/media
+collection, descriptor boosts, native appearance with stable references and
+growth timing, strict durable character metadata and exact per-item fluid
+components. v1-v3 remain readable within their original limits; the first wake
+records migration provenance instead of claiming absent historical state.
+Fitness establishes its new-body ten-minute baseline on the first update; an
+in-progress exercise remains runtime action state for R4.
+
+Border 169 executes the production codec against installed Build 42.20 through
+repeated wakes and the next nutrition, fitness and boosted-XP updates. Its
+controls remove each continuation or refusal seam and fail for the named state.
+C54 is undeployed; the installed C51 build remains the runtime baseline.
+
+The immediate repair is R4: inventory and reconstruct durable/runtime owners,
+including same-process world changes and pending work. R11-R12,
 immutable capture, protected approved data and world-knowledge preparation, can
 progress alongside these repairs. Pathogen state continues to belong to ZAO
 when present.
@@ -124,11 +137,11 @@ when present.
 C51 repairs the F-077 body handoff. Capture failure keeps the prior record and
 ownership; incomplete teardown retains a durable snapshot for retry; all callers
 restore through Body before adoption. Native supported-state snapshots preserve
-inventory, equipment, wounds, statistics and experience. Legacy v1/v2 remain
-readable within their original limits. Character ModData, nutrition, fitness,
-recipes and human appearance are outside this snapshot. R3 also covers reading
-progress, descriptor perk boosts and fluid-content validation; it assigns the
-verified component seams and the remaining continuation probes.
+inventory, equipment, wounds, statistics and experience. Those five-section v3
+limits describe older C51 snapshots. C54's v4 writer now owns character ModData,
+nutrition, fitness, recipes, reading progress, descriptor perk boosts, human
+appearance and fluid-content validation. Legacy v1-v3 remain readable within
+the fields they carried.
 See the C51 batch record and Borders 162-163 for the tested boundary.
 Built-in graph callbacks do reconstruct after save/load; the engine omits
 closures rather than failing the save. Extension registrations need their
@@ -144,7 +157,7 @@ consequences remain separate from the learned policy choosing among them.
 
 ## Verification and installed state
 
-C53 has 168 numbered borders through 183 gated mirrors; the
+C54 has 169 numbered borders through 184 gated mirrors; the
 published C51 baseline has 163 borders through 178 mirrors. These counts describe the
 apparatus, not acceptance. The audit reproduced defects while targeted checks
 passed. The earlier audit's intermittent Border 54 failure remains unexplained.

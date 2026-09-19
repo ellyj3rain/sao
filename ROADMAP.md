@@ -1,6 +1,6 @@
-﻿| Document | Survivor Awareness Overhaul Roadmap |
+| Document | Survivor Awareness Overhaul Roadmap |
 |---|---|
-| Version | `2.7.14.4-pre-alpha` |
+| Version | `2.7.14.5-pre-alpha` |
 | Author | ellyj3rain |
 | Repository | `ROADMAP.md` |
 | Status | CANONICAL - readiness work and retained scope. |
@@ -21,9 +21,8 @@ mechanisms and bounded investigations are in [SUBSTRATE.md](SUBSTRATE.md#impleme
 R identifiers refer to work in this plan; batch identifiers follow coherent
 implementation units when those units close. They do not reserve future batches.
 
-**Immediate execution:** R1 closed in SAO C52 / ZAO A35 and R2 closes in C53.
-R3 now completes the remaining person-state contract on the repaired clock;
-R4 then establishes durable/runtime reconstruction. R11-R12 can proceed
+**Immediate execution:** R1 closed in SAO C52 / ZAO A35, R2 in C53 and R3 in
+C54. R4 now establishes durable/runtime reconstruction. R11-R12 can proceed
 alongside that work.
 
 R1's [evidence record](artifacts/audits/20260919-0735Z-0035PST-r1-return-evidence/README.md)
@@ -38,7 +37,7 @@ rather than indefinite deferrals.
 |---|---|---|
 | **R1. Authorized return — SAO + ZAO (closed C52/A35)** | C51 | Quiesce the old owner and incoming actions; stage/validate current state under a paused owner; acknowledge old-body teardown; then publish/adopt once. Enumerate durable eligible people for bodyless recovery. Refusal, partial cleanup, reload and retry preserve one owner and never duplicate possessions. Ordinary dead records remain refused. |
 | **R2. Shared time — SAO; ZAO consumers (closed C53)** | C51 | Inventory clock readers and durable timestamps; make decision-time reads current within every historical substep; convert the WorldGenesis day argument at its boundary. Separate engine pacing from county time. Test actual callback order, day-zero on/off, nondefault day length, midnight, partial catch-up and reload. |
-| **R3. Complete person persistence — SAO** | C51; R2 for next-update proof | Extend the versioned snapshot with nutrition, fitness, appearance, recipes, reading progress, perk boosts and declared character metadata. Validate fluid contents as well as item identity. Preserve v1-v3 migration provenance. Prove zero-time fidelity, the next native update, repeated wakes, missing definitions and failure recovery. |
+| **R3. Complete person persistence — SAO (closed C54)** | C51; R2 for next-update proof | The v4 snapshot owns nutrition, fitness, appearance, recipes, every reading collection, descriptor perk boosts and declared durable character metadata. Per-item native fluid facts validate mixtures as well as item identity. v1-v3 remain readable; absent fields carry migration provenance. Border 169 proves zero-time fidelity, repeated wakes, the next fitness/nutrition/XP updates, missing definitions and failure recovery. |
 | **R4. Durable/runtime ownership — SAO + ZAO** | R1-R3 | Inventory each durable table, temporary registry and reconstruction caller. Keep callback registrations outside serialized history; register extensions explicitly at startup. Verify actual serialization/reload, owner reconstruction, pending actions and same-process world changes without duplicating callbacks or retaining prior-world records. |
 | **R5. Health and dormant physiology — SAO + ZAO** | R2-R3; R4 for persistence | Repair daily scheduling and frozen abstinence; read current physical inputs and ZAO-owned pathogen state; integrate exposures over elapsed intervals. Replace the Crossed/Afflicted three-tile daily proxy with an intentional exposure result produced by an actual action; no spontaneous Afflicted roll exists. Implement the event-derived brain-health history, effects and graph. Reconcile dormant food/drink consumption with quantity, nutrition and spoilage. Equal event histories must agree across interval partitions and reload. |
 | **R10a. World sources and reconciliation — SAO** | Source inventory now; R2, R4 for runtime integration | Establish source-backed unloaded geography/resource/access state and how performed changes reconcile when chunks load. Explicitly represent missing data. This supplies the world substrate needed by dormant R6/R9 proofs before historical integration. |
@@ -67,7 +66,7 @@ datasets retain their limitations; they do not establish full-scope readiness.
 
 | Investigation | Owner and required output | Work it resolves |
 |---|---|---|
-| Native component continuation | SAO: field inventory distinguishing serialized, reconstructed and omitted state; differential next-update probes for weight flags, fitness clocks, hair growth, reading collections and fluid definitions. | R3, R5 |
+| Native component continuation | Closed in C54 for person persistence: the field inventory distinguishes serialized, reconstructed and omitted state, and Border 169 covers weight flags, the fitness baseline, hair growth, reading collections and fluid definitions. R5 consumes this boundary for dormant physiology. | R5 |
 | Return and action failure order | SAO + ZAO: callback/teardown inventory and a phase-by-phase recovery table, including current corpse possessions, failed removal and save/reload. | R1, R4, R7 |
 | Unloaded world opportunity | SAO: source-backed map/resource/access inventory, resource depletion/renewal ownership and a reconciliation protocol for later loaded chunks. Unknown geometry remains unavailable until grounded. | R6, R9, R10 |
 | Per-concern producer mechanisms | SAO/ZAO domain owner: for each R9 concern, classify existing producer/consumer as supported, defective or missing; specify trigger/pressure, private opportunity, actor decision, executor, durable result, interruption/reload and a discriminating test. Produce separate contracts for childcare, art/ceremony/burial, overlapping/local/federated authority, retained turned behaviors and animal companionship/ownership. Surface any missing substantive ruling before implementing it. | R8-R9 |

@@ -1,6 +1,6 @@
 | Document | Survivor Awareness Overhaul Engine Contract |
 |---|---|
-| Version | `2.7.14.4-pre-alpha` |
+| Version | `2.7.14.5-pre-alpha` |
 | Author | ellyj3rain |
 | Repository | `ENGINE_CONTRACT.md` |
 | Status | CANONICAL - the verified engine mechanics an IsoPlayer NPC requires. |
@@ -483,7 +483,7 @@ behaviour is a hypothesis until a receipt.
 | `BaseVehicle.update()`, `updatePhysicsNetwork()`; `CarController.isEnable` | the physics tick reads the controller and `isEnable` with no driver-identity gate, as it must for a car that coasts with nobody in it | javap -c |
 | KnoxSurvivors' sources | NO precedent: nothing in the reference mod drives a vehicle; its health controller only REJECTS vehicle targets (`KnoxHealthController.java:255`) | grep of the reference's shipped sources |
 
-## Addendum H - native person components (2026-09-19)
+## Addendum H - native person components (2026-09-19, extended C54)
 
 F-078 and C51 exercise these installed world-version-249 seams in
 tools/luacheck/PersonSnapshotProbe.java and the final shipping jar.
@@ -496,7 +496,13 @@ tools/luacheck/PersonSnapshotProbe.java and the final shipping jar.
 | IsoCell.addToProcessItems / addToProcessItemsRemove | Restored items need processing registration; recursively register/remove carried items, including nested food. Native container loading does not perform that registration. |
 | ItemContainer.getOutermostContainer | Resolves incoming nested transfers to their owning inventory; the shipping bridge probe distinguishes owned and unrelated containers/items. |
 | IsoPlayer.load | Includes player-specific initialization and option writes; C51 uses component serializers instead. |
+| Nutrition.save/load plus private cadence fields | Native save carries four nutrients and float-rounded weight. C54 separately preserves `updatedWeight`, extrema and direction flags; weight below 35 refuses before native load can damage the staged body. |
+| Fitness.save/load | Carries regularity, stiffness, affected parts and exercise timestamps but inserts without clearing. C54 loads a new component, then initializes its exercise definitions. `lastUpdate` begins at the current-body baseline; an in-progress exercise remains runtime action state. |
+| HumanVisual.save/load | Carries skin, hair/beard color and models, body marks and body visuals. C54 also preserves stable outfit/forced-script references and the separate hair/beard growth timers, restoring after worn references and before model reset. |
+| KahluaTableImpl.save/load | Supports string/double keys and string/double/boolean/table values, and silently omits unsupported pairs. C54 preflights declared durable character ModData and excludes SAO/ZAO runtime ownership keys. |
+| FluidContainer.save/load | Reached by native item/entity serialization. Missing definitions can change a mixture without rejecting the item; C54 records and compares native fluid-component facts per root or nested item. |
 
-These seams do not cover nutrition, fitness, recipes, standalone character
-ModData or human appearance. Current supported state and the remaining work
+Recipes, reading/media collections and descriptor perk boosts have no shared
+native person codec. C54's bounded learning section restores those collections
+directly after profession defaults. The complete ownership and migration rules
 are specified in SUBSTRATE.md.

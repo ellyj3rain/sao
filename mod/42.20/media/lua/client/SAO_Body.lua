@@ -27,6 +27,19 @@ Body.returning = Body.returning or {}
 -- through the shared logger.
 local function log(msg) SAO.Log.line("BODY", msg) end
 
+local function hibernationVersion(packed)
+    if SAOJavaBridge and SAOJavaBridge.hibernationVersion then
+        local ok, version = pcall(function()
+            return SAOJavaBridge:hibernationVersion(packed)
+        end)
+        if ok and type(version) == "number" then return version end
+        return 0
+    end
+    -- Older bridge doubles used by the ownership harness represent the
+    -- prior sidecar format. The installed bridge always reports a version.
+    return 3
+end
+
 local function localSlotUser()
     local ok, lp = pcall(function() return getSpecificPlayer(0) end)
     return ok and lp or nil
@@ -101,17 +114,22 @@ function Body.materialize(rec)
     end
     if rec.bodyCheckpointFailure then return nil, "checkpoint-state-unavailable" end
 
-    local elapsed = 0
+    local elapsed, snapshotVersion, wakeAt = 0, 0, nil
     if rec.hibernation then
         local ok, valid = pcall(function()
             return SAOJavaBridge:validateHibernation(rec.hibernation)
         end)
-        if not ok or valid ~= true then return nil, "invalid-snapshot" end
+        local version = hibernationVersion(rec.hibernation)
+        if not ok or valid ~= true or type(version) ~= "number" or version < 1 then
+            return nil, "invalid-snapshot"
+        end
+        snapshotVersion = version
         local okTime, now = pcall(SAO.History.countyHours)
         if not okTime or type(now) ~= "number" or now ~= now
             or now == math.huge or now == -math.huge then
             return nil, "clock-unavailable"
         end
+        wakeAt = now
         elapsed = math.max(0, now - (rec.releasedAtHours or now))
     end
     local wx, wy, movedBy = wakeSquareFor(rec)
@@ -190,13 +208,14 @@ function Body.materialize(rec)
             return nil, "restore-failed"
         end
         log(rec.id .. " awakens: " .. journal)
+        if snapshotVersion < 4 and rec.hibernationMigration == nil then
+            rec.hibernationMigration = { from = snapshotVersion, atHours = wakeAt }
+        end
     end
 
-    -- HumanVisual is a separate native component from the inventory/stats
-    -- envelope. Legacy records without it retain their existing behavior.
-    -- The ordinary constructor already joins engine lists; this restore
-    -- precedes SAO/controller exposure and population accounting.
-    if rec.bodyVisual ~= nil then
+    -- Native v4 owns appearance. Earlier formats use the supported visual
+    -- sidecar when one exists; absent fields remain migration history.
+    if snapshotVersion < 4 and rec.bodyVisual ~= nil then
         local ok, restored = pcall(function()
             return SAOJavaBridge:restoreReturnVisual(body, rec.bodyVisual)
         end)
@@ -401,8 +420,15 @@ local function captureBody(rec, body)
     if SAOJavaBridge:validateHibernation(packed) ~= true then
         return nil, "invalid-snapshot"
     end
-    local visual = SAOJavaBridge:captureReturnVisual(body)
-    if SAOJavaBridge:validateReturnVisual(visual) ~= true then return nil, "invalid-visual" end
+    local version = hibernationVersion(packed)
+    if version == 0 then return nil, "incomplete-person-snapshot" end
+    local visual = nil
+    if version < 4 then
+        visual = SAOJavaBridge:captureReturnVisual(body)
+        if SAOJavaBridge:validateReturnVisual(visual) ~= true then
+            return nil, "invalid-visual"
+        end
+    end
     local now = SAO.History.countyHours()
     local x, y, z = body:getX(), body:getY(), body:getZ()
     if not finite(now) or not finite(x) or not finite(y) or not finite(z) then
@@ -551,7 +577,7 @@ function Body.release(rec)
     -- No body after reload means the old engine representation is gone.
     -- Commit the saved transition before constructing its replacement.
     rec.hibernation = pending.packed
-    if pending.visual ~= nil then rec.bodyVisual = pending.visual end
+    rec.bodyVisual = pending.visual
     rec.releasedAtHours = pending.hours
     rec.x, rec.y, rec.z = pending.x, pending.y, pending.z
     local facts = pending.facts

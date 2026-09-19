@@ -1,6 +1,6 @@
 | Document | Survivor Awareness Overhaul Architecture |
 |---|---|
-| Version | `2.7.14.4-pre-alpha` |
+| Version | `2.7.14.5-pre-alpha` |
 | Author | ellyj3rain |
 | Repository | `ARCHITECTURE.md` |
 | Status | ACTIVE - ratified framework shape. |
@@ -320,12 +320,14 @@ here can drive a body it does not own (`[B10]`, DR-009).
 - **Route-cancel invariant** (F-012): leaving the movement-state family
   for a non-member cancels the route centrally in setState - an armed
   engine route with no owner is the autonomous-wandering defect.
-- **The person persists** (F-013): position, pack, hand, vitals, and worn
-  clothes ([A11]) survive hibernation on the record.
+- **The person persists** (F-013): position, possessions, equipment, wounds,
+  statistics, experience, nutrition, conditioning, learned/read material,
+  appearance and declared durable metadata survive hibernation on the record.
   C51 stages a validated snapshot before teardown and restores through Body
-  before adoption. A retained transition counts as represented but has no
-  available body for physical interaction. Native components and remaining
-  persistence gaps are listed in SUBSTRATE.md.
+  before adoption; C54 completes the native-person envelope and keeps older
+  formats within their original limits. A retained transition counts as
+  represented but has no available body for physical interaction. Runtime
+  actions and registries reconstruct under R4 rather than becoming history.
 - **Distance is personal** (F-014): belief positions are memory; distance
   to a belief is computed at query time from the asker's position.
 - **Fault gates**: every per-tick path is pcall-wrapped, logs once, and
