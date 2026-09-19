@@ -15,15 +15,9 @@ WHAT THIS HOLDS
      house named - it has stopped being history and become fiction,
      and that is the failure this border exists for (DR-037's ruling:
      they either manage it or they do not).
-  2. It is DAILY, and the number is the measured one (F-055), with the
-     frame arithmetic named rather than spelled. [C112] moved where the
-     arithmetic lives: the tick counter is no longer a local this file
-     advances by a calibrated jump but the county's own clock
-     (`SAO.History.ticks`, hours x 9000, 216,000 a day), and a
-     simulated day advances it by being LIVED - `runTheYears` writes
-     `s.yearsRun`, which `livingDay` reads and `countyHours` derives
-     from, BEFORE the day runs, so the gates inside open on the
-     clock's own authority.
+  2. It follows the live 240-tick dormant cadence. Fine-grained progress
+     survives slices and reloads. One calendar day is 24 county hours;
+     a wall-time budget never substitutes a day-sized simulation step.
   3. It is SLICED and cannot hang: a budget per pass, and it picks up
      where it stopped.
   4. It runs AFTER genesis and BEFORE the band, and holds the band
@@ -89,7 +83,7 @@ ALLOWED_IN_A_DAY = {
     # `populationTick` runs it as the "provision" sub on the live
     # county's own cadence and the years call the same function. It is
     # here because this list is by name and the name is new.
-    "dormantProvision",
+    "dormantProvision", "dormantCountyPass",
 }
 
 # Shapes that would mean the pass had started inventing rather than
@@ -129,8 +123,10 @@ def main():
     print("=" * 74)
 
     pop = read(POP)
-    day = strip_comments(body_of(pop, "local function oneYearsDay(conf, day)"))
-    if not day:
+    step = strip_comments(body_of(pop, "local function oneYearsStep(conf, day, newDay)"))
+    common = strip_comments(body_of(pop, "local function dormantCountyPass(conf)"))
+    day = step + "\n" + common
+    if not step or not common:
         print("  FAULT: there is no simulated day, so a save beginning years "
               "after the fall meets a county that has not lived them")
         return 1
@@ -147,17 +143,22 @@ def main():
     inner = day[day.find("\n") + 1:]
     called = set(re.findall(r"([A-Za-z_][\w.]*)\s*\(", inner))
     called |= set(re.findall(r"pcall\(\s*([A-Za-z_][\w.]*)\s*[,)]", inner))
-    called -= {"pcall", "function", "pairs", "ipairs", "tonumber", "tostring", "if"}
+    called |= set(re.findall(r'runSub\(\s*"[^"\n]+"\s*,\s*([A-Za-z_][\w.]*)', inner))
+    called -= {"pcall", "runSub", "function", "pairs", "ipairs", "tonumber", "tostring", "if"}
     stray = sorted(c for c in called if c not in ALLOWED_IN_A_DAY)
     print("     a simulated day calls: " + ", ".join(sorted(called)))
 
     # And it must actually drive them: a day that calls nothing is not
     # a day, and every one of these is a thing the live county does to
     # people who have no body.
+    daily = strip_comments(body_of(pop, "local function dailyCounty()"))
+    daily_called = set(re.findall(r"([A-Za-z_][\w.]*)\s*\(", daily))
     for required in ("dormantLife", "dormantEncounters", "dormantAttrition",
                      "SAO.Standing.driftStandings", "SAO.Age.dailyRoll",
                      "SAO.Age.settleHabits"):
-        if required not in called:
+        reached = required in called or (
+            "dailyCounty" in called and required in daily_called)
+        if not reached:
             faults.append(
                 "a simulated day does not drive %s, so that part of the "
                 "county simply did not happen for however many years the "
@@ -177,24 +178,17 @@ def main():
                 "the player meets was written rather than lived" % bad)
 
     checks = {
-        # 2. Daily, measured, named - on the [C112] clock. The first
-        # draft of this border held a `YEARS_TICKS_PER_DAY` constant
-        # advanced inside the day; [C112] ruled the calibrated jump
-        # out and moved the tick onto the county's own clock, so the
-        # honest spellings now are the frame arithmetic named where
-        # the clock lives (History) and the advance being the day
-        # itself - `s.yearsRun` written before the day is lived, so
-        # `SAO.History.ticks` has already moved 216,000 ticks when the
-        # day opens. The day itself must advance nothing, or the two
-        # clocks would be one clock plus a jump.
-        "the cadence is named with its frame arithmetic":
+        "the county-hour quantum is named":
             re.search(r"local TICKS_PER_HOUR = \d+", read(HIST)) is not None,
-        "a day actually advances the county's clock, before it is lived":
-            re.search(r"run = run \+ 1(?:(?:[ \t]*--[^\n]*\n)|[ \t]*\n)*"
-                      r"[ \t]*s\.yearsRun = run\s*\n[ \t]*"
-                      r"oneYearsDay\(conf, run\)", pop) is not None,
-        "and the day itself advances nothing":
-            re.search(r"(tickCounter|yearsRun)\s*=", day) is None,
+        "each step advances the persisted clock before its work":
+            "ticks = math.min(targetTicks, ticks + TICK_INTERVAL)" in pop
+            and re.search(r"s\.yearsTicks = ticks[\s\S]*?oneYearsStep\(conf, run, run > priorDay\)",
+                          body_of(pop, "local function runTheYears(conf)")) is not None,
+        "the step itself does not advance the clock":
+            re.search(r"(tickCounter|yearsRun|yearsTicks)\s*=", day) is None,
+        "live and historical passes share the same dormant scheduler":
+            "dormantCountyPass(conf)" in step
+            and "dormantCountyPass(conf)" in body_of(pop, "local function populationTick()"),
         "and the measurement is on record":
             "F-055" in read(FINDINGS) and "F-055" in pop,
 
@@ -204,7 +198,7 @@ def main():
         "the budget is actually read":
             "YEARS_BUDGET_MS" in body_of(pop, "local function runTheYears(conf)"),
         "and progress survives the slice":
-            "s.yearsRun = run" in pop,
+            "s.yearsRun = run" in pop and "s.yearsTicks = ticks" in pop,
 
         # 4. After genesis, before the band, holding it.
         "the county must exist first":
@@ -225,6 +219,10 @@ def main():
         "the bridge asks the record and decides nothing":
             "public int daysBehindAtStart(" in read(BRIDGE)
             and "SAORecord.daysBehindAtStart(" in read(BRIDGE),
+        "legacy acceleration flags cannot fabricate a county":
+            "Trajectory.extrapolate" not in strip_comments(pop),
+        "pending history bypasses the live callback gate":
+            "if not pending" in body_of(pop, "local function populationTick()"),
         "the gate runs this border":
             "tools/years_between_test.py" in read(CHECK),
 
@@ -266,7 +264,7 @@ def main():
             print("  FAULT: " + f)
         return 1
     print("  118) the years between are lived: every call in a simulated day "
-          "is the live county's own, at the measured daily cadence on the "
+          "is the live county's own, at its dormant pass cadence on the "
           "county's own clock ([C112]), sliced, after genesis and before "
           "the band")
     return 0

@@ -1,36 +1,62 @@
 | Document | Survivor Awareness Overhaul Session State |
 |---|---|
-| Version | `5.2.0.0-pre-alpha` |
+| Version | `5.3.0.1-pre-alpha` |
 | Author | ellyj3rain |
 | Repository | `SESSION_STATE.md` |
 | Status | CANONICAL - where the work actually stands. |
 
 # Session state
 
-**As of** 2026-09-14, `[C125]` close - the neuroinflammation knot.
-Brain health is represented as a single continuous scalar `rec.neuroinflammation`
-bounded in `[0.0, 1.0]`, never an enum, stage, or discrete bucket. Multi-source
-insults accumulate from active Knox infection via Antibodies' sine activation
-curve (`math.sin(pos * math.pi) * 0.08`), peripheral wound sepsis (`0.015`),
-drug/alcohol toxicity from the C121 ladder (`0.02 * min(1.0, poison / 50.0)`),
-and severe late-stage withdrawal stress (`0.03`). Afflicted survivors maintain
-a persistent `0.30` baseline floor representing permanent neurological scarring;
-Crossed bodies sit at `0.90` (humanity burned out by runaway inflammation).
-When insult sources clear and bodies rest, neuroinflammation clears exponentially
-toward baseline (`math.exp(-0.04 * deltaHours)`). Cognitive clarity (`1.0 - load`)
-feeds into `SAO.Conditions.memoryFactor`, causing memories and lessons to degrade
-rapidly under severe inflammation. Clinical diagnosis in `SAO_Medical.lua` gates
-observations across Doctor skill tiers (<2, 2..4, 5..7, 8+), and `SAOMedicalWindow`
-renders an Antibodies-style visual curve progress bar. `SAO_Inspect.lua` displays
-load, clarity, and motor stability. Advances occur daily in dormant attrition and
-every ten minutes in active passes. The sandbox off-switch `SurvivorAwareness.Neuroinflammation`
-disables the entire graph cleanly. Border 158 holds the kinetics, math, memory
-integration, and UI controls. The version machine derives `5.2.0.0-pre-alpha` as a minor
-capability: brain health operates as a continuous, unified graph across pathogen,
-drug, and trauma insults. Open pending the play receipt: nobody has treated an
-inflamed survivor or watched their memory degrade in a live save.
-Next: playtest preparation with primitive simulation capability integrating with
-the sibling Zomboid-Speakeasy repository.
+**As of** 2026-09-18, `[C130]` implementation close - causal simulation and evidence.
+The recovery audit rejected C126's synthetic outcome generator and the old
+incomplete trajectory receipts. C127-C129 remain unmerged proposals; this
+repair occupies the next unused proposal number. The local C126 record stays
+historical, with its completion claims superseded here and in F-075.
+
+The real scheduler now advances 240 county ticks per dormant pass, persists
+fractional-day progress and daily work, and follows the actual day/night clock.
+Tests complete 90 and 365 days and reject the old stalled callback. Company
+admission uses personal pressure and known relationships without a membership
+quota. Evidence exports require full horizons, fault-free execution and source
+provenance. Joint runs include ZAO's actual pathogen modules and its A34 VM fix.
+The C125 neuroinflammation off-switch is repaired and exercised in the real
+VM. Company-history recording and Gregorian calendar boundaries have their
+own controls. Horizons are independent county initializations, not a shared
+cohort. Final joint 90/365-day samples complete 19,440,000/78,840,000 ticks
+with zero recorded execution faults. Their governed target is 12 living;
+newcomer/refill rules produce 27/72 total records and 15/60 deaths. A seven-day
+target-500 sample timed out at 600 seconds and exported no receipt. Details
+and source hashes live in `tools/sweep/receipts/`. The full gate passes with
+the installed engine and JDK, 67 Lua structural checks and no skips. Both mods
+are deployed and their complete installed file sets match source. Runtime
+play receipts remain pending.
+
+Learned acceleration remains unfinished. The removed fast path assigned
+survival and social outcomes directly; the old 90-day row actually stopped
+at 60 days. The installed-tree comparison also contradicted the C126 deploy
+claim: the copy inspected at recovery matched C125. No runtime acceptance or
+complete integration coverage follows from the old summaries.
+
+Next work is evidence-driven: reassess C125's authored brain-health baselines
+and state ownership, then the outstanding
+crossed/living behavior, integration switches and loaded-body surfaces.
+The speech cognition model and loaded-game inference budget are still owed.
+
+**C125 implementation, reassessed during C130 recovery.**
+`rec.neuroinflammation` is a scalar bounded in `[0.0, 1.0]`. The current authored
+rates are Knox sine activation peaking at `0.08`, wound sepsis `0.02`, toxicity
+`0.05 * min(1.0, poison / 100.0)`, withdrawal `0.02`, and exponential clearance
+`math.exp(-0.04 * deltaHours)`. Afflicted and Crossed floors are `0.30` and
+`0.90`. These are implementation choices awaiting biological and behavioral
+review; the former summary misstated several rates and overstated validation.
+Clarity projects into memory processing. Clinical observations depend on skill,
+and the medical window draws the current load as a bar, not a time-series curve.
+Dormant daily and active ten-minute paths advance the state. C130 repairs the
+off-switch and verifies false, true and omitted options in the actual Lua VM,
+including cognition projection and advancement. Border 158's remaining source
+and arithmetic checks do not establish clinical validity, complete state
+ownership, memory behavior in play, or visual acceptance. Treatment, embodied
+integration and the meaning of the authored floors remain open.
 
 **As of** 2026-09-14, `[C124]` close - combat perception compatibility.
 Combat perception operates across the engine and mod ecosystem without
@@ -2086,16 +2112,18 @@ unloaded survivors are governed by the same rules ([B39], [B42]).
 
 ## Deploy state
 
-`5.2.0.0-pre-alpha` at tip - the version machine's output ([C2],
-DR-013; the units `[C113]` through `[C125]` moved it here: the
-Week One port's two minors, the raider, moments, age, drugs,
-vehicle-ground, animal, combat perception, and neuroinflammation minors, with `[C115]`'s dial kohai among them).
-`[C125]` reached the install on 2026-09-14 after the source rebuild and
-the full gate: the deployed `mod.info` reads `5.2.0.0-pre-alpha`, and
-the distribution, shipped, and installed jars match at MD5
-`ECDBB1F4991A2EC51BB2F732A819EC63`. The prescribed deploy also copies
-root `LICENSE` and `CREDITS.md`; their installed copies match the root,
-and no other installed file differs from `mod/`.
+The source version is the version machine's output. C130 reached the install
+on 2026-09-18 after the complete gate and Java rebuild. All 249 installed files
+match the source package plus root license and credits, with no extras. The
+distribution, shipped and installed jars share SHA-256
+`0abe4198166835b5f95f22215c4689dd9f3a787d03fdeccfe1e4285e112ac9be`.
+ZAO A34 is also deployed; all 27 installed files match its source package.
+Previous installs are backed up and the saves are untouched.
+
+The recovery inspection had found the installed copy matched C125; the prior
+C126 deployment claim was unsupported. Older deploy reports below remain
+historical claims:
+
 `[C124]` reached the install on 2026-09-14 after the source rebuild and
 the full gate: the deployed `mod.info` reads the coordinate derived at that close, and
 the distribution, shipped, and installed jars match at MD5
@@ -2140,15 +2168,15 @@ the panel), `[C32]` (a condition on the panel, a survivor who runs
 from a sound nobody heard, the two required mods enabling) and
 `[C33]` (a drinker's shakes on the panel, a drink taken from the pack,
 a walk to a cabinet for a bottle) wait together; this session's
-play doubles as the live receipt the sibling project's death seam
-needs before its mechanics open.
+play can supply the sibling death-seam receipt; its mechanics remain open
+for implementation without waiting for that receipt.
 
 Two live saves - one fresh in Irvington, one with companions - survive every
 deploy; `save_compat_test` guards this and runs in the gate.
 
 ## Instruments
 
-**158 numbered borders**, run by **173 gated mirrors** in `tools/`, all invoked
+**161 numbered borders**, run by **176 gated mirrors** in `tools/`, all invoked
 by `tools/check.sh`, which the pre-commit hook runs and CI runs on every push.
 The figures in this paragraph are derived by Border 76 from the tree, not
 maintained by hand. Border 54 keeps the rest honest: it runs every gated
@@ -2163,10 +2191,9 @@ record claims; only play settles that it happens in the world, and
 what play has settled so far is in the ledger, never a blanket claim
 in either direction.
 
-Standing gaps, stated rather than left to be discovered: the player's own
-looting does not deplete a place ([B39]); the witness rule keys on a recent
-close sighting of the victim rather than on the killing itself; `carry-light`
-dissent is an operator decision. The Workshop art is placeholder by choice -
+Standing gaps: the witness rule keys on a recent close sighting of the victim
+rather than on the killing itself; `carry-light` dissent remains a decision.
+The earlier player-looting gap was repaired at C60. The Workshop art is placeholder by choice -
 [B51] generates an icon and a poster from `tools/make_art.py`, checked by
 Border 73, and anyone may prefer their own drawing.
 
@@ -2182,50 +2209,23 @@ remains full; branch histories are never pushed raw.
 
 ### Open diagnostics
 
-- The border gate intermittently exits 1 in compound shell runs
-  immediately after a deploy or jar build, and passes clean on
-  immediate re-run - observed twice on 2026-08-30, output
-  uncaptured both times (redirected). Not reproduced under direct
-  runs. Next occurrence: capture the full output before re-running,
-  then find which border flickers and why.
+- The gate intermittently exits 1 and passes on immediate replay, recorded
+  since 2026-08-30. C130 observed Border 54 specifically: its wrapper discarded
+  the original output and reran the instrument, whose replay passed. The
+  wrapper now captures the original invocation. The underlying intermittent
+  cause remains unresolved; a later clean gate does not explain it.
 
 ### Waiting on the operator
 
-Three things this pass cannot settle from here. (The 2026-08-29
-Crucible session settled three others: the identity key is
-`SAOPersonId` (DR-019), whole minds persist (DR-020, landed [C15]),
-and the grounded dead run measure-then-guide with the optional
-presence layer and the pool-taking state agreement (DR-021, the
-census lands [C16]). The presence layer defaults OFF until the
-measurement argues otherwise - stated as amendable, not ratified.)
+The recovery audit keeps these unresolved: grounded-dead numeric calibration,
+the exact denominator and phase of the requested early Knox ratios, and any
+irreversible pruning of dead people's saved relationship rows. None is a
+prerequisite for finishing already-ratified mechanics.
 
-- **The grounded dead's final numbers.** Ratified against the [C16]
-  measurement, not before (DR-021).
-
-- **The county's pace is frame time, not real time.** Everything except the
-  voice cooldown counts frames, so a 144Hz machine runs a county 2.4x faster
-  than a 60Hz one. Changing it touches every timer in the mod and changes how
-  the game feels; it is a design call.
-- **`s.relations` keeps a row for everyone who ever lived.** [B51] budgeted
-  the walk, so the cost is bounded - but the rows of the dead are still in the
-  save and still growing. Pruning them is irreversible on a live save. The
-  four readers of a row are all about a living actor, so dropping
-  `relations[deadId]` while keeping everybody's feelings ABOUT the dead looks
-  safe; that is a judgement about somebody's save, not a border.
-- **[B48] changes every survivor's traits, occupation and face in
-  an existing save**, because the hash they are drawn from was corrected.
-- **Settled at `[C73]`, kept here for the record: the county had no
-  names, and a person got one from the first shell built for them.** `backfillName` reads a forename and surname
-  off the engine descriptor when a body is first materialised, so a
-  survivor nobody has ever stood near is `Unnamed` for the life of the
-  save - 271 of 271 in a swept county. `[C71]` makes the absence
-  survivable by keying beliefs on the person rather than on what they
-  are called; it does not cure it. Curing it means SAO drawing a
-  forename at genesis, and the engine's name pools are split by sex
-  (`SurvivorFactory.getRandomForename(boolean)`, javap-verified), so
-  SAO would have to decide a survivor's sex at genesis and then make
-  the shell the engine builds later agree with it. That is a design
-  call about what the county's people are, not a repair.
+The former frame-clock question was settled at C112; the dormant naming
+question was settled at C73; C111 joined personal need with trust. Those are
+implementation facts, not decisions to ask again. B48's hash correction remains
+an existing-save compatibility fact in its own record.
 
 ## The condition
 

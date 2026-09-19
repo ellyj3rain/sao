@@ -692,8 +692,8 @@ fi
 # with mod/42.20/media/lua emptied: a border that still passes was not
 # reading the mod. Found three on its first run, one of them the Lua
 # syntax border printing "all 0 shipped Lua files compile".
-if ! "$PY" tools/vacuous_pass_test.py > /dev/null; then
-    "$PY" tools/vacuous_pass_test.py 2>&1 | grep -E "FAULT" || true
+if ! blind_result=$("$PY" tools/vacuous_pass_test.py 2>&1); then
+    printf '%s\n' "$blind_result"
     note "BORDER FINDING - a verdict about an empty set"
     fail=1
 fi
@@ -1867,6 +1867,26 @@ fi
 if ! "$PY" tools/neuroinflammation_test.py > /dev/null; then
     "$PY" tools/neuroinflammation_test.py 2>&1 | grep -E "FAULT|CONTROL|SKIPPED" || true
     note "BORDER FINDING - neuroinflammation knot contract broken"
+    fail=1
+fi
+
+# [C130] Border 159 - completed causal samples with source provenance;
+# incomplete horizons and runtime faults refuse export.
+if ! "$PY" tools/trajectory_simulation_test.py > /dev/null; then
+    "$PY" tools/trajectory_simulation_test.py 2>&1 | grep -E "FAULT|CONTROL|SKIPPED" || true
+    note "BORDER FINDING - simulation evidence contract broken"
+    fail=1
+fi
+
+# [C130] Border 160 - bounded, reload-safe years on the county clock.
+if ! "$PY" tools/years_progress_test.py; then
+    note "BORDER FINDING - elapsed history progress contract broken"
+    fail=1
+fi
+
+# [C130] Border 161 - company admission through personal pressure and trust.
+if ! "$PY" tools/company_admission_test.py; then
+    note "BORDER FINDING - company admission contract broken"
     fail=1
 fi
 

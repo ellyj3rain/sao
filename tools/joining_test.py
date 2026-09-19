@@ -24,7 +24,7 @@ an assertion. This ports the LIVE gates exactly:
     join    = not bound and not solo and not onWall and not noFight
               and pull > 0.55
     order   = by pull, keenest first
-    cap     = circleCap(goer), then min(cap, free_seats - 1) with a
+    cap     = number willing, then min(cap, free_seats - 1) with a
               car, then min(cap, hearers - 1) if the house holds a
               larder, a water store, or a hearth to mind
 
@@ -35,10 +35,9 @@ The county is not synthetic: it is the converged 60-person society the
 equilibrium test produces after 120 days, so the trust values these
 gates read are the ones the social physics actually generates.
 
-Four hard laws with a right answer:
+Three hard laws with a right answer:
   - a loner must never be taken (the operator ruled joining is
     never forced)
-  - the circle cap must never be exceeded
   - the free-seat cap must never be exceeded
   - a house holding stores must never be left with nobody in it
 
@@ -79,10 +78,6 @@ def circle(i):
     if h < 0.50:
         return "band"
     return "house"
-
-
-def circle_cap(i):
-    return {"loner": 1, "band": 3}.get(circle(i), 999)
 
 
 def nerve(i):
@@ -137,7 +132,7 @@ def run(label, lesson_weight, needful_share, watch_share, seats=None,
     (F-056), and this scales it - a stand-in, like needful_share, for
     state this mirror does not simulate. Returns the tallies."""
     stats = {
-        "trips": 0, "loners_taken": 0, "cap_violations": 0,
+        "trips": 0, "loners_taken": 0,
         "seat_violations": 0, "emptied": 0, "party_sizes": [],
         "left_behind": 0, "refusers_taken": 0, "office_carried": 0,
         "office_cost": 0, "invites": 0,
@@ -179,8 +174,7 @@ def run(label, lesson_weight, needful_share, watch_share, seats=None,
                     # [C53] Would they have come if the caller held no
                     # office? The same hearer, the same trip, one term
                     # removed - which is the only way to see what the
-                    # term does without house size and the goer's own
-                    # circle cap standing in front of it.
+                    # term does with the hearer's other facts held.
                     if office > 0 and pull - office <= 0.55:
                         stats["office_carried"] += 1
                 elif (not bound and not solo and not on_wall
@@ -189,7 +183,7 @@ def run(label, lesson_weight, needful_share, watch_share, seats=None,
             # [B19] The keenest go - ported with the live change.
             willing.sort(key=lambda w: (-w[1], w[0]))
             willing = [h for h, _ in willing]
-            cap = circle_cap(goer)
+            cap = len(willing)
             seat_bound = False
             if seats is not None:
                 free = max(0, seats - 1)
@@ -207,8 +201,6 @@ def run(label, lesson_weight, needful_share, watch_share, seats=None,
                     stats["loners_taken"] += 1
                 if warpath and fnv(f"{h}:fight") < refuse_share:
                     stats["refusers_taken"] += 1
-            if len(took) > circle_cap(goer):
-                stats["cap_violations"] += 1
             if seat_bound and len(took) > max(0, seats - 1):
                 stats["seat_violations"] += 1
             if len(took) == len(members) - 1 and len(members) >= 3:
@@ -261,7 +253,6 @@ for name, s in (("day zero", a), ("lived-in", b),
                 ("4-seat car", c), ("2-seat pickup", d),
                 ("warpath", e), ("young house", f)):
     for law, key in (("a loner was taken along", "loners_taken"),
-                     ("the circle cap was exceeded", "cap_violations"),
                      ("the seat cap was exceeded", "seat_violations"),
                      ("somebody who refuses the fight was taken on a "
                       "raid", "refusers_taken")):
@@ -270,8 +261,6 @@ for name, s in (("day zero", a), ("lived-in", b),
 
 print("  loners are never forced along:",
       "VIOLATED" if any("loner" in f for f in fails) else "held")
-print("  the circle cap always binds:",
-      "VIOLATED" if any("circle" in f for f in fails) else "held")
 print("  free seats always bind:",
       "VIOLATED" if any("seat" in f for f in fails) else "held")
 # [C53] Nobody is persuaded into a fight they would not take.
@@ -279,7 +268,7 @@ print("  a raid never takes somebody who refuses the fight:",
       "VIOLATED" if any("refuses the fight" in f for f in fails) else "held")
 # [C53] And the office pulls. Party sizes across houses cannot show
 # this - a leader is not in the same house, with the same hearers and
-# the same circle cap, as the peer being compared with - so the term
+# the same hearers as the peer being compared with - so the term
 # is measured on the one hearer it applies to: with the office and
 # without it, everything else held.
 carried = sum(s["office_carried"] for s in (a, b, c, d, e, f))

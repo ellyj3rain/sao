@@ -95,6 +95,12 @@ MODULES = [
 # the pair and the belief is read out of the store. The direct calls
 # pin the optional path: a distance stated, then not.
 PROBE = r"""(function()
+  -- This is a live meeting probe after the requested opening history.
+  local history = ModData.getOrCreate("SurvivorAwareness_Standing")
+  local owed = _G.__owed or 1096
+  history.yearsAsked, history.yearsOwed, history.yearsRun = true, owed, owed
+  history.yearsTicks = owed * 216000
+  history.countySettled = true
   -- [C112] moved every cadence onto the county's clock, and this
   -- harness used to leave that clock frozen: __hours never moved, so
   -- History.ticks read one number for the whole probe, the population

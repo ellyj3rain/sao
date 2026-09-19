@@ -15,6 +15,7 @@
 SAO = SAO or {}
 SAO.History = SAO.History or {}
 local H = SAO.History
+local TICKS_PER_HOUR = 9000
 
 -- [B47] One door out. `log` is what happened once; `tally` is
 -- what happens once per person, counted rather than printed.
@@ -48,7 +49,7 @@ local function tally(kind) SAO.Log.tally("HISTORY", kind) end
 -- that live them and hand each one a clock that had stopped.
 --
 -- This is the hour those systems read now. While the years are being
--- lived it is the day being lived, times twenty-four. Otherwise it is
+-- lived it is the persisted elapsed ticks, divided by 9000. Otherwise it is
 -- the days this save began behind the record plus the game's own
 -- hours, which carries on from where the years stopped: a stamp made
 -- during the years has to stay in the past once play begins, and
@@ -82,7 +83,18 @@ local function livingDay()
     local run = tonumber(s.yearsRun) or 0
     local owed = tonumber(s.yearsOwed) or 0
     if run >= owed then return nil end
-    return run
+    local ticks = tonumber(s.yearsTicks)
+    return ticks and math.floor(ticks / (24 * TICKS_PER_HOUR)) or run
+end
+
+-- Fine-grained catch-up progress survives a slice and a save reload. Old
+-- saves retain their completed days; they begin the next step there.
+local function livingHours()
+    local day = livingDay()
+    if day == nil then return nil end
+    local s = yearsState()
+    local ticks = tonumber(s.yearsTicks)
+    return ticks and ticks / TICKS_PER_HOUR or day * 24.0
 end
 
 -- [C63] The switch that says this county starts before its own
@@ -128,8 +140,8 @@ end
 -- The county's clock, in hours. Never negative and never goes
 -- backwards, which is what every stamp in this mod assumes.
 function H.countyHours()
-    local day = livingDay()
-    if day then return day * 24.0 end
+    local elapsed = livingHours()
+    if elapsed then return elapsed end
     local hours = 0
     pcall(function()
         hours = GameTime.getInstance():getWorldAgeHours()
@@ -149,11 +161,10 @@ end
 -- diverged by whole simulated days during the years.
 --
 -- So the unit is redefined, ONCE, here - not converted at sixty sites:
--- a tick is a 9000th of a county hour, which is what a frame was at
--- sixty frames a second on the default day length (a real minute a
--- game hour: 150 real seconds x 60 frames). Every span constant
--- already authored in that unit keeps its number and its default-day
--- pace; what changes is the domain. The tick now advances with the
+-- a tick is a 9000th of a county hour. This is the existing simulation
+-- quantum, independent of the engine's variable DayLength. Every span
+-- constant already authored in this unit keeps its county-time duration;
+-- the tick advances with the
 -- county: a slow machine paces the county correctly, fast-forward
 -- speeds the timers with the world they time, a pause stops them with
 -- it, and the axis is stable across sessions, because county hours are
@@ -172,9 +183,11 @@ end
 -- Degrades to 0 when the clock cannot be read, which is the county
 -- with no clock that [C62] already says out loud: no ticks, no county
 -- motion, rather than motion on a clock nobody vouches for.
-local TICKS_PER_HOUR = 9000
-
 function H.ticks()
+    if livingDay() ~= nil then
+        local ticks = tonumber(yearsState().yearsTicks)
+        if ticks then return ticks end
+    end
     return math.floor((H.countyHours() or 0) * TICKS_PER_HOUR)
 end
 
@@ -198,27 +211,11 @@ function H.countyMonth()
     return nil
 end
 
--- The county's time of day, on the engine's own 0 to 24.
---
--- The same defect as the clock above and it needs a different answer.
--- [C45] runs ONE call per simulated day, so a simulated day has no
--- hours in it to be at; the engine's own time of day is whatever
--- o'clock the save was created at, held there for the whole span. A
--- save begun at three in the morning sent every survivor home to
--- sleep and kept them there for a thousand days, and a child's night
--- fear stood at its maximum for the same thousand.
---
--- So while the years run this says noon. That is a claim and not a
--- derivation: what a simulated day models is a day's worth of going
--- out and coming back, which happens in daylight, and the alternative
--- is running each of those days through its own twenty-four hours,
--- which F-055 measured and DR-037 ruled out.
---
--- Outside the years it is the engine's, unchanged.
-local YEARS_HOUR = 12.0
-
+-- The elapsed calendar days contain the same twenty-four hours as live
+-- play. DayLength changes wall time, never the number of hours in a day.
 function H.countyTimeOfDay()
-    if livingDay() then return YEARS_HOUR end
+    local elapsed = livingHours()
+    if elapsed then return elapsed % 24.0 end
     local hour = nil
     pcall(function() hour = GameTime.getInstance():getTimeOfDay() end)
     if type(hour) == "number" then return hour end

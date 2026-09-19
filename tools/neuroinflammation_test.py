@@ -24,6 +24,9 @@ import math
 import pathlib
 import re
 import sys
+import shutil
+import subprocess
+import tempfile
 
 ROOT = pathlib.Path(__file__).resolve().parent.parent
 NEURO_LUA = ROOT / "mod" / "42.20" / "media" / "lua" / "shared" / "SAO_Neuro.lua"
@@ -162,6 +165,56 @@ def mutation_tests(neuro_src, cond_src, med_src, medwin_src, inspect_src, pop_sr
     return None
 
 
+def switch_vm_faults(source):
+    """Execute the option, including the original false-or-true control."""
+    game = pathlib.Path(r"C:\Program Files (x86)\Steam\steamapps\common\ProjectZomboid")
+    jdk = pathlib.Path(r"C:\Users\jleyv\Peanut Butter\JetBrains\Java\bin")
+    runner = ROOT / "tools/luacheck/LuaRun.java"
+    if not all(p.exists() for p in (game / "projectzomboid.jar", game / "stdlib.lua",
+                                   jdk / "java.exe", jdk / "javac.exe")):
+        print("SKIPPED: neuro option VM check needs the installed game and JDK")
+        return []
+    if not runner.exists():
+        return ["neuro option VM runner is missing"]
+    seam = "return sv.Neuroinflammation == true"
+    if source.count(seam) != 1:
+        return ["neuro option control seam changed"]
+    with tempfile.TemporaryDirectory(prefix="sao-neuro-switch-") as tmp:
+        work = pathlib.Path(tmp)
+        shutil.copy2(game / "stdlib.lua", work / "stdlib.lua")
+        compiled = subprocess.run([str(jdk / "javac.exe"), "-cp",
+            str(game / "projectzomboid.jar"), "-d", str(work), str(runner)],
+            capture_output=True, text=True, timeout=60)
+        if compiled.returncode:
+            return ["neuro option VM runner did not compile: " + compiled.stderr]
+        probe = '''(function()
+            SandboxVars = nil
+            if not SAO.Neuro.isActive() then return "FAIL missing setting changed default" end
+            SandboxVars = { SurvivorAwareness = { Neuroinflammation = false } }
+            if SAO.Neuro.isActive() then return "FAIL false setting stayed active" end
+            local rec = { neuroinflammation = 0.8, woundInfected = true }
+            if SAO.Neuro.loadOf(rec) ~= 0 or SAO.Neuro.clarityOf(rec) ~= 1 then
+                return "FAIL disabled projections still affect cognition" end
+            if SAO.Neuro.advance(rec, 24, 24) ~= 0 then return "FAIL disabled graph advanced" end
+            SandboxVars.SurvivorAwareness.Neuroinflammation = true
+            if not SAO.Neuro.isActive() then return "FAIL true setting stayed disabled" end
+            if SAO.Neuro.advance(rec, 24, 48) <= 0 then return "FAIL reenabled graph did not advance" end
+            return "neuro switch holds"
+        end)()'''
+        args = [str(jdk / "java.exe"), "-cp", str(game / "projectzomboid.jar") + ";" + str(work),
+                "LuaRun", str(work / "neuro.lua"), "--", probe]
+        for bad in (False, True):
+            text = source.replace(seam, "return (sv.Neuroinflammation or true) == true") if bad else source
+            (work / "neuro.lua").write_text(text, encoding="utf-8")
+            result = subprocess.run(args, cwd=work, capture_output=True, text=True, timeout=30)
+            if not bad and (result.returncode or "VALUE neuro switch holds" not in result.stdout):
+                return ["neuro option VM failed: " + result.stdout + result.stderr]
+            if bad and (result.returncode or "VALUE FAIL false setting stayed active" not in result.stdout):
+                return ["neuro option original-code control survived or failed for another reason"]
+    print("CONTROL: original neuro off-switch rejected in actual VM")
+    return []
+
+
 def main():
     if not (NEURO_LUA.exists() and COND_LUA.exists() and MED_LUA.exists()
             and MED_WIN.exists() and INSPECT_LUA.exists() and POP_LUA.exists()
@@ -182,6 +235,7 @@ def main():
     faults = source_faults(neuro_src, cond_src, med_src, medwin_src, inspect_src,
                            pop_src, drugs_src, opts_src, json_src)
     faults.extend(simulate_math())
+    faults.extend(switch_vm_faults(neuro_src))
 
     if faults:
         for f in faults:
@@ -194,7 +248,7 @@ def main():
         print(f"FAULT: {m_err}")
         return 1
 
-    print("158) neuroinflammation: continuous graph, sine activation, multi-source insults, baselines, memory, and visualization verified")
+    print("158) neuroinflammation: source contract and arithmetic checked; option behavior and original-code control executed in VM when available")
     return 0
 
 

@@ -39,7 +39,7 @@ measurements.
 
 ## Status
 
-`5.2.0.0-pre-alpha` - the coordinate is computed by the version machine
+`5.3.0.1-pre-alpha` - the coordinate is computed by the version machine
 (`tools/version_replay.py`), never picked; `VERSION_MAP.md` shows the
 classification and the arithmetic.
 
@@ -57,6 +57,13 @@ checks run on every commit (the count lives in `SESSION_STATE.md`,
 computed rather than written by hand), and every engine surface used
 here is verified against the shipped `projectzomboid.jar` before use
 rather than assumed.
+
+Late-start history currently runs the causal dormant simulation in bounded
+slices. Its completion and reload behavior are tested in the installed game VM.
+The previous fast extrapolator was removed because it assigned outcomes from
+unsupported curves. A validated learned accelerator remains unfinished.
+Trajectory exports require completed horizons and report simulation faults;
+headless receipts do not establish loaded-body behavior or play quality.
 
 ## Requirements
 

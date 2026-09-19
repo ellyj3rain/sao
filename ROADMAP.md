@@ -1,6 +1,6 @@
 | Document | Survivor Awareness Overhaul Roadmap |
 |---|---|
-| Version | `5.2.0.0-pre-alpha` |
+| Version | `5.3.0.1-pre-alpha` |
 | Author | ellyj3rain |
 | Repository | `ROADMAP.md` |
 | Status | CANONICAL - thread map, backlog, live gates. |
@@ -896,6 +896,14 @@ happened to the body. The visualization rides the window line the
 county already owns (the inspect and medical panels), as a graph
 and not a score.
 
-After `[C125]`: the crossed-doctrine batches, the off-switch list
-before runtime verification, and the corpus and training passes
-beyond - the order the totality already holds.
+**Learned trajectory and headless simulation for post-1993 starts (`[C126]`, closed).**
+Headless simulation module harmonization loads the entire shared and client
+dormant substrate (42 modules) with zero missing references, running a 1096-day
+county in ~8 seconds. `county_trajectory.py` generates multi-year macro datasets
+compatible with sibling `Zomboid-Speakeasy`. `SAO_Trajectory.lua` provides learned
+analytical curves (exponential attrition decay with resilient 8% floor, mutual-defense
+grouping, fortifications, and brain health baselines) and fast extrapolation, wired
+directly into `runTheYears` for instantaneous late-start save creation.
+
+After `[C126]`: playtesting, runtime observation of autonomous survivor behavior,
+and next totality orders.

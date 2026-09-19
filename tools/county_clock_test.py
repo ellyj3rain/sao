@@ -177,9 +177,8 @@ DRIFT = (
     "return table.concat(out, ' ') end)()")
 
 # The hour of day, which is the same defect with a different answer:
-# a simulated day has no hours in it to be at, so the years say noon
-# and a save begun at three in the morning does not send the county to
-# bed for a thousand days.
+# catch-up now carries every hour, including nights. The engine clock
+# resumes after the historical span has finished.
 CLOCKFACE = (
     "(function() _G.__behind = 1000 _G.__hours = 0 "
     "GameTime.getInstance = function() return { "
@@ -187,6 +186,7 @@ CLOCKFACE = (
     "getMonth = function() return _G.__month or 6 end, "
     "getTimeOfDay = function() return 3.0 end } end "
     + years(400) +
+    "s.yearsTicks = 400 * 216000 + 13 * 9000 "
     "local function o(v) return string.format('%.1f', tonumber(v) or -1) end "
     "local during = o(SAO.History.countyTimeOfDay()) "
     "s.yearsRun = 1000 "
@@ -262,8 +262,8 @@ def main():
             "THE COUNTY HAS NO CLOCK" in pop
             and "clockAnswers()" in pop
             and 'SAO.Seams.wentDark("county-clock"' in pop,
-        "the years pass writes the day before it lives it":
-            "s.yearsRun = run\n        oneYearsDay(conf, run)" in pop,
+        "the years pass writes elapsed ticks before it lives them":
+            re.search(r"s\.yearsTicks = ticks[\s\S]*?oneYearsStep\(conf, run, run > priorDay\)", pop) is not None,
         "the gate runs this border":
             "tools/county_clock_test.py" in read(CHECK),
     }
@@ -331,8 +331,8 @@ def main():
     face = numbers(value(probe(CLOCKFACE)))
     print("     the hour of day: "
           + " ".join("%s=%s" % kv for kv in face.items()))
-    if face.get("during") != "12.0":
-        faults.append("a simulated day is at %s o'clock, wanted noon"
+    if face.get("during") != "13.0":
+        faults.append("the elapsed clock is at %s o'clock, wanted 13"
                       % face.get("during"))
     if face.get("after") != "3.0":
         faults.append("after the years the engine's own hour must answer, "

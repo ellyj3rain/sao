@@ -4916,13 +4916,10 @@ local function decide(id, agent, body)
                             if a.pull == b.pull then return a.id < b.id end
                             return a.pull > b.pull
                         end)
-                        -- Three caps, all real: what this person can bear
-                        -- around them ([A27]), how many seats are
-                        -- actually free in the car they are taking
-                        -- ([B19]) - the goer occupies one - and whether
-                        -- the house would be left with nobody minding
-                        -- it.
-                        local cap = SAO.Disposition.circleCap(id)
+                        -- Each hearer has already decided whether to go.
+                        -- Available seats and the work left at home bound
+                        -- the party; a personality label imposes no quota.
+                        local cap = #willing
                         local seatBound = false
                         if takingWheels then
                             local free = math.max(0,
@@ -4970,16 +4967,17 @@ local function decide(id, agent, body)
                                 end)
                                 log(wid .. " goes along with " .. id
                                     .. " on the " .. vkind)
-                            else
-                                pcall(function()
-                                    SAO.Voice.onEvent(wid, "noRoom", tick)
-                                end)
+                            elseif wAgent then
+                                if seatBound then
+                                    pcall(function()
+                                        SAO.Voice.onEvent(wid, "noRoom", tick)
+                                    end)
+                                end
                                 log(wid .. " stays behind - "
                                     .. (seatBound
                                         and ("no room in the car for "
                                             .. (#willing - cap) .. " more")
-                                        or "more than " .. id
-                                            .. " wants around them"))
+                                        or "minding the house's stores"))
                             end
                         end
                         -- [C114] The party is known now, so the driver

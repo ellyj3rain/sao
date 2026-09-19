@@ -101,6 +101,14 @@ PROBE = r"""(function()
   -- way Border 147 pins it, renewed every call, because the county's
   -- own foreign-stamp drop resets a one-time far pin to now.
   local realTick = _G.__handlers.OnTick
+  -- This probe starts after history has completed; its people are born
+  -- today and it measures live skipped-clock handling.
+  local population = ModData.getOrCreate("SurvivorAwareness_Standing")
+  population.yearsAsked = true
+  population.yearsOwed = _G.__owed or 1096
+  population.yearsRun = population.yearsOwed
+  population.yearsTicks = population.yearsOwed * 216000
+  population.countySettled = true
   local function make(x, y)
     local r = SAO.Identity.create(nil, nil, x, y, 0)
     pcall(function() SAO.History.generate(r.id, r) end)

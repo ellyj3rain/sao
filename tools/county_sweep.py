@@ -76,14 +76,17 @@ a real gap is reported on its own rather than in a list of eight
 expected ones nobody reads. Anything referenced, unloaded and
 undeclared is printed loudly.
 
-It does not stop the run. It makes the gap visible instead of letting
-it be discovered three conclusions later.
+Missing required modules stop the run. A partial county is never admitted
+to an aggregate as a completed simulation.
 
   python tools/county_sweep.py --runs 24
   python tools/county_sweep.py --runs 8 --lua /path/to/another/tree
 """
 import argparse
 import concurrent.futures
+import datetime
+import hashlib
+import functools
 import json
 import os
 import pathlib
@@ -122,6 +125,20 @@ CACHE = pathlib.Path(
     os.environ.get("SAO_SWEEP_CACHE")
     or (pathlib.Path(tempfile.gettempdir()) / "sao-sweep-world"))
 
+# Sister project ZAO modules for real pathogen and state tracking
+ZAO_ROOT = ROOT.parent / "zombie-awareness" / "mod" / "42.20" / "media" / "lua"
+ZAO_MODULES = [
+    "shared/ZAO_Sandbox.lua",
+    "shared/ZAO_Forms.lua",
+    "shared/ZAO_StateStore.lua",
+    "shared/ZAO_State.lua",
+    "shared/ZAO_Mind.lua",
+    "shared/ZAO_Recovery.lua",
+    "shared/ZAO_Settlement.lua",
+    "shared/ZAO_Pathogen.lua",
+    "shared/ZAO_API.lua",
+]
+
 # The modules a dormant county runs. Client modules that need a body,
 # a screen or the player are absent on purpose - a sweep is the
 # unobserved half of the county.
@@ -129,11 +146,21 @@ MODULES = [
     "shared/SAO_Log.lua", "shared/SAO_Hash.lua", "shared/SAO_Rand.lua",
     "shared/SAO_Census.lua", "shared/SAO_History.lua",
     "shared/SAO_Disposition.lua", "shared/SAO_Conditions.lua",
-    "shared/SAO_Course.lua",
+    "shared/SAO_Course.lua", "shared/SAO_Neuro.lua",
+    "shared/SAO_Adaptation.lua", "shared/SAO_Isolation.lua",
+    "shared/SAO_Organization.lua", "shared/SAO_Settlement.lua",
+    "shared/SAO_Material.lua", "shared/SAO_Recognition.lua",
+    "shared/SAO_Communication.lua", "shared/SAO_GraphPersistence.lua",
+    "shared/SAO_Integration.lua", "shared/SAO_Branching.lua",
+    "shared/SAO_Labor.lua", "shared/SAO_PathogenPressure.lua",
+    "shared/SAO_PlaceAttachment.lua", "shared/SAO_PlayerInteraction.lua",
+    "shared/SAO_Pressure.lua", "shared/SAO_WorldDevelopment.lua",
     "shared/SAO_Habits.lua", "shared/SAO_Claims.lua", "shared/SAO_Identity.lua",
     "shared/SAO_Lessons.lua", "shared/SAO_Knowledge.lua",
+    "shared/SAO_PathogenEvents.lua", "shared/SAO_WorldGenesis.lua",
     "shared/SAO_Seams.lua", "shared/SAO_Standing.lua",
     "shared/SAO_Perception.lua", "shared/SAO_Places.lua",
+    "client/SAO_AfflictedReturn.lua", "client/SAO_Nuke.lua",
     "client/SAO_Age.lua", "client/SAO_Telemetry.lua",
     "client/SAO_Population.lua",
 ]
@@ -152,28 +179,32 @@ NOT_DORMANT = {
     "Body": "the prelude answers for it - nobody is materialised",
     "Population": "the module doing the loading names itself",
     "Telemetry": "same",
+    "Driving": "drives materialised vehicles; dormant half has no vehicle drivers",
+    "UI": "renders player UI widgets; dormant half has no screen",
+    "MedicalWindow": "renders doctor UI window; dormant half has no screen",
+    "Inspect": "renders inspection window; dormant half has no screen",
+    "Harness": "manages local client test harness and body loops",
+    "Gesture": "plays physical character animations; dormant half has no bodies",
+    "Exchange": "handles active trade window; dormant half has no screen",
+    "Drugs": "administers ingested items to active bodies; dormant half has no inventory",
+    "Medical": "performs timed first aid actions; dormant half has no bodies",
+    "Absorb": "absorbs items from containers into body",
+    "Animals": "interacts with animal bodies; dormant half has no animals",
+    "Neighbours": "scans spatial grids for loaded zombies",
+    "Sandbox": "manages sandbox options GUI",
+    "RadioEar": "listens to audio frequencies on held radio",
 }
 
 RUN = r'''(function()
   _G.__world = 'RUN_NAME'
+  local evidence = SAOSweepEvidence.begin()
   local s = ModData.getOrCreate('SurvivorAwareness_Standing')
-  -- Houses EVER founded, counted at the verb. A count of house names
-  -- in the store answers "standing at the end" and cannot answer
-  -- this, because [C68] stopped the dead holding a roster open.
-  local foundedEver = 0
-  if SAO.Standing.formCompany then
-    local realForm = SAO.Standing.formCompany
-    SAO.Standing.formCompany = function(ids, name)
-      local ok = realForm(ids, name)
-      if ok then foundedEver = foundedEver + 1 end
-      return ok
-    end
-  end
   -- No county is built here. ensurePopulation fills it through the
   -- real path, from the map's own spawn regions.
   local tick = _G.__handlers.OnTick
   for i = 1, 240 * 9000 do
     tick()
+    evidence.observe()
     if i % 240 == 0
       and (tonumber(s.yearsRun) or 0) >= (tonumber(s.yearsOwed) or -1) then
       break
@@ -194,8 +225,14 @@ RUN = r'''(function()
     end
   end
   local standing, biggest = 0, 0
+  local ge4, ge8, ge15 = 0, 0, 0
   for _, n in pairs(liveGroups) do
-    if n > 1 then standing = standing + 1 end
+    if n > 1 then
+      standing = standing + 1
+      if n >= 4 then ge4 = ge4 + 1 end
+      if n >= 8 then ge8 = ge8 + 1 end
+      if n >= 15 then ge15 = ge15 + 1 end
+    end
     if n > biggest then biggest = n end
   end
   local best, atLine = 0, 0
@@ -206,26 +243,94 @@ RUN = r'''(function()
       if t >= 0.5 then atLine = atLine + 1 end
     end
   end
+  local totalNeuro, afflictedCount = 0, 0
+  local infectedCount, turnedCount = 0, 0
+  for _, r in pairs(SAO.Identity.all()) do
+    if not r.dead then
+      local n = tonumber(r.neuroinflammation) or 0
+      totalNeuro = totalNeuro + n
+      if r.pathogenState and r.pathogenState.terminalState == 'afflicted' then
+        afflictedCount = afflictedCount + 1
+      end
+      if r.knoxInfected then infectedCount = infectedCount + 1 end
+    else
+      if r.turnedDormant then turnedCount = turnedCount + 1 end
+    end
+  end
+  local zTurned, zDead, zInfected, zAfflicted, zCrossed = 0, 0, 0, 0, 0
+  if ZAO and ZAO.StateStore then
+    local store = ZAO.StateStore.store()
+    if store and store.people then
+      for _, p in pairs(store.people) do
+        local t = p.terminalState
+        if t == "turned" then zTurned = zTurned + 1
+        elseif t == "dead" then zDead = zDead + 1
+        elseif t == "infected" then zInfected = zInfected + 1
+        elseif t == "afflicted" then zAfflicted = zAfflicted + 1
+        elseif t == "crossed" then zCrossed = zCrossed + 1
+        end
+      end
+    end
+  end
+  local pactCount = 0
+  for _, meta in pairs(s.groupMeta or {}) do
+    if meta.pactWith then
+      for _, v in pairs(meta.pactWith) do
+        if v == true then pactCount = pactCount + 1 end
+      end
+    end
+  end
+  pactCount = math.floor(pactCount / 2)
+  local meanNeuro = alive > 0 and (totalNeuro / alive) or 0
+  local detail = evidence.finish()
   return '{"ranTo":' .. tostring(s.yearsRun)
+    .. ',"yearsTicks":' .. tostring(s.yearsTicks or 0)
+    .. ',"evidence":' .. detail
     .. ',"alive":' .. alive .. ',"dead":' .. dead
-    .. ',"housesFounded":' .. foundedEver
     .. ',"housesStanding":' .. standing
     .. ',"inAHouse":' .. inHouse
     .. ',"biggestHouse":' .. biggest
+    .. ',"housesGe4":' .. ge4
+    .. ',"housesGe8":' .. ge8
+    .. ',"housesGe15":' .. ge15
+    .. ',"pacts":' .. pactCount
     .. ',"deadOnRosters":' .. stale
     .. ',"pairsAtLine":' .. atLine
-    .. ',"bestTrust":' .. string.format('%.3f', best) .. '}'
+    .. ',"bestTrust":' .. string.format('%.3f', best)
+    .. ',"meanNeuro":' .. string.format('%.3f', meanNeuro)
+    .. ',"afflicted":' .. afflictedCount
+    .. ',"infected":' .. infectedCount
+    .. ',"turned":' .. turnedCount
+    .. ',"zaoTurned":' .. zTurned
+    .. ',"zaoDead":' .. zDead
+    .. ',"zaoInfected":' .. zInfected
+    .. ',"zaoAfflicted":' .. zAfflicted
+    .. ',"zaoCrossed":' .. zCrossed .. '}'
 end)()'''
 
 COLUMNS = [
     ("alive", "survivors at the end"),
     ("dead", "died over the run"),
     ("housesFounded", "houses founded"),
+    ("survivorsJoined", "survivors joined a house"),
     ("housesStanding", "houses standing at the end"),
     ("inAHouse", "survivors in a house"),
     ("biggestHouse", "largest house"),
+    ("housesGe4", "houses >= 4 members"),
+    ("housesGe8", "houses >= 8 members"),
+    ("housesGe15", "houses >= 15 members"),
+    ("pacts", "house pacts"),
     ("pairsAtLine", "pairs above the company line"),
     ("deadOnRosters", "dead still on a roster"),
+    ("meanNeuro", "mean neuroinflammation"),
+    ("afflicted", "afflicted survivors"),
+    ("infected", "infected survivors"),
+    ("turned", "turned to zombies"),
+    ("zaoTurned", "ZAO recorded turned"),
+    ("zaoDead", "ZAO recorded dead"),
+    ("zaoInfected", "ZAO recorded infected"),
+    ("zaoAfflicted", "ZAO recorded afflicted"),
+    ("zaoCrossed", "ZAO recorded crossed"),
 ]
 
 
@@ -254,12 +359,133 @@ def modules_referenced(lua):
     return sorted(named - loaded - set(NOT_DORMANT)), sorted(loaded)
 
 
-def one(name, lua, owed, refill, engine=False):
+class EvidenceError(RuntimeError):
+    """The run cannot support a completed simulation claim."""
+
+
+def sha256(path):
+    digest = hashlib.sha256()
+    with pathlib.Path(path).open('rb') as stream:
+        for block in iter(lambda: stream.read(1024 * 1024), b''):
+            digest.update(block)
+    return digest.hexdigest()
+
+
+def cell_span():
+    return _cell_span(str(PZ), PZ.stat().st_mtime_ns)
+
+
+@functools.lru_cache(maxsize=2)
+def _cell_span(path, modified):
+    done = subprocess.run([str(JDK / 'javap.exe'), '-classpath', str(PZ), '-c',
+                           'zombie.iso.IsoCell'], capture_output=True, text=True, timeout=60)
+    match = re.search(r'public static int getCellSizeInSquares\(\);\s+Code:\s+'
+                      r'0:\s+(?:sipush|bipush)\s+(\d+)\s+3:\s+ireturn', done.stdout)
+    if done.returncode or not match:
+        raise EvidenceError('installed cell span could not be verified from IsoCell bytecode')
+    return int(match.group(1))
+
+
+def require_modules(lua, joint=False):
+    paths = [lua / rel for rel in MODULES]
+    if joint:
+        paths = [ZAO_ROOT / rel for rel in ZAO_MODULES] + paths
+    absent = [str(path) for path in paths if not path.is_file()]
+    missing, _ = modules_referenced(lua)
+    if absent or missing:
+        raise EvidenceError('missing simulation modules: ' + ', '.join(absent + missing))
+    if joint:
+        loaded = {path.stem.removeprefix('ZAO_') for path in paths if path.name.startswith('ZAO_')}
+        named = set()
+        for path in paths:
+            named.update(re.findall(r'ZAO\.([A-Z][A-Za-z]*)', path.read_text(encoding='utf-8')))
+        # Controller requires loaded zombie bodies; the dormant seam observes records.
+        absent = named - loaded - {'Controller'}
+        if absent:
+            raise EvidenceError('unloaded joint pathogen modules: ' + ', '.join(sorted(absent)))
+    return paths
+
+
+def validate_result(result, owed, engine=False, engine_counts=None, joint=False):
+    """Completion and observability are requirements; outcomes never are."""
+    if result.get('ranTo') != owed:
+        raise EvidenceError('incomplete horizon: requested %s, completed %s'
+                            % (owed, result.get('ranTo')))
+    if result.get('yearsTicks') != owed * 216000:
+        raise EvidenceError('completed-day claim does not match the county clock')
+    if result.get('alive', 0) + result.get('dead', 0) <= 0:
+        raise EvidenceError('empty county; genesis did not produce people')
+    detail = result.get('evidence', {})
+    if detail.get('faultCount') != 0:
+        raise EvidenceError('protected callback failures: %s' % detail.get('faults', detail))
+    if not detail.get('seed'):
+        raise EvidenceError('county seed absent')
+    if engine and (not engine_counts or any(n <= 0 for n in engine_counts.values())):
+        raise EvidenceError('engine name pools or profession registry absent')
+    if joint and detail.get('callbackCounts', {}).get('simulateDay', 0) < owed:
+        raise EvidenceError('joint pathogen daily callback did not cover the horizon')
+    return result
+
+
+HISTORY_ORIGIN = datetime.date(1993, 7, 9)
+
+
+def calendar_fields(date):
+    return {'iso': date.isoformat(), 'year': date.year,
+            'month0': date.month - 1, 'day0': date.day - 1}
+
+
+def evidence_host(owed):
+    target = HISTORY_ORIGIN + datetime.timedelta(days=owed)
+    epoch_ms = (target - datetime.date(1970, 1, 1)).days * 86400000
+    return ((SWEEP / 'evidence_host.lua').read_text(encoding='utf-8')
+            .replace('SWEEP_CELL_SPAN', str(cell_span()))
+            .replace('SWEEP_START_EPOCH_MS', str(epoch_ms)))
+
+
+def provenance(name, lua, owed, refill, population, engine, joint, paths):
+    loaded = {str(path): sha256(path) for path in paths}
+    host = [PZ, STDLIB, SRC, OUT / 'LuaRun.class', JDK / 'java.exe', JDK.parent / 'release',
+            SWEEP / 'prelude.lua', SWEEP / 'places.lua',
+            SWEEP / 'evidence.lua', SWEEP / 'evidence_host.lua', pathlib.Path(__file__),
+            CACHE / 'map.lua', CACHE / 'regions.lua']
+    if engine:
+        host += [SAO_JAR, ENGINE_FILL_LUA, SWEEP / 'engine_fill.lua',
+                 GAME / 'media/scripts/generated/characters/character_traits.txt',
+                 GAME / 'media/scripts/generated/characters/character_professions.txt']
+    source_hashes = {str(path): sha256(path) for path in host}
+    return {'schema': 'sao-simulation-evidence-v1', 'saveName': name,
+            'runtime': 'Kahlua from the installed Project Zomboid jar',
+            'requestedDays': owed, 'engineData': engine, 'jointPathogen': joint,
+            'populationOverride': population, 'refillOverride': refill,
+            'historyOrigin': calendar_fields(HISTORY_ORIGIN),
+            'startCalendar': calendar_fields(HISTORY_ORIGIN + datetime.timedelta(days=owed)),
+            'calendarPolicy': 'Exact Gregorian origin plus elapsed days; game starts at target midnight.',
+            'cohortPolicy': 'Independent initialization per horizon; actual seed includes target start date.',
+            'cellSpanFromInstalledBytecode': cell_span(),
+            'loadedModules': loaded, 'moduleLoadOrder': [str(path) for path in paths],
+            'sourceHashes': source_hashes,
+            'limits': ['Dormant records only; no loaded bodies or physical actions.',
+                       'Map rooms and spawnpoints from installed game.',
+                       'Claim chunk surveys unavailable; no fabricated boarding.',
+                       'Production birth year derives from target start year; horizons are not one cohort.']}
+
+
+def one(name, lua, owed, refill, population=None, engine=False, joint=False,
+        timeout=3600):
+    lua = pathlib.Path(lua)
+    if owed <= 0 or not re.fullmatch(r'[A-Za-z0-9_.-]+', name):
+        raise EvidenceError('positive calendar days and a safe save name are required')
+    paths = require_modules(lua, joint)
+    identity = provenance(name, lua, owed, refill, population, engine, joint, paths)
     prelude = (SWEEP / "prelude.lua").read_text(encoding="utf-8")
     prelude = prelude.replace("_G.__owed = 1096", "_G.__owed = %d" % owed)
     if refill is not None:
         prelude = prelude.replace("RefillDays = 2.0",
                                   "RefillDays = %s" % refill)
+    if population is not None:
+        prelude = prelude.replace("PopulationGoverned = false, Population = 216,",
+                                  "PopulationGoverned = true, Population = %d," % population)
     with tempfile.TemporaryDirectory() as tmp:
         work = pathlib.Path(tmp)
         shutil.copy2(STDLIB, work / "stdlib.lua")
@@ -267,32 +493,80 @@ def one(name, lua, owed, refill, engine=False):
             shutil.copy2(c, work / c.name)
         pre = work / "prelude.lua"
         pre.write_text(prelude, encoding="utf-8")
+        host_path = work / 'evidence_host.lua'
+        host_path.write_text(evidence_host(owed), encoding='utf-8')
         cp = "%s;%s;." % (PZ, SAO_JAR) if engine else "%s;." % PZ
         args = [str(JDK / "java.exe"), "-cp", cp, "LuaRun"]
         if engine:
             args += ["--engine", str(GAME)]
-        args += [str(pre)]
+        args += [str(pre), str(host_path)]
         if engine:
             # The game's own fill file, then the chunk that calls its
             # fill functions - before the mod's modules, which is the
             # game's own load order: engine Lua first, mod Lua after.
             args += [str(ENGINE_FILL_LUA), str(SWEEP / "engine_fill.lua")]
         args += [str(CACHE / "map.lua"), str(SWEEP / "places.lua")]
-        args += [str(lua / m) for m in MODULES if (lua / m).exists()]
-        args += [str(CACHE / "regions.lua"), "--", RUN.replace("RUN_NAME", name)]
+        # SAO owns the living records; ZAO resolves those records at invocation.
+        # All declarations are loaded before the first county callback.
+        if joint:
+            args += [str(ZAO_ROOT / m) for m in ZAO_MODULES]
+        args += [str(lua / m) for m in MODULES]
+        args += [str(CACHE / "regions.lua"), str(SWEEP / 'evidence.lua'),
+                 "--", RUN.replace("RUN_NAME", name)]
         try:
             done = subprocess.run(args, cwd=str(work), capture_output=True,
-                                  text=True, timeout=3600)
+                                  text=True, encoding='utf-8', errors='replace', timeout=timeout)
         except subprocess.TimeoutExpired:
-            return None
+            raise EvidenceError('%s timed out before completing %s days' % (name, owed))
+        except OSError as exc:
+            raise EvidenceError('%s VM could not start: %s' % (name, exc)) from exc
     out = done.stdout or ""
-    at = out.find("VALUE ")
-    if at < 0:
-        return None
+    if done.returncode != 0 or re.search(r'^ERROR ', out, re.M):
+        raise EvidenceError('%s VM failed (exit %s): %s' %
+                            (name, done.returncode, (out + done.stderr)[-4000:]))
+    values = re.findall(r'^VALUE (.+)$', out, re.M)
+    if len(values) != 1:
+        raise EvidenceError('%s did not return exactly one result' % name)
     try:
-        return json.loads(out[at + 6:].strip().split("\n")[0])
-    except ValueError:
-        return None
+        result = json.loads(values[0])
+    except ValueError as exc:
+        raise EvidenceError('%s returned invalid JSON: %s' % (name, exc)) from exc
+    match = re.search(r'^ENGINE pools male=(\d+) female=(\d+) surnames=(\d+) professions=(\d+)$', out, re.M)
+    counts = dict(zip(('maleNames', 'femaleNames', 'surnames', 'professions'),
+                      map(int, match.groups()))) if match else None
+    validate_result(result, owed, engine, counts, joint)
+    # Concurrent edits invalidate provenance even if the VM happened to finish.
+    if provenance(name, lua, owed, refill, population, engine, joint, paths) != identity:
+        raise EvidenceError('%s source changed during simulation' % name)
+    identity['engineRegistry'] = counts
+    identity['seed'] = result['evidence']['seed']
+    identity['drawCount'] = result['evidence'].get('drawCount')
+    result['housesFounded'] = result['evidence']['housesFounded']
+    result['survivorsJoined'] = result['evidence']['survivorsJoined']
+    result['survivorsLeft'] = result['evidence']['survivorsLeft']
+    result['provenance'] = identity
+    result['completed'] = True
+    return result
+
+
+def prepare(lua, engine=False, joint=False):
+    require_modules(pathlib.Path(lua), joint)
+    required = [JDK / 'java.exe', JDK / 'javac.exe', JDK / 'javap.exe', PZ, STDLIB, SRC]
+    if engine:
+        required += [SAO_JAR, ENGINE_FILL_LUA]
+    absent = [str(path) for path in required if not path.is_file()]
+    if absent:
+        raise EvidenceError('required runtime files absent: ' + ', '.join(absent))
+    maps = World.maps_dir(GAME)
+    newest = max((p.stat().st_mtime for p in maps.rglob('*')
+                  if p.is_file() and (p.name == 'spawnpoints.lua' or p.suffix == '.lotheader')),
+                 default=0)
+    if not all((CACHE / name).is_file() for name in ('map.lua', 'regions.lua')) or \
+            (CACHE / 'map.lua').stat().st_mtime < newest:
+        if not World.build(GAME, CACHE):
+            raise EvidenceError('installed map could not be extracted')
+    if not build_runner():
+        raise EvidenceError('LuaRun did not compile against the installed engine')
 
 
 def main():
@@ -302,6 +576,8 @@ def main():
                     help="days the county owes at genesis")
     ap.add_argument("--refill", default=None,
                     help="RefillDays, through the sandbox rather than the code")
+    ap.add_argument("--population", type=int, default=None,
+                    help="initial genesis living population (default 216)")
     ap.add_argument("--lua", default=None,
                     help="another tree's lua root, for a before/after")
     ap.add_argument("--workers", type=int, default=6)
@@ -310,21 +586,26 @@ def main():
                          "name pools and profession definitions; a "
                          "different county from the same name (see the "
                          "engine mode above)")
+    ap.add_argument('--joint', action='store_true',
+                    help='load the sibling ZAO pathogen modules explicitly')
+    ap.add_argument('--timeout', type=int, default=3600,
+                    help='per-county timeout in seconds; expiry is a failed run')
     args = ap.parse_args()
+    if args.runs <= 0 or args.days <= 0 or args.workers <= 0:
+        ap.error('runs, days and workers must be positive')
 
     print("=" * 74)
     print("COUNTY SWEEP - what the shipped county produced, over %d runs"
           % args.runs)
     print("=" * 74)
 
-    if not (JDK.exists() and PZ.exists() and STDLIB.exists()
-            and SRC.exists() and GAME.exists()):
-        print("  SKIPPED - no JDK, engine jar, stdlib, runner or game.")
-        print("  This runs the shipped modules in the engine's own VM "
-              "against the")
-        print("  shipped map, so it needs the game installed. Nothing "
-              "is asserted,")
-        print("  so there is nothing to fail.")
+    if not SRC.exists():
+        print('  FAILED - repository LuaRun source is absent.')
+        return 1
+    if not (JDK.exists() and PZ.exists() and STDLIB.exists() and GAME.exists()):
+        # The historical sweep CLI participates in the repository's no-game
+        # census. This is explicitly no sample; evidence APIs still refuse.
+        print('  SKIPPED - game or JDK absent; no counties run and no data produced.')
         return 0
     if args.engine and not SAO_JAR.exists():
         print("  the mod jar is not built (%s)." % SAO_JAR)
@@ -346,19 +627,12 @@ def main():
     print("  modules loaded: %d; not run by a dormant county: %d (%s)"
           % (len(loaded), len(NOT_DORMANT), ", ".join(sorted(NOT_DORMANT))))
     if missing:
-        print()
         print("  REFERENCED BY LOADED CODE, NOT LOADED, NOT DECLARED "
               "ABSENT:")
         for name in missing:
             print("      SAO.%s" % name)
-        print("  Every call reaching one of those is nil, and a guarded "
-              "call to it")
-        print("  fails silently. Twice this has produced a complete set "
-              "of numbers")
-        print("  that meant nothing. Read what follows knowing which half "
-              "of the")
-        print("  county did not run, or load the module and run it again.")
-        print()
+        print('  FAILED - no simulation started.')
+        return 1
     else:
         print("  every other SAO module the loaded code calls is loaded")
 
@@ -387,6 +661,11 @@ def main():
     if not build_runner():
         print("  LuaRun will not compile against the installed jar")
         return 1
+    try:
+        prepare(lua, args.engine, args.joint)
+    except EvidenceError as exc:
+        print('  FAILED:', exc)
+        return 1
 
     print("  %d counties, %d days owed, one process each%s%s"
           % (args.runs, args.days,
@@ -406,22 +685,29 @@ def main():
     with concurrent.futures.ThreadPoolExecutor(
             max_workers=args.workers) as pool:
         futures = {pool.submit(one, "County%03d" % k, lua, args.days,
-                               args.refill, args.engine)
+                               args.refill, args.population, args.engine,
+                               args.joint, args.timeout)
                    : k for k in range(args.runs)}
         for f in concurrent.futures.as_completed(futures):
-            r = f.result()
+            try:
+                r = f.result()
+            except EvidenceError as exc:
+                print('  run %s FAILED: %s' % (futures[f], exc))
+                continue
             if r:
                 rows.append(r)
-                print("  run %-3d alive=%-4d founded=%-4d standing=%-3d "
-                      "biggest=%-3d bestTrust=%s"
-                      % (futures[f], r["alive"], r["housesFounded"],
+                print("  run %-3d alive=%-4d dead=%-4d founded=%-3d standing=%-3d "
+                      "biggest=%-2d ge4=%-2d ge8=%-2d zTurned=%-3d zCrossed=%-2d"
+                      % (futures[f], r["alive"], r["dead"], r["housesFounded"],
                          r["housesStanding"], r["biggestHouse"],
-                         r["bestTrust"]))
+                         r.get("housesGe4", 0), r.get("housesGe8", 0),
+                         r.get("zaoTurned", 0), r.get("zaoCrossed", 0)))
             else:
                 print("  run %-3d did not finish" % futures[f])
 
-    if not rows:
-        print("\n  no county completed")
+    if len(rows) != args.runs:
+        print('\n  FAILED: %s/%s counties completed; aggregate withheld'
+              % (len(rows), args.runs))
         return 1
 
     n = len(rows)
