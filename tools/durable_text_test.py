@@ -56,6 +56,7 @@ public final class SAOHibernation {
 }""",
     "SAONativeSnapshot.java": """package com.sao.engine;
 public final class SAONativeSnapshot {
+    public static boolean isNative(String text) { return text != null && text.startsWith("v"); }
     public static String captureReturnLiving(SAOIsoPlayerShell body) { return SAODurableProbeSink.payload; }
     public static String captureReturn(zombie.characters.IsoZombie source, SAOIsoPlayerShell body) { return SAODurableProbeSink.payload; }
     public static String captureReturnVisual(zombie.characters.IsoGameCharacter body) { return SAODurableProbeSink.visual; }

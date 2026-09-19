@@ -1346,6 +1346,18 @@ public final class SAOBridge {
         catch (Throwable error) { return false; }
     }
 
+    public int hibernationVersion(Object packed) {
+        try {
+            String value = SAODurableText.unpack(packed);
+            if (com.sao.engine.SAONativeSnapshot.isNative(value)) {
+                return com.sao.engine.SAONativeSnapshot.formatVersion(value);
+            }
+            if (value != null && value.startsWith("v2;")) return 2;
+            if (value != null && value.startsWith("v1;")) return 1;
+        } catch (Throwable error) { }
+        return 0;
+    }
+
     public Object createReturnBody(String first, String last, double x, double y, double z, boolean female) {
         return com.sao.engine.SAOReturnBody.create(first, last, x, y, z, female);
     }
@@ -1381,7 +1393,7 @@ public final class SAOBridge {
         if (!(object instanceof SAOIsoPlayerShell shell)) return false;
         try {
             String packed = SAODurableText.unpack(value);
-            if (packed != null && packed.startsWith("v3;")) {
+            if (com.sao.engine.SAONativeSnapshot.isNative(packed)) {
                 com.sao.engine.SAONativeSnapshot.restoreStaged(shell, packed);
                 return true;
             }

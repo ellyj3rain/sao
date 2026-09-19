@@ -1925,6 +1925,13 @@ if ! "$PY" tools/shared_time_test.py; then
     fail=1
 fi
 
+# [C54] Border 169 - all native person components, migration provenance,
+# repeated wakes and the next component updates share one v4 envelope.
+if ! "$PY" tools/person_continuity_test.py; then
+    note "BORDER FINDING - native person continuity failed"
+    fail=1
+fi
+
 # Border 103 - the operator's speech is not in the repository: no
 # profanity in the tracked tree and no operator-quote attributions;
 # rulings are paraphrased content, speech stays with the speaker.

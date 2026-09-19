@@ -1,6 +1,6 @@
 | Document | Survivor Awareness Overhaul Dependency Substrate |
 |---|---|
-| Version | `2.7.14.4-pre-alpha` |
+| Version | `2.7.14.5-pre-alpha` |
 | Author | ellyj3rain |
 | Repository | `SUBSTRATE.md` |
 | Status | CANONICAL - what exists, what is planned, and what each area of concern needs. |
@@ -139,18 +139,19 @@ former batch labels inside evidence retain their historical meaning.
 
 ## Person preservation and continuation
 
-C51 implements the first continuation contract: capture failure preserves the
+C51 implements the ownership contract: capture failure preserves the
 prior record and body/controller ownership; failed teardown retains a durable
 pending capture; restoration occurs before publication/adoption for every caller.
 Explicit clearing removes identity after teardown. Incoming actions and retained
 representations are distinguished from dormant people. Borders 162-163 exercise
 the actual Lua ownership and native component codecs with source controls.
 
-Supported native state comprises inventory (including nested contents), held,
-worn and attached references, Stats, BodyDamage and XP/traits/perks. Nutrition,
-fitness, learned recipes, standalone character ModData and appearance remain
-outside that snapshot. v1/v2 compatibility retains the information those formats
-actually stored. Existing positive-elapsed dormant metabolism remains unvalidated.
+C54 completes R3 with the v4 native-person envelope. It adds nutrition, fitness,
+learning and reading collections, descriptor perk boosts, appearance, growth
+timers and declared durable character ModData. Per-item native fluid facts detect
+silent mixture or definition loss. v1-v3 readers retain only the information
+those formats stored and record migration provenance when awakened. Positive-
+elapsed dormant metabolism and in-progress runtime actions remain separate work.
 
 The remaining work is assigned to R1-R15 in ROADMAP.md. The contracts below
 define its implementation and proof. A remaining technical unknown has a
@@ -259,29 +260,33 @@ no R2 code change: its controller already obtains decision ticks through
 `SAO.Controller.tick()`, and its pathogen/state readers already use county hours
 or explicit elapsed days.
 
-R3 and R4 continue below. Their timestamp migrations must identify the old
+R3 closes below and R4 continues. Their timestamp migrations identify the old
 axis before conversion; an unidentifiable frame counter cannot become claimed
 historical time. R5 still owns drug scheduling and physiology partition
 equivalence. A common clock makes those repairs possible but does not complete
 them.
 
-Extend `SAONativeSnapshot`, `SAOHibernation` and Body's restoration order with
-the following field ownership. Native serializer availability is a starting
-point for each next-update test, not proof that omitted runtime fields are inert.
+### R3: complete person persistence (closed C54)
 
-| Person state | Native or record owner and implementation | Required proof or bounded investigation |
+`SAONativeSnapshot`, `SAOHibernation` and Body restore the following field
+ownership. Border 169 executes the production codec against installed Build
+42.20 and removes each continuation or refusal seam as a control.
+
+| Person state | Native or record owner and implementation | Verified boundary |
 |---|---|---|
-| Nutrition | `IsoPlayer.getNutrition()`; `Nutrition.save/load` stores calories, protein, lipids, carbohydrates and float-rounded weight. Add a bounded section and finite-value preflight. | Preserve nondefault values and the next update. Investigate omitted `updatedWeight`, flags and extrema; low-weight setters can apply damage and emit an event, so restoration must not invent another injury. |
-| Fitness | `IsoPlayer.getFitness()`; `Fitness.save/load` preserves regularity, stiffness, affected parts and exercise timestamps. Restore into a fresh component after controlled initialization, or use an explicitly verified clearing route. | Pending stiffness/pain and conditioning survive repeated wakes. Native load inserts without clearing and no general clearing API is established; `lastUpdate` and current exercise are omitted. Resolve calendar-millisecond stamps and minute-boundary continuation against R2. |
-| Recipes, reading and learning modifiers | Preserve the known-recipe string list, read-page/media/book collections and `SurvivorDesc.getXPBoostMap`; these are outside XP's existing codec. Restore after profession defaults without replaying learning callbacks. | Book progress, custom perk boosts and the next XP grant agree. Enumerate every read-media collection. Retain missing recipe IDs with separate current availability; missing required perk definitions refuse restoration. |
-| Human appearance | `HumanVisual.save/load` preserves skin, hair/beard colors/models and body visuals. Restore it with exact worn references before final model reset. Identity owns name/sex/age projections. | Dyed/hat-dependent hair and body marks survive. Establish ownership/reconstruction of forced-model/outfit references. Investigate separate hair/beard growth timers, whose public preservation setters were not found; prove reconstruction or justify an engine adapter before using one. |
-| Character metadata | `IsoObject.getModData/setModData` and Kahlua's codec exist, but unsupported values are silently omitted. Inventory keys, integration owner and durable/runtime meaning; persist declared durable values, reconstruct runtime values and reassert Identity's person ID. | Nested optional drug counters survive absent modules and repeated wakes without aliasing. Required unsupported values, cycles and oversized structures refuse capture. This work includes the optional methadone/withdrawal state, not just item ModData already preserved by C51. |
-| Fluid contents | Native item/entity serialization reaches `FluidContainer.save/load`, which can silently drop missing fluid definitions. Extend validation beyond the item-ID/type/parent manifest. | Root and nested containers preserve mixture and amount. A removed definition must be detected; reload cannot accept a different mixture as the same carried item. |
+| Nutrition | Native calories, protein, lipids, carbohydrates and float-rounded weight share a bounded section with engine-adapter reads for `updatedWeight`, calorie extrema and weight-direction flags. Finite weight is preflighted at 35 or above before `Nutrition.load` can call its damaging low-weight setter. | Nondefault state survives repeated wakes. Two restored bodies agree on the next native update; removing the hidden cadence restore or low-weight preflight flips the verdict. |
+| Fitness | Native regularity, stiffness, affected parts and exercise timestamps load into a new `Fitness` component before its exercise definitions initialize. | Destination defaults cannot leak through the insert-only loader. `lastUpdate` starts at `-1`, establishes the current ten-minute bucket on the first update and advances on the next. The in-progress `currentExe` action is runtime work for R4 and is not represented as completed history. |
+| Recipes, reading and learning modifiers | The v4 learning section preserves recipe IDs, known media lines, per-book page progress, completed-book IDs, literature counts, print media and `SurvivorDesc.getXPBoostMap`. Direct collection restoration follows profession defaults and invokes no learning callback. | Missing recipe IDs remain known strings. Missing required perk definitions refuse; repeated wakes and the next boosted XP grant agree. |
+| Human appearance | Native `HumanVisual` state restores after exact worn references and before the final model reset. Stable outfit names and forced-model script references are checked against their registries. Hair and beard growth timers use a bounded engine-field adapter. Identity continues to own name, sex and age. | Skin, color, hair/beard models, body visuals, outfit and growth timing survive. An unreferenced forced model, removed outfit, unavailable script or changed native visual refuses the staged body. |
+| Character metadata | The v4 metadata section uses Kahlua's native codec after recursively rejecting unsupported required values, cycles, excessive depth and oversized strings. SAO/ZAO ownership keys are excluded and reapplied from the destination runtime. | Nested optional state including `NnCMethadoneEffect` survives without aliasing. `SAOPersonId` and return/pathogen marks remain reconstructed runtime state rather than copied history. |
+| Fluid contents | The manifest records each carried item's native `FluidContainer` bytes in addition to item identity/type/parent. Restore reserializes every root and nested fluid component and compares its exact ownership and content. | Mixture and amount survive. Removing a fluid definition makes the staged restore refuse instead of accepting a silently altered carried item. |
 
-Version the new envelope and retain v1-v3 readers. Missing historical fields
-are marked absent and initialized once from a documented engine/record baseline
-with migration provenance. They are not described as recovered history. Invalid
-required sections preserve the durable snapshot and C51's cleanup/retry contract.
+The v4 writer retains v1-v3 readers. Older records initialize absent component
+state from the fresh engine body and record `hibernationMigration.from` and the
+county hour of that wake. No absent historical field is described as recovered.
+Invalid required sections preserve the durable snapshot and C51's cleanup/retry
+contract. v4 owns ordinary appearance; the older visual sidecar remains only for
+older records and transient return-source comparison.
 
 For R4, enumerate graph, person, pending-action and sibling state by durable
 owner, runtime registry and startup reconstruction caller. Built-in graph

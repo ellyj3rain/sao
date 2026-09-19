@@ -10,8 +10,8 @@ import zombie.inventory.types.Food;
  * body carries and is; awaken() restores it onto a fresh shell and runs the
  * dormant simulation for the hours nobody was looking.
  *
- * New snapshots use the native v3 envelope. Legacy v1/v2 snapshots remain
- * readable with their original, limited inventory and wound semantics.
+ * New snapshots use the complete native v4 envelope. Native v3 and legacy
+ * v1/v2 snapshots remain readable within the state each format carried.
  *
  * Dormant metabolism: hunger +0.012/h, thirst +0.020/h (approximate engine
  * rates), offset by eating carried food (largest first, the way [A8]
@@ -30,7 +30,7 @@ public final class SAOHibernation {
     private SAOHibernation() {
     }
 
-    /** Native v3 is the only new writer; v1/v2 remain legacy readers. */
+    /** Native v4 is the only new writer; v1-v3 remain readers. */
     public static String hibernate(IsoPlayer shell) {
         try {
             return SAONativeSnapshot.capture(shell);
@@ -42,7 +42,7 @@ public final class SAOHibernation {
     /** Check a snapshot before a fresh body or its inventory is changed. */
     public static boolean validate(String packed) {
         try {
-            if (packed != null && packed.startsWith("v3;")) {
+            if (SAONativeSnapshot.isNative(packed)) {
                 return SAONativeSnapshot.validate(packed);
             }
             parseLegacy(packed);
@@ -61,7 +61,7 @@ public final class SAOHibernation {
                     || !validate(packed)) {
                 return "AWAKEN_FAILED invalid snapshot or elapsed time";
             }
-            boolean nativeSnapshot = packed.startsWith("v3;");
+            boolean nativeSnapshot = SAONativeSnapshot.isNative(packed);
             boolean v2 = packed.startsWith("v2;");
             LegacySnapshot legacy = nativeSnapshot ? null : parseLegacy(packed);
             String primaryType = legacy == null ? "-" : legacy.fields.get("primary");
