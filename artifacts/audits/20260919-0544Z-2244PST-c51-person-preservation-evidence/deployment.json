@@ -1,0 +1,13 @@
+{
+  "command": [
+    "C:\\Users\\jleyv\\Peanut Butter\\Git\\Git\\bin\\bash.exe",
+    "tools/deploy.sh"
+  ],
+  "resolved_target": "C:\\Users\\jleyv\\Zomboid\\mods\\SurvivorAwareness",
+  "exit_code": 0,
+  "installed_jar_sha256": "d3592141fe8ac8deae1d9ef2f8253b649c84076421fb062a59222636302babdc",
+  "compared_files": 249,
+  "mismatches": [],
+  "extras": [],
+  "status": "PASS"
+}

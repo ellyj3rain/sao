@@ -1,6 +1,6 @@
 | Document | Survivor Awareness Overhaul Dependency Substrate |
 |---|---|
-| Version | `2.7.14.1-pre-alpha` |
+| Version | `2.7.14.2-pre-alpha` |
 | Author | ellyj3rain |
 | Repository | `SUBSTRATE.md` |
 | Status | CANONICAL - what exists, what is planned, and what each area of concern needs. |
@@ -119,12 +119,12 @@ The matrix below is an implementation assessment. Evidence A is the
 [recent implementation audit](artifacts/audits/20260919-0356Z-2056PST-c112-c126-implementation-audit.md)
 and its preserved source hashes and controlled probes. Evidence B is the
 [engine serialization and release probe](artifacts/audits/20260919-0433Z-2133PST-c-substrate-evidence/README.md),
-recorded in F-077. Source names refer to the current unchanged runtime tree;
+recorded in F-077. Source names in the original evidence refer to its recorded runtime tree;
 former batch labels inside evidence retain their historical meaning.
 
 | Contract | Producer and caller | Durable state | Observation or test | Remaining gap |
 |---|---|---|---|---|
-| One person across loaded and dormant life | Identity owns the record; Body.materialize creates a body; Controller.adopt attaches decisions; Population manages range transitions | Person registry and hibernation pack; body registry is transient | B executes Body.release in the installed VM, with successful, empty and throwing capture | Failed capture still removes the body; Population drops its controller first and ignores release failure. Capture and relinquishing ownership need one transaction. |
+| One person across loaded and dormant life | Identity owns the record; Body.materialize creates a body; Controller.adopt attaches decisions; Population manages range transitions | Person registry and hibernation pack; body registry is transient | B executes Body.release in the installed VM, with successful, empty and throwing capture | C51 repairs the supported capture/teardown/restore transaction (Borders 162-163). Native components preserve inventory, equipment, Stats, BodyDamage and XP. Other character components and afflicted-return adoption remain open. |
 | Returned afflicted people resume living | AfflictedReturn reads ZAO's loaded controlled bodies and calls Body.materialize | Existing person identity and ZAO pathogen state | A reproduces a returned body with no controller; explicit adoption is the control | Materialization does not adopt; dormant recovery has no producer. State ownership and body ownership must be handled separately. |
 | County time has consistent units | History derives county hours/ticks; Population advances historical substeps; Controller exposes time to consumers | Historical progress and per-person timestamps | A traces cached Controller.tick and WorldGenesis.applyDay passing a day as a tick | Every consumer must declare units and read the advancing simulation time. A frame callback cannot stand in for many historical substeps. |
 | Saved state reconstructs usable runtime behavior | GraphPersistence binds Branching tables to ModData; Integration.ensure registers built-ins | Serializable IDs and pattern history survive; closures do not | B saves and reloads an actual Kahlua table, then initializes the shipped modules | Built-ins reconstruct. An extension must re-register its callbacks; runtime registries need explicit ownership separate from durable history. No normal built-in reload failure is demonstrated. |
@@ -137,21 +137,21 @@ former batch labels inside evidence retain their historical meaning.
 | Training sees the actual decision moment | county_dump.py joins person, situation, options and choice; Speakeasy owns ratified rows and models | Immutable captured rows and source provenance are required | A mutates person/belief state after capture and shows future information leaking into an earlier row | Deep snapshots, capture failure accounting, complete horizons and executable options are unfinished. Ratification of 190 choices does not validate their exporter. |
 | Learned cognition reaches consequences | Branching/Integration expose pressure and selection; Java inference and fact constraints are primitives | Versioned models, evaluation sets and execution receipts are required | Source tracing finds branch/work outputs consumed by inspection without general execution dispatch | Complete producers and the training/export/runtime path. A model choosing an unavailable action or a graph reporting a choice is not the promised behavior. |
 
-## First continuation contract
+## Person preservation and continuation
 
-The next implementation unit addresses the loaded-body to durable-record
-transition. Body.release and its callers must commit dormancy only
-after capturing the current person successfully. Empty, malformed or throwing
-capture must preserve the previous record and retain recoverable body and
-controller ownership with a specific failure result. Successful capture must
-preserve supported state through reconstruction and relinquish ownership once.
-Population and the diagnostic Harness both drop control before release.
-Harness.clear additionally removes identity, so intentional clearing needs
-its own complete teardown path without leaving an orphaned body.
-The acceptance test covers these caller sequences, failed capture, successful
-capture and failed teardown in the installed VM; a callee-only check is
-insufficient. B establishes the motivating failure, not its frequency in play.
+C51 implements the first continuation contract: capture failure preserves the
+prior record and body/controller ownership; failed teardown retains a durable
+pending capture; restoration occurs before publication/adoption for every caller.
+Explicit clearing removes identity after teardown. Incoming actions and retained
+representations are distinguished from dormant people. Borders 162-163 exercise
+the actual Lua ownership and native component codecs with source controls.
+
+Supported native state comprises inventory (including nested contents), held,
+worn and attached references, Stats, BodyDamage and XP/traits/perks. Nutrition,
+fitness, learned recipes, standalone character ModData and appearance remain
+outside that snapshot. v1/v2 compatibility retains the information those formats
+actually stored. Existing positive-elapsed dormant metabolism remains unvalidated.
 
 Shared time, health ownership, perception, action consequences and all the
-life-simulation producers remain subsequent work. This first repair protects
-the person record; it does not certify the simulation as training ground.
+life-simulation producers remain subsequent work. This repair protects the
+supported person handoff; it does not certify the simulation as training ground.

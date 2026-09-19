@@ -113,7 +113,9 @@ SandboxVars = { SurvivorAwareness = {
     DormantRisk = 30, DayZero = false,
     MaterializeRadius = 45, HibernateRadius = 70,
 }, ZombieLore = { Transmission = 1, Mortality = 5 } }
-SAO.Body = { active = {}, get = function() return nil end }
+SAO.Body = { active = {}, get = function() return nil end,
+    hasRepresentation = function() return false end,
+    recover = function() return true end }
 SAOJavaBridge = {
     daysBehindAtStart = function() return 0 end,
     recordDayToday = function() return 0 end,

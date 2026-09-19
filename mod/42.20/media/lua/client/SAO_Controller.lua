@@ -244,8 +244,9 @@ end
 function Ctl.drop(id)
     id = tostring(id)
     if Ctl.agents[id] then
-        SAO.Locomotion.cancel(id)
+        local ok, err = pcall(SAO.Locomotion.cancel, id)
         Ctl.agents[id] = nil
+        if not ok then log("cancel during drop " .. id .. ": " .. tostring(err)) end
         log("dropped " .. id)
     end
 end
@@ -5260,6 +5261,7 @@ local function witnessDeath(id, agent, body)
 end
 
 local function updateAgent(id, agent)
+    if SAO.Body.isTransitioning(agent.rec) then return end
     local body = SAO.Body.get(id)
     if not body then return end
 
@@ -6081,8 +6083,8 @@ local function updateAgent(id, agent)
                                 end
                             end
                             if not customerNear then
-                                for _, otherB in pairs(SAO.Body.active) do
-                                    if otherB ~= body then
+                                for oid, otherB in pairs(SAO.Body.active) do
+                                    if otherB ~= body and SAO.Body.get(oid) == otherB then
                                         local cdx = otherB:getX() - body:getX()
                                         local cdy = otherB:getY() - body:getY()
                                         if cdx * cdx + cdy * cdy
@@ -6150,7 +6152,7 @@ local function updateAgent(id, agent)
                                 if not playmateNear then
                                     for oid, otherB in pairs(
                                         SAO.Body.active) do
-                                        if otherB ~= body then
+                                        if otherB ~= body and SAO.Body.get(oid) == otherB then
                                             local ostage = nil
                                             pcall(function()
                                                 ostage =

@@ -63,12 +63,8 @@ BUILDERS = {
     ("SAOWorldCensus.java", "surveyItems"): (
         "|=",
         "item category names from the loaded world's own registry"),
-    ("SAOHibernation.java", "hibernate"): (
-        ";,*@=",
-        "the full type of every item a hibernating survivor carries, "
-        "straight out of whatever mod added it - and this one is "
-        "written to the SAVE, so a corrupted row is somebody's "
-        "inventory gone rather than a bad frame the next tick replaces"),
+    # C51 writes native binary sections in Base64, with no item names in
+    # delimiter fields. Border 75 and the native roundtrip hold that format.
     ("SAONeeds.java", "findNamedCorpsesNear"): (
         "|:",
         "the forename and surname of the county's dead"),

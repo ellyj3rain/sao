@@ -1,6 +1,6 @@
 ﻿| Document | Survivor Awareness Overhaul Roadmap |
 |---|---|
-| Version | `2.7.14.1-pre-alpha` |
+| Version | `2.7.14.2-pre-alpha` |
 | Author | ellyj3rain |
 | Repository | `ROADMAP.md` |
 | Status | CANONICAL - readiness work and retained scope. |
@@ -22,7 +22,7 @@ installed build. Identity and county state belong to the durable record.
 
 | Order | Work | Completion evidence |
 |---|---|---|
-| 1 | Durable-state ownership and shared time | Body release commits only after successful capture; failed capture retains body and controller. Coherent time units across callbacks and catch-up; serialized state and registrations reconstruct; pathogen state has one owner. |
+| 1 | Durable-state ownership and shared time | C51 repairs supported-state body handoffs with failure controls; complete the remaining character component persistence. Coherent time units across callbacks and catch-up; serialized state and registrations reconstruct; pathogen state has one owner. |
 | 2 | Perception and physical opportunity | Person-specific acquisition and age; explicit unavailable ground; real container access; distinct animal and human facts. |
 | 3 | Action lifecycle and causal producers | Approach, action, cancellation and completion have one owner; observed consequences update experience, relationships and material state. |
 | 4 | Full life-simulation branches | Provisioning, affiliation, development, governance, learning, culture and care have actual available actions and consequences in both representations. |

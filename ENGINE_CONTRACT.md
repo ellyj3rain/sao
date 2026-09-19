@@ -1,6 +1,6 @@
 | Document | Survivor Awareness Overhaul Engine Contract |
 |---|---|
-| Version | `2.7.14.1-pre-alpha` |
+| Version | `2.7.14.2-pre-alpha` |
 | Author | ellyj3rain |
 | Repository | `ENGINE_CONTRACT.md` |
 | Status | CANONICAL - the verified engine mechanics an IsoPlayer NPC requires. |
@@ -482,3 +482,21 @@ behaviour is a hypothesis until a receipt.
 | `BaseVehicle.tryStartEngine()` / `tryStartEngine(boolean)`, `isKeysInIgnition()`, `tryHotwire(int)`, `isHotwired()` / `isHotwiredBroken()`, `isEngineRunning()` | the start bounded by real gameplay for ANY driver: the debug `startWithoutKey` cheat, or `SandboxOptions.vehicleEasyUse`, or keys in the ignition, or hotwired - with the engine part's condition and quality able to refuse under named reasons (`VehicleEngineStateChangeReason.EngineConditionLow` / `EngineQualityLow`), a battery check, and `checkVehicleFailsToStartWithZombiesTargeting` | javap -c |
 | `BaseVehicle.update()`, `updatePhysicsNetwork()`; `CarController.isEnable` | the physics tick reads the controller and `isEnable` with no driver-identity gate, as it must for a car that coasts with nobody in it | javap -c |
 | KnoxSurvivors' sources | NO precedent: nothing in the reference mod drives a vehicle; its health controller only REJECTS vehicle targets (`KnoxHealthController.java:255`) | grep of the reference's shipped sources |
+
+## Addendum H - native person components (2026-09-19)
+
+F-078 and C51 exercise these installed world-version-249 seams in
+tools/luacheck/PersonSnapshotProbe.java and the final shipping jar.
+
+| Surface | Verified contract |
+|---|---|
+| ItemContainer.save/load | Native item state and nested contents survive. Missing scripts can be dropped silently; the independent item identity/type/parent manifest must agree after loading. |
+| Stats.save/load and BodyDamage.save/load | Native vital and per-part wound state restore without replacing wounds with summary approximations. |
+| IsoGameCharacter.XP.save/load | Carries traits, earned XP, perk levels and multipliers; loading clears prior maps and needs NetworkCharacterAI. Missing registry entries are silently skipped by the engine and must be refused before restoration. |
+| IsoCell.addToProcessItems / addToProcessItemsRemove | Restored items need processing registration; recursively register/remove carried items, including nested food. Native container loading does not perform that registration. |
+| ItemContainer.getOutermostContainer | Resolves incoming nested transfers to their owning inventory; the shipping bridge probe distinguishes owned and unrelated containers/items. |
+| IsoPlayer.load | Includes player-specific initialization and option writes; C51 uses component serializers instead. |
+
+These seams do not cover nutrition, fitness, recipes, standalone character
+ModData or human appearance. Current supported state and the remaining work
+are specified in SUBSTRATE.md.

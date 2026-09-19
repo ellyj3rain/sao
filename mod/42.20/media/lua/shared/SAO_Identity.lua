@@ -212,6 +212,12 @@ end
 function Identity.markDead(rec, tick, cause)
     if not rec or rec.dead then return false end
     rec.dead = true
+    -- A teardown already in progress retains its handle until cleanup
+    -- succeeds. Ordinary deaths keep the engine's existing corpse path.
+    if SAO.Body and SAO.Body.isTransitioning and SAO.Body.discard
+        and SAO.Body.isTransitioning(rec) then
+        pcall(SAO.Body.discard, rec)
+    end
     -- [B41] `rec.diedAt = tick` used to live here. `tickCounter`
     -- starts at zero every load, so a tick written into a PERSISTED
     -- record stops meaning anything the moment the world reopens -

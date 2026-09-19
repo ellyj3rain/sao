@@ -279,7 +279,7 @@ function Age.dailyRoll(rec, today, tick)
     if risk <= 0 then return false end
     local roll = (SAO.Hash.of(rec.id, "old-age:" .. tostring(today)) % 1000000) / 1000000
     if roll >= risk then return false end
-    if SAO.Body.get(rec.id) then
+    if SAO.Body.hasRepresentation(rec.id) then
         rec.dyingOfOldAge = true
         log(rec.id .. " (" .. age .. ") is failing - old age")
     else
@@ -426,7 +426,7 @@ local function everyTenMinutes()
     local newDay = lastDay ~= today
     for id, body in pairs(SAO.Body.active) do
         local rec = SAO.Identity.get(id)
-        if rec then
+        if rec and not SAO.Body.isTransitioning(rec) then
             pcall(Age.drift, rec, body, passCounter)
             pcall(Age.hearThings, rec, body, passCounter)
             pcall(Age.woundWatch, rec, body)

@@ -1,6 +1,6 @@
 | Document | Survivor Awareness Overhaul Architecture |
 |---|---|
-| Version | `2.7.14.1-pre-alpha` |
+| Version | `2.7.14.2-pre-alpha` |
 | Author | ellyj3rain |
 | Repository | `ARCHITECTURE.md` |
 | Status | ACTIVE - ratified framework shape. |
@@ -322,6 +322,10 @@ here can drive a body it does not own (`[B10]`, DR-009).
   engine route with no owner is the autonomous-wandering defect.
 - **The person persists** (F-013): position, pack, hand, vitals, and worn
   clothes ([A11]) survive hibernation on the record.
+  C51 stages a validated snapshot before teardown and restores through Body
+  before adoption. A retained transition counts as represented but has no
+  available body for physical interaction. Native components and remaining
+  persistence gaps are listed in SUBSTRATE.md.
 - **Distance is personal** (F-014): belief positions are memory; distance
   to a belief is computed at query time from the asker's position.
 - **Fault gates**: every per-tick path is pcall-wrapped, logs once, and

@@ -38,7 +38,7 @@ on the simulation.
 
 ## Status
 
-`2.7.14.1-pre-alpha` - the coordinate is computed by the version machine
+`2.7.14.2-pre-alpha` - the coordinate is computed by the version machine
 (`tools/version_replay.py`), never picked; `VERSION_MAP.md` shows the
 classification and the arithmetic.
 
@@ -62,6 +62,11 @@ The previous fast extrapolator was removed because it assigned outcomes from
 unsupported curves. A validated learned accelerator remains unfinished.
 Trajectory exports require completed horizons and report simulation faults;
 headless receipts do not establish loaded-body behavior or play quality.
+
+C51 repairs person capture, teardown and restoration, using native component
+snapshots and tested failure paths. Inventory, equipment, wounds, statistics
+and experience survive the supported handoff. Other character components and
+the broader audit findings remain explicit work in `SUBSTRATE.md`.
 
 ## Requirements
 

@@ -1,15 +1,15 @@
 ﻿| Document | Survivor Awareness Overhaul Session State |
 |---|---|
-| Version | `2.7.14.1-pre-alpha` |
+| Version | `2.7.14.2-pre-alpha` |
 | Author | ellyj3rain |
 | Repository | `SESSION_STATE.md` |
 | Status | CANONICAL - current implementation and continuation. |
 
 # Session state
 
-**As of** 2026-09-19, `[C50]` is the consolidated catalog tip.
+**As of** 2026-09-19, `[C51]` repairs person preservation after the consolidated C1-C50 catalog.
 The C catalog is consolidated by adjacency and content using
-the A/B precedent: 29 A-batches, 52 B-batches and 50 C units. BATCH_LOG.md owns
+the A/B precedent: 29 A-batches, 52 B-batches and 51 C units, including the first post-consolidation repair. BATCH_LOG.md owns
 the chronology. Batches/FORMER_LABELS.md maps every former entry;
 Batches/C_RECATALOG.json preserves original paths and source hashes. The
 original records remain at local ref `archive/c-era-raw-20260919`.
@@ -61,10 +61,13 @@ callbacks, historical substeps and reload. The engine serialization boundary
 must be verified before an in-memory registry is called persistent. Pathogen
 state is read from its actual owner.
 
-The first concrete defect is Body.release removing a body after failed
-snapshot capture, with Population already having dropped its controller.
-F-077 records successful, throwing and empty-capture engine-VM controls.
-The repair must cover the caller and callee as one ownership transition.
+C51 repairs the F-077 body handoff. Capture failure keeps the prior record and
+ownership; incomplete teardown retains a durable snapshot for retry; all callers
+restore through Body before adoption. Native supported-state snapshots preserve
+inventory, equipment, wounds, statistics and experience. Legacy v1/v2 remain
+readable within their original limits. Character ModData, nutrition, fitness,
+recipes and human appearance are outside this snapshot and remain explicit gaps.
+See the C51 batch record and Borders 162-163 for the tested boundary.
 Built-in graph callbacks do reconstruct after save/load; the engine omits
 closures rather than failing the save. Extension registrations need their
 own reconstruction contract.
@@ -77,16 +80,20 @@ remains open; one repaired connector does not complete it.
 
 ## Verification and installed state
 
-161 numbered borders run through 176 gated mirrors. These counts describe the
+163 numbered borders run through 178 gated mirrors. These counts describe the
 apparatus, not acceptance. The audit reproduced defects while targeted checks
-passed. Border 54's intermittent failure remains unexplained; its first output
-is now preserved rather than hidden by a clean replay.
+passed. The earlier audit's intermittent Border 54 failure remains unexplained.
+C51's separate first gate found a verdict-prefix defect and missing transition
+registry surfaces/lifetimes. Its failed output is preserved with the corrections;
+the closing full gate passed with exit 0.
 
-The last verified install is the 2026-09-18 recovery at the former coordinate
-recorded in tools/sweep/receipts/README.md, SAO jar SHA-256
-`0abe4198166835b5f95f22215c4689dd9f3a787d03fdeccfe1e4285e112ac9be`.
-All 249 SAO and 27 ZAO files matched at that inspection. This consolidation
-claims no new deployment. Saves remain untouched. The source coordinate follows
+The verified C51 install is 2.7.14.2-pre-alpha, deployed on 2026-09-19 through
+tools/deploy.sh. All 249 installed files match source, with no missing or extra
+files. The SAO jar SHA-256 is
+`d3592141fe8ac8deae1d9ef2f8253b649c84076421fb062a59222636302babdc`.
+The C51 evidence directory holds the build, gate and deployment receipts.
+Saves remain untouched; no loaded-game acceptance is claimed.
+The source coordinate follows
 the consolidated replay; its movement does not measure implementation quality.
 
 ## Decisions and observations still owed

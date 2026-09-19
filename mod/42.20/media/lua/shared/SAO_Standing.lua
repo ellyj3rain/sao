@@ -3010,7 +3010,7 @@ function S.ownsRadio(id, body)
     local rec = SAO.Identity and SAO.Identity.get
         and SAO.Identity.get(id) or nil
     if not rec then return false end
-    if rec.hasRadio then return true end
+    if rec.hasRadio ~= nil then return rec.hasRadio == true end
     return type(rec.hibernation) == "string"
         and rec.hibernation:find("WalkieTalkie") ~= nil
 end

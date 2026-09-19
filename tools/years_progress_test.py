@@ -51,7 +51,8 @@ SAO = {
     Identity={all=function() return {} end, livingCount=function() return 0 end},
     Standing={driftStandings=function() __test.calls.drift=(__test.calls.drift or 0)+1 end},
     Rand={int=function() return 0 end},
-    Body={active={}, get=function() return nil end},
+    Body={active={}, get=function() return nil end,
+          hasRepresentation=function() return false end, recover=function() return true end},
     Telemetry={conditions=function() return {} end,
         run=function(kind)
             if kind=="opened" then __test.opened=__test.opened+1 end

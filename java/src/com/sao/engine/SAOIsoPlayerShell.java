@@ -45,6 +45,10 @@ public final class SAOIsoPlayerShell extends IsoPlayer {
      *  written once at materialize from the person's age. */
     public volatile float xpScale = 1f;
 
+    /** A captured body awaiting removal must not advance beyond its snapshot. */
+    public boolean removalPending;
+    public boolean populationAccounted;
+
     public SAOIsoPlayerShell(IsoCell cell, SurvivorDesc desc, int x, int y, int z) {
         super(cell, desc, x, y, z, false);
     }
@@ -71,6 +75,7 @@ public final class SAOIsoPlayerShell extends IsoPlayer {
 
     @Override
     public void update() {
+        if (removalPending) return;
         IsoPlayer keep = IsoPlayer.getInstance();
         try {
             super.update();

@@ -57,6 +57,7 @@ local function rematerialize()
     if not H.activeId then log("nothing to rematerialize") return end
     local rec = SAO.Identity.get(H.activeId)
     if not rec then log("record missing for " .. tostring(H.activeId)) return end
+    if not SAO.Body.recover(rec) then log("body teardown still pending") return end
     if SAO.Body.get(rec.id) then log("body already active") return end
     local body = SAO.Body.materialize(rec)
     if body then
@@ -109,17 +110,17 @@ end
 local function release()
     if not H.activeId then log("nothing to release") return end
     local rec = SAO.Identity.get(H.activeId)
-    SAO.Controller.drop(H.activeId)
-    if rec then SAO.Body.release(rec) end
+    local ok, reason = SAO.Body.release(rec)
+    if not ok then log("release refused: " .. tostring(reason)) return end
     log("released. Record kept - 'rematerialize' must restore the person at "
         .. (rec and (rec.x .. "," .. rec.y) or "?"))
 end
 
 local function forget()
     if not H.activeId then log("nothing to forget") return end
-    SAO.Controller.drop(H.activeId)
     local rec = SAO.Identity.get(H.activeId)
-    if rec and SAO.Body.get(rec.id) then SAO.Body.release(rec) end
+    local ok, reason = SAO.Body.discard(rec)
+    if not ok then log("forget refused: " .. tostring(reason)) return end
     SAO.Identity.remove(H.activeId)
     pcall(function() SAO.Perception.forget(H.activeId) end)
     pcall(function() SAO.Voice.forget(H.activeId) end)
@@ -137,6 +138,7 @@ local function survivorNear(worldobjects)
     if not sq then return nil end
     local bestId, bestD
     local function consider(id, body)
+        if SAO.Body.get(id) ~= body then return end
         local ok, d = pcall(function()
             local dx = body:getX() - sq:getX()
             local dy = body:getY() - sq:getY()
@@ -902,6 +904,7 @@ local function fillMenu(playerNum, context, worldobjects)
                 person:addOption("Bandage their "
                     .. string.lower(tostring(partName41 or "wound")),
                     nil, function()
+                        if SAO.Body.get(nearId) ~= tBody41 then return end
                         pcall(function()
                             ISTimedActionQueue.add(ISApplyBandage:new(
                                 playerObj, tBody41, bandage41,
@@ -931,6 +934,7 @@ local function fillMenu(playerNum, context, worldobjects)
                 and not SAO.Standing.isHostileTo(nearId, tKey) then
                 person:addOption("Offer " .. tostring(held:getName()),
                     nil, function()
+                    if SAO.Body.get(nearId) ~= tBody then return end
                     local wants, why = false, nil
                     local tn = SAO.Needs.read(tBody)
                     local ft = tostring(held:getFullType() or "")
@@ -1835,6 +1839,7 @@ local function fillMenu(playerNum, context, worldobjects)
                                 onYourWord(playerObj, nearId, "unboard", nil,
                                     function()
                                     local okOut = false
+                                    if SAO.Body.get(nearId) ~= vBody then return end
                                     pcall(function()
                                         okOut = SAOJavaBridge:unseatFromVehicle(
                                             vBody)

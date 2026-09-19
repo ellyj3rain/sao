@@ -16,6 +16,10 @@ local Body = SAO.Body
 
 -- id -> body. Runtime only; never persisted.
 Body.active = Body.active or {}
+-- Incomplete restoration/discard retains the engine handle until teardown
+-- succeeds. Release snapshots themselves live on the durable record.
+Body.failedRestore = Body.failedRestore or {}
+Body.discarding = Body.discarding or {}
 
 -- [B47] One door out: everything this module says goes
 -- through the shared logger.
@@ -86,11 +90,27 @@ function Body.materialize(rec)
         log("materialize refused: no record")
         return nil
     end
+    if rec.dead then return nil, "dead-record" end
+    local recovered, recoveryReason = Body.recover(rec)
+    if not recovered then return nil, recoveryReason end
     if Body.active[rec.id] then
         log("materialize refused: body already active for " .. rec.id)
         return Body.active[rec.id]
     end
 
+    local elapsed = 0
+    if rec.hibernation then
+        local ok, valid = pcall(function()
+            return SAOJavaBridge:validateHibernation(rec.hibernation)
+        end)
+        if not ok or valid ~= true then return nil, "invalid-snapshot" end
+        local okTime, now = pcall(SAO.History.countyHours)
+        if not okTime or type(now) ~= "number" or now ~= now
+            or now == math.huge or now == -math.huge then
+            return nil, "clock-unavailable"
+        end
+        elapsed = math.max(0, now - (rec.releasedAtHours or now))
+    end
     local wx, wy, movedBy = wakeSquareFor(rec)
     local slotBefore = localSlotUser()
 
@@ -108,7 +128,7 @@ function Body.materialize(rec)
             -- CreateSurvivor and had nothing to agree with.
             return SAOJavaBridge:spawnShellNamed(rec.forename, rec.surname,
                 wx, wy, math.floor(rec.z),
-                SAO.Identity.femaleOf(rec))
+                SAO.Identity.femaleOf(rec), false)
         end)
         if okJ and shell then
             body, how = shell, "java-shell"
@@ -136,6 +156,37 @@ function Body.materialize(rec)
             return nil
         end
         body, how = bare, "lua-bare"
+    end
+
+    -- The trade rides the descriptor ([A18]): where the census life has
+    -- an engine-registered profession (vanilla or modded), the body
+    -- WEARS it - anything that reads descriptors sees the truth. Rows
+    -- without an engine key (clerks, retirees - most of the county)
+    -- stay record-side, honestly.
+    if SAOJavaBridge and rec.occupation and SAO.Census then
+        local row = SAO.Census.rowOf(rec.occupation)
+        if row and row.engineKey then
+            pcall(function()
+                SAOJavaBridge:setProfession(body, row.engineKey)
+            end)
+        end
+    end
+
+    -- Profession defaults precede restoration; native XP replaces them.
+    -- Every caller restores before it can adopt or mutate the record.
+    if rec.hibernation then
+        local ok, journal = pcall(function()
+            return SAOJavaBridge:awaken(body, rec.hibernation, elapsed)
+        end)
+        if not ok or type(journal) ~= "string"
+            or journal:sub(1, 9) ~= "AWAKENED " then
+            Body.active[rec.id] = body
+            Body.failedRestore[rec.id] = true
+            Body.recover(rec)
+            log("restore refused for " .. rec.id .. ": " .. tostring(journal))
+            return nil, "restore-failed"
+        end
+        log(rec.id .. " awakens: " .. journal)
     end
 
     local okFlag = pcall(function() body:setNpc(true) end)
@@ -288,20 +339,6 @@ function Body.materialize(rec)
         log("SLOT VIOLATION for " .. rec.id .. ": local player slot changed (F-006)")
     end
 
-    -- The trade rides the descriptor ([A18]): where the census life has
-    -- an engine-registered profession (vanilla or modded), the body
-    -- WEARS it - anything that reads descriptors sees the truth. Rows
-    -- without an engine key (clerks, retirees - most of the county)
-    -- stay record-side, honestly.
-    if SAOJavaBridge and rec.occupation and SAO.Census then
-        local row = SAO.Census.rowOf(rec.occupation)
-        if row and row.engineKey then
-            pcall(function()
-                SAOJavaBridge:setProfession(body, row.engineKey)
-            end)
-        end
-    end
-
     -- [C39] And the condition rides the trait, by the same law: what
     -- the record drew is stamped onto the body as the engine's own
     -- character trait (vanilla's where vanilla has one), so anything
@@ -320,6 +357,9 @@ function Body.materialize(rec)
         end
     end)
 
+    if SAOJavaBridge and how == "java-shell" then
+        SAOJavaBridge:accountShell(body)
+    end
     Body.active[rec.id] = body
     -- [C8] The person rides the body's modData. The engine copies this
     -- table onto the corpse at death (IsoDeadBody ctor common tail) and
@@ -331,41 +371,155 @@ function Body.materialize(rec)
     return body
 end
 
-function Body.release(rec)
-    if not rec or not rec.id then return false end
-    local body = Body.active[rec.id]
-    if not body then
-        log("release: no active body for " .. tostring(rec.id))
-        return false
-    end
-    -- Snapshot back into the record BEFORE removal (persistent person,
-    -- temporary body): position, and everything the body carries and is
-    -- (F-013 - inventory, hand, vitals pack into one record string).
-    pcall(function()
-        SAO.Identity.updatePosition(rec, body:getX(), body:getY(), body:getZ())
-    end)
-    pcall(function()
-        local packed = SAOJavaBridge:hibernate(body)
-        if type(packed) == "string" and packed ~= "" then
-            rec.hibernation = packed
-            rec.releasedAtHours = SAO.History.countyHours()
+local function finite(value)
+    return type(value) == "number" and value == value
+        and value ~= math.huge and value ~= -math.huge
+end
+
+local function removeOwned(body)
+    local ok, removed = pcall(function()
+        if SAOJavaBridge and SAOJavaBridge:isShell(body) then
+            return SAOJavaBridge:removeShell(body) == true
         end
+        body:removeFromWorld()
+        body:removeFromSquare()
+        return true
     end)
-    -- Java-shell bodies need the full teardown (ModelManager.Remove + intent
-    -- clear) which lives bridge-side; bare bodies use the Lua pair.
-    local okW, okS
-    if SAOJavaBridge and pcall(function() return SAOJavaBridge:isShell(body) end)
-        and SAOJavaBridge:isShell(body) then
-        okW = pcall(function() return SAOJavaBridge:removeShell(body) end)
-        okS = okW
-    else
-        okW = pcall(function() body:removeFromWorld() end)
-        okS = pcall(function() body:removeFromSquare() end)
-    end
+    return ok and removed == true
+end
+
+local function readyToRemove(body)
+    local ok, ready = pcall(function()
+        -- The Lua queue can hold its next action before it reaches Java.
+        local queue = ISTimedActionQueue and ISTimedActionQueue.queues[body]
+        if queue and #queue.queue > 0 then return false end
+        -- Treatment is queued on the doctor; transfers can name the target
+        -- inventory. These actions also own the departing person's state.
+        local inventory = body:getInventory()
+        for _, otherQueue in pairs(ISTimedActionQueue and ISTimedActionQueue.queues or {}) do
+            for _, action in ipairs(otherQueue.queue or {}) do
+                for _, reference in pairs(action) do
+                    if reference == body or reference == inventory then return false end
+                    if SAOJavaBridge and SAOJavaBridge:isInventoryOf(body, reference) then
+                        return false
+                    end
+                end
+            end
+        end
+        if SAOJavaBridge and SAOJavaBridge:isShell(body) then
+            return SAOJavaBridge:canReleaseShell(body)
+        end
+        return body:getVehicle() == nil and body:getCharacterActions():isEmpty()
+    end)
+    return ok and ready == true
+end
+
+local function dropOwner(rec)
+    if SAO.Controller then SAO.Controller.drop(rec.id) end
     Body.active[rec.id] = nil
-    log("released " .. rec.id .. " ok=" .. tostring(okW and okS)
-        .. " rec now at " .. rec.x .. "," .. rec.y .. "," .. rec.z)
-    return okW and okS
+end
+
+function Body.isTransitioning(rec)
+    return rec and (rec.bodyRelease ~= nil or Body.failedRestore[rec.id]
+        or Body.discarding[rec.id]) or false
+end
+
+function Body.release(rec)
+    if not rec or not rec.id then return false, "no-record" end
+    if Body.failedRestore[rec.id] or Body.discarding[rec.id] then
+        return false, "teardown-pending"
+    end
+    local body = Body.active[rec.id]
+    local pending = rec.bodyRelease
+    if not pending then
+        if not body then return false, "no-owned-body" end
+        if not readyToRemove(body) then return false, "body-busy" end
+        -- No durable field changes until the complete current capture has
+        -- passed validation. A pending copy survives save/load and is never
+        -- recaptured from a partly removed body.
+        local ok, captured = pcall(function()
+            local packed = SAOJavaBridge:hibernate(body)
+            if type(packed) ~= "string" or packed == ""
+                or SAOJavaBridge:validateHibernation(packed) ~= true then
+                return nil
+            end
+            local now = SAO.History.countyHours()
+            local x, y, z = body:getX(), body:getY(), body:getZ()
+            if not finite(now) or not finite(x) or not finite(y) or not finite(z) then
+                return nil
+            end
+            local facts = SAO.Population.captureBodyFacts(rec, body, now)
+            return { packed = packed, hours = now, x = x, y = y, z = z,
+                facts = facts }
+        end)
+        if not ok or not captured then return false, "capture-failed" end
+        pending = captured
+        rec.bodyRelease = pending
+    end
+    local okPending, validPending = pcall(function()
+        return SAOJavaBridge:validateHibernation(pending.packed) == true
+            and finite(pending.hours) and finite(pending.x)
+            and finite(pending.y) and finite(pending.z)
+            and type(pending.facts) == "table"
+    end)
+    if not okPending or not validPending then return false, "invalid-pending-snapshot" end
+    if body and not removeOwned(body) then return false, "teardown-failed" end
+    -- No body after reload means the old engine representation is gone.
+    -- Commit the saved transition before constructing its replacement.
+    rec.hibernation = pending.packed
+    rec.releasedAtHours = pending.hours
+    rec.x, rec.y, rec.z = pending.x, pending.y, pending.z
+    local facts = pending.facts
+    rec.woundInfected = facts.woundInfected or nil
+    rec.knoxInfected = facts.knoxInfected or nil
+    rec.biteDeathAtHours = facts.biteDeathAtHours or nil
+    rec.hasRadio = facts.hasRadio == true
+    dropOwner(rec)
+    rec.bodyRelease = nil
+    if facts.newInfection then
+        pcall(function()
+            SAO.PathogenEvents.emit("infection", rec.id,
+                math.floor(pending.hours / 24), { record = rec })
+        end)
+    end
+    log("released " .. rec.id .. " at " .. rec.x .. "," .. rec.y .. "," .. rec.z)
+    return true, "released"
+end
+
+-- Explicit deletion needs teardown, not a replacement snapshot. The caller
+-- removes identity only after this succeeds, and can retry on failure.
+function Body.discard(rec)
+    if not rec or not rec.id then return false, "no-record" end
+    if Body.foreign[rec.id] then return false, "foreign-body" end
+    local body = Body.active[rec.id]
+    if body then
+        if not Body.discarding[rec.id] and not rec.bodyRelease
+            and not Body.failedRestore[rec.id] and not readyToRemove(body) then
+            return false, "body-busy"
+        end
+        Body.discarding[rec.id] = true
+        if not removeOwned(body) then return false, "teardown-failed" end
+    end
+    dropOwner(rec)
+    Body.discarding[rec.id] = nil
+    Body.failedRestore[rec.id] = nil
+    rec.bodyRelease = nil
+    return true, "discarded"
+end
+
+function Body.recover(rec)
+    if rec.dead then
+        if Body.isTransitioning(rec) then return Body.discard(rec) end
+        return true
+    end
+    if Body.discarding[rec.id] then return false, "discard-pending" end
+    if Body.failedRestore[rec.id] then
+        local body = Body.active[rec.id]
+        if body and not removeOwned(body) then return false, "restore-teardown-failed" end
+        Body.active[rec.id], Body.failedRestore[rec.id] = nil, nil
+    end
+    if rec.bodyRelease then return Body.release(rec) end
+    return true
 end
 
 -- Bodies another system drives ([A17]): live people resolvable by our
@@ -376,12 +530,35 @@ Body.foreign = Body.foreign or {}
 
 function Body.get(id)
     id = tostring(id)
+    local rec = SAO.Identity.get(id)
+    if Body.isTransitioning(rec) then return nil end
     return Body.active[id] or Body.foreign[id]
+end
+
+-- Ownership differs from an available body during an incomplete transition.
+-- Dormant simulation must not start while that representation is retained.
+function Body.hasRepresentation(id)
+    id = tostring(id)
+    return Body.active[id] ~= nil or Body.foreign[id] ~= nil
+        or Body.isTransitioning(SAO.Identity.get(id))
 end
 
 function Body.activeCount()
     local n = 0
-    for _ in pairs(Body.active) do n = n + 1 end
+    for id in pairs(Body.active) do
+        if not Body.isTransitioning(SAO.Identity.get(id)) then n = n + 1 end
+    end
+    return n
+end
+
+function Body.pendingTransitionCount()
+    local pending, n = {}, 0
+    for id in pairs(Body.failedRestore) do pending[id] = true end
+    for id in pairs(Body.discarding) do pending[id] = true end
+    for id, rec in pairs(SAO.Identity.all()) do
+        if rec.bodyRelease then pending[id] = true end
+    end
+    for _ in pairs(pending) do n = n + 1 end
     return n
 end
 

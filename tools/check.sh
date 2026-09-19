@@ -1890,6 +1890,16 @@ if ! "$PY" tools/company_admission_test.py; then
     fail=1
 fi
 
+# [C51] Border 162 - capture, teardown, restoration and caller ownership.
+if ! "$PY" tools/person_handoff_test.py; then
+    note "BORDER FINDING - person ownership handoff failed"
+    fail=1
+fi
+if ! "$PY" tools/person_snapshot_test.py; then
+    note "BORDER FINDING - native person snapshot failed"
+    fail=1
+fi
+
 # Border 103 - the operator's speech is not in the repository: no
 # profanity in the tracked tree and no operator-quote attributions;
 # rulings are paraphrased content, speech stays with the speaker.

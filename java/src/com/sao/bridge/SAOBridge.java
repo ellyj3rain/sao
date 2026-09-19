@@ -1339,6 +1339,35 @@ public final class SAOBridge {
         return "";
     }
 
+    public boolean validateHibernation(String packed) {
+        return com.sao.engine.SAOHibernation.validate(packed);
+    }
+
+    /** A vehicle occupant or running engine action still owns world state. */
+    public boolean canReleaseShell(Object object) {
+        try {
+            return object instanceof SAOIsoPlayerShell shell
+                && shell.getVehicle() == null && shell.getCharacterActions().isEmpty();
+        } catch (Throwable throwable) {
+            return false;
+        }
+    }
+
+    /** Incoming transfers can own an item or a container inside a carried bag. */
+    public boolean isInventoryOf(Object object, Object reference) {
+        try {
+            if (!(object instanceof IsoGameCharacter character)) return false;
+            zombie.inventory.ItemContainer container = null;
+            if (reference instanceof zombie.inventory.ItemContainer value) container = value;
+            if (reference instanceof zombie.inventory.InventoryItem item) container = item.getContainer();
+            return container != null
+                && container.getOutermostContainer() == character.getInventory();
+        } catch (Throwable throwable) {
+            // An unreadable incoming inventory reference retains ownership.
+            return true;
+        }
+    }
+
     /** Restore a snapshot onto a fresh body and run dormant metabolism. */
     public String awaken(Object object, String packed, double elapsedHours) {
         if (object instanceof SAOIsoPlayerShell shell) {
@@ -2804,6 +2833,11 @@ public final class SAOBridge {
     }
 
     public IsoPlayer spawnShellNamed(String forename, String surname, double dx, double dy, double dz, Object female) {
+        return spawnShellNamed(forename, surname, dx, dy, dz, female, true);
+    }
+
+    /** Body defers population accounting until restoration has succeeded. */
+    public IsoPlayer spawnShellNamed(String forename, String surname, double dx, double dy, double dz, Object female, boolean accountNow) {
         try {
             IsoWorld world = IsoWorld.instance;
             IsoCell cell = world == null ? null : world.getCell();
@@ -2826,18 +2860,6 @@ public final class SAOBridge {
                 x = square.getX();
                 y = square.getY();
             }
-            // [B21] A life instead of a corpse. If nothing is in
-            // reach the survivor still exists - the census decides
-            // WHO lives here; this decides what it costs.
-            if (takeFromThePool(cell, x, y, z, 12)) {
-                SAOAgent.log("taken from the pool: " + forename + " "
-                    + surname + " stands where one of the dead did");
-            } else {
-                SAOAgent.log("no dead in reach of " + x + "," + y
-                    + " - " + forename + " " + surname
-                    + " is added, not exchanged");
-            }
-
             SurvivorDesc desc = SurvivorFactory.CreateSurvivor();
             if (desc == null) {
                 SAOAgent.log("spawn refused: CreateSurvivor returned null");
@@ -2886,6 +2908,7 @@ public final class SAOBridge {
             }
 
             clearMovementIntent(shell);
+            if (accountNow) accountShell(shell);
             SAOAgent.log("shell up at " + x + "," + y + "," + z
                 + " playerIndex=" + shell.playerIndex
                 + " for " + forename + " " + surname);
@@ -2896,12 +2919,30 @@ public final class SAOBridge {
         }
     }
 
+    /** The existing population exchange occurs once, after a usable body exists. */
+    public void accountShell(Object object) {
+        try {
+            if (!(object instanceof SAOIsoPlayerShell shell)
+                    || shell.populationAccounted || shell.removalPending) return;
+            shell.populationAccounted = true;
+            boolean taken = takeFromThePool(shell.getCell(), (int) shell.getX(),
+                (int) shell.getY(), (int) shell.getZ(), 12);
+            SAOAgent.log("shell population exchange=" + taken);
+        } catch (Throwable throwable) {
+            SAOAgent.log("shell population accounting failed: " + throwable);
+        }
+    }
+
     public boolean removeShell(Object object) {
         if (!(object instanceof SAOIsoPlayerShell shell)) {
             SAOAgent.log("removeShell refused: not an SAO shell");
             return false;
         }
         try {
+            if (!shell.removalPending && !canReleaseShell(shell)) return false;
+            shell.removalPending = true;
+            shell.setGhostMode(true);
+            shell.setZombiesDontAttack(true);
             removeShellInternal(shell);
             SAOAgent.log("shell removed");
             return true;
@@ -2917,12 +2958,13 @@ public final class SAOBridge {
 
     // ------------------------------------------------------------------
 
-    private static void removeShellInternal(SAOIsoPlayerShell shell) {
+    private static void removeShellInternal(SAOIsoPlayerShell shell) throws java.io.IOException {
         try {
             clearMovementIntent(shell);
         } catch (Throwable ignored) {
             // teardown continues regardless
         }
+        com.sao.engine.SAONativeSnapshot.unregister(shell);
         ModelManager.instance.Remove((IsoGameCharacter) shell);
         shell.setMovingSquare(null);
         shell.removeFromWorld();
