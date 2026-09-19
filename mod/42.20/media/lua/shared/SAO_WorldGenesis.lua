@@ -61,7 +61,7 @@ function WorldGenesis.applyDay(day)
     day = tonumber(day) or 0
     local changed = 0
     for id, record in pairs(SAO.Identity.all()) do
-        if not record.dead and not (SAO.Body and SAO.Body.get(id)) then
+        if not record.dead and not (SAO.Body and SAO.Body.hasRepresentation(id)) then
             local agent = {
                 id = id,
                 x = record.x,

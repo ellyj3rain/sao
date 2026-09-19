@@ -66,7 +66,7 @@ local function owed(rec, personId, state)
     if not rec.dead then return false end
     if rec.afflictedReturn then return false end
     if state.terminalState ~= "afflicted" then return false end
-    if SAO.Body.get(personId) then return false end
+    if SAO.Body.hasRepresentation(personId) then return false end
     return true
 end
 
@@ -189,7 +189,7 @@ function Return.stampLive(day)
         local okState, state = pcall(function()
             return ZAO.StateStore.read(id)
         end)
-        if okState and state
+        if okState and state and SAO.Body.get(id) == body
             and state.terminalState == "afflicted"
             and body then
             local ok = pcall(function()

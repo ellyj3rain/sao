@@ -1,0 +1,174 @@
+[
+  {
+    "path": "java/dist/SAOAgent.jar",
+    "sha256": "d3592141fe8ac8deae1d9ef2f8253b649c84076421fb062a59222636302babdc"
+  },
+  {
+    "path": "java/src/com/sao/bridge/SAOBridge.java",
+    "sha256": "9c1061e755d75317c531228c2787cb79b26bf8c91640991e4db34f3e70a34d21"
+  },
+  {
+    "path": "java/src/com/sao/engine/SAOHibernation.java",
+    "sha256": "cc67a5060c2c4de26a00e3d9dd646576cb064924d99a75e59d1a8dedca5dd685"
+  },
+  {
+    "path": "java/src/com/sao/engine/SAOIsoPlayerShell.java",
+    "sha256": "baaf7b87ae5aa6a395911075f7850c4ae24ad9e07954e49a1a8b875723db7ca7"
+  },
+  {
+    "path": "java/src/com/sao/engine/SAONativeSnapshot.java",
+    "sha256": "6505a7057fc044e251098324272a57205d61b5b31a85d8daeb31339dee008235"
+  },
+  {
+    "path": "mod/42.20/media/java/SAO.jar",
+    "sha256": "d3592141fe8ac8deae1d9ef2f8253b649c84076421fb062a59222636302babdc"
+  },
+  {
+    "path": "mod/42.20/media/lua/client/SAO_AfflictedReturn.lua",
+    "sha256": "1be6907dd33c7b5e03a380a5db8e8e8a6049b7907c42009190ffdc415867d184"
+  },
+  {
+    "path": "mod/42.20/media/lua/client/SAO_Age.lua",
+    "sha256": "46011a2608d12737d3eb2108c8d2e41e94e85b1b4760fc4e76a76e29be0a4498"
+  },
+  {
+    "path": "mod/42.20/media/lua/client/SAO_Body.lua",
+    "sha256": "1b238826cec1c50c56d73ef7fe73832ac0a1995878b091ff375a7df0f735ed5e"
+  },
+  {
+    "path": "mod/42.20/media/lua/client/SAO_Controller.lua",
+    "sha256": "31b5c85b7eaa4330cfe61a6e4c2dfcb1521fdbf65a38b9c6dc9d9812109e7299"
+  },
+  {
+    "path": "mod/42.20/media/lua/client/SAO_Drugs.lua",
+    "sha256": "7fe5f9c8f96e0f35f4dbc8b159c9f39dd5f135b969669a06fdcec3753e3b4149"
+  },
+  {
+    "path": "mod/42.20/media/lua/client/SAO_Harness.lua",
+    "sha256": "3d1d3f768c14c5f4f1b8242be1f537e7353811003b42dcbd8a3b563a52fa525b"
+  },
+  {
+    "path": "mod/42.20/media/lua/client/SAO_Nuke.lua",
+    "sha256": "d8b699606acb36764d7e47609a91fa2afade0adfcef8ff7352953fc273418866"
+  },
+  {
+    "path": "mod/42.20/media/lua/client/SAO_Population.lua",
+    "sha256": "8eeacf88127c15e19ec9cc3676d215137003c983ba28c73359ae7349bb00141f"
+  },
+  {
+    "path": "mod/42.20/media/lua/client/SAO_UI.lua",
+    "sha256": "7f598b867a9d3b7c7d9a83beffe7bc5e1fcb4350ba3156522b37a222cee10f11"
+  },
+  {
+    "path": "mod/42.20/media/lua/shared/SAO_Identity.lua",
+    "sha256": "625a2e857020ea76bc17d03c15c98cf345fb40e124975d631c9ed394e3c46585"
+  },
+  {
+    "path": "mod/42.20/media/lua/shared/SAO_PathogenEvents.lua",
+    "sha256": "054ddc4f3eab389908662c58b0f994ea6da3dd588d95963fc4fbf256ad82d252"
+  },
+  {
+    "path": "mod/42.20/media/lua/shared/SAO_Standing.lua",
+    "sha256": "06a508792bf37bd5f996d969b3b6c64d239e32c70461616861cc3af62f1214e2"
+  },
+  {
+    "path": "mod/42.20/media/lua/shared/SAO_WorldGenesis.lua",
+    "sha256": "c6d65b0f11e3a3dfd7de85611d1db1629c9caf51c5a3c009aa15d590a18b1318"
+  },
+  {
+    "path": "mod/42.20/mod.info",
+    "sha256": "da9149e27c3e257dd71021ab6d2ae62900fb61743c64e03f2b793163236065a2"
+  },
+  {
+    "path": "mod/mod.info",
+    "sha256": "da9149e27c3e257dd71021ab6d2ae62900fb61743c64e03f2b793163236065a2"
+  },
+  {
+    "path": "tools/check.sh",
+    "sha256": "bc9ccbf0e6885c43196296adf51fa2bc71f27e360bfa9334499583becb68c088"
+  },
+  {
+    "path": "tools/click_lands_test.py",
+    "sha256": "feec664952a1d7a3c95e6ce6a9366d2bf9706f8d80a12832b79691991734d98a"
+  },
+  {
+    "path": "tools/company_forms_test.py",
+    "sha256": "3994be678a61f7e39cd1c7ce185208b535a389658b9503bcfc52ff11f3d655ca"
+  },
+  {
+    "path": "tools/death_leaves_company_test.py",
+    "sha256": "82ac9f228c5a2fb24ee01e6e4adeab8c6eab74e3550e0b1672398d8748023a49"
+  },
+  {
+    "path": "tools/dormant_infection_test.py",
+    "sha256": "10089e81de21b376333b2b13ee0f8da60f8994f174fcb6331db727bd1a14fdeb"
+  },
+  {
+    "path": "tools/forget_on_death_test.py",
+    "sha256": "b001ebc576f0cb467b1be585fce03a829b5dac983a4be329b965d0ecd836b707"
+  },
+  {
+    "path": "tools/hibernation_pact_test.py",
+    "sha256": "4ef837bc87a5bd4e1d42c907a04858906ea85f9690ae02dfc63d1a4e53f67e00"
+  },
+  {
+    "path": "tools/luacheck/PersonSnapshotProbe.java",
+    "sha256": "19ce4cd584bedad6c2485324bd22fe8b8f44ed0ca005596b33efe2dff81549cf"
+  },
+  {
+    "path": "tools/named_at_genesis_test.py",
+    "sha256": "3aadaa350583dd7f1f81a075eeebf055585cee1071f49e400782208e99f27ac1"
+  },
+  {
+    "path": "tools/person_belief_test.py",
+    "sha256": "cef4dadabab5902dfb4de953ba97a3b6bd85edda708322633542662607b84031"
+  },
+  {
+    "path": "tools/person_handoff_test.py",
+    "sha256": "aba127582f0c1e0e933cc27485e802e76b87092ae896c62b9721d3395455a77d"
+  },
+  {
+    "path": "tools/person_snapshot_test.py",
+    "sha256": "483850f5a427b964d0d6eea664aaa8cb7fc80eed41e592c6efd45cffa86f00b0"
+  },
+  {
+    "path": "tools/protocol_field_test.py",
+    "sha256": "f31691865f2c47c0900de8070cf0ce9ae5c634c0be4f2f61fceccd88fa3b1e9b"
+  },
+  {
+    "path": "tools/registry_surface_test.py",
+    "sha256": "2818dab71b9e872f2e3e42d3f7b9c9ebc818a6d572e5a682045ee199b7937860"
+  },
+  {
+    "path": "tools/seek_test.py",
+    "sha256": "06b5348e399b1ce7934e11f07dba1877434a8befc478f10195a80b7dff749331"
+  },
+  {
+    "path": "tools/settle_test.py",
+    "sha256": "8d4f8b751490c139fe5fb538775bae085d27695ae2726e28eb16f2ac0c062f55"
+  },
+  {
+    "path": "tools/sweep/prelude.lua",
+    "sha256": "f6b3b7b655e9204a0ef797563379516b6435be2dea78db6f87ce0cbe858f87c7"
+  },
+  {
+    "path": "tools/version_replay.py",
+    "sha256": "ad9388b42c3adf4f648d3bef1d718141f1cb2ce1941fab51c9577e75ee66a30e"
+  },
+  {
+    "path": "tools/walk_rate_test.py",
+    "sha256": "576055d3fa0ed44768fa4bae9fc7995720b7d767a26264a27818ac83f6c2bda6"
+  },
+  {
+    "path": "tools/years_progress_test.py",
+    "sha256": "273e1cc1c65833b3c64fe492ebc396191d71b7ea6f6bbb664a8948ade87ee7c8"
+  },
+  {
+    "path": "C:\\Program Files (x86)\\Steam\\steamapps\\common\\ProjectZomboid\\projectzomboid.jar",
+    "sha256": "80e405a4bfc42f6072e75b3735f458a6514143da011d3226007ded305a442f44"
+  },
+  {
+    "path": "C:\\Program Files (x86)\\Steam\\steamapps\\common\\ProjectZomboid\\stdlib.lua",
+    "sha256": "583c294996ae65310fb1191b9a70584b59c163a0f2d257af53f06728ba3931eb"
+  }
+]

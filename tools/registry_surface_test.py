@@ -54,6 +54,10 @@ REGISTRY = re.compile(r"^(\w+)\.(\w+)\s*=\s*\1\.\2\s+or\s+\{\}", re.M)
 # The reader is named so "it is on the panel" is a claim that can be
 # checked rather than a thing somebody remembers doing.
 SURFACED = {
+    "Body.failedRestore": ("pendingTransitionCount",
+                           "failed restorations retaining their body until cleanup"),
+    "Body.discarding": ("pendingTransitionCount",
+                        "explicit removals retaining ownership until teardown succeeds"),
     "Body.active": ("activeCount",
                     "how many of ours are standing in the world"),
     "Body.foreign": ("foreignCount",

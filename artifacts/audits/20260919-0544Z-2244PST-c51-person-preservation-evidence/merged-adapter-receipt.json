@@ -1,0 +1,35 @@
+{
+  "commands": [
+    {
+      "argv": [
+        "C:\\Users\\jleyv\\Peanut Butter\\JetBrains\\Java\\bin\\javac.exe",
+        "-cp",
+        "C:\\Users\\jleyv\\Peanut Butter\\AI Assisted Software Engineering Mass Repository\\Projects\\survivor-awareness\\mod\\42.20\\media\\java\\SAO.jar;C:\\Program Files (x86)\\Steam\\steamapps\\common\\ProjectZomboid\\projectzomboid.jar",
+        "-d",
+        "C:\\Users\\jleyv\\AppData\\Local\\Temp\\sao-merged-adapter-g3gu78su",
+        "C:\\Users\\jleyv\\AppData\\Local\\Temp\\sao-merged-adapter-g3gu78su\\MergedAdapterProbe.java"
+      ],
+      "cwd": "C:\\Users\\jleyv\\AppData\\Local\\Temp\\sao-merged-adapter-g3gu78su",
+      "exit": 0,
+      "stdout": "",
+      "stderr": ""
+    },
+    {
+      "argv": [
+        "C:\\Users\\jleyv\\Peanut Butter\\JetBrains\\Java\\bin\\java.exe",
+        "-Duser.home=C:\\Users\\jleyv\\AppData\\Local\\Temp\\sao-merged-adapter-g3gu78su",
+        "-cp",
+        "C:\\Users\\jleyv\\AppData\\Local\\Temp\\sao-merged-adapter-g3gu78su;C:\\Users\\jleyv\\Peanut Butter\\AI Assisted Software Engineering Mass Repository\\Projects\\survivor-awareness\\mod\\42.20\\media\\java\\SAO.jar;C:\\Program Files (x86)\\Steam\\steamapps\\common\\ProjectZomboid\\projectzomboid.jar",
+        "MergedAdapterProbe"
+      ],
+      "cwd": "C:\\Users\\jleyv\\AppData\\Local\\Temp\\sao-merged-adapter-g3gu78su",
+      "exit": 0,
+      "stdout": "ADAPTER AWAKENED items=6 mealsDormant=0 drinksDormant=0 hunger=0.99 thirst=0.98\nBRIDGE PASS root/nested item/container ownership and foreign/null refusals\nPASS native snapshot: 6 items; nested key/food/modData; exact hands/worn/attached; native item processing/removal; stats/wounds/XP/traits; corruption/version/missing-nested-script/custom-perk/custom-trait controls\n",
+      "stderr": "WARNING: A restricted method in java.lang.System has been called\nWARNING: java.lang.System::load has been called by org.lwjgl.system.Library$$Lambda/0x000000002f1c6218 in an unnamed module (file:/C:/Program%20Files%20(x86)/Steam/steamapps/common/ProjectZomboid/projectzomboid.jar)\nWARNING: Use --enable-native-access=ALL-UNNAMED to avoid a warning for callers in this module\nWARNING: Restricted methods will be blocked in a future release unless native access is enabled\n\n"
+    }
+  ],
+  "shipping_sha256": "d3592141fe8ac8deae1d9ef2f8253b649c84076421fb062a59222636302babdc",
+  "dist_sha256": "d3592141fe8ac8deae1d9ef2f8253b649c84076421fb062a59222636302babdc",
+  "runtime_origin": "all production classes loaded from shipping jar",
+  "status": "PASS"
+}

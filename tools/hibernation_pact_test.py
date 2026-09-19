@@ -1,202 +1,201 @@
 #!/usr/bin/env python3
-r"""Border 75 - the one protocol that is written to the save, unchecked.
+"""Border 75 - native snapshot delegation and strict legacy save reading.
 
-Border 15 pairs every delimited protocol the Java side speaks against
-the Lua that parses it, and it has printed the same line on every run:
-
-    15) delimited protocols whose ends disagree: none (7 paired,
-        1 unchecked)
-           unchecked: hibernate -> hibernate (2 fields, '@') -
-           no field parse found
-
-It is right to say so. There is no Lua end. `SAO_Body` takes the packed
-string straight from `SAOJavaBridge:hibernate(body)` and stores it on
-the record; `SAO_Population` hands it straight back to
-`SAOJavaBridge:awaken(body, rec.hibernation, elapsed)`. Lua carries the
-string and never looks inside it.
-
-So this protocol is **Java to the save to Java**, and it was the one
-protocol with nothing checking that its two ends agree - while being,
-as [B50] put it, the one where a corrupted row is somebody's inventory
-rather than a bad frame the next tick replaces.
-
-A survivor hibernates when the player walks away and awakens when they
-come back, so the write and the read are separated by minutes of play,
-by a save, and by however many versions of this mod. Adding a key to
-the packer and forgetting the reader loses that field silently: the
-switch has no default that complains, and `awaken` returns what it
-managed to restore.
-
-WHAT IS CHECKED
----------------
-  * every `key=` the packer writes has a `case "key"` in the reader
-  * every `case "key"` the reader handles is a key the packer writes
-  * the version prefix the packer stamps is one the reader accepts
-  * the nested separators - `worn` is comma-separated, `items` is
-    `type@condition*count` - are split by the reader on the same
-    characters the packer joins them with
-
-The last is what [B50]'s Border 70 protects from the OUTSIDE (nothing
-foreign carries a delimiter into the string); this protects it from the
-inside (both ends mean the same thing by it).
+The new writer delegates to SAONativeSnapshot's versioned binary envelope.
+This border checks that capture, validation and restore use that owner, and
+that restoration validates before mutation. Native body roundtrips belong to
+the native serializer's engine test. Legacy formats are still save contracts:
+we compile their verbatim Java parser and execute valid/corrupt records against
+it, including source mutations that must change the behavioral verdict.
 """
 import pathlib
 import re
+import shutil
+import subprocess
 import sys
+import tempfile
 
-ROOT = pathlib.Path(__file__).resolve().parent.parent
-SRC = ROOT / "java" / "src" / "com" / "sao" / "engine" / "SAOHibernation.java"
-PACK = "hibernate"
-READ = "awaken"
-
-# Keys the packer may write and the reader may skip, with why. Empty:
-# every key must be paired both ways. It exists so that a deliberate
-# one-way field has to be written down rather than argued in a commit.
-ONE_WAY = {}
+ROOT = pathlib.Path(sys.argv[1]).resolve() if len(sys.argv) > 1 else pathlib.Path(__file__).resolve().parent.parent
+SRC = ROOT / "java/src/com/sao/engine/SAOHibernation.java"
+NATIVE = ROOT / "java/src/com/sao/engine/SAONativeSnapshot.java"
 
 
 def method(src, name):
-    """One Java method's body, by brace balance."""
-    m = re.search(r"\b(?:public|private|protected|static)[^;{}]*?\b"
-                  + re.escape(name) + r"\s*\(", src)
-    if not m:
+    """Extract a declaration and body from Java source, preserving its code."""
+    match = re.search(r"^    (?:public|private|protected) [^;{}]*?\b"
+                      + re.escape(name) + r"\s*\([^)]*\)\s*\{", src, re.M)
+    if not match:
         return None
-    start = src.find("{", m.end())
-    if start < 0:
-        return None
+    start = src.find("{", match.start())
     depth = 0
-    for i in range(start, len(src)):
-        if src[i] == "{":
+    for at in range(start, len(src)):
+        if src[at] == "{":
             depth += 1
-        elif src[i] == "}":
+        elif src[at] == "}":
             depth -= 1
             if depth == 0:
-                return src[start:i]
+                return src[match.start():at + 1]
     return None
 
 
-def main():
+def source_faults(src, native):
     faults = []
-    print("=" * 74)
-    print("THE ONE PROTOCOL THAT IS WRITTEN TO THE SAVE")
-    print("=" * 74)
-
-    if not SRC.exists():
-        print()
-        print("VERDICT:")
-        print("  FAULT: SAOHibernation.java is gone, and it is both ends of "
-              "this protocol")
-        return 1
-    src = SRC.read_text(encoding="utf-8", errors="ignore")
-
-    packer, reader = method(src, PACK), method(src, READ)
-    if packer is None or reader is None:
-        print()
-        print("VERDICT:")
-        missing = PACK if packer is None else READ
-        print(f"  FAULT: SAOHibernation.java has no `{missing}` - either it "
-              "was renamed, in which case this border has been reading the "
-              "wrong half, or one end of the protocol is gone")
-        return 1
-
-    # The packer writes `";key="` or `"v2;primary="`. Take the key out
-    # of every appended literal that ends in `=`.
-    written = set()
-    version = None
-    for lit in re.findall(r'append\(\s*"([^"]*)"', packer):
-        m = re.match(r"^(v\d+);(\w+)=$", lit)
-        if m:
-            version = m.group(1)
-            written.add(m.group(2))
-            continue
-        m = re.match(r"^;(\w+)=$", lit)
-        if m:
-            written.add(m.group(1))
-
-    handled = set(re.findall(r'case\s+"(\w+)"', reader))
-    accepts = set(re.findall(r'startsWith\("(v\d+);"\)', reader))
-
-    print(f"  keys the packer writes : {len(written)}  "
-          f"({', '.join(sorted(written)) or 'none'})")
-    print(f"  keys the reader handles: {len(handled)}  "
-          f"({', '.join(sorted(handled)) or 'none'})")
-    print(f"  version stamped/accepted: {version} / "
-          f"{', '.join(sorted(accepts)) or 'none'}")
-
-    if not written or not handled:
-        faults.append(
-            "one side of this protocol read as empty - no keys written, or "
-            "none handled - which cannot be true of a record that restores "
-            "an inventory. The reading failed rather than the code being "
-            "clean")
-
-    for key in sorted(written - handled - set(ONE_WAY)):
-        faults.append(
-            f"the packer writes `{key}=` into the hibernation record and "
-            "nothing reads it back. The reader's switch has no default that "
-            "complains, so this field is written to the SAVE and dropped on "
-            "the way out, in silence, for every survivor who hibernates")
-    for key in sorted(handled - written - set(ONE_WAY)):
-        faults.append(
-            f"the reader handles `{key}` and the packer never writes it. "
-            "Either a field was dropped from the packer - in which case "
-            "every hibernating survivor is losing it - or this case is dead "
-            "and says the record carries something it does not")
-    for key, why in sorted(ONE_WAY.items()):
-        if key in written and key in handled:
-            faults.append(
-                f"`{key}` is declared as one-way ({why}) and both ends now "
-                "speak it, so the exemption is describing nothing")
-
-    if version is None:
-        faults.append(
-            "the packer stamps no version prefix. The record is in the save "
-            "and outlives the code that wrote it; without a version the "
-            "reader cannot tell an old row from a corrupt one")
-    elif version not in accepts:
-        faults.append(
-            f"the packer stamps `{version};` and the reader accepts "
-            f"{sorted(accepts)}. Every record written from now on would be "
-            "rejected whole - a survivor walks away and comes back with an "
-            "empty inventory")
-
-    # The nested shapes: what the packer joins with, the reader splits
-    # on. `items` is `type@cond*count` and `worn` is a plain list.
-    # Every punctuation character in any literal the packer writes -
-    # not just single-character `append` calls. The first draft looked
-    # only at those and reported two faults of its own making: the
-    # packer writes `;` inside `";h="` and `@` by concatenation
-    # (`packType(type) + "@" + condPct`), neither of which is an
-    # `append('x')`. `=` and `-` are excluded because `=` joins a key
-    # to its value on every field and `-` is the marker for an empty
-    # hand, so neither separates records.
-    joins = {c for lit in re.findall(r"'(.)'|\"([^\"]*)\"", packer)
-             for c in (lit[0] + lit[1])
-             if not c.isalnum() and c not in "=- "}
-    splits = set(re.findall(r'split\("(?:\\\\)?(.)"\)', reader))
-    splits |= set(re.findall(r"indexOf\('(.)'\)", reader))
-    splits |= set(re.findall(r"lastIndexOf\('(.)'\)", reader))
-    print(f"  packer joins on        : {sorted(joins) or 'none'}")
-    print(f"  reader splits on       : {sorted(splits) or 'none'}")
-    for ch in sorted(joins - splits):
-        faults.append(
-            f"the packer joins on {ch!r} and the reader never splits or "
-            "searches on it, so whatever that character separates arrives "
-            "back as one run of text")
-    for ch in sorted(splits - joins - {"=", "-"}):
-        faults.append(
-            f"the reader splits on {ch!r} and the packer never joins with "
-            "it. It is parsing a shape this packer does not write")
-
-    print()
-    print("VERDICT:")
+    bodies = {name: method(src, name) for name in
+              ("hibernate", "validate", "awaken", "parseLegacy", "finiteFloat", "nonnegativeInt", "requireType")}
+    for name, body in bodies.items():
+        if body is None:
+            faults.append("missing Java snapshot method: " + name)
     if faults:
-        for f in faults:
-            print(f"  FAULT: {f}")
+        return faults
+    pack, validate, wake = (bodies[name] for name in ("hibernate", "validate", "awaken"))
+    if "return SAONativeSnapshot.capture(shell);" not in pack or "getFullType(" in pack:
+        faults.append("new snapshots do not delegate exclusively to native capture")
+    if 'packed.startsWith("v3;")' not in validate or "return SAONativeSnapshot.validate(packed);" not in validate:
+        faults.append("native envelope validation is not delegated")
+    if "parseLegacy(packed);" not in validate or "return false;" not in validate:
+        faults.append("legacy validation does not fail closed")
+    if "!validate(packed)" not in wake or "Double.isFinite(elapsedHours)" not in wake:
+        faults.append("awaken lacks snapshot and elapsed-time preflight")
+    if "SAONativeSnapshot.restore(shell, packed)" not in wake:
+        faults.append("awaken does not restore native snapshots through their owner")
+    elif wake.find("!validate(packed)") > wake.find("SAONativeSnapshot.restore(shell, packed)"):
+        faults.append("native restoration precedes validation")
+    if "if (!nativeSnapshot)" not in wake:
+        faults.append("legacy reconstruction can overwrite native body/equipment state")
+    if any(seam not in wake for seam in (
+            "while (elapsedHours > 0 && hungerAfter > 0.5f)",
+            "while (elapsedHours > 0 && thirstAfter > 0.5f)",
+            "double thirstAfter = elapsedHours > 0 ?",
+            "if (elapsedHours > 0) hungerAfter = Math.min",
+            "meal.getContainer().Remove(meal);")):
+        faults.append("dormant metabolism changes a zero-hour snapshot or removes from the wrong container")
+    if "catch (Throwable ignored)" in wake:
+        faults.append("restoration failures are silently ignored")
+    missing = re.search(r"if \(added == null\)\s*\{([^}]*)\}", wake)
+    if not missing or "throw new IllegalStateException" not in missing.group(1):
+        faults.append("legacy missing-item restoration can report success")
+    if "v3;" not in native or any(" " + name + "(" not in native for name in ("capture", "validate", "restore")):
+        faults.append("the native owner lacks the versioned envelope interface")
+    return faults
+
+
+V1 = "v1;primary=-;h=0.1;t=0.2;hp=85;items="
+V2 = "v2;primary=Base.Axe;h=0.1;t=0.2;hp=85;worn=Base.Shirt;items=Base.Axe@63*1,Base.Shirt@100*1,Base.Shirt@50*1"
+VALID = [V1, V1 + ";bit=1;inf=2.5", V1.replace("items=", "items=Base.Apple*2"),
+         V2, V2.replace(";worn=Base.Shirt", ";worn="), V2 + ";bit=0;inf=0",
+         V2.replace("worn=Base.Shirt", "worn=Base.Shirt,Base.Shirt"),
+         V1.replace("items=", "items=Mod.Item With Spaces*1")]
+INVALID = ["", "v0;", "v3;bad", "v1;primary=-", V1 + ";", V1 + ";unknown=1",
+           V1 + ";h=0.3", V1.replace(";hp=85", ""), V1.replace("primary=-", "primary="),
+           V1.replace("primary=-", "primary=Base.Axe"), V1.replace("h=0.1", "h=NaN"),
+           V1.replace("h=0.1", "h=Infinity"), V1.replace("h=0.1", "h=-0.1"),
+           V1.replace("t=0.2", "t=1e999"), V1.replace("hp=85", "hp=garbage"),
+           V1 + ";bit=1.5", V1 + ";bit=-1", V1 + ";inf=NaN", V1 + ";worn=",
+           V1.replace("items=", "items=Base.Axe*0"), V1.replace("items=", "items=Base.Axe*-1"),
+           V1.replace("items=", "items=Base.Axe*1.5"), V1.replace("items=", "items=Base.Axe*2147483648"),
+           V1.replace("items=", "items=Base.Axe*2147483647,Base.Shirt*1"),
+           V1.replace("items=", "items=Base.Axe*1,"), V1.replace("items=", "items=Base.Axe*1,Base.Axe*1"),
+           V1.replace("items=", "items=Base.Axe"), V1.replace("items=", "items=*1"),
+           V1.replace("items=", "items=Base.Axe@10*1"), V2.replace(";worn=Base.Shirt", ""),
+           V2.replace("Base.Axe@63", "Base.Axe@101"), V2.replace("Base.Axe@63", "Base.Axe@NaN"),
+           V2.replace("Base.Axe@63", "Base.Axe"), V2.replace("worn=Base.Shirt", "worn=Base.Missing"),
+           V2.replace("worn=Base.Shirt", "worn=Base.Shirt,")]
+
+
+def java_literal(value):
+    # The cases are ASCII save strings; escaping is for Java source, not a shell.
+    return '"' + value.replace("\\", "\\\\").replace('"', '\\"') + '"'
+
+
+def parser_probe(src):
+    pieces = []
+    for name in ("LegacyItem", "LegacySnapshot"):
+        record = re.search(r"    private record " + name + r"\([^;{}]+\)\s*\{\s*\}", src)
+        if not record:
+            raise ValueError("legacy parser record missing: " + name)
+        pieces.append(record.group(0))
+    for name in ("parseLegacy", "finiteFloat", "nonnegativeInt", "requireType"):
+        body = method(src, name)
+        if body is None:
+            raise ValueError("legacy parser extraction failed: " + name)
+        pieces.append(body)
+    cases = [(text, True) for text in VALID] + [(text, False) for text in INVALID]
+    checks = []
+    for i, (text, expected) in enumerate(cases):
+        checks.append("check(" + java_literal(text) + ", " + str(expected).lower() + ", " + str(i) + ");")
+    return ("public class LegacySnapshotProbe {\n" + "\n".join(pieces) + "\n"
+            + "static void check(String value, boolean expected, int index) { boolean valid; "
+              "try { parseLegacy(value); valid = true; } catch (RuntimeException error) { valid = false; } "
+              "if (valid != expected) { System.out.println(\"FAIL case=\" + index + \" expected=\" + expected + \" value=\" + value); System.exit(1); } }\n"
+            + "public static void main(String[] args) { " + " ".join(checks)
+            + ' System.out.println("PASS legacy cases=' + str(len(cases)) + '"); }\n}\n')
+
+
+def run_probe(src, javac, java, directory):
+    work = pathlib.Path(directory)
+    source = work / "LegacySnapshotProbe.java"
+    source.write_text(parser_probe(src), encoding="utf-8")
+    compiled = subprocess.run([str(javac), "-d", str(work), str(source)],
+                              capture_output=True, text=True, timeout=60)
+    if compiled.returncode:
+        raise RuntimeError("legacy parser probe did not compile: " + compiled.stderr)
+    result = subprocess.run([str(java), "-cp", str(work), "LegacySnapshotProbe"],
+                            capture_output=True, text=True, timeout=30)
+    return result.returncode, result.stdout.strip() + result.stderr.strip()
+
+
+def main():
+    if not SRC.exists() or not NATIVE.exists():
+        print("FAULT: snapshot adapter or native owner is missing")
         return 1
-    print(f"  75) hibernation pact: all {len(written)} fields of the record "
-          "written to the save are read back, on a version the reader "
-          "accepts, with the same separators at both ends")
+    src = SRC.read_text(encoding="utf-8")
+    native = NATIVE.read_text(encoding="utf-8")
+    faults = source_faults(src, native)
+    source_controls = [
+        ("capture", "return SAONativeSnapshot.capture(shell);", 'return "";'),
+        ("native validation", "return SAONativeSnapshot.validate(packed);", "return true;"),
+        ("native restore", "SAONativeSnapshot.restore(shell, packed)", "0"),
+        ("zero-hour meals", "while (elapsedHours > 0 && hungerAfter > 0.5f)", "while (hungerAfter > 0.5f)"),
+        ("missing item", 'throw new IllegalStateException("legacy item type unavailable: " + entry.type);', "continue;")]
+    for name, original, replacement in source_controls:
+        mutated = src.replace(original, replacement, 1)
+        if mutated == src or not source_faults(mutated, native):
+            faults.append("CONTROL did not reject altered " + name)
+    jdk = pathlib.Path(r"C:\Users\jleyv\Peanut Butter\JetBrains\Java\bin")
+    javac = jdk / "javac.exe" if (jdk / "javac.exe").exists() else shutil.which("javac")
+    java = jdk / "java.exe" if (jdk / "java.exe").exists() else shutil.which("java")
+    if not javac or not java:
+        print("SKIPPED: legacy parser execution needs a JDK; source contract checked")
+    else:
+        try:
+            with tempfile.TemporaryDirectory(prefix="sao-hibernation-pact-") as tmp:
+                code, output = run_probe(src, javac, java, tmp)
+                if code or "PASS legacy cases=" not in output:
+                    faults.append("legacy parser: " + output)
+                else:
+                    print(output)
+                controls = [
+                    ("finite guard", 'if (!Float.isFinite(parsed)) throw new IllegalArgumentException("nonfinite legacy body value");', ""),
+                    ("zero count", 'if (count == 0) throw new IllegalArgumentException("zero legacy item count");', ""),
+                    ("unknown field", "!allowed.contains(key) || ", ""),
+                    ("condition range", 'if (condition > 100) throw new IllegalArgumentException("legacy condition exceeds percent range");', "")]
+                for name, original, replacement in controls:
+                    mutated = src.replace(original, replacement, 1)
+                    if mutated == src:
+                        faults.append("CONTROL did not change " + name)
+                        continue
+                    code, output = run_probe(mutated, javac, java, tmp)
+                    if code != 1 or not output.startswith("FAIL case="):
+                        faults.append("CONTROL did not fail behaviorally for " + name + ": " + output)
+                    else:
+                        print("CONTROL " + name + ": " + output)
+        except (ValueError, RuntimeError, subprocess.TimeoutExpired) as error:
+            faults.append(str(error))
+    for fault in faults:
+        print("FAULT: " + fault)
+    if faults:
+        return 1
+    print("  75) hibernation pact: native envelope delegation and strict legacy reader hold")
     return 0
 
 

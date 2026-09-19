@@ -111,7 +111,9 @@ SandboxVars = {
 -- Nobody is materialised: a sweep is the dormant county, which is the
 -- half that runs when the player is not looking and the half nearly
 -- every death happens in.
-SAO.Body = { active = {}, get = function() return nil end }
+SAO.Body = { active = {}, get = function() return nil end,
+    hasRepresentation = function() return false end,
+    recover = function() return true end }
 
 _G.__owed = 1096
 

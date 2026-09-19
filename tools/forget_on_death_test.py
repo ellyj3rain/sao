@@ -67,6 +67,15 @@ MARK_DEAD = "markDead"
 #   "calls"  - the clearing function calls Identity.markDead itself,
 #              so the clear and the death are the same event
 CACHES = {
+    ("SAO_Body.lua", "Body.discarding"): (
+        "Body.discard", "named",
+        "teardown ownership, retained across failure even after death. "
+        "markDead attempts cleanup only for an existing transition; "
+        "Population recovery retries dead transitions until removal succeeds"),
+    ("SAO_Body.lua", "Body.failedRestore"): (
+        "Body.discard", "named",
+        "a partial shell retained until teardown succeeds. Death reaches "
+        "the same cleanup without removing ordinary corpses; recovery retries"),
     ("SAO_Perception.lua", "P.beliefs"): (
         "P.forget", "named",
         "everything one survivor believes about the world - zombies, "

@@ -333,6 +333,7 @@ local function onTick()
     pcall(function() tick = SAO.Controller.tick() end)
     for id, body in pairs(SAO.Body.active) do
         pcall(function()
+            if SAO.Body.isTransitioning(SAO.Identity.get(id)) then return end
             if tenDue then
                 -- Their ten-minute pass: the seven dependency steps,
                 -- once - their pass scaling exists to fit their

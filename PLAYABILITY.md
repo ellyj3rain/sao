@@ -1,6 +1,6 @@
 | Document | Playability and observed behavior |
 |---|---|
-| Version | `2.7.14.1-pre-alpha` |
+| Version | `2.7.14.2-pre-alpha` |
 | Author | ellyj3rain |
 | Repository | `PLAYABILITY.md` |
 | Status | CANONICAL - current evidence and implementation limitations. |
@@ -22,7 +22,7 @@ mechanical work already authorized.
 
 | Surface | Implementation present | Current limitation |
 |---|---|---|
-| People and persistence | Identity, loaded NPC bodies, materialization, hibernation and controller adoption | Failed hibernation can still remove a body; afflicted return can create a body without adopting it. |
+| People and persistence | Identity, loaded NPC bodies, materialization, hibernation and controller adoption | C51 protects capture/teardown/restore and native supported components; afflicted return still lacks adoption, and other character components remain outside the snapshot. |
 | Inspection | County ledger, standing and person panels, knowledge and development observations | A visible state or selected branch does not establish that the associated action happened. |
 | Movement and travel | Walking, crossing, boarding and driving adapters | Driving can cancel its own approach or cancel actual progress; steering and passenger waiting need repair. The engine does support NPC vehicle control. |
 | Needs and material actions | Inventory, food, water, shelter, construction and care primitives | Completed actions, access and dormant resource producers remain incomplete. Queued treatment can prevent the following CPR action. |

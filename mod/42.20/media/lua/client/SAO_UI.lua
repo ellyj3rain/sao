@@ -116,6 +116,10 @@ function SAOCountyWindow:build()
     local here = loadedOurs + loadedForeign
     header("The County - " .. living .. " living, " .. dead .. " dead"
         .. " - " .. here .. " loaded here")
+    pcall(function()
+        local pending = SAO.Body.pendingTransitionCount()
+        if pending > 0 then row(pending .. " survivor handoff(s) pending") end
+    end)
     -- [B43] Which jar is actually loaded, said out loud. [B33] found
     -- the shipped SAO.jar two days stale and missing seventeen engine
     -- classes; deploy overwrote it on the way to the game, so the

@@ -885,10 +885,36 @@ local function backfillName(rec, body)
     end
 end
 
+-- Physical facts are staged with the body snapshot; readers never see a
+-- partly committed handoff. The prior unpicked-clock policy is unchanged.
+function Pop.captureBodyFacts(rec, body, now)
+    local inf = SAOJavaBridge:woundInfection(body)
+    local left = SAOJavaBridge:biteHoursLeft(body)
+    local infected = left ~= nil and left ~= ""
+    local deadline = false
+    if infected then
+        if left == "unpicked" then
+            deadline = now + biteWindowHours()
+        else
+            local remaining = tonumber(left)
+            if not remaining or remaining ~= remaining
+                or remaining == math.huge or remaining == -math.huge then
+                error("invalid infection clock")
+            end
+            deadline = now + remaining
+        end
+    end
+    return { woundInfected = inf ~= nil and inf > 0,
+        hasRadio = SAO.Standing.ownsRadio(rec.id, body) == true,
+        knoxInfected = infected, biteDeathAtHours = deadline,
+        newInfection = infected and rec.knoxInfected ~= true }
+end
+
 local function materializeBand(px, py, conf)
     for id, rec in pairs(SAO.Identity.all()) do
       if not rec.dead then
-        local hasBody = SAO.Body.get(id) ~= nil
+        SAO.Body.recover(rec)
+        local hasBody = SAO.Body.hasRepresentation(id)
         local d = dist(rec.x, rec.y, px, py)
         if SAO.Claims.isHeld(rec) then
             -- Inhabitants are never conjured ([A17]): a Knox person's
@@ -907,33 +933,6 @@ local function materializeBand(px, py, conf)
                 rec.backstory = nil   -- [A14]: stored prose is not a record field
                 if rec.epistemicMonths == nil then
                     pcall(function() SAO.History.generate(id, rec) end)
-                end
-                -- The person persists: restore what they carried and were,
-                -- and let the dormant hours cost what they cost (F-013).
-                if rec.hibernation and SAOJavaBridge then
-                    local elapsed = 0
-                    pcall(function()
-                        elapsed = SAO.History.countyHours()
-                            - (rec.releasedAtHours or 0)
-                    end)
-                    if elapsed < 0 then elapsed = 0 end
-                    local okA, journal = pcall(function()
-                        return SAOJavaBridge:awaken(body, rec.hibernation, elapsed)
-                    end)
-                    log(rec.id .. " awakens: " .. (okA and tostring(journal) or "failed"))
-                    -- [C26] The pack dressed them - or it did not
-                    -- (R-006): a pack with no worn garments wakes a
-                    -- naked person, silently. Verified the same way a
-                    -- fresh body is, and loud only when abnormal.
-                    pcall(function()
-                        local rep = tostring(
-                            SAOJavaBridge:ensureDressed(body, "OfficeWorker"))
-                        if rep:find("NAKED", 1, true)
-                            or rep:find("redressed", 1, true) then
-                            log(rec.id .. " woke " .. rep
-                                .. " - the pack held no clothes (R-006)")
-                        end
-                    end)
                 end
                 -- A person owns things. What they carry follows who they are:
                 -- the aggressive keep a weapon to hand; everyone has a knife
@@ -1137,63 +1136,13 @@ local function materializeBand(px, py, conf)
             local body = SAO.Body.get(id)
             local bd = body and dist(body:getX(), body:getY(), px, py) or d
             if bd > conf.hibernate then
-                -- [B10] The wound is a fact about the PERSON: stamped
-                -- on the record as they go dark, so the dormant arc
-                -- can weigh it without a body to read.
-                pcall(function()
-                    local b15 = SAO.Body.get(id)
-                    if b15 and SAOJavaBridge then
-                        -- [C11] The bite itself is not recorded any
-                        -- more - the belief layer reads it off the
-                        -- body while loaded, and the record's
-                        -- actionable fact is the INFECTION and its
-                        -- clock below. The old bitten flag's one
-                        -- reader was the invented formula this batch
-                        -- removed; the drop is declared in
-                        -- save_compat's ledger.
-                        local inf = SAOJavaBridge:woundInfection(b15)
-                        if inf and inf > 0 then
-                            rec.woundInfected = true
-                        else
-                            rec.woundInfected = nil
-                        end
-                        -- [C11] The engine's own bite clock rides the
-                        -- record (F-047): the infected die at a
-                        -- deterministic hour, read off the body's own
-                        -- course. "unpicked" means infected but the
-                        -- course had not stamped its clock - mirror
-                        -- the sandbox window from now (the same table
-                        -- pickMortalityDuration draws from; traits
-                        -- omitted, stated in Batches/C11).
-                        local wasInfected = rec.knoxInfected == true
-                        local left = SAOJavaBridge:biteHoursLeft(b15)
-                        if left == "" or left == nil then
-                            rec.knoxInfected = nil
-                            rec.biteDeathAtHours = nil
-                        elseif left == "unpicked" then
-                            rec.knoxInfected = true
-                            rec.biteDeathAtHours =
-                                hoursNow() + biteWindowHours()
-                        else
-                            rec.knoxInfected = true
-                            rec.biteDeathAtHours =
-                                hoursNow() + (tonumber(left) or 0)
-                        end
-                        if rec.knoxInfected and not wasInfected then
-                            pcall(function()
-                                SAO.PathogenEvents.emit(
-                                    "infection",
-                                    rec.id,
-                                    math.floor(hoursNow() / 24.0),
-                                    { record = rec })
-                            end)
-                        end
-                    end
-                end)
-                SAO.Controller.drop(id)
-                SAO.Body.release(rec)
-                log(rec.id .. " continues without you (dormant at "
-                    .. rec.x .. "," .. rec.y .. ")")
+                local released, reason = SAO.Body.release(rec)
+                if released then
+                    log(rec.id .. " continues without you (dormant at "
+                        .. rec.x .. "," .. rec.y .. ")")
+                else
+                    log(rec.id .. " release deferred: " .. tostring(reason))
+                end
             end
         end
       end
@@ -1630,7 +1579,7 @@ local function dormantLife(conf)
     end
     for id, rec in pairs(SAO.Identity.all()) do
         if not rec.dead and not SAO.Claims.isHeld(rec)
-            and not SAO.Body.get(id) and rec.homeX then
+            and not SAO.Body.hasRepresentation(id) and rec.homeX then
             rec.nextDormantMoveAt = rec.nextDormantMoveAt or 0
             -- [C112] This is the one persisted FUTURE due-time in the
             -- county, and a stamp written by an older build counted
@@ -1865,7 +1814,7 @@ local function dormantLife(conf)
                 -- have - the dormant learn the county too.
                 -- [B42] The rule itself now lives in Perception and
                 -- both halves read it. It was written here, inside a
-                -- loop that gates on `not SAO.Body.get(id)`, so only
+                -- loop that gates on `not SAO.Body.hasRepresentation(id)`, so only
                 -- the UNLOADED could ever learn whose ground they were
                 -- walking on - including [B35]'s wiring for the
                 -- player's own claim, which meant a survivor standing
@@ -1994,7 +1943,7 @@ local function dormantAttrition()
         if rec.dead then
             -- Nothing here: word of a death is delivered above, before
             -- the risk dial can silence it.
-        elseif not SAO.Claims.isHeld(rec) and not SAO.Body.get(id) then
+        elseif not SAO.Claims.isHeld(rec) and not SAO.Body.hasRepresentation(id) then
             -- [B37] A world that predates this batch has never
             -- recorded either of these, and somebody who has "never"
             -- drunk must not start dying the day it lands. First
@@ -2405,7 +2354,7 @@ local function dormantSettle()
     if not (SAO.Standing and SAO.Standing.setGroupClaim) then return end
     local seen, settled = {}, 0
     for id, rec in pairs(SAO.Identity.all()) do
-        if not rec.dead and not SAO.Body.get(id) then
+        if not rec.dead and not SAO.Body.hasRepresentation(id) then
             local g = SAO.Standing.groupOf(id)
             if g and not seen[g]
                 and not SAO.Standing.groupClaimOf(g)
@@ -2514,7 +2463,7 @@ local function dormantProvision()
     local today = math.floor(hoursNow() / 24.0)
     local seen = {}
     for id, rec in pairs(SAO.Identity.all()) do
-        if not rec.dead and not SAO.Body.get(id) then
+        if not rec.dead and not SAO.Body.hasRepresentation(id) then
             local g = SAO.Standing.groupOf(id)
             if g and not seen[g] then
                 seen[g] = true
@@ -2523,7 +2472,7 @@ local function dormantProvision()
                     local members = SAO.Standing.membersOf(g)
                     local n, fed, watered, anyBody = 0, 0, 0, false
                     for _, mid in ipairs(members) do
-                        if SAO.Body.get(mid) then
+                        if SAO.Body.hasRepresentation(mid) then
                             anyBody = true
                             break
                         end
@@ -2632,7 +2581,7 @@ local function dormantEncounters()
     -- own former test, moved to where it is asked once per pass.
     local livingId, livingRec, livingN = {}, {}, 0
     for id, rec in pairs(SAO.Identity.all()) do
-        if not rec.dead and not SAO.Body.get(id) then
+        if not rec.dead and not SAO.Body.hasRepresentation(id) then
             livingN = livingN + 1
             livingId[livingN] = id
             livingRec[livingN] = rec
@@ -2650,7 +2599,7 @@ local function dormantEncounters()
         if idA == encounterCursor then resumed = true end
       elseif outerBudget <= 0 then
         break
-      elseif not recA.dead and not SAO.Body.get(idA) then
+      elseif not recA.dead and not SAO.Body.hasRepresentation(idA) then
         outerBudget = outerBudget - 1
         lastVisited = idA
         for li = 1, livingN do
@@ -3595,6 +3544,9 @@ local function populationTick()
     end)
     if livingTheYears then return end
     runSub("inhabit", inhabitKnox)
+    for _, rec in pairs(SAO.Identity.all()) do
+        SAO.Body.recover(rec)
+    end
     if not pending then dormantCountyPass(conf) end
     local px, py = playerPos()
     if px then

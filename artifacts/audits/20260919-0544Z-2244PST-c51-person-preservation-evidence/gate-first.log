@@ -1,0 +1,179 @@
+SAO_Absorb.lua: OK
+SAO_AfflictedReturn.lua: OK
+SAO_Age.lua: OK
+SAO_Animals.lua: OK
+SAO_Appearance.lua: OK
+SAO_Body.lua: OK
+SAO_Controller.lua: OK
+SAO_Driving.lua: OK
+SAO_Drugs.lua: OK
+SAO_Exchange.lua: OK
+SAO_Gesture.lua: OK
+SAO_Harness.lua: OK
+SAO_Inspect.lua: OK
+SAO_Locomotion.lua: OK
+SAO_Medical.lua: OK
+SAO_MedicalWindow.lua: OK
+SAO_Needs.lua: OK
+SAO_Neighbours.lua: OK
+SAO_Nuke.lua: OK
+SAO_Population.lua: OK
+SAO_RadioEar.lua: OK
+SAO_Sandbox.lua: OK
+SAO_Telemetry.lua: OK
+SAO_UI.lua: OK
+SAO_Voice.lua: OK
+SAO_Radio.lua: OK
+SAO_Record.lua: OK
+SAO_Traits.lua: OK
+SAO_Adaptation.lua: OK
+SAO_Binding.lua: OK
+SAO_Branching.lua: OK
+SAO_Census.lua: OK
+SAO_Claims.lua: OK
+SAO_Command.lua: OK
+SAO_Communication.lua: OK
+SAO_Conditions.lua: OK
+SAO_Course.lua: OK
+SAO_Disposition.lua: OK
+SAO_GraphPersistence.lua: OK
+SAO_Habits.lua: OK
+SAO_Hash.lua: OK
+SAO_History.lua: OK
+SAO_Identity.lua: OK
+SAO_Integration.lua: OK
+SAO_Isolation.lua: OK
+SAO_Knowledge.lua: OK
+SAO_Labor.lua: OK
+SAO_Lessons.lua: OK
+SAO_Log.lua: OK
+SAO_Material.lua: OK
+SAO_Neuro.lua: OK
+SAO_Organization.lua: OK
+SAO_PathogenEvents.lua: OK
+SAO_PathogenPressure.lua: OK
+SAO_Perception.lua: OK
+SAO_PlaceAttachment.lua: OK
+SAO_Places.lua: OK
+SAO_PlayerInteraction.lua: OK
+SAO_Pressure.lua: OK
+SAO_Rand.lua: OK
+SAO_Recognition.lua: OK
+SAO_Seams.lua: OK
+SAO_Settlement.lua: OK
+SAO_Standing.lua: OK
+SAO_World.lua: OK
+SAO_WorldDevelopment.lua: OK
+SAO_WorldGenesis.lua: OK
+candidates: 0
+1) MOVEMENT keys missing from locomotion tick: none
+   tick states not in MOVEMENT map: none
+2) states relying on the 'errand' default: ['BOARDING', 'DRIVE', 'FOLLOW', 'GEARWARD', 'HOMEWARD', 'IDLE', 'PLAYERFOLLOW', 'RIDE', 'ROAM', 'SETTLEWARD', 'TRAVEL']
+3) takePurpose written but never handled: none
+4) Lua-called verbs missing in SAOBridge: none
+5) voice events used but undefined: none
+6) TAKE states entered with no queued work (line numbers): none
+7) sensor scale disagreement across sites: none
+8) states with no exit dispatcher: none
+9) claim fields read but never written: none
+10) news kinds written but rendered by nobody: none
+11) designation literals nothing can ever be: none
+12) wants Lua asks for that Java cannot answer: none
+13) engine-string literals matching nothing the engine produces: none
+15) delimited protocols whose ends disagree: none (11 paired, 0 unchecked)
+       appraiseVehiclesNear: exact
+       findAlcoholSource: exact
+       findAmmoSource: exact
+       findDrugSource: exact
+       findFoodSource: exact
+       findWaterSource: exact
+       findWeaponUpgrade: exact
+       hearthNear: exact
+       lootedNearby: exact
+       nearestBoardableVehicle: exact
+       scoutBase: exact
+       excluded: begin builds 3 ','-separated fields - ',' is a record separator and appears in prose
+       excluded: beginRide builds 2 ','-separated fields - ',' is a record separator and appears in prose
+       excluded: findBoardable builds 3 ','-separated fields - ',' is a record separator and appears in prose
+14) duplicated blocks of 15+ lines: none
+16) sandbox surface: 34 options, all read, all named and explained, defaults agree; 75 translation keys, no empty, duplicate or mis-slotted values
+17) shipped jar: 46 classes, all 30 sources present
+18) bridge: 176 public methods on SAOBridge (from the shipped jar)
+call sites:     260 across the Lua tree, 172 distinct methods
+never called:   4 bridge methods no Lua reaches
+MATCH: every call site names a real method, with an arity some overload accepts, and no literal argument that cannot reach its parameter.
+19) mod.info: 2 file(s), 12 distinct keys, all read by a real parser, all named files present
+==========================================================================
+A PASS THAT SURVIVES THE ARTIFACT BEING GONE
+==========================================================================
+  gated mirrors run blind: 178
+  passed with no Lua     : 12  (art_derived_test.py, bridge_safety_test.py, doc_currency_test.py, engine_facts_test.py, fence_test.py, gate_reach_test.py, pool_identity_test.py, protocol_field_test.py, receipts_test.py, session_state_test.py, state_counts_test.py, version_replay.py)
+  threw with no Lua      : 23  (not a fault here - a traceback is the loud opposite of a vacuous pass)
+  declined to judge      : 1  (said SKIPPED - they read the installed game, which this machine has not got)
+  declared not-about-Lua : 13
+
+VERDICT:
+  FAULT: hibernation_pact_test.py is declared as not reading the mod's Lua, and blinding the Lua now changes its verdict - so it does read it. The entry is false; delete it and let the border stand on the real test
+[check] BORDER FINDING - a verdict about an empty set
+  FAULT: Body.discarding is a registry of people declared in SAO_Body.lua and no surface shows it. Its emptiness would be indistinguishable from the subsystem being dead, which is what [B47] found the Ledger doing about `Body.active` for the life of the project. Give it a reader and declare it here
+  FAULT: Body.failedRestore is a registry of people declared in SAO_Body.lua and no surface shows it. Its emptiness would be indistinguishable from the subsystem being dead, which is what [B47] found the Ledger doing about `Body.active` for the life of the project. Give it a reader and declare it here
+[check] BORDER FINDING - a registry with no surface
+  FAULT: SAO_Body.lua has a module-scope `Body.discarding` keyed by a survivor id and nobody declared who clears it. The county keeps its dead on purpose and this table was only ever about the living, so every death leaves an entry nothing will read again. Say which function forgets one id, and make a death reach it
+  FAULT: SAO_Body.lua has a module-scope `Body.failedRestore` keyed by a survivor id and nobody declared who clears it. The county keeps its dead on purpose and this table was only ever about the living, so every death leaves an entry nothing will read again. Say which function forgets one id, and make a death reach it
+[check] BORDER FINDING - a per-id cache that outlives the id
+90 calendar days: PASS days=90 steps=81000 maxSlice=60
+365 calendar days: PASS days=365 steps=328500 maxSlice=60
+partial-day reload: PASS days=90 steps=81000 maxSlice=60
+legacy completed-day migration: PASS days=90 steps=26100 maxSlice=60
+unavailable timer remains bounded: PASS days=2 steps=1800 maxSlice=1
+genesis must complete first: PASS days=2 steps=1800 maxSlice=60
+unreadable clock retries without inventing history: PASS days=2 steps=1800 maxSlice=60
+real person daily timing: PASS real person died at hour24, neuro advanced24h, digest sees death
+control initial partial day cannot age: REJECTED FAIL initial partial day aged
+control digest cannot precede age death: REJECTED FAIL daily digest preceded real death
+control old callback gate stalls catch-up: REJECTED FAIL steps=60 expected=1800
+control daily jumps cannot replace live cadence: REJECTED FAIL steps=2 expected=1800
+control completed progress cannot be discarded: REJECTED FAIL steps=120600 expected=1800
+control frozen noon: FAIL day and night not observed
+  160) PASS -- causal elapsed-history scheduler
+  161) PASS company admission: 41 behavioral checks in the engine VM
+PASS control eight-person cap: past_eight changed
+PASS control shortage disconnected: short_host_refuses changed
+PASS control personal preference disconnected: solitude_preference_refuses changed
+PASS control unseen ground decides: unseen_ground_no_verdict changed
+PASS control departure disconnected: shortage_and_distrust_leave changed
+PASS control declared hostility ignored: declared_hostility_refuses changed
+PASS control affiliation treated as experience: roster_and_old_trust_are_not_contact changed
+PASS control unseen death changes experience: unseen_death_does_not_change_pressure changed
+PASS control reports count as encounter: reports_are_not_experienced_contact changed
+production: VALUE PASS
+CONTROL capture failure relinquished ownership: REJECTED ERROR KahluaException: capture failure relinquished ownership: empty
+CONTROL teardown failure reported success: REJECTED ERROR KahluaException: teardown failure reported success
+CONTROL saved pending release lost: REJECTED ERROR KahluaException: pending body remained available or became dormant
+CONTROL population dropped early: REJECTED ERROR KahluaException: population dropped early
+CONTROL harness dropped early: REJECTED ERROR KahluaException: harness dropped early
+CONTROL harness did not restore current person: REJECTED ERROR KahluaException: harness did not restore current person
+CONTROL failed clear orphaned person: REJECTED ERROR KahluaException: failed clear orphaned person
+CONTROL pending body advanced: REJECTED ERROR KahluaException: pending body advanced
+CONTROL age mutated pending body: REJECTED ERROR KahluaException: age mutated pending body
+CONTROL drugs mutated pending body: REJECTED ERROR KahluaException: drugs mutated pending body
+CONTROL afflicted callback mutated pending body: REJECTED ERROR KahluaException: afflicted callback mutated pending body
+CONTROL incoming action did not retain target: REJECTED ERROR KahluaException: incoming action did not retain target
+CONTROL incoming action did not retain target: REJECTED ERROR KahluaException: incoming action did not retain target
+  162) PASS -- person ownership handoff
+PASS native person components and refusal controls
+CONTROL empty-native-inventory: Restored item identity/type/container differs
+CONTROL omit-native-stats: native stats
+CONTROL omit-native-wounds: native wound state
+CONTROL omit-native-experience: native XP and traits
+CONTROL lose-primary-reference: Equipment restoration did not preserve references
+CONTROL accept-corruption: checksum corruption accepted
+CONTROL accept-old-native-version: unsupported native version accepted
+CONTROL drop-nested-item-silently: missing nested unequipped script accepted
+CONTROL omit-native-item-processing: root and nested food not registered for native processing
+CONTROL omit-native-item-unregister: recursive native processing removal
+CONTROL accept-missing-custom-perk: missing custom perk accepted by preflight
+CONTROL accept-missing-custom-trait: missing custom trait accepted by preflight
+  163) PASS -- native person snapshot
+[check] REFUSING: fix the findings above, or state why they are
+[check] acceptable in the batch record and re-run.

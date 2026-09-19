@@ -1,0 +1,10 @@
+{
+  "command": [
+    "C:\\Users\\jleyv\\Peanut Butter\\Git\\Git\\bin\\bash.exe",
+    "tools/check.sh"
+  ],
+  "cwd": "C:\\Users\\jleyv\\Peanut Butter\\AI Assisted Software Engineering Mass Repository\\Projects\\survivor-awareness",
+  "exit_code": 0,
+  "elapsed_seconds": 445.01,
+  "log": "C:\\Users\\jleyv\\Peanut Butter\\AI Assisted Software Engineering Mass Repository\\Projects\\survivor-awareness\\_scratch\\c51-engine\\gate-final.log"
+}

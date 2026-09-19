@@ -1,6 +1,6 @@
 | Document | Survivor Awareness Overhaul Findings |
 |---|---|
-| Version | `2.7.14.1-pre-alpha` |
+| Version | `2.7.14.2-pre-alpha` |
 | Author | ellyj3rain |
 | Repository | `FINDINGS.md` |
 | Status | CANONICAL, APPEND-ONLY - verified engine findings. |
@@ -1669,3 +1669,54 @@ built-in readers, pressures and weights; an extension callback remained absent
 until its owner re-registers it. Therefore closures in the bound table do not
 demonstrate a normal save failure. Runtime registration and durable history
 still need distinct ownership and an extension reconstruction contract.
+
+## F-078 | 2026-09-19 05:51 UTC / 22:51 PST | Native person snapshot and ownership transition
+
+C51 repairs the F-077 release failure across Body, Population and Harness.
+The installed Kahlua VM executes production capture, teardown, retry, reload,
+restoration and explicit deletion with bridge/body fault doubles. Capture
+failure preserves the previous record and ownership; failed removal retains a
+durable pending capture and recoverable handle. Independent age, drug,
+afflicted and environmental callbacks cannot advance the held representation.
+Queued incoming treatment and inventory transfers retain their target, including
+nested containers. Source mutations reproduce the ownership failures.
+
+The installed Build 42.20 world-version-249 component serializers preserve
+inventory, Stats, BodyDamage and XP. A real-engine JVM probe constructs items,
+characters and an empty cell without opening a world or save. Its six-item
+fixture preserves nested food and keys, separate weapon instances, ammunition,
+item ModData, held/worn/attached identity, wounds, statistics, traits and custom
+perk state. The native loader silently omits unavailable items/perks; independent
+item manifests and trait/perk registry validation now refuse those cases.
+
+Deserialization alone does not resume item processing. Native cell registration
+is required for root and nested carried items, and recursive removal must be
+queued on teardown. The cell fixture verifies both, including idempotent removal.
+Twelve compiled source mutations fail for their stated reasons. The final
+shipping jar also passes SAOHibernation.awaken at zero elapsed hours: six items,
+no food/drink consumed, hunger 0.99 and thirst 0.98 retained. Actual bridge
+ownership queries distinguish the person's nested inventory from another's.
+
+The versioned v3 envelope uses native binary sections, bounded lengths and
+SHA-256 integrity. Valid v1/v2 records remain readable, with the original
+formats' information loss stated. Full IsoPlayer.load is unsuitable because it
+also initializes player appearance and writes multiplayer player options.
+Nutrition, fitness, learned recipes, standalone character ModData and human
+appearance remain outside this snapshot. Positive-elapsed dormant metabolism
+is retained, not validated by these tests. No play-frequency or complete-person
+fidelity claim follows from this result.
+
+Inputs, source hashes, probes and results are recorded in
+`artifacts/audits/20260919-0544Z-2244PST-c51-person-preservation-evidence/`.
+The permanent gates are Borders 75, 162 and 163. The final shipping jar hash
+before publication is
+`d3592141fe8ac8deae1d9ef2f8253b649c84076421fb062a59222636302babdc`.
+
+Closing verification also covers a death arriving during retained teardown.
+The death funnel attempts checked cleanup; failure retains the handle, and
+population recovery retries dead transitions before any snapshot commit.
+Ordinary deaths retain the engine corpse path. Dead records cannot materialize.
+Border 162 now has sixteen production-source controls. Pending transitions have
+their own Ledger count and do not inflate the available-body count. The first
+full gate's verdict-prefix, registry-surface and registry-lifetime findings are
+retained in the evidence directory with the corrections.

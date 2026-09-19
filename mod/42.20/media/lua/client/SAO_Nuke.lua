@@ -180,9 +180,10 @@ local function strike(s)
     end
 
     local burned = 0
-    for _, body in pairs(SAO.Body.active or {}) do
+    for id, body in pairs(SAO.Body.active or {}) do
         local inside = false
-        pcall(function() inside = inCircles(s, body:getX(), body:getY()) end)
+        pcall(function() inside = SAO.Body.get(id) == body
+            and inCircles(s, body:getX(), body:getY()) end)
         if inside then
             local lit = false
             pcall(function()
@@ -238,9 +239,10 @@ end
 -- authored: it is what standing inside the answer costs.
 local RADIATION_TOLL = 0.12      -- of a body's health, per day
 local function attrition(s)
-    for _, body in pairs(SAO.Body.active or {}) do
+    for id, body in pairs(SAO.Body.active or {}) do
         local inside = false
-        pcall(function() inside = inCircles(s, body:getX(), body:getY()) end)
+        pcall(function() inside = SAO.Body.get(id) == body
+            and inCircles(s, body:getX(), body:getY()) end)
         if inside then
             pcall(function()
                 local h = body:getHealth()

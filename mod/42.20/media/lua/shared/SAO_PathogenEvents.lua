@@ -133,7 +133,7 @@ function Events.simulateDay(day)
 
     local observations = 0
     for id, record in pairs(SAO.Identity.all()) do
-        if not record.dead and not SAO.Body.get(id) then
+        if not record.dead and not SAO.Body.hasRepresentation(id) then
             local saved = ZAO.StateStore
                 and ZAO.StateStore.read(id) or nil
             local observerTerminal =

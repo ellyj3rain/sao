@@ -106,10 +106,10 @@ def main():
         faults.append("the fresh materialize path does not verify or "
                       "report what is worn - dressed=true about a "
                       "naked body again (R-006)")
-    if "ensureDressed" not in pop:
-        faults.append("the awakened path does not verify dress - a "
-                      "pack with no garments wakes a naked person "
-                      "silently")
+    if "SAOJavaBridge:awaken(body, rec.hibernation, elapsed)" not in body:
+        faults.append("materialization does not restore the saved clothing")
+    if "SAOJavaBridge:awaken(" in pop:
+        faults.append("population restores a person a second time after Body.materialize")
 
     # 4. The wake law.
     if "local function wakeSquareFor" not in body \
