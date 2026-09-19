@@ -41,6 +41,15 @@ public final class SAONeeds {
     private SAONeeds() {
     }
 
+    /** Clear body/world lookup receipts when the engine replaces the world. */
+    public static void resetRuntimeForWorld() {
+        SOURCES.clear();
+        WATER_SOURCES.clear();
+        WEAPON_SOURCES.clear();
+        AMMO_SOURCES.clear();
+        OFFERED.clear();
+    }
+
     /** Compact needs read: "h=<hunger>|t=<thirst>|f=<fatigue>|e=<endurance>". */
     public static String read(IsoPlayer shell) {
         try {

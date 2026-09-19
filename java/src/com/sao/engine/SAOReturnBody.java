@@ -37,6 +37,15 @@ public final class SAOReturnBody {
 
     private SAOReturnBody() { }
 
+    /**
+     * Retain an in-world staged handoff across a Lua reload, but release every
+     * strong pending handle once the engine has moved to another cell/world.
+     */
+    public static void resetRuntimeForWorld() {
+        IsoCell cell = IsoWorld.instance == null ? null : IsoWorld.instance.currentCell;
+        forgetOtherWorlds(cell);
+    }
+
     /** Construct without a square, update-list entry, model, kit or population debit. */
     public static SAOIsoPlayerShell create(String forename, String surname,
             double x, double y, double z, boolean female) {

@@ -134,6 +134,7 @@ do
  local r,b=__returnSetup(false)
  assert(SAO.Body.materialize(r)==nil,'ordinary dead-record safeguard bypassed')
  assert(SAO.AfflictedReturn.adopt(2),'loaded return failed')
+ assert(r.returnSaveTouched==true,'return did not enter cross-file generation journal')
  assert(b.removed and not r.dead and SAO.Controller.agents.p1,'return missing controller or source removal')
  assert(SAO.Body.get('p1').payload=='current','historical possessions restored')
  assert(r.bodyVisual=='VIS:sourcevisual','completed return lost durable appearance')
@@ -426,6 +427,8 @@ def main():
            'return false', 'offscreen return duplicated or lost source state'),
           ('SAO_AfflictedReturn.lua','if p.sourceRemoved and (p.destination or p.source) == "dormant" then',
            'if false then', 'dormant cleanup recreated its temporary shell'),
+          ('SAO_AfflictedReturn.lua','rec.returnSaveTouched = true',
+           '', 'return did not enter cross-file generation journal'),
         ]
         for name,old,new,reason in controls:
             if sources[name].count(old)!=1: faults.append('control seam '+reason); continue

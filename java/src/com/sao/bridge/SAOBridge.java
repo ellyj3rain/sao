@@ -49,6 +49,20 @@ public final class SAOBridge {
     private final Map<zombie.characters.IsoZombie, SAODriveState> crossedDrives =
         new WeakHashMap<>();
 
+    /**
+     * Drop projections owned by the Lua/world environment that just ended.
+     * Durable person records and transaction journals live in ModData; none of
+     * these body-keyed adapters may cross into the next world in this process.
+     */
+    void resetRuntimeForWorld() {
+        routes.clear();
+        combats.clear();
+        drives.clear();
+        crossedDrives.clear();
+        com.sao.engine.SAONeeds.resetRuntimeForWorld();
+        com.sao.engine.SAOReturnBody.resetRuntimeForWorld();
+    }
+
     /** Combat verbs (typed transplant; gated on the melee-callback patch). */
     public String beginCombatNearest(Object object, boolean live) {
         try {

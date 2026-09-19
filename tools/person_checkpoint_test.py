@@ -38,7 +38,11 @@ function __plainCopy(value, seen)
  seen[value]=nil return copy
 end
 function __save()
- assert(#__saveCallbacks==1,'save checkpoint callback missing or duplicated')
+ local checkpointCount=0
+ for _,fn in ipairs(__saveCallbacks) do
+  if fn==SAO.Body.onSaveCheckpoint then checkpointCount=checkpointCount+1 end
+ end
+ assert(checkpointCount==1,'save checkpoint callback missing or duplicated')
  -- Mirrors the verified native GameWindow.save ordering, without world IO.
  for _,fn in ipairs(__saveCallbacks) do fn() end
  __persisted=__plainCopy(__records)

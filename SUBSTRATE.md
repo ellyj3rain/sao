@@ -1,6 +1,6 @@
 | Document | Survivor Awareness Overhaul Dependency Substrate |
 |---|---|
-| Version | `2.7.14.5-pre-alpha` |
+| Version | `2.7.14.6-pre-alpha` |
 | Author | ellyj3rain |
 | Repository | `SUBSTRATE.md` |
 | Status | CANONICAL - what exists, what is planned, and what each area of concern needs. |
@@ -125,9 +125,9 @@ former batch labels inside evidence retain their historical meaning.
 | Contract | Producer and caller | Durable state | Observation or test | Remaining gap |
 |---|---|---|---|---|
 | One person across loaded and dormant life | Identity owns the record; Body.materialize creates a body; Controller.adopt attaches decisions; Population manages range transitions | Person registry and hibernation pack; body registry is transient | B executes Body.release in the installed VM, with successful, empty and throwing capture | C51 repairs the supported capture/teardown/restore transaction (Borders 162-163). C52 repairs authorized Afflicted return, exact-source transfer and controller adoption. Native components preserve inventory, equipment, Stats, BodyDamage and XP. Other character components remain R3 work. |
-| Returned afflicted people resume living | AfflictedReturn reads ZAO's loaded controlled bodies and calls Body.materialize | Existing person identity and ZAO pathogen state | C52/A35 execute the authorized transfer, source hold, return health and controller adoption under controlled Kahlua and installed-engine probes | R1 is closed. Running-save interruption across separate native save surfaces remains R4; the complete Crossed interaction remains assigned across R4-R10. |
+| Returned afflicted people resume living | AfflictedReturn reads ZAO's loaded controlled bodies and calls Body.materialize; ZAO's save-generation journal reconciles the old source across engine save surfaces | Existing person identity and ZAO pathogen state; generation markers bind the participating return slices | C52/A35 execute the authorized transfer; C55/A36 exercise every old/new native/global generation pairing plus cancellation, retirement and corrupt/missing journal refusal | R1 and the interrupted-save part of R4 are closed. The complete Crossed interaction remains assigned across R5 and R7-R10. |
 | County time has consistent units | History owns county hours, day/tick conversion and quantization; Population advances historical substeps; Controller refreshes decision time | Historical progress and per-person timestamps | C53 Border 168 executes current substep reads, reload, midnight, Day Zero/DayLength invariance, WorldGenesis conversion and separate host pacing; three mutations restore the named defects | R2 is closed. R3-R10 consume this axis; their domain scheduling and event integration remain their own work. |
-| Saved state reconstructs usable runtime behavior | GraphPersistence binds Branching tables to ModData; Integration.ensure registers built-ins | Serializable IDs and pattern history survive; closures do not | B saves and reloads an actual Kahlua table, then initializes the shipped modules | Built-ins reconstruct. An extension must re-register its callbacks; runtime registries need explicit ownership separate from durable history. No normal built-in reload failure is demonstrated. |
+| Saved state reconstructs usable runtime behavior | GraphPersistence binds only serializable Branching history; Integration registers built-ins and stable-ID extensions into a fresh runtime graph | Pattern/office history survives; callbacks, caches, indexes, controllers, courses and Java maps are reconstructed projections | C55 Border 170 serializes through Kahlua, creates a fresh environment and then a second world; ZAO Border 8 reconstructs settlement/controller/course state and clears prior-world maps | R4 is closed for the inventoried owners. Later features must declare durable/runtime ownership as they add state; loaded-world play acceptance remains separate. |
 | Facts are private and acquired | Java scans feed Perception; Knowledge preserves acquisition and Standing evaluates permission | Beliefs with source, time and uncertainty | A reproduces animals entering the IsoPlayer human path and traces global activity participant discovery | Narrow scanner output before decision use, preserve provenance and distinguish animal facts. Visibility and permission do not imply physical access. |
 | Actions have owned completion and interruption | Controller selects and queues engine actions; Driving, Medical, Animals and inventory adapters execute | Records should change from observed consequences | A exercises moving-vehicle cancellation, cancelled surrender, refused CPR and remote egg collection | Approach, queue, completion, failure and cancellation must be connected. A request must not award goods, experience, trust changes or learned capability. |
 | Loaded and dormant opportunities describe the same world | Loaded engine supplies actual containers, ground and bodies; Places and Population provide dormant representations | Place facts, resources, position and history | A traces stale vehicle locations, missing compartment access and diagnostic invented ground | Unloaded geometry is unavailable unless grounded data exists. Dormant processing needs its own accountable producers; test fixtures cannot be accepted as world observations. |
@@ -188,9 +188,13 @@ owner, with an equipment overlay at native registry load. Verified offscreen
 ownership can finish as a durable living record without publishing a body.
 Large durable snapshots use bounded string fragments; native item strings
 beyond the engine's byte limit refuse capture before teardown (F-083).
-Normal ordinary-zombie offscreen life stays a separate mechanism. R4 owns
-coordinated generation/replay for interrupted multi-file saves; a completed-save
-roundtrip cannot establish that stronger guarantee.
+Normal ordinary-zombie offscreen life stays a separate mechanism. C55/A36 close
+the return seam's interrupted multi-file save contract with a narrow write-ahead
+generation journal. It is forced and atomically replaced after Lua `OnSave` but
+before native body persistence. Replay runs after global mod data loads and
+before native reanimated bodies load. Generation markers let reconciliation
+retain, replace, reconstruct or retire the exact source for all four old/new
+native/global pairings; missing or corrupt current journals refuse recovery.
 
 `SAO_AfflictedReturn.adopt` calls `Body.materialize(rec)` while `rec.dead` is
 true and clears that flag only after success. C51's general dead-record refusal
@@ -200,37 +204,30 @@ reports no returned body. Removing the guard in its control permits a body but
 still supplies no controller, reproducing the earlier audit's separate defect.
 
 SAO owns the living-person transaction; ZAO.StateStore owns the recovery fact
-and ZAO.Controller owns the old turned body. Implement a durable return phase
-with an authoritative recovery event, staged position/state, ownership and
-retry information. Quiesce the old ZAO controller/body and incoming inventory
-actions before capturing current possessions or physical state. Retain that hold
-through teardown retry and reconstruct it on reload before either owner advances.
-Construct and validate the new body under a paused pending owner, through the
-authoritative return phase while ordinary materialization still refuses dead
-records. Acknowledge teardown of the old representation before publishing the
-living person and enrolling its controller once. Failed steps retain their
-phase and a recoverable owner; a failure after old-body removal resumes from
-that phase rather than pretending removal can be undone. They do not rerun the
-death funnel. A pre-removal refusal with no committed transfer can safely resume
-the old owner after releasing its hold. Prior death history stays historical.
-Coordinate both repository records when the
-runtime seam changes.
+and ZAO.Controller owns the old turned body. C52/A35 implement the durable
+return phase with an authoritative event, staged position/state, ownership and
+retry information. They quiesce the old controller and source before capturing
+current possessions, retain the hold through teardown retry, validate the new
+body under a pending owner and acknowledge old-source removal before publishing
+and enrolling the living controller once. Failed phases retain a recoverable
+owner; an acknowledged removal resumes forward rather than rerunning the death
+funnel, while a pre-removal refusal releases the hold back to the old owner.
+Prior death history stays historical.
 
-The existing ZAO cleanup clears `controlled[personId]` before its protected
-remove calls and reports release regardless of their result. Replace that
-ordering with acknowledged cleanup. Inventory the old body's current items
-and their relationship to saved living state before implementing transfer:
-looted possessions cannot reappear from an older hibernation pack. Enumerate
-eligible durable records with ZAO-owned state for bodyless historical recovery;
-loaded `Controller.controlled` membership is insufficient.
+Source cleanup is acknowledged rather than inferred from a protected call.
+Current possessions come from the held source, so looted items cannot reappear
+from an older hibernation pack. Eligible durable records join ZAO-owned pathogen
+and recovery state for bodyless historical recovery; loaded controller
+membership is not the eligibility rule. C55/A36 add generation-aware replay
+before either reconstructed owner advances.
 
 Proof covers ordinary-death refusal, loaded and bodyless recovery, both callback
-orders, every failing phase, attempted source mutation after capture,
-interruption/reload, repeat notifications, exactly one active controller and
-conservation of actual possessions. Optional ZAO
-absence preserves SAO's normal lifecycle.
+orders, each failing phase, attempted source mutation after capture,
+interruption/reload, repeat notifications, exactly one active controller,
+conservation of actual possessions and every native/global save-generation
+pairing. Optional ZAO absence preserves SAO's normal lifecycle.
 
-### R2-R4: time, complete person state and reconstruction
+### R2-R4: time, complete person state and reconstruction (closed C53-C55/A36)
 
 C53 closes R2 with one conversion owner in `History`. County time is elapsed
 simulation time: 24 hours/day, 9000 ticks/hour and 216000 ticks/day. DayLength
@@ -260,7 +257,7 @@ no R2 code change: its controller already obtains decision ticks through
 `SAO.Controller.tick()`, and its pathogen/state readers already use county hours
 or explicit elapsed days.
 
-R3 closes below and R4 continues. Their timestamp migrations identify the old
+R3 and R4 close below. Their timestamp migrations identify the old
 axis before conversion; an unidentifiable frame counter cannot become claimed
 historical time. R5 still owns drug scheduling and physiology partition
 equivalence. A common clock makes those repairs possible but does not complete
@@ -288,12 +285,21 @@ Invalid required sections preserve the durable snapshot and C51's cleanup/retry
 contract. v4 owns ordinary appearance; the older visual sidecar remains only for
 older records and transient return-source comparison.
 
-For R4, enumerate graph, person, pending-action and sibling state by durable
-owner, runtime registry and startup reconstruction caller. Built-in graph
-registration already reconstructs after native Kahlua load; retain that working
-path. Extensions need explicit startup registration with stable IDs rather than
-serialized closures. Exercise real save serialization, reload and switching
-worlds in one process, including cached History stores and pending transactions.
+### R4: durable/runtime reconstruction (closed C55/A36)
+
+| Owner | Durable authority | Runtime projection and reconstruction | Evidence |
+|---|---|---|---|
+| Branching and Integration | Serializable patterns, offices and stable extension IDs | A fresh callback graph installs sorted built-ins and re-registers extensions; no function-bearing registry enters ModData; a 128-entry ceiling bounds Kahlua's caller-ordered sort | Border 170 serializes the real Kahlua table, reloads it in a fresh environment, repeats initialization and rejects callback persistence, duplication or an unbounded extension registry. |
+| History, Identity, Places and Rand | Their ModData stores and durable stream positions | Store memos, name/place indexes and stream-object caches clear and bind to the new world's tables | Border 170 changes worlds in one process and proves no prior-world table remains reachable. |
+| Bodies and pending work | Person snapshots, pending captures and reports | Java maps, controllers, needs and return-body registries reset; pending corpses materialize at `OnSave`; in-progress exercise is cancelled while durable regularity/timestamps survive | Borders 169-170 cover repeated restoration, cancellation without credit, save-time corpse success/failure and two-world teardown. |
+| ZAO state | Pathogen, recovery, settlement and source records | Settlements, controllers and courses reconstruct; Java controller/course/return maps reset before the next world advances | ZAO Border 8 loads the durable tables into fresh runtime owners and rejects retained prior-world state. |
+| Cross-repository return | SAO record slice, ZAO pathogen/recovery slice and the exact return-source receipt or tombstone | A forced atomic generation journal precedes native save; replay precedes native source load and reconciles mixed generations by person, event, incarnation and token | ZAO Border 8 verifies engine order, all four old/new pairings, absent/reanimated sources, retirement, cancellation, repeated saves and corrupt/missing current-journal refusal. |
+
+The journal is deliberately limited to identities that entered the Afflicted
+return protocol; it is not a second general save system. Existing unmarked saves
+remain readable. The first later save writes current generation markers and v2
+source receipts. Mechanical probes establish ordering and reconstruction, while
+loaded-world observation remains a separate acceptance step.
 
 ### R5: health, exposure and dormant consumption
 

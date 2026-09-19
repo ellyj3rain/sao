@@ -38,7 +38,7 @@ on the simulation.
 
 ## Status
 
-`2.7.14.5-pre-alpha` - the coordinate is computed by the version machine
+`2.7.14.6-pre-alpha` - the coordinate is computed by the version machine
 (`tools/version_replay.py`), never picked; `VERSION_MAP.md` shows the
 classification and the arithmetic.
 
@@ -63,13 +63,15 @@ unsupported curves. A validated learned accelerator remains unfinished.
 Trajectory exports require completed horizons and report simulation faults;
 headless receipts do not establish loaded-body behavior or play quality.
 
-C51-C54 repair person preservation, authorized Afflicted return, shared county
-time and complete native-person continuity. Possessions, wounds, experience,
+C51-C55 repair person preservation, authorized Afflicted return, shared county
+time, complete native-person continuity and durable/runtime reconstruction. Possessions, wounds, experience,
 nutrition, conditioning, learned/read material, appearance and declared durable
 metadata survive the supported handoff; a returning person has one source and
 controller; every decision read sees the current historical substep. Runtime
-reconstruction, the complete Crossed action system and the broader audit
-findings remain explicit work in `SUBSTRATE.md`.
+registries rebuild per world, pending save work has an explicit disposition and
+interrupted return saves reconcile their native and global generations. The
+complete Crossed action system and the broader audit findings remain explicit
+work in `SUBSTRATE.md`.
 
 ## Requirements
 

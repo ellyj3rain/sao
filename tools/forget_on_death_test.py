@@ -195,6 +195,15 @@ CACHES = {
 # because the rule that catches them is the same rule that catches the
 # real ones and loosening it would cost more than it saves.
 NOT_A_SURVIVOR_ID = {
+    ("SAO_Integration.lua", "Integration.extensions"): (
+        "keyed by a stable RUNTIME EXTENSION id, not a survivor id. "
+        "The installer is code registered once per Lua environment and "
+        "reused when each world's callback graph is rebuilt; "
+        "unregisterExtension removes one id explicitly"),
+    ("SAO_Integration.lua", "Integration.installedExtensions"): (
+        "keyed by a stable RUNTIME EXTENSION id, not a survivor id. It is "
+        "only the current graph's installation receipt and ensure replaces "
+        "the entire table before rebuilding a world"),
     ("SAO_Places.lua", "Pl.cache"): (
         "keyed by `def:getID()` - a BUILDING id out of the engine's "
         "own grid, not a person. Its own comment says so: \"the cache "

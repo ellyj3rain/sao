@@ -193,6 +193,7 @@ UNITS = [
     ('C52', 'patch', 'Repaired Afflicted return as one authorized, durable transfer: ZAO retains the exact turned source until SAO restores supported living state, reaches critical viability with injuries preserved, and adopts the one returning person. This closes the existing return capability without crediting the still-unreachable and incomplete Crossed action system.'),
     ('C53', 'patch', 'Closed shared county time as one explicit contract: decision reads observe the current historical substep, day producers convert at the tick boundary, and native pacing remains separate. The timestamp inventory records legacy exceptions without claiming later physiology or action work complete.'),
     ('C54', 'patch', 'Completed native person continuity within the existing handoff: the v4 envelope preserves nutrition, fitness, learning, appearance, declared durable metadata and exact fluid components, while older readers retain their original limits and migration provenance.'),
+    ('C55', 'patch', 'Reconstructed runtime-only callbacks, caches, indexes, controllers and Java maps from their durable owners across reload and same-process world changes; completed the existing Afflicted-return seam with generation-aware interrupted-save reconciliation and explicit pending-work disposition.'),
 ]
 
 TIER_MEANINGS = [

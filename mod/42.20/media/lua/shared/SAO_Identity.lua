@@ -22,6 +22,21 @@ local STORE_KEY = "SurvivorAwareness_Records"
 local nameIndex = nil
 local function dropNameIndex() nameIndex = nil end
 
+-- [C55] The index is a projection of the current world's durable registry.
+-- A GlobalModData replacement invalidates it even when the Lua environment is
+-- retained by a harness or reload path.
+function Identity.rebindWorld()
+    dropNameIndex()
+end
+
+if Events and Events.OnInitGlobalModData then
+    if Identity.onInitGlobalModData then
+        Events.OnInitGlobalModData.Remove(Identity.onInitGlobalModData)
+    end
+    Identity.onInitGlobalModData = function() Identity.rebindWorld() end
+    Events.OnInitGlobalModData.Add(Identity.onInitGlobalModData)
+end
+
 -- [B47] One door out. `log` is what happened once; `tally` is
 -- what happens once per person, counted rather than printed.
 local function log(msg) SAO.Log.line("IDENTITY", msg) end

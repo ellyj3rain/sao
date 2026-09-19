@@ -5,12 +5,71 @@ SAO.Integration = SAO.Integration or {}
 local Integration = SAO.Integration
 
 Integration.ready = false
+-- Installers are runtime code too. A stable id is the explicit startup
+-- contract for sister mods and optional modules: registering the same id
+-- replaces its installer, while a rebuild runs each installer once.
+Integration.extensions = Integration.extensions or {}
+Integration.installedExtensions = {}
+-- Kahlua's table.sort uses its leftmost element as the pivot. Keep the
+-- extension registry in the low hundreds so stable ordering cannot exhaust
+-- the VM stack regardless of the caller-supplied id order.
+local EXTENSION_CEILING = 128
+
+local function extensionCount()
+    local count = 0
+    for _ in pairs(Integration.extensions) do
+        count = count + 1
+        if count >= EXTENSION_CEILING then return count end
+    end
+    return count
+end
+
+local function clearRuntimeGraph()
+    if not SAO.Branching then return end
+    SAO.Branching.surfaces = {}
+    SAO.Branching.pressures = {}
+    SAO.Branching.branches = {}
+end
+
+local function installExtension(id, installer)
+    local ok, installed = pcall(installer, SAO.Branching)
+    if not ok or installed == false then return false end
+    Integration.installedExtensions[id] = true
+    return true
+end
+
+function Integration.registerExtension(id, installer)
+    if type(id) ~= "string" or id == "" or type(installer) ~= "function" then
+        return false
+    end
+    if Integration.extensions[id] == nil
+        and extensionCount() >= EXTENSION_CEILING then
+        return false
+    end
+    local wasReady = Integration.ready
+    Integration.extensions[id] = installer
+    if wasReady then return Integration.rebuild() end
+    return true
+end
+
+function Integration.unregisterExtension(id)
+    if type(id) ~= "string" or Integration.extensions[id] == nil then
+        return false
+    end
+    local wasReady = Integration.ready
+    Integration.extensions[id] = nil
+    Integration.ready = false
+    if wasReady then return Integration.ensure() end
+    return true
+end
 
 function Integration.ensure()
     if Integration.ready then return true end
     if SAO.GraphPersistence then
         SAO.GraphPersistence.bind()
     end
+    clearRuntimeGraph()
+    Integration.installedExtensions = {}
     if not (SAO.Branching and SAO.Pressure and SAO.Labor
         and SAO.PathogenPressure and SAO.Organization
         and SAO.Settlement and SAO.Material
@@ -147,8 +206,31 @@ function Integration.ensure()
         end,
     })
 
+    local ids = {}
+    for id in pairs(Integration.extensions) do
+        if #ids >= EXTENSION_CEILING then
+            clearRuntimeGraph()
+            Integration.installedExtensions = {}
+            return false
+        end
+        ids[#ids + 1] = id
+    end
+    table.sort(ids)
+    for _, id in ipairs(ids) do
+        if not installExtension(id, Integration.extensions[id]) then
+            clearRuntimeGraph()
+            Integration.installedExtensions = {}
+            return false
+        end
+    end
+
     Integration.ready = true
     return true
+end
+
+function Integration.rebuild()
+    Integration.ready = false
+    return Integration.ensure()
 end
 
 function Integration.apply(id, agent, tick, x, y)
@@ -215,8 +297,12 @@ function Integration.apply(id, agent, tick, x, y)
     return graph
 end
 
-Events.OnGameStart.Add(function()
-    Integration.ensure()
-end)
+if Integration.onGameStart then
+    Events.OnGameStart.Remove(Integration.onGameStart)
+end
+Integration.onGameStart = function()
+    Integration.rebuild()
+end
+Events.OnGameStart.Add(Integration.onGameStart)
 
 return Integration

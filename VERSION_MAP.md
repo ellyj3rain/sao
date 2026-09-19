@@ -16,9 +16,9 @@ the machine. Names, dates, and threads below come from
 | Form | `major.minor.kohai.patch-maturity` |
 | Hard caps | minor 12; kohai 16; patch 24 |
 | Replay start | `0.1.0.0-pre-alpha` |
-| Current version | `2.7.14.5-pre-alpha` |
-| Closed chronology | `A1-C54` |
-| Next batch | `C55` |
+| Current version | `2.7.14.6-pre-alpha` |
+| Closed chronology | `A1-C55` |
+| Next batch | `C56` |
 | Executable source | [`tools/version_replay.py`](tools/version_replay.py) |
 
 ## Tier meanings
@@ -170,6 +170,7 @@ the machine. Names, dates, and threads below come from
 | `C52` | 2026-09-19 | patch | `2.7.14.3-pre-alpha` | Authorized afflicted return | Repaired Afflicted return as one authorized, durable transfer: ZAO retains the exact turned source until SAO restores supported living state, reaches critical viability with injuries preserved, and adopts the one returning person. This closes the existing return capability without crediting the still-unreachable and incomplete Crossed action system. |
 | `C53` | 2026-09-19 | patch | `2.7.14.4-pre-alpha` | Shared county time | Closed shared county time as one explicit contract: decision reads observe the current historical substep, day producers convert at the tick boundary, and native pacing remains separate. The timestamp inventory records legacy exceptions without claiming later physiology or action work complete. |
 | `C54` | 2026-09-19 | patch | `2.7.14.5-pre-alpha` | Native person continuity | Completed native person continuity within the existing handoff: the v4 envelope preserves nutrition, fitness, learning, appearance, declared durable metadata and exact fluid components, while older readers retain their original limits and migration provenance. |
+| `C55` | 2026-09-19 | patch | `2.7.14.6-pre-alpha` | Durable/runtime reconstruction | Reconstructed runtime-only callbacks, caches, indexes, controllers and Java maps from their durable owners across reload and same-process world changes; completed the existing Afflicted-return seam with generation-aware interrupted-save reconciliation and explicit pending-work disposition. |
 
 ## The former number
 
@@ -190,11 +191,11 @@ establish release maturity.
 
 ## Next movement
 
-`C55` is the next batch. Its content determines its tier after it
+`C56` is the next batch. Its content determines its tier after it
 exists:
 
-| If C55 is | Result |
+| If C56 is | Result |
 |---|---|
-| patch or hotfix | `2.7.14.6-pre-alpha` |
+| patch or hotfix | `2.7.14.7-pre-alpha` |
 | kohai | `2.7.15.0-pre-alpha` |
 | minor | `2.8.0.0-pre-alpha` |

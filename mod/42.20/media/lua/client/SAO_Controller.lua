@@ -7026,27 +7026,48 @@ local function onTickInner()
     Ctl.settleCorpses(hostTickCount)
 end
 
+local function ensurePendingCorpse(pid, pend, source)
+    if not SAOJavaBridge then return false, "bridge-unavailable" end
+    local okE, verdict = pcall(function()
+        return SAOJavaBridge:ensureCorpse(pend.body)
+    end)
+    if okE and (verdict == "DIED" or verdict == "ALREADY_CORPSE") then
+        Ctl.pendingCorpses[pid] = nil
+    end
+    log(pid .. " corpse net " .. tostring(source) .. ": "
+        .. tostring(verdict) .. (okE and "" or " (threw)"))
+    return Ctl.pendingCorpses[pid] == nil, okE and verdict or "threw"
+end
+
 function Ctl.settleCorpses(now)
     -- [C8] The corpse net, past its grace. Without the bridge there is
     -- no lawful die() to call, and the old gap stands stated rather
     -- than papered over.
-    if SAOJavaBridge then
-        for pid, pend in pairs(Ctl.pendingCorpses) do
-            -- `at` is the pre-C53 runtime shape; pendingCorpses is not
-            -- durable, but accepting it keeps interrupted harnesses legible.
-            local enteredAt = pend.atHostTick or pend.at
-            if enteredAt and now - enteredAt >= CORPSE_GRACE_HOST_TICKS then
-                local okE, verdict = pcall(function()
-                    return SAOJavaBridge:ensureCorpse(pend.body)
-                end)
-                if okE and (verdict == "DIED" or verdict == "ALREADY_CORPSE") then
-                    Ctl.pendingCorpses[pid] = nil
-                end
-                log(pid .. " corpse net: " .. tostring(verdict)
-                    .. (okE and "" or " (threw)"))
-            end
+    for pid, pend in pairs(Ctl.pendingCorpses) do
+        -- `at` is the pre-C53 runtime shape; pendingCorpses is not
+        -- durable, but accepting it keeps interrupted harnesses legible.
+        local enteredAt = pend.atHostTick or pend.at
+        if enteredAt and now - enteredAt >= CORPSE_GRACE_HOST_TICKS then
+            ensurePendingCorpse(pid, pend, "grace")
         end
     end
+end
+
+-- [C55] OnSave runs before the engine serializes its bodies. A death inside
+-- the 120-callback fall grace cannot leave only this transient table behind:
+-- ask the engine to create its corpse now, while the exact body still exists.
+function Ctl.flushPendingCorpses()
+    local report = { completed = 0, pending = 0 }
+    for pid, pend in pairs(Ctl.pendingCorpses) do
+        local completed = ensurePendingCorpse(pid, pend, "save")
+        if completed then
+            report.completed = report.completed + 1
+        else
+            report.pending = report.pending + 1
+        end
+    end
+    Ctl.lastCorpseSaveReport = report
+    return report
 end
 
 local function onTick()
@@ -7155,6 +7176,16 @@ Events.OnPlayerDeath.Add(onPlayerDeath)
 
 Events.OnTick.Remove(onTick)
 Events.OnTick.Add(onTick)
+
+if Events.OnSave then
+    if Ctl.onSavePendingCorpses then
+        Events.OnSave.Remove(Ctl.onSavePendingCorpses)
+    end
+    Ctl.onSavePendingCorpses = function()
+        Ctl.flushPendingCorpses()
+    end
+    Events.OnSave.Add(Ctl.onSavePendingCorpses)
+end
 
 function Ctl.describe(id)
     local agent = Ctl.agents[tostring(id)]
