@@ -111,7 +111,7 @@ SUBS = {
         "a frame off anything - the walk itself is the only linear "
         "part, and it is one"),
     "dailyCounty": (1, "unbudgeted",
-        "[C130] one identity walk per completed county day settles age "
+        "[C127] one identity walk per completed county day settles age "
         "and habits before the day's digest. The persisted day guard "
         "prevents a repeat on reload; the whole roster settles before "
         "observation so a newly dead person cannot appear alive in it. "
