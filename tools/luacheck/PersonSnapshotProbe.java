@@ -209,6 +209,55 @@ public final class PersonSnapshotProbe {
         source.setPerkLevelDebug(levelPerk, 3);
         source.getXp().addXpMultiplier(multiplierPerk, 1.75f, 2, 6);
 
+        for (String safe : new String[]{"a".repeat(32767), "\u00e9".repeat(16383) + "a"}) {
+            key.getModData().rawset("boundary", safe);
+            IsoPlayer boundary = person();
+            SAONativeSnapshot.restoreStaged(boundary, SAONativeSnapshot.capture(source));
+            InventoryContainer boundaryBag = (InventoryContainer) boundary.getWornItem(ItemBodyLocation.BACK);
+            Key boundaryKey = (Key) boundaryBag.getInventory().getItems().stream()
+                    .filter(item -> item instanceof Key).findFirst().orElseThrow();
+            check(safe.equals(boundaryKey.getModData().rawget("boundary")) && boundaryKey.getKeyId() == 67890,
+                    "safe native item string boundary changed");
+        }
+        key.getModData().rawset("boundary", null);
+        for (String oversized : new String[]{"a".repeat(32768), "a".repeat(65536), "\u00e9".repeat(16384)}) {
+            key.getModData().rawset("oversized", oversized);
+            boolean rejected = false;
+            try { SAONativeSnapshot.capture(source); }
+            catch (java.io.IOException expected) { rejected = expected.getMessage().contains("native byte limit"); }
+            check(rejected, "oversized native item string accepted");
+            check(oversized.equals(key.getModData().rawget("oversized")) && key.getKeyId() == 67890,
+                    "refused native item capture changed source");
+        }
+        key.getModData().rawset("oversized", null);
+        var nestedTable = zombie.Lua.LuaManager.platform.newTable();
+        nestedTable.rawset("nested", "a".repeat(32768)); key.getModData().rawset("table", nestedTable);
+        boolean nestedRejected = false;
+        try { SAONativeSnapshot.capture(source); } catch (java.io.IOException expected) { nestedRejected = true; }
+        check(nestedRejected, "oversized nested item string accepted");
+        nestedTable.rawset("nested", null); nestedTable.rawset("self", nestedTable);
+        boolean cyclicRejected = false;
+        try { SAONativeSnapshot.capture(source); } catch (java.io.IOException expected) { cyclicRejected = true; }
+        check(cyclicRejected, "cyclic item ModData accepted");
+        key.getModData().rawset("table", null);
+        String oversizedKey = "a".repeat(32768); key.getModData().rawset(oversizedKey, "value");
+        boolean keyRejected = false;
+        try { SAONativeSnapshot.capture(source); } catch (java.io.IOException expected) { keyRejected = true; }
+        check(keyRejected, "oversized item table key accepted");
+        key.getModData().rawset(oversizedKey, null);
+
+        // Hand-check the motivating engine defect independently of our guard:
+        // a native load can succeed while interpreting string bytes as key ID.
+        Key unsafeKey = (Key) keyDefinition.InstanceItem(null, false);
+        unsafeKey.setKeyId(67890); unsafeKey.getModData().rawset("oversized", "a".repeat(32768));
+        var unsafeInventory = new zombie.inventory.ItemContainer(); unsafeInventory.AddItem(unsafeKey);
+        ByteBuffer unsafeBytes = ByteBuffer.allocate(1024 * 1024);
+        unsafeInventory.save(unsafeBytes); unsafeBytes.flip();
+        var unsafeLoaded = new zombie.inventory.ItemContainer(); unsafeLoaded.load(unsafeBytes, zombie.iso.IsoWorld.getWorldVersion());
+        Key unsafeRestored = (Key) unsafeLoaded.getItems().get(0);
+        check(unsafeRestored.getKeyId() != 67890, "native oversized-string motivating defect changed");
+        System.out.println("ENGINE oversized native item string: load succeeds, keyId 67890 -> " + unsafeRestored.getKeyId());
+
         String packed = SAONativeSnapshot.capture(source);
         check(SAONativeSnapshot.validate(packed), "captured snapshot refused");
         check(source.getInventory().getItems().size() == 4, "capture mutated source inventory");
@@ -275,6 +324,57 @@ public final class PersonSnapshotProbe {
                 "checksum corruption accepted");
         check(!SAONativeSnapshot.validate(alteredVersion(packed)), "unsupported native version accepted");
         check(!SAONativeSnapshot.validate("v3;%%invalid"), "bad Base64 accepted");
+        // Return materials come from the actual turned body. Its absent living
+        // components must never replace the supported living-state snapshot.
+        SurvivorDesc turnedDesc = new SurvivorDesc();
+        turnedDesc.getHumanVisual().setSkinTextureName("returned-appearance");
+        var turned = new zombie.characters.IsoZombie(null, turnedDesc, 0);
+        turned.setReanimatedPlayer(true);
+        check(turned.getBodyDamage() == null && turned.getXp() == null,
+                "engine zombie living-component contract changed");
+        InventoryContainer detachedBag = (InventoryContainer) bagDefinition.InstanceItem(null, false);
+        Food currentFood = (Food) foodDefinition.InstanceItem(null, false);
+        currentFood.setAge(9.25f);
+        detachedBag.getInventory().AddItem(currentFood);
+        turned.getWornItems().setItem(ItemBodyLocation.BACK, detachedBag);
+        String returned = SAONativeSnapshot.captureReturn(turned, restored);
+        String returnVisual = SAONativeSnapshot.captureReturnVisual(turned);
+        IsoPlayer afterCorpse = person();
+        SAONativeSnapshot.restoreStaged(afterCorpse, packed);
+        // IsoDeadBody transfers the old inventory and clears clothing before
+        // SAO's later death observation. Living components remain authoritative.
+        afterCorpse.setInventory(new zombie.inventory.ItemContainer());
+        afterCorpse.getWornItems().clear();
+        afterCorpse.getAttachedItems().clear();
+        String livingOnly = SAONativeSnapshot.captureReturnLiving(afterCorpse);
+        IsoPlayer retainedLiving = person();
+        check(SAONativeSnapshot.restoreStaged(retainedLiving, livingOnly) == 0,
+                "living return capture included obsolete possessions");
+        check(retainedLiving.getXp().getXP(PerkFactory.Perks.Aiming) == 88.5f
+                && retainedLiving.getBodyDamage().getBodyPart(BodyPartType.Hand_R).getHealth() == 63f,
+                "post-corpse living components lost");
+        check(turned.getInventory().getItems().isEmpty() && detachedBag.getContainer() == null,
+                "return capture moved detached equipment");
+        IsoPlayer returnee = person();
+        check(SAONativeSnapshot.restoreStaged(returnee, returned) == 2,
+                "return restored historical possessions");
+        Food returnedFood = (Food) ((InventoryContainer) returnee.getWornItem(ItemBodyLocation.BACK))
+                .getInventory().getItems().get(0);
+        check(returnedFood.id == currentFood.id && returnedFood.getAge() == 9.25f,
+                "current nested return item state lost");
+        check(!cell.getProcessItems().contains(returnedFood), "detached return item processed before activation");
+        check(returnee.getXp().getXP(PerkFactory.Perks.Aiming) == 88.5f
+                && returnee.getBodyDamage().getBodyPart(BodyPartType.Hand_R).getHealth() == 63f,
+                "return lost supported living components");
+        SAONativeSnapshot.restoreReturnVisual(returnee, returnVisual);
+        check(SAONativeSnapshot.captureReturnVisual(returnee).equals(returnVisual),
+                "return appearance did not roundtrip");
+        check(SAONativeSnapshot.returnMaterialsMatch(turned, returned), "unchanged source materials differ");
+        currentFood.setAge(10.5f);
+        check(!SAONativeSnapshot.returnMaterialsMatch(turned, returned), "changed source materials accepted");
+        detachedBag.getInventory().Remove(currentFood);
+        check(SAONativeSnapshot.restoreStaged(person(), SAONativeSnapshot.captureReturn(turned, restored)) == 1,
+                "looted return item reappeared");
         DICTIONARY.missing((short) 2);
         boolean refused = false;
         try { SAONativeSnapshot.restore(person(), packed); }

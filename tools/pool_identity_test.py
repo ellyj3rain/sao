@@ -51,6 +51,10 @@ ALLOWED_REMOVALS = {
     ("SAOBridge.java", "removeShell"):
         "the county's own shell teardown (KNF.safelyRemove port) - "
         "removing a body we made, never somebody else's",
+    ("SAOReturnBody.java", "Stage stage = STAGES.get(shell)"):
+        "temporary owned return-shell cleanup under the durable return phase; "
+        "unknown shells are refused and failed removal retains its strong handle, "
+        "verified by the native return-body fault controls",
 }
 
 

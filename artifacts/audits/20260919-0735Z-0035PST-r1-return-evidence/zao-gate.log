@@ -1,0 +1,84 @@
+ZAO_Behaviors.lua: OK
+ZAO_Controller.lua: OK
+ZAO_Crossed.lua: OK
+ZAO_Inspect.lua: OK
+ZAO_Overlay.lua: OK
+ZAO_API.lua: OK
+ZAO_Binding.lua: OK
+ZAO_Forms.lua: OK
+ZAO_Mind.lua: OK
+ZAO_Pathogen.lua: OK
+ZAO_Recovery.lua: OK
+ZAO_Sandbox.lua: OK
+ZAO_Settlement.lua: OK
+ZAO_State.lua: OK
+ZAO_StateStore.lua: OK
+==========================================================================
+WHAT THE DOC-PACK SAYS ABOUT ITSELF
+==========================================================================
+  VERSION: 0.3.1.2-pre-alpha
+  root documents with a Version cell: 15
+  root files: 21   unclassified: 0
+
+VERDICT:
+  1) doc currency: every header states VERSION and nothing else, the tip lives
+     in one file, and the index classifies the whole root
+==========================================================================
+THE VERSION IS A MACHINE
+==========================================================================
+  2) version replay: 35 closed unit(s) classified; the machine
+     derives 0.3.1.2-pre-alpha, and VERSION, the map, and 2 mod.info file(s) state it
+==========================================================================
+STATE DUMP
+==========================================================================
+  state mapping, precedence, the recorded-state gate, and
+  the pressure chain: correct
+built C:\Users\jleyv\Peanut Butter\AI Assisted Software Engineering Mass Repository\Projects\zombie-awareness\java\dist\ZAO.jar
+installed C:\Users\jleyv\Peanut Butter\AI Assisted Software Engineering Mass Repository\Projects\zombie-awareness\mod\42.20\media\java\ZAO.jar
+Border 5 PASS: real VM mutation, persistence, legacy, terminal crossed, daily/gap equivalence and controller projection; actual SAO event emitter; five named controls fail
+PASS native return source hold, resume and terminal removal
+CONTROL preserved-reanimated: partial removal retained body for reuse/reinsertion
+CONTROL pooled-partial-source: partial removal retained body for reuse/reinsertion
+CONTROL no-held-scheduler-removal: held source still scheduled
+CONTROL ignore-detached-items: processing item acknowledged before drain
+CONTROL resume-after-partial: partly removed source resumed
+CONTROL accept-duplicates: duplicate loaded identity accepted
+CONTROL accept-active-actions: active timed action accepted
+CONTROL omit-square-removal: native removal retry failed
+CONTROL weak-pending-ownership: pending source lost after Lua reload and GC
+CONTROL no-failed-save-owner: failed reanimated source has no native save owner
+CONTROL no-native-update-guard: loaded held source advanced before reconstruction
+CONTROL no-loaded-item-reconstruction: loaded held cargo not paused before processing
+CONTROL restore-root-union: Source equipment/root restoration differs
+CONTROL omit-original-item-tables: Source material identity/type/parent differs
+CONTROL change-fake-dead-form: Source visual ownership changed
+CONTROL accept-corrupt-checkpoint: corrupt checkpoint accepted
+CONTROL ordinary-population-duplicate: ordinary held source enters native population
+CONTROL wrong-chunk-width: chunk unload did not detach exact held owner
+CONTROL no-stream-detach: native virtualization lost source checkpoint
+CONTROL no-dormant-resolver: checkpoint-backed dormant source did not resolve unpublished
+CONTROL oversized-native-string: source checkpoint table serialization corrupted
+CONTROL accept-wrong-incarnation: checkpoint incarnation mismatch accepted
+CONTROL omit-native-preserved-resolution: Native reanimated material restore missed load boundary
+CONTROL omit-native-equipment-overlay: held reanimated equipment overlay lost
+CONTROL no-native-load-isolation: bad checkpoint escaped native registry callback
+CONTROL no-record-isolation: bad checkpoint prevented other native overlay
+CONTROL no-body-isolation: bad source escaped native item callback
+CONTROL allow-failed-native-material: failed checkpoint identity remained accessible
+CONTROL omit-native-postupdate-site: Native return weave mask mismatch
+CONTROL omit-native-item-site: Native return weave mask mismatch
+CONTROL omit-full-save-selector: Native population selection sites changed
+CONTROL omit-cell-save-selector: Native population selection sites changed
+CONTROL omit-pre-save-checkpoint: Native return weave mask mismatch
+CONTROL omit-direct-virtualization: Native return weave mask mismatch
+CONTROL omit-outer-chunk-guard: Native return weave mask mismatch
+CONTROL omit-population-chunk-guard: Native return weave mask mismatch
+CONTROL omit-preserved-load-boundary: Native return weave mask mismatch
+  6) PASS -- native return removal
+PASS native afflicted health: viable and injured, systemic state externalized, next health=24.999054
+CONTROL leave-part-infected: return health restore refused
+CONTROL scalar-only-health: return health restore refused
+CONTROL erase-all-injuries: return health did not stop at critical viability
+CONTROL overheal-return: return health did not stop at critical viability
+  7) PASS -- afflicted return physiology
+[check] gate clean

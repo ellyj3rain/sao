@@ -20,6 +20,8 @@ Body.active = Body.active or {}
 -- succeeds. Release snapshots themselves live on the durable record.
 Body.failedRestore = Body.failedRestore or {}
 Body.discarding = Body.discarding or {}
+-- Return shells are detached and paused until the turned source is removed.
+Body.returning = Body.returning or {}
 
 -- [B47] One door out: everything this module says goes
 -- through the shared logger.
@@ -97,6 +99,7 @@ function Body.materialize(rec)
         log("materialize refused: body already active for " .. rec.id)
         return Body.active[rec.id]
     end
+    if rec.bodyCheckpointFailure then return nil, "checkpoint-state-unavailable" end
 
     local elapsed = 0
     if rec.hibernation then
@@ -189,6 +192,23 @@ function Body.materialize(rec)
         log(rec.id .. " awakens: " .. journal)
     end
 
+    -- HumanVisual is a separate native component from the inventory/stats
+    -- envelope. Legacy records without it retain their existing behavior.
+    -- The ordinary constructor already joins engine lists; this restore
+    -- precedes SAO/controller exposure and population accounting.
+    if rec.bodyVisual ~= nil then
+        local ok, restored = pcall(function()
+            return SAOJavaBridge:restoreReturnVisual(body, rec.bodyVisual)
+        end)
+        if not ok or restored ~= true then
+            Body.active[rec.id] = body
+            Body.failedRestore[rec.id] = true
+            Body.recover(rec)
+            log("visual restore refused for " .. rec.id .. ": " .. tostring(restored))
+            return nil, "visual-restore-failed"
+        end
+    end
+
     local okFlag = pcall(function() body:setNpc(true) end)
     local okRead, flag = pcall(function() return body:isNpc() end)
 
@@ -199,7 +219,7 @@ function Body.materialize(rec)
     -- Random dress belongs to a FIRST body only; an awakened person wears
     -- what their snapshot restores (F-013/F-015 continuity).
     local okDress, dressErr = true, nil
-    if not rec.hibernation then
+    if not rec.hibernation and rec.bodyVisual == nil then
         okDress, dressErr = pcall(function() body:dressInRandomOutfit() end)
     end
     local okModel, modelErr = pcall(function() body:resetModelNextFrame() end)
@@ -214,7 +234,7 @@ function Body.materialize(rec)
     -- Hibernated people are judged after their pack dresses them at
     -- awaken, not here.
     local wornReport = "pack-pending"
-    if not rec.hibernation and SAOJavaBridge then
+    if not rec.hibernation and rec.bodyVisual == nil and SAOJavaBridge then
         local fallback = nil
         pcall(function()
             fallback = SAO.Census and SAO.Census.outfitOf
@@ -376,6 +396,23 @@ local function finite(value)
         and value ~= math.huge and value ~= -math.huge
 end
 
+local function captureBody(rec, body)
+    local packed = SAOJavaBridge:hibernate(body)
+    if SAOJavaBridge:validateHibernation(packed) ~= true then
+        return nil, "invalid-snapshot"
+    end
+    local visual = SAOJavaBridge:captureReturnVisual(body)
+    if SAOJavaBridge:validateReturnVisual(visual) ~= true then return nil, "invalid-visual" end
+    local now = SAO.History.countyHours()
+    local x, y, z = body:getX(), body:getY(), body:getZ()
+    if not finite(now) or not finite(x) or not finite(y) or not finite(z) then
+        return nil, "invalid-position-time"
+    end
+    local facts = SAO.Population.captureBodyFacts(rec, body, now)
+    if type(facts) ~= "table" then return nil, "invalid-body-facts" end
+    return { packed = packed, visual = visual, hours = now, x = x, y = y, z = z, facts = facts }
+end
+
 local function removeOwned(body)
     local ok, removed = pcall(function()
         if SAOJavaBridge and SAOJavaBridge:isShell(body) then
@@ -419,13 +456,73 @@ local function dropOwner(rec)
     Body.active[rec.id] = nil
 end
 
+function Body.canTransfer(body)
+    return body ~= nil and readyToRemove(body)
+end
+
 function Body.isTransitioning(rec)
-    return rec and (rec.bodyRelease ~= nil or Body.failedRestore[rec.id]
+    return rec and (rec.returnTransition ~= nil or rec.bodyRelease ~= nil or Body.failedRestore[rec.id]
         or Body.discarding[rec.id]) or false
+end
+
+-- Off-slot living shells are not engine save entities. OnSave runs on the
+-- game thread before GlobalModData.save; checkpoint supported state without
+-- stopping a live body or consuming an in-progress handoff's journal.
+function Body.checkpointActive()
+    local report = { saved = 0, skipped = 0, failed = 0, failures = {} }
+    Body.lastCheckpointReport = report
+    for id, body in pairs(Body.active) do
+        local rec = SAO.Identity.get(id)
+        if not rec or rec.dead or Body.foreign[id] or Body.returning[id]
+            or Body.isTransitioning(rec) then
+            report.skipped = report.skipped + 1
+        else
+            local ok, captured, reason = pcall(function()
+                if not SAOJavaBridge then return nil, "bridge-unavailable" end
+                if not SAOJavaBridge:isShell(body) then
+                    return nil, "not-owned-shell"
+                end
+                if body:isDead() then return nil, "dead-body" end
+                return captureBody(rec, body)
+            end)
+            if ok and (reason == "not-owned-shell" or reason == "dead-body") then
+                report.skipped = report.skipped + 1
+            elseif ok and captured then
+                rec.hibernation = captured.packed
+                rec.bodyVisual = captured.visual
+                rec.releasedAtHours = captured.hours
+                rec.x, rec.y, rec.z = captured.x, captured.y, captured.z
+                local facts = captured.facts
+                rec.woundInfected = facts.woundInfected or nil
+                rec.knoxInfected = facts.knoxInfected or nil
+                rec.biteDeathAtHours = facts.biteDeathAtHours or nil
+                rec.hasRadio = facts.hasRadio == true
+                rec.bodyCheckpointFailure = nil
+                report.saved = report.saved + 1
+                if facts.newInfection then
+                    pcall(function()
+                        SAO.PathogenEvents.emit("infection", rec.id,
+                            math.floor(captured.hours / 24), { record = rec })
+                    end)
+                end
+            else
+                reason = ok and (reason or "capture-failed") or "capture-exception"
+                local timeOk, now = pcall(SAO.History.countyHours)
+                rec.bodyCheckpointFailure = { reason = reason,
+                    atHours = timeOk and finite(now) and now or nil }
+                report.failed = report.failed + 1
+                report.failures[tostring(id)] = reason
+                pcall(log, "SAVE CHECKPOINT FAILED for " .. tostring(id) .. ": " .. reason
+                    .. "; previous snapshot retained; current body state was not saved")
+            end
+        end
+    end
+    return report
 end
 
 function Body.release(rec)
     if not rec or not rec.id then return false, "no-record" end
+    if rec.returnTransition then return false, "return-pending" end
     if Body.failedRestore[rec.id] or Body.discarding[rec.id] then
         return false, "teardown-pending"
     end
@@ -437,21 +534,7 @@ function Body.release(rec)
         -- No durable field changes until the complete current capture has
         -- passed validation. A pending copy survives save/load and is never
         -- recaptured from a partly removed body.
-        local ok, captured = pcall(function()
-            local packed = SAOJavaBridge:hibernate(body)
-            if type(packed) ~= "string" or packed == ""
-                or SAOJavaBridge:validateHibernation(packed) ~= true then
-                return nil
-            end
-            local now = SAO.History.countyHours()
-            local x, y, z = body:getX(), body:getY(), body:getZ()
-            if not finite(now) or not finite(x) or not finite(y) or not finite(z) then
-                return nil
-            end
-            local facts = SAO.Population.captureBodyFacts(rec, body, now)
-            return { packed = packed, hours = now, x = x, y = y, z = z,
-                facts = facts }
-        end)
+        local ok, captured = pcall(captureBody, rec, body)
         if not ok or not captured then return false, "capture-failed" end
         pending = captured
         rec.bodyRelease = pending
@@ -461,12 +544,14 @@ function Body.release(rec)
             and finite(pending.hours) and finite(pending.x)
             and finite(pending.y) and finite(pending.z)
             and type(pending.facts) == "table"
+            and (pending.visual == nil or (type(pending.visual) == "string" and pending.visual ~= ""))
     end)
     if not okPending or not validPending then return false, "invalid-pending-snapshot" end
     if body and not removeOwned(body) then return false, "teardown-failed" end
     -- No body after reload means the old engine representation is gone.
     -- Commit the saved transition before constructing its replacement.
     rec.hibernation = pending.packed
+    if pending.visual ~= nil then rec.bodyVisual = pending.visual end
     rec.releasedAtHours = pending.hours
     rec.x, rec.y, rec.z = pending.x, pending.y, pending.z
     local facts = pending.facts
@@ -474,6 +559,7 @@ function Body.release(rec)
     rec.knoxInfected = facts.knoxInfected or nil
     rec.biteDeathAtHours = facts.biteDeathAtHours or nil
     rec.hasRadio = facts.hasRadio == true
+    rec.bodyCheckpointFailure = nil
     dropOwner(rec)
     rec.bodyRelease = nil
     if facts.newInfection then
@@ -490,6 +576,7 @@ end
 -- removes identity only after this succeeds, and can retry on failure.
 function Body.discard(rec)
     if not rec or not rec.id then return false, "no-record" end
+    if rec.returnTransition then return false, "return-pending" end
     if Body.foreign[rec.id] then return false, "foreign-body" end
     local body = Body.active[rec.id]
     if body then
@@ -508,6 +595,10 @@ function Body.discard(rec)
 end
 
 function Body.recover(rec)
+    if rec.returnTransition then
+        if SAO.AfflictedReturn then return SAO.AfflictedReturn.resume(rec) end
+        return false, "return-owner-unavailable"
+    end
     if rec.dead then
         if Body.isTransitioning(rec) then return Body.discard(rec) end
         return true
@@ -555,11 +646,58 @@ function Body.pendingTransitionCount()
     local pending, n = {}, 0
     for id in pairs(Body.failedRestore) do pending[id] = true end
     for id in pairs(Body.discarding) do pending[id] = true end
+    for id in pairs(Body.returning) do pending[id] = true end
     for id, rec in pairs(SAO.Identity.all()) do
-        if rec.bodyRelease then pending[id] = true end
+        if rec.bodyRelease or rec.returnTransition then pending[id] = true end
     end
     for _ in pairs(pending) do n = n + 1 end
     return n
+end
+
+-- Only the durable, ZAO-authorized return owner can construct this body.
+-- Ordinary materialization retains its dead-record refusal.
+function Body.stageReturn(rec)
+    local pending = rec and rec.returnTransition
+    if not pending or pending.version ~= 1 or not SAO.AfflictedReturn
+        or not SAO.AfflictedReturn.authorized(rec) then return nil, "unauthorized-return" end
+    if Body.returning[rec.id] then
+        if SAOJavaBridge:returnBodyNeedsCleanup(Body.returning[rec.id]) then
+            pending.cleanup = true
+            return nil, "stage-cleanup-pending"
+        end
+        return Body.returning[rec.id]
+    end
+    local retained = SAOJavaBridge:findReturnDestination(rec.id, pending.token)
+    if retained then
+        Body.returning[rec.id] = retained
+        if SAOJavaBridge:returnBodyNeedsCleanup(retained) then
+            pending.cleanup = true
+            return nil, "stage-cleanup-pending"
+        end
+        return retained
+    end
+    local body = SAOJavaBridge:createReturnBody(rec.forename, rec.surname,
+        pending.x, pending.y, pending.z, SAO.Identity.femaleOf(rec))
+    if not body then return nil, "return-construction-failed" end
+    Body.returning[rec.id] = body
+    body:getModData().SAOPersonId = rec.id
+    body:getModData().SAOReturnToken = pending.token
+    if SAOJavaBridge:returnBodyNeedsCleanup(body) then
+        pending.cleanup = true
+        return nil, "stage-cleanup-pending"
+    end
+    return body
+end
+
+function Body.discardReturn(rec)
+    local body = Body.returning[rec.id]
+    if not body and rec.returnTransition then
+        body = SAOJavaBridge:findReturnDestination(rec.id, rec.returnTransition.token)
+        Body.returning[rec.id] = body
+    end
+    if body and SAOJavaBridge:discardReturnBody(body) ~= true then return false end
+    Body.returning[rec.id] = nil
+    return true
 end
 
 -- [B47] The other half of the same question. A Knox inhabitant with a
@@ -571,5 +709,9 @@ function Body.foreignCount()
     for _ in pairs(Body.foreign) do n = n + 1 end
     return n
 end
+
+if Body.onSaveCheckpoint then Events.OnSave.Remove(Body.onSaveCheckpoint) end
+Body.onSaveCheckpoint = function() Body.checkpointActive() end
+Events.OnSave.Add(Body.onSaveCheckpoint)
 
 return Body

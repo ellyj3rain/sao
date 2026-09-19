@@ -1,0 +1,193 @@
+{
+  "results": [
+    {
+      "case": "production",
+      "passed": true
+    },
+    {
+      "case": "leave-part-infected",
+      "passed": true,
+      "reason": "return health restore refused"
+    },
+    {
+      "case": "scalar-only-health",
+      "passed": true,
+      "reason": "return health restore refused"
+    },
+    {
+      "case": "erase-all-injuries",
+      "passed": true,
+      "reason": "return health did not stop at critical viability"
+    },
+    {
+      "case": "overheal-return",
+      "passed": true,
+      "reason": "return health did not stop at critical viability"
+    }
+  ],
+  "commands": [
+    {
+      "argv": [
+        "C:\\Users\\jleyv\\Peanut Butter\\JetBrains\\Java\\bin\\javac.exe",
+        "-encoding",
+        "UTF-8",
+        "-cp",
+        "C:\\Program Files (x86)\\Steam\\steamapps\\common\\ProjectZomboid\\projectzomboid.jar",
+        "-d",
+        "C:\\Users\\jleyv\\AppData\\Local\\Temp\\zao-return-health-mly79dih\\production\\classes",
+        "C:\\Users\\jleyv\\AppData\\Local\\Temp\\zao-return-health-mly79dih\\production\\ZAOReturnHealth.java",
+        "C:\\Users\\jleyv\\Peanut Butter\\AI Assisted Software Engineering Mass Repository\\Projects\\zombie-awareness\\tools\\luacheck\\ReturnHealthProbe.java"
+      ],
+      "cwd": "C:\\Users\\jleyv\\AppData\\Local\\Temp\\zao-return-health-mly79dih\\production",
+      "returncode": 0,
+      "stdout": "",
+      "stderr": ""
+    },
+    {
+      "argv": [
+        "C:\\Users\\jleyv\\Peanut Butter\\JetBrains\\Java\\bin\\java.exe",
+        "-Duser.home=C:\\Users\\jleyv\\AppData\\Local\\Temp\\zao-return-health-mly79dih\\production",
+        "-cp",
+        "C:\\Users\\jleyv\\AppData\\Local\\Temp\\zao-return-health-mly79dih\\production\\classes;C:\\Program Files (x86)\\Steam\\steamapps\\common\\ProjectZomboid\\projectzomboid.jar",
+        "ReturnHealthProbe"
+      ],
+      "cwd": "C:\\Users\\jleyv\\AppData\\Local\\Temp\\zao-return-health-mly79dih\\production",
+      "returncode": 0,
+      "stdout": "PASS native afflicted health: viable and injured, systemic state externalized, next health=24.999054\n",
+      "stderr": "WARNING: A restricted method in java.lang.System has been called\nWARNING: java.lang.System::load has been called by org.lwjgl.system.Library$$Lambda/0x000000002d1a6218 in an unnamed module (file:/C:/Program%20Files%20(x86)/Steam/steamapps/common/ProjectZomboid/projectzomboid.jar)\nWARNING: Use --enable-native-access=ALL-UNNAMED to avoid a warning for callers in this module\nWARNING: Restricted methods will be blocked in a future release unless native access is enabled\n\n"
+    },
+    {
+      "argv": [
+        "C:\\Users\\jleyv\\Peanut Butter\\JetBrains\\Java\\bin\\javac.exe",
+        "-encoding",
+        "UTF-8",
+        "-cp",
+        "C:\\Program Files (x86)\\Steam\\steamapps\\common\\ProjectZomboid\\projectzomboid.jar",
+        "-d",
+        "C:\\Users\\jleyv\\AppData\\Local\\Temp\\zao-return-health-mly79dih\\leave-part-infected\\classes",
+        "C:\\Users\\jleyv\\AppData\\Local\\Temp\\zao-return-health-mly79dih\\leave-part-infected\\ZAOReturnHealth.java",
+        "C:\\Users\\jleyv\\Peanut Butter\\AI Assisted Software Engineering Mass Repository\\Projects\\zombie-awareness\\tools\\luacheck\\ReturnHealthProbe.java"
+      ],
+      "cwd": "C:\\Users\\jleyv\\AppData\\Local\\Temp\\zao-return-health-mly79dih\\leave-part-infected",
+      "returncode": 0,
+      "stdout": "",
+      "stderr": ""
+    },
+    {
+      "argv": [
+        "C:\\Users\\jleyv\\Peanut Butter\\JetBrains\\Java\\bin\\java.exe",
+        "-Duser.home=C:\\Users\\jleyv\\AppData\\Local\\Temp\\zao-return-health-mly79dih\\leave-part-infected",
+        "-cp",
+        "C:\\Users\\jleyv\\AppData\\Local\\Temp\\zao-return-health-mly79dih\\leave-part-infected\\classes;C:\\Program Files (x86)\\Steam\\steamapps\\common\\ProjectZomboid\\projectzomboid.jar",
+        "ReturnHealthProbe"
+      ],
+      "cwd": "C:\\Users\\jleyv\\AppData\\Local\\Temp\\zao-return-health-mly79dih\\leave-part-infected",
+      "returncode": 1,
+      "stdout": "",
+      "stderr": "WARNING: A restricted method in java.lang.System has been called\nWARNING: java.lang.System::load has been called by org.lwjgl.system.Library$$Lambda/0x00000000271a1cf0 in an unnamed module (file:/C:/Program%20Files%20(x86)/Steam/steamapps/common/ProjectZomboid/projectzomboid.jar)\nWARNING: Use --enable-native-access=ALL-UNNAMED to avoid a warning for callers in this module\nWARNING: Restricted methods will be blocked in a future release unless native access is enabled\n\nException in thread \"main\" java.lang.AssertionError: return health restore refused\n\tat ReturnHealthProbe.check(ReturnHealthProbe.java:13)\n\tat ReturnHealthProbe.main(ReturnHealthProbe.java:93)\n"
+    },
+    {
+      "argv": [
+        "C:\\Users\\jleyv\\Peanut Butter\\JetBrains\\Java\\bin\\javac.exe",
+        "-encoding",
+        "UTF-8",
+        "-cp",
+        "C:\\Program Files (x86)\\Steam\\steamapps\\common\\ProjectZomboid\\projectzomboid.jar",
+        "-d",
+        "C:\\Users\\jleyv\\AppData\\Local\\Temp\\zao-return-health-mly79dih\\scalar-only-health\\classes",
+        "C:\\Users\\jleyv\\AppData\\Local\\Temp\\zao-return-health-mly79dih\\scalar-only-health\\ZAOReturnHealth.java",
+        "C:\\Users\\jleyv\\Peanut Butter\\AI Assisted Software Engineering Mass Repository\\Projects\\zombie-awareness\\tools\\luacheck\\ReturnHealthProbe.java"
+      ],
+      "cwd": "C:\\Users\\jleyv\\AppData\\Local\\Temp\\zao-return-health-mly79dih\\scalar-only-health",
+      "returncode": 0,
+      "stdout": "",
+      "stderr": ""
+    },
+    {
+      "argv": [
+        "C:\\Users\\jleyv\\Peanut Butter\\JetBrains\\Java\\bin\\java.exe",
+        "-Duser.home=C:\\Users\\jleyv\\AppData\\Local\\Temp\\zao-return-health-mly79dih\\scalar-only-health",
+        "-cp",
+        "C:\\Users\\jleyv\\AppData\\Local\\Temp\\zao-return-health-mly79dih\\scalar-only-health\\classes;C:\\Program Files (x86)\\Steam\\steamapps\\common\\ProjectZomboid\\projectzomboid.jar",
+        "ReturnHealthProbe"
+      ],
+      "cwd": "C:\\Users\\jleyv\\AppData\\Local\\Temp\\zao-return-health-mly79dih\\scalar-only-health",
+      "returncode": 1,
+      "stdout": "",
+      "stderr": "WARNING: A restricted method in java.lang.System has been called\nWARNING: java.lang.System::load has been called by org.lwjgl.system.Library$$Lambda/0x000000003319eab8 in an unnamed module (file:/C:/Program%20Files%20(x86)/Steam/steamapps/common/ProjectZomboid/projectzomboid.jar)\nWARNING: Use --enable-native-access=ALL-UNNAMED to avoid a warning for callers in this module\nWARNING: Restricted methods will be blocked in a future release unless native access is enabled\n\nException in thread \"main\" java.lang.AssertionError: return health restore refused\n\tat ReturnHealthProbe.check(ReturnHealthProbe.java:13)\n\tat ReturnHealthProbe.main(ReturnHealthProbe.java:93)\n"
+    },
+    {
+      "argv": [
+        "C:\\Users\\jleyv\\Peanut Butter\\JetBrains\\Java\\bin\\javac.exe",
+        "-encoding",
+        "UTF-8",
+        "-cp",
+        "C:\\Program Files (x86)\\Steam\\steamapps\\common\\ProjectZomboid\\projectzomboid.jar",
+        "-d",
+        "C:\\Users\\jleyv\\AppData\\Local\\Temp\\zao-return-health-mly79dih\\erase-all-injuries\\classes",
+        "C:\\Users\\jleyv\\AppData\\Local\\Temp\\zao-return-health-mly79dih\\erase-all-injuries\\ZAOReturnHealth.java",
+        "C:\\Users\\jleyv\\Peanut Butter\\AI Assisted Software Engineering Mass Repository\\Projects\\zombie-awareness\\tools\\luacheck\\ReturnHealthProbe.java"
+      ],
+      "cwd": "C:\\Users\\jleyv\\AppData\\Local\\Temp\\zao-return-health-mly79dih\\erase-all-injuries",
+      "returncode": 0,
+      "stdout": "",
+      "stderr": ""
+    },
+    {
+      "argv": [
+        "C:\\Users\\jleyv\\Peanut Butter\\JetBrains\\Java\\bin\\java.exe",
+        "-Duser.home=C:\\Users\\jleyv\\AppData\\Local\\Temp\\zao-return-health-mly79dih\\erase-all-injuries",
+        "-cp",
+        "C:\\Users\\jleyv\\AppData\\Local\\Temp\\zao-return-health-mly79dih\\erase-all-injuries\\classes;C:\\Program Files (x86)\\Steam\\steamapps\\common\\ProjectZomboid\\projectzomboid.jar",
+        "ReturnHealthProbe"
+      ],
+      "cwd": "C:\\Users\\jleyv\\AppData\\Local\\Temp\\zao-return-health-mly79dih\\erase-all-injuries",
+      "returncode": 1,
+      "stdout": "",
+      "stderr": "WARNING: A restricted method in java.lang.System has been called\nWARNING: java.lang.System::load has been called by org.lwjgl.system.Library$$Lambda/0x00000000301a13f0 in an unnamed module (file:/C:/Program%20Files%20(x86)/Steam/steamapps/common/ProjectZomboid/projectzomboid.jar)\nWARNING: Use --enable-native-access=ALL-UNNAMED to avoid a warning for callers in this module\nWARNING: Restricted methods will be blocked in a future release unless native access is enabled\n\nException in thread \"main\" java.lang.AssertionError: return health did not stop at critical viability: 100.0\n\tat ReturnHealthProbe.check(ReturnHealthProbe.java:13)\n\tat ReturnHealthProbe.main(ReturnHealthProbe.java:96)\n"
+    },
+    {
+      "argv": [
+        "C:\\Users\\jleyv\\Peanut Butter\\JetBrains\\Java\\bin\\javac.exe",
+        "-encoding",
+        "UTF-8",
+        "-cp",
+        "C:\\Program Files (x86)\\Steam\\steamapps\\common\\ProjectZomboid\\projectzomboid.jar",
+        "-d",
+        "C:\\Users\\jleyv\\AppData\\Local\\Temp\\zao-return-health-mly79dih\\overheal-return\\classes",
+        "C:\\Users\\jleyv\\AppData\\Local\\Temp\\zao-return-health-mly79dih\\overheal-return\\ZAOReturnHealth.java",
+        "C:\\Users\\jleyv\\Peanut Butter\\AI Assisted Software Engineering Mass Repository\\Projects\\zombie-awareness\\tools\\luacheck\\ReturnHealthProbe.java"
+      ],
+      "cwd": "C:\\Users\\jleyv\\AppData\\Local\\Temp\\zao-return-health-mly79dih\\overheal-return",
+      "returncode": 0,
+      "stdout": "",
+      "stderr": ""
+    },
+    {
+      "argv": [
+        "C:\\Users\\jleyv\\Peanut Butter\\JetBrains\\Java\\bin\\java.exe",
+        "-Duser.home=C:\\Users\\jleyv\\AppData\\Local\\Temp\\zao-return-health-mly79dih\\overheal-return",
+        "-cp",
+        "C:\\Users\\jleyv\\AppData\\Local\\Temp\\zao-return-health-mly79dih\\overheal-return\\classes;C:\\Program Files (x86)\\Steam\\steamapps\\common\\ProjectZomboid\\projectzomboid.jar",
+        "ReturnHealthProbe"
+      ],
+      "cwd": "C:\\Users\\jleyv\\AppData\\Local\\Temp\\zao-return-health-mly79dih\\overheal-return",
+      "returncode": 1,
+      "stdout": "",
+      "stderr": "WARNING: A restricted method in java.lang.System has been called\nWARNING: java.lang.System::load has been called by org.lwjgl.system.Library$$Lambda/0x000000008e19e218 in an unnamed module (file:/C:/Program%20Files%20(x86)/Steam/steamapps/common/ProjectZomboid/projectzomboid.jar)\nWARNING: Use --enable-native-access=ALL-UNNAMED to avoid a warning for callers in this module\nWARNING: Restricted methods will be blocked in a future release unless native access is enabled\n\nException in thread \"main\" java.lang.AssertionError: return health did not stop at critical viability: 99.99999\n\tat ReturnHealthProbe.check(ReturnHealthProbe.java:13)\n\tat ReturnHealthProbe.main(ReturnHealthProbe.java:96)\n"
+    }
+  ],
+  "limits": "Installed-engine body objects and native next update; no loaded world, save or renderer.",
+  "hashes": {
+    "C:\\Program Files (x86)\\Steam\\steamapps\\common\\ProjectZomboid\\projectzomboid.jar": "80e405a4bfc42f6072e75b3735f458a6514143da011d3226007ded305a442f44",
+    "C:\\Users\\jleyv\\Peanut Butter\\JetBrains\\Java\\bin\\javac.exe": "74f283ef1e26b3dfccfb56673d74a8a720d2c142e80881aa0084ce2e0379004e",
+    "C:\\Users\\jleyv\\Peanut Butter\\JetBrains\\Java\\bin\\java.exe": "d5f1b9e03e298ebfb04d2326ecc1e2af3e6817f9b4d7f9f151fe856d56975650",
+    "C:\\Users\\jleyv\\Peanut Butter\\AI Assisted Software Engineering Mass Repository\\Projects\\zombie-awareness\\java\\src\\com\\zao\\engine\\ZAOReturnHealth.java": "d69775970ee6a18a78a99e542635cd8cc6153abfa72ec0740623e8f75545607d",
+    "C:\\Users\\jleyv\\Peanut Butter\\AI Assisted Software Engineering Mass Repository\\Projects\\zombie-awareness\\tools\\luacheck\\ReturnHealthProbe.java": "873536e260c6d67426a6536fe0d89341c1281a6c38397edcbea4f49e6656271c",
+    "C:\\Users\\jleyv\\Peanut Butter\\AI Assisted Software Engineering Mass Repository\\Projects\\zombie-awareness\\tools\\return_health_test.py": "1df126c0c6678dbfab3169ca1b608afdf6c8ed5ac6cabecbd7a6a731732e89b3"
+  },
+  "status": "PASS",
+  "raw_receipt_sha256": "f5247e1a1ead97b55f4ca21691e2b378395de667280313e08ff5b68c2f330706",
+  "raw_receipt_local_path": "C:\\Users\\jleyv\\Peanut Butter\\AI Assisted Software Engineering Mass Repository\\Projects\\zombie-awareness\\_scratch\\return-health-last.json",
+  "reproduce": "python tools/return_health_test.py --receipt _scratch/return-health-last.json"
+}

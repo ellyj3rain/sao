@@ -1,13 +1,13 @@
 ﻿| Document | Survivor Awareness Overhaul Session State |
 |---|---|
-| Version | `2.7.14.2-pre-alpha` |
+| Version | `2.7.14.3-pre-alpha` |
 | Author | ellyj3rain |
 | Repository | `SESSION_STATE.md` |
 | Status | CANONICAL - current implementation and continuation. |
 
 # Session state
 
-**As of** 2026-09-19, `[C51]` repairs person preservation after the consolidated C1-C50 catalog.
+**As of** 2026-09-19, `[C52]` repairs authorized Afflicted return after person preservation and the consolidated C1-C50 catalog.
 The C catalog is consolidated by adjacency and content using
 the A/B precedent: 29 A-batches, 52 B-batches and 51 C units, including the first post-consolidation repair. BATCH_LOG.md owns
 the chronology. Batches/FORMER_LABELS.md maps every former entry;
@@ -32,8 +32,9 @@ producers, persistence, evidence and gaps.
 | Area | Existing substrate | Open implementation |
 |---|---|---|
 | Engine execution | NPC shell, bridge, movement, combat, timed-action adapters | Driving route ownership and progress; action cancellation and completion receipts. |
-| Person continuity | Durable identity, materialization, hibernation, adoption | Returned bodies lack adoption; dormant afflicted recovery is absent; optional drug counters need persistence. |
+| Person continuity | Durable identity, C51's supported body transaction and C52's authorized return/adoption/teardown with bodyless recovery | R3's remaining component persistence. |
 | Time and health | Shared hours/ticks, catch-up progress, infection course | Cached controller time, day/tick mismatch, cadence-dependent brain health and stale live inputs. |
+| Afflicted and Crossed | ZAO pathogen state, Afflicted return transaction, four-pillar mind, a Crossed driving adapter | A32's Crossed decision pass is unreachable and lacks the retained human action system. Proximity exposure lacks an intentional action and SAO-to-ZAO ownership transfer. F-084 and SUBSTRATE assign the complete repair across R4-R10. |
 | Knowledge and access | Private beliefs, scanner, remembered sources, permission | Animals enter human beliefs; integrations can read inaccessible or unperceived state. |
 | Social development | Company mechanics, claims, observations, graph APIs | Automatic relocation and recognition; incomplete provisioning, affiliation, governance and other producers. |
 | Speakeasy data | 190 ratified choices, cross-module contract, approved world documents | Mutable decision snapshots, source conditioning, executable options and complete capture provenance. |
@@ -55,39 +56,91 @@ filenames, seeds and hashes remain unchanged.
 
 ## Continuation
 
-ROADMAP.md orders the remaining work. The first bounded repair concerns shared
-time and durable-state handoffs: consumers must agree about time during live
-callbacks, historical substeps and reload. The engine serialization boundary
-must be verified before an in-memory registry is called persistent. Pathogen
-state is read from its actual owner.
+R1 closes in C52 and ZAO A35. The living transaction, source holding and
+acknowledged removal, controller adoption, failure diagnostics, repeated-death
+binding, current-possession transfer and bodyless path have controlled VM
+coverage. Review also found and repaired the missing observed-reanimation
+producer and missing save-time checkpoint for loaded people. Current supported
+appearance now has a durable native visual sidecar.
+
+The [R1 evidence record](artifacts/audits/20260919-0735Z-0035PST-r1-return-evidence/README.md)
+separates tested behavior and native verification. The operator selected
+critical viability with actual injuries preserved. ZAO now clears native
+lethal/fake Knox state, raises weighted body-part health only to the return
+floor, and preserves wounds, treatment, fractures, ordinary wound infection,
+statistics and XP. The Afflicted state remains the systemic-dormant Knox owner;
+publication refuses if that operation fails. Pending-source preservation covers ordinary/fake-dead
+checkpoints and exact native reanimated-registry ownership, including offscreen
+return and held-equipment recovery. Large saved snapshots use bounded string
+fragments; unsafe oversized native item fields refuse capture before teardown.
+The added installed-engine physiology probe and four defect controls pass. Both
+full gates pass: 167 SAO borders and seven ZAO borders, including 37 compiled
+native source controls. Failed native source checkpoints are
+isolated from other identities and ordinary item processing; failed identities
+remain unavailable until a fresh world load.
+Component/table serialization, running-world save/reopen and interrupted-save
+guarantees remain distinct. C52/A35 are closed implementation batches and remain undeployed.
+
+The same audit found that the published A32 Crossed-execution claim is false.
+Normal Crossed state sets `currentForm` to `none`; the controller admits the
+whole Crossed decision pass only for a non-`none` form. Even if entered, it does
+not provide the canonical human-looking body's retained weapon, tool, combat or
+general action vocabulary. Both exposure callers here are daily three-tile
+proximity proxies, and a successful state change leaves the living Afflicted
+body under SAO. There is no spontaneous Afflicted roll. F-084 and SUBSTRATE's
+Crossed contract make the representation, actions, non-feeding Afflicted
+interaction, exposure result, ownership transfer and loaded/dormant continuity
+explicit work under R4-R10 rather than calling the connector complete.
+
+ROADMAP.md now defines R1-R15 with owners, dependencies and completion evidence;
+SUBSTRATE.md supplies the mechanisms, producer inventory and bounded technical
+investigations. Remaining work is planned, with implementation and verification
+still to do.
+
+The immediate repair is R1, an explicit ZAO-authorized afflicted-return
+transaction. The published C51 caller materializes a dead record before clearing its
+death flag; C51 now refuses it. A controlled actual-Lua continuation probe
+confirms the interaction and the older missing-controller defect behind it.
+The return must preserve one owner across restore, adoption, old-body removal,
+failure and reload, including people without a loaded ZAO body.
+
+R2 then repairs shared-time consumers and timestamp units; R3 extends native
+person continuity and validates the next update. R11-R12, immutable capture,
+protected approved data and world-knowledge preparation, can progress alongside
+these repairs. Pathogen state continues to belong to ZAO when present.
 
 C51 repairs the F-077 body handoff. Capture failure keeps the prior record and
 ownership; incomplete teardown retains a durable snapshot for retry; all callers
 restore through Body before adoption. Native supported-state snapshots preserve
 inventory, equipment, wounds, statistics and experience. Legacy v1/v2 remain
 readable within their original limits. Character ModData, nutrition, fitness,
-recipes and human appearance are outside this snapshot and remain explicit gaps.
+recipes and human appearance are outside this snapshot. R3 also covers reading
+progress, descriptor perk boosts and fluid-content validation; it assigns the
+verified component seams and the remaining continuation probes.
 See the C51 batch record and Borders 162-163 for the tested boundary.
 Built-in graph callbacks do reconstruct after save/load; the engine omits
 closures rather than failing the save. Extension registrations need their
 own reconstruction contract.
 
-Then repair perception/access and completed action consequences, complete the
-missing life-simulation producers, repair capture and build the Speakeasy
-training/runtime path. Available actions and their consequences are implemented
-separately from the learned policy choosing among them. The full producer map
-remains open; one repaired connector does not complete it.
+R4-R10 cover reconstruction, health and dormant physiology, perception/access,
+action receipts, the audited action repairs, each life-simulation producer and
+historical/population accounting. R13-R15 cover reproducible training/export,
+actual learned action and speech consumption, and evaluated late-start
+acceleration. The coverage table maps every audited former C112-C127 entry and
+the broader life concerns to these contracts. Available actions and their
+consequences remain separate from the learned policy choosing among them.
 
 ## Verification and installed state
 
-163 numbered borders run through 178 gated mirrors. These counts describe the
+C52 has 167 numbered borders through 182 gated mirrors; the
+published C51 baseline has 163 borders through 178 mirrors. These counts describe the
 apparatus, not acceptance. The audit reproduced defects while targeted checks
 passed. The earlier audit's intermittent Border 54 failure remains unexplained.
 C51's separate first gate found a verdict-prefix defect and missing transition
 registry surfaces/lifetimes. Its failed output is preserved with the corrections;
 the closing full gate passed with exit 0.
 
-The verified C51 install is 2.7.14.2-pre-alpha, deployed on 2026-09-19 through
+The verified C51 install was deployed on 2026-09-19 through
 tools/deploy.sh. All 249 installed files match source, with no missing or extra
 files. The SAO jar SHA-256 is
 `d3592141fe8ac8deae1d9ef2f8253b649c84076421fb062a59222636302babdc`.

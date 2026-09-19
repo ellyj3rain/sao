@@ -7,6 +7,7 @@ import java.io.DataOutputStream;
 import java.io.IOException;
 import java.nio.BufferOverflowException;
 import java.nio.ByteBuffer;
+import java.nio.charset.StandardCharsets;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
@@ -19,7 +20,9 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import se.krka.kahlua.vm.KahluaTable;
 import zombie.characters.IsoPlayer;
+import zombie.characters.IsoGameCharacter;
 import zombie.characters.skills.PerkFactory;
 import zombie.inventory.InventoryItem;
 import zombie.inventory.ItemContainer;
@@ -79,6 +82,120 @@ public final class SAONativeSnapshot {
             serialize(buffer -> shell.getXp().save(buffer)),
             writeManifest(facts, equipment),
         };
+        return encode(sections);
+    }
+
+    /** Corpse creation transfers inventory away before a death observer may run. */
+    public static String captureReturnLiving(IsoPlayer living) throws IOException {
+        requireLiving(living);
+        ItemContainer empty = new ItemContainer();
+        return encode(new byte[][] {
+            serialize(buffer -> empty.save(buffer)),
+            serialize(buffer -> living.getStats().save(buffer)),
+            serialize(buffer -> living.getBodyDamage().save(buffer)),
+            serialize(buffer -> living.getXp().save(buffer)),
+            writeManifest(new LinkedHashMap<>(), new Equipment(null, null, List.of(), List.of())),
+        });
+    }
+
+    /** A turned body supplies current possessions, never living wounds or XP. */
+    public static String captureReturn(IsoGameCharacter source, IsoPlayer living) throws IOException {
+        requireShell(living);
+        if (source == null || source.getInventory() == null) throw new IOException("Missing return source");
+        ItemContainer current = returnInventory(source);
+        Map<Integer, InventoryItem> items = new LinkedHashMap<>();
+        Map<Integer, ItemFact> facts = inventoryFacts(current, items);
+        return encode(new byte[][] {
+            serialize(buffer -> current.save(buffer)),
+            serialize(buffer -> living.getStats().save(buffer)),
+            serialize(buffer -> living.getBodyDamage().save(buffer)),
+            serialize(buffer -> living.getXp().save(buffer)),
+            writeManifest(facts, equipment(source, items)),
+        });
+    }
+
+    /** Compare all serialized item state before committing a held source. */
+    public static boolean returnMaterialsMatch(IsoGameCharacter source, String packed) throws IOException {
+        Snapshot snapshot = parse(packed);
+        ItemContainer current = returnInventory(source);
+        Map<Integer, InventoryItem> items = new LinkedHashMap<>();
+        Map<Integer, ItemFact> facts = inventoryFacts(current, items);
+        return Arrays.equals(snapshot.sections()[0], serialize(buffer -> current.save(buffer)))
+            && Arrays.equals(snapshot.sections()[4], writeManifest(facts, equipment(source, items)));
+    }
+
+    // Zombie equipment can exist outside its inventory. A temporary view keeps
+    // those actual objects without moving them or generating zombie loot.
+    private static ItemContainer returnInventory(IsoGameCharacter source) throws IOException {
+        if (!source.isUsingWornItems() && !source.getItemVisuals().isEmpty()) {
+            throw new IOException("Visual-only clothing has no transferable item ownership");
+        }
+        ItemContainer view = new ItemContainer();
+        view.getItems().addAll(source.getInventory().getItems());
+        List<InventoryItem> equipped = new ArrayList<>();
+        equipped.add(source.getPrimaryHandItem());
+        equipped.add(source.getSecondaryHandItem());
+        for (int i = 0; i < source.getWornItems().size(); i++) equipped.add(source.getWornItems().get(i).getItem());
+        for (int i = 0; i < source.getAttachedItems().size(); i++) equipped.add(source.getAttachedItems().get(i).getItem());
+        for (InventoryItem item : equipped) {
+            if (item == null) continue;
+            Map<Integer, InventoryItem> existing = new LinkedHashMap<>();
+            inventoryFacts(view, existing);
+            if (existing.get(item.id) == item) continue;
+            if (existing.containsKey(item.id)) throw new IOException("Conflicting equipment item identity");
+            if (item.getContainer() != null && item.getContainer() != source.getInventory()) {
+                throw new IOException("Equipment belongs to another inventory");
+            }
+            view.getItems().add(item);
+        }
+        return view;
+    }
+
+    public static String captureReturnVisual(IsoGameCharacter source) throws IOException {
+        if (source == null || source.getVisual() == null) throw new IOException("Missing native visual");
+        byte[] bytes = serialize(buffer -> source.getVisual().save(buffer));
+        return "1;" + VERIFIED_WORLD_VERSION + ";" + Base64.getEncoder().encodeToString(bytes)
+            + ";" + java.util.HexFormat.of().formatHex(hash(bytes));
+    }
+
+    public static boolean validateReturnVisual(String packed) {
+        try {
+            ByteBuffer buffer = ByteBuffer.wrap(returnVisualBytes(packed));
+            new zombie.core.skinnedmodel.visual.HumanVisual(null).load(buffer, VERIFIED_WORLD_VERSION);
+            consumed(buffer, "return visual");
+            return true;
+        } catch (IOException | RuntimeException error) { return false; }
+    }
+
+    public static void restoreReturnVisual(IsoPlayer destination, String packed) throws IOException {
+        byte[] bytes = returnVisualBytes(packed);
+        // Validate the native payload on an unowned visual before changing a body.
+        ByteBuffer check = ByteBuffer.wrap(bytes);
+        new zombie.core.skinnedmodel.visual.HumanVisual(null).load(check, VERIFIED_WORLD_VERSION);
+        consumed(check, "return visual");
+        ByteBuffer buffer = ByteBuffer.wrap(bytes);
+        destination.getVisual().load(buffer, VERIFIED_WORLD_VERSION);
+        consumed(buffer, "return visual");
+    }
+
+    private static byte[] returnVisualBytes(String packed) throws IOException {
+        if (packed == null || packed.length() > MAX_SECTION * 2) throw new IOException("Missing return visual");
+        String[] parts = packed.split(";", -1);
+        if (parts.length != 4 || !parts[0].equals("1")
+                || !parts[1].equals(Integer.toString(VERIFIED_WORLD_VERSION))
+                || IsoWorld.getWorldVersion() != VERIFIED_WORLD_VERSION) {
+            throw new IOException("Unsupported return visual version");
+        }
+        byte[] bytes;
+        try { bytes = Base64.getDecoder().decode(parts[2]); }
+        catch (IllegalArgumentException error) { throw new IOException("Invalid return visual", error); }
+        if (!java.util.HexFormat.of().formatHex(hash(bytes)).equals(parts[3])) {
+            throw new IOException("Return visual checksum mismatch");
+        }
+        return bytes;
+    }
+
+    private static String encode(byte[][] sections) throws IOException {
         ByteArrayOutputStream bytes = new ByteArrayOutputStream();
         try (DataOutputStream out = new DataOutputStream(bytes)) {
             out.writeInt(MAGIC);
@@ -116,6 +233,14 @@ public final class SAONativeSnapshot {
      * Returns the total number of restored items, including nested contents.
      */
     public static int restore(IsoPlayer shell, String packed) throws IOException {
+        return restore(shell, packed, true);
+    }
+
+    public static int restoreStaged(IsoPlayer shell, String packed) throws IOException {
+        return restore(shell, packed, false);
+    }
+
+    private static int restore(IsoPlayer shell, String packed, boolean registerItems) throws IOException {
         requireShell(shell);
         Snapshot snapshot = parse(packed);
         byte[][] sections = snapshot.sections();
@@ -151,10 +276,12 @@ public final class SAONativeSnapshot {
         shell.clearAttachedItems();
         shell.setInventory(inventory);
         for (Slot slot : equipment.worn()) {
-            shell.setWornItem(bodyLocation(slot.location()), items.get(slot.item()));
+            if (registerItems) shell.setWornItem(bodyLocation(slot.location()), items.get(slot.item()));
+            else shell.getWornItems().setItem(bodyLocation(slot.location()), items.get(slot.item()));
         }
         for (Slot slot : equipment.attached()) {
-            shell.setAttachedItem(slot.location(), items.get(slot.item()));
+            if (registerItems) shell.setAttachedItem(slot.location(), items.get(slot.item()));
+            else shell.getAttachedItems().setItem(slot.location(), items.get(slot.item()));
         }
         shell.setPrimaryHandItem(item(items, equipment.primary()));
         shell.setSecondaryHandItem(item(items, equipment.secondary()));
@@ -165,12 +292,22 @@ public final class SAONativeSnapshot {
         // Native load/setInventory do not register unequipped or nested items.
         // Use the engine's idempotent registration after every restore check;
         // Food is processed by the cell, not the character's IUpdater walk.
-        if (IsoWorld.instance.currentCell != null) {
+        if (registerItems && IsoWorld.instance.currentCell != null) {
             for (InventoryItem restored : items.values()) {
                 IsoWorld.instance.currentCell.addToProcessItems(restored);
             }
         }
         return items.size();
+    }
+
+    public static void register(IsoPlayer shell) throws IOException {
+        Map<Integer, InventoryItem> items = new LinkedHashMap<>();
+        inventoryFacts(shell.getInventory(), items);
+        if (IsoWorld.instance.currentCell != null) {
+            for (InventoryItem carried : items.values()) {
+                IsoWorld.instance.currentCell.addToProcessItems(carried);
+            }
+        }
     }
 
     /** Detach every carried item from native processing when its shell leaves. */
@@ -227,13 +364,19 @@ public final class SAONativeSnapshot {
     }
 
     private static void requireShell(IsoPlayer shell) throws IOException {
+        requireLiving(shell);
+        if (shell.getInventory() == null || shell.getWornItems() == null || shell.getAttachedItems() == null) {
+            throw new IOException("Incomplete native material components");
+        }
+    }
+
+    private static void requireLiving(IsoPlayer shell) throws IOException {
         if (IsoWorld.getWorldVersion() != VERIFIED_WORLD_VERSION) {
             throw new IOException("Unsupported engine snapshot version");
         }
-        if (shell == null || shell.getInventory() == null || shell.getStats() == null
+        if (shell == null || shell.getStats() == null
                 || shell.getBodyDamage() == null || shell.getXp() == null
-                || shell.getNetworkCharacterAI() == null
-                || shell.getWornItems() == null || shell.getAttachedItems() == null) {
+                || shell.getNetworkCharacterAI() == null) {
             throw new IOException("Incomplete native person components");
         }
     }
@@ -273,6 +416,7 @@ public final class SAONativeSnapshot {
                 throw new IOException("Duplicate, cyclic, null or excessive inventory item");
             }
             text(item.getFullType());
+            if (item.hasModData()) checkNativeTable(item.getModData(), 0, new IdentityHashMap<>());
             items.put(item.id, item);
             facts.put(item.id, new ItemFact(item.id, parent, item.getFullType()));
             if (item instanceof InventoryContainer nested) {
@@ -281,7 +425,27 @@ public final class SAONativeSnapshot {
         }
     }
 
-    private static Equipment equipment(IsoPlayer shell, Map<Integer, InventoryItem> items)
+    // Native Kahlua strings use a signed-short UTF-8 byte length. A larger
+    // value can shift the item reader into subsequent fields without throwing.
+    // Outer snapshot fragmentation cannot repair bytes already lost here.
+    private static void checkNativeTable(Object value, int depth,
+            IdentityHashMap<KahluaTable, Boolean> visiting) throws IOException {
+        if (value instanceof String text) {
+            if (text.getBytes(StandardCharsets.UTF_8).length > 32767)
+                throw new IOException("Item ModData string exceeds native byte limit");
+        } else if (value instanceof KahluaTable table) {
+            if (depth > MAX_DEPTH || visiting.put(table, Boolean.TRUE) != null)
+                throw new IOException("Cyclic or excessive item ModData depth");
+            var iterator = table.iterator();
+            while (iterator.advance()) {
+                checkNativeTable(iterator.getKey(), depth + 1, visiting);
+                checkNativeTable(iterator.getValue(), depth + 1, visiting);
+            }
+            visiting.remove(table);
+        }
+    }
+
+    private static Equipment equipment(IsoGameCharacter shell, Map<Integer, InventoryItem> items)
             throws IOException {
         List<Slot> worn = new ArrayList<>();
         for (int i = 0; i < shell.getWornItems().size(); i++) {

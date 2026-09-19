@@ -1,6 +1,6 @@
 | Document | Survivor Awareness Overhaul Findings |
 |---|---|
-| Version | `2.7.14.2-pre-alpha` |
+| Version | `2.7.14.3-pre-alpha` |
 | Author | ellyj3rain |
 | Repository | `FINDINGS.md` |
 | Status | CANONICAL, APPEND-ONLY - verified engine findings. |
@@ -1720,3 +1720,152 @@ Border 162 now has sixteen production-source controls. Pending transitions have
 their own Ledger count and do not inflate the available-body count. The first
 full gate's verdict-prefix, registry-surface and registry-lifetime findings are
 retained in the evidence directory with the corrections.
+
+## F-079 | 2026-09-19 06:27 UTC / 23:27 PST | Afflicted return blocked by the dead-record guard
+
+The continuation review reproduced a C51 compatibility regression.
+`SAO_AfflictedReturn.adopt` passes its still-dead record to
+`SAO_Body.materialize`, then clears the death flag only after success. C51's
+ordinary dead-record refusal prevents that caller from returning any body.
+
+The installed Kahlua VM ran both production functions with Border 162's explicit
+body/bridge doubles. Production returned `returned=false body=false dead=true
+controller=false`. A source control removing only the dead-record guard returned
+`returned=true body=true dead=false controller=false`, exposing the earlier
+audit's separate missing-controller defect. The control is not a repair.
+
+Inputs, replay and results are preserved in
+`artifacts/audits/20260919-0627Z-2327PST-continuation-evidence/`.
+This proves the Lua caller/guard incompatibility, not the correctness of live
+ZAO cleanup or current-possession transfer. ROADMAP R1 and SUBSTRATE specify
+the required authorized return transaction, source quiescence, acknowledged
+old-body teardown, single adoption, recovery after failure/reload and bodyless
+historical path. Those repairs remain to be implemented.
+
+## F-080 | 2026-09-19 07:35 UTC / 00:35 PST | Loaded person state omitted from native saves
+
+The R1 save review verified that the native world save does not serialize SAO's
+living shells outside the player slots. `PlayerDB.savePlayersAsync` visits
+`IsoPlayer.players`; square serialization includes corpses rather than living
+moving objects. Before the working R1 repair, the current person's hibernation
+pack was refreshed on release, not on normal save. Saving and restarting with
+a person still loaded could therefore restore consumed items and lose later
+acquisitions.
+
+`GameWindow.save` invokes OnSave at bytecode offset 302, before IsoCell.save at
+364 and GlobalModData.save at 438 in the installed world-version-249 engine.
+The draft uses that event to capture current supported state and native visual
+state without relinquishing bodies/controllers. Pending return/release journals
+remain authoritative. Border 166 executes the actual Lua checkpoint and uses a
+consumed-item/acquired-item fixture, full record reconstruction and native save
+ordering. Its controls remove the producer, state updates and failure protections.
+
+A failed capture records an explicit failure and retains the older pack; after
+restart, ordinary materialization refuses that known-stale pack. The event cannot
+abort the rest of the engine save or recover uncaptured state. This result does
+not establish atomic interrupted-save recovery. Source and receipts are indexed
+in `artifacts/audits/20260919-0735Z-0035PST-r1-return-evidence/`.
+
+## F-081 | 2026-09-19 07:35 UTC / 00:35 PST | Loaded reanimation lacked a pathogen-state producer
+
+ZAO's controller derived `dead` from a loaded SAO record even while its scan
+observed that person's live reanimated IsoZombie. Its state projection also
+preferred `record.dead` over a saved turned state. Reversion only advances from
+`turned`; a test that directly supplied an afflicted event bypassed this defect.
+
+The R1 joint VM now executes actual Forms, Pathogen, StateStore, State and
+Controller modules through death, observed reanimation, a controlled reversion
+draw and the return transaction. The draft binds observed turning to the current
+death sequence and preserves it through state projection. Two independent source
+controls remove observation and projection and fail at the missing turned-state
+assertion. Loaded turning does not set `turnedDormant`.
+
+## F-082 | 2026-09-19 07:35 UTC / 00:35 PST | Infection damage cannot be separated from trauma at death
+
+The installed `BodyDamage.Update` applies infection-progress loss through
+`ReduceGeneralHealth` (bytecode 2058-2109) and terminal infection loss through
+the same method (2023-2055). That method reduces individual part health, clamped
+at zero. The death snapshot therefore lacks an exact decomposition of infection
+loss and trauma. `calculateOverallHealth` sums the resulting part health and
+cannot recover the lost provenance.
+
+The isolated native `RecoveryHealthProbe` verifies that clearing every infected
+part, global infection fields, infection timers and infection Stats preserves
+unrelated wound state, hunger/fatigue/poison and XP. The lethal snapshot remains
+dead. A temporary positive overall-health scalar returns to zero on native
+recalculation. A nonlethal fixture stays alive across the next native update;
+the omission control leaving one infected part reactivates global infection.
+
+The probe source and output are preserved in the R1 working evidence directory.
+They established why a physical-restoration policy or prospective damage
+provenance was required. The operator selected critical viability with actual
+injuries preserved. ZAO DR-028 now owns that rule, and its installed-engine
+production probe plus four defect controls pass.
+
+## F-083 | 2026-09-19 08:09 UTC / 01:09 PST | Native string lengths can corrupt saved person state
+
+The installed `GameWindow.StringUTF.save` narrows a UTF-8 byte length to a
+signed short and writes all bytes. Its reader treats a nonpositive length as
+empty without consuming those bytes. `KahluaTableImpl.save`, used by
+GlobalModData and item ModData, reaches this writer. Native snapshot envelopes
+can legitimately exceed its 32,767-byte per-string limit.
+
+The C52 R1 repair stores long person snapshots and visuals as versioned,
+checksummed tables of strings no larger than 16,000 UTF-8 bytes. Short strings
+and legacy readers remain supported. Border 167 executes actual bridge adapter
+methods, the durable-text helper and installed Kahlua table serialization. Its
+compiled controls remove fragmentation, integrity checks and bridge adapters.
+
+An independent native inventory probe found a second boundary inside the
+snapshot itself. An item's ModData string of 32,767 ASCII bytes roundtripped.
+At 32,768 or 65,536 bytes, capture, envelope validation and restoration all
+reported success, but the native key identifier changed from 67890 to
+1633771873. A 32,768-byte multibyte value also corrupted the key. The item
+loader's final position reset concealed the unread bytes from the outer
+consumption check. Fragmenting the outer snapshot cannot repair that loss.
+
+The draft therefore checks string keys and values recursively in every captured
+item's ModData before native serialization, including nested inventory and
+detached return equipment. Values beyond the native byte limit, cycles and
+excessive nesting refuse capture while the source remains owned. Border 163
+now includes safe ASCII/multibyte boundaries, oversized values/keys, nested
+tables and a source control removing this refusal. This is a serializer bound,
+not a restriction on ordinary inventory capacity. R1 evidence is indexed in
+`artifacts/audits/20260919-0735Z-0035PST-r1-return-evidence/`.
+
+## F-084 | 2026-09-19 09:06 UTC / 02:06 PST | The Crossed interaction exists as disconnected state and routing pieces
+
+The sibling's published A32 claim that the Crossed are executed is false in the
+current runtime. ZAO sets `currentForm = "none"` whenever a state becomes
+Crossed. Its controller puts target selection, `ZAO.Crossed.decide` and the
+ordinary form drive under `state.currentForm ~= "none"`. The named Crossed
+consumer is therefore unreachable in a normal Crossed state, and no permanent
+border invokes it.
+
+The dormant pass here supplies both callers of `ZAO.Pathogen.expose`. Each is a
+once-per-day distance check at three tiles: one for a dormant Afflicted record
+and one for a loaded Afflicted body. The pathogen correctly restricts the state
+transition to Crossed carrier plus Afflicted target and applies crossed odds
+times Afflicted susceptibility. There is no spontaneous Afflicted-to-Crossed
+roll. Proximity, however, is not the canonical intentional act. It does not
+establish a Crossed decision, restraint or other action, blood exposure, a
+result receipt, or interruption. On success it leaves the live SAO body and
+controller in place while only the ZAO terminal state becomes Crossed.
+
+The broader action substrate is also absent. SAO records only the retained
+`drive` verb. C116 added a distinct `IsoZombie` driving adapter, but no Crossed
+consumer reaches SAO's human combat, weapon, tool, activity or general action
+vocabulary. The fallback body is still an `IsoZombie` whose assigned human
+target may resolve through ordinary zombie attack behavior. That does not
+represent the canonical human-looking, planning, weapon-using Crossed, and it
+violates the operator's explicit boundary that Afflicted are not food.
+
+The repair crosses several planned owners. R5 owns the exposure and systemic
+physiology event; R7 owns intent-through-result and interruption; R8 repairs
+adapted action families; R9 owns the complete Crossed life/action producers;
+R10a/R10b own grounded dormant opportunity and historical execution; R4 owns
+reload and one-controller continuity. The contract must cover representation,
+retained experience and verbs, deliberate goal selection, human action
+execution with the specified Afflicted exception, the exposure result and the
+SAO-to-ZAO body/controller transfer. R1 only returns a person as Afflicted and
+does not claim this later interaction.

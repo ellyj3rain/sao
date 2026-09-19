@@ -1,0 +1,14 @@
+{
+  "results": [
+    {
+      "case": "missing-helper-clear",
+      "rejected": true,
+      "reason": "completed return no longer clears its staged body handle"
+    },
+    {
+      "case": "unreached-helper",
+      "rejected": true,
+      "reason": "completed return no longer clears its staged body handle"
+    }
+  ]
+}

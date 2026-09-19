@@ -82,6 +82,14 @@ VERDICT = re.compile(r"^  \d+\)", re.M)
 # instead. Blinding the Lua cannot move them, so surviving it is
 # correct rather than vacuous.
 NOT_ABOUT_LUA = {
+    "durable_text_test.py":
+        "compiles native durable text storage and exercises actual Kahlua table "
+        "serialization; Lua body ownership is checked by the handoff, checkpoint "
+        "and afflicted-return instruments",
+    "return_body_test.py":
+        "reads and compiles the native staged-body owner against the installed "
+        "engine, with eight compiled fault controls; Lua transaction ownership "
+        "is independently exercised by afflicted_return_test.py",
     "doc_currency_test.py":
         "reads the markdown headers and VERSION - documents, not code",
     "state_counts_test.py":

@@ -211,6 +211,25 @@ end
 -- loss immediately.
 function Identity.markDead(rec, tick, cause)
     if not rec or rec.dead then return false end
+    if rec.returnTransition then return false end
+    -- The turned engine body has no living wounds or XP component. Retain
+    -- this supported state at death; a later return takes possessions from
+    -- the current turned body, never from this historical inventory copy.
+    local deathSequence = (tonumber(rec.deathSequence) or 0) + 1
+    rec.returnLiving, rec.returnLivingDeath = nil, nil
+    if SAO.Body and SAOJavaBridge then
+        pcall(function()
+            local body = SAO.Body.get(rec.id)
+            if body and SAOJavaBridge:isShell(body) then
+                local packed = SAOJavaBridge:captureReturnLiving(body)
+                if SAOJavaBridge:validateHibernation(packed) then
+                    rec.returnLiving = packed
+                    rec.returnLivingDeath = deathSequence
+                end
+            end
+        end)
+    end
+    rec.deathSequence = deathSequence
     rec.dead = true
     -- A teardown already in progress retains its handle until cleanup
     -- succeeds. Ordinary deaths keep the engine's existing corpse path.

@@ -1,0 +1,81 @@
+{
+  "captured_utc": "2026-09-19T09:39:00.710140+00:00",
+  "status": "C52/A35 closure evidence; publication pending; no deployment",
+  "repositories": {
+    "survivor-awareness": {
+      "branch": "neo/c52-afflicted-return",
+      "base_commit": "81ae89b3e5dbc42a8acc461517d45dcd644e29f7",
+      "status": "closed implementation; publication pending",
+      "changed_source_sha256": {
+        "java/dist/SAOAgent.jar": "3fc849080ac44af5a99ccad44399efb7353bc55a0f37799345c82f76a92525c5",
+        "java/src/com/sao/bridge/SAOBridge.java": "a6d790f4cbf5e31a39fd459148da159ad4145b4bf322b917230082abe05fb0ac",
+        "java/src/com/sao/engine/SAODurableText.java": "fa5e89d9123af855b25dd7772b35d6c0b56275feb15eab6ad70717a6869aebc9",
+        "java/src/com/sao/engine/SAONativeSnapshot.java": "ebf94d9cc2131e9d11f2e4d0da20eede595ae771f5f2c242a7533a89cdf8de33",
+        "java/src/com/sao/engine/SAOReturnBody.java": "9a0245a192b4ba25d7417d2f34102384042880db6554a6033d1599861621da50",
+        "mod/42.20/media/java/SAO.jar": "3fc849080ac44af5a99ccad44399efb7353bc55a0f37799345c82f76a92525c5",
+        "mod/42.20/media/lua/client/SAO_AfflictedReturn.lua": "a4024143a5e29db755ff72433a8e750bbb8828af76b219db3cf99b3b66511622",
+        "mod/42.20/media/lua/client/SAO_Body.lua": "a9a0ab133465c942fda9fcebec54f2b8c78e13fd37e8f839fd8dcabe23689332",
+        "mod/42.20/media/lua/client/SAO_Controller.lua": "112c3e2e328e891ea2c8259734fb3f08ba7fd92d4921c4a4e2e097aed5256f96",
+        "mod/42.20/media/lua/client/SAO_Population.lua": "446cc06d79c7f6e2ffafbf08369a70b35640d385b42228eef90cf8ec0bd29faf",
+        "mod/42.20/media/lua/shared/SAO_Identity.lua": "e7d9100db413b41eb929ab7b2f4719a084637ac32bf3ca52d9bc0bcb150a8fda",
+        "tools/afflicted_return_test.py": "35a152b8480864fbe942ce07752233b6b55aa12feae9f6cf6ffa0f92651a087a",
+        "tools/check.sh": "92b7714d40037529586a0181dc7416e3e39948d96903762fd47e7d2b478e9fa6",
+        "tools/durable_text_test.py": "255045000a3996a5db7551108fd65db099055790634c957e80865e42b9f738fd",
+        "tools/forget_on_death_test.py": "2051af5c4f41a35e68ce59f97a632ac6209e33c363f2d5c43c5d1433528c04f5",
+        "tools/luacheck/DurableTextProbe.java": "e00e4f4c49d78dde796210b80116398a82a540a4a30771b947f027bb5fb28d0c",
+        "tools/luacheck/PersonSnapshotProbe.java": "b5d0c093b167e88e495ab4c1538036dc9da89d9436f98c3d5e035d8fb5a33200",
+        "tools/luacheck/ReturnBodyProbe.java": "9cc0cb2abbad519ef0a8a6712585742ed9e9a848fdcdb579ce8de06ec5ae4bfe",
+        "tools/person_checkpoint_test.py": "162a3004eb0a96573250ec7f8be2c16b50932ef4ae0c9ddcb1ead3ee9b157638",
+        "tools/person_handoff_test.py": "6892c6df0949ffb69e660bc77e668b0528659ac58089f422a51d23579cf25fa9",
+        "tools/person_snapshot_test.py": "5535cc1f3b5c10c2ff83bddc725e0a18c32c00b1b33c3bad3c575dc3465bcf5a",
+        "tools/pool_identity_test.py": "fad1e866b623a69cff05837aeead3dc0e9028455e265cbdc273acb9ab0356a8f",
+        "tools/registry_surface_test.py": "5910e98d2516a7776d92a1f94235d74f4bd8ef45767a6a7b043df070b6d6873b",
+        "tools/return_body_test.py": "1eb85e9187d2ad02a8c01f1a959c66dc038af24718c1b26c62fc7ed70956ed06",
+        "tools/vacuous_pass_test.py": "6ba8e1d385de60468367f371f4e598b417dc4e6b5ad9276133a90401c8910c3c",
+        "tools/version_replay.py": "ede18e55a4ad9ecc18fe916b949e73e24d0b6bb9f03ff2e8c3e752ff6c78418d"
+      }
+    },
+    "zombie-awareness": {
+      "branch": "neo/a35-afflicted-return",
+      "base_commit": "d62e0bd88ce186f2cbfe89cfb89f004ae0ec222b",
+      "status": "closed implementation; publication pending",
+      "changed_source_sha256": {
+        "java/dist/ZAO.jar": "5394b5a434645330e57c2318aeae18ef212ec7c698a8ff9d1b7ed1c078a51d2e",
+        "java/src/com/zao/Main.java": "350f01e1b0b046ceaef6f8a499ccfd09b769989bce0c3d9041b79562761195fe",
+        "java/src/com/zao/bridge/ZAOBridge.java": "9188071080ce920f3528400261272bf4e02bed6de313caab366e47bb810f0ba6",
+        "java/src/com/zao/engine/ZAOReturnBody.java": "dc6f14095ad9b7dee514f31d9eacac84040b87fc9e122ddc6475e9d109afeade",
+        "java/src/com/zao/engine/ZAOReturnHealth.java": "d69775970ee6a18a78a99e542635cd8cc6153abfa72ec0740623e8f75545607d",
+        "java/src/com/zao/engine/ZAOReturnSourceSnapshot.java": "c64ef4ad64df212ae3845a7df863573b44fbc44d86c39b4e46400cc38f56df9c",
+        "java/src/com/zao/engine/ZAOReturnSourceStore.java": "3697ad9d1d8bc3450f3b5595dd46ed34a20697939db218523df95bb0106d0825",
+        "java/src/com/zao/engine/ZAOReturnWeave.java": "87417df60d0fbbbddbb26d53d54127fde0509496352c6ea6b7f1edfd729b90cd",
+        "mod/42.20/media/java/ZAO.jar": "5394b5a434645330e57c2318aeae18ef212ec7c698a8ff9d1b7ed1c078a51d2e",
+        "mod/42.20/media/lua/client/ZAO_Controller.lua": "b61183377f87beaf8d102c1312b641e4850f57575c99641f051654787a2753c1",
+        "mod/42.20/media/lua/shared/ZAO_Pathogen.lua": "f4f5602ee12de206ee269ca65e0000e70581a4608c875510e26b6878d8780b35",
+        "mod/42.20/media/lua/shared/ZAO_State.lua": "2e62ac6d0412d65ad359f904efc523e426f04dbbe9c1e71f2519ef25319e7c44",
+        "mod/42.20/media/lua/shared/ZAO_StateStore.lua": "b8b652bed4472ee8b1135e6359b9a7fcf098d3d57ad5b10e13d327cd12a818b2",
+        "tools/check.sh": "4fe9bf5b298e87c160f2b47f4abd96ab401ca82e1a58e7d0936154e438e8bcd9",
+        "tools/luacheck/ReturnHealthProbe.java": "873536e260c6d67426a6536fe0d89341c1281a6c38397edcbea4f49e6656271c",
+        "tools/luacheck/ReturnRemovalProbe.java": "65f16d132cd448fe4d4a4073c01fb1abdb2163491797004c842ac1800cff2b3b",
+        "tools/luacheck/ReturnSourceProbe.java": "a080793f9cd58ae38bec70bef824946a8dabaae4cfb8c65ed1837a7d25acb22e",
+        "tools/return_health_test.py": "1df126c0c6678dbfab3169ca1b608afdf6c8ed5ac6cabecbd7a6a731732e89b3",
+        "tools/return_removal_test.py": "ca2ffb7e1ad178cdc87b158e678b37696b6b67de1686139f899e12eab23d60d2",
+        "tools/version_replay.py": "6c24d30be7cfd3a2d93370d05083adceae37c02a40565a2ad5de22aa8532276f"
+      }
+    }
+  },
+  "evidence_sha256": {
+    "cache-lifetime-controls.json": "c54f11b01b7c6e51327305342b018907128cf6fce3ba7b0e40f3ed9ee865632b",
+    "health-probe-output.txt": "de81d2255dbdb7fe6ab3a8476e1491c103bdc3fe6960c00fde62a695ec53796a",
+    "native-string-corruption.json": "436aa04ea25984d6f3e31ebcefc431ced5df78c13a6dddf14c6df02bc37b5ced",
+    "post-corpse-living.json": "86f151f0028685c0b1b009fc2e5864664a03e081992a6b579fdcebd108c15ffd",
+    "RecoveryHealthProbe.java": "0f116d3a432e4cb1ca9c438b4bdf5f036f2d1538f25c3826824b2d0a581ca3d5",
+    "sao-build.log": "c1fa82669d1428e7a081ca8220a662a61a115d0f21c1755f48064c5cc0911a50",
+    "sao-durable-text.json": "3858317ad36230d408f55b7f1a7e9bc3bda9f49d9ee0a54fbc70543a90e694db",
+    "sao-gate-metadata-refusal.log": "6da27f298eaa46709e9c7cd61f026736daa62bc0e7f5ab4f38e6622a9b78dc88",
+    "sao-gate.log": "c6943fab8ed804b67da33a2c27e19ce717a22076b88b8da5f1d4e4fefe46c7e7",
+    "sao-native-snapshot.json": "6c4036afcef3b0536e8f777e3bd069c8f034aaafedc1e3faf4970427cea76ece",
+    "zao-gate.log": "754aea09ec831897e683ea219296f61de06c051f9d2e76516c5d9ba1fcf80525",
+    "zao-native-source.json": "2f745f93c9e8429d723537ec624743f444cab7fe9e020784dc1c825f930cf7f9",
+    "zao-return-health.json": "704c50bfd306c7cca6fd75d3ce0f4344d31f6890419905be631f184f7ccb63d4"
+  }
+}

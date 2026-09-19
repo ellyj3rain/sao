@@ -3532,6 +3532,9 @@ local function populationTick()
     -- fault counter - a broken seam disables ITSELF after 3 faults;
     -- the rest of the county keeps moving. The names make the log
     -- legible at a glance.
+    runSub("returns", function()
+        if SAO.AfflictedReturn then SAO.AfflictedReturn.resumePending() end
+    end)
     runSub("genesis", ensurePopulation, conf)
     -- [C45] The years between, before anything else. While they are
     -- still being lived the live subsystems below are skipped - the

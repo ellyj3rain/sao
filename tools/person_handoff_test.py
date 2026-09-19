@@ -47,7 +47,7 @@ SAO={
  PathogenEvents={emit=function() __events=__events+1 end}
 }
 function __body()
- local b={md={},inventory={},payload='carried',x=200,y=210,z=0}
+ local b={md={},inventory={},payload='carried',visual='current-look',x=200,y=210,z=0}
  function b:getX() return self.x end
  function b:getY() return self.y end
  function b:getZ() return self.z end
@@ -76,7 +76,21 @@ SAOJavaBridge={
    if __mode=='malformed' then return 'broken' end
    return 'SNAP:'..b.payload
  end,
+ captureReturnLiving=function(self,b) return SAOJavaBridge:hibernate(b) end,
  validateHibernation=function(self,p) return type(p)=='string' and p:sub(1,5)=='SNAP:' end,
+ validateReturnVisual=function(self,p) return type(p)=='string' and p:sub(1,4)=='VIS:' end,
+ captureReturnVisual=function(self,b)
+   if __mode=='visual-throw' then error('visual capture unavailable') end
+   if __mode=='visual-empty' then return '' end
+   return 'VIS:'..b.visual
+ end,
+ restoreReturnVisual=function(self,b,visual)
+   __visualRestored=__visualRestored+1
+   if __visualRestore=='throw' then error('visual restore unavailable') end
+   if __visualRestore=='false' then b.visual='partial' return false end
+   if type(visual)~='string' or visual:sub(1,4)~='VIS:' then return false end
+   b.visual=visual:sub(5) b.visualRestoredAfter=b.payload return true
+ end,
  removeShell=function(self,b)
    __removed=__removed+1
    if __remove=='throw' then error('remove unavailable') end
@@ -89,7 +103,12 @@ SAOJavaBridge={
    assert(accountNow==false,'spawn accounted before restore')
    __spawned=__spawned+1 return __body()
  end,
- accountShell=function() __accounted=__accounted+1 end,
+ accountShell=function(self,b)
+   if __expectRestoredVisual then
+     assert(b.visual==__expectRestoredVisual,'accounted before visual restore')
+   end
+   __accounted=__accounted+1
+ end,
  setProfession=function(self,b,key) b.perk=(b.perk or 0)+2 end,
  awaken=function(self,b,packed,elapsed)
    __restored=__restored+1
@@ -102,6 +121,7 @@ function __setup()
  __mode='ok' __remove='ok' __restore='ok' __now=42 __cancelThrow=false
  __captures=0 __removed=0 __restored=0 __spawned=0 __forgot=0 __events=0 __logs={}
  __accounted=0 __radio=true
+ __visualRestore='ok' __visualRestored=0 __expectRestoredVisual=nil
  SAO.Body.active={} SAO.Body.foreign={} SAO.Body.failedRestore={} SAO.Body.discarding={}
  SAO.Controller.agents={} ISTimedActionQueue.queues={}
  local r={id='p1',forename='Test',surname='Person',occupation='test',x=190,y=195,z=0,
@@ -113,7 +133,7 @@ end
 '''
 
 CASES = r'''
-for _,mode in ipairs({'empty','throw','malformed','facts-throw','busy'}) do
+for _,mode in ipairs({'empty','throw','malformed','facts-throw','busy','visual-throw','visual-empty'}) do
  local r,b,a=__setup() __mode=mode
  local ok=SAO.Body.release(r)
  assert(not ok, 'capture failure reported success: '..mode)
@@ -141,6 +161,7 @@ for _,mode in ipairs({'false','throw'}) do
  b.payload='partial' __remove='ok' __cancelThrow=true
  assert(SAO.Body.release(r),'retry failed')
  assert(__captures==1 and r.hibernation=='SNAP:carried','retry recaptured partial body')
+ assert(r.bodyVisual=='VIS:current-look','release lost captured appearance')
  assert(r.x==200 and r.y==210 and r.releasedAtHours==42 and r.biteDeathAtHours==50,
    'release facts did not commit together')
  assert(SAO.Body.active.p1==nil and SAO.Controller.agents.p1==nil and r.bodyRelease==nil,
@@ -183,10 +204,31 @@ do
  local restored=SAO.Body.get('p1')
  assert(restored and restored.payload=='carried' and restored.elapsed==3,
    'harness did not restore current person')
+ assert(restored.visual=='current-look' and restored.visualRestoredAfter=='carried',
+   'appearance did not restore after native state')
  assert(restored.perk==7,'profession granted twice after native restore')
  assert(__restored==1 and not restored.randomDress and SAO.Controller.agents.p1,
    'restore duplicated or dressed new person')
  __rematerialize() assert(__restored==1,'active body restored twice')
+end
+for _,mode in ipairs({'false','throw'}) do
+ local r,b=__setup() r.bodyVisual='VIS:dyed-look'
+ SAO.Body.active={} SAO.Controller.agents={}
+ __visualRestore=mode __remove='false'
+ assert(SAO.Body.materialize(r)==nil,'failed visual restore exposed body')
+ assert(SAO.Body.active.p1 and SAO.Body.failedRestore.p1 and SAO.Body.get('p1')==nil,
+   'failed visual restore lost cleanup ownership')
+ assert(r.bodyVisual=='VIS:dyed-look' and r.hibernation=='SNAP:previous'
+   and __accounted==0,'failed visual restore changed saved person')
+ __visualRestore='ok' __remove='ok' __expectRestoredVisual='dyed-look'
+ local restored=SAO.Body.materialize(r)
+ assert(restored and restored.visual=='dyed-look' and restored.visualRestoredAfter=='previous',
+   'visual restore retry lost saved appearance')
+end
+do
+ local r=__setup() SAO.Body.active={} SAO.Controller.agents={}
+ local restored=SAO.Body.materialize(r)
+ assert(restored and __visualRestored==0,'legacy missing visual rejected or invented')
 end
 for _,mode in ipairs({'false','throw'}) do
  local r,b=__setup() SAO.Body.release(r) local x=r.x
@@ -346,6 +388,10 @@ def main():
              'harness dropped early'),
             ('SAO_Body.lua','return SAOJavaBridge:awaken(body, rec.hibernation, elapsed)',
              'return "AWAKENED skipped"','harness did not restore current person'),
+            ('SAO_Body.lua','if pending.visual ~= nil then rec.bodyVisual = pending.visual end',
+             '', 'release lost captured appearance'),
+            ('SAO_Body.lua','if not ok or restored ~= true then',
+             'if false then', 'failed visual restore exposed body'),
             ('SAO_Harness.lua','if not ok then log("forget refused: " .. tostring(reason)) return end',
              'if not ok then log("forget refused: " .. tostring(reason)) end',
              'failed clear orphaned person'),

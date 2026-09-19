@@ -16,9 +16,9 @@ the machine. Names, dates, and threads below come from
 | Form | `major.minor.kohai.patch-maturity` |
 | Hard caps | minor 12; kohai 16; patch 24 |
 | Replay start | `0.1.0.0-pre-alpha` |
-| Current version | `2.7.14.2-pre-alpha` |
-| Closed chronology | `A1-C51` |
-| Next batch | `C52` |
+| Current version | `2.7.14.3-pre-alpha` |
+| Closed chronology | `A1-C52` |
+| Next batch | `C53` |
 | Executable source | [`tools/version_replay.py`](tools/version_replay.py) |
 
 ## Tier meanings
@@ -167,6 +167,7 @@ the machine. Names, dates, and threads below come from
 | `C49` | 2026-09-14 | kohai | `2.7.14.0-pre-alpha` | Brain health integration | Attempted the requested event-driven brain-health integration and visualization. The off switch is repaired, but the model remains disputed: update partition changes the outcome, authoritative pathogen state is read from the wrong owner, loaded health inputs are stale, and lifetime poison is reapplied as current damage. The scalar display and incomplete consumers do not fulfill the requested graph. |
 | `C50` | 2026-09-18 | patch | `2.7.14.1-pre-alpha` | Historical simulation recovery and evidence | Removed the rejected fixed-formula trajectory generator and repaired catch-up progress, company admission and diagnostic evidence refusal and provenance. Preserve the verified repairs and independent 90/365-day observations within their stated limits. No learned model or completed ML bridge resulted. The audit also identifies unresolved time consumers, population refill assumptions, the older decision exporter and missing life-simulation producers. |
 | `C51` | 2026-09-19 | patch | `2.7.14.2-pre-alpha` | Person preservation | Repaired person capture, teardown and restoration ownership; native supported-state snapshots preserve inventory, wounds, statistics and experience with controlled failure and legacy compatibility. |
+| `C52` | 2026-09-19 | patch | `2.7.14.3-pre-alpha` | Authorized afflicted return | Repaired Afflicted return as one authorized, durable transfer: ZAO retains the exact turned source until SAO restores supported living state, reaches critical viability with injuries preserved, and adopts the one returning person. This closes the existing return capability without crediting the still-unreachable and incomplete Crossed action system. |
 
 ## The former number
 
@@ -187,11 +188,11 @@ establish release maturity.
 
 ## Next movement
 
-`C52` is the next batch. Its content determines its tier after it
+`C53` is the next batch. Its content determines its tier after it
 exists:
 
-| If C52 is | Result |
+| If C53 is | Result |
 |---|---|
-| patch or hotfix | `2.7.14.3-pre-alpha` |
+| patch or hotfix | `2.7.14.4-pre-alpha` |
 | kohai | `2.7.15.0-pre-alpha` |
 | minor | `2.8.0.0-pre-alpha` |
