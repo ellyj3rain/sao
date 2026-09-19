@@ -30,7 +30,7 @@ MUTATIONS = [
     ("reuse-fitness-component",
      "Fitness fitness = new Fitness(shell);",
      "Fitness fitness = shell.getFitness();",
-     "fitness continuation state and fresh update baseline"),
+     "fitness continuation state"),
     ("omit-learning-state",
      "restoreLearning(shell, sections[7]);",
      "/* missing learning restore */",

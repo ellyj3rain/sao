@@ -363,6 +363,15 @@ public final class PersonSnapshotProbe {
         affectedParts.add("arms");
         exerciseTimes.put("pushups", 123456789L);
         set(fitness, zombie.characters.BodyDamage.Fitness.class, "lastUpdate", 99);
+        var exerciseTable = (se.krka.kahlua.j2se.KahluaTableImpl)
+                zombie.Lua.LuaManager.platform.newTable();
+        exerciseTable.rawset("type", "pushups");
+        exerciseTable.rawset("metabolics", null);
+        exerciseTable.rawset("stiffness", "arms");
+        exerciseTable.rawset("xpMod", 1.0d);
+        set(fitness, zombie.characters.BodyDamage.Fitness.class, "currentExe",
+                new zombie.characters.BodyDamage.Fitness.FitnessExercise(exerciseTable));
+        check(fitness.getCurrentExe() != null, "fitness action fixture did not start");
 
         source.getKnownRecipes().add("C54.MissingRecipeStillKnown");
         source.addKnownMediaLine("C54.Media.Line");
@@ -559,9 +568,10 @@ public final class PersonSnapshotProbe {
                 && !((java.util.List<String>) value(restoredFitness,
                     zombie.characters.BodyDamage.Fitness.class, "bodypartToIncStiffness"))
                     .contains("stale-destination")
+                && restoredFitness.getCurrentExe() == null
                 && (Integer) value(restoredFitness, zombie.characters.BodyDamage.Fitness.class,
                     "lastUpdate") == -1,
-                "fitness continuation state and fresh update baseline");
+                "fitness continuation state, cancelled action and fresh update baseline");
         check(restored.getKnownRecipes().contains("C54.MissingRecipeStillKnown")
                 && restored.isKnownMediaLine("C54.Media.Line")
                 && restored.getAlreadyReadPages("C54.Book") == 37
@@ -602,8 +612,9 @@ public final class PersonSnapshotProbe {
         check(repeatedTreatment.rawget("dose").equals(2.5d)
                 && "second-runtime-id".equals(repeated.getModData().rawget("SAOPersonId"))
                 && repeated.getAlreadyReadPages("C54.Book") == 37
-                && repeated.getFitness().getRegularity("pushups") == .73f,
-                "repeated wake and ModData alias isolation");
+                && repeated.getFitness().getRegularity("pushups") == .73f
+                && repeated.getFitness().getCurrentExe() == null,
+                "repeated wake, cancelled action and ModData alias isolation");
 
         zombie.GameTime.getInstance().updateCalendar(1993, 0, 1, 12, 0);
         restored.getFitness().update();

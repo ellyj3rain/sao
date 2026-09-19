@@ -19,9 +19,14 @@ function GraphPersistence.store()
     store.communication = store.communication or {}
     store.player = store.player or {}
 
-    store.branching.surfaces = store.branching.surfaces or {}
-    store.branching.pressures = store.branching.pressures or {}
-    store.branching.branches = store.branching.branches or {}
+    -- [C55] Readers and weights are runtime code. Kahlua omits functions
+    -- while serializing, so keeping these registries in ModData left a table
+    -- that looked populated before save and came back as broken branch shells.
+    -- Old saves are migrated by dropping the three runtime projections; the
+    -- durable pattern and office history remains bound below.
+    store.branching.surfaces = nil
+    store.branching.pressures = nil
+    store.branching.branches = nil
     store.branching.patterns = store.branching.patterns or {}
     store.branching.offices = store.branching.offices or {}
 
@@ -43,9 +48,6 @@ function GraphPersistence.bind()
     if not store then return false end
 
     if SAO.Branching then
-        SAO.Branching.surfaces = store.branching.surfaces
-        SAO.Branching.pressures = store.branching.pressures
-        SAO.Branching.branches = store.branching.branches
         SAO.Branching.patterns = store.branching.patterns
         SAO.Branching.offices = store.branching.offices
     end
@@ -76,8 +78,17 @@ function GraphPersistence.bind()
     return true
 end
 
-Events.OnGameStart.Add(function()
-    GraphPersistence.bind()
-end)
+-- GlobalModData has just replaced its tables when this fires. Rebind the
+-- durable owners immediately; Integration rebuilds executable registries at
+-- OnGameStart, after every shared module has registered its extension.
+if Events and Events.OnInitGlobalModData then
+    if GraphPersistence.onInitGlobalModData then
+        Events.OnInitGlobalModData.Remove(GraphPersistence.onInitGlobalModData)
+    end
+    GraphPersistence.onInitGlobalModData = function()
+        GraphPersistence.bind()
+    end
+    Events.OnInitGlobalModData.Add(GraphPersistence.onInitGlobalModData)
+end
 
 return GraphPersistence

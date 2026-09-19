@@ -80,6 +80,20 @@ local function store()
     return s
 end
 
+-- [C55] The stream belongs to the durable store of one world. A same-VM
+-- world replacement must not keep advancing the table object it just left.
+function R.rebindWorld()
+    memo = nil
+end
+
+if Events and Events.OnInitGlobalModData then
+    if R.onInitGlobalModData then
+        Events.OnInitGlobalModData.Remove(R.onInitGlobalModData)
+    end
+    R.onInitGlobalModData = function() R.rebindWorld() end
+    Events.OnInitGlobalModData.Add(R.onInitGlobalModData)
+end
+
 -- The save's own identity, as text.
 --
 -- `IsoWorld.getWorld()` is the save's folder name and is unique per

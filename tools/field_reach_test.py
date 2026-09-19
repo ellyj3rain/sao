@@ -81,6 +81,8 @@ READ_ELSEWHERE = {
     "greyApplied": "SAO_Appearance guards its own one-shot with it",
     "knowsTradeGround": "recorded for telemetry and the record; the "
                         "county does not act on it yet",
+    "returnSaveTouched": "ZAO's ZAOSaveGeneration selects identities that "
+                         "entered the cross-file return protocol",
 }
 
 

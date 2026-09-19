@@ -113,6 +113,10 @@ BOUNDED = {
         "one building at a time as a person actually stands in it; a "
         "group is at most the county, so the widest honest bound is a "
         "town's own buildings - the map's number, not the code's",
+    ("SAO_Integration.lua", "ids"):
+        "stable runtime extension ids; registerExtension enforces an "
+        "EXTENSION_CEILING of 128 and ensure refuses an inherited registry "
+        "above that ceiling before sorting",
 }
 
 

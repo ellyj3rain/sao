@@ -1932,6 +1932,13 @@ if ! "$PY" tools/person_continuity_test.py; then
     fail=1
 fi
 
+# [C55] Border 170 - durable owners reconstruct executable/runtime projections;
+# save interruption and a same-process world change retain no stale handles.
+if ! "$PY" tools/runtime_reconstruction_test.py; then
+    note "BORDER FINDING - runtime reconstruction failed"
+    fail=1
+fi
+
 # Border 103 - the operator's speech is not in the repository: no
 # profanity in the tracked tree and no operator-quote attributions;
 # rulings are paraphrased content, speech stays with the speaker.

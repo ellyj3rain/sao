@@ -85,6 +85,7 @@ local function tally(kind) SAO.Log.tally("HISTORY", kind) end
 -- got. Memoised on success only: a bare VM has no ModData and must
 -- keep falling through rather than caching the absence.
 local storeMemo = nil
+local behindMemo = nil
 local function yearsState()
     if storeMemo ~= nil then return storeMemo end
     local ok, s = pcall(function()
@@ -149,13 +150,28 @@ end
 -- a save, so it is asked once; a bridge that is not up yet answers
 -- nothing and is asked again next time rather than being remembered
 -- as zero.
-local behindMemo = nil
 local function hoursBehind()
     if behindMemo then return behindMemo end
     local days = H.daysOwed()
     if days < 0 then return 0 end
     behindMemo = days * 24.0
     return behindMemo
+end
+
+-- [C55] GlobalModData replaces the table object on world load. The normal
+-- world change also creates a fresh Lua environment, but this explicit seam
+-- keeps a same-environment rebind from reading the preceding world's clock.
+function H.rebindWorld()
+    storeMemo = nil
+    behindMemo = nil
+end
+
+if Events and Events.OnInitGlobalModData then
+    if H.onInitGlobalModData then
+        Events.OnInitGlobalModData.Remove(H.onInitGlobalModData)
+    end
+    H.onInitGlobalModData = function() H.rebindWorld() end
+    Events.OnInitGlobalModData.Add(H.onInitGlobalModData)
 end
 
 -- The county's clock, in hours. Never negative and never goes

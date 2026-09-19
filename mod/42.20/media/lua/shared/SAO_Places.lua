@@ -727,4 +727,12 @@ function Pl.reset()
     cellSpanCache = nil
 end
 
+if Events and Events.OnInitGlobalModData then
+    if Pl.onInitGlobalModData then
+        Events.OnInitGlobalModData.Remove(Pl.onInitGlobalModData)
+    end
+    Pl.onInitGlobalModData = function() Pl.reset() end
+    Events.OnInitGlobalModData.Add(Pl.onInitGlobalModData)
+end
+
 return Pl

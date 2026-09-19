@@ -72,6 +72,9 @@ local function begin(rec)
     if source then x, y, z = source:getX(), source:getY(), source:getZ() end
     local hours = SAO.History.countyHours()
     if not (finite(x) and finite(y) and finite(z) and finite(hours)) then return false, "invalid-return-position" end
+    -- The marker remains after completion or cancellation so the cross-file
+    -- save journal can carry an explicit tombstone for an absent ZAO source.
+    rec.returnSaveTouched = true
     rec.returnTransition = { version = 1, event = event.token,
         token = rec.id .. ":" .. event.token, phase = "preparing", source = kind, destination = kind,
         x = x, y = y, z = z, hours = hours, living = living }
@@ -269,7 +272,9 @@ function Return.adopt(day)
     return adopted
 end
 
-Events.OnGameStart.Add(function() Return.resumePending() end)
+if Return.onGameStart then Events.OnGameStart.Remove(Return.onGameStart) end
+Return.onGameStart = function() Return.resumePending() end
+Events.OnGameStart.Add(Return.onGameStart)
 
 -- [C116] The marks on every live afflicted body, once per county day.
 -- The afflicted are not only the returned: a live infected person the

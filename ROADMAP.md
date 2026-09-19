@@ -1,6 +1,6 @@
 | Document | Survivor Awareness Overhaul Roadmap |
 |---|---|
-| Version | `2.7.14.5-pre-alpha` |
+| Version | `2.7.14.6-pre-alpha` |
 | Author | ellyj3rain |
 | Repository | `ROADMAP.md` |
 | Status | CANONICAL - readiness work and retained scope. |
@@ -13,17 +13,17 @@ This follows Speakeasy RECORD entry 45. Batch closure and a green gate do not
 establish readiness where causal mechanisms are missing or contradicted by
 evidence. SESSION_STATE.md states the current assessment.
 
-## Execution plan after C51
+## Execution plan after C55
 
-The work below is planned and unfinished. Each item names an implementation
-owner, its dependency and the evidence required to close it. The detailed
+The work below is the ratified sequence; each row states whether it is closed or
+still planned. Each item names an implementation owner, its dependency and the
+evidence required to close it. The detailed
 mechanisms and bounded investigations are in [SUBSTRATE.md](SUBSTRATE.md#implementation-contracts).
 R identifiers refer to work in this plan; batch identifiers follow coherent
 implementation units when those units close. They do not reserve future batches.
 
-**Immediate execution:** R1 closed in SAO C52 / ZAO A35, R2 in C53 and R3 in
-C54. R4 now establishes durable/runtime reconstruction. R11-R12 can proceed
-alongside that work.
+**Immediate execution:** R1 closed in SAO C52 / ZAO A35, R2 in C53, R3 in
+C54 and R4 in C55 / ZAO A36. R5 is next. R11-R12 can proceed alongside it.
 
 R1's [evidence record](artifacts/audits/20260919-0735Z-0035PST-r1-return-evidence/README.md)
 names the implemented mechanisms, controls, native-source continuation and the
@@ -38,7 +38,7 @@ rather than indefinite deferrals.
 | **R1. Authorized return — SAO + ZAO (closed C52/A35)** | C51 | Quiesce the old owner and incoming actions; stage/validate current state under a paused owner; acknowledge old-body teardown; then publish/adopt once. Enumerate durable eligible people for bodyless recovery. Refusal, partial cleanup, reload and retry preserve one owner and never duplicate possessions. Ordinary dead records remain refused. |
 | **R2. Shared time — SAO; ZAO consumers (closed C53)** | C51 | Inventory clock readers and durable timestamps; make decision-time reads current within every historical substep; convert the WorldGenesis day argument at its boundary. Separate engine pacing from county time. Test actual callback order, day-zero on/off, nondefault day length, midnight, partial catch-up and reload. |
 | **R3. Complete person persistence — SAO (closed C54)** | C51; R2 for next-update proof | The v4 snapshot owns nutrition, fitness, appearance, recipes, every reading collection, descriptor perk boosts and declared durable character metadata. Per-item native fluid facts validate mixtures as well as item identity. v1-v3 remain readable; absent fields carry migration provenance. Border 169 proves zero-time fidelity, repeated wakes, the next fitness/nutrition/XP updates, missing definitions and failure recovery. |
-| **R4. Durable/runtime ownership — SAO + ZAO** | R1-R3 | Inventory each durable table, temporary registry and reconstruction caller. Keep callback registrations outside serialized history; register extensions explicitly at startup. Verify actual serialization/reload, owner reconstruction, pending actions and same-process world changes without duplicating callbacks or retaining prior-world records. |
+| **R4. Durable/runtime ownership — SAO + ZAO (closed C55/A36)** | R1-R3 | Function-bearing callbacks remain outside serialized history and extensions re-register by stable ID. Startup reconstructs caches, graph registries, controllers, courses and Java runtime maps without retaining the prior world. Save-time corpses materialize before serialization; pending fitness work cancels without credit. A write-ahead generation journal reconciles Afflicted-return records across every old/new native/global save pairing. Borders 170 and 8 execute actual serialization, new Lua environments, second worlds, engine lifecycle order, corrupt/missing journal refusal and repeated replay. |
 | **R5. Health and dormant physiology — SAO + ZAO** | R2-R3; R4 for persistence | Repair daily scheduling and frozen abstinence; read current physical inputs and ZAO-owned pathogen state; integrate exposures over elapsed intervals. Replace the Crossed/Afflicted three-tile daily proxy with an intentional exposure result produced by an actual action; no spontaneous Afflicted roll exists. Implement the event-derived brain-health history, effects and graph. Reconcile dormant food/drink consumption with quantity, nutrition and spoilage. Equal event histories must agree across interval partitions and reload. |
 | **R10a. World sources and reconciliation — SAO** | Source inventory now; R2, R4 for runtime integration | Establish source-backed unloaded geography/resource/access state and how performed changes reconcile when chunks load. Explicitly represent missing data. This supplies the world substrate needed by dormant R6/R9 proofs before historical integration. |
 | **R6. Perception and access — SAO** | R2 for timestamps; R10a for dormant proof; loaded repair can begin now | Correct actual animal/human scan output, prone/deactivation reads, partner visibility/floor checks and moving/locked vehicle sources. Keep acquisition, permission and physical access distinct. Prove hidden, stale or inaccessible facts cannot offer an action or change its result; unavailable ground is explicit. |
