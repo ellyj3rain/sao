@@ -1,6 +1,6 @@
 | Document | Survivor Awareness Overhaul Batch Log |
 |---|---|
-| Version | `5.3.0.1-pre-alpha` |
+| Version | `2.7.14.1-pre-alpha` |
 | Author | ellyj3rain |
 | Repository | `BATCH_LOG.md` |
 | Status | REGULATORY - chronological batch index. |
@@ -19,8 +19,10 @@ This catalog was recatalogued at the seam. The raw sequence - written at the
 rate of a diary, several notes to a single piece of work - was consolidated
 into units by adjacency and content; [`Batches/FORMER_LABELS.md`](Batches/FORMER_LABELS.md)
 maps every former identifier to its destination with the treatment applied.
-The assistant that produced the raw sequence fragmented the work; that is the
-attribution for every merged entry, stated here rather than in a branch name.
+The C sequence was consolidated on 2026-09-19 using the same adjacency and
+content rule. Its 127 former entries become 50 units. The raw C records remain
+in the local archive ref; `Batches/C_RECATALOG.json` preserves the complete
+source mapping and hashes. Consolidation does not close implementation defects.
 
 | Batch | Date | Name | Threads |
 |---|---|---|---|
@@ -105,130 +107,53 @@ attribution for every merged entry, stated here rather than in a branch name.
 | [B50](Batches/B50-2026-08-28-engine-behavior-facts-bridge-throw-graph.md) | 2026-08-28 | Engine behavior facts; bridge throw graph | [`T-008`](Batches/THREADS.md#t-008) |
 | [B51](Batches/B51-2026-08-28-death-time-cleanup-derived-art-dead-relation-rows-save-protocol.md) | 2026-08-28 | Death-time cleanup; derived art; dead-relation rows; save-protocol border | [`T-030`](Batches/THREADS.md#t-030) |
 | [B52](Batches/B52-2026-08-28-derived-counts-distance-naming-scout-completeness-answer-domain.md) | 2026-08-28 | Derived counts; distance naming; scout completeness; answer-domain closure | [`T-030`](Batches/THREADS.md#t-030) |
-| [C1](Batches/C1-2026-08-28-catalog-consistency-and-the-three-maps.md) | 2026-08-28 | Catalog consistency and the three maps | [`T-030`](Batches/THREADS.md#t-030) |
-| [C2](Batches/C2-2026-08-28-the-version-machine.md) | 2026-08-28 | The version machine | [`T-030`](Batches/THREADS.md#t-030) |
-| [C3](Batches/C3-2026-08-28-one-person-one-name-the-neighbour-folded.md) | 2026-08-28 | One person, one name; the neighbour folded | [`T-006`](Batches/THREADS.md#t-006) |
-| [C4](Batches/C4-2026-08-28-follow-through-the-crossing-the-wheels-fold-in.md) | 2026-08-28 | Follow through the crossing; the wheels fold in | [`T-001`](Batches/THREADS.md#t-001), [`T-006`](Batches/THREADS.md#t-006) |
-| [C5](Batches/C5-2026-08-29-the-spoken-word-and-the-swallowed-functions.md) | 2026-08-29 | The spoken word, and the swallowed functions | [`T-005`](Batches/THREADS.md#t-005), [`T-006`](Batches/THREADS.md#t-006) |
-| [C6](Batches/C6-2026-08-29-the-inspect-harness.md) | 2026-08-29 | The inspect harness | [`T-009`](Batches/THREADS.md#t-009) |
-| [C7](Batches/C7-2026-08-29-superimposed-not-beside.md) | 2026-08-29 | Superimposed, not beside | [`T-006`](Batches/THREADS.md#t-006) |
-| [C8](Batches/C8-2026-08-29-the-turn-is-real.md) | 2026-08-29 | The turn is real | [`T-002`](Batches/THREADS.md#t-002), [`T-008`](Batches/THREADS.md#t-008) |
-| [C9](Batches/C9-2026-08-29-the-pool-is-only-the-fungible-crowd.md) | 2026-08-29 | The pool is only the fungible crowd | [`T-007`](Batches/THREADS.md#t-007), [`T-008`](Batches/THREADS.md#t-008) |
-| [C10](Batches/C10-2026-08-29-the-promise-swings-at-the-body.md) | 2026-08-29 | The promise swings at the body | [`T-002`](Batches/THREADS.md#t-002), [`T-006`](Batches/THREADS.md#t-006) |
-| [C11](Batches/C11-2026-08-29-the-bite-kills-on-the-engines-clock.md) | 2026-08-29 | The bite kills on the engine's clock | [`T-002`](Batches/THREADS.md#t-002), [`T-008`](Batches/THREADS.md#t-008) |
-| [C12](Batches/C12-2026-08-29-the-front-end-speaks-player.md) | 2026-08-29 | The front end speaks player | [`T-030`](Batches/THREADS.md#t-030) |
-| [C13](Batches/C13-2026-08-29-no-claudeisms-in-the-copy.md) | 2026-08-29 | No Claude-isms in the copy | [`T-030`](Batches/THREADS.md#t-030) |
-| [C14](Batches/C14-2026-08-29-the-sweep-round-one.md) | 2026-08-29 | The sweep, round one | [`T-008`](Batches/THREADS.md#t-008), [`T-030`](Batches/THREADS.md#t-030) |
-| [C15](Batches/C15-2026-08-29-whole-minds-survive-the-reload.md) | 2026-08-29 | Whole minds survive the reload | [`T-006`](Batches/THREADS.md#t-006) |
-| [C16](Batches/C16-2026-08-29-the-dead-census.md) | 2026-08-29 | The dead census | [`T-007`](Batches/THREADS.md#t-007), [`T-009`](Batches/THREADS.md#t-009) |
-| [C17](Batches/C17-2026-08-29-the-crowd-ledger.md) | 2026-08-29 | The crowd ledger | [`T-007`](Batches/THREADS.md#t-007) |
-| [C18](Batches/C18-2026-08-29-the-first-play-receipts.md) | 2026-08-29 | The first play receipts | [`T-001`](Batches/THREADS.md#t-001), [`T-008`](Batches/THREADS.md#t-008) |
-| [C19](Batches/C19-2026-08-29-partial-receipts-are-receipts.md) | 2026-08-29 | Partial receipts are receipts | [`T-030`](Batches/THREADS.md#t-030) |
-| [C20](Batches/C20-2026-08-29-the-county-takes-them-whole.md) | 2026-08-29 | The county takes them whole | [`T-007`](Batches/THREADS.md#t-007), [`T-006`](Batches/THREADS.md#t-006) |
-| [C21](Batches/C21-2026-08-29-fail-completely-never-his-way.md) | 2026-08-29 | Fail completely, never his way | [`T-007`](Batches/THREADS.md#t-007), [`T-030`](Batches/THREADS.md#t-030) |
-| [C22](Batches/C22-2026-08-29-the-switch-gates-the-field.md) | 2026-08-29 | The switch gates the field | [`T-030`](Batches/THREADS.md#t-030) |
-| [C23](Batches/C23-2026-08-29-deleted-not-greyed.md) | 2026-08-29 | Deleted, not greyed | [`T-030`](Batches/THREADS.md#t-030) |
-| [C24](Batches/C24-2026-08-29-the-anchor-was-never-there.md) | 2026-08-29 | The anchor was never there | [`T-030`](Batches/THREADS.md#t-030) |
-| [C25](Batches/C25-2026-08-29-need-reaches-for-what-they-know.md) | 2026-08-29 | Need reaches for what they know | [`T-003`](Batches/THREADS.md#t-003), [`T-001`](Batches/THREADS.md#t-001) |
-| [C26](Batches/C26-2026-08-29-the-click-lands-and-the-line-holds.md) | 2026-08-29 | The click lands and the line holds | [`T-004`](Batches/THREADS.md#t-004), [`T-006`](Batches/THREADS.md#t-006) |
-| [C27](Batches/C27-2026-08-30-what-one-person-knows-as-one-surface.md) | 2026-08-30 | What one person knows, as one surface | [`T-005`](Batches/THREADS.md#t-005), [`T-006`](Batches/THREADS.md#t-006) |
-| [C28](Batches/C28-2026-08-30-the-inference-budget-instrument.md) | 2026-08-30 | The inference budget instrument | [`T-005`](Batches/THREADS.md#t-005), [`T-008`](Batches/THREADS.md#t-008) |
-| [C29](Batches/C29-2026-09-06-the-body-is-scaled-from-inside-the-animation-player.md) | 2026-09-06 | The body is scaled from inside the animation player | [`T-002`](Batches/THREADS.md#t-002), [`T-007`](Batches/THREADS.md#t-007), [`T-008`](Batches/THREADS.md#t-008) |
-| [C30](Batches/C30-2026-09-06-age-is-a-system-on-the-countys-people.md) | 2026-09-06 | Age is a system on the county's people | [`T-002`](Batches/THREADS.md#t-002), [`T-007`](Batches/THREADS.md#t-007), [`T-006`](Batches/THREADS.md#t-006) |
-| [C31](Batches/C31-2026-09-06-the-childs-day.md) | 2026-09-06 | The child's day | [`T-002`](Batches/THREADS.md#t-002), [`T-007`](Batches/THREADS.md#t-007), [`T-006`](Batches/THREADS.md#t-006) |
-| [C32](Batches/C32-2026-09-06-conditions-are-facts-about-a-person.md) | 2026-09-06 | Conditions are facts about a person | [`T-002`](Batches/THREADS.md#t-002), [`T-007`](Batches/THREADS.md#t-007), [`T-006`](Batches/THREADS.md#t-006) |
-| [C33](Batches/C33-2026-09-06-habits-are-facts-about-a-person.md) | 2026-09-06 | Habits are facts about a person | [`T-002`](Batches/THREADS.md#t-002), [`T-007`](Batches/THREADS.md#t-007), [`T-006`](Batches/THREADS.md#t-006) |
-| [C34](Batches/C34-2026-09-06-the-moment-carries-the-strain.md) | 2026-09-06 | The moment carries the strain | [`T-007`](Batches/THREADS.md#t-007), [`T-002`](Batches/THREADS.md#t-002) |
-| [C35](Batches/C35-2026-09-07-the-countys-gestures.md) | 2026-09-07 | The county's gestures | [`T-002`](Batches/THREADS.md#t-002), [`T-007`](Batches/THREADS.md#t-007) |
-| [C36](Batches/C36-2026-09-07-the-record-on-the-countys-calendar.md) | 2026-09-07 | The record on the county's calendar | [`T-002`](Batches/THREADS.md#t-002), [`T-006`](Batches/THREADS.md#t-006) |
-| [C37](Batches/C37-2026-09-07-an-order-lands-through-standing.md) | 2026-09-07 | An order lands through standing | [`T-004`](Batches/THREADS.md#t-004), [`T-006`](Batches/THREADS.md#t-006) |
-| [C38](Batches/C38-2026-09-07-the-era-remembered.md) | 2026-09-07 | The era remembered | [`T-002`](Batches/THREADS.md#t-002), [`T-006`](Batches/THREADS.md#t-006) |
-| [C39](Batches/C39-2026-09-07-the-conditions-are-saos-own.md) | 2026-09-07 | The conditions are SAO's own | [`T-007`](Batches/THREADS.md#t-007), [`T-006`](Batches/THREADS.md#t-006) |
-| [C40](Batches/C40-2026-09-07-the-county-stands-on-its-own.md) | 2026-09-07 | The county stands on its own | [`T-030`](Batches/THREADS.md#t-030), [`T-007`](Batches/THREADS.md#t-007) |
-| [C41](Batches/C41-2026-09-07-the-world-before-the-spawn.md) | 2026-09-07 | The world before the spawn | [`T-007`](Batches/THREADS.md#t-007), [`T-002`](Batches/THREADS.md#t-002) |
-| [C42](Batches/C42-2026-09-07-before-the-fall-an-ordinary-life.md) | 2026-09-07 | Before the fall, an ordinary life | [`T-002`](Batches/THREADS.md#t-002), [`T-004`](Batches/THREADS.md#t-004) |
-| [C43](Batches/C43-2026-09-07-the-records-timeline-shifts-to-the-game.md) | 2026-09-07 | The record's timeline moves onto the start date | [`T-002`](Batches/THREADS.md#t-002), [`T-005`](Batches/THREADS.md#t-005) |
-| [C44](Batches/C44-2026-09-07-they-either-build-or-they-do-not.md) | 2026-09-07 | They either build or they do not | [`T-003`](Batches/THREADS.md#t-003), [`T-004`](Batches/THREADS.md#t-004) |
-| [C45](Batches/C45-2026-09-07-the-years-between.md) | 2026-09-07 | The years between | [`T-007`](Batches/THREADS.md#t-007), [`T-002`](Batches/THREADS.md#t-002) |
-| [C46](Batches/C46-2026-09-07-the-ground-is-read-during-the-years.md) | 2026-09-07 | The ground is read during the years | [`T-007`](Batches/THREADS.md#t-007), [`T-003`](Batches/THREADS.md#t-003) |
-| [C47](Batches/C47-2026-09-07-the-fence.md) | 2026-09-07 | The fence | [`T-006`](Batches/THREADS.md#t-006), [`T-002`](Batches/THREADS.md#t-002) |
-| [C48](Batches/C48-2026-09-07-how-hard-a-place-is-to-get-into.md) | 2026-09-07 | How hard a place is to get into | [`T-004`](Batches/THREADS.md#t-004), [`T-003`](Batches/THREADS.md#t-003) |
-| [C49](Batches/C49-2026-09-07-survivor-orders-use-the-command-check.md) | 2026-09-07 | Survivor orders use the command check | [`T-004`](Batches/THREADS.md#t-004), [`T-006`](Batches/THREADS.md#t-006) |
-| [C50](Batches/C50-2026-09-07-what-a-survivor-says-follows-what-they-have-learned.md) | 2026-09-07 | What a survivor says follows what they have learned | [`T-002`](Batches/THREADS.md#t-002), [`T-007`](Batches/THREADS.md#t-007) |
-| [C51](Batches/C51-2026-09-07-the-habits-are-the-players-too.md) | 2026-09-07 | The habits are the player's too | [`T-002`](Batches/THREADS.md#t-002), [`T-007`](Batches/THREADS.md#t-007) |
-| [C52](Batches/C52-2026-09-08-psychosis-and-insomnia-get-their-figures.md) | 2026-09-08 | Psychosis and insomnia get their figures | [`T-002`](Batches/THREADS.md#t-002) |
-| [C53](Batches/C53-2026-09-08-who-goes-along-weighs-who-is-asking.md) | 2026-09-08 | Who goes along weighs who is asking | [`T-002`](Batches/THREADS.md#t-002), [`T-004`](Batches/THREADS.md#t-004) |
-| [C54](Batches/C54-2026-09-08-the-objection-picks-the-car.md) | 2026-09-08 | The objection picks the car | [`T-003`](Batches/THREADS.md#t-003), [`T-002`](Batches/THREADS.md#t-002) |
-| [C55](Batches/C55-2026-09-08-seeing-a-death-is-not-seeing-who-did-it.md) | 2026-09-08 | Seeing a death is not seeing who did it | [`T-001`](Batches/THREADS.md#t-001), [`T-007`](Batches/THREADS.md#t-007) |
-| [C56](Batches/C56-2026-09-08-borders-skip-when-the-game-is-absent.md) | 2026-09-08 | Borders skip when the game is absent | [`T-030`](Batches/THREADS.md#t-030) |
-| [C57](Batches/C57-2026-09-08-a-skip-is-not-a-vacuous-pass.md) | 2026-09-08 | A skip is not a vacuous pass | [`T-030`](Batches/THREADS.md#t-030) |
-| [C58](Batches/C58-2026-09-08-the-codeql-action-halves-travel-together.md) | 2026-09-08 | The codeql-action halves travel together | [`T-030`](Batches/THREADS.md#t-030) |
-| [C59](Batches/C59-2026-09-08-main-is-protected-and-batches-arrive-by-pull-request.md) | 2026-09-08 | Main is protected and batches arrive by pull request | [`T-030`](Batches/THREADS.md#t-030) |
-| [C60](Batches/C60-2026-09-08-the-players-looting-spends-a-place.md) | 2026-09-08 | The player's looting spends a place | [`T-003`](Batches/THREADS.md#t-003) |
-| [C61](Batches/C61-2026-09-08-one-clock-for-how-long-this-has-been-going-on.md) | 2026-09-08 | One clock for how long this has been going on | [`T-002`](Batches/THREADS.md#t-002), [`T-005`](Batches/THREADS.md#t-005) |
-| [C62](Batches/C62-2026-09-08-one-clock-for-the-county-and-the-years-pass-moves-it.md) | 2026-09-08 | One clock for the county, and the years pass moves it | [`T-007`](Batches/THREADS.md#t-007), [`T-002`](Batches/THREADS.md#t-002) |
-| [C63](Batches/C63-2026-09-08-a-day-zero-start-owes-no-years.md) | 2026-09-08 | A day-zero start owes no years | [`T-002`](Batches/THREADS.md#t-002), [`T-007`](Batches/THREADS.md#t-007) |
-| [C64](Batches/C64-2026-09-08-the-blanket-claim-is-gone-from-every-document-that-carried-it.md) | 2026-09-08 | The blanket claim is gone from every document that carried it | [`T-030`](Batches/THREADS.md#t-030) |
-| [C65](Batches/C65-2026-09-08-the-years-pass-leaves-a-trajectory.md) | 2026-09-08 | The years pass leaves a trajectory | [`T-009`](Batches/THREADS.md#t-009), [`T-007`](Batches/THREADS.md#t-007) |
-| [C66](Batches/C66-2026-09-08-the-county-carries-its-own-randomness.md) | 2026-09-08 | The county carries its own randomness | [`T-007`](Batches/THREADS.md#t-007), [`T-009`](Batches/THREADS.md#t-009) |
-| [C67](Batches/C67-2026-09-08-founding-a-company-dissolved-it.md) | 2026-09-08 | Founding a company dissolved it | [`T-004`](Batches/THREADS.md#t-004), [`T-008`](Batches/THREADS.md#t-008) |
-| [C68](Batches/C68-2026-09-08-a-death-leaves-the-company.md) | 2026-09-08 | A death leaves the company | [`T-004`](Batches/THREADS.md#t-004), [`T-008`](Batches/THREADS.md#t-008) |
-| [C69](Batches/C69-2026-09-08-the-county-sweep-is-a-tool-in-the-tree.md) | 2026-09-08 | The county sweep is a tool in the tree | [`T-008`](Batches/THREADS.md#t-008), [`T-009`](Batches/THREADS.md#t-009) |
-| [C70](Batches/C70-2026-09-08-every-death-path-settles-the-house-in-one-place.md) | 2026-09-08 | Every death path settles the house in one place | [`T-004`](Batches/THREADS.md#t-004), [`T-008`](Batches/THREADS.md#t-008) |
-| [C71](Batches/C71-2026-09-08-every-person-has-their-own-belief-key.md) | 2026-09-08 | Every person has their own belief key | [`T-006`](Batches/THREADS.md#t-006), [`T-008`](Batches/THREADS.md#t-008) |
-| [C72](Batches/C72-2026-09-08-the-dormant-day-can-go-to-a-person.md) | 2026-09-08 | The dormant day can go to a person | [`T-006`](Batches/THREADS.md#t-006), [`T-004`](Batches/THREADS.md#t-004) |
-| [C73](Batches/C73-2026-09-08-a-person-is-named-when-they-are-made.md) | 2026-09-08 | A person is named when they are made | [`T-006`](Batches/THREADS.md#t-006), [`T-007`](Batches/THREADS.md#t-007) |
-| [C74](Batches/C74-2026-09-09-the-three-projects-and-what-each-owns.md) | 2026-09-09 | The three projects and what each owns | [`T-030`](Batches/THREADS.md#t-030) |
-| [C75](Batches/C75-2026-09-09-a-day-of-walking-is-a-day-of-walking.md) | 2026-09-09 | A day of walking is a day of walking | [`T-007`](Batches/THREADS.md#t-007), [`T-008`](Batches/THREADS.md#t-008) |
-| [C76](Batches/C76-2026-09-09-a-house-takes-ground-where-its-people-already-go.md) | 2026-09-09 | A house takes ground where its people already go | [`T-004`](Batches/THREADS.md#t-004), [`T-003`](Batches/THREADS.md#t-003) |
-| [C77](Batches/C77-2026-09-09-what-the-walking-costs.md) | 2026-09-09 | What the walking costs | [`T-008`](Batches/THREADS.md#t-008), [`T-009`](Batches/THREADS.md#t-009) |
-| [C78](Batches/C78-2026-09-09-the-body-fights-the-infection.md) | 2026-09-09 | The body fights the infection | [`T-007`](Batches/THREADS.md#t-007), [`T-003`](Batches/THREADS.md#t-003) |
-| [C79](Batches/C79-2026-09-09-the-unwatched-county-can-catch-it.md) | 2026-09-09 | The unwatched county can catch it | [`T-007`](Batches/THREADS.md#t-007), [`T-003`](Batches/THREADS.md#t-003) |
-| [C80](Batches/C80-2026-09-09-what-an-examiner-can-tell.md) | 2026-09-09 | What an examiner can tell | [`T-007`](Batches/THREADS.md#t-007), [`T-002`](Batches/THREADS.md#t-002) |
-| [C81](Batches/C81-2026-09-09-another-controller-holds-them.md) | 2026-09-09 | Another controller holds them | [`T-002`](Batches/THREADS.md#t-002), [`T-001`](Batches/THREADS.md#t-001) |
-| [C82](Batches/C82-2026-09-09-no-player-at-the-wheel.md) | 2026-09-09 | No player at the wheel | [`T-001`](Batches/THREADS.md#t-001), [`T-008`](Batches/THREADS.md#t-008) |
-| [C83](Batches/C83-2026-09-09-a-decision-moment-dump-beside-the-county-sweep.md) | 2026-09-09 | A decision-moment dump beside the county sweep | [`T-008`](Batches/THREADS.md#t-008), [`T-004`](Batches/THREADS.md#t-004) |
-| [C84](Batches/C84-2026-09-09-the-sister-s-first-rows-are-in.md) | 2026-09-09 | The sister's first rows are in | [`T-008`](Batches/THREADS.md#t-008), [`T-030`](Batches/THREADS.md#t-030) |
-| [C85](Batches/C85-2026-09-09-the-sister-s-rows-are-ratified.md) | 2026-09-09 | The sister's rows are ratified | [`T-008`](Batches/THREADS.md#t-008), [`T-030`](Batches/THREADS.md#t-030) |
-| [C86](Batches/C86-2026-09-10-the-engine-s-own-names-and-trades-by-mode.md) | 2026-09-10 | The engine's own names and trades, by mode | [`T-008`](Batches/THREADS.md#t-008), [`T-030`](Batches/THREADS.md#t-030) |
-| [C87](Batches/C87-2026-09-10-what-a-belief-carries.md) | 2026-09-10 | What a belief carries | [`T-006`](Batches/THREADS.md#t-006), [`T-008`](Batches/THREADS.md#t-008) |
-| [C88](Batches/C88-2026-09-10-what-decided-a-moment.md) | 2026-09-10 | What decided a moment | [`T-004`](Batches/THREADS.md#t-004), [`T-008`](Batches/THREADS.md#t-008) |
-| [C89](Batches/C89-2026-09-10-what-the-county-represents.md) | 2026-09-10 | What the county represents | [`T-004`](Batches/THREADS.md#t-004), [`T-006`](Batches/THREADS.md#t-006), [`T-008`](Batches/THREADS.md#t-008) |
-| [C90](Batches/C90-2026-09-10-organization-and-deference.md) | 2026-09-10 | Organization and deference | [`T-004`](Batches/THREADS.md#t-004), [`T-006`](Batches/THREADS.md#t-006) |
-| [C91](Batches/C91-2026-09-10-claims-and-recognition.md) | 2026-09-10 | Claims and recognition | [`T-004`](Batches/THREADS.md#t-004), [`T-006`](Batches/THREADS.md#t-006) |
-| [C92](Batches/C92-2026-09-10-the-branching-system.md) | 2026-09-10 | The branching system | [`T-004`](Batches/THREADS.md#t-004), [`T-006`](Batches/THREADS.md#t-006) |
-| [C93](Batches/C93-2026-09-10-the-dependency-substrate.md) | 2026-09-10 | The dependency substrate | [`T-008`](Batches/THREADS.md#t-008), [`T-030`](Batches/THREADS.md#t-030) |
-| [C94](Batches/C94-2026-09-10-isolation-becomes-a-live-state.md) | 2026-09-10 | Isolation becomes a live state | [`T-006`](Batches/THREADS.md#t-006), [`T-008`](Batches/THREADS.md#t-008) |
-| [C95](Batches/C95-2026-09-10-place-attachment-becomes-a-live-state.md) | 2026-09-10 | Place attachment becomes a live state | [`T-006`](Batches/THREADS.md#t-006), [`T-008`](Batches/THREADS.md#t-008) |
-| [C96](Batches/C96-2026-09-10-world-development-becomes-a-live-state.md) | 2026-09-10 | World development becomes a live state | [`T-006`](Batches/THREADS.md#t-006), [`T-008`](Batches/THREADS.md#t-008) |
-| [C97](Batches/C97-2026-09-11-the-pathogens-forms-enter-the-branching-graph.md) | 2026-09-11 | The pathogen's forms enter the branching graph | [`T-008`](Batches/THREADS.md#t-008), [`T-030`](Batches/THREADS.md#t-030) |
-| [C98](Batches/C98-2026-09-11-the-cross-module-row-exporter.md) | 2026-09-11 | The cross-module row exporter | [`T-008`](Batches/THREADS.md#t-008), [`T-030`](Batches/THREADS.md#t-030) |
-| [C99](Batches/C99-2026-09-11-the-first-cross-module-rows.md) | 2026-09-11 | The first cross-module rows | [`T-008`](Batches/THREADS.md#t-008), [`T-030`](Batches/THREADS.md#t-030) |
-| [C100](Batches/C100-2026-09-11-the-zao-state-producer.md) | 2026-09-11 | The ZAO state producer | [`T-008`](Batches/THREADS.md#t-008), [`T-030`](Batches/THREADS.md#t-030) |
-| [C101](Batches/C101-2026-09-11-the-state-surface.md) | 2026-09-11 | The state surface | [`T-008`](Batches/THREADS.md#t-008), [`T-030`](Batches/THREADS.md#t-030) |
-| [C102](Batches/C102-2026-09-11-the-form-registry-and-the-pathogen-roll.md) | 2026-09-11 | The form registry and the pathogen roll | [`T-008`](Batches/THREADS.md#t-008), [`T-030`](Batches/THREADS.md#t-030) |
-| [C103](Batches/C103-2026-09-11-the-form-overlay.md) | 2026-09-11 | The form overlay | [`T-008`](Batches/THREADS.md#t-008), [`T-030`](Batches/THREADS.md#t-030) |
-| [C104](Batches/C104-2026-09-11-perception-carries-the-form.md) | 2026-09-11 | Perception carries the form | [`T-008`](Batches/THREADS.md#t-008), [`T-030`](Batches/THREADS.md#t-030) |
-| [C105](Batches/C105-2026-09-12-the-recognition-bridge.md) | 2026-09-12 | The recognition bridge | [`T-008`](Batches/THREADS.md#t-008), [`T-030`](Batches/THREADS.md#t-030) |
-| [C106](Batches/C106-2026-09-12-the-player-verbs-of-the-house.md) | 2026-09-12 | The player verbs of the house | [`T-004`](Batches/THREADS.md#t-004), [`T-008`](Batches/THREADS.md#t-008) |
-| [C107](Batches/C107-2026-09-12-what-a-settled-house-does-with-its-ground.md) | 2026-09-12 | What a settled house does with its ground | [`T-003`](Batches/THREADS.md#t-003), [`T-008`](Batches/THREADS.md#t-008) |
-| [C108](Batches/C108-2026-09-12-the-place-ontology.md) | 2026-09-12 | The place ontology | [`T-003`](Batches/THREADS.md#t-003), [`T-004`](Batches/THREADS.md#t-004), [`T-008`](Batches/THREADS.md#t-008) |
-| [C109](Batches/C109-2026-09-12-beside-this-tree-corrected.md) | 2026-09-12 | Beside this tree, corrected | [`T-030`](Batches/THREADS.md#t-030) |
-| [C110](Batches/C110-2026-09-12-the-rulings-land.md) | 2026-09-12 | The rulings land | [`T-030`](Batches/THREADS.md#t-030) |
-| [C111](Batches/C111-2026-09-12-need-stands-alongside-trust.md) | 2026-09-12 | Need stands alongside trust | [`T-004`](Batches/THREADS.md#t-004), [`T-006`](Batches/THREADS.md#t-006) |
-| [C112](Batches/C112-2026-09-12-the-tick-is-the-countys-clock.md) | 2026-09-12 | The tick is the county's clock | [`T-002`](Batches/THREADS.md#t-002), [`T-007`](Batches/THREADS.md#t-007) |
-| [C113](Batches/C113-2026-09-13-the-street-hour-and-the-trade-s-ground.md) | 2026-09-13 | The street hour and the trade's ground | [`T-002`](Batches/THREADS.md#t-002), [`T-007`](Batches/THREADS.md#t-007) |
-| [C114](Batches/C114-2026-09-13-a-real-person-at-the-wheel.md) | 2026-09-13 | A real person at the wheel | [`T-001`](Batches/THREADS.md#t-001), [`T-002`](Batches/THREADS.md#t-002) |
-| [C115](Batches/C115-2026-09-13-the-dials-the-rulings-named.md) | 2026-09-13 | The dials the rulings named | [`T-001`](Batches/THREADS.md#t-001), [`T-004`](Batches/THREADS.md#t-004) |
-| [C116](Batches/C116-2026-09-13-the-afflicted-come-back.md) | 2026-09-13 | The afflicted come back | [`T-001`](Batches/THREADS.md#t-001), [`T-002`](Batches/THREADS.md#t-002), [`T-008`](Batches/THREADS.md#t-008) |
-| [C117](Batches/C117-2026-09-13-the-afflicted-among-the-living.md) | 2026-09-13 | The afflicted among the living | [`T-002`](Batches/THREADS.md#t-002), [`T-004`](Batches/THREADS.md#t-004), [`T-006`](Batches/THREADS.md#t-006), [`T-008`](Batches/THREADS.md#t-008) |
-| [C118](Batches/C118-2026-09-14-the-demand-the-break-in-and-the-haul.md) | 2026-09-14 | The demand, the break-in, and the haul | [`T-002`](Batches/THREADS.md#t-002), [`T-004`](Batches/THREADS.md#t-004), [`T-008`](Batches/THREADS.md#t-008) |
-| [C119](Batches/C119-2026-09-14-week-ones-moments-and-the-governments-answer.md) | 2026-09-14 | Week One's moments and the government's answer | [`T-002`](Batches/THREADS.md#t-002), [`T-004`](Batches/THREADS.md#t-004), [`T-007`](Batches/THREADS.md#t-007) |
-| [C120](Batches/C120-2026-09-14-a-child-at-the-wheel-a-ball-in-the-street.md) | 2026-09-14 | A child at the wheel, a ball in the street | [`T-001`](Batches/THREADS.md#t-001), [`T-002`](Batches/THREADS.md#t-002) |
-| [C121](Batches/C121-2026-09-14-the-carry-the-ladder-and-the-smoke-break.md) | 2026-09-14 | The carry, the ladder, and the smoke break | [`T-002`](Batches/THREADS.md#t-002), [`T-008`](Batches/THREADS.md#t-008) |
-| [C122](Batches/C122-2026-09-14-vehicles-keys-and-containers.md) | 2026-09-14 | Vehicles, keys, and containers | [`T-001`](Batches/THREADS.md#t-001), [`T-003`](Batches/THREADS.md#t-003), [`T-008`](Batches/THREADS.md#t-008) |
-| [C123](Batches/C123-2026-09-14-the-countys-animals.md) | 2026-09-14 | The county's animals | [`T-001`](Batches/THREADS.md#t-001), [`T-003`](Batches/THREADS.md#t-003), [`T-007`](Batches/THREADS.md#t-007), [`T-008`](Batches/THREADS.md#t-008) |
-| [C124](Batches/C124-2026-09-14-combat-perception-compatibility.md) | 2026-09-14 | Combat perception compatibility | [`T-006`](Batches/THREADS.md#t-006), [`T-008`](Batches/THREADS.md#t-008) |
-| [C125](Batches/C125-2026-09-14-the-neuroinflammation-knot.md) | 2026-09-14 | The neuroinflammation knot | [`T-002`](Batches/THREADS.md#t-002), [`T-006`](Batches/THREADS.md#t-006), [`T-008`](Batches/THREADS.md#t-008) |
-| [C126](Batches/C126-2026-09-14-learned-trajectory-and-headless-simulation-for-post-1993-starts.md) | 2026-09-14 | Learned trajectory and headless simulation for post-1993 starts | [`T-007`](Batches/THREADS.md#t-007), [`T-008`](Batches/THREADS.md#t-008), [`T-009`](Batches/THREADS.md#t-009) |
-| [C127](Batches/C127-2026-09-18-causal-simulation-and-evidence.md) | 2026-09-18 | Causal simulation and evidence | [`T-007`](Batches/THREADS.md#t-007), [`T-008`](Batches/THREADS.md#t-008), [`T-009`](Batches/THREADS.md#t-009) |
+| [C1](Batches/C1-2026-08-28-catalog-and-version-governance.md) | 2026-08-28 | Catalog and version governance | [`T-030`](Batches/THREADS.md#t-030) |
+| [C2](Batches/C2-2026-08-29-identity-and-execution-continuity.md) | 2026-08-29 | Identity and execution continuity | [`T-001`](Batches/THREADS.md#t-001), [`T-005`](Batches/THREADS.md#t-005), [`T-006`](Batches/THREADS.md#t-006) |
+| [C3](Batches/C3-2026-08-29-inspection-and-person-state.md) | 2026-08-29 | Inspection and person state | [`T-006`](Batches/THREADS.md#t-006), [`T-009`](Batches/THREADS.md#t-009) |
+| [C4](Batches/C4-2026-08-29-death-ownership-and-infection-timing.md) | 2026-08-29 | Death ownership and infection timing | [`T-002`](Batches/THREADS.md#t-002), [`T-006`](Batches/THREADS.md#t-006), [`T-007`](Batches/THREADS.md#t-007), [`T-008`](Batches/THREADS.md#t-008) |
+| [C5](Batches/C5-2026-08-29-player-surfaces-and-compatibility-review.md) | 2026-08-29 | Player surfaces and compatibility review | [`T-008`](Batches/THREADS.md#t-008), [`T-030`](Batches/THREADS.md#t-030) |
+| [C6](Batches/C6-2026-08-29-person-state-across-reload.md) | 2026-08-29 | Person state across reload | [`T-006`](Batches/THREADS.md#t-006) |
+| [C7](Batches/C7-2026-08-29-zombie-census-and-bounded-restitution.md) | 2026-08-29 | Zombie census and bounded restitution | [`T-007`](Batches/THREADS.md#t-007), [`T-009`](Batches/THREADS.md#t-009) |
+| [C8](Batches/C8-2026-08-29-play-evidence-and-execution-corrections.md) | 2026-08-29 | Play evidence and execution corrections | [`T-001`](Batches/THREADS.md#t-001), [`T-008`](Batches/THREADS.md#t-008), [`T-030`](Batches/THREADS.md#t-030) |
+| [C9](Batches/C9-2026-08-29-adoption-and-configuration-boundaries.md) | 2026-08-29 | Adoption and configuration boundaries | [`T-006`](Batches/THREADS.md#t-006), [`T-007`](Batches/THREADS.md#t-007), [`T-030`](Batches/THREADS.md#t-030) |
+| [C10](Batches/C10-2026-08-29-known-needs-and-social-interaction.md) | 2026-08-29 | Known needs and social interaction | [`T-001`](Batches/THREADS.md#t-001), [`T-003`](Batches/THREADS.md#t-003), [`T-004`](Batches/THREADS.md#t-004), [`T-006`](Batches/THREADS.md#t-006) |
+| [C11](Batches/C11-2026-08-30-knowledge-conditioning-and-inference-measurement.md) | 2026-08-30 | Knowledge conditioning and inference measurement | [`T-005`](Batches/THREADS.md#t-005), [`T-006`](Batches/THREADS.md#t-006), [`T-008`](Batches/THREADS.md#t-008) |
+| [C12](Batches/C12-2026-09-06-body-scale-age-and-childhood.md) | 2026-09-06 | Body scale age and childhood | [`T-002`](Batches/THREADS.md#t-002), [`T-006`](Batches/THREADS.md#t-006), [`T-007`](Batches/THREADS.md#t-007), [`T-008`](Batches/THREADS.md#t-008) |
+| [C13](Batches/C13-2026-09-06-conditions-habits-and-strain.md) | 2026-09-06 | Conditions habits and strain | [`T-002`](Batches/THREADS.md#t-002), [`T-006`](Batches/THREADS.md#t-006), [`T-007`](Batches/THREADS.md#t-007) |
+| [C14](Batches/C14-2026-09-07-physical-gestures.md) | 2026-09-07 | Physical gestures | [`T-002`](Batches/THREADS.md#t-002), [`T-007`](Batches/THREADS.md#t-007) |
+| [C15](Batches/C15-2026-09-07-historical-record-calendar.md) | 2026-09-07 | Historical record calendar | [`T-002`](Batches/THREADS.md#t-002), [`T-006`](Batches/THREADS.md#t-006) |
+| [C16](Batches/C16-2026-09-07-orders-through-standing.md) | 2026-09-07 | Orders through Standing | [`T-004`](Batches/THREADS.md#t-004), [`T-006`](Batches/THREADS.md#t-006) |
+| [C17](Batches/C17-2026-09-07-remembered-era-and-owned-condition-state.md) | 2026-09-07 | Remembered era and owned condition state | [`T-002`](Batches/THREADS.md#t-002), [`T-006`](Batches/THREADS.md#t-006), [`T-007`](Batches/THREADS.md#t-007), [`T-030`](Batches/THREADS.md#t-030) |
+| [C18](Batches/C18-2026-09-07-historical-county-simulation.md) | 2026-09-07 | Historical county simulation | [`T-002`](Batches/THREADS.md#t-002), [`T-003`](Batches/THREADS.md#t-003), [`T-004`](Batches/THREADS.md#t-004), [`T-005`](Batches/THREADS.md#t-005), [`T-007`](Batches/THREADS.md#t-007) |
+| [C19](Batches/C19-2026-09-07-constrained-factual-expression.md) | 2026-09-07 | Constrained factual expression | [`T-002`](Batches/THREADS.md#t-002), [`T-006`](Batches/THREADS.md#t-006) |
+| [C20](Batches/C20-2026-09-07-entry-and-command-permission.md) | 2026-09-07 | Entry and command permission | [`T-003`](Batches/THREADS.md#t-003), [`T-004`](Batches/THREADS.md#t-004), [`T-006`](Batches/THREADS.md#t-006) |
+| [C21](Batches/C21-2026-09-08-learned-expression-and-condition-integration.md) | 2026-09-08 | Learned expression and condition integration | [`T-002`](Batches/THREADS.md#t-002), [`T-007`](Batches/THREADS.md#t-007) |
+| [C22](Batches/C22-2026-09-08-personal-choice-in-shared-travel.md) | 2026-09-08 | Personal choice in shared travel | [`T-002`](Batches/THREADS.md#t-002), [`T-003`](Batches/THREADS.md#t-003), [`T-004`](Batches/THREADS.md#t-004) |
+| [C23](Batches/C23-2026-09-08-witnessed-violence-attribution.md) | 2026-09-08 | Witnessed violence attribution | [`T-001`](Batches/THREADS.md#t-001), [`T-007`](Batches/THREADS.md#t-007) |
+| [C24](Batches/C24-2026-09-08-verification-and-publication-machinery.md) | 2026-09-08 | Verification and publication machinery | [`T-030`](Batches/THREADS.md#t-030) |
+| [C25](Batches/C25-2026-09-08-player-depletion-of-places.md) | 2026-09-08 | Player depletion of places | [`T-003`](Batches/THREADS.md#t-003) |
+| [C26](Batches/C26-2026-09-08-shared-county-time-and-day-zero.md) | 2026-09-08 | Shared county time and day zero | [`T-002`](Batches/THREADS.md#t-002), [`T-005`](Batches/THREADS.md#t-005), [`T-007`](Batches/THREADS.md#t-007) |
+| [C27](Batches/C27-2026-09-08-scoped-verification-claims.md) | 2026-09-08 | Scoped verification claims | [`T-030`](Batches/THREADS.md#t-030) |
+| [C28](Batches/C28-2026-09-08-simulation-telemetry-and-reproducibility.md) | 2026-09-08 | Simulation telemetry and reproducibility | [`T-007`](Batches/THREADS.md#t-007), [`T-009`](Batches/THREADS.md#t-009) |
+| [C29](Batches/C29-2026-09-08-dormant-social-continuity-and-county-measurement.md) | 2026-09-08 | Dormant social continuity and county measurement | [`T-004`](Batches/THREADS.md#t-004), [`T-006`](Batches/THREADS.md#t-006), [`T-007`](Batches/THREADS.md#t-007), [`T-008`](Batches/THREADS.md#t-008), [`T-009`](Batches/THREADS.md#t-009) |
+| [C30](Batches/C30-2026-09-09-ownership-across-the-three-repositories.md) | 2026-09-09 | Ownership across the three repositories | [`T-030`](Batches/THREADS.md#t-030) |
+| [C31](Batches/C31-2026-09-09-dormant-movement-settlement-ground-and-cost.md) | 2026-09-09 | Dormant movement settlement ground and cost | [`T-003`](Batches/THREADS.md#t-003), [`T-004`](Batches/THREADS.md#t-004), [`T-007`](Batches/THREADS.md#t-007), [`T-008`](Batches/THREADS.md#t-008), [`T-009`](Batches/THREADS.md#t-009) |
+| [C32](Batches/C32-2026-09-09-infection-course-and-clinical-observation.md) | 2026-09-09 | Infection course and clinical observation | [`T-002`](Batches/THREADS.md#t-002), [`T-003`](Batches/THREADS.md#t-003), [`T-007`](Batches/THREADS.md#t-007) |
+| [C33](Batches/C33-2026-09-09-controller-ownership-and-driving-surface-verification.md) | 2026-09-09 | Controller ownership and driving surface verification | [`T-001`](Batches/THREADS.md#t-001), [`T-002`](Batches/THREADS.md#t-002), [`T-008`](Batches/THREADS.md#t-008) |
+| [C34](Batches/C34-2026-09-10-decision-capture-and-ratified-data-preparation.md) | 2026-09-10 | Decision capture and ratified data preparation | [`T-004`](Batches/THREADS.md#t-004), [`T-006`](Batches/THREADS.md#t-006), [`T-008`](Batches/THREADS.md#t-008), [`T-030`](Batches/THREADS.md#t-030) |
+| [C35](Batches/C35-2026-09-10-life-simulation-and-dependency-contracts.md) | 2026-09-10 | Life simulation and dependency contracts | [`T-004`](Batches/THREADS.md#t-004), [`T-006`](Batches/THREADS.md#t-006), [`T-008`](Batches/THREADS.md#t-008), [`T-030`](Batches/THREADS.md#t-030) |
+| [C36](Batches/C36-2026-09-10-isolation-attachment-and-development-observations.md) | 2026-09-10 | Isolation attachment and development observations | [`T-006`](Batches/THREADS.md#t-006), [`T-008`](Batches/THREADS.md#t-008) |
+| [C37](Batches/C37-2026-09-12-pathogen-data-and-recognition-integration.md) | 2026-09-12 | Pathogen data and recognition integration | [`T-008`](Batches/THREADS.md#t-008), [`T-030`](Batches/THREADS.md#t-030) |
+| [C38](Batches/C38-2026-09-12-player-claims-and-inhabited-ground.md) | 2026-09-12 | Player claims and inhabited ground | [`T-003`](Batches/THREADS.md#t-003), [`T-004`](Batches/THREADS.md#t-004), [`T-008`](Batches/THREADS.md#t-008) |
+| [C39](Batches/C39-2026-09-12-readiness-corrections-and-recorded-rulings.md) | 2026-09-12 | Readiness corrections and recorded rulings | [`T-030`](Batches/THREADS.md#t-030) |
+| [C40](Batches/C40-2026-09-12-personal-need-in-affiliation.md) | 2026-09-12 | Personal need in affiliation | [`T-004`](Batches/THREADS.md#t-004), [`T-006`](Batches/THREADS.md#t-006) |
+| [C41](Batches/C41-2026-09-13-county-tick-and-ordinary-activity.md) | 2026-09-13 | County tick and ordinary activity | [`T-002`](Batches/THREADS.md#t-002), [`T-007`](Batches/THREADS.md#t-007) |
+| [C42](Batches/C42-2026-09-13-driving-integration-and-configuration.md) | 2026-09-13 | Driving integration and configuration | [`T-001`](Batches/THREADS.md#t-001), [`T-002`](Batches/THREADS.md#t-002), [`T-004`](Batches/THREADS.md#t-004) |
+| [C43](Batches/C43-2026-09-13-afflicted-return-and-social-behavior.md) | 2026-09-13 | Afflicted return and social behavior | [`T-001`](Batches/THREADS.md#t-001), [`T-002`](Batches/THREADS.md#t-002), [`T-004`](Batches/THREADS.md#t-004), [`T-006`](Batches/THREADS.md#t-006), [`T-008`](Batches/THREADS.md#t-008) |
+| [C44](Batches/C44-2026-09-14-robbery-and-raiding-actions.md) | 2026-09-14 | Robbery and raiding actions | [`T-002`](Batches/THREADS.md#t-002), [`T-004`](Batches/THREADS.md#t-004), [`T-008`](Batches/THREADS.md#t-008) |
+| [C45](Batches/C45-2026-09-14-optional-county-events-and-care.md) | 2026-09-14 | Optional county events and care | [`T-002`](Batches/THREADS.md#t-002), [`T-004`](Batches/THREADS.md#t-004), [`T-007`](Batches/THREADS.md#t-007) |
+| [C46](Batches/C46-2026-09-14-child-and-everyday-activity-integration.md) | 2026-09-14 | Child and everyday activity integration | [`T-001`](Batches/THREADS.md#t-001), [`T-002`](Batches/THREADS.md#t-002) |
+| [C47](Batches/C47-2026-09-14-drug-use-withdrawal-and-smoking.md) | 2026-09-14 | Drug use withdrawal and smoking | [`T-002`](Batches/THREADS.md#t-002), [`T-008`](Batches/THREADS.md#t-008) |
+| [C48](Batches/C48-2026-09-14-vehicle-animal-and-combat-integration.md) | 2026-09-14 | Vehicle animal and combat integration | [`T-001`](Batches/THREADS.md#t-001), [`T-003`](Batches/THREADS.md#t-003), [`T-006`](Batches/THREADS.md#t-006), [`T-007`](Batches/THREADS.md#t-007), [`T-008`](Batches/THREADS.md#t-008) |
+| [C49](Batches/C49-2026-09-14-brain-health-integration.md) | 2026-09-14 | Brain health integration | [`T-002`](Batches/THREADS.md#t-002), [`T-006`](Batches/THREADS.md#t-006), [`T-008`](Batches/THREADS.md#t-008) |
+| [C50](Batches/C50-2026-09-18-historical-simulation-recovery-and-evidence.md) | 2026-09-18 | Historical simulation recovery and evidence | [`T-007`](Batches/THREADS.md#t-007), [`T-008`](Batches/THREADS.md#t-008), [`T-009`](Batches/THREADS.md#t-009) |

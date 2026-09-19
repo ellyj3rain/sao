@@ -1,6 +1,6 @@
 | Document | Survivor Awareness Overhaul Governance |
 |---|---|
-| Version | `5.3.0.1-pre-alpha` |
+| Version | `2.7.14.1-pre-alpha` |
 | Design authority | ellyj3rain |
 | Repository | `GOVERNANCE.md` |
 | Status | ACTIVE - operating discipline for this repository. |
@@ -87,6 +87,12 @@ regulatory, append-only, or historical.
   is preserved on the `archive/` branches, untouched.
 - **Versioning.** `VERSION` advances with shipped surface change, not with
   every batch.
+  An authorized catalog consolidation replays the consolidated units under
+  the same tier rules. The 2026-09-19 C consolidation recalculates the source
+  coordinate from 5.3.0.1 to 2.7.14.1, both pre-alpha. This is catalog
+  arithmetic; it changes neither runtime behavior nor release maturity.
+  The former-label crosswalk and Git-blob hashes preserve provenance. Raw
+  archive refs stay local under the publishing boundary in NEO.md.
 - **Deploys.** Deploys go through `tools/deploy.sh`, which refuses while the
   game holds the jar. The refusal is correct behaviour, not a bug.
 

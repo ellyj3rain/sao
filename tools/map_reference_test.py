@@ -92,7 +92,7 @@ def main():
 
     log = (ROOT / "BATCH_LOG.md").read_text(encoding="utf-8")
     for m in re.finditer(
-            r"\| \[([AB]\d+)\]\(Batches/[AB]\d+-(\d{4}-\d{2}-\d{2})-[^)]+\) "
+            r"\| \[([ABC]\d+)\]\(Batches/[ABC]\d+-(\d{4}-\d{2}-\d{2})-[^)]+\) "
             r"\| (\d{4}-\d{2}-\d{2}) \|", log):
         if m.group(2) != m.group(3):
             faults.append(f"BATCH_LOG.md dates {m.group(1)} {m.group(3)}; "

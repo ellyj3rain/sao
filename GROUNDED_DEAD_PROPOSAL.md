@@ -1,9 +1,9 @@
 | Document | The Grounded Dead - a derivation for ratification |
 |---|---|
-| Version | `5.3.0.1-pre-alpha` |
+| Version | `2.7.14.1-pre-alpha` |
 | Author | ellyj3rain |
 | Repository | `GROUNDED_DEAD_PROPOSAL.md` |
-| Status | RATIFIED WITH AMENDMENTS (DR-021) - mechanism B plus the presence layer and the state-agreement constraint; this file is now the derivation appendix. Final numbers await the [C16] measurement. |
+| Status | RATIFIED WITH AMENDMENTS (DR-021) - mechanism B plus the presence layer and the state-agreement constraint; this file is now the derivation appendix. Final numbers await the [C7] measurement. |
 
 # The grounded dead
 
@@ -84,7 +84,7 @@ nobody has measured what a multiplier yields on this install.
 **B - Measure first, then guide (recommended).** One inspect-harness
 line - a dead census: real zombies in loaded cells, sampled per-cell
 density, extrapolated to the install's cell count, written to the
-one JSONL. An instrument in the [C6] discipline: reads everything,
+one JSONL. An instrument in the [C3] discipline: reads everything,
 teaches nothing, changes nothing. With a measured
 zombies-per-multiplier curve on THIS install, the §2 target becomes
 a defensible multiplier recommendation instead of a guess, and the
@@ -92,7 +92,7 @@ recommendation ships as documentation and a sandbox-preset note.
 
 **C - Active management.** SAO counts the dead and culls or spawns
 toward the derived budget. REJECTED here, and argued: the crowd is
-native and opaque (F-006), every cull is a deletion the [C9] border
+native and opaque (F-006), every cull is a deletion the [C4] border
 exists to interrogate, and one mod fighting the engine's own
 population manager is the two-systems-one-street shape DR-015 just
 removed from the menus.

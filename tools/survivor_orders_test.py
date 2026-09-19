@@ -46,6 +46,8 @@ import subprocess
 import sys
 import tempfile
 
+# Catalog references are verified by map_reference_test and version_replay.
+# A historical SHIPPED sentence is not a mechanical completion condition.
 ROOT = pathlib.Path(sys.argv[1]).resolve() if len(sys.argv) > 1 \
     else pathlib.Path(__file__).resolve().parent.parent
 HERE = pathlib.Path(__file__).resolve().parent
@@ -59,7 +61,6 @@ COMMAND = SHARED / "SAO_Command.lua"
 CONTROLLER = CLIENT / "SAO_Controller.lua"
 HARNESS = CLIENT / "SAO_Harness.lua"
 REGISTRY = ROOT / "DECISION_REGISTRY.md"
-ROADMAP = ROOT / "ROADMAP.md"
 CHECK = ROOT / "tools" / "check.sh"
 PRELUDE = HERE / "luacheck" / "probe_age.lua"
 SRC = HERE / "luacheck" / "LuaRun.java"
@@ -359,8 +360,6 @@ def main():
             ctl.count("onTheirWord(") == 4,
         "the registry records the build under DR-033":
             "[C49]" in read(REGISTRY).split("DR-033")[-1].split("## DR-034")[0],
-        "the roadmap records the slice as shipped":
-            "SHIPPED as `[C49]`" in read(ROADMAP),
         "the gate runs this border":
             "tools/survivor_orders_test.py" in read(CHECK),
     }

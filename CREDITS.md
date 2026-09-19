@@ -36,7 +36,7 @@ is recognised where present and **never required**: its people get
 their own key domain so they are never confused with ours or with the
 player (DR-009).
 
-**Since [C40] (DR-035) nothing of this county's runs through it.**
+**Since [C17] (DR-035) nothing of this county's runs through it.**
 Two paths used to reach into its namespace on every world start -
 taking its people over through its own teardown and spawn functions,
 and rewriting the inside of its per-survivor menu. Both are now off
@@ -62,7 +62,7 @@ assets are redistributed.
 
 ## Other NPC mods
 
-Recognised, never required. Since [C39] `require=` in `mod.info`
+Recognised, never required. Since [C17] `require=` in `mod.info`
 names nothing at all, and another mod's people are handled by
 property - an `IsoPlayer` that is not in the engine's slot array and
 is not one of ours - so no NPC mod is named anywhere in this
@@ -73,9 +73,9 @@ codebase's logic.
 Workshop 3579088411, mod id `twbInfirmities`, Build 42.20; itself
 requires Moodle Framework and TchernoLib. Its terms allow use,
 collections and extension with credit. **A hard runtime dependency
-from [C32] to [C39], and no longer one**: it was required so the
+from [C13] to [C17], and no longer one**: it was required so the
 player could carry the conditions the county's people carry, and
-[C39] builds that surface in SAO instead - a requirement on every
+[C17] builds that surface in SAO instead - a requirement on every
 user for something we can hold ourselves is the wrong trade. Read
 for what a Build 42 condition mod does; no code taken, then or now.
 
@@ -83,8 +83,8 @@ for what a Build 42 condition mod does; no code taken, then or now.
 
 Workshop 3777663603, mod id `EvenMoreTraits4220`, Build 42.20 - a
 community update of Lazolo's mod (workshop 2855320431), which its
-own header credits whole. **A hard runtime dependency from [C32] to
-[C39], and no longer one** (see Infirmities above). One TECHNIQUE is
+own header credits whole. **A hard runtime dependency from [C13] to
+[C17], and no longer one** (see Infirmities above). One TECHNIQUE is
 taken and credited here: registering character traits from shared
 Lua rather than through `media/registries.lua` and a
 `character_trait_definition` script, because the engine runs every
@@ -101,7 +101,7 @@ settled it:** Alzheimer's daily skill loss (each skill outside the
 passive and agility families, an even chance a day of losing 2.5
 percent of the next level), ADHD's daily focus (35 percent plus half
 a percent a day survived, to 70) and bipolar's daily phase, carried
-in `SAO_Conditions` and the bridge's `loseSkillMemory` ([C32]). The
+in `SAO_Conditions` and the bridge's `loseSkillMemory` ([C13]). The
 mod trades in vanilla traits and pills; the county's people have
 axes and no pills, so those parts are not carried.
 
@@ -109,7 +109,7 @@ axes and no pills, so those parts are not carried.
 
 Workshop 3408520770, Build 41; source not public. **Two figures
 taken from the page's own description:** dyslexia reads a quarter
-slower and gains a tenth less experience ([C32]). No code read.
+slower and gains a tenth less experience ([C13]). No code read.
 
 ## Scotty's Mental Health Expansion (ScottyVenable)
 
@@ -117,7 +117,7 @@ MIT (github.com/ScottyVenable/Project-Zomboid-Mod--Scottys-Mental-
 Health-Expansion), Build 41. **Mechanisms taken:** depression and
 insomnia as chronic fatigue, anxiety as raised panic, PTSD as a
 constant low panic with spikes at fresh horror, psychosis as a heard
-threat nobody else hears ([C32]); its numbers are per update on a
+threat nobody else hears ([C13]); its numbers are per update on a
 player and the county's are per ten-minute pass on a person, so the
 figures here are ours and say so. Its medications, self-help books
 and journals are not carried.
@@ -133,13 +133,13 @@ condition.
 ## The Alcoholic (axxessdenied)
 
 MIT (github.com/axxessdenied/thealcoholic), Build 41. **Mechanisms
-taken ([C33]):** the hours since the last drink, the four withdrawal
+taken ([C13]):** the hours since the last drink, the four withdrawal
 phases at 12, 24, 48 and 72 hours with their stress and fatigue,
 the habit lost after 504 hours dry and gained by drinking often
 (four a drink, one off an hour, gained at 200), the stress a drink
 takes, and the wrap of the drink action that counts a drink -
 carried in `SAO_Habits` and `SAO_Needs` at SAO's own cadence.
-**[C121] The late ladder, source-read:** the sickness that builds
+**[C47] The late ladder, source-read:** the sickness that builds
 through the phases at their rate and caps (0.001 a ten-minute pass
 at one in 5 minus the phase, capped 0.3 / 0.5 / 0.7 / 1.0 by
 phase), the poison past their 0.6 line (one in 50 a pass, their 12
@@ -153,20 +153,20 @@ tolerance), and the daily tolerance build (eight drinks a day
 moves 0.01 toward their 0.1 cap) - carried in `SAO_Drugs`.
 **Not carried, named:** their poison scaling by player trait (the
 county's people have no player traits), their alcoholicStress
-persistence channel, and their headaches as BodyPart pain ([C33]'s
+persistence channel, and their headaches as BodyPart pain ([C13]'s
 shakes are ours in size).
 
 ## N and C's Narcotics (Neely, a_COW_says)
 
-Workshop 3404956403, Build 42. [C33] recorded "source not public" and
+Workshop 3404956403, Build 42. [C13] recorded "source not public" and
 "No code read" - wrong: the Workshop folder ships the mod's Lua
-uncompiled, and [C121] read it. That supersedes the finding; the
+uncompiled, and [C47] read it. That supersedes the finding; the
 line stands here as what was believed. **The page's own schedule
-taken ([C33]):** a dependency lost after eighteen to twenty clean
+taken ([C13]):** a dependency lost after eighteen to twenty clean
 days, with withdrawal medium from day one (three for sedatives),
 bad from day five (six) and mild from day ten. The page gives the
 tiers and not their sizes; the sizes in `SAO_Habits` are ours and
-say so. **[C121] The source read:** their dependency vocabulary
+say so. **[C47] The source read:** their dependency vocabulary
 (their registered traits, their item tags, read through their own
 registry globals), their driver's clock shape (the seven dependency
 steps a ten in-game-minute pass, the seven effects and the pain
@@ -175,7 +175,7 @@ loaded, `SAO_Drugs` drives their own globals on the county's
 bodies, so their counters, highs and withdrawal tiers run on a
 shell exactly as they run on the player, and the county's own
 schedule yields family by family where their trait takes the
-dependency over ([C121] in `SAO_Habits`). Their methadone freeze is
+dependency over ([C47] in `SAO_Habits`). Their methadone freeze is
 carried through `SAO_Habits`' own freeze and resume pair. Their
 families are read by their item tags through the engine's own
 `ItemTag`/`ResourceLocation`, and a use of any of their items
@@ -197,7 +197,7 @@ Workshop 3403870858, mod id `LifestyleHobbies`, Build 42.19+. Its
 page asks that its work be added to or extended only with the
 creator's express permission, with credit in the files and wherever
 the mod goes. **Files copied, with the author's permission as the
-operator settled it ([C35], DR-034):** twenty-two conversation
+operator settled it ([C14], DR-034):** twenty-two conversation
 gestures, eight sitting loops, eight instrument plays and sixteen
 dances, under `media/anims_X/Bob`, named as the mod names them;
 the bindings are SAO's own. Nothing of its code, items, skills or
@@ -209,31 +209,31 @@ Workshop 3403180543, mod id `BanditsWeekOne`; on the Bandits engine
 (3268487204), whose page holds that all the author's work is
 copyrighted and not to be reused without written permission.
 **Files copied, with the authors' permission as the operator settled
-it ([C35], DR-034):** the waiter's serving animation (SaneGuy, the
+it ([C14], DR-034):** the waiter's serving animation (SaneGuy, the
 mod's animator) and the coughs and claps (Lauren Sinclair and AuD,
 as the mod credits its sounds), under `media/anims_X/Bob` and
 `media/sound/sao`. **More files copied, under the same settlement
-([C119]):** the cashier at the counter, the three protest stands,
+([C45]):** the cashier at the counter, the three protest stands,
 the three CPR stages, the four dances and the six instrument plays
 (SaneGuy and Slayer, the mod's animator and author), and the two
 kabooms, near and distant (Slayer - the mod's own credit for its
 explosion sounds names no one else), under the same two folders.
-**And one more, under the same settlement ([C120]):** the ball
+**And one more, under the same settlement ([C46]):** the ball
 throw (SaneGuy and Slayer) - the mod's zombie-target throw, made
 a child's play moment here, a ball and a playmate on a stretch of
 street. The bindings are SAO's own nodes, keyed on SAO's own
 variable, and the instrument plays follow the carried instrument:
 a bard with a flute plays the flute's clip.
 
-**Code ported, under the operator's ruling ([C110], [C113],
-[C114]):** the street hour - `BWOPopControl`'s `getHourScore` hmap,
+**Code ported, under the operator's ruling ([C39], [C41],
+[C42]):** the street hour - `BWOPopControl`'s `getHourScore` hmap,
 twenty-four authored values carried whole into
 `SAO.History.streetAffinity` - the street-occupations idea,
 re-expressed as the census trade's own ground rather than the
 spawner-side weights it ships on; and the driving - the
 engine-start-and-drive idiom and the 30 km/h town figure their
 regulator drove at, carried as `SAODriver`'s speed cap. SAO's
-driving, come, is a real SAO person in a real seat ([C82], [C114]):
+driving, come, is a real SAO person in a real seat ([C33], [C42]):
 the engine started through the engine's own no-argument
 `tryStartEngine`, a refusal honored, the steering written as the
 bearing to the destination. No runtime dependency and none of their
@@ -248,7 +248,7 @@ person), their forced-engine trio (`tryStartEngine(true)` with
 their regulator, which its own comments say does not steer, and
 their horn-at-zombies.
 
-**The nuke, re-expressed under the operator's ruling ([C119],
+**The nuke, re-expressed under the operator's ruling ([C45],
 Speakeasy records 49-50):** their `FinalSolution` is a script - hour
 168 of every world, eight to ten fixed circles, default on - and
 none of the script crosses. What crosses is the event's engine
@@ -280,7 +280,7 @@ named it (DR-032) has its answer.
 
 Rafael Winterhalter and contributors. Apache-2.0. **Used at runtime
 through ZombieBuddy's bundled copy; not redistributed.** The
-body-scale weave ([C29]) is a Byte Buddy exit advice installed
+body-scale weave ([C12]) is a Byte Buddy exit advice installed
 through the same self-attached instrumentation the melee patch uses.
 
 ## Growing Up and Realism V4 (PZ Chronicles)
@@ -289,16 +289,16 @@ through the same self-attached instrumentation the melee patch uses.
 directly with them; no code taken.** The route to a body's size - the
 animation player's bone transforms - was read from Realism V4's
 replaced engine classes and Growing Up's Lua before SAO took its own
-route to the same seam ([C29]). Growing Up's height-by-age table is
+route to the same seam ([C12]). Growing Up's height-by-age table is
 carried in `SAO_History.heightScaleOf` with this attribution. Its
 fear model (the floor by age, the night, the comfort object, the
 kills that harden), its literacy gate, its experience throttle and
 birthday floors, its rule for a child's head and its kid types'
-kits are carried in [C31] at SAO's own seams with the mod's numbers
+kits are carried in [C12] at SAO's own seams with the mod's numbers
 (`SAO_History`, `SAO_Disposition.fear`, `SAO_Age`, `SAO_Body`,
 `SAO_Appearance`, the bridge's scaled grant).
 
-**More figures carried ([C120]):** its driving age of ten and the
+**More figures carried ([C46]):** its driving age of ten and the
 thirty percent penalty a driver under eighteen carries on the
 wheel's speed cap, its growth-spurt chance (eight percent a day, to
 sixteen) and the hunger a spurt adds, and its wound grief as the
@@ -323,6 +323,6 @@ checked against the installed jar and not borne out for characters
 settled it; source public (github.com/Bruce-Devlin/ProjectZomboidMods).**
 Its five life stages and their per-stage drift on stamina, tiredness,
 pain and stress, and the decline of an elder marked for death, are
-carried in `SAO_History.stageOf` and `SAO_Age` ([C30]) at SAO's own
+carried in `SAO_History.stageOf` and `SAO_Age` ([C12]) at SAO's own
 cadence. Its death chance is not taken (the life table stands in) and
 its stumble is not (this build's Stats has no such method).

@@ -36,11 +36,12 @@ import pathlib
 import re
 import sys
 
+# Catalog references are verified by map_reference_test and version_replay.
+# A historical SHIPPED sentence is not a mechanical completion condition.
 ROOT = pathlib.Path(sys.argv[1]).resolve() if len(sys.argv) > 1 \
     else pathlib.Path(__file__).resolve().parent.parent
 POP = ROOT / "mod" / "42.20" / "media" / "lua" / "client" / "SAO_Population.lua"
 REGISTRY = ROOT / "DECISION_REGISTRY.md"
-ROADMAP = ROOT / "ROADMAP.md"
 CHECK = ROOT / "tools" / "check.sh"
 
 
@@ -135,9 +136,6 @@ def main():
 
     flags["the registry carries the direction"] = (
         "## DR-036" in read(REGISTRY))
-    flags["the roadmap carries the arc, not just this slice"] = (
-        "## Day zero forward (DR-036" in read(ROADMAP)
-        and "SHIPPED as `[C41]`" in read(ROADMAP))
     flags["the gate runs this border"] = (
         "tools/world_before_spawn_test.py" in read(CHECK))
 

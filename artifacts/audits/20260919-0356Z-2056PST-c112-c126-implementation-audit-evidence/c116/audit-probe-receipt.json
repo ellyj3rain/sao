@@ -1,0 +1,38 @@
+{
+  "schema": "sao.bounded-audit-probe.v1",
+  "probe": "C116 afflicted adoption and dormant recovery",
+  "preserved_at_utc": "2026-09-19T04:00:34.732999+00:00",
+  "execution_time": "Earlier in this session; exact wall timestamp was not captured.",
+  "provenance": "Reconstructed from the executed tool-call arguments and observed tool output. This preservation did not rerun the probe.",
+  "process": {
+    "argv": [
+      "C:\\Users\\jleyv\\Peanut Butter\\JetBrains\\Java\\bin\\java.exe",
+      "-cp",
+      "C:\\Program Files (x86)\\Steam\\steamapps\\common\\ProjectZomboid\\projectzomboid.jar;.",
+      "LuaRun",
+      "C:\\Users\\jleyv\\AppData\\Local\\Temp\\sao-c116-audit-b6h709_b\\prelude.lua",
+      "C:\\Users\\jleyv\\Peanut Butter\\AI Assisted Software Engineering Mass Repository\\Projects\\survivor-awareness\\mod\\42.20\\media\\lua\\client\\SAO_Body.lua",
+      "C:\\Users\\jleyv\\Peanut Butter\\AI Assisted Software Engineering Mass Repository\\Projects\\survivor-awareness\\mod\\42.20\\media\\lua\\client\\SAO_Controller.lua",
+      "C:\\Users\\jleyv\\Peanut Butter\\AI Assisted Software Engineering Mass Repository\\Projects\\survivor-awareness\\mod\\42.20\\media\\lua\\client\\SAO_AfflictedReturn.lua",
+      "--",
+      "(function()\n local returned=SAO.AfflictedReturn.adopt(1)\n local before=SAO.Controller.describe(\"loaded\")\n local dormantDead=records.dormant.dead\n SAO.Controller.adopt(records.loaded)\n return \"adoptReturned=\"..tostring(returned)..\" loadedDead=\"..tostring(records.loaded.dead)..\" hasBody=\"..tostring(SAO.Body.get(\"loaded\")~=nil)..\" automaticController=\"..before..\" dormantDead=\"..tostring(dormantDead)..\" controlEnrolled=\"..tostring(SAO.Controller.agents.loaded~=nil)\nend)()"
+    ],
+    "cwd": "C:\\Users\\jleyv\\AppData\\Local\\Temp\\sao-c116-audit-b6h709_b",
+    "timeout_seconds": 30,
+    "capture_output": true,
+    "text": true
+  },
+  "observed_result": {
+    "returncode": 0,
+    "stdout": "VALUE adoptReturned=true loadedDead=false hasBody=true automaticController=no-agent dormantDead=true controlEnrolled=true\n",
+    "stderr": ""
+  },
+  "scope": "Actual listed SAO Lua modules loaded in existing LuaRun on installed projectzomboid.jar; engine interactions and fixture state supplied by retained prelude.lua. No game launch or build.",
+  "interpretation": "Actual adoption creates a live registered body without a controller agent; a second dead afflicted record outside the loaded controlled registry remains dead. Explicit Controller.adopt control enrolls the returned person.",
+  "retained_inputs": {
+    "prelude": "C:\\Users\\jleyv\\AppData\\Local\\Temp\\sao-c116-audit-b6h709_b\\prelude.lua",
+    "expression": "C:\\Users\\jleyv\\AppData\\Local\\Temp\\sao-c116-audit-b6h709_b\\executed-expression.lua",
+    "compiled_runner": "C:\\Users\\jleyv\\AppData\\Local\\Temp\\sao-c116-audit-b6h709_b\\LuaRun.class"
+  },
+  "replay_note": "replay-preserved-probe.py reconstructs the same Java subprocess invocation from this receipt. It was written during preservation and has not been executed."
+}

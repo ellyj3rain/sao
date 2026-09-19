@@ -1,0 +1,27 @@
+[
+    {
+        "Algorithm":  "SHA256",
+        "Hash":  "80E405A4BFC42F6072E75B3735F458A6514143DA011D3226007DED305A442F44",
+        "Path":  "C:\\Program Files (x86)\\Steam\\steamapps\\common\\ProjectZomboid\\projectzomboid.jar"
+    },
+    {
+        "Algorithm":  "SHA256",
+        "Hash":  "3FC073AA355D7EFBB8C943DEA4EAEBD99697E35CD8CFDB04D307431119A91014",
+        "Path":  "C:\\Users\\jleyv\\Peanut Butter\\AI Assisted Software Engineering Mass Repository\\Projects\\survivor-awareness\\mod\\42.20\\media\\lua\\client\\SAO_Body.lua"
+    },
+    {
+        "Algorithm":  "SHA256",
+        "Hash":  "62249F87F42456CB026F977895614E4CEEABE394342E6358E910CDBFE23E72A4",
+        "Path":  "C:\\Users\\jleyv\\Peanut Butter\\AI Assisted Software Engineering Mass Repository\\Projects\\survivor-awareness\\mod\\42.20\\media\\lua\\shared\\SAO_GraphPersistence.lua"
+    },
+    {
+        "Algorithm":  "SHA256",
+        "Hash":  "46DD7D44F595158E71D4CA86B952A442A6FF4E2BABB833A8011AF93A8D45CCF2",
+        "Path":  "C:\\Users\\jleyv\\Peanut Butter\\AI Assisted Software Engineering Mass Repository\\Projects\\survivor-awareness\\mod\\42.20\\media\\lua\\shared\\SAO_Integration.lua"
+    },
+    {
+        "Algorithm":  "SHA256",
+        "Hash":  "0706D325AA73E3800E6713983053ABB36B01F24DFEE7639B2BF23F880967F852",
+        "Path":  "C:\\Users\\jleyv\\Peanut Butter\\AI Assisted Software Engineering Mass Repository\\Projects\\survivor-awareness\\mod\\42.20\\media\\lua\\shared\\SAO_Branching.lua"
+    }
+]

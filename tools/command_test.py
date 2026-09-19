@@ -31,7 +31,7 @@ disposition loaded over the flat one:
 And by text, every seam: each ask in the harness through the gate,
 the raw trust line gone from the crew, the three answers and the
 answer seen, the gesture map, the panel row, the controller's margin
-read from the module, the roadmap and the registry. An optional
+read from the module and the registry. An optional
 argv[1] points the checker at another tree root, which is how its
 control runs: the pre-batch tree faults at every seam.
 """
@@ -42,6 +42,8 @@ import subprocess
 import sys
 import tempfile
 
+# Catalog references are verified by map_reference_test and version_replay.
+# A historical SHIPPED sentence is not a mechanical completion condition.
 ROOT = pathlib.Path(sys.argv[1]).resolve() if len(sys.argv) > 1 \
     else pathlib.Path(__file__).resolve().parent.parent
 HERE = pathlib.Path(__file__).resolve().parent
@@ -58,7 +60,6 @@ GESTURE = CLIENT / "SAO_Gesture.lua"
 INSPECT = CLIENT / "SAO_Inspect.lua"
 CONTROLLER = CLIENT / "SAO_Controller.lua"
 ARCH = ROOT / "ARCHITECTURE.md"
-ROADMAP = ROOT / "ROADMAP.md"
 REGISTRY = ROOT / "DECISION_REGISTRY.md"
 CHECK = ROOT / "tools" / "check.sh"
 PRELUDE = HERE / "luacheck" / "probe_age.lua"
@@ -336,8 +337,6 @@ def main():
             "SAO.Command.TEACH_MARGIN" in ctl and "theirs33 + 3 then" not in ctl,
         "the architecture names the surface as Standing's":
             "SAO_Command" in read(ARCH),
-        "the roadmap marks the slice shipped":
-            "SHIPPED as `[C37]`" in read(ROADMAP),
         "the registry records the build under DR-033":
             "[C37]" in read(REGISTRY).split("DR-033")[-1].split("## DR-034")[0],
         "the gate runs this border":

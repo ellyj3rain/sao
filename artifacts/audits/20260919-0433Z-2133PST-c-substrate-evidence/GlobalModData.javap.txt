@@ -1,0 +1,1035 @@
+Compiled from "GlobalModData.java"
+public final class zombie.world.moddata.GlobalModData {
+  public static final java.lang.String SAVE_EXT;
+
+  public static final java.lang.String SAVE_FILE;
+
+  public static zombie.world.moddata.GlobalModData instance;
+
+  private final java.util.Map<java.lang.String, se.krka.kahlua.vm.KahluaTable> modData;
+
+  private static final int BLOCK_SIZE;
+
+  private static int lastBlockSize;
+
+  private se.krka.kahlua.vm.KahluaTable createModDataTable();
+    Code:
+         0: getstatic     #1                  // Field zombie/Lua/LuaManager.platform:Lse/krka/kahlua/j2se/J2SEPlatform;
+         3: invokevirtual #7                  // Method se/krka/kahlua/j2se/J2SEPlatform.newTable:()Lse/krka/kahlua/vm/KahluaTable;
+         6: areturn
+      LineNumberTable:
+        line 48: 0
+      LocalVariableTable:
+        Start  Length  Slot  Name   Signature
+            0       7     0  this   Lzombie/world/moddata/GlobalModData;
+
+  public zombie.world.moddata.GlobalModData();
+    Code:
+         0: aload_0
+         1: invokespecial #13                 // Method java/lang/Object."<init>":()V
+         4: aload_0
+         5: new           #19                 // class java/util/HashMap
+         8: dup
+         9: invokespecial #21                 // Method java/util/HashMap."<init>":()V
+        12: putfield      #22                 // Field modData:Ljava/util/Map;
+        15: aload_0
+        16: invokevirtual #28                 // Method reset:()V
+        19: return
+      LineNumberTable:
+        line 51: 0
+        line 45: 4
+        line 52: 15
+        line 53: 19
+      LocalVariableTable:
+        Start  Length  Slot  Name   Signature
+            0      20     0  this   Lzombie/world/moddata/GlobalModData;
+
+  public void init() throws java.io.IOException;
+    Code:
+         0: aload_0
+         1: invokevirtual #28                 // Method reset:()V
+         4: aload_0
+         5: invokevirtual #31                 // Method load:()V
+         8: ldc           #34                 // String OnInitGlobalModData
+        10: invokestatic  #36                 // Method zombie/world/WorldDictionary.isIsNewGame:()Z
+        13: invokestatic  #42                 // Method java/lang/Boolean.valueOf:(Z)Ljava/lang/Boolean;
+        16: invokestatic  #48                 // Method zombie/Lua/LuaEventManager.triggerEvent:(Ljava/lang/String;Ljava/lang/Object;)V
+        19: return
+      LineNumberTable:
+        line 56: 0
+        line 57: 4
+        line 58: 8
+        line 59: 19
+      LocalVariableTable:
+        Start  Length  Slot  Name   Signature
+            0      20     0  this   Lzombie/world/moddata/GlobalModData;
+
+  public void reset();
+    Code:
+         0: iconst_m1
+         1: putstatic     #54                 // Field lastBlockSize:I
+         4: aload_0
+         5: getfield      #22                 // Field modData:Ljava/util/Map;
+         8: invokeinterface #58,  1           // InterfaceMethod java/util/Map.clear:()V
+        13: return
+      LineNumberTable:
+        line 62: 0
+        line 63: 4
+        line 64: 13
+      LocalVariableTable:
+        Start  Length  Slot  Name   Signature
+            0      14     0  this   Lzombie/world/moddata/GlobalModData;
+
+  public void collectTableNames(java.util.List<java.lang.String>);
+    Code:
+         0: aload_1
+         1: invokeinterface #63,  1           // InterfaceMethod java/util/List.clear:()V
+         6: aload_0
+         7: getfield      #22                 // Field modData:Ljava/util/Map;
+        10: invokeinterface #66,  1           // InterfaceMethod java/util/Map.entrySet:()Ljava/util/Set;
+        15: invokeinterface #70,  1           // InterfaceMethod java/util/Set.iterator:()Ljava/util/Iterator;
+        20: astore_2
+        21: aload_2
+        22: invokeinterface #76,  1           // InterfaceMethod java/util/Iterator.hasNext:()Z
+        27: ifeq          59
+        30: aload_2
+        31: invokeinterface #81,  1           // InterfaceMethod java/util/Iterator.next:()Ljava/lang/Object;
+        36: checkcast     #85                 // class java/util/Map$Entry
+        39: astore_3
+        40: aload_1
+        41: aload_3
+        42: invokeinterface #87,  1           // InterfaceMethod java/util/Map$Entry.getKey:()Ljava/lang/Object;
+        47: checkcast     #90                 // class java/lang/String
+        50: invokeinterface #92,  2           // InterfaceMethod java/util/List.add:(Ljava/lang/Object;)Z
+        55: pop
+        56: goto          21
+        59: return
+      LineNumberTable:
+        line 67: 0
+        line 68: 6
+        line 69: 40
+        line 70: 56
+        line 71: 59
+      LocalVariableTable:
+        Start  Length  Slot  Name   Signature
+           40      16     3 entry   Ljava/util/Map$Entry;
+            0      60     0  this   Lzombie/world/moddata/GlobalModData;
+            0      60     1  list   Ljava/util/List;
+
+  public boolean exists(java.lang.String);
+    Code:
+         0: aload_0
+         1: getfield      #22                 // Field modData:Ljava/util/Map;
+         4: aload_1
+         5: invokeinterface #96,  2           // InterfaceMethod java/util/Map.containsKey:(Ljava/lang/Object;)Z
+        10: ireturn
+      LineNumberTable:
+        line 74: 0
+      LocalVariableTable:
+        Start  Length  Slot  Name   Signature
+            0      11     0  this   Lzombie/world/moddata/GlobalModData;
+            0      11     1   tag   Ljava/lang/String;
+
+  public se.krka.kahlua.vm.KahluaTable getOrCreate(java.lang.String);
+    Code:
+         0: aload_0
+         1: aload_1
+         2: invokevirtual #99                 // Method get:(Ljava/lang/String;)Lse/krka/kahlua/vm/KahluaTable;
+         5: astore_2
+         6: aload_2
+         7: ifnonnull     16
+        10: aload_0
+        11: aload_1
+        12: invokevirtual #103                // Method create:(Ljava/lang/String;)Lse/krka/kahlua/vm/KahluaTable;
+        15: astore_2
+        16: aload_2
+        17: areturn
+      LineNumberTable:
+        line 78: 0
+        line 79: 6
+        line 80: 10
+        line 82: 16
+      LocalVariableTable:
+        Start  Length  Slot  Name   Signature
+            0      18     0  this   Lzombie/world/moddata/GlobalModData;
+            0      18     1   tag   Ljava/lang/String;
+            6      12     2 table   Lse/krka/kahlua/vm/KahluaTable;
+
+  public se.krka.kahlua.vm.KahluaTable get(java.lang.String);
+    Code:
+         0: aload_0
+         1: getfield      #22                 // Field modData:Ljava/util/Map;
+         4: aload_1
+         5: invokeinterface #106,  2          // InterfaceMethod java/util/Map.get:(Ljava/lang/Object;)Ljava/lang/Object;
+        10: checkcast     #109                // class se/krka/kahlua/vm/KahluaTable
+        13: areturn
+      LineNumberTable:
+        line 86: 0
+      LocalVariableTable:
+        Start  Length  Slot  Name   Signature
+            0      14     0  this   Lzombie/world/moddata/GlobalModData;
+            0      14     1   tag   Ljava/lang/String;
+
+  public java.lang.String create();
+    Code:
+         0: invokestatic  #111                // Method java/util/UUID.randomUUID:()Ljava/util/UUID;
+         3: invokevirtual #117                // Method java/util/UUID.toString:()Ljava/lang/String;
+         6: astore_1
+         7: aload_0
+         8: aload_1
+         9: invokevirtual #103                // Method create:(Ljava/lang/String;)Lse/krka/kahlua/vm/KahluaTable;
+        12: pop
+        13: aload_1
+        14: areturn
+      LineNumberTable:
+        line 90: 0
+        line 91: 7
+        line 92: 13
+      LocalVariableTable:
+        Start  Length  Slot  Name   Signature
+            0      15     0  this   Lzombie/world/moddata/GlobalModData;
+            7       8     1  uuid   Ljava/lang/String;
+
+  public se.krka.kahlua.vm.KahluaTable create(java.lang.String);
+    Code:
+         0: aload_0
+         1: aload_1
+         2: invokevirtual #121                // Method exists:(Ljava/lang/String;)Z
+         5: ifeq          19
+         8: aload_1
+         9: invokedynamic #125,  0            // InvokeDynamic #0:makeConcatWithConstants:(Ljava/lang/String;)Ljava/lang/String;
+        14: invokestatic  #129                // Method zombie/debug/DebugLog.log:(Ljava/lang/String;)V
+        17: aconst_null
+        18: areturn
+        19: aload_0
+        20: invokevirtual #135                // Method createModDataTable:()Lse/krka/kahlua/vm/KahluaTable;
+        23: astore_2
+        24: aload_0
+        25: getfield      #22                 // Field modData:Ljava/util/Map;
+        28: aload_1
+        29: aload_2
+        30: invokeinterface #138,  3          // InterfaceMethod java/util/Map.put:(Ljava/lang/Object;Ljava/lang/Object;)Ljava/lang/Object;
+        35: pop
+        36: aload_2
+        37: areturn
+      LineNumberTable:
+        line 96: 0
+        line 97: 8
+        line 98: 17
+        line 100: 19
+        line 101: 24
+        line 102: 36
+      LocalVariableTable:
+        Start  Length  Slot  Name   Signature
+            0      38     0  this   Lzombie/world/moddata/GlobalModData;
+            0      38     1   tag   Ljava/lang/String;
+           24      14     2 table   Lse/krka/kahlua/vm/KahluaTable;
+
+  public se.krka.kahlua.vm.KahluaTable remove(java.lang.String);
+    Code:
+         0: aload_0
+         1: getfield      #22                 // Field modData:Ljava/util/Map;
+         4: aload_1
+         5: invokeinterface #142,  2          // InterfaceMethod java/util/Map.remove:(Ljava/lang/Object;)Ljava/lang/Object;
+        10: checkcast     #109                // class se/krka/kahlua/vm/KahluaTable
+        13: areturn
+      LineNumberTable:
+        line 106: 0
+      LocalVariableTable:
+        Start  Length  Slot  Name   Signature
+            0      14     0  this   Lzombie/world/moddata/GlobalModData;
+            0      14     1   tag   Ljava/lang/String;
+
+  public void add(java.lang.String, se.krka.kahlua.vm.KahluaTable);
+    Code:
+         0: aload_0
+         1: getfield      #22                 // Field modData:Ljava/util/Map;
+         4: aload_1
+         5: aload_2
+         6: invokeinterface #138,  3          // InterfaceMethod java/util/Map.put:(Ljava/lang/Object;Ljava/lang/Object;)Ljava/lang/Object;
+        11: pop
+        12: return
+      LineNumberTable:
+        line 110: 0
+        line 111: 12
+      LocalVariableTable:
+        Start  Length  Slot  Name   Signature
+            0      13     0  this   Lzombie/world/moddata/GlobalModData;
+            0      13     1   tag   Ljava/lang/String;
+            0      13     2 table   Lse/krka/kahlua/vm/KahluaTable;
+
+  public void transmit(java.lang.String);
+    Code:
+         0: aload_0
+         1: aload_1
+         2: invokevirtual #99                 // Method get:(Ljava/lang/String;)Lse/krka/kahlua/vm/KahluaTable;
+         5: astore_2
+         6: aload_2
+         7: ifnull        191
+        10: getstatic     #145                // Field zombie/network/GameClient.client:Z
+        13: ifeq          75
+        16: new           #151                // class zombie/network/packets/service/GlobalModDataPacket
+        19: dup
+        20: invokespecial #153                // Method zombie/network/packets/service/GlobalModDataPacket."<init>":()V
+        23: astore_3
+        24: aload_3
+        25: aload_1
+        26: aload_2
+        27: invokevirtual #154                // Method zombie/network/packets/service/GlobalModDataPacket.set:(Ljava/lang/String;Lse/krka/kahlua/vm/KahluaTable;)V
+        30: getstatic     #158                // Field zombie/network/GameClient.connection:Lzombie/core/raknet/UdpConnection;
+        33: invokevirtual #162                // Method zombie/core/raknet/UdpConnection.startPacket:()Lzombie/core/network/ByteBufferWriter;
+        36: astore        4
+        38: getstatic     #168                // Field zombie/network/PacketTypes$PacketType.GlobalModData:Lzombie/network/PacketTypes$PacketType;
+        41: aload         4
+        43: invokevirtual #174                // Method zombie/network/PacketTypes$PacketType.doPacket:(Lzombie/core/network/ByteBufferWriter;)V
+        46: aload_3
+        47: aload         4
+        49: invokevirtual #178                // Method zombie/network/packets/service/GlobalModDataPacket.write:(Lzombie/core/network/ByteBufferWriter;)V
+        52: getstatic     #168                // Field zombie/network/PacketTypes$PacketType.GlobalModData:Lzombie/network/PacketTypes$PacketType;
+        55: getstatic     #158                // Field zombie/network/GameClient.connection:Lzombie/core/raknet/UdpConnection;
+        58: invokevirtual #181                // Method zombie/network/PacketTypes$PacketType.send:(Lzombie/network/IConnection;)V
+        61: goto          72
+        64: astore        5
+        66: getstatic     #158                // Field zombie/network/GameClient.connection:Lzombie/core/raknet/UdpConnection;
+        69: invokevirtual #187                // Method zombie/core/raknet/UdpConnection.cancelPacket:()V
+        72: goto          200
+        75: getstatic     #190                // Field zombie/network/GameServer.server:Z
+        78: ifeq          200
+        81: new           #151                // class zombie/network/packets/service/GlobalModDataPacket
+        84: dup
+        85: invokespecial #153                // Method zombie/network/packets/service/GlobalModDataPacket."<init>":()V
+        88: astore_3
+        89: aload_3
+        90: aload_1
+        91: aload_2
+        92: invokevirtual #154                // Method zombie/network/packets/service/GlobalModDataPacket.set:(Ljava/lang/String;Lse/krka/kahlua/vm/KahluaTable;)V
+        95: iconst_0
+        96: istore        4
+        98: iload         4
+       100: getstatic     #195                // Field zombie/network/GameServer.udpEngine:Lzombie/core/raknet/UdpEngine;
+       103: getfield      #199                // Field zombie/core/raknet/UdpEngine.connections:Ljava/util/List;
+       106: invokeinterface #205,  1          // InterfaceMethod java/util/List.size:()I
+       111: if_icmpge     177
+       114: getstatic     #195                // Field zombie/network/GameServer.udpEngine:Lzombie/core/raknet/UdpEngine;
+       117: getfield      #199                // Field zombie/core/raknet/UdpEngine.connections:Ljava/util/List;
+       120: iload         4
+       122: invokeinterface #209,  2          // InterfaceMethod java/util/List.get:(I)Ljava/lang/Object;
+       127: checkcast     #163                // class zombie/core/raknet/UdpConnection
+       130: astore        5
+       132: aload         5
+       134: invokevirtual #162                // Method zombie/core/raknet/UdpConnection.startPacket:()Lzombie/core/network/ByteBufferWriter;
+       137: astore        6
+       139: getstatic     #168                // Field zombie/network/PacketTypes$PacketType.GlobalModData:Lzombie/network/PacketTypes$PacketType;
+       142: aload         6
+       144: invokevirtual #174                // Method zombie/network/PacketTypes$PacketType.doPacket:(Lzombie/core/network/ByteBufferWriter;)V
+       147: aload_3
+       148: aload         6
+       150: invokevirtual #178                // Method zombie/network/packets/service/GlobalModDataPacket.write:(Lzombie/core/network/ByteBufferWriter;)V
+       153: getstatic     #168                // Field zombie/network/PacketTypes$PacketType.GlobalModData:Lzombie/network/PacketTypes$PacketType;
+       156: aload         5
+       158: invokevirtual #181                // Method zombie/network/PacketTypes$PacketType.send:(Lzombie/network/IConnection;)V
+       161: goto          171
+       164: astore        7
+       166: aload         5
+       168: invokevirtual #187                // Method zombie/core/raknet/UdpConnection.cancelPacket:()V
+       171: iinc          4, 1
+       174: goto          98
+       177: goto          200
+       180: astore_3
+       181: aload_3
+       182: invokevirtual #214                // Method java/lang/Exception.getMessage:()Ljava/lang/String;
+       185: invokestatic  #129                // Method zombie/debug/DebugLog.log:(Ljava/lang/String;)V
+       188: goto          200
+       191: aload_1
+       192: invokedynamic #217,  0            // InvokeDynamic #1:makeConcatWithConstants:(Ljava/lang/String;)Ljava/lang/String;
+       197: invokestatic  #129                // Method zombie/debug/DebugLog.log:(Ljava/lang/String;)V
+       200: return
+      Exception table:
+         from    to  target type
+            46    61    64   Class java/lang/RuntimeException
+           147   161   164   Class java/lang/RuntimeException
+            81   177   180   Class java/lang/Exception
+      LineNumberTable:
+        line 115: 0
+        line 116: 6
+        line 117: 10
+        line 118: 16
+        line 119: 24
+        line 120: 30
+        line 121: 38
+        line 123: 46
+        line 124: 52
+        line 127: 61
+        line 125: 64
+        line 126: 66
+        line 128: 72
+        line 130: 81
+        line 131: 89
+        line 132: 95
+        line 133: 114
+        line 134: 132
+        line 135: 139
+        line 137: 147
+        line 138: 153
+        line 141: 161
+        line 139: 164
+        line 140: 166
+        line 132: 171
+        line 145: 177
+        line 143: 180
+        line 144: 181
+        line 145: 188
+        line 148: 191
+        line 150: 200
+      LocalVariableTable:
+        Start  Length  Slot  Name   Signature
+           66       6     5     e   Ljava/lang/RuntimeException;
+           24      48     3 packet   Lzombie/network/packets/service/GlobalModDataPacket;
+           38      34     4   bbw   Lzombie/core/network/ByteBufferWriter;
+          166       5     7     e   Ljava/lang/RuntimeException;
+          132      39     5     c   Lzombie/core/raknet/UdpConnection;
+          139      32     6   bbw   Lzombie/core/network/ByteBufferWriter;
+           98      79     4     n   I
+           89      88     3 packet   Lzombie/network/packets/service/GlobalModDataPacket;
+          181       7     3     e   Ljava/lang/Exception;
+            0     201     0  this   Lzombie/world/moddata/GlobalModData;
+            0     201     1   tag   Ljava/lang/String;
+            6     195     2 table   Lse/krka/kahlua/vm/KahluaTable;
+
+  public void request(java.lang.String);
+    Code:
+         0: getstatic     #145                // Field zombie/network/GameClient.client:Z
+         3: ifeq          61
+         6: new           #218                // class zombie/network/packets/service/GlobalModDataRequestPacket
+         9: dup
+        10: invokespecial #220                // Method zombie/network/packets/service/GlobalModDataRequestPacket."<init>":()V
+        13: astore_2
+        14: aload_2
+        15: aload_1
+        16: invokevirtual #221                // Method zombie/network/packets/service/GlobalModDataRequestPacket.set:(Ljava/lang/String;)V
+        19: getstatic     #158                // Field zombie/network/GameClient.connection:Lzombie/core/raknet/UdpConnection;
+        22: invokevirtual #162                // Method zombie/core/raknet/UdpConnection.startPacket:()Lzombie/core/network/ByteBufferWriter;
+        25: astore_3
+        26: getstatic     #223                // Field zombie/network/PacketTypes$PacketType.GlobalModDataRequest:Lzombie/network/PacketTypes$PacketType;
+        29: aload_3
+        30: invokevirtual #174                // Method zombie/network/PacketTypes$PacketType.doPacket:(Lzombie/core/network/ByteBufferWriter;)V
+        33: aload_2
+        34: aload_3
+        35: invokevirtual #226                // Method zombie/network/packets/service/GlobalModDataRequestPacket.write:(Lzombie/core/network/ByteBufferWriter;)V
+        38: getstatic     #223                // Field zombie/network/PacketTypes$PacketType.GlobalModDataRequest:Lzombie/network/PacketTypes$PacketType;
+        41: getstatic     #158                // Field zombie/network/GameClient.connection:Lzombie/core/raknet/UdpConnection;
+        44: invokevirtual #181                // Method zombie/network/PacketTypes$PacketType.send:(Lzombie/network/IConnection;)V
+        47: goto          58
+        50: astore        4
+        52: getstatic     #158                // Field zombie/network/GameClient.connection:Lzombie/core/raknet/UdpConnection;
+        55: invokevirtual #187                // Method zombie/core/raknet/UdpConnection.cancelPacket:()V
+        58: goto          66
+        61: ldc           #227                // String GlobalModData -> can only request from Client.
+        63: invokestatic  #129                // Method zombie/debug/DebugLog.log:(Ljava/lang/String;)V
+        66: return
+      Exception table:
+         from    to  target type
+            33    47    50   Class java/lang/RuntimeException
+      LineNumberTable:
+        line 154: 0
+        line 155: 6
+        line 156: 14
+        line 157: 19
+        line 158: 26
+        line 160: 33
+        line 161: 38
+        line 164: 47
+        line 162: 50
+        line 163: 52
+        line 165: 58
+        line 166: 61
+        line 168: 66
+      LocalVariableTable:
+        Start  Length  Slot  Name   Signature
+           52       6     4     e   Ljava/lang/RuntimeException;
+           14      44     2 packet   Lzombie/network/packets/service/GlobalModDataRequestPacket;
+           26      32     3   bbw   Lzombie/core/network/ByteBufferWriter;
+            0      67     0  this   Lzombie/world/moddata/GlobalModData;
+            0      67     1   tag   Ljava/lang/String;
+
+  public void receiveRequest(zombie.core.network.ByteBufferReader, zombie.network.IConnection);
+    Code:
+         0: aload_1
+         1: invokevirtual #229                // Method zombie/core/network/ByteBufferReader.getUTF:()Ljava/lang/String;
+         4: astore_3
+         5: aload_0
+         6: aload_3
+         7: invokevirtual #99                 // Method get:(Ljava/lang/String;)Lse/krka/kahlua/vm/KahluaTable;
+        10: astore        4
+        12: aload         4
+        14: ifnonnull     26
+        17: aload_3
+        18: invokedynamic #234,  0            // InvokeDynamic #2:makeConcatWithConstants:(Ljava/lang/String;)Ljava/lang/String;
+        23: invokestatic  #129                // Method zombie/debug/DebugLog.log:(Ljava/lang/String;)V
+        26: getstatic     #190                // Field zombie/network/GameServer.server:Z
+        29: ifeq          205
+        32: iconst_0
+        33: istore        5
+        35: iload         5
+        37: getstatic     #195                // Field zombie/network/GameServer.udpEngine:Lzombie/core/raknet/UdpEngine;
+        40: getfield      #199                // Field zombie/core/raknet/UdpEngine.connections:Ljava/util/List;
+        43: invokeinterface #205,  1          // InterfaceMethod java/util/List.size:()I
+        48: if_icmpge     192
+        51: getstatic     #195                // Field zombie/network/GameServer.udpEngine:Lzombie/core/raknet/UdpEngine;
+        54: getfield      #199                // Field zombie/core/raknet/UdpEngine.connections:Ljava/util/List;
+        57: iload         5
+        59: invokeinterface #209,  2          // InterfaceMethod java/util/List.get:(I)Ljava/lang/Object;
+        64: checkcast     #163                // class zombie/core/raknet/UdpConnection
+        67: astore        6
+        69: aload         6
+        71: aload_2
+        72: if_acmpne     186
+        75: aload         6
+        77: invokevirtual #162                // Method zombie/core/raknet/UdpConnection.startPacket:()Lzombie/core/network/ByteBufferWriter;
+        80: astore        7
+        82: getstatic     #168                // Field zombie/network/PacketTypes$PacketType.GlobalModData:Lzombie/network/PacketTypes$PacketType;
+        85: aload         7
+        87: invokevirtual #174                // Method zombie/network/PacketTypes$PacketType.doPacket:(Lzombie/core/network/ByteBufferWriter;)V
+        90: aload         7
+        92: getfield      #235                // Field zombie/core/network/ByteBufferWriter.bb:Ljava/nio/ByteBuffer;
+        95: astore        8
+        97: aload         7
+        99: aload_3
+       100: invokevirtual #241                // Method zombie/core/network/ByteBufferWriter.putUTF:(Ljava/lang/String;)V
+       103: aload         7
+       105: aload         4
+       107: ifnull        114
+       110: iconst_1
+       111: goto          115
+       114: iconst_0
+       115: invokevirtual #244                // Method zombie/core/network/ByteBufferWriter.putBoolean:(Z)Z
+       118: pop
+       119: aload         4
+       121: ifnull        133
+       124: aload         4
+       126: aload         8
+       128: invokeinterface #248,  2          // InterfaceMethod se/krka/kahlua/vm/KahluaTable.save:(Ljava/nio/ByteBuffer;)V
+       133: getstatic     #168                // Field zombie/network/PacketTypes$PacketType.GlobalModData:Lzombie/network/PacketTypes$PacketType;
+       136: aload         6
+       138: invokevirtual #181                // Method zombie/network/PacketTypes$PacketType.send:(Lzombie/network/IConnection;)V
+       141: goto          186
+       144: astore        9
+       146: getstatic     #252                // Field zombie/debug/DebugType.General:Lzombie/debug/DebugType;
+       149: aload         9
+       151: getstatic     #258                // Field zombie/debug/LogSeverity.Error:Lzombie/debug/LogSeverity;
+       154: invokevirtual #264                // Method zombie/debug/DebugType.printException:(Ljava/lang/Throwable;Lzombie/debug/LogSeverity;)V
+       157: aload         6
+       159: invokevirtual #187                // Method zombie/core/raknet/UdpConnection.cancelPacket:()V
+       162: getstatic     #168                // Field zombie/network/PacketTypes$PacketType.GlobalModData:Lzombie/network/PacketTypes$PacketType;
+       165: aload         6
+       167: invokevirtual #181                // Method zombie/network/PacketTypes$PacketType.send:(Lzombie/network/IConnection;)V
+       170: goto          186
+       173: astore        10
+       175: getstatic     #168                // Field zombie/network/PacketTypes$PacketType.GlobalModData:Lzombie/network/PacketTypes$PacketType;
+       178: aload         6
+       180: invokevirtual #181                // Method zombie/network/PacketTypes$PacketType.send:(Lzombie/network/IConnection;)V
+       183: aload         10
+       185: athrow
+       186: iinc          5, 1
+       189: goto          35
+       192: goto          205
+       195: astore        5
+       197: aload         5
+       199: invokevirtual #214                // Method java/lang/Exception.getMessage:()Ljava/lang/String;
+       202: invokestatic  #129                // Method zombie/debug/DebugLog.log:(Ljava/lang/String;)V
+       205: return
+      Exception table:
+         from    to  target type
+            97   133   144   Class java/lang/Exception
+            97   133   173   any
+           144   162   173   any
+           173   175   173   any
+            32   192   195   Class java/lang/Exception
+      LineNumberTable:
+        line 171: 0
+        line 173: 5
+        line 174: 12
+        line 175: 17
+        line 178: 26
+        line 180: 32
+        line 181: 51
+        line 183: 69
+        line 184: 75
+        line 185: 82
+        line 187: 90
+        line 190: 97
+        line 191: 103
+        line 192: 119
+        line 193: 124
+        line 199: 133
+        line 200: 141
+        line 195: 144
+        line 196: 146
+        line 197: 157
+        line 199: 162
+        line 200: 170
+        line 199: 173
+        line 200: 183
+        line 180: 186
+        line 205: 192
+        line 203: 195
+        line 204: 197
+        line 207: 205
+      LocalVariableTable:
+        Start  Length  Slot  Name   Signature
+          146      16     9     e   Ljava/lang/Exception;
+           82     104     7   bbw   Lzombie/core/network/ByteBufferWriter;
+           97      89     8 output   Ljava/nio/ByteBuffer;
+           69     117     6     c   Lzombie/core/raknet/UdpConnection;
+           35     157     5     n   I
+          197       8     5     e   Ljava/lang/Exception;
+            0     206     0  this   Lzombie/world/moddata/GlobalModData;
+            0     206     1    bb   Lzombie/core/network/ByteBufferReader;
+            0     206     2 requesterConnection   Lzombie/network/IConnection;
+            5     201     3   tag   Ljava/lang/String;
+           12     194     4 table   Lse/krka/kahlua/vm/KahluaTable;
+
+  private static java.nio.ByteBuffer ensureCapacity(java.nio.ByteBuffer);
+    Code:
+         0: aload_0
+         1: ifnonnull     17
+         4: ldc_w         #268                // int 1048576
+         7: putstatic     #54                 // Field lastBlockSize:I
+        10: getstatic     #54                 // Field lastBlockSize:I
+        13: invokestatic  #269                // Method java/nio/ByteBuffer.allocate:(I)Ljava/nio/ByteBuffer;
+        16: areturn
+        17: aload_0
+        18: invokevirtual #275                // Method java/nio/ByteBuffer.capacity:()I
+        21: ldc_w         #278                // int 524288
+        24: iadd
+        25: putstatic     #54                 // Field lastBlockSize:I
+        28: getstatic     #54                 // Field lastBlockSize:I
+        31: invokestatic  #269                // Method java/nio/ByteBuffer.allocate:(I)Ljava/nio/ByteBuffer;
+        34: astore_1
+        35: aload_1
+        36: aload_0
+        37: invokevirtual #279                // Method java/nio/ByteBuffer.array:()[B
+        40: iconst_0
+        41: aload_0
+        42: invokevirtual #283                // Method java/nio/ByteBuffer.position:()I
+        45: invokevirtual #286                // Method java/nio/ByteBuffer.put:([BII)Ljava/nio/ByteBuffer;
+        48: areturn
+      LineNumberTable:
+        line 213: 0
+        line 214: 4
+        line 215: 10
+        line 218: 17
+        line 219: 28
+        line 220: 35
+      LocalVariableTable:
+        Start  Length  Slot  Name   Signature
+            0      49     0    bb   Ljava/nio/ByteBuffer;
+           35      14     1 newBB   Ljava/nio/ByteBuffer;
+
+  public void save() throws java.io.IOException;
+    Code:
+         0: invokestatic  #289                // Method zombie/core/Core.getInstance:()Lzombie/core/Core;
+         3: invokevirtual #295                // Method zombie/core/Core.isNoSave:()Z
+         6: ifeq          10
+         9: return
+        10: ldc_w         #298                // String Saving GlobalModData
+        13: invokestatic  #129                // Method zombie/debug/DebugLog.log:(Ljava/lang/String;)V
+        16: getstatic     #54                 // Field lastBlockSize:I
+        19: iconst_m1
+        20: if_icmpne     29
+        23: ldc_w         #268                // int 1048576
+        26: goto          32
+        29: getstatic     #54                 // Field lastBlockSize:I
+        32: invokestatic  #269                // Method java/nio/ByteBuffer.allocate:(I)Ljava/nio/ByteBuffer;
+        35: astore_1
+        36: aload_1
+        37: sipush        249
+        40: invokevirtual #302                // Method java/nio/ByteBuffer.putInt:(I)Ljava/nio/ByteBuffer;
+        43: pop
+        44: aload_1
+        45: aload_0
+        46: getfield      #22                 // Field modData:Ljava/util/Map;
+        49: invokeinterface #305,  1          // InterfaceMethod java/util/Map.size:()I
+        54: invokevirtual #302                // Method java/nio/ByteBuffer.putInt:(I)Ljava/nio/ByteBuffer;
+        57: pop
+        58: iconst_0
+        59: istore_2
+        60: aload_0
+        61: getfield      #22                 // Field modData:Ljava/util/Map;
+        64: invokeinterface #66,  1           // InterfaceMethod java/util/Map.entrySet:()Ljava/util/Set;
+        69: invokeinterface #70,  1           // InterfaceMethod java/util/Set.iterator:()Ljava/util/Iterator;
+        74: astore_3
+        75: aload_3
+        76: invokeinterface #76,  1           // InterfaceMethod java/util/Iterator.hasNext:()Z
+        81: ifeq          229
+        84: aload_3
+        85: invokeinterface #81,  1           // InterfaceMethod java/util/Iterator.next:()Ljava/lang/Object;
+        90: checkcast     #85                 // class java/util/Map$Entry
+        93: astore        4
+        95: aload_1
+        96: invokevirtual #275                // Method java/nio/ByteBuffer.capacity:()I
+        99: aload_1
+       100: invokevirtual #283                // Method java/nio/ByteBuffer.position:()I
+       103: isub
+       104: iconst_4
+       105: if_icmpge     124
+       108: aload_1
+       109: invokevirtual #283                // Method java/nio/ByteBuffer.position:()I
+       112: istore_2
+       113: aload_1
+       114: invokestatic  #306                // Method ensureCapacity:(Ljava/nio/ByteBuffer;)Ljava/nio/ByteBuffer;
+       117: pop
+       118: aload_1
+       119: iload_2
+       120: invokevirtual #310                // Method java/nio/ByteBuffer.position:(I)Ljava/nio/ByteBuffer;
+       123: pop
+       124: aload_1
+       125: invokevirtual #283                // Method java/nio/ByteBuffer.position:()I
+       128: istore        5
+       130: aload_1
+       131: iconst_0
+       132: invokevirtual #302                // Method java/nio/ByteBuffer.putInt:(I)Ljava/nio/ByteBuffer;
+       135: pop
+       136: aload_1
+       137: invokevirtual #283                // Method java/nio/ByteBuffer.position:()I
+       140: istore        6
+       142: aload_1
+       143: invokevirtual #283                // Method java/nio/ByteBuffer.position:()I
+       146: istore_2
+       147: aload_1
+       148: aload         4
+       150: invokeinterface #87,  1           // InterfaceMethod java/util/Map$Entry.getKey:()Ljava/lang/Object;
+       155: checkcast     #90                 // class java/lang/String
+       158: invokestatic  #312                // Method zombie/GameWindow.WriteString:(Ljava/nio/ByteBuffer;Ljava/lang/String;)V
+       161: aload         4
+       163: invokeinterface #318,  1          // InterfaceMethod java/util/Map$Entry.getValue:()Ljava/lang/Object;
+       168: checkcast     #109                // class se/krka/kahlua/vm/KahluaTable
+       171: aload_1
+       172: invokeinterface #248,  2          // InterfaceMethod se/krka/kahlua/vm/KahluaTable.save:(Ljava/nio/ByteBuffer;)V
+       177: goto          196
+       180: astore        7
+       182: aload_1
+       183: invokestatic  #306                // Method ensureCapacity:(Ljava/nio/ByteBuffer;)Ljava/nio/ByteBuffer;
+       186: astore_1
+       187: aload_1
+       188: iload_2
+       189: invokevirtual #310                // Method java/nio/ByteBuffer.position:(I)Ljava/nio/ByteBuffer;
+       192: pop
+       193: goto          142
+       196: aload_1
+       197: invokevirtual #283                // Method java/nio/ByteBuffer.position:()I
+       200: istore        7
+       202: aload_1
+       203: iload         5
+       205: invokevirtual #310                // Method java/nio/ByteBuffer.position:(I)Ljava/nio/ByteBuffer;
+       208: pop
+       209: aload_1
+       210: iload         7
+       212: iload         6
+       214: isub
+       215: invokevirtual #302                // Method java/nio/ByteBuffer.putInt:(I)Ljava/nio/ByteBuffer;
+       218: pop
+       219: aload_1
+       220: iload         7
+       222: invokevirtual #310                // Method java/nio/ByteBuffer.position:(I)Ljava/nio/ByteBuffer;
+       225: pop
+       226: goto          75
+       229: aload_1
+       230: invokevirtual #323                // Method java/nio/ByteBuffer.flip:()Ljava/nio/ByteBuffer;
+       233: pop
+       234: new           #327                // class java/io/File
+       237: dup
+       238: getstatic     #329                // Field zombie/ZomboidFileSystem.instance:Lzombie/ZomboidFileSystem;
+       241: ldc_w         #335                // String global_mod_data.tmp
+       244: invokevirtual #337                // Method zombie/ZomboidFileSystem.getFileNameInCurrentSave:(Ljava/lang/String;)Ljava/lang/String;
+       247: invokespecial #340                // Method java/io/File."<init>":(Ljava/lang/String;)V
+       250: astore_3
+       251: new           #342                // class java/io/FileOutputStream
+       254: dup
+       255: aload_3
+       256: invokespecial #344                // Method java/io/FileOutputStream."<init>":(Ljava/io/File;)V
+       259: astore        4
+       261: aload         4
+       263: invokevirtual #347                // Method java/io/FileOutputStream.getChannel:()Ljava/nio/channels/FileChannel;
+       266: lconst_0
+       267: invokevirtual #351                // Method java/nio/channels/FileChannel.truncate:(J)Ljava/nio/channels/FileChannel;
+       270: pop
+       271: aload         4
+       273: aload_1
+       274: invokevirtual #279                // Method java/nio/ByteBuffer.array:()[B
+       277: iconst_0
+       278: aload_1
+       279: invokevirtual #357                // Method java/nio/ByteBuffer.limit:()I
+       282: invokevirtual #360                // Method java/io/FileOutputStream.write:([BII)V
+       285: aload         4
+       287: invokevirtual #363                // Method java/io/FileOutputStream.flush:()V
+       290: aload         4
+       292: invokevirtual #366                // Method java/io/FileOutputStream.close:()V
+       295: new           #327                // class java/io/File
+       298: dup
+       299: getstatic     #329                // Field zombie/ZomboidFileSystem.instance:Lzombie/ZomboidFileSystem;
+       302: ldc_w         #369                // String global_mod_data.bin
+       305: invokevirtual #337                // Method zombie/ZomboidFileSystem.getFileNameInCurrentSave:(Ljava/lang/String;)Ljava/lang/String;
+       308: invokespecial #340                // Method java/io/File."<init>":(Ljava/lang/String;)V
+       311: astore        5
+       313: aload_3
+       314: aload         5
+       316: invokestatic  #371                // Method com/google/common/io/Files.copy:(Ljava/io/File;Ljava/io/File;)V
+       319: aload_3
+       320: invokevirtual #377                // Method java/io/File.delete:()Z
+       323: pop
+       324: goto          357
+       327: astore_1
+       328: getstatic     #252                // Field zombie/debug/DebugType.General:Lzombie/debug/DebugType;
+       331: aload_1
+       332: getstatic     #258                // Field zombie/debug/LogSeverity.Error:Lzombie/debug/LogSeverity;
+       335: ldc_w         #380                // String Error saving GlobalModData.
+       338: iconst_0
+       339: anewarray     #14                 // class java/lang/Object
+       342: invokevirtual #382                // Method zombie/debug/DebugType.printException:(Ljava/lang/Throwable;Lzombie/debug/LogSeverity;Ljava/lang/String;[Ljava/lang/Object;)V
+       345: new           #385                // class java/io/IOException
+       348: dup
+       349: ldc_w         #380                // String Error saving GlobalModData.
+       352: aload_1
+       353: invokespecial #387                // Method java/io/IOException."<init>":(Ljava/lang/String;Ljava/lang/Throwable;)V
+       356: athrow
+       357: return
+      Exception table:
+         from    to  target type
+           142   177   180   Class java/nio/BufferOverflowException
+            10   324   327   Class java/lang/Exception
+      LineNumberTable:
+        line 224: 0
+        line 225: 9
+        line 228: 10
+        line 229: 16
+        line 231: 36
+        line 232: 44
+        line 234: 58
+        line 235: 60
+        line 236: 95
+        line 237: 108
+        line 238: 113
+        line 239: 118
+        line 242: 124
+        line 243: 130
+        line 244: 136
+        line 248: 142
+        line 249: 147
+        line 250: 161
+        line 251: 177
+        line 252: 180
+        line 253: 182
+        line 254: 187
+        line 255: 193
+        line 258: 196
+        line 259: 202
+        line 260: 209
+        line 261: 219
+        line 262: 226
+        line 264: 229
+        line 266: 234
+        line 268: 251
+        line 269: 261
+        line 270: 271
+        line 271: 285
+        line 272: 290
+        line 274: 295
+        line 275: 313
+        line 276: 319
+        line 280: 324
+        line 277: 327
+        line 278: 328
+        line 279: 345
+        line 281: 357
+      LocalVariableTable:
+        Start  Length  Slot  Name   Signature
+          182      11     7     e   Ljava/nio/BufferOverflowException;
+          130      96     5 position1   I
+          142      84     6 position2   I
+          202      24     7 position3   I
+           95     131     4 entry   Ljava/util/Map$Entry;
+           36     288     1    bb   Ljava/nio/ByteBuffer;
+           60     264     2 elementPosition   I
+          251      73     3  path   Ljava/io/File;
+          261      63     4 output   Ljava/io/FileOutputStream;
+          313      11     5 pathFinal   Ljava/io/File;
+          328      29     1     e   Ljava/lang/Exception;
+            0     358     0  this   Lzombie/world/moddata/GlobalModData;
+
+  public void load() throws java.io.IOException;
+    Code:
+         0: invokestatic  #289                // Method zombie/core/Core.getInstance:()Lzombie/core/Core;
+         3: invokevirtual #295                // Method zombie/core/Core.isNoSave:()Z
+         6: ifeq          10
+         9: return
+        10: getstatic     #329                // Field zombie/ZomboidFileSystem.instance:Lzombie/ZomboidFileSystem;
+        13: ldc_w         #369                // String global_mod_data.bin
+        16: invokevirtual #337                // Method zombie/ZomboidFileSystem.getFileNameInCurrentSave:(Ljava/lang/String;)Ljava/lang/String;
+        19: astore_1
+        20: new           #327                // class java/io/File
+        23: dup
+        24: aload_1
+        25: invokespecial #340                // Method java/io/File."<init>":(Ljava/lang/String;)V
+        28: astore_2
+        29: aload_2
+        30: invokevirtual #390                // Method java/io/File.exists:()Z
+        33: ifne          43
+        36: invokestatic  #36                 // Method zombie/world/WorldDictionary.isIsNewGame:()Z
+        39: ifne          42
+        42: return
+        43: new           #392                // class java/io/FileInputStream
+        46: dup
+        47: aload_2
+        48: invokespecial #394                // Method java/io/FileInputStream."<init>":(Ljava/io/File;)V
+        51: astore_3
+        52: getstatic     #395                // Field zombie/debug/DebugType.DetailedInfo:Lzombie/debug/DebugType;
+        55: aload_1
+        56: invokedynamic #398,  0            // InvokeDynamic #3:makeConcatWithConstants:(Ljava/lang/String;)Ljava/lang/String;
+        61: invokevirtual #399                // Method zombie/debug/DebugType.trace:(Ljava/lang/Object;)V
+        64: aload_0
+        65: getfield      #22                 // Field modData:Ljava/util/Map;
+        68: invokeinterface #58,  1           // InterfaceMethod java/util/Map.clear:()V
+        73: aload_2
+        74: invokevirtual #403                // Method java/io/File.length:()J
+        77: l2i
+        78: invokestatic  #269                // Method java/nio/ByteBuffer.allocate:(I)Ljava/nio/ByteBuffer;
+        81: astore        4
+        83: aload         4
+        85: invokevirtual #407                // Method java/nio/ByteBuffer.clear:()Ljava/nio/ByteBuffer;
+        88: pop
+        89: aload_3
+        90: aload         4
+        92: invokevirtual #279                // Method java/nio/ByteBuffer.array:()[B
+        95: invokevirtual #409                // Method java/io/FileInputStream.read:([B)I
+        98: istore        5
+       100: aload         4
+       102: iload         5
+       104: invokevirtual #413                // Method java/nio/ByteBuffer.limit:(I)Ljava/nio/ByteBuffer;
+       107: pop
+       108: aload         4
+       110: invokevirtual #415                // Method java/nio/ByteBuffer.getInt:()I
+       113: istore        6
+       115: aload         4
+       117: invokevirtual #415                // Method java/nio/ByteBuffer.getInt:()I
+       120: istore        7
+       122: iconst_0
+       123: istore        8
+       125: iload         8
+       127: iload         7
+       129: if_icmpge     183
+       132: aload         4
+       134: invokevirtual #415                // Method java/nio/ByteBuffer.getInt:()I
+       137: istore        9
+       139: aload         4
+       141: invokestatic  #418                // Method zombie/GameWindow.ReadString:(Ljava/nio/ByteBuffer;)Ljava/lang/String;
+       144: astore        10
+       146: aload_0
+       147: invokevirtual #135                // Method createModDataTable:()Lse/krka/kahlua/vm/KahluaTable;
+       150: astore        11
+       152: aload         11
+       154: aload         4
+       156: iload         6
+       158: invokeinterface #422,  3          // InterfaceMethod se/krka/kahlua/vm/KahluaTable.load:(Ljava/nio/ByteBuffer;I)V
+       163: aload_0
+       164: getfield      #22                 // Field modData:Ljava/util/Map;
+       167: aload         10
+       169: aload         11
+       171: invokeinterface #138,  3          // InterfaceMethod java/util/Map.put:(Ljava/lang/Object;Ljava/lang/Object;)Ljava/lang/Object;
+       176: pop
+       177: iinc          8, 1
+       180: goto          125
+       183: aload_3
+       184: invokevirtual #425                // Method java/io/FileInputStream.close:()V
+       187: goto          211
+       190: astore        4
+       192: aload_3
+       193: invokevirtual #425                // Method java/io/FileInputStream.close:()V
+       196: goto          208
+       199: astore        5
+       201: aload         4
+       203: aload         5
+       205: invokevirtual #428                // Method java/lang/Throwable.addSuppressed:(Ljava/lang/Throwable;)V
+       208: aload         4
+       210: athrow
+       211: goto          244
+       214: astore_3
+       215: getstatic     #252                // Field zombie/debug/DebugType.General:Lzombie/debug/DebugType;
+       218: aload_3
+       219: getstatic     #258                // Field zombie/debug/LogSeverity.Error:Lzombie/debug/LogSeverity;
+       222: ldc_w         #432                // String Error loading GlobalModData.
+       225: iconst_0
+       226: anewarray     #14                 // class java/lang/Object
+       229: invokevirtual #382                // Method zombie/debug/DebugType.printException:(Ljava/lang/Throwable;Lzombie/debug/LogSeverity;Ljava/lang/String;[Ljava/lang/Object;)V
+       232: new           #385                // class java/io/IOException
+       235: dup
+       236: ldc_w         #432                // String Error loading GlobalModData.
+       239: aload_3
+       240: invokespecial #387                // Method java/io/IOException."<init>":(Ljava/lang/String;Ljava/lang/Throwable;)V
+       243: athrow
+       244: return
+      Exception table:
+         from    to  target type
+            52   183   190   Class java/lang/Throwable
+           192   196   199   Class java/lang/Throwable
+            43   211   214   Class java/lang/Exception
+      LineNumberTable:
+        line 284: 0
+        line 285: 9
+        line 287: 10
+        line 288: 20
+        line 289: 29
+        line 291: 36
+        line 294: 42
+        line 296: 43
+        line 297: 52
+        line 299: 64
+        line 300: 73
+        line 301: 83
+        line 302: 89
+        line 303: 100
+        line 305: 108
+        line 306: 115
+        line 307: 122
+        line 309: 132
+        line 311: 139
+        line 312: 146
+        line 313: 152
+        line 314: 163
+        line 307: 177
+        line 316: 183
+        line 296: 190
+        line 319: 211
+        line 316: 214
+        line 317: 215
+        line 318: 232
+        line 320: 244
+      LocalVariableTable:
+        Start  Length  Slot  Name   Signature
+          139      38     9 dataBlockSize   I
+          146      31    10   tag   Ljava/lang/String;
+          152      25    11 table   Lse/krka/kahlua/vm/KahluaTable;
+          125      58     8     i   I
+           83     100     4    bb   Ljava/nio/ByteBuffer;
+          100      83     5   len   I
+          115      68     6 worldVersion   I
+          122      61     7  size   I
+           52     159     3 inStream   Ljava/io/FileInputStream;
+          215      29     3     e   Ljava/lang/Exception;
+            0     245     0  this   Lzombie/world/moddata/GlobalModData;
+           20     225     1 fileName   Ljava/lang/String;
+           29     216     2  path   Ljava/io/File;
+
+  static {};
+    Code:
+         0: new           #23                 // class zombie/world/moddata/GlobalModData
+         3: dup
+         4: invokespecial #434                // Method "<init>":()V
+         7: putstatic     #435                // Field instance:Lzombie/world/moddata/GlobalModData;
+        10: iconst_m1
+        11: putstatic     #54                 // Field lastBlockSize:I
+        14: return
+      LineNumberTable:
+        line 43: 0
+        line 210: 10
+}

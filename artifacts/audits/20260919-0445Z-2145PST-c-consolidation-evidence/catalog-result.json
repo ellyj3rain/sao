@@ -1,0 +1,10 @@
+{
+  "current_units": 50,
+  "former_entries": 127,
+  "exact_archive_hashes": 127,
+  "missing_control": "rejected",
+  "duplicate_control": "rejected",
+  "map_border": "passed",
+  "C50_date_control": "rejected with C50 date finding",
+  "runtime_source_changes": 0
+}

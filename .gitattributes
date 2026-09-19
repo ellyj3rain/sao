@@ -13,3 +13,5 @@ VERSION     text eol=lf
 .github/**  text eol=lf
 *.jar       binary
 *.png       binary
+# Audit captures retain their recorded bytes across platforms.
+artifacts/audits/** -text -whitespace

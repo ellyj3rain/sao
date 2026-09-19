@@ -1,6 +1,6 @@
 | Document | Survivor Awareness Overhaul Maps |
 |---|---|
-| Version | `5.3.0.1-pre-alpha` |
+| Version | `2.7.14.1-pre-alpha` |
 | Author | ellyj3rain |
 | Repository | `MAPS.md` |
 | Status | CANONICAL - the three pictures a human reads first: runtime, knowledge, catalog. |

@@ -406,4 +406,147 @@ is retained in local Git refs (`archive/claude-ab-era-raw`, local only) as engin
 
 | Former label | Canonical batch | Treatment |
 |---|---|---|
-| `C130` in SAO PR 67 and its captures | [C127](C127-2026-09-18-causal-simulation-and-evidence.md) | Corrected identity of the same repair; no new batch. Earlier proposals labelled C127-C129 did not reserve numbers. Original commit and captured evidence identifiers remain historical. |
+| `C130` in SAO PR 67 and its captures | [C50](C50-2026-09-18-historical-simulation-recovery-and-evidence.md) | Corrected identity of the same repair; no new batch. Earlier proposals labelled C127-C129 did not reserve numbers. Original commit and captured evidence identifiers remain historical. |
+## C sequence consolidated on 2026-09-19
+
+Former identifiers in this section belong to the 127-entry sequence before
+this consolidation. They are distinct from the current C identifiers. Source
+comments, immutable captures, earlier audit reports and earlier append-only
+ledger entries retain those former identifiers. External sister records also
+retain their original SAO citations. Resolve them through this table.
+
+The raw records are preserved at local ref `archive/c-era-raw-20260919`.
+`C_RECATALOG.json` records every original path and SHA-256. The published
+source commit `89e7451eea841e7d097902374d8acf293d920cc9` has the same tree
+as the local archive, so former records can also be retrieved there. The current
+records summarize the work and preserve explicit unresolved findings.
+
+| Former batch | Current batch | Boundary treatment |
+|---|---|---|
+| `C1` | [C1](C1-2026-08-28-catalog-and-version-governance.md) | Absorbing adjacent unit |
+| `C2` | [C1](C1-2026-08-28-catalog-and-version-governance.md) | Joined with adjacent work |
+| `C3` | [C2](C2-2026-08-29-identity-and-execution-continuity.md) | Absorbing adjacent unit |
+| `C4` | [C2](C2-2026-08-29-identity-and-execution-continuity.md) | Joined with adjacent work |
+| `C5` | [C2](C2-2026-08-29-identity-and-execution-continuity.md) | Joined with adjacent work |
+| `C6` | [C3](C3-2026-08-29-inspection-and-person-state.md) | Absorbing adjacent unit |
+| `C7` | [C3](C3-2026-08-29-inspection-and-person-state.md) | Joined with adjacent work |
+| `C8` | [C4](C4-2026-08-29-death-ownership-and-infection-timing.md) | Absorbing adjacent unit |
+| `C9` | [C4](C4-2026-08-29-death-ownership-and-infection-timing.md) | Joined with adjacent work |
+| `C10` | [C4](C4-2026-08-29-death-ownership-and-infection-timing.md) | Joined with adjacent work |
+| `C11` | [C4](C4-2026-08-29-death-ownership-and-infection-timing.md) | Joined with adjacent work |
+| `C12` | [C5](C5-2026-08-29-player-surfaces-and-compatibility-review.md) | Absorbing adjacent unit |
+| `C13` | [C5](C5-2026-08-29-player-surfaces-and-compatibility-review.md) | Joined with adjacent work |
+| `C14` | [C5](C5-2026-08-29-player-surfaces-and-compatibility-review.md) | Joined with adjacent work |
+| `C15` | [C6](C6-2026-08-29-person-state-across-reload.md) | Boundary retained |
+| `C16` | [C7](C7-2026-08-29-zombie-census-and-bounded-restitution.md) | Absorbing adjacent unit |
+| `C17` | [C7](C7-2026-08-29-zombie-census-and-bounded-restitution.md) | Joined with adjacent work |
+| `C18` | [C8](C8-2026-08-29-play-evidence-and-execution-corrections.md) | Absorbing adjacent unit |
+| `C19` | [C8](C8-2026-08-29-play-evidence-and-execution-corrections.md) | Joined with adjacent work |
+| `C20` | [C9](C9-2026-08-29-adoption-and-configuration-boundaries.md) | Absorbing adjacent unit |
+| `C21` | [C9](C9-2026-08-29-adoption-and-configuration-boundaries.md) | Joined with adjacent work |
+| `C22` | [C9](C9-2026-08-29-adoption-and-configuration-boundaries.md) | Joined with adjacent work |
+| `C23` | [C9](C9-2026-08-29-adoption-and-configuration-boundaries.md) | Joined with adjacent work |
+| `C24` | [C9](C9-2026-08-29-adoption-and-configuration-boundaries.md) | Joined with adjacent work |
+| `C25` | [C10](C10-2026-08-29-known-needs-and-social-interaction.md) | Absorbing adjacent unit |
+| `C26` | [C10](C10-2026-08-29-known-needs-and-social-interaction.md) | Joined with adjacent work |
+| `C27` | [C11](C11-2026-08-30-knowledge-conditioning-and-inference-measurement.md) | Absorbing adjacent unit |
+| `C28` | [C11](C11-2026-08-30-knowledge-conditioning-and-inference-measurement.md) | Joined with adjacent work |
+| `C29` | [C12](C12-2026-09-06-body-scale-age-and-childhood.md) | Absorbing adjacent unit |
+| `C30` | [C12](C12-2026-09-06-body-scale-age-and-childhood.md) | Joined with adjacent work |
+| `C31` | [C12](C12-2026-09-06-body-scale-age-and-childhood.md) | Joined with adjacent work |
+| `C32` | [C13](C13-2026-09-06-conditions-habits-and-strain.md) | Absorbing adjacent unit |
+| `C33` | [C13](C13-2026-09-06-conditions-habits-and-strain.md) | Joined with adjacent work |
+| `C34` | [C13](C13-2026-09-06-conditions-habits-and-strain.md) | Joined with adjacent work |
+| `C35` | [C14](C14-2026-09-07-physical-gestures.md) | Boundary retained |
+| `C36` | [C15](C15-2026-09-07-historical-record-calendar.md) | Boundary retained |
+| `C37` | [C16](C16-2026-09-07-orders-through-standing.md) | Boundary retained |
+| `C38` | [C17](C17-2026-09-07-remembered-era-and-owned-condition-state.md) | Absorbing adjacent unit |
+| `C39` | [C17](C17-2026-09-07-remembered-era-and-owned-condition-state.md) | Joined with adjacent work |
+| `C40` | [C17](C17-2026-09-07-remembered-era-and-owned-condition-state.md) | Joined with adjacent work |
+| `C41` | [C18](C18-2026-09-07-historical-county-simulation.md) | Absorbing adjacent unit |
+| `C42` | [C18](C18-2026-09-07-historical-county-simulation.md) | Joined with adjacent work |
+| `C43` | [C18](C18-2026-09-07-historical-county-simulation.md) | Joined with adjacent work |
+| `C44` | [C18](C18-2026-09-07-historical-county-simulation.md) | Joined with adjacent work |
+| `C45` | [C18](C18-2026-09-07-historical-county-simulation.md) | Joined with adjacent work |
+| `C46` | [C18](C18-2026-09-07-historical-county-simulation.md) | Joined with adjacent work |
+| `C47` | [C19](C19-2026-09-07-constrained-factual-expression.md) | Boundary retained |
+| `C48` | [C20](C20-2026-09-07-entry-and-command-permission.md) | Absorbing adjacent unit |
+| `C49` | [C20](C20-2026-09-07-entry-and-command-permission.md) | Joined with adjacent work |
+| `C50` | [C21](C21-2026-09-08-learned-expression-and-condition-integration.md) | Absorbing adjacent unit |
+| `C51` | [C21](C21-2026-09-08-learned-expression-and-condition-integration.md) | Joined with adjacent work |
+| `C52` | [C21](C21-2026-09-08-learned-expression-and-condition-integration.md) | Joined with adjacent work |
+| `C53` | [C22](C22-2026-09-08-personal-choice-in-shared-travel.md) | Absorbing adjacent unit |
+| `C54` | [C22](C22-2026-09-08-personal-choice-in-shared-travel.md) | Joined with adjacent work |
+| `C55` | [C23](C23-2026-09-08-witnessed-violence-attribution.md) | Boundary retained |
+| `C56` | [C24](C24-2026-09-08-verification-and-publication-machinery.md) | Absorbing adjacent unit |
+| `C57` | [C24](C24-2026-09-08-verification-and-publication-machinery.md) | Joined with adjacent work |
+| `C58` | [C24](C24-2026-09-08-verification-and-publication-machinery.md) | Joined with adjacent work |
+| `C59` | [C24](C24-2026-09-08-verification-and-publication-machinery.md) | Joined with adjacent work |
+| `C60` | [C25](C25-2026-09-08-player-depletion-of-places.md) | Boundary retained |
+| `C61` | [C26](C26-2026-09-08-shared-county-time-and-day-zero.md) | Absorbing adjacent unit |
+| `C62` | [C26](C26-2026-09-08-shared-county-time-and-day-zero.md) | Joined with adjacent work |
+| `C63` | [C26](C26-2026-09-08-shared-county-time-and-day-zero.md) | Joined with adjacent work |
+| `C64` | [C27](C27-2026-09-08-scoped-verification-claims.md) | Boundary retained |
+| `C65` | [C28](C28-2026-09-08-simulation-telemetry-and-reproducibility.md) | Absorbing adjacent unit |
+| `C66` | [C28](C28-2026-09-08-simulation-telemetry-and-reproducibility.md) | Joined with adjacent work |
+| `C67` | [C29](C29-2026-09-08-dormant-social-continuity-and-county-measurement.md) | Absorbing adjacent unit |
+| `C68` | [C29](C29-2026-09-08-dormant-social-continuity-and-county-measurement.md) | Joined with adjacent work |
+| `C69` | [C29](C29-2026-09-08-dormant-social-continuity-and-county-measurement.md) | Joined with adjacent work |
+| `C70` | [C29](C29-2026-09-08-dormant-social-continuity-and-county-measurement.md) | Joined with adjacent work |
+| `C71` | [C29](C29-2026-09-08-dormant-social-continuity-and-county-measurement.md) | Joined with adjacent work |
+| `C72` | [C29](C29-2026-09-08-dormant-social-continuity-and-county-measurement.md) | Joined with adjacent work |
+| `C73` | [C29](C29-2026-09-08-dormant-social-continuity-and-county-measurement.md) | Joined with adjacent work |
+| `C74` | [C30](C30-2026-09-09-ownership-across-the-three-repositories.md) | Boundary retained |
+| `C75` | [C31](C31-2026-09-09-dormant-movement-settlement-ground-and-cost.md) | Absorbing adjacent unit |
+| `C76` | [C31](C31-2026-09-09-dormant-movement-settlement-ground-and-cost.md) | Joined with adjacent work |
+| `C77` | [C31](C31-2026-09-09-dormant-movement-settlement-ground-and-cost.md) | Joined with adjacent work |
+| `C78` | [C32](C32-2026-09-09-infection-course-and-clinical-observation.md) | Absorbing adjacent unit |
+| `C79` | [C32](C32-2026-09-09-infection-course-and-clinical-observation.md) | Joined with adjacent work |
+| `C80` | [C32](C32-2026-09-09-infection-course-and-clinical-observation.md) | Joined with adjacent work |
+| `C81` | [C33](C33-2026-09-09-controller-ownership-and-driving-surface-verification.md) | Absorbing adjacent unit |
+| `C82` | [C33](C33-2026-09-09-controller-ownership-and-driving-surface-verification.md) | Joined with adjacent work |
+| `C83` | [C34](C34-2026-09-10-decision-capture-and-ratified-data-preparation.md) | Absorbing adjacent unit |
+| `C84` | [C34](C34-2026-09-10-decision-capture-and-ratified-data-preparation.md) | Joined with adjacent work |
+| `C85` | [C34](C34-2026-09-10-decision-capture-and-ratified-data-preparation.md) | Joined with adjacent work |
+| `C86` | [C34](C34-2026-09-10-decision-capture-and-ratified-data-preparation.md) | Joined with adjacent work |
+| `C87` | [C34](C34-2026-09-10-decision-capture-and-ratified-data-preparation.md) | Joined with adjacent work |
+| `C88` | [C34](C34-2026-09-10-decision-capture-and-ratified-data-preparation.md) | Joined with adjacent work |
+| `C89` | [C35](C35-2026-09-10-life-simulation-and-dependency-contracts.md) | Absorbing adjacent unit |
+| `C90` | [C35](C35-2026-09-10-life-simulation-and-dependency-contracts.md) | Joined with adjacent work |
+| `C91` | [C35](C35-2026-09-10-life-simulation-and-dependency-contracts.md) | Joined with adjacent work |
+| `C92` | [C35](C35-2026-09-10-life-simulation-and-dependency-contracts.md) | Joined with adjacent work |
+| `C93` | [C35](C35-2026-09-10-life-simulation-and-dependency-contracts.md) | Joined with adjacent work |
+| `C94` | [C36](C36-2026-09-10-isolation-attachment-and-development-observations.md) | Absorbing adjacent unit |
+| `C95` | [C36](C36-2026-09-10-isolation-attachment-and-development-observations.md) | Joined with adjacent work |
+| `C96` | [C36](C36-2026-09-10-isolation-attachment-and-development-observations.md) | Joined with adjacent work |
+| `C97` | [C37](C37-2026-09-12-pathogen-data-and-recognition-integration.md) | Absorbing adjacent unit |
+| `C98` | [C37](C37-2026-09-12-pathogen-data-and-recognition-integration.md) | Joined with adjacent work |
+| `C99` | [C37](C37-2026-09-12-pathogen-data-and-recognition-integration.md) | Joined with adjacent work |
+| `C100` | [C37](C37-2026-09-12-pathogen-data-and-recognition-integration.md) | Joined with adjacent work |
+| `C101` | [C37](C37-2026-09-12-pathogen-data-and-recognition-integration.md) | Joined with adjacent work |
+| `C102` | [C37](C37-2026-09-12-pathogen-data-and-recognition-integration.md) | Joined with adjacent work |
+| `C103` | [C37](C37-2026-09-12-pathogen-data-and-recognition-integration.md) | Joined with adjacent work |
+| `C104` | [C37](C37-2026-09-12-pathogen-data-and-recognition-integration.md) | Joined with adjacent work |
+| `C105` | [C37](C37-2026-09-12-pathogen-data-and-recognition-integration.md) | Joined with adjacent work |
+| `C106` | [C38](C38-2026-09-12-player-claims-and-inhabited-ground.md) | Absorbing adjacent unit |
+| `C107` | [C38](C38-2026-09-12-player-claims-and-inhabited-ground.md) | Joined with adjacent work |
+| `C108` | [C38](C38-2026-09-12-player-claims-and-inhabited-ground.md) | Joined with adjacent work |
+| `C109` | [C39](C39-2026-09-12-readiness-corrections-and-recorded-rulings.md) | Absorbing adjacent unit |
+| `C110` | [C39](C39-2026-09-12-readiness-corrections-and-recorded-rulings.md) | Joined with adjacent work |
+| `C111` | [C40](C40-2026-09-12-personal-need-in-affiliation.md) | Boundary retained |
+| `C112` | [C41](C41-2026-09-13-county-tick-and-ordinary-activity.md) | Absorbing adjacent unit |
+| `C113` | [C41](C41-2026-09-13-county-tick-and-ordinary-activity.md) | Joined with adjacent work |
+| `C114` | [C42](C42-2026-09-13-driving-integration-and-configuration.md) | Absorbing adjacent unit |
+| `C115` | [C42](C42-2026-09-13-driving-integration-and-configuration.md) | Joined with adjacent work |
+| `C116` | [C43](C43-2026-09-13-afflicted-return-and-social-behavior.md) | Absorbing adjacent unit |
+| `C117` | [C43](C43-2026-09-13-afflicted-return-and-social-behavior.md) | Joined with adjacent work |
+| `C118` | [C44](C44-2026-09-14-robbery-and-raiding-actions.md) | Boundary retained |
+| `C119` | [C45](C45-2026-09-14-optional-county-events-and-care.md) | Boundary retained |
+| `C120` | [C46](C46-2026-09-14-child-and-everyday-activity-integration.md) | Boundary retained |
+| `C121` | [C47](C47-2026-09-14-drug-use-withdrawal-and-smoking.md) | Boundary retained |
+| `C122` | [C48](C48-2026-09-14-vehicle-animal-and-combat-integration.md) | Absorbing adjacent unit |
+| `C123` | [C48](C48-2026-09-14-vehicle-animal-and-combat-integration.md) | Joined with adjacent work |
+| `C124` | [C48](C48-2026-09-14-vehicle-animal-and-combat-integration.md) | Joined with adjacent work |
+| `C125` | [C49](C49-2026-09-14-brain-health-integration.md) | Boundary retained |
+| `C126` | [C50](C50-2026-09-18-historical-simulation-recovery-and-evidence.md) | Absorbing adjacent unit |
+| `C127` | [C50](C50-2026-09-18-historical-simulation-recovery-and-evidence.md) | Joined with adjacent work |

@@ -1,0 +1,38 @@
+[
+  [
+    "outcast_daily",
+    [
+      "shared/SAO_Standing.lua"
+    ],
+    "(function() ZAO={StateStore={read=function() return {terminalState=\"afflicted\"} end}}; SAO.Perception.returnsOf=function() return {{visits=10,place={cx=10,cy=10,minX=6}},{visits=5,place={cx=1000,cy=1000,minX=996}}} end; SAO.Standing.claim(\"p\",6,6,14,14,0); local out={}; for i=1,4 do SAO.Standing.outcastDrift(); out[#out+1]=rec.homeX end; return table.concat(out,\",\")..\";position=\"..rec.x end)()"
+  ],
+  [
+    "outcast_not_afflicted_control",
+    [
+      "shared/SAO_Standing.lua"
+    ],
+    "(function() ZAO={StateStore={read=function() return {terminalState=\"crossed\"} end}}; SAO.Perception.returnsOf=function() return {{visits=5,place={cx=1000,cy=1000,minX=996}}} end; SAO.Standing.claim(\"p\",6,6,14,14,0); SAO.Standing.outcastDrift(); return rec.homeX end)()"
+  ],
+  [
+    "child_healthy_and_healed",
+    [
+      "shared/SAO_Disposition.lua",
+      "client/SAO_Age.lua"
+    ],
+    "(function() local count=0; local parts={size=function() return count end,get=function() return {bitten=function() return true end} end}; local body={getBodyDamage=function() return {getBodyParts=function() return parts end} end}; local before=SAO.Disposition.fear(\"p\"); SAO.Age.woundWatch(rec,body); local healthy=SAO.Disposition.fear(\"p\"); count=1; SAO.Age.woundWatch(rec,body); local hurt=SAO.Disposition.fear(\"p\"); count=0; SAO.Age.woundWatch(rec,body); return \"before=\"..before..\",healthy=\"..healthy..\",hurt=\"..hurt..\",healed=\"..SAO.Disposition.fear(\"p\")..\",count=\"..rec.woundCarried end)()"
+  ],
+  [
+    "methadone_clock",
+    [
+      "shared/SAO_Habits.lua"
+    ],
+    "(function() SAO.Habits.assert(\"p\",{opioids=true}); SAO.Habits.used(\"p\",\"opioids\",0); SAO.Habits.freezeUse(\"p\",\"opioids\",24); local during=SAO.Habits.cleanDays(\"p\",\"opioids\",600); local quit=SAO.Habits.settleUsers(\"p\",600); SAO.Habits.resumeUse(\"p\",\"opioids\",600); return \"duringFrozenDays=\"..during..\",settled=\"..quit..\",afterResumeDays=\"..SAO.Habits.cleanDays(\"p\",\"opioids\",600)..\",stillUser=\"..tostring(SAO.Habits.has(\"p\",\"opioids\")) end)()"
+  ],
+  [
+    "methadone_unfrozen_control",
+    [
+      "shared/SAO_Habits.lua"
+    ],
+    "(function() SAO.Habits.assert(\"p\",{opioids=true}); SAO.Habits.used(\"p\",\"opioids\",0); return \"days=\"..SAO.Habits.cleanDays(\"p\",\"opioids\",600)..\",settled=\"..SAO.Habits.settleUsers(\"p\",600) end)()"
+  ]
+]

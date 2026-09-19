@@ -1,6 +1,6 @@
 | Document | Survivor Awareness Overhaul Findings |
 |---|---|
-| Version | `5.3.0.1-pre-alpha` |
+| Version | `2.7.14.1-pre-alpha` |
 | Author | ellyj3rain |
 | Repository | `FINDINGS.md` |
 | Status | CANONICAL, APPEND-ONLY - verified engine findings. |
@@ -1615,3 +1615,57 @@ The repair called C130 above is canonically C127. The local sequence ended at
 C126; intervening unmerged proposal labels did not reserve batch numbers. The
 original statements and captured seed names remain historical identifiers of
 the same repair and evidence, not an additional development unit.
+
+## F-076 | 2026-09-19 04:33 UTC / 21:33 PST | Implementation audit of former C112-C126
+
+On 2026-09-19, the audit of former C112-C126 plus the former C127 recovery
+found thirteen original batches requiring rework, retained former C115's
+configuration wiring and rejected former C126's already-removed trajectory
+shortcut. These are former identifiers; the current C41-C50 units preserve
+the findings after consolidation. The report and exact inputs are retained in
+`artifacts/audits/20260919-0356Z-2056PST-c112-c126-implementation-audit.md`
+and its adjacent evidence directory.
+
+The decision exporter retained mutable person and belief tables until final
+serialization. An installed-VM probe changed state after capture: an earlier
+row then contained the later fact, including its future acquisition tick,
+with zero reported capture failures. Driving probes reproduced route
+cancellation and a progress watchdog that cancelled despite actual movement.
+An afflicted-return probe produced a body without a controller; explicitly
+adopting the body supplied the positive control. Further probes reproduced
+automatic social relocation, premature transfer consequences, treatment/CPR
+queue conflict, zero-wound child fear, withdrawal-clock drift, inaccessible
+vehicle/animal reads and cadence-dependent brain state.
+
+Each report distinguishes executed counterexamples, source traces and
+unobserved play consequences. The preserved manifest hashes source and engine
+inputs. Passing targeted borders alongside these counterexamples limits what
+those borders establish; neither the audit nor catalog consolidation creates
+new runtime acceptance. Ratified behavior and approved dataset choices remain
+requirements while their implementations and source conditioning are repaired.
+
+## F-077 | 2026-09-19 04:33 UTC / 21:33 PST | Body release and graph serialization boundaries
+
+On 2026-09-19, the shipped Lua modules were executed in the installed Build
+42.20 Kahlua VM with isolated state and explicit bridge substitutes. Inputs,
+source hashes, Java probe, Lua controls, command runner and observed outputs
+are preserved in `artifacts/audits/20260919-0433Z-2133PST-c-substrate-evidence/`.
+
+`Body.release` removed the body, cleared Body.active and returned true after
+both throwing and empty snapshot capture; the previous snapshot and hour
+remained OLD_SNAPSHOT and 5. The successful control stored NEW_SNAPSHOT and
+hour 42 before removal. The empty result matches SAOHibernation.hibernate's
+actual Java failure convention (catch Throwable, return empty string).
+Population drops the controller before calling release and ignores its
+result. The counterexample establishes a broken ownership transition; it
+does not measure how often capture fails in play.
+
+The installed GlobalModData.save delegates to KahluaTable.save. Its serializer
+accepts strings, doubles, booleans and nested tables, skipping unsupported
+values such as functions. Saving the actual branching table succeeded at 569
+bytes. Loading retained branch IDs and pattern counts while omitting
+callbacks. Fresh module initialization and Integration.ensure restored the
+built-in readers, pressures and weights; an extension callback remained absent
+until its owner re-registers it. Therefore closures in the bound table do not
+demonstrate a normal save failure. Runtime registration and durable history
+still need distinct ownership and an extension reconstruction contract.
