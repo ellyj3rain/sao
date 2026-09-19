@@ -1918,6 +1918,13 @@ if ! "$PY" tools/durable_text_test.py; then
     fail=1
 fi
 
+# [C53] Border 168 - current decision time, day/tick conversion, reload and
+# native host pacing remain one explicit shared-time contract.
+if ! "$PY" tools/shared_time_test.py; then
+    note "BORDER FINDING - shared county time contract broken"
+    fail=1
+fi
+
 # Border 103 - the operator's speech is not in the repository: no
 # profanity in the tracked tree and no operator-quote attributions;
 # rulings are paraphrased content, speech stays with the speaker.

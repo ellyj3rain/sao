@@ -81,7 +81,7 @@ def main():
 
     # 2. The net.
     if "pendingCorpses" not in src["controller"] \
-            or "CORPSE_GRACE_TICKS" not in src["controller"]:
+            or "CORPSE_GRACE_HOST_TICKS" not in src["controller"]:
         faults.append("the controller does not hold dead shells for the "
                       "corpse net - a quiet course death leaves a dead "
                       "character standing, no corpse, no turn (F-044)")

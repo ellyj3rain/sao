@@ -3456,7 +3456,7 @@ local function runTheYears(conf)
     end
 
     local okT, startedMs = pcall(function() return getTimestampMs() end)
-    local ticksADay = 24 * 9000
+    local ticksADay = SAO.History.TICKS_PER_DAY
     local ticks = tonumber(s.yearsTicks) or (run * ticksADay)
     local targetTicks = owed * ticksADay
     local began = run

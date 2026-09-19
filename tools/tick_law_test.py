@@ -11,10 +11,10 @@ One law now: a tick is a 9000th of a county hour, and
 `ticks = floor(countyHours * 9000)`. The corollaries this border
 holds, measured rather than described:
 
-  * ONE CLOCK, TWO READERS. Both counters - the controller's and the
-    population's - read History's ticks fresh every frame; the frame
-    is a fallback only for a dead county whose SAO_History did not
-    load. Neither is incremented by the frame.
+  * ONE CLOCK, TWO READERS. The population reads History's ticks at its
+    callback and every controller decision read refreshes from History,
+    including historical substeps inside one callback. A host callback
+    advances the fallback only when SAO_History cannot answer.
   * A CADENCE IS A STAMP PLUS A SPAN, NEVER A MODULO. The clock can
     skip values - fast-forward, a lag spike - and a modulo gate
     fires only when a multiple lands exactly. The skip proof below
@@ -215,23 +215,30 @@ def main():
     seams = {
         "the arithmetic is named where the clock lives":
             "local TICKS_PER_HOUR = 9000" in history
-            and "return math.floor((H.countyHours() or 0) * TICKS_PER_HOUR)"
-                in history,
-        "the controller reads the one clock, frame as fallback only":
-            'tickCount = (okT and type(t) == "number") and t'
-            in controller,
+            and "function H.ticksFromHours(hours)" in history
+            and "return H.ticksFromHours(H.countyHours()) or 0" in history,
+        "the controller reads the one clock at decision time":
+            "local function refreshCountyTick()" in controller
+            and re.search(r"function Ctl\.tick\(\)[\s\S]*?refreshCountyTick\(\)"
+                          r"[\s\S]*?return tickCount", controller) is not None,
         "the population reads the same clock":
             'tickCounter = (okT and type(t) == "number") and t'
             in population,
-        "neither counter is incremented by the frame":
-            re.search(r"tickCount(?:er)?\s*=\s*tickCount(?:er)?\s*\+",
-                      controller + population) is None,
+        "only a missing clock advances the controller fallback":
+            "if not refreshCountyTick() then tickCount = tickCount + 1 end"
+            in controller
+            and re.search(r"tickCounter\s*=\s*tickCounter\s*\+",
+                          population) is None,
         "the pass gate is a stamp plus a span, never a modulo":
             "tickCounter - (lastPassAt or -TICK_INTERVAL) < TICK_INTERVAL"
             in population
             and "lastPassAt = tickCounter" in population,
-        "the tally flush keeps a stamp too":
-            "lastLogFlushAt" in controller,
+        "the tally flush keeps a host stamp":
+            "lastLogFlushHostTick" in controller
+            and "hostTickCount - (lastLogFlushHostTick" in controller,
+        "native corpse grace keeps host pacing":
+            "CORPSE_GRACE_HOST_TICKS" in controller
+            and "Ctl.settleCorpses(hostTickCount)" in controller,
         "the calibrated jump is gone":
             "YEARS_TICKS_PER_DAY" not in history + population,
         "the one persisted due-time is domain-guarded":
@@ -322,10 +329,9 @@ def main():
             print("  FAULT: " + f)
         print("  153) the tick is the county's clock: FAIL")
         return 1
-    print("  153) floor(countyHours * 9000), one clock read fresh by "
-          "both counters, stamp-plus-span cadences that fire on a "
-          "skipped clock, domain-guarded due-times, the wall clock kept "
-          "where a second is a second: PASS")
+    print("  153) floor(countyHours * 9000), current decision reads and "
+          "population passes on one clock, stamp-plus-span cadences that "
+          "fire on a skipped clock, native pacing kept on host time: PASS")
     return 0
 
 
