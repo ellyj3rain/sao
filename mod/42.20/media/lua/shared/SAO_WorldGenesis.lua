@@ -56,9 +56,13 @@ end
 
 function WorldGenesis.applyDay(day)
     if not WorldGenesis.ensure() then return 0 end
-    if not (SAO.Identity and SAO.Integration) then return 0 end
+    if not (SAO.Identity and SAO.Integration and SAO.History) then return 0 end
 
     day = tonumber(day) or 0
+    -- [C53] dailyCounty owns an elapsed county day; Integration owns a
+    -- county tick. Convert once, here at the producer/consumer boundary.
+    local tick = SAO.History.tickAtDayStart(day)
+    if type(tick) ~= "number" then return 0 end
     local changed = 0
     for id, record in pairs(SAO.Identity.all()) do
         if not record.dead and not (SAO.Body and SAO.Body.hasRepresentation(id)) then
@@ -68,7 +72,7 @@ function WorldGenesis.applyDay(day)
                 y = record.y,
             }
             local graph = SAO.Integration.apply(
-                id, agent, day, record.x, record.y)
+                id, agent, tick, record.x, record.y)
             local summary = summarize(graph)
             if summary then
                 record.worldGraph = summary

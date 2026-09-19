@@ -16,9 +16,9 @@ the machine. Names, dates, and threads below come from
 | Form | `major.minor.kohai.patch-maturity` |
 | Hard caps | minor 12; kohai 16; patch 24 |
 | Replay start | `0.1.0.0-pre-alpha` |
-| Current version | `2.7.14.3-pre-alpha` |
-| Closed chronology | `A1-C52` |
-| Next batch | `C53` |
+| Current version | `2.7.14.4-pre-alpha` |
+| Closed chronology | `A1-C53` |
+| Next batch | `C54` |
 | Executable source | [`tools/version_replay.py`](tools/version_replay.py) |
 
 ## Tier meanings
@@ -168,6 +168,7 @@ the machine. Names, dates, and threads below come from
 | `C50` | 2026-09-18 | patch | `2.7.14.1-pre-alpha` | Historical simulation recovery and evidence | Removed the rejected fixed-formula trajectory generator and repaired catch-up progress, company admission and diagnostic evidence refusal and provenance. Preserve the verified repairs and independent 90/365-day observations within their stated limits. No learned model or completed ML bridge resulted. The audit also identifies unresolved time consumers, population refill assumptions, the older decision exporter and missing life-simulation producers. |
 | `C51` | 2026-09-19 | patch | `2.7.14.2-pre-alpha` | Person preservation | Repaired person capture, teardown and restoration ownership; native supported-state snapshots preserve inventory, wounds, statistics and experience with controlled failure and legacy compatibility. |
 | `C52` | 2026-09-19 | patch | `2.7.14.3-pre-alpha` | Authorized afflicted return | Repaired Afflicted return as one authorized, durable transfer: ZAO retains the exact turned source until SAO restores supported living state, reaches critical viability with injuries preserved, and adopts the one returning person. This closes the existing return capability without crediting the still-unreachable and incomplete Crossed action system. |
+| `C53` | 2026-09-19 | patch | `2.7.14.4-pre-alpha` | Shared county time | Closed shared county time as one explicit contract: decision reads observe the current historical substep, day producers convert at the tick boundary, and native pacing remains separate. The timestamp inventory records legacy exceptions without claiming later physiology or action work complete. |
 
 ## The former number
 
@@ -188,11 +189,11 @@ establish release maturity.
 
 ## Next movement
 
-`C53` is the next batch. Its content determines its tier after it
+`C54` is the next batch. Its content determines its tier after it
 exists:
 
-| If C53 is | Result |
+| If C54 is | Result |
 |---|---|
-| patch or hotfix | `2.7.14.4-pre-alpha` |
+| patch or hotfix | `2.7.14.5-pre-alpha` |
 | kohai | `2.7.15.0-pre-alpha` |
 | minor | `2.8.0.0-pre-alpha` |

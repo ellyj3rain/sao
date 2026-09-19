@@ -1,13 +1,13 @@
 ﻿| Document | Survivor Awareness Overhaul Session State |
 |---|---|
-| Version | `2.7.14.3-pre-alpha` |
+| Version | `2.7.14.4-pre-alpha` |
 | Author | ellyj3rain |
 | Repository | `SESSION_STATE.md` |
 | Status | CANONICAL - current implementation and continuation. |
 
 # Session state
 
-**As of** 2026-09-19, `[C52]` repairs authorized Afflicted return after person preservation and the consolidated C1-C50 catalog.
+**As of** 2026-09-19, `[C53]` closes shared county time after the authorized Afflicted return and consolidated C1-C50 catalog.
 The C catalog is consolidated by adjacency and content using
 the A/B precedent: 29 A-batches, 52 B-batches and 51 C units, including the first post-consolidation repair. BATCH_LOG.md owns
 the chronology. Batches/FORMER_LABELS.md maps every former entry;
@@ -33,7 +33,7 @@ producers, persistence, evidence and gaps.
 |---|---|---|
 | Engine execution | NPC shell, bridge, movement, combat, timed-action adapters | Driving route ownership and progress; action cancellation and completion receipts. |
 | Person continuity | Durable identity, C51's supported body transaction and C52's authorized return/adoption/teardown with bodyless recovery | R3's remaining component persistence. |
-| Time and health | Shared hours/ticks, catch-up progress, infection course | Cached controller time, day/tick mismatch, cadence-dependent brain health and stale live inputs. |
+| Time and health | Current decision ticks, explicit day/tick conversion, catch-up/reload progress, separate host pacing, infection course | Cadence-dependent brain health, drug scheduling and stale live inputs remain R5 work. |
 | Afflicted and Crossed | ZAO pathogen state, Afflicted return transaction, four-pillar mind, a Crossed driving adapter | A32's Crossed decision pass is unreachable and lacks the retained human action system. Proximity exposure lacks an intentional action and SAO-to-ZAO ownership transfer. F-084 and SUBSTRATE assign the complete repair across R4-R10. |
 | Knowledge and access | Private beliefs, scanner, remembered sources, permission | Animals enter human beliefs; integrations can read inaccessible or unperceived state. |
 | Social development | Company mechanics, claims, observations, graph APIs | Automatic relocation and recognition; incomplete provisioning, affiliation, governance and other producers. |
@@ -81,6 +81,23 @@ remain unavailable until a fresh world load.
 Component/table serialization, running-world save/reopen and interrupted-save
 guarantees remain distinct. C52/A35 are closed implementation batches and remain undeployed.
 
+R2 closes in C53. `History` now owns the 9000-tick hour and 216000-tick day
+conversions. `Controller.tick()` refreshes at the decision boundary, including
+each historical substep inside one callback. WorldGenesis converts its day to a
+day-start tick before Integration consumes it. Native death-fall grace and
+operational flushing use a separate host-callback counter. The canonical unit
+inventory records the legacy hour/day names, wall-millisecond surfaces and
+non-time `updatedAt` counter rather than inferring units from `At` alone.
+
+Border 168 executes the shipped History, Controller callback and WorldGenesis
+in Kahlua across substeps, module reload, midnight, Day Zero settings,
+nondefault DayLength and large county-time skips. Three controls restore the
+cached decision value, day-as-tick call and county-paced corpse grace and fail
+at those defects. Border 160 retains production partial-day catch-up/reload.
+ZAO needs no R2 source change: its loaded controller reads the fresh SAO tick,
+and its durable pathogen history is explicitly day-based. C53 is undeployed;
+loaded-world pacing remains a play observation rather than a mechanical claim.
+
 The same audit found that the published A32 Crossed-execution claim is false.
 Normal Crossed state sets `currentForm` to `none`; the controller admits the
 whole Crossed decision pass only for a non-`none` form. Even if entered, it does
@@ -97,17 +114,12 @@ SUBSTRATE.md supplies the mechanisms, producer inventory and bounded technical
 investigations. Remaining work is planned, with implementation and verification
 still to do.
 
-The immediate repair is R1, an explicit ZAO-authorized afflicted-return
-transaction. The published C51 caller materializes a dead record before clearing its
-death flag; C51 now refuses it. A controlled actual-Lua continuation probe
-confirms the interaction and the older missing-controller defect behind it.
-The return must preserve one owner across restore, adoption, old-body removal,
-failure and reload, including people without a loaded ZAO body.
-
-R2 then repairs shared-time consumers and timestamp units; R3 extends native
-person continuity and validates the next update. R11-R12, immutable capture,
-protected approved data and world-knowledge preparation, can progress alongside
-these repairs. Pathogen state continues to belong to ZAO when present.
+The immediate repair is R3: extend native person continuity and validate the
+next native update on the repaired time axis. R4 follows with durable/runtime
+reconstruction, including same-process world changes and pending work. R11-R12,
+immutable capture, protected approved data and world-knowledge preparation, can
+progress alongside these repairs. Pathogen state continues to belong to ZAO
+when present.
 
 C51 repairs the F-077 body handoff. Capture failure keeps the prior record and
 ownership; incomplete teardown retains a durable snapshot for retry; all callers
@@ -132,7 +144,7 @@ consequences remain separate from the learned policy choosing among them.
 
 ## Verification and installed state
 
-C52 has 167 numbered borders through 182 gated mirrors; the
+C53 has 168 numbered borders through 183 gated mirrors; the
 published C51 baseline has 163 borders through 178 mirrors. These counts describe the
 apparatus, not acceptance. The audit reproduced defects while targeted checks
 passed. The earlier audit's intermittent Border 54 failure remains unexplained.

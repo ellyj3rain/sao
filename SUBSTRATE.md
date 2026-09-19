@@ -1,6 +1,6 @@
 | Document | Survivor Awareness Overhaul Dependency Substrate |
 |---|---|
-| Version | `2.7.14.3-pre-alpha` |
+| Version | `2.7.14.4-pre-alpha` |
 | Author | ellyj3rain |
 | Repository | `SUBSTRATE.md` |
 | Status | CANONICAL - what exists, what is planned, and what each area of concern needs. |
@@ -125,8 +125,8 @@ former batch labels inside evidence retain their historical meaning.
 | Contract | Producer and caller | Durable state | Observation or test | Remaining gap |
 |---|---|---|---|---|
 | One person across loaded and dormant life | Identity owns the record; Body.materialize creates a body; Controller.adopt attaches decisions; Population manages range transitions | Person registry and hibernation pack; body registry is transient | B executes Body.release in the installed VM, with successful, empty and throwing capture | C51 repairs the supported capture/teardown/restore transaction (Borders 162-163). C52 repairs authorized Afflicted return, exact-source transfer and controller adoption. Native components preserve inventory, equipment, Stats, BodyDamage and XP. Other character components remain R3 work. |
-| Returned afflicted people resume living | AfflictedReturn reads ZAO's loaded controlled bodies and calls Body.materialize | Existing person identity and ZAO pathogen state | A reproduced missing adoption before C51. The continuation probe now reproduces C51's dead-record refusal at the same caller. | R1 requires an authorized return transaction, controller adoption, acknowledged ZAO teardown and durable bodyless recovery. Removing the general dead-record refusal is not that transaction. |
-| County time has consistent units | History derives county hours/ticks; Population advances historical substeps; Controller exposes time to consumers | Historical progress and per-person timestamps | A traces cached Controller.tick and WorldGenesis.applyDay passing a day as a tick | Every consumer must declare units and read the advancing simulation time. A frame callback cannot stand in for many historical substeps. |
+| Returned afflicted people resume living | AfflictedReturn reads ZAO's loaded controlled bodies and calls Body.materialize | Existing person identity and ZAO pathogen state | C52/A35 execute the authorized transfer, source hold, return health and controller adoption under controlled Kahlua and installed-engine probes | R1 is closed. Running-save interruption across separate native save surfaces remains R4; the complete Crossed interaction remains assigned across R4-R10. |
+| County time has consistent units | History owns county hours, day/tick conversion and quantization; Population advances historical substeps; Controller refreshes decision time | Historical progress and per-person timestamps | C53 Border 168 executes current substep reads, reload, midnight, Day Zero/DayLength invariance, WorldGenesis conversion and separate host pacing; three mutations restore the named defects | R2 is closed. R3-R10 consume this axis; their domain scheduling and event integration remain their own work. |
 | Saved state reconstructs usable runtime behavior | GraphPersistence binds Branching tables to ModData; Integration.ensure registers built-ins | Serializable IDs and pattern history survive; closures do not | B saves and reloads an actual Kahlua table, then initializes the shipped modules | Built-ins reconstruct. An extension must re-register its callbacks; runtime registries need explicit ownership separate from durable history. No normal built-in reload failure is demonstrated. |
 | Facts are private and acquired | Java scans feed Perception; Knowledge preserves acquisition and Standing evaluates permission | Beliefs with source, time and uncertainty | A reproduces animals entering the IsoPlayer human path and traces global activity participant discovery | Narrow scanner output before decision use, preserve provenance and distinguish animal facts. Visibility and permission do not imply physical access. |
 | Actions have owned completion and interruption | Controller selects and queues engine actions; Driving, Medical, Animals and inventory adapters execute | Records should change from observed consequences | A exercises moving-vehicle cancellation, cancelled surrender, refused CPR and remote egg collection | Approach, queue, completion, failure and cancellation must be connected. A request must not award goods, experience, trust changes or learned capability. |
@@ -231,21 +231,39 @@ absence preserves SAO's normal lifecycle.
 
 ### R2-R4: time, complete person state and reconstruction
 
-`History.countyHours()` already reads persisted historical progress, and
-`History.ticks()` quantizes it at 9000 ticks/hour. `Controller.tick()` returns
-the cached callback value; `WorldGenesis.applyDay` passes a day into
-`Integration.apply`'s tick argument. Inventory all readers and persisted
-deadlines, declare their units, read the current simulation clock at decision
-boundaries and convert units at the producer boundary. Native animation,
-movement and real elapsed profiling retain their own engine clocks. Identify
-legacy timestamp origins before migrating them; an unidentifiable old frame
-counter cannot become a claimed historical time.
+C53 closes R2 with one conversion owner in `History`. County time is elapsed
+simulation time: 24 hours/day, 9000 ticks/hour and 216000 ticks/day. DayLength
+changes wall pacing only. `Controller.tick()` refreshes from `History.ticks()`
+at every decision read, so multiple historical substeps within one host callback
+observe their own durable `yearsTicks`. A missing History answer advances only
+the per-callback fallback. `WorldGenesis.applyDay` converts its elapsed day to
+the tick at that day's start before calling `Integration.apply`.
 
-Run real callback sequences with several historical substeps inside one host
-callback, partial-day save/reload, midnight, nondefault day lengths and day-zero
-off. Check timestamps and consequences, including drug daily work and physiology,
-against the same events partitioned differently. Retain C50's controlled
-elapsed-history scheduler as the base.
+| Axis and unit | Producer and conversion boundary | Current state and consumers |
+|---|---|---|
+| County hours | `History.countyHours()`; historical `yearsTicks / 9000`, then start offset plus engine world age | Durable physical/social stamps use `*Hours`: death, release, arrival, habits, rest, material use and event/news times. Legacy hour names are `Absorb.knoxProfiles.lastSeenAt`, Standing's `chairDeclinedAt`, `lastHeardAt`, `lastAckAt`, and runtime `bittenSaidAt`/`taughtAt`. |
+| Elapsed county day | `floor(countyHours / 24)` at the daily producer; calendar `recordDay()` remains a separate record position | SAO `last*Day`, `worldGraphDay`, historical progress and daily gates; ZAO `startedDay`, `lastAdvancedDay`, `returnEvent.day` and pathogen-history `day`. Runtime `demandedAt` and `yieldedAt` are day buckets. |
+| County tick | `History.ticksFromHours`, `tickAtDayStart` and `ticks`; floor, never round | Durable `yearsTicks`, belief/branch `at`, `lastAt`, `lastScanAt`, `nextDormantMoveAt`; runtime controller deadlines, `next*At`, `stateSince`, `taskDeadline`, `mournHoldUntil`, perception and action stamps. `Population` uses `History.TICKS_PER_DAY`; ZAO's loaded controller reads the fresh SAO tick. |
+| Host callback | Controller-local `hostTickCount`; never serialized and never passed as county time | Native death-fall grace (`atHostTick`) and operational tally flushing. The old pending-corpse `at` shape is accepted only as a transient compatibility fallback. |
+| Wall milliseconds | engine `getTimestampMs()` | Controller cost (`lastTickMs`), Voice cooldown (`lastSpokeMs`), UI/Inspect rebuild and JSONL pacing, historical-slice budget and diagnostic run identifiers. These never gate county outcomes. |
+| Native calendar or component clock | engine-owned value, retained only by the component that defines it | `Identity.createdAt` is a legacy string containing engine calendar milliseconds and is provenance only. Fitness/exercise timestamps remain an R3 native-component question. Movement, animation and timed actions keep their engine clocks. |
+| Non-time legacy names | no conversion permitted | `Identity.updatedAt` is a position revision counter. Organization `createdAt`/`joinedAt` are unused zero placeholders with no accepted time semantics; R9's actual producer must replace them before any temporal consumer exists. |
+
+Border 168 runs the shipped History, Controller callback and WorldGenesis code
+in Kahlua. It covers substeps without a host callback, a module reload, midnight,
+Day Zero on/off, nondefault DayLength, skipped county time and host-paced native
+work. Border 160 retains partial-day catch-up/reload and production callback
+ordering. The controls remove the decision refresh, pass day as tick and put
+corpse grace back on county time; each fails for its named reason. ZAO requires
+no R2 code change: its controller already obtains decision ticks through
+`SAO.Controller.tick()`, and its pathogen/state readers already use county hours
+or explicit elapsed days.
+
+R3 and R4 continue below. Their timestamp migrations must identify the old
+axis before conversion; an unidentifiable frame counter cannot become claimed
+historical time. R5 still owns drug scheduling and physiology partition
+equivalence. A common clock makes those repairs possible but does not complete
+them.
 
 Extend `SAONativeSnapshot`, `SAOHibernation` and Body's restoration order with
 the following field ownership. Native serializer availability is a starting

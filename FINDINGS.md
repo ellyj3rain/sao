@@ -1,6 +1,6 @@
 | Document | Survivor Awareness Overhaul Findings |
 |---|---|
-| Version | `2.7.14.3-pre-alpha` |
+| Version | `2.7.14.4-pre-alpha` |
 | Author | ellyj3rain |
 | Repository | `FINDINGS.md` |
 | Status | CANONICAL, APPEND-ONLY - verified engine findings. |
@@ -1869,3 +1869,30 @@ retained experience and verbs, deliberate goal selection, human action
 execution with the specified Afflicted exception, the exposure result and the
 SAO-to-ZAO body/controller transfer. R1 only returns a person as Afflicted and
 does not claim this later interaction.
+
+## F-085 | 2026-09-19 | A host callback was mistaken for current simulation time
+
+`Controller.tick()` returned a value cached at the start of its host callback.
+Population can execute many historical substeps inside that callback, updating
+durable `yearsTicks` before each step. Any decision consumer reached from those
+steps therefore saw the callback's earlier time. Separately,
+`WorldGenesis.applyDay` supplied an elapsed day directly to
+`Integration.apply`, whose third argument and downstream pressure/branch
+consumers are tick-based. Both values were numerically valid, so type checks and
+ordinary single-callback tests could not expose the unit errors.
+
+C53 makes History the conversion owner: 9000 ticks/hour, 216000 ticks/day and a
+named day-start boundary. Controller decision reads now refresh History at the
+moment of use. Native corpse animation grace and operational log flushing use a
+separate host-callback axis rather than dilating with county time. Border 168
+executes shipped Lua in Kahlua through historical substeps, reload, midnight,
+Day Zero and nondefault DayLength. Removing the fresh read, passing day as tick,
+or pacing the corpse net from county time flips the corresponding verdict.
+
+The timestamp inventory also found that a generic `At` suffix cannot establish
+a unit in this tree. Most controller deadlines are county ticks, several social
+and integration fields are county hours or days, `Identity.createdAt` is a
+legacy engine-calendar millisecond string, and `Identity.updatedAt` is a
+revision counter. SUBSTRATE now records those exceptions. Existing ZAO
+consumers already enter through the refreshed SAO tick or explicit county
+hours/days, so R2 requires no ZAO source change.

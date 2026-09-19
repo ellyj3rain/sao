@@ -47,7 +47,7 @@ local L = SAO.Log
 L.pending = L.pending or {}     -- tag -> kind -> count
 L.held = L.held or 0
 L.BURST = 200                   -- held lines that force an early flush
-L.EVERY = 600                   -- [C112] county ticks (~10s at 60fps frames on the default day) between flushes
+L.EVERY = 600                   -- [C53] host callbacks between operational flushes
 
 -- Something that happened once. Straight out, as before.
 function L.line(tag, msg)

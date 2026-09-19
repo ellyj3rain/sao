@@ -16,6 +16,27 @@ SAO = SAO or {}
 SAO.History = SAO.History or {}
 local H = SAO.History
 local TICKS_PER_HOUR = 9000
+local HOURS_PER_DAY = 24
+
+-- [C53] The conversion belongs to the clock. Producers that hold hours or
+-- days convert at their boundary instead of handing a differently named unit
+-- to a tick consumer. DayLength changes wall pacing, never these quantities.
+H.TICKS_PER_HOUR = TICKS_PER_HOUR
+H.TICKS_PER_DAY = HOURS_PER_DAY * TICKS_PER_HOUR
+
+function H.ticksFromHours(hours)
+    hours = tonumber(hours)
+    if not hours or hours ~= hours or hours == math.huge
+        or hours == -math.huge then return nil end
+    return math.floor(hours * TICKS_PER_HOUR)
+end
+
+function H.tickAtDayStart(day)
+    day = tonumber(day)
+    if not day or day ~= day or day == math.huge
+        or day == -math.huge then return nil end
+    return H.ticksFromHours(day * HOURS_PER_DAY)
+end
 
 -- [B47] One door out. `log` is what happened once; `tally` is
 -- what happens once per person, counted rather than printed.
@@ -84,7 +105,7 @@ local function livingDay()
     local owed = tonumber(s.yearsOwed) or 0
     if run >= owed then return nil end
     local ticks = tonumber(s.yearsTicks)
-    return ticks and math.floor(ticks / (24 * TICKS_PER_HOUR)) or run
+    return ticks and math.floor(ticks / H.TICKS_PER_DAY) or run
 end
 
 -- Fine-grained catch-up progress survives a slice and a save reload. Old
@@ -188,7 +209,7 @@ function H.ticks()
         local ticks = tonumber(yearsState().yearsTicks)
         if ticks then return ticks end
     end
-    return math.floor((H.countyHours() or 0) * TICKS_PER_HOUR)
+    return H.ticksFromHours(H.countyHours()) or 0
 end
 
 -- The county's calendar month, numbered 0 to 11 the way the engine

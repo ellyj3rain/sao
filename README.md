@@ -38,7 +38,7 @@ on the simulation.
 
 ## Status
 
-`2.7.14.3-pre-alpha` - the coordinate is computed by the version machine
+`2.7.14.4-pre-alpha` - the coordinate is computed by the version machine
 (`tools/version_replay.py`), never picked; `VERSION_MAP.md` shows the
 classification and the arithmetic.
 
@@ -63,10 +63,12 @@ unsupported curves. A validated learned accelerator remains unfinished.
 Trajectory exports require completed horizons and report simulation faults;
 headless receipts do not establish loaded-body behavior or play quality.
 
-C51 repairs person capture, teardown and restoration, using native component
-snapshots and tested failure paths. Inventory, equipment, wounds, statistics
-and experience survive the supported handoff. Other character components and
-the broader audit findings remain explicit work in `SUBSTRATE.md`.
+C51-C53 repair person preservation, authorized Afflicted return and shared
+county time. Inventory, equipment, wounds, statistics and experience survive
+the supported handoff; a returning person has one source and controller; every
+decision read sees the current historical substep. Other character components,
+the complete Crossed action system and the broader audit findings remain
+explicit work in `SUBSTRATE.md`.
 
 ## Requirements
 

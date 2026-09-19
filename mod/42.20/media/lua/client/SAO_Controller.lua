@@ -31,19 +31,14 @@ Ctl.agents = Ctl.agents or {}
 -- grace so the death fall gets its animation, then the bridge calls
 -- the engine's own die(), idempotent by its own guards.
 Ctl.pendingCorpses = Ctl.pendingCorpses or {}
-local CORPSE_GRACE_TICKS = 120   -- [C112] ~2s at 60fps frames on the default day; a fall, not a wait
+local CORPSE_GRACE_HOST_TICKS = 120 -- [C53] native callbacks: a fall, not county time
 
--- [C112] The tick this file runs on is the county's clock quantized
--- (`SAO.History.ticks`, a 9000th of a county hour) - read fresh every
--- frame, never incremented. The local stays because a county where
--- SAO_History cannot be reached still needs SOME monotone axis for its
--- session, and falls back to counting frames exactly as the whole mod
--- did before [C112]; a county with no History module is a stated dead
--- county already ([C62] says it at boot).
+-- [C112/C53] Simulation decisions use the county clock. Native pacing uses
+-- the host callback count: corpse animation grace and operational log flushes
+-- must not dilate under fast-forward or a nondefault DayLength.
 local tickCount = 0
--- [C112] The last tick the tallies were flushed at - the cadence law's
--- stamp (last fired plus a span, never a modulo).
-local lastLogFlushAt = nil
+local hostTickCount = 0
+local lastLogFlushHostTick = nil
 
 -- [B43] What it takes to have WITNESSED something happen to somebody.
 --
@@ -5382,7 +5377,7 @@ local function updateAgent(id, agent)
         -- [C8] Hold the body for the corpse net before the handles go:
         -- if the engine's own state machine makes the corpse first, the
         -- net's die() call finds it done and does nothing.
-        Ctl.pendingCorpses[id] = { body = body, at = tickCount }
+        Ctl.pendingCorpses[id] = { body = body, atHostTick = hostTickCount }
         SAO.Body.active[id] = nil   -- forget the handle; never removeFromWorld a corpse
         SAO.Body.foreign[id] = nil     -- [B51] both handles on both branches
         Ctl.agents[id] = nil
@@ -6967,28 +6962,35 @@ end
 -- [B27] The tick, readable from outside. The player's half of the
 -- experience loop is driven by a menu click rather than by this
 -- loop, and a belief still has to be stamped with when it crossed.
+local function refreshCountyTick()
+    local okT, t = pcall(function() return SAO.History.ticks() end)
+    if okT and type(t) == "number" and t == t
+        and t ~= math.huge and t ~= -math.huge then
+        tickCount = t
+        return true
+    end
+    return false
+end
+
 function Ctl.tick()
+    -- [C53] This is a decision-time read, not a host-frame cache.
+    -- Historical catch-up performs many county substeps inside one callback;
+    -- each consumer must see the substep that is currently being lived.
+    refreshCountyTick()
     return tickCount
 end
 
 local function onTickInner()
-    -- [C112] Read, not incremented: the county's clock quantized.
-    -- The pcall fallback keeps a monotone frame axis for a session in
-    -- a county whose History module did not load, which is the only
-    -- county that can reach it.
-    do
-        local okT, t = pcall(function() return SAO.History.ticks() end)
-        tickCount = (okT and type(t) == "number") and t or (tickCount + 1)
-    end
+    hostTickCount = hostTickCount + 1
+    -- A county with no History module is already a stated dead county, but
+    -- the controller keeps a monotone per-callback fallback for that session.
+    if not refreshCountyTick() then tickCount = tickCount + 1 end
     -- [B47] The tallies go out on a cadence, so a county that is
-    -- quietly meeting people all day says so once every ten seconds
-    -- (600 ticks, a 9000th-of-an-hour apiece - the seconds hold at
-    -- the 60fps frames the derivation assumed on the default day)
-    -- instead of once per meeting. [C112] a cadence is a last-fired
-    -- stamp plus a span - never a modulo, which a skipping clock can
-    -- step straight over.
-    if tickCount - (lastLogFlushAt or -SAO.Log.EVERY) >= SAO.Log.EVERY then
-        lastLogFlushAt = tickCount
+    -- quietly meeting people says so once every 600 host callbacks instead
+    -- of once per meeting. This is operational pacing, not county history.
+    if hostTickCount - (lastLogFlushHostTick or -SAO.Log.EVERY)
+        >= SAO.Log.EVERY then
+        lastLogFlushHostTick = hostTickCount
         SAO.Log.flush()
     end
     -- [B27] The player perceives through the SAME function every
@@ -7021,7 +7023,7 @@ local function onTickInner()
             end
         end
     end
-    Ctl.settleCorpses(tickCount)
+    Ctl.settleCorpses(hostTickCount)
 end
 
 function Ctl.settleCorpses(now)
@@ -7030,7 +7032,10 @@ function Ctl.settleCorpses(now)
     -- than papered over.
     if SAOJavaBridge then
         for pid, pend in pairs(Ctl.pendingCorpses) do
-            if now - pend.at >= CORPSE_GRACE_TICKS then
+            -- `at` is the pre-C53 runtime shape; pendingCorpses is not
+            -- durable, but accepting it keeps interrupted harnesses legible.
+            local enteredAt = pend.atHostTick or pend.at
+            if enteredAt and now - enteredAt >= CORPSE_GRACE_HOST_TICKS then
                 local okE, verdict = pcall(function()
                     return SAOJavaBridge:ensureCorpse(pend.body)
                 end)
