@@ -181,7 +181,7 @@ document already held; what is new binds the design in three places.
   order is a request weighed like any other. The understander
   therefore learns orders beside questions, statements, requests,
   offers and threats, and every order lands through standing. The
-  first slice is built: `[C37]` lands every ask the player can make
+  first slice is built: `[C16]` lands every ask the player can make
   of a person through standing - CAO's check on the Standing that
   exists - with refusal voiced and its reason given.
 - **The county without the engine.** A living county is to be

@@ -1,0 +1,116 @@
+{
+  "status": "PASS: recorded counterexamples reproduced",
+  "commands": [
+    {
+      "argv": [
+        "C:\\Users\\jleyv\\Peanut Butter\\JetBrains\\Java\\bin\\javac.exe",
+        "-encoding",
+        "UTF-8",
+        "-classpath",
+        "C:\\Program Files (x86)\\Steam\\steamapps\\common\\ProjectZomboid\\projectzomboid.jar",
+        "-d",
+        "C:\\Users\\jleyv\\AppData\\Local\\Temp\\sao-substrate-replay-vfktzt5s\\classes",
+        "C:\\Users\\jleyv\\Peanut Butter\\AI Assisted Software Engineering Mass Repository\\Projects\\survivor-awareness\\artifacts\\audits\\20260919-c-substrate-evidence\\GraphSerializationProbe.java",
+        "C:\\Users\\jleyv\\Peanut Butter\\AI Assisted Software Engineering Mass Repository\\Projects\\survivor-awareness\\tools\\luacheck\\LuaRun.java"
+      ],
+      "cwd": "C:\\Users\\jleyv\\AppData\\Local\\Temp\\sao-substrate-replay-vfktzt5s",
+      "timeout_seconds": 60,
+      "returncode": 0,
+      "stdout": "",
+      "stderr": ""
+    },
+    {
+      "argv": [
+        "C:\\Users\\jleyv\\Peanut Butter\\JetBrains\\Java\\bin\\java.exe",
+        "-cp",
+        "C:\\Users\\jleyv\\AppData\\Local\\Temp\\sao-substrate-replay-vfktzt5s\\classes;C:\\Program Files (x86)\\Steam\\steamapps\\common\\ProjectZomboid\\projectzomboid.jar",
+        "GraphSerializationProbe",
+        "C:\\Users\\jleyv\\Peanut Butter\\AI Assisted Software Engineering Mass Repository\\Projects\\survivor-awareness"
+      ],
+      "cwd": "C:\\Users\\jleyv\\AppData\\Local\\Temp\\sao-substrate-replay-vfktzt5s",
+      "timeout_seconds": 60,
+      "returncode": 0,
+      "stdout": "SERIALIZED bytes=569\nRESTORED nil,nil,nil,work,1\nREINITIALIZED function,function,function,nil,1\n",
+      "stderr": "WARNING: A restricted method in java.lang.System has been called\nWARNING: java.lang.System::load has been called by org.lwjgl.system.Library$$Lambda/0x000000008507c968 in an unnamed module (file:/C:/Program%20Files%20(x86)/Steam/steamapps/common/ProjectZomboid/projectzomboid.jar)\nWARNING: Use --enable-native-access=ALL-UNNAMED to avoid a warning for callers in this module\nWARNING: Restricted methods will be blocked in a future release unless native access is enabled\n\n"
+    },
+    {
+      "argv": [
+        "C:\\Users\\jleyv\\Peanut Butter\\JetBrains\\Java\\bin\\java.exe",
+        "-cp",
+        "C:\\Users\\jleyv\\AppData\\Local\\Temp\\sao-substrate-replay-vfktzt5s\\classes;C:\\Program Files (x86)\\Steam\\steamapps\\common\\ProjectZomboid\\projectzomboid.jar",
+        "LuaRun",
+        "C:\\Users\\jleyv\\Peanut Butter\\AI Assisted Software Engineering Mass Repository\\Projects\\survivor-awareness\\artifacts\\audits\\20260919-c-substrate-evidence\\body-prelude.lua",
+        "C:\\Users\\jleyv\\Peanut Butter\\AI Assisted Software Engineering Mass Repository\\Projects\\survivor-awareness\\mod\\42.20\\media\\lua\\client\\SAO_Body.lua",
+        "C:\\Users\\jleyv\\Peanut Butter\\AI Assisted Software Engineering Mass Repository\\Projects\\survivor-awareness\\artifacts\\audits\\20260919-c-substrate-evidence\\body-cases.lua",
+        "--",
+        "RESULT"
+      ],
+      "cwd": "C:\\Users\\jleyv\\AppData\\Local\\Temp\\sao-substrate-replay-vfktzt5s",
+      "timeout_seconds": 60,
+      "returncode": 0,
+      "stdout": "VALUE true,true,nil,NEW_SNAPSHOT,42 / true,true,nil,OLD_SNAPSHOT,5 / true,true,nil,OLD_SNAPSHOT,5\n",
+      "stderr": ""
+    }
+  ],
+  "inputs": [
+    {
+      "path": "C:\\Program Files (x86)\\Steam\\steamapps\\common\\ProjectZomboid\\projectzomboid.jar",
+      "sha256": "80e405a4bfc42f6072e75b3735f458a6514143da011d3226007ded305a442f44"
+    },
+    {
+      "path": "C:\\Users\\jleyv\\Peanut Butter\\AI Assisted Software Engineering Mass Repository\\Projects\\survivor-awareness\\artifacts\\audits\\20260919-c-substrate-evidence\\GraphSerializationProbe.java",
+      "sha256": "b94024a38ed780461ffd5341da44f10a9ccb88fcb7ca8042373831c32af7b8cb"
+    },
+    {
+      "path": "C:\\Users\\jleyv\\Peanut Butter\\AI Assisted Software Engineering Mass Repository\\Projects\\survivor-awareness\\artifacts\\audits\\20260919-c-substrate-evidence\\body-prelude.lua",
+      "sha256": "ac7f78514b065f4d157565fbffeb369b7b7adfeea646d9cf542862e233d63dc9"
+    },
+    {
+      "path": "C:\\Users\\jleyv\\Peanut Butter\\AI Assisted Software Engineering Mass Repository\\Projects\\survivor-awareness\\artifacts\\audits\\20260919-c-substrate-evidence\\body-cases.lua",
+      "sha256": "d2f01846bea945ea400b5b1005531ac8320379edce407d97bf563c64a5722827"
+    },
+    {
+      "path": "C:\\Users\\jleyv\\Peanut Butter\\AI Assisted Software Engineering Mass Repository\\Projects\\survivor-awareness\\tools\\luacheck\\LuaRun.java",
+      "sha256": "b1d28e21d87b1acd4011b89ffeb3a33984859221cd237802fa2f249598781c34"
+    },
+    {
+      "path": "C:\\Users\\jleyv\\Peanut Butter\\AI Assisted Software Engineering Mass Repository\\Projects\\survivor-awareness\\mod\\42.20\\media\\lua\\shared\\SAO_GraphPersistence.lua",
+      "sha256": "62249f87f42456cb026f977895614e4ceeabe394342e6358e910cdbfe23e72a4"
+    },
+    {
+      "path": "C:\\Users\\jleyv\\Peanut Butter\\AI Assisted Software Engineering Mass Repository\\Projects\\survivor-awareness\\mod\\42.20\\media\\lua\\shared\\SAO_Branching.lua",
+      "sha256": "0706d325aa73e3800e6713983053abb36b01f24dfee7639b2bf23f880967f852"
+    },
+    {
+      "path": "C:\\Users\\jleyv\\Peanut Butter\\AI Assisted Software Engineering Mass Repository\\Projects\\survivor-awareness\\mod\\42.20\\media\\lua\\shared\\SAO_Integration.lua",
+      "sha256": "46dd7d44f595158e71d4ca86b952a442a6ff4e2babb833a8011af93a8d45ccf2"
+    },
+    {
+      "path": "C:\\Users\\jleyv\\Peanut Butter\\AI Assisted Software Engineering Mass Repository\\Projects\\survivor-awareness\\mod\\42.20\\media\\lua\\client\\SAO_Body.lua",
+      "sha256": "3fc073aa355d7efbb8c943dea4eaebd99697e35cd8cfdb04d307431119a91014"
+    }
+  ],
+  "limits": [
+    "Known-defect replay, not a release gate or a complete save test.",
+    "Installed Kahlua VM and table serializer; no game/world launched.",
+    "Graph dependencies and event registration are explicit substitutes.",
+    "Body and bridge are substitutes; shipped Body.release executes.",
+    "No physical inventory, render teardown, or whole-game load is tested.",
+    "Fresh module initialization explicitly calls Integration.ensure.",
+    "The serializer is called directly with observed world version 249.",
+    "Passing confirms the recorded defects still reproduce."
+  ],
+  "stdlib_source": "C:\\Program Files (x86)\\Steam\\steamapps\\common\\ProjectZomboid\\stdlib.lua",
+  "stdlib_note": "Installed jar has no stdlib.lua entry; used its shipped install-root companion, copied only into private scratch.",
+  "stdlib_sha256": "583c294996ae65310fb1191b9a70584b59c163a0f2d257af53f06728ba3931eb",
+  "checks": {
+    "serialized_bytes": 569,
+    "unsupported_closures_omitted": true,
+    "branch_id_and_pattern_preserved": true,
+    "builtins_reconstructed_on_initialization": true,
+    "extension_requires_own_registration": true,
+    "successful_body_capture_control": true,
+    "throwing_capture_still_releases_body": true,
+    "empty_capture_still_releases_body": true
+  }
+}

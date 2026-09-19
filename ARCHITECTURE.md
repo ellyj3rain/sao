@@ -1,6 +1,6 @@
 | Document | Survivor Awareness Overhaul Architecture |
 |---|---|
-| Version | `5.3.0.1-pre-alpha` |
+| Version | `2.7.14.1-pre-alpha` |
 | Author | ellyj3rain |
 | Repository | `ARCHITECTURE.md` |
 | Status | ACTIVE - ratified framework shape. |
@@ -69,7 +69,7 @@ Relationships, group membership, orders, territory claims, hostility state, and
 who may direct whom. Standing channels a preference into a permitted action. It
 owns whether this survivor may enter that building, take that item, or fire on
 that person. It does not own execution and it never invents knowledge. Its
-command surface is `SAO_Command` (`[C37]`, DR-033): whose word a person takes,
+command surface is `SAO_Command` (`[C16]`, DR-033): whose word a person takes,
 in what matter, and why not - CAO's check on the standing that exists.
 
 ### Execution — what is done
@@ -165,8 +165,8 @@ world only). Dormant records drift through coarse days ([A11]): waypoints
 near home in daylight, home at night, no geometry - an abstraction of a
 person, not a hidden puppet. Where that day GOES is a decision: need
 past patience reaches the nearest known place offering the thing
-([C25]), somebody trusted and recently seen is somewhere to go
-([C72]), and otherwise the neighbourhood's own places, ranked by what
+([C10]), somebody trusted and recently seen is somewhere to go
+([C29]), and otherwise the neighbourhood's own places, ranked by what
 they offer today and how long since they were seen. How far the walking
 gets them is a rate over the county's clock - the ratified day-reach
 scaled by the pace of the age (DR-040) - so a day of clock carries a

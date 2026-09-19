@@ -1,0 +1,37 @@
+[
+  {
+    "border": "command_test",
+    "baseline": "pass",
+    "source_mutation": "SAO.Command.TEACH_MARGIN",
+    "control": "rejected",
+    "finding": "the controller's teaching margin is the module's"
+  },
+  {
+    "border": "era_test",
+    "baseline": "pass",
+    "source_mutation": "public static String countyDate(int year",
+    "control": "rejected",
+    "finding": "the record class holds the words"
+  },
+  {
+    "border": "world_before_spawn_test",
+    "baseline": "pass",
+    "source_mutation": "s.countySettled = true",
+    "control": "rejected",
+    "finding": "the flag lives in the county's own store"
+  },
+  {
+    "border": "survivor_orders_test",
+    "baseline": "pass",
+    "source_mutation": "onTheirWord(id, trespasserId,",
+    "control": "rejected",
+    "finding": "the trespass order goes through SAO_Command"
+  },
+  {
+    "border": "speech_register_test",
+    "baseline": "pass",
+    "source_mutation": "SAO.History.stageOf(SAO.History.ageOf(id))",
+    "control": "rejected",
+    "finding": "the child register comes from the stage, not a new field"
+  }
+]

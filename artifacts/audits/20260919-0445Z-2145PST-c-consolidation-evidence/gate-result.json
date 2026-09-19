@@ -1,0 +1,10 @@
+{
+  "command": "tools/check.sh",
+  "exit_code": 0,
+  "verdict": "all borders clean",
+  "numbered_borders": 161,
+  "gated_mirrors": 176,
+  "log_sha256": "1ccdfaafa9c9a9d6634cb6d0b223d8340d936d39c58de9271a0e483950ddc87c",
+  "engine": "installed Project Zomboid Build 42.20",
+  "limits": "Mechanical checks only; reproduced audit defects remain open."
+}

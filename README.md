@@ -8,18 +8,17 @@ durable inhabitants of the county, holding their own positions and intentions
 whether or not a player is nearby. Skill governs how well they execute; it
 never licenses behavior no person would produce.
 
-Nothing here is scripted and no behaviour table is authored. What a survivor
-does follows from temperament, standing, and the work a place actually needs;
-what they own comes from what the place actually yielded. Houses form, elect,
-quarrel and divide, and the county governs itself. Once the helicopter has
-stopped coming, newcomers walk in from outside.
+The design calls for organizations, work, culture and settlements to emerge
+from people's circumstances, actions and relationships. The implementation
+contains useful engine adapters and durable state, but also fixed decision
+rules, incomplete producers and reproduced continuity defects. Those gaps
+remain implementation work; the intended behavior is not a completion claim.
 
-Some capabilities need a player present and some do not, and this file says
-which. A house in the unwatched county forms, settles its dead, and takes
-ground on the building its members keep returning to. Lighting a hearth and
-stocking a larder still need a materialised body, because their call sites
-read state only a loaded character produces. `SESSION_STATE.md` carries the
-measurements.
+The 2026-09-19 consolidation groups 127 former C records into 50 coherent
+units, following the A/B precedent. [SESSION_STATE.md](SESSION_STATE.md)
+states the current assessment. [SUBSTRATE.md](SUBSTRATE.md) traces the engine,
+records, actions and observations needed before Speakeasy training can rely
+on the simulation.
 
 ## Where to read first
 
@@ -39,7 +38,7 @@ measurements.
 
 ## Status
 
-`5.3.0.1-pre-alpha` - the coordinate is computed by the version machine
+`2.7.14.1-pre-alpha` - the coordinate is computed by the version machine
 (`tools/version_replay.py`), never picked; `VERSION_MAP.md` shows the
 classification and the arithmetic.
 
@@ -47,16 +46,15 @@ Pre-alpha, and the evidence comes in two kinds.
 
 Play evidence accrues one observation at a time in `RECEIPTS.md`, which
 holds 6 so far: surfaces witnessed doing what their record claims,
-defects exposed in play, and observations still open. A batch stays open
-until receipts touch its surfaces, and a fix made from a receipt is
-pending until re-witnessed. Both are ordinary states, and a surface not
-named there is one nobody has watched yet rather than one that failed.
+defects exposed in play, and observations still open. Mechanical closure and
+play acceptance are distinct: an unobserved surface remains unobserved, and a
+fix made from a play receipt awaits observation of its resulting behavior.
 
-Everything else is held by the gate: numbered mechanical and behavioural
-checks run on every commit (the count lives in `SESSION_STATE.md`,
-computed rather than written by hand), and every engine surface used
-here is verified against the shipped `projectzomboid.jar` before use
-rather than assumed.
+Numbered mechanical and behavioural checks run on every commit; their count
+lives in `SESSION_STATE.md`. The implementation audit reproduced defects
+while targeted checks passed, so a green gate establishes only what its
+instruments can observe. Engine claims are checked against the installed
+`projectzomboid.jar` and shipped scripts.
 
 Late-start history currently runs the causal dormant simulation in bounded
 slices. Its completion and reload behavior are tested in the installed game VM.

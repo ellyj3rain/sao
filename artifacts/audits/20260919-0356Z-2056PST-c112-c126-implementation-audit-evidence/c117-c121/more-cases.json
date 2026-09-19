@@ -1,0 +1,30 @@
+[
+  [
+    "drug_daily_offset0",
+    [
+      "C:\\Users\\jleyv\\AppData\\Local\\Temp\\sao-audit-c117-c121-ru6dfv5_\\base.lua",
+      "C:\\Users\\jleyv\\AppData\\Local\\Temp\\sao-audit-c117-c121-ru6dfv5_\\driver.lua",
+      "C:\\Users\\jleyv\\Peanut Butter\\AI Assisted Software Engineering Mass Repository\\Projects\\survivor-awareness\\mod\\42.20\\media\\lua\\client\\SAO_Drugs.lua"
+    ],
+    "(function() rec.drinksToday=8; local calls=0; local real=SAO.Drugs.daily; SAO.Drugs.daily=function(r) calls=calls+1; real(r) end; for t=0,1442 do minuteNow=t; captured() end; return \"offset=0,dailyCalls=\"..calls..\",tolerance=\"..tostring(rec.drinkTolerance)..\",drinksToday=\"..rec.drinksToday end)()"
+  ],
+  [
+    "drug_daily_offset1",
+    [
+      "C:\\Users\\jleyv\\AppData\\Local\\Temp\\sao-audit-c117-c121-ru6dfv5_\\base.lua",
+      "C:\\Users\\jleyv\\AppData\\Local\\Temp\\sao-audit-c117-c121-ru6dfv5_\\driver.lua",
+      "C:\\Users\\jleyv\\Peanut Butter\\AI Assisted Software Engineering Mass Repository\\Projects\\survivor-awareness\\mod\\42.20\\media\\lua\\client\\SAO_Drugs.lua"
+    ],
+    "(function() rec.drinksToday=8; local calls=0; local real=SAO.Drugs.daily; SAO.Drugs.daily=function(r) calls=calls+1; real(r) end; for t=1,1442 do minuteNow=t; captured() end; return \"offset=1,dailyCalls=\"..calls..\",tolerance=\"..tostring(rec.drinkTolerance)..\",drinksToday=\"..rec.drinksToday end)()"
+  ],
+  [
+    "cpr_after_aid",
+    [
+      "C:\\Users\\jleyv\\AppData\\Local\\Temp\\sao-audit-c117-c121-ru6dfv5_\\base.lua",
+      "C:\\Users\\jleyv\\AppData\\Local\\Temp\\sao-audit-c117-c121-ru6dfv5_\\gesture.lua",
+      "C:\\Users\\jleyv\\Peanut Butter\\AI Assisted Software Engineering Mass Repository\\Projects\\survivor-awareness\\mod\\42.20\\media\\lua\\client\\SAO_Needs.lua",
+      "C:\\Users\\jleyv\\Peanut Butter\\AI Assisted Software Engineering Mass Repository\\Projects\\survivor-awareness\\mod\\42.20\\media\\lua\\client\\SAO_Gesture.lua"
+    ],
+    "(function() local aid=SAO.Needs.aidWound(\"p\",medic,patient); local cpr=SAO.Gesture.cpr(\"p\",medic); local blockedCount=#queue; queue={}; local freeCpr=SAO.Gesture.cpr(\"p\",medic); return \"aid=\"..tostring(aid)..\",cprAfterAid=\"..tostring(cpr)..\",actions=\"..blockedCount..\",cprWithoutAid=\"..tostring(freeCpr)..\",controlActions=\"..#queue end)()"
+  ]
+]

@@ -1,6 +1,6 @@
 | Document | Survivor Awareness Overhaul Memory |
 |---|---|
-| Version | `5.3.0.1-pre-alpha` |
+| Version | `2.7.14.1-pre-alpha` |
 | Author | ellyj3rain |
 | Repository | `MEMORY.md` |
 | Status | ACTIVE - index of every root document and its standing. |
@@ -36,7 +36,7 @@ current. Nothing at the root is unclassified.
 | `FINDINGS.md` | CANONICAL, APPEND-ONLY | Verified engine findings from F-001. |
 | `RECEIPTS.md` | CANONICAL, APPEND-ONLY | What play has actually settled, from R-001 (DR-025). |
 | `BATCH_LOG.md` | REGULATORY | Chronological index for the batch sequence. |
-| `VERSION_MAP.md` | REGULATORY | Version units replayed over the closed chronology through `[B52]`. |
+| `VERSION_MAP.md` | REGULATORY | Version units replayed over the current consolidated chronology through `[C50]`. |
 | `ROADMAP.md` | CANONICAL | Thread map, backlog, live gates. |
 | `SESSION_STATE.md` | CANONICAL | Where the work actually stands. |
 | `MAPS.md` | CANONICAL | The three pictures a human reads first: runtime, knowledge, catalog. |
@@ -65,6 +65,9 @@ current. Nothing at the root is unclassified.
 | Path | Role |
 |---|---|
 | `Batches/` | One alphanumeric batch sequence; one record per closed batch. |
+| `Batches/C_RECATALOG.json` | Regulatory crosswalk for all 127 former C records: current unit, original path and Git-blob SHA-256. |
+| `Batches/history/` | Historical detailed scope preserved during consolidation; current status belongs to SESSION_STATE and ROADMAP. |
+| `artifacts/audits/` | Dated audit reports and immutable reproducibility evidence; former batch labels stay historical. |
 | `mod/` | The shippable mod tree (root + version-dir `mod.info`, Lua under `42.20/media/lua/`). |
 | `java/` | The agent component (DR-004): shell class, bridge, bootstrap; built to `java/dist/SAOAgent.jar`. |
 | `tools/` | The evidence apparatus: every border's gated mirror, `check.sh`, the offline mirrors, the pre-commit hook - plus the build and deploy scripts (`build-java.sh`, `deploy.sh`). |
@@ -72,4 +75,5 @@ current. Nothing at the root is unclassified.
 - [PUBLISHING.md](PUBLISHING.md) - what a Workshop upload needs, read from the game's own template; blocked on art, deliberately not staged.
 - [GROUNDED_DEAD_PROPOSAL.md](GROUNDED_DEAD_PROPOSAL.md) - PROPOSED: the zombie-population derivation (demography x lore x mechanism fork) awaiting the operator's ratification; nothing in it is behavior.
 
-`artifacts/docx/` holds generated readable exports; the corresponding Markdown remains the working source.
+`artifacts/docx/` holds generated readable exports and historical snapshots.
+Its README states export currency; corresponding Markdown is the current source.

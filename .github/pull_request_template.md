@@ -22,7 +22,7 @@ matches it was written. A rule derived from one example is an example.
 
 ## Operator boundary
 
-Describe the play evidence that remains outstanding. Batches stay OPEN
-until the operator has receipts from a session; the borders establish
-that the code says what the record claims, never that it feels right in
-the world.
+Describe the play evidence that remains outstanding. Mechanical closure and
+play acceptance are distinct. Borders establish only the behavior their
+instruments can observe; they do not settle how the game feels. Follow the
+ratified readiness sequence without introducing a play-session prerequisite.

@@ -16,7 +16,7 @@ Driven in the engine's own VM (tools/luacheck/LuaRun) against Border
 installed over it; then with no calendar, so the day count stands
 alone; then with nothing learned, so innocence is said. By text: the
 topics, the Standing accessor, the chronicle's one calendar, the
-bridge, the record class and its check, the roadmap. An optional
+bridge, the record class and its check. An optional
 argv[1] points the checker at another tree root, which is how its
 control runs: the pre-batch tree faults at every seam.
 """
@@ -27,6 +27,8 @@ import subprocess
 import sys
 import tempfile
 
+# Catalog references are verified by map_reference_test and version_replay.
+# A historical SHIPPED sentence is not a mechanical completion condition.
 ROOT = pathlib.Path(sys.argv[1]).resolve() if len(sys.argv) > 1 \
     else pathlib.Path(__file__).resolve().parent.parent
 HERE = pathlib.Path(__file__).resolve().parent
@@ -37,7 +39,6 @@ UI = LUA / "client" / "SAO_UI.lua"
 BRIDGE = ROOT / "java" / "src" / "com" / "sao" / "bridge" / "SAOBridge.java"
 RECORD = ROOT / "java" / "src" / "com" / "sao" / "engine" / "SAORecord.java"
 RECORD_CHECK = ROOT / "tools" / "javacheck" / "RecordCheck.java"
-ROADMAP = ROOT / "ROADMAP.md"
 CHECK = ROOT / "tools" / "check.sh"
 PRELUDE = HERE / "luacheck" / "probe_knowledge.lua"
 SRC = HERE / "luacheck" / "LuaRun.java"
@@ -191,8 +192,6 @@ def main():
             and "public static String recordDayZero()" in rc,
         "the record check asks for them":
             "SAORecord.countyDate(1993, 6, 0, 72.0)" in chk and "SAORecord.recordDayZero()" in chk,
-        "the roadmap marks the slice shipped":
-            "6. SHIPPED as `[C38]`" in read(ROADMAP),
         "the gate runs this border":
             "tools/era_test.py" in read(CHECK),
     }

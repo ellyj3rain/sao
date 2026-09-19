@@ -221,7 +221,7 @@ the bite, and the rule floors shorten the register under strain:
 under threat one short sentence and no asking back; at work at most
 two, and only what the work needs; spent, no chat. The seed corpus
 must show the same person in both registers. The knowledge surface
-carries the situation and the energy from [C34]; the floors are
+carries the situation and the energy from [C13]; the floors are
 bordered when the speaker exists to hold them.
 
 ## Decision 6 - What is the exchange?
@@ -250,8 +250,8 @@ Two learned pieces, shipped in-process in pure Java inside the
 county's jar (sidecar door open for opt-in bigger models). The
 UNDERSTANDER reads the player's free text - question, statement,
 request, offer, threat - into meaning against the person's
-knowledge; trained on harvested real player speech (the CAO
-method). The SPEAKER turns the person's selected memories into
+knowledge; trained from the approved corpus and authored exchanges, with
+no player-speech harvesting (the ratified Decision 3 correction). The SPEAKER turns the person's selected memories into
 their sentences under constrained decoding - fact positions
 fillable only from what that person actually knows, correctness
 bordered mechanically - conditioned on temperament, trust, and the
@@ -264,4 +264,6 @@ What follows, in order: the knowledge surface built to this
 contract (the substrate the ruling deferred until design); the
 in-process inference budget MEASURED on the real game before any
 model size is fixed; the data pipeline opened as its own tracked
-project with the harvest sourcing decisions brought to Crucible.
+project. Speakeasy owns the approved sources, ratified choices, corpus and
+models. Its expanded cognition contract is recorded in PROJECTS.md; capture,
+training and runtime consumption remain implementation work.

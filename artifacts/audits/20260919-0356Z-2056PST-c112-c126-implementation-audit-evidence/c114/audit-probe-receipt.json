@@ -1,0 +1,36 @@
+{
+  "schema": "sao.bounded-audit-probe.v1",
+  "probe": "C114 driving progress watchdog",
+  "preserved_at_utc": "2026-09-19T04:00:34.732045+00:00",
+  "execution_time": "Earlier in this session; exact wall timestamp was not captured.",
+  "provenance": "Reconstructed from the executed tool-call arguments and observed tool output. This preservation did not rerun the probe.",
+  "process": {
+    "argv": [
+      "C:\\Users\\jleyv\\Peanut Butter\\JetBrains\\Java\\bin\\java.exe",
+      "-cp",
+      "C:\\Program Files (x86)\\Steam\\steamapps\\common\\ProjectZomboid\\projectzomboid.jar;.",
+      "LuaRun",
+      "C:\\Users\\jleyv\\AppData\\Local\\Temp\\sao-c114-audit-ncj0jvmq\\prelude.lua",
+      "C:\\Users\\jleyv\\Peanut Butter\\AI Assisted Software Engineering Mass Repository\\Projects\\survivor-awareness\\mod\\42.20\\media\\lua\\client\\SAO_Driving.lua",
+      "--",
+      "(function()\n SAO.Driving.order(\"audit\",body,\"car\",1000,0)\n local verbBeforeMotion=rec.verbs[1]\n for i=1,600 do SAO.Driving.tick(\"audit\") end\n local at600=SAO.Driving.status(\"audit\")\n SAO.Driving.tick(\"audit\")\n local at601=SAO.Driving.status(\"audit\")\n local moved=body.x; local aborts=cancelled\n calls=0;cancelled=0;succeedAt=600;body.x=0\n SAO.Driving.order(\"audit\",body,\"car\",1000,0)\n for i=1,601 do SAO.Driving.tick(\"audit\") end\n return \"tick600=\"..at600..\" tick601=\"..at601..\" moved=\"..tostring(moved)..\" cancellations=\"..tostring(aborts)..\" verbBeforeMotion=\"..tostring(verbBeforeMotion)..\" control=\"..SAO.Driving.status(\"audit\")..\" controlCancel=\"..tostring(cancelled)\nend)()"
+    ],
+    "cwd": "C:\\Users\\jleyv\\AppData\\Local\\Temp\\sao-c114-audit-ncj0jvmq",
+    "timeout_seconds": 30,
+    "capture_output": true,
+    "text": true
+  },
+  "observed_result": {
+    "returncode": 0,
+    "stdout": "VALUE tick600=Driving x599 tick601=done:stalled:Driving moved=60.100000000000584 cancellations=1 verbBeforeMotion=drive control=done:arrived controlCancel=0\n",
+    "stderr": ""
+  },
+  "scope": "Actual listed SAO Lua modules loaded in existing LuaRun on installed projectzomboid.jar; engine interactions and fixture state supplied by retained prelude.lua. No game launch or build.",
+  "interpretation": "Healthy Driving responses with +0.1 body-position change per response trigger cancellation on call 601. Control Succeeded on call 600 arrives without cancellation. Accepted order writes drive before movement.",
+  "retained_inputs": {
+    "prelude": "C:\\Users\\jleyv\\AppData\\Local\\Temp\\sao-c114-audit-ncj0jvmq\\prelude.lua",
+    "expression": "C:\\Users\\jleyv\\AppData\\Local\\Temp\\sao-c114-audit-ncj0jvmq\\executed-expression.lua",
+    "compiled_runner": "C:\\Users\\jleyv\\AppData\\Local\\Temp\\sao-c114-audit-ncj0jvmq\\LuaRun.class"
+  },
+  "replay_note": "replay-preserved-probe.py reconstructs the same Java subprocess invocation from this receipt. It was written during preservation and has not been executed."
+}

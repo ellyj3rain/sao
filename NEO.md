@@ -42,6 +42,12 @@ of skill.
   no co-author trailers or tool attribution anywhere in the forge history.
 - **Append-only ledgers.** `DECISION_REGISTRY.md`, `FINDINGS.md`, and closed
   batch records are extended, never rewritten.
+  The operator-authorized C consolidation of 2026-09-19 follows the A/B
+  precedent: the current catalog has C1-C50; every former C1-C127 record is
+  preserved at local ref `archive/c-era-raw-20260919` and mapped in
+  `Batches/FORMER_LABELS.md` and `Batches/C_RECATALOG.json`. Historical ledger
+  entries, source comments, immutable evidence and sister citations retain
+  their former identifiers. This convention does not authorize rewriting them.
 - **Verified APIs only.** Ground truth is the installed game
   (`projectzomboid.jar`, the shipped `media/lua` and `media/scripts` trees).
   Never assert engine behavior from memory; an unsupported statement is a
@@ -90,7 +96,7 @@ of skill.
 
 ## Laws
 
-Rewritten plainly at `[C56]` on the operator's direction; the content
+Rewritten plainly at `[C24]` on the operator's direction; the content
 is unchanged. They had been written in the register the writing rule
 above bans - two of them as mirrored turns - and a law that breaks the
 rule it sits beside teaches every session to break it too.

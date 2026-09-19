@@ -1,0 +1,12 @@
+{
+  "captureFailures": 0,
+  "decisionHours": 1,
+  "recordStage": "future",
+  "beliefStage": "future",
+  "futureKnowledge": {
+    "tick": 200
+  },
+  "designationBefore": "before",
+  "designationAfter": "chosen",
+  "recordDesignation": "later"
+}

@@ -1,0 +1,15 @@
+{
+  "version": "2.7.14.1-pre-alpha",
+  "runtime_source_changes": 0,
+  "jar_sha256": "91df8743a0ce72021ca7628819b4f383f5ca5d9b2ee47fa64fd0e6e130f709bc",
+  "java_build": "passed against installed engine",
+  "deployment": "none",
+  "bytecode_comparison": {
+    "classes": 37,
+    "changed_class_bytes": [
+      "com/sao/SAOVersion.class",
+      "com/sao/bridge/SAOBridge.class"
+    ],
+    "only_difference": "version string constant; bridge inlines the generated constant"
+  }
+}

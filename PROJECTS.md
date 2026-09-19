@@ -1,6 +1,6 @@
 | Document | The three projects and what each owns |
 |---|---|
-| Version | `5.3.0.1-pre-alpha` |
+| Version | `2.7.14.1-pre-alpha` |
 | Author | ellyj3rain |
 | Repository | `PROJECTS.md` |
 | Status | CANONICAL - the architecture across the three repositories. Held here; `../zombie-awareness` and `../zomboid-speakeasy` point at it. |
@@ -94,7 +94,7 @@ house argues over them because they never left the county's machinery
 who came through death as the risen did. The crossed's vocabulary is
 a bidirectional goal: they read SAO's action machinery stripped of
 what humanity gave it, and what they need from driving feeds forward
-into SAO's mapping of it - `[C82]` has mapped what the engine gives a
+into SAO's mapping of it - `[C33]` has mapped what the engine gives a
 driver who is not the player, and F-067 holds the finding - a
 standing goal between the two repositories and never a dependency
 in either direction. How they
@@ -124,17 +124,11 @@ own word for it, and no table can stand in for that (DR-038).
 
 ### ZAO to Speakeasy - the degraded cognition
 
-The third edge, and the one that is not yet built.
-
-A turned mind is a cognition with its inputs failing. Speakeasy models
-how a person decides from what they know and who they are; ZAO's first
-mechanism is that same person deciding with perception, verbs and
-continuity coming apart at rates that differ per body. The two are the
-same model under a transform, not two models.
-
-Nothing is designed here yet and nothing should be until ZAO's G2 lands
-- the record reaching a turned body with provenance intact. Naming the
-edge now is what stops it being invented twice.
+The third edge carries cognition conditioned by event-derived pathogen state.
+Cross-module rows, a state producer and the row contract now exist. Complete
+training and learned runtime consumption remain unfinished. ZAO owns pathogen
+state; Speakeasy owns datasets and models; SAO owns living decision execution.
+SUBSTRATE.md records the implementation boundaries and current evidence.
 
 ## What holds across all three
 
@@ -157,9 +151,9 @@ edge now is what stops it being invented twice.
 
 | | Version | Standing |
 |---|---|---|
-| SAO | see `VERSION` | four pillars built, the county runs on them, play receipts outstanding. A bitten body now races the engine's own death hour instead of arriving at it, the unwatched county can catch Knox on its own, one person can read another as far as their own First Aid allows, and Perception now carries ZAO's form and performance into the living county's threat model. |
-| ZAO | `../zombie-awareness/VERSION` | G0 closed at `[A6]` - the turn, the control surface, the player's dials and the recovery mods all have evidence. `[A7]`-`[A9]` read the mods that already run behaviour on turned bodies and set what this project does with them (DR-014, DR-015). `[A10]` confirmed the actuators are Java-side. `[A11]` defined the mutation system - `MUTATION.md` is canonical - and the county gained two populations: the afflicted, who are people again, and the crossed, who only look like one. `[A12]` shaped the second seam under separation of concerns: SAO executes the afflicted while ZAO owns the pathogen state on them and executes the crossed, the crossed's vocabulary is a bidirectional goal, and their ground-holding is variable and never placed. `[A13]` carried the sister's driving map into the seam's goal the same turn it landed: what the crossed need from driving now rides as named consumers of a mapped surface, with its live receipt owed. `[A14]` and `[A15]` removed the invented gate that attributed a live-receipt rule to the operator. `[A16]` recorded the operator's mutation rulings, `[A17]` integrated the pathogen with the branching graph, `[A18]` added the state producer, `[A19]` added the state mapping, `[A20]` added the form registry and the pathogen roll, `[A21]` added the development loadout, `[A22]` added the form overlay, `[A23]` added the runtime controller that claims identity-bearing zombies and drives each body according to its form, and `[A24]` chose the stable mod id `ZombieAwareness`. `[A25]` published the claim surface (`ZAO.owns`, `ZAO.formOf`, `ZAO.performanceOf`), `[A26]` chose the sandbox defaults, `[A27]` corrected the controller to drive only `IsoZombie`, `[A28]` built the Java bridge (`ZAO.jar`), `[A29]` shipped the runtime dials and the per-form capabilities, and `[A30]` verified the sandbox-name lookup against the engine's own bytecode. G1's controller is built and gated; its proof by observation is owed with the era's play receipts. Two forks stand open in the ledger: Rarity (the spread's tails; settlement frequency) and Publication. |
-| Speakeasy | `../zomboid-speakeasy/RECORD.md` | the dataset's source and row shape ratified (record 24); a ceiling for the inference budget measured (record 26); the first 112 rows are in `decisions/`, ratified by the operator (its record 29); the cross-module row contract is active in `decisions/CONTRACT.md`; the first cross-module rows are in `decisions/cross-module/`, and the state producer now reads event-driven pathogen state |
+| SAO | see `VERSION` | C1-C50 is the consolidated catalog. The four pillars have substantial code, but the recent audit reproduced continuity, access, action and state defects and found missing life-simulation producers. SESSION_STATE.md and SUBSTRATE.md own the current assessment. |
+| ZAO | `../zombie-awareness/VERSION` | A34 repaired installed-VM pathogen compatibility and temporal transitions. The latest sibling state reports five borders passing and unobserved in-game body behavior. Pathogen state and crossed execution remain ZAO-owned; SAO's afflicted adoption and dormant recovery remain defective. |
+| Speakeasy | `../zomboid-speakeasy/RECORD.md` | 112 work-word and 78 trade-hinge choices are ratified; world documents and the cross-module row contract are approved. Source decision capture needs repair. No trained cognition model or completed training/export/runtime path exists. |
 
 Each of those is its own repository's to update. This table says where
 the three stand relative to each other, which is the thing no single

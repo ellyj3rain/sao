@@ -1,0 +1,50 @@
+[
+  {
+    "name": "outcast_daily",
+    "code": 0,
+    "stdout": "VALUE 1000,10,1000,10;position=10",
+    "stderr": ""
+  },
+  {
+    "name": "outcast_not_afflicted_control",
+    "code": 0,
+    "stdout": "VALUE 10",
+    "stderr": ""
+  },
+  {
+    "name": "child_healthy_and_healed",
+    "code": 0,
+    "stdout": "VALUE before=0.1,healthy=0.35,hurt=0.35,healed=0.35,count=0",
+    "stderr": ""
+  },
+  {
+    "name": "methadone_clock",
+    "code": 0,
+    "stdout": "VALUE duringFrozenDays=25,settled=1,afterResumeDays=1,stillUser=false",
+    "stderr": ""
+  },
+  {
+    "name": "methadone_unfrozen_control",
+    "code": 0,
+    "stdout": "VALUE days=25,settled=1",
+    "stderr": ""
+  },
+  {
+    "name": "drug_daily_offset0",
+    "code": 0,
+    "stdout": "VALUE offset=0,dailyCalls=1,tolerance=0.01,drinksToday=0",
+    "stderr": ""
+  },
+  {
+    "name": "drug_daily_offset1",
+    "code": 0,
+    "stdout": "VALUE offset=1,dailyCalls=0,tolerance=nil,drinksToday=8",
+    "stderr": ""
+  },
+  {
+    "name": "cpr_after_aid",
+    "code": 0,
+    "stdout": "VALUE aid=treated,cprAfterAid=false,actions=1,cprWithoutAid=true,controlActions=3",
+    "stderr": ""
+  }
+]

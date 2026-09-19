@@ -1,0 +1,1318 @@
+Compiled from "KahluaTableImpl.java"
+public final class se.krka.kahlua.j2se.KahluaTableImpl implements se.krka.kahlua.vm.KahluaTable {
+  public final java.util.Map<java.lang.Object, java.lang.Object> delegate;
+
+  private se.krka.kahlua.vm.KahluaTable metatable;
+
+  private se.krka.kahlua.vm.KahluaTable reloadReplace;
+
+  private static final byte SBYT_NO_SAVE;
+
+  private static final byte SBYT_STRING;
+
+  private static final byte SBYT_DOUBLE;
+
+  private static final byte SBYT_TABLE;
+
+  private static final byte SBYT_BOOLEAN;
+
+  public se.krka.kahlua.j2se.KahluaTableImpl(java.util.Map<java.lang.Object, java.lang.Object>);
+    Code:
+         0: aload_0
+         1: invokespecial #1                  // Method java/lang/Object."<init>":()V
+         4: aload_0
+         5: aload_1
+         6: putfield      #7                  // Field delegate:Ljava/util/Map;
+         9: return
+      LineNumberTable:
+        line 51: 0
+        line 52: 4
+        line 53: 9
+      LocalVariableTable:
+        Start  Length  Slot  Name   Signature
+            0      10     0  this   Lse/krka/kahlua/j2se/KahluaTableImpl;
+            0      10     1 delegate   Ljava/util/Map;
+
+  public void setMetatable(se.krka.kahlua.vm.KahluaTable);
+    Code:
+         0: aload_0
+         1: aload_1
+         2: putfield      #13                 // Field metatable:Lse/krka/kahlua/vm/KahluaTable;
+         5: return
+      LineNumberTable:
+        line 57: 0
+        line 58: 5
+      LocalVariableTable:
+        Start  Length  Slot  Name   Signature
+            0       6     0  this   Lse/krka/kahlua/j2se/KahluaTableImpl;
+            0       6     1 metatable   Lse/krka/kahlua/vm/KahluaTable;
+
+  public se.krka.kahlua.vm.KahluaTable getMetatable();
+    Code:
+         0: aload_0
+         1: getfield      #13                 // Field metatable:Lse/krka/kahlua/vm/KahluaTable;
+         4: areturn
+      LineNumberTable:
+        line 62: 0
+      LocalVariableTable:
+        Start  Length  Slot  Name   Signature
+            0       5     0  this   Lse/krka/kahlua/j2se/KahluaTableImpl;
+
+  public int size();
+    Code:
+         0: aload_0
+         1: getfield      #7                  // Field delegate:Ljava/util/Map;
+         4: invokeinterface #17,  1           // InterfaceMethod java/util/Map.size:()I
+         9: ireturn
+      LineNumberTable:
+        line 67: 0
+      LocalVariableTable:
+        Start  Length  Slot  Name   Signature
+            0      10     0  this   Lse/krka/kahlua/j2se/KahluaTableImpl;
+
+  public void rawset(java.lang.Object, java.lang.Object);
+    Code:
+         0: aload_0
+         1: getfield      #23                 // Field reloadReplace:Lse/krka/kahlua/vm/KahluaTable;
+         4: ifnull        18
+         7: aload_0
+         8: getfield      #23                 // Field reloadReplace:Lse/krka/kahlua/vm/KahluaTable;
+        11: aload_1
+        12: aload_2
+        13: invokeinterface #26,  3           // InterfaceMethod se/krka/kahlua/vm/KahluaTable.rawset:(Ljava/lang/Object;Ljava/lang/Object;)V
+        18: aconst_null
+        19: astore_3
+        20: getstatic     #32                 // Field zombie/core/Core.debug:Z
+        23: ifeq          49
+        26: getstatic     #38                 // Field zombie/Lua/LuaManager.thread:Lse/krka/kahlua/vm/KahluaThread;
+        29: ifnull        49
+        32: getstatic     #38                 // Field zombie/Lua/LuaManager.thread:Lse/krka/kahlua/vm/KahluaThread;
+        35: aload_0
+        36: aload_1
+        37: invokevirtual #44                 // Method se/krka/kahlua/vm/KahluaThread.hasDataBreakpoint:(Lse/krka/kahlua/vm/KahluaTable;Ljava/lang/Object;)Z
+        40: ifeq          49
+        43: aload_0
+        44: aload_1
+        45: invokevirtual #50                 // Method rawget:(Ljava/lang/Object;)Ljava/lang/Object;
+        48: astore_3
+        49: aload_2
+        50: ifnonnull     108
+        53: getstatic     #32                 // Field zombie/core/Core.debug:Z
+        56: ifeq          96
+        59: getstatic     #38                 // Field zombie/Lua/LuaManager.thread:Lse/krka/kahlua/vm/KahluaThread;
+        62: ifnull        96
+        65: getstatic     #38                 // Field zombie/Lua/LuaManager.thread:Lse/krka/kahlua/vm/KahluaThread;
+        68: aload_0
+        69: aload_1
+        70: invokevirtual #44                 // Method se/krka/kahlua/vm/KahluaThread.hasDataBreakpoint:(Lse/krka/kahlua/vm/KahluaTable;Ljava/lang/Object;)Z
+        73: ifeq          96
+        76: aload_3
+        77: ifnull        96
+        80: getstatic     #38                 // Field zombie/Lua/LuaManager.thread:Lse/krka/kahlua/vm/KahluaThread;
+        83: getfield      #54                 // Field se/krka/kahlua/vm/KahluaThread.currentfile:Ljava/lang/String;
+        86: getstatic     #38                 // Field zombie/Lua/LuaManager.thread:Lse/krka/kahlua/vm/KahluaThread;
+        89: getfield      #58                 // Field se/krka/kahlua/vm/KahluaThread.lastLine:I
+        92: i2l
+        93: invokestatic  #62                 // Method zombie/ui/UIManager.debugBreakpoint:(Ljava/lang/String;J)V
+        96: aload_0
+        97: getfield      #7                  // Field delegate:Ljava/util/Map;
+       100: aload_1
+       101: invokeinterface #68,  2           // InterfaceMethod java/util/Map.remove:(Ljava/lang/Object;)Ljava/lang/Object;
+       106: pop
+       107: return
+       108: getstatic     #32                 // Field zombie/core/Core.debug:Z
+       111: ifeq          188
+       114: getstatic     #38                 // Field zombie/Lua/LuaManager.thread:Lse/krka/kahlua/vm/KahluaThread;
+       117: ifnull        188
+       120: getstatic     #38                 // Field zombie/Lua/LuaManager.thread:Lse/krka/kahlua/vm/KahluaThread;
+       123: aload_0
+       124: aload_1
+       125: invokevirtual #44                 // Method se/krka/kahlua/vm/KahluaThread.hasDataBreakpoint:(Lse/krka/kahlua/vm/KahluaTable;Ljava/lang/Object;)Z
+       128: ifeq          188
+       131: aload_2
+       132: aload_3
+       133: invokevirtual #71                 // Method java/lang/Object.equals:(Ljava/lang/Object;)Z
+       136: ifne          188
+       139: invokestatic  #75                 // Method zombie/Lua/LuaManager$GlobalObject.getCurrentCoroutine:()Lse/krka/kahlua/vm/Coroutine;
+       142: invokevirtual #81                 // Method se/krka/kahlua/vm/Coroutine.currentCallFrame:()Lse/krka/kahlua/vm/LuaCallFrame;
+       145: getfield      #87                 // Field se/krka/kahlua/vm/LuaCallFrame.pc:I
+       148: istore        4
+       150: iload         4
+       152: ifge          158
+       155: iconst_0
+       156: istore        4
+       158: getstatic     #38                 // Field zombie/Lua/LuaManager.thread:Lse/krka/kahlua/vm/KahluaThread;
+       161: getfield      #54                 // Field se/krka/kahlua/vm/KahluaThread.currentfile:Ljava/lang/String;
+       164: invokestatic  #75                 // Method zombie/Lua/LuaManager$GlobalObject.getCurrentCoroutine:()Lse/krka/kahlua/vm/Coroutine;
+       167: invokevirtual #81                 // Method se/krka/kahlua/vm/Coroutine.currentCallFrame:()Lse/krka/kahlua/vm/LuaCallFrame;
+       170: getfield      #92                 // Field se/krka/kahlua/vm/LuaCallFrame.closure:Lse/krka/kahlua/vm/LuaClosure;
+       173: getfield      #96                 // Field se/krka/kahlua/vm/LuaClosure.prototype:Lse/krka/kahlua/vm/Prototype;
+       176: getfield      #102                // Field se/krka/kahlua/vm/Prototype.lines:[I
+       179: iload         4
+       181: iaload
+       182: iconst_1
+       183: isub
+       184: i2l
+       185: invokestatic  #62                 // Method zombie/ui/UIManager.debugBreakpoint:(Ljava/lang/String;J)V
+       188: aload_0
+       189: getfield      #7                  // Field delegate:Ljava/util/Map;
+       192: aload_1
+       193: aload_2
+       194: invokeinterface #108,  3          // InterfaceMethod java/util/Map.put:(Ljava/lang/Object;Ljava/lang/Object;)Ljava/lang/Object;
+       199: pop
+       200: return
+      LineNumberTable:
+        line 72: 0
+        line 73: 7
+        line 76: 18
+        line 78: 20
+        line 79: 32
+        line 80: 43
+        line 84: 49
+        line 85: 53
+        line 86: 65
+        line 87: 80
+        line 90: 96
+        line 92: 107
+        line 94: 108
+        line 95: 120
+        line 96: 139
+        line 97: 150
+        line 98: 155
+        line 100: 158
+        line 103: 188
+        line 104: 200
+      LocalVariableTable:
+        Start  Length  Slot  Name   Signature
+          150      38     4     a   I
+            0     201     0  this   Lse/krka/kahlua/j2se/KahluaTableImpl;
+            0     201     1   key   Ljava/lang/Object;
+            0     201     2 value   Ljava/lang/Object;
+           20     181     3 lastVal   Ljava/lang/Object;
+
+  public java.lang.Object rawget(java.lang.Object);
+    Code:
+         0: aload_0
+         1: getfield      #23                 // Field reloadReplace:Lse/krka/kahlua/vm/KahluaTable;
+         4: ifnull        18
+         7: aload_0
+         8: getfield      #23                 // Field reloadReplace:Lse/krka/kahlua/vm/KahluaTable;
+        11: aload_1
+        12: invokeinterface #112,  2          // InterfaceMethod se/krka/kahlua/vm/KahluaTable.rawget:(Ljava/lang/Object;)Ljava/lang/Object;
+        17: areturn
+        18: aload_1
+        19: ifnonnull     24
+        22: aconst_null
+        23: areturn
+        24: getstatic     #32                 // Field zombie/core/Core.debug:Z
+        27: ifeq          92
+        30: getstatic     #38                 // Field zombie/Lua/LuaManager.thread:Lse/krka/kahlua/vm/KahluaThread;
+        33: ifnull        92
+        36: getstatic     #38                 // Field zombie/Lua/LuaManager.thread:Lse/krka/kahlua/vm/KahluaThread;
+        39: aload_0
+        40: aload_1
+        41: invokevirtual #113                // Method se/krka/kahlua/vm/KahluaThread.hasReadDataBreakpoint:(Lse/krka/kahlua/vm/KahluaTable;Ljava/lang/Object;)Z
+        44: ifeq          92
+        47: invokestatic  #75                 // Method zombie/Lua/LuaManager$GlobalObject.getCurrentCoroutine:()Lse/krka/kahlua/vm/Coroutine;
+        50: invokevirtual #81                 // Method se/krka/kahlua/vm/Coroutine.currentCallFrame:()Lse/krka/kahlua/vm/LuaCallFrame;
+        53: getfield      #87                 // Field se/krka/kahlua/vm/LuaCallFrame.pc:I
+        56: istore_2
+        57: iload_2
+        58: ifge          63
+        61: iconst_0
+        62: istore_2
+        63: getstatic     #38                 // Field zombie/Lua/LuaManager.thread:Lse/krka/kahlua/vm/KahluaThread;
+        66: getfield      #54                 // Field se/krka/kahlua/vm/KahluaThread.currentfile:Ljava/lang/String;
+        69: invokestatic  #75                 // Method zombie/Lua/LuaManager$GlobalObject.getCurrentCoroutine:()Lse/krka/kahlua/vm/Coroutine;
+        72: invokevirtual #81                 // Method se/krka/kahlua/vm/Coroutine.currentCallFrame:()Lse/krka/kahlua/vm/LuaCallFrame;
+        75: getfield      #92                 // Field se/krka/kahlua/vm/LuaCallFrame.closure:Lse/krka/kahlua/vm/LuaClosure;
+        78: getfield      #96                 // Field se/krka/kahlua/vm/LuaClosure.prototype:Lse/krka/kahlua/vm/Prototype;
+        81: getfield      #102                // Field se/krka/kahlua/vm/Prototype.lines:[I
+        84: iload_2
+        85: iaload
+        86: iconst_1
+        87: isub
+        88: i2l
+        89: invokestatic  #62                 // Method zombie/ui/UIManager.debugBreakpoint:(Ljava/lang/String;J)V
+        92: aload_0
+        93: getfield      #7                  // Field delegate:Ljava/util/Map;
+        96: aload_1
+        97: invokeinterface #116,  2          // InterfaceMethod java/util/Map.containsKey:(Ljava/lang/Object;)Z
+       102: ifne          123
+       105: aload_0
+       106: getfield      #13                 // Field metatable:Lse/krka/kahlua/vm/KahluaTable;
+       109: ifnull        123
+       112: aload_0
+       113: getfield      #13                 // Field metatable:Lse/krka/kahlua/vm/KahluaTable;
+       116: aload_1
+       117: invokeinterface #112,  2          // InterfaceMethod se/krka/kahlua/vm/KahluaTable.rawget:(Ljava/lang/Object;)Ljava/lang/Object;
+       122: areturn
+       123: aload_0
+       124: getfield      #7                  // Field delegate:Ljava/util/Map;
+       127: aload_1
+       128: invokeinterface #119,  2          // InterfaceMethod java/util/Map.get:(Ljava/lang/Object;)Ljava/lang/Object;
+       133: areturn
+      LineNumberTable:
+        line 108: 0
+        line 109: 7
+        line 112: 18
+        line 113: 22
+        line 116: 24
+        line 117: 36
+        line 118: 47
+        line 119: 57
+        line 120: 61
+        line 122: 63
+        line 126: 92
+        line 127: 112
+        line 130: 123
+      LocalVariableTable:
+        Start  Length  Slot  Name   Signature
+           57      35     2     a   I
+            0     134     0  this   Lse/krka/kahlua/j2se/KahluaTableImpl;
+            0     134     1   key   Ljava/lang/Object;
+
+  public void rawset(int, java.lang.Object);
+    Code:
+         0: aload_0
+         1: iload_1
+         2: i2l
+         3: invokestatic  #122                // Method se/krka/kahlua/vm/KahluaUtil.toDouble:(J)Ljava/lang/Double;
+         6: aload_2
+         7: invokevirtual #128                // Method rawset:(Ljava/lang/Object;Ljava/lang/Object;)V
+        10: return
+      LineNumberTable:
+        line 135: 0
+        line 136: 10
+      LocalVariableTable:
+        Start  Length  Slot  Name   Signature
+            0      11     0  this   Lse/krka/kahlua/j2se/KahluaTableImpl;
+            0      11     1   key   I
+            0      11     2 value   Ljava/lang/Object;
+
+  public java.lang.String rawgetStr(java.lang.Object);
+    Code:
+         0: aload_0
+         1: aload_1
+         2: invokevirtual #50                 // Method rawget:(Ljava/lang/Object;)Ljava/lang/Object;
+         5: checkcast     #129                // class java/lang/String
+         8: areturn
+      LineNumberTable:
+        line 139: 0
+      LocalVariableTable:
+        Start  Length  Slot  Name   Signature
+            0       9     0  this   Lse/krka/kahlua/j2se/KahluaTableImpl;
+            0       9     1   key   Ljava/lang/Object;
+
+  public se.krka.kahlua.j2se.KahluaTableImpl rawgetTable(java.lang.Object);
+    Code:
+         0: aload_0
+         1: aload_1
+         2: invokevirtual #50                 // Method rawget:(Ljava/lang/Object;)Ljava/lang/Object;
+         5: checkcast     #8                  // class se/krka/kahlua/j2se/KahluaTableImpl
+         8: areturn
+      LineNumberTable:
+        line 143: 0
+      LocalVariableTable:
+        Start  Length  Slot  Name   Signature
+            0       9     0  this   Lse/krka/kahlua/j2se/KahluaTableImpl;
+            0       9     1   key   Ljava/lang/Object;
+
+  public int rawgetInt(java.lang.Object);
+    Code:
+         0: aload_0
+         1: aload_1
+         2: invokevirtual #50                 // Method rawget:(Ljava/lang/Object;)Ljava/lang/Object;
+         5: astore_2
+         6: aload_2
+         7: instanceof    #131                // class java/lang/Double
+        10: ifeq          23
+        13: aload_2
+        14: checkcast     #131                // class java/lang/Double
+        17: astore_3
+        18: aload_3
+        19: invokevirtual #133                // Method java/lang/Double.intValue:()I
+        22: ireturn
+        23: aload_2
+        24: instanceof    #136                // class java/lang/Integer
+        27: ifeq          42
+        30: aload_2
+        31: checkcast     #136                // class java/lang/Integer
+        34: astore        4
+        36: aload         4
+        38: invokevirtual #138                // Method java/lang/Integer.intValue:()I
+        41: ireturn
+        42: iconst_m1
+        43: ireturn
+      LineNumberTable:
+        line 147: 0
+        line 148: 6
+        line 149: 18
+        line 150: 23
+        line 151: 36
+        line 153: 42
+      LocalVariableTable:
+        Start  Length  Slot  Name   Signature
+           18       5     3 doubleKey   Ljava/lang/Double;
+           36       6     4 intKey   Ljava/lang/Integer;
+            0      44     0  this   Lse/krka/kahlua/j2se/KahluaTableImpl;
+            0      44     1   key   Ljava/lang/Object;
+            6      38     2 value   Ljava/lang/Object;
+
+  public boolean rawgetBool(java.lang.Object);
+    Code:
+         0: aload_0
+         1: aload_1
+         2: invokevirtual #50                 // Method rawget:(Ljava/lang/Object;)Ljava/lang/Object;
+         5: instanceof    #139                // class java/lang/Boolean
+         8: ifeq          23
+        11: aload_0
+        12: aload_1
+        13: invokevirtual #50                 // Method rawget:(Ljava/lang/Object;)Ljava/lang/Object;
+        16: checkcast     #139                // class java/lang/Boolean
+        19: invokevirtual #141                // Method java/lang/Boolean.booleanValue:()Z
+        22: ireturn
+        23: iconst_0
+        24: ireturn
+      LineNumberTable:
+        line 158: 0
+        line 159: 11
+        line 161: 23
+      LocalVariableTable:
+        Start  Length  Slot  Name   Signature
+            0      25     0  this   Lse/krka/kahlua/j2se/KahluaTableImpl;
+            0      25     1   key   Ljava/lang/Object;
+
+  public float rawgetFloat(java.lang.Object);
+    Code:
+         0: aload_0
+         1: aload_1
+         2: invokevirtual #50                 // Method rawget:(Ljava/lang/Object;)Ljava/lang/Object;
+         5: astore_2
+         6: aload_2
+         7: instanceof    #131                // class java/lang/Double
+        10: ifeq          23
+        13: aload_2
+        14: checkcast     #131                // class java/lang/Double
+        17: astore_3
+        18: aload_3
+        19: invokevirtual #145                // Method java/lang/Double.floatValue:()F
+        22: freturn
+        23: aload_2
+        24: instanceof    #149                // class java/lang/Float
+        27: ifeq          42
+        30: aload_2
+        31: checkcast     #149                // class java/lang/Float
+        34: astore        4
+        36: aload         4
+        38: invokevirtual #151                // Method java/lang/Float.floatValue:()F
+        41: freturn
+        42: ldc           #152                // float -1.0f
+        44: freturn
+      LineNumberTable:
+        line 166: 0
+        line 167: 6
+        line 168: 18
+        line 169: 23
+        line 170: 36
+        line 172: 42
+      LocalVariableTable:
+        Start  Length  Slot  Name   Signature
+           18       5     3     d   Ljava/lang/Double;
+           36       6     4     f   Ljava/lang/Float;
+            0      45     0  this   Lse/krka/kahlua/j2se/KahluaTableImpl;
+            0      45     1   key   Ljava/lang/Object;
+            6      39     2 value   Ljava/lang/Object;
+
+  public float tryGetFloat(java.lang.Object, float);
+    Code:
+         0: aload_0
+         1: aload_1
+         2: invokevirtual #50                 // Method rawget:(Ljava/lang/Object;)Ljava/lang/Object;
+         5: astore        4
+         7: aload         4
+         9: instanceof    #131                // class java/lang/Double
+        12: ifeq          26
+        15: aload         4
+        17: checkcast     #131                // class java/lang/Double
+        20: astore_3
+        21: aload_3
+        22: invokevirtual #145                // Method java/lang/Double.floatValue:()F
+        25: freturn
+        26: fload_2
+        27: freturn
+      LineNumberTable:
+        line 177: 0
+        line 178: 21
+        line 180: 26
+      LocalVariableTable:
+        Start  Length  Slot  Name   Signature
+           21       5     3     d   Ljava/lang/Double;
+            0      28     0  this   Lse/krka/kahlua/j2se/KahluaTableImpl;
+            0      28     1   key   Ljava/lang/Object;
+            0      28     2 defaultValue   F
+
+  public java.lang.Object rawget(int);
+    Code:
+         0: aload_0
+         1: iload_1
+         2: i2l
+         3: invokestatic  #122                // Method se/krka/kahlua/vm/KahluaUtil.toDouble:(J)Ljava/lang/Double;
+         6: invokevirtual #50                 // Method rawget:(Ljava/lang/Object;)Ljava/lang/Object;
+         9: areturn
+      LineNumberTable:
+        line 185: 0
+      LocalVariableTable:
+        Start  Length  Slot  Name   Signature
+            0      10     0  this   Lse/krka/kahlua/j2se/KahluaTableImpl;
+            0      10     1   key   I
+
+  public int len();
+    Code:
+         0: aload_0
+         1: iconst_0
+         2: iconst_2
+         3: aload_0
+         4: getfield      #7                  // Field delegate:Ljava/util/Map;
+         7: invokeinterface #17,  1           // InterfaceMethod java/util/Map.size:()I
+        12: imul
+        13: invokestatic  #153                // Method se/krka/kahlua/vm/KahluaUtil.len:(Lse/krka/kahlua/vm/KahluaTable;II)I
+        16: ireturn
+      LineNumberTable:
+        line 190: 0
+      LocalVariableTable:
+        Start  Length  Slot  Name   Signature
+            0      17     0  this   Lse/krka/kahlua/j2se/KahluaTableImpl;
+
+  public se.krka.kahlua.vm.KahluaTableIterator iterator();
+    Code:
+         0: aload_0
+         1: getfield      #7                  // Field delegate:Ljava/util/Map;
+         4: invokeinterface #157,  1          // InterfaceMethod java/util/Map.isEmpty:()Z
+         9: ifeq          16
+        12: aconst_null
+        13: goto          30
+        16: aload_0
+        17: getfield      #7                  // Field delegate:Ljava/util/Map;
+        20: invokeinterface #160,  1          // InterfaceMethod java/util/Map.keySet:()Ljava/util/Set;
+        25: invokeinterface #164,  1          // InterfaceMethod java/util/Set.toArray:()[Ljava/lang/Object;
+        30: astore_1
+        31: new           #170                // class se/krka/kahlua/j2se/KahluaTableImpl$1
+        34: dup
+        35: aload_0
+        36: aload_1
+        37: invokespecial #172                // Method se/krka/kahlua/j2se/KahluaTableImpl$1."<init>":(Lse/krka/kahlua/j2se/KahluaTableImpl;[Ljava/lang/Object;)V
+        40: areturn
+      LineNumberTable:
+        line 199: 0
+        line 200: 31
+      LocalVariableTable:
+        Start  Length  Slot  Name   Signature
+            0      41     0  this   Lse/krka/kahlua/j2se/KahluaTableImpl;
+           31      10     1  keys   [Ljava/lang/Object;
+
+  public boolean isEmpty();
+    Code:
+         0: aload_0
+         1: getfield      #7                  // Field delegate:Ljava/util/Map;
+         4: invokeinterface #157,  1          // InterfaceMethod java/util/Map.isEmpty:()Z
+         9: ireturn
+      LineNumberTable:
+        line 240: 0
+      LocalVariableTable:
+        Start  Length  Slot  Name   Signature
+            0      10     0  this   Lse/krka/kahlua/j2se/KahluaTableImpl;
+
+  public void wipe();
+    Code:
+         0: aload_0
+         1: getfield      #7                  // Field delegate:Ljava/util/Map;
+         4: invokeinterface #175,  1          // InterfaceMethod java/util/Map.clear:()V
+         9: return
+      LineNumberTable:
+        line 245: 0
+        line 246: 9
+      LocalVariableTable:
+        Start  Length  Slot  Name   Signature
+            0      10     0  this   Lse/krka/kahlua/j2se/KahluaTableImpl;
+
+  public java.lang.String toString();
+    Code:
+         0: aload_0
+         1: ldc           #178                // String Type
+         3: invokevirtual #50                 // Method rawget:(Ljava/lang/Object;)Ljava/lang/Object;
+         6: astore_2
+         7: aload_2
+         8: instanceof    #129                // class java/lang/String
+        11: ifeq          30
+        14: aload_2
+        15: checkcast     #129                // class java/lang/String
+        18: astore_1
+        19: aload_1
+        20: aload_0
+        21: invokestatic  #180                // Method java/lang/System.identityHashCode:(Ljava/lang/Object;)I
+        24: invokedynamic #186,  0            // InvokeDynamic #0:makeConcatWithConstants:(Ljava/lang/String;I)Ljava/lang/String;
+        29: areturn
+        30: aload_0
+        31: invokestatic  #180                // Method java/lang/System.identityHashCode:(Ljava/lang/Object;)I
+        34: invokedynamic #190,  0            // InvokeDynamic #1:makeConcatWithConstants:(I)Ljava/lang/String;
+        39: areturn
+      LineNumberTable:
+        line 250: 0
+        line 251: 19
+        line 253: 30
+      LocalVariableTable:
+        Start  Length  Slot  Name   Signature
+           19      11     1  Type   Ljava/lang/String;
+            0      40     0  this   Lse/krka/kahlua/j2se/KahluaTableImpl;
+
+  public void save(java.nio.ByteBuffer);
+    Code:
+         0: aload_0
+         1: invokevirtual #193                // Method iterator:()Lse/krka/kahlua/vm/KahluaTableIterator;
+         4: astore_2
+         5: iconst_0
+         6: istore_3
+         7: aload_2
+         8: invokeinterface #197,  1          // InterfaceMethod se/krka/kahlua/vm/KahluaTableIterator.advance:()Z
+        13: ifeq          40
+        16: aload_2
+        17: invokeinterface #202,  1          // InterfaceMethod se/krka/kahlua/vm/KahluaTableIterator.getKey:()Ljava/lang/Object;
+        22: aload_2
+        23: invokeinterface #206,  1          // InterfaceMethod se/krka/kahlua/vm/KahluaTableIterator.getValue:()Ljava/lang/Object;
+        28: invokestatic  #209                // Method canSave:(Ljava/lang/Object;Ljava/lang/Object;)Z
+        31: ifeq          7
+        34: iinc          3, 1
+        37: goto          7
+        40: aload_0
+        41: invokevirtual #193                // Method iterator:()Lse/krka/kahlua/vm/KahluaTableIterator;
+        44: astore_2
+        45: aload_1
+        46: iload_3
+        47: invokevirtual #213                // Method java/nio/ByteBuffer.putInt:(I)Ljava/nio/ByteBuffer;
+        50: pop
+        51: aload_2
+        52: invokeinterface #197,  1          // InterfaceMethod se/krka/kahlua/vm/KahluaTableIterator.advance:()Z
+        57: ifeq          126
+        60: aload_2
+        61: invokeinterface #202,  1          // InterfaceMethod se/krka/kahlua/vm/KahluaTableIterator.getKey:()Ljava/lang/Object;
+        66: invokestatic  #219                // Method getKeyByte:(Ljava/lang/Object;)B
+        69: istore        4
+        71: aload_2
+        72: invokeinterface #206,  1          // InterfaceMethod se/krka/kahlua/vm/KahluaTableIterator.getValue:()Ljava/lang/Object;
+        77: invokestatic  #223                // Method getValueByte:(Ljava/lang/Object;)B
+        80: istore        5
+        82: iload         4
+        84: iconst_m1
+        85: if_icmpeq     51
+        88: iload         5
+        90: iconst_m1
+        91: if_icmpne     97
+        94: goto          51
+        97: aload_0
+        98: aload_1
+        99: iload         4
+       101: aload_2
+       102: invokeinterface #202,  1          // InterfaceMethod se/krka/kahlua/vm/KahluaTableIterator.getKey:()Ljava/lang/Object;
+       107: invokevirtual #226                // Method save:(Ljava/nio/ByteBuffer;BLjava/lang/Object;)V
+       110: aload_0
+       111: aload_1
+       112: iload         5
+       114: aload_2
+       115: invokeinterface #206,  1          // InterfaceMethod se/krka/kahlua/vm/KahluaTableIterator.getValue:()Ljava/lang/Object;
+       120: invokevirtual #226                // Method save:(Ljava/nio/ByteBuffer;BLjava/lang/Object;)V
+       123: goto          51
+       126: return
+      LineNumberTable:
+        line 258: 0
+        line 259: 5
+        line 260: 7
+        line 261: 16
+        line 262: 34
+        line 265: 40
+        line 266: 45
+        line 267: 51
+        line 268: 60
+        line 269: 71
+        line 270: 82
+        line 271: 94
+        line 273: 97
+        line 274: 110
+        line 275: 123
+        line 276: 126
+      LocalVariableTable:
+        Start  Length  Slot  Name   Signature
+           71      52     4 keyByte   B
+           82      41     5 valueByte   B
+            0     127     0  this   Lse/krka/kahlua/j2se/KahluaTableImpl;
+            0     127     1 output   Ljava/nio/ByteBuffer;
+            5     122     2    it   Lse/krka/kahlua/vm/KahluaTableIterator;
+            7     120     3 count   I
+
+  private void save(java.nio.ByteBuffer, byte, java.lang.Object) throws java.lang.RuntimeException;
+    Code:
+         0: aload_1
+         1: iload_2
+         2: invokevirtual #230                // Method java/nio/ByteBuffer.put:(B)Ljava/nio/ByteBuffer;
+         5: pop
+         6: iload_2
+         7: ifne          21
+        10: aload_1
+        11: aload_3
+        12: checkcast     #129                // class java/lang/String
+        15: invokestatic  #233                // Method zombie/GameWindow.WriteString:(Ljava/nio/ByteBuffer;Ljava/lang/String;)V
+        18: goto          99
+        21: iload_2
+        22: iconst_1
+        23: if_icmpne     41
+        26: aload_1
+        27: aload_3
+        28: checkcast     #131                // class java/lang/Double
+        31: invokevirtual #239                // Method java/lang/Double.doubleValue:()D
+        34: invokevirtual #243                // Method java/nio/ByteBuffer.putDouble:(D)Ljava/nio/ByteBuffer;
+        37: pop
+        38: goto          99
+        41: iload_2
+        42: iconst_3
+        43: if_icmpne     69
+        46: aload_1
+        47: aload_3
+        48: checkcast     #139                // class java/lang/Boolean
+        51: invokevirtual #141                // Method java/lang/Boolean.booleanValue:()Z
+        54: ifeq          61
+        57: iconst_1
+        58: goto          62
+        61: iconst_0
+        62: invokevirtual #230                // Method java/nio/ByteBuffer.put:(B)Ljava/nio/ByteBuffer;
+        65: pop
+        66: goto          99
+        69: iload_2
+        70: iconst_2
+        71: if_icmpne     85
+        74: aload_3
+        75: checkcast     #8                  // class se/krka/kahlua/j2se/KahluaTableImpl
+        78: aload_1
+        79: invokevirtual #247                // Method save:(Ljava/nio/ByteBuffer;)V
+        82: goto          99
+        85: new           #250                // class java/lang/RuntimeException
+        88: dup
+        89: iload_2
+        90: invokedynamic #252,  0            // InvokeDynamic #2:makeConcatWithConstants:(B)Ljava/lang/String;
+        95: invokespecial #255                // Method java/lang/RuntimeException."<init>":(Ljava/lang/String;)V
+        98: athrow
+        99: return
+      LineNumberTable:
+        line 279: 0
+        line 280: 6
+        line 281: 10
+        line 282: 21
+        line 283: 26
+        line 284: 41
+        line 285: 46
+        line 286: 69
+        line 287: 74
+        line 289: 85
+        line 291: 99
+      LocalVariableTable:
+        Start  Length  Slot  Name   Signature
+            0     100     0  this   Lse/krka/kahlua/j2se/KahluaTableImpl;
+            0     100     1 output   Ljava/nio/ByteBuffer;
+            0     100     2  sbyt   B
+            0     100     3     o   Ljava/lang/Object;
+
+  public void save(java.io.DataOutputStream) throws java.io.IOException;
+    Code:
+         0: aload_0
+         1: invokevirtual #193                // Method iterator:()Lse/krka/kahlua/vm/KahluaTableIterator;
+         4: astore_2
+         5: iconst_0
+         6: istore_3
+         7: aload_2
+         8: invokeinterface #197,  1          // InterfaceMethod se/krka/kahlua/vm/KahluaTableIterator.advance:()Z
+        13: ifeq          40
+        16: aload_2
+        17: invokeinterface #202,  1          // InterfaceMethod se/krka/kahlua/vm/KahluaTableIterator.getKey:()Ljava/lang/Object;
+        22: aload_2
+        23: invokeinterface #206,  1          // InterfaceMethod se/krka/kahlua/vm/KahluaTableIterator.getValue:()Ljava/lang/Object;
+        28: invokestatic  #209                // Method canSave:(Ljava/lang/Object;Ljava/lang/Object;)Z
+        31: ifeq          7
+        34: iinc          3, 1
+        37: goto          7
+        40: aload_0
+        41: invokevirtual #193                // Method iterator:()Lse/krka/kahlua/vm/KahluaTableIterator;
+        44: astore_2
+        45: aload_1
+        46: iload_3
+        47: invokevirtual #258                // Method java/io/DataOutputStream.writeInt:(I)V
+        50: aload_2
+        51: invokeinterface #197,  1          // InterfaceMethod se/krka/kahlua/vm/KahluaTableIterator.advance:()Z
+        56: ifeq          125
+        59: aload_2
+        60: invokeinterface #202,  1          // InterfaceMethod se/krka/kahlua/vm/KahluaTableIterator.getKey:()Ljava/lang/Object;
+        65: invokestatic  #219                // Method getKeyByte:(Ljava/lang/Object;)B
+        68: istore        4
+        70: aload_2
+        71: invokeinterface #206,  1          // InterfaceMethod se/krka/kahlua/vm/KahluaTableIterator.getValue:()Ljava/lang/Object;
+        76: invokestatic  #223                // Method getValueByte:(Ljava/lang/Object;)B
+        79: istore        5
+        81: iload         4
+        83: iconst_m1
+        84: if_icmpeq     50
+        87: iload         5
+        89: iconst_m1
+        90: if_icmpne     96
+        93: goto          50
+        96: aload_0
+        97: aload_1
+        98: iload         4
+       100: aload_2
+       101: invokeinterface #202,  1          // InterfaceMethod se/krka/kahlua/vm/KahluaTableIterator.getKey:()Ljava/lang/Object;
+       106: invokevirtual #264                // Method save:(Ljava/io/DataOutputStream;BLjava/lang/Object;)V
+       109: aload_0
+       110: aload_1
+       111: iload         5
+       113: aload_2
+       114: invokeinterface #206,  1          // InterfaceMethod se/krka/kahlua/vm/KahluaTableIterator.getValue:()Ljava/lang/Object;
+       119: invokevirtual #264                // Method save:(Ljava/io/DataOutputStream;BLjava/lang/Object;)V
+       122: goto          50
+       125: return
+      LineNumberTable:
+        line 295: 0
+        line 296: 5
+        line 297: 7
+        line 298: 16
+        line 299: 34
+        line 302: 40
+        line 303: 45
+        line 304: 50
+        line 305: 59
+        line 306: 70
+        line 307: 81
+        line 308: 93
+        line 310: 96
+        line 311: 109
+        line 312: 122
+        line 313: 125
+      LocalVariableTable:
+        Start  Length  Slot  Name   Signature
+           70      52     4 keyByte   B
+           81      41     5 valueByte   B
+            0     126     0  this   Lse/krka/kahlua/j2se/KahluaTableImpl;
+            0     126     1 output   Ljava/io/DataOutputStream;
+            5     121     2    it   Lse/krka/kahlua/vm/KahluaTableIterator;
+            7     119     3 count   I
+
+  private void save(java.io.DataOutputStream, byte, java.lang.Object) throws java.io.IOException, java.lang.RuntimeException;
+    Code:
+         0: aload_1
+         1: iload_2
+         2: invokevirtual #267                // Method java/io/DataOutputStream.writeByte:(I)V
+         5: iload_2
+         6: ifne          20
+         9: aload_1
+        10: aload_3
+        11: checkcast     #129                // class java/lang/String
+        14: invokestatic  #270                // Method zombie/GameWindow.WriteString:(Ljava/io/DataOutputStream;Ljava/lang/String;)V
+        17: goto          96
+        20: iload_2
+        21: iconst_1
+        22: if_icmpne     39
+        25: aload_1
+        26: aload_3
+        27: checkcast     #131                // class java/lang/Double
+        30: invokevirtual #239                // Method java/lang/Double.doubleValue:()D
+        33: invokevirtual #273                // Method java/io/DataOutputStream.writeDouble:(D)V
+        36: goto          96
+        39: iload_2
+        40: iconst_3
+        41: if_icmpne     66
+        44: aload_1
+        45: aload_3
+        46: checkcast     #139                // class java/lang/Boolean
+        49: invokevirtual #141                // Method java/lang/Boolean.booleanValue:()Z
+        52: ifeq          59
+        55: iconst_1
+        56: goto          60
+        59: iconst_0
+        60: invokevirtual #267                // Method java/io/DataOutputStream.writeByte:(I)V
+        63: goto          96
+        66: iload_2
+        67: iconst_2
+        68: if_icmpne     82
+        71: aload_3
+        72: checkcast     #8                  // class se/krka/kahlua/j2se/KahluaTableImpl
+        75: aload_1
+        76: invokevirtual #277                // Method save:(Ljava/io/DataOutputStream;)V
+        79: goto          96
+        82: new           #250                // class java/lang/RuntimeException
+        85: dup
+        86: iload_2
+        87: invokedynamic #252,  0            // InvokeDynamic #2:makeConcatWithConstants:(B)Ljava/lang/String;
+        92: invokespecial #255                // Method java/lang/RuntimeException."<init>":(Ljava/lang/String;)V
+        95: athrow
+        96: return
+      LineNumberTable:
+        line 316: 0
+        line 317: 5
+        line 318: 9
+        line 319: 20
+        line 320: 25
+        line 321: 39
+        line 322: 44
+        line 323: 66
+        line 324: 71
+        line 326: 82
+        line 328: 96
+      LocalVariableTable:
+        Start  Length  Slot  Name   Signature
+            0      97     0  this   Lse/krka/kahlua/j2se/KahluaTableImpl;
+            0      97     1 output   Ljava/io/DataOutputStream;
+            0      97     2  sbyt   B
+            0      97     3     o   Ljava/lang/Object;
+
+  public void load(java.nio.ByteBuffer, int);
+    Code:
+         0: aload_1
+         1: invokevirtual #280                // Method java/nio/ByteBuffer.getInt:()I
+         4: istore_3
+         5: aload_0
+         6: invokevirtual #283                // Method wipe:()V
+         9: iload_2
+        10: bipush        25
+        12: if_icmplt     73
+        15: iconst_0
+        16: istore        4
+        18: iload         4
+        20: iload_3
+        21: if_icmpge     70
+        24: aload_1
+        25: invokevirtual #286                // Method java/nio/ByteBuffer.get:()B
+        28: istore        5
+        30: aload_0
+        31: aload_1
+        32: iload_2
+        33: iload         5
+        35: invokevirtual #289                // Method load:(Ljava/nio/ByteBuffer;IB)Ljava/lang/Object;
+        38: astore        6
+        40: aload_1
+        41: invokevirtual #286                // Method java/nio/ByteBuffer.get:()B
+        44: istore        7
+        46: aload_0
+        47: aload_1
+        48: iload_2
+        49: iload         7
+        51: invokevirtual #289                // Method load:(Ljava/nio/ByteBuffer;IB)Ljava/lang/Object;
+        54: astore        8
+        56: aload_0
+        57: aload         6
+        59: aload         8
+        61: invokevirtual #128                // Method rawset:(Ljava/lang/Object;Ljava/lang/Object;)V
+        64: iinc          4, 1
+        67: goto          18
+        70: goto          118
+        73: iconst_0
+        74: istore        4
+        76: iload         4
+        78: iload_3
+        79: if_icmpge     118
+        82: aload_1
+        83: invokevirtual #286                // Method java/nio/ByteBuffer.get:()B
+        86: istore        5
+        88: aload_1
+        89: invokestatic  #293                // Method zombie/GameWindow.ReadString:(Ljava/nio/ByteBuffer;)Ljava/lang/String;
+        92: astore        6
+        94: aload_0
+        95: aload_1
+        96: iload_2
+        97: iload         5
+        99: invokevirtual #289                // Method load:(Ljava/nio/ByteBuffer;IB)Ljava/lang/Object;
+       102: astore        7
+       104: aload_0
+       105: aload         6
+       107: aload         7
+       109: invokevirtual #128                // Method rawset:(Ljava/lang/Object;Ljava/lang/Object;)V
+       112: iinc          4, 1
+       115: goto          76
+       118: return
+      LineNumberTable:
+        line 332: 0
+        line 333: 5
+        line 334: 9
+        line 335: 15
+        line 336: 24
+        line 337: 30
+        line 338: 40
+        line 339: 46
+        line 340: 56
+        line 335: 64
+        line 343: 73
+        line 344: 82
+        line 345: 88
+        line 346: 94
+        line 347: 104
+        line 343: 112
+        line 350: 118
+      LocalVariableTable:
+        Start  Length  Slot  Name   Signature
+           30      34     5 keyByte   B
+           40      24     6   key   Ljava/lang/Object;
+           46      18     7 valueByte   B
+           56       8     8 value   Ljava/lang/Object;
+           18      52     4     n   I
+           88      24     5 valueByte   B
+           94      18     6   key   Ljava/lang/String;
+          104       8     7 value   Ljava/lang/Object;
+           76      42     4     n   I
+            0     119     0  this   Lse/krka/kahlua/j2se/KahluaTableImpl;
+            0     119     1 input   Ljava/nio/ByteBuffer;
+            0     119     2 WorldVersion   I
+            5     114     3 count   I
+
+  public java.lang.Object load(java.nio.ByteBuffer, int, byte) throws java.lang.RuntimeException;
+    Code:
+         0: iload_3
+         1: ifne          9
+         4: aload_1
+         5: invokestatic  #293                // Method zombie/GameWindow.ReadString:(Ljava/nio/ByteBuffer;)Ljava/lang/String;
+         8: areturn
+         9: iload_3
+        10: iconst_1
+        11: if_icmpne     22
+        14: aload_1
+        15: invokevirtual #297                // Method java/nio/ByteBuffer.getDouble:()D
+        18: invokestatic  #300                // Method java/lang/Double.valueOf:(D)Ljava/lang/Double;
+        21: areturn
+        22: iload_3
+        23: iconst_3
+        24: if_icmpne     43
+        27: aload_1
+        28: invokevirtual #286                // Method java/nio/ByteBuffer.get:()B
+        31: ifeq          38
+        34: iconst_1
+        35: goto          39
+        38: iconst_0
+        39: invokestatic  #304                // Method java/lang/Boolean.valueOf:(Z)Ljava/lang/Boolean;
+        42: areturn
+        43: iload_3
+        44: iconst_2
+        45: if_icmpne     69
+        48: getstatic     #307                // Field zombie/Lua/LuaManager.platform:Lse/krka/kahlua/j2se/J2SEPlatform;
+        51: invokevirtual #311                // Method se/krka/kahlua/j2se/J2SEPlatform.newTable:()Lse/krka/kahlua/vm/KahluaTable;
+        54: checkcast     #8                  // class se/krka/kahlua/j2se/KahluaTableImpl
+        57: astore        4
+        59: aload         4
+        61: aload_1
+        62: iload_2
+        63: invokevirtual #317                // Method load:(Ljava/nio/ByteBuffer;I)V
+        66: aload         4
+        68: areturn
+        69: new           #250                // class java/lang/RuntimeException
+        72: dup
+        73: iload_3
+        74: invokedynamic #252,  0            // InvokeDynamic #2:makeConcatWithConstants:(B)Ljava/lang/String;
+        79: invokespecial #255                // Method java/lang/RuntimeException."<init>":(Ljava/lang/String;)V
+        82: athrow
+      LineNumberTable:
+        line 353: 0
+        line 354: 4
+        line 355: 9
+        line 356: 14
+        line 357: 22
+        line 358: 27
+        line 359: 43
+        line 360: 48
+        line 361: 59
+        line 362: 66
+        line 364: 69
+      LocalVariableTable:
+        Start  Length  Slot  Name   Signature
+           59      10     4     v   Lse/krka/kahlua/j2se/KahluaTableImpl;
+            0      83     0  this   Lse/krka/kahlua/j2se/KahluaTableImpl;
+            0      83     1 input   Ljava/nio/ByteBuffer;
+            0      83     2 WorldVersion   I
+            0      83     3  sbyt   B
+
+  public void load(java.io.DataInputStream, int) throws java.io.IOException;
+    Code:
+         0: aload_1
+         1: invokevirtual #320                // Method java/io/DataInputStream.readInt:()I
+         4: istore_3
+         5: iload_2
+         6: bipush        25
+         8: if_icmplt     69
+        11: iconst_0
+        12: istore        4
+        14: iload         4
+        16: iload_3
+        17: if_icmpge     66
+        20: aload_1
+        21: invokevirtual #325                // Method java/io/DataInputStream.readByte:()B
+        24: istore        5
+        26: aload_0
+        27: aload_1
+        28: iload_2
+        29: iload         5
+        31: invokevirtual #328                // Method load:(Ljava/io/DataInputStream;IB)Ljava/lang/Object;
+        34: astore        6
+        36: aload_1
+        37: invokevirtual #325                // Method java/io/DataInputStream.readByte:()B
+        40: istore        7
+        42: aload_0
+        43: aload_1
+        44: iload_2
+        45: iload         7
+        47: invokevirtual #328                // Method load:(Ljava/io/DataInputStream;IB)Ljava/lang/Object;
+        50: astore        8
+        52: aload_0
+        53: aload         6
+        55: aload         8
+        57: invokevirtual #128                // Method rawset:(Ljava/lang/Object;Ljava/lang/Object;)V
+        60: iinc          4, 1
+        63: goto          14
+        66: goto          114
+        69: iconst_0
+        70: istore        4
+        72: iload         4
+        74: iload_3
+        75: if_icmpge     114
+        78: aload_1
+        79: invokevirtual #325                // Method java/io/DataInputStream.readByte:()B
+        82: istore        5
+        84: aload_1
+        85: invokestatic  #331                // Method zombie/GameWindow.ReadString:(Ljava/io/DataInputStream;)Ljava/lang/String;
+        88: astore        6
+        90: aload_0
+        91: aload_1
+        92: iload_2
+        93: iload         5
+        95: invokevirtual #328                // Method load:(Ljava/io/DataInputStream;IB)Ljava/lang/Object;
+        98: astore        7
+       100: aload_0
+       101: aload         6
+       103: aload         7
+       105: invokevirtual #128                // Method rawset:(Ljava/lang/Object;Ljava/lang/Object;)V
+       108: iinc          4, 1
+       111: goto          72
+       114: return
+      LineNumberTable:
+        line 370: 0
+        line 372: 5
+        line 373: 11
+        line 374: 20
+        line 375: 26
+        line 376: 36
+        line 377: 42
+        line 378: 52
+        line 373: 60
+        line 381: 69
+        line 382: 78
+        line 383: 84
+        line 384: 90
+        line 385: 100
+        line 381: 108
+        line 388: 114
+      LocalVariableTable:
+        Start  Length  Slot  Name   Signature
+           26      34     5 keyByte   B
+           36      24     6   key   Ljava/lang/Object;
+           42      18     7 valueByte   B
+           52       8     8 value   Ljava/lang/Object;
+           14      52     4     n   I
+           84      24     5 valueByte   B
+           90      18     6   key   Ljava/lang/String;
+          100       8     7 value   Ljava/lang/Object;
+           72      42     4     n   I
+            0     115     0  this   Lse/krka/kahlua/j2se/KahluaTableImpl;
+            0     115     1 input   Ljava/io/DataInputStream;
+            0     115     2 WorldVersion   I
+            5     110     3 count   I
+
+  public java.lang.Object load(java.io.DataInputStream, int, byte) throws java.io.IOException, java.lang.RuntimeException;
+    Code:
+         0: iload_3
+         1: ifne          9
+         4: aload_1
+         5: invokestatic  #331                // Method zombie/GameWindow.ReadString:(Ljava/io/DataInputStream;)Ljava/lang/String;
+         8: areturn
+         9: iload_3
+        10: iconst_1
+        11: if_icmpne     22
+        14: aload_1
+        15: invokevirtual #334                // Method java/io/DataInputStream.readDouble:()D
+        18: invokestatic  #300                // Method java/lang/Double.valueOf:(D)Ljava/lang/Double;
+        21: areturn
+        22: iload_3
+        23: iconst_3
+        24: if_icmpne     44
+        27: aload_1
+        28: invokevirtual #325                // Method java/io/DataInputStream.readByte:()B
+        31: iconst_1
+        32: if_icmpne     39
+        35: iconst_1
+        36: goto          40
+        39: iconst_0
+        40: invokestatic  #304                // Method java/lang/Boolean.valueOf:(Z)Ljava/lang/Boolean;
+        43: areturn
+        44: iload_3
+        45: iconst_2
+        46: if_icmpne     70
+        49: getstatic     #307                // Field zombie/Lua/LuaManager.platform:Lse/krka/kahlua/j2se/J2SEPlatform;
+        52: invokevirtual #311                // Method se/krka/kahlua/j2se/J2SEPlatform.newTable:()Lse/krka/kahlua/vm/KahluaTable;
+        55: checkcast     #8                  // class se/krka/kahlua/j2se/KahluaTableImpl
+        58: astore        4
+        60: aload         4
+        62: aload_1
+        63: iload_2
+        64: invokevirtual #337                // Method load:(Ljava/io/DataInputStream;I)V
+        67: aload         4
+        69: areturn
+        70: new           #250                // class java/lang/RuntimeException
+        73: dup
+        74: iload_3
+        75: invokedynamic #252,  0            // InvokeDynamic #2:makeConcatWithConstants:(B)Ljava/lang/String;
+        80: invokespecial #255                // Method java/lang/RuntimeException."<init>":(Ljava/lang/String;)V
+        83: athrow
+      LineNumberTable:
+        line 391: 0
+        line 392: 4
+        line 393: 9
+        line 394: 14
+        line 395: 22
+        line 396: 27
+        line 397: 44
+        line 398: 49
+        line 399: 60
+        line 400: 67
+        line 402: 70
+      LocalVariableTable:
+        Start  Length  Slot  Name   Signature
+           60      10     4     v   Lse/krka/kahlua/j2se/KahluaTableImpl;
+            0      84     0  this   Lse/krka/kahlua/j2se/KahluaTableImpl;
+            0      84     1 input   Ljava/io/DataInputStream;
+            0      84     2 WorldVersion   I
+            0      84     3  sbyt   B
+
+  public java.lang.String getString(java.lang.String);
+    Code:
+         0: aload_0
+         1: aload_1
+         2: invokevirtual #50                 // Method rawget:(Ljava/lang/Object;)Ljava/lang/Object;
+         5: checkcast     #129                // class java/lang/String
+         8: areturn
+      LineNumberTable:
+        line 408: 0
+      LocalVariableTable:
+        Start  Length  Slot  Name   Signature
+            0       9     0  this   Lse/krka/kahlua/j2se/KahluaTableImpl;
+            0       9     1 string   Ljava/lang/String;
+
+  public se.krka.kahlua.j2se.KahluaTableImpl getRewriteTable();
+    Code:
+         0: aload_0
+         1: getfield      #23                 // Field reloadReplace:Lse/krka/kahlua/vm/KahluaTable;
+         4: checkcast     #8                  // class se/krka/kahlua/j2se/KahluaTableImpl
+         7: areturn
+      LineNumberTable:
+        line 412: 0
+      LocalVariableTable:
+        Start  Length  Slot  Name   Signature
+            0       8     0  this   Lse/krka/kahlua/j2se/KahluaTableImpl;
+
+  public void setRewriteTable(java.lang.Object);
+    Code:
+         0: aload_0
+         1: aload_1
+         2: checkcast     #8                  // class se/krka/kahlua/j2se/KahluaTableImpl
+         5: putfield      #23                 // Field reloadReplace:Lse/krka/kahlua/vm/KahluaTable;
+         8: return
+      LineNumberTable:
+        line 416: 0
+        line 417: 8
+      LocalVariableTable:
+        Start  Length  Slot  Name   Signature
+            0       9     0  this   Lse/krka/kahlua/j2se/KahluaTableImpl;
+            0       9     1 value   Ljava/lang/Object;
+
+  private static byte getKeyByte(java.lang.Object);
+    Code:
+         0: aload_0
+         1: instanceof    #129                // class java/lang/String
+         4: ifeq          9
+         7: iconst_0
+         8: ireturn
+         9: aload_0
+        10: instanceof    #131                // class java/lang/Double
+        13: ifeq          18
+        16: iconst_1
+        17: ireturn
+        18: iconst_m1
+        19: ireturn
+      LineNumberTable:
+        line 420: 0
+        line 421: 7
+        line 423: 9
+        line 424: 16
+        line 426: 18
+      LocalVariableTable:
+        Start  Length  Slot  Name   Signature
+            0      20     0     o   Ljava/lang/Object;
+
+  private static byte getValueByte(java.lang.Object);
+    Code:
+         0: aload_0
+         1: instanceof    #129                // class java/lang/String
+         4: ifeq          9
+         7: iconst_0
+         8: ireturn
+         9: aload_0
+        10: instanceof    #131                // class java/lang/Double
+        13: ifeq          18
+        16: iconst_1
+        17: ireturn
+        18: aload_0
+        19: instanceof    #139                // class java/lang/Boolean
+        22: ifeq          27
+        25: iconst_3
+        26: ireturn
+        27: aload_0
+        28: instanceof    #8                  // class se/krka/kahlua/j2se/KahluaTableImpl
+        31: ifeq          36
+        34: iconst_2
+        35: ireturn
+        36: iconst_m1
+        37: ireturn
+      LineNumberTable:
+        line 430: 0
+        line 431: 7
+        line 433: 9
+        line 434: 16
+        line 436: 18
+        line 437: 25
+        line 439: 27
+        line 440: 34
+        line 442: 36
+      LocalVariableTable:
+        Start  Length  Slot  Name   Signature
+            0      38     0     o   Ljava/lang/Object;
+
+  public static boolean canSave(java.lang.Object, java.lang.Object);
+    Code:
+         0: aload_0
+         1: invokestatic  #219                // Method getKeyByte:(Ljava/lang/Object;)B
+         4: iconst_m1
+         5: if_icmpeq     20
+         8: aload_1
+         9: invokestatic  #223                // Method getValueByte:(Ljava/lang/Object;)B
+        12: iconst_m1
+        13: if_icmpeq     20
+        16: iconst_1
+        17: goto          21
+        20: iconst_0
+        21: ireturn
+      LineNumberTable:
+        line 446: 0
+      LocalVariableTable:
+        Start  Length  Slot  Name   Signature
+            0      22     0   key   Ljava/lang/Object;
+            0      22     1 value   Ljava/lang/Object;
+}
