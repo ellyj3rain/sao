@@ -1608,3 +1608,10 @@ F-072's numerical description also differs from the shipped source: sepsis is
 `0.02`. The Knox peak `0.08`, clearance `0.04`, and floors `0.30`/`0.90` match
 the code. Those authored constants and the current-load medical bar have not
 been validated as a biological model or an observed treatment experience.
+
+### F-075 numbering correction
+
+The repair called C130 above is canonically C127. The local sequence ended at
+C126; intervening unmerged proposal labels did not reserve batch numbers. The
+original statements and captured seed names remain historical identifiers of
+the same repair and evidence, not an additional development unit.

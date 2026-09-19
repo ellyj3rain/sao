@@ -7,11 +7,13 @@
 
 # Session state
 
-**As of** 2026-09-18, `[C130]` implementation close - causal simulation and evidence.
+**As of** 2026-09-18, `[C127]` implementation close - causal simulation and evidence.
 The recovery audit rejected C126's synthetic outcome generator and the old
-incomplete trajectory receipts. C127-C129 remain unmerged proposals; this
-repair occupies the next unused proposal number. The local C126 record stays
-historical, with its completion claims superseded here and in F-075.
+incomplete trajectory receipts. The last local batch was C126, so this repair
+is C127. Earlier proposals labelled C127-C129 did not reserve batch numbers.
+The repair was initially published with the mistaken label C130; that label
+survives in immutable capture names and published history only. The local C126
+record stays historical, with its completion claims superseded here and in F-075.
 
 The real scheduler now advances 240 county ticks per dormant pass, persists
 fractional-day progress and daily work, and follows the actual day/night clock.
@@ -42,7 +44,7 @@ and state ownership, then the outstanding
 crossed/living behavior, integration switches and loaded-body surfaces.
 The speech cognition model and loaded-game inference budget are still owed.
 
-**C125 implementation, reassessed during C130 recovery.**
+**C125 implementation, reassessed during C127 recovery.**
 `rec.neuroinflammation` is a scalar bounded in `[0.0, 1.0]`. The current authored
 rates are Knox sine activation peaking at `0.08`, wound sepsis `0.02`, toxicity
 `0.05 * min(1.0, poison / 100.0)`, withdrawal `0.02`, and exponential clearance
@@ -51,7 +53,7 @@ rates are Knox sine activation peaking at `0.08`, wound sepsis `0.02`, toxicity
 review; the former summary misstated several rates and overstated validation.
 Clarity projects into memory processing. Clinical observations depend on skill,
 and the medical window draws the current load as a bar, not a time-series curve.
-Dormant daily and active ten-minute paths advance the state. C130 repairs the
+Dormant daily and active ten-minute paths advance the state. C127 repairs the
 off-switch and verifies false, true and omitted options in the actual Lua VM,
 including cognition projection and advancement. Border 158's remaining source
 and arithmetic checks do not establish clinical validity, complete state
@@ -2112,7 +2114,7 @@ unloaded survivors are governed by the same rules ([B39], [B42]).
 
 ## Deploy state
 
-The source version is the version machine's output. C130 reached the install
+The source version is the version machine's output. C127 reached the install
 on 2026-09-18 after the complete gate and Java rebuild. All 249 installed files
 match the source package plus root license and credits, with no extras. The
 distribution, shipped and installed jars share SHA-256
@@ -2210,7 +2212,7 @@ remains full; branch histories are never pushed raw.
 ### Open diagnostics
 
 - The gate intermittently exits 1 and passes on immediate replay, recorded
-  since 2026-08-30. C130 observed Border 54 specifically: its wrapper discarded
+  since 2026-08-30. C127 observed Border 54 specifically: its wrapper discarded
   the original output and reran the instrument, whose replay passed. The
   wrapper now captures the original invocation. The underlying intermittent
   cause remains unresolved; a later clean gate does not explain it.

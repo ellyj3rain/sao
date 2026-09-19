@@ -1,4 +1,8 @@
-# C130 completed county receipts
+# C127 completed county receipts
+
+The repair's canonical batch number is C127. It was initially labelled C130;
+the filenames and `C130Independent` seed below retain their captured spelling.
+The numbering correction changes neither the JSONL evidence nor its inputs.
 
 These are completed causal SAO/ZAO runs in the installed game's Kahlua VM,
 captured on 2026-09-18 (America/Los_Angeles). Each JSONL contains one independent

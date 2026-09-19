@@ -401,3 +401,9 @@ is retained in local Git refs (`archive/claude-ab-era-raw`, local only) as engin
 | `B191` | [B52](B52-2026-08-28-derived-counts-distance-naming-scout-completeness-answer-domain.md) | Joined with an immediately adjacent entry |
 | `B192` | [B52](B52-2026-08-28-derived-counts-distance-naming-scout-completeness-answer-domain.md) | Joined with an immediately adjacent entry |
 | `B193` | [B52](B52-2026-08-28-derived-counts-distance-naming-scout-completeness-answer-domain.md) | Joined with an immediately adjacent entry |
+
+## Recovery numbering correction
+
+| Former label | Canonical batch | Treatment |
+|---|---|---|
+| `C130` in SAO PR 67 and its captures | [C127](C127-2026-09-18-causal-simulation-and-evidence.md) | Corrected identity of the same repair; no new batch. Earlier proposals labelled C127-C129 did not reserve numbers. Original commit and captured evidence identifiers remain historical. |

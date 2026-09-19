@@ -1,8 +1,8 @@
-# C130 - Causal simulation and evidence
+# C127 - Causal simulation and evidence
 
 | Field | Record |
 | --- | --- |
-| Batch | `C130` |
+| Batch | `C127` |
 | Date | 2026-09-18 |
 | Name | Causal simulation and evidence |
 | Status | Closed implementation batch; play receipts pending |
@@ -12,9 +12,9 @@
 
 Recovery compared the GLM/Codex and AGY transcripts with local files, installed
 files, the remote branches and actual engine execution. Local C126 and the
-unmerged C127-C129 proposals carried incomplete or unsupported work. C130
-uses the next unused proposal number; C127-C129 are not recorded as closed
-units. The original working trees in SAO, ZAO and Speakeasy were copied before
+unmerged proposals labelled C127-C129 carried incomplete or unsupported work.
+The last local batch was C126; this repair is C127. Proposal labels do not
+reserve closed-batch numbers. The original working trees in SAO, ZAO and Speakeasy were copied before
 repair, including unfinished changes and the two trajectory rows.
 
 The C126 fast path directly assigned survival, deaths, groups, trust,
@@ -125,3 +125,13 @@ diet and living response, the integration/off-switch inventory, C125's authored
 neuroinflammation baselines, and the unobserved C116-C124 runtime surfaces.
 Speech cognition training and a loaded-game inference budget remain unfinished.
 Existing ratified decisions stay settled; no new playtesting prerequisite is added.
+
+## Numbering correction
+
+This repair was initially published as C130 in SAO PR 67. The operator rejected
+that numbering: the intervening labels belonged to unmerged proposals. Its
+canonical identity is C127, following the local C126 record. This correction
+adds no development unit and changes no runtime behavior or version coordinate.
+The original published commit remains historical. Captured JSONL filenames and
+the `C130Independent` random seed remain unchanged so the evidence is reproducible.
+`FORMER_LABELS.md` records the alias.

@@ -1870,7 +1870,7 @@ if ! "$PY" tools/neuroinflammation_test.py > /dev/null; then
     fail=1
 fi
 
-# [C130] Border 159 - completed causal samples with source provenance;
+# [C127] Border 159 - completed causal samples with source provenance;
 # incomplete horizons and runtime faults refuse export.
 if ! "$PY" tools/trajectory_simulation_test.py > /dev/null; then
     "$PY" tools/trajectory_simulation_test.py 2>&1 | grep -E "FAULT|CONTROL|SKIPPED" || true
@@ -1878,13 +1878,13 @@ if ! "$PY" tools/trajectory_simulation_test.py > /dev/null; then
     fail=1
 fi
 
-# [C130] Border 160 - bounded, reload-safe years on the county clock.
+# [C127] Border 160 - bounded, reload-safe years on the county clock.
 if ! "$PY" tools/years_progress_test.py; then
     note "BORDER FINDING - elapsed history progress contract broken"
     fail=1
 fi
 
-# [C130] Border 161 - company admission through personal pressure and trust.
+# [C127] Border 161 - company admission through personal pressure and trust.
 if ! "$PY" tools/company_admission_test.py; then
     note "BORDER FINDING - company admission contract broken"
     fail=1
