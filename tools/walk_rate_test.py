@@ -161,6 +161,11 @@ SAOJavaBridge = {
 
 # One walker, a goal a long way off, and the clock moved by hand.
 PROBE = r'''(function()
+  -- This border measures walking in the already-running county.
+  local history = ModData.getOrCreate("SurvivorAwareness_Standing")
+  history.yearsAsked, history.yearsOwed, history.yearsRun = true, 0, 0
+  history.yearsTicks = 0
+  history.countySettled = true
   local tick = _G.__handlers.OnTick
   local reach = SAO.Places.comfortHorizon()
 

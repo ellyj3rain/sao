@@ -68,10 +68,6 @@ SAO.Disposition = {
         if id == "loner" then return "loner" end
         return "house"
     end,
-    circleCap = function(id)
-        if id == "loner" then return 1 end
-        return 999
-    end,
 }
 
 local groups = { grouped = "g", social = "g" }

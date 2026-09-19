@@ -110,11 +110,12 @@ SUBS = {
         "day already wrote, so a rotating budget here would not shave "
         "a frame off anything - the walk itself is the only linear "
         "part, and it is one"),
-    "dailyCounty": (0, "none",
-        "[C65] walks no store in this file. It gates on the county's "
-        "own day and calls SAO.Telemetry.county, whose single walk is "
-        "declared in ELSEWHERE below - the walk is real and belongs on "
-        "the record, it is just not in this file"),
+    "dailyCounty": (1, "unbudgeted",
+        "[C130] one identity walk per completed county day settles age "
+        "and habits before the day's digest. The persisted day guard "
+        "prevents a repeat on reload; the whole roster settles before "
+        "observation so a newly dead person cannot appear alive in it. "
+        "Telemetry's own separate walk remains declared in ELSEWHERE"),
 }
 
 # Walks over persisted structures outside the population file, with

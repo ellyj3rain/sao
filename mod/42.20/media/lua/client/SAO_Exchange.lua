@@ -635,13 +635,12 @@ function Exchange.betweenPair(id, agent, body, otherId, otherBody, tickCount)
             and SAO.Standing.companyStanding(otherId, id) > companyBar then
             local groupName = myGroup or otherGroup
                 or ("company-" .. tostring(id))
-            -- Their own company ([A27]): trust opened the door; the
-            -- circle decides. A refusal is said ONCE, costs nothing,
-            -- and stands - temperament is not a bug to wear down.
+            -- Each person weighs known company against their own need
+            -- for space and supplies. A refusal costs no relationship.
             local refuser = nil
-            if SAO.Standing.circleRefuses(id, groupName) then
+            if SAO.Standing.circleRefuses(id, groupName, otherId) then
                 refuser = id
-            elseif SAO.Standing.circleRefuses(otherId, groupName) then
+            elseif SAO.Standing.circleRefuses(otherId, groupName, id) then
                 refuser = otherId
             end
             if refuser then
@@ -656,7 +655,9 @@ function Exchange.betweenPair(id, agent, body, otherId, otherBody, tickCount)
                 end
                 return
             end
-            SAO.Standing.formCompany({ id, otherId }, groupName)
+            if not SAO.Standing.formCompany({ id, otherId }, groupName) then
+                return
+            end
             log(id .. " and " .. otherId
                 .. " now keep company (trust and need)")
             -- Moving in: the JOINER moves; the standing

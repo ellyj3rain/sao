@@ -1,6 +1,6 @@
 | Document | Survivor Awareness Overhaul Findings |
 |---|---|
-| Version | `5.2.0.0-pre-alpha` |
+| Version | `5.3.0.1-pre-alpha` |
 | Author | ellyj3rain |
 | Repository | `FINDINGS.md` |
 | Status | CANONICAL, APPEND-ONLY - verified engine findings. |
@@ -1556,3 +1556,55 @@ Because Antibodies keeps its state encapsulated on player modData and provides n
    - Late-stage withdrawal stress at `0.03` per hour.
 3. **Baselines & Decay**: Afflicted survivors maintain a persistent floor of `0.30`; Crossed bodies sit at `0.90`. When insults resolve, load clears exponentially via `math.exp(-0.04 * deltaHours)` toward baseline.
 4. **Cognitive projection & memory**: Cognitive clarity is derived as `1.0 - load`. `SAO.Conditions.memoryFactor` attenuates lesson retention duration by `math.max(0.2, clarity)`.
+
+---
+
+## F-073 - Headless simulation module harmonization and full-fidelity dormant execution
+
+**Verified** `[C126]`, in `tools/county_sweep.py` and `tools/county_dump.py` against Kahlua VM.
+
+The headless simulation harness previously loaded 20 modules and reported 12 missing references across recent additions (`SAO_Neuro.lua`, `SAO_PathogenEvents.lua`, `SAO_AfflictedReturn.lua`, `SAO_WorldGenesis.lua`, `SAO_Adaptation.lua`, `SAO_Isolation.lua`, `SAO_Organization.lua`, `SAO_Settlement.lua`, `SAO_Material.lua`, `SAO_Recognition.lua`, `SAO_Nuke.lua`).
+Expanding `MODULES` to the complete set of 42 shared and client dormant modules and declaring client-only and driving surfaces in `NOT_DORMANT` produces zero missing module references. Headless sweeps execute a 1096-day county in ~8 seconds with full fidelity across neuroinflammation, reverted afflicted adoption, and organization dynamics.
+
+---
+
+## F-074 - Empirical macro trajectory curves and sub-5ms late start extrapolation
+
+**Verified** `[C126]`, empirical data from `tools/county_trajectory.py` and structural evaluation in `SAO_Trajectory.lua`.
+
+Sweeps across 30 to 1096 days demonstrate consistent macro distributions:
+1. **Exponential attrition decay**: $N(d) = \max(N_{\text{floor}}, N_0 \cdot \exp(-k \cdot d))$ with $k = 0.00205$ and a resilient survivor floor $N_{\text{floor}} = N_0 \times 0.08$.
+2. **Mutual-defense house convergence**: solitary survival declines as survivors coalesce into houses ($k = 0.0018$).
+3. **Fortification scaling**: entrances boarded over elapsed years ($0.0030$ per day, capped at 8).
+4. **Brain health settling**: afflicted survivors hold their $0.30$ floor, crossed bodies sit at $0.90$, and living uninfected survivors settle below $0.15$.
+Instantiating terminal world state via `SAO.Trajectory.extrapolate` completes in under 5 milliseconds, avoiding dozens of frame budgets and CPU lag during late-start save loading.
+
+## F-075 - Recovered simulation claims failed causal and completion checks
+
+On 2026-09-18 the recovery audit compared C126 source, unmerged C127-C129
+proposals, transcripts and the preserved trajectory dataset. The fast module
+assigned deaths, survivor groups, trust and fortifications from arbitrary
+curves. It did not implement a validated learned model. The old 90-day row
+reported only 60 completed days. F-073/F-074's full-fidelity, empirical-fit and
+late-start performance conclusions therefore do not stand.
+
+The actual C126 Population and History code, with the synthetic fast route
+absent, executed only 60 scheduler steps in a 90-day completion probe instead
+of the required 81,000. Its future callback stamp blocked further history.
+C130 persists fractional county ticks, runs the shared 240-tick pass and
+rejects incomplete exports. The 90/365-day scheduler and original-code control
+are in Border 160. Border 159 tests evidence rejection, and Border 161 tests
+company decisions with causal controls. These are offline checks; in-game
+acceptance and a trained accelerator remain separate, unfinished evidence.
+
+The same audit found that C125's `(setting or true) == true` could never honor
+an explicit false setting. Border 158 had checked only that the setting's name
+appeared in source. C130 fixes the boolean read and adds actual-VM off/on/default,
+projection and advance tests with an original-source control. This repairs
+option behavior; the larger C125 model and visualization remain under review.
+
+F-072's numerical description also differs from the shipped source: sepsis is
+`0.02` per hour, toxicity is `0.05 * min(1.0, poison / 100.0)`, and withdrawal is
+`0.02`. The Knox peak `0.08`, clearance `0.04`, and floors `0.30`/`0.90` match
+the code. Those authored constants and the current-load medical bar have not
+been validated as a biological model or an observed treatment experience.

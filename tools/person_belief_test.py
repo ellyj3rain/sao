@@ -163,6 +163,11 @@ SAOJavaBridge = {
 # Two people standing together, a meeting, a house losing two members,
 # and a name arriving. Every answer is read out of the belief store.
 PROBE = r"""(function()
+  -- This border observes a running county, whose opening history is done.
+  local history = ModData.getOrCreate("SurvivorAwareness_Standing")
+  history.yearsAsked, history.yearsOwed, history.yearsRun = true, 0, 0
+  history.yearsTicks = 0
+  history.countySettled = true
   local tick = _G.__handlers.OnTick
   local function make(x, y)
     local r = SAO.Identity.create(nil, nil, x, y, 0)
@@ -229,7 +234,9 @@ PROBE = r"""(function()
   -- house[1] has met nobody, so it has no belief store at all until
   -- the news opens one.
   local hadStore = SAO.Perception.beliefs[ids[1]] and "yes" or "no"
-  _G.__hours = _G.__hours + 240
+  -- News needs a later live pass; ten days would also test whether this
+  -- scattered household chooses to stay together, outside the key probe.
+  _G.__hours = _G.__hours + 1
   SAO.Identity.markDead(house[2], 0, "border")
   house[2].deathNewsAt = 0
   for i = 1, 240 * 4 do hold(); tick() end
@@ -238,7 +245,7 @@ PROBE = r"""(function()
     and "yes" or "no"
 
   -- And a second death is a second belief rather than an overwrite.
-  _G.__hours = _G.__hours + 240
+  _G.__hours = _G.__hours + 1
   SAO.Identity.markDead(house[3], 0, "border")
   house[3].deathNewsAt = 0
   for i = 1, 240 * 4 do hold(); tick() end

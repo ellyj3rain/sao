@@ -11,9 +11,8 @@ SAO = SAO or {}
 SAO.Isolation = SAO.Isolation or {}
 local I = SAO.Isolation
 
--- The band circle's own cap is the saturation point. Three living social
--- signals are enough to say the person is not isolated; a larger tolerated
--- circle does not change the fact that company has arrived.
+-- Three living social signals saturate this contact reading. This measures
+-- contact; it places no limit on the number of people in a company.
 local CONTACT_SATURATION = 3
 
 -- A recent person is one seen, heard, or told about inside one county day.
@@ -30,16 +29,14 @@ function I.of(id)
         and SAO.Identity.get(id) or nil
     if not rec or rec.dead then return nil end
 
-    local appetite, circle, capacity = 0.5, "house", 999
+    local appetite, circle = 0.5, "house"
     pcall(function()
         appetite = SAO.History.contactFactor(id)
     end)
     appetite = numberOr(appetite, 0.5)
     pcall(function()
         circle = SAO.Disposition.circle(id)
-        capacity = SAO.Disposition.circleCap(id)
     end)
-    capacity = numberOr(capacity, 999)
 
     local groupSize = 0
     pcall(function()
@@ -53,12 +50,25 @@ function I.of(id)
     local nowHours = nil
     pcall(function() nowHours = SAO.History.countyHours() end)
 
-    local knownPeople, recentPeople = 0, 0
+    local knownPeople, recentPeople, recentContacts = 0, 0, 0
     local lastPersonHours = nil
     local b = SAO.Perception.beliefs[id]
     if b and b.people then
         for key, pb in pairs(b.people) do
             local otherId = pb.id or SAO.Identity.idByName(key)
+            -- Experienced company comes from this person's own encounter
+            -- memory. A roster or a report about somebody elsewhere is no
+            -- contact, and an unseen death cannot change that memory.
+            local atContact = numberOr(pb.atHours, nil)
+            if atContact == nil and type(pb.at) == "number" then
+                atContact = pb.at / 9000
+            end
+            if otherId ~= id and not pb.dead
+                and (pb.source == "observed" or pb.source == "heard")
+                and atContact and nowHours and atContact <= nowHours
+                and nowHours - atContact <= RECENT_HOURS then
+                recentContacts = recentContacts + 1
+            end
             local other = otherId and SAO.Identity.get(otherId) or nil
             if other and not other.dead and otherId ~= id then
                 knownPeople = knownPeople + 1
@@ -115,7 +125,6 @@ function I.of(id)
     return {
         appetite = appetite,
         circle = circle,
-        capacity = capacity,
         groupSize = groupSize,
         knownPeople = knownPeople,
         trustedPeople = trustedPeople,
@@ -123,6 +132,7 @@ function I.of(id)
         lastContactHours = lastContactHours,
         hoursSinceContact = hoursSinceContact,
         contact = contact,
+        experiencedContact = math.min(1, recentContacts / CONTACT_SATURATION),
         isolation = isolation,
     }
 end

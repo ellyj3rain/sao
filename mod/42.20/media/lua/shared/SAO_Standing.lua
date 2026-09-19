@@ -592,26 +592,53 @@ function S.companyStanding(id, otherKey)
     return v
 end
 
--- Temperament gates company ([A27]): trust opens the door, the
--- circle decides whether to walk through. Loners refuse membership
--- outright; band-people refuse when the joined roster would exceed
--- their circle of three. Bonds are not groups - a loner's bond
--- stands. [C111] does not touch this: need does not overrule
--- temperament, and every formation seam still asks it after the
--- trust-and-need line clears.
-function S.circleRefuses(id, groupName)
-    local circle = SAO.Disposition and SAO.Disposition.circle
-        and SAO.Disposition.circle(id) or "house"
-    if circle == "loner" then return true end
-    if circle == "band" then
-        local s = store(); if not s then return false end
-        local n = 1
-        for _, g in pairs(s.groups or {}) do
-            if g == tostring(groupName) then n = n + 1 end
-        end
-        return n > 3
+-- Company is a personal decision. Social contact can satisfy a need or
+-- strain somebody who prefers solitude; neither fact sets a headcount.
+-- The isolation surface owns those two normalized readings. Their product
+-- is the unwanted share of the contact this person actually experiences.
+-- A member also feels their own unmet food/water need, measured by the
+-- population module against the same patience their day already uses.
+-- An outsider cannot read the house's supplies; their own hunger may be
+-- why they seek company, so it is not a cost of that unknown house.
+function S.companyPressure(id, groupName)
+    local reading = nil
+    pcall(function()
+        reading = SAO.Isolation and SAO.Isolation.of(id) or nil
+    end)
+    local pressure = 0
+    if reading and type(reading.appetite) == "number"
+        and type(reading.experiencedContact) == "number" then
+        pressure = (1 - math.max(0, math.min(1, reading.appetite)))
+            * math.max(0, math.min(1, reading.experiencedContact))
     end
-    return false
+    if groupName and S.groupOf(id) == tostring(groupName) then
+        local need = 0
+        pcall(function()
+            need = SAO.Population and SAO.Population.companyNeedPressure
+                and SAO.Population.companyNeedPressure(id) or 0
+        end)
+        if type(need) == "number" then
+            pressure = pressure + math.max(0, math.min(1, need))
+        end
+    end
+    return pressure
+end
+
+-- The caller supplies the person actually met. No roster size, floor area,
+-- or unseen larder enters either side's answer. Existing callers without a
+-- counterpart may use their own chair; an outsider with no named contact
+-- has only their own social need to weigh, not an invented relationship.
+function S.circleRefuses(id, groupName, otherKey)
+    if not id or not groupName then return false end
+    groupName = tostring(groupName)
+    if not otherKey and S.groupOf(id) == groupName then
+        otherKey = S.leaderOf(groupName)
+        if otherKey == id then otherKey = nil end
+    end
+    if otherKey and S.isHostileTo(id, otherKey) then return true end
+    local support = otherKey and S.companyStanding(id, otherKey)
+        or S.companyPull(id)
+    return support < 0 or S.companyPressure(id, groupName) > support
 end
 
 function S.joinGroup(id, groupName)
@@ -1477,36 +1504,37 @@ function S.electLeader(groupName)
         end
     end
 
-    -- The crowded walk out ([B8]): a member whose house has
-    -- outgrown their wanted circle and whose faith in the chair has
-    -- gone below neutral LEAVES, rather than souring forever. They
-    -- keep their own ground and become a company of one - which is
-    -- what a loner in a crowded house wanted all along. One per
-    -- election: houses come apart a person at a time.
+    -- [B8] A member under personal company pressure whose faith in the
+    -- chair has fallen below neutral may leave. The pressure is the same
+    -- firsthand reading used at admission; the roster has no capacity.
+    -- One departure per election, with the existing widow rule for a pair.
     do
         local metaW = s.groupMeta[groupName] or {}
         local leadW = metaW.leaderId
-        if leadW and #members > 2 then
-            for _, mid in ipairs(members) do
-                if mid ~= leadW and SAO.Disposition
-                    and SAO.Disposition.circleCap
-                    and #members > SAO.Disposition.circleCap(mid)
-                    and S.trust(mid, leadW) < 0 then
-                    s.groups[mid] = nil
-                    local wrecW = SAO.Identity and SAO.Identity.get
-                        and SAO.Identity.get(mid) or nil
-                    if wrecW then
-                        wrecW.designation = nil
-                        wrecW.designatedBy = nil
+        if leadW and #members > 1 then
+            for memberIndex, mid in ipairs(members) do
+                if mid ~= leadW and S.trust(mid, leadW) < 0 then
+                    if S.companyPressure(mid, groupName) > 0 then
+                        s.groups[mid] = nil
+                        local wrecW = SAO.Identity and SAO.Identity.get
+                            and SAO.Identity.get(mid) or nil
+                        if wrecW then
+                            wrecW.designation = nil
+                            wrecW.designatedBy = nil
+                        end
+                        if SAO.Body and SAO.Body.get and SAO.Body.get(mid) then
+                            pcall(function()
+                                SAO.Voice.onEvent(mid, "walkOut")
+                            end)
+                        end
+                        log(mid .. " walks out of " .. tostring(groupName)
+                            .. " - personal needs and too little faith")
+                        table.remove(members, memberIndex)
+                        if #members == 1 then
+                            return S.electLeader(groupName)
+                        end
+                        break
                     end
-                    if SAO.Body and SAO.Body.get and SAO.Body.get(mid) then
-                        pcall(function()
-                            SAO.Voice.onEvent(mid, "walkOut")
-                        end)
-                    end
-                    log(mid .. " walks out of " .. tostring(groupName)
-                        .. " - too many people, too little faith")
-                    break
                 end
             end
         end
@@ -1607,23 +1635,19 @@ function S.electLeader(groupName)
         end
     end
 
-    -- Crowding is politics ([A27]): a member whose wanted circle the
-    -- roster exceeds loses a little faith in the face of the crowd -
-    -- the leader - every election. The pressure resolves through the
-    -- same election and schism machinery as everything else; nobody
-    -- is ejected by a rule.
+    -- [A27] Unmet personal needs can erode faith in the chair. Keep the
+    -- existing election cadence and ordinary -0.02 consequence; only the
+    -- cause changes from a headcount to this member's own pressure weighing
+    -- more than their trust and social need. A supported member stays content.
     do
         local metaK = s.groupMeta[groupName] or {}
         local leadK = metaK.leaderId
         if leadK and #members > 1 then
             for _, mid in ipairs(members) do
-                if mid ~= leadK and SAO.Disposition
-                    and SAO.Disposition.circleCap then
-                    local cap = SAO.Disposition.circleCap(mid)
-                    if #members > cap then
-                        S.adjustTrust(mid, leadK,
-                            SAO.Disposition.circle(mid) == "loner"
-                            and -0.04 or -0.02)
+                if mid ~= leadK then
+                    if S.companyPressure(mid, groupName)
+                        > S.companyStanding(mid, leadK) then
+                        S.adjustTrust(mid, leadK, -0.02)
                     end
                 end
             end

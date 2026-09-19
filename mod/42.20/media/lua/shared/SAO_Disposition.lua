@@ -242,13 +242,6 @@ function D.circle(id)
     return "house"
 end
 
-function D.circleCap(id)
-    local c = D.circle(id)
-    if c == "loner" then return 1 end
-    if c == "band" then return 3 end
-    return 999
-end
-
 -- Habits are hash facts. About a third of the county smoked before the
 -- end; the end did not help anyone quit. The third is Kentucky's own:
 -- 30.1 percent of adults, BRFSS 1993 (MMWR Surveillance Summaries,

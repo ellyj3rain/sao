@@ -59,7 +59,7 @@ Neuro.BASE_CLEARANCE_RATE = 0.04 -- exponential clearance rate per hour when ins
 function Neuro.isActive()
     local sv = SandboxVars and SandboxVars.SurvivorAwareness
     if sv and sv.Neuroinflammation ~= nil then
-        return (sv.Neuroinflammation or true) == true
+        return sv.Neuroinflammation == true
     end
     return true
 end

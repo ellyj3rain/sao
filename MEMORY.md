@@ -1,6 +1,6 @@
 | Document | Survivor Awareness Overhaul Memory |
 |---|---|
-| Version | `5.2.0.0-pre-alpha` |
+| Version | `5.3.0.1-pre-alpha` |
 | Author | ellyj3rain |
 | Repository | `MEMORY.md` |
 | Status | ACTIVE - index of every root document and its standing. |
@@ -71,3 +71,5 @@ current. Nothing at the root is unclassified.
 
 - [PUBLISHING.md](PUBLISHING.md) - what a Workshop upload needs, read from the game's own template; blocked on art, deliberately not staged.
 - [GROUNDED_DEAD_PROPOSAL.md](GROUNDED_DEAD_PROPOSAL.md) - PROPOSED: the zombie-population derivation (demography x lore x mechanism fork) awaiting the operator's ratification; nothing in it is behavior.
+
+`artifacts/docx/` holds generated readable exports; the corresponding Markdown remains the working source.
