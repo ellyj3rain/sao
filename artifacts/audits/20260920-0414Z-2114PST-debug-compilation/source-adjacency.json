@@ -1,0 +1,22 @@
+[
+  {
+    "test": "promise_body_test.py",
+    "exit_code": 0,
+    "output": "==========================================================================\nTHE KEPT PROMISE SWINGS AT THE BODY\n==========================================================================\n\nVERDICT:\n  89) the promise: aimed at the one body carrying the person's mark,\n      honest about a miss, carried rather than discharged on absence,\n      and never the nearest stranger again\n"
+  },
+  {
+    "test": "bulkhead_test.py",
+    "exit_code": 0,
+    "output": "====================================================================\nTHRESHOLDS, parsed from the Lua\n====================================================================\n  subFaults      SAO_Population.lua     3 faults   PERMANENT\n  popFaults      SAO_Population.lua     3 faults   PERMANENT\n  ctlFaults      SAO_Controller.lua     3 faults   recovers\n  agentFaults    SAO_Controller.lua     3 faults   recovers\n  job.faults     SAO_Locomotion.lua     3 faults   recovers\n\n  all five agree on the same threshold: YES  [3]\n\n====================================================================\nDRIVEN - a seam that faults every time\n====================================================================\n  tick 1: attempted        faults=1\n  tick 2: attempted        faults=2\n  tick 3: attempted        faults=3\n  tick 4: SKIPPED (dark)   faults=3\n  tick 5: SKIPPED (dark)   faults=3\n  tick 6: SKIPPED (dark)   faults=3\n\n  attempts before going dark: 3 (expected 3)\n  went dark: YES\n\n====================================================================\nDRIVEN - a seam one fault short never goes dark\n====================================================================\n  faults=2, dark=False, attempts=7\n  survives and keeps being attempted: YES\n\n====================================================================\nWHO IS TOLD - only the PERMANENT seams may register\n====================================================================\n  subFaults      registers            (must)   ok\n  popFaults      registers            (must)   ok\n  ctlFaults      does not register    (must NOT)   ok\n  agentFaults    does not register    (must NOT)   ok\n  job.faults     does not register    (must NOT)   ok\n\n====================================================================\nTHE PLAYER-FACING SURFACE\n====================================================================\n  register module present:      YES\n  the Ledger reads it:          YES\n\nVERDICT:\n  thresholds consistent:              YES\n  a failing seam stops after 3:        YES\n  a seam one short keeps running:     YES\n  the right seams register:           YES\n  a player could find out:            YES\n"
+  },
+  {
+    "test": "seat_and_crossing_test.py",
+    "exit_code": 0,
+    "output": "==========================================================================\nTHE SEAT AND THE MESH MOVE TOGETHER; THE FOLLOW CROSSES\n==========================================================================\n  82) seats and crossings: every enter and exit moves the mesh with\n      the flag, fences are crossings rather than stalls, the follow\n      works the edge its target crossed, and the seat outranks the flag\n"
+  },
+  {
+    "test": "policy_reach_test.py",
+    "exit_code": 0,
+    "output": "======================================================================\nRation policies, and what actually reads them\n======================================================================\n  mercy    -> weak-first\n  order    -> watch-first\n  road     -> carry-light\n  wall     -> house-first\n\n======================================================================\nBEHAVIOUR READS (radio phrasings excluded, they only say it)\n======================================================================\n  carry-light     1  SAO_Exchange.lua:292\n  house-first     2  SAO_Exchange.lua:266, SAO_Standing.lua:3135\n  watch-first     4  SAO_Controller.lua:1338, SAO_Controller.lua:3182, SAO_Exchange.lua:174, SAO_Standing.lua:3135\n  weak-first      1  SAO_Standing.lua:3139\n\nVERDICT:\n  policies a creed can adopt: 4\n  governing nothing:          0 []\n"
+  }
+]

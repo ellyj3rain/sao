@@ -1,6 +1,6 @@
 | Document | Survivor Awareness Overhaul Findings |
 |---|---|
-| Version | `2.7.15.0-pre-alpha` |
+| Version | `2.7.15.1-pre-alpha` |
 | Author | ellyj3rain |
 | Repository | `FINDINGS.md` |
 | Status | CANONICAL, APPEND-ONLY - verified engine findings. |
@@ -1989,3 +1989,30 @@ faults, origins or encounters, omit reattachment, or lose the explicit tick
 handoff. Each refuses for its named reason. The existing installed-engine probe
 shows ordinary world exit creates fresh Lua, so this finding is scoped to
 same-environment reload and explicit reinitialization.
+
+## F-090 | 2026-09-20 04:14 UTC / 21:14 PST | Debug compilation exceeded the cumulative local array
+
+The development launch rejected Controller although Border 50 passed.
+The installed compiler uses the same entry point in both cases. With
+`Core.debug=true`, `LexState.new_localvar` indexes a fixed 200-entry debug
+array by cumulative declarations; its preceding check limits simultaneous
+locals instead. Sequential scopes therefore still overflow the debug array.
+
+Controller's decision function had 634 cumulative locals, its update function
+238, and Standing's leader election 286. Separate private functions now own
+the existing phases. Calls preserve priority, snapshot timing, random draws
+and early returns. This repairs compilation without changing action policy.
+
+The unchanged source passes `LuaCompiler.loadis(Reader, path, env)` with
+`Core.debug=false` and fails with it true, using the same installed jar and
+classpath. The three offending functions are the complete population found
+across all 73 Lua files. A synthetic 200-local sequential-scope function passes
+both modes; 201 passes normal mode and fails debug mode at
+`LexState.new_localvar:730`. The live C58 stderr and retained C57 stderr contain
+the same Controller exception. This corrects the previous offline gate's
+startup implication rather than attributing the defect to C58's extraction.
+
+Border 50 executes both modes, verifies complete verdict coverage and checks
+known-bad syntax and debug-overflow controls. The [C59 evidence](artifacts/audits/20260920-0414Z-2114PST-debug-compilation/README.md)
+retains the reproduction and repair review. Loaded-world behavior remains a
+separate observation.

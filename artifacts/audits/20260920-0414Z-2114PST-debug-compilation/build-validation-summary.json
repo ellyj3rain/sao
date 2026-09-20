@@ -1,0 +1,74 @@
+[
+  {
+    "script": "person_handoff_test.py",
+    "exit_code": 0,
+    "duration_seconds": 19.35,
+    "log": ".git\\c59-build-validation-person_handoff_test.txt"
+  },
+  {
+    "script": "one_clock_test.py",
+    "exit_code": 0,
+    "duration_seconds": 1.06,
+    "log": ".git\\c59-build-validation-one_clock_test.txt"
+  },
+  {
+    "script": "shared_time_test.py",
+    "exit_code": 0,
+    "duration_seconds": 2.75,
+    "log": ".git\\c59-build-validation-shared_time_test.txt"
+  },
+  {
+    "script": "scope_split_audit.py",
+    "exit_code": 0,
+    "duration_seconds": 0.06,
+    "log": ".git\\c59-build-validation-scope_split_audit.txt"
+  },
+  {
+    "script": "invariant_sweep.py",
+    "exit_code": 1,
+    "duration_seconds": 0.1,
+    "log": ".git\\c59-build-validation-invariant_sweep.txt",
+    "gate_findings": []
+  },
+  {
+    "script": "forget_on_death_test.py",
+    "exit_code": 0,
+    "duration_seconds": 0.57,
+    "log": ".git\\c59-build-validation-forget_on_death_test.txt"
+  },
+  {
+    "script": "registry_surface_test.py",
+    "exit_code": 0,
+    "duration_seconds": 0.34,
+    "log": ".git\\c59-build-validation-registry_surface_test.txt"
+  },
+  {
+    "script": "scope_split_audit.py",
+    "scope": "scope-explicit",
+    "arguments": [
+      "mod/42.20/media/lua/client/SAO_Controller.lua",
+      "mod/42.20/media/lua/shared/SAO_Standing.lua"
+    ],
+    "exit_code": 0,
+    "output": "candidates: 0\n"
+  },
+  {
+    "script": "scope_split_audit.py",
+    "scope": "scope-control",
+    "arguments": [
+      "C:\\Users\\jleyv\\Peanut Butter\\AI Assisted Software Engineering Mass Repository\\Projects\\survivor-awareness\\.git\\c59-build-validation-scope-control.lua"
+    ],
+    "exit_code": 0,
+    "output": "c59-build-validation-scope-control.lua:1 writes 'scopeControl' before its local decl at :2  | scopeControl = 1\ncandidates: 1\n"
+  },
+  {
+    "script": "invariant_sweep.py",
+    "attempt": "corrected",
+    "exit_code": 0,
+    "duration_seconds": 0.34,
+    "log": ".git\\c59-build-validation-invariant_sweep-corrected.txt",
+    "sha256": "3b2c2c67fcc6dc9364d60f70c0d752fb546f6a2d5897143feea7825a2d3d8821",
+    "gate_findings": [],
+    "control": "TRAVEL guard replaced by UNHANDLED; missing and unexpected state assertions executed"
+  }
+]

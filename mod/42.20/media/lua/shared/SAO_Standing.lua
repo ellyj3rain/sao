@@ -818,121 +818,7 @@ local CREED_OPPOSES = { order = "road", road = "order",
 -- thrown inside an election.
 local STRUCTURED_CREED = { order = true, wall = true }
 
-function S.electLeader(groupName)
-    local s = store(); if not s then return nil, nil end
-    groupName = tostring(groupName)
-    s.groupMeta = s.groupMeta or {}
-    local members = {}
-    for id, g in pairs(s.groups) do
-        if g == groupName then
-            local rec = SAO.Identity and SAO.Identity.get(id) or nil
-            if not (rec and rec.dead) then
-                members[#members + 1] = id
-            end
-        end
-    end
-    if #members == 0 then
-        -- The roster emptied: the faction is DONE. Meta, name, claim,
-        -- and player membership all lapse together; only the ghost of
-        -- its base in old heads remains ([A15] beliefs, deliberately).
-        s.groupMeta[groupName] = nil
-        if s.groupClaims then s.groupClaims[groupName] = nil end
-        -- [C105] The record lapses with the house.
-        if SAO.Recognition then
-            SAO.Recognition.onHouseDissolved(groupName)
-        end
-        return nil, nil
-    end
-    if #members == 1 then
-        -- The widow of a company ([A15]): a group of one is a memory,
-        -- not a membership. The last member is RELEASED - free to keep
-        -- company again - and keeps the house: the group claim becomes
-        -- their personal claim before it lapses.
-        local widow = members[1]
-        local gc = s.groupClaims and s.groupClaims[groupName] or nil
-        if gc then
-            s.claims[widow] = { minX = gc.minX, minY = gc.minY,
-                maxX = gc.maxX, maxY = gc.maxY, z = gc.z or 0 }
-            s.groupClaims[groupName] = nil
-        end
-        s.groups[widow] = nil
-        s.groupMeta[groupName] = nil
-        local wrec = SAO.Identity and SAO.Identity.get(widow) or nil
-        if wrec then
-            wrec.designation = nil
-            wrec.designatedBy = nil
-        end
-        -- [C105] The record lapses with the house.
-        if SAO.Recognition then
-            SAO.Recognition.onHouseDissolved(groupName)
-        end
-        return nil, nil
-    end
-    table.sort(members)
-    local bestId, bestSum
-    for _, id in ipairs(members) do
-        local sum = 0
-        for _, otherId in ipairs(members) do
-            if otherId ~= id then
-                sum = sum + S.trust(otherId, id)
-            end
-        end
-        if not bestSum or sum > bestSum then
-            bestId, bestSum = id, sum
-        end
-    end
-    -- The company has jobs (DR-011, [A18]): a designation per member,
-    -- dealt from who they were. The leader leads; the rest work their
-    -- class. Solo lives stay undesignated - that is a different day,
-    -- and the controller renders it honestly.
-    for _, mid in ipairs(members) do
-        local mrec = SAO.Identity and SAO.Identity.get(mid) or nil
-        if mrec then
-            if mid == bestId then
-                mrec.designation = "leads"
-            elseif mrec.designatedBy ~= "chair" then
-                -- The chair's assignments survive elections ([A27]):
-                -- the steward deals work only to the undealt.
-                local cls = (SAO.Census and SAO.Census.classOf)
-                    and SAO.Census.classOf(mrec.occupation) or nil
-                mrec.designation = (cls == "hardened" and "watch")
-                    or (cls == "outdoors" and "scout")
-                    or (cls == "carer" and "medic")
-                    or (cls == "settled" and "quartermaster")
-                    or "forager"
-                -- The deal follows the best hand ([B2]): the class
-                -- prior yields when this member's OWN skill for
-                -- another job beats their skill for the dealt one by
-                -- 3+ - the house hands the rifle to whoever can
-                -- shoot. Quartermaster has no honest perk (organized
-                -- is a trait, not a skill) - the class prior stands.
-                if SAO.Census.skillOf then
-                    -- [B20] The shared table - see Census.JOB_PERK.
-                    local JOB_PERK = SAO.Census.JOB_PERK or {}
-                    local dealt = mrec.designation
-                    local dealtPerk = JOB_PERK[dealt]
-                    local dealtLvl = dealtPerk
-                        and SAO.Census.skillOf(mid, dealtPerk) or 0
-                    if dealtLvl < 0 then dealtLvl = 0 end
-                    local bestJob, bestLvl = nil, dealtLvl
-                    for job, perk in pairs(JOB_PERK) do
-                        if job ~= dealt then
-                            local lvl = SAO.Census.skillOf(mid, perk)
-                            if lvl and lvl >= bestLvl + 3 then
-                                bestJob, bestLvl = job, lvl
-                            end
-                        end
-                    end
-                    if bestJob then
-                        mrec.designation = bestJob
-                        log(mid .. " takes the " .. bestJob
-                            .. " work - best hands for it ("
-                            .. bestLvl .. ")")
-                    end
-                end
-            end
-        end
-    end
+local function updateElectionCreed(s, groupName)
     -- [B23] The turn of a house. Culture already adapted - the creed
     -- is rendered from who is alive and what they have learned - but
     -- nothing ever COMPARED, so a transformation could not be noticed
@@ -998,6 +884,9 @@ function S.electLeader(groupName)
             end
         end
     end
+end
+
+local function applyElectionDivision(groupName, members)
     -- [B23] A division that goes somewhere. [B23] built the state
     -- and left it sitting: `checkSchism` fires on a mutually hostile
     -- pair and knows nothing about creed, so two opposed truths could
@@ -1088,6 +977,9 @@ function S.electLeader(groupName)
             end
         end
     end
+end
+
+local function applyAfflictedDispute(groupName, members)
     -- [C117] The afflicted member in the room. [B23]'s quarrel runs
     -- on creed; this one runs on the pathogen's marks: a member the
     -- house can SEE is shaped ([C116]'s scanner stamps the form on
@@ -1199,6 +1091,9 @@ function S.electLeader(groupName)
             end
         end
     end
+end
+
+local function reviewElectionWork(s, groupName, members)
     -- [B21] The work is JUDGED. [B2] made the roster self-correcting
     -- on skill and [B13] on need; neither ever looked at whether the
     -- work was getting DONE. A designation, once dealt, was permanent
@@ -1342,6 +1237,127 @@ function S.electLeader(groupName)
                 .. " work - it shows, and the house sees it")
         end
     end
+end
+
+function S.electLeader(groupName)
+    local s = store(); if not s then return nil, nil end
+    groupName = tostring(groupName)
+    s.groupMeta = s.groupMeta or {}
+    local members = {}
+    for id, g in pairs(s.groups) do
+        if g == groupName then
+            local rec = SAO.Identity and SAO.Identity.get(id) or nil
+            if not (rec and rec.dead) then
+                members[#members + 1] = id
+            end
+        end
+    end
+    if #members == 0 then
+        -- The roster emptied: the faction is DONE. Meta, name, claim,
+        -- and player membership all lapse together; only the ghost of
+        -- its base in old heads remains ([A15] beliefs, deliberately).
+        s.groupMeta[groupName] = nil
+        if s.groupClaims then s.groupClaims[groupName] = nil end
+        -- [C105] The record lapses with the house.
+        if SAO.Recognition then
+            SAO.Recognition.onHouseDissolved(groupName)
+        end
+        return nil, nil
+    end
+    if #members == 1 then
+        -- The widow of a company ([A15]): a group of one is a memory,
+        -- not a membership. The last member is RELEASED - free to keep
+        -- company again - and keeps the house: the group claim becomes
+        -- their personal claim before it lapses.
+        local widow = members[1]
+        local gc = s.groupClaims and s.groupClaims[groupName] or nil
+        if gc then
+            s.claims[widow] = { minX = gc.minX, minY = gc.minY,
+                maxX = gc.maxX, maxY = gc.maxY, z = gc.z or 0 }
+            s.groupClaims[groupName] = nil
+        end
+        s.groups[widow] = nil
+        s.groupMeta[groupName] = nil
+        local wrec = SAO.Identity and SAO.Identity.get(widow) or nil
+        if wrec then
+            wrec.designation = nil
+            wrec.designatedBy = nil
+        end
+        -- [C105] The record lapses with the house.
+        if SAO.Recognition then
+            SAO.Recognition.onHouseDissolved(groupName)
+        end
+        return nil, nil
+    end
+    table.sort(members)
+    local bestId, bestSum
+    for _, id in ipairs(members) do
+        local sum = 0
+        for _, otherId in ipairs(members) do
+            if otherId ~= id then
+                sum = sum + S.trust(otherId, id)
+            end
+        end
+        if not bestSum or sum > bestSum then
+            bestId, bestSum = id, sum
+        end
+    end
+    -- The company has jobs (DR-011, [A18]): a designation per member,
+    -- dealt from who they were. The leader leads; the rest work their
+    -- class. Solo lives stay undesignated - that is a different day,
+    -- and the controller renders it honestly.
+    for _, mid in ipairs(members) do
+        local mrec = SAO.Identity and SAO.Identity.get(mid) or nil
+        if mrec then
+            if mid == bestId then
+                mrec.designation = "leads"
+            elseif mrec.designatedBy ~= "chair" then
+                -- The chair's assignments survive elections ([A27]):
+                -- the steward deals work only to the undealt.
+                local cls = (SAO.Census and SAO.Census.classOf)
+                    and SAO.Census.classOf(mrec.occupation) or nil
+                mrec.designation = (cls == "hardened" and "watch")
+                    or (cls == "outdoors" and "scout")
+                    or (cls == "carer" and "medic")
+                    or (cls == "settled" and "quartermaster")
+                    or "forager"
+                -- The deal follows the best hand ([B2]): the class
+                -- prior yields when this member's OWN skill for
+                -- another job beats their skill for the dealt one by
+                -- 3+ - the house hands the rifle to whoever can
+                -- shoot. Quartermaster has no honest perk (organized
+                -- is a trait, not a skill) - the class prior stands.
+                if SAO.Census.skillOf then
+                    -- [B20] The shared table - see Census.JOB_PERK.
+                    local JOB_PERK = SAO.Census.JOB_PERK or {}
+                    local dealt = mrec.designation
+                    local dealtPerk = JOB_PERK[dealt]
+                    local dealtLvl = dealtPerk
+                        and SAO.Census.skillOf(mid, dealtPerk) or 0
+                    if dealtLvl < 0 then dealtLvl = 0 end
+                    local bestJob, bestLvl = nil, dealtLvl
+                    for job, perk in pairs(JOB_PERK) do
+                        if job ~= dealt then
+                            local lvl = SAO.Census.skillOf(mid, perk)
+                            if lvl and lvl >= bestLvl + 3 then
+                                bestJob, bestLvl = job, lvl
+                            end
+                        end
+                    end
+                    if bestJob then
+                        mrec.designation = bestJob
+                        log(mid .. " takes the " .. bestJob
+                            .. " work - best hands for it ("
+                            .. bestLvl .. ")")
+                    end
+                end
+            end
+        end
+    end
+    updateElectionCreed(s, groupName)
+    applyElectionDivision(groupName, members)
+    applyAfflictedDispute(groupName, members)
+    reviewElectionWork(s, groupName, members)
     -- The political economy of scale ([A26]): a COMMUNITY (8+) must
     -- answer who eats first, and the answer comes from what the house
     -- believes - order feeds the watch, mercy feeds the weakest, wall

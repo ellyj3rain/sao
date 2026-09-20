@@ -1,0 +1,26 @@
+==========================================================================
+THE COUNTY'S GESTURES
+==========================================================================
+     manifest: 96 files, 73 nodes
+     rigged animations: 73; missing files: 0
+     nodes parsed: 73
+     names asked: 63 gestures, 8 seats; unbound: 0, 0
+     sounds defined: 23 over 23 clips
+
+  THE SEAMS
+    yes  the action derives from the vanilla base
+    yes  and carries the variable the nodes read
+    yes  the voice's events reach the gesture
+    yes  the meeting is seen on both people
+    yes  the evening seat sets the seat
+    yes  and every stand clears it
+    yes  the tune plays the instrument
+    yes  and those close dance or clap
+    yes  the harness gives the four receipts
+    yes  the credits name Hobbies
+    yes  and Week One's art
+    yes  the seat is cleared by name
+    yes  greetings use the engine's own emotes
+
+VERDICT:
+  109) the county's gestures: 73 rigged files, 73 nodes, 71 names bound, 23 sounds, every moment wired

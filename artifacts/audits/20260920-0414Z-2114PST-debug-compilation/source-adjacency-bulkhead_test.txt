@@ -1,0 +1,51 @@
+====================================================================
+THRESHOLDS, parsed from the Lua
+====================================================================
+  subFaults      SAO_Population.lua     3 faults   PERMANENT
+  popFaults      SAO_Population.lua     3 faults   PERMANENT
+  ctlFaults      SAO_Controller.lua     3 faults   recovers
+  agentFaults    SAO_Controller.lua     3 faults   recovers
+  job.faults     SAO_Locomotion.lua     3 faults   recovers
+
+  all five agree on the same threshold: YES  [3]
+
+====================================================================
+DRIVEN - a seam that faults every time
+====================================================================
+  tick 1: attempted        faults=1
+  tick 2: attempted        faults=2
+  tick 3: attempted        faults=3
+  tick 4: SKIPPED (dark)   faults=3
+  tick 5: SKIPPED (dark)   faults=3
+  tick 6: SKIPPED (dark)   faults=3
+
+  attempts before going dark: 3 (expected 3)
+  went dark: YES
+
+====================================================================
+DRIVEN - a seam one fault short never goes dark
+====================================================================
+  faults=2, dark=False, attempts=7
+  survives and keeps being attempted: YES
+
+====================================================================
+WHO IS TOLD - only the PERMANENT seams may register
+====================================================================
+  subFaults      registers            (must)   ok
+  popFaults      registers            (must)   ok
+  ctlFaults      does not register    (must NOT)   ok
+  agentFaults    does not register    (must NOT)   ok
+  job.faults     does not register    (must NOT)   ok
+
+====================================================================
+THE PLAYER-FACING SURFACE
+====================================================================
+  register module present:      YES
+  the Ledger reads it:          YES
+
+VERDICT:
+  thresholds consistent:              YES
+  a failing seam stops after 3:        YES
+  a seam one short keeps running:     YES
+  the right seams register:           YES
+  a player could find out:            YES

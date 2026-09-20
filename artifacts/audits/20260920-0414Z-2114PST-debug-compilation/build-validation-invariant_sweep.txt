@@ -1,0 +1,5 @@
+Traceback (most recent call last):
+  File "C:\Users\jleyv\Peanut Butter\AI Assisted Software Engineering Mass Repository\Projects\survivor-awareness\tools\invariant_sweep.py", line 20, in <module>
+    ctl, re.S).group(0)
+               ^^^^^
+AttributeError: 'NoneType' object has no attribute 'group'

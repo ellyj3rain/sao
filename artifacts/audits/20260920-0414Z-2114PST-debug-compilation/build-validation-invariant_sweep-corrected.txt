@@ -1,0 +1,13 @@
+1) MOVEMENT keys missing from locomotion tick: none
+   tick states not in MOVEMENT map: none
+2) states relying on the 'errand' default: ['BOARDING', 'DRIVE', 'FOLLOW', 'GEARWARD', 'HOMEWARD', 'IDLE', 'PLAYERFOLLOW', 'RIDE', 'ROAM', 'SETTLEWARD', 'TRAVEL']
+3) takePurpose written but never handled: none
+4) Lua-called verbs missing in SAOBridge: none
+5) voice events used but undefined: none
+6) TAKE states entered with no queued work (line numbers): none
+7) sensor scale disagreement across sites: none
+8) states with no exit dispatcher: none
+9) claim fields read but never written: none
+10) news kinds written but rendered by nobody: none
+11) designation literals nothing can ever be: none
+12) wants Lua asks for that Java cannot answer: none

@@ -1,0 +1,29 @@
+==========================================================================
+A PER-ID CACHE THAT OUTLIVES THE ID
+==========================================================================
+  Lua files read      : 73
+  per-id caches found : 25
+  declared            : 20
+  matched but not a person: 5
+     SAO_Body.lua:Body.active        <- SAO_Controller.lua:updateAgent (calls)
+     SAO_Body.lua:Body.discarding    <- Body.discard (named)
+     SAO_Body.lua:Body.failedRestore <- Body.discard (named)
+     SAO_Body.lua:Body.foreign       <- SAO_Controller.lua:updateAgent (calls)
+     SAO_Body.lua:Body.returning     <- Body.discardReturn (return)
+     SAO_Conditions.lua:Cn.asserted        <- Cn.forget (named)
+     SAO_Controller.lua:Ctl.agents         <- updateAgent (calls)
+     SAO_Controller.lua:Ctl.pendingCorpses <- Ctl.forget (named)
+     SAO_Controller.lua:agentFaults        <- Ctl.forget (named)
+     SAO_Disposition.lua:D.assertedSmoker   <- D.forgetSmoker (named)
+     SAO_Driving.lua:Drv.jobs           <- Drv.cancel (named)
+     SAO_Habits.lua:Hb.asserted        <- Hb.forget (named)
+     SAO_Habits.lua:Hb.bound           <- Hb.forget (named)
+     SAO_Locomotion.lua:Loco.jobs          <- Loco.cancel (named)
+     SAO_Material.lua:Material.stores    <- Material.forget (named)
+     SAO_Perception.lua:P.beliefs          <- P.forget (named)
+     SAO_Standing.lua:politickAt         <- S.forgetPolitics (named)
+     SAO_Voice.lua:lastLine           <- V.forget (named)
+     SAO_Voice.lua:lastSpokeMs        <- V.forget (named)
+
+VERDICT:
+  72) person cache lifetime: all 20 per-id caches have reachable death or return cleanup

@@ -1,0 +1,52 @@
+{
+  "controller": {
+    "exact_reconstitution": true,
+    "converted_outer_returns": 86,
+    "nested_callbacks_unchanged": 233,
+    "global_access_counts_unchanged": true
+  },
+  "standing": {
+    "exact_reconstitution": true,
+    "original_election_locals": 286,
+    "current_election_locals": 160,
+    "behavior_checks": 41,
+    "mutation_controls": 9
+  },
+  "compiler": {
+    "shipped_files": 73,
+    "verified_file_mode_pairs": 146,
+    "exit_code": 0
+  },
+  "review": "Independent Controller correctness and cross-file coherence review found no actionable source defects.",
+  "migration_failure": {
+    "file": "tools/invariant_sweep.py",
+    "cause": "Contiguous wheels/walking source assumption broke after helper extraction",
+    "repair": "Read both owning functions and retain a controlled missing-dispatch verdict."
+  },
+  "instrument_limit": {
+    "file": "tools/scope_split_audit.py",
+    "fact": "Existing check.sh invocation supplies no file paths; scanner examines an empty input. Explicit changed-file checks and a bad fixture were run for C59.",
+    "followup": "R6 preparation: provide explicit source inventory to this diagnostic scanner, enumerate candidate shapes and keep the known-bad control. Current gate output is not evidence of a source sweep."
+  },
+  "limits": [
+    "Extraction proof and controlled behavior checks do not establish every loaded-world outcome.",
+    "Startup validation does not load or alter a save.",
+    "R6/R10a and action, social and learned-model producers remain open."
+  ],
+  "first_full_gate": {
+    "command": "git commit (enforced tools/check.sh --staged)",
+    "exit_code": 1,
+    "seconds": 684.4,
+    "log": "C:\\Users\\jleyv\\Peanut Butter\\AI Assisted Software Engineering Mass Repository\\Projects\\survivor-awareness\\.git\\c59-commit-gate.txt"
+  },
+  "gesture_reader": {
+    "cause": "Exact indentation in a multiline call literal rejected unchanged instrument arguments.",
+    "repair": "Read the actual argument list independent of spacing and ignore comments.",
+    "controls": [
+      "omitted carried instrument is refused",
+      "commented-out call is refused"
+    ],
+    "corrected_exit_code": 0,
+    "same_class_scan": "AST literal comparison across 60 Controller/Standing readers found no other lost multiline literal. Four additional adjacency readers pass."
+  }
+}

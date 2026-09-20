@@ -1,0 +1,48 @@
+Provenance: copied from completed exec output b4626f; not a new run.
+Commands: python tools/company_admission_test.py; python tools/company_forms_test.py; python tools/death_leaves_company_test.py (executed serially by an inline Python subprocess driver).
+
+company_admission: exit=0 seconds=4.74
+  161) PASS company admission: 41 behavioral checks in the engine VM
+PASS control eight-person cap: past_eight changed
+PASS control shortage disconnected: short_host_refuses changed
+PASS control personal preference disconnected: solitude_preference_refuses changed
+PASS control unseen ground decides: unseen_ground_no_verdict changed
+PASS control departure disconnected: shortage_and_distrust_leave changed
+PASS control declared hostility ignored: declared_hostility_refuses changed
+PASS control affiliation treated as experience: roster_and_old_trust_are_not_contact changed
+PASS control unseen death changes experience: unseen_death_does_not_change_pressure changed
+PASS control reports count as encounter: reports_are_not_experienced_contact changed
+
+company_forms: exit=0 seconds=0.55
+==========================================================================
+A FOUNDED COMPANY IS STILL STANDING AFTERWARDS
+==========================================================================
+  sites founding a company a member at a time: 0
+
+     two people at mutual trust 0.85 found a company:
+       born=2 leader=sao-1 jobs=leads/quartermaster third=3 stillTwo=2 widow=0 freed=nil freedJob=nil solo=nil
+
+  yes  a company is founded from its roster
+  yes  the widow release is still in the election
+  yes  no site founds a company a member at a time
+  yes  the gate runs this border
+
+VERDICT:
+  135) a company founded from its roster stands, elects and deals work, and a house that shrinks to one still ends: PASS
+
+death_leaves_company: exit=0 seconds=0.61
+==========================================================================
+A DEATH LEAVES THE COMPANY
+==========================================================================
+  sites electing a leader right after a death: 0
+
+     a house of three loses two members to death:
+       founded=3 leader=sao-1 afterOneDeath=2/2 corpseInHouse=nil afterTwoDeaths=0/0 lastMemberGroup=nil lastMemberClaim=kept lastMemberJob=nil chairDied=nil:nil
+
+  yes  the death funnel releases the dead from their house
+  yes  the widow release is still in the election
+  yes  no call site settles a house the death already settled
+  yes  the gate runs this border
+
+VERDICT:
+  136) a death leaves the company, the house re-elects, and a house emptied by death releases its last member with the ground: PASS

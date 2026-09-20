@@ -16,9 +16,9 @@ the machine. Names, dates, and threads below come from
 | Form | `major.minor.kohai.patch-maturity` |
 | Hard caps | minor 12; kohai 16; patch 24 |
 | Replay start | `0.1.0.0-pre-alpha` |
-| Current version | `2.7.15.0-pre-alpha` |
-| Closed chronology | `A1-C58` |
-| Next batch | `C59` |
+| Current version | `2.7.15.1-pre-alpha` |
+| Closed chronology | `A1-C59` |
+| Next batch | `C60` |
 | Executable source | [`tools/version_replay.py`](tools/version_replay.py) |
 
 ## Tier meanings
@@ -174,6 +174,7 @@ the machine. Names, dates, and threads below come from
 | `C56` | 2026-09-19 | patch | `2.7.14.7-pre-alpha` | Health and dormant physiology | Repaired the existing health and dormant-physiology capabilities: durable drug and abstinence clocks, owner-correct interval-integrated brain history with behavioral consumers, native partial dormant consumption, and intentional Crossed blood exposure with exact-once SAO-to-ZAO body transfer. The broader Crossed action vocabulary remains R7-R9 work. |
 | `C57` | 2026-09-20 | patch | `2.7.14.8-pre-alpha` | Person continuity contract | Separated durable body snapshot capture, validation and commit from body ownership; validated pending transfer envelopes and retained opaque legacy visual payloads. Consolidated native person verification with a complete historical control crosswalk and isolated mutation runs. This is the first unit of the ratified runtime restructuring. |
 | `C58` | 2026-09-20 | kohai | `2.7.15.0-pre-alpha` | Population reconstruction and scheduling | Structural maturation of population runtime ownership: separate admissions, representation, physical observations and dormant advancement under one scheduler and History clock. Preserve continuation interfaces and repair callback replacement and explicit world reinitialization, with migrated controls. |
+| `C59` | 2026-09-20 | patch | `2.7.15.1-pre-alpha` | Debug-mode Lua compilation | Repair installed debug-mode compilation by splitting existing Controller and Standing phases; verify both compiler modes and the cumulative-local failure control. |
 
 ## The former number
 
@@ -194,11 +195,11 @@ establish release maturity.
 
 ## Next movement
 
-`C59` is the next batch. Its content determines its tier after it
+`C60` is the next batch. Its content determines its tier after it
 exists:
 
-| If C59 is | Result |
+| If C60 is | Result |
 |---|---|
-| patch or hotfix | `2.7.15.1-pre-alpha` |
+| patch or hotfix | `2.7.15.2-pre-alpha` |
 | kohai | `2.7.16.0-pre-alpha` |
 | minor | `2.8.0.0-pre-alpha` |
