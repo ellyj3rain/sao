@@ -51,6 +51,9 @@ public final class SAOCombat {
         if (activeShell == null || combatTarget == null) {
             return "COMBAT_FAILED INVALID_TARGET";
         }
+        if (isInactiveTarget(combatTarget)) {
+            return "COMBAT_FAILED TARGET_INACTIVE";
+        }
         shell = activeShell;
         target = combatTarget;
         liveCombat = live;
@@ -112,6 +115,14 @@ public final class SAOCombat {
     public String tick() {
         if (shell == null || target == null) {
             return "COMBAT_IDLE";
+        }
+        // [C60] Optional stealth/debug controllers may deactivate a zombie
+        // after acquisition. Revalidate here, where the attack is consumed;
+        // the scanner and nearest-target lookup cannot protect a held target.
+        if (isInactiveTarget(target)) {
+            clearAttackIntent();
+            phase = "FAILED";
+            return "COMBAT_FAILED TARGET_INACTIVE";
         }
         ticks++;
         float currentHealth = target.getHealth();
@@ -279,6 +290,18 @@ public final class SAOCombat {
         } catch (Throwable throwable) {
             return -1;
         }
+    }
+
+    private static boolean isInactiveTarget(IsoGameCharacter candidate) {
+        if (candidate instanceof IsoZombie zombie) {
+            try {
+                return zombie.isUseless();
+            } catch (Throwable ignored) {
+                // An absent optional state cannot manufacture deactivation;
+                // the ordinary target contract remains authoritative.
+            }
+        }
+        return false;
     }
 
     public void reset() {

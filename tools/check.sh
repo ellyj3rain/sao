@@ -50,8 +50,10 @@ else
 fi
 
 # 2. The scope-split scanner (F-030 class: a local declared after a
-#    bare assignment to the same name).
-if ! "$PY" tools/scope_split_audit.py; then
+#    bare assignment to the same name). [C60] It receives the shipped Lua
+#    inventory explicitly; an empty invocation used to report zero candidates.
+mapfile -t scope_files < <(find mod/42.20/media/lua -type f -name '*.lua' -print)
+if ! "$PY" tools/scope_split_audit.py "${scope_files[@]}"; then
     note "SCOPE AUDIT ERRORED"
     fail=1
 fi
@@ -1858,6 +1860,23 @@ fi
 if ! "$PY" tools/combat_perception_test.py > /dev/null; then
     "$PY" tools/combat_perception_test.py 2>&1 | grep -E "FAULT|CONTROL|SKIPPED" || true
     note "BORDER FINDING - combat perception compatibility contract broken"
+    fail=1
+fi
+
+# [C60] Border 176 - an activity partner is first a fresh observed person
+# belief, then a currently visible same-floor body at the moment of use.
+if ! "$PY" tools/activity_partner_test.py > /dev/null; then
+    "$PY" tools/activity_partner_test.py 2>&1 | grep -E "FAULT|CONTROL|SKIPPED" || true
+    note "BORDER FINDING - an activity partner bypasses private perception or access"
+    fail=1
+fi
+
+# [C60] Border 177 - remembered ground stays in the loaded world and every
+# timed world transfer retains same-floor, unobstructed reach and live vehicle
+# permission through completion.
+if ! "$PY" tools/source_access_test.py > /dev/null; then
+    "$PY" tools/source_access_test.py 2>&1 | grep -E "FAULT|CONTROL|SKIPPED" || true
+    note "BORDER FINDING - a cached source can mutate inaccessible ground"
     fail=1
 fi
 

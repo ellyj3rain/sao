@@ -1,6 +1,6 @@
 | Document | Survivor Awareness Overhaul Findings |
 |---|---|
-| Version | `2.7.15.1-pre-alpha` |
+| Version | `2.7.15.2-pre-alpha` |
 | Author | ellyj3rain |
 | Repository | `FINDINGS.md` |
 | Status | CANONICAL, APPEND-ONLY - verified engine findings. |
@@ -2016,3 +2016,36 @@ Border 50 executes both modes, verifies complete verdict coverage and checks
 known-bad syntax and debug-overflow controls. The [C59 evidence](artifacts/audits/20260920-0414Z-2114PST-debug-compilation/README.md)
 retains the reproduction and repair review. Loaded-world behavior remains a
 separate observation.
+
+## F-091 | 2026-09-20 05:17 UTC / 22:17 PST | Classification and access guards existed beside bypassing consumers
+
+Build 42 `IsoAnimal` inherits `IsoPlayer`. The perception classifier rejected
+animals, but the scan's emitting branch still treated every `IsoPlayer` as a
+person. Cashier and ball-play candidates similarly resolved active bodies and
+raw coordinates without requiring the actor's private person belief or current
+floor/occlusion. The installed Lethal Stealth prone keys were absent from the
+stance reader, and a combat target was not rechecked after becoming useless.
+
+The material paths had the same shape. Vehicle containers were enumerated
+without the engine's per-character access verdict. The first C60 repair asked at
+selection and refreshed vehicle coordinates, but review reproduced three
+remaining authority losses: cached reach ignored the floor and whether the
+vehicle remained loaded, a generic timed transfer forgot vehicle permission
+after selection, and a cached ground offer retained no current physical-access
+proof. Text checks initially passed all three gaps.
+
+C60 moves each guard to the consuming path. Animals leave before person output;
+activity partners require fresh firsthand belief and the scanner's current
+visibility law; installed prone/deactivation state is read at stance/combat use.
+Cached sources share current-floor reach, vehicle sources prove loaded
+membership and current part access, ground offers remain members of their loaded
+square, and a vanilla-derived transfer action rechecks current world-container
+authority through completion. Borders 154, 155, 157, 176 and 177 remove these
+seams independently.
+
+The source inventory also establishes that meta-grid rooms are geography and
+resource possibility, not stock. Actual container/item/fluid/vehicle state is
+loaded truth. R10a therefore remains a named implementation contract for native
+identity, observation state, reservation/result, loaded-chunk conflict
+reconciliation and consumer migration; C60 does not promote the existing room
+and visit-count proxy into grounded dormant supply.

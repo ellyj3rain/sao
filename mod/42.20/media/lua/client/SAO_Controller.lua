@@ -213,6 +213,31 @@ end
 -- through the shared logger.
 local function log(msg) SAO.Log.line("CTL", msg) end
 
+-- [C60] A shared activity starts from the actor's own fresh observed belief,
+-- then rechecks the actual bodies at use. The bridge applies the scanner's
+-- same-floor, facing, range and occlusion law; raw Body.active membership is
+-- only how the candidate's current body is resolved.
+local function activityParticipantAtHand(
+    id, body, otherId, otherBody, tick, actionRange)
+    if not (SAO.Perception and SAO.Perception.freshObservedPerson
+        and SAOJavaBridge and otherBody) then return false end
+    local key = nil
+    if otherId then
+        local rec = SAO.Identity and SAO.Identity.get
+            and SAO.Identity.get(otherId) or nil
+        key = rec and SAO.Identity.beliefKey(rec) or nil
+    else
+        pcall(function() key = otherBody:getUsername() end)
+    end
+    if not key or not SAO.Perception.freshObservedPerson(id, key, tick) then
+        return false
+    end
+    local ok, visible = pcall(function()
+        return SAOJavaBridge:canSeePersonNow(body, otherBody, actionRange)
+    end)
+    return ok and visible == true
+end
+
 function Ctl.adopt(rec)
     if not rec or not rec.id then return false end
     Ctl.agents[rec.id] = Ctl.agents[rec.id] or {
@@ -5527,24 +5552,20 @@ local function updateMovement(id, agent, body)
                         local customerNear = false
                         pcall(function()
                             local me4 = getSpecificPlayer(0)
-                            if me4 then
-                                local cdx = me4:getX() - body:getX()
-                                local cdy = me4:getY() - body:getY()
-                                if cdx * cdx + cdy * cdy
-                                    <= COUNTER_REACH * COUNTER_REACH then
-                                    customerNear = true
-                                end
+                            if me4 and activityParticipantAtHand(
+                                id, body, nil, me4, tickCount,
+                                COUNTER_REACH) then
+                                customerNear = true
                             end
                             if not customerNear then
                                 for oid, otherB in pairs(SAO.Body.active) do
-                                    if otherB ~= body and SAO.Body.get(oid) == otherB then
-                                        local cdx = otherB:getX() - body:getX()
-                                        local cdy = otherB:getY() - body:getY()
-                                        if cdx * cdx + cdy * cdy
-                                            <= COUNTER_REACH * COUNTER_REACH then
-                                            customerNear = true
-                                            break
-                                        end
+                                    if otherB ~= body
+                                        and SAO.Body.get(oid) == otherB
+                                        and activityParticipantAtHand(
+                                            id, body, oid, otherB, tickCount,
+                                            COUNTER_REACH) then
+                                        customerNear = true
+                                        break
                                     end
                                 end
                             end
@@ -5592,15 +5613,10 @@ local function updateMovement(id, agent, body)
                             local playmateNear = false
                             pcall(function()
                                 local meB = getSpecificPlayer(0)
-                                if meB then
-                                    local pdx = meB:getX()
-                                        - body:getX()
-                                    local pdy = meB:getY()
-                                        - body:getY()
-                                    if pdx * pdx + pdy * pdy
-                                        <= PLAY_REACH * PLAY_REACH then
-                                        playmateNear = true
-                                    end
+                                if meB and activityParticipantAtHand(
+                                    id, body, nil, meB, tickCount,
+                                    PLAY_REACH) then
+                                    playmateNear = true
                                 end
                                 if not playmateNear then
                                     for oid, otherB in pairs(
@@ -5612,17 +5628,12 @@ local function updateMovement(id, agent, body)
                                                     SAO.History.stageOf(
                                                         SAO.History.ageOf(oid))
                                             end)
-                                            if ostage == "child" then
-                                                local pdx = otherB:getX()
-                                                    - body:getX()
-                                                local pdy = otherB:getY()
-                                                    - body:getY()
-                                                if pdx * pdx + pdy * pdy
-                                                    <= PLAY_REACH
-                                                    * PLAY_REACH then
-                                                    playmateNear = true
-                                                    break
-                                                end
+                                            if ostage == "child"
+                                                and activityParticipantAtHand(
+                                                    id, body, oid, otherB,
+                                                    tickCount, PLAY_REACH) then
+                                                playmateNear = true
+                                                break
                                             end
                                         end
                                     end

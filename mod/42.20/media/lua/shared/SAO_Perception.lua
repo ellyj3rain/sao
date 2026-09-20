@@ -692,6 +692,20 @@ function P.believedPerson(id, name)
     return b and b.people[name] or nil
 end
 
+-- [C60] A participant candidate acquired by this person's own eyes. The
+-- ordinary people horizon is memory; an immediate shared action needs the
+-- last two scanner intervals and refuses told, dead or stale records.
+function P.freshObservedPerson(id, name, tick, maxAge)
+    if not (id and name and tick) then return nil end
+    local belief = P.believedPerson(id, name)
+    if not belief or belief.dead or belief.source ~= "observed" then
+        return nil
+    end
+    local age = tick - (tonumber(belief.at) or -math.huge)
+    if age < 0 or age > (maxAge or SCAN_INTERVAL * 2) then return nil end
+    return belief
+end
+
 -- [C71] Laying eyes on somebody, from the half of the county that has
 -- no eyes to scan with.
 --

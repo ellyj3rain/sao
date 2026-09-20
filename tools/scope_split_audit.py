@@ -33,6 +33,9 @@ def audit(path):
     return hits
 
 files = sys.argv[1:]
+if not files:
+    print("FAULT: scope-split audit received no Lua sources")
+    sys.exit(2)
 total = 0
 for f in files:
     for name, at, decl, text in audit(f):
@@ -40,3 +43,4 @@ for f in files:
         print(f"{pathlib.Path(f).name}:{at} writes '{name}' before its "
               f"local decl at :{decl}  | {text}")
 print("candidates:", total)
+sys.exit(1 if total else 0)

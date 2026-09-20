@@ -1,0 +1,27 @@
+{
+    "panel":  "C60 code quality delta",
+    "initial":  {
+                    "correctness":  [
+                                        "High: cached vehicle source reach ignored floor and loaded membership",
+                                        "High: generic vehicle store transfer lost access authority after selection",
+                                        "Medium: Border 154 did not detect either transition defect"
+                                    ],
+                    "structure":  [
+                                      "High: cached ground offer lacked current physical access",
+                                      "Low: evidence matrix named only child ball play",
+                                      "Recommendation: consolidate repeated vehicle-container traversal into one typed reference"
+                                  ]
+                },
+    "repairs":  [
+                    "shared floor/reach law and loaded vehicle membership",
+                    "vanilla-derived timed world transfer with current container authority",
+                    "ground-offer loaded membership/range/floor/obstruction",
+                    "Borders 154 and 177 transition mutations",
+                    "matrix updated for all four cashier/play call sites"
+                ],
+    "final":  {
+                  "correctness":  "No remaining Critical, High or Medium in assigned scope",
+                  "structure":  "No remaining severity for prior findings",
+                  "recommendation":  "Vehicle-container traversal consolidation remains a non-blocking structural follow-up."
+              }
+}

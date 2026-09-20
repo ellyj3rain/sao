@@ -14,6 +14,37 @@ SAO = SAO or {}
 SAO.Needs = SAO.Needs or {}
 local N = SAO.Needs
 
+-- [C60] Vanilla validates item/container identity but does not re-ask a
+-- vehicle whether this character may use its part. Keep the vanilla action
+-- and add the one authority it lacks. isValid runs throughout the timed
+-- action, so movement, unload or a lock change refuses before completion.
+local SAOVerifiedWorldTransferAction =
+    ISInventoryTransferAction:derive("SAOVerifiedWorldTransferAction")
+
+function SAOVerifiedWorldTransferAction:isValid()
+    if not ISInventoryTransferAction.isValid(self) then return false end
+    if not SAOJavaBridge or self.saoWorldContainer == nil then return false end
+    local ok, accessible = pcall(function()
+        return SAOJavaBridge:containerAccessibleNow(
+            self.character, self.saoWorldContainer)
+    end)
+    return ok and accessible == true
+end
+
+function SAOVerifiedWorldTransferAction:new(
+        character, item, srcContainer, destContainer, worldContainer)
+    local o = ISInventoryTransferAction.new(
+        self, character, item, srcContainer, destContainer)
+    o.saoWorldContainer = worldContainer
+    return o
+end
+
+local function worldTransfer(body, item, srcContainer, destContainer,
+                             worldContainer)
+    return SAOVerifiedWorldTransferAction:new(
+        body, item, srcContainer, destContainer, worldContainer)
+end
+
 -- [C25] How far a body NOTICES (DR-027). This was the ErrandRadius
 -- sandbox dial, and the operator ruled the dial a lie about what it
 -- measured: "They're operating off of social structures and social
@@ -122,14 +153,12 @@ function N.queueTake(id, body)
     local okI, item = pcall(function() return SAOJavaBridge:foodSourceItem(body) end)
     local okC, container = pcall(function() return SAOJavaBridge:foodSourceContainer(body) end)
     if not (okI and okC) or item == nil or container == nil then return false end
-    local okQ = pcall(function()
-        ISTimedActionQueue.add(
-            ISInventoryTransferAction:new(body, item, container, body:getInventory()))
-    end)
-    if okQ then
+    local queued = N.queueVerified(worldTransfer(
+        body, item, container, body:getInventory(), container))
+    if queued then
         log(id .. " takes food from a container (vanilla transfer)")
     end
-    return okQ
+    return queued
 end
 
 -- Queue drinking the best carried drinkable through the vanilla action.
@@ -202,12 +231,10 @@ function N.queueTakeGear(id, body)
     local okI, item = pcall(function() return SAOJavaBridge:weaponSourceItem(body) end)
     local okC, container = pcall(function() return SAOJavaBridge:weaponSourceContainer(body) end)
     if not (okI and okC) or item == nil or container == nil then return false end
-    local okQ = pcall(function()
-        ISTimedActionQueue.add(
-            ISInventoryTransferAction:new(body, item, container, body:getInventory()))
-    end)
-    if okQ then log(id .. " takes a better weapon from a container") end
-    return okQ
+    local queued = N.queueVerified(worldTransfer(
+        body, item, container, body:getInventory(), container))
+    if queued then log(id .. " takes a better weapon from a container") end
+    return queued
 end
 
 -- How many wounds are bleeding right now (0 when the bridge is absent).
@@ -518,12 +545,10 @@ function N.depositWater(id, body)
         return SAOJavaBridge:findNearbyContainer(body, 5)
     end)
     if not okC or container == nil then return false end
-    local okQ = pcall(function()
-        ISTimedActionQueue.add(ISInventoryTransferAction:new(
-            body, vessels[2].item, body:getInventory(), container))
-    end)
-    if okQ then log(id .. " shelves the water") end
-    return okQ
+    local queued = N.queueVerified(worldTransfer(
+        body, vessels[2].item, body:getInventory(), container, container))
+    if queued then log(id .. " shelves the water") end
+    return queued
 end
 
 -- Drawing from the house's own stored water ([B6]): a thirsty member
@@ -554,12 +579,10 @@ function N.takeStoredWater(id, body)
         end
     end)
     if not found then return false end
-    local okQ = pcall(function()
-        ISTimedActionQueue.add(ISInventoryTransferAction:new(
-            body, found, container, body:getInventory()))
-    end)
-    if okQ then log(id .. " draws water from the house's stores") end
-    return okQ
+    local queued = N.queueVerified(worldTransfer(
+        body, found, container, body:getInventory(), container))
+    if queued then log(id .. " draws water from the house's stores") end
+    return queued
 end
 
 function N.depositSpareFood(id, body)
@@ -570,11 +593,9 @@ function N.depositSpareFood(id, body)
         return SAOJavaBridge:findNearbyContainer(body, 5)
     end)
     if not okC or container == nil then return false end
-    local okQ = pcall(function()
-        ISTimedActionQueue.add(ISInventoryTransferAction:new(
-            body, item, body:getInventory(), container))
-    end)
-    if okQ then
+    local queued = N.queueVerified(worldTransfer(
+        body, item, body:getInventory(), container, container))
+    if queued then
         log(id .. " stocks the stores")
         -- [C105] A real item left a body for a real shelf: the
         -- material fact, attributed to the house that holds the
@@ -593,7 +614,7 @@ function N.depositSpareFood(id, body)
             end)
         end
     end
-    return okQ
+    return queued
 end
 
 -- Queue reloading the equipped gun through the vanilla action (sources
@@ -634,12 +655,10 @@ function N.queueTakeAmmo(id, body)
     local okI, item = pcall(function() return SAOJavaBridge:ammoSourceItem(body) end)
     local okC, container = pcall(function() return SAOJavaBridge:ammoSourceContainer(body) end)
     if not (okI and okC) or item == nil or container == nil then return false end
-    local okQ = pcall(function()
-        ISTimedActionQueue.add(
-            ISInventoryTransferAction:new(body, item, container, body:getInventory()))
-    end)
-    if okQ then log(id .. " takes ammunition from a container") end
-    return okQ
+    local queued = N.queueVerified(worldTransfer(
+        body, item, container, body:getInventory(), container))
+    if queued then log(id .. " takes ammunition from a container") end
+    return queued
 end
 
 function N.clearAmmo(body)

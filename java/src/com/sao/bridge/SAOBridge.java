@@ -1008,6 +1008,13 @@ public final class SAOBridge {
         return null;
     }
 
+    /** Current physical and permission check used by world transfer actions. */
+    public boolean containerAccessibleNow(Object object, Object containerObject) {
+        return object instanceof com.sao.engine.SAOIsoPlayerShell shell
+            && containerObject instanceof zombie.inventory.ItemContainer container
+            && com.sao.engine.SAONeeds.containerAccessibleNow(shell, container);
+    }
+
     /** Drop a READABLE note into the world ([A24]) - a titled
      * notebook on a loaded square; the county writes itself where the
      * player can find it. Verified: AddWorldInventoryItem(String,...)
@@ -1991,6 +1998,21 @@ public final class SAOBridge {
         } catch (Throwable throwable) {
             SAOAgent.log("perceive threw: " + throwable);
             return "";
+        }
+    }
+
+    /** [C60] Recheck a perceived action participant at the point of use. */
+    public boolean canSeePersonNow(Object observerObject, Object otherObject,
+                                   double actionRange) {
+        try {
+            if (!(observerObject instanceof zombie.characters.IsoGameCharacter observer)
+                    || !(otherObject instanceof zombie.characters.IsoGameCharacter other)) {
+                return false;
+            }
+            return com.sao.engine.SAOPerceptionScanner.canSeePersonNow(
+                observer, other, (float) actionRange);
+        } catch (Throwable throwable) {
+            return false;
         }
     }
 

@@ -38,7 +38,7 @@ on the simulation.
 
 ## Status
 
-`2.7.15.1-pre-alpha` - the coordinate is computed by the version machine
+`2.7.15.2-pre-alpha` - the coordinate is computed by the version machine
 (`tools/version_replay.py`), never picked; `VERSION_MAP.md` shows the
 classification and the arithmetic.
 
@@ -83,9 +83,13 @@ contract for release, checkpoints and ownership transfer. Its native test suite
 retains the former snapshot, continuity and physiology assertions and controls
 while sharing unchanged compilation. C58 separates population admission, body
 representation, physical observations and dormant advancement from scheduling,
-and repairs callback replacement and world reinitialization. Perception and
-world access are next; `ROADMAP.md` preserves their grounding dependencies and
-the remaining action, social and learned-model obligations.
+and repairs callback replacement and world reinitialization. C59 restores
+debug-mode compilation. C60 repairs loaded perception and world access: animals
+leave the person path, activity partners require fresh private and current
+physical sight, and cached ground retains loaded, same-floor, permissioned
+access through timed execution. Its source inventory specifies the next R10a
+ledger and reconciliation unit. `ROADMAP.md` preserves the remaining dormant,
+action, social and learned-model obligations.
 
 ## Requirements
 
