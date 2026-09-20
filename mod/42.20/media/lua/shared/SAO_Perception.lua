@@ -1612,9 +1612,9 @@ function P.learnBuilding(id, place, tick, source)
     local b = store(id)
     b.known = b.known or {}
     local was = b.known[place.id]
-    local sources, sourceRevision, sourceAccess = {}, "", {}
+    local sources, sourceRevision, sourceAccess, sourceFacts = {}, "", {}, {}
     pcall(function()
-        sources, sourceRevision, sourceAccess =
+        sources, sourceRevision, sourceAccess, sourceFacts =
             SAO.WorldSources.beliefSnapshot(place)
     end)
     b.known[place.id] = {
@@ -1624,6 +1624,7 @@ function P.learnBuilding(id, place, tick, source)
         sources = sources,
         sourceAccess = sourceAccess,
         sourceRevision = sourceRevision,
+        sourceFacts = sourceFacts,
         at = tick or b.lastScanAt,
         -- [B39] Said by the caller; "unknown" when nobody said.
         source = tostring(source or "unknown"),
@@ -1633,6 +1634,69 @@ function P.learnBuilding(id, place, tick, source)
     }
     -- [C108] An arrival is a write; derived readers recompute.
     P.beliefVersion = P.beliefVersion + 1
+end
+
+local function rebuildKnownSources(belief)
+    local sources, access, revisions = {}, {}, {}
+    for id, fact in pairs(belief.sourceFacts or {}) do
+        if fact.state == "available" then
+            for category, quantity in pairs(fact.quantities or {}) do
+                if (tonumber(quantity) or 0) > 0 then
+                    sources[category] = true
+                    if fact.access == "accessible" then access[category] = true end
+                end
+            end
+        end
+        local entry = tostring(id) .. "@" .. tostring(fact.revision)
+        local at = #revisions + 1
+        while at > 1 and revisions[at - 1] > entry do
+            revisions[at] = revisions[at - 1]
+            at = at - 1
+        end
+        revisions[at] = entry
+    end
+    belief.sources = sources
+    belief.sourceAccess = access
+    belief.sourceRevision = table.concat(revisions, ",")
+end
+
+-- Refresh only the source this actor physically handled. Whole-building
+-- learning here would reveal unrelated changes made outside their observation.
+function P.learnSource(id, place, sourceId, tick, source)
+    if not place or place.id == nil or not sourceId then return false end
+    local b = store(id)
+    b.known = b.known or {}
+    local belief = b.known[place.id] or b.known[tostring(place.id)]
+    if not belief then return false end
+    belief.sourceFacts = belief.sourceFacts or {}
+    belief.sourceFacts[tostring(sourceId)] = nil
+    local fact = nil
+    pcall(function() fact = SAO.WorldSources.beliefFact(sourceId) end)
+    local belongs = fact and (fact.buildingId == tostring(place.id)
+        or (fact.kind == "vehicle" and place.minX and place.minY
+            and place.maxX and place.maxY
+            and fact.x >= place.minX and fact.x < place.maxX
+            and fact.y >= place.minY and fact.y < place.maxY))
+    if belongs then belief.sourceFacts[tostring(sourceId)] = fact end
+    rebuildKnownSources(belief)
+    belief.at = tick or b.lastScanAt
+    belief.source = tostring(source or "observed-source")
+    P.beliefVersion = P.beliefVersion + 1
+    return true
+end
+
+function P.forgetSource(id, placeId, sourceId, tick, source)
+    local b = store(id)
+    local belief = b.known and (b.known[placeId]
+        or b.known[tostring(placeId)]) or nil
+    if not belief then return false end
+    belief.sourceFacts = belief.sourceFacts or {}
+    belief.sourceFacts[tostring(sourceId)] = nil
+    rebuildKnownSources(belief)
+    belief.at = tick or b.lastScanAt
+    belief.source = tostring(source or "source-disproved")
+    P.beliefVersion = P.beliefVersion + 1
+    return true
 end
 
 -- Everything this survivor knows is out there. Empty for someone who

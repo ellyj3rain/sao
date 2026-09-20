@@ -200,6 +200,7 @@ UNITS = [
     ('C59', 'patch', 'Repair installed debug-mode compilation by splitting existing Controller and Standing phases; verify both compiler modes and the cumulative-local failure control.'),
     ('C60', 'patch', 'Repair loaded perception and world access in place: classify animals before person output, require private and current activity partners, consume installed prone/deactivation state, and retain loaded, same-floor, permissioned source access through timed execution. Inventory and specify the still-open R10a native-source ledger and reconciliation substrate without promoting room vocabulary to stock.'),
     ('C61', 'patch', 'Establish demand-led native chunk hydration, persistent source identity, exact bounded observations and loaded reconciliation while removing room-derived stock and refusing unproven dormant access or use. This grounds an existing planned substrate without completing actor-specific action execution.'),
+    ('C62', 'kohai', 'Integrate private revisioned source observations with one durable actor-owned action lifecycle: current route and permission proof, exact native transfer, carried engine use, interruption, reload reconstruction and exact-once result. This matures the grounded source capability without claiming the remaining R7 action families or R9 provisioning producers.'),
 ]
 
 TIER_MEANINGS = [

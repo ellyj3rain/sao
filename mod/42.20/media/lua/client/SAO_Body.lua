@@ -441,6 +441,19 @@ end
 
 local function readyToRemove(body)
     local ok, ready = pcall(function()
+        -- A route or exact-source reservation still owns this native body.
+        -- Teardown would strand its carried item or erase the interaction
+        -- point before the durable action reaches a result boundary.
+        for id, active in pairs(Body.active) do
+            if active == body then
+                local pending = SAO.WorldSources and SAO.WorldSources.pendingActionFor
+                    and SAO.WorldSources.pendingActionFor(id) or nil
+                if pending then return false end
+                local job = SAO.Locomotion and SAO.Locomotion.jobs
+                    and SAO.Locomotion.jobs[id] or nil
+                if job and not job.done then return false end
+            end
+        end
         -- The Lua queue can hold its next action before it reaches Java.
         local queue = ISTimedActionQueue and ISTimedActionQueue.queues[body]
         if queue and #queue.queue > 0 then return false end

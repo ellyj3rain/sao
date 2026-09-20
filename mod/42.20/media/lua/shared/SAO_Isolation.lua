@@ -137,5 +137,7 @@ function I.of(id)
     }
 end
 
-SAO.Log.line("ISOLATION", "isolation module loaded")
+if SAO.Log and SAO.Log.line then
+    SAO.Log.line("ISOLATION", "isolation module loaded")
+end
 return I

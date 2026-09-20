@@ -1,6 +1,6 @@
 | Document | Survivor Awareness Overhaul Core |
 |---|---|
-| Version | `2.7.15.3-pre-alpha` |
+| Version | `2.7.16.0-pre-alpha` |
 | Author | ellyj3rain |
 | Repository | `CORE.md` |
 | Status | ACTIVE - genesis identity for this project. |

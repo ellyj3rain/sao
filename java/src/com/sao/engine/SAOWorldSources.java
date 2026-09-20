@@ -12,6 +12,8 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.UUID;
+import java.util.WeakHashMap;
+import zombie.characters.CharacterStat;
 import zombie.characters.IsoPlayer;
 import zombie.core.Core;
 import zombie.entity.components.fluids.Fluid;
@@ -57,6 +59,8 @@ public final class SAOWorldSources {
     private static final int CHUNK_SIZE = IsoChunkMap.CHUNK_SIZE_IN_SQUARES;
     private static final ThreadLocal<Integer> HYDRATION_DEPTH =
         ThreadLocal.withInitial(() -> 0);
+    private static final Map<IsoPlayer, ActionBinding> ACTIONS =
+        new WeakHashMap<>();
     private static boolean transactionActive;
 
     private SAOWorldSources() {
@@ -70,6 +74,182 @@ public final class SAOWorldSources {
     public static String status() {
         return "protocol=" + PROTOCOL + "|" + SAOLootDensityWeave.report()
             + "|hydrating=" + isHydrating();
+    }
+
+    /** Drop body-keyed exact-source bindings when the owning world ends. */
+    public static synchronized void resetRuntimeForWorld() {
+        ACTIONS.clear();
+    }
+
+    /**
+     * Resolve an observed identity back to the current loaded engine object
+     * and select one reachable interaction square. This proves identity and
+     * revision only; bindAction performs the actor-specific access proof after
+     * locomotion reaches the returned square.
+     */
+    public static synchronized String actionTarget(IsoPlayer shell, String sourceId,
+            String fingerprint, String revision, int itemId, String itemType,
+            int expectedX, int expectedY, int expectedZ) {
+        try {
+            Located located = locate(shell, sourceId, fingerprint, revision,
+                itemId, itemType, expectedX, expectedY, expectedZ);
+            IsoGridSquare target = located.vehicle == null
+                ? interactionSquare(shell, located.square)
+                : vehicleInteractionSquare(located.vehicle, located.vehiclePart);
+            if (target == null) return "NO_INTERACTION_POINT";
+            return "READY:" + target.getX() + ":" + target.getY() + ":"
+                + target.getZ() + ":" + located.square.getX() + ":"
+                + located.square.getY() + ":" + located.square.getZ();
+        } catch (ActionRefusal refusal) {
+            return refusal.code;
+        } catch (Throwable throwable) {
+            SAOAgent.log("world source target threw: " + throwable);
+            return "FAILED";
+        }
+    }
+
+    /** Bind the exact source only after the actor has reached its interaction point. */
+    public static synchronized String bindAction(IsoPlayer shell, String sourceId,
+            String fingerprint, String revision, int itemId, String itemType,
+            int expectedX, int expectedY, int expectedZ) {
+        try {
+            Located located = locate(shell, sourceId, fingerprint, revision,
+                itemId, itemType, expectedX, expectedY, expectedZ);
+            boolean accessible = located.worldItem != null
+                ? squareWithinReach(shell, located.square)
+                : SAONeeds.containerAccessibleNow(shell,
+                    located.permissionContainer);
+            if (!accessible) return "ACCESS_REFUSED";
+            ACTIONS.put(shell, new ActionBinding(located));
+            return "BOUND:" + located.square.getX() + ":"
+                + located.square.getY() + ":" + located.square.getZ();
+        } catch (ActionRefusal refusal) {
+            return refusal.code;
+        } catch (Throwable throwable) {
+            SAOAgent.log("world source bind threw: " + throwable);
+            return "FAILED";
+        }
+    }
+
+    public static synchronized Object actionItem(IsoPlayer shell) {
+        ActionBinding binding = ACTIONS.get(shell);
+        return binding == null ? null : binding.item;
+    }
+
+    public static synchronized Object actionSourceContainer(IsoPlayer shell) {
+        ActionBinding binding = ACTIONS.get(shell);
+        return binding == null ? null : binding.sourceContainer;
+    }
+
+    public static synchronized Object actionPermissionContainer(IsoPlayer shell) {
+        ActionBinding binding = ACTIONS.get(shell);
+        return binding == null ? null : binding.permissionContainer;
+    }
+
+    public static synchronized Object actionWorldItem(IsoPlayer shell) {
+        ActionBinding binding = ACTIONS.get(shell);
+        return binding == null ? null : binding.worldItem;
+    }
+
+    /** Find the exact transferred item in the body's native inventory. */
+    public static synchronized Object carriedActionItem(IsoPlayer shell, int itemId,
+            String itemType) {
+        try {
+            return findItem(shell == null ? null : shell.getInventory(), itemId,
+                itemType, 0);
+        } catch (Throwable throwable) {
+            return null;
+        }
+    }
+
+    /** Current absolute amount used to partition a reload-resumed native use. */
+    public static synchronized float carriedActionMeasure(IsoPlayer shell,
+            int itemId, String itemType, String category) {
+        try {
+            InventoryItem item = findItem(shell == null ? null : shell.getInventory(),
+                itemId, itemType, 0);
+            if (item == null) return -1.0f;
+            return "water".equals(value(category))
+                || "drink".equals(value(category))
+                ? fluidAmount(item) : item.getCurrentUsesFloat();
+        } catch (Throwable throwable) {
+            return -1.0f;
+        }
+    }
+
+    /** Snapshot the exact carried item and the body's native need before use. */
+    public static synchronized boolean beginUse(IsoPlayer shell, int itemId,
+            String itemType, String category, float durableBaseline) {
+        try {
+            InventoryItem item = findItem(shell == null ? null : shell.getInventory(),
+                itemId, itemType, 0);
+            if (item == null) return false;
+            ActionBinding binding = ACTIONS.get(shell);
+            if (binding == null || binding.item.getID() != itemId) {
+                binding = new ActionBinding(item);
+                ACTIONS.put(shell, binding);
+            }
+            binding.item = item;
+            binding.category = value(category);
+            binding.usesBefore = item.getUses();
+            binding.currentUsesBefore = durableBaseline >= 0.0f
+                ? durableBaseline : item.getCurrentUsesFloat();
+            binding.amountBefore = durableBaseline >= 0.0f
+                ? durableBaseline : fluidAmount(item);
+            binding.hungerBefore = shell.getStats().get(CharacterStat.HUNGER);
+            binding.thirstBefore = shell.getStats().get(CharacterStat.THIRST);
+            binding.useStarted = true;
+            binding.settled = false;
+            return true;
+        } catch (Throwable throwable) {
+            SAOAgent.log("world source begin use threw: " + throwable);
+            return false;
+        }
+    }
+
+    /**
+     * Verify what vanilla actually changed. Complete and stop both pass here:
+     * a stopped drink may already have consumed fluid, while a stopped meal
+     * may have applied its partial eat. No physical change means no result.
+     */
+    public static synchronized String finishUse(IsoPlayer shell, boolean completed) {
+        try {
+            ActionBinding binding = ACTIONS.get(shell);
+            if (binding == null || !binding.useStarted || binding.settled) {
+                return "NO_EFFECT:0:no-active-use";
+            }
+            binding.settled = true;
+            InventoryItem carried = findItem(shell.getInventory(),
+                binding.item.getID(), binding.item.getFullType(), 0);
+            float amountAfter = carried == null ? 0.0f : fluidAmount(carried);
+            float currentAfter = carried == null ? 0.0f
+                : carried.getCurrentUsesFloat();
+            float quantity;
+            if ("water".equals(binding.category)
+                    || "drink".equals(binding.category)) {
+                quantity = Math.max(0.0f, binding.amountBefore - amountAfter);
+            } else {
+                quantity = Math.max(0.0f,
+                    binding.currentUsesBefore - currentAfter);
+            }
+            if (carried == null && quantity <= 0.0001f) quantity = 1.0f;
+            float hungerAfter = shell.getStats().get(CharacterStat.HUNGER);
+            float thirstAfter = shell.getStats().get(CharacterStat.THIRST);
+            boolean changed = quantity > 0.0001f
+                || hungerAfter < binding.hungerBefore - 0.0001f
+                || thirstAfter < binding.thirstBefore - 0.0001f;
+            if (!changed) return "NO_EFFECT:0:native-use-made-no-change";
+            return "APPLIED:" + (completed ? "completed" : "interrupted")
+                + ":" + number(quantity) + ":"
+                + (completed ? "native-complete" : "native-partial-stop");
+        } catch (Throwable throwable) {
+            SAOAgent.log("world source finish use threw: " + throwable);
+            return "NO_EFFECT:0:verification-failed";
+        }
+    }
+
+    public static synchronized void clearAction(IsoPlayer shell) {
+        ACTIONS.remove(shell);
     }
 
     /** Observe a chunk already owned by a live player map. Never rolls loot. */
@@ -544,6 +724,285 @@ public final class SAOWorldSources {
             return out.toString();
         } catch (Exception impossible) {
             throw new IllegalStateException(impossible);
+        }
+    }
+
+    private static Located locate(IsoPlayer shell, String sourceId,
+            String fingerprint, String revision, int itemId, String itemType,
+            int expectedX, int expectedY, int expectedZ) throws ActionRefusal {
+        if (shell == null || sourceId == null || sourceId.isBlank()) {
+            throw new ActionRefusal("BAD_REQUEST");
+        }
+        IsoCell cell = shell.getCell();
+        if (cell == null) throw new ActionRefusal("NOT_LOADED");
+        String[] parts = sourceId.split(":");
+        Source source;
+        InventoryItem item;
+        ItemContainer sourceContainer = null;
+        ItemContainer permissionContainer = null;
+        IsoWorldInventoryObject worldItem = null;
+        IsoGridSquare square = null;
+        BaseVehicle sourceVehicle = null;
+        VehiclePart sourceVehiclePart = null;
+
+        try {
+            if (parts.length == 3 && "C".equals(parts[0])) {
+                square = cell.getGridSquare(expectedX, expectedY, expectedZ);
+                if (square == null) throw new ActionRefusal("NOT_LOADED");
+                int containerIndex = Integer.parseInt(parts[2]);
+                IsoObject matched = null;
+                for (IsoObject object : square.getObjects()) {
+                    Object token = object == null ? null
+                        : object.getModData().rawget(SOURCE_TOKEN);
+                    if (parts[1].equals(token)) {
+                        matched = object;
+                        break;
+                    }
+                }
+                if (matched == null || containerIndex < 0
+                        || containerIndex >= matched.getContainerCount()) {
+                    throw new ActionRefusal("SOURCE_MISSING");
+                }
+                ItemContainer root = matched.getContainerByIndex(containerIndex);
+                if (root == null) throw new ActionRefusal("SOURCE_MISSING");
+                source = containerSourceKnown(square, matched, root,
+                    containerIndex, parts[1]);
+                item = findItem(root, itemId, itemType, 0);
+                if (item == null) throw new ActionRefusal("ITEM_MISSING");
+                sourceContainer = item.getContainer();
+                permissionContainer = root;
+            } else if (parts.length == 2 && "G".equals(parts[0])) {
+                square = cell.getGridSquare(expectedX, expectedY, expectedZ);
+                if (square == null) throw new ActionRefusal("NOT_LOADED");
+                InventoryItem matchedItem = null;
+                for (IsoWorldInventoryObject candidate
+                        : new ArrayList<>(square.getWorldObjects())) {
+                    InventoryItem candidateItem = candidate == null
+                        ? null : candidate.getItem();
+                    Object token = candidateItem == null ? null
+                        : candidateItem.getModData().rawget(ITEM_TOKEN);
+                    if (parts[1].equals(token)) {
+                        worldItem = candidate;
+                        matchedItem = candidateItem;
+                        break;
+                    }
+                }
+                if (worldItem == null || matchedItem == null) {
+                    throw new ActionRefusal("SOURCE_MISSING");
+                }
+                source = groundSourceKnown(square, worldItem, parts[1]);
+                item = matchedItem;
+            } else if (parts.length == 3 && "V".equals(parts[0])) {
+                int sqlId = Integer.parseInt(parts[1]);
+                int partIndex = Integer.parseInt(parts[2]);
+                BaseVehicle matched = null;
+                for (BaseVehicle candidate : cell.getVehicles()) {
+                    if (candidate != null && candidate.getSqlId() == sqlId) {
+                        matched = candidate;
+                        break;
+                    }
+                }
+                if (matched == null || matched.isRemovedFromWorld()
+                        || partIndex < 0 || matched.getParts() == null
+                        || partIndex >= matched.getParts().size()) {
+                    throw new ActionRefusal("SOURCE_MISSING");
+                }
+                VehiclePart part = matched.getParts().get(partIndex);
+                ItemContainer root = part == null ? null : part.getItemContainer();
+                square = matched.getSquare();
+                if (root == null || square == null) {
+                    throw new ActionRefusal("SOURCE_MISSING");
+                }
+                source = vehicleSource(matched, part, root);
+                item = findItem(root, itemId, itemType, 0);
+                if (item == null) throw new ActionRefusal("ITEM_MISSING");
+                sourceContainer = item.getContainer();
+                permissionContainer = root;
+                sourceVehicle = matched;
+                sourceVehiclePart = part;
+            } else if (parts.length >= 2 && "F".equals(parts[0])) {
+                throw new ActionRefusal("FLUID_OBJECT_UNSUPPORTED");
+            } else {
+                throw new ActionRefusal("BAD_SOURCE_ID");
+            }
+        } catch (ActionRefusal refusal) {
+            throw refusal;
+        } catch (Throwable malformed) {
+            throw new ActionRefusal("BAD_SOURCE_ID");
+        }
+
+        if (!value(fingerprint).equals(source.fingerprint)) {
+            throw new ActionRefusal("FINGERPRINT_CHANGED");
+        }
+        if (!value(revision).equals(source.revision)) {
+            throw new ActionRefusal("REVISION_CHANGED");
+        }
+        if (item.getID() != itemId
+                || !value(itemType).equals(value(item.getFullType()))) {
+            throw new ActionRefusal("ITEM_CHANGED");
+        }
+        return new Located(source, item, sourceContainer, permissionContainer,
+            worldItem, square, sourceVehicle, sourceVehiclePart);
+    }
+
+    private static Source containerSourceKnown(IsoGridSquare square,
+            IsoObject object, ItemContainer container, int containerIndex,
+            String token) {
+        long building = buildingId(square);
+        String id = "C:" + token + ":" + containerIndex;
+        String physical = object.getClass().getName() + "|"
+            + value(object.getSpriteName()) + "|" + value(container.getType())
+            + "|" + building + "|" + square.getX() + "|" + square.getY()
+            + "|" + square.getZ() + "|" + containerIndex + "|" + token;
+        Source source = new Source(id, digest(physical), "container",
+            square.getX(), square.getY(), square.getZ(), building,
+            container.isExplored());
+        source.containerType = value(container.getType());
+        if (container.isExplored()) addItems(source, container.getItems(), 0);
+        source.finish();
+        return source;
+    }
+
+    private static Source groundSourceKnown(IsoGridSquare square,
+            IsoWorldInventoryObject worldObject, String token) {
+        InventoryItem item = worldObject.getItem();
+        String id = "G:" + token;
+        String physical = value(item.getFullType()) + "|" + item.getID() + "|"
+            + square.getX() + "|" + square.getY() + "|" + square.getZ()
+            + "|" + token;
+        Source source = new Source(id, digest(physical), "ground", square.getX(),
+            square.getY(), square.getZ(), buildingId(square), true);
+        source.items.add(ItemRow.of(item));
+        source.finish();
+        return source;
+    }
+
+    private static InventoryItem findItem(ItemContainer container, int itemId,
+            String itemType, int depth) {
+        if (container == null || depth > MAX_CONTAINER_DEPTH) return null;
+        for (InventoryItem candidate : new ArrayList<>(container.getItems())) {
+            if (candidate == null) continue;
+            if (candidate.getID() == itemId
+                    && value(itemType).equals(value(candidate.getFullType()))) {
+                return candidate;
+            }
+            if (candidate instanceof InventoryContainer nested) {
+                InventoryItem found = findItem(nested.getInventory(), itemId,
+                    itemType, depth + 1);
+                if (found != null) return found;
+            }
+        }
+        return null;
+    }
+
+    private static IsoGridSquare interactionSquare(IsoPlayer shell,
+            IsoGridSquare source) {
+        if (shell == null || source == null || shell.getCell() == null) return null;
+        IsoGridSquare best = null;
+        float bestDistance = Float.POSITIVE_INFINITY;
+        for (int dy = -1; dy <= 1; dy++) {
+            for (int dx = -1; dx <= 1; dx++) {
+                IsoGridSquare candidate = shell.getCell().getGridSquare(
+                    source.getX() + dx, source.getY() + dy, source.getZ());
+                if (candidate == null || !candidate.isFree(false)) continue;
+                if (candidate != source && candidate.isSomethingTo(source)) continue;
+                float px = candidate.getX() + 0.5f - shell.getX();
+                float py = candidate.getY() + 0.5f - shell.getY();
+                float distance = px * px + py * py;
+                if (best == null || distance < bestDistance) {
+                    best = candidate;
+                    bestDistance = distance;
+                }
+            }
+        }
+        return best;
+    }
+
+    /** Use the same named part area that vanilla vehicle interactions path to. */
+    private static IsoGridSquare vehicleInteractionSquare(BaseVehicle vehicle,
+            VehiclePart part) {
+        if (vehicle == null || part == null || part.getArea() == null
+                || part.getArea().isBlank()) return null;
+        IsoGridSquare square = vehicle.getSquareForArea(part.getArea());
+        return square != null && square.isFree(false) ? square : null;
+    }
+
+    private static boolean squareWithinReach(IsoPlayer shell,
+            IsoGridSquare square) {
+        if (shell == null || square == null || shell.getCell() == null
+                || square.getCell() != shell.getCell()
+                || square.getZ() != (int) shell.getZ()) return false;
+        IsoGridSquare here = shell.getCurrentSquare();
+        if (here == null) return false;
+        float dx = shell.getX() - (square.getX() + 0.5f);
+        float dy = shell.getY() - (square.getY() + 0.5f);
+        return dx * dx + dy * dy <= 4.0f && !here.isSomethingTo(square);
+    }
+
+    private static float fluidAmount(InventoryItem item) {
+        FluidContainer fluids = item == null
+            ? null : item.getFluidContainerFromSelfOrWorldItem();
+        return fluids == null ? 0.0f : fluids.getAmount();
+    }
+
+    private static final class ActionRefusal extends Exception {
+        final String code;
+        ActionRefusal(String code) {
+            super(code);
+            this.code = code;
+        }
+    }
+
+    private static final class Located {
+        final Source source;
+        final InventoryItem item;
+        final ItemContainer sourceContainer;
+        final ItemContainer permissionContainer;
+        final IsoWorldInventoryObject worldItem;
+        final IsoGridSquare square;
+        final BaseVehicle vehicle;
+        final VehiclePart vehiclePart;
+        Located(Source source, InventoryItem item, ItemContainer sourceContainer,
+                ItemContainer permissionContainer,
+                IsoWorldInventoryObject worldItem, IsoGridSquare square,
+                BaseVehicle vehicle, VehiclePart vehiclePart) {
+            this.source = source;
+            this.item = item;
+            this.sourceContainer = sourceContainer;
+            this.permissionContainer = permissionContainer;
+            this.worldItem = worldItem;
+            this.square = square;
+            this.vehicle = vehicle;
+            this.vehiclePart = vehiclePart;
+        }
+    }
+
+    private static final class ActionBinding {
+        InventoryItem item;
+        final ItemContainer sourceContainer;
+        final ItemContainer permissionContainer;
+        final IsoWorldInventoryObject worldItem;
+        String category = "";
+        int usesBefore;
+        float currentUsesBefore;
+        float amountBefore;
+        float hungerBefore;
+        float thirstBefore;
+        boolean useStarted;
+        boolean settled;
+
+        ActionBinding(Located located) {
+            item = located.item;
+            sourceContainer = located.sourceContainer;
+            permissionContainer = located.permissionContainer;
+            worldItem = located.worldItem;
+        }
+
+        ActionBinding(InventoryItem item) {
+            this.item = item;
+            sourceContainer = null;
+            permissionContainer = null;
+            worldItem = null;
         }
     }
 

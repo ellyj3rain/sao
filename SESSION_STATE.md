@@ -1,20 +1,23 @@
 | Document | Survivor Awareness Overhaul Session State |
 |---|---|
-| Version | `2.7.15.3-pre-alpha` |
+| Version | `2.7.16.0-pre-alpha` |
 | Author | ellyj3rain |
 | Repository | `SESSION_STATE.md` |
 | Status | CANONICAL - current implementation and continuation. |
 
 # Session state
 
-**As of** 2026-09-20, `[C61]` closes demand-led native hydration, exact source identity and observation, and loaded reconciliation without treating observation as access or use.
+**As of** 2026-09-20, `[C62]` closes the first exact source access-and-use
+lifecycle over C61's demand-led native observations: private revision, current
+route and permission, exact native transfer, carried engine use and durable
+completion now remain one actor-owned transaction.
 C59 repairs debug-mode Lua compilation. C58 closes population reconstruction and scheduling,
 the second whole-mod restructuring unit. C57 established shared body snapshots
 and consolidated native continuity verification. C56
 closed R5 health and dormant physiology after durable/runtime reconstruction,
 native person continuity, shared county time and the authorized Afflicted return.
 The C catalog is consolidated by adjacency and content using
-the A/B precedent: 29 A-batches, 52 B-batches and 61 C units. BATCH_LOG.md owns
+the A/B precedent: 29 A-batches, 52 B-batches and 62 C units. BATCH_LOG.md owns
 the chronology. Batches/FORMER_LABELS.md maps every former entry;
 Batches/C_RECATALOG.json preserves original paths and source hashes. The
 original records remain at local ref `archive/c-era-raw-20260919`.
@@ -40,7 +43,7 @@ producers, persistence, evidence and gaps.
 | Person continuity | Durable identity, C51's body transaction, C52's authorized return/adoption/teardown, C54's v4 native state, C55/A36 reconstruction and C56/A37 one-way Crossed ownership of the same human shell and dormant envelope | R7's general action completion and later action-specific ownership remain open. |
 | Time and health | Current decision time, durable drug/abstinence clocks, current physical inputs, exact interval-integrated brain history, medical/inspect graph and memory/decision/affective/motor consumers | R5 is closed. Performed treatment and care still depend on R7/R9 action producers. |
 | Afflicted and Crossed | ZAO pathogen state, Afflicted return, reachable Crossed decisions and an interruptible non-feeding blood exposure whose exact-once result transfers SAO's living body to ZAO | The retained human weapons, tools, strategy and wider action vocabulary remains R7-R9 work; grounded dormant opportunities remain R10. |
-| Knowledge and access | Private beliefs; animal-safe scanner output; fresh/current activity partners; loaded cached sources with floor, obstruction and live vehicle permission retained through timed transfer; demand-hydrated native static and ground-source identities, exact bounded observations and loaded reconciliation | C61 closes the native world ground. Production observations remain `unknown` for static access and `unsupported` for vehicles, so R6/R7/R9 must still prove one actor's exact interaction point, route, permission, transfer and native consequence before any need or provisioning credit. |
+| Knowledge and access | Private beliefs; animal-safe scanner output; fresh/current activity partners; demand-hydrated exact source identities; C62's revision-bound approach, current claim/vehicle permission, exact transfer, carried native use and durable result | R6 is closed for the selected source interaction. R7 remains open beyond this source-action family. R9 must consume completed results for settlement provisioning and may not infer it from observation, reservation or queue acceptance. |
 | Social development | Company mechanics, claims, observations, graph APIs | Automatic relocation and recognition; incomplete provisioning, affiliation, governance and other producers. |
 | Speakeasy data | 190 ratified choices, cross-module contract, approved world documents | Mutable decision snapshots, source conditioning, executable options and complete capture provenance. |
 | Models and late starts | Inference primitives, fact constraint, offline diagnostics | No trained cognition model, complete training/export path or validated accelerator. |
@@ -107,14 +110,21 @@ indicate search possibility only. Production emits static access as `unknown`
 and vehicle access as `unsupported`, so no dormant reservation, mutation,
 `lastFoodDay` or `lastWaterDay` credit can result from observation alone.
 
-The next unit is fully specified across R6, R7 and R9. It selects one exact
-source interaction point and proves floor, route, barriers and doors, current
-claim or ownership and vehicle-part permission. It then transfers the exact
-item or fluid to the actor, invokes carried native `Eat` or `DrinkFluid`, and
-publishes one durable result tied to the source revision. Cancellation releases
-the reservation; reload reconciles pending ownership; revision change conflicts;
-only a completed result credits need or provisioning. R10b waits for that
-performed-action substrate. R11-R12 can progress alongside it.
+C62 implements the specified R6/R7/R9 bridge. An actor may attempt only a
+source revision in their own belief; the durable reservation owns place
+approach, exact interaction approach, transfer, native use and result. The
+final bind re-resolves native identity and revision, checks same-floor reach,
+obstruction, current claim permission and a vehicle's current part permission.
+The exact item moves through the vanilla transfer or grab action and the exact
+carried item then enters vanilla `Eat` or `DrinkFluid`. Completion and partial
+stop are measured from actual item/fluid and need change. Cancellation releases
+unspent work, reload reconstructs from source or carried item, and revision
+change conflicts. Only completed use stamps `lastFoodDay` or `lastWaterDay`;
+completed receipts remain in durable order until the provisioning consumer
+acknowledges them idempotently, and settlement recognition receives no synthetic
+credit. R7's other action families and R9's provisioning consumer are the next
+dependency layer. R10b continues to wait for those integrated producers.
+R11-R12 can progress alongside them.
 
 R1 closes in C52 and ZAO A35. The living transaction, source holding and
 acknowledged removal, controller adoption, failure diagnostics, repeated-death
@@ -151,9 +161,10 @@ non-time `updatedAt` counter rather than inferring units from `At` alone.
 
 Border 168 executes the shipped History, Controller callback and WorldGenesis
 in Kahlua across substeps, module reload, midnight, Day Zero settings,
-nondefault DayLength and large county-time skips. Three controls restore the
-cached decision value, day-as-tick call and county-paced corpse grace and fail
-at those defects. Border 160 retains production partial-day catch-up/reload.
+nondefault DayLength and large county-time skips. Four controls restore the
+cached decision value, day-as-tick call, county-paced corpse grace and a
+source-ownership bypass and fail at those defects. Border 160 retains production
+partial-day catch-up/reload.
 ZAO needs no R2 source change: its loaded controller reads the fresh SAO tick,
 and its durable pathogen history is explicitly day-based. The C57 installation includes C53;
 loaded-world pacing remains a play observation rather than a mechanical claim.
@@ -212,8 +223,9 @@ dormant physiology, drug cadence, intentional Crossed blood exposure and the
 event-derived brain-health history now have durable producers and controlled
 receipts. The native-ground portion of R10a closes in C61: offscreen chunks
 hydrate on demand, exact source observations persist privately and loaded
-changes reconcile. R6/R7/R9 now own actor-specific physical access and
-performed use.
+changes reconcile. C62 closes R6's selected physical-access proof and R7's
+exact-source action slice, and supplies R9 with a completed-use input. R7's
+remaining action families and R9's downstream producers remain.
 R11-R12 can progress alongside them. Pathogen state and installed brain-history
 ownership continue to belong to ZAO.
 
@@ -240,11 +252,11 @@ consequences remain separate from the learned policy choosing among them.
 
 ## Verification and installed state
 
-C57 consolidates three native entry points into one. With C61's world-source
-border, the gate invokes 176 `*_test.py` files and 13 other Python entry points,
-189 distinct scripts. Border labels extend through 178; legacy labels
+C57 consolidates three native entry points into one. With C62's exact source-use
+border, the gate invokes 177 `*_test.py` files and 13 other Python entry points,
+190 distinct scripts. Border labels extend through 179; legacy labels
 163/169/174 share the native suite. These are distinct counting units. The mod
-ships 74 Lua source files.
+ships 75 Lua source files.
 ZAO A37 has ten borders. The
 published C51 baseline has 163 borders through 178 mirrors. These counts describe the
 apparatus, not acceptance. The audit reproduced defects while targeted checks
@@ -256,14 +268,16 @@ C51's separate first gate found a verdict-prefix defect and missing transition
 registry surfaces/lifetimes. Its failed output is preserved with the corrections;
 the closing full gate passed with exit 0.
 
-The current install is C61 with ZAO A37, deployed on 2026-09-20 UTC.
-All 256 installed SAO files match source; the companion remains unchanged.
-The SAO jar SHA-256 is `7df22e02ddc72d0d9fca0d62a388a6117d63c7ab151302dd0b35e9d344c9dc7d`.
+The current install is C62 with ZAO A37, deployed on 2026-09-20 UTC.
+All 257 installed SAO files match source; the companion remains unchanged.
+The SAO jar SHA-256 is `7092f686fc7a45f01e577b3d24aad5cc9972fe35b912495d1ab146b08db15c84`.
 All 44,092 save-file sizes and modification times remained unchanged across
 deployment and startup. The [C61 evidence record](artifacts/audits/20260920-0844Z-0144PST-native-world-sources/README.md)
-holds the native-source boundary, review repairs, full gate, deployment and
-startup receipts. The responsive client was left open. No save was loaded;
-startup validation remains separate from save-backed offscreen hydration and
+retains the native-source substrate. The [C62 evidence record](artifacts/audits/20260920-1041Z-0341PST-source-access-native-use/README.md)
+holds exact access/use, blocking review repairs, both full gates, the rejected
+initial startup, the inherited logger-order repair, exact deployment and clean
+final startup. The responsive client was left open. No save was loaded; startup
+validation remains separate from save-backed exact-source behavior and
 loaded-world acceptance.
 The ZAO A37 tooltip-formatting follow-up recorded with C57 remains open.
 The source coordinate follows

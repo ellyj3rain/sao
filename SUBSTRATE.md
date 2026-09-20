@@ -1,6 +1,6 @@
 | Document | Survivor Awareness Overhaul Dependency Substrate |
 |---|---|
-| Version | `2.7.15.3-pre-alpha` |
+| Version | `2.7.16.0-pre-alpha` |
 | Author | ellyj3rain |
 | Repository | `SUBSTRATE.md` |
 | Status | CANONICAL - what exists, what is planned, and what each area of concern needs. |
@@ -130,7 +130,7 @@ former batch labels inside evidence retain their historical meaning.
 | Saved state reconstructs usable runtime behavior | GraphPersistence binds only serializable Branching history; Integration registers built-ins and stable-ID extensions into a fresh runtime graph | Pattern/office history survives; callbacks, caches, indexes, controllers, courses and Java maps are reconstructed projections | C55 Border 170 serializes through Kahlua, creates a fresh environment and then a second world; ZAO Border 8 reconstructs settlement/controller/course state and clears prior-world maps | R4 is closed for the inventoried owners. Later features must declare durable/runtime ownership as they add state; loaded-world play acceptance remains separate. |
 | Facts are private and acquired | Java scans feed Perception; Knowledge preserves acquisition and Standing evaluates permission | Beliefs with source, time and uncertainty | A reproduces animals entering the IsoPlayer human path and traces global activity participant discovery | Narrow scanner output before decision use, preserve provenance and distinguish animal facts. Visibility and permission do not imply physical access. |
 | Actions have owned completion and interruption | Controller selects and queues engine actions; Driving, Medical, Animals and inventory adapters execute | Records should change from observed consequences | A exercises moving-vehicle cancellation, cancelled surrender, refused CPR and remote egg collection | Approach, queue, completion, failure and cancellation must be connected. A request must not award goods, experience, trust changes or learned capability. |
-| Loaded and dormant opportunities describe the same world | `SAO_WorldSources` requests bounded native chunks through the Java streamer bridge, records exact source/item/fluid revisions and reconciles loaded changes; Places supplies geography and search possibility | Native object/item UUIDs; bounded chunk/source observations, conflicts, reservations and result receipts; private source beliefs | C61 Border 178 runs the production ledger in installed Kahlua, weaves installed loot generation and proves premain retransformation, access refusal, identity conflicts, complete-protocol parsing, retries and bounds | Native ground and observation close in C61. Production access remains `unknown` for static sources and `unsupported` for vehicles until R6 proves an actor's interaction point, path, barriers and permission; R7 then owns exact transfer and native consequence. |
+| Loaded and dormant opportunities describe the same world | `SAO_WorldSources` requests bounded native chunks, records exact revisions and reconciles loaded changes; `SAO_SourceUse` turns one actor's private revision into a two-leg approach, current permission proof, exact native transfer and carried native use | Native UUIDs and item IDs; bounded observations/conflicts; one live reservation per actor; bounded ordered completed receipts retained until the sole provisioning consumer acknowledges them; runtime-only engine bindings | C61 Border 178 proves native grounding. C62 Border 179 runs 11 durable-ledger cases and 27 executable action-lifecycle cases in installed Kahlua, checks 32 required static call/form anchors and verifies the installed interaction, vehicle and native-use surfaces | R6 is closed for the selected source path and R7's source-action slice is complete. R9 must consume and acknowledge completed results for provisioning; other action and producer families remain open. |
 | Health integrates actual events over time | Course, Medical, Habits and Neuro consume current person/body facts; ZAO StateStore owns pathogen transitions and ZAO Brain owns history when installed | Durable health cursors, infection windows and brain event history; standalone SAO uses the same schema | C56 Borders 171-175 execute callback offsets, current exposures, exact interval partitions, reload, graphs and behavioral consumers; Borders 163/174 execute native dormant consumption | R5 is closed. Later health-and-care actions still require R7/R9 completion receipts and grounded opportunities. |
 | Social outcomes follow performed acts and recognition | Standing, Organization, Settlement and Integration mutate social records; Branching.record currently counts selections | Claims, membership, offices, patterns and experience | A traces automatic relocation, selection recorded before execution and recognition by repetition | Affiliation, legitimacy, dissent and development need causal producers. A chosen branch is not performed work; repeated choices do not establish public recognition. |
 | Diagnostic populations support valid claims | Population genesis/refill and mortality produce open-population histories; county sweep exports observations | People, deaths, seeds and run progress | C50's independent 90/365-day receipts distinguish 12-person targets from 27/72 created records | Reconcile admission/refill with the life-simulation contract. These samples cannot be reported as 100 percent cohort survival or full simulation fidelity. |
@@ -272,8 +272,9 @@ the tick at that day's start before calling `Integration.apply`.
 Border 168 runs the shipped History, Controller callback and WorldGenesis code
 in Kahlua. It covers substeps without a host callback, a module reload, midnight,
 Day Zero on/off, nondefault DayLength, skipped county time and host-paced native
-work. Border 160 retains partial-day catch-up/reload and production callback
-ordering. The controls remove the decision refresh, pass day as tick and put
+work. It also holds WorldGenesis behind the source-action actor owner. Border 160
+retains partial-day catch-up/reload and production callback ordering. The controls
+remove the decision refresh, pass day as tick, bypass source ownership and put
 corpse grace back on county time; each fails for its named reason. ZAO requires
 no R2 code change: its controller already obtains decision ticks through
 `SAO.Controller.tick()`, and its pathogen/state readers already use county hours
@@ -386,21 +387,32 @@ bounded protocol, persists the arriving person's private observation, protects
 active reservations during compaction and retries loaded reconciliation. Places
 and distribution names now answer only where a person might search.
 
-Access and performed use remain separate. Production static observations state
-`access=unknown`; vehicles state `access=unsupported` because their VehiclesDB2
-persistence is not proven. Neither can reserve or mutate stock, and arrival
-cannot update `lastFoodDay` or `lastWaterDay`. The next R6/R7 unit selects one
-exact interaction point, proves current revision, floor, route, doors/barriers,
-claim or ownership and vehicle-part permission, transfers the exact item or
-fluid, invokes carried native `Eat` or `DrinkFluid`, and publishes one durable
-exact-once result. Cancellation releases ownership, reload reconciles pending
-work and revision change conflicts. R9 provisioning can credit only that result.
+Access and performed use remain separate, and C62 supplies the bridge rather
+than collapsing them. Static and vehicle observations remain non-executable
+global facts. One live actor can reserve only a source revision present in that
+actor's private place belief. Locomotion first reaches the place and then an
+engine-selected same-floor interaction square. Final binding re-resolves the
+source fingerprint, revision and exact item, checks obstruction, current claim
+permission and current vehicle-part permission, and holds only runtime engine
+references. The vanilla transfer/grab moves the exact item; vanilla `Eat` or
+`DrinkFluid` uses that exact carried item.
+
+The durable reservation owns approach, transfer, use and reconciliation across
+reload. An unspent cancellation releases it. A native partial stop publishes an
+interrupted result without food/water credit. A proved completion publishes once
+with pre/post source revision and actual quantity, then stamps only the actor's
+`lastFoodDay` or `lastWaterDay`. Ground-item disappearance is expected only for
+that completing reservation; unrelated replacement, movement or revision change
+still conflicts. No C62 path calls settlement recognition or manufactures stock.
+R9 provisioning may consume only the completed result and reconciled inventory.
 
 R7 gives each action an owner across proposal, approach, queued action, execution,
-refusal, cancellation and observed result. Source-inventory the engine callbacks,
-bridge verdicts and teardown/reload behavior before selecting the receipt format.
-A receipt identifies person, action/target, relevant time and result; repeat
-delivery is harmless. Separate attempted effort from completed accomplishment.
+refusal, cancellation and observed result. C62 instantiates that contract for
+source use with durable phases and a revision-bound receipt; the other families
+must inventory their engine callbacks, bridge verdicts and teardown/reload
+behavior before adopting the same shape. A receipt identifies person,
+action/target, relevant time and result; repeat delivery is harmless. Separate
+attempted effort from completed accomplishment.
 Physical effects remain with their actual engine/domain owner; durable experience,
 material projections and relationships follow the corresponding observed result.
 

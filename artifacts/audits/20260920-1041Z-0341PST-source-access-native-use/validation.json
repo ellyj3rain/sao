@@ -1,0 +1,29 @@
+﻿{
+    "gate_exit":  0,
+    "gate_verdict":  "all borders clean",
+    "gated_test_scripts":  177,
+    "other_gate_scripts":  13,
+    "distinct_gate_scripts":  190,
+    "highest_border":  179,
+    "java_inputs":  35,
+    "java_classes":  64,
+    "lua_files":  75,
+    "lua_modes":  2,
+    "lua_verdicts":  150,
+    "version":  "2.7.16.0-pre-alpha",
+    "jar_classes":  64,
+    "jar_source_files":  34,
+    "jar_sha256":  "7092f686fc7a45f01e577b3d24aad5cc9972fe35b912495d1ab146b08db15c84",
+    "bridge_call_sites":  309,
+    "bridge_methods":  201,
+    "bridge_safety":  "207/207",
+    "focused":  [
+                    "source_use PASS",
+                    "person_handoff PASS",
+                    "world_sources PASS"
+                ],
+    "diff_checks":  "PASS",
+    "blockers":  0,
+    "startup_load_order":  "8/8 safe; guard-removal control rejected",
+    "post_repair_gate":  "exit 0; all borders clean"
+}

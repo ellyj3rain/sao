@@ -21,8 +21,34 @@ local function publish(rec, body)
     end
 end
 
+local function bodyIsDead(body)
+    if not body then return false end
+    local ok, dead = pcall(function() return body:isDead() end)
+    return ok and dead == true
+end
+
+-- Death retains the corpse under the world's mortality path.  A captured
+-- living-shell handoff must never outlive that fact and later publish the
+-- dead body as a living ZAO-owned person.
+function Transfer.cancelForDeath(rec)
+    if not rec then return false end
+    rec.crossedTransferPending = nil
+    if rec.bodyTransfer and rec.bodyTransfer.owner == "ZAO" then
+        rec.bodyTransfer = nil
+    end
+    return true
+end
+
 function Transfer.resume(rec)
     if not rec or not rec.bodyTransfer then return false, "no-transfer" end
+    if rec.bodyTransfer.owner ~= "ZAO" then
+        return false, "wrong-transfer-owner"
+    end
+    local active = SAO.Body and SAO.Body.active and SAO.Body.active[rec.id] or nil
+    if rec.dead or bodyIsDead(active) then
+        Transfer.cancelForDeath(rec)
+        return false, "person-dead"
+    end
     local ok, reason = SAO.Body.commitExternalTransfer(rec)
     if not ok then return false, reason end
     local body = SAO.Body.foreign[rec.id]
@@ -40,6 +66,11 @@ function Transfer.begin(personId, body, token, atHours)
     if not rec then return false, "missing-person" end
     token = tostring(token or "")
     if token == "" then return false, "invalid-transfer-token" end
+    body = body or (SAO.Body and SAO.Body.active and SAO.Body.active[rec.id])
+    if rec.dead or bodyIsDead(body) then
+        Transfer.cancelForDeath(rec)
+        return false, "person-dead"
+    end
     if rec.bodyOwner == "ZAO" and rec.bodyOwnerToken == token then
         rec.crossedTransferPending = nil
         publish(rec, SAO.Body.foreign[rec.id])
@@ -57,7 +88,11 @@ function Transfer.begin(personId, body, token, atHours)
         return false, "another-transfer-pending"
     end
     rec.crossedTransferPending = { token = token, atHours = tonumber(atHours) }
-    body = body or SAO.Body.active[rec.id]
+    if SAO.SourceUse and SAO.SourceUse.closeForOwnershipTransfer
+        and not SAO.SourceUse.closeForOwnershipTransfer(rec.id, body,
+            "crossed-ownership-transfer") then
+        return false, "source-action-pending"
+    end
     local prepared, reason = SAO.Body.prepareExternalTransfer(
         rec, body, "ZAO", token)
     if not prepared then return false, reason end
@@ -68,7 +103,9 @@ function Transfer.resumePending()
     if not (SAO.Identity and SAO.Body) then return false end
     local complete = true
     for _, rec in pairs(SAO.Identity.all()) do
-        if rec.bodyTransfer then
+        if rec.dead then
+            Transfer.cancelForDeath(rec)
+        elseif rec.bodyTransfer and rec.bodyTransfer.owner == "ZAO" then
             local ok = Transfer.resume(rec)
             if not ok then complete = false end
         elseif rec.crossedTransferPending then

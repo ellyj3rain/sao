@@ -1,6 +1,6 @@
 | Document | Survivor Awareness Overhaul Engine Contract |
 |---|---|
-| Version | `2.7.15.3-pre-alpha` |
+| Version | `2.7.16.0-pre-alpha` |
 | Author | ellyj3rain |
 | Repository | `ENGINE_CONTRACT.md` |
 | Status | CANONICAL - the verified engine mechanics an IsoPlayer NPC requires. |
@@ -525,7 +525,31 @@ bytes and starts the shipped jar as a real premain agent.
 | `IsoObject` containers and fluid accessors; `IsoWorldInventoryObject.getItem()` | Static containers, object fluids and ground items expose exact identity, quantity and revision rows. Observation does not prove an actor can reach, possess or use them. |
 | `IsoChunk.vehicles`; `BaseVehicle.getParts()`; `VehiclePart.getItemContainer()` | Vehicle containers can be observed, but their durable owner is the separate `VehiclesDB2` surface. C61 has no proof that mutating one through a borrowed chunk is durably committed, so production reports vehicle access as `unsupported` and never fills or mutates it offscreen. |
 
-These surfaces establish native identity, contents and persistence for static
-and ground sources. They do not establish floor/path/door access, claims,
-vehicle-part permission, transfer to a person or native consumption. Those are
-the named R6/R7/R9 continuation recorded in ROADMAP.md and SUBSTRATE.md.
+These C61 surfaces establish native identity, contents and persistence for
+static and ground sources. By themselves they do not establish floor/path/door
+access, claims, vehicle-part permission, transfer to a person or native
+consumption. C62's installed surfaces below supply that selected action path.
+
+## Addendum J - exact source access and native use (2026-09-20, C62)
+
+C62 resolves a C61 observation back to the installed Build 42.20.4 objects only
+after a live actor approaches it. The Java binding is runtime-only and is reset
+with the world; the source ledger and reservation phases remain Lua ModData.
+Border 179 executes 11 durable-ledger cases and 27 shipped-action lifecycle
+cases in the installed Kahlua VM, checks 32 required static call/form anchors,
+and verifies the shipped jar plus installed APIs.
+
+| Surface | Verified contract |
+|---|---|
+| `IsoGridSquare.isFree(boolean)`; `isSomethingTo(IsoGridSquare)`; coordinates and current cell/floor | Java chooses a free source or adjacent interaction square. Native Locomotion owns the route and its existing door/window/barrier verdicts. Final binding requires same loaded cell, floor, arm's reach and no current obstruction. |
+| `IsoObject.getContainerByIndex`; object `SAOWorldSourceId`; item `SAOWorldItemSourceId`; `InventoryItem.getID/getFullType/getContainer`; nested `InventoryContainer.getInventory` | Static, nested and ground sources resolve back to the exact observed fingerprint, revision and item. Lookup reads existing tokens and does not stamp unrelated objects during action resolution. |
+| `IsoCell.getVehicles`; `BaseVehicle.getSqlId/getParts/getSquare/isRemovedFromWorld/canAccessContainer`; `VehiclePart.getIndex/getItemContainer` | A vehicle observed inside a place retains its exact source revision. At binding, its current location, loaded membership, part/container identity and actor-specific compartment permission are rechecked. Offscreen vehicle mutation remains absent. |
+| `ISInventoryTransferAction`; `ISGrabItemAction`; SAO's vanilla-derived verified transfer | Container and vehicle items move through vanilla transfer; ground items move through vanilla grab. The derived transfer preserves vanilla validity and rechecks the permission root throughout execution. |
+| `ISEatFoodAction.complete/stop`; `IsoGameCharacter.Eat` | The exact carried food enters the installed action. Complete calls native `Eat`; single-player stop may apply partial eating before the C62 wrapper measures it. |
+| `ISDrinkFluidAction.updateEat/complete/stop`; `IsoGameCharacter.DrinkFluid` | The exact carried clean-water item enters the installed fluid action. Drinking may change fluid continuously before stop, so both complete and stop are measured. |
+| `InventoryItem.getCurrentUsesFloat/getUses/getFluidContainerFromSelfOrWorldItem`; `FluidContainer.getAmount`; `Stats.get(CharacterStat.HUNGER/THIRST)` | A result requires an actual item/fluid or need change. Completion and partial interruption report measured quantity; a queue ending with no physical change cannot publish success. |
+| Java `WeakHashMap<IsoPlayer, ActionBinding>`; `SAOBridge.resetRuntimeForWorld` | Exact engine references exist only for the current body/world. Durable source ID, revision, phase and result reconstruct the action after reload without serializing Java objects. |
+
+C62 supports carried food and clean-water items. A world object's direct fluid
+source remains on the existing loaded direct-drink path; the revision-bound
+carried-use lifecycle does not invent a transferable fluid item for it.

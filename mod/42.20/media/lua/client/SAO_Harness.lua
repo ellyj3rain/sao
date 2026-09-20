@@ -17,6 +17,13 @@ local function log(msg) SAO.Log.line("HARNESS", msg) end
 
 local MAX_SURVIVORS = 4
 
+-- Every player/radio travel command enters through Controller so any durable
+-- action owner closes before a new engine route can replace its locomotion job.
+local function orderCommandTravel(id, x, y, z)
+    return SAO.Controller and SAO.Controller.orderTravel
+        and SAO.Controller.orderTravel(id, x, y, z) == true
+end
+
 local function countActive()
     local n = 0
     for _ in pairs(SAO.Controller.agents) do n = n + 1 end
@@ -92,7 +99,7 @@ local function walkHere(worldobjects)
             return
         end
     end
-    SAO.Controller.orderTravel(H.activeId, sq:getX(), sq:getY(), sq:getZ())
+    orderCommandTravel(H.activeId, sq:getX(), sq:getY(), sq:getZ())
 end
 
 local function status()
@@ -2131,7 +2138,7 @@ local function fillMenu(playerNum, context, worldobjects)
                             -- stays put is said.
                             local came7 = onYourWord(playerObj, r7.id,
                                 "travel", { x = gx7, y = gy7 }, function()
-                                if SAO.Locomotion.order(r7.id, b7, gx7, gy7,
+                                if orderCommandTravel(r7.id, gx7, gy7,
                                     math.floor(playerObj:getZ())) then
                                     n7 = n7 + 1
                                 end
@@ -2482,8 +2489,7 @@ local function fillMenu(playerNum, context, worldobjects)
                 end)
                 return
             end
-            local b = SAO.Body.get(best)
-            if SAO.Locomotion.order(best, b,
+            if orderCommandTravel(best,
                 math.floor(playerObj:getX()), math.floor(playerObj:getY()),
                 math.floor(playerObj:getZ())) then
                 -- Aid is a DEBT: the county remembers who called.

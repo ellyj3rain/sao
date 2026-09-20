@@ -1,0 +1,22 @@
+﻿{
+    "captured_utc":  "2026-09-20T12:47:34.3995166Z",
+    "version":  "2.7.16.0-pre-alpha",
+    "source_mod_files":  255,
+    "installed_files":  257,
+    "missing":  [
+
+                ],
+    "extra":  [
+
+              ],
+    "different":  [
+
+                  ],
+    "jar_sha256":  "57cede51c2ce8f540c9cb15f8b2a8b52ff2b3d9c85ed55c934853761e61ca843",
+    "approval":  "[approve] approved deployed jar: 57cede51c2ce",
+    "destination":  "C:\\Users\\jleyv\\Zomboid\\mods\\SurvivorAwareness",
+    "process_check":  "no Project Zomboid process before deployment",
+    "accepted":  false,
+    "superseded_by":  "deployment.json",
+    "reason":  "initial startup exposed inherited pre-logger load failures; corrected tree was rebuilt and redeployed"
+}

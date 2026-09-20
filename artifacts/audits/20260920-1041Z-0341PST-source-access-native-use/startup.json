@@ -1,0 +1,42 @@
+﻿{
+    "captured_utc":  "2026-09-20T13:00:42.4278146Z",
+    "version":  "2.7.16.0-pre-alpha",
+    "observed_process_id":  151700,
+    "observed_window":  "Project Zomboid",
+    "observed_responsive":  true,
+    "process_left_open":  true,
+    "screenshot":  ".git/c62-startup.png",
+    "visual_observation":  "Responsive Project Zomboid window; ZombieBuddy lists SurvivorAwareness and ZombieAwareness among four active Java mods.",
+    "agent_markers":  {
+                          "premain":  true,
+                          "main_loaded":  true,
+                          "bridge_exposed":  true
+                      },
+    "lua_compile_errors":  {
+                               "SurvivorAwareness":  false,
+                               "Controller":  false,
+                               "Standing":  false,
+                               "SourceUse":  false,
+                               "debug_local_overflow":  false
+                           },
+    "module_load_markers":  [
+                                "[SAO][HARNESS] harness loaded",
+                                "[SAO][POP] population module loaded"
+                            ],
+    "module_markers_present":  true,
+    "world_loaded_by_agent":  false,
+    "save_files":  44092,
+    "save_metadata_unchanged":  true,
+    "limits":  "Startup evidence only. No save was loaded, so save-backed exact source use and loaded-world behavior remain unobserved.",
+    "other_errors":  "Two engine fluid-name sanitation warnings and three Did I Have A Car translation stack traces remain outside SAO; no Survivor Awareness stack or load refusal was observed.",
+    "captured_log_prefixes":  {
+                                  ".git/c62-launch-final-stdout.txt":  {
+                                                                           "bytes":  2434093,
+                                                                           "sha256":  "15e5633223151360ef4c988eb8077d891dc90604d5c2d466811027a777d74de9"
+                                                                       },
+                                  ".git/c62-launch-final-stderr.txt":  {
+                                                                           "bytes":  640133,
+                                                                           "sha256":  "207d272d55842b214d35e651fe1d904a7e8e4df931a0958f0bbb90c97dbe5ec6"
+                                                                       }
+                              }
+}

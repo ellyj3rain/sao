@@ -17,6 +17,7 @@ DORMANT = LUA / "client" / "SAO_DormantPopulation.lua"
 LIVE = LUA / "client" / "SAO_Controller.lua"
 AGE = LUA / "client" / "SAO_Age.lua"
 WORLD = LUA / "shared" / "SAO_WorldSources.lua"
+SOURCE_USE = LUA / "client" / "SAO_SourceUse.lua"
 PLACES = LUA / "shared" / "SAO_Places.lua"
 
 
@@ -30,6 +31,7 @@ def main():
     live = read(LIVE)
     age = read(AGE)
     world = read(WORLD)
+    source_use = read(SOURCE_USE)
     places = read(PLACES)
 
     demand = dormant.find("SAO.WorldSources.demandPlace(place)")
@@ -48,10 +50,12 @@ def main():
         "a reservation hides its source without mutating observation":
             "if pendingFor(value, source.id, nil) then return 0 end"
             in world,
-        "interruption releases reserved stock":
+        "unspent interruption releases while transferred work reconciles":
             "function WS.release" in world
-            and '"night-interrupted"' in dormant
-            and '"arrival-error"' in dormant,
+            and "carriedItem(body, reservation) ~= nil" in source_use
+            and "SAO.WorldSources.markTransferred" in source_use
+            and "SAO.WorldSources.release(reservation.id" in source_use
+            and "SAO.WorldSources.pendingActionFor(id)" in dormant,
         "loaded food and water reconcile after native mutation":
             "if SAO.Needs.eatCarried(id, body) then" in live
             and live.count("SAO.WorldSources.observeAt(") >= 2,

@@ -39,8 +39,12 @@ end
 
 -- [B47] One door out. `log` is what happened once; `tally` is
 -- what happens once per person, counted rather than printed.
-local function log(msg) SAO.Log.line("IDENTITY", msg) end
-local function tally(kind) SAO.Log.tally("IDENTITY", kind) end
+local function log(msg)
+    if SAO.Log and SAO.Log.line then SAO.Log.line("IDENTITY", msg) end
+end
+local function tally(kind)
+    if SAO.Log and SAO.Log.tally then SAO.Log.tally("IDENTITY", kind) end
+end
 
 local function store()
     -- ModData.getOrCreate: shipped idiom (forageClient.lua:7).

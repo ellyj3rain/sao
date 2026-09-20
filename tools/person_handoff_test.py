@@ -23,7 +23,8 @@ def source_path(name):
     return LUA.parent / ('shared' if name in SHARED_FILES else 'client') / name
 
 
-FILES = ['SAO_PhysicalFacts.lua', 'SAO_BodySnapshot.lua', 'SAO_Body.lua', 'SAO_Controller.lua',
+FILES = ['SAO_PhysicalFacts.lua', 'SAO_BodySnapshot.lua', 'SAO_Body.lua',
+         'SAO_SourceUse.lua', 'SAO_Controller.lua',
          'SAO_PopulationAdmissions.lua', 'SAO_PopulationRepresentation.lua', 'SAO_DormantPopulation.lua',
          'SAO_Population.lua', 'SAO_Harness.lua',
          'SAO_Age.lua', 'SAO_Drugs.lua', 'SAO_AfflictedReturn.lua',
@@ -34,9 +35,12 @@ Events=setmetatable({}, {__index=function() return {Add=function() end,Remove=fu
 getSpecificPlayer=function() return nil end
 getGameTime=function() return {getMinutesStamp=function() return __minute or 0 end} end
 SandboxVars={ZombieLore={Mortality=5}}
-ISTimedActionQueue={queues={}}
+ISTimedActionQueue={queues={},clear=function() table.insert(__sourceEvents,'queue-clear') end}
 __records={} __logs={} __mode='ok' __remove='ok' __restore='ok' __now=42
-__captures=0 __removed=0 __restored=0 __spawned=0 __forgot=0 __events=0 __accounted=0
+ __captures=0 __removed=0 __restored=0 __spawned=0 __forgot=0 __events=0 __accounted=0
+ __sourceReservation=nil __sourceEvents={} __allowObserve=false __nearestObserved=nil
+__zombieThreat=nil __formedThreat=nil __hostileKey=nil __sourceBusy=false
+__locomotionStatus='moving' __locomotionTicks=0
 SAO={
  Log={line=function(tag,msg) table.insert(__logs,msg) end},
  Identity={all=function() return __records end,
@@ -45,17 +49,76 @@ SAO={
    femaleOf=function() return false end, knownName=function() return nil end,
    beliefKey=function(rec) return rec and rec.id or nil end,
    updatePosition=function(rec,x,y,z) rec.x=x rec.y=y rec.z=z end},
- History={countyHours=function() return __now end},
- Standing={groupOf=function() return nil end,allGroupClaims=function() return {} end,
-   ownsRadio=function() return __radio==true end},
- Disposition={describe=function() return 'test' end},
- Claims={isHeld=function() return false end},
+ History={countyHours=function() return __now end,
+   countyTimeOfDay=function() return 12 end},
+  Standing={groupOf=function() return nil end,allGroupClaims=function() return {} end,
+    ownsRadio=function() return __radio==true end,
+    mayEnterBelieved=function() return true end,
+    mayAttemptBelieved=function() return true end,
+   keyForObserved=function(name) return tostring(name) end,
+   isHostileTo=function(id,key) return tostring(key)==tostring(__hostileKey) end},
+ Disposition={describe=function() return 'test' end,
+   fleeDistance=function() return 4 end},
+  Claims={isHeld=function() return false end},
+  Lessons={desperationBump=function() return 0 end},
+  Places={comfortHorizon=function() return 300 end,
+    commitHorizon=function() return 900 end},
  Census={rowOf=function() return {engineKey='test'} end},
- Locomotion={cancel=function() if __cancelThrow then error('cancel unavailable') end end},
- Perception={forget=function() end,observe=function() error('pending body advanced') end},
+ Locomotion={jobs={},cancel=function(id)
+   if __cancelThrow then error('cancel unavailable') end
+   table.insert(__sourceEvents,'cancel') SAO.Locomotion.jobs[tostring(id)]=nil
+ end,order=function(id,body,x,y,z)
+   table.insert(__sourceEvents,'order')
+   SAO.Locomotion.jobs[tostring(id)]={done=false}
+   return true
+ end,tick=function() __locomotionTicks=__locomotionTicks+1 end,
+ status=function() return __locomotionStatus end},
+ Perception={beliefs={},forget=function() end,
+   observe=function()
+     if not __allowObserve then error('pending body advanced') end
+     table.insert(__sourceEvents,'observe')
+   end,
+   nearestBelievedZombie=function() return __zombieThreat end,
+   believedThreatCount=function() return __zombieThreat and 1 or 0 end,
+   nearestFormedPerson=function() return __formedThreat end},
+ Needs={busy=function() return __sourceBusy end},
  Voice={forget=function() end},
  Rand={int=function() return 0 end},
- PathogenEvents={emit=function() __events=__events+1 end}
+ PathogenEvents={emit=function() __events=__events+1 end},
+  WorldSources={
+   reconcileReservations=function() return 0 end,
+   nearestObserved=function() return __nearestObserved end,
+   beginAction=function(place,category,id,body,quantity,admission)
+     if not __nearestObserved then return nil,'none-observed' end
+     __sourceReservation={id='controller-source-begin',actorId=tostring(id),
+       status='reserved',phase='approaching-place',category=category,
+       placeId=place.id,placeX=place.cx,placeY=place.cy,placeZ=0}
+     __records[tostring(id)].worldSourceReservation=__sourceReservation.id
+     return __sourceReservation
+   end,
+   pendingActionFor=function(id)
+     if __sourceReservation
+       and __sourceReservation.actorId==tostring(id)
+       and (__sourceReservation.status=='reserved'
+         or __sourceReservation.unavailable) then
+       return __sourceReservation
+     end
+   end,
+   release=function(reservationId,reason)
+     if not __sourceReservation
+       or __sourceReservation.id~=reservationId
+       or __sourceReservation.unavailable then return false end
+     __sourceReservation.status='released'
+     __sourceReservation.detail=reason
+     local rec=__records[__sourceReservation.actorId]
+     if rec and rec.worldSourceReservation==reservationId then
+       rec.worldSourceReservation=nil
+     end
+     table.insert(__sourceEvents,'release')
+     __sourceReservation=nil
+     return true
+   end,
+ }
 }
 function __body()
  local b={md={},inventory={},payload='carried',visual='current-look',x=200,y=210,z=0}
@@ -79,6 +142,9 @@ SAOJavaBridge={
  isShell=function() return true end,
  isInventoryOf=function(self,b,reference)
    return type(reference)=='table' and reference.outer==b.inventory
+ end,
+ beginCombatNearest=function()
+   table.insert(__sourceEvents,'combat') return 'COMBAT_STARTED'
  end,
  hibernate=function(self,b)
    __captures=__captures+1
@@ -132,6 +198,11 @@ function __setup()
  __mode='ok' __remove='ok' __restore='ok' __now=42 __cancelThrow=false
  __captures=0 __removed=0 __restored=0 __spawned=0 __forgot=0 __events=0 __logs={}
  __accounted=0 __radio=true
+ __sourceReservation=nil __sourceEvents={} SAO.Locomotion.jobs={}
+ __allowObserve=false __nearestObserved=nil
+ __zombieThreat=nil __formedThreat=nil __hostileKey=nil
+ __sourceBusy=false __locomotionStatus='moving' __locomotionTicks=0
+ SAO.Perception.beliefs={}
  __visualRestore='ok' __visualRestored=0 __expectRestoredVisual=nil
  SAO.Body.active={} SAO.Body.foreign={} SAO.Body.failedRestore={} SAO.Body.discarding={}
  SAO.Controller.agents={} ISTimedActionQueue.queues={}
@@ -327,6 +398,310 @@ do
  assert(SAO.Body.pendingTransitionCount()==2,'pending unbound handle omitted')
 end
 do
+ local r,b=__setup()
+ b.isDead=function() return false end
+ __sourceReservation={id='source-route',actorId='p1',status='reserved',
+   phase='approaching-place'}
+ r.worldSourceReservation=__sourceReservation.id
+ SAO.Locomotion.jobs.p1={done=false}
+ ZAO={Controller={acceptExternal=function() return true end}}
+ assert(SAO.CrossedTransfer.begin('p1',b,'blood:source-route',42),
+   'Crossed transfer did not close source route ownership')
+ assert(r.bodyOwner=='ZAO' and r.worldSourceReservation==nil
+   and SAO.Locomotion.jobs.p1==nil and SAO.Body.canTransfer(b),
+   'source route still made the body busy after closure')
+ assert(__sourceEvents[1]=='cancel' and __sourceEvents[2]=='release',
+   'source route released before its locomotion owner was cancelled')
+end
+do
+ local r,b,a=__setup()
+ __nearestObserved={id='observed-place',cx=220,cy=210,minX=219,minY=209,
+   maxX=222,maxY=212}
+ local started=__beginObservedUse('p1',a,b,0.8,'food',0.5)
+ assert(started and __sourceReservation
+   and SAO.Locomotion.jobs.p1 and __sourceEvents[1]=='order',
+   'controller did not begin the exact observed-source route')
+ assert(__setState(a,'p1','SOURCEWARD','approaches observed food')
+   and a.state=='SOURCEWARD' and __sourceReservation
+   and r.worldSourceReservation=='controller-source-begin'
+   and SAO.Locomotion.jobs.p1 and #__sourceEvents==1,
+   'initial SOURCEWARD projection cancelled its own durable action')
+end
+do
+ local r,b,a=__setup()
+ __sourceReservation={id='order-travel',actorId='p1',status='reserved',
+   phase='approaching-place'}
+ r.worldSourceReservation=__sourceReservation.id
+ SAO.Locomotion.jobs.p1={done=false}
+ assert(SAO.Controller.orderTravel('p1',220,210,0)
+   and a.state=='TRAVEL','stale source projection blocked lawful travel close')
+ assert(__sourceEvents[1]=='cancel' and __sourceEvents[2]=='release'
+   and __sourceEvents[3]=='order',
+   'travel began before durable source ownership closed')
+end
+do
+ local r,b,a=__setup()
+ __sourceReservation={id='internal-mourn-route',actorId='p1',status='reserved',
+   phase='approaching-place'}
+ r.worldSourceReservation=__sourceReservation.id
+ SAO.Locomotion.jobs.p1={done=false}
+ assert(__orderTravelState(a,'p1',b,230,210,0,'MOURNWARD',
+   'witness route') and a.state=='MOURNWARD',
+   'internal cross-agent travel did not use the guarded route primitive')
+ assert(__sourceEvents[1]=='cancel' and __sourceEvents[2]=='release'
+   and __sourceEvents[3]=='order',
+   'internal travel replaced source locomotion before ownership closed')
+end
+do
+ local r,b,a=__setup()
+ __sourceReservation={id='harness-travel',actorId='p1',status='reserved',
+   phase='approaching-place'}
+ r.worldSourceReservation=__sourceReservation.id
+ SAO.Locomotion.jobs.p1={done=false}
+ assert(__harnessTravel('p1',225,210,0) and a.state=='TRAVEL',
+   'Harness travel did not enter the guarded Controller route')
+ assert(__sourceEvents[1]=='cancel' and __sourceEvents[2]=='release'
+   and __sourceEvents[3]=='order',
+   'Harness route replaced source locomotion before ownership closed')
+end
+do
+ local r,b,a=__setup()
+ __sourceReservation={id='order-engage',actorId='p1',status='reserved',
+   phase='approaching-place'}
+ r.worldSourceReservation=__sourceReservation.id
+ SAO.Locomotion.jobs.p1={done=false}
+ local bodyBeforeEngage=SAO.Body.get('p1')
+ local engaged=SAO.Controller.orderEngageNearest('p1',true)
+ assert(engaged and a.state=='ENGAGE',
+   'stale source projection blocked lawful combat close: ordered='
+     ..tostring(engaged)..' state='..tostring(a.state)
+     ..' events='..table.concat(__sourceEvents,',')
+     ..' active='..tostring(SAO.Body.active.p1==b)
+     ..' bodyBefore='..tostring(bodyBeforeEngage==b)
+     ..' transitioning='..tostring(SAO.Body.isTransitioning(r))
+     ..' logs='..table.concat(__logs,'|'))
+ assert(__sourceEvents[1]=='cancel' and __sourceEvents[2]=='release'
+   and __sourceEvents[3]=='combat',
+   'combat began before durable source ownership closed')
+end
+do
+ local r,b,a=__setup()
+ b.isDead=function() return false end __allowObserve=true
+ __sourceReservation={id='projection-route',actorId='p1',status='reserved',
+   phase='approaching-place',placeX=220,placeY=210,placeZ=0}
+ r.worldSourceReservation=__sourceReservation.id
+ a.state='ROAM' a.taskDeadline=99999
+ __update('p1',a)
+ assert(a.state=='SOURCEWARD' and __sourceEvents[1]=='observe'
+   and __sourceEvents[2]=='order',
+   'non-IDLE projection did not reconstruct durable source route')
+end
+do
+ local r,b,a=__setup()
+ b.isDead=function() return false end
+ __sourceReservation={id='future-source',actorId='p1',status='unavailable',
+   phase='unavailable',unavailable=true}
+ r.worldSourceReservation=__sourceReservation.id
+ a.state='SOURCEWARD' a.taskDeadline=99999 a.passive=true
+ __update('p1',a)
+ assert(a.state=='SOURCEWARD' and r.worldSourceReservation=='future-source'
+   and __locomotionTicks==0 and a.nextDecisionAt==0
+   and #__sourceEvents==0 and not SAO.Body.canTransfer(b),
+   'opaque future source owner failed open across Controller or Body')
+end
+for _,opaque in ipairs({false,true}) do
+ local r,b,a=__setup()
+ SAO.Body.active.p1=nil SAO.Controller.agents.p1=nil
+ r.homeX=190 r.homeY=195 r.x=190 r.y=195 r.nextDormantMoveAt=77
+ __sourceReservation={id=opaque and 'future-dormant' or 'live-dormant',
+   actorId='p1',status=opaque and 'unavailable' or 'reserved',
+   phase=opaque and 'unavailable' or 'transferring',unavailable=opaque or nil}
+ r.worldSourceReservation=__sourceReservation.id
+ SAO.DormantPopulation.dormantLife({},100)
+ SAO.DormantPopulation.dormantAttrition(100)
+ assert(r.x==190 and r.y==195 and r.nextDormantMoveAt==77
+   and r.lastWaterDay==nil and r.lastFoodDay==nil and r.lastRiskDay==nil
+   and not r.dead and r.worldSourceReservation==__sourceReservation.id,
+   'dormant approximation mutated a source-owned actor')
+end
+do
+ __setup()
+ SAO.Body.active={} SAO.Controller.agents={}
+ __records={
+   p1={id='p1',x=100,y=100,homeX=100,homeY=100},
+   p2={id='p2',x=101,y=100,homeX=101,homeY=100},
+ }
+ __sourceReservation={id='whole-dormant-owner',actorId='p1',
+   status='reserved',phase='transferring'}
+ __records.p1.worldSourceReservation=__sourceReservation.id
+ local oldGroupOf=SAO.Standing.groupOf
+ local oldGroupSize=SAO.Standing.groupSize
+ local oldMembersOf=SAO.Standing.membersOf
+ local oldGroupClaimOf=SAO.Standing.groupClaimOf
+ local oldSetGroupClaim=SAO.Standing.setGroupClaim
+ local oldSetLarder=SAO.Standing.setLarder
+ local oldSetWaterStore=SAO.Standing.setWaterStore
+ local oldSetHearth=SAO.Standing.setHearth
+ local oldReturnsOf=SAO.Perception.returnsOf
+ local effects=0
+ SAO.Standing.groupOf=function() return 'g' end
+ SAO.Standing.groupSize=function() return 2 end
+ SAO.Standing.membersOf=function() return {'p1','p2'} end
+ SAO.Standing.groupClaimOf=function() return nil end
+ SAO.Standing.setGroupClaim=function() effects=effects+1 end
+ SAO.Standing.setLarder=function() effects=effects+1 end
+ SAO.Standing.setWaterStore=function() effects=effects+1 end
+ SAO.Standing.setHearth=function() effects=effects+1 end
+ SAO.Perception.returnsOf=function() effects=effects+1 return {} end
+ SAO.DormantPopulation.dormantSettle()
+ SAO.Standing.groupClaimOf=function()
+   return {minX=90,minY=90,maxX=110,maxY=110}
+ end
+ SAO.DormantPopulation.dormantProvision()
+ SAO.DormantPopulation.rebindWorld()
+ SAO.DormantPopulation.dormantEncounters(100)
+ assert(effects==0 and __records.p1.x==100 and __records.p2.x==101,
+   'source-owned dormant actor settled, provisioned, or encountered')
+ SAO.Standing.groupOf=oldGroupOf
+ SAO.Standing.groupSize=oldGroupSize
+ SAO.Standing.membersOf=oldMembersOf
+ SAO.Standing.groupClaimOf=oldGroupClaimOf
+ SAO.Standing.setGroupClaim=oldSetGroupClaim
+ SAO.Standing.setLarder=oldSetLarder
+ SAO.Standing.setWaterStore=oldSetWaterStore
+ SAO.Standing.setHearth=oldSetHearth
+ SAO.Perception.returnsOf=oldReturnsOf
+end
+do
+ local r,b,a=__setup()
+ b.isDead=function() return false end __allowObserve=true __sourceBusy=true
+ __sourceReservation={id='projection-transfer',actorId='p1',status='reserved',
+   phase='transferring'}
+ r.worldSourceReservation=__sourceReservation.id
+ a.state='SOURCEWARD' a.taskDeadline=99999
+ __update('p1',a)
+ assert(a.state=='SOURCEUSE' and __sourceReservation.phase=='transferring'
+   and __locomotionTicks==0,
+   'durable transfer phase was re-run as SOURCEWARD movement')
+end
+do
+ local r,b,a=__setup()
+ b.isDead=function() return false end __allowObserve=true
+ __sourceReservation={id='route-hold',actorId='p1',status='reserved',
+   phase='approaching-place'}
+ r.worldSourceReservation=__sourceReservation.id
+ SAO.Locomotion.jobs.p1={done=false}
+ a.state='SOURCEWARD' a.taskDeadline=99999
+ __update('p1',a)
+ assert(a.state=='SOURCEWARD' and __locomotionTicks==1
+   and __sourceReservation~=nil,
+   'SOURCEWARD fell through to another action producer')
+end
+for _,kind in ipairs({'hostile','formed'}) do
+ local r,b,a=__setup()
+ b.isDead=function() return false end __allowObserve=true
+ __sourceReservation={id='route-threat-'..kind,actorId='p1',status='reserved',
+   phase='approaching-place'}
+ r.worldSourceReservation=__sourceReservation.id
+ SAO.Locomotion.jobs.p1={done=false}
+ a.state='SOURCEWARD' a.taskDeadline=99999
+ if kind=='hostile' then
+   __hostileKey='Enemy'
+   SAO.Perception.beliefs.p1={people={Enemy={at=0,x=201,y=210,
+     dist=1,source='observed'}}}
+ else
+   __formedThreat={x=201,y=210,dist=1,fromPerson=true}
+ end
+ __update('p1',a)
+ assert(a.state=='ALERT' and __sourceReservation==nil
+   and __sourceEvents[2]=='cancel' and __sourceEvents[3]=='release',
+   kind..' threat did not close source ownership before response')
+end
+do
+ local r,b,a=__setup()
+ b.isDead=function() return true end __allowObserve=true
+ __sourceReservation={id='route-death',actorId='p1',status='reserved',
+   phase='approaching-place'}
+ r.worldSourceReservation=__sourceReservation.id
+ SAO.Locomotion.jobs.p1={done=false}
+ a.state='SOURCEWARD' a.taskDeadline=99999
+ __update('p1',a)
+ assert(r.dead and SAO.Controller.agents.p1==nil
+   and __sourceReservation==nil and SAO.Locomotion.jobs.p1==nil
+   and __locomotionTicks==0,
+   'death during SOURCEWARD advanced or stranded source ownership')
+end
+do
+ local r,b,a=__setup()
+ b.isDead=function() return true end
+ r.crossedTransferPending={token='crossed:dead-source',atHours=42}
+ __sourceReservation={id='dead-crossed-source',actorId='p1',status='reserved',
+   phase='approaching-place'}
+ r.worldSourceReservation=__sourceReservation.id
+ SAO.Locomotion.jobs.p1={done=false}
+ __update('p1',a)
+ assert(r.dead and not r.bodyOwner and not r.crossedTransferPending
+   and not r.bodyTransfer and __sourceReservation==nil
+   and SAO.Controller.agents.p1==nil,
+   'dead active shell transferred while source reconciliation was pending')
+end
+do
+ local r,b,a=__setup()
+ b.isDead=function() return true end
+ r.crossedTransferPending={token='crossed:dead-captured',atHours=42}
+ r.bodyTransfer={version=1,owner='ZAO',token='crossed:dead-captured',
+   phase='captured',captured={opaque='captured-living-state'}}
+ __update('p1',a)
+ assert(r.dead and not r.bodyOwner and not r.crossedTransferPending
+   and not r.bodyTransfer and SAO.Controller.agents.p1==nil,
+   'captured handoff published an engine-dead active shell')
+end
+do
+ local r,b=__setup()
+ b.isDead=function() return true end
+ r.crossedTransferPending={token='crossed:direct-dead',atHours=42}
+ r.bodyTransfer={version=1,owner='ZAO',token='crossed:direct-dead',
+   phase='captured',captured={opaque='captured-living-state'}}
+ local ok,why=SAO.CrossedTransfer.resume(r)
+ assert(not ok and why=='person-dead' and not r.bodyOwner
+   and not r.crossedTransferPending and not r.bodyTransfer,
+   'Crossed retry committed a captured engine-dead shell')
+end
+do
+ local r,b,a=__setup()
+ local close=SAO.SourceUse.closeForOwnershipTransfer
+ SAO.SourceUse.closeForOwnershipTransfer=function() return false end
+ assert(not SAO.Controller.drop('p1') and SAO.Controller.agents.p1==a,
+   'fault drop deleted the only pending source executor')
+ SAO.SourceUse.closeForOwnershipTransfer=close
+ assert(SAO.Controller.drop('p1') and SAO.Controller.agents.p1==nil,
+   'controller could not drop after source ownership closed')
+end
+do
+ local r,b,a=__setup()
+ b.isDead=function() return false end __allowObserve=true
+ __sourceReservation={id='crossed-retry',actorId='p1',status='reserved',
+   phase='native-complete'}
+ r.worldSourceReservation=__sourceReservation.id
+ r.crossedTransferPending={token='crossed:controller-retry',atHours=42}
+ ZAO={Controller={acceptExternal=function() return true end}}
+ local close=SAO.SourceUse.closeForOwnershipTransfer
+ local terminal=false
+ SAO.SourceUse.closeForOwnershipTransfer=function()
+   if not terminal then return false end
+   __sourceReservation=nil r.worldSourceReservation=nil
+   SAO.Locomotion.jobs.p1=nil
+   return true
+ end
+ __update('p1',a)
+ assert(r.bodyOwner==nil and r.crossedTransferPending,
+   'Crossed handoff ignored pending source reconciliation')
+ terminal=true __update('p1',a)
+ SAO.SourceUse.closeForOwnershipTransfer=close
+ assert(r.bodyOwner=='ZAO' and r.crossedTransferPending==nil,
+   'controller did not trigger Crossed handoff after source terminal')
+end
+do
  local r,b,a=__setup()
  b.isDead=function() return false end
  local accepted=0
@@ -478,11 +853,15 @@ def instrument(name, source):
         return ('local Identity=SAO.Identity\nlocal function log() end\n'
                 'function Identity.markDead(' + body + '\nend\n')
     if name == 'SAO_Controller.lua':
-        return source.replace('return Ctl\n', '__update=updateAgent\nreturn Ctl\n')
+        return source.replace('return Ctl\n',
+                '__update=updateAgent __orderTravelState=orderTravelState '
+                '__beginObservedUse=beginObservedUse __setState=setState\nreturn Ctl\n')
     if name == 'SAO_PopulationRepresentation.lua':
         return source.replace('return R\n', '__band=materializeBand\nreturn R\n')
     if name == 'SAO_Harness.lua':
-        return source + '\n__release=release __forget=forget __rematerialize=rematerialize\n'
+        return (source + '\n__release=release __forget=forget '
+                '__rematerialize=rematerialize '
+                '__harnessTravel=orderCommandTravel\n')
     if name == 'SAO_Age.lua':
         return source.replace('return Age\n', '__age=everyTenMinutes\nreturn Age\n')
     if name == 'SAO_Drugs.lua':
@@ -565,10 +944,10 @@ def main():
             ('SAO_Harness.lua','if not ok then log("forget refused: " .. tostring(reason)) return end',
              'if not ok then log("forget refused: " .. tostring(reason)) end',
              'failed clear orphaned person'),
-            ('SAO_Controller.lua','if SAO.Body.isTransitioning(agent.rec) then return end',
-             '', 'pending body advanced'),
-            ('SAO_Controller.lua','if agent.rec.crossedTransferPending then return end',
-             '', 'pending Crossed body advanced'),
+            ('SAO_Controller.lua','if SAO.Body.isTransitioning(agent.rec) and not crossedPending then return end',
+             'if false then return end', 'pending body advanced'),
+            ('SAO_Controller.lua','if agent.rec.crossedTransferPending then',
+             'if false then', 'pending Crossed body advanced'),
             ('SAO_Age.lua','if rec and not SAO.Body.isTransitioning(rec) then',
              'if rec then', 'age mutated pending body'),
             ('SAO_Drugs.lua','if SAO.Body.isTransitioning(SAO.Identity.get(id)) then return end',
@@ -603,7 +982,10 @@ def main():
             if expected=='saved pending release lost':
                 reasons+=['pending capture not separate','pending body remained available or became dormant']
             if expected=='busy conversion was not retried from durable pending state':
-                reasons+=['busy conversion reported all retries complete']
+                reasons+=['busy conversion reported all retries complete',
+                           'controller did not trigger Crossed handoff after source terminal']
+            if expected=='pending Crossed body advanced':
+                reasons+=['controller did not trigger Crossed handoff after source terminal']
             rejected=result.startswith('ERROR ') and any(x in result for x in reasons)
             print('CONTROL '+expected+': '+('REJECTED ' if rejected else 'SURVIVED ')+result)
             if not rejected: faults.append(expected)

@@ -264,11 +264,26 @@ end
 function Ctl.drop(id)
     id = tostring(id)
     if Ctl.agents[id] then
+        local body = SAO.Body and SAO.Body.get and SAO.Body.get(id) or nil
+        if SAO.SourceUse and SAO.SourceUse.closeForOwnershipTransfer then
+            local okClose, closed = pcall(
+                SAO.SourceUse.closeForOwnershipTransfer,
+                id, body, "controller-drop")
+            if not okClose or closed ~= true then
+                log("kept " .. id
+                    .. " while exact source reconciliation remains pending")
+                return false, "source-action-pending"
+            end
+        end
+        if SAO.SourceUse and SAO.SourceUse.detach then
+            pcall(SAO.SourceUse.detach, body)
+        end
         local ok, err = pcall(SAO.Locomotion.cancel, id)
         Ctl.agents[id] = nil
         if not ok then log("cancel during drop " .. id .. ": " .. tostring(err)) end
         log("dropped " .. id)
     end
+    return true
 end
 
 local setStateRef
@@ -371,6 +386,7 @@ end
 local MOVEMENT_STATES = {
     TRAVEL = true, FLEE = true, ROAM = true, HOMEWARD = true,
     FORAGE = true, WATERWARD = true, GEARWARD = true, FOLLOW = true,
+    SOURCEWARD = true,
     AMMOWARD = true, MOURNWARD = true, PLAYERFOLLOW = true,
     SETTLEWARD = true, MEDICWARD = true, SEARCHWARD = true,
     HEARTHWARD = true,
@@ -399,6 +415,7 @@ local MOVEMENT_STATES = {
 local PRESSURE_ANSWER = {
     FLEE = "need", TREAT = "need", RIP = "need", EAT = "need",
     TAKE = "need", DRINK = "need", WATERWARD = "need", FORAGE = "need",
+    SOURCEWARD = "need", SOURCEUSE = "need",
     RELOAD = "need", AMMOWARD = "need", SMOKE = "need",
     MOURNWARD = "need", MOURNING = "need", MEDICWARD = "need",
     SEARCHWARD = "need", HEARTHWARD = "need", WARMING = "need",
@@ -570,7 +587,17 @@ local function tryCry(id, agent, body, tick)
     return true
 end
 
-local function setState(agent, id, state, why, answer)
+local function setState(agent, id, state, why, answer, repairingSourceProjection)
+    if agent.state ~= state and not repairingSourceProjection then
+        local sourceBody = SAO.Body.get(id)
+        if SAO.SourceUse and SAO.SourceUse.beforeStateChange
+            and SAO.SourceUse.beforeStateChange(id, sourceBody, agent.state,
+                state, why) == false then
+            log(id .. " keeps " .. agent.state
+                .. " while exact source reconciliation is pending")
+            return false
+        end
+    end
     agent.pressure = {
         answer = answer or PRESSURE_ANSWER[state] or "errand",
         detail = why or string.lower(tostring(state)),
@@ -639,14 +666,45 @@ local function setState(agent, id, state, why, answer)
             end
         end
     end
+    return true
 end
 setStateRef = setState
+
+-- A route and its controller state are one ownership change. Close any
+-- durable exact-source action before Locomotion receives the replacement
+-- route; otherwise setState's later preflight would correctly cancel the
+-- source action and accidentally cancel the brand-new route with it.
+local function orderTravelState(agent, id, body, x, y, z, state, why, answer)
+    id = tostring(id)
+    if SAO.SourceUse and SAO.SourceUse.beforeStateChange
+        and SAO.SourceUse.beforeStateChange(id, body, agent.state,
+            state, why) == false then
+        return false
+    end
+    if not SAO.Locomotion.order(id, body, x, y, z) then
+        if agent.state == "SOURCEWARD" or agent.state == "SOURCEUSE" then
+            setState(agent, id, "IDLE", "replacement route refused")
+        end
+        return false
+    end
+    if not setState(agent, id, state, why, answer) then
+        SAO.Locomotion.cancel(id)
+        return false
+    end
+    return true
+end
 
 function Ctl.orderEngageNearest(id, live)
     local agent = Ctl.agents[tostring(id)]
     if not agent then log("orderEngage: unknown agent " .. tostring(id)) return false end
     local body = SAO.Body.get(id)
     if not body then log("orderEngage: no active body") return false end
+    if SAO.SourceUse and SAO.SourceUse.beforeStateChange
+        and SAO.SourceUse.beforeStateChange(tostring(id), body, agent.state,
+            "ENGAGE", "operator order") == false then
+        log("orderEngage: exact source reconciliation is still pending")
+        return false
+    end
     local ok, verdict = pcall(function()
         return SAOJavaBridge:beginCombatNearest(body, live and true or false)
     end)
@@ -657,6 +715,9 @@ function Ctl.orderEngageNearest(id, live)
         setState(agent, tostring(id), "ENGAGE", "operator order")
         return true
     end
+    if agent.state == "SOURCEWARD" or agent.state == "SOURCEUSE" then
+        setState(agent, tostring(id), "IDLE", "operator combat refused")
+    end
     return false
 end
 
@@ -665,11 +726,12 @@ function Ctl.orderTravel(id, x, y, z)
     if not agent then log("orderTravel: unknown agent " .. tostring(id)) return false end
     local body = SAO.Body.get(id)
     if not body then log("orderTravel: no active body for " .. tostring(id)) return false end
-    if SAO.Locomotion.order(id, body, x, y, z) then
-        setState(agent, tostring(id), "TRAVEL", "operator order")
-        return true
+    local ordered = orderTravelState(agent, id, body, x, y, z,
+        "TRAVEL", "operator order")
+    if not ordered then
+        log("orderTravel: source reconciliation or route order refused")
     end
-    return false
+    return ordered
 end
 
 -- ---------------------------------------------------------------------------
@@ -709,31 +771,7 @@ local function rainingNow()
 end
 
 local function mayEnterBelieved(id, x, y)
-    if SAO.Standing.insideClaim(id, x, y) then
-        return true
-    end
-    local owner = SAO.Perception.believesClaimed(id, x, y)
-    if not owner then
-        return true   -- innocent: nothing known against it
-    end
-    -- Passage rights ([A26]): a pact means allies walk each other's
-    -- ground - the bread gets delivered, the watch walks the wall.
-    -- War opens it too ([A27]): a feud makes the enemy's ground
-    -- enterable for the raiding house - group hostility, not only the
-    -- personal kind, is admission.
-    local myG = SAO.Standing.groupOf(id)
-    if myG then
-        local og = SAO.Standing.groupOf(owner) or owner
-        if og and SAO.Standing.pactBetween
-            and SAO.Standing.pactBetween(myG, og) then
-            return true
-        end
-        if og and SAO.Standing.feudBetween(myG, og) then
-            return true
-        end
-    end
-    return SAO.Standing.isHostileTo(id, owner)
-        or SAO.Standing.isHostileTo(owner, id)
+    return SAO.Standing.mayEnterBelieved(id, x, y)
 end
 
 -- [B20] Resolve a body for ANY standing key, the player's included.
@@ -796,6 +834,36 @@ local function nearestHostilePerson(id, tick, fromX, fromY)
     return nil
 end
 
+-- One read-only threat selection serves both ordinary decisions and action
+-- ownership holds. Hunger and thirst may not hide a hostile or formed person
+-- merely because the nearest-zombie reader returned nothing.
+local function selectedThreat(id, tick, bodyX, bodyY)
+    local threat = SAO.Perception.nearestBelievedZombie(
+        id, tick, bodyX, bodyY)
+    local threatCount = SAO.Perception.believedThreatCount(
+        id, tick, 10, bodyX, bodyY)
+    local hostile, hostileName, hostileKey = nearestHostilePerson(
+        id, tick, bodyX, bodyY)
+    local governingPerson, governingPersonKey = nil, nil
+    if hostile and (not threat or hostile.dist < threat.dist) then
+        threat = hostile
+        threatCount = math.max(threatCount, 1)
+        governingPerson, governingPersonKey = hostileName, hostileKey
+    end
+    if not governingPerson and SAO.Perception.nearestFormedPerson then
+        local formed = nil
+        pcall(function()
+            formed = SAO.Perception.nearestFormedPerson(
+                id, tick, bodyX, bodyY)
+        end)
+        if formed and (not threat or formed.dist < threat.dist) then
+            threat = formed
+            threatCount = math.max(threatCount, 1)
+        end
+    end
+    return threat, threatCount, governingPerson, governingPersonKey
+end
+
 -- [C25/R10a] The knowledge step (DR-027). The probe is what a body
 -- NOTICES; a person's private place beliefs are what they KNOW. When
 -- nothing is in sight, need reaches for the nearest place where that
@@ -837,6 +905,43 @@ local function knownSource(id, body, needValue, offer)
     log(id .. " knows a place with " .. offer .. " and sets out"
         .. (committed and " (committed)" or ""))
     return place.cx, place.cy, 0
+end
+
+-- [C62] An observed source is motive for an access attempt, not proof of
+-- availability. The controller applies the same need, ration and claim law as
+-- a loaded source; SourceUse then owns the exact reservation and performed
+-- action. Returns true only after a durable reservation and place route exist.
+local function beginObservedUse(id, agent, body, needValue, category, rationBar)
+    if not (SAO.SourceUse and SAO.WorldSources
+        and SAO.WorldSources.nearestObserved) then return false, "unavailable" end
+    local bx, by = body:getX(), body:getY()
+    local desperation = policy().desperation
+        + SAO.Lessons.desperationBump(id)
+    local committed = needValue >= desperation
+    local horizon = committed and SAO.Places.commitHorizon()
+        or SAO.Places.comfortHorizon()
+    local place = SAO.WorldSources.nearestObserved(id, bx, by,
+        category, horizon)
+    if not place then return false, "none-observed" end
+
+    if category == "food" then
+        local group = SAO.Standing.groupOf(id)
+        local rec = agent and agent.rec or nil
+        if group and SAO.Standing.rationPolicyOf(group) == "watch-first"
+            and rec and rec.designation ~= "watch"
+            and SAO.Standing.insideClaim(id, place.cx, place.cy)
+            and needValue < (rationBar or 0) + 0.10
+            and needValue < policy().desperation then
+            return false, "watch-first"
+        end
+    end
+
+    local admission = "standing"
+    if not mayEnterBelieved(id, place.cx, place.cy) then
+        if not committed then return false, "standing-refused" end
+        admission = "desperate"
+    end
+    return SAO.SourceUse.begin(id, body, place, category, admission)
 end
 
 -- Each decision phase returns true only when it consumed the decision.
@@ -1300,8 +1405,23 @@ local function decideNeedsAndCompanion(id, agent, body, tick, needs)
             end
             if not agent.nextWaterAt or tick >= agent.nextWaterAt then
                 local wx, wy, wz = SAO.Needs.findWater(id, body)
-                -- [C25] Nothing in sight: the nearest KNOWN water.
+                -- [C62] A prior exact observation first earns a live access
+                -- attempt. It cannot enter the old direct-drink path until a
+                -- route, permission, exact transfer and native use succeed.
                 if not wx then
+                    local started, why = beginObservedUse(id, agent, body,
+                        needs.thirst, "water")
+                    if started then
+                        agent.taskDeadline = tick + 5400
+                        setState(agent, id, "SOURCEWARD",
+                            string.format("thirst %.2f: approaches observed water",
+                                needs.thirst))
+                        return true
+                    elseif why == "standing-refused" then
+                        log(id .. " will not enter the observed water place")
+                    end
+                    -- [C25] Sources already proved accessible retain their
+                    -- direct known-place route.
                     wx, wy, wz = knownSource(id, body, needs.thirst, "water")
                 end
                 if wx and needs.thirst < policy().desperation + SAO.Lessons.desperationBump(id)
@@ -1350,8 +1470,24 @@ local function decideNeedsAndCompanion(id, agent, body, tick, needs)
             end
             if not agent.nextForageAt or tick >= agent.nextForageAt then
                 local fx, fy, fz, fname = SAO.Needs.findSource(id, body)
-                -- [C25] Nothing in sight: the nearest KNOWN food.
+                -- [C62] A private exact observation starts the actor-specific
+                -- access/use lifecycle; it is not promoted to availability.
                 if not fx then
+                    local started, why = beginObservedUse(id, agent, body,
+                        needs.hunger, "food", eatBar)
+                    if started then
+                        agent.taskDeadline = tick + 5400
+                        setState(agent, id, "SOURCEWARD",
+                            string.format("hunger %.2f: approaches observed food",
+                                needs.hunger))
+                        return true
+                    elseif why == "watch-first" then
+                        log(id .. " waits on the observed stores - the watch eats first")
+                    elseif why == "standing-refused" then
+                        log(id .. " will not enter the observed food place")
+                    end
+                    -- [C25] Sources whose access was already proved keep the
+                    -- older known-place route.
                     fx, fy, fz = knownSource(id, body, needs.hunger, "food")
                     if fx then fname = "a place they know" end
                 end
@@ -2728,13 +2864,12 @@ local function decideRestActivity(id, agent, body, tick, idleRec)
                                 local ody = ob43:getY() - body:getY()
                                 local od2 = odx * odx + ody * ody
                                 if od2 > 16.0 and od2 <= 196.0 then
-                                    if SAO.Locomotion.order(oid43, ob43,
+                                    if orderTravelState(oag43, oid43, ob43,
                                         math.floor(body:getX()),
                                         math.floor(body:getY()),
-                                        math.floor(body:getZ())) then
-                                        setState(oag43, oid43, "ROAM",
-                                            "drawn by the " .. what,
-                                            "chosen rest")
+                                        math.floor(body:getZ()), "ROAM",
+                                        "drawn by the " .. what,
+                                        "chosen rest") then
                                         came43 = came43 + 1
                                     end
                                 elseif od2 <= PORCH_REACH * PORCH_REACH then
@@ -2984,15 +3119,14 @@ local function decideLocalResources(id, agent, body, tick, idleRec)
                 local mdx = deadRec.x - body:getX()
                 local mdy = deadRec.y - body:getY()
                 if mdx * mdx + mdy * mdy <= 1600.0
-                    and SAO.Locomotion.order(id, body,
+                    and orderTravelState(agent, id, body,
                         math.floor(deadRec.x), math.floor(deadRec.y),
-                        math.floor(body:getZ())) then
+                        math.floor(body:getZ()), "MOURNWARD",
+                        "visits where " .. tostring(deadRec.forename
+                            or deadId) .. " fell", "chosen rest") then
                     agent.mournTarget = deadId
                     agent.mournName = deadRec.forename or deadId
                     agent.taskDeadline = tick + 1800
-                    setState(agent, id, "MOURNWARD",
-                        "visits where " .. tostring(deadRec.forename
-                            or deadId) .. " fell", "chosen rest")
                     return true
                 end
             end
@@ -4969,39 +5103,8 @@ local function decide(id, agent, body)
             agent.pressure.graph = graph.pressure
         end
     end
-    local threat = SAO.Perception.nearestBelievedZombie(id, tick, bodyX, bodyY)
-    local threatCount = SAO.Perception.believedThreatCount(id, tick, 10, bodyX, bodyY)
-
-    -- A believed hostile PERSON is a threat like any other; if both exist the
-    -- nearer belief governs. Permission asymmetry is Standing's, not ours.
-    local hostile, hostileName, hostileKey = nearestHostilePerson(id, tick, bodyX, bodyY)
-    local governingPerson, governingPersonKey = nil, nil
-    if hostile and (not threat or hostile.dist < threat.dist) then
-        threat = hostile
-        threatCount = math.max(threatCount, 1)
-        governingPerson, governingPersonKey = hostileName, hostileKey
-    end
-
-    -- [C116] A believed FORMED person - a living neighbor carrying the
-    -- residue - presses the same nerve the dead do. They are marked
-    -- fromPerson so no engage branch mistakes them for a zombie (the
-    -- strips are the gates' below), and a hostile person still
-    -- governs first: an enemy is an enemy before they are shaped like
-    -- anything. What this adds is the fear - the flee threshold and
-    -- the pressure read them, and the county's answer to what it sees
-    -- is to keep its distance, which is what [MUTATION.md] says the
-    -- living do.
-    if not governingPerson and SAO.Perception.nearestFormedPerson then
-        local formed = nil
-        pcall(function()
-            formed = SAO.Perception.nearestFormedPerson(
-                id, tick, bodyX, bodyY)
-        end)
-        if formed and (not threat or formed.dist < threat.dist) then
-            threat = formed
-            threatCount = math.max(threatCount, 1)
-        end
-    end
+    local threat, threatCount, governingPerson, governingPersonKey =
+        selectedThreat(id, tick, bodyX, bodyY)
 
     if decideThreat(id, agent, body, tick, threat, threatCount, governingPerson, governingPersonKey) then return end
     -- No actionable threat beliefs.
@@ -5289,15 +5392,14 @@ local function witnessDeath(id, agent, body)
                 if not witness.passive
                     and (witness.state == "IDLE" or witness.state == "ROAM") then
                     local wbody = SAO.Body.get(witnessId)
-                    if wbody and SAO.Locomotion.order(witnessId, wbody,
+                    if wbody and orderTravelState(witness, witnessId, wbody,
                         math.floor(dxs), math.floor(dys),
-                        math.floor(wbody:getZ())) then
+                        math.floor(wbody:getZ()), "MOURNWARD",
+                        "walks to where "
+                            .. tostring(victimName or id) .. " lies") then
                         witness.mournTarget = id
                         witness.mournName = victimName or id
                         witness.taskDeadline = tickCount + 1800
-                        setState(witness, witnessId, "MOURNWARD",
-                            "walks to where "
-                            .. tostring(victimName or id) .. " lies")
                         routed = true
                     end
                 end
@@ -5364,6 +5466,7 @@ local function updateMovement(id, agent, body)
     -- Locomotion verdicts drive state exits for movement states.
     if agent.state == "TRAVEL" or agent.state == "FLEE" or agent.state == "ROAM"
         or agent.state == "HOMEWARD" or agent.state == "FORAGE"
+        or agent.state == "SOURCEWARD"
         or agent.state == "FOLLOW" or agent.state == "WATERWARD"
         or agent.state == "GEARWARD" or agent.state == "AMMOWARD"
         or agent.state == "MOURNWARD" or agent.state == "PLAYERFOLLOW"
@@ -5470,6 +5573,21 @@ local function updateMovement(id, agent, body)
                 else
                     agent.batterTries = 0
                 end
+            end
+            if agent.state == "SOURCEWARD" then
+                local verdict = SAO.SourceUse.onMovementDone(id, body, s)
+                if verdict == "moving" then return true end
+                if verdict == "using" then
+                    agent.taskDeadline = tickCount + 2400
+                    setState(agent, id, "SOURCEUSE",
+                        "at the exact source, performing native use")
+                    return true
+                end
+                agent.nextWaterAt = tickCount + 600
+                agent.nextForageAt = tickCount + 600
+                setState(agent, id, "IDLE",
+                    "observed source action ended: " .. tostring(verdict))
+                return true
             end
             -- The forager's haul ([A28]): a sweep that ARRIVES
             -- somewhere actually collects - real food out of the real
@@ -5962,33 +6080,27 @@ local function updateMovement(id, agent, body)
 end
 
 local function updateAgent(id, agent)
-    -- A completed Crossed result quiesces new survivor decisions while an
-    -- already-running body action reaches a safe ownership boundary.
-    if agent.rec.crossedTransferPending then return end
-    if SAO.Body.isTransitioning(agent.rec) then return end
-    local body = SAO.Body.get(id)
-    if not body then return end
-
-    -- [C123] Horse riding belongs to the optional Horse Mod. Its own
-    -- mount pair, animation flag and engine animal id say when somebody
-    -- is mounted; while that pair holds, no foot route competes with it.
-    -- SAO does not queue a mount: the mod's supported entry is local
-    -- player input, and a shell mount has no live receipt.
-    if SAO.Animals and SAO.Animals.mountedHorse then
-        local mount = nil
-        pcall(function() mount = SAO.Animals.mountedHorse(body) end)
-        if mount then
-            if not agent.horseRiding then
-                log(id .. " rides horse " .. tostring(mount.animalId)
-                    .. " through Horse Mod")
-            end
-            agent.horseRiding = mount
-            return
+    local pendingSource = SAO.WorldSources and SAO.WorldSources.pendingActionFor
+        and SAO.WorldSources.pendingActionFor(id) or nil
+    local crossedPending = agent.rec.crossedTransferPending ~= nil
+    if SAO.Body.isTransitioning(agent.rec) and not crossedPending then return end
+    local body = nil
+    -- A captured Crossed handoff is a Body transition, so the public getter
+    -- intentionally hides it. Mortality still owns the native shell until the
+    -- transfer commits and must inspect that exact body first.
+    if crossedPending then
+        body = SAO.Body.active[id] or SAO.Body.foreign[id]
+    else
+        body = SAO.Body.get(id)
+    end
+    if not body then
+        -- Reloaded dormant handoffs have no native body to die between these
+        -- checks. The transfer module still refuses a canonically dead record.
+        if crossedPending and not pendingSource
+            and SAO.CrossedTransfer and SAO.CrossedTransfer.resumePending then
+            pcall(SAO.CrossedTransfer.resumePending)
         end
-        if agent.horseRiding then
-            agent.horseRiding = nil
-            log(id .. " is back on foot from the horse")
-        end
+        return
     end
 
     -- The passive path ([A17]): Knox people are subjects and speakers in
@@ -6004,6 +6116,14 @@ local function updateAgent(id, agent)
             -- witnessed, judged, and mourned by the one law all deaths
             -- share.
             local cause = witnessDeath(id, agent, body) or "unknown"
+            if SAO.SourceUse then
+                pcall(SAO.SourceUse.closeForOwnershipTransfer,
+                    id, body, "death")
+                pcall(SAO.SourceUse.detach, body)
+            end
+            if SAO.CrossedTransfer and SAO.CrossedTransfer.cancelForDeath then
+                pcall(SAO.CrossedTransfer.cancelForDeath, agent.rec)
+            end
             SAO.Identity.markDead(agent.rec, tickCount, cause)
             tellPlayerOfDeath(id, agent.rec, body)
             SAO.Body.foreign[id] = nil
@@ -6017,27 +6137,6 @@ local function updateAgent(id, agent)
             log(id .. " has died (" .. cause .. "); the county remembers")
             return
         end
-        pcall(function()
-            agent.rec.x, agent.rec.y = body:getX(), body:getY()
-        end)
-        if tickCount >= (agent.nextDecisionAt or 0) then
-            agent.nextDecisionAt = tickCount + 120
-            for otherId in pairs(Ctl.agents) do
-                if otherId ~= id then
-                    local otherBody = SAO.Body.get(otherId)
-                    if otherBody then
-                        local dx = otherBody:getX() - body:getX()
-                        local dy = otherBody:getY() - body:getY()
-                        if dx * dx + dy * dy
-                            <= TALK_REACH * TALK_REACH then
-                            SAO.Exchange.betweenPair(
-                                id, agent, body, otherId, otherBody, tickCount)
-                        end
-                    end
-                end
-            end
-        end
-        return
     end
 
     -- Mortality: the body died in the world. The record becomes a death
@@ -6062,6 +6161,15 @@ local function updateAgent(id, agent)
                     cause = "bleeding"
                 end
             end
+        end
+        pcall(function() ISTimedActionQueue.clear(body) end)
+        if SAO.SourceUse then
+            pcall(SAO.SourceUse.closeForOwnershipTransfer,
+                id, body, "death")
+            pcall(SAO.SourceUse.detach, body)
+        end
+        if SAO.CrossedTransfer and SAO.CrossedTransfer.cancelForDeath then
+            pcall(SAO.CrossedTransfer.cancelForDeath, agent.rec)
         end
         SAO.Identity.markDead(agent.rec, tickCount, cause)
         -- [C68] The house settles inside `markDead` now, for every
@@ -6094,10 +6202,184 @@ local function updateAgent(id, agent)
         return
     end
 
+    -- An opaque future source schema still owns this body. Mortality above is
+    -- factual and remains live, but no present-version behavior may interpret,
+    -- close, or advance an action it cannot read.
+    if pendingSource and pendingSource.unavailable then return end
+
+    -- A completed Crossed result quiesces survivor behavior at the first safe
+    -- boundary after mortality. Source use may reconcile a physical delta
+    -- already made, but perception, movement and exchange do not advance while
+    -- the one-way ownership handoff is pending.
+    pendingSource = SAO.WorldSources and SAO.WorldSources.pendingActionFor
+        and SAO.WorldSources.pendingActionFor(id) or nil
+    if agent.rec.crossedTransferPending then
+        if pendingSource then
+            local closed = SAO.SourceUse
+                and SAO.SourceUse.closeForOwnershipTransfer
+                and SAO.SourceUse.closeForOwnershipTransfer(id, body,
+                    "crossed-ownership-transfer")
+            if not closed then return end
+        end
+        if SAO.CrossedTransfer and SAO.CrossedTransfer.resumePending then
+            pcall(SAO.CrossedTransfer.resumePending)
+        end
+        return
+    end
+
     -- Perception acquisition runs on its own cadence regardless of
     -- state - except for the one state that has always contradicted
     -- it ([B19]). A sleeping person is not a sentry.
     SAO.Perception.observe(id, body, tickCount, agent.sleeping)
+
+    -- The durable phase, rather than a possibly interrupted state assignment,
+    -- says which runtime projection owns the body. Resume also reconstructs
+    -- missing routes/actions after reload; when a vanilla action is already
+    -- busy it repairs only the label.
+    if pendingSource then
+        if pendingSource.unavailable then return end
+        if agent.passive then
+            if SAO.SourceUse and SAO.SourceUse.closeForOwnershipTransfer then
+                SAO.SourceUse.closeForOwnershipTransfer(id, body,
+                    "passive-source-projection")
+            end
+            return
+        end
+        local expected = SAO.SourceUse and SAO.SourceUse.runtimeState
+            and SAO.SourceUse.runtimeState(pendingSource) or nil
+        if not expected then
+            if SAO.SourceUse then
+                SAO.SourceUse.interrupt(id, body, "invalid-source-phase")
+            end
+            return
+        end
+        if agent.state ~= expected then
+            local resumed = SAO.SourceUse.resume(id, body)
+            if resumed then
+                agent.taskDeadline = tickCount + 5400
+                setState(agent, id, resumed, "repairs exact source projection",
+                    nil, true)
+            end
+            return
+        end
+    elseif agent.state == "SOURCEWARD" or agent.state == "SOURCEUSE" then
+        setState(agent, id, "IDLE", "exact source owner already closed")
+        return
+    end
+
+    -- Both exact-source projections are serialized before every other action
+    -- producer, after mortality and the current perception scan. A threat
+    -- closes source ownership first; the next ordinary decision chooses the
+    -- actual flee, fight or hold response.
+    if agent.state == "SOURCEWARD" then
+        if tickCount >= (agent.taskDeadline or 0) then
+            local closed = SAO.SourceUse.closeForOwnershipTransfer(
+                id, body, "route-deadline")
+            if closed then
+                agent.nextDecisionAt = 0
+                setState(agent, id, "IDLE", "source route deadline reached")
+            end
+            return
+        end
+        local sourceThreat = selectedThreat(
+            id, tickCount, body:getX(), body:getY())
+        if sourceThreat
+            and sourceThreat.dist <= SAO.Disposition.fleeDistance(id) then
+            local closed = SAO.SourceUse.closeForOwnershipTransfer(
+                id, body, "threat-interrupted")
+            if closed then
+                agent.nextDecisionAt = 0
+                setState(agent, id, "ALERT",
+                    string.format("source route interrupted: threat at %.1f tiles",
+                        sourceThreat.dist))
+            end
+            return
+        end
+        updateMovement(id, agent, body)
+        return
+    end
+
+    if agent.state == "SOURCEUSE" then
+        local sourceThreat = selectedThreat(
+            id, tickCount, body:getX(), body:getY())
+        if sourceThreat
+            and sourceThreat.dist <= SAO.Disposition.fleeDistance(id) then
+            local closed = SAO.SourceUse.closeForOwnershipTransfer(
+                id, body, "threat-interrupted")
+            if closed then
+                agent.nextDecisionAt = 0
+                setState(agent, id, "ALERT",
+                    string.format("source use interrupted: threat at %.1f tiles",
+                        sourceThreat.dist))
+            end
+            return
+        end
+        if tickCount >= (agent.taskDeadline or 0) then
+            local closed = SAO.SourceUse.closeForOwnershipTransfer(
+                id, body, "deadline")
+            if closed then
+                agent.nextDecisionAt = 0
+                setState(agent, id, "IDLE", "source action deadline reached")
+            end
+            return
+        end
+        local verdict = SAO.SourceUse.tick(id, body)
+        if verdict ~= "pending" then
+            agent.nextWaterAt = tickCount + 600
+            agent.nextForageAt = tickCount + 600
+            agent.nextDecisionAt = 0
+            setState(agent, id, "IDLE",
+                "source action result: " .. tostring(verdict))
+        end
+        return
+    end
+
+    -- [C123] Horse riding belongs to the optional Horse Mod. Its own mount
+    -- pair, animation flag and engine animal id say when somebody is mounted;
+    -- while that pair holds, no foot route competes with it. Mortality and
+    -- durable ownership gates above must see the body before this early return.
+    if SAO.Animals and SAO.Animals.mountedHorse then
+        local mount = nil
+        pcall(function() mount = SAO.Animals.mountedHorse(body) end)
+        if mount then
+            if not agent.horseRiding then
+                log(id .. " rides horse " .. tostring(mount.animalId)
+                    .. " through Horse Mod")
+            end
+            agent.horseRiding = mount
+            return
+        end
+        if agent.horseRiding then
+            agent.horseRiding = nil
+            log(id .. " is back on foot from the horse")
+        end
+    end
+
+    -- Adopted Knox people initiate exchanges on the same slow cadence, after
+    -- death and all durable ownership boundaries have had first refusal.
+    if agent.passive then
+        pcall(function()
+            agent.rec.x, agent.rec.y = body:getX(), body:getY()
+        end)
+        if tickCount >= (agent.nextDecisionAt or 0) then
+            agent.nextDecisionAt = tickCount + 120
+            for otherId in pairs(Ctl.agents) do
+                if otherId ~= id then
+                    local otherBody = SAO.Body.get(otherId)
+                    if otherBody then
+                        local dx = otherBody:getX() - body:getX()
+                        local dy = otherBody:getY() - body:getY()
+                        if dx * dx + dy * dy
+                            <= TALK_REACH * TALK_REACH then
+                            SAO.Exchange.betweenPair(
+                                id, agent, body, otherId, otherBody, tickCount)
+                        end
+                    end
+                end
+            end
+        end
+        return
+    end
 
     -- Combat pump: harness-initiated engagements tick Java-side combat and
     -- exit on its evidence-based verdicts.
@@ -7103,8 +7385,12 @@ local function onTickInner()
             if agentFaults[id] >= 3 then
                 log(id .. " dropped alone after repeated faults"
                     .. " - the county keeps moving")
-                Ctl.drop(id)
-                agentFaults[id] = nil
+                local dropped = Ctl.drop(id)
+                -- A physically changed source remains this agent's durable
+                -- responsibility until a fresh observation reconciles it.
+                -- Keep retrying at the threshold instead of deleting its only
+                -- executor and stranding both body and reservation.
+                agentFaults[id] = dropped and nil or 2
             end
         end
     end
@@ -7242,13 +7528,12 @@ local function onPlayerDeath(playerObj)
                     local ddx = px - body:getX()
                     local ddy = py - body:getY()
                     if ddx * ddx + ddy * ddy <= 900.0
-                        and SAO.Locomotion.order(id, body,
+                        and orderTravelState(agent, id, body,
                             math.floor(px), math.floor(py),
-                            math.floor(body:getZ())) then
+                            math.floor(body:getZ()), "MOURNWARD",
+                            "goes to where you fell") then
                         agent.mournName = uname
                         agent.taskDeadline = tickCount + 1800
-                        setState(agent, id, "MOURNWARD",
-                            "goes to where you fell")
                     end
                 end
             end

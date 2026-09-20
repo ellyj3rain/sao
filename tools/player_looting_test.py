@@ -55,7 +55,8 @@ def main():
         "native observations carry exact item identities and revisions":
             "source.items[key] = item" in world
             and "revision = raw.rev" in world
-            and "itemId = item.id" in world,
+            and "id = tonumber(raw.id) or 0" in world
+            and "itemId = selectedItem.id" in world,
         "the engine reads native item and fluid state":
             "item.getID()" in engine
             and "getFluidContainerFromSelfOrWorldItem()" in engine
