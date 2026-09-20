@@ -201,7 +201,7 @@ KNOWN.update({n: ENGINE for n in (
     "ISHutchGrabEgg", "ISMilkAnimal", "ISPetAnimal", "ISShearAnimal",
     "addVirtualZombie",
     "addSound", "farming_vegetableconf", "getCell", "getClimateManager",
-    "getCore", "getFileWriter", "getGameTime", "getSandboxOptions",
+    "getCore", "getFileWriter", "getGameTime",
     "getScriptManager", "getSpecificPlayer", "getText", "getTextManager",
     "getTimestampMs", "getWorld", "instanceof",
 )})

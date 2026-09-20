@@ -38,7 +38,7 @@ on the simulation.
 
 ## Status
 
-`2.7.15.2-pre-alpha` - the coordinate is computed by the version machine
+`2.7.15.3-pre-alpha` - the coordinate is computed by the version machine
 (`tools/version_replay.py`), never picked; `VERSION_MAP.md` shows the
 classification and the arithmetic.
 
@@ -84,12 +84,15 @@ retains the former snapshot, continuity and physiology assertions and controls
 while sharing unchanged compilation. C58 separates population admission, body
 representation, physical observations and dormant advancement from scheduling,
 and repairs callback replacement and world reinitialization. C59 restores
-debug-mode compilation. C60 repairs loaded perception and world access: animals
-leave the person path, activity partners require fresh private and current
-physical sight, and cached ground retains loaded, same-floor, permissioned
-access through timed execution. Its source inventory specifies the next R10a
-ledger and reconciliation unit. `ROADMAP.md` preserves the remaining dormant,
-action, social and learned-model obligations.
+debug-mode compilation. C60 repairs loaded perception and world access. C61
+grounds dormant search in the same native world: it hydrates bounded chunks on
+demand, persists exact source identity and contents, reconciles loaded changes
+and removes room-derived stock. Observation remains private knowledge rather
+than proof of access or consumption. The next R6/R7/R9 unit proves one actor's
+exact route, barriers and permission, transfers the exact item or fluid, invokes
+its native carried consequence and records one revision-bound result before any
+need or provisioning credit. `ROADMAP.md` preserves the remaining action,
+social and learned-model obligations.
 
 ## Requirements
 

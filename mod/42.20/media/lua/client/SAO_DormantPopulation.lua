@@ -292,19 +292,22 @@ local function chooseDayGoal(id, rec, reach, tickCounter)
     -- when desperation commits them. Thirst outranks hunger on the
     -- one scale both are measured on: how far along the way to
     -- dying of it somebody is.
+    local needOffer = nil
     if dry > THIRST_PATIENCE or hungry > HUNGER_PATIENCE then
         local offer = "food"
         if dry > THIRST_PATIENCE
             and (dry / THIRST_LETHAL) >= (hungry / HUNGER_LETHAL) then
             offer = "water"
         end
-        local okN, known = pcall(SAO.Places.nearestOffering,
-            rec.x or rec.homeX, rec.y or rec.homeY, offer,
+        needOffer = offer
+        local okN, known = pcall(SAO.WorldSources.nearestBelieved,
+            id, rec.x or rec.homeX, rec.y or rec.homeY, offer,
             desperate and SAO.Places.commitHorizon()
                 or SAO.Places.comfortHorizon())
         if okN and known
             and not placeBarred(id, myG, b, known, desperate) then
-            return { x = known.cx, y = known.cy, placeId = known.id }
+            return { x = known.cx, y = known.cy, placeId = known.id,
+                sourceNeed = offer }
         end
     end
 
@@ -330,7 +333,7 @@ local function chooseDayGoal(id, rec, reach, tickCounter)
     -- from the record's stamps, never the dial, and once it has come
     -- this branch is dead and the chooser is exactly what it was -
     -- need, then somebody, then places.
-    do
+    if not needOffer then
         local fallen = true
         pcall(function() fallen = SAO.Standing.fallHasCome() end)
         if not fallen then
@@ -357,7 +360,8 @@ local function chooseDayGoal(id, rec, reach, tickCounter)
     -- to somebody cuts ahead of curiosity for the same reason need
     -- does ([C25]) - it is a decision about a thing that matters
     -- rather than about ground they have not seen.
-    local who = chooseWhoToGoTo(id, rec, myG, b, desperate)
+    local who = not needOffer
+        and chooseWhoToGoTo(id, rec, myG, b, desperate) or nil
     if who then return who end
 
     local ok, places = pcall(function()
@@ -367,12 +371,12 @@ local function chooseDayGoal(id, rec, reach, tickCounter)
 
     local best, bestScore
     for _, place in ipairs(places) do
-        -- [B37] What it offers TODAY, not what its rooms are. After
-        -- the county loses pressure a bathroom is a dry tap.
-        local now = SAO.Places.offersNow(place) or {}
-        local anyNow = false
-        for _ in pairs(now) do anyNow = true; break end
-        if anyNow then
+        -- Room vocabulary says only that this ground is worth exploring.
+        -- Exact availability is learned on arrival from WorldSources.
+        local possible = place.offers or {}
+        local anyPossible = false
+        for _ in pairs(possible) do anyPossible = true; break end
+        if anyPossible and (not needOffer or possible[needOffer]) then
             local barred = placeBarred(id, myG, b, place, desperate)
             if not barred then
                 -- Somewhere never seen beats anywhere already seen,
@@ -399,11 +403,11 @@ local function chooseDayGoal(id, rec, reach, tickCounter)
                 -- past lethal and twenty days without food is not
                 -- quite there. A place offering both is worth both.
                 local urgency = 0
-                if dry > THIRST_PATIENCE and now.water then
+                if dry > THIRST_PATIENCE and possible.water then
                     urgency = urgency
                         + math.floor(100 * dry / THIRST_LETHAL)
                 end
-                if hungry > HUNGER_PATIENCE and now.food then
+                if hungry > HUNGER_PATIENCE and possible.food then
                     urgency = urgency
                         + math.floor(100 * hungry / HUNGER_LETHAL)
                 end
@@ -415,10 +419,32 @@ local function chooseDayGoal(id, rec, reach, tickCounter)
         end
     end
     if not best then return nil end
-    return { x = best.cx, y = best.cy, placeId = best.id }
+    return { x = best.cx, y = best.cy, placeId = best.id,
+        sourceNeed = needOffer }
+end
+
+-- Arrival can now establish exact native stock, but it cannot manufacture the
+-- missing actor-specific access/action proof. A bodyless record has no source
+-- floor, path, locked-door result, permission, carried item or native Eat/
+-- DrinkFluid completion. The observation enters private belief and the need
+-- remains unsatisfied until that executor exists. nil means the engine was busy
+-- and this observation goal must be retained for a retry.
+local function arriveAtPlace(id, rec, place, tickCounter)
+    local complete, why = SAO.WorldSources.demandPlace(place)
+    local category = rec.dayGoalSourceNeed
+    if not complete then
+        if why == "BUSY" or why == "busy" then return nil end
+        return false, why
+    end
+    -- Only a complete building-bounded observation can replace private
+    -- belief. A busy/failed partial pass leaves unvisited chunks unknown.
+    SAO.Perception.learnBuilding(id, place, tickCounter, "observed")
+    if not category then return true end
+    return false, "access-unproven"
 end
 
 local function dormantLife(conf, tickCounter)
+    SAO.WorldSources.reconcileReservations()
     -- [C62] The county's hour, not the engine's. This runs once
     -- per simulated day while [C45] lives the years and the
     -- engine's clock is stopped, so a save begun at night sent
@@ -459,6 +485,11 @@ local function dormantLife(conf, tickCounter)
                 rec.nextDormantMoveAt = tickCounter + 1800 + SAO.Rand.int(1800)
                 local tx, ty
                 if night and not preFall then
+                    if rec.worldSourceReservation then
+                        SAO.WorldSources.release(rec.worldSourceReservation,
+                            "night-interrupted")
+                        rec.worldSourceReservation = nil
+                    end
                     tx, ty = rec.homeX, rec.homeY
                 else
                     if not rec.dayGoalX
@@ -507,49 +538,25 @@ local function dormantLife(conf, tickCounter)
                                 end
                             end)
                         end
+                        local retainSourceGoal = false
                         if rec.dayGoalPlaceId then
-                            pcall(function()
+                            local okArrival, arrival = pcall(function()
                                 local arrived = SAO.Places.at(
                                     rec.dayGoalX, rec.dayGoalY)
                                 if arrived
                                     and arrived.id == rec.dayGoalPlaceId then
-                                    -- [B39] They walked here.
-                                    SAO.Perception.learnBuilding(id,
-                                        arrived, tickCounter,
-                                        "observed")
-                                    -- [B37] Getting there is the
-                                    -- point of having gone. A place
-                                    -- with water in it is a day they
-                                    -- drank; nothing else in the mod
-                                    -- can say that.
-                                    local day = math.floor(
-                                        hoursNow() / 24.0)
-                                    -- [B37] What was
-                                    -- actually there when they got
-                                    -- there. A remembered tap that
-                                    -- has since gone dry does not
-                                    -- count as having drunk, so
-                                    -- thirst keeps climbing and they
-                                    -- try somewhere else.
-                                    local got = SAO.Places.offersNow(
-                                        arrived) or {}
-                                    if got.water then
-                                        rec.lastWaterDay = day
-                                    end
-                                    if got.food then
-                                        rec.lastFoodDay = day
-                                    end
-                                    -- [B39] And the place has that
-                                    -- much less in it. Recorded only
-                                    -- when they actually took
-                                    -- something, so walking through a
-                                    -- warehouse for the shelter does
-                                    -- not empty it.
-                                    if got.water or got.food then
-                                        SAO.Places.take(arrived)
-                                    end
+                                    return arriveAtPlace(id, rec, arrived,
+                                        tickCounter)
                                 end
+                                return true
                             end)
+                            retainSourceGoal = okArrival and arrival == nil
+                            if not okArrival and rec.worldSourceReservation then
+                                SAO.WorldSources.release(
+                                    rec.worldSourceReservation,
+                                    "arrival-error")
+                                rec.worldSourceReservation = nil
+                            end
                         end
                         -- [C113] The street roll, at the leg
                         -- boundary - the one moment a decision is
@@ -577,11 +584,16 @@ local function dormantLife(conf, tickCounter)
                             out = (affinity ~= nil)
                                 and (SAO.Rand.unit() < affinity)
                         end
-                        local chosen = out
+                        local chosen = (not retainSourceGoal and out)
                             and chooseDayGoal(id, rec, reach, tickCounter) or nil
-                        if chosen then
+                        if retainSourceGoal then
+                            -- The engine was between chunk operations. The
+                            -- reservation and destination remain owned by this
+                            -- person and the next dormant pass retries it.
+                        elseif chosen then
                             rec.dayGoalX, rec.dayGoalY = chosen.x, chosen.y
                             rec.dayGoalPlaceId = chosen.placeId
+                            rec.dayGoalSourceNeed = chosen.sourceNeed
                             -- [C72] All three are written every
                             -- time, so yesterday's subject cannot
                             -- survive into today's walk.
@@ -596,6 +608,7 @@ local function dormantLife(conf, tickCounter)
                             rec.dayGoalY = rec.homeY
                                 + SAO.Rand.int(-reach, reach + 1)
                             rec.dayGoalPlaceId = nil
+                            rec.dayGoalSourceNeed = nil
                             rec.dayGoalPerson = nil
                             rec.dayGoalSeenAt = nil
                         else
@@ -606,6 +619,7 @@ local function dormantLife(conf, tickCounter)
                             rec.dayGoalX, rec.dayGoalY =
                                 rec.homeX, rec.homeY
                             rec.dayGoalPlaceId = nil
+                            rec.dayGoalSourceNeed = nil
                             rec.dayGoalPerson = nil
                             rec.dayGoalSeenAt = nil
                         end
@@ -1264,7 +1278,7 @@ local function dormantSettle()
                         .. " of them, " .. tostring(bestId)
                         .. " returned to "
                         .. tostring(best.visits) .. " times"
-                        .. ((bp.offers and bp.offers.water)
+                        .. ((bp.sources and bp.sources.water)
                             and ", and it has water" or ""))
                     tally("settled")
                     settled = settled + 1
@@ -1288,13 +1302,12 @@ end
 -- house lives in, and a dormant house could starve on spent ground
 -- forever without the county's own machinery ever saying so.
 --
--- The dormant half cannot count items and does not pretend to. What
--- it has is what its people actually DID: `lastFoodDay` and
+-- The dormant half now reads exact native sources through R10a. What
+-- it also has is what its people actually DID: `lastFoodDay` and
 -- `lastWaterDay` are stamped only when a walk really arrived at a
 -- place that really still offered ([B37]/[C25] law, the same stamps
--- attrition already trusts), and the seat's own ledger - `offersNow`,
--- which reads the mains and the spent tally exactly the way the
--- dormant day reads them. The words are derived from those, against
+-- attrition already trusts), and the seat's exact observed source
+-- ledger. The words are derived from those, against
 -- the county's own patience constants, and no new number exists here.
 --
 -- The larder is LEAN when nobody in the house has reached food inside
@@ -1358,16 +1371,15 @@ local function dormantProvision()
                         end
                     end
                     if not anyBody and n > 0 then
-                        -- The seat's own shelves, read the way the
-                        -- dormant day reads them: mains, spent tally
-                        -- and all ([B39]/[B37]).
+                        -- The seat's accessible native sources. Observed stock
+                        -- behind unknown access cannot make a larder full.
                         local seatOffers = {}
                         pcall(function()
                             local seat = SAO.Places.at(
                                 (claim.minX + claim.maxX) / 2,
                                 (claim.minY + claim.maxY) / 2)
                             if seat then
-                                seatOffers = SAO.Places.offersNow(seat)
+                                seatOffers = SAO.WorldSources.availableAt(seat)
                                     or {}
                             end
                         end)

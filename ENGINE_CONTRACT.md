@@ -1,6 +1,6 @@
 | Document | Survivor Awareness Overhaul Engine Contract |
 |---|---|
-| Version | `2.7.15.2-pre-alpha` |
+| Version | `2.7.15.3-pre-alpha` |
 | Author | ellyj3rain |
 | Repository | `ENGINE_CONTRACT.md` |
 | Status | CANONICAL - the verified engine mechanics an IsoPlayer NPC requires. |
@@ -506,3 +506,26 @@ Recipes, reading/media collections and descriptor perk boosts have no shared
 native person codec. C54's bounded learning section restores those collections
 directly after profession defaults. The complete ownership and migration rules
 are specified in SUBSTRATE.md.
+
+## Addendum I - native world sources and offscreen chunk hydration (2026-09-20, C61)
+
+C61 maps the installed Build 42.20.4 surfaces that can establish exact native
+ground without admitting a borrowed chunk into an active map. Border 178 checks
+the compiled adapter against the installed jar, weaves the installed target
+bytes and starts the shipped jar as a real premain agent.
+
+| Surface | Verified contract |
+|---|---|
+| `IsoChunkMap.CHUNK_SIZE_IN_SQUARES` | The installed value is 8. C61 derives the Java scan edge from this field and the Lua boundary records the same installed value rather than treating a cell or room as a chunk. |
+| `WorldStreamer.instance.addJobInstant(IsoChunk, int, int, int, int)`; `IsoChunk.loaded`; static `IsoChunk.loadGridSquare` | The instant job loads or generates native chunk data. An offscreen borrow is removed from the pending live-map queue and refused when the target is already entering an active map or the streamer is busy. |
+| `IsoChunk.loadInWorldStreamerThread()`; `Save(true)`; `doReuseGridsquares()` | The borrowed chunk can run the streamer's pre-live square phase, save its native data, and release its squares. `doLoadGridsquare` and active-map adoption are separate phases and are not used by C61. |
+| `ItemPickerJava.fillContainer(ItemContainer, IsoPlayer)`; `updateOverlaySprite(IsoObject)` | An unexplored static container receives the engine's own loot and explored flag before observation; C61 supplies no distribution, item, chance or seed. |
+| private `ItemPickerJava.player`; private `getZombieDensityFactor(...)` | Vanilla density normally samples the cached local player. C61's narrowly scoped advice clears that field only during an SAO hydration transaction, exposing the method's existing source-square fallback, then restores the exact prior player even on failure. The agent manifest permits redefinition and retransformation of a target already loaded. |
+| `IsoObject.getModData()`; `InventoryItem.getModData()` | Native object and item ModData carry `SAOWorldSourceId` and `SAOWorldItemSourceId` UUIDs. Source fingerprints also bind kind, physical position, class/type and building, so an identical replacement receives a new identity and movement of the same token conflicts. |
+| `IsoObject` containers and fluid accessors; `IsoWorldInventoryObject.getItem()` | Static containers, object fluids and ground items expose exact identity, quantity and revision rows. Observation does not prove an actor can reach, possess or use them. |
+| `IsoChunk.vehicles`; `BaseVehicle.getParts()`; `VehiclePart.getItemContainer()` | Vehicle containers can be observed, but their durable owner is the separate `VehiclesDB2` surface. C61 has no proof that mutating one through a borrowed chunk is durably committed, so production reports vehicle access as `unsupported` and never fills or mutates it offscreen. |
+
+These surfaces establish native identity, contents and persistence for static
+and ground sources. They do not establish floor/path/door access, claims,
+vehicle-part permission, transfer to a person or native consumption. Those are
+the named R6/R7/R9 continuation recorded in ROADMAP.md and SUBSTRATE.md.

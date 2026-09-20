@@ -1,0 +1,19 @@
+﻿{
+    "version":  "2.7.15.3-pre-alpha",
+    "files":  256,
+    "missing":  [
+
+                ],
+    "extra":  [
+
+              ],
+    "different":  [
+
+                  ],
+    "jar_sha256":  "7df22e02ddc72d0d9fca0d62a388a6117d63c7ab151302dd0b35e9d344c9dc7d",
+    "save_files":  44092,
+    "save_metadata_unchanged":  true,
+    "save_verification":  "relative path, size and modification time; not content hashes",
+    "companion":  "ZAO A37 unchanged",
+    "deployment":  "verified in-place copy after POSIX wrapper resolved HOME outside the Windows profile"
+}

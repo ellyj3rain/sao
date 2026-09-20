@@ -1,0 +1,234 @@
+SAO_Age.lua: OK
+SAO_Controller.lua: OK
+SAO_DormantPopulation.lua: OK
+SAO_Needs.lua: OK
+SAO_Integration.lua: OK
+SAO_Knowledge.lua: OK
+SAO_Perception.lua: OK
+SAO_PlaceAttachment.lua: OK
+SAO_Places.lua: OK
+SAO_WorldSources.lua: OK
+probe_knowledge.lua: OK
+candidates: 0
+1) MOVEMENT keys missing from locomotion tick: none
+   tick states not in MOVEMENT map: none
+2) states relying on the 'errand' default: ['BOARDING', 'DRIVE', 'FOLLOW', 'GEARWARD', 'HOMEWARD', 'IDLE', 'PLAYERFOLLOW', 'RIDE', 'ROAM', 'SETTLEWARD', 'TRAVEL']
+3) takePurpose written but never handled: none
+4) Lua-called verbs missing in SAOBridge: none
+5) voice events used but undefined: none
+6) TAKE states entered with no queued work (line numbers): none
+7) sensor scale disagreement across sites: none
+8) states with no exit dispatcher: none
+9) claim fields read but never written: none
+10) news kinds written but rendered by nobody: none
+11) designation literals nothing can ever be: none
+12) wants Lua asks for that Java cannot answer: none
+13) engine-string literals matching nothing the engine produces: none
+15) delimited protocols whose ends disagree: none (10 paired, 1 unchecked)
+       appraiseVehiclesNear: exact
+       findAlcoholSource: exact
+       findAmmoSource: exact
+       findDrugSource: exact
+       findFoodSource: exact
+       findWaterSource: exact
+       findWeaponUpgrade: exact
+       hearthNear: exact
+       nearestBoardableVehicle: exact
+       scoutBase: exact
+       unchecked: worldSourceStatus -> status (2 fields, '|') - no field parse found
+       excluded: begin builds 3 ','-separated fields - ',' is a record separator and appears in prose
+       excluded: beginRide builds 2 ','-separated fields - ',' is a record separator and appears in prose
+       excluded: findBoardable builds 3 ','-separated fields - ',' is a record separator and appears in prose
+14) duplicated blocks of 15+ lines: none
+16) sandbox surface: 34 options, all read, all named and explained, defaults agree; 75 translation keys, no empty, duplicate or mis-slotted values
+17) shipped jar: 61 classes, all 34 sources present
+18) bridge: 194 public methods on SAOBridge (from the shipped jar)
+call sites:     295 across the Lua tree, 190 distinct methods
+never called:   4 bridge methods no Lua reaches
+MATCH: every call site names a real method, with an arity some overload accepts, and no literal argument that cannot reach its parameter.
+19) mod.info: 2 file(s), 12 distinct keys, all read by a real parser, all named files present
+Border 171 PASS: durable daily completion, offset and skipped callbacks, frozen reload state and treatment expiry; three controls fail
+Border 172 PASS: exact event intervals, reload cursor, ZAO ownership, current exposure, off switch, standalone fallback and history graph; four controls fail
+Border 173 PASS: proximity and forged receipts cannot roll; approach, contact time, interruption, non-feeding, exact-once result and one-way transfer execute in Kahlua; five controls fail
+Border 175 PASS: one causal brain history changes shipped memory, decision cadence, pressure reactivity and motor pace; four controls fail
+90 calendar days: PASS days=90 steps=81000 maxSlice=60
+365 calendar days: PASS days=365 steps=328500 maxSlice=60
+partial-day reload: PASS days=90 steps=81000 maxSlice=60
+legacy completed-day migration: PASS days=90 steps=26100 maxSlice=60
+unavailable timer remains bounded: PASS days=2 steps=1800 maxSlice=1
+genesis must complete first: PASS days=2 steps=1800 maxSlice=60
+unreadable clock retries without inventing history: PASS days=2 steps=1800 maxSlice=60
+real person daily timing: PASS real person died at hour24, causal brain history advanced24h, digest sees death
+control initial partial day cannot age: REJECTED FAIL initial partial day aged
+control digest cannot precede age death: REJECTED FAIL daily digest preceded real death
+control old callback gate stalls catch-up: REJECTED FAIL steps=60 expected=1800
+control daily jumps cannot replace live cadence: REJECTED FAIL steps=2 expected=1800
+control completed progress cannot be discarded: REJECTED FAIL steps=120600 expected=1800
+control frozen noon: FAIL day and night not observed
+  160) PASS -- causal elapsed-history scheduler
+  161) PASS company admission: 41 behavioral checks in the engine VM
+PASS control eight-person cap: past_eight changed
+PASS control shortage disconnected: short_host_refuses changed
+PASS control personal preference disconnected: solitude_preference_refuses changed
+PASS control unseen ground decides: unseen_ground_no_verdict changed
+PASS control departure disconnected: shortage_and_distrust_leave changed
+PASS control declared hostility ignored: declared_hostility_refuses changed
+PASS control affiliation treated as experience: roster_and_old_trust_are_not_contact changed
+PASS control unseen death changes experience: unseen_death_does_not_change_pressure changed
+PASS control reports count as encounter: reports_are_not_experienced_contact changed
+production: VALUE PASS
+CONTROL invalid release snapshot was published: REJECTED ERROR KahluaException: invalid release snapshot was published
+CONTROL invalid transfer snapshot was published: REJECTED ERROR KahluaException: invalid transfer snapshot was published
+CONTROL invalid release snapshot was published: REJECTED ERROR KahluaException: invalid release snapshot was published
+CONTROL release refused durable table payload: REJECTED ERROR KahluaException: release refused durable table payload
+CONTROL death did not attempt pending cleanup: REJECTED ERROR KahluaException: death did not attempt pending cleanup
+CONTROL ordinary dead person reconstructed: REJECTED ERROR KahluaException: ordinary dead person reconstructed
+CONTROL dead transition falsely completed: REJECTED ERROR KahluaException: dead transition falsely completed
+CONTROL capture failure relinquished ownership: REJECTED ERROR KahluaException: capture failure relinquished ownership: empty
+CONTROL teardown failure reported success: REJECTED ERROR KahluaException: teardown failure reported success
+CONTROL saved pending release lost: REJECTED ERROR KahluaException: pending body remained available or became dormant
+CONTROL population dropped early: REJECTED ERROR KahluaException: population dropped early
+CONTROL release lost the observed infection interval: REJECTED ERROR KahluaException: release lost the observed infection interval
+CONTROL harness dropped early: REJECTED ERROR KahluaException: harness dropped early
+CONTROL harness did not restore current person: REJECTED ERROR KahluaException: harness did not restore current person
+CONTROL release lost captured appearance: REJECTED ERROR KahluaException: release lost captured appearance
+CONTROL failed visual restore exposed body: REJECTED ERROR KahluaException: failed visual restore exposed body
+CONTROL failed clear orphaned person: REJECTED ERROR KahluaException: failed clear orphaned person
+CONTROL pending body advanced: REJECTED ERROR KahluaException: pending body advanced
+CONTROL pending Crossed body advanced: REJECTED ERROR KahluaException: pending Crossed body advanced
+CONTROL age mutated pending body: REJECTED ERROR KahluaException: age mutated pending body
+CONTROL drugs mutated pending body: REJECTED ERROR KahluaException: drugs mutated pending body
+CONTROL afflicted callback mutated pending body: REJECTED ERROR KahluaException: afflicted callback mutated pending body
+CONTROL incoming action did not retain target: REJECTED ERROR KahluaException: incoming action did not retain target
+CONTROL incoming action did not retain target: REJECTED ERROR KahluaException: incoming action did not retain target
+CONTROL external owner or snapshot did not commit: REJECTED ERROR KahluaException: external owner or snapshot did not commit
+CONTROL one body retained two runtime owners: REJECTED ERROR KahluaException: one body retained two runtime owners
+CONTROL ordinary SAO materialization stole external owner: REJECTED ERROR KahluaException: ordinary SAO materialization stole external owner
+CONTROL external death retained living ownership or lost its cause: REJECTED ERROR KahluaException: external death retained living ownership or lost its cause
+CONTROL busy conversion was not retried from durable pending state: REJECTED ERROR KahluaException: busy conversion reported all retries complete
+CONTROL pending conversion reload did not transfer dormant snapshot: REJECTED ERROR KahluaException: pending conversion reload did not transfer dormant snapshot
+  162) PASS -- person ownership handoff
+PASS native person production: all three former baseline assertions
+CONTROL accept-oversized-native-item-string: oversized native item string accepted
+CONTROL living-capture-obsolete-equipment: Equipment outside inventory
+CONTROL return-historical-inventory: Restored item identity/type/container differs
+CONTROL return-dropped-detached-equipment: Equipment outside inventory
+CONTROL return-premature-item-processing: detached return item processed before activation
+CONTROL return-source-change-ignored: changed source materials accepted
+CONTROL return-visual-not-restored: human skin texture
+CONTROL empty-native-inventory: Restored item identity/type/container differs
+CONTROL omit-native-stats: native stats
+CONTROL omit-native-wounds: native wound state
+CONTROL omit-native-experience: native XP and traits
+CONTROL lose-primary-reference: Equipment restoration did not preserve references
+CONTROL accept-corruption: checksum corruption accepted
+CONTROL accept-old-native-version: unsupported native version accepted
+CONTROL drop-nested-item-silently: missing nested unequipped script accepted
+CONTROL omit-native-item-processing: root and nested food not registered for native processing
+CONTROL omit-native-item-unregister: recursive native processing removal
+CONTROL accept-missing-custom-perk: missing custom perk accepted by preflight
+CONTROL accept-missing-custom-trait: missing custom trait accepted by preflight
+CONTROL unsafe-nutrition-weight: unsafe nutrition weight accepted
+CONTROL omit-nutrition-cadence: nutrition continuation state
+CONTROL reuse-fitness-component: fitness continuation state
+CONTROL omit-learning-state: recipe reading media and descriptor boost state
+CONTROL accept-missing-boost-perk: missing custom perk accepted by preflight
+CONTROL accept-missing-outfit: missing outfit reference accepted
+CONTROL omit-hair-growth-timing: human hair growth timing
+CONTROL omit-character-metadata: durable character ModData and runtime ownership
+CONTROL accept-unsupported-character-metadata: unsupported durable character ModData accepted
+CONTROL omit-fluid-content-check: missing fluid definition accepted
+CONTROL drop-native-v3-reader: native v3 reader compatibility
+CONTROL native-partial-eating: partial nested food quantity was not retained
+CONTROL nested-resource-traversal: partial nested food quantity was not retained
+CONTROL spoilage-exclusion: rotten food was consumed
+CONTROL native-partial-drinking: partial nested drink quantity was not retained
+CONTROL fluid-quantity-accounting: equal dormant event history changed across interval partitions
+  163) PASS -- native person continuation and dormant physiology (includes 169/174); 35 compiled controls
+production: VALUE PASS
+CONTROL loaded return failed: REJECTED ERROR KahluaException: loaded return failed
+CONTROL retry did not complete: REJECTED ERROR KahluaException: retry did not complete
+CONTROL changed source consumed stale capture: REJECTED ERROR KahluaException: changed source consumed stale capture
+CONTROL missing loaded body treated as dormant: REJECTED ERROR KahluaException: missing loaded body treated as dormant
+CONTROL retry did not complete: REJECTED ERROR KahluaException: retry did not complete
+CONTROL completed return leaked staged ownership: REJECTED ERROR KahluaException: completed return leaked staged ownership
+CONTROL unacknowledged corpse lost pending ownership: REJECTED ERROR KahluaException: unacknowledged corpse lost pending ownership
+CONTROL body recovery did not resume return: REJECTED ERROR KahluaException: body recovery did not resume return
+CONTROL observed reanimation did not produce current turned state: REJECTED ERROR KahluaException: observed reanimation did not produce current turned state
+CONTROL observed reanimation did not produce current turned state: REJECTED ERROR KahluaException: observed reanimation did not produce current turned state
+CONTROL failed second capture retained old living state: REJECTED ERROR KahluaException: failed second capture retained old living state
+CONTROL return published at pre-hold coordinates: REJECTED ERROR KahluaException: return published at pre-hold coordinates
+CONTROL pending reason absent or repeated noisily: REJECTED ERROR KahluaException: pending reason absent or repeated noisily
+CONTROL offscreen return duplicated or lost source state: REJECTED ERROR KahluaException: offscreen return duplicated or lost source state
+CONTROL dormant cleanup recreated its temporary shell: REJECTED ERROR KahluaException: dormant cleanup recreated its temporary shell
+CONTROL return did not enter cross-file generation journal: REJECTED ERROR KahluaException: return did not enter cross-file generation journal
+  164) PASS -- afflicted return ownership
+PASS staged return body: actual detached constructor, paused update, refused publication, reload rebinding, duplicate refusal, retained failed cleanup, native queue retry, unchanged player slots
+UNCHECKED successful rendered publication: no model assets or game world loaded
+CONTROL constructor-publication: successful creation requires cleanup
+CONTROL missing-stage-pause: staged body is not paused
+CONTROL population-debit: return would debit population again
+CONTROL premature-activation: detached body activated before publication
+CONTROL lost-cleanup-failure: invalid inventory cleanup falsely succeeded
+CONTROL missing-world-removal: native cleanup retry failed
+CONTROL duplicate-selection: duplicate transaction silently selected a body
+CONTROL lost-reload-handle: reload GC lost the pending shell
+  165) PASS -- native staged return body
+ENGINE save order: OnSave 302 < IsoCell.save 364 < GlobalModData.save 438
+ENGINE destination boundary: PlayerDB saves player slots; square save excludes living movingObjects
+production: VALUE PASS
+CONTROL save checkpoint callback missing or duplicated: REJECTED ERROR KahluaException: save checkpoint callback missing or duplicated
+CONTROL save persisted stale consumed/acquired items: REJECTED ERROR KahluaException: save persisted stale consumed/acquired items
+CONTROL save persisted stale appearance: REJECTED ERROR KahluaException: save persisted stale appearance
+CONTROL save position/time were stale: REJECTED ERROR KahluaException: save position/time were stale
+CONTROL capture failure reported faithful save: REJECTED ERROR KahluaException: capture failure reported faithful save: empty
+CONTROL checkpoint failure was hidden: REJECTED ERROR KahluaException: checkpoint failure was hidden
+CONTROL checkpoint captured excluded owner: REJECTED ERROR KahluaException: checkpoint captured excluded owner: return
+CONTROL checkpoint captured excluded owner: REJECTED ERROR KahluaException: checkpoint captured excluded owner: foreign
+CONTROL checkpoint changed live ownership: REJECTED ERROR KahluaException: checkpoint changed live ownership
+CONTROL failed checkpoint reconstructed stale possessions: REJECTED ERROR KahluaException: failed checkpoint reconstructed stale possessions
+CONTROL checkpoint refused durable table payload: REJECTED ERROR KahluaException: checkpoint refused durable table payload
+  166) PASS -- person save checkpoint
+PASS native Kahlua durable text and bridge adapters
+CONTROL no-fragmentation: oversize string was not fragmented
+CONTROL oversized-fragments: fragment exceeds native byte bound
+CONTROL ignore-order-integrity: reordered chunks accepted
+CONTROL ignore-version: unsupported version accepted
+CONTROL ignore-declared-length: false length accepted
+CONTROL accept-large-chunk: oversize chunk accepted
+CONTROL bridge-writer-bypass: bridge writer bypassed durable packing
+CONTROL bridge-reader-bypass: bridge reader bypassed durable unpacking
+  167) PASS -- durable person text
+production: VALUE PASS
+CONTROL stale decision cache: REJECTED VALUE FAIL initial historical decision time was wrong; reload lost current historical decision time; historical substep clock stayed stale
+CONTROL day handed to tick consumer: REJECTED VALUE FAIL WorldGenesis passed a day as a tick
+CONTROL county time paces corpse animation: REJECTED VALUE FAIL corpse grace followed county time
+yes  the gate runs this border
+yes  partial catch-up and reload remain gated
+yes  decision reads refresh the county clock
+yes  native pacing has its own host counter
+yes  WorldGenesis converts at its boundary
+yes  the durable and runtime axes are inventoried
+  168) PASS -- current decision time, boundary conversion, reload and host pacing
+ENGINE lifecycle: ModData reset/load/init event; fresh Lua before next world; game start before load
+POPULATION production: callback replacement, tick handoffs, fault isolation and re-init
+CONTROL population population callback missing or duplicated: REJECTED
+CONTROL population prior-world cadence or fault gate survived: REJECTED
+CONTROL population prior-world cadence or fault gate survived: REJECTED
+CONTROL population prior-world origin cache survived: REJECTED
+CONTROL population prior-world encounter cache survived: REJECTED
+CONTROL population population callback not restored: REJECTED
+CONTROL population population delegation failed: REJECTED
+CONTROL population population delegation failed: REJECTED
+CONTROL population attrition tick handoff changed: REJECTED
+CONTROL population encounter tick handoff changed: REJECTED
+GRAPH production: durable history and runtime callbacks reconstruct
+CONTROL serialized callbacks: REJECTED
+CONTROL prior-world clock cache: REJECTED
+CONTROL unstable extension identity: REJECTED
+CONTROL unbounded extension registry: REJECTED
+CORPSE production: pre-save grace is completed, failed conversion retained
+CONTROL missing save callback: REJECTED
+NATIVE production: process singleton releases all body/world maps
+  170) runtime reconstruction: PASS -- serialization, reconstruction, corpse save boundary and world teardown
+[check] all borders clean

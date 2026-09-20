@@ -77,6 +77,7 @@ MODULES = [
     "shared/SAO_Lessons.lua", "shared/SAO_Knowledge.lua",
     "shared/SAO_Seams.lua", "shared/SAO_Standing.lua",
     "shared/SAO_Perception.lua", "shared/SAO_Places.lua",
+    "shared/SAO_WorldSources.lua",
     "client/SAO_Age.lua", "client/SAO_Telemetry.lua",
     "shared/SAO_PhysicalFacts.lua",
     "client/SAO_PopulationAdmissions.lua",
@@ -168,6 +169,17 @@ SAOJavaBridge = {
     surveyClaim = function() return "ways=6 boarded=0 rooms=4" end,
     listKnoxHumans = function() return "" end,
     isCombatPatchReady = function() return false end,
+    worldSourceStatus = function() return "bridge=test" end,
+    hydrateWorldChunk = function(self, cx, cy)
+        return "H|protocol=SAOWS1|status=HYDRATED|mode=test|cx="
+            .. tostring(cx) .. "|cy=" .. tostring(cy)
+            .. "|revision=empty|sources=0\nE\n"
+    end,
+    observeWorldChunk = function(self, cx, cy)
+        return "H|protocol=SAOWS1|status=OBSERVED|mode=test|cx="
+            .. tostring(cx) .. "|cy=" .. tostring(cy)
+            .. "|revision=empty|sources=0\nE\n"
+    end,
 }
 '''
 

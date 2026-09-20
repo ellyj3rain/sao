@@ -9,11 +9,10 @@
 -- move, forever, under a daily dice roll that eventually kills them.
 -- The operator, exactly right: that is not a living mechanic.
 --
--- The county already knows where everything is. `IsoMetaGrid` is
--- built for the WHOLE map at world start and is independent of which
--- cells are loaded - it is what the map screen and the spawn regions
--- read. Every accessor used here is a public method on a class the
--- game ships:
+-- `IsoMetaGrid` describes fixed building geometry across the whole map
+-- and is independent of which cells are loaded. It does not describe
+-- current stock. Every geography accessor used here is a public method
+-- on a class the game ships:
 --
 --     getWorld():getMetaGrid()          IsoWorld.getMetaGrid()
 --     metaGrid:getBuildingAt(x, y)      -> BuildingDef
@@ -21,21 +20,22 @@
 --     building:getX/getY/getX2/getY2/getID
 --     room:getName()                    -> String
 --
--- `RoomDef:getName()` is the ontology. The map itself calls a room
+-- `RoomDef:getName()` supplies exploration vocabulary. The map calls a room
 -- `kitchen`, `bathroom`, `burgerkitchen`, `mechanic`, `barn` - and
 -- the shipped Distributions.lua is keyed by exactly those names,
 -- under a header that reads "Room List (A-Z)". That table is the
--- vocabulary; it is not a guess about one.
+-- vocabulary; it says what might generate there, never what is present now.
 --
--- This module holds only what is TRUE of the map. What a given
--- survivor knows about a place is belief and lives in SAO_Perception;
--- what they do about it is SAO_Population's.
+-- This module owns only stable geography and resource possibility. Exact
+-- native sources and their revisions live in SAO_WorldSources. What a given
+-- survivor knows lives in SAO_Perception; what they do about it is the
+-- population/controller's.
 
 SAO = SAO or {}
 SAO.Places = SAO.Places or {}
 local Pl = SAO.Places
 
--- What a desperate person would go somewhere FOR.
+-- What a desperate person might go somewhere to LOOK FOR.
 --
 -- The operator set the frame: a person cannot know anything up
 -- front beyond this being a house with things in it - it is the
@@ -64,29 +64,17 @@ Pl.OFFERS = {
                  "laboratory", "morgue" },
     -- The five above are what a body needs. This one is what the mod
     -- already says survivors go looking for: the ErrandRadius option
-    -- promises "food, water, weapons, and ammunition", and until now
-    -- the county had nowhere that meant any of it.
+-- promises "food, water, weapons, and ammunition". These remain search
+-- hints; arrival must observe exact native stock before acquisition.
     weapons = { "gunstore", "armysurplus", "armystorage", "armytent",
                 "policelocker", "evidenceroom", "pawnshop", "hunting",
                 "sportstore", "oldarmy" },
-    -- [B37] Where drink is kept in QUANTITY, as against a house
-    -- kitchen with a bottle or two in it. This is what water means
-    -- once the county has lost pressure, so it is deliberately narrow:
-    -- a shop, a bar, a brewery, a cafeteria - not every room that has
-    -- ever held food.
+    -- Where drink commonly generates. Native fluids decide whether any
+    -- usable water exists now.
     drink = { "grocery", "conveniencestore", "cornerstore", "gigamart",
               "liquorstore", "bar", "cafe", "brewery", "cafeteria",
               "generalstore", "gasstore", "gas2go" },
 }
-
--- [B37] Which water depends on the mains.
---
--- A bathroom is only a water source while Knox County still has
--- pressure. The engine decides when that ends and the mod does not
--- get a say: `SandboxOptions.randomWaterShut()` rolls a day count out
--- of the WaterShut setting and `getWaterShutModifier()` returns it,
--- both javap-verified. A pool and a water tank do not care.
-Pl.MAINS_WATER = { bathroom = true, laundry = true }
 
 -- Rooms whose names LOOK like an offer and are not one. `kitchenwares`
 -- sells pots; a starving person reading it as food from the road is a
@@ -102,24 +90,25 @@ local function lower(s)
 end
 
 -- ---------------------------------------------------------------
--- [B38] What a room actually CONTAINS
+-- [B38/R10a] What a room can generate
 -- ---------------------------------------------------------------
 --
--- The stems above read a room's NAME. The game knows what is in it.
+-- The stems above read a room's NAME. The distribution definitions say
+-- what kinds of item can generate there. They do not open a container,
+-- establish current quantity, or turn possibility into availability.
 --
 -- `SuburbsDistributions[room][container].procList` names procedural
 -- lists, and `ProceduralDistributions.list[name].items` is a flat
 -- array of item name and weight. Seventy-five of the operator's mods
 -- write into those tables, and 1143 item script files ship among
 -- them - so reading the merged table is how every one of their
--- additions reaches the county without this mod knowing any of their
--- names.
+-- additions reaches exploration without this mod knowing their names.
 --
 -- An item's offer is derived from WHAT IT DOES TO A BODY, not from
--- what it is called: `getHungerChange() < 0` is food, whoever made
--- it. That is the whole reason this beats the stems - a modded
--- ration pack nobody has ever heard of is food because the engine
--- says eating it helps.
+-- what it is called: `getHungerChange() < 0` is a possible food spawn,
+-- whoever made it. A modded ration pack nobody has heard of can guide
+-- a search because the engine says eating it helps; SAO_WorldSources
+-- must still observe its exact native item before anybody can take it.
 local MATERIAL = {
     food = true, water = true, drink = true,
     tools = true, weapons = true, medicine = true,
@@ -200,8 +189,9 @@ local function absorb(out, names)
     return any
 end
 
--- What the game says is in a room of this name. `false` when the
--- distribution tables have nothing to say, so the stems still answer.
+-- What the game says may generate in a room of this name. `false` when
+-- the distribution tables have nothing to say, so the stems still guide
+-- exploration.
 function Pl.contentOffers(roomName)
     local name = lower(roomName)
     if Pl.contentCache[name] ~= nil then return Pl.contentCache[name] end
@@ -233,13 +223,13 @@ function Pl.contentOffers(roomName)
     return Pl.contentCache[name]
 end
 
--- Which of the offers a room provides. A name may offer more than
+-- Which possibilities a room suggests. A name may suggest more than
 -- one (`hospitalhallway` is medicine and shelter) and that is the
 -- point - places are not single-purpose.
 --
--- [B38] Contents win where the game has an answer, because the game
--- knows and a stem only guesses. Shelter is the exception and comes
--- from the name either way: no item can express being indoors.
+-- [B38/R10a] Distribution-derived possibility wins where the game has an
+-- answer. Shelter comes from the name either way: no item can express
+-- being indoors. None of these flags assert current material stock.
 function Pl.offersOf(roomName)
     local stems = Pl.stemOffersOf(roomName)
     local content = Pl.contentOffers(roomName)
@@ -267,13 +257,6 @@ function Pl.offersOf(roomName)
         for _ in pairs(out) do any = true; break end
     end
     if not any then return nil end
-    -- The mains question is about plumbing, which is a fact about the
-    -- room rather than about anything sitting in it.
-    if out.water and not (stems and stems.water) then
-        out.storedWater = true
-    elseif out.water and stems and stems.storedWater then
-        out.storedWater = true
-    end
     return out
 end
 
@@ -291,214 +274,6 @@ function Pl.stemOffersOf(roomName)
         end
     end
     if not any then return nil end
-    -- [B37] Water that does not come out of a tap survives the
-    -- county losing pressure. Marked here, on the room, because it is
-    -- a fact about the room rather than about today.
-    if out.water then
-        local mains = false
-        for stem in pairs(Pl.MAINS_WATER) do
-            if string.find(name, stem, 1, true) then
-                mains = true
-                break
-            end
-        end
-        if not mains then out.storedWater = true end
-    end
-    return out
-end
-
--- ---------------------------------------------------------------
--- What is true of the county TODAY
--- ---------------------------------------------------------------
-
--- Has Knox County still got water pressure? The engine decides the
--- day and the mod reads it: `randomWaterShut()` rolls a day count out
--- of the WaterShut sandbox setting into `waterShutModifier`, and
--- `getWaterShutModifier()` returns it. A setting of Disabled leaves a
--- value at or below zero, which means it never happens.
-function Pl.waterIsOn()
-    local shutDay = nil
-    pcall(function()
-        shutDay = getSandboxOptions():getWaterShutModifier()
-    end)
-    if not shutDay or shutDay <= 0 then return true end
-    local days = 0
-    pcall(function()
-        days = SAO.History.countyHours() / 24.0
-    end)
-    return days < shutDay
-end
-
--- ---------------------------------------------------------------
--- [B39] The shelves are not infinite
--- ---------------------------------------------------------------
---
--- [B37] closed on what it could not do: "they cannot fail to find
--- water." [B37] answered that for water, by taking the mains away on
--- the engine's own clock. Food had no equivalent - a kitchen fed
--- everybody who ever walked into it, forever, and two hundred people
--- could live off one grocery.
---
--- A place is spent by being VISITED. That is derived from what the
--- county actually does rather than from a stock number invented per
--- building, and it is what makes places compete: a shop everyone
--- raids is empty, and the survivor who gets there second has to walk
--- further.
---
--- How much a place holds comes from how big it is - `getRoomsNumber`
--- on the BuildingDef, which the map already answers. And it refills
--- on the game's OWN loot clock: `SandboxVars.LootRespawn` decides
--- whether it ever does, `HoursForLootRespawn` says how often. The
--- shipped default is no respawn at all, so by default the county
--- empties permanently - which is the game's own answer to this
--- question and not mine.
---
--- The player's looting is NOT counted. There is no cheap way to know
--- what they emptied, so a shop the player stripped still reads full
--- to the county. Said plainly rather than left to be discovered.
-local TAKES_PER_ROOM = 3
-local MIN_CAPACITY = 4
-local MAX_CAPACITY = 60
-
-Pl.taken = Pl.taken or {}
-
-local function stockStore()
-    local store = nil
-    pcall(function()
-        store = ModData.getOrCreate("SurvivorAwareness_Places")
-    end)
-    if type(store) ~= "table" then return nil end
-    store.taken = store.taken or {}
-    return store
-end
-
-function Pl.capacityOf(place)
-    local rooms = (place and place.roomCount) or 1
-    local cap = rooms * TAKES_PER_ROOM
-    if cap < MIN_CAPACITY then cap = MIN_CAPACITY end
-    if cap > MAX_CAPACITY then cap = MAX_CAPACITY end
-    return cap
-end
-
--- The game's own refill clock. Nil when loot never respawns, which is
--- the shipped default.
-function Pl.refillHours()
-    local on, hours = nil, nil
-    pcall(function()
-        on = SandboxVars and SandboxVars.LootRespawn
-        hours = SandboxVars and tonumber(SandboxVars.HoursForLootRespawn)
-    end)
-    -- Option 1 is "None"; anything else is a real cadence.
-    if not on or on == 1 then return nil end
-    if not hours or hours <= 0 then return nil end
-    return hours
-end
-
-local function nowHours()
-    local h = 0
-    pcall(function()
-        h = SAO.History.countyHours()
-    end)
-    return h
-end
-
--- How many takes a place has had, after letting the loot clock give
--- some back.
-function Pl.takesAt(placeId)
-    local store = stockStore()
-    local row = store and store.taken and store.taken[tostring(placeId)]
-    if not row then return 0 end
-    local taken = tonumber(row.n) or 0
-    local refill = Pl.refillHours()
-    if refill then
-        local elapsed = nowHours() - (tonumber(row.at) or 0)
-        local back = math.floor(elapsed / refill)
-        if back > 0 then taken = taken - back end
-    end
-    if taken < 0 then taken = 0 end
-    return taken
-end
-
--- Somebody took something. Recorded against the place, not the person.
-function Pl.take(place)
-    if not place or not place.id then return end
-    local store = stockStore()
-    if not store then return end
-    local key = tostring(place.id)
-    local row = store.taken[key] or { n = 0, at = 0 }
-    row.n = Pl.takesAt(place.id) + 1
-    row.at = nowHours()
-    store.taken[key] = row
-end
-
--- [C60] The player's own looting, which the county could not see.
---
--- A survivor taking something calls `Pl.take` and the place is spent
--- for everybody. The player's looting called nothing, so a supermarket
--- the player had stripped still read as full stock and the county kept
--- walking to it - the standing gap [B39] recorded and left.
---
--- Nothing here counts the player's actions. The ENGINE marks a
--- container looted when it has been emptied (`isHasBeenLooted`, a flag
--- SAO never writes), so the honest reading is the ground itself:
--- how many containers around this place the game says are done with.
--- That is a read, and it cannot miss a way of taking things that
--- nobody thought to hook.
---
--- `n` is raised to the count, never lowered by it. A place the county
--- already spent does not refill because the player walked in, and the
--- refill clock still gives time back the way it always did. The stamp
--- moves only when the count actually raises it, so an untouched place
--- does not have its clock reset by being stood in.
-function Pl.observeLooted(place, lootedCount)
-    if not (place and place.id) then return 0 end
-    if type(lootedCount) ~= "number" or lootedCount <= 0 then return 0 end
-    local cap = Pl.capacityOf(place)
-    if lootedCount > cap then lootedCount = cap end
-    local had = Pl.takesAt(place.id)
-    if lootedCount <= had then return 0 end
-    local store = stockStore()
-    if not store then return 0 end
-    store.taken[tostring(place.id)] = { n = lootedCount, at = nowHours() }
-    return lootedCount - had
-end
-
--- Is there anything left here?
-function Pl.isSpent(place)
-    if not place or not place.id then return false end
-    return Pl.takesAt(place.id) >= Pl.capacityOf(place)
-end
-
--- What a place offers RIGHT NOW, as opposed to what its rooms are.
--- The difference is the whole point: a survivor remembers a bathroom
--- with water in it, walks back to it after the mains have gone, and
--- finds a dry tap. Belief is allowed to be wrong about the world;
--- that is what makes it belief.
-function Pl.offersNow(place)
-    if not place then return nil end
-    local out = {}
-    for k in pairs(place.offers) do out[k] = true end
-    out.storedWater = nil
-    if not Pl.waterIsOn() then
-        -- The taps are dry. What is left is what was standing or
-        -- stacked: a tank, a pool, or somewhere that kept drink by
-        -- the pallet. A house kitchen with a bottle in it is not a
-        -- water source for a day, so houses genuinely lose theirs -
-        -- which is the whole change, and it does not show in a count
-        -- of room NAMES because `bathroom` is one name in nearly
-        -- every building on the map.
-        if place.offers.storedWater or place.offers.drink then
-            out.water = true
-        else
-            out.water = nil
-        end
-    end
-    -- [B39] Emptied. A building that has been picked over is still a
-    -- building - it shelters, and it is still somewhere they know -
-    -- but there is nothing left in it to go there FOR.
-    if Pl.isSpent(place) then
-        for k in pairs(MATERIAL) do out[k] = nil end
-    end
     return out
 end
 
@@ -536,6 +311,8 @@ function Pl.at(x, y)
     if not id then return nil end
     if Pl.cache[id] then return Pl.cache[id] end
 
+    -- `offers` is retained as the established public field name, but it is
+    -- possibility only. Current quantity belongs exclusively to WorldSources.
     local place = { id = id, offers = {}, roomCount = 0 }
     local ok = pcall(function()
         place.minX, place.minY = def:getX(), def:getY()
@@ -559,9 +336,8 @@ function Pl.at(x, y)
     return place
 end
 
--- Does this place offer anything at all? A building of rooms none of
--- which read as an offer is still a building - it is shelter by being
--- indoors - but it is not somewhere to GO for a thing.
+-- Does this place suggest anything worth searching for? A building of rooms
+-- without a material hint is still a building, but not a directed errand.
 function Pl.offersAnything(place)
     if not place then return false end
     for _ in pairs(place.offers) do return true end
@@ -612,7 +388,7 @@ end
 -- social incentives and personal desires and understanding and
 -- awareness - never a permitted radius.
 -- The probe is what a person NOTICES around them; this is what they
--- KNOW - the county's own places - and how far knowledge reaches is
+-- KNOW - their own observed places - and how far knowledge reaches is
 -- not a dial. The horizon derives from the engine's own neighborhood
 -- quantum (the cell), and it moves with the asker: knowledge anchors
 -- to where you live and where you stand, not to a sandbox number.
@@ -636,93 +412,12 @@ end
 function Pl.comfortHorizon() return math.floor(Pl.cellSpan() / 2) end
 function Pl.commitHorizon() return math.floor(Pl.cellSpan() * 1.5) end
 
--- Nearest known place offering a thing, searched nearest-FIRST in
--- expanding square bands so the cost stops at the closest hit, not
--- at the horizon. Spent shelves and today's dry taps are skipped -
--- offersNow, not the floor plan. Claims are deliberately NOT judged
--- here: whose ground it is belongs to the caller's law, same as a
--- noticed source.
-local RING_STEP = 30
-
-Pl.know_cache = Pl.know_cache or {}
-
-local function ringScan(x, y, offer, rMin, rMax)
-    local seen, best, bestD = {}, nil, nil
-    local px = -rMax
-    while px <= rMax do
-        local py = -rMax
-        while py <= rMax do
-            -- the band only: inside rMax, outside rMin
-            if math.max(math.abs(px), math.abs(py)) >= rMin then
-                local place = Pl.at(x + px, y + py)
-                if place and not seen[place.id] then
-                    seen[place.id] = true
-                    local now = Pl.offersNow(place)
-                    if now and now[offer] then
-                        local dx = place.cx - x
-                        local dy = place.cy - y
-                        local d = dx * dx + dy * dy
-                        if not bestD or d < bestD then
-                            best, bestD = place, d
-                        end
-                    end
-                end
-            end
-            py = py + PROBE_STRIDE
-        end
-        px = px + PROBE_STRIDE
-    end
-    return best
-end
-
-function Pl.nearestOffering(x, y, offer, horizon)
-    x, y = math.floor(x), math.floor(y)
-    horizon = horizon or Pl.comfortHorizon()
-    -- Knowledge is coarse: anchored to the neighborhood you are in,
-    -- so a walker does not pay a fresh sweep every stride.
-    local qx = math.floor(x / RING_STEP) * RING_STEP
-    local qy = math.floor(y / RING_STEP) * RING_STEP
-    local key = qx .. ":" .. qy .. ":" .. offer .. ":" .. horizon
-    local held = Pl.know_cache[key]
-    if held ~= nil then
-        if held.none then
-            -- "There is none around here" is belief too, and the
-            -- world refills ([B39]) - so the conclusion lasts a day,
-            -- the same unit the dormant half already measures need
-            -- in, and then they wonder again.
-            if nowHours() - (held.at or 0) < 24 then return nil end
-            Pl.know_cache[key] = nil
-        else
-            -- Belief revalidated at use: the place may have been
-            -- eaten bare or lost its tap since it was learned. Stale
-            -- knowledge is forgotten and searched anew, which is
-            -- what people do.
-            local now = Pl.offersNow(held.place)
-            if now and now[offer] then return held.place end
-            Pl.know_cache[key] = nil
-        end
-    end
-    local rMin = 0
-    while rMin < horizon do
-        local rMax = math.min(rMin + RING_STEP, horizon)
-        local place = ringScan(qx, qy, offer, rMin, rMax)
-        if place then
-            Pl.know_cache[key] = { place = place }
-            return place
-        end
-        rMin = rMax
-    end
-    Pl.know_cache[key] = { none = true, at = nowHours() }
-    return nil
-end
-
 -- Forget the map. Only for a world change - the cache is keyed by
 -- building id and origin, both of which belong to one world.
 function Pl.reset()
     Pl.cache = {}
     Pl.around_cache = {}
     Pl.contentCache = {}
-    Pl.know_cache = {}
     gridCache = nil
     cellSpanCache = nil
 end

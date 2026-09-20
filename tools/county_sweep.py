@@ -162,6 +162,7 @@ MODULES = [
     "shared/SAO_PathogenEvents.lua", "shared/SAO_WorldGenesis.lua",
     "shared/SAO_Seams.lua", "shared/SAO_Standing.lua",
     "shared/SAO_Perception.lua", "shared/SAO_Places.lua",
+    "shared/SAO_WorldSources.lua",
     "client/SAO_AfflictedReturn.lua", "client/SAO_Nuke.lua",
     "client/SAO_Age.lua", "client/SAO_Telemetry.lua",
     "shared/SAO_PhysicalFacts.lua",

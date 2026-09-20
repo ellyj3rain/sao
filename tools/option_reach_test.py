@@ -257,7 +257,7 @@ def main():
         "the day's reach derives from the county's horizons":
             "comfortHorizon()" in dormant,
         "need cuts ahead of curiosity through the knowledge search":
-            "nearestOffering" in dormant,
+            "SAO.WorldSources.nearestBelieved" in dormant,
         "the errand dial is gone from the whole tree":
             "ErrandRadius" not in stripped_tree,
         "and the hardcoded reach is gone":

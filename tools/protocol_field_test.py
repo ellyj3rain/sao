@@ -29,7 +29,7 @@ has ever put a punctuation mark in a name.
 WHAT THIS CHECKS
 ----------------
 Each builder is declared with the delimiters its own protocol uses,
-and its method body must strip every one of them from the values it
+and its method body must strip or encode every one of them in values it
 packs. Not a global rule about which characters are dangerous -
 `':'` is a delimiter in the perception frame and ordinary text in the
 census's `key=value` rows, and a border that insisted on one answer
@@ -71,6 +71,10 @@ BUILDERS = {
     ("SAOAnimals.java", "near"): (
         "|@",
         "an animal type from the engine's designated ranch"),
+    ("SAOWorldSources.java", "encode"): (
+        "|=",
+        "native item types, fluid names, and container types from the "
+        "loaded world's own objects"),
 }
 
 METHOD = re.compile(r"^\s{4}(?:public|private|protected|static).*?"
@@ -97,10 +101,14 @@ def method_body(src, name):
     return None
 
 
-def strips(body, ch):
-    """Does this body remove `ch` from something?"""
+def protects(body, ch):
+    """Does this body remove or percent-encode `ch`?"""
     esc = re.escape(ch)
-    return bool(re.search(r"replace\(\s*['\"]" + esc + r"['\"]", body))
+    if re.search(r"replace\(\s*['\"]" + esc + r"['\"]", body):
+        return True
+    explicit = re.search(r"\bc\s*==\s*['\"]" + esc + r"['\"]", body)
+    percent = re.search(r"append\(\s*['\"]%['\"]\s*\)", body)
+    return bool(explicit and percent)
 
 
 def main():
@@ -144,14 +152,14 @@ def main():
             if hb:
                 reach += hb
 
-        missing = [c for c in delims if not strips(reach, c)]
+        missing = [c for c in delims if not protects(reach, c)]
         print(f"     {fname}:{method}  delimiters {delims!r}  "
               f"{'ok' if not missing else 'MISSING ' + repr(''.join(missing))}")
         if missing:
             faults.append(
                 f"{fname}:{method} packs {what}, and its protocol is "
                 f"delimited by {delims!r} - but nothing strips "
-                f"{''.join(missing)!r} from what it packs. One of those "
+                f"{''.join(missing)!r} from or encode it in what it packs. One of those "
                 "characters in a value splits a record in half, and the "
                 "Lua half skips the fragment it cannot parse: a phantom "
                 "entry appears, a real one goes missing, and nothing is "
@@ -183,7 +191,7 @@ def main():
             print(f"  FAULT: {f}")
         return 1
     print(f"  70) protocol fields: all {len(BUILDERS)} delimited builders "
-          "strip their own delimiters from the foreign text they pack")
+          "protect their own delimiters in the foreign text they pack")
     return 0
 
 

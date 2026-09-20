@@ -1,0 +1,1 @@
+cp: cannot create directory '/root/Zomboid/mods/SurvivorAwareness': No such file or directory

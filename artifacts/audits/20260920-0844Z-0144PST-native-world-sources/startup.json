@@ -1,0 +1,40 @@
+﻿{
+    "captured_utc":  "2026-09-20T09:08:04.7591188Z",
+    "version":  "2.7.15.3-pre-alpha",
+    "observed_process_id":  37312,
+    "observed_window":  "Project Zomboid",
+    "observed_responsive":  true,
+    "process_left_open":  true,
+    "screenshot":  ".git/c61-startup.png",
+    "visual_observation":  "Responsive Project Zomboid window; ZombieBuddy overlay lists SurvivorAwareness and ZombieAwareness among four active Java mods.",
+    "agent_markers":  {
+                          "premain":  true,
+                          "loot_density_retransformed":  true,
+                          "bridge_exposed":  true
+                      },
+    "lua_compile_errors":  {
+                               "Controller":  false,
+                               "Standing":  false,
+                               "debug_local_overflow":  false
+                           },
+    "module_load_markers":  [
+                                "[SAO][POP] population module loaded",
+                                "[SAO][HARNESS] harness loaded"
+                            ],
+    "module_markers_present":  true,
+    "world_loaded_by_agent":  false,
+    "save_files":  44092,
+    "save_metadata_unchanged":  true,
+    "limits":  "Startup evidence only. No save was loaded, so save-backed offscreen hydration and loaded-world behavior remain unobserved.",
+    "other_errors":  "Existing third-party translation, compatibility, asset-template and fluid-name warnings remain outside C61; no SAO compilation or load refusal was observed.",
+    "captured_log_prefixes":  {
+                                  ".git/c61-launch-stdout.txt":  {
+                                                                     "bytes":  4855714,
+                                                                     "sha256":  "47308b1dbdf1e3464642139b56421cafdec86a899e67509af941a42fd6dfd307"
+                                                                 },
+                                  ".git/c61-launch-stderr.txt":  {
+                                                                     "bytes":  1329914,
+                                                                     "sha256":  "a1674ae16ee752eb3b9118ac8ae55ba3d587a38864fd8d5159852ff4eb3e4a16"
+                                                                 }
+                              }
+}

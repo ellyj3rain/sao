@@ -1,6 +1,6 @@
 | Document | Survivor Awareness Overhaul Maps |
 |---|---|
-| Version | `2.7.15.2-pre-alpha` |
+| Version | `2.7.15.3-pre-alpha` |
 | Author | ellyj3rain |
 | Repository | `MAPS.md` |
 | Status | CANONICAL - the three pictures a human reads first: runtime, knowledge, catalog. |
@@ -32,6 +32,7 @@ flowchart LR
         SC["SAOPerceptionScanner - faces, occlusion"]
         CP["SAOCombat + transformer - melee"]
         HB["SAOHibernation - pack and restore"]
+        NWS["SAOWorldSources - native chunk hydration and exact source rows"]
     end
     subgraph Lua["mod/42.20/media/lua - the county"]
         POP["Population - genesis, bands, dormant days, the boot digest"]
@@ -45,7 +46,8 @@ flowchart LR
         VOI["Voice - decisions rendered audible"]
         NDS["Needs - hunger/thirst/wounds through timed actions"]
         LOC["Locomotion - verdict consumer; stalls and faults give up locally"]
-        PLA["Places - what a place offers, spent by visits"]
+        PLA["Places - geography and where a person may search"]
+        WSO["WorldSources - private exact observations, conflicts and reservations"]
         NBR["Neighbours - the neighbour framework's narration, held"]
         BOD["Body - materialization and ownership transactions"]
         SNP["BodySnapshot - capture, validate, commit"]
@@ -56,7 +58,9 @@ flowchart LR
         TEL["Telemetry - the learning history, required inert"]
     end
     Lua -- "SAOJavaBridge - the county's one Java door" --> BR
-    BR --> MV & SC & CP & HB
+    BR --> MV & SC & CP & HB & NWS
+    WSO -- "hydrate or observe" --> BR
+    NWS -- "complete revisioned protocol" --> BR
     T --> POP
     T --> CTL
     D --> CTL
@@ -68,11 +72,12 @@ flowchart LR
     ATT --> IDE & PER & PLA & STA
     DEV --> ATT & STA
     POP --> IDE & BOD & TEL
+    POP --> PLA --> WSO
     BOD --> SNP --> HB
     EXC --> PER & STA & VOI
     IDE --> MD
     STA --> MD
-    PLA --> MD
+    WSO --> MD
     M --> RDE --> STA
     R --> Lua
     CTX --> HAR --> UIX
@@ -83,8 +88,9 @@ Rules these edges honor: Lua never iterates or indexes an engine object - the
 bridge hands back verdict strings or opaque values
 ([`ARCHITECTURE.md`, the interop law](ARCHITECTURE.md)); one
 action owns a body at a time ([`SAO_Controller.lua`](mod/42.20/media/lua/client/SAO_Controller.lua)
-- DR-011); the save is Identity's records, Standing's store, and Places'
-depletion rows ([DR-002, DR-005](DECISION_REGISTRY.md); [B39](Batches/)).
+- DR-011); the save keeps Identity's records, Standing's store, place geography
+and attachment, and WorldSources' bounded exact observations and conflicts.
+Room vocabulary is search possibility rather than stock ([DR-043](DECISION_REGISTRY.md)).
 
 ## Knowledge - how a fact is allowed to arrive
 
@@ -98,7 +104,7 @@ flowchart TD
         UNK["unknown - a caller that did not say (border 39-fault)"]
     end
     subgraph Bel["the belief store (SAO_Perception)"]
-        B1["zombies / people / factions / places, timestamped, personal distance"]
+        B1["zombies / people / factions / places / exact source observations, timestamped and private"]
     end
     OBS --> B1
     HRD --> B1
