@@ -1,0 +1,28 @@
+{
+    "captured_utc":  "2026-09-20T05:51:15.5960738Z",
+    "version":  "2.7.15.2-pre-alpha",
+    "observed_process_id":  158632,
+    "observed_window":  "Project Zomboid",
+    "observed_responsive":  true,
+    "process_exited_after_capture":  true,
+    "screenshot":  ".git/c60-startup.png",
+    "visual_observation":  "Responsive Project Zomboid window; ZombieBuddy overlay lists SurvivorAwareness and ZombieAwareness among four active Java mods.",
+    "lua_compile_errors":  {
+                               "Controller":  false,
+                               "Standing":  false,
+                               "debug_local_overflow":  false
+                           },
+    "module_load_markers":  [
+                                "[SAO][POP] population module loaded",
+                                "[SAO][HARNESS] harness loaded"
+                            ],
+    "module_markers_present":  true,
+    "world_loaded_by_agent":  false,
+    "save_metadata_unchanged":  true,
+    "limits":  "Startup/main-screen evidence only; loaded-world behavior remains unobserved.",
+    "other_errors":  "Existing third-party translation, compatibility and asset-bone warnings remain outside this SAO repair; no SAO compile or load refusal observed.",
+    "captured_logs":  {
+                          ".git\\c60-launch-stdout.txt":  "a00d89555222a9660da24f6557489aea7fc8305adf8fb10c4b043abb340d0683",
+                          ".git\\c60-launch-stderr.txt":  "b3677e4c82f227ac1df70534d653aaf9e184194e25442473a7d63159bec866a9"
+                      }
+}

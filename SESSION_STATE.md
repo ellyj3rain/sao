@@ -1,20 +1,20 @@
 | Document | Survivor Awareness Overhaul Session State |
 |---|---|
-| Version | `2.7.15.1-pre-alpha` |
+| Version | `2.7.15.2-pre-alpha` |
 | Author | ellyj3rain |
 | Repository | `SESSION_STATE.md` |
 | Status | CANONICAL - current implementation and continuation. |
 
 # Session state
 
-**As of** 2026-09-20, `[C59]` repairs debug-mode Lua compilation.
-C58 closes population reconstruction and scheduling,
+**As of** 2026-09-20, `[C60]` closes the audited loaded perception and world-access repairs and specifies the R10a source substrate.
+C59 repairs debug-mode Lua compilation. C58 closes population reconstruction and scheduling,
 the second whole-mod restructuring unit. C57 established shared body snapshots
 and consolidated native continuity verification. C56
 closed R5 health and dormant physiology after durable/runtime reconstruction,
 native person continuity, shared county time and the authorized Afflicted return.
 The C catalog is consolidated by adjacency and content using
-the A/B precedent: 29 A-batches, 52 B-batches and 59 C units. BATCH_LOG.md owns
+the A/B precedent: 29 A-batches, 52 B-batches and 60 C units. BATCH_LOG.md owns
 the chronology. Batches/FORMER_LABELS.md maps every former entry;
 Batches/C_RECATALOG.json preserves original paths and source hashes. The
 original records remain at local ref `archive/c-era-raw-20260919`.
@@ -40,7 +40,7 @@ producers, persistence, evidence and gaps.
 | Person continuity | Durable identity, C51's body transaction, C52's authorized return/adoption/teardown, C54's v4 native state, C55/A36 reconstruction and C56/A37 one-way Crossed ownership of the same human shell and dormant envelope | R7's general action completion and later action-specific ownership remain open. |
 | Time and health | Current decision time, durable drug/abstinence clocks, current physical inputs, exact interval-integrated brain history, medical/inspect graph and memory/decision/affective/motor consumers | R5 is closed. Performed treatment and care still depend on R7/R9 action producers. |
 | Afflicted and Crossed | ZAO pathogen state, Afflicted return, reachable Crossed decisions and an interruptible non-feeding blood exposure whose exact-once result transfers SAO's living body to ZAO | The retained human weapons, tools, strategy and wider action vocabulary remains R7-R9 work; grounded dormant opportunities remain R10. |
-| Knowledge and access | Private beliefs, scanner, remembered sources, permission | Animals enter human beliefs; integrations can read inaccessible or unperceived state. |
+| Knowledge and access | Private beliefs; animal-safe scanner output; fresh/current activity partners; loaded cached sources with floor, obstruction and live vehicle permission retained through timed transfer | The audited loaded R6 paths close in C60. Dormant opportunity still lacks R10a's native source ledger and loaded-chunk reconciliation. |
 | Social development | Company mechanics, claims, observations, graph APIs | Automatic relocation and recognition; incomplete provisioning, affiliation, governance and other producers. |
 | Speakeasy data | 190 ratified choices, cross-module contract, approved world documents | Mutable decision snapshots, source conditioning, executable options and complete capture provenance. |
 | Models and late starts | Inference primitives, fact constraint, offline diagnostics | No trained cognition model, complete training/export path or validated accelerator. |
@@ -87,16 +87,24 @@ the normal-mode gate accepted them. Existing phases now compile separately;
 Border 50 verifies both debug configurations and the exact cumulative-local
 failure. The correction is F-090; the C58 offline gate was insufficient for
 startup readiness.
-The explicit C59 scope scan checked both changed Lua files and a known-bad
-fixture. The existing gate passes no paths to that diagnostic scanner and thus
-examines no files; R6 preparation owns wiring its source inventory and validating
-candidate shapes. Its current zero is not counted as a clean source sweep.
 
-The next implementation unit is perception and world access: R6 fixes actual
-scan/access paths and R10a investigates world sources before dormant opportunity
-can consume them. R6-R15 remain
-obligations and move with their owning contracts. The structural inventory is
-complete for its stated baseline; the semantic audit remains partial.
+C60 wires the scope scan to all shipped Lua and refuses empty input. The loaded
+R6 repair now excludes animals before person output, consumes installed prone
+and target-deactivation state, and requires fresh firsthand plus current
+physical visibility for cashier and play partners. Cached sources require loaded
+identity, floor, reach and obstruction; vehicles retain current part permission;
+the vanilla-derived world transfer rechecks that authority through completion.
+The review panel found and then verified closure of stale-floor, unloaded-
+vehicle, generic-transfer and ground-offer defects. Borders 154, 155, 157, 176
+and 177 carry their independent controls.
+
+R10a is the next implementation unit. Its C60 inventory distinguishes meta-grid
+geography, resource possibility, native loaded stock and physical access. Its
+ordered contract is native source identity, explicit observation state,
+reservation/result, loaded-chunk conflict reconciliation and consumer migration
+away from room-derived availability. This is understood and planned work rather
+than an unspecified open edge. Dormant R6 proof and R9 provisioning wait for its
+producer. R7-R15 otherwise retain their dependency order.
 
 R1 closes in C52 and ZAO A35. The living transaction, source holding and
 acknowledged removal, controller adoption, failure diagnostics, repeated-death
@@ -193,7 +201,8 @@ R5 closes in C56 and ZAO A37. Current physical inputs, partition-invariant
 dormant physiology, drug cadence, intentional Crossed blood exposure and the
 event-derived brain-health history now have durable producers and controlled
 receipts. R10a is the next grounding layer for unloaded world sources and
-reconciliation; R6 repairs perception and access against that substrate.
+reconciliation; C60 closes the loaded R6 repair and leaves its dormant proof
+attached to that substrate.
 R11-R12 can progress alongside them. Pathogen state and installed brain-history
 ownership continue to belong to ZAO.
 
@@ -220,11 +229,11 @@ consequences remain separate from the learned policy choosing among them.
 
 ## Verification and installed state
 
-C57 consolidates three native entry points into one: the gate invokes 173
-`*_test.py` files and 13 other Python entry points, 186 distinct scripts. Border
-labels extend through 175; legacy labels 163/169/174 share the native suite.
-These are distinct counting units. C58 ships 73 Lua source files; the gate
-entry-point counts remain unchanged.
+C57 consolidates three native entry points into one. With C60's two new access
+borders, the gate invokes 175 `*_test.py` files and 13 other Python entry points,
+188 distinct scripts. Border labels extend through 177; legacy labels
+163/169/174 share the native suite. These are distinct counting units. The mod
+ships 73 Lua source files.
 ZAO A37 has ten borders. The
 published C51 baseline has 163 borders through 178 mirrors. These counts describe the
 apparatus, not acceptance. The audit reproduced defects while targeted checks
@@ -236,13 +245,13 @@ C51's separate first gate found a verdict-prefix defect and missing transition
 registry surfaces/lifetimes. Its failed output is preserved with the corrections;
 the closing full gate passed with exit 0.
 
-The current install is C59 with ZAO A37, deployed on 2026-09-20 UTC.
+The current install is C60 with ZAO A37, deployed on 2026-09-20 UTC.
 All 255 installed SAO files match source; the companion remains unchanged.
-The SAO jar SHA-256 is `9eebc9a14d1d54a8fde902fb78c68983f21d7c09bb0317b17babe5fb614818d3`.
+The SAO jar SHA-256 is `839751ee6d16dd5f5ac8d9ed81ca507b70af410ff466ee08503f78a9107595eb`.
 All 44,092 save-file sizes and modification times remained unchanged across
-deployment. The [C59 evidence record](artifacts/audits/20260920-0414Z-2114PST-debug-compilation/README.md)
-holds the compiler reproduction, extraction review and deployment receipt.
-Startup validation is recorded there separately from loaded-world acceptance.
+deployment and startup. The [C60 evidence record](artifacts/audits/20260920-0517Z-2217PST-perception-world-access/README.md)
+holds the matrix, R10a contract, review, deployment and startup receipts.
+Startup validation is separate from loaded-world acceptance.
 The ZAO A37 tooltip-formatting follow-up recorded with C57 remains open.
 The source coordinate follows
 the consolidated replay; its movement does not measure implementation quality.

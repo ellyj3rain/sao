@@ -29,6 +29,8 @@ public final class SAONeeds {
         ItemContainer container;
         InventoryItem item;
         int x, y, z;
+        zombie.vehicles.BaseVehicle vehicle;
+        int vehiclePartIndex = -1;
     }
 
     private static final Map<IsoPlayer, FoodSource> SOURCES = new WeakHashMap<>();
@@ -985,6 +987,7 @@ public final class SAONeeds {
                 for (int i = 0; i < parts.size(); i++) {
                     zombie.vehicles.VehiclePart part = parts.get(i);
                     if (part == null || !part.isContainer()) continue;
+                    if (!vehicle.canAccessContainer(i, shell)) continue;
                     ItemContainer c = part.getItemContainer();
                     if (c != null) found.add(c);
                 }
@@ -1467,6 +1470,7 @@ public final class SAONeeds {
                     for (int i = 0; i < parts.size(); i++) {
                         zombie.vehicles.VehiclePart part = parts.get(i);
                         if (part == null || !part.isContainer()) continue;
+                        if (!vehicle.canAccessContainer(i, shell)) continue;
                         ItemContainer container = part.getItemContainer();
                         if (container != null) {
                             best = container;
@@ -1592,13 +1596,11 @@ public final class SAONeeds {
         // that holds because somebody reasoned about getX() is
         // weaker than one that holds by construction.
         try {
-            FoodSource source = SOURCES.get(shell);
+            FoodSource source = validSource(shell);
             if (source == null) {
                 return false;
             }
-            float dx = shell.getX() - (source.x + 0.5f);
-            float dy = shell.getY() - (source.y + 0.5f);
-            return (dx * dx + dy * dy) <= 4.0f;
+            return sourceWithinReach(shell, source);
         } catch (Throwable throwable) {
             return false;
         }
@@ -1614,6 +1616,10 @@ public final class SAONeeds {
             if (source == null || source.container == null || source.item == null) {
                 return null;
             }
+            if (!refreshVehicleSource(shell, source)) {
+                SOURCES.remove(shell);
+                return null;
+            }
             if (!source.container.contains(source.item)) {
                 SOURCES.remove(shell);
                 return null;
@@ -1622,6 +1628,50 @@ public final class SAONeeds {
         } catch (Throwable throwable) {
             return null;
         }
+    }
+
+    /**
+     * [C60] A vehicle source is a moving, permissioned source. Its container
+     * identity stays stable while coordinates and access do not, so every
+     * consumer refreshes both before returning the cached item/container.
+     */
+    private static boolean refreshVehicleSource(IsoPlayer shell,
+                                                 FoodSource source) {
+        if (source.vehicle == null) {
+            return true;
+        }
+        IsoCell cell = shell.getCell();
+        IsoGridSquare square = source.vehicle.getSquare();
+        if (cell == null || square == null || square.getCell() != cell
+                || source.vehicle.isRemovedFromWorld()
+                || !cell.getVehicles().contains(source.vehicle)) {
+            return false;
+        }
+        int index = source.vehiclePartIndex;
+        zombie.vehicles.VehicleParts parts = source.vehicle.getParts();
+        if (index < 0 || index >= parts.size()) {
+            return false;
+        }
+        zombie.vehicles.VehiclePart part = parts.get(index);
+        if (part == null || !part.isContainer()
+                || part.getItemContainer() != source.container
+                || !source.vehicle.canAccessContainer(index, shell)) {
+            return false;
+        }
+        source.x = (int) source.vehicle.getX();
+        source.y = (int) source.vehicle.getY();
+        source.z = square.getZ();
+        return true;
+    }
+
+    /** One interaction law for every remembered material source. */
+    private static boolean sourceWithinReach(IsoPlayer shell, FoodSource source) {
+        if (shell == null || source == null || (int) shell.getZ() != source.z) {
+            return false;
+        }
+        float dx = shell.getX() - (source.x + 0.5f);
+        float dy = shell.getY() - (source.y + 0.5f);
+        return (dx * dx + dy * dy) <= 4.0f;
     }
 
     /** Fluids a survivor will willingly drink for thirst. */
@@ -1770,12 +1820,11 @@ public final class SAONeeds {
     public static boolean waterSourceWithinReach(IsoPlayer shell) {
         try {
             IsoObject object = WATER_SOURCES.get(shell);
-            if (object == null || object.getSquare() == null) {
+            IsoGridSquare square = object == null ? null : object.getSquare();
+            if (square == null || !squareWithinReach(shell, square)) {
                 return false;
             }
-            float dx = shell.getX() - (object.getSquare().getX() + 0.5f);
-            float dy = shell.getY() - (object.getSquare().getY() + 0.5f);
-            return (dx * dx + dy * dy) <= 4.0f;
+            return true;
         } catch (Throwable throwable) {
             return false;
         }
@@ -1835,6 +1884,7 @@ public final class SAONeeds {
             for (int i = 0; i < parts.size(); i++) {
                 zombie.vehicles.VehiclePart part = parts.get(i);
                 if (part == null || !part.isContainer()) continue;
+                if (!vehicle.canAccessContainer(i, shell)) continue;
                 ItemContainer container = part.getItemContainer();
                 if (container == null) continue;
                 java.util.ArrayList<InventoryItem> items = container.getItems();
@@ -1844,6 +1894,8 @@ public final class SAONeeds {
                     FoodSource source = new FoodSource();
                     source.container = container;
                     source.item = item;
+                    source.vehicle = vehicle;
+                    source.vehiclePartIndex = i;
                     source.x = (int) vehicle.getX();
                     source.y = (int) vehicle.getY();
                     source.z = (int) vehicle.getZ();
@@ -1992,13 +2044,11 @@ public final class SAONeeds {
         // that holds because somebody reasoned about getX() is
         // weaker than one that holds by construction.
         try {
-            FoodSource source = WEAPON_SOURCES.get(shell);
+            FoodSource source = validWeaponSource(shell);
             if (source == null) {
                 return false;
             }
-            float dx = shell.getX() - (source.x + 0.5f);
-            float dy = shell.getY() - (source.y + 0.5f);
-            return (dx * dx + dy * dy) <= 4.0f;
+            return sourceWithinReach(shell, source);
         } catch (Throwable throwable) {
             return false;
         }
@@ -2331,13 +2381,11 @@ public final class SAONeeds {
         // that holds because somebody reasoned about getX() is
         // weaker than one that holds by construction.
         try {
-            FoodSource source = AMMO_SOURCES.get(shell);
+            FoodSource source = validFrom(AMMO_SOURCES, shell);
             if (source == null) {
                 return false;
             }
-            float dx = shell.getX() - (source.x + 0.5f);
-            float dy = shell.getY() - (source.y + 0.5f);
-            return (dx * dx + dy * dy) <= 4.0f;
+            return sourceWithinReach(shell, source);
         } catch (Throwable throwable) {
             return false;
         }
@@ -2445,8 +2493,10 @@ public final class SAONeeds {
     public static Object offeredWorldItem(IsoPlayer shell) {
         try {
             zombie.iso.objects.IsoWorldInventoryObject worldItem = OFFERED.get(shell);
-            if (worldItem == null || worldItem.getSquare() == null
-                || worldItem.getItem() == null) {
+            IsoGridSquare square = worldItem == null ? null : worldItem.getSquare();
+            if (square == null || worldItem.getItem() == null
+                    || !square.getWorldObjects().contains(worldItem)
+                    || !squareWithinReach(shell, square)) {
                 OFFERED.remove(shell);
                 return null;
             }
@@ -2458,6 +2508,53 @@ public final class SAONeeds {
 
     public static void clearOffered(IsoPlayer shell) {
         OFFERED.remove(shell);
+    }
+
+    /**
+     * Current use-time authority for a world container. The timed action asks
+     * this on every validity pass, so a moved or newly locked vehicle cannot
+     * be mutated from a stale selection.
+     */
+    public static boolean containerAccessibleNow(IsoPlayer shell,
+                                                 ItemContainer container) {
+        try {
+            if (shell == null || container == null) return false;
+            if (container == shell.getInventory()
+                    || container.isInCharacterInventory(shell)) return true;
+            if (container.isVehiclePart()) {
+                zombie.vehicles.BaseVehicle vehicle = container.getVehicle();
+                zombie.vehicles.VehiclePart part = container.getVehiclePart();
+                IsoCell cell = shell.getCell();
+                IsoGridSquare square = vehicle == null ? null : vehicle.getSquare();
+                return vehicle != null && part != null && cell != null
+                    && square != null && square.getCell() == cell
+                    && !vehicle.isRemovedFromWorld()
+                    && cell.getVehicles().contains(vehicle)
+                    && part.getItemContainer() == container
+                    && vehicle.canAccessContainer(part.getIndex(), shell)
+                    && squareWithinReach(shell, square);
+            }
+            IsoGridSquare square = container.getSourceGrid();
+            if (square == null && container.getParent() != null) {
+                square = container.getParent().getSquare();
+            }
+            return squareWithinReach(shell, square);
+        } catch (Throwable throwable) {
+            return false;
+        }
+    }
+
+    /** Same loaded cell, floor, arm's reach and unobstructed interaction. */
+    private static boolean squareWithinReach(IsoPlayer shell,
+                                             IsoGridSquare square) {
+        if (shell == null || square == null || shell.getCell() == null
+                || square.getCell() != shell.getCell()
+                || square.getZ() != (int) shell.getZ()) return false;
+        IsoGridSquare here = shell.getCurrentSquare();
+        if (here == null) return false;
+        float dx = shell.getX() - (square.getX() + 0.5f);
+        float dy = shell.getY() - (square.getY() + 0.5f);
+        return (dx * dx + dy * dy) <= 4.0f && !here.isSomethingTo(square);
     }
 
     /** Named corpses lying within radius, as "tag:x:y|tag:x:y|...", where

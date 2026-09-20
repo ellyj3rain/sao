@@ -3,8 +3,9 @@ r"""Border 155 - an animal is not a foreign person.
 
 Build 42 animals are `IsoAnimal`, which extends `IsoPlayer`.  The old
 foreign-person predicate recognised an off-slot non-shell `IsoPlayer` and
-therefore filed every animal as somebody from another NPC framework.  That
-made an animal a human belief and let a later human-body lookup target it.
+therefore filed every animal as somebody from another NPC framework.  The
+predicate repair alone was insufficient: the broader scan branch still emitted
+the animal as a human `P` row before any lookup used that classification.
 
 This holds the class order: animals stop before the person fallthrough;
 our shells and slot players remain excluded; a genuine off-slot human is
@@ -45,6 +46,7 @@ def method_body(src, name):
 
 def source_faults(scanner_src, bridge_src):
     predicate = method_body(scanner_src, "isForeignPerson")
+    scan = method_body(scanner_src, "scan")
     combat = method_body(bridge_src, "beginCombatWithName")
     faults = []
     if "import zombie.characters.animals.IsoAnimal;" not in scanner_src:
@@ -59,6 +61,10 @@ def source_faults(scanner_src, bridge_src):
     elif (shell >= 0 and guard.start() > shell) or \
             (slots >= 0 and guard.start() > slots):
         faults.append("the animal guard runs after the person fallthrough")
+    scan_guard = scan.find("!(person instanceof IsoAnimal)")
+    human_output = scan.find('appendIfVisible(out, "P", label')
+    if scan_guard < 0 or human_output < 0 or scan_guard > human_output:
+        faults.append("the actual scanner can emit an IsoAnimal as a human P row")
     if "person instanceof IsoAnimal" not in combat:
         faults.append("the named-combat lookup can target an IsoAnimal")
     return faults
@@ -114,6 +120,14 @@ def main():
         faults.append("CONTROL removed the scanner animal guard but the "
                       "border passed")
 
+    bad_output = scanner_src.replace(
+        "                && !(person instanceof IsoAnimal)\n", "", 1)
+    if bad_output == scanner_src:
+        faults.append("CONTROL did not remove the emitted-row animal guard")
+    elif not source_faults(bad_output, bridge_src):
+        faults.append("CONTROL removed the emitted-row animal guard but the "
+                      "border passed")
+
     bad_bridge = re.sub(r"\s*\|\|\s*person\s+instanceof\s+IsoAnimal",
                         "", bridge_src, count=1)
     if bad_bridge == bridge_src:
@@ -125,7 +139,7 @@ def main():
         for fault in faults:
             print("FAULT: " + fault)
         return 1
-    print("155) animals leave the person path before foreign classification")
+    print("155) animals leave the person path before classification and P-row output")
     return 0
 
 

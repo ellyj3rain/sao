@@ -61,6 +61,10 @@ def source_faults(scanner_src, combat_src, director_src, equipment_src, bridge_s
         faults.append("scanner does not tag prone zombie beliefs with :prone")
     if 'belief.prone = true' not in perp_lua:
         faults.append("SAO_Perception.lua does not parse prone stance onto beliefs")
+    if 'getVariableBoolean("ltsproneposition")' not in scanner_src:
+        faults.append("scanner omits Lethal Stealth's live prone variable")
+    if 'rawget("ret_lts_acostado")' not in scanner_src:
+        faults.append("scanner omits Lethal Stealth's mirrored prone state")
 
     # 4. Stealth mods / useless zombies
     if "zombie.isUseless()" not in scanner_src:
@@ -71,6 +75,9 @@ def source_faults(scanner_src, combat_src, director_src, equipment_src, bridge_s
         faults.append("bridge directNearestZombieAt does not skip useless zombies")
     if "REFUSED_USELESS_ZOMBIE" not in director_src:
         faults.append("director does not refuse useless zombies")
+    if "isInactiveTarget(target)" not in combat_src \
+            or "COMBAT_FAILED TARGET_INACTIVE" not in combat_src:
+        faults.append("active combat does not revalidate a deactivated target")
 
     # 5. Non-duplication of aggro
     if "zed.getTarget() != null && zed.getTarget() != shell" not in bridge_src:
@@ -161,6 +168,21 @@ def main():
     if not source_faults(bad_scanner, combat_src, director_src, equipment_src,
                          bridge_src, perp_lua, needs_lua):
         faults.append("CONTROL mutated scanner isUseless but border passed")
+
+    bad_prone = scanner_src.replace(
+        '|| character.getVariableBoolean("ltsproneposition")', "", 1)
+    if bad_prone == scanner_src:
+        faults.append("CONTROL did not remove the installed prone variable")
+    elif not source_faults(bad_prone, combat_src, director_src, equipment_src,
+                            bridge_src, perp_lua, needs_lua):
+        faults.append("CONTROL removed installed prone variable but border passed")
+
+    bad_active = combat_src.replace("isInactiveTarget(target)", "false", 1)
+    if bad_active == combat_src:
+        faults.append("CONTROL did not remove active-target revalidation")
+    elif not source_faults(scanner_src, bad_active, director_src, equipment_src,
+                            bridge_src, perp_lua, needs_lua):
+        faults.append("CONTROL removed target revalidation but border passed")
 
     bad_bridge = bridge_src.replace("zed.getTarget() != null && zed.getTarget() != shell", "false")
     if not source_faults(scanner_src, combat_src, director_src, equipment_src,

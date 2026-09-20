@@ -11,8 +11,10 @@ too.
 The ground pass found the other half. Campers and trailers are real
 vehicles even where they have no engine to start. Their vehicle parts
 hold real item containers, so food, cooking and stores must read them
-inside the same radius as an ordinary shelf. A vehicle outside that
-radius and a non-container part are not ground.
+inside the same radius as an ordinary shelf. A vehicle outside that radius,
+a non-container part, and a compartment the engine says this person cannot
+access are not ground. A remembered vehicle source refreshes its moving
+position and access again before use.
 
 This runs the keyed preference through the engine's Kahlua VM, checks
 the Java/Lua transfer and every material reader, then mutates the key
@@ -83,6 +85,10 @@ def source_faults(driver_src, needs_src, controller_src, standing_src):
     larder = method_body(needs_src, "countEdibleNearby")
     cook = method_body(needs_src, "cookNearbyFood")
     nearest = method_body(needs_src, "nearestContainer")
+    nearest_vehicle = method_body(needs_src, "nearestVehicleSource")
+    refresh_vehicle = method_body(needs_src, "refreshVehicleSource")
+    valid_source = method_body(needs_src, "validSource")
+    source_reach = method_body(needs_src, "sourceWithinReach")
     drink_source = method_body(needs_src, "findDrinkSourceNear")
     drug_source = method_body(needs_src, "findDrugSourceNear")
     food_source = method_body(needs_src, "findFoodSourceNear")
@@ -119,6 +125,33 @@ def source_faults(driver_src, needs_src, controller_src, standing_src):
     if not all(seam in containers for seam in container_seams):
         faults.append("vehicle containers are not limited to real parts "
                       "inside the requested radius")
+    if "vehicle.canAccessContainer(i, shell)" not in containers:
+        faults.append("larder/cooking inspection admits locked compartments")
+    if "vehicle.canAccessContainer(i, shell)" not in nearest:
+        faults.append("the store target admits a locked vehicle compartment")
+    if "vehicle.canAccessContainer(i, shell)" not in nearest_vehicle:
+        faults.append("a food/drink/drug search admits a locked compartment")
+    remembered = ("source.vehicle = vehicle", "source.vehiclePartIndex = i")
+    if not all(seam in nearest_vehicle for seam in remembered):
+        faults.append("a vehicle source forgets the moving vehicle or part")
+    refreshed = (
+        "source.vehicle.getSquare()",
+        "source.vehicle.isRemovedFromWorld()",
+        "cell.getVehicles().contains(source.vehicle)",
+        "part.getItemContainer() != source.container",
+        "source.vehicle.canAccessContainer(index, shell)",
+        "source.x = (int) source.vehicle.getX()",
+        "source.y = (int) source.vehicle.getY()",
+        "source.z = square.getZ()",
+    )
+    if not all(seam in refresh_vehicle for seam in refreshed):
+        faults.append("vehicle source use does not prove loaded identity, access and position")
+    if "refreshVehicleSource(shell, source)" not in valid_source:
+        faults.append("cached source readers bypass vehicle revalidation")
+    if "FoodSource source = validSource(shell);" not in source_reach:
+        faults.append("the reach decision uses stale cached vehicle coordinates")
+    if "(int) shell.getZ() != source.z" not in needs_src:
+        faults.append("remembered material sources can transfer across floors")
     if "vehicleContainersNear(shell, radius)" not in larder:
         faults.append("the larder does not read vehicle containers")
     if "vehicleContainersNear(shell, radius)" not in cook:
@@ -221,6 +254,40 @@ def main():
         faults.append("CONTROL food vehicle source removed but the border "
                       "passed")
 
+    bad_access = needs_src.replace(
+        "                    if (!vehicle.canAccessContainer(i, shell)) continue;\n",
+        "", 3)
+    if bad_access == needs_src:
+        faults.append("CONTROL did not remove vehicle access checks")
+    elif not source_faults(driver_src, bad_access, controller_src, standing_src):
+        faults.append("CONTROL removed vehicle access checks but the border passed")
+
+    bad_refresh = needs_src.replace(
+        "            FoodSource source = validSource(shell);\n"
+        "            if (source == null) {",
+        "            FoodSource source = SOURCES.get(shell);\n"
+        "            if (source == null) {", 1)
+    if bad_refresh == needs_src:
+        faults.append("CONTROL did not bypass source reach revalidation")
+    elif not source_faults(driver_src, bad_refresh, controller_src, standing_src):
+        faults.append("CONTROL bypassed source reach revalidation but the border passed")
+
+    bad_loaded = needs_src.replace(
+        "                || source.vehicle.isRemovedFromWorld()\n"
+        "                || !cell.getVehicles().contains(source.vehicle)",
+        "", 1)
+    if bad_loaded == needs_src:
+        faults.append("CONTROL did not remove loaded vehicle membership")
+    elif not source_faults(driver_src, bad_loaded, controller_src, standing_src):
+        faults.append("CONTROL removed loaded vehicle membership but the border passed")
+
+    bad_floor = needs_src.replace(
+        " || (int) shell.getZ() != source.z", "", 1)
+    if bad_floor == needs_src:
+        faults.append("CONTROL did not remove source floor grounding")
+    elif not source_faults(driver_src, bad_floor, controller_src, standing_src):
+        faults.append("CONTROL removed source floor grounding but the border passed")
+
     print("  source seams: " + ("ok" if not faults else "FAULT"))
     required = (JDK.exists() and PZ.exists() and STDLIB.exists()
                 and RUNNER.exists())
@@ -241,8 +308,8 @@ def main():
         for fault in faults:
             print("  FAULT: " + fault)
         return 1
-    print("  154) vehicles: a held key reaches the lawful start and pool, "
-          "and vehicle-part containers are food, cooking and store ground")
+    print("  154) vehicles: held keys reach the lawful start and pool; "
+          "accessible, current vehicle parts are food, cooking and store ground")
     return 0
 
 

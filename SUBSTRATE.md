@@ -1,6 +1,6 @@
 | Document | Survivor Awareness Overhaul Dependency Substrate |
 |---|---|
-| Version | `2.7.15.1-pre-alpha` |
+| Version | `2.7.15.2-pre-alpha` |
 | Author | ellyj3rain |
 | Repository | `SUBSTRATE.md` |
 | Status | CANONICAL - what exists, what is planned, and what each area of concern needs. |
@@ -367,13 +367,21 @@ snapshot; unloaded ground supply remains R10a work.
 
 ### R6-R8: evidence, access and performed actions
 
-Candidate generation uses the person's acquired facts, provenance and uncertainty.
-Execution rechecks current physical access and permission. The actual scanner
-must classify animals before its human output path; optional prone variables and
-deactivated targets must be read at the consuming path. Activity partners need
-perception and floor/visibility checks. Vehicle sources need current position and
-`canAccessContainer` at inspection and use. Inventory every cached target/source
-reader to cover the class of failures, including unavailable unloaded ground.
+C60 closes this contract for the audited loaded paths. The scanner classifies
+animals before person output; installed prone state and target deactivation are
+read at their consumers. Cashier and play partners require fresh firsthand
+belief plus current floor, facing, range and occlusion. Every cached material
+reader requires current floor/reach; vehicles also require loaded membership,
+current position and `canAccessContainer`. A vanilla-derived transfer action
+retains those checks through execution. Borders 154, 155, 157, 176 and 177 hold
+the defects and their independent controls.
+
+Dormant proof remains attached to R10a. Its C60 source inventory distinguishes
+meta-grid geography, resource possibility, loaded native stock and physical
+access. The ordered implementation is native source identity, explicit
+observation state, reservation and result, loaded-chunk conflict reconciliation,
+then migration away from room-derived availability. Unknown ground cannot offer
+an action while those producers are absent.
 
 R7 gives each action an owner across proposal, approach, queued action, execution,
 refusal, cancellation and observed result. Source-inventory the engine callbacks,

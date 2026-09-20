@@ -1,6 +1,6 @@
 | Document | Survivor Awareness Overhaul Roadmap |
 |---|---|
-| Version | `2.7.15.1-pre-alpha` |
+| Version | `2.7.15.2-pre-alpha` |
 | Author | ellyj3rain |
 | Repository | `ROADMAP.md` |
 | Status | CANONICAL - readiness work and retained scope. |
@@ -29,9 +29,11 @@ former-border and source crosswalks preserve provenance. C57 implements the firs
 unit: a shared body snapshot contract and consolidated native verification.
 C58 completes population reconstruction and scheduling: separate admission,
 representation, physical-observation and dormant owners under History, with
-explicit callback replacement and world reset. Perception/access and R10a
-world-source grounding are next. Decision/action separation, social producers
-and presentation follow in dependency order. Existing R work moves with its owning contract.
+explicit callback replacement and world reset. C60 closes the loaded R6 repair
+and specifies R10a from the installed source substrate. The R10a source ledger
+and reconciliation implementation is next. Decision/action separation, social
+producers and presentation follow in dependency order. Existing R work moves
+with its owning contract.
 
 Private assembly follows a cross-module inventory of loading, Java entry
 points, save identity, settings, model artifacts and integration evidence.
@@ -48,8 +50,9 @@ implementation units when those units close. They do not reserve future batches.
 
 **Implementation dependencies carried through restructuring:** R1 closed in SAO C52 / ZAO A35, R2 in C53, R3 in
 C54, R4 in C55 / ZAO A36 and R5 in C56 / ZAO A37. R10a establishes the
-grounded world substrate needed by later dormant work; R6 repairs perception
-and access against that substrate. R11-R12 can proceed alongside them.
+grounded world substrate needed by later dormant work; C60 closes R6's loaded
+repair while its dormant proof waits for that substrate. R11-R12 can proceed
+alongside them.
 
 R1's [evidence record](artifacts/audits/20260919-0735Z-0035PST-r1-return-evidence/README.md)
 names the implemented mechanisms, controls, native-source continuation and the
@@ -66,8 +69,8 @@ rather than indefinite deferrals.
 | **R3. Complete person persistence — SAO (closed C54)** | C51; R2 for next-update proof | The v4 snapshot owns nutrition, fitness, appearance, recipes, every reading collection, descriptor perk boosts and declared durable character metadata. Per-item native fluid facts validate mixtures as well as item identity. v1-v3 remain readable; absent fields carry migration provenance. Border 169 proves zero-time fidelity, repeated wakes, the next fitness/nutrition/XP updates, missing definitions and failure recovery. |
 | **R4. Durable/runtime ownership — SAO + ZAO (closed C55/A36)** | R1-R3 | Function-bearing callbacks remain outside serialized history and extensions re-register by stable ID. Startup reconstructs caches, graph registries, controllers, courses and Java runtime maps without retaining the prior world. Save-time corpses materialize before serialization; pending fitness work cancels without credit. A write-ahead generation journal reconciles Afflicted-return records across every old/new native/global save pairing. Borders 170 and 8 execute actual serialization, new Lua environments, second worlds, engine lifecycle order, corrupt/missing journal refusal and repeated replay. |
 | **R5. Health and dormant physiology — SAO + ZAO (closed C56/A37)** | R2-R3; R4 for persistence | Daily work and frozen abstinence use durable county time; current physical facts and ZAO-owned pathogen state feed a persisted event history whose integration agrees across partitions and reload. Brain history has medical/inspect graphs and memory, decision, affective and motor consumers. Dormant food and drink use native partial consumption with nested access, nutrition, spoilage and quantity conservation. A completed, interruptible non-feeding blood action is the sole Afflicted conversion producer; its exact-once result transfers the same human shell and dormant envelope from SAO to ZAO. Borders 162-163 and 171-175 plus ZAO Borders 5, 9 and 10 cover the mechanism and controls. |
-| **R10a. World sources and reconciliation — SAO** | Source inventory now; R2, R4 for runtime integration | Establish source-backed unloaded geography/resource/access state and how performed changes reconcile when chunks load. Explicitly represent missing data. This supplies the world substrate needed by dormant R6/R9 proofs before historical integration. |
-| **R6. Perception and access — SAO** | R2 for timestamps; R10a for dormant proof; loaded repair can begin now | Correct actual animal/human scan output, prone/deactivation reads, partner visibility/floor checks and moving/locked vehicle sources. Keep acquisition, permission and physical access distinct. Prove hidden, stale or inaccessible facts cannot offer an action or change its result; unavailable ground is explicit. |
+| **R10a. World sources and reconciliation — SAO** | Source inventory and ordered contract closed C60; R2, R4 for runtime integration | Validate durable native source identities; persist explicit unknown/available/spent/inaccessible/conflicted observations; reserve without crediting acquisition; reconcile loaded chunks against native truth; then migrate material consumers off room-derived availability. This supplies the world substrate needed by dormant R6/R9 proofs before historical integration. |
+| **R6. Perception and access — SAO (loaded repair closed C60; dormant proof open)** | R2 for timestamps; R10a for dormant proof | Loaded paths classify animals before person output, consume installed prone/deactivation state, require fresh private and current physical activity-partner access, and retain loaded/same-floor/permissioned material access through timed execution. After R10a, prove the same acquisition, permission and access separation for dormant opportunity; unavailable ground remains explicit. |
 | **R7. Action ownership and receipts — SAO; ZAO retained verbs** | R1-R2, R4, R6 | Connect intent, approach, queue, execution, interruption and observed result. Crossed actions use retained learned capability and the shared action contracts; the Afflicted exposure path has its own non-feeding result and cannot fall through to ordinary zombie attack or eating. Update inventory projections, experience and relationships only from the appropriate result. Interrupt each stage; repeat completion notifications; reload pending work. No cancelled action earns completed-work credit. |
 | **R8. Repair audited actions — SAO + ZAO callers** | R5-R7 as used | Repair driving routes/progress/passengers/steering, ordinary homeward activity, child health/play, aid/CPR composition, robbery/raid response, animal approach and optional event consumers. Each path must reach a world consequence or a reasoned refusal. The contract table in SUBSTRATE names the counterexamples and retained working pieces. |
 | **R9. Complete life-simulation producers — SAO + ZAO domain owners** | R5-R8 and R10a, incrementally by concern | Implement the producer rows in SUBSTRATE: provisioning and places, exploration, affiliation, care, learning, culture, rest, governance, communication and conflict. Rebuild Crossed execution from its canonical body and mind: human appearance, retained cognition, experience, drives and action vocabulary; weapons, tools, strategy, coordination, use of the dead, variable settlement/leisure and deliberate work on Afflicted. Each concern first produces the bounded mechanism inventory below. Connect candidates to executors; prove conservation, private knowledge and socially grounded recognition in both representations. |
@@ -94,7 +97,7 @@ datasets retain their limitations; they do not establish full-scope readiness.
 |---|---|---|
 | Native component continuation | Closed in C54 for person persistence and consumed by C56: the field inventory distinguishes serialized, reconstructed and omitted state; Borders 163, 169 and 174 cover fluid definitions, nutrition, nested carried resources, native partial consumption and partitioned wakes. | R5 closed |
 | Return and action failure order | SAO + ZAO: callback/teardown inventory and a phase-by-phase recovery table, including current corpse possessions, failed removal and save/reload. | R1, R4, R7 |
-| Unloaded world opportunity | SAO: source-backed map/resource/access inventory, resource depletion/renewal ownership and a reconciliation protocol for later loaded chunks. Unknown geometry remains unavailable until grounded. | R6, R9, R10 |
+| Unloaded world opportunity | C60 records the installed-source inventory and five-stage contract. SAO now implements native identity validation, the observation/reservation ledger, depletion/renewal ownership and loaded-chunk conflict reconciliation. Unknown geometry and stock remain unavailable until grounded. | R6, R9, R10 |
 | Per-concern producer mechanisms | SAO/ZAO domain owner: for each R9 concern, classify existing producer/consumer as supported, defective or missing; specify trigger/pressure, private opportunity, actor decision, executor, durable result, interruption/reload and a discriminating test. Produce separate contracts for childcare, art/ceremony/burial, overlapping/local/federated authority, retained turned behaviors and animal companionship/ownership. Surface any missing substantive ruling before implementing it. | R8-R9 |
 | Brain-health integration | Closed in C56/A37: ZAO owns the persisted history when installed, SAO supplies current physical observations and standalone storage, exact interval integration has numerical tolerances, and the same history drives medical/inspect graphs plus cognitive, memory, motor and affective effects. | R5 closed |
 | Population policy | SAO: reconcile ratified delayed refill with the no-target-seeking generation contract. Document admissions and demographic sources, distinguish simulation rules from diagnostic population controls, and surface any real conflicting policy ruling. | R10 |

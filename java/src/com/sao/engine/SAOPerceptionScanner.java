@@ -160,7 +160,11 @@ public final class SAOPerceptionScanner {
         // is what lets survivors see EACH OTHER, not just the player.
         for (zombie.iso.IsoMovingObject moving : cell.getObjectList()) {
             if (moving instanceof IsoPlayer person
+                && !(person instanceof IsoAnimal)
                 && person != shell && !person.isDead()) {
+                // [C60] Animals inherit IsoPlayer in Build 42. Classify them
+                // before this human-output branch; isForeignPerson only
+                // chooses a person's key and cannot suppress a P row.
                 // [A24] full names for OUR shells (two Anas stay two
                 // people); the REAL player keeps their username - the
                 // player: key domain is untouched.
@@ -239,33 +243,14 @@ public final class SAOPerceptionScanner {
         StringBuilder out, String kind, String name,
         IsoGridSquare eye, float sx, float sy, float sz,
         float faceX, float faceY, IsoGameCharacter other) {
-
-        float ox = other.getX();
-        float oy = other.getY();
-        if (Math.abs(other.getZ() - sz) >= 0.5f) {
+        if (!visibleFrom(eye, sx, sy, sz, faceX, faceY, other, RANGE)) {
             return;
         }
+        float ox = other.getX();
+        float oy = other.getY();
         float dx = ox - sx;
         float dy = oy - sy;
         float dist = (float) Math.sqrt(dx * dx + dy * dy);
-        // [C124] Ground stance: a prone or crawling body presents a reduced
-        // visual silhouette. Beyond near-sense, perception range is reduced.
-        float maxRange = isProneOrCrawling(other) ? Math.max(NEAR_SENSE, RANGE * 0.6f) : RANGE;
-        if (dist > maxRange) {
-            return;
-        }
-        if (dist > NEAR_SENSE) {
-            // outside near-sense radius, require the facing cone
-            float inv = dist <= 0.001f ? 0.0f : 1.0f / dist;
-            double alignment = (dx * inv) * faceX + (dy * inv) * faceY;
-            if (alignment < CONE_COS) {
-                return;
-            }
-        }
-        IsoGridSquare target = other.getCurrentSquare();
-        if (target == null || eye.isSomethingTo(target)) {
-            return;
-        }
         if (out.length() > 0) {
             out.append('|');
         }
@@ -325,6 +310,69 @@ public final class SAOPerceptionScanner {
                 out.append(":prone");
             }
         }
+    }
+
+    /**
+     * [C60] Current physical visibility for an action participant. The
+     * candidate still has to come from the observer's belief store; this is
+     * the use-time recheck against the same floor, facing and occlusion law
+     * used by acquisition.
+     */
+    public static boolean canSeePersonNow(IsoGameCharacter observer,
+                                           IsoGameCharacter other,
+                                           float actionRange) {
+        if (observer == null || other == null || observer == other
+                || other instanceof IsoAnimal || actionRange < 0.0f) {
+            return false;
+        }
+        try {
+            if (observer.isDead() || other.isDead()) {
+                return false;
+            }
+            IsoGridSquare eye = observer.getCurrentSquare();
+            if (eye == null) {
+                return false;
+            }
+            return visibleFrom(
+                eye,
+                observer.getX(), observer.getY(), observer.getZ(),
+                observer.getForwardDirectionX(), observer.getForwardDirectionY(),
+                other, Math.min(RANGE, actionRange));
+        } catch (Throwable ignored) {
+            return false;
+        }
+    }
+
+    private static boolean visibleFrom(
+            IsoGridSquare eye, float sx, float sy, float sz,
+            float faceX, float faceY, IsoGameCharacter other,
+            float requestedRange) {
+        float ox = other.getX();
+        float oy = other.getY();
+        if (Math.abs(other.getZ() - sz) >= 0.5f) {
+            return false;
+        }
+        float dx = ox - sx;
+        float dy = oy - sy;
+        float dist = (float) Math.sqrt(dx * dx + dy * dy);
+        // [C124] Ground stance: a prone or crawling body presents a reduced
+        // visual silhouette. Beyond near-sense, perception range is reduced.
+        float stanceRange = isProneOrCrawling(other)
+            ? Math.max(NEAR_SENSE, RANGE * 0.6f) : RANGE;
+        float maxRange = Math.min(requestedRange, stanceRange);
+        if (dist > maxRange) {
+            return false;
+        }
+        if (dist > NEAR_SENSE) {
+            // outside near-sense radius, require the facing cone
+            float inv = dist <= 0.001f ? 0.0f : 1.0f / dist;
+            double alignment = (dx * inv) * faceX + (dy * inv) * faceY;
+            if (alignment < CONE_COS) {
+                return false;
+            }
+        }
+        IsoGridSquare target = other.getCurrentSquare();
+        return target != null && !eye.isSomethingTo(target);
     }
 
     /** [C104] The sister mod's form and performance, appended the
@@ -456,7 +504,9 @@ public final class SAOPerceptionScanner {
                 || character.getVariableBoolean("Prone")
                 || character.getVariableBoolean("isCrawling")
                 || character.getVariableBoolean("Crawling")
-                || character.getVariableBoolean("Crawl")) {
+                || character.getVariableBoolean("Crawl")
+                // Lethal Stealth 42 writes this exact animation variable.
+                || character.getVariableBoolean("ltsproneposition")) {
                 return true;
             }
         } catch (Throwable ignored) {
@@ -470,6 +520,12 @@ public final class SAOPerceptionScanner {
                 }
                 Object c = modData.rawget("isCrawling");
                 if (Boolean.TRUE.equals(c) || "true".equals(String.valueOf(c))) {
+                    return true;
+                }
+                // Lethal Stealth 42 mirrors its prone state here.
+                Object lts = modData.rawget("ret_lts_acostado");
+                if (Boolean.TRUE.equals(lts)
+                        || "true".equals(String.valueOf(lts))) {
                     return true;
                 }
             }

@@ -198,6 +198,7 @@ UNITS = [
     ('C57', 'patch', 'Separated durable body snapshot capture, validation and commit from body ownership; validated pending transfer envelopes and retained opaque legacy visual payloads. Consolidated native person verification with a complete historical control crosswalk and isolated mutation runs. This is the first unit of the ratified runtime restructuring.'),
     ('C58', 'kohai', 'Structural maturation of population runtime ownership: separate admissions, representation, physical observations and dormant advancement under one scheduler and History clock. Preserve continuation interfaces and repair callback replacement and explicit world reinitialization, with migrated controls.'),
     ('C59', 'patch', 'Repair installed debug-mode compilation by splitting existing Controller and Standing phases; verify both compiler modes and the cumulative-local failure control.'),
+    ('C60', 'patch', 'Repair loaded perception and world access in place: classify animals before person output, require private and current activity partners, consume installed prone/deactivation state, and retain loaded, same-floor, permissioned source access through timed execution. Inventory and specify the still-open R10a native-source ledger and reconciliation substrate without promoting room vocabulary to stock.'),
 ]
 
 TIER_MEANINGS = [
