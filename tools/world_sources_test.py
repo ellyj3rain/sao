@@ -185,9 +185,13 @@ Events = setmetatable({}, { __index = function(t, key)
     rawset(t, key, slot)
     return slot
 end })
-_G.__records = { a = { id = "a" }, b = { id = "b" } }
+_G.__records, _G.__bodies = {}, {}
 SAO.Identity = { get = function(id) return __records[tostring(id)] end }
-SAO.Body = { hasRepresentation = function() return false end }
+SAO.Body = {
+  get = function(id) return __bodies[tostring(id)] end,
+  hasRepresentation = function(id) return __bodies[tostring(id)] ~= nil end,
+}
+SAO.Standing = { mayAttemptBelieved = function() return true end }
 SAO.Perception = { _known = {}, knownPlaces = function(id)
     return SAO.Perception._known[tostring(id)] or {}
 end }
@@ -211,6 +215,18 @@ PROBE_TEMPLATE = r'''(function()
     for _ in pairs(t or {}) do n = n + 1 end
     return n
   end
+  local function learn(actor, place)
+    actor = tostring(actor)
+    __records[actor] = __records[actor] or { id=actor }
+    __bodies[actor] = __bodies[actor] or {}
+    local sources, revision, access, facts =
+        SAO.WorldSources.beliefSnapshot(place)
+    SAO.Perception._known[actor] = { [place.id] = {
+        cx=place.cx, cy=place.cy, minX=place.minX, minY=place.minY,
+        maxX=place.maxX, maxY=place.maxY, sources=sources,
+        sourceRevision=revision, sourceAccess=access, sourceFacts=facts } }
+    return __bodies[actor]
+  end
   local placeUnknown = { id = 42, cx = 12, cy = 20,
       minX = 8, minY = 16, maxX = 16, maxY = 24 }
   local placeLock = { id = 43, cx = 20, cy = 28,
@@ -231,21 +247,26 @@ PROBE_TEMPLATE = r'''(function()
   local observed = SAO.WorldSources.observedAt(placeUnknown)
   local available = SAO.WorldSources.availableAt(placeUnknown)
   check("demand_observes", demanded and observed.food == 1)
-  check("unknown_unavailable", available.food == nil
-      and SAO.WorldSources.reserve(placeUnknown, "food", "a", 1) == nil)
+  check("unknown_unavailable", available.food == nil)
   check("exact_item", SAO.WorldSources.source(%(unknown_id)s).items["101"].type
       == "Base.Apple")
 
   SAO.WorldSources.applySnapshot(SAO.WorldSources.parse(%(lock)s))
-  local lock = SAO.WorldSources.reserve(placeLock, "food", "a", 1)
-  local cross = SAO.WorldSources.reserve(placeLock, "water", "b", 1)
+  local bodyA, bodyB = learn("a",placeLock), learn("b",placeLock)
+  local lock = SAO.WorldSources.beginAction(
+      placeLock,"food","a",bodyA,1,"standing")
+  local cross = SAO.WorldSources.beginAction(
+      placeLock,"water","b",bodyB,0.01,"standing")
   check("source_wide_lock", lock ~= nil and cross == nil)
   check("release_restores", SAO.WorldSources.release(lock.id, "control")
       and SAO.WorldSources.availableAt(placeLock).food == 1)
 
   SAO.WorldSources.applySnapshot(SAO.WorldSources.parse(%(two)s))
-  local first = SAO.WorldSources.reserve(placeTwo, "food", "a", 1)
-  local second = SAO.WorldSources.reserve(placeTwo, "food", "b", 1)
+  bodyA, bodyB = learn("a",placeTwo), learn("b",placeTwo)
+  local first = SAO.WorldSources.beginAction(
+      placeTwo,"food","a",bodyA,1,"standing")
+  local second = SAO.WorldSources.beginAction(
+      placeTwo,"food","b",bodyB,1,"standing")
   check("separate_sources_concurrent", first and second
       and first.sourceId ~= second.sourceId)
   SAO.WorldSources.release(first.id, "control")
@@ -293,7 +314,9 @@ PROBE_TEMPLATE = r'''(function()
       and SAO.WorldSources.source(%(retry_id)s) ~= nil)
 
   SAO.WorldSources.applySnapshot(SAO.WorldSources.parse(%(protected)s))
-  local protected = SAO.WorldSources.reserve(placeProtected, "food", "keeper", 1)
+  local keeperBody = learn("keeper",placeProtected)
+  local protected = SAO.WorldSources.beginAction(
+      placeProtected,"food","keeper",keeperBody,1,"standing")
   for i = 1, 270 do
     local cx = 2000 + i
     local id = "C:retention-" .. tostring(i) .. ":0"
@@ -316,15 +339,16 @@ PROBE_TEMPLATE = r'''(function()
       and SAO.WorldSources.source(%(protect_id)s) ~= nil)
   SAO.WorldSources.release(protected.id, "retention-control")
 
+  local receiptBody = learn("receipt",placeProtected)
   for i = 1, 2055 do
-    local receipt = SAO.WorldSources.reserve(
-        placeProtected, "food", "receipt-" .. tostring(i), 1)
+    local receipt = SAO.WorldSources.beginAction(
+        placeProtected,"food","receipt",receiptBody,1,"standing")
     if receipt then SAO.WorldSources.release(receipt.id, "receipt-control") end
   end
   check("bounded_results", count(state.results) <= 2048
       and count(state.reservations) <= 2048
       and count(state.resultByActor) <= 2048)
-  check("schema", state.schema == 2)
+  check("schema", state.schema == 3)
   return table.concat(checks, "|")
 end)()'''
 
@@ -462,7 +486,7 @@ def main():
         if old in places_text:
             faults.append("legacy room/visit stock remains callable: " + old)
     for token in ("function WS.observedAt", "function WS.availableAt",
-                  "function WS.reserve", "function WS.release",
+                  "function WS.beginAction", "function WS.release",
                   'source.access ~= "accessible"', "nearestBelieved",
                   "MAX_TRACKED_CHUNKS", "MAX_RESULTS", "MAX_PENDING_LOADS"):
         if token not in world_text:
@@ -537,8 +561,9 @@ def main():
             print("  FAULT: " + fault)
         return 1
     print("  178) demand hydrates bounded native ground and records exact identity;")
-    print("       unknown access cannot reserve or award use, loaded observation")
-    print("       retries, replacement/movement conflict, and receipts compact")
+    print("       unknown access cannot establish availability or award use;")
+    print("       loaded observation retries, replacement/movement conflict,")
+    print("       and receipts compact")
     return 0
 
 

@@ -25,7 +25,9 @@ local Census = {}
 SAO.Census = Census
 
 local function log(text)
-    SAO.Log.line("census", text)
+    if SAO.Log and SAO.Log.line then
+        SAO.Log.line("census", text)
+    end
 end
 
 -- FNV-family hash, same math as Disposition's - deterministic per id.

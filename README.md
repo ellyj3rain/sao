@@ -38,7 +38,7 @@ on the simulation.
 
 ## Status
 
-`2.7.15.3-pre-alpha` - the coordinate is computed by the version machine
+`2.7.16.0-pre-alpha` - the coordinate is computed by the version machine
 (`tools/version_replay.py`), never picked; `VERSION_MAP.md` shows the
 classification and the arithmetic.
 
@@ -88,11 +88,15 @@ debug-mode compilation. C60 repairs loaded perception and world access. C61
 grounds dormant search in the same native world: it hydrates bounded chunks on
 demand, persists exact source identity and contents, reconciles loaded changes
 and removes room-derived stock. Observation remains private knowledge rather
-than proof of access or consumption. The next R6/R7/R9 unit proves one actor's
-exact route, barriers and permission, transfers the exact item or fluid, invokes
-its native carried consequence and records one revision-bound result before any
-need or provisioning credit. `ROADMAP.md` preserves the remaining action,
-social and learned-model obligations.
+than proof of access or consumption. C62 completes that source slice: one live
+actor reserves only a privately observed revision, walks the place and exact
+interaction legs through native locomotion, rechecks barriers, current claims
+and vehicle-part permission, transfers the exact native item, and uses that
+same carried item through `Eat` or `DrinkFluid`. Completion, partial stop,
+conflict and reload resolve through one revision-bound durable result; only a
+completed result updates that person's food or water day. Settlement
+provisioning and the remaining action families stay under R7-R9.
+`ROADMAP.md` preserves the remaining social and learned-model obligations.
 
 ## Requirements
 

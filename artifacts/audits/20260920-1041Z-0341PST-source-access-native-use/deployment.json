@@ -1,0 +1,20 @@
+﻿{
+    "version":  "2.7.16.0-pre-alpha",
+    "files":  257,
+    "missing":  [
+
+                ],
+    "extra":  [
+
+              ],
+    "different":  [
+
+                  ],
+    "jar_sha256":  "7092f686fc7a45f01e577b3d24aad5cc9972fe35b912495d1ab146b08db15c84",
+    "save_files":  44092,
+    "save_metadata_unchanged":  true,
+    "save_metadata_sha256":  "591429911969bd458bad70d1825ae734a1527f0b0a86317f61039f9c27c75195",
+    "save_verification":  "relative path, size and modification time; not content hashes",
+    "companion":  "ZAO A37 unchanged",
+    "deployment":  "verified in-place copy after exact destination and no-running-process checks"
+}

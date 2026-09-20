@@ -2497,7 +2497,11 @@ public final class SAONeeds {
                 zombie.vehicles.BaseVehicle vehicle = container.getVehicle();
                 zombie.vehicles.VehiclePart part = container.getVehiclePart();
                 IsoCell cell = shell.getCell();
-                IsoGridSquare square = vehicle == null ? null : vehicle.getSquare();
+                String area = part == null ? null : part.getArea();
+                IsoGridSquare origin = vehicle == null ? null : vehicle.getSquare();
+                IsoGridSquare partArea = vehicle == null || area == null
+                    || area.isBlank() ? null : vehicle.getSquareForArea(area);
+                IsoGridSquare square = vehicleAccessTarget(area, origin, partArea);
                 return vehicle != null && part != null && cell != null
                     && square != null && square.getCell() == cell
                     && !vehicle.isRemovedFromWorld()
@@ -2514,6 +2518,11 @@ public final class SAONeeds {
         } catch (Throwable throwable) {
             return false;
         }
+    }
+
+    /** Select the same named part-area target used by vanilla vehicle access. */
+    private static <T> T vehicleAccessTarget(String area, T origin, T partArea) {
+        return area == null || area.isBlank() ? origin : partArea;
     }
 
     /** Same loaded cell, floor, arm's reach and unobstructed interaction. */

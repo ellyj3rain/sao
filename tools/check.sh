@@ -1883,6 +1883,16 @@ if ! "$PY" tools/world_sources_test.py > /dev/null; then
     fail=1
 fi
 
+# [C62] Border 179 - an actor's private source revision must survive the
+# approach/reservation lifecycle, bind only after current route/permission
+# proof, transfer the exact native item, and publish credit only after the
+# installed eat/drink action proves a physical effect.
+if ! "$PY" tools/source_use_test.py > /dev/null; then
+    "$PY" tools/source_use_test.py 2>&1 | grep -E "FAULT|CONTROL|SKIPPED" || true
+    note "BORDER FINDING - exact source access or native-use lifecycle broken"
+    fail=1
+fi
+
 # [C56] Border 171 - durable health cadence and maintenance-drug freeze.
 if ! "$PY" tools/health_clock_test.py; then
     note "BORDER FINDING - durable health cadence broken"

@@ -75,6 +75,28 @@ PRINT = re.compile(r"(?<![\w.])print\s*\(")
 # somebody walking through it, and counting them made the control
 # that removes every real call unable to reach zero.
 TALLY = re.compile(r"(?<!function )(?<![\w.])tally\s*\(")
+EARLY_LOG_CALL = re.compile(r"SAO\.Log\.(line|tally)\s*\(")
+EARLY_LOG_GUARD = {
+    method: re.compile(
+        r"if\s+(?:SAO\.Log\." + method
+        + r"|SAO\.Log\s+and\s+SAO\.Log\." + method
+        + r")\s+then\s*$")
+    for method in ("line", "tally")
+}
+
+
+def early_logger_faults(srcs):
+    calls, unguarded = 0, []
+    for path, source in srcs.items():
+        if path.parent.name != "shared" or path.name >= LOGGER:
+            continue
+        for call in EARLY_LOG_CALL.finditer(source):
+            calls += 1
+            prefix = source[max(0, call.start() - 220):call.start()]
+            if not EARLY_LOG_GUARD[call.group(1)].search(prefix):
+                line = source.count("\n", 0, call.start()) + 1
+                unguarded.append((path.name, line, call.group(1)))
+    return calls, unguarded
 
 
 def main():
@@ -106,10 +128,29 @@ def main():
                   if p.name != LOGGER)
     inside = len(PRINT.findall(logger))
 
+    # Project Zomboid loads shared files in filename order. Every logger call
+    # in a file before SAO_Log.lua must therefore tolerate the logger not
+    # existing yet. C62 startup evidence found History, Isolation and Lessons
+    # throwing here even though all three compiled cleanly.
+    early_calls, early_unguarded = early_logger_faults(srcs)
+    history_path = next((p for p in srcs if p.name == "SAO_History.lua"), None)
+    guard = "if SAO.Log and SAO.Log.line then"
+    control_ok = False
+    if history_path and guard in srcs[history_path]:
+        mutated = dict(srcs)
+        mutated[history_path] = mutated[history_path].replace(
+            guard, "if true then", 1)
+        _, control_faults = early_logger_faults(mutated)
+        control_ok = any(name == history_path.name
+                         for name, _, _ in control_faults)
+
     print(f"  print() inside {LOGGER}: {inside}")
     print(f"  print() anywhere else  : {sum(doors.values())}  "
           f"{', '.join(f'{k}({v})' for k, v in sorted(doors.items())) or 'none'}")
     print(f"  sites that tally       : {tallies}")
+    print(f"  early logger calls safe: "
+          f"{early_calls - len(early_unguarded)}/{early_calls}")
+    print(f"  load-order guard control: {'REJECTED' if control_ok else 'SURVIVED'}")
 
     for name, n in sorted(doors.items()):
         faults.append(
@@ -145,6 +186,18 @@ def main():
             "not one site tallies, so the aggregation is decoration. The "
             "four that mattered were 717 of the 898 lines this mod wrote in "
             "one session")
+
+    for name, line, method in early_unguarded:
+        faults.append(
+            f"{name}:{line} calls SAO.Log.{method} before {LOGGER} has loaded "
+            "without a logger-existence guard. The game executes shared files "
+            "in filename order, so this throws during startup even though the "
+            "file compiles")
+    if not control_ok:
+        faults.append(
+            "removing History's pre-logger guard did not make the load-order "
+            "instrument refuse, so the new startup check cannot detect its "
+            "own motivating defect")
 
     print()
     print("VERDICT:")

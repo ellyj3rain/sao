@@ -16,7 +16,9 @@ local L = SAO.Lessons
 
 -- [B47] One door out: everything this module says goes
 -- through the shared logger.
-local function log(msg) SAO.Log.line("LESSON", msg) end
+local function log(msg)
+    if SAO.Log and SAO.Log.line then SAO.Log.line("LESSON", msg) end
+end
 
 -- The registry. Echoes are at LIVED weight; acquisition scales them.
 L.REGISTRY = {

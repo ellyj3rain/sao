@@ -45,6 +45,18 @@ local function worldTransfer(body, item, srcContainer, destContainer,
         body, item, srcContainer, destContainer, worldContainer)
 end
 
+-- [C62] The exact-source executor owns selection and lifecycle, while this
+-- module continues to own the verified vanilla transfer shape. Returning the
+-- action (rather than queueing it) lets the executor use the same queue
+-- acceptance proof as every other body action.
+function N.worldSourceTransferAction(body, item, srcContainer,
+                                     worldContainer)
+    if body == nil or item == nil or srcContainer == nil
+        or worldContainer == nil then return nil end
+    return worldTransfer(body, item, srcContainer, body:getInventory(),
+        worldContainer)
+end
+
 -- [C25] How far a body NOTICES (DR-027). This was the ErrandRadius
 -- sandbox dial, and the operator ruled the dial a lie about what it
 -- measured: "They're operating off of social structures and social

@@ -3644,6 +3644,57 @@ end
 -- ---------------------------------------------------------------------------
 -- Permission checks (the channel)
 
+-- [C62] Permission to approach ground this person privately believes is
+-- claimed. Perception supplies the believed owner; Standing alone answers
+-- whether that belief permits entry. Own ground and ground with no believed
+-- owner are enterable. A pact grants passage, a feud grants hostile entry,
+-- and personal hostility permits the same break-in the live controller has
+-- always permitted. Keeping this here makes the source-action executor ask
+-- the same authority as every other live errand.
+local function mayPassHolder(id, owner)
+    if not owner then return true end
+    local myGroup = S.groupOf(id)
+    if myGroup then
+        local otherGroup = S.groupOf(owner) or owner
+        if otherGroup and S.pactBetween
+            and S.pactBetween(myGroup, otherGroup) then
+            return true
+        end
+        if otherGroup and S.feudBetween(myGroup, otherGroup) then
+            return true
+        end
+    end
+    return S.isHostileTo(id, owner) or S.isHostileTo(owner, id)
+end
+
+function S.mayEnterBelieved(id, x, y)
+    if S.insideClaim(id, x, y) then return true end
+    local owner = SAO.Perception and SAO.Perception.believesClaimed
+        and SAO.Perception.believesClaimed(id, x, y) or nil
+    return mayPassHolder(id, owner)
+end
+
+-- Standing owns the need exception as well as ordinary passage. Execution
+-- supplies the admission already chosen by the need law; it never bypasses
+-- this authority on its own.
+function S.mayAttemptBelieved(id, x, y, admission)
+    return tostring(admission or "standing") == "desperate"
+        or S.mayEnterBelieved(id, x, y)
+end
+
+-- The final source-access check uses the county's current claim ledger. Private
+-- belief is what motivated the trip; mutation authority is answered against
+-- who actually holds the interaction square when the hand reaches it.
+function S.mayEnterCurrent(id, x, y)
+    return mayPassHolder(id, S.claimedByOther(id, x, y))
+end
+
+
+function S.mayTakeCurrent(id, x, y, admission)
+    return tostring(admission or "standing") == "desperate"
+        or S.mayEnterCurrent(id, x, y)
+end
+
 -- May this survivor engage that person? Requires standing hostility or the
 -- target being hostile to it; group members are never permitted targets.
 function S.mayEngagePerson(id, otherKey)

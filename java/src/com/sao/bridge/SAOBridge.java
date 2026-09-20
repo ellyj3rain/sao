@@ -61,6 +61,7 @@ public final class SAOBridge {
         crossedDrives.clear();
         com.sao.engine.SAONeeds.resetRuntimeForWorld();
         com.sao.engine.SAOReturnBody.resetRuntimeForWorld();
+        com.sao.engine.SAOWorldSources.resetRuntimeForWorld();
     }
 
     /** Combat verbs (typed transplant; gated on the melee-callback patch). */
@@ -2907,6 +2908,93 @@ public final class SAOBridge {
         } catch (Throwable throwable) {
             SAOAgent.log("observeWorldChunk threw: " + throwable);
             return "";
+        }
+    }
+
+    /** [C62] Resolve an observed source revision to a native interaction tile. */
+    public String worldSourceActionTarget(Object object, String sourceId,
+            String fingerprint, String revision, double itemId, String itemType,
+            double x, double y, double z) {
+        try {
+            if (object instanceof com.sao.engine.SAOIsoPlayerShell shell) {
+                return com.sao.engine.SAOWorldSources.actionTarget(shell,
+                    sourceId, fingerprint, revision, (int) itemId, itemType,
+                    (int) x, (int) y, (int) z);
+            }
+            return "NO_LIVE_BODY";
+        } catch (Throwable throwable) {
+            SAOAgent.log("worldSourceActionTarget threw: " + throwable);
+            return "FAILED";
+        }
+    }
+
+    /** [C62] Final identity, reach and vehicle-part permission proof. */
+    public String bindWorldSourceAction(Object object, String sourceId,
+            String fingerprint, String revision, double itemId, String itemType,
+            double x, double y, double z) {
+        try {
+            if (object instanceof com.sao.engine.SAOIsoPlayerShell shell) {
+                return com.sao.engine.SAOWorldSources.bindAction(shell,
+                    sourceId, fingerprint, revision, (int) itemId, itemType,
+                    (int) x, (int) y, (int) z);
+            }
+            return "NO_LIVE_BODY";
+        } catch (Throwable throwable) {
+            SAOAgent.log("bindWorldSourceAction threw: " + throwable);
+            return "FAILED";
+        }
+    }
+
+    public Object worldSourceActionItem(Object object) {
+        return object instanceof com.sao.engine.SAOIsoPlayerShell shell
+            ? com.sao.engine.SAOWorldSources.actionItem(shell) : null;
+    }
+
+    public Object worldSourceActionContainer(Object object) {
+        return object instanceof com.sao.engine.SAOIsoPlayerShell shell
+            ? com.sao.engine.SAOWorldSources.actionSourceContainer(shell) : null;
+    }
+
+    public Object worldSourceActionPermissionContainer(Object object) {
+        return object instanceof com.sao.engine.SAOIsoPlayerShell shell
+            ? com.sao.engine.SAOWorldSources.actionPermissionContainer(shell) : null;
+    }
+
+    public Object worldSourceActionWorldItem(Object object) {
+        return object instanceof com.sao.engine.SAOIsoPlayerShell shell
+            ? com.sao.engine.SAOWorldSources.actionWorldItem(shell) : null;
+    }
+
+    public Object carriedWorldSourceItem(Object object, double itemId,
+            String itemType) {
+        return object instanceof com.sao.engine.SAOIsoPlayerShell shell
+            ? com.sao.engine.SAOWorldSources.carriedActionItem(shell,
+                (int) itemId, itemType) : null;
+    }
+
+    public double carriedWorldSourceMeasure(Object object, double itemId,
+            String itemType, String category) {
+        return object instanceof com.sao.engine.SAOIsoPlayerShell shell
+            ? com.sao.engine.SAOWorldSources.carriedActionMeasure(shell,
+                (int) itemId, itemType, category) : -1.0;
+    }
+
+    public boolean beginWorldSourceUse(Object object, double itemId,
+            String itemType, String category, double durableBaseline) {
+        return object instanceof com.sao.engine.SAOIsoPlayerShell shell
+            && com.sao.engine.SAOWorldSources.beginUse(shell, (int) itemId,
+                itemType, category, (float) durableBaseline);
+    }
+
+    public String finishWorldSourceUse(Object object, boolean completed) {
+        return object instanceof com.sao.engine.SAOIsoPlayerShell shell
+            ? com.sao.engine.SAOWorldSources.finishUse(shell, completed)
+            : "NO_EFFECT:0:no-live-body";
+    }
+
+    public void clearWorldSourceAction(Object object) {
+        if (object instanceof com.sao.engine.SAOIsoPlayerShell shell) {
+            com.sao.engine.SAOWorldSources.clearAction(shell);
         }
     }
 

@@ -45,6 +45,9 @@ SAO={
  Perception={EARSHOT=30,beliefs={},forget=function() end,describe=function() return '' end},
  Body={active={},foreign={},get=function() return nil end,hasRepresentation=function() return false end},
  Identity={all=function() return __records or {} end},
+ WorldSources={ownsActor=function(id)
+  return __sourceOwned and __sourceOwned[tostring(id)]==true
+ end},
  Voice={forget=function() end},
  Locomotion={cancel=function() end},
 }
@@ -103,15 +106,22 @@ CASES = r'''(function()
  check(SAO.Controller.tick()==held+1,'host fallback did not advance once')
  SAO.History.ticks=realTicks
 
- __records={p1={id='p1',x=4,y=5}}
+ __sourceOwned={p1=true}
+ __records={p1={id='p1',x=4,y=5},p2={id='p2',x=6,y=7}}
+ __integrationIds={}
  SAO.Integration={ensure=function() return true end,
   apply=function(id,agent,tick) __integrationTicks[#__integrationTicks+1]=tick
+   __integrationIds[#__integrationIds+1]=id
    return {branch='test'} end}
  for _,day in ipairs({0,1,7}) do
   check(SAO.WorldGenesis.applyDay(day)==1,'world graph did not apply')
  end
  check(__integrationTicks[1]==0 and __integrationTicks[2]==216000
   and __integrationTicks[3]==1512000,'WorldGenesis passed a day as a tick')
+ check(__integrationIds[1]=='p2' and __integrationIds[2]=='p2'
+  and __integrationIds[3]=='p2','source-owned actor received world graph')
+ check(__records.p1.worldGraph==nil and __records.p2.worldGraphDay==7,
+  'world graph ownership result was not durable')
  if #faults>0 then return 'FAIL '..table.concat(faults,'; ') end
  return 'PASS'
 end)()'''
@@ -163,6 +173,9 @@ def main():
         "WorldGenesis converts at its boundary":
             "SAO.History.tickAtDayStart(day)" in genesis
             and "id, agent, tick, record.x, record.y" in genesis,
+        "WorldGenesis respects source transaction ownership":
+            "and not sourceOwnsActor(id) then" in genesis
+            and "SAO.WorldSources.ownsActor(id) == true" in genesis,
         "the durable and runtime axes are inventoried":
             all(term in substrate for term in (
                 "County hours", "Elapsed county day", "County tick",
@@ -196,6 +209,8 @@ def main():
              "    return tickCount", "historical substep clock stayed stale"),
             ("day handed to tick consumer", "genesis", "id, agent, tick, record.x, record.y",
              "id, agent, day, record.x, record.y", "WorldGenesis passed a day as a tick"),
+            ("source transaction bypassed", "genesis", "and not sourceOwnsActor(id) then",
+             "then", "source-owned actor received world graph"),
             ("county time paces corpse animation", "controller",
              "Ctl.settleCorpses(hostTickCount)", "Ctl.settleCorpses(tickCount)",
              "corpse grace followed county time"),

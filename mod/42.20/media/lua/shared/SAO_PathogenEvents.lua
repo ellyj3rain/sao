@@ -118,6 +118,13 @@ local function snapshot(state)
     }
 end
 
+local function sourceOwnsActor(id)
+    if SAO.WorldSources and SAO.WorldSources.ownsActor then
+        return SAO.WorldSources.ownsActor(id) == true
+    end
+    return false
+end
+
 function Events.simulateDay(day)
     if not (ZAO and ZAO.State and SAO.Identity) then
         return false
@@ -146,7 +153,8 @@ function Events.simulateDay(day)
 
     local observations = 0
     for id, record in pairs(SAO.Identity.all()) do
-        if not record.dead and not SAO.Body.hasRepresentation(id) then
+        if not record.dead and not SAO.Body.hasRepresentation(id)
+            and not sourceOwnsActor(id) then
             for _, carrier in ipairs(carriers) do
                 if carrier.id ~= id then
                     local dx = (tonumber(record.x) or 0)

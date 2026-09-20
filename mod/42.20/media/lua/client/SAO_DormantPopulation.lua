@@ -443,6 +443,24 @@ local function arriveAtPlace(id, rec, place, tickCounter)
     return false, "access-unproven"
 end
 
+local function sourceOwnsDormantRecord(id)
+    if SAO.WorldSources and SAO.WorldSources.ownsActor then
+        return SAO.WorldSources.ownsActor(id) == true
+    end
+    return SAO.WorldSources and SAO.WorldSources.pendingActionFor
+        and SAO.WorldSources.pendingActionFor(id) ~= nil or false
+end
+
+local function groupHasSourceOwner(group)
+    if not (group and SAO.Standing and SAO.Standing.membersOf) then
+        return false
+    end
+    for _, memberId in ipairs(SAO.Standing.membersOf(group)) do
+        if sourceOwnsDormantRecord(memberId) then return true end
+    end
+    return false
+end
+
 local function dormantLife(conf, tickCounter)
     SAO.WorldSources.reconcileReservations()
     -- [C62] The county's hour, not the engine's. This runs once
@@ -468,7 +486,8 @@ local function dormantLife(conf, tickCounter)
     end
     for id, rec in pairs(SAO.Identity.all()) do
         if not rec.dead and not SAO.Claims.isHeld(rec)
-            and not SAO.Body.hasRepresentation(id) and rec.homeX then
+            and not SAO.Body.hasRepresentation(id) and rec.homeX
+            and not sourceOwnsDormantRecord(id) then
             rec.nextDormantMoveAt = rec.nextDormantMoveAt or 0
             -- [C112] This is the one persisted FUTURE due-time in the
             -- county, and a stamp written by an older build counted
@@ -481,15 +500,13 @@ local function dormantLife(conf, tickCounter)
             if rec.nextDormantMoveAt > tickCounter + 3600 then
                 rec.nextDormantMoveAt = 0
             end
+            -- An exact loaded action cannot become a bodyless approximation.
+            -- Keep its record still until representation returns and the
+            -- durable phase reconstructs against the carried item/source.
             if tickCounter >= rec.nextDormantMoveAt then
                 rec.nextDormantMoveAt = tickCounter + 1800 + SAO.Rand.int(1800)
                 local tx, ty
                 if night and not preFall then
-                    if rec.worldSourceReservation then
-                        SAO.WorldSources.release(rec.worldSourceReservation,
-                            "night-interrupted")
-                        rec.worldSourceReservation = nil
-                    end
                     tx, ty = rec.homeX, rec.homeY
                 else
                     if not rec.dayGoalX
@@ -551,12 +568,6 @@ local function dormantLife(conf, tickCounter)
                                 return true
                             end)
                             retainSourceGoal = okArrival and arrival == nil
-                            if not okArrival and rec.worldSourceReservation then
-                                SAO.WorldSources.release(
-                                    rec.worldSourceReservation,
-                                    "arrival-error")
-                                rec.worldSourceReservation = nil
-                            end
                         end
                         -- [C113] The street roll, at the leg
                         -- boundary - the one moment a decision is
@@ -820,7 +831,8 @@ local function dormantAttrition(tickCounter)
         if rec.dead then
             -- Nothing here: word of a death is delivered above, before
             -- the risk dial can silence it.
-        elseif not SAO.Claims.isHeld(rec) and not SAO.Body.hasRepresentation(id) then
+        elseif not SAO.Claims.isHeld(rec) and not SAO.Body.hasRepresentation(id)
+            and not sourceOwnsDormantRecord(id) then
             -- [B37] A world that predates this batch has never
             -- recorded either of these, and somebody who has "never"
             -- drunk must not start dying the day it lands. First
@@ -1236,7 +1248,8 @@ local function dormantSettle()
             local g = SAO.Standing.groupOf(id)
             if g and not seen[g]
                 and not SAO.Standing.groupClaimOf(g)
-                and SAO.Standing.groupSize(g) > 1 then
+                and SAO.Standing.groupSize(g) > 1
+                and not groupHasSourceOwner(g) then
                 seen[g] = true
                 -- [C108] The scorer became a ranking, and the settle
                 -- pass reads the top of it: one definition, so the
@@ -1349,7 +1362,8 @@ local function dormantProvision()
                     local members = SAO.Standing.membersOf(g)
                     local n, fed, watered, anyBody = 0, 0, 0, false
                     for _, mid in ipairs(members) do
-                        if SAO.Body.hasRepresentation(mid) then
+                        if SAO.Body.hasRepresentation(mid)
+                            or sourceOwnsDormantRecord(mid) then
                             anyBody = true
                             break
                         end
@@ -1457,7 +1471,8 @@ local function dormantEncounters(tickCounter)
     -- own former test, moved to where it is asked once per pass.
     local livingId, livingRec, livingN = {}, {}, 0
     for id, rec in pairs(SAO.Identity.all()) do
-        if not rec.dead and not SAO.Body.hasRepresentation(id) then
+        if not rec.dead and not SAO.Body.hasRepresentation(id)
+            and not sourceOwnsDormantRecord(id) then
             livingN = livingN + 1
             livingId[livingN] = id
             livingRec[livingN] = rec
@@ -1475,7 +1490,8 @@ local function dormantEncounters(tickCounter)
         if idA == encounterCursor then resumed = true end
       elseif outerBudget <= 0 then
         break
-      elseif not recA.dead and not SAO.Body.hasRepresentation(idA) then
+      elseif not recA.dead and not SAO.Body.hasRepresentation(idA)
+          and not sourceOwnsDormantRecord(idA) then
         outerBudget = outerBudget - 1
         lastVisited = idA
         for li = 1, livingN do

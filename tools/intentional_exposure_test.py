@@ -51,6 +51,7 @@ local carrierBody = body("carrier", 10, 10)
 local targetBody = body("target", 12, 10)
 local target2Body = body("target2", 10.5, 10)
 local transfers, transferReady = 0, true
+local sourceOwned = {}
 SAO = {
     Identity = {
         get = function(id) return records[tostring(id)] end,
@@ -60,6 +61,9 @@ SAO = {
         active = { target = targetBody, target2 = target2Body },
         hasRepresentation = function() return false end,
         canTransfer = function() return true end,
+    },
+    WorldSources = {
+        ownsActor = function(id) return sourceOwned[tostring(id)] == true end,
     },
     CrossedTransfer = { begin = function(id, seen, token)
         assert(id == "target" and seen == targetBody and token:sub(1, 6) == "blood:")
@@ -81,6 +85,8 @@ function __bodies() return carrierBody, targetBody, target2Body end
 function __transfers() return transfers end
 function __transferReady(value) transferReady = value end
 function __durable() return durable["ZombieAwareness_State"] end
+function __protect(id, value) sourceOwned[tostring(id)] = value == true end
+function __record(id) return records[tostring(id)] end
 '''
 
 AFTER_STATE = r'''
@@ -101,7 +107,15 @@ PROBE = r'''(function()
     local carrierState = ZAO.Pathogen.stateOf("carrier")
 
     -- The former three-tile daily proximity pass observes but cannot roll.
+    -- The daily county pass also cannot overwrite a record while the exact
+    -- source-use transaction owns that person.
+    __protect("target", true)
     SAO.PathogenEvents.simulateDay(0)
+    assert(__record("target").pathogenState == nil,
+        "source-owned actor received pathogen snapshot")
+    __protect("target", false)
+    assert(__record("target2").pathogenState ~= nil,
+        "unowned actor did not receive pathogen observation")
     assert(ZAO.Pathogen.stateOf("target").terminalState == "afflicted")
     assert(ZAO.Pathogen.stateOf("target").exposureTokens == nil,
         "daily proximity produced an exposure result")
@@ -220,21 +234,25 @@ def main() -> int:
         ("live-action authorization", pathogen,
          "local action = store.exposures\n        and store.exposures[carrierId] or nil",
          "local action = actionResult"),
+        ("source transaction ownership", events,
+         "and not sourceOwnsActor(id) then", "then"),
     ]
     for name, original, old, new in controls:
         if original.count(old) != 1:
             print(f"REFUSED: {name} mutation seam changed")
             return 1
-        psrc, esrc = pathogen, exposure
+        psrc, esrc, vsrc = pathogen, exposure, events
         if original is pathogen:
             psrc = pathogen.replace(old, new, 1)
+        elif original is events:
+            vsrc = events.replace(old, new, 1)
         else:
             esrc = exposure.replace(old, new, 1)
-        result = run(psrc, esrc, events)
+        result = run(psrc, esrc, vsrc)
         if result.returncode == 0:
             print(f"REFUSED: {name} mutation survived\n" + result.stdout + result.stderr)
             return 1
-    print("Border 173 PASS: proximity and forged receipts cannot roll; approach, contact time, interruption, non-feeding, exact-once result and one-way transfer execute in Kahlua; five controls fail")
+    print("Border 173 PASS: proximity and forged receipts cannot roll; source-owned daily mutation is held; approach, contact time, interruption, non-feeding, exact-once result and one-way transfer execute in Kahlua; six controls fail")
     return 0
 
 

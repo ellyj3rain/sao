@@ -54,6 +54,13 @@ local function summarize(graph)
     }
 end
 
+local function sourceOwnsActor(id)
+    if SAO.WorldSources and SAO.WorldSources.ownsActor then
+        return SAO.WorldSources.ownsActor(id) == true
+    end
+    return false
+end
+
 function WorldGenesis.applyDay(day)
     if not WorldGenesis.ensure() then return 0 end
     if not (SAO.Identity and SAO.Integration and SAO.History) then return 0 end
@@ -65,7 +72,9 @@ function WorldGenesis.applyDay(day)
     if type(tick) ~= "number" then return 0 end
     local changed = 0
     for id, record in pairs(SAO.Identity.all()) do
-        if not record.dead and not (SAO.Body and SAO.Body.hasRepresentation(id)) then
+        if not record.dead
+            and not (SAO.Body and SAO.Body.hasRepresentation(id))
+            and not sourceOwnsActor(id) then
             local agent = {
                 id = id,
                 x = record.x,

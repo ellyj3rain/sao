@@ -1,6 +1,6 @@
 | Document | Survivor Awareness Overhaul Architecture |
 |---|---|
-| Version | `2.7.15.3-pre-alpha` |
+| Version | `2.7.16.0-pre-alpha` |
 | Author | ellyj3rain |
 | Repository | `ARCHITECTURE.md` |
 | Status | ACTIVE - ratified framework shape. |
@@ -144,6 +144,35 @@ world is rag-ripping ([A10]): time charged in a hold state, terminal state
   (Also named here for honesty, [A19]: `engineEat` - the eat fallback when the vanilla queue refuses - calls the engine's own Eat, the same semantics vanilla runs at complete(); an engine-call fallback, not a stat poke.)
 identical to the vanilla recipe, recorded as pending real craft-system
 comprehension.
+
+## Revision-bound world-source action (C61-C62)
+
+`SAO_WorldSources` owns durable native observations, conflicts, reservations
+and results. A place belief stores the exact source revisions that person saw;
+an observation remains neither public availability nor mutation authority.
+`SAO_SourceUse` owns one live source action from proposal through result. It
+routes first to the known place and then to a Java-selected interaction square,
+asks Standing again against the current claim, and binds only after Java
+re-resolves the current source fingerprint, revision, exact item, same-floor
+reach, obstruction and vehicle-part permission.
+
+The physical transfer remains a vanilla inventory-transfer or ground-grab
+action. The physical consequence remains vanilla `Eat` or `DrinkFluid` on the
+same exact carried item. Java's runtime-only body binding measures item/fluid
+and need state before and after native completion or stop; it is cleared on
+world reset and never becomes a second inventory. Lua persists the action
+phase. An unspent cancellation releases, a changed revision conflicts, a
+partial native stop records interruption without need credit, and a completed
+effect publishes one pre/post-revision receipt and stamps that actor's food or
+water day. Completed receipts remain in durable order until the provisioning
+consumer acknowledges them idempotently. Settlement material and recognition
+remain downstream R9 consumers.
+
+The reservation is also the cross-pillar actor owner. Dormant population
+mutation, bodyless pathogen encounter/snapshot observation and WorldGenesis graph
+application skip a source-owned actor. The live controller settles mortality and
+Crossed transfer before restoring the durable source phase, and an unreadable
+future-schema owner holds the actor rather than being interpreted as absence.
 
 ## Voice ([A9])
 

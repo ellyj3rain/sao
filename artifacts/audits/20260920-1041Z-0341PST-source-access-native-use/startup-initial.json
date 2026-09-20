@@ -1,0 +1,14 @@
+﻿{
+    "captured_utc":  "2026-09-20T12:49:12Z",
+    "version":  "2.7.16.0-pre-alpha",
+    "observed_process_id":  126444,
+    "observed_window":  "Project Zomboid",
+    "observed_responsive":  true,
+    "accepted":  false,
+    "findings":  [
+                     "SAO_History.lua called SAO.Log.line before SAO_Log.lua loaded",
+                     "SAO_Isolation.lua called SAO.Log.line before SAO_Log.lua loaded",
+                     "SAO_Lessons.lua called SAO.Log.line before SAO_Log.lua loaded"
+                 ],
+    "disposition":  "process stopped; guarded all pre-logger shared calls; Border 56 extended with one rejecting load-order control; full gate rerun"
+}
