@@ -36,7 +36,7 @@ ROOT = pathlib.Path(__file__).resolve().parent.parent
 LUA = ROOT / "mod" / "42.20" / "media" / "lua"
 APP = LUA / "client" / "SAO_Appearance.lua"
 HIST = LUA / "shared" / "SAO_History.lua"
-POP = LUA / "client" / "SAO_Population.lua"
+POP = LUA / "client" / "SAO_PopulationRepresentation.lua"
 
 
 def const(src, name):

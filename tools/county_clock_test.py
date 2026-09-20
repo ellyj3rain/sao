@@ -58,6 +58,7 @@ LUA = ROOT / "mod" / "42.20" / "media" / "lua"
 HISTORY = LUA / "shared" / "SAO_History.lua"
 STANDING = LUA / "shared" / "SAO_Standing.lua"
 POP = LUA / "client" / "SAO_Population.lua"
+DORMANT = LUA / "client" / "SAO_DormantPopulation.lua"
 CHECK = ROOT / "tools" / "check.sh"
 SRC = HERE / "luacheck" / "LuaRun.java"
 OUT = ROOT / "java" / "out" / "luacheck"
@@ -211,13 +212,14 @@ def main():
     print("=" * 74)
     print("THE COUNTY'S CLOCK MOVES WHILE THE YEARS ARE LIVED")
     print("=" * 74)
-    for path in (HISTORY, STANDING, POP):
+    for path in (HISTORY, STANDING, POP, DORMANT):
         if not path.exists():
             print("  FAULT: %s does not exist" % path.name)
             return 1
 
     hist = read(HISTORY)
     pop = read(POP)
+    dormant = read(DORMANT)
 
     # ------------------------------------------------------------------
     # By text: one module reads the engine, and the years pass publishes
@@ -256,8 +258,8 @@ def main():
         "the county has an hour of day too":
             "function H.countyTimeOfDay()" in hist,
         "the dormant day asks the county for it":
-            "SAO.History.countyTimeOfDay()" in pop
-            and "getTimeOfDay" not in pop,
+            "SAO.History.countyTimeOfDay()" in dormant
+            and "getTimeOfDay" not in dormant,
         "a clock that cannot be reached is said out loud":
             "THE COUNTY HAS NO CLOCK" in pop
             and "clockAnswers()" in pop

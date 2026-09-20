@@ -1,0 +1,12 @@
+[
+  {
+    "case": "owner-export-bypasses-counted-function",
+    "returncode": 1,
+    "stdout": "==========================================================================\nA PER-TICK WALK OVER A STORE THE SAVE NEVER SHRINKS\n==========================================================================\n     dailyCounty          walks=1  unbudgeted\n     dormantAttrition     walks=2  unbudgeted\n     dormantEncounters    walks=2  budgeted\n     dormantLife          walks=1  unbudgeted\n     dormantProvision     walks=1  unbudgeted\n     dormantSettle        walks=1  budgeted\n     ensurePopulation     walks=2  unbudgeted\n     inhabitKnox          walks=0  none\n     materializeBand      walks=1  unbudgeted\n     SAO_Standing.lua:S.driftStandings   budgeted\n     SAO_Telemetry.lua:T.county           unbudgeted\n  identity-store walks per pass: 11\n  measured cost per walk        : 500->0.187ms, 2,500->0.242ms, 5,500->0.516ms, 10,500->1.015ms, 30,500->2.616ms\n\nVERDICT:\n  FAULT: DormantPopulation.dormantEncounters no longer exports the function whose walk is counted\n"
+  },
+  {
+    "case": "scheduler-bypasses-declared-owner",
+    "returncode": 1,
+    "stdout": "==========================================================================\nA PER-TICK WALK OVER A STORE THE SAVE NEVER SHRINKS\n==========================================================================\n     dailyCounty          walks=1  unbudgeted\n     dormantAttrition     walks=2  unbudgeted\n     dormantEncounters    walks=2  budgeted\n     dormantLife          walks=1  unbudgeted\n     dormantProvision     walks=1  unbudgeted\n     dormantSettle        walks=1  budgeted\n     ensurePopulation     walks=2  unbudgeted\n     inhabitKnox          walks=0  none\n     materializeBand      walks=1  unbudgeted\n     SAO_Standing.lua:S.driftStandings   budgeted\n     SAO_Telemetry.lua:T.county           unbudgeted\n  identity-store walks per pass: 11\n  measured cost per walk        : 500->0.187ms, 2,500->0.242ms, 5,500->0.516ms, 10,500->1.015ms, 30,500->2.616ms\n\nVERDICT:\n  FAULT: dormantEncounters's scheduler wrapper does not call its declared owner DormantPopulation\n"
+  }
+]

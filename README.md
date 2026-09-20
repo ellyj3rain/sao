@@ -38,7 +38,7 @@ on the simulation.
 
 ## Status
 
-`2.7.14.8-pre-alpha` - the coordinate is computed by the version machine
+`2.7.15.0-pre-alpha` - the coordinate is computed by the version machine
 (`tools/version_replay.py`), never picked; `VERSION_MAP.md` shows the
 classification and the arithmetic.
 
@@ -81,8 +81,11 @@ remain explicit work in `SUBSTRATE.md`.
 C57 begins the ratified whole-mod restructuring with one shared body snapshot
 contract for release, checkpoints and ownership transfer. Its native test suite
 retains the former snapshot, continuity and physiology assertions and controls
-while sharing unchanged compilation. Population reconstruction and scheduling
-are next; `ROADMAP.md` preserves the remaining implementation dependencies.
+while sharing unchanged compilation. C58 separates population admission, body
+representation, physical observations and dormant advancement from scheduling,
+and repairs callback replacement and world reinitialization. Perception and
+world access are next; `ROADMAP.md` preserves their grounding dependencies and
+the remaining action, social and learned-model obligations.
 
 ## Requirements
 

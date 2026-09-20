@@ -57,7 +57,7 @@ def main():
     voice = read(LUA / "client" / "SAO_Voice.lua")
     har = read(LUA / "client" / "SAO_Harness.lua")
     body = read(LUA / "client" / "SAO_Body.lua")
-    pop = read(LUA / "client" / "SAO_Population.lua")
+    pop = read(LUA / "client" / "SAO_PopulationRepresentation.lua")
     bridge = read(BRIDGE)
 
     # 1. An answer answers.

@@ -46,7 +46,7 @@ JAVA = ROOT / "java" / "src" / "com" / "sao"
 
 FILES = {
     "body": LUA / "client" / "SAO_Body.lua",
-    "population": LUA / "client" / "SAO_Population.lua",
+    "population": LUA / "client" / "SAO_PopulationRepresentation.lua",
     "controller": LUA / "client" / "SAO_Controller.lua",
     "perception": LUA / "shared" / "SAO_Perception.lua",
     "identity": LUA / "shared" / "SAO_Identity.lua",

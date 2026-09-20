@@ -95,8 +95,8 @@ CACHES = {
         "V.forget", "named",
         "the last thing a survivor said, so they do not say it twice "
         "in a row"),
-    ("SAO_Population.lua", "dormantLastMet"): (
-        "Pop.forgetPairs", "named",
+    ("SAO_DormantPopulation.lua", "dormantLastMet"): (
+        "D.forgetPairs", "named",
         "a PAIR-keyed meeting clock - one entry per pair of dormant "
         "survivors who have crossed paths, quadratic in the county and "
         "unreadable by anybody once either of them is dead"),
@@ -395,6 +395,23 @@ def main():
                     "its file - so there is no way to know what the rest of "
                     "the tree has to write to reach it")
             elif (ns + "." + fn) not in dead_body:
+                # C58 preserves the public Population API as a forwarding
+                # function. Prove both calls instead of treating the old
+                # module name as the cache owner.
+                compatibility = {
+                    "SAO.DormantPopulation.forgetPairs":
+                        ("SAO_Population.lua", "Pop.forgetPairs",
+                         "SAO.Population.forgetPairs"),
+                }.get(ns + "." + fn)
+                forwarded = False
+                if compatibility:
+                    owner, method, public = compatibility
+                    wrapper = function_body(files.get(owner, ""), method) or ""
+                    forwarded = (re.search(re.escape(public) + r"\s*,", dead_body) is not None
+                                 and re.search(r"return\s+" + re.escape(ns + "." + fn)
+                                               + r"\s*\(\s*id\s*\)", wrapper) is not None)
+                if forwarded:
+                    continue
                 faults.append(
                     f"`{ns}.{fn}` clears {table} ({what}) and "
                     f"Identity.{MARK_DEAD} does not name it. The function is "

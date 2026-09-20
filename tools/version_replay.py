@@ -196,6 +196,7 @@ UNITS = [
     ('C55', 'patch', 'Reconstructed runtime-only callbacks, caches, indexes, controllers and Java maps from their durable owners across reload and same-process world changes; completed the existing Afflicted-return seam with generation-aware interrupted-save reconciliation and explicit pending-work disposition.'),
     ('C56', 'patch', 'Repaired the existing health and dormant-physiology capabilities: durable drug and abstinence clocks, owner-correct interval-integrated brain history with behavioral consumers, native partial dormant consumption, and intentional Crossed blood exposure with exact-once SAO-to-ZAO body transfer. The broader Crossed action vocabulary remains R7-R9 work.'),
     ('C57', 'patch', 'Separated durable body snapshot capture, validation and commit from body ownership; validated pending transfer envelopes and retained opaque legacy visual payloads. Consolidated native person verification with a complete historical control crosswalk and isolated mutation runs. This is the first unit of the ratified runtime restructuring.'),
+    ('C58', 'kohai', 'Structural maturation of population runtime ownership: separate admissions, representation, physical observations and dormant advancement under one scheduler and History clock. Preserve continuation interfaces and repair callback replacement and explicit world reinitialization, with migrated controls.'),
 ]
 
 TIER_MEANINGS = [

@@ -76,6 +76,9 @@ MODULES = [
     "shared/SAO_Seams.lua", "shared/SAO_Standing.lua",
     "shared/SAO_Perception.lua", "shared/SAO_Places.lua",
     "client/SAO_Age.lua", "client/SAO_Telemetry.lua",
+    "shared/SAO_PhysicalFacts.lua",
+    "client/SAO_PopulationAdmissions.lua", "client/SAO_PopulationRepresentation.lua",
+    "client/SAO_DormantPopulation.lua",
     "client/SAO_Population.lua", "client/SAO_Voice.lua",
 ]
 
@@ -179,7 +182,7 @@ def probe(expr):
                            encoding="utf-8")
         args = [str(JDK / "java.exe"), "-cp", "%s;." % PZ, "LuaRun",
                 str(prelude)]
-        args += [str(LUA / m) for m in MODULES if (LUA / m).exists()]
+        args += [str(LUA / m) for m in MODULES]
         args += ["--", expr]
         done = subprocess.run(args, cwd=str(work), capture_output=True,
                               text=True, timeout=900)
@@ -201,6 +204,10 @@ def read(path):
 
 
 def main():
+    missing = [str(LUA / name) for name in MODULES if not (LUA / name).is_file()]
+    if missing:
+        print("  FAULT: required VM modules missing: " + ", ".join(missing))
+        return 1
     faults = []
     print("=" * 74)
     print("THE TICK IS THE COUNTY'S CLOCK")
@@ -208,6 +215,7 @@ def main():
 
     history = read(LUA / "shared" / "SAO_History.lua")
     population = read(LUA / "client" / "SAO_Population.lua")
+    dormant = read(LUA / "client" / "SAO_DormantPopulation.lua")
     controller = read(LUA / "client" / "SAO_Controller.lua")
     perception = read(LUA / "shared" / "SAO_Perception.lua")
     voice = read(LUA / "client" / "SAO_Voice.lua")
@@ -242,7 +250,7 @@ def main():
         "the calibrated jump is gone":
             "YEARS_TICKS_PER_DAY" not in history + population,
         "the one persisted due-time is domain-guarded":
-            "rec.nextDormantMoveAt > tickCounter + 3600" in population,
+            "rec.nextDormantMoveAt > tickCounter + 3600" in dormant,
         "foreign stamps drop on belief-store bind":
             "dropForeignStamps" in perception,
         "the voice cooldown keeps the engine's wall clock":

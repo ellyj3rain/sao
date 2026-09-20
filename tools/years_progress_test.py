@@ -17,6 +17,9 @@ ROOT = pathlib.Path(sys.argv[1]).resolve() if len(sys.argv) > 1 else HERE.parent
 LUA = ROOT / "mod" / "42.20" / "media" / "lua"
 POP = LUA / "client" / "SAO_Population.lua"
 HISTORY = LUA / "shared" / "SAO_History.lua"
+POPULATION_OWNERS = ("shared/SAO_PhysicalFacts.lua",
+    "client/SAO_PopulationAdmissions.lua", "client/SAO_PopulationRepresentation.lua",
+    "client/SAO_DormantPopulation.lua")
 GAME = pathlib.Path(r"C:\Program Files (x86)\Steam\steamapps\common\ProjectZomboid")
 JDK = pathlib.Path(r"C:\Users\jleyv\Peanut Butter\JetBrains\Java\bin")
 RUNNER = HERE / "luacheck" / "LuaRun.java"
@@ -229,7 +232,8 @@ def run_case(work, source, history, *, days=90, reload=False, start=0,
             raise ValueError("control did not find exactly one motivating seam")
         source = source.replace(old, new)
     pop.write_text(instrument(source, counters), encoding="utf-8")
-    chunks = [str(pre), str(hist), *[str(LUA / m) for m in modules], str(pop)]
+    owners = [str(LUA / name) for name in POPULATION_OWNERS]
+    chunks = [str(pre), str(hist), *[str(LUA / m) for m in modules], *owners, str(pop)]
     if before:
         first = work / "before.lua"
         first.write_text(before, encoding="utf-8")
@@ -237,7 +241,7 @@ def run_case(work, source, history, *, days=90, reload=False, start=0,
     if reload:
         phase = work / "partial.lua"
         phase.write_text("__drive(137)\nassert(__test.steps % 900 ~= 0, 'reload must interrupt a day')\n", encoding="utf-8")
-        chunks += [str(phase), str(hist), str(pop)]
+        chunks += [str(phase), str(hist), *owners, str(pop)]
     done = subprocess.run(
         [str(JDK / "java.exe"), "-cp", str(GAME / "projectzomboid.jar") + ";.",
          "LuaRun", *chunks, "--", probe], cwd=work,
@@ -247,8 +251,8 @@ def run_case(work, source, history, *, days=90, reload=False, start=0,
 
 
 def main():
-    if not POP.exists() or not HISTORY.exists():
-        print("FAULT: production Population or History missing")
+    if not all(path.is_file() for path in (POP, HISTORY, *[LUA / name for name in POPULATION_OWNERS])):
+        print("FAULT: production population owner or History missing")
         return 1
     if not (JDK / "javac.exe").exists() or not (GAME / "projectzomboid.jar").exists():
         print("SKIPPED: installed game and JDK required for scheduler VM proof")

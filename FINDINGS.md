@@ -1,6 +1,6 @@
 | Document | Survivor Awareness Overhaul Findings |
 |---|---|
-| Version | `2.7.14.8-pre-alpha` |
+| Version | `2.7.15.0-pre-alpha` |
 | Author | ellyj3rain |
 | Repository | `FINDINGS.md` |
 | Status | CANONICAL, APPEND-ONLY - verified engine findings. |
@@ -1972,3 +1972,20 @@ The [C57 evidence](artifacts/audits/20260920-0158Z-1858PST-person-continuity/)
 retains the reproduction and corrected concurrency results. The original
 intermittent runs did not retain per-process stderr, so this establishes a
 reproducible cause without retrospectively assigning every historical failure.
+
+## F-089 | 2026-09-20 03:41 UTC / 20:41 PST | Population reload retained the prior tick callback
+
+The pre-C58 Population module declared a new local `onTick` and passed that
+new closure to both Remove and Add. Reloading the module in one Lua environment
+therefore left the prior registered closure active. The stored callback must
+be removed before replacement. Population also had no explicit world-init seam
+for its cadence/fault state, cached origins and encounter cursor.
+
+Border 170 executes the production population modules against an identity-aware
+event registry in installed Kahlua. Repeating the scheduler module retains one
+callback; initializing another store clears runtime state and restores a fault-
+detached callback. Ten mutations restore the duplicate callback, stale cadence,
+faults, origins or encounters, omit reattachment, or lose the explicit tick
+handoff. Each refuses for its named reason. The existing installed-engine probe
+shows ordinary world exit creates fresh Lua, so this finding is scoped to
+same-environment reload and explicit reinitialization.

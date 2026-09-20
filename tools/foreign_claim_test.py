@@ -66,7 +66,7 @@ INTEGRATIONS = {
             "own globals by name",
         "client/SAO_Harness.lua":
             "his world ModData table, read for the county's own panel",
-        "client/SAO_Population.lua":
+        "client/SAO_PopulationRepresentation.lua":
             "the passive adoption pass, which reads his live actors",
         "client/SAO_Sandbox.lua":
             "two of HIS sandbox rows removed from the settings screen, "

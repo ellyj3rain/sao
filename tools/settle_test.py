@@ -71,6 +71,10 @@ MODULES = [
     "shared/SAO_Seams.lua", "shared/SAO_Standing.lua",
     "shared/SAO_Perception.lua", "shared/SAO_Places.lua",
     "client/SAO_Age.lua", "client/SAO_Telemetry.lua",
+    "shared/SAO_PhysicalFacts.lua",
+    "client/SAO_PopulationAdmissions.lua",
+    "client/SAO_PopulationRepresentation.lua",
+    "client/SAO_DormantPopulation.lua",
     "client/SAO_Population.lua",
 ]
 
@@ -290,7 +294,7 @@ def main():
     print("A HOUSE TAKES GROUND WHERE ITS PEOPLE ALREADY GO")
     print("=" * 74)
 
-    pop = strip_prose(read(LUA / "client" / "SAO_Population.lua"))
+    pop = strip_prose(read(LUA / "client" / "SAO_DormantPopulation.lua"))
     seams = {
         "the unwatched county can take ground":
             "setGroupClaim" in pop,

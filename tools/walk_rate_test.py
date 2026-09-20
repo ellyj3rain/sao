@@ -90,6 +90,9 @@ MODULES = [
     "shared/SAO_Seams.lua", "shared/SAO_Standing.lua",
     "shared/SAO_Perception.lua", "shared/SAO_Places.lua",
     "client/SAO_Age.lua", "client/SAO_Telemetry.lua",
+    "shared/SAO_PhysicalFacts.lua",
+    "client/SAO_PopulationAdmissions.lua", "client/SAO_PopulationRepresentation.lua",
+    "client/SAO_DormantPopulation.lua",
     "client/SAO_Population.lua",
 ]
 
@@ -266,7 +269,7 @@ def probe(expr):
         prelude.write_text(PRELUDE, encoding="utf-8")
         args = [str(JDK / "java.exe"), "-cp", "%s;." % PZ, "LuaRun",
                 str(prelude)]
-        args += [str(LUA / m) for m in MODULES if (LUA / m).exists()]
+        args += [str(LUA / m) for m in MODULES]
         args += ["--", expr]
         done = subprocess.run(args, cwd=str(work), capture_output=True,
                               text=True, timeout=900)
@@ -302,12 +305,16 @@ def read(path):
 
 
 def main():
+    missing = [str(LUA / name) for name in MODULES if not (LUA / name).is_file()]
+    if missing:
+        print("  FAULT: required VM modules missing: " + ", ".join(missing))
+        return 1
     faults = []
     print("=" * 74)
     print("A DAY OF WALKING IS A DAY OF WALKING")
     print("=" * 74)
 
-    pop = read(LUA / "client" / "SAO_Population.lua")
+    pop = read(LUA / "client" / "SAO_DormantPopulation.lua")
     seams = {
         "the step is a rate over the county's clock":
             "lastWalkHours" in pop,

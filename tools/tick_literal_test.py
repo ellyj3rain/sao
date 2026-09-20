@@ -78,7 +78,7 @@ NUMBER = re.compile(r"^-?[0-9][0-9.]*$")
 # and [B45]'s one neighbour: the exception is not suppressed, it is
 # argued, and an argument whose call has gone is a fault of its own.
 ALLOWED = {
-    ("SAO_Population.lua", "learnBuilding", "0"):
+    ("SAO_PopulationAdmissions.lua", "learnBuilding", "0"):
         "[B39]. A survivor knows the building they were standing in "
         "when the world ended, and they did not hear about it - they "
         "lived it. Zero is not a missing clock here, it is the earliest "

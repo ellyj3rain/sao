@@ -18,7 +18,7 @@ quiet, more of what is out there is walking.
 untouched world is not merely close to the old one, it is identical,
 and this mirror asserts that rather than claiming it.
 
-Every constant is parsed out of SAO_Population.lua. Ported rules drift,
+Every constant is parsed out of the scheduler and admission owner. Ported rules drift,
 and these decide the answer.
 """
 import pathlib
@@ -28,6 +28,7 @@ import sys
 ROOT = pathlib.Path(__file__).resolve().parent.parent
 SRC = (ROOT / "mod" / "42.20" / "media" / "lua" / "client"
        / "SAO_Population.lua")
+ADMISSIONS = SRC.with_name("SAO_PopulationAdmissions.lua")
 
 # PZ's default day length is one real hour per game day; the operator
 # plays there, having moved down from an hour and a half.
@@ -37,10 +38,11 @@ REAL_HOURS_PER_GAME_DAY = 1.0
 def constants():
     """Base month, floor, and the default pressure, from the Lua."""
     s = SRC.read_text(encoding="utf-8", errors="ignore")
+    admissions = ADMISSIONS.read_text(encoding="utf-8", errors="ignore")
     base = re.search(r"local accel = 1\.0 \+ .*?\n\s*\* math\.sqrt\("
-                     r"quietH / ([0-9.]+)\)", s, re.S)
-    wait = re.search(r"local wait = ([0-9.]+) / accel", s)
-    floor = re.search(r"if wait < ([0-9.]+) then wait = \1 end", s)
+                     r"quietH / ([0-9.]+)\)", admissions, re.S)
+    wait = re.search(r"local wait = ([0-9.]+) / accel", admissions)
+    floor = re.search(r"if wait < ([0-9.]+) then wait = \1 end", admissions)
     # [C12] The screen says the pressure in words (six enum steps);
     # the policy reader maps step N to the scalar N-1 the road maths
     # always ran on. The mirror reads the default step and applies
@@ -52,7 +54,7 @@ def constants():
     if not (base and wait and floor and dflt and traffic):
         raise SystemExit(
             "arrival_test: cannot find [B33]'s constants in "
-            "SAO_Population.lua - the rule moved or was removed, and "
+            "the population scheduler/admissions - the rule moved or was removed, and "
             "this mirror is blind")
     return (float(wait.group(1)), float(base.group(1)),
             float(floor.group(1)), float(dflt.group(1)) - 1.0,

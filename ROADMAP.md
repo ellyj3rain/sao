@@ -1,6 +1,6 @@
 | Document | Survivor Awareness Overhaul Roadmap |
 |---|---|
-| Version | `2.7.14.8-pre-alpha` |
+| Version | `2.7.15.0-pre-alpha` |
 | Author | ellyj3rain |
 | Repository | `ROADMAP.md` |
 | Status | CANONICAL - readiness work and retained scope. |
@@ -27,9 +27,11 @@ ownership concentrations, the intended responsibility boundaries and migration
 order. Behavioral contracts join production owners, cases and defect controls;
 former-border and source crosswalks preserve provenance. C57 implements the first
 unit: a shared body snapshot contract and consolidated native verification.
-The next unit covers population reconstruction and scheduling. Then
-perception/access, decision/action separation, social producers and presentation
-follow in dependency order. Existing R work moves with its owning contract.
+C58 completes population reconstruction and scheduling: separate admission,
+representation, physical-observation and dormant owners under History, with
+explicit callback replacement and world reset. Perception/access and R10a
+world-source grounding are next. Decision/action separation, social producers
+and presentation follow in dependency order. Existing R work moves with its owning contract.
 
 Private assembly follows a cross-module inventory of loading, Java entry
 points, save identity, settings, model artifacts and integration evidence.

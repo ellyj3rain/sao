@@ -1,0 +1,12 @@
+{
+  "version": "2.7.15.0-pre-alpha",
+  "files": 255,
+  "missing": [],
+  "extra": [],
+  "different": [],
+  "jar_sha256": "1d956ee74316a8aaa1a0f73ec36745bf830f3321b31a0670ac557a6cf7ac7525",
+  "save_files": 44092,
+  "save_metadata_unchanged": true,
+  "save_verification": "relative path, size, modification time; not content hashes",
+  "companion": "ZAO A37 unchanged"
+}

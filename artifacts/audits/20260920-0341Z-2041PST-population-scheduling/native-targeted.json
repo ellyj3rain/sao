@@ -1,0 +1,83 @@
+{
+  "completed": [
+    {
+      "command": [
+        "python",
+        "tools/population_scale_test.py"
+      ],
+      "returncode": 0,
+      "summary": "All original scale calculations and shipped-link assertions pass from Admissions owner."
+    },
+    {
+      "command": [
+        "python",
+        "tools/tick_walk_test.py"
+      ],
+      "returncode": 0,
+      "summary": "Nine population subs, two other store walks,11 identity-store walks retained; scheduler forwarding and exported owner validated."
+    },
+    {
+      "command": [
+        "python",
+        "tools/years_progress_test.py"
+      ],
+      "returncode": 0,
+      "summary": "90/365 days, partial-day reload, legacy migration, timer/genesis/clock cases, real daily death/neuro case and all six controls pass."
+    },
+    {
+      "command": [
+        "python",
+        "tools/person_handoff_test.py"
+      ],
+      "returncode": 0,
+      "summary": "Production and all30 original control cases pass with original reasons; moved cases target Representation and PhysicalFacts."
+    },
+    {
+      "command": [
+        "python",
+        "tools/person_checkpoint_test.py"
+      ],
+      "returncode": 0,
+      "summary": "Installed save-order/destination checks, production and all11 checkpoint controls pass through updated handoff loader."
+    },
+    {
+      "command": [
+        "python",
+        "-"
+      ],
+      "returncode": 0,
+      "summary": "county_sweep.require_modules plus modules_referenced:46 modules loaded, zero undeclared missing."
+    },
+    {
+      "command": [
+        "C:\\Python314\\python.exe",
+        "tools/tick_law_test.py"
+      ],
+      "returncode": 0,
+      "seconds": 0.47487350000301376,
+      "stdout": "==========================================================================\nTHE TICK IS THE COUNTY'S CLOCK\n==========================================================================\n\n     the arithmetic, then two quarter-hour skips:\n       step=9000 quant=0 twoHour=18000 firstSpan=18000 secondSpan=22500 jump=4500 onAxis=1\n\n\n  yes  the arithmetic is named where the clock lives\n  yes  the controller reads the one clock at decision time\n  yes  the population reads the same clock\n  yes  only a missing clock advances the controller fallback\n  yes  the pass gate is a stamp plus a span, never a modulo\n  yes  the tally flush keeps a host stamp\n  yes  native corpse grace keeps host pacing\n  yes  the calibrated jump is gone\n  yes  the one persisted due-time is domain-guarded\n  yes  foreign stamps drop on belief-store bind\n  yes  the voice cooldown keeps the engine's wall clock\n  yes  the voice pick is deterministic on the tick\n  yes  the gate runs this border\n\nVERDICT:\n  153) floor(countyHours * 9000), current decision reads and population passes on one clock, stamp-plus-span cadences that fire on a skipped clock, native pacing kept on host time: PASS\n",
+      "stderr": ""
+    },
+    {
+      "command": [
+        "C:\\Python314\\python.exe",
+        "tools/walk_rate_test.py"
+      ],
+      "returncode": 0,
+      "seconds": 2.0264446000219323,
+      "stdout": "==========================================================================\nA DAY OF WALKING IS A DAY OF WALKING\n==========================================================================\n\n     one walker, a goal eight neighbourhoods off, the clock moved by hand:\n       reach=150 oneDay=150 manyPasses=144 oneHour=5 overshoot=0 afterIdle=150\n\n\n  yes  the step is a rate over the county's clock\n  yes  the rate is the ratified day-reach, not a figure chosen here\n  yes  the pace of the age scales it\n  yes  no constant tile step survives\n  yes  the gate runs this border\n\nVERDICT:\n  140) a day of county clock carries a day's walking, an hour carries an hour's, and both halves of the county agree: PASS\n",
+      "stderr": ""
+    },
+    {
+      "command": [
+        "C:\\Python314\\python.exe",
+        "tools/belief_payload_test.py"
+      ],
+      "returncode": 0,
+      "seconds": 0.5095961000188254,
+      "stdout": "==========================================================================\nWHAT A BELIEF CARRIES\n==========================================================================\n  the engine's own EN name table: 6008 entries, plain reading matches 6008, strays 0\n\n     a pair meeting at three tiles, meeting again at one:\n       first=3 second=1 back=1 stated=5 carried=5 fresh=0 pkey=Elliot Segura psent=Unnamed Survivor\n\n\n  yes  the meeting passes the distance it computed\n  yes  the first-night spelling computes from their own positions\n  yes  the write takes a stated distance and keeps the honest seed\n  yes  the prelude carries the plain reading\n  yes  the dump's member row carries the plain reading beside the key\n  yes  the gate runs this border\n\nVERDICT:\n  147) a meeting writes the distance the county computed, a re-meeting refreshes it, a silent caller keeps the honest seed, and a row reads the engine's own English: PASS\n",
+      "stderr": ""
+    }
+  ],
+  "pending": []
+}

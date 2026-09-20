@@ -50,7 +50,7 @@ SHOWN = re.compile(
     r"addGoodText|addBadText|addText|drawText)\s*\(")
 # Files whose job IS the sentinel: the naming pass, and the identity
 # module that defines both renders.
-OWNS_SENTINEL = {"SAO_Population.lua", "SAO_Identity.lua"}
+OWNS_SENTINEL = {"SAO_PopulationRepresentation.lua", "SAO_Identity.lua"}
 
 
 def player_facing_lines(src):

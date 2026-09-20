@@ -1,0 +1,72 @@
+C58 static/source-owner migration: 35 unique targeted tests passed (26 static, 9 VM).
+Initial static failures: option_reach owner reader missing; places explicit tick and anchored-origin owner mapping. Corrected and rerun successfully.
+Shared java/out/luacheck access finished.
+Coherence: no unresolved faults in assigned migrations; actual modules loaded and sources inspected by owner. No production source or tools/check.sh edited.
+Control accounting: no existing named controls removed; numeric control census not repeated.
+
+C:/Python314/python.exe tools/appearance_test.py -> exit 0 [initial-static]
+C:/Python314/python.exe tools/arrival_test.py -> exit 0 [initial-static]
+C:/Python314/python.exe tools/bite_clock_test.py -> exit 0 [initial-static]
+C:/Python314/python.exe tools/bulkhead_test.py -> exit 0 [initial-static]
+C:/Python314/python.exe tools/click_lands_test.py -> exit 0 [initial-static]
+C:/Python314/python.exe tools/crowd_ledger_test.py -> exit 0 [initial-static]
+C:/Python314/python.exe tools/digest_order_test.py -> exit 0 [initial-static]
+C:/Python314/python.exe tools/forget_on_death_test.py -> exit 0 [initial-static]
+C:/Python314/python.exe tools/frontend_language_test.py -> exit 0 [initial-static]
+C:/Python314/python.exe tools/ground_reach_test.py -> exit 0 [initial-static]
+C:/Python314/python.exe tools/ground_survey_test.py -> exit 0 [initial-static]
+C:/Python314/python.exe tools/knowledge_first_test.py -> exit 0 [initial-static]
+C:/Python314/python.exe tools/name_pipeline_test.py -> exit 0 [initial-static]
+C:/Python314/python.exe tools/option_reach_test.py -> exit 1 [initial-static]
+C:/Python314/python.exe tools/places_test.py -> exit 1 [initial-static]
+C:/Python314/python.exe tools/placeholder_test.py -> exit 0 [initial-static]
+C:/Python314/python.exe tools/radius_test.py -> exit 0 [initial-static]
+C:/Python314/python.exe tools/reach_census_test.py -> exit 0 [initial-static]
+C:/Python314/python.exe tools/scarcity_reach_test.py -> exit 0 [initial-static]
+C:/Python314/python.exe tools/self_contained_test.py -> exit 0 [initial-static]
+C:/Python314/python.exe tools/tick_literal_test.py -> exit 0 [initial-static]
+C:/Python314/python.exe tools/they_build_test.py -> exit 0 [initial-static]
+C:/Python314/python.exe tools/turn_real_test.py -> exit 0 [initial-static]
+C:/Python314/python.exe tools/units_test.py -> exit 0 [initial-static]
+C:/Python314/python.exe tools/world_before_spawn_test.py -> exit 0 [initial-static]
+C:/Python314/python.exe tools/years_between_test.py -> exit 0 [initial-static]
+C:\Python314\python.exe tools\option_reach_test.py -> exit 0 [corrected-static]
+C:\Python314\python.exe tools\places_test.py -> exit 1 [corrected-static]
+C:\Python314\python.exe tools/places_test.py -> exit 0 [corrected-static]
+C:/Python314/python.exe tools/company_pull_test.py -> exit 0 [vm]
+C:/Python314/python.exe tools/dormant_infection_test.py -> exit 0 [vm]
+C:/Python314/python.exe tools/person_belief_test.py -> exit 0 [vm]
+C:/Python314/python.exe tools/seek_test.py -> exit 0 [vm]
+C:/Python314/python.exe tools/settle_test.py -> exit 0 [vm]
+C:/Python314/python.exe tools/county_clock_test.py -> exit 0 [vm]
+C:/Python314/python.exe tools/day_zero_owes_test.py -> exit 0 [vm]
+C:/Python314/python.exe tools/foreign_claim_test.py -> exit 0 [vm]
+C:/Python314/python.exe tools/years_trajectory_test.py -> exit 0 [vm]
+
+Changed files:
+tools/appearance_test.py
+tools/arrival_test.py
+tools/bite_clock_test.py
+tools/click_lands_test.py
+tools/company_pull_test.py
+tools/county_clock_test.py
+tools/dormant_infection_test.py
+tools/foreign_claim_test.py
+tools/forget_on_death_test.py
+tools/ground_reach_test.py
+tools/knowledge_first_test.py
+tools/name_pipeline_test.py
+tools/option_reach_test.py
+tools/person_belief_test.py
+tools/placeholder_test.py
+tools/places_test.py
+tools/reach_census_test.py
+tools/scarcity_reach_test.py
+tools/seek_test.py
+tools/self_contained_test.py
+tools/settle_test.py
+tools/they_build_test.py
+tools/tick_literal_test.py
+tools/turn_real_test.py
+tools/units_test.py
+tools/world_before_spawn_test.py

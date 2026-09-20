@@ -71,7 +71,7 @@ def main():
 
     needs = read(LUA / "client" / "SAO_Needs.lua")
     ctl = read(LUA / "client" / "SAO_Controller.lua")
-    pop = read(LUA / "client" / "SAO_Population.lua")
+    pop = read(LUA / "client" / "SAO_DormantPopulation.lua")
     places = read(LUA / "shared" / "SAO_Places.lua")
 
     # 1. The dial is dead everywhere under mod/. Lua is scanned with

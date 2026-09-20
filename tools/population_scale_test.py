@@ -26,7 +26,7 @@ import re
 import sys
 
 ROOT = pathlib.Path(__file__).resolve().parent.parent
-POP = ROOT / "mod" / "42.20" / "media" / "lua" / "client" / "SAO_Population.lua"
+POP = ROOT / "mod" / "42.20" / "media" / "lua" / "client" / "SAO_PopulationAdmissions.lua"
 OPTS = ROOT / "mod" / "42.20" / "media" / "sandbox-options.txt"
 
 

@@ -41,6 +41,7 @@ import sys
 ROOT = pathlib.Path(sys.argv[1]).resolve() if len(sys.argv) > 1 \
     else pathlib.Path(__file__).resolve().parent.parent
 POP = ROOT / "mod" / "42.20" / "media" / "lua" / "client" / "SAO_Population.lua"
+ADMISSIONS = POP.with_name("SAO_PopulationAdmissions.lua")
 REGISTRY = ROOT / "DECISION_REGISTRY.md"
 CHECK = ROOT / "tools" / "check.sh"
 
@@ -55,10 +56,11 @@ def main():
     print("THE WORLD IS GENERATED BEFORE IT IS SPAWNED")
     print("=" * 74)
 
-    if not POP.exists():
-        print("  FAULT: SAO_Population.lua does not exist")
+    if not POP.exists() or not ADMISSIONS.exists():
+        print("  FAULT: population scheduler or admissions does not exist")
         return 1
-    pop = read(POP)
+    pop = read(ADMISSIONS)
+    scheduler = read(POP)
 
     # 1. The budget.
     budget = re.search(r"local budget = (\w+) and (\w+) or (\w+)\n", pop)
@@ -113,8 +115,8 @@ def main():
     }
 
     # 4. The ordering law - the whole claim rests on it.
-    genesis_at = pop.find('runSub("genesis"')
-    band_at = pop.find('runSub("band"')
+    genesis_at = scheduler.find('runSub("genesis"')
+    band_at = scheduler.find('runSub("band"')
     flags["genesis runs before the band in the tick"] = (
         genesis_at >= 0 and band_at >= 0 and genesis_at < band_at)
     if genesis_at < 0 or band_at < 0:
@@ -124,7 +126,7 @@ def main():
 
     # 5. The per-person work is still in the loop.
     loop_at = pop.find("while count < capNow and bornThisPass < budget do")
-    loop = pop[loop_at:pop.find("\nlocal function backfillName", loop_at)] if loop_at >= 0 else ""
+    loop = pop[loop_at:pop.find("\nfunction A.rebindWorld", loop_at)] if loop_at >= 0 else ""
     for what, needle in (
             ("a past", "SAO.History.generate"),
             ("the trade's own ground", "pickOriginFor"),

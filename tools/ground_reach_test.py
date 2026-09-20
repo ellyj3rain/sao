@@ -61,7 +61,7 @@ PARTS = {
 # Where both halves live.
 READERS = {
     "the live half": ("shared/SAO_Perception.lua", "observe"),
-    "the dormant half": ("client/SAO_Population.lua", None),
+    "the dormant half": ("client/SAO_DormantPopulation.lua", None),
 }
 
 

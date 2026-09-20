@@ -39,6 +39,8 @@ import sys
 ROOT = pathlib.Path(sys.argv[1]).resolve() if len(sys.argv) > 1 \
     else pathlib.Path(__file__).resolve().parent.parent
 POP = ROOT / "mod" / "42.20" / "media" / "lua" / "client" / "SAO_Population.lua"
+FACTS = POP.parents[1] / "shared" / "SAO_PhysicalFacts.lua"
+DORMANT = POP.with_name("SAO_DormantPopulation.lua")
 BRIDGE = ROOT / "java" / "src" / "com" / "sao" / "bridge" / "SAOBridge.java"
 
 
@@ -49,7 +51,9 @@ def main():
     print("=" * 74)
 
     try:
-        pop = POP.read_text(encoding="utf-8", errors="ignore")
+        facts = FACTS.read_text(encoding="utf-8", errors="ignore")
+        dormant = DORMANT.read_text(encoding="utf-8", errors="ignore")
+        pop = facts + "\n" + dormant
         bridge = BRIDGE.read_text(encoding="utf-8", errors="ignore")
     except OSError:
         print()
@@ -74,19 +78,19 @@ def main():
             or "getInfectionTime" not in bridge:
         faults.append("the bridge does not read the engine's own bite "
                       "clock - whatever the record carries is invented")
-    if "biteHoursLeft" not in pop or "biteDeathAtHours" not in pop:
+    if "biteHoursLeft" not in facts or "biteDeathAtHours" not in facts:
         faults.append("the population never stamps the record with the "
                       "body's death hour - the dormant arc has no clock "
                       "to obey")
 
     # 3. The mirror for the unpicked case.
-    if "biteWindowHours" not in pop or "pickMortalityDuration" not in pop:
+    if "biteWindowHours" not in facts or "pickMortalityDuration" not in facts:
         faults.append("there is no cited sandbox-window mirror for a body "
                       "that went dark before the engine stamped its clock")
-    if "48" not in pop.split("biteWindowHours()", 1)[-1][:1200] \
-            and "local function biteWindowHours" in pop:
+    if "48" not in facts.split("biteWindowHours()", 1)[-1][:1200] \
+            and "local function biteWindowHours" in facts:
         pass  # band checked below on the definition
-    defn = pop.split("local function biteWindowHours", 1)
+    defn = facts.split("local function biteWindowHours", 1)
     if len(defn) > 1:
         band = defn[1][:600]
         if "48" not in band or "168" not in band:
@@ -95,16 +99,16 @@ def main():
                           "mirror that mirrors something else")
 
     # 4. Due beats rolled; turning mirrors the engine.
-    if "if biteDue" not in pop:
+    if "if biteDue" not in dormant:
         faults.append("a due bite still goes through the ambient roll - "
                       "a certain death made accidental")
-    if "Transmission == 3" not in pop:
+    if "Transmission == 3" not in dormant:
         faults.append("the dormant turning predicate does not mirror "
                       "Everyone's Infected - under that lore every death "
                       "turns, and out there nobody would")
 
     # 5. The surviving multiplier owns itself.
-    if "woundInfected" in pop and "OUR tuning" not in pop:
+    if "woundInfected" in dormant and "OUR tuning" not in dormant:
         faults.append("the wound-infection multiplier no longer says it "
                       "is our tuning - an unlabeled constant is how this "
                       "class starts")
