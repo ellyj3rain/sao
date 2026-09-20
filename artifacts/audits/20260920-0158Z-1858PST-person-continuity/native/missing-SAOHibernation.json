@@ -1,0 +1,32 @@
+{
+  "borders": [
+    163,
+    169,
+    174
+  ],
+  "results": [],
+  "commands": [],
+  "inventory_controls": [
+    {
+      "case": "missing-control",
+      "passed": true,
+      "reason": "Native case inventory missing declared control: fluid-quantity-accounting"
+    },
+    {
+      "case": "altered-control",
+      "passed": true,
+      "reason": "Native case inventory altered declared control: accept-oversized-native-item-string"
+    },
+    {
+      "case": "missing-baseline-assertion",
+      "passed": true,
+      "reason": "Native case inventory production assertions changed"
+    }
+  ],
+  "historical_controls": 36,
+  "distinct_controls": 35,
+  "inventory_sha256": "7703fb19e40df35b26655bc9d2a56d0e8940b39d73643d97d393f0bc35c78e65",
+  "status": "FAIL",
+  "error": "Required native person source missing: java/src/com/sao/engine/SAOHibernation.java",
+  "seconds": 0.0360791000421159
+}

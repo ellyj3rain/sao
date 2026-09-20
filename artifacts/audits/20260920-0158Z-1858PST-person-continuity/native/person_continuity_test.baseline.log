@@ -1,0 +1,14 @@
+PASS complete native person continuity and migration routing
+CONTROL unsafe-nutrition-weight: unsafe nutrition weight accepted
+CONTROL omit-nutrition-cadence: nutrition continuation state
+CONTROL reuse-fitness-component: fitness continuation state
+CONTROL omit-learning-state: recipe reading media and descriptor boost state
+CONTROL accept-missing-boost-perk: missing custom perk accepted by preflight
+CONTROL omit-native-appearance: human skin texture
+CONTROL accept-missing-outfit: missing outfit reference accepted
+CONTROL omit-hair-growth-timing: human hair growth timing
+CONTROL omit-character-metadata: durable character ModData and runtime ownership
+CONTROL accept-unsupported-character-metadata: unsupported durable character ModData accepted
+CONTROL omit-fluid-content-check: missing fluid definition accepted
+CONTROL drop-native-v3-reader: native v3 reader compatibility
+  169) PASS -- native person continuity

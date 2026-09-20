@@ -373,7 +373,7 @@ return 'PASS'
 def main():
     sources = {}
     for name in BASE_FILES:
-        path = ROOT/'mod/42.20/media/lua'/('shared' if name=='SAO_Identity.lua' else 'client')/name
+        path = vm.source_path(name)
         if not path.is_file():
             print('FAULT missing production module '+name); return 1
         sources[name]=path.read_text(encoding='utf-8')

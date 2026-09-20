@@ -1,6 +1,6 @@
 | Document | The three projects and what each owns |
 |---|---|
-| Version | `2.7.14.7-pre-alpha` |
+| Version | `2.7.14.8-pre-alpha` |
 | Author | ellyj3rain |
 | Repository | `PROJECTS.md` |
 | Status | CANONICAL - the architecture across the three repositories. Held here; `../zombie-awareness` and `../zomboid-speakeasy` point at it. |
@@ -22,6 +22,18 @@ its share of that sentence.
 
 The dependency substrate - what exists, what is planned, and what each area of
 concern needs - is mapped in `SUBSTRATE.md`.
+
+## Private unified project
+
+DR-041 establishes the intended release destination: one private unified
+mod/project. The immediate work compresses SAO's borders; later work combines
+the cross-module contracts and the runtime pieces into that project. DR-042
+makes the first pass a whole-mod runtime restructuring, including source
+ownership and file layout. The three repositories and ownership contracts
+below describe the current source layout.
+The assembly plan will account for module loading, Java entry points, save
+identity, settings, model artifacts, source provenance and integrated evidence
+before choosing its source layout and packaging.
 
 ## What each one is
 
@@ -155,7 +167,7 @@ SUBSTRATE.md records the implementation boundaries and current evidence.
 
 | | Version | Standing |
 |---|---|---|
-| SAO | see `VERSION` | C56 closes R5 health and dormant physiology after the consolidated implementation audit. Continuity, time, event-derived brain health, dormant carried consumption and the intentional Afflicted-conversion transfer have controlled receipts. R6-R10 retain access, actions and complete life producers. |
+| SAO | see `VERSION` | C57 starts whole-mod restructuring with the shared body snapshot contract and consolidated native suite. C56 closes R5 health and dormant physiology. Population reconstruction and scheduling are next; R6-R10 retain access, actions and complete life producers. |
 | ZAO | `../zombie-awareness/VERSION` | A37 makes the Crossed pass reachable for the non-feeding Afflicted exposure and owns the same transferred human shell across loaded, dormant and dead states. The complete retained human action vocabulary and loaded-world observation remain open. |
 | Speakeasy | `../zomboid-speakeasy/RECORD.md` | 112 work-word and 78 trade-hinge choices are ratified; world documents and the cross-module row contract are approved. Source decision capture needs repair. No trained cognition model or completed training/export/runtime path exists. |
 

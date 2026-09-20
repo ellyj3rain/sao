@@ -1,6 +1,6 @@
 | Document | Survivor Awareness Overhaul Decision Registry |
 |---|---|
-| Version | `2.7.14.7-pre-alpha` |
+| Version | `2.7.14.8-pre-alpha` |
 | Author | ellyj3rain |
 | Repository | `DECISION_REGISTRY.md` |
 | Status | CANONICAL, APPEND-ONLY - ratified decisions. |
@@ -1450,3 +1450,45 @@ superseded.
 
 **Origin.** Operator ruling, 2026-09-09, on F-061; the waiver
 established the same day when the anchor's precondition failed.
+
+---
+
+## DR-041 - Border compression and a private unified project
+
+**Timestamp** 2026-09-20 01:15 UTC / 18:15 PST
+
+**Status** RATIFIED direction; compression implementation scope under deliberation.
+
+**Decision.** Begin with compression of the actual mod's borders, using the
+A/B/C consolidation as the precedent. Subsequently combine the cross-module
+borders and runtime into a single mod/project. The unified project is private.
+
+**Application.** ROADMAP.md places this work before the remaining R contracts.
+The compression proposal records existing coverage, concrete overlap and
+blind spots, with a crosswalk back to the original borders. The degree of
+runtime restructuring within this first pass is a separate scope decision.
+
+**Origin.** Crucible interaction `skill-15bd119a60357d57`, returned through
+Mousecat after C56/A37. The freeform answer replaced the offered sequencing
+options. The exact response and its lineage remain in Mousecat.
+
+---
+
+## DR-042 - Whole-mod runtime restructuring
+
+**Timestamp** 2026-09-20 01:53 UTC / 18:53 PST
+
+**Status** RATIFIED; resolves the implementation scope left open in DR-041.
+
+**Decision.** The compression pass includes runtime ownership and module layout
+across SAO together with its borders. Establish the broader source consolidation
+map before implementation. Private cross-module assembly follows this work.
+
+**Application.** The restructuring plan maps the complete Lua/Java source
+inventory, current responsibility concentrations, target ownership and the
+dependency order for migration. Existing R contracts remain attached to their
+mechanisms, including their unresolved defects and missing producers.
+
+**Origin.** Mousecat Crucible interaction `skill-bf49739e6e493394`; selected
+value `whole_mod_restructuring`. This supersedes the narrower recommendation
+in the first compression proposal.

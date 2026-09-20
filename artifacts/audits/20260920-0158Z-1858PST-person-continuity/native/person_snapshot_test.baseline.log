@@ -1,0 +1,21 @@
+PASS native person components and refusal controls
+CONTROL accept-oversized-native-item-string: oversized native item string accepted
+CONTROL living-capture-obsolete-equipment: Equipment outside inventory
+CONTROL return-historical-inventory: Restored item identity/type/container differs
+CONTROL return-dropped-detached-equipment: Equipment outside inventory
+CONTROL return-premature-item-processing: detached return item processed before activation
+CONTROL return-source-change-ignored: changed source materials accepted
+CONTROL return-visual-not-restored: human skin texture
+CONTROL empty-native-inventory: Restored item identity/type/container differs
+CONTROL omit-native-stats: native stats
+CONTROL omit-native-wounds: native wound state
+CONTROL omit-native-experience: native XP and traits
+CONTROL lose-primary-reference: Equipment restoration did not preserve references
+CONTROL accept-corruption: checksum corruption accepted
+CONTROL accept-old-native-version: unsupported native version accepted
+CONTROL drop-nested-item-silently: missing nested unequipped script accepted
+CONTROL omit-native-item-processing: root and nested food not registered for native processing
+CONTROL omit-native-item-unregister: recursive native processing removal
+CONTROL accept-missing-custom-perk: missing custom perk accepted by preflight
+CONTROL accept-missing-custom-trait: missing custom trait accepted by preflight
+  163) PASS -- native person snapshot

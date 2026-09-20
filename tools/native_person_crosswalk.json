@@ -1,0 +1,280 @@
+{
+  "schema": 1,
+  "baseline_commit": "08f9d6d32977a731f0af06c2824cbe72e2024550",
+  "probe": "tools/luacheck/PersonSnapshotProbe.java",
+  "probe_sha256": "8950989588d963e582fba11b7ccf5230c730cb6d4906bcd95432fd9635d891c6",
+  "production": [
+    {
+      "border": 163,
+      "entry_point": "tools/person_snapshot_test.py",
+      "case": "production",
+      "required_stdout": "PASS native snapshot:"
+    },
+    {
+      "border": 169,
+      "entry_point": "tools/person_continuity_test.py",
+      "case": "production",
+      "required_stdout": "PASS native snapshot: v3/v4"
+    },
+    {
+      "border": 174,
+      "entry_point": "tools/dormant_physiology_test.py",
+      "case": "production",
+      "required_stdout": "dormant partial food/drink and partition stability"
+    }
+  ],
+  "controls": [
+    {
+      "border": 163,
+      "entry_point": "tools/person_snapshot_test.py",
+      "former_control": "accept-oversized-native-item-string",
+      "case": "accept-oversized-native-item-string",
+      "mutation_sha256": "85b1862ddb6d1c100ef6978b0fc0807385ff32bf48a3d7b0b77ae88b576a8772"
+    },
+    {
+      "border": 163,
+      "entry_point": "tools/person_snapshot_test.py",
+      "former_control": "living-capture-obsolete-equipment",
+      "case": "living-capture-obsolete-equipment",
+      "mutation_sha256": "cc7725a3c9b59c3545732c01352b068639390117b41e3735c7c4319077158687"
+    },
+    {
+      "border": 163,
+      "entry_point": "tools/person_snapshot_test.py",
+      "former_control": "return-historical-inventory",
+      "case": "return-historical-inventory",
+      "mutation_sha256": "e654e0c32c6a07783747359763c04114a9a1635896adf145dfce9c2941cabb71"
+    },
+    {
+      "border": 163,
+      "entry_point": "tools/person_snapshot_test.py",
+      "former_control": "return-dropped-detached-equipment",
+      "case": "return-dropped-detached-equipment",
+      "mutation_sha256": "0ffe817afcaac8b0e50297c8afc905652abed14283b138b00abbb3f22842abde"
+    },
+    {
+      "border": 163,
+      "entry_point": "tools/person_snapshot_test.py",
+      "former_control": "return-premature-item-processing",
+      "case": "return-premature-item-processing",
+      "mutation_sha256": "c742839d5fceeeb261cabfc5a60d4797635f4f25dde4dd1264231bbe9101db0c"
+    },
+    {
+      "border": 163,
+      "entry_point": "tools/person_snapshot_test.py",
+      "former_control": "return-source-change-ignored",
+      "case": "return-source-change-ignored",
+      "mutation_sha256": "5a152d613d59a9afbe5742321a4388652c2d51e9c70937f386ab34b5260a57f3"
+    },
+    {
+      "border": 163,
+      "entry_point": "tools/person_snapshot_test.py",
+      "former_control": "return-visual-not-restored",
+      "case": "return-visual-not-restored",
+      "mutation_sha256": "fb9c374e5bdb83a1c988017016e9d727dcd8f5ba3f8207037e2cb84b2bdc9283"
+    },
+    {
+      "border": 163,
+      "entry_point": "tools/person_snapshot_test.py",
+      "former_control": "empty-native-inventory",
+      "case": "empty-native-inventory",
+      "mutation_sha256": "63f5786aa5ff166d61a3a165506d32805da1e6e789e70bb9cb45c1db38fec711"
+    },
+    {
+      "border": 163,
+      "entry_point": "tools/person_snapshot_test.py",
+      "former_control": "omit-native-stats",
+      "case": "omit-native-stats",
+      "mutation_sha256": "a1c9b033013d42f3e51c2bfe30eccd6c4a92d8e43c4270129067ab4b6c44e9b1"
+    },
+    {
+      "border": 163,
+      "entry_point": "tools/person_snapshot_test.py",
+      "former_control": "omit-native-wounds",
+      "case": "omit-native-wounds",
+      "mutation_sha256": "eb6c404ddf300eaf63e170191cdefaa6d7ece0464645d6c5055401bb58e738b4"
+    },
+    {
+      "border": 163,
+      "entry_point": "tools/person_snapshot_test.py",
+      "former_control": "omit-native-experience",
+      "case": "omit-native-experience",
+      "mutation_sha256": "ab49008ba4d485069cce5670fcc75598917bfe5c7ec56e9fb21b9678d6a042a9"
+    },
+    {
+      "border": 163,
+      "entry_point": "tools/person_snapshot_test.py",
+      "former_control": "lose-primary-reference",
+      "case": "lose-primary-reference",
+      "mutation_sha256": "dd51406c6ec624efe74f20a3e8cefdca9d3e6c54978339f57b949a13371cc970"
+    },
+    {
+      "border": 163,
+      "entry_point": "tools/person_snapshot_test.py",
+      "former_control": "accept-corruption",
+      "case": "accept-corruption",
+      "mutation_sha256": "a24d46dbb822a84907c3fb20aa7dcc074f91d925310e8e74aaa5bd48f0f232de"
+    },
+    {
+      "border": 163,
+      "entry_point": "tools/person_snapshot_test.py",
+      "former_control": "accept-old-native-version",
+      "case": "accept-old-native-version",
+      "mutation_sha256": "adedbbaa490845fa82ad32e18b756d7896f4a0d2cc14d023604f50fa0adc81b2"
+    },
+    {
+      "border": 163,
+      "entry_point": "tools/person_snapshot_test.py",
+      "former_control": "drop-nested-item-silently",
+      "case": "drop-nested-item-silently",
+      "mutation_sha256": "c673984072bc53ddcdc4896a3f216812b0a5accec68424a9f4b7a9df32814f30"
+    },
+    {
+      "border": 163,
+      "entry_point": "tools/person_snapshot_test.py",
+      "former_control": "omit-native-item-processing",
+      "case": "omit-native-item-processing",
+      "mutation_sha256": "96d2dd2dc677538a743d0a334923ec767e720ea930985076cda1fc68d95a7920"
+    },
+    {
+      "border": 163,
+      "entry_point": "tools/person_snapshot_test.py",
+      "former_control": "omit-native-item-unregister",
+      "case": "omit-native-item-unregister",
+      "mutation_sha256": "47fb10f13f3170a02c28a965e4f03e0bda7a7b2ea533459c8c5e2ff248d00fd2"
+    },
+    {
+      "border": 163,
+      "entry_point": "tools/person_snapshot_test.py",
+      "former_control": "accept-missing-custom-perk",
+      "case": "accept-missing-custom-perk",
+      "mutation_sha256": "f893a7a540f5257b817625dc6abb52217184fa747a7c9a1f34cd2dac71fd2506"
+    },
+    {
+      "border": 163,
+      "entry_point": "tools/person_snapshot_test.py",
+      "former_control": "accept-missing-custom-trait",
+      "case": "accept-missing-custom-trait",
+      "mutation_sha256": "90ec70747a75998ef4f09f475eb276339eb3a5204dc0ec9f8cfe803cb42520c0"
+    },
+    {
+      "border": 169,
+      "entry_point": "tools/person_continuity_test.py",
+      "former_control": "unsafe-nutrition-weight",
+      "case": "unsafe-nutrition-weight",
+      "mutation_sha256": "019a204a1ffbcd79354df3fcfb4fac653fe99ea27f606e3ea4ad67837619201f"
+    },
+    {
+      "border": 169,
+      "entry_point": "tools/person_continuity_test.py",
+      "former_control": "omit-nutrition-cadence",
+      "case": "omit-nutrition-cadence",
+      "mutation_sha256": "ca02a980a08bc5ce1b4595a71a94a57f2a0ab6386c193631d4cabb243fe8b69d"
+    },
+    {
+      "border": 169,
+      "entry_point": "tools/person_continuity_test.py",
+      "former_control": "reuse-fitness-component",
+      "case": "reuse-fitness-component",
+      "mutation_sha256": "36cee6123cc62e29bf0c0d3e4d88d2717e986b6e767befcf6464ba08e74c2f32"
+    },
+    {
+      "border": 169,
+      "entry_point": "tools/person_continuity_test.py",
+      "former_control": "omit-learning-state",
+      "case": "omit-learning-state",
+      "mutation_sha256": "ae681cd759835f43fc4a4bb459ab9ef6f877ed8a5d3db10f2b8399f75eb3e5c2"
+    },
+    {
+      "border": 169,
+      "entry_point": "tools/person_continuity_test.py",
+      "former_control": "accept-missing-boost-perk",
+      "case": "accept-missing-boost-perk",
+      "mutation_sha256": "0831339f13d5d6fa2ebea509129ede3b9835be8d7f86cd61944238f9f74b0cd2"
+    },
+    {
+      "border": 169,
+      "entry_point": "tools/person_continuity_test.py",
+      "former_control": "omit-native-appearance",
+      "case": "return-visual-not-restored",
+      "mutation_sha256": "fb9c374e5bdb83a1c988017016e9d727dcd8f5ba3f8207037e2cb84b2bdc9283"
+    },
+    {
+      "border": 169,
+      "entry_point": "tools/person_continuity_test.py",
+      "former_control": "accept-missing-outfit",
+      "case": "accept-missing-outfit",
+      "mutation_sha256": "e72d84307457950afaa27b862d281c307dffb5c2c63849d21bbbabdc5692b3c7"
+    },
+    {
+      "border": 169,
+      "entry_point": "tools/person_continuity_test.py",
+      "former_control": "omit-hair-growth-timing",
+      "case": "omit-hair-growth-timing",
+      "mutation_sha256": "5c2502f6af109817cd607f325a0c8e2b3810f1614d516bc323ded5cc06690a51"
+    },
+    {
+      "border": 169,
+      "entry_point": "tools/person_continuity_test.py",
+      "former_control": "omit-character-metadata",
+      "case": "omit-character-metadata",
+      "mutation_sha256": "1d1cf70d319c709aefc2db435e81782591a2c7057d12a97af73d9bd579659229"
+    },
+    {
+      "border": 169,
+      "entry_point": "tools/person_continuity_test.py",
+      "former_control": "accept-unsupported-character-metadata",
+      "case": "accept-unsupported-character-metadata",
+      "mutation_sha256": "a6bfc2af5c6454e2a22c73c15cb0d0a8c58f87b86b1daa8109356577803b5a46"
+    },
+    {
+      "border": 169,
+      "entry_point": "tools/person_continuity_test.py",
+      "former_control": "omit-fluid-content-check",
+      "case": "omit-fluid-content-check",
+      "mutation_sha256": "eb21838ee6075aa5dd28a6e039c4bc3cec5a48e2089be74cc9ad031f5a5e4720"
+    },
+    {
+      "border": 169,
+      "entry_point": "tools/person_continuity_test.py",
+      "former_control": "drop-native-v3-reader",
+      "case": "drop-native-v3-reader",
+      "mutation_sha256": "a6338acdebf4a00ed084eb92d81b7123c9b697d2eed09e022a9f7ed891b0fdc4"
+    },
+    {
+      "border": 174,
+      "entry_point": "tools/dormant_physiology_test.py",
+      "former_control": "native partial eating",
+      "case": "native-partial-eating",
+      "mutation_sha256": "c5a06a35bed893a2fdeee55afebb2ad0451a6ff1245d98e260af71c72bc0b54c"
+    },
+    {
+      "border": 174,
+      "entry_point": "tools/dormant_physiology_test.py",
+      "former_control": "nested resource traversal",
+      "case": "nested-resource-traversal",
+      "mutation_sha256": "7bddd3a9e11a0ee5889da6a754ed2deceb2911fbac2896c24704ef58a3c645a3"
+    },
+    {
+      "border": 174,
+      "entry_point": "tools/dormant_physiology_test.py",
+      "former_control": "spoilage exclusion",
+      "case": "spoilage-exclusion",
+      "mutation_sha256": "3dd4499fc493e752c0c805bc7b7f988db5c2b7f92cb9d5633196d2d878274ec4"
+    },
+    {
+      "border": 174,
+      "entry_point": "tools/dormant_physiology_test.py",
+      "former_control": "native partial drinking",
+      "case": "native-partial-drinking",
+      "mutation_sha256": "79e4e9d67020dc01e93d94135d7f995590773434528ded11ea4d95204d7ec286"
+    },
+    {
+      "border": 174,
+      "entry_point": "tools/dormant_physiology_test.py",
+      "former_control": "fluid quantity accounting",
+      "case": "fluid-quantity-accounting",
+      "mutation_sha256": "c411c002c7f3abd1873f98786a81751fed2062ef67e137d3d8192847de5990e7"
+    }
+  ]
+}

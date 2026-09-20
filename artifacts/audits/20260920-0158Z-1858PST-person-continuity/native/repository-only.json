@@ -1,0 +1,59 @@
+{
+  "borders": [
+    163,
+    169,
+    174
+  ],
+  "results": [],
+  "commands": [],
+  "inventory_controls": [
+    {
+      "case": "missing-control",
+      "passed": true,
+      "reason": "Native case inventory missing declared control: fluid-quantity-accounting"
+    },
+    {
+      "case": "altered-control",
+      "passed": true,
+      "reason": "Native case inventory altered declared control: accept-oversized-native-item-string"
+    },
+    {
+      "case": "missing-baseline-assertion",
+      "passed": true,
+      "reason": "Native case inventory production assertions changed"
+    }
+  ],
+  "historical_controls": 36,
+  "distinct_controls": 35,
+  "inventory_sha256": "7703fb19e40df35b26655bc9d2a56d0e8940b39d73643d97d393f0bc35c78e65",
+  "routing": [
+    "capture-validation",
+    "body-restoration",
+    "v4-writer",
+    "v3-reader",
+    "native-routing",
+    "bridge-version",
+    "legacy-sidecar-only",
+    "migration-provenance",
+    "new-capture-clears-sidecar",
+    "return-clears-sidecar",
+    "native-capture",
+    "native-validate",
+    "native-restore",
+    "snapshot-owner-capture",
+    "snapshot-owner-valid",
+    "snapshot-owner-commit",
+    "snapshot-owner-version"
+  ],
+  "source_sha256": {
+    "java/src/com/sao/engine/SAONativeSnapshot.java": "249767f233cbd8dd0d259882070c80cb657a192342893954ab67136be20ac829",
+    "java/src/com/sao/engine/SAOHibernation.java": "d25fe83342f57fd0b9f35da24681215dad981e9364716a47592357deaddf09b7",
+    "tools/luacheck/PersonSnapshotProbe.java": "8950989588d963e582fba11b7ccf5230c730cb6d4906bcd95432fd9635d891c6",
+    "java/src/com/sao/bridge/SAOBridge.java": "ba851f76cdbac2ff46f334fed18fc7453537081b69bb811ccfa25bf03c71599e",
+    "mod/42.20/media/lua/client/SAO_Body.lua": "0b8dcca9007c505260f9affc8949e5ba339c763fa10040d452800f13253e6686",
+    "mod/42.20/media/lua/shared/SAO_BodySnapshot.lua": "ab2b0c3a1195ca14e727eb379ca99a80e6be06e0c5d246b25f51fd9d7933ec38",
+    "mod/42.20/media/lua/client/SAO_AfflictedReturn.lua": "6d835847180639c7d361cec70036987cf9e3a08918134384f4f3f2ccdfc54342"
+  },
+  "status": "SKIPPED",
+  "seconds": 0.13540219998685643
+}

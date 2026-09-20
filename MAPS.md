@@ -1,6 +1,6 @@
 | Document | Survivor Awareness Overhaul Maps |
 |---|---|
-| Version | `2.7.14.7-pre-alpha` |
+| Version | `2.7.14.8-pre-alpha` |
 | Author | ellyj3rain |
 | Repository | `MAPS.md` |
 | Status | CANONICAL - the three pictures a human reads first: runtime, knowledge, catalog. |
@@ -47,7 +47,8 @@ flowchart LR
         LOC["Locomotion - verdict consumer; stalls and faults give up locally"]
         PLA["Places - what a place offers, spent by visits"]
         NBR["Neighbours - the neighbour framework's narration, held"]
-        BOD["Body - materialize, release, hibernate"]
+        BOD["Body - materialization and ownership transactions"]
+        SNP["BodySnapshot - capture, validate, commit"]
         IDE["Identity - the record is the person"]
         UIX["UI - the Ledger window"]
         HAR["Harness - the menus the player meets"]
@@ -67,6 +68,7 @@ flowchart LR
     ATT --> IDE & PER & PLA & STA
     DEV --> ATT & STA
     POP --> IDE & BOD & TEL
+    BOD --> SNP --> HB
     EXC --> PER & STA & VOI
     IDE --> MD
     STA --> MD

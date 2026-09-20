@@ -1881,13 +1881,6 @@ if ! "$PY" tools/intentional_exposure_test.py; then
     fail=1
 fi
 
-# [C56] Border 174 - native partial food/drink, nested resources, spoilage,
-# nutrition and partition-stable dormant accounting.
-if ! "$PY" tools/dormant_physiology_test.py; then
-    note "BORDER FINDING - dormant physiology reconciliation broken"
-    fail=1
-fi
-
 # [C56] Border 175 - the causal history changes the shipped memory, decision,
 # affective-pressure and movement consumers rather than stopping at a graph.
 if ! "$PY" tools/brain_effects_test.py; then
@@ -1920,8 +1913,10 @@ if ! "$PY" tools/person_handoff_test.py; then
     note "BORDER FINDING - person ownership handoff failed"
     fail=1
 fi
-if ! "$PY" tools/person_snapshot_test.py; then
-    note "BORDER FINDING - native person snapshot failed"
+# [C57] Borders 163/169/174 share one native suite, complete historical
+# control crosswalk and production compile. Each control has a fresh JVM.
+if ! "$PY" tools/native_person_test.py; then
+    note "BORDER FINDING - native person continuation or dormant physiology failed"
     fail=1
 fi
 
@@ -1947,13 +1942,6 @@ fi
 # native host pacing remain one explicit shared-time contract.
 if ! "$PY" tools/shared_time_test.py; then
     note "BORDER FINDING - shared county time contract broken"
-    fail=1
-fi
-
-# [C54] Border 169 - all native person components, migration provenance,
-# repeated wakes and the next component updates share one v4 envelope.
-if ! "$PY" tools/person_continuity_test.py; then
-    note "BORDER FINDING - native person continuity failed"
     fail=1
 fi
 

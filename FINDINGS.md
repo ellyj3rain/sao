@@ -1,6 +1,6 @@
 | Document | Survivor Awareness Overhaul Findings |
 |---|---|
-| Version | `2.7.14.7-pre-alpha` |
+| Version | `2.7.14.8-pre-alpha` |
 | Author | ellyj3rain |
 | Repository | `FINDINGS.md` |
 | Status | CANONICAL, APPEND-ONLY - verified engine findings. |
@@ -1954,3 +1954,21 @@ dormant ownership and later death retain one controller and one person. Borders
 The complete retained Crossed weapons, tools, strategy and general action
 vocabulary remains R7-R9 work; these receipts do not establish loaded-world
 presentation.
+
+## F-088 | 2026-09-20 | Concurrent engine probes can read a partially compiled helper
+
+Border 69 shared `java/out/luacheck/LuaRun.class` with other engine probes and
+treated file existence and modification time as proof that compilation had
+finished. Border 54 runs eight checks concurrently in a fresh tree. A bounded
+eight-process reproduction against a Lua-free tree produced one refusal with
+`ClassFormatError: Truncated class file`; a paused-writer control independently
+made the old cache accept an incomplete class and reproduce that failure.
+
+The engine-facts check reads the installed engine, so its declaration that it
+does not consume the mod's Lua remains valid. The correction gives each engine-
+facts invocation its own compilation directory and uses that directory for all
+of its queries. This removes its dependence on a shared writer's progress.
+The [C57 evidence](artifacts/audits/20260920-0158Z-1858PST-person-continuity/)
+retains the reproduction and corrected concurrency results. The original
+intermittent runs did not retain per-process stderr, so this establishes a
+reproducible cause without retrospectively assigning every historical failure.

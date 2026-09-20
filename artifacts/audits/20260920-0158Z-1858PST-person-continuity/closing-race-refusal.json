@@ -1,0 +1,11 @@
+{
+  "command": "git commit with enforced tools/check.sh --staged",
+  "exit_code": 0,
+  "seconds": 277.69,
+  "commit": "20382f8a9ac634e1fd09550f210fe276ffe7b827",
+  "accepted_verification": false,
+  "interrupted": true,
+  "finding": "Border54 engine-facts shared compiler race",
+  "unpublished_commit_removed_with_soft_reset": true,
+  "index_and_working_files_preserved": true
+}

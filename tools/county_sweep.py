@@ -157,6 +157,7 @@ MODULES = [
     "shared/SAO_PlaceAttachment.lua", "shared/SAO_PlayerInteraction.lua",
     "shared/SAO_Pressure.lua", "shared/SAO_WorldDevelopment.lua",
     "shared/SAO_Habits.lua", "shared/SAO_Claims.lua", "shared/SAO_Identity.lua",
+    "shared/SAO_BodySnapshot.lua",
     "shared/SAO_Lessons.lua", "shared/SAO_Knowledge.lua",
     "shared/SAO_PathogenEvents.lua", "shared/SAO_WorldGenesis.lua",
     "shared/SAO_Seams.lua", "shared/SAO_Standing.lua",

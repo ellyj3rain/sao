@@ -16,9 +16,9 @@ the machine. Names, dates, and threads below come from
 | Form | `major.minor.kohai.patch-maturity` |
 | Hard caps | minor 12; kohai 16; patch 24 |
 | Replay start | `0.1.0.0-pre-alpha` |
-| Current version | `2.7.14.7-pre-alpha` |
-| Closed chronology | `A1-C56` |
-| Next batch | `C57` |
+| Current version | `2.7.14.8-pre-alpha` |
+| Closed chronology | `A1-C57` |
+| Next batch | `C58` |
 | Executable source | [`tools/version_replay.py`](tools/version_replay.py) |
 
 ## Tier meanings
@@ -172,6 +172,7 @@ the machine. Names, dates, and threads below come from
 | `C54` | 2026-09-19 | patch | `2.7.14.5-pre-alpha` | Native person continuity | Completed native person continuity within the existing handoff: the v4 envelope preserves nutrition, fitness, learning, appearance, declared durable metadata and exact fluid components, while older readers retain their original limits and migration provenance. |
 | `C55` | 2026-09-19 | patch | `2.7.14.6-pre-alpha` | Durable/runtime reconstruction | Reconstructed runtime-only callbacks, caches, indexes, controllers and Java maps from their durable owners across reload and same-process world changes; completed the existing Afflicted-return seam with generation-aware interrupted-save reconciliation and explicit pending-work disposition. |
 | `C56` | 2026-09-19 | patch | `2.7.14.7-pre-alpha` | Health and dormant physiology | Repaired the existing health and dormant-physiology capabilities: durable drug and abstinence clocks, owner-correct interval-integrated brain history with behavioral consumers, native partial dormant consumption, and intentional Crossed blood exposure with exact-once SAO-to-ZAO body transfer. The broader Crossed action vocabulary remains R7-R9 work. |
+| `C57` | 2026-09-20 | patch | `2.7.14.8-pre-alpha` | Person continuity contract | Separated durable body snapshot capture, validation and commit from body ownership; validated pending transfer envelopes and retained opaque legacy visual payloads. Consolidated native person verification with a complete historical control crosswalk and isolated mutation runs. This is the first unit of the ratified runtime restructuring. |
 
 ## The former number
 
@@ -192,11 +193,11 @@ establish release maturity.
 
 ## Next movement
 
-`C57` is the next batch. Its content determines its tier after it
+`C58` is the next batch. Its content determines its tier after it
 exists:
 
-| If C57 is | Result |
+| If C58 is | Result |
 |---|---|
-| patch or hotfix | `2.7.14.8-pre-alpha` |
+| patch or hotfix | `2.7.14.9-pre-alpha` |
 | kohai | `2.7.15.0-pre-alpha` |
 | minor | `2.8.0.0-pre-alpha` |

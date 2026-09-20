@@ -1,6 +1,6 @@
 | Document | Survivor Awareness Overhaul Architecture |
 |---|---|
-| Version | `2.7.14.7-pre-alpha` |
+| Version | `2.7.14.8-pre-alpha` |
 | Author | ellyj3rain |
 | Repository | `ARCHITECTURE.md` |
 | Status | ACTIVE - ratified framework shape. |
@@ -176,6 +176,14 @@ takes the days it takes. Death is durable: corpses belong to the
 engine, records become death records, claims lapse ([A11]), refill waits
 its sandbox-governed days and happens at spawn regions, never at the loss.
 All policy numbers are sandbox options.
+
+C57 gives `SAO_BodySnapshot` the shared native-envelope contract: version
+interpretation, capture, validation and durable commit. `SAO_Body` owns
+materialization, checkpoints, release and transfer transactions; the shared
+module owns no body registry. Release and transfer validate supplied native
+payloads and envelope fields before publishing durable state or ownership.
+Afflicted return shares the version reader and retains source removal and
+adoption. Native formats and save keys keep their existing readers.
 
 ## Combat doctrine ([A7], [A8], [A10]-[A10])
 

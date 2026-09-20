@@ -1,0 +1,38 @@
+{
+  "source_hashes": {
+    "tools/person_snapshot_test.py": "bba66d457b125240c3ee0c6ace2145a4e2c12a5317ca36ec41a58d45a32b8097",
+    "tools/person_continuity_test.py": "b3a641bd428012d8e84758cb588939ed83f623e8fd0c52dd6885d4d28388c658",
+    "tools/dormant_physiology_test.py": "025095186ea189f476737508381702fb05dca0e651f3602d5fb492f9a25da665",
+    "tools/menu_reach.py": "83938f14019266112abef52ed5ee88c08cfa025ccba9e945dfcdf6c6191cc23b",
+    "tools/luacheck/PersonSnapshotProbe.java": "8950989588d963e582fba11b7ccf5230c730cb6d4906bcd95432fd9635d891c6",
+    "java/src/com/sao/engine/SAONativeSnapshot.java": "249767f233cbd8dd0d259882070c80cb657a192342893954ab67136be20ac829",
+    "java/src/com/sao/engine/SAOHibernation.java": "d25fe83342f57fd0b9f35da24681215dad981e9364716a47592357deaddf09b7",
+    "java/src/com/sao/bridge/SAOBridge.java": "ba851f76cdbac2ff46f334fed18fc7453537081b69bb811ccfa25bf03c71599e",
+    "mod/42.20/media/lua/client/SAO_Body.lua": "c6efd25df84f92fdf2e7f39ff822fa215423af95187eb9e675151df1e8d8ad11",
+    "mod/42.20/media/lua/client/SAO_AfflictedReturn.lua": "230aa79c3a3bece5c9e076555ed7d4b30d92f4aeaf895e0b6c9c2124ebf866ad"
+  },
+  "results": [
+    {
+      "entry_point": "tools/person_snapshot_test.py",
+      "seconds": 52.37846790003823,
+      "returncode": 0,
+      "stdout": "PASS native person components and refusal controls\nCONTROL accept-oversized-native-item-string: oversized native item string accepted\nCONTROL living-capture-obsolete-equipment: Equipment outside inventory\nCONTROL return-historical-inventory: Restored item identity/type/container differs\nCONTROL return-dropped-detached-equipment: Equipment outside inventory\nCONTROL return-premature-item-processing: detached return item processed before activation\nCONTROL return-source-change-ignored: changed source materials accepted\nCONTROL return-visual-not-restored: human skin texture\nCONTROL empty-native-inventory: Restored item identity/type/container differs\nCONTROL omit-native-stats: native stats\nCONTROL omit-native-wounds: native wound state\nCONTROL omit-native-experience: native XP and traits\nCONTROL lose-primary-reference: Equipment restoration did not preserve references\nCONTROL accept-corruption: checksum corruption accepted\nCONTROL accept-old-native-version: unsupported native version accepted\nCONTROL drop-nested-item-silently: missing nested unequipped script accepted\nCONTROL omit-native-item-processing: root and nested food not registered for native processing\nCONTROL omit-native-item-unregister: recursive native processing removal\nCONTROL accept-missing-custom-perk: missing custom perk accepted by preflight\nCONTROL accept-missing-custom-trait: missing custom trait accepted by preflight\n  163) PASS -- native person snapshot\n",
+      "stderr": ""
+    },
+    {
+      "entry_point": "tools/person_continuity_test.py",
+      "seconds": 33.14934850001009,
+      "returncode": 0,
+      "stdout": "PASS complete native person continuity and migration routing\nCONTROL unsafe-nutrition-weight: unsafe nutrition weight accepted\nCONTROL omit-nutrition-cadence: nutrition continuation state\nCONTROL reuse-fitness-component: fitness continuation state\nCONTROL omit-learning-state: recipe reading media and descriptor boost state\nCONTROL accept-missing-boost-perk: missing custom perk accepted by preflight\nCONTROL omit-native-appearance: human skin texture\nCONTROL accept-missing-outfit: missing outfit reference accepted\nCONTROL omit-hair-growth-timing: human hair growth timing\nCONTROL omit-character-metadata: durable character ModData and runtime ownership\nCONTROL accept-unsupported-character-metadata: unsupported durable character ModData accepted\nCONTROL omit-fluid-content-check: missing fluid definition accepted\nCONTROL drop-native-v3-reader: native v3 reader compatibility\n  169) PASS -- native person continuity\n",
+      "stderr": ""
+    },
+    {
+      "entry_point": "tools/dormant_physiology_test.py",
+      "seconds": 15.778415400011,
+      "returncode": 0,
+      "stdout": "Border 174 PASS: real partial Eat/DrinkFluid, nested inventory, spoilage, nutrition, quantity journals, zero elapsed and partition/reload stability; five controls fail\n",
+      "stderr": ""
+    }
+  ],
+  "total_seconds": 101.30623180005932
+}

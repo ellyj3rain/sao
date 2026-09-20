@@ -222,6 +222,10 @@ def main(root):
         omitted.unlink()
         if not rejects(lambda: Sweep.require_modules(absent)):
             faults.append('single missing Census module accepted')
+        shutil.copy2(lua / 'shared/SAO_Census.lua', omitted)
+        (absent / 'shared/SAO_BodySnapshot.lua').unlink()
+        if not rejects(lambda: Sweep.require_modules(absent)):
+            faults.append('single missing body snapshot dependency accepted')
         source = (HERE / 'county_sweep.py').read_text(encoding='utf-8')
         old = "if result.get('ranTo') != owed:"
         if source.count(old) != 1:

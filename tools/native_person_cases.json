@@ -1,0 +1,258 @@
+{
+  "schema": 1,
+  "production": {
+    "id": "production",
+    "required_stdout": [
+      "PASS native snapshot:",
+      "PASS native snapshot: v3/v4",
+      "dormant partial food/drink and partition stability"
+    ]
+  },
+  "controls": [
+    {
+      "id": "accept-oversized-native-item-string",
+      "source": "SAONativeSnapshot.java",
+      "before": "if (item.hasModData()) checkNativeTable(item.getModData(), 0, new IdentityHashMap<>());",
+      "after": "",
+      "expected": "oversized native item string accepted"
+    },
+    {
+      "id": "living-capture-obsolete-equipment",
+      "source": "SAONativeSnapshot.java",
+      "before": "requireLiving(living);\n        ItemContainer empty = new ItemContainer();",
+      "after": "requireLiving(living);\n        equipment(living, new LinkedHashMap<>());\n        ItemContainer empty = new ItemContainer();",
+      "expected": "Equipment outside inventory"
+    },
+    {
+      "id": "return-historical-inventory",
+      "source": "SAONativeSnapshot.java",
+      "before": "serialize(buffer -> current.save(buffer)),",
+      "after": "serialize(buffer -> living.getInventory().save(buffer)),",
+      "expected": "Restored item identity/type/container differs"
+    },
+    {
+      "id": "return-dropped-detached-equipment",
+      "source": "SAONativeSnapshot.java",
+      "before": "view.getItems().add(item);",
+      "after": "",
+      "expected": "Equipment outside inventory"
+    },
+    {
+      "id": "return-premature-item-processing",
+      "source": "SAONativeSnapshot.java",
+      "before": "return restore(shell, packed, false);",
+      "after": "return restore(shell, packed, true);",
+      "expected": "detached return item processed before activation"
+    },
+    {
+      "id": "return-source-change-ignored",
+      "source": "SAONativeSnapshot.java",
+      "before": "return Arrays.equals(snapshot.sections()[0],",
+      "after": "return true || Arrays.equals(snapshot.sections()[0],",
+      "expected": "changed source materials accepted"
+    },
+    {
+      "id": "return-visual-not-restored",
+      "source": "SAONativeSnapshot.java",
+      "before": "visual.load(input, VERIFIED_WORLD_VERSION);",
+      "after": "input.position(input.limit());",
+      "expected": "human skin texture"
+    },
+    {
+      "id": "empty-native-inventory",
+      "source": "SAONativeSnapshot.java",
+      "before": "serialize(buffer -> shell.getInventory().save(buffer)),",
+      "after": "serialize(buffer -> new ItemContainer().save(buffer)),",
+      "expected": "Restored item identity/type/container differs"
+    },
+    {
+      "id": "omit-native-stats",
+      "source": "SAONativeSnapshot.java",
+      "before": "shell.getStats().load(buffer, snapshot.version());",
+      "after": "buffer.position(buffer.limit());",
+      "expected": "native stats"
+    },
+    {
+      "id": "omit-native-wounds",
+      "source": "SAONativeSnapshot.java",
+      "before": "shell.getBodyDamage().load(buffer, snapshot.version());",
+      "after": "buffer.position(buffer.limit());",
+      "expected": "native wound state"
+    },
+    {
+      "id": "omit-native-experience",
+      "source": "SAONativeSnapshot.java",
+      "before": "shell.getXp().load(buffer, snapshot.version());",
+      "after": "buffer.position(buffer.limit());",
+      "expected": "native XP and traits"
+    },
+    {
+      "id": "lose-primary-reference",
+      "source": "SAONativeSnapshot.java",
+      "before": "shell.setPrimaryHandItem(item(items, equipment.primary()));",
+      "after": "shell.setPrimaryHandItem(null);",
+      "expected": "Equipment restoration did not preserve references"
+    },
+    {
+      "id": "accept-corruption",
+      "source": "SAONativeSnapshot.java",
+      "before": "if (!MessageDigest.isEqual(hash(Arrays.copyOf(bytes, payloadSize)),\n                Arrays.copyOfRange(bytes, payloadSize, bytes.length))) {",
+      "after": "if (false) {",
+      "expected": "checksum corruption accepted"
+    },
+    {
+      "id": "accept-old-native-version",
+      "source": "SAONativeSnapshot.java",
+      "before": "if (version != VERIFIED_WORLD_VERSION || IsoWorld.getWorldVersion() != version) {",
+      "after": "if (false) {",
+      "expected": "unsupported native version accepted"
+    },
+    {
+      "id": "drop-nested-item-silently",
+      "source": "SAONativeSnapshot.java",
+      "before": "if (!facts.equals(snapshot.manifest().items())) {",
+      "after": "if (false) {",
+      "expected": "missing nested unequipped script accepted"
+    },
+    {
+      "id": "omit-native-item-processing",
+      "source": "SAONativeSnapshot.java",
+      "before": "IsoWorld.instance.currentCell.addToProcessItems(restored);",
+      "after": "/* missing native processing registration */",
+      "expected": "root and nested food not registered for native processing"
+    },
+    {
+      "id": "omit-native-item-unregister",
+      "source": "SAONativeSnapshot.java",
+      "before": "IsoWorld.instance.currentCell.addToProcessItemsRemove(carried);",
+      "after": "/* missing native processing removal */",
+      "expected": "recursive native processing removal"
+    },
+    {
+      "id": "accept-missing-custom-perk",
+      "source": "SAONativeSnapshot.java",
+      "before": "if (perk == null || perk == PerkFactory.Perks.MAX || !name.equals(perk.getId())) {",
+      "after": "if (false) {",
+      "expected": "missing custom perk accepted by preflight"
+    },
+    {
+      "id": "accept-missing-custom-trait",
+      "source": "SAONativeSnapshot.java",
+      "before": "if (!Registries.CHARACTER_TRAIT.contains(ResourceLocation.of(name))) {",
+      "after": "if (false) {",
+      "expected": "missing custom trait accepted by preflight"
+    },
+    {
+      "id": "unsafe-nutrition-weight",
+      "source": "SAONativeSnapshot.java",
+      "before": "if (!Float.isFinite(weight) || weight < 35.0f || weight > 1000.0f) {",
+      "after": "if (!Float.isFinite(weight) || false || weight > 1000.0f) {",
+      "expected": "unsafe nutrition weight accepted"
+    },
+    {
+      "id": "omit-nutrition-cadence",
+      "source": "SAONativeSnapshot.java",
+      "before": "setField(nutrition, Nutrition.class, \"updatedWeight\", in.readInt());",
+      "after": "in.readInt();",
+      "expected": "nutrition continuation state"
+    },
+    {
+      "id": "reuse-fitness-component",
+      "source": "SAONativeSnapshot.java",
+      "before": "Fitness fitness = new Fitness(shell);",
+      "after": "Fitness fitness = shell.getFitness();",
+      "expected": "fitness continuation state"
+    },
+    {
+      "id": "omit-learning-state",
+      "source": "SAONativeSnapshot.java",
+      "before": "restoreLearning(shell, sections[7]);",
+      "after": "/* missing learning restore */",
+      "expected": "recipe reading media and descriptor boost state"
+    },
+    {
+      "id": "accept-missing-boost-perk",
+      "source": "SAONativeSnapshot.java",
+      "before": "for (String id : boosts.keySet()) requirePerk(id);",
+      "after": "/* missing descriptor-perk preflight */",
+      "expected": "missing custom perk accepted by preflight"
+    },
+    {
+      "id": "accept-missing-outfit",
+      "source": "SAONativeSnapshot.java",
+      "before": "if (outfit == null) throw new IOException(\"Outfit unavailable: \" + state.outfit());",
+      "after": "if (false) throw new IOException(\"Outfit unavailable: \" + state.outfit());",
+      "expected": "missing outfit reference accepted"
+    },
+    {
+      "id": "omit-hair-growth-timing",
+      "source": "SAONativeSnapshot.java",
+      "before": "setField(shell, IsoGameCharacter.class, \"hairGrowTiming\", state.hairGrowTiming());",
+      "after": "/* missing hair growth timing */",
+      "expected": "human hair growth timing"
+    },
+    {
+      "id": "omit-character-metadata",
+      "source": "SAONativeSnapshot.java",
+      "before": "restoreCharacterModData(shell, sections[9]);",
+      "after": "/* missing durable character metadata */",
+      "expected": "durable character ModData and runtime ownership"
+    },
+    {
+      "id": "accept-unsupported-character-metadata",
+      "source": "SAONativeSnapshot.java",
+      "before": "if (!KahluaTableImpl.canSave(key, value)) {",
+      "after": "if (false) {",
+      "expected": "unsupported durable character ModData accepted"
+    },
+    {
+      "id": "omit-fluid-content-check",
+      "source": "SAONativeSnapshot.java",
+      "before": "checkFluidFacts(items, snapshot.manifest().fluids());",
+      "after": "/* missing exact fluid-content check */",
+      "expected": "missing fluid definition accepted"
+    },
+    {
+      "id": "drop-native-v3-reader",
+      "source": "SAONativeSnapshot.java",
+      "before": "} else if (packed != null && packed.startsWith(PREFIX_V3)) {",
+      "after": "} else if (false) {",
+      "expected": "native v3 reader compatibility"
+    },
+    {
+      "id": "native-partial-eating",
+      "source": "SAOHibernation.java",
+      "before": "if (!shell.Eat(meal, engineFraction, false)) break;",
+      "after": "if (true) break;",
+      "expected": "partial nested food quantity was not retained"
+    },
+    {
+      "id": "nested-resource-traversal",
+      "source": "SAOHibernation.java",
+      "before": "collect(nested.getInventory(), found, seen);",
+      "after": "/* nested resources omitted */",
+      "expected": "partial nested food quantity was not retained"
+    },
+    {
+      "id": "spoilage-exclusion",
+      "source": "SAOHibernation.java",
+      "before": "if (food.isRotten() || food.getPoisonPower() > 0",
+      "after": "if (false || food.getPoisonPower() > 0",
+      "expected": "rotten food was consumed"
+    },
+    {
+      "id": "native-partial-drinking",
+      "source": "SAOHibernation.java",
+      "before": "if (!shell.DrinkFluid(drink, engineFraction, false)) break;",
+      "after": "fluids.Empty();",
+      "expected": "partial nested drink quantity was not retained"
+    },
+    {
+      "id": "fluid-quantity-accounting",
+      "source": "SAOHibernation.java",
+      "before": "return -properties.getThirstChange();",
+      "after": "return -properties.getThirstChange() * fluids.getAmount();",
+      "expected": "equal dormant event history changed across interval partitions"
+    }
+  ]
+}

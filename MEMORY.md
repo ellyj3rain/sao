@@ -1,6 +1,6 @@
 | Document | Survivor Awareness Overhaul Memory |
 |---|---|
-| Version | `2.7.14.7-pre-alpha` |
+| Version | `2.7.14.8-pre-alpha` |
 | Author | ellyj3rain |
 | Repository | `MEMORY.md` |
 | Status | ACTIVE - index of every root document and its standing. |
@@ -36,7 +36,7 @@ current. Nothing at the root is unclassified.
 | `FINDINGS.md` | CANONICAL, APPEND-ONLY | Verified engine findings from F-001. |
 | `RECEIPTS.md` | CANONICAL, APPEND-ONLY | What play has actually settled, from R-001 (DR-025). |
 | `BATCH_LOG.md` | REGULATORY | Chronological index for the batch sequence. |
-| `VERSION_MAP.md` | REGULATORY | Version units replayed over the current consolidated chronology through `[C53]`. |
+| `VERSION_MAP.md` | REGULATORY | Version units replayed over the current consolidated chronology through `[C57]`. |
 | `ROADMAP.md` | CANONICAL | Thread map, backlog, live gates. |
 | `SESSION_STATE.md` | CANONICAL | Where the work actually stands. |
 | `MAPS.md` | CANONICAL | The three pictures a human reads first: runtime, knowledge, catalog. |

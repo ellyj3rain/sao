@@ -1,0 +1,1559 @@
+{
+  "borders": [
+    163,
+    169,
+    174
+  ],
+  "results": [
+    {
+      "case": "production",
+      "passed": true,
+      "compiled": true
+    },
+    {
+      "case": "accept-oversized-native-item-string",
+      "passed": true,
+      "compiled": true,
+      "reason": "oversized native item string accepted"
+    },
+    {
+      "case": "living-capture-obsolete-equipment",
+      "passed": true,
+      "compiled": true,
+      "reason": "Equipment outside inventory"
+    },
+    {
+      "case": "return-historical-inventory",
+      "passed": true,
+      "compiled": true,
+      "reason": "Restored item identity/type/container differs"
+    },
+    {
+      "case": "return-dropped-detached-equipment",
+      "passed": true,
+      "compiled": true,
+      "reason": "Equipment outside inventory"
+    },
+    {
+      "case": "return-premature-item-processing",
+      "passed": true,
+      "compiled": true,
+      "reason": "detached return item processed before activation"
+    },
+    {
+      "case": "return-source-change-ignored",
+      "passed": true,
+      "compiled": true,
+      "reason": "changed source materials accepted"
+    },
+    {
+      "case": "return-visual-not-restored",
+      "passed": true,
+      "compiled": true,
+      "reason": "human skin texture"
+    },
+    {
+      "case": "empty-native-inventory",
+      "passed": true,
+      "compiled": true,
+      "reason": "Restored item identity/type/container differs"
+    },
+    {
+      "case": "omit-native-stats",
+      "passed": true,
+      "compiled": true,
+      "reason": "native stats"
+    },
+    {
+      "case": "omit-native-wounds",
+      "passed": true,
+      "compiled": true,
+      "reason": "native wound state"
+    },
+    {
+      "case": "omit-native-experience",
+      "passed": true,
+      "compiled": true,
+      "reason": "native XP and traits"
+    },
+    {
+      "case": "lose-primary-reference",
+      "passed": true,
+      "compiled": true,
+      "reason": "Equipment restoration did not preserve references"
+    },
+    {
+      "case": "accept-corruption",
+      "passed": true,
+      "compiled": true,
+      "reason": "checksum corruption accepted"
+    },
+    {
+      "case": "accept-old-native-version",
+      "passed": true,
+      "compiled": true,
+      "reason": "unsupported native version accepted"
+    },
+    {
+      "case": "drop-nested-item-silently",
+      "passed": true,
+      "compiled": true,
+      "reason": "missing nested unequipped script accepted"
+    },
+    {
+      "case": "omit-native-item-processing",
+      "passed": true,
+      "compiled": true,
+      "reason": "root and nested food not registered for native processing"
+    },
+    {
+      "case": "omit-native-item-unregister",
+      "passed": true,
+      "compiled": true,
+      "reason": "recursive native processing removal"
+    },
+    {
+      "case": "accept-missing-custom-perk",
+      "passed": true,
+      "compiled": true,
+      "reason": "missing custom perk accepted by preflight"
+    },
+    {
+      "case": "accept-missing-custom-trait",
+      "passed": true,
+      "compiled": true,
+      "reason": "missing custom trait accepted by preflight"
+    },
+    {
+      "case": "unsafe-nutrition-weight",
+      "passed": true,
+      "compiled": true,
+      "reason": "unsafe nutrition weight accepted"
+    },
+    {
+      "case": "omit-nutrition-cadence",
+      "passed": true,
+      "compiled": true,
+      "reason": "nutrition continuation state"
+    },
+    {
+      "case": "reuse-fitness-component",
+      "passed": true,
+      "compiled": true,
+      "reason": "fitness continuation state"
+    },
+    {
+      "case": "omit-learning-state",
+      "passed": true,
+      "compiled": true,
+      "reason": "recipe reading media and descriptor boost state"
+    },
+    {
+      "case": "accept-missing-boost-perk",
+      "passed": true,
+      "compiled": true,
+      "reason": "missing custom perk accepted by preflight"
+    },
+    {
+      "case": "accept-missing-outfit",
+      "passed": true,
+      "compiled": true,
+      "reason": "missing outfit reference accepted"
+    },
+    {
+      "case": "omit-hair-growth-timing",
+      "passed": true,
+      "compiled": true,
+      "reason": "human hair growth timing"
+    },
+    {
+      "case": "omit-character-metadata",
+      "passed": true,
+      "compiled": true,
+      "reason": "durable character ModData and runtime ownership"
+    },
+    {
+      "case": "accept-unsupported-character-metadata",
+      "passed": true,
+      "compiled": true,
+      "reason": "unsupported durable character ModData accepted"
+    },
+    {
+      "case": "omit-fluid-content-check",
+      "passed": true,
+      "compiled": true,
+      "reason": "missing fluid definition accepted"
+    },
+    {
+      "case": "drop-native-v3-reader",
+      "passed": true,
+      "compiled": true,
+      "reason": "native v3 reader compatibility"
+    },
+    {
+      "case": "native-partial-eating",
+      "passed": true,
+      "compiled": true,
+      "reason": "partial nested food quantity was not retained"
+    },
+    {
+      "case": "nested-resource-traversal",
+      "passed": true,
+      "compiled": true,
+      "reason": "partial nested food quantity was not retained"
+    },
+    {
+      "case": "spoilage-exclusion",
+      "passed": true,
+      "compiled": true,
+      "reason": "rotten food was consumed"
+    },
+    {
+      "case": "native-partial-drinking",
+      "passed": true,
+      "compiled": true,
+      "reason": "partial nested drink quantity was not retained"
+    },
+    {
+      "case": "fluid-quantity-accounting",
+      "passed": true,
+      "compiled": true,
+      "reason": "equal dormant event history changed across interval partitions"
+    }
+  ],
+  "commands": [
+    {
+      "case": "inputs",
+      "phase": "compiler",
+      "argv": [
+        "C:\\Users\\jleyv\\Peanut Butter\\JetBrains\\Java\\bin\\javac.exe",
+        "-version"
+      ],
+      "cwd": "C:\\Users\\jleyv\\AppData\\Local\\Temp\\sao-native-person-873g3x15",
+      "seconds": 0.1170257999910973,
+      "returncode": 0,
+      "stdout": "javac 25.0.3\n",
+      "stderr": ""
+    },
+    {
+      "case": "production",
+      "phase": "compile",
+      "argv": [
+        "C:\\Users\\jleyv\\Peanut Butter\\JetBrains\\Java\\bin\\javac.exe",
+        "-encoding",
+        "UTF-8",
+        "-cp",
+        "C:\\Program Files (x86)\\Steam\\steamapps\\common\\ProjectZomboid\\projectzomboid.jar",
+        "-d",
+        "C:\\Users\\jleyv\\AppData\\Local\\Temp\\sao-native-person-873g3x15\\production\\classes",
+        "C:\\Users\\jleyv\\Peanut Butter\\AI Assisted Software Engineering Mass Repository\\Projects\\survivor-awareness\\java\\src\\com\\sao\\engine\\SAONativeSnapshot.java",
+        "C:\\Users\\jleyv\\Peanut Butter\\AI Assisted Software Engineering Mass Repository\\Projects\\survivor-awareness\\java\\src\\com\\sao\\engine\\SAOHibernation.java",
+        "C:\\Users\\jleyv\\Peanut Butter\\AI Assisted Software Engineering Mass Repository\\Projects\\survivor-awareness\\tools\\luacheck\\PersonSnapshotProbe.java"
+      ],
+      "cwd": "C:\\Users\\jleyv\\AppData\\Local\\Temp\\sao-native-person-873g3x15\\production",
+      "seconds": 1.3658233999740332,
+      "returncode": 0,
+      "stdout": "",
+      "stderr": "Note: C:\\Users\\jleyv\\Peanut Butter\\AI Assisted Software Engineering Mass Repository\\Projects\\survivor-awareness\\tools\\luacheck\\PersonSnapshotProbe.java uses unchecked or unsafe operations.\nNote: Recompile with -Xlint:unchecked for details.\n"
+    },
+    {
+      "case": "production",
+      "phase": "probe",
+      "argv": [
+        "C:\\Users\\jleyv\\Peanut Butter\\JetBrains\\Java\\bin\\java.exe",
+        "-Duser.home=C:\\Users\\jleyv\\AppData\\Local\\Temp\\sao-native-person-873g3x15\\production",
+        "-cp",
+        "C:\\Users\\jleyv\\AppData\\Local\\Temp\\sao-native-person-873g3x15\\production\\classes;C:\\Program Files (x86)\\Steam\\steamapps\\common\\ProjectZomboid\\projectzomboid.jar",
+        "PersonSnapshotProbe"
+      ],
+      "cwd": "C:\\Users\\jleyv\\AppData\\Local\\Temp\\sao-native-person-873g3x15\\production",
+      "seconds": 1.2232904999982566,
+      "returncode": 0,
+      "stdout": "ENGINE oversized native item string: load succeeds, keyId 67890 -> 1633771873\nPASS native snapshot: v3/v4; root/nested items and fluids; equipment; stats/wounds/XP/traits; nutrition/fitness/learning/visual/ModData; repeated wake; dormant partial food/drink and partition stability; next native updates; corruption/version/missing-definition controls\n",
+      "stderr": "WARNING: A restricted method in java.lang.System has been called\nWARNING: java.lang.System::load has been called by org.lwjgl.system.Library$$Lambda/0x000000009b1c93f0 in an unnamed module (file:/C:/Program%20Files%20(x86)/Steam/steamapps/common/ProjectZomboid/projectzomboid.jar)\nWARNING: Use --enable-native-access=ALL-UNNAMED to avoid a warning for callers in this module\nWARNING: Restricted methods will be blocked in a future release unless native access is enabled\n\n"
+    },
+    {
+      "case": "accept-oversized-native-item-string",
+      "phase": "compile",
+      "argv": [
+        "C:\\Users\\jleyv\\Peanut Butter\\JetBrains\\Java\\bin\\javac.exe",
+        "-encoding",
+        "UTF-8",
+        "-cp",
+        "C:\\Users\\jleyv\\AppData\\Local\\Temp\\sao-native-person-873g3x15\\production\\classes;C:\\Program Files (x86)\\Steam\\steamapps\\common\\ProjectZomboid\\projectzomboid.jar",
+        "-d",
+        "C:\\Users\\jleyv\\AppData\\Local\\Temp\\sao-native-person-873g3x15\\accept-oversized-native-item-string\\classes",
+        "C:\\Users\\jleyv\\AppData\\Local\\Temp\\sao-native-person-873g3x15\\accept-oversized-native-item-string\\SAONativeSnapshot.java"
+      ],
+      "cwd": "C:\\Users\\jleyv\\AppData\\Local\\Temp\\sao-native-person-873g3x15\\accept-oversized-native-item-string",
+      "seconds": 1.141751499962993,
+      "returncode": 0,
+      "stdout": "",
+      "stderr": ""
+    },
+    {
+      "case": "accept-oversized-native-item-string",
+      "phase": "probe",
+      "argv": [
+        "C:\\Users\\jleyv\\Peanut Butter\\JetBrains\\Java\\bin\\java.exe",
+        "-Duser.home=C:\\Users\\jleyv\\AppData\\Local\\Temp\\sao-native-person-873g3x15\\accept-oversized-native-item-string",
+        "-cp",
+        "C:\\Users\\jleyv\\AppData\\Local\\Temp\\sao-native-person-873g3x15\\accept-oversized-native-item-string\\classes;C:\\Users\\jleyv\\AppData\\Local\\Temp\\sao-native-person-873g3x15\\production\\classes;C:\\Program Files (x86)\\Steam\\steamapps\\common\\ProjectZomboid\\projectzomboid.jar",
+        "PersonSnapshotProbe"
+      ],
+      "cwd": "C:\\Users\\jleyv\\AppData\\Local\\Temp\\sao-native-person-873g3x15\\accept-oversized-native-item-string",
+      "seconds": 1.1151834999909624,
+      "returncode": 1,
+      "stdout": "",
+      "stderr": "WARNING: A restricted method in java.lang.System has been called\nWARNING: java.lang.System::load has been called by org.lwjgl.system.Library$$Lambda/0x00000000971d13f0 in an unnamed module (file:/C:/Program%20Files%20(x86)/Steam/steamapps/common/ProjectZomboid/projectzomboid.jar)\nWARNING: Use --enable-native-access=ALL-UNNAMED to avoid a warning for callers in this module\nWARNING: Restricted methods will be blocked in a future release unless native access is enabled\n\nException in thread \"main\" java.lang.AssertionError: oversized native item string accepted\n\tat PersonSnapshotProbe.check(PersonSnapshotProbe.java:101)\n\tat PersonSnapshotProbe.main(PersonSnapshotProbe.java:431)\n"
+    },
+    {
+      "case": "living-capture-obsolete-equipment",
+      "phase": "compile",
+      "argv": [
+        "C:\\Users\\jleyv\\Peanut Butter\\JetBrains\\Java\\bin\\javac.exe",
+        "-encoding",
+        "UTF-8",
+        "-cp",
+        "C:\\Users\\jleyv\\AppData\\Local\\Temp\\sao-native-person-873g3x15\\production\\classes;C:\\Program Files (x86)\\Steam\\steamapps\\common\\ProjectZomboid\\projectzomboid.jar",
+        "-d",
+        "C:\\Users\\jleyv\\AppData\\Local\\Temp\\sao-native-person-873g3x15\\living-capture-obsolete-equipment\\classes",
+        "C:\\Users\\jleyv\\AppData\\Local\\Temp\\sao-native-person-873g3x15\\living-capture-obsolete-equipment\\SAONativeSnapshot.java"
+      ],
+      "cwd": "C:\\Users\\jleyv\\AppData\\Local\\Temp\\sao-native-person-873g3x15\\living-capture-obsolete-equipment",
+      "seconds": 1.076443300000392,
+      "returncode": 0,
+      "stdout": "",
+      "stderr": ""
+    },
+    {
+      "case": "living-capture-obsolete-equipment",
+      "phase": "probe",
+      "argv": [
+        "C:\\Users\\jleyv\\Peanut Butter\\JetBrains\\Java\\bin\\java.exe",
+        "-Duser.home=C:\\Users\\jleyv\\AppData\\Local\\Temp\\sao-native-person-873g3x15\\living-capture-obsolete-equipment",
+        "-cp",
+        "C:\\Users\\jleyv\\AppData\\Local\\Temp\\sao-native-person-873g3x15\\living-capture-obsolete-equipment\\classes;C:\\Users\\jleyv\\AppData\\Local\\Temp\\sao-native-person-873g3x15\\production\\classes;C:\\Program Files (x86)\\Steam\\steamapps\\common\\ProjectZomboid\\projectzomboid.jar",
+        "PersonSnapshotProbe"
+      ],
+      "cwd": "C:\\Users\\jleyv\\AppData\\Local\\Temp\\sao-native-person-873g3x15\\living-capture-obsolete-equipment",
+      "seconds": 1.3971349999774247,
+      "returncode": 1,
+      "stdout": "ENGINE oversized native item string: load succeeds, keyId 67890 -> 1633771873\n",
+      "stderr": "WARNING: A restricted method in java.lang.System has been called\nWARNING: java.lang.System::load has been called by org.lwjgl.system.Library$$Lambda/0x00000000911ca870 in an unnamed module (file:/C:/Program%20Files%20(x86)/Steam/steamapps/common/ProjectZomboid/projectzomboid.jar)\nWARNING: Use --enable-native-access=ALL-UNNAMED to avoid a warning for callers in this module\nWARNING: Restricted methods will be blocked in a future release unless native access is enabled\n\nException in thread \"main\" java.io.IOException: Equipment outside inventory\n\tat com.sao.engine.SAONativeSnapshot.reference(SAONativeSnapshot.java:962)\n\tat com.sao.engine.SAONativeSnapshot.equipment(SAONativeSnapshot.java:955)\n\tat com.sao.engine.SAONativeSnapshot.captureReturnLiving(SAONativeSnapshot.java:117)\n\tat PersonSnapshotProbe.main(PersonSnapshotProbe.java:809)\n"
+    },
+    {
+      "case": "return-historical-inventory",
+      "phase": "compile",
+      "argv": [
+        "C:\\Users\\jleyv\\Peanut Butter\\JetBrains\\Java\\bin\\javac.exe",
+        "-encoding",
+        "UTF-8",
+        "-cp",
+        "C:\\Users\\jleyv\\AppData\\Local\\Temp\\sao-native-person-873g3x15\\production\\classes;C:\\Program Files (x86)\\Steam\\steamapps\\common\\ProjectZomboid\\projectzomboid.jar",
+        "-d",
+        "C:\\Users\\jleyv\\AppData\\Local\\Temp\\sao-native-person-873g3x15\\return-historical-inventory\\classes",
+        "C:\\Users\\jleyv\\AppData\\Local\\Temp\\sao-native-person-873g3x15\\return-historical-inventory\\SAONativeSnapshot.java"
+      ],
+      "cwd": "C:\\Users\\jleyv\\AppData\\Local\\Temp\\sao-native-person-873g3x15\\return-historical-inventory",
+      "seconds": 1.1480638000066392,
+      "returncode": 0,
+      "stdout": "",
+      "stderr": ""
+    },
+    {
+      "case": "return-historical-inventory",
+      "phase": "probe",
+      "argv": [
+        "C:\\Users\\jleyv\\Peanut Butter\\JetBrains\\Java\\bin\\java.exe",
+        "-Duser.home=C:\\Users\\jleyv\\AppData\\Local\\Temp\\sao-native-person-873g3x15\\return-historical-inventory",
+        "-cp",
+        "C:\\Users\\jleyv\\AppData\\Local\\Temp\\sao-native-person-873g3x15\\return-historical-inventory\\classes;C:\\Users\\jleyv\\AppData\\Local\\Temp\\sao-native-person-873g3x15\\production\\classes;C:\\Program Files (x86)\\Steam\\steamapps\\common\\ProjectZomboid\\projectzomboid.jar",
+        "PersonSnapshotProbe"
+      ],
+      "cwd": "C:\\Users\\jleyv\\AppData\\Local\\Temp\\sao-native-person-873g3x15\\return-historical-inventory",
+      "seconds": 1.2692483000573702,
+      "returncode": 1,
+      "stdout": "ENGINE oversized native item string: load succeeds, keyId 67890 -> 1633771873\n",
+      "stderr": "WARNING: A restricted method in java.lang.System has been called\nWARNING: java.lang.System::load has been called by org.lwjgl.system.Library$$Lambda/0x00000000321cc528 in an unnamed module (file:/C:/Program%20Files%20(x86)/Steam/steamapps/common/ProjectZomboid/projectzomboid.jar)\nWARNING: Use --enable-native-access=ALL-UNNAMED to avoid a warning for callers in this module\nWARNING: Restricted methods will be blocked in a future release unless native access is enabled\n\nException in thread \"main\" java.io.IOException: Restored item identity/type/container differs\n\tat com.sao.engine.SAONativeSnapshot.restore(SAONativeSnapshot.java:306)\n\tat com.sao.engine.SAONativeSnapshot.restoreStaged(SAONativeSnapshot.java:289)\n\tat PersonSnapshotProbe.main(PersonSnapshotProbe.java:819)\n"
+    },
+    {
+      "case": "return-dropped-detached-equipment",
+      "phase": "compile",
+      "argv": [
+        "C:\\Users\\jleyv\\Peanut Butter\\JetBrains\\Java\\bin\\javac.exe",
+        "-encoding",
+        "UTF-8",
+        "-cp",
+        "C:\\Users\\jleyv\\AppData\\Local\\Temp\\sao-native-person-873g3x15\\production\\classes;C:\\Program Files (x86)\\Steam\\steamapps\\common\\ProjectZomboid\\projectzomboid.jar",
+        "-d",
+        "C:\\Users\\jleyv\\AppData\\Local\\Temp\\sao-native-person-873g3x15\\return-dropped-detached-equipment\\classes",
+        "C:\\Users\\jleyv\\AppData\\Local\\Temp\\sao-native-person-873g3x15\\return-dropped-detached-equipment\\SAONativeSnapshot.java"
+      ],
+      "cwd": "C:\\Users\\jleyv\\AppData\\Local\\Temp\\sao-native-person-873g3x15\\return-dropped-detached-equipment",
+      "seconds": 1.1337096000206657,
+      "returncode": 0,
+      "stdout": "",
+      "stderr": ""
+    },
+    {
+      "case": "return-dropped-detached-equipment",
+      "phase": "probe",
+      "argv": [
+        "C:\\Users\\jleyv\\Peanut Butter\\JetBrains\\Java\\bin\\java.exe",
+        "-Duser.home=C:\\Users\\jleyv\\AppData\\Local\\Temp\\sao-native-person-873g3x15\\return-dropped-detached-equipment",
+        "-cp",
+        "C:\\Users\\jleyv\\AppData\\Local\\Temp\\sao-native-person-873g3x15\\return-dropped-detached-equipment\\classes;C:\\Users\\jleyv\\AppData\\Local\\Temp\\sao-native-person-873g3x15\\production\\classes;C:\\Program Files (x86)\\Steam\\steamapps\\common\\ProjectZomboid\\projectzomboid.jar",
+        "PersonSnapshotProbe"
+      ],
+      "cwd": "C:\\Users\\jleyv\\AppData\\Local\\Temp\\sao-native-person-873g3x15\\return-dropped-detached-equipment",
+      "seconds": 1.4347726999549195,
+      "returncode": 1,
+      "stdout": "ENGINE oversized native item string: load succeeds, keyId 67890 -> 1633771873\n",
+      "stderr": "WARNING: A restricted method in java.lang.System has been called\nWARNING: java.lang.System::load has been called by org.lwjgl.system.Library$$Lambda/0x00000000991cc528 in an unnamed module (file:/C:/Program%20Files%20(x86)/Steam/steamapps/common/ProjectZomboid/projectzomboid.jar)\nWARNING: Use --enable-native-access=ALL-UNNAMED to avoid a warning for callers in this module\nWARNING: Restricted methods will be blocked in a future release unless native access is enabled\n\nException in thread \"main\" java.io.IOException: Equipment outside inventory\n\tat com.sao.engine.SAONativeSnapshot.reference(SAONativeSnapshot.java:961)\n\tat com.sao.engine.SAONativeSnapshot.equipment(SAONativeSnapshot.java:944)\n\tat com.sao.engine.SAONativeSnapshot.captureReturn(SAONativeSnapshot.java:145)\n\tat PersonSnapshotProbe.main(PersonSnapshotProbe.java:800)\n"
+    },
+    {
+      "case": "return-premature-item-processing",
+      "phase": "compile",
+      "argv": [
+        "C:\\Users\\jleyv\\Peanut Butter\\JetBrains\\Java\\bin\\javac.exe",
+        "-encoding",
+        "UTF-8",
+        "-cp",
+        "C:\\Users\\jleyv\\AppData\\Local\\Temp\\sao-native-person-873g3x15\\production\\classes;C:\\Program Files (x86)\\Steam\\steamapps\\common\\ProjectZomboid\\projectzomboid.jar",
+        "-d",
+        "C:\\Users\\jleyv\\AppData\\Local\\Temp\\sao-native-person-873g3x15\\return-premature-item-processing\\classes",
+        "C:\\Users\\jleyv\\AppData\\Local\\Temp\\sao-native-person-873g3x15\\return-premature-item-processing\\SAONativeSnapshot.java"
+      ],
+      "cwd": "C:\\Users\\jleyv\\AppData\\Local\\Temp\\sao-native-person-873g3x15\\return-premature-item-processing",
+      "seconds": 1.2032666999730282,
+      "returncode": 0,
+      "stdout": "",
+      "stderr": ""
+    },
+    {
+      "case": "return-premature-item-processing",
+      "phase": "probe",
+      "argv": [
+        "C:\\Users\\jleyv\\Peanut Butter\\JetBrains\\Java\\bin\\java.exe",
+        "-Duser.home=C:\\Users\\jleyv\\AppData\\Local\\Temp\\sao-native-person-873g3x15\\return-premature-item-processing",
+        "-cp",
+        "C:\\Users\\jleyv\\AppData\\Local\\Temp\\sao-native-person-873g3x15\\return-premature-item-processing\\classes;C:\\Users\\jleyv\\AppData\\Local\\Temp\\sao-native-person-873g3x15\\production\\classes;C:\\Program Files (x86)\\Steam\\steamapps\\common\\ProjectZomboid\\projectzomboid.jar",
+        "PersonSnapshotProbe"
+      ],
+      "cwd": "C:\\Users\\jleyv\\AppData\\Local\\Temp\\sao-native-person-873g3x15\\return-premature-item-processing",
+      "seconds": 1.2308265999890864,
+      "returncode": 1,
+      "stdout": "ENGINE oversized native item string: load succeeds, keyId 67890 -> 1633771873\n",
+      "stderr": "WARNING: A restricted method in java.lang.System has been called\nWARNING: java.lang.System::load has been called by org.lwjgl.system.Library$$Lambda/0x000000001a1d13f0 in an unnamed module (file:/C:/Program%20Files%20(x86)/Steam/steamapps/common/ProjectZomboid/projectzomboid.jar)\nWARNING: Use --enable-native-access=ALL-UNNAMED to avoid a warning for callers in this module\nWARNING: Restricted methods will be blocked in a future release unless native access is enabled\n\nException in thread \"main\" java.lang.AssertionError: detached return item processed before activation\n\tat PersonSnapshotProbe.check(PersonSnapshotProbe.java:101)\n\tat PersonSnapshotProbe.main(PersonSnapshotProbe.java:825)\n"
+    },
+    {
+      "case": "return-source-change-ignored",
+      "phase": "compile",
+      "argv": [
+        "C:\\Users\\jleyv\\Peanut Butter\\JetBrains\\Java\\bin\\javac.exe",
+        "-encoding",
+        "UTF-8",
+        "-cp",
+        "C:\\Users\\jleyv\\AppData\\Local\\Temp\\sao-native-person-873g3x15\\production\\classes;C:\\Program Files (x86)\\Steam\\steamapps\\common\\ProjectZomboid\\projectzomboid.jar",
+        "-d",
+        "C:\\Users\\jleyv\\AppData\\Local\\Temp\\sao-native-person-873g3x15\\return-source-change-ignored\\classes",
+        "C:\\Users\\jleyv\\AppData\\Local\\Temp\\sao-native-person-873g3x15\\return-source-change-ignored\\SAONativeSnapshot.java"
+      ],
+      "cwd": "C:\\Users\\jleyv\\AppData\\Local\\Temp\\sao-native-person-873g3x15\\return-source-change-ignored",
+      "seconds": 1.1548625999712385,
+      "returncode": 0,
+      "stdout": "",
+      "stderr": ""
+    },
+    {
+      "case": "return-source-change-ignored",
+      "phase": "probe",
+      "argv": [
+        "C:\\Users\\jleyv\\Peanut Butter\\JetBrains\\Java\\bin\\java.exe",
+        "-Duser.home=C:\\Users\\jleyv\\AppData\\Local\\Temp\\sao-native-person-873g3x15\\return-source-change-ignored",
+        "-cp",
+        "C:\\Users\\jleyv\\AppData\\Local\\Temp\\sao-native-person-873g3x15\\return-source-change-ignored\\classes;C:\\Users\\jleyv\\AppData\\Local\\Temp\\sao-native-person-873g3x15\\production\\classes;C:\\Program Files (x86)\\Steam\\steamapps\\common\\ProjectZomboid\\projectzomboid.jar",
+        "PersonSnapshotProbe"
+      ],
+      "cwd": "C:\\Users\\jleyv\\AppData\\Local\\Temp\\sao-native-person-873g3x15\\return-source-change-ignored",
+      "seconds": 1.2555489999940619,
+      "returncode": 1,
+      "stdout": "ENGINE oversized native item string: load succeeds, keyId 67890 -> 1633771873\n",
+      "stderr": "WARNING: A restricted method in java.lang.System has been called\nWARNING: java.lang.System::load has been called by org.lwjgl.system.Library$$Lambda/0x00000000261cc528 in an unnamed module (file:/C:/Program%20Files%20(x86)/Steam/steamapps/common/ProjectZomboid/projectzomboid.jar)\nWARNING: Use --enable-native-access=ALL-UNNAMED to avoid a warning for callers in this module\nWARNING: Restricted methods will be blocked in a future release unless native access is enabled\n\nException in thread \"main\" java.lang.AssertionError: changed source materials accepted\n\tat PersonSnapshotProbe.check(PersonSnapshotProbe.java:101)\n\tat PersonSnapshotProbe.main(PersonSnapshotProbe.java:836)\n"
+    },
+    {
+      "case": "return-visual-not-restored",
+      "phase": "compile",
+      "argv": [
+        "C:\\Users\\jleyv\\Peanut Butter\\JetBrains\\Java\\bin\\javac.exe",
+        "-encoding",
+        "UTF-8",
+        "-cp",
+        "C:\\Users\\jleyv\\AppData\\Local\\Temp\\sao-native-person-873g3x15\\production\\classes;C:\\Program Files (x86)\\Steam\\steamapps\\common\\ProjectZomboid\\projectzomboid.jar",
+        "-d",
+        "C:\\Users\\jleyv\\AppData\\Local\\Temp\\sao-native-person-873g3x15\\return-visual-not-restored\\classes",
+        "C:\\Users\\jleyv\\AppData\\Local\\Temp\\sao-native-person-873g3x15\\return-visual-not-restored\\SAONativeSnapshot.java"
+      ],
+      "cwd": "C:\\Users\\jleyv\\AppData\\Local\\Temp\\sao-native-person-873g3x15\\return-visual-not-restored",
+      "seconds": 1.1629354000324383,
+      "returncode": 0,
+      "stdout": "",
+      "stderr": ""
+    },
+    {
+      "case": "return-visual-not-restored",
+      "phase": "probe",
+      "argv": [
+        "C:\\Users\\jleyv\\Peanut Butter\\JetBrains\\Java\\bin\\java.exe",
+        "-Duser.home=C:\\Users\\jleyv\\AppData\\Local\\Temp\\sao-native-person-873g3x15\\return-visual-not-restored",
+        "-cp",
+        "C:\\Users\\jleyv\\AppData\\Local\\Temp\\sao-native-person-873g3x15\\return-visual-not-restored\\classes;C:\\Users\\jleyv\\AppData\\Local\\Temp\\sao-native-person-873g3x15\\production\\classes;C:\\Program Files (x86)\\Steam\\steamapps\\common\\ProjectZomboid\\projectzomboid.jar",
+        "PersonSnapshotProbe"
+      ],
+      "cwd": "C:\\Users\\jleyv\\AppData\\Local\\Temp\\sao-native-person-873g3x15\\return-visual-not-restored",
+      "seconds": 1.1611364999553189,
+      "returncode": 1,
+      "stdout": "ENGINE oversized native item string: load succeeds, keyId 67890 -> 1633771873\n",
+      "stderr": "WARNING: A restricted method in java.lang.System has been called\nWARNING: java.lang.System::load has been called by org.lwjgl.system.Library$$Lambda/0x00000000971cc528 in an unnamed module (file:/C:/Program%20Files%20(x86)/Steam/steamapps/common/ProjectZomboid/projectzomboid.jar)\nWARNING: Use --enable-native-access=ALL-UNNAMED to avoid a warning for callers in this module\nWARNING: Restricted methods will be blocked in a future release unless native access is enabled\n\nException in thread \"main\" java.lang.AssertionError: human skin texture\n\tat PersonSnapshotProbe.check(PersonSnapshotProbe.java:101)\n\tat PersonSnapshotProbe.main(PersonSnapshotProbe.java:600)\n"
+    },
+    {
+      "case": "empty-native-inventory",
+      "phase": "compile",
+      "argv": [
+        "C:\\Users\\jleyv\\Peanut Butter\\JetBrains\\Java\\bin\\javac.exe",
+        "-encoding",
+        "UTF-8",
+        "-cp",
+        "C:\\Users\\jleyv\\AppData\\Local\\Temp\\sao-native-person-873g3x15\\production\\classes;C:\\Program Files (x86)\\Steam\\steamapps\\common\\ProjectZomboid\\projectzomboid.jar",
+        "-d",
+        "C:\\Users\\jleyv\\AppData\\Local\\Temp\\sao-native-person-873g3x15\\empty-native-inventory\\classes",
+        "C:\\Users\\jleyv\\AppData\\Local\\Temp\\sao-native-person-873g3x15\\empty-native-inventory\\SAONativeSnapshot.java"
+      ],
+      "cwd": "C:\\Users\\jleyv\\AppData\\Local\\Temp\\sao-native-person-873g3x15\\empty-native-inventory",
+      "seconds": 1.1485345999826677,
+      "returncode": 0,
+      "stdout": "",
+      "stderr": ""
+    },
+    {
+      "case": "empty-native-inventory",
+      "phase": "probe",
+      "argv": [
+        "C:\\Users\\jleyv\\Peanut Butter\\JetBrains\\Java\\bin\\java.exe",
+        "-Duser.home=C:\\Users\\jleyv\\AppData\\Local\\Temp\\sao-native-person-873g3x15\\empty-native-inventory",
+        "-cp",
+        "C:\\Users\\jleyv\\AppData\\Local\\Temp\\sao-native-person-873g3x15\\empty-native-inventory\\classes;C:\\Users\\jleyv\\AppData\\Local\\Temp\\sao-native-person-873g3x15\\production\\classes;C:\\Program Files (x86)\\Steam\\steamapps\\common\\ProjectZomboid\\projectzomboid.jar",
+        "PersonSnapshotProbe"
+      ],
+      "cwd": "C:\\Users\\jleyv\\AppData\\Local\\Temp\\sao-native-person-873g3x15\\empty-native-inventory",
+      "seconds": 1.0236284999991767,
+      "returncode": 1,
+      "stdout": "",
+      "stderr": "WARNING: A restricted method in java.lang.System has been called\nWARNING: java.lang.System::load has been called by org.lwjgl.system.Library$$Lambda/0x00000000161d0d00 in an unnamed module (file:/C:/Program%20Files%20(x86)/Steam/steamapps/common/ProjectZomboid/projectzomboid.jar)\nWARNING: Use --enable-native-access=ALL-UNNAMED to avoid a warning for callers in this module\nWARNING: Restricted methods will be blocked in a future release unless native access is enabled\n\nException in thread \"main\" java.io.IOException: Restored item identity/type/container differs\n\tat com.sao.engine.SAONativeSnapshot.restore(SAONativeSnapshot.java:306)\n\tat com.sao.engine.SAONativeSnapshot.restoreStaged(SAONativeSnapshot.java:289)\n\tat PersonSnapshotProbe.main(PersonSnapshotProbe.java:418)\n"
+    },
+    {
+      "case": "omit-native-stats",
+      "phase": "compile",
+      "argv": [
+        "C:\\Users\\jleyv\\Peanut Butter\\JetBrains\\Java\\bin\\javac.exe",
+        "-encoding",
+        "UTF-8",
+        "-cp",
+        "C:\\Users\\jleyv\\AppData\\Local\\Temp\\sao-native-person-873g3x15\\production\\classes;C:\\Program Files (x86)\\Steam\\steamapps\\common\\ProjectZomboid\\projectzomboid.jar",
+        "-d",
+        "C:\\Users\\jleyv\\AppData\\Local\\Temp\\sao-native-person-873g3x15\\omit-native-stats\\classes",
+        "C:\\Users\\jleyv\\AppData\\Local\\Temp\\sao-native-person-873g3x15\\omit-native-stats\\SAONativeSnapshot.java"
+      ],
+      "cwd": "C:\\Users\\jleyv\\AppData\\Local\\Temp\\sao-native-person-873g3x15\\omit-native-stats",
+      "seconds": 1.1438331000390463,
+      "returncode": 0,
+      "stdout": "",
+      "stderr": ""
+    },
+    {
+      "case": "omit-native-stats",
+      "phase": "probe",
+      "argv": [
+        "C:\\Users\\jleyv\\Peanut Butter\\JetBrains\\Java\\bin\\java.exe",
+        "-Duser.home=C:\\Users\\jleyv\\AppData\\Local\\Temp\\sao-native-person-873g3x15\\omit-native-stats",
+        "-cp",
+        "C:\\Users\\jleyv\\AppData\\Local\\Temp\\sao-native-person-873g3x15\\omit-native-stats\\classes;C:\\Users\\jleyv\\AppData\\Local\\Temp\\sao-native-person-873g3x15\\production\\classes;C:\\Program Files (x86)\\Steam\\steamapps\\common\\ProjectZomboid\\projectzomboid.jar",
+        "PersonSnapshotProbe"
+      ],
+      "cwd": "C:\\Users\\jleyv\\AppData\\Local\\Temp\\sao-native-person-873g3x15\\omit-native-stats",
+      "seconds": 1.140444300021045,
+      "returncode": 1,
+      "stdout": "ENGINE oversized native item string: load succeeds, keyId 67890 -> 1633771873\n",
+      "stderr": "WARNING: A restricted method in java.lang.System has been called\nWARNING: java.lang.System::load has been called by org.lwjgl.system.Library$$Lambda/0x000000009d1ca870 in an unnamed module (file:/C:/Program%20Files%20(x86)/Steam/steamapps/common/ProjectZomboid/projectzomboid.jar)\nWARNING: Use --enable-native-access=ALL-UNNAMED to avoid a warning for callers in this module\nWARNING: Restricted methods will be blocked in a future release unless native access is enabled\n\nException in thread \"main\" java.lang.AssertionError: native stats\n\tat PersonSnapshotProbe.check(PersonSnapshotProbe.java:101)\n\tat PersonSnapshotProbe.main(PersonSnapshotProbe.java:540)\n"
+    },
+    {
+      "case": "omit-native-wounds",
+      "phase": "compile",
+      "argv": [
+        "C:\\Users\\jleyv\\Peanut Butter\\JetBrains\\Java\\bin\\javac.exe",
+        "-encoding",
+        "UTF-8",
+        "-cp",
+        "C:\\Users\\jleyv\\AppData\\Local\\Temp\\sao-native-person-873g3x15\\production\\classes;C:\\Program Files (x86)\\Steam\\steamapps\\common\\ProjectZomboid\\projectzomboid.jar",
+        "-d",
+        "C:\\Users\\jleyv\\AppData\\Local\\Temp\\sao-native-person-873g3x15\\omit-native-wounds\\classes",
+        "C:\\Users\\jleyv\\AppData\\Local\\Temp\\sao-native-person-873g3x15\\omit-native-wounds\\SAONativeSnapshot.java"
+      ],
+      "cwd": "C:\\Users\\jleyv\\AppData\\Local\\Temp\\sao-native-person-873g3x15\\omit-native-wounds",
+      "seconds": 1.139007500023581,
+      "returncode": 0,
+      "stdout": "",
+      "stderr": ""
+    },
+    {
+      "case": "omit-native-wounds",
+      "phase": "probe",
+      "argv": [
+        "C:\\Users\\jleyv\\Peanut Butter\\JetBrains\\Java\\bin\\java.exe",
+        "-Duser.home=C:\\Users\\jleyv\\AppData\\Local\\Temp\\sao-native-person-873g3x15\\omit-native-wounds",
+        "-cp",
+        "C:\\Users\\jleyv\\AppData\\Local\\Temp\\sao-native-person-873g3x15\\omit-native-wounds\\classes;C:\\Users\\jleyv\\AppData\\Local\\Temp\\sao-native-person-873g3x15\\production\\classes;C:\\Program Files (x86)\\Steam\\steamapps\\common\\ProjectZomboid\\projectzomboid.jar",
+        "PersonSnapshotProbe"
+      ],
+      "cwd": "C:\\Users\\jleyv\\AppData\\Local\\Temp\\sao-native-person-873g3x15\\omit-native-wounds",
+      "seconds": 1.1637073999736458,
+      "returncode": 1,
+      "stdout": "ENGINE oversized native item string: load succeeds, keyId 67890 -> 1633771873\n",
+      "stderr": "WARNING: A restricted method in java.lang.System has been called\nWARNING: java.lang.System::load has been called by org.lwjgl.system.Library$$Lambda/0x00000000341c8d00 in an unnamed module (file:/C:/Program%20Files%20(x86)/Steam/steamapps/common/ProjectZomboid/projectzomboid.jar)\nWARNING: Use --enable-native-access=ALL-UNNAMED to avoid a warning for callers in this module\nWARNING: Restricted methods will be blocked in a future release unless native access is enabled\n\nException in thread \"main\" java.lang.AssertionError: native wound state\n\tat PersonSnapshotProbe.check(PersonSnapshotProbe.java:101)\n\tat PersonSnapshotProbe.main(PersonSnapshotProbe.java:543)\n"
+    },
+    {
+      "case": "omit-native-experience",
+      "phase": "compile",
+      "argv": [
+        "C:\\Users\\jleyv\\Peanut Butter\\JetBrains\\Java\\bin\\javac.exe",
+        "-encoding",
+        "UTF-8",
+        "-cp",
+        "C:\\Users\\jleyv\\AppData\\Local\\Temp\\sao-native-person-873g3x15\\production\\classes;C:\\Program Files (x86)\\Steam\\steamapps\\common\\ProjectZomboid\\projectzomboid.jar",
+        "-d",
+        "C:\\Users\\jleyv\\AppData\\Local\\Temp\\sao-native-person-873g3x15\\omit-native-experience\\classes",
+        "C:\\Users\\jleyv\\AppData\\Local\\Temp\\sao-native-person-873g3x15\\omit-native-experience\\SAONativeSnapshot.java"
+      ],
+      "cwd": "C:\\Users\\jleyv\\AppData\\Local\\Temp\\sao-native-person-873g3x15\\omit-native-experience",
+      "seconds": 1.2804465999943204,
+      "returncode": 0,
+      "stdout": "",
+      "stderr": ""
+    },
+    {
+      "case": "omit-native-experience",
+      "phase": "probe",
+      "argv": [
+        "C:\\Users\\jleyv\\Peanut Butter\\JetBrains\\Java\\bin\\java.exe",
+        "-Duser.home=C:\\Users\\jleyv\\AppData\\Local\\Temp\\sao-native-person-873g3x15\\omit-native-experience",
+        "-cp",
+        "C:\\Users\\jleyv\\AppData\\Local\\Temp\\sao-native-person-873g3x15\\omit-native-experience\\classes;C:\\Users\\jleyv\\AppData\\Local\\Temp\\sao-native-person-873g3x15\\production\\classes;C:\\Program Files (x86)\\Steam\\steamapps\\common\\ProjectZomboid\\projectzomboid.jar",
+        "PersonSnapshotProbe"
+      ],
+      "cwd": "C:\\Users\\jleyv\\AppData\\Local\\Temp\\sao-native-person-873g3x15\\omit-native-experience",
+      "seconds": 1.196597300004214,
+      "returncode": 1,
+      "stdout": "ENGINE oversized native item string: load succeeds, keyId 67890 -> 1633771873\n",
+      "stderr": "WARNING: A restricted method in java.lang.System has been called\nWARNING: java.lang.System::load has been called by org.lwjgl.system.Library$$Lambda/0x00000000271ca610 in an unnamed module (file:/C:/Program%20Files%20(x86)/Steam/steamapps/common/ProjectZomboid/projectzomboid.jar)\nWARNING: Use --enable-native-access=ALL-UNNAMED to avoid a warning for callers in this module\nWARNING: Restricted methods will be blocked in a future release unless native access is enabled\n\nException in thread \"main\" java.lang.AssertionError: native XP and traits\n\tat PersonSnapshotProbe.check(PersonSnapshotProbe.java:101)\n\tat PersonSnapshotProbe.main(PersonSnapshotProbe.java:547)\n"
+    },
+    {
+      "case": "lose-primary-reference",
+      "phase": "compile",
+      "argv": [
+        "C:\\Users\\jleyv\\Peanut Butter\\JetBrains\\Java\\bin\\javac.exe",
+        "-encoding",
+        "UTF-8",
+        "-cp",
+        "C:\\Users\\jleyv\\AppData\\Local\\Temp\\sao-native-person-873g3x15\\production\\classes;C:\\Program Files (x86)\\Steam\\steamapps\\common\\ProjectZomboid\\projectzomboid.jar",
+        "-d",
+        "C:\\Users\\jleyv\\AppData\\Local\\Temp\\sao-native-person-873g3x15\\lose-primary-reference\\classes",
+        "C:\\Users\\jleyv\\AppData\\Local\\Temp\\sao-native-person-873g3x15\\lose-primary-reference\\SAONativeSnapshot.java"
+      ],
+      "cwd": "C:\\Users\\jleyv\\AppData\\Local\\Temp\\sao-native-person-873g3x15\\lose-primary-reference",
+      "seconds": 1.1997769000008702,
+      "returncode": 0,
+      "stdout": "",
+      "stderr": ""
+    },
+    {
+      "case": "lose-primary-reference",
+      "phase": "probe",
+      "argv": [
+        "C:\\Users\\jleyv\\Peanut Butter\\JetBrains\\Java\\bin\\java.exe",
+        "-Duser.home=C:\\Users\\jleyv\\AppData\\Local\\Temp\\sao-native-person-873g3x15\\lose-primary-reference",
+        "-cp",
+        "C:\\Users\\jleyv\\AppData\\Local\\Temp\\sao-native-person-873g3x15\\lose-primary-reference\\classes;C:\\Users\\jleyv\\AppData\\Local\\Temp\\sao-native-person-873g3x15\\production\\classes;C:\\Program Files (x86)\\Steam\\steamapps\\common\\ProjectZomboid\\projectzomboid.jar",
+        "PersonSnapshotProbe"
+      ],
+      "cwd": "C:\\Users\\jleyv\\AppData\\Local\\Temp\\sao-native-person-873g3x15\\lose-primary-reference",
+      "seconds": 1.154500700009521,
+      "returncode": 1,
+      "stdout": "",
+      "stderr": "WARNING: A restricted method in java.lang.System has been called\nWARNING: java.lang.System::load has been called by org.lwjgl.system.Library$$Lambda/0x000000009c1c8d00 in an unnamed module (file:/C:/Program%20Files%20(x86)/Steam/steamapps/common/ProjectZomboid/projectzomboid.jar)\nWARNING: Use --enable-native-access=ALL-UNNAMED to avoid a warning for callers in this module\nWARNING: Restricted methods will be blocked in a future release unless native access is enabled\n\nException in thread \"main\" java.io.IOException: Equipment restoration did not preserve references\n\tat com.sao.engine.SAONativeSnapshot.restore(SAONativeSnapshot.java:353)\n\tat com.sao.engine.SAONativeSnapshot.restoreStaged(SAONativeSnapshot.java:289)\n\tat PersonSnapshotProbe.main(PersonSnapshotProbe.java:418)\n"
+    },
+    {
+      "case": "accept-corruption",
+      "phase": "compile",
+      "argv": [
+        "C:\\Users\\jleyv\\Peanut Butter\\JetBrains\\Java\\bin\\javac.exe",
+        "-encoding",
+        "UTF-8",
+        "-cp",
+        "C:\\Users\\jleyv\\AppData\\Local\\Temp\\sao-native-person-873g3x15\\production\\classes;C:\\Program Files (x86)\\Steam\\steamapps\\common\\ProjectZomboid\\projectzomboid.jar",
+        "-d",
+        "C:\\Users\\jleyv\\AppData\\Local\\Temp\\sao-native-person-873g3x15\\accept-corruption\\classes",
+        "C:\\Users\\jleyv\\AppData\\Local\\Temp\\sao-native-person-873g3x15\\accept-corruption\\SAONativeSnapshot.java"
+      ],
+      "cwd": "C:\\Users\\jleyv\\AppData\\Local\\Temp\\sao-native-person-873g3x15\\accept-corruption",
+      "seconds": 1.0954862000071444,
+      "returncode": 0,
+      "stdout": "",
+      "stderr": ""
+    },
+    {
+      "case": "accept-corruption",
+      "phase": "probe",
+      "argv": [
+        "C:\\Users\\jleyv\\Peanut Butter\\JetBrains\\Java\\bin\\java.exe",
+        "-Duser.home=C:\\Users\\jleyv\\AppData\\Local\\Temp\\sao-native-person-873g3x15\\accept-corruption",
+        "-cp",
+        "C:\\Users\\jleyv\\AppData\\Local\\Temp\\sao-native-person-873g3x15\\accept-corruption\\classes;C:\\Users\\jleyv\\AppData\\Local\\Temp\\sao-native-person-873g3x15\\production\\classes;C:\\Program Files (x86)\\Steam\\steamapps\\common\\ProjectZomboid\\projectzomboid.jar",
+        "PersonSnapshotProbe"
+      ],
+      "cwd": "C:\\Users\\jleyv\\AppData\\Local\\Temp\\sao-native-person-873g3x15\\accept-corruption",
+      "seconds": 1.1863560000201687,
+      "returncode": 1,
+      "stdout": "ENGINE oversized native item string: load succeeds, keyId 67890 -> 1633771873\n",
+      "stderr": "WARNING: A restricted method in java.lang.System has been called\nWARNING: java.lang.System::load has been called by org.lwjgl.system.Library$$Lambda/0x000000003a1cc528 in an unnamed module (file:/C:/Program%20Files%20(x86)/Steam/steamapps/common/ProjectZomboid/projectzomboid.jar)\nWARNING: Use --enable-native-access=ALL-UNNAMED to avoid a warning for callers in this module\nWARNING: Restricted methods will be blocked in a future release unless native access is enabled\n\nException in thread \"main\" java.lang.AssertionError: checksum corruption accepted\n\tat PersonSnapshotProbe.check(PersonSnapshotProbe.java:101)\n\tat PersonSnapshotProbe.main(PersonSnapshotProbe.java:783)\n"
+    },
+    {
+      "case": "accept-old-native-version",
+      "phase": "compile",
+      "argv": [
+        "C:\\Users\\jleyv\\Peanut Butter\\JetBrains\\Java\\bin\\javac.exe",
+        "-encoding",
+        "UTF-8",
+        "-cp",
+        "C:\\Users\\jleyv\\AppData\\Local\\Temp\\sao-native-person-873g3x15\\production\\classes;C:\\Program Files (x86)\\Steam\\steamapps\\common\\ProjectZomboid\\projectzomboid.jar",
+        "-d",
+        "C:\\Users\\jleyv\\AppData\\Local\\Temp\\sao-native-person-873g3x15\\accept-old-native-version\\classes",
+        "C:\\Users\\jleyv\\AppData\\Local\\Temp\\sao-native-person-873g3x15\\accept-old-native-version\\SAONativeSnapshot.java"
+      ],
+      "cwd": "C:\\Users\\jleyv\\AppData\\Local\\Temp\\sao-native-person-873g3x15\\accept-old-native-version",
+      "seconds": 1.1159216000232846,
+      "returncode": 0,
+      "stdout": "",
+      "stderr": ""
+    },
+    {
+      "case": "accept-old-native-version",
+      "phase": "probe",
+      "argv": [
+        "C:\\Users\\jleyv\\Peanut Butter\\JetBrains\\Java\\bin\\java.exe",
+        "-Duser.home=C:\\Users\\jleyv\\AppData\\Local\\Temp\\sao-native-person-873g3x15\\accept-old-native-version",
+        "-cp",
+        "C:\\Users\\jleyv\\AppData\\Local\\Temp\\sao-native-person-873g3x15\\accept-old-native-version\\classes;C:\\Users\\jleyv\\AppData\\Local\\Temp\\sao-native-person-873g3x15\\production\\classes;C:\\Program Files (x86)\\Steam\\steamapps\\common\\ProjectZomboid\\projectzomboid.jar",
+        "PersonSnapshotProbe"
+      ],
+      "cwd": "C:\\Users\\jleyv\\AppData\\Local\\Temp\\sao-native-person-873g3x15\\accept-old-native-version",
+      "seconds": 1.2104028000030667,
+      "returncode": 1,
+      "stdout": "ENGINE oversized native item string: load succeeds, keyId 67890 -> 1633771873\n",
+      "stderr": "WARNING: A restricted method in java.lang.System has been called\nWARNING: java.lang.System::load has been called by org.lwjgl.system.Library$$Lambda/0x000000003d1ca610 in an unnamed module (file:/C:/Program%20Files%20(x86)/Steam/steamapps/common/ProjectZomboid/projectzomboid.jar)\nWARNING: Use --enable-native-access=ALL-UNNAMED to avoid a warning for callers in this module\nWARNING: Restricted methods will be blocked in a future release unless native access is enabled\n\nException in thread \"main\" java.lang.AssertionError: unsupported native version accepted\n\tat PersonSnapshotProbe.check(PersonSnapshotProbe.java:101)\n\tat PersonSnapshotProbe.main(PersonSnapshotProbe.java:785)\n"
+    },
+    {
+      "case": "drop-nested-item-silently",
+      "phase": "compile",
+      "argv": [
+        "C:\\Users\\jleyv\\Peanut Butter\\JetBrains\\Java\\bin\\javac.exe",
+        "-encoding",
+        "UTF-8",
+        "-cp",
+        "C:\\Users\\jleyv\\AppData\\Local\\Temp\\sao-native-person-873g3x15\\production\\classes;C:\\Program Files (x86)\\Steam\\steamapps\\common\\ProjectZomboid\\projectzomboid.jar",
+        "-d",
+        "C:\\Users\\jleyv\\AppData\\Local\\Temp\\sao-native-person-873g3x15\\drop-nested-item-silently\\classes",
+        "C:\\Users\\jleyv\\AppData\\Local\\Temp\\sao-native-person-873g3x15\\drop-nested-item-silently\\SAONativeSnapshot.java"
+      ],
+      "cwd": "C:\\Users\\jleyv\\AppData\\Local\\Temp\\sao-native-person-873g3x15\\drop-nested-item-silently",
+      "seconds": 1.1331784999929368,
+      "returncode": 0,
+      "stdout": "",
+      "stderr": ""
+    },
+    {
+      "case": "drop-nested-item-silently",
+      "phase": "probe",
+      "argv": [
+        "C:\\Users\\jleyv\\Peanut Butter\\JetBrains\\Java\\bin\\java.exe",
+        "-Duser.home=C:\\Users\\jleyv\\AppData\\Local\\Temp\\sao-native-person-873g3x15\\drop-nested-item-silently",
+        "-cp",
+        "C:\\Users\\jleyv\\AppData\\Local\\Temp\\sao-native-person-873g3x15\\drop-nested-item-silently\\classes;C:\\Users\\jleyv\\AppData\\Local\\Temp\\sao-native-person-873g3x15\\production\\classes;C:\\Program Files (x86)\\Steam\\steamapps\\common\\ProjectZomboid\\projectzomboid.jar",
+        "PersonSnapshotProbe"
+      ],
+      "cwd": "C:\\Users\\jleyv\\AppData\\Local\\Temp\\sao-native-person-873g3x15\\drop-nested-item-silently",
+      "seconds": 1.27784920000704,
+      "returncode": 1,
+      "stdout": "ENGINE oversized native item string: load succeeds, keyId 67890 -> 1633771873\n",
+      "stderr": "WARNING: A restricted method in java.lang.System has been called\nWARNING: java.lang.System::load has been called by org.lwjgl.system.Library$$Lambda/0x000000000a1cc968 in an unnamed module (file:/C:/Program%20Files%20(x86)/Steam/steamapps/common/ProjectZomboid/projectzomboid.jar)\nWARNING: Use --enable-native-access=ALL-UNNAMED to avoid a warning for callers in this module\nWARNING: Restricted methods will be blocked in a future release unless native access is enabled\n\nException in thread \"main\" java.lang.AssertionError: missing nested unequipped script accepted\n\tat PersonSnapshotProbe.check(PersonSnapshotProbe.java:101)\n\tat PersonSnapshotProbe.main(PersonSnapshotProbe.java:844)\n"
+    },
+    {
+      "case": "omit-native-item-processing",
+      "phase": "compile",
+      "argv": [
+        "C:\\Users\\jleyv\\Peanut Butter\\JetBrains\\Java\\bin\\javac.exe",
+        "-encoding",
+        "UTF-8",
+        "-cp",
+        "C:\\Users\\jleyv\\AppData\\Local\\Temp\\sao-native-person-873g3x15\\production\\classes;C:\\Program Files (x86)\\Steam\\steamapps\\common\\ProjectZomboid\\projectzomboid.jar",
+        "-d",
+        "C:\\Users\\jleyv\\AppData\\Local\\Temp\\sao-native-person-873g3x15\\omit-native-item-processing\\classes",
+        "C:\\Users\\jleyv\\AppData\\Local\\Temp\\sao-native-person-873g3x15\\omit-native-item-processing\\SAONativeSnapshot.java"
+      ],
+      "cwd": "C:\\Users\\jleyv\\AppData\\Local\\Temp\\sao-native-person-873g3x15\\omit-native-item-processing",
+      "seconds": 1.0816123000113294,
+      "returncode": 0,
+      "stdout": "",
+      "stderr": ""
+    },
+    {
+      "case": "omit-native-item-processing",
+      "phase": "probe",
+      "argv": [
+        "C:\\Users\\jleyv\\Peanut Butter\\JetBrains\\Java\\bin\\java.exe",
+        "-Duser.home=C:\\Users\\jleyv\\AppData\\Local\\Temp\\sao-native-person-873g3x15\\omit-native-item-processing",
+        "-cp",
+        "C:\\Users\\jleyv\\AppData\\Local\\Temp\\sao-native-person-873g3x15\\omit-native-item-processing\\classes;C:\\Users\\jleyv\\AppData\\Local\\Temp\\sao-native-person-873g3x15\\production\\classes;C:\\Program Files (x86)\\Steam\\steamapps\\common\\ProjectZomboid\\projectzomboid.jar",
+        "PersonSnapshotProbe"
+      ],
+      "cwd": "C:\\Users\\jleyv\\AppData\\Local\\Temp\\sao-native-person-873g3x15\\omit-native-item-processing",
+      "seconds": 1.194093799975235,
+      "returncode": 1,
+      "stdout": "ENGINE oversized native item string: load succeeds, keyId 67890 -> 1633771873\n",
+      "stderr": "WARNING: A restricted method in java.lang.System has been called\nWARNING: java.lang.System::load has been called by org.lwjgl.system.Library$$Lambda/0x00000000911ca870 in an unnamed module (file:/C:/Program%20Files%20(x86)/Steam/steamapps/common/ProjectZomboid/projectzomboid.jar)\nWARNING: Use --enable-native-access=ALL-UNNAMED to avoid a warning for callers in this module\nWARNING: Restricted methods will be blocked in a future release unless native access is enabled\n\nException in thread \"main\" java.lang.AssertionError: root and nested food not registered for native processing\n\tat PersonSnapshotProbe.check(PersonSnapshotProbe.java:101)\n\tat PersonSnapshotProbe.main(PersonSnapshotProbe.java:530)\n"
+    },
+    {
+      "case": "omit-native-item-unregister",
+      "phase": "compile",
+      "argv": [
+        "C:\\Users\\jleyv\\Peanut Butter\\JetBrains\\Java\\bin\\javac.exe",
+        "-encoding",
+        "UTF-8",
+        "-cp",
+        "C:\\Users\\jleyv\\AppData\\Local\\Temp\\sao-native-person-873g3x15\\production\\classes;C:\\Program Files (x86)\\Steam\\steamapps\\common\\ProjectZomboid\\projectzomboid.jar",
+        "-d",
+        "C:\\Users\\jleyv\\AppData\\Local\\Temp\\sao-native-person-873g3x15\\omit-native-item-unregister\\classes",
+        "C:\\Users\\jleyv\\AppData\\Local\\Temp\\sao-native-person-873g3x15\\omit-native-item-unregister\\SAONativeSnapshot.java"
+      ],
+      "cwd": "C:\\Users\\jleyv\\AppData\\Local\\Temp\\sao-native-person-873g3x15\\omit-native-item-unregister",
+      "seconds": 1.1361306000035256,
+      "returncode": 0,
+      "stdout": "",
+      "stderr": ""
+    },
+    {
+      "case": "omit-native-item-unregister",
+      "phase": "probe",
+      "argv": [
+        "C:\\Users\\jleyv\\Peanut Butter\\JetBrains\\Java\\bin\\java.exe",
+        "-Duser.home=C:\\Users\\jleyv\\AppData\\Local\\Temp\\sao-native-person-873g3x15\\omit-native-item-unregister",
+        "-cp",
+        "C:\\Users\\jleyv\\AppData\\Local\\Temp\\sao-native-person-873g3x15\\omit-native-item-unregister\\classes;C:\\Users\\jleyv\\AppData\\Local\\Temp\\sao-native-person-873g3x15\\production\\classes;C:\\Program Files (x86)\\Steam\\steamapps\\common\\ProjectZomboid\\projectzomboid.jar",
+        "PersonSnapshotProbe"
+      ],
+      "cwd": "C:\\Users\\jleyv\\AppData\\Local\\Temp\\sao-native-person-873g3x15\\omit-native-item-unregister",
+      "seconds": 1.1634976000059396,
+      "returncode": 1,
+      "stdout": "ENGINE oversized native item string: load succeeds, keyId 67890 -> 1633771873\n",
+      "stderr": "WARNING: A restricted method in java.lang.System has been called\nWARNING: java.lang.System::load has been called by org.lwjgl.system.Library$$Lambda/0x000000003c1c93f0 in an unnamed module (file:/C:/Program%20Files%20(x86)/Steam/steamapps/common/ProjectZomboid/projectzomboid.jar)\nWARNING: Use --enable-native-access=ALL-UNNAMED to avoid a warning for callers in this module\nWARNING: Restricted methods will be blocked in a future release unless native access is enabled\n\nException in thread \"main\" java.lang.AssertionError: recursive native processing removal\n\tat PersonSnapshotProbe.check(PersonSnapshotProbe.java:101)\n\tat PersonSnapshotProbe.main(PersonSnapshotProbe.java:771)\n"
+    },
+    {
+      "case": "accept-missing-custom-perk",
+      "phase": "compile",
+      "argv": [
+        "C:\\Users\\jleyv\\Peanut Butter\\JetBrains\\Java\\bin\\javac.exe",
+        "-encoding",
+        "UTF-8",
+        "-cp",
+        "C:\\Users\\jleyv\\AppData\\Local\\Temp\\sao-native-person-873g3x15\\production\\classes;C:\\Program Files (x86)\\Steam\\steamapps\\common\\ProjectZomboid\\projectzomboid.jar",
+        "-d",
+        "C:\\Users\\jleyv\\AppData\\Local\\Temp\\sao-native-person-873g3x15\\accept-missing-custom-perk\\classes",
+        "C:\\Users\\jleyv\\AppData\\Local\\Temp\\sao-native-person-873g3x15\\accept-missing-custom-perk\\SAONativeSnapshot.java"
+      ],
+      "cwd": "C:\\Users\\jleyv\\AppData\\Local\\Temp\\sao-native-person-873g3x15\\accept-missing-custom-perk",
+      "seconds": 1.1449608000111766,
+      "returncode": 0,
+      "stdout": "",
+      "stderr": ""
+    },
+    {
+      "case": "accept-missing-custom-perk",
+      "phase": "probe",
+      "argv": [
+        "C:\\Users\\jleyv\\Peanut Butter\\JetBrains\\Java\\bin\\java.exe",
+        "-Duser.home=C:\\Users\\jleyv\\AppData\\Local\\Temp\\sao-native-person-873g3x15\\accept-missing-custom-perk",
+        "-cp",
+        "C:\\Users\\jleyv\\AppData\\Local\\Temp\\sao-native-person-873g3x15\\accept-missing-custom-perk\\classes;C:\\Users\\jleyv\\AppData\\Local\\Temp\\sao-native-person-873g3x15\\production\\classes;C:\\Program Files (x86)\\Steam\\steamapps\\common\\ProjectZomboid\\projectzomboid.jar",
+        "PersonSnapshotProbe"
+      ],
+      "cwd": "C:\\Users\\jleyv\\AppData\\Local\\Temp\\sao-native-person-873g3x15\\accept-missing-custom-perk",
+      "seconds": 1.5497746000182815,
+      "returncode": 1,
+      "stdout": "ENGINE oversized native item string: load succeeds, keyId 67890 -> 1633771873\n",
+      "stderr": "WARNING: A restricted method in java.lang.System has been called\nWARNING: java.lang.System::load has been called by org.lwjgl.system.Library$$Lambda/0x00000000161cc968 in an unnamed module (file:/C:/Program%20Files%20(x86)/Steam/steamapps/common/ProjectZomboid/projectzomboid.jar)\nWARNING: Use --enable-native-access=ALL-UNNAMED to avoid a warning for callers in this module\nWARNING: Restricted methods will be blocked in a future release unless native access is enabled\n\nException in thread \"main\" java.lang.AssertionError: missing custom perk accepted by preflight\n\tat PersonSnapshotProbe.check(PersonSnapshotProbe.java:101)\n\tat PersonSnapshotProbe.missingPerkRefused(PersonSnapshotProbe.java:221)\n\tat PersonSnapshotProbe.main(PersonSnapshotProbe.java:775)\n"
+    },
+    {
+      "case": "accept-missing-custom-trait",
+      "phase": "compile",
+      "argv": [
+        "C:\\Users\\jleyv\\Peanut Butter\\JetBrains\\Java\\bin\\javac.exe",
+        "-encoding",
+        "UTF-8",
+        "-cp",
+        "C:\\Users\\jleyv\\AppData\\Local\\Temp\\sao-native-person-873g3x15\\production\\classes;C:\\Program Files (x86)\\Steam\\steamapps\\common\\ProjectZomboid\\projectzomboid.jar",
+        "-d",
+        "C:\\Users\\jleyv\\AppData\\Local\\Temp\\sao-native-person-873g3x15\\accept-missing-custom-trait\\classes",
+        "C:\\Users\\jleyv\\AppData\\Local\\Temp\\sao-native-person-873g3x15\\accept-missing-custom-trait\\SAONativeSnapshot.java"
+      ],
+      "cwd": "C:\\Users\\jleyv\\AppData\\Local\\Temp\\sao-native-person-873g3x15\\accept-missing-custom-trait",
+      "seconds": 1.2100878999917768,
+      "returncode": 0,
+      "stdout": "",
+      "stderr": ""
+    },
+    {
+      "case": "accept-missing-custom-trait",
+      "phase": "probe",
+      "argv": [
+        "C:\\Users\\jleyv\\Peanut Butter\\JetBrains\\Java\\bin\\java.exe",
+        "-Duser.home=C:\\Users\\jleyv\\AppData\\Local\\Temp\\sao-native-person-873g3x15\\accept-missing-custom-trait",
+        "-cp",
+        "C:\\Users\\jleyv\\AppData\\Local\\Temp\\sao-native-person-873g3x15\\accept-missing-custom-trait\\classes;C:\\Users\\jleyv\\AppData\\Local\\Temp\\sao-native-person-873g3x15\\production\\classes;C:\\Program Files (x86)\\Steam\\steamapps\\common\\ProjectZomboid\\projectzomboid.jar",
+        "PersonSnapshotProbe"
+      ],
+      "cwd": "C:\\Users\\jleyv\\AppData\\Local\\Temp\\sao-native-person-873g3x15\\accept-missing-custom-trait",
+      "seconds": 1.2808466000133194,
+      "returncode": 1,
+      "stdout": "ENGINE oversized native item string: load succeeds, keyId 67890 -> 1633771873\n",
+      "stderr": "WARNING: A restricted method in java.lang.System has been called\nWARNING: java.lang.System::load has been called by org.lwjgl.system.Library$$Lambda/0x00000000131ca870 in an unnamed module (file:/C:/Program%20Files%20(x86)/Steam/steamapps/common/ProjectZomboid/projectzomboid.jar)\nWARNING: Use --enable-native-access=ALL-UNNAMED to avoid a warning for callers in this module\nWARNING: Restricted methods will be blocked in a future release unless native access is enabled\n\nException in thread \"main\" java.lang.AssertionError: missing custom trait accepted by preflight\n\tat PersonSnapshotProbe.check(PersonSnapshotProbe.java:101)\n\tat PersonSnapshotProbe.missingTraitRefused(PersonSnapshotProbe.java:240)\n\tat PersonSnapshotProbe.main(PersonSnapshotProbe.java:779)\n"
+    },
+    {
+      "case": "unsafe-nutrition-weight",
+      "phase": "compile",
+      "argv": [
+        "C:\\Users\\jleyv\\Peanut Butter\\JetBrains\\Java\\bin\\javac.exe",
+        "-encoding",
+        "UTF-8",
+        "-cp",
+        "C:\\Users\\jleyv\\AppData\\Local\\Temp\\sao-native-person-873g3x15\\production\\classes;C:\\Program Files (x86)\\Steam\\steamapps\\common\\ProjectZomboid\\projectzomboid.jar",
+        "-d",
+        "C:\\Users\\jleyv\\AppData\\Local\\Temp\\sao-native-person-873g3x15\\unsafe-nutrition-weight\\classes",
+        "C:\\Users\\jleyv\\AppData\\Local\\Temp\\sao-native-person-873g3x15\\unsafe-nutrition-weight\\SAONativeSnapshot.java"
+      ],
+      "cwd": "C:\\Users\\jleyv\\AppData\\Local\\Temp\\sao-native-person-873g3x15\\unsafe-nutrition-weight",
+      "seconds": 1.3289232999668457,
+      "returncode": 0,
+      "stdout": "",
+      "stderr": ""
+    },
+    {
+      "case": "unsafe-nutrition-weight",
+      "phase": "probe",
+      "argv": [
+        "C:\\Users\\jleyv\\Peanut Butter\\JetBrains\\Java\\bin\\java.exe",
+        "-Duser.home=C:\\Users\\jleyv\\AppData\\Local\\Temp\\sao-native-person-873g3x15\\unsafe-nutrition-weight",
+        "-cp",
+        "C:\\Users\\jleyv\\AppData\\Local\\Temp\\sao-native-person-873g3x15\\unsafe-nutrition-weight\\classes;C:\\Users\\jleyv\\AppData\\Local\\Temp\\sao-native-person-873g3x15\\production\\classes;C:\\Program Files (x86)\\Steam\\steamapps\\common\\ProjectZomboid\\projectzomboid.jar",
+        "PersonSnapshotProbe"
+      ],
+      "cwd": "C:\\Users\\jleyv\\AppData\\Local\\Temp\\sao-native-person-873g3x15\\unsafe-nutrition-weight",
+      "seconds": 1.19072909996612,
+      "returncode": 1,
+      "stdout": "ENGINE oversized native item string: load succeeds, keyId 67890 -> 1633771873\n",
+      "stderr": "WARNING: A restricted method in java.lang.System has been called\nWARNING: java.lang.System::load has been called by org.lwjgl.system.Library$$Lambda/0x000000001e1cc528 in an unnamed module (file:/C:/Program%20Files%20(x86)/Steam/steamapps/common/ProjectZomboid/projectzomboid.jar)\nWARNING: Use --enable-native-access=ALL-UNNAMED to avoid a warning for callers in this module\nWARNING: Restricted methods will be blocked in a future release unless native access is enabled\n\nException in thread \"main\" java.lang.AssertionError: unsafe nutrition weight accepted\n\tat PersonSnapshotProbe.check(PersonSnapshotProbe.java:101)\n\tat PersonSnapshotProbe.main(PersonSnapshotProbe.java:494)\n"
+    },
+    {
+      "case": "omit-nutrition-cadence",
+      "phase": "compile",
+      "argv": [
+        "C:\\Users\\jleyv\\Peanut Butter\\JetBrains\\Java\\bin\\javac.exe",
+        "-encoding",
+        "UTF-8",
+        "-cp",
+        "C:\\Users\\jleyv\\AppData\\Local\\Temp\\sao-native-person-873g3x15\\production\\classes;C:\\Program Files (x86)\\Steam\\steamapps\\common\\ProjectZomboid\\projectzomboid.jar",
+        "-d",
+        "C:\\Users\\jleyv\\AppData\\Local\\Temp\\sao-native-person-873g3x15\\omit-nutrition-cadence\\classes",
+        "C:\\Users\\jleyv\\AppData\\Local\\Temp\\sao-native-person-873g3x15\\omit-nutrition-cadence\\SAONativeSnapshot.java"
+      ],
+      "cwd": "C:\\Users\\jleyv\\AppData\\Local\\Temp\\sao-native-person-873g3x15\\omit-nutrition-cadence",
+      "seconds": 1.138384899997618,
+      "returncode": 0,
+      "stdout": "",
+      "stderr": ""
+    },
+    {
+      "case": "omit-nutrition-cadence",
+      "phase": "probe",
+      "argv": [
+        "C:\\Users\\jleyv\\Peanut Butter\\JetBrains\\Java\\bin\\java.exe",
+        "-Duser.home=C:\\Users\\jleyv\\AppData\\Local\\Temp\\sao-native-person-873g3x15\\omit-nutrition-cadence",
+        "-cp",
+        "C:\\Users\\jleyv\\AppData\\Local\\Temp\\sao-native-person-873g3x15\\omit-nutrition-cadence\\classes;C:\\Users\\jleyv\\AppData\\Local\\Temp\\sao-native-person-873g3x15\\production\\classes;C:\\Program Files (x86)\\Steam\\steamapps\\common\\ProjectZomboid\\projectzomboid.jar",
+        "PersonSnapshotProbe"
+      ],
+      "cwd": "C:\\Users\\jleyv\\AppData\\Local\\Temp\\sao-native-person-873g3x15\\omit-nutrition-cadence",
+      "seconds": 1.1192083000205457,
+      "returncode": 1,
+      "stdout": "ENGINE oversized native item string: load succeeds, keyId 67890 -> 1633771873\n",
+      "stderr": "WARNING: A restricted method in java.lang.System has been called\nWARNING: java.lang.System::load has been called by org.lwjgl.system.Library$$Lambda/0x000000008d1cc968 in an unnamed module (file:/C:/Program%20Files%20(x86)/Steam/steamapps/common/ProjectZomboid/projectzomboid.jar)\nWARNING: Use --enable-native-access=ALL-UNNAMED to avoid a warning for callers in this module\nWARNING: Restricted methods will be blocked in a future release unless native access is enabled\n\nException in thread \"main\" java.lang.AssertionError: nutrition continuation state\n\tat PersonSnapshotProbe.check(PersonSnapshotProbe.java:101)\n\tat PersonSnapshotProbe.main(PersonSnapshotProbe.java:561)\n"
+    },
+    {
+      "case": "reuse-fitness-component",
+      "phase": "compile",
+      "argv": [
+        "C:\\Users\\jleyv\\Peanut Butter\\JetBrains\\Java\\bin\\javac.exe",
+        "-encoding",
+        "UTF-8",
+        "-cp",
+        "C:\\Users\\jleyv\\AppData\\Local\\Temp\\sao-native-person-873g3x15\\production\\classes;C:\\Program Files (x86)\\Steam\\steamapps\\common\\ProjectZomboid\\projectzomboid.jar",
+        "-d",
+        "C:\\Users\\jleyv\\AppData\\Local\\Temp\\sao-native-person-873g3x15\\reuse-fitness-component\\classes",
+        "C:\\Users\\jleyv\\AppData\\Local\\Temp\\sao-native-person-873g3x15\\reuse-fitness-component\\SAONativeSnapshot.java"
+      ],
+      "cwd": "C:\\Users\\jleyv\\AppData\\Local\\Temp\\sao-native-person-873g3x15\\reuse-fitness-component",
+      "seconds": 1.1479699000483379,
+      "returncode": 0,
+      "stdout": "",
+      "stderr": ""
+    },
+    {
+      "case": "reuse-fitness-component",
+      "phase": "probe",
+      "argv": [
+        "C:\\Users\\jleyv\\Peanut Butter\\JetBrains\\Java\\bin\\java.exe",
+        "-Duser.home=C:\\Users\\jleyv\\AppData\\Local\\Temp\\sao-native-person-873g3x15\\reuse-fitness-component",
+        "-cp",
+        "C:\\Users\\jleyv\\AppData\\Local\\Temp\\sao-native-person-873g3x15\\reuse-fitness-component\\classes;C:\\Users\\jleyv\\AppData\\Local\\Temp\\sao-native-person-873g3x15\\production\\classes;C:\\Program Files (x86)\\Steam\\steamapps\\common\\ProjectZomboid\\projectzomboid.jar",
+        "PersonSnapshotProbe"
+      ],
+      "cwd": "C:\\Users\\jleyv\\AppData\\Local\\Temp\\sao-native-person-873g3x15\\reuse-fitness-component",
+      "seconds": 1.2088269999949262,
+      "returncode": 1,
+      "stdout": "ENGINE oversized native item string: load succeeds, keyId 67890 -> 1633771873\n",
+      "stderr": "WARNING: A restricted method in java.lang.System has been called\nWARNING: java.lang.System::load has been called by org.lwjgl.system.Library$$Lambda/0x00000000891d0d00 in an unnamed module (file:/C:/Program%20Files%20(x86)/Steam/steamapps/common/ProjectZomboid/projectzomboid.jar)\nWARNING: Use --enable-native-access=ALL-UNNAMED to avoid a warning for callers in this module\nWARNING: Restricted methods will be blocked in a future release unless native access is enabled\n\nException in thread \"main\" java.lang.AssertionError: fitness continuation state, cancelled action and fresh update baseline\n\tat PersonSnapshotProbe.check(PersonSnapshotProbe.java:101)\n\tat PersonSnapshotProbe.main(PersonSnapshotProbe.java:575)\n"
+    },
+    {
+      "case": "omit-learning-state",
+      "phase": "compile",
+      "argv": [
+        "C:\\Users\\jleyv\\Peanut Butter\\JetBrains\\Java\\bin\\javac.exe",
+        "-encoding",
+        "UTF-8",
+        "-cp",
+        "C:\\Users\\jleyv\\AppData\\Local\\Temp\\sao-native-person-873g3x15\\production\\classes;C:\\Program Files (x86)\\Steam\\steamapps\\common\\ProjectZomboid\\projectzomboid.jar",
+        "-d",
+        "C:\\Users\\jleyv\\AppData\\Local\\Temp\\sao-native-person-873g3x15\\omit-learning-state\\classes",
+        "C:\\Users\\jleyv\\AppData\\Local\\Temp\\sao-native-person-873g3x15\\omit-learning-state\\SAONativeSnapshot.java"
+      ],
+      "cwd": "C:\\Users\\jleyv\\AppData\\Local\\Temp\\sao-native-person-873g3x15\\omit-learning-state",
+      "seconds": 1.1278485000366345,
+      "returncode": 0,
+      "stdout": "",
+      "stderr": ""
+    },
+    {
+      "case": "omit-learning-state",
+      "phase": "probe",
+      "argv": [
+        "C:\\Users\\jleyv\\Peanut Butter\\JetBrains\\Java\\bin\\java.exe",
+        "-Duser.home=C:\\Users\\jleyv\\AppData\\Local\\Temp\\sao-native-person-873g3x15\\omit-learning-state",
+        "-cp",
+        "C:\\Users\\jleyv\\AppData\\Local\\Temp\\sao-native-person-873g3x15\\omit-learning-state\\classes;C:\\Users\\jleyv\\AppData\\Local\\Temp\\sao-native-person-873g3x15\\production\\classes;C:\\Program Files (x86)\\Steam\\steamapps\\common\\ProjectZomboid\\projectzomboid.jar",
+        "PersonSnapshotProbe"
+      ],
+      "cwd": "C:\\Users\\jleyv\\AppData\\Local\\Temp\\sao-native-person-873g3x15\\omit-learning-state",
+      "seconds": 1.1666771000018343,
+      "returncode": 1,
+      "stdout": "ENGINE oversized native item string: load succeeds, keyId 67890 -> 1633771873\n",
+      "stderr": "WARNING: A restricted method in java.lang.System has been called\nWARNING: java.lang.System::load has been called by org.lwjgl.system.Library$$Lambda/0x00000000901d0d00 in an unnamed module (file:/C:/Program%20Files%20(x86)/Steam/steamapps/common/ProjectZomboid/projectzomboid.jar)\nWARNING: Use --enable-native-access=ALL-UNNAMED to avoid a warning for callers in this module\nWARNING: Restricted methods will be blocked in a future release unless native access is enabled\n\nException in thread \"main\" java.lang.AssertionError: recipe reading media and descriptor boost state\n\tat PersonSnapshotProbe.check(PersonSnapshotProbe.java:101)\n\tat PersonSnapshotProbe.main(PersonSnapshotProbe.java:592)\n"
+    },
+    {
+      "case": "accept-missing-boost-perk",
+      "phase": "compile",
+      "argv": [
+        "C:\\Users\\jleyv\\Peanut Butter\\JetBrains\\Java\\bin\\javac.exe",
+        "-encoding",
+        "UTF-8",
+        "-cp",
+        "C:\\Users\\jleyv\\AppData\\Local\\Temp\\sao-native-person-873g3x15\\production\\classes;C:\\Program Files (x86)\\Steam\\steamapps\\common\\ProjectZomboid\\projectzomboid.jar",
+        "-d",
+        "C:\\Users\\jleyv\\AppData\\Local\\Temp\\sao-native-person-873g3x15\\accept-missing-boost-perk\\classes",
+        "C:\\Users\\jleyv\\AppData\\Local\\Temp\\sao-native-person-873g3x15\\accept-missing-boost-perk\\SAONativeSnapshot.java"
+      ],
+      "cwd": "C:\\Users\\jleyv\\AppData\\Local\\Temp\\sao-native-person-873g3x15\\accept-missing-boost-perk",
+      "seconds": 1.0791085000382736,
+      "returncode": 0,
+      "stdout": "",
+      "stderr": ""
+    },
+    {
+      "case": "accept-missing-boost-perk",
+      "phase": "probe",
+      "argv": [
+        "C:\\Users\\jleyv\\Peanut Butter\\JetBrains\\Java\\bin\\java.exe",
+        "-Duser.home=C:\\Users\\jleyv\\AppData\\Local\\Temp\\sao-native-person-873g3x15\\accept-missing-boost-perk",
+        "-cp",
+        "C:\\Users\\jleyv\\AppData\\Local\\Temp\\sao-native-person-873g3x15\\accept-missing-boost-perk\\classes;C:\\Users\\jleyv\\AppData\\Local\\Temp\\sao-native-person-873g3x15\\production\\classes;C:\\Program Files (x86)\\Steam\\steamapps\\common\\ProjectZomboid\\projectzomboid.jar",
+        "PersonSnapshotProbe"
+      ],
+      "cwd": "C:\\Users\\jleyv\\AppData\\Local\\Temp\\sao-native-person-873g3x15\\accept-missing-boost-perk",
+      "seconds": 1.1840443999972194,
+      "returncode": 1,
+      "stdout": "ENGINE oversized native item string: load succeeds, keyId 67890 -> 1633771873\n",
+      "stderr": "WARNING: A restricted method in java.lang.System has been called\nWARNING: java.lang.System::load has been called by org.lwjgl.system.Library$$Lambda/0x00000000181d13f0 in an unnamed module (file:/C:/Program%20Files%20(x86)/Steam/steamapps/common/ProjectZomboid/projectzomboid.jar)\nWARNING: Use --enable-native-access=ALL-UNNAMED to avoid a warning for callers in this module\nWARNING: Restricted methods will be blocked in a future release unless native access is enabled\n\nException in thread \"main\" java.lang.AssertionError: missing custom perk accepted by preflight\n\tat PersonSnapshotProbe.check(PersonSnapshotProbe.java:101)\n\tat PersonSnapshotProbe.missingPerkRefused(PersonSnapshotProbe.java:221)\n\tat PersonSnapshotProbe.main(PersonSnapshotProbe.java:778)\n"
+    },
+    {
+      "case": "accept-missing-outfit",
+      "phase": "compile",
+      "argv": [
+        "C:\\Users\\jleyv\\Peanut Butter\\JetBrains\\Java\\bin\\javac.exe",
+        "-encoding",
+        "UTF-8",
+        "-cp",
+        "C:\\Users\\jleyv\\AppData\\Local\\Temp\\sao-native-person-873g3x15\\production\\classes;C:\\Program Files (x86)\\Steam\\steamapps\\common\\ProjectZomboid\\projectzomboid.jar",
+        "-d",
+        "C:\\Users\\jleyv\\AppData\\Local\\Temp\\sao-native-person-873g3x15\\accept-missing-outfit\\classes",
+        "C:\\Users\\jleyv\\AppData\\Local\\Temp\\sao-native-person-873g3x15\\accept-missing-outfit\\SAONativeSnapshot.java"
+      ],
+      "cwd": "C:\\Users\\jleyv\\AppData\\Local\\Temp\\sao-native-person-873g3x15\\accept-missing-outfit",
+      "seconds": 1.159878300037235,
+      "returncode": 0,
+      "stdout": "",
+      "stderr": ""
+    },
+    {
+      "case": "accept-missing-outfit",
+      "phase": "probe",
+      "argv": [
+        "C:\\Users\\jleyv\\Peanut Butter\\JetBrains\\Java\\bin\\java.exe",
+        "-Duser.home=C:\\Users\\jleyv\\AppData\\Local\\Temp\\sao-native-person-873g3x15\\accept-missing-outfit",
+        "-cp",
+        "C:\\Users\\jleyv\\AppData\\Local\\Temp\\sao-native-person-873g3x15\\accept-missing-outfit\\classes;C:\\Users\\jleyv\\AppData\\Local\\Temp\\sao-native-person-873g3x15\\production\\classes;C:\\Program Files (x86)\\Steam\\steamapps\\common\\ProjectZomboid\\projectzomboid.jar",
+        "PersonSnapshotProbe"
+      ],
+      "cwd": "C:\\Users\\jleyv\\AppData\\Local\\Temp\\sao-native-person-873g3x15\\accept-missing-outfit",
+      "seconds": 1.1802211999893188,
+      "returncode": 1,
+      "stdout": "ENGINE oversized native item string: load succeeds, keyId 67890 -> 1633771873\n",
+      "stderr": "WARNING: A restricted method in java.lang.System has been called\nWARNING: java.lang.System::load has been called by org.lwjgl.system.Library$$Lambda/0x00000000281c8d00 in an unnamed module (file:/C:/Program%20Files%20(x86)/Steam/steamapps/common/ProjectZomboid/projectzomboid.jar)\nWARNING: Use --enable-native-access=ALL-UNNAMED to avoid a warning for callers in this module\nWARNING: Restricted methods will be blocked in a future release unless native access is enabled\n\nException in thread \"main\" java.lang.AssertionError: missing outfit reference accepted\n\tat PersonSnapshotProbe.check(PersonSnapshotProbe.java:101)\n\tat PersonSnapshotProbe.main(PersonSnapshotProbe.java:759)\n"
+    },
+    {
+      "case": "omit-hair-growth-timing",
+      "phase": "compile",
+      "argv": [
+        "C:\\Users\\jleyv\\Peanut Butter\\JetBrains\\Java\\bin\\javac.exe",
+        "-encoding",
+        "UTF-8",
+        "-cp",
+        "C:\\Users\\jleyv\\AppData\\Local\\Temp\\sao-native-person-873g3x15\\production\\classes;C:\\Program Files (x86)\\Steam\\steamapps\\common\\ProjectZomboid\\projectzomboid.jar",
+        "-d",
+        "C:\\Users\\jleyv\\AppData\\Local\\Temp\\sao-native-person-873g3x15\\omit-hair-growth-timing\\classes",
+        "C:\\Users\\jleyv\\AppData\\Local\\Temp\\sao-native-person-873g3x15\\omit-hair-growth-timing\\SAONativeSnapshot.java"
+      ],
+      "cwd": "C:\\Users\\jleyv\\AppData\\Local\\Temp\\sao-native-person-873g3x15\\omit-hair-growth-timing",
+      "seconds": 1.1600358999567106,
+      "returncode": 0,
+      "stdout": "",
+      "stderr": ""
+    },
+    {
+      "case": "omit-hair-growth-timing",
+      "phase": "probe",
+      "argv": [
+        "C:\\Users\\jleyv\\Peanut Butter\\JetBrains\\Java\\bin\\java.exe",
+        "-Duser.home=C:\\Users\\jleyv\\AppData\\Local\\Temp\\sao-native-person-873g3x15\\omit-hair-growth-timing",
+        "-cp",
+        "C:\\Users\\jleyv\\AppData\\Local\\Temp\\sao-native-person-873g3x15\\omit-hair-growth-timing\\classes;C:\\Users\\jleyv\\AppData\\Local\\Temp\\sao-native-person-873g3x15\\production\\classes;C:\\Program Files (x86)\\Steam\\steamapps\\common\\ProjectZomboid\\projectzomboid.jar",
+        "PersonSnapshotProbe"
+      ],
+      "cwd": "C:\\Users\\jleyv\\AppData\\Local\\Temp\\sao-native-person-873g3x15\\omit-hair-growth-timing",
+      "seconds": 1.2018405999988317,
+      "returncode": 1,
+      "stdout": "ENGINE oversized native item string: load succeeds, keyId 67890 -> 1633771873\n",
+      "stderr": "WARNING: A restricted method in java.lang.System has been called\nWARNING: java.lang.System::load has been called by org.lwjgl.system.Library$$Lambda/0x000000009c1ca870 in an unnamed module (file:/C:/Program%20Files%20(x86)/Steam/steamapps/common/ProjectZomboid/projectzomboid.jar)\nWARNING: Use --enable-native-access=ALL-UNNAMED to avoid a warning for callers in this module\nWARNING: Restricted methods will be blocked in a future release unless native access is enabled\n\nException in thread \"main\" java.lang.AssertionError: human hair growth timing\n\tat PersonSnapshotProbe.check(PersonSnapshotProbe.java:101)\n\tat PersonSnapshotProbe.main(PersonSnapshotProbe.java:606)\n"
+    },
+    {
+      "case": "omit-character-metadata",
+      "phase": "compile",
+      "argv": [
+        "C:\\Users\\jleyv\\Peanut Butter\\JetBrains\\Java\\bin\\javac.exe",
+        "-encoding",
+        "UTF-8",
+        "-cp",
+        "C:\\Users\\jleyv\\AppData\\Local\\Temp\\sao-native-person-873g3x15\\production\\classes;C:\\Program Files (x86)\\Steam\\steamapps\\common\\ProjectZomboid\\projectzomboid.jar",
+        "-d",
+        "C:\\Users\\jleyv\\AppData\\Local\\Temp\\sao-native-person-873g3x15\\omit-character-metadata\\classes",
+        "C:\\Users\\jleyv\\AppData\\Local\\Temp\\sao-native-person-873g3x15\\omit-character-metadata\\SAONativeSnapshot.java"
+      ],
+      "cwd": "C:\\Users\\jleyv\\AppData\\Local\\Temp\\sao-native-person-873g3x15\\omit-character-metadata",
+      "seconds": 1.124077699962072,
+      "returncode": 0,
+      "stdout": "",
+      "stderr": ""
+    },
+    {
+      "case": "omit-character-metadata",
+      "phase": "probe",
+      "argv": [
+        "C:\\Users\\jleyv\\Peanut Butter\\JetBrains\\Java\\bin\\java.exe",
+        "-Duser.home=C:\\Users\\jleyv\\AppData\\Local\\Temp\\sao-native-person-873g3x15\\omit-character-metadata",
+        "-cp",
+        "C:\\Users\\jleyv\\AppData\\Local\\Temp\\sao-native-person-873g3x15\\omit-character-metadata\\classes;C:\\Users\\jleyv\\AppData\\Local\\Temp\\sao-native-person-873g3x15\\production\\classes;C:\\Program Files (x86)\\Steam\\steamapps\\common\\ProjectZomboid\\projectzomboid.jar",
+        "PersonSnapshotProbe"
+      ],
+      "cwd": "C:\\Users\\jleyv\\AppData\\Local\\Temp\\sao-native-person-873g3x15\\omit-character-metadata",
+      "seconds": 1.1467785999993794,
+      "returncode": 1,
+      "stdout": "ENGINE oversized native item string: load succeeds, keyId 67890 -> 1633771873\n",
+      "stderr": "WARNING: A restricted method in java.lang.System has been called\nWARNING: java.lang.System::load has been called by org.lwjgl.system.Library$$Lambda/0x00000000101c8d00 in an unnamed module (file:/C:/Program%20Files%20(x86)/Steam/steamapps/common/ProjectZomboid/projectzomboid.jar)\nWARNING: Use --enable-native-access=ALL-UNNAMED to avoid a warning for callers in this module\nWARNING: Restricted methods will be blocked in a future release unless native access is enabled\n\nException in thread \"main\" java.lang.AssertionError: durable character ModData and runtime ownership\n\tat PersonSnapshotProbe.check(PersonSnapshotProbe.java:101)\n\tat PersonSnapshotProbe.main(PersonSnapshotProbe.java:613)\n"
+    },
+    {
+      "case": "accept-unsupported-character-metadata",
+      "phase": "compile",
+      "argv": [
+        "C:\\Users\\jleyv\\Peanut Butter\\JetBrains\\Java\\bin\\javac.exe",
+        "-encoding",
+        "UTF-8",
+        "-cp",
+        "C:\\Users\\jleyv\\AppData\\Local\\Temp\\sao-native-person-873g3x15\\production\\classes;C:\\Program Files (x86)\\Steam\\steamapps\\common\\ProjectZomboid\\projectzomboid.jar",
+        "-d",
+        "C:\\Users\\jleyv\\AppData\\Local\\Temp\\sao-native-person-873g3x15\\accept-unsupported-character-metadata\\classes",
+        "C:\\Users\\jleyv\\AppData\\Local\\Temp\\sao-native-person-873g3x15\\accept-unsupported-character-metadata\\SAONativeSnapshot.java"
+      ],
+      "cwd": "C:\\Users\\jleyv\\AppData\\Local\\Temp\\sao-native-person-873g3x15\\accept-unsupported-character-metadata",
+      "seconds": 1.187676300003659,
+      "returncode": 0,
+      "stdout": "",
+      "stderr": ""
+    },
+    {
+      "case": "accept-unsupported-character-metadata",
+      "phase": "probe",
+      "argv": [
+        "C:\\Users\\jleyv\\Peanut Butter\\JetBrains\\Java\\bin\\java.exe",
+        "-Duser.home=C:\\Users\\jleyv\\AppData\\Local\\Temp\\sao-native-person-873g3x15\\accept-unsupported-character-metadata",
+        "-cp",
+        "C:\\Users\\jleyv\\AppData\\Local\\Temp\\sao-native-person-873g3x15\\accept-unsupported-character-metadata\\classes;C:\\Users\\jleyv\\AppData\\Local\\Temp\\sao-native-person-873g3x15\\production\\classes;C:\\Program Files (x86)\\Steam\\steamapps\\common\\ProjectZomboid\\projectzomboid.jar",
+        "PersonSnapshotProbe"
+      ],
+      "cwd": "C:\\Users\\jleyv\\AppData\\Local\\Temp\\sao-native-person-873g3x15\\accept-unsupported-character-metadata",
+      "seconds": 1.4192955000326037,
+      "returncode": 1,
+      "stdout": "ENGINE oversized native item string: load succeeds, keyId 67890 -> 1633771873\n",
+      "stderr": "WARNING: A restricted method in java.lang.System has been called\nWARNING: java.lang.System::load has been called by org.lwjgl.system.Library$$Lambda/0x00000000041ca610 in an unnamed module (file:/C:/Program%20Files%20(x86)/Steam/steamapps/common/ProjectZomboid/projectzomboid.jar)\nWARNING: Use --enable-native-access=ALL-UNNAMED to avoid a warning for callers in this module\nWARNING: Restricted methods will be blocked in a future release unless native access is enabled\n\nException in thread \"main\" java.lang.AssertionError: unsupported durable character ModData accepted\n\tat PersonSnapshotProbe.check(PersonSnapshotProbe.java:101)\n\tat PersonSnapshotProbe.main(PersonSnapshotProbe.java:470)\n"
+    },
+    {
+      "case": "omit-fluid-content-check",
+      "phase": "compile",
+      "argv": [
+        "C:\\Users\\jleyv\\Peanut Butter\\JetBrains\\Java\\bin\\javac.exe",
+        "-encoding",
+        "UTF-8",
+        "-cp",
+        "C:\\Users\\jleyv\\AppData\\Local\\Temp\\sao-native-person-873g3x15\\production\\classes;C:\\Program Files (x86)\\Steam\\steamapps\\common\\ProjectZomboid\\projectzomboid.jar",
+        "-d",
+        "C:\\Users\\jleyv\\AppData\\Local\\Temp\\sao-native-person-873g3x15\\omit-fluid-content-check\\classes",
+        "C:\\Users\\jleyv\\AppData\\Local\\Temp\\sao-native-person-873g3x15\\omit-fluid-content-check\\SAONativeSnapshot.java"
+      ],
+      "cwd": "C:\\Users\\jleyv\\AppData\\Local\\Temp\\sao-native-person-873g3x15\\omit-fluid-content-check",
+      "seconds": 1.2299495000042953,
+      "returncode": 0,
+      "stdout": "",
+      "stderr": ""
+    },
+    {
+      "case": "omit-fluid-content-check",
+      "phase": "probe",
+      "argv": [
+        "C:\\Users\\jleyv\\Peanut Butter\\JetBrains\\Java\\bin\\java.exe",
+        "-Duser.home=C:\\Users\\jleyv\\AppData\\Local\\Temp\\sao-native-person-873g3x15\\omit-fluid-content-check",
+        "-cp",
+        "C:\\Users\\jleyv\\AppData\\Local\\Temp\\sao-native-person-873g3x15\\omit-fluid-content-check\\classes;C:\\Users\\jleyv\\AppData\\Local\\Temp\\sao-native-person-873g3x15\\production\\classes;C:\\Program Files (x86)\\Steam\\steamapps\\common\\ProjectZomboid\\projectzomboid.jar",
+        "PersonSnapshotProbe"
+      ],
+      "cwd": "C:\\Users\\jleyv\\AppData\\Local\\Temp\\sao-native-person-873g3x15\\omit-fluid-content-check",
+      "seconds": 1.1509262000326999,
+      "returncode": 1,
+      "stdout": "ENGINE oversized native item string: load succeeds, keyId 67890 -> 1633771873\n",
+      "stderr": "WARNING: A restricted method in java.lang.System has been called\nWARNING: java.lang.System::load has been called by org.lwjgl.system.Library$$Lambda/0x00000000371c8d00 in an unnamed module (file:/C:/Program%20Files%20(x86)/Steam/steamapps/common/ProjectZomboid/projectzomboid.jar)\nWARNING: Use --enable-native-access=ALL-UNNAMED to avoid a warning for callers in this module\nWARNING: Restricted methods will be blocked in a future release unless native access is enabled\n\nException in thread \"main\" java.lang.AssertionError: missing fluid definition accepted\n\tat PersonSnapshotProbe.check(PersonSnapshotProbe.java:101)\n\tat PersonSnapshotProbe.missingFluidRefused(PersonSnapshotProbe.java:208)\n\tat PersonSnapshotProbe.main(PersonSnapshotProbe.java:503)\n"
+    },
+    {
+      "case": "drop-native-v3-reader",
+      "phase": "compile",
+      "argv": [
+        "C:\\Users\\jleyv\\Peanut Butter\\JetBrains\\Java\\bin\\javac.exe",
+        "-encoding",
+        "UTF-8",
+        "-cp",
+        "C:\\Users\\jleyv\\AppData\\Local\\Temp\\sao-native-person-873g3x15\\production\\classes;C:\\Program Files (x86)\\Steam\\steamapps\\common\\ProjectZomboid\\projectzomboid.jar",
+        "-d",
+        "C:\\Users\\jleyv\\AppData\\Local\\Temp\\sao-native-person-873g3x15\\drop-native-v3-reader\\classes",
+        "C:\\Users\\jleyv\\AppData\\Local\\Temp\\sao-native-person-873g3x15\\drop-native-v3-reader\\SAONativeSnapshot.java"
+      ],
+      "cwd": "C:\\Users\\jleyv\\AppData\\Local\\Temp\\sao-native-person-873g3x15\\drop-native-v3-reader",
+      "seconds": 1.1035737000056542,
+      "returncode": 0,
+      "stdout": "",
+      "stderr": ""
+    },
+    {
+      "case": "drop-native-v3-reader",
+      "phase": "probe",
+      "argv": [
+        "C:\\Users\\jleyv\\Peanut Butter\\JetBrains\\Java\\bin\\java.exe",
+        "-Duser.home=C:\\Users\\jleyv\\AppData\\Local\\Temp\\sao-native-person-873g3x15\\drop-native-v3-reader",
+        "-cp",
+        "C:\\Users\\jleyv\\AppData\\Local\\Temp\\sao-native-person-873g3x15\\drop-native-v3-reader\\classes;C:\\Users\\jleyv\\AppData\\Local\\Temp\\sao-native-person-873g3x15\\production\\classes;C:\\Program Files (x86)\\Steam\\steamapps\\common\\ProjectZomboid\\projectzomboid.jar",
+        "PersonSnapshotProbe"
+      ],
+      "cwd": "C:\\Users\\jleyv\\AppData\\Local\\Temp\\sao-native-person-873g3x15\\drop-native-v3-reader",
+      "seconds": 1.1755964999902062,
+      "returncode": 1,
+      "stdout": "ENGINE oversized native item string: load succeeds, keyId 67890 -> 1633771873\n",
+      "stderr": "WARNING: A restricted method in java.lang.System has been called\nWARNING: java.lang.System::load has been called by org.lwjgl.system.Library$$Lambda/0x00000000811cc528 in an unnamed module (file:/C:/Program%20Files%20(x86)/Steam/steamapps/common/ProjectZomboid/projectzomboid.jar)\nWARNING: Use --enable-native-access=ALL-UNNAMED to avoid a warning for callers in this module\nWARNING: Restricted methods will be blocked in a future release unless native access is enabled\n\nException in thread \"main\" java.lang.AssertionError: native v3 reader compatibility\n\tat PersonSnapshotProbe.check(PersonSnapshotProbe.java:101)\n\tat PersonSnapshotProbe.main(PersonSnapshotProbe.java:766)\n"
+    },
+    {
+      "case": "native-partial-eating",
+      "phase": "compile",
+      "argv": [
+        "C:\\Users\\jleyv\\Peanut Butter\\JetBrains\\Java\\bin\\javac.exe",
+        "-encoding",
+        "UTF-8",
+        "-cp",
+        "C:\\Users\\jleyv\\AppData\\Local\\Temp\\sao-native-person-873g3x15\\production\\classes;C:\\Program Files (x86)\\Steam\\steamapps\\common\\ProjectZomboid\\projectzomboid.jar",
+        "-d",
+        "C:\\Users\\jleyv\\AppData\\Local\\Temp\\sao-native-person-873g3x15\\native-partial-eating\\classes",
+        "C:\\Users\\jleyv\\AppData\\Local\\Temp\\sao-native-person-873g3x15\\native-partial-eating\\SAOHibernation.java"
+      ],
+      "cwd": "C:\\Users\\jleyv\\AppData\\Local\\Temp\\sao-native-person-873g3x15\\native-partial-eating",
+      "seconds": 0.8300665999995545,
+      "returncode": 0,
+      "stdout": "",
+      "stderr": ""
+    },
+    {
+      "case": "native-partial-eating",
+      "phase": "probe",
+      "argv": [
+        "C:\\Users\\jleyv\\Peanut Butter\\JetBrains\\Java\\bin\\java.exe",
+        "-Duser.home=C:\\Users\\jleyv\\AppData\\Local\\Temp\\sao-native-person-873g3x15\\native-partial-eating",
+        "-cp",
+        "C:\\Users\\jleyv\\AppData\\Local\\Temp\\sao-native-person-873g3x15\\native-partial-eating\\classes;C:\\Users\\jleyv\\AppData\\Local\\Temp\\sao-native-person-873g3x15\\production\\classes;C:\\Program Files (x86)\\Steam\\steamapps\\common\\ProjectZomboid\\projectzomboid.jar",
+        "PersonSnapshotProbe"
+      ],
+      "cwd": "C:\\Users\\jleyv\\AppData\\Local\\Temp\\sao-native-person-873g3x15\\native-partial-eating",
+      "seconds": 1.1836941000074148,
+      "returncode": 1,
+      "stdout": "ENGINE oversized native item string: load succeeds, keyId 67890 -> 1633771873\n",
+      "stderr": "WARNING: A restricted method in java.lang.System has been called\nWARNING: java.lang.System::load has been called by org.lwjgl.system.Library$$Lambda/0x000000000f1d0d00 in an unnamed module (file:/C:/Program%20Files%20(x86)/Steam/steamapps/common/ProjectZomboid/projectzomboid.jar)\nWARNING: Use --enable-native-access=ALL-UNNAMED to avoid a warning for callers in this module\nWARNING: Restricted methods will be blocked in a future release unless native access is enabled\n\nException in thread \"main\" java.lang.AssertionError: partial nested food quantity was not retained\n\tat PersonSnapshotProbe.check(PersonSnapshotProbe.java:101)\n\tat PersonSnapshotProbe.main(PersonSnapshotProbe.java:725)\n"
+    },
+    {
+      "case": "nested-resource-traversal",
+      "phase": "compile",
+      "argv": [
+        "C:\\Users\\jleyv\\Peanut Butter\\JetBrains\\Java\\bin\\javac.exe",
+        "-encoding",
+        "UTF-8",
+        "-cp",
+        "C:\\Users\\jleyv\\AppData\\Local\\Temp\\sao-native-person-873g3x15\\production\\classes;C:\\Program Files (x86)\\Steam\\steamapps\\common\\ProjectZomboid\\projectzomboid.jar",
+        "-d",
+        "C:\\Users\\jleyv\\AppData\\Local\\Temp\\sao-native-person-873g3x15\\nested-resource-traversal\\classes",
+        "C:\\Users\\jleyv\\AppData\\Local\\Temp\\sao-native-person-873g3x15\\nested-resource-traversal\\SAOHibernation.java"
+      ],
+      "cwd": "C:\\Users\\jleyv\\AppData\\Local\\Temp\\sao-native-person-873g3x15\\nested-resource-traversal",
+      "seconds": 0.9179752999916673,
+      "returncode": 0,
+      "stdout": "",
+      "stderr": ""
+    },
+    {
+      "case": "nested-resource-traversal",
+      "phase": "probe",
+      "argv": [
+        "C:\\Users\\jleyv\\Peanut Butter\\JetBrains\\Java\\bin\\java.exe",
+        "-Duser.home=C:\\Users\\jleyv\\AppData\\Local\\Temp\\sao-native-person-873g3x15\\nested-resource-traversal",
+        "-cp",
+        "C:\\Users\\jleyv\\AppData\\Local\\Temp\\sao-native-person-873g3x15\\nested-resource-traversal\\classes;C:\\Users\\jleyv\\AppData\\Local\\Temp\\sao-native-person-873g3x15\\production\\classes;C:\\Program Files (x86)\\Steam\\steamapps\\common\\ProjectZomboid\\projectzomboid.jar",
+        "PersonSnapshotProbe"
+      ],
+      "cwd": "C:\\Users\\jleyv\\AppData\\Local\\Temp\\sao-native-person-873g3x15\\nested-resource-traversal",
+      "seconds": 1.1427063000155613,
+      "returncode": 1,
+      "stdout": "ENGINE oversized native item string: load succeeds, keyId 67890 -> 1633771873\n",
+      "stderr": "WARNING: A restricted method in java.lang.System has been called\nWARNING: java.lang.System::load has been called by org.lwjgl.system.Library$$Lambda/0x000000008d1cc528 in an unnamed module (file:/C:/Program%20Files%20(x86)/Steam/steamapps/common/ProjectZomboid/projectzomboid.jar)\nWARNING: Use --enable-native-access=ALL-UNNAMED to avoid a warning for callers in this module\nWARNING: Restricted methods will be blocked in a future release unless native access is enabled\n\nException in thread \"main\" java.lang.AssertionError: partial nested food quantity was not retained\n\tat PersonSnapshotProbe.check(PersonSnapshotProbe.java:101)\n\tat PersonSnapshotProbe.main(PersonSnapshotProbe.java:725)\n"
+    },
+    {
+      "case": "spoilage-exclusion",
+      "phase": "compile",
+      "argv": [
+        "C:\\Users\\jleyv\\Peanut Butter\\JetBrains\\Java\\bin\\javac.exe",
+        "-encoding",
+        "UTF-8",
+        "-cp",
+        "C:\\Users\\jleyv\\AppData\\Local\\Temp\\sao-native-person-873g3x15\\production\\classes;C:\\Program Files (x86)\\Steam\\steamapps\\common\\ProjectZomboid\\projectzomboid.jar",
+        "-d",
+        "C:\\Users\\jleyv\\AppData\\Local\\Temp\\sao-native-person-873g3x15\\spoilage-exclusion\\classes",
+        "C:\\Users\\jleyv\\AppData\\Local\\Temp\\sao-native-person-873g3x15\\spoilage-exclusion\\SAOHibernation.java"
+      ],
+      "cwd": "C:\\Users\\jleyv\\AppData\\Local\\Temp\\sao-native-person-873g3x15\\spoilage-exclusion",
+      "seconds": 0.8299177999724634,
+      "returncode": 0,
+      "stdout": "",
+      "stderr": ""
+    },
+    {
+      "case": "spoilage-exclusion",
+      "phase": "probe",
+      "argv": [
+        "C:\\Users\\jleyv\\Peanut Butter\\JetBrains\\Java\\bin\\java.exe",
+        "-Duser.home=C:\\Users\\jleyv\\AppData\\Local\\Temp\\sao-native-person-873g3x15\\spoilage-exclusion",
+        "-cp",
+        "C:\\Users\\jleyv\\AppData\\Local\\Temp\\sao-native-person-873g3x15\\spoilage-exclusion\\classes;C:\\Users\\jleyv\\AppData\\Local\\Temp\\sao-native-person-873g3x15\\production\\classes;C:\\Program Files (x86)\\Steam\\steamapps\\common\\ProjectZomboid\\projectzomboid.jar",
+        "PersonSnapshotProbe"
+      ],
+      "cwd": "C:\\Users\\jleyv\\AppData\\Local\\Temp\\sao-native-person-873g3x15\\spoilage-exclusion",
+      "seconds": 1.1535573999863118,
+      "returncode": 1,
+      "stdout": "ENGINE oversized native item string: load succeeds, keyId 67890 -> 1633771873\n",
+      "stderr": "WARNING: A restricted method in java.lang.System has been called\nWARNING: java.lang.System::load has been called by org.lwjgl.system.Library$$Lambda/0x00000000151ca870 in an unnamed module (file:/C:/Program%20Files%20(x86)/Steam/steamapps/common/ProjectZomboid/projectzomboid.jar)\nWARNING: Use --enable-native-access=ALL-UNNAMED to avoid a warning for callers in this module\nWARNING: Restricted methods will be blocked in a future release unless native access is enabled\n\nException in thread \"main\" java.lang.AssertionError: rotten food was consumed\n\tat PersonSnapshotProbe.check(PersonSnapshotProbe.java:101)\n\tat PersonSnapshotProbe.main(PersonSnapshotProbe.java:722)\n"
+    },
+    {
+      "case": "native-partial-drinking",
+      "phase": "compile",
+      "argv": [
+        "C:\\Users\\jleyv\\Peanut Butter\\JetBrains\\Java\\bin\\javac.exe",
+        "-encoding",
+        "UTF-8",
+        "-cp",
+        "C:\\Users\\jleyv\\AppData\\Local\\Temp\\sao-native-person-873g3x15\\production\\classes;C:\\Program Files (x86)\\Steam\\steamapps\\common\\ProjectZomboid\\projectzomboid.jar",
+        "-d",
+        "C:\\Users\\jleyv\\AppData\\Local\\Temp\\sao-native-person-873g3x15\\native-partial-drinking\\classes",
+        "C:\\Users\\jleyv\\AppData\\Local\\Temp\\sao-native-person-873g3x15\\native-partial-drinking\\SAOHibernation.java"
+      ],
+      "cwd": "C:\\Users\\jleyv\\AppData\\Local\\Temp\\sao-native-person-873g3x15\\native-partial-drinking",
+      "seconds": 0.8245890999678522,
+      "returncode": 0,
+      "stdout": "",
+      "stderr": ""
+    },
+    {
+      "case": "native-partial-drinking",
+      "phase": "probe",
+      "argv": [
+        "C:\\Users\\jleyv\\Peanut Butter\\JetBrains\\Java\\bin\\java.exe",
+        "-Duser.home=C:\\Users\\jleyv\\AppData\\Local\\Temp\\sao-native-person-873g3x15\\native-partial-drinking",
+        "-cp",
+        "C:\\Users\\jleyv\\AppData\\Local\\Temp\\sao-native-person-873g3x15\\native-partial-drinking\\classes;C:\\Users\\jleyv\\AppData\\Local\\Temp\\sao-native-person-873g3x15\\production\\classes;C:\\Program Files (x86)\\Steam\\steamapps\\common\\ProjectZomboid\\projectzomboid.jar",
+        "PersonSnapshotProbe"
+      ],
+      "cwd": "C:\\Users\\jleyv\\AppData\\Local\\Temp\\sao-native-person-873g3x15\\native-partial-drinking",
+      "seconds": 1.265485499985516,
+      "returncode": 1,
+      "stdout": "ENGINE oversized native item string: load succeeds, keyId 67890 -> 1633771873\n",
+      "stderr": "WARNING: A restricted method in java.lang.System has been called\nWARNING: java.lang.System::load has been called by org.lwjgl.system.Library$$Lambda/0x000000002e1c8d00 in an unnamed module (file:/C:/Program%20Files%20(x86)/Steam/steamapps/common/ProjectZomboid/projectzomboid.jar)\nWARNING: Use --enable-native-access=ALL-UNNAMED to avoid a warning for callers in this module\nWARNING: Restricted methods will be blocked in a future release unless native access is enabled\n\nException in thread \"main\" java.lang.AssertionError: partial nested drink quantity was not retained\n\tat PersonSnapshotProbe.check(PersonSnapshotProbe.java:101)\n\tat PersonSnapshotProbe.main(PersonSnapshotProbe.java:729)\n"
+    },
+    {
+      "case": "fluid-quantity-accounting",
+      "phase": "compile",
+      "argv": [
+        "C:\\Users\\jleyv\\Peanut Butter\\JetBrains\\Java\\bin\\javac.exe",
+        "-encoding",
+        "UTF-8",
+        "-cp",
+        "C:\\Users\\jleyv\\AppData\\Local\\Temp\\sao-native-person-873g3x15\\production\\classes;C:\\Program Files (x86)\\Steam\\steamapps\\common\\ProjectZomboid\\projectzomboid.jar",
+        "-d",
+        "C:\\Users\\jleyv\\AppData\\Local\\Temp\\sao-native-person-873g3x15\\fluid-quantity-accounting\\classes",
+        "C:\\Users\\jleyv\\AppData\\Local\\Temp\\sao-native-person-873g3x15\\fluid-quantity-accounting\\SAOHibernation.java"
+      ],
+      "cwd": "C:\\Users\\jleyv\\AppData\\Local\\Temp\\sao-native-person-873g3x15\\fluid-quantity-accounting",
+      "seconds": 0.8545482000336051,
+      "returncode": 0,
+      "stdout": "",
+      "stderr": ""
+    },
+    {
+      "case": "fluid-quantity-accounting",
+      "phase": "probe",
+      "argv": [
+        "C:\\Users\\jleyv\\Peanut Butter\\JetBrains\\Java\\bin\\java.exe",
+        "-Duser.home=C:\\Users\\jleyv\\AppData\\Local\\Temp\\sao-native-person-873g3x15\\fluid-quantity-accounting",
+        "-cp",
+        "C:\\Users\\jleyv\\AppData\\Local\\Temp\\sao-native-person-873g3x15\\fluid-quantity-accounting\\classes;C:\\Users\\jleyv\\AppData\\Local\\Temp\\sao-native-person-873g3x15\\production\\classes;C:\\Program Files (x86)\\Steam\\steamapps\\common\\ProjectZomboid\\projectzomboid.jar",
+        "PersonSnapshotProbe"
+      ],
+      "cwd": "C:\\Users\\jleyv\\AppData\\Local\\Temp\\sao-native-person-873g3x15\\fluid-quantity-accounting",
+      "seconds": 1.1693255999707617,
+      "returncode": 1,
+      "stdout": "ENGINE oversized native item string: load succeeds, keyId 67890 -> 1633771873\n",
+      "stderr": "WARNING: A restricted method in java.lang.System has been called\nWARNING: java.lang.System::load has been called by org.lwjgl.system.Library$$Lambda/0x00000000971cc528 in an unnamed module (file:/C:/Program%20Files%20(x86)/Steam/steamapps/common/ProjectZomboid/projectzomboid.jar)\nWARNING: Use --enable-native-access=ALL-UNNAMED to avoid a warning for callers in this module\nWARNING: Restricted methods will be blocked in a future release unless native access is enabled\n\nException in thread \"main\" java.lang.AssertionError: equal dormant event history changed across interval partitions\n\tat PersonSnapshotProbe.check(PersonSnapshotProbe.java:101)\n\tat PersonSnapshotProbe.main(PersonSnapshotProbe.java:735)\n"
+    }
+  ],
+  "inventory_controls": [
+    {
+      "case": "missing-control",
+      "passed": true,
+      "reason": "Native case inventory missing declared control: fluid-quantity-accounting"
+    },
+    {
+      "case": "altered-control",
+      "passed": true,
+      "reason": "Native case inventory altered declared control: accept-oversized-native-item-string"
+    },
+    {
+      "case": "missing-baseline-assertion",
+      "passed": true,
+      "reason": "Native case inventory production assertions changed"
+    }
+  ],
+  "historical_controls": 36,
+  "distinct_controls": 35,
+  "inventory_sha256": "7703fb19e40df35b26655bc9d2a56d0e8940b39d73643d97d393f0bc35c78e65",
+  "routing": [
+    "capture-validation",
+    "body-restoration",
+    "v4-writer",
+    "v3-reader",
+    "native-routing",
+    "bridge-version",
+    "legacy-sidecar-only",
+    "migration-provenance",
+    "new-capture-clears-sidecar",
+    "return-clears-sidecar",
+    "native-capture",
+    "native-validate",
+    "native-restore",
+    "snapshot-owner-capture",
+    "snapshot-owner-valid",
+    "snapshot-owner-commit",
+    "snapshot-owner-version"
+  ],
+  "source_sha256": {
+    "java/src/com/sao/engine/SAONativeSnapshot.java": "249767f233cbd8dd0d259882070c80cb657a192342893954ab67136be20ac829",
+    "java/src/com/sao/engine/SAOHibernation.java": "d25fe83342f57fd0b9f35da24681215dad981e9364716a47592357deaddf09b7",
+    "tools/luacheck/PersonSnapshotProbe.java": "8950989588d963e582fba11b7ccf5230c730cb6d4906bcd95432fd9635d891c6",
+    "java/src/com/sao/bridge/SAOBridge.java": "ba851f76cdbac2ff46f334fed18fc7453537081b69bb811ccfa25bf03c71599e",
+    "mod/42.20/media/lua/client/SAO_Body.lua": "0b8dcca9007c505260f9affc8949e5ba339c763fa10040d452800f13253e6686",
+    "mod/42.20/media/lua/shared/SAO_BodySnapshot.lua": "ab2b0c3a1195ca14e727eb379ca99a80e6be06e0c5d246b25f51fd9d7933ec38",
+    "mod/42.20/media/lua/client/SAO_AfflictedReturn.lua": "6d835847180639c7d361cec70036987cf9e3a08918134384f4f3f2ccdfc54342"
+  },
+  "compiler_version": "javac 25.0.3",
+  "engine_sha256": "80e405a4bfc42f6072e75b3735f458a6514143da011d3226007ded305a442f44",
+  "compiler_sha256": "74f283ef1e26b3dfccfb56673d74a8a720d2c142e80881aa0084ce2e0379004e",
+  "java_sha256": "d5f1b9e03e298ebfb04d2326ecc1e2af3e6817f9b4d7f9f151fe856d56975650",
+  "compile_options": [
+    "-encoding",
+    "UTF-8"
+  ],
+  "status": "PASS",
+  "seconds": 84.25912930001505
+}

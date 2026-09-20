@@ -2,7 +2,7 @@
 """Save-event person checkpoint in Kahlua, with installed-engine save ordering.
 
 The bridge/body doubles expose current inventory as an opaque snapshot payload.
-Native component fidelity is covered by person_snapshot_test.py. This test runs
+Native component fidelity is covered by native_person_test.py. This test runs
 the shipped Body and physical-fact producer, not an alternate checkpoint model.
 It does not launch the game or write a world save.
 """
@@ -206,8 +206,7 @@ def engine_contract():
 def main():
     if not all(path.is_file() for path in (vm.GAME/'projectzomboid.jar', vm.JDK/'javac.exe', vm.JDK/'javap.exe')):
         print('SKIPPED person checkpoint: installed engine/JDK absent'); return 0
-    sources = {name: (ROOT/'mod/42.20/media/lua'/
-        ('shared' if name=='SAO_Identity.lua' else 'client')/name).read_text(encoding='utf-8')
+    sources = {name: vm.source_path(name).read_text(encoding='utf-8')
         for name in vm.FILES}
     engine_contract()
     vm.PRELUDE += HOST
@@ -227,8 +226,8 @@ def main():
         ('or Body.isTransitioning(rec) then', 'or false then', 'checkpoint captured excluded owner'),
         ('not rec or rec.dead or Body.foreign[id] or Body.returning[id]',
          'not rec or rec.dead or false or Body.returning[id]', 'checkpoint captured excluded owner'),
-        ('commitCaptured(rec, captured)\n                report.saved = report.saved + 1\n                local facts',
-         'commitCaptured(rec, captured)\n                Body.active[id] = nil report.saved = report.saved + 1\n                local facts',
+        ('SAO.BodySnapshot.commit(rec, captured)\n                report.saved = report.saved + 1\n                local facts',
+         'SAO.BodySnapshot.commit(rec, captured)\n                Body.active[id] = nil report.saved = report.saved + 1\n                local facts',
          'checkpoint changed live ownership'),
         ('if rec.bodyCheckpointFailure then return nil, "checkpoint-state-unavailable" end', '',
          'failed checkpoint reconstructed stale possessions'),
@@ -245,9 +244,12 @@ def main():
         result=vm.run(work,sources); print('production: '+result)
         if result!='VALUE PASS': faults.append('production')
         for before,after,reason in controls:
-            if sources['SAO_Body.lua'].count(before)!=1:
+            candidates = [name for name in ('SAO_Body.lua', 'SAO_BodySnapshot.lua')
+                          if before in sources[name]]
+            if len(candidates) != 1 or sources[candidates[0]].count(before) != 1:
                 faults.append('control seam '+reason); continue
-            changed=dict(sources); changed['SAO_Body.lua']=changed['SAO_Body.lua'].replace(before,after,1)
+            name = candidates[0]
+            changed=dict(sources); changed[name]=changed[name].replace(before,after,1)
             result=vm.run(work,changed)
             rejected=result.startswith('ERROR ') and reason in result
             print('CONTROL '+reason+': '+('REJECTED ' if rejected else 'SURVIVED ')+result)

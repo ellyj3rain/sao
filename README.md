@@ -38,7 +38,7 @@ on the simulation.
 
 ## Status
 
-`2.7.14.7-pre-alpha` - the coordinate is computed by the version machine
+`2.7.14.8-pre-alpha` - the coordinate is computed by the version machine
 (`tools/version_replay.py`), never picked; `VERSION_MAP.md` shows the
 classification and the arithmetic.
 
@@ -77,6 +77,12 @@ interruptible Crossed blood action is the sole Afflicted conversion producer
 and transfers the same human shell to ZAO without feeding on it. The complete
 Crossed weapons, tools and general action system and the broader audit findings
 remain explicit work in `SUBSTRATE.md`.
+
+C57 begins the ratified whole-mod restructuring with one shared body snapshot
+contract for release, checkpoints and ownership transfer. Its native test suite
+retains the former snapshot, continuity and physiology assertions and controls
+while sharing unchanged compilation. Population reconstruction and scheduling
+are next; `ROADMAP.md` preserves the remaining implementation dependencies.
 
 ## Requirements
 

@@ -44,7 +44,6 @@ import tempfile
 
 ROOT = pathlib.Path(__file__).resolve().parent.parent
 SRC = ROOT / "tools" / "luacheck" / "LuaRun.java"
-OUT = ROOT / "java" / "out" / "luacheck"
 JDK = pathlib.Path(r"C:\Users\jleyv\Peanut Butter\JetBrains\Java\bin")
 PZ_DIR = pathlib.Path(
     r"C:\Program Files (x86)\Steam\steamapps\common\ProjectZomboid")
@@ -100,29 +99,46 @@ SOURCE_FACTS = (
 )
 
 
-def build():
-    cls = OUT / "LuaRun.class"
-    if cls.exists() and cls.stat().st_mtime >= SRC.stat().st_mtime:
-        return True
-    OUT.mkdir(parents=True, exist_ok=True)
+def build(classes):
+    # Border 54 runs instruments concurrently. A shared class can exist with a
+    # current timestamp while another compiler is still writing its bytes.
+    # This invocation owns its compiler output until every fact has been asked.
+    classes.mkdir(parents=True, exist_ok=True)
     return subprocess.run(
-        [str(JDK / "javac.exe"), "-cp", str(PZ), "-d", str(OUT), str(SRC)],
+        [str(JDK / "javac.exe"), "-cp", str(PZ), "-d", str(classes), str(SRC)],
         capture_output=True, text=True, timeout=300).returncode == 0
 
 
-def ask(expr):
+def ask(expr, classes):
     with tempfile.TemporaryDirectory() as tmp:
         work = pathlib.Path(tmp)
         shutil.copy2(STDLIB, work / "stdlib.lua")
-        for c in OUT.glob("*.class"):
+        for c in classes.glob("*.class"):
             shutil.copy2(c, work / c.name)
         done = subprocess.run(
             [str(JDK / "java.exe"), "-cp", f"{PZ};.", "LuaRun", "--", expr],
             cwd=str(work), capture_output=True, text=True, timeout=300)
     tail = (done.stdout or "").strip().split("\n")[-1] if done.stdout else ""
-    if not tail.startswith("VALUE "):
+    if done.returncode or not tail.startswith("VALUE "):
         return None, (tail or (done.stderr or "").strip())[:160]
     return tail[6:].strip(), None
+
+
+def truncated_runner_control(work, classes):
+    """Reproduce the incomplete class observed during concurrent compilation."""
+    damaged = work / "interrupted-writer"
+    damaged.mkdir()
+    target = damaged / "LuaRun.class"
+    target.write_bytes(b"\xca\xfe\xba\xbe")
+    if target.read_bytes() == (classes / "LuaRun.class").read_bytes():
+        return "truncated-runner mutation did not change the class"
+    got, error = ask("tostring(next)", damaged)
+    if got is not None or "ClassFormatError: Truncated class file" not in (error or ""):
+        return "truncated-runner control did not refuse the incomplete class"
+    got, error = ask("tostring(next)", classes)
+    if got != "nil" or error is not None:
+        return "private runner changed after the incomplete-class control"
+    return None
 
 
 def main():
@@ -136,29 +152,37 @@ def main():
         print("  SKIPPED - no JDK, engine jar, stdlib.lua or runner")
         print("  69) engine facts: SKIPPED, engine absent")
         return 0
-    if not build():
-        print()
-        print("VERDICT:")
-        print("  FAULT: the VM runner will not compile, so not one fact was "
-              "put to the engine")
-        return 1
+    with tempfile.TemporaryDirectory(prefix="sao-engine-facts-") as tmp:
+        work = pathlib.Path(tmp)
+        classes = work / "classes"
+        if not build(classes):
+            print()
+            print("VERDICT:")
+            print("  FAULT: the VM runner will not compile, so not one fact was "
+                  "put to the engine")
+            return 1
+        control_error = truncated_runner_control(work, classes)
+        if control_error:
+            faults.append(control_error)
+        else:
+            print("  CONTROL: incomplete runner refuses; private runner remains usable")
 
-    for name, expr, expected, batch, why in FACTS:
-        got, err = ask(expr)
-        if got is None:
-            faults.append(
-                f"[{batch}] {name}: the engine would not answer - {err}")
-            continue
-        ok = got == expected
-        print(f"  {'ok     ' if ok else 'CHANGED'}  [{batch}] {name}: "
-              f"{got!r}" + ("" if ok else f"  (was {expected!r})"))
-        if not ok:
-            faults.append(
-                f"[{batch}] {name}: the engine now says {got!r} where this "
-                f"project measured {expected!r}. {why}. Read that batch "
-                "before changing anything - a fact moving is not a defect, "
-                "but every record built on it is describing a world that "
-                "no longer exists")
+        for name, expr, expected, batch, why in FACTS:
+            got, err = ask(expr, classes)
+            if got is None:
+                faults.append(
+                    f"[{batch}] {name}: the engine would not answer - {err}")
+                continue
+            ok = got == expected
+            print(f"  {'ok     ' if ok else 'CHANGED'}  [{batch}] {name}: "
+                  f"{got!r}" + ("" if ok else f"  (was {expected!r})"))
+            if not ok:
+                faults.append(
+                    f"[{batch}] {name}: the engine now says {got!r} where this "
+                    f"project measured {expected!r}. {why}. Read that batch "
+                    "before changing anything - a fact moving is not a defect, "
+                    "but every record built on it is describing a world that "
+                    "no longer exists")
 
     # Facts about what the game installs, which a bare VM cannot show.
     javap = JDK / "javap.exe"
