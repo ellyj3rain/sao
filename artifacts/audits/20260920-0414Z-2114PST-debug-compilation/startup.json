@@ -1,0 +1,24 @@
+{
+  "captured_utc": "2026-09-20T04:20:57.533810+00:00",
+  "version": "2.7.15.1-pre-alpha",
+  "process_id": 196252,
+  "window": "Project Zomboid",
+  "screenshot": ".git/c59-startup.png",
+  "visual_observation": "Main menu visible; ZombieBuddy overlay lists SurvivorAwareness and ZombieAwareness among four active Java mods.",
+  "lua_compile_errors": {
+    "Controller": false,
+    "Standing": false,
+    "debug_local_overflow": false
+  },
+  "module_load_markers": [
+    "SAO population loaded",
+    "SAO harness loaded"
+  ],
+  "world_loaded_by_agent": false,
+  "limits": "Main-menu startup only; loaded-world behavior remains unobserved.",
+  "other_errors": "Existing translation/ZAO tooltip formatting and third-party TTO attachment errors remain outside this SAO repair.",
+  "captured_logs": {
+    ".git\\c59-launch-stdout.txt": "baea563663f7e300983ec6165cc41a78b397c325e1d4016540110183a9518925",
+    ".git\\c59-launch-stderr.txt": "490770c5f40ba142aca45922a2dfe38308f3e2fcefec64afcf0b317fddfa240f"
+  }
+}

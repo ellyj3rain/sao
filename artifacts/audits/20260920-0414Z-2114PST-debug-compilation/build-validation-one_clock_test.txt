@@ -1,0 +1,12 @@
+==========================================================================
+ONE CLOCK FOR HOW LONG THIS HAS BEEN GOING ON
+==========================================================================
+     months: deep_dial1=33.33 deep_dial60=33.33 before=0.00 dayzero=0.00 sentinel_dial7=6.00 nobridge_dial7=6.00
+
+  yes  the calendar is asked first
+  yes  the dial survives as the offline answer
+  yes  before the fall is zero, not a negative age
+  yes  the gate runs this border
+
+VERDICT:
+  130) one clock: what a person knows is aged off the record's own calendar, the dial answering only where the calendar cannot be read

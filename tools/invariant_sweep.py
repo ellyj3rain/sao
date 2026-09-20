@@ -2,6 +2,7 @@
 """Cross-file invariant sweep ([A22]): mechanical verification of the
 contracts that live between files. Reports; humans judge."""
 import re, pathlib
+from lua_read import function_body, strip_lua
 
 root = pathlib.Path(__file__).resolve().parent.parent
 lroot = root / "mod/42.20/media/lua"
@@ -15,10 +16,31 @@ ctl = (lroot / "client/SAO_Controller.lua").read_text(encoding="utf-8")
 #    the finding.
 mv_block = re.search(r"local MOVEMENT_STATES = \{(.*?)\}", ctl, re.S).group(1)
 mv_keys = set(re.findall(r"(\w+) = true", mv_block))
-tick_block = re.search(
-    r"-- \[C114\] Wheels\.[^\n]*.*?SAO\.Locomotion\.tick",
-    ctl, re.S).group(0)
-tick_states = set(re.findall(r'agent\.state == "(\w+)"', tick_block))
+def movement_tick_states(source):
+    # Wheels remain in updateAgent; walking verdicts belong to updateMovement.
+    # Read each owning function instead of relying on their order in the file.
+    update = function_body(source, "updateAgent")
+    movement = function_body(source, "updateMovement")
+    if update is None or movement is None:
+        raise RuntimeError("movement tick owner is missing")
+    update = strip_lua(update, strings=False)
+    movement = strip_lua(movement, strings=False)
+    wheels = re.search(r'if agent\.state == "DRIVE".*?(?=if updateMovement\()',
+                       update, re.S)
+    walk = re.search(r'.*?(?=SAO\.Locomotion\.tick\()', movement, re.S)
+    if wheels is None or walk is None:
+        raise RuntimeError("movement tick dispatch cannot be read")
+    return set(re.findall(r'agent\.state == "(\w+)"', wheels[0] + walk[0]))
+
+tick_states = movement_tick_states(ctl)
+# The moved dispatcher must still expose a missing walking state.
+before = 'if agent.state == "TRAVEL" or agent.state == "FLEE"'
+if ctl.count(before) != 1:
+    raise RuntimeError("movement control cannot locate its dispatch guard")
+broken = movement_tick_states(ctl.replace(before,
+    'if agent.state == "UNHANDLED" or agent.state == "FLEE"', 1))
+if "TRAVEL" in broken or "UNHANDLED" not in broken:
+    raise RuntimeError("movement control did not detect the changed dispatch")
 print("1) MOVEMENT keys missing from locomotion tick:",
       sorted(mv_keys - tick_states) or "none")
 print("   tick states not in MOVEMENT map:",

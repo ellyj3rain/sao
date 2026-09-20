@@ -1,0 +1,8 @@
+==========================================================================
+A REGISTRY NOBODY CAN SEE
+==========================================================================
+  registries of people: 7  (Body.active, Body.discarding, Body.failedRestore, Body.foreign, Body.returning, Ctl.agents, Ctl.pendingCorpses)
+  declared with a surface: 7
+
+VERDICT:
+  57) registry surface: all 7 registries of people reach the Ledger, so an empty county and a dead subsystem no longer read the same

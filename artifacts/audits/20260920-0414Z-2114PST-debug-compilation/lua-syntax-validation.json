@@ -1,0 +1,41 @@
+{
+  "command": [
+    "C:\\Python314\\python.exe",
+    "tools/lua_syntax_test.py"
+  ],
+  "checks": [
+    {
+      "name": "restored C58 Controller",
+      "exit": 1,
+      "stdout": "OK\tnormal\tC:\\Users\\jleyv\\AppData\\Local\\Temp\\sao-c59-controls-0l93zju3\\C58-Controller.lua\nFAIL\tdebug\tC:\\Users\\jleyv\\AppData\\Local\\Temp\\sao-c59-controls-0l93zju3\\C58-Controller.lua\tArrayIndexOutOfBoundsException: Index 200 out of bounds for length 200\n",
+      "faults": [
+        "debug C:\\Users\\jleyv\\AppData\\Local\\Temp\\sao-c59-controls-0l93zju3\\C58-Controller.lua: ArrayIndexOutOfBoundsException: Index 200 out of bounds for length 200 - the engine refuses this file",
+        "compiler process exited 1; expected 0"
+      ]
+    },
+    {
+      "name": "engine absent",
+      "exit": 0,
+      "stdout": "==========================================================================\nTHE ENGINE'S OWN PARSER, NORMAL AND DEBUG MODES\n==========================================================================\n  50) lua syntax: SKIPPED, engine or JDK absent\n"
+    },
+    {
+      "name": "checker source absent",
+      "exit": 1,
+      "stdout": "==========================================================================\nTHE ENGINE'S OWN PARSER, NORMAL AND DEBUG MODES\n==========================================================================\n\nVERDICT:\n  FAULT: missing repository checker source: C:\\Users\\jleyv\\AppData\\Local\\Temp\\sao-c59-controls-0l93zju3\\absent\n"
+    },
+    {
+      "name": "Lua tree absent",
+      "exit": 1,
+      "stdout": "==========================================================================\nTHE ENGINE'S OWN PARSER, NORMAL AND DEBUG MODES\n==========================================================================\n\nVERDICT:\n  FAULT: no shipped Lua files to compile; an empty set cannot pass\n"
+    },
+    {
+      "name": "missing checker with absent engine",
+      "exit": 1,
+      "stdout": "==========================================================================\nTHE ENGINE'S OWN PARSER, NORMAL AND DEBUG MODES\n==========================================================================\n\nVERDICT:\n  FAULT: missing repository checker source: C:\\Users\\jleyv\\AppData\\Local\\Temp\\sao-c59-controls-0l93zju3\\absent-checker\n"
+    }
+  ],
+  "exit": 0,
+  "seconds": 2.248,
+  "stdout": "==========================================================================\nTHE ENGINE'S OWN PARSER, NORMAL AND DEBUG MODES\n==========================================================================\n  controls: malformed syntax; 200/201 locals in both modes; compiled mode omission; nonzero, empty, truncated and repeated reports\n\nVERDICT:\n  50) lua syntax: all 73 shipped Lua files compile in normal and debug modes (146 verified verdicts)\n",
+  "stderr": ""
+}

@@ -1,0 +1,23 @@
+Provenance: filtered CompilerProbe output copied from completed exec outputs 502d88 and 06bd68; not a new run.
+Driver: .git/c58-compiler-probe/CompilerProbe.java
+Command for each boolean: java -cp "C:/Program Files (x86)/Steam/steamapps/common/ProjectZomboid/projectzomboid.jar;.git/c58-compiler-probe" CompilerProbe <boolean> mod/42.20/media/lua/shared/SAO_Standing.lua
+Both commands exited 0.
+
+Core.debug=false
+PROTO root name=mod/42.20/media/lua/shared/SAO_Standing.lua lines=12..3728 locals=24 maxStack=29
+PROTO root/35 name=updateElectionCreed lines=828..887 locals=11 maxStack=19
+PROTO root/36 name=applyElectionDivision lines=907..980 locals=32 maxStack=23
+PROTO root/37 name=applyAfflictedDispute lines=999..1094 locals=54 maxStack=29
+PROTO root/38 name=reviewElectionWork lines=1114..1240 locals=38 maxStack=25
+PROTO root/39 name=electLeader lines=1243..1736 locals=160 maxStack=26
+PASS
+
+Core.debug=true
+PROTO root name=mod/42.20/media/lua/shared/SAO_Standing.lua lines=12..3728 locals=24 maxStack=29
+PROTO root/35 name=updateElectionCreed lines=828..887 locals=11 maxStack=19
+PROTO root/36 name=applyElectionDivision lines=907..980 locals=32 maxStack=23
+PROTO root/37 name=applyAfflictedDispute lines=999..1094 locals=54 maxStack=29
+PROTO root/38 name=reviewElectionWork lines=1114..1240 locals=38 maxStack=25
+PROTO root/39 name=electLeader lines=1243..1736 locals=160 maxStack=26
+PASS
+

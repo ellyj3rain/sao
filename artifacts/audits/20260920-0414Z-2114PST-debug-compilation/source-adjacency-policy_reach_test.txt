@@ -1,0 +1,19 @@
+======================================================================
+Ration policies, and what actually reads them
+======================================================================
+  mercy    -> weak-first
+  order    -> watch-first
+  road     -> carry-light
+  wall     -> house-first
+
+======================================================================
+BEHAVIOUR READS (radio phrasings excluded, they only say it)
+======================================================================
+  carry-light     1  SAO_Exchange.lua:292
+  house-first     2  SAO_Exchange.lua:266, SAO_Standing.lua:3135
+  watch-first     4  SAO_Controller.lua:1338, SAO_Controller.lua:3182, SAO_Exchange.lua:174, SAO_Standing.lua:3135
+  weak-first      1  SAO_Standing.lua:3139
+
+VERDICT:
+  policies a creed can adopt: 4
+  governing nothing:          0 []

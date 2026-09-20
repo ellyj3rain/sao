@@ -28,6 +28,7 @@ import pathlib
 import re
 import sys
 import xml.etree.ElementTree as ET
+from lua_read import strip_lua
 
 ROOT = pathlib.Path(sys.argv[1]).resolve() if len(sys.argv) > 1 \
     else pathlib.Path(__file__).resolve().parent.parent
@@ -56,6 +57,15 @@ def lua_list(src, name):
     "aligned" out of the event map as gestures)."""
     m = re.search(r"G\.%s\s*=\s*\{([^{}]*)\}" % re.escape(name), src, re.S)
     return re.findall(r'"([A-Za-z0-9_]+)"', m.group(1)) if m else []
+
+
+INSTRUMENT_CALL = re.compile(
+    r"\bSAO\.Gesture\.playInstrument\(\s*id\s*,\s*body\s*,"
+    r"\s*what\s*,\s*carriedInstrument\s*\)")
+
+
+def instrument_call(source):
+    return INSTRUMENT_CALL.search(strip_lua(source)) is not None
 
 
 def main():
@@ -180,6 +190,19 @@ def main():
     print("     sounds defined: %d over %d clips" % (len(defined), len(clips)))
 
     ctl = read(CONTROLLER)
+    # The call's arguments are the seam; indentation is not. Mutate the
+    # actual call to prove that omitting the carried item still refuses.
+    matches = list(INSTRUMENT_CALL.finditer(strip_lua(ctl)))
+    if len(matches) != 1:
+        faults.append("instrument control requires exactly one carried-item call")
+    else:
+        call = matches[0]
+        broken = (ctl[:call.start()] + "SAO.Gesture.playInstrument(id, body, what)"
+                  + ctl[call.end():])
+        if instrument_call(broken):
+            faults.append("instrument control accepted the missing carried item")
+        if instrument_call("-- " + " ".join(call.group().split())):
+            faults.append("instrument control accepted a commented-out call")
     seams = {
         "the action derives from the vanilla base": 'ISBaseTimedAction:derive("SAOGestureAction")' in g,
         "and carries the variable the nodes read": 'self:setAnimVariable("SAOGesture", self.gesture)' in g,
@@ -189,8 +212,7 @@ def main():
         "and every stand clears it": ctl.count("SAO.Gesture.standUp(") >= 3,
         # [C119] The tune now carries the instrument the bard actually
         # holds, so the seam is the call with its fourth argument.
-        "the tune plays the instrument": "SAO.Gesture.playInstrument(id, body, what,"
-                                         + "\n                            carriedInstrument)" in ctl,
+        "the tune plays the instrument": instrument_call(ctl),
         "and those close dance or clap": "SAO.Gesture.dance(oid43, ob43)" in ctl and "SAO.Gesture.clap(ob43)" in ctl,
         "the harness gives the four receipts": all(s in read(HARNESS) for s in
             ('"Gesture: agree"', '"Gesture: argue"', '"Dance a while"', '"Play the guitar"')),

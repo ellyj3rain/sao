@@ -1,0 +1,32 @@
+{
+  "provenance": "Copied from completed functions.exec/exec_command output ed39ed; not a new run. Original extraction command was executed inline through python stdin.",
+  "reconstruction_equals_head": true,
+  "original_sha256": "06a508792bf37bd5f996d969b3b6c64d239e32c70461616861cc3af62f1214e2",
+  "refactored_sha256": "6b515bda9d2721f6b4c61ebc454dbf15ed77bf2299ab1c3f8fe2d7f9ca8746fa",
+  "phases": [
+    {
+      "name": "updateElectionCreed",
+      "parameters": "s, groupName",
+      "body_lines": 65,
+      "body_sha256": "a3825a8066d0e4ff1eda746ab224dc8724d0a221a423ed5ffe3c6b84b8bf7ee8"
+    },
+    {
+      "name": "applyElectionDivision",
+      "parameters": "groupName, members",
+      "body_lines": 90,
+      "body_sha256": "ff6687f1149f9bb43473fce67db70e2abff919d2a7b34a480371b449eb113cfe"
+    },
+    {
+      "name": "applyAfflictedDispute",
+      "parameters": "groupName, members",
+      "body_lines": 111,
+      "body_sha256": "ae5c513fe13d78c4a1dde1d20df170e3d0e471d180d2f45f1bb5cc67a5a28500"
+    },
+    {
+      "name": "reviewElectionWork",
+      "parameters": "s, groupName, members",
+      "body_lines": 143,
+      "body_sha256": "b92bf1a1b87388b496d22118a2ac488f2656c71992106ccbf60170aa2e087feb"
+    }
+  ]
+}

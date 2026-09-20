@@ -1,0 +1,11 @@
+production: VALUE PASS
+CONTROL stale decision cache: REJECTED VALUE FAIL initial historical decision time was wrong; reload lost current historical decision time; historical substep clock stayed stale
+CONTROL day handed to tick consumer: REJECTED VALUE FAIL WorldGenesis passed a day as a tick
+CONTROL county time paces corpse animation: REJECTED VALUE FAIL corpse grace followed county time
+yes  the gate runs this border
+yes  partial catch-up and reload remain gated
+yes  decision reads refresh the county clock
+yes  native pacing has its own host counter
+yes  WorldGenesis converts at its boundary
+yes  the durable and runtime axes are inventoried
+  168) PASS -- current decision time, boundary conversion, reload and host pacing

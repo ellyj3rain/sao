@@ -812,97 +812,9 @@ local function knownSource(id, body, needValue, offer)
     return place.cx, place.cy, 0
 end
 
-local function decide(id, agent, body)
-    local tick = tickCount
-    -- Riding ([B1]): a passenger is a passenger - no needs-driven
-    -- walks, no threat responses, nothing, until the door opens.
-    -- Self-healing: a rider whose vehicle is gone resumes life.
-    if agent.riding then
-        local okRV, rv = pcall(function() return body:getVehicle() end)
-        if okRV and rv then
-            -- [C4] The door works both ways: a companion whose player
-            -- has left this vehicle steps out after them - the paired
-            -- exit puts the mesh on the ground with the flag.
-            if agent.companioning then
-                local playerOut = false
-                pcall(function()
-                    local me0 = getSpecificPlayer(0)
-                    playerOut = me0 ~= nil and me0:getVehicle() ~= rv
-                end)
-                if playerOut then
-                    local okOut = false
-                    pcall(function()
-                        okOut = SAOJavaBridge:unseatFromVehicle(body)
-                    end)
-                    if okOut then
-                        agent.riding = nil
-                        pcall(function()
-                            SAO.Voice.onEvent(id, "stepOut", tick)
-                        end)
-                        setState(agent, id, "IDLE", "steps out after you")
-                    end
-                end
-            end
-            if agent.riding then return end
-        else
-            agent.riding = nil
-            setState(agent, id, "IDLE", "back on foot")
-        end
-    end
-    -- [C4] The seat outranks the flag: `riding` lives on the runtime
-    -- agent table and is lost when a body is re-adopted, which left a
-    -- seated survivor running the whole decision loop from inside a
-    -- car - walk orders issued from a passenger seat. A body found
-    -- seated IS riding, whatever the table says.
-    if not agent.riding then
-        local okSeat, seated = pcall(function() return body:getVehicle() end)
-        if okSeat and seated then
-            agent.riding = true
-            return
-        end
-    end
-    local bodyX, bodyY = body:getX(), body:getY()
-    if SAO.Integration and SAO.Integration.apply then
-        local graph = SAO.Integration.apply(id, agent, tick, bodyX, bodyY)
-        if graph then
-            agent.pressure = agent.pressure or {}
-            agent.pressure.graph = graph.pressure
-        end
-    end
-    local threat = SAO.Perception.nearestBelievedZombie(id, tick, bodyX, bodyY)
-    local threatCount = SAO.Perception.believedThreatCount(id, tick, 10, bodyX, bodyY)
-
-    -- A believed hostile PERSON is a threat like any other; if both exist the
-    -- nearer belief governs. Permission asymmetry is Standing's, not ours.
-    local hostile, hostileName, hostileKey = nearestHostilePerson(id, tick, bodyX, bodyY)
-    local governingPerson, governingPersonKey = nil, nil
-    if hostile and (not threat or hostile.dist < threat.dist) then
-        threat = hostile
-        threatCount = math.max(threatCount, 1)
-        governingPerson, governingPersonKey = hostileName, hostileKey
-    end
-
-    -- [C116] A believed FORMED person - a living neighbor carrying the
-    -- residue - presses the same nerve the dead do. They are marked
-    -- fromPerson so no engage branch mistakes them for a zombie (the
-    -- strips are the gates' below), and a hostile person still
-    -- governs first: an enemy is an enemy before they are shaped like
-    -- anything. What this adds is the fear - the flee threshold and
-    -- the pressure read them, and the county's answer to what it sees
-    -- is to keep its distance, which is what [MUTATION.md] says the
-    -- living do.
-    if not governingPerson and SAO.Perception.nearestFormedPerson then
-        local formed = nil
-        pcall(function()
-            formed = SAO.Perception.nearestFormedPerson(
-                id, tick, bodyX, bodyY)
-        end)
-        if formed and (not threat or formed.dist < threat.dist) then
-            threat = formed
-            threatCount = math.max(threatCount, 1)
-        end
-    end
-
+-- Each decision phase returns true only when it consumed the decision.
+-- Separate functions also keep cumulative locals within the engine debug compiler limit.
+local function decideThreat(id, agent, body, tick, threat, threatCount, governingPerson, governingPersonKey)
     -- Threat beliefs outrank everything except an active flee.
     if threat then
         if SAO.Adaptation and threat.form and threat.form ~= "none" then
@@ -937,7 +849,7 @@ local function decide(id, agent, body)
                 log(id .. " demands of " .. tostring(governingPerson)
                     .. string.format(" at %.1f tiles", threat.dist)
                     .. " - the word before the blow")
-                return
+                return true
             end
         end
         -- Doctrine of the grudge: a hostile PERSON, close, faced by an
@@ -963,7 +875,7 @@ local function decide(id, agent, body)
                 setState(agent, id, "ENGAGE",
                     string.format("confronts %s at %.1f tiles (standing grudge)",
                         governingPerson, threat.dist))
-                return
+                return true
             end
         end
 
@@ -987,7 +899,7 @@ local function decide(id, agent, body)
                 setState(agent, id, "ENGAGE",
                     string.format("stands ground: believed threat at %.1f tiles%s",
                         threat.dist, threat.prone and " (downed)" or ""))
-                return
+                return true
             end
         end
 
@@ -1009,7 +921,7 @@ local function decide(id, agent, body)
                     agent.lastCombatVerdict = ""
                     setState(agent, id, "ENGAGE",
                         string.format("overwhelmed (%d believed) - opens fire", threatCount))
-                    return
+                    return true
                 end
             end
         end
@@ -1233,39 +1145,21 @@ local function decide(id, agent, body)
                 end
             end
         end
-                    return
+                    return true
                 end
             end
             -- Could not path away (or not permitted): hold ALERT facing it.
             setState(agent, id, "ALERT", "flee blocked; holding")
-            return
+            return true
         end
         setState(agent, id, "ALERT",
             string.format("believed threat at %.1f tiles (holds until %.1f)", threat.dist, fleeAt))
-        return
+        return true
     end
 
-    -- No actionable threat beliefs.
-    if agent.state == "FLEE" or agent.state == "ALERT" then
-        setState(agent, id, "IDLE",
-            SAO.Perception.hasLookedRecently(id, tick) and "believes clear" or "no recent look")
-        return
-    end
+end
 
-    -- The branching graph's work projection. When no threat owns the
-    -- moment, labor is the graph's own answer rather than a side table.
-    if agent.graph and agent.graph.branch == "work" and agent.graph.work then
-        agent.pressure = {
-            answer = "designation",
-            detail = agent.graph.work,
-            at = tick,
-        }
-    end
-
-    -- One needs read per decision ([A15]): every appetite block below
-    -- consumes this snapshot.
-    local needs = SAO.Needs.read(body)
-
+local function decideNeedsAndCompanion(id, agent, body, tick, needs)
     -- Bleeding outranks every appetite: a wound left open is the fastest
     -- clock there is. Bandage in place when carrying one; without one,
     -- rip carried cloth into rags ([A10]); with neither, note it once and
@@ -1301,7 +1195,7 @@ local function decide(id, agent, body)
                     end)
                     setState(agent, id, "TREAT",
                         "takes something for the fever", "need")
-                    return
+                    return true
                 end
             end
         end
@@ -1321,7 +1215,7 @@ local function decide(id, agent, body)
                     SAO.Voice.onEvent(id, "cleanWound", tick)
                 end)
                 setState(agent, id, "TREAT", "cleans the wound", "need")
-                return
+                return true
             end
         end
         if SAO.Needs.dirtyBandages(body) > 0
@@ -1331,7 +1225,7 @@ local function decide(id, agent, body)
                 agent.taskDeadline = tick + 1200
                 setState(agent, id, "TREAT",
                     "changes a fouled dressing", "need")
-                return
+                return true
             end
         end
         if SAO.Needs.bleeding(body) > 0 then
@@ -1346,7 +1240,7 @@ local function decide(id, agent, body)
                     + math.max(600, 1800 - dLvl * 120)
                 setState(agent, id, "TREAT", "bleeding: bandaging now"
                     .. (dLvl >= 5 and " (practiced hands)" or ""))
-                return
+                return true
             end
             -- No bandage: a spare shirt or sheet becomes rags. The time is
             -- charged in the RIP hold; the transform lands when it ends.
@@ -1356,7 +1250,7 @@ local function decide(id, agent, body)
             if okR and canRip then
                 agent.ripDoneAt = tick + 120
                 setState(agent, id, "RIP", "bleeding: ripping cloth into rags")
-                return
+                return true
             end
             if not agent.notedNoBandage then
                 agent.notedNoBandage = true
@@ -1375,7 +1269,7 @@ local function decide(id, agent, body)
                 agent.taskDeadline = tick + 1800
                 setState(agent, id, "DRINK",
                     string.format("thirst %.2f: drinks from pack", needs.thirst))
-                return
+                return true
             end
             if not agent.nextWaterAt or tick >= agent.nextWaterAt then
                 local wx, wy, wz = SAO.Needs.findWater(id, body)
@@ -1395,7 +1289,7 @@ local function decide(id, agent, body)
                         agent.taskDeadline = tick + 3600
                         setState(agent, id, "WATERWARD",
                             string.format("thirst %.2f: heads for water", needs.thirst))
-                        return
+                        return true
                     end
                 else
                     agent.nextWaterAt = tick + 600
@@ -1425,7 +1319,7 @@ local function decide(id, agent, body)
                 agent.taskDeadline = tick + 1800
                 setState(agent, id, "EAT",
                     string.format("hunger %.2f: eats from pack", needs.hunger))
-                return
+                return true
             end
             if not agent.nextForageAt or tick >= agent.nextForageAt then
                 local fx, fy, fz, fname = SAO.Needs.findSource(id, body)
@@ -1467,7 +1361,7 @@ local function decide(id, agent, body)
                         setState(agent, id, "FORAGE",
                             string.format("hunger %.2f: heads for %s", needs.hunger,
                                 tostring(fname)))
-                        return
+                        return true
                     end
                 else
                     -- Nothing edible loaded nearby; do not spin the scan.
@@ -1639,7 +1533,7 @@ local function decide(id, agent, body)
                         setState(agent, id, "MEDICWARD",
                             "walks to hurt " .. bestName,
                             aidDesig == "medic" and "designation" or nil)
-                        return
+                        return true
                     end
                 end
             end
@@ -1685,7 +1579,7 @@ local function decide(id, agent, body)
                                 agent.taskDeadline = tick + 1800
                                 setState(agent, id, "MOURNWARD",
                                     "walks to where " .. name .. " lies")
-                                return
+                                return true
                             end
                         else
                             agent.mourned[deadId] = true
@@ -1695,7 +1589,7 @@ local function decide(id, agent, body)
                             agent.mournName = name
                             setState(agent, id, "MOURNING",
                                 "stands over " .. name)
-                            return
+                            return true
                         end
                     end
                 end
@@ -1712,7 +1606,7 @@ local function decide(id, agent, body)
                 and SAO.Needs.smokeCarried(id, body) then
                 agent.taskDeadline = tick + 1200
                 setState(agent, id, "EAT", "smoke break")
-                return
+                return true
             end
         end
     end
@@ -1738,7 +1632,7 @@ local function decide(id, agent, body)
                 if SAO.Needs.smokeCarried(id, body) then
                     agent.taskDeadline = tick + 1200
                     setState(agent, id, "EAT", "a smoke, watching the road")
-                    return
+                    return true
                 end
             end
         end
@@ -1756,7 +1650,7 @@ local function decide(id, agent, body)
             if SAO.Needs.drinkCarriedAlcohol(id, body) then
                 agent.taskDeadline = tick + 1200
                 setState(agent, id, "EAT", "a drink, for the shakes")
-                return
+                return true
             end
             if not agent.nextDrinkSeekAt or tick >= agent.nextDrinkSeekAt then
                 agent.nextDrinkSeekAt = tick + 1200
@@ -1770,7 +1664,7 @@ local function decide(id, agent, body)
                     agent.taskDeadline = tick + 3600
                     setState(agent, id, "FORAGE",
                         "the shakes: heads for " .. tostring(dname))
-                    return
+                    return true
                 end
             end
         end
@@ -1789,7 +1683,7 @@ local function decide(id, agent, body)
             if SAO.Needs.useCarriedDrug(id, body, fixFamily) then
                 agent.taskDeadline = tick + 1200
                 setState(agent, id, "EAT", "a dose, for the shakes")
-                return
+                return true
             end
             if not agent.nextDrugSeekAt or tick >= agent.nextDrugSeekAt then
                 agent.nextDrugSeekAt = tick + 1200
@@ -1804,7 +1698,7 @@ local function decide(id, agent, body)
                     agent.taskDeadline = tick + 3600
                     setState(agent, id, "FORAGE",
                         "the habit: heads for " .. tostring(dname))
-                    return
+                    return true
                 end
             end
         end
@@ -1822,7 +1716,7 @@ local function decide(id, agent, body)
                 agent.taskDeadline = tick + 900
                 agent.takePurpose = "offered"
                 setState(agent, id, "TAKE", "picks up " .. offeredName)
-                return
+                return true
             end
         end
     end
@@ -1919,7 +1813,7 @@ local function decide(id, agent, body)
                         agent.pressure = { answer = "designation",
                             detail = "holds where you asked", at = tick }
                     end
-                    return
+                    return true
                 end
                 -- [C4] The clear order: asked to get in, a companion
                 -- walks to the named vehicle and takes a free seat -
@@ -1948,14 +1842,14 @@ local function decide(id, agent, body)
                             setState(agent, id, "IDLE",
                                 "found no seat to take")
                         end
-                        return
+                        return true
                     end
                     if SAO.Locomotion.order(id, body,
                         math.floor(bx), math.floor(by),
                         math.floor(body:getZ())) then
                         setState(agent, id, "PLAYERFOLLOW",
                             "makes for the vehicle you named")
-                        return
+                        return true
                     end
                     agent.boardAsk = nil
                 end
@@ -1982,14 +1876,14 @@ local function decide(id, agent, body)
                             end)
                             setState(agent, id, "IDLE",
                                 "rides with the player")
-                            return
+                            return true
                         end
                     elseif SAO.Locomotion.order(id, body,
                         math.floor(vx), math.floor(vy),
                         math.floor(me:getZ())) then
                         setState(agent, id, "PLAYERFOLLOW",
                             "makes for the player's vehicle")
-                        return
+                        return true
                     end
                 end
                 local companionGap = SAO.Disposition.followGap(id)
@@ -2020,7 +1914,7 @@ local function decide(id, agent, body)
                             or crossing == "CLIMBING") then
                             setState(agent, id, "PLAYERFOLLOW",
                                 "works the crossing after you")
-                            return
+                            return true
                         end
                     end
                     local gx = math.floor(px2 + SAO.Rand.int(-1, 2))
@@ -2028,7 +1922,7 @@ local function decide(id, agent, body)
                     if SAO.Locomotion.order(id, body, gx, gy, math.floor(me:getZ())) then
                         setState(agent, id, "PLAYERFOLLOW",
                             string.format("walks with the player (%.0f back)", pdist))
-                        return
+                        return true
                     end
                 elseif agent.state == "PLAYERFOLLOW" and pdist <= companionGap then
                     SAO.Locomotion.cancel(id)
@@ -2089,6 +1983,9 @@ local function decide(id, agent, body)
         end
     end
 
+end
+
+local function decideCompany(id, agent, body, tick)
     -- Keeping company: the lexically greater id follows the lesser (a
     -- deterministic anchor prevents two people walking at each other
     -- forever). Follows only a fellow who is HERE - a dormant fellow is
@@ -2139,7 +2036,7 @@ local function decide(id, agent, body)
                     SAO.Locomotion.cancel(id)
                     setState(agent, id, "RIDE",
                         "rides with " .. tostring(agent.escortId))
-                    return
+                    return true
                 end
                 agent.rideWith = nil
                 log(id .. " rides with " .. tostring(agent.escortId)
@@ -2208,7 +2105,7 @@ local function decide(id, agent, body)
                     setState(agent, id, "FOLLOW",
                         string.format("keeps pace with %s (%.0f tiles back)",
                             anchor, anchorDist))
-                    return
+                    return true
                 end
             elseif agent.state == "FOLLOW" then
                 SAO.Locomotion.cancel(id)
@@ -2223,11 +2120,9 @@ local function decide(id, agent, body)
         end
     end
 
-    -- Dusk homing: a person with an address heads for it as night falls -
-    -- before the night hold, not instead of it. Threats already returned above.
-    -- A follower whose anchor is present stays with the company instead;
-    -- their fellow IS where they belong tonight.
-    local rec = agent.rec
+end
+
+local function decideHomeAndEquipment(id, agent, body, tick, rec)
     if agent.state == "IDLE" and rec.homeX and not agent.hasLiveAnchor
         and not agent.companioning then
         -- Households consolidate around leadership ([A14]): a grouped
@@ -2251,7 +2146,7 @@ local function decide(id, agent, body)
                 if SAO.Locomotion.order(id, body, homeX, homeY, homeZ or 0) then
                     setState(agent, id, "HOMEWARD",
                         string.format("night falls, home is %.0f tiles away", dh))
-                    return
+                    return true
                 end
             end
         end
@@ -2288,7 +2183,7 @@ local function decide(id, agent, body)
                 agent.taskDeadline = tick + 3600
                 setState(agent, id, "GEARWARD",
                     "knows of a better weapon: " .. tostring(gname))
-                return
+                return true
             end
         end
     end
@@ -2325,7 +2220,7 @@ local function decide(id, agent, body)
                 agent.taskDeadline = tick + 3600
                 setState(agent, id, "AMMOWARD",
                     "gun is dry - heads for " .. tostring(aname))
-                return
+                return true
             end
         end
     end
@@ -2373,7 +2268,7 @@ local function decide(id, agent, body)
                         setState(agent, id, "BOARDING",
                             "boards a window on their own ground ("
                             .. planks .. " plank(s) on it)")
-                        return
+                        return true
                     end
                 end
             end
@@ -2539,12 +2434,12 @@ local function decide(id, agent, body)
                             -- world still works. People have homes
                             -- until the day they need walls.
                             if not SAO.Standing.fallHasCome() then
-                                return
+                                return true
                             end
                             setState(agent, id, "SETTLEWARD",
                                 "scouts a base for " .. tostring(
                                     SAO.Standing.factionName(sGroup)))
-                            return
+                            return true
                         end
                     end
                 end
@@ -2552,1305 +2447,2578 @@ local function decide(id, agent, body)
         end
     end
 
-    -- Idle life: initiative-gated roaming. Short walks on a long personal
-    -- cadence; Standing gates the destination like any other goal.
-    if agent.state == "IDLE" then
-        -- Night hold: people do not stroll in the dark. Threat responses are
-        -- untouched; only leisure movement pauses. At home, the hold has a
-        -- shape: the evening seat. Stood up from the moment anything
-        -- matters (every path out of IDLE stands first).
-        local okH, hour = pcall(function() return GameTime.getInstance():getTimeOfDay() end)
-        if okH and (hour >= 22.0 or hour < 6.0) then
-            if not agent.resting
-                and SAO.Standing.insideClaim(id, body:getX(), body:getY()) then
-                agent.resting = true
-                agent.pressure = { answer = "chosen rest",
-                    detail = "the evening seat, door in view", at = tick }
-                pcall(function() body:setSitOnGround(true) end)
-                -- [C35] How they sit is who they are (SAO_Gesture.seat).
-                pcall(function() SAO.Gesture.seat(id, body) end)
-                log(id .. " settles in for the night")
-            end
-            -- Sleep proper (F-016): tired enough, at home, seated - the
-            -- flag is safe-but-inert off-slot, so recovery is charged
-            -- here in real ticks at engine-approximate rates. Waking is
-            -- handled where every exit already is: setState stands AND
-            -- wakes; the threat branch above outranks this whole block.
-            if agent.resting then
-                -- Cold outranks sleep ([B6]): nobody sleeps through
-                -- freezing. Severe cold breaks the rest so the hearth
-                -- block below can answer it; mild cold does not - the
-                -- tired sleep through a chill like anyone.
-                if SAO.Needs.cold(body) >= 1.5 then
-                    agent.resting = nil
-                    if agent.sleeping then
-                        agent.sleeping = nil
-                        pcall(function()
-                            SAOJavaBridge:setShellAsleep(body, false)
-                        end)
-                    end
-                    pcall(function() body:setSitOnGround(false) end)
-                    pcall(function() SAO.Gesture.standUp(body) end)   -- [C35]
-                    log(id .. " wakes - too cold to sleep")
-                    setState(agent, id, "IDLE", "woken by the cold", "need")
-                    return
-                end
-                -- [B19] Somebody sits up. Decided ONCE per night,
-                -- not once per tick - a full housemate scan every
-                -- tick is exactly what the [B5] audit convicted.
-                local okNH, nh = pcall(function()
-                    return SAO.History.countyHours()
-                end)
-                -- The +2 is not a fudge: a night runs 22:00 to
-                -- 06:00, so it STRADDLES midnight. Bucketing on the
-                -- raw hour would have swapped the keeper at 00:00
-                -- every night - two shifts by accident rather than
-                -- one keeper by design. Shift the boundary out of
-                -- the dark and a night is one night.
-                local nightIdx = okNH and math.floor((nh + 2) / 24) or 0
-                if agent.keeperNight ~= nightIdx then
-                    agent.keeperNight = nightIdx
-                    agent.keeperTonight = false
-                    local gK = SAO.Standing.groupOf(id)
-                    -- Only a house with something to keep posts
-                    -- anyone. Nothing to lose and nothing near it
-                    -- sleeps, all of it.
-                    local worth = gK and (
-                        (SAO.Standing.larderOf
-                            and SAO.Standing.larderOf(gK))
-                        or (SAO.Standing.waterStoreOf
-                            and SAO.Standing.waterStoreOf(gK))
-                        or (SAO.Standing.hearthOf
-                            and SAO.Standing.hearthOf(gK))) or nil
-                    if not worth then
-                        worth = SAO.Perception.believedThreatCount(
-                            id, tick, 20, body:getX(), body:getY()) > 0
-                    end
-                    if worth then
-                        agent.keeperTonight =
-                            (nightKeeper(id, nightIdx) == id)
-                    end
-                end
-                if agent.keeperTonight then
-                    if agent.sleeping then
-                        agent.sleeping = nil
-                        agent.lastRestHours = nil
-                        pcall(function()
-                            SAOJavaBridge:setShellAsleep(body, false)
-                        end)
-                    end
-                    agent.pressure = { answer = "designation",
-                        detail = "sits up - the house sleeps blind"
-                            .. " otherwise", at = tick }
-                    if not agent.saidWatchAt
-                        or tick - agent.saidWatchAt > 36000 then
-                        agent.saidWatchAt = tick
-                        pcall(function()
-                            SAO.Voice.onEvent(id, "sitUp", tick)
-                        end)
-                        log(id .. " sits up tonight")
-                    end
-                    return
-                end
-                local needs = SAO.Needs.read(body)
-                if needs and needs.fatigue and needs.fatigue > 0.2 then
-                    if not agent.sleeping then
-                        agent.sleeping = true
-                        agent.pressure = { answer = "chosen rest",
-                            detail = "sleeps - tomorrow starts early", at = tick }
-                        pcall(function() SAOJavaBridge:setShellAsleep(body, true) end)
-                        log(id .. " falls asleep")
-                    end
-                    local okWH, nowH = pcall(function()
-                        return SAO.History.countyHours()
+end
+
+local function decideNightAndDrift(id, agent, body, tick, rec)
+    -- Night hold: people do not stroll in the dark. Threat responses are
+    -- untouched; only leisure movement pauses. At home, the hold has a
+    -- shape: the evening seat. Stood up from the moment anything
+    -- matters (every path out of IDLE stands first).
+    local okH, hour = pcall(function() return GameTime.getInstance():getTimeOfDay() end)
+    if okH and (hour >= 22.0 or hour < 6.0) then
+        if not agent.resting
+            and SAO.Standing.insideClaim(id, body:getX(), body:getY()) then
+            agent.resting = true
+            agent.pressure = { answer = "chosen rest",
+                detail = "the evening seat, door in view", at = tick }
+            pcall(function() body:setSitOnGround(true) end)
+            -- [C35] How they sit is who they are (SAO_Gesture.seat).
+            pcall(function() SAO.Gesture.seat(id, body) end)
+            log(id .. " settles in for the night")
+        end
+        -- Sleep proper (F-016): tired enough, at home, seated - the
+        -- flag is safe-but-inert off-slot, so recovery is charged
+        -- here in real ticks at engine-approximate rates. Waking is
+        -- handled where every exit already is: setState stands AND
+        -- wakes; the threat branch above outranks this whole block.
+        if agent.resting then
+            -- Cold outranks sleep ([B6]): nobody sleeps through
+            -- freezing. Severe cold breaks the rest so the hearth
+            -- block below can answer it; mild cold does not - the
+            -- tired sleep through a chill like anyone.
+            if SAO.Needs.cold(body) >= 1.5 then
+                agent.resting = nil
+                if agent.sleeping then
+                    agent.sleeping = nil
+                    pcall(function()
+                        SAOJavaBridge:setShellAsleep(body, false)
                     end)
-                    if okWH then
-                        local delta = nowH - (agent.lastRestHours or nowH)
-                        agent.lastRestHours = nowH
-                        if delta > 0 then
-                            pcall(function()
-                                SAOJavaBridge:restRecoverTick(body, delta)
-                            end)
-                        end
-                    end
-                elseif agent.sleeping then
+                end
+                pcall(function() body:setSitOnGround(false) end)
+                pcall(function() SAO.Gesture.standUp(body) end)   -- [C35]
+                log(id .. " wakes - too cold to sleep")
+                setState(agent, id, "IDLE", "woken by the cold", "need")
+                return true
+            end
+            -- [B19] Somebody sits up. Decided ONCE per night,
+            -- not once per tick - a full housemate scan every
+            -- tick is exactly what the [B5] audit convicted.
+            local okNH, nh = pcall(function()
+                return SAO.History.countyHours()
+            end)
+            -- The +2 is not a fudge: a night runs 22:00 to
+            -- 06:00, so it STRADDLES midnight. Bucketing on the
+            -- raw hour would have swapped the keeper at 00:00
+            -- every night - two shifts by accident rather than
+            -- one keeper by design. Shift the boundary out of
+            -- the dark and a night is one night.
+            local nightIdx = okNH and math.floor((nh + 2) / 24) or 0
+            if agent.keeperNight ~= nightIdx then
+                agent.keeperNight = nightIdx
+                agent.keeperTonight = false
+                local gK = SAO.Standing.groupOf(id)
+                -- Only a house with something to keep posts
+                -- anyone. Nothing to lose and nothing near it
+                -- sleeps, all of it.
+                local worth = gK and (
+                    (SAO.Standing.larderOf
+                        and SAO.Standing.larderOf(gK))
+                    or (SAO.Standing.waterStoreOf
+                        and SAO.Standing.waterStoreOf(gK))
+                    or (SAO.Standing.hearthOf
+                        and SAO.Standing.hearthOf(gK))) or nil
+                if not worth then
+                    worth = SAO.Perception.believedThreatCount(
+                        id, tick, 20, body:getX(), body:getY()) > 0
+                end
+                if worth then
+                    agent.keeperTonight =
+                        (nightKeeper(id, nightIdx) == id)
+                end
+            end
+            if agent.keeperTonight then
+                if agent.sleeping then
                     agent.sleeping = nil
                     agent.lastRestHours = nil
-                    pcall(function() SAOJavaBridge:setShellAsleep(body, false) end)
-                    log(id .. " slept enough")
+                    pcall(function()
+                        SAOJavaBridge:setShellAsleep(body, false)
+                    end)
                 end
+                agent.pressure = { answer = "designation",
+                    detail = "sits up - the house sleeps blind"
+                        .. " otherwise", at = tick }
+                if not agent.saidWatchAt
+                    or tick - agent.saidWatchAt > 36000 then
+                    agent.saidWatchAt = tick
+                    pcall(function()
+                        SAO.Voice.onEvent(id, "sitUp", tick)
+                    end)
+                    log(id .. " sits up tonight")
+                end
+                return true
             end
-            return
-        end
-        if agent.resting then
-            agent.resting = nil
-            if agent.sleeping then
+            local needs = SAO.Needs.read(body)
+            if needs and needs.fatigue and needs.fatigue > 0.2 then
+                if not agent.sleeping then
+                    agent.sleeping = true
+                    agent.pressure = { answer = "chosen rest",
+                        detail = "sleeps - tomorrow starts early", at = tick }
+                    pcall(function() SAOJavaBridge:setShellAsleep(body, true) end)
+                    log(id .. " falls asleep")
+                end
+                local okWH, nowH = pcall(function()
+                    return SAO.History.countyHours()
+                end)
+                if okWH then
+                    local delta = nowH - (agent.lastRestHours or nowH)
+                    agent.lastRestHours = nowH
+                    if delta > 0 then
+                        pcall(function()
+                            SAOJavaBridge:restRecoverTick(body, delta)
+                        end)
+                    end
+                end
+            elseif agent.sleeping then
                 agent.sleeping = nil
                 agent.lastRestHours = nil
                 pcall(function() SAOJavaBridge:setShellAsleep(body, false) end)
+                log(id .. " slept enough")
             end
-            pcall(function() body:setSitOnGround(false) end)
-            pcall(function() SAO.Gesture.standUp(body) end)   -- [C35]
-            log(id .. " rises with the morning")
         end
-        -- [B22] The seating chart. Work sent people to real places
-        -- and nobody else was ever drawn to them, so work made no map
-        -- of who stands next to whom. Drift toward where the house's
-        -- work is actually being done - and once standing there, the
-        -- [B22] rest chain still runs, so a person sits beside the
-        -- cook and turns their keepsake over. Their character shows
-        -- while the work happens next to them, and co-location is
-        -- what the meeting, telling and trust machinery has always
-        -- run on.
-        if tick >= (agent.nextDriftAt or 0)
-            and (not agent.pressure or agent.pressure.answer ~= "need")
-            and not agent.escortId and not agent.riding
-            and not agent.companioning
-            and SAO.Disposition.circle(id) ~= "loner" then
-            agent.nextDriftAt = tick + 1200
-            local workerId, workerBody, workDist = whereTheWorkIs(id, body)
-            -- Far enough to be somewhere else, close enough that
-            -- going is a reasonable thing to do.
-            if workerId and workDist and workDist > 4.0 then
-                if SAO.Locomotion.order(id, body,
-                    math.floor(workerBody:getX()),
-                    math.floor(workerBody:getY()),
-                    math.floor(workerBody:getZ())) then
-                    local wrec47 = SAO.Identity.get(workerId)
-                    setState(agent, id, "ROAM",
-                        "goes where the work is"
-                        .. (wrec47 and (" - "
-                            .. tostring(SAO.Identity.displayName(wrec47)))
-                            or ""),
-                        "chosen rest")
-                    return
+        return true
+    end
+    if agent.resting then
+        agent.resting = nil
+        if agent.sleeping then
+            agent.sleeping = nil
+            agent.lastRestHours = nil
+            pcall(function() SAOJavaBridge:setShellAsleep(body, false) end)
+        end
+        pcall(function() body:setSitOnGround(false) end)
+        pcall(function() SAO.Gesture.standUp(body) end)   -- [C35]
+        log(id .. " rises with the morning")
+    end
+    -- [B22] The seating chart. Work sent people to real places
+    -- and nobody else was ever drawn to them, so work made no map
+    -- of who stands next to whom. Drift toward where the house's
+    -- work is actually being done - and once standing there, the
+    -- [B22] rest chain still runs, so a person sits beside the
+    -- cook and turns their keepsake over. Their character shows
+    -- while the work happens next to them, and co-location is
+    -- what the meeting, telling and trust machinery has always
+    -- run on.
+    if tick >= (agent.nextDriftAt or 0)
+        and (not agent.pressure or agent.pressure.answer ~= "need")
+        and not agent.escortId and not agent.riding
+        and not agent.companioning
+        and SAO.Disposition.circle(id) ~= "loner" then
+        agent.nextDriftAt = tick + 1200
+        local workerId, workerBody, workDist = whereTheWorkIs(id, body)
+        -- Far enough to be somewhere else, close enough that
+        -- going is a reasonable thing to do.
+        if workerId and workDist and workDist > 4.0 then
+            if SAO.Locomotion.order(id, body,
+                math.floor(workerBody:getX()),
+                math.floor(workerBody:getY()),
+                math.floor(workerBody:getZ())) then
+                local wrec47 = SAO.Identity.get(workerId)
+                setState(agent, id, "ROAM",
+                    "goes where the work is"
+                    .. (wrec47 and (" - "
+                        .. tostring(SAO.Identity.displayName(wrec47)))
+                        or ""),
+                    "chosen rest")
+                return true
+            end
+        end
+    end
+end
+
+local function decideRestActivity(id, agent, body, tick, idleRec)
+    if not agent.pressure or tick - (agent.pressure.at or 0) > 600 then
+        local detail
+        -- [B32] The cooldown belongs in the GUARD, as
+        -- study's already does. Tested only inside the body, this
+        -- branch was taken even while on cooldown - `detail` is
+        -- set above the check - so the chain never fell through
+        -- and an instrument-carrier could never study, read, or
+        -- handle a keepsake. The inner check below is now
+        -- redundant rather than wrong.
+        if idleRec and idleRec.instrument
+            and tick >= (agent.nextTuneAt or 0) then
+            -- Boot-camp leisure, enriched ([A19]): short, pointed,
+            -- interruptible - the porch, the instrument, the bat in
+            -- reach. Designation earned the pause; the environment
+            -- still collects.
+            local what = idleRec.instrument == "Base.Banjo" and "banjo"
+                or idleRec.instrument == "Base.Harmonica" and "harmonica"
+                or "guitar"
+            -- [C119] The bard's own shape: the carried type goes
+            -- with the tune so the flute-player plays the flute's
+            -- clip, not the guitar's. The label keeps the
+            -- county's word for it; only the body tells the
+            -- truth about what is held.
+            local carriedInstrument = idleRec.instrument
+            if carriedInstrument and what == "guitar"
+                and carriedInstrument:match("%.(.+)$") then
+                what = carriedInstrument:match("%.(.+)$")
+            end
+            detail = "picks the " .. what .. " on the porch, "
+                .. (agent.armed and "weapon" or "bat") .. " in reach"
+            -- [B21] And it CARRIES. This used to set a string and
+            -- stop - a hobby with no audience is a flavour label.
+            -- The sound is real and reaches the dead too, which is
+            -- the honest price of playing out loud here.
+            if tick >= (agent.nextTuneAt or 0) then
+                agent.nextTuneAt = tick + 2400
+                pcall(function()
+                    addSound(body, math.floor(body:getX()),
+                        math.floor(body:getY()),
+                        math.floor(body:getZ()), 14, 8)
+                end)
+                local heard43 = 0
+                pcall(function()
+                    heard43 = SAOJavaBridge:easeListeners(body, 12)
+                end)
+                -- [C35] The tune, seen: the instrument's own
+                -- animation - [C119] and the bard's own clip
+                -- when the carried type has one.
+                pcall(function()
+                    SAO.Gesture.playInstrument(id, body, what,
+                        carriedInstrument)
+                end)
+                -- People come. Nothing else had to be built for
+                -- the consequence: co-location is what the
+                -- meeting, telling and trust machinery has always
+                -- run on. The porch makes the seating chart; the
+                -- seating chart was already wired.
+                local came43 = 0
+                local myG43 = SAO.Standing.groupOf(id)
+                if myG43 then
+                    for oid43, oag43 in pairs(Ctl.agents) do
+                        if oid43 ~= id
+                            and oag43.state == "IDLE"
+                            and not oag43.escortId
+                            and not oag43.riding
+                            and (not oag43.pressure
+                                or oag43.pressure.answer ~= "need")
+                            and SAO.Standing.groupOf(oid43) == myG43
+                            and SAO.Disposition.circle(oid43) ~= "loner"
+                        then
+                            local ob43 = SAO.Body.get(oid43)
+                            if ob43 then
+                                local odx = ob43:getX() - body:getX()
+                                local ody = ob43:getY() - body:getY()
+                                local od2 = odx * odx + ody * ody
+                                if od2 > 16.0 and od2 <= 196.0 then
+                                    if SAO.Locomotion.order(oid43, ob43,
+                                        math.floor(body:getX()),
+                                        math.floor(body:getY()),
+                                        math.floor(body:getZ())) then
+                                        setState(oag43, oid43, "ROAM",
+                                            "drawn by the " .. what,
+                                            "chosen rest")
+                                        came43 = came43 + 1
+                                    end
+                                elseif od2 <= PORCH_REACH * PORCH_REACH then
+                                    -- [C35] Already close: half dance, the
+                                    -- rest clap - the porch, seen and heard.
+                                    pcall(function()
+                                        if (SAO.Hash.of(oid43, "dance:" .. tostring(tick)) % 100) < 50 then
+                                            SAO.Gesture.dance(oid43, ob43)
+                                        else
+                                            SAO.Gesture.clap(ob43)
+                                        end
+                                    end)
+                                end
+                            end
+                        end
+                    end
+                end
+                if heard43 > 0 or came43 > 0 then
+                    log(id .. " plays the " .. what .. " - "
+                        .. heard43 .. " eased, " .. came43
+                        .. " come over")
+                end
+            end
+        elseif idleRec and idleRec.designation
+            and SAO.Census.JOB_PERK
+            and SAO.Census.JOB_PERK[idleRec.designation]
+            and tick >= (agent.nextStudyAt or 0) then
+            -- [B22] The trade reads up. A survivor seeks and
+            -- studies the book their OWN work rides on - the perk
+            -- their designation was dealt against - so what they
+            -- pick up is decided by who the house made them and
+            -- by what the place actually holds.
+            --
+            -- This is the road back that [B21] did not have. A
+            -- struggling medic can read, the dressings start
+            -- holding, and the evidence against them stops
+            -- accumulating. When there is no book there is no
+            -- road, and the job goes to someone else - which is
+            -- the scarcity doing its work.
+            -- [C32] A book takes a quarter longer for the dyslexic
+            -- (SAO_Conditions.readingTime, Custom Traits' figure).
+            local readingTime48 = 1.0
+            pcall(function() readingTime48 = SAO.Conditions.readingTime(id) end)
+            if type(readingTime48) ~= "number" then readingTime48 = 1.0 end
+            agent.nextStudyAt = tick + math.floor(2400 * readingTime48)
+            local perk48 = SAO.Census.JOB_PERK[idleRec.designation]
+            -- [B40] Books speak a different vocabulary than perks
+            -- do. The medic's perk is `Doctor` and every first-aid
+            -- book in the game says `FirstAid`, so this asked for a
+            -- book that does not exist and read the empty answer as
+            -- scarcity.
+            local book48 = SAO.Census.bookSkillFor(perk48)
+            detail = "reads up on the work"
+            -- [C31] A child who cannot read yet has no road through
+            -- a book: none before eight (SAO_History.literacyOf -
+            -- the school years lived before the fall), and the study
+            -- passes them over and says why.
+            local literacy48 = "reads"
+            pcall(function() literacy48 = SAO.History.literacyOf(id) end)
+            if literacy48 == "none" then
+                detail = "too young to read the work up - watches the grown-ups instead"
+            else
+                local studied = ""
+                pcall(function()
+                    studied = SAOJavaBridge:readSkillBook(body, book48)
+                end)
+                if studied == nil or studied == "" then
+                    local got48 = false
+                    pcall(function()
+                        got48 = SAOJavaBridge:takeSkillBookFor(
+                            body, 10, book48)
+                    end)
+                    if got48 then
+                        log(id .. " finds something on " .. tostring(perk48))
+                    else
+                        detail = "turns the work over in their head -"
+                            .. " nothing written to learn it from"
+                    end
+                else
+                    pcall(function()
+                        SAO.Voice.onEvent(id, "studies", tick)
+                    end)
+                    log(id .. " reads up on " .. tostring(studied))
+                end
+            end
+        -- [B32] Same lock as the porch above: on cooldown
+        -- this still took the slot, so a reader never reached
+        -- their keepsake.
+        elseif idleRec and idleRec.reading
+            and tick >= (agent.nextPageAt or 0) then
+            -- [B22] Something to read, and it GOES ROUND. A
+            -- keepsake helps only its owner; the standing law
+            -- since [B20] is that a person's value should land on
+            -- other bodies. So a reader beside a bored housemate
+            -- hands the book over - the same vanilla transfer
+            -- every other kindness here uses.
+            detail = "reads a while, back to the wall"
+            if tick >= (agent.nextPageAt or 0) then
+                agent.nextPageAt = tick + 3000
+                -- [B41] What the book is ABOUT.
+                --
+                -- `rec.reading` has always held the item's full
+                -- type - `Base.BookFancy_Politics` - and every
+                -- reader of it tested truthiness, so a survivor
+                -- carried a specific manual and the county knew
+                -- only that they held something.
+                --
+                -- Derived from the engine, not from the name:
+                -- `getSkillTrained()` is what the script says the
+                -- book teaches, so a mod's manual works without
+                -- this mod knowing it exists ([B38]'s discipline).
+                -- Empty for a novel, which is most of them.
+                local teaches46 = nil
+                pcall(function()
+                    local it46 = getScriptManager():getItem(
+                        tostring(idleRec.reading))
+                    local s46 = it46 and it46:getSkillTrained() or nil
+                    if s46 and s46 ~= "" then teaches46 = s46 end
+                end)
+
+                local passedTo = nil
+                local passedToTrade = nil
+                local myG46 = SAO.Standing.groupOf(id)
+                if myG46 then
+                    for oid46 in pairs(Ctl.agents) do
+                        if oid46 ~= id
+                            and SAO.Standing.groupOf(oid46) == myG46 then
+                            local ob46 = SAO.Body.get(oid46)
+                            local orec46 = SAO.Identity.get(oid46)
+                            if ob46 and orec46 and not orec46.reading then
+                                local bdx = ob46:getX() - body:getX()
+                                local bdy = ob46:getY() - body:getY()
+                                if bdx * bdx + bdy * bdy <= 25.0 then
+                                    local bored46 = 0
+                                    pcall(function()
+                                        bored46 = SAOJavaBridge:boredom(ob46)
+                                    end)
+                                    -- [B41] A manual goes to whoever
+                                    -- the work belongs to, ahead of
+                                    -- whoever happens to be bored -
+                                    -- their trade rides on it
+                                    -- ([B22]). Boredom still decides
+                                    -- who gets a novel.
+                                    local wants46 = false
+                                    if teaches46 then
+                                        local jp46 = SAO.Census.JOB_PERK
+                                            and SAO.Census.JOB_PERK[
+                                                orec46.designation] or nil
+                                        local want46 = jp46
+                                            and SAO.Census.bookSkillFor(jp46)
+                                        wants46 = want46 ~= nil
+                                            and string.lower(want46)
+                                                == string.lower(teaches46)
+                                    end
+                                    if wants46 then
+                                        passedTo = oid46
+                                        passedToTrade = true
+                                        break
+                                    elseif not passedTo
+                                        and (tonumber(bored46) or 0) > 0.3 then
+                                        passedTo = oid46
+                                    end
+                                end
+                            end
+                        end
+                    end
+                end
+                if passedTo and SAO.Needs.passReadingTo then
+                    if SAO.Needs.passReadingTo(id, body,
+                        SAO.Body.get(passedTo)) then
+                        idleRec.reading = nil
+                        pcall(function()
+                            SAO.Voice.onEvent(id, "passItOn", tick)
+                        end)
+                        log(id .. " passes the book to " .. passedTo
+                            .. (passedToTrade
+                                and (" - it is theirs to read ("
+                                    .. tostring(teaches46) .. ")")
+                                or ""))
+                    end
+                end
+            end
+        -- [B32] Last in the chain, so this starved nobody -
+        -- but it swallowed its own slot the same way, and a
+        -- between-time branch that cannot yield is the shape this
+        -- batch is fixing.
+        elseif idleRec and idleRec.keepsake
+            and tick >= (agent.nextKeepsakeAt or 0) then
+            -- [B22] A thing kept for what it means. It does
+            -- nothing for the house, which is precisely what
+            -- makes it evidence of a person rather than a
+            -- function.
+            detail = "turns something over in their hands"
+            if tick >= (agent.nextKeepsakeAt or 0) then
+                agent.nextKeepsakeAt = tick + 3600
+                pcall(function()
+                    SAOJavaBridge:steady(body, 0.04)
+                end)
+            end
+        -- [B32] The solo life, moved out of the way.
+        -- This has no cooldown and always sets a detail, so as the
+        -- FIRST branch it could never yield - an undesignated
+        -- survivor took the slot every time and could never play,
+        -- read, or turn a keepsake over. [B32] fixed three
+        -- branches of that shape and missed this one, because
+        -- this one starves by construction rather than by a
+        -- misplaced cooldown.
+        --
+        -- The deal says who lands here: "Solo lives stay
+        -- undesignated - that is a different day." A person with
+        -- no company is the one with the most time and the least
+        -- reason not to use it, so what they carry comes first
+        -- and this is what they do when nothing else is due.
+        elseif idleRec and not idleRec.designation then
+            if (idleRec.contactMonths or 0) < 0.5
+                and not SAO.Lessons.has(id, "routine-is-armor")
+                and not SAO.Lessons.has(id, "measure-the-danger") then
+                detail = "waits for someone to come"
+            elseif SAO.Disposition.isSmoker(id) then
+                detail = "keeps hands busy - a smoke, eyes on the road"
+            else
+                detail = "keeps hands busy, eyes on the road"
+            end
+        elseif SAO.Disposition.traits(id).discipline > 0.5 then
+            detail = "tends their kit between rounds"
+        else
+            detail = "a short rest, weapon in reach"
+        end
+        agent.pressure = { answer = "chosen rest", detail = detail, at = tick }
+    end
+
+end
+
+local function decideLocalResources(id, agent, body, tick, idleRec)
+    -- Remembrance ([A21]): on a long cadence, a mourner walks
+    -- back to where one of their dead fell - a CHOSEN act, gated to
+    -- their own mourned memory and to sites near enough to reach.
+    -- The whole MOURNWARD/MOURNING machinery serves; learn() dedupe
+    -- makes re-grief safe, and the pause reads "chosen rest" - grief on
+    -- purpose is a way of resting.
+    if agent.mourned and (not agent.nextMemorialAt
+        or tick >= agent.nextMemorialAt) then
+        agent.nextMemorialAt = tick + 14400 + SAO.Rand.int(14400)
+        for deadId in pairs(agent.mourned) do
+            local deadRec = SAO.Identity.get(deadId)
+            if deadRec and deadRec.dead and deadRec.x then
+                local mdx = deadRec.x - body:getX()
+                local mdy = deadRec.y - body:getY()
+                if mdx * mdx + mdy * mdy <= 1600.0
+                    and SAO.Locomotion.order(id, body,
+                        math.floor(deadRec.x), math.floor(deadRec.y),
+                        math.floor(body:getZ())) then
+                    agent.mournTarget = deadId
+                    agent.mournName = deadRec.forename or deadId
+                    agent.taskDeadline = tick + 1800
+                    setState(agent, id, "MOURNWARD",
+                        "visits where " .. tostring(deadRec.forename
+                            or deadId) .. " fell", "chosen rest")
+                    return true
                 end
             end
         end
+    end
+
+    -- What the dead leave ([B15]): a corpse within arm's reach
+    -- carries real things, and every part of whether to take them
+    -- is already modelled. Knowing them refuses hardest - that
+    -- outranks hunger and creed both, and is the one place here
+    -- where dignity beats need. Mercy leaves the dead be short of
+    -- desperation. Everyone else takes what they actually lack.
+    if tick >= (agent.nextScavengeAt or 0) then
+        agent.nextScavengeAt = tick + 3600
+        -- Read locally, like every other block in this scope
+        -- (`needsNow` was invented in the first draft and would
+        -- have been nil - the B10 field-guess class again, caught
+        -- by grepping instead of assuming).
+        local n23 = SAO.Needs.read(body)
+        local needF = n23 and n23.hunger
+            and n23.hunger >= SAO.Disposition.eatAt(id)
+        local armed23 = false
+        pcall(function()
+            local its = body:getInventory():getItems()
+            for i = 0, its:size() - 1 do
+                if instanceof(its:get(i), "HandWeapon") then
+                    armed23 = true
+                    break
+                end
+            end
+        end)
+        if needF or not armed23 then
+            local knewThem, took, refused = false, nil, false
+            pcall(function()
+                -- Did I know whoever this was? The named-corpse
+                -- read already exists ([B1]); a name I hold a
+                -- belief about is a person, not a container.
+                local okC, corpses = pcall(function()
+                    return SAOJavaBridge:findNamedCorpses(body, 3)
+                end)
+                if okC and type(corpses) == "string" and corpses ~= "" then
+                    local mine = SAO.Perception.beliefs[id]
+                    for entry in corpses:gmatch("[^|]+") do
+                        -- [C8] Beliefs stay name-keyed; the resolver
+                        -- turns an "@id" tag back into the name this
+                        -- witness would have known them by.
+                        local _, _, cn = SAO.Identity.resolveBodyTag(
+                            entry:match("^(.-):"))
+                        if cn and mine and mine.people[cn] then
+                            knewThem = true
+                            break
+                        end
+                    end
+                end
+            end)
+            local creed23 = nil
+            do
+                local g23 = SAO.Standing.groupOf(id)
+                local c23 = g23 and SAO.Standing.creedOf(g23) or nil
+                creed23 = c23 and c23.name or nil
+            end
+            local desperate23 = n23 and n23.hunger
+                and n23.hunger >= policy().desperation
+            if knewThem then
+                refused = true
+            elseif creed23 == "mercy" and not desperate23 then
+                refused = true
+            else
+                pcall(function()
+                    local sq = body:getCurrentSquare()
+                    local cell23 = getCell()
+                    for dx = -2, 2 do
+                        if took then break end
+                        for dy = -2, 2 do
+                            local s23 = cell23:getGridSquare(
+                                math.floor(body:getX()) + dx,
+                                math.floor(body:getY()) + dy,
+                                math.floor(body:getZ()))
+                            local bodies = s23 and s23:getDeadBodys()
+                            if bodies then
+                                for bi = 0, bodies:size() - 1 do
+                                    local corpse = bodies:get(bi)
+                                    local cont = corpse
+                                        and corpse:getContainer()
+                                    if cont then
+                                        local its = cont:getItems()
+                                        for ii = its:size() - 1, 0, -1 do
+                                            local it = its:get(ii)
+                                            local wantIt =
+                                                (needF and instanceof(it, "Food"))
+                                                or (not armed23
+                                                    and instanceof(it, "HandWeapon"))
+                                            if wantIt then
+                                                cont:Remove(it)
+                                                body:getInventory():AddItem(it)
+                                                took = tostring(it:getName())
+                                                break
+                                            end
+                                        end
+                                    end
+                                    if took then break end
+                                end
+                            end
+                            if took then break end
+                        end
+                    end
+                end)
+            end
+            if refused then
+                pcall(function()
+                    SAO.Voice.onEvent(id, knewThem and "notThem"
+                        or "leaveTheDead", tick)
+                end)
+                log(id .. (knewThem
+                    and " will not take from someone they knew"
+                    or " leaves the dead their things"))
+            elseif took then
+                pcall(function()
+                    SAO.Voice.onEvent(id, "scavenge", tick)
+                    SAOJavaBridge:equipBestMelee(body)
+                end)
+                log(id .. " takes " .. took .. " from the dead")
+            end
+        end
+    end
+    -- The hearth ([B6]): cold is a real engine state, and a
+    -- cold person goes to the fire. Feeding it comes first when
+    -- they carry something that burns - a fire nobody feeds is a
+    -- fire nobody has tomorrow. The walk and the warming are
+    -- honest answers to a NEED (DR-011: never a mannequin).
+    do
+        local coldNow = SAO.Needs.cold(body)
+        if coldNow >= 0.8 and tick >= (agent.nextHearthAt or 0) then
+            local hx, hy, hz, hfuel, hlit =
+                SAO.Needs.findHearth(id, body, 14)
+            if hx then
+                local hdx, hdy = hx - body:getX(), hy - body:getY()
+                -- [B47] The same arrival question at the fire.
+                if hdx * hdx + hdy * hdy
+                    <= ARRIVAL_REACH * ARRIVAL_REACH then
+                    agent.nextHearthAt = tick + 3600
+                    -- A dead fire is lit by whoever carries the
+                    -- MEANS ([B6]): a lighter or matches, really
+                    -- in the pack. Without them the cold stand
+                    -- at a dead hearth and that is the honest
+                    -- answer.
+                    local okLt, lit2 = pcall(function()
+                        return SAOJavaBridge:lightNearbyHearth(body, 3)
+                    end)
+                    if okLt and lit2 then
+                        pcall(function()
+                            SAO.Voice.onEvent(id, "lightFire", tick)
+                        end)
+                        log(id .. " lights the fire")
+                    end
+                    local okFd, fed = pcall(function()
+                        return SAOJavaBridge:feedNearbyHearth(body, 3)
+                    end)
+                    if okFd and type(fed) == "number" and fed > 0 then
+                        pcall(function()
+                            SAO.Voice.onEvent(id, "feedFire", tick)
+                        end)
+                        log(id .. " feeds the fire (" .. fed
+                            .. " units)")
+                    end
+                    agent.taskDeadline = tick + 2400
+                    setState(agent, id, "WARMING",
+                        "warms at the fire, weapon in reach", "need")
+                    return true
+                end
+                -- Walk to a fire that is burning, or to one you
+                -- could light: fuel plus the means in your pack.
+                local canLight = false
+                pcall(function()
+                    local its7 = body:getInventory():getItems()
+                    for i7 = 0, its7:size() - 1 do
+                        local ft7 = tostring(
+                            its7:get(i7):getFullType() or "")
+                        if ft7:find("Lighter") or ft7:find("Matches") then
+                            canLight = true
+                            break
+                        end
+                    end
+                end)
+                if hfuel and hfuel > 0 and (hlit or canLight)
+                    and SAO.Locomotion.order(id, body, hx, hy, hz) then
+                    agent.taskDeadline = tick + 2400
+                    setState(agent, id, "HEARTHWARD",
+                        "cold - goes to the fire", "need")
+                    return true
+                end
+            end
+            -- No hearth answers: the cold walk is not retried
+            -- every beat.
+            agent.nextHearthAt = tick + 3600
+        end
+    end
+    -- The house's water is the house's politics ([B6]): a
+    -- thirsty member whose own vessels are dry draws from the
+    -- stored vessels on their own ground - and the SAME ration
+    -- policy that governs the shelves governs the bottles.
+    -- Under watch-first, a non-watch member waits unless thirst
+    -- has passed desperation; nobody is ever left to die of it.
+    local wNeeds = SAO.Needs.read(body)
+    if wNeeds and wNeeds.thirst
+        and wNeeds.thirst >= SAO.Disposition.drinkAt(id)
+        and SAO.Standing.insideClaim(id, body:getX(), body:getY())
+        and tick >= (agent.nextStoreDrawAt or 0) then
+        local wpg = SAO.Standing.groupOf(id)
+        local wpol = wpg and SAO.Standing.rationPolicyOf(wpg) or nil
+        local wrec7 = agent.rec
+        -- Desperation always overrides the policy: policy
+        -- decides who waits, never who dies.
+        local waitTurn = wpol == "watch-first"
+            and wrec7 and wrec7.designation ~= "watch"
+            and wNeeds.thirst < policy().desperation
+        if not waitTurn then
+            if SAO.Needs.takeStoredWater(id, body) then
+                agent.nextStoreDrawAt = tick + 3600
+                agent.taskDeadline = tick + 900
+                agent.takePurpose = "deposit"
+                setState(agent, id, "TAKE",
+                    "draws water from the stores", "need")
+                return true
+            end
+        elseif not agent.saidWaterWait then
+            agent.saidWaterWait = true
+            log(id .. " leaves the stored water for the watch")
+        end
+    end
+    -- The firewood run ([B6]): a house whose counted hearth is
+    -- DARK sends its foragers and watch for what burns - the same
+    -- shape as the water run, and the shelving walks it home. The
+    -- fire loop closes: counted, sought, fed, and restocked.
+    do
+        local frec7 = agent.rec
+        local fjob7 = frec7 and (frec7.designation == "forager"
+            or frec7.designation == "watch")
+        if fjob7 and tick >= (agent.nextWoodRunAt or 0) then
+            local fg7 = SAO.Standing.groupOf(id)
+            local fh7 = fg7 and SAO.Standing.hearthOf
+                and SAO.Standing.hearthOf(fg7) or nil
+            if fh7 and not fh7.burning
+                and not SAO.Standing.insideClaim(
+                    id, body:getX(), body:getY()) then
+                agent.nextWoodRunAt = tick + 10800
+                local okW7, tookW7 = pcall(function()
+                    return SAOJavaBridge:takeWantedFromNearby(
+                        body, 8, "fuel", 2)
+                end)
+                if okW7 and type(tookW7) == "number" and tookW7 > 0 then
+                    pcall(function()
+                        SAO.Voice.onEvent(id, "woodRun", tick)
+                    end)
+                    log(id .. " gathers " .. tookW7
+                        .. " for the fire")
+                end
+            end
+        end
+    end
+    -- The water carried ([B6]): a house that KNOWS it is dry
+    -- sends its foragers and quartermasters to fill real vessels
+    -- from real sources - the same shelving walks them home. The
+    -- errand exists only while the claim says dry: nobody hauls
+    -- water they already have.
+    do
+        local wrec6 = agent.rec
+        local wjob6 = wrec6 and (wrec6.designation == "forager"
+            or wrec6.designation == "quartermaster")
+        if wjob6 and tick >= (agent.nextWaterRunAt or 0) then
+            local wg6 = SAO.Standing.groupOf(id)
+            local ws6 = wg6 and SAO.Standing.waterStoreOf(wg6) or nil
+            if ws6 and ws6.word == "dry" then
+                agent.nextWaterRunAt = tick + 7200
+                local okF6, got6 = pcall(function()
+                    return SAOJavaBridge:fillWaterFromNearby(body, 8)
+                end)
+                if okF6 and type(got6) == "number" and got6 > 0 then
+                    log(id .. " fills what they carry - "
+                        .. math.floor(got6) .. " units")
+                    pcall(function()
+                        SAO.Voice.onEvent(id, "waterRun", tick)
+                    end)
+                    -- The shelving must be QUEUED, not merely
+                    -- announced ([B6] bug fix): the other deposit
+                    -- sites call their deposit verb first, and
+                    -- depositSpareFood is food-shaped - the
+                    -- vessels would have ridden in the pack
+                    -- forever.
+                    if SAO.Needs.depositWater(id, body) then
+                        agent.taskDeadline = tick + 900
+                        agent.takePurpose = "deposit"
+                        setState(agent, id, "TAKE",
+                            "brings the water in", "designation")
+                        return true
+                    end
+                end
+                -- Nothing to fill from here: the water errand
+                -- becomes a WALK to the nearest known source, the
+                -- same machinery thirst already uses.
+                local wx6, wy6, wz6 = SAO.Needs.findWater(id, body, 30)
+                if wx6 and SAO.Locomotion.order(id, body, wx6, wy6, wz6) then
+                    agent.taskDeadline = tick + 3600
+                    -- They came to FILL, not to drink ([B6]) -
+                    -- the arrival reads the errand's purpose.
+                    agent.waterRun = true
+                    setState(agent, id, "WATERWARD",
+                        "goes for water - the house is dry",
+                        "designation")
+                    return true
+                end
+            end
+        end
+    end
+    -- The ground worked ([B4]): a farm hand on their own ground
+    -- reads the REAL plants and the REAL soil - SFarmingSystem
+    -- and canDigHereSquare are the truth - and acts by one
+    -- priority: harvest the ready, water the thirsty, seed the
+    -- plowed, plow new ground. The plot cap (4) counts EXISTING
+    -- plants so the county never tiles the map; plowing waits for
+    -- the growing months (engine months 2-7, the same 0-based
+    -- calendar every seasonal law reads) - seeding and tending
+    -- what stands is always allowed.
+    do
+        local rec4 = agent.rec
+        local isFarmHand = rec4 and (rec4.occupation == "farmer"
+            or (SAO.Census.classOf
+                and SAO.Census.classOf(rec4.occupation) == "settled"))
+        -- [C123] A ranch is its own engine designation, not an
+        -- extension of the crop table: when a farm hand stands on
+        -- their own ground, the ranch's animals, troughs and
+        -- hutches decide whether there is a real care action to
+        -- queue. The animal module holds every product and item
+        -- check behind the engine's action constructors.
+        if isFarmHand and SAO.Animals and SAO.Animals.care
+            and tick >= (agent.nextAnimalCareAt or 0)
+            and SAO.Standing.insideClaim(id, body:getX(), body:getY()) then
+            agent.nextAnimalCareAt = tick + 7200
+            local care = nil
+            pcall(function() care = SAO.Animals.care(id, body, 3) end)
+            if care then
+                agent.taskDeadline = tick + 1800
+                agent.takePurpose = "animal"
+                setState(agent, id, "TAKE", "tends the ranch: " .. care,
+                    "designation")
+                return true
+            end
+        end
+        if isFarmHand and tick >= (agent.nextFarmAt or 0)
+            and SAO.Standing.insideClaim(id, body:getX(), body:getY())
+            and SFarmingSystem and SFarmingSystem.instance
+            -- [B5] presence guard: these globals are indexed at
+            -- argument-evaluation time, before any pcall can
+            -- catch it - a missing farming module must skip the
+            -- work, not abort the scan.
+            and ISFarmingMenu and ISFarmingMenu.canDigHereSquare
+            and ISFarmingMenu.getWaterUsesInteger then
+            agent.nextFarmAt = tick + 7200
+            local fc4 = SAO.Standing.groupOf(id)
+                and SAO.Standing.groupClaimOf(SAO.Standing.groupOf(id))
+                or SAO.Standing.claimOf(id)
+            if fc4 then
+                local harvest4, thirsty4, plowed4, digable4 = nil, nil, nil, nil
+                local thirstySq4, plantCount4 = nil, 0
+                pcall(function()
+                    local cell4 = getCell()
+                    local fx0, fy0, fx1, fy1, fz0 =
+                        workWindow(fc4, body, 12)
+                    if not fx0 then return end
+                    for x4 = fx0, fx1 do
+                        for y4 = fy0, fy1 do
+                            local sq4 = cell4:getGridSquare(
+                                x4, y4, fz0)
+                            if sq4 then
+                                local plant4 = SFarmingSystem.instance
+                                    :getLuaObjectOnSquare(sq4)
+                                if plant4 then
+                                    plantCount4 = plantCount4 + 1
+                                    local okH4, harv4 = pcall(function()
+                                        return plant4:canHarvest()
+                                    end)
+                                    if okH4 and harv4
+                                        and not harvest4 then
+                                        harvest4 = plant4
+                                    end
+                                    local st4 = tostring(
+                                        plant4.state or "")
+                                    local wl4 = tonumber(plant4.waterLvl)
+                                    if st4 == "seeded" and wl4
+                                        and wl4 < 60
+                                        and not thirsty4 then
+                                        thirsty4 = plant4
+                                        thirstySq4 = sq4
+                                    end
+                                    if st4 == "plow"
+                                        and not plowed4 then
+                                        plowed4 = plant4
+                                    end
+                                elseif not digable4 then
+                                    local okD4, can4 = pcall(
+                                        ISFarmingMenu.canDigHereSquare,
+                                        sq4)
+                                    if okD4 and can4 then
+                                        digable4 = sq4
+                                    end
+                                end
+                            end
+                        end
+                    end
+                end)
+                -- Gear reads, engine-honest.
+                local seed4, seedType4, plow4, water4, waterUses4
+                pcall(function()
+                    local its4 = body:getInventory():getItems()
+                    for i4 = 0, its4:size() - 1 do
+                        local it4 = its4:get(i4)
+                        if not plow4 and ItemTag
+                            and it4:hasTag(ItemTag.DIG_PLOW) then
+                            plow4 = it4
+                        end
+                        if not seed4 and farming_vegetableconf
+                            and farming_vegetableconf.props then
+                            local ft4 = it4:getFullType()
+                            for tos4, props4 in pairs(
+                                farming_vegetableconf.props) do
+                                local sts4 = props4.seedTypes
+                                    or { props4.seedName }
+                                for _, st4 in ipairs(sts4) do
+                                    if st4 == ft4 then
+                                        seed4, seedType4 = it4, tos4
+                                        break
+                                    end
+                                end
+                                if seed4 then break end
+                            end
+                        end
+                        if not water4 then
+                            local okU4, u4 = pcall(
+                                ISFarmingMenu.getWaterUsesInteger, it4)
+                            if okU4 and u4 and u4 > 0 then
+                                water4, waterUses4 = it4, u4
+                            end
+                        end
+                    end
+                end)
+                local month4 = 5
+                pcall(function()
+                    month4 = SAO.History.countyMonth() or month4
+                end)
+                local growing4 = month4 >= 2 and month4 <= 7
+                -- Robustness ([B5]): vanilla constructors run
+                -- behind a guard, and the state only changes if
+                -- the queue actually took the work.
+                local acted4, why4 = false, nil
+                if harvest4 then
+                    acted4 = pcall(function()
+                        ISTimedActionQueue.add(ISHarvestPlantAction:new(
+                            body, harvest4, 100))
+                    end)
+                    why4 = "brings in the crop"
+                elseif thirsty4 and water4 and not rainingNow() then
+                    local wl4 = tonumber(thirsty4.waterLvl) or 0
+                    local need4 = math.max(1,
+                        math.ceil((100 - wl4) / 10))
+                    local use4 = math.min(waterUses4, need4)
+                    acted4 = pcall(function()
+                        ISTimedActionQueue.add(ISWaterPlantAction:new(
+                            body, water4, use4, thirstySq4,
+                            20 + 6 * use4))
+                    end)
+                    why4 = "waters the rows"
+                elseif plowed4 and seed4 and seedType4 then
+                    acted4 = pcall(function()
+                        ISTimedActionQueue.add(ISSeedActionNew:new(
+                            body, seed4, seedType4, plowed4))
+                    end)
+                    why4 = "seeds the plowed row"
+                elseif digable4 and plow4 and seed4
+                    and plantCount4 < 4 and growing4 then
+                    acted4 = pcall(function()
+                        ISTimedActionQueue.add(ISPlowAction:new(
+                            body, digable4, plow4))
+                    end)
+                    why4 = "breaks new ground"
+                end
+                if acted4 and why4 then
+                    setState(agent, id, "TAKE", why4, "designation")
+                end
+                if acted4 then
+                    agent.taskDeadline = tick + 1800
+                    agent.takePurpose = "farm"
+                    return true
+                end
+            end
+        end
+    end
+end
+
+local function decidePromiseAndSearch(id, agent, body, tick, idleRec)
+    -- Claims fill hours ([A18]): those who watched slack get
+    -- someone killed do not sit long. Designation sets the shape
+    -- and the pace of the walk itself.
+    -- The promise kept ([B3]): a keeper who has SEEN what their
+    -- promised became walks to it and ends it - before anything
+    -- else the day could ask of them.
+    if agent.promiseTarget then
+        local pt = agent.promiseTarget
+        -- The damper ([B3]): three failed walks and the promise
+        -- is CARRIED, not chased - it keeps if they ever see the
+        -- turned again.
+        pt.tries = (pt.tries or 0) + 1
+        if pt.tries > 3 then
+            log(id .. " cannot reach what " .. tostring(pt.name)
+                .. " became - the promise is carried, not dropped")
+            agent.promiseTarget = nil
+            pt = nil
+        end
+        if pt then
+        local pdx = pt.x - body:getX()
+        local pdy = pt.y - body:getY()
+        if pdx * pdx + pdy * pdy <= ARRIVAL_REACH * ARRIVAL_REACH then
+            -- [C10] The promise swings at the BODY: the [C8] mark
+            -- names the one risen body, and mercy for a stranger's
+            -- body standing closer is nobody's mercy. When the body
+            -- has wandered off, the promise stays carried and the
+            -- next sighting re-arms the walk - never the nearest.
+            agent.promiseTarget = nil
+            local okM, verdict = pcall(function()
+                return SAOJavaBridge:beginCombatWithPersonId(
+                    body, pt.deadId, PROMISE_BODY_REACH)
+            end)
+            verdict = tostring(okM and verdict or verdict)
+            if verdict:find("COMBAT_STARTED", 1, true) then
+                SAO.Standing.clearPromise(pt.deadId)
+                pcall(function()
+                    SAO.Voice.onEvent(id, "promiseKept", tick)
+                end)
+                setState(agent, id, "ENGAGE", "keeps the promise")
+                log(id .. " keeps the promise to "
+                    .. tostring(pt.name))
+            else
+                log(id .. " stood where " .. tostring(pt.name)
+                    .. " was seen and the body is gone (" .. verdict
+                    .. ") - the promise is carried, not dropped")
+            end
+            return true
+        end
+        if SAO.Locomotion.order(id, body,
+            math.floor(pt.x), math.floor(pt.y),
+            math.floor(body:getZ())) then
+            agent.taskDeadline = tick + 3600
+            setState(agent, id, "TRAVEL",
+                "walks toward the promise", "need")
+            return true
+        end
+        end
+    end
+    -- The search ([A28]): love notices absence. Before settling
+    -- into the day's walk, a survivor checks the people they hold
+    -- close - the bonded, and fellows trusted past 0.5 - against
+    -- their own beliefs. A belief gone stale (>48 world-hours,
+    -- not dead-flagged: you go looking BEFORE you bury) sends
+    -- them to the last place they knew. Once a day at most; the
+    -- walk is the whole mechanic, and the scanner does the rest.
+    if tick >= (agent.nextSearchAt or 0) then
+        agent.nextSearchAt = tick + 43200
+        local sb0 = SAO.Perception.beliefs[id]
+        local okSH, nowSH = pcall(function()
+            return SAO.History.countyHours()
+        end)
+        if sb0 and okSH then
+            -- Worry is FELT, not thresholded ([A28]): you act
+            -- because you feel and need. Lateness is measured
+            -- against what they SAID they were doing and how long
+            -- that errand usually takes (the house has watched
+            -- people come back); the first run of a kind is
+            -- estimated from the distance they named. What a
+            -- worrier can bear is their own nerve; the bonded
+            -- bear less. No word at all is worse: unannounced
+            -- absence worries on the person's own rhythm, nerve-
+            -- scaled, never a county constant.
+            local myNerve = SAO.Disposition.traits(id).nerve
+            for pname, pb in pairs(sb0.people) do
+                if not pb.dead and pb.atHours and pb.x and pb.y then
+                    local mKey = SAO.Standing.keyForObserved
+                        and SAO.Standing.keyForObserved(pname) or nil
+                    local bonded = mKey
+                        and SAO.Standing.isBondedTo(id, mKey)
+                    local close = mKey and (bonded
+                        or SAO.Standing.trust(id, mKey) > 0.5)
+                    -- Worry as a RATIO ([B1]): how far past what
+                    -- this person can bear. >1 is overdue; the
+                    -- magnitude is the searcher's resolve when
+                    -- someone argues.
+                    local function worryRatio(nerve0, bonded0)
+                        -- "Don't wait up" means exactly that
+                        -- ([B1]): no clock, no search - grief if
+                        -- word of death ever comes, reunion
+                        -- without apology if they walk back in.
+                        if pb.out and pb.out.noClock then
+                            return 0
+                        end
+                        -- A SAID term outranks the estimate: they
+                        -- told you when to expect them.
+                        if pb.out and pb.out.backByHours
+                            and pb.out.saidAtHours then
+                            local term = math.max(0.5,
+                                pb.out.backByHours
+                                - pb.out.saidAtHours)
+                            return (nowSH - pb.out.saidAtHours)
+                                / (term * (1.25 + nerve0)
+                                    * (bonded0 and 0.75 or 1.0))
+                        end
+                        if pb.out and pb.out.saidAtHours then
+                            local og0 = SAO.Standing.groupOf(mKey)
+                            local expected = og0
+                                and SAO.Standing.ventureExpectation(
+                                    og0, pb.out.kind) or nil
+                            if not expected then
+                                local ddx = (pb.out.x or pb.x) - pb.x
+                                local ddy = (pb.out.y or pb.y) - pb.y
+                                expected = 2 + math.sqrt(
+                                    ddx * ddx + ddy * ddy) / 300
+                            end
+                            local patience = expected
+                                * (1.5 + nerve0 * 2)
+                                * (bonded0 and 0.6 or 1.0)
+                            return (nowSH - pb.out.saidAtHours)
+                                / math.max(0.1, patience)
+                        end
+                        local bearing = 24 * (1 + nerve0 * 2)
+                            * (bonded0 and 0.6 or 1.0)
+                        return (nowSH - pb.atHours)
+                            / math.max(0.1, bearing)
+                    end
+                    local overRatio = close
+                        and worryRatio(myNerve, bonded) or 0
+                    local overdue = overRatio > 1
+                    -- Only the truly absent: a fellow standing
+                    -- twenty tiles away is not missing.
+                    if close and overdue
+                        and not (mKey and SAO.Body.get(mKey)) then
+                        -- The departure argument ([B1]): whoever
+                        -- stands closest runs the SAME worry math
+                        -- from their own seat. Not-worried and
+                        -- caring about the SEARCHER, they object.
+                        -- A barely-over searcher facing a bonded
+                        -- objector or a trusted leader desists -
+                        -- and the care shown warms both. The
+                        -- far-gone go anyway; an objector who
+                        -- loses and loves them goes along.
+                        local objector = nil
+                        do
+                            local myG7 = SAO.Standing.groupOf(id)
+                            local bestD7 = 1e9
+                            if myG7 then
+                                for _, r7 in pairs(SAO.Identity.all()) do
+                                    if not r7.dead and r7.id ~= id
+                                        and SAO.Standing.groupOf(r7.id)
+                                            == myG7 then
+                                        local b7 = SAO.Body.get(r7.id)
+                                        if b7 then
+                                            local dx7 = b7:getX()
+                                                - body:getX()
+                                            local dy7 = b7:getY()
+                                                - body:getY()
+                                            local d7 = dx7 * dx7
+                                                + dy7 * dy7
+                                            if d7 <= 100
+                                                and d7 < bestD7 then
+                                                objector = r7.id
+                                                bestD7 = d7
+                                            end
+                                        end
+                                    end
+                                end
+                            end
+                        end
+                        local desisted = false
+                        if objector
+                            and SAO.Standing.trust(objector, id)
+                                > 0.4 then
+                            local oNerve = SAO.Disposition
+                                .traits(objector).nerve
+                            local oBonded = mKey and SAO.Standing
+                                .isBondedTo(objector, mKey)
+                            local theirRatio =
+                                worryRatio(oNerve, oBonded)
+                            if theirRatio <= 1 then
+                                pcall(function()
+                                    SAO.Voice.onEvent(objector,
+                                        "stayPut", tick)
+                                end)
+                                -- [C49] SAO.Command decides
+                                -- whether the objection carries
+                                -- (DR-033). This site used to
+                                -- decide it here: bonded, or same
+                                -- side with trust above 0.5, or
+                                -- leader/second with trust above
+                                -- 0.5. That is a hardcoded
+                                -- authority table, which DR-033
+                                -- rules out, and it covered this
+                                -- one order only. Both facts it
+                                -- used are in SAO.Command now -
+                                -- `secondOf` is already nil in a
+                                -- divided house, and the leader's
+                                -- office is withheld there from
+                                -- members leaning the other way.
+                                -- Bonds needed no separate clause:
+                                -- both ways a bond forms require
+                                -- high trust (0.6 and up at
+                                -- genesis, 0.75 in play), and the
+                                -- check weighs trust.
+                                --
+                                -- The worry test stays here.
+                                -- Nobody frantic is talked down by
+                                -- anyone, so the order is only put
+                                -- when the question is open.
+                                if overRatio <= 1.25
+                                    and onTheirWord(objector, id,
+                                        "hold", nil, nil) then
+                                    desisted = true
+                                    agent.nextSearchAt = tick + 21600
+                                    SAO.Standing.adjustTrust(
+                                        id, objector, 0.03)
+                                    SAO.Standing.adjustTrust(
+                                        objector, id, 0.03)
+                                    log(id .. " is talked out of the"
+                                        .. " search by " .. objector
+                                        .. " - barely worried enough,"
+                                        .. " and they care")
+                                elseif SAO.Standing.isBondedTo(
+                                        objector, id)
+                                    or SAO.Standing.trust(objector, id)
+                                        > 0.6 then
+                                    local oAgent = Ctl.agents[objector]
+                                    if oAgent then
+                                        oAgent.escortId = id
+                                        pcall(function()
+                                            SAO.Voice.onEvent(objector,
+                                                "notAlone", tick)
+                                        end)
+                                        log(objector .. " cannot stop "
+                                            .. id .. " - so they go"
+                                            .. " along")
+                                    end
+                                else
+                                    log(objector .. " watches " .. id
+                                        .. " go")
+                                end
+                            end
+                        end
+                        if desisted then return true end
+                        local sx = (pb.out and pb.out.x) or pb.x
+                        local sy = (pb.out and pb.out.y) or pb.y
+                        if SAO.Locomotion.order(id, body,
+                            math.floor(sx), math.floor(sy),
+                            math.floor(body:getZ())) then
+                            agent.searchName = pname
+                            agent.taskDeadline = tick + 3600
+                            pcall(function()
+                                SAO.Voice.onEvent(id, "searchOut", tick)
+                            end)
+                            -- The searcher tells someone too.
+                            pcall(function()
+                                SAO.Perception.announceDeparture(
+                                    id, "search",
+                                    math.floor(sx), math.floor(sy))
+                            end)
+                            setState(agent, id, "SEARCHWARD",
+                                pb.out
+                                and ("goes after " .. pname
+                                    .. " - said they'd be back by now")
+                                or ("goes looking for " .. pname
+                                    .. " - nobody has seen them"),
+                                "need")
+                            return true
+                        end
+                    end
+                end
+            end
+        end
+    end
+end
+
+local function decideRoam(id, agent, body, tick, interval, desig, idleRec)
+    agent.nextRoamAt = tick + interval
+    -- [C113] An ordinary county's street leg, before any of
+    -- the survival-era machinery below decides anything. The
+    -- same three facts the dormant half reads, on this half's
+    -- own clock: the county says the fall has not come
+    -- (`fallHasCome`'s REASON must be "before" - a county that
+    -- cannot read its calendar is not a street crowd either),
+    -- the person carries no designation (a watch or a scout is
+    -- the county's own organization and stands as it stands in
+    -- any era), and Week One's street hour says out. Staying
+    -- in is the leg NOT taken: the gate re-arms and asks again
+    -- at the next one, and the body keeps its evening - the
+    -- live half already holds the night at 22:00 with sleep of
+    -- its own, which no port overrides.
+    --
+    -- Going out is a commute when the census filed ground
+    -- under this person's trade ([A18]), else the same stretch
+    -- of legs the undesignated always had. The workplace is
+    -- the SAME persisted fact the dormant half derives
+    -- (`rec.workX`) - one job, both halves, whichever got
+    -- there first.
+    local preFall = false
+    do
+        local okF, fallen, whyF = pcall(function()
+            return SAO.Standing.fallHasCome()
+        end)
+        preFall = okF and fallen == false and whyF == "before"
+    end
+    local streetWork = nil
+    if preFall and not desig then
+        local out = false
+        pcall(function()
+            local affinity = SAO.History.streetAffinity(
+                GameTime.getInstance():getHour())
+            if affinity then
+                out = SAO.Rand.unit() < affinity
+            end
+        end)
+        if not out then
+            return true
+        end
+        local recSt = SAO.Identity.get(id)
+        local rowSt = recSt and recSt.occupation
+            and SAO.Census.rowOf(recSt.occupation) or nil
+        if rowSt and rowSt.enginePath then
+            if not (recSt.workX and recSt.workY) then
+                pcall(function()
+                    local w = SAO.Population.tradeGroundFor(
+                        rowSt.enginePath)
+                    if w then
+                        recSt.workX, recSt.workY = w.x, w.y
+                    end
+                end)
+            end
+            if recSt.workX and recSt.workY then
+                streetWork = { x = recSt.workX, y = recSt.workY,
+                               label = rowSt.label
+                                   or tostring(recSt.occupation) }
+            end
+        end
+    end
+    local range = SAO.Disposition.roamRange(id)
+    local why, answer = nil, nil
+    local watchEdge = nil
+    local allyWall = false
+    local raidG = nil
+    local deliveryRun = false
+    if desig == "watch" then
+        -- The watch walks the EDGE ([A19]): a point on the
+        -- boundary of the ground actually held - the company's
+        -- claim first, their own second - facing whatever comes.
+        local c = nil
+        local wg = SAO.Standing.groupOf(id)
+        if wg then c = SAO.Standing.groupClaimOf(wg) end
+        -- The war party ([A27]): during a feud, one watch
+        -- leg in six walks TOWARD THE ENEMY'S GROUND. The walk
+        -- is the whole mechanic - what happens when hostile
+        -- parties meet is the engine's own combat law, and
+        -- witnessing, grudges, death news, and the chronicle
+        -- already catch the consequences.
+        if wg then
+            for eg in pairs(SAO.Standing.allGroupClaims()) do
+                if eg ~= wg and SAO.Standing.feudBetween(wg, eg)
+                    and SAO.Rand.int(6) == 0 then
+                    local ec = SAO.Standing.groupClaimOf(eg)
+                    if ec then
+                        c = ec
+                        raidG = eg
+                    end
+                    break
+                end
+            end
+        end
+        -- The pact kept ([A26]): a watchman of a watch-rich
+        -- house walks the ALLY'S wall one leg in three - the
+        -- other half of bread-for-watch, visible.
+        if not raidG and wg and SAO.Standing.pactPartnerOf then
+            local wAlly = SAO.Standing.pactPartnerOf(wg)
+            local wAllyClaim = wAlly
+                and SAO.Standing.groupClaimOf(wAlly) or nil
+            if wAllyClaim and SAO.Rand.int(3) == 0 then
+                c = wAllyClaim
+                allyWall = true
+            end
+        end
+        c = c or SAO.Standing.claimOf(id)
+        if c then
+            local side = SAO.Rand.int(4)
+            local ex, ey
+            if side == 0 then
+                ex, ey = c.minX, c.minY + SAO.Rand.int(c.maxY - c.minY + 1)
+            elseif side == 1 then
+                ex, ey = c.maxX, c.minY + SAO.Rand.int(c.maxY - c.minY + 1)
+            elseif side == 2 then
+                ex, ey = c.minX + SAO.Rand.int(c.maxX - c.minX + 1), c.minY
+            else
+                ex, ey = c.minX + SAO.Rand.int(c.maxX - c.minX + 1), c.maxY
+            end
+            watchEdge = { x = ex, y = ey }
+        end
+    end
+    -- The dark ([B17]): the far errands do not set out into
+    -- the night without a light. Desperation overrides -
+    -- starving outranks being sensible, the same way it
+    -- overrides claimed ground - and the watch stays out
+    -- because the watch that matters is the one nobody can
+    -- see coming.
+    do
+        local okNH, hourNow = pcall(function()
+            return GameTime.getInstance():getHour()
+        end)
+        local isNight = okNH and (hourNow >= 22.0 or hourNow < 6.0)
+        if isNight and (desig == "forager" or desig == "scout") then
+            local nNeeds = SAO.Needs.read(body)
+            local starving = nNeeds and nNeeds.hunger
+                and nNeeds.hunger >= policy().desperation
+            if not starving and not SAO.Needs.hasLight(body) then
+                agent.nextRoamAt = tick + 3600
+                if not agent.saidDark then
+                    agent.saidDark = true
+                    pcall(function()
+                        SAO.Voice.onEvent(id, "waitForLight", tick)
+                    end)
+                end
+                setState(agent, id, "IDLE",
+                    "waits for light - no lamp, and the sweep can"
+                    .. " keep till morning", "chosen rest")
+                return true
+            end
+        end
+    end
+    if desig == "scout" then
+        range = range * 3
+        -- Light feet range farther ([B2]).
+        local sLvl = SAO.Census.skillOf
+            and SAO.Census.skillOf(id, "Lightfooted") or 0
+        if sLvl and sLvl > 0 then
+            range = math.floor(range * (1 + sLvl * 0.05))
+        end
+        why, answer = "scouts the ground for the company", "designation"
+    elseif desig == "watch" then
+        range = math.max(3, math.floor(range / 2))
+        why, answer = "walks the watch", "designation"
+        if allyWall then why = "walks the ally's wall" end
+        -- The wall watched ([B2]): a watcher carrying the
+        -- real kit - hammer, plank, nails, however the world
+        -- provided them - boards up a needy window on their
+        -- OWN ground through the vanilla action. The engine
+        -- grants the Carpentry itself.
+        if not raidG and not allyWall
+            and tick >= (agent.nextBuildAt or 0) then
+            agent.nextBuildAt = tick + 10800
+            local wc9 = SAO.Standing.groupOf(id)
+                and SAO.Standing.groupClaimOf(
+                    SAO.Standing.groupOf(id))
+                or SAO.Standing.claimOf(id)
+            if wc9 and SAO.Standing.insideClaim(
+                id, body:getX(), body:getY()) then
+                local hasKit, hammer9, plank9 = false, nil, nil
+                pcall(function()
+                    local inv9 = body:getInventory()
+                    local its9 = inv9:getItems()
+                    local nails9 = false
+                    for i9 = 0, its9:size() - 1 do
+                        local it9 = its9:get(i9)
+                        local ft9 = tostring(
+                            it9:getFullType() or "")
+                        if ft9 == "Base.Hammer" then
+                            hammer9 = it9
+                        elseif ft9 == "Base.Plank" then
+                            plank9 = it9
+                        elseif ft9 == "Base.Nails"
+                            or ft9 == "Base.NailsBox" then
+                            nails9 = true
+                        end
+                    end
+                    hasKit = hammer9 ~= nil and plank9 ~= nil
+                        and nails9
+                end)
+                if hasKit then
+                    local target9 = nil
+                    pcall(function()
+                        local cell9 = getCell()
+                        local wx0, wy0, wx1, wy1, wz0 =
+                            workWindow(wc9, body, 10)
+                        if not wx0 then return end
+                        for x9 = wx0, wx1 do
+                            if target9 then break end
+                            for y9 = wy0, wy1 do
+                                local sq9 = cell9:getGridSquare(
+                                    x9, y9, wz0)
+                                if sq9 then
+                                    local objs9 = sq9:getObjects()
+                                    for o9 = 0, objs9:size() - 1 do
+                                        local ob9 = objs9:get(o9)
+                                        local okB9, can9 =
+                                            pcall(function()
+                                            if not ob9.isBarricadeAllowed
+                                                or not ob9:isBarricadeAllowed()
+                                            then
+                                                return false
+                                            end
+                                            local bar9 = ob9
+                                                :getBarricadeForCharacter(
+                                                    body)
+                                            return bar9 == nil
+                                                or bar9:canAddPlank()
+                                        end)
+                                        if okB9 and can9 then
+                                            target9 = ob9
+                                            break
+                                        end
+                                    end
+                                    if target9 then break end
+                                end
+                            end
+                        end
+                    end)
+                    if target9 then
+                        pcall(function()
+                            body:setPrimaryHandItem(hammer9)
+                            body:setSecondaryHandItem(plank9)
+                            ISTimedActionQueue.add(
+                                ISBarricadeAction:new(
+                                    body, target9, false, false))
+                        end)
+                        agent.taskDeadline = tick + 1800
+                        agent.takePurpose = "build"
+                        setState(agent, id, "TAKE",
+                            "boards up the window - the wall"
+                            .. " holds", "designation")
+                        return true
+                    end
+                end
+            end
+        end
+        if raidG then
+            why = "walks toward the enemy's ground"
+            pcall(function()
+                SAO.Voice.onEvent(id, "warpath", tick)
+            end)
+        end
+    elseif desig == "forager" then
+        range = range * 2
+        why, answer = "sweeps for supplies", "designation"
+        -- Lean shelves stretch the sweep ([A28]): a house
+        -- that KNOWS it is short sends its foragers farther.
+        do
+            local fG5 = SAO.Standing.groupOf(id)
+            local l5 = fG5 and SAO.Standing.larderOf(fG5) or nil
+            if l5 and l5.word == "lean" then
+                range = math.floor(range * 1.5)
+                why = "sweeps far - the shelves are thin"
+            end
+        end
+        -- The haul comes home ([A28]): a forager standing on
+        -- their own ground with spare food shelves it - the
+        -- same sanctioned deposit the quartermaster runs, now
+        -- fed by REAL collected goods, closing the loop:
+        -- sweep, gather, walk home, shelve.
+        if SAO.Standing.insideClaim(id, body:getX(), body:getY())
+            and SAO.Needs.depositSpareFood(id, body) then
+            agent.taskDeadline = tick + 900
+            agent.takePurpose = "deposit"
+            setState(agent, id, "TAKE", "shelves the haul",
+                "designation")
+            return true
+        end
+        -- The pact kept ([A26]): a forager of a bread-rich
+        -- house carries the bread OVER. Standing on the ally's
+        -- ground with spare food, the delivery is the same
+        -- sanctioned deposit the quartermaster runs at home;
+        -- otherwise, when the run is due, the roam aims at the
+        -- ally's ground instead of nowhere.
+        local pg = SAO.Standing.groupOf(id)
+        local ally = pg and SAO.Standing.pactPartnerOf
+            and SAO.Standing.pactPartnerOf(pg) or nil
+        -- [B23] And when there is no pact, a house that has
+        -- ASKED. Same legs, same deposit - the difference is
+        -- only who is owed at the end of it.
+        local asked = nil
+        if not ally and pg and SAO.Standing.nearestAsking then
+            asked = SAO.Standing.nearestAsking(pg)
+        end
+        local bringTo = ally or asked
+        local allyClaim = bringTo
+            and SAO.Standing.groupClaimOf(bringTo) or nil
+        if allyClaim then
+            -- [C108] The delivery is kept standing on ANY of
+            -- the ally's ground - a stash or a second house
+            -- answers the pact as well as their seat does.
+            local inAlly = SAO.Standing.onGroundOf(bringTo,
+                body:getX(), body:getY())
+            if inAlly
+                and SAO.Needs.depositSpareFood(id, body) then
+                agent.taskDeadline = tick + 900
+                agent.takePurpose = "deposit"
+                agent.nextPactRunAt = tick + 21600
+                -- [B23] State first, bookkeeping after. The
+                -- queuing call is the branch condition right
+                -- above; keeping setState next to it is what
+                -- border 6 exists to enforce, and the code
+                -- reads better this way regardless.
+                local why52 = "delivers the bread - the pact kept"
+                if asked then
+                    why52 = "answers the ask - bread to "
+                        .. tostring(SAO.Standing.factionName(asked)
+                            or asked)
+                end
+                setState(agent, id, "TAKE", why52, "designation")
+                if asked then
+                    -- A gift, and it is remembered. No price -
+                    -- this county has never had one, and does
+                    -- not need one to keep accounts.
+                    pcall(function()
+                        local theirLead = SAO.Standing.leaderOf(asked)
+                        local ourLead = SAO.Standing.leaderOf(pg)
+                        if theirLead and ourLead then
+                            SAO.Standing.addDebt(ourLead,
+                                theirLead, 1)
+                            SAO.Standing.adjustTrust(theirLead,
+                                ourLead, 0.15)
+                        end
+                    end)
+                    pcall(function()
+                        SAO.Voice.onEvent(id, "answered", tick)
+                    end)
+                else
+                    pcall(function()
+                        SAO.Voice.onEvent(id, "pactKept", tick)
+                    end)
+                end
+                return true
+            end
+            -- A lean ally quickens the runs ([A28]): pact
+            -- houses talk, so the partner's own counted
+            -- shelves (their fresh larder claim) halve the
+            -- delivery cadence. Composition of existing
+            -- claims - no new fiat.
+            local allyLean = false
+            do
+                local al6 = ally and SAO.Standing.larderOf
+                    and SAO.Standing.larderOf(ally) or nil
+                allyLean = (al6 and al6.word == "lean") or false
+            end
+            if not inAlly
+                and tick >= (agent.nextPactRunAt or 0)
+                    - (allyLean and 10800 or 0) then
+                watchEdge = {
+                    x = (allyClaim.minX + allyClaim.maxX) / 2,
+                    y = (allyClaim.minY + allyClaim.maxY) / 2,
+                }
+                why = asked and "carries bread to a house that"
+                    .. " asked" or "carries bread to the ally"
+                deliveryRun = true
+            end
+        end
+    elseif desig == "quartermaster" then
+        -- The round does the work ([A19]): standing on held
+        -- ground with spare food, the quartermaster stocks the
+        -- stores before stretching legs. The walk happens next
+        -- cadence; stocking IS the job.
+        if SAO.Standing.insideClaim(id, body:getX(), body:getY())
+            and SAO.Needs.depositSpareFood(id, body) then
+            agent.taskDeadline = tick + 900
+            agent.takePurpose = "deposit"
+            setState(agent, id, "TAKE", "stocks the stores", "designation")
+            return true
+        end
+        why, answer = "rounds the stores", "designation"
+        -- The larder speaks ([A28]): the round READS the
+        -- real shelves - a count of actual edible items in
+        -- the actual containers - and the claim it derives is
+        -- what the house knows about its own stores.
+        if SAO.Standing.insideClaim(id, body:getX(), body:getY()) then
+            local qG = SAO.Standing.groupOf(id)
+            if qG then
+                local okC5, cnt5 = pcall(function()
+                    return SAOJavaBridge:countEdibleNearby(body, 12)
+                end)
+                if okC5 and type(cnt5) == "number" then
+                    local n5 = #SAO.Standing.fellowsOf(id) + 1
+                    -- The winter prepared ([A28]): in autumn
+                    -- (engine months 9/10 = Oct/Nov, the same
+                    -- 0-based calendar the attrition law
+                    -- reads) the SAME real count is judged
+                    -- against the winter ahead - thresholds
+                    -- x1.5. Judgment derives from calendar
+                    -- plus count; the count itself is never
+                    -- touched.
+                    local seasonScale = 1.0
+                    pcall(function()
+                        local m6 = SAO.History.countyMonth()
+                        if m6 == 9 or m6 == 10 then
+                            seasonScale = 1.5
+                        end
+                    end)
+                    local word = (cnt5 < n5 * 1.5 * seasonScale)
+                        and "lean"
+                        or (cnt5 > n5 * 4 * seasonScale)
+                        and "full" or "fair"
+                    SAO.Standing.setLarder(qG, word, cnt5)
+                    if word == "lean" then
+                        -- [B23] And the county hears it. The
+                        -- count is already made; this only
+                        -- lets it leave the building.
+                        pcall(function()
+                            SAO.Standing.callForBread(qG)
+                        end)
+                        pcall(function()
+                            SAO.Voice.onEvent(id,
+                                seasonScale > 1 and "winterLean"
+                                or "lean", tick)
+                        end)
+                    end
+                    log(id .. " counts the shelves: " .. cnt5
+                        .. " (" .. word
+                        .. (seasonScale > 1 and ", judged against winter"
+                            or "") .. ")")
+                    -- The motor pool ([B1]): the same rounds
+                    -- read the REAL cars on the ground. The
+                    -- claim is what the house can plan seats
+                    -- around; no car is ever conjured.
+                    -- The warm house ([B6]): the round also
+                    -- notes whether the hearth is BURNING -
+                    -- a claim the dormant world reads, so a
+                    -- house that keeps a fire survives the
+                    -- cold months better than one that does
+                    -- not. Read, never asserted.
+                    do
+                        local _, _, _, hf7, hl7 =
+                            SAO.Needs.findHearth(id, body, 14)
+                        SAO.Standing.setHearth(qG,
+                            (hl7 and hf7 and hf7 > 0) and true or false)
+                    end
+                    -- Water counted ([B6]): the same round
+                    -- reads what the house has to DRINK, and
+                    -- notices the day the mains stop. The
+                    -- shutoff is a county fact - stamped,
+                    -- aired, and chronicled like the first
+                    -- bite; sandbox decides when it comes.
+                    do
+                        local okW6, w6 = pcall(function()
+                            return SAOJavaBridge
+                                :countStoredWaterNearby(body, 12)
+                        end)
+                        if okW6 and type(w6) == "number" then
+                            local n6 = #SAO.Standing.fellowsOf(id) + 1
+                            local word6 = (w6 < n6 * 2) and "dry"
+                                or (w6 > n6 * 8) and "full" or "fair"
+                            SAO.Standing.setWaterStore(qG, word6, w6)
+                            if word6 == "dry" then
+                                pcall(function()
+                                    SAO.Voice.onEvent(id, "dryStore",
+                                        tick)
+                                end)
+                            end
+                            log(id .. " counts the water: "
+                                .. math.floor(w6) .. " (" .. word6
+                                .. ")")
+                        end
+                        local okM6, mainsOn6 = pcall(function()
+                            return SAOJavaBridge:countyWaterOn()
+                        end)
+                        if okM6 and mainsOn6 == false then
+                            pcall(function()
+                                local sM = ModData.getOrCreate(
+                                    "SurvivorAwareness_Standing")
+                                if sM and not sM.tapsDryAtHours then
+                                    -- [B34] Stamp LAST. The
+                                    -- guard is once-only, so a
+                                    -- throw after the stamp
+                                    -- lands would keep the day
+                                    -- and lose the telling of
+                                    -- it, forever. Read the
+                                    -- hour and air the news
+                                    -- first; the stamp is then
+                                    -- a bare assignment on a
+                                    -- table already checked,
+                                    -- which cannot throw.
+                                    local atH = SAO.History.countyHours()
+                                    SAO.Standing.pushRadioNews({
+                                        kind = "tapsDry" })
+                                    sM.tapsDryAtHours = atH
+                                end
+                            end)
+                        end
+                    end
+                    -- The armorer ([B2]): a REAL weapon from
+                    -- the REAL stores goes to the steadiest
+                    -- unarmed hands present. Pure transfer -
+                    -- both bodies are ours; nothing conjured.
+                    do
+                        local bestUn, bestAim = nil, -1
+                        -- The roster, not the county ([B5]).
+                        for _, mid2 in ipairs(
+                            SAO.Standing.fellowsOf(id)) do
+                            local mr = SAO.Identity.get(mid2)
+                            if mr and not mr.dead then
+                                local mb = SAO.Body.get(mr.id)
+                                if mb then
+                                    local mdx = mb:getX()
+                                        - body:getX()
+                                    local mdy = mb:getY()
+                                        - body:getY()
+                                    if mdx * mdx + mdy * mdy
+                                        <= 100 then
+                                        local armed = false
+                                        pcall(function()
+                                            local its =
+                                                mb:getInventory()
+                                                :getItems()
+                                            for i2 = 0,
+                                                its:size() - 1 do
+                                                if instanceof(
+                                                    its:get(i2),
+                                                    "HandWeapon")
+                                                then
+                                                    armed = true
+                                                    break
+                                                end
+                                            end
+                                        end)
+                                        if not armed then
+                                            local aim =
+                                                SAO.Census.skillOf(
+                                                mr.id, "Aiming")
+                                            if aim > bestAim then
+                                                bestUn = mr.id
+                                                bestAim = aim
+                                            end
+                                        end
+                                    end
+                                end
+                            end
+                        end
+                        if bestUn then
+                            local okW, tookW = pcall(function()
+                                return SAOJavaBridge
+                                    :takeWantedFromNearby(
+                                        body, 12, "weapon", 1)
+                            end)
+                            if okW and tookW and tookW > 0 then
+                                pcall(function()
+                                    local qInv = body:getInventory()
+                                    local its = qInv:getItems()
+                                    for i2 = its:size() - 1, 0, -1 do
+                                        local it2 = its:get(i2)
+                                        if instanceof(it2,
+                                            "HandWeapon") then
+                                            qInv:Remove(it2)
+                                            SAO.Body.get(bestUn)
+                                                :getInventory()
+                                                :AddItem(it2)
+                                            SAOJavaBridge
+                                                :equipBestMelee(
+                                                SAO.Body.get(bestUn))
+                                            log(id .. " arms "
+                                                .. bestUn
+                                                .. " from the stores"
+                                                .. " - steadiest"
+                                                .. " hands present")
+                                            break
+                                        end
+                                    end
+                                end)
+                            end
+                        end
+                    end
+                    -- [B19] The quartermaster APPRAISES
+                    -- rather than counts: fuel, engine,
+                    -- loudness, storage and whether a key is
+                    -- even present. Counting hulks as wealth
+                    -- is how the Ledger came to report
+                    -- "wheels: 3" for a yard that could not
+                    -- move.
+                    local okV, vlist = pcall(function()
+                        return SAOJavaBridge:appraiseVehiclesNear(
+                            body, 15)
+                    end)
+                    if okV and type(vlist) == "string" then
+                        local cars = {}
+                        for entry in vlist:gmatch("[^,]+") do
+                            -- [C122] The `vhk` column: whether
+                            -- the appraising body carries this
+                            -- very car's key - the engine's own
+                            -- holder read, rings recursed by the
+                            -- engine itself.
+                            local vn, vs, vf, vfu, ve, vl,
+                                vst, vig, vh, vhk, vd = entry:match(
+                                "^(.-)@(%d+)@(%d+)@(%d+)@(%d+)"
+                                .. "@(%d+)@(%d+)@(%d+)@(%d+)"
+                                .. "@(%d+)@(%d+)$")
+                            if vn then
+                                cars[#cars + 1] = {
+                                    name = vn,
+                                    seats = tonumber(vs),
+                                    free = tonumber(vf),
+                                    fuel = tonumber(vfu),
+                                    engine = tonumber(ve),
+                                    loud = tonumber(vl),
+                                    storage = tonumber(vst),
+                                    ignition = tonumber(vig),
+                                    hotwired = tonumber(vh),
+                                    key = tonumber(vhk),
+                                    dist = tonumber(vd),
+                                }
+                            end
+                        end
+                        SAO.Standing.setMotorPool(qG, cars)
+                        if #cars > 0 then
+                            log(id .. " counts the motor pool: "
+                                .. #cars .. " vehicle(s)")
+                        end
+                    end
+                end
+            end
+        end
+    elseif desig == "cook" then
+        -- [B20] The cook cooks. Vanilla gates dangerous raw
+        -- food on `isbDangerousUncooked() and not isCooked()`,
+        -- so this is the one job whose product is measured in
+        -- other people's stomachs: the house's own larder
+        -- stops being a thing that might kill you.
+        --
+        -- Needs a fire that is actually lit and ground that
+        -- is actually theirs. A cook with no hearth is a
+        -- person with a skill and nowhere to use it, which is
+        -- honest and is most of the county's problem.
+        why, answer = "works the fire", "designation"
+        if SAO.Standing.insideClaim(id, body:getX(), body:getY())
+            and tick >= (agent.nextCookAt or 0) then
+            local hearth41 = nil
+            pcall(function()
+                hearth41 = SAOJavaBridge:hearthNear(body, 6)
+            end)
+            if hearth41 and hearth41 ~= "" then
+                local lvl41 = SAO.Census.skillOf(id, "Cooking")
+                if lvl41 < 0 then lvl41 = 0 end
+                local made41 = 0
+                pcall(function()
+                    made41 = SAOJavaBridge:cookNearbyFood(
+                        body, 6, lvl41)
+                end)
+                if made41 and made41 > 0 then
+                    agent.nextCookAt = tick + 3600
+                    agent.taskDeadline = tick + 900
+                    pcall(function()
+                        SAOJavaBridge:grantXP(body, "Cooking", 3.0)
+                    end)
+                    pcall(function()
+                        SAO.Voice.onEvent(id, "cooks", tick)
+                    end)
+                    log(id .. " cooks " .. made41
+                        .. " - the larder stops being dangerous")
+                    setState(agent, id, "TREAT",
+                        "cooks for the house", "designation")
+                    return true
+                end
+            end
+        end
+    elseif desig == "medic" then
+        why, answer = "makes the rounds", "designation"
+    elseif desig == "leads" then
+        why, answer = "walks the company's ground", "designation"
+    else
+        why = "stretching legs (" .. range .. " tile range)"
+    end
+    -- [B19] What wheels actually buy is DISTANCE - the
+    -- only currency a venture has. A house whose appraised
+    -- pool holds a car that runs, with someone present who
+    -- can start it, dares twice as far. A yard of hulks buys
+    -- nothing, which is the whole point of appraising
+    -- honestly.
+    --
+    -- The objection is a real decision, not a scripted line:
+    -- someone who has learned that noise is a debt, whose
+    -- only runnable car is a loud one, LEAVES IT and walks.
+    -- They would rather take longer than announce
+    -- themselves. (The loudness threshold is a judgment on a
+    -- real per-script scale the game ships, the same way the
+    -- [B7] cold thresholds are judgments on real degrees.)
+    -- [B19] Hoisted out of the block so the seat count
+    -- can reach the joining decision below: what car is being
+    -- taken and how many seats are free is exactly what caps
+    -- the party.
+    local takingWheels = nil
+    -- [C120] The learning driver's cap scale, hoisted beside
+    -- the wheels: set when the taker is a child of driving
+    -- age, read by the order call below.
+    local wheelCapScale = nil
+    do
+        local gW = SAO.Standing.groupOf(id)
+        -- [C54] The objection picks the car now instead of
+        -- ending the question. The pool holds more than one
+        -- runner and the appraisal returned exactly one - the
+        -- roomiest openable - so a goer who has learned that
+        -- noise is a debt walked past a quiet car to refuse a
+        -- loud one. Their own ceiling goes in with the ask,
+        -- and what comes back is the roomiest car they would
+        -- actually take. Where the yard holds only loud
+        -- runners the answer is nothing, which is the same
+        -- walk they took before and for the same reason.
+        local ceiling = nil
+        if SAO.Lessons.has(id, "noise-is-a-debt") then
+            ceiling = 50
+        end
+        local wheels = gW and SAO.Standing.roadworthy
+            and SAO.Standing.roadworthy(gW, ceiling) or nil
+        if not wheels and ceiling and gW then
+            local anyCar = SAO.Standing.roadworthy(gW)
+            if anyCar then
+                log(id .. " leaves the "
+                    .. tostring(anyCar.name or "car")
+                        :gsub("^Base%.", "")
+                    .. " where it sits - nothing in the yard is"
+                    .. " quiet enough to be worth it")
+            end
+        end
+        if wheels then
+            local canTake = wheels.open
+                or (SAO.Census.canHotwire
+                    and SAO.Census.canHotwire(id))
+            local plain = tostring(wheels.name or "car")
+                :gsub("^Base%.", "")
+            -- [C54] The loudness test is gone from here: the
+            -- appraisal above never returns a car this person
+            -- would refuse, so a second test could only ever
+            -- be dead. What is left is whether they can get
+            -- into it at all.
+            if canTake then
+                -- [C120] The wheel is earned by age (Growing
+                -- Up's DRIVING_AGE, credited): a kid under ten
+                -- does not take the car at all - the ordinary
+                -- walk takes the trip, the honest fallback
+                -- this seam always had - and ten to seventeen
+                -- drive under the learning penalty at the one
+                -- seat SAO owns, the cap the order reads
+                -- (their BASE_PENALTY, credited). Riding is
+                -- not driving: the passengers' side is
+                -- untouched.
+                local wAge = nil
+                pcall(function()
+                    wAge = SAO.History.ageOf(id)
+                end)
+                if type(wAge) == "number" and wAge < 18
+                    and wAge < SAO.History.DRIVING_AGE then
+                    log(id .. " (" .. wAge .. ") leaves the "
+                        .. plain
+                        .. " where it sits - too young for"
+                        .. " the wheel")
+                else
+                    range = math.floor(range * 2)
+                    takingWheels = wheels
+                    if type(wAge) == "number" and wAge < 18 then
+                        wheelCapScale = 1.0
+                            - SAO.History.CHILD_DRIVE_PENALTY
+                    end
+                    why = why .. " - taking the " .. plain
+                    pcall(function()
+                        SAO.Voice.onEvent(id, "wheels", tick)
+                    end)
+                end
+            end
+        end
+    end
+    local bx, by = body:getX(), body:getY()
+    local gx = math.floor(bx + SAO.Rand.int(-range, range + 1))
+    local gy = math.floor(by + SAO.Rand.int(-range, range + 1))
+    if watchEdge then
+        gx, gy = math.floor(watchEdge.x), math.floor(watchEdge.y)
+    end
+    -- [C113] The commute, over whatever the stretch drew -
+    -- unless they are already AT the ground (the same 3-tile
+    -- reach the dormant half uses), in which case this leg is
+    -- the stretch after all: arrived at work, the ordinary
+    -- thing is the stroll around it, not re-ordering the
+    -- doorstep.
+    if streetWork then
+        -- [C119] The ground rides the leg, both cases: the
+        -- arrival seam asks whether this walk was the
+        -- work's, and a stroll around the ground one is
+        -- already standing on is the work's too.
+        agent.workingGround = streetWork
+        local swdx = streetWork.x - bx
+        local swdy = streetWork.y - by
+        if swdx * swdx + swdy * swdy
+            > ARRIVAL_REACH * ARRIVAL_REACH then
+            gx, gy = math.floor(streetWork.x),
+                math.floor(streetWork.y)
+            why = "goes to work - the "
+                .. tostring(streetWork.label) .. "'s ground"
+        end
+    else
+        -- [C119] A leg with no work behind it clears the
+        -- stamp: the trade ground is a pre-fall fact
+        -- ([C113]), and it does not follow the person into
+        -- the world after.
+        agent.workingGround = nil
+    end
+    -- [B31] The trip costs the tank. [B31] found that
+    -- `roadworthy` gates on fuel above 5 and NOTHING ever
+    -- spent it, so a car sitting at 6% carried doubled-range
+    -- ventures forever and still read 6%. Everywhere else in
+    -- this mod, acting on real state changes it.
+    --
+    -- Spent here rather than where the car was chosen,
+    -- because the honest quantity is the distance actually
+    -- travelled - the range the car bought is a ceiling, not
+    -- a journey.
+    --
+    -- The one judgment, in [B20]'s idiom: the engine exposes
+    -- no consumption rate anywhere, so how much a trip costs
+    -- cannot be read off anything. A full tank affords about
+    -- twenty full-range ventures, so a full-range trip burns
+    -- 5%. Everything that judgment scales IS read - the real
+    -- distance, the real tank, the real capacity.
+    if takingWheels and range > 0 then
+        local tdx, tdy = gx - bx, gy - by
+        local trip = math.sqrt(tdx * tdx + tdy * tdy)
+        local share = trip / range
+        if share > 1.0 then share = 1.0 end
+        if share > 0.0 then
+            pcall(function()
+                local burned = SAOJavaBridge:spendVehicleFuel(
+                    body, 15, tostring(takingWheels.name or ""),
+                    5.0 * share)
+                if burned and burned > 0 then
+                    log(id .. " burns "
+                        .. string.format("%.1f", burned)
+                        .. "% of the tank")
+                end
+            end)
+        end
+    end
+    -- The word before the walk ([A28]): a designation venture
+    -- with a real destination is TOLD to whoever stands near -
+    -- sweeps, walls, war paths. The plain stretch of legs is
+    -- not a venture and is not announced.
+    -- [B19] A plain stretch of legs is NOT a venture and
+    -- must clear the last one, or company from an old trip
+    -- would follow someone who is just walking the yard.
+    agent.onVenture = nil
+    -- [B19] Hoisted: the company forms further down, once
+    -- locomotion has actually ACCEPTED the trip. Announcing
+    -- and departing are different moments and only the
+    -- second one can be joined.
+    local vkind, hearers = nil, nil
+    if desig and (desig == "forager" or desig == "watch"
+        or desig == "scout") then
+        vkind = raidG and "warpath"
+            or allyWall and "allywall"
+            or deliveryRun and "delivery"
+            or (desig == "forager" and "sweep")
+            or (desig == "scout" and "scout") or "watchleg"
+        pcall(function()
+            hearers = SAO.Perception.announceDeparture(
+                id, vkind, gx, gy)
+        end)
+        agent.onVenture = vkind
+    end
+    local nearFaction = SAO.Perception.believedFactionNear(id, gx, gy, 6)
+    -- F-031: your own ground is never forbidden ground - a
+    -- watch walking their own claim edge must not be blocked
+    -- by a belief of their OWN base.
+    if nearFaction and SAO.Standing.insideClaim(id, gx, gy) then
+        nearFaction = nil
+    end
+    -- Pact ground is not forbidden ground ([A26]) - the
+    -- delivery and the ally patrol must not be blocked by the
+    -- very base they serve.
+    if nearFaction then
+        local pg2 = SAO.Standing.groupOf(id)
+        if pg2 and SAO.Standing.pactBetween
+            and SAO.Standing.pactBetween(pg2, nearFaction) then
+            nearFaction = nil
+        end
+    end
+    -- The raider walks in anyway ([A27]): on the war path,
+    -- the enemy's believed presence is the POINT, not a
+    -- deterrent. Only the raid target is cleared - everyone
+    -- else's feud-shadow avoidance stands.
+    if nearFaction and raidG and nearFaction == raidG then
+        nearFaction = nil
+    end
+    if nearFaction then
+        log(id .. " keeps clear of " .. tostring(nearFaction)
+            .. "'s ground (believed)")
+    end
+    if (gx ~= math.floor(bx) or gy ~= math.floor(by))
+        and not nearFaction
+        and mayEnterBelieved(id, gx, gy) then
+        pcall(function() SAOJavaBridge:setForceEntry(body, false) end)
+        -- [C114] A goer who took wheels DRIVES. The claim
+        -- ([B19]) was facts about a car - name, seats, fuel -
+        -- and the body walked anyway; the port's driving half
+        -- closes that through the [C82] doorway: a real SAO
+        -- person in seat 0, the engine started LAWFULLY (a
+        -- refusal is honored, not routed around), steered by
+        -- the bearing to this very destination, the tank spent
+        -- by the [B31] burn that already ran. Every refusal -
+        -- no car where the claim said, a taken seat, an engine
+        -- that will not catch - comes back as a verdict and
+        -- the ordinary walk takes the trip instead: the same
+        -- trip they always took, not an error.
+        local tookOrder = false
+        if takingWheels and SAO.Driving
+            and SAO.Driving.order(id, body,
+                tostring(takingWheels.name or "car"), gx, gy,
+                wheelCapScale) then
+            tookOrder = true
+            -- The drive's legs are Java-side SAOMovement inside
+            -- SAODriver, so the Lua walk is not replaced by a
+            -- new order the way the ROAM branch replaces it -
+            -- any live route is retired HERE (F-012: an
+            -- orphaned job is the independent-wandering defect).
+            SAO.Locomotion.cancel(id)
+            agent.onWheels = tostring(takingWheels.name or "car")
+            agent.driveGX, agent.driveGY = gx, gy
+            setState(agent, id, "DRIVE", why)
+        end
+        if not tookOrder
+            and SAO.Locomotion.order(id, body, gx, gy, math.floor(body:getZ())) then
+            tookOrder = true
+            setState(agent, id, "ROAM", why, answer)
+        end
+        if tookOrder then
+            -- [B19] "They could go with them or they can stay
+            -- behind, let them handle it, learn." The briefing
+            -- was built; the joining never was. Each hearer
+            -- decides from who they ARE - nothing here is a roll,
+            -- and nothing is forced on anyone.
+            if hearers and #hearers > 0 then
+                local willing = {}
+                for _, hid in ipairs(hearers) do
+                    local hAgent = Ctl.agents[hid]
+                    local hRec = SAO.Identity.get(hid)
+                    if hAgent and hRec and not hRec.dead
+                        and not hAgent.escortId
+                        and not hAgent.riding
+                        and not hAgent.companioning then
+                        -- Their own need governs (DR-011): a
+                        -- person answering a NEED does not drop
+                        -- it to keep someone company. Hunger does
+                        -- not wait to be sociable.
+                        local bound = hAgent.pressure
+                            and hAgent.pressure.answer == "need"
+                        -- The circle law ([A27]): a loner keeps
+                        -- their own company. Never forced, never
+                        -- cured.
+                        local solo = SAO.Disposition.circle(hid)
+                            == "loner"
+                        -- The wall is not abandoned for a forage
+                        -- run.
+                        local onWall = hRec.designation == "watch"
+                            and vkind ~= "warpath"
+                        -- [C53] A warpath is not a bread run.
+                        -- The site already knew the difference
+                        -- - the wall is abandoned for a raid
+                        -- and for nothing else, the line above
+                        -- - and never asked the person being
+                        -- invited. Asked now, through the
+                        -- envelope SAO_Command uses for the
+                        -- same question ([C37]): unarmed, past
+                        -- the fear a child carries, or the
+                        -- disposition's own refusal of that
+                        -- fight, and they stay home. Not a
+                        -- weight on the pull: somebody who
+                        -- will not take a fight is not
+                        -- persuaded into one by liking you.
+                        local noFight = false
+                        if vkind == "warpath" then
+                            local okE = true
+                            pcall(function()
+                                okE = SAO.Command.envelope(hid,
+                                    "engage", nil)
+                            end)
+                            noFight = (okE == false)
+                        end
+                        -- [C53] Who is asking is part of
+                        -- whether you go (DR-033: whose word
+                        -- carries is a social fact, and it is
+                        -- the houses, their leaders and their
+                        -- designations). An invitation is not
+                        -- an order and does not go through the
+                        -- gate's verdict, but the office the
+                        -- caller holds over this person is the
+                        -- same fact either way, so it is read
+                        -- from the same place and in the same
+                        -- currency - a leader's call above a
+                        -- second's above a peer's, and no
+                        -- number invented here. `officeOf`
+                        -- rather than `standingOf` because
+                        -- standing folds trust in and trust is
+                        -- already the first term; this adds
+                        -- the office alone. A divided house
+                        -- comes with it: the chair of a house
+                        -- at war with itself calls to the half
+                        -- leaning away with a peer's voice.
+                        local office = 0
+                        pcall(function()
+                            local C = SAO.Command
+                            office = (C.OFFICE[C.officeOf(id, hid)]
+                                or C.OFFICE.none) - C.OFFICE.none
+                        end)
+                        local pull = SAO.Standing.trust(hid, id)
+                            + office
+                            + (SAO.Standing.isBondedTo(hid, id)
+                                and 0.3 or 0)
+                            + 0.2 * SAO.Lessons.weight(hid,
+                                "people-are-worth-it")
+                            - 0.2 * SAO.Lessons.weight(hid,
+                                "trust-carefully")
+                            + 0.2 * (SAO.Disposition.traits(hid)
+                                .nerve - 0.5)
+                        if not bound and not solo and not onWall
+                            and not noFight and pull > 0.55 then
+                            willing[#willing + 1] =
+                                { id = hid, pull = pull }
+                        end
+                    end
+                end
+                -- [B19] The keenest go. Who got turned away
+                -- used to be whatever order the hearer table
+                -- iterated in; the mirror caught it. Someone who
+                -- barely wanted to come is the right one to stay,
+                -- and it makes the "no room" moment mean
+                -- something.
+                table.sort(willing, function(a, b)
+                    if a.pull == b.pull then return a.id < b.id end
+                    return a.pull > b.pull
+                end)
+                -- Each hearer has already decided whether to go.
+                -- Available seats and the work left at home bound
+                -- the party; a personality label imposes no quota.
+                local cap = #willing
+                local seatBound = false
+                if takingWheels then
+                    local free = math.max(0,
+                        (takingWheels.free or 1) - 1)
+                    if free < cap then cap, seatBound = free, true end
+                end
+                -- [B19] Somebody minds the place. Its own mirror
+                -- convicted this: houses of three or more emptied
+                -- behind the goer on a fifth of trips, nobody left
+                -- with a larder, a water store, or a fire to keep.
+                -- NOT a rule that someone must always stay - a
+                -- house holding nothing has nothing to mind and
+                -- all of it can walk. The keeper is the least-keen
+                -- of the willing, which the sort above already put
+                -- last.
+                if #hearers >= 2 then
+                    local gH = SAO.Standing.groupOf(id)
+                    local holds = gH and (
+                        (SAO.Standing.larderOf
+                            and SAO.Standing.larderOf(gH))
+                        or (SAO.Standing.waterStoreOf
+                            and SAO.Standing.waterStoreOf(gH))
+                        or (SAO.Standing.hearthOf
+                            and SAO.Standing.hearthOf(gH))) or nil
+                    if holds and cap > #hearers - 1 then
+                        cap = #hearers - 1
+                    end
+                end
+                for i = 1, #willing do
+                    local wid = willing[i].id
+                    local wAgent = Ctl.agents[wid]
+                    if i <= cap and wAgent then
+                        wAgent.escortId = id
+                        -- [C114] The car the party boards, when
+                        -- the goer drove: the ride walks them to
+                        -- it and seats them, so the seats the cap
+                        -- counted ([B19]) are the seats actually
+                        -- filled. No car, no seat: the walk after
+                        -- them, as before.
+                        if agent.onWheels then
+                            wAgent.rideWith = agent.onWheels
+                        end
+                        pcall(function()
+                            SAO.Voice.onEvent(wid, "comeAlong", tick)
+                        end)
+                        log(wid .. " goes along with " .. id
+                            .. " on the " .. vkind)
+                    elseif wAgent then
+                        if seatBound then
+                            pcall(function()
+                                SAO.Voice.onEvent(wid, "noRoom", tick)
+                            end)
+                        end
+                        log(wid .. " stays behind - "
+                            .. (seatBound
+                                and ("no room in the car for "
+                                    .. (#willing - cap) .. " more")
+                                or "minding the house's stores"))
+                    end
+                end
+                -- [C114] The party is known now, so the driver
+                -- is told how many seats to hold at the wheel
+                -- before rolling - the goer ordered the drive
+                -- before anyone answered the call, and the
+                -- count could not have been known then.
+                if agent.onWheels and SAO.Driving
+                    and #willing > 0 then
+                    local seated = math.min(cap, #willing)
+                    if seated > 0 then
+                        SAO.Driving.holdFor(id, body, seated)
+                    end
+                end
+            end
+        end
+    end
+end
+
+local function decide(id, agent, body)
+    local tick = tickCount
+    -- Riding ([B1]): a passenger is a passenger - no needs-driven
+    -- walks, no threat responses, nothing, until the door opens.
+    -- Self-healing: a rider whose vehicle is gone resumes life.
+    if agent.riding then
+        local okRV, rv = pcall(function() return body:getVehicle() end)
+        if okRV and rv then
+            -- [C4] The door works both ways: a companion whose player
+            -- has left this vehicle steps out after them - the paired
+            -- exit puts the mesh on the ground with the flag.
+            if agent.companioning then
+                local playerOut = false
+                pcall(function()
+                    local me0 = getSpecificPlayer(0)
+                    playerOut = me0 ~= nil and me0:getVehicle() ~= rv
+                end)
+                if playerOut then
+                    local okOut = false
+                    pcall(function()
+                        okOut = SAOJavaBridge:unseatFromVehicle(body)
+                    end)
+                    if okOut then
+                        agent.riding = nil
+                        pcall(function()
+                            SAO.Voice.onEvent(id, "stepOut", tick)
+                        end)
+                        setState(agent, id, "IDLE", "steps out after you")
+                    end
+                end
+            end
+            if agent.riding then return end
+        else
+            agent.riding = nil
+            setState(agent, id, "IDLE", "back on foot")
+        end
+    end
+    -- [C4] The seat outranks the flag: `riding` lives on the runtime
+    -- agent table and is lost when a body is re-adopted, which left a
+    -- seated survivor running the whole decision loop from inside a
+    -- car - walk orders issued from a passenger seat. A body found
+    -- seated IS riding, whatever the table says.
+    if not agent.riding then
+        local okSeat, seated = pcall(function() return body:getVehicle() end)
+        if okSeat and seated then
+            agent.riding = true
+            return
+        end
+    end
+    local bodyX, bodyY = body:getX(), body:getY()
+    if SAO.Integration and SAO.Integration.apply then
+        local graph = SAO.Integration.apply(id, agent, tick, bodyX, bodyY)
+        if graph then
+            agent.pressure = agent.pressure or {}
+            agent.pressure.graph = graph.pressure
+        end
+    end
+    local threat = SAO.Perception.nearestBelievedZombie(id, tick, bodyX, bodyY)
+    local threatCount = SAO.Perception.believedThreatCount(id, tick, 10, bodyX, bodyY)
+
+    -- A believed hostile PERSON is a threat like any other; if both exist the
+    -- nearer belief governs. Permission asymmetry is Standing's, not ours.
+    local hostile, hostileName, hostileKey = nearestHostilePerson(id, tick, bodyX, bodyY)
+    local governingPerson, governingPersonKey = nil, nil
+    if hostile and (not threat or hostile.dist < threat.dist) then
+        threat = hostile
+        threatCount = math.max(threatCount, 1)
+        governingPerson, governingPersonKey = hostileName, hostileKey
+    end
+
+    -- [C116] A believed FORMED person - a living neighbor carrying the
+    -- residue - presses the same nerve the dead do. They are marked
+    -- fromPerson so no engage branch mistakes them for a zombie (the
+    -- strips are the gates' below), and a hostile person still
+    -- governs first: an enemy is an enemy before they are shaped like
+    -- anything. What this adds is the fear - the flee threshold and
+    -- the pressure read them, and the county's answer to what it sees
+    -- is to keep its distance, which is what [MUTATION.md] says the
+    -- living do.
+    if not governingPerson and SAO.Perception.nearestFormedPerson then
+        local formed = nil
+        pcall(function()
+            formed = SAO.Perception.nearestFormedPerson(
+                id, tick, bodyX, bodyY)
+        end)
+        if formed and (not threat or formed.dist < threat.dist) then
+            threat = formed
+            threatCount = math.max(threatCount, 1)
+        end
+    end
+
+    if decideThreat(id, agent, body, tick, threat, threatCount, governingPerson, governingPersonKey) then return end
+    -- No actionable threat beliefs.
+    if agent.state == "FLEE" or agent.state == "ALERT" then
+        setState(agent, id, "IDLE",
+            SAO.Perception.hasLookedRecently(id, tick) and "believes clear" or "no recent look")
+        return
+    end
+
+    -- The branching graph's work projection. When no threat owns the
+    -- moment, labor is the graph's own answer rather than a side table.
+    if agent.graph and agent.graph.branch == "work" and agent.graph.work then
+        agent.pressure = {
+            answer = "designation",
+            detail = agent.graph.work,
+            at = tick,
+        }
+    end
+
+    -- One needs read per decision ([A15]): every appetite block below
+    -- consumes this snapshot.
+    local needs = SAO.Needs.read(body)
+
+    if decideNeedsAndCompanion(id, agent, body, tick, needs) then return end
+    if decideCompany(id, agent, body, tick) then return end
+    -- Dusk homing: a person with an address heads for it as night falls -
+    -- before the night hold, not instead of it. Threats already returned above.
+    -- A follower whose anchor is present stays with the company instead;
+    -- their fellow IS where they belong tonight.
+    local rec = agent.rec
+    if decideHomeAndEquipment(id, agent, body, tick, rec) then return end
+    -- Idle life: initiative-gated roaming. Short walks on a long personal
+    -- cadence; Standing gates the destination like any other goal.
+    if agent.state == "IDLE" then
+        if decideNightAndDrift(id, agent, body, tick, rec) then return end
         -- The between-time is never nothing (DR-011, [A18]): a stale
         -- answer refreshes to what this body is honestly doing while
         -- the legs rest. The undesignated keep hands busy; the
         -- greenhorn without a single hard claim may WAIT - legibly;
         -- the designated rest short with their kit in reach.
         local idleRec = SAO.Identity.get(id)
-        if not agent.pressure or tick - (agent.pressure.at or 0) > 600 then
-            local detail
-            -- [B32] The cooldown belongs in the GUARD, as
-            -- study's already does. Tested only inside the body, this
-            -- branch was taken even while on cooldown - `detail` is
-            -- set above the check - so the chain never fell through
-            -- and an instrument-carrier could never study, read, or
-            -- handle a keepsake. The inner check below is now
-            -- redundant rather than wrong.
-            if idleRec and idleRec.instrument
-                and tick >= (agent.nextTuneAt or 0) then
-                -- Boot-camp leisure, enriched ([A19]): short, pointed,
-                -- interruptible - the porch, the instrument, the bat in
-                -- reach. Designation earned the pause; the environment
-                -- still collects.
-                local what = idleRec.instrument == "Base.Banjo" and "banjo"
-                    or idleRec.instrument == "Base.Harmonica" and "harmonica"
-                    or "guitar"
-                -- [C119] The bard's own shape: the carried type goes
-                -- with the tune so the flute-player plays the flute's
-                -- clip, not the guitar's. The label keeps the
-                -- county's word for it; only the body tells the
-                -- truth about what is held.
-                local carriedInstrument = idleRec.instrument
-                if carriedInstrument and what == "guitar"
-                    and carriedInstrument:match("%.(.+)$") then
-                    what = carriedInstrument:match("%.(.+)$")
-                end
-                detail = "picks the " .. what .. " on the porch, "
-                    .. (agent.armed and "weapon" or "bat") .. " in reach"
-                -- [B21] And it CARRIES. This used to set a string and
-                -- stop - a hobby with no audience is a flavour label.
-                -- The sound is real and reaches the dead too, which is
-                -- the honest price of playing out loud here.
-                if tick >= (agent.nextTuneAt or 0) then
-                    agent.nextTuneAt = tick + 2400
-                    pcall(function()
-                        addSound(body, math.floor(body:getX()),
-                            math.floor(body:getY()),
-                            math.floor(body:getZ()), 14, 8)
-                    end)
-                    local heard43 = 0
-                    pcall(function()
-                        heard43 = SAOJavaBridge:easeListeners(body, 12)
-                    end)
-                    -- [C35] The tune, seen: the instrument's own
-                    -- animation - [C119] and the bard's own clip
-                    -- when the carried type has one.
-                    pcall(function()
-                        SAO.Gesture.playInstrument(id, body, what,
-                            carriedInstrument)
-                    end)
-                    -- People come. Nothing else had to be built for
-                    -- the consequence: co-location is what the
-                    -- meeting, telling and trust machinery has always
-                    -- run on. The porch makes the seating chart; the
-                    -- seating chart was already wired.
-                    local came43 = 0
-                    local myG43 = SAO.Standing.groupOf(id)
-                    if myG43 then
-                        for oid43, oag43 in pairs(Ctl.agents) do
-                            if oid43 ~= id
-                                and oag43.state == "IDLE"
-                                and not oag43.escortId
-                                and not oag43.riding
-                                and (not oag43.pressure
-                                    or oag43.pressure.answer ~= "need")
-                                and SAO.Standing.groupOf(oid43) == myG43
-                                and SAO.Disposition.circle(oid43) ~= "loner"
-                            then
-                                local ob43 = SAO.Body.get(oid43)
-                                if ob43 then
-                                    local odx = ob43:getX() - body:getX()
-                                    local ody = ob43:getY() - body:getY()
-                                    local od2 = odx * odx + ody * ody
-                                    if od2 > 16.0 and od2 <= 196.0 then
-                                        if SAO.Locomotion.order(oid43, ob43,
-                                            math.floor(body:getX()),
-                                            math.floor(body:getY()),
-                                            math.floor(body:getZ())) then
-                                            setState(oag43, oid43, "ROAM",
-                                                "drawn by the " .. what,
-                                                "chosen rest")
-                                            came43 = came43 + 1
-                                        end
-                                    elseif od2 <= PORCH_REACH * PORCH_REACH then
-                                        -- [C35] Already close: half dance, the
-                                        -- rest clap - the porch, seen and heard.
-                                        pcall(function()
-                                            if (SAO.Hash.of(oid43, "dance:" .. tostring(tick)) % 100) < 50 then
-                                                SAO.Gesture.dance(oid43, ob43)
-                                            else
-                                                SAO.Gesture.clap(ob43)
-                                            end
-                                        end)
-                                    end
-                                end
-                            end
-                        end
-                    end
-                    if heard43 > 0 or came43 > 0 then
-                        log(id .. " plays the " .. what .. " - "
-                            .. heard43 .. " eased, " .. came43
-                            .. " come over")
-                    end
-                end
-            elseif idleRec and idleRec.designation
-                and SAO.Census.JOB_PERK
-                and SAO.Census.JOB_PERK[idleRec.designation]
-                and tick >= (agent.nextStudyAt or 0) then
-                -- [B22] The trade reads up. A survivor seeks and
-                -- studies the book their OWN work rides on - the perk
-                -- their designation was dealt against - so what they
-                -- pick up is decided by who the house made them and
-                -- by what the place actually holds.
-                --
-                -- This is the road back that [B21] did not have. A
-                -- struggling medic can read, the dressings start
-                -- holding, and the evidence against them stops
-                -- accumulating. When there is no book there is no
-                -- road, and the job goes to someone else - which is
-                -- the scarcity doing its work.
-                -- [C32] A book takes a quarter longer for the dyslexic
-                -- (SAO_Conditions.readingTime, Custom Traits' figure).
-                local readingTime48 = 1.0
-                pcall(function() readingTime48 = SAO.Conditions.readingTime(id) end)
-                if type(readingTime48) ~= "number" then readingTime48 = 1.0 end
-                agent.nextStudyAt = tick + math.floor(2400 * readingTime48)
-                local perk48 = SAO.Census.JOB_PERK[idleRec.designation]
-                -- [B40] Books speak a different vocabulary than perks
-                -- do. The medic's perk is `Doctor` and every first-aid
-                -- book in the game says `FirstAid`, so this asked for a
-                -- book that does not exist and read the empty answer as
-                -- scarcity.
-                local book48 = SAO.Census.bookSkillFor(perk48)
-                detail = "reads up on the work"
-                -- [C31] A child who cannot read yet has no road through
-                -- a book: none before eight (SAO_History.literacyOf -
-                -- the school years lived before the fall), and the study
-                -- passes them over and says why.
-                local literacy48 = "reads"
-                pcall(function() literacy48 = SAO.History.literacyOf(id) end)
-                if literacy48 == "none" then
-                    detail = "too young to read the work up - watches the grown-ups instead"
-                else
-                    local studied = ""
-                    pcall(function()
-                        studied = SAOJavaBridge:readSkillBook(body, book48)
-                    end)
-                    if studied == nil or studied == "" then
-                        local got48 = false
-                        pcall(function()
-                            got48 = SAOJavaBridge:takeSkillBookFor(
-                                body, 10, book48)
-                        end)
-                        if got48 then
-                            log(id .. " finds something on " .. tostring(perk48))
-                        else
-                            detail = "turns the work over in their head -"
-                                .. " nothing written to learn it from"
-                        end
-                    else
-                        pcall(function()
-                            SAO.Voice.onEvent(id, "studies", tick)
-                        end)
-                        log(id .. " reads up on " .. tostring(studied))
-                    end
-                end
-            -- [B32] Same lock as the porch above: on cooldown
-            -- this still took the slot, so a reader never reached
-            -- their keepsake.
-            elseif idleRec and idleRec.reading
-                and tick >= (agent.nextPageAt or 0) then
-                -- [B22] Something to read, and it GOES ROUND. A
-                -- keepsake helps only its owner; the standing law
-                -- since [B20] is that a person's value should land on
-                -- other bodies. So a reader beside a bored housemate
-                -- hands the book over - the same vanilla transfer
-                -- every other kindness here uses.
-                detail = "reads a while, back to the wall"
-                if tick >= (agent.nextPageAt or 0) then
-                    agent.nextPageAt = tick + 3000
-                    -- [B41] What the book is ABOUT.
-                    --
-                    -- `rec.reading` has always held the item's full
-                    -- type - `Base.BookFancy_Politics` - and every
-                    -- reader of it tested truthiness, so a survivor
-                    -- carried a specific manual and the county knew
-                    -- only that they held something.
-                    --
-                    -- Derived from the engine, not from the name:
-                    -- `getSkillTrained()` is what the script says the
-                    -- book teaches, so a mod's manual works without
-                    -- this mod knowing it exists ([B38]'s discipline).
-                    -- Empty for a novel, which is most of them.
-                    local teaches46 = nil
-                    pcall(function()
-                        local it46 = getScriptManager():getItem(
-                            tostring(idleRec.reading))
-                        local s46 = it46 and it46:getSkillTrained() or nil
-                        if s46 and s46 ~= "" then teaches46 = s46 end
-                    end)
-
-                    local passedTo = nil
-                    local passedToTrade = nil
-                    local myG46 = SAO.Standing.groupOf(id)
-                    if myG46 then
-                        for oid46 in pairs(Ctl.agents) do
-                            if oid46 ~= id
-                                and SAO.Standing.groupOf(oid46) == myG46 then
-                                local ob46 = SAO.Body.get(oid46)
-                                local orec46 = SAO.Identity.get(oid46)
-                                if ob46 and orec46 and not orec46.reading then
-                                    local bdx = ob46:getX() - body:getX()
-                                    local bdy = ob46:getY() - body:getY()
-                                    if bdx * bdx + bdy * bdy <= 25.0 then
-                                        local bored46 = 0
-                                        pcall(function()
-                                            bored46 = SAOJavaBridge:boredom(ob46)
-                                        end)
-                                        -- [B41] A manual goes to whoever
-                                        -- the work belongs to, ahead of
-                                        -- whoever happens to be bored -
-                                        -- their trade rides on it
-                                        -- ([B22]). Boredom still decides
-                                        -- who gets a novel.
-                                        local wants46 = false
-                                        if teaches46 then
-                                            local jp46 = SAO.Census.JOB_PERK
-                                                and SAO.Census.JOB_PERK[
-                                                    orec46.designation] or nil
-                                            local want46 = jp46
-                                                and SAO.Census.bookSkillFor(jp46)
-                                            wants46 = want46 ~= nil
-                                                and string.lower(want46)
-                                                    == string.lower(teaches46)
-                                        end
-                                        if wants46 then
-                                            passedTo = oid46
-                                            passedToTrade = true
-                                            break
-                                        elseif not passedTo
-                                            and (tonumber(bored46) or 0) > 0.3 then
-                                            passedTo = oid46
-                                        end
-                                    end
-                                end
-                            end
-                        end
-                    end
-                    if passedTo and SAO.Needs.passReadingTo then
-                        if SAO.Needs.passReadingTo(id, body,
-                            SAO.Body.get(passedTo)) then
-                            idleRec.reading = nil
-                            pcall(function()
-                                SAO.Voice.onEvent(id, "passItOn", tick)
-                            end)
-                            log(id .. " passes the book to " .. passedTo
-                                .. (passedToTrade
-                                    and (" - it is theirs to read ("
-                                        .. tostring(teaches46) .. ")")
-                                    or ""))
-                        end
-                    end
-                end
-            -- [B32] Last in the chain, so this starved nobody -
-            -- but it swallowed its own slot the same way, and a
-            -- between-time branch that cannot yield is the shape this
-            -- batch is fixing.
-            elseif idleRec and idleRec.keepsake
-                and tick >= (agent.nextKeepsakeAt or 0) then
-                -- [B22] A thing kept for what it means. It does
-                -- nothing for the house, which is precisely what
-                -- makes it evidence of a person rather than a
-                -- function.
-                detail = "turns something over in their hands"
-                if tick >= (agent.nextKeepsakeAt or 0) then
-                    agent.nextKeepsakeAt = tick + 3600
-                    pcall(function()
-                        SAOJavaBridge:steady(body, 0.04)
-                    end)
-                end
-            -- [B32] The solo life, moved out of the way.
-            -- This has no cooldown and always sets a detail, so as the
-            -- FIRST branch it could never yield - an undesignated
-            -- survivor took the slot every time and could never play,
-            -- read, or turn a keepsake over. [B32] fixed three
-            -- branches of that shape and missed this one, because
-            -- this one starves by construction rather than by a
-            -- misplaced cooldown.
-            --
-            -- The deal says who lands here: "Solo lives stay
-            -- undesignated - that is a different day." A person with
-            -- no company is the one with the most time and the least
-            -- reason not to use it, so what they carry comes first
-            -- and this is what they do when nothing else is due.
-            elseif idleRec and not idleRec.designation then
-                if (idleRec.contactMonths or 0) < 0.5
-                    and not SAO.Lessons.has(id, "routine-is-armor")
-                    and not SAO.Lessons.has(id, "measure-the-danger") then
-                    detail = "waits for someone to come"
-                elseif SAO.Disposition.isSmoker(id) then
-                    detail = "keeps hands busy - a smoke, eyes on the road"
-                else
-                    detail = "keeps hands busy, eyes on the road"
-                end
-            elseif SAO.Disposition.traits(id).discipline > 0.5 then
-                detail = "tends their kit between rounds"
-            else
-                detail = "a short rest, weapon in reach"
-            end
-            agent.pressure = { answer = "chosen rest", detail = detail, at = tick }
-        end
-
-        -- Remembrance ([A21]): on a long cadence, a mourner walks
-        -- back to where one of their dead fell - a CHOSEN act, gated to
-        -- their own mourned memory and to sites near enough to reach.
-        -- The whole MOURNWARD/MOURNING machinery serves; learn() dedupe
-        -- makes re-grief safe, and the pause reads "chosen rest" - grief on
-        -- purpose is a way of resting.
-        if agent.mourned and (not agent.nextMemorialAt
-            or tick >= agent.nextMemorialAt) then
-            agent.nextMemorialAt = tick + 14400 + SAO.Rand.int(14400)
-            for deadId in pairs(agent.mourned) do
-                local deadRec = SAO.Identity.get(deadId)
-                if deadRec and deadRec.dead and deadRec.x then
-                    local mdx = deadRec.x - body:getX()
-                    local mdy = deadRec.y - body:getY()
-                    if mdx * mdx + mdy * mdy <= 1600.0
-                        and SAO.Locomotion.order(id, body,
-                            math.floor(deadRec.x), math.floor(deadRec.y),
-                            math.floor(body:getZ())) then
-                        agent.mournTarget = deadId
-                        agent.mournName = deadRec.forename or deadId
-                        agent.taskDeadline = tick + 1800
-                        setState(agent, id, "MOURNWARD",
-                            "visits where " .. tostring(deadRec.forename
-                                or deadId) .. " fell", "chosen rest")
-                        return
-                    end
-                end
-            end
-        end
-
-        -- What the dead leave ([B15]): a corpse within arm's reach
-        -- carries real things, and every part of whether to take them
-        -- is already modelled. Knowing them refuses hardest - that
-        -- outranks hunger and creed both, and is the one place here
-        -- where dignity beats need. Mercy leaves the dead be short of
-        -- desperation. Everyone else takes what they actually lack.
-        if tick >= (agent.nextScavengeAt or 0) then
-            agent.nextScavengeAt = tick + 3600
-            -- Read locally, like every other block in this scope
-            -- (`needsNow` was invented in the first draft and would
-            -- have been nil - the B10 field-guess class again, caught
-            -- by grepping instead of assuming).
-            local n23 = SAO.Needs.read(body)
-            local needF = n23 and n23.hunger
-                and n23.hunger >= SAO.Disposition.eatAt(id)
-            local armed23 = false
-            pcall(function()
-                local its = body:getInventory():getItems()
-                for i = 0, its:size() - 1 do
-                    if instanceof(its:get(i), "HandWeapon") then
-                        armed23 = true
-                        break
-                    end
-                end
-            end)
-            if needF or not armed23 then
-                local knewThem, took, refused = false, nil, false
-                pcall(function()
-                    -- Did I know whoever this was? The named-corpse
-                    -- read already exists ([B1]); a name I hold a
-                    -- belief about is a person, not a container.
-                    local okC, corpses = pcall(function()
-                        return SAOJavaBridge:findNamedCorpses(body, 3)
-                    end)
-                    if okC and type(corpses) == "string" and corpses ~= "" then
-                        local mine = SAO.Perception.beliefs[id]
-                        for entry in corpses:gmatch("[^|]+") do
-                            -- [C8] Beliefs stay name-keyed; the resolver
-                            -- turns an "@id" tag back into the name this
-                            -- witness would have known them by.
-                            local _, _, cn = SAO.Identity.resolveBodyTag(
-                                entry:match("^(.-):"))
-                            if cn and mine and mine.people[cn] then
-                                knewThem = true
-                                break
-                            end
-                        end
-                    end
-                end)
-                local creed23 = nil
-                do
-                    local g23 = SAO.Standing.groupOf(id)
-                    local c23 = g23 and SAO.Standing.creedOf(g23) or nil
-                    creed23 = c23 and c23.name or nil
-                end
-                local desperate23 = n23 and n23.hunger
-                    and n23.hunger >= policy().desperation
-                if knewThem then
-                    refused = true
-                elseif creed23 == "mercy" and not desperate23 then
-                    refused = true
-                else
-                    pcall(function()
-                        local sq = body:getCurrentSquare()
-                        local cell23 = getCell()
-                        for dx = -2, 2 do
-                            if took then break end
-                            for dy = -2, 2 do
-                                local s23 = cell23:getGridSquare(
-                                    math.floor(body:getX()) + dx,
-                                    math.floor(body:getY()) + dy,
-                                    math.floor(body:getZ()))
-                                local bodies = s23 and s23:getDeadBodys()
-                                if bodies then
-                                    for bi = 0, bodies:size() - 1 do
-                                        local corpse = bodies:get(bi)
-                                        local cont = corpse
-                                            and corpse:getContainer()
-                                        if cont then
-                                            local its = cont:getItems()
-                                            for ii = its:size() - 1, 0, -1 do
-                                                local it = its:get(ii)
-                                                local wantIt =
-                                                    (needF and instanceof(it, "Food"))
-                                                    or (not armed23
-                                                        and instanceof(it, "HandWeapon"))
-                                                if wantIt then
-                                                    cont:Remove(it)
-                                                    body:getInventory():AddItem(it)
-                                                    took = tostring(it:getName())
-                                                    break
-                                                end
-                                            end
-                                        end
-                                        if took then break end
-                                    end
-                                end
-                                if took then break end
-                            end
-                        end
-                    end)
-                end
-                if refused then
-                    pcall(function()
-                        SAO.Voice.onEvent(id, knewThem and "notThem"
-                            or "leaveTheDead", tick)
-                    end)
-                    log(id .. (knewThem
-                        and " will not take from someone they knew"
-                        or " leaves the dead their things"))
-                elseif took then
-                    pcall(function()
-                        SAO.Voice.onEvent(id, "scavenge", tick)
-                        SAOJavaBridge:equipBestMelee(body)
-                    end)
-                    log(id .. " takes " .. took .. " from the dead")
-                end
-            end
-        end
-        -- The hearth ([B6]): cold is a real engine state, and a
-        -- cold person goes to the fire. Feeding it comes first when
-        -- they carry something that burns - a fire nobody feeds is a
-        -- fire nobody has tomorrow. The walk and the warming are
-        -- honest answers to a NEED (DR-011: never a mannequin).
-        do
-            local coldNow = SAO.Needs.cold(body)
-            if coldNow >= 0.8 and tick >= (agent.nextHearthAt or 0) then
-                local hx, hy, hz, hfuel, hlit =
-                    SAO.Needs.findHearth(id, body, 14)
-                if hx then
-                    local hdx, hdy = hx - body:getX(), hy - body:getY()
-                    -- [B47] The same arrival question at the fire.
-                    if hdx * hdx + hdy * hdy
-                        <= ARRIVAL_REACH * ARRIVAL_REACH then
-                        agent.nextHearthAt = tick + 3600
-                        -- A dead fire is lit by whoever carries the
-                        -- MEANS ([B6]): a lighter or matches, really
-                        -- in the pack. Without them the cold stand
-                        -- at a dead hearth and that is the honest
-                        -- answer.
-                        local okLt, lit2 = pcall(function()
-                            return SAOJavaBridge:lightNearbyHearth(body, 3)
-                        end)
-                        if okLt and lit2 then
-                            pcall(function()
-                                SAO.Voice.onEvent(id, "lightFire", tick)
-                            end)
-                            log(id .. " lights the fire")
-                        end
-                        local okFd, fed = pcall(function()
-                            return SAOJavaBridge:feedNearbyHearth(body, 3)
-                        end)
-                        if okFd and type(fed) == "number" and fed > 0 then
-                            pcall(function()
-                                SAO.Voice.onEvent(id, "feedFire", tick)
-                            end)
-                            log(id .. " feeds the fire (" .. fed
-                                .. " units)")
-                        end
-                        agent.taskDeadline = tick + 2400
-                        setState(agent, id, "WARMING",
-                            "warms at the fire, weapon in reach", "need")
-                        return
-                    end
-                    -- Walk to a fire that is burning, or to one you
-                    -- could light: fuel plus the means in your pack.
-                    local canLight = false
-                    pcall(function()
-                        local its7 = body:getInventory():getItems()
-                        for i7 = 0, its7:size() - 1 do
-                            local ft7 = tostring(
-                                its7:get(i7):getFullType() or "")
-                            if ft7:find("Lighter") or ft7:find("Matches") then
-                                canLight = true
-                                break
-                            end
-                        end
-                    end)
-                    if hfuel and hfuel > 0 and (hlit or canLight)
-                        and SAO.Locomotion.order(id, body, hx, hy, hz) then
-                        agent.taskDeadline = tick + 2400
-                        setState(agent, id, "HEARTHWARD",
-                            "cold - goes to the fire", "need")
-                        return
-                    end
-                end
-                -- No hearth answers: the cold walk is not retried
-                -- every beat.
-                agent.nextHearthAt = tick + 3600
-            end
-        end
-        -- The house's water is the house's politics ([B6]): a
-        -- thirsty member whose own vessels are dry draws from the
-        -- stored vessels on their own ground - and the SAME ration
-        -- policy that governs the shelves governs the bottles.
-        -- Under watch-first, a non-watch member waits unless thirst
-        -- has passed desperation; nobody is ever left to die of it.
-        local wNeeds = SAO.Needs.read(body)
-        if wNeeds and wNeeds.thirst
-            and wNeeds.thirst >= SAO.Disposition.drinkAt(id)
-            and SAO.Standing.insideClaim(id, body:getX(), body:getY())
-            and tick >= (agent.nextStoreDrawAt or 0) then
-            local wpg = SAO.Standing.groupOf(id)
-            local wpol = wpg and SAO.Standing.rationPolicyOf(wpg) or nil
-            local wrec7 = agent.rec
-            -- Desperation always overrides the policy: policy
-            -- decides who waits, never who dies.
-            local waitTurn = wpol == "watch-first"
-                and wrec7 and wrec7.designation ~= "watch"
-                and wNeeds.thirst < policy().desperation
-            if not waitTurn then
-                if SAO.Needs.takeStoredWater(id, body) then
-                    agent.nextStoreDrawAt = tick + 3600
-                    agent.taskDeadline = tick + 900
-                    agent.takePurpose = "deposit"
-                    setState(agent, id, "TAKE",
-                        "draws water from the stores", "need")
-                    return
-                end
-            elseif not agent.saidWaterWait then
-                agent.saidWaterWait = true
-                log(id .. " leaves the stored water for the watch")
-            end
-        end
-        -- The firewood run ([B6]): a house whose counted hearth is
-        -- DARK sends its foragers and watch for what burns - the same
-        -- shape as the water run, and the shelving walks it home. The
-        -- fire loop closes: counted, sought, fed, and restocked.
-        do
-            local frec7 = agent.rec
-            local fjob7 = frec7 and (frec7.designation == "forager"
-                or frec7.designation == "watch")
-            if fjob7 and tick >= (agent.nextWoodRunAt or 0) then
-                local fg7 = SAO.Standing.groupOf(id)
-                local fh7 = fg7 and SAO.Standing.hearthOf
-                    and SAO.Standing.hearthOf(fg7) or nil
-                if fh7 and not fh7.burning
-                    and not SAO.Standing.insideClaim(
-                        id, body:getX(), body:getY()) then
-                    agent.nextWoodRunAt = tick + 10800
-                    local okW7, tookW7 = pcall(function()
-                        return SAOJavaBridge:takeWantedFromNearby(
-                            body, 8, "fuel", 2)
-                    end)
-                    if okW7 and type(tookW7) == "number" and tookW7 > 0 then
-                        pcall(function()
-                            SAO.Voice.onEvent(id, "woodRun", tick)
-                        end)
-                        log(id .. " gathers " .. tookW7
-                            .. " for the fire")
-                    end
-                end
-            end
-        end
-        -- The water carried ([B6]): a house that KNOWS it is dry
-        -- sends its foragers and quartermasters to fill real vessels
-        -- from real sources - the same shelving walks them home. The
-        -- errand exists only while the claim says dry: nobody hauls
-        -- water they already have.
-        do
-            local wrec6 = agent.rec
-            local wjob6 = wrec6 and (wrec6.designation == "forager"
-                or wrec6.designation == "quartermaster")
-            if wjob6 and tick >= (agent.nextWaterRunAt or 0) then
-                local wg6 = SAO.Standing.groupOf(id)
-                local ws6 = wg6 and SAO.Standing.waterStoreOf(wg6) or nil
-                if ws6 and ws6.word == "dry" then
-                    agent.nextWaterRunAt = tick + 7200
-                    local okF6, got6 = pcall(function()
-                        return SAOJavaBridge:fillWaterFromNearby(body, 8)
-                    end)
-                    if okF6 and type(got6) == "number" and got6 > 0 then
-                        log(id .. " fills what they carry - "
-                            .. math.floor(got6) .. " units")
-                        pcall(function()
-                            SAO.Voice.onEvent(id, "waterRun", tick)
-                        end)
-                        -- The shelving must be QUEUED, not merely
-                        -- announced ([B6] bug fix): the other deposit
-                        -- sites call their deposit verb first, and
-                        -- depositSpareFood is food-shaped - the
-                        -- vessels would have ridden in the pack
-                        -- forever.
-                        if SAO.Needs.depositWater(id, body) then
-                            agent.taskDeadline = tick + 900
-                            agent.takePurpose = "deposit"
-                            setState(agent, id, "TAKE",
-                                "brings the water in", "designation")
-                            return
-                        end
-                    end
-                    -- Nothing to fill from here: the water errand
-                    -- becomes a WALK to the nearest known source, the
-                    -- same machinery thirst already uses.
-                    local wx6, wy6, wz6 = SAO.Needs.findWater(id, body, 30)
-                    if wx6 and SAO.Locomotion.order(id, body, wx6, wy6, wz6) then
-                        agent.taskDeadline = tick + 3600
-                        -- They came to FILL, not to drink ([B6]) -
-                        -- the arrival reads the errand's purpose.
-                        agent.waterRun = true
-                        setState(agent, id, "WATERWARD",
-                            "goes for water - the house is dry",
-                            "designation")
-                        return
-                    end
-                end
-            end
-        end
-        -- The ground worked ([B4]): a farm hand on their own ground
-        -- reads the REAL plants and the REAL soil - SFarmingSystem
-        -- and canDigHereSquare are the truth - and acts by one
-        -- priority: harvest the ready, water the thirsty, seed the
-        -- plowed, plow new ground. The plot cap (4) counts EXISTING
-        -- plants so the county never tiles the map; plowing waits for
-        -- the growing months (engine months 2-7, the same 0-based
-        -- calendar every seasonal law reads) - seeding and tending
-        -- what stands is always allowed.
-        do
-            local rec4 = agent.rec
-            local isFarmHand = rec4 and (rec4.occupation == "farmer"
-                or (SAO.Census.classOf
-                    and SAO.Census.classOf(rec4.occupation) == "settled"))
-            -- [C123] A ranch is its own engine designation, not an
-            -- extension of the crop table: when a farm hand stands on
-            -- their own ground, the ranch's animals, troughs and
-            -- hutches decide whether there is a real care action to
-            -- queue. The animal module holds every product and item
-            -- check behind the engine's action constructors.
-            if isFarmHand and SAO.Animals and SAO.Animals.care
-                and tick >= (agent.nextAnimalCareAt or 0)
-                and SAO.Standing.insideClaim(id, body:getX(), body:getY()) then
-                agent.nextAnimalCareAt = tick + 7200
-                local care = nil
-                pcall(function() care = SAO.Animals.care(id, body, 3) end)
-                if care then
-                    agent.taskDeadline = tick + 1800
-                    agent.takePurpose = "animal"
-                    setState(agent, id, "TAKE", "tends the ranch: " .. care,
-                        "designation")
-                    return
-                end
-            end
-            if isFarmHand and tick >= (agent.nextFarmAt or 0)
-                and SAO.Standing.insideClaim(id, body:getX(), body:getY())
-                and SFarmingSystem and SFarmingSystem.instance
-                -- [B5] presence guard: these globals are indexed at
-                -- argument-evaluation time, before any pcall can
-                -- catch it - a missing farming module must skip the
-                -- work, not abort the scan.
-                and ISFarmingMenu and ISFarmingMenu.canDigHereSquare
-                and ISFarmingMenu.getWaterUsesInteger then
-                agent.nextFarmAt = tick + 7200
-                local fc4 = SAO.Standing.groupOf(id)
-                    and SAO.Standing.groupClaimOf(SAO.Standing.groupOf(id))
-                    or SAO.Standing.claimOf(id)
-                if fc4 then
-                    local harvest4, thirsty4, plowed4, digable4 = nil, nil, nil, nil
-                    local thirstySq4, plantCount4 = nil, 0
-                    pcall(function()
-                        local cell4 = getCell()
-                        local fx0, fy0, fx1, fy1, fz0 =
-                            workWindow(fc4, body, 12)
-                        if not fx0 then return end
-                        for x4 = fx0, fx1 do
-                            for y4 = fy0, fy1 do
-                                local sq4 = cell4:getGridSquare(
-                                    x4, y4, fz0)
-                                if sq4 then
-                                    local plant4 = SFarmingSystem.instance
-                                        :getLuaObjectOnSquare(sq4)
-                                    if plant4 then
-                                        plantCount4 = plantCount4 + 1
-                                        local okH4, harv4 = pcall(function()
-                                            return plant4:canHarvest()
-                                        end)
-                                        if okH4 and harv4
-                                            and not harvest4 then
-                                            harvest4 = plant4
-                                        end
-                                        local st4 = tostring(
-                                            plant4.state or "")
-                                        local wl4 = tonumber(plant4.waterLvl)
-                                        if st4 == "seeded" and wl4
-                                            and wl4 < 60
-                                            and not thirsty4 then
-                                            thirsty4 = plant4
-                                            thirstySq4 = sq4
-                                        end
-                                        if st4 == "plow"
-                                            and not plowed4 then
-                                            plowed4 = plant4
-                                        end
-                                    elseif not digable4 then
-                                        local okD4, can4 = pcall(
-                                            ISFarmingMenu.canDigHereSquare,
-                                            sq4)
-                                        if okD4 and can4 then
-                                            digable4 = sq4
-                                        end
-                                    end
-                                end
-                            end
-                        end
-                    end)
-                    -- Gear reads, engine-honest.
-                    local seed4, seedType4, plow4, water4, waterUses4
-                    pcall(function()
-                        local its4 = body:getInventory():getItems()
-                        for i4 = 0, its4:size() - 1 do
-                            local it4 = its4:get(i4)
-                            if not plow4 and ItemTag
-                                and it4:hasTag(ItemTag.DIG_PLOW) then
-                                plow4 = it4
-                            end
-                            if not seed4 and farming_vegetableconf
-                                and farming_vegetableconf.props then
-                                local ft4 = it4:getFullType()
-                                for tos4, props4 in pairs(
-                                    farming_vegetableconf.props) do
-                                    local sts4 = props4.seedTypes
-                                        or { props4.seedName }
-                                    for _, st4 in ipairs(sts4) do
-                                        if st4 == ft4 then
-                                            seed4, seedType4 = it4, tos4
-                                            break
-                                        end
-                                    end
-                                    if seed4 then break end
-                                end
-                            end
-                            if not water4 then
-                                local okU4, u4 = pcall(
-                                    ISFarmingMenu.getWaterUsesInteger, it4)
-                                if okU4 and u4 and u4 > 0 then
-                                    water4, waterUses4 = it4, u4
-                                end
-                            end
-                        end
-                    end)
-                    local month4 = 5
-                    pcall(function()
-                        month4 = SAO.History.countyMonth() or month4
-                    end)
-                    local growing4 = month4 >= 2 and month4 <= 7
-                    -- Robustness ([B5]): vanilla constructors run
-                    -- behind a guard, and the state only changes if
-                    -- the queue actually took the work.
-                    local acted4, why4 = false, nil
-                    if harvest4 then
-                        acted4 = pcall(function()
-                            ISTimedActionQueue.add(ISHarvestPlantAction:new(
-                                body, harvest4, 100))
-                        end)
-                        why4 = "brings in the crop"
-                    elseif thirsty4 and water4 and not rainingNow() then
-                        local wl4 = tonumber(thirsty4.waterLvl) or 0
-                        local need4 = math.max(1,
-                            math.ceil((100 - wl4) / 10))
-                        local use4 = math.min(waterUses4, need4)
-                        acted4 = pcall(function()
-                            ISTimedActionQueue.add(ISWaterPlantAction:new(
-                                body, water4, use4, thirstySq4,
-                                20 + 6 * use4))
-                        end)
-                        why4 = "waters the rows"
-                    elseif plowed4 and seed4 and seedType4 then
-                        acted4 = pcall(function()
-                            ISTimedActionQueue.add(ISSeedActionNew:new(
-                                body, seed4, seedType4, plowed4))
-                        end)
-                        why4 = "seeds the plowed row"
-                    elseif digable4 and plow4 and seed4
-                        and plantCount4 < 4 and growing4 then
-                        acted4 = pcall(function()
-                            ISTimedActionQueue.add(ISPlowAction:new(
-                                body, digable4, plow4))
-                        end)
-                        why4 = "breaks new ground"
-                    end
-                    if acted4 and why4 then
-                        setState(agent, id, "TAKE", why4, "designation")
-                    end
-                    if acted4 then
-                        agent.taskDeadline = tick + 1800
-                        agent.takePurpose = "farm"
-                        return
-                    end
-                end
-            end
-        end
-        -- Claims fill hours ([A18]): those who watched slack get
-        -- someone killed do not sit long. Designation sets the shape
-        -- and the pace of the walk itself.
-        -- The promise kept ([B3]): a keeper who has SEEN what their
-        -- promised became walks to it and ends it - before anything
-        -- else the day could ask of them.
-        if agent.promiseTarget then
-            local pt = agent.promiseTarget
-            -- The damper ([B3]): three failed walks and the promise
-            -- is CARRIED, not chased - it keeps if they ever see the
-            -- turned again.
-            pt.tries = (pt.tries or 0) + 1
-            if pt.tries > 3 then
-                log(id .. " cannot reach what " .. tostring(pt.name)
-                    .. " became - the promise is carried, not dropped")
-                agent.promiseTarget = nil
-                pt = nil
-            end
-            if pt then
-            local pdx = pt.x - body:getX()
-            local pdy = pt.y - body:getY()
-            if pdx * pdx + pdy * pdy <= ARRIVAL_REACH * ARRIVAL_REACH then
-                -- [C10] The promise swings at the BODY: the [C8] mark
-                -- names the one risen body, and mercy for a stranger's
-                -- body standing closer is nobody's mercy. When the body
-                -- has wandered off, the promise stays carried and the
-                -- next sighting re-arms the walk - never the nearest.
-                agent.promiseTarget = nil
-                local okM, verdict = pcall(function()
-                    return SAOJavaBridge:beginCombatWithPersonId(
-                        body, pt.deadId, PROMISE_BODY_REACH)
-                end)
-                verdict = tostring(okM and verdict or verdict)
-                if verdict:find("COMBAT_STARTED", 1, true) then
-                    SAO.Standing.clearPromise(pt.deadId)
-                    pcall(function()
-                        SAO.Voice.onEvent(id, "promiseKept", tick)
-                    end)
-                    setState(agent, id, "ENGAGE", "keeps the promise")
-                    log(id .. " keeps the promise to "
-                        .. tostring(pt.name))
-                else
-                    log(id .. " stood where " .. tostring(pt.name)
-                        .. " was seen and the body is gone (" .. verdict
-                        .. ") - the promise is carried, not dropped")
-                end
-                return
-            end
-            if SAO.Locomotion.order(id, body,
-                math.floor(pt.x), math.floor(pt.y),
-                math.floor(body:getZ())) then
-                agent.taskDeadline = tick + 3600
-                setState(agent, id, "TRAVEL",
-                    "walks toward the promise", "need")
-                return
-            end
-            end
-        end
-        -- The search ([A28]): love notices absence. Before settling
-        -- into the day's walk, a survivor checks the people they hold
-        -- close - the bonded, and fellows trusted past 0.5 - against
-        -- their own beliefs. A belief gone stale (>48 world-hours,
-        -- not dead-flagged: you go looking BEFORE you bury) sends
-        -- them to the last place they knew. Once a day at most; the
-        -- walk is the whole mechanic, and the scanner does the rest.
-        if tick >= (agent.nextSearchAt or 0) then
-            agent.nextSearchAt = tick + 43200
-            local sb0 = SAO.Perception.beliefs[id]
-            local okSH, nowSH = pcall(function()
-                return SAO.History.countyHours()
-            end)
-            if sb0 and okSH then
-                -- Worry is FELT, not thresholded ([A28]): you act
-                -- because you feel and need. Lateness is measured
-                -- against what they SAID they were doing and how long
-                -- that errand usually takes (the house has watched
-                -- people come back); the first run of a kind is
-                -- estimated from the distance they named. What a
-                -- worrier can bear is their own nerve; the bonded
-                -- bear less. No word at all is worse: unannounced
-                -- absence worries on the person's own rhythm, nerve-
-                -- scaled, never a county constant.
-                local myNerve = SAO.Disposition.traits(id).nerve
-                for pname, pb in pairs(sb0.people) do
-                    if not pb.dead and pb.atHours and pb.x and pb.y then
-                        local mKey = SAO.Standing.keyForObserved
-                            and SAO.Standing.keyForObserved(pname) or nil
-                        local bonded = mKey
-                            and SAO.Standing.isBondedTo(id, mKey)
-                        local close = mKey and (bonded
-                            or SAO.Standing.trust(id, mKey) > 0.5)
-                        -- Worry as a RATIO ([B1]): how far past what
-                        -- this person can bear. >1 is overdue; the
-                        -- magnitude is the searcher's resolve when
-                        -- someone argues.
-                        local function worryRatio(nerve0, bonded0)
-                            -- "Don't wait up" means exactly that
-                            -- ([B1]): no clock, no search - grief if
-                            -- word of death ever comes, reunion
-                            -- without apology if they walk back in.
-                            if pb.out and pb.out.noClock then
-                                return 0
-                            end
-                            -- A SAID term outranks the estimate: they
-                            -- told you when to expect them.
-                            if pb.out and pb.out.backByHours
-                                and pb.out.saidAtHours then
-                                local term = math.max(0.5,
-                                    pb.out.backByHours
-                                    - pb.out.saidAtHours)
-                                return (nowSH - pb.out.saidAtHours)
-                                    / (term * (1.25 + nerve0)
-                                        * (bonded0 and 0.75 or 1.0))
-                            end
-                            if pb.out and pb.out.saidAtHours then
-                                local og0 = SAO.Standing.groupOf(mKey)
-                                local expected = og0
-                                    and SAO.Standing.ventureExpectation(
-                                        og0, pb.out.kind) or nil
-                                if not expected then
-                                    local ddx = (pb.out.x or pb.x) - pb.x
-                                    local ddy = (pb.out.y or pb.y) - pb.y
-                                    expected = 2 + math.sqrt(
-                                        ddx * ddx + ddy * ddy) / 300
-                                end
-                                local patience = expected
-                                    * (1.5 + nerve0 * 2)
-                                    * (bonded0 and 0.6 or 1.0)
-                                return (nowSH - pb.out.saidAtHours)
-                                    / math.max(0.1, patience)
-                            end
-                            local bearing = 24 * (1 + nerve0 * 2)
-                                * (bonded0 and 0.6 or 1.0)
-                            return (nowSH - pb.atHours)
-                                / math.max(0.1, bearing)
-                        end
-                        local overRatio = close
-                            and worryRatio(myNerve, bonded) or 0
-                        local overdue = overRatio > 1
-                        -- Only the truly absent: a fellow standing
-                        -- twenty tiles away is not missing.
-                        if close and overdue
-                            and not (mKey and SAO.Body.get(mKey)) then
-                            -- The departure argument ([B1]): whoever
-                            -- stands closest runs the SAME worry math
-                            -- from their own seat. Not-worried and
-                            -- caring about the SEARCHER, they object.
-                            -- A barely-over searcher facing a bonded
-                            -- objector or a trusted leader desists -
-                            -- and the care shown warms both. The
-                            -- far-gone go anyway; an objector who
-                            -- loses and loves them goes along.
-                            local objector = nil
-                            do
-                                local myG7 = SAO.Standing.groupOf(id)
-                                local bestD7 = 1e9
-                                if myG7 then
-                                    for _, r7 in pairs(SAO.Identity.all()) do
-                                        if not r7.dead and r7.id ~= id
-                                            and SAO.Standing.groupOf(r7.id)
-                                                == myG7 then
-                                            local b7 = SAO.Body.get(r7.id)
-                                            if b7 then
-                                                local dx7 = b7:getX()
-                                                    - body:getX()
-                                                local dy7 = b7:getY()
-                                                    - body:getY()
-                                                local d7 = dx7 * dx7
-                                                    + dy7 * dy7
-                                                if d7 <= 100
-                                                    and d7 < bestD7 then
-                                                    objector = r7.id
-                                                    bestD7 = d7
-                                                end
-                                            end
-                                        end
-                                    end
-                                end
-                            end
-                            local desisted = false
-                            if objector
-                                and SAO.Standing.trust(objector, id)
-                                    > 0.4 then
-                                local oNerve = SAO.Disposition
-                                    .traits(objector).nerve
-                                local oBonded = mKey and SAO.Standing
-                                    .isBondedTo(objector, mKey)
-                                local theirRatio =
-                                    worryRatio(oNerve, oBonded)
-                                if theirRatio <= 1 then
-                                    pcall(function()
-                                        SAO.Voice.onEvent(objector,
-                                            "stayPut", tick)
-                                    end)
-                                    -- [C49] SAO.Command decides
-                                    -- whether the objection carries
-                                    -- (DR-033). This site used to
-                                    -- decide it here: bonded, or same
-                                    -- side with trust above 0.5, or
-                                    -- leader/second with trust above
-                                    -- 0.5. That is a hardcoded
-                                    -- authority table, which DR-033
-                                    -- rules out, and it covered this
-                                    -- one order only. Both facts it
-                                    -- used are in SAO.Command now -
-                                    -- `secondOf` is already nil in a
-                                    -- divided house, and the leader's
-                                    -- office is withheld there from
-                                    -- members leaning the other way.
-                                    -- Bonds needed no separate clause:
-                                    -- both ways a bond forms require
-                                    -- high trust (0.6 and up at
-                                    -- genesis, 0.75 in play), and the
-                                    -- check weighs trust.
-                                    --
-                                    -- The worry test stays here.
-                                    -- Nobody frantic is talked down by
-                                    -- anyone, so the order is only put
-                                    -- when the question is open.
-                                    if overRatio <= 1.25
-                                        and onTheirWord(objector, id,
-                                            "hold", nil, nil) then
-                                        desisted = true
-                                        agent.nextSearchAt = tick + 21600
-                                        SAO.Standing.adjustTrust(
-                                            id, objector, 0.03)
-                                        SAO.Standing.adjustTrust(
-                                            objector, id, 0.03)
-                                        log(id .. " is talked out of the"
-                                            .. " search by " .. objector
-                                            .. " - barely worried enough,"
-                                            .. " and they care")
-                                    elseif SAO.Standing.isBondedTo(
-                                            objector, id)
-                                        or SAO.Standing.trust(objector, id)
-                                            > 0.6 then
-                                        local oAgent = Ctl.agents[objector]
-                                        if oAgent then
-                                            oAgent.escortId = id
-                                            pcall(function()
-                                                SAO.Voice.onEvent(objector,
-                                                    "notAlone", tick)
-                                            end)
-                                            log(objector .. " cannot stop "
-                                                .. id .. " - so they go"
-                                                .. " along")
-                                        end
-                                    else
-                                        log(objector .. " watches " .. id
-                                            .. " go")
-                                    end
-                                end
-                            end
-                            if desisted then return end
-                            local sx = (pb.out and pb.out.x) or pb.x
-                            local sy = (pb.out and pb.out.y) or pb.y
-                            if SAO.Locomotion.order(id, body,
-                                math.floor(sx), math.floor(sy),
-                                math.floor(body:getZ())) then
-                                agent.searchName = pname
-                                agent.taskDeadline = tick + 3600
-                                pcall(function()
-                                    SAO.Voice.onEvent(id, "searchOut", tick)
-                                end)
-                                -- The searcher tells someone too.
-                                pcall(function()
-                                    SAO.Perception.announceDeparture(
-                                        id, "search",
-                                        math.floor(sx), math.floor(sy))
-                                end)
-                                setState(agent, id, "SEARCHWARD",
-                                    pb.out
-                                    and ("goes after " .. pname
-                                        .. " - said they'd be back by now")
-                                    or ("goes looking for " .. pname
-                                        .. " - nobody has seen them"),
-                                    "need")
-                                return
-                            end
-                        end
-                    end
-                end
-            end
-        end
+        if decideRestActivity(id, agent, body, tick, idleRec) then return end
+        if decideLocalResources(id, agent, body, tick, idleRec) then return end
+        if decidePromiseAndSearch(id, agent, body, tick, idleRec) then return end
         local interval = SAO.Disposition.roamInterval(id)
         if SAO.Lessons.has(id, "routine-is-armor")
             or SAO.Lessons.has(id, "measure-the-danger") then
@@ -3860,1137 +5028,7 @@ local function decide(id, agent, body)
         if desig == "scout" then interval = math.floor(interval * 0.6) end
         agent.nextRoamAt = agent.nextRoamAt or (tick + interval)
         if tick >= agent.nextRoamAt then
-            agent.nextRoamAt = tick + interval
-            -- [C113] An ordinary county's street leg, before any of
-            -- the survival-era machinery below decides anything. The
-            -- same three facts the dormant half reads, on this half's
-            -- own clock: the county says the fall has not come
-            -- (`fallHasCome`'s REASON must be "before" - a county that
-            -- cannot read its calendar is not a street crowd either),
-            -- the person carries no designation (a watch or a scout is
-            -- the county's own organization and stands as it stands in
-            -- any era), and Week One's street hour says out. Staying
-            -- in is the leg NOT taken: the gate re-arms and asks again
-            -- at the next one, and the body keeps its evening - the
-            -- live half already holds the night at 22:00 with sleep of
-            -- its own, which no port overrides.
-            --
-            -- Going out is a commute when the census filed ground
-            -- under this person's trade ([A18]), else the same stretch
-            -- of legs the undesignated always had. The workplace is
-            -- the SAME persisted fact the dormant half derives
-            -- (`rec.workX`) - one job, both halves, whichever got
-            -- there first.
-            local preFall = false
-            do
-                local okF, fallen, whyF = pcall(function()
-                    return SAO.Standing.fallHasCome()
-                end)
-                preFall = okF and fallen == false and whyF == "before"
-            end
-            local streetWork = nil
-            if preFall and not desig then
-                local out = false
-                pcall(function()
-                    local affinity = SAO.History.streetAffinity(
-                        GameTime.getInstance():getHour())
-                    if affinity then
-                        out = SAO.Rand.unit() < affinity
-                    end
-                end)
-                if not out then
-                    return
-                end
-                local recSt = SAO.Identity.get(id)
-                local rowSt = recSt and recSt.occupation
-                    and SAO.Census.rowOf(recSt.occupation) or nil
-                if rowSt and rowSt.enginePath then
-                    if not (recSt.workX and recSt.workY) then
-                        pcall(function()
-                            local w = SAO.Population.tradeGroundFor(
-                                rowSt.enginePath)
-                            if w then
-                                recSt.workX, recSt.workY = w.x, w.y
-                            end
-                        end)
-                    end
-                    if recSt.workX and recSt.workY then
-                        streetWork = { x = recSt.workX, y = recSt.workY,
-                                       label = rowSt.label
-                                           or tostring(recSt.occupation) }
-                    end
-                end
-            end
-            local range = SAO.Disposition.roamRange(id)
-            local why, answer = nil, nil
-            local watchEdge = nil
-            local allyWall = false
-            local raidG = nil
-            local deliveryRun = false
-            if desig == "watch" then
-                -- The watch walks the EDGE ([A19]): a point on the
-                -- boundary of the ground actually held - the company's
-                -- claim first, their own second - facing whatever comes.
-                local c = nil
-                local wg = SAO.Standing.groupOf(id)
-                if wg then c = SAO.Standing.groupClaimOf(wg) end
-                -- The war party ([A27]): during a feud, one watch
-                -- leg in six walks TOWARD THE ENEMY'S GROUND. The walk
-                -- is the whole mechanic - what happens when hostile
-                -- parties meet is the engine's own combat law, and
-                -- witnessing, grudges, death news, and the chronicle
-                -- already catch the consequences.
-                if wg then
-                    for eg in pairs(SAO.Standing.allGroupClaims()) do
-                        if eg ~= wg and SAO.Standing.feudBetween(wg, eg)
-                            and SAO.Rand.int(6) == 0 then
-                            local ec = SAO.Standing.groupClaimOf(eg)
-                            if ec then
-                                c = ec
-                                raidG = eg
-                            end
-                            break
-                        end
-                    end
-                end
-                -- The pact kept ([A26]): a watchman of a watch-rich
-                -- house walks the ALLY'S wall one leg in three - the
-                -- other half of bread-for-watch, visible.
-                if not raidG and wg and SAO.Standing.pactPartnerOf then
-                    local wAlly = SAO.Standing.pactPartnerOf(wg)
-                    local wAllyClaim = wAlly
-                        and SAO.Standing.groupClaimOf(wAlly) or nil
-                    if wAllyClaim and SAO.Rand.int(3) == 0 then
-                        c = wAllyClaim
-                        allyWall = true
-                    end
-                end
-                c = c or SAO.Standing.claimOf(id)
-                if c then
-                    local side = SAO.Rand.int(4)
-                    local ex, ey
-                    if side == 0 then
-                        ex, ey = c.minX, c.minY + SAO.Rand.int(c.maxY - c.minY + 1)
-                    elseif side == 1 then
-                        ex, ey = c.maxX, c.minY + SAO.Rand.int(c.maxY - c.minY + 1)
-                    elseif side == 2 then
-                        ex, ey = c.minX + SAO.Rand.int(c.maxX - c.minX + 1), c.minY
-                    else
-                        ex, ey = c.minX + SAO.Rand.int(c.maxX - c.minX + 1), c.maxY
-                    end
-                    watchEdge = { x = ex, y = ey }
-                end
-            end
-            -- The dark ([B17]): the far errands do not set out into
-            -- the night without a light. Desperation overrides -
-            -- starving outranks being sensible, the same way it
-            -- overrides claimed ground - and the watch stays out
-            -- because the watch that matters is the one nobody can
-            -- see coming.
-            do
-                local okNH, hourNow = pcall(function()
-                    return GameTime.getInstance():getHour()
-                end)
-                local isNight = okNH and (hourNow >= 22.0 or hourNow < 6.0)
-                if isNight and (desig == "forager" or desig == "scout") then
-                    local nNeeds = SAO.Needs.read(body)
-                    local starving = nNeeds and nNeeds.hunger
-                        and nNeeds.hunger >= policy().desperation
-                    if not starving and not SAO.Needs.hasLight(body) then
-                        agent.nextRoamAt = tick + 3600
-                        if not agent.saidDark then
-                            agent.saidDark = true
-                            pcall(function()
-                                SAO.Voice.onEvent(id, "waitForLight", tick)
-                            end)
-                        end
-                        setState(agent, id, "IDLE",
-                            "waits for light - no lamp, and the sweep can"
-                            .. " keep till morning", "chosen rest")
-                        return
-                    end
-                end
-            end
-            if desig == "scout" then
-                range = range * 3
-                -- Light feet range farther ([B2]).
-                local sLvl = SAO.Census.skillOf
-                    and SAO.Census.skillOf(id, "Lightfooted") or 0
-                if sLvl and sLvl > 0 then
-                    range = math.floor(range * (1 + sLvl * 0.05))
-                end
-                why, answer = "scouts the ground for the company", "designation"
-            elseif desig == "watch" then
-                range = math.max(3, math.floor(range / 2))
-                why, answer = "walks the watch", "designation"
-                if allyWall then why = "walks the ally's wall" end
-                -- The wall watched ([B2]): a watcher carrying the
-                -- real kit - hammer, plank, nails, however the world
-                -- provided them - boards up a needy window on their
-                -- OWN ground through the vanilla action. The engine
-                -- grants the Carpentry itself.
-                if not raidG and not allyWall
-                    and tick >= (agent.nextBuildAt or 0) then
-                    agent.nextBuildAt = tick + 10800
-                    local wc9 = SAO.Standing.groupOf(id)
-                        and SAO.Standing.groupClaimOf(
-                            SAO.Standing.groupOf(id))
-                        or SAO.Standing.claimOf(id)
-                    if wc9 and SAO.Standing.insideClaim(
-                        id, body:getX(), body:getY()) then
-                        local hasKit, hammer9, plank9 = false, nil, nil
-                        pcall(function()
-                            local inv9 = body:getInventory()
-                            local its9 = inv9:getItems()
-                            local nails9 = false
-                            for i9 = 0, its9:size() - 1 do
-                                local it9 = its9:get(i9)
-                                local ft9 = tostring(
-                                    it9:getFullType() or "")
-                                if ft9 == "Base.Hammer" then
-                                    hammer9 = it9
-                                elseif ft9 == "Base.Plank" then
-                                    plank9 = it9
-                                elseif ft9 == "Base.Nails"
-                                    or ft9 == "Base.NailsBox" then
-                                    nails9 = true
-                                end
-                            end
-                            hasKit = hammer9 ~= nil and plank9 ~= nil
-                                and nails9
-                        end)
-                        if hasKit then
-                            local target9 = nil
-                            pcall(function()
-                                local cell9 = getCell()
-                                local wx0, wy0, wx1, wy1, wz0 =
-                                    workWindow(wc9, body, 10)
-                                if not wx0 then return end
-                                for x9 = wx0, wx1 do
-                                    if target9 then break end
-                                    for y9 = wy0, wy1 do
-                                        local sq9 = cell9:getGridSquare(
-                                            x9, y9, wz0)
-                                        if sq9 then
-                                            local objs9 = sq9:getObjects()
-                                            for o9 = 0, objs9:size() - 1 do
-                                                local ob9 = objs9:get(o9)
-                                                local okB9, can9 =
-                                                    pcall(function()
-                                                    if not ob9.isBarricadeAllowed
-                                                        or not ob9:isBarricadeAllowed()
-                                                    then
-                                                        return false
-                                                    end
-                                                    local bar9 = ob9
-                                                        :getBarricadeForCharacter(
-                                                            body)
-                                                    return bar9 == nil
-                                                        or bar9:canAddPlank()
-                                                end)
-                                                if okB9 and can9 then
-                                                    target9 = ob9
-                                                    break
-                                                end
-                                            end
-                                            if target9 then break end
-                                        end
-                                    end
-                                end
-                            end)
-                            if target9 then
-                                pcall(function()
-                                    body:setPrimaryHandItem(hammer9)
-                                    body:setSecondaryHandItem(plank9)
-                                    ISTimedActionQueue.add(
-                                        ISBarricadeAction:new(
-                                            body, target9, false, false))
-                                end)
-                                agent.taskDeadline = tick + 1800
-                                agent.takePurpose = "build"
-                                setState(agent, id, "TAKE",
-                                    "boards up the window - the wall"
-                                    .. " holds", "designation")
-                                return
-                            end
-                        end
-                    end
-                end
-                if raidG then
-                    why = "walks toward the enemy's ground"
-                    pcall(function()
-                        SAO.Voice.onEvent(id, "warpath", tick)
-                    end)
-                end
-            elseif desig == "forager" then
-                range = range * 2
-                why, answer = "sweeps for supplies", "designation"
-                -- Lean shelves stretch the sweep ([A28]): a house
-                -- that KNOWS it is short sends its foragers farther.
-                do
-                    local fG5 = SAO.Standing.groupOf(id)
-                    local l5 = fG5 and SAO.Standing.larderOf(fG5) or nil
-                    if l5 and l5.word == "lean" then
-                        range = math.floor(range * 1.5)
-                        why = "sweeps far - the shelves are thin"
-                    end
-                end
-                -- The haul comes home ([A28]): a forager standing on
-                -- their own ground with spare food shelves it - the
-                -- same sanctioned deposit the quartermaster runs, now
-                -- fed by REAL collected goods, closing the loop:
-                -- sweep, gather, walk home, shelve.
-                if SAO.Standing.insideClaim(id, body:getX(), body:getY())
-                    and SAO.Needs.depositSpareFood(id, body) then
-                    agent.taskDeadline = tick + 900
-                    agent.takePurpose = "deposit"
-                    setState(agent, id, "TAKE", "shelves the haul",
-                        "designation")
-                    return
-                end
-                -- The pact kept ([A26]): a forager of a bread-rich
-                -- house carries the bread OVER. Standing on the ally's
-                -- ground with spare food, the delivery is the same
-                -- sanctioned deposit the quartermaster runs at home;
-                -- otherwise, when the run is due, the roam aims at the
-                -- ally's ground instead of nowhere.
-                local pg = SAO.Standing.groupOf(id)
-                local ally = pg and SAO.Standing.pactPartnerOf
-                    and SAO.Standing.pactPartnerOf(pg) or nil
-                -- [B23] And when there is no pact, a house that has
-                -- ASKED. Same legs, same deposit - the difference is
-                -- only who is owed at the end of it.
-                local asked = nil
-                if not ally and pg and SAO.Standing.nearestAsking then
-                    asked = SAO.Standing.nearestAsking(pg)
-                end
-                local bringTo = ally or asked
-                local allyClaim = bringTo
-                    and SAO.Standing.groupClaimOf(bringTo) or nil
-                if allyClaim then
-                    -- [C108] The delivery is kept standing on ANY of
-                    -- the ally's ground - a stash or a second house
-                    -- answers the pact as well as their seat does.
-                    local inAlly = SAO.Standing.onGroundOf(bringTo,
-                        body:getX(), body:getY())
-                    if inAlly
-                        and SAO.Needs.depositSpareFood(id, body) then
-                        agent.taskDeadline = tick + 900
-                        agent.takePurpose = "deposit"
-                        agent.nextPactRunAt = tick + 21600
-                        -- [B23] State first, bookkeeping after. The
-                        -- queuing call is the branch condition right
-                        -- above; keeping setState next to it is what
-                        -- border 6 exists to enforce, and the code
-                        -- reads better this way regardless.
-                        local why52 = "delivers the bread - the pact kept"
-                        if asked then
-                            why52 = "answers the ask - bread to "
-                                .. tostring(SAO.Standing.factionName(asked)
-                                    or asked)
-                        end
-                        setState(agent, id, "TAKE", why52, "designation")
-                        if asked then
-                            -- A gift, and it is remembered. No price -
-                            -- this county has never had one, and does
-                            -- not need one to keep accounts.
-                            pcall(function()
-                                local theirLead = SAO.Standing.leaderOf(asked)
-                                local ourLead = SAO.Standing.leaderOf(pg)
-                                if theirLead and ourLead then
-                                    SAO.Standing.addDebt(ourLead,
-                                        theirLead, 1)
-                                    SAO.Standing.adjustTrust(theirLead,
-                                        ourLead, 0.15)
-                                end
-                            end)
-                            pcall(function()
-                                SAO.Voice.onEvent(id, "answered", tick)
-                            end)
-                        else
-                            pcall(function()
-                                SAO.Voice.onEvent(id, "pactKept", tick)
-                            end)
-                        end
-                        return
-                    end
-                    -- A lean ally quickens the runs ([A28]): pact
-                    -- houses talk, so the partner's own counted
-                    -- shelves (their fresh larder claim) halve the
-                    -- delivery cadence. Composition of existing
-                    -- claims - no new fiat.
-                    local allyLean = false
-                    do
-                        local al6 = ally and SAO.Standing.larderOf
-                            and SAO.Standing.larderOf(ally) or nil
-                        allyLean = (al6 and al6.word == "lean") or false
-                    end
-                    if not inAlly
-                        and tick >= (agent.nextPactRunAt or 0)
-                            - (allyLean and 10800 or 0) then
-                        watchEdge = {
-                            x = (allyClaim.minX + allyClaim.maxX) / 2,
-                            y = (allyClaim.minY + allyClaim.maxY) / 2,
-                        }
-                        why = asked and "carries bread to a house that"
-                            .. " asked" or "carries bread to the ally"
-                        deliveryRun = true
-                    end
-                end
-            elseif desig == "quartermaster" then
-                -- The round does the work ([A19]): standing on held
-                -- ground with spare food, the quartermaster stocks the
-                -- stores before stretching legs. The walk happens next
-                -- cadence; stocking IS the job.
-                if SAO.Standing.insideClaim(id, body:getX(), body:getY())
-                    and SAO.Needs.depositSpareFood(id, body) then
-                    agent.taskDeadline = tick + 900
-                    agent.takePurpose = "deposit"
-                    setState(agent, id, "TAKE", "stocks the stores", "designation")
-                    return
-                end
-                why, answer = "rounds the stores", "designation"
-                -- The larder speaks ([A28]): the round READS the
-                -- real shelves - a count of actual edible items in
-                -- the actual containers - and the claim it derives is
-                -- what the house knows about its own stores.
-                if SAO.Standing.insideClaim(id, body:getX(), body:getY()) then
-                    local qG = SAO.Standing.groupOf(id)
-                    if qG then
-                        local okC5, cnt5 = pcall(function()
-                            return SAOJavaBridge:countEdibleNearby(body, 12)
-                        end)
-                        if okC5 and type(cnt5) == "number" then
-                            local n5 = #SAO.Standing.fellowsOf(id) + 1
-                            -- The winter prepared ([A28]): in autumn
-                            -- (engine months 9/10 = Oct/Nov, the same
-                            -- 0-based calendar the attrition law
-                            -- reads) the SAME real count is judged
-                            -- against the winter ahead - thresholds
-                            -- x1.5. Judgment derives from calendar
-                            -- plus count; the count itself is never
-                            -- touched.
-                            local seasonScale = 1.0
-                            pcall(function()
-                                local m6 = SAO.History.countyMonth()
-                                if m6 == 9 or m6 == 10 then
-                                    seasonScale = 1.5
-                                end
-                            end)
-                            local word = (cnt5 < n5 * 1.5 * seasonScale)
-                                and "lean"
-                                or (cnt5 > n5 * 4 * seasonScale)
-                                and "full" or "fair"
-                            SAO.Standing.setLarder(qG, word, cnt5)
-                            if word == "lean" then
-                                -- [B23] And the county hears it. The
-                                -- count is already made; this only
-                                -- lets it leave the building.
-                                pcall(function()
-                                    SAO.Standing.callForBread(qG)
-                                end)
-                                pcall(function()
-                                    SAO.Voice.onEvent(id,
-                                        seasonScale > 1 and "winterLean"
-                                        or "lean", tick)
-                                end)
-                            end
-                            log(id .. " counts the shelves: " .. cnt5
-                                .. " (" .. word
-                                .. (seasonScale > 1 and ", judged against winter"
-                                    or "") .. ")")
-                            -- The motor pool ([B1]): the same rounds
-                            -- read the REAL cars on the ground. The
-                            -- claim is what the house can plan seats
-                            -- around; no car is ever conjured.
-                            -- The warm house ([B6]): the round also
-                            -- notes whether the hearth is BURNING -
-                            -- a claim the dormant world reads, so a
-                            -- house that keeps a fire survives the
-                            -- cold months better than one that does
-                            -- not. Read, never asserted.
-                            do
-                                local _, _, _, hf7, hl7 =
-                                    SAO.Needs.findHearth(id, body, 14)
-                                SAO.Standing.setHearth(qG,
-                                    (hl7 and hf7 and hf7 > 0) and true or false)
-                            end
-                            -- Water counted ([B6]): the same round
-                            -- reads what the house has to DRINK, and
-                            -- notices the day the mains stop. The
-                            -- shutoff is a county fact - stamped,
-                            -- aired, and chronicled like the first
-                            -- bite; sandbox decides when it comes.
-                            do
-                                local okW6, w6 = pcall(function()
-                                    return SAOJavaBridge
-                                        :countStoredWaterNearby(body, 12)
-                                end)
-                                if okW6 and type(w6) == "number" then
-                                    local n6 = #SAO.Standing.fellowsOf(id) + 1
-                                    local word6 = (w6 < n6 * 2) and "dry"
-                                        or (w6 > n6 * 8) and "full" or "fair"
-                                    SAO.Standing.setWaterStore(qG, word6, w6)
-                                    if word6 == "dry" then
-                                        pcall(function()
-                                            SAO.Voice.onEvent(id, "dryStore",
-                                                tick)
-                                        end)
-                                    end
-                                    log(id .. " counts the water: "
-                                        .. math.floor(w6) .. " (" .. word6
-                                        .. ")")
-                                end
-                                local okM6, mainsOn6 = pcall(function()
-                                    return SAOJavaBridge:countyWaterOn()
-                                end)
-                                if okM6 and mainsOn6 == false then
-                                    pcall(function()
-                                        local sM = ModData.getOrCreate(
-                                            "SurvivorAwareness_Standing")
-                                        if sM and not sM.tapsDryAtHours then
-                                            -- [B34] Stamp LAST. The
-                                            -- guard is once-only, so a
-                                            -- throw after the stamp
-                                            -- lands would keep the day
-                                            -- and lose the telling of
-                                            -- it, forever. Read the
-                                            -- hour and air the news
-                                            -- first; the stamp is then
-                                            -- a bare assignment on a
-                                            -- table already checked,
-                                            -- which cannot throw.
-                                            local atH = SAO.History.countyHours()
-                                            SAO.Standing.pushRadioNews({
-                                                kind = "tapsDry" })
-                                            sM.tapsDryAtHours = atH
-                                        end
-                                    end)
-                                end
-                            end
-                            -- The armorer ([B2]): a REAL weapon from
-                            -- the REAL stores goes to the steadiest
-                            -- unarmed hands present. Pure transfer -
-                            -- both bodies are ours; nothing conjured.
-                            do
-                                local bestUn, bestAim = nil, -1
-                                -- The roster, not the county ([B5]).
-                                for _, mid2 in ipairs(
-                                    SAO.Standing.fellowsOf(id)) do
-                                    local mr = SAO.Identity.get(mid2)
-                                    if mr and not mr.dead then
-                                        local mb = SAO.Body.get(mr.id)
-                                        if mb then
-                                            local mdx = mb:getX()
-                                                - body:getX()
-                                            local mdy = mb:getY()
-                                                - body:getY()
-                                            if mdx * mdx + mdy * mdy
-                                                <= 100 then
-                                                local armed = false
-                                                pcall(function()
-                                                    local its =
-                                                        mb:getInventory()
-                                                        :getItems()
-                                                    for i2 = 0,
-                                                        its:size() - 1 do
-                                                        if instanceof(
-                                                            its:get(i2),
-                                                            "HandWeapon")
-                                                        then
-                                                            armed = true
-                                                            break
-                                                        end
-                                                    end
-                                                end)
-                                                if not armed then
-                                                    local aim =
-                                                        SAO.Census.skillOf(
-                                                        mr.id, "Aiming")
-                                                    if aim > bestAim then
-                                                        bestUn = mr.id
-                                                        bestAim = aim
-                                                    end
-                                                end
-                                            end
-                                        end
-                                    end
-                                end
-                                if bestUn then
-                                    local okW, tookW = pcall(function()
-                                        return SAOJavaBridge
-                                            :takeWantedFromNearby(
-                                                body, 12, "weapon", 1)
-                                    end)
-                                    if okW and tookW and tookW > 0 then
-                                        pcall(function()
-                                            local qInv = body:getInventory()
-                                            local its = qInv:getItems()
-                                            for i2 = its:size() - 1, 0, -1 do
-                                                local it2 = its:get(i2)
-                                                if instanceof(it2,
-                                                    "HandWeapon") then
-                                                    qInv:Remove(it2)
-                                                    SAO.Body.get(bestUn)
-                                                        :getInventory()
-                                                        :AddItem(it2)
-                                                    SAOJavaBridge
-                                                        :equipBestMelee(
-                                                        SAO.Body.get(bestUn))
-                                                    log(id .. " arms "
-                                                        .. bestUn
-                                                        .. " from the stores"
-                                                        .. " - steadiest"
-                                                        .. " hands present")
-                                                    break
-                                                end
-                                            end
-                                        end)
-                                    end
-                                end
-                            end
-                            -- [B19] The quartermaster APPRAISES
-                            -- rather than counts: fuel, engine,
-                            -- loudness, storage and whether a key is
-                            -- even present. Counting hulks as wealth
-                            -- is how the Ledger came to report
-                            -- "wheels: 3" for a yard that could not
-                            -- move.
-                            local okV, vlist = pcall(function()
-                                return SAOJavaBridge:appraiseVehiclesNear(
-                                    body, 15)
-                            end)
-                            if okV and type(vlist) == "string" then
-                                local cars = {}
-                                for entry in vlist:gmatch("[^,]+") do
-                                    -- [C122] The `vhk` column: whether
-                                    -- the appraising body carries this
-                                    -- very car's key - the engine's own
-                                    -- holder read, rings recursed by the
-                                    -- engine itself.
-                                    local vn, vs, vf, vfu, ve, vl,
-                                        vst, vig, vh, vhk, vd = entry:match(
-                                        "^(.-)@(%d+)@(%d+)@(%d+)@(%d+)"
-                                        .. "@(%d+)@(%d+)@(%d+)@(%d+)"
-                                        .. "@(%d+)@(%d+)$")
-                                    if vn then
-                                        cars[#cars + 1] = {
-                                            name = vn,
-                                            seats = tonumber(vs),
-                                            free = tonumber(vf),
-                                            fuel = tonumber(vfu),
-                                            engine = tonumber(ve),
-                                            loud = tonumber(vl),
-                                            storage = tonumber(vst),
-                                            ignition = tonumber(vig),
-                                            hotwired = tonumber(vh),
-                                            key = tonumber(vhk),
-                                            dist = tonumber(vd),
-                                        }
-                                    end
-                                end
-                                SAO.Standing.setMotorPool(qG, cars)
-                                if #cars > 0 then
-                                    log(id .. " counts the motor pool: "
-                                        .. #cars .. " vehicle(s)")
-                                end
-                            end
-                        end
-                    end
-                end
-            elseif desig == "cook" then
-                -- [B20] The cook cooks. Vanilla gates dangerous raw
-                -- food on `isbDangerousUncooked() and not isCooked()`,
-                -- so this is the one job whose product is measured in
-                -- other people's stomachs: the house's own larder
-                -- stops being a thing that might kill you.
-                --
-                -- Needs a fire that is actually lit and ground that
-                -- is actually theirs. A cook with no hearth is a
-                -- person with a skill and nowhere to use it, which is
-                -- honest and is most of the county's problem.
-                why, answer = "works the fire", "designation"
-                if SAO.Standing.insideClaim(id, body:getX(), body:getY())
-                    and tick >= (agent.nextCookAt or 0) then
-                    local hearth41 = nil
-                    pcall(function()
-                        hearth41 = SAOJavaBridge:hearthNear(body, 6)
-                    end)
-                    if hearth41 and hearth41 ~= "" then
-                        local lvl41 = SAO.Census.skillOf(id, "Cooking")
-                        if lvl41 < 0 then lvl41 = 0 end
-                        local made41 = 0
-                        pcall(function()
-                            made41 = SAOJavaBridge:cookNearbyFood(
-                                body, 6, lvl41)
-                        end)
-                        if made41 and made41 > 0 then
-                            agent.nextCookAt = tick + 3600
-                            agent.taskDeadline = tick + 900
-                            pcall(function()
-                                SAOJavaBridge:grantXP(body, "Cooking", 3.0)
-                            end)
-                            pcall(function()
-                                SAO.Voice.onEvent(id, "cooks", tick)
-                            end)
-                            log(id .. " cooks " .. made41
-                                .. " - the larder stops being dangerous")
-                            setState(agent, id, "TREAT",
-                                "cooks for the house", "designation")
-                            return
-                        end
-                    end
-                end
-            elseif desig == "medic" then
-                why, answer = "makes the rounds", "designation"
-            elseif desig == "leads" then
-                why, answer = "walks the company's ground", "designation"
-            else
-                why = "stretching legs (" .. range .. " tile range)"
-            end
-            -- [B19] What wheels actually buy is DISTANCE - the
-            -- only currency a venture has. A house whose appraised
-            -- pool holds a car that runs, with someone present who
-            -- can start it, dares twice as far. A yard of hulks buys
-            -- nothing, which is the whole point of appraising
-            -- honestly.
-            --
-            -- The objection is a real decision, not a scripted line:
-            -- someone who has learned that noise is a debt, whose
-            -- only runnable car is a loud one, LEAVES IT and walks.
-            -- They would rather take longer than announce
-            -- themselves. (The loudness threshold is a judgment on a
-            -- real per-script scale the game ships, the same way the
-            -- [B7] cold thresholds are judgments on real degrees.)
-            -- [B19] Hoisted out of the block so the seat count
-            -- can reach the joining decision below: what car is being
-            -- taken and how many seats are free is exactly what caps
-            -- the party.
-            local takingWheels = nil
-            -- [C120] The learning driver's cap scale, hoisted beside
-            -- the wheels: set when the taker is a child of driving
-            -- age, read by the order call below.
-            local wheelCapScale = nil
-            do
-                local gW = SAO.Standing.groupOf(id)
-                -- [C54] The objection picks the car now instead of
-                -- ending the question. The pool holds more than one
-                -- runner and the appraisal returned exactly one - the
-                -- roomiest openable - so a goer who has learned that
-                -- noise is a debt walked past a quiet car to refuse a
-                -- loud one. Their own ceiling goes in with the ask,
-                -- and what comes back is the roomiest car they would
-                -- actually take. Where the yard holds only loud
-                -- runners the answer is nothing, which is the same
-                -- walk they took before and for the same reason.
-                local ceiling = nil
-                if SAO.Lessons.has(id, "noise-is-a-debt") then
-                    ceiling = 50
-                end
-                local wheels = gW and SAO.Standing.roadworthy
-                    and SAO.Standing.roadworthy(gW, ceiling) or nil
-                if not wheels and ceiling and gW then
-                    local anyCar = SAO.Standing.roadworthy(gW)
-                    if anyCar then
-                        log(id .. " leaves the "
-                            .. tostring(anyCar.name or "car")
-                                :gsub("^Base%.", "")
-                            .. " where it sits - nothing in the yard is"
-                            .. " quiet enough to be worth it")
-                    end
-                end
-                if wheels then
-                    local canTake = wheels.open
-                        or (SAO.Census.canHotwire
-                            and SAO.Census.canHotwire(id))
-                    local plain = tostring(wheels.name or "car")
-                        :gsub("^Base%.", "")
-                    -- [C54] The loudness test is gone from here: the
-                    -- appraisal above never returns a car this person
-                    -- would refuse, so a second test could only ever
-                    -- be dead. What is left is whether they can get
-                    -- into it at all.
-                    if canTake then
-                        -- [C120] The wheel is earned by age (Growing
-                        -- Up's DRIVING_AGE, credited): a kid under ten
-                        -- does not take the car at all - the ordinary
-                        -- walk takes the trip, the honest fallback
-                        -- this seam always had - and ten to seventeen
-                        -- drive under the learning penalty at the one
-                        -- seat SAO owns, the cap the order reads
-                        -- (their BASE_PENALTY, credited). Riding is
-                        -- not driving: the passengers' side is
-                        -- untouched.
-                        local wAge = nil
-                        pcall(function()
-                            wAge = SAO.History.ageOf(id)
-                        end)
-                        if type(wAge) == "number" and wAge < 18
-                            and wAge < SAO.History.DRIVING_AGE then
-                            log(id .. " (" .. wAge .. ") leaves the "
-                                .. plain
-                                .. " where it sits - too young for"
-                                .. " the wheel")
-                        else
-                            range = math.floor(range * 2)
-                            takingWheels = wheels
-                            if type(wAge) == "number" and wAge < 18 then
-                                wheelCapScale = 1.0
-                                    - SAO.History.CHILD_DRIVE_PENALTY
-                            end
-                            why = why .. " - taking the " .. plain
-                            pcall(function()
-                                SAO.Voice.onEvent(id, "wheels", tick)
-                            end)
-                        end
-                    end
-                end
-            end
-            local bx, by = body:getX(), body:getY()
-            local gx = math.floor(bx + SAO.Rand.int(-range, range + 1))
-            local gy = math.floor(by + SAO.Rand.int(-range, range + 1))
-            if watchEdge then
-                gx, gy = math.floor(watchEdge.x), math.floor(watchEdge.y)
-            end
-            -- [C113] The commute, over whatever the stretch drew -
-            -- unless they are already AT the ground (the same 3-tile
-            -- reach the dormant half uses), in which case this leg is
-            -- the stretch after all: arrived at work, the ordinary
-            -- thing is the stroll around it, not re-ordering the
-            -- doorstep.
-            if streetWork then
-                -- [C119] The ground rides the leg, both cases: the
-                -- arrival seam asks whether this walk was the
-                -- work's, and a stroll around the ground one is
-                -- already standing on is the work's too.
-                agent.workingGround = streetWork
-                local swdx = streetWork.x - bx
-                local swdy = streetWork.y - by
-                if swdx * swdx + swdy * swdy
-                    > ARRIVAL_REACH * ARRIVAL_REACH then
-                    gx, gy = math.floor(streetWork.x),
-                        math.floor(streetWork.y)
-                    why = "goes to work - the "
-                        .. tostring(streetWork.label) .. "'s ground"
-                end
-            else
-                -- [C119] A leg with no work behind it clears the
-                -- stamp: the trade ground is a pre-fall fact
-                -- ([C113]), and it does not follow the person into
-                -- the world after.
-                agent.workingGround = nil
-            end
-            -- [B31] The trip costs the tank. [B31] found that
-            -- `roadworthy` gates on fuel above 5 and NOTHING ever
-            -- spent it, so a car sitting at 6% carried doubled-range
-            -- ventures forever and still read 6%. Everywhere else in
-            -- this mod, acting on real state changes it.
-            --
-            -- Spent here rather than where the car was chosen,
-            -- because the honest quantity is the distance actually
-            -- travelled - the range the car bought is a ceiling, not
-            -- a journey.
-            --
-            -- The one judgment, in [B20]'s idiom: the engine exposes
-            -- no consumption rate anywhere, so how much a trip costs
-            -- cannot be read off anything. A full tank affords about
-            -- twenty full-range ventures, so a full-range trip burns
-            -- 5%. Everything that judgment scales IS read - the real
-            -- distance, the real tank, the real capacity.
-            if takingWheels and range > 0 then
-                local tdx, tdy = gx - bx, gy - by
-                local trip = math.sqrt(tdx * tdx + tdy * tdy)
-                local share = trip / range
-                if share > 1.0 then share = 1.0 end
-                if share > 0.0 then
-                    pcall(function()
-                        local burned = SAOJavaBridge:spendVehicleFuel(
-                            body, 15, tostring(takingWheels.name or ""),
-                            5.0 * share)
-                        if burned and burned > 0 then
-                            log(id .. " burns "
-                                .. string.format("%.1f", burned)
-                                .. "% of the tank")
-                        end
-                    end)
-                end
-            end
-            -- The word before the walk ([A28]): a designation venture
-            -- with a real destination is TOLD to whoever stands near -
-            -- sweeps, walls, war paths. The plain stretch of legs is
-            -- not a venture and is not announced.
-            -- [B19] A plain stretch of legs is NOT a venture and
-            -- must clear the last one, or company from an old trip
-            -- would follow someone who is just walking the yard.
-            agent.onVenture = nil
-            -- [B19] Hoisted: the company forms further down, once
-            -- locomotion has actually ACCEPTED the trip. Announcing
-            -- and departing are different moments and only the
-            -- second one can be joined.
-            local vkind, hearers = nil, nil
-            if desig and (desig == "forager" or desig == "watch"
-                or desig == "scout") then
-                vkind = raidG and "warpath"
-                    or allyWall and "allywall"
-                    or deliveryRun and "delivery"
-                    or (desig == "forager" and "sweep")
-                    or (desig == "scout" and "scout") or "watchleg"
-                pcall(function()
-                    hearers = SAO.Perception.announceDeparture(
-                        id, vkind, gx, gy)
-                end)
-                agent.onVenture = vkind
-            end
-            local nearFaction = SAO.Perception.believedFactionNear(id, gx, gy, 6)
-            -- F-031: your own ground is never forbidden ground - a
-            -- watch walking their own claim edge must not be blocked
-            -- by a belief of their OWN base.
-            if nearFaction and SAO.Standing.insideClaim(id, gx, gy) then
-                nearFaction = nil
-            end
-            -- Pact ground is not forbidden ground ([A26]) - the
-            -- delivery and the ally patrol must not be blocked by the
-            -- very base they serve.
-            if nearFaction then
-                local pg2 = SAO.Standing.groupOf(id)
-                if pg2 and SAO.Standing.pactBetween
-                    and SAO.Standing.pactBetween(pg2, nearFaction) then
-                    nearFaction = nil
-                end
-            end
-            -- The raider walks in anyway ([A27]): on the war path,
-            -- the enemy's believed presence is the POINT, not a
-            -- deterrent. Only the raid target is cleared - everyone
-            -- else's feud-shadow avoidance stands.
-            if nearFaction and raidG and nearFaction == raidG then
-                nearFaction = nil
-            end
-            if nearFaction then
-                log(id .. " keeps clear of " .. tostring(nearFaction)
-                    .. "'s ground (believed)")
-            end
-            if (gx ~= math.floor(bx) or gy ~= math.floor(by))
-                and not nearFaction
-                and mayEnterBelieved(id, gx, gy) then
-                pcall(function() SAOJavaBridge:setForceEntry(body, false) end)
-                -- [C114] A goer who took wheels DRIVES. The claim
-                -- ([B19]) was facts about a car - name, seats, fuel -
-                -- and the body walked anyway; the port's driving half
-                -- closes that through the [C82] doorway: a real SAO
-                -- person in seat 0, the engine started LAWFULLY (a
-                -- refusal is honored, not routed around), steered by
-                -- the bearing to this very destination, the tank spent
-                -- by the [B31] burn that already ran. Every refusal -
-                -- no car where the claim said, a taken seat, an engine
-                -- that will not catch - comes back as a verdict and
-                -- the ordinary walk takes the trip instead: the same
-                -- trip they always took, not an error.
-                local tookOrder = false
-                if takingWheels and SAO.Driving
-                    and SAO.Driving.order(id, body,
-                        tostring(takingWheels.name or "car"), gx, gy,
-                        wheelCapScale) then
-                    tookOrder = true
-                    -- The drive's legs are Java-side SAOMovement inside
-                    -- SAODriver, so the Lua walk is not replaced by a
-                    -- new order the way the ROAM branch replaces it -
-                    -- any live route is retired HERE (F-012: an
-                    -- orphaned job is the independent-wandering defect).
-                    SAO.Locomotion.cancel(id)
-                    agent.onWheels = tostring(takingWheels.name or "car")
-                    agent.driveGX, agent.driveGY = gx, gy
-                    setState(agent, id, "DRIVE", why)
-                end
-                if not tookOrder
-                    and SAO.Locomotion.order(id, body, gx, gy, math.floor(body:getZ())) then
-                    tookOrder = true
-                    setState(agent, id, "ROAM", why, answer)
-                end
-                if tookOrder then
-                    -- [B19] "They could go with them or they can stay
-                    -- behind, let them handle it, learn." The briefing
-                    -- was built; the joining never was. Each hearer
-                    -- decides from who they ARE - nothing here is a roll,
-                    -- and nothing is forced on anyone.
-                    if hearers and #hearers > 0 then
-                        local willing = {}
-                        for _, hid in ipairs(hearers) do
-                            local hAgent = Ctl.agents[hid]
-                            local hRec = SAO.Identity.get(hid)
-                            if hAgent and hRec and not hRec.dead
-                                and not hAgent.escortId
-                                and not hAgent.riding
-                                and not hAgent.companioning then
-                                -- Their own need governs (DR-011): a
-                                -- person answering a NEED does not drop
-                                -- it to keep someone company. Hunger does
-                                -- not wait to be sociable.
-                                local bound = hAgent.pressure
-                                    and hAgent.pressure.answer == "need"
-                                -- The circle law ([A27]): a loner keeps
-                                -- their own company. Never forced, never
-                                -- cured.
-                                local solo = SAO.Disposition.circle(hid)
-                                    == "loner"
-                                -- The wall is not abandoned for a forage
-                                -- run.
-                                local onWall = hRec.designation == "watch"
-                                    and vkind ~= "warpath"
-                                -- [C53] A warpath is not a bread run.
-                                -- The site already knew the difference
-                                -- - the wall is abandoned for a raid
-                                -- and for nothing else, the line above
-                                -- - and never asked the person being
-                                -- invited. Asked now, through the
-                                -- envelope SAO_Command uses for the
-                                -- same question ([C37]): unarmed, past
-                                -- the fear a child carries, or the
-                                -- disposition's own refusal of that
-                                -- fight, and they stay home. Not a
-                                -- weight on the pull: somebody who
-                                -- will not take a fight is not
-                                -- persuaded into one by liking you.
-                                local noFight = false
-                                if vkind == "warpath" then
-                                    local okE = true
-                                    pcall(function()
-                                        okE = SAO.Command.envelope(hid,
-                                            "engage", nil)
-                                    end)
-                                    noFight = (okE == false)
-                                end
-                                -- [C53] Who is asking is part of
-                                -- whether you go (DR-033: whose word
-                                -- carries is a social fact, and it is
-                                -- the houses, their leaders and their
-                                -- designations). An invitation is not
-                                -- an order and does not go through the
-                                -- gate's verdict, but the office the
-                                -- caller holds over this person is the
-                                -- same fact either way, so it is read
-                                -- from the same place and in the same
-                                -- currency - a leader's call above a
-                                -- second's above a peer's, and no
-                                -- number invented here. `officeOf`
-                                -- rather than `standingOf` because
-                                -- standing folds trust in and trust is
-                                -- already the first term; this adds
-                                -- the office alone. A divided house
-                                -- comes with it: the chair of a house
-                                -- at war with itself calls to the half
-                                -- leaning away with a peer's voice.
-                                local office = 0
-                                pcall(function()
-                                    local C = SAO.Command
-                                    office = (C.OFFICE[C.officeOf(id, hid)]
-                                        or C.OFFICE.none) - C.OFFICE.none
-                                end)
-                                local pull = SAO.Standing.trust(hid, id)
-                                    + office
-                                    + (SAO.Standing.isBondedTo(hid, id)
-                                        and 0.3 or 0)
-                                    + 0.2 * SAO.Lessons.weight(hid,
-                                        "people-are-worth-it")
-                                    - 0.2 * SAO.Lessons.weight(hid,
-                                        "trust-carefully")
-                                    + 0.2 * (SAO.Disposition.traits(hid)
-                                        .nerve - 0.5)
-                                if not bound and not solo and not onWall
-                                    and not noFight and pull > 0.55 then
-                                    willing[#willing + 1] =
-                                        { id = hid, pull = pull }
-                                end
-                            end
-                        end
-                        -- [B19] The keenest go. Who got turned away
-                        -- used to be whatever order the hearer table
-                        -- iterated in; the mirror caught it. Someone who
-                        -- barely wanted to come is the right one to stay,
-                        -- and it makes the "no room" moment mean
-                        -- something.
-                        table.sort(willing, function(a, b)
-                            if a.pull == b.pull then return a.id < b.id end
-                            return a.pull > b.pull
-                        end)
-                        -- Each hearer has already decided whether to go.
-                        -- Available seats and the work left at home bound
-                        -- the party; a personality label imposes no quota.
-                        local cap = #willing
-                        local seatBound = false
-                        if takingWheels then
-                            local free = math.max(0,
-                                (takingWheels.free or 1) - 1)
-                            if free < cap then cap, seatBound = free, true end
-                        end
-                        -- [B19] Somebody minds the place. Its own mirror
-                        -- convicted this: houses of three or more emptied
-                        -- behind the goer on a fifth of trips, nobody left
-                        -- with a larder, a water store, or a fire to keep.
-                        -- NOT a rule that someone must always stay - a
-                        -- house holding nothing has nothing to mind and
-                        -- all of it can walk. The keeper is the least-keen
-                        -- of the willing, which the sort above already put
-                        -- last.
-                        if #hearers >= 2 then
-                            local gH = SAO.Standing.groupOf(id)
-                            local holds = gH and (
-                                (SAO.Standing.larderOf
-                                    and SAO.Standing.larderOf(gH))
-                                or (SAO.Standing.waterStoreOf
-                                    and SAO.Standing.waterStoreOf(gH))
-                                or (SAO.Standing.hearthOf
-                                    and SAO.Standing.hearthOf(gH))) or nil
-                            if holds and cap > #hearers - 1 then
-                                cap = #hearers - 1
-                            end
-                        end
-                        for i = 1, #willing do
-                            local wid = willing[i].id
-                            local wAgent = Ctl.agents[wid]
-                            if i <= cap and wAgent then
-                                wAgent.escortId = id
-                                -- [C114] The car the party boards, when
-                                -- the goer drove: the ride walks them to
-                                -- it and seats them, so the seats the cap
-                                -- counted ([B19]) are the seats actually
-                                -- filled. No car, no seat: the walk after
-                                -- them, as before.
-                                if agent.onWheels then
-                                    wAgent.rideWith = agent.onWheels
-                                end
-                                pcall(function()
-                                    SAO.Voice.onEvent(wid, "comeAlong", tick)
-                                end)
-                                log(wid .. " goes along with " .. id
-                                    .. " on the " .. vkind)
-                            elseif wAgent then
-                                if seatBound then
-                                    pcall(function()
-                                        SAO.Voice.onEvent(wid, "noRoom", tick)
-                                    end)
-                                end
-                                log(wid .. " stays behind - "
-                                    .. (seatBound
-                                        and ("no room in the car for "
-                                            .. (#willing - cap) .. " more")
-                                        or "minding the house's stores"))
-                            end
-                        end
-                        -- [C114] The party is known now, so the driver
-                        -- is told how many seats to hold at the wheel
-                        -- before rolling - the goer ordered the drive
-                        -- before anyone answered the call, and the
-                        -- count could not have been known then.
-                        if agent.onWheels and SAO.Driving
-                            and #willing > 0 then
-                            local seated = math.min(cap, #willing)
-                            if seated > 0 then
-                                SAO.Driving.holdFor(id, body, seated)
-                            end
-                        end
-                    end
-                end
-            end
+            if decideRoam(id, agent, body, tick, interval, desig, idleRec) then return end
         end
     end
 end
@@ -5293,6 +5331,621 @@ local function decisionIntervalFor(id)
         end)
     end
     return interval
+end
+
+local function updateMovement(id, agent, body)
+    -- Locomotion verdicts drive state exits for movement states.
+    if agent.state == "TRAVEL" or agent.state == "FLEE" or agent.state == "ROAM"
+        or agent.state == "HOMEWARD" or agent.state == "FORAGE"
+        or agent.state == "FOLLOW" or agent.state == "WATERWARD"
+        or agent.state == "GEARWARD" or agent.state == "AMMOWARD"
+        or agent.state == "MOURNWARD" or agent.state == "PLAYERFOLLOW"
+        or agent.state == "SETTLEWARD" or agent.state == "MEDICWARD"
+        or agent.state == "SEARCHWARD" or agent.state == "HEARTHWARD" then
+        SAO.Locomotion.tick(id)
+        local s = SAO.Locomotion.status(id)
+        if s:sub(1, 5) == "done:" then
+            pcall(function()
+                SAO.Identity.updatePosition(agent.rec, body:getX(), body:getY(), body:getZ())
+            end)
+            -- [C118] The barrier answer. A locked door, a barricade,
+            -- or a declined window ends the walk's ROUTE, not the
+            -- want; what happens next is the person's own character
+            -- against the situation. The standing question was
+            -- answered when the walk was ordered (mayEnterBelieved);
+            -- this is only the LOCK, and the lock is answered by
+            -- D.wouldForceEntry with the walk's own pressing - standing
+            -- hostility toward whoever holds the ground beyond, or
+            -- the desperation of real hunger. The composed decline as
+            -- they always have; the aggressive or the pressed take the
+            -- barrier on - the window smashed under the license the
+            -- engine already knows, the door or barricade battered
+            -- through the engine's own WeaponHit, at the price the
+            -- player pays: planks, door health, and the noise of it,
+            -- drawing whatever hears. Bounded: a barrier that holds
+            -- past forty swings is a wall, and the walk gives up
+            -- wanting it; the count resets the moment a walk ends any
+            -- other way.
+            do
+                local barrierVerdict = nil
+                if s:find("LOCKED", 1, true) or s:find("BARRICADED", 1, true) then
+                    barrierVerdict = "barrier"
+                elseif s:find("WINDOW_DECLINED", 1, true) then
+                    barrierVerdict = "window"
+                end
+                if barrierVerdict then
+                    local job = SAO.Locomotion.jobs[id]
+                    local goal = job and job.goal or nil
+                    local pressing = 0
+                    if goal then
+                        local okH2, holder = pcall(function()
+                            return SAO.Standing.claimedByOther(
+                                id, goal.x, goal.y)
+                        end)
+                        if okH2 and holder then
+                            pressing = pressing + 0.5
+                        end
+                        local okN2, needs2 = pcall(function()
+                            return SAO.Needs.read(body)
+                        end)
+                        if okN2 and needs2 and needs2.hunger
+                            and needs2.hunger >= policy().desperation then
+                            pressing = pressing + 0.5
+                        end
+                    end
+                    if SAO.Disposition.wouldForceEntry(
+                        id, agent.state == "FLEE", pressing) then
+                        agent.batterTries = (agent.batterTries or 0) + 1
+                        if goal and agent.batterTries <= 40 then
+                            local swing = "WINDOW"
+                            if barrierVerdict == "window" then
+                                pcall(function()
+                                    SAOJavaBridge:setForceEntry(body, true)
+                                end)
+                                log(id .. " forces the window - the"
+                                    .. " disposition answers the lock")
+                            else
+                                local okB, vB = pcall(function()
+                                    return SAOJavaBridge:batterBarrier(
+                                        body, goal.x, goal.y)
+                                end)
+                                swing = okB and tostring(vB)
+                                    or "BATTER_FAILED"
+                                if swing == "UNARMED" then
+                                    log(id .. " faces the barrier with"
+                                        .. " nothing in hand - the walk"
+                                        .. " gives up")
+                                    agent.batterTries = 0
+                                else
+                                    log(id .. " batters the barrier ("
+                                        .. swing .. ") - the disposition"
+                                        .. " answers the lock")
+                                end
+                            end
+                            if swing == "WINDOW" or swing == "DOOR"
+                                or swing == "DOOR_DOWN" then
+                                pcall(function()
+                                    SAO.Locomotion.order(id, body,
+                                        goal.x, goal.y, goal.z or 0)
+                                end)
+                                return true
+                            end
+                        else
+                            log(id .. " gives up - the barrier held ("
+                                .. tostring(agent.batterTries or 0)
+                                .. " swings)")
+                            agent.batterTries = 0
+                        end
+                    else
+                        agent.batterTries = 0
+                        log(id .. " declined forcing a locked door (no urgency, no standing)")
+                    end
+                else
+                    agent.batterTries = 0
+                end
+            end
+            -- The forager's haul ([A28]): a sweep that ARRIVES
+            -- somewhere actually collects - real food out of the real
+            -- containers at the destination, conserved. Barren ground
+            -- yields nothing; ground sweeps thin over time because the
+            -- items genuinely leave the shelves.
+            if agent.state == "ROAM" and s:find("arrived", 1, true) then
+                local rRec = agent.rec
+                -- Never off the house's own shelves ([A28]): the
+                -- sweep gathers OUT THERE - collecting at home would
+                -- loop take-and-shelve and dodge the watch-first
+                -- store gate.
+                if rRec and rRec.designation == "forager"
+                    and not SAO.Standing.insideClaim(
+                        id, body:getX(), body:getY()) then
+                    -- Skilled eyes gather more ([B2]): the haul cap
+                    -- reads the real Foraging level.
+                    local fLvl = SAO.Census.skillOf
+                        and SAO.Census.skillOf(id, "Foraging") or 0
+                    if fLvl < 0 then fLvl = 0 end
+                    local haulMax = math.min(4, 2 + math.floor(fLvl / 4))
+                    local okT, took = pcall(function()
+                        return SAOJavaBridge:takeWantedFromNearby(
+                            body, 4, "food", haulMax)
+                    end)
+                    if okT and type(took) == "number" and took > 0 then
+                        pcall(function()
+                            SAOJavaBridge:grantXP(body, "Foraging", 1.0)
+                        end)
+                        log(id .. " gathered " .. took
+                            .. " from the sweep")
+                    end
+                end
+                -- [C118] The raid's haul. A warpath walk ([A27]) that
+                -- ARRIVES on hostile ground takes what the enemy's
+                -- shelves hold, through the same take every forager
+                -- uses - the standing question was answered when the
+                -- walk was ordered (mayEnterBelieved under the feud's
+                -- hostility), and the taking is the feud made
+                -- physical. The same cap a skilled sweep tops out at:
+                -- a raid walks home with a full pack, not the whole
+                -- shop, and the haul shelves through the same deposit
+                -- machinery the forager's does. Nothing here is a
+                -- badge: "warpath" is one watch leg in six ([A27]),
+                -- and the ground must actually answer hostile.
+                if rRec and agent.onVenture == "warpath" then
+                    local okH3, holder = pcall(function()
+                        return SAO.Standing.claimedByOther(
+                            id, body:getX(), body:getY())
+                    end)
+                    if okH3 and holder
+                        and (SAO.Standing.isHostileTo(id, holder)
+                            or SAO.Standing.isHostileTo(holder, id)) then
+                        local okT3, took3 = pcall(function()
+                            return SAOJavaBridge:takeWantedFromNearby(
+                                body, 4, "food", 4)
+                        end)
+                        if okT3 and type(took3) == "number" and took3 > 0 then
+                            log(id .. " takes " .. took3
+                                .. " from the enemy's stores - the"
+                                .. " feud's answer")
+                        end
+                    end
+                end
+                -- [C119] The counter. A street leg that ARRIVED at
+                -- the filed trade ground ([C113]) with somebody in
+                -- front of them is the trade's own moment, and the
+                -- moment wears Week One's credited cashier shape.
+                -- No new machinery: the commute was the decision,
+                -- the customer is whoever the county actually put
+                -- there, and the pacing is the stamp the porch tune
+                -- already uses - two county hours between turns at
+                -- the counter, so a busy shop is busy without
+                -- looping one body at the counter all day.
+                if agent.workingGround then
+                    local wg = agent.workingGround
+                    local wgdx, wgdy = (wg.x or 0) - body:getX(),
+                        (wg.y or 0) - body:getY()
+                    if wgdx * wgdx + wgdy * wgdy
+                        <= ARRIVAL_REACH * ARRIVAL_REACH
+                        and tickCount >= (agent.nextCashierAt or 0) then
+                        local customerNear = false
+                        pcall(function()
+                            local me4 = getSpecificPlayer(0)
+                            if me4 then
+                                local cdx = me4:getX() - body:getX()
+                                local cdy = me4:getY() - body:getY()
+                                if cdx * cdx + cdy * cdy
+                                    <= COUNTER_REACH * COUNTER_REACH then
+                                    customerNear = true
+                                end
+                            end
+                            if not customerNear then
+                                for oid, otherB in pairs(SAO.Body.active) do
+                                    if otherB ~= body and SAO.Body.get(oid) == otherB then
+                                        local cdx = otherB:getX() - body:getX()
+                                        local cdy = otherB:getY() - body:getY()
+                                        if cdx * cdx + cdy * cdy
+                                            <= COUNTER_REACH * COUNTER_REACH then
+                                            customerNear = true
+                                            break
+                                        end
+                                    end
+                                end
+                            end
+                        end)
+                        if customerNear then
+                            agent.nextCashierAt = tickCount + 18000
+                            pcall(function()
+                                SAO.Gesture.cashier(id, body)
+                            end)
+                            log(id .. " takes the counter at the "
+                                .. tostring(wg.label or "trade") .. "'s")
+                        end
+                    end
+                end
+                -- [C120] The throw. A child arriving on a stretch with
+                -- a ball in their pack and a playmate at hand - the
+                -- player, or any other live child the county actually
+                -- put there - is the whole moment, and the shape is
+                -- Week One's credited throw (an orphan clip in their
+                -- own mod, bound by nothing there; SAO binds it the
+                -- way it bound the cashier). The pacing is the
+                -- counter's own stamp: two county hours between
+                -- throws, so a kid with a ball is a kid and not a
+                -- pitching machine. The catch and the return have no
+                -- machinery here and are named in the batch record:
+                -- one throw is what a throw is.
+                if rRec and not rRec.dead
+                    and tickCount >= (agent.nextBallAt or 0) then
+                    local stage = nil
+                    pcall(function()
+                        stage = SAO.History.stageOf(
+                            SAO.History.ageOf(id))
+                    end)
+                    if stage == "child" then
+                        local hasBall = false
+                        pcall(function()
+                            local inv = body:getInventory()
+                            if inv:containsTypeRecurse("Base.Baseball")
+                                or inv:containsTypeRecurse(
+                                    "Base.Basketball") then
+                                hasBall = true
+                            end
+                        end)
+                        if hasBall then
+                            local playmateNear = false
+                            pcall(function()
+                                local meB = getSpecificPlayer(0)
+                                if meB then
+                                    local pdx = meB:getX()
+                                        - body:getX()
+                                    local pdy = meB:getY()
+                                        - body:getY()
+                                    if pdx * pdx + pdy * pdy
+                                        <= PLAY_REACH * PLAY_REACH then
+                                        playmateNear = true
+                                    end
+                                end
+                                if not playmateNear then
+                                    for oid, otherB in pairs(
+                                        SAO.Body.active) do
+                                        if otherB ~= body and SAO.Body.get(oid) == otherB then
+                                            local ostage = nil
+                                            pcall(function()
+                                                ostage =
+                                                    SAO.History.stageOf(
+                                                        SAO.History.ageOf(oid))
+                                            end)
+                                            if ostage == "child" then
+                                                local pdx = otherB:getX()
+                                                    - body:getX()
+                                                local pdy = otherB:getY()
+                                                    - body:getY()
+                                                if pdx * pdx + pdy * pdy
+                                                    <= PLAY_REACH
+                                                    * PLAY_REACH then
+                                                    playmateNear = true
+                                                    break
+                                                end
+                                            end
+                                        end
+                                    end
+                                end
+                            end)
+                            if playmateNear then
+                                agent.nextBallAt = tickCount + 18000
+                                pcall(function()
+                                    SAO.Gesture.ball(id, body)
+                                end)
+                                log(id .. " throws the ball - a"
+                                    .. " kid, a playmate, a stretch"
+                                    .. " of street")
+                            end
+                        end
+                    end
+                end
+            end
+            if agent.state == "SEARCHWARD" then
+                -- The search ends where the trail does ([A28]): the
+                -- scanner has been looking the whole walk. If the
+                -- missing were HERE, the belief refreshed (and the
+                -- [A28] reunion fired if they had been buried by
+                -- word). If not, the searcher lets the place answer
+                -- with silence and goes home; the question stays open.
+                local sName = agent.searchName
+                local sb = SAO.Perception.beliefs[id]
+                local spb = sb and sName and sb.people[sName] or nil
+                local found = spb and spb.source == "observed"
+                    and (tickCount - spb.at) <= 200
+                -- The worst answer ([B1]): the ground is read for the
+                -- missing person's NAMED corpse - the engine's own
+                -- dead, no conjuring. Finding it writes the witnessed
+                -- death into the searcher's head; grief and the
+                -- mourning walk compose from the belief.
+                if not found and sName and sb then
+                    local okC8, corpses = pcall(function()
+                        return SAOJavaBridge:findNamedCorpses(body, 8)
+                    end)
+                    if okC8 and type(corpses) == "string"
+                        and corpses ~= "" then
+                        for entry in corpses:gmatch("[^|]+") do
+                            -- [C8] Same resolver as every corpse read.
+                            local _, _, cn = SAO.Identity.resolveBodyTag(
+                                entry:match("^(.-):"))
+                            if cn == sName then
+                                local spb2 = sb.people[sName]
+                                if spb2 then
+                                    spb2.dead = true
+                                end
+                                pcall(function()
+                                    SAO.Voice.onEvent(id, "grief",
+                                        tickCount)
+                                end)
+                                log(id .. " found " .. sName
+                                    .. " - too late. The search ends"
+                                    .. " in grief")
+                                agent.searchName = nil
+                                setState(agent, id, "IDLE",
+                                    "found " .. sName .. " dead", "need")
+                                return true
+                            end
+                        end
+                    end
+                end
+                if found then
+                    log(id .. " found " .. tostring(sName)
+                        .. " - the search ends well")
+                else
+                    log(id .. " searched where " .. tostring(sName)
+                        .. " was last seen - nothing. The question stays open")
+                end
+                agent.searchName = nil
+                setState(agent, id, "IDLE", found
+                    and ("found " .. tostring(sName))
+                    or "the search came up empty")
+                return true
+            end
+            if agent.state == "MOURNWARD" then
+                if s:find("arrived", 1, true) and agent.mournTarget then
+                    agent.mourned = agent.mourned or {}
+                    agent.mourned[agent.mournTarget] = true
+                    agent.mournHoldUntil = tickCount + 200
+                    setState(agent, id, "MOURNING",
+                        "stands over " .. tostring(agent.mournName))
+                    return true
+                end
+                -- Unreachable body: grieve from afar, once - never a
+                -- 900-tick retry loop at a corpse behind a wall.
+                if agent.mournTarget then
+                    agent.mourned = agent.mourned or {}
+                    agent.mourned[agent.mournTarget] = true
+                    pcall(function() SAO.Voice.onEvent(id, "grief", tickCount) end)
+                    local deadRec = SAO.Identity.get(agent.mournTarget)
+                    local lessonKey = deadRec
+                        and SAO.Lessons.lessonForCause(deadRec.deathCause)
+                    if lessonKey then
+                        SAO.Lessons.learn(id, lessonKey, 0.6, "witnessed", agent.mournName)
+                    end
+                    log(id .. " could not reach " .. tostring(agent.mournName)
+                        .. "; grieves from afar")
+                end
+                agent.mournTarget, agent.mournName = nil, nil
+                setState(agent, id, "IDLE", "the walk to the dead ended: " .. s)
+                return true
+            end
+            if agent.state == "SETTLEWARD" then
+                local cand = agent.settleCandidate
+                local sGroup = SAO.Standing.groupOf(id)
+                if s:find("arrived", 1, true) and cand and sGroup then
+                    SAO.Standing.setGroupClaim(sGroup,
+                        cand.minX - 1, cand.minY - 1,
+                        cand.maxX + 1, cand.maxY + 1, 0)
+                    -- Homes converge: the base is where the faction lives
+                    -- now; dusk homing and dormant night-drift follow the
+                    -- home fields with no further wiring.
+                    local moved = 0
+                    local rec2 = agent.rec
+                    if rec2 then
+                        rec2.homeX, rec2.homeY, rec2.homeZ = cand.cx, cand.cy, 0
+                    end
+                    for _, mid in ipairs(SAO.Standing.fellowsOf(id)) do
+                        local mrec = SAO.Identity.get(mid)
+                        if mrec then
+                            mrec.homeX, mrec.homeY, mrec.homeZ = cand.cx, cand.cy, 0
+                            moved = moved + 1
+                        end
+                    end
+                    pcall(function() SAO.Voice.onEvent(id, "settled", tickCount) end)
+                    -- The county writes itself ([A24]): a claim note at
+                    -- the door - readable by anyone who walks up.
+                    pcall(function()
+                        local me3 = getSpecificPlayer(0)
+                        if me3 then
+                            SAOJavaBridge:dropNoteAt(me3,
+                                cand.cx, cand.cy, 0,
+                                tostring(SAO.Standing.factionName(sGroup)
+                                    or "A company") .. " - claim notice",
+                                "This place is held by the "
+                                .. tostring(SAO.Standing.factionName(sGroup)
+                                    or "company")
+                                .. ". Ask before you wander in.")
+                        end
+                    end)
+                    log(tostring(SAO.Standing.factionName(sGroup))
+                        .. " settles at " .. cand.cx .. "," .. cand.cy
+                        .. " (" .. moved .. " households converge)")
+                    agent.settleCandidate = nil
+                    setState(agent, id, "IDLE", "the faction has a home")
+                    return true
+                end
+                -- Could not reach it: remember the rejection, try elsewhere.
+                if cand then
+                    local key = cand.minX .. "," .. cand.minY
+                    agent.rejectedBases = (agent.rejectedBases
+                        and (agent.rejectedBases .. ";") or "") .. key
+                end
+                agent.settleCandidate = nil
+                setState(agent, id, "IDLE", "candidate unreachable: " .. s)
+                return true
+            end
+            if agent.state == "ROAM"
+                and agent.pressure and agent.pressure.answer == "designation"
+                and s:find("arrived", 1, true) then
+                -- The scout's round teaches quiet feet ([A24]).
+                local rec9 = agent.rec
+                if rec9 and rec9.designation == "scout" then
+                    pcall(function()
+                        SAOJavaBridge:grantXP(body, "Lightfooted", 1.0)
+                    end)
+                end
+            end
+            if agent.state == "MEDICWARD" then
+                local hurtKey = agent.aidTarget
+                agent.aidTarget = nil
+                if s:find("arrived", 1, true) and hurtKey then
+                    local hurtBody = bodyForKey(hurtKey)
+                    if hurtBody then
+                        local hdx = hurtBody:getX() - body:getX()
+                        local hdy = hurtBody:getY() - body:getY()
+                        if hdx * hdx + hdy * hdy
+                            <= ARRIVAL_REACH * ARRIVAL_REACH
+                            and SAO.Needs.aidWound(id, body, hurtBody) then
+                            SAO.Standing.adjustTrust(hurtKey, id, 0.15)
+                            SAO.Standing.adjustTrust(id, hurtKey, 0.03)
+                            pcall(function()
+                                SAOJavaBridge:grantXP(body, "Doctor", 1.5)
+                            end)
+                            pcall(function()
+                                SAO.Voice.onEvent(id, "aid", tickCount)
+                            end)
+                            -- [C119] And when the body is DOWN - on the
+                            -- floor or near gone - the aid is desperate,
+                            -- and desperate aid looks like Week One's
+                            -- credited three-stage hands: the kneel, the
+                            -- work, the letting-go. The bandage is still
+                            -- real (aidWound ran); this is the same
+                            -- moment's shape, not a second one.
+                            pcall(function()
+                                local low = hurtBody:isKnockedDown()
+                                    or hurtBody:getHealth() < 0.3
+                                if low then SAO.Gesture.cpr(id, body) end
+                            end)
+                            log(id .. " hands a bandage to " .. tostring(hurtKey))
+                        end
+                    end
+                end
+                setState(agent, id, "IDLE", "aid errand ended: " .. s)
+                return true
+            end
+            if agent.state == "AMMOWARD" then
+                if s:find("arrived", 1, true) and SAO.Needs.queueTakeAmmo(id, body) then
+                    agent.taskDeadline = tickCount + 1800
+                    agent.takePurpose = "ammo"
+                    setState(agent, id, "TAKE", "at the container, taking ammunition")
+                    return true
+                end
+                SAO.Needs.clearAmmo(body)
+                setState(agent, id, "IDLE", "ammo errand ended: " .. s)
+                return true
+            end
+            if agent.state == "GEARWARD" then
+                if s:find("arrived", 1, true) and SAO.Needs.queueTakeGear(id, body) then
+                    agent.taskDeadline = tickCount + 1800
+                    agent.takePurpose = "gear"
+                    setState(agent, id, "TAKE", "at the container, taking the weapon")
+                    return true
+                end
+                SAO.Needs.clearGear(body)
+                setState(agent, id, "IDLE", "gear errand ended: " .. s)
+                return true
+            end
+            if agent.state == "HEARTHWARD" then
+                if s:find("arrived", 1, true) then
+                    local okLt, lit3 = pcall(function()
+                        return SAOJavaBridge:lightNearbyHearth(body, 3)
+                    end)
+                    if okLt and lit3 then
+                        pcall(function()
+                            SAO.Voice.onEvent(id, "lightFire", tickCount)
+                        end)
+                        log(id .. " lights the fire")
+                    end
+                    local okFd, fed = pcall(function()
+                        return SAOJavaBridge:feedNearbyHearth(body, 3)
+                    end)
+                    if okFd and type(fed) == "number" and fed > 0 then
+                        pcall(function()
+                            SAO.Voice.onEvent(id, "feedFire", tickCount)
+                        end)
+                        log(id .. " feeds the fire on arrival ("
+                            .. fed .. " units)")
+                    end
+                    agent.taskDeadline = tickCount + 2400
+                    setState(agent, id, "WARMING",
+                        "warms at the fire, weapon in reach", "need")
+                    return true
+                end
+                setState(agent, id, "IDLE", "the fire could not be reached")
+                return true
+            end
+            if agent.state == "HOMEWARD" and agent.carryingWater then
+                agent.carryingWater = nil
+                if SAO.Needs.depositWater(id, body) then
+                    agent.taskDeadline = tickCount + 900
+                    agent.takePurpose = "deposit"
+                    setState(agent, id, "TAKE",
+                        "shelves the water they carried", "designation")
+                    return true
+                end
+            end
+            if agent.state == "WATERWARD" then
+                -- The water RUN fills vessels and carries them home
+                -- ([B6]); thirst drinks. Same walk, different errand.
+                if agent.waterRun then
+                    agent.waterRun = nil
+                    if s:find("arrived", 1, true) then
+                        local okR6, got6 = pcall(function()
+                            return SAOJavaBridge:fillWaterFromNearby(body, 3)
+                        end)
+                        if okR6 and type(got6) == "number" and got6 > 0 then
+                            log(id .. " fills at the source - "
+                                .. math.floor(got6) .. " units for the house")
+                            -- The carry is marked so the walk home
+                            -- ends in shelving, not in nothing.
+                            agent.carryingWater = true
+                            setState(agent, id, "HOMEWARD",
+                                "carries the water home", "designation")
+                            return true
+                        end
+                    end
+                    setState(agent, id, "IDLE",
+                        "the water run found nothing to fill")
+                    return true
+                end
+                if s:find("arrived", 1, true) and SAO.Needs.queueDrinkFrom(id, body) then
+                    agent.taskDeadline = tickCount + 1800
+                    setState(agent, id, "DRINK", "at the source, drinking")
+                    return true
+                end
+                SAO.Needs.clearWater(body)
+                agent.nextWaterAt = tickCount + 600
+                setState(agent, id, "IDLE", "water errand ended: " .. s)
+                return true
+            end
+            if agent.state == "FORAGE" then
+                -- Arrived (or gave up). Within reach: take through the
+                -- vanilla transfer. Out of reach or failed: rescan later.
+                if s:find("arrived", 1, true) and SAO.Needs.queueTake(id, body) then
+                    agent.taskDeadline = tickCount + 1800
+                    setState(agent, id, "TAKE", "at the container, taking food")
+                    return true
+                end
+                SAO.Needs.clearSource(body)
+                agent.nextForageAt = tickCount + 600
+                setState(agent, id, "IDLE", "forage attempt ended: " .. s)
+                return true
+            end
+            setState(agent, id, "IDLE", s)
+        end
+        if agent.state == "TRAVEL" then return true end  -- operator orders are not re-decided
+    end
+
 end
 
 local function updateAgent(id, agent)
@@ -5919,618 +6572,7 @@ local function updateAgent(id, agent)
         return
     end
 
-    -- Locomotion verdicts drive state exits for movement states.
-    if agent.state == "TRAVEL" or agent.state == "FLEE" or agent.state == "ROAM"
-        or agent.state == "HOMEWARD" or agent.state == "FORAGE"
-        or agent.state == "FOLLOW" or agent.state == "WATERWARD"
-        or agent.state == "GEARWARD" or agent.state == "AMMOWARD"
-        or agent.state == "MOURNWARD" or agent.state == "PLAYERFOLLOW"
-        or agent.state == "SETTLEWARD" or agent.state == "MEDICWARD"
-        or agent.state == "SEARCHWARD" or agent.state == "HEARTHWARD" then
-        SAO.Locomotion.tick(id)
-        local s = SAO.Locomotion.status(id)
-        if s:sub(1, 5) == "done:" then
-            pcall(function()
-                SAO.Identity.updatePosition(agent.rec, body:getX(), body:getY(), body:getZ())
-            end)
-            -- [C118] The barrier answer. A locked door, a barricade,
-            -- or a declined window ends the walk's ROUTE, not the
-            -- want; what happens next is the person's own character
-            -- against the situation. The standing question was
-            -- answered when the walk was ordered (mayEnterBelieved);
-            -- this is only the LOCK, and the lock is answered by
-            -- D.wouldForceEntry with the walk's own pressing - standing
-            -- hostility toward whoever holds the ground beyond, or
-            -- the desperation of real hunger. The composed decline as
-            -- they always have; the aggressive or the pressed take the
-            -- barrier on - the window smashed under the license the
-            -- engine already knows, the door or barricade battered
-            -- through the engine's own WeaponHit, at the price the
-            -- player pays: planks, door health, and the noise of it,
-            -- drawing whatever hears. Bounded: a barrier that holds
-            -- past forty swings is a wall, and the walk gives up
-            -- wanting it; the count resets the moment a walk ends any
-            -- other way.
-            do
-                local barrierVerdict = nil
-                if s:find("LOCKED", 1, true) or s:find("BARRICADED", 1, true) then
-                    barrierVerdict = "barrier"
-                elseif s:find("WINDOW_DECLINED", 1, true) then
-                    barrierVerdict = "window"
-                end
-                if barrierVerdict then
-                    local job = SAO.Locomotion.jobs[id]
-                    local goal = job and job.goal or nil
-                    local pressing = 0
-                    if goal then
-                        local okH2, holder = pcall(function()
-                            return SAO.Standing.claimedByOther(
-                                id, goal.x, goal.y)
-                        end)
-                        if okH2 and holder then
-                            pressing = pressing + 0.5
-                        end
-                        local okN2, needs2 = pcall(function()
-                            return SAO.Needs.read(body)
-                        end)
-                        if okN2 and needs2 and needs2.hunger
-                            and needs2.hunger >= policy().desperation then
-                            pressing = pressing + 0.5
-                        end
-                    end
-                    if SAO.Disposition.wouldForceEntry(
-                        id, agent.state == "FLEE", pressing) then
-                        agent.batterTries = (agent.batterTries or 0) + 1
-                        if goal and agent.batterTries <= 40 then
-                            local swing = "WINDOW"
-                            if barrierVerdict == "window" then
-                                pcall(function()
-                                    SAOJavaBridge:setForceEntry(body, true)
-                                end)
-                                log(id .. " forces the window - the"
-                                    .. " disposition answers the lock")
-                            else
-                                local okB, vB = pcall(function()
-                                    return SAOJavaBridge:batterBarrier(
-                                        body, goal.x, goal.y)
-                                end)
-                                swing = okB and tostring(vB)
-                                    or "BATTER_FAILED"
-                                if swing == "UNARMED" then
-                                    log(id .. " faces the barrier with"
-                                        .. " nothing in hand - the walk"
-                                        .. " gives up")
-                                    agent.batterTries = 0
-                                else
-                                    log(id .. " batters the barrier ("
-                                        .. swing .. ") - the disposition"
-                                        .. " answers the lock")
-                                end
-                            end
-                            if swing == "WINDOW" or swing == "DOOR"
-                                or swing == "DOOR_DOWN" then
-                                pcall(function()
-                                    SAO.Locomotion.order(id, body,
-                                        goal.x, goal.y, goal.z or 0)
-                                end)
-                                return
-                            end
-                        else
-                            log(id .. " gives up - the barrier held ("
-                                .. tostring(agent.batterTries or 0)
-                                .. " swings)")
-                            agent.batterTries = 0
-                        end
-                    else
-                        agent.batterTries = 0
-                        log(id .. " declined forcing a locked door (no urgency, no standing)")
-                    end
-                else
-                    agent.batterTries = 0
-                end
-            end
-            -- The forager's haul ([A28]): a sweep that ARRIVES
-            -- somewhere actually collects - real food out of the real
-            -- containers at the destination, conserved. Barren ground
-            -- yields nothing; ground sweeps thin over time because the
-            -- items genuinely leave the shelves.
-            if agent.state == "ROAM" and s:find("arrived", 1, true) then
-                local rRec = agent.rec
-                -- Never off the house's own shelves ([A28]): the
-                -- sweep gathers OUT THERE - collecting at home would
-                -- loop take-and-shelve and dodge the watch-first
-                -- store gate.
-                if rRec and rRec.designation == "forager"
-                    and not SAO.Standing.insideClaim(
-                        id, body:getX(), body:getY()) then
-                    -- Skilled eyes gather more ([B2]): the haul cap
-                    -- reads the real Foraging level.
-                    local fLvl = SAO.Census.skillOf
-                        and SAO.Census.skillOf(id, "Foraging") or 0
-                    if fLvl < 0 then fLvl = 0 end
-                    local haulMax = math.min(4, 2 + math.floor(fLvl / 4))
-                    local okT, took = pcall(function()
-                        return SAOJavaBridge:takeWantedFromNearby(
-                            body, 4, "food", haulMax)
-                    end)
-                    if okT and type(took) == "number" and took > 0 then
-                        pcall(function()
-                            SAOJavaBridge:grantXP(body, "Foraging", 1.0)
-                        end)
-                        log(id .. " gathered " .. took
-                            .. " from the sweep")
-                    end
-                end
-                -- [C118] The raid's haul. A warpath walk ([A27]) that
-                -- ARRIVES on hostile ground takes what the enemy's
-                -- shelves hold, through the same take every forager
-                -- uses - the standing question was answered when the
-                -- walk was ordered (mayEnterBelieved under the feud's
-                -- hostility), and the taking is the feud made
-                -- physical. The same cap a skilled sweep tops out at:
-                -- a raid walks home with a full pack, not the whole
-                -- shop, and the haul shelves through the same deposit
-                -- machinery the forager's does. Nothing here is a
-                -- badge: "warpath" is one watch leg in six ([A27]),
-                -- and the ground must actually answer hostile.
-                if rRec and agent.onVenture == "warpath" then
-                    local okH3, holder = pcall(function()
-                        return SAO.Standing.claimedByOther(
-                            id, body:getX(), body:getY())
-                    end)
-                    if okH3 and holder
-                        and (SAO.Standing.isHostileTo(id, holder)
-                            or SAO.Standing.isHostileTo(holder, id)) then
-                        local okT3, took3 = pcall(function()
-                            return SAOJavaBridge:takeWantedFromNearby(
-                                body, 4, "food", 4)
-                        end)
-                        if okT3 and type(took3) == "number" and took3 > 0 then
-                            log(id .. " takes " .. took3
-                                .. " from the enemy's stores - the"
-                                .. " feud's answer")
-                        end
-                    end
-                end
-                -- [C119] The counter. A street leg that ARRIVED at
-                -- the filed trade ground ([C113]) with somebody in
-                -- front of them is the trade's own moment, and the
-                -- moment wears Week One's credited cashier shape.
-                -- No new machinery: the commute was the decision,
-                -- the customer is whoever the county actually put
-                -- there, and the pacing is the stamp the porch tune
-                -- already uses - two county hours between turns at
-                -- the counter, so a busy shop is busy without
-                -- looping one body at the counter all day.
-                if agent.workingGround then
-                    local wg = agent.workingGround
-                    local wgdx, wgdy = (wg.x or 0) - body:getX(),
-                        (wg.y or 0) - body:getY()
-                    if wgdx * wgdx + wgdy * wgdy
-                        <= ARRIVAL_REACH * ARRIVAL_REACH
-                        and tickCount >= (agent.nextCashierAt or 0) then
-                        local customerNear = false
-                        pcall(function()
-                            local me4 = getSpecificPlayer(0)
-                            if me4 then
-                                local cdx = me4:getX() - body:getX()
-                                local cdy = me4:getY() - body:getY()
-                                if cdx * cdx + cdy * cdy
-                                    <= COUNTER_REACH * COUNTER_REACH then
-                                    customerNear = true
-                                end
-                            end
-                            if not customerNear then
-                                for oid, otherB in pairs(SAO.Body.active) do
-                                    if otherB ~= body and SAO.Body.get(oid) == otherB then
-                                        local cdx = otherB:getX() - body:getX()
-                                        local cdy = otherB:getY() - body:getY()
-                                        if cdx * cdx + cdy * cdy
-                                            <= COUNTER_REACH * COUNTER_REACH then
-                                            customerNear = true
-                                            break
-                                        end
-                                    end
-                                end
-                            end
-                        end)
-                        if customerNear then
-                            agent.nextCashierAt = tickCount + 18000
-                            pcall(function()
-                                SAO.Gesture.cashier(id, body)
-                            end)
-                            log(id .. " takes the counter at the "
-                                .. tostring(wg.label or "trade") .. "'s")
-                        end
-                    end
-                end
-                -- [C120] The throw. A child arriving on a stretch with
-                -- a ball in their pack and a playmate at hand - the
-                -- player, or any other live child the county actually
-                -- put there - is the whole moment, and the shape is
-                -- Week One's credited throw (an orphan clip in their
-                -- own mod, bound by nothing there; SAO binds it the
-                -- way it bound the cashier). The pacing is the
-                -- counter's own stamp: two county hours between
-                -- throws, so a kid with a ball is a kid and not a
-                -- pitching machine. The catch and the return have no
-                -- machinery here and are named in the batch record:
-                -- one throw is what a throw is.
-                if rRec and not rRec.dead
-                    and tickCount >= (agent.nextBallAt or 0) then
-                    local stage = nil
-                    pcall(function()
-                        stage = SAO.History.stageOf(
-                            SAO.History.ageOf(id))
-                    end)
-                    if stage == "child" then
-                        local hasBall = false
-                        pcall(function()
-                            local inv = body:getInventory()
-                            if inv:containsTypeRecurse("Base.Baseball")
-                                or inv:containsTypeRecurse(
-                                    "Base.Basketball") then
-                                hasBall = true
-                            end
-                        end)
-                        if hasBall then
-                            local playmateNear = false
-                            pcall(function()
-                                local meB = getSpecificPlayer(0)
-                                if meB then
-                                    local pdx = meB:getX()
-                                        - body:getX()
-                                    local pdy = meB:getY()
-                                        - body:getY()
-                                    if pdx * pdx + pdy * pdy
-                                        <= PLAY_REACH * PLAY_REACH then
-                                        playmateNear = true
-                                    end
-                                end
-                                if not playmateNear then
-                                    for oid, otherB in pairs(
-                                        SAO.Body.active) do
-                                        if otherB ~= body and SAO.Body.get(oid) == otherB then
-                                            local ostage = nil
-                                            pcall(function()
-                                                ostage =
-                                                    SAO.History.stageOf(
-                                                        SAO.History.ageOf(oid))
-                                            end)
-                                            if ostage == "child" then
-                                                local pdx = otherB:getX()
-                                                    - body:getX()
-                                                local pdy = otherB:getY()
-                                                    - body:getY()
-                                                if pdx * pdx + pdy * pdy
-                                                    <= PLAY_REACH
-                                                    * PLAY_REACH then
-                                                    playmateNear = true
-                                                    break
-                                                end
-                                            end
-                                        end
-                                    end
-                                end
-                            end)
-                            if playmateNear then
-                                agent.nextBallAt = tickCount + 18000
-                                pcall(function()
-                                    SAO.Gesture.ball(id, body)
-                                end)
-                                log(id .. " throws the ball - a"
-                                    .. " kid, a playmate, a stretch"
-                                    .. " of street")
-                            end
-                        end
-                    end
-                end
-            end
-            if agent.state == "SEARCHWARD" then
-                -- The search ends where the trail does ([A28]): the
-                -- scanner has been looking the whole walk. If the
-                -- missing were HERE, the belief refreshed (and the
-                -- [A28] reunion fired if they had been buried by
-                -- word). If not, the searcher lets the place answer
-                -- with silence and goes home; the question stays open.
-                local sName = agent.searchName
-                local sb = SAO.Perception.beliefs[id]
-                local spb = sb and sName and sb.people[sName] or nil
-                local found = spb and spb.source == "observed"
-                    and (tickCount - spb.at) <= 200
-                -- The worst answer ([B1]): the ground is read for the
-                -- missing person's NAMED corpse - the engine's own
-                -- dead, no conjuring. Finding it writes the witnessed
-                -- death into the searcher's head; grief and the
-                -- mourning walk compose from the belief.
-                if not found and sName and sb then
-                    local okC8, corpses = pcall(function()
-                        return SAOJavaBridge:findNamedCorpses(body, 8)
-                    end)
-                    if okC8 and type(corpses) == "string"
-                        and corpses ~= "" then
-                        for entry in corpses:gmatch("[^|]+") do
-                            -- [C8] Same resolver as every corpse read.
-                            local _, _, cn = SAO.Identity.resolveBodyTag(
-                                entry:match("^(.-):"))
-                            if cn == sName then
-                                local spb2 = sb.people[sName]
-                                if spb2 then
-                                    spb2.dead = true
-                                end
-                                pcall(function()
-                                    SAO.Voice.onEvent(id, "grief",
-                                        tickCount)
-                                end)
-                                log(id .. " found " .. sName
-                                    .. " - too late. The search ends"
-                                    .. " in grief")
-                                agent.searchName = nil
-                                setState(agent, id, "IDLE",
-                                    "found " .. sName .. " dead", "need")
-                                return
-                            end
-                        end
-                    end
-                end
-                if found then
-                    log(id .. " found " .. tostring(sName)
-                        .. " - the search ends well")
-                else
-                    log(id .. " searched where " .. tostring(sName)
-                        .. " was last seen - nothing. The question stays open")
-                end
-                agent.searchName = nil
-                setState(agent, id, "IDLE", found
-                    and ("found " .. tostring(sName))
-                    or "the search came up empty")
-                return
-            end
-            if agent.state == "MOURNWARD" then
-                if s:find("arrived", 1, true) and agent.mournTarget then
-                    agent.mourned = agent.mourned or {}
-                    agent.mourned[agent.mournTarget] = true
-                    agent.mournHoldUntil = tickCount + 200
-                    setState(agent, id, "MOURNING",
-                        "stands over " .. tostring(agent.mournName))
-                    return
-                end
-                -- Unreachable body: grieve from afar, once - never a
-                -- 900-tick retry loop at a corpse behind a wall.
-                if agent.mournTarget then
-                    agent.mourned = agent.mourned or {}
-                    agent.mourned[agent.mournTarget] = true
-                    pcall(function() SAO.Voice.onEvent(id, "grief", tickCount) end)
-                    local deadRec = SAO.Identity.get(agent.mournTarget)
-                    local lessonKey = deadRec
-                        and SAO.Lessons.lessonForCause(deadRec.deathCause)
-                    if lessonKey then
-                        SAO.Lessons.learn(id, lessonKey, 0.6, "witnessed", agent.mournName)
-                    end
-                    log(id .. " could not reach " .. tostring(agent.mournName)
-                        .. "; grieves from afar")
-                end
-                agent.mournTarget, agent.mournName = nil, nil
-                setState(agent, id, "IDLE", "the walk to the dead ended: " .. s)
-                return
-            end
-            if agent.state == "SETTLEWARD" then
-                local cand = agent.settleCandidate
-                local sGroup = SAO.Standing.groupOf(id)
-                if s:find("arrived", 1, true) and cand and sGroup then
-                    SAO.Standing.setGroupClaim(sGroup,
-                        cand.minX - 1, cand.minY - 1,
-                        cand.maxX + 1, cand.maxY + 1, 0)
-                    -- Homes converge: the base is where the faction lives
-                    -- now; dusk homing and dormant night-drift follow the
-                    -- home fields with no further wiring.
-                    local moved = 0
-                    local rec2 = agent.rec
-                    if rec2 then
-                        rec2.homeX, rec2.homeY, rec2.homeZ = cand.cx, cand.cy, 0
-                    end
-                    for _, mid in ipairs(SAO.Standing.fellowsOf(id)) do
-                        local mrec = SAO.Identity.get(mid)
-                        if mrec then
-                            mrec.homeX, mrec.homeY, mrec.homeZ = cand.cx, cand.cy, 0
-                            moved = moved + 1
-                        end
-                    end
-                    pcall(function() SAO.Voice.onEvent(id, "settled", tickCount) end)
-                    -- The county writes itself ([A24]): a claim note at
-                    -- the door - readable by anyone who walks up.
-                    pcall(function()
-                        local me3 = getSpecificPlayer(0)
-                        if me3 then
-                            SAOJavaBridge:dropNoteAt(me3,
-                                cand.cx, cand.cy, 0,
-                                tostring(SAO.Standing.factionName(sGroup)
-                                    or "A company") .. " - claim notice",
-                                "This place is held by the "
-                                .. tostring(SAO.Standing.factionName(sGroup)
-                                    or "company")
-                                .. ". Ask before you wander in.")
-                        end
-                    end)
-                    log(tostring(SAO.Standing.factionName(sGroup))
-                        .. " settles at " .. cand.cx .. "," .. cand.cy
-                        .. " (" .. moved .. " households converge)")
-                    agent.settleCandidate = nil
-                    setState(agent, id, "IDLE", "the faction has a home")
-                    return
-                end
-                -- Could not reach it: remember the rejection, try elsewhere.
-                if cand then
-                    local key = cand.minX .. "," .. cand.minY
-                    agent.rejectedBases = (agent.rejectedBases
-                        and (agent.rejectedBases .. ";") or "") .. key
-                end
-                agent.settleCandidate = nil
-                setState(agent, id, "IDLE", "candidate unreachable: " .. s)
-                return
-            end
-            if agent.state == "ROAM"
-                and agent.pressure and agent.pressure.answer == "designation"
-                and s:find("arrived", 1, true) then
-                -- The scout's round teaches quiet feet ([A24]).
-                local rec9 = agent.rec
-                if rec9 and rec9.designation == "scout" then
-                    pcall(function()
-                        SAOJavaBridge:grantXP(body, "Lightfooted", 1.0)
-                    end)
-                end
-            end
-            if agent.state == "MEDICWARD" then
-                local hurtKey = agent.aidTarget
-                agent.aidTarget = nil
-                if s:find("arrived", 1, true) and hurtKey then
-                    local hurtBody = bodyForKey(hurtKey)
-                    if hurtBody then
-                        local hdx = hurtBody:getX() - body:getX()
-                        local hdy = hurtBody:getY() - body:getY()
-                        if hdx * hdx + hdy * hdy
-                            <= ARRIVAL_REACH * ARRIVAL_REACH
-                            and SAO.Needs.aidWound(id, body, hurtBody) then
-                            SAO.Standing.adjustTrust(hurtKey, id, 0.15)
-                            SAO.Standing.adjustTrust(id, hurtKey, 0.03)
-                            pcall(function()
-                                SAOJavaBridge:grantXP(body, "Doctor", 1.5)
-                            end)
-                            pcall(function()
-                                SAO.Voice.onEvent(id, "aid", tickCount)
-                            end)
-                            -- [C119] And when the body is DOWN - on the
-                            -- floor or near gone - the aid is desperate,
-                            -- and desperate aid looks like Week One's
-                            -- credited three-stage hands: the kneel, the
-                            -- work, the letting-go. The bandage is still
-                            -- real (aidWound ran); this is the same
-                            -- moment's shape, not a second one.
-                            pcall(function()
-                                local low = hurtBody:isKnockedDown()
-                                    or hurtBody:getHealth() < 0.3
-                                if low then SAO.Gesture.cpr(id, body) end
-                            end)
-                            log(id .. " hands a bandage to " .. tostring(hurtKey))
-                        end
-                    end
-                end
-                setState(agent, id, "IDLE", "aid errand ended: " .. s)
-                return
-            end
-            if agent.state == "AMMOWARD" then
-                if s:find("arrived", 1, true) and SAO.Needs.queueTakeAmmo(id, body) then
-                    agent.taskDeadline = tickCount + 1800
-                    agent.takePurpose = "ammo"
-                    setState(agent, id, "TAKE", "at the container, taking ammunition")
-                    return
-                end
-                SAO.Needs.clearAmmo(body)
-                setState(agent, id, "IDLE", "ammo errand ended: " .. s)
-                return
-            end
-            if agent.state == "GEARWARD" then
-                if s:find("arrived", 1, true) and SAO.Needs.queueTakeGear(id, body) then
-                    agent.taskDeadline = tickCount + 1800
-                    agent.takePurpose = "gear"
-                    setState(agent, id, "TAKE", "at the container, taking the weapon")
-                    return
-                end
-                SAO.Needs.clearGear(body)
-                setState(agent, id, "IDLE", "gear errand ended: " .. s)
-                return
-            end
-            if agent.state == "HEARTHWARD" then
-                if s:find("arrived", 1, true) then
-                    local okLt, lit3 = pcall(function()
-                        return SAOJavaBridge:lightNearbyHearth(body, 3)
-                    end)
-                    if okLt and lit3 then
-                        pcall(function()
-                            SAO.Voice.onEvent(id, "lightFire", tickCount)
-                        end)
-                        log(id .. " lights the fire")
-                    end
-                    local okFd, fed = pcall(function()
-                        return SAOJavaBridge:feedNearbyHearth(body, 3)
-                    end)
-                    if okFd and type(fed) == "number" and fed > 0 then
-                        pcall(function()
-                            SAO.Voice.onEvent(id, "feedFire", tickCount)
-                        end)
-                        log(id .. " feeds the fire on arrival ("
-                            .. fed .. " units)")
-                    end
-                    agent.taskDeadline = tickCount + 2400
-                    setState(agent, id, "WARMING",
-                        "warms at the fire, weapon in reach", "need")
-                    return
-                end
-                setState(agent, id, "IDLE", "the fire could not be reached")
-                return
-            end
-            if agent.state == "HOMEWARD" and agent.carryingWater then
-                agent.carryingWater = nil
-                if SAO.Needs.depositWater(id, body) then
-                    agent.taskDeadline = tickCount + 900
-                    agent.takePurpose = "deposit"
-                    setState(agent, id, "TAKE",
-                        "shelves the water they carried", "designation")
-                    return
-                end
-            end
-            if agent.state == "WATERWARD" then
-                -- The water RUN fills vessels and carries them home
-                -- ([B6]); thirst drinks. Same walk, different errand.
-                if agent.waterRun then
-                    agent.waterRun = nil
-                    if s:find("arrived", 1, true) then
-                        local okR6, got6 = pcall(function()
-                            return SAOJavaBridge:fillWaterFromNearby(body, 3)
-                        end)
-                        if okR6 and type(got6) == "number" and got6 > 0 then
-                            log(id .. " fills at the source - "
-                                .. math.floor(got6) .. " units for the house")
-                            -- The carry is marked so the walk home
-                            -- ends in shelving, not in nothing.
-                            agent.carryingWater = true
-                            setState(agent, id, "HOMEWARD",
-                                "carries the water home", "designation")
-                            return
-                        end
-                    end
-                    setState(agent, id, "IDLE",
-                        "the water run found nothing to fill")
-                    return
-                end
-                if s:find("arrived", 1, true) and SAO.Needs.queueDrinkFrom(id, body) then
-                    agent.taskDeadline = tickCount + 1800
-                    setState(agent, id, "DRINK", "at the source, drinking")
-                    return
-                end
-                SAO.Needs.clearWater(body)
-                agent.nextWaterAt = tickCount + 600
-                setState(agent, id, "IDLE", "water errand ended: " .. s)
-                return
-            end
-            if agent.state == "FORAGE" then
-                -- Arrived (or gave up). Within reach: take through the
-                -- vanilla transfer. Out of reach or failed: rescan later.
-                if s:find("arrived", 1, true) and SAO.Needs.queueTake(id, body) then
-                    agent.taskDeadline = tickCount + 1800
-                    setState(agent, id, "TAKE", "at the container, taking food")
-                    return
-                end
-                SAO.Needs.clearSource(body)
-                agent.nextForageAt = tickCount + 600
-                setState(agent, id, "IDLE", "forage attempt ended: " .. s)
-                return
-            end
-            setState(agent, id, "IDLE", s)
-        end
-        if agent.state == "TRAVEL" then return end  -- operator orders are not re-decided
-    end
-
+    if updateMovement(id, agent, body) then return end
     -- The widow notices ([A15]): membership that dissolved under them
     -- (the company's last other member died) is felt once, aloud.
     local nowGroup = SAO.Standing.groupOf(id)

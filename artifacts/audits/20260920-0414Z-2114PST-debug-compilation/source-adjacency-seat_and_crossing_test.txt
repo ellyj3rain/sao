@@ -1,0 +1,6 @@
+==========================================================================
+THE SEAT AND THE MESH MOVE TOGETHER; THE FOLLOW CROSSES
+==========================================================================
+  82) seats and crossings: every enter and exit moves the mesh with
+      the flag, fences are crossings rather than stalls, the follow
+      works the edge its target crossed, and the seat outranks the flag

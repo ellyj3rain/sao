@@ -1,0 +1,92 @@
+[
+  {
+    "helper": "decideThreat",
+    "source_lines": [
+      906,
+      1247
+    ],
+    "arguments": "id, agent, body, tick, threat, threatCount, governingPerson, governingPersonKey",
+    "decision_returns": 7
+  },
+  {
+    "helper": "decideNeedsAndCompanion",
+    "source_lines": [
+      1269,
+      2091
+    ],
+    "arguments": "id, agent, body, tick, needs",
+    "decision_returns": 26
+  },
+  {
+    "helper": "decideCompany",
+    "source_lines": [
+      2092,
+      2225
+    ],
+    "arguments": "id, agent, body, tick",
+    "decision_returns": 2
+  },
+  {
+    "helper": "decideHomeAndEquipment",
+    "source_lines": [
+      2231,
+      2554
+    ],
+    "arguments": "id, agent, body, tick, rec",
+    "decision_returns": 6
+  },
+  {
+    "helper": "decideNightAndDrift",
+    "source_lines": [
+      2558,
+      2729
+    ],
+    "arguments": "id, agent, body, tick, rec",
+    "decision_returns": 4
+  },
+  {
+    "helper": "decideRestActivity",
+    "source_lines": [
+      2736,
+      3049
+    ],
+    "arguments": "id, agent, body, tick, idleRec",
+    "decision_returns": 0
+  },
+  {
+    "helper": "decideLocalResources",
+    "source_lines": [
+      3050,
+      3569
+    ],
+    "arguments": "id, agent, body, tick, idleRec",
+    "decision_returns": 8
+  },
+  {
+    "helper": "decidePromiseAndSearch",
+    "source_lines": [
+      3570,
+      3853
+    ],
+    "arguments": "id, agent, body, tick, idleRec",
+    "decision_returns": 4
+  },
+  {
+    "helper": "decideRoam",
+    "source_lines": [
+      3863,
+      4993
+    ],
+    "arguments": "id, agent, body, tick, interval, desig, idleRec",
+    "decision_returns": 7
+  },
+  {
+    "helper": "updateMovement",
+    "source_lines": [
+      5922,
+      6533
+    ],
+    "arguments": "id, agent, body",
+    "decision_returns": 22
+  }
+]

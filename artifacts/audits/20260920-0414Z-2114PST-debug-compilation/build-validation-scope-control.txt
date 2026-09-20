@@ -1,0 +1,2 @@
+c59-build-validation-scope-control.lua:1 writes 'scopeControl' before its local decl at :2  | scopeControl = 1
+candidates: 1

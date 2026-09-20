@@ -1,19 +1,20 @@
 | Document | Survivor Awareness Overhaul Session State |
 |---|---|
-| Version | `2.7.15.0-pre-alpha` |
+| Version | `2.7.15.1-pre-alpha` |
 | Author | ellyj3rain |
 | Repository | `SESSION_STATE.md` |
 | Status | CANONICAL - current implementation and continuation. |
 
 # Session state
 
-**As of** 2026-09-20, `[C58]` closes population reconstruction and scheduling,
+**As of** 2026-09-20, `[C59]` repairs debug-mode Lua compilation.
+C58 closes population reconstruction and scheduling,
 the second whole-mod restructuring unit. C57 established shared body snapshots
 and consolidated native continuity verification. C56
 closed R5 health and dormant physiology after durable/runtime reconstruction,
 native person continuity, shared county time and the authorized Afflicted return.
 The C catalog is consolidated by adjacency and content using
-the A/B precedent: 29 A-batches, 52 B-batches and 58 C units. BATCH_LOG.md owns
+the A/B precedent: 29 A-batches, 52 B-batches and 59 C units. BATCH_LOG.md owns
 the chronology. Batches/FORMER_LABELS.md maps every former entry;
 Batches/C_RECATALOG.json preserves original paths and source hashes. The
 original records remain at local ref `archive/c-era-raw-20260919`.
@@ -79,6 +80,17 @@ public Population calls retain their contracts. Stored callback identity and
 explicit world reinitialization repair same-environment reload and reset
 cadence, fault state, origin caches and encounter cursors. Border 170 adds ten
 named defect controls; prior historical and body-continuity controls remain.
+
+C59 repairs the startup failure discovered after C58 deployment. The debug
+compiler rejected three oversized functions in Controller and Standing while
+the normal-mode gate accepted them. Existing phases now compile separately;
+Border 50 verifies both debug configurations and the exact cumulative-local
+failure. The correction is F-090; the C58 offline gate was insufficient for
+startup readiness.
+The explicit C59 scope scan checked both changed Lua files and a known-bad
+fixture. The existing gate passes no paths to that diagnostic scanner and thus
+examines no files; R6 preparation owns wiring its source inventory and validating
+candidate shapes. Its current zero is not counted as a clean source sweep.
 
 The next implementation unit is perception and world access: R6 fixes actual
 scan/access paths and R10a investigates world sources before dormant opportunity
@@ -224,14 +236,14 @@ C51's separate first gate found a verdict-prefix defect and missing transition
 registry surfaces/lifetimes. Its failed output is preserved with the corrections;
 the closing full gate passed with exit 0.
 
-The current install is C58 with ZAO A37, deployed on 2026-09-20 UTC.
+The current install is C59 with ZAO A37, deployed on 2026-09-20 UTC.
 All 255 installed SAO files match source; the companion remains unchanged.
-The SAO jar SHA-256 is `1d956ee74316a8aaa1a0f73ec36745bf830f3321b31a0670ac557a6cf7ac7525`.
+The SAO jar SHA-256 is `9eebc9a14d1d54a8fde902fb78c68983f21d7c09bb0317b17babe5fb614818d3`.
 All 44,092 save-file sizes and modification times remained unchanged across
-deployment. The [C58 evidence record](artifacts/audits/20260920-0341Z-2041PST-population-scheduling/README.md)
-holds the source crosswalk, targeted verification and deployment receipt.
-Loaded-world play acceptance remains separate. The development launch contract
-and ZAO A37 tooltip-formatting follow-up recorded with C57 still apply.
+deployment. The [C59 evidence record](artifacts/audits/20260920-0414Z-2114PST-debug-compilation/README.md)
+holds the compiler reproduction, extraction review and deployment receipt.
+Startup validation is recorded there separately from loaded-world acceptance.
+The ZAO A37 tooltip-formatting follow-up recorded with C57 remains open.
 The source coordinate follows
 the consolidated replay; its movement does not measure implementation quality.
 
