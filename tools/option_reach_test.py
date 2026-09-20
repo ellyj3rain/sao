@@ -33,9 +33,10 @@ LUA = ROOT / "mod" / "42.20" / "media" / "lua"
 OPTS = ROOT / "mod" / "42.20" / "media" / "sandbox-options.txt"
 
 LIVE = "SAO_Controller.lua"
-DORMANT = "SAO_Population.lua"
+DORMANT = ("SAO_Population.lua", "SAO_PopulationAdmissions.lua",
+           "SAO_DormantPopulation.lua", "SAO_PopulationRepresentation.lua")
 
-# An option read in NEITHER SAO_Controller nor SAO_Population is not
+# An option read in neither the live controller nor these population owners is not
 # automatically a fault - some are owned by the module they belong to.
 # Named here with the file, so "read somewhere else" is a claim that
 # can be checked rather than a shrug.
@@ -153,7 +154,9 @@ def main():
                          OPTS.read_text(encoding="utf-8", errors="ignore"))
     files = {p.name: p.read_text(encoding="utf-8", errors="ignore")
              for p in LUA.rglob("*.lua")}
-    live, dormant = files.get(LIVE, ""), files.get(DORMANT, "")
+    live = files.get(LIVE, "")
+    dormant_sources = [files.get(name, "") for name in DORMANT]
+    dormant = files.get("SAO_DormantPopulation.lua", "")
     tree = "".join(files.values())
 
     print("=" * 74)
@@ -161,9 +164,9 @@ def main():
     print("=" * 74)
     print(f"  {'option':<20} {'live':>5} {'dormant':>8} {'tree':>6}")
 
-    faults = []
+    faults = [f"missing dormant owner {name}" for name in DORMANT if name not in files]
     for o in sorted(options):
-        l, d, t = reads(live, o), reads(dormant, o), reads(tree, o)
+        l, d, t = reads(live, o), sum(reads(src, o) for src in dormant_sources), reads(tree, o)
         note = ""
         if t == 0:
             note = "  <- READ BY NOBODY"

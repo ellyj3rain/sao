@@ -1,18 +1,19 @@
 | Document | Survivor Awareness Overhaul Session State |
 |---|---|
-| Version | `2.7.14.8-pre-alpha` |
+| Version | `2.7.15.0-pre-alpha` |
 | Author | ellyj3rain |
 | Repository | `SESSION_STATE.md` |
 | Status | CANONICAL - current implementation and continuation. |
 
 # Session state
 
-**As of** 2026-09-20, `[C57]` closes the first whole-mod restructuring unit:
-shared body snapshots and consolidated native continuity verification. C56
+**As of** 2026-09-20, `[C58]` closes population reconstruction and scheduling,
+the second whole-mod restructuring unit. C57 established shared body snapshots
+and consolidated native continuity verification. C56
 closed R5 health and dormant physiology after durable/runtime reconstruction,
 native person continuity, shared county time and the authorized Afflicted return.
 The C catalog is consolidated by adjacency and content using
-the A/B precedent: 29 A-batches, 52 B-batches and 57 C units. BATCH_LOG.md owns
+the A/B precedent: 29 A-batches, 52 B-batches and 58 C units. BATCH_LOG.md owns
 the chronology. Batches/FORMER_LABELS.md maps every former entry;
 Batches/C_RECATALOG.json preserves original paths and source hashes. The
 original records remain at local ref `archive/c-era-raw-20260919`.
@@ -71,10 +72,17 @@ the unchanged probe's 84 assertion sites. The first full gate found one missing
 county-harness dependency; its corrected check passes. The enforced commit
 gate validates the final tree before this closure is published.
 
-The next implementation unit is population reconstruction and scheduling:
-admission, representation scheduling, physical observations and dormant
-advancement retain separate owners under History. R10a investigates actual
-world sources before dormant opportunity can consume them. R6-R15 remain
+C58 separates admissions, body representation, physical observations and dormant
+advancement from the Population scheduler. History owns time; admission and
+dormant passes receive the scheduler's current tick. Existing save keys and
+public Population calls retain their contracts. Stored callback identity and
+explicit world reinitialization repair same-environment reload and reset
+cadence, fault state, origin caches and encounter cursors. Border 170 adds ten
+named defect controls; prior historical and body-continuity controls remain.
+
+The next implementation unit is perception and world access: R6 fixes actual
+scan/access paths and R10a investigates world sources before dormant opportunity
+can consume them. R6-R15 remain
 obligations and move with their owning contracts. The structural inventory is
 complete for its stated baseline; the semantic audit remains partial.
 
@@ -203,7 +211,8 @@ consequences remain separate from the learned policy choosing among them.
 C57 consolidates three native entry points into one: the gate invokes 173
 `*_test.py` files and 13 other Python entry points, 186 distinct scripts. Border
 labels extend through 175; legacy labels 163/169/174 share the native suite.
-These are distinct counting units. C57 ships 69 Lua source files.
+These are distinct counting units. C58 ships 73 Lua source files; the gate
+entry-point counts remain unchanged.
 ZAO A37 has ten borders. The
 published C51 baseline has 163 borders through 178 mirrors. These counts describe the
 apparatus, not acceptance. The audit reproduced defects while targeted checks
@@ -215,21 +224,14 @@ C51's separate first gate found a verdict-prefix defect and missing transition
 registry surfaces/lifetimes. Its failed output is preserved with the corrections;
 the closing full gate passed with exit 0.
 
-The current install is C57 (`2.7.14.8-pre-alpha`) with ZAO A37,
-deployed on 2026-09-20 UTC through each repository's
-deploy script. All 251 SAO and 29 ZAO files match source, with no missing,
-extra or different files. The SAO jar SHA-256 is
-`21af07463c08d4df0d22935b5497255ce0d6ea364238e7a14cead59cde8c7efc`.
-The [C57 evidence record](artifacts/audits/20260920-0158Z-1858PST-person-continuity/README.md)
-holds verification, deployment and startup receipts. The development launcher
-now places ZombieBuddy's bundled Byte Buddy classes on the early agent
-classpath; the prior launcher exited before opening a window. Startup shows
-both SAO and ZAO loaded. All 44,092 save-file sizes and modification times
-remain unchanged across deployment. No loaded-world play acceptance is claimed.
-ZAO's MutationOdds and CrossedOdds tooltips emit recovered formatting warnings;
-the engine returns their original text. The next ZAO packaging pass must escape
-their literal percent signs and verify unchanged displayed percentages against
-the installed translator. `startup.json` records the exact source and behavior.
+The current install is C58 with ZAO A37, deployed on 2026-09-20 UTC.
+All 255 installed SAO files match source; the companion remains unchanged.
+The SAO jar SHA-256 is `1d956ee74316a8aaa1a0f73ec36745bf830f3321b31a0670ac557a6cf7ac7525`.
+All 44,092 save-file sizes and modification times remained unchanged across
+deployment. The [C58 evidence record](artifacts/audits/20260920-0341Z-2041PST-population-scheduling/README.md)
+holds the source crosswalk, targeted verification and deployment receipt.
+Loaded-world play acceptance remains separate. The development launch contract
+and ZAO A37 tooltip-formatting follow-up recorded with C57 still apply.
 The source coordinate follows
 the consolidated replay; its movement does not measure implementation quality.
 

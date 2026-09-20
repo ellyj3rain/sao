@@ -77,6 +77,10 @@ MODULES = [
     "shared/SAO_Seams.lua", "shared/SAO_Standing.lua",
     "shared/SAO_Perception.lua", "shared/SAO_Places.lua",
     "client/SAO_Age.lua", "client/SAO_Telemetry.lua",
+    "shared/SAO_PhysicalFacts.lua",
+    "client/SAO_PopulationAdmissions.lua",
+    "client/SAO_PopulationRepresentation.lua",
+    "client/SAO_DormantPopulation.lua",
     "client/SAO_Population.lua",
 ]
 
@@ -241,7 +245,7 @@ def main():
     print("=" * 74)
 
     standing = read(LUA / "shared" / "SAO_Standing.lua")
-    population = read(LUA / "client" / "SAO_Population.lua")
+    population = read(LUA / "client" / "SAO_DormantPopulation.lua")
     controller = read(LUA / "client" / "SAO_Controller.lua")
     harness = read(LUA / "client" / "SAO_Harness.lua")
     exchange = read(LUA / "client" / "SAO_Exchange.lua")

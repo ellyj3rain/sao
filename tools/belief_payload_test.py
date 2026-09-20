@@ -88,6 +88,9 @@ MODULES = [
     "shared/SAO_Seams.lua", "shared/SAO_Standing.lua",
     "shared/SAO_Perception.lua", "shared/SAO_Places.lua",
     "client/SAO_Age.lua", "client/SAO_Telemetry.lua",
+    "shared/SAO_PhysicalFacts.lua",
+    "client/SAO_PopulationAdmissions.lua", "client/SAO_PopulationRepresentation.lua",
+    "client/SAO_DormantPopulation.lua",
     "client/SAO_Population.lua",
 ]
 
@@ -241,7 +244,7 @@ def probe(expr):
                            encoding="utf-8")
         args = [str(JDK / "java.exe"), "-cp", "%s;." % PZ, "LuaRun",
                 str(prelude)]
-        args += [str(LUA / m) for m in MODULES if (LUA / m).exists()]
+        args += [str(LUA / m) for m in MODULES]
         args += ["--", expr]
         done = subprocess.run(args, cwd=str(work), capture_output=True,
                               text=True, timeout=900)
@@ -263,25 +266,30 @@ def read(path):
 
 
 def main():
+    missing = [str(LUA / name) for name in MODULES if not (LUA / name).is_file()]
+    if missing:
+        print("  FAULT: required VM modules missing: " + ", ".join(missing))
+        return 1
     faults = []
     print("=" * 74)
     print("WHAT A BELIEF CARRIES")
     print("=" * 74)
 
-    population = read(LUA / "client" / "SAO_Population.lua")
+    dormant = read(LUA / "client" / "SAO_DormantPopulation.lua")
+    admissions = read(LUA / "client" / "SAO_PopulationAdmissions.lua")
     perception = read(LUA / "shared" / "SAO_Perception.lua")
     prelude = read(PRELUDE_FILE)
     dump = read(DUMP)
     seams = {
         "the meeting passes the distance it computed":
             re.search(r"local metDist = math\.sqrt\(dx \* dx \+ dy \* dy\)",
-                      population) is not None
-            and population.count("tickCounter, idB, metDist)") == 1
-            and population.count("tickCounter, idA, metDist)") == 1,
+                      dormant) is not None
+            and dormant.count("tickCounter, idB, metDist)") == 1
+            and dormant.count("tickCounter, idA, metDist)") == 1,
         "the first-night spelling computes from their own positions":
             re.search(r"local fdist = math\.sqrt\(fdx \* fdx \+ fdy \* fdy\)",
-                      population) is not None
-            and population.count(", fdist)") == 2,
+                      admissions) is not None
+            and admissions.count(", fdist)") == 2,
         "the write takes a stated distance and keeps the honest seed":
             "function P.sawPerson(id, name, x, y, tick, otherId, dist)"
             in perception

@@ -62,7 +62,8 @@ CENSUS = {
     # that shares its value.
     "SAO_Controller.lua": 13,
     "SAO_Harness.lua": 2,
-    "SAO_Population.lua": 1,
+    # C58 moves the unchanged comparison with dormant advancement.
+    "SAO_DormantPopulation.lua": 1,
     "SAO_UI.lua": 1,
     "SAO_Perception.lua": 1,
 }

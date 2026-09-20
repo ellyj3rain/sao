@@ -1,6 +1,6 @@
 | Document | Survivor Awareness Overhaul Architecture |
 |---|---|
-| Version | `2.7.14.8-pre-alpha` |
+| Version | `2.7.15.0-pre-alpha` |
 | Author | ellyj3rain |
 | Repository | `ARCHITECTURE.md` |
 | Status | ACTIVE - ratified framework shape. |
@@ -184,6 +184,17 @@ module owns no body registry. Release and transfer validate supplied native
 payloads and envelope fields before publishing durable state or ownership.
 Afflicted return shares the version reader and retains source removal and
 adoption. Native formats and save keys keep their existing readers.
+
+C58 gives `SAO_Population` the population cadence, fault gates, daily order and
+historical slice orchestration. `SAO_PopulationAdmissions` owns origins and
+admissions; `SAO_PopulationRepresentation` owns loaded bands and passive foreign
+adoption; `SAO_PhysicalFacts` owns physical capture and commit;
+`SAO_DormantPopulation` owns offscreen advancement. Historical and live calls
+receive the scheduler's current tick. Body owns temporary-body transactions;
+History owns the clock. Existing public Population functions delegate to those
+owners. Population replaces its stored callback on reload and clears runtime
+caches and fault/cadence state on world initialization. Durable stores retain
+their existing keys and progress fields.
 
 ## Combat doctrine ([A7], [A8], [A10]-[A10])
 

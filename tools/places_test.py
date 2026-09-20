@@ -396,7 +396,9 @@ def drive():
     print()
     print("  THE SHIPPED LINKS - modelled above, required below")
     lua = (ROOT / "mod" / "42.20" / "media" / "lua")
-    pop = (lua / "client" / "SAO_Population.lua").read_text(
+    pop = (lua / "client" / "SAO_DormantPopulation.lua").read_text(
+        encoding="utf-8", errors="ignore")
+    admissions = (lua / "client" / "SAO_PopulationAdmissions.lua").read_text(
         encoding="utf-8", errors="ignore")
     per = (lua / "shared" / "SAO_Perception.lua").read_text(
         encoding="utf-8", errors="ignore")
@@ -419,7 +421,7 @@ def drive():
         # person still reads red.
         "the day asks one chooser where it goes":
             re.search(r"local chosen = (?:\w+\s+and\s+)?"
-                      r"choose\w+\(id, rec, reach\)", pop)
+                      r"choose\w+\(id, rec, reach, tickCounter\)", pop)
             is not None,
         "the goal is written from that answer":
             re.search(r"rec\.dayGoalX, rec\.dayGoalY = chosen\.\w+, "
@@ -494,10 +496,10 @@ def drive():
         # was written at genesis and read nowhere in the tree - one
         # mention in the whole mod.
         "genesis teaches the place they started in":
-            "local startedIn = SAO.Places.at(origin.x, origin.y)" in pop
-            and 'learnBuilding(rec.id, startedIn, 0, "lived")' in pop,
+            "local startedIn = SAO.Places.at(origin.x, origin.y)" in admissions
+            and 'learnBuilding(rec.id, startedIn, 0, "lived")' in admissions,
         "and the anchored origin is finally read":
-            "rec.originAnchored then" in pop,
+            "rec.originAnchored then" in admissions,
         "taking is recorded only when something was taken":
             "if got.water or got.food then" in pop
             and "SAO.Places.take(arrived)" in pop,

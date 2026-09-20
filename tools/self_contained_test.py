@@ -45,7 +45,7 @@ LUA = ROOT / "mod" / "42.20" / "media" / "lua"
 ABSORB = LUA / "client" / "SAO_Absorb.lua"
 NEIGHBOURS = LUA / "client" / "SAO_Neighbours.lua"
 HARNESS = LUA / "client" / "SAO_Harness.lua"
-POPULATION = LUA / "client" / "SAO_Population.lua"
+POPULATION = LUA / "client" / "SAO_PopulationRepresentation.lua"
 SANDBOX_LUA = LUA / "client" / "SAO_Sandbox.lua"
 OPTIONS = ROOT / "mod" / "42.20" / "media" / "sandbox-options.txt"
 KNOX = ROOT / "java" / "src" / "com" / "sao" / "engine" / "SAOKnox.java"
@@ -77,7 +77,7 @@ ALLOWED = {
                         "reads their world table to report on it, and asks "
                         "SAO_Neighbours whether a menu is theirs - which "
                         "answers no while the bridge is closed"),
-    "SAO_Population.lua": ("reads",
+    "SAO_PopulationRepresentation.lua": ("reads",
                            "reads their world table for the census and asks "
                            "their namespace whether a body is one of theirs; "
                            "drives nothing"),

@@ -59,6 +59,16 @@ from lua_read import function_body, strip_lua
 ROOT = pathlib.Path(__file__).resolve().parent.parent
 LUA = ROOT / "mod" / "42.20" / "media" / "lua"
 POP = LUA / "client" / "SAO_Population.lua"
+OWNERS = {
+    "ensurePopulation": "PopulationAdmissions",
+    "inhabitKnox": "PopulationRepresentation",
+    "materializeBand": "PopulationRepresentation",
+    "dormantLife": "DormantPopulation",
+    "dormantAttrition": "DormantPopulation",
+    "dormantEncounters": "DormantPopulation",
+    "dormantSettle": "DormantPopulation",
+    "dormantProvision": "DormantPopulation",
+}
 
 # What one walk costs, so the declarations below are about a measured
 # thing rather than a worry. Records -> milliseconds, [B51].
@@ -229,10 +239,26 @@ def main():
                 "bounds that")
 
     for fn, (want, how, what) in sorted(SUBS.items()):
-        body = function_body(src, fn, text)
+        owner = OWNERS.get(fn)
+        owner_src, owner_text = src, text
+        if owner:
+            path = LUA / "client" / ("SAO_" + owner + ".lua")
+            if not path.is_file():
+                faults.append(f"{fn}'s declared owner {path.name} is missing")
+                continue
+            wrapper = function_body(text, fn, text)
+            if not wrapper or not re.search(r"SAO\." + owner + r"\." + fn + r"\s*\(", wrapper):
+                faults.append(f"{fn}'s scheduler wrapper does not call its declared owner {owner}")
+            owner_src = path.read_text(encoding="utf-8", errors="ignore")
+            owner_text = strip_lua(owner_src)
+            alias = {"PopulationAdmissions": "A", "PopulationRepresentation": "R",
+                     "DormantPopulation": "D"}[owner]
+            if not re.search(r"\b" + alias + r"\." + fn + r"\s*=\s*" + fn + r"\b", owner_text):
+                faults.append(f"{owner}.{fn} no longer exports the function whose walk is counted")
+        body = function_body(owner_src, fn, owner_text)
         if body is None:
             faults.append(
-                f"`{fn}` is declared as a tick sub and SAO_Population.lua "
+                f"`{fn}` is declared as a tick sub and its owner "
                 "has no such function - either it was renamed, in which "
                 "case this list is stale, or the walk it declared is gone")
             continue
@@ -246,7 +272,7 @@ def main():
                 "the thing that matters and it changed without anybody "
                 "saying so")
         elif how == "budgeted" and not budgeted(
-                function_body(text, fn, text)):
+                function_body(owner_text, fn, owner_text)):
             faults.append(
                 f"`{fn}` is declared BUDGETED and no condition in it tests a "
                 "budget constant and breaks. It walks a store nothing "

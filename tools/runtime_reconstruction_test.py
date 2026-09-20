@@ -67,6 +67,171 @@ CONTROLLER_CASE = r'''(function()
  return 'PASS'
 end)()'''
 
+POPULATION_MODULES = (
+    "shared/SAO_PhysicalFacts.lua", "client/SAO_DormantPopulation.lua",
+    "client/SAO_Population.lua", "client/SAO_PopulationAdmissions.lua",
+    "client/SAO_PopulationRepresentation.lua",
+)
+
+POPULATION_HOST = CONTROLLER_HOST + r'''
+__ticks=0 __admissions=0 __life=0 __sourceX=100
+function __populationAssert(ok,message)
+ if not ok then __populationFailure=message error(message) end
+end
+__stores={}
+ModData={getOrCreate=function(key)
+ __stores[key]=__stores[key] or {} return __stores[key]
+end}
+SpawnRegionMgr={getSpawnRegions=function() return {
+ {name='fixture',points={unemployed={{posX=__sourceX,posY=100,posZ=0}}}}
+} end}
+SAO.Rand={int=function() return 0 end}
+SAO.History={ticks=function() return __ticks end,
+ countyHours=function() return __ticks/9000 end,daysOwed=function() return 0 end}
+SAO.Identity.livingCount=function() return 0 end
+SAO.Body.recover=function() end
+SAO.Standing.driftStandings=function() end
+SAO.Seams={wentDark=function() end}
+SAO.Telemetry={county=function() end}
+SAO.Age={dailyRoll=function() end,settleHabits=function() end}
+SAO.PathogenEvents={simulateDay=function() end}
+SAO.WorldGenesis={applyDay=function() end}
+SAOJavaBridge=nil
+'''
+
+POPULATION_CASE = r'''(function()
+ assert(Events.OnTick.count()==1,'population callback missing or duplicated')
+ assert(Events.OnInitGlobalModData.count()==1,'population reset callback duplicated')
+ local A,D=SAO.PopulationAdmissions,SAO.DormantPopulation
+ local source=A.tradeGroundFor('unemployed')
+ assert(source and source.x==100,'origin fixture did not reach production cache')
+ local function installCounters()
+  A.ensurePopulation=function(conf,tick)
+   assert(__breakPopulation or tick==__ticks,'admission tick handoff changed')
+   if __breakAdmission then error('fixture admission fault') end
+   __admissions=__admissions+1
+   ModData.getOrCreate('SurvivorAwareness_Standing').countySettled=true
+  end
+  D.dormantLife=function(conf,tick)
+   assert(__breakPopulation or tick==__ticks,'dormant tick handoff changed') __life=__life+1
+  end
+  D.dormantAttrition=function(tick) assert(__breakPopulation or tick==__ticks,'attrition tick handoff changed') end
+  D.dormantEncounters=function(tick) assert(__breakPopulation or tick==__ticks,'encounter tick handoff changed') end
+  D.dormantSettle=function() end D.dormantProvision=function() end
+  SAO.PopulationRepresentation.inhabitKnox=function() end
+ end
+ installCounters()
+ __ticks=9000 Events.OnTick.fire()
+ assert(__admissions==1 and __life==1,'population delegation failed')
+ __ticks=9100 Events.OnTick.fire()
+ assert(__admissions==1,'population cadence ran early')
+ __breakAdmission=true
+ for i=1,4 do __ticks=10000+i*240 Events.OnTick.fire() end
+ __breakAdmission=false
+ __ticks=12000 Events.OnTick.fire()
+ assert(__admissions==1,'admission fault gate did not isolate failures')
+ assert(__life==6,'admission failure stopped independent dormant work')
+ D.__seedRuntime()
+ __sourceX=200 __ticks=0 __stores={}
+ Events.OnInitGlobalModData.fire()
+ assert(Events.OnTick.count()==1,'population callback not restored')
+ assert(A.tradeGroundFor('unemployed').x==200,'prior-world origin cache survived')
+ assert(D.forgetPairs('fixture')==0 and D.__cursor()==nil,'prior-world encounter cache survived')
+ Events.OnTick.fire()
+ assert(__admissions==2 and __life==7,'prior-world cadence or fault gate survived')
+ -- A disabled scheduler must be reattached at the next world initialization.
+ __breakPopulation=true
+ SAO.History.ticks=function() error('fixture clock') end
+ SAO.Identity.all=function() error('fixture population failure') end
+ for i=1,800 do Events.OnTick.fire() end
+ assert(Events.OnTick.count()==0,'population fault gate did not detach')
+ __breakPopulation=false
+ SAO.History.ticks=function() return __ticks end
+ SAO.Identity.all=function() return {} end
+ __stores={}
+ local beforeRestart=__admissions
+ Events.OnInitGlobalModData.fire()
+ assert(Events.OnTick.count()==1,'population callback not restored')
+ Events.OnTick.fire()
+ assert(__admissions==beforeRestart+1,'reinitialized population did not advance')
+ return 'PASS'
+end)()'''
+
+
+def population_run(work: Path, mutation=None) -> subprocess.CompletedProcess[str]:
+    host = work / "population-host.lua"
+    host.write_text(POPULATION_HOST, encoding="utf-8")
+    chunks = [str(host)]
+    scheduler = None
+    for relative in POPULATION_MODULES:
+        source = (LUA / relative).read_text(encoding="utf-8")
+        if mutation and relative == mutation[0]:
+            _, old, new, _ = mutation
+            assert source.count(old) == 1, "population control must land once: " + old
+            source = source.replace(old, new, 1)
+        if relative.endswith("SAO_DormantPopulation.lua"):
+            source = source.replace("return D\n", '''
+function D.__seedRuntime() dormantLastMet['fixture|other']=100 encounterCursor='fixture' end
+function D.__cursor() return encounterCursor end
+return D
+''')
+        path = work / Path(relative).name
+        path.write_text(source, encoding="utf-8")
+        chunks.append(str(path))
+        if relative.endswith("SAO_Population.lua"):
+            scheduler = str(path)
+    # Re-execute the production module, retaining the actual event registry.
+    # This is the formerly broken same-environment reload boundary.
+    chunks.append(scheduler)
+    return subprocess.run(
+        [str(JDK / "java.exe"), "-cp", str(GAME / "projectzomboid.jar") + ";" + str(work),
+         "LuaRun", *chunks, "--",
+         "(function() local ok,value=pcall(function() return "
+         + POPULATION_CASE.replace("assert(", "__populationAssert(")
+         + " end) if __populationFailure then return 'FAIL '..__populationFailure end "
+         + "return ok and value or ('FAIL '..tostring(value)) end)()"],
+        cwd=work, capture_output=True, text=True, timeout=90,
+    )
+
+
+def population_checks(work: Path, faults: list[str]) -> None:
+    result = population_run(work)
+    if result.returncode or "VALUE PASS" not in result.stdout:
+        print(result.stdout + result.stderr)
+        faults.append("population reconstruction")
+        return
+    print("POPULATION production: callback replacement, tick handoffs, fault isolation and re-init")
+    scheduler = "client/SAO_Population.lua"
+    for mutation in (
+        (scheduler, "if Pop.onTick then Events.OnTick.Remove(Pop.onTick) end", "",
+         "population callback missing or duplicated"),
+        (scheduler, "    tickCounter, lastPassAt, booted = 0, nil, false", "",
+         "prior-world cadence or fault gate survived"),
+        (scheduler, "    subFaults, popFaults = {}, 0", "",
+         "prior-world cadence or fault gate survived"),
+        (scheduler, "    SAO.PopulationAdmissions.rebindWorld()", "",
+         "prior-world origin cache survived"),
+        (scheduler, "    SAO.DormantPopulation.rebindWorld()", "",
+         "prior-world encounter cache survived"),
+        (scheduler, "    Events.OnTick.Add(onTick)", "",
+         "population callback not restored"),
+        (scheduler, "ensurePopulation(conf, tickCounter)", "ensurePopulation(conf, 0)",
+         "population delegation failed"),
+        (scheduler, "dormantLife(conf, tickCounter)", "dormantLife(conf, 0)",
+         "population delegation failed"),
+        (scheduler, "dormantAttrition(tickCounter)", "dormantAttrition(0)",
+         "attrition tick handoff changed"),
+        (scheduler, "dormantEncounters(tickCounter)", "dormantEncounters(0)",
+         "encounter tick handoff changed"),
+    ):
+        result = population_run(work, mutation)
+        expected = mutation[3]
+        rejected = "VALUE FAIL " in result.stdout and expected in result.stdout
+        print("CONTROL population " + expected + ": " + ("REJECTED" if rejected else "SURVIVED"))
+        if not rejected:
+            print(result.stdout + result.stderr)
+            faults.append("population: " + expected)
+
 
 def method(class_name: str, signature: str) -> str:
     result = subprocess.run(
@@ -164,6 +329,7 @@ def main() -> int:
             work = Path(tmp)
             shutil.copy2(GAME / "stdlib.lua", work / "stdlib.lua")
             build_java(work)
+            population_checks(work, faults)
 
             production = graph_run(work, ROOT)
             if production.returncode or "RUNTIME_RECONSTRUCTION_OK" not in production.stdout:

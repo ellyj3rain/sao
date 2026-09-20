@@ -78,6 +78,10 @@ MODULES = [
     "shared/SAO_Seams.lua", "shared/SAO_Standing.lua",
     "shared/SAO_Perception.lua", "shared/SAO_Places.lua",
     "client/SAO_Age.lua", "client/SAO_Telemetry.lua",
+    "shared/SAO_PhysicalFacts.lua",
+    "client/SAO_PopulationAdmissions.lua",
+    "client/SAO_PopulationRepresentation.lua",
+    "client/SAO_DormantPopulation.lua",
     "client/SAO_Population.lua",
 ]
 
@@ -382,7 +386,7 @@ def main():
     print("THE DORMANT DAY CAN GO TO A PERSON")
     print("=" * 74)
 
-    pop = read(LUA / "client" / "SAO_Population.lua")
+    pop = read(LUA / "client" / "SAO_DormantPopulation.lua")
     seams = {
         "the day's goal may be a person":
             "dayGoalPerson" in pop,

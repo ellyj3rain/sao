@@ -43,7 +43,7 @@ ROOT = pathlib.Path(sys.argv[1]).resolve() if len(sys.argv) > 1 \
 
 BRIDGE = ROOT / "java" / "src" / "com" / "sao" / "bridge" / "SAOBridge.java"
 BODY = ROOT / "mod" / "42.20" / "media" / "lua" / "client" / "SAO_Body.lua"
-POP = ROOT / "mod" / "42.20" / "media" / "lua" / "client" / "SAO_Population.lua"
+POP = ROOT / "mod" / "42.20" / "media" / "lua" / "client" / "SAO_PopulationRepresentation.lua"
 NBR = ROOT / "mod" / "42.20" / "media" / "lua" / "client" / "SAO_Neighbours.lua"
 
 

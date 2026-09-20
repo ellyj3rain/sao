@@ -111,7 +111,9 @@ def main():
     }
 
     # The population and genesis passes must not touch it at all.
-    for name in ("SAO_Population.lua", "SAO_Absorb.lua", "SAO_Harness.lua"):
+    for name in ("SAO_Population.lua", "SAO_PopulationAdmissions.lua",
+                 "SAO_PopulationRepresentation.lua", "SAO_DormantPopulation.lua",
+                 "SAO_Absorb.lua", "SAO_Harness.lua"):
         text = read(LUA / "client" / name)
         placed = [p for p in PLACERS if p in text]
         checks["%s places no barricade" % name] = not placed

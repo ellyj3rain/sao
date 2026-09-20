@@ -16,14 +16,16 @@ ROOT = Path(sys.argv[1]).resolve() if len(sys.argv) > 1 else Path(__file__).reso
 LUA = ROOT / 'mod/42.20/media/lua/client'
 GAME = Path(r'C:\Program Files (x86)\Steam\steamapps\common\ProjectZomboid')
 JDK = Path(r'C:\Users\jleyv\Peanut Butter\JetBrains\Java\bin')
-SHARED_FILES = {'SAO_Identity.lua', 'SAO_BodySnapshot.lua'}
+SHARED_FILES = {'SAO_Identity.lua', 'SAO_BodySnapshot.lua', 'SAO_PhysicalFacts.lua'}
 
 
 def source_path(name):
     return LUA.parent / ('shared' if name in SHARED_FILES else 'client') / name
 
 
-FILES = ['SAO_BodySnapshot.lua', 'SAO_Body.lua', 'SAO_Controller.lua', 'SAO_Population.lua', 'SAO_Harness.lua',
+FILES = ['SAO_PhysicalFacts.lua', 'SAO_BodySnapshot.lua', 'SAO_Body.lua', 'SAO_Controller.lua',
+         'SAO_PopulationAdmissions.lua', 'SAO_PopulationRepresentation.lua', 'SAO_DormantPopulation.lua',
+         'SAO_Population.lua', 'SAO_Harness.lua',
          'SAO_Age.lua', 'SAO_Drugs.lua', 'SAO_AfflictedReturn.lua',
          'SAO_CrossedTransfer.lua', 'SAO_Nuke.lua', 'SAO_Identity.lua']
 
@@ -477,8 +479,8 @@ def instrument(name, source):
                 'function Identity.markDead(' + body + '\nend\n')
     if name == 'SAO_Controller.lua':
         return source.replace('return Ctl\n', '__update=updateAgent\nreturn Ctl\n')
-    if name == 'SAO_Population.lua':
-        return source.replace('return Pop\n', '__band=materializeBand\nreturn Pop\n')
+    if name == 'SAO_PopulationRepresentation.lua':
+        return source.replace('return R\n', '__band=materializeBand\nreturn R\n')
     if name == 'SAO_Harness.lua':
         return source + '\n__release=release __forget=forget __rematerialize=rematerialize\n'
     if name == 'SAO_Age.lua':
@@ -545,10 +547,10 @@ def main():
              'SAOJavaBridge:removeShell(body) return true','teardown failure reported success'),
             ('SAO_Body.lua','pending = captured\n        rec.bodyRelease = pending',
              'pending = captured','saved pending release lost'),
-            ('SAO_Population.lua','local released, reason = SAO.Body.release(rec)',
+            ('SAO_PopulationRepresentation.lua','local released, reason = SAO.Body.release(rec)',
              'SAO.Controller.drop(id) local released, reason = SAO.Body.release(rec)',
              'population dropped early'),
-            ('SAO_Population.lua','rec.infectionStartedAtHours = now\n',
+            ('SAO_PhysicalFacts.lua','rec.infectionStartedAtHours = now\n',
              'rec.infectionStartedAtHours = nil\n',
              'release lost the observed infection interval'),
             ('SAO_Harness.lua','local ok, reason = SAO.Body.release(rec)',

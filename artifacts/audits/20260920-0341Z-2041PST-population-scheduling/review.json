@@ -1,0 +1,43 @@
+{
+  "production_review": "No extraction regression found after comparison with C57; callback and ownership boundaries retained.",
+  "test_review": "All explicit Population load lists include new owners; inherited county/trajectory/checkpoint harnesses retain required dependencies.",
+  "findings": [
+    {
+      "severity": "medium",
+      "finding": "Caught attrition/encounter tick assertions could leave an outer success verdict",
+      "resolution": "Final verdict checks recorded assertion failure; both mutations added; targeted suite passes."
+    },
+    {
+      "severity": "low",
+      "finding": "Unused dormant distance helper",
+      "resolution": "Removed; representation retains used helper."
+    }
+  ],
+  "checks": {
+    "runtime_reconstruction": {
+      "exit_code": 0,
+      "new_controls": 10,
+      "specific_refusals": 10,
+      "includes": "Existing graph, corpse, native reset probes retained"
+    },
+    "lua_compiler": {
+      "accepted": 73,
+      "refused": 0
+    },
+    "java_build": {
+      "exit_code": 0,
+      "version": "2.7.15.0-pre-alpha"
+    },
+    "static_migration": {
+      "passed": 26
+    },
+    "worker_vm_migration": {
+      "passed": 9
+    }
+  },
+  "limits": [
+    "Same-environment reload and re-init are controlled VM checks, not proof of normal-world leakage.",
+    "Abstract place supplies and social outcomes retain R6/R9/R10 obligations.",
+    "Loaded-world acceptance remains separate."
+  ]
+}

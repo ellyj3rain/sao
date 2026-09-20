@@ -57,6 +57,10 @@ MODULES = [
     "shared/SAO_Seams.lua", "shared/SAO_Standing.lua",
     "shared/SAO_Perception.lua", "shared/SAO_Places.lua",
     "client/SAO_Age.lua", "client/SAO_Telemetry.lua",
+    "shared/SAO_PhysicalFacts.lua",
+    "client/SAO_PopulationAdmissions.lua",
+    "client/SAO_PopulationRepresentation.lua",
+    "client/SAO_DormantPopulation.lua",
     "client/SAO_Population.lua",
 ]
 
@@ -232,7 +236,7 @@ def main():
     print("THE UNWATCHED COUNTY CAN CATCH IT")
     print("=" * 74)
 
-    pop = (LUA / "client" / "SAO_Population.lua").read_text(
+    pop = (LUA / "client" / "SAO_DormantPopulation.lua").read_text(
         encoding="utf-8", errors="ignore")
     if "ESCAPE_BASE" not in pop:
         print("  143) the county can catch it: CONTROL")

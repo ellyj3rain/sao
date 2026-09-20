@@ -1,0 +1,396 @@
+{
+  "scope": "C58 Population-owned verification migration",
+  "recording": "Initial and VM command receipts reconstructed from retained execution outputs; corrected static output retained directly. No runs repeated solely for logging.",
+  "results": [
+    {
+      "phase": "initial-static",
+      "command": [
+        "C:/Python314/python.exe",
+        "tools/appearance_test.py"
+      ],
+      "exit": 0,
+      "seconds": 0.05
+    },
+    {
+      "phase": "initial-static",
+      "command": [
+        "C:/Python314/python.exe",
+        "tools/arrival_test.py"
+      ],
+      "exit": 0,
+      "seconds": 0.04
+    },
+    {
+      "phase": "initial-static",
+      "command": [
+        "C:/Python314/python.exe",
+        "tools/bite_clock_test.py"
+      ],
+      "exit": 0,
+      "seconds": 0.04
+    },
+    {
+      "phase": "initial-static",
+      "command": [
+        "C:/Python314/python.exe",
+        "tools/bulkhead_test.py"
+      ],
+      "exit": 0,
+      "seconds": 0.04
+    },
+    {
+      "phase": "initial-static",
+      "command": [
+        "C:/Python314/python.exe",
+        "tools/click_lands_test.py"
+      ],
+      "exit": 0,
+      "seconds": 0.04
+    },
+    {
+      "phase": "initial-static",
+      "command": [
+        "C:/Python314/python.exe",
+        "tools/crowd_ledger_test.py"
+      ],
+      "exit": 0,
+      "seconds": 0.04
+    },
+    {
+      "phase": "initial-static",
+      "command": [
+        "C:/Python314/python.exe",
+        "tools/digest_order_test.py"
+      ],
+      "exit": 0,
+      "seconds": 0.04
+    },
+    {
+      "phase": "initial-static",
+      "command": [
+        "C:/Python314/python.exe",
+        "tools/forget_on_death_test.py"
+      ],
+      "exit": 0,
+      "seconds": 0.44
+    },
+    {
+      "phase": "initial-static",
+      "command": [
+        "C:/Python314/python.exe",
+        "tools/frontend_language_test.py"
+      ],
+      "exit": 0,
+      "seconds": 0.04
+    },
+    {
+      "phase": "initial-static",
+      "command": [
+        "C:/Python314/python.exe",
+        "tools/ground_reach_test.py"
+      ],
+      "exit": 0,
+      "seconds": 0.41
+    },
+    {
+      "phase": "initial-static",
+      "command": [
+        "C:/Python314/python.exe",
+        "tools/ground_survey_test.py"
+      ],
+      "exit": 0,
+      "seconds": 0.04
+    },
+    {
+      "phase": "initial-static",
+      "command": [
+        "C:/Python314/python.exe",
+        "tools/knowledge_first_test.py"
+      ],
+      "exit": 0,
+      "seconds": 0.06
+    },
+    {
+      "phase": "initial-static",
+      "command": [
+        "C:/Python314/python.exe",
+        "tools/name_pipeline_test.py"
+      ],
+      "exit": 0,
+      "seconds": 0.04
+    },
+    {
+      "phase": "initial-static",
+      "command": [
+        "C:/Python314/python.exe",
+        "tools/option_reach_test.py"
+      ],
+      "exit": 1,
+      "seconds": 0.35
+    },
+    {
+      "phase": "initial-static",
+      "command": [
+        "C:/Python314/python.exe",
+        "tools/places_test.py"
+      ],
+      "exit": 1,
+      "seconds": 0.05
+    },
+    {
+      "phase": "initial-static",
+      "command": [
+        "C:/Python314/python.exe",
+        "tools/placeholder_test.py"
+      ],
+      "exit": 0,
+      "seconds": 0.5
+    },
+    {
+      "phase": "initial-static",
+      "command": [
+        "C:/Python314/python.exe",
+        "tools/radius_test.py"
+      ],
+      "exit": 0,
+      "seconds": 1.31
+    },
+    {
+      "phase": "initial-static",
+      "command": [
+        "C:/Python314/python.exe",
+        "tools/reach_census_test.py"
+      ],
+      "exit": 0,
+      "seconds": 4.93
+    },
+    {
+      "phase": "initial-static",
+      "command": [
+        "C:/Python314/python.exe",
+        "tools/scarcity_reach_test.py"
+      ],
+      "exit": 0,
+      "seconds": 0.3
+    },
+    {
+      "phase": "initial-static",
+      "command": [
+        "C:/Python314/python.exe",
+        "tools/self_contained_test.py"
+      ],
+      "exit": 0,
+      "seconds": 0.14
+    },
+    {
+      "phase": "initial-static",
+      "command": [
+        "C:/Python314/python.exe",
+        "tools/tick_literal_test.py"
+      ],
+      "exit": 0,
+      "seconds": 2.34
+    },
+    {
+      "phase": "initial-static",
+      "command": [
+        "C:/Python314/python.exe",
+        "tools/they_build_test.py"
+      ],
+      "exit": 0,
+      "seconds": 0.06
+    },
+    {
+      "phase": "initial-static",
+      "command": [
+        "C:/Python314/python.exe",
+        "tools/turn_real_test.py"
+      ],
+      "exit": 0,
+      "seconds": 0.08
+    },
+    {
+      "phase": "initial-static",
+      "command": [
+        "C:/Python314/python.exe",
+        "tools/units_test.py"
+      ],
+      "exit": 0,
+      "seconds": 0.09
+    },
+    {
+      "phase": "initial-static",
+      "command": [
+        "C:/Python314/python.exe",
+        "tools/world_before_spawn_test.py"
+      ],
+      "exit": 0,
+      "seconds": 0.08
+    },
+    {
+      "phase": "initial-static",
+      "command": [
+        "C:/Python314/python.exe",
+        "tools/years_between_test.py"
+      ],
+      "exit": 0,
+      "seconds": 0.08
+    },
+    {
+      "command": [
+        "C:\\Python314\\python.exe",
+        "tools\\option_reach_test.py"
+      ],
+      "exit": 0,
+      "seconds": 0.42,
+      "output": "==========================================================================\nEVERY OPTION, AGAINST BOTH HALVES - 34 on the screen\n==========================================================================\n  option                live  dormant   tree\n  Branching                0        0      1  (owned by SAO_Integration.lua)\n  Communication            0        0      2  (owned by SAO_Recognition.lua)\n  DayZero                  0        1      5\n  Desperation             10        1     13\n  DormantRisk              0        1      2\n  DriveSpeedCap            0        0      1  (owned by SAO_Driving.lua)\n  Enable                   0        2      2\n  HibernateRadius          0        1      1\n  HoldNeighbourPrompts     0        0      1  (owned by SAO_Neighbours.lua)\n  Labor                    0        0      1  (owned by SAO_Integration.lua)\n  Material                 0        0      2  (owned by SAO_Recognition.lua)\n  MaterializeRadius        0        1      1\n  NeighbourBridge          0        0      2  (owned by SAO_Absorb.lua)\n  Neuroinflammation        0        0      2  (owned by SAO_Neuro.lua)\n  Newcomers                0       10     12\n  NewcomersGoverned        0        1      3\n  OpennessHorizonMonths     0        0      1  (owned by SAO_Standing.lua)\n  Organization             0        0     10  (owned by SAO_Recognition.lua)\n  PlayerInteraction        0        0      1  (owned by SAO_PlayerInteraction.lua)\n  Population               0       16     18\n  PopulationGoverned       0        1      4\n  Pressure                 0        0      1  (owned by SAO_Integration.lua)\n  RealSmoking              0        0      1  (owned by SAO_Needs.lua)\n  RecordOnCalendar         0        0      1  (owned by SAO_Record.lua)\n  RefillDays               0        2      3\n  RestoreTakenZombies      0        1      1\n  RoadMeetingWorth         0        1      1\n  RoadPressureStep         0        1      1\n  RoadTraffic              0        2      3\n  Settlement               0        0      1  (owned by SAO_Recognition.lua)\n  Telemetry                0        0      1  (owned by SAO_Telemetry.lua)\n  TrustToCompany           4        2     16\n  Voice                    0        0      1  (owned by SAO_Voice.lua)\n  WeekOneNuke              0        0      1  (owned by SAO_Nuke.lua)\n\n  yes  Branching is owned by shared/SAO_Integration.lua\n  yes  Communication is owned by shared/SAO_Recognition.lua\n  yes  DriveSpeedCap is owned by client/SAO_Driving.lua\n  yes  HoldNeighbourPrompts is owned by client/SAO_Neighbours.lua\n  yes  Labor is owned by shared/SAO_Integration.lua\n  yes  Material is owned by shared/SAO_Recognition.lua\n  yes  NeighbourBridge is owned by client/SAO_Absorb.lua\n  yes  Neuroinflammation is owned by shared/SAO_Neuro.lua\n  yes  OpennessHorizonMonths is owned by shared/SAO_Standing.lua\n  yes  Organization is owned by shared/SAO_Recognition.lua\n  yes  PlayerInteraction is owned by shared/SAO_PlayerInteraction.lua\n  yes  Pressure is owned by shared/SAO_Integration.lua\n  yes  RealSmoking is owned by client/SAO_Needs.lua\n  yes  RecordOnCalendar is owned by server/SAO_Record.lua\n  yes  Settlement is owned by shared/SAO_Recognition.lua\n  yes  Telemetry is owned by client/SAO_Telemetry.lua\n  yes  Voice is owned by client/SAO_Voice.lua\n  yes  WeekOneNuke is owned by client/SAO_Nuke.lua\n\n  TUNABLES IN THE DORMANT SOCIAL PATH\n    yes  MEET_RANGE         how near two drifting days must cross\n    yes  ENCOUNTER_BUDGET   outer records swept per pass\n    yes  MEET_COOLDOWN      one meeting per pair per this many ticks\n    yes  WIDE_BERTH         how far a hostile pair is stepped apart\n\n  yes  the day's reach derives from the county's horizons\n  yes  need cuts ahead of curiosity through the knowledge search\n  yes  the errand dial is gone from the whole tree\n  yes  and the hardcoded reach is gone\n\nVERDICT:\n  29) option reach: 34 options, none live-only without a reason, none read by nobody\n",
+      "phase": "corrected-static"
+    },
+    {
+      "command": [
+        "C:\\Python314\\python.exe",
+        "tools\\places_test.py"
+      ],
+      "exit": 1,
+      "seconds": 0.06,
+      "output": "======================================================================\nTHE MAP'S OWN VOCABULARY - 366 room names\n======================================================================\n\n  drink  (28 rooms)\n      2  grocery            grocery, grocerystorage\n      1  conveniencestore   conveniencestore\n      3  cornerstore        cornerstore, cornerstorecounter, cornerstorestorage\n      2  gigamart           gigamart, gigamartkitchen\n      1  liquorstore        liquorstore\n      7  bar                bar, barbecuestore, barcountertwiggy, barkitchen, barn +2\n      5  cafe               cafe, cafekitchen, cafeteria, cafeteriakitchen, cybercafe\n      2  brewery            brewery, brewerystorage\n      2  cafeteria          cafeteria, cafeteriakitchen\n      3  generalstore       generalstore, generalstorestorage, ww_generalstore\n      1  gasstore           gasstore\n      1  gas2go             gas2go\n\n  food  (79 rooms)\n     32  kitchen            arenakitchen, arenakitchenstorage, bakerykitchen, bandkitchen, barkitchen +27\n      2  grocery            grocery, grocerystorage\n      2  bakery             bakery, bakerykitchen\n     10  dining             burgerdining, catfish_dining, dining, dining_crepe, donut_dining +5\n      5  cafe               cafe, cafekitchen, cafeteria, cafeteriakitchen, cybercafe\n      2  cafeteria          cafeteria, cafeteriakitchen\n      5  restaurant         chineserestaurant, italianrestaurant, restaurantdining, restaurantkitchen, restaurantkitchen_fancy\n      1  butcher            butcher\n      1  barn               barn\n      1  produce            producestorage\n      1  potato             potatostorage\n      1  egg                eggstorage\n      4  jerky              jerkycoldroom, jerkyfactory, jerkyshipping, jerkysmoker\n      1  candystore         candystore\n      3  cornerstore        cornerstore, cornerstorecounter, cornerstorestorage\n      1  conveniencestore   conveniencestore\n      2  gigamart           gigamart, gigamartkitchen\n      2  icecream           icecream, icecreamkitchen\n      1  hotdogstand        hotdogstand\n      7  bar                bar, barbecuestore, barcountertwiggy, barkitchen, barn +2\n      1  liquorstore        liquorstore\n      2  brewery            brewery, brewerystorage\n      4  spiffo             spiffo_dining, spiffoservice, spiffoskitchen, spiffosstorage\n      2  burger             burgerdining, burgerkitchen\n      3  pizza              pizzakitchen, pizzawhirled, pizzawhirledcounter\n      3  donut              donut_dining, donut_kitchen, donut_kitchenstorage\n      2  sushi              sushidining, sushikitchen\n      2  catfish            catfish_dining, catfish_kitchen\n      1  fishchips          fishchipskitchen\n      2  jayschicken        jayschicken_dining, jayschicken_kitchen\n      1  deepfry            deepfry_kitchen\n\n  medicine  (13 rooms)\n      4  medical            medical, medicaloffice, medicalstorage, oldmedical\n      2  pharmacy           pharmacy, pharmacystorage\n      3  hospital           hospitalhallway, hospitalroom, hospitalstorage\n      2  dentist            dentist, dentiststorage\n      1  laboratory         laboratory\n      1  morgue             morgue\n\n  shelter  (26 rooms)\n      4  bedroom            bedroom, hoarderbedroom, kidsbedroom, ww_bedroom\n      3  livingroom         bandlivingroom, livingroom, ww_livingroom\n      2  motelroom          motelroom, motelroomoccupied\n      5  hall               hall, hospitalhallway, rangerhall, secondaryhall, ww_hall\n      1  closet             closet\n      2  dorm               agriworkerdorm, campworkerdorm\n      2  church             church, officechurch\n      3  library            library, policelibrary, universitylibrary\n      1  lobby              lobby\n      3  theatre            theatre, theatrekitchen, theatrestorage\n\n  tools  (59 rooms)\n      3  toolstore          toolstore, toolstorestorage, ww_toolstore\n      1  mechanic           mechanic\n      4  garage             firegarage, garage_ranger, garagestorage, policegarage\n     12  workshop           bagworkshop, carpentryworkshop, clockrepairworkshop, furnitureworkshop, glassmakingworkshop +7\n      1  shed               shed\n      2  warehouse          loggingwarehouse, warehouse\n      2  carsupply          carsupply, carsupplysport\n      1  construction       construction\n      2  welding            weldingstorage, weldingworkshop\n      2  blacksmith         blacksmith, ww_blacksmith\n      1  carpentry          carpentryworkshop\n      1  railroadrepair     railroadrepair\n     15  factory            batfactory, batteryfactory, cabinetfactory, derelict_steelfactory, dogfoodfactory +10\n      2  outdoorsupply      outdoorsupply, outdoorsupply_storage\n      2  camping            camping, campingstorage\n      1  hunting            hunting\n      1  fishingstorage     fishingstorage\n      1  gardenstore        gardenstore\n      3  generalstore       generalstore, generalstorestorage, ww_generalstore\n      4  hoarder            hoarder, hoarderbedroom, hoarderkitchen, hoarderoffice\n\n  water  (7 rooms)\n      1  bathroom           bathroom\n      4  laundry            laundry, laundryshirts, laundrysuits, prisonlaundry\n      1  waterstorage       waterstorage\n      1  pool               pool\n\n  weapons  (14 rooms)\n      2  gunstore           gunstore, gunstorestorage\n      1  armysurplus        armysurplus\n      1  armystorage        armystorage\n      1  armytent           armytent\n      1  policelocker       policelocker\n      1  evidenceroom       evidenceroom\n      4  pawnshop           pawnshop, pawnshopcooking, pawnshopoffice, pawnshopstorage\n      1  hunting            hunting\n      1  sportstore         sportstore\n      1  oldarmy            oldarmy\n\n======================================================================\nCOVERAGE\n======================================================================\n  rooms that offer something : 194 of 366 (53%)\n  rooms offering more than one: 32   e.g. bar, barbecuestore, barcountertwiggy, barkitchen\n  deliberately excluded       : kitchenwares\n  rooms that offer nothing    : 172\n    aesthetic, aestheticstorage, all, artstore, attic, backstage, bagstore, bandmerch, baseballgiftstorage, baseballstorage, baseballstore, batstorage, batterystorage, beergarden ...\n\n======================================================================\nTHE DAY, driven\n======================================================================\n  1. wilderness, no places at all -> falls back to the old drift: True\n  2. a building whose rooms offer nothing is not somewhere to GO: True\n  3. never having been anywhere, they go somewhere: True\n  4. somewhere never seen beats somewhere just left: True\n  5. among places they know, the one longest unseen wins: True\n  6. ground they KNOW is an enemy's is refused: True\n  7. a neighbourhood entirely enemy ground -> drift again: True\n\n  8. four days dry, they go BACK to the water they know rather than somewhere new: True\n  9. watered and fed, novelty returns: True\n 10. dry AND starving, water first - it arrives first: True\n 11. inside the patience window it is not yet a need: True\n\n 12. every place near them is somebody else's and they are not desperate -> drift: True\n 13. four days dry, the same ground is taken: True\n 14. a claim they have never heard of stops nobody: True\n\n  THE SHIPPED LINKS - modelled above, required below\n    yes  the day asks one chooser where it goes\n    yes  the goal is written from that answer\n    yes  arriving teaches it\n    yes  the drift survives as the fallback\n    yes  belief can hold a place as a place\n    yes  and can age it\n    yes  places come from the map\n    yes  and from its room names\n    yes  reads the game's own distribution tables\n    yes  resolves items through the script manager\n    yes  an item's offer is what it does to a BODY\n    yes  contents win over the name where the game has an answer\n    yes  but shelter still comes from the name\n    yes  and the content read is cached per room\n    yes  a place can be emptied\n    yes  how much it holds comes from how big it is\n    yes  it refills on the game's own loot clock\n    yes  and no respawn setting means it never refills\n    yes  a spent place keeps its shelter\n    yes  the dormant read the county's own desperation line\n    yes  and lessons move it for them too\n    yes  somebody else's ground is belief-gated\n    yes  and respected only below the line\n    yes  genesis teaches the place they started in\n    NO   and the anchored origin is finally read\n    yes  taking is recorded only when something was taken\n    yes  reaching water records the day\n    yes  reaching food records the day\n    yes  thirst reaches the death roll\n    yes  hunger reaches it too\n    yes  an old world does not start starving\n    yes  the county's water can go off\n    yes  only stored water and drink survive it\n    yes  a bathroom depends on the mains\n    yes  the day asks what is offered TODAY, twice\n\n======================================================================\nTHE DAY THE WATER GOES OFF\n======================================================================\n  a house          mains on: water   mains off:   -     (food, shelter)\n  a farmhouse      mains on: water   mains off: water   (drink, food, shelter)\n  a motel          mains on: water   mains off:   -     (shelter)\n  a grocery        mains on: water   mains off: water   (drink, food)\n  a bar            mains on: water   mains off: water   (drink, food)\n  a gas station    mains on: water   mains off: water   (drink)\n  a warehouse      mains on:   -     mains off:   -     (tools)\n  a school pool    mains on: water   mains off: water   (nothing else)\n\n  loses its water : 2/8  a house, a motel\n  keeps it        : 5/8  a farmhouse, a grocery, a bar, a gas station, a school pool\n\n    yes  a house loses its water\n    yes  a motel loses its water\n    yes  somewhere still has water\n    yes  a grocery keeps it\n    yes  a pool keeps it\n    yes  the county is not left dry\n\n======================================================================\nTHE SHELVES, driven\n======================================================================\n  3 takes a room, held between 4 and 60\n\n  building        rooms   holds   feeds\n  a one-room shed     1       4    4 visits\n  a house             4      12    12 visits\n  a grocery           8      24    24 visits\n  a gigamart         30      60    60 visits\n\n  216 people against one grocery holding 24: 192 of them find it empty\n\n  yes  a one-room shed is finite\n  yes  a house is finite\n  yes  a grocery is finite\n  yes  a gigamart is finite\n  yes  a grocery cannot feed the county\n  yes  nor can the biggest place on the map\n  yes  no-respawn means permanent\n  yes  spent is not gone\n\nVERDICT:\n  FAULT: the day does not behave as modelled, or a shipped link is missing\n",
+      "phase": "corrected-static"
+    },
+    {
+      "command": [
+        "C:\\Python314\\python.exe",
+        "tools/places_test.py"
+      ],
+      "exit": 0,
+      "output": "======================================================================\nTHE MAP'S OWN VOCABULARY - 366 room names\n======================================================================\n\n  drink  (28 rooms)\n      2  grocery            grocery, grocerystorage\n      1  conveniencestore   conveniencestore\n      3  cornerstore        cornerstore, cornerstorecounter, cornerstorestorage\n      2  gigamart           gigamart, gigamartkitchen\n      1  liquorstore        liquorstore\n      7  bar                bar, barbecuestore, barcountertwiggy, barkitchen, barn +2\n      5  cafe               cafe, cafekitchen, cafeteria, cafeteriakitchen, cybercafe\n      2  brewery            brewery, brewerystorage\n      2  cafeteria          cafeteria, cafeteriakitchen\n      3  generalstore       generalstore, generalstorestorage, ww_generalstore\n      1  gasstore           gasstore\n      1  gas2go             gas2go\n\n  food  (79 rooms)\n     32  kitchen            arenakitchen, arenakitchenstorage, bakerykitchen, bandkitchen, barkitchen +27\n      2  grocery            grocery, grocerystorage\n      2  bakery             bakery, bakerykitchen\n     10  dining             burgerdining, catfish_dining, dining, dining_crepe, donut_dining +5\n      5  cafe               cafe, cafekitchen, cafeteria, cafeteriakitchen, cybercafe\n      2  cafeteria          cafeteria, cafeteriakitchen\n      5  restaurant         chineserestaurant, italianrestaurant, restaurantdining, restaurantkitchen, restaurantkitchen_fancy\n      1  butcher            butcher\n      1  barn               barn\n      1  produce            producestorage\n      1  potato             potatostorage\n      1  egg                eggstorage\n      4  jerky              jerkycoldroom, jerkyfactory, jerkyshipping, jerkysmoker\n      1  candystore         candystore\n      3  cornerstore        cornerstore, cornerstorecounter, cornerstorestorage\n      1  conveniencestore   conveniencestore\n      2  gigamart           gigamart, gigamartkitchen\n      2  icecream           icecream, icecreamkitchen\n      1  hotdogstand        hotdogstand\n      7  bar                bar, barbecuestore, barcountertwiggy, barkitchen, barn +2\n      1  liquorstore        liquorstore\n      2  brewery            brewery, brewerystorage\n      4  spiffo             spiffo_dining, spiffoservice, spiffoskitchen, spiffosstorage\n      2  burger             burgerdining, burgerkitchen\n      3  pizza              pizzakitchen, pizzawhirled, pizzawhirledcounter\n      3  donut              donut_dining, donut_kitchen, donut_kitchenstorage\n      2  sushi              sushidining, sushikitchen\n      2  catfish            catfish_dining, catfish_kitchen\n      1  fishchips          fishchipskitchen\n      2  jayschicken        jayschicken_dining, jayschicken_kitchen\n      1  deepfry            deepfry_kitchen\n\n  medicine  (13 rooms)\n      4  medical            medical, medicaloffice, medicalstorage, oldmedical\n      2  pharmacy           pharmacy, pharmacystorage\n      3  hospital           hospitalhallway, hospitalroom, hospitalstorage\n      2  dentist            dentist, dentiststorage\n      1  laboratory         laboratory\n      1  morgue             morgue\n\n  shelter  (26 rooms)\n      4  bedroom            bedroom, hoarderbedroom, kidsbedroom, ww_bedroom\n      3  livingroom         bandlivingroom, livingroom, ww_livingroom\n      2  motelroom          motelroom, motelroomoccupied\n      5  hall               hall, hospitalhallway, rangerhall, secondaryhall, ww_hall\n      1  closet             closet\n      2  dorm               agriworkerdorm, campworkerdorm\n      2  church             church, officechurch\n      3  library            library, policelibrary, universitylibrary\n      1  lobby              lobby\n      3  theatre            theatre, theatrekitchen, theatrestorage\n\n  tools  (59 rooms)\n      3  toolstore          toolstore, toolstorestorage, ww_toolstore\n      1  mechanic           mechanic\n      4  garage             firegarage, garage_ranger, garagestorage, policegarage\n     12  workshop           bagworkshop, carpentryworkshop, clockrepairworkshop, furnitureworkshop, glassmakingworkshop +7\n      1  shed               shed\n      2  warehouse          loggingwarehouse, warehouse\n      2  carsupply          carsupply, carsupplysport\n      1  construction       construction\n      2  welding            weldingstorage, weldingworkshop\n      2  blacksmith         blacksmith, ww_blacksmith\n      1  carpentry          carpentryworkshop\n      1  railroadrepair     railroadrepair\n     15  factory            batfactory, batteryfactory, cabinetfactory, derelict_steelfactory, dogfoodfactory +10\n      2  outdoorsupply      outdoorsupply, outdoorsupply_storage\n      2  camping            camping, campingstorage\n      1  hunting            hunting\n      1  fishingstorage     fishingstorage\n      1  gardenstore        gardenstore\n      3  generalstore       generalstore, generalstorestorage, ww_generalstore\n      4  hoarder            hoarder, hoarderbedroom, hoarderkitchen, hoarderoffice\n\n  water  (7 rooms)\n      1  bathroom           bathroom\n      4  laundry            laundry, laundryshirts, laundrysuits, prisonlaundry\n      1  waterstorage       waterstorage\n      1  pool               pool\n\n  weapons  (14 rooms)\n      2  gunstore           gunstore, gunstorestorage\n      1  armysurplus        armysurplus\n      1  armystorage        armystorage\n      1  armytent           armytent\n      1  policelocker       policelocker\n      1  evidenceroom       evidenceroom\n      4  pawnshop           pawnshop, pawnshopcooking, pawnshopoffice, pawnshopstorage\n      1  hunting            hunting\n      1  sportstore         sportstore\n      1  oldarmy            oldarmy\n\n======================================================================\nCOVERAGE\n======================================================================\n  rooms that offer something : 194 of 366 (53%)\n  rooms offering more than one: 32   e.g. bar, barbecuestore, barcountertwiggy, barkitchen\n  deliberately excluded       : kitchenwares\n  rooms that offer nothing    : 172\n    aesthetic, aestheticstorage, all, artstore, attic, backstage, bagstore, bandmerch, baseballgiftstorage, baseballstorage, baseballstore, batstorage, batterystorage, beergarden ...\n\n======================================================================\nTHE DAY, driven\n======================================================================\n  1. wilderness, no places at all -> falls back to the old drift: True\n  2. a building whose rooms offer nothing is not somewhere to GO: True\n  3. never having been anywhere, they go somewhere: True\n  4. somewhere never seen beats somewhere just left: True\n  5. among places they know, the one longest unseen wins: True\n  6. ground they KNOW is an enemy's is refused: True\n  7. a neighbourhood entirely enemy ground -> drift again: True\n\n  8. four days dry, they go BACK to the water they know rather than somewhere new: True\n  9. watered and fed, novelty returns: True\n 10. dry AND starving, water first - it arrives first: True\n 11. inside the patience window it is not yet a need: True\n\n 12. every place near them is somebody else's and they are not desperate -> drift: True\n 13. four days dry, the same ground is taken: True\n 14. a claim they have never heard of stops nobody: True\n\n  THE SHIPPED LINKS - modelled above, required below\n    yes  the day asks one chooser where it goes\n    yes  the goal is written from that answer\n    yes  arriving teaches it\n    yes  the drift survives as the fallback\n    yes  belief can hold a place as a place\n    yes  and can age it\n    yes  places come from the map\n    yes  and from its room names\n    yes  reads the game's own distribution tables\n    yes  resolves items through the script manager\n    yes  an item's offer is what it does to a BODY\n    yes  contents win over the name where the game has an answer\n    yes  but shelter still comes from the name\n    yes  and the content read is cached per room\n    yes  a place can be emptied\n    yes  how much it holds comes from how big it is\n    yes  it refills on the game's own loot clock\n    yes  and no respawn setting means it never refills\n    yes  a spent place keeps its shelter\n    yes  the dormant read the county's own desperation line\n    yes  and lessons move it for them too\n    yes  somebody else's ground is belief-gated\n    yes  and respected only below the line\n    yes  genesis teaches the place they started in\n    yes  and the anchored origin is finally read\n    yes  taking is recorded only when something was taken\n    yes  reaching water records the day\n    yes  reaching food records the day\n    yes  thirst reaches the death roll\n    yes  hunger reaches it too\n    yes  an old world does not start starving\n    yes  the county's water can go off\n    yes  only stored water and drink survive it\n    yes  a bathroom depends on the mains\n    yes  the day asks what is offered TODAY, twice\n\n======================================================================\nTHE DAY THE WATER GOES OFF\n======================================================================\n  a house          mains on: water   mains off:   -     (food, shelter)\n  a farmhouse      mains on: water   mains off: water   (drink, food, shelter)\n  a motel          mains on: water   mains off:   -     (shelter)\n  a grocery        mains on: water   mains off: water   (drink, food)\n  a bar            mains on: water   mains off: water   (drink, food)\n  a gas station    mains on: water   mains off: water   (drink)\n  a warehouse      mains on:   -     mains off:   -     (tools)\n  a school pool    mains on: water   mains off: water   (nothing else)\n\n  loses its water : 2/8  a house, a motel\n  keeps it        : 5/8  a farmhouse, a grocery, a bar, a gas station, a school pool\n\n    yes  a house loses its water\n    yes  a motel loses its water\n    yes  somewhere still has water\n    yes  a grocery keeps it\n    yes  a pool keeps it\n    yes  the county is not left dry\n\n======================================================================\nTHE SHELVES, driven\n======================================================================\n  3 takes a room, held between 4 and 60\n\n  building        rooms   holds   feeds\n  a one-room shed     1       4    4 visits\n  a house             4      12    12 visits\n  a grocery           8      24    24 visits\n  a gigamart         30      60    60 visits\n\n  216 people against one grocery holding 24: 192 of them find it empty\n\n  yes  a one-room shed is finite\n  yes  a house is finite\n  yes  a grocery is finite\n  yes  a gigamart is finite\n  yes  a grocery cannot feed the county\n  yes  nor can the biggest place on the map\n  yes  no-respawn means permanent\n  yes  spent is not gone\n\nVERDICT:\n  every stem matches the shipped map; none exceeds 25% breadth\n  the day goes to a place, learns it, and refuses enemy ground\n  when the mains go, houses lose their water and the shops keep it\n",
+      "phase": "corrected-static"
+    },
+    {
+      "phase": "vm",
+      "command": [
+        "C:/Python314/python.exe",
+        "tools/company_pull_test.py"
+      ],
+      "exit": 0,
+      "seconds": 0.58
+    },
+    {
+      "phase": "vm",
+      "command": [
+        "C:/Python314/python.exe",
+        "tools/dormant_infection_test.py"
+      ],
+      "exit": 0,
+      "seconds": 6.81
+    },
+    {
+      "phase": "vm",
+      "command": [
+        "C:/Python314/python.exe",
+        "tools/person_belief_test.py"
+      ],
+      "exit": 0,
+      "seconds": 1.13
+    },
+    {
+      "phase": "vm",
+      "command": [
+        "C:/Python314/python.exe",
+        "tools/seek_test.py"
+      ],
+      "exit": 0,
+      "seconds": 89.25
+    },
+    {
+      "phase": "vm",
+      "command": [
+        "C:/Python314/python.exe",
+        "tools/settle_test.py"
+      ],
+      "exit": 0,
+      "seconds": 5.55
+    },
+    {
+      "phase": "vm",
+      "command": [
+        "C:/Python314/python.exe",
+        "tools/county_clock_test.py"
+      ],
+      "exit": 0,
+      "seconds": 1.17
+    },
+    {
+      "phase": "vm",
+      "command": [
+        "C:/Python314/python.exe",
+        "tools/day_zero_owes_test.py"
+      ],
+      "exit": 0,
+      "seconds": 0.94
+    },
+    {
+      "phase": "vm",
+      "command": [
+        "C:/Python314/python.exe",
+        "tools/foreign_claim_test.py"
+      ],
+      "exit": 0,
+      "seconds": 0.32
+    },
+    {
+      "phase": "vm",
+      "command": [
+        "C:/Python314/python.exe",
+        "tools/years_trajectory_test.py"
+      ],
+      "exit": 0,
+      "seconds": 0.43
+    }
+  ],
+  "summary": {
+    "unique_tests": 35,
+    "latest_exit_all": 0,
+    "static_tests": 26,
+    "vm_tests": 9,
+    "changed_test_files": 26
+  },
+  "changed_files": [
+    "tools/appearance_test.py",
+    "tools/arrival_test.py",
+    "tools/bite_clock_test.py",
+    "tools/click_lands_test.py",
+    "tools/company_pull_test.py",
+    "tools/county_clock_test.py",
+    "tools/dormant_infection_test.py",
+    "tools/foreign_claim_test.py",
+    "tools/forget_on_death_test.py",
+    "tools/ground_reach_test.py",
+    "tools/knowledge_first_test.py",
+    "tools/name_pipeline_test.py",
+    "tools/option_reach_test.py",
+    "tools/person_belief_test.py",
+    "tools/placeholder_test.py",
+    "tools/places_test.py",
+    "tools/reach_census_test.py",
+    "tools/scarcity_reach_test.py",
+    "tools/seek_test.py",
+    "tools/self_contained_test.py",
+    "tools/settle_test.py",
+    "tools/they_build_test.py",
+    "tools/tick_literal_test.py",
+    "tools/turn_real_test.py",
+    "tools/units_test.py",
+    "tools/world_before_spawn_test.py"
+  ],
+  "crosswalk": {
+    "physical_observation_and_bite_window": "SAO_Population.lua -> shared/SAO_PhysicalFacts.lua",
+    "origin_admission_units_refill": "SAO_Population.lua -> client/SAO_PopulationAdmissions.lua",
+    "materialization_appearance_names_foreign_adoption": "SAO_Population.lua -> client/SAO_PopulationRepresentation.lua",
+    "dormant_choices_attrition_settlement_encounters": "SAO_Population.lua -> client/SAO_DormantPopulation.lua",
+    "scheduler_cfg_clock_years_digest_crowd_ground_survey": "SAO_Population.lua retained",
+    "death_forget": "Identity -> Population compatibility wrapper -> DormantPopulation.forgetPairs",
+    "bare_reach": "One unchanged len > 1.0 comparison moved Population -> DormantPopulation; total remains 18"
+  },
+  "controls": "No existing named behavioral controls removed. Control total was not separately recounted. Explicit source assertions and permitted readers moved to actual owners; five VM module lists load real owner files.",
+  "remaining_faults": []
+}

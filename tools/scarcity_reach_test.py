@@ -43,7 +43,7 @@ import sys
 
 ROOT = pathlib.Path(__file__).resolve().parent.parent
 LUA = ROOT / "mod" / "42.20" / "media" / "lua"
-DORMANT = LUA / "client" / "SAO_Population.lua"
+DORMANT = LUA / "client" / "SAO_DormantPopulation.lua"
 LIVE = LUA / "client" / "SAO_Controller.lua"
 
 sys.path.insert(0, str(pathlib.Path(__file__).resolve().parent))

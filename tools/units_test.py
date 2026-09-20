@@ -26,7 +26,7 @@ from collections import Counter
 
 ROOT = pathlib.Path(__file__).resolve().parent.parent
 LUA = ROOT / "mod" / "42.20" / "media" / "lua"
-POP = LUA / "client" / "SAO_Population.lua"
+POP = LUA / "client" / "SAO_PopulationAdmissions.lua"
 HIST = LUA / "shared" / "SAO_History.lua"
 
 
@@ -92,6 +92,7 @@ def back(rel):
 
 def main():
     psrc, hsrc = lua(POP), lua(HIST)
+    representation = lua(POP.with_name("SAO_PopulationRepresentation.lua"))
     sizes = weighted(psrc, "UNIT_SIZES", "size")
     kinds = weighted(psrc, "UNIT_KINDS", "bond")
     bnds = bands(hsrc)
@@ -170,7 +171,7 @@ def main():
         "the unit is recorded on the person":
             "mate.unitId, mate.unitKind = unitId, kind" in psrc,
         "a family shares its name":
-            'rec.unitKind == "family"' in psrc,
+            'rec.unitKind == "family"' in representation,
         "the relation is derived": "function H.relationIn" in hsrc,
         "and it reads AGE": "H.ageOf(aId), H.ageOf(bId)" in hsrc,
         "the pair settles peer relations, not the person":

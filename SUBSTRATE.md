@@ -1,6 +1,6 @@
 | Document | Survivor Awareness Overhaul Dependency Substrate |
 |---|---|
-| Version | `2.7.14.8-pre-alpha` |
+| Version | `2.7.15.0-pre-alpha` |
 | Author | ellyj3rain |
 | Repository | `SUBSTRATE.md` |
 | Status | CANONICAL - what exists, what is planned, and what each area of concern needs. |
@@ -234,6 +234,20 @@ validate their supplied payloads and required envelope fields before publishing
 ownership. Historical envelopes may omit visual sidecars; current v4 appearance
 is native. The shared native suite retains the original probe assertions and
 all historical defect controls across Borders 163, 169 and 174.
+
+C58 separates the population scheduler from `PopulationAdmissions`,
+`PopulationRepresentation`, `PhysicalFacts` and `DormantPopulation`. The
+scheduler passes its current tick into admissions and dormant work; each
+historical substep uses the same handoff. PhysicalFacts supplies both loaded
+observations and BodySnapshot commits. Existing record/store keys and public
+Population functions retain their contracts. Border 170 executes callback
+replacement and world reinitialization with ten defect controls.
+
+Dormant advancement still includes abstract place offers/depletion and
+settlement/provisioning recognition. Admissions still derives a target and
+refills after losses. Their extraction provides explicit owners for R6/R9/R10;
+it does not establish private, accessible and conserved native resources or
+resolve R10b's admission-policy obligation.
 
 ### R2-R4: time, complete person state and reconstruction (closed C53-C55/A36)
 

@@ -1,0 +1,714 @@
+{
+  "baseline": "5914a146a9ac6c6732b35f64bb887fd680cb9b41",
+  "functions": [
+    {
+      "former_function": "log",
+      "former_line": 48,
+      "current": [
+        {
+          "file": "client/SAO_Population.lua",
+          "function": "log",
+          "line": 46
+        },
+        {
+          "file": "client/SAO_PopulationAdmissions.lua",
+          "function": "log",
+          "line": 6
+        },
+        {
+          "file": "client/SAO_PopulationRepresentation.lua",
+          "function": "log",
+          "line": 6
+        },
+        {
+          "file": "client/SAO_DormantPopulation.lua",
+          "function": "log",
+          "line": 6
+        }
+      ]
+    },
+    {
+      "former_function": "tally",
+      "former_line": 49,
+      "current": [
+        {
+          "file": "client/SAO_Population.lua",
+          "function": "tally",
+          "line": 47
+        },
+        {
+          "file": "client/SAO_PopulationAdmissions.lua",
+          "function": "tally",
+          "line": 7
+        },
+        {
+          "file": "client/SAO_PopulationRepresentation.lua",
+          "function": "tally",
+          "line": 7
+        },
+        {
+          "file": "client/SAO_DormantPopulation.lua",
+          "function": "tally",
+          "line": 7
+        }
+      ]
+    },
+    {
+      "former_function": "cfg",
+      "former_line": 54,
+      "current": [
+        {
+          "file": "client/SAO_Population.lua",
+          "function": "cfg",
+          "line": 52
+        }
+      ]
+    },
+    {
+      "former_function": "playerPos",
+      "former_line": 127,
+      "current": [
+        {
+          "file": "client/SAO_Population.lua",
+          "function": "playerPos",
+          "line": 125
+        }
+      ]
+    },
+    {
+      "former_function": "dist",
+      "former_line": 133,
+      "current": [
+        {
+          "file": "client/SAO_PopulationRepresentation.lua",
+          "function": "dist",
+          "line": 8
+        }
+      ]
+    },
+    {
+      "former_function": "loadRegionPoints",
+      "former_line": 141,
+      "current": [
+        {
+          "file": "client/SAO_Population.lua",
+          "function": "loadRegionPoints",
+          "line": 169
+        },
+        {
+          "file": "client/SAO_PopulationAdmissions.lua",
+          "function": "loadRegionPoints",
+          "line": 16
+        }
+      ]
+    },
+    {
+      "former_function": "pickWeighted",
+      "former_line": 224,
+      "current": [
+        {
+          "file": "client/SAO_PopulationAdmissions.lua",
+          "function": "pickWeighted",
+          "line": 99
+        }
+      ]
+    },
+    {
+      "former_function": "rollUnit",
+      "former_line": 236,
+      "current": [
+        {
+          "file": "client/SAO_PopulationAdmissions.lua",
+          "function": "rollUnit",
+          "line": 111
+        }
+      ]
+    },
+    {
+      "former_function": "countRegions",
+      "former_line": 268,
+      "current": [
+        {
+          "file": "client/SAO_PopulationAdmissions.lua",
+          "function": "countRegions",
+          "line": 143
+        }
+      ]
+    },
+    {
+      "former_function": "resolveTarget",
+      "former_line": 285,
+      "current": [
+        {
+          "file": "client/SAO_Population.lua",
+          "function": "resolveTarget",
+          "line": 168
+        },
+        {
+          "file": "client/SAO_PopulationAdmissions.lua",
+          "function": "resolveTarget",
+          "line": 160
+        }
+      ]
+    },
+    {
+      "former_function": "resolveNewcomers",
+      "former_line": 315,
+      "current": [
+        {
+          "file": "client/SAO_PopulationAdmissions.lua",
+          "function": "resolveNewcomers",
+          "line": 190
+        }
+      ]
+    },
+    {
+      "former_function": "pickOriginFor",
+      "former_line": 326,
+      "current": [
+        {
+          "file": "client/SAO_PopulationAdmissions.lua",
+          "function": "pickOriginFor",
+          "line": 201
+        },
+        {
+          "file": "client/SAO_DormantPopulation.lua",
+          "function": "pickOriginFor",
+          "line": 13
+        }
+      ]
+    },
+    {
+      "former_function": "pickOrigin",
+      "former_line": 337,
+      "current": [
+        {
+          "file": "client/SAO_PopulationAdmissions.lua",
+          "function": "pickOrigin",
+          "line": 212
+        }
+      ]
+    },
+    {
+      "former_function": "hoursNow",
+      "former_line": 356,
+      "current": [
+        {
+          "file": "client/SAO_Population.lua",
+          "function": "hoursNow",
+          "line": 131
+        },
+        {
+          "file": "client/SAO_PopulationAdmissions.lua",
+          "function": "hoursNow",
+          "line": 8
+        },
+        {
+          "file": "client/SAO_DormantPopulation.lua",
+          "function": "hoursNow",
+          "line": 8
+        }
+      ]
+    },
+    {
+      "former_function": "clockAnswers",
+      "former_line": 372,
+      "current": [
+        {
+          "file": "client/SAO_Population.lua",
+          "function": "clockAnswers",
+          "line": 147
+        }
+      ]
+    },
+    {
+      "former_function": "biteWindowHours",
+      "former_line": 397,
+      "current": [
+        {
+          "file": "client/SAO_DormantPopulation.lua",
+          "function": "biteWindowHours",
+          "line": 14
+        },
+        {
+          "file": "shared/SAO_PhysicalFacts.lua",
+          "function": "biteWindowHours",
+          "line": 15
+        }
+      ]
+    },
+    {
+      "former_function": "genesisSettled",
+      "former_line": 436,
+      "current": [
+        {
+          "file": "client/SAO_Population.lua",
+          "function": "genesisSettled",
+          "line": 167
+        },
+        {
+          "file": "client/SAO_PopulationAdmissions.lua",
+          "function": "genesisSettled",
+          "line": 255
+        }
+      ]
+    },
+    {
+      "former_function": "markGenesisSettled",
+      "former_line": 443,
+      "current": [
+        {
+          "file": "client/SAO_PopulationAdmissions.lua",
+          "function": "markGenesisSettled",
+          "line": 262
+        }
+      ]
+    },
+    {
+      "former_function": "ensurePopulation",
+      "former_line": 455,
+      "current": [
+        {
+          "file": "client/SAO_Population.lua",
+          "function": "ensurePopulation",
+          "line": 164
+        },
+        {
+          "file": "client/SAO_PopulationAdmissions.lua",
+          "function": "ensurePopulation",
+          "line": 274
+        }
+      ]
+    },
+    {
+      "former_function": "backfillName",
+      "former_line": 842,
+      "current": [
+        {
+          "file": "client/SAO_PopulationRepresentation.lua",
+          "function": "backfillName",
+          "line": 13
+        }
+      ]
+    },
+    {
+      "former_function": "Pop.captureBodyFacts",
+      "former_line": 890,
+      "current": [
+        {
+          "file": "client/SAO_Population.lua",
+          "function": "Pop.captureBodyFacts",
+          "line": 181
+        },
+        {
+          "file": "shared/SAO_PhysicalFacts.lua",
+          "function": "F.captureBodyFacts",
+          "line": 28
+        }
+      ]
+    },
+    {
+      "former_function": "Pop.commitBodyFacts",
+      "former_line": 920,
+      "current": [
+        {
+          "file": "client/SAO_Population.lua",
+          "function": "Pop.commitBodyFacts",
+          "line": 182
+        },
+        {
+          "file": "shared/SAO_PhysicalFacts.lua",
+          "function": "F.commitBodyFacts",
+          "line": 58
+        }
+      ]
+    },
+    {
+      "former_function": "Pop.refreshBodyFacts",
+      "former_line": 956,
+      "current": [
+        {
+          "file": "client/SAO_Population.lua",
+          "function": "Pop.refreshBodyFacts",
+          "line": 183
+        },
+        {
+          "file": "shared/SAO_PhysicalFacts.lua",
+          "function": "F.refreshBodyFacts",
+          "line": 94
+        }
+      ]
+    },
+    {
+      "former_function": "materializeBand",
+      "former_line": 975,
+      "current": [
+        {
+          "file": "client/SAO_Population.lua",
+          "function": "materializeBand",
+          "line": 170
+        },
+        {
+          "file": "client/SAO_PopulationRepresentation.lua",
+          "function": "materializeBand",
+          "line": 59
+        }
+      ]
+    },
+    {
+      "former_function": "desperationLine",
+      "former_line": 1301,
+      "current": [
+        {
+          "file": "client/SAO_DormantPopulation.lua",
+          "function": "desperationLine",
+          "line": 102
+        }
+      ]
+    },
+    {
+      "former_function": "daysWithout",
+      "former_line": 1306,
+      "current": [
+        {
+          "file": "client/SAO_DormantPopulation.lua",
+          "function": "daysWithout",
+          "line": 107
+        }
+      ]
+    },
+    {
+      "former_function": "Pop.companyNeedPressure",
+      "former_line": 1314,
+      "current": [
+        {
+          "file": "client/SAO_Population.lua",
+          "function": "Pop.companyNeedPressure",
+          "line": 184
+        },
+        {
+          "file": "client/SAO_DormantPopulation.lua",
+          "function": "D.companyNeedPressure",
+          "line": 115
+        }
+      ]
+    },
+    {
+      "former_function": "placeBarred",
+      "former_line": 1338,
+      "current": [
+        {
+          "file": "client/SAO_DormantPopulation.lua",
+          "function": "placeBarred",
+          "line": 139
+        }
+      ]
+    },
+    {
+      "former_function": "chooseWhoToGoTo",
+      "former_line": 1398,
+      "current": [
+        {
+          "file": "client/SAO_DormantPopulation.lua",
+          "function": "chooseWhoToGoTo",
+          "line": 199
+        }
+      ]
+    },
+    {
+      "former_function": "chooseDayGoal",
+      "former_line": 1465,
+      "current": [
+        {
+          "file": "client/SAO_DormantPopulation.lua",
+          "function": "chooseDayGoal",
+          "line": 266
+        }
+      ]
+    },
+    {
+      "former_function": "dormantLife",
+      "former_line": 1620,
+      "current": [
+        {
+          "file": "client/SAO_Population.lua",
+          "function": "dormantLife",
+          "line": 174
+        },
+        {
+          "file": "client/SAO_DormantPopulation.lua",
+          "function": "dormantLife",
+          "line": 421
+        }
+      ]
+    },
+    {
+      "former_function": "deliverDeathNews",
+      "former_line": 1916,
+      "current": [
+        {
+          "file": "client/SAO_DormantPopulation.lua",
+          "function": "deliverDeathNews",
+          "line": 717
+        }
+      ]
+    },
+    {
+      "former_function": "dormantAttrition",
+      "former_line": 1948,
+      "current": [
+        {
+          "file": "client/SAO_Population.lua",
+          "function": "dormantAttrition",
+          "line": 175
+        },
+        {
+          "file": "client/SAO_DormantPopulation.lua",
+          "function": "dormantAttrition",
+          "line": 749
+        }
+      ]
+    },
+    {
+      "former_function": "roadTrust",
+      "former_line": 2304,
+      "current": [
+        {
+          "file": "client/SAO_DormantPopulation.lua",
+          "function": "roadTrust",
+          "line": 1105
+        }
+      ]
+    },
+    {
+      "former_function": "Pop.forgetPairs",
+      "former_line": 2318,
+      "current": [
+        {
+          "file": "client/SAO_Population.lua",
+          "function": "Pop.forgetPairs",
+          "line": 185
+        },
+        {
+          "file": "client/SAO_DormantPopulation.lua",
+          "function": "D.forgetPairs",
+          "line": 1119
+        }
+      ]
+    },
+    {
+      "former_function": "barredGround",
+      "former_line": 2337,
+      "current": [
+        {
+          "file": "client/SAO_DormantPopulation.lua",
+          "function": "barredGround",
+          "line": 1138
+        }
+      ]
+    },
+    {
+      "former_function": "dormantSettle",
+      "former_line": 2416,
+      "current": [
+        {
+          "file": "client/SAO_Population.lua",
+          "function": "dormantSettle",
+          "line": 176
+        },
+        {
+          "file": "client/SAO_DormantPopulation.lua",
+          "function": "dormantSettle",
+          "line": 1217
+        }
+      ]
+    },
+    {
+      "former_function": "dormantProvision",
+      "former_line": 2520,
+      "current": [
+        {
+          "file": "client/SAO_Population.lua",
+          "function": "dormantProvision",
+          "line": 177
+        },
+        {
+          "file": "client/SAO_DormantPopulation.lua",
+          "function": "dormantProvision",
+          "line": 1321
+        }
+      ]
+    },
+    {
+      "former_function": "dormantEncounters",
+      "former_line": 2624,
+      "current": [
+        {
+          "file": "client/SAO_Population.lua",
+          "function": "dormantEncounters",
+          "line": 178
+        },
+        {
+          "file": "client/SAO_DormantPopulation.lua",
+          "function": "dormantEncounters",
+          "line": 1425
+        }
+      ]
+    },
+    {
+      "former_function": "seedKnoxBase",
+      "former_line": 2850,
+      "current": [
+        {
+          "file": "client/SAO_PopulationRepresentation.lua",
+          "function": "seedKnoxBase",
+          "line": 303
+        }
+      ]
+    },
+    {
+      "former_function": "inhabitKnox",
+      "former_line": 2944,
+      "current": [
+        {
+          "file": "client/SAO_Population.lua",
+          "function": "inhabitKnox",
+          "line": 173
+        },
+        {
+          "file": "client/SAO_PopulationRepresentation.lua",
+          "function": "inhabitKnox",
+          "line": 397
+        }
+      ]
+    },
+    {
+      "former_function": "runSub",
+      "former_line": 3110,
+      "current": [
+        {
+          "file": "client/SAO_Population.lua",
+          "function": "runSub",
+          "line": 189
+        }
+      ]
+    },
+    {
+      "former_function": "bootDigest",
+      "former_line": 3146,
+      "current": [
+        {
+          "file": "client/SAO_Population.lua",
+          "function": "bootDigest",
+          "line": 225
+        }
+      ]
+    },
+    {
+      "former_function": "yearsStore",
+      "former_line": 3289,
+      "current": [
+        {
+          "file": "client/SAO_Population.lua",
+          "function": "yearsStore",
+          "line": 368
+        }
+      ]
+    },
+    {
+      "former_function": "yearsOwed",
+      "former_line": 3300,
+      "current": [
+        {
+          "file": "client/SAO_Population.lua",
+          "function": "yearsOwed",
+          "line": 379
+        }
+      ]
+    },
+    {
+      "former_function": "lookAtSomeGround",
+      "former_line": 3350,
+      "current": [
+        {
+          "file": "client/SAO_Population.lua",
+          "function": "lookAtSomeGround",
+          "line": 429
+        }
+      ]
+    },
+    {
+      "former_function": "dailyCounty",
+      "former_line": 3399,
+      "current": [
+        {
+          "file": "client/SAO_Population.lua",
+          "function": "dailyCounty",
+          "line": 478
+        }
+      ]
+    },
+    {
+      "former_function": "dormantCountyPass",
+      "former_line": 3461,
+      "current": [
+        {
+          "file": "client/SAO_Population.lua",
+          "function": "dormantCountyPass",
+          "line": 540
+        }
+      ]
+    },
+    {
+      "former_function": "oneYearsStep",
+      "former_line": 3471,
+      "current": [
+        {
+          "file": "client/SAO_Population.lua",
+          "function": "oneYearsStep",
+          "line": 550
+        }
+      ]
+    },
+    {
+      "former_function": "runTheYears",
+      "former_line": 3481,
+      "current": [
+        {
+          "file": "client/SAO_Population.lua",
+          "function": "runTheYears",
+          "line": 560
+        }
+      ]
+    },
+    {
+      "former_function": "populationTick",
+      "former_line": 3567,
+      "current": [
+        {
+          "file": "client/SAO_Population.lua",
+          "function": "populationTick",
+          "line": 646
+        }
+      ]
+    },
+    {
+      "former_function": "onTick",
+      "former_line": 3640,
+      "current": [
+        {
+          "file": "client/SAO_Population.lua",
+          "function": "onTick",
+          "line": 719
+        }
+      ]
+    }
+  ],
+  "sources": {
+    "client/SAO_Population.lua": "22786e1e45c69ec6201d338ec8be98c487d112c8c35bb1eca8217fb0692bd2a1",
+    "client/SAO_PopulationAdmissions.lua": "cd317b589f42ef03561f3d9e7d7f5c2ee9bb9181a7048d9e00e2eb393b9d3df8",
+    "client/SAO_PopulationRepresentation.lua": "1e15cf4a84c98e5ef1f084931d1e811d34a0218112a1ff0842532ef3fdbe5ee7",
+    "client/SAO_DormantPopulation.lua": "35eb071fc1e1e483e72ea8d70c033a9d560e64da98ba505197e67821a3708a88",
+    "shared/SAO_PhysicalFacts.lua": "fcc15c161a4b87935bfd0d89db17ea20b3624917a6501c3bb0a795b4bd79ca26"
+  }
+}
