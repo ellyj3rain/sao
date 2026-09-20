@@ -894,7 +894,10 @@ function Pop.captureBodyFacts(rec, body, now)
     local deadline = false
     if infected then
         if left == "unpicked" then
-            deadline = now + biteWindowHours()
+            -- Re-reading an unpicked native clock must not move an already
+            -- observed deadline forward on every health pass.
+            deadline = rec.knoxInfected and rec.biteDeathAtHours
+                or now + biteWindowHours()
         else
             local remaining = tonumber(left)
             if not remaining or remaining ~= remaining
@@ -908,6 +911,65 @@ function Pop.captureBodyFacts(rec, body, now)
         hasRadio = SAO.Standing.ownsRadio(rec.id, body) == true,
         knoxInfected = infected, biteDeathAtHours = deadline,
         newInfection = infected and rec.knoxInfected ~= true }
+end
+
+-- Commit one physical observation as one causal interval boundary.  The
+-- native clock provides the deadline; the first observation supplies the
+-- durable start.  Later observations may refine the deadline without moving
+-- the start, and recovery clears the live window while Neuro retains history.
+function Pop.commitBodyFacts(rec, facts, now)
+    if not rec or type(facts) ~= "table" then return false end
+    now = tonumber(now)
+    if not now or now ~= now or now == math.huge or now == -math.huge then
+        return false
+    end
+    local wasInfected = rec.knoxInfected == true
+    local infected = facts.knoxInfected == true
+    local firstObservation = infected and (facts.newInfection == true
+        or not wasInfected or tonumber(rec.infectionStartedAtHours) == nil)
+    rec.woundInfected = facts.woundInfected or nil
+    rec.knoxInfected = infected or nil
+    rec.biteDeathAtHours = facts.biteDeathAtHours or nil
+    rec.hasRadio = facts.hasRadio == true
+    if firstObservation then
+        rec.infectionStartedAtHours = now
+        local deadline = tonumber(rec.biteDeathAtHours)
+        rec.infectionSpanHours = deadline and deadline > now
+            and (deadline - now) or nil
+    elseif not infected then
+        rec.infectionStartedAtHours = nil
+        rec.infectionSpanHours = nil
+    end
+    -- The physical observation is also the causal boundary for brain health.
+    -- This matters when a body leaves the loaded health cadence before the
+    -- next ten-minute pass: hibernation/checkpoint still records when sepsis,
+    -- toxin clearance, or the Knox window first became the durable facts.
+    if SAO.Neuro and SAO.Neuro.observe then
+        pcall(SAO.Neuro.observe, rec, now, "body-facts")
+    end
+    return true
+end
+
+-- A loaded body remains the physical owner of wounds and native Knox state.
+-- Commit those observations while it is alive rather than waiting for body
+-- hibernation.  The pathogen event is emitted only on the false -> true edge.
+function Pop.refreshBodyFacts(rec, body, now)
+    if not rec or not body or not SAOJavaBridge then return false end
+    now = tonumber(now)
+    if not now then
+        local ok, value = pcall(SAO.History.countyHours)
+        if not ok or type(value) ~= "number" then return false end
+        now = value
+    end
+    local facts = Pop.captureBodyFacts(rec, body, now)
+    if not Pop.commitBodyFacts(rec, facts, now) then return false end
+    if facts.newInfection and SAO.PathogenEvents then
+        pcall(function()
+            SAO.PathogenEvents.emit("infection", rec.id,
+                math.floor(now / 24.0), { record = rec, atHours = now })
+        end)
+    end
+    return true, facts
 end
 
 local function materializeBand(px, py, conf)
@@ -2139,6 +2201,7 @@ local function dormantAttrition()
                         if escape > 0.85 then escape = 0.85 end
                         if SAO.Rand.unit() < escape then
                             rec.knoxInfected = true
+                            rec.infectionStartedAtHours = nowHours
                             rec.biteDeathAtHours = nowHours + window
                             rec.infectionSpanHours = window
                             rec.immuneProgress = 0
@@ -2147,7 +2210,7 @@ local function dormantAttrition()
                                     "infection",
                                     id,
                                     today,
-                                    { record = rec })
+                                    { record = rec, atHours = nowHours })
                             end)
                             tookThem = false
                             tally("bitten")

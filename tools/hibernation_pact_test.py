@@ -62,13 +62,20 @@ def source_faults(src, native):
         faults.append("native restoration precedes validation")
     if "if (!nativeSnapshot)" not in wake:
         faults.append("legacy reconstruction can overwrite native body/equipment state")
-    if any(seam not in wake for seam in (
+    if (any(seam not in wake for seam in (
+            "hunger + elapsedHours * HUNGER_PER_HOUR",
+            "thirst + elapsedHours * THIRST_PER_HOUR",
             "while (elapsedHours > 0 && hungerAfter > 0.5f)",
             "while (elapsedHours > 0 && thirstAfter > 0.5f)",
-            "double thirstAfter = elapsedHours > 0 ?",
-            "if (elapsedHours > 0) hungerAfter = Math.min",
-            "meal.getContainer().Remove(meal);")):
-        faults.append("dormant metabolism changes a zero-hour snapshot or removes from the wrong container")
+            "shell.Eat(meal, engineFraction, false)",
+            "shell.DrinkFluid(drink, engineFraction, false)"))
+            or any(seam not in src for seam in (
+                "collect(nested.getInventory(), found, seen);",
+                "food.updateAge();",
+                "food.isRotten()",
+                "food.getPoisonPower() > 0"))
+            or "meal.getContainer().Remove(meal)" in wake):
+        faults.append("dormant metabolism bypasses elapsed demand, native partial consumption, spoilage, or nested inventory")
     if "catch (Throwable ignored)" in wake:
         faults.append("restoration failures are silently ignored")
     missing = re.search(r"if \(added == null\)\s*\{([^}]*)\}", wake)

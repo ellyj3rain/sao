@@ -17,7 +17,8 @@ LUA = ROOT / 'mod/42.20/media/lua/client'
 GAME = Path(r'C:\Program Files (x86)\Steam\steamapps\common\ProjectZomboid')
 JDK = Path(r'C:\Users\jleyv\Peanut Butter\JetBrains\Java\bin')
 FILES = ['SAO_Body.lua', 'SAO_Controller.lua', 'SAO_Population.lua', 'SAO_Harness.lua',
-         'SAO_Age.lua', 'SAO_Drugs.lua', 'SAO_AfflictedReturn.lua', 'SAO_Nuke.lua', 'SAO_Identity.lua']
+         'SAO_Age.lua', 'SAO_Drugs.lua', 'SAO_AfflictedReturn.lua',
+         'SAO_CrossedTransfer.lua', 'SAO_Nuke.lua', 'SAO_Identity.lua']
 
 PRELUDE = r'''
 Events=setmetatable({}, {__index=function() return {Add=function() end,Remove=function() end} end})
@@ -33,6 +34,7 @@ SAO={
    get=function(id) return __records[id] end,
    remove=function(id) __records[id]=nil __forgot=__forgot+1 end,
    femaleOf=function() return false end, knownName=function() return nil end,
+   beliefKey=function(rec) return rec and rec.id or nil end,
    updatePosition=function(rec,x,y,z) rec.x=x rec.y=y rec.z=z end},
  History={countyHours=function() return __now end},
  Standing={groupOf=function() return nil end,allGroupClaims=function() return {} end,
@@ -164,6 +166,8 @@ for _,mode in ipairs({'false','throw'}) do
  assert(r.bodyVisual=='VIS:current-look','release lost captured appearance')
  assert(r.x==200 and r.y==210 and r.releasedAtHours==42 and r.biteDeathAtHours==50,
    'release facts did not commit together')
+ assert(r.infectionStartedAtHours==42 and r.infectionSpanHours==8,
+   'release lost the observed infection interval')
  assert(SAO.Body.active.p1==nil and SAO.Controller.agents.p1==nil and r.bodyRelease==nil,
    'successful release kept ownership')
  assert(__events==1,'infection event missing or duplicated')
@@ -307,8 +311,110 @@ do
  local r=__setup() r.bodyRelease={}
  SAO.Body.failedRestore.p1=true SAO.Body.discarding.p1=true
  assert(SAO.Body.pendingTransitionCount()==1,'pending transition counted twice')
+ r.crossedTransferPending={token='blood:pending'}
+ assert(SAO.Body.pendingTransitionCount()==1 and SAO.Body.activeCount()==0,
+   'pending Crossed transfer counted as an available body')
  SAO.Body.discarding.p2=true
  assert(SAO.Body.pendingTransitionCount()==2,'pending unbound handle omitted')
+end
+do
+ local r,b,a=__setup()
+ b.isDead=function() return false end
+ local accepted=0
+ ZAO={Controller={acceptExternal=function(id,seen,token)
+   assert(id=='p1' and seen==b and token=='blood:p1') accepted=accepted+1 return true
+ end}}
+ assert(SAO.CrossedTransfer.begin('p1',b,'blood:p1',42),'crossed transfer failed')
+ assert(r.bodyOwner=='ZAO' and r.bodyOwnerToken=='blood:p1'
+   and r.hibernation=='SNAP:carried','external owner or snapshot did not commit')
+ assert(SAO.Body.active.p1==nil and SAO.Body.foreign.p1==b
+   and SAO.Controller.agents.p1==nil,'one body retained two runtime owners')
+ assert(not b.removed and b.md.ZAOOwned and b.md.SAOExternalToken=='blood:p1',
+   'transfer replaced the human shell or omitted its owner mark')
+ assert(SAO.Body.get('p1')==b and SAO.Body.hasRepresentation('p1'),
+   'external body disappeared from observation')
+ local captured=__captures
+ assert(SAO.CrossedTransfer.begin('p1',b,'blood:p1',42),
+   'exact transfer retry failed')
+ assert(__captures==captured and accepted==2,'transfer retry recaptured or changed owner')
+
+ b.payload='after-transfer'
+ local report=SAO.Body.checkpointActive()
+ assert(report.saved==1 and r.hibernation=='SNAP:after-transfer',
+   'save checkpoint skipped ZAO-owned living shell')
+
+ SAO.Body.foreign={} Ctl=nil
+ local ordinary,why=SAO.Body.materialize(r)
+ assert(ordinary==nil and why=='external-owner',
+   'ordinary SAO materialization stole external owner')
+ __now=50
+ local restored=SAO.Body.materializeExternal(r,'ZAO','blood:p1')
+ assert(restored and SAO.Body.foreign.p1==restored and SAO.Body.active.p1==nil
+   and restored.payload=='after-transfer','external reload did not restore same person')
+ restored.isDead=function() return false end
+ assert(SAO.Body.hibernateExternal(r,restored,'ZAO','blood:p1'),
+   'external owner could not hibernate its shell')
+ assert(SAO.Body.foreign.p1==nil and r.bodyOwner=='ZAO'
+   and SAO.Body.hasRepresentation('p1'),'dormancy returned person to SAO simulation')
+end
+do
+ local r,b,a=__setup()
+ b.isDead=function() return false end
+ ZAO={Controller={acceptExternal=function() return true end}}
+ assert(SAO.CrossedTransfer.begin('p1',b,'blood:death',42),
+   'death fixture transfer failed')
+ b.isDead=function() return true end
+ assert(SAO.Controller.observeExternalDeath('p1',b,'ZAO'),
+   'external death did not enter county death funnel')
+ assert(r.dead and r.deathCause=='crossed body killed'
+   and r.bodyOwner==nil and r.bodyOwnerToken==nil,
+   'external death retained living ownership or lost its cause')
+ assert(SAO.Body.foreign.p1==nil and SAO.Controller.agents.p1==nil
+   and SAO.Controller.pendingCorpses.p1.body==b,
+   'external death lost the corpse or retained a runtime owner')
+ assert(not SAO.Controller.observeExternalDeath('p1',b,'ZAO'),
+   'external death completed twice')
+end
+do
+ local r,b,a=__setup()
+ b.isDead=function() return false end
+ ZAO={
+  Pathogen={stateOf=function() return {terminalState='crossed',
+    crossedTransferToken='crossed:p1:retry'} end},
+  Controller={acceptExternal=function() return true end}
+ }
+ __mode='busy'
+ assert(not SAO.CrossedTransfer.begin('p1',b,'crossed:p1:retry',42)
+   and r.bodyTransfer==nil and r.bodyOwner==nil
+   and r.crossedTransferPending.token=='crossed:p1:retry',
+   'busy conversion falsely transferred')
+ local get=SAO.Body.get
+ SAO.Body.get=function() error('pending Crossed body advanced') end
+ __update('p1',a)
+ SAO.Body.get=get
+ assert(not SAO.CrossedTransfer.resumePending(),
+   'busy conversion reported all retries complete')
+ __mode='ok'
+ assert(SAO.CrossedTransfer.resumePending()
+   and r.bodyOwner=='ZAO' and SAO.Body.foreign.p1==b,
+   'busy conversion was not retried from durable pending state')
+end
+do
+ local r,b=__setup()
+ b.isDead=function() return false end
+ ZAO={Controller={acceptExternal=function() return true end}}
+ __mode='busy'
+ assert(not SAO.CrossedTransfer.begin('p1',b,'crossed:p1:reload',42),
+   'reload fixture transferred before its action boundary')
+ local report=SAO.Body.checkpointActive()
+ assert(report.saved==1 and r.hibernation=='SNAP:carried',
+   'pending conversion was not checkpointed before reload')
+ SAO.Body.active={} SAO.Controller.agents={} __mode='ok'
+ assert(SAO.CrossedTransfer.resumePending()
+   and r.bodyOwner=='ZAO' and r.bodyOwnerToken=='crossed:p1:reload'
+   and SAO.Body.foreign.p1==nil and SAO.Body.hasRepresentation('p1')
+   and r.crossedTransferPending==nil,
+   'pending conversion reload did not transfer dormant snapshot')
 end
 return 'PASS'
 '''
@@ -383,6 +489,9 @@ def main():
             ('SAO_Population.lua','local released, reason = SAO.Body.release(rec)',
              'SAO.Controller.drop(id) local released, reason = SAO.Body.release(rec)',
              'population dropped early'),
+            ('SAO_Population.lua','rec.infectionStartedAtHours = now\n',
+             'rec.infectionStartedAtHours = nil\n',
+             'release lost the observed infection interval'),
             ('SAO_Harness.lua','local ok, reason = SAO.Body.release(rec)',
              'SAO.Controller.drop(H.activeId) local ok, reason = SAO.Body.release(rec)',
              'harness dropped early'),
@@ -397,6 +506,8 @@ def main():
              'failed clear orphaned person'),
             ('SAO_Controller.lua','if SAO.Body.isTransitioning(agent.rec) then return end',
              '', 'pending body advanced'),
+            ('SAO_Controller.lua','if agent.rec.crossedTransferPending then return end',
+             '', 'pending Crossed body advanced'),
             ('SAO_Age.lua','if rec and not SAO.Body.isTransitioning(rec) then',
              'if rec then', 'age mutated pending body'),
             ('SAO_Drugs.lua','if SAO.Body.isTransitioning(SAO.Identity.get(id)) then return end',
@@ -407,6 +518,19 @@ def main():
              'if false then return false end', 'incoming action did not retain target'),
             ('SAO_Body.lua','if SAOJavaBridge and SAOJavaBridge:isInventoryOf(body, reference) then',
              'if false then', 'incoming action did not retain target'),
+            ('SAO_Body.lua','commitCaptured(rec, pending.captured)',
+             '', 'external owner or snapshot did not commit'),
+            ('SAO_Body.lua','Body.active[rec.id] = nil\n    rec.bodyOwner = pending.owner',
+             'rec.bodyOwner = pending.owner', 'one body retained two runtime owners'),
+            ('SAO_Body.lua','if rec.bodyOwner ~= nil then',
+             'if false then', 'ordinary SAO materialization stole external owner'),
+            ('SAO_Controller.lua','rec.bodyOwner, rec.bodyOwnerToken = nil, nil',
+             '', 'external death retained living ownership or lost its cause'),
+            ('SAO_CrossedTransfer.lua','elseif rec.crossedTransferPending then',
+             'elseif false then', 'busy conversion was not retried from durable pending state'),
+            ('SAO_Body.lua','rec.bodyOwner, rec.bodyOwnerToken = owner, token',
+             'rec.bodyOwnerToken = token',
+             'pending conversion reload did not transfer dormant snapshot'),
         ]
         for name,old,new,expected in controls:
             if sources[name].count(old)!=1:
@@ -417,6 +541,8 @@ def main():
             reasons=[expected]
             if expected=='saved pending release lost':
                 reasons+=['pending capture not separate','pending body remained available or became dormant']
+            if expected=='busy conversion was not retried from durable pending state':
+                reasons+=['busy conversion reported all retries complete']
             rejected=result.startswith('ERROR ') and any(x in result for x in reasons)
             print('CONTROL '+expected+': '+('REJECTED ' if rejected else 'SURVIVED ')+result)
             if not rejected: faults.append(expected)

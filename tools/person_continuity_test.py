@@ -118,7 +118,7 @@ def main():
                 classes.mkdir()
                 compiled = subprocess.run([
                     str(JDK / "javac.exe"), "-encoding", "UTF-8", "-cp", str(PZ),
-                    "-d", str(classes), str(changed), str(probe),
+                    "-d", str(classes), str(changed), str(hibernation), str(probe),
                 ], cwd=work, capture_output=True, text=True, encoding="utf-8",
                     errors="replace", timeout=60)
                 if compiled.returncode:

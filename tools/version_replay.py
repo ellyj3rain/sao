@@ -194,6 +194,7 @@ UNITS = [
     ('C53', 'patch', 'Closed shared county time as one explicit contract: decision reads observe the current historical substep, day producers convert at the tick boundary, and native pacing remains separate. The timestamp inventory records legacy exceptions without claiming later physiology or action work complete.'),
     ('C54', 'patch', 'Completed native person continuity within the existing handoff: the v4 envelope preserves nutrition, fitness, learning, appearance, declared durable metadata and exact fluid components, while older readers retain their original limits and migration provenance.'),
     ('C55', 'patch', 'Reconstructed runtime-only callbacks, caches, indexes, controllers and Java maps from their durable owners across reload and same-process world changes; completed the existing Afflicted-return seam with generation-aware interrupted-save reconciliation and explicit pending-work disposition.'),
+    ('C56', 'patch', 'Repaired the existing health and dormant-physiology capabilities: durable drug and abstinence clocks, owner-correct interval-integrated brain history with behavioral consumers, native partial dormant consumption, and intentional Crossed blood exposure with exact-once SAO-to-ZAO body transfer. The broader Crossed action vocabulary remains R7-R9 work.'),
 ]
 
 TIER_MEANINGS = [

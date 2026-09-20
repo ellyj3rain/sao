@@ -1861,12 +1861,37 @@ if ! "$PY" tools/combat_perception_test.py > /dev/null; then
     fail=1
 fi
 
-# [C125] Border 158 - Neuroinflammation knot: brain health continuous graph,
-# derived cognitive clarity and memory degradation, drug/sepsis/Knox kinetics,
-# afflicted/crossed baselines, inspect/medical UI, and sandbox off-switch.
-if ! "$PY" tools/neuroinflammation_test.py > /dev/null; then
-    "$PY" tools/neuroinflammation_test.py 2>&1 | grep -E "FAULT|CONTROL|SKIPPED" || true
-    note "BORDER FINDING - neuroinflammation knot contract broken"
+# [C56] Border 171 - durable health cadence and maintenance-drug freeze.
+if ! "$PY" tools/health_clock_test.py; then
+    note "BORDER FINDING - durable health cadence broken"
+    fail=1
+fi
+
+# [C56] Border 172 - timestamped causes, exact interval integration, ZAO
+# ownership, current toxic burden, history and a neutral off switch.
+if ! "$PY" tools/brain_health_test.py; then
+    note "BORDER FINDING - event-derived brain-health history broken"
+    fail=1
+fi
+
+# [C56/A37] Border 173 - only a completed, interruptible live action may
+# produce the Crossed exposure result and one-way body transfer.
+if ! "$PY" tools/intentional_exposure_test.py; then
+    note "BORDER FINDING - intentional exposure action broken"
+    fail=1
+fi
+
+# [C56] Border 174 - native partial food/drink, nested resources, spoilage,
+# nutrition and partition-stable dormant accounting.
+if ! "$PY" tools/dormant_physiology_test.py; then
+    note "BORDER FINDING - dormant physiology reconciliation broken"
+    fail=1
+fi
+
+# [C56] Border 175 - the causal history changes the shipped memory, decision,
+# affective-pressure and movement consumers rather than stopping at a graph.
+if ! "$PY" tools/brain_effects_test.py; then
+    note "BORDER FINDING - brain-health behavior consumers broken"
     fail=1
 fi
 

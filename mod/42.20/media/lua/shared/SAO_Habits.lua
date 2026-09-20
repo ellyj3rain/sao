@@ -303,6 +303,13 @@ end
 function Hb.cleanDays(id, key, now)
     now = now or worldHours()
     local rec = recordOf(id)
+    -- A maintenance drug pauses abstinence at the instant the body first
+    -- reports it.  The pause itself is durable on the person record, so a
+    -- query before expiry, after a reload, or from a dormant consumer sees
+    -- the same elapsed clean time.  resumeUse moves the last-use origin by
+    -- the paused interval and then clears this marker.
+    local frozen = rec and rec.useFrozen and rec.useFrozen[key] or nil
+    if type(frozen) == "number" and frozen < now then now = frozen end
     local last = rec and rec.lastUseHours and rec.lastUseHours[key] or nil
     local days = (now - (last or 0)) / 24
     if days < 0 then days = 0 end

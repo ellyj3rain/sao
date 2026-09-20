@@ -127,7 +127,7 @@ local NNC_TRAIT = {
 -- trait, so the trait is what the yield reads. Stamped on the record
 -- ([C121] in SAO_Habits), never read here by the drift - this file is
 -- the engine side of the seam and the record is the county's surface.
-local function observeTraits(id, body)
+local function observeTraits(id, body, nowHours)
     local rec = nil
     pcall(function() rec = SAO.Identity.get(id) end)
     if not rec or rec.dead then return end
@@ -155,9 +155,9 @@ local function observeTraits(id, body)
         frozen = type(level) == "number" and level > 0 or false
     end)
     if frozen == true then
-        SAO.Habits.freezeUse(id, "opioids")
+        SAO.Habits.freezeUse(id, "opioids", nowHours)
     elseif frozen == false then
-        SAO.Habits.resumeUse(id, "opioids")
+        SAO.Habits.resumeUse(id, "opioids", nowHours)
     end
 end
 
@@ -196,6 +196,29 @@ local TOLERANCE_DRINKS = 8
 local TOLERANCE_BUILD = 0.01
 local TOLERANCE_MAX = 0.1
 
+-- Historical poison inflicted remains useful as a life-history fact, but the
+-- brain-health producer needs the body's current toxic burden after native
+-- clearance and treatment.  This observation is the only value exposed to
+-- that producer.
+function Dg.refreshToxicBurden(rec, body)
+    if not rec or not body then return nil end
+    local stats = nil
+    pcall(function() stats = body:getStats() end)
+    if not stats then return nil end
+    local current = statOf(stats, "FOOD_SICKNESS")
+    if type(current) ~= "number" then return nil end
+    if current < 0 then current = 0 end
+    if current > POISON_CAP then current = POISON_CAP end
+    rec.currentToxicBurden = current
+    return current
+end
+
+local function countyDay()
+    local ok, hours = pcall(function() return SAO.History.countyHours() end)
+    if not ok or type(hours) ~= "number" then return nil end
+    return math.floor(hours / 24.0)
+end
+
 -- One ten-minute pass of the ladder for a drinker in withdrawal.
 -- Called with the controller's own tick so a death is marked with
 -- when it happened.
@@ -233,6 +256,7 @@ function Dg.ladder(rec, body, tick)
         local raised = now + hit
         if raised > POISON_CAP then raised = POISON_CAP end
         if raised > now then applyStat(stats, "FOOD_SICKNESS", raised - now) end
+        rec.currentToxicBurden = raised
         log(rec.id .. " is drinking themselves sick")
     end
     -- Their death: the cause is marked before the body goes, and the
@@ -252,6 +276,8 @@ function Dg.onDrink(id, body)
     local rec = nil
     pcall(function() rec = SAO.Identity.get(id) end)
     if not rec or rec.dead then return end
+    local today = countyDay and countyDay() or nil
+    if today ~= nil and Dg.completeThrough then Dg.completeThrough(rec, today) end
     rec.drinksToday = (rec.drinksToday or 0) + 1
     rec.drinkSickness = 0
     local stats = nil
@@ -280,6 +306,7 @@ function Dg.onDrink(id, body)
             applyStat(stats, "FOOD_SICKNESS", -drop)
         end
     end
+    Dg.refreshToxicBurden(rec, body)
     -- Their tolerance: a drink holds less on a body that built one.
     local intox = statOf(stats, "INTOXICATION")
     if intox and intox > 0 then
@@ -300,63 +327,86 @@ function Dg.daily(rec)
     rec.drinksToday = 0
 end
 
+-- Close the currently counted drinking day exactly once.  `drugDay` is both
+-- the day whose drinks are open and the durable cursor: after daily work it
+-- advances to today, so reload cannot repeat tolerance gain.  Empty skipped
+-- days have no aggregate to apply and therefore need no synthetic work.
+-- A legacy record starts in the current day without inventing a boundary for
+-- an unknown prior clock domain.
+function Dg.completeThrough(rec, today)
+    if not rec or rec.dead or type(today) ~= "number" then return 0 end
+    today = math.floor(today)
+    local open = tonumber(rec.drugDay)
+    if open == nil or open > today then
+        rec.drugDay = today
+        return 0
+    end
+    if open == today then return 0 end
+    Dg.daily(rec)
+    rec.drugDay = today
+    return today - open
+end
+
 -- ---------------------------------------------------------------------------
 -- The driver: their clock shape, the county's bodies.
 -- ---------------------------------------------------------------------------
 
 local lastTenMinutes = nil
 local lastOneMinute = nil
-local lastDay = nil
-
-local function countyDay()
-    local ok, hours = pcall(function() return SAO.History.countyHours() end)
-    if not ok or type(hours) ~= "number" then return nil end
-    return math.floor(hours / 24.0)
-end
 
 local function onTick()
     local okT, current = pcall(function()
         return getGameTime():getMinutesStamp()
     end)
     if not okT or type(current) ~= "number" then return end
-    if lastTenMinutes == nil then lastTenMinutes = current end
-    if lastOneMinute == nil then lastOneMinute = current end
-    local tenDue = (current - lastTenMinutes) >= 10
-    local oneDue = (current - lastOneMinute) >= 1
-    if not (tenDue or oneDue) then return end
-    if tenDue then lastTenMinutes = current end
-    if oneDue then lastOneMinute = current end
+    if lastTenMinutes == nil or current < lastTenMinutes then lastTenMinutes = current end
+    if lastOneMinute == nil or current < lastOneMinute then lastOneMinute = current end
+    local tenPasses = math.floor((current - lastTenMinutes) / 10)
+    local onePasses = math.floor(current - lastOneMinute)
+    if tenPasses <= 0 and onePasses <= 0 then return end
+    if tenPasses > 0 then lastTenMinutes = lastTenMinutes + tenPasses * 10 end
+    if onePasses > 0 then lastOneMinute = lastOneMinute + onePasses end
     local today = countyDay()
-    local newDay = today ~= nil and lastDay ~= today
-    if newDay then lastDay = today end
+    local nowHours = nil
+    pcall(function() nowHours = SAO.History and SAO.History.countyHours() or nil end)
     local tick = nil
     pcall(function() tick = SAO.Controller.tick() end)
     for id, body in pairs(SAO.Body.active) do
         pcall(function()
             if SAO.Body.isTransitioning(SAO.Identity.get(id)) then return end
-            if tenDue then
+            if tenPasses > 0 then
                 -- Their ten-minute pass: the seven dependency steps,
-                -- once - their pass scaling exists to fit their
+                -- once per elapsed interval - their pass scaling exists to fit their
                 -- magnitudes to a day length, and the county's clock
                 -- is its own ([C112]).
-                for _, step in ipairs(NNC_TEN) do step(body) end
-                observeTraits(id, body)
+                for _ = 1, tenPasses do
+                    for _, step in ipairs(NNC_TEN) do step(body) end
+                end
+                observeTraits(id, body, nowHours)
                 local rec = nil
                 pcall(function() rec = SAO.Identity.get(id) end)
                 if rec then
-                    Dg.ladder(rec, body, tick)
-                    if newDay then Dg.daily(rec) end
-                    if SAO.Neuro and SAO.Neuro.advance then
-                        local h = 0
-                        pcall(function() h = SAO.History and SAO.History.countyHours() or 0 end)
+                    for _ = 1, tenPasses do Dg.ladder(rec, body, tick) end
+                    Dg.completeThrough(rec, today)
+                    Dg.refreshToxicBurden(rec, body)
+                    if SAO.Population and SAO.Population.refreshBodyFacts then
+                        pcall(SAO.Population.refreshBodyFacts, rec, body, nowHours)
+                    end
+                    if SAO.Neuro and SAO.Neuro.observeBody then
+                        pcall(SAO.Neuro.observeBody, rec, body, nowHours,
+                            "loaded-body")
+                    elseif SAO.Neuro and SAO.Neuro.advance then
                         pcall(function()
-                            SAO.Neuro.advance(rec, 10.0 / 60.0, h)
+                            SAO.Neuro.advance(rec, tenPasses * 10.0 / 60.0,
+                                nowHours or 0)
                         end)
                     end
                 end
             end
-            if oneDue then
-                for _, step in ipairs(NNC_MINUTE) do step(body) end
+            if onePasses > 0 then
+                for _ = 1, onePasses do
+                    for _, step in ipairs(NNC_MINUTE) do step(body) end
+                end
             end
         end)
     end

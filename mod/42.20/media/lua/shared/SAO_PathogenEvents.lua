@@ -28,31 +28,44 @@ local function recordOf(personId, data)
 end
 
 function Events.emit(kind, personId, day, data)
-    if not (ZAO and ZAO.Pathogen and ZAO.StateStore) then
-        return false
-    end
-
     personId = tostring(personId or "")
     local record = recordOf(personId, data)
     kind = tostring(kind or "")
+    local atHours = nil
+    if type(data) == "table" then atHours = tonumber(data.atHours) end
+    if atHours == nil and tonumber(day) then atHours = tonumber(day) * 24.0 end
+    local handled = false
 
-    if kind == "infection" then
-        return ZAO.Pathogen.begin(
-            personId, "infected", day, "infection", record) ~= nil
-    elseif kind == "death" then
-        local terminal = record and record.turnedDormant
-            and "turned" or "dead"
-        return ZAO.Pathogen.begin(
-            personId, terminal, day, "death", record) ~= nil
-    elseif kind == "turn" then
-        return ZAO.Pathogen.begin(
-            personId, "turned", day, "turn", record) ~= nil
-    elseif kind == "recovery" then
-        return ZAO.Pathogen.begin(
-            personId, "living", day, "recovery", record) ~= nil
+    -- The pathogen owner moves first.  Neuro then observes the resulting
+    -- terminal state at the same exact event time, while its durable cursor
+    -- integrates the facts that were active immediately before this event.
+    if ZAO and ZAO.Pathogen and ZAO.StateStore then
+        if kind == "infection" then
+            handled = ZAO.Pathogen.begin(
+                personId, "infected", day, "infection", record, atHours) ~= nil
+        elseif kind == "death" then
+            local terminal = record and record.turnedDormant
+                and "turned" or "dead"
+            handled = ZAO.Pathogen.begin(
+                personId, terminal, day, "death", record, atHours) ~= nil
+        elseif kind == "turn" then
+            handled = ZAO.Pathogen.begin(
+                personId, "turned", day, "turn", record, atHours) ~= nil
+        elseif kind == "recovery" then
+            handled = ZAO.Pathogen.begin(
+                personId, "living", day, "recovery", record, atHours) ~= nil
+        end
     end
 
-    return false
+    local observed = false
+    if record and SAO.Neuro and SAO.Neuro.observe
+        and (kind == "infection" or kind == "death" or kind == "turn"
+            or kind == "recovery") then
+        local ok = pcall(SAO.Neuro.observe, record, atHours,
+            "pathogen-" .. kind)
+        observed = ok == true
+    end
+    return handled or observed
 end
 
 function Events.observe(personId, form, performance, source, day)
@@ -134,11 +147,6 @@ function Events.simulateDay(day)
     local observations = 0
     for id, record in pairs(SAO.Identity.all()) do
         if not record.dead and not SAO.Body.hasRepresentation(id) then
-            local saved = ZAO.StateStore
-                and ZAO.StateStore.read(id) or nil
-            local observerTerminal =
-                saved and saved.terminalState or "living"
-
             for _, carrier in ipairs(carriers) do
                 if carrier.id ~= id then
                     local dx = (tonumber(record.x) or 0)
@@ -158,13 +166,6 @@ function Events.simulateDay(day)
                             observations = observations + 1
                         end
 
-                        if observerTerminal == "afflicted"
-                            and carrier.state.terminalState == "crossed"
-                            and ZAO.Pathogen
-                            and ZAO.Pathogen.expose then
-                            ZAO.Pathogen.expose(
-                                id, carrier.state, day)
-                        end
                         break
                     end
                 end
@@ -173,45 +174,6 @@ function Events.simulateDay(day)
             local state = ZAO.State.of(record, hour)
             if state then
                 record.pathogenState = snapshot(state)
-            end
-        end
-    end
-
-    -- [C116] The exposed half, for the living: a person WITH a body
-    -- never entered the loop above (it is the dormant county's), so a
-    -- live afflicted could stand beside a crossed carrier all day and
-    -- never be exposed - the sister's own exposure verdict was gated
-    -- behind bodylessness. The observation half stays where it is:
-    -- the living observe through their eyes ([B41]'s scanner), not
-    -- through this pass. Only the exposure crosses here, and only
-    -- for the afflicted: the crossed work on them ([MUTATION.md]),
-    -- and the odds and susceptibility stay the pathogen's own
-    -- ([ZAO.Pathogen.expose], read once, never copied).
-    for id, record in pairs(SAO.Identity.all()) do
-        if SAO.Body.get(id) then
-            local saved = ZAO.StateStore
-                and ZAO.StateStore.read(id) or nil
-            local observerTerminal =
-                saved and saved.terminalState or "living"
-            if observerTerminal == "afflicted" then
-                for _, carrier in ipairs(carriers) do
-                    if carrier.id ~= id
-                        and carrier.state.terminalState == "crossed" then
-                        local dx = (tonumber(record.x) or 0)
-                            - (tonumber(carrier.x) or 0)
-                        local dy = (tonumber(record.y) or 0)
-                            - (tonumber(carrier.y) or 0)
-                        if dx * dx + dy * dy
-                            <= ENCOUNTER_RANGE * ENCOUNTER_RANGE then
-                            if ZAO.Pathogen
-                                and ZAO.Pathogen.expose then
-                                ZAO.Pathogen.expose(
-                                    id, carrier.state, day)
-                            end
-                            break
-                        end
-                    end
-                end
             end
         end
     end

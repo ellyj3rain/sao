@@ -1,6 +1,6 @@
 | Document | Playability and observed behavior |
 |---|---|
-| Version | `2.7.14.6-pre-alpha` |
+| Version | `2.7.14.7-pre-alpha` |
 | Author | ellyj3rain |
 | Repository | `PLAYABILITY.md` |
 | Status | CANONICAL - current evidence and implementation limitations. |
@@ -22,12 +22,12 @@ mechanical work already authorized.
 
 | Surface | Implementation present | Current limitation |
 |---|---|---|
-| People and persistence | Identity, loaded NPC bodies, materialization, hibernation and controller adoption | C51 protects capture/teardown/restore and native supported components; afflicted return still lacks adoption, and other character components remain outside the snapshot. |
+| People and persistence | Identity, loaded NPC bodies, materialization, hibernation, complete supported native snapshots and controller reconstruction | Afflicted return and later Crossed ownership retain one person and controller through interruption/reload. Components outside C54's declared v4 envelope and loaded-world observation remain open. |
 | Inspection | County ledger, standing and person panels, knowledge and development observations | A visible state or selected branch does not establish that the associated action happened. |
 | Movement and travel | Walking, crossing, boarding and driving adapters | Driving can cancel its own approach or cancel actual progress; steering and passenger waiting need repair. The engine does support NPC vehicle control. |
-| Needs and material actions | Inventory, food, water, shelter, construction and care primitives | Completed actions, access and dormant resource producers remain incomplete. Queued treatment can prevent the following CPR action. |
+| Needs and material actions | Inventory, food, water, shelter, construction and care primitives; dormant carried food/fluid uses native partial effects with quantity and nutrition accounting | Ground access, completed loaded actions and unloaded resource producers remain incomplete. Queued treatment can prevent the following CPR action. |
 | Social life | Relationships, companies, claims, demands, exchanges and governance state | Automatic relocation and recognition can substitute for actual choices and consequences; surrender lacks a complete transaction. |
-| Health and age | Infection course, conditions, habits, age and child activity | Healthy-child wound fear, withdrawal drift and cadence-dependent brain health are reproduced defects. |
+| Health and age | Infection course, conditions, habits, age, durable brain-health history and medical/inspect graph | Current physical causes integrate independently of callback partitions and affect memory, decisions, pressure and movement. Healthy-child fear and completed care remain later action repairs. |
 | Knowledge and optional integrations | Perception, remembered opportunities, vehicles, animals and combat adapters | Animal/human classification, inaccessible compartments and installed prone-state reads need correction. |
 | Communication | Existing talk, testimony and radio channels; inference and fact-constraint primitives | Free-form learned cognition and expression are unfinished; no trained model is shipped. |
 | Historical starts | Bounded causal catch-up with progress and diagnostic provenance | Remaining time consumers and missing producers prevent a full-fidelity claim. A learned accelerator remains unfinished. |

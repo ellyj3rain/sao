@@ -58,6 +58,28 @@ local function whoIsWinning(progress, pos)
     return "They are losing."
 end
 
+local function appendBrainReading(out, rec, skill)
+    if not SAO.Neuro or not SAO.Neuro.isActive or not SAO.Neuro.isActive() then
+        return
+    end
+    local load = SAO.Neuro.loadOf(rec)
+    if load < 0.15 then return end
+    if skill < Med.CAN_NAME_IT then
+        out[#out + 1] = "They appear confused and dazed."
+    elseif skill < Med.CAN_PLACE_IT then
+        out[#out + 1] = "Signs of neuroinflammation and brain fog."
+    elseif skill < Med.CAN_JUDGE_IT then
+        local severity = load >= 0.70 and "severe"
+            or (load >= 0.40 and "moderate" or "mild")
+        out[#out + 1] = "Brain inflammatory load is " .. severity .. "."
+    else
+        local causes = SAO.Neuro.causesOf and SAO.Neuro.causesOf(rec) or {}
+        local cause = #causes > 0 and table.concat(causes, ", ") or "resolving"
+        out[#out + 1] = string.format(
+            "Neuroinflammatory load: %.0f%% (%s).", load * 100, cause)
+    end
+end
+
 ---Lines an examiner of this skill could honestly give about this
 ---person, in the order a person would notice them.
 ---
@@ -73,6 +95,9 @@ function Med.readingOf(rec, skill, nowHours)
     if rec.dead then
         out[#out + 1] = "They are dead."
         return out
+    end
+    if SAO.Neuro and SAO.Neuro.observe then
+        pcall(SAO.Neuro.observe, rec, nowHours, "medical-reading")
     end
 
     -- The obvious, which needs no training at all.
@@ -93,6 +118,10 @@ function Med.readingOf(rec, skill, nowHours)
             out[#out + 1] = "They have not had anything to drink in days."
         end
     end
+
+    -- Toxic, septic, withdrawal, afflicted, and crossed brain effects remain
+    -- clinically visible even when Knox is absent.
+    appendBrainReading(out, rec, skill)
 
     if not rec.knoxInfected then
         if #out == 0 then
@@ -135,24 +164,6 @@ function Med.readingOf(rec, skill, nowHours)
     if (tonumber(rec.infectionsSurvived) or 0) > 0
         and skill >= Med.CAN_JUDGE_IT then
         out[#out + 1] = "They have come through this before."
-    end
-
-    -- [C125] Neuroinflammation reading
-    if SAO.Neuro and SAO.Neuro.isActive and SAO.Neuro.isActive() then
-        local load = SAO.Neuro.loadOf(rec)
-        if load >= 0.15 then
-            if skill < Med.CAN_NAME_IT then
-                out[#out + 1] = "They appear confused and dazed."
-            elseif skill < Med.CAN_PLACE_IT then
-                out[#out + 1] = "Signs of neuroinflammation and brain fog."
-            elseif skill < Med.CAN_JUDGE_IT then
-                local severity = (load >= 0.70) and "severe" or ((load >= 0.40) and "moderate" or "mild")
-                out[#out + 1] = "Brain inflammatory load is " .. severity .. "."
-            else
-                local cause = rec.knoxInfected and "pathogen-driven" or (rec.woundInfected and "septic" or "toxic")
-                out[#out + 1] = string.format("Neuroinflammatory load: %.0f%% (%s).", load * 100, cause)
-            end
-        end
     end
 
     return out

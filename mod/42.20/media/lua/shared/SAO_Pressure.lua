@@ -57,6 +57,15 @@ function Pressure.total(id, tick, x, y)
     }
     local total = 0
     for _, value in ipairs(values) do total = total + value end
+    -- Brain inflammation changes reactivity to pressure that already exists;
+    -- it is never a free-standing threat or mood authored from the graph.
+    if total > 0 and SAO.Neuro and SAO.Identity then
+        pcall(function()
+            local rec = SAO.Identity.get(id)
+            local volatility = rec and SAO.Neuro.affectiveVolatility(rec) or 0
+            total = total * (1.0 + volatility * 0.50)
+        end)
+    end
     return math.min(1.0, total)
 end
 

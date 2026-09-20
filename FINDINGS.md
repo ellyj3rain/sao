@@ -1,6 +1,6 @@
 | Document | Survivor Awareness Overhaul Findings |
 |---|---|
-| Version | `2.7.14.6-pre-alpha` |
+| Version | `2.7.14.7-pre-alpha` |
 | Author | ellyj3rain |
 | Repository | `FINDINGS.md` |
 | Status | CANONICAL, APPEND-ONLY - verified engine findings. |
@@ -1922,3 +1922,35 @@ updates, then removes each continuation or refusal seam. A whole-inventory byte
 comparison was rejected during the work because immediate native reserialization
 is not byte-stable; per-item fluid-component facts provide the discriminating
 check without rejecting healthy inventory state.
+
+## F-087 | 2026-09-19 | Health history and Crossed conversion require exact event and ownership boundaries
+
+The recovered C49 implementation held a current scalar, sampled endpoint facts
+over a whole callback interval, read an unwritten SAO terminal field and treated
+lifetime poison damage as current exposure. Its graph rendered the scalar rather
+than a history. Drug daily work could be consumed by the one-minute callback
+before the ten-minute pass, and maintenance treatment did not freeze the public
+abstinence reader. Positive-elapsed hibernation removed whole food, emptied
+drink containers and changed hunger or thirst without native nutrition or fluid
+effects.
+
+C56 replaces those paths with durable county-hour boundaries. Infection onset,
+course end, current wound/toxin state, withdrawal and clearance are recorded in
+a versioned event history owned by ZAO when installed. Exact integration gives
+the same burden for a whole interval or its partitions; a repeat at the cursor
+cannot charge twice. The recorded series reaches medical and inspection views
+and changes memory retention, decision cadence, existing pressure response and
+motor pace. Borders 171-172 and 175 execute these properties in the installed
+Kahlua VM and reject four history mutations plus three clock mutations and four
+consumer mutations.
+
+The F-084 proximity route is also removed. A Crossed carrier must approach an
+Afflicted person, hold interruptible contact and complete the durable blood
+action. Only its resolving token authorizes the existing Crossed-odds times
+Afflicted-susceptibility roll. A successful receipt transfers the same living
+human shell and supported snapshot from SAO to ZAO. Busy transfer, save/reload,
+dormant ownership and later death retain one controller and one person. Borders
+162-163, 173-174 and ZAO Borders 5, 9 and 10 execute those paths with controls.
+The complete retained Crossed weapons, tools, strategy and general action
+vocabulary remains R7-R9 work; these receipts do not establish loaded-world
+presentation.
