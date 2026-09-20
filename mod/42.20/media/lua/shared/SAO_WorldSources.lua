@@ -88,7 +88,7 @@ local function store()
     end)
     if not ok or type(value) ~= "table" then return nil end
     local priorSchema = tonumber(value.schema) or 0
-    if priorSchema > 3 then
+    if priorSchema > 4 then
         log("refusing unsupported world-source schema " .. tostring(priorSchema))
         return nil
     end
@@ -144,7 +144,32 @@ local function store()
         end
         trimResults(value)
         value.migratedFrom = priorSchema
-        value.schema = 3
+    end
+    if priorSchema < 4 then
+        -- Schema 3 is C62's action ledger. Its completed receipts predate
+        -- action-time provisioning attribution, and reservations already past
+        -- final source binding cannot reconstruct that fact after upgrade.
+        -- Mark those records explicitly so C63 can retire them without
+        -- inferring later membership or granting house credit. Reservations
+        -- still approaching a source will capture the new context at bind.
+        for _, receipt in pairs(value.results) do
+            if receipt.status == "completed"
+                and receipt.provisioningContext == nil then
+                receipt.provisioningContext = "legacy-unattributed"
+            end
+        end
+        for _, reservation in pairs(value.reservations) do
+            if reservation.status == "reserved"
+                and (reservation.phase == "transferring"
+                    or reservation.phase == "using"
+                    or reservation.phase == "native-complete")
+                and reservation.provisioningContext == nil then
+                reservation.provisioningContext = "legacy-unattributed"
+                reservation.provisioningGroup = nil
+            end
+        end
+        value.migratedFrom = priorSchema
+        value.schema = 4
     else
         value.schema = priorSchema
     end
@@ -1110,13 +1135,32 @@ local function result(value, reservation, status, detail)
     reservation.resultAt = nowHours()
     reservation.detail = detail
     value.resultSequence = value.resultSequence + 1
+    local options = SandboxVars and SandboxVars.SurvivorAwareness or nil
     local receipt = {
         reservationId = reservation.id,
         actorId = reservation.actorId,
+        placeId = reservation.placeId,
+        placeX = reservation.placeX,
+        placeY = reservation.placeY,
+        placeZ = reservation.placeZ,
+        placeMinX = reservation.placeMinX,
+        placeMinY = reservation.placeMinY,
+        placeMaxX = reservation.placeMaxX,
+        placeMaxY = reservation.placeMaxY,
         sourceId = reservation.sourceId,
+        sourceFingerprint = reservation.fingerprint,
+        sourceKind = reservation.sourceKind,
+        sourceX = reservation.currentSourceX or reservation.sourceX,
+        sourceY = reservation.currentSourceY or reservation.sourceY,
+        sourceZ = reservation.currentSourceZ or reservation.sourceZ,
         itemId = reservation.itemId,
         itemType = reservation.itemType,
         category = reservation.category,
+        provisioningGroup = reservation.provisioningGroup,
+        provisioningContext = reservation.provisioningContext,
+        provisioningClaimIncarnation =
+            reservation.provisioningClaimIncarnation,
+        materialProjectionEnabled = not options or options.Material ~= false,
         quantity = reservation.actualQuantity or reservation.quantity,
         preRevision = reservation.preRevision or reservation.revision,
         postRevision = reservation.postRevision,
@@ -1142,10 +1186,27 @@ local function receiptCopy(receipt)
     return {
         reservationId = receipt.reservationId,
         actorId = receipt.actorId,
+        placeId = receipt.placeId,
+        placeX = receipt.placeX,
+        placeY = receipt.placeY,
+        placeZ = receipt.placeZ,
+        placeMinX = receipt.placeMinX,
+        placeMinY = receipt.placeMinY,
+        placeMaxX = receipt.placeMaxX,
+        placeMaxY = receipt.placeMaxY,
         sourceId = receipt.sourceId,
+        sourceFingerprint = receipt.sourceFingerprint,
+        sourceKind = receipt.sourceKind,
+        sourceX = receipt.sourceX,
+        sourceY = receipt.sourceY,
+        sourceZ = receipt.sourceZ,
         itemId = receipt.itemId,
         itemType = receipt.itemType,
         category = receipt.category,
+        provisioningGroup = receipt.provisioningGroup,
+        provisioningContext = receipt.provisioningContext,
+        provisioningClaimIncarnation = receipt.provisioningClaimIncarnation,
+        materialProjectionEnabled = receipt.materialProjectionEnabled,
         quantity = receipt.quantity,
         preRevision = receipt.preRevision,
         postRevision = receipt.postRevision,
@@ -1190,7 +1251,7 @@ function WS.completedResults(consumer)
     return out
 end
 
-function WS.acknowledgeResult(reservationId, consumer)
+function WS.acknowledgeResult(reservationId, consumer, reason)
     local value = store()
     consumer = tostring(consumer or "")
     local receipt = value and value.results[tostring(reservationId or "")]
@@ -1200,8 +1261,20 @@ function WS.acknowledgeResult(reservationId, consumer)
     end
     receipt.acknowledgements = receipt.acknowledgements or {}
     if receipt.acknowledgements[consumer] then return true end
-    receipt.acknowledgements[consumer] = nowHours()
+    receipt.acknowledgements[consumer] = {
+        at = nowHours(),
+        reason = tostring(reason or "consumed"),
+    }
     return true
+end
+
+function WS.resultAcknowledged(reservationId, consumer)
+    local value = store()
+    local receipt = value and value.results[tostring(reservationId or "")] or nil
+    consumer = tostring(consumer or "")
+    return type(receipt) == "table" and consumer ~= ""
+        and type(receipt.acknowledgements) == "table"
+        and receipt.acknowledgements[consumer] ~= nil
 end
 
 function WS.release(reservationId, reason)
@@ -1347,6 +1420,64 @@ function WS.source(id)
     if not value then return nil end
     id = tostring(id)
     return value.sources[id] or value.conflictBySource[id]
+end
+
+-- R9 receives an isolated scalar copy of the latest observed native source.
+-- The durable WorldSources table remains the authority: material projection
+-- may retain this copy, but it cannot mutate or alias the observation ledger.
+-- A conflicted source is withheld until native observation resolves it.
+function WS.sourceProjection(id)
+    local value = store()
+    if not value then return nil, "store-unavailable" end
+    id = tostring(id or "")
+    if value.conflictBySource[id] then return nil, "source-conflict" end
+    local source = value.sources[id]
+    if not source then return nil, "source-absent" end
+    local copy = {
+        id = source.id,
+        fingerprint = source.fingerprint,
+        revision = source.revision,
+        kind = source.kind,
+        x = source.x, y = source.y, z = source.z,
+        chunkX = source.chunkX, chunkY = source.chunkY,
+        buildingId = source.buildingId,
+        explored = source.explored and true or false,
+        state = source.state,
+        access = source.access,
+        container = source.container,
+        observedAt = source.observedAt,
+        provenance = source.provenance,
+        quantities = {}, items = {}, itemOrder = {},
+    }
+    for _, category in ipairs(SOURCE_CATEGORY_ORDER) do
+        local quantity = tonumber(source.quantities
+            and source.quantities[category]) or 0
+        if quantity > 0 then copy.quantities[category] = quantity end
+    end
+    for _, itemKey in ipairs(source.itemOrder or {}) do
+        local item = source.items and source.items[itemKey] or nil
+        if item then
+            local categoriesCopy = {}
+            for _, category in ipairs(SOURCE_CATEGORY_ORDER) do
+                if item.categories and item.categories[category] then
+                    categoriesCopy[category] = true
+                end
+            end
+            local key = tostring(item.id)
+            copy.items[key] = {
+                id = item.id,
+                type = item.type,
+                uses = item.uses,
+                amount = item.amount,
+                fluid = item.fluid,
+                poison = item.poison and true or false,
+                rotten = item.rotten and true or false,
+                categories = categoriesCopy,
+            }
+            copy.itemOrder[#copy.itemOrder + 1] = key
+        end
+    end
+    return copy, "observed"
 end
 
 function WS.resetRuntime()

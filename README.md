@@ -38,7 +38,7 @@ on the simulation.
 
 ## Status
 
-`2.7.16.0-pre-alpha` - the coordinate is computed by the version machine
+`2.8.0.0-pre-alpha` - the coordinate is computed by the version machine
 (`tools/version_replay.py`), never picked; `VERSION_MAP.md` shows the
 classification and the arithmetic.
 
@@ -94,8 +94,13 @@ interaction legs through native locomotion, rechecks barriers, current claims
 and vehicle-part permission, transfers the exact native item, and uses that
 same carried item through `Eat` or `DrinkFluid`. Completion, partial stop,
 conflict and reload resolve through one revision-bound durable result; only a
-completed result updates that person's food or water day. Settlement
-provisioning and the remaining action families stay under R7-R9.
+completed result updates that person's food or water day. C63 then projects the
+exact current source into bounded house material state when the action occurred
+on that house's held ground. It derives larder and water claims, synchronizes
+only an already-grounded settlement and acknowledges the receipt last. Personal
+use, interrupted work, queue acceptance and dormant need projection grant no
+house stock or settlement credit. Performed shelving, the remaining material
+actions and settlement development stay under R7-R9.
 `ROADMAP.md` preserves the remaining social and learned-model obligations.
 
 ## Requirements

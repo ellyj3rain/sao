@@ -1,6 +1,6 @@
 | Document | Survivor Awareness Overhaul Architecture |
 |---|---|
-| Version | `2.7.16.0-pre-alpha` |
+| Version | `2.8.0.0-pre-alpha` |
 | Author | ellyj3rain |
 | Repository | `ARCHITECTURE.md` |
 | Status | ACTIVE - ratified framework shape. |
@@ -145,7 +145,7 @@ world is rag-ripping ([A10]): time charged in a hold state, terminal state
 identical to the vanilla recipe, recorded as pending real craft-system
 comprehension.
 
-## Revision-bound world-source action (C61-C62)
+## Revision-bound world-source action and result projection (C61-C63)
 
 `SAO_WorldSources` owns durable native observations, conflicts, reservations
 and results. A place belief stores the exact source revisions that person saw;
@@ -165,8 +165,55 @@ phase. An unspent cancellation releases, a changed revision conflicts, a
 partial native stop records interruption without need credit, and a completed
 effect publishes one pre/post-revision receipt and stamps that actor's food or
 water day. Completed receipts remain in durable order until the provisioning
-consumer acknowledges them idempotently. Settlement material and recognition
-remain downstream R9 consumers.
+consumer acknowledges them idempotently.
+
+C63 consumes that result without turning it into an authored outcome. At final
+native binding, an exact source inside the actor's current group claim captures
+that house and the current claim incarnation. Publishing the completed result
+captures the Material setting with the event. The consumer resolves an isolated
+copy of the latest exact native source
+and replaces its prior house projection by source identity. A durable
+single-owner index and result order prevent one source from remaining in two
+houses or an older retry from reversing a newer owner. Applied reconciliation,
+its chosen outcome, affected-house projection generation and successful
+per-group derivation phases persist until acknowledgement succeeds. Source
+observation time orders completed-result claims against live quartermaster
+scans; projection generation orders actual aggregate mutations and prevents an
+applied older retry from reversing newer evidence. At most 256 source rows are retained; item and
+finite-category totals are rebuilt from those rows. Personal use grants no new
+house credit but may refresh an existing owner. Missing non-ground truth waits
+when ownership exists; completed ground removal affects only the matching
+fingerprint. A changed or re-created claim cannot receive an earlier event.
+
+Only after material reconciliation do larder and water claims derive from the
+projected totals. Recognition may synchronize storage on an already-grounded
+settlement; it cannot create a settlement, building, organization, membership,
+room, food or water fact. The receipt is acknowledged last. Standing setters,
+dormant need-day projection and queue acceptance are not provisioning
+producers. Quartermaster scans and completed-result claims carry their evidence
+basis. Claim movement, abandonment and dissolution retire house material and
+settlement-storage projections; delayed receipts revalidate held ground. C62
+schema-3 results retire explicitly unattributed instead of borrowing later
+membership. A refused acknowledgement resumes the persisted outcome before
+source lookup; if execution stops after acknowledgement, the next delivery pass
+cleans the retained transaction. The event-time Material setting cannot be
+reinterpreted by a later toggle. Performed shelving and the remaining material
+action families still need their own completion results under R9.
+
+Graph schema 2 removes the outputs left by the superseded bridge: a pre-C63
+house store without `native-sources` provenance and a base without a completed
+`place-development` result are retired once with explicit upgrade provenance.
+A linked provisioning-only organization is removed; an organization grounded
+by an election keeps its chair while its old base-authored boundary,
+governance and membership are cleared. Standing schema 2 retires legacy
+larder/water/hearth claims and assigns claim incarnations without inventing
+history. Future graph and Standing schemas refuse before mutation, and graph
+refusal detaches every prior-world durable alias. `Settlement.claim` accepts
+only completed place-development evidence and has no organization or membership
+side effect. Person-facing material surfaces copy scalar maps. A combined
+personal/house view has no aggregate owner; ownership remains explicit only on
+its nested personal and house views, preserving Material as the sole mutable
+owner even when Integration publishes the view.
 
 The reservation is also the cross-pillar actor owner. Dormant population
 mutation, bodyless pathogen encounter/snapshot observation and WorldGenesis graph

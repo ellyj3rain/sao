@@ -84,6 +84,9 @@ ALLOWED_IN_A_DAY = {
     # county's own cadence and the years call the same function. It is
     # here because this list is by name and the name is new.
     "dormantProvision", "dormantCountyPass",
+    # [C63] Completed-result delivery is part of the same shared dormant pass:
+    # live play and elapsed years both retry the bounded ledger in that order.
+    "consumeProvisioningResults",
 }
 
 # Shapes that would mean the pass had started inventing rather than

@@ -1,6 +1,6 @@
 | Document | Survivor Awareness Overhaul Organization and Deference Contract |
 |---|---|
-| Version | `2.7.16.0-pre-alpha` |
+| Version | `2.8.0.0-pre-alpha` |
 | Author | ellyj3rain |
 | Repository | `ORGANIZATION.md` |
 | Status | CANONICAL - organization, hierarchy, offices, governance forms, and deference. |

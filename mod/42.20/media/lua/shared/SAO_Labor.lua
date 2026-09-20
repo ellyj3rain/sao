@@ -32,8 +32,10 @@ end
 function Labor.choose(id, tick, pressure)
     local possible = Labor.possible(id, tick, pressure)
     if #possible == 0 then return nil end
-    if SAO.Material then
-        local store = SAO.Material.storeOf(id)
+    local options = SandboxVars and SandboxVars.SurvivorAwareness or nil
+    local materialEnabled = not options or options.Material ~= false
+    if materialEnabled and SAO.Material and SAO.Material.storeForPerson then
+        local store = SAO.Material.storeForPerson(id)
         -- `next` is not in this engine's Lua, so the emptiness probe
         -- is a pairs walk that stops at the first entry.
         local stocked = false

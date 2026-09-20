@@ -37,13 +37,115 @@ local S = SAO.Standing
 -- discovered.
 S.FEUD_KEEP_OUT = 30   -- will not settle this close to a feuding company
 S.FEUD_DETOUR = 20     -- a day's walk bends away at this range
+local STANDING_SCHEMA = 2
+local C63_STANDING_PROVENANCE =
+    "initialized at C63 upgrade from represented C62 state; no earlier history inferred"
+
+local function migrateLegacyMaterialClaims(s, priorSchema)
+    local retiredLarders, retiredWaterStores, retiredHearths = 0, 0, 0
+    for _, meta in pairs(s.groupMeta) do
+        if type(meta) == "table" then
+            if meta.larder ~= nil then retiredLarders = retiredLarders + 1 end
+            if meta.waterStore ~= nil then
+                retiredWaterStores = retiredWaterStores + 1
+            end
+            if meta.hearth ~= nil then retiredHearths = retiredHearths + 1 end
+            meta.larder = nil
+            meta.waterStore = nil
+            meta.hearth = nil
+        end
+    end
+    local migratedGroupClaims = 0
+    local claimSequence = math.floor(tonumber(s.claimSequence) or 0)
+    for _, claim in pairs(s.groupClaims) do
+        local incarnation = type(claim) == "table"
+            and math.floor(tonumber(claim.claimIncarnation) or 0) or 0
+        if incarnation > claimSequence then claimSequence = incarnation end
+    end
+    for _, claim in pairs(s.groupClaims) do
+        if type(claim) == "table"
+            and (tonumber(claim.claimIncarnation) or 0) <= 0 then
+            claimSequence = claimSequence + 1
+            claim.claimIncarnation = claimSequence
+            migratedGroupClaims = migratedGroupClaims + 1
+        end
+    end
+    s.claimSequence = claimSequence
+    s.migrations.c63LegacyMaterialClaims = {
+        fromSchema = priorSchema,
+        toSchema = STANDING_SCHEMA,
+        provenance = C63_STANDING_PROVENANCE,
+        retiredLarders = retiredLarders,
+        retiredWaterStores = retiredWaterStores,
+        retiredHearths = retiredHearths,
+        migratedGroupClaims = migratedGroupClaims,
+    }
+end
+
 local function store()
     local ok, s = pcall(function() return ModData.getOrCreate("SurvivorAwareness_Standing") end)
     if not ok or type(s) ~= "table" then return nil end
-    s.relations = s.relations or {}   -- [id][otherKey] = { trust, hostile }
-    s.groups = s.groups or {}         -- [id] = groupName
-    s.claims = s.claims or {}         -- [id] = { minX, minY, maxX, maxY, z }
+    local priorSchema = tonumber(s.schema) or 0
+    if priorSchema > STANDING_SCHEMA then return nil end
+    s.relations = type(s.relations) == "table" and s.relations or {}
+    s.groups = type(s.groups) == "table" and s.groups or {}
+    s.claims = type(s.claims) == "table" and s.claims or {}
+    s.groupMeta = type(s.groupMeta) == "table" and s.groupMeta or {}
+    s.groupClaims = type(s.groupClaims) == "table" and s.groupClaims or {}
+    s.migrations = type(s.migrations) == "table" and s.migrations or {}
+    if priorSchema < STANDING_SCHEMA then
+        migrateLegacyMaterialClaims(s, priorSchema)
+        s.schema = STANDING_SCHEMA
+    end
     return s
+end
+
+local function materialEnabled()
+    local options = SandboxVars and SandboxVars.SurvivorAwareness or nil
+    return not options or options.Material ~= false
+end
+
+local function materialWriteAllowed(evidence)
+    return materialEnabled() or (type(evidence) == "table"
+        and evidence.materialProjectionEnabled == true)
+end
+
+local function materialEvidence(evidence)
+    local atHours = type(evidence) == "table"
+        and tonumber(evidence.atHours or evidence.at) or nil
+    if atHours == nil then
+        local ok, current = pcall(function()
+            return SAO.History.countyHours()
+        end)
+        atHours = ok and tonumber(current) or 0
+    end
+    return atHours,
+        type(evidence) == "table" and tonumber(evidence.order) or nil,
+        type(evidence) == "table" and evidence.reservationId or nil,
+        type(evidence) == "table" and evidence.sourceId or nil,
+        type(evidence) == "table"
+            and tonumber(evidence.materialGeneration) or nil
+end
+
+local function materialEvidenceSuperseded(prior, basis, atHours, order,
+    generation)
+    if type(prior) ~= "table" then return false end
+    local priorGeneration = tonumber(prior.materialGeneration)
+    local projectionBasis = "completed-native-source-results"
+    local bothProjection = prior.basis == projectionBasis
+        and tostring(basis or "unspecified") == projectionBasis
+    if bothProjection and priorGeneration and generation
+        and priorGeneration ~= generation then
+        return priorGeneration > generation
+    end
+    local priorAt = tonumber(prior.atHours)
+    if priorAt and priorAt > atHours then return true end
+    if priorAt and priorAt < atHours then return false end
+    if priorGeneration and generation and priorGeneration ~= generation then
+        return priorGeneration > generation
+    end
+    local priorOrder = tonumber(prior.resultOrder)
+    return priorAt == atHours and priorOrder and order and priorOrder > order
 end
 
 -- Canonical person keys. Survivors are their RECORD ID; the real player is
@@ -1171,30 +1273,31 @@ local function reviewElectionWork(s, groupName, members)
                     -- which is [B21]'s whole standard: an empty world
                     -- still gets counted, as lean, as dry, as dark.
                     -- Only an absent quartermaster leaves no count.
-                    local okQH, qh = pcall(function()
-                        return SAO.History.countyHours()
-                    end)
-                    if okQH then
-                        local metaQ = s.groupMeta
-                            and s.groupMeta[groupName] or nil
-                        local stale = 0
-                        if metaQ then
-                            local l = metaQ.larder
-                            if l and (qh - (l.atHours or 0)) > 48 then
-                                stale = stale + 1
+                    evidence = -1
+                    if materialEnabled() then
+                        local okQH, qh = pcall(function()
+                            return SAO.History.countyHours()
+                        end)
+                        if okQH then
+                            local metaQ = s.groupMeta
+                                and s.groupMeta[groupName] or nil
+                            local stale = 0
+                            if metaQ then
+                                local l = metaQ.larder
+                                if l and (qh - (l.atHours or 0)) > 48 then
+                                    stale = stale + 1
+                                end
+                                local w = metaQ.waterStore
+                                if w and (qh - (w.atHours or 0)) > 48 then
+                                    stale = stale + 1
+                                end
+                                local hh = metaQ.hearth
+                                if hh and (qh - (hh.atHours or 0)) > 48 then
+                                    stale = stale + 1
+                                end
                             end
-                            local w = metaQ.waterStore
-                            if w and (qh - (w.atHours or 0)) > 48 then
-                                stale = stale + 1
-                            end
-                            local hh = metaQ.hearth
-                            if hh and (qh - (hh.atHours or 0)) > 48 then
-                                stale = stale + 1
-                            end
+                            evidence = stale
                         end
-                        evidence = stale
-                    else
-                        evidence = -1
                     end
                 else
                     evidence = -1
@@ -1258,6 +1361,9 @@ function S.electLeader(groupName)
         -- its base in old heads remains ([A15] beliefs, deliberately).
         s.groupMeta[groupName] = nil
         if s.groupClaims then s.groupClaims[groupName] = nil end
+        if SAO.Material and SAO.Material.forgetHouse then
+            SAO.Material.forgetHouse(groupName)
+        end
         -- [C105] The record lapses with the house.
         if SAO.Recognition then
             SAO.Recognition.onHouseDissolved(groupName)
@@ -1275,6 +1381,12 @@ function S.electLeader(groupName)
             s.claims[widow] = { minX = gc.minX, minY = gc.minY,
                 maxX = gc.maxX, maxY = gc.maxY, z = gc.z or 0 }
             s.groupClaims[groupName] = nil
+            if SAO.Material and SAO.Material.forgetHouse then
+                SAO.Material.forgetHouse(groupName)
+            end
+            if SAO.Settlement and SAO.Settlement.clearStorageProjection then
+                SAO.Settlement.clearStorageProjection(groupName)
+            end
         end
         s.groups[widow] = nil
         s.groupMeta[groupName] = nil
@@ -1595,6 +1707,12 @@ function S.electLeader(groupName)
             }
             s.groupMeta[groupName] = metaA8
             s.groupClaims[groupName] = nil
+            if SAO.Material and SAO.Material.forgetHouse then
+                SAO.Material.forgetHouse(groupName)
+            end
+            if SAO.Settlement and SAO.Settlement.clearStorageProjection then
+                SAO.Settlement.clearStorageProjection(groupName)
+            end
             -- The counts that decided it are spent: the new ground
             -- will be counted on its own terms.
             metaA8.larder = nil
@@ -2813,6 +2931,7 @@ end
 -- The warm house ([B6]): whether this house keeps a fire burning,
 -- noted at the rounds and aged like every other read claim.
 function S.setHearth(groupName, burning)
+    if not materialEnabled() then return false end
     local s = store(); if not s then return end
     s.groupMeta = s.groupMeta or {}
     local meta = s.groupMeta[tostring(groupName)] or {}
@@ -2822,13 +2941,11 @@ function S.setHearth(groupName, burning)
     meta.hearth = { burning = burning and true or false,
         atHours = okH and h or 0 }
     s.groupMeta[tostring(groupName)] = meta
-    -- [C105] A fire actually burning is real provisioning.
-    if burning and SAO.Recognition then
-        SAO.Recognition.onProvisioned(tostring(groupName))
-    end
+    return true
 end
 
 function S.hearthOf(groupName)
+    if not materialEnabled() then return nil end
     local s = store(); if not s then return nil end
     local meta = s.groupMeta and s.groupMeta[tostring(groupName)] or nil
     local hh = meta and meta.hearth or nil
@@ -2842,23 +2959,28 @@ end
 
 -- The water claim ([B6]): what the house knows it has to drink -
 -- read at the same rounds as the shelves, aged the same way.
-function S.setWaterStore(groupName, word, units)
-    local s = store(); if not s then return end
+function S.setWaterStore(groupName, word, units, basis, evidence)
+    if not materialWriteAllowed(evidence) then return false end
+    local s = store(); if not s then return false end
     s.groupMeta = s.groupMeta or {}
     local meta = s.groupMeta[tostring(groupName)] or {}
-    local okH, h = pcall(function()
-        return SAO.History.countyHours()
-    end)
-    meta.waterStore = { word = word, units = units,
-        atHours = okH and h or 0 }
-    s.groupMeta[tostring(groupName)] = meta
-    -- [C105] Water actually counted is real provisioning.
-    if (units or 0) > 0 and SAO.Recognition then
-        SAO.Recognition.onProvisioned(tostring(groupName))
+    local atHours, resultOrder, reservationId, sourceId, materialGeneration =
+        materialEvidence(evidence)
+    if materialEvidenceSuperseded(meta.waterStore, basis, atHours, resultOrder,
+        materialGeneration) then
+        return true
     end
+    meta.waterStore = { word = word, units = units,
+        basis = tostring(basis or "unspecified"),
+        atHours = atHours, resultOrder = resultOrder,
+        reservationId = reservationId, sourceId = sourceId,
+        materialGeneration = materialGeneration }
+    s.groupMeta[tostring(groupName)] = meta
+    return true
 end
 
 function S.waterStoreOf(groupName)
+    if not materialEnabled() then return nil end
     local s = store(); if not s then return nil end
     local meta = s.groupMeta and s.groupMeta[tostring(groupName)] or nil
     local w = meta and meta.waterStore or nil
@@ -2870,22 +2992,28 @@ function S.waterStoreOf(groupName)
     return w
 end
 
-function S.setLarder(groupName, word, count)
-    local s = store(); if not s then return end
+function S.setLarder(groupName, word, count, basis, evidence)
+    if not materialWriteAllowed(evidence) then return false end
+    local s = store(); if not s then return false end
     s.groupMeta = s.groupMeta or {}
     local meta = s.groupMeta[tostring(groupName)] or {}
-    local okH, h = pcall(function()
-        return SAO.History.countyHours()
-    end)
-    meta.larder = { word = word, count = count, atHours = okH and h or 0 }
-    s.groupMeta[tostring(groupName)] = meta
-    -- [C105] Shelves actually counted is real provisioning.
-    if (count or 0) > 0 and SAO.Recognition then
-        SAO.Recognition.onProvisioned(tostring(groupName))
+    local atHours, resultOrder, reservationId, sourceId, materialGeneration =
+        materialEvidence(evidence)
+    if materialEvidenceSuperseded(meta.larder, basis, atHours, resultOrder,
+        materialGeneration) then
+        return true
     end
+    meta.larder = { word = word, count = count,
+        basis = tostring(basis or "unspecified"),
+        atHours = atHours, resultOrder = resultOrder,
+        reservationId = reservationId, sourceId = sourceId,
+        materialGeneration = materialGeneration }
+    s.groupMeta[tostring(groupName)] = meta
+    return true
 end
 
 function S.larderOf(groupName)
+    if not materialEnabled() then return nil end
     local s = store(); if not s then return nil end
     local meta = s.groupMeta and s.groupMeta[tostring(groupName)] or nil
     local l = meta and meta.larder or nil
@@ -3157,6 +3285,34 @@ function S.groupOf(id)
     return s.groups[id]
 end
 
+-- SourceUse needs an attribution answer that distinguishes an ungrouped
+-- person from an unavailable Standing store. It also reads membership and
+-- held ground from one durable snapshot, so a transient lookup fault cannot
+-- silently turn a house action into personal use.
+function S.provisioningContextAt(id, x, y)
+    local s = store()
+    if not s then return nil, nil end
+    local groupName = s.groups[id]
+    if not groupName then return "personal", nil end
+    local claim = s.groupClaims and s.groupClaims[tostring(groupName)] or nil
+    x, y = tonumber(x), tonumber(y)
+    if claim and x and y
+        and x >= claim.minX and x <= claim.maxX
+        and y >= claim.minY and y <= claim.maxY then
+        return "held-group", tostring(groupName), claim.claimIncarnation
+    end
+    return "personal", nil
+end
+
+-- The result consumer must also distinguish a released claim from a failed
+-- store read. A released/moved claim downgrades an old receipt to no-new-owner;
+-- an unavailable store leaves the receipt pending for retry.
+function S.provisioningClaimOf(groupName)
+    local s = store()
+    if not s or not groupName then return false, nil end
+    return true, s.groupClaims and s.groupClaims[tostring(groupName)] or nil
+end
+
 -- All other members of this id's group (plain Lua ids; caller resolves
 -- bodies). Empty table when ungrouped or alone.
 -- Fellowship ends at death; the living remember, but the roster is of
@@ -3172,8 +3328,7 @@ end
 --
 -- The roster means LIVING membership, as it always has, so the dead
 -- are filtered here rather than at each caller.
-function S.membersOf(groupName)
-    local s = store(); if not s or not groupName then return {} end
+local function livingMembers(s, groupName)
     local out = {}
     for otherId, otherGroup in pairs(s.groups) do
         if otherGroup == groupName then
@@ -3184,6 +3339,19 @@ function S.membersOf(groupName)
         end
     end
     return out
+end
+
+-- Provisioning must distinguish an empty living roster from an unavailable
+-- durable Standing store; the general reader retains its historical empty
+-- fallback for callers that use absence as no fellows.
+function S.provisioningMembers(groupName)
+    local s = store(); if not s or not groupName then return nil end
+    return livingMembers(s, groupName)
+end
+
+function S.membersOf(groupName)
+    local s = store(); if not s or not groupName then return {} end
+    return livingMembers(s, groupName)
 end
 
 function S.fellowsOf(id)
@@ -3318,10 +3486,37 @@ end
 function S.setGroupClaim(groupName, minX, minY, maxX, maxY, z)
     local s = store(); if not s then return false end
     s.groupClaims = s.groupClaims or {}
+    groupName = tostring(groupName)
+    local prior = s.groupClaims[groupName]
+    local changed = not prior or prior.minX ~= minX or prior.minY ~= minY
+        or prior.maxX ~= maxX or prior.maxY ~= maxY
+        or (prior.z or 0) ~= (z or 0)
+    if prior and changed and SAO.Material and SAO.Material.forgetHouse then
+        SAO.Material.forgetHouse(groupName)
+    end
+    if prior and changed then
+        local meta = s.groupMeta and s.groupMeta[groupName] or nil
+        if meta then
+            meta.larder = nil
+            meta.waterStore = nil
+            meta.hearth = nil
+        end
+        if SAO.Settlement and SAO.Settlement.clearStorageProjection then
+            SAO.Settlement.clearStorageProjection(groupName)
+        end
+    end
     local okH, h = pcall(function() return SAO.History.countyHours() end)
-    s.groupClaims[tostring(groupName)] = {
+    local claimIncarnation = prior
+        and tonumber(prior.claimIncarnation) or nil
+    if changed or not claimIncarnation or claimIncarnation <= 0 then
+        s.claimSequence = math.floor(tonumber(s.claimSequence) or 0) + 1
+        claimIncarnation = s.claimSequence
+    end
+    s.groupClaims[groupName] = {
         minX = minX, minY = minY, maxX = maxX, maxY = maxY, z = z or 0,
-        sinceHours = okH and h or 0,
+        sinceHours = not changed and prior and prior.sinceHours
+            or (okH and h or 0),
+        claimIncarnation = claimIncarnation,
     }
     return true
 end

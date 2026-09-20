@@ -1,0 +1,61 @@
+{
+  "schema": "sao.review-panel/1",
+  "timestamp": "2026-09-20 21:03 UTC / 14:03 PST",
+  "batch": "C63",
+  "initial_verdict": "blocked",
+  "final_verdict": "clean",
+  "reviewers": [
+    {
+      "role": "correctness",
+      "agent": "Linnaeus",
+      "blocking_findings": [
+        "a first empty or spent source could leave stale projected stock instead of publishing zero truth",
+        "material access views could expose composite ownership or the wrong owner to inspection",
+        "Labor, Inspect and Integration could observe retained material while the Material option was off",
+        "Standing material readers and claim abandonment could expose or retain retired authority",
+        "acknowledgement retry could re-date derived Standing evidence",
+        "an older applied transaction could reverse a newer derivation after acknowledgement refusal",
+        "a compacted source could wait forever after its held claim lapsed or reincarnated",
+        "quartermaster writes could replace retained material evidence while Material was off",
+        "projection generation alone could misorder completed-source evidence against quartermaster scans",
+        "the architecture text misstated when group, claim and option facts are captured"
+      ]
+    },
+    {
+      "role": "structural",
+      "agent": "Lorentz",
+      "blocking_findings": [
+        "Labor initially bypassed the Material option boundary"
+      ]
+    },
+    {
+      "role": "validation",
+      "agent": "Galileo",
+      "blocking_findings": [
+        "the evolving tree initially had tooltip copy and length drift",
+        "the jar version and staged Border 180 surface initially lagged the batch",
+        "state-count, cache-declaration, years-whitelist and Border 178 schema expectations initially lagged the new seam"
+      ]
+    }
+  ],
+  "repairs": [
+    "first observation of an empty container, spent source or proved-absent ground publishes a zero projection and clears stale storage",
+    "material access is a detached owner-correct scalar view and all current reader surfaces honor the Material option",
+    "Standing larder, water and hearth readers hide retained claims while disabled; current quartermaster writes are refused",
+    "claim movement, abandonment, dissolution and incarnation change retire material, Standing and settlement-storage authority",
+    "per-group Standing and Recognition phases persist before acknowledgement and make replay idempotent",
+    "each actual house aggregate mutation advances a projection generation captured by the causing transaction",
+    "source observation time orders completed projections against live quartermaster scans while generation orders completed projections among themselves",
+    "Settlement refuses storage evidence from an older material generation",
+    "held-claim identity is revalidated before missing-source wait logic, so compacted evidence terminates after retirement",
+    "group and claim incarnation bind at action binding; the Material choice binds when the completed result is published",
+    "Border 180 now executes 52 production cases and rejects 68 named mutation controls",
+    "all validator drift was aligned before the definitive full gate"
+  ],
+  "final_review": {
+    "correctness": "clean; no Critical, High or Medium blocker",
+    "structural": "clean; no structural or coherence blocker",
+    "focused_verification": "Border 180 52/52, 68/68 mutations rejected; Borders 178 and 179 pass; diff checks clean"
+  },
+  "remaining_boundary": "R9 remains open beyond completed food and water consumption. Performed shelving, acquisition, carrying, storage, sharing, hoarding, trade, conservation and place development still require their own action results."
+}

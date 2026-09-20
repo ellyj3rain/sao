@@ -347,7 +347,8 @@ function SAOInspectWindow:build()
         jsonl.settlement = base and base.organization or nil
     end)
     pcall(function()
-        local store = SAO.Material and SAO.Material.storeOf(id) or nil
+        local store = SAO.Material and SAO.Material.storeForPerson
+            and SAO.Material.storeForPerson(id) or nil
         local items = {}
         if store then
             for item, amount in pairs(store.items) do
@@ -356,7 +357,15 @@ function SAOInspectWindow:build()
         end
         row("material: " .. (#items > 0
             and table.concat(items, ", ") or "empty"))
-        jsonl.material = items
+        jsonl.material = {
+            access = items,
+            projection = store and store.projection or nil,
+            owner = store and store.owner or nil,
+            accessibleBy = store and store.accessibleBy or nil,
+            personalOwner = store and store.personal
+                and store.personal.owner or nil,
+            houseOwner = store and store.house and store.house.owner or nil,
+        }
     end)
     pcall(function()
         local pending = SAO.Communication

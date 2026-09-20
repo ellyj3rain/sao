@@ -238,21 +238,26 @@ RATIFIED = {
         + "Off: houses still form and leaders still lead - none of it "
         "is recorded as organization.",
     P + "Settlement": "Record settlements",
+    # [C63] The earlier C105 words named fire, water and stocked shelves as
+    # settlement creation even though those producers do not exist. This copy
+    # states the shipped completed-place grounding and storage-only refresh.
     P + "Settlement_tooltip":
-        "A house living on ground it claimed - fire lit, water hauled, "
-        "shelves stocked - is recorded as a settlement." + NL
-        + "Off: houses still claim and provision - the base is not "
-        "recorded.",
+        "A settlement requires completed place work on claimed ground. "
+        "Using supplies can refresh its store; it cannot found one." + NL
+        + "Off: none is recorded.",
     P + "PlayerInteraction": "Record your claims",
     P + "PlayerInteraction_tooltip":
         "Your petitions, refusals and offices are recorded against the "
         "county's organizations." + NL
         + "Off: your asks still land - they are not recorded.",
     P + "Material": "Record stores",
+    # [C63] The earlier C105 words claimed performed shelving was connected.
+    # The current source-use result is the only implemented producer.
     P + "Material_tooltip":
-        "Real food and goods shelved on held ground are counted as the "
-        "house's store." + NL
-        + "Off: shelves still get stocked - nothing is counted.",
+        "After a survivor uses an item source on held ground, what remains "
+        "can count as house stores." + NL
+        + "Shelving is not connected yet." + NL
+        + "Off: nothing is counted.",
     P + "Communication": "Record what is told",
     P + "Communication_tooltip":
         "Grudges, credits and news passed between survivors are "

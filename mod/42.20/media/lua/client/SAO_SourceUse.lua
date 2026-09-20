@@ -246,6 +246,30 @@ local function queueTransfer(id, body, reservation)
         clearBinding(body)
         return false, "current-claim-refused"
     end
+    -- Provisioning attribution is captured at the same current-source bind
+    -- that authorizes the native transfer. Group membership alone is not
+    -- enough: the exact source must stand inside that group's held ground.
+    local contextOk, context, group, claimIncarnation = pcall(function()
+        if not (SAO.Standing and SAO.Standing.provisioningContextAt) then
+            return nil, nil
+        end
+        return SAO.Standing.provisioningContextAt(id,
+            reservation.currentSourceX, reservation.currentSourceY)
+    end)
+    if not contextOk or context == nil then
+        clearBinding(body)
+        return false, "provisioning-context-unavailable"
+    end
+    reservation.provisioningContext = tostring(context)
+    reservation.provisioningGroup = group and tostring(group) or nil
+    reservation.provisioningClaimIncarnation =
+        tonumber(claimIncarnation)
+    if reservation.provisioningContext == "held-group"
+        and (not reservation.provisioningClaimIncarnation
+            or reservation.provisioningClaimIncarnation <= 0) then
+        clearBinding(body)
+        return false, "provisioning-context-unavailable"
+    end
     local preObserved = false
     pcall(function()
         local text = SAOJavaBridge:observeWorldChunk(
@@ -401,6 +425,12 @@ local function finalize(id, body, reservation)
     end)
     local receipt = SAO.WorldSources.finishAction(reservation.id, id)
     if not receipt then return fail(id, body, reservation, "result-refused") end
+    -- R9 is a downstream consumer. Failure leaves this receipt unacknowledged
+    -- for the population cadence/reload retry; it never rewrites action truth.
+    if receipt.status == "completed" and SAO.Provisioning
+        and SAO.Provisioning.consumeCompleted then
+        pcall(SAO.Provisioning.consumeCompleted, 32)
+    end
     clearBinding(body)
     log(tostring(id) .. " source action " .. tostring(receipt.status)
         .. " (" .. tostring(receipt.preRevision) .. " -> "

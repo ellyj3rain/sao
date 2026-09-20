@@ -1893,6 +1893,13 @@ if ! "$PY" tools/source_use_test.py > /dev/null; then
     fail=1
 fi
 
+# [C63] Border 180 - provisioning consumes completed C62 results, reconciles
+# exact observed native stock and acknowledges only after durable projection.
+if ! "$PY" tools/provisioning_result_test.py; then
+    note "BORDER FINDING - completed provisioning projection or acknowledgement broken"
+    fail=1
+fi
+
 # [C56] Border 171 - durable health cadence and maintenance-drug freeze.
 if ! "$PY" tools/health_clock_test.py; then
     note "BORDER FINDING - durable health cadence broken"

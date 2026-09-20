@@ -1,0 +1,52 @@
+{
+  "captured_utc": "2026-09-20T21:22:27.3689670Z",
+  "version": "2.8.0.0-pre-alpha",
+  "observed_process_id": 120112,
+  "observed_window": "Project Zomboid",
+  "observed_responsive": true,
+  "process_left_open": true,
+  "active_java_mods": [
+    "PeekAView",
+    "Staircast",
+    "SurvivorAwareness",
+    "ZombieAwareness"
+  ],
+  "screenshot": ".git/c63-startup-20260920-2120.png",
+  "screenshot_sha256": "2D813CDF217C060303CEA8B7F5BC9C0AF7167A01BCDE3C7029026811F64FC65C",
+  "visual_observation": "Responsive Project Zomboid main screen; ZombieBuddy lists SurvivorAwareness and ZombieAwareness among four active Java mods.",
+  "agent_markers": {
+    "premain": true,
+    "iso_player_verified": true,
+    "melee_patch_calls": 3,
+    "loot_density_weave": true,
+    "main_loaded": true,
+    "bridge_exposed": true,
+    "bridge_transient_retry": "one early reflection attempt before Lua readiness; watchdog exposed SAOJavaBridge two seconds later"
+  },
+  "lua_markers": [
+    "[SAO][HARNESS] harness loaded",
+    "[SAO][POP] population module loaded",
+    "[SAO][SANDBOX] manual fields gated behind their switches"
+  ],
+  "sao_failure_lines": 0,
+  "installed_jar_sha256": "4160841299C724EA4BE125854CA8A660FDC7E763875446D0D367A0A7CE8025A2",
+  "save_files": 44092,
+  "save_bytes": 581453390,
+  "save_metadata_sha256": "E04A7DC0F0A9B6812AD2FB403CAE0973D9E193DC16AE4E6C217D57A668599D35",
+  "save_metadata_unchanged": true,
+  "companion_content_unchanged": true,
+  "companion_metadata_unchanged": true,
+  "captured_log_prefixes": {
+    ".git/c63-startup-stdout-prefix.txt": {
+      "bytes": 2434089,
+      "sha256": "9A75BBC9BC2AAF250CB160FA8F0F2824DD0CB2255275C8D5F2D99A80825A4AD8"
+    },
+    ".git/c63-startup-stderr-prefix.txt": {
+      "bytes": 640134,
+      "sha256": "B24F351D2A01C549EB383F5B9545E2C2B4D97DEEB92332C73D068797A3B36862"
+    }
+  },
+  "other_errors": "Existing workshop/engine noise remains outside SAO: fluid-name sanitation, Did I Have A Car translation formatting, TTO attachment parsing, NeatUI option translation and third-party model bone warnings.",
+  "world_loaded_by_agent": false,
+  "limits": "Startup evidence only. No save was loaded, so save-backed provisioning consumption and loaded-world behavior remain unobserved."
+}

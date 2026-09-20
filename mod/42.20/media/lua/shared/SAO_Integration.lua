@@ -66,7 +66,13 @@ end
 function Integration.ensure()
     if Integration.ready then return true end
     if SAO.GraphPersistence then
-        SAO.GraphPersistence.bind()
+        local bound = SAO.GraphPersistence.bind()
+        if bound ~= true then
+            clearRuntimeGraph()
+            Integration.installedExtensions = {}
+            Integration.ready = false
+            return false
+        end
     end
     clearRuntimeGraph()
     Integration.installedExtensions = {}
@@ -116,7 +122,8 @@ function Integration.ensure()
         return SAO.PlayerInteraction and SAO.PlayerInteraction.actions or {}
     end)
     SAO.Branching.registerSurface("material", function(id)
-        return SAO.Material and SAO.Material.storeOf(id) or nil
+        return SAO.Material and SAO.Material.storeForPerson
+            and SAO.Material.storeForPerson(id) or nil
     end)
     SAO.Branching.registerSurface("communication", function(id)
         return SAO.Communication and SAO.Communication.pendingFor(id) or {}
@@ -261,7 +268,8 @@ function Integration.apply(id, agent, tick, x, y)
         end
     end
     local material = (not options or options.Material ~= false)
-        and SAO.Material and SAO.Material.storeOf(id) or nil
+        and SAO.Material and SAO.Material.storeForPerson
+        and SAO.Material.storeForPerson(id) or nil
     local messages = (not options or options.Communication ~= false)
         and SAO.Communication and SAO.Communication.pendingFor(id) or {}
     local isolation = SAO.Isolation and SAO.Isolation.of(id) or nil

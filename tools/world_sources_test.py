@@ -348,7 +348,7 @@ PROBE_TEMPLATE = r'''(function()
   check("bounded_results", count(state.results) <= 2048
       and count(state.reservations) <= 2048
       and count(state.resultByActor) <= 2048)
-  check("schema", state.schema == 3)
+  check("schema", state.schema == 4)
   return table.concat(checks, "|")
 end)()'''
 

@@ -174,6 +174,11 @@ local function inhabitKnox() return SAO.PopulationRepresentation.inhabitKnox() e
 local function dormantLife(conf) return SAO.DormantPopulation.dormantLife(conf, tickCounter) end
 local function dormantAttrition() return SAO.DormantPopulation.dormantAttrition(tickCounter) end
 local function dormantSettle() return SAO.DormantPopulation.dormantSettle() end
+local function consumeProvisioningResults()
+    if SAO.Provisioning and SAO.Provisioning.consumeCompleted then
+        return SAO.Provisioning.consumeCompleted(32)
+    end
+end
 local function dormantProvision() return SAO.DormantPopulation.dormantProvision() end
 local function dormantEncounters() return SAO.DormantPopulation.dormantEncounters(tickCounter) end
 
@@ -542,6 +547,7 @@ local function dormantCountyPass(conf)
     runSub("attrition", dormantAttrition)
     runSub("drift", function() SAO.Standing.driftStandings() end)
     runSub("settle", dormantSettle)
+    runSub("provision-results", consumeProvisioningResults)
     runSub("provision", dormantProvision)
     runSub("encounters", dormantEncounters)
     runSub("digest", dailyCounty)
