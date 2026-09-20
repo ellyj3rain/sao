@@ -1,6 +1,6 @@
 | Document | Survivor Awareness Overhaul Dependency Substrate |
 |---|---|
-| Version | `2.7.14.7-pre-alpha` |
+| Version | `2.7.14.8-pre-alpha` |
 | Author | ellyj3rain |
 | Repository | `SUBSTRATE.md` |
 | Status | CANONICAL - what exists, what is planned, and what each area of concern needs. |
@@ -226,6 +226,14 @@ orders, each failing phase, attempted source mutation after capture,
 interruption/reload, repeat notifications, exactly one active controller,
 conservation of actual possessions and every native/global save-generation
 pairing. Optional ZAO absence preserves SAO's normal lifecycle.
+
+C57 assigns native-envelope versioning, capture, validation and durable commit
+to `SAO_BodySnapshot`. Body retains lifecycle and ownership transactions;
+AfflictedReturn retains source removal and adoption. Pending Crossed transfers
+validate their supplied payloads and required envelope fields before publishing
+ownership. Historical envelopes may omit visual sidecars; current v4 appearance
+is native. The shared native suite retains the original probe assertions and
+all historical defect controls across Borders 163, 169 and 174.
 
 ### R2-R4: time, complete person state and reconstruction (closed C53-C55/A36)
 

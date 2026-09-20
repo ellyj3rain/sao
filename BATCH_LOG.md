@@ -1,6 +1,6 @@
 | Document | Survivor Awareness Overhaul Batch Log |
 |---|---|
-| Version | `2.7.14.7-pre-alpha` |
+| Version | `2.7.14.8-pre-alpha` |
 | Author | ellyj3rain |
 | Repository | `BATCH_LOG.md` |
 | Status | REGULATORY - chronological batch index. |
@@ -163,3 +163,4 @@ source mapping and hashes. Consolidation does not close implementation defects.
 | [C54](Batches/C54-2026-09-19-native-person-continuity.md) | 2026-09-19 | Native person continuity | [`T-006`](Batches/THREADS.md#t-006), [`T-007`](Batches/THREADS.md#t-007), [`T-008`](Batches/THREADS.md#t-008) |
 | [C55](Batches/C55-2026-09-19-durable-runtime-reconstruction.md) | 2026-09-19 | Durable/runtime reconstruction | [`T-006`](Batches/THREADS.md#t-006), [`T-007`](Batches/THREADS.md#t-007), [`T-008`](Batches/THREADS.md#t-008) |
 | [C56](Batches/C56-2026-09-19-health-and-dormant-physiology.md) | 2026-09-19 | Health and dormant physiology | [`T-002`](Batches/THREADS.md#t-002), [`T-006`](Batches/THREADS.md#t-006), [`T-007`](Batches/THREADS.md#t-007), [`T-008`](Batches/THREADS.md#t-008) |
+| [C57](Batches/C57-2026-09-20-person-continuity-contract.md) | 2026-09-20 | Person continuity contract | [`T-006`](Batches/THREADS.md#t-006), [`T-007`](Batches/THREADS.md#t-007), [`T-008`](Batches/THREADS.md#t-008) |

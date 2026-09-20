@@ -1,0 +1,2389 @@
+{
+  "schema": "sao-runtime-review-inventory/1",
+  "scope": "Lua under mod/42.20/media/lua and Java under java/src",
+  "source_files": 100,
+  "lua_files": 68,
+  "java_files": 32,
+  "review_contracts": {
+    "person_continuity": {
+      "lua": "Identity Body AfflictedReturn CrossedTransfer Age Appearance Binding",
+      "java": "SAOIsoPlayerShell SAONativeSnapshot SAOHibernation SAOReturnBody SAODurableText SAOBodyScale SAOBodyScaleWeave"
+    },
+    "time_population_world": {
+      "lua": "History Record Population Census World WorldGenesis Places PlaceAttachment WorldDevelopment",
+      "java": "SAORecord SAOWorldCensus SAOGround"
+    },
+    "perception_knowledge": {
+      "lua": "Perception Knowledge Claims Lessons",
+      "java": "SAOPerceptionScanner"
+    },
+    "disposition_health": {
+      "lua": "Disposition Conditions Traits Habits Drugs Course Neuro PathogenPressure",
+      "java": ""
+    },
+    "standing_relationships": {
+      "lua": "Standing Command Recognition Organization Settlement Isolation",
+      "java": "SAOSettlement"
+    },
+    "decision_and_life_producers": {
+      "lua": "Integration Branching Pressure Labor Adaptation Material",
+      "java": ""
+    },
+    "action_execution": {
+      "lua": "Controller Needs Locomotion Driving Animals Medical Gesture Nuke",
+      "java": "SAOMovement SAORouteState SAOCombat SAOCombatGate SAONeeds SAOEquipment SAOBuild SAOFence SAODriver SAODriveState SAODriveLaw SAOCrossedDriver SAOAnimals SAOZombieDirector"
+    },
+    "communication_presentation": {
+      "lua": "Exchange Communication PlayerInteraction Voice Radio RadioEar Harness UI Inspect MedicalWindow Telemetry",
+      "java": ""
+    },
+    "compatibility": {
+      "lua": "Absorb Neighbours PathogenEvents",
+      "java": "SAOKnox"
+    },
+    "runtime_bootstrap": {
+      "lua": "Hash Rand Log Seams Sandbox GraphPersistence",
+      "java": "Main SAOAgent SAOMeleeTransformer SAOBridge SAOBridgeBootstrap"
+    }
+  },
+  "limits": "Review groupings are not a new package layout or proof of sole ownership. Lua references omit comments and strings but do not resolve dynamic dispatch; Java references may include comments and strings. Neither graph proves execution or coverage. File lengths include comments. Shipping metadata, translations and jars are separate assembly inputs.",
+  "entries": [
+    {
+      "path": "java/src/com/sao/agent/SAOAgent.java",
+      "sha256": "555d871bc0215100c51d9eeec4d4b2c07e1b670e6d81e72ee7d59a04cb23a594",
+      "lines_including_comments": 55,
+      "review_contract": "runtime_bootstrap",
+      "lexical_dependencies": [
+        "java/src/com/sao/agent/SAOBodyScaleWeave.java",
+        "java/src/com/sao/agent/SAOMeleeTransformer.java",
+        "java/src/com/sao/bridge/SAOBridgeBootstrap.java"
+      ],
+      "direct_event_registration_names": [],
+      "gate_scripts_naming_file": [
+        "tools/body_scale_test.py",
+        "tools/durable_text_test.py"
+      ]
+    },
+    {
+      "path": "java/src/com/sao/agent/SAOBodyScale.java",
+      "sha256": "46af1e2d4dbc4e02f43c8588661fc546472d4588bd60f95c70d51e979369a264",
+      "lines_including_comments": 114,
+      "review_contract": "person_continuity",
+      "lexical_dependencies": [
+        "java/src/com/sao/agent/SAOBodyScaleWeave.java",
+        "java/src/com/sao/engine/SAOIsoPlayerShell.java"
+      ],
+      "direct_event_registration_names": [],
+      "gate_scripts_naming_file": [
+        "tools/body_scale_test.py"
+      ]
+    },
+    {
+      "path": "java/src/com/sao/agent/SAOBodyScaleWeave.java",
+      "sha256": "f1710885758b83834c3323f198982c1c39f8470df3c1b70da482c90befb9a813",
+      "lines_including_comments": 124,
+      "review_contract": "person_continuity",
+      "lexical_dependencies": [
+        "java/src/com/sao/Main.java",
+        "java/src/com/sao/agent/SAOAgent.java",
+        "java/src/com/sao/agent/SAOBodyScale.java"
+      ],
+      "direct_event_registration_names": [],
+      "gate_scripts_naming_file": [
+        "tools/body_scale_test.py"
+      ]
+    },
+    {
+      "path": "java/src/com/sao/agent/SAOCombatGate.java",
+      "sha256": "1a47aef46f79d8bbf26b24174cc86f03253f286d2d5491aaac01cf9b0bc6b9c1",
+      "lines_including_comments": 38,
+      "review_contract": "action_execution",
+      "lexical_dependencies": [
+        "java/src/com/sao/agent/SAOMeleeTransformer.java",
+        "java/src/com/sao/engine/SAOIsoPlayerShell.java"
+      ],
+      "direct_event_registration_names": [],
+      "gate_scripts_naming_file": []
+    },
+    {
+      "path": "java/src/com/sao/agent/SAOMeleeTransformer.java",
+      "sha256": "9f3bef731859269a11d85754fe1a10ee66b6aeb94ec1fb4ff53373312aec3a63",
+      "lines_including_comments": 292,
+      "review_contract": "runtime_bootstrap",
+      "lexical_dependencies": [
+        "java/src/com/sao/agent/SAOAgent.java",
+        "java/src/com/sao/agent/SAOCombatGate.java",
+        "java/src/com/sao/engine/SAOIsoPlayerShell.java"
+      ],
+      "direct_event_registration_names": [],
+      "gate_scripts_naming_file": [
+        "tools/combat_patch_test.py"
+      ]
+    },
+    {
+      "path": "java/src/com/sao/bridge/SAOBridge.java",
+      "sha256": "ba851f76cdbac2ff46f334fed18fc7453537081b69bb811ccfa25bf03c71599e",
+      "lines_including_comments": 3142,
+      "review_contract": "runtime_bootstrap",
+      "lexical_dependencies": [
+        "java/src/com/sao/agent/SAOAgent.java",
+        "java/src/com/sao/agent/SAOBodyScale.java",
+        "java/src/com/sao/agent/SAOBodyScaleWeave.java",
+        "java/src/com/sao/agent/SAOCombatGate.java",
+        "java/src/com/sao/engine/SAOAnimals.java",
+        "java/src/com/sao/engine/SAOBuild.java",
+        "java/src/com/sao/engine/SAOCombat.java",
+        "java/src/com/sao/engine/SAOCrossedDriver.java",
+        "java/src/com/sao/engine/SAODriveState.java",
+        "java/src/com/sao/engine/SAODriver.java",
+        "java/src/com/sao/engine/SAODurableText.java",
+        "java/src/com/sao/engine/SAOEquipment.java",
+        "java/src/com/sao/engine/SAOFence.java",
+        "java/src/com/sao/engine/SAOGround.java",
+        "java/src/com/sao/engine/SAOHibernation.java",
+        "java/src/com/sao/engine/SAOIsoPlayerShell.java",
+        "java/src/com/sao/engine/SAOKnox.java",
+        "java/src/com/sao/engine/SAOMovement.java",
+        "java/src/com/sao/engine/SAONativeSnapshot.java",
+        "java/src/com/sao/engine/SAONeeds.java",
+        "java/src/com/sao/engine/SAOPerceptionScanner.java",
+        "java/src/com/sao/engine/SAORecord.java",
+        "java/src/com/sao/engine/SAOReturnBody.java",
+        "java/src/com/sao/engine/SAORouteState.java",
+        "java/src/com/sao/engine/SAOSettlement.java",
+        "java/src/com/sao/engine/SAOWorldCensus.java",
+        "java/src/com/sao/engine/SAOZombieDirector.java"
+      ],
+      "direct_event_registration_names": [],
+      "gate_scripts_naming_file": [
+        "tools/absorb_test.py",
+        "tools/animal_care_ground_test.py",
+        "tools/animal_ground_test.py",
+        "tools/bite_clock_test.py",
+        "tools/body_scale_test.py",
+        "tools/bridge_safety_test.py",
+        "tools/childs_day_test.py",
+        "tools/click_lands_test.py",
+        "tools/combat_perception_test.py",
+        "tools/conditions_test.py",
+        "tools/crowd_ledger_test.py",
+        "tools/day_zero_owes_test.py",
+        "tools/dead_census_test.py",
+        "tools/durable_text_test.py",
+        "tools/era_test.py",
+        "tools/foreign_test.py",
+        "tools/ground_survey_test.py",
+        "tools/habits_test.py",
+        "tools/inference_budget_test.py",
+        "tools/invariant_sweep.py",
+        "tools/name_pipeline_test.py",
+        "tools/named_at_genesis_test.py",
+        "tools/person_continuity_test.py",
+        "tools/player_looting_test.py",
+        "tools/pool_identity_test.py",
+        "tools/promise_body_test.py",
+        "tools/protocol_arity.py",
+        "tools/protocol_field_test.py",
+        "tools/record_calendar_test.py",
+        "tools/they_build_test.py",
+        "tools/turn_real_test.py",
+        "tools/version_stamp_test.py",
+        "tools/years_between_test.py"
+      ]
+    },
+    {
+      "path": "java/src/com/sao/bridge/SAOBridgeBootstrap.java",
+      "sha256": "6068db304f84bf48aea2a7f97de924a4bb17159825ff0c377bff45ad69d5b8ed",
+      "lines_including_comments": 124,
+      "review_contract": "runtime_bootstrap",
+      "lexical_dependencies": [
+        "java/src/com/sao/agent/SAOAgent.java",
+        "java/src/com/sao/bridge/SAOBridge.java"
+      ],
+      "direct_event_registration_names": [],
+      "gate_scripts_naming_file": []
+    },
+    {
+      "path": "java/src/com/sao/engine/SAOAnimals.java",
+      "sha256": "b8cab0148d289fd871d3d280572e45e19a379873cc93f7fb67778aaa3ac65ae9",
+      "lines_including_comments": 240,
+      "review_contract": "action_execution",
+      "lexical_dependencies": [
+        "java/src/com/sao/engine/SAONeeds.java"
+      ],
+      "direct_event_registration_names": [],
+      "gate_scripts_naming_file": [
+        "tools/animal_care_ground_test.py",
+        "tools/protocol_field_test.py"
+      ]
+    },
+    {
+      "path": "java/src/com/sao/engine/SAOBuild.java",
+      "sha256": "7db143ef7ce566c27332916bd7fcfa562543b12d25a2a06c3d16b4ed6d932376",
+      "lines_including_comments": 239,
+      "review_contract": "action_execution",
+      "lexical_dependencies": [],
+      "direct_event_registration_names": [],
+      "gate_scripts_naming_file": [
+        "tools/they_build_test.py",
+        "tools/ways_in_test.py"
+      ]
+    },
+    {
+      "path": "java/src/com/sao/engine/SAOCombat.java",
+      "sha256": "9d1b9dbd9e6f0069c22d25099f5b7f9f4f5e85ba226551ced6b39d0f23ae87e4",
+      "lines_including_comments": 380,
+      "review_contract": "action_execution",
+      "lexical_dependencies": [
+        "java/src/com/sao/agent/SAOAgent.java",
+        "java/src/com/sao/agent/SAOCombatGate.java",
+        "java/src/com/sao/engine/SAOIsoPlayerShell.java",
+        "java/src/com/sao/engine/SAOMovement.java",
+        "java/src/com/sao/engine/SAOPerceptionScanner.java"
+      ],
+      "direct_event_registration_names": [],
+      "gate_scripts_naming_file": [
+        "tools/combat_perception_test.py"
+      ]
+    },
+    {
+      "path": "java/src/com/sao/engine/SAOCrossedDriver.java",
+      "sha256": "7ddcf5588a6f7f5fa908c3fe3676a5826b78539979a0abf1778ea25035445330",
+      "lines_including_comments": 274,
+      "review_contract": "action_execution",
+      "lexical_dependencies": [
+        "java/src/com/sao/agent/SAOAgent.java",
+        "java/src/com/sao/engine/SAODriveLaw.java",
+        "java/src/com/sao/engine/SAODriveState.java",
+        "java/src/com/sao/engine/SAODriver.java",
+        "java/src/com/sao/engine/SAOMovement.java"
+      ],
+      "direct_event_registration_names": [],
+      "gate_scripts_naming_file": []
+    },
+    {
+      "path": "java/src/com/sao/engine/SAODriveLaw.java",
+      "sha256": "74ad13706f0c0a4bc8e93ced4b97ea5fe520ff9776b5b65b0245436185ea8ae8",
+      "lines_including_comments": 192,
+      "review_contract": "action_execution",
+      "lexical_dependencies": [
+        "java/src/com/sao/agent/SAOAgent.java",
+        "java/src/com/sao/engine/SAODriveState.java",
+        "java/src/com/sao/engine/SAONeeds.java"
+      ],
+      "direct_event_registration_names": [],
+      "gate_scripts_naming_file": []
+    },
+    {
+      "path": "java/src/com/sao/engine/SAODriver.java",
+      "sha256": "5e1c671642ad9e5e5d87d374d7dee2678ac1ed2b781da4ebdd74e94d4a7145be",
+      "lines_including_comments": 509,
+      "review_contract": "action_execution",
+      "lexical_dependencies": [
+        "java/src/com/sao/agent/SAOAgent.java",
+        "java/src/com/sao/engine/SAODriveLaw.java",
+        "java/src/com/sao/engine/SAODriveState.java",
+        "java/src/com/sao/engine/SAOIsoPlayerShell.java",
+        "java/src/com/sao/engine/SAOMovement.java",
+        "java/src/com/sao/engine/SAONeeds.java",
+        "java/src/com/sao/engine/SAORouteState.java"
+      ],
+      "direct_event_registration_names": [],
+      "gate_scripts_naming_file": [
+        "tools/vehicle_ground_test.py"
+      ]
+    },
+    {
+      "path": "java/src/com/sao/engine/SAODriveState.java",
+      "sha256": "7b50f92589443526f6945a6aa5b1a4dc5220b064e7214c56ecafc96e15825bd6",
+      "lines_including_comments": 36,
+      "review_contract": "action_execution",
+      "lexical_dependencies": [
+        "java/src/com/sao/engine/SAODriver.java",
+        "java/src/com/sao/engine/SAOMovement.java",
+        "java/src/com/sao/engine/SAORouteState.java"
+      ],
+      "direct_event_registration_names": [],
+      "gate_scripts_naming_file": []
+    },
+    {
+      "path": "java/src/com/sao/engine/SAODurableText.java",
+      "sha256": "fa5e89d9123af855b25dd7772b35d6c0b56275feb15eab6ad70717a6869aebc9",
+      "lines_including_comments": 108,
+      "review_contract": "person_continuity",
+      "lexical_dependencies": [],
+      "direct_event_registration_names": [],
+      "gate_scripts_naming_file": [
+        "tools/durable_text_test.py"
+      ]
+    },
+    {
+      "path": "java/src/com/sao/engine/SAOEquipment.java",
+      "sha256": "9cc5bc0792c2806cee3591ce7790928063c28d3e1ceb2ab77fada3da3dd927c9",
+      "lines_including_comments": 99,
+      "review_contract": "action_execution",
+      "lexical_dependencies": [
+        "java/src/com/sao/engine/SAOCombat.java"
+      ],
+      "direct_event_registration_names": [],
+      "gate_scripts_naming_file": [
+        "tools/combat_perception_test.py"
+      ]
+    },
+    {
+      "path": "java/src/com/sao/engine/SAOFence.java",
+      "sha256": "6b01cd1628c718389e72a62e6b7b3a9636e480cc8ff6b14546aba621eb4d44e6",
+      "lines_including_comments": 150,
+      "review_contract": "action_execution",
+      "lexical_dependencies": [],
+      "direct_event_registration_names": [],
+      "gate_scripts_naming_file": [
+        "tools/fence_test.py",
+        "tools/vacuous_pass_test.py"
+      ]
+    },
+    {
+      "path": "java/src/com/sao/engine/SAOGround.java",
+      "sha256": "185975bc264ce44a41dcf9d283bd3c96562422e100fd2b66b8490cd4127d1f18",
+      "lines_including_comments": 199,
+      "review_contract": "time_population_world",
+      "lexical_dependencies": [],
+      "direct_event_registration_names": [],
+      "gate_scripts_naming_file": [
+        "tools/ground_survey_test.py"
+      ]
+    },
+    {
+      "path": "java/src/com/sao/engine/SAOHibernation.java",
+      "sha256": "d25fe83342f57fd0b9f35da24681215dad981e9364716a47592357deaddf09b7",
+      "lines_including_comments": 405,
+      "review_contract": "person_continuity",
+      "lexical_dependencies": [
+        "java/src/com/sao/engine/SAONativeSnapshot.java"
+      ],
+      "direct_event_registration_names": [],
+      "gate_scripts_naming_file": [
+        "tools/dormant_physiology_test.py",
+        "tools/durable_text_test.py",
+        "tools/hibernation_pact_test.py",
+        "tools/person_continuity_test.py",
+        "tools/person_snapshot_test.py",
+        "tools/vacuous_pass_test.py"
+      ]
+    },
+    {
+      "path": "java/src/com/sao/engine/SAOIsoPlayerShell.java",
+      "sha256": "baaf7b87ae5aa6a395911075f7850c4ae24ad9e07954e49a1a8b875723db7ca7",
+      "lines_including_comments": 105,
+      "review_contract": "person_continuity",
+      "lexical_dependencies": [
+        "java/src/com/sao/agent/SAOAgent.java",
+        "java/src/com/sao/agent/SAOBodyScale.java",
+        "java/src/com/sao/bridge/SAOBridge.java"
+      ],
+      "direct_event_registration_names": [],
+      "gate_scripts_naming_file": [
+        "tools/body_scale_test.py",
+        "tools/childs_day_test.py",
+        "tools/durable_text_test.py",
+        "tools/return_body_test.py"
+      ]
+    },
+    {
+      "path": "java/src/com/sao/engine/SAOKnox.java",
+      "sha256": "1d335c4b5900daa227fa394477da24d75f7c2cf8a16e1c49e98f490a3532fa05",
+      "lines_including_comments": 115,
+      "review_contract": "compatibility",
+      "lexical_dependencies": [],
+      "direct_event_registration_names": [],
+      "gate_scripts_naming_file": [
+        "tools/pool_identity_test.py",
+        "tools/self_contained_test.py"
+      ]
+    },
+    {
+      "path": "java/src/com/sao/engine/SAOMovement.java",
+      "sha256": "25b0bc4802c0a61b76340800227348369345459789765e69f9bf5efef272844a",
+      "lines_including_comments": 488,
+      "review_contract": "action_execution",
+      "lexical_dependencies": [
+        "java/src/com/sao/agent/SAOAgent.java",
+        "java/src/com/sao/engine/SAOIsoPlayerShell.java",
+        "java/src/com/sao/engine/SAORouteState.java"
+      ],
+      "direct_event_registration_names": [],
+      "gate_scripts_naming_file": [
+        "tools/seat_and_crossing_test.py"
+      ]
+    },
+    {
+      "path": "java/src/com/sao/engine/SAONativeSnapshot.java",
+      "sha256": "249767f233cbd8dd0d259882070c80cb657a192342893954ab67136be20ac829",
+      "lines_including_comments": 1209,
+      "review_contract": "person_continuity",
+      "lexical_dependencies": [],
+      "direct_event_registration_names": [],
+      "gate_scripts_naming_file": [
+        "tools/dormant_physiology_test.py",
+        "tools/durable_text_test.py",
+        "tools/hibernation_pact_test.py",
+        "tools/person_continuity_test.py",
+        "tools/person_snapshot_test.py",
+        "tools/return_body_test.py"
+      ]
+    },
+    {
+      "path": "java/src/com/sao/engine/SAONeeds.java",
+      "sha256": "5ab81b04638ef1c56d5a6cddad1d9cdcea2086695a2e1c60b02dd57766c323f5",
+      "lines_including_comments": 2721,
+      "review_contract": "action_execution",
+      "lexical_dependencies": [
+        "java/src/com/sao/agent/SAOAgent.java",
+        "java/src/com/sao/engine/SAOCombat.java",
+        "java/src/com/sao/engine/SAODriver.java",
+        "java/src/com/sao/engine/SAOEquipment.java"
+      ],
+      "direct_event_registration_names": [],
+      "gate_scripts_naming_file": [
+        "tools/habits_test.py",
+        "tools/invariant_sweep.py",
+        "tools/player_looting_test.py",
+        "tools/protocol_field_test.py",
+        "tools/seat_and_crossing_test.py",
+        "tools/turn_real_test.py",
+        "tools/vehicle_ground_test.py"
+      ]
+    },
+    {
+      "path": "java/src/com/sao/engine/SAOPerceptionScanner.java",
+      "sha256": "ec838d8385be2e323cc21ff34f90b73c1e1d4e9f9b38906905ab70d78a7c269f",
+      "lines_including_comments": 484,
+      "review_contract": "perception_knowledge",
+      "lexical_dependencies": [
+        "java/src/com/sao/engine/SAOIsoPlayerShell.java",
+        "java/src/com/sao/engine/SAOKnox.java",
+        "java/src/com/sao/engine/SAONeeds.java"
+      ],
+      "direct_event_registration_names": [],
+      "gate_scripts_naming_file": [
+        "tools/animal_ground_test.py",
+        "tools/combat_perception_test.py",
+        "tools/foreign_test.py",
+        "tools/protocol_field_test.py",
+        "tools/turn_real_test.py"
+      ]
+    },
+    {
+      "path": "java/src/com/sao/engine/SAORecord.java",
+      "sha256": "f8204054ad478f8374b6e2a225dbe322fe106fa83096ad989d3a3e5335eb5a21",
+      "lines_including_comments": 493,
+      "review_contract": "time_population_world",
+      "lexical_dependencies": [
+        "java/src/com/sao/agent/SAOAgent.java"
+      ],
+      "direct_event_registration_names": [],
+      "gate_scripts_naming_file": [
+        "tools/day_zero_owes_test.py",
+        "tools/era_test.py",
+        "tools/record_calendar_test.py",
+        "tools/years_between_test.py"
+      ]
+    },
+    {
+      "path": "java/src/com/sao/engine/SAOReturnBody.java",
+      "sha256": "6e6f62d93c8d717f3d150a5da992f2341df2ceb1aed43a866aad33ee6055c40d",
+      "lines_including_comments": 272,
+      "review_contract": "person_continuity",
+      "lexical_dependencies": [
+        "java/src/com/sao/agent/SAOAgent.java",
+        "java/src/com/sao/engine/SAOIsoPlayerShell.java",
+        "java/src/com/sao/engine/SAONativeSnapshot.java"
+      ],
+      "direct_event_registration_names": [],
+      "gate_scripts_naming_file": [
+        "tools/pool_identity_test.py",
+        "tools/return_body_test.py"
+      ]
+    },
+    {
+      "path": "java/src/com/sao/engine/SAORouteState.java",
+      "sha256": "ac5e4b1cc5069c28d688a5cdf0b9d9483919d7ff6e8f350af567792cab8d0867",
+      "lines_including_comments": 65,
+      "review_contract": "action_execution",
+      "lexical_dependencies": [],
+      "direct_event_registration_names": [],
+      "gate_scripts_naming_file": []
+    },
+    {
+      "path": "java/src/com/sao/engine/SAOSettlement.java",
+      "sha256": "26ea65de141accd6fb5f5811b53791fc673b22d9670d96cade5f0a1fb12020ed",
+      "lines_including_comments": 181,
+      "review_contract": "standing_relationships",
+      "lexical_dependencies": [],
+      "direct_event_registration_names": [],
+      "gate_scripts_naming_file": [
+        "tools/ways_in_test.py"
+      ]
+    },
+    {
+      "path": "java/src/com/sao/engine/SAOWorldCensus.java",
+      "sha256": "c95b91d7e530396a1627936e57d4df0cd2305de6c6d9bcd2978a3d95a08c6f7f",
+      "lines_including_comments": 123,
+      "review_contract": "time_population_world",
+      "lexical_dependencies": [
+        "java/src/com/sao/agent/SAOAgent.java"
+      ],
+      "direct_event_registration_names": [],
+      "gate_scripts_naming_file": [
+        "tools/protocol_field_test.py"
+      ]
+    },
+    {
+      "path": "java/src/com/sao/engine/SAOZombieDirector.java",
+      "sha256": "bfde951c0e93c799b13257e296ec7498ad7e24bacc529a0565ac99a1c0afffe5",
+      "lines_including_comments": 171,
+      "review_contract": "action_execution",
+      "lexical_dependencies": [
+        "java/src/com/sao/agent/SAOAgent.java",
+        "java/src/com/sao/engine/SAOIsoPlayerShell.java",
+        "java/src/com/sao/engine/SAOKnox.java"
+      ],
+      "direct_event_registration_names": [],
+      "gate_scripts_naming_file": [
+        "tools/combat_perception_test.py"
+      ]
+    },
+    {
+      "path": "java/src/com/sao/Main.java",
+      "sha256": "bb622ea6cef50bdedf842175f1bda239c84a81a6359f285fcd2225884649dd88",
+      "lines_including_comments": 95,
+      "review_contract": "runtime_bootstrap",
+      "lexical_dependencies": [
+        "java/src/com/sao/agent/SAOAgent.java",
+        "java/src/com/sao/agent/SAOBodyScaleWeave.java",
+        "java/src/com/sao/agent/SAOCombatGate.java",
+        "java/src/com/sao/agent/SAOMeleeTransformer.java",
+        "java/src/com/sao/bridge/SAOBridgeBootstrap.java"
+      ],
+      "direct_event_registration_names": [],
+      "gate_scripts_naming_file": []
+    },
+    {
+      "path": "mod/42.20/media/lua/client/SAO_Absorb.lua",
+      "sha256": "f59f84f6a3079c0702e80932014e4fbbc33d26b73a7821fd108a6ae2fcf88312",
+      "lines_including_comments": 382,
+      "review_contract": "compatibility",
+      "lexical_dependencies": [
+        "mod/42.20/media/lua/shared/SAO_Claims.lua",
+        "mod/42.20/media/lua/shared/SAO_History.lua",
+        "mod/42.20/media/lua/shared/SAO_Identity.lua",
+        "mod/42.20/media/lua/shared/SAO_Log.lua",
+        "mod/42.20/media/lua/shared/SAO_Seams.lua",
+        "mod/42.20/media/lua/shared/SAO_Standing.lua"
+      ],
+      "direct_event_registration_names": [
+        "EveryTenMinutes",
+        "OnGameStart"
+      ],
+      "gate_scripts_naming_file": [
+        "tools/absorb_test.py",
+        "tools/foreign_claim_test.py",
+        "tools/option_reach_test.py",
+        "tools/self_contained_test.py",
+        "tools/they_build_test.py"
+      ]
+    },
+    {
+      "path": "mod/42.20/media/lua/client/SAO_AfflictedReturn.lua",
+      "sha256": "230aa79c3a3bece5c9e076555ed7d4b30d92f4aeaf895e0b6c9c2124ebf866ad",
+      "lines_including_comments": 318,
+      "review_contract": "person_continuity",
+      "lexical_dependencies": [
+        "mod/42.20/media/lua/client/SAO_Body.lua",
+        "mod/42.20/media/lua/client/SAO_Controller.lua",
+        "mod/42.20/media/lua/client/SAO_Population.lua",
+        "mod/42.20/media/lua/shared/SAO_History.lua",
+        "mod/42.20/media/lua/shared/SAO_Identity.lua",
+        "mod/42.20/media/lua/shared/SAO_Log.lua"
+      ],
+      "direct_event_registration_names": [
+        "OnGameStart"
+      ],
+      "gate_scripts_naming_file": [
+        "tools/afflicted_return_test.py",
+        "tools/forget_on_death_test.py",
+        "tools/person_continuity_test.py",
+        "tools/person_handoff_test.py"
+      ]
+    },
+    {
+      "path": "mod/42.20/media/lua/client/SAO_Age.lua",
+      "sha256": "46011a2608d12737d3eb2108c8d2e41e94e85b1b4760fc4e76a76e29be0a4498",
+      "lines_including_comments": 473,
+      "review_contract": "person_continuity",
+      "lexical_dependencies": [
+        "mod/42.20/media/lua/client/SAO_Body.lua",
+        "mod/42.20/media/lua/client/SAO_Controller.lua",
+        "mod/42.20/media/lua/client/SAO_Voice.lua",
+        "mod/42.20/media/lua/shared/SAO_Conditions.lua",
+        "mod/42.20/media/lua/shared/SAO_Disposition.lua",
+        "mod/42.20/media/lua/shared/SAO_Habits.lua",
+        "mod/42.20/media/lua/shared/SAO_Hash.lua",
+        "mod/42.20/media/lua/shared/SAO_History.lua",
+        "mod/42.20/media/lua/shared/SAO_Identity.lua",
+        "mod/42.20/media/lua/shared/SAO_Log.lua",
+        "mod/42.20/media/lua/shared/SAO_Perception.lua",
+        "mod/42.20/media/lua/shared/SAO_Places.lua",
+        "mod/42.20/media/lua/shared/SAO_Standing.lua"
+      ],
+      "direct_event_registration_names": [
+        "EveryTenMinutes"
+      ],
+      "gate_scripts_naming_file": [
+        "tools/age_bands_test.py",
+        "tools/belief_payload_test.py",
+        "tools/childs_day_test.py",
+        "tools/company_pull_test.py",
+        "tools/conditions_test.py",
+        "tools/dormant_infection_test.py",
+        "tools/habit_traits_test.py",
+        "tools/habits_test.py",
+        "tools/person_belief_test.py",
+        "tools/person_handoff_test.py",
+        "tools/player_looting_test.py",
+        "tools/seek_test.py",
+        "tools/settle_test.py",
+        "tools/tick_law_test.py",
+        "tools/traits_test.py",
+        "tools/walk_rate_test.py",
+        "tools/years_progress_test.py"
+      ]
+    },
+    {
+      "path": "mod/42.20/media/lua/client/SAO_Animals.lua",
+      "sha256": "dd4260914852c1e0cd50915c7b7b3903578f5e72027dfc8287de8c11fd7d3e05",
+      "lines_including_comments": 220,
+      "review_contract": "action_execution",
+      "lexical_dependencies": [
+        "mod/42.20/media/lua/shared/SAO_Log.lua"
+      ],
+      "direct_event_registration_names": [],
+      "gate_scripts_naming_file": [
+        "tools/animal_care_ground_test.py"
+      ]
+    },
+    {
+      "path": "mod/42.20/media/lua/client/SAO_Appearance.lua",
+      "sha256": "a86cc6ebb7951217081a6595e5a8a2d500cf22bf6d1c3214d05c5668289d78a9",
+      "lines_including_comments": 179,
+      "review_contract": "person_continuity",
+      "lexical_dependencies": [
+        "mod/42.20/media/lua/shared/SAO_Hash.lua",
+        "mod/42.20/media/lua/shared/SAO_History.lua",
+        "mod/42.20/media/lua/shared/SAO_Log.lua"
+      ],
+      "direct_event_registration_names": [],
+      "gate_scripts_naming_file": [
+        "tools/appearance_test.py",
+        "tools/childs_day_test.py"
+      ]
+    },
+    {
+      "path": "mod/42.20/media/lua/client/SAO_Body.lua",
+      "sha256": "c6efd25df84f92fdf2e7f39ff822fa215423af95187eb9e675151df1e8d8ad11",
+      "lines_including_comments": 907,
+      "review_contract": "person_continuity",
+      "lexical_dependencies": [
+        "mod/42.20/media/lua/client/SAO_AfflictedReturn.lua",
+        "mod/42.20/media/lua/client/SAO_Controller.lua",
+        "mod/42.20/media/lua/client/SAO_Population.lua",
+        "mod/42.20/media/lua/shared/NPCs/SAO_Traits.lua",
+        "mod/42.20/media/lua/shared/SAO_Census.lua",
+        "mod/42.20/media/lua/shared/SAO_Conditions.lua",
+        "mod/42.20/media/lua/shared/SAO_History.lua",
+        "mod/42.20/media/lua/shared/SAO_Identity.lua",
+        "mod/42.20/media/lua/shared/SAO_Log.lua",
+        "mod/42.20/media/lua/shared/SAO_PathogenEvents.lua",
+        "mod/42.20/media/lua/shared/SAO_Standing.lua"
+      ],
+      "direct_event_registration_names": [
+        "OnSave"
+      ],
+      "gate_scripts_naming_file": [
+        "tools/afflicted_return_test.py",
+        "tools/age_bands_test.py",
+        "tools/body_scale_test.py",
+        "tools/childs_day_test.py",
+        "tools/click_lands_test.py",
+        "tools/conditions_test.py",
+        "tools/forget_on_death_test.py",
+        "tools/habit_traits_test.py",
+        "tools/name_pipeline_test.py",
+        "tools/named_at_genesis_test.py",
+        "tools/person_checkpoint_test.py",
+        "tools/person_continuity_test.py",
+        "tools/person_handoff_test.py",
+        "tools/person_snapshot_test.py",
+        "tools/registry_surface_test.py",
+        "tools/traits_test.py",
+        "tools/turn_real_test.py"
+      ]
+    },
+    {
+      "path": "mod/42.20/media/lua/client/SAO_Controller.lua",
+      "sha256": "bcfaff00fa92cafbdd308b55f41a69c62f637c1aae4cfe256b594b96a93ab3d8",
+      "lines_including_comments": 7242,
+      "review_contract": "action_execution",
+      "lexical_dependencies": [
+        "mod/42.20/media/lua/client/SAO_Animals.lua",
+        "mod/42.20/media/lua/client/SAO_Body.lua",
+        "mod/42.20/media/lua/client/SAO_Driving.lua",
+        "mod/42.20/media/lua/client/SAO_Exchange.lua",
+        "mod/42.20/media/lua/client/SAO_Gesture.lua",
+        "mod/42.20/media/lua/client/SAO_Locomotion.lua",
+        "mod/42.20/media/lua/client/SAO_Needs.lua",
+        "mod/42.20/media/lua/client/SAO_Population.lua",
+        "mod/42.20/media/lua/client/SAO_Voice.lua",
+        "mod/42.20/media/lua/shared/SAO_Adaptation.lua",
+        "mod/42.20/media/lua/shared/SAO_Census.lua",
+        "mod/42.20/media/lua/shared/SAO_Command.lua",
+        "mod/42.20/media/lua/shared/SAO_Conditions.lua",
+        "mod/42.20/media/lua/shared/SAO_Disposition.lua",
+        "mod/42.20/media/lua/shared/SAO_Habits.lua",
+        "mod/42.20/media/lua/shared/SAO_Hash.lua",
+        "mod/42.20/media/lua/shared/SAO_History.lua",
+        "mod/42.20/media/lua/shared/SAO_Identity.lua",
+        "mod/42.20/media/lua/shared/SAO_Integration.lua",
+        "mod/42.20/media/lua/shared/SAO_Lessons.lua",
+        "mod/42.20/media/lua/shared/SAO_Log.lua",
+        "mod/42.20/media/lua/shared/SAO_Neuro.lua",
+        "mod/42.20/media/lua/shared/SAO_PathogenPressure.lua",
+        "mod/42.20/media/lua/shared/SAO_Perception.lua",
+        "mod/42.20/media/lua/shared/SAO_Places.lua",
+        "mod/42.20/media/lua/shared/SAO_Rand.lua",
+        "mod/42.20/media/lua/shared/SAO_Recognition.lua",
+        "mod/42.20/media/lua/shared/SAO_Standing.lua"
+      ],
+      "direct_event_registration_names": [
+        "OnPlayerDeath",
+        "OnSave",
+        "OnTick"
+      ],
+      "gate_scripts_naming_file": [
+        "tools/afflicted_return_test.py",
+        "tools/animal_care_ground_test.py",
+        "tools/before_the_fall_test.py",
+        "tools/betweentime_test.py",
+        "tools/blame_test.py",
+        "tools/book_vocabulary_test.py",
+        "tools/brain_effects_test.py",
+        "tools/bulkhead_test.py",
+        "tools/childs_day_test.py",
+        "tools/claim_lifecycle_test.py",
+        "tools/command_test.py",
+        "tools/company_pull_test.py",
+        "tools/conditions_test.py",
+        "tools/death_leaves_company_test.py",
+        "tools/forget_on_death_test.py",
+        "tools/gestures_test.py",
+        "tools/habits_test.py",
+        "tools/inspect_inert_test.py",
+        "tools/invariant_sweep.py",
+        "tools/knowledge_first_test.py",
+        "tools/log_volume_test.py",
+        "tools/motor_pool_test.py",
+        "tools/option_reach_test.py",
+        "tools/person_handoff_test.py",
+        "tools/promise_body_test.py",
+        "tools/reach_census_test.py",
+        "tools/reach_collision_test.py",
+        "tools/reach_drift_test.py",
+        "tools/registry_surface_test.py",
+        "tools/runtime_reconstruction_test.py",
+        "tools/scarcity_reach_test.py",
+        "tools/seat_and_crossing_test.py",
+        "tools/shared_time_test.py",
+        "tools/sort_bound_test.py",
+        "tools/survivor_orders_test.py",
+        "tools/they_build_test.py",
+        "tools/tick_law_test.py",
+        "tools/triage_test.py",
+        "tools/turn_real_test.py",
+        "tools/vehicle_ground_test.py",
+        "tools/ways_in_test.py",
+        "tools/witness_reach_test.py"
+      ]
+    },
+    {
+      "path": "mod/42.20/media/lua/client/SAO_CrossedTransfer.lua",
+      "sha256": "e5a82ba47b5cfc6642fd1ec549343f919c649510abf883d460115480784f4224",
+      "lines_including_comments": 109,
+      "review_contract": "person_continuity",
+      "lexical_dependencies": [
+        "mod/42.20/media/lua/client/SAO_Body.lua",
+        "mod/42.20/media/lua/shared/SAO_Identity.lua",
+        "mod/42.20/media/lua/shared/SAO_Neuro.lua"
+      ],
+      "direct_event_registration_names": [
+        "OnGameStart"
+      ],
+      "gate_scripts_naming_file": [
+        "tools/person_handoff_test.py"
+      ]
+    },
+    {
+      "path": "mod/42.20/media/lua/client/SAO_Driving.lua",
+      "sha256": "ad4913794871e6baf290cd95108ea71fc67edd57d2f583fb8cc409a19bd7d3bc",
+      "lines_including_comments": 183,
+      "review_contract": "action_execution",
+      "lexical_dependencies": [
+        "mod/42.20/media/lua/shared/SAO_Identity.lua",
+        "mod/42.20/media/lua/shared/SAO_Log.lua"
+      ],
+      "direct_event_registration_names": [],
+      "gate_scripts_naming_file": [
+        "tools/forget_on_death_test.py",
+        "tools/option_reach_test.py"
+      ]
+    },
+    {
+      "path": "mod/42.20/media/lua/client/SAO_Drugs.lua",
+      "sha256": "6d9b443a076cefaec99635072d1b80cc6b246c2b44f75f43d8e45117da00e017",
+      "lines_including_comments": 426,
+      "review_contract": "disposition_health",
+      "lexical_dependencies": [
+        "mod/42.20/media/lua/client/SAO_Body.lua",
+        "mod/42.20/media/lua/client/SAO_Controller.lua",
+        "mod/42.20/media/lua/client/SAO_Population.lua",
+        "mod/42.20/media/lua/shared/SAO_Habits.lua",
+        "mod/42.20/media/lua/shared/SAO_History.lua",
+        "mod/42.20/media/lua/shared/SAO_Identity.lua",
+        "mod/42.20/media/lua/shared/SAO_Log.lua",
+        "mod/42.20/media/lua/shared/SAO_Neuro.lua",
+        "mod/42.20/media/lua/shared/SAO_Rand.lua"
+      ],
+      "direct_event_registration_names": [
+        "OnTick"
+      ],
+      "gate_scripts_naming_file": [
+        "tools/health_clock_test.py",
+        "tools/person_handoff_test.py"
+      ]
+    },
+    {
+      "path": "mod/42.20/media/lua/client/SAO_Exchange.lua",
+      "sha256": "2b6ef92ca886cc7cddf0b905c1a4e7fc2852a66e137b54acc03a161eb187e61a",
+      "lines_including_comments": 720,
+      "review_contract": "communication_presentation",
+      "lexical_dependencies": [
+        "mod/42.20/media/lua/client/SAO_Body.lua",
+        "mod/42.20/media/lua/client/SAO_Controller.lua",
+        "mod/42.20/media/lua/client/SAO_Gesture.lua",
+        "mod/42.20/media/lua/client/SAO_Needs.lua",
+        "mod/42.20/media/lua/client/SAO_Voice.lua",
+        "mod/42.20/media/lua/shared/SAO_Census.lua",
+        "mod/42.20/media/lua/shared/SAO_Disposition.lua",
+        "mod/42.20/media/lua/shared/SAO_History.lua",
+        "mod/42.20/media/lua/shared/SAO_Identity.lua",
+        "mod/42.20/media/lua/shared/SAO_Lessons.lua",
+        "mod/42.20/media/lua/shared/SAO_Log.lua",
+        "mod/42.20/media/lua/shared/SAO_Perception.lua",
+        "mod/42.20/media/lua/shared/SAO_Standing.lua"
+      ],
+      "direct_event_registration_names": [],
+      "gate_scripts_naming_file": [
+        "tools/company_pull_test.py",
+        "tools/exchange_test.py",
+        "tools/gestures_test.py"
+      ]
+    },
+    {
+      "path": "mod/42.20/media/lua/client/SAO_Gesture.lua",
+      "sha256": "a204970eea813acf35aa2cc85b63670e032df8b8c8f7dbac775dcc5d5f942d32",
+      "lines_including_comments": 369,
+      "review_contract": "action_execution",
+      "lexical_dependencies": [
+        "mod/42.20/media/lua/client/SAO_Body.lua",
+        "mod/42.20/media/lua/client/SAO_Controller.lua",
+        "mod/42.20/media/lua/client/SAO_Needs.lua",
+        "mod/42.20/media/lua/shared/SAO_Conditions.lua",
+        "mod/42.20/media/lua/shared/SAO_Disposition.lua",
+        "mod/42.20/media/lua/shared/SAO_Hash.lua",
+        "mod/42.20/media/lua/shared/SAO_Identity.lua",
+        "mod/42.20/media/lua/shared/SAO_Log.lua"
+      ],
+      "direct_event_registration_names": [],
+      "gate_scripts_naming_file": [
+        "tools/command_test.py",
+        "tools/gestures_test.py"
+      ]
+    },
+    {
+      "path": "mod/42.20/media/lua/client/SAO_Harness.lua",
+      "sha256": "3d1d3f768c14c5f4f1b8242be1f537e7353811003b42dcbd8a3b563a52fa525b",
+      "lines_including_comments": 2991,
+      "review_contract": "communication_presentation",
+      "lexical_dependencies": [
+        "mod/42.20/media/lua/client/SAO_Body.lua",
+        "mod/42.20/media/lua/client/SAO_Controller.lua",
+        "mod/42.20/media/lua/client/SAO_Gesture.lua",
+        "mod/42.20/media/lua/client/SAO_Inspect.lua",
+        "mod/42.20/media/lua/client/SAO_Locomotion.lua",
+        "mod/42.20/media/lua/client/SAO_Needs.lua",
+        "mod/42.20/media/lua/client/SAO_Neighbours.lua",
+        "mod/42.20/media/lua/client/SAO_RadioEar.lua",
+        "mod/42.20/media/lua/client/SAO_Voice.lua",
+        "mod/42.20/media/lua/shared/SAO_Census.lua",
+        "mod/42.20/media/lua/shared/SAO_Claims.lua",
+        "mod/42.20/media/lua/shared/SAO_Command.lua",
+        "mod/42.20/media/lua/shared/SAO_Disposition.lua",
+        "mod/42.20/media/lua/shared/SAO_History.lua",
+        "mod/42.20/media/lua/shared/SAO_Identity.lua",
+        "mod/42.20/media/lua/shared/SAO_Lessons.lua",
+        "mod/42.20/media/lua/shared/SAO_Log.lua",
+        "mod/42.20/media/lua/shared/SAO_Organization.lua",
+        "mod/42.20/media/lua/shared/SAO_Perception.lua",
+        "mod/42.20/media/lua/shared/SAO_PlayerInteraction.lua",
+        "mod/42.20/media/lua/shared/SAO_Recognition.lua",
+        "mod/42.20/media/lua/shared/SAO_Standing.lua",
+        "mod/42.20/media/lua/shared/SAO_World.lua"
+      ],
+      "direct_event_registration_names": [
+        "OnFillWorldObjectContextMenu"
+      ],
+      "gate_scripts_naming_file": [
+        "tools/absorb_test.py",
+        "tools/answer_set_test.py",
+        "tools/body_scale_test.py",
+        "tools/click_lands_test.py",
+        "tools/command_test.py",
+        "tools/company_pull_test.py",
+        "tools/foreign_claim_test.py",
+        "tools/gestures_test.py",
+        "tools/globals_census_test.py",
+        "tools/inference_budget_test.py",
+        "tools/order_landing_test.py",
+        "tools/person_handoff_test.py",
+        "tools/reach_census_test.py",
+        "tools/reach_collision_test.py",
+        "tools/record_calendar_test.py",
+        "tools/relay_test.py",
+        "tools/self_contained_test.py",
+        "tools/sort_bound_test.py",
+        "tools/spoken_word_test.py",
+        "tools/squared_scale_test.py",
+        "tools/superimpose_test.py",
+        "tools/survivor_orders_test.py",
+        "tools/they_build_test.py",
+        "tools/tick_literal_test.py",
+        "tools/voice_reach_test.py"
+      ]
+    },
+    {
+      "path": "mod/42.20/media/lua/client/SAO_Inspect.lua",
+      "sha256": "33bddb07633f843b9b7d4fdd49204fd47f8fae639bf6e102cc5b03645c81309d",
+      "lines_including_comments": 600,
+      "review_contract": "communication_presentation",
+      "lexical_dependencies": [
+        "mod/42.20/media/lua/client/SAO_Body.lua",
+        "mod/42.20/media/lua/client/SAO_Controller.lua",
+        "mod/42.20/media/lua/client/SAO_Locomotion.lua",
+        "mod/42.20/media/lua/client/SAO_Telemetry.lua",
+        "mod/42.20/media/lua/client/SAO_UI.lua",
+        "mod/42.20/media/lua/shared/SAO_Adaptation.lua",
+        "mod/42.20/media/lua/shared/SAO_Command.lua",
+        "mod/42.20/media/lua/shared/SAO_Communication.lua",
+        "mod/42.20/media/lua/shared/SAO_Conditions.lua",
+        "mod/42.20/media/lua/shared/SAO_Habits.lua",
+        "mod/42.20/media/lua/shared/SAO_History.lua",
+        "mod/42.20/media/lua/shared/SAO_Identity.lua",
+        "mod/42.20/media/lua/shared/SAO_Isolation.lua",
+        "mod/42.20/media/lua/shared/SAO_Knowledge.lua",
+        "mod/42.20/media/lua/shared/SAO_Material.lua",
+        "mod/42.20/media/lua/shared/SAO_Neuro.lua",
+        "mod/42.20/media/lua/shared/SAO_Organization.lua",
+        "mod/42.20/media/lua/shared/SAO_Perception.lua",
+        "mod/42.20/media/lua/shared/SAO_PlaceAttachment.lua",
+        "mod/42.20/media/lua/shared/SAO_Pressure.lua",
+        "mod/42.20/media/lua/shared/SAO_Settlement.lua",
+        "mod/42.20/media/lua/shared/SAO_Standing.lua",
+        "mod/42.20/media/lua/shared/SAO_WorldDevelopment.lua"
+      ],
+      "direct_event_registration_names": [
+        "OnKeyPressed"
+      ],
+      "gate_scripts_naming_file": [
+        "tools/command_test.py",
+        "tools/conditions_test.py",
+        "tools/dead_census_test.py",
+        "tools/ground_survey_test.py",
+        "tools/habits_test.py",
+        "tools/inspect_inert_test.py",
+        "tools/isolation_state_test.py",
+        "tools/knowledge_surface_test.py",
+        "tools/place_attachment_test.py",
+        "tools/they_build_test.py",
+        "tools/world_development_test.py"
+      ]
+    },
+    {
+      "path": "mod/42.20/media/lua/client/SAO_Locomotion.lua",
+      "sha256": "76d694900edcd6f4bb79bd84dda721c4f875840f9813a0922c263c200ac615e9",
+      "lines_including_comments": 151,
+      "review_contract": "action_execution",
+      "lexical_dependencies": [
+        "mod/42.20/media/lua/shared/SAO_Identity.lua",
+        "mod/42.20/media/lua/shared/SAO_Log.lua",
+        "mod/42.20/media/lua/shared/SAO_Neuro.lua"
+      ],
+      "direct_event_registration_names": [],
+      "gate_scripts_naming_file": [
+        "tools/brain_effects_test.py",
+        "tools/bulkhead_test.py",
+        "tools/forget_on_death_test.py"
+      ]
+    },
+    {
+      "path": "mod/42.20/media/lua/client/SAO_Medical.lua",
+      "sha256": "4864450d8e411c8af9841c745af7581d6b0c38c907049ea05617e2f9eacdae23",
+      "lines_including_comments": 182,
+      "review_contract": "action_execution",
+      "lexical_dependencies": [
+        "mod/42.20/media/lua/shared/SAO_Course.lua",
+        "mod/42.20/media/lua/shared/SAO_Neuro.lua"
+      ],
+      "direct_event_registration_names": [],
+      "gate_scripts_naming_file": [
+        "tools/medical_reading_test.py"
+      ]
+    },
+    {
+      "path": "mod/42.20/media/lua/client/SAO_MedicalWindow.lua",
+      "sha256": "cf3c660e49c975ec23ea08748a2d9ca276ba105fe9025f9c3ca228beae092064",
+      "lines_including_comments": 116,
+      "review_contract": "communication_presentation",
+      "lexical_dependencies": [
+        "mod/42.20/media/lua/client/SAO_Medical.lua",
+        "mod/42.20/media/lua/shared/SAO_History.lua",
+        "mod/42.20/media/lua/shared/SAO_Identity.lua",
+        "mod/42.20/media/lua/shared/SAO_Neuro.lua"
+      ],
+      "direct_event_registration_names": [],
+      "gate_scripts_naming_file": []
+    },
+    {
+      "path": "mod/42.20/media/lua/client/SAO_Needs.lua",
+      "sha256": "41d832e2346949281126ef07d250de57c3c647e79c22ba65dcab89e1a831aee4",
+      "lines_including_comments": 886,
+      "review_contract": "action_execution",
+      "lexical_dependencies": [
+        "mod/42.20/media/lua/client/SAO_Drugs.lua",
+        "mod/42.20/media/lua/shared/SAO_Habits.lua",
+        "mod/42.20/media/lua/shared/SAO_Log.lua",
+        "mod/42.20/media/lua/shared/SAO_Recognition.lua",
+        "mod/42.20/media/lua/shared/SAO_Standing.lua"
+      ],
+      "direct_event_registration_names": [],
+      "gate_scripts_naming_file": [
+        "tools/combat_perception_test.py",
+        "tools/habits_test.py",
+        "tools/knowledge_first_test.py",
+        "tools/option_reach_test.py",
+        "tools/queue_drop_test.py",
+        "tools/sort_bound_test.py"
+      ]
+    },
+    {
+      "path": "mod/42.20/media/lua/client/SAO_Neighbours.lua",
+      "sha256": "e578a74ebd92d0f9d046d3acf8aba1ce43c645d96ccd2cd970ce8c906826baee",
+      "lines_including_comments": 360,
+      "review_contract": "compatibility",
+      "lexical_dependencies": [
+        "mod/42.20/media/lua/client/SAO_Harness.lua",
+        "mod/42.20/media/lua/shared/SAO_Claims.lua",
+        "mod/42.20/media/lua/shared/SAO_Identity.lua",
+        "mod/42.20/media/lua/shared/SAO_Log.lua"
+      ],
+      "direct_event_registration_names": [
+        "OnFillWorldObjectContextMenu",
+        "OnGameStart"
+      ],
+      "gate_scripts_naming_file": [
+        "tools/foreign_claim_test.py",
+        "tools/name_pipeline_test.py",
+        "tools/option_reach_test.py",
+        "tools/self_contained_test.py",
+        "tools/superimpose_test.py"
+      ]
+    },
+    {
+      "path": "mod/42.20/media/lua/client/SAO_Nuke.lua",
+      "sha256": "d8b699606acb36764d7e47609a91fa2afade0adfcef8ff7352953fc273418866",
+      "lines_including_comments": 322,
+      "review_contract": "action_execution",
+      "lexical_dependencies": [
+        "mod/42.20/media/lua/client/SAO_Body.lua",
+        "mod/42.20/media/lua/shared/SAO_History.lua",
+        "mod/42.20/media/lua/shared/SAO_Log.lua",
+        "mod/42.20/media/lua/shared/SAO_Rand.lua",
+        "mod/42.20/media/lua/shared/SAO_Standing.lua"
+      ],
+      "direct_event_registration_names": [
+        "LoadGridsquare"
+      ],
+      "gate_scripts_naming_file": [
+        "tools/option_reach_test.py",
+        "tools/person_handoff_test.py"
+      ]
+    },
+    {
+      "path": "mod/42.20/media/lua/client/SAO_Population.lua",
+      "sha256": "963a9d84b1c89193b36ed264a3132f914f21ecb82ad60ad3a394315cfd4e3329",
+      "lines_including_comments": 3671,
+      "review_contract": "time_population_world",
+      "lexical_dependencies": [
+        "mod/42.20/media/lua/client/SAO_AfflictedReturn.lua",
+        "mod/42.20/media/lua/client/SAO_Age.lua",
+        "mod/42.20/media/lua/client/SAO_Appearance.lua",
+        "mod/42.20/media/lua/client/SAO_Body.lua",
+        "mod/42.20/media/lua/client/SAO_Controller.lua",
+        "mod/42.20/media/lua/client/SAO_Needs.lua",
+        "mod/42.20/media/lua/client/SAO_Nuke.lua",
+        "mod/42.20/media/lua/client/SAO_Telemetry.lua",
+        "mod/42.20/media/lua/shared/SAO_Adaptation.lua",
+        "mod/42.20/media/lua/shared/SAO_Census.lua",
+        "mod/42.20/media/lua/shared/SAO_Claims.lua",
+        "mod/42.20/media/lua/shared/SAO_Conditions.lua",
+        "mod/42.20/media/lua/shared/SAO_Course.lua",
+        "mod/42.20/media/lua/shared/SAO_Disposition.lua",
+        "mod/42.20/media/lua/shared/SAO_History.lua",
+        "mod/42.20/media/lua/shared/SAO_Identity.lua",
+        "mod/42.20/media/lua/shared/SAO_Lessons.lua",
+        "mod/42.20/media/lua/shared/SAO_Log.lua",
+        "mod/42.20/media/lua/shared/SAO_Neuro.lua",
+        "mod/42.20/media/lua/shared/SAO_PathogenEvents.lua",
+        "mod/42.20/media/lua/shared/SAO_Perception.lua",
+        "mod/42.20/media/lua/shared/SAO_Places.lua",
+        "mod/42.20/media/lua/shared/SAO_Rand.lua",
+        "mod/42.20/media/lua/shared/SAO_Recognition.lua",
+        "mod/42.20/media/lua/shared/SAO_Seams.lua",
+        "mod/42.20/media/lua/shared/SAO_Standing.lua",
+        "mod/42.20/media/lua/shared/SAO_WorldGenesis.lua"
+      ],
+      "direct_event_registration_names": [
+        "OnTick"
+      ],
+      "gate_scripts_naming_file": [
+        "tools/appearance_test.py",
+        "tools/arrival_test.py",
+        "tools/belief_payload_test.py",
+        "tools/bite_clock_test.py",
+        "tools/bulkhead_test.py",
+        "tools/click_lands_test.py",
+        "tools/company_pull_test.py",
+        "tools/county_clock_test.py",
+        "tools/crowd_ledger_test.py",
+        "tools/day_zero_owes_test.py",
+        "tools/digest_order_test.py",
+        "tools/dormant_infection_test.py",
+        "tools/foreign_claim_test.py",
+        "tools/forget_on_death_test.py",
+        "tools/frontend_language_test.py",
+        "tools/ground_reach_test.py",
+        "tools/ground_survey_test.py",
+        "tools/identity_test.py",
+        "tools/knowledge_first_test.py",
+        "tools/name_pipeline_test.py",
+        "tools/option_reach_test.py",
+        "tools/person_belief_test.py",
+        "tools/person_handoff_test.py",
+        "tools/placeholder_test.py",
+        "tools/places_test.py",
+        "tools/population_scale_test.py",
+        "tools/radius_test.py",
+        "tools/reach_census_test.py",
+        "tools/scarcity_reach_test.py",
+        "tools/seek_test.py",
+        "tools/self_contained_test.py",
+        "tools/settle_test.py",
+        "tools/they_build_test.py",
+        "tools/tick_law_test.py",
+        "tools/tick_literal_test.py",
+        "tools/tick_walk_test.py",
+        "tools/turn_real_test.py",
+        "tools/units_test.py",
+        "tools/walk_rate_test.py",
+        "tools/world_before_spawn_test.py",
+        "tools/years_between_test.py",
+        "tools/years_progress_test.py",
+        "tools/years_trajectory_test.py"
+      ]
+    },
+    {
+      "path": "mod/42.20/media/lua/client/SAO_RadioEar.lua",
+      "sha256": "66b2a7b77b710177323e96ccf3492960574dd9d94b283d8e3fb3163b8bafc392",
+      "lines_including_comments": 75,
+      "review_contract": "communication_presentation",
+      "lexical_dependencies": [
+        "mod/42.20/media/lua/shared/SAO_Standing.lua"
+      ],
+      "direct_event_registration_names": [
+        "OnAddMessage"
+      ],
+      "gate_scripts_naming_file": []
+    },
+    {
+      "path": "mod/42.20/media/lua/client/SAO_Sandbox.lua",
+      "sha256": "48f0c7bb191932ebcacbbf7b7641987bc8a5d367804396860847191ad6b40a9c",
+      "lines_including_comments": 160,
+      "review_contract": "runtime_bootstrap",
+      "lexical_dependencies": [
+        "mod/42.20/media/lua/shared/SAO_Log.lua",
+        "mod/42.20/media/lua/shared/SAO_Seams.lua"
+      ],
+      "direct_event_registration_names": [],
+      "gate_scripts_naming_file": [
+        "tools/absorb_test.py",
+        "tools/foreign_claim_test.py",
+        "tools/frontend_language_test.py",
+        "tools/self_contained_test.py"
+      ]
+    },
+    {
+      "path": "mod/42.20/media/lua/client/SAO_Telemetry.lua",
+      "sha256": "b120861c1effca00098985dbf161bef731ad4a281ead9fe4b255bc9f65cd3403",
+      "lines_including_comments": 343,
+      "review_contract": "communication_presentation",
+      "lexical_dependencies": [
+        "mod/42.20/media/lua/shared/SAO_Census.lua",
+        "mod/42.20/media/lua/shared/SAO_History.lua",
+        "mod/42.20/media/lua/shared/SAO_Identity.lua",
+        "mod/42.20/media/lua/shared/SAO_Log.lua",
+        "mod/42.20/media/lua/shared/SAO_Standing.lua"
+      ],
+      "direct_event_registration_names": [],
+      "gate_scripts_naming_file": [
+        "tools/age_test.py",
+        "tools/belief_payload_test.py",
+        "tools/company_pull_test.py",
+        "tools/dead_census_test.py",
+        "tools/dormant_infection_test.py",
+        "tools/option_reach_test.py",
+        "tools/person_belief_test.py",
+        "tools/seek_test.py",
+        "tools/settle_test.py",
+        "tools/sort_bound_test.py",
+        "tools/telemetry_test.py",
+        "tools/tick_law_test.py",
+        "tools/tick_walk_test.py",
+        "tools/walk_rate_test.py",
+        "tools/years_trajectory_test.py"
+      ]
+    },
+    {
+      "path": "mod/42.20/media/lua/client/SAO_UI.lua",
+      "sha256": "7f598b867a9d3b7c7d9a83beffe7bc5e1fcb4350ba3156522b37a222cee10f11",
+      "lines_including_comments": 792,
+      "review_contract": "communication_presentation",
+      "lexical_dependencies": [
+        "mod/42.20/media/lua/client/SAO_Body.lua",
+        "mod/42.20/media/lua/client/SAO_Controller.lua",
+        "mod/42.20/media/lua/client/SAO_Needs.lua",
+        "mod/42.20/media/lua/client/SAO_Neighbours.lua",
+        "mod/42.20/media/lua/client/SAO_RadioEar.lua",
+        "mod/42.20/media/lua/shared/SAO_Identity.lua",
+        "mod/42.20/media/lua/shared/SAO_Perception.lua",
+        "mod/42.20/media/lua/shared/SAO_Seams.lua",
+        "mod/42.20/media/lua/shared/SAO_Standing.lua"
+      ],
+      "direct_event_registration_names": [],
+      "gate_scripts_naming_file": [
+        "tools/bulkhead_test.py",
+        "tools/chronicle_test.py",
+        "tools/claim_lifecycle_test.py",
+        "tools/copy_ratified_test.py",
+        "tools/era_test.py",
+        "tools/invariant_sweep.py",
+        "tools/motor_pool_test.py",
+        "tools/reach_census_test.py",
+        "tools/reach_collision_test.py",
+        "tools/registry_surface_test.py",
+        "tools/sort_bound_test.py",
+        "tools/squared_scale_test.py"
+      ]
+    },
+    {
+      "path": "mod/42.20/media/lua/client/SAO_Voice.lua",
+      "sha256": "dc69e34df1f78ab505bd82c3f7c2cbec08512cbf3119d8298ee8924ca964034d",
+      "lines_including_comments": 617,
+      "review_contract": "communication_presentation",
+      "lexical_dependencies": [
+        "mod/42.20/media/lua/client/SAO_Body.lua",
+        "mod/42.20/media/lua/client/SAO_Controller.lua",
+        "mod/42.20/media/lua/client/SAO_Gesture.lua",
+        "mod/42.20/media/lua/shared/SAO_Disposition.lua",
+        "mod/42.20/media/lua/shared/SAO_History.lua",
+        "mod/42.20/media/lua/shared/SAO_Lessons.lua",
+        "mod/42.20/media/lua/shared/SAO_Log.lua",
+        "mod/42.20/media/lua/shared/SAO_Rand.lua"
+      ],
+      "direct_event_registration_names": [],
+      "gate_scripts_naming_file": [
+        "tools/answer_set_test.py",
+        "tools/click_lands_test.py",
+        "tools/command_test.py",
+        "tools/forget_on_death_test.py",
+        "tools/gestures_test.py",
+        "tools/invariant_sweep.py",
+        "tools/option_reach_test.py",
+        "tools/speech_register_test.py",
+        "tools/tick_duration_test.py",
+        "tools/tick_law_test.py",
+        "tools/voice_reach_test.py"
+      ]
+    },
+    {
+      "path": "mod/42.20/media/lua/server/SAO_Radio.lua",
+      "sha256": "e9ddef8599eeb4c641ff1cfa09417287ec6462ec826341e73409e728b65fab4a",
+      "lines_including_comments": 336,
+      "review_contract": "communication_presentation",
+      "lexical_dependencies": [
+        "mod/42.20/media/lua/shared/SAO_History.lua",
+        "mod/42.20/media/lua/shared/SAO_Identity.lua",
+        "mod/42.20/media/lua/shared/SAO_Log.lua",
+        "mod/42.20/media/lua/shared/SAO_Perception.lua",
+        "mod/42.20/media/lua/shared/SAO_Rand.lua",
+        "mod/42.20/media/lua/shared/SAO_Standing.lua"
+      ],
+      "direct_event_registration_names": [
+        "OnLoadRadioScripts"
+      ],
+      "gate_scripts_naming_file": [
+        "tools/invariant_sweep.py",
+        "tools/outsider_test.py",
+        "tools/policy_reach_test.py"
+      ]
+    },
+    {
+      "path": "mod/42.20/media/lua/server/SAO_Record.lua",
+      "sha256": "6efc86d1fe59ad2f5ff1243eea71a926b3a95b0905076117160584ef77a96353",
+      "lines_including_comments": 130,
+      "review_contract": "time_population_world",
+      "lexical_dependencies": [
+        "mod/42.20/media/lua/shared/SAO_Log.lua"
+      ],
+      "direct_event_registration_names": [
+        "EveryHours",
+        "OnFillContainer",
+        "OnGameStart",
+        "OnLoadRadioScripts"
+      ],
+      "gate_scripts_naming_file": [
+        "tools/day_zero_owes_test.py",
+        "tools/option_reach_test.py",
+        "tools/record_calendar_test.py"
+      ]
+    },
+    {
+      "path": "mod/42.20/media/lua/shared/NPCs/SAO_Traits.lua",
+      "sha256": "e612c426f598ac512565e9e320fe7f1730e294377d5293279c6f7d07f4fe73ce",
+      "lines_including_comments": 372,
+      "review_contract": "disposition_health",
+      "lexical_dependencies": [
+        "mod/42.20/media/lua/shared/SAO_Conditions.lua",
+        "mod/42.20/media/lua/shared/SAO_Disposition.lua",
+        "mod/42.20/media/lua/shared/SAO_Habits.lua",
+        "mod/42.20/media/lua/shared/SAO_History.lua",
+        "mod/42.20/media/lua/shared/SAO_Standing.lua"
+      ],
+      "direct_event_registration_names": [
+        "OnCreatePlayer",
+        "OnGameBoot"
+      ],
+      "gate_scripts_naming_file": [
+        "tools/conditions_test.py",
+        "tools/habit_traits_test.py",
+        "tools/traits_test.py"
+      ]
+    },
+    {
+      "path": "mod/42.20/media/lua/shared/SAO_Adaptation.lua",
+      "sha256": "ff79ef48cb30f26b388ce2c4e71d78b09beff400ea4a8e32e5f13c9fce62dd6f",
+      "lines_including_comments": 150,
+      "review_contract": "decision_and_life_producers",
+      "lexical_dependencies": [
+        "mod/42.20/media/lua/shared/SAO_Identity.lua",
+        "mod/42.20/media/lua/shared/SAO_Lessons.lua",
+        "mod/42.20/media/lua/shared/SAO_Perception.lua"
+      ],
+      "direct_event_registration_names": [],
+      "gate_scripts_naming_file": [
+        "tools/sort_bound_test.py"
+      ]
+    },
+    {
+      "path": "mod/42.20/media/lua/shared/SAO_Binding.lua",
+      "sha256": "c42a958ce0a972d0bced6c487dc2e61126506749d2a1ebd2674e38ad855730d1",
+      "lines_including_comments": 12,
+      "review_contract": "person_continuity",
+      "lexical_dependencies": [],
+      "direct_event_registration_names": [],
+      "gate_scripts_naming_file": [
+        "tools/inspect_inert_test.py"
+      ]
+    },
+    {
+      "path": "mod/42.20/media/lua/shared/SAO_Branching.lua",
+      "sha256": "0706d325aa73e3800e6713983053abb36b01f24dfee7639b2bf23f880967f852",
+      "lines_including_comments": 97,
+      "review_contract": "decision_and_life_producers",
+      "lexical_dependencies": [],
+      "direct_event_registration_names": [],
+      "gate_scripts_naming_file": []
+    },
+    {
+      "path": "mod/42.20/media/lua/shared/SAO_Census.lua",
+      "sha256": "c22dda2768bd4e3d096b6f159e8b250e03968bec72e2b5fd1a587322310b5c29",
+      "lines_including_comments": 561,
+      "review_contract": "time_population_world",
+      "lexical_dependencies": [
+        "mod/42.20/media/lua/client/SAO_Body.lua",
+        "mod/42.20/media/lua/shared/SAO_Hash.lua",
+        "mod/42.20/media/lua/shared/SAO_Identity.lua",
+        "mod/42.20/media/lua/shared/SAO_Log.lua"
+      ],
+      "direct_event_registration_names": [],
+      "gate_scripts_naming_file": [
+        "tools/age_test.py",
+        "tools/belief_payload_test.py",
+        "tools/book_vocabulary_test.py",
+        "tools/census_authority_test.py",
+        "tools/census_grounding_test.py",
+        "tools/census_test.py",
+        "tools/company_forms_test.py",
+        "tools/company_pull_test.py",
+        "tools/death_leaves_company_test.py",
+        "tools/dormant_infection_test.py",
+        "tools/engine_data_test.py",
+        "tools/invariant_sweep.py",
+        "tools/lesson_draw_test.py",
+        "tools/mod_share_test.py",
+        "tools/named_at_genesis_test.py",
+        "tools/person_belief_test.py",
+        "tools/seek_test.py",
+        "tools/settle_test.py",
+        "tools/sort_bound_test.py",
+        "tools/tick_law_test.py",
+        "tools/trajectory_simulation_test.py",
+        "tools/walk_rate_test.py",
+        "tools/work_test.py"
+      ]
+    },
+    {
+      "path": "mod/42.20/media/lua/shared/SAO_Claims.lua",
+      "sha256": "80202b6b1cf1e8197ddcf2c6ead46104c39be19351ac1d919a528f4bfaeebaf3",
+      "lines_including_comments": 93,
+      "review_contract": "perception_knowledge",
+      "lexical_dependencies": [
+        "mod/42.20/media/lua/shared/SAO_Identity.lua"
+      ],
+      "direct_event_registration_names": [],
+      "gate_scripts_naming_file": [
+        "tools/belief_payload_test.py",
+        "tools/company_forms_test.py",
+        "tools/company_pull_test.py",
+        "tools/death_leaves_company_test.py",
+        "tools/dormant_infection_test.py",
+        "tools/engine_data_test.py",
+        "tools/foreign_claim_test.py",
+        "tools/named_at_genesis_test.py",
+        "tools/person_belief_test.py",
+        "tools/seek_test.py",
+        "tools/self_contained_test.py",
+        "tools/settle_test.py",
+        "tools/tick_law_test.py",
+        "tools/walk_rate_test.py"
+      ]
+    },
+    {
+      "path": "mod/42.20/media/lua/shared/SAO_Command.lua",
+      "sha256": "64df83053cca3b669cc27d85aa506be2d5e8e1564edd5ebbb797eb6afd7d5218",
+      "lines_including_comments": 362,
+      "review_contract": "standing_relationships",
+      "lexical_dependencies": [
+        "mod/42.20/media/lua/client/SAO_Body.lua",
+        "mod/42.20/media/lua/client/SAO_Controller.lua",
+        "mod/42.20/media/lua/shared/SAO_Census.lua",
+        "mod/42.20/media/lua/shared/SAO_Disposition.lua",
+        "mod/42.20/media/lua/shared/SAO_Identity.lua",
+        "mod/42.20/media/lua/shared/SAO_Perception.lua",
+        "mod/42.20/media/lua/shared/SAO_Standing.lua"
+      ],
+      "direct_event_registration_names": [],
+      "gate_scripts_naming_file": [
+        "tools/command_test.py",
+        "tools/survivor_orders_test.py"
+      ]
+    },
+    {
+      "path": "mod/42.20/media/lua/shared/SAO_Communication.lua",
+      "sha256": "3d0a68f4b77c0969bea7f45375fc5d7ea9a08b9a438805cfe1524a88487aa77d",
+      "lines_including_comments": 62,
+      "review_contract": "communication_presentation",
+      "lexical_dependencies": [
+        "mod/42.20/media/lua/shared/SAO_Organization.lua"
+      ],
+      "direct_event_registration_names": [],
+      "gate_scripts_naming_file": []
+    },
+    {
+      "path": "mod/42.20/media/lua/shared/SAO_Conditions.lua",
+      "sha256": "3b3027892a1144f1bef5a210ea5defa131d3adec654aa0c691f107d3bdccf6cc",
+      "lines_including_comments": 459,
+      "review_contract": "disposition_health",
+      "lexical_dependencies": [
+        "mod/42.20/media/lua/shared/SAO_Hash.lua",
+        "mod/42.20/media/lua/shared/SAO_History.lua",
+        "mod/42.20/media/lua/shared/SAO_Neuro.lua",
+        "mod/42.20/media/lua/shared/SAO_Perception.lua"
+      ],
+      "direct_event_registration_names": [],
+      "gate_scripts_naming_file": [
+        "tools/belief_payload_test.py",
+        "tools/brain_effects_test.py",
+        "tools/command_test.py",
+        "tools/company_forms_test.py",
+        "tools/company_pull_test.py",
+        "tools/conditions_test.py",
+        "tools/death_leaves_company_test.py",
+        "tools/decision_range_test.py",
+        "tools/dormant_infection_test.py",
+        "tools/engine_data_test.py",
+        "tools/forget_on_death_test.py",
+        "tools/named_at_genesis_test.py",
+        "tools/person_belief_test.py",
+        "tools/prevalence_sourced_test.py",
+        "tools/seek_test.py",
+        "tools/settle_test.py",
+        "tools/survivor_orders_test.py",
+        "tools/tick_law_test.py",
+        "tools/traits_test.py",
+        "tools/walk_rate_test.py"
+      ]
+    },
+    {
+      "path": "mod/42.20/media/lua/shared/SAO_Course.lua",
+      "sha256": "8710aa560ec4c27bf0eebdf550485dc52ff51f69aeedff09240a5189702706e3",
+      "lines_including_comments": 305,
+      "review_contract": "disposition_health",
+      "lexical_dependencies": [
+        "mod/42.20/media/lua/shared/SAO_Hash.lua",
+        "mod/42.20/media/lua/shared/SAO_PathogenEvents.lua"
+      ],
+      "direct_event_registration_names": [],
+      "gate_scripts_naming_file": [
+        "tools/course_test.py",
+        "tools/dormant_infection_test.py",
+        "tools/medical_reading_test.py"
+      ]
+    },
+    {
+      "path": "mod/42.20/media/lua/shared/SAO_Disposition.lua",
+      "sha256": "f71233abe2a81dfa63a0a8a4c4fc2bfe99a205c143af4ae731f1c0d667735b14",
+      "lines_including_comments": 362,
+      "review_contract": "disposition_health",
+      "lexical_dependencies": [
+        "mod/42.20/media/lua/client/SAO_Body.lua",
+        "mod/42.20/media/lua/client/SAO_Controller.lua",
+        "mod/42.20/media/lua/shared/SAO_Conditions.lua",
+        "mod/42.20/media/lua/shared/SAO_Hash.lua",
+        "mod/42.20/media/lua/shared/SAO_History.lua",
+        "mod/42.20/media/lua/shared/SAO_Identity.lua",
+        "mod/42.20/media/lua/shared/SAO_Lessons.lua"
+      ],
+      "direct_event_registration_names": [],
+      "gate_scripts_naming_file": [
+        "tools/belief_payload_test.py",
+        "tools/childs_day_test.py",
+        "tools/command_test.py",
+        "tools/company_forms_test.py",
+        "tools/company_pull_test.py",
+        "tools/conditions_test.py",
+        "tools/death_leaves_company_test.py",
+        "tools/decision_range_test.py",
+        "tools/dormant_infection_test.py",
+        "tools/engine_data_test.py",
+        "tools/forget_on_death_test.py",
+        "tools/habit_traits_test.py",
+        "tools/joining_test.py",
+        "tools/lesson_draw_test.py",
+        "tools/named_at_genesis_test.py",
+        "tools/person_belief_test.py",
+        "tools/seek_test.py",
+        "tools/settle_test.py",
+        "tools/survivor_orders_test.py",
+        "tools/tick_law_test.py",
+        "tools/time_softens_test.py",
+        "tools/triage_test.py",
+        "tools/walk_rate_test.py"
+      ]
+    },
+    {
+      "path": "mod/42.20/media/lua/shared/SAO_GraphPersistence.lua",
+      "sha256": "1cceb3b5fb704b8cc659fd6eb5c4f7c92a03693e60ec5fa558b7b87f9ca33964",
+      "lines_including_comments": 94,
+      "review_contract": "runtime_bootstrap",
+      "lexical_dependencies": [
+        "mod/42.20/media/lua/shared/SAO_Branching.lua",
+        "mod/42.20/media/lua/shared/SAO_Communication.lua",
+        "mod/42.20/media/lua/shared/SAO_Material.lua",
+        "mod/42.20/media/lua/shared/SAO_Organization.lua",
+        "mod/42.20/media/lua/shared/SAO_PlayerInteraction.lua",
+        "mod/42.20/media/lua/shared/SAO_Settlement.lua"
+      ],
+      "direct_event_registration_names": [
+        "OnInitGlobalModData"
+      ],
+      "gate_scripts_naming_file": [
+        "tools/runtime_reconstruction_test.py"
+      ]
+    },
+    {
+      "path": "mod/42.20/media/lua/shared/SAO_Habits.lua",
+      "sha256": "9a2342558c3c1b2a0138b6f7838923dd28cec2b849838104a096f08814ba66e1",
+      "lines_including_comments": 503,
+      "review_contract": "disposition_health",
+      "lexical_dependencies": [
+        "mod/42.20/media/lua/shared/SAO_Hash.lua",
+        "mod/42.20/media/lua/shared/SAO_History.lua",
+        "mod/42.20/media/lua/shared/SAO_Identity.lua"
+      ],
+      "direct_event_registration_names": [],
+      "gate_scripts_naming_file": [
+        "tools/belief_payload_test.py",
+        "tools/company_forms_test.py",
+        "tools/company_pull_test.py",
+        "tools/death_leaves_company_test.py",
+        "tools/dormant_infection_test.py",
+        "tools/engine_data_test.py",
+        "tools/forget_on_death_test.py",
+        "tools/habit_traits_test.py",
+        "tools/habits_test.py",
+        "tools/health_clock_test.py",
+        "tools/named_at_genesis_test.py",
+        "tools/person_belief_test.py",
+        "tools/prevalence_sourced_test.py",
+        "tools/seek_test.py",
+        "tools/settle_test.py",
+        "tools/tick_law_test.py",
+        "tools/walk_rate_test.py",
+        "tools/years_progress_test.py"
+      ]
+    },
+    {
+      "path": "mod/42.20/media/lua/shared/SAO_Hash.lua",
+      "sha256": "63e172f4c7878cc50ea58ae4604acec50f24decd50a1db0206d4c298def69915",
+      "lines_including_comments": 114,
+      "review_contract": "runtime_bootstrap",
+      "lexical_dependencies": [
+        "mod/42.20/media/lua/shared/SAO_Log.lua"
+      ],
+      "direct_event_registration_names": [],
+      "gate_scripts_naming_file": [
+        "tools/age_bands_test.py",
+        "tools/belief_payload_test.py",
+        "tools/childs_day_test.py",
+        "tools/command_test.py",
+        "tools/company_forms_test.py",
+        "tools/company_pull_test.py",
+        "tools/conditions_test.py",
+        "tools/county_draw_test.py",
+        "tools/course_test.py",
+        "tools/death_leaves_company_test.py",
+        "tools/decision_range_test.py",
+        "tools/dormant_infection_test.py",
+        "tools/engine_data_test.py",
+        "tools/habit_traits_test.py",
+        "tools/habits_test.py",
+        "tools/hash_spread_test.py",
+        "tools/lesson_draw_test.py",
+        "tools/mantissa_test.py",
+        "tools/medical_reading_test.py",
+        "tools/mod_share_test.py",
+        "tools/named_at_genesis_test.py",
+        "tools/one_clock_test.py",
+        "tools/person_belief_test.py",
+        "tools/seek_test.py",
+        "tools/settle_test.py",
+        "tools/speech_register_test.py",
+        "tools/survivor_orders_test.py",
+        "tools/tick_law_test.py",
+        "tools/time_softens_test.py",
+        "tools/traits_test.py",
+        "tools/walk_rate_test.py",
+        "tools/years_progress_test.py"
+      ]
+    },
+    {
+      "path": "mod/42.20/media/lua/shared/SAO_History.lua",
+      "sha256": "44c9d7ffdac4cf04aea8682ca7f62960c46f2cfd3628df75cf41830c4bb0d37a",
+      "lines_including_comments": 1104,
+      "review_contract": "time_population_world",
+      "lexical_dependencies": [
+        "mod/42.20/media/lua/shared/SAO_Census.lua",
+        "mod/42.20/media/lua/shared/SAO_Claims.lua",
+        "mod/42.20/media/lua/shared/SAO_Disposition.lua",
+        "mod/42.20/media/lua/shared/SAO_Hash.lua",
+        "mod/42.20/media/lua/shared/SAO_Identity.lua",
+        "mod/42.20/media/lua/shared/SAO_Lessons.lua",
+        "mod/42.20/media/lua/shared/SAO_Log.lua"
+      ],
+      "direct_event_registration_names": [
+        "OnInitGlobalModData"
+      ],
+      "gate_scripts_naming_file": [
+        "tools/age_bands_test.py",
+        "tools/age_test.py",
+        "tools/appearance_test.py",
+        "tools/before_the_fall_test.py",
+        "tools/belief_payload_test.py",
+        "tools/body_scale_test.py",
+        "tools/census_authority_test.py",
+        "tools/childs_day_test.py",
+        "tools/command_test.py",
+        "tools/company_forms_test.py",
+        "tools/company_pull_test.py",
+        "tools/conditions_test.py",
+        "tools/county_clock_test.py",
+        "tools/day_zero_owes_test.py",
+        "tools/death_leaves_company_test.py",
+        "tools/decision_range_test.py",
+        "tools/dormant_infection_test.py",
+        "tools/engine_data_test.py",
+        "tools/habit_traits_test.py",
+        "tools/habits_test.py",
+        "tools/lesson_draw_test.py",
+        "tools/motor_pool_test.py",
+        "tools/named_at_genesis_test.py",
+        "tools/one_clock_test.py",
+        "tools/person_belief_test.py",
+        "tools/player_looting_test.py",
+        "tools/runtime_reconstruction_test.py",
+        "tools/seek_test.py",
+        "tools/settle_test.py",
+        "tools/shared_time_test.py",
+        "tools/speech_register_test.py",
+        "tools/survivor_orders_test.py",
+        "tools/tick_law_test.py",
+        "tools/time_softens_test.py",
+        "tools/traits_test.py",
+        "tools/units_test.py",
+        "tools/vehicle_ground_test.py",
+        "tools/walk_rate_test.py",
+        "tools/years_between_test.py",
+        "tools/years_progress_test.py"
+      ]
+    },
+    {
+      "path": "mod/42.20/media/lua/shared/SAO_Identity.lua",
+      "sha256": "061cc87f4afcce746db9e04f6bca6f48c3f0131191d48b67094c6847e67b2026",
+      "lines_including_comments": 517,
+      "review_contract": "person_continuity",
+      "lexical_dependencies": [
+        "mod/42.20/media/lua/client/SAO_Body.lua",
+        "mod/42.20/media/lua/client/SAO_Controller.lua",
+        "mod/42.20/media/lua/client/SAO_Driving.lua",
+        "mod/42.20/media/lua/client/SAO_Locomotion.lua",
+        "mod/42.20/media/lua/client/SAO_Population.lua",
+        "mod/42.20/media/lua/client/SAO_Telemetry.lua",
+        "mod/42.20/media/lua/client/SAO_Voice.lua",
+        "mod/42.20/media/lua/shared/SAO_Conditions.lua",
+        "mod/42.20/media/lua/shared/SAO_Disposition.lua",
+        "mod/42.20/media/lua/shared/SAO_Habits.lua",
+        "mod/42.20/media/lua/shared/SAO_Hash.lua",
+        "mod/42.20/media/lua/shared/SAO_History.lua",
+        "mod/42.20/media/lua/shared/SAO_Log.lua",
+        "mod/42.20/media/lua/shared/SAO_Material.lua",
+        "mod/42.20/media/lua/shared/SAO_Organization.lua",
+        "mod/42.20/media/lua/shared/SAO_PathogenEvents.lua",
+        "mod/42.20/media/lua/shared/SAO_Perception.lua",
+        "mod/42.20/media/lua/shared/SAO_Rand.lua",
+        "mod/42.20/media/lua/shared/SAO_Settlement.lua",
+        "mod/42.20/media/lua/shared/SAO_Standing.lua"
+      ],
+      "direct_event_registration_names": [
+        "OnInitGlobalModData"
+      ],
+      "gate_scripts_naming_file": [
+        "tools/afflicted_return_test.py",
+        "tools/belief_payload_test.py",
+        "tools/company_forms_test.py",
+        "tools/company_pull_test.py",
+        "tools/death_leaves_company_test.py",
+        "tools/dormant_infection_test.py",
+        "tools/engine_data_test.py",
+        "tools/forget_on_death_test.py",
+        "tools/habit_traits_test.py",
+        "tools/identity_test.py",
+        "tools/named_at_genesis_test.py",
+        "tools/person_belief_test.py",
+        "tools/person_checkpoint_test.py",
+        "tools/person_handoff_test.py",
+        "tools/placeholder_test.py",
+        "tools/seek_test.py",
+        "tools/settle_test.py",
+        "tools/telemetry_test.py",
+        "tools/tick_law_test.py",
+        "tools/turn_real_test.py",
+        "tools/walk_rate_test.py",
+        "tools/years_progress_test.py"
+      ]
+    },
+    {
+      "path": "mod/42.20/media/lua/shared/SAO_Integration.lua",
+      "sha256": "8334a4968f56522604ccd1a1ff86f2f5d29f5fb0987555d7f67bc3e61f2b7295",
+      "lines_including_comments": 308,
+      "review_contract": "decision_and_life_producers",
+      "lexical_dependencies": [
+        "mod/42.20/media/lua/client/SAO_Controller.lua",
+        "mod/42.20/media/lua/shared/SAO_Adaptation.lua",
+        "mod/42.20/media/lua/shared/SAO_Branching.lua",
+        "mod/42.20/media/lua/shared/SAO_Communication.lua",
+        "mod/42.20/media/lua/shared/SAO_GraphPersistence.lua",
+        "mod/42.20/media/lua/shared/SAO_History.lua",
+        "mod/42.20/media/lua/shared/SAO_Identity.lua",
+        "mod/42.20/media/lua/shared/SAO_Isolation.lua",
+        "mod/42.20/media/lua/shared/SAO_Labor.lua",
+        "mod/42.20/media/lua/shared/SAO_Material.lua",
+        "mod/42.20/media/lua/shared/SAO_Organization.lua",
+        "mod/42.20/media/lua/shared/SAO_PathogenPressure.lua",
+        "mod/42.20/media/lua/shared/SAO_Perception.lua",
+        "mod/42.20/media/lua/shared/SAO_PlaceAttachment.lua",
+        "mod/42.20/media/lua/shared/SAO_Places.lua",
+        "mod/42.20/media/lua/shared/SAO_PlayerInteraction.lua",
+        "mod/42.20/media/lua/shared/SAO_Pressure.lua",
+        "mod/42.20/media/lua/shared/SAO_Settlement.lua",
+        "mod/42.20/media/lua/shared/SAO_Standing.lua",
+        "mod/42.20/media/lua/shared/SAO_WorldDevelopment.lua"
+      ],
+      "direct_event_registration_names": [
+        "OnGameStart"
+      ],
+      "gate_scripts_naming_file": [
+        "tools/forget_on_death_test.py",
+        "tools/option_reach_test.py",
+        "tools/runtime_reconstruction_test.py",
+        "tools/sort_bound_test.py"
+      ]
+    },
+    {
+      "path": "mod/42.20/media/lua/shared/SAO_Isolation.lua",
+      "sha256": "83fa280307581a5ca4e4a64642ef03a7e12f40ff5d467776ea69e510d88e5bf2",
+      "lines_including_comments": 141,
+      "review_contract": "standing_relationships",
+      "lexical_dependencies": [
+        "mod/42.20/media/lua/shared/SAO_Disposition.lua",
+        "mod/42.20/media/lua/shared/SAO_History.lua",
+        "mod/42.20/media/lua/shared/SAO_Identity.lua",
+        "mod/42.20/media/lua/shared/SAO_Log.lua",
+        "mod/42.20/media/lua/shared/SAO_Perception.lua",
+        "mod/42.20/media/lua/shared/SAO_Standing.lua"
+      ],
+      "direct_event_registration_names": [],
+      "gate_scripts_naming_file": [
+        "tools/company_admission_test.py",
+        "tools/isolation_state_test.py"
+      ]
+    },
+    {
+      "path": "mod/42.20/media/lua/shared/SAO_Knowledge.lua",
+      "sha256": "7301167ace72bfcb9734564937196b976ea157c9c0080dd49672e623fa25e87e",
+      "lines_including_comments": 646,
+      "review_contract": "perception_knowledge",
+      "lexical_dependencies": [
+        "mod/42.20/media/lua/client/SAO_Body.lua",
+        "mod/42.20/media/lua/client/SAO_Controller.lua",
+        "mod/42.20/media/lua/client/SAO_Needs.lua",
+        "mod/42.20/media/lua/shared/SAO_Census.lua",
+        "mod/42.20/media/lua/shared/SAO_Conditions.lua",
+        "mod/42.20/media/lua/shared/SAO_Disposition.lua",
+        "mod/42.20/media/lua/shared/SAO_Habits.lua",
+        "mod/42.20/media/lua/shared/SAO_History.lua",
+        "mod/42.20/media/lua/shared/SAO_Identity.lua",
+        "mod/42.20/media/lua/shared/SAO_Lessons.lua",
+        "mod/42.20/media/lua/shared/SAO_Perception.lua",
+        "mod/42.20/media/lua/shared/SAO_Places.lua",
+        "mod/42.20/media/lua/shared/SAO_Standing.lua"
+      ],
+      "direct_event_registration_names": [],
+      "gate_scripts_naming_file": [
+        "tools/belief_payload_test.py",
+        "tools/company_forms_test.py",
+        "tools/company_pull_test.py",
+        "tools/conditions_test.py",
+        "tools/death_leaves_company_test.py",
+        "tools/dormant_infection_test.py",
+        "tools/era_test.py",
+        "tools/habits_test.py",
+        "tools/knowledge_surface_test.py",
+        "tools/person_belief_test.py",
+        "tools/seek_test.py",
+        "tools/settle_test.py",
+        "tools/tick_law_test.py",
+        "tools/walk_rate_test.py"
+      ]
+    },
+    {
+      "path": "mod/42.20/media/lua/shared/SAO_Labor.lua",
+      "sha256": "1e043275f3b989670a5ab1590905014dc7d7c8995567197552e76200c9f201a1",
+      "lines_including_comments": 71,
+      "review_contract": "decision_and_life_producers",
+      "lexical_dependencies": [
+        "mod/42.20/media/lua/shared/SAO_Branching.lua",
+        "mod/42.20/media/lua/shared/SAO_Census.lua",
+        "mod/42.20/media/lua/shared/SAO_Lessons.lua",
+        "mod/42.20/media/lua/shared/SAO_Material.lua",
+        "mod/42.20/media/lua/shared/SAO_Standing.lua"
+      ],
+      "direct_event_registration_names": [],
+      "gate_scripts_naming_file": []
+    },
+    {
+      "path": "mod/42.20/media/lua/shared/SAO_Lessons.lua",
+      "sha256": "3a4b70b70bd19983af443c108fee3b23ec1dfc26bcb7d1cf8ec03669b437713c",
+      "lines_including_comments": 289,
+      "review_contract": "perception_knowledge",
+      "lexical_dependencies": [
+        "mod/42.20/media/lua/client/SAO_Telemetry.lua",
+        "mod/42.20/media/lua/client/SAO_Voice.lua",
+        "mod/42.20/media/lua/shared/SAO_History.lua",
+        "mod/42.20/media/lua/shared/SAO_Identity.lua",
+        "mod/42.20/media/lua/shared/SAO_Log.lua",
+        "mod/42.20/media/lua/shared/SAO_Standing.lua"
+      ],
+      "direct_event_registration_names": [],
+      "gate_scripts_naming_file": [
+        "tools/acquisition_test.py",
+        "tools/belief_payload_test.py",
+        "tools/company_forms_test.py",
+        "tools/company_pull_test.py",
+        "tools/death_leaves_company_test.py",
+        "tools/dormant_infection_test.py",
+        "tools/person_belief_test.py",
+        "tools/seek_test.py",
+        "tools/settle_test.py",
+        "tools/sort_bound_test.py",
+        "tools/speech_register_test.py",
+        "tools/telemetry_test.py",
+        "tools/tick_law_test.py",
+        "tools/walk_rate_test.py"
+      ]
+    },
+    {
+      "path": "mod/42.20/media/lua/shared/SAO_Log.lua",
+      "sha256": "439c4bd4a3cf3ab057494b64717404761796e85f072701df71cd8dd083385973",
+      "lines_including_comments": 92,
+      "review_contract": "runtime_bootstrap",
+      "lexical_dependencies": [],
+      "direct_event_registration_names": [],
+      "gate_scripts_naming_file": [
+        "tools/belief_payload_test.py",
+        "tools/company_forms_test.py",
+        "tools/company_pull_test.py",
+        "tools/course_test.py",
+        "tools/death_leaves_company_test.py",
+        "tools/dormant_infection_test.py",
+        "tools/engine_data_test.py",
+        "tools/foreign_claim_test.py",
+        "tools/isolation_state_test.py",
+        "tools/lesson_draw_test.py",
+        "tools/log_volume_test.py",
+        "tools/medical_reading_test.py",
+        "tools/mod_share_test.py",
+        "tools/named_at_genesis_test.py",
+        "tools/person_belief_test.py",
+        "tools/place_attachment_test.py",
+        "tools/seek_test.py",
+        "tools/settle_test.py",
+        "tools/tick_law_test.py",
+        "tools/time_softens_test.py",
+        "tools/walk_rate_test.py",
+        "tools/world_development_test.py"
+      ]
+    },
+    {
+      "path": "mod/42.20/media/lua/shared/SAO_Material.lua",
+      "sha256": "0bfca60d302b3aa76de04fd2fdb5e7ad5bdf2876e5633880e2e5f7c8c5c03b4c",
+      "lines_including_comments": 91,
+      "review_contract": "decision_and_life_producers",
+      "lexical_dependencies": [],
+      "direct_event_registration_names": [],
+      "gate_scripts_naming_file": [
+        "tools/forget_on_death_test.py"
+      ]
+    },
+    {
+      "path": "mod/42.20/media/lua/shared/SAO_Neuro.lua",
+      "sha256": "f8400602d524792bb24527b624dca3b40aec9cc93538964b3e2f1caa9257ae00",
+      "lines_including_comments": 495,
+      "review_contract": "disposition_health",
+      "lexical_dependencies": [
+        "mod/42.20/media/lua/client/SAO_Body.lua",
+        "mod/42.20/media/lua/client/SAO_Needs.lua",
+        "mod/42.20/media/lua/shared/SAO_Habits.lua",
+        "mod/42.20/media/lua/shared/SAO_History.lua",
+        "mod/42.20/media/lua/shared/SAO_Identity.lua"
+      ],
+      "direct_event_registration_names": [],
+      "gate_scripts_naming_file": [
+        "tools/brain_effects_test.py",
+        "tools/brain_health_test.py",
+        "tools/option_reach_test.py",
+        "tools/years_progress_test.py"
+      ]
+    },
+    {
+      "path": "mod/42.20/media/lua/shared/SAO_Organization.lua",
+      "sha256": "db9974406fdb1322e8e64fdbe591c9b79b51837c201cbfe88930ef78ace52c94",
+      "lines_including_comments": 243,
+      "review_contract": "standing_relationships",
+      "lexical_dependencies": [],
+      "direct_event_registration_names": [],
+      "gate_scripts_naming_file": [
+        "tools/forget_on_death_test.py"
+      ]
+    },
+    {
+      "path": "mod/42.20/media/lua/shared/SAO_PathogenEvents.lua",
+      "sha256": "de41e889daca6b3c406bfa3dfff994cbd53f1ac8651a29dc405cf984234848f1",
+      "lines_including_comments": 184,
+      "review_contract": "compatibility",
+      "lexical_dependencies": [
+        "mod/42.20/media/lua/client/SAO_Body.lua",
+        "mod/42.20/media/lua/shared/SAO_Adaptation.lua",
+        "mod/42.20/media/lua/shared/SAO_Identity.lua",
+        "mod/42.20/media/lua/shared/SAO_Neuro.lua"
+      ],
+      "direct_event_registration_names": [],
+      "gate_scripts_naming_file": [
+        "tools/intentional_exposure_test.py"
+      ]
+    },
+    {
+      "path": "mod/42.20/media/lua/shared/SAO_PathogenPressure.lua",
+      "sha256": "acf957d925c835d9aacf3e04d216c986fae93a58e0a16435efa5946c816e2132",
+      "lines_including_comments": 48,
+      "review_contract": "disposition_health",
+      "lexical_dependencies": [
+        "mod/42.20/media/lua/shared/SAO_Adaptation.lua",
+        "mod/42.20/media/lua/shared/SAO_Disposition.lua"
+      ],
+      "direct_event_registration_names": [],
+      "gate_scripts_naming_file": []
+    },
+    {
+      "path": "mod/42.20/media/lua/shared/SAO_Perception.lua",
+      "sha256": "2e36ac43078528e825cef9acb6e7bd9c044881c3844717f8105b768cb54c423e",
+      "lines_including_comments": 1837,
+      "review_contract": "perception_knowledge",
+      "lexical_dependencies": [
+        "mod/42.20/media/lua/client/SAO_Body.lua",
+        "mod/42.20/media/lua/client/SAO_Voice.lua",
+        "mod/42.20/media/lua/shared/SAO_Adaptation.lua",
+        "mod/42.20/media/lua/shared/SAO_Conditions.lua",
+        "mod/42.20/media/lua/shared/SAO_Disposition.lua",
+        "mod/42.20/media/lua/shared/SAO_Hash.lua",
+        "mod/42.20/media/lua/shared/SAO_History.lua",
+        "mod/42.20/media/lua/shared/SAO_Identity.lua",
+        "mod/42.20/media/lua/shared/SAO_Log.lua",
+        "mod/42.20/media/lua/shared/SAO_Rand.lua",
+        "mod/42.20/media/lua/shared/SAO_Standing.lua"
+      ],
+      "direct_event_registration_names": [
+        "OnGameStart"
+      ],
+      "gate_scripts_naming_file": [
+        "tools/acquisition_test.py",
+        "tools/belief_life_test.py",
+        "tools/belief_payload_test.py",
+        "tools/claim_lifecycle_test.py",
+        "tools/combat_perception_test.py",
+        "tools/company_pull_test.py",
+        "tools/conditions_test.py",
+        "tools/dormant_infection_test.py",
+        "tools/forget_on_death_test.py",
+        "tools/gmatch_progress_test.py",
+        "tools/ground_reach_test.py",
+        "tools/person_belief_test.py",
+        "tools/places_test.py",
+        "tools/player_eyes_test.py",
+        "tools/reach_census_test.py",
+        "tools/relay_test.py",
+        "tools/seek_test.py",
+        "tools/settle_test.py",
+        "tools/sort_bound_test.py",
+        "tools/spoken_word_test.py",
+        "tools/tick_law_test.py",
+        "tools/turn_real_test.py",
+        "tools/walk_rate_test.py",
+        "tools/whole_minds_test.py"
+      ]
+    },
+    {
+      "path": "mod/42.20/media/lua/shared/SAO_PlaceAttachment.lua",
+      "sha256": "d1d87bbc86e1ab625d11f5da7f50768dcb4c7362c18201a06a328ce3c4e5b3b6",
+      "lines_including_comments": 134,
+      "review_contract": "time_population_world",
+      "lexical_dependencies": [
+        "mod/42.20/media/lua/client/SAO_Controller.lua",
+        "mod/42.20/media/lua/shared/SAO_Identity.lua",
+        "mod/42.20/media/lua/shared/SAO_Log.lua",
+        "mod/42.20/media/lua/shared/SAO_Perception.lua",
+        "mod/42.20/media/lua/shared/SAO_Places.lua",
+        "mod/42.20/media/lua/shared/SAO_Standing.lua"
+      ],
+      "direct_event_registration_names": [],
+      "gate_scripts_naming_file": [
+        "tools/place_attachment_test.py"
+      ]
+    },
+    {
+      "path": "mod/42.20/media/lua/shared/SAO_Places.lua",
+      "sha256": "c2137dc4ef6aa47f9bf90ccbdcab94f80ae87ae880d58d23359cbed7bda6fc8f",
+      "lines_including_comments": 738,
+      "review_contract": "time_population_world",
+      "lexical_dependencies": [
+        "mod/42.20/media/lua/shared/SAO_History.lua"
+      ],
+      "direct_event_registration_names": [
+        "OnInitGlobalModData"
+      ],
+      "gate_scripts_naming_file": [
+        "tools/belief_payload_test.py",
+        "tools/company_pull_test.py",
+        "tools/dormant_infection_test.py",
+        "tools/forget_on_death_test.py",
+        "tools/knowledge_first_test.py",
+        "tools/lua_stdlib_test.py",
+        "tools/person_belief_test.py",
+        "tools/places_test.py",
+        "tools/player_looting_test.py",
+        "tools/seek_test.py",
+        "tools/settle_test.py",
+        "tools/tick_law_test.py",
+        "tools/walk_rate_test.py"
+      ]
+    },
+    {
+      "path": "mod/42.20/media/lua/shared/SAO_PlayerInteraction.lua",
+      "sha256": "6d3a1045431eab99e79e40f711bbb15a7fcda8c0a14c567735ae0584b3910162",
+      "lines_including_comments": 67,
+      "review_contract": "communication_presentation",
+      "lexical_dependencies": [
+        "mod/42.20/media/lua/shared/SAO_Organization.lua"
+      ],
+      "direct_event_registration_names": [],
+      "gate_scripts_naming_file": [
+        "tools/option_reach_test.py"
+      ]
+    },
+    {
+      "path": "mod/42.20/media/lua/shared/SAO_Pressure.lua",
+      "sha256": "466ce7d7d39bfedbe44f797f76ce7c7c680a40f6830299fcbe417f93baf9da15",
+      "lines_including_comments": 72,
+      "review_contract": "decision_and_life_producers",
+      "lexical_dependencies": [
+        "mod/42.20/media/lua/client/SAO_Body.lua",
+        "mod/42.20/media/lua/client/SAO_Medical.lua",
+        "mod/42.20/media/lua/client/SAO_Needs.lua",
+        "mod/42.20/media/lua/shared/SAO_Course.lua",
+        "mod/42.20/media/lua/shared/SAO_Identity.lua",
+        "mod/42.20/media/lua/shared/SAO_Neuro.lua",
+        "mod/42.20/media/lua/shared/SAO_Perception.lua"
+      ],
+      "direct_event_registration_names": [],
+      "gate_scripts_naming_file": [
+        "tools/brain_effects_test.py"
+      ]
+    },
+    {
+      "path": "mod/42.20/media/lua/shared/SAO_Rand.lua",
+      "sha256": "aa65e04733335f83e22210cdc9b837b4a92d5eab0dec4b07b56f4cb505d377c7",
+      "lines_including_comments": 201,
+      "review_contract": "runtime_bootstrap",
+      "lexical_dependencies": [
+        "mod/42.20/media/lua/shared/SAO_Hash.lua",
+        "mod/42.20/media/lua/shared/SAO_Log.lua"
+      ],
+      "direct_event_registration_names": [
+        "OnInitGlobalModData"
+      ],
+      "gate_scripts_naming_file": [
+        "tools/belief_payload_test.py",
+        "tools/company_forms_test.py",
+        "tools/company_pull_test.py",
+        "tools/county_draw_test.py",
+        "tools/death_leaves_company_test.py",
+        "tools/dormant_infection_test.py",
+        "tools/engine_data_test.py",
+        "tools/named_at_genesis_test.py",
+        "tools/person_belief_test.py",
+        "tools/seek_test.py",
+        "tools/settle_test.py",
+        "tools/tick_law_test.py",
+        "tools/walk_rate_test.py"
+      ]
+    },
+    {
+      "path": "mod/42.20/media/lua/shared/SAO_Recognition.lua",
+      "sha256": "bde1f1057bee6e6f8641de09f04d36f00d9a40e8a4f78a8429941425d344de53",
+      "lines_including_comments": 477,
+      "review_contract": "standing_relationships",
+      "lexical_dependencies": [
+        "mod/42.20/media/lua/shared/SAO_Communication.lua",
+        "mod/42.20/media/lua/shared/SAO_History.lua",
+        "mod/42.20/media/lua/shared/SAO_Material.lua",
+        "mod/42.20/media/lua/shared/SAO_Organization.lua",
+        "mod/42.20/media/lua/shared/SAO_Settlement.lua",
+        "mod/42.20/media/lua/shared/SAO_Standing.lua"
+      ],
+      "direct_event_registration_names": [],
+      "gate_scripts_naming_file": [
+        "tools/option_reach_test.py"
+      ]
+    },
+    {
+      "path": "mod/42.20/media/lua/shared/SAO_Seams.lua",
+      "sha256": "e55a60c39e3a8c8f0cef089d30c4199fd3cf40affa411b5071e2b3bddd11cf84",
+      "lines_including_comments": 63,
+      "review_contract": "runtime_bootstrap",
+      "lexical_dependencies": [],
+      "direct_event_registration_names": [],
+      "gate_scripts_naming_file": [
+        "tools/belief_payload_test.py",
+        "tools/bulkhead_test.py",
+        "tools/company_forms_test.py",
+        "tools/company_pull_test.py",
+        "tools/death_leaves_company_test.py",
+        "tools/dormant_infection_test.py",
+        "tools/person_belief_test.py",
+        "tools/save_compat_test.py",
+        "tools/seek_test.py",
+        "tools/settle_test.py",
+        "tools/sort_bound_test.py",
+        "tools/tick_law_test.py",
+        "tools/walk_rate_test.py"
+      ]
+    },
+    {
+      "path": "mod/42.20/media/lua/shared/SAO_Settlement.lua",
+      "sha256": "2c5dc88b61f5edaecec648b354487b052dcc2842814fb9e57f92033fcf57a394",
+      "lines_including_comments": 91,
+      "review_contract": "standing_relationships",
+      "lexical_dependencies": [
+        "mod/42.20/media/lua/shared/SAO_Organization.lua"
+      ],
+      "direct_event_registration_names": [],
+      "gate_scripts_naming_file": [
+        "tools/forget_on_death_test.py"
+      ]
+    },
+    {
+      "path": "mod/42.20/media/lua/shared/SAO_Standing.lua",
+      "sha256": "06a508792bf37bd5f996d969b3b6c64d239e32c70461616861cc3af62f1214e2",
+      "lines_including_comments": 3712,
+      "review_contract": "standing_relationships",
+      "lexical_dependencies": [
+        "mod/42.20/media/lua/client/SAO_Body.lua",
+        "mod/42.20/media/lua/client/SAO_Controller.lua",
+        "mod/42.20/media/lua/client/SAO_Needs.lua",
+        "mod/42.20/media/lua/client/SAO_Population.lua",
+        "mod/42.20/media/lua/client/SAO_Voice.lua",
+        "mod/42.20/media/lua/shared/SAO_Census.lua",
+        "mod/42.20/media/lua/shared/SAO_Disposition.lua",
+        "mod/42.20/media/lua/shared/SAO_History.lua",
+        "mod/42.20/media/lua/shared/SAO_Identity.lua",
+        "mod/42.20/media/lua/shared/SAO_Isolation.lua",
+        "mod/42.20/media/lua/shared/SAO_Lessons.lua",
+        "mod/42.20/media/lua/shared/SAO_Log.lua",
+        "mod/42.20/media/lua/shared/SAO_Perception.lua",
+        "mod/42.20/media/lua/shared/SAO_Recognition.lua"
+      ],
+      "direct_event_registration_names": [],
+      "gate_scripts_naming_file": [
+        "tools/before_the_fall_test.py",
+        "tools/belief_payload_test.py",
+        "tools/chronicle_test.py",
+        "tools/claim_lifecycle_test.py",
+        "tools/company_admission_test.py",
+        "tools/company_forms_test.py",
+        "tools/company_pull_test.py",
+        "tools/county_clock_test.py",
+        "tools/death_leaves_company_test.py",
+        "tools/dormant_infection_test.py",
+        "tools/era_test.py",
+        "tools/forget_on_death_test.py",
+        "tools/isolation_state_test.py",
+        "tools/motor_pool_test.py",
+        "tools/option_reach_test.py",
+        "tools/person_belief_test.py",
+        "tools/policy_reach_test.py",
+        "tools/seek_test.py",
+        "tools/settle_test.py",
+        "tools/sort_bound_test.py",
+        "tools/tick_law_test.py",
+        "tools/tick_walk_test.py",
+        "tools/time_softens_test.py",
+        "tools/trades_moment_test.py",
+        "tools/vehicle_ground_test.py",
+        "tools/walk_rate_test.py"
+      ]
+    },
+    {
+      "path": "mod/42.20/media/lua/shared/SAO_World.lua",
+      "sha256": "860a52a66d4d29970ed87b8dfe136348da222da9be2096f0f17a7ef07d9a470c",
+      "lines_including_comments": 137,
+      "review_contract": "time_population_world",
+      "lexical_dependencies": [
+        "mod/42.20/media/lua/shared/SAO_Log.lua"
+      ],
+      "direct_event_registration_names": [],
+      "gate_scripts_naming_file": [
+        "tools/sort_bound_test.py"
+      ]
+    },
+    {
+      "path": "mod/42.20/media/lua/shared/SAO_WorldDevelopment.lua",
+      "sha256": "4b2fa1e74b1012ecb722cbb562fc6be9a078256c5ef9e8126cf83d7cf65dc1ef",
+      "lines_including_comments": 80,
+      "review_contract": "time_population_world",
+      "lexical_dependencies": [
+        "mod/42.20/media/lua/shared/SAO_Identity.lua",
+        "mod/42.20/media/lua/shared/SAO_Log.lua",
+        "mod/42.20/media/lua/shared/SAO_PlaceAttachment.lua",
+        "mod/42.20/media/lua/shared/SAO_Standing.lua"
+      ],
+      "direct_event_registration_names": [],
+      "gate_scripts_naming_file": [
+        "tools/world_development_test.py"
+      ]
+    },
+    {
+      "path": "mod/42.20/media/lua/shared/SAO_WorldGenesis.lua",
+      "sha256": "21eae830f8d869ebfeeadc7b06e04bc7e4e715d83d13f4f890820588d9031b49",
+      "lines_including_comments": 87,
+      "review_contract": "time_population_world",
+      "lexical_dependencies": [
+        "mod/42.20/media/lua/client/SAO_Body.lua",
+        "mod/42.20/media/lua/shared/SAO_GraphPersistence.lua",
+        "mod/42.20/media/lua/shared/SAO_History.lua",
+        "mod/42.20/media/lua/shared/SAO_Identity.lua",
+        "mod/42.20/media/lua/shared/SAO_Integration.lua"
+      ],
+      "direct_event_registration_names": [],
+      "gate_scripts_naming_file": [
+        "tools/shared_time_test.py"
+      ]
+    }
+  ]
+}

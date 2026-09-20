@@ -1,0 +1,15 @@
+ENGINE save order: OnSave 302 < IsoCell.save 364 < GlobalModData.save 438
+ENGINE destination boundary: PlayerDB saves player slots; square save excludes living movingObjects
+production: VALUE PASS
+CONTROL save checkpoint callback missing or duplicated: REJECTED ERROR KahluaException: save checkpoint callback missing or duplicated
+CONTROL save persisted stale consumed/acquired items: REJECTED ERROR KahluaException: save persisted stale consumed/acquired items
+CONTROL save persisted stale appearance: REJECTED ERROR KahluaException: save persisted stale appearance
+CONTROL save position/time were stale: REJECTED ERROR KahluaException: save position/time were stale
+CONTROL capture failure reported faithful save: REJECTED ERROR KahluaException: capture failure reported faithful save: empty
+CONTROL checkpoint failure was hidden: REJECTED ERROR KahluaException: checkpoint failure was hidden
+CONTROL checkpoint captured excluded owner: REJECTED ERROR KahluaException: checkpoint captured excluded owner: return
+CONTROL checkpoint captured excluded owner: REJECTED ERROR KahluaException: checkpoint captured excluded owner: foreign
+CONTROL checkpoint changed live ownership: REJECTED ERROR KahluaException: checkpoint changed live ownership
+CONTROL failed checkpoint reconstructed stale possessions: REJECTED ERROR KahluaException: failed checkpoint reconstructed stale possessions
+CONTROL checkpoint refused durable table payload: REJECTED ERROR KahluaException: checkpoint refused durable table payload
+  166) PASS -- person save checkpoint

@@ -1,0 +1,64 @@
+[
+  {
+    "attempt": 0,
+    "seconds": 3.7075329999788664,
+    "returncode": 1,
+    "stdout": "==========================================================================\nTHE ENGINE FACTS THIS MOD IS BUILT ON\n==========================================================================\n  ok       [B182] assert is present: 'function'\n  ok       [B173] a double loses the low bits past 2^53: 'rounded'\n  ok       [B182] gmatch does not advance on a zero-width match: 'stuck'\n  ok       [B45] require is installed by the engine: Require.install carries it\n  ok       [B181] table.sort never chooses its pivot: found in stdlib.lua\n\nVERDICT:\n  FAULT: [B160] next is absent: the engine would not answer - Error: LinkageError occurred while loading main class LuaRun\n\tjava.lang.ClassFormatError: Truncated class file\n",
+    "stderr": ""
+  },
+  {
+    "attempt": 1,
+    "seconds": 4.0386720999958925,
+    "returncode": 0,
+    "stdout": "==========================================================================\nTHE ENGINE FACTS THIS MOD IS BUILT ON\n==========================================================================\n  ok       [B160] next is absent: 'nil'\n  ok       [B182] assert is present: 'function'\n  ok       [B173] a double loses the low bits past 2^53: 'rounded'\n  ok       [B182] gmatch does not advance on a zero-width match: 'stuck'\n  ok       [B45] require is installed by the engine: Require.install carries it\n  ok       [B181] table.sort never chooses its pivot: found in stdlib.lua\n\nVERDICT:\n  69) engine facts: all 6 behaviours this mod was built around are still true of the installed engine\n",
+    "stderr": ""
+  },
+  {
+    "attempt": 2,
+    "seconds": 4.036168400023598,
+    "returncode": 0,
+    "stdout": "==========================================================================\nTHE ENGINE FACTS THIS MOD IS BUILT ON\n==========================================================================\n  ok       [B160] next is absent: 'nil'\n  ok       [B182] assert is present: 'function'\n  ok       [B173] a double loses the low bits past 2^53: 'rounded'\n  ok       [B182] gmatch does not advance on a zero-width match: 'stuck'\n  ok       [B45] require is installed by the engine: Require.install carries it\n  ok       [B181] table.sort never chooses its pivot: found in stdlib.lua\n\nVERDICT:\n  69) engine facts: all 6 behaviours this mod was built around are still true of the installed engine\n",
+    "stderr": ""
+  },
+  {
+    "attempt": 3,
+    "seconds": 4.03519960003905,
+    "returncode": 0,
+    "stdout": "==========================================================================\nTHE ENGINE FACTS THIS MOD IS BUILT ON\n==========================================================================\n  ok       [B160] next is absent: 'nil'\n  ok       [B182] assert is present: 'function'\n  ok       [B173] a double loses the low bits past 2^53: 'rounded'\n  ok       [B182] gmatch does not advance on a zero-width match: 'stuck'\n  ok       [B45] require is installed by the engine: Require.install carries it\n  ok       [B181] table.sort never chooses its pivot: found in stdlib.lua\n\nVERDICT:\n  69) engine facts: all 6 behaviours this mod was built around are still true of the installed engine\n",
+    "stderr": ""
+  },
+  {
+    "attempt": 4,
+    "seconds": 4.015019899990875,
+    "returncode": 0,
+    "stdout": "==========================================================================\nTHE ENGINE FACTS THIS MOD IS BUILT ON\n==========================================================================\n  ok       [B160] next is absent: 'nil'\n  ok       [B182] assert is present: 'function'\n  ok       [B173] a double loses the low bits past 2^53: 'rounded'\n  ok       [B182] gmatch does not advance on a zero-width match: 'stuck'\n  ok       [B45] require is installed by the engine: Require.install carries it\n  ok       [B181] table.sort never chooses its pivot: found in stdlib.lua\n\nVERDICT:\n  69) engine facts: all 6 behaviours this mod was built around are still true of the installed engine\n",
+    "stderr": ""
+  },
+  {
+    "attempt": 5,
+    "seconds": 4.028466399991885,
+    "returncode": 0,
+    "stdout": "==========================================================================\nTHE ENGINE FACTS THIS MOD IS BUILT ON\n==========================================================================\n  ok       [B160] next is absent: 'nil'\n  ok       [B182] assert is present: 'function'\n  ok       [B173] a double loses the low bits past 2^53: 'rounded'\n  ok       [B182] gmatch does not advance on a zero-width match: 'stuck'\n  ok       [B45] require is installed by the engine: Require.install carries it\n  ok       [B181] table.sort never chooses its pivot: found in stdlib.lua\n\nVERDICT:\n  69) engine facts: all 6 behaviours this mod was built around are still true of the installed engine\n",
+    "stderr": ""
+  },
+  {
+    "attempt": 6,
+    "seconds": 4.076276100007817,
+    "returncode": 0,
+    "stdout": "==========================================================================\nTHE ENGINE FACTS THIS MOD IS BUILT ON\n==========================================================================\n  ok       [B160] next is absent: 'nil'\n  ok       [B182] assert is present: 'function'\n  ok       [B173] a double loses the low bits past 2^53: 'rounded'\n  ok       [B182] gmatch does not advance on a zero-width match: 'stuck'\n  ok       [B45] require is installed by the engine: Require.install carries it\n  ok       [B181] table.sort never chooses its pivot: found in stdlib.lua\n\nVERDICT:\n  69) engine facts: all 6 behaviours this mod was built around are still true of the installed engine\n",
+    "stderr": ""
+  },
+  {
+    "attempt": 7,
+    "seconds": 4.074047000030987,
+    "returncode": 0,
+    "stdout": "==========================================================================\nTHE ENGINE FACTS THIS MOD IS BUILT ON\n==========================================================================\n  ok       [B160] next is absent: 'nil'\n  ok       [B182] assert is present: 'function'\n  ok       [B173] a double loses the low bits past 2^53: 'rounded'\n  ok       [B182] gmatch does not advance on a zero-width match: 'stuck'\n  ok       [B45] require is installed by the engine: Require.install carries it\n  ok       [B181] table.sort never chooses its pivot: found in stdlib.lua\n\nVERDICT:\n  69) engine facts: all 6 behaviours this mod was built around are still true of the installed engine\n",
+    "stderr": ""
+  },
+  {
+    "case": "paused-shared-class-write",
+    "cache_accepted": true,
+    "value": null,
+    "error": "Error: LinkageError occurred while loading main class LuaRun\n\tjava.lang.ClassFormatError: Truncated class file"
+  }
+]

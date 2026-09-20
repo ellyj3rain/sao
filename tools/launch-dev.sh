@@ -1,7 +1,8 @@
 #!/usr/bin/env bash
 # Dev launcher: jre64 java.exe with argument parity to ProjectZomboid64.json
 # (including -agentlib:zbNative, which the shipped .bat omits and whose absence
-# breaks the window), plus the SAO agent and -debug.
+# breaks the window), plus the SAO agent and -debug. The early agent needs
+# ZombieBuddy's bundled Byte Buddy classes before the mod loader starts.
 set -euo pipefail
 
 ROOT="$(cd "$(dirname "$0")/.." && pwd)"
@@ -22,5 +23,5 @@ exec ./jre64/bin/java.exe \
   -XX:-CreateCoredumpOnCrash \
   -XX:-OmitStackTraceInFastThrow \
   -XX:+UseZGC \
-  -cp "./;projectzomboid.jar" \
+  -cp "./;projectzomboid.jar;ZombieBuddy.jar" \
   zombie.gameStates.MainScreenState -debug

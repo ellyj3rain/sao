@@ -1,6 +1,6 @@
 | Document | Survivor Awareness Overhaul Roadmap |
 |---|---|
-| Version | `2.7.14.7-pre-alpha` |
+| Version | `2.7.14.8-pre-alpha` |
 | Author | ellyj3rain |
 | Repository | `ROADMAP.md` |
 | Status | CANONICAL - readiness work and retained scope. |
@@ -13,7 +13,29 @@ This follows Speakeasy RECORD entry 45. Batch closure and a green gate do not
 establish readiness where causal mechanisms are missing or contradicted by
 evidence. SESSION_STATE.md states the current assessment.
 
-## Execution plan after C55
+## Border compression and private unified project
+
+DR-041 sets the immediate continuation after C56: compress the mod's borders,
+following the A/B/C consolidation precedent, then work toward one private
+unified mod/project across SAO, ZAO and Speakeasy's runtime artifacts.
+The existing R contracts remain the implementation obligations.
+
+DR-042 selects whole-mod runtime restructuring. The
+[restructuring plan](artifacts/audits/20260920-0145Z-1845PST-border-compression/PLAN.md)
+maps all 100 Lua/Java source files and 188 gate entry points, the current
+ownership concentrations, the intended responsibility boundaries and migration
+order. Behavioral contracts join production owners, cases and defect controls;
+former-border and source crosswalks preserve provenance. C57 implements the first
+unit: a shared body snapshot contract and consolidated native verification.
+The next unit covers population reconstruction and scheduling. Then
+perception/access, decision/action separation, social producers and presentation
+follow in dependency order. Existing R work moves with its owning contract.
+
+Private assembly follows a cross-module inventory of loading, Java entry
+points, save identity, settings, model artifacts and integration evidence.
+That inventory determines the source layout and packaging plan before assembly.
+
+## Implementation contracts after C56
 
 The work below is the ratified sequence; each row states whether it is closed or
 still planned. Each item names an implementation owner, its dependency and the
@@ -22,7 +44,7 @@ mechanisms and bounded investigations are in [SUBSTRATE.md](SUBSTRATE.md#impleme
 R identifiers refer to work in this plan; batch identifiers follow coherent
 implementation units when those units close. They do not reserve future batches.
 
-**Immediate execution:** R1 closed in SAO C52 / ZAO A35, R2 in C53, R3 in
+**Implementation dependencies carried through restructuring:** R1 closed in SAO C52 / ZAO A35, R2 in C53, R3 in
 C54, R4 in C55 / ZAO A36 and R5 in C56 / ZAO A37. R10a establishes the
 grounded world substrate needed by later dormant work; R6 repairs perception
 and access against that substrate. R11-R12 can proceed alongside them.

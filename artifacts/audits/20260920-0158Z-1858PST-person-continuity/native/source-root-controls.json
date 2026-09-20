@@ -1,0 +1,26 @@
+[
+  {
+    "case": "repository-only",
+    "returncode": 0,
+    "stdout": "SKIPPED native person VM: installed engine/JDK absent; inventory and source routing checked\n",
+    "stderr": ""
+  },
+  {
+    "case": "missing-PersonSnapshotProbe",
+    "returncode": 1,
+    "stdout": "FAULT Required native person source missing: tools/luacheck/PersonSnapshotProbe.java\n",
+    "stderr": ""
+  },
+  {
+    "case": "missing-SAOHibernation",
+    "returncode": 1,
+    "stdout": "FAULT Required native person source missing: java/src/com/sao/engine/SAOHibernation.java\n",
+    "stderr": ""
+  },
+  {
+    "case": "missing-SAO_BodySnapshot",
+    "returncode": 1,
+    "stdout": "FAULT Required native person source missing: mod/42.20/media/lua/shared/SAO_BodySnapshot.lua\n",
+    "stderr": ""
+  }
+]

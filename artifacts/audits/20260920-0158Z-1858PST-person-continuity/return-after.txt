@@ -1,0 +1,18 @@
+production: VALUE PASS
+CONTROL loaded return failed: REJECTED ERROR KahluaException: loaded return failed
+CONTROL retry did not complete: REJECTED ERROR KahluaException: retry did not complete
+CONTROL changed source consumed stale capture: REJECTED ERROR KahluaException: changed source consumed stale capture
+CONTROL missing loaded body treated as dormant: REJECTED ERROR KahluaException: missing loaded body treated as dormant
+CONTROL retry did not complete: REJECTED ERROR KahluaException: retry did not complete
+CONTROL completed return leaked staged ownership: REJECTED ERROR KahluaException: completed return leaked staged ownership
+CONTROL unacknowledged corpse lost pending ownership: REJECTED ERROR KahluaException: unacknowledged corpse lost pending ownership
+CONTROL body recovery did not resume return: REJECTED ERROR KahluaException: body recovery did not resume return
+CONTROL observed reanimation did not produce current turned state: REJECTED ERROR KahluaException: observed reanimation did not produce current turned state
+CONTROL observed reanimation did not produce current turned state: REJECTED ERROR KahluaException: observed reanimation did not produce current turned state
+CONTROL failed second capture retained old living state: REJECTED ERROR KahluaException: failed second capture retained old living state
+CONTROL return published at pre-hold coordinates: REJECTED ERROR KahluaException: return published at pre-hold coordinates
+CONTROL pending reason absent or repeated noisily: REJECTED ERROR KahluaException: pending reason absent or repeated noisily
+CONTROL offscreen return duplicated or lost source state: REJECTED ERROR KahluaException: offscreen return duplicated or lost source state
+CONTROL dormant cleanup recreated its temporary shell: REJECTED ERROR KahluaException: dormant cleanup recreated its temporary shell
+CONTROL return did not enter cross-file generation journal: REJECTED ERROR KahluaException: return did not enter cross-file generation journal
+  164) PASS -- afflicted return ownership

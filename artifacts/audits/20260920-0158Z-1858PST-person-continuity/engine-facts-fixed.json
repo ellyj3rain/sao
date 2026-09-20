@@ -1,0 +1,76 @@
+[
+  {
+    "case": "production",
+    "seconds": 2.2278202999732457,
+    "returncode": 0,
+    "stdout": "==========================================================================\nTHE ENGINE FACTS THIS MOD IS BUILT ON\n==========================================================================\n  CONTROL: incomplete runner refuses; private runner remains usable\n  ok       [B160] next is absent: 'nil'\n  ok       [B182] assert is present: 'function'\n  ok       [B173] a double loses the low bits past 2^53: 'rounded'\n  ok       [B182] gmatch does not advance on a zero-width match: 'stuck'\n  ok       [B45] require is installed by the engine: Require.install carries it\n  ok       [B181] table.sort never chooses its pivot: found in stdlib.lua\n\nVERDICT:\n  69) engine facts: all 6 behaviours this mod was built around are still true of the installed engine\n",
+    "stderr": ""
+  },
+  {
+    "case": "poisoned-shared-cache-no-lua",
+    "seconds": 2.2368271000450477,
+    "returncode": 0,
+    "stdout": "==========================================================================\nTHE ENGINE FACTS THIS MOD IS BUILT ON\n==========================================================================\n  CONTROL: incomplete runner refuses; private runner remains usable\n  ok       [B160] next is absent: 'nil'\n  ok       [B182] assert is present: 'function'\n  ok       [B173] a double loses the low bits past 2^53: 'rounded'\n  ok       [B182] gmatch does not advance on a zero-width match: 'stuck'\n  ok       [B45] require is installed by the engine: Require.install carries it\n  ok       [B181] table.sort never chooses its pivot: found in stdlib.lua\n\nVERDICT:\n  69) engine facts: all 6 behaviours this mod was built around are still true of the installed engine\n",
+    "stderr": ""
+  },
+  {
+    "case": "parallel-no-lua-0",
+    "seconds": 4.519861500011757,
+    "returncode": 0,
+    "stdout": "==========================================================================\nTHE ENGINE FACTS THIS MOD IS BUILT ON\n==========================================================================\n  CONTROL: incomplete runner refuses; private runner remains usable\n  ok       [B160] next is absent: 'nil'\n  ok       [B182] assert is present: 'function'\n  ok       [B173] a double loses the low bits past 2^53: 'rounded'\n  ok       [B182] gmatch does not advance on a zero-width match: 'stuck'\n  ok       [B45] require is installed by the engine: Require.install carries it\n  ok       [B181] table.sort never chooses its pivot: found in stdlib.lua\n\nVERDICT:\n  69) engine facts: all 6 behaviours this mod was built around are still true of the installed engine\n",
+    "stderr": ""
+  },
+  {
+    "case": "parallel-no-lua-1",
+    "seconds": 4.487629499984905,
+    "returncode": 0,
+    "stdout": "==========================================================================\nTHE ENGINE FACTS THIS MOD IS BUILT ON\n==========================================================================\n  CONTROL: incomplete runner refuses; private runner remains usable\n  ok       [B160] next is absent: 'nil'\n  ok       [B182] assert is present: 'function'\n  ok       [B173] a double loses the low bits past 2^53: 'rounded'\n  ok       [B182] gmatch does not advance on a zero-width match: 'stuck'\n  ok       [B45] require is installed by the engine: Require.install carries it\n  ok       [B181] table.sort never chooses its pivot: found in stdlib.lua\n\nVERDICT:\n  69) engine facts: all 6 behaviours this mod was built around are still true of the installed engine\n",
+    "stderr": ""
+  },
+  {
+    "case": "parallel-no-lua-2",
+    "seconds": 4.505147900024895,
+    "returncode": 0,
+    "stdout": "==========================================================================\nTHE ENGINE FACTS THIS MOD IS BUILT ON\n==========================================================================\n  CONTROL: incomplete runner refuses; private runner remains usable\n  ok       [B160] next is absent: 'nil'\n  ok       [B182] assert is present: 'function'\n  ok       [B173] a double loses the low bits past 2^53: 'rounded'\n  ok       [B182] gmatch does not advance on a zero-width match: 'stuck'\n  ok       [B45] require is installed by the engine: Require.install carries it\n  ok       [B181] table.sort never chooses its pivot: found in stdlib.lua\n\nVERDICT:\n  69) engine facts: all 6 behaviours this mod was built around are still true of the installed engine\n",
+    "stderr": ""
+  },
+  {
+    "case": "parallel-no-lua-3",
+    "seconds": 4.486368600046262,
+    "returncode": 0,
+    "stdout": "==========================================================================\nTHE ENGINE FACTS THIS MOD IS BUILT ON\n==========================================================================\n  CONTROL: incomplete runner refuses; private runner remains usable\n  ok       [B160] next is absent: 'nil'\n  ok       [B182] assert is present: 'function'\n  ok       [B173] a double loses the low bits past 2^53: 'rounded'\n  ok       [B182] gmatch does not advance on a zero-width match: 'stuck'\n  ok       [B45] require is installed by the engine: Require.install carries it\n  ok       [B181] table.sort never chooses its pivot: found in stdlib.lua\n\nVERDICT:\n  69) engine facts: all 6 behaviours this mod was built around are still true of the installed engine\n",
+    "stderr": ""
+  },
+  {
+    "case": "parallel-no-lua-4",
+    "seconds": 4.493336299958173,
+    "returncode": 0,
+    "stdout": "==========================================================================\nTHE ENGINE FACTS THIS MOD IS BUILT ON\n==========================================================================\n  CONTROL: incomplete runner refuses; private runner remains usable\n  ok       [B160] next is absent: 'nil'\n  ok       [B182] assert is present: 'function'\n  ok       [B173] a double loses the low bits past 2^53: 'rounded'\n  ok       [B182] gmatch does not advance on a zero-width match: 'stuck'\n  ok       [B45] require is installed by the engine: Require.install carries it\n  ok       [B181] table.sort never chooses its pivot: found in stdlib.lua\n\nVERDICT:\n  69) engine facts: all 6 behaviours this mod was built around are still true of the installed engine\n",
+    "stderr": ""
+  },
+  {
+    "case": "parallel-no-lua-5",
+    "seconds": 4.506825000047684,
+    "returncode": 0,
+    "stdout": "==========================================================================\nTHE ENGINE FACTS THIS MOD IS BUILT ON\n==========================================================================\n  CONTROL: incomplete runner refuses; private runner remains usable\n  ok       [B160] next is absent: 'nil'\n  ok       [B182] assert is present: 'function'\n  ok       [B173] a double loses the low bits past 2^53: 'rounded'\n  ok       [B182] gmatch does not advance on a zero-width match: 'stuck'\n  ok       [B45] require is installed by the engine: Require.install carries it\n  ok       [B181] table.sort never chooses its pivot: found in stdlib.lua\n\nVERDICT:\n  69) engine facts: all 6 behaviours this mod was built around are still true of the installed engine\n",
+    "stderr": ""
+  },
+  {
+    "case": "parallel-no-lua-6",
+    "seconds": 4.3927635999862105,
+    "returncode": 0,
+    "stdout": "==========================================================================\nTHE ENGINE FACTS THIS MOD IS BUILT ON\n==========================================================================\n  CONTROL: incomplete runner refuses; private runner remains usable\n  ok       [B160] next is absent: 'nil'\n  ok       [B182] assert is present: 'function'\n  ok       [B173] a double loses the low bits past 2^53: 'rounded'\n  ok       [B182] gmatch does not advance on a zero-width match: 'stuck'\n  ok       [B45] require is installed by the engine: Require.install carries it\n  ok       [B181] table.sort never chooses its pivot: found in stdlib.lua\n\nVERDICT:\n  69) engine facts: all 6 behaviours this mod was built around are still true of the installed engine\n",
+    "stderr": ""
+  },
+  {
+    "case": "parallel-no-lua-7",
+    "seconds": 4.488108600024134,
+    "returncode": 0,
+    "stdout": "==========================================================================\nTHE ENGINE FACTS THIS MOD IS BUILT ON\n==========================================================================\n  CONTROL: incomplete runner refuses; private runner remains usable\n  ok       [B160] next is absent: 'nil'\n  ok       [B182] assert is present: 'function'\n  ok       [B173] a double loses the low bits past 2^53: 'rounded'\n  ok       [B182] gmatch does not advance on a zero-width match: 'stuck'\n  ok       [B45] require is installed by the engine: Require.install carries it\n  ok       [B181] table.sort never chooses its pivot: found in stdlib.lua\n\nVERDICT:\n  69) engine facts: all 6 behaviours this mod was built around are still true of the installed engine\n",
+    "stderr": ""
+  },
+  {
+    "case": "shared-cache-untouched",
+    "passed": true
+  }
+]

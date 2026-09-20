@@ -1,0 +1,18 @@
+{
+  "status": "whole-mod runtime restructuring ratified; source map and migration plan recorded",
+  "crucible_interaction": "skill-bf49739e6e493394",
+  "markdown": "PLAN.md",
+  "word_copy": "PLAN.draft.docx",
+  "word_package_validation": "passed zip integrity and XML parsing",
+  "word_visual_validation": "unavailable: packaged render_docx.py reports LibreOffice soffice.exe absent from PATH",
+  "verification": [
+    "Inventory fixtures passed for direct calls, mirror-loop calls, comment exclusion and changed membership",
+    "Runtime inventory covers all 68 Lua and 32 Java source files exactly once; Lua comment/string exclusion control passed",
+    "gate_reach_test.py passed: 175 test files invoked",
+    "doc_currency_test.py passed",
+    "git diff --check passed"
+  ],
+  "full_gate": "not run; planning documents and static inventory only",
+  "runtime_changes": false,
+  "publication": "local working proposal; no batch closed or published"
+}

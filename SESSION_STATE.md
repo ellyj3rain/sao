@@ -1,17 +1,18 @@
 | Document | Survivor Awareness Overhaul Session State |
 |---|---|
-| Version | `2.7.14.7-pre-alpha` |
+| Version | `2.7.14.8-pre-alpha` |
 | Author | ellyj3rain |
 | Repository | `SESSION_STATE.md` |
 | Status | CANONICAL - current implementation and continuation. |
 
 # Session state
 
-**As of** 2026-09-19, `[C56]` closes R5 health and dormant physiology after
-durable/runtime reconstruction, complete native person continuity, shared
-county time, the authorized Afflicted return and the consolidated C1-C50 audit.
+**As of** 2026-09-20, `[C57]` closes the first whole-mod restructuring unit:
+shared body snapshots and consolidated native continuity verification. C56
+closed R5 health and dormant physiology after durable/runtime reconstruction,
+native person continuity, shared county time and the authorized Afflicted return.
 The C catalog is consolidated by adjacency and content using
-the A/B precedent: 29 A-batches, 52 B-batches and 56 C units. BATCH_LOG.md owns
+the A/B precedent: 29 A-batches, 52 B-batches and 57 C units. BATCH_LOG.md owns
 the chronology. Batches/FORMER_LABELS.md maps every former entry;
 Batches/C_RECATALOG.json preserves original paths and source hashes. The
 original records remain at local ref `archive/c-era-raw-20260919`.
@@ -58,6 +59,25 @@ filenames, seeds and hashes remain unchanged.
 
 ## Continuation
 
+The post-C56 Crucible return establishes border compression as the immediate
+work, followed eventually by one private unified mod/project (DR-041).
+The second return selects whole-mod runtime restructuring (DR-042).
+The [restructuring plan](artifacts/audits/20260920-0145Z-1845PST-border-compression/PLAN.md)
+maps the C56 baseline's 100 Lua/Java source files and 188 gate entry points,
+responsibility boundaries and migration order. C57 gives BodySnapshot the
+native-envelope contract while Body retains lifecycle transactions. The native
+suite preserves 36 historical control names as 35 distinct mutations and keeps
+the unchanged probe's 84 assertion sites. The first full gate found one missing
+county-harness dependency; its corrected check passes. The enforced commit
+gate validates the final tree before this closure is published.
+
+The next implementation unit is population reconstruction and scheduling:
+admission, representation scheduling, physical observations and dormant
+advancement retain separate owners under History. R10a investigates actual
+world sources before dormant opportunity can consume them. R6-R15 remain
+obligations and move with their owning contracts. The structural inventory is
+complete for its stated baseline; the semantic audit remains partial.
+
 R1 closes in C52 and ZAO A35. The living transaction, source holding and
 acknowledged removal, controller adoption, failure diagnostics, repeated-death
 binding, current-possession transfer and bodyless path have controlled VM
@@ -81,7 +101,7 @@ native source controls. Failed native source checkpoints are
 isolated from other identities and ordinary item processing; failed identities
 remain unavailable until a fresh world load.
 Component/table serialization, running-world save/reopen and interrupted-save
-guarantees remain distinct. C52/A35 are closed implementation batches and remain undeployed.
+guarantees remain distinct. The C57 installation includes C52/A35 and later repairs.
 
 R2 closes in C53. `History` now owns the 9000-tick hour and 216000-tick day
 conversions. `Controller.tick()` refreshes at the decision boundary, including
@@ -97,7 +117,7 @@ nondefault DayLength and large county-time skips. Three controls restore the
 cached decision value, day-as-tick call and county-paced corpse grace and fail
 at those defects. Border 160 retains production partial-day catch-up/reload.
 ZAO needs no R2 source change: its loaded controller reads the fresh SAO tick,
-and its durable pathogen history is explicitly day-based. C53 is undeployed;
+and its durable pathogen history is explicitly day-based. The C57 installation includes C53;
 loaded-world pacing remains a play observation rather than a mechanical claim.
 
 The same audit found that the published A32 Crossed-execution claim is false.
@@ -129,7 +149,7 @@ regularity and timestamps, so interrupted work cannot become completed credit.
 Border 169 executes the production codec against installed Build 42.20 through
 repeated wakes and the next nutrition, fitness and boosted-XP updates. Its
 controls remove each continuation or refusal seam and fail for the named state.
-C54 is undeployed; the installed C51 build remains the runtime baseline.
+The C57 installation includes C54; loaded-world acceptance remains separate.
 
 R4 closes in C55 and ZAO A36. Function-bearing graph callbacks now live only in
 runtime registries and re-register from stable IDs; memoized stores, name/place
@@ -146,7 +166,7 @@ second world, including graph extensions, caches, pending corpses and Java
 runtime maps. ZAO Border 8 verifies the engine save/load order and all four
 native/global generation pairings, missing and corrupt journals, cancellation,
 retirement and repeated saves. These are controlled installed-engine receipts,
-not loaded-world play acceptance. C55/A36 and C56/A37 remain undeployed at
+not loaded-world play acceptance. C55/A36 and C56/A37 were undeployed at
 this record.
 
 R5 closes in C56 and ZAO A37. Current physical inputs, partition-invariant
@@ -180,21 +200,36 @@ consequences remain separate from the learned policy choosing among them.
 
 ## Verification and installed state
 
-C56 has 170 numbered borders through 189 gated mirrors; ZAO A37 has ten
-borders. The
+C57 consolidates three native entry points into one: the gate invokes 173
+`*_test.py` files and 13 other Python entry points, 186 distinct scripts. Border
+labels extend through 175; legacy labels 163/169/174 share the native suite.
+These are distinct counting units. C57 ships 69 Lua source files.
+ZAO A37 has ten borders. The
 published C51 baseline has 163 borders through 178 mirrors. These counts describe the
 apparatus, not acceptance. The audit reproduced defects while targeted checks
-passed. The earlier audit's intermittent Border 54 failure remains unexplained.
+passed. C57 reproduces one cause of intermittent Border 54 refusal: concurrent
+engine-facts checks can read a partially written shared Java helper. F-088
+records the reproduction and private compilation fix; earlier occurrences lack
+the per-process output needed to assign their cause retrospectively.
 C51's separate first gate found a verdict-prefix defect and missing transition
 registry surfaces/lifetimes. Its failed output is preserved with the corrections;
 the closing full gate passed with exit 0.
 
-The verified C51 install was deployed on 2026-09-19 through
-tools/deploy.sh. All 249 installed files match source, with no missing or extra
-files. The SAO jar SHA-256 is
-`d3592141fe8ac8deae1d9ef2f8253b649c84076421fb062a59222636302babdc`.
-The C51 evidence directory holds the build, gate and deployment receipts.
-Saves remain untouched; no loaded-game acceptance is claimed.
+The current install is C57 (`2.7.14.8-pre-alpha`) with ZAO A37,
+deployed on 2026-09-20 UTC through each repository's
+deploy script. All 251 SAO and 29 ZAO files match source, with no missing,
+extra or different files. The SAO jar SHA-256 is
+`21af07463c08d4df0d22935b5497255ce0d6ea364238e7a14cead59cde8c7efc`.
+The [C57 evidence record](artifacts/audits/20260920-0158Z-1858PST-person-continuity/README.md)
+holds verification, deployment and startup receipts. The development launcher
+now places ZombieBuddy's bundled Byte Buddy classes on the early agent
+classpath; the prior launcher exited before opening a window. Startup shows
+both SAO and ZAO loaded. All 44,092 save-file sizes and modification times
+remain unchanged across deployment. No loaded-world play acceptance is claimed.
+ZAO's MutationOdds and CrossedOdds tooltips emit recovered formatting warnings;
+the engine returns their original text. The next ZAO packaging pass must escape
+their literal percent signs and verify unchanged displayed percentages against
+the installed translator. `startup.json` records the exact source and behavior.
 The source coordinate follows
 the consolidated replay; its movement does not measure implementation quality.
 

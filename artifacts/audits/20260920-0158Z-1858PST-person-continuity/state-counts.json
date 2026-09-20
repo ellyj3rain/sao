@@ -1,0 +1,9 @@
+{
+  "command": [
+    "C:\\Python314\\python.exe",
+    "tools\\state_counts_test.py"
+  ],
+  "returncode": 0,
+  "stdout": "THE DOCUMENT THAT SAYS WHERE THINGS STAND\n  A-batch documents: 29\n  B-batch records: 52\n  gated test files: 173\n  other gate scripts: 13\n  distinct gate scripts: 186\n  highest border label: 175\n  76) state counts: all 6 canonical figures match; 3 mutation controls refuse\n",
+  "stderr": ""
+}

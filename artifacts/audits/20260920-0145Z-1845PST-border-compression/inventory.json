@@ -1,0 +1,2368 @@
+{
+  "schema": "sao-border-entry-inventory/1",
+  "source_commit": "08f9d6d32977a731f0af06c2824cbe72e2024550",
+  "gate_sha256": "3076d16a4fa7571b85fffa263ad5e74d1f1b7cdd986d97cbdfbd29445a121299",
+  "gate_lines": 1982,
+  "distinct_python_entry_points": 188,
+  "test_files": 175,
+  "method": "Explicit $PY tools/name.py calls and named entries in the mirror loop; comments excluded.",
+  "instrument_controls": "Exact fixture enumeration; direct and loop substitutions change membership; comments excluded.",
+  "limits": "Static entry-point inventory. Does not count repeated invocations, subprocesses, cases, controls, or effective behavioral coverage.",
+  "entries": [
+    {
+      "path": "tools/absorb_test.py",
+      "sha256": "94f3bff6c60401c8325f21d6f106ba10abe4b2042d4ff12c25127e6fa53ff76c",
+      "test_file": true,
+      "declared_title": "Border 98 - absorption obeys the neighbour's body law (DR-022/023/024).",
+      "lexical_production_references": [
+        "SAOBridge.java",
+        "SAO_Absorb.lua",
+        "SAO_Harness.lua",
+        "SAO_Sandbox.lua"
+      ],
+      "behavioral_coverage": "not assessed by this inventory"
+    },
+    {
+      "path": "tools/acquisition_test.py",
+      "sha256": "9df7fbe3d762926802e721423e560bf1e1777c0a09b7cb36083b02aae9bf7419",
+      "test_file": true,
+      "declared_title": "Border 28 - nobody knows anything for no reason.",
+      "lexical_production_references": [
+        "SAO_Lessons.lua",
+        "SAO_Perception.lua"
+      ],
+      "behavioral_coverage": "not assessed by this inventory"
+    },
+    {
+      "path": "tools/afflicted_return_test.py",
+      "sha256": "e87b16cdcc17ff17164164456dc07055a138682bdbf81d70385a88d3d696f096",
+      "test_file": true,
+      "declared_title": "Execute the actual SAO/ZAO return transaction with explicit engine doubles.",
+      "lexical_production_references": [
+        "SAO_AfflictedReturn.lua",
+        "SAO_Body.lua",
+        "SAO_Controller.lua",
+        "SAO_Identity.lua"
+      ],
+      "behavioral_coverage": "not assessed by this inventory"
+    },
+    {
+      "path": "tools/age_bands_test.py",
+      "sha256": "e2f558222158bbf1a7547f3f3f15a8b12b8f13fd7cc94e4093a6254a553c9708",
+      "test_file": true,
+      "declared_title": "Border 105 - age is a system on the county's people ([C30], DR-032).",
+      "lexical_production_references": [
+        "SAO_Age.lua",
+        "SAO_Body.lua",
+        "SAO_Hash.lua",
+        "SAO_History.lua"
+      ],
+      "behavioral_coverage": "not assessed by this inventory"
+    },
+    {
+      "path": "tools/age_test.py",
+      "sha256": "357a61413b95200f2d6007d37cb4f24dd752d85c96f6c24d9311208f1784e3fc",
+      "test_file": true,
+      "declared_title": "[B37] Age: the shape of the county the apocalypse leaves.",
+      "lexical_production_references": [
+        "SAO_Census.lua",
+        "SAO_History.lua",
+        "SAO_Telemetry.lua"
+      ],
+      "behavioral_coverage": "not assessed by this inventory"
+    },
+    {
+      "path": "tools/animal_care_ground_test.py",
+      "sha256": "5288eb1b16268473c1b6c2cba824d9b196648596ae92cef5909a1c7d907eb931",
+      "test_file": true,
+      "declared_title": "Border 156 - livestock state is read from the engine and cared for by it.",
+      "lexical_production_references": [
+        "SAOAnimals.java",
+        "SAOBridge.java",
+        "SAO_Animals.lua",
+        "SAO_Controller.lua"
+      ],
+      "behavioral_coverage": "not assessed by this inventory"
+    },
+    {
+      "path": "tools/animal_ground_test.py",
+      "sha256": "26ab047eac5851ffeb08e999fc106a5db43b44f936d37a737caaedd6d7667f5e",
+      "test_file": true,
+      "declared_title": "Border 155 - an animal is not a foreign person.",
+      "lexical_production_references": [
+        "SAOBridge.java",
+        "SAOPerceptionScanner.java"
+      ],
+      "behavioral_coverage": "not assessed by this inventory"
+    },
+    {
+      "path": "tools/answer_set_test.py",
+      "sha256": "113b74f3ae80b8ad3524844859bad2cb369e7a474c27bc47c3283431f8fc25ce",
+      "test_file": true,
+      "declared_title": "Border 53 - an answer is decided by who asked, not by how it reads.",
+      "lexical_production_references": [
+        "SAO_Harness.lua",
+        "SAO_Voice.lua"
+      ],
+      "behavioral_coverage": "not assessed by this inventory"
+    },
+    {
+      "path": "tools/appearance_test.py",
+      "sha256": "7b521d9e4d92e0605afbbe117cce90285e7bec60175590a4d457c185a228fdec",
+      "test_file": true,
+      "declared_title": "Border 27 - the age gradient is visible, and reversible.",
+      "lexical_production_references": [
+        "SAO_Appearance.lua",
+        "SAO_History.lua",
+        "SAO_Population.lua"
+      ],
+      "behavioral_coverage": "not assessed by this inventory"
+    },
+    {
+      "path": "tools/arrival_test.py",
+      "sha256": "79ee856a4274bcf32781e1d7fe76020839fa5d0a6d5aee9ba14fbb6e154c05ea",
+      "test_file": true,
+      "declared_title": "[B33] How long the road actually takes.",
+      "lexical_production_references": [
+        "SAO_Population.lua"
+      ],
+      "behavioral_coverage": "not assessed by this inventory"
+    },
+    {
+      "path": "tools/art_derived_test.py",
+      "sha256": "fc895c6e1fe53db5333a571070be8141fc97c50b4fff75b2ca9f7a2018f6f5a7",
+      "test_file": true,
+      "declared_title": "Border 73 - a binary nobody can regenerate is a binary nobody can check.",
+      "lexical_production_references": [],
+      "behavioral_coverage": "not assessed by this inventory"
+    },
+    {
+      "path": "tools/ask_test.py",
+      "sha256": "6a507cc94bb76dca8668dd698af087ea980cb18f635f5e9169c8b5eeaf3e9c19",
+      "test_file": true,
+      "declared_title": "The ask test ([B24]) - can a hungry house ever be answered?",
+      "lexical_production_references": [],
+      "behavioral_coverage": "not assessed by this inventory"
+    },
+    {
+      "path": "tools/before_the_fall_test.py",
+      "sha256": "e46078d2176c02604720108e4b3877b3b6cf7990af89a892982354be3e208773",
+      "test_file": true,
+      "declared_title": "Border 116 - before the fall, an ordinary life ([C42], DR-036).",
+      "lexical_production_references": [
+        "SAO_Controller.lua",
+        "SAO_History.lua",
+        "SAO_Standing.lua"
+      ],
+      "behavioral_coverage": "not assessed by this inventory"
+    },
+    {
+      "path": "tools/belief_life_test.py",
+      "sha256": "d02e650c8245592107eb8d6b5a8a5aa49faee579246ace6ea250c610847be42a",
+      "test_file": true,
+      "declared_title": "[B35] A belief's whole life, and the one table that had no end.",
+      "lexical_production_references": [
+        "SAO_Perception.lua"
+      ],
+      "behavioral_coverage": "not assessed by this inventory"
+    },
+    {
+      "path": "tools/belief_payload_test.py",
+      "sha256": "10b43a1bf2c47a0572598f325ee972ba7adc94feda6617ae3f8f43f8c18997e8",
+      "test_file": true,
+      "declared_title": "Border 147 - what a belief carries ([C87]).",
+      "lexical_production_references": [
+        "SAO_Age.lua",
+        "SAO_Census.lua",
+        "SAO_Claims.lua",
+        "SAO_Conditions.lua",
+        "SAO_Disposition.lua",
+        "SAO_Habits.lua",
+        "SAO_Hash.lua",
+        "SAO_History.lua",
+        "SAO_Identity.lua",
+        "SAO_Knowledge.lua",
+        "SAO_Lessons.lua",
+        "SAO_Log.lua",
+        "SAO_Perception.lua",
+        "SAO_Places.lua",
+        "SAO_Population.lua",
+        "SAO_Rand.lua",
+        "SAO_Seams.lua",
+        "SAO_Standing.lua",
+        "SAO_Telemetry.lua"
+      ],
+      "behavioral_coverage": "not assessed by this inventory"
+    },
+    {
+      "path": "tools/betweentime_test.py",
+      "sha256": "1547b332b31e61ebbba0bd6fcca7d8a3746dd70b506eaa31ac8a4908cc186c01",
+      "test_file": true,
+      "declared_title": "The between-time test ([B32]) - who ever gets the slot?",
+      "lexical_production_references": [
+        "SAO_Controller.lua"
+      ],
+      "behavioral_coverage": "not assessed by this inventory"
+    },
+    {
+      "path": "tools/bite_clock_test.py",
+      "sha256": "4f6ab0e6c6e086741182e59e6acd46f244c897f99eaf4e33e00b566de4604cbf",
+      "test_file": true,
+      "declared_title": "Border 90 - the bite kills on the engine's clock, and no constant",
+      "lexical_production_references": [
+        "SAOBridge.java",
+        "SAO_Population.lua"
+      ],
+      "behavioral_coverage": "not assessed by this inventory"
+    },
+    {
+      "path": "tools/blame_test.py",
+      "sha256": "b2904ac5f86add0aa2b42315583cbd3de56a73fba91ef385eeb65a72fb62116a",
+      "test_file": true,
+      "declared_title": "Border 127 - seeing a death is not seeing who did it ([C55], Law 1).",
+      "lexical_production_references": [
+        "SAO_Controller.lua"
+      ],
+      "behavioral_coverage": "not assessed by this inventory"
+    },
+    {
+      "path": "tools/body_scale_test.py",
+      "sha256": "00878219d615f362247d736b39cdef8c6d8aa531be8169b8b9229c2839a02ee5",
+      "test_file": true,
+      "declared_title": "Border 104 - the body is scaled from inside the animation player",
+      "lexical_production_references": [
+        "SAOAgent.java",
+        "SAOBodyScale.java",
+        "SAOBodyScaleWeave.java",
+        "SAOBridge.java",
+        "SAOIsoPlayerShell.java",
+        "SAO_Body.lua",
+        "SAO_Harness.lua",
+        "SAO_History.lua"
+      ],
+      "behavioral_coverage": "not assessed by this inventory"
+    },
+    {
+      "path": "tools/book_vocabulary_test.py",
+      "sha256": "b45e865865e107f5ff497a3a6f5c6d8192e4fc37b9a1dbb745a2ed9cb36c489b",
+      "test_file": true,
+      "declared_title": "Border 30 - a trade can find the book its road back rides on.",
+      "lexical_production_references": [
+        "SAO_Census.lua",
+        "SAO_Controller.lua"
+      ],
+      "behavioral_coverage": "not assessed by this inventory"
+    },
+    {
+      "path": "tools/brain_effects_test.py",
+      "sha256": "452a7d6ec02975848fbd1502c5a1f97d70a599b65ac739cb0265cf41bb6ed179",
+      "test_file": true,
+      "declared_title": "Border 175: event-derived brain load changes shipped survivor behavior.",
+      "lexical_production_references": [
+        "SAO_Conditions.lua",
+        "SAO_Controller.lua",
+        "SAO_Locomotion.lua",
+        "SAO_Neuro.lua",
+        "SAO_Pressure.lua"
+      ],
+      "behavioral_coverage": "not assessed by this inventory"
+    },
+    {
+      "path": "tools/brain_health_test.py",
+      "sha256": "17c7941d1ed6f22e1464ea6c268ea6918da414d86d5b5f5a389421be40cf92b1",
+      "test_file": true,
+      "declared_title": "Border 172: event-derived, owner-correct brain health in installed Kahlua.",
+      "lexical_production_references": [
+        "SAO_Neuro.lua"
+      ],
+      "behavioral_coverage": "not assessed by this inventory"
+    },
+    {
+      "path": "tools/bridge_arity.py",
+      "sha256": "a690dcaf7f210c4d445118aae573f55d98d1b027f8e04b75785bee7404504046",
+      "test_file": false,
+      "declared_title": "[B33] The bridge is the widest silent-failure surface in the mod.",
+      "lexical_production_references": [],
+      "behavioral_coverage": "not assessed by this inventory"
+    },
+    {
+      "path": "tools/bridge_safety_test.py",
+      "sha256": "b4040b5caa49451931c32d7e6119d62f8d19cdb4a3bf91e34713c4a57f8b821e",
+      "test_file": true,
+      "declared_title": "Border 71 - a Java throw into Kahlua takes the Lua frame with it.",
+      "lexical_production_references": [
+        "SAOBridge.java"
+      ],
+      "behavioral_coverage": "not assessed by this inventory"
+    },
+    {
+      "path": "tools/bulkhead_test.py",
+      "sha256": "726a51f62a014ccff2edd26f08df9de8df8153de1fee3557ef18faf3285f54a2",
+      "test_file": true,
+      "declared_title": "[B33] The bulkheads, driven rather than read.",
+      "lexical_production_references": [
+        "SAO_Controller.lua",
+        "SAO_Locomotion.lua",
+        "SAO_Population.lua",
+        "SAO_Seams.lua",
+        "SAO_UI.lua"
+      ],
+      "behavioral_coverage": "not assessed by this inventory"
+    },
+    {
+      "path": "tools/call_target_test.py",
+      "sha256": "760d8d54d129faf013ee258c2d38326a88a754333678f0aca82776bb5fdc29e5",
+      "test_file": true,
+      "declared_title": "Border 93 - every SAO.<Module>.<fn> call has a definition somewhere.",
+      "lexical_production_references": [],
+      "behavioral_coverage": "not assessed by this inventory"
+    },
+    {
+      "path": "tools/census_authority_test.py",
+      "sha256": "3f013cb91ca3264e35cd7f28f259e6418b053870fe98eeaea9c5a431a4e24225",
+      "test_file": true,
+      "declared_title": "Border 41 - who somebody was is this county's own judgement to make.",
+      "lexical_production_references": [
+        "SAO_Census.lua",
+        "SAO_History.lua"
+      ],
+      "behavioral_coverage": "not assessed by this inventory"
+    },
+    {
+      "path": "tools/census_grounding_test.py",
+      "sha256": "b1969e6416ce2e44f16986edcaa0dd8e1afd8b31526222880553c83169d899c6",
+      "test_file": true,
+      "declared_title": "Border 24 - who the county is, against who Kentucky was.",
+      "lexical_production_references": [
+        "SAO_Census.lua"
+      ],
+      "behavioral_coverage": "not assessed by this inventory"
+    },
+    {
+      "path": "tools/census_test.py",
+      "sha256": "f70fd6e14a070c6260399970eb4b7adfb246d00474abfeee35a75af6e4cd0352",
+      "test_file": true,
+      "declared_title": "Offline port of SAO_Census.assign: does a 500-cohort county look like",
+      "lexical_production_references": [
+        "SAO_Census.lua"
+      ],
+      "behavioral_coverage": "not assessed by this inventory"
+    },
+    {
+      "path": "tools/childs_day_test.py",
+      "sha256": "61ba213c2738061899ab2e106dbdb55089019367ebdb1f32cdd3b5b7c3b705a7",
+      "test_file": true,
+      "declared_title": "Border 106 - the child's day ([C31], DR-032).",
+      "lexical_production_references": [
+        "SAOBridge.java",
+        "SAOIsoPlayerShell.java",
+        "SAO_Age.lua",
+        "SAO_Appearance.lua",
+        "SAO_Body.lua",
+        "SAO_Controller.lua",
+        "SAO_Disposition.lua",
+        "SAO_Hash.lua",
+        "SAO_History.lua"
+      ],
+      "behavioral_coverage": "not assessed by this inventory"
+    },
+    {
+      "path": "tools/chronicle_test.py",
+      "sha256": "0d8681bbd9f0224b2dec6617b071dc9136db5de4eac9e49f2d239dd2fb4477ed",
+      "test_file": true,
+      "declared_title": "Border 39 - the county's history is written and read by the same list.",
+      "lexical_production_references": [
+        "SAO_Standing.lua",
+        "SAO_UI.lua"
+      ],
+      "behavioral_coverage": "not assessed by this inventory"
+    },
+    {
+      "path": "tools/claim_lifecycle_test.py",
+      "sha256": "6a4e087e138eba81884b1252cecb764ca242016966273f9dad476c788d871406",
+      "test_file": true,
+      "declared_title": "[B36] The claim, end to end, as one chain.",
+      "lexical_production_references": [
+        "SAO_Controller.lua",
+        "SAO_Perception.lua",
+        "SAO_Standing.lua",
+        "SAO_UI.lua"
+      ],
+      "behavioral_coverage": "not assessed by this inventory"
+    },
+    {
+      "path": "tools/click_lands_test.py",
+      "sha256": "feec664952a1d7a3c95e6ce6a9366d2bf9706f8d80a12832b79691991734d98a",
+      "test_file": true,
+      "declared_title": "Border 100 - the click lands, the body is dressed, the line holds.",
+      "lexical_production_references": [
+        "SAOBridge.java",
+        "SAO_Body.lua",
+        "SAO_Harness.lua",
+        "SAO_Population.lua",
+        "SAO_Voice.lua"
+      ],
+      "behavioral_coverage": "not assessed by this inventory"
+    },
+    {
+      "path": "tools/combat_patch_test.py",
+      "sha256": "77156bcbe780c38b918acf6aed271cd0ac9b449906fb13ed2feb61f46d94d225",
+      "test_file": true,
+      "declared_title": "[B33] Does the melee patch still fit the engine it is aimed at?",
+      "lexical_production_references": [
+        "SAOMeleeTransformer.java"
+      ],
+      "behavioral_coverage": "not assessed by this inventory"
+    },
+    {
+      "path": "tools/combat_perception_test.py",
+      "sha256": "58096679dcca6b694b222cee354b885974afebbb6eda8d572a9cd0d559868bcc",
+      "test_file": true,
+      "declared_title": "Border 157 - combat perception and mod compatibility.",
+      "lexical_production_references": [
+        "SAOBridge.java",
+        "SAOCombat.java",
+        "SAOEquipment.java",
+        "SAOPerceptionScanner.java",
+        "SAOZombieDirector.java",
+        "SAO_Needs.lua",
+        "SAO_Perception.lua"
+      ],
+      "behavioral_coverage": "not assessed by this inventory"
+    },
+    {
+      "path": "tools/command_test.py",
+      "sha256": "ff548469c0714a2ccb9f84c1e5ff1cc3899224bacc4462ba1d6ec316e15d9d09",
+      "test_file": true,
+      "declared_title": "Border 111 - an order lands through standing ([C37], DR-033 ruled).",
+      "lexical_production_references": [
+        "SAO_Command.lua",
+        "SAO_Conditions.lua",
+        "SAO_Controller.lua",
+        "SAO_Disposition.lua",
+        "SAO_Gesture.lua",
+        "SAO_Harness.lua",
+        "SAO_Hash.lua",
+        "SAO_History.lua",
+        "SAO_Inspect.lua",
+        "SAO_Voice.lua"
+      ],
+      "behavioral_coverage": "not assessed by this inventory"
+    },
+    {
+      "path": "tools/company_admission_test.py",
+      "sha256": "e9b47693f9b31ac0eb8df4286bde38fe1191a35e1e922b3205288681a68ba038",
+      "test_file": true,
+      "declared_title": "Company admission and departure in the shipped Kahlua modules.",
+      "lexical_production_references": [
+        "SAO_Isolation.lua",
+        "SAO_Standing.lua"
+      ],
+      "behavioral_coverage": "not assessed by this inventory"
+    },
+    {
+      "path": "tools/company_forms_test.py",
+      "sha256": "3994be678a61f7e39cd1c7ce185208b535a389658b9503bcfc52ff11f3d655ca",
+      "test_file": true,
+      "declared_title": "Border 135 - a founded company is still standing afterwards ([C67]).",
+      "lexical_production_references": [
+        "SAO_Census.lua",
+        "SAO_Claims.lua",
+        "SAO_Conditions.lua",
+        "SAO_Disposition.lua",
+        "SAO_Habits.lua",
+        "SAO_Hash.lua",
+        "SAO_History.lua",
+        "SAO_Identity.lua",
+        "SAO_Knowledge.lua",
+        "SAO_Lessons.lua",
+        "SAO_Log.lua",
+        "SAO_Rand.lua",
+        "SAO_Seams.lua",
+        "SAO_Standing.lua"
+      ],
+      "behavioral_coverage": "not assessed by this inventory"
+    },
+    {
+      "path": "tools/company_pull_test.py",
+      "sha256": "6f3c8ae6177294397dfa8816b474bb87bfe9d1597b33681c60ab86bdce4d138c",
+      "test_file": true,
+      "declared_title": "Border 152 - need stands alongside trust ([C111]).",
+      "lexical_production_references": [
+        "SAO_Age.lua",
+        "SAO_Census.lua",
+        "SAO_Claims.lua",
+        "SAO_Conditions.lua",
+        "SAO_Controller.lua",
+        "SAO_Disposition.lua",
+        "SAO_Exchange.lua",
+        "SAO_Habits.lua",
+        "SAO_Harness.lua",
+        "SAO_Hash.lua",
+        "SAO_History.lua",
+        "SAO_Identity.lua",
+        "SAO_Knowledge.lua",
+        "SAO_Lessons.lua",
+        "SAO_Log.lua",
+        "SAO_Perception.lua",
+        "SAO_Places.lua",
+        "SAO_Population.lua",
+        "SAO_Rand.lua",
+        "SAO_Seams.lua",
+        "SAO_Standing.lua",
+        "SAO_Telemetry.lua"
+      ],
+      "behavioral_coverage": "not assessed by this inventory"
+    },
+    {
+      "path": "tools/conditions_test.py",
+      "sha256": "e72425ef1204a01dda96e140d5b9d09a55820098c9d797b24daeb03bf1b8d7ec",
+      "test_file": true,
+      "declared_title": "Border 107 - conditions are facts about a person ([C32], DR-032).",
+      "lexical_production_references": [
+        "SAOBridge.java",
+        "SAO_Age.lua",
+        "SAO_Body.lua",
+        "SAO_Conditions.lua",
+        "SAO_Controller.lua",
+        "SAO_Disposition.lua",
+        "SAO_Hash.lua",
+        "SAO_History.lua",
+        "SAO_Inspect.lua",
+        "SAO_Knowledge.lua",
+        "SAO_Perception.lua",
+        "SAO_Traits.lua"
+      ],
+      "behavioral_coverage": "not assessed by this inventory"
+    },
+    {
+      "path": "tools/copy_ratified_test.py",
+      "sha256": "86877326879147e2e1ce500a229abbe7df320707ea3d7c87d2a0872146ca1ca0",
+      "test_file": true,
+      "declared_title": "Border 92 - player-facing copy is ratified, not drafted (DR-018).",
+      "lexical_production_references": [
+        "SAO_UI.lua"
+      ],
+      "behavioral_coverage": "not assessed by this inventory"
+    },
+    {
+      "path": "tools/county_clock_test.py",
+      "sha256": "c172935b5f8846b4a43376c880222905f60ea662c6be27c82c7bfad3666b5c74",
+      "test_file": true,
+      "declared_title": "Border 131 - the county's clock moves while the years are lived ([C62]).",
+      "lexical_production_references": [
+        "SAO_History.lua",
+        "SAO_Population.lua",
+        "SAO_Standing.lua"
+      ],
+      "behavioral_coverage": "not assessed by this inventory"
+    },
+    {
+      "path": "tools/county_draw_test.py",
+      "sha256": "fb7babd394789b9e0a225d6799e72def66c8a6ef717b7a3fecc5193556f92922",
+      "test_file": true,
+      "declared_title": "Border 134 - the county's draw is its own, and it is measured ([C66]).",
+      "lexical_production_references": [
+        "SAO_Hash.lua",
+        "SAO_Rand.lua"
+      ],
+      "behavioral_coverage": "not assessed by this inventory"
+    },
+    {
+      "path": "tools/course_test.py",
+      "sha256": "02183d2f12585a5f11440ac98300668ed39b2b8ffbf2537452be0a49792a1c43",
+      "test_file": true,
+      "declared_title": "Border 142 - the body fights, and the cadence cannot change how well.",
+      "lexical_production_references": [
+        "SAO_Course.lua",
+        "SAO_Hash.lua",
+        "SAO_Log.lua"
+      ],
+      "behavioral_coverage": "not assessed by this inventory"
+    },
+    {
+      "path": "tools/crowd_ledger_test.py",
+      "sha256": "9df15810d74e663314dc751b3e83b42b4de5811afedceccb82268d0e7395cfb0",
+      "test_file": true,
+      "declared_title": "Border 96 - the crowd ledger: two dials, one accounting.",
+      "lexical_production_references": [
+        "SAOBridge.java",
+        "SAO_Population.lua"
+      ],
+      "behavioral_coverage": "not assessed by this inventory"
+    },
+    {
+      "path": "tools/day_zero_owes_test.py",
+      "sha256": "e309d00eac6d74ef3da761874a295d6e18de41f8ff270917c18481cfdfaacd61",
+      "test_file": true,
+      "declared_title": "Border 132 - a save the record is moved onto owes no years ([C63]).",
+      "lexical_production_references": [
+        "SAOBridge.java",
+        "SAORecord.java",
+        "SAO_History.lua",
+        "SAO_Population.lua",
+        "SAO_Record.lua"
+      ],
+      "behavioral_coverage": "not assessed by this inventory"
+    },
+    {
+      "path": "tools/dead_census_test.py",
+      "sha256": "06c246e2c03f7e1005653416dfa1986304a4dc34c1e347d3af84124aa6845cf7",
+      "test_file": true,
+      "declared_title": "Border 95 - the dead census exists, splits identity from crowd, and",
+      "lexical_production_references": [
+        "SAOBridge.java",
+        "SAO_Inspect.lua",
+        "SAO_Telemetry.lua"
+      ],
+      "behavioral_coverage": "not assessed by this inventory"
+    },
+    {
+      "path": "tools/death_leaves_company_test.py",
+      "sha256": "82ac9f228c5a2fb24ee01e6e4adeab8c6eab74e3550e0b1672398d8748023a49",
+      "test_file": true,
+      "declared_title": "Border 136 - a death leaves the company ([C68]).",
+      "lexical_production_references": [
+        "SAO_Census.lua",
+        "SAO_Claims.lua",
+        "SAO_Conditions.lua",
+        "SAO_Controller.lua",
+        "SAO_Disposition.lua",
+        "SAO_Habits.lua",
+        "SAO_Hash.lua",
+        "SAO_History.lua",
+        "SAO_Identity.lua",
+        "SAO_Knowledge.lua",
+        "SAO_Lessons.lua",
+        "SAO_Log.lua",
+        "SAO_Rand.lua",
+        "SAO_Seams.lua",
+        "SAO_Standing.lua"
+      ],
+      "behavioral_coverage": "not assessed by this inventory"
+    },
+    {
+      "path": "tools/decision_range_test.py",
+      "sha256": "630a0326376732cbe0c2076faadc8ad50e908557dc1f4de907a616c644bc7339",
+      "test_file": true,
+      "declared_title": "Border 63 - a range a comment promises and the code cannot reach.",
+      "lexical_production_references": [
+        "SAO_Conditions.lua",
+        "SAO_Disposition.lua",
+        "SAO_Hash.lua",
+        "SAO_History.lua"
+      ],
+      "behavioral_coverage": "not assessed by this inventory"
+    },
+    {
+      "path": "tools/digest_order_test.py",
+      "sha256": "e70e27ea4e751366b395197835497f82903a73f3a4dfbf7b2ffb85a345af3125",
+      "test_file": true,
+      "declared_title": "Border 58 - a report that runs before the thing it reports on.",
+      "lexical_production_references": [
+        "SAO_Population.lua"
+      ],
+      "behavioral_coverage": "not assessed by this inventory"
+    },
+    {
+      "path": "tools/doc_currency_test.py",
+      "sha256": "e4b33dd8e26e1377d290b38b3ce101d1b6f72eb6c4ebd0347cd54d53a03e3c98",
+      "test_file": true,
+      "declared_title": "Border 43 - the doc-pack states one version, and the index knows the root.",
+      "lexical_production_references": [],
+      "behavioral_coverage": "not assessed by this inventory"
+    },
+    {
+      "path": "tools/dormant_infection_test.py",
+      "sha256": "10089e81de21b376333b2b13ee0f8da60f8994f174fcb6331db727bd1a14fdeb",
+      "test_file": true,
+      "declared_title": "Border 143 - the unwatched county can catch it ([C79]).",
+      "lexical_production_references": [
+        "SAO_Age.lua",
+        "SAO_Census.lua",
+        "SAO_Claims.lua",
+        "SAO_Conditions.lua",
+        "SAO_Course.lua",
+        "SAO_Disposition.lua",
+        "SAO_Habits.lua",
+        "SAO_Hash.lua",
+        "SAO_History.lua",
+        "SAO_Identity.lua",
+        "SAO_Knowledge.lua",
+        "SAO_Lessons.lua",
+        "SAO_Log.lua",
+        "SAO_Perception.lua",
+        "SAO_Places.lua",
+        "SAO_Population.lua",
+        "SAO_Rand.lua",
+        "SAO_Seams.lua",
+        "SAO_Standing.lua",
+        "SAO_Telemetry.lua"
+      ],
+      "behavioral_coverage": "not assessed by this inventory"
+    },
+    {
+      "path": "tools/dormant_physiology_test.py",
+      "sha256": "025095186ea189f476737508381702fb05dca0e651f3602d5fb492f9a25da665",
+      "test_file": true,
+      "declared_title": "Border 174: dormant partial food/drink and nutrition in the real engine.",
+      "lexical_production_references": [
+        "SAOHibernation.java",
+        "SAONativeSnapshot.java"
+      ],
+      "behavioral_coverage": "not assessed by this inventory"
+    },
+    {
+      "path": "tools/duplicate_blocks.py",
+      "sha256": "10ff7eeba5c0329951c8161dc9ea53a3e4bafc0f036ec840749d5bb49bf1d113",
+      "test_file": false,
+      "declared_title": "Border 14 ([B31]) - a second copy of a shared definition.",
+      "lexical_production_references": [],
+      "behavioral_coverage": "not assessed by this inventory"
+    },
+    {
+      "path": "tools/durable_text_test.py",
+      "sha256": "69ea30593b46fca34db7761f861dd194407585b773fc168b6254e59615d75eeb",
+      "test_file": true,
+      "declared_title": "Border 167: native Kahlua string limits cannot truncate durable person state.",
+      "lexical_production_references": [
+        "SAOAgent.java",
+        "SAOBridge.java",
+        "SAODurableProbeSink.java",
+        "SAODurableText.java",
+        "SAOHibernation.java",
+        "SAOIsoPlayerShell.java",
+        "SAONativeSnapshot.java"
+      ],
+      "behavioral_coverage": "not assessed by this inventory"
+    },
+    {
+      "path": "tools/engine_data_test.py",
+      "sha256": "4b849432a3f159d00307ac7c4b7b8d49afcdf638aaf737c6eb4943aa684d89b4",
+      "test_file": true,
+      "declared_title": "Border 146 - the engine's own names reach the county by mode, and",
+      "lexical_production_references": [
+        "SAO_Census.lua",
+        "SAO_Claims.lua",
+        "SAO_Conditions.lua",
+        "SAO_Disposition.lua",
+        "SAO_Habits.lua",
+        "SAO_Hash.lua",
+        "SAO_History.lua",
+        "SAO_Identity.lua",
+        "SAO_Log.lua",
+        "SAO_Rand.lua"
+      ],
+      "behavioral_coverage": "not assessed by this inventory"
+    },
+    {
+      "path": "tools/engine_facts_test.py",
+      "sha256": "dd9b44e58350ed6752358af280316150f41690d02c7c12c240add88108714ea1",
+      "test_file": true,
+      "declared_title": "Border 69 - the engine facts this mod is built on.",
+      "lexical_production_references": [],
+      "behavioral_coverage": "not assessed by this inventory"
+    },
+    {
+      "path": "tools/engine_literals.py",
+      "sha256": "6ae56f28fbf9c42a8467fa0da10222b4236a1a3695952dcd9a612b85cfa4cf99",
+      "test_file": false,
+      "declared_title": "Border 13 ([B26]) - engine-string literals that match nothing.",
+      "lexical_production_references": [],
+      "behavioral_coverage": "not assessed by this inventory"
+    },
+    {
+      "path": "tools/equilibrium_test.py",
+      "sha256": "5ae5a25ebda35c436822fb686f81644d76ca0f8c6bd68a6eaec9bff41ce4900f",
+      "test_file": true,
+      "declared_title": "The equilibrium test ([A23]): does the county's social physics hold a",
+      "lexical_production_references": [],
+      "behavioral_coverage": "not assessed by this inventory"
+    },
+    {
+      "path": "tools/era_test.py",
+      "sha256": "fcef594a616b60c1e0b6379dc1cf242ebe6fd750baa91f78cd4ce03ffe6f87c2",
+      "test_file": true,
+      "declared_title": "Border 112 - the era remembered ([C38], Day Zero slice 6).",
+      "lexical_production_references": [
+        "SAOBridge.java",
+        "SAORecord.java",
+        "SAO_Knowledge.lua",
+        "SAO_Standing.lua",
+        "SAO_UI.lua"
+      ],
+      "behavioral_coverage": "not assessed by this inventory"
+    },
+    {
+      "path": "tools/exchange_test.py",
+      "sha256": "73248d82ae971ff66a4922776881569b4a54984a2430b3053ed7aeb5673e7007",
+      "test_file": true,
+      "declared_title": "[B34] Trades that start and never finish.",
+      "lexical_production_references": [
+        "SAO_Exchange.lua"
+      ],
+      "behavioral_coverage": "not assessed by this inventory"
+    },
+    {
+      "path": "tools/fence_test.py",
+      "sha256": "0a661cca75955eab024e9ac1ed6101050b8d4e72512e688aa1afd46b3d3f54a6",
+      "test_file": true,
+      "declared_title": "Border 120 - a person can only say what they know ([C47]).",
+      "lexical_production_references": [
+        "SAOFence.java"
+      ],
+      "behavioral_coverage": "not assessed by this inventory"
+    },
+    {
+      "path": "tools/field_reach_test.py",
+      "sha256": "9b7f89a950aeb40379ed8e23c9f8de79fb1759097a13949d077a5bbb027f3811",
+      "test_file": true,
+      "declared_title": "Border 31 - a field written onto a person is a field somebody reads.",
+      "lexical_production_references": [],
+      "behavioral_coverage": "not assessed by this inventory"
+    },
+    {
+      "path": "tools/foreign_claim_test.py",
+      "sha256": "5acd87b0fea542df6f81ea40616bd622e69591fa8e2b2f14ff97d32e0dace039",
+      "test_file": true,
+      "declared_title": "Border 145 - another mod's name is not a condition in this one.",
+      "lexical_production_references": [
+        "SAO_Absorb.lua",
+        "SAO_Claims.lua",
+        "SAO_Harness.lua",
+        "SAO_Log.lua",
+        "SAO_Neighbours.lua",
+        "SAO_Population.lua",
+        "SAO_Sandbox.lua"
+      ],
+      "behavioral_coverage": "not assessed by this inventory"
+    },
+    {
+      "path": "tools/foreign_test.py",
+      "sha256": "424d49fb7423d9345417ca40e057764224c38a201648a2920253fd641e488462",
+      "test_file": true,
+      "declared_title": "[B33] Someone else's people, and whether we can find them again.",
+      "lexical_production_references": [
+        "SAOBridge.java",
+        "SAOPerceptionScanner.java"
+      ],
+      "behavioral_coverage": "not assessed by this inventory"
+    },
+    {
+      "path": "tools/forget_on_death_test.py",
+      "sha256": "3c4ab493a974ea9e9bc835e7bc07334ee0c8f5fd38df74e8ef2fb800482d3060",
+      "test_file": true,
+      "declared_title": "Border 72 - a per-id cache that outlives the id.",
+      "lexical_production_references": [
+        "SAO_AfflictedReturn.lua",
+        "SAO_Body.lua",
+        "SAO_Conditions.lua",
+        "SAO_Controller.lua",
+        "SAO_Disposition.lua",
+        "SAO_Driving.lua",
+        "SAO_Habits.lua",
+        "SAO_Identity.lua",
+        "SAO_Integration.lua",
+        "SAO_Locomotion.lua",
+        "SAO_Material.lua",
+        "SAO_Organization.lua",
+        "SAO_Perception.lua",
+        "SAO_Places.lua",
+        "SAO_Population.lua",
+        "SAO_Settlement.lua",
+        "SAO_Standing.lua",
+        "SAO_Voice.lua"
+      ],
+      "behavioral_coverage": "not assessed by this inventory"
+    },
+    {
+      "path": "tools/frontend_language_test.py",
+      "sha256": "465130ce9bb69726a0e5bb28c00a0d9caed589fc3ae2e22973dc8ef77ef94a7c",
+      "test_file": true,
+      "declared_title": "Border 91 - the front end speaks player (DR-017).",
+      "lexical_production_references": [
+        "SAO_Population.lua",
+        "SAO_Sandbox.lua"
+      ],
+      "behavioral_coverage": "not assessed by this inventory"
+    },
+    {
+      "path": "tools/gate_reach_test.py",
+      "sha256": "d41f1c7273813edaedaa401d59045bc3c8b2d0395c80f23cec0c157d25a2d812",
+      "test_file": true,
+      "declared_title": "Border 32 - a mirror nobody runs is a claim nobody checks.",
+      "lexical_production_references": [],
+      "behavioral_coverage": "not assessed by this inventory"
+    },
+    {
+      "path": "tools/gestures_test.py",
+      "sha256": "535a17c0f2b9f92092dbee977fbe8670510bfb836b60b2271091665ec3eefe1a",
+      "test_file": true,
+      "declared_title": "Border 109 - the county's gestures ([C35], DR-034).",
+      "lexical_production_references": [
+        "SAO_Controller.lua",
+        "SAO_Exchange.lua",
+        "SAO_Gesture.lua",
+        "SAO_Harness.lua",
+        "SAO_Voice.lua"
+      ],
+      "behavioral_coverage": "not assessed by this inventory"
+    },
+    {
+      "path": "tools/globals_census_test.py",
+      "sha256": "68c7a2d264646b610e7e1fc6eeef865e34abdcbd949c35671c3bd505b0577fee",
+      "test_file": true,
+      "declared_title": "Border 51 - whose namespace we are in, as the engine sees it.",
+      "lexical_production_references": [
+        "SAO_Harness.lua"
+      ],
+      "behavioral_coverage": "not assessed by this inventory"
+    },
+    {
+      "path": "tools/gmatch_progress_test.py",
+      "sha256": "c43e2097a616e4f4ce46e547b3c5ed67181a48782edaa33b5d966bfb987a37e2",
+      "test_file": true,
+      "declared_title": "Border 68 - a gmatch that never ends.",
+      "lexical_production_references": [
+        "SAO_Perception.lua"
+      ],
+      "behavioral_coverage": "not assessed by this inventory"
+    },
+    {
+      "path": "tools/ground_reach_test.py",
+      "sha256": "760883b9bc50049d5effe314f584cf7502c45c97aea4b2a9c02ccb0eddf2dbeb",
+      "test_file": true,
+      "declared_title": "Border 35 - whose ground it is, learned by both halves of the county.",
+      "lexical_production_references": [
+        "SAO_Perception.lua",
+        "SAO_Population.lua"
+      ],
+      "behavioral_coverage": "not assessed by this inventory"
+    },
+    {
+      "path": "tools/ground_survey_test.py",
+      "sha256": "d4ab2a4a08897917dcde23910988d6e7ddfcbf51e65276b996bcf85b7b9b8352",
+      "test_file": true,
+      "declared_title": "Border 119 - the ground is looked at, and not written to ([C46]).",
+      "lexical_production_references": [
+        "SAOBridge.java",
+        "SAOGround.java",
+        "SAO_Inspect.lua",
+        "SAO_Population.lua"
+      ],
+      "behavioral_coverage": "not assessed by this inventory"
+    },
+    {
+      "path": "tools/habit_traits_test.py",
+      "sha256": "ddfbd47cfc7486ae8de741e4b880e2bfa20454b7528b206624e948c3d18d84a5",
+      "test_file": true,
+      "declared_title": "Border 124 - the habits are the player's too ([C51], DR-032 S6).",
+      "lexical_production_references": [
+        "SAO_Age.lua",
+        "SAO_Body.lua",
+        "SAO_Disposition.lua",
+        "SAO_Habits.lua",
+        "SAO_Hash.lua",
+        "SAO_History.lua",
+        "SAO_Identity.lua",
+        "SAO_Traits.lua"
+      ],
+      "behavioral_coverage": "not assessed by this inventory"
+    },
+    {
+      "path": "tools/habits_test.py",
+      "sha256": "e2546545b42045c139543110cc830cc4b54e5b91e10805f1b9a1a10dcf9f7321",
+      "test_file": true,
+      "declared_title": "Border 108 - habits are facts about a person ([C33], DR-032, S6).",
+      "lexical_production_references": [
+        "SAOBridge.java",
+        "SAONeeds.java",
+        "SAO_Age.lua",
+        "SAO_Controller.lua",
+        "SAO_Habits.lua",
+        "SAO_Hash.lua",
+        "SAO_History.lua",
+        "SAO_Inspect.lua",
+        "SAO_Knowledge.lua",
+        "SAO_Needs.lua"
+      ],
+      "behavioral_coverage": "not assessed by this inventory"
+    },
+    {
+      "path": "tools/hash_spread_test.py",
+      "sha256": "4afcb51b70e4c29b4475d512f384bce2298d0404e728aa314c13b06c85fa08b8",
+      "test_file": true,
+      "declared_title": "Border 61 - ask the engine, not a model.",
+      "lexical_production_references": [
+        "SAO_Hash.lua"
+      ],
+      "behavioral_coverage": "not assessed by this inventory"
+    },
+    {
+      "path": "tools/health_clock_test.py",
+      "sha256": "4270332808c8c393f8e646d5a72f8c97263588a29b1193c74102a8d172ad76f4",
+      "test_file": true,
+      "declared_title": "Border 171: durable health cadence and frozen abstinence in Kahlua.",
+      "lexical_production_references": [
+        "SAO_Drugs.lua",
+        "SAO_Habits.lua"
+      ],
+      "behavioral_coverage": "not assessed by this inventory"
+    },
+    {
+      "path": "tools/hibernation_pact_test.py",
+      "sha256": "0be20e35c3f4c66c23cf58aa30656347f2315851d801d9c7d15ed1d5d57a79b0",
+      "test_file": true,
+      "declared_title": "Border 75 - native snapshot delegation and strict legacy save reading.",
+      "lexical_production_references": [
+        "SAOHibernation.java",
+        "SAONativeSnapshot.java"
+      ],
+      "behavioral_coverage": "not assessed by this inventory"
+    },
+    {
+      "path": "tools/identity_test.py",
+      "sha256": "e92e4eaa83330d0e7c61737519561ac37453fb83cc4bcb10e40f264361e168f7",
+      "test_file": true,
+      "declared_title": "The identity test ([B25]) - does everyone carry something forward?",
+      "lexical_production_references": [
+        "SAO_Identity.lua",
+        "SAO_Population.lua"
+      ],
+      "behavioral_coverage": "not assessed by this inventory"
+    },
+    {
+      "path": "tools/inference_budget_test.py",
+      "sha256": "6a4d0e288506929cb984f21514d5b68bf7eb457a4aee30bde2f4a9db94071c06",
+      "test_file": true,
+      "declared_title": "Border 102 - the inference budget is measured, not guessed",
+      "lexical_production_references": [
+        "SAOBridge.java",
+        "SAO_Harness.lua"
+      ],
+      "behavioral_coverage": "not assessed by this inventory"
+    },
+    {
+      "path": "tools/inspect_inert_test.py",
+      "sha256": "6996036edc78a2a6a99ae4d0dbe2815ceba6eeb888ec451e3ad68617a6fbaa24",
+      "test_file": true,
+      "declared_title": "Border 85 - the inspect harness reads everything and teaches nothing.",
+      "lexical_production_references": [
+        "SAO_Binding.lua",
+        "SAO_Controller.lua",
+        "SAO_Inspect.lua"
+      ],
+      "behavioral_coverage": "not assessed by this inventory"
+    },
+    {
+      "path": "tools/intentional_exposure_test.py",
+      "sha256": "22ce95d0d769f915b5b924a0e452124e3dc7d81884be812dedaf55c804e0f0bb",
+      "test_file": true,
+      "declared_title": "Border 173: intentional, interruptible, exact-once Crossed exposure.",
+      "lexical_production_references": [
+        "SAO_PathogenEvents.lua"
+      ],
+      "behavioral_coverage": "not assessed by this inventory"
+    },
+    {
+      "path": "tools/invariant_sweep.py",
+      "sha256": "a8c9de6f51608bba77a2006ba63fd04e2fb0337a8cbbd1d53e93ae3ec3e6b52c",
+      "test_file": false,
+      "declared_title": "Cross-file invariant sweep ([A22]): mechanical verification of the",
+      "lexical_production_references": [
+        "SAOBridge.java",
+        "SAONeeds.java",
+        "SAO_Census.lua",
+        "SAO_Controller.lua",
+        "SAO_Radio.lua",
+        "SAO_UI.lua",
+        "SAO_Voice.lua"
+      ],
+      "behavioral_coverage": "not assessed by this inventory"
+    },
+    {
+      "path": "tools/isolation_state_test.py",
+      "sha256": "2df08cbe77f777accf9e4dab876dc781f3e3d7c01b6c4521e47d7ae77aa479f4",
+      "test_file": true,
+      "declared_title": "Border 149 - the isolation state is live, read-only, and visible.",
+      "lexical_production_references": [
+        "SAO_Inspect.lua",
+        "SAO_Isolation.lua",
+        "SAO_Log.lua",
+        "SAO_Standing.lua"
+      ],
+      "behavioral_coverage": "not assessed by this inventory"
+    },
+    {
+      "path": "tools/item_api_test.py",
+      "sha256": "df07c032dea4f26e0fbf11c47fe9dece3fe7a45124b28b16bba9649c763ca669",
+      "test_file": true,
+      "declared_title": "Border 38 - a method called on an inventory item is a method items have.",
+      "lexical_production_references": [],
+      "behavioral_coverage": "not assessed by this inventory"
+    },
+    {
+      "path": "tools/joining_test.py",
+      "sha256": "56a3eaab4b0d4b8cb782e5a0f2b3264a3b253fa4369e5c7a62a95de70edf5c47",
+      "test_file": true,
+      "declared_title": "The joining test ([B19], mirrored per the same-batch doctrine).",
+      "lexical_production_references": [
+        "SAO_Disposition.lua"
+      ],
+      "behavioral_coverage": "not assessed by this inventory"
+    },
+    {
+      "path": "tools/key_domain_test.py",
+      "sha256": "4d013d1ff760ea17606106ed5942480572c244898a90d3d17619f4207a04ae4f",
+      "test_file": true,
+      "declared_title": "[B35] Keys from one domain, tested by something that knows another.",
+      "lexical_production_references": [],
+      "behavioral_coverage": "not assessed by this inventory"
+    },
+    {
+      "path": "tools/knowledge_first_test.py",
+      "sha256": "f8932d35fcd84fa9131e4ad8628ee7b608dfcf8192f4ef831bc182681db7e200",
+      "test_file": true,
+      "declared_title": "Border 99 - how far a person goes is knowledge and desire (DR-027).",
+      "lexical_production_references": [
+        "SAO_Controller.lua",
+        "SAO_Needs.lua",
+        "SAO_Places.lua",
+        "SAO_Population.lua"
+      ],
+      "behavioral_coverage": "not assessed by this inventory"
+    },
+    {
+      "path": "tools/knowledge_surface_test.py",
+      "sha256": "3681dde70b54b4bee33efc24bc5e4a45fc85432a2581916e30f0e4a9afc5bb10",
+      "test_file": true,
+      "declared_title": "Border 101 - the knowledge surface answers, offline, and writes",
+      "lexical_production_references": [
+        "SAO_Inspect.lua",
+        "SAO_Knowledge.lua"
+      ],
+      "behavioral_coverage": "not assessed by this inventory"
+    },
+    {
+      "path": "tools/lesson_draw_test.py",
+      "sha256": "55647cda6ee424509f995cbaeb2e190ca4d701246315e614d05308bd541f5795",
+      "test_file": true,
+      "declared_title": "Border 62 - the county gets seven kinds of past, in the engine.",
+      "lexical_production_references": [
+        "SAO_Census.lua",
+        "SAO_Disposition.lua",
+        "SAO_Hash.lua",
+        "SAO_History.lua",
+        "SAO_Log.lua"
+      ],
+      "behavioral_coverage": "not assessed by this inventory"
+    },
+    {
+      "path": "tools/log_volume_test.py",
+      "sha256": "0919f319b24b70ccebf8bfef2d96bf0a881f2978f9601d0a9a1818c36f621108",
+      "test_file": true,
+      "declared_title": "Border 56 - one door out to the console, and a lid on it.",
+      "lexical_production_references": [
+        "SAO_Controller.lua",
+        "SAO_Log.lua"
+      ],
+      "behavioral_coverage": "not assessed by this inventory"
+    },
+    {
+      "path": "tools/lua_check.py",
+      "sha256": "fcb1f85c1aabcd3d3168c79d08803fc8c6c9aefc46877e827fa4c5dca340e27a",
+      "test_file": false,
+      "declared_title": "Structural Lua checker: strips comments AND string literals, then verifies",
+      "lexical_production_references": [],
+      "behavioral_coverage": "not assessed by this inventory"
+    },
+    {
+      "path": "tools/lua_stdlib_test.py",
+      "sha256": "b7c204f0081dea650abf77d6b1a7e435d075e7575268c154ca33b651050aa3d6",
+      "test_file": true,
+      "declared_title": "Border 48 - the standard library this engine actually has.",
+      "lexical_production_references": [
+        "SAO_Places.lua"
+      ],
+      "behavioral_coverage": "not assessed by this inventory"
+    },
+    {
+      "path": "tools/lua_syntax_test.py",
+      "sha256": "6d5aa191815844a68dc88e38d1b199ce06e9279d5e4209f9cde22f7dc5346894",
+      "test_file": true,
+      "declared_title": "Border 50 - the engine's own parser, before the game gets it.",
+      "lexical_production_references": [],
+      "behavioral_coverage": "not assessed by this inventory"
+    },
+    {
+      "path": "tools/mantissa_test.py",
+      "sha256": "6dc160637b3494cfb19498eb05f1d62c87514149c49d329bc7e262acbd28ea30",
+      "test_file": true,
+      "declared_title": "Border 60 - arithmetic this engine cannot actually do.",
+      "lexical_production_references": [
+        "SAO_Hash.lua"
+      ],
+      "behavioral_coverage": "not assessed by this inventory"
+    },
+    {
+      "path": "tools/map_reference_test.py",
+      "sha256": "f564fe1708b5654ad93a46c1c2d84d16150a0c2a92919854c37995b8b6b494ae",
+      "test_file": true,
+      "declared_title": "Border 79 - the maps and the indexes point at real things.",
+      "lexical_production_references": [],
+      "behavioral_coverage": "not assessed by this inventory"
+    },
+    {
+      "path": "tools/medical_reading_test.py",
+      "sha256": "a7b00770874547d29c5e77b8c0327ce5bde872875409215403d1bad83eb7ed97",
+      "test_file": true,
+      "declared_title": "Border 144 - what an examiner can tell is bounded by the examiner.",
+      "lexical_production_references": [
+        "SAO_Course.lua",
+        "SAO_Hash.lua",
+        "SAO_Log.lua",
+        "SAO_Medical.lua"
+      ],
+      "behavioral_coverage": "not assessed by this inventory"
+    },
+    {
+      "path": "tools/mod_share_test.py",
+      "sha256": "e9ae91aaf99bef5288ee65f0ff0cf0a34fd39f212e88761b0f71cb756b74ac41",
+      "test_file": true,
+      "declared_title": "Border 66 - the county's composition is ours, not the mod list's.",
+      "lexical_production_references": [
+        "SAO_Census.lua",
+        "SAO_Hash.lua",
+        "SAO_Log.lua"
+      ],
+      "behavioral_coverage": "not assessed by this inventory"
+    },
+    {
+      "path": "tools/modinfo_check.py",
+      "sha256": "24d2f52100e19fab357a8f84895f7d309e9a9306f64d0adcfb2d47ca361f8adb",
+      "test_file": false,
+      "declared_title": "Border 19 - mod.info is the first thing the game reads.",
+      "lexical_production_references": [],
+      "behavioral_coverage": "not assessed by this inventory"
+    },
+    {
+      "path": "tools/motor_pool_test.py",
+      "sha256": "d5a76dc90fa0cddf676ee2b0a4c65b1bfaf11964703988273dded6262b4efa5b",
+      "test_file": true,
+      "declared_title": "Border 126 - the objection picks the car, it does not end the",
+      "lexical_production_references": [
+        "SAO_Controller.lua",
+        "SAO_History.lua",
+        "SAO_Standing.lua",
+        "SAO_UI.lua"
+      ],
+      "behavioral_coverage": "not assessed by this inventory"
+    },
+    {
+      "path": "tools/name_pipeline_test.py",
+      "sha256": "a688086996b264c0d08f3340c40cef72571044ebcd7bbf264c391405449501ee",
+      "test_file": true,
+      "declared_title": "Border 81 - one person, one name ([C3], DR-014).",
+      "lexical_production_references": [
+        "SAOBridge.java",
+        "SAO_Body.lua",
+        "SAO_Neighbours.lua",
+        "SAO_Population.lua"
+      ],
+      "behavioral_coverage": "not assessed by this inventory"
+    },
+    {
+      "path": "tools/named_at_genesis_test.py",
+      "sha256": "3aadaa350583dd7f1f81a075eeebf055585cee1071f49e400782208e99f27ac1",
+      "test_file": true,
+      "declared_title": "Border 139 - a person is named when they are made ([C73], DR-039).",
+      "lexical_production_references": [
+        "SAOBridge.java",
+        "SAO_Body.lua",
+        "SAO_Census.lua",
+        "SAO_Claims.lua",
+        "SAO_Conditions.lua",
+        "SAO_Disposition.lua",
+        "SAO_Habits.lua",
+        "SAO_Hash.lua",
+        "SAO_History.lua",
+        "SAO_Identity.lua",
+        "SAO_Log.lua",
+        "SAO_Rand.lua"
+      ],
+      "behavioral_coverage": "not assessed by this inventory"
+    },
+    {
+      "path": "tools/one_clock_test.py",
+      "sha256": "8aec5995ec3b11c58bd6614c70809e89fbef5a6346aa1da22520d3ad2300ec10",
+      "test_file": true,
+      "declared_title": "Border 130 - one clock for how long this has been going on ([C61]).",
+      "lexical_production_references": [
+        "SAO_Hash.lua",
+        "SAO_History.lua"
+      ],
+      "behavioral_coverage": "not assessed by this inventory"
+    },
+    {
+      "path": "tools/operator_speech_test.py",
+      "sha256": "f4b53c25b9df1c0e4b64566a8ebba7f2bcf83bfb72822237b99c63c8a583cb05",
+      "test_file": true,
+      "declared_title": "Border 103 - the operator's speech is not in the repository.",
+      "lexical_production_references": [],
+      "behavioral_coverage": "not assessed by this inventory"
+    },
+    {
+      "path": "tools/option_reach_test.py",
+      "sha256": "d5f8c48ac0e5ec8804bbdd88d4b9e9f70fd4eacff92bbe22b24accf630d4f989",
+      "test_file": true,
+      "declared_title": "Border 29 - every option governs the whole county.",
+      "lexical_production_references": [
+        "SAO_Absorb.lua",
+        "SAO_Controller.lua",
+        "SAO_Driving.lua",
+        "SAO_Integration.lua",
+        "SAO_Needs.lua",
+        "SAO_Neighbours.lua",
+        "SAO_Neuro.lua",
+        "SAO_Nuke.lua",
+        "SAO_PlayerInteraction.lua",
+        "SAO_Population.lua",
+        "SAO_Recognition.lua",
+        "SAO_Record.lua",
+        "SAO_Standing.lua",
+        "SAO_Telemetry.lua",
+        "SAO_Voice.lua"
+      ],
+      "behavioral_coverage": "not assessed by this inventory"
+    },
+    {
+      "path": "tools/order_landing_test.py",
+      "sha256": "04672be361861cdd1ff907623ee39f64487ece53b59d4e9a92ede896adcbfada",
+      "test_file": true,
+      "declared_title": "Border 40 - an order the player can give is an order that can land.",
+      "lexical_production_references": [
+        "SAO_Harness.lua"
+      ],
+      "behavioral_coverage": "not assessed by this inventory"
+    },
+    {
+      "path": "tools/outsider_test.py",
+      "sha256": "039f742b473c0e5ef47299983b11275b6e32b45b6c473d6d44ad17edb425d1be",
+      "test_file": true,
+      "declared_title": "The outsider test ([B28]) - everyone in the county who is not ours.",
+      "lexical_production_references": [
+        "SAO_Radio.lua"
+      ],
+      "behavioral_coverage": "not assessed by this inventory"
+    },
+    {
+      "path": "tools/pcall_audit.py",
+      "sha256": "96b87e63f5a67963dce545c5a6aa4e2086affdc92f906733d221aba747fb3a64",
+      "test_file": false,
+      "declared_title": "[B34] The pcalls whose failure nobody would ever learn about.",
+      "lexical_production_references": [],
+      "behavioral_coverage": "not assessed by this inventory"
+    },
+    {
+      "path": "tools/person_belief_test.py",
+      "sha256": "cef4dadabab5902dfb4de953ba97a3b6bd85edda708322633542662607b84031",
+      "test_file": true,
+      "declared_title": "Border 137 - a belief is about a person ([C71]).",
+      "lexical_production_references": [
+        "SAO_Age.lua",
+        "SAO_Census.lua",
+        "SAO_Claims.lua",
+        "SAO_Conditions.lua",
+        "SAO_Disposition.lua",
+        "SAO_Habits.lua",
+        "SAO_Hash.lua",
+        "SAO_History.lua",
+        "SAO_Identity.lua",
+        "SAO_Knowledge.lua",
+        "SAO_Lessons.lua",
+        "SAO_Log.lua",
+        "SAO_Perception.lua",
+        "SAO_Places.lua",
+        "SAO_Population.lua",
+        "SAO_Rand.lua",
+        "SAO_Seams.lua",
+        "SAO_Standing.lua",
+        "SAO_Telemetry.lua"
+      ],
+      "behavioral_coverage": "not assessed by this inventory"
+    },
+    {
+      "path": "tools/person_checkpoint_test.py",
+      "sha256": "897be58b087e0d97b1d7d909548095cfc64c03c10ebf65a15658102014c68ac0",
+      "test_file": true,
+      "declared_title": "Save-event person checkpoint in Kahlua, with installed-engine save ordering.",
+      "lexical_production_references": [
+        "SAO_Body.lua",
+        "SAO_Identity.lua"
+      ],
+      "behavioral_coverage": "not assessed by this inventory"
+    },
+    {
+      "path": "tools/person_continuity_test.py",
+      "sha256": "b3a641bd428012d8e84758cb588939ed83f623e8fd0c52dd6885d4d28388c658",
+      "test_file": true,
+      "declared_title": "Border 169: complete native person state survives repeated wakes.",
+      "lexical_production_references": [
+        "SAOBridge.java",
+        "SAOHibernation.java",
+        "SAONativeSnapshot.java",
+        "SAO_AfflictedReturn.lua",
+        "SAO_Body.lua"
+      ],
+      "behavioral_coverage": "not assessed by this inventory"
+    },
+    {
+      "path": "tools/person_handoff_test.py",
+      "sha256": "1afb23590c58120484ceaff0bf482cdd2bee5cc306f500ef94aad18ce4485543",
+      "test_file": true,
+      "declared_title": "Border 162: execute the shipped person handoff and its callers in Kahlua.",
+      "lexical_production_references": [
+        "SAO_AfflictedReturn.lua",
+        "SAO_Age.lua",
+        "SAO_Body.lua",
+        "SAO_Controller.lua",
+        "SAO_CrossedTransfer.lua",
+        "SAO_Drugs.lua",
+        "SAO_Harness.lua",
+        "SAO_Identity.lua",
+        "SAO_Nuke.lua",
+        "SAO_Population.lua"
+      ],
+      "behavioral_coverage": "not assessed by this inventory"
+    },
+    {
+      "path": "tools/person_snapshot_test.py",
+      "sha256": "bba66d457b125240c3ee0c6ace2145a4e2c12a5317ca36ec41a58d45a32b8097",
+      "test_file": true,
+      "declared_title": "Border 163: native person components survive the actual engine codecs.",
+      "lexical_production_references": [
+        "SAOHibernation.java",
+        "SAONativeSnapshot.java",
+        "SAO_Body.lua"
+      ],
+      "behavioral_coverage": "not assessed by this inventory"
+    },
+    {
+      "path": "tools/place_attachment_test.py",
+      "sha256": "4ded99f15dd1342ae9997d28c6729bf4615c6a3eab158bbf43437b3f2b9ad7b7",
+      "test_file": true,
+      "declared_title": "Border 150 - the place-attachment state is live, read-only, and visible.",
+      "lexical_production_references": [
+        "SAO_Inspect.lua",
+        "SAO_Log.lua",
+        "SAO_PlaceAttachment.lua"
+      ],
+      "behavioral_coverage": "not assessed by this inventory"
+    },
+    {
+      "path": "tools/placeholder_test.py",
+      "sha256": "6e7de5f1902aa7d146bbe58a1baaec37749bde310542aafbc5ca7e5ccf36956e",
+      "test_file": true,
+      "declared_title": "Border 36 - the player is never shown a placeholder.",
+      "lexical_production_references": [
+        "SAO_Identity.lua",
+        "SAO_Population.lua"
+      ],
+      "behavioral_coverage": "not assessed by this inventory"
+    },
+    {
+      "path": "tools/places_test.py",
+      "sha256": "f7f6c833d453ba4dc498fc7984c07ce711a210a7af8fc2f9840c1c379314930b",
+      "test_file": true,
+      "declared_title": "Border 22 - the county's places, against the county's own map.",
+      "lexical_production_references": [
+        "SAO_Perception.lua",
+        "SAO_Places.lua",
+        "SAO_Population.lua"
+      ],
+      "behavioral_coverage": "not assessed by this inventory"
+    },
+    {
+      "path": "tools/player_eyes_test.py",
+      "sha256": "94a840d6318cb4a9f5bb838f5269b14ac77aa0ae9acf074b683bb185e64d6b8e",
+      "test_file": true,
+      "declared_title": "Border 33 - the player's own eyes reach the player's own belief store.",
+      "lexical_production_references": [
+        "SAO_Perception.lua"
+      ],
+      "behavioral_coverage": "not assessed by this inventory"
+    },
+    {
+      "path": "tools/player_looting_test.py",
+      "sha256": "6abe756f4829b5cd2e75cb59873eb9668375671e21b4dbffe459d0f74c6a0232",
+      "test_file": true,
+      "declared_title": "Border 129 - the player's looting spends a place ([C60], [B39]).",
+      "lexical_production_references": [
+        "SAOBridge.java",
+        "SAONeeds.java",
+        "SAO_Age.lua",
+        "SAO_History.lua",
+        "SAO_Places.lua"
+      ],
+      "behavioral_coverage": "not assessed by this inventory"
+    },
+    {
+      "path": "tools/policy_reach_test.py",
+      "sha256": "a1735a7d33747b9e899162d07da4861ccab6ffa0bd12b5c77b8045737b2ec229",
+      "test_file": true,
+      "declared_title": "[B35] A policy that governed nothing.",
+      "lexical_production_references": [
+        "SAO_Radio.lua",
+        "SAO_Standing.lua"
+      ],
+      "behavioral_coverage": "not assessed by this inventory"
+    },
+    {
+      "path": "tools/pool_draw_test.py",
+      "sha256": "b7fea2f5da4e11892a06aec880e3a3448a99ccdd28553fefddb7a513c384699a",
+      "test_file": true,
+      "declared_title": "Border 59 - a pool the code builds must say what it drew.",
+      "lexical_production_references": [],
+      "behavioral_coverage": "not assessed by this inventory"
+    },
+    {
+      "path": "tools/pool_identity_test.py",
+      "sha256": "fad1e866b623a69cff05837aeead3dc0e9028455e265cbdc273acb9ab0356a8f",
+      "test_file": true,
+      "declared_title": "Border 88 - the pool is only the fungible crowd.",
+      "lexical_production_references": [
+        "SAOBridge.java",
+        "SAOKnox.java",
+        "SAOReturnBody.java"
+      ],
+      "behavioral_coverage": "not assessed by this inventory"
+    },
+    {
+      "path": "tools/population_scale_test.py",
+      "sha256": "18bf4b928d6e04d1ca92a93c30ac62b100ccd0a8aa8242f6f5ed354dccc784ab",
+      "test_file": true,
+      "declared_title": "Border 23 - the county sizes itself, and the road stays open.",
+      "lexical_production_references": [
+        "SAO_Population.lua"
+      ],
+      "behavioral_coverage": "not assessed by this inventory"
+    },
+    {
+      "path": "tools/pressure_answer_test.py",
+      "sha256": "06ddf1b76cbe6dced61b653816bdac2d0588c6f264e91c1a708a1bfccd0f98bf",
+      "test_file": true,
+      "declared_title": "Border 78 - four answers, spelled five ways.",
+      "lexical_production_references": [],
+      "behavioral_coverage": "not assessed by this inventory"
+    },
+    {
+      "path": "tools/prevalence_sourced_test.py",
+      "sha256": "b3158284671811a71952cd253083059136374728ff653bd62c4db94efebec2f4",
+      "test_file": true,
+      "declared_title": "Border 125 - every prevalence figure is traceable to a stated source",
+      "lexical_production_references": [
+        "SAO_Conditions.lua",
+        "SAO_Habits.lua"
+      ],
+      "behavioral_coverage": "not assessed by this inventory"
+    },
+    {
+      "path": "tools/promise_body_test.py",
+      "sha256": "30823a77c1b174db08bb2f1503c7e042d99c8a9332211ac1ff6dfb4abaa55198",
+      "test_file": true,
+      "declared_title": "Border 89 - the kept promise swings at the body, not at the nearest.",
+      "lexical_production_references": [
+        "SAOBridge.java",
+        "SAO_Controller.lua"
+      ],
+      "behavioral_coverage": "not assessed by this inventory"
+    },
+    {
+      "path": "tools/protocol_arity.py",
+      "sha256": "8a7c4db74fce764369da18d66aae78d881832eff54556bd0530d393b7abcc434",
+      "test_file": false,
+      "declared_title": "Border 15 ([B31]) - a wire format that grew on one side only.",
+      "lexical_production_references": [
+        "SAOBridge.java"
+      ],
+      "behavioral_coverage": "not assessed by this inventory"
+    },
+    {
+      "path": "tools/protocol_field_test.py",
+      "sha256": "f31691865f2c47c0900de8070cf0ce9ae5c634c0be4f2f61fceccd88fa3b1e9b",
+      "test_file": true,
+      "declared_title": "Border 70 - somebody else's text in our protocol.",
+      "lexical_production_references": [
+        "SAOAnimals.java",
+        "SAOBridge.java",
+        "SAONeeds.java",
+        "SAOPerceptionScanner.java",
+        "SAOWorldCensus.java"
+      ],
+      "behavioral_coverage": "not assessed by this inventory"
+    },
+    {
+      "path": "tools/queue_drop_test.py",
+      "sha256": "cd2745975514d1891c576b930351d30f3a344eb4d2063640c2edcdc402d97e17",
+      "test_file": true,
+      "declared_title": "[B34] A queued action that was never queued.",
+      "lexical_production_references": [
+        "SAO_Needs.lua"
+      ],
+      "behavioral_coverage": "not assessed by this inventory"
+    },
+    {
+      "path": "tools/radius_test.py",
+      "sha256": "154319f4572d04f83a2d1a93431337f217c7f06bf575e2b99a89f8f54fcd4624",
+      "test_file": true,
+      "declared_title": "[B33] The two radii are a hysteresis pair, and nothing enforces it.",
+      "lexical_production_references": [
+        "SAO_Population.lua"
+      ],
+      "behavioral_coverage": "not assessed by this inventory"
+    },
+    {
+      "path": "tools/reach_census_test.py",
+      "sha256": "edef0c93bb0c3fc4e35f88780c9efa25d0b3958e39a5a0f2a0238f2d8d896a05",
+      "test_file": true,
+      "declared_title": "Border 47 - the reaches still typed bare are counted, and cannot grow.",
+      "lexical_production_references": [
+        "SAO_Controller.lua",
+        "SAO_Harness.lua",
+        "SAO_Perception.lua",
+        "SAO_Population.lua",
+        "SAO_UI.lua"
+      ],
+      "behavioral_coverage": "not assessed by this inventory"
+    },
+    {
+      "path": "tools/reach_collision_test.py",
+      "sha256": "b0f4067cf6b6de39aa893adedfc03e0dbb35a2d819603a175ffa6691239015a8",
+      "test_file": true,
+      "declared_title": "Border 49 - a number that already has a name, typed anyway.",
+      "lexical_production_references": [
+        "SAO_Controller.lua",
+        "SAO_Harness.lua",
+        "SAO_UI.lua"
+      ],
+      "behavioral_coverage": "not assessed by this inventory"
+    },
+    {
+      "path": "tools/reach_drift_test.py",
+      "sha256": "b04eabfcd2a04c92bc01536a4fc3102c4e51b90b5a9c6d12aec44983952c5a4a",
+      "test_file": true,
+      "declared_title": "Border 55 - two reaches less than a tile apart.",
+      "lexical_production_references": [
+        "SAO_Controller.lua"
+      ],
+      "behavioral_coverage": "not assessed by this inventory"
+    },
+    {
+      "path": "tools/receipts_test.py",
+      "sha256": "ebad6b875835bdc161261b2ef5d0afd749b21b9f9875dab9776584688bb79412",
+      "test_file": true,
+      "declared_title": "Border 97 - play receipts accrue, and the perpetual-untested claim",
+      "lexical_production_references": [],
+      "behavioral_coverage": "not assessed by this inventory"
+    },
+    {
+      "path": "tools/record_calendar_test.py",
+      "sha256": "00f510e5a7cfc542c500c9ced198fbcd8d8659c29371e5ccc339b3b02282a9cf",
+      "test_file": true,
+      "declared_title": "Border 110 - the record on the county's calendar ([C36], DR-031).",
+      "lexical_production_references": [
+        "SAOBridge.java",
+        "SAORecord.java",
+        "SAO_Harness.lua",
+        "SAO_Record.lua"
+      ],
+      "behavioral_coverage": "not assessed by this inventory"
+    },
+    {
+      "path": "tools/registry_surface_test.py",
+      "sha256": "5910e98d2516a7776d92a1f94235d74f4bd8ef45767a6a7b043df070b6d6873b",
+      "test_file": true,
+      "declared_title": "Border 57 - a registry nobody can see is a subsystem nobody can check.",
+      "lexical_production_references": [
+        "SAO_Body.lua",
+        "SAO_Controller.lua",
+        "SAO_UI.lua"
+      ],
+      "behavioral_coverage": "not assessed by this inventory"
+    },
+    {
+      "path": "tools/relay_test.py",
+      "sha256": "08c3f65babf49b0d7525685ee2a87cc715a8f51321f19b507bb72274269ef764",
+      "test_file": true,
+      "declared_title": "Border 34 - what an offer to speak opens on is what speaking can carry.",
+      "lexical_production_references": [
+        "SAO_Harness.lua",
+        "SAO_Perception.lua"
+      ],
+      "behavioral_coverage": "not assessed by this inventory"
+    },
+    {
+      "path": "tools/return_body_test.py",
+      "sha256": "1eb85e9187d2ad02a8c01f1a959c66dc038af24718c1b26c62fc7ed70956ed06",
+      "test_file": true,
+      "declared_title": "Installed-engine staged-return lifecycle probe, compiled in private scratch.",
+      "lexical_production_references": [
+        "SAOIsoPlayerShell.java",
+        "SAONativeSnapshot.java",
+        "SAOReturnBody.java"
+      ],
+      "behavioral_coverage": "not assessed by this inventory"
+    },
+    {
+      "path": "tools/runtime_reconstruction_test.py",
+      "sha256": "134a67b4aa7fbd2d7bc962b2b71c78f0caead563690f98b7876a1611079eac28",
+      "test_file": true,
+      "declared_title": "Border 170: durable owners reconstruct, runtime objects do not cross worlds.",
+      "lexical_production_references": [
+        "SAO_Controller.lua",
+        "SAO_GraphPersistence.lua",
+        "SAO_History.lua",
+        "SAO_Integration.lua"
+      ],
+      "behavioral_coverage": "not assessed by this inventory"
+    },
+    {
+      "path": "tools/sandbox_surface.py",
+      "sha256": "296ceffb43dc0d7ceb8bd7eb435e3a57f379759fcd18e774086e54982bed881d",
+      "test_file": false,
+      "declared_title": "Border 16 - the options screen is a surface the player reads.",
+      "lexical_production_references": [],
+      "behavioral_coverage": "not assessed by this inventory"
+    },
+    {
+      "path": "tools/save_compat_test.py",
+      "sha256": "fc57fbefc4bd6acef5127a413df01e1d0d102175f30275828ef61e9e370b1ff8",
+      "test_file": true,
+      "declared_title": "[B36] A live save must survive every deploy.",
+      "lexical_production_references": [
+        "SAO_Seams.lua"
+      ],
+      "behavioral_coverage": "not assessed by this inventory"
+    },
+    {
+      "path": "tools/scarcity_reach_test.py",
+      "sha256": "9d6aa819ea1f876935a63ad149932749f1c5af614b510089226217b5aa6be667",
+      "test_file": true,
+      "declared_title": "Border 45 - the shelves are spent by whoever actually empties them.",
+      "lexical_production_references": [
+        "SAO_Controller.lua",
+        "SAO_Population.lua"
+      ],
+      "behavioral_coverage": "not assessed by this inventory"
+    },
+    {
+      "path": "tools/scope_split_audit.py",
+      "sha256": "8024cbf8a87b233a12ac488037bd9c6cf7f5d0d9c1e47809cb8ba3ff9345c36c",
+      "test_file": false,
+      "declared_title": "F-030-class scanner: file-local declared AFTER a bare assignment to the",
+      "lexical_production_references": [],
+      "behavioral_coverage": "not assessed by this inventory"
+    },
+    {
+      "path": "tools/seat_and_crossing_test.py",
+      "sha256": "09a4b80147bd705262c3d8ae17e646b0009ebbfe90dfd22b6e6c70b56bb54c76",
+      "test_file": true,
+      "declared_title": "Border 82 - the seat and the mesh move together; the follow crosses.",
+      "lexical_production_references": [
+        "SAOMovement.java",
+        "SAONeeds.java",
+        "SAO_Controller.lua"
+      ],
+      "behavioral_coverage": "not assessed by this inventory"
+    },
+    {
+      "path": "tools/seek_test.py",
+      "sha256": "06b5348e399b1ce7934e11f07dba1877434a8befc478f10195a80b7dff749331",
+      "test_file": true,
+      "declared_title": "Border 138 - the dormant day can go to a person ([C72]).",
+      "lexical_production_references": [
+        "SAO_Age.lua",
+        "SAO_Census.lua",
+        "SAO_Claims.lua",
+        "SAO_Conditions.lua",
+        "SAO_Disposition.lua",
+        "SAO_Habits.lua",
+        "SAO_Hash.lua",
+        "SAO_History.lua",
+        "SAO_Identity.lua",
+        "SAO_Knowledge.lua",
+        "SAO_Lessons.lua",
+        "SAO_Log.lua",
+        "SAO_Perception.lua",
+        "SAO_Places.lua",
+        "SAO_Population.lua",
+        "SAO_Rand.lua",
+        "SAO_Seams.lua",
+        "SAO_Standing.lua",
+        "SAO_Telemetry.lua"
+      ],
+      "behavioral_coverage": "not assessed by this inventory"
+    },
+    {
+      "path": "tools/self_contained_test.py",
+      "sha256": "c1c566fc83f6a5fc4481fdbbf265b314011320294ade83712dc527e71bc164a0",
+      "test_file": true,
+      "declared_title": "Border 114 - the county stands on its own ([C40], DR-035).",
+      "lexical_production_references": [
+        "SAOKnox.java",
+        "SAO_Absorb.lua",
+        "SAO_Claims.lua",
+        "SAO_Harness.lua",
+        "SAO_Neighbours.lua",
+        "SAO_Population.lua",
+        "SAO_Sandbox.lua"
+      ],
+      "behavioral_coverage": "not assessed by this inventory"
+    },
+    {
+      "path": "tools/session_state_test.py",
+      "sha256": "705d506609a0c4c4d69811f309a038618d4de48aedbf58217efbff88f53250ed",
+      "test_file": true,
+      "declared_title": "Border 44 - the document that says where the work stands is where it stands.",
+      "lexical_production_references": [],
+      "behavioral_coverage": "not assessed by this inventory"
+    },
+    {
+      "path": "tools/settle_test.py",
+      "sha256": "8d4f8b751490c139fe5fb538775bae085d27695ae2726e28eb16f2ac0c062f55",
+      "test_file": true,
+      "declared_title": "Border 141 - a house takes ground where its people already go ([C76]).",
+      "lexical_production_references": [
+        "SAO_Age.lua",
+        "SAO_Census.lua",
+        "SAO_Claims.lua",
+        "SAO_Conditions.lua",
+        "SAO_Disposition.lua",
+        "SAO_Habits.lua",
+        "SAO_Hash.lua",
+        "SAO_History.lua",
+        "SAO_Identity.lua",
+        "SAO_Knowledge.lua",
+        "SAO_Lessons.lua",
+        "SAO_Log.lua",
+        "SAO_Perception.lua",
+        "SAO_Places.lua",
+        "SAO_Population.lua",
+        "SAO_Rand.lua",
+        "SAO_Seams.lua",
+        "SAO_Standing.lua",
+        "SAO_Telemetry.lua"
+      ],
+      "behavioral_coverage": "not assessed by this inventory"
+    },
+    {
+      "path": "tools/shared_time_test.py",
+      "sha256": "2e528da6ee740bd25897e7bda0eb011188a86616a64eed8fc8bc0f922d8b0b38",
+      "test_file": true,
+      "declared_title": "Border 168: shared county time and native pacing stay distinct ([C53]).",
+      "lexical_production_references": [
+        "SAO_Controller.lua",
+        "SAO_History.lua",
+        "SAO_WorldGenesis.lua"
+      ],
+      "behavioral_coverage": "not assessed by this inventory"
+    },
+    {
+      "path": "tools/shipped_jar.py",
+      "sha256": "4c3040fb359bd69d7c2f69fe397176c8267f65c36ce263c0f0ecd7f8e56403a9",
+      "test_file": false,
+      "declared_title": "Border 17 - what ships is what was built.",
+      "lexical_production_references": [],
+      "behavioral_coverage": "not assessed by this inventory"
+    },
+    {
+      "path": "tools/skips_cleanly_test.py",
+      "sha256": "19110fbd5df6a69ddd9f5693bd4ff0c0a40902ed548d73bca302d38d24422ad7",
+      "test_file": true,
+      "declared_title": "Border 128 - a border that cannot run says so ([C56]).",
+      "lexical_production_references": [],
+      "behavioral_coverage": "not assessed by this inventory"
+    },
+    {
+      "path": "tools/sort_bound_test.py",
+      "sha256": "9a66195bdafd5278cfcf19120d263db8a5209a5981c43b0674e53f40769cb26c",
+      "test_file": true,
+      "declared_title": "Border 67 - every sort is handed a list somebody has bounded.",
+      "lexical_production_references": [
+        "SAO_Adaptation.lua",
+        "SAO_Census.lua",
+        "SAO_Controller.lua",
+        "SAO_Harness.lua",
+        "SAO_Integration.lua",
+        "SAO_Lessons.lua",
+        "SAO_Needs.lua",
+        "SAO_Perception.lua",
+        "SAO_Seams.lua",
+        "SAO_Standing.lua",
+        "SAO_Telemetry.lua",
+        "SAO_UI.lua",
+        "SAO_World.lua"
+      ],
+      "behavioral_coverage": "not assessed by this inventory"
+    },
+    {
+      "path": "tools/sovereignty_test.py",
+      "sha256": "147579ea3a6c425afd472069b10b99aedbed360c2cd3e9269b87545d1084a8c7",
+      "test_file": true,
+      "declared_title": "Border 37 - a foreign store informs this county; it never speaks for it.",
+      "lexical_production_references": [],
+      "behavioral_coverage": "not assessed by this inventory"
+    },
+    {
+      "path": "tools/speech_register_test.py",
+      "sha256": "f61981d61293c3419d7120c36c651f89497fe8abf3256399bc40ff40db0c8bd8",
+      "test_file": true,
+      "declared_title": "Border 123 - what a survivor says follows what they have learned",
+      "lexical_production_references": [
+        "SAO_Hash.lua",
+        "SAO_History.lua",
+        "SAO_Lessons.lua",
+        "SAO_Voice.lua"
+      ],
+      "behavioral_coverage": "not assessed by this inventory"
+    },
+    {
+      "path": "tools/spoken_word_test.py",
+      "sha256": "d3dc25c23a4635ea75909b9fdb21bef4b8961d0d361551ef772ab0eab6fc266d",
+      "test_file": true,
+      "declared_title": "Border 84 - world text is a person talking ([C5], SPEECH.md).",
+      "lexical_production_references": [
+        "SAO_Harness.lua",
+        "SAO_Perception.lua"
+      ],
+      "behavioral_coverage": "not assessed by this inventory"
+    },
+    {
+      "path": "tools/squared_scale_test.py",
+      "sha256": "ff569243e9ee54a1d59aa9db872a75f0b1fe38bcb500d59fe5e57b30f4a7ea26",
+      "test_file": true,
+      "declared_title": "Border 77 - a squared distance compared against a distance.",
+      "lexical_production_references": [
+        "SAO_Harness.lua",
+        "SAO_UI.lua"
+      ],
+      "behavioral_coverage": "not assessed by this inventory"
+    },
+    {
+      "path": "tools/state_counts_test.py",
+      "sha256": "7e1522e717c51d75424afd9f21080dd9273bcde516a94e1f2a278180378fe8e4",
+      "test_file": true,
+      "declared_title": "Border 76 - the document that says where things stand, saying it wrongly.",
+      "lexical_production_references": [],
+      "behavioral_coverage": "not assessed by this inventory"
+    },
+    {
+      "path": "tools/superimpose_test.py",
+      "sha256": "1b1a8d29ec98553a98eb12358d05285005c29450d1b8e199d4a783ee7fe9b957",
+      "test_file": true,
+      "declared_title": "Border 86 - the neighbour's menu stays, and the county is inside it.",
+      "lexical_production_references": [
+        "SAO_Harness.lua",
+        "SAO_Neighbours.lua"
+      ],
+      "behavioral_coverage": "not assessed by this inventory"
+    },
+    {
+      "path": "tools/survivor_orders_test.py",
+      "sha256": "146424e573742322ac361f40dcde6aa613ba83fd527ba9000f3a37749c068f28",
+      "test_file": true,
+      "declared_title": "Border 122 - survivor orders use the command check ([C49], DR-033).",
+      "lexical_production_references": [
+        "SAO_Command.lua",
+        "SAO_Conditions.lua",
+        "SAO_Controller.lua",
+        "SAO_Disposition.lua",
+        "SAO_Harness.lua",
+        "SAO_Hash.lua",
+        "SAO_History.lua"
+      ],
+      "behavioral_coverage": "not assessed by this inventory"
+    },
+    {
+      "path": "tools/telemetry_test.py",
+      "sha256": "5b0d993b7647646d6d16fa2f0aa3f12d3310f28e674038997508c52a224a4db5",
+      "test_file": true,
+      "declared_title": "Border 26 - the instrument must not perturb what it measures.",
+      "lexical_production_references": [
+        "SAO_Identity.lua",
+        "SAO_Lessons.lua",
+        "SAO_Telemetry.lua"
+      ],
+      "behavioral_coverage": "not assessed by this inventory"
+    },
+    {
+      "path": "tools/they_build_test.py",
+      "sha256": "163a692787f846ef22ed8759271396aeb871daa100fbf033246a695fc97a3065",
+      "test_file": true,
+      "declared_title": "Border 117 - they either build or they do not ([C44], DR-036 ruled).",
+      "lexical_production_references": [
+        "SAOBridge.java",
+        "SAOBuild.java",
+        "SAO_Absorb.lua",
+        "SAO_Controller.lua",
+        "SAO_Harness.lua",
+        "SAO_Inspect.lua",
+        "SAO_Population.lua"
+      ],
+      "behavioral_coverage": "not assessed by this inventory"
+    },
+    {
+      "path": "tools/tick_duration_test.py",
+      "sha256": "aa0a70c02ed30558cc94e166b5dfe326a91b0ee7445384c27552754fd16666bc",
+      "test_file": true,
+      "declared_title": "Border 64 - a tick is a frame, so a tick count is not a duration.",
+      "lexical_production_references": [
+        "SAO_Voice.lua"
+      ],
+      "behavioral_coverage": "not assessed by this inventory"
+    },
+    {
+      "path": "tools/tick_law_test.py",
+      "sha256": "0b672f40d4fbd5ae6ff632e90732888e073f3ead2cab8601981aa06bb8ae2062",
+      "test_file": true,
+      "declared_title": "Border 153 - the tick is the county's clock ([C112]).",
+      "lexical_production_references": [
+        "SAO_Age.lua",
+        "SAO_Census.lua",
+        "SAO_Claims.lua",
+        "SAO_Conditions.lua",
+        "SAO_Controller.lua",
+        "SAO_Disposition.lua",
+        "SAO_Habits.lua",
+        "SAO_Hash.lua",
+        "SAO_History.lua",
+        "SAO_Identity.lua",
+        "SAO_Knowledge.lua",
+        "SAO_Lessons.lua",
+        "SAO_Log.lua",
+        "SAO_Perception.lua",
+        "SAO_Places.lua",
+        "SAO_Population.lua",
+        "SAO_Rand.lua",
+        "SAO_Seams.lua",
+        "SAO_Standing.lua",
+        "SAO_Telemetry.lua",
+        "SAO_Voice.lua"
+      ],
+      "behavioral_coverage": "not assessed by this inventory"
+    },
+    {
+      "path": "tools/tick_literal_test.py",
+      "sha256": "3549518bf4a201c5b8a6400e09d79de2d393fba2118b21d0d1eadb69c4686b20",
+      "test_file": true,
+      "declared_title": "Border 52 - a clock told what time it is.",
+      "lexical_production_references": [
+        "SAO_Harness.lua",
+        "SAO_Population.lua"
+      ],
+      "behavioral_coverage": "not assessed by this inventory"
+    },
+    {
+      "path": "tools/tick_walk_test.py",
+      "sha256": "d76d06c0a56190fc9e3e27f1f2b901fd7c00e60b90b73f7a7295447fa0da4fd0",
+      "test_file": true,
+      "declared_title": "Border 74 - a per-tick walk over a store the save never shrinks.",
+      "lexical_production_references": [
+        "SAO_Population.lua",
+        "SAO_Standing.lua",
+        "SAO_Telemetry.lua"
+      ],
+      "behavioral_coverage": "not assessed by this inventory"
+    },
+    {
+      "path": "tools/time_softens_test.py",
+      "sha256": "86da68a090f2af84af0b036cddbd13548cb81cec6e5b211156f519479f763f21",
+      "test_file": true,
+      "declared_title": "Border 65 - time softens, and enmity ends.",
+      "lexical_production_references": [
+        "SAO_Disposition.lua",
+        "SAO_Hash.lua",
+        "SAO_History.lua",
+        "SAO_Log.lua",
+        "SAO_Standing.lua"
+      ],
+      "behavioral_coverage": "not assessed by this inventory"
+    },
+    {
+      "path": "tools/toplevel_function_test.py",
+      "sha256": "352b5e8565cd3a1ffea9a5523853ab4b6a381c98b64b11b22ef3c0e6d508ceed",
+      "test_file": true,
+      "declared_title": "Border 83 - a top-level function is at the top level.",
+      "lexical_production_references": [],
+      "behavioral_coverage": "not assessed by this inventory"
+    },
+    {
+      "path": "tools/trades_moment_test.py",
+      "sha256": "8d217c9ee0a6cbbef97d6b2a3f157f7f836a95796f0bcbccc220ae2fd5b34d90",
+      "test_file": true,
+      "declared_title": "Border 148 - the trades the engine pays for, as the hinge of a",
+      "lexical_production_references": [
+        "SAO_Standing.lua"
+      ],
+      "behavioral_coverage": "not assessed by this inventory"
+    },
+    {
+      "path": "tools/traits_test.py",
+      "sha256": "1814e8eef9ac882c6dc4e420f9fa8f1618f6771f40404e98bc6f284c45bed53d",
+      "test_file": true,
+      "declared_title": "Border 113 - the conditions are SAO's own ([C39], DR-032 amended).",
+      "lexical_production_references": [
+        "SAO_Age.lua",
+        "SAO_Body.lua",
+        "SAO_Conditions.lua",
+        "SAO_Hash.lua",
+        "SAO_History.lua",
+        "SAO_Traits.lua"
+      ],
+      "behavioral_coverage": "not assessed by this inventory"
+    },
+    {
+      "path": "tools/trajectory_simulation_test.py",
+      "sha256": "04b7de36bc0d2cc1be4d764740f0326942790eb7262c326a979b07eacdbbc677",
+      "test_file": true,
+      "declared_title": "Border 159: incomplete or unobserved simulations cannot become evidence.",
+      "lexical_production_references": [
+        "SAO_Census.lua"
+      ],
+      "behavioral_coverage": "not assessed by this inventory"
+    },
+    {
+      "path": "tools/triage_test.py",
+      "sha256": "815fabb31d46dcaaa090b6bd95d8a85878448341dd86da18d36c0f0ab67e3ab3",
+      "test_file": true,
+      "declared_title": "The triage test ([B20]) - does aid reach the worst-hurt person?",
+      "lexical_production_references": [
+        "SAO_Controller.lua",
+        "SAO_Disposition.lua"
+      ],
+      "behavioral_coverage": "not assessed by this inventory"
+    },
+    {
+      "path": "tools/turn_real_test.py",
+      "sha256": "4576d6c1fbeb5bc2c4f9f69c4d4a8f81cef79515638c7319f664b523839b12da",
+      "test_file": true,
+      "declared_title": "Border 87 - the turn is real, and identity rides the engine's own copies.",
+      "lexical_production_references": [
+        "SAOBridge.java",
+        "SAONeeds.java",
+        "SAOPerceptionScanner.java",
+        "SAO_Body.lua",
+        "SAO_Controller.lua",
+        "SAO_Identity.lua",
+        "SAO_Perception.lua",
+        "SAO_Population.lua"
+      ],
+      "behavioral_coverage": "not assessed by this inventory"
+    },
+    {
+      "path": "tools/undeclared_audit.py",
+      "sha256": "c3d39ae219ad20c570ab452b8e766950d2489920d8be497eb54828e9b13cff68",
+      "test_file": false,
+      "declared_title": "Undeclared-identifier audit ([B16]).",
+      "lexical_production_references": [],
+      "behavioral_coverage": "not assessed by this inventory"
+    },
+    {
+      "path": "tools/units_test.py",
+      "sha256": "a1a33db5dffa2c94a2cc53fdf49ad9e24a170e34b63d371987d1141dc363ed8b",
+      "test_file": true,
+      "declared_title": "Border 25 - the county arrives in twos and threes.",
+      "lexical_production_references": [
+        "SAO_History.lua",
+        "SAO_Population.lua"
+      ],
+      "behavioral_coverage": "not assessed by this inventory"
+    },
+    {
+      "path": "tools/vacuous_pass_test.py",
+      "sha256": "6ba8e1d385de60468367f371f4e598b417dc4e6b5ad9276133a90401c8910c3c",
+      "test_file": true,
+      "declared_title": "Border 54 - a pass that survives the artifact being gone.",
+      "lexical_production_references": [
+        "SAOFence.java",
+        "SAOHibernation.java"
+      ],
+      "behavioral_coverage": "not assessed by this inventory"
+    },
+    {
+      "path": "tools/vehicle_ground_test.py",
+      "sha256": "542f0fd2e2f2a7c1b421a1ee19648e7fe0acd09d15b66cf2aa00647263287227",
+      "test_file": true,
+      "declared_title": "Border 154 - vehicles hold keys and containers.",
+      "lexical_production_references": [
+        "SAODriver.java",
+        "SAONeeds.java",
+        "SAO_Controller.lua",
+        "SAO_History.lua",
+        "SAO_Standing.lua"
+      ],
+      "behavioral_coverage": "not assessed by this inventory"
+    },
+    {
+      "path": "tools/version_replay.py",
+      "sha256": "ed4014f2e0e843d69a2d47e2ce3e30a2ccf438ea5192ca430161e8be7d411c2f",
+      "test_file": false,
+      "declared_title": "Border 80 - the version is a machine, and the machine's output is stated.",
+      "lexical_production_references": [],
+      "behavioral_coverage": "not assessed by this inventory"
+    },
+    {
+      "path": "tools/version_stamp_test.py",
+      "sha256": "579e9a8af3a23e64aa9defecef58f9ad2c1b71a530e0e778f29a9081ef679d55",
+      "test_file": true,
+      "declared_title": "Border 42 - the jar says which jar it is, and says it truthfully.",
+      "lexical_production_references": [
+        "SAOBridge.java"
+      ],
+      "behavioral_coverage": "not assessed by this inventory"
+    },
+    {
+      "path": "tools/voice_reach_test.py",
+      "sha256": "1a0146674081beae24734a5f380f63db23302907a95c033c69e9ae9dd208a5ec",
+      "test_file": true,
+      "declared_title": "[B35] Lines nobody can hear, and events nobody defined.",
+      "lexical_production_references": [
+        "SAO_Harness.lua",
+        "SAO_Voice.lua"
+      ],
+      "behavioral_coverage": "not assessed by this inventory"
+    },
+    {
+      "path": "tools/walk_rate_test.py",
+      "sha256": "576055d3fa0ed44768fa4bae9fc7995720b7d767a26264a27818ac83f6c2bda6",
+      "test_file": true,
+      "declared_title": "Border 140 - a day of walking is a day of walking ([C75], F-061).",
+      "lexical_production_references": [
+        "SAO_Age.lua",
+        "SAO_Census.lua",
+        "SAO_Claims.lua",
+        "SAO_Conditions.lua",
+        "SAO_Disposition.lua",
+        "SAO_Habits.lua",
+        "SAO_Hash.lua",
+        "SAO_History.lua",
+        "SAO_Identity.lua",
+        "SAO_Knowledge.lua",
+        "SAO_Lessons.lua",
+        "SAO_Log.lua",
+        "SAO_Perception.lua",
+        "SAO_Places.lua",
+        "SAO_Population.lua",
+        "SAO_Rand.lua",
+        "SAO_Seams.lua",
+        "SAO_Standing.lua",
+        "SAO_Telemetry.lua"
+      ],
+      "behavioral_coverage": "not assessed by this inventory"
+    },
+    {
+      "path": "tools/ways_in_test.py",
+      "sha256": "2641627b70fa34f535add2d82b3108ed66852c397428d9da4bfa545bffa2afca",
+      "test_file": true,
+      "declared_title": "Border 121 - a place is judged by how hard it is to get into ([C48]).",
+      "lexical_production_references": [
+        "SAOBuild.java",
+        "SAOSettlement.java",
+        "SAO_Controller.lua"
+      ],
+      "behavioral_coverage": "not assessed by this inventory"
+    },
+    {
+      "path": "tools/whole_minds_test.py",
+      "sha256": "c48874b99b4cec4de2e04ae1afd48ce72d46423cc3f86c72c8a74a3d7df84c17",
+      "test_file": true,
+      "declared_title": "Border 94 - whole minds survive the reload (DR-020).",
+      "lexical_production_references": [
+        "SAO_Perception.lua"
+      ],
+      "behavioral_coverage": "not assessed by this inventory"
+    },
+    {
+      "path": "tools/witness_reach_test.py",
+      "sha256": "6276dd9e49ee8c7ce625a3cc6d2da7d81726bbd602104f3c5b9497cac07243bb",
+      "test_file": true,
+      "declared_title": "Border 46 - one question about witnessing, asked one way.",
+      "lexical_production_references": [
+        "SAO_Controller.lua"
+      ],
+      "behavioral_coverage": "not assessed by this inventory"
+    },
+    {
+      "path": "tools/work_test.py",
+      "sha256": "180a6d82eef5931f7a080ac1f93f0e305405da6f866b7818f5cd38de38164bda",
+      "test_file": true,
+      "declared_title": "The work test ([B25]) - can the house ever judge anyone's work?",
+      "lexical_production_references": [
+        "SAO_Census.lua"
+      ],
+      "behavioral_coverage": "not assessed by this inventory"
+    },
+    {
+      "path": "tools/world_before_spawn_test.py",
+      "sha256": "256489076e367b131aff54557e10ccc3110cda8d5fc078022f01bfdc8d802e6f",
+      "test_file": true,
+      "declared_title": "Border 115 - the world is generated before it is spawned ([C41],",
+      "lexical_production_references": [
+        "SAO_Population.lua"
+      ],
+      "behavioral_coverage": "not assessed by this inventory"
+    },
+    {
+      "path": "tools/world_development_test.py",
+      "sha256": "326f089bf6639d011d1125abdbb0708b139a49f14fc814b225e2801a19a90901",
+      "test_file": true,
+      "declared_title": "Border 151 - the world-development state is live, read-only, and visible.",
+      "lexical_production_references": [
+        "SAO_Inspect.lua",
+        "SAO_Log.lua",
+        "SAO_WorldDevelopment.lua"
+      ],
+      "behavioral_coverage": "not assessed by this inventory"
+    },
+    {
+      "path": "tools/years_between_test.py",
+      "sha256": "6159b384748306e8391fb356e19006eb935d8fe9d5d1eb97d945be3478361fee",
+      "test_file": true,
+      "declared_title": "Border 118 - the years between are lived, not invented ([C45], DR-036).",
+      "lexical_production_references": [
+        "SAOBridge.java",
+        "SAORecord.java",
+        "SAO_History.lua",
+        "SAO_Population.lua"
+      ],
+      "behavioral_coverage": "not assessed by this inventory"
+    },
+    {
+      "path": "tools/years_progress_test.py",
+      "sha256": "a2f8aebe07becfd8909858af8c8b03c2eeb3a5d079af8ba3eca11094710ac001",
+      "test_file": true,
+      "declared_title": "Run the production catch-up scheduler in the installed game's Kahlua VM.",
+      "lexical_production_references": [
+        "SAO_Age.lua",
+        "SAO_Habits.lua",
+        "SAO_Hash.lua",
+        "SAO_History.lua",
+        "SAO_Identity.lua",
+        "SAO_Neuro.lua",
+        "SAO_Population.lua"
+      ],
+      "behavioral_coverage": "not assessed by this inventory"
+    },
+    {
+      "path": "tools/years_trajectory_test.py",
+      "sha256": "88c84fc751a9e627aa0c60cba205c9ef1b1721a335a06edb5c53413e9ed30053",
+      "test_file": true,
+      "declared_title": "Border 133 - the years pass leaves a trajectory ([C65]).",
+      "lexical_production_references": [
+        "SAO_Population.lua",
+        "SAO_Telemetry.lua"
+      ],
+      "behavioral_coverage": "not assessed by this inventory"
+    }
+  ]
+}

@@ -27,19 +27,6 @@ Body.returning = Body.returning or {}
 -- through the shared logger.
 local function log(msg) SAO.Log.line("BODY", msg) end
 
-local function hibernationVersion(packed)
-    if SAOJavaBridge and SAOJavaBridge.hibernationVersion then
-        local ok, version = pcall(function()
-            return SAOJavaBridge:hibernationVersion(packed)
-        end)
-        if ok and type(version) == "number" then return version end
-        return 0
-    end
-    -- Older bridge doubles used by the ownership harness represent the
-    -- prior sidecar format. The installed bridge always reports a version.
-    return 3
-end
-
 local function localSlotUser()
     local ok, lp = pcall(function() return getSpecificPlayer(0) end)
     return ok and lp or nil
@@ -128,7 +115,7 @@ function Body.materialize(rec, externalOwner, externalToken)
         local ok, valid = pcall(function()
             return SAOJavaBridge:validateHibernation(rec.hibernation)
         end)
-        local version = hibernationVersion(rec.hibernation)
+        local version = SAO.BodySnapshot.version(rec.hibernation)
         if not ok or valid ~= true or type(version) ~= "number" or version < 1 then
             return nil, "invalid-snapshot"
         end
@@ -440,30 +427,6 @@ local function finite(value)
         and value ~= math.huge and value ~= -math.huge
 end
 
-local function captureBody(rec, body)
-    local packed = SAOJavaBridge:hibernate(body)
-    if SAOJavaBridge:validateHibernation(packed) ~= true then
-        return nil, "invalid-snapshot"
-    end
-    local version = hibernationVersion(packed)
-    if version == 0 then return nil, "incomplete-person-snapshot" end
-    local visual = nil
-    if version < 4 then
-        visual = SAOJavaBridge:captureReturnVisual(body)
-        if SAOJavaBridge:validateReturnVisual(visual) ~= true then
-            return nil, "invalid-visual"
-        end
-    end
-    local now = SAO.History.countyHours()
-    local x, y, z = body:getX(), body:getY(), body:getZ()
-    if not finite(now) or not finite(x) or not finite(y) or not finite(z) then
-        return nil, "invalid-position-time"
-    end
-    local facts = SAO.Population.captureBodyFacts(rec, body, now)
-    if type(facts) ~= "table" then return nil, "invalid-body-facts" end
-    return { packed = packed, visual = visual, hours = now, x = x, y = y, z = z, facts = facts }
-end
-
 local function removeOwned(body)
     local ok, removed = pcall(function()
         if SAOJavaBridge and SAOJavaBridge:isShell(body) then
@@ -511,16 +474,6 @@ function Body.canTransfer(body)
     return body ~= nil and readyToRemove(body)
 end
 
-local function commitCaptured(rec, captured)
-    rec.hibernation = captured.packed
-    rec.bodyVisual = captured.visual
-    rec.releasedAtHours = captured.hours
-    rec.x, rec.y, rec.z = captured.x, captured.y, captured.z
-    local facts = captured.facts or {}
-    SAO.Population.commitBodyFacts(rec, facts, captured.hours)
-    rec.bodyCheckpointFailure = nil
-end
-
 -- Capture first, then publish the ownership change.  The captured journal is
 -- durable before SAO stops driving the shell, so a save between phases can be
 -- completed without reconstructing state from a vanished off-slot body.
@@ -543,7 +496,7 @@ function Body.prepareExternalTransfer(rec, body, owner, token)
     end
     if Body.active[rec.id] ~= body then return false, "not-sao-owned" end
     if not readyToRemove(body) then return false, "body-busy" end
-    local ok, captured, reason = pcall(captureBody, rec, body)
+    local ok, captured, reason = pcall(SAO.BodySnapshot.capture, rec, body)
     if not ok or not captured then
         return false, ok and (reason or "capture-failed") or "capture-exception"
     end
@@ -558,8 +511,11 @@ function Body.commitExternalTransfer(rec)
         or type(pending.captured) ~= "table" then
         return false, "no-prepared-transfer"
     end
+    if not SAO.BodySnapshot.valid(pending.captured) then
+        return false, "invalid-pending-snapshot"
+    end
     local body = Body.active[rec.id]
-    commitCaptured(rec, pending.captured)
+    SAO.BodySnapshot.commit(rec, pending.captured)
     if SAO.Controller then SAO.Controller.drop(rec.id) end
     Body.active[rec.id] = nil
     rec.bodyOwner = pending.owner
@@ -616,12 +572,12 @@ function Body.hibernateExternal(rec, body, owner, token)
     end
     if Body.foreign[rec.id] ~= body then return false, "external-body-mismatch" end
     if not readyToRemove(body) then return false, "body-busy" end
-    local ok, captured, reason = pcall(captureBody, rec, body)
+    local ok, captured, reason = pcall(SAO.BodySnapshot.capture, rec, body)
     if not ok or not captured then
         return false, ok and (reason or "capture-failed") or "capture-exception"
     end
     if not removeOwned(body) then return false, "teardown-failed" end
-    commitCaptured(rec, captured)
+    SAO.BodySnapshot.commit(rec, captured)
     Body.foreign[rec.id] = nil
     return true, "external-dormant"
 end
@@ -649,12 +605,12 @@ function Body.checkpointActive()
                     return nil, "not-owned-shell"
                 end
                 if body:isDead() then return nil, "dead-body" end
-                return captureBody(rec, body)
+                return SAO.BodySnapshot.capture(rec, body)
             end)
             if ok and (reason == "not-owned-shell" or reason == "dead-body") then
                 report.skipped = report.skipped + 1
             elseif ok and captured then
-                commitCaptured(rec, captured)
+                SAO.BodySnapshot.commit(rec, captured)
                 report.saved = report.saved + 1
                 local facts = captured.facts or {}
                 if facts.newInfection then
@@ -688,10 +644,10 @@ function Body.checkpointActive()
                     return nil, "not-owned-shell"
                 end
                 if body:isDead() then return nil, "dead-body" end
-                return captureBody(rec, body)
+                return SAO.BodySnapshot.capture(rec, body)
             end)
             if ok and captured then
-                commitCaptured(rec, captured)
+                SAO.BodySnapshot.commit(rec, captured)
                 report.saved = report.saved + 1
             elseif ok and (reason == "not-owned-shell" or reason == "dead-body") then
                 report.skipped = report.skipped + 1
@@ -720,29 +676,17 @@ function Body.release(rec)
         -- No durable field changes until the complete current capture has
         -- passed validation. A pending copy survives save/load and is never
         -- recaptured from a partly removed body.
-        local ok, captured = pcall(captureBody, rec, body)
+        local ok, captured = pcall(SAO.BodySnapshot.capture, rec, body)
         if not ok or not captured then return false, "capture-failed" end
         pending = captured
         rec.bodyRelease = pending
     end
-    local okPending, validPending = pcall(function()
-        return SAOJavaBridge:validateHibernation(pending.packed) == true
-            and finite(pending.hours) and finite(pending.x)
-            and finite(pending.y) and finite(pending.z)
-            and type(pending.facts) == "table"
-            and (pending.visual == nil or (type(pending.visual) == "string" and pending.visual ~= ""))
-    end)
-    if not okPending or not validPending then return false, "invalid-pending-snapshot" end
+    if not SAO.BodySnapshot.valid(pending) then return false, "invalid-pending-snapshot" end
     if body and not removeOwned(body) then return false, "teardown-failed" end
     -- No body after reload means the old engine representation is gone.
     -- Commit the saved transition before constructing its replacement.
-    rec.hibernation = pending.packed
-    rec.bodyVisual = pending.visual
-    rec.releasedAtHours = pending.hours
-    rec.x, rec.y, rec.z = pending.x, pending.y, pending.z
+    SAO.BodySnapshot.commit(rec, pending)
     local facts = pending.facts
-    SAO.Population.commitBodyFacts(rec, facts, pending.hours)
-    rec.bodyCheckpointFailure = nil
     dropOwner(rec)
     rec.bodyRelease = nil
     if facts.newInfection then

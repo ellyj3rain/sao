@@ -1,0 +1,27 @@
+{
+  "projects": [
+    {
+      "name": "SurvivorAwareness",
+      "version": "2.7.14.8-pre-alpha",
+      "files": 251,
+      "missing": [],
+      "extra": [],
+      "different": [],
+      "jar_sha256": {
+        "42.20/media/java/SAO.jar": "21af07463c08d4df0d22935b5497255ce0d6ea364238e7a14cead59cde8c7efc"
+      }
+    },
+    {
+      "name": "ZombieAwareness",
+      "version": "0.3.2.0-pre-alpha",
+      "files": 29,
+      "missing": [],
+      "extra": [],
+      "different": [],
+      "jar_sha256": {
+        "42.20/media/java/ZAO.jar": "49238fa259456ff43e9f6e90f22d74e359cf275ea62803185b269861f65a9036"
+      }
+    }
+  ],
+  "companion_jar_registration": "49238fa259456ff43e9f6e90f22d74e359cf275ea62803185b269861f65a9036"
+}

@@ -1,0 +1,1 @@
+  159) simulation evidence: completion, modules, callback faults, engine data, joint coverage, seed identity and source hashes held; partial-horizon control flips

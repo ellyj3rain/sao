@@ -1,0 +1,27 @@
+{
+  "game_process_id": 49068,
+  "window_title": "Project Zomboid",
+  "responding": true,
+  "visible_startup_observed": true,
+  "loaded_java_mods": [
+    "SurvivorAwareness",
+    "ZombieAwareness"
+  ],
+  "lua_bridge_exposed": true,
+  "body_scale_weave_installed_via_mod_entry": true,
+  "initial_launch_failure": "Missing bundled Byte Buddy dependency on early agent classpath",
+  "correction": "Include installed ZombieBuddy.jar in tools/launch-dev.sh classpath",
+  "loaded_world_acceptance": false,
+  "known_warnings": {
+    "owner": "ZAO",
+    "source": "mod/42.20/media/lua/shared/Translate/EN/Sandbox.json",
+    "lines": [
+      6,
+      18
+    ],
+    "cause": "Unescaped literal percent signs enter Java String.formatted",
+    "current_effect": "Installed Translator recovers and returns original strings; visible tooltip acceptance not observed",
+    "follow_up": "Next ZAO packaging pass: escape 10% as 10%% and 2.5% as 2.5%%; verify displayed percentages and absence of format warnings",
+    "predates_c57_commit": "31ee0b2"
+  }
+}

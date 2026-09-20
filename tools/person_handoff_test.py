@@ -16,7 +16,14 @@ ROOT = Path(sys.argv[1]).resolve() if len(sys.argv) > 1 else Path(__file__).reso
 LUA = ROOT / 'mod/42.20/media/lua/client'
 GAME = Path(r'C:\Program Files (x86)\Steam\steamapps\common\ProjectZomboid')
 JDK = Path(r'C:\Users\jleyv\Peanut Butter\JetBrains\Java\bin')
-FILES = ['SAO_Body.lua', 'SAO_Controller.lua', 'SAO_Population.lua', 'SAO_Harness.lua',
+SHARED_FILES = {'SAO_Identity.lua', 'SAO_BodySnapshot.lua'}
+
+
+def source_path(name):
+    return LUA.parent / ('shared' if name in SHARED_FILES else 'client') / name
+
+
+FILES = ['SAO_BodySnapshot.lua', 'SAO_Body.lua', 'SAO_Controller.lua', 'SAO_Population.lua', 'SAO_Harness.lua',
          'SAO_Age.lua', 'SAO_Drugs.lua', 'SAO_AfflictedReturn.lua',
          'SAO_CrossedTransfer.lua', 'SAO_Nuke.lua', 'SAO_Identity.lua']
 
@@ -416,6 +423,49 @@ do
    and r.crossedTransferPending==nil,
    'pending conversion reload did not transfer dormant snapshot')
 end
+-- One snapshot contract serves pending release and external ownership.
+-- A journal can be corrupted after capture or restored from a damaged save.
+for _,kind in ipairs({'release','transfer'}) do
+ for _,field in ipairs({'packed','visual','hours','x','facts'}) do
+  local r,b,a=__setup()
+  local pending
+  if kind=='release' then
+   __remove='false' SAO.Body.release(r) __remove='ok' pending=r.bodyRelease
+  else
+   assert(SAO.Body.prepareExternalTransfer(r,b,'ZAO','snapshot-control'))
+   pending=r.bodyTransfer.captured
+  end
+  if field=='facts' then pending.facts=nil
+  elseif field=='hours' or field=='x' then pending[field]=0/0
+  else pending[field]='broken' end
+  local removed=__removed
+  local ok,reason
+  if kind=='release' then ok,reason=SAO.Body.release(r)
+  else ok,reason=SAO.Body.commitExternalTransfer(r) end
+  assert(ok==false and reason=='invalid-pending-snapshot',
+    'invalid '..kind..' snapshot was published')
+  assert(__removed==removed and SAO.Body.active.p1==b and SAO.Controller.agents.p1==a
+    and r.hibernation=='SNAP:previous' and r.bodyOwner==nil,
+    'invalid snapshot changed state or ownership')
+ end
+end
+-- Native durable strings may be chunk tables. Their engine validators own
+-- that representation; a release cannot narrow it back to plain text.
+do
+ local capture,visual=SAOJavaBridge.hibernate,SAOJavaBridge.captureReturnVisual
+ local valid,validVisual=SAOJavaBridge.validateHibernation,SAOJavaBridge.validateReturnVisual
+ SAOJavaBridge.hibernate=function(self,b) return {opaque=capture(self,b)} end
+ SAOJavaBridge.captureReturnVisual=function(self,b) return {opaque=visual(self,b)} end
+ SAOJavaBridge.validateHibernation=function(self,v)
+  return type(v)=='table' and valid(self,v.opaque) end
+ SAOJavaBridge.validateReturnVisual=function(self,v)
+  return type(v)=='table' and validVisual(self,v.opaque) end
+ local r,b=__setup()
+ assert(SAO.Body.release(r) and r.hibernation.opaque=='SNAP:carried'
+   and r.bodyVisual.opaque=='VIS:current-look','release refused durable table payload')
+ SAOJavaBridge.hibernate,SAOJavaBridge.captureReturnVisual=capture,visual
+ SAOJavaBridge.validateHibernation,SAOJavaBridge.validateReturnVisual=valid,validVisual
+end
 return 'PASS'
 '''
 
@@ -457,7 +507,7 @@ def run(work, sources):
 def main():
     sources = {}
     for name in FILES:
-        path = (LUA.parent/'shared'/name) if name == 'SAO_Identity.lua' else LUA/name
+        path = source_path(name)
         if not path.is_file():
             print('FAULT: missing production module '+name); return 1
         sources[name] = path.read_text(encoding='utf-8')
@@ -473,6 +523,15 @@ def main():
         result=run(work,sources); print('production: '+result)
         if result!='VALUE PASS': faults.append('production')
         controls=[
+            ('SAO_Body.lua','if not SAO.BodySnapshot.valid(pending) then return false, "invalid-pending-snapshot" end',
+             '', 'invalid release snapshot was published'),
+            ('SAO_Body.lua','if not SAO.BodySnapshot.valid(pending.captured) then',
+             'if false then', 'invalid transfer snapshot was published'),
+            ('SAO_BodySnapshot.lua','or SAOJavaBridge:validateReturnVisual(captured.visual) == true)',
+             'or true)', 'invalid release snapshot was published'),
+            ('SAO_BodySnapshot.lua','or SAOJavaBridge:validateReturnVisual(captured.visual) == true)',
+             'or (type(captured.visual) == "string" and SAOJavaBridge:validateReturnVisual(captured.visual) == true))',
+             'release refused durable table payload'),
             ('SAO_Identity.lua','pcall(SAO.Body.discard, rec)',
              '', 'death did not attempt pending cleanup'),
             ('SAO_Body.lua','if rec.dead then return nil, "dead-record" end',
@@ -497,7 +556,7 @@ def main():
              'harness dropped early'),
             ('SAO_Body.lua','return SAOJavaBridge:awaken(body, rec.hibernation, elapsed)',
              'return "AWAKENED skipped"','harness did not restore current person'),
-            ('SAO_Body.lua','rec.bodyVisual = pending.visual',
+            ('SAO_BodySnapshot.lua','rec.bodyVisual = captured.visual',
              '', 'release lost captured appearance'),
             ('SAO_Body.lua','if not ok or restored ~= true then',
              'if false then', 'failed visual restore exposed body'),
@@ -518,7 +577,7 @@ def main():
              'if false then return false end', 'incoming action did not retain target'),
             ('SAO_Body.lua','if SAOJavaBridge and SAOJavaBridge:isInventoryOf(body, reference) then',
              'if false then', 'incoming action did not retain target'),
-            ('SAO_Body.lua','commitCaptured(rec, pending.captured)',
+            ('SAO_Body.lua','SAO.BodySnapshot.commit(rec, pending.captured)',
              '', 'external owner or snapshot did not commit'),
             ('SAO_Body.lua','Body.active[rec.id] = nil\n    rec.bodyOwner = pending.owner',
              'rec.bodyOwner = pending.owner', 'one body retained two runtime owners'),

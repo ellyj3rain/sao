@@ -1,0 +1,8 @@
+{
+  "command": "git commit with enforced tools/check.sh --staged",
+  "exit_code": 1,
+  "seconds": 239.9,
+  "stopped_early": true,
+  "finding": "SAO session-state validator treated the explicitly identified ZAO version as an SAO version",
+  "correction": "Keep exact companion version in deployment.json; identify its A37 batch in SESSION_STATE"
+}
