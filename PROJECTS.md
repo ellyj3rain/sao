@@ -1,6 +1,6 @@
 | Document | The three projects and what each owns |
 |---|---|
-| Version | `2.7.14.6-pre-alpha` |
+| Version | `2.7.14.7-pre-alpha` |
 | Author | ellyj3rain |
 | Repository | `PROJECTS.md` |
 | Status | CANONICAL - the architecture across the three repositories. Held here; `../zombie-awareness` and `../zomboid-speakeasy` point at it. |
@@ -85,7 +85,8 @@ explosives, loudspeakers - with what humanity gave it stripped out. The
 sister's machinery for houses, standing, fear and temperament reaches a
 body the sister no longer owns.
 
-The seam is shaped - ZAO's `[A12]` carries the rulings, under one
+The seam is implemented through its first complete action in C56/A37. ZAO's
+`[A12]` carries the rulings, under one
 principle of the operator's own framing: three repositories, one
 project, separation of concerns, each machinery running what it owns.
 SAO executes the afflicted, because a person again is a person - the
@@ -97,7 +98,10 @@ what humanity gave it, and what they need from driving feeds forward
 into SAO's mapping of it - `[C33]` has mapped what the engine gives a
 driver who is not the player, and F-067 holds the finding - a
 standing goal between the two repositories and never a dependency
-in either direction. How they
+in either direction. A reachable Crossed decision now approaches an Afflicted
+person, completes an interruptible non-feeding blood exposure, records one
+pathogen result and transfers the same living human shell and dormant envelope
+from SAO to ZAO. The wider retained action vocabulary remains unfinished. How they
 hold ground is variable - some groups settle, some stay nomadic - and
 never placed. The claim surface's concrete shape (ZAO's F-012) stays
 open until mod code is near.
@@ -151,8 +155,8 @@ SUBSTRATE.md records the implementation boundaries and current evidence.
 
 | | Version | Standing |
 |---|---|---|
-| SAO | see `VERSION` | C1-C50 is the consolidated catalog. The four pillars have substantial code, but the recent audit reproduced continuity, access, action and state defects and found missing life-simulation producers. SESSION_STATE.md and SUBSTRATE.md own the current assessment. |
-| ZAO | `../zombie-awareness/VERSION` | A34 repaired installed-VM pathogen compatibility and temporal transitions. The latest sibling state reports five borders passing and unobserved in-game body behavior. Pathogen state and crossed execution remain ZAO-owned; SAO's afflicted adoption and dormant recovery remain defective. |
+| SAO | see `VERSION` | C56 closes R5 health and dormant physiology after the consolidated implementation audit. Continuity, time, event-derived brain health, dormant carried consumption and the intentional Afflicted-conversion transfer have controlled receipts. R6-R10 retain access, actions and complete life producers. |
+| ZAO | `../zombie-awareness/VERSION` | A37 makes the Crossed pass reachable for the non-feeding Afflicted exposure and owns the same transferred human shell across loaded, dormant and dead states. The complete retained human action vocabulary and loaded-world observation remain open. |
 | Speakeasy | `../zomboid-speakeasy/RECORD.md` | 112 work-word and 78 trade-hinge choices are ratified; world documents and the cross-module row contract are approved. Source decision capture needs repair. No trained cognition model or completed training/export/runtime path exists. |
 
 Each of those is its own repository's to update. This table says where

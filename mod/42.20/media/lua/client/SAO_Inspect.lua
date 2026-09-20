@@ -228,11 +228,18 @@ function SAOInspectWindow:build()
             local nload = SAO.Neuro.loadOf(rec)
             local clarity = SAO.Neuro.clarityOf(rec)
             local motor = SAO.Neuro.motorSteadiness(rec)
-            row(string.format("neuroinflammation %.2f (clarity %.2f, motor %.2f)",
-                nload, clarity, motor))
+            local state = SAO.Neuro.stateOf and SAO.Neuro.stateOf(rec) or nil
+            local events = state and state.history and #state.history or 0
+            local causes = SAO.Neuro.causesOf and SAO.Neuro.causesOf(rec) or {}
+            row(string.format(
+                "neuroinflammation %.2f (clarity %.2f, motor %.2f; %d events%s)",
+                nload, clarity, motor, events,
+                #causes > 0 and "; " .. table.concat(causes, ", ") or ""))
             jsonl.neuroinflammation = nload
             jsonl.neuroClarity = clarity
             jsonl.neuroMotor = motor
+            jsonl.neuroHistoryEvents = events
+            jsonl.neuroCauses = table.concat(causes, ",")
         end
     end)
 

@@ -269,7 +269,7 @@ function Identity.markDead(rec, tick, cause)
                 "death",
                 rec.id,
                 math.floor((tonumber(rec.diedAtHours) or 0) / 24.0),
-                { record = rec })
+                { record = rec, atHours = rec.diedAtHours })
         end)
     end
     -- [B38] Every death path funnels here, so the instrument goes

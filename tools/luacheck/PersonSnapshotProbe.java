@@ -1,4 +1,5 @@
 import com.sao.engine.SAONativeSnapshot;
+import com.sao.engine.SAOHibernation;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.DataInputStream;
@@ -131,6 +132,18 @@ public final class PersonSnapshotProbe {
         Method add = GameEntity.class.getDeclaredMethod("addComponent", Component.class);
         add.setAccessible(true);
         check((Boolean) add.invoke(item, container), "fluid component fixture attachment");
+    }
+
+    private static InventoryItem fixtureRole(zombie.inventory.ItemContainer container,
+            String role) {
+        for (InventoryItem item : container.getItems()) {
+            if (role.equals(item.getModData().rawget("fixtureRole"))) return item;
+            if (item instanceof InventoryContainer nested) {
+                InventoryItem found = fixtureRole(nested.getInventory(), role);
+                if (found != null) return found;
+            }
+        }
+        return null;
     }
 
     private static String downgradeV3(String packed) throws Exception {
@@ -282,6 +295,10 @@ public final class PersonSnapshotProbe {
         var multiplierPerk = new PerkFactory.Perk("C51Multiplier");
         var boostPerk = new PerkFactory.Perk("C54BoostOnly");
         CharacterTrait customTrait = CharacterTrait.register("C51:FixtureTrait");
+        var waterProperties = new zombie.entity.components.fluids.FluidProperties();
+        waterProperties.setThirstChange(-1.0f);
+        set(Fluid.Water, Fluid.class, "properties",
+                waterProperties.getSealedFluidProperties());
         Field data = WorldDictionary.class.getDeclaredField("data");
         data.setAccessible(true);
         data.set(null, DICTIONARY);
@@ -647,6 +664,91 @@ public final class PersonSnapshotProbe {
                 == repeated.getXp().getXP(boostPerk) - beforeRepeated,
                 "next boosted XP grant differs after wake");
 
+        // Dormant resource reconciliation uses the engine's actual partial
+        // Eat/DrinkFluid paths, including nested containers and nutrition.
+        IsoPlayer dormant = person();
+        InventoryContainer provisions =
+                (InventoryContainer) bagDefinition.InstanceItem(null, false);
+        Food ration = (Food) foodDefinition.InstanceItem(null, false);
+        ration.setBaseHunger(-.80f); ration.setHungChange(-.80f);
+        ration.setCalories(800f); ration.setCarbohydrates(100f);
+        ration.setProteins(30f); ration.setLipids(20f);
+        ration.getModData().rawset("fixtureRole", "ration");
+        Food canteen = (Food) foodDefinition.InstanceItem(null, false);
+        canteen.setBaseHunger(0f); canteen.setHungChange(0f);
+        canteen.getModData().rawset("fixtureRole", "canteen");
+        attachFluid(canteen, Fluid.Water);
+        canteen.getFluidContainer().addFluid(Fluid.Water, 3.0f);
+        Food rotten = (Food) foodDefinition.InstanceItem(null, false);
+        rotten.setBaseHunger(-1f); rotten.setHungChange(-1f);
+        rotten.setOffAge(1); rotten.setOffAgeMax(2); rotten.setAge(3f);
+        rotten.setCalories(1200f);
+        rotten.getModData().rawset("fixtureRole", "rotten");
+        provisions.getInventory().AddItem(ration);
+        provisions.getInventory().AddItem(canteen);
+        dormant.getInventory().AddItem(provisions);
+        dormant.getInventory().AddItem(rotten);
+        dormant.getStats().set(CharacterStat.HUNGER, .40f);
+        dormant.getStats().set(CharacterStat.THIRST, .40f);
+        dormant.getNutrition().setCalories(1000f);
+        String dormantPacked = SAONativeSnapshot.capture(dormant);
+
+        IsoPlayer zero = person();
+        String zeroJournal = SAOHibernation.awaken(zero, dormantPacked, 0);
+        Food zeroRation = (Food) fixtureRole(zero.getInventory(), "ration");
+        InventoryItem zeroCanteen = fixtureRole(zero.getInventory(), "canteen");
+        Food zeroRotten = (Food) fixtureRole(zero.getInventory(), "rotten");
+        check(zeroJournal.startsWith("AWAKENED ")
+                && zero.getStats().get(CharacterStat.HUNGER) == .40f
+                && zero.getStats().get(CharacterStat.THIRST) == .40f
+                && zeroRation.getHungChange() == -.80f
+                && Math.abs(zeroCanteen.getFluidContainer().getAmount() - 3.4f) < .0001f
+                && zero.getNutrition().getCalories() == 1000f,
+                "zero elapsed dormant wake changed resources or physiology");
+
+        IsoPlayer whole = person();
+        String wholeJournal = SAOHibernation.awaken(whole, dormantPacked, 20);
+        IsoPlayer firstHalf = person();
+        check(SAOHibernation.awaken(firstHalf, dormantPacked, 10).startsWith("AWAKENED "),
+                "first partition wake failed");
+        String middle = SAOHibernation.hibernate(firstHalf);
+        IsoPlayer partitioned = person();
+        String secondJournal = SAOHibernation.awaken(partitioned, middle, 10);
+        Food wholeRation = (Food) fixtureRole(whole.getInventory(), "ration");
+        Food splitRation = (Food) fixtureRole(partitioned.getInventory(), "ration");
+        InventoryItem wholeCanteen = fixtureRole(whole.getInventory(), "canteen");
+        InventoryItem splitCanteen = fixtureRole(partitioned.getInventory(), "canteen");
+        Food wholeRotten = (Food) fixtureRole(whole.getInventory(), "rotten");
+        check(wholeRotten != null
+                && wholeRotten.getHungChange() == zeroRotten.getHungChange(),
+                "rotten food was consumed");
+        check(wholeRation != null && splitRation != null
+                && wholeRation.getHungChange() < 0f
+                && Math.abs(wholeRation.getHungChange()) < .80f,
+                "partial nested food quantity was not retained");
+        check(wholeCanteen != null && splitCanteen != null
+                && wholeCanteen.getFluidContainer().getAmount() > 0f
+                && wholeCanteen.getFluidContainer().getAmount() < 3.4f,
+                "partial nested drink quantity was not retained");
+        check(whole.getNutrition().getCalories() > 1000f,
+                "native eating did not reconcile nutrition");
+        check(Math.abs(whole.getStats().get(CharacterStat.HUNGER)
+                    - partitioned.getStats().get(CharacterStat.HUNGER)) < .0002f
+                && Math.abs(whole.getStats().get(CharacterStat.THIRST)
+                    - partitioned.getStats().get(CharacterStat.THIRST)) < .0002f
+                && Math.abs(wholeRation.getHungChange()
+                    - splitRation.getHungChange()) < .0002f
+                && Math.abs(wholeCanteen.getFluidContainer().getAmount()
+                    - splitCanteen.getFluidContainer().getAmount()) < .0002f
+                && Math.abs(whole.getNutrition().getCalories()
+                    - partitioned.getNutrition().getCalories()) < .02f,
+                "equal dormant event history changed across interval partitions");
+        check(wholeJournal.contains("foodHunger=")
+                && wholeJournal.contains("fluidConsumed=")
+                && wholeJournal.contains("caloriesDormant=")
+                && secondJournal.contains("foodHunger="),
+                "dormant resource quantities absent from journal");
+
         zombie.core.skinnedmodel.population.OutfitManager.instance.maleOutfits.remove(fixtureOutfit);
         zombie.core.skinnedmodel.population.OutfitManager.instance.femaleOutfits.remove(fixtureOutfit);
         maleOutfitMap.remove(fixtureOutfit.name);
@@ -742,6 +844,7 @@ public final class PersonSnapshotProbe {
         check(refused, "missing nested unequipped script accepted");
         System.out.println("PASS native snapshot: v3/v4; root/nested items and fluids; equipment; "
                 + "stats/wounds/XP/traits; nutrition/fitness/learning/visual/ModData; repeated wake; "
-                + "next native updates; corruption/version/missing-definition controls");
+                + "dormant partial food/drink and partition stability; next native updates; "
+                + "corruption/version/missing-definition controls");
     }
 }

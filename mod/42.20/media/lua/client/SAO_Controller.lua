@@ -5255,7 +5255,50 @@ local function witnessDeath(id, agent, body)
     return cause
 end
 
+-- A body may leave SAO's controller without leaving the county.  Its external
+-- owner reports the body's death here so the same witness, relationship,
+-- membership, and corpse machinery used by an SAO-driven person still runs.
+-- Ownership ends only after the durable death record has been written.
+function Ctl.observeExternalDeath(id, body, owner)
+    id, owner = tostring(id or ""), tostring(owner or "")
+    local rec = id ~= "" and SAO.Identity.get(id) or nil
+    if not rec or rec.dead or not body or owner == ""
+        or tostring(rec.bodyOwner or "") ~= owner
+        or SAO.Body.foreign[id] ~= body then
+        return false
+    end
+    local dead = false
+    local okDead = pcall(function() dead = body:isDead() == true end)
+    if not okDead or not dead then return false end
+    pcall(function()
+        SAO.Identity.updatePosition(rec, body:getX(), body:getY(), body:getZ())
+    end)
+    local cause = witnessDeath(id, { rec = rec, state = "EXTERNAL" }, body)
+        or (owner == "ZAO" and "crossed body killed" or "external body killed")
+    if not SAO.Identity.markDead(rec, tickCount, cause) then return false end
+    tellPlayerOfDeath(id, rec, body)
+    Ctl.pendingCorpses[id] = { body = body, atHostTick = hostTickCount }
+    SAO.Body.active[id], SAO.Body.foreign[id] = nil, nil
+    Ctl.agents[id] = nil
+    rec.bodyOwner, rec.bodyOwnerToken = nil, nil
+    log(id .. " has died under " .. owner .. " control (" .. cause .. ")")
+    return true
+end
+
+local function decisionIntervalFor(id)
+    local interval = SAO.Disposition.decisionInterval(id)
+    if SAO.Neuro and SAO.Neuro.decisionInterval then
+        pcall(function()
+            interval = SAO.Neuro.decisionInterval(id, interval)
+        end)
+    end
+    return interval
+end
+
 local function updateAgent(id, agent)
+    -- A completed Crossed result quiesces new survivor decisions while an
+    -- already-running body action reaches a safe ownership boundary.
+    if agent.rec.crossedTransferPending then return end
     if SAO.Body.isTransitioning(agent.rec) then return end
     local body = SAO.Body.get(id)
     if not body then return end
@@ -6604,7 +6647,8 @@ local function updateAgent(id, agent)
     end
 
     if tickCount >= (agent.nextDecisionAt or 0) then
-        agent.nextDecisionAt = tickCount + SAO.Disposition.decisionInterval(id)
+        local decisionInterval = decisionIntervalFor(id)
+        agent.nextDecisionAt = tickCount + decisionInterval
         decide(id, agent, body)
 
         -- Territory objection: an owner AT HOME who sees a person inside

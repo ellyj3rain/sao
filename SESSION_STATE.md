@@ -1,17 +1,17 @@
 | Document | Survivor Awareness Overhaul Session State |
 |---|---|
-| Version | `2.7.14.6-pre-alpha` |
+| Version | `2.7.14.7-pre-alpha` |
 | Author | ellyj3rain |
 | Repository | `SESSION_STATE.md` |
 | Status | CANONICAL - current implementation and continuation. |
 
 # Session state
 
-**As of** 2026-09-19, `[C55]` closes durable/runtime reconstruction after
-complete native person continuity, shared county time, the authorized Afflicted
-return and the consolidated C1-C50 catalog.
+**As of** 2026-09-19, `[C56]` closes R5 health and dormant physiology after
+durable/runtime reconstruction, complete native person continuity, shared
+county time, the authorized Afflicted return and the consolidated C1-C50 audit.
 The C catalog is consolidated by adjacency and content using
-the A/B precedent: 29 A-batches, 52 B-batches and 55 C units. BATCH_LOG.md owns
+the A/B precedent: 29 A-batches, 52 B-batches and 56 C units. BATCH_LOG.md owns
 the chronology. Batches/FORMER_LABELS.md maps every former entry;
 Batches/C_RECATALOG.json preserves original paths and source hashes. The
 original records remain at local ref `archive/c-era-raw-20260919`.
@@ -34,9 +34,9 @@ producers, persistence, evidence and gaps.
 | Area | Existing substrate | Open implementation |
 |---|---|---|
 | Engine execution | NPC shell, bridge, movement, combat, timed-action adapters | Driving route ownership and progress; action cancellation and completion receipts. |
-| Person continuity | Durable identity, C51's body transaction, C52's authorized return/adoption/teardown, C54's v4 native state and C55/A36 reconstruction across reload, same-process world change and interrupted return saves | R5's positive-elapsed physiology and R7's general action completion remain open. |
-| Time and health | Current decision ticks, explicit day/tick conversion, catch-up/reload progress, separate host pacing, infection course | Cadence-dependent brain health, drug scheduling and stale live inputs remain R5 work. |
-| Afflicted and Crossed | ZAO pathogen state, Afflicted return transaction, four-pillar mind, a Crossed driving adapter and interrupted-save source reconciliation | A32's Crossed decision pass is unreachable and lacks the retained human action system. Proximity exposure lacks an intentional action and SAO-to-ZAO ownership transfer. F-084 and SUBSTRATE assign the complete repair across R5 and R7-R10. |
+| Person continuity | Durable identity, C51's body transaction, C52's authorized return/adoption/teardown, C54's v4 native state, C55/A36 reconstruction and C56/A37 one-way Crossed ownership of the same human shell and dormant envelope | R7's general action completion and later action-specific ownership remain open. |
+| Time and health | Current decision time, durable drug/abstinence clocks, current physical inputs, exact interval-integrated brain history, medical/inspect graph and memory/decision/affective/motor consumers | R5 is closed. Performed treatment and care still depend on R7/R9 action producers. |
+| Afflicted and Crossed | ZAO pathogen state, Afflicted return, reachable Crossed decisions and an interruptible non-feeding blood exposure whose exact-once result transfers SAO's living body to ZAO | The retained human weapons, tools, strategy and wider action vocabulary remains R7-R9 work; grounded dormant opportunities remain R10. |
 | Knowledge and access | Private beliefs, scanner, remembered sources, permission | Animals enter human beliefs; integrations can read inaccessible or unperceived state. |
 | Social development | Company mechanics, claims, observations, graph APIs | Automatic relocation and recognition; incomplete provisioning, affiliation, governance and other producers. |
 | Speakeasy data | 190 ratified choices, cross-module contract, approved world documents | Mutable decision snapshots, source conditioning, executable options and complete capture provenance. |
@@ -146,12 +146,16 @@ second world, including graph extensions, caches, pending corpses and Java
 runtime maps. ZAO Border 8 verifies the engine save/load order and all four
 native/global generation pairings, missing and corrupt journals, cancellation,
 retirement and repeated saves. These are controlled installed-engine receipts,
-not loaded-world play acceptance. C55/A36 remain undeployed at this record.
+not loaded-world play acceptance. C55/A36 and C56/A37 remain undeployed at
+this record.
 
-The immediate repair is R5: current physical inputs, partition-invariant dormant
-physiology, drug cadence, intentional Crossed-to-Afflicted exposure and the
-event-derived brain-health history. R11-R12 can progress alongside it. Pathogen
-state continues to belong to ZAO when present.
+R5 closes in C56 and ZAO A37. Current physical inputs, partition-invariant
+dormant physiology, drug cadence, intentional Crossed blood exposure and the
+event-derived brain-health history now have durable producers and controlled
+receipts. R10a is the next grounding layer for unloaded world sources and
+reconciliation; R6 repairs perception and access against that substrate.
+R11-R12 can progress alongside them. Pathogen state and installed brain-history
+ownership continue to belong to ZAO.
 
 C51 repairs the F-077 body handoff. Capture failure keeps the prior record and
 ownership; incomplete teardown retains a durable snapshot for retry; all callers
@@ -166,9 +170,9 @@ Built-in graph callbacks do reconstruct after save/load; the engine omits
 closures rather than failing the save. Extension registrations need their
 own reconstruction contract.
 
-R5-R10 cover health and dormant physiology, perception/access,
-action receipts, the audited action repairs, each life-simulation producer and
-historical/population accounting. R13-R15 cover reproducible training/export,
+R6-R10 cover perception/access, action receipts, the audited action repairs,
+each life-simulation producer and historical/population accounting. R11-R12
+establish trustworthy decision capture and approved source views. R13-R15 cover reproducible training/export,
 actual learned action and speech consumption, and evaluated late-start
 acceleration. The coverage table maps every audited former C112-C127 entry and
 the broader life concerns to these contracts. Available actions and their
@@ -176,7 +180,8 @@ consequences remain separate from the learned policy choosing among them.
 
 ## Verification and installed state
 
-C55 has 170 numbered borders through 185 gated mirrors; the
+C56 has 170 numbered borders through 189 gated mirrors; ZAO A37 has ten
+borders. The
 published C51 baseline has 163 borders through 178 mirrors. These counts describe the
 apparatus, not acceptance. The audit reproduced defects while targeted checks
 passed. The earlier audit's intermittent Border 54 failure remains unexplained.

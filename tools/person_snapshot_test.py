@@ -147,7 +147,7 @@ def main():
                 classes = work / "classes"
                 classes.mkdir()
                 compiled = run([JDK / "javac.exe", "-encoding", "UTF-8", "-cp", PZ,
-                                "-d", classes, changed, probe], work)
+                                "-d", classes, changed, hibernation, probe], work)
                 if compiled.returncode:
                     raise RuntimeError(f"{name} did not compile: {compiled.stderr}")
                 return run([JDK / "java.exe", f"-Duser.home={work}", "-cp",

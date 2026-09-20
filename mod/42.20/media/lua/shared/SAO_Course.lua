@@ -280,6 +280,7 @@ function Co.advance(rec, nowHours, inputs, dPos)
         -- Beaten. The clock goes, the flags go, and the body carries
         -- the fact that it has done this - which is an input next time.
         rec.knoxInfected = nil
+        rec.infectionStartedAtHours = nil
         rec.biteDeathAtHours = nil
         rec.infectionSpanHours = nil
         rec.immuneProgress = nil
@@ -290,7 +291,7 @@ function Co.advance(rec, nowHours, inputs, dPos)
                     "recovery",
                     rec.id,
                     math.floor((tonumber(nowHours) or 0) / 24.0),
-                    { record = rec })
+                    { record = rec, atHours = tonumber(nowHours) or 0 })
             end)
         end
         return "won"

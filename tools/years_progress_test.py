@@ -161,6 +161,7 @@ end
 assert(__person,"could not find the deterministic old-age fixture")
 __person.woundInfected=true
 __person.neuroinflammation=0
+SAO.Neuro.observe(__person, 0, "fixture-sepsis")
 __test.ageCalls=0
 local dailyRoll=SAO.Age.dailyRoll
 SAO.Age.dailyRoll=function(...)
@@ -176,18 +177,26 @@ RECORD_PROBE = r'''(function()
     __tick()
     if __person.dead then return "FAIL death before elapsed day" end
     if __test.ageCalls~=0 then return "FAIL initial partial day aged" end
-    if __person.neuroinflammation~=0 then return "FAIL initial partial day neuro debit" end
+    local initial=SAO.Neuro.stateOf(__person)
+    if not initial or initial.atHours~=0 or initial.burden~=0 then
+        return "FAIL initial partial day neuro debit"
+    end
     if __test.snapshots[0]~=1 then return "FAIL initial living snapshot" end
     __drive(100)
     if __test.faults~=0 then return "FAIL real record callback faults="..__test.faults end
     if not __person.dead or __person.deathCause~="old age" then return "FAIL real age roll did not kill" end
     if __person.diedAtHours~=24 then return "FAIL durable death time="..tostring(__person.diedAtHours) end
-    if math.abs(__person.neuroinflammation-SAO.Neuro.SEPSIS_RATE*24)>0.0000001 then
-        return "FAIL elapsed neuro load="..tostring(__person.neuroinflammation)
+    local state=SAO.Neuro.stateOf(__person)
+    local expectedBurden,expectedLoad=SAO.Neuro.project(
+        0,{wound=true,clearance=1},0,24,true)
+    if not state or state.atHours~=24
+        or math.abs(state.burden-expectedBurden)>0.0000001
+        or math.abs(SAO.Neuro.loadOf(__person)-expectedLoad)>0.0000001 then
+        return "FAIL elapsed brain history="..tostring(state and state.burden)
     end
     if __test.ageCalls~=1 then return "FAIL daily age calls="..__test.ageCalls end
     if __test.snapshots[1]~=0 then return "FAIL daily digest preceded real death" end
-    return "PASS real person died at hour24, neuro advanced24h, digest sees death"
+    return "PASS real person died at hour24, causal brain history advanced24h, digest sees death"
 end)()'''
 
 

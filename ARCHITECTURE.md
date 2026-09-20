@@ -1,6 +1,6 @@
 | Document | Survivor Awareness Overhaul Architecture |
 |---|---|
-| Version | `2.7.14.6-pre-alpha` |
+| Version | `2.7.14.7-pre-alpha` |
 | Author | ellyj3rain |
 | Repository | `ARCHITECTURE.md` |
 | Status | ACTIVE - ratified framework shape. |
@@ -159,9 +159,10 @@ Identities originate region-balanced from the map's real spawn tables -
 inhabitants, not spawns around the player. The player band governs only
 which records carry live BODIES. Hibernation packs what a body carries and
 is into its record ([A11]); awakening restores it and charges the dormant
-hours (metabolism at approximate engine rates, offset by eating carried
-food - the architecture's sanctioned direct-mutation mode for the UNLOADED
-world only). Dormant records drift through coarse days ([A11]): waypoints
+hours at approximate engine rates. C56 reconciles carried food and fluid
+through native partial consumption, including nested containers, nutrition,
+spoilage and quantity accounting. Dormant records drift through coarse days
+([A11]): waypoints
 near home in daylight, home at night, no geometry - an abstraction of a
 person, not a hidden puppet. Where that day GOES is a decision: need
 past patience reaches the nearest known place offering the thing

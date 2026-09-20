@@ -100,14 +100,23 @@ local function wakeSquareFor(rec)
     return x, y, moved
 end
 
-function Body.materialize(rec)
+function Body.materialize(rec, externalOwner, externalToken)
     if not rec or not rec.id then
         log("materialize refused: no record")
         return nil
     end
     if rec.dead then return nil, "dead-record" end
+    if rec.bodyOwner ~= nil then
+        if tostring(externalOwner or "") ~= tostring(rec.bodyOwner)
+            or tostring(externalToken or "") ~= tostring(rec.bodyOwnerToken or "") then
+            return nil, "external-owner"
+        end
+    elseif externalOwner ~= nil then
+        return nil, "not-external-owned"
+    end
     local recovered, recoveryReason = Body.recover(rec)
     if not recovered then return nil, recoveryReason end
+    if Body.foreign[rec.id] then return Body.foreign[rec.id] end
     if Body.active[rec.id] then
         log("materialize refused: body already active for " .. rec.id)
         return Body.active[rec.id]
@@ -399,15 +408,31 @@ function Body.materialize(rec)
     if SAOJavaBridge and how == "java-shell" then
         SAOJavaBridge:accountShell(body)
     end
-    Body.active[rec.id] = body
+    if externalOwner ~= nil then
+        Body.foreign[rec.id] = body
+    else
+        Body.active[rec.id] = body
+    end
     -- [C8] The person rides the body's modData. The engine copies this
     -- table onto the corpse at death (IsoDeadBody ctor common tail) and
     -- onto whatever rises (reanimate's copyTable) - F-044 - so this one
     -- write is the whole identity chain through the turn. Key name
     -- RATIFIED by the operator (DR-019); the sibling project reads the
     -- same key verbatim.
-    pcall(function() body:getModData().SAOPersonId = rec.id end)
+    pcall(function()
+        local data = body:getModData()
+        data.SAOPersonId = rec.id
+        if externalOwner ~= nil then
+            data.ZAOOwned = tostring(externalOwner) == "ZAO" or nil
+            data.SAOExternalOwner = tostring(externalOwner)
+            data.SAOExternalToken = tostring(externalToken)
+        end
+    end)
     return body
+end
+
+function Body.materializeExternal(rec, owner, token)
+    return Body.materialize(rec, owner, token)
 end
 
 local function finite(value)
@@ -486,9 +511,124 @@ function Body.canTransfer(body)
     return body ~= nil and readyToRemove(body)
 end
 
+local function commitCaptured(rec, captured)
+    rec.hibernation = captured.packed
+    rec.bodyVisual = captured.visual
+    rec.releasedAtHours = captured.hours
+    rec.x, rec.y, rec.z = captured.x, captured.y, captured.z
+    local facts = captured.facts or {}
+    SAO.Population.commitBodyFacts(rec, facts, captured.hours)
+    rec.bodyCheckpointFailure = nil
+end
+
+-- Capture first, then publish the ownership change.  The captured journal is
+-- durable before SAO stops driving the shell, so a save between phases can be
+-- completed without reconstructing state from a vanished off-slot body.
+function Body.prepareExternalTransfer(rec, body, owner, token)
+    if not rec or not rec.id or not body then return false, "missing-transfer" end
+    owner, token = tostring(owner or ""), tostring(token or "")
+    if owner == "" or token == "" then return false, "invalid-transfer-owner" end
+    if rec.bodyOwner then
+        if rec.bodyOwner == owner and rec.bodyOwnerToken == token then
+            return true, "already-owned"
+        end
+        return false, "owned-by-another"
+    end
+    if rec.bodyTransfer then
+        local pending = rec.bodyTransfer
+        if pending.owner == owner and pending.token == token then
+            return true, "already-prepared"
+        end
+        return false, "another-transfer-pending"
+    end
+    if Body.active[rec.id] ~= body then return false, "not-sao-owned" end
+    if not readyToRemove(body) then return false, "body-busy" end
+    local ok, captured, reason = pcall(captureBody, rec, body)
+    if not ok or not captured then
+        return false, ok and (reason or "capture-failed") or "capture-exception"
+    end
+    rec.bodyTransfer = { version = 1, owner = owner, token = token,
+        phase = "captured", captured = captured }
+    return true, "prepared"
+end
+
+function Body.commitExternalTransfer(rec)
+    local pending = rec and rec.bodyTransfer or nil
+    if not pending or pending.version ~= 1 or pending.phase ~= "captured"
+        or type(pending.captured) ~= "table" then
+        return false, "no-prepared-transfer"
+    end
+    local body = Body.active[rec.id]
+    commitCaptured(rec, pending.captured)
+    if SAO.Controller then SAO.Controller.drop(rec.id) end
+    Body.active[rec.id] = nil
+    rec.bodyOwner = pending.owner
+    rec.bodyOwnerToken = pending.token
+    if body then
+        Body.foreign[rec.id] = body
+        pcall(function()
+            local data = body:getModData()
+            data.ZAOOwned = pending.owner == "ZAO" or nil
+            data.SAOExternalOwner = pending.owner
+            data.SAOExternalToken = pending.token
+        end)
+    end
+    rec.bodyTransfer = nil
+    return true, body and "transferred-loaded" or "transferred-dormant"
+end
+
+-- A save can occur after the pathogen result commits but while an existing
+-- action still makes the living shell unsafe to transfer.  OnSave checkpoints
+-- that shell into the same durable person record.  After reload there is no
+-- native off-slot body, so the new owner can claim that validated envelope
+-- directly instead of materializing and briefly re-adopting it under SAO.
+function Body.claimExternalDormant(rec, owner, token)
+    if not rec or not rec.id then return false, "missing-person" end
+    owner, token = tostring(owner or ""), tostring(token or "")
+    if owner == "" or token == "" then return false, "invalid-transfer-owner" end
+    if rec.bodyOwner then
+        if rec.bodyOwner == owner and rec.bodyOwnerToken == token then
+            return true, "already-owned"
+        end
+        return false, "owned-by-another"
+    end
+    if rec.bodyTransfer then return false, "captured-transfer-pending" end
+    if Body.active[rec.id] or Body.foreign[rec.id] then
+        return false, "body-still-loaded"
+    end
+    if rec.bodyCheckpointFailure then return false, "checkpoint-state-unavailable" end
+    if not rec.hibernation or not SAOJavaBridge then
+        return false, "missing-dormant-snapshot"
+    end
+    local ok, valid = pcall(function()
+        return SAOJavaBridge:validateHibernation(rec.hibernation) == true
+    end)
+    if not ok or not valid then return false, "invalid-dormant-snapshot" end
+    if SAO.Controller then SAO.Controller.drop(rec.id) end
+    rec.bodyOwner, rec.bodyOwnerToken = owner, token
+    return true, "transferred-dormant"
+end
+
+function Body.hibernateExternal(rec, body, owner, token)
+    if not rec or rec.bodyOwner ~= tostring(owner or "")
+        or rec.bodyOwnerToken ~= tostring(token or "") then
+        return false, "external-owner-mismatch"
+    end
+    if Body.foreign[rec.id] ~= body then return false, "external-body-mismatch" end
+    if not readyToRemove(body) then return false, "body-busy" end
+    local ok, captured, reason = pcall(captureBody, rec, body)
+    if not ok or not captured then
+        return false, ok and (reason or "capture-failed") or "capture-exception"
+    end
+    if not removeOwned(body) then return false, "teardown-failed" end
+    commitCaptured(rec, captured)
+    Body.foreign[rec.id] = nil
+    return true, "external-dormant"
+end
+
 function Body.isTransitioning(rec)
     return rec and (rec.returnTransition ~= nil or rec.bodyRelease ~= nil or Body.failedRestore[rec.id]
-        or Body.discarding[rec.id]) or false
+        or rec.bodyTransfer ~= nil or Body.discarding[rec.id]) or false
 end
 
 -- Off-slot living shells are not engine save entities. OnSave runs on the
@@ -514,21 +654,14 @@ function Body.checkpointActive()
             if ok and (reason == "not-owned-shell" or reason == "dead-body") then
                 report.skipped = report.skipped + 1
             elseif ok and captured then
-                rec.hibernation = captured.packed
-                rec.bodyVisual = captured.visual
-                rec.releasedAtHours = captured.hours
-                rec.x, rec.y, rec.z = captured.x, captured.y, captured.z
-                local facts = captured.facts
-                rec.woundInfected = facts.woundInfected or nil
-                rec.knoxInfected = facts.knoxInfected or nil
-                rec.biteDeathAtHours = facts.biteDeathAtHours or nil
-                rec.hasRadio = facts.hasRadio == true
-                rec.bodyCheckpointFailure = nil
+                commitCaptured(rec, captured)
                 report.saved = report.saved + 1
+                local facts = captured.facts or {}
                 if facts.newInfection then
                     pcall(function()
                         SAO.PathogenEvents.emit("infection", rec.id,
-                            math.floor(captured.hours / 24), { record = rec })
+                            math.floor(captured.hours / 24),
+                            { record = rec, atHours = captured.hours })
                     end)
                 end
             else
@@ -540,6 +673,33 @@ function Body.checkpointActive()
                 report.failures[tostring(id)] = reason
                 pcall(log, "SAVE CHECKPOINT FAILED for " .. tostring(id) .. ": " .. reason
                     .. "; previous snapshot retained; current body state was not saved")
+            end
+        end
+    end
+    -- Foreign Knox bodies remain their mod's persistence concern.  A shell
+    -- explicitly transferred to ZAO is different: it is still an off-slot
+    -- living shell, and SAO's native snapshot is the agreed body-state
+    -- envelope.  Capture it without taking control back.
+    for id, body in pairs(Body.foreign) do
+        local rec = SAO.Identity.get(id)
+        if rec and rec.bodyOwner == "ZAO" and body and not rec.dead then
+            local ok, captured, reason = pcall(function()
+                if not SAOJavaBridge or not SAOJavaBridge:isShell(body) then
+                    return nil, "not-owned-shell"
+                end
+                if body:isDead() then return nil, "dead-body" end
+                return captureBody(rec, body)
+            end)
+            if ok and captured then
+                commitCaptured(rec, captured)
+                report.saved = report.saved + 1
+            elseif ok and (reason == "not-owned-shell" or reason == "dead-body") then
+                report.skipped = report.skipped + 1
+            else
+                reason = ok and (reason or "capture-failed") or "capture-exception"
+                rec.bodyCheckpointFailure = { reason = reason }
+                report.failed = report.failed + 1
+                report.failures[tostring(id)] = reason
             end
         end
     end
@@ -581,17 +741,15 @@ function Body.release(rec)
     rec.releasedAtHours = pending.hours
     rec.x, rec.y, rec.z = pending.x, pending.y, pending.z
     local facts = pending.facts
-    rec.woundInfected = facts.woundInfected or nil
-    rec.knoxInfected = facts.knoxInfected or nil
-    rec.biteDeathAtHours = facts.biteDeathAtHours or nil
-    rec.hasRadio = facts.hasRadio == true
+    SAO.Population.commitBodyFacts(rec, facts, pending.hours)
     rec.bodyCheckpointFailure = nil
     dropOwner(rec)
     rec.bodyRelease = nil
     if facts.newInfection then
         pcall(function()
             SAO.PathogenEvents.emit("infection", rec.id,
-                math.floor(pending.hours / 24), { record = rec })
+                math.floor(pending.hours / 24),
+                { record = rec, atHours = pending.hours })
         end)
     end
     log("released " .. rec.id .. " at " .. rec.x .. "," .. rec.y .. "," .. rec.z)
@@ -656,14 +814,19 @@ end
 -- Dormant simulation must not start while that representation is retained.
 function Body.hasRepresentation(id)
     id = tostring(id)
+    local rec = SAO.Identity.get(id)
     return Body.active[id] ~= nil or Body.foreign[id] ~= nil
-        or Body.isTransitioning(SAO.Identity.get(id))
+        or Body.isTransitioning(rec) or rec and rec.bodyOwner ~= nil
 end
 
 function Body.activeCount()
     local n = 0
     for id in pairs(Body.active) do
-        if not Body.isTransitioning(SAO.Identity.get(id)) then n = n + 1 end
+        local rec = SAO.Identity.get(id)
+        if not rec or (not Body.isTransitioning(rec)
+            and not rec.crossedTransferPending) then
+            n = n + 1
+        end
     end
     return n
 end
@@ -674,7 +837,8 @@ function Body.pendingTransitionCount()
     for id in pairs(Body.discarding) do pending[id] = true end
     for id in pairs(Body.returning) do pending[id] = true end
     for id, rec in pairs(SAO.Identity.all()) do
-        if rec.bodyRelease or rec.returnTransition then pending[id] = true end
+        if rec.bodyRelease or rec.returnTransition or rec.bodyTransfer
+            or rec.crossedTransferPending then pending[id] = true end
     end
     for _ in pairs(pending) do n = n + 1 end
     return n

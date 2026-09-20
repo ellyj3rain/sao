@@ -1,6 +1,6 @@
 | Document | Survivor Awareness Overhaul Dependency Substrate |
 |---|---|
-| Version | `2.7.14.6-pre-alpha` |
+| Version | `2.7.14.7-pre-alpha` |
 | Author | ellyj3rain |
 | Repository | `SUBSTRATE.md` |
 | Status | CANONICAL - what exists, what is planned, and what each area of concern needs. |
@@ -125,13 +125,13 @@ former batch labels inside evidence retain their historical meaning.
 | Contract | Producer and caller | Durable state | Observation or test | Remaining gap |
 |---|---|---|---|---|
 | One person across loaded and dormant life | Identity owns the record; Body.materialize creates a body; Controller.adopt attaches decisions; Population manages range transitions | Person registry and hibernation pack; body registry is transient | B executes Body.release in the installed VM, with successful, empty and throwing capture | C51 repairs the supported capture/teardown/restore transaction (Borders 162-163). C52 repairs authorized Afflicted return, exact-source transfer and controller adoption. Native components preserve inventory, equipment, Stats, BodyDamage and XP. Other character components remain R3 work. |
-| Returned afflicted people resume living | AfflictedReturn reads ZAO's loaded controlled bodies and calls Body.materialize; ZAO's save-generation journal reconciles the old source across engine save surfaces | Existing person identity and ZAO pathogen state; generation markers bind the participating return slices | C52/A35 execute the authorized transfer; C55/A36 exercise every old/new native/global generation pairing plus cancellation, retirement and corrupt/missing journal refusal | R1 and the interrupted-save part of R4 are closed. The complete Crossed interaction remains assigned across R5 and R7-R10. |
+| Returned afflicted people resume living | AfflictedReturn reads ZAO's loaded controlled bodies and calls Body.materialize; ZAO's save-generation journal reconciles the old source across engine save surfaces | Existing person identity and ZAO pathogen state; generation markers bind the participating return slices | C52/A35 execute the authorized return; C55/A36 exercise every old/new native/global generation pairing; C56/A37 transfer a later Crossed conversion back to ZAO through the same person envelope | R1, R4 and R5's conversion ownership are closed. General action receipts, the retained Crossed action vocabulary and grounded dormant execution remain R7-R10 work. |
 | County time has consistent units | History owns county hours, day/tick conversion and quantization; Population advances historical substeps; Controller refreshes decision time | Historical progress and per-person timestamps | C53 Border 168 executes current substep reads, reload, midnight, Day Zero/DayLength invariance, WorldGenesis conversion and separate host pacing; three mutations restore the named defects | R2 is closed. R3-R10 consume this axis; their domain scheduling and event integration remain their own work. |
 | Saved state reconstructs usable runtime behavior | GraphPersistence binds only serializable Branching history; Integration registers built-ins and stable-ID extensions into a fresh runtime graph | Pattern/office history survives; callbacks, caches, indexes, controllers, courses and Java maps are reconstructed projections | C55 Border 170 serializes through Kahlua, creates a fresh environment and then a second world; ZAO Border 8 reconstructs settlement/controller/course state and clears prior-world maps | R4 is closed for the inventoried owners. Later features must declare durable/runtime ownership as they add state; loaded-world play acceptance remains separate. |
 | Facts are private and acquired | Java scans feed Perception; Knowledge preserves acquisition and Standing evaluates permission | Beliefs with source, time and uncertainty | A reproduces animals entering the IsoPlayer human path and traces global activity participant discovery | Narrow scanner output before decision use, preserve provenance and distinguish animal facts. Visibility and permission do not imply physical access. |
 | Actions have owned completion and interruption | Controller selects and queues engine actions; Driving, Medical, Animals and inventory adapters execute | Records should change from observed consequences | A exercises moving-vehicle cancellation, cancelled surrender, refused CPR and remote egg collection | Approach, queue, completion, failure and cancellation must be connected. A request must not award goods, experience, trust changes or learned capability. |
 | Loaded and dormant opportunities describe the same world | Loaded engine supplies actual containers, ground and bodies; Places and Population provide dormant representations | Place facts, resources, position and history | A traces stale vehicle locations, missing compartment access and diagnostic invented ground | Unloaded geometry is unavailable unless grounded data exists. Dormant processing needs its own accountable producers; test fixtures cannot be accepted as world observations. |
-| Health integrates actual events over time | Course, Medical, Habits and Neuroinflammation consume person state; ZAO StateStore owns pathogen transitions | Person health/habits and pathogen record; optional body counters need review | A reproduces cadence-dependent brain state, healthy-child wound fear and frozen-use withdrawal drift | Reconcile live inputs, cumulative versus current poison, owner reads and elapsed-time partitions. The brain graph request is not fulfilled by a scalar bar. |
+| Health integrates actual events over time | Course, Medical, Habits and Neuro consume current person/body facts; ZAO StateStore owns pathogen transitions and ZAO Brain owns history when installed | Durable health cursors, infection windows and brain event history; standalone SAO uses the same schema | C56 Borders 171-175 execute callback offsets, current exposures, exact interval partitions, reload, graphs and behavioral consumers; Borders 163/174 execute native dormant consumption | R5 is closed. Later health-and-care actions still require R7/R9 completion receipts and grounded opportunities. |
 | Social outcomes follow performed acts and recognition | Standing, Organization, Settlement and Integration mutate social records; Branching.record currently counts selections | Claims, membership, offices, patterns and experience | A traces automatic relocation, selection recorded before execution and recognition by repetition | Affiliation, legitimacy, dissent and development need causal producers. A chosen branch is not performed work; repeated choices do not establish public recognition. |
 | Diagnostic populations support valid claims | Population genesis/refill and mortality produce open-population histories; county sweep exports observations | People, deaths, seeds and run progress | C50's independent 90/365-day receipts distinguish 12-person targets from 27/72 created records | Reconcile admission/refill with the life-simulation contract. These samples cannot be reported as 100 percent cohort survival or full simulation fidelity. |
 | Training sees the actual decision moment | county_dump.py joins person, situation, options and choice; Speakeasy owns ratified rows and models | Immutable captured rows and source provenance are required | A mutates person/belief state after capture and shows future information leaking into an earlier row | Deep snapshots, capture failure accounting, complete horizons and executable options are unfinished. Ratification of 190 choices does not validate their exporter. |
@@ -259,9 +259,8 @@ or explicit elapsed days.
 
 R3 and R4 close below. Their timestamp migrations identify the old
 axis before conversion; an unidentifiable frame counter cannot become claimed
-historical time. R5 still owns drug scheduling and physiology partition
-equivalence. A common clock makes those repairs possible but does not complete
-them.
+historical time. C56 consumes that contract for drug scheduling, physical
+observations and physiology partition equivalence.
 
 ### R3: complete person persistence (closed C54)
 
@@ -301,46 +300,48 @@ remain readable. The first later save writes current generation markers and v2
 source receipts. Mechanical probes establish ordering and reconstruction, while
 loaded-world observation remains a separate acceptance step.
 
-### R5: health, exposure and dormant consumption
+### R5: health, exposure and dormant consumption (closed C56/A37)
 
-SAO's `Drugs.onTick` currently consumes the new-day flag before ten-minute work
-is due; `Habits.cleanDays` ignores an active freeze. Make completed daily work
-and frozen elapsed time durable and test callback offsets, skipped intervals,
-reload and maintenance-drug expiry. Refresh living wound/infection observations
-from their physical owner instead of waiting for hibernation.
+Drug daily work now closes from its durable `drugDay` cursor only when the
+ten-minute pass runs. Skipped callback intervals replay, maintenance treatment
+freezes abstinence at an exact county hour, and expiry resumes from the same
+elapsed clean time. Loaded bodies publish current wound, Knox and toxic-burden
+facts; cumulative poison history is not reused as current exposure.
 
-ZAO owns pathogen terminal/form state. SAO reads that state rather than the
-unwritten `rec.terminalState`. ZAO leads the ratified event-driven brain-health
-contract, with SAO supplying actual exposures, care and observable effects;
-standalone SAO health remains supported when ZAO is absent. Separate exposure
-events and current toxic burden from cumulative historical totals. Integrate
-infection, wound, drug and withdrawal events over their actual intervals rather
-than sampling an endpoint and multiplying it by the whole day. Reverify the
-installed prior art, record the state/clearance rules and numerical tolerances,
-and preserve exposure/history ownership across reload.
+ZAO owns pathogen terminal/form state and the durable brain-health history when
+installed. Standalone SAO uses the same versioned schema on the person. Each
+observation first integrates the facts active since the durable cursor, then
+records the facts beginning at that boundary. Infection uses an exact sine
+convolution over its fixed course window; wounds, toxin and withdrawal use
+closed-form constant forcing with physical-clearance modifiers. Equal event
+histories agree within the declared tolerance across one interval, hourly
+partitions and reload. Inspection and medical views render the recorded series
+and causal labels. Memory retention, decision cadence, existing pressure and
+motor pace consume the same state. The off switch advances the cursor without
+accruing burden and retains history.
 
-F-084 corrects the current Crossed/Afflicted exposure claim. The stored
-transition is properly restricted to a Crossed carrier and an Afflicted target,
-using crossed odds multiplied by Afflicted susceptibility. There is no
-spontaneous Afflicted roll. Both callers are nevertheless once-per-day
-three-tile proximity checks. Replace them with a completed intentional action
-and an exposure result that can be interrupted, persisted and observed. The
-result must then transfer the body from SAO's living Afflicted owner to ZAO's
-Crossed owner exactly once; changing only `terminalState` is incomplete.
+The once-per-day three-tile calls to `ZAO.Pathogen.expose` are gone. A reachable
+Crossed decision starts a durable approach/contact action against an Afflicted
+person and clears ordinary attack targeting throughout it. Loss of range,
+target, ownership or an available body interrupts. Only a matching action in
+the resolving phase authorizes the exact-once result; the existing Crossed odds
+times Afflicted susceptibility remains the probability. Proximity and forged
+receipts cannot roll, and no spontaneous Afflicted conversion exists.
 
-The brain-health deliverable includes the requested history graph in existing
-inspect/medical surfaces and real memory, cognitive, motor and affective
-consumers. Medical inspection must reach it when Knox is absent. Verify those
-effects and the off switch; a scalar display or a getter with no behavioral
-consumer does not close the work.
+On success, the same human shell and supported person snapshot move from SAO's
+controller to ZAO. Busy actions quiesce new SAO decisions and retry; save-time
+checkpointing lets ZAO claim the dormant envelope after reload. External death
+returns the corpse through SAO's existing death, witness and mourning funnel.
+This closes the R5 exposure and ownership result. R7-R9 still own general
+intent-through-result, retained weapons/tools/strategy and the complete Crossed
+life/action producers.
 
-Positive-elapsed hibernation currently removes whole food while adjusting hunger
-alone, empties a drink container with capped relief, and searches root inventory
-only. Reconcile its consumption with native effects, nested access, partial
-quantities, nutrition, spoilage and resource accounting. This is a distinct
-simulation repair from zero-time snapshot fidelity. Compare the same supported
-event history across loaded, dormant and reloaded intervals; explicitly bound
-the comparison where the engine has no unloaded-world equivalent.
+Positive-elapsed awakening now searches nested carried containers, refreshes
+food age, rejects spoiled, poisonous and dangerous uncooked food, and invokes
+native partial `Eat` and `DrinkFluid`. Nutrition, fluid composition, quantity
+and remaining demand agree across partitioned wakes and reload. The supported
+equivalence covers the person and carried resources represented by the dormant
+snapshot; unloaded ground supply remains R10a work.
 
 ### R6-R8: evidence, access and performed actions
 
@@ -532,11 +533,11 @@ stepping remains the implementation.
 | C44 / C118 | R6-R8 demands, surrender, raids and experienced consequences |
 | C45 / C119 | R7-R8 care/CPR and optional event behavior |
 | C46 / C120 | R5-R6 and R8 health, age, private partner discovery and actual activities |
-| C47 / C121 | R2-R3, R5 and R7 drug state, scheduling, frozen use and completed use |
+| C47 / C121 | R2-R3 and R7 drug state and completed use; C56 closes R5 scheduling and frozen elapsed time |
 | C48 / C122-C124 | R6-R8 vehicle access, animal care and combat perception |
-| C49 / C125 | R5 ZAO-led event-derived brain health, real consumers and graph |
+| C49 / C125 | C56 closes R5's ZAO-led event-derived brain history, real consumers and graph |
 | C50 / C126-C127 | Retain recovery; R10-R15 truthful historical execution, protected data, training and acceleration |
-| C51 and older producer gaps | R1-R5 remaining fidelity/ownership; R9 full life concerns; R11-R14 actual learned consumption |
+| C51 and older producer gaps | R1-R5 continuity, time and physiology are closed; R9 retains full life concerns and R11-R14 retain actual learned consumption |
 
 Closing one row updates its implementation, controls and acceptance evidence in
 this map and ROADMAP. Source inspection, a passing structural border, native

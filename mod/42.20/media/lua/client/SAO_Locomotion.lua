@@ -54,6 +54,17 @@ function Loco.order(id, body, x, y, z, running)
             return true
         end
     end
+    -- Poor motor steadiness removes sprint pace from an already selected
+    -- route; it does not select a different destination or manufacture a new
+    -- decision.  Walking remains available.
+    if running and SAO.Neuro and SAO.Identity then
+        pcall(function()
+            local rec = SAO.Identity.get(id)
+            if rec and SAO.Neuro.motorSteadiness(rec) < 0.60 then
+                running = false
+            end
+        end)
+    end
     local ok, verdict = pcall(function()
         if running then return SAOJavaBridge:moveToPaced(body, x, y, z, true) end
         return SAOJavaBridge:moveTo(body, x, y, z)

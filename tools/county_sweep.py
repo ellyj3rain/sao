@@ -131,6 +131,7 @@ ZAO_MODULES = [
     "shared/ZAO_Sandbox.lua",
     "shared/ZAO_Forms.lua",
     "shared/ZAO_StateStore.lua",
+    "shared/ZAO_Brain.lua",
     "shared/ZAO_State.lua",
     "shared/ZAO_Mind.lua",
     "shared/ZAO_Recovery.lua",
