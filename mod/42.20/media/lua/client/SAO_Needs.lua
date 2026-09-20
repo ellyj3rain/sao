@@ -53,7 +53,7 @@ end
 -- tiles is the span of the probe - what is close enough to see and
 -- walk straight to - and that is ALL it is. How far a person will GO
 -- is knowledge and desire now: the county's places, searched nearest
--- first, committed to by need (SAO.Places.nearestOffering, the
+-- first, committed to by need (SAO.WorldSources.nearestBelieved, the
 -- controller's knowledge step). A perception span is not a leash,
 -- and it is nobody's option.
 N.PERCEPTION_TILES = 12

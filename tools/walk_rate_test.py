@@ -89,6 +89,7 @@ MODULES = [
     "shared/SAO_Lessons.lua", "shared/SAO_Knowledge.lua",
     "shared/SAO_Seams.lua", "shared/SAO_Standing.lua",
     "shared/SAO_Perception.lua", "shared/SAO_Places.lua",
+    "shared/SAO_WorldSources.lua",
     "client/SAO_Age.lua", "client/SAO_Telemetry.lua",
     "shared/SAO_PhysicalFacts.lua",
     "client/SAO_PopulationAdmissions.lua", "client/SAO_PopulationRepresentation.lua",

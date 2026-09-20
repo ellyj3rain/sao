@@ -64,6 +64,8 @@ cat > "$OUT/MANIFEST.MF" <<'EOF'
 Manifest-Version: 1.0
 Premain-Class: com.sao.agent.SAOAgent
 Agent-Class: com.sao.agent.SAOAgent
+Can-Retransform-Classes: true
+Can-Redefine-Classes: true
 EOF
 
 echo "[build] packaging SAOAgent.jar"

@@ -1,6 +1,6 @@
 | Document | Survivor Awareness Overhaul Dependency Substrate |
 |---|---|
-| Version | `2.7.15.2-pre-alpha` |
+| Version | `2.7.15.3-pre-alpha` |
 | Author | ellyj3rain |
 | Repository | `SUBSTRATE.md` |
 | Status | CANONICAL - what exists, what is planned, and what each area of concern needs. |
@@ -130,7 +130,7 @@ former batch labels inside evidence retain their historical meaning.
 | Saved state reconstructs usable runtime behavior | GraphPersistence binds only serializable Branching history; Integration registers built-ins and stable-ID extensions into a fresh runtime graph | Pattern/office history survives; callbacks, caches, indexes, controllers, courses and Java maps are reconstructed projections | C55 Border 170 serializes through Kahlua, creates a fresh environment and then a second world; ZAO Border 8 reconstructs settlement/controller/course state and clears prior-world maps | R4 is closed for the inventoried owners. Later features must declare durable/runtime ownership as they add state; loaded-world play acceptance remains separate. |
 | Facts are private and acquired | Java scans feed Perception; Knowledge preserves acquisition and Standing evaluates permission | Beliefs with source, time and uncertainty | A reproduces animals entering the IsoPlayer human path and traces global activity participant discovery | Narrow scanner output before decision use, preserve provenance and distinguish animal facts. Visibility and permission do not imply physical access. |
 | Actions have owned completion and interruption | Controller selects and queues engine actions; Driving, Medical, Animals and inventory adapters execute | Records should change from observed consequences | A exercises moving-vehicle cancellation, cancelled surrender, refused CPR and remote egg collection | Approach, queue, completion, failure and cancellation must be connected. A request must not award goods, experience, trust changes or learned capability. |
-| Loaded and dormant opportunities describe the same world | Loaded engine supplies actual containers, ground and bodies; Places and Population provide dormant representations | Place facts, resources, position and history | A traces stale vehicle locations, missing compartment access and diagnostic invented ground | Unloaded geometry is unavailable unless grounded data exists. Dormant processing needs its own accountable producers; test fixtures cannot be accepted as world observations. |
+| Loaded and dormant opportunities describe the same world | `SAO_WorldSources` requests bounded native chunks through the Java streamer bridge, records exact source/item/fluid revisions and reconciles loaded changes; Places supplies geography and search possibility | Native object/item UUIDs; bounded chunk/source observations, conflicts, reservations and result receipts; private source beliefs | C61 Border 178 runs the production ledger in installed Kahlua, weaves installed loot generation and proves premain retransformation, access refusal, identity conflicts, complete-protocol parsing, retries and bounds | Native ground and observation close in C61. Production access remains `unknown` for static sources and `unsupported` for vehicles until R6 proves an actor's interaction point, path, barriers and permission; R7 then owns exact transfer and native consequence. |
 | Health integrates actual events over time | Course, Medical, Habits and Neuro consume current person/body facts; ZAO StateStore owns pathogen transitions and ZAO Brain owns history when installed | Durable health cursors, infection windows and brain event history; standalone SAO uses the same schema | C56 Borders 171-175 execute callback offsets, current exposures, exact interval partitions, reload, graphs and behavioral consumers; Borders 163/174 execute native dormant consumption | R5 is closed. Later health-and-care actions still require R7/R9 completion receipts and grounded opportunities. |
 | Social outcomes follow performed acts and recognition | Standing, Organization, Settlement and Integration mutate social records; Branching.record currently counts selections | Claims, membership, offices, patterns and experience | A traces automatic relocation, selection recorded before execution and recognition by repetition | Affiliation, legitimacy, dissent and development need causal producers. A chosen branch is not performed work; repeated choices do not establish public recognition. |
 | Diagnostic populations support valid claims | Population genesis/refill and mortality produce open-population histories; county sweep exports observations | People, deaths, seeds and run progress | C50's independent 90/365-day receipts distinguish 12-person targets from 27/72 created records | Reconcile admission/refill with the life-simulation contract. These samples cannot be reported as 100 percent cohort survival or full simulation fidelity. |
@@ -363,7 +363,8 @@ food age, rejects spoiled, poisonous and dangerous uncooked food, and invokes
 native partial `Eat` and `DrinkFluid`. Nutrition, fluid composition, quantity
 and remaining demand agree across partitioned wakes and reload. The supported
 equivalence covers the person and carried resources represented by the dormant
-snapshot; unloaded ground supply remains R10a work.
+snapshot. C61 observes unloaded native ground; actor-specific access, transfer
+and carried native use remain R6/R7 work.
 
 ### R6-R8: evidence, access and performed actions
 
@@ -376,12 +377,24 @@ current position and `canAccessContainer`. A vanilla-derived transfer action
 retains those checks through execution. Borders 154, 155, 157, 176 and 177 hold
 the defects and their independent controls.
 
-Dormant proof remains attached to R10a. Its C60 source inventory distinguishes
-meta-grid geography, resource possibility, loaded native stock and physical
-access. The ordered implementation is native source identity, explicit
-observation state, reservation and result, loaded-chunk conflict reconciliation,
-then migration away from room-derived availability. Unknown ground cannot offer
-an action while those producers are absent.
+C61 closes the native-ground portion of R10a. When dormant search reaches a
+building, its bounded chunks pass through the engine streamer and native loot
+generator. Persistent UUIDs identify static objects and ground items; physical
+fingerprints make replacements and movement conflict. Java returns exact
+containers, fluids, items, quantities and revisions. Lua accepts only a complete
+bounded protocol, persists the arriving person's private observation, protects
+active reservations during compaction and retries loaded reconciliation. Places
+and distribution names now answer only where a person might search.
+
+Access and performed use remain separate. Production static observations state
+`access=unknown`; vehicles state `access=unsupported` because their VehiclesDB2
+persistence is not proven. Neither can reserve or mutate stock, and arrival
+cannot update `lastFoodDay` or `lastWaterDay`. The next R6/R7 unit selects one
+exact interaction point, proves current revision, floor, route, doors/barriers,
+claim or ownership and vehicle-part permission, transfers the exact item or
+fluid, invokes carried native `Eat` or `DrinkFluid`, and publishes one durable
+exact-once result. Cancellation releases ownership, reload reconciles pending
+work and revision change conflicts. R9 provisioning can credit only that result.
 
 R7 gives each action an owner across proposal, approach, queued action, execution,
 refusal, cancellation and observed result. Source-inventory the engine callbacks,
@@ -455,10 +468,11 @@ substantive ruling at that boundary instead of filling it with an invented rule.
 | Conflict and defense — Perception, Standing, Controller, combat | Derive threat response, withdrawal, defense, diversion, capture and contested acquisition from perceived threats and permissions. Low skill affects execution within the human envelope; it does not grant hidden knowledge or impossible acts. |
 | Turned and afflicted life — ZAO mind/pathogen/controllers; SAO living execution | Preserve the separation of retained cognition from pathogen mechanics. Strategy, kin coordination, diet, capture/diversion, rare social development and living responses consume retained capabilities and actual events. No verb is acquired merely by turning. |
 
-R10a supplies grounded unloaded opportunity and the later world changes these
-actions imply, before their dormant proofs. Inventory map/resource sources,
-access, depletion/renewal and loaded-chunk reconciliation first. R10b then
-validates integrated historical behavior after the relevant producers exist.
+C61 supplies R10a's grounded unloaded opportunity, persistent source identity,
+exact private observations and loaded reconciliation. R6/R7/R9 next supply the
+actor-specific access, exact transfer, native consequence and durable result
+that change this ground through performed action. R10b then validates integrated
+historical behavior after those relevant producers exist.
 A fixture such as universal rooms/food/water is not a source. Preserve
 day-zero-off and the same causal machinery through ordinary life, collapse and
 late starts.

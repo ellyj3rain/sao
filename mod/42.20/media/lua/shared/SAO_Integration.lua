@@ -93,8 +93,11 @@ function Integration.ensure()
         return SAO.WorldDevelopment and SAO.WorldDevelopment.of(id) or nil
     end)
     SAO.Branching.registerSurface("place", function(id)
-        return SAO.Places and SAO.Places.nearestOffering
-            and SAO.Places.nearestOffering(0, 0, "food", 1000) or nil
+        local rec = SAO.Identity and SAO.Identity.get(id) or nil
+        if not rec or not SAO.WorldSources then return nil end
+        return SAO.WorldSources.nearestBelieved(id,
+            rec.x or rec.homeX or 0, rec.y or rec.homeY or 0,
+            "food", SAO.Places.commitHorizon())
     end)
     SAO.Branching.registerSurface("relationship", function(id)
         return SAO.Standing and SAO.Standing.fellowsOf(id) or {}

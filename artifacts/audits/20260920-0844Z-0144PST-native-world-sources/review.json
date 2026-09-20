@@ -1,0 +1,47 @@
+{
+  "schema": "sao.review-panel/1",
+  "timestamp": "2026-09-20 08:44 UTC / 01:44 PST",
+  "batch": "C61",
+  "reviewers": [
+    {
+      "role": "structural",
+      "agent": "Fermat",
+      "blocking_findings": [
+        "unknown access manufactured dormant consumption",
+        "Java chunk mutation and Lua completion were not crash-atomic",
+        "loaded observation was marked seen before success",
+        "the durable ledger was unbounded"
+      ]
+    },
+    {
+      "role": "correctness",
+      "agent": "Archimedes",
+      "blocking_findings": [
+        "static engine network identity could alias an identical replacement",
+        "offscreen loading entered a live-map phase without active-map adoption",
+        "vehicle persistence had no VehiclesDB2 proof"
+      ]
+    },
+    {
+      "role": "validation",
+      "agent": "Carver",
+      "blocking_findings": [
+        "the premain manifest omitted retransformation capability",
+        "the original Border 178 used fabricated completion",
+        "truncated protocol input could mutate state",
+        "loaded reconciliation did not retry failure"
+      ]
+    }
+  ],
+  "repairs": [
+    "removed the dormant consumption and need-credit shortcut",
+    "required accessible source state before reservation",
+    "persisted UUID source and ground-item identities in native ModData",
+    "kept offscreen work in the native streamer pre-live phase",
+    "marked vehicle access unsupported pending its persistence proof",
+    "added complete bounded protocol validation and retrying loaded observation",
+    "bounded every durable and runtime working set",
+    "proved real premain retransformation and production Kahlua behavior"
+  ],
+  "remaining_boundary": "Actor-specific access, exact transfer, native physiology and cross-save completion receipts are the next planned R6/R7/R9 unit."
+}

@@ -55,7 +55,7 @@ function A.of(id)
         if homePlaceId and known[homePlaceId] then
             homeKnown = true
             homeVisits = numberOr(known[homePlaceId].visits, 0)
-            for _ in pairs(known[homePlaceId].offers or {}) do
+            for _ in pairs(known[homePlaceId].sources or {}) do
                 homeOffers = homeOffers + 1
             end
         end

@@ -27,10 +27,10 @@ WHAT THIS HOLDS
   4. Knowledge earns no exemptions: the four claim vetoes
      (mayEnterBelieved) still stand at the need branches, so a known
      place walks the same property law a noticed source walks.
-  5. The knowledge surface is honest: horizons derive from the
-     engine's own cell size, the search is nearest-first in rings,
-     held knowledge is revalidated at use (offersNow), and "there is
-     none around here" expires - belief about absence is belief too.
+  5. The knowledge surface is private and grounded: horizons derive
+     from the engine's own cell size, selection reads only that person's
+     observed native-source beliefs, and arrival refreshes stale belief
+     from native ground before any acquisition can complete.
   6. The dormant half walks the same law: need cuts ahead of
      curiosity through the same knowledge search, and one barring
      function serves both choosers - two copies of a law is how
@@ -73,6 +73,7 @@ def main():
     ctl = read(LUA / "client" / "SAO_Controller.lua")
     pop = read(LUA / "client" / "SAO_DormantPopulation.lua")
     places = read(LUA / "shared" / "SAO_Places.lua")
+    world = read(LUA / "shared" / "SAO_WorldSources.lua")
 
     # 1. The dial is dead everywhere under mod/. Lua is scanned with
     # its comments stripped - the modules that killed the dial name
@@ -134,18 +135,24 @@ def main():
             or "* 1.5" not in places:
         faults.append("the comfort/commit horizon pair is not derived "
                       "from the cell span")
-    if "function Pl.nearestOffering" not in places \
-            or "RING_STEP" not in places:
-        faults.append("no nearest-first ring search - knowledge that "
-                      "scans the whole horizon for the closest shelf "
-                      "pays the map when the answer is next door")
-    if "offersNow(held.place)" not in places:
-        faults.append("held knowledge is not revalidated at use - a "
-                      "place eaten bare stays 'known good' forever")
-    if not re.search(r"held\.at.*<\s*24|<\s*24.*held\.at", places):
-        faults.append("'there is none around here' never expires - "
-                      "belief about absence is belief too, and the "
-                      "world refills ([B39])")
+    if "function WS.nearestBelieved" not in world \
+            or "SAO.Perception.knownPlaces(id)" not in world:
+        faults.append("known-source selection does not start from the "
+                      "asker's private place beliefs")
+    if "belief.sources and belief.sources[category]" not in world:
+        faults.append("known-source selection accepts a room hint as "
+                      "stock instead of requiring a personally observed "
+                      "native source")
+    live_step = ctl.split("local function knownSource", 1)[-1] \
+        .split("local function decide", 1)[0]
+    if "SAO.WorldSources.nearestBelieved" not in live_step \
+            or "id, bx, by, offer, horizon" not in live_step:
+        faults.append("the loaded knowledge step does not carry the "
+                      "asker's identity into private source selection")
+    if "SAO.WorldSources.demandPlace(place)" not in pop \
+            or 'tickCounter, "observed"' not in pop:
+        faults.append("arrival does not refresh possibly stale belief "
+                      "from native ground before acquisition")
 
     # 6. The dormant half walks the same law.
     if "local function placeBarred" not in pop \
@@ -153,7 +160,7 @@ def main():
         faults.append("the dormant choosers do not share one barring "
                       "law - two copies of feud-and-claim is how they "
                       "drift apart")
-    if "nearestOffering" not in pop:
+    if "SAO.WorldSources.nearestBelieved" not in pop:
         faults.append("dormant need never cuts ahead of curiosity - a "
                       "dying walker roams for novelty while the county "
                       "knows where the water is")
@@ -167,7 +174,8 @@ def main():
     print("  99) knowledge-first: the dial is dead, the probe is named for")
     print("      what it is, all four needs reach for what the county knows")
     print("      under the same property law, horizons derive from the")
-    print("      engine's own quantum, and held knowledge stays honest")
+    print("      engine's own quantum, and private source belief is refreshed")
+    print("      from native ground before acquisition")
     return 0
 
 

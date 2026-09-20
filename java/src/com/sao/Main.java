@@ -46,6 +46,10 @@ public final class Main {
         // player; the weave self-attaches the same way the melee patch
         // does and, if it cannot, bodies simply keep their size.
         com.sao.agent.SAOBodyScaleWeave.install();
+        // [R10a] Distant native loot must use the demanded container's
+        // location for PZ's own density calculation. Hydration refuses if
+        // this narrow weave cannot be established.
+        com.sao.agent.SAOLootDensityWeave.install();
         SAOBridgeBootstrap.start();
     }
 

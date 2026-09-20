@@ -2209,19 +2209,6 @@ public final class SAOBridge {
         return 0.0;
     }
 
-    /** [C60] Containers the engine says have been looted, "looted@total". */
-    public String lootedNearby(Object object, int radius) {
-        try {
-            if (object instanceof IsoPlayer) {
-                return com.sao.engine.SAONeeds.lootedNearby(
-                    (IsoPlayer) object, radius);
-            }
-        } catch (Throwable throwable) {
-            SAOAgent.log("lootedNearby threw: " + throwable);
-        }
-        return "0@0";
-    }
-
     /** [B21] What THIS world contains - discovered from the live
      *  script registry, classified by how content describes itself.
      *  Never names a mod, so a changed load needs no code change. */
@@ -2890,6 +2877,36 @@ public final class SAOBridge {
                 + com.sao.agent.SAOBodyScale.report();
         } catch (Throwable throwable) {
             return "THREW:" + throwable;
+        }
+    }
+
+    /** [R10a] Readiness of the bounded native-ground seam. */
+    public String worldSourceStatus() {
+        try {
+            return com.sao.engine.SAOWorldSources.status();
+        } catch (Throwable throwable) {
+            SAOAgent.log("worldSourceStatus threw: " + throwable);
+            return "protocol=SAOWS1|weave=FAILED|" + throwable;
+        }
+    }
+
+    /** [R10a] Populate and persist one demanded PZ chunk, then observe it. */
+    public String hydrateWorldChunk(int chunkX, int chunkY) {
+        try {
+            return com.sao.engine.SAOWorldSources.hydrateChunk(chunkX, chunkY);
+        } catch (Throwable throwable) {
+            SAOAgent.log("hydrateWorldChunk threw: " + throwable);
+            return "";
+        }
+    }
+
+    /** [R10a] Observe one currently loaded chunk without rolling unopened loot. */
+    public String observeWorldChunk(int chunkX, int chunkY) {
+        try {
+            return com.sao.engine.SAOWorldSources.observeLoadedChunk(chunkX, chunkY);
+        } catch (Throwable throwable) {
+            SAOAgent.log("observeWorldChunk threw: " + throwable);
+            return "";
         }
     }
 

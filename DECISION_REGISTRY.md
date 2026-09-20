@@ -1,6 +1,6 @@
 | Document | Survivor Awareness Overhaul Decision Registry |
 |---|---|
-| Version | `2.7.15.2-pre-alpha` |
+| Version | `2.7.15.3-pre-alpha` |
 | Author | ellyj3rain |
 | Repository | `DECISION_REGISTRY.md` |
 | Status | CANONICAL, APPEND-ONLY - ratified decisions. |
@@ -1492,3 +1492,30 @@ mechanisms, including their unresolved defects and missing producers.
 **Origin.** Mousecat Crucible interaction `skill-bf49739e6e493394`; selected
 value `whole_mod_restructuring`. This supersedes the narrower recommendation
 in the first compression proposal.
+
+---
+
+## DR-043 - Demand-led native hydration
+
+**Timestamp** 2026-09-20 08:44 UTC / 01:44 PST
+
+**Status** RATIFIED and implemented in C61.
+
+**Decision.** Hydrate native Project Zomboid chunks only when a person's
+search reaches their ground. Preserve exact native source identity, contents
+and revision as private observations. Room names and distribution vocabulary
+indicate where a person may search; they do not create stock.
+
+**Application.** C61 implements native source identity, demand-led chunk
+hydration, exact bounded observations, loaded reconciliation and the durable
+reservation substrate. Observation alone cannot establish physical access or
+performed use. R6, R7 and R9 own the next unit: prove one exact interaction
+point, floor and route, doors and barriers, claims or ownership, and vehicle
+part permission; then transfer the exact item or fluid, invoke the carried
+native consequence and publish one revision-bound durable result. Only that
+result may credit need or provisioning.
+
+**Origin.** Mousecat Crucible return in C61; selected value
+`demand-led-native-hydration`. The selected value is the durable decision
+record; no opaque interaction identifier was recovered from the current
+Mousecat runtime.

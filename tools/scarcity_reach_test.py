@@ -1,114 +1,85 @@
 #!/usr/bin/env python3
-r"""Border 45 - the shelves are spent by whoever actually empties them.
+r"""Border 45 - every material action is bounded by native source truth.
 
-[B39] built the scarcity model: a place is spent by being VISITED,
-holds as much as its room count says, and refills on the game's own
-`LootRespawn`. Its own record admitted the player's looting was not
-counted. What the record did not say, and nobody checked, is that
-`Pl.take` had **exactly one caller** - inside `dormantLife`.
-
-So the whole economy governed only the unloaded half of the county. A
-survivor standing in a grocery could eat it bare while the ledger never
-moved, and the two hundred dormant ones would still walk there
-expecting food.
-
-That is [B39] on `Desperation`, [B39] on `ErrandRadius` and [B42] on
-whose ground it is, a fourth time - and the largest of them, because it
-is not one option or one rule but an entire model that half the county
-was outside of.
-
-WHAT IS *NOT* AN ASYMMETRY HERE
--------------------------------
-The live path does not read `offersNow` or `isSpent`, and that is
-correct rather than missing. A loaded survivor finds food through the
-bridge scanning the real world - `findFoodSource(body, radius)` - so it
-has ground truth and needs no model. The stock ledger is the
-abstraction the UNLOADED half needs, and the loaded half's job is to
-keep it honest by recording what the world actually lost. Writing is
-shared; reading is not, and the split is deliberate.
-
-WHAT THIS HOLDS
----------------
-  1. `Pl.take` is called from the dormant path.
-  2. `Pl.take` is called from the live path.
-  3. Every call sits behind a test that something was actually taken -
-     the dormant rule is "recorded only when they actually took
-     something, so walking through a warehouse for the shelter does not
-     empty it", and a live caller that spends on arrival would empty
-     the county by walking through it.
+The historical border required both simulation halves to decrement a room-sized
+counter. R10a removes that abstraction. Dormant arrival now demands native
+ground and learns the exact observation, but it cannot credit food or water
+until an actor-specific access/action executor exists. Loaded survivors mutate
+PZ directly and then reconcile the same exact source ledger. Room vocabulary
+remains exploration possibility only.
 """
 import pathlib
-import re
 import sys
 
 ROOT = pathlib.Path(__file__).resolve().parent.parent
 LUA = ROOT / "mod" / "42.20" / "media" / "lua"
 DORMANT = LUA / "client" / "SAO_DormantPopulation.lua"
 LIVE = LUA / "client" / "SAO_Controller.lua"
-
-sys.path.insert(0, str(pathlib.Path(__file__).resolve().parent))
-from menu_reach import strip_lua                       # noqa: E402
-
-TAKE = re.compile(r"Places\.take\s*\(")
-# What "they actually got something" looks like in either half.
-GOT = re.compile(r"\b(got\.\w+|eatCarried|clearWater|offersNow)\b")
+AGE = LUA / "client" / "SAO_Age.lua"
+WORLD = LUA / "shared" / "SAO_WorldSources.lua"
+PLACES = LUA / "shared" / "SAO_Places.lua"
 
 
-def sites(path):
-    code = strip_lua(path.read_text(encoding="utf-8", errors="ignore"),
-                     strings=False)
-    lines = code.split("\n")
-    out = []
-    for n, line in enumerate(lines, 1):
-        if TAKE.search(line):
-            # The guard is above it, in the block that decided they got
-            # something. The window has to clear a comment block: the
-            # live sites carry a dozen lines explaining why they exist,
-            # and a twelve-line window read straight past the
-            # `eatCarried` guard sitting immediately above them and
-            # called a correctly-guarded take unguarded.
-            before = "\n".join(lines[max(0, n - 30):n])
-            out.append((n, bool(GOT.search(before))))
-    return out
+def read(path):
+    return path.read_text(encoding="utf-8", errors="ignore") \
+        if path.exists() else ""
 
 
 def main():
-    faults = []
-    print("=" * 74)
-    print("WHO SPENDS THE SHELVES")
-    print("=" * 74)
+    dormant = read(DORMANT)
+    live = read(LIVE)
+    age = read(AGE)
+    world = read(WORLD)
+    places = read(PLACES)
 
-    halves = {"the dormant day": DORMANT, "the loaded half": LIVE}
-    for half, path in halves.items():
-        found = sites(path)
-        where = ", ".join(str(n) for n, _ in found) or "NOWHERE"
-        print(f"  {half:<16} spends at {path.name}:{where}")
-        if not found:
-            faults.append(
-                f"{half} never calls Places.take - "
-                + ("a survivor standing in a grocery can eat it bare and "
-                   "the county's ledger never moves, while the dormant "
-                   "still walk there expecting food"
-                   if path is LIVE else
-                   "the unloaded half stopped spending the places it "
-                   "visits, and [B39]'s whole model is inert"))
-        for n, guarded in found:
-            if not guarded:
-                faults.append(
-                    f"{path.name}:{n} spends a place with nothing above it "
-                    "testing that anything was taken - walking through a "
-                    "warehouse for the shelter would empty it, which is "
-                    "the case [B39] wrote its condition to exclude")
+    demand = dormant.find("SAO.WorldSources.demandPlace(place)")
+    learn = dormant.find("SAO.Perception.learnBuilding(id, place", demand)
+    refuse = dormant.find('return false, "access-unproven"', learn)
+    checks = {
+        "dormant arrival orders native demand, private learning, refusal":
+            -1 not in (demand, learn, refuse) and demand < learn < refuse,
+        "dormant observation cannot reserve, consume, or credit need":
+            "SAO.WorldSources.reserve(" not in dormant
+            and "SAO.WorldSources.commit(" not in dormant
+            and "rec.lastWaterDay = day" not in dormant
+            and "rec.lastFoodDay = day" not in dormant,
+        "reservation substrate requires proven accessibility":
+            'source.access ~= "accessible"' in world,
+        "a reservation hides its source without mutating observation":
+            "if pendingFor(value, source.id, nil) then return 0 end"
+            in world,
+        "interruption releases reserved stock":
+            "function WS.release" in world
+            and '"night-interrupted"' in dormant
+            and '"arrival-error"' in dormant,
+        "loaded food and water reconcile after native mutation":
+            "if SAO.Needs.eatCarried(id, body) then" in live
+            and live.count("SAO.WorldSources.observeAt(") >= 2,
+        "the player reconciles the same ledger":
+            "SAO.WorldSources.observeAt(x, y, LOOT_REACH)" in age,
+        "room vocabulary cannot create or spend stock":
+            "function Pl.take(" not in places
+            and "function Pl.offersNow" not in places
+            and "function Pl.isSpent" not in places,
+    }
+
+    print("=" * 74)
+    print("EVERY MATERIAL ACTION IS BOUNDED BY NATIVE SOURCE TRUTH")
+    print("=" * 74)
+    faults = []
+    for name, ok in checks.items():
+        print(f"  {'yes' if ok else 'NO '}  {name}")
+        if not ok:
+            faults.append(name)
 
     print()
     print("VERDICT:")
     if faults:
-        for f in faults:
-            print(f"  FAULT: {f}")
+        for fault in faults:
+            print("  FAULT: " + fault)
         return 1
-    print("  45) scarcity: both halves of the county spend the shelves "
-          "they empty, and")
-    print("      only when they actually took something")
+    print("  45) dormant arrival learns exact native stock but awards no need;")
+    print("      loaded and player mutations reconcile source identities/revisions")
     return 0
 
 

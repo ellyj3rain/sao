@@ -114,7 +114,10 @@ SAO.Controller = {
 
 SAO.Places = {
     comfortHorizon = function() return 150 end,
-    nearestOffering = function(x, y, offer, horizon)
+}
+SAO.WorldSources = {
+    nearestBelieved = function(id, x, y, offer, horizon)
+        if id ~= "p1" then return nil end
         return { cx = 60, cy = 40, id = 7 }
     end,
 }

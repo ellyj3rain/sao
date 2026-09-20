@@ -796,11 +796,11 @@ local function nearestHostilePerson(id, tick, fromX, fromY)
     return nil
 end
 
--- [C25] The knowledge step (DR-027). The probe is what a body
--- NOTICES; the county's places are what they KNOW. When nothing is
--- in sight, need reaches for the nearest KNOWN place offering the
--- thing - nearest first, spent shelves and dry taps already
--- disbelieved inside Places - and how far a person commits is their
+-- [C25/R10a] The knowledge step (DR-027). The probe is what a body
+-- NOTICES; a person's private place beliefs are what they KNOW. When
+-- nothing is in sight, need reaches for the nearest place where that
+-- person previously observed an exact native source, and how far they
+-- commit is their
 -- own need against the county's derived horizons (half a cell for
 -- comfort, a cell and a half for real need - the engine's own
 -- neighborhood quantum, never a dial). What comes back walks the
@@ -814,7 +814,9 @@ end
 -- ammo pass 0 because equipment wants convenience, not a journey -
 -- nobody crosses the county starving for a crowbar.
 local function knownSource(id, body, needValue, offer)
-    if not (SAO.Places and SAO.Places.nearestOffering) then return nil end
+    if not (SAO.WorldSources and SAO.WorldSources.nearestBelieved) then
+        return nil
+    end
     local okP, bx, by = pcall(function()
         return body:getX(), body:getY()
     end)
@@ -823,8 +825,8 @@ local function knownSource(id, body, needValue, offer)
         + SAO.Lessons.desperationBump(id)
     local horizon = committed and SAO.Places.commitHorizon()
         or SAO.Places.comfortHorizon()
-    local okK, place = pcall(SAO.Places.nearestOffering,
-        bx, by, offer, horizon)
+    local okK, place = pcall(SAO.WorldSources.nearestBelieved,
+        id, bx, by, offer, horizon)
     if not okK or not place then return nil end
     if math.max(math.abs(place.cx - bx), math.abs(place.cy - by))
             <= SAO.Needs.PERCEPTION_TILES then
@@ -6417,24 +6419,12 @@ local function updateAgent(id, agent)
                 end)
                 SAO.Needs.clearSource(body)
                 if SAO.Needs.eatCarried(id, body) then
-                    -- [B43] The shelves are not infinite for the LOADED
-                    -- half either. [B39] made a place spent by being
-                    -- visited and wired it into `dormantLife` alone, so
-                    -- `Pl.take` had exactly one caller and a survivor
-                    -- standing in a grocery could eat it bare while the
-                    -- county's ledger never moved. Same asymmetry as
-                    -- [B39] on Desperation, [B39] on ErrandRadius and
-                    -- [B42] on whose ground it is - the fourth, and the
-                    -- largest, because it is a whole economy only half
-                    -- the county was in.
-                    --
-                    -- The dormant rule is mirrored exactly rather than
-                    -- re-invented: recorded only when they ACTUALLY took
-                    -- something, so walking through a warehouse for the
-                    -- shelter does not empty it.
+                    -- The engine already removed the exact item. Re-read that
+                    -- loaded native ground so the dormant ledger sees the same
+                    -- result; no second stock counter is decremented.
                     pcall(function()
-                        local herePl = SAO.Places.at(body:getX(), body:getY())
-                        if herePl then SAO.Places.take(herePl) end
+                        SAO.WorldSources.observeAt(
+                            body:getX(), body:getY(), 8)
                     end)
                     agent.taskDeadline = tickCount + 1800
                     setState(agent, id, "EAT", "took food, now eats")
@@ -6442,14 +6432,12 @@ local function updateAgent(id, agent)
                     setState(agent, id, "IDLE", "take yielded nothing edible")
                 end
             elseif agent.state == "DRINK" then
-                -- [B43] And water, on the same rule. The dormant day
-                -- spends a place on `got.water or got.food`; both halves
-                -- of the county now read the one rule rather than the
-                -- loaded half reading none of it.
+                -- Water changed the same native source the dormant ledger
+                -- records; reconcile its exact remaining fluid amount.
                 SAO.Needs.clearWater(body)
                 pcall(function()
-                    local herePl = SAO.Places.at(body:getX(), body:getY())
-                    if herePl then SAO.Places.take(herePl) end
+                    SAO.WorldSources.observeAt(
+                        body:getX(), body:getY(), 8)
                 end)
                 setState(agent, id, "IDLE", "finished drinking")
             elseif agent.state == "TAKE"

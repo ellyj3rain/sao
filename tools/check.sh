@@ -553,20 +553,14 @@ if ! "$PY" tools/session_state_test.py > /dev/null; then
     fail=1
 fi
 
-# [B43] Border 45 - the shelves are spent by whoever empties them.
-# [B39] built the scarcity model and wired Pl.take into dormantLife
-# ALONE - one caller for twenty-three batches - so a survivor standing
-# in a grocery could eat it bare while the county's ledger never moved
-# and two hundred dormant ones still walked there expecting food. Same
-# asymmetry as [B39] on Desperation, [B39] on ErrandRadius and [B42]
-# on whose ground it is, and the largest of them: not one option but a
-# whole economy half the county was outside of. Reading offersNow stays
-# dormant-only on purpose - the loaded half scans the real world and
-# has ground truth; its job is to keep the model honest about what the
-# world lost.
+# [C61/R10a] Border 45 - every acquisition converges on native source
+# truth. Dormant life may observe exact identity and revision privately,
+# but unknown or unsupported access cannot reserve, mutate, consume or
+# earn need credit. Loaded actors and the player mutate PZ first and
+# reconcile the same ledger. Room vocabulary is search possibility only.
 if ! "$PY" tools/scarcity_reach_test.py > /dev/null; then
     "$PY" tools/scarcity_reach_test.py 2>&1 | grep -E "FAULT" || true
-    note "BORDER FINDING - only half the county spends the shelves"
+    note "BORDER FINDING - an acquisition bypasses native source truth"
     fail=1
 fi
 
@@ -1547,13 +1541,12 @@ if ! "$PY" tools/skips_cleanly_test.py > /dev/null; then
     fail=1
 fi
 
-# [C60] Border 129 - the player's looting spends a place ([B39]'s
-# standing gap): read off the engine's own looted flag, raising the
-# county's tally for the place the player is standing in and never
-# lowering it.
+# [C60/R10a] Border 129 - player and loaded-survivor mutations rescan
+# bounded native chunks and reconcile exact item/fluid revisions; the
+# retired looted-container count and room-sized stock tally stay absent.
 if ! "$PY" tools/player_looting_test.py > /dev/null; then
     "$PY" tools/player_looting_test.py 2>&1 | grep -E "FAULT|SKIPPED" || true
-    note "BORDER FINDING - the county cannot see what the player emptied"
+    note "BORDER FINDING - loaded native mutations do not reach the exact ledger"
     fail=1
 fi
 
@@ -1877,6 +1870,16 @@ fi
 if ! "$PY" tools/source_access_test.py > /dev/null; then
     "$PY" tools/source_access_test.py 2>&1 | grep -E "FAULT|CONTROL|SKIPPED" || true
     note "BORDER FINDING - a cached source can mutate inaccessible ground"
+    fail=1
+fi
+
+# [C61] Border 178 - demand-led native hydration uses the installed chunk
+# geometry and density weave, preserves exact source/item identity, separates
+# reservation from result, reconciles conflicts and bounds seeking by private
+# observed belief.
+if ! "$PY" tools/world_sources_test.py > /dev/null; then
+    "$PY" tools/world_sources_test.py 2>&1 | grep -E "FAULT|CONTROL|SKIPPED" || true
+    note "BORDER FINDING - native world-source identity or reconciliation broken"
     fail=1
 fi
 

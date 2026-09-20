@@ -237,7 +237,7 @@ local function aboutNeed(id, offer)
     pcall(function()
         local sx, sy = K.speakerAt(id)
         if not sx then return end
-        local place = SAO.Places.nearestOffering(sx, sy, offer,
+        local place = SAO.WorldSources.nearestBelieved(id, sx, sy, offer,
             SAO.Places.comfortHorizon())
         if place then
             out[#out + 1] = { fact = "knownPlace", offer = offer,

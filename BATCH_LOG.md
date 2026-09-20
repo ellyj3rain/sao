@@ -1,6 +1,6 @@
 | Document | Survivor Awareness Overhaul Batch Log |
 |---|---|
-| Version | `2.7.15.2-pre-alpha` |
+| Version | `2.7.15.3-pre-alpha` |
 | Author | ellyj3rain |
 | Repository | `BATCH_LOG.md` |
 | Status | REGULATORY - chronological batch index. |
@@ -167,3 +167,4 @@ source mapping and hashes. Consolidation does not close implementation defects.
 | [C58](Batches/C58-2026-09-20-population-reconstruction-and-scheduling.md) | 2026-09-20 | Population reconstruction and scheduling | [`T-006`](Batches/THREADS.md#t-006), [`T-007`](Batches/THREADS.md#t-007), [`T-008`](Batches/THREADS.md#t-008) |
 | [C59](Batches/C59-2026-09-20-debug-mode-lua-compilation.md) | 2026-09-20 | Debug-mode Lua compilation | [`T-006`](Batches/THREADS.md#t-006), [`T-007`](Batches/THREADS.md#t-007) |
 | [C60](Batches/C60-2026-09-20-perception-and-world-access.md) | 2026-09-20 | Perception and world access | [`T-002`](Batches/THREADS.md#t-002), [`T-003`](Batches/THREADS.md#t-003), [`T-006`](Batches/THREADS.md#t-006), [`T-008`](Batches/THREADS.md#t-008), [`T-030`](Batches/THREADS.md#t-030) |
+| [C61](Batches/C61-2026-09-20-demand-led-native-hydration.md) | 2026-09-20 | Demand-led native hydration | [`T-003`](Batches/THREADS.md#t-003), [`T-006`](Batches/THREADS.md#t-006), [`T-007`](Batches/THREADS.md#t-007), [`T-008`](Batches/THREADS.md#t-008), [`T-030`](Batches/THREADS.md#t-030) |

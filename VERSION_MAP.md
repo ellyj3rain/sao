@@ -16,9 +16,9 @@ the machine. Names, dates, and threads below come from
 | Form | `major.minor.kohai.patch-maturity` |
 | Hard caps | minor 12; kohai 16; patch 24 |
 | Replay start | `0.1.0.0-pre-alpha` |
-| Current version | `2.7.15.2-pre-alpha` |
-| Closed chronology | `A1-C60` |
-| Next batch | `C61` |
+| Current version | `2.7.15.3-pre-alpha` |
+| Closed chronology | `A1-C61` |
+| Next batch | `C62` |
 | Executable source | [`tools/version_replay.py`](tools/version_replay.py) |
 
 ## Tier meanings
@@ -176,6 +176,7 @@ the machine. Names, dates, and threads below come from
 | `C58` | 2026-09-20 | kohai | `2.7.15.0-pre-alpha` | Population reconstruction and scheduling | Structural maturation of population runtime ownership: separate admissions, representation, physical observations and dormant advancement under one scheduler and History clock. Preserve continuation interfaces and repair callback replacement and explicit world reinitialization, with migrated controls. |
 | `C59` | 2026-09-20 | patch | `2.7.15.1-pre-alpha` | Debug-mode Lua compilation | Repair installed debug-mode compilation by splitting existing Controller and Standing phases; verify both compiler modes and the cumulative-local failure control. |
 | `C60` | 2026-09-20 | patch | `2.7.15.2-pre-alpha` | Perception and world access | Repair loaded perception and world access in place: classify animals before person output, require private and current activity partners, consume installed prone/deactivation state, and retain loaded, same-floor, permissioned source access through timed execution. Inventory and specify the still-open R10a native-source ledger and reconciliation substrate without promoting room vocabulary to stock. |
+| `C61` | 2026-09-20 | patch | `2.7.15.3-pre-alpha` | Demand-led native hydration | Establish demand-led native chunk hydration, persistent source identity, exact bounded observations and loaded reconciliation while removing room-derived stock and refusing unproven dormant access or use. This grounds an existing planned substrate without completing actor-specific action execution. |
 
 ## The former number
 
@@ -196,11 +197,11 @@ establish release maturity.
 
 ## Next movement
 
-`C61` is the next batch. Its content determines its tier after it
+`C62` is the next batch. Its content determines its tier after it
 exists:
 
-| If C61 is | Result |
+| If C62 is | Result |
 |---|---|
-| patch or hotfix | `2.7.15.3-pre-alpha` |
+| patch or hotfix | `2.7.15.4-pre-alpha` |
 | kohai | `2.7.16.0-pre-alpha` |
 | minor | `2.8.0.0-pre-alpha` |

@@ -1604,19 +1604,26 @@ end
 -- coordinate instead.
 --
 -- Keyed by building id, because a building is the same building
--- whoever is standing in it. `offers` is what its rooms read as
--- (SAO_Places), and `at` gives the belief an age like every other
--- belief here - a place remembered is not a place seen.
+-- whoever is standing in it. `sources` is the exact native stock this
+-- person observed on arrival; room vocabulary remains only a possible
+-- reason to explore and never enters the belief as availability.
 function P.learnBuilding(id, place, tick, source)
     if not place or not place.id then return end
     local b = store(id)
     b.known = b.known or {}
     local was = b.known[place.id]
+    local sources, sourceRevision, sourceAccess = {}, "", {}
+    pcall(function()
+        sources, sourceRevision, sourceAccess =
+            SAO.WorldSources.beliefSnapshot(place)
+    end)
     b.known[place.id] = {
         cx = place.cx, cy = place.cy,
         minX = place.minX, minY = place.minY,
         maxX = place.maxX, maxY = place.maxY,
-        offers = place.offers,
+        sources = sources,
+        sourceAccess = sourceAccess,
+        sourceRevision = sourceRevision,
         at = tick or b.lastScanAt,
         -- [B39] Said by the caller; "unknown" when nobody said.
         source = tostring(source or "unknown"),
@@ -1706,11 +1713,11 @@ function P.returnsOf(members)
     for _, t in pairs(returns) do
         local kp = t.place
         -- [C76]'s own score, unchanged: returned to, by more than
-        -- one of them, worth returning to. Water is the only offer
+        -- one of them, worth returning to. Water is the only source
         -- weighed, because it is the need that kills first ([B37])
         -- and the one a base either has or does not.
         t.score = t.visits * t.who
-        if kp.offers and kp.offers.water then
+        if kp.sources and kp.sources.water then
             t.score = t.score * 2
         end
         ranked[#ranked + 1] = t

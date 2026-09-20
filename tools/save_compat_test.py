@@ -39,6 +39,26 @@ BASELINE_FILE = ROOT / "tools" / "save_baseline.txt"
 # reason. A name here must actually be dropped or this file fails on
 # the declaration itself, so the list cannot quietly outlive its case.
 ACCEPTED_DROPS = {
+    "HoursForLootRespawn":
+        "a Project Zomboid SandboxVars field, not SAO ModData. The retired "
+        "room-counter reader referenced it; the native source engine owns "
+        "renewal through observed chunk revisions.",
+    "LootRespawn":
+        "a Project Zomboid SandboxVars field, not SAO ModData. Removing the "
+        "legacy room-counter read cannot strand an SAO save field.",
+    "drink":
+        "a false-positive suffix match on APIs such as Needs.drink; the broad "
+        "holder regex can see the trailing s.drink as a persisted field.",
+    "offersNow":
+        "a removed SAO_Places function, not persisted state. The broad holder "
+        "regex reads the trailing s.offersNow as though it were a store field.",
+    "storedWater":
+        "a derived flag in the runtime-only cached place possibility record. "
+        "It was never written to ModData; exact native fluid observations "
+        "replace it.",
+    "take":
+        "a removed SAO_Places function, not persisted state. The broad holder "
+        "regex reads the trailing s.take as though it were a store field.",
     "bitten":
         "[C11] the record-side bite flag. Its ONE reader was the "
         "invented dormant formula F-047 removed; the actionable fact "
