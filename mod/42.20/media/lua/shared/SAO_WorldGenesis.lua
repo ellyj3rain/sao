@@ -12,12 +12,32 @@ local WorldGenesis = SAO.WorldGenesis
 
 function WorldGenesis.ensure()
     if SAO.GraphPersistence and SAO.GraphPersistence.bind then
-        SAO.GraphPersistence.bind()
+        local bound = SAO.GraphPersistence.bind()
+        if bound ~= true then return false end
     end
     if SAO.Integration and SAO.Integration.ensure then
         return SAO.Integration.ensure()
     end
     return false
+end
+
+local function copyMap(value)
+    local out = {}
+    for key, scalar in pairs(type(value) == "table" and value or {}) do
+        if type(scalar) ~= "table" then out[key] = scalar end
+    end
+    return out
+end
+
+local function summarizeMaterialStore(value)
+    if type(value) ~= "table" then return nil end
+    return {
+        owner = value.owner,
+        projection = value.projection,
+        items = copyMap(value.items),
+        claims = copyMap(value.claims),
+        categories = copyMap(value.categories),
+    }
 end
 
 local function summarize(graph)
@@ -31,8 +51,13 @@ local function summarize(graph)
     if type(graph.material) == "table" then
         material = {
             owner = graph.material.owner,
-            items = graph.material.items or {},
-            claims = graph.material.claims or {},
+            accessibleBy = graph.material.accessibleBy,
+            projection = graph.material.projection,
+            items = copyMap(graph.material.items),
+            claims = copyMap(graph.material.claims),
+            categories = copyMap(graph.material.categories),
+            personal = summarizeMaterialStore(graph.material.personal),
+            house = summarizeMaterialStore(graph.material.house),
         }
     end
 

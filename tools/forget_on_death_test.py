@@ -230,6 +230,15 @@ NOT_A_SURVIVOR_ID = {
         "which drops the occupancy row and - by its own count rule - "
         "dissolves the base when the last member is gone, so no "
         "settlement is held open by graves"),
+    ("SAO_Material.lua", "Material.reconciliations"): (
+        "keyed by a completed world-source RESERVATION id, not a survivor id. "
+        "It is a durable replay decision retained through downstream or "
+        "acknowledgement failure; successful acknowledgement cleanup removes "
+        "it, while house dissolution removes that group from affected rows"),
+    ("SAO_Material.lua", "Material.sourceOwners"): (
+        "keyed by an exact native SOURCE id, not a survivor id. It enforces "
+        "one projected house owner per physical source; replacement, removal, "
+        "projection trimming and house dissolution clear or replace entries"),
 }
 
 # What an index has to look like to be a survivor id. `subFaults[name]`

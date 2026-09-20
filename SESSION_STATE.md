@@ -1,23 +1,26 @@
 | Document | Survivor Awareness Overhaul Session State |
 |---|---|
-| Version | `2.7.16.0-pre-alpha` |
+| Version | `2.8.0.0-pre-alpha` |
 | Author | ellyj3rain |
 | Repository | `SESSION_STATE.md` |
 | Status | CANONICAL - current implementation and continuation. |
 
 # Session state
 
-**As of** 2026-09-20, `[C62]` closes the first exact source access-and-use
-lifecycle over C61's demand-led native observations: private revision, current
-route and permission, exact native transfer, carried engine use and durable
-completion now remain one actor-owned transaction.
+**As of** 2026-09-20, `[C63]` consumes C62's completed exact-use result through
+bounded native-source replacement, derived house claims and optional storage
+synchronization on an independently grounded settlement, then acknowledges the
+receipt. C62 closes the first exact source access-and-use lifecycle over C61's
+demand-led native observations: private revision, current route and permission,
+exact native transfer, carried engine use and durable completion remain one
+actor-owned transaction.
 C59 repairs debug-mode Lua compilation. C58 closes population reconstruction and scheduling,
 the second whole-mod restructuring unit. C57 established shared body snapshots
 and consolidated native continuity verification. C56
 closed R5 health and dormant physiology after durable/runtime reconstruction,
 native person continuity, shared county time and the authorized Afflicted return.
 The C catalog is consolidated by adjacency and content using
-the A/B precedent: 29 A-batches, 52 B-batches and 62 C units. BATCH_LOG.md owns
+the A/B precedent: 29 A-batches, 52 B-batches and 63 C units. BATCH_LOG.md owns
 the chronology. Batches/FORMER_LABELS.md maps every former entry;
 Batches/C_RECATALOG.json preserves original paths and source hashes. The
 original records remain at local ref `archive/c-era-raw-20260919`.
@@ -43,8 +46,8 @@ producers, persistence, evidence and gaps.
 | Person continuity | Durable identity, C51's body transaction, C52's authorized return/adoption/teardown, C54's v4 native state, C55/A36 reconstruction and C56/A37 one-way Crossed ownership of the same human shell and dormant envelope | R7's general action completion and later action-specific ownership remain open. |
 | Time and health | Current decision time, durable drug/abstinence clocks, current physical inputs, exact interval-integrated brain history, medical/inspect graph and memory/decision/affective/motor consumers | R5 is closed. Performed treatment and care still depend on R7/R9 action producers. |
 | Afflicted and Crossed | ZAO pathogen state, Afflicted return, reachable Crossed decisions and an interruptible non-feeding blood exposure whose exact-once result transfers SAO's living body to ZAO | The retained human weapons, tools, strategy and wider action vocabulary remains R7-R9 work; grounded dormant opportunities remain R10. |
-| Knowledge and access | Private beliefs; animal-safe scanner output; fresh/current activity partners; demand-hydrated exact source identities; C62's revision-bound approach, current claim/vehicle permission, exact transfer, carried native use and durable result | R6 is closed for the selected source interaction. R7 remains open beyond this source-action family. R9 must consume completed results for settlement provisioning and may not infer it from observation, reservation or queue acceptance. |
-| Social development | Company mechanics, claims, observations, graph APIs | Automatic relocation and recognition; incomplete provisioning, affiliation, governance and other producers. |
+| Knowledge and access | Private beliefs; animal-safe scanner output; fresh/current activity partners; demand-hydrated exact source identities; C62's revision-bound approach, current claim/vehicle permission, exact transfer, carried native use and durable result; C63's exact house material projection | R6 is closed for the selected source interaction and its completed result reaches material state. R7 remains open beyond this source-action family. R9 still owes performed shelving and the other material producers. |
+| Social development | Company mechanics, claims, observations, graph APIs; C63 updates storage only on an existing grounded settlement | Automatic relocation and recognition; incomplete affiliation, governance, place development and other provisioning producers. |
 | Speakeasy data | 190 ratified choices, cross-module contract, approved world documents | Mutable decision snapshots, source conditioning, executable options and complete capture provenance. |
 | Models and late starts | Inference primitives, fact constraint, offline diagnostics | No trained cognition model, complete training/export path or validated accelerator. |
 
@@ -122,8 +125,30 @@ unspent work, reload reconstructs from source or carried item, and revision
 change conflicts. Only completed use stamps `lastFoodDay` or `lastWaterDay`;
 completed receipts remain in durable order until the provisioning consumer
 acknowledges them idempotently, and settlement recognition receives no synthetic
-credit. R7's other action families and R9's provisioning consumer are the next
-dependency layer. R10b continues to wait for those integrated producers.
+credit.
+
+C63 supplies that sole consumer. Final binding captures a group only when the
+exact source stands inside its held claim. The event records the claim
+incarnation and Material setting. The consumer resolves the latest isolated
+source observation, replaces that source in a durable house projection,
+rebuilds item/category totals and derives larder/water claims. Personal use has
+no house credit; non-ground absence waits for fresh truth; conflict or any failed
+material, standing or applicable settlement step remains unacknowledged for
+retry, while a retired claim terminates even after observation compaction. The
+applied decision, house projection generation and successful derivation phases
+survive reload and acknowledgement refusal. Evidence retains source-observation
+time across retry and cannot overwrite a newer aggregate or live scan. The
+post-acknowledgement cleanup window is recovered on the next delivery pass.
+Recognition can synchronize an existing settlement's storage but cannot create
+the settlement or invent its building and resources. Standing setters, dormant
+need-day projection and queued shelving no longer act as false producers.
+Graph and Standing schema-2 migrations retire their legacy false material,
+settlement and standing projections, clean provisioning-only organization
+state, and assign claim incarnations without inferring earlier history. Border
+180 executes 52 production cases and rejects 68 named mutations. R7's other
+action families and R9's performed shelving, remaining provisioning and
+place-development producers are the next dependency layer.
+R10b continues to wait for those integrated producers.
 R11-R12 can progress alongside them.
 
 R1 closes in C52 and ZAO A35. The living transaction, source holding and
@@ -224,8 +249,10 @@ event-derived brain-health history now have durable producers and controlled
 receipts. The native-ground portion of R10a closes in C61: offscreen chunks
 hydrate on demand, exact source observations persist privately and loaded
 changes reconcile. C62 closes R6's selected physical-access proof and R7's
-exact-source action slice, and supplies R9 with a completed-use input. R7's
-remaining action families and R9's downstream producers remain.
+exact-source action slice, and supplies R9 with a completed-use input. C63
+closes consumption of that input into bounded native material state and retires
+three false provisioning producers. R7's remaining action families and R9's
+performed shelving, material and development producers remain.
 R11-R12 can progress alongside them. Pathogen state and installed brain-history
 ownership continue to belong to ZAO.
 
@@ -252,11 +279,11 @@ consequences remain separate from the learned policy choosing among them.
 
 ## Verification and installed state
 
-C57 consolidates three native entry points into one. With C62's exact source-use
-border, the gate invokes 177 `*_test.py` files and 13 other Python entry points,
-190 distinct scripts. Border labels extend through 179; legacy labels
+C57 consolidates three native entry points into one. With C63's provisioning
+result border, the gate invokes 178 `*_test.py` files and 13 other Python entry
+points, 191 distinct scripts. Border labels extend through 180; legacy labels
 163/169/174 share the native suite. These are distinct counting units. The mod
-ships 75 Lua source files.
+ships 76 Lua source files.
 ZAO A37 has ten borders. The
 published C51 baseline has 163 borders through 178 mirrors. These counts describe the
 apparatus, not acceptance. The audit reproduced defects while targeted checks
@@ -268,15 +295,18 @@ C51's separate first gate found a verdict-prefix defect and missing transition
 registry surfaces/lifetimes. Its failed output is preserved with the corrections;
 the closing full gate passed with exit 0.
 
-The current install is C62 with ZAO A37, deployed on 2026-09-20 UTC.
-All 257 installed SAO files match source; the companion remains unchanged.
-The SAO jar SHA-256 is `7092f686fc7a45f01e577b3d24aad5cc9972fe35b912495d1ab146b08db15c84`.
+The current install is C63 with ZAO A37, deployed on 2026-09-20 UTC.
+All 258 installed SAO files match source; the companion remains unchanged.
+The SAO jar SHA-256 is `4160841299c724ea4be125854ca8a660fdc7e763875446d0d367a0a7ce8025a2`.
 All 44,092 save-file sizes and modification times remained unchanged across
 deployment and startup. The [C61 evidence record](artifacts/audits/20260920-0844Z-0144PST-native-world-sources/README.md)
 retains the native-source substrate. The [C62 evidence record](artifacts/audits/20260920-1041Z-0341PST-source-access-native-use/README.md)
 holds exact access/use, blocking review repairs, both full gates, the rejected
 initial startup, the inherited logger-order repair, exact deployment and clean
-final startup. The responsive client was left open. No save was loaded; startup
+final startup. The [C63 evidence record](artifacts/audits/20260920-2039Z-1339PST-provisioning-result-consumption/README.md)
+holds completed-result projection, false-producer retirement, blocking-review
+repairs, the 52-case/68-mutation border, exact deployment and clean startup.
+The responsive client was left open. No save was loaded; startup
 validation remains separate from save-backed exact-source behavior and
 loaded-world acceptance.
 The ZAO A37 tooltip-formatting follow-up recorded with C57 remains open.

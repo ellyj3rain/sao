@@ -12,9 +12,10 @@
 -- A group existing does not found an organization. The house's first
 -- SETTLED ELECTION does: that is the moment ORGANIZATION.md names -
 -- people who repeatedly acted together accepting a way to decide
--- together. Ground claimed does not settle a house; the first real
--- provisioning on it does. An order asked is nothing; the verdict the
--- follower actually returns is the deference fact.
+-- together. Settlement grounding belongs to performed place/development
+-- work; provisioning can only refresh a settlement that already exists.
+-- An order asked is nothing; the verdict the follower actually returns is
+-- the deference fact.
 
 SAO = SAO or {}
 SAO.Recognition = SAO.Recognition or {}
@@ -141,15 +142,22 @@ end
 -- The house is done: the roster emptied or released its widow. The
 -- record lapses with it - no organization outlives the people.
 function R.onHouseDissolved(groupName)
-    if not orgsReady() then return end
-    local Org = SAO.Organization
-    if Org.organizations[groupName] then
-        Org.organizations[groupName] = nil
+    groupName = tostring(groupName or "")
+    if groupName == "" then return false end
+    if SAO.Material and SAO.Material.forgetHouse then
+        SAO.Material.forgetHouse(groupName)
     end
-    Org.offices[officeKey(groupName, "chair")] = nil
     if SAO.Settlement and SAO.Settlement.bases then
         SAO.Settlement.bases[groupName] = nil
     end
+    local Org = SAO.Organization
+    if Org and Org.organizations and Org.organizations[groupName] then
+        Org.organizations[groupName] = nil
+    end
+    if Org and Org.offices then
+        Org.offices[officeKey(groupName, "chair")] = nil
+    end
+    return true
 end
 
 -- The chair accepted: the house offered, the player sat. The offer
@@ -242,34 +250,34 @@ function R.onPetitionAnswered(groupName, playerKey, judgeKey, accepted)
     end
 end
 
--- Real provisioning on held ground: the hearth lit, the water hauled,
--- the shelves counted. The first of these on a claimed house records
--- the settlement - the house actually living on its ground, which is
--- the only thing that ever makes a base real.
-function R.onProvisioned(groupName)
-    if not orgsReady() then return end
-    if not dial("Settlement") then return end
-    groupName = tostring(groupName)
-    local Settlement = SAO.Settlement
-    if Settlement.bases[groupName] then return end
-    local claim = SAO.Standing and SAO.Standing.groupClaimOf
-        and SAO.Standing.groupClaimOf(groupName) or nil
-    if not claim then return end
-    local living = SAO.Standing and SAO.Standing.membersOf
-        and SAO.Standing.membersOf(groupName) or {}
-    if #living == 0 then return end
-    local building = {
-        rooms = #living,
-        area = math.max(1, (claim.maxX - claim.minX)
-            * (claim.maxY - claim.minY)),
-        water = true, food = true,
-        minX = claim.minX, minY = claim.minY,
-        maxX = claim.maxX, maxY = claim.maxY, z = claim.z or 0,
-    }
-    Settlement.claim(groupName, building)
-    for _, memberId in ipairs(living) do
-        Settlement.occupy(groupName, memberId)
+-- A performed provisioning result may update a settlement that an independent
+-- place/development producer already grounded. It cannot create rooms, food,
+-- water, membership, an organization or a settlement from a provisioning
+-- signal. Material remains authoritative for the observed native projection.
+function R.onProvisioned(groupName, evidence)
+    if not (SAO.Settlement and SAO.Material) then
+        return false, "recording-unavailable"
     end
+    if not dial("Settlement") then return true, "settlement-disabled" end
+    groupName = tostring(groupName or "")
+    if groupName == "" or type(evidence) ~= "table"
+        or type(evidence.receipt) ~= "table"
+        or type(evidence.material) ~= "table" then
+        return false, "invalid-evidence"
+    end
+    local Settlement = SAO.Settlement
+    local base = Settlement.bases[groupName]
+    if not base then return true, "not-grounded" end
+    if not Settlement.isGrounded or not Settlement.isGrounded(base) then
+        return false, "ungrounded-settlement"
+    end
+    if not Settlement.reconcileStorage then
+        return false, "reconcile-unavailable"
+    end
+    local reconciled = Settlement.reconcileStorage(groupName,
+        evidence.material, evidence.receipt)
+    return reconciled and true or false,
+        reconciled and "reconciled" or "reconcile-refused"
 end
 
 -- An order landed and the follower returned a verdict. That exchange
@@ -338,16 +346,6 @@ function R.onTold(fromId, toId, kind, payload)
     if not dial("Communication") then return end
     local message = SAO.Communication.send(fromId, toId, kind, payload)
     if message then SAO.Communication.deliver(message) end
-end
-
--- A real item left a body and was shelved on held ground. The
--- movement is the material fact; the attribution is who carried it.
-function R.onShelved(id, groupName, item, amount)
-    if not orgsReady() then return end
-    if not dial("Material") then return end
-    if not groupName then return end
-    SAO.Material.add("house:" .. tostring(groupName),
-        item or "food", amount or 1)
 end
 
 -- [C106] The chair dealt the player work. The ask came from the

@@ -4310,6 +4310,15 @@ local function decideRoam(id, agent, body, tick, interval, desig, idleRec)
         if SAO.Standing.insideClaim(id, body:getX(), body:getY()) then
             local qG = SAO.Standing.groupOf(id)
             if qG then
+                local qEvidence = {
+                    at = 0,
+                    materialGeneration = SAO.Material
+                        and SAO.Material.houseProjectionGeneration
+                        and SAO.Material.houseProjectionGeneration(qG) or 0,
+                }
+                pcall(function()
+                    qEvidence.at = SAO.History.countyHours()
+                end)
                 local okC5, cnt5 = pcall(function()
                     return SAOJavaBridge:countEdibleNearby(body, 12)
                 end)
@@ -4334,7 +4343,8 @@ local function decideRoam(id, agent, body, tick, interval, desig, idleRec)
                         and "lean"
                         or (cnt5 > n5 * 4 * seasonScale)
                         and "full" or "fair"
-                    SAO.Standing.setLarder(qG, word, cnt5)
+                    SAO.Standing.setLarder(qG, word, cnt5,
+                        "quartermaster-native-scan", qEvidence)
                     if word == "lean" then
                         -- [B23] And the county hears it. The
                         -- count is already made; this only
@@ -4383,7 +4393,8 @@ local function decideRoam(id, agent, body, tick, interval, desig, idleRec)
                             local n6 = #SAO.Standing.fellowsOf(id) + 1
                             local word6 = (w6 < n6 * 2) and "dry"
                                 or (w6 > n6 * 8) and "full" or "fair"
-                            SAO.Standing.setWaterStore(qG, word6, w6)
+                            SAO.Standing.setWaterStore(qG, word6, w6,
+                                "quartermaster-native-scan", qEvidence)
                             if word6 == "dry" then
                                 pcall(function()
                                     SAO.Voice.onEvent(id, "dryStore",

@@ -78,6 +78,9 @@ COST = ((500, 0.187), (2500, 0.242), (5500, 0.516),
 # Every function the population tick runs, how many times it walks the
 # whole identity store, and what bounds that.
 SUBS = {
+    "consumeProvisioningResults": (0, "none",
+        "[C63] scans at most 32 entries from WorldSources' bounded 2,048-result "
+        "ledger and never walks the identity store"),
     "ensurePopulation": (2, "unbudgeted",
         "counts the living against the sandbox cap and places arrivals. "
         "Both walks are once per pass and neither can be sliced without "
@@ -109,17 +112,9 @@ SUBS = {
         "([C75]). A settled house is skipped for nothing, because "
         "`groupClaimOf` answering IS the skip, so the pass costs the "
         "walk alone once a county has settled"),
-    "dormantProvision": (1, "unbudgeted",
-        "[C107] the dormant houses speak their shelves. One walk of "
-        "the whole store, once per pass, to find the groups with no "
-        "bodies near - and the `seen` guard means the work inside "
-        "fires once per GROUP, not once per record, so once a county "
-        "has settled the walk is the whole cost, the same shape "
-        "`dormantSettle`'s declaration argues. Deliberately NOT "
-        "budgeted: the shelf words are derived from stamps the county "
-        "day already wrote, so a rotating budget here would not shave "
-        "a frame off anything - the walk itself is the only linear "
-        "part, and it is one"),
+    "dormantProvision": (0, "none",
+        "[C63] the compatibility seam is a no-op: need dates are not "
+        "inventory and cannot overwrite native shelf/water evidence"),
     "dailyCounty": (1, "unbudgeted",
         "[C127] one identity walk per completed county day settles age "
         "and habits before the day's digest. The persisted day guard "

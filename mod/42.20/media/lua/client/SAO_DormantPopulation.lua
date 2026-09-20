@@ -1302,150 +1302,17 @@ local function dormantSettle()
     end
 end
 
--- [C107] What a settled house then DOES with its ground, in the
--- dormant half.
---
--- `[C76]` settled the house; the hearth, the larder and the water
--- store stayed the controller's, because the live round reads real
--- containers through a body (`countEdibleNearby` and friends), and a
--- dormant house has no body to stand a round on. So every consumer of
--- those words - the flight form, the lean-house ladder, the forager
--- promotion, the bread ask and the charity that answers it, the
--- winter warming - was inert in the half of the county nearly every
--- house lives in, and a dormant house could starve on spent ground
--- forever without the county's own machinery ever saying so.
---
--- The dormant half now reads exact native sources through R10a. What
--- it also has is what its people actually DID: `lastFoodDay` and
--- `lastWaterDay` are stamped only when a walk really arrived at a
--- place that really still offered ([B37]/[C25] law, the same stamps
--- attrition already trusts), and the seat's exact observed source
--- ledger. The words are derived from those, against
--- the county's own patience constants, and no new number exists here.
---
--- The larder is LEAN when nobody in the house has reached food inside
--- the county's food patience - a house whose every member is failing,
--- not one unlucky member. It is FULL when every member is fed AND the
--- seat itself still offers food - surplus you could answer a
--- stranger's hunger from, not a run of luck elsewhere. Between is
--- FAIR. The water word follows the same shape at thirst's own,
--- shorter patience. The hearth claim is the honest dark one: no
--- member of this house has a body, so no fire of this house is
--- burning - true by construction, and the live round overwrites the
--- claim the moment a body lights one.
---
--- A house with any materialised member is left to the live round: two
--- writers with two strengths, and the live one counts real shelves.
---
--- No budget, unlike the settle walk: there is no per-house walk here
--- - the work is a roster read and a cached place lookup per house -
--- so the pass costs what `dormantLife`'s own sweep already costs
--- each tick, and the words stay inside their 48-hour honesty window
--- ([A28]) in live play and in the years alike. A word that goes
--- stale between rounds is the county saying nobody read those shelves
--- lately, which is true.
+-- [C63] A need date is evidence that a person ate or drank, never a shelf
+-- count. The old dormant pass derived larder/water/hearth claims from those
+-- dates and overwrote native observations with a different meaning. Retain the
+-- scheduler name for save/tool compatibility, but do no projection until
+-- dormant people perform receipt-bearing storage actions of their own.
 local function dormantProvision()
-    if not (SAO.Standing and SAO.Standing.setLarder
-        and SAO.Standing.setWaterStore and SAO.Standing.setHearth
-        and SAO.Standing.membersOf and SAO.Standing.groupClaimOf) then
-        return
-    end
-    local today = math.floor(hoursNow() / 24.0)
-    local seen = {}
-    for id, rec in pairs(SAO.Identity.all()) do
-        if not rec.dead and not SAO.Body.hasRepresentation(id) then
-            local g = SAO.Standing.groupOf(id)
-            if g and not seen[g] then
-                seen[g] = true
-                local claim = SAO.Standing.groupClaimOf(g)
-                if claim then
-                    local members = SAO.Standing.membersOf(g)
-                    local n, fed, watered, anyBody = 0, 0, 0, false
-                    for _, mid in ipairs(members) do
-                        if SAO.Body.hasRepresentation(mid)
-                            or sourceOwnsDormantRecord(mid) then
-                            anyBody = true
-                            break
-                        end
-                        local mrec = SAO.Identity.get(mid)
-                        if mrec and not mrec.dead then
-                            n = n + 1
-                            -- [B37] A nil stamp is first-sight-as-today
-                            -- (`daysWithout` reads it as 0), the same
-                            -- grace attrition gives - nobody starts
-                            -- starving the day this lands.
-                            if daysWithout(mrec, "lastFoodDay", today)
-                                <= HUNGER_PATIENCE then
-                                fed = fed + 1
-                            end
-                            if daysWithout(mrec, "lastWaterDay", today)
-                                <= THIRST_PATIENCE then
-                                watered = watered + 1
-                            end
-                        end
-                    end
-                    if not anyBody and n > 0 then
-                        -- The seat's accessible native sources. Observed stock
-                        -- behind unknown access cannot make a larder full.
-                        local seatOffers = {}
-                        pcall(function()
-                            local seat = SAO.Places.at(
-                                (claim.minX + claim.maxX) / 2,
-                                (claim.minY + claim.maxY) / 2)
-                            if seat then
-                                seatOffers = SAO.WorldSources.availableAt(seat)
-                                    or {}
-                            end
-                        end)
-                        local oldLard = SAO.Standing.larderOf(g)
-                        local foodWord = (fed == 0) and "lean"
-                            or (fed == n and seatOffers.food)
-                            and "full" or "fair"
-                        local waterWord = (watered == 0) and "dry"
-                            or (watered == n and seatOffers.water)
-                            and "full" or "fair"
-                        -- No count is passed: the dormant half has no
-                        -- item count and the claim is word-only rather
-                        -- than carrying a number that would read as
-                        -- one ([C105]'s "actually counted" stays the
-                        -- live round's).
-                        SAO.Standing.setLarder(g, foodWord, nil)
-                        SAO.Standing.setWaterStore(g, waterWord, nil)
-                        SAO.Standing.setHearth(g, false)
-                        if foodWord == "lean" then
-                            -- The lean house asks, as the live round
-                            -- does; `callForBread`'s own 72-hour
-                            -- window paces the asking.
-                            pcall(function()
-                                SAO.Standing.callForBread(g)
-                            end)
-                            if not (oldLard and oldLard.word == "lean") then
-                                log(tostring(
-                                    SAO.Standing.factionName(g) or g)
-                                    .. " counts the shelves lean: "
-                                    .. fed .. " of " .. n
-                                    .. " have reached food")
-                            end
-                        end
-                        -- [C105] The house is really living on its
-                        -- ground - its people really reached food and
-                        -- water - so the settlement enters the graph
-                        -- the same way a counted round enters it.
-                        -- Fired here rather than smuggled through the
-                        -- setter's count hook, because this round
-                        -- derives rather than counts and the record
-                        -- should say so.
-                        if fed > 0 and watered > 0 and SAO.Recognition then
-                            pcall(function()
-                                SAO.Recognition.onProvisioned(
-                                    tostring(g))
-                            end)
-                        end
-                    end
-                end
-            end
-        end
-    end
+    -- Consumption dates express need pressure, not inventory. They cannot
+    -- replace a native shelf/water reading or a completed source result. Keep
+    -- this scheduled seam as a compatibility no-op until dormant actors have
+    -- their own performed acquisition/storage receipts.
+    return 0
 end
 
 local function dormantEncounters(tickCounter)

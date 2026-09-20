@@ -355,6 +355,26 @@ SAO.Perception = {
 }
 SAO.Standing = {
     mayAttemptBelieved = function() return true end,
+    -- C63 asks the final bind whether this exact source belongs to held
+    -- group ground. Most C62 cases remain ungrouped; the primary shipped
+    -- lifecycle case proves that exact held-ground context reaches its receipt.
+    groupOf = function(id)
+        return __groupByActor and __groupByActor[tostring(id)] or nil
+    end,
+    groupClaimOf = function(group)
+        return __groupClaims and __groupClaims[tostring(group)] or nil
+    end,
+    provisioningContextAt = function(id, x, y)
+        if __standingStoreUnavailable then return nil, nil end
+        local group = __groupByActor and __groupByActor[tostring(id)] or nil
+        if not group then return "personal", nil end
+        local claim = __groupClaims and __groupClaims[tostring(group)] or nil
+        if claim and x >= claim.minX and x <= claim.maxX
+            and y >= claim.minY and y <= claim.maxY then
+            return "held-group", tostring(group), claim.claimIncarnation
+        end
+        return "personal", nil
+    end,
     mayTakeCurrent = function(id, x, y, admission)
         __standingX, __standingY, __standingAdmission = x, y, admission
         return __standingAllowed ~= false
@@ -467,6 +487,7 @@ ACTION_PROBE = r'''(function()
     __routeAllowed, __standingAllowed, __routeCancels = true, true, 0
     __queueReject, __busy, __queued, __queueClears = false, false, nil, 0
     __learnedSource, __forgotSource, __lastDrinkFraction = nil, nil, nil
+    __groupByActor, __groupClaims = {}, {}
     return body, facts
   end
   local function toTransfer(actor, body, p, category)
@@ -488,13 +509,13 @@ ACTION_PROBE = r'''(function()
           sourceId="keep", status="reserved", category="food" } } }
   local kept = SAO.WorldSources.source("keep")
   local migrated = __stores[STORE]
-  check("schema2_migration", kept and migrated.schema == 3
+  check("schema2_migration", kept and migrated.schema == 4
       and migrated.reservations["old-r"].status == "released"
       and migrated.results["old-r"].detail == "schema-2-action-incompatible"
       and __records.m.worldSourceReservation == nil)
 
   -- A maximum-size v2 ledger can contain both historical results and active
-  -- observation locks. Migration remains within the v3 save bounds instead
+  -- observation locks. Migration remains within the v4 save bounds instead
   -- of retaining both complete sets indefinitely.
   __stores[STORE] = { schema=2, results={}, reservations={},
       resultByActor={}, resultCounts={} }
@@ -519,11 +540,11 @@ ACTION_PROBE = r'''(function()
       boundedReservations = boundedReservations + 1
       if reservation.status == "reserved" then stillReserved = true end
   end
-  check("schema2_migration_bounded", __stores[STORE].schema == 3
+  check("schema2_migration_bounded", __stores[STORE].schema == 4
       and boundedResults <= 2048 and boundedReservations <= 2048
       and not stillReserved)
 
-  __stores[STORE] = { schema=4, sentinel="future-owned" }
+  __stores[STORE] = { schema=5, sentinel="future-owned" }
   __records.future = { id="future",
       worldSourceReservation="future-reservation" }
   local future = SAO.WorldSources.source("future-probe")
@@ -531,7 +552,7 @@ ACTION_PROBE = r'''(function()
   local futureExit = SAO.SourceUse.beforeStateChange(
       "future",__newBody(0,0),"IDLE","TRAVEL","future-schema")
   check("future_schema_refused", future == nil
-      and __stores[STORE].schema == 4
+      and __stores[STORE].schema == 5
       and __stores[STORE].sentinel == "future-owned"
       and __stores[STORE].sources == nil and futurePending
       and futurePending.unavailable == true and futureExit == false
@@ -553,6 +574,9 @@ ACTION_PROBE = r'''(function()
   -- its exact READY/BOUND protocols.
   local p42 = place(42,8,8,8,8,9,9)
   local body = reset("run",p42,"food",%(food)s)
+  __groupByActor.run = "house"
+  __groupClaims.house = { minX=8, minY=8, maxX=9, maxY=9,
+    claimIncarnation=7 }
   local run, first, second = toTransfer("run",body,p42,"food")
   local transferQueued = second == "using" and __queued.kind == "transfer"
   __carriedItem, __busy, __observeText = __sourceItem, false, %(food_post)s
@@ -565,6 +589,10 @@ ACTION_PROBE = r'''(function()
   check("shipped_protocol_and_completion", first == "moving"
       and transferQueued and transferTick == "pending" and native.kind == "eat"
       and final == "completed" and runReceipt.status == "completed"
+      and runReceipt.provisioningGroup == "house"
+      and runReceipt.provisioningContext == "held-group"
+      and runReceipt.provisioningClaimIncarnation == 7
+      and runReceipt.materialProjectionEnabled == true
       and __learnedSource == "C:food-token:0")
 
   -- The R9 bridge is deterministic and isolated: provisioning receives
@@ -588,6 +616,19 @@ ACTION_PROBE = r'''(function()
       and firstAck and repeatAck and #remaining == 1
       and remaining[1].reservationId == "fixture-later")
   SAO.WorldSources.acknowledgeResult("fixture-later","provisioning")
+
+  -- An unavailable Standing store is not an ungrouped actor. The final bind
+  -- refuses before the native transfer and publishes no completed receipt.
+  local faultBody = reset("context-fault",p42,"food",%(food)s)
+  __standingStoreUnavailable = true
+  local faultReservation, faultFirst, faultSecond =
+      toTransfer("context-fault",faultBody,p42,"food")
+  __standingStoreUnavailable = false
+  local faultReceipt = __stores[STORE].results[faultReservation.id]
+  check("attribution_unavailable_refuses_before_transfer",
+      faultFirst == "moving" and faultSecond == "failed"
+      and faultReceipt and faultReceipt.status == "conflict"
+      and faultReceipt.detail == "provisioning-context-unavailable")
 
   -- A generic LoadGridsquare/observeAt scan can land after vanilla transfer
   -- and before SourceUse polls it. It must defer to the reservation-owned
@@ -977,7 +1018,9 @@ end)()''' % {key: json.dumps(value) for key, value in SNAPSHOTS.items()}
 ACTION_EXPECTED = {
     "schema2_migration", "schema2_migration_bounded",
     "future_schema_refused", "compact_private_stale_attempt",
-    "shipped_protocol_and_completion", "transfer_interrupt_reconciles",
+    "shipped_protocol_and_completion",
+    "attribution_unavailable_refuses_before_transfer",
+    "transfer_interrupt_reconciles",
     "ordered_isolated_result_delivery", "native_begin_refusal_reconciles",
     "generic_observation_defers_to_action",
     "max_result_delivery_ordered",
@@ -1065,6 +1108,8 @@ def production_contract(texts):
         (world, "prepareActionPre"),
         (world, "reconcileActionSnapshot"),
         (world, "schema-2-action-incompatible"),
+        (world, "legacy-unattributed"),
+        (world, "provisioningClaimIncarnation ="),
         (world, "function WS.pendingActionFor"),
         (world, 'category ~= "food" and category ~= "water"'),
         (world, "function WS.completedResults(consumer)"),
@@ -1079,6 +1124,8 @@ def production_contract(texts):
         (use, "ISDrinkFluidAction:stop"),
         (use, "worldSourceActionPermissionContainer"),
         (use, "mayTakeCurrent"),
+        (use, "provisioningContextAt"),
+        (use, "reservation.provisioningClaimIncarnation"),
         (use, "function SU.beforeStateChange"),
         (use, "function SU.closeForOwnershipTransfer"),
         (use, "function SU.runtimeState"),
@@ -1127,6 +1174,9 @@ def contract_anchor_probe():
         (1, "ISDrinkFluidAction:stop", "ISDrinkFluidAction:halt"),
         (1, "worldSourceActionPermissionContainer", "worldSourceActionContainer"),
         (1, "mayTakeCurrent", "mayTakeRemembered"),
+        (1, "provisioningContextAt", "guessProvisioningContext"),
+        (1, "reservation.provisioningClaimIncarnation",
+         "reservation.missingClaimIncarnation"),
         (1, "function SU.beforeStateChange", "function SU.ignoreStateChange"),
         (1, "function SU.closeForOwnershipTransfer",
          "function SU.abandonForOwnershipTransfer"),

@@ -609,22 +609,9 @@ function N.depositSpareFood(id, body)
         body, item, body:getInventory(), container, container))
     if queued then
         log(id .. " stocks the stores")
-        -- [C105] A real item left a body for a real shelf: the
-        -- material fact, attributed to the house that holds the
-        -- ground - and to nobody if no house does.
-        if SAO.Recognition then
-            local okG, gR = pcall(function()
-                return SAO.Standing.groupOf(tostring(id))
-            end)
-            local nameR = "food"
-            pcall(function()
-                nameR = item:getDisplayName() or "food"
-            end)
-            pcall(function()
-                SAO.Recognition.onShelved(tostring(id),
-                    okG and gR or nil, nameR, 1)
-            end)
-        end
+        -- Queue acceptance is not shelving. The existing TAKE completion
+        -- lacks an exact post-container receipt, so it earns no material or
+        -- recognition credit until that R7 action family is repaired.
     end
     return queued
 end
