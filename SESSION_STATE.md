@@ -1,13 +1,21 @@
 | Document | Survivor Awareness Overhaul Session State |
 |---|---|
-| Version | `2.8.5.0-pre-alpha` |
+| Version | `2.8.6.0-pre-alpha` |
 | Author | ellyj3rain |
 | Repository | `SESSION_STATE.md` |
 | Status | CANONICAL - current implementation and continuation. |
 
 # Session state
 
-**As of** 2026-09-21, `[C68]` gives loaded personal item transfers one durable
+**As of** 2026-09-21, `[C69]` lets a non-witness form an independent private
+response to reported household assistance. The listener must currently belong
+to the requesting household, personally hold its active food request and an
+explicit claim covering the event, and have accepted testimony of the completed
+store act. Their compassion, actor relationship and teller credibility are
+frozen on that told episode. Retelling carries the act without the appraisal;
+different listeners can disagree, and no trust or debt is written.
+
+`[C68]` gives loaded personal item transfers one durable
 completion owner. Queue admission records pending work; the exact native item
 must reach the recipient inventory before trust, voice, care credit, settlement
 or yielding consequences apply. Barter becomes accepted only after both directed
@@ -62,7 +70,7 @@ and consolidated native continuity verification. C56
 closed R5 health and dormant physiology after durable/runtime reconstruction,
 native person continuity, shared county time and the authorized Afflicted return.
 The C catalog is consolidated by adjacency and content using
-the A/B precedent: 29 A-batches, 52 B-batches and 67 C units. BATCH_LOG.md owns
+the A/B precedent: 29 A-batches, 52 B-batches and 69 C units. BATCH_LOG.md owns
 the chronology. Batches/FORMER_LABELS.md maps every former entry;
 Batches/C_RECATALOG.json preserves original paths and source hashes. The
 original records remain at local ref `archive/c-era-raw-20260919`.
@@ -88,8 +96,8 @@ producers, persistence, evidence and gaps.
 | Person continuity | Durable identity, C51's body transaction, C52's authorized return/adoption/teardown, C54's v4 native state, C55/A36 reconstruction and C56/A37 one-way Crossed ownership of the same human shell and dormant envelope | R7's general action completion and later action-specific ownership remain open. |
 | Time and health | Current decision time, durable drug/abstinence clocks, current physical inputs, exact interval-integrated brain history, medical/inspect graph and memory/decision/affective/motor consumers; C68 completion-proves care-item gifts | R5 is closed. Open-wound treatment and other performed care still depend on R7/R9 action producers. |
 | Afflicted and Crossed | ZAO pathogen state, Afflicted return, reachable Crossed decisions and an interruptible non-feeding blood exposure whose exact-once result transfers SAO's living body to ZAO | The retained human weapons, tools, strategy and wider action vocabulary remains R7-R9 work; grounded dormant opportunities remain R10. |
-| Knowledge and access | Private beliefs; animal-safe scanner output; fresh/current activity partners; demand-hydrated exact source identities; C62's revision-bound approach, current claim/vehicle permission, exact transfer, carried native use and durable result; C63-C64's exact partial-source material projection and durable ambient refresh | R6 is closed for the selected source interaction and its completed result reaches bounded partial material state. R7 remains open beyond this source-action family. C66 adds exact acquisition/storage; C67 adds private transfer testimony and witnessed recipient response; C68 completion-proves loaded personal handovers. R9 still owes complete inventory, later recipient appraisal and the other material producers. |
-| Social development | Company mechanics, claims, observations and graph APIs; C64 prevents partial selected-source evidence from creating aggregate claims or settlement storage; C68 separates gifts, proposed terms, accepted exchange and completion-derived debt | Automatic relocation and recognition; incomplete affiliation, governance, place development and other provisioning producers. |
+| Knowledge and access | Private beliefs; animal-safe scanner output; fresh/current activity partners; demand-hydrated exact source identities; C62's revision-bound approach, current claim/vehicle permission, exact transfer, carried native use and durable result; C63-C64's exact partial-source material projection and durable ambient refresh | R6 is closed for the selected source interaction and its completed result reaches bounded partial material state. R7 remains open beyond this source-action family. C66 adds exact acquisition/storage; C67 adds private transfer testimony and witnessed recipient response; C68 completion-proves loaded personal handovers; C69 closes the bounded recipient appraisal after testimony. R9 still owes complete inventory and the other material producers. |
+| Social development | Company mechanics, claims, observations and graph APIs; C64 prevents partial selected-source evidence from creating aggregate claims or settlement storage; C68 separates gifts, proposed terms, accepted exchange and completion-derived debt; C69 preserves private disagreement without automatic ledger writes | Automatic relocation and recognition; incomplete affiliation, governance, place development and other provisioning producers. |
 | Speakeasy data | 190 protected choices, four historical derivatives, nine world documents, immutable capture and exact v3 join; C65 adds explicit source options/choice and immediate-result observation for loaded execution | C66/Speakeasy adds exact acquisition/storage options, decision-time views and unratified proposal authoring. Broader options, curated person-specific acquisition, ratification and later consequences remain; all current captures remain conditioning-ineligible. |
 | Models and late starts | Inference primitives, fact constraint, offline diagnostics | No trained cognition model, complete training/export path or validated accelerator. |
 
@@ -188,11 +196,13 @@ the queue after reload; Material refreshes or retires only the exact existing
 owner while preserving original result attribution. Ambient observation creates
 no owner or work. Graph and Standing schema-3 migrations mark C63 stores partial
 and remove only their unsupported aggregate storage and larder/water claims.
-Border 180 retains 53 material cases; C67 adds 72 private-knowledge and 51
-integration cases. C66 extends the material results to performed acquisition/storage.
+Border 180 retains 53 material cases; C69 extends C67's private-knowledge suite
+to 90 cases while retaining 51 integration cases. C66 extends the material
+results to performed acquisition/storage.
 C68 adds Border 182 for personal handover completion, proposal/acceptance and
-partial-term debt. R9's complete inventory, later appraisal of told events,
-treatment result and remaining provisioning/place-development producers remain.
+partial-term debt. C69 adds listener-owned appraisal of told household
+assistance. R9's complete inventory, treatment result and remaining
+provisioning/place-development producers remain.
 R10b continues to wait for those integrated producers.
 R11-R12 progress alongside them: Border 181 now protects the capture envelope,
 and Speakeasy v3 protects approved sources and exact joins, while their missing
@@ -217,9 +227,10 @@ Current permission, conserved item identity and completed-result credit persist
 through the operation. Source-scoped snapshots preserve pending observations while
 independent containers remain usable concurrently. Speakeasy [PR 14](https://github.com/ellyj3rain/zomboid-speakeasy/pull/14)
 adds decision-time views and unratified proposals, with 18 authoring tests and
-seven join controls. C67 supplies witnessed recipient response; curated
-acquisition, ratification, later appraisal, complete inventory and other
-material producers remain explicit obligations.
+seven join controls. C67 supplies witnessed recipient response and C69 supplies
+the bounded listener-owned response after testimony; curated acquisition,
+ratification, complete inventory and other material producers remain explicit
+obligations.
 
 R1 closes in C52 and ZAO A35. The living transaction, source holding and
 acknowledged removal, controller adoption, failure diagnostics, repeated-death
@@ -322,9 +333,9 @@ changes reconcile. C62 closes R6's selected physical-access proof and R7's
 exact-source action slice, and supplies R9 with a completed-use input. C63-C64
 close consumption of that input into bounded exact partial-source material,
 retire false provisioning producers and reconcile later native change. R7's
-remaining action families and R9's complete inventory, later appraisal,
-material and development producers remain after C66's acquisition/storage and
-C67's witnessed-recipient response. C64 closes R11's immutable envelope
+remaining action families and R9's complete inventory, material and development
+producers remain after C66's acquisition/storage, C67's witnessed-recipient
+response and C69's listener-owned appraisal after testimony. C64 closes R11's immutable envelope
 and join integrity plus R12's source protection/conditioning audit. C65 adds
 private source options, exact runtime selection and immediate source-action
 outcomes. C66 extends capture to acquisition/storage and Speakeasy adds
@@ -371,7 +382,7 @@ C51's separate first gate found a verdict-prefix defect and missing transition
 registry surfaces/lifetimes. Its failed output is preserved with the corrections;
 the closing full gate passed with exit 0.
 
-The current install is C68 with ZAO A37, deployed on 2026-09-21 UTC.
+The current install is C69 with ZAO A37, deployed on 2026-09-21 UTC.
 All 259 installed SAO files match source; the companion remains unchanged.
 The SAO jar SHA-256 is `fb3b17ad56075acc22405cf1768be700c3b0257a619bef01824e6545ebf0e05a`.
 All 44,092 save-file sizes and modification times remained unchanged across
@@ -406,9 +417,12 @@ knowledge, the DR-044 response, frozen native observations, request routing,
 hearing admission and controlled verification. C68's
 [evidence record](artifacts/audits/20260921-0714Z-0014PST-personal-handovers/README.md)
 records native personal handovers, bilateral term acceptance, completion-derived
-settlement and partial exchange debt. The next coupled work is recipient
-appraisal after testimony, treatment completion and complete private inventory
-coverage. Dormant sleep/wake
+settlement and partial exchange debt. C69's
+[evidence record](artifacts/audits/20260921-0909Z-0209PST-recipient-appraisal/README.md)
+records independent household appraisal after testimony, private acquisition
+provenance, disagreement and the absence of automatic trust/debt. The next
+coupled work is treatment completion and complete private inventory coverage.
+Dormant sleep/wake
 production must be added to the existing physiology/action owner before a
 sleeping or sleep-unknown record can acquire new spoken delivery/request facts.
 Radio possession likewise needs actual reception proof for these new facts.

@@ -1903,8 +1903,9 @@ if ! "$PY" tools/personal_handover_test.py; then
     fail=1
 fi
 
-# [C63] Border 180 - provisioning consumes completed C62 results, reconciles
-# exact observed native stock and acknowledges only after durable projection.
+# [C63/C67/C69] Border 180 - provisioning consumes completed C62 results,
+# reconciles exact observed native stock, and preserves private delivery
+# knowledge, requests and independently formed recipient appraisals.
 if ! "$PY" tools/provisioning_result_test.py; then
     note "BORDER FINDING - completed provisioning projection or acknowledgement broken"
     fail=1

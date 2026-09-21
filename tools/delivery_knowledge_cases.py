@@ -54,13 +54,22 @@ EXPECTED = {
     "request_expires_from_origin", "unsupported_request_channel_refused",
     "request_return_report", "request_report_preserves_firsthand_scope",
     "request_bound_and_eviction_floor",
+    "request_category_explicit", "testimony_household_appraisal",
+    "testimony_appraisal_private_provenance", "testimony_uses_no_historical_need",
+    "testimony_disagreement_preserved", "testimony_current_household_required",
+    "testimony_explicit_claim_required", "testimony_claim_location_required",
+    "testimony_request_predates_act", "testimony_order_independent",
+    "testimony_appraisal_does_not_travel", "retold_appraisal_is_local",
+    "testimony_appraisal_frozen", "testimony_appraisal_validation",
+    "testimony_weight_and_credibility", "testimony_no_social_ledger_write",
+    "testimony_reciprocity_changes_own_choice", "testimony_active_request_required",
     "disposition_zero_need_neutral", "disposition_hostility_can_decline",
     "disposition_compassion_differs", "disposition_reciprocity_changes_own_choice",
 }
 
 PRELUDE = r'''
 __now, __canConverse, __socialWrites = 100, true, 0
-__factors, __trust, __persisted = {}, {}, {}
+__factors, __trust, __persisted, __groups = {}, {}, {}, {}
 __traitUnits = {}
 __communicationPresent = true
 SAO = {
@@ -74,7 +83,7 @@ SAO = {
     Standing = {
         trust = function(a,b) return __trust[a .. '|' .. b] or 0.6 end,
         sameGroup = function() return false end,
-        groupOf = function() return nil end,
+        groupOf = function(id) return __groups[id] end,
         adjustTrust = function() __socialWrites = __socialWrites + 1 end,
         addDebt = function() __socialWrites = __socialWrites + 1 end,
         settleDebt = function() __socialWrites = __socialWrites + 1 end,
@@ -120,7 +129,10 @@ MUTATIONS = (
      "x = receipt.sourceX, y = receipt.sourceY, z = receipt.sourceZ,",
      "observation_position_frozen"),
     ("private-appraisal", PERCEPTION,
-     'if includeAppraisal and fact.source == "observed"', 'if fact.appraisal ~= nil',
+     "if rememberTransfer(toId, told) then moved = moved + 1 end",
+     "if rememberTransfer(toId, told) then "
+     "P.beliefs[toId].transfers[told.eventId].appraisal = fact.appraisal; "
+     "moved = moved + 1 end",
      "appraisal_does_not_travel"),
     ("eviction-watermark", PERCEPTION,
      'if type(b.transferFloor) == "table" and not transferOrder(b.transferFloor, fact) then',
@@ -142,6 +154,23 @@ MUTATIONS = (
     ("reciprocity-existing-charity-consumer", DISPOSITION,
      "bar = bar - SAO.Perception.reciprocityToward(id, otherId) * 0.2", "bar = bar",
      "disposition_reciprocity_changes_own_choice"),
+    ("testimony-current-household", PERCEPTION,
+     "groupId = okGroup and groupId and tostring(groupId) or nil",
+     'groupId = "hungry-house"', "testimony_current_household_required"),
+    ("testimony-explicit-ground", PERCEPTION,
+     "for _, fact in pairs(b.transfers) do",
+     "for _, fact in pairs(b.transfers) do\n"
+     "        fact.x = math.max(claim.minX, math.min(claim.maxX, fact.x))\n"
+     "        fact.y = math.max(claim.minY, math.min(claim.maxY, fact.y))",
+     "testimony_claim_location_required"),
+    ("testimony-request-order", PERCEPTION,
+     "for _, fact in pairs(b.transfers) do",
+     "for _, fact in pairs(b.transfers) do\n"
+     "        request.requestedAt = math.min(request.requestedAt, fact.eventAt)",
+     "testimony_request_predates_act"),
+    ("testimony-weight", DISPOSITION,
+     "local evidenceWeight = 0.4 * math.max(0.3, tellerCredibility)",
+     "local evidenceWeight = 1", "testimony_weight_and_credibility"),
 )
 
 

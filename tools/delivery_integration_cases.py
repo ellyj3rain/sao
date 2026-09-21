@@ -127,12 +127,12 @@ def controller_anchors(text: str) -> dict[str, bool]:
 
 MUTATIONS = (
     ("request-source-contract", STANDING,
-     'recordAidRequest(speakerId, groupName, now, "requested")',
-     'recordAidRequest(speakerId, groupName, now, "performed")',
+     'speakerId, groupName, now, "requested", nil, "food")',
+     'speakerId, groupName, now, "performed", nil, "food")',
      "request_origin_production_api"),
     ("failed-request-origin", STANDING,
-     'recordAidRequest(speakerId, groupName, now, "requested") ~= true then',
-     'recordAidRequest(speakerId, groupName, now, "requested") == nil then',
+     'speakerId, groupName, now, "requested", nil, "food") ~= true then',
+     'speakerId, groupName, now, "requested", nil, "food") == nil then',
      "failed_origin_has_no_cooldown"),
     ("global-request-shortcut", STANDING,
      "local best, bestD, bestClaim = nil, 1e18, nil\n    for _, request",

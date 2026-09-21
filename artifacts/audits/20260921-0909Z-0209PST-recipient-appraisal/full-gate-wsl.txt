@@ -1,0 +1,149 @@
+SAO_Absorb.lua: OK
+SAO_AfflictedReturn.lua: OK
+SAO_Age.lua: OK
+SAO_Animals.lua: OK
+SAO_Appearance.lua: OK
+SAO_Body.lua: OK
+SAO_Controller.lua: OK
+SAO_CrossedTransfer.lua: OK
+SAO_DormantPopulation.lua: OK
+SAO_Driving.lua: OK
+SAO_Drugs.lua: OK
+SAO_Exchange.lua: OK
+SAO_Gesture.lua: OK
+SAO_Harness.lua: OK
+SAO_Inspect.lua: OK
+SAO_Locomotion.lua: OK
+SAO_Medical.lua: OK
+SAO_MedicalWindow.lua: OK
+SAO_Needs.lua: OK
+SAO_Neighbours.lua: OK
+SAO_Nuke.lua: OK
+SAO_Population.lua: OK
+SAO_PopulationAdmissions.lua: OK
+SAO_PopulationRepresentation.lua: OK
+SAO_RadioEar.lua: OK
+SAO_Sandbox.lua: OK
+SAO_SourceUse.lua: OK
+SAO_Telemetry.lua: OK
+SAO_UI.lua: OK
+SAO_Voice.lua: OK
+SAO_Radio.lua: OK
+SAO_Record.lua: OK
+SAO_Traits.lua: OK
+SAO_Adaptation.lua: OK
+SAO_Binding.lua: OK
+SAO_BodySnapshot.lua: OK
+SAO_Branching.lua: OK
+SAO_Census.lua: OK
+SAO_Claims.lua: OK
+SAO_Command.lua: OK
+SAO_Communication.lua: OK
+SAO_Conditions.lua: OK
+SAO_Course.lua: OK
+SAO_Disposition.lua: OK
+SAO_GraphPersistence.lua: OK
+SAO_Habits.lua: OK
+SAO_Handover.lua: OK
+SAO_Hash.lua: OK
+SAO_History.lua: OK
+SAO_Identity.lua: OK
+SAO_Integration.lua: OK
+SAO_Isolation.lua: OK
+SAO_Knowledge.lua: OK
+SAO_Labor.lua: OK
+SAO_Lessons.lua: OK
+SAO_Log.lua: OK
+SAO_Material.lua: OK
+SAO_Neuro.lua: OK
+SAO_Organization.lua: OK
+SAO_PathogenEvents.lua: OK
+SAO_PathogenPressure.lua: OK
+SAO_Perception.lua: OK
+SAO_PhysicalFacts.lua: OK
+SAO_PlaceAttachment.lua: OK
+SAO_Places.lua: OK
+SAO_PlayerInteraction.lua: OK
+SAO_Pressure.lua: OK
+SAO_Provisioning.lua: OK
+SAO_Rand.lua: OK
+SAO_Recognition.lua: OK
+SAO_Seams.lua: OK
+SAO_Settlement.lua: OK
+SAO_Standing.lua: OK
+SAO_World.lua: OK
+SAO_WorldDevelopment.lua: OK
+SAO_WorldGenesis.lua: OK
+SAO_WorldSources.lua: OK
+candidates: 0
+1) MOVEMENT keys missing from locomotion tick: none
+   tick states not in MOVEMENT map: none
+2) states relying on the 'errand' default: ['BOARDING', 'DRIVE', 'FOLLOW', 'GEARWARD', 'HOMEWARD', 'IDLE', 'PLAYERFOLLOW', 'RIDE', 'ROAM', 'SETTLEWARD', 'TRAVEL']
+3) takePurpose written but never handled: none
+4) Lua-called verbs missing in SAOBridge: none
+5) voice events used but undefined: none
+6) TAKE states entered with no queued work (line numbers): none
+7) sensor scale disagreement across sites: none
+8) states with no exit dispatcher: none
+9) claim fields read but never written: none
+10) news kinds written but rendered by nobody: none
+11) designation literals nothing can ever be: none
+12) wants Lua asks for that Java cannot answer: none
+13) engine-string literals matching nothing the engine produces: SKIPPED (game data not found)
+15) delimited protocols whose ends disagree: none (10 paired, 1 unchecked)
+       appraiseVehiclesNear: exact
+       findAlcoholSource: exact
+       findAmmoSource: exact
+       findDrugSource: exact
+       findFoodSource: exact
+       findWaterSource: exact
+       findWeaponUpgrade: exact
+       hearthNear: exact
+       nearestBoardableVehicle: exact
+       scoutBase: exact
+       unchecked: worldSourceStatus -> status (2 fields, '|') - no field parse found
+       excluded: begin builds 3 ','-separated fields - ',' is a record separator and appears in prose
+       excluded: beginRide builds 2 ','-separated fields - ',' is a record separator and appears in prose
+       excluded: findBoardable builds 3 ','-separated fields - ',' is a record separator and appears in prose
+14) duplicated blocks of 15+ lines: none
+16) sandbox surface: 34 options, all read, all named and explained, defaults agree; 75 translation keys, no empty, duplicate or mis-slotted values
+17) shipped jar: 65 classes, all 34 sources present
+18) bridge: SKIPPED - javap not found at C:\Users\jleyv\Peanut Butter\JetBrains\Java\bin\javap.exe
+19) mod.info: 2 file(s), 12 distinct keys, all read by a real parser, all named files present
+FAULT: admission probe compilation failed: /mnt/c/Users/jleyv/Peanut Butter/bin/javac: line 2: /c/Users/jleyv/Peanut Butter/JetBrains/Java/bin/javac.exe: No such file or directory
+FAULT: saved hearing probe compilation failed: /mnt/c/Users/jleyv/Peanut Butter/bin/javac: line 2: /c/Users/jleyv/Peanut Butter/JetBrains/Java/bin/javac.exe: No such file or directory
+[check] BORDER FINDING - an activity partner bypasses private perception or access
+==========================================================================
+PERSONAL HANDOVERS PUBLISH ONLY NATIVE COMPLETION
+==========================================================================
+Border 182 SKIPPED: installed game VM or JDK absent
+controls: all named mutations rejected
+Border 180 SKIPPED: installed Project Zomboid Kahlua/JDK absent
+==========================================================================
+DECISION EVIDENCE FREEZES BEFORE THE WORLD MOVES
+==========================================================================
+  SKIPPED - installed VM or decision capture source absent
+  181) immutable decision evidence: SKIPPED, engine absent
+Border 171 SKIPPED: installed game VM or JDK absent
+Border 172 SKIPPED: installed game VM, JDK, or paired ZAO branch absent
+Border 173 SKIPPED: installed game VM, JDK, or paired ZAO branch absent
+Border 175 SKIPPED: installed game VM, JDK, or paired ZAO branch absent
+SKIPPED: installed game and JDK required for scheduler VM proof
+SKIPPED company admission: installed engine/JDK absent
+SKIPPED: installed game and JDK required for handoff proof
+SKIPPED native person VM: installed engine/JDK absent; inventory and source routing checked
+SKIPPED afflicted return joint VM: installed engine/JDK absent
+SKIPPED staged return body VM: installed engine/JDK absent
+SKIPPED person checkpoint: installed engine/JDK absent
+SKIPPED durable text native VM: installed engine/JDK absent
+SKIPPED: installed game and JDK required for shared-time VM proof
+yes  the gate runs this border
+yes  partial catch-up and reload remain gated
+yes  decision reads refresh the county clock
+yes  native pacing has its own host counter
+yes  WorldGenesis converts at its boundary
+yes  WorldGenesis respects source transaction ownership
+yes  the durable and runtime axes are inventoried
+Border 170 SKIPPED: installed engine, JDK, probes or shipped jar absent
+[check] REFUSING: fix the findings above, or state why they are
+[check] acceptable in the batch record and re-run.

@@ -1,0 +1,129 @@
+SAO_Absorb.lua: OK
+SAO_AfflictedReturn.lua: OK
+SAO_Age.lua: OK
+SAO_Animals.lua: OK
+SAO_Appearance.lua: OK
+SAO_Body.lua: OK
+SAO_Controller.lua: OK
+SAO_CrossedTransfer.lua: OK
+SAO_DormantPopulation.lua: OK
+SAO_Driving.lua: OK
+SAO_Drugs.lua: OK
+SAO_Exchange.lua: OK
+SAO_Gesture.lua: OK
+SAO_Harness.lua: OK
+SAO_Inspect.lua: OK
+SAO_Locomotion.lua: OK
+SAO_Medical.lua: OK
+SAO_MedicalWindow.lua: OK
+SAO_Needs.lua: OK
+SAO_Neighbours.lua: OK
+SAO_Nuke.lua: OK
+SAO_Population.lua: OK
+SAO_PopulationAdmissions.lua: OK
+SAO_PopulationRepresentation.lua: OK
+SAO_RadioEar.lua: OK
+SAO_Sandbox.lua: OK
+SAO_SourceUse.lua: OK
+SAO_Telemetry.lua: OK
+SAO_UI.lua: OK
+SAO_Voice.lua: OK
+SAO_Radio.lua: OK
+SAO_Record.lua: OK
+SAO_Traits.lua: OK
+SAO_Adaptation.lua: OK
+SAO_Binding.lua: OK
+SAO_BodySnapshot.lua: OK
+SAO_Branching.lua: OK
+SAO_Census.lua: OK
+SAO_Claims.lua: OK
+SAO_Command.lua: OK
+SAO_Communication.lua: OK
+SAO_Conditions.lua: OK
+SAO_Course.lua: OK
+SAO_Disposition.lua: OK
+SAO_GraphPersistence.lua: OK
+SAO_Habits.lua: OK
+SAO_Handover.lua: OK
+SAO_Hash.lua: OK
+SAO_History.lua: OK
+SAO_Identity.lua: OK
+SAO_Integration.lua: OK
+SAO_Isolation.lua: OK
+SAO_Knowledge.lua: OK
+SAO_Labor.lua: OK
+SAO_Lessons.lua: OK
+SAO_Log.lua: OK
+SAO_Material.lua: OK
+SAO_Neuro.lua: OK
+SAO_Organization.lua: OK
+SAO_PathogenEvents.lua: OK
+SAO_PathogenPressure.lua: OK
+SAO_Perception.lua: OK
+SAO_PhysicalFacts.lua: OK
+SAO_PlaceAttachment.lua: OK
+SAO_Places.lua: OK
+SAO_PlayerInteraction.lua: OK
+SAO_Pressure.lua: OK
+SAO_Provisioning.lua: OK
+SAO_Rand.lua: OK
+SAO_Recognition.lua: OK
+SAO_Seams.lua: OK
+SAO_Settlement.lua: OK
+SAO_Standing.lua: OK
+SAO_World.lua: OK
+SAO_WorldDevelopment.lua: OK
+SAO_WorldGenesis.lua: OK
+SAO_WorldSources.lua: OK
+candidates: 0
+1) MOVEMENT keys missing from locomotion tick: none
+   tick states not in MOVEMENT map: none
+2) states relying on the 'errand' default: ['BOARDING', 'DRIVE', 'FOLLOW', 'GEARWARD', 'HOMEWARD', 'IDLE', 'PLAYERFOLLOW', 'RIDE', 'ROAM', 'SETTLEWARD', 'TRAVEL']
+3) takePurpose written but never handled: none
+4) Lua-called verbs missing in SAOBridge: none
+5) voice events used but undefined: none
+6) TAKE states entered with no queued work (line numbers): none
+7) sensor scale disagreement across sites: none
+8) states with no exit dispatcher: none
+9) claim fields read but never written: none
+10) news kinds written but rendered by nobody: none
+11) designation literals nothing can ever be: none
+12) wants Lua asks for that Java cannot answer: none
+13) engine-string literals matching nothing the engine produces: none
+15) delimited protocols whose ends disagree: none (10 paired, 1 unchecked)
+       appraiseVehiclesNear: exact
+       findAlcoholSource: exact
+       findAmmoSource: exact
+       findDrugSource: exact
+       findFoodSource: exact
+       findWaterSource: exact
+       findWeaponUpgrade: exact
+       hearthNear: exact
+       nearestBoardableVehicle: exact
+       scoutBase: exact
+       unchecked: worldSourceStatus -> status (2 fields, '|') - no field parse found
+       excluded: begin builds 3 ','-separated fields - ',' is a record separator and appears in prose
+       excluded: beginRide builds 2 ','-separated fields - ',' is a record separator and appears in prose
+       excluded: findBoardable builds 3 ','-separated fields - ',' is a record separator and appears in prose
+14) duplicated blocks of 15+ lines: none
+16) sandbox surface: 34 options, all read, all named and explained, defaults agree; 75 translation keys, no empty, duplicate or mis-slotted values
+17) shipped jar: 65 classes, all 34 sources present
+18) bridge: 216 public methods on SAOBridge (from the shipped jar)
+call sites:     318 across the Lua tree, 211 distinct methods
+never called:   5 bridge methods no Lua reaches
+MATCH: every call site names a real method, with an arity some overload accepts, and no literal argument that cannot reach its parameter.
+19) mod.info: 2 file(s), 12 distinct keys, all read by a real parser, all named files present
+  FAULT: the shipped jar says 2.8.5.0-pre-alpha and VERSION says 2.8.6.0-pre-alpha - the county would report a build that is not the one running, which is worse than reporting nothing
+  FAULT: getVersion answers 2.8.5.0-pre-alpha and VERSION says 2.8.6.0-pre-alpha - the county would tell the player it is running a build it is not
+[check] BORDER FINDING - the jar cannot say which jar it is
+==========================================================================
+A PASS THAT SURVIVES THE ARTIFACT BEING GONE
+==========================================================================
+  gated mirrors run blind: 194
+  passed with no Lua     : 12  (art_derived_test.py, bridge_safety_test.py, doc_currency_test.py, engine_facts_test.py, fence_test.py, gate_reach_test.py, hibernation_pact_test.py, pool_identity_test.py, protocol_field_test.py, receipts_test.py, session_state_test.py, state_counts_test.py)
+  threw with no Lua      : 23  (not a fault here - a traceback is the loud opposite of a vacuous pass)
+  declined to judge      : 6  (said SKIPPED - they read the installed game, which this machine has not got)
+  declared not-about-Lua : 15
+
+VERDICT:
+  FAULT: check.sh invokes vehicle_ground_test.py and `git ls-files` does not list it, so it is not in the repository - it exists on this machine and nowhere else. Anyone who clones this tree gets a gate that references a border it does not have. 

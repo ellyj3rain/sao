@@ -1,6 +1,6 @@
 | Document | Survivor Awareness Overhaul Batch Log |
 |---|---|
-| Version | `2.8.5.0-pre-alpha` |
+| Version | `2.8.6.0-pre-alpha` |
 | Author | ellyj3rain |
 | Repository | `BATCH_LOG.md` |
 | Status | REGULATORY - chronological batch index. |
@@ -175,3 +175,4 @@ source mapping and hashes. Consolidation does not close implementation defects.
 | [C66](Batches/C66-2026-09-21-performed-provisioning.md) | 2026-09-21 | Performed provisioning | [`T-003`](Batches/THREADS.md#t-003), [`T-004`](Batches/THREADS.md#t-004), [`T-008`](Batches/THREADS.md#t-008), [`T-009`](Batches/THREADS.md#t-009), [`T-030`](Batches/THREADS.md#t-030) |
 | [C67](Batches/C67-2026-09-21-delivery-knowledge.md) | 2026-09-21 | Delivery knowledge | [`T-003`](Batches/THREADS.md#t-003), [`T-004`](Batches/THREADS.md#t-004), [`T-008`](Batches/THREADS.md#t-008), [`T-009`](Batches/THREADS.md#t-009), [`T-030`](Batches/THREADS.md#t-030) |
 | [C68](Batches/C68-2026-09-21-personal-handovers-and-terms.md) | 2026-09-21 | Personal handovers and terms | [`T-003`](Batches/THREADS.md#t-003), [`T-004`](Batches/THREADS.md#t-004), [`T-008`](Batches/THREADS.md#t-008), [`T-030`](Batches/THREADS.md#t-030) |
+| [C69](Batches/C69-2026-09-21-recipient-appraisal-after-testimony.md) | 2026-09-21 | Recipient appraisal after testimony | [`T-003`](Batches/THREADS.md#t-003), [`T-004`](Batches/THREADS.md#t-004), [`T-008`](Batches/THREADS.md#t-008), [`T-009`](Batches/THREADS.md#t-009), [`T-030`](Batches/THREADS.md#t-030) |

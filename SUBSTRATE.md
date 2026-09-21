@@ -1,6 +1,6 @@
 | Document | Survivor Awareness Overhaul Dependency Substrate |
 |---|---|
-| Version | `2.8.5.0-pre-alpha` |
+| Version | `2.8.6.0-pre-alpha` |
 | Author | ellyj3rain |
 | Repository | `SUBSTRATE.md` |
 | Status | CANONICAL - what exists, what is planned, and what each area of concern needs. |
@@ -686,7 +686,7 @@ does not upgrade an unfinished mechanism to implemented.
 | Contract | Producer and durable owner | Behavioral consumer | Remaining boundary |
 |---|---|---|---|
 | Performed transfer knowledge | Needs/SourceUse native mutation -> frozen WorldSources observation -> existing Provisioning consumer -> private Perception episode | Knowledge food/water and admitted testimony | Later source conflict preserves observation but grants no successful material projection. |
-| Recipient response | Witness's own held-ground context and category need -> Disposition appraisal -> only their episode | Existing charity preference toward the actor | Appraisal of a told event needs its own acquired context; testimony does not copy feelings. |
+| Recipient response | Witness's own held-ground context and category need -> Disposition appraisal -> only their episode | Existing charity preference toward the actor | C69 closes the bounded household-request appraisal after testimony; testimony still does not copy feelings. |
 | Asked assistance | Quartermaster's actual request -> private dated request -> admitted testimony | Carrier's private request/destination and urgency | Actual radio reception and broader private work instructions remain separate producers. |
 | Dormant spoken access | Explicit generated-default provenance or native saved hearing; captured sleep; adjacent unloaded encounter | Perception transfer/request testimony | No dormant sleep/wake producer yet. Sleeping or unknown sleep does not become awake from elapsed time. |
 | Source curation | Speakeasy Record50 literal approved-document excerpts | Existing source validator/knowledge authoring | Extraction review, same-person acquisition, calendar join, ratification and eligible examples remain absent. |
@@ -712,3 +712,16 @@ are never serialized. Duplicate reservation of the same pending actor/item is
 refused. The existing death funnel releases a dead participant's pending work
 and live handles. Border 182 executes the owner in the installed Kahlua VM and
 rejects a production mutation that applies social credit at queue time.
+
+### C69 producer update
+
+| Contract | Producer and durable owner | Behavioral consumer | Remaining boundary |
+|---|---|---|---|
+| Reported household assistance | C67 performed transfer episode -> admitted testimony; listener's own active food request, current membership and explicit ground claim join in Perception | Disposition's credibility-weighted private appraisal | No historical body need, giver intent or complete household stock is reconstructed. |
+| Private disagreement | Current compassion, actor trust and immediate-teller credibility -> frozen signed reciprocity on only that told episode | Existing charity preference toward the actor | Appraisals do not travel, accumulate trust or create trade debt. |
+| Request category | `callForBread` explicitly records food; the sole pre-C69 producer migrates missing category as food | Request routing and appraisal eligibility | Other request categories need explicit producers and consumers. |
+
+Border 180 executes 90 delivery-knowledge cases and 21 named mutations. It
+proves both evidence arrival orders, current-household and claim containment,
+request/event order, bounded lifetime, detached retelling, saved-state refusal
+and a changed existing charity choice without any social-ledger write.
