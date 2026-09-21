@@ -146,7 +146,7 @@ public final class SAONativeSnapshot {
             writeNutrition(living.getNutrition()),
             serialize(buffer -> living.getFitness().save(buffer)),
             writeLearning(living),
-            writeVisual(humanVisual(source), living),
+            writeVisual(humanVisual(source), source),
             writeCharacterModData(living),
         });
     }
@@ -756,7 +756,8 @@ public final class SAONativeSnapshot {
         return perk;
     }
 
-    private static byte[] writeVisual(HumanVisual visual, IsoPlayer timingOwner) throws IOException {
+    private static byte[] writeVisual(HumanVisual visual, IsoGameCharacter timingOwner)
+            throws IOException {
         if (visual == null) throw new IOException("Missing human visual");
         Outfit outfit = visual.getOutfit();
         String outfitName = outfit == null ? null : outfit.getName();

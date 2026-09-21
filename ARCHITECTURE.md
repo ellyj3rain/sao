@@ -1,6 +1,6 @@
 | Document | Survivor Awareness Overhaul Architecture |
 |---|---|
-| Version | `2.8.0.0-pre-alpha` |
+| Version | `2.8.1.0-pre-alpha` |
 | Author | ellyj3rain |
 | Repository | `ARCHITECTURE.md` |
 | Status | ACTIVE - ratified framework shape. |
@@ -145,7 +145,7 @@ world is rag-ripping ([A10]): time charged in a hold state, terminal state
 identical to the vanilla recipe, recorded as pending real craft-system
 comprehension.
 
-## Revision-bound world-source action and result projection (C61-C63)
+## Revision-bound world-source action and result projection (C61-C64)
 
 `SAO_WorldSources` owns durable native observations, conflicts, reservations
 and results. A place belief stores the exact source revisions that person saw;
@@ -167,7 +167,7 @@ effect publishes one pre/post-revision receipt and stamps that actor's food or
 water day. Completed receipts remain in durable order until the provisioning
 consumer acknowledges them idempotently.
 
-C63 consumes that result without turning it into an authored outcome. At final
+C63-C64 consume that result without turning it into an authored outcome. At final
 native binding, an exact source inside the actor's current group claim captures
 that house and the current claim incarnation. Publishing the completed result
 captures the Material setting with the event. The consumer resolves an isolated
@@ -175,8 +175,8 @@ copy of the latest exact native source
 and replaces its prior house projection by source identity. A durable
 single-owner index and result order prevent one source from remaining in two
 houses or an older retry from reversing a newer owner. Applied reconciliation,
-its chosen outcome, affected-house projection generation and successful
-per-group derivation phases persist until acknowledgement succeeds. Source
+its chosen outcome and affected-house projection generation persist until
+acknowledgement succeeds. Source
 observation time orders completed-result claims against live quartermaster
 scans; projection generation orders actual aggregate mutations and prevents an
 applied older retry from reversing newer evidence. At most 256 source rows are retained; item and
@@ -185,12 +185,14 @@ house credit but may refresh an existing owner. Missing non-ground truth waits
 when ownership exists; completed ground removal affects only the matching
 fingerprint. A changed or re-created claim cannot receive an earlier event.
 
-Only after material reconciliation do larder and water claims derive from the
-projected totals. Recognition may synchronize storage on an already-grounded
-settlement; it cannot create a settlement, building, organization, membership,
-room, food or water fact. The receipt is acknowledged last. Standing setters,
-dormant need-day projection and queue acceptance are not provisioning
-producers. Quartermaster scans and completed-result claims carry their evidence
+One selected source is exact but partial evidence. C64 marks every such store
+with incomplete `selected-native-sources` coverage, so it does not derive a
+house larder/water claim and cannot synchronize settlement storage. Those
+aggregate projections require a future producer that proves complete coverage
+of the held place. Recognition still cannot create a settlement, building,
+organization, membership, room, food or water fact. The receipt is acknowledged
+last. Standing setters, dormant need-day projection and queue acceptance are not
+provisioning producers. Quartermaster scans retain their separate evidence
 basis. Claim movement, abandonment and dissolution retire house material and
 settlement-storage projections; delayed receipts revalidate held ground. C62
 schema-3 results retire explicitly unattributed instead of borrowing later
@@ -199,6 +201,14 @@ source lookup; if execution stops after acknowledgement, the next delivery pass
 cleans the retained transaction. The event-time Material setting cannot be
 reinterpreted by a later toggle. Performed shelving and the remaining material
 action families still need their own completion results under R9.
+
+Native truth can change without another survivor action. WorldSources schema 5
+therefore stores one coalescing, ordered change per source already relevant to a
+Material projection. Provisioning drains that queue after reload. Material may
+refresh or retire the exact existing owner while preserving the completed
+result that first attributed it; ambient observation cannot create an owner or
+completed-work credit. A change is acknowledged only after projection update,
+and a newer observation cannot be removed by an older acknowledgement.
 
 Graph schema 2 removes the outputs left by the superseded bridge: a pre-C63
 house store without `native-sources` provenance and a base without a completed
@@ -215,11 +225,40 @@ personal/house view has no aggregate owner; ownership remains explicit only on
 its nested personal and house views, preserving Material as the sole mutable
 owner even when Integration publishes the view.
 
+Graph schema 3 marks every retained C63 native-source house store as partial and
+clears storage synchronized from that partial projection. Standing schema 3
+removes only C63 completed-source larder/water claims; independent quartermaster
+evidence remains. Both migrations record what they retired and infer no earlier
+history.
+
 The reservation is also the cross-pillar actor owner. Dormant population
 mutation, bodyless pathogen encounter/snapshot observation and WorldGenesis graph
 application skip a source-owned actor. The live controller settles mortality and
 Crossed transfer before restoring the durable source phase, and an unreadable
 future-schema owner holds the actor rather than being interpreted as absence.
+
+## Decision evidence boundary (C64)
+
+`tools/county_dump.py` observes the existing Standing election from outside the
+mod. `tools/sweep/decision_capture.lua` deterministically serializes the complete
+decision document before the real verb runs, then serializes the immediate
+authored result separately. It rejects required-reader failure, unsupported
+values, cycles and excess depth instead of rendering them as `null`. The real
+election still executes when observation fails.
+
+Each county belongs to a unique capture invocation and run namespace. The run
+envelope retains a deterministic configuration hash, seed/draw state, settings,
+engine mode, requested/reached horizon, clock/schema versions and source/model
+provenance. The evidence host exposes unavailable loaded ground rather than the
+sweep prelude's historical fixture. Every requested county must pass callback,
+capture and horizon validation before a staged directory becomes visible by one
+atomic rename.
+
+This observer does not expose executable options, make a model choice or track
+an action-specific consequence horizon. Those three fields are explicit and the
+event is conditioning-ineligible. Speakeasy owns later option/choice authoring
+and its fully namespaced join; runtime execution will revalidate a selected
+option under R11-R14.
 
 ## Voice ([A9])
 

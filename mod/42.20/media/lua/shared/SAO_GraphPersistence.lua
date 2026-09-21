@@ -5,7 +5,7 @@ SAO.GraphPersistence = SAO.GraphPersistence or {}
 local GraphPersistence = SAO.GraphPersistence
 
 local STORE_KEY = "SurvivorAwareness_Graph"
-local GRAPH_SCHEMA = 2
+local GRAPH_SCHEMA = 3
 local C63_UPGRADE_PROVENANCE =
     "initialized at C63 upgrade from represented C62 state; no earlier history inferred"
 
@@ -108,12 +108,45 @@ local function migrateLegacyFalseOutputs(store, priorSchema)
 
     store.migrations.c63FalseOutputRetirement = {
         fromSchema = priorSchema,
-        toSchema = GRAPH_SCHEMA,
+        toSchema = 2,
         provenance = C63_UPGRADE_PROVENANCE,
         retiredHouseStores = retiredHouseStores,
         retiredSettlementBases = retiredSettlementBases,
         retiredProvisioningOrganizations = retiredProvisioningOrganizations,
         sanitizedElectionOrganizations = sanitizedElectionOrganizations,
+    }
+end
+
+local function migratePartialMaterialOutputs(store, priorSchema)
+    local markedPartial, clearedStorage = 0, 0
+    for owner, materialStore in pairs(store.material.stores) do
+        if type(owner) == "string" and string.sub(owner, 1, 6) == "house:"
+            and type(materialStore) == "table"
+            and materialStore.projection == "native-sources" then
+            materialStore.coverage = {
+                complete = false,
+                basis = "selected-native-sources",
+                reason = "c64-partial-projection-migration",
+                atHours = 0,
+            }
+            markedPartial = markedPartial + 1
+        end
+    end
+    for _, base in pairs(store.settlement.bases) do
+        if type(base) == "table"
+            and base.storageProjection == "native-sources" then
+            base.storage = {}
+            base.storageProjection = nil
+            base.storageEvidence = nil
+            clearedStorage = clearedStorage + 1
+        end
+    end
+    store.migrations.c64PartialMaterialCorrection = {
+        fromSchema = priorSchema,
+        toSchema = GRAPH_SCHEMA,
+        provenance = "C64 marks selected-source projections partial; no complete house inventory inferred",
+        markedPartialHouseStores = markedPartial,
+        clearedPartialSettlementStorage = clearedStorage,
     }
 end
 
@@ -168,8 +201,13 @@ function GraphPersistence.store()
     store.communication.messages = store.communication.messages or {}
     store.player.claims = store.player.claims or {}
 
-    if priorSchema < GRAPH_SCHEMA then
+    if priorSchema < 2 then
         migrateLegacyFalseOutputs(store, priorSchema)
+    end
+    if priorSchema < 3 then
+        migratePartialMaterialOutputs(store, priorSchema)
+    end
+    if priorSchema < GRAPH_SCHEMA then
         store.schema = GRAPH_SCHEMA
     end
 

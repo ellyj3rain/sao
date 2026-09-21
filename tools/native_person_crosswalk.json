@@ -276,5 +276,12 @@
       "case": "fluid-quantity-accounting",
       "mutation_sha256": "c411c002c7f3abd1873f98786a81751fed2062ef67e137d3d8192847de5990e7"
     }
+  ],
+  "additions": [
+    {
+      "batch": "C64",
+      "case": "return-growth-timing-from-living-shell",
+      "mutation_sha256": "966db2269bab8e950030e4a87f181810f48ec4b6d7736a413dfc4d3bfeb71b48"
+    }
   ]
 }

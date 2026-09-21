@@ -59,6 +59,13 @@
       "expected": "human skin texture"
     },
     {
+      "id": "return-growth-timing-from-living-shell",
+      "source": "SAONativeSnapshot.java",
+      "before": "writeVisual(humanVisual(source), source),",
+      "after": "writeVisual(humanVisual(source), living),",
+      "expected": "return appearance mixed living-shell growth timing"
+    },
+    {
       "id": "empty-native-inventory",
       "source": "SAONativeSnapshot.java",
       "before": "serialize(buffer -> shell.getInventory().save(buffer)),",

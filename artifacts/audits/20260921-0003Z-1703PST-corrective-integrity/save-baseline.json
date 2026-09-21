@@ -1,0 +1,13 @@
+﻿{
+    "captured_utc":  "2026-09-21T00:04:23.2257376Z",
+    "verification":  "relative path, size and modification time; not content hashes",
+    "save_directories":  1308,
+    "save_files":  44092,
+    "save_bytes":  581453390,
+    "metadata_sha256":  "afdc1ea4dae583048bd280c3361de41f01cc360d703fb8c518babfe8d4b9a803",
+    "companion":  "ZAO A37",
+    "companion_files":  29,
+    "companion_content_manifest_sha256":  "06c933335487ea022a8ac6d36832d1a5066b8dfd499eebb6344d1c25f79ee3f7",
+    "companion_metadata_manifest_sha256":  "66e7b6fced4feb19801814265e6b9ce85ad0e33a26f7eb36fa2f454855c37ce0",
+    "game_processes":  0
+}

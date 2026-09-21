@@ -509,13 +509,13 @@ ACTION_PROBE = r'''(function()
           sourceId="keep", status="reserved", category="food" } } }
   local kept = SAO.WorldSources.source("keep")
   local migrated = __stores[STORE]
-  check("schema2_migration", kept and migrated.schema == 4
+  check("schema2_migration", kept and migrated.schema == 5
       and migrated.reservations["old-r"].status == "released"
       and migrated.results["old-r"].detail == "schema-2-action-incompatible"
       and __records.m.worldSourceReservation == nil)
 
   -- A maximum-size v2 ledger can contain both historical results and active
-  -- observation locks. Migration remains within the v4 save bounds instead
+  -- observation locks. Migration remains within the v5 save bounds instead
   -- of retaining both complete sets indefinitely.
   __stores[STORE] = { schema=2, results={}, reservations={},
       resultByActor={}, resultCounts={} }
@@ -540,11 +540,11 @@ ACTION_PROBE = r'''(function()
       boundedReservations = boundedReservations + 1
       if reservation.status == "reserved" then stillReserved = true end
   end
-  check("schema2_migration_bounded", __stores[STORE].schema == 4
+  check("schema2_migration_bounded", __stores[STORE].schema == 5
       and boundedResults <= 2048 and boundedReservations <= 2048
       and not stillReserved)
 
-  __stores[STORE] = { schema=5, sentinel="future-owned" }
+  __stores[STORE] = { schema=6, sentinel="future-owned" }
   __records.future = { id="future",
       worldSourceReservation="future-reservation" }
   local future = SAO.WorldSources.source("future-probe")
@@ -552,7 +552,7 @@ ACTION_PROBE = r'''(function()
   local futureExit = SAO.SourceUse.beforeStateChange(
       "future",__newBody(0,0),"IDLE","TRAVEL","future-schema")
   check("future_schema_refused", future == nil
-      and __stores[STORE].schema == 5
+      and __stores[STORE].schema == 6
       and __stores[STORE].sentinel == "future-owned"
       and __stores[STORE].sources == nil and futurePending
       and futurePending.unavailable == true and futureExit == false

@@ -1,6 +1,6 @@
 | Document | The three projects and what each owns |
 |---|---|
-| Version | `2.8.0.0-pre-alpha` |
+| Version | `2.8.1.0-pre-alpha` |
 | Author | ellyj3rain |
 | Repository | `PROJECTS.md` |
 | Status | CANONICAL - the architecture across the three repositories. Held here; `../zombie-awareness` and `../zomboid-speakeasy` point at it. |
@@ -167,9 +167,9 @@ SUBSTRATE.md records the implementation boundaries and current evidence.
 
 | | Version | Standing |
 |---|---|---|
-| SAO | see `VERSION` | C57 starts whole-mod restructuring with the shared body snapshot contract and consolidated native suite. C56 closes R5 health and dormant physiology. Population reconstruction and scheduling are next; R6-R10 retain access, actions and complete life producers. |
+| SAO | see `VERSION` | C64 corrects C54-C63 integrity defects, limits selected-source material to partial evidence and supplies an immutable, provenance-complete decision-evidence envelope. R7-R10 still own the missing action and life-simulation producers; R11 still needs executable options, choices and action-specific outcomes. |
 | ZAO | `../zombie-awareness/VERSION` | A37 makes the Crossed pass reachable for the non-feeding Afflicted exposure and owns the same transferred human shell across loaded, dormant and dead states. The complete retained human action vocabulary and loaded-world observation remain open. |
-| Speakeasy | `../zomboid-speakeasy/RECORD.md` | 112 work-word and 78 trade-hinge choices are ratified; world documents and the cross-module row contract are approved. Source decision capture needs repair. No trained cognition model or completed training/export/runtime path exists. |
+| Speakeasy | `../zomboid-speakeasy/RECORD.md` | 112 work-word and 78 trade-hinge choices plus nine world documents are hash-protected. Version 3 requires exact run/county/person/event/hour joins and executable option evidence, validates before atomic publication and refuses protected destinations. The approved choices remain intent; their future-conditioned legacy rows are ineligible. No trained cognition model or completed training/export/runtime path exists. |
 
 Each of those is its own repository's to update. This table says where
 the three stand relative to each other, which is the thing no single

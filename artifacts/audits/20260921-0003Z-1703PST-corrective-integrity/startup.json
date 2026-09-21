@@ -1,0 +1,56 @@
+﻿{
+    "captured_utc":  "2026-09-21T00:09:38.0740966Z",
+    "version":  "2.8.1.0-pre-alpha",
+    "observed_process_id":  64420,
+    "observed_window":  "Project Zomboid",
+    "observed_responsive":  true,
+    "process_left_open":  true,
+    "active_java_mods":  [
+                             "PeekAView",
+                             "Staircast",
+                             "SurvivorAwareness",
+                             "ZombieAwareness"
+                         ],
+    "screenshot":  ".git/c64-startup-final.png",
+    "screenshot_sha256":  "5D09A479FF0785D93BA9D31DC5EC9FACF90E1356F972BB7C7265032FB1378087",
+    "visual_observation":  "Responsive Project Zomboid main screen; ZombieBuddy lists SurvivorAwareness and ZombieAwareness among four active Java mods.",
+    "agent_markers":  {
+                          "premain":  true,
+                          "iso_player_verified":  true,
+                          "melee_patch_calls":  3,
+                          "body_scale_weave":  true,
+                          "loot_density_weave":  true,
+                          "main_loaded":  true,
+                          "bridge_exposed":  true,
+                          "bridge_transient_retry":  "one early reflection attempt before Lua readiness; watchdog exposed SAOJavaBridge two seconds later"
+                      },
+    "lua_markers":  [
+                        "[SAO][HARNESS] harness loaded",
+                        "[SAO][POP] population module loaded"
+                    ],
+    "sao_failure_lines":  0,
+    "installed_jar_sha256":  "EF5CBDE75EEA78825EFA9B86123B3205A37A263273C30F25346822BDFCA8E80A",
+    "save_files":  44092,
+    "save_bytes":  581453390,
+    "save_metadata_sha256":  "AFDC1EA4DAE583048BD280C3361DE41F01CC360D703FB8C518BABFE8D4B9A803",
+    "save_metadata_unchanged":  true,
+    "companion_content_unchanged":  true,
+    "companion_metadata_unchanged":  true,
+    "captured_log_prefixes":  {
+                                  ".git/c64-startup-stdout-prefix.txt":  {
+                                                                             "bytes":  2434088,
+                                                                             "sha256":  "DB275BA772FB87835C0CC2ABE7D82436A0AD9BAD4F0E307DCBBDC90BB22CDCF8"
+                                                                         },
+                                  ".git/c64-startup-stderr-prefix.txt":  {
+                                                                             "bytes":  640133,
+                                                                             "sha256":  "2FEDF7A4CCC4C8BD9646C052B8AE6B199CB6202516BE061D4565371F86A24AC6"
+                                                                         },
+                                  ".git/c64-agent-lines.txt":  {
+                                                                   "bytes":  976,
+                                                                   "sha256":  "8890F8A70908B2A8FA169F98B7CF333CF71FA433FC9B504688D7070F23320717"
+                                                               }
+                              },
+    "other_errors":  "Existing third-party/engine startup noise remains outside SAO: fluid-name sanitation, Did I Have A Car translation formatting, TTO attachment parsing and ZAO tooltip-format warnings.",
+    "world_loaded_by_agent":  false,
+    "limits":  "Startup evidence only. No save was loaded; save-backed source projection and loaded-world behavior remain unobserved."
+}

@@ -1,0 +1,41 @@
+{
+  "critical_high": [
+    {
+      "finding": "Speakeasy joined only person/hour, truncated before full validation and could overwrite protected destinations",
+      "disposition": "fixed in Speakeasy v3 PR 13"
+    },
+    {
+      "finding": "county dump retained live nested references, omitted provenance/horizon failure and inherited fake ground",
+      "disposition": "fixed by fail-closed immutable bounded capture"
+    },
+    {
+      "finding": "C55 extension replacement could destroy the accepted runtime graph",
+      "disposition": "fixed with registry and graph rollback"
+    },
+    {
+      "finding": "C63 material remained stale after later native change",
+      "disposition": "fixed with bounded durable ambient change reconciliation"
+    },
+    {
+      "finding": "C63 treated one selected source as complete house inventory",
+      "disposition": "fixed with partial coverage semantics and schema-3 retirement"
+    }
+  ],
+  "medium": [
+    {
+      "finding": "C54 mixed returned visual state with living-shell growth timing",
+      "disposition": "fixed and mutation-controlled"
+    },
+    {
+      "finding": "BodySnapshot reaches current physical facts through the Population facade",
+      "disposition": "explicit structural deferral; no demonstrated state loss or wrong result"
+    }
+  ],
+  "remaining": [
+    "R9 performed provisioning and place-development producers",
+    "R11 executable options, separate choice and action-specific consequences",
+    "R12 versioned decision-time reconstruction and person-specific knowledge",
+    "R13 training remains blocked on eligible data and producer coverage"
+  ]
+}
+

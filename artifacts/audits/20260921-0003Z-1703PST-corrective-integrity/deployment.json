@@ -1,0 +1,32 @@
+{
+    "timestamp_utc":  "2026-09-21T00:05:17.4681481Z",
+    "version":  "2.8.1.0-pre-alpha",
+    "source_files":  258,
+    "installed_files":  258,
+    "missing":  [
+
+                ],
+    "extra":  [
+
+              ],
+    "different":  [
+
+                  ],
+    "exact_match":  true,
+    "jar_sha256":  "EF5CBDE75EEA78825EFA9B86123B3205A37A263273C30F25346822BDFCA8E80A",
+    "deploy_receipt_lines":  260,
+    "deploy_receipt_sha256":  "99EE93C38E2C26D3B577C9ED9CBB874FB3F72885F499151EE938A6805BC9F5A2",
+    "save_directories":  1308,
+    "save_files":  44092,
+    "save_bytes":  581453390,
+    "save_metadata_sha256":  "AFDC1EA4DAE583048BD280C3361DE41F01CC360D703FB8C518BABFE8D4B9A803",
+    "save_metadata_unchanged":  true,
+    "save_verification":  "relative path, size and modification time; not content hashes",
+    "companion":  "ZAO A37",
+    "companion_files":  29,
+    "companion_content_manifest_sha256":  "06C933335487EA022A8AC6D36832D1A5066B8DFD499EEBB6344D1C25F79EE3F7",
+    "companion_metadata_manifest_sha256":  "66E7B6FCED4FEB19801814265E6B9CE85AD0E33A26F7EB36FA2F454855C37CE0",
+    "companion_content_unchanged":  true,
+    "companion_metadata_unchanged":  true,
+    "game_processes_during_deploy":  0
+}

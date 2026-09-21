@@ -25,6 +25,7 @@ local MAX_RESERVATIONS = 2048
 local MAX_RESULTS = 2048
 local MAX_PENDING_LOADS = 1024
 local MAX_POINTER_REPAIRS = 256
+local MAX_PROJECTION_CHANGES = 2048
 local RESULT_CONSUMER = "provisioning"
 local SOURCE_CATEGORY_ORDER = {
     "device", "drink", "food", "fuel", "instrument", "medical",
@@ -88,7 +89,7 @@ local function store()
     end)
     if not ok or type(value) ~= "table" then return nil end
     local priorSchema = tonumber(value.schema) or 0
-    if priorSchema > 4 then
+    if priorSchema > 5 then
         log("refusing unsupported world-source schema " .. tostring(priorSchema))
         return nil
     end
@@ -100,6 +101,7 @@ local function store()
     value.resultByActor = value.resultByActor or {}
     value.resultCounts = value.resultCounts or {}
     value.pointerRepairs = value.pointerRepairs or {}
+    value.projectionChanges = value.projectionChanges or {}
     value.conflicts = value.conflicts or {}
     value.conflictBySource = value.conflictBySource or {}
     value.sequence = tonumber(value.sequence) or 0
@@ -107,6 +109,8 @@ local function store()
     value.conflictSequence = tonumber(value.conflictSequence) or 0
     value.resultSequence = tonumber(value.resultSequence) or 0
     value.pointerRepairSequence = tonumber(value.pointerRepairSequence) or 0
+    value.projectionChangeSequence =
+        tonumber(value.projectionChangeSequence) or 0
     value.migrationPointers = value.migrationPointers or {}
     if priorSchema < 3 then
         -- Schema 2 reservations described observation-only locks. They lack
@@ -169,10 +173,12 @@ local function store()
             end
         end
         value.migratedFrom = priorSchema
-        value.schema = 4
-    else
-        value.schema = priorSchema
     end
+    -- Schema 5 adds a durable latest-change queue for sources already copied
+    -- into Material. Native truth may change without another survivor action;
+    -- retaining that observation lets Provisioning refresh or retire the exact
+    -- projection after reload instead of leaving house stock stale forever.
+    if priorSchema < 5 then value.schema = 5 else value.schema = priorSchema end
     if SAO.Identity and SAO.Identity.get then
         for actorId, reservationId in pairs(value.migrationPointers) do
             local record = SAO.Identity.get(actorId)
@@ -185,6 +191,48 @@ local function store()
         end
     end
     return value
+end
+
+local function trimProjectionChanges(value)
+    local count = 0
+    for _ in pairs(value.projectionChanges) do count = count + 1 end
+    while count > MAX_PROJECTION_CHANGES do
+        local oldestId, oldest = nil, nil
+        for sourceId, change in pairs(value.projectionChanges) do
+            if not oldest or (tonumber(change.order) or 0)
+                < (tonumber(oldest.order) or 0) then
+                oldestId, oldest = sourceId, change
+            end
+        end
+        if not oldestId then return false end
+        value.projectionChanges[oldestId] = nil
+        count = count - 1
+    end
+    return true
+end
+
+local function recordProjectionChange(value, sourceId, prior, current, reason)
+    sourceId = tostring(sourceId or "")
+    if sourceId == "" then return end
+    local projected = SAO.Material and SAO.Material.projectedOwner
+        and SAO.Material.projectedOwner(sourceId) or nil
+    -- A source never seen before and not projected cannot make any existing
+    -- Material fact stale. Everything else retains its latest native change.
+    if prior == nil and projected == nil then return end
+    value.projectionChangeSequence = value.projectionChangeSequence + 1
+    value.projectionChanges[sourceId] = {
+        sourceId = sourceId,
+        priorFingerprint = prior and prior.fingerprint or nil,
+        fingerprint = current and current.fingerprint or nil,
+        revision = current and current.revision or nil,
+        state = current and current.state or "absent",
+        chunkX = current and current.chunkX or prior and prior.chunkX or nil,
+        chunkY = current and current.chunkY or prior and prior.chunkY or nil,
+        observedAt = nowHours(),
+        reason = tostring(reason or "native-source-changed"),
+        order = value.projectionChangeSequence,
+    }
+    trimProjectionChanges(value)
 end
 
 local function decode(value)
@@ -576,17 +624,23 @@ function WS.applySnapshot(snapshot, exceptReservationId)
                 priorConflict.resolutionChunkX = observed.chunkX
                 priorConflict.resolutionChunkY = observed.chunkY
                 value.sources[nativeSource.id] = observed
+                recordProjectionChange(value, nativeSource.id, old, observed,
+                    "source-conflict-resolved")
             else
                 -- Keep one bounded receipt while the owner is unresolved;
                 -- refresh only its small native-side evidence.
                 priorConflict.lastObservedAt = nowHours()
                 priorConflict.nativeFingerprint = observed.fingerprint
                 priorConflict.nativeRevision = observed.revision
+                recordProjectionChange(value, nativeSource.id, old, nil,
+                    "source-conflict-pending")
             end
             changes = changes + 1
         elseif old and old.fingerprint ~= observed.fingerprint then
             value.sources[nativeSource.id] = nil
             conflict(value, old, observed, "physical-fingerprint-changed")
+            recordProjectionChange(value, nativeSource.id, old, nil,
+                "physical-fingerprint-changed")
             changes = changes + 1
         elseif old and old.revision ~= observed.revision then
             local action = actionReservation(value, exceptReservationId,
@@ -594,15 +648,22 @@ function WS.applySnapshot(snapshot, exceptReservationId)
             if expectedActionPost(action, observed) then
                 changes = changes + 1
                 value.sources[nativeSource.id] = observed
+                recordProjectionChange(value, nativeSource.id, old, observed,
+                    "native-action-postcondition")
             elseif pendingFor(value, nativeSource.id, nil) then
                 value.sources[nativeSource.id] = nil
                 conflict(value, old, observed,
+                    action and "native-action-postcondition-failed"
+                        or "native-revision-changed-during-reservation")
+                recordProjectionChange(value, nativeSource.id, old, nil,
                     action and "native-action-postcondition-failed"
                         or "native-revision-changed-during-reservation")
                 changes = changes + 1
             else
                 changes = changes + 1
                 value.sources[nativeSource.id] = observed
+                recordProjectionChange(value, nativeSource.id, old, observed,
+                    "native-revision-changed")
             end
         else
             if not old or old.revision ~= observed.revision
@@ -610,6 +671,13 @@ function WS.applySnapshot(snapshot, exceptReservationId)
                 changes = changes + 1
             end
             value.sources[nativeSource.id] = observed
+            if old and old.state ~= observed.state then
+                recordProjectionChange(value, nativeSource.id, old, observed,
+                    "native-state-changed")
+            elseif not old then
+                recordProjectionChange(value, nativeSource.id, nil, observed,
+                    "native-source-observed")
+            end
         end
     end
 
@@ -631,6 +699,9 @@ function WS.applySnapshot(snapshot, exceptReservationId)
                         action and "native-action-postcondition-failed"
                             or "native-source-missing")
                 end
+                recordProjectionChange(value, id, old, nil,
+                    action and "native-action-postcondition-failed"
+                        or "native-source-missing")
                 changes = changes + 1
             end
         end
@@ -649,6 +720,52 @@ function WS.applySnapshot(snapshot, exceptReservationId)
     }
     compactChunks(value)
     return true, changes
+end
+
+-- Latest native changes waiting for the Material consumer. One source owns one
+-- slot, so repeated rescans coalesce to the newest truth while its monotonic
+-- order still makes acknowledgement compare-and-remove safe.
+function WS.pendingProjectionChanges(limit)
+    local value = store()
+    if not value then return nil end
+    -- A malformed/older save must not hand Kahlua's recursive table.sort an
+    -- adversarially large list. The writer already trims to this ceiling; trim
+    -- again at the read boundary before copying so the sorted list is bounded
+    -- even when durable state was edited or interrupted outside that writer.
+    if not trimProjectionChanges(value) then return nil end
+    limit = math.floor(tonumber(limit) or 32)
+    if limit < 1 then limit = 1 end
+    if limit > 128 then limit = 128 end
+    local ordered = {}
+    for _, change in pairs(value.projectionChanges) do
+        if #ordered >= MAX_PROJECTION_CHANGES then break end
+        local copy = {}
+        for key, item in pairs(change) do
+            if type(item) == "string" or type(item) == "number"
+                or type(item) == "boolean" then
+                copy[key] = item
+            end
+        end
+        ordered[#ordered + 1] = copy
+    end
+    table.sort(ordered, function(a, b)
+        local ao, bo = tonumber(a.order) or 0, tonumber(b.order) or 0
+        if ao ~= bo then return ao < bo end
+        return tostring(a.sourceId) < tostring(b.sourceId)
+    end)
+    while #ordered > limit do table.remove(ordered) end
+    return ordered
+end
+
+function WS.acknowledgeProjectionChange(sourceId, order)
+    local value = store()
+    sourceId = tostring(sourceId or "")
+    local change = value and value.projectionChanges[sourceId] or nil
+    if not change or tonumber(change.order) ~= tonumber(order) then
+        return false
+    end
+    value.projectionChanges[sourceId] = nil
+    return true
 end
 
 function WS.status()
