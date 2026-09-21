@@ -1,6 +1,6 @@
 | Document | Survivor Awareness Overhaul Findings |
 |---|---|
-| Version | `2.8.3.0-pre-alpha` |
+| Version | `2.8.4.0-pre-alpha` |
 | Author | ellyj3rain |
 | Repository | `FINDINGS.md` |
 | Status | CANONICAL, APPEND-ONLY - verified engine findings. |
@@ -2049,3 +2049,27 @@ loaded truth. R10a therefore remains a named implementation contract for native
 identity, observation state, reservation/result, loaded-chunk conflict
 reconciliation and consumer migration; C60 does not promote the existing room
 and visit-count proxy into grounded dormant supply.
+
+## F-092 | 2026-09-21 04:47 UTC / 21:47 PST | Later action conflict discarded a witnessed native transfer
+
+C67 review reproduced a native transfer that moved its exact item, captured
+contemporaneous witnesses, then met a changed holder during final source
+reconciliation. WorldSources correctly retained a conflict. Its completed-only
+consumer omitted the proved physical observation, so the actor and witnesses
+never acquired the act they had performed or seen.
+
+WorldSources now preserves the native observation independently of terminal
+action status. The sole Provisioning consumer explicitly requests proved terminal
+observations, persists private memory, and acknowledges those observations before
+any material path. Conflicts retain their status and create no stock, experience,
+trust, debt or settlement credit. Completed-only readers retain their default.
+Unacknowledged observations resist trimming and count toward admission limits.
+
+The production Border 179 lifecycle probe performs the native move, changes the
+holder, reconstructs the durable ledger and delivers private facts once. Its
+retention and backpressure cases prove that acknowledgment permits retirement.
+Border 180 refuses pending and unproved inputs and checks persistence failure,
+replay and the absence of material/social credit. Mutations removing the native
+proof, observation delivery or retention make their named cases fail. The
+[C67 evidence record](artifacts/audits/20260921-0424Z-2124PST-delivery-knowledge/README.md)
+separates these controlled production probes from actual loaded-save behavior.

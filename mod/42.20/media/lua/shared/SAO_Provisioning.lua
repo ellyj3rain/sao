@@ -1,11 +1,11 @@
--- SAO_Provisioning - completed native use into durable material projection.
+-- SAO_Provisioning - native results into private experience and material records.
 --
 -- SourceUse proves one actor performed one exact native action. This module is
--- the sole downstream consumer of that completed-result ledger. It reconciles
--- the exact source's latest observed inventory, derives bounded house claims,
--- updates an independently grounded settlement when one exists, and only then
--- acknowledges the receipt. Observation, reservation and queue acceptance do
--- not enter this path.
+-- the sole downstream consumer of that result ledger. Captured native moves
+-- reach durable private minds even if later action reconciliation conflicts.
+-- Completed actions also reconcile the exact source's latest isolated inventory
+-- into partial material state before acknowledgement. Reservations and queue
+-- acceptance carry no result.
 
 SAO = SAO or {}
 SAO.Provisioning = SAO.Provisioning or {}
@@ -218,12 +218,33 @@ local function cleanupAcknowledgedReconciliations()
 end
 
 function Provisioning.processReceipt(receipt)
-    if type(receipt) ~= "table" or receipt.status ~= "completed"
+    if type(receipt) ~= "table"
+        or (receipt.status ~= "completed" and receipt.transferObservation == nil)
         or type(receipt.reservationId) ~= "string" then
         return false, "invalid-result"
     end
     if not (SAO.WorldSources and SAO.WorldSources.acknowledgeResult) then
         return false, "world-sources-unavailable"
+    end
+    -- Private experience is independent of the optional material projection.
+    -- The ledger remains unacknowledged until the captured witnesses can be
+    -- delivered to their durable minds. No current roster supplies recipients.
+    if receipt.transferObservation ~= nil then
+        if not (SAO.Perception and SAO.Perception.receiveTransferResult
+            and SAO.Perception.bindPersistentStore
+            and SAO.Perception.bindPersistentStore() == true) then
+            return false, "perception-unavailable"
+        end
+        local accepted, why = SAO.Perception.receiveTransferResult(receipt)
+        if accepted ~= true then return false, why or "perception-refused" end
+    end
+    -- A proved native move remains an experience when later conservation or
+    -- holder checks conflict. Deliver that experience without crediting a
+    -- completed action or projecting any material or social result.
+    if receipt.status ~= "completed" then
+        if not SAO.WorldSources.acknowledgeResult(receipt.reservationId,
+            CONSUMER, "native-observation-delivered") then return false, "ack-refused" end
+        return true, "native-observation-delivered"
     end
     if not (SAO.GraphPersistence and SAO.GraphPersistence.bind) then
         return false, "graph-unavailable"
@@ -403,7 +424,7 @@ function Provisioning.consumeCompleted(limit)
     Provisioning.refreshProjectedSources(limit)
     cleanupAcknowledgedReconciliations()
     local consumed, pending = 0, 0
-    local results = SAO.WorldSources.completedResults(CONSUMER)
+    local results = SAO.WorldSources.completedResults(CONSUMER, true)
     if #results == 0 then
         delivery.cursor = nil
         return 0, 0

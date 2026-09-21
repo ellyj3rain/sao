@@ -1,0 +1,8 @@
+==========================================================================
+DECISION EVIDENCE FREEZES BEFORE THE WORLD MOVES
+==========================================================================
+  valid capture: nested record, belief and claim bytes stay pre-election
+  controls: required-reader and cyclic captures rejected; play continued
+  publication: complete manifest appears by one atomic directory rename
+  source actions: exact options/choice/result; pending, refusal and censorship; two mutations rejected
+  181) PASS - immutable namespaced evidence; incomplete or failed runs withheld

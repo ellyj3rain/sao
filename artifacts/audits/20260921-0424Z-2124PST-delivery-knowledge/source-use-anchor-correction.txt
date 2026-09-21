@@ -1,0 +1,4 @@
+The initial combined Border179 run passed its runtime sections and refused the stale static signature.
+The required anchor and its owner-removal control now match the optional observation argument.
+Corrected static verdict: PASS 34 required call/form anchors present.
+The full closing gate reruns the complete border before the commit can succeed.

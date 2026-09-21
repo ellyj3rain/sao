@@ -1453,8 +1453,8 @@ local function dormantEncounters(tickCounter)
                             .. " shook on bread-for-watch")
                     end
                     pcall(function()
-                        SAO.Perception.tell(idA, idB, tickCounter)
-                        SAO.Perception.tell(idB, idA, tickCounter)
+                        SAO.Perception.tell(idA, idB, tickCounter, nil, "dormant-encounter")
+                        SAO.Perception.tell(idB, idA, tickCounter, nil, "dormant-encounter")
                     end)
                     -- Grudges travel the roads too ([A23]): testimony
                     -- was the one cargo missing from dormant meetings -

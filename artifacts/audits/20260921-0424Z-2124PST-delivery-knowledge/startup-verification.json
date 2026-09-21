@@ -1,0 +1,19 @@
+{
+  "atUtc": "2026-09-21T04:58:29.169187+00:00",
+  "version": "2.8.4.0-pre-alpha",
+  "installedFiles": 258,
+  "installedMatchesSource": true,
+  "jarSha256": "5cbc33109f54644486febd81e9737c3401356e3ab23b2071d17be45437359b4b",
+  "saveFileCount": 44092,
+  "saveMetadataUnchanged": true,
+  "companionFiles": 29,
+  "companionUnchanged": true,
+  "saveLoaded": false,
+  "evidenceBoundary": "Main-menu startup and installation verification; no loaded-save acceptance.",
+  "mainMenuObserved": true,
+  "processResponsive": true,
+  "gameProcessId": 182780,
+  "agentJar": "installed mod jar, byte-identical to built source artifact",
+  "errorLines": 5064,
+  "saoNamedErrorLines": 0
+}

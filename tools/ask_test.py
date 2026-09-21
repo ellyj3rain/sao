@@ -9,13 +9,14 @@ makes the whole feature invisible:
 
     a quartermaster counts the larder lean
       -> callForBread puts word out (three-day cooldown)
-      -> another house's nearestAsking finds it, which needs
+      -> a carrier acquires the request through admitted testimony
+      -> nearestAsking reads that person's request and destination, needing
            that house's own larder FULL,
            its creed in {mercy, road, order} - wall refuses,
            both houses holding ground,
            and no feud between them
-      -> a forager runs bread over
-      -> addDebt, and the fed leader's trust rises
+      -> a forager performs an exact native delivery
+      -> contemporaneous witnesses remember it and can form a private response
 
 ## What this can and cannot price, stated up front
 
@@ -28,7 +29,9 @@ settle machinery arriving somewhere.
 
 **Can:** everything that does not depend on food. The creed gate and
 the feud gate are pure social facts, and the converged county has real
-ones. If those alone make the ask unreachable, that is a structural
+ones. Private request acquisition, physical access, completed delivery and
+recipient response are outside this mirror; C67's production probes cover
+those implemented paths. If social gates alone make the ask unreachable, that is a structural
 finding and no amount of larder simulation would change it.
 
 So this reports **reachability, not frequency**, and says which gate
@@ -133,10 +136,10 @@ def main():
         else:
             print("    cause: war covers every willing pair")
         return 1
-    print(f"  the ask is reachable: {open_pairs} pairs could answer "
-          "if the shelves lined up")
+    print(f"  social gates permit {open_pairs} pairs to consider answering")
     print("  NOT priced here: how often a house is lean or full (the live "
-          "count reads real containers), nor whether it holds ground.")
+          "count reads real containers), whether it holds ground, private "
+          "request acquisition, physical access, delivery or response.")
     return 0
 
 

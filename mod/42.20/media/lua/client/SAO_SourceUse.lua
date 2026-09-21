@@ -561,6 +561,84 @@ local function transferState(body, reservation)
     return "SOURCE"
 end
 
+function SU.nativeTransferPending(id, body, reservationId)
+    local reservation = SAO.WorldSources.reservation(reservationId)
+    if not reservation or reservation.status ~= "reserved"
+        or reservation.actorId ~= tostring(id)
+        or (reservation.operation ~= "store" and reservation.operation ~= "acquire")
+        or reservation.transferObservation ~= nil then return false end
+    local state = transferState(body, reservation)
+    return (reservation.operation == "store" and state == "CARRIED")
+        or (reservation.operation == "acquire" and state == "SOURCE")
+end
+
+-- Called only by the verified vanilla transfer wrapper in the same invocation
+-- as the native mutation. Reload and queue reconciliation never call this.
+function SU.observeNativeTransfer(id, body, reservationId, worldContainer)
+    local reservation = SAO.WorldSources.reservation(reservationId)
+    if not reservation or reservation.status ~= "reserved"
+        or reservation.actorId ~= tostring(id)
+        or (reservation.operation ~= "store" and reservation.operation ~= "acquire")
+        or transferState(body, reservation) ~= "TRANSFERRED" then return false end
+    if reservation.transferObservation then return true end
+    local at = SAO.History.countyHours()
+    local witnesses, seen, appraisals = {}, {}, {}
+    local position = { x = reservation.currentSourceX or reservation.sourceX,
+        y = reservation.currentSourceY or reservation.sourceY,
+        z = reservation.currentSourceZ or reservation.sourceZ }
+    local function consider(personId, candidate)
+        personId = tostring(personId or "")
+        if personId == "" or personId == tostring(id) or seen[personId]
+            or candidate == nil then return end
+        seen[personId] = true
+        local agent = SAO.Controller and SAO.Controller.agents
+            and SAO.Controller.agents[personId]
+        if agent and agent.sleeping then return end
+        local rec = SAO.Identity and SAO.Identity.get(personId)
+        if rec and rec.dead then return end
+        local ok, visible = pcall(function()
+            return SAOJavaBridge:canWitnessWorldTransfer(
+                candidate, body, worldContainer, 12)
+        end)
+        if ok and visible == true then
+            witnesses[#witnesses + 1] = personId
+            -- A witness can assess help to their own household from their
+            -- own bodily need. This is a private feeling, never a balance
+            -- collectible from the giver or a shared household judgement.
+            pcall(function()
+                if reservation.operation ~= "store" then return end
+                local context = SAO.Standing.provisioningContextAt(
+                    personId, position.x, position.y)
+                if context ~= "held-group" then return end
+                local need = SAO.Needs.read(candidate)
+                if not need then return end
+                local raw, threshold
+                if reservation.category == "food" then
+                    raw, threshold = need.hunger, SAO.Disposition.eatAt(personId)
+                elseif reservation.category == "water" then
+                    raw, threshold = need.thirst, SAO.Disposition.drinkAt(personId)
+                end
+                if not tonumber(raw) or not tonumber(threshold) or threshold <= 0 then return end
+                local pressure = math.max(0, math.min(1, raw / threshold - 1))
+                appraisals[personId] = SAO.Disposition.assistanceAppraisal(
+                    personId, tostring(id), pressure)
+            end)
+        end
+    end
+    for personId in pairs(SAO.Body and SAO.Body.active or {}) do
+        consider(personId, SAO.Body.get(personId))
+    end
+    for personId in pairs(SAO.Body and SAO.Body.foreign or {}) do
+        consider(personId, SAO.Body.get(personId))
+    end
+    pcall(function()
+        local player = getSpecificPlayer(0)
+        if player then consider(SAO.Standing.playerKey(player), player) end
+    end)
+    return SAO.WorldSources.recordTransferObservation(
+        reservationId, id, at, witnesses, position, appraisals)
+end
+
 local function settleTransfer(id, body, reservation, interrupted)
     local state = transferState(body, reservation)
     if state == "UNAVAILABLE" then return "pending" end

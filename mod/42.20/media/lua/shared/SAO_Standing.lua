@@ -2026,7 +2026,7 @@ end
 -- particular - just word, on the same wire every other piece of
 -- county news travels. Scarcity became politically load-bearing at
 -- [B23] and was the one thing that never travelled.
-function S.callForBread(groupName)
+function S.callForBread(groupName, speakerId)
     local s = store(); if not s then return false end
     if not groupName then return false end
     groupName = tostring(groupName)
@@ -2040,9 +2040,18 @@ function S.callForBread(groupName)
     if meta.askedAtHours and now - meta.askedAtHours < 72 then
         return false
     end
+    -- The person who made the request knows it. Other minds acquire it only
+    -- through an admitted conversation or a separately proven radio receipt.
+    if speakerId then
+        if S.groupOf(speakerId) ~= groupName
+            or not (SAO.Perception and SAO.Perception.recordAidRequest) then return false end
+        if SAO.Perception.recordAidRequest(speakerId, groupName, now, "requested") ~= true then
+            return false
+        end
+    end
     meta.askedAtHours = now
     s.groupMeta[groupName] = meta
-    S.pushRadioNews({ kind = "ask", group = groupName })
+    S.pushRadioNews({ kind = "ask", group = groupName, requestedAt = now })
     return true
 end
 
@@ -2068,12 +2077,13 @@ function S.isAsking(groupName)
     return (h - meta.askedAtHours) <= 96
 end
 
--- [B23] The nearest house that has asked and that THIS house would
--- answer. Person-blind and price-blind: it decides who is heard, not
--- what anything is worth.
-function S.nearestAsking(fromGroup)
+-- The nearest privately known request this carrier's house would answer.
+-- World metadata still owns whether a house has asked; it does not tell the
+-- carrier that the request was heard or where the other house stands.
+function S.nearestAsking(fromGroup, actorId)
     local s = store(); if not s then return nil end
-    if not fromGroup then return nil end
+    if not fromGroup or not actorId or not (SAO.Perception
+        and SAO.Perception.knownAidRequests) then return nil end
     fromGroup = tostring(fromGroup)
     -- You answer out of surplus, never out of your own children's
     -- mouths.
@@ -2082,25 +2092,26 @@ function S.nearestAsking(fromGroup)
     if not ANSWERS_ASK[S.creedNameOf(fromGroup) or ""] then return nil end
     local ourClaim = S.groupClaimOf(fromGroup)
     if not ourClaim then return nil end
-    local best, bestD = nil, 1e18
-    for g, meta in pairs(s.groupMeta or {}) do
-        -- [B23] One definition of "is asking", shared with the
-        -- Ledger. Two copies of the window is how the two surfaces
-        -- would come to disagree about who is hungry.
-        if g ~= fromGroup and S.isAsking(g)
+    local best, bestD, bestClaim = nil, 1e18, nil
+    for _, request in ipairs(SAO.Perception.knownAidRequests(actorId)) do
+        local g = request.groupId
+        if g ~= fromGroup
             and not S.feudBetween(fromGroup, g) then
-            local theirClaim = S.groupClaimOf(g)
-            if theirClaim then
+            local theirClaim = request
+            if theirClaim.minX and theirClaim.minY
+                and theirClaim.maxX and theirClaim.maxY then
                 local dx = ((theirClaim.minX + theirClaim.maxX) / 2)
                     - ((ourClaim.minX + ourClaim.maxX) / 2)
                 local dy = ((theirClaim.minY + theirClaim.maxY) / 2)
                     - ((ourClaim.minY + ourClaim.maxY) / 2)
                 local d2 = dx * dx + dy * dy
-                if d2 < bestD then best, bestD = g, d2 end
+                if d2 < bestD or (d2 == bestD and tostring(g) < tostring(best)) then
+                    best, bestD, bestClaim = g, d2, request
+                end
             end
         end
     end
-    return best
+    return best, bestClaim
 end
 
 -- [B23] The option to say how it should be. INFLUENCE, not command:

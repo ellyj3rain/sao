@@ -1,0 +1,4 @@
+18) bridge: 216 public methods on SAOBridge (from the shipped jar)
+call sites:     318 across the Lua tree, 211 distinct methods
+never called:   5 bridge methods no Lua reaches
+MATCH: every call site names a real method, with an arity some overload accepts, and no literal argument that cannot reach its parameter.
