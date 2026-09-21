@@ -1,6 +1,6 @@
 | Document | Survivor Awareness Overhaul Architecture |
 |---|---|
-| Version | `2.8.1.0-pre-alpha` |
+| Version | `2.8.2.0-pre-alpha` |
 | Author | ellyj3rain |
 | Repository | `ARCHITECTURE.md` |
 | Status | ACTIVE - ratified framework shape. |
@@ -237,7 +237,7 @@ application skip a source-owned actor. The live controller settles mortality and
 Crossed transfer before restoring the durable source phase, and an unreadable
 future-schema owner holds the actor rather than being interpreted as absence.
 
-## Decision evidence boundary (C64)
+## Decision evidence boundary (C64-C65)
 
 `tools/county_dump.py` observes the existing Standing election from outside the
 mod. `tools/sweep/decision_capture.lua` deterministically serializes the complete
@@ -259,6 +259,27 @@ an action-specific consequence horizon. Those three fields are explicit and the
 event is conditioning-ineligible. Speakeasy owns later option/choice authoring
 and its fully namespaced join; runtime execution will revalidate a selected
 option under R11-R14.
+
+C65 exposes source selection before reservation. `WorldSources.actionOptions`
+lists at most 128 stable source attempts at the place and need already admitted
+by Controller. Each option names SourceUse, exact source/item/revision parameters
+and private observation plus attempt-permission evidence. Truncation and total
+candidate count are explicit. `SourceUse.chooseOption` retains the existing
+first-source policy. `beginAction` rechecks the current body, private evidence,
+permission and exact chosen parameters; an invalid selection refuses instead of
+substituting another source. Arrival and native binding retain their physical
+access and current permission checks.
+
+The same capture tool observes that actual choice when SourceUse is loaded.
+Person, private situation, policy context and offered options freeze before
+selection; the choice is separate and binds to the returned reservation. A
+detached actor-scoped result distinguishes completion, refusal, interruption,
+pending work and a result no longer retained. Requested quantity and observed
+native consumption are separate. An unreadable result store rejects capture.
+The observation horizon ends at the action result or capture end; later effects
+are unobserved. Runtime policy choices are unratified and conditioning-ineligible.
+The county sweep has no loaded source executor and reports that coverage as
+unavailable. C65 adds no synthetic source decisions to its output.
 
 ## Voice ([A9])
 

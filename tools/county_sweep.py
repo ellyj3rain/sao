@@ -181,6 +181,7 @@ NOT_DORMANT = {
     "Controller": "drives materialised agents; the dormant half has none",
     "Locomotion": "queues a move onto a body",
     "Needs": "acts on a body's needs through the engine",
+    "SourceUse": "executes source actions on materialised bodies; dormant capture reports the absent executor",
     "Voice": "speaks aloud to a player who is present",
     "Body": "the prelude answers for it - nobody is materialised",
     "Population": "the module doing the loading names itself",

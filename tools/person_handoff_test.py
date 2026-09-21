@@ -88,8 +88,16 @@ SAO={
   WorldSources={
    reconcileReservations=function() return 0 end,
    nearestObserved=function() return __nearestObserved end,
-   beginAction=function(place,category,id,body,quantity,admission)
+   actionOptions=function(place,category,id,body,quantity,admission)
      if not __nearestObserved then return nil,'none-observed' end
+     return {options={{id='handoff-fixture-source',owner='SAO.SourceUse',
+       parameters={actorId=tostring(id),category=category}}}}
+   end,
+   beginAction=function(place,category,id,body,quantity,admission,selected)
+     if not __nearestObserved then return nil,'none-observed' end
+     assert(selected and selected.id=='handoff-fixture-source'
+       and selected.parameters.actorId==tostring(id),
+       'source choice did not reach reservation owner')
      __sourceReservation={id='controller-source-begin',actorId=tostring(id),
        status='reserved',phase='approaching-place',category=category,
        placeId=place.id,placeX=place.cx,placeY=place.cy,placeZ=0}

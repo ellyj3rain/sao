@@ -1,0 +1,21 @@
+{
+  "referenceCommit": "ae971981f582b702ddcf82469f7aa8d26970cffd",
+  "sourceOverrideClassCount": 37,
+  "installedStartupPatchedMethodCount": 35,
+  "sameClassPatchedMethods": [
+    "org.lwjglx.opengl.Display.create",
+    "zombie.GameWindow.DoLoadingText",
+    "zombie.GameWindow.init",
+    "zombie.gameStates.GameLoadingState.exit",
+    "zombie.iso.LightingJNI.checkPlayerTorches",
+    "zombie.iso.LightingJNI.updatePlayer",
+    "zombie.iso.fboRenderChunk.FBORenderCell.isPotentiallyObscuringObject",
+    "zombie.iso.fboRenderChunk.FBORenderCell.isTranslucentTree",
+    "zombie.iso.fboRenderChunk.FBORenderCell.renderInternal",
+    "zombie.iso.fboRenderChunk.FBORenderCell.renderPlayers",
+    "zombie.iso.fboRenderChunk.FBORenderCell.renderTilesInternal",
+    "zombie.iso.weather.fx.WeatherFxMask.initMask",
+    "zombie.iso.weather.fx.WeatherFxMask.renderFxMask"
+  ],
+  "limit": "Class overlap only. This does not prove method-body conflict or active interoperability; no overrides installed."
+}

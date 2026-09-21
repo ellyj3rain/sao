@@ -941,7 +941,11 @@ local function beginObservedUse(id, agent, body, needValue, category, rationBar)
         if not committed then return false, "standing-refused" end
         admission = "desperate"
     end
-    return SAO.SourceUse.begin(id, body, place, category, admission)
+    return SAO.SourceUse.begin(id, body, place, category, admission, {
+        owner = "Controller.beginObservedUse", needValue = needValue,
+        rationBar = rationBar, desperation = desperation,
+        committed = committed, horizon = horizon, x = bx, y = by,
+    })
 end
 
 -- Each decision phase returns true only when it consumed the decision.

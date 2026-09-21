@@ -1,9 +1,9 @@
 -- Immutable decision-time evidence for tools/county_dump.py.
 --
--- This instrument observes the existing Standing election. It does not turn
--- that legacy election into a model choice and it does not invent executable
--- options. The decision document is encoded before the real election runs;
--- the result is encoded afterwards and kept in a separate field.
+-- This instrument observes Standing elections and loaded SourceUse decisions.
+-- Person, situation and offered options are encoded before the real choice;
+-- selection and the observed result stay separate. Runtime choices remain
+-- unratified, and an absent source executor is explicit coverage information.
 
 SAODecisionCapture = SAODecisionCapture or {}
 local Capture = SAODecisionCapture
@@ -204,6 +204,155 @@ local function relationsFor(members)
     return relations
 end
 
+-- Observe the actual source-selection boundary without changing its policy.
+-- The full option/person view freezes before selection, and the separate
+-- choice binds to the reservation the real executor returns. This owner exists
+-- only for the capture invocation; durable action authority remains in WS.
+function Capture.beginSourceUse(context)
+    if type(context) ~= "table" or type(context.runId) ~= "string"
+        or context.runId == "" or type(context.county) ~= "string"
+        or context.county == "" then raise("source capture requires runId and county") end
+    if Capture.sourceOwner then raise("source capture is already active") end
+    local sourceUse, world = SAO and SAO.SourceUse, SAO and SAO.WorldSources
+    if not (sourceUse and type(sourceUse.chooseOption) == "function"
+        and world and type(world.beginAction) == "function"
+        and type(world.actionOutcome) == "function") then
+        return { finish = function()
+            return '{"schema":"sao-source-decision-capture","schemaVersion":1'
+                .. ',"status":"unavailable","reason":"source-executor-not-loaded"'
+                .. ',"attemptedEvents":0,"eventCount":0,"captureFailureCount":0'
+                .. ',"failures":[],"events":[]}'
+        end }
+    end
+    local runId, county = context.runId, context.county
+    local selectOriginal, beginOriginal = sourceUse.chooseOption, world.beginAction
+    local events, failures, selectedEvents = {}, {}, {}
+    local attempted, overflow, closed = 0, false, false
+    local selectWrapped, beginWrapped, owner
+    local function failure(eventId, stage, detail)
+        failures[#failures + 1] = { eventId = eventId, stage = stage,
+            detail = detail or pendingFailure or "source capture reader failed" }
+    end
+    selectWrapped = function(offered)
+        attempted = attempted + 1
+        if attempted > 2048 then
+            if not overflow then failure(runId, "bound", "source capture exceeded 2048 events") end
+            overflow = true
+            return selectOriginal(offered)
+        end
+        local event = { id = runId .. "/source-use/" .. tostring(attempted),
+            actorId = offered.actorId, hour = offered.atHours }
+        local offeredBytes = {}
+        pendingFailure = nil
+        local captured = pcall(function()
+            event.decision = encode({ eventType = "source-use", eventId = event.id,
+                runId = runId, county = county, hours = offered.atHours,
+                person = memberSnapshot(offered.actorId),
+                situation = { county = county, hour = offered.atHours,
+                    sourceOffer = offered }, random = randomState() })
+            for _, option in ipairs(offered.options) do
+                offeredBytes[option] = encode(option)
+            end
+        end)
+        -- Observation failure must never suppress the real choice/action.
+        local selected = selectOriginal(offered)
+        if not captured then
+            failure(event.id, "decision")
+            return selected
+        end
+        pendingFailure = nil
+        local choiceCaptured = pcall(function()
+            if selected == nil then
+                event.choice = encode({ status = "declined", owner = "SAO.SourceUse.chooseOption" })
+                event.refusal = "no-option-selected"
+            else
+                if not offeredBytes[selected] or offeredBytes[selected] ~= encode(selected) then
+                    raise("selected source option changed or was not offered")
+                end
+                event.choice = encode({ status = "selected", optionId = selected.id,
+                    owner = "SAO.SourceUse.chooseOption", authorship = "runtime-policy",
+                    ratified = false })
+                selectedEvents[selected] = event
+            end
+        end)
+        if not choiceCaptured then
+            failure(event.id, "choice")
+        else
+            events[#events + 1] = event
+        end
+        return selected
+    end
+    beginWrapped = function(place, category, actorId, body, quantity, admission, selected)
+        local event = selected and selectedEvents[selected] or nil
+        if selected then selectedEvents[selected] = nil end
+        local reservation, why = beginOriginal(place, category, actorId, body,
+            quantity, admission, selected)
+        if event then
+            if reservation then
+                event.reservationId = reservation.id
+            else
+                event.refusal = tostring(why or "reservation-refused")
+            end
+        end
+        return reservation, why
+    end
+    owner = { finish = function()
+        if closed then raise("source capture already finished") end
+        closed = true
+        if sourceUse.chooseOption ~= selectWrapped or world.beginAction ~= beginWrapped then
+            failure(runId, "ownership", "source selection owner changed during capture")
+        end
+        if sourceUse.chooseOption == selectWrapped then sourceUse.chooseOption = selectOriginal end
+        if world.beginAction == beginWrapped then world.beginAction = beginOriginal end
+        Capture.sourceOwner = nil
+        local rendered = {}
+        for _, event in ipairs(events) do
+            pendingFailure = nil
+            local ok, text = pcall(function()
+                local observedAt = required("History.countyHours.source-result", function()
+                    return SAO.History.countyHours()
+                end)
+                if type(observedAt) ~= "number" or type(event.hour) ~= "number"
+                    or observedAt < event.hour then raise("source capture clock moved backwards") end
+                local result, why
+                if event.reservationId then
+                    result, why = world.actionOutcome(event.reservationId, event.actorId)
+                    if result == nil and why ~= "result-not-retained" then
+                        raise("required reader failed [WorldSources.actionOutcome]: " .. tostring(why))
+                    end
+                elseif event.refusal then
+                    result = { status = "refused", detail = event.refusal }
+                end
+                result = result or { status = "censored", detail = why or "action-not-bound" }
+                if result.at and (result.at < event.hour or result.at > observedAt) then
+                    raise("source result lies outside the observed interval")
+                end
+                return '{"schema":"sao-source-decision-event","schemaVersion":1'
+                    .. ',"runId":' .. encode(runId) .. ',"county":' .. encode(county)
+                    .. ',"eventId":' .. encode(event.id) .. ',"decision":' .. event.decision
+                    .. ',"choice":' .. event.choice .. ',"result":' .. encode(result)
+                    .. ',"observation":' .. encode({ atHours = observedAt,
+                        decisionHours = event.hour,
+                        horizon = "source-action-terminal-or-capture-end",
+                        laterConsequences = "not-observed" })
+                    .. ',"conditioning":{"status":"ineligible","reasons":'
+                    .. '["runtime-choice-not-ratified","person-knowledge-not-reconstructed",'
+                    .. '"later-consequences-not-observed"]}}'
+            end)
+            if ok then rendered[#rendered + 1] = text else failure(event.id, "result") end
+        end
+        return '{"schema":"sao-source-decision-capture","schemaVersion":1'
+            .. ',"status":"observed","attemptedEvents":' .. tostring(attempted)
+            .. ',"eventCount":' .. tostring(#rendered)
+            .. ',"captureFailureCount":' .. tostring(#failures)
+            .. ',"failures":' .. encode(failures)
+            .. ',"events":[' .. table.concat(rendered, ",") .. ']}'
+    end }
+    sourceUse.chooseOption, world.beginAction = selectWrapped, beginWrapped
+    Capture.sourceOwner = owner
+    return owner
+end
+
 function Capture.begin(context)
     if type(context) ~= "table" or type(context.runId) ~= "string"
             or type(context.county) ~= "string" then
@@ -212,6 +361,8 @@ function Capture.begin(context)
     if not (SAO and SAO.Standing and type(SAO.Standing.electLeader) == "function") then
         raise("decision capture requires Standing.electLeader")
     end
+
+    local sourceCapture = Capture.beginSourceUse(context)
 
     local standing = ModData.getOrCreate("SurvivorAwareness_Standing")
     local original = SAO.Standing.electLeader
@@ -375,6 +526,7 @@ function Capture.begin(context)
 
     return {
         finish = function()
+            local sourceCaptured = sourceCapture.finish()
             if SAO.Standing.electLeader ~= wrapped then
                 failure(context.runId .. "/capture-owner", "ownership",
                     "Standing.electLeader changed while capture was active")
@@ -387,6 +539,7 @@ function Capture.begin(context)
                 .. ',"eventCount":' .. tostring(#events)
                 .. ',"captureFailureCount":' .. tostring(#failures)
                 .. ',"failures":' .. encode(failures)
+                .. ',"sourceActions":' .. sourceCaptured
                 .. ',"events":[' .. table.concat(events, ",") .. ']}'
         end,
     }

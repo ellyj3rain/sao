@@ -1,0 +1,46 @@
+{
+  "atUtc": "2026-09-21T01:06:52.586682+00:00",
+  "actionReview": {
+    "agent": "c65_action_review",
+    "findingCounts": {
+      "critical": 0,
+      "high": 0,
+      "medium": 0,
+      "low": 0
+    },
+    "scope": "private option authority, exact selection, stable bounds, route/permission revalidation, durable lifecycle"
+  },
+  "captureReview": {
+    "agent": "c65_capture_review",
+    "findingCounts": {
+      "critical": 0,
+      "high": 0,
+      "medium": 1,
+      "low": 0
+    },
+    "resolved": [
+      {
+        "severity": "medium",
+        "problem": "Unreadable result store accepted as ordinary censoring",
+        "fix": "Only result-not-retained is censored; other required reader failures reject capture",
+        "control": "schema 6 outcome store yields zero events, one named capture failure"
+      }
+    ]
+  },
+  "validator": "c65_validate",
+  "remainingActionableFindings": 0,
+  "additionalCorrection": "Export requested quantity separately from observed native use; interrupted request records no measured consumption.",
+  "integrationRepairReview": {
+    "agent": "c65_validate",
+    "readOnly": true,
+    "blockingFindings": 0,
+    "files": [
+      "tools/player_looting_test.py",
+      "tools/county_sweep.py",
+      "tools/trajectory_simulation_test.py",
+      "tools/person_handoff_test.py"
+    ],
+    "conclusion": "Preserves exact-identity checks and handoff mutations. SourceUse is referenced by an option-owner string in the loaded module set; the explicit absent-body-executor declaration conceals no required dormant call.",
+    "runtimeVerification": "Primary serial rerun in gate-repair-validation.txt; all three affected checks exit 0."
+  }
+}

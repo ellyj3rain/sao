@@ -1,0 +1,17 @@
+==========================================================================
+LOADED MUTATIONS RECONCILE EXACT NATIVE SOURCES
+==========================================================================
+  yes  the player periodically reconciles bounded native ground
+  yes  completed loaded food reconciles its exact source
+  yes  completed loaded water reconciles its exact source
+  yes  native observations carry exact item identities and revisions
+  yes  the engine reads native item and fluid state
+  yes  the old looted-container bridge is gone
+  yes  room visits cannot spend stock
+  yes  the gate runs this border
+
+VERDICT:
+  129) player and loaded-survivor mutations rescan exact native
+       sources; item/fluid revisions replace room-sized visit counts
+
+CONTROL PASS: itemId = 0 is rejected by the named exact-identity verdict.

@@ -1,0 +1,17 @@
+{
+  "atUtc": "2026-09-21T01:06:52.586682+00:00",
+  "version": "2.8.2.0-pre-alpha",
+  "method": "tools/deploy.sh; attribution document synchronized after read-only reference review",
+  "installedFiles": 258,
+  "missing": [],
+  "extra": [],
+  "different": [],
+  "jarSha256": "91fe77163bec1a0921282d6cb8620d3678a4f6739d380319c76ab93d7771b1da",
+  "saveFiles": 44092,
+  "saveBytes": 581453390,
+  "savePathSizeMtimeUnchanged": true,
+  "companionFiles": 29,
+  "companionPathSizeMtimeSha256Unchanged": true,
+  "saveManifestSha256": "67903b45212e1be4cf87378b3f412ff48f70af4835f207c3443b82db37255f5c",
+  "companionManifestSha256": "1ff7f78bcb2e9839c4b0658489e1f25cfb605099d7eaeba67a5819265438e01c"
+}
