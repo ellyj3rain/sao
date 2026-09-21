@@ -1,0 +1,26 @@
+{
+  "atUtc": "2026-09-21T03:22:15.673479+00:00",
+  "version": "2.8.3.0-pre-alpha",
+  "installedFiles": 258,
+  "installedMatchesSource": true,
+  "jarSha256": "d9134411ca0a96de75c981e351e981bf90e2761aea891477038358d28842dd73",
+  "saveFileCount": 44092,
+  "saveMetadataUnchanged": true,
+  "companionFiles": 29,
+  "companionUnchanged": true,
+  "saveLoaded": false,
+  "evidenceBoundary": "Main-menu startup and installation verification; no loaded-save acceptance.",
+  "processId": 154252,
+  "responding": true,
+  "visibleMainMenu": true,
+  "screenshot": "startup.png",
+  "errorLineMethod": "Lines containing ERROR: in final launch stdout and stderr",
+  "startupErrorLines": 5064,
+  "saoNamedErrorLines": 0,
+  "otherModDiagnosticsPresent": true,
+  "finalSourceIsolationInstalled": true,
+  "startupErrorBreakdown": {
+    "importedSkeleton": 4986,
+    "otherErrorLines": 78
+  }
+}

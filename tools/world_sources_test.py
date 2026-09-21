@@ -269,8 +269,8 @@ PROBE_TEMPLATE = r'''(function()
       placeTwo,"food","b",bodyB,1,"standing")
   check("separate_sources_concurrent", first and second
       and first.sourceId ~= second.sourceId)
-  SAO.WorldSources.release(first.id, "control")
-  SAO.WorldSources.release(second.id, "control")
+  if first then SAO.WorldSources.release(first.id, "control") end
+  if second then SAO.WorldSources.release(second.id, "control") end
 
   SAO.Perception._known.a = { [42] = { cx = 12, cy = 20,
       sources = { food = true }, sourceAccess = { food = true } } }
@@ -348,7 +348,7 @@ PROBE_TEMPLATE = r'''(function()
   check("bounded_results", count(state.results) <= 2048
       and count(state.reservations) <= 2048
       and count(state.resultByActor) <= 2048)
-  check("schema", state.schema == 5)
+  check("schema", state.schema == 6)
   return table.concat(checks, "|")
 end)()'''
 

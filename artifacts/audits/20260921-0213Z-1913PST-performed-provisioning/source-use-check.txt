@@ -1,0 +1,33 @@
+==========================================================================
+PRIVATE SOURCE OBSERVATION BECOMES PERFORMED NATIVE USE
+==========================================================================
+PASS 41 production WorldSources transfer cases
+PASS defect control foreign-pending-source-isolation: same_chunk_acquire_acquire
+PASS defect control foreign-missing-source-isolation: foreign_missing_source_retained
+PASS defect control foreign-missing-source-membership: foreign_missing_membership_retained
+PASS defect control storage-postcondition: store_exact_addition
+PASS defect control consume-only-credit: transfer_no_need_stamp
+PASS defect control unrelated-item-conservation: concurrent_change_conflicts
+PASS defect control carried-item-conservation: carried_signature_required
+PASS defect control transfer-proof-required: no_unperformed_completion
+PASS defect control exact-choice-revalidation: forged_choice_refused
+PASS defect control reservation-capacity: reservation_bound
+PASS defect control result-capacity: protected_result_bound
+PASS defect control complete-native-category-vocabulary: native_medicine_category
+Controlled native metadata verifies Lua ownership and exact deltas; it does not establish live native transfers.
+PASS 39 production provisioning lifecycle/capture cases
+PASS lifecycle mutation authority-at-transfer: standing_revocation_prevents_mutation=false
+PASS lifecycle mutation performed-holder-proof: queue_without_move_releases=false
+PASS lifecycle mutation work-credit-idempotence: completed_work_credit_once=false
+PASS lifecycle mutation transfer-capture-binding: capture_transfer_bound=false
+PASS lifecycle mutation inspection-anchor-geometry: production_inspection_geometry=false
+PASS lifecycle mutation inspection-social-separation: production_inspection_no_attachment=false
+  durable ledger: PASS
+  shipped action lifecycle: PASS
+  static contract anchors: PASS (34 required call/form anchors present)
+  installed engine seam: PASS
+  native transfer holders: PASS (16 native checks; both-holder production mutation rejected)
+  179) exact source access and native use preserve private knowledge, current permission and revision-bound results
+
+Exit code: 0
+

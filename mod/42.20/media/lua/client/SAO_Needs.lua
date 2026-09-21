@@ -28,7 +28,39 @@ function SAOVerifiedWorldTransferAction:isValid()
         return SAOJavaBridge:containerAccessibleNow(
             self.character, self.saoWorldContainer)
     end)
-    return ok and accessible == true
+    if not ok or accessible ~= true then return false end
+    if self.saoSourceReservation then
+        local reservation = SAO.WorldSources
+            and SAO.WorldSources.reservation(self.saoSourceReservation)
+        if not reservation or reservation.status ~= "reserved"
+            or reservation.actorId ~= self.saoSourceActor then return false end
+        local located, position = pcall(function()
+            return SAOJavaBridge:worldTransferPosition(self.character,
+                self.saoWorldContainer)
+        end)
+        if not located or type(position) ~= "string" then return false end
+        local x, y, z = string.match(position, "^AT:(%-?%d+):(%-?%d+):(%-?%d+)$")
+        x, y, z = tonumber(x), tonumber(y), tonumber(z)
+        if not x or not y or not z then return false end
+        if reservation.sourceKind == "vehicle" and (not reservation.placeMinX
+            or x < reservation.placeMinX or x >= reservation.placeMaxX
+            or y < reservation.placeMinY or y >= reservation.placeMaxY) then
+            return false
+        end
+        reservation.currentSourceX, reservation.currentSourceY,
+            reservation.currentSourceZ = x, y, z
+        return SAO.Standing and SAO.Standing.mayTakeCurrent
+            and SAO.Standing.mayTakeCurrent(self.saoSourceActor, x, y,
+                reservation.admission) == true
+    end
+    return true
+end
+
+-- Vanilla may reach transferItem after its last queue validity check. Repeat
+-- the current authority check at the actual native mutation boundary.
+function SAOVerifiedWorldTransferAction:transferItem(item)
+    if not self:isValid() then self.dontAdd = true; return end
+    return ISInventoryTransferAction.transferItem(self, item)
 end
 
 function SAOVerifiedWorldTransferAction:new(
@@ -55,6 +87,12 @@ function N.worldSourceTransferAction(body, item, srcContainer,
         or worldContainer == nil then return nil end
     return worldTransfer(body, item, srcContainer, body:getInventory(),
         worldContainer)
+end
+
+function N.worldStoreTransferAction(body, item, srcContainer, destContainer)
+    if body == nil or item == nil or srcContainer == nil
+        or destContainer == nil then return nil end
+    return worldTransfer(body, item, srcContainer, destContainer, destContainer)
 end
 
 -- [C25] How far a body NOTICES (DR-027). This was the ErrandRadius
@@ -156,7 +194,7 @@ end
 
 -- Queue taking the remembered source item through the vanilla transfer
 -- action (into the body's own inventory). Java revalidates the source.
-function N.queueTake(id, body)
+function N.queueTake(id, body, context)
     if not SAOJavaBridge then return false end
     local okR, within = pcall(function()
         return SAOJavaBridge:foodSourceWithinReach(body)
@@ -165,12 +203,40 @@ function N.queueTake(id, body)
     local okI, item = pcall(function() return SAOJavaBridge:foodSourceItem(body) end)
     local okC, container = pcall(function() return SAOJavaBridge:foodSourceContainer(body) end)
     if not (okI and okC) or item == nil or container == nil then return false end
-    local queued = N.queueVerified(worldTransfer(
-        body, item, container, body:getInventory(), container))
-    if queued then
-        log(id .. " takes food from a container (vanilla transfer)")
+    if not context or context.category == "legacy" then
+        -- Medication and other older FORAGE consumers retain their native
+        -- transfer adapter until their own action family has an exact result.
+        return N.queueVerified(worldTransfer(body, item, container,
+            body:getInventory(), container))
     end
-    return queued
+    return SAO.SourceUse and SAO.SourceUse.beginTransfer(id, body, "food",
+        context.admission or "standing", item, container, "acquire", context)
+        or false
+end
+
+-- A sweep discovers a candidate, then the exact transfer owner rechecks
+-- inspection, permission and holders. Each item takes its native action.
+function N.collectNearby(id, body, radius, remaining)
+    local x, y, z = N.findSource(id, body, radius)
+    if not x then return nil end
+    local context = { purpose = "forage", category = "food", admission = "standing",
+        haulRemaining = math.max(0, math.min(3, (remaining or 1) - 1)),
+        haulRadius = math.max(1, math.min(4, radius or 4)) }
+    local ok, within = pcall(function()
+        return SAOJavaBridge:foodSourceWithinReach(body)
+    end)
+    if not ok then return nil end
+    if within then
+        return N.queueTake(id, body, context) and "TAKE" or nil, context
+    end
+    if not (SAO.Standing and SAO.Standing.mayAttemptBelieved
+        and SAO.Standing.mayAttemptBelieved(id, x, y, context.admission)) then
+        return nil
+    end
+    if SAO.Locomotion.order(id, body, x, y, z) then
+        return "FORAGE", context
+    end
+    return nil
 end
 
 -- Queue drinking the best carried drinkable through the vanilla action.
@@ -557,10 +623,9 @@ function N.depositWater(id, body)
         return SAOJavaBridge:findNearbyContainer(body, 5)
     end)
     if not okC or container == nil then return false end
-    local queued = N.queueVerified(worldTransfer(
-        body, vessels[2].item, body:getInventory(), container, container))
-    if queued then log(id .. " shelves the water") end
-    return queued
+    return SAO.SourceUse and SAO.SourceUse.beginTransfer(id, body, "water",
+        "standing", vessels[2].item, container, "store", { purpose = "storage" })
+        or false
 end
 
 -- Drawing from the house's own stored water ([B6]): a thirsty member
@@ -591,13 +656,12 @@ function N.takeStoredWater(id, body)
         end
     end)
     if not found then return false end
-    local queued = N.queueVerified(worldTransfer(
-        body, found, container, body:getInventory(), container))
-    if queued then log(id .. " draws water from the house's stores") end
-    return queued
+    return SAO.SourceUse and SAO.SourceUse.beginTransfer(id, body, "water",
+        "standing", found, container, "acquire", { purpose = "draw-water" })
+        or false
 end
 
-function N.depositSpareFood(id, body)
+function N.depositSpareFood(id, body, context)
     if not SAOJavaBridge then return false end
     local okS, item = pcall(function() return SAOJavaBridge:findSpareFood(body) end)
     if not okS or item == nil then return false end
@@ -605,15 +669,9 @@ function N.depositSpareFood(id, body)
         return SAOJavaBridge:findNearbyContainer(body, 5)
     end)
     if not okC or container == nil then return false end
-    local queued = N.queueVerified(worldTransfer(
-        body, item, body:getInventory(), container, container))
-    if queued then
-        log(id .. " stocks the stores")
-        -- Queue acceptance is not shelving. The existing TAKE completion
-        -- lacks an exact post-container receipt, so it earns no material or
-        -- recognition credit until that R7 action family is repaired.
-    end
-    return queued
+    return SAO.SourceUse and SAO.SourceUse.beginTransfer(id, body, "food",
+        "standing", item, container, "store", context or { purpose = "storage" })
+        or false
 end
 
 -- Queue reloading the equipped gun through the vanilla action (sources

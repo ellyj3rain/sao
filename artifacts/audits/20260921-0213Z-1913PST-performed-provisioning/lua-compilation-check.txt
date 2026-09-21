@@ -1,0 +1,7 @@
+==========================================================================
+THE ENGINE'S OWN PARSER, NORMAL AND DEBUG MODES
+==========================================================================
+  controls: malformed syntax; 200/201 locals in both modes; compiled mode omission; nonzero, empty, truncated and repeated reports
+
+VERDICT:
+  50) lua syntax: all 76 shipped Lua files compile in normal and debug modes (152 verified verdicts)

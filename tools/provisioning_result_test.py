@@ -687,7 +687,7 @@ PROBE = r'''(function()
   world = __stores[WORLD_STORE]
   local legacyResult = delivered('legacy')
   local legacyOk, legacyWhy = SAO.Provisioning.processReceipt(legacyResult)
-  check('schema3_results_migrate_unattributed', world.schema == 5
+  check('schema3_results_migrate_unattributed', world.schema == 6
     and legacyResult.provisioningContext == 'legacy-unattributed'
     and world.reservations.post.provisioningContext == 'legacy-unattributed'
     and legacyOk and legacyWhy == 'legacy-unattributed'
@@ -1053,7 +1053,7 @@ def contract(texts: dict[str, str]) -> bool:
     claim_revalidation = provisioning.find("local effectiveContext = context")
     source_absence = provisioning.find('sourceState == "source-absent"')
     return all((
-        "if priorSchema > 5 then" in texts["world"],
+        "if priorSchema > 6 then" in texts["world"],
         'receipt.provisioningContext = "legacy-unattributed"' in texts["world"],
         "sourceFingerprint = reservation.fingerprint" in texts["world"],
         "provisioningContext = reservation.provisioningContext" in texts["world"],
@@ -1229,7 +1229,7 @@ def static_controls() -> tuple[bool, list[str]]:
     if not contract(baseline):
         return False, ["baseline production contract incomplete"]
     controls = [
-        ("schema migration removed", "world", "if priorSchema > 5 then",
+        ("schema migration removed", "world", "if priorSchema > 6 then",
          "if priorSchema > 4 then"),
         ("ambient source change queue removed", "world",
          "function WS.pendingProjectionChanges(limit)",
@@ -1410,9 +1410,9 @@ def static_controls() -> tuple[bool, list[str]]:
          "local function dormantProvision()",
          "local function dormantProvision()\n    SAO.Standing.setLarder(g, 'full')"),
         ("queue acceptance credits shelving", "needs",
-         'log(id .. " stocks the stores")',
-         'SAO.Recognition.onShelved(id, nil, "food", 1)\n'
-         '        log(id .. " stocks the stores")'),
+         'function N.depositSpareFood(id, body, context)',
+         'function N.depositSpareFood(id, body, context)\n'
+         '    SAO.Recognition.onShelved(id, nil, "food", 1)'),
         ("population retry removed", "population",
          'runSub("provision-results", consumeProvisioningResults)',
          "-- result consumer removed"),

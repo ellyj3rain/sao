@@ -44,6 +44,15 @@ local function refreshDisprovedSource(id, body, reservation, reason)
     local learned = false
     pcall(function()
         local place = SAO.Places.at(reservation.placeX, reservation.placeY)
+        if reservation.placeSourceId and SAO.Perception.learnInspectedSource then
+            place = { id = reservation.placeId, sourceId = reservation.placeSourceId,
+                cx = reservation.placeX, cy = reservation.placeY, z = reservation.placeZ,
+                minX = reservation.placeMinX, minY = reservation.placeMinY,
+                maxX = reservation.placeMaxX, maxY = reservation.placeMaxY }
+            learned = SAO.Perception.learnInspectedSource(id, place, reservation.sourceId,
+                SAO.History.ticks(), "source-revalidation") == true
+            return
+        end
         if place and tostring(place.id) == tostring(reservation.placeId) then
             learned = SAO.Perception.learnSource(id, place,
                 reservation.sourceId, SAO.History.ticks(),
@@ -213,6 +222,13 @@ end
 
 local function queueTransfer(id, body, reservation)
     local okBind, answer = pcall(function()
+        if reservation.operation == "store" then
+            return SAOJavaBridge:bindWorldStoreAction(body,
+                reservation.sourceId, reservation.fingerprint,
+                reservation.revision, reservation.itemId,
+                reservation.itemType, reservation.sourceX,
+                reservation.sourceY, reservation.sourceZ)
+        end
         return SAOJavaBridge:bindWorldSourceAction(body,
             reservation.sourceId, reservation.fingerprint,
             reservation.revision, reservation.itemId,
@@ -290,7 +306,22 @@ local function queueTransfer(id, body, reservation)
         return false, "REVISION_CHANGED"
     end
     local action = nil
-    if reservation.sourceKind == "ground" then
+    if reservation.operation == "store" then
+        local okItem, item = pcall(function()
+            return SAOJavaBridge:worldSourceActionItem(body)
+        end)
+        local okOrigin, origin = pcall(function()
+            return SAOJavaBridge:worldSourceActionOriginContainer(body)
+        end)
+        local okDestination, destination = pcall(function()
+            return SAOJavaBridge:worldSourceActionContainer(body)
+        end)
+        if okItem and okOrigin and okDestination and item ~= nil
+            and origin ~= nil and destination ~= nil then
+            action = SAO.Needs.worldStoreTransferAction(body, item,
+                origin, destination)
+        end
+    elseif reservation.sourceKind == "ground" then
         local okWorld, worldItem = pcall(function()
             return SAOJavaBridge:worldSourceActionWorldItem(body)
         end)
@@ -313,6 +344,10 @@ local function queueTransfer(id, body, reservation)
                 sourceContainer, permissionContainer)
         end
     end
+    if action then
+        action.saoSourceReservation = reservation.id
+        action.saoSourceActor = tostring(id)
+    end
     if action == nil or not SAO.Needs.queueVerified(action) then
         clearBinding(body)
         return false, "exact-transfer-not-queued"
@@ -320,6 +355,43 @@ local function queueTransfer(id, body, reservation)
     SAO.WorldSources.setPhase(reservation.id, id, "transferring")
     log(tostring(id) .. " transfers exact item "
         .. tostring(reservation.itemType) .. " from " .. reservation.sourceId)
+    return true
+end
+
+-- Existing collection/storage decisions supply their currently inspected
+-- item and container. WorldSources freezes and revalidates that exact offer;
+-- the same reservation used for native consumption owns the transfer.
+function SU.beginTransfer(id, body, category, admission, item, container,
+                          operation, decisionContext)
+    local offered, why = SAO.WorldSources.transferOptions(id, body, category,
+        admission, item, container, operation)
+    if not offered then return false, why end
+    offered.context = decisionContext
+    local selected = SU.chooseOption(offered)
+    if not selected then return false, "no-option-selected" end
+    local reservation
+    reservation, why = SAO.WorldSources.beginTransfer(id, body, category,
+        admission, item, container, operation, selected)
+    if not reservation then return false, why end
+    -- Only bounded scalar policy context enters the durable action. Engine
+    -- objects and the offer table remain runtime inputs.
+    local context = decisionContext or {}
+    reservation.transferPurpose = tostring(context.purpose or operation)
+    reservation.haulRemaining = math.max(0, math.min(3,
+        tonumber(context.haulRemaining) or 0))
+    reservation.haulRadius = math.max(1, math.min(4,
+        tonumber(context.haulRadius) or 4))
+    reservation.deliveryGroup = context.deliveryGroup
+        and tostring(context.deliveryGroup) or nil
+    reservation.requestedByGroup = context.requestedByGroup
+        and tostring(context.requestedByGroup) or nil
+    reservation.initialTransferProjection = true
+    local queued
+    queued, why = queueTransfer(id, body, reservation)
+    if not queued then
+        fail(id, body, reservation, why)
+        return false, why
+    end
     return true
 end
 
@@ -430,6 +502,15 @@ local function finalize(id, body, reservation)
     -- still carries both sides of this action's revision boundary.
     pcall(function()
         local place = SAO.Places.at(reservation.placeX, reservation.placeY)
+        if reservation.placeSourceId and SAO.Perception.learnInspectedSource then
+            place = { id = reservation.placeId, sourceId = reservation.placeSourceId,
+                cx = reservation.placeX, cy = reservation.placeY, z = reservation.placeZ,
+                minX = reservation.placeMinX, minY = reservation.placeMinY,
+                maxX = reservation.placeMaxX, maxY = reservation.placeMaxY }
+            SAO.Perception.learnInspectedSource(id, place, reservation.sourceId,
+                SAO.History.ticks(), "observed-transfer")
+            return
+        end
         if place and tostring(place.id) == tostring(reservation.placeId) then
         SAO.Perception.learnSource(id, place, reservation.sourceId,
             SAO.History.ticks(), "observed-source")
@@ -437,6 +518,15 @@ local function finalize(id, body, reservation)
     end)
     local receipt = SAO.WorldSources.finishAction(reservation.id, id)
     if not receipt then return fail(id, body, reservation, "result-refused") end
+    if receipt.status == "completed" and (reservation.operation == "acquire"
+        or reservation.operation == "store") then
+        -- The durable result is published before this one-shot callback.
+        -- Replayed delivery cannot award experience or social credit again.
+        if SAO.Controller and SAO.Controller.provisioningCompleted then
+            pcall(SAO.Controller.provisioningCompleted, id, body,
+                receipt, reservation)
+        end
+    end
     -- R9 is a downstream consumer. Failure leaves this receipt unacknowledged
     -- for the population cadence/reload retry; it never rewrites action truth.
     if receipt.status == "completed" and SAO.Provisioning
@@ -450,11 +540,54 @@ local function finalize(id, body, reservation)
     return receipt.status
 end
 
+local function transferState(body, reservation)
+    if reservation.operation == "store" then
+        local ok, state = pcall(function()
+            return SAOJavaBridge:worldStoreTransferState(body,
+                reservation.sourceId, reservation.fingerprint,
+                reservation.itemId, reservation.itemType,
+                reservation.currentSourceX or reservation.sourceX,
+                reservation.currentSourceY or reservation.sourceY,
+                reservation.currentSourceZ or reservation.sourceZ)
+        end)
+        return ok and tostring(state) or "UNAVAILABLE"
+    end
+    if carriedItem(body, reservation) ~= nil then
+        if not SAO.WorldSources.carriedTransferMatches(reservation, body) then
+            return "CONFLICT"
+        end
+        return "TRANSFERRED"
+    end
+    return "SOURCE"
+end
+
+local function settleTransfer(id, body, reservation, interrupted)
+    local state = transferState(body, reservation)
+    if state == "UNAVAILABLE" then return "pending" end
+    if state == "TRANSFERRED" then
+        SAO.WorldSources.markTransferred(reservation.id, id)
+        SAO.WorldSources.markNative(reservation.id, id, "completed", 1,
+            "native-transfer-observed")
+        return finalize(id, body, reservation)
+    end
+    if state == "CONFLICT" then
+        return fail(id, body, reservation, "transfer-holder-conflict")
+    end
+    -- Clearing or draining a queue does not establish a physical transfer.
+    SAO.WorldSources.release(reservation.id,
+        interrupted or "native-transfer-not-performed")
+    clearBinding(body)
+    return "released"
+end
+
 function SU.tick(id, body)
     local reservation = reservationFor(id)
     if not reservation then return "failed" end
     if reservation.phase == "transferring" then
         if SAO.Needs.busy(body) then return "pending" end
+        if reservation.operation == "acquire" or reservation.operation == "store" then
+            return settleTransfer(id, body, reservation)
+        end
         local queued, why, reconcile = queueNativeUse(id, body, reservation)
         if not queued then
             if reconcile then return finalize(id, body, reservation) end
@@ -504,6 +637,24 @@ function SU.resume(id, body)
         -- second leg beside the action already owned by the body.
         return "SOURCEUSE"
     end
+    if reservation.operation == "acquire" or reservation.operation == "store" then
+        local state = transferState(body, reservation)
+        if state == "UNAVAILABLE" then return "SOURCEUSE" end
+        if state == "CONFLICT" then
+            fail(id, body, reservation, "resume-transfer-holder-conflict")
+            return nil
+        end
+        if reservation.transferProven or state == "TRANSFERRED" then
+            local outcome = settleTransfer(id, body, reservation)
+            return outcome == "pending" and "SOURCEUSE" or nil
+        end
+        -- Rebind the original revision and holders before a resumed native
+        -- transfer. Never reconstruct or add an absent item during recovery.
+        local queued, why = queueTransfer(id, body, reservation)
+        if queued then return "SOURCEUSE" end
+        fail(id, body, reservation, "resume-transfer:" .. tostring(why))
+        return nil
+    end
     if reservation.phase == "using" and reservation.transferProven
         and carriedItem(body, reservation) == nil then
         -- Transfer is proven, but absence from inventory cannot distinguish
@@ -543,6 +694,12 @@ function SU.interrupt(id, body, reason)
         local outcome = finalize(id, body, reservation)
         if reason == "death" and outcome == "pending" then
             fail(id, body, reservation, "death-before-source-reconcile")
+        end
+    elseif reservation.operation == "acquire" or reservation.operation == "store" then
+        local outcome = settleTransfer(id, body, reservation,
+            reason or "transfer-interrupted")
+        if reason == "death" and outcome == "pending" then
+            fail(id, body, reservation, "death-before-transfer-reconcile")
         end
     elseif reservation.transferProven
         or ((reservation.phase == "transferring"
@@ -594,6 +751,11 @@ function SU.beforeStateChange(id, body, fromState, toState, reason)
     fromState, toState = tostring(fromState or ""), tostring(toState or "")
     local reservation = reservationFor(id)
     if not reservation then return true end
+    if reservation.initialTransferProjection and toState == "TAKE"
+        and reservation.phase == "transferring" then
+        reservation.initialTransferProjection = nil
+        return true
+    end
     -- SourceUse.begin durably creates the owner and its first route before the
     -- Controller can project SOURCEWARD. This is the initial projection of
     -- that same action, not an exit that should cancel it.

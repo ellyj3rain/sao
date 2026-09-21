@@ -63,6 +63,34 @@ def strip_lua_comments(text):
         for line in text.split("\n"))
 
 
+def finder_bodies(needs):
+    return [match for match in re.finditer(
+        r"^function N\.(find\w+)\(([^)]*)\)(.*?)(?=^function |\Z)",
+        strip_lua_comments(needs), re.M | re.S)
+        if re.search(r"\bradius\b", match.group(2))]
+
+
+def finder_defaults(needs):
+    # Every radius-bearing discovery function has its own native-call default.
+    # An absent default is a finding even when the other finders are correct.
+    return {match.group(1): [value for call in re.findall(
+                r"SAOJavaBridge:\w+\([^)]*\)", match.group(3))
+            for value in re.findall(r"radius\s+or\s+([A-Za-z_.0-9]+)(?=\s*[,\)])", call)]
+            for match in finder_bodies(needs)}
+
+
+def private_belief_source(world):
+    for name in ("nearestBelieved", "nearestObserved"):
+        function = re.search(r"^function WS\." + name
+            + r"\([^)]*\)(.*?)(?=^function |^local function |\Z)",
+            strip_lua_comments(world), re.M | re.S)
+        if not function or not re.search(
+                r"SAO\.Perception\.knownPlaces\(id(?:,\s*true)?\)",
+                function.group(1)):
+            return False
+    return True
+
+
 def main():
     faults = []
     print("=" * 74)
@@ -98,8 +126,8 @@ def main():
         faults.append("the probe span is not named PERCEPTION_TILES in "
                       "the needs module - a bare number is a leash with "
                       "the label torn off")
-    finders = re.findall(r"radius or ([A-Za-z_.0-9]+)\)", needs)
-    if len(finders) < 4 or any(f != "N.PERCEPTION_TILES" for f in finders):
+    finders = finder_defaults(needs)
+    if len(finders) < 4 or any(values != ["N.PERCEPTION_TILES"] for values in finders.values()):
         faults.append("not every finder defaults its probe to "
                       f"PERCEPTION_TILES (saw {finders}) - one finder on "
                       "a different span is a second, secret dial")
@@ -135,8 +163,7 @@ def main():
             or "* 1.5" not in places:
         faults.append("the comfort/commit horizon pair is not derived "
                       "from the cell span")
-    if "function WS.nearestBelieved" not in world \
-            or "SAO.Perception.knownPlaces(id)" not in world:
+    if not private_belief_source(world):
         faults.append("known-source selection does not start from the "
                       "asker's private place beliefs")
     if "belief.sources and belief.sources[category]" not in world:
@@ -164,6 +191,19 @@ def main():
         faults.append("dormant need never cuts ahead of curiosity - a "
                       "dying walker roams for novelty while the county "
                       "knows where the water is")
+
+    for finder in finder_bodies(needs):
+        for replacement in ("radius or 4", "4"):
+            changed = finder.group(3).replace("radius or N.PERCEPTION_TILES",
+                                              replacement, 1)
+            case = "function N." + finder.group(1) + "(" + finder.group(2) + ")" + changed
+            if finder_defaults(case).get(finder.group(1)) == ["N.PERCEPTION_TILES"]:
+                faults.append("CONTROL: wrong or removed native default survived for "
+                              + finder.group(1))
+    wrong_actor = world.replace("SAO.Perception.knownPlaces(id",
+                                'SAO.Perception.knownPlaces("someone-else"', 1)
+    if private_belief_source(wrong_actor):
+        faults.append("CONTROL: another person's belief lookup was not detected")
 
     print()
     print("VERDICT:")
