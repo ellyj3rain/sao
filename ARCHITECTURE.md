@@ -1,6 +1,6 @@
 | Document | Survivor Awareness Overhaul Architecture |
 |---|---|
-| Version | `2.8.7.0-pre-alpha` |
+| Version | `2.8.8.0-pre-alpha` |
 | Author | ellyj3rain |
 | Repository | `ARCHITECTURE.md` |
 | Status | ACTIVE - ratified framework shape. |
@@ -582,6 +582,27 @@ as Doctor experience while the actor body is absent, without repeating the
 channels already consumed. A pending record with no current action handle stays
 pending and reserved; neither time nor the patient's later appearance proves
 who treated the wound. Death and body-ownership exit release unfinished work.
+
+## Private inventory observation (C71)
+
+The engine owns inventory state and movement. `SAOPrivateInventory` is a
+call-site view: it recursively reads one person's native carriage and the
+loaded static, vehicle, ground and corpse holders that person's decisions may
+consult. Native item IDs, direct parents and persistent world-source holder IDs
+remain distinct. The view is never persisted, never shared between people and
+never executes a transfer.
+
+Loaded world coverage is bounded and actor-specific. Vehicle permission is
+evaluated for the named body, unexplored contents are unknown, and inaccessible
+holders refuse. Dormant v4 coverage contains exact carriage only; world holders
+are unknown. The encoded contract refuses aggregate stock, so a current radius
+cannot become a household larder or water claim. Standing accepts those totals
+only from a completed Material reconciliation with explicit complete coverage.
+
+Decision readers use exact item objects from the view. A nested item keeps its
+direct source container for native transfer and its root holder for permission.
+Existing SourceUse, Handover, Treatment and engine timed-action owners retain
+mutation and completion authority.
 
 ## Recipient appraisal after testimony (C69)
 

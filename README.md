@@ -38,7 +38,7 @@ on the simulation.
 
 ## Status
 
-`2.8.7.0-pre-alpha` - the coordinate is computed by the version machine
+`2.8.8.0-pre-alpha` - the coordinate is computed by the version machine
 (`tools/version_replay.py`), never picked; `VERSION_MAP.md` shows the
 classification and the arithmetic.
 
@@ -122,8 +122,11 @@ explicit claim and relationships. The teller's feeling does not travel and the
 new response creates no automatic trust or debt. C70 binds self, survivor and
 player open-wound care to the exact patient and vanilla bandage result; trust,
 care experience, voice and critical-care choreography follow only an effective
-dressing, with reload-safe one-time receipts. Complete inventory, other medical
-verbs, remaining material actions and settlement development stay under R7-R9.
+dressing, with reload-safe one-time receipts. C71 gives decisions one recursive
+actor-private view of carried, container, vehicle, ground and corpse inventory,
+with exact v4 dormant carriage and no inferred house totals. Dormant world
+access, other medical verbs, remaining material actions and settlement
+development stay under R7-R9.
 `ROADMAP.md` preserves the remaining social and learned-model obligations.
 
 ## Requirements

@@ -37,7 +37,7 @@ local S = SAO.Standing
 -- discovered.
 S.FEUD_KEEP_OUT = 30   -- will not settle this close to a feuding company
 S.FEUD_DETOUR = 20     -- a day's walk bends away at this range
-local STANDING_SCHEMA = 3
+local STANDING_SCHEMA = 4
 local C63_STANDING_PROVENANCE =
     "initialized at C63 upgrade from represented C62 state; no earlier history inferred"
 
@@ -108,6 +108,32 @@ local function migratePartialMaterialClaims(s, priorSchema)
     }
 end
 
+local function migrateInferredMaterialClaims(s, priorSchema)
+    local retiredLarders, retiredWaterStores = 0, 0
+    for _, meta in pairs(s.groupMeta) do
+        if type(meta) == "table" then
+            if type(meta.larder) == "table"
+                and meta.larder.basis ~= "completed-native-source-results" then
+                meta.larder = nil
+                retiredLarders = retiredLarders + 1
+            end
+            if type(meta.waterStore) == "table"
+                and meta.waterStore.basis
+                    ~= "completed-native-source-results" then
+                meta.waterStore = nil
+                retiredWaterStores = retiredWaterStores + 1
+            end
+        end
+    end
+    s.migrations.c71InferredMaterialCorrection = {
+        fromSchema = priorSchema,
+        toSchema = STANDING_SCHEMA,
+        provenance = "C71 retires house totals inferred from bounded private inventory",
+        retiredInferredLarders = retiredLarders,
+        retiredInferredWaterStores = retiredWaterStores,
+    }
+end
+
 local function store()
     local ok, s = pcall(function() return ModData.getOrCreate("SurvivorAwareness_Standing") end)
     if not ok or type(s) ~= "table" then return nil end
@@ -125,6 +151,9 @@ local function store()
     if priorSchema < 3 then
         migratePartialMaterialClaims(s, priorSchema)
     end
+    if priorSchema < 4 then
+        migrateInferredMaterialClaims(s, priorSchema)
+    end
     if priorSchema < STANDING_SCHEMA then
         s.schema = STANDING_SCHEMA
     end
@@ -139,6 +168,16 @@ end
 local function materialWriteAllowed(evidence)
     return materialEnabled() or (type(evidence) == "table"
         and evidence.materialProjectionEnabled == true)
+end
+
+local function completeMaterialClaimAllowed(basis, evidence)
+    return materialWriteAllowed(evidence)
+        and tostring(basis or "") == "completed-native-source-results"
+        and type(evidence) == "table"
+        and evidence.completeCoverage == true
+        and evidence.reservationId ~= nil
+        and evidence.sourceId ~= nil
+        and tonumber(evidence.materialGeneration) ~= nil
 end
 
 local function materialEvidence(evidence)
@@ -1285,25 +1324,11 @@ local function reviewElectionWork(s, groupName, members)
                         if okRaw then evidence = tonumber(raw45) or 0 end
                     end
                 elseif job == "quartermaster" then
-                    -- [B25] The quartermaster IS judgeable, and [B25]
-                    -- was wrong to say otherwise. All three of the
-                    -- house's counts - larder, water, hearth - are
-                    -- made in their branch and nowhere else. Those
-                    -- counts are what [B23] reads for council or
-                    -- flight, [B23] for the ask, [A26] for the
-                    -- ration policy and [B13] to fill a gap. They are
-                    -- the house's eyes on its own supplies.
-                    --
-                    -- The failure is a STALE count: all three age out
-                    -- at 48 hours, so a claim that exists and has
-                    -- expired means the rounds stopped. A claim that
-                    -- never existed is NOT counted against them - a
-                    -- house that just formed has given nobody time.
-                    --
-                    -- And it separates bad work from a bad world,
-                    -- which is [B21]'s whole standard: an empty world
-                    -- still gets counted, as lean, as dry, as dark.
-                    -- Only an absent quartermaster leaves no count.
+                    -- [C71] Only complete material reconciliation may
+                    -- author larder and water claims. The quartermaster's
+                    -- bounded private view can guide action but cannot make
+                    -- a house total. Existing complete claims and the real
+                    -- hearth observation remain judgeable by staleness.
                     evidence = -1
                     if materialEnabled() then
                         local okQH, qh = pcall(function()
@@ -3003,7 +3028,7 @@ end
 -- The water claim ([B6]): what the house knows it has to drink -
 -- read at the same rounds as the shelves, aged the same way.
 function S.setWaterStore(groupName, word, units, basis, evidence)
-    if not materialWriteAllowed(evidence) then return false end
+    if not completeMaterialClaimAllowed(basis, evidence) then return false end
     local s = store(); if not s then return false end
     s.groupMeta = s.groupMeta or {}
     local meta = s.groupMeta[tostring(groupName)] or {}
@@ -3036,7 +3061,7 @@ function S.waterStoreOf(groupName)
 end
 
 function S.setLarder(groupName, word, count, basis, evidence)
-    if not materialWriteAllowed(evidence) then return false end
+    if not completeMaterialClaimAllowed(basis, evidence) then return false end
     local s = store(); if not s then return false end
     s.groupMeta = s.groupMeta or {}
     local meta = s.groupMeta[tostring(groupName)] or {}
@@ -3148,9 +3173,8 @@ end
 -- in its next bulletin, once a day at most.
 -- Does this survivor actually possess a receiver? Nothing conjured
 -- ([A27]): a LOADED body is scanned for a real device item; an
--- unloaded record answers from claims - the kit that granted a
--- handset (rec.hasRadio) or a hibernation pack physically holding
--- one. A never-met person owns nothing yet and hears nothing; reach
+-- dormant body answers from its validated native manifest. A never-met
+-- person owns nothing yet and hears nothing; reach
 -- crystallizes with lives, like every possession.
 -- [B27] `body` is optional and exists for one reason: the player
 -- owns a radio the same way a survivor does - by carrying one - but
@@ -3162,7 +3186,7 @@ function S.ownsRadio(id, body)
     if body then
         local found = false
         pcall(function()
-            local items = body:getInventory():getItems()
+            local items = SAOJavaBridge:privateCarriedItems(body)
             for i = 0, items:size() - 1 do
                 local it = items:get(i)
                 -- [B42] ASK before calling. `getDeviceData` is declared
@@ -3183,12 +3207,9 @@ function S.ownsRadio(id, body)
                     end)
                     if not okD then dd = nil end
                 end
-                if dd then
-                    local ft = tostring(it:getFullType() or "")
-                    if ft:find("Walkie") or ft:find("Radio") then
-                        found = true
-                        break
-                    end
+                if dd and SAOJavaBridge:privateItemIsRadio(it) then
+                    found = true
+                    break
                 end
             end
         end)
@@ -3197,9 +3218,11 @@ function S.ownsRadio(id, body)
     local rec = SAO.Identity and SAO.Identity.get
         and SAO.Identity.get(id) or nil
     if not rec then return false end
-    if rec.hasRadio ~= nil then return rec.hasRadio == true end
-    return type(rec.hibernation) == "string"
-        and rec.hibernation:find("WalkieTalkie") ~= nil
+    if not SAOJavaBridge or rec.hibernation == nil then return false end
+    local ok, has = pcall(function()
+        return SAOJavaBridge:privateDormantHasRadio(rec.hibernation)
+    end)
+    return ok and has == true
 end
 
 function S.hearPlayerOnAir(playerKey)

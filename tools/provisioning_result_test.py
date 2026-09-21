@@ -805,7 +805,7 @@ STANDING_PROBE = r'''(function()
   local migrated = __stores[key]
   local receipt = migrated.migrations
     and migrated.migrations.c63LegacyMaterialClaims or nil
-  check('standing_legacy_false_claims_retired', migrated.schema == 3
+  check('standing_legacy_false_claims_retired', migrated.schema == 4
     and migrated.groupMeta.old.larder == nil
     and migrated.groupMeta.old.waterStore == nil
     and migrated.groupMeta.old.hearth == nil
@@ -835,16 +835,21 @@ STANDING_PROBE = r'''(function()
   local corrected = __stores[key]
   local correction = corrected.migrations
     and corrected.migrations.c64PartialMaterialCorrection or nil
-  check('standing_partial_projection_claims_retired', corrected.schema == 3
+  local inferredCorrection = corrected.migrations
+    and corrected.migrations.c71InferredMaterialCorrection or nil
+  check('standing_partial_projection_claims_retired', corrected.schema == 4
     and corrected.groupMeta.partial.larder == nil
     and corrected.groupMeta.partial.waterStore == nil
-    and corrected.groupMeta.scanned.larder.word == 'fair'
-    and corrected.groupMeta.scanned.waterStore.word == 'fair'
+    and corrected.groupMeta.scanned.larder == nil
+    and corrected.groupMeta.scanned.waterStore == nil
     and correction and correction.retiredPartialLarders == 1
-    and correction.retiredPartialWaterStores == 1)
+    and correction.retiredPartialWaterStores == 1
+    and inferredCorrection and inferredCorrection.retiredInferredLarders == 1
+    and inferredCorrection.retiredInferredWaterStores == 1)
   __stores[key] = migrated
   local eventEvidence = { reservationId='standing-event', sourceId='source-a',
-    at=250, order=1, materialProjectionEnabled=true, materialGeneration=1 }
+    at=250, order=1, materialProjectionEnabled=true, materialGeneration=1,
+    completeCoverage=true }
   SAO.Standing.setLarder('old','lean',0,
     'completed-native-source-results',eventEvidence)
   SAO.Standing.setWaterStore('old','dry',0,
@@ -857,41 +862,42 @@ STANDING_PROBE = r'''(function()
   local eventTimeStable = migrated.groupMeta.old.larder.atHours == 250
     and migrated.groupMeta.old.waterStore.atHours == 250
   local scanEvidence = { at=500, materialGeneration=1 }
-  SAO.Standing.setLarder('old','full',9,
+  local scanLarder = SAO.Standing.setLarder('old','full',9,
     'quartermaster-native-scan',scanEvidence)
-  SAO.Standing.setWaterStore('old','full',9,
+  local scanWater = SAO.Standing.setWaterStore('old','full',9,
     'quartermaster-native-scan',scanEvidence)
   SAO.Standing.setLarder('old','lean',0,
     'completed-native-source-results',eventEvidence)
   SAO.Standing.setWaterStore('old','dry',0,
     'completed-native-source-results',eventEvidence)
-  local scanSupersededOldEvent = migrated.groupMeta.old.larder.word == 'full'
-    and migrated.groupMeta.old.waterStore.word == 'full'
-    and migrated.groupMeta.old.larder.atHours == 500
-    and migrated.groupMeta.old.waterStore.atHours == 500
+  local boundedScanRefused = scanLarder == false and scanWater == false
+    and migrated.groupMeta.old.larder.word == 'lean'
+    and migrated.groupMeta.old.waterStore.word == 'dry'
+    and migrated.groupMeta.old.larder.atHours == 250
+    and migrated.groupMeta.old.waterStore.atHours == 250
   local aggregateEvidence = { reservationId='standing-event-2',
     sourceId='source-b', at=260, order=2, materialProjectionEnabled=true,
-    materialGeneration=2 }
+    materialGeneration=2, completeCoverage=true }
   SAO.Standing.setLarder('old','lean',1,
     'completed-native-source-results',aggregateEvidence)
   SAO.Standing.setWaterStore('old','dry',1,
     'completed-native-source-results',aggregateEvidence)
-  local staleNewGenerationRejected =
-    migrated.groupMeta.old.larder.word == 'full'
-    and migrated.groupMeta.old.waterStore.word == 'full'
-    and migrated.groupMeta.old.larder.atHours == 500
-    and migrated.groupMeta.old.waterStore.atHours == 500
+  local nextGenerationAccepted =
+    migrated.groupMeta.old.larder.word == 'lean'
+    and migrated.groupMeta.old.waterStore.word == 'dry'
+    and migrated.groupMeta.old.larder.atHours == 260
+    and migrated.groupMeta.old.waterStore.atHours == 260
   local freshAggregate = { reservationId='standing-event-3',
     sourceId='source-b', at=600, order=3, materialProjectionEnabled=true,
-    materialGeneration=3 }
+    materialGeneration=3, completeCoverage=true }
   SAO.Standing.setLarder('old','lean',1,
     'completed-native-source-results',freshAggregate)
   SAO.Standing.setWaterStore('old','dry',1,
     'completed-native-source-results',freshAggregate)
   __historyHours = 600
   check('standing_evidence_time_and_cross_producer_order', eventTimeStable
-    and scanSupersededOldEvent
-    and staleNewGenerationRejected
+    and boundedScanRefused
+    and nextGenerationAccepted
     and migrated.groupMeta.old.larder.word == 'lean'
     and migrated.groupMeta.old.waterStore.word == 'dry'
     and migrated.groupMeta.old.larder.atHours == 600
@@ -930,12 +936,12 @@ STANDING_PROBE = r'''(function()
     and migrated.groupMeta.old.hearth == retainedHearth
     and visibleLarder == retainedLarder and visibleWater == retainedWater
     and visibleHearth == retainedHearth)
-  __stores[key] = { schema=4, marker='unchanged', groupMeta={
+  __stores[key] = { schema=5, marker='unchanged', groupMeta={
     future={ larder={ word='full', count=9, atHours=240 } } } }
   local futureLarder = SAO.Standing.larderOf('future')
   local future = __stores[key]
   check('future_standing_schema_refuses_without_mutation',
-    futureLarder == nil and future.schema == 4 and future.marker == 'unchanged'
+    futureLarder == nil and future.schema == 5 and future.marker == 'unchanged'
     and future.groupMeta.future.larder.count == 9 and future.migrations == nil)
   return table.concat(checks,'|')
 end)()'''
@@ -1163,12 +1169,13 @@ def contract(texts: dict[str, str]) -> bool:
         in texts["standing"],
         "migrateLegacyMaterialClaims(s, priorSchema)" in texts["standing"],
         "migratePartialMaterialClaims(s, priorSchema)" in texts["standing"],
+        "migrateInferredMaterialClaims(s, priorSchema)" in texts["standing"],
         "claim.claimIncarnation = claimSequence" in texts["standing"],
         "claimIncarnation = claimIncarnation," in texts["standing"],
         "return \"held-group\", tostring(groupName), claim.claimIncarnation"
         in texts["standing"],
         "completed-native-source-results" in provisioning,
-        "quartermaster-native-scan" in texts["controller"],
+        "quartermaster-native-scan" not in texts["controller"],
         "SAO.Material.forgetHouse(groupName)" in texts["standing"],
         "SAO.Settlement.clearStorageProjection(groupName)" in texts["standing"],
         "function S.setLarder(groupName, word, count, basis, evidence)"
@@ -1177,15 +1184,15 @@ def contract(texts: dict[str, str]) -> bool:
             "if not materialEnabled() then return nil end") >= 3,
         "evidence = -1\n                    if materialEnabled() then"
         in texts["standing"],
-        "if not materialWriteAllowed(evidence) then return false end"
+        "if not completeMaterialClaimAllowed(basis, evidence) then return false end"
         in texts["standing"],
         "materialEvidenceSuperseded(meta.larder, basis, atHours, resultOrder,"
         in texts["standing"],
         "return priorGeneration > generation" in texts["standing"],
         "local bothProjection = prior.basis == projectionBasis"
         in texts["standing"],
-        "and SAO.Material.houseProjectionGeneration" in texts["controller"],
-        '"quartermaster-native-scan", qEvidence' in texts["controller"],
+        "privateInventoryLoaded(body, 12)" in texts["controller"],
+        'inventory5:find("aggregate=refused", 1, true)' in texts["controller"],
         "SAO.Standing.setLarder(g" not in texts["dormant"],
         "SAO.Standing.setWaterStore(g" not in texts["dormant"],
         "SAO.Recognition.onShelved" not in texts["needs"],
@@ -1394,7 +1401,7 @@ def static_controls() -> tuple[bool, list[str]]:
          "if not materialEnabled() then return nil end",
          "if false then return nil end"),
         ("material toggle permits standing writes", "standing",
-         "if not materialWriteAllowed(evidence) then return false end",
+         "if not completeMaterialClaimAllowed(basis, evidence) then return false end",
          "if false then return false end"),
         ("older standing generation overwrites newer", "standing",
          "return priorGeneration > generation",
@@ -1421,9 +1428,9 @@ def static_controls() -> tuple[bool, list[str]]:
         ("material toggle leaks stock into labor", "labor",
          "local materialEnabled = not options or options.Material ~= false",
          "local materialEnabled = true"),
-        ("quartermaster scan omits material generation", "controller",
-         "and SAO.Material.houseProjectionGeneration",
-         "and SAO.Material.missingProjectionGeneration"),
+        ("bounded private view claims aggregate coverage", "controller",
+         'inventory5:find("aggregate=refused", 1, true)',
+         'inventory5:find("aggregate=complete", 1, true)'),
         ("integration ignores graph refusal", "integration",
          "if bound ~= true then", "if false then"),
         ("world genesis ignores graph refusal", "world_genesis",

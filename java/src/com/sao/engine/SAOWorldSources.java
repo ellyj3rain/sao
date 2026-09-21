@@ -827,6 +827,48 @@ public final class SAOWorldSources {
         return token;
     }
 
+    /** Reuse C61's persistent static-holder identity in a loaded private view. */
+    static synchronized String privateContainerId(IsoObject object, int containerIndex) {
+        if (object == null || containerIndex < 0
+                || object.getContainerByIndex(containerIndex) == null) {
+            throw new IllegalArgumentException("invalid native container holder");
+        }
+        Object existing = object.getModData().rawget(SOURCE_TOKEN);
+        String token;
+        if (existing instanceof String text && !text.isBlank() && text.length() <= 64) {
+            token = text;
+        } else if (existing == null) {
+            token = UUID.randomUUID().toString();
+            object.getModData().rawset(SOURCE_TOKEN, token);
+        } else {
+            throw new IllegalStateException("invalid native source token");
+        }
+        return "C:" + token + ":" + containerIndex;
+    }
+
+    /** Reuse C61's persistent placed-item identity in a loaded private view. */
+    static synchronized String privateGroundId(InventoryItem item) {
+        if (item == null) throw new IllegalArgumentException("missing native ground item");
+        Object existing = item.getModData().rawget(ITEM_TOKEN);
+        String token;
+        if (existing instanceof String text && !text.isBlank() && text.length() <= 64) {
+            token = text;
+        } else if (existing == null) {
+            token = UUID.randomUUID().toString();
+            item.getModData().rawset(ITEM_TOKEN, token);
+        } else {
+            throw new IllegalStateException("invalid native item source token");
+        }
+        return "G:" + token;
+    }
+
+    static String privateVehicleId(BaseVehicle vehicle, VehiclePart part) {
+        if (vehicle == null || part == null || part.getItemContainer() == null) {
+            throw new IllegalArgumentException("invalid native vehicle holder");
+        }
+        return "V:" + vehicle.getSqlId() + ":" + part.getIndex();
+    }
+
     private static long buildingId(IsoGridSquare square) {
         BuildingDef building = square.getBuildingDef();
         return building == null ? -1L : building.getID();

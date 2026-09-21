@@ -70,7 +70,7 @@ def source_faults(src, native):
             "shell.Eat(meal, engineFraction, false)",
             "shell.DrinkFluid(drink, engineFraction, false)"))
             or any(seam not in src for seam in (
-                "collect(nested.getInventory(), found, seen);",
+                "return SAOPrivateInventory.carriedItems(shell);",
                 "food.updateAge();",
                 "food.isRotten()",
                 "food.getPoisonPower() > 0"))

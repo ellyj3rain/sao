@@ -33,6 +33,7 @@ LUA = ROOT / "mod" / "42.20" / "media" / "lua"
 JAVA = ROOT / "java" / "src" / "com" / "sao" / "engine"
 DRIVER = JAVA / "SAODriver.java"
 NEEDS = JAVA / "SAONeeds.java"
+PRIVATE = JAVA / "SAOPrivateInventory.java"
 CONTROLLER = LUA / "client" / "SAO_Controller.lua"
 STANDING = LUA / "shared" / "SAO_Standing.lua"
 RUNNER = ROOT / "tools" / "luacheck" / "LuaRun.java"
@@ -76,16 +77,16 @@ def method_body(src, name):
     return ""
 
 
-def source_faults(driver_src, needs_src, controller_src, standing_src):
+def source_faults(driver_src, needs_src, private_src, controller_src, standing_src):
     """Check the source seams that the VM cannot construct by itself."""
     faults = []
     board = method_body(driver_src, "boardAsDriver")
     appraisal = method_body(needs_src, "appraiseVehiclesNear")
-    containers = method_body(needs_src, "vehicleContainersNear")
+    containers = method_body(private_src, "addVehicleHolders")
     larder = method_body(needs_src, "countEdibleNearby")
     cook = method_body(needs_src, "cookNearbyFood")
     nearest = method_body(needs_src, "nearestContainer")
-    nearest_vehicle = method_body(needs_src, "nearestVehicleSource")
+    nearest_vehicle = method_body(needs_src, "nearestPrivateSource")
     refresh_vehicle = method_body(needs_src, "refreshVehicleSource")
     valid_source = method_body(needs_src, "validSource")
     source_reach = method_body(needs_src, "sourceWithinReach")
@@ -117,28 +118,27 @@ def source_faults(driver_src, needs_src, controller_src, standing_src):
     if "or (c.key or 0) == 1" not in standing_src:
         faults.append("the motor pool does not prefer the held-key vehicle")
 
-    container_seams = (
-        "if (cell == null) return found;", "cell.getVehicles()", "r2",
-        "dx * dx + dy * dy > r2", "part.isContainer()",
-        "part.getItemContainer()", "found.add(c)",
-    )
+    container_seams = ("cell.getVehicles()", "limit",
+        "dx * dx + dy * dy > limit", "part.getItemContainer()",
+        '"vehicle"', "holders.add(containerHolder")
     if not all(seam in containers for seam in container_seams):
         faults.append("vehicle containers are not limited to real parts "
                       "inside the requested radius")
-    if "vehicle.canAccessContainer(i, shell)" not in containers:
+    if "vehicle.canAccessContainer(index, person)" not in containers:
         faults.append("larder/cooking inspection admits locked compartments")
-    if "vehicle.canAccessContainer(i, shell)" not in nearest:
+    if '"refused".equals(holder.access())' not in nearest:
         faults.append("the store target admits a locked vehicle compartment")
-    if "vehicle.canAccessContainer(i, shell)" not in nearest_vehicle:
+    if '"refused".equals(holder.access())' not in nearest_vehicle:
         faults.append("a food/drink/drug search admits a locked compartment")
-    remembered = ("source.vehicle = vehicle", "source.vehiclePartIndex = i")
+    remembered = ("source.vehicle = holder.container().getVehicle()",
+                  "source.vehiclePartIndex = part == null ? -1")
     if not all(seam in nearest_vehicle for seam in remembered):
         faults.append("a vehicle source forgets the moving vehicle or part")
     refreshed = (
         "source.vehicle.getSquare()",
         "source.vehicle.isRemovedFromWorld()",
         "cell.getVehicles().contains(source.vehicle)",
-        "part.getItemContainer() != source.container",
+        "part.getItemContainer() != source.permissionContainer",
         "source.vehicle.canAccessContainer(index, shell)",
         "source.x = (int) source.vehicle.getX()",
         "source.y = (int) source.vehicle.getY()",
@@ -152,19 +152,17 @@ def source_faults(driver_src, needs_src, controller_src, standing_src):
         faults.append("the reach decision uses stale cached vehicle coordinates")
     if "(int) shell.getZ() != source.z" not in needs_src:
         faults.append("remembered material sources can transfer across floors")
-    if "vehicleContainersNear(shell, radius)" not in larder:
+    if "privateStoreItems(shell, radius)" not in larder:
         faults.append("the larder does not read vehicle containers")
-    if "vehicleContainersNear(shell, radius)" not in cook:
+    if "privateStoreItems(shell, radius)" not in cook:
         faults.append("the cook does not read vehicle containers")
-    if "nearestVehicleSource(shell, radius" not in drink_source:
+    if "nearestPrivateSource(shell, radius" not in drink_source:
         faults.append("the drink source does not read vehicle containers")
-    if "nearestVehicleSource(shell, radius" not in drug_source:
+    if "nearestPrivateSource(shell, radius" not in drug_source:
         faults.append("the dose source does not read vehicle containers")
-    if "nearestVehicleSource(shell, radius" not in food_source:
+    if "nearestPrivateSource(shell, radius" not in food_source:
         faults.append("the food source does not read vehicle containers")
-    if not re.search(r"cell\.getVehicles\(\)[\s\S]{0,900}?"
-                     r"part\.isContainer\(\)[\s\S]{0,300}?"
-                     r"part\.getItemContainer\(\)", nearest):
+    if "SAOPrivateInventory.loadedView(shell, radius)" not in nearest:
         faults.append("the store reader does not read vehicle containers")
     return faults
 
@@ -219,47 +217,47 @@ def main():
     print("=" * 74)
     print("VEHICLES HOLD KEYS AND CONTAINERS")
     print("=" * 74)
-    paths = (DRIVER, NEEDS, CONTROLLER, STANDING)
+    paths = (DRIVER, NEEDS, PRIVATE, CONTROLLER, STANDING)
     if not all(path.exists() for path in paths):
         print("  FAULT: a vehicle source surface is missing")
         return 1
 
-    driver_src, needs_src, controller_src, standing_src = (
+    driver_src, needs_src, private_src, controller_src, standing_src = (
         path.read_text(encoding="utf-8", errors="ignore") for path in paths)
-    faults = source_faults(driver_src, needs_src, controller_src, standing_src)
+    faults = source_faults(driver_src, needs_src, private_src, controller_src, standing_src)
 
     bad_driver = driver_src.replace("vehicle.tryStartEngine(haveKey);",
                                     "vehicle.tryStartEngine(false);", 1)
     if bad_driver == driver_src:
         faults.append("CONTROL did not remove the held-key start")
-    elif not source_faults(bad_driver, needs_src, controller_src, standing_src):
+    elif not source_faults(bad_driver, needs_src, private_src, controller_src, standing_src):
         faults.append("CONTROL held-key start removed but the border passed")
 
-    bad_needs = needs_src.replace(
-        "if (part == null || !part.isContainer()) continue;",
-        "if (part == null) continue;", 3)
-    if bad_needs == needs_src:
+    bad_private = private_src.replace(
+        "ItemContainer container = part == null ? null : part.getItemContainer();",
+        "ItemContainer container = null;", 1)
+    if bad_private == private_src:
         faults.append("CONTROL did not remove the vehicle container guard")
-    elif not source_faults(driver_src, bad_needs, controller_src, standing_src):
+    elif not source_faults(driver_src, needs_src, bad_private, controller_src, standing_src):
         faults.append("CONTROL vehicle container guard removed but the "
                       "border passed")
 
     bad_source = needs_src.replace(
-        "FoodSource vehicle = nearestVehicleSource(shell, radius,\n"
+        "FoodSource best = nearestPrivateSource(shell, radius,\n"
         "                item -> edible(item));",
-        "FoodSource vehicle = null;", 1)
+        "FoodSource best = null;", 1)
     if bad_source == needs_src:
         faults.append("CONTROL did not remove the food vehicle source")
-    elif not source_faults(driver_src, bad_source, controller_src, standing_src):
+    elif not source_faults(driver_src, bad_source, private_src, controller_src, standing_src):
         faults.append("CONTROL food vehicle source removed but the border "
                       "passed")
 
-    bad_access = needs_src.replace(
-        "                    if (!vehicle.canAccessContainer(i, shell)) continue;\n",
-        "", 3)
-    if bad_access == needs_src:
+    bad_access = private_src.replace(
+        "String access = vehicle.canAccessContainer(index, person)",
+        "String access = true", 1)
+    if bad_access == private_src:
         faults.append("CONTROL did not remove vehicle access checks")
-    elif not source_faults(driver_src, bad_access, controller_src, standing_src):
+    elif not source_faults(driver_src, needs_src, bad_access, controller_src, standing_src):
         faults.append("CONTROL removed vehicle access checks but the border passed")
 
     bad_refresh = needs_src.replace(
@@ -269,7 +267,7 @@ def main():
         "            if (source == null) {", 1)
     if bad_refresh == needs_src:
         faults.append("CONTROL did not bypass source reach revalidation")
-    elif not source_faults(driver_src, bad_refresh, controller_src, standing_src):
+    elif not source_faults(driver_src, bad_refresh, private_src, controller_src, standing_src):
         faults.append("CONTROL bypassed source reach revalidation but the border passed")
 
     bad_loaded = needs_src.replace(
@@ -278,14 +276,14 @@ def main():
         "", 1)
     if bad_loaded == needs_src:
         faults.append("CONTROL did not remove loaded vehicle membership")
-    elif not source_faults(driver_src, bad_loaded, controller_src, standing_src):
+    elif not source_faults(driver_src, bad_loaded, private_src, controller_src, standing_src):
         faults.append("CONTROL removed loaded vehicle membership but the border passed")
 
     bad_floor = needs_src.replace(
         " || (int) shell.getZ() != source.z", "", 1)
     if bad_floor == needs_src:
         faults.append("CONTROL did not remove source floor grounding")
-    elif not source_faults(driver_src, bad_floor, controller_src, standing_src):
+    elif not source_faults(driver_src, bad_floor, private_src, controller_src, standing_src):
         faults.append("CONTROL removed source floor grounding but the border passed")
 
     print("  source seams: " + ("ok" if not faults else "FAULT"))

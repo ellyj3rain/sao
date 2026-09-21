@@ -27,7 +27,9 @@ public final class SAONeeds {
     /** A remembered world food source: the container and the item within it. */
     static final class FoodSource {
         ItemContainer container;
+        ItemContainer permissionContainer;
         InventoryItem item;
+        String holderId;
         int x, y, z;
         zombie.vehicles.BaseVehicle vehicle;
         int vehiclePartIndex = -1;
@@ -121,7 +123,7 @@ public final class SAONeeds {
         try {
             InventoryItem best = null;
             float bestAmount = 0.0f;
-            java.util.ArrayList<InventoryItem> items = shell.getInventory().getItems();
+            java.util.ArrayList<InventoryItem> items = SAOPrivateInventory.carriedItems(shell);
             for (int i = 0; i < items.size(); i++) {
                 InventoryItem item = items.get(i);
                 if (drinkable(item)) {
@@ -142,7 +144,7 @@ public final class SAONeeds {
         try {
             InventoryItem best = null;
             float bestFill = 0.0f;
-            java.util.ArrayList<InventoryItem> items = shell.getInventory().getItems();
+            java.util.ArrayList<InventoryItem> items = SAOPrivateInventory.carriedItems(shell);
             for (int i = 0; i < items.size(); i++) {
                 InventoryItem item = items.get(i);
                 if (edible(item)) {
@@ -171,11 +173,8 @@ public final class SAONeeds {
      *  take that food uses takes this. "x:y:z:name" or "". */
     public static String findDrinkSourceNear(IsoPlayer shell, int radius) {
         try {
-            FoodSource ground = nearestOnFloorRing(shell, radius,
-                square -> firstDrinkIn(square));
-            FoodSource vehicle = nearestVehicleSource(shell, radius,
+            FoodSource best = nearestPrivateSource(shell, radius,
                 item -> drinkable(item));
-            FoodSource best = nearerSource(shell, ground, vehicle);
             if (best == null) {
                 SOURCES.remove(shell);
                 return "";
@@ -200,11 +199,8 @@ public final class SAONeeds {
     public static String findDrugSourceNear(IsoPlayer shell, int radius,
                                             String family) {
         try {
-            FoodSource ground = nearestOnFloorRing(shell, radius,
-                square -> firstDrugIn(square, family));
-            FoodSource vehicle = nearestVehicleSource(shell, radius,
+            FoodSource best = nearestPrivateSource(shell, radius,
                 item -> family.equals(drugFamilyOf(item)));
-            FoodSource best = nearerSource(shell, ground, vehicle);
             if (best == null) {
                 SOURCES.remove(shell);
                 return "";
@@ -224,20 +220,8 @@ public final class SAONeeds {
 
     public static String findFoodSourceNear(IsoPlayer shell, int radius) {
         try {
-            // [B31] The last of [B31]'s four sweeps that was
-            // genuinely drift. This differed from the shared one only
-            // in the ORDER of two independent guards - it looked the
-            // square up before asking whether the distance could win.
-            // Outcome-identical either way, since the probe runs iff
-            // both hold and neither condition touches the other; but
-            // the shared form skips the cell lookup entirely when the
-            // distance already cannot beat the best, which is strictly
-            // less work across a radius cubed by the floor ring.
-            FoodSource ground = nearestOnFloorRing(shell, radius,
-                square -> firstFoodIn(square));
-            FoodSource vehicle = nearestVehicleSource(shell, radius,
+            FoodSource best = nearestPrivateSource(shell, radius,
                 item -> edible(item));
-            FoodSource best = nearerSource(shell, ground, vehicle);
             if (best == null) {
                 SOURCES.remove(shell);
                 return "";
@@ -268,29 +252,15 @@ public final class SAONeeds {
             String want, int max) {
         int taken = 0;
         try {
-            IsoCell cell = shell.getCell();
-            int cx = (int) shell.getX(), cy = (int) shell.getY();
-            int cz = (int) shell.getZ();
-            for (int dx = -radius; dx <= radius && taken < max; dx++) {
-                for (int dy = -radius; dy <= radius && taken < max; dy++) {
-                    IsoGridSquare sq = cell.getGridSquare(cx + dx, cy + dy, cz);
-                    if (sq == null) continue;
-                    for (int i = 0; i < sq.getObjects().size()
-                            && taken < max; i++) {
-                        IsoObject obj = sq.getObjects().get(i);
-                        ItemContainer c = obj.getContainer();
-                        if (c == null) continue;
-                        java.util.ArrayList<InventoryItem> items =
-                            new java.util.ArrayList<>(c.getItems());
-                        for (InventoryItem item : items) {
-                            if (taken >= max) break;
-                            if (wants(item, want)) {
-                                c.Remove(item);
-                                shell.getInventory().AddItem(item);
-                                taken++;
-                            }
-                        }
-                    }
+            for (SAOPrivateInventory.ItemRef ref
+                    : privateStoreItems(shell, radius)) {
+                if (taken >= max) break;
+                InventoryItem item = ref.item();
+                ItemContainer direct = item == null ? null : item.getContainer();
+                if (direct != null && wants(item, want)) {
+                    direct.Remove(item);
+                    shell.getInventory().AddItem(item);
+                    taken++;
                 }
             }
         } catch (Throwable throwable) {
@@ -378,7 +348,7 @@ public final class SAONeeds {
             if (worst == null) return "";
             InventoryItem cleaner = null;
             java.util.ArrayList<InventoryItem> items =
-                shell.getInventory().getItems();
+                SAOPrivateInventory.carriedItems(shell);
             for (int i = 0; i < items.size(); i++) {
                 InventoryItem item = items.get(i);
                 if (item.getAlcoholPower() > 0.0f) {
@@ -390,7 +360,9 @@ public final class SAONeeds {
             worst.setAlcoholLevel(
                 Math.min(5.0f, worst.getAlcoholLevel()
                     + cleaner.getAlcoholPower()));
-            shell.getInventory().Remove(cleaner);
+            ItemContainer holder = cleaner.getContainer();
+            if (holder == null || !holder.contains(cleaner)) return "";
+            holder.Remove(cleaner);
             return worstName;
         } catch (Throwable throwable) {
             SAOAgent.log("disinfectFromPack threw: " + throwable);
@@ -499,7 +471,7 @@ public final class SAONeeds {
             }
             boolean means = false;
             java.util.ArrayList<InventoryItem> items =
-                shell.getInventory().getItems();
+                SAOPrivateInventory.carriedItems(shell);
             for (int i = 0; i < items.size(); i++) {
                 String full = items.get(i).getFullType();
                 if (full != null
@@ -526,7 +498,7 @@ public final class SAONeeds {
                 findHearth(shell, radius);
             if (hearth == null) return 0;
             java.util.ArrayList<InventoryItem> items =
-                shell.getInventory().getItems();
+                SAOPrivateInventory.carriedItems(shell);
             InventoryItem best = null;
             float bestBurn = 0.0f;
             for (int i = 0; i < items.size(); i++) {
@@ -541,7 +513,9 @@ public final class SAONeeds {
             if (best == null || bestBurn <= 0.0f) return 0;
             int units = Math.max(1, Math.round(bestBurn / 30.0f));
             hearth.addFuel(units);
-            shell.getInventory().Remove(best);
+            ItemContainer holder = best.getContainer();
+            if (holder == null || !holder.contains(best)) return 0;
+            holder.Remove(best);
             return units;
         } catch (Throwable throwable) {
             SAOAgent.log("feedNearbyHearth threw: " + throwable);
@@ -579,7 +553,7 @@ public final class SAONeeds {
             }
             if (source == null) return 0.0f;
             java.util.ArrayList<InventoryItem> items =
-                shell.getInventory().getItems();
+                SAOPrivateInventory.carriedItems(shell);
             for (int i = 0; i < items.size(); i++) {
                 InventoryItem item = items.get(i);
                 zombie.entity.components.fluids.FluidContainer vessel =
@@ -606,25 +580,13 @@ public final class SAONeeds {
     public static float countStoredWaterNearby(IsoPlayer shell, int radius) {
         float total = 0.0f;
         try {
-            IsoCell cell = shell.getCell();
-            int cx = (int) shell.getX(), cy = (int) shell.getY();
-            int cz = (int) shell.getZ();
-            for (int dx = -radius; dx <= radius; dx++) {
-                for (int dy = -radius; dy <= radius; dy++) {
-                    IsoGridSquare sq = cell.getGridSquare(cx + dx, cy + dy, cz);
-                    if (sq == null) continue;
-                    for (int i = 0; i < sq.getObjects().size(); i++) {
-                        ItemContainer c = sq.getObjects().get(i).getContainer();
-                        if (c == null) continue;
-                        java.util.ArrayList<InventoryItem> items = c.getItems();
-                        for (int j = 0; j < items.size(); j++) {
-                            zombie.entity.components.fluids.FluidContainer v =
-                                items.get(j)
-                                    .getFluidContainerFromSelfOrWorldItem();
-                            if (v != null) total += v.getAmount();
-                        }
-                    }
-                }
+            for (SAOPrivateInventory.ItemRef ref
+                    : privateStoreItems(shell, radius)) {
+                InventoryItem item = ref.item();
+                zombie.entity.components.fluids.FluidContainer vessel =
+                    item == null ? null
+                        : item.getFluidContainerFromSelfOrWorldItem();
+                if (vessel != null) total += vessel.getAmount();
             }
         } catch (Throwable throwable) {
             SAOAgent.log("countStoredWaterNearby threw: " + throwable);
@@ -937,63 +899,14 @@ public final class SAONeeds {
      *  (`isContainer()` then `getItemContainer()`, both verified on
      *  the jar). Towables carry these with no engine part at all, so
      *  the larder and the stores read them the same as shelves. */
-    private static java.util.ArrayList<ItemContainer> vehicleContainersNear(
-            IsoPlayer shell, int radius) {
-        java.util.ArrayList<ItemContainer> found =
-            new java.util.ArrayList<>();
-        try {
-            IsoCell cell = shell.getCell();
-            if (cell == null) return found;
-            float sx = shell.getX(), sy = shell.getY();
-            float r2 = (float) radius * (float) radius;
-            for (zombie.vehicles.BaseVehicle vehicle : cell.getVehicles()) {
-                if (vehicle == null) continue;
-                float dx = vehicle.getX() - sx, dy = vehicle.getY() - sy;
-                if (dx * dx + dy * dy > r2) continue;
-                zombie.vehicles.VehicleParts parts = vehicle.getParts();
-                for (int i = 0; i < parts.size(); i++) {
-                    zombie.vehicles.VehiclePart part = parts.get(i);
-                    if (part == null || !part.isContainer()) continue;
-                    if (!vehicle.canAccessContainer(i, shell)) continue;
-                    ItemContainer c = part.getItemContainer();
-                    if (c != null) found.add(c);
-                }
-            }
-        } catch (Throwable throwable) {
-            SAOAgent.log("vehicleContainersNear threw: " + throwable);
-        }
-        return found;
-    }
-
-    /** [A28] READ the larder: count edible items in the real
+/** [A28] READ the larder: count edible items in the real
      *  containers around the shell. Pure read - nothing moves. */
     public static int countEdibleNearby(IsoPlayer shell, int radius) {
         int count = 0;
         try {
-            IsoCell cell = shell.getCell();
-            int cx = (int) shell.getX(), cy = (int) shell.getY();
-            int cz = (int) shell.getZ();
-            for (int dx = -radius; dx <= radius; dx++) {
-                for (int dy = -radius; dy <= radius; dy++) {
-                    IsoGridSquare sq = cell.getGridSquare(cx + dx, cy + dy, cz);
-                    if (sq == null) continue;
-                    for (int i = 0; i < sq.getObjects().size(); i++) {
-                        ItemContainer c = sq.getObjects().get(i).getContainer();
-                        if (c == null) continue;
-                        java.util.ArrayList<InventoryItem> items = c.getItems();
-                        for (int j = 0; j < items.size(); j++) {
-                            if (items.get(j) instanceof Food) count++;
-                        }
-                    }
-                }
-            }
-            // [C122] The vehicles' own containers count the same as
-            // shelves - the larder is wherever the food really is.
-            for (ItemContainer c : vehicleContainersNear(shell, radius)) {
-                java.util.ArrayList<InventoryItem> items = c.getItems();
-                for (int j = 0; j < items.size(); j++) {
-                    if (items.get(j) instanceof Food) count++;
-                }
+            for (SAOPrivateInventory.ItemRef ref
+                    : privateStoreItems(shell, radius)) {
+                if (ref.item() instanceof Food) count++;
             }
         } catch (Throwable throwable) {
             SAOAgent.log("countEdibleNearby threw: " + throwable);
@@ -1015,48 +928,14 @@ public final class SAONeeds {
         int cooked = 0;
         int allowance = 2 + Math.max(0, level);
         try {
-            IsoCell cell = shell.getCell();
-            int cx = (int) shell.getX(), cy = (int) shell.getY();
-            int cz = (int) shell.getZ();
-            for (int dx = -radius; dx <= radius && cooked < allowance; dx++) {
-                for (int dy = -radius; dy <= radius && cooked < allowance; dy++) {
-                    IsoGridSquare sq = cell.getGridSquare(cx + dx, cy + dy, cz);
-                    if (sq == null) continue;
-                    for (int i = 0; i < sq.getObjects().size()
-                        && cooked < allowance; i++) {
-                        ItemContainer c = sq.getObjects().get(i).getContainer();
-                        if (c == null) continue;
-                        java.util.ArrayList<InventoryItem> items = c.getItems();
-                        for (int j = 0; j < items.size()
-                            && cooked < allowance; j++) {
-                            InventoryItem item = items.get(j);
-                            if (!(item instanceof Food food)) continue;
-                            if (food.isCooked() || food.isBurnt()
-                                || food.isRotten()) continue;
-                            if (!food.isbDangerousUncooked()) continue;
-                            food.cooked = true;
-                            cooked++;
-                        }
-                    }
-                }
-            }
-            // [C122] The cook's round reaches the vehicles' own
-            // containers too - dinner riding in a camper's
-            // compartment gets the same knowledge as dinner on a
-            // shelf.
-            for (ItemContainer c : vehicleContainersNear(shell, radius)) {
+            for (SAOPrivateInventory.ItemRef ref
+                    : privateStoreItems(shell, radius)) {
                 if (cooked >= allowance) break;
-                java.util.ArrayList<InventoryItem> items = c.getItems();
-                for (int j = 0; j < items.size()
-                    && cooked < allowance; j++) {
-                    InventoryItem item = items.get(j);
-                    if (!(item instanceof Food food)) continue;
-                    if (food.isCooked() || food.isBurnt()
-                        || food.isRotten()) continue;
-                    if (!food.isbDangerousUncooked()) continue;
-                    food.cooked = true;
-                    cooked++;
-                }
+                if (!(ref.item() instanceof Food food)) continue;
+                if (food.isCooked() || food.isBurnt() || food.isRotten()
+                        || !food.isbDangerousUncooked()) continue;
+                food.cooked = true;
+                cooked++;
             }
         } catch (Throwable throwable) {
             SAOAgent.log("cookNearbyFood threw: " + throwable);
@@ -1125,27 +1004,11 @@ public final class SAONeeds {
     public static int countRawDangerNearby(IsoPlayer shell, int radius) {
         int raw = 0;
         try {
-            IsoCell cell = shell.getCell();
-            int cx = (int) shell.getX(), cy = (int) shell.getY();
-            int cz = (int) shell.getZ();
-            for (int dx = -radius; dx <= radius; dx++) {
-                for (int dy = -radius; dy <= radius; dy++) {
-                    IsoGridSquare sq = cell.getGridSquare(cx + dx, cy + dy, cz);
-                    if (sq == null) continue;
-                    for (int i = 0; i < sq.getObjects().size(); i++) {
-                        ItemContainer c = sq.getObjects().get(i).getContainer();
-                        if (c == null) continue;
-                        java.util.ArrayList<InventoryItem> items = c.getItems();
-                        for (int j = 0; j < items.size(); j++) {
-                            InventoryItem item = items.get(j);
-                            if (!(item instanceof Food food)) continue;
-                            if (food.isRotten() || food.isBurnt()) continue;
-                            if (food.isbDangerousUncooked() && !food.isCooked()) {
-                                raw++;
-                            }
-                        }
-                    }
-                }
+            for (SAOPrivateInventory.ItemRef ref
+                    : privateStoreItems(shell, radius)) {
+                if (!(ref.item() instanceof Food food)) continue;
+                if (food.isRotten() || food.isBurnt()) continue;
+                if (food.isbDangerousUncooked() && !food.isCooked()) raw++;
             }
         } catch (Throwable throwable) {
             SAOAgent.log("countRawDangerNearby threw: " + throwable);
@@ -1198,26 +1061,14 @@ public final class SAONeeds {
     public static boolean takeSkillBookFor(IsoPlayer shell, int radius,
         String perk) {
         try {
-            IsoCell cell = shell.getCell();
-            int cx = (int) shell.getX(), cy = (int) shell.getY();
-            int cz = (int) shell.getZ();
-            for (int dx = -radius; dx <= radius; dx++) {
-                for (int dy = -radius; dy <= radius; dy++) {
-                    IsoGridSquare sq = cell.getGridSquare(cx + dx, cy + dy, cz);
-                    if (sq == null) continue;
-                    for (int i = 0; i < sq.getObjects().size(); i++) {
-                        ItemContainer c = sq.getObjects().get(i).getContainer();
-                        if (c == null) continue;
-                        java.util.ArrayList<InventoryItem> items = c.getItems();
-                        for (int j = 0; j < items.size(); j++) {
-                            InventoryItem item = items.get(j);
-                            if (!teachesPerk(item, perk)) continue;
-                            c.Remove(item);
-                            shell.getInventory().AddItem(item);
-                            return true;
-                        }
-                    }
-                }
+            for (SAOPrivateInventory.ItemRef ref
+                    : privateStoreItems(shell, radius)) {
+                InventoryItem item = ref.item();
+                ItemContainer direct = item == null ? null : item.getContainer();
+                if (direct == null || !teachesPerk(item, perk)) continue;
+                direct.Remove(item);
+                shell.getInventory().AddItem(item);
+                return true;
             }
         } catch (Throwable throwable) {
             SAOAgent.log("takeSkillBookFor threw: " + throwable);
@@ -1232,7 +1083,7 @@ public final class SAONeeds {
     public static String readSkillBook(IsoPlayer shell, String perk) {
         try {
             java.util.ArrayList<InventoryItem> carried =
-                shell.getInventory().getItems();
+                SAOPrivateInventory.carriedItems(shell);
             for (int i = 0; i < carried.size(); i++) {
                 InventoryItem item = carried.get(i);
                 if (!teachesPerk(item, perk)) continue;
@@ -1357,7 +1208,7 @@ public final class SAONeeds {
     public static String carriedMemento(IsoPlayer shell) {
         try {
             java.util.ArrayList<InventoryItem> items =
-                shell.getInventory().getItems();
+                SAOPrivateInventory.carriedItems(shell);
             for (int i = 0; i < items.size(); i++) {
                 InventoryItem item = items.get(i);
                 if (item == null) continue;
@@ -1376,7 +1227,7 @@ public final class SAONeeds {
     public static String carriedDisplayCategory(IsoPlayer shell, String cat) {
         try {
             java.util.ArrayList<InventoryItem> items =
-                shell.getInventory().getItems();
+                SAOPrivateInventory.carriedItems(shell);
             for (int i = 0; i < items.size(); i++) {
                 InventoryItem item = items.get(i);
                 if (cat.equals(item.getDisplayCategory())) {
@@ -1391,65 +1242,22 @@ public final class SAONeeds {
 
     public static ItemContainer nearestContainer(IsoPlayer shell, int radius) {
         try {
-            zombie.iso.IsoCell cell = shell.getCell();
-            if (cell == null) {
-                return null;
-            }
-            int sx = (int) shell.getX();
-            int sy = (int) shell.getY();
-            int sz = (int) shell.getZ();
             ItemContainer best = null;
-            int bestD = Integer.MAX_VALUE;
-            for (int dx = -radius; dx <= radius; dx++) {
-                for (int dy = -radius; dy <= radius; dy++) {
-                    IsoGridSquare square = cell.getGridSquare(sx + dx, sy + dy, sz);
-                    if (square == null) {
-                        continue;
-                    }
-                    java.util.List<IsoObject> objects = square.getObjects();
-                    for (int i = 0; i < objects.size(); i++) {
-                        IsoObject object = objects.get(i);
-                        int count = object.getContainerCount();
-                        for (int c = 0; c < count; c++) {
-                            ItemContainer container = object.getContainerByIndex(c);
-                            if (container != null) {
-                                int d = dx * dx + dy * dy;
-                                if (d < bestD) {
-                                    best = container;
-                                    bestD = d;
-                                }
-                            }
-                        }
-                    }
-                }
-            }
-            // [C122] Vehicle containers are store ground the same as
-            // shelves - the deposit and the draw fall to
-            // whichever real container is nearest, and a parked
-            // camper's compartment may be nearer than any cabinet.
-            {
-                float fsx = shell.getX(), fsy = shell.getY();
-                float r2 = (float) radius * (float) radius;
-                for (zombie.vehicles.BaseVehicle vehicle : cell.getVehicles()) {
-                    if (vehicle == null) continue;
-                    float dx = vehicle.getX() - fsx;
-                    float dy = vehicle.getY() - fsy;
-                    float d2 = dx * dx + dy * dy;
-                    if (d2 > r2) continue;
-                    int d = (int) d2;
-                    if (d >= bestD) continue;
-                    zombie.vehicles.VehicleParts parts = vehicle.getParts();
-                    for (int i = 0; i < parts.size(); i++) {
-                        zombie.vehicles.VehiclePart part = parts.get(i);
-                        if (part == null || !part.isContainer()) continue;
-                        if (!vehicle.canAccessContainer(i, shell)) continue;
-                        ItemContainer container = part.getItemContainer();
-                        if (container != null) {
-                            best = container;
-                            bestD = d;
-                            break;
-                        }
-                    }
+            float bestDistance = Float.MAX_VALUE;
+            for (SAOPrivateInventory.Holder holder
+                    : SAOPrivateInventory.loadedView(shell, radius).holders()) {
+                if (!("container".equals(holder.kind())
+                        || "vehicle".equals(holder.kind()))
+                        || "refused".equals(holder.access())
+                        || holder.container() == null) continue;
+                float dx = holder.x() - shell.getX();
+                float dy = holder.y() - shell.getY();
+                float distance = dx * dx + dy * dy
+                    + ((int) shell.getZ() == holder.z()
+                        ? 0.0f : CROSS_FLOOR_PENALTY);
+                if (distance < bestDistance) {
+                    best = holder.container();
+                    bestDistance = distance;
                 }
             }
             return best;
@@ -1460,93 +1268,9 @@ public final class SAONeeds {
 
     /** First edible item in any container on this square, else null. */
     /** [C33] The first drink in any container on the square. */
-    private static FoodSource firstDrinkIn(IsoGridSquare square) {
-        java.util.List<IsoObject> objects = square.getObjects();
-        for (int i = 0; i < objects.size(); i++) {
-            IsoObject object = objects.get(i);
-            int count = object.getContainerCount();
-            for (int c = 0; c < count; c++) {
-                ItemContainer container = object.getContainerByIndex(c);
-                if (container == null) {
-                    continue;
-                }
-                java.util.ArrayList<InventoryItem> items = container.getItems();
-                for (int k = 0; k < items.size(); k++) {
-                    InventoryItem item = items.get(k);
-                    if (drinkable(item)) {
-                        FoodSource source = new FoodSource();
-                        source.container = container;
-                        source.item = item;
-                        source.x = square.getX();
-                        source.y = square.getY();
-                        source.z = square.getZ();
-                        return source;
-                    }
-                }
-            }
-        }
-        return null;
-    }
-
-    /** [C121] The first drug of a county family in any container on
+/** [C121] The first drug of a county family in any container on
      *  the square, else null. */
-    private static FoodSource firstDrugIn(IsoGridSquare square, String family) {
-        java.util.List<IsoObject> objects = square.getObjects();
-        for (int i = 0; i < objects.size(); i++) {
-            IsoObject object = objects.get(i);
-            int count = object.getContainerCount();
-            for (int c = 0; c < count; c++) {
-                ItemContainer container = object.getContainerByIndex(c);
-                if (container == null) {
-                    continue;
-                }
-                java.util.ArrayList<InventoryItem> items = container.getItems();
-                for (int k = 0; k < items.size(); k++) {
-                    InventoryItem item = items.get(k);
-                    if (family.equals(drugFamilyOf(item))) {
-                        FoodSource source = new FoodSource();
-                        source.container = container;
-                        source.item = item;
-                        source.x = square.getX();
-                        source.y = square.getY();
-                        source.z = square.getZ();
-                        return source;
-                    }
-                }
-            }
-        }
-        return null;
-    }
-
-    private static FoodSource firstFoodIn(IsoGridSquare square) {
-        java.util.List<IsoObject> objects = square.getObjects();
-        for (int i = 0; i < objects.size(); i++) {
-            IsoObject object = objects.get(i);
-            int count = object.getContainerCount();
-            for (int c = 0; c < count; c++) {
-                ItemContainer container = object.getContainerByIndex(c);
-                if (container == null) {
-                    continue;
-                }
-                java.util.ArrayList<InventoryItem> items = container.getItems();
-                for (int k = 0; k < items.size(); k++) {
-                    InventoryItem item = items.get(k);
-                    if (edible(item)) {
-                        FoodSource source = new FoodSource();
-                        source.container = container;
-                        source.item = item;
-                        source.x = square.getX();
-                        source.y = square.getY();
-                        source.z = square.getZ();
-                        return source;
-                    }
-                }
-            }
-        }
-        return null;
-    }
-
-    /** The remembered source's item, revalidated, or null. */
+/** The remembered source's item, revalidated, or null. */
     public static InventoryItem sourceItem(IsoPlayer shell) {
         FoodSource source = validSource(shell);
         return source == null ? null : source.item;
@@ -1585,14 +1309,18 @@ public final class SAONeeds {
     private static FoodSource validSource(IsoPlayer shell) {
         try {
             FoodSource source = SOURCES.get(shell);
-            if (source == null || source.container == null || source.item == null) {
+            if (source == null || source.container == null
+                    || source.permissionContainer == null
+                    || source.item == null) {
                 return null;
             }
             if (!refreshVehicleSource(shell, source)) {
                 SOURCES.remove(shell);
                 return null;
             }
-            if (!source.container.contains(source.item)) {
+            if (!source.container.contains(source.item)
+                    || SAOPrivateInventory.rootContainer(source.container)
+                        != source.permissionContainer) {
                 SOURCES.remove(shell);
                 return null;
             }
@@ -1626,7 +1354,7 @@ public final class SAONeeds {
         }
         zombie.vehicles.VehiclePart part = parts.get(index);
         if (part == null || !part.isContainer()
-                || part.getItemContainer() != source.container
+                || part.getItemContainer() != source.permissionContainer
                 || !source.vehicle.canAccessContainer(index, shell)) {
             return false;
         }
@@ -1683,7 +1411,7 @@ public final class SAONeeds {
         try {
             InventoryItem best = null;
             float bestAmount = 0.0f;
-            java.util.ArrayList<InventoryItem> items = shell.getInventory().getItems();
+            java.util.ArrayList<InventoryItem> items = SAOPrivateInventory.carriedItems(shell);
             for (int i = 0; i < items.size(); i++) {
                 InventoryItem item = items.get(i);
                 float amount = drinkableAmount(item);
@@ -1703,15 +1431,9 @@ public final class SAONeeds {
 
     private static final Map<IsoPlayer, IsoObject> WATER_SOURCES = new WeakHashMap<>();
 
-    /**
-     * Nearest world object holding clean water (one floor up/down included,
-     * penalized); remembered per shell, returned as "x:y:z" (true source
-     * floor) or "". Tainted sources are refused.
-     */
     /** [B31] This keeps its own sweep, deliberately.
      *
-     *  Its loop order already matches `nearestOnFloorRing`, so nothing
-     *  here drifted. What differs is what it FINDS. Food, weapons and
+     *  This finds an IsoObject rather than an inventory item. Food, weapons and
      *  ammo find an InventoryItem sitting in a container, which is
      *  exactly what FoodSource models. Water finds an IsoObject - a
      *  sink, a well, a fixture of the world that holds fluid and is
@@ -1720,7 +1442,8 @@ public final class SAONeeds {
      *  Folding it in would mean widening FoodSource to mean "an item,
      *  or else a world object", which makes the type lie about what it
      *  holds. The shared shape is a coincidence of iteration, not of
-     *  purpose. */
+     *  purpose. The true source floor is returned as "x:y:z"; tainted sources
+     *  are refused. */
     public static String findWaterSourceNear(IsoPlayer shell, int radius) {
         try {
             IsoCell cell = shell.getCell();
@@ -1811,7 +1534,7 @@ public final class SAONeeds {
     /** The survivor's current best melee score, empty hands included. */
     private static float carriedMeleeScore(IsoPlayer shell) {
         float best = 0.0f;
-        java.util.ArrayList<InventoryItem> items = shell.getInventory().getItems();
+        java.util.ArrayList<InventoryItem> items = SAOPrivateInventory.carriedItems(shell);
         for (int i = 0; i < items.size(); i++) {
             float score = SAOEquipment.meleeScore(items.get(i));
             if (score > best) {
@@ -1826,11 +1549,6 @@ public final class SAONeeds {
      * that beats what the survivor carries by a real margin (25%, minimum
      * +2). Remembered per shell; "x:y:z:<name>" or "".
      */
-    /** [B31] What a floor-ring sweep is looking for on one square. */
-    private interface SquareProbe {
-        FoodSource on(IsoGridSquare square);
-    }
-
     /** [C122] Vehicle parts are ground for a source query too. The
      *  source remembers the same real container the ordinary square
      *  scan remembers, at the vehicle's actual position. */
@@ -1838,65 +1556,74 @@ public final class SAONeeds {
         boolean accepts(InventoryItem item);
     }
 
-    private static FoodSource nearestVehicleSource(
-            IsoPlayer shell, int radius, ItemProbe probe) {
-        IsoCell cell = shell.getCell();
-        if (cell == null) return null;
-        float sx = shell.getX(), sy = shell.getY();
-        float r2 = (float) radius * (float) radius;
+    /**
+     * One actor-scoped selection path for shelves and vehicle parts. The view
+     * supplies exact recursive items and the root permission holder; the
+     * remembered source keeps the item's direct container for native transfer.
+     */
+    private static FoodSource nearestPrivateSource(IsoPlayer shell, int radius,
+            ItemProbe probe) {
         FoodSource best = null;
-        float bestDist = Float.MAX_VALUE;
-        for (zombie.vehicles.BaseVehicle vehicle : cell.getVehicles()) {
-            if (vehicle == null) continue;
-            float dx = vehicle.getX() - sx;
-            float dy = vehicle.getY() - sy;
-            float dist = dx * dx + dy * dy;
-            if (dist > r2 || dist >= bestDist) continue;
-            zombie.vehicles.VehicleParts parts = vehicle.getParts();
-            for (int i = 0; i < parts.size(); i++) {
-                zombie.vehicles.VehiclePart part = parts.get(i);
-                if (part == null || !part.isContainer()) continue;
-                if (!vehicle.canAccessContainer(i, shell)) continue;
-                ItemContainer container = part.getItemContainer();
-                if (container == null) continue;
-                java.util.ArrayList<InventoryItem> items = container.getItems();
-                for (int k = 0; k < items.size(); k++) {
-                    InventoryItem item = items.get(k);
-                    if (!probe.accepts(item)) continue;
-                    FoodSource source = new FoodSource();
-                    source.container = container;
-                    source.item = item;
-                    source.vehicle = vehicle;
-                    source.vehiclePartIndex = i;
-                    source.x = (int) vehicle.getX();
-                    source.y = (int) vehicle.getY();
-                    source.z = (int) vehicle.getZ();
-                    best = source;
-                    bestDist = dist;
-                    break;
+        float bestDistance = Float.MAX_VALUE;
+        SAOPrivateInventory.View view = SAOPrivateInventory.loadedView(shell,
+            radius);
+        for (SAOPrivateInventory.Holder holder : view.holders()) {
+            if (!("container".equals(holder.kind())
+                    || "vehicle".equals(holder.kind()))
+                    || "refused".equals(holder.access())
+                    || !"complete".equals(holder.contents())
+                    || holder.container() == null) continue;
+            float dx = holder.x() - shell.getX();
+            float dy = holder.y() - shell.getY();
+            float distance = dx * dx + dy * dy
+                + ((int) shell.getZ() == holder.z()
+                    ? 0.0f : CROSS_FLOOR_PENALTY);
+            if (distance >= bestDistance) continue;
+            for (SAOPrivateInventory.ItemRef ref : holder.items()) {
+                InventoryItem item = ref.item();
+                if (item == null || !probe.accepts(item)) continue;
+                ItemContainer direct = item.getContainer();
+                if (direct == null) continue;
+                FoodSource source = new FoodSource();
+                source.holderId = holder.id();
+                source.container = direct;
+                source.permissionContainer = holder.container();
+                source.item = item;
+                source.x = holder.x();
+                source.y = holder.y();
+                source.z = holder.z();
+                if (holder.container().isVehiclePart()) {
+                    source.vehicle = holder.container().getVehicle();
+                    zombie.vehicles.VehiclePart part =
+                        holder.container().getVehiclePart();
+                    source.vehiclePartIndex = part == null ? -1
+                        : part.getIndex();
                 }
-                if (best != null && bestDist == dist) break;
+                best = source;
+                bestDistance = distance;
+                break;
             }
         }
         return best;
     }
 
-    private static FoodSource nearerSource(
-            IsoPlayer shell, FoodSource first, FoodSource second) {
-        if (first == null) return second;
-        if (second == null) return first;
-        return sourceDistance(shell, second) < sourceDistance(shell, first)
-            ? second : first;
+    /** Exact world-held item rows; never the actor, loose ground or corpses. */
+    private static java.util.ArrayList<SAOPrivateInventory.ItemRef>
+            privateStoreItems(IsoPlayer shell, int radius) {
+        java.util.ArrayList<SAOPrivateInventory.ItemRef> found =
+            new java.util.ArrayList<>();
+        for (SAOPrivateInventory.Holder holder
+                : SAOPrivateInventory.loadedView(shell, radius).holders()) {
+            if (!("container".equals(holder.kind())
+                    || "vehicle".equals(holder.kind()))
+                    || "refused".equals(holder.access())
+                    || !"complete".equals(holder.contents())) continue;
+            found.addAll(holder.items());
+        }
+        return found;
     }
 
-    private static float sourceDistance(IsoPlayer shell, FoodSource source) {
-        float dx = source.x - shell.getX();
-        float dy = source.y - shell.getY();
-        return dx * dx + dy * dy
-            + ((int) shell.getZ() == source.z ? 0.0f : CROSS_FLOOR_PENALTY);
-    }
-
-    /** [B31] The nearest something across this floor and the two
+/** [B31] The nearest something across this floor and the two
      *  adjacent ones, found ONCE.
      *
      *  FOUR methods walked this same ring - food, water, a weapon
@@ -1909,40 +1636,7 @@ public final class SAONeeds {
      *  NOT folded in. Unifying drifted code is a behaviour change
      *  wearing a refactor's clothes, and which variant is correct has
      *  to be answered before it is imposed on the rest. */
-    private static FoodSource nearestOnFloorRing(
-            IsoPlayer shell, int radius, SquareProbe probe) {
-        IsoCell cell = shell.getCell();
-        if (cell == null) return null;
-        int cx = (int) shell.getX();
-        int cy = (int) shell.getY();
-        int cz = (int) shell.getZ();
-        FoodSource best = null;
-        float bestDist = Float.MAX_VALUE;
-        for (int zOff : FLOOR_RING) {
-            for (int dy = -radius; dy <= radius; dy++) {
-                for (int dx = -radius; dx <= radius; dx++) {
-                    float dist = dx * dx + dy * dy
-                        + (zOff == 0 ? 0.0f : CROSS_FLOOR_PENALTY);
-                    if (dist >= bestDist) {
-                        continue;
-                    }
-                    IsoGridSquare square =
-                        cell.getGridSquare(cx + dx, cy + dy, cz + zOff);
-                    if (square == null) {
-                        continue;
-                    }
-                    FoodSource found = probe.on(square);
-                    if (found != null) {
-                        best = found;
-                        bestDist = dist;
-                    }
-                }
-            }
-        }
-        return best;
-    }
-
-    public static String findWeaponUpgradeNear(IsoPlayer shell, int radius) {
+public static String findWeaponUpgradeNear(IsoPlayer shell, int radius) {
         try {
             IsoCell cell = shell.getCell();
             if (cell == null) {
@@ -1950,8 +1644,8 @@ public final class SAONeeds {
             }
             float carried = carriedMeleeScore(shell);
             float threshold = Math.max(carried * 1.25f, carried + 2.0f);
-            FoodSource best = nearestOnFloorRing(shell, radius,
-                square -> firstWeaponIn(square, threshold));
+            FoodSource best = nearestPrivateSource(shell, radius,
+                item -> SAOEquipment.meleeScore(item) >= threshold);
             if (best == null) {
                 WEAPON_SOURCES.remove(shell);
                 return "";
@@ -1969,35 +1663,7 @@ public final class SAONeeds {
         }
     }
 
-    private static FoodSource firstWeaponIn(IsoGridSquare square, float threshold) {
-        java.util.List<IsoObject> objects = square.getObjects();
-        for (int i = 0; i < objects.size(); i++) {
-            IsoObject object = objects.get(i);
-            int count = object.getContainerCount();
-            for (int c = 0; c < count; c++) {
-                ItemContainer container = object.getContainerByIndex(c);
-                if (container == null) {
-                    continue;
-                }
-                java.util.ArrayList<InventoryItem> items = container.getItems();
-                for (int k = 0; k < items.size(); k++) {
-                    InventoryItem item = items.get(k);
-                    if (SAOEquipment.meleeScore(item) >= threshold) {
-                        FoodSource source = new FoodSource();
-                        source.container = container;
-                        source.item = item;
-                        source.x = square.getX();
-                        source.y = square.getY();
-                        source.z = square.getZ();
-                        return source;
-                    }
-                }
-            }
-        }
-        return null;
-    }
-
-    public static InventoryItem weaponSourceItem(IsoPlayer shell) {
+public static InventoryItem weaponSourceItem(IsoPlayer shell) {
         FoodSource source = validWeaponSource(shell);
         return source == null ? null : source.item;
     }
@@ -2033,10 +1699,14 @@ public final class SAONeeds {
     private static FoodSource validWeaponSource(IsoPlayer shell) {
         try {
             FoodSource source = WEAPON_SOURCES.get(shell);
-            if (source == null || source.container == null || source.item == null) {
+            if (source == null || source.container == null
+                    || source.permissionContainer == null
+                    || source.item == null) {
                 return null;
             }
-            if (!source.container.contains(source.item)) {
+            if (!source.container.contains(source.item)
+                    || SAOPrivateInventory.rootContainer(source.container)
+                        != source.permissionContainer) {
                 WEAPON_SOURCES.remove(shell);
                 return null;
             }
@@ -2085,7 +1755,7 @@ public final class SAONeeds {
      * carried, or the only one when the giver is not bleeding. */
     public static InventoryItem spareBandage(IsoPlayer shell) {
         try {
-            var items = shell.getInventory().getItems();
+            var items = SAOPrivateInventory.carriedItems(shell);
             InventoryItem first = null;
             InventoryItem second = null;
             for (int i = 0; i < items.size(); i++) {
@@ -2116,7 +1786,7 @@ public final class SAONeeds {
         try {
             InventoryItem best = null;
             float bestPower = 0.0f;
-            java.util.ArrayList<InventoryItem> items = shell.getInventory().getItems();
+            java.util.ArrayList<InventoryItem> items = SAOPrivateInventory.carriedItems(shell);
             for (int i = 0; i < items.size(); i++) {
                 InventoryItem item = items.get(i);
                 if (item.isCanBandage() && item.getBandagePower() > bestPower) {
@@ -2138,7 +1808,7 @@ public final class SAONeeds {
             InventoryItem second = null;
             float bestFill = 0.0f;
             float secondFill = 0.0f;
-            java.util.ArrayList<InventoryItem> items = shell.getInventory().getItems();
+            java.util.ArrayList<InventoryItem> items = SAOPrivateInventory.carriedItems(shell);
             for (int i = 0; i < items.size(); i++) {
                 InventoryItem item = items.get(i);
                 if (!edible(item)) {
@@ -2169,7 +1839,7 @@ public final class SAONeeds {
 
     private static InventoryItem findRippableCloth(IsoPlayer shell) {
         try {
-            java.util.ArrayList<InventoryItem> items = shell.getInventory().getItems();
+            java.util.ArrayList<InventoryItem> items = SAOPrivateInventory.carriedItems(shell);
             for (int i = 0; i < items.size(); i++) {
                 InventoryItem item = items.get(i);
                 if ("Base.Sheet".equals(item.getFullType())) {
@@ -2202,7 +1872,9 @@ public final class SAONeeds {
             } catch (Throwable throwable) {
                 name = cloth.getFullType();
             }
-            shell.getInventory().Remove(cloth);
+            ItemContainer holder = cloth.getContainer();
+            if (holder == null || !holder.contains(cloth)) return "";
+            holder.Remove(cloth);
             shell.getInventory().AddItem("Base.RippedSheets");
             shell.getInventory().AddItem("Base.RippedSheets");
             return name;
@@ -2217,7 +1889,7 @@ public final class SAONeeds {
      * ammo box, and the loose-round item key. */
     private static java.util.Set<String> feedTypesFor(IsoPlayer shell) {
         java.util.Set<String> types = new java.util.HashSet<>();
-        java.util.ArrayList<InventoryItem> items = shell.getInventory().getItems();
+        java.util.ArrayList<InventoryItem> items = SAOPrivateInventory.carriedItems(shell);
         for (int i = 0; i < items.size(); i++) {
             if (!(items.get(i) instanceof zombie.inventory.types.HandWeapon weapon)
                 || !weapon.isRanged() || weapon.isBroken()) {
@@ -2257,7 +1929,7 @@ public final class SAONeeds {
             if (feeds.isEmpty()) {
                 return false;
             }
-            java.util.ArrayList<InventoryItem> items = shell.getInventory().getItems();
+            java.util.ArrayList<InventoryItem> items = SAOPrivateInventory.carriedItems(shell);
             for (int i = 0; i < items.size(); i++) {
                 InventoryItem item = items.get(i);
                 if (item instanceof zombie.inventory.types.HandWeapon weapon
@@ -2287,8 +1959,8 @@ public final class SAONeeds {
             if (feeds.isEmpty()) {
                 return "";
             }
-            FoodSource best = nearestOnFloorRing(shell, radius,
-                square -> firstFeedIn(square, feeds));
+            FoodSource best = nearestPrivateSource(shell, radius,
+                item -> feeds.contains(item.getFullType()));
             if (best == null) {
                 AMMO_SOURCES.remove(shell);
                 return "";
@@ -2306,35 +1978,7 @@ public final class SAONeeds {
         }
     }
 
-    private static FoodSource firstFeedIn(IsoGridSquare square, java.util.Set<String> feeds) {
-        java.util.List<IsoObject> objects = square.getObjects();
-        for (int i = 0; i < objects.size(); i++) {
-            IsoObject object = objects.get(i);
-            int count = object.getContainerCount();
-            for (int c = 0; c < count; c++) {
-                ItemContainer container = object.getContainerByIndex(c);
-                if (container == null) {
-                    continue;
-                }
-                java.util.ArrayList<InventoryItem> items = container.getItems();
-                for (int k = 0; k < items.size(); k++) {
-                    InventoryItem item = items.get(k);
-                    if (feeds.contains(item.getFullType())) {
-                        FoodSource source = new FoodSource();
-                        source.container = container;
-                        source.item = item;
-                        source.x = square.getX();
-                        source.y = square.getY();
-                        source.z = square.getZ();
-                        return source;
-                    }
-                }
-            }
-        }
-        return null;
-    }
-
-    public static InventoryItem ammoSourceItem(IsoPlayer shell) {
+public static InventoryItem ammoSourceItem(IsoPlayer shell) {
         FoodSource source = validFrom(AMMO_SOURCES, shell);
         return source == null ? null : source.item;
     }
@@ -2371,10 +2015,14 @@ public final class SAONeeds {
     private static FoodSource validFrom(Map<IsoPlayer, FoodSource> map, IsoPlayer shell) {
         try {
             FoodSource source = map.get(shell);
-            if (source == null || source.container == null || source.item == null) {
+            if (source == null || source.container == null
+                    || source.permissionContainer == null
+                    || source.item == null) {
                 return null;
             }
-            if (!source.container.contains(source.item)) {
+            if (!source.container.contains(source.item)
+                    || SAOPrivateInventory.rootContainer(source.container)
+                        != source.permissionContainer) {
                 map.remove(shell);
                 return null;
             }
@@ -2401,42 +2049,21 @@ public final class SAONeeds {
      * for the grab; "<display name>" or "". */
     public static String findOfferedItemNear(IsoPlayer shell) {
         try {
-            IsoCell cell = shell.getCell();
-            if (cell == null) {
-                return "";
-            }
-            int cx = (int) shell.getX();
-            int cy = (int) shell.getY();
-            int cz = (int) shell.getZ();
             zombie.iso.objects.IsoWorldInventoryObject found = null;
             int usefulCount = 0;
-            for (int dy = -2; dy <= 2; dy++) {
-                for (int dx = -2; dx <= 2; dx++) {
-                    IsoGridSquare square = cell.getGridSquare(cx + dx, cy + dy, cz);
-                    if (square == null) {
-                        continue;
-                    }
-                    java.util.ArrayList<zombie.iso.objects.IsoWorldInventoryObject>
-                        ground = square.getWorldObjects();
-                    for (int i = 0; i < ground.size(); i++) {
-                        zombie.iso.objects.IsoWorldInventoryObject worldItem = ground.get(i);
-                        if (worldItem == null) {
-                            continue;
-                        }
-                        InventoryItem item = worldItem.getItem();
-                        if (item == null) {
-                            continue;
-                        }
-                        boolean useful = edible(item)
-                            || item.isCanBandage()
-                            || SAOEquipment.meleeScore(item) > 0;
-                        if (useful) {
-                            usefulCount++;
-                            if (found == null) {
-                                found = worldItem;
-                            }
-                        }
-                    }
+            for (SAOPrivateInventory.Holder holder
+                    : SAOPrivateInventory.loadedView(shell, 2).holders()) {
+                if (!"ground".equals(holder.kind())
+                        || "refused".equals(holder.access())
+                        || holder.worldObject() == null
+                        || holder.items().isEmpty()) continue;
+                InventoryItem item = holder.items().get(0).item();
+                boolean useful = item != null && (edible(item)
+                    || item.isCanBandage()
+                    || SAOEquipment.meleeScore(item) > 0);
+                if (useful) {
+                    usefulCount++;
+                    if (found == null) found = holder.worldObject();
                 }
             }
             // A lone item reads as offered or lost; a CLUSTER reads as
@@ -2491,6 +2118,8 @@ public final class SAONeeds {
                                                  ItemContainer container) {
         try {
             if (shell == null || container == null) return false;
+            container = SAOPrivateInventory.rootContainer(container);
+            if (container == null) return false;
             if (container == shell.getInventory()
                     || container.isInCharacterInventory(shell)) return true;
             if (container.isVehiclePart()) {
@@ -2620,7 +2249,7 @@ public final class SAONeeds {
             InventoryItem second = null;
             float bestAmount = 0.0f;
             float secondAmount = 0.0f;
-            java.util.ArrayList<InventoryItem> items = shell.getInventory().getItems();
+            java.util.ArrayList<InventoryItem> items = SAOPrivateInventory.carriedItems(shell);
             for (int i = 0; i < items.size(); i++) {
                 InventoryItem item = items.get(i);
                 float amount = drinkableAmount(item);
@@ -2646,7 +2275,7 @@ public final class SAONeeds {
     /** Best carried smokable (the vanilla SMOKABLE tag), or null. */
     public static InventoryItem carriedSmokable(IsoPlayer shell) {
         try {
-            java.util.ArrayList<InventoryItem> items = shell.getInventory().getItems();
+            java.util.ArrayList<InventoryItem> items = SAOPrivateInventory.carriedItems(shell);
             for (int i = 0; i < items.size(); i++) {
                 InventoryItem item = items.get(i);
                 if (item.hasTag(zombie.scripting.objects.ItemTag.SMOKABLE)) {
@@ -2663,7 +2292,7 @@ public final class SAONeeds {
     public static int smokableCount(IsoPlayer shell) {
         try {
             int count = 0;
-            java.util.ArrayList<InventoryItem> items = shell.getInventory().getItems();
+            java.util.ArrayList<InventoryItem> items = SAOPrivateInventory.carriedItems(shell);
             for (int i = 0; i < items.size(); i++) {
                 if (items.get(i).hasTag(zombie.scripting.objects.ItemTag.SMOKABLE)) {
                     count++;
@@ -2720,7 +2349,7 @@ public final class SAONeeds {
     /** [C121] The first carried item of a county family, or null. */
     public static InventoryItem carriedDrugFor(IsoPlayer shell, String family) {
         try {
-            java.util.ArrayList<InventoryItem> items = shell.getInventory().getItems();
+            java.util.ArrayList<InventoryItem> items = SAOPrivateInventory.carriedItems(shell);
             for (int i = 0; i < items.size(); i++) {
                 if (family.equals(drugFamilyOf(items.get(i)))) {
                     return items.get(i);
@@ -2737,7 +2366,7 @@ public final class SAONeeds {
     public static boolean isUnkempt(zombie.characters.IsoGameCharacter character) {
         try {
             java.util.ArrayList<InventoryItem> items =
-                character.getInventory().getItems();
+                SAOPrivateInventory.carriedItems(character);
             for (int i = 0; i < items.size(); i++) {
                 InventoryItem item = items.get(i);
                 if (item instanceof zombie.inventory.types.Clothing clothing

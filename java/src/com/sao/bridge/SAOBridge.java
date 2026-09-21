@@ -842,16 +842,22 @@ public final class SAOBridge {
 
     /** Scan for a container weapon clearly better than carried; "x:y:z:name" or "". */
     public String findWeaponUpgrade(Object object, double radius) {
-        if (object instanceof SAOIsoPlayerShell shell) {
-            return com.sao.engine.SAONeeds.findWeaponUpgradeNear(shell, (int) radius);
+        try {
+            if (object instanceof SAOIsoPlayerShell shell) {
+                return com.sao.engine.SAONeeds.findWeaponUpgradeNear(shell, (int) radius);
+            }
+        } catch (Throwable error) {
+            SAOAgent.log("findWeaponUpgrade refused: " + error);
         }
         return "";
     }
 
     public Object weaponSourceItem(Object object) {
-        if (object instanceof SAOIsoPlayerShell shell) {
-            return com.sao.engine.SAONeeds.weaponSourceItem(shell);
-        }
+        try {
+            if (object instanceof SAOIsoPlayerShell shell) {
+                return com.sao.engine.SAONeeds.weaponSourceItem(shell);
+            }
+        } catch (Throwable error) { SAOAgent.log("weaponSourceItem refused: " + error); }
         return null;
     }
 
@@ -1199,7 +1205,7 @@ public final class SAOBridge {
             String journalTitle = name + "'s journal";
             String cardTitle = name + " - ID";
             zombie.inventory.InventoryItem card = null;
-            var items = shell.getInventory().getItems();
+            var items = com.sao.engine.SAOPrivateInventory.carriedItems(shell);
             for (int index = 0; index < items.size(); index++) {
                 zombie.inventory.InventoryItem item = items.get(index);
                 if (item == null) {
@@ -1330,9 +1336,11 @@ public final class SAOBridge {
     }
 
     public Object ammoSourceItem(Object object) {
-        if (object instanceof SAOIsoPlayerShell shell) {
-            return com.sao.engine.SAONeeds.ammoSourceItem(shell);
-        }
+        try {
+            if (object instanceof SAOIsoPlayerShell shell) {
+                return com.sao.engine.SAONeeds.ammoSourceItem(shell);
+            }
+        } catch (Throwable error) { SAOAgent.log("ammoSourceItem refused: " + error); }
         return null;
     }
 
@@ -1378,6 +1386,82 @@ public final class SAOBridge {
             if (value != null && value.startsWith("v1;")) return 1;
         } catch (Throwable error) { }
         return 0;
+    }
+
+    /** [C71] Fresh recursive carriage for loaded decision code. */
+    public Object privateCarriedItems(Object object) {
+        try {
+            if (object instanceof zombie.characters.IsoGameCharacter person) {
+                return com.sao.engine.SAOPrivateInventory.carriedItems(person);
+            }
+        } catch (Throwable error) { SAOAgent.log("privateCarriedItems refused: " + error); }
+        return new java.util.ArrayList<>();
+    }
+
+    /** [C71] Exact holder rows; this is a read and owns no inventory state. */
+    public String privateInventoryLoaded(Object object, double radius) {
+        try {
+            if (object instanceof zombie.characters.IsoPlayer person) {
+                return com.sao.engine.SAOPrivateInventory.encodeLoaded(person,
+                    (int) radius);
+            }
+        } catch (Throwable error) {
+            SAOAgent.log("privateInventoryLoaded refused: " + error);
+        }
+        return "H|protocol=SAOPI1|representation=loaded|carried=unknown|"
+            + "world=unknown:missing-body|aggregate=refused|revision=\nE\n";
+    }
+
+    /** [C71] Exact v4 carried rows; dormant world access remains unknown. */
+    public String privateInventoryDormant(String personId, Object packed) {
+        try {
+            return com.sao.engine.SAOPrivateInventory.encodeDormant(personId,
+                SAODurableText.unpack(packed));
+        } catch (Throwable error) {
+            return "H|protocol=SAOPI1|representation=dormant|carried=unknown|"
+                + "world=unknown:invalid-snapshot|aggregate=refused|revision=\nE\n";
+        }
+    }
+
+    /** [C71] Exact native radio possession; unsupported snapshots refuse. */
+    public boolean privateDormantHasRadio(Object packed) {
+        try {
+            return com.sao.engine.SAOPrivateInventory.dormantHasRadio(
+                SAODurableText.unpack(packed));
+        } catch (Throwable unavailable) {
+            return false;
+        }
+    }
+
+    /** [C71] Recursive items for a selected native holder. */
+    public Object privateContainerItems(Object object) {
+        try {
+            if (object instanceof zombie.inventory.ItemContainer container) {
+                return com.sao.engine.SAOPrivateInventory.containerItems(container);
+            }
+        } catch (Throwable error) { SAOAgent.log("privateContainerItems refused: " + error); }
+        return new java.util.ArrayList<>();
+    }
+
+    /** [C71] Recursive current corpse inventory inside the actor's view. */
+    public Object privateCorpseItems(Object object, double radius) {
+        try {
+            if (object instanceof zombie.characters.IsoPlayer person) {
+                return com.sao.engine.SAOPrivateInventory.nearbyCorpseItems(person,
+                    (int) radius);
+            }
+        } catch (Throwable error) { SAOAgent.log("privateCorpseItems refused: " + error); }
+        return new java.util.ArrayList<>();
+    }
+
+    public boolean privateItemIsRadio(Object object) {
+        try {
+            return object instanceof zombie.inventory.InventoryItem item
+                && com.sao.engine.SAOPrivateInventory.isRadioReceiver(item);
+        } catch (Throwable error) {
+            SAOAgent.log("privateItemIsRadio refused: " + error);
+            return false;
+        }
     }
 
     /** [C67] Native saved hearing; unavailable evidence never means can-hear. */

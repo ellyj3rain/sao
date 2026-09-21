@@ -377,7 +377,7 @@ function N.passReadingTo(id, body, otherBody, recipientId, options)
     end
     local book = nil
     pcall(function()
-        local items = body:getInventory():getItems()
+        local items = SAOJavaBridge:privateCarriedItems(body)
         for i = 0, items:size() - 1 do
             local it = items:get(i)
             local okD, cat = pcall(function()
@@ -451,7 +451,7 @@ end
 local function carriedVessels(body)
     local out = {}
     pcall(function()
-        local items = body:getInventory():getItems()
+        local items = SAOJavaBridge:privateCarriedItems(body)
         for i = 0, items:size() - 1 do
             local it = items:get(i)
             local okC, fc = pcall(function()
@@ -495,7 +495,7 @@ end
 function N.takePills(id, body)
     local pill = nil
     pcall(function()
-        local items = body:getInventory():getItems()
+        local items = SAOJavaBridge:privateCarriedItems(body)
         for i = 0, items:size() - 1 do
             local it = items:get(i)
             local okS, script = pcall(function()
@@ -556,7 +556,7 @@ function N.shareDisinfectantWith(id, body, otherBody, recipientId, options)
     if not (SAO.Handover and recipientId) then return false end
     local gift = nil
     pcall(function()
-        local items = body:getInventory():getItems()
+        local items = SAOJavaBridge:privateCarriedItems(body)
         for i = 0, items:size() - 1 do
             local it = items:get(i)
             local okA, power = pcall(function()
@@ -580,7 +580,7 @@ end
 function N.hasLight(body)
     local found = false
     pcall(function()
-        local items = body:getInventory():getItems()
+        local items = SAOJavaBridge:privateCarriedItems(body)
         for i = 0, items:size() - 1 do
             local okL, strength = pcall(function()
                 return items:get(i):getLightStrength()
@@ -642,7 +642,7 @@ function N.takeStoredWater(id, body)
     if not okC or container == nil then return false end
     local found = nil
     pcall(function()
-        local items = container:getItems()
+        local items = SAOJavaBridge:privateContainerItems(container)
         for i = 0, items:size() - 1 do
             local it = items:get(i)
             local okF, fc = pcall(function()

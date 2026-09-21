@@ -78,6 +78,7 @@ public final class SAONativeSnapshot {
     private interface Writer { void write(ByteBuffer buffer) throws IOException; }
 
     private record ItemFact(int id, Integer parent, String type) { }
+    public record InventoryFact(int itemId, Integer parentItemId, String fullType) { }
     private record Slot(String location, int item) { }
     private record Equipment(Integer primary, Integer secondary,
                              List<Slot> worn, List<Slot> attached) { }
@@ -240,6 +241,20 @@ public final class SAONativeSnapshot {
 
     public static int formatVersion(String packed) throws IOException {
         return parse(packed).schema();
+    }
+
+    /** Exact carried identity and direct-parent rows for a dormant v4 person. */
+    public static List<InventoryFact> inventoryManifest(String packed) throws IOException {
+        Snapshot snapshot = parse(packed);
+        if (snapshot.schema() < 4) {
+            throw new IOException("Dormant inventory coverage requires native v4");
+        }
+        ArrayList<InventoryFact> out = new ArrayList<>();
+        for (ItemFact fact : snapshot.manifest().items().values()) {
+            out.add(new InventoryFact(fact.id(), fact.parent(), fact.type()));
+        }
+        out.sort(java.util.Comparator.comparingInt(InventoryFact::itemId));
+        return List.copyOf(out);
     }
 
     /** Read saved hearing without loading inventory or constructing a body. */

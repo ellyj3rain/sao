@@ -69,14 +69,14 @@ local function derivationEvidence(receipt, generation, evidenceAt)
         order = receipt.order,
         materialProjectionEnabled = receipt.materialProjectionEnabled,
         materialGeneration = tonumber(generation) or 0,
+        completeCoverage = true,
     }
 end
 
 local function standingFrom(store, groupId, evidence)
     -- One used source is exact material evidence, but it is not a complete
     -- inventory of the held place. Aggregate larder/water claims remain owned
-    -- by a complete quartermaster observation until a future Material producer
-    -- can prove complete coverage of the claim.
+    -- by a complete Material reconciliation that proves claim-wide coverage.
     if type(store) ~= "table" or type(store.coverage) ~= "table"
         or store.coverage.complete ~= true then
         return true

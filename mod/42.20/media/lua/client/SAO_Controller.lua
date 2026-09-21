@@ -3195,7 +3195,7 @@ local function decideLocalResources(id, agent, body, tick, idleRec)
             and n23.hunger >= SAO.Disposition.eatAt(id)
         local armed23 = false
         pcall(function()
-            local its = body:getInventory():getItems()
+            local its = SAOJavaBridge:privateCarriedItems(body)
             for i = 0, its:size() - 1 do
                 if instanceof(its:get(i), "HandWeapon") then
                     armed23 = true
@@ -3241,41 +3241,21 @@ local function decideLocalResources(id, agent, body, tick, idleRec)
                 refused = true
             else
                 pcall(function()
-                    local sq = body:getCurrentSquare()
-                    local cell23 = getCell()
-                    for dx = -2, 2 do
-                        if took then break end
-                        for dy = -2, 2 do
-                            local s23 = cell23:getGridSquare(
-                                math.floor(body:getX()) + dx,
-                                math.floor(body:getY()) + dy,
-                                math.floor(body:getZ()))
-                            local bodies = s23 and s23:getDeadBodys()
-                            if bodies then
-                                for bi = 0, bodies:size() - 1 do
-                                    local corpse = bodies:get(bi)
-                                    local cont = corpse
-                                        and corpse:getContainer()
-                                    if cont then
-                                        local its = cont:getItems()
-                                        for ii = its:size() - 1, 0, -1 do
-                                            local it = its:get(ii)
-                                            local wantIt =
-                                                (needF and instanceof(it, "Food"))
-                                                or (not armed23
-                                                    and instanceof(it, "HandWeapon"))
-                                            if wantIt then
-                                                cont:Remove(it)
-                                                body:getInventory():AddItem(it)
-                                                took = tostring(it:getName())
-                                                break
-                                            end
-                                        end
-                                    end
-                                    if took then break end
-                                end
+                    local its = SAOJavaBridge:privateCorpseItems(body, 3)
+                    for ii = its:size() - 1, 0, -1 do
+                        local it = its:get(ii)
+                        local wantIt =
+                            (needF and instanceof(it, "Food"))
+                            or (not armed23
+                                and instanceof(it, "HandWeapon"))
+                        if wantIt then
+                            local cont = it:getContainer()
+                            if cont then
+                                cont:Remove(it)
+                                body:getInventory():AddItem(it)
+                                took = tostring(it:getName())
                             end
-                            if took then break end
+                            break
                         end
                     end
                 end)
@@ -3346,7 +3326,7 @@ local function decideLocalResources(id, agent, body, tick, idleRec)
                 -- could light: fuel plus the means in your pack.
                 local canLight = false
                 pcall(function()
-                    local its7 = body:getInventory():getItems()
+                    local its7 = SAOJavaBridge:privateCarriedItems(body)
                     for i7 = 0, its7:size() - 1 do
                         local ft7 = tostring(
                             its7:get(i7):getFullType() or "")
@@ -3585,7 +3565,7 @@ local function decideLocalResources(id, agent, body, tick, idleRec)
                 -- Gear reads, engine-honest.
                 local seed4, seedType4, plow4, water4, waterUses4
                 pcall(function()
-                    local its4 = body:getInventory():getItems()
+                    local its4 = SAOJavaBridge:privateCarriedItems(body)
                     for i4 = 0, its4:size() - 1 do
                         local it4 = its4:get(i4)
                         if not plow4 and ItemTag
@@ -4138,8 +4118,7 @@ local function decideRoam(id, agent, body, tick, interval, desig, idleRec)
                 id, body:getX(), body:getY()) then
                 local hasKit, hammer9, plank9 = false, nil, nil
                 pcall(function()
-                    local inv9 = body:getInventory()
-                    local its9 = inv9:getItems()
+                    local its9 = SAOJavaBridge:privateCarriedItems(body)
                     local nails9 = false
                     for i9 = 0, its9:size() - 1 do
                         local it9 = its9:get(i9)
@@ -4320,65 +4299,21 @@ local function decideRoam(id, agent, body, tick, interval, desig, idleRec)
             return true
         end
         why, answer = "rounds the stores", "designation"
-        -- The larder speaks ([A28]): the round READS the
-        -- real shelves - a count of actual edible items in
-        -- the actual containers - and the claim it derives is
-        -- what the house knows about its own stores.
+        -- The round reads current private holders ([C71]). This proves
+        -- which exact items are currently visible to this quartermaster;
+        -- a bounded observation does not become a complete house total.
         if SAO.Standing.insideClaim(id, body:getX(), body:getY()) then
             local qG = SAO.Standing.groupOf(id)
             if qG then
-                local qEvidence = {
-                    at = 0,
-                    materialGeneration = SAO.Material
-                        and SAO.Material.houseProjectionGeneration
-                        and SAO.Material.houseProjectionGeneration(qG) or 0,
-                }
-                pcall(function()
-                    qEvidence.at = SAO.History.countyHours()
+                local okC5, inventory5 = pcall(function()
+                    return SAOJavaBridge:privateInventoryLoaded(body, 12)
                 end)
-                local okC5, cnt5 = pcall(function()
-                    return SAOJavaBridge:countEdibleNearby(body, 12)
-                end)
-                if okC5 and type(cnt5) == "number" then
-                    local n5 = #SAO.Standing.fellowsOf(id) + 1
-                    -- The winter prepared ([A28]): in autumn
-                    -- (engine months 9/10 = Oct/Nov, the same
-                    -- 0-based calendar the attrition law
-                    -- reads) the SAME real count is judged
-                    -- against the winter ahead - thresholds
-                    -- x1.5. Judgment derives from calendar
-                    -- plus count; the count itself is never
-                    -- touched.
-                    local seasonScale = 1.0
-                    pcall(function()
-                        local m6 = SAO.History.countyMonth()
-                        if m6 == 9 or m6 == 10 then
-                            seasonScale = 1.5
-                        end
-                    end)
-                    local word = (cnt5 < n5 * 1.5 * seasonScale)
-                        and "lean"
-                        or (cnt5 > n5 * 4 * seasonScale)
-                        and "full" or "fair"
-                    SAO.Standing.setLarder(qG, word, cnt5,
-                        "quartermaster-native-scan", qEvidence)
-                    if word == "lean" then
-                        -- [B23] And the county hears it. The
-                        -- count is already made; this only
-                        -- lets it leave the building.
-                        pcall(function()
-                            SAO.Standing.callForBread(qG, id)
-                        end)
-                        pcall(function()
-                            SAO.Voice.onEvent(id,
-                                seasonScale > 1 and "winterLean"
-                                or "lean", tick)
-                        end)
-                    end
-                    log(id .. " counts the shelves: " .. cnt5
-                        .. " (" .. word
-                        .. (seasonScale > 1 and ", judged against winter"
-                            or "") .. ")")
+                if okC5 and type(inventory5) == "string"
+                    and inventory5:find("protocol=SAOPI1", 1, true)
+                    and inventory5:find("aggregate=refused", 1, true) then
+                    log(id .. " inspects the current store holders"
+                        .. " without inferring a house total")
+                end
                     -- The motor pool ([B1]): the same rounds
                     -- read the REAL cars on the ground. The
                     -- claim is what the house can plan seats
@@ -4395,33 +4330,11 @@ local function decideRoam(id, agent, body, tick, interval, desig, idleRec)
                         SAO.Standing.setHearth(qG,
                             (hl7 and hf7 and hf7 > 0) and true or false)
                     end
-                    -- Water counted ([B6]): the same round
-                    -- reads what the house has to DRINK, and
-                    -- notices the day the mains stop. The
+                    -- The same round notices the day the mains stop. The
                     -- shutoff is a county fact - stamped,
                     -- aired, and chronicled like the first
                     -- bite; sandbox decides when it comes.
                     do
-                        local okW6, w6 = pcall(function()
-                            return SAOJavaBridge
-                                :countStoredWaterNearby(body, 12)
-                        end)
-                        if okW6 and type(w6) == "number" then
-                            local n6 = #SAO.Standing.fellowsOf(id) + 1
-                            local word6 = (w6 < n6 * 2) and "dry"
-                                or (w6 > n6 * 8) and "full" or "fair"
-                            SAO.Standing.setWaterStore(qG, word6, w6,
-                                "quartermaster-native-scan", qEvidence)
-                            if word6 == "dry" then
-                                pcall(function()
-                                    SAO.Voice.onEvent(id, "dryStore",
-                                        tick)
-                                end)
-                            end
-                            log(id .. " counts the water: "
-                                .. math.floor(w6) .. " (" .. word6
-                                .. ")")
-                        end
                         local okM6, mainsOn6 = pcall(function()
                             return SAOJavaBridge:countyWaterOn()
                         end)
@@ -4470,9 +4383,8 @@ local function decideRoam(id, agent, body, tick, interval, desig, idleRec)
                                         <= 100 then
                                         local armed = false
                                         pcall(function()
-                                            local its =
-                                                mb:getInventory()
-                                                :getItems()
+                                            local its = SAOJavaBridge
+                                                :privateCarriedItems(mb)
                                             for i2 = 0,
                                                 its:size() - 1 do
                                                 if instanceof(
@@ -4505,12 +4417,14 @@ local function decideRoam(id, agent, body, tick, interval, desig, idleRec)
                             end)
                             if okW and tookW and tookW > 0 then
                                 pcall(function()
-                                    local qInv = body:getInventory()
-                                    local its = qInv:getItems()
+                                    local its = SAOJavaBridge
+                                        :privateCarriedItems(body)
                                     for i2 = its:size() - 1, 0, -1 do
                                         local it2 = its:get(i2)
                                         if instanceof(it2,
                                             "HandWeapon") then
+                                            local qInv = it2:getContainer()
+                                            if not qInv then break end
                                             qInv:Remove(it2)
                                             SAO.Body.get(bestUn)
                                                 :getInventory()
@@ -4576,7 +4490,6 @@ local function decideRoam(id, agent, body, tick, interval, desig, idleRec)
                                 .. #cars .. " vehicle(s)")
                         end
                     end
-                end
             end
         end
     elseif desig == "cook" then

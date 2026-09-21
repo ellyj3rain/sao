@@ -23,9 +23,8 @@ SAO.RadioEar = SAO.RadioEar or {}
 local function hasLiveWireRadio(playerObj)
     local freq = SAOWire and SAOWire.freq or nil
     if not freq then return false end
-    local inv = playerObj:getInventory()
-    if not inv then return false end
-    local items = inv:getItems()
+    if not SAOJavaBridge then return false end
+    local items = SAOJavaBridge:privateCarriedItems(playerObj)
     for i = 0, items:size() - 1 do
         local it = items:get(i)
         -- [B42] ASK before calling. `getDeviceData` is declared on

@@ -25,7 +25,7 @@
         SandboxVars.SurvivorAwareness.Material = true
         P.beliefs, P.beliefVersion = {}, 0
         __stores.SurvivorAwareness_Beliefs = P.beliefs
-        local standing = { schema=3, groups={requester='hungry',carrier='home'},
+        local standing = { schema=4, groups={requester='hungry',carrier='home'},
             groupMeta={home={creedName='mercy',larder={word='full',atHours=100}},
                 hungry={}, remote={}},
             groupClaims={home={minX=0,minY=0,maxX=4,maxY=4},

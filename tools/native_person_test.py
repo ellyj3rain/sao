@@ -27,10 +27,12 @@ from menu_reach import strip_lua
 ROOT = pathlib.Path(__file__).resolve().parent.parent
 DEFAULT_GAME = pathlib.Path(r"C:\Program Files (x86)\Steam\steamapps\common\ProjectZomboid")
 PZ = pathlib.Path(os.environ.get("PZ_DIR", str(DEFAULT_GAME))) / "projectzomboid.jar"
+ZB = PZ.parent / "ZombieBuddy.jar"
 JDK = pathlib.Path(os.environ.get("JDK_BIN", r"C:\Users\jleyv\Peanut Butter\JetBrains\Java\bin"))
 JAVA_SOURCES = {
     "SAONativeSnapshot.java": "java/src/com/sao/engine/SAONativeSnapshot.java",
     "SAOHibernation.java": "java/src/com/sao/engine/SAOHibernation.java",
+    "SAOPrivateInventory.java": "java/src/com/sao/engine/SAOPrivateInventory.java",
 }
 REQUIRED = [*JAVA_SOURCES.values(), "tools/luacheck/PersonSnapshotProbe.java",
             "java/src/com/sao/bridge/SAOBridge.java",
@@ -209,6 +211,12 @@ def execute(root, inventory, receipt):
         receipt["java_sha256"] = digest((JDK / "java.exe").read_bytes())
         receipt["compile_options"] = ["-encoding", "UTF-8"]
         production_classes = scratch / "production" / "classes"
+        generated = scratch / "SAOVersion.java"
+        version = (root / "VERSION").read_text(encoding="utf-8-sig").strip()
+        generated.write_text(
+            "package com.sao; public final class SAOVersion { "
+            f'public static final String VALUE = "{version}"; '
+            "private SAOVersion() {} }\n", encoding="utf-8")
 
         for case in [inventory["production"], *inventory["controls"]]:
             name = case["id"]
@@ -216,17 +224,19 @@ def execute(root, inventory, receipt):
             classes = work / "classes"
             classes.mkdir(parents=True)
             if name == "production":
-                inputs = [root / relative for relative in JAVA_SOURCES.values()]
-                inputs.append(root / "tools/luacheck/PersonSnapshotProbe.java")
-                compile_classpath = str(PZ)
-                runtime_paths = [classes, PZ]
+                inputs = sorted((root / "java/src").rglob("*.java"))
+                inputs.extend((generated,
+                    root / "tools/luacheck/PersonSnapshotProbe.java"))
+                compile_classpath = os.pathsep.join(map(str, (PZ, ZB)))
+                runtime_paths = [classes, PZ, ZB]
             else:
                 changed = work / case["source"]
                 changed.write_text(sources[case["source"]].replace(case["before"], case["after"], 1),
                                    encoding="utf-8")
                 inputs = [changed]
-                compile_classpath = os.pathsep.join(map(str, (production_classes, PZ)))
-                runtime_paths = [classes, production_classes, PZ]
+                compile_classpath = os.pathsep.join(map(str,
+                    (production_classes, PZ, ZB)))
+                runtime_paths = [classes, production_classes, PZ, ZB]
             compiled = run([JDK / "javac.exe", "-encoding", "UTF-8", "-cp", compile_classpath,
                             "-d", classes, *inputs], work, "compile", name)
             if compiled.returncode:
@@ -276,7 +286,8 @@ def main(argv=None):
                     raise RuntimeError("Required native person source missing: " + relative)
             receipt["routing"] = routing(root)
             receipt["source_sha256"] = {name: digest((root / name).read_bytes()) for name in REQUIRED}
-            if not all(path.is_file() for path in (PZ, JDK / "javac.exe", JDK / "java.exe")):
+            if not all(path.is_file() for path in
+                    (PZ, ZB, JDK / "javac.exe", JDK / "java.exe")):
                 receipt["status"] = "SKIPPED"
                 print("SKIPPED native person VM: installed engine/JDK absent; inventory and source routing checked")
             else:

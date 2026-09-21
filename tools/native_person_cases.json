@@ -235,8 +235,8 @@
     },
     {
       "id": "nested-resource-traversal",
-      "source": "SAOHibernation.java",
-      "before": "collect(nested.getInventory(), found, seen);",
+      "source": "SAOPrivateInventory.java",
+      "before": "collectItems(nested.getInventory(), found, seen, depth + 1);",
       "after": "/* nested resources omitted */",
       "expected": "partial nested food quantity was not retained"
     },

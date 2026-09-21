@@ -228,24 +228,7 @@ public final class SAOHibernation {
     }
 
     private static java.util.List<InventoryItem> carriedItems(IsoPlayer shell) {
-        java.util.ArrayList<InventoryItem> found = new java.util.ArrayList<>();
-        java.util.Set<ItemContainer> seen = java.util.Collections.newSetFromMap(
-            new java.util.IdentityHashMap<>());
-        collect(shell.getInventory(), found, seen);
-        return found;
-    }
-
-    private static void collect(ItemContainer container,
-            java.util.List<InventoryItem> found, java.util.Set<ItemContainer> seen) {
-        if (container == null || !seen.add(container)) return;
-        java.util.ArrayList<InventoryItem> items = container.getItems();
-        for (int i = 0; i < items.size(); i++) {
-            InventoryItem item = items.get(i);
-            found.add(item);
-            if (item instanceof InventoryContainer nested) {
-                collect(nested.getInventory(), found, seen);
-            }
-        }
+        return SAOPrivateInventory.carriedItems(shell);
     }
 
     private static Food bestDormantFood(IsoPlayer shell) {
