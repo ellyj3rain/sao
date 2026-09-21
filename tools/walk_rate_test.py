@@ -154,6 +154,10 @@ SAO.Body = { active = {}, get = function() return nil end,
     hasRepresentation = function() return false end,
     recover = function() return true end }
 SAOJavaBridge = {
+    -- This border isolates the walk-rate law. C72 owns fatigue and sleep
+    -- behavior in Border 185, so keep this subject awake while the clock is
+    -- partitioned in different ways.
+    dormantAwakeFatiguePerHour = function() return 0.000001 end,
     daysBehindAtStart = function() return 0 end,
     recordDayToday = function() return 0 end,
     countyMonth = function() return 5 end,

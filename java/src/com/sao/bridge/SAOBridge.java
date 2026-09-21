@@ -1473,6 +1473,26 @@ public final class SAOBridge {
         }
     }
 
+    /** Native fatigue/endurance and saved sleep traits, without a body. */
+    public String hibernationRestState(Object packed) {
+        try {
+            return com.sao.engine.SAONativeSnapshot.restState(SAODurableText.unpack(packed));
+        } catch (Throwable unavailable) {
+            return "UNKNOWN:invalid-snapshot";
+        }
+    }
+
+    /** Engine-normalized awake fatigue gain per county/game hour. */
+    public double dormantAwakeFatiguePerHour() {
+        return com.sao.engine.SAONativeSnapshot.awakeFatiguePerHour();
+    }
+
+    /** Put the completed bodyless physiology interval onto a restored shell. */
+    public boolean applyDormantRestState(Object object, double fatigue, double endurance) {
+        return object instanceof zombie.characters.IsoPlayer person
+            && com.sao.engine.SAONativeSnapshot.applyRestState(person, fatigue, endurance);
+    }
+
     public Object createReturnBody(String first, String last, double x, double y, double z, boolean female) {
         return com.sao.engine.SAOReturnBody.create(first, last, x, y, z, female);
     }

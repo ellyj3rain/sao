@@ -1,13 +1,24 @@
 | Document | Survivor Awareness Overhaul Session State |
 |---|---|
-| Version | `2.8.8.0-pre-alpha` |
+| Version | `2.8.9.0-pre-alpha` |
 | Author | ellyj3rain |
 | Repository | `SESSION_STATE.md` |
 | Status | CANONICAL - current implementation and continuation. |
 
 # Session state
 
-**As of** 2026-09-21, `[C71]` gives each loaded person one fresh recursive
+**As of** 2026-09-21, `[C72]` gives a bodyless person a causal rest, sleep and
+wake state before dormant encounters. A validated native envelope supplies
+fatigue, endurance and saved sleep traits; a new generated person carries
+explicit initial provenance. The record advances those values on the county
+clock, sleeps only from actual at-home rest, holds movement while asleep and
+wakes at 06:00. Older records with only the prior speech marker remain unknown.
+Materialization restores the native body first, then applies and verifies the
+completed fatigue, endurance, sleep and seated posture. C67's measured hearing
+and spoken-admission rules remain the consumer; actual radio reception remains
+open.
+
+`[C71]` gives each loaded person one fresh recursive
 inventory view across carried items, static containers, vehicle parts, placed
 items and corpses. Native item IDs, direct parents and C61 holder identities
 remain exact; v4 dormant carriage produces the same rows without constructing a
@@ -90,7 +101,7 @@ and consolidated native continuity verification. C56
 closed R5 health and dormant physiology after durable/runtime reconstruction,
 native person continuity, shared county time and the authorized Afflicted return.
 The C catalog is consolidated by adjacency and content using
-the A/B precedent: 29 A-batches, 52 B-batches and 69 C units. BATCH_LOG.md owns
+the A/B precedent: 29 A-batches, 52 B-batches and 72 C units. BATCH_LOG.md owns
 the chronology. Batches/FORMER_LABELS.md maps every former entry;
 Batches/C_RECATALOG.json preserves original paths and source hashes. The
 original records remain at local ref `archive/c-era-raw-20260919`.
@@ -114,9 +125,9 @@ producers, persistence, evidence and gaps.
 |---|---|---|
 | Engine execution | NPC shell, bridge, movement, combat, timed-action adapters | Driving route ownership and progress; action cancellation and completion receipts. |
 | Person continuity | Durable identity, C51's body transaction, C52's authorized return/adoption/teardown, C54's v4 native state, C55/A36 reconstruction and C56/A37 one-way Crossed ownership of the same human shell and dormant envelope | R7's general action completion and later action-specific ownership remain open. |
-| Time and health | Current decision time, durable drug/abstinence clocks, current physical inputs, exact interval-integrated brain history, medical/inspect graph and memory/decision/affective/motor consumers; C68 completion-proves care-item gifts and C70 completion-proves loaded open-wound bandaging | R5 is closed. Disinfection, stitching, dormant treatment and other performed care still depend on R7/R9 action producers. |
+| Time and health | Current decision time, durable drug/abstinence clocks, current physical inputs, exact interval-integrated brain history, medical/inspect graph and memory/decision/affective/motor consumers; C68 completion-proves care-item gifts, C70 completion-proves loaded open-wound bandaging and C72 advances measured rest/sleep/wake through bodyless intervals | R5 is closed. Disinfection, stitching, dormant treatment and other performed care still depend on R7/R9 action producers. |
 | Afflicted and Crossed | ZAO pathogen state, Afflicted return, reachable Crossed decisions and an interruptible non-feeding blood exposure whose exact-once result transfers SAO's living body to ZAO | The retained human weapons, tools, strategy and wider action vocabulary remains R7-R9 work; grounded dormant opportunities remain R10. |
-| Knowledge and access | Private beliefs; animal-safe scanner output; fresh/current activity partners; demand-hydrated exact source identities; C62's revision-bound approach, current claim/vehicle permission, exact transfer, carried native use and durable result; C63-C64's exact partial-source material projection and durable ambient refresh; C71's recursive actor-private loaded holder view and exact v4 dormant carriage | R6 is closed for the selected source interaction and its completed result reaches bounded partial material state. R7 remains open beyond this source-action family. C66 adds exact acquisition/storage; C67 adds private transfer testimony and witnessed recipient response; C68 completion-proves loaded personal handovers; C69 closes the bounded recipient appraisal after testimony. C71 closes private inventory observation while complete house stock and the other material action/result producers remain open. |
+| Knowledge and access | Private beliefs; animal-safe scanner output; fresh/current activity partners; demand-hydrated exact source identities; C62's revision-bound approach, current claim/vehicle permission, exact transfer, carried native use and durable result; C63-C64's exact partial-source material projection and durable ambient refresh; C71's recursive actor-private loaded holder view and exact v4 dormant carriage; C72's produced dormant awake/asleep state joined with C67 measured hearing | R6 is closed for the selected source interaction and its completed result reaches bounded partial material state. R7 remains open beyond this source-action family. C66 adds exact acquisition/storage; C67 adds private transfer testimony and witnessed recipient response; C68 completion-proves loaded personal handovers; C69 closes the bounded recipient appraisal after testimony. C71 closes private inventory observation and C72 closes adjacent dormant spoken access. Complete house stock, actual radio reception and the other material action/result producers remain open. |
 | Social development | Company mechanics, claims, observations and graph APIs; C64 prevents partial selected-source evidence from creating aggregate claims or settlement storage; C68 separates gifts, proposed terms, accepted exchange and completion-derived debt; C69 preserves private disagreement without automatic ledger writes | Automatic relocation and recognition; incomplete affiliation, governance, place development and other provisioning producers. |
 | Speakeasy data | 190 protected choices, four historical derivatives, nine world documents, immutable capture and exact v3 join; C65 adds explicit source options/choice and immediate-result observation for loaded execution | C66/Speakeasy adds exact acquisition/storage options, decision-time views and unratified proposal authoring. Broader options, curated person-specific acquisition, ratification and later consequences remain; all current captures remain conditioning-ineligible. |
 | Models and late starts | Inference primitives, fact constraint, offline diagnostics | No trained cognition model, complete training/export path or validated accelerator. |
@@ -224,8 +235,10 @@ partial-term debt. C69 adds listener-owned appraisal of told household
 assistance. C70 adds Border 183 for exact-patient effective, ineffective,
 interrupted and reload-consumed treatment. C71 adds Border 184 for recursive
 private holder coverage, exact v4 dormant agreement and refusal of inferred
-totals. Remaining medical actions and provisioning/place-development producers
-remain.
+totals. C72 adds Border 185 for native/generated rest acquisition, bodyless
+sleep/wake before dormant encounters and exact loaded/bodyless handoff. Remaining
+medical actions, actual radio reception and provisioning/place-development
+producers remain.
 R10b continues to wait for those integrated producers.
 R11-R12 progress alongside them: Border 181 now protects the capture envelope,
 and Speakeasy v3 protects approved sources and exact joins, while their missing
@@ -360,7 +373,8 @@ retire false provisioning producers and reconcile later native change. C71
 closes recursive private inventory observation while R7's remaining action
 families and R9's material and development producers remain after C66's
 acquisition/storage, C67's witnessed-recipient response, C69's listener-owned
-appraisal after testimony and C70's loaded open-wound result. C64 closes R11's immutable envelope
+appraisal after testimony and C70's loaded open-wound result. C72 closes the
+dormant rest producer needed for adjacent spoken admission. C64 closes R11's immutable envelope
 and join integrity plus R12's source protection/conditioning audit. C65 adds
 private source options, exact runtime selection and immediate source-action
 outcomes. C66 extends capture to acquisition/storage and Speakeasy adds
@@ -392,8 +406,9 @@ consequences remain separate from the learned policy choosing among them.
 ## Verification and installed state
 
 C57 consolidates three native entry points into one. With C64's immutable
-capture border, the gate invokes 182 `*_test.py` files and 13 other Python entry
-points, 195 distinct scripts. Border labels extend through 184; legacy labels
+capture border and C72's dormant-spoken border, the gate invokes 183 `*_test.py`
+files and 13 other Python entry points, 196 distinct scripts. Border labels
+extend through 185; legacy labels
 163/169/174 share the native suite. These are distinct counting units. The mod
 ships 78 Lua source files.
 ZAO A37 has ten borders. The
@@ -407,9 +422,9 @@ C51's separate first gate found a verdict-prefix defect and missing transition
 registry surfaces/lifetimes. Its failed output is preserved with the corrections;
 the closing full gate passed with exit 0.
 
-The current install is C69 with ZAO A37, deployed on 2026-09-21 UTC.
-All 259 installed SAO files match source; the companion remains unchanged.
-The SAO jar SHA-256 is `fb3b17ad56075acc22405cf1768be700c3b0257a619bef01824e6545ebf0e05a`.
+The current install is C71 with ZAO A37, deployed on 2026-09-21 UTC.
+All 260 installed SAO files match the C71 source; the companion remains unchanged.
+The installed SAO jar SHA-256 is `1000f46f7a9646a1054b6b18d71689391f3870609a6af7a017c40d9518c8ac7e`.
 All 44,092 save-file sizes and modification times remained unchanged across
 deployment and startup. The [C61 evidence record](artifacts/audits/20260920-0844Z-0144PST-native-world-sources/README.md)
 retains the native-source substrate. The [C62 evidence record](artifacts/audits/20260920-1041Z-0341PST-source-access-native-use/README.md)
@@ -451,12 +466,12 @@ records exact-patient native treatment, ineffective/interrupted refusal and
 reload-safe consequence consumption. C71's
 [evidence record](artifacts/audits/20260921-1838Z-1138PST-complete-private-inventory/README.md)
 records recursive native holder coverage, loaded/dormant agreement and aggregate
-refusal. The next coupled work is dormant spoken access.
-Dormant sleep/wake
-production must be added to the existing physiology/action owner before a
-sleeping or sleep-unknown record can acquire new spoken delivery/request facts.
-Radio possession likewise needs actual reception proof for these new facts.
-Neither missing access is silently treated as hearing.
+refusal. C72's
+[evidence record](artifacts/audits/20260921-2224Z-1524PST-dormant-spoken-access/README.md)
+records native/generated rest acquisition, bodyless sleep/wake before dormant
+encounters and exact state restoration. The next coupled work is actual radio
+acquisition: possession remains insufficient without an operating receiver,
+tuned channel and recipient reception evidence.
 
 ## Decisions and observations still owed
 

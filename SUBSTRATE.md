@@ -1,6 +1,6 @@
 | Document | Survivor Awareness Overhaul Dependency Substrate |
 |---|---|
-| Version | `2.8.8.0-pre-alpha` |
+| Version | `2.8.9.0-pre-alpha` |
 | Author | ellyj3rain |
 | Repository | `SUBSTRATE.md` |
 | Status | CANONICAL - what exists, what is planned, and what each area of concern needs. |
@@ -166,6 +166,12 @@ timers and declared durable character ModData. Per-item native fluid facts detec
 silent mixture or definition loss. v1-v3 readers retain only the information
 those formats stored and record migration provenance when awakened. Positive-
 elapsed dormant metabolism and in-progress runtime actions remain separate work.
+
+C72 adds fatigue, endurance and saved sleep traits to the bodyless continuation
+read without changing the v4 envelope. BodySnapshot commits the measured starting
+point; DormantPopulation owns elapsed rest, sleep and wake; Body applies the
+completed interval after native awaken. Explicit new-person provenance and
+native capture are admitted. Older unmeasured records remain unknown.
 
 The remaining work is assigned to R1-R15 in ROADMAP.md. The contracts below
 define its implementation and proof. A remaining technical unknown has a
@@ -692,7 +698,7 @@ does not upgrade an unfinished mechanism to implemented.
 | Performed transfer knowledge | Needs/SourceUse native mutation -> frozen WorldSources observation -> existing Provisioning consumer -> private Perception episode | Knowledge food/water and admitted testimony | Later source conflict preserves observation but grants no successful material projection. |
 | Recipient response | Witness's own held-ground context and category need -> Disposition appraisal -> only their episode | Existing charity preference toward the actor | C69 closes the bounded household-request appraisal after testimony; testimony still does not copy feelings. |
 | Asked assistance | Quartermaster's actual request -> private dated request -> admitted testimony | Carrier's private request/destination and urgency | Actual radio reception and broader private work instructions remain separate producers. |
-| Dormant spoken access | Explicit generated-default provenance or native saved hearing; captured sleep; adjacent unloaded encounter | Perception transfer/request testimony | No dormant sleep/wake producer yet. Sleeping or unknown sleep does not become awake from elapsed time. |
+| Dormant spoken access | C67 measured hearing plus C72 native/generated rest acquisition and record-owned rest/sleep/wake before the adjacent unloaded encounter | Perception transfer/request testimony | Closed for adjacent speech. Actual radio reception and dormant exchange remain separate producers. |
 | Source curation | Speakeasy Record50 literal approved-document excerpts | Existing source validator/knowledge authoring | Extraction review, same-person acquisition, calendar join, ratification and eligible examples remain absent. |
 
 Episode retention is initially 64 recent acts over fourteen county days scaled
@@ -769,3 +775,28 @@ loaded/dormant/reload agreement, holder conservation, removal, replacement,
 transfer, legacy refusal and recursive mutation sensitivity. Dormant world
 access, complete household stock and performed material actions remain separate
 producer obligations.
+
+### C72 producer update
+
+The native envelope remains the last measured loaded state. BodySnapshot reads
+FATIGUE, ENDURANCE and saved less/more-sleep traits directly from that validated
+envelope without constructing a body, then commits the values and county hour
+with the physical sleep/rest observation. New generated people carry explicit
+initial physiology provenance. The earlier generated speech-access marker does
+not retroactively establish rest state for an older save.
+
+DormantPopulation advances the record on History's clock inside its existing
+single identity-store pass. The installed awake-fatigue ratio, current endurance
+and saved sleep trait advance wakefulness. At-home people rest from 22:00 to
+06:00, cross the existing sleep threshold, recover by the loaded non-slot sleep
+law and wake at the morning boundary. Sleep prevents the movement leg. The
+advance occurs before dormant encounters, so Communication admits or refuses the
+same produced state while retaining C67's measured-hearing check.
+
+Materialization restores the native envelope first, then replaces fatigue,
+endurance, asleep and seated posture with the completed record state and verifies
+the result before publication. Border 185 covers sleep, movement hold, encounter
+refusal, wake, encounter admission, legacy refusal, native acquisition and saved
+trait rates. Native-person and handoff suites cover exact read/apply and
+loaded/bodyless continuity. Operating receiver, channel and recipient reception
+remain the next communication producer.

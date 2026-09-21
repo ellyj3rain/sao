@@ -27,6 +27,11 @@ Body.returning = Body.returning or {}
 -- through the shared logger.
 local function log(msg) SAO.Log.line("BODY", msg) end
 
+local function finite(value)
+    return type(value) == "number" and value == value
+        and value ~= math.huge and value ~= -math.huge
+end
+
 local function localSlotUser()
     local ok, lp = pcall(function() return getSpecificPlayer(0) end)
     return ok and lp or nil
@@ -206,6 +211,68 @@ function Body.materialize(rec, externalOwner, externalToken)
         log(rec.id .. " awakens: " .. journal)
         if snapshotVersion < 4 and rec.hibernationMigration == nil then
             rec.hibernationMigration = { from = snapshotVersion, atHours = wakeAt }
+        end
+    end
+
+    -- While no body exists, the record is the physiology owner. Native
+    -- restoration supplies the captured starting point; this overlay advances
+    -- only fatigue/endurance through the elapsed bodyless interval.
+    local dormantFatigue = tonumber(rec.dormantFatigue)
+    local dormantEndurance = tonumber(rec.dormantEndurance)
+    if rec.dormantPhysiologyOrigin and finite(dormantFatigue)
+        and finite(dormantEndurance) then
+        local applied = false
+        if SAOJavaBridge and SAOJavaBridge.applyDormantRestState then
+            local ok, result = pcall(function()
+                return SAOJavaBridge:applyDormantRestState(
+                    body, dormantFatigue, dormantEndurance)
+            end)
+            applied = ok and result == true
+        else
+            applied = pcall(function()
+                body:getStats():set(CharacterStat.FATIGUE, dormantFatigue)
+                body:getStats():set(CharacterStat.ENDURANCE, dormantEndurance)
+            end)
+        end
+        if not applied then
+            Body.active[rec.id] = body
+            Body.failedRestore[rec.id] = true
+            Body.recover(rec)
+            return nil, "rest-restore-failed"
+        end
+    end
+
+    if rec.dormantSleeping == true or rec.dormantSleeping == false then
+        local wanted = rec.dormantSleeping == true
+        local okState = pcall(function()
+            if SAOJavaBridge then
+                SAOJavaBridge:setShellAsleep(body, wanted)
+            else
+                body:setAsleep(wanted)
+            end
+        end)
+        local okRead, held = pcall(function() return body:isAsleep() end)
+        if okState and okRead and held ~= wanted then
+            okState = pcall(function() body:setAsleep(wanted) end)
+            okRead, held = pcall(function() return body:isAsleep() end)
+        end
+        if not okState or not okRead or held ~= wanted then
+            Body.active[rec.id] = body
+            Body.failedRestore[rec.id] = true
+            Body.recover(rec)
+            return nil, "sleep-restore-failed"
+        end
+    end
+    if rec.dormantPhysiologyOrigin or rec.dormantResting == true
+        or rec.dormantSleeping == true then
+        local wanted = rec.dormantResting == true or rec.dormantSleeping == true
+        local okState = pcall(function() body:setSitOnGround(wanted) end)
+        local okRead, held = pcall(function() return body:isSitOnGround() end)
+        if not okState or not okRead or held ~= wanted then
+            Body.active[rec.id] = body
+            Body.failedRestore[rec.id] = true
+            Body.recover(rec)
+            return nil, "rest-posture-restore-failed"
         end
     end
 
@@ -420,11 +487,6 @@ end
 
 function Body.materializeExternal(rec, owner, token)
     return Body.materialize(rec, owner, token)
-end
-
-local function finite(value)
-    return type(value) == "number" and value == value
-        and value ~= math.huge and value ~= -math.huge
 end
 
 local function removeOwned(body)

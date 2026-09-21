@@ -140,6 +140,10 @@ function __body()
  function b:resetModelNextFrame() end
  function b:dressInRandomOutfit() self.randomDress=true end
  function b:getHealth() return 1 end
+ function b:isAsleep() return self.asleep==true end
+ function b:setAsleep(value) self.asleep=value==true end
+ function b:isSitOnGround() return self.sit==true end
+ function b:setSitOnGround(value) self.sit=value==true end
  function b:setHealth() __mutations=__mutations+1 end
  function b:SetOnFire() __mutations=__mutations+1 end
  function b:isDead() error('pending body advanced') end
@@ -163,6 +167,11 @@ SAOJavaBridge={
  end,
  captureReturnLiving=function(self,b) return SAOJavaBridge:hibernate(b) end,
  validateHibernation=function(self,p) return type(p)=='string' and p:sub(1,5)=='SNAP:' end,
+ hibernationRestState=function() return 'AVAILABLE:0.4:0.8:1.0' end,
+ applyDormantRestState=function(self,b,fatigue,endurance)
+   b.fatigue=fatigue b.endurance=endurance return true
+ end,
+ setShellAsleep=function(self,b,value) b:setAsleep(value) end,
  validateReturnVisual=function(self,p) return type(p)=='string' and p:sub(1,4)=='VIS:' end,
  captureReturnVisual=function(self,b)
    if __mode=='visual-throw' then error('visual capture unavailable') end
@@ -199,7 +208,8 @@ SAOJavaBridge={
    __restored=__restored+1
    if __restore=='throw' then error('restore unavailable') end
    if __restore=='false' then return 'AWAKEN_FAILED partial' end
-   b.payload=packed:sub(6) b.perk=7 b.elapsed=elapsed return 'AWAKENED items=1'
+    b.payload=packed:sub(6) b.perk=7 b.elapsed=elapsed
+    b.asleep=true b.sit=true return 'AWAKENED items=1'
  end
 }
 function __setup()
@@ -298,7 +308,10 @@ do
    'harness did not restore current person')
  assert(restored.visual=='current-look' and restored.visualRestoredAfter=='carried',
    'appearance did not restore after native state')
- assert(restored.perk==7,'profession granted twice after native restore')
+  assert(restored.perk==7,'profession granted twice after native restore')
+  assert(restored.fatigue==0.4 and restored.endurance==0.8
+    and not restored.asleep and not restored.sit,
+    'dormant rest state did not replace the captured native state')
  assert(__restored==1 and not restored.randomDress and SAO.Controller.agents.p1,
    'restore duplicated or dressed new person')
  __rematerialize() assert(__restored==1,'active body restored twice')
@@ -943,8 +956,13 @@ def main():
             ('SAO_Harness.lua','local ok, reason = SAO.Body.release(rec)',
              'SAO.Controller.drop(H.activeId) local ok, reason = SAO.Body.release(rec)',
              'harness dropped early'),
-            ('SAO_Body.lua','return SAOJavaBridge:awaken(body, rec.hibernation, elapsed)',
-             'return "AWAKENED skipped"','harness did not restore current person'),
+             ('SAO_Body.lua','return SAOJavaBridge:awaken(body, rec.hibernation, elapsed)',
+              'return "AWAKENED skipped"','harness did not restore current person'),
+            ('SAO_Body.lua','return SAOJavaBridge:applyDormantRestState(\n                    body, dormantFatigue, dormantEndurance)',
+              'return false','harness did not restore current person'),
+            ('SAO_Body.lua','if rec.dormantPhysiologyOrigin or rec.dormantResting == true\n        or rec.dormantSleeping == true then',
+              'if false then',
+              'dormant rest state did not replace the captured native state'),
             ('SAO_BodySnapshot.lua','rec.bodyVisual = captured.visual',
              '', 'release lost captured appearance'),
             ('SAO_Body.lua','if not ok or restored ~= true then',

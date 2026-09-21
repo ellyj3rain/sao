@@ -1,6 +1,6 @@
 | Document | Survivor Awareness Overhaul Batch Log |
 |---|---|
-| Version | `2.8.8.0-pre-alpha` |
+| Version | `2.8.9.0-pre-alpha` |
 | Author | ellyj3rain |
 | Repository | `BATCH_LOG.md` |
 | Status | REGULATORY - chronological batch index. |
@@ -178,3 +178,4 @@ source mapping and hashes. Consolidation does not close implementation defects.
 | [C69](Batches/C69-2026-09-21-recipient-appraisal-after-testimony.md) | 2026-09-21 | Recipient appraisal after testimony | [`T-003`](Batches/THREADS.md#t-003), [`T-004`](Batches/THREADS.md#t-004), [`T-008`](Batches/THREADS.md#t-008), [`T-009`](Batches/THREADS.md#t-009), [`T-030`](Batches/THREADS.md#t-030) |
 | [C70](Batches/C70-2026-09-21-treatment-completion.md) | 2026-09-21 | Treatment completion | [`T-002`](Batches/THREADS.md#t-002), [`T-004`](Batches/THREADS.md#t-004), [`T-006`](Batches/THREADS.md#t-006), [`T-008`](Batches/THREADS.md#t-008), [`T-030`](Batches/THREADS.md#t-030) |
 | [C71](Batches/C71-2026-09-21-complete-private-inventory.md) | 2026-09-21 | Complete private inventory | [`T-002`](Batches/THREADS.md#t-002), [`T-003`](Batches/THREADS.md#t-003), [`T-004`](Batches/THREADS.md#t-004), [`T-006`](Batches/THREADS.md#t-006), [`T-008`](Batches/THREADS.md#t-008), [`T-030`](Batches/THREADS.md#t-030) |
+| [C72](Batches/C72-2026-09-21-dormant-spoken-access.md) | 2026-09-21 | Dormant spoken access | [`T-002`](Batches/THREADS.md#t-002), [`T-005`](Batches/THREADS.md#t-005), [`T-006`](Batches/THREADS.md#t-006), [`T-007`](Batches/THREADS.md#t-007), [`T-008`](Batches/THREADS.md#t-008), [`T-030`](Batches/THREADS.md#t-030) |
