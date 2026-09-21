@@ -894,7 +894,7 @@ local function fillMenu(playerNum, context, worldobjects)
                     end
                 end)
                 pcall(function()
-                    local items = playerObj:getInventory():getItems()
+                    local items = SAOJavaBridge:privateCarriedItems(playerObj)
                     for i = 0, items:size() - 1 do
                         local it = items:get(i)
                         local okB, power = pcall(function()
@@ -956,7 +956,7 @@ local function fillMenu(playerNum, context, worldobjects)
                             why = "food"
                         elseif instanceof(held, "HandWeapon") then
                             local armed = false
-                            local its = tBody:getInventory():getItems()
+                            local its = SAOJavaBridge:privateCarriedItems(tBody)
                             for i = 0, its:size() - 1 do
                                 if instanceof(its:get(i), "HandWeapon") then
                                     armed = true
@@ -998,7 +998,7 @@ local function fillMenu(playerNum, context, worldobjects)
                     end)
                     if not giveBack then
                         pcall(function()
-                            local its = tBody:getInventory():getItems()
+                            local its = SAOJavaBridge:privateCarriedItems(tBody)
                             local best, bestAmt = nil, 0
                             local count = 0
                             for i = 0, its:size() - 1 do
@@ -1110,7 +1110,7 @@ local function fillMenu(playerNum, context, worldobjects)
                 local inv5 = playerObj:getInventory()
                 local food5 = nil
                 if inv5 then
-                    local items5 = inv5:getItems()
+                    local items5 = SAOJavaBridge:privateCarriedItems(playerObj)
                     for i5 = 0, items5:size() - 1 do
                         local it5 = items5:get(i5)
                         if instanceof(it5, "Food") then
@@ -1124,7 +1124,9 @@ local function fillMenu(playerNum, context, worldobjects)
                         function()
                         local b5 = SAO.Body.get(nearId)
                         if not b5 then return end
-                        playerObj:getInventory():Remove(food5)
+                        local holder5 = food5:getContainer()
+                        if not holder5 then return end
+                        holder5:Remove(food5)
                         b5:getInventory():AddItem(food5)
                         SAO.Standing.settleDebt(nearId, myKey5, 0.5)
                         SAO.Standing.adjustTrust(nearId, myKey5, 0.05)

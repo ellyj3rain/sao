@@ -219,7 +219,14 @@ do
       SAO.Standing.formCompany({ m.id, x.id, la.id }, "probe-a")
       boost({ f.id, z.id, lb.id }, lb.id)
       SAO.Standing.formCompany({ f.id, z.id, lb.id }, "probe-b")
-      SAO.Standing.setLarder("probe-b", "lean", 0)
+      SAO.Standing.setLarder("probe-b", "lean", 0,
+        "completed-native-source-results", {
+          completeCoverage = true,
+          reservationId = "probe-b-reservation",
+          sourceId = "probe-b-source",
+          materialGeneration = 1,
+          at = 0,
+        })
       SAO.Standing.electLeader("probe-b")
     end)
     p1.probeProbe = okP and "probes ok"

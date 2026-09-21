@@ -1,6 +1,6 @@
 | Document | Survivor Awareness Overhaul Dependency Substrate |
 |---|---|
-| Version | `2.8.7.0-pre-alpha` |
+| Version | `2.8.8.0-pre-alpha` |
 | Author | ellyj3rain |
 | Repository | `SUBSTRATE.md` |
 | Status | CANONICAL - what exists, what is planned, and what each area of concern needs. |
@@ -144,7 +144,7 @@ former batch labels inside evidence retain their historical meaning.
 | Saved state reconstructs usable runtime behavior | GraphPersistence binds only serializable Branching history; Integration registers built-ins and stable-ID extensions into a fresh runtime graph | Pattern/office history survives; callbacks, caches, indexes, controllers, courses and Java maps are reconstructed projections | C55 Border 170 serializes through Kahlua, creates a fresh environment and then a second world; ZAO Border 8 reconstructs settlement/controller/course state and clears prior-world maps | R4 is closed for the inventoried owners. Later features must declare durable/runtime ownership as they add state; loaded-world play acceptance remains separate. |
 | Facts are private and acquired | Java scans feed Perception; Knowledge preserves acquisition and Standing evaluates permission | Beliefs with source, time and uncertainty | A reproduces animals entering the IsoPlayer human path and traces global activity participant discovery | Narrow scanner output before decision use, preserve provenance and distinguish animal facts. Visibility and permission do not imply physical access. |
 | Actions have owned completion and interruption | Controller selects and queues engine actions; Driving, Medical, Animals and inventory adapters execute | Records should change from observed consequences | A exercises moving-vehicle cancellation, cancelled surrender, refused CPR and remote egg collection | Approach, queue, completion, failure and cancellation must be connected. A request must not award goods, experience, trust changes or learned capability. |
-| Loaded and dormant opportunities describe the same world | `SAO_WorldSources` requests bounded native chunks, records exact revisions and reconciles loaded changes; `SAO_SourceUse` turns one actor's private revision into a two-leg approach, current permission proof, exact native transfer and carried native use; `SAO_Provisioning` consumes only completed results and later native change | Native UUIDs and item IDs; bounded observations/conflicts and a schema-6 action/ambient-change store; one live reservation per actor; bounded ordered completed receipts; durable partial `Material` source projection, replay decision, projection generation and single-source owner index; schema-3 migrations retire unsupported aggregate claims/storage; detached owner-explicit person access views; runtime-only engine bindings | C61 Border 178 proves native grounding. C62 Border 179 runs the executable lifecycle. C63-C64 Border 180 executes 53 projection, zero-state, replacement, partial-coverage, ambient-refresh, refusal, retry, acknowledgement recovery, evidence-order, persistence, migration, option, isolation and boundedness cases plus named mutations in installed Kahlua. | R6 is closed for the selected source path, R7's source-action slice is complete and R9's exact partial-source projection slice is closed. C66 adds exact native acquisition/storage and completion-only experience to the same owner. Complete house inventory, recipient recognition and other action/producer families remain open. |
+| Loaded and dormant opportunities describe the same world | `SAO_WorldSources` requests bounded native chunks, records exact revisions and reconciles loaded changes; `SAO_SourceUse` turns one actor's private revision into a two-leg approach, current permission proof, exact native transfer and carried native use; `SAO_Provisioning` consumes only completed results and later native change; `SAOPrivateInventory` gives current decisions exact recursive holder rows | Native UUIDs and item IDs; bounded observations/conflicts and a schema-6 action/ambient-change store; one live reservation per actor; bounded ordered completed receipts; durable partial `Material` source projection, replay decision, projection generation and single-source owner index; schema-4 Standing migration retires inferred totals; fresh actor-private loaded views and exact v4 dormant carriage; runtime-only engine bindings | C61 Border 178 proves native grounding. C62 Border 179 runs the executable lifecycle. C63-C64 Border 180 executes the projection contract and C71 extends it with complete-coverage refusal. C71 Border 184 proves recursive holder conservation, removal/replacement, transfer, reload and loaded/dormant agreement. | R6 is closed for the selected source path, R7's source-action slice is complete and R9's exact partial-source projection slice is closed. C66 adds exact native acquisition/storage and completion-only experience. C71 closes actor-private inventory observation; complete household stock, dormant world holders and other action/producer families remain open. |
 | Health integrates actual events over time | Course, Medical, Habits and Neuro consume current person/body facts; ZAO StateStore owns pathogen transitions and ZAO Brain owns history when installed | Durable health cursors, infection windows and brain event history; standalone SAO uses the same schema | C56 Borders 171-175 execute callback offsets, current exposures, exact interval partitions, reload, graphs and behavioral consumers; Borders 163/174 execute native dormant consumption | R5 is closed. Later health-and-care actions still require R7/R9 completion receipts and grounded opportunities. |
 | Social outcomes follow performed acts and recognition | Standing, Organization, Settlement and Integration mutate social records; Branching.record currently counts selections | Claims, membership, offices, patterns and experience | A traces automatic relocation, selection recorded before execution and recognition by repetition | Affiliation, legitimacy, dissent and development need causal producers. A chosen branch is not performed work; repeated choices do not establish public recognition. |
 | Diagnostic populations support valid claims | Population genesis/refill and mortality produce open-population histories; county sweep exports observations | People, deaths, seeds and run progress | C50's independent 90/365-day receipts distinguish 12-person targets from 27/72 created records | Reconcile admission/refill with the life-simulation contract. These samples cannot be reported as 100 percent cohort survival or full simulation fidelity. |
@@ -442,16 +442,19 @@ replay from a later mutation.
 
 A partial store never derives larder/water claims or settlement storage. Graph
 schema 3 marks C63 native stores partial and clears storage previously inferred
-from them. Standing schema 3 removes only C63's completed-native-source larder/
-water claims while retaining independently grounded quartermaster evidence.
+from them. Standing schema 3 removes C63's partial completed-source claims;
+C71's schema 4 then retires larder/water claims inferred from bounded
+quartermaster scans. Only a completed Material reconciliation with explicit
+complete coverage may write those claims.
 The applied exact-source outcome persists across reload and is resumed before a
 later source conflict can reinterpret it; acknowledgement remains terminal and
 post-acknowledgement cleanup recovers on the next pass if interrupted. The
 event-time Material setting is not sampled again during delivery. Standing
 setters, dormant need-day projection and queue acceptance create no provisioning
-credit. This closes one completed-use-to-partial-source seam; it does not supply
-complete house inventory, performed shelving, acquisition, carrying, sharing,
-trade, conservation or place development.
+credit. This closes one completed-use-to-partial-source seam. C71 separately
+closes actor-private inventory observation, while complete household stock and
+performed shelving, acquisition, carrying, sharing, trade, conservation or
+place development still require their own producers.
 
 R7 gives each action an owner across proposal, approach, queued action, execution,
 refusal, cancellation and observed result. C62 instantiates that contract for
@@ -535,9 +538,10 @@ actor-specific access, exact transfer, native consequence and durable result;
 C63-C64 consume that result into bounded partial-source material and reconcile
 later native change. C66 extends the same actor-owned lifecycle to performed
 food/water acquisition and storage, with conserved holders, current authority,
-reconstruction and completion-only experience. R7/R9 next supply the remaining
-action families, complete inventory, recipient recognition and other provisioning
-and development producers. R10b then validates integrated historical behavior
+reconstruction and completion-only experience. C71 supplies the recursive
+actor-private decision inventory without creating a household total. R7/R9 next
+supply the remaining action families and other provisioning and development
+producers. R10b then validates integrated historical behavior
 after those relevant producers exist.
 A fixture such as universal rooms/food/water is not a source. Preserve
 day-zero-off and the same causal machinery through ordinary life, collapse and
@@ -739,3 +743,29 @@ Live bodies, body parts, inventories, items and actions are never serialized.
 The death, player-death and controller-release funnels terminate unfinished
 work involving either participant. Border 183 executes the shipped owner in the
 installed Kahlua VM and rejects a mutation that grants care credit at queue time.
+
+### C71 producer update
+
+Project Zomboid remains the sole inventory owner. `SAOPrivateInventory` creates
+a fresh read-only view for one loaded body or one exact dormant v4 envelope. A
+loaded view distinguishes carried, static-container, vehicle-part, placed-item
+and corpse holders; each item keeps its native ID and direct parent. Static,
+vehicle and placed holders reuse WorldSources identity. Vehicle permission is
+person-specific, unexplored contents remain unknown and an inaccessible part
+refuses. A dormant view exposes exact recursive carriage and states that world
+holders are unknown.
+
+Needs, Controller, Harness, Animals, RadioEar and Standing consume the shared
+recursive reader. A selected nested item retains its direct source container
+while its root holder supplies current permission; native actions and their
+existing result owners still perform every mutation. The view stores no state,
+moves no item and cannot answer for another person.
+
+The protocol emits item rows and `aggregate=refused`. A quartermaster's bounded
+inspection can guide a current action but cannot create a larder or water total.
+Standing schema 4 retires those inferred claims and requires explicit complete-
+coverage Material evidence for future aggregate writes. Border 184 proves
+loaded/dormant/reload agreement, holder conservation, removal, replacement,
+transfer, legacy refusal and recursive mutation sensitivity. Dormant world
+access, complete household stock and performed material actions remain separate
+producer obligations.

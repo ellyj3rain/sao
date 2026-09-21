@@ -61,7 +61,7 @@ end
 local function carriedNamed(body, name)
     local found = nil
     pcall(function()
-        local items = body:getInventory():getItems()
+        local items = SAOJavaBridge:privateCarriedItems(body)
         for index = 0, items:size() - 1 do
             local item = items:get(index)
             local kind = string.lower(tostring(item:getFullType() or ""))

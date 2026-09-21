@@ -75,6 +75,16 @@ BUILDERS = {
         "|=",
         "native item types, fluid names, and container types from the "
         "loaded world's own objects"),
+    ("SAOPrivateInventory.java", "encode"): (
+        "|=",
+        "person, holder and item identities from the loaded world or a "
+        "native dormant snapshot"),
+    ("SAOPrivateInventory.java", "finish"): (
+        "|:",
+        "holder and item identities used to derive an exact revision"),
+    ("SAOPrivateInventory.java", "append"): (
+        "|:",
+        "one length-prefixed field in the exact revision input"),
 }
 
 METHOD = re.compile(r"^\s{4}(?:public|private|protected|static).*?"

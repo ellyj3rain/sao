@@ -1912,6 +1912,14 @@ if ! "$PY" tools/treatment_completion_test.py; then
     fail=1
 fi
 
+# [C71] Border 184 - actor-private inventory is a fresh read of recursive
+# native holders. Loaded and dormant carriage agree by exact item and direct
+# parent; bounded world observations refuse household totals.
+if ! "$PY" tools/private_inventory_test.py; then
+    note "BORDER FINDING - complete private inventory view broken"
+    fail=1
+fi
+
 # [C63/C67/C69] Border 180 - provisioning consumes completed C62 results,
 # reconciles exact observed native stock, and preserves private delivery
 # knowledge, requests and independently formed recipient appraisals.

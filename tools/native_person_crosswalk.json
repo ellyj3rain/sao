@@ -253,7 +253,7 @@
       "entry_point": "tools/dormant_physiology_test.py",
       "former_control": "nested resource traversal",
       "case": "nested-resource-traversal",
-      "mutation_sha256": "7bddd3a9e11a0ee5889da6a754ed2deceb2911fbac2896c24704ef58a3c645a3"
+        "mutation_sha256": "27ba5b1a429e641c384660de123b0fb3084b292152b480add3d4704f45fe2b8b"
     },
     {
       "border": 174,

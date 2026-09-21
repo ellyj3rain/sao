@@ -53,8 +53,10 @@ PZ = pathlib.Path(
     r"\projectzomboid.jar")
 ITEM_CLASS = "zombie.inventory.InventoryItem"
 
-# How an inventory container hands over its contents.
-WALK = re.compile(r"(\w+)\s*=\s*[^=]*?:\s*(?:getItems|getItemsFromCategory)"
+# How a native container or the C71 read-only inventory bridge hands over
+# InventoryItem values.
+WALK = re.compile(r"(\w+)\s*=\s*[^=]*?:\s*(?:getItems|getItemsFromCategory|"
+                  r"privateCarriedItems|privateContainerItems|privateCorpseItems)"
                   r"\s*\(")
 # `local it = items:get(i)`  /  `for _, it in ipairs(items)`
 DRAW_INDEX = r"local\s+(\w+)\s*=\s*%s\s*:\s*get\s*\("

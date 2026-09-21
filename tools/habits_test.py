@@ -307,7 +307,9 @@ def main():
             and "getFluidContainer()" in nj,
         "the fullest drink carried": "bestCarriedDrinkAlcohol(" in nj,
         "and the nearest container holding one, into the same source":
-            "findDrinkSourceNear(" in nj and "firstDrinkIn(" in nj and "SOURCES.put(shell, best)" in nj,
+            "findDrinkSourceNear(" in nj and "nearestPrivateSource(" in nj
+            and "SAOPrivateInventory.loadedView(" in nj
+            and "SOURCES.put(shell, best)" in nj,
         "the bridge exposes the three": all(s in br for s in
             ("findCarriedAlcohol(", "findAlcoholSource(", "isAlcoholicDrink(")),
         "the needs module drinks a quarter through the vanilla action":
