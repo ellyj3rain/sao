@@ -1,0 +1,47 @@
+{
+  "atUtc": "2026-09-21T01:06:52.586682+00:00",
+  "version": "2.8.2.0-pre-alpha",
+  "focusedExitCodes": {
+    "lua_syntax_test.py": 0,
+    "source_use_test.py": 0,
+    "provisioning_result_test.py": 0,
+    "decision_capture_test.py": 0,
+    "version_stamp_test.py": 0,
+    "sort_bound_test.py": 0
+  },
+  "provisioningCases": 53,
+  "sourceCaptureControls": "private bounded immutable options, exact selection/revalidation, same-reservation result, pending/interrupted/censored distinction, required-reader rejection, mutation during selection, no absent-executor corpus",
+  "productionMutationsRejected": [
+    "silent selection retargeting",
+    "mutable action outcome"
+  ],
+  "fullGate": {
+    "command": "tools/check.sh --staged",
+    "enforcedBy": "mandatory pre-commit hook on C65 closing commit",
+    "testScripts": 179,
+    "otherScripts": 13,
+    "distinctScripts": 192,
+    "highestBorder": 181
+  },
+  "limits": "Installed-VM controlled fixtures and startup; no save-backed play acceptance or training eligibility.",
+  "firstFullGate": {
+    "exitCode": 1,
+    "elapsedSeconds": 753.4,
+    "findings": [
+      "[check] BORDER FINDING - loaded native mutations do not reach the exact ledger",
+      "[check] BORDER FINDING - simulation evidence contract broken",
+      "[check] BORDER FINDING - person ownership handoff failed"
+    ],
+    "log": "gate-initial.txt"
+  },
+  "gateRepairFocusedExitCodes": {
+    "tools/player_looting_test.py": 0,
+    "tools/trajectory_simulation_test.py": 0,
+    "tools/person_handoff_test.py": 0
+  },
+  "gateRepairControls": [
+    "selected identity replaced with zero is refused by Border 129",
+    "undeclared SourceUse owner is refused by Border 159",
+    "Border 162 production and every named handoff mutation execute with the explicit option fixture"
+  ]
+}

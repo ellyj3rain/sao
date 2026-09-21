@@ -1,0 +1,39 @@
+{
+  "atUtc": "2026-09-21T01:06:52.586682+00:00",
+  "version": "2.8.2.0-pre-alpha",
+  "observedProcessId": 145148,
+  "window": "Project Zomboid",
+  "responsive": true,
+  "visualObservation": "Main menu visible with Continue/Load and version 42.20.4 b0bbce05d5; four active Java mods.",
+  "activeJavaMods": [
+    "PeekAView",
+    "Staircast",
+    "SurvivorAwareness",
+    "ZombieAwareness"
+  ],
+  "screenshotLocal": ".git/c65-startup-final.png",
+  "screenshotSha256": "f69b860228ee62d880ab4d783491c3e93e2504bf3028b3ee1f2e56c8f98f688f",
+  "luaMarkers": [
+    "[SAO][HARNESS] harness loaded",
+    "[SAO][POP] population module loaded"
+  ],
+  "saoFailureLines": [],
+  "bridgeRetry": "one early reflection attempt before Lua readiness; bridge exposed two seconds later",
+  "rawLogPrefixesLocal": {
+    "stdout": {
+      "bytes": 2434147,
+      "sha256": "f361f5bddbf45aff2c969c4997a57369b3c8bc30c0e48ed1de56832c0b7d129d"
+    },
+    "stderr": {
+      "bytes": 640133,
+      "sha256": "e910a6f415d922e527dbe62a5be2a64de2999981c584d692be92a4aacef2bbea"
+    }
+  },
+  "installedJarSha256": "91fe77163bec1a0921282d6cb8620d3678a4f6739d380319c76ab93d7771b1da",
+  "saveMetadataUnchanged": true,
+  "companionUnchanged": true,
+  "worldLoadedByAgent": false,
+  "processLeftOpen": true,
+  "otherErrors": "Existing non-SAO fluid-name, translation, attachment and ZAO tooltip-format warnings remain; their absence is not claimed.",
+  "limits": "Startup only; no save-backed source-action or loaded-world acceptance."
+}

@@ -19,6 +19,7 @@ import tempfile
 
 import county_dump as Dump
 import county_sweep as Sweep
+import source_use_test as Source
 
 
 ROOT = pathlib.Path(__file__).resolve().parent.parent
@@ -150,6 +151,240 @@ def run_probe(expression):
 
 def member(decision, identity):
     return next(row for row in decision["roster"] if row["id"] == identity)
+
+
+SOURCE_SETUP = Source.ACTION_PROBE.split(
+    "  -- Schema 2 observation data survives", 1)[0] + r'''
+  local p = place(42,8,8,8,8,10,10)
+  local body = reset("actor",p,"food",SOURCE_SNAPSHOT)
+  local record = __records.actor
+  record.forename, record.surname, record.occupation = "Ada", "North", "carpenter"
+  record.profile = { note="before" }
+  __known.actor[42].at, __known.actor[42].source = 432000, "observed"
+  plainNameOf = function(a,b) return a .. " " .. b end
+  SAO.History.ageOf = function() return 31 end
+  SAO.Disposition = { circle=function() return "near" end,
+      traits=function() return {patience=0.7} end }
+  SAO.Conditions = {of=function() return {} end}
+  SAO.Habits = {of=function() return {} end}
+  SAO.Lessons = {renderClaims=function() return {} end}
+  SAO.Census = {JOB_PERK={},classOf=function() return "work" end}
+  SAO.Perception.beliefs = __known
+  SAO.Rand = {state=function() return "source-seed", 0 end}
+  local offered = SAO.WorldSources.actionOptions(p,"food","actor",body,1,"standing")
+'''
+
+SOURCE_SUCCESS = r'''
+  local sourceId = offered.options[2].id
+  check("offered_sorted_and_private", #offered.options == 2
+      and offered.options[1].id < sourceId and not record.worldSourceReservation)
+  offered.options[1].parameters.itemType = "Base.Forged"
+  local fresh = SAO.WorldSources.actionOptions(p,"food","actor",body,1,"standing")
+  check("offered_detached", fresh.options[1].parameters.itemType ~= "Base.Forged")
+  SAO.SourceUse.chooseOption = function(offer)
+      record.profile.note = "during"
+      return offer.options[2]
+  end
+  local owner = SAODecisionCapture.beginSourceUse({runId="run-source",county="CountySource"})
+  local reservation, first, second = toTransfer("actor",body,p,"food")
+  check("exact_selected_source", reservation and reservation.sourceId == sourceId
+      and first == "moving" and second == "using")
+  __carriedItem, __busy, __observeText = __sourceItem, false, SOURCE_POST
+  SAO.SourceUse.tick("actor",body)
+  __queued:complete(); __busy = false
+  local final = SAO.SourceUse.tick("actor",body)
+  record.profile.note = "after"
+  local outcome = SAO.WorldSources.actionOutcome(reservation.id,"actor")
+  outcome.status = "forged"
+  check("outcome_detached", SAO.WorldSources.actionOutcome(reservation.id,"actor").status == "completed")
+  check("actor_scoped_result", SAO.WorldSources.actionOutcome(reservation.id,"other") == nil)
+  local capture = owner.finish()
+  return '{"checks":' .. SAODecisionCapture.encode(checks)
+      .. ',"final":' .. SAODecisionCapture.encode(final) .. ',"capture":' .. capture .. '}'
+end)()'''
+
+SOURCE_REFUSAL = r'''
+  SAO.SourceUse.chooseOption = function(offer)
+      local chosen = offer.options[2]
+      -- Another actor's reservation can invalidate just the selected source.
+      __stores.SurvivorAwareness_WorldSources.reservations.other = {
+          status="reserved", sourceId=chosen.parameters.sourceId }
+      return chosen
+  end
+  local owner = SAODecisionCapture.beginSourceUse({runId="run-refusal",county="CountySource"})
+  local started, why = SAO.SourceUse.begin("actor",body,p,"food","standing")
+  check("stale_choice_not_retargeted", started == false and why == "selected-option-changed"
+      and record.worldSourceReservation == nil and __lastOrder == nil)
+  return '{"checks":' .. SAODecisionCapture.encode(checks) .. ',"capture":' .. owner.finish() .. '}'
+end)()'''
+
+SOURCE_PENDING = r'''
+  local owner = SAODecisionCapture.beginSourceUse({runId="run-pending",county="CountySource"})
+  SAO.SourceUse.begin("actor",body,p,"food","standing")
+  local reservation = SAO.WorldSources.pendingActionFor("actor")
+  OUTCOME_CHANGE
+  return '{"checks":[],"capture":' .. owner.finish() .. '}'
+end)()'''
+
+SOURCE_READER_FAILURE = r'''
+  record.profile.self = record.profile
+  local owner = SAODecisionCapture.beginSourceUse({runId="run-failure",county="CountySource"})
+  local started = SAO.SourceUse.begin("actor",body,p,"food","standing")
+  return '{"started":' .. tostring(started) .. ',"checks":[],"capture":' .. owner.finish() .. '}'
+end)()'''
+
+
+SOURCE_OPTIONS = r'''
+  local chosen = offered.options[1]
+  local fact = __known.actor[42].sourceFacts[chosen.id]
+  fact.revision = "new-private-revision"
+  __known.actor[42].sourceRevision = chosen.id .. "@new-private-revision"
+  local stale, why = SAO.WorldSources.beginAction(p,"food","actor",body,1,"standing",chosen)
+  check("changed_private_revision_refused", not stale and why == "selected-option-changed")
+  local fresh = SAO.WorldSources.actionOptions(p,"food","actor",body,1,"standing")
+  local permitted = SAO.Standing.mayAttemptBelieved
+  SAO.Standing.mayAttemptBelieved = function() return false end
+  local denied, reason = SAO.WorldSources.beginAction(p,"food","actor",body,1,"standing",fresh.options[1])
+  check("current_attempt_permission", not denied and reason == "standing-refused")
+  SAO.Standing.mayAttemptBelieved = permitted
+  fresh.options[1].parameters.itemId = 999
+  local forged, forgery = SAO.WorldSources.beginAction(p,"food","actor",body,1,"standing",fresh.options[1])
+  check("forged_item_refused", not forged and forgery == "selected-option-changed")
+  local invalid, quantityWhy = SAO.WorldSources.actionOptions(p,"food","actor",body,0/0,"standing")
+  check("nonfinite_quantity_refused", not invalid and quantityWhy == "bad-quantity")
+  local facts, revisions = {}, {}
+  for index=140,1,-1 do
+      local entry = {}
+      for key,value in pairs(fact) do entry[key]=value end
+      entry.id = "C:bounded:" .. tostring(1000+index)
+      facts[entry.id] = entry
+      revisions[#revisions+1] = entry.id .. "@" .. entry.revision
+  end
+  __known.actor[42].sourceFacts = facts
+  __known.actor[42].sourceRevision = table.concat(revisions,",")
+  local bounded = SAO.WorldSources.actionOptions(p,"food","actor",body,1,"standing")
+  check("bounded_stable_frontier", #bounded.options == 128 and bounded.candidateCount == 140
+      and bounded.truncated and bounded.options[1].id == "C:bounded:1001"
+      and bounded.options[128].id == "C:bounded:1128")
+  return '{"checks":' .. SAODecisionCapture.encode(checks) .. '}'
+end)()'''
+
+SOURCE_MUTATED_CHOICE = r'''
+  SAO.SourceUse.chooseOption = function(offer)
+      offer.options[1].parameters.itemId = 999
+      return offer.options[1]
+  end
+  local owner = SAODecisionCapture.beginSourceUse({runId="run-mutated",county="CountySource"})
+  local started = SAO.SourceUse.begin("actor",body,p,"food","standing")
+  return '{"checks":[],"started":' .. tostring(started) .. ',"capture":' .. owner.finish() .. '}'
+end)()'''
+
+
+def run_source_probe(body, mutation=None):
+    other = Source.source("C:second:0", "second-fp", "second-r1", 9, 8,
+                          42, 109, "Base.Banana")
+    hidden = Source.source("C:hidden:0", "hidden-fp", "hidden-r1", 8, 8,
+                           99, 110, "Base.Pear")
+    snapshot = Source.snapshot(1, 1, "source-pre", [Source.FOOD, other, hidden])
+    post = Source.snapshot(1, 1, "source-post", [Source.FOOD, dict(
+        other, rev="second-r2", state="spent", quantities={}, items=[]), hidden])
+    expression = (SOURCE_SETUP + body).replace("SOURCE_SNAPSHOT", json.dumps(snapshot))
+    expression = expression.replace("SOURCE_POST", json.dumps(post))
+    with tempfile.TemporaryDirectory(prefix="sao-source-capture-") as temporary:
+        work = pathlib.Path(temporary)
+        shutil.copy2(Sweep.STDLIB, work / "stdlib.lua")
+        for compiled in Sweep.OUT.glob("LuaRun*.class"):
+            shutil.copy2(compiled, work / compiled.name)
+        prelude = work / "prelude.lua"
+        prelude.write_text(Source.ACTION_PRELUDE, encoding="utf-8")
+        world = Source.WORLD
+        if mutation:
+            old, new = mutation
+            text = world.read_text(encoding="utf-8")
+            if text.count(old) != 1:
+                raise RuntimeError("source option control did not land exactly once")
+            world = work / "WorldSources.lua"
+            world.write_text(text.replace(old, new), encoding="utf-8")
+        probe = work / "probe.lua"
+        probe.write_text("__captureResult = " + expression, encoding="utf-8")
+        completed = subprocess.run(
+            [str(Sweep.JDK / "java.exe"), "-cp", f"{Sweep.PZ};.", "LuaRun",
+             str(prelude), str(world), str(Source.SOURCE_USE), str(CAPTURE),
+             str(probe), "--", "__captureResult"], cwd=work, capture_output=True,
+            text=True, encoding="utf-8", errors="replace", timeout=180)
+        values = [line[6:] for line in completed.stdout.splitlines()
+                  if line.startswith("VALUE ")]
+        if completed.returncode or len(values) != 1:
+            raise RuntimeError("source probe failed: " + (
+                completed.stdout + completed.stderr)[-1200:])
+        return json.loads(values[0])
+
+
+def source_capture_controls(faults):
+    options = run_source_probe(SOURCE_OPTIONS)
+    faults.extend("source control " + check for check in options["checks"]
+                  if not check.endswith("=true"))
+    for scenario in (SOURCE_SUCCESS, SOURCE_REFUSAL):
+        result = run_source_probe(scenario)
+        faults.extend("source control " + check for check in result["checks"]
+                      if not check.endswith("=true"))
+        capture = result["capture"]
+        Dump.validate_source_capture(capture, "source probe")
+        event = capture["events"][0]
+        if scenario == SOURCE_SUCCESS:
+            if (result["final"] != "completed"
+                    or event["decision"]["person"]["record"]["profile"]["note"] != "before"
+                    or event["choice"]["optionId"] != "C:second:0"
+                    or event["result"]["status"] != "completed"
+                    or event["result"]["sourceId"] != "C:second:0"
+                    or event["result"].get("observedQuantity") != 1
+                    or "quantity" in event["result"]
+                    or event["choice"]["ratified"] is not False
+                    or event["conditioning"]["status"] != "ineligible"):
+                faults.append("source choice did not preserve its exact frozen cause/result")
+        elif event["result"] != {"status": "refused", "detail": "selected-option-changed"}:
+            faults.append("source selection refusal lost its reason")
+    for label, change in {
+        "pending": "",
+        "released": 'SAO.SourceUse.interrupt("actor",body,"observed interruption")',
+        "censored": "__stores.SurvivorAwareness_WorldSources.reservations[reservation.id] = nil",
+    }.items():
+        result = run_source_probe(SOURCE_PENDING.replace("OUTCOME_CHANGE", change))
+        outcome = result["capture"]["events"][0]["result"]
+        if outcome["status"] != label:
+            faults.append("source outcome was not explicitly " + label)
+        if label == "released" and (outcome.get("observedQuantity") is not None
+                or outcome.get("requestedQuantity") != 1
+                or outcome.get("measurement") != "not-recorded"):
+            faults.append("unspent action reported requested quantity as observed use")
+    unreadable = run_source_probe(SOURCE_PENDING.replace("OUTCOME_CHANGE",
+        "__stores.SurvivorAwareness_WorldSources.schema = 6"))
+    if (unreadable["capture"]["eventCount"] != 0
+            or unreadable["capture"]["captureFailureCount"] != 1
+            or "WorldSources.actionOutcome" not in unreadable["capture"]["failures"][0]["detail"]):
+        faults.append("unavailable result store was published as ordinary censorship")
+    failure = run_source_probe(SOURCE_READER_FAILURE)
+    if (not failure["started"] or failure["capture"]["captureFailureCount"] != 1
+            or "cycle" not in failure["capture"]["failures"][0]["detail"]):
+        faults.append("source capture failure blocked play or hid its reader failure")
+    mutated = run_source_probe(SOURCE_MUTATED_CHOICE)
+    if (mutated["started"] or mutated["capture"]["captureFailureCount"] != 1
+            or mutated["capture"]["eventCount"] != 0):
+        faults.append("a selector mutated the frozen offered option without refusal")
+    try:
+        Dump.validate_source_capture(failure["capture"], "bad source capture")
+    except Sweep.EvidenceError:
+        pass
+    else:
+        faults.append("source reader failure did not refuse whole-run publication")
+    control = run_source_probe(SOURCE_REFUSAL, (
+        "if selected ~= nil then", "if false then"))
+    if "stale_choice_not_retargeted=false" not in control["checks"]:
+        faults.append("retargeting mutation did not fail at the named exact-choice boundary")
+    control = run_source_probe(SOURCE_SUCCESS, (
+        "local outcome = receiptCopy(receipt)", "local outcome = receipt"))
+    if "outcome_detached=false" not in control["checks"]:
+        faults.append("mutable-result mutation did not fail at the named detached-result boundary")
 
 
 def publication_controls(faults):
@@ -297,6 +532,7 @@ def main():
             faults.append(label)
     publication_controls(faults)
     run_identity_controls(faults)
+    source_capture_controls(faults)
 
     if faults:
         for fault in faults:
@@ -305,6 +541,7 @@ def main():
     print("  valid capture: nested record, belief and claim bytes stay pre-election")
     print("  controls: required-reader and cyclic captures rejected; play continued")
     print("  publication: complete manifest appears by one atomic directory rename")
+    print("  source actions: exact options/choice/result; pending, refusal and censorship; two mutations rejected")
     print("  181) PASS - immutable namespaced evidence; incomplete or failed runs withheld")
     return 0
 

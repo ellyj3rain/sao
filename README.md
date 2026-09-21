@@ -38,7 +38,7 @@ on the simulation.
 
 ## Status
 
-`2.8.1.0-pre-alpha` - the coordinate is computed by the version machine
+`2.8.2.0-pre-alpha` - the coordinate is computed by the version machine
 (`tools/version_replay.py`), never picked; `VERSION_MAP.md` shows the
 classification and the arithmetic.
 
@@ -102,7 +102,12 @@ claims or settlement storage. Later native changes refresh or retire only that
 owned source. Personal use, interrupted work, queue acceptance and dormant need
 projection grant no house stock or settlement credit. C64 also freezes a
 provenance-complete decision-evidence envelope and repairs the Speakeasy join;
-executable options, actual choices and action-specific outcomes remain R11 work.
+C65 adds explicit private food/water source options, exact selection revalidation
+and capture tied to the performed action's result. This preserves the existing
+policy and distinguishes pending, refused, interrupted and completed attempts.
+The county sweep reports loaded-source capture unavailable because it does not
+run that executor. Runtime choices remain unratified; broader option coverage,
+choice authoring and later consequences remain R11 work.
 Performed shelving, the remaining material actions and settlement development
 stay under R7-R9.
 `ROADMAP.md` preserves the remaining social and learned-model obligations.

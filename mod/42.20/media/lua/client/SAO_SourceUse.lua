@@ -324,12 +324,24 @@ local function queueTransfer(id, body, reservation)
 end
 
 -- Start only after the controller has applied its need/ration/desperation law.
-function SU.begin(id, body, place, category, admission)
+function SU.chooseOption(offered)
+    return offered.options[1]
+end
+
+function SU.begin(id, body, place, category, admission, decisionContext)
     if category ~= "food" and category ~= "water" then
         return false, "unsupported-category"
     end
-    local reservation, why = SAO.WorldSources.beginAction(place, category,
-        id, body, category == "water" and 0.01 or 1, admission)
+    local quantity = category == "water" and 0.01 or 1
+    local offered, why = SAO.WorldSources.actionOptions(place, category,
+        id, body, quantity, admission)
+    if not offered then return false, why end
+    offered.context = decisionContext
+    local selected = SU.chooseOption(offered)
+    if selected == nil then return false, "no-option-selected" end
+    local reservation
+    reservation, why = SAO.WorldSources.beginAction(place, category,
+        id, body, quantity, admission, selected)
     if not reservation then return false, why end
     if not SAO.Locomotion.order(id, body, reservation.placeX,
         reservation.placeY, reservation.placeZ) then

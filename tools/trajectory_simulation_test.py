@@ -194,6 +194,17 @@ def main(root):
     except Sweep.EvidenceError as exc:
         print('159) FAULT:', exc)
         return 1
+    # C65 option descriptors name their loaded executor. The dormant county
+    # declares that absent owner; it neither loads a body driver nor hides an
+    # undeclared dependency. Removing the declaration must restore refusal.
+    _, loaded = Sweep.modules_referenced(lua)
+    if 'SourceUse' in loaded:
+        faults.append('dormant county silently acquired the loaded source executor')
+    undeclared = dict(Sweep.NOT_DORMANT)
+    undeclared.pop('SourceUse', None)
+    with mock.patch.object(Sweep, 'NOT_DORMANT', undeclared):
+        if not rejects(lambda: Sweep.require_modules(lua)):
+            faults.append('undeclared source executor accepted')
     row = specimen()
     Sweep.validate_result(row, 90, True, {'names': 10, 'professions': 25}, True)
     cases = [('partial horizon', {'ranTo': 60}),

@@ -26,6 +26,7 @@ local MAX_RESULTS = 2048
 local MAX_PENDING_LOADS = 1024
 local MAX_POINTER_REPAIRS = 256
 local MAX_PROJECTION_CHANGES = 2048
+local MAX_ACTION_OPTIONS = 128
 local RESULT_CONSUMER = "provisioning"
 local SOURCE_CATEGORY_ORDER = {
     "device", "drink", "food", "fuel", "instrument", "medical",
@@ -1050,10 +1051,10 @@ local function categoryItem(source, category, wanted)
     return nil
 end
 
--- Begin the C62 action lifecycle from this actor's own observed revision.
--- Observation is sufficient to try; access remains unproved until the live
--- body reaches an engine-selected interaction square and binds the source.
-function WS.beginAction(place, category, actorId, body, quantity, admission)
+-- Options describe attempts over this person's own observations. The caller
+-- has already selected the place/category under its need and ration policy.
+-- Neither listing nor selecting an option proves current physical access.
+function WS.actionOptions(place, category, actorId, body, quantity, admission)
     local value = store()
     actorId = actorId and tostring(actorId) or nil
     category = tostring(category or "")
@@ -1082,7 +1083,9 @@ function WS.beginAction(place, category, actorId, body, quantity, admission)
         return nil, "not-privately-observed"
     end
     quantity = tonumber(quantity) or 1
-    if quantity <= 0 then return nil, "bad-quantity" end
+    if quantity <= 0 or quantity ~= quantity or quantity == math.huge then
+        return nil, "bad-quantity"
+    end
     local reservationCount = 0
     for _, reservation in pairs(value.reservations) do
         if reservation.status == "reserved" then
@@ -1100,8 +1103,15 @@ function WS.beginAction(place, category, actorId, body, quantity, admission)
     end
     if durableInputs >= MAX_RESULTS then return nil, "result-bound" end
 
-    local building = tostring(place.id)
-    local selectedSource, selectedItem, selectedAmount = nil, nil, nil
+    local offered = {
+        schemaVersion = 1, actorId = actorId, category = category,
+        quantity = quantity, admission = admission, atHours = nowHours(),
+        place = { id = place.id, cx = place.cx, cy = place.cy,
+            minX = place.minX, minY = place.minY,
+            maxX = place.maxX, maxY = place.maxY },
+        scope = "selected-place-and-need", options = {}, candidateCount = 0,
+        limit = MAX_ACTION_OPTIONS,
+    }
     for id, source in pairs(belief.sourceFacts or {}) do
         local observed = tonumber(source.quantities
             and source.quantities[category]) or 0
@@ -1109,37 +1119,107 @@ function WS.beginAction(place, category, actorId, body, quantity, admission)
             and observed >= quantity and not pendingFor(value, id, nil)
             and beliefHasRevision(belief, id, source.revision) then
             local item, amount = categoryItem(source, category, quantity)
-            if item and item.id ~= 0
-                and (not selectedSource or id < selectedSource.id) then
-                selectedSource, selectedItem, selectedAmount = source, item, amount
+            if item and item.id ~= 0 then
+                offered.candidateCount = offered.candidateCount + 1
+                local option = {
+                    id = tostring(id), owner = "SAO.SourceUse",
+                    parameters = {
+                        action = "attempt-source-use", actorId = actorId,
+                        placeId = tostring(place.id), category = category,
+                        admission = admission, quantity = amount,
+                        sourceId = source.id, sourceKind = source.kind,
+                        sourceX = source.x, sourceY = source.y, sourceZ = source.z,
+                        chunkX = source.chunkX, chunkY = source.chunkY,
+                        fingerprint = source.fingerprint, revision = source.revision,
+                        itemId = item.id, itemType = item.type,
+                        itemAmount = tonumber(item.amount) or 0,
+                        itemUses = tonumber(item.uses) or 0,
+                    },
+                    eligibility = { status = "eligible", evidence = {
+                        { kind = "private-source-revision", actorId = actorId,
+                            sourceId = source.id, revision = source.revision,
+                            beliefAtTick = belief.at, provenance = belief.source },
+                        { kind = "attempt-admission", admission = admission,
+                            atHours = offered.atHours,
+                            physicalAccess = "revalidate-on-arrival" },
+                    } },
+                }
+                -- Keep the same stable first-source policy with a bounded
+                -- offered set, independent of Lua map iteration order.
+                local at = #offered.options + 1
+                while at > 1 and offered.options[at - 1].id > option.id do
+                    at = at - 1
+                end
+                if at <= MAX_ACTION_OPTIONS then
+                    table.insert(offered.options, at, option)
+                    if #offered.options > MAX_ACTION_OPTIONS then
+                        table.remove(offered.options)
+                    end
+                end
             end
         end
     end
-    if not selectedSource then return nil, "observed-revision-unavailable" end
+    if #offered.options == 0 then return nil, "observed-revision-unavailable" end
+    offered.truncated = offered.candidateCount > #offered.options
+    return offered
+end
+
+local function sameActionOption(left, right)
+    if type(left) ~= "table" or type(left.parameters) ~= "table"
+        or left.id ~= right.id or left.owner ~= right.owner then return false end
+    for key, value in pairs(right.parameters) do
+        if left.parameters[key] ~= value then return false end
+    end
+    for key, value in pairs(left.parameters) do
+        if right.parameters[key] ~= value then return false end
+    end
+    return true
+end
+
+-- Re-enumerate the actor's current eligible attempts before reserving. A
+-- changed or forged selected descriptor is refused; a different source is
+-- never silently substituted. The omitted selection retains the legacy API.
+function WS.beginAction(place, category, actorId, body, quantity, admission, selected)
+    local offered, why = WS.actionOptions(place, category, actorId, body,
+        quantity, admission)
+    if not offered then return nil, why end
+    local option = offered.options[1]
+    if selected ~= nil then
+        option = nil
+        for _, candidate in ipairs(offered.options) do
+            if sameActionOption(selected, candidate) then option = candidate; break end
+        end
+        if not option then return nil, "selected-option-changed" end
+    end
+    local value = store()
+    if not value then return nil, "store-unavailable" end
+    actorId = tostring(actorId)
+    local record = SAO.Identity.get(actorId)
+    local parameters = option.parameters
 
     value.sequence = value.sequence + 1
     local reservationId = "R:" .. value.sequence .. ":" .. actorId
     local reservation = {
-        id = reservationId, actorId = actorId, placeId = building,
+        id = reservationId, actorId = actorId, placeId = tostring(place.id),
         placeX = place.cx, placeY = place.cy, placeZ = 0,
         placeMinX = place.minX, placeMinY = place.minY,
         placeMaxX = place.maxX, placeMaxY = place.maxY,
-        sourceId = selectedSource.id,
-        sourceKind = selectedSource.kind,
-        sourceX = selectedSource.x, sourceY = selectedSource.y,
-        sourceZ = selectedSource.z,
-        chunkX = selectedSource.chunkX, chunkY = selectedSource.chunkY,
-        fingerprint = selectedSource.fingerprint,
-        revision = selectedSource.revision,
-        preRevision = selectedSource.revision,
-        itemId = selectedItem.id,
-        itemType = selectedItem.type,
-        itemAmount = tonumber(selectedItem.amount) or 0,
-        itemUses = tonumber(selectedItem.uses) or 0,
+        sourceId = parameters.sourceId,
+        sourceKind = parameters.sourceKind,
+        sourceX = parameters.sourceX, sourceY = parameters.sourceY,
+        sourceZ = parameters.sourceZ,
+        chunkX = parameters.chunkX, chunkY = parameters.chunkY,
+        fingerprint = parameters.fingerprint,
+        revision = parameters.revision,
+        preRevision = parameters.revision,
+        itemId = parameters.itemId,
+        itemType = parameters.itemType,
+        itemAmount = parameters.itemAmount,
+        itemUses = parameters.itemUses,
         useTargetQuantity = category == "water"
-            and ((tonumber(selectedItem.amount) or 0) * 0.5) or 1,
-        category = category, quantity = selectedAmount,
-        admission = admission,
+            and (parameters.itemAmount * 0.5) or 1,
+        category = category, quantity = parameters.quantity,
+        admission = offered.admission,
         status = "reserved", phase = "approaching-place",
         reservedAt = nowHours(),
     }
@@ -1279,6 +1359,8 @@ local function result(value, reservation, status, detail)
             reservation.provisioningClaimIncarnation,
         materialProjectionEnabled = not options or options.Material ~= false,
         quantity = reservation.actualQuantity or reservation.quantity,
+        requestedQuantity = reservation.quantity,
+        observedQuantity = reservation.actualQuantity,
         preRevision = reservation.preRevision or reservation.revision,
         postRevision = reservation.postRevision,
         status = status,
@@ -1332,6 +1414,34 @@ local function receiptCopy(receipt)
         at = receipt.at,
         order = receipt.order,
     }
+end
+
+-- A detached result for a single observed action. Evidence readers do not
+-- acknowledge provisioning or hold ledger rows alive. Missing/older receipts
+-- are explicitly unavailable, so a bounded ledger cannot look like success.
+function WS.actionOutcome(reservationId, actorId)
+    local value = store()
+    if not value then return nil, "store-unavailable" end
+    reservationId, actorId = tostring(reservationId or ""), tostring(actorId or "")
+    local receipt = value.results[reservationId]
+    if receipt and receipt.actorId == actorId then
+        local outcome = receiptCopy(receipt)
+        outcome.quantity = nil
+        outcome.requestedQuantity = receipt.requestedQuantity
+        outcome.observedQuantity = receipt.observedQuantity
+        outcome.measurement = receipt.observedQuantity ~= nil
+            and "native-use" or "not-recorded"
+        return outcome
+    end
+    local reservation = value.reservations[reservationId]
+    if reservation and reservation.actorId == actorId
+        and reservation.status == "reserved" then
+        return { reservationId = reservationId, actorId = actorId,
+            status = "pending", phase = reservation.phase,
+            sourceId = reservation.sourceId, itemId = reservation.itemId,
+            at = nowHours() }
+    end
+    return nil, "result-not-retained"
 end
 
 -- Provisioning is the sole R9 owner of this bridge. It receives stable ordered

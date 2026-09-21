@@ -1,6 +1,6 @@
 | Document | Survivor Awareness Overhaul Dependency Substrate |
 |---|---|
-| Version | `2.8.1.0-pre-alpha` |
+| Version | `2.8.2.0-pre-alpha` |
 | Author | ellyj3rain |
 | Repository | `SUBSTRATE.md` |
 | Status | CANONICAL - what exists, what is planned, and what each area of concern needs. |
@@ -79,7 +79,7 @@ ported, and whether it is required.
 |---|---|---|
 | SAO to ZAO: the turn | defined and evidenced | SAO owns death; ZAO owns the risen body; one controller per body |
 | SAO to ZAO: afflicted and crossed | C52/A35 close returned-body adoption and dormant recovery; C56/A37 close intentional blood conversion and exact ownership transfer; the retained Crossed action vocabulary remains incomplete | SAO executes the afflicted; ZAO owns pathogen state and executes the crossed |
-| SAO to Speakeasy: dataset | 190 choices and nine world documents are protected; C64 closes immutable capture-envelope and exact-join integrity; executable options, choices, consequences and trained models remain absent | SAO supplies people and moments; Speakeasy supplies protected source views, rows and models |
+| SAO to Speakeasy: dataset | 190 choices and nine world documents are protected; C64 closes immutable capture-envelope and exact-join integrity; C65 exposes private source options, the runtime choice and immediate action result when loaded execution runs; broader options, ratified choices, later consequences, reconstructed knowledge and trained models remain incomplete | SAO supplies people and moments; Speakeasy supplies protected source views, rows and models |
 | ZAO to Speakeasy: degraded cognition | cross-module rows and state producers exist; complete learned consumption remains absent | cognition reads event-derived pathogen state with provenance; the row contract does not establish a functioning model |
 
 When a seam moves, the repository that owns it updates its record and the
@@ -94,6 +94,20 @@ sibling pointer moves in the same turn.
 | Input | a loaded mod's state enriches the county when present |
 | Source | mechanics or art are read, credited, and rebuilt at SAO's own seams |
 | Compatibility target | behavior is kept coherent without depending on the mod |
+
+The operator supplied [PZ_Optimization](https://github.com/xD3I/PZ_Optimization)
+during C65. The review at `ae971981f582b702ddcf82469f7aa8d26970cffd` records it
+as a performance reference and optional compatibility candidate. It shadows
+engine classes for Build 42.20.4 / `b0bbce05d5`, including WorldStreamer, IsoChunk
+and the Kahlua compiler/table. SAO's native source hydration reaches those same
+chunk owners. Its worker-pool path requires the streamer thread and an actively
+referenced chunk; SAO's standalone `addJobInstant` acquisition remains synchronous.
+Reported frame-rate and streaming gains therefore do not establish faster SAO
+dormant simulation. Upstream has not tested both its optimizations and
+ZombieBuddy's optimizations active together; this install also uses ZAO,
+PeekAView and Staircast. The [reference assessment](artifacts/audits/20260921-0057Z-1757PST-source-action-decisions/performance-reference.md)
+maps the relevant owners, evidence limits and bounded comparison to perform
+when evaluating this optional integration. No external code was incorporated.
 
 ## Build order principle
 
@@ -547,8 +561,22 @@ nested immutability, labeled refusal, lossless control characters, unique
 execution identity and atomic-publication failure. The legacy election exposes
 no executable options or model choice and observes no action-specific later
 consequence; the capture states those omissions and remains conditioning-
-ineligible. R11 next supplies options, separate choice authoring, execution
-revalidation and pending/censored outcomes with action-specific horizons.
+ineligible.
+
+C65 supplies a real option producer for C62's food/water source action. The
+Controller retains place/category admission under current need, ration and
+standing. WorldSources enumerates the actor's private source revisions into a
+stable bounded offer; SourceUse selects explicitly and reservation revalidates
+that exact descriptor. A changed source, actor, item or permission refuses
+without retargeting. Physical access remains an arrival-time check. The observer
+freezes the person, private situation, policy context and options before choice;
+captures the runtime choice separately; and joins to that reservation's detached
+result. Requested quantities do not become observed consumption. Pending work,
+refusal, interruption and evicted results are explicit; unreadable result storage
+rejects capture. The source executor is absent from the current county sweep,
+which reports unavailable coverage. R11 next extends real option producers across
+the remaining actions and supplies separately authored/ratified choices and
+later consequence horizons. R12 still reconstructs person-specific knowledge.
 
 Speakeasy version 3 namespaces joins by originating run, county, person, event
 and hour, prevalidates both inputs, refuses protected inputs/destinations and

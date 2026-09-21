@@ -1,0 +1,60 @@
+C65 focused validation 2026-09-20T17:53:59.1173845-07:00
+COMMAND python tools/lua_syntax_test.py
+==========================================================================
+THE ENGINE'S OWN PARSER, NORMAL AND DEBUG MODES
+==========================================================================
+  controls: malformed syntax; 200/201 locals in both modes; compiled mode omission; nonzero, empty, truncated and repeated reports
+
+VERDICT:
+  50) lua syntax: all 76 shipped Lua files compile in normal and debug modes (152 verified verdicts)
+EXIT 0 tools/lua_syntax_test.py
+COMMAND python tools/source_use_test.py
+==========================================================================
+PRIVATE SOURCE OBSERVATION BECOMES PERFORMED NATIVE USE
+==========================================================================
+  durable ledger: PASS
+  shipped action lifecycle: PASS
+  static contract anchors: PASS (34 required call/form anchors present)
+  installed engine seam: PASS
+  179) exact source access and native use preserve private knowledge, current permission and revision-bound results
+EXIT 0 tools/source_use_test.py
+COMMAND python tools/provisioning_result_test.py
+controls: all named mutations rejected
+production: 53/53 provisioning cases
+Border 180 PASS: exact result consumption is bounded, replay-safe, single-owner and claim-lifecycle aware
+EXIT 0 tools/provisioning_result_test.py
+COMMAND python tools/decision_capture_test.py
+==========================================================================
+DECISION EVIDENCE FREEZES BEFORE THE WORLD MOVES
+==========================================================================
+  valid capture: nested record, belief and claim bytes stay pre-election
+  controls: required-reader and cyclic captures rejected; play continued
+  publication: complete manifest appears by one atomic directory rename
+  source actions: exact options/choice/result; pending, refusal and censorship; two mutations rejected
+  181) PASS - immutable namespaced evidence; incomplete or failed runs withheld
+EXIT 0 tools/decision_capture_test.py
+COMMAND python tools/version_stamp_test.py
+==========================================================================
+WHICH JAR IS RUNNING
+==========================================================================
+  VERSION declares:     2.8.2.0-pre-alpha
+  shipped jar stamped:  2.8.2.0-pre-alpha
+  getVersion answers:   2.8.2.0-pre-alpha
+  getVersion is:        stamped from VERSION
+  Lua call sites:       1
+
+VERDICT:
+  42) version stamp: the shipped jar carries VERSION's own number, getVersion
+      returns it, and the county says it out loud
+EXIT 0 tools/version_stamp_test.py
+COMMAND python tools/sort_bound_test.py
+==========================================================================
+EVERY SORT IS HANDED A LIST SOMEBODY HAS BOUNDED
+==========================================================================
+  table.sort call sites : 19
+  distinct lists sorted : 17
+  declared with a bound : 17
+
+VERDICT:
+  67) sort bounds: all 19 sort sites across 17 lists are bounded by something written down
+EXIT 0 tools/sort_bound_test.py

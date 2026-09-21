@@ -7,9 +7,11 @@ real election. Its authored result is serialized afterwards under a separate
 field. Nested records, beliefs, claims, relations and need state therefore
 cannot change the decision-time bytes later in the run.
 
-This is decision-authoring evidence, not a training export. The legacy election
-does not expose a person's executable options and no language-model choice is
-made here. Every event says so explicitly and remains conditioning-ineligible.
+Source-use capture also records private executable options, the runtime choice
+and its exact reservation result when that executor is loaded. The county
+runner currently omits that executor and reports the coverage gap explicitly.
+The legacy election has no executable option set. All captured runtime choices
+remain unratified and conditioning-ineligible.
 
 Publication is all-or-nothing. Every requested county must reach the requested
 horizon with no protected callback or capture-reader failures. Only then is a
@@ -199,6 +201,8 @@ def one(name, lua, paths, owed, refill, engine=False, timeout=3600,
         raise Sweep.EvidenceError("%s returned an inconsistent event count" % name)
     if capture.get("attemptedEvents", 0) < len(events):
         raise Sweep.EvidenceError("%s returned impossible capture accounting" % name)
+    source_actions = capture.get("sourceActions")
+    validate_source_capture(source_actions, name)
     Sweep.validate_result(runtime, owed, engine, engine_counts, False)
 
     evidence = runtime["evidence"]
@@ -255,7 +259,24 @@ def one(name, lua, paths, owed, refill, engine=False, timeout=3600,
             ],
         },
         "events": events,
+        "sourceActions": source_actions,
     }
+
+
+def validate_source_capture(capture, name):
+    if (not isinstance(capture, dict)
+            or capture.get("schema") != "sao-source-decision-capture"
+            or capture.get("schemaVersion") != 1
+            or capture.get("status") not in {"observed", "unavailable"}
+            or capture.get("captureFailureCount") != 0
+            or capture.get("failures") not in ([], {})):
+        raise Sweep.EvidenceError("%s source-action capture failed or is absent" % name)
+    events = capture.get("events")
+    if (not isinstance(events, list)
+            or capture.get("eventCount") != len(events)
+            or capture.get("attemptedEvents") != len(events)
+            or (capture["status"] == "unavailable" and events)):
+        raise Sweep.EvidenceError("%s source-action accounting is inconsistent" % name)
 
 
 def publish(base, runs):

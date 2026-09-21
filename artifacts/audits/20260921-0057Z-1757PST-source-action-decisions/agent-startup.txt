@@ -1,0 +1,10 @@
+2026-09-21T00:59:14.272998700Z [SAO] agent start arguments=sao
+2026-09-21T00:59:14.310999Z [SAO] verified zombie.characters.IsoPlayer on system classpath
+2026-09-21T00:59:14.311999Z [SAO] melee callback transformer installed
+2026-09-21T00:59:15.080364900Z [SAO] body scale woven into zombie.core.skinnedmodel.animation.AnimationPlayer.updateModelTransformsInternal (retransformed, already loaded)
+2026-09-21T00:59:15.161871500Z [SAO] world sources: loot density woven into zombie.inventory.ItemPickerJava.getZombieDensityFactor (retransformed, already loaded)
+2026-09-21T00:59:15.163872600Z [SAO] Lua bridge watchdog started
+2026-09-21T00:59:29.915108800Z [SAO] melee callback patch PASS calls=3
+2026-09-21T00:59:31.536118600Z [SAO] loaded via ZombieBuddy java-mod path
+2026-09-21T00:59:54.727195200Z [SAO] bridge exposure attempt failed: java.lang.reflect.InvocationTargetException
+2026-09-21T00:59:56.732838200Z [SAO] Lua bridge exposed global=SAOJavaBridge

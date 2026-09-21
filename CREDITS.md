@@ -326,3 +326,12 @@ pain and stress, and the decline of an elder marked for death, are
 carried in `SAO_History.stageOf` and `SAO_Age` ([C12]) at SAO's own
 cadence. Its death chance is not taken (the life table stands in) and
 its stumble is not (this build's Stats has no such method).
+
+## PZ_Optimization (xD3I)
+
+[Source and benchmark reference](https://github.com/xD3I/PZ_Optimization),
+reviewed at commit `ae971981f582b702ddcf82469f7aa8d26970cffd` during C65.
+**Source read; no code taken or runtime dependency added.** Its Build 42.20.4
+streamer, chunk recalculation, Lua compilation and benchmark methods inform the
+compatibility assessment in `SUBSTRATE.md`. No licence grant was found in the
+reviewed repository tree or README; reuse terms remain unestablished.
