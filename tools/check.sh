@@ -1893,6 +1893,16 @@ if ! "$PY" tools/source_use_test.py > /dev/null; then
     fail=1
 fi
 
+# [C68] Border 182 - a personal item handover is a reservation until the
+# native inventory action proves the destination holder. Queue refusal,
+# interruption, reload without a runtime handle, and holder conflict publish
+# no trust, voice, settlement, or debt; a bilateral term creates debt only
+# after one completed leg and a terminal opposite leg.
+if ! "$PY" tools/personal_handover_test.py; then
+    note "BORDER FINDING - personal handover completion or terms broken"
+    fail=1
+fi
+
 # [C63] Border 180 - provisioning consumes completed C62 results, reconciles
 # exact observed native stock and acknowledges only after durable projection.
 if ! "$PY" tools/provisioning_result_test.py; then

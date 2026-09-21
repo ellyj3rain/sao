@@ -63,7 +63,15 @@ def main():
     events = table_keys(src, "EVENTS", "\nlocal function pick")
     lines = table_keys(src, "LINES", "\nlocal EVENTS = {")
 
+    handover_path = LUA / "shared" / "SAO_Handover.lua"
+    handover = handover_path.read_text(encoding="utf-8", errors="ignore") \
+        if handover_path.exists() else ""
+    handover_voice_owner = re.search(
+        r"Voice\.onEvent\s*,\s*effect\.voice\.actor\s*,\s*"
+        r"effect\.voice\.kind", handover) is not None
+
     requested, sites = set(), {}
+    handover_requested = set()
     for p in sorted(LUA.rglob("*.lua")):
         s = p.read_text(encoding="utf-8", errors="ignore")
         # [B46] TWO entry points now. `V.answer` is the player's -
@@ -78,6 +86,20 @@ def main():
                 requested.add(lit)
                 sites.setdefault(lit, []).append(
                     f"{p.name}:{s[:m.start()].count(chr(10)) + 1}")
+        # [C68] A personal handover carries its voice event as scalar effect
+        # data and Handover publishes it only after native holder proof. Read
+        # that exact typed path; requiring a direct call at each producer would
+        # move the line back ahead of completion.
+        if handover_voice_owner:
+            for m in re.finditer(r"\bvoice\s*=\s*\{", s):
+                body = call_body(s, m.end())
+                kind = re.search(r"\bkind\s*=\s*\"([^\"]+)\"", body)
+                if kind:
+                    handover_requested.add(kind.group(1))
+                    requested.add(kind.group(1))
+                    sites.setdefault(kind.group(1), []).append(
+                        f"{p.name}:{s[:m.start()].count(chr(10)) + 1} "
+                        "through Handover")
 
     states = set()
     for p in sorted(LUA.rglob("*.lua")):
@@ -93,6 +115,7 @@ def main():
     # Only names that ARE keys count as requests; a literal that is not
     # a key is a claim id, a reason, a label - not evidence.
     unheard = sorted(events - requested)
+    undefined_handover = sorted(handover_requested - events)
     unheard_states = sorted(
         lines - {s for s in states if s in lines}
         - {"IDLE", "ROAM", "HOMEWARD"})
@@ -102,6 +125,14 @@ def main():
         print(f"    {e}   (written, unhearable)")
     if not unheard:
         print("    none - every written event has a caller")
+    print(f"\n  Handover voice kinds without a definition: "
+          f"{len(undefined_handover)}")
+    for e in undefined_handover:
+        print(f"    {e}   (requested after completion, undefined)")
+    if not undefined_handover:
+        print("    none")
+    if handover_path.exists() and not handover_voice_owner:
+        print("    FAULT: Handover voice effects have no completion consumer")
 
     # [B35] Not listed, and deliberately so. onTransition is called
     # from setState with the state as a VARIABLE, so every one of the
@@ -118,7 +149,8 @@ def main():
     print()
     print("VERDICT:")
     print(f"  unhearable events: {len(unheard)}")
-    if unheard:
+    if unheard or undefined_handover \
+            or (handover_path.exists() and not handover_voice_owner):
         return 1
     return 0
 

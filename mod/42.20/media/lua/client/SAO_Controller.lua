@@ -1134,24 +1134,26 @@ local function decideThreat(id, agent, body, tick, threat, threatCount, governin
                         rBody = SAO.Body.get(governingPersonKey)
                     end)
                     if rBody then
-                        local okQ2 = pcall(function()
-                            ISTimedActionQueue.add(ISInventoryTransferAction:new(
-                                body, item, body:getInventory(),
-                                rBody:getInventory()))
-                        end)
-                        if okQ2 then
+                        local receipt = SAO.Handover
+                            and SAO.Handover.begin
+                            and SAO.Handover.begin(id, body,
+                                governingPersonKey, rBody, item, "yield", {
+                                    effect = {
+                                        trust = { {
+                                            from = id,
+                                            to = governingPersonKey,
+                                            delta = -0.05,
+                                        } },
+                                        voice = { actor = id, kind = "yielded",
+                                            at = tick },
+                                        log = id .. " hands over what they carry to "
+                                            .. tostring(governingPerson)
+                                            .. string.format(" at %.1f tiles", threat.dist)
+                                            .. " - fear's answer",
+                                    },
+                                }) or nil
+                        if receipt then
                             agent.yieldedAt[governingPersonKey] = dayY
-                            pcall(function()
-                                SAO.Standing.adjustTrust(
-                                    id, governingPersonKey, -0.05)
-                            end)
-                            pcall(function()
-                                SAO.Voice.onEvent(id, "yielded", tick)
-                            end)
-                            log(id .. " hands over what they carry to "
-                                .. tostring(governingPerson)
-                                .. string.format(" at %.1f tiles", threat.dist)
-                                .. " - fear's answer")
                         end
                     end
                 end
@@ -1699,27 +1701,34 @@ local function decideNeedsAndCompanion(id, agent, body, tick, needs)
                 end
                 if bestKey then
                     if bestDist <= 2.5 then
-                        if bestFever > 0
-                            and SAO.Needs.shareDisinfectantWith(
-                                id, body, bestBody) then
-                            do
-                                local aidedAgent = Ctl.agents[bestKey]
-                                if aidedAgent then
-                                    aidedAgent.aidedAt = tick
-                                end
-                            end
-                            SAO.Standing.adjustTrust(bestKey, id, 0.15)
-                            pcall(function()
-                                SAOJavaBridge:grantXP(
-                                    body, "Doctor", 1.5)
-                            end)
-                            pcall(function()
-                                SAO.Voice.onEvent(id, "aid", tick)
-                            end)
-                            log(id .. " gives " .. bestName
-                                .. " something for the fever")
-                        elseif SAO.Needs.aidWound(
-                                id, body, bestBody) then
+                        local disinfectantEffect = { effect = {
+                            trust = { { from = bestKey, to = id,
+                                delta = 0.15 } },
+                            voice = { actor = id, kind = "aid", at = tick },
+                            aid = { recipient = bestKey, actor = id,
+                                at = tick, xp = 1.5 },
+                            log = id .. " gives " .. bestName
+                                .. " something for the fever",
+                        } }
+                        local bandageEffect = { effect = {
+                            trust = {
+                                { from = bestKey, to = id, delta = 0.15 },
+                                { from = id, to = bestKey, delta = 0.03 },
+                            },
+                            voice = { actor = id, kind = "aid", at = tick },
+                            aid = { recipient = bestKey, actor = id,
+                                at = tick, xp = 1.5 },
+                            log = id .. " hands a bandage to " .. bestName,
+                        } }
+                        local gaveDisinfectant = bestFever > 0
+                            and SAO.Needs.shareDisinfectantWith(id, body,
+                                bestBody, bestKey, disinfectantEffect) or false
+                        local aidResult = false
+                        if not gaveDisinfectant then
+                            aidResult = SAO.Needs.aidWound(id, body, bestBody,
+                                bestKey, bandageEffect)
+                        end
+                        if aidResult == "treated" then
                             -- [B20] Someone came. Stamped on the
                             -- person AIDED, because the reckoning is
                             -- theirs to run, not the aider's.
@@ -3092,17 +3101,17 @@ local function decideRestActivity(id, agent, body, tick, idleRec)
                     end
                 end
                 if passedTo and SAO.Needs.passReadingTo then
+                    local passLog = id .. " passes the book to " .. passedTo
+                        .. (passedToTrade
+                            and (" - it is theirs to read ("
+                                .. tostring(teaches46) .. ")")
+                            or "")
                     if SAO.Needs.passReadingTo(id, body,
-                        SAO.Body.get(passedTo)) then
+                        SAO.Body.get(passedTo), passedTo, { effect = {
+                            voice = { actor = id, kind = "passItOn", at = tick },
+                            log = passLog,
+                        } }) then
                         idleRec.reading = nil
-                        pcall(function()
-                            SAO.Voice.onEvent(id, "passItOn", tick)
-                        end)
-                        log(id .. " passes the book to " .. passedTo
-                            .. (passedToTrade
-                                and (" - it is theirs to read ("
-                                    .. tostring(teaches46) .. ")")
-                                or ""))
                     end
                 end
             end
@@ -5959,9 +5968,26 @@ local function updateMovement(id, agent, body)
                     if hurtBody then
                         local hdx = hurtBody:getX() - body:getX()
                         local hdy = hurtBody:getY() - body:getY()
+                        local aidResult = false
                         if hdx * hdx + hdy * hdy
-                            <= ARRIVAL_REACH * ARRIVAL_REACH
-                            and SAO.Needs.aidWound(id, body, hurtBody) then
+                            <= ARRIVAL_REACH * ARRIVAL_REACH then
+                            aidResult = SAO.Needs.aidWound(id, body, hurtBody,
+                                hurtKey, { effect = {
+                                    trust = {
+                                        { from = hurtKey, to = id,
+                                            delta = 0.15 },
+                                        { from = id, to = hurtKey,
+                                            delta = 0.03 },
+                                    },
+                                    voice = { actor = id, kind = "aid",
+                                        at = tickCount },
+                                    aid = { recipient = hurtKey, actor = id,
+                                        at = tickCount, xp = 1.5 },
+                                    log = id .. " hands a bandage to "
+                                        .. tostring(hurtKey),
+                                } })
+                        end
+                        if aidResult == "treated" then
                             SAO.Standing.adjustTrust(hurtKey, id, 0.15)
                             SAO.Standing.adjustTrust(id, hurtKey, 0.03)
                             pcall(function()

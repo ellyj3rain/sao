@@ -4,9 +4,10 @@
 -- decision pass: warnings, bread, charity, settlement, the bond, smokes,
 -- barter, leadership, lessons, grudges, company and moving in. Extracted
 -- VERBATIM from the controller's exchange loop as a pure refactor - the
--- blocks' order and cooldown semantics are documented in [A15]'s trace and
--- unchanged here. `agent` is the INITIATOR's agent table (cooldown fields
--- live on it); state transitions never happen inside an exchange.
+-- blocks' order and cooldown semantics are documented in [A15]'s trace. A
+-- personal item request enters SAO.Handover here; that owner waits for the
+-- native transfer before changing standing, debt, settlement, voice, or log.
+-- `agent` is the INITIATOR'S agent table (cooldown fields live on it).
 
 SAO = SAO or {}
 SAO.Exchange = SAO.Exchange or {}
@@ -83,6 +84,11 @@ end
 
 function Exchange.betweenPair(id, agent, body, otherId, otherBody, tickCount)
     Ctl = Ctl or SAO.Controller
+        pcall(function()
+            if SAO.Handover and SAO.Handover.reconcile then
+                SAO.Handover.reconcile()
+            end
+        end)
         local n = 0
         if SAO.Communication and SAO.Communication.canConverse
             and SAO.Communication.canConverse(id, otherId) then
@@ -121,15 +127,26 @@ function Exchange.betweenPair(id, agent, body, otherId, otherBody, tickCount)
                     local creed3 = g3 and SAO.Standing.creedOf(g3) or nil
                     local cname3 = creed3 and creed3.name or nil
                     if cname3 == "mercy" then
+                        local aidResult = nil
                         pcall(function()
-                            SAO.Needs.aidWound(id, body, otherBody)
+                            aidResult = SAO.Needs.aidWound(id, body, otherBody,
+                                otherId, { effect = {
+                                    trust = { { from = otherId, to = id,
+                                        delta = 0.05 } },
+                                    voice = { actor = id, kind = "nurse",
+                                        at = tickCount },
+                                    log = id .. " tends " .. otherId
+                                        .. " - mercy does not leave the bitten",
+                                } })
                         end)
-                        SAO.Standing.adjustTrust(otherId, id, 0.05)
-                        pcall(function()
-                            SAO.Voice.onEvent(id, "nurse", tickCount)
-                        end)
-                        log(id .. " tends " .. otherId
-                            .. " - mercy does not leave the bitten")
+                        if aidResult == "treated" then
+                            SAO.Standing.adjustTrust(otherId, id, 0.05)
+                            pcall(function()
+                                SAO.Voice.onEvent(id, "nurse", tickCount)
+                            end)
+                            log(id .. " tends " .. otherId
+                                .. " - mercy does not leave the bitten")
+                        end
                     elseif cname3 == "wall" or cname3 == "order" then
                         SAO.Standing.adjustTrust(id, otherId, -0.02)
                         pcall(function()
@@ -181,14 +198,15 @@ function Exchange.betweenPair(id, agent, body, otherId, otherBody, tickCount)
                 end
             end
             if fellowNeeds and fellowNeeds.hunger >= shareBar
-                and giveFn(id, body, otherBody) then
+                and giveFn(id, body, otherBody, otherId, { effect = {
+                    trust = {
+                        { from = otherId, to = id, delta = 0.10 },
+                        { from = id, to = otherId, delta = 0.03 },
+                    },
+                    voice = { actor = id, kind = "share", at = tickCount },
+                    log = id .. " gave food to hungry fellow " .. otherId,
+                } }) then
                 agent.nextShareAt = tickCount + 3600
-                SAO.Standing.adjustTrust(otherId, id, 0.10)
-                SAO.Standing.adjustTrust(id, otherId, 0.03)
-                pcall(function()
-                    SAO.Voice.onEvent(id, "share", tickCount)
-                end)
-                log(id .. " gave food to hungry fellow " .. otherId)
             end
         end
 
@@ -310,6 +328,7 @@ function Exchange.betweenPair(id, agent, body, otherId, otherBody, tickCount)
             -- The carer's charity ([A20]): a carer facing a HURT
             -- stranger reaches for the bandage before the bread -
             -- occupation shapes what kindness hands over.
+            local aidResult = false
             if seenOther and seenOther.condition
                 and (tickCount - seenOther.at) <= 120
                 and not SAO.Standing.isHostileTo(id, otherId)
@@ -317,26 +336,37 @@ function Exchange.betweenPair(id, agent, body, otherId, otherBody, tickCount)
                     or string.find(seenOther.condition, "bad", 1, true))
                 and SAO.Census and SAO.Census.classOf
                 and SAO.Census.classOf(SAO.Identity.get(id)
-                    and SAO.Identity.get(id).occupation) == "carer"
-                and SAO.Needs.aidWound(id, body, otherBody) then
+                    and SAO.Identity.get(id).occupation) == "carer" then
+                aidResult = SAO.Needs.aidWound(id, body, otherBody, otherId,
+                    { effect = {
+                        trust = { { from = otherId, to = id, delta = 0.15 } },
+                        voice = { actor = id, kind = "aid", at = tickCount },
+                        log = id .. " gave a bandage to a hurt stranger ("
+                            .. otherId .. ")",
+                    } })
+            end
+            if aidResult then
                 agent.nextShareAt = tickCount + 3600
-                SAO.Standing.adjustTrust(otherId, id, 0.15)
-                pcall(function()
-                    SAO.Voice.onEvent(id, "aid", tickCount)
-                end)
-                log(id .. " gave a bandage to a hurt stranger ("
-                    .. otherId .. ")")
+                if aidResult == "treated" then
+                    SAO.Standing.adjustTrust(otherId, id, 0.15)
+                    pcall(function()
+                        SAO.Voice.onEvent(id, "aid", tickCount)
+                    end)
+                    log(id .. " gave a bandage to a hurt stranger ("
+                        .. otherId .. ")")
+                end
             elseif seenOther and seenOther.condition
                 and string.find(seenOther.condition, "bad", 1, true)
                 and (tickCount - seenOther.at) <= 120
                 and not SAO.Standing.isHostileTo(id, otherId)
-                and SAO.Needs.shareFoodWith(id, body, otherBody) then
+                and SAO.Needs.shareFoodWith(id, body, otherBody, otherId,
+                    { effect = {
+                        trust = { { from = otherId, to = id, delta = 0.15 } },
+                        voice = { actor = id, kind = "share", at = tickCount },
+                        log = id .. " gave food to a suffering stranger ("
+                            .. otherId .. ")",
+                    } }) then
                 agent.nextShareAt = tickCount + 3600
-                SAO.Standing.adjustTrust(otherId, id, 0.15)
-                pcall(function()
-                    SAO.Voice.onEvent(id, "share", tickCount)
-                end)
-                log(id .. " gave food to a suffering stranger (" .. otherId .. ")")
             end
         end
 
@@ -346,16 +376,18 @@ function Exchange.betweenPair(id, agent, body, otherId, otherBody, tickCount)
         -- forgives, trust mends a little, and it is said.
         if SAO.Standing.debt(otherId, id) > 0
             and tickCount >= (agent.nextBarterAt or 0) then
-            local paid = SAO.Needs.shareFoodWith(id, body, otherBody)
-                or SAO.Needs.shareDrinkWith(id, body, otherBody)
+            local settlementEffect = { effect = {
+                settle = { creditor = otherId, debtor = id, amount = 1 },
+                trust = { { from = otherId, to = id, delta = 0.08 } },
+                voice = { actor = id, kind = "settle", at = tickCount },
+                log = id .. " settles their debt to " .. otherId,
+            } }
+            local paid = SAO.Needs.shareFoodWith(id, body, otherBody,
+                otherId, settlementEffect)
+                or SAO.Needs.shareDrinkWith(id, body, otherBody,
+                    otherId, settlementEffect)
             if paid then
                 agent.nextBarterAt = tickCount + 3600
-                SAO.Standing.settleDebt(otherId, id, 1)
-                SAO.Standing.adjustTrust(otherId, id, 0.08)
-                pcall(function()
-                    SAO.Voice.onEvent(id, "settle", tickCount)
-                end)
-                log(id .. " settles their debt to " .. otherId)
             end
         end
 
@@ -391,14 +423,16 @@ function Exchange.betweenPair(id, agent, body, otherId, otherBody, tickCount)
             and not SAO.Standing.isHostileTo(id, otherId)
             and SAO.Needs.smokableCount(body) >= 2
             and SAO.Needs.smokableCount(otherBody) == 0 then
-            if SAO.Needs.shareSmokeWith(id, body, otherBody) then
+            if SAO.Needs.shareSmokeWith(id, body, otherBody, otherId,
+                { effect = {
+                    trust = {
+                        { from = id, to = otherId, delta = 0.04 },
+                        { from = otherId, to = id, delta = 0.04 },
+                    },
+                    voice = { actor = id, kind = "smokeShare", at = tickCount },
+                    log = id .. " and " .. otherId .. " share a smoke",
+                } }) then
                 agent.nextSmokeShareAt = tickCount + 3600
-                SAO.Standing.adjustTrust(id, otherId, 0.04)
-                SAO.Standing.adjustTrust(otherId, id, 0.04)
-                pcall(function()
-                    SAO.Voice.onEvent(id, "smokeShare", tickCount)
-                end)
-                log(id .. " and " .. otherId .. " share a smoke")
             end
         end
 
@@ -418,26 +452,33 @@ function Exchange.betweenPair(id, agent, body, otherId, otherBody, tickCount)
             if myNeeds and theirNeeds
                 and myNeeds.thirst >= SAO.Disposition.drinkAt(id)
                 and theirNeeds.hunger >= SAO.Disposition.eatAt(otherId) then
-                local gaveFood = SAO.Needs.shareFoodWith(id, body, otherBody)
+                local termId = SAO.Handover and SAO.Handover.proposeTerms
+                    and SAO.Handover.proposeTerms(id, otherId, "food", "drink",
+                        { trust = {
+                            { from = id, to = otherId, delta = 0.05 },
+                            { from = otherId, to = id, delta = 0.05 },
+                        },
+                        voice = { actor = id, kind = "barter", at = tickCount },
+                        log = id .. " and " .. otherId
+                            .. " traded food for water",
+                        }, tickCount) or nil
+                local gaveFood = termId and SAO.Needs.shareFoodWith(id, body,
+                    otherBody, otherId, { termsId = termId, leg = "first" })
                 local gaveDrink = gaveFood
-                    and SAO.Needs.shareDrinkWith(otherId, otherBody, body)
+                    and SAO.Needs.shareDrinkWith(otherId, otherBody, body, id,
+                        { termsId = termId, leg = "second" })
                 if gaveFood and gaveDrink then
-                    agent.nextBarterAt = tickCount + 3600
-                    SAO.Standing.adjustTrust(id, otherId, 0.05)
-                    SAO.Standing.adjustTrust(otherId, id, 0.05)
-                    pcall(function()
-                        SAO.Voice.onEvent(id, "barter", tickCount)
-                    end)
-                    log(id .. " and " .. otherId
-                        .. " traded food for water")
+                    if SAO.Handover.acceptTerms(termId, tickCount) then
+                        agent.nextBarterAt = tickCount + 3600
+                    else
+                        SAO.Handover.cancelTerms(termId,
+                            "bilateral-acceptance-refused")
+                    end
                 elseif gaveFood then
-                    -- Half a trade is a debt, not a loss:
-                    -- they owe me one, and the ledger
-                    -- remembers until we meet with spares.
                     agent.nextBarterAt = tickCount + 3600
-                    SAO.Standing.addDebt(id, otherId, 1)
-                    log(otherId .. " owes " .. id
-                        .. " one (trade half-completed)")
+                    SAO.Handover.cancelTerms(termId, "second-leg-refused")
+                elseif termId and SAO.Handover.cancelTerms then
+                    SAO.Handover.cancelTerms(termId, "first-leg-refused")
                 end
             end
         end
@@ -459,23 +500,33 @@ function Exchange.betweenPair(id, agent, body, otherId, otherBody, tickCount)
             if myNeeds2 and theirNeeds2
                 and myNeeds2.hunger >= SAO.Disposition.eatAt(id)
                 and (theirNeeds2.nicotine or 0) >= 0.2 then
-                local gaveSmoke = SAO.Needs.shareSmokeWith(id, body, otherBody)
+                local termId = SAO.Handover and SAO.Handover.proposeTerms
+                    and SAO.Handover.proposeTerms(id, otherId, "smoke", "food",
+                        { trust = {
+                            { from = id, to = otherId, delta = 0.05 },
+                            { from = otherId, to = id, delta = 0.05 },
+                        },
+                        voice = { actor = id, kind = "barter", at = tickCount },
+                        log = id .. " and " .. otherId
+                            .. " traded smokes for food",
+                        }, tickCount) or nil
+                local gaveSmoke = termId and SAO.Needs.shareSmokeWith(id, body,
+                    otherBody, otherId, { termsId = termId, leg = "first" })
                 local gaveFood = gaveSmoke
-                    and SAO.Needs.shareFoodWith(otherId, otherBody, body)
+                    and SAO.Needs.shareFoodWith(otherId, otherBody, body, id,
+                        { termsId = termId, leg = "second" })
                 if gaveSmoke and gaveFood then
-                    agent.nextBarterAt = tickCount + 3600
-                    SAO.Standing.adjustTrust(id, otherId, 0.05)
-                    SAO.Standing.adjustTrust(otherId, id, 0.05)
-                    pcall(function()
-                        SAO.Voice.onEvent(id, "barter", tickCount)
-                    end)
-                    log(id .. " and " .. otherId
-                        .. " traded smokes for food")
+                    if SAO.Handover.acceptTerms(termId, tickCount) then
+                        agent.nextBarterAt = tickCount + 3600
+                    else
+                        SAO.Handover.cancelTerms(termId,
+                            "bilateral-acceptance-refused")
+                    end
                 elseif gaveSmoke then
                     agent.nextBarterAt = tickCount + 3600
-                    SAO.Standing.addDebt(id, otherId, 1)
-                    log(otherId .. " owes " .. id
-                        .. " one (smoke handed, nothing back yet)")
+                    SAO.Handover.cancelTerms(termId, "second-leg-refused")
+                elseif termId and SAO.Handover.cancelTerms then
+                    SAO.Handover.cancelTerms(termId, "first-leg-refused")
                 end
             end
         end

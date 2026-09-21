@@ -354,24 +354,26 @@ end
 -- Hand a spare piece of food to a fellow, through the vanilla transfer
 -- between the two inventories. Giver must have a spare (second-best);
 -- adjacency is the caller's concern (talking distance already applies).
-function N.shareFoodWith(id, body, fellowBody)
-    if not SAOJavaBridge then return false end
+function N.shareFoodWith(id, body, fellowBody, recipientId, options)
+    if not (SAOJavaBridge and SAO.Handover and recipientId) then
+        return false
+    end
     local okS, item = pcall(function() return SAOJavaBridge:findSpareFood(body) end)
     if not okS or item == nil then return false end
-    local okQ = pcall(function()
-        ISTimedActionQueue.add(ISInventoryTransferAction:new(
-            body, item, body:getInventory(), fellowBody:getInventory()))
-    end)
-    if okQ then log(id .. " shares food with a fellow") end
-    return okQ
+    local receipt = SAO.Handover.begin(id, body, recipientId, fellowBody, item,
+        "food", options)
+    if receipt then log(id .. " queues food for a fellow") end
+    return receipt or false
 end
 
 -- [B22] The book goes round. The same vanilla transfer every other
 -- kindness in this mod uses - nothing special, which is the point: a
 -- retired clerk handing over a paperback is worth something to a
 -- house in a way that has nothing to do with what they did for money.
-function N.passReadingTo(id, body, otherBody)
-    if not (SAOJavaBridge and otherBody) then return false end
+function N.passReadingTo(id, body, otherBody, recipientId, options)
+    if not (SAOJavaBridge and otherBody and SAO.Handover and recipientId) then
+        return false
+    end
     local book = nil
     pcall(function()
         local items = body:getInventory():getItems()
@@ -387,11 +389,9 @@ function N.passReadingTo(id, body, otherBody)
         end
     end)
     if not book then return false end
-    local okQ = pcall(function()
-        ISTimedActionQueue.add(ISInventoryTransferAction:new(
-            body, book, body:getInventory(), otherBody:getInventory()))
-    end)
-    return okQ
+    local receipt = SAO.Handover.begin(id, body, recipientId, otherBody, book,
+        "reading", options)
+    return receipt or false
 end
 
 -- [B20] Aid is TREATMENT, not delivery. [A19] set the doctrine as
@@ -403,9 +403,9 @@ end
 -- dressing holds. A Doctor-8 medic handing a bandage to a frightened
 -- clerk produced a clerk's dressing.
 --
--- Returns "treated", "gave", or false, because the two are different
--- acts and the callers should be able to say which happened.
-function N.aidWound(id, body, patientBody)
+-- Returns "treated", a pending Handover receipt, or false, because treatment
+-- and giving the dressing are different acts with different completion proof.
+function N.aidWound(id, body, patientBody, recipientId, options)
     if not SAOJavaBridge then return false end
     local okS, item = pcall(function()
         return SAOJavaBridge:findSpareBandage(body)
@@ -439,15 +439,13 @@ function N.aidWound(id, body, patientBody)
     -- Nothing to treat, but a dressing they will need is still a
     -- kindness - just not a medical act. The old behaviour, kept
     -- honestly and named for what it is.
-    local okQ = pcall(function()
-        ISTimedActionQueue.add(ISInventoryTransferAction:new(
-            body, item, body:getInventory(), patientBody:getInventory()))
-    end)
-    if okQ then
-        log(id .. " hands over a bandage - nothing open to dress")
-        return "gave"
+    if not (SAO.Handover and recipientId) then return false end
+    local receipt = SAO.Handover.begin(id, body, recipientId, patientBody, item,
+        "bandage", options)
+    if receipt then
+        log(id .. " queues a bandage - nothing open to dress")
     end
-    return false
+    return receipt or false
 end
 
 -- The quartermaster's deposit ([A19]): a SPARE food item moves from
@@ -561,7 +559,8 @@ end
 
 -- The medicine changes hands ([B7]): a carer gives what they carry -
 -- the same shape as handing over a bandage. Real item, real transfer.
-function N.shareDisinfectantWith(id, body, otherBody)
+function N.shareDisinfectantWith(id, body, otherBody, recipientId, options)
+    if not (SAO.Handover and recipientId) then return false end
     local gift = nil
     pcall(function()
         local items = body:getInventory():getItems()
@@ -577,12 +576,10 @@ function N.shareDisinfectantWith(id, body, otherBody)
         end
     end)
     if not gift then return false end
-    local okQ = pcall(function()
-        ISTimedActionQueue.add(ISInventoryTransferAction:new(
-            body, gift, body:getInventory(), otherBody:getInventory()))
-    end)
-    if okQ then log(id .. " hands over what cleans a wound") end
-    return okQ
+    local receipt = SAO.Handover.begin(id, body, recipientId, otherBody, gift,
+        "disinfectant", options)
+    if receipt then log(id .. " queues what cleans a wound") end
+    return receipt or false
 end
 
 -- Does this person carry something that actually gives light
@@ -759,16 +756,16 @@ function N.clearOffered(body)
 end
 
 -- Hand a spare drinkable to a fellow through the vanilla transfer.
-function N.shareDrinkWith(id, body, fellowBody)
-    if not SAOJavaBridge then return false end
+function N.shareDrinkWith(id, body, fellowBody, recipientId, options)
+    if not (SAOJavaBridge and SAO.Handover and recipientId) then
+        return false
+    end
     local okS, item = pcall(function() return SAOJavaBridge:findSpareDrink(body) end)
     if not okS or item == nil then return false end
-    local okQ = pcall(function()
-        ISTimedActionQueue.add(ISInventoryTransferAction:new(
-            body, item, body:getInventory(), fellowBody:getInventory()))
-    end)
-    if okQ then log(id .. " hands over a drink") end
-    return okQ
+    local receipt = SAO.Handover.begin(id, body, recipientId, fellowBody, item,
+        "drink", options)
+    if receipt then log(id .. " queues a drink for a fellow") end
+    return receipt or false
 end
 
 -- Light one up through the same vanilla eat action (SMOKABLE items are
@@ -804,30 +801,30 @@ function N.casualSmokingOn()
 end
 
 -- Hand a smoke over (the smokers' bond) through the vanilla transfer.
-function N.shareSmokeWith(id, body, fellowBody)
-    if not SAOJavaBridge then return false end
+function N.shareSmokeWith(id, body, fellowBody, recipientId, options)
+    if not (SAOJavaBridge and SAO.Handover and recipientId) then
+        return false
+    end
     local okS, item = pcall(function() return SAOJavaBridge:findCarriedSmokable(body) end)
     if not okS or item == nil then return false end
-    local okQ = pcall(function()
-        ISTimedActionQueue.add(ISInventoryTransferAction:new(
-            body, item, body:getInventory(), fellowBody:getInventory()))
-    end)
-    if okQ then log(id .. " shares a smoke") end
-    return okQ
+    local receipt = SAO.Handover.begin(id, body, recipientId, fellowBody, item,
+        "smoke", options)
+    if receipt then log(id .. " queues a smoke for a fellow") end
+    return receipt or false
 end
 
 -- Give the bonded the BEST carried food - the spare-only rule is for
 -- everyone else.
-function N.shareAllWith(id, body, fellowBody)
-    if not SAOJavaBridge then return false end
+function N.shareAllWith(id, body, fellowBody, recipientId, options)
+    if not (SAOJavaBridge and SAO.Handover and recipientId) then
+        return false
+    end
     local okS, item = pcall(function() return SAOJavaBridge:findFoodForBonded(body) end)
     if not okS or item == nil then return false end
-    local okQ = pcall(function()
-        ISTimedActionQueue.add(ISInventoryTransferAction:new(
-            body, item, body:getInventory(), fellowBody:getInventory()))
-    end)
-    if okQ then log(id .. " gives their last to their bonded") end
-    return okQ
+    local receipt = SAO.Handover.begin(id, body, recipientId, fellowBody, item,
+        "food", options)
+    if receipt then log(id .. " queues their food for their bonded") end
+    return receipt or false
 end
 
 function N.clearGear(body)
