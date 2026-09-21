@@ -139,6 +139,10 @@ function Identity.create(forename, surname, x, y, z)
         createdAt = tostring(getGameTime() and getGameTime():getCalender():getTimeInMillis() or 0),
         updatedAt = 0,
         speechAccessOrigin = "generated-empty-traits",
+        dormantPhysiologyOrigin = "generated-default",
+        dormantFatigue = 0.0,
+        dormantEndurance = 1.0,
+        dormantSleepNeed = 1.0,
         dormantSleeping = false,
     }
     s.records[id] = rec

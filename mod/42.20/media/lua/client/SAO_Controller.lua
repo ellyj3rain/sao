@@ -279,6 +279,15 @@ function Ctl.adopt(rec)
     Ctl.agents[rec.id] = Ctl.agents[rec.id] or {
         rec = rec, state = "IDLE", stateSince = tickCount, nextDecisionAt = 0,
     }
+    local agent = Ctl.agents[rec.id]
+    if rec.dormantResting == true or rec.dormantSleeping == true then
+        agent.resting = true
+    end
+    if rec.dormantSleeping == true then
+        agent.sleeping = true
+        local ok, now = pcall(function() return SAO.History.countyHours() end)
+        agent.lastRestHours = ok and now or nil
+    end
     log("adopted " .. rec.id .. " | " .. SAO.Disposition.describe(rec.id))
     return true
 end
@@ -2756,7 +2765,9 @@ local function decideNightAndDrift(id, agent, body, tick, rec)
                 return true
             end
             local needs = SAO.Needs.read(body)
-            if needs and needs.fatigue and needs.fatigue > 0.2 then
+            if needs and needs.fatigue
+                and ((agent.sleeping and needs.fatigue > 0.000001)
+                    or (not agent.sleeping and needs.fatigue > 0.2)) then
                 if not agent.sleeping then
                     agent.sleeping = true
                     agent.pressure = { answer = "chosen rest",

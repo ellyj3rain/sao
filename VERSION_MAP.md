@@ -16,9 +16,9 @@ the machine. Names, dates, and threads below come from
 | Form | `major.minor.kohai.patch-maturity` |
 | Hard caps | minor 12; kohai 16; patch 24 |
 | Replay start | `0.1.0.0-pre-alpha` |
-| Current version | `2.8.8.0-pre-alpha` |
-| Closed chronology | `A1-C71` |
-| Next batch | `C72` |
+| Current version | `2.8.9.0-pre-alpha` |
+| Closed chronology | `A1-C72` |
+| Next batch | `C73` |
 | Executable source | [`tools/version_replay.py`](tools/version_replay.py) |
 
 ## Tier meanings
@@ -187,6 +187,7 @@ the machine. Names, dates, and threads below come from
 | `C69` | 2026-09-21 | kohai | `2.8.6.0-pre-alpha` | Recipient appraisal after testimony | Let a non-witness form an independent private response to reported household assistance only from their own active request, current membership, explicit ground claim and accepted testimony. Freeze relationship and acquisition provenance, preserve disagreement, strip appraisals from retelling and write no automatic trust or debt; complete inventory, treatment, dormant hearing and other life producers remain open. |
 | `C70` | 2026-09-21 | kohai | `2.8.7.0-pre-alpha` | Treatment completion | Give loaded open-wound bandaging one patient-bound native result across self, NPC and player care. Classify interruption, native refusal and ineffective dressing before consuming patient response, care experience, voice or critical-care choreography, with per-channel reload receipts; dormant treatment, other medical verbs and broader life producers remain open. |
 | `C71` | 2026-09-21 | kohai | `2.8.8.0-pre-alpha` | Complete private inventory | Give each loaded person one fresh recursive view over carried, static-container, vehicle-part, placed-item and corpse inventory, with exact holder identity and v4 dormant-carriage agreement. Refuse bounded observations as house totals, retire inferred standing claims and keep native inventory and action owners authoritative; dormant world access and the remaining material actions remain open. |
+| `C72` | 2026-09-21 | kohai | `2.8.9.0-pre-alpha` | Dormant spoken access | Extend the existing person and communication substrate with record-owned fatigue, rest, sleep and wake transitions while no body exists. Native measurements and explicit generated provenance cross the handoff, older unmeasured state remains unknown, and the transition runs before dormant conversation; actual radio reception remains open. |
 
 ## The former number
 
@@ -207,11 +208,11 @@ establish release maturity.
 
 ## Next movement
 
-`C72` is the next batch. Its content determines its tier after it
+`C73` is the next batch. Its content determines its tier after it
 exists:
 
-| If C72 is | Result |
+| If C73 is | Result |
 |---|---|
-| patch or hotfix | `2.8.8.1-pre-alpha` |
-| kohai | `2.8.9.0-pre-alpha` |
+| patch or hotfix | `2.8.9.1-pre-alpha` |
+| kohai | `2.8.10.0-pre-alpha` |
 | minor | `2.9.0.0-pre-alpha` |

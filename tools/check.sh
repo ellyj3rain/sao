@@ -1920,6 +1920,14 @@ if ! "$PY" tools/private_inventory_test.py; then
     fail=1
 fi
 
+# [C72] Border 185 - measured fatigue and the county clock produce dormant
+# rest/sleep/wake before the encounter pass; native and generated state cross
+# the loaded/bodyless boundary while older unmeasured records stay unknown.
+if ! "$PY" tools/dormant_spoken_access_test.py; then
+    note "BORDER FINDING - dormant spoken access or physiology handoff broken"
+    fail=1
+fi
+
 # [C63/C67/C69] Border 180 - provisioning consumes completed C62 results,
 # reconciles exact observed native stock, and preserves private delivery
 # knowledge, requests and independently formed recipient appraisals.

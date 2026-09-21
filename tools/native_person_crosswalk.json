@@ -2,7 +2,7 @@
   "schema": 1,
   "baseline_commit": "08f9d6d32977a731f0af06c2824cbe72e2024550",
   "probe": "tools/luacheck/PersonSnapshotProbe.java",
-  "probe_sha256": "8950989588d963e582fba11b7ccf5230c730cb6d4906bcd95432fd9635d891c6",
+  "probe_sha256": "78722687a14c0cc9b94e82754c77e452f6c65b44ac924b1eb2e6bf3c370e3f2f",
   "production": [
     {
       "border": 163,

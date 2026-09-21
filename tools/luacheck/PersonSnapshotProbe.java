@@ -338,6 +338,8 @@ public final class PersonSnapshotProbe {
         source.setAttachedItem("FixtureSlot", first);
         source.getStats().set(CharacterStat.HUNGER, .42f);
         source.getStats().set(CharacterStat.PANIC, 37f);
+        source.getStats().set(CharacterStat.FATIGUE, .73f);
+        source.getStats().set(CharacterStat.ENDURANCE, .42f);
         var wound = source.getBodyDamage().getBodyPart(BodyPartType.Hand_R);
         wound.SetHealth(63f);
         wound.setBandaged(true, 4.25f, true, "fixture-bandage");
@@ -346,6 +348,7 @@ public final class PersonSnapshotProbe {
         source.getXp().xpMap.put(PerkFactory.Perks.Aiming, 88.5f);
         source.setPerkLevelDebug(PerkFactory.Perks.Aiming, 2);
         source.getCharacterTraits().set(CharacterTrait.SMOKER, true);
+        source.getCharacterTraits().set(CharacterTrait.NEEDS_LESS_SLEEP, true);
         source.getCharacterTraits().set(customTrait, true);
         source.getXp().xpMap.put(earnedPerk, 12.75f);
         source.setPerkLevelDebug(levelPerk, 3);
@@ -488,6 +491,12 @@ public final class PersonSnapshotProbe {
         source.getModData().rawset("SAOPersonId", new Object());
 
         String packed = SAONativeSnapshot.capture(source);
+        String[] dormantRest = SAONativeSnapshot.restState(packed).split(":");
+        check(dormantRest.length == 4 && dormantRest[0].equals("AVAILABLE")
+                && Float.parseFloat(dormantRest[1]) == .73f
+                && Float.parseFloat(dormantRest[2]) == .42f
+                && Float.parseFloat(dormantRest[3]) == .7f,
+                "native dormant rest state");
         check(SAONativeSnapshot.validate(packed) && SAONativeSnapshot.formatVersion(packed) == 4,
                 "captured v4 snapshot refused");
         String lowWeight = mutateSectionFloat(packed, 5, 16, 34f);
@@ -538,7 +547,14 @@ public final class PersonSnapshotProbe {
         check(restored.getAttachedItems().getItem("FixtureSlot").id == first.id,
                 "attached item identity");
         check(restored.getStats().get(CharacterStat.HUNGER) == .42f
-                && restored.getStats().get(CharacterStat.PANIC) == 37f, "native stats");
+                && restored.getStats().get(CharacterStat.PANIC) == 37f
+                && restored.getStats().get(CharacterStat.FATIGUE) == .73f
+                && restored.getStats().get(CharacterStat.ENDURANCE) == .42f, "native stats");
+        check(SAONativeSnapshot.applyRestState(restored, .11, .88)
+                && restored.getStats().get(CharacterStat.FATIGUE) == .11f
+                && restored.getStats().get(CharacterStat.ENDURANCE) == .88f
+                && !SAONativeSnapshot.applyRestState(restored, -1, .5),
+                "applied dormant rest state");
         var restoredWound = restored.getBodyDamage().getBodyPart(BodyPartType.Hand_R);
         check(restoredWound.getHealth() == 63f && restoredWound.bandaged()
                 && restoredWound.getBandageLife() == 4.25f
@@ -853,7 +869,8 @@ public final class PersonSnapshotProbe {
         check(refused, "missing nested unequipped script accepted");
         System.out.println("PASS native snapshot: v3/v4; root/nested items and fluids; equipment; "
                 + "stats/wounds/XP/traits; nutrition/fitness/learning/visual/ModData; repeated wake; "
-                + "dormant partial food/drink and partition stability; next native updates; "
+                + "dormant partial food/drink and partition stability; dormant rest state; "
+                + "next native updates; "
                 + "corruption/version/missing-definition controls");
     }
 }

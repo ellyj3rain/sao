@@ -47,8 +47,18 @@ function F.captureBodyFacts(rec, body, now)
     end
     local sleepRead, sleeping = pcall(function() return body:isAsleep() end)
     if not sleepRead or type(sleeping) ~= "boolean" then sleeping = nil end
+    local resting = nil
+    local agent = SAO.Controller and SAO.Controller.agents
+        and SAO.Controller.agents[rec.id] or nil
+    if agent then
+        resting = agent.resting == true
+    else
+        local restRead, seated = pcall(function() return body:isSitOnGround() end)
+        if restRead and type(seated) == "boolean" then resting = seated end
+    end
     return { woundInfected = inf ~= nil and inf > 0,
         sleeping = sleeping,
+        resting = resting,
         hasRadio = SAO.Standing.ownsRadio(rec.id, body) == true,
         knoxInfected = infected, biteDeathAtHours = deadline,
         newInfection = infected and rec.knoxInfected ~= true }
@@ -73,6 +83,7 @@ function F.commitBodyFacts(rec, facts, now)
     rec.biteDeathAtHours = facts.biteDeathAtHours or nil
     rec.hasRadio = facts.hasRadio == true
     rec.dormantSleeping = facts.sleeping
+    rec.dormantResting = facts.resting == true or nil
     if firstObservation then
         rec.infectionStartedAtHours = now
         local deadline = tonumber(rec.biteDeathAtHours)

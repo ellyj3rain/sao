@@ -461,6 +461,188 @@ local function groupHasSourceOwner(group)
     return false
 end
 
+-- Build 42.20's loaded awake law, expressed per game hour. The bridge
+-- derives this from ZomboidGlobals and the current StatsDecrease sandbox
+-- multiplier. The literal is the installed default (0.0000345 * 3600) and
+-- keeps the non-agent fallback on the same clock.
+local DEFAULT_AWAKE_FATIGUE_PER_HOUR = 0.1242
+local SLEEP_THRESHOLD = 0.2
+local RESTED_THRESHOLD = 0.000001
+
+local function finite(value)
+    return type(value) == "number" and value == value
+        and value ~= math.huge and value ~= -math.huge
+end
+
+local function acquireDormantPhysiology(rec)
+    local fatigue = tonumber(rec.dormantFatigue)
+    local endurance = tonumber(rec.dormantEndurance)
+    local sleepNeed = tonumber(rec.dormantSleepNeed)
+    if rec.dormantPhysiologyOrigin and finite(fatigue) and finite(endurance)
+        and finite(sleepNeed) and fatigue >= 0 and fatigue <= 1
+        and endurance >= 0 and endurance <= 1 and sleepNeed > 0 then
+        return fatigue, endurance, sleepNeed, rec.dormantPhysiologyOrigin
+    end
+    if rec.hibernation ~= nil and SAOJavaBridge
+        and SAOJavaBridge.hibernationRestState then
+        local ok, access = pcall(function()
+            return SAOJavaBridge:hibernationRestState(rec.hibernation)
+        end)
+        if ok then
+            fatigue, endurance, sleepNeed = SAO.BodySnapshot.restValues(access)
+            if fatigue then
+                return fatigue, endurance, sleepNeed, "native-snapshot"
+            end
+        end
+        -- A legacy or invalid snapshot is not an empty body. It stays
+        -- unknown until a supported native capture supplies measurements.
+        return nil
+    end
+    if rec.hibernation == nil
+        and rec.dormantPhysiologyOrigin == "generated-default" then
+        return 0.0, 1.0, 1.0, "generated-default"
+    end
+    return nil
+end
+
+local function awakeFatigueBase()
+    local base = DEFAULT_AWAKE_FATIGUE_PER_HOUR
+    if SAOJavaBridge and SAOJavaBridge.dormantAwakeFatiguePerHour then
+        local ok, measured = pcall(function()
+            return SAOJavaBridge:dormantAwakeFatiguePerHour()
+        end)
+        if ok and finite(measured) and measured > 0 then base = measured end
+    end
+    return base
+end
+
+local function dormantAtHome(id, rec)
+    local x, y = tonumber(rec.x), tonumber(rec.y)
+    local hx, hy = tonumber(rec.homeX), tonumber(rec.homeY)
+    if x and y and hx and hy and math.abs(x - hx) < 3
+        and math.abs(y - hy) < 3 then return true end
+    local ok, inside = pcall(function()
+        return SAO.Standing.insideClaim(id, x, y)
+    end)
+    return ok and inside == true
+end
+
+local function restWindow(atHours)
+    local hour = atHours % 24.0
+    return hour >= 22.0 or hour < 6.0
+end
+
+local function nextRestBoundary(atHours)
+    local hour = atHours % 24.0
+    if hour < 6.0 then return atHours + (6.0 - hour) end
+    if hour < 22.0 then return atHours + (22.0 - hour) end
+    return atHours + (30.0 - hour)
+end
+
+local function advanceRestState(fatigue, endurance, sleepNeed, hours,
+        sleeping, resting, fatigueBase)
+    if sleeping then
+        return math.max(0, fatigue - hours / 8.0),
+            math.min(1, endurance + hours / 4.0)
+    end
+    local enduranceFactor = math.max(0.3, 1.0 - endurance)
+    local restFactor = resting and 1.5 or 1.0
+    local rate = fatigueBase * enduranceFactor * sleepNeed / restFactor
+    return math.min(1, fatigue + hours * rate), endurance, rate
+end
+
+-- One durable physiology interval. Unknown legacy state is not defaulted;
+-- native capture or explicit generated provenance must first supply it.
+local function advanceDormantPhysiology(id, rec, nowHours, fatigueBase)
+    local fatigue, endurance, sleepNeed, origin = acquireDormantPhysiology(rec)
+    if not fatigue then return false end
+    local last = tonumber(rec.dormantPhysiologyAtHours)
+    if not finite(last) or last < 0 or last > nowHours then
+        rec.dormantPhysiologyOrigin = origin
+        rec.dormantFatigue = fatigue
+        rec.dormantEndurance = endurance
+        rec.dormantSleepNeed = sleepNeed
+        rec.dormantPhysiologyAtHours = nowHours
+        return true
+    end
+    if nowHours == last then return true end
+
+    local sleeping = rec.dormantSleeping
+    if sleeping ~= true and sleeping ~= false then sleeping = nil end
+    local resting = rec.dormantResting == true
+    local atHome = dormantAtHome(id, rec)
+    local cursor = last
+    while cursor < nowHours do
+        local inWindow = restWindow(cursor)
+        if not inWindow then
+            -- Six o'clock is an action boundary, not an inference from an
+            -- absent flag: the bodyless owner actually wakes the person.
+            sleeping, resting = false, false
+        elseif sleeping == true then
+            resting = true
+        elseif atHome then
+            resting = true
+            sleeping = fatigue > SLEEP_THRESHOLD
+        else
+            resting = false
+        end
+
+        local finish = math.min(nowHours, nextRestBoundary(cursor))
+        local span = finish - cursor
+        if sleeping == true then
+            if fatigue <= RESTED_THRESHOLD then
+                sleeping = false
+            else
+                local untilWake = (fatigue - RESTED_THRESHOLD) * 8.0
+                span = math.min(span, untilWake)
+                fatigue, endurance = advanceRestState(fatigue, endurance,
+                    sleepNeed, span, true, true, fatigueBase)
+                cursor = cursor + span
+                if span >= untilWake - 0.0000001 then sleeping = false end
+            end
+        elseif sleeping == nil then
+            -- Night away from known shelter provides no evidence of sleep or
+            -- wakefulness. Spend the interval without manufacturing either.
+            cursor = finish
+        else
+            local _, _, rate = advanceRestState(fatigue, endurance,
+                sleepNeed, 0, false, resting, fatigueBase)
+            if inWindow and atHome and fatigue <= SLEEP_THRESHOLD then
+                local untilSleep = (SLEEP_THRESHOLD + 0.000001 - fatigue) / rate
+                span = math.min(span, untilSleep)
+            end
+            fatigue, endurance = advanceRestState(fatigue, endurance,
+                sleepNeed, span, false, resting, fatigueBase)
+            cursor = cursor + span
+            if inWindow and atHome and fatigue > SLEEP_THRESHOLD then
+                sleeping = true
+            end
+        end
+    end
+
+    -- A boundary at exactly this pass happens before the encounter pass.
+    if not restWindow(nowHours) then
+        sleeping, resting = false, false
+    elseif sleeping == true then
+        resting = true
+        if fatigue <= RESTED_THRESHOLD then sleeping = false end
+    elseif atHome then
+        resting = true
+        sleeping = fatigue > SLEEP_THRESHOLD
+    else
+        resting = false
+    end
+
+    rec.dormantPhysiologyOrigin = origin
+    rec.dormantFatigue = fatigue
+    rec.dormantEndurance = endurance
+    rec.dormantSleepNeed = sleepNeed
+    rec.dormantPhysiologyAtHours = nowHours
+    rec.dormantSleeping = sleeping
+    rec.dormantResting = resting and true or nil
+    return true
+end
+
 local function dormantLife(conf, tickCounter)
     SAO.WorldSources.reconcileReservations()
     -- [C62] The county's hour, not the engine's. This runs once
@@ -470,6 +652,11 @@ local function dormantLife(conf, tickCounter)
     local hour = SAO.History.countyTimeOfDay()
     if type(hour) ~= "number" then return end
     local night = hour >= 21.0 or hour < 6.0
+    local okHours, nowHours = pcall(function()
+        return SAO.History.countyHours()
+    end)
+    if not okHours or not finite(nowHours) or nowHours < 0 then return end
+    local fatigueBase = awakeFatigueBase()
     -- [C113] An ordinary county, in the county's own words. The
     -- street law only runs where the county says so: `fallHasCome`
     -- answers with its REASON, and "before" - the record's calendar
@@ -486,231 +673,235 @@ local function dormantLife(conf, tickCounter)
     end
     for id, rec in pairs(SAO.Identity.all()) do
         if not rec.dead and not SAO.Claims.isHeld(rec)
-            and not SAO.Body.hasRepresentation(id) and rec.homeX
+            and not SAO.Body.hasRepresentation(id)
             and not sourceOwnsDormantRecord(id) then
-            rec.nextDormantMoveAt = rec.nextDormantMoveAt or 0
-            -- [C112] This is the one persisted FUTURE due-time in the
-            -- county, and a stamp written by an older build counted
-            -- FRAMES - a number that can read as years ahead on the
-            -- county's axis and would stall a walker forever. This
-            -- field is only ever set to now + at most 3600, so
-            -- anything further ahead than that is not of this domain:
-            -- it is dropped, and the move is due now. One reload's
-            -- reset per old save, then never again.
-            if rec.nextDormantMoveAt > tickCounter + 3600 then
-                rec.nextDormantMoveAt = 0
-            end
-            -- An exact loaded action cannot become a bodyless approximation.
-            -- Keep its record still until representation returns and the
-            -- durable phase reconstructs against the carried item/source.
-            if tickCounter >= rec.nextDormantMoveAt then
-                rec.nextDormantMoveAt = tickCounter + 1800 + SAO.Rand.int(1800)
-                local tx, ty
-                if night and not preFall then
-                    tx, ty = rec.homeX, rec.homeY
-                else
-                    if not rec.dayGoalX
-                        or (math.abs(rec.x - rec.dayGoalX) < 3
-                            and math.abs(rec.y - rec.dayGoalY) < 3) then
-                        -- [C25] The day reaches the home
-                        -- neighborhood - the county's derived
-                        -- horizon, not a dial (DR-027). Need can
-                        -- reach further inside chooseDayPlace.
-                        local reach = SAO.Places.comfortHorizon()
-                        -- [B37] Arriving is learning. The goal just
-                        -- reached was a real building, so they now
-                        -- know it is there and what it holds - the
-                        -- only thing the operator allows them to know
-                        -- off the road, and learned by being there
-                        -- rather than read off a registry.
-                        -- Only the ID goes on the record, which is
-                        -- persisted; the place itself is re-read from
-                        -- the map cache. Hanging a nested table off a
-                        -- saved record would put the whole county in
-                        -- every save file.
-                        -- [C72] They went to where they last saw
-                        -- somebody, and got there. Whether it paid off
-                        -- is whether they have seen that person SINCE
-                        -- they set out - the encounter pass writes a
-                        -- fresh sighting the moment two people are
-                        -- within meeting range, so a stamp that has
-                        -- not moved means the address was empty.
-                        --
-                        -- An address that was empty stops being the
-                        -- answer until a fresh sighting revives it,
-                        -- which is [C25]'s rule for a known place that
-                        -- did not pan out: without it somebody
-                        -- re-orders the same doorstep every day
-                        -- forever. Marking it on arrival regardless
-                        -- would spend the belief of a person they had
-                        -- just found.
-                        if rec.dayGoalPerson then
-                            pcall(function()
-                                local b2 = SAO.Perception.beliefs[id]
-                                local pb = b2 and b2.people
-                                    and b2.people[rec.dayGoalPerson]
-                                if pb and (pb.at or 0)
-                                    <= (rec.dayGoalSeenAt or 0) then
-                                    pb.lookedAt = tickCounter
-                                end
-                            end)
+            advanceDormantPhysiology(id, rec, nowHours, fatigueBase)
+            if rec.homeX then
+                rec.nextDormantMoveAt = rec.nextDormantMoveAt or 0
+                -- [C112] This is the one persisted FUTURE due-time in the
+                -- county, and a stamp written by an older build counted
+                -- FRAMES - a number that can read as years ahead on the
+                -- county's axis and would stall a walker forever. This
+                -- field is only ever set to now + at most 3600, so
+                -- anything further ahead than that is not of this domain:
+                -- it is dropped, and the move is due now. One reload's
+                -- reset per old save, then never again.
+                if rec.nextDormantMoveAt > tickCounter + 3600 then
+                    rec.nextDormantMoveAt = 0
+                end
+                -- An exact loaded action cannot become a bodyless approximation.
+                -- Keep its record still until representation returns and the
+                -- durable phase reconstructs against the carried item/source.
+                if rec.dormantSleeping ~= true
+                    and tickCounter >= rec.nextDormantMoveAt then
+                    rec.nextDormantMoveAt = tickCounter + 1800 + SAO.Rand.int(1800)
+                    local tx, ty
+                    if night and not preFall then
+                        tx, ty = rec.homeX, rec.homeY
+                    else
+                        if not rec.dayGoalX
+                            or (math.abs(rec.x - rec.dayGoalX) < 3
+                                and math.abs(rec.y - rec.dayGoalY) < 3) then
+                            -- [C25] The day reaches the home
+                            -- neighborhood - the county's derived
+                            -- horizon, not a dial (DR-027). Need can
+                            -- reach further inside chooseDayPlace.
+                            local reach = SAO.Places.comfortHorizon()
+                            -- [B37] Arriving is learning. The goal just
+                            -- reached was a real building, so they now
+                            -- know it is there and what it holds - the
+                            -- only thing the operator allows them to know
+                            -- off the road, and learned by being there
+                            -- rather than read off a registry.
+                            -- Only the ID goes on the record, which is
+                            -- persisted; the place itself is re-read from
+                            -- the map cache. Hanging a nested table off a
+                            -- saved record would put the whole county in
+                            -- every save file.
+                            -- [C72] They went to where they last saw
+                            -- somebody, and got there. Whether it paid off
+                            -- is whether they have seen that person SINCE
+                            -- they set out - the encounter pass writes a
+                            -- fresh sighting the moment two people are
+                            -- within meeting range, so a stamp that has
+                            -- not moved means the address was empty.
+                            --
+                            -- An address that was empty stops being the
+                            -- answer until a fresh sighting revives it,
+                            -- which is [C25]'s rule for a known place that
+                            -- did not pan out: without it somebody
+                            -- re-orders the same doorstep every day
+                            -- forever. Marking it on arrival regardless
+                            -- would spend the belief of a person they had
+                            -- just found.
+                            if rec.dayGoalPerson then
+                                pcall(function()
+                                    local b2 = SAO.Perception.beliefs[id]
+                                    local pb = b2 and b2.people
+                                        and b2.people[rec.dayGoalPerson]
+                                    if pb and (pb.at or 0)
+                                        <= (rec.dayGoalSeenAt or 0) then
+                                        pb.lookedAt = tickCounter
+                                    end
+                                end)
+                            end
+                            local retainSourceGoal = false
+                            if rec.dayGoalPlaceId then
+                                local okArrival, arrival = pcall(function()
+                                    local arrived = SAO.Places.at(
+                                        rec.dayGoalX, rec.dayGoalY)
+                                    if arrived
+                                        and arrived.id == rec.dayGoalPlaceId then
+                                        return arriveAtPlace(id, rec, arrived,
+                                            tickCounter)
+                                    end
+                                    return true
+                                end)
+                                retainSourceGoal = okArrival and arrival == nil
+                            end
+                            -- [C113] The street roll, at the leg
+                            -- boundary - the one moment a decision is
+                            -- actually being made, not every move gate
+                            -- (a gate opens every dozen county minutes;
+                            -- rolling there would churn a person between
+                            -- home and street hourly at any affinity under
+                            -- one). A person who has just ARRIVED, or has
+                            -- no leg yet, rolls Week One's street hour:
+                            -- out means the day-goal chooser answers
+                            -- (work, somebody, places - the ordinary
+                            -- errand), staying in means the next leg is
+                            -- home, and home it stays until a later leg
+                            -- rolls out. The night rule above no longer
+                            -- holds pre-fall: the authored curve itself
+                            -- thins the small hours (0.20, 0.15, 0.10,
+                            -- 0.05, 0.05) and keeps the evening streets
+                            -- fed (0.90, 0.70, 0.40) - which is the open
+                            -- street the slice asked for, in the shape
+                            -- its prior art authored.
+                            local out = true
+                            if preFall then
+                                local affinity =
+                                    SAO.History.streetAffinity(hour)
+                                out = (affinity ~= nil)
+                                    and (SAO.Rand.unit() < affinity)
+                            end
+                            local chosen = (not retainSourceGoal and out)
+                                and chooseDayGoal(id, rec, reach, tickCounter) or nil
+                            if retainSourceGoal then
+                                -- The engine was between chunk operations. The
+                                -- reservation and destination remain owned by this
+                                -- person and the next dormant pass retries it.
+                            elseif chosen then
+                                rec.dayGoalX, rec.dayGoalY = chosen.x, chosen.y
+                                rec.dayGoalPlaceId = chosen.placeId
+                                rec.dayGoalSourceNeed = chosen.sourceNeed
+                                -- [C72] All three are written every
+                                -- time, so yesterday's subject cannot
+                                -- survive into today's walk.
+                                rec.dayGoalPerson = chosen.person
+                                rec.dayGoalSeenAt = chosen.seenAt
+                            elseif out then
+                                -- Wilderness, or a neighbourhood whose
+                                -- every place is enemy ground. Nothing to
+                                -- walk to, so the old drift stands.
+                                rec.dayGoalX = rec.homeX
+                                    + SAO.Rand.int(-reach, reach + 1)
+                                rec.dayGoalY = rec.homeY
+                                    + SAO.Rand.int(-reach, reach + 1)
+                                rec.dayGoalPlaceId = nil
+                                rec.dayGoalSourceNeed = nil
+                                rec.dayGoalPerson = nil
+                                rec.dayGoalSeenAt = nil
+                            else
+                                -- Staying in: the leg is home, and the
+                                -- goal machinery above is skipped
+                                -- entirely - an evening in is an evening
+                                -- in, not a failed errand.
+                                rec.dayGoalX, rec.dayGoalY =
+                                    rec.homeX, rec.homeY
+                                rec.dayGoalPlaceId = nil
+                                rec.dayGoalSourceNeed = nil
+                                rec.dayGoalPerson = nil
+                                rec.dayGoalSeenAt = nil
+                            end
                         end
-                        local retainSourceGoal = false
-                        if rec.dayGoalPlaceId then
-                            local okArrival, arrival = pcall(function()
-                                local arrived = SAO.Places.at(
-                                    rec.dayGoalX, rec.dayGoalY)
-                                if arrived
-                                    and arrived.id == rec.dayGoalPlaceId then
-                                    return arriveAtPlace(id, rec, arrived,
-                                        tickCounter)
-                                end
-                                return true
-                            end)
-                            retainSourceGoal = okArrival and arrival == nil
-                        end
-                        -- [C113] The street roll, at the leg
-                        -- boundary - the one moment a decision is
-                        -- actually being made, not every move gate
-                        -- (a gate opens every dozen county minutes;
-                        -- rolling there would churn a person between
-                        -- home and street hourly at any affinity under
-                        -- one). A person who has just ARRIVED, or has
-                        -- no leg yet, rolls Week One's street hour:
-                        -- out means the day-goal chooser answers
-                        -- (work, somebody, places - the ordinary
-                        -- errand), staying in means the next leg is
-                        -- home, and home it stays until a later leg
-                        -- rolls out. The night rule above no longer
-                        -- holds pre-fall: the authored curve itself
-                        -- thins the small hours (0.20, 0.15, 0.10,
-                        -- 0.05, 0.05) and keeps the evening streets
-                        -- fed (0.90, 0.70, 0.40) - which is the open
-                        -- street the slice asked for, in the shape
-                        -- its prior art authored.
-                        local out = true
-                        if preFall then
-                            local affinity =
-                                SAO.History.streetAffinity(hour)
-                            out = (affinity ~= nil)
-                                and (SAO.Rand.unit() < affinity)
-                        end
-                        local chosen = (not retainSourceGoal and out)
-                            and chooseDayGoal(id, rec, reach, tickCounter) or nil
-                        if retainSourceGoal then
-                            -- The engine was between chunk operations. The
-                            -- reservation and destination remain owned by this
-                            -- person and the next dormant pass retries it.
-                        elseif chosen then
-                            rec.dayGoalX, rec.dayGoalY = chosen.x, chosen.y
-                            rec.dayGoalPlaceId = chosen.placeId
-                            rec.dayGoalSourceNeed = chosen.sourceNeed
-                            -- [C72] All three are written every
-                            -- time, so yesterday's subject cannot
-                            -- survive into today's walk.
-                            rec.dayGoalPerson = chosen.person
-                            rec.dayGoalSeenAt = chosen.seenAt
-                        elseif out then
-                            -- Wilderness, or a neighbourhood whose
-                            -- every place is enemy ground. Nothing to
-                            -- walk to, so the old drift stands.
-                            rec.dayGoalX = rec.homeX
-                                + SAO.Rand.int(-reach, reach + 1)
-                            rec.dayGoalY = rec.homeY
-                                + SAO.Rand.int(-reach, reach + 1)
-                            rec.dayGoalPlaceId = nil
-                            rec.dayGoalSourceNeed = nil
-                            rec.dayGoalPerson = nil
-                            rec.dayGoalSeenAt = nil
-                        else
-                            -- Staying in: the leg is home, and the
-                            -- goal machinery above is skipped
-                            -- entirely - an evening in is an evening
-                            -- in, not a failed errand.
-                            rec.dayGoalX, rec.dayGoalY =
-                                rec.homeX, rec.homeY
-                            rec.dayGoalPlaceId = nil
-                            rec.dayGoalSourceNeed = nil
-                            rec.dayGoalPerson = nil
-                            rec.dayGoalSeenAt = nil
-                        end
+                        tx, ty = rec.dayGoalX, rec.dayGoalY
                     end
-                    tx, ty = rec.dayGoalX, rec.dayGoalY
-                end
-                -- [C75] The clock is read on every pass, whether or
-                -- not there is anywhere to walk. Reading it only when
-                -- somebody moves would let a person standing at their
-                -- goal BANK the hours and then cross the county in one
-                -- stride the moment they were given a new one, which
-                -- is not walking. Idle time is spent, not saved.
-                local nowH = hoursNow()
-                local sinceH = 0
-                if rec.lastWalkHours then
-                    sinceH = math.max(0, nowH - rec.lastWalkHours)
-                end
-                rec.lastWalkHours = nowH
-                local dx, dy = tx - rec.x, ty - rec.y
-                local len = math.sqrt(dx * dx + dy * dy)
-                if len > 1.0 then
-                    -- [C75] How far the walking gets them, as a RATE
-                    -- over the county's own clock rather than a fixed
-                    -- number of tiles per pass.
-                    --
-                    -- It was `math.min(4, len)`, a constant per pass,
-                    -- and a pass means two different things in the two
-                    -- halves of the county. Live, `dormantLife` runs
-                    -- every 240 county ticks ([C112]; it was frames)
-                    -- and a move gate opens every
-                    -- 1800 to 3600, so a game day holds hundreds of
-                    -- them. In the years, `[C45]` calls this once per
-                    -- simulated day, so a day held exactly one
-                    -- move - four tiles.
-                    -- Measured: 1.8 tiles per person per simulated day
-                    -- (F-061), against a map fifteen thousand tiles
-                    -- wide with towns hundreds of tiles apart.
-                    --
-                    -- The rate is not a figure chosen here. `[C25]`
-                    -- ratified `comfortHorizon` as the home
-                    -- neighbourhood, reached by a day of ordinary
-                    -- living, and it derives from the engine's own
-                    -- cell quantum (`getCellSizeInSquares`). So a day
-                    -- of walking reaches it, half a day reaches half
-                    -- of it, and a goal further off takes the days it
-                    -- takes - nobody is capped, and where they go is
-                    -- still decided by need and knowledge.
-                    --
-                    -- The pace of the age scales it, the same
-                    -- modifier `[C30]` already sets on a live body:
-                    -- short legs and old ones both walk slower.
-                    --
-                    -- Both halves read one rule, which is the law
-                    -- ([B39], [B42]) - and the years keep `[C45]`'s
-                    -- cost, because a day's distance is covered in
-                    -- one pass rather than a day's passes.
-                    local pace = 1.0
+                    -- [C75] The clock is read on every pass, whether or
+                    -- not there is anywhere to walk. Reading it only when
+                    -- somebody moves would let a person standing at their
+                    -- goal BANK the hours and then cross the county in one
+                    -- stride the moment they were given a new one, which
+                    -- is not walking. Idle time is spent, not saved.
+                    local nowH = hoursNow()
+                    local sinceH = 0
+                    if rec.lastWalkHours then
+                        sinceH = math.max(0, nowH - rec.lastWalkHours)
+                    end
+                    rec.lastWalkHours = nowH
+                    local dx, dy = tx - rec.x, ty - rec.y
+                    local len = math.sqrt(dx * dx + dy * dy)
+                    if len > 1.0 then
+                        -- [C75] How far the walking gets them, as a RATE
+                        -- over the county's own clock rather than a fixed
+                        -- number of tiles per pass.
+                        --
+                        -- It was `math.min(4, len)`, a constant per pass,
+                        -- and a pass means two different things in the two
+                        -- halves of the county. Live, `dormantLife` runs
+                        -- every 240 county ticks ([C112]; it was frames)
+                        -- and a move gate opens every
+                        -- 1800 to 3600, so a game day holds hundreds of
+                        -- them. In the years, `[C45]` calls this once per
+                        -- simulated day, so a day held exactly one
+                        -- move - four tiles.
+                        -- Measured: 1.8 tiles per person per simulated day
+                        -- (F-061), against a map fifteen thousand tiles
+                        -- wide with towns hundreds of tiles apart.
+                        --
+                        -- The rate is not a figure chosen here. `[C25]`
+                        -- ratified `comfortHorizon` as the home
+                        -- neighbourhood, reached by a day of ordinary
+                        -- living, and it derives from the engine's own
+                        -- cell quantum (`getCellSizeInSquares`). So a day
+                        -- of walking reaches it, half a day reaches half
+                        -- of it, and a goal further off takes the days it
+                        -- takes - nobody is capped, and where they go is
+                        -- still decided by need and knowledge.
+                        --
+                        -- The pace of the age scales it, the same
+                        -- modifier `[C30]` already sets on a live body:
+                        -- short legs and old ones both walk slower.
+                        --
+                        -- Both halves read one rule, which is the law
+                        -- ([B39], [B42]) - and the years keep `[C45]`'s
+                        -- cost, because a day's distance is covered in
+                        -- one pass rather than a day's passes.
+                        local pace = 1.0
+                        pcall(function()
+                            pace = SAO.History.speedModOf(id) or 1.0
+                        end)
+                        local perDay = SAO.Places.comfortHorizon()
+                        local step = math.min(len,
+                            perDay * pace * (sinceH / 24.0))
+                        rec.x = math.floor(rec.x + dx / len * step + 0.5)
+                        rec.y = math.floor(rec.y + dy / len * step + 0.5)
+                    end
+                    -- A day's walking teaches places ([A15]): drifting past a
+                    -- held claim leaves the coarse knowledge a passerby would
+                    -- have - the dormant learn the county too.
+                    -- [B42] The rule itself now lives in Perception and
+                    -- both halves read it. It was written here, inside a
+                    -- loop that gates on `not SAO.Body.hasRepresentation(id)`, so only
+                    -- the UNLOADED could ever learn whose ground they were
+                    -- walking on - including [B35]'s wiring for the
+                    -- player's own claim, which meant a survivor standing
+                    -- in the player's house could never learn it was
+                    -- theirs. Same rule, both halves ([B39], [B39]).
                     pcall(function()
-                        pace = SAO.History.speedModOf(id) or 1.0
+                        SAO.Perception.learnGroundNear(id, rec.x, rec.y)
                     end)
-                    local perDay = SAO.Places.comfortHorizon()
-                    local step = math.min(len,
-                        perDay * pace * (sinceH / 24.0))
-                    rec.x = math.floor(rec.x + dx / len * step + 0.5)
-                    rec.y = math.floor(rec.y + dy / len * step + 0.5)
                 end
-                -- A day's walking teaches places ([A15]): drifting past a
-                -- held claim leaves the coarse knowledge a passerby would
-                -- have - the dormant learn the county too.
-                -- [B42] The rule itself now lives in Perception and
-                -- both halves read it. It was written here, inside a
-                -- loop that gates on `not SAO.Body.hasRepresentation(id)`, so only
-                -- the UNLOADED could ever learn whose ground they were
-                -- walking on - including [B35]'s wiring for the
-                -- player's own claim, which meant a survivor standing
-                -- in the player's house could never learn it was
-                -- theirs. Same rule, both halves ([B39], [B39]).
-                pcall(function()
-                    SAO.Perception.learnGroundNear(id, rec.x, rec.y)
-                end)
             end
         end
     end
@@ -1544,6 +1735,7 @@ function D.rebindWorld()
 end
 
 D.dormantLife = dormantLife
+D.advanceDormantPhysiology = advanceDormantPhysiology
 D.dormantAttrition = dormantAttrition
 D.dormantSettle = dormantSettle
 D.dormantProvision = dormantProvision

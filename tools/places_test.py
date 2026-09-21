@@ -272,7 +272,8 @@ def drive():
         # property is that the old drift is still the fallback where no
         # place can be chosen, which it is; only its spelling moved.
         "the drift survives as the fallback":
-            "rec.homeX\n                                + SAO.Rand.int" in pop,
+            re.search(r"rec\.dayGoalX\s*=\s*rec\.homeX\s*\n\s*"
+                      r"\+\s*SAO\.Rand\.int", pop) is not None,
         "belief can hold a place as a place": "function P.learnBuilding" in per,
         "and can age it": "function P.placeAge" in per,
         "places come from the map": "getBuildingAt" in plc

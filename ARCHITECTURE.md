@@ -1,6 +1,6 @@
 | Document | Survivor Awareness Overhaul Architecture |
 |---|---|
-| Version | `2.8.8.0-pre-alpha` |
+| Version | `2.8.9.0-pre-alpha` |
 | Author | ellyj3rain |
 | Repository | `ARCHITECTURE.md` |
 | Status | ACTIVE - ratified framework shape. |
@@ -332,6 +332,17 @@ owners. Population replaces its stored callback on reload and clears runtime
 caches and fault/cadence state on world initialization. Durable stores retain
 their existing keys and progress fields.
 
+C72 extends that ownership boundary to rest. BodySnapshot reads fatigue,
+endurance and saved sleep-need traits from the native envelope without making a
+body; PhysicalFacts captures loaded sleep and seated rest. DormantPopulation
+advances the durable values on History's county clock before movement and
+encounters. An at-home person rests from 22:00 to 06:00, crosses the existing
+fatigue threshold into sleep, recovers under the loaded non-slot sleep law and
+wakes at the morning boundary. Sleeping holds movement. Older records without
+native measurement or explicit generated provenance remain unknown. Body first
+restores the native envelope, then applies and verifies the completed durable
+fatigue, endurance, sleep and posture before Controller adoption.
+
 ## Combat doctrine ([A7], [A8], [A10]-[A10])
 
 One evidence-based combat loop (approach, aim settle, `pressedAttack`,
@@ -531,9 +542,10 @@ trust. Appraisals never travel with testimony.
 
 Native hearing reads current loaded conditions or validated v3/v4 saved traits
 and worn gear; saved reading creates no body or item. Generated default access
-has explicit Identity provenance. PhysicalFacts captures sleep. Older unknown
-state and dormant sleeping state await measured acquisition or an actual wake
-producer; possession alone does not prove radio comprehension.
+has explicit Identity provenance. C72 adds record-owned rest/sleep/wake before
+the dormant encounter pass, from native measurements or explicit generated
+physiology. The prior speech marker alone does not establish an awake state.
+Possession alone still does not prove radio comprehension.
 
 ## Personal handovers and terms (C68)
 

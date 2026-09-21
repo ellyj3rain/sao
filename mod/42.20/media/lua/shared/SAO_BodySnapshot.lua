@@ -10,6 +10,27 @@ local function finite(value)
         and value ~= math.huge and value ~= -math.huge
 end
 
+function Snapshot.restValues(access)
+    if type(access) ~= "string" then return nil end
+    local fatigue, endurance, sleepNeed = string.match(access,
+        "^AVAILABLE:([%d%.eE%+%-]+):([%d%.eE%+%-]+):([%d%.eE%+%-]+)$")
+    fatigue, endurance, sleepNeed = tonumber(fatigue), tonumber(endurance),
+        tonumber(sleepNeed)
+    if not finite(fatigue) or not finite(endurance) or not finite(sleepNeed)
+        or fatigue < 0 or fatigue > 1 or endurance < 0 or endurance > 1
+        or sleepNeed <= 0 then return nil end
+    return fatigue, endurance, sleepNeed
+end
+
+local function restAccess(packed)
+    if not (SAOJavaBridge and SAOJavaBridge.hibernationRestState) then return nil end
+    local ok, access = pcall(function()
+        return SAOJavaBridge:hibernationRestState(packed)
+    end)
+    if not ok or not Snapshot.restValues(access) then return nil end
+    return access
+end
+
 function Snapshot.version(packed)
     if SAOJavaBridge and SAOJavaBridge.hibernationVersion then
         local ok, version = pcall(function()
@@ -30,6 +51,8 @@ function Snapshot.capture(rec, body)
     end
     local version = Snapshot.version(packed)
     if version == 0 then return nil, "incomplete-person-snapshot" end
+    local rest = restAccess(packed)
+    if not rest then return nil, "incomplete-rest-snapshot" end
     local visual = nil
     if version < 4 then
         visual = SAOJavaBridge:captureReturnVisual(body)
@@ -44,7 +67,8 @@ function Snapshot.capture(rec, body)
     end
     local facts = SAO.Population.captureBodyFacts(rec, body, now)
     if type(facts) ~= "table" then return nil, "invalid-body-facts" end
-    return { packed = packed, visual = visual, hours = now, x = x, y = y, z = z, facts = facts }
+    return { packed = packed, visual = visual, rest = rest,
+        hours = now, x = x, y = y, z = z, facts = facts }
 end
 
 -- Pending journals can outlive their originating callback or Lua environment.
@@ -53,7 +77,9 @@ end
 function Snapshot.valid(captured)
     if type(captured) ~= "table" then return false end
     local ok, valid = pcall(function()
+        local rest = captured.rest or restAccess(captured.packed)
         return SAOJavaBridge:validateHibernation(captured.packed) == true
+            and Snapshot.restValues(rest) ~= nil
             and finite(captured.hours) and finite(captured.x)
             and finite(captured.y) and finite(captured.z)
             and type(captured.facts) == "table"
@@ -69,6 +95,21 @@ function Snapshot.commit(rec, captured)
     rec.releasedAtHours = captured.hours
     rec.x, rec.y, rec.z = captured.x, captured.y, captured.z
     SAO.Population.commitBodyFacts(rec, captured.facts, captured.hours)
+    local fatigue, endurance, sleepNeed = Snapshot.restValues(
+        captured.rest or restAccess(captured.packed))
+    if fatigue then
+        rec.dormantPhysiologyOrigin = "native-snapshot"
+        rec.dormantFatigue = fatigue
+        rec.dormantEndurance = endurance
+        rec.dormantSleepNeed = sleepNeed
+        rec.dormantPhysiologyAtHours = captured.hours
+    else
+        rec.dormantPhysiologyOrigin = nil
+        rec.dormantFatigue = nil
+        rec.dormantEndurance = nil
+        rec.dormantSleepNeed = nil
+        rec.dormantPhysiologyAtHours = nil
+    end
     rec.bodyCheckpointFailure = nil
 end
 

@@ -294,6 +294,87 @@ public final class SAONativeSnapshot {
         }
     }
 
+    /**
+     * Read the two native stats that continue while a person has no body.
+     * The third value is the engine's saved sleep-need trait multiplier.
+     * This is an observation only: no shell, Stats instance or item is made.
+     */
+    public static String restState(String packed) {
+        if (!isNative(packed)) return "UNKNOWN:unsupported-snapshot";
+        try {
+            Snapshot snapshot = parse(packed);
+            ByteBuffer stats = ByteBuffer.wrap(snapshot.sections()[1]);
+            float fatigue = stats.getFloat(statOffset(zombie.characters.CharacterStat.FATIGUE));
+            float endurance = stats.getFloat(statOffset(zombie.characters.CharacterStat.ENDURANCE));
+            float sleepNeed = savedSleepNeed(snapshot.sections()[3]);
+            if (!unit(fatigue) || !unit(endurance) || !Float.isFinite(sleepNeed)
+                    || sleepNeed <= 0.0f) {
+                return "UNKNOWN:invalid-rest-state";
+            }
+            return "AVAILABLE:" + Float.toString(fatigue) + ":"
+                + Float.toString(endurance) + ":" + Float.toString(sleepNeed);
+        } catch (IOException | RuntimeException unavailable) {
+            return "UNKNOWN:invalid-snapshot";
+        }
+    }
+
+    /**
+     * Installed Build 42.20 advances time by multiplier/(120*dayMinutes)
+     * hours per update and fatigue by FatigueIncrease*(30/dayMinutes)*
+     * multiplier. Their ratio is FatigueIncrease*3600 per game hour.
+     */
+    public static double awakeFatiguePerHour() {
+        try {
+            double sandbox = zombie.SandboxOptions.instance == null ? 1.0
+                : zombie.SandboxOptions.instance.getStatsDecreaseMultiplier();
+            double rate = zombie.ZomboidGlobals.fatigueIncrease * 3600.0 * sandbox;
+            return Double.isFinite(rate) && rate > 0.0 ? rate : 0.0;
+        } catch (Throwable unavailable) {
+            return 0.0;
+        }
+    }
+
+    /** Apply the completed bodyless interval after native restoration. */
+    public static boolean applyRestState(IsoPlayer shell, double fatigue, double endurance) {
+        if (shell == null || !Double.isFinite(fatigue) || !Double.isFinite(endurance)
+                || fatigue < 0.0 || fatigue > 1.0 || endurance < 0.0 || endurance > 1.0) {
+            return false;
+        }
+        try {
+            shell.getStats().set(zombie.characters.CharacterStat.FATIGUE, (float) fatigue);
+            shell.getStats().set(zombie.characters.CharacterStat.ENDURANCE, (float) endurance);
+            return shell.getStats().get(zombie.characters.CharacterStat.FATIGUE) == (float) fatigue
+                && shell.getStats().get(zombie.characters.CharacterStat.ENDURANCE) == (float) endurance;
+        } catch (Throwable unavailable) {
+            return false;
+        }
+    }
+
+    private static int statOffset(zombie.characters.CharacterStat wanted) throws IOException {
+        zombie.characters.CharacterStat[] ordered = zombie.characters.CharacterStat.ORDERED_STATS;
+        for (int index = 0; index < ordered.length; index++) {
+            if (ordered[index] == wanted) return index * Float.BYTES;
+        }
+        throw new IOException("Native rest stat unavailable");
+    }
+
+    private static float savedSleepNeed(byte[] experienceBytes) throws IOException {
+        ByteBuffer experience = ByteBuffer.wrap(experienceBytes);
+        int traits = bounded(experience.getInt(), MAX_ITEMS, "trait count");
+        float multiplier = 1.0f;
+        for (int index = 0; index < traits; index++) {
+            String name = zombie.GameWindow.ReadString(experience);
+            CharacterTrait trait = Registries.CHARACTER_TRAIT.get(ResourceLocation.of(name));
+            if (trait == CharacterTrait.NEEDS_LESS_SLEEP) multiplier = 0.7f;
+            if (trait == CharacterTrait.NEEDS_MORE_SLEEP) multiplier = 1.3f;
+        }
+        return multiplier;
+    }
+
+    private static boolean unit(float value) {
+        return Float.isFinite(value) && value >= 0.0f && value <= 1.0f;
+    }
+
     private static String encode(int schema, byte[][] sections) throws IOException {
         int count = schema == 4 ? SECTIONS_V4 : SECTIONS_V3;
         if (sections.length != count) throw new IOException("Invalid component count");
