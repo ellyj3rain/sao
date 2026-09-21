@@ -182,6 +182,7 @@ NOT_DORMANT = {
     "Locomotion": "queues a move onto a body",
     "Needs": "acts on a body's needs through the engine",
     "Handover": "executes native item actions between materialised bodies; dormant exchange remains unimplemented",
+    "Treatment": "executes patient-bound native bandaging on materialised bodies; dormant treatment remains unimplemented",
     "SourceUse": "executes source actions on materialised bodies; dormant capture reports the absent executor",
     "Voice": "speaks aloud to a player who is present",
     "Body": "the prelude answers for it - nobody is materialised",

@@ -16,9 +16,9 @@ the machine. Names, dates, and threads below come from
 | Form | `major.minor.kohai.patch-maturity` |
 | Hard caps | minor 12; kohai 16; patch 24 |
 | Replay start | `0.1.0.0-pre-alpha` |
-| Current version | `2.8.6.0-pre-alpha` |
-| Closed chronology | `A1-C69` |
-| Next batch | `C70` |
+| Current version | `2.8.7.0-pre-alpha` |
+| Closed chronology | `A1-C70` |
+| Next batch | `C71` |
 | Executable source | [`tools/version_replay.py`](tools/version_replay.py) |
 
 ## Tier meanings
@@ -185,6 +185,7 @@ the machine. Names, dates, and threads below come from
 | `C67` | 2026-09-21 | kohai | `2.8.4.0-pre-alpha` | Delivery knowledge | Connect performed native transfers to private actor/witness memory, admitted testimony, heard requests and a personal reciprocity preference without automatic trade debt. Preserve native observation despite later material conflict and keep source curation acquisition-unknown; broader action producers, complete inventory, dormant sleep/wake and eligible training remain open. |
 | `C68` | 2026-09-21 | kohai | `2.8.5.0-pre-alpha` | Personal handovers and terms | Extend loaded personal gifts, settlement and barter with one durable native-completion owner, bilateral term acceptance and completion-derived partial debt. This matures the existing personal exchange capability while open-wound treatment, dormant exchange, complete inventory and private recipient appraisal remain open. |
 | `C69` | 2026-09-21 | kohai | `2.8.6.0-pre-alpha` | Recipient appraisal after testimony | Let a non-witness form an independent private response to reported household assistance only from their own active request, current membership, explicit ground claim and accepted testimony. Freeze relationship and acquisition provenance, preserve disagreement, strip appraisals from retelling and write no automatic trust or debt; complete inventory, treatment, dormant hearing and other life producers remain open. |
+| `C70` | 2026-09-21 | kohai | `2.8.7.0-pre-alpha` | Treatment completion | Give loaded open-wound bandaging one patient-bound native result across self, NPC and player care. Classify interruption, native refusal and ineffective dressing before consuming patient response, care experience, voice or critical-care choreography, with per-channel reload receipts; dormant treatment, other medical verbs and broader life producers remain open. |
 
 ## The former number
 
@@ -205,11 +206,11 @@ establish release maturity.
 
 ## Next movement
 
-`C70` is the next batch. Its content determines its tier after it
+`C71` is the next batch. Its content determines its tier after it
 exists:
 
-| If C70 is | Result |
+| If C71 is | Result |
 |---|---|
-| patch or hotfix | `2.8.6.1-pre-alpha` |
-| kohai | `2.8.7.0-pre-alpha` |
+| patch or hotfix | `2.8.7.1-pre-alpha` |
+| kohai | `2.8.8.0-pre-alpha` |
 | minor | `2.9.0.0-pre-alpha` |

@@ -1,6 +1,6 @@
 | Document | Survivor Awareness Overhaul Findings |
 |---|---|
-| Version | `2.8.6.0-pre-alpha` |
+| Version | `2.8.7.0-pre-alpha` |
 | Author | ellyj3rain |
 | Repository | `FINDINGS.md` |
 | Status | CANONICAL, APPEND-ONLY - verified engine findings. |
@@ -2121,3 +2121,28 @@ membership, location snapping, request backdating, full testimony weight and
 copied appraisals. The response changes the existing charity decision while the
 trust and debt ledgers remain untouched. Complete inventory, giver intent,
 historical body pressure and loaded-save play are outside this finding.
+
+## F-095 | 2026-09-21 11:05 UTC / 04:05 PST | Open-wound care credited queue admission instead of the patient result
+
+The shipped Build 42.20 `ISApplyBandage.complete` is the treatment mutation. It
+uses the treating character's Doctor level to calculate dressing life, gives
+vanilla Doctor experience only for a positive-life dressing, sets the named
+patient body part, removes the exact dressing and may refuse a conflicting
+manipulator. A dirty dressing is still applied but receives zero life.
+
+SAO's former `aidWound` returned `"treated"` when adding the action did not
+throw. Its two NPC callers immediately changed trust, the patient's answered-cry
+stamp, additional Doctor experience and voice. The player menu likewise changed
+trust immediately. Stop, native refusal, changed patient binding or a zero-life
+dressing could therefore create a completed social fact without effective care.
+The critical-care gesture was also requested while the bandage action kept the
+medic busy, reproducing C45's composition failure.
+
+C70 adds the patient-bound Treatment owner. It delegates mutation to vanilla,
+then requires the exact part to hold a positive-life dressing and the exact item
+to leave the actor inventory before it publishes completion. Each consequence
+has a durable consumption receipt, so reload may wait for an unavailable actor
+body without repeating response or voice. Pending work without a live action
+stays unknown and reserved. Border 183 executes effective, ineffective,
+interrupted, identity-changed, self, NPC, player and staged-reload cases in the
+installed Kahlua VM; its queue-credit mutation flips the named verdict.

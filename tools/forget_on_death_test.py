@@ -244,6 +244,11 @@ NOT_A_SURVIVOR_ID = {
         "that exact entry, world rebind clears the table, and H.forgetPerson "
         "releases pending records involving a dead participant through the "
         "Identity.markDead funnel"),
+    ("SAO_Treatment.lua", "runtime"): (
+        "keyed by a TREATMENT id, not a survivor id. Effective, ineffective, "
+        "interrupted, released and queue-refused paths drop the exact entry; "
+        "world rebind clears all live handles, and T.forgetPerson releases "
+        "pending records involving a dead participant through Identity.markDead"),
 }
 
 # What an index has to look like to be a survivor id. `subFaults[name]`

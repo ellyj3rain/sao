@@ -1903,6 +1903,15 @@ if ! "$PY" tools/personal_handover_test.py; then
     fail=1
 fi
 
+# [C70] Border 183 - open-wound treatment binds actor, patient, exact body
+# part and dressing to one native action. Queue admission, interruption,
+# ineffective completion, patient mismatch and reload-unknown work publish no
+# response, voice or care experience; a saved effective result consumes once.
+if ! "$PY" tools/treatment_completion_test.py; then
+    note "BORDER FINDING - native treatment result or consequence boundary broken"
+    fail=1
+fi
+
 # [C63/C67/C69] Border 180 - provisioning consumes completed C62 results,
 # reconciles exact observed native stock, and preserves private delivery
 # knowledge, requests and independently formed recipient appraisals.

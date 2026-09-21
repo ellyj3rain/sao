@@ -314,6 +314,9 @@ function Ctl.drop(id)
         if SAO.SourceUse and SAO.SourceUse.detach then
             pcall(SAO.SourceUse.detach, body)
         end
+        if SAO.Treatment and SAO.Treatment.releasePerson then
+            pcall(SAO.Treatment.releasePerson, id, "controller-drop")
+        end
         local ok, err = pcall(SAO.Locomotion.cancel, id)
         Ctl.agents[id] = nil
         if not ok then log("cancel during drop " .. id .. ": " .. tostring(err)) end
@@ -1718,35 +1721,14 @@ local function decideNeedsAndCompanion(id, agent, body, tick, needs)
                             voice = { actor = id, kind = "aid", at = tick },
                             aid = { recipient = bestKey, actor = id,
                                 at = tick, xp = 1.5 },
-                            log = id .. " hands a bandage to " .. bestName,
+                            log = id .. " aids " .. bestName,
                         } }
                         local gaveDisinfectant = bestFever > 0
                             and SAO.Needs.shareDisinfectantWith(id, body,
                                 bestBody, bestKey, disinfectantEffect) or false
-                        local aidResult = false
                         if not gaveDisinfectant then
-                            aidResult = SAO.Needs.aidWound(id, body, bestBody,
+                            SAO.Needs.aidWound(id, body, bestBody,
                                 bestKey, bandageEffect)
-                        end
-                        if aidResult == "treated" then
-                            -- [B20] Someone came. Stamped on the
-                            -- person AIDED, because the reckoning is
-                            -- theirs to run, not the aider's.
-                            do
-                                local aidedAgent = Ctl.agents[bestKey]
-                                if aidedAgent then
-                                    aidedAgent.aidedAt = tick
-                                end
-                            end
-                            SAO.Standing.adjustTrust(bestKey, id, 0.15)
-                            SAO.Standing.adjustTrust(id, bestKey, 0.03)
-                            pcall(function()
-                                SAOJavaBridge:grantXP(body, "Doctor", 1.5)
-                            end)
-                            pcall(function()
-                                SAO.Voice.onEvent(id, "aid", tick)
-                            end)
-                            log(id .. " hands a bandage to " .. bestName)
                         end
                     elseif SAO.Locomotion.order(id, body,
                             math.floor(bestBody:getX()),
@@ -5968,10 +5950,9 @@ local function updateMovement(id, agent, body)
                     if hurtBody then
                         local hdx = hurtBody:getX() - body:getX()
                         local hdy = hurtBody:getY() - body:getY()
-                        local aidResult = false
                         if hdx * hdx + hdy * hdy
                             <= ARRIVAL_REACH * ARRIVAL_REACH then
-                            aidResult = SAO.Needs.aidWound(id, body, hurtBody,
+                            SAO.Needs.aidWound(id, body, hurtBody,
                                 hurtKey, { effect = {
                                     trust = {
                                         { from = hurtKey, to = id,
@@ -5983,32 +5964,10 @@ local function updateMovement(id, agent, body)
                                         at = tickCount },
                                     aid = { recipient = hurtKey, actor = id,
                                         at = tickCount, xp = 1.5 },
-                                    log = id .. " hands a bandage to "
+                                    gesture = "cpr-if-critical",
+                                    log = id .. " aids "
                                         .. tostring(hurtKey),
                                 } })
-                        end
-                        if aidResult == "treated" then
-                            SAO.Standing.adjustTrust(hurtKey, id, 0.15)
-                            SAO.Standing.adjustTrust(id, hurtKey, 0.03)
-                            pcall(function()
-                                SAOJavaBridge:grantXP(body, "Doctor", 1.5)
-                            end)
-                            pcall(function()
-                                SAO.Voice.onEvent(id, "aid", tickCount)
-                            end)
-                            -- [C119] And when the body is DOWN - on the
-                            -- floor or near gone - the aid is desperate,
-                            -- and desperate aid looks like Week One's
-                            -- credited three-stage hands: the kneel, the
-                            -- work, the letting-go. The bandage is still
-                            -- real (aidWound ran); this is the same
-                            -- moment's shape, not a second one.
-                            pcall(function()
-                                local low = hurtBody:isKnockedDown()
-                                    or hurtBody:getHealth() < 0.3
-                                if low then SAO.Gesture.cpr(id, body) end
-                            end)
-                            log(id .. " hands a bandage to " .. tostring(hurtKey))
                         end
                     end
                 end
@@ -7404,6 +7363,11 @@ local function onTickInner()
     -- A county with no History module is already a stated dead county, but
     -- the controller keeps a monotone per-callback fallback for that session.
     if not refreshCountyTick() then tickCount = tickCount + 1 end
+    pcall(function()
+        if SAO.Treatment and SAO.Treatment.reconcile then
+            SAO.Treatment.reconcile()
+        end
+    end)
     -- [B47] The tallies go out on a cadence, so a county that is
     -- quietly meeting people says so once every 600 host callbacks instead
     -- of once per meeting. This is operational pacing, not county history.
@@ -7548,6 +7512,11 @@ local function onPlayerDeath(playerObj)
     -- debts owed to them, the voice on the band. Grief and the walk
     -- to where you fell are below, and those it keeps.
     pcall(function() SAO.Standing.releasePlayer(myKey) end)
+    pcall(function()
+        if SAO.Treatment and SAO.Treatment.forgetPerson then
+            SAO.Treatment.forgetPerson(myKey)
+        end
+    end)
     for id, agent in pairs(Ctl.agents) do
         if not agent.passive then
             local trustIn = SAO.Standing.trust(id, myKey)

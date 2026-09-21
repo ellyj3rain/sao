@@ -27,7 +27,8 @@ than left implicit:
 
     bandageSelf   the bleeding branch is not state-gated at all, so it
                   runs on a sleeping survivor - which is exactly when
-                  a survivor starts bleeding.
+                  a survivor starts bleeding. C70 routes it through
+                  Treatment, whose admission calls the same helper.
     takePills     same branch shape, sickness rather than blood.
     eatCarried    hunger is checked from IDLE, and a sleeping survivor
                   still has state IDLE.
@@ -43,6 +44,8 @@ import sys
 ROOT = pathlib.Path(__file__).resolve().parent.parent
 NEEDS = (ROOT / "mod" / "42.20" / "media" / "lua" / "client"
          / "SAO_Needs.lua")
+TREATMENT = (ROOT / "mod" / "42.20" / "media" / "lua" / "shared"
+             / "SAO_Treatment.lua")
 VANILLA = pathlib.Path(
     r"C:\Program Files (x86)\Steam\steamapps\common\ProjectZomboid"
     r"\media\lua\client\TimedActions\ISTimedActionQueue.lua")
@@ -154,6 +157,9 @@ def main():
     print("ROUTED - the sites where a drop is reachable and costly")
     print("=" * 68)
     src = NEEDS.read_text(encoding="utf-8", errors="ignore")
+    treatment = TREATMENT.read_text(encoding="utf-8", errors="ignore")
+    treatment_routes = ("SAO.Needs.queueVerified(action)" in treatment
+                        and "function T.begin" in treatment)
     unrouted = []
     for name in MUST_VERIFY:
         m = re.search(r"function N\." + name + r"\(", src)
@@ -164,7 +170,8 @@ def main():
         body = src[m.start():]
         end = body.find("\nfunction ", 1)
         body = body[:end if end > 0 else len(body)]
-        routed = "N.queueVerified(" in body
+        routed = ("SAO.Treatment.begin" in body and treatment_routes
+                  if name == "bandageSelf" else "N.queueVerified(" in body)
         bare = re.search(r"^\s*ISTimedActionQueue\.add\(", body, re.M)
         print(f"  {name:<16} routed={routed}  bare-add={bool(bare)}")
         if not routed or bare:
@@ -189,6 +196,8 @@ def main():
                        and "return okH and has == true" in body)
     print(f"  the shipped helper asks the queue: "
           f"{'YES' if helper_asks else 'NO'}")
+    print(f"  treatment admission uses helper:  "
+          f"{'YES' if treatment_routes else 'NO'}")
 
     print()
     print("VERDICT:")
@@ -202,7 +211,8 @@ def main():
           f"{'YES' if not unrouted else 'NO ' + str(unrouted)}")
     print(f"  shipped helper still asks:        "
           f"{'YES' if helper_asks else 'NO'}")
-    if not ok_old_lies or not ok_new_true or unrouted or not helper_asks:
+    if (not ok_old_lies or not ok_new_true or unrouted or not helper_asks
+            or not treatment_routes):
         return 1
     return 0
 

@@ -342,6 +342,12 @@ function Identity.markDead(rec, tick, cause)
     if SAO.Handover and SAO.Handover.forgetPerson then
         pcall(SAO.Handover.forgetPerson, rec.id)
     end
+    -- Open-wound treatment holds two bodies, one body part, the bandage and
+    -- its timed action only while both people are available. The durable
+    -- result survives; unfinished native work does not survive a death.
+    if SAO.Treatment and SAO.Treatment.forgetPerson then
+        pcall(SAO.Treatment.forgetPerson, rec.id)
+    end
     -- [C68] And the company. The dead are not members - electLeader
     -- and groupSize both already filtered them - but nothing removed
     -- the row or settled the house, so a survivor whose company died

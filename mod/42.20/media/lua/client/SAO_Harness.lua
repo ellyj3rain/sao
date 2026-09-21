@@ -913,15 +913,19 @@ local function fillMenu(playerNum, context, worldobjects)
                     nil, function()
                         if SAO.Body.get(nearId) ~= tBody41 then return end
                         pcall(function()
-                            ISTimedActionQueue.add(ISApplyBandage:new(
-                                playerObj, tBody41, bandage41,
-                                part41, true))
+                            local playerKey41 = playerKeyOf(playerObj)
+                            if playerKey41 and SAO.Treatment then
+                                SAO.Treatment.begin(playerKey41, playerObj,
+                                    nearId, tBody41, bandage41, part41, {
+                                        effect = {
+                                            trust = { { from = nearId,
+                                                to = playerKey41,
+                                                delta = 0.15 } },
+                                            log = "the player treats " .. nearId,
+                                        },
+                                    })
+                            end
                         end)
-                        pcall(function()
-                            SAO.Standing.adjustTrust(nearId,
-                                playerKeyOf(playerObj), 0.15)
-                        end)
-                        log("the player treats " .. nearId)
                     end)
             end
         end
