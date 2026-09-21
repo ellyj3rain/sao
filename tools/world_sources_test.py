@@ -348,7 +348,7 @@ PROBE_TEMPLATE = r'''(function()
   check("bounded_results", count(state.results) <= 2048
       and count(state.reservations) <= 2048
       and count(state.resultByActor) <= 2048)
-  check("schema", state.schema == 4)
+  check("schema", state.schema == 5)
   return table.concat(checks, "|")
 end)()'''
 
@@ -488,7 +488,10 @@ def main():
     for token in ("function WS.observedAt", "function WS.availableAt",
                   "function WS.beginAction", "function WS.release",
                   'source.access ~= "accessible"', "nearestBelieved",
-                  "MAX_TRACKED_CHUNKS", "MAX_RESULTS", "MAX_PENDING_LOADS"):
+                  "MAX_TRACKED_CHUNKS", "MAX_RESULTS", "MAX_PENDING_LOADS",
+                  "MAX_PROJECTION_CHANGES",
+                  "if not trimProjectionChanges(value) then return nil end",
+                  "if #ordered >= MAX_PROJECTION_CHANGES then break end"):
         if token not in world_text:
             faults.append("bounded ledger contract is absent: " + token)
     for forbidden in ("function WS.commit", "consumeWorldSource"):

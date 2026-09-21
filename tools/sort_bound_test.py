@@ -117,6 +117,10 @@ BOUNDED = {
         "stable runtime extension ids; registerExtension enforces an "
         "EXTENSION_CEILING of 128 and ensure refuses an inherited registry "
         "above that ceiling before sorting",
+    ("SAO_WorldSources.lua", "ordered"):
+        "pendingProjectionChanges trims durable projectionChanges to "
+        "MAX_PROJECTION_CHANGES (2048) before copying and also stops copying "
+        "at that ceiling, so a malformed save cannot widen the sorted list",
 }
 
 

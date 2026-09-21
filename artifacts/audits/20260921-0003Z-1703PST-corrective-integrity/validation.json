@@ -1,0 +1,28 @@
+{
+  "timestamp": "2026-09-21 00:09 UTC / 17:09 PST",
+  "version": "2.8.1.0-pre-alpha",
+  "gate_exit": 0,
+  "gate_verdict": "all borders clean",
+  "gated_test_scripts": 179,
+  "other_gate_scripts": 13,
+  "distinct_gate_scripts": 192,
+  "highest_border": 181,
+  "lua_files": 76,
+  "jar_classes": 64,
+  "jar_source_files": 34,
+  "jar_sha256": "EF5CBDE75EEA78825EFA9B86123B3205A37A263273C30F25346822BDFCA8E80A",
+  "bridge_call_sites": 309,
+  "bridge_called_methods": 201,
+  "bridge_public_methods": 205,
+  "focused": [
+    "Border 163/169/174 native continuation PASS with 36 compiled mutations",
+    "Border 170 runtime reconstruction and extension rollback PASS",
+    "Border 178 WorldSources schema 5 and ambient change PASS",
+    "Border 179 exact native source use PASS",
+    "Border 180 provisioning result consumption PASS 53/53",
+    "Border 181 immutable capture and atomic refusal PASS",
+    "Speakeasy v3 join controls PASS 7/7"
+  ],
+  "blockers": 0
+}
+

@@ -83,6 +83,20 @@ def validate_inventory(inventory, crosswalk):
         if mutation_digest(indexed[name]) != row["mutation_sha256"]:
             raise RuntimeError("Native case inventory altered declared control: " + name)
         mapped.add(name)
+
+    additions = crosswalk.get("additions", [])
+    addition_names = set()
+    for row in additions:
+        if set(row) != {"batch", "case", "mutation_sha256"}:
+            raise RuntimeError("Native crosswalk addition fields changed")
+        name = row["case"]
+        if (not re.fullmatch(r"C[0-9]+", row["batch"])
+                or name not in indexed or name in mapped or name in addition_names):
+            raise RuntimeError("Native crosswalk addition is invalid: " + str(name))
+        if mutation_digest(indexed[name]) != row["mutation_sha256"]:
+            raise RuntimeError("Native case inventory altered declared control: " + name)
+        addition_names.add(name)
+    mapped.update(addition_names)
     if mapped != set(indexed):
         raise RuntimeError("Native case inventory contains an unmapped control")
 
@@ -250,11 +264,12 @@ def main(argv=None):
         inventory = load_inventory(path, crosswalk)
         receipt["inventory_controls"] = inventory_controls(inventory, crosswalk)
         receipt["historical_controls"] = sum(HISTORICAL_CONTROLS.values())
+        receipt["addition_controls"] = len(crosswalk.get("additions", []))
         receipt["distinct_controls"] = len(inventory["controls"])
         receipt["inventory_sha256"] = digest(path.read_bytes())
         if args.check_inventory:
             receipt["status"] = "PASS"
-            print("PASS native case inventory: 36 historical controls, 35 distinct controls, three baseline assertions; three inventory controls refuse")
+            print("PASS native case inventory: 36 historical controls, 36 distinct controls, three baseline assertions; three inventory controls refuse")
         else:
             for relative in REQUIRED:
                 if not (root / relative).is_file():
@@ -267,7 +282,7 @@ def main(argv=None):
             else:
                 execute(root, inventory, receipt)
                 receipt["status"] = "PASS"
-                print("  163) PASS -- native person continuation and dormant physiology (includes 169/174); 35 compiled controls")
+                print("  163) PASS -- native person continuation and dormant physiology (includes 169/174 and C64); 36 compiled controls")
     except (OSError, RuntimeError, ValueError, KeyError, TypeError, subprocess.TimeoutExpired) as error:
         receipt["status"] = "FAIL"
         receipt["error"] = str(error)

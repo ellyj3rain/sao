@@ -1900,6 +1900,14 @@ if ! "$PY" tools/provisioning_result_test.py; then
     fail=1
 fi
 
+# [C64] Border 181 - decision-time records, beliefs and claims are frozen
+# before the observed verb; reader faults and incomplete counties withhold the
+# entire namespaced, provenance-bearing dump.
+if ! "$PY" tools/decision_capture_test.py; then
+    note "BORDER FINDING - immutable decision evidence or atomic refusal broken"
+    fail=1
+fi
+
 # [C56] Border 171 - durable health cadence and maintenance-drug freeze.
 if ! "$PY" tools/health_clock_test.py; then
     note "BORDER FINDING - durable health cadence broken"

@@ -37,7 +37,7 @@ local S = SAO.Standing
 -- discovered.
 S.FEUD_KEEP_OUT = 30   -- will not settle this close to a feuding company
 S.FEUD_DETOUR = 20     -- a day's walk bends away at this range
-local STANDING_SCHEMA = 2
+local STANDING_SCHEMA = 3
 local C63_STANDING_PROVENANCE =
     "initialized at C63 upgrade from represented C62 state; no earlier history inferred"
 
@@ -73,12 +73,38 @@ local function migrateLegacyMaterialClaims(s, priorSchema)
     s.claimSequence = claimSequence
     s.migrations.c63LegacyMaterialClaims = {
         fromSchema = priorSchema,
-        toSchema = STANDING_SCHEMA,
+        toSchema = 2,
         provenance = C63_STANDING_PROVENANCE,
         retiredLarders = retiredLarders,
         retiredWaterStores = retiredWaterStores,
         retiredHearths = retiredHearths,
         migratedGroupClaims = migratedGroupClaims,
+    }
+end
+
+local function migratePartialMaterialClaims(s, priorSchema)
+    local retiredLarders, retiredWaterStores = 0, 0
+    for _, meta in pairs(s.groupMeta) do
+        if type(meta) == "table" then
+            if type(meta.larder) == "table"
+                and meta.larder.basis == "completed-native-source-results" then
+                meta.larder = nil
+                retiredLarders = retiredLarders + 1
+            end
+            if type(meta.waterStore) == "table"
+                and meta.waterStore.basis
+                    == "completed-native-source-results" then
+                meta.waterStore = nil
+                retiredWaterStores = retiredWaterStores + 1
+            end
+        end
+    end
+    s.migrations.c64PartialMaterialCorrection = {
+        fromSchema = priorSchema,
+        toSchema = STANDING_SCHEMA,
+        provenance = "C64 retires house-wide claims derived from selected source results",
+        retiredPartialLarders = retiredLarders,
+        retiredPartialWaterStores = retiredWaterStores,
     }
 end
 
@@ -93,8 +119,13 @@ local function store()
     s.groupMeta = type(s.groupMeta) == "table" and s.groupMeta or {}
     s.groupClaims = type(s.groupClaims) == "table" and s.groupClaims or {}
     s.migrations = type(s.migrations) == "table" and s.migrations or {}
-    if priorSchema < STANDING_SCHEMA then
+    if priorSchema < 2 then
         migrateLegacyMaterialClaims(s, priorSchema)
+    end
+    if priorSchema < 3 then
+        migratePartialMaterialClaims(s, priorSchema)
+    end
+    if priorSchema < STANDING_SCHEMA then
         s.schema = STANDING_SCHEMA
     end
     return s

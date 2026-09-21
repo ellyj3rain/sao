@@ -790,6 +790,10 @@ public final class PersonSnapshotProbe {
         turnedDesc.getHumanVisual().setSkinTextureName("returned-appearance");
         var turned = new zombie.characters.IsoZombie(null, turnedDesc, 0);
         turned.setReanimatedPlayer(true);
+        set(turned, zombie.characters.IsoGameCharacter.class, "beardGrowTiming", 67.5f);
+        set(turned, zombie.characters.IsoGameCharacter.class, "hairGrowTiming", 83.25f);
+        set(restored, zombie.characters.IsoGameCharacter.class, "beardGrowTiming", 5.5f);
+        set(restored, zombie.characters.IsoGameCharacter.class, "hairGrowTiming", 7.25f);
         check(turned.getBodyDamage() == null && turned.getXp() == null,
                 "engine zombie living-component contract changed");
         InventoryContainer detachedBag = (InventoryContainer) bagDefinition.InstanceItem(null, false);
@@ -828,6 +832,11 @@ public final class PersonSnapshotProbe {
                 "return lost supported living components");
         check(SAONativeSnapshot.captureReturnVisual(returnee).equals(returnVisual),
                 "return appearance in v4 snapshot did not roundtrip");
+        check((Float) value(returnee, zombie.characters.IsoGameCharacter.class,
+                    "beardGrowTiming") == 67.5f
+                && (Float) value(returnee, zombie.characters.IsoGameCharacter.class,
+                    "hairGrowTiming") == 83.25f,
+                "return appearance mixed living-shell growth timing");
         SAONativeSnapshot.restoreReturnVisual(returnee, returnVisual);
         check(SAONativeSnapshot.captureReturnVisual(returnee).equals(returnVisual),
                 "return appearance did not roundtrip");

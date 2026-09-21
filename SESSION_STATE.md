@@ -1,26 +1,32 @@
 | Document | Survivor Awareness Overhaul Session State |
 |---|---|
-| Version | `2.8.0.0-pre-alpha` |
+| Version | `2.8.1.0-pre-alpha` |
 | Author | ellyj3rain |
 | Repository | `SESSION_STATE.md` |
 | Status | CANONICAL - current implementation and continuation. |
 
 # Session state
 
-**As of** 2026-09-20, `[C63]` consumes C62's completed exact-use result through
-bounded native-source replacement, derived house claims and optional storage
-synchronization on an independently grounded settlement, then acknowledges the
-receipt. C62 closes the first exact source access-and-use lifecycle over C61's
-demand-led native observations: private revision, current route and permission,
-exact native transfer, carried engine use and durable completion remain one
-actor-owned transaction.
+**As of** 2026-09-20, `[C64]` has audited the C49-C63 continuation and corrected
+the integrity defects found in C54, C55 and C63. A selected native source is now
+explicitly partial evidence rather than complete house inventory; later native
+change refreshes or retires only that owned source, and schema-3 migrations
+remove C63's unsupported aggregate claims and storage. Extension replacement is
+transactional and returned-person appearance timing comes from the returned
+source. C64 also supplies an immutable, provenance-complete legacy-election
+capture envelope and Speakeasy v3 supplies an exact protected join. Neither
+surface claims executable options, a model choice or action-specific outcomes.
+C62 remains the first exact source access-and-use lifecycle over C61's demand-
+led native observations: private revision, current route and permission, exact
+native transfer, carried engine use and durable completion remain one actor-
+owned transaction.
 C59 repairs debug-mode Lua compilation. C58 closes population reconstruction and scheduling,
 the second whole-mod restructuring unit. C57 established shared body snapshots
 and consolidated native continuity verification. C56
 closed R5 health and dormant physiology after durable/runtime reconstruction,
 native person continuity, shared county time and the authorized Afflicted return.
 The C catalog is consolidated by adjacency and content using
-the A/B precedent: 29 A-batches, 52 B-batches and 63 C units. BATCH_LOG.md owns
+the A/B precedent: 29 A-batches, 52 B-batches and 64 C units. BATCH_LOG.md owns
 the chronology. Batches/FORMER_LABELS.md maps every former entry;
 Batches/C_RECATALOG.json preserves original paths and source hashes. The
 original records remain at local ref `archive/c-era-raw-20260919`.
@@ -46,9 +52,9 @@ producers, persistence, evidence and gaps.
 | Person continuity | Durable identity, C51's body transaction, C52's authorized return/adoption/teardown, C54's v4 native state, C55/A36 reconstruction and C56/A37 one-way Crossed ownership of the same human shell and dormant envelope | R7's general action completion and later action-specific ownership remain open. |
 | Time and health | Current decision time, durable drug/abstinence clocks, current physical inputs, exact interval-integrated brain history, medical/inspect graph and memory/decision/affective/motor consumers | R5 is closed. Performed treatment and care still depend on R7/R9 action producers. |
 | Afflicted and Crossed | ZAO pathogen state, Afflicted return, reachable Crossed decisions and an interruptible non-feeding blood exposure whose exact-once result transfers SAO's living body to ZAO | The retained human weapons, tools, strategy and wider action vocabulary remains R7-R9 work; grounded dormant opportunities remain R10. |
-| Knowledge and access | Private beliefs; animal-safe scanner output; fresh/current activity partners; demand-hydrated exact source identities; C62's revision-bound approach, current claim/vehicle permission, exact transfer, carried native use and durable result; C63's exact house material projection | R6 is closed for the selected source interaction and its completed result reaches material state. R7 remains open beyond this source-action family. R9 still owes performed shelving and the other material producers. |
-| Social development | Company mechanics, claims, observations, graph APIs; C63 updates storage only on an existing grounded settlement | Automatic relocation and recognition; incomplete affiliation, governance, place development and other provisioning producers. |
-| Speakeasy data | 190 ratified choices, cross-module contract, approved world documents | Mutable decision snapshots, source conditioning, executable options and complete capture provenance. |
+| Knowledge and access | Private beliefs; animal-safe scanner output; fresh/current activity partners; demand-hydrated exact source identities; C62's revision-bound approach, current claim/vehicle permission, exact transfer, carried native use and durable result; C63-C64's exact partial-source material projection and durable ambient refresh | R6 is closed for the selected source interaction and its completed result reaches bounded partial material state. R7 remains open beyond this source-action family. R9 still owes complete inventory evidence, performed shelving and the other material producers. |
+| Social development | Company mechanics, claims, observations and graph APIs; C64 prevents partial selected-source evidence from creating aggregate claims or settlement storage | Automatic relocation and recognition; incomplete affiliation, governance, place development and other provisioning producers. |
+| Speakeasy data | 190 hash-protected ratified choices, four protected historical derivatives, nine protected world documents, immutable capture envelope and exact v3 join | Executable options, separately authored choices, action-specific outcomes, versioned decision-time reconstruction and person-specific approved knowledge. All legacy choice conditioning is ineligible. |
 | Models and late starts | Inference primitives, fact constraint, offline diagnostics | No trained cognition model, complete training/export path or validated accelerator. |
 
 ## Retained recovery evidence
@@ -130,26 +136,29 @@ credit.
 C63 supplies that sole consumer. Final binding captures a group only when the
 exact source stands inside its held claim. The event records the claim
 incarnation and Material setting. The consumer resolves the latest isolated
-source observation, replaces that source in a durable house projection,
-rebuilds item/category totals and derives larder/water claims. Personal use has
-no house credit; non-ground absence waits for fresh truth; conflict or any failed
-material, standing or applicable settlement step remains unacknowledged for
-retry, while a retired claim terminates even after observation compaction. The
-applied decision, house projection generation and successful derivation phases
-survive reload and acknowledgement refusal. Evidence retains source-observation
-time across retry and cannot overwrite a newer aggregate or live scan. The
-post-acknowledgement cleanup window is recovered on the next delivery pass.
-Recognition can synchronize an existing settlement's storage but cannot create
-the settlement or invent its building and resources. Standing setters, dormant
-need-day projection and queued shelving no longer act as false producers.
-Graph and Standing schema-2 migrations retire their legacy false material,
-settlement and standing projections, clean provisioning-only organization
-state, and assign claim incarnations without inferring earlier history. Border
-180 executes 52 production cases and rejects 68 named mutations. R7's other
-action families and R9's performed shelving, remaining provisioning and
-place-development producers are the next dependency layer.
+source observation and replaces that source in durable material state. Personal
+use has no house credit; non-ground absence waits for fresh truth; conflict or a
+failed material step remains unacknowledged for retry, while a retired claim
+terminates even after observation compaction. The applied exact-source decision
+and projection generation survive reload and acknowledgement refusal. Evidence
+retains source-observation time across retry, and the post-acknowledgement
+cleanup window recovers on the next delivery pass.
+
+C64 corrects the overreach in that implementation. Every selected-source store
+is partial, so it derives no larder/water claims and synchronizes no settlement
+storage. WorldSources schema 5 records later native revision, fingerprint,
+absence and conflict changes in a bounded coalescing queue. Provisioning drains
+the queue after reload; Material refreshes or retires only the exact existing
+owner while preserving original result attribution. Ambient observation creates
+no owner or work. Graph and Standing schema-3 migrations mark C63 stores partial
+and remove only their unsupported aggregate storage and larder/water claims.
+Border 180 now executes 53 production cases. R7's other action families and
+R9's complete inventory, performed shelving, remaining provisioning and place-
+development producers are the next dependency layer.
 R10b continues to wait for those integrated producers.
-R11-R12 can progress alongside them.
+R11-R12 progress alongside them: Border 181 now protects the capture envelope,
+and Speakeasy v3 protects approved sources and exact joins, while their missing
+option/choice/outcome and versioned knowledge producers remain open.
 
 R1 closes in C52 and ZAO A35. The living transaction, source holding and
 acknowledged removal, controller adoption, failure diagnostics, repeated-death
@@ -249,11 +258,14 @@ event-derived brain-health history now have durable producers and controlled
 receipts. The native-ground portion of R10a closes in C61: offscreen chunks
 hydrate on demand, exact source observations persist privately and loaded
 changes reconcile. C62 closes R6's selected physical-access proof and R7's
-exact-source action slice, and supplies R9 with a completed-use input. C63
-closes consumption of that input into bounded native material state and retires
-three false provisioning producers. R7's remaining action families and R9's
-performed shelving, material and development producers remain.
-R11-R12 can progress alongside them. Pathogen state and installed brain-history
+exact-source action slice, and supplies R9 with a completed-use input. C63-C64
+close consumption of that input into bounded exact partial-source material,
+retire false provisioning producers and reconcile later native change. R7's
+remaining action families and R9's complete inventory, performed shelving,
+material and development producers remain. C64 closes R11's immutable envelope
+and join integrity plus R12's source protection/conditioning audit; executable
+options, separate choice, action-specific outcomes and reconstructed knowledge
+views remain. Pathogen state and installed brain-history
 ownership continue to belong to ZAO.
 
 C51 repairs the F-077 body handoff. Capture failure keeps the prior record and
@@ -265,9 +277,9 @@ nutrition, fitness, recipes, reading progress, descriptor perk boosts, human
 appearance and fluid-content validation. Legacy v1-v3 remain readable within
 the fields they carried.
 See the C51 batch record and Borders 162-163 for the tested boundary.
-Built-in graph callbacks do reconstruct after save/load; the engine omits
-closures rather than failing the save. Extension registrations need their
-own reconstruction contract.
+Built-in graph callbacks reconstruct after save/load; the engine omits closures
+rather than failing the save. C64 makes extension replacement transactional:
+refusal or throw restores the previous installer and accepted runtime graph.
 
 R6-R10 cover perception/access, action receipts, the audited action repairs,
 each life-simulation producer and historical/population accounting. R11-R12
@@ -279,9 +291,9 @@ consequences remain separate from the learned policy choosing among them.
 
 ## Verification and installed state
 
-C57 consolidates three native entry points into one. With C63's provisioning
-result border, the gate invokes 178 `*_test.py` files and 13 other Python entry
-points, 191 distinct scripts. Border labels extend through 180; legacy labels
+C57 consolidates three native entry points into one. With C64's immutable
+capture border, the gate invokes 179 `*_test.py` files and 13 other Python entry
+points, 192 distinct scripts. Border labels extend through 181; legacy labels
 163/169/174 share the native suite. These are distinct counting units. The mod
 ships 76 Lua source files.
 ZAO A37 has ten borders. The
@@ -295,9 +307,9 @@ C51's separate first gate found a verdict-prefix defect and missing transition
 registry surfaces/lifetimes. Its failed output is preserved with the corrections;
 the closing full gate passed with exit 0.
 
-The current install is C63 with ZAO A37, deployed on 2026-09-20 UTC.
+The current install is C64 with ZAO A37, deployed on 2026-09-21 UTC.
 All 258 installed SAO files match source; the companion remains unchanged.
-The SAO jar SHA-256 is `4160841299c724ea4be125854ca8a660fdc7e763875446d0d367a0a7ce8025a2`.
+The SAO jar SHA-256 is `ef5cbde75eea78825efa9b86123b3205a37a263273c30f25346822bdfca8e80a`.
 All 44,092 save-file sizes and modification times remained unchanged across
 deployment and startup. The [C61 evidence record](artifacts/audits/20260920-0844Z-0144PST-native-world-sources/README.md)
 retains the native-source substrate. The [C62 evidence record](artifacts/audits/20260920-1041Z-0341PST-source-access-native-use/README.md)
@@ -306,6 +318,9 @@ initial startup, the inherited logger-order repair, exact deployment and clean
 final startup. The [C63 evidence record](artifacts/audits/20260920-2039Z-1339PST-provisioning-result-consumption/README.md)
 holds completed-result projection, false-producer retirement, blocking-review
 repairs, the 52-case/68-mutation border, exact deployment and clean startup.
+The [C64 evidence record](artifacts/audits/20260921-0003Z-1703PST-corrective-integrity/README.md)
+holds the corrective audit, 53-case provisioning border, immutable decision
+capture, 192-script full gate, exact deployment and responsive startup.
 The responsive client was left open. No save was loaded; startup
 validation remains separate from save-backed exact-source behavior and
 loaded-world acceptance.

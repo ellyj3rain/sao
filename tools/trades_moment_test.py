@@ -82,6 +82,7 @@ LUA = ROOT / "mod" / "42.20" / "media" / "lua"
 CHECK = ROOT / "tools" / "check.sh"
 PRELUDE_FILE = ROOT / "tools" / "sweep" / "prelude.lua"
 DUMP = ROOT / "tools" / "county_dump.py"
+CAPTURE = ROOT / "tools" / "sweep" / "decision_capture.lua"
 STANDING = LUA / "shared" / "SAO_Standing.lua"
 
 sys.path.insert(0, str(ROOT / "tools"))
@@ -289,31 +290,29 @@ def run_probe(name):
             shutil.copy2(c, work / c.name)
         pre = work / "prelude.lua"
         pre.write_text(prelude, encoding="utf-8")
+        host = work / "evidence_host.lua"
+        host.write_text(Sweep.evidence_host(1), encoding="utf-8")
         forcing = work / "forcing.lua"
         forcing.write_text(FORCING, encoding="utf-8")
-        cp = "%s;%s;." % (Sweep.PZ, Sweep.SAO_JAR)
-        args = [str(Sweep.JDK / "java.exe"), "-cp", cp, "LuaRun",
-                "--engine", str(Sweep.GAME), str(pre),
-                str(Sweep.ENGINE_FILL_LUA),
-                str(Sweep.SWEEP / "engine_fill.lua"),
-                str(Sweep.CACHE / "map.lua"),
-                str(Sweep.SWEEP / "places.lua")]
-        args += [str(LUA / m) for m in Sweep.MODULES
-                 if (LUA / m).exists()]
-        args += [str(Sweep.CACHE / "regions.lua"), str(forcing), "--",
-                 county_dump.RUN.replace("RUN_NAME", name)]
+        paths = [LUA / m for m in Sweep.MODULES if (LUA / m).exists()]
+        paths.append(forcing)
+        run_id = "border148-" + name.lower()
+        run = county_dump.RUN.replace("RUN_NAME", name).replace(
+            "RUN_ID", run_id)
+        args = county_dump.runtime_command(
+            work, pre, host, None, paths, True, run)
         try:
             done = subprocess.run(args, cwd=str(work), capture_output=True,
                                   text=True, timeout=1200)
         except subprocess.TimeoutExpired:
             return None, "timeout after twenty minutes"
     out = done.stdout or ""
-    at = out.find("VALUE ")
-    if at < 0:
+    values = re.findall(r"^VALUE (.+)$", out, re.M)
+    if done.returncode != 0 or len(values) != 1:
         tail = (done.stderr or out).strip().splitlines()
         return None, tail[-1] if tail else "no value came back"
     try:
-        return json.loads(out[at + 6:].strip()), None
+        return json.loads(values[0]), None
     except ValueError as bad:
         return None, "unparsable value: %s" % bad
 
@@ -325,21 +324,23 @@ def main():
     print("=" * 74)
 
     dump = read(DUMP)
+    capture_text = read(CAPTURE)
     standing = read(STANDING)
     seams = {
-        "the row holds the house's need state as the election opened":
-            "need = {" in dump
-            and "SAO.Standing.larderOf(groupName)" in dump
-            and "SAO.Standing.waterStoreOf(groupName)" in dump
-            and "SAO.Standing.hearthOf(groupName)" in dump
-            and "SAO.Standing.feudBetween(groupName, g2)" in dump,
+        "the decision holds the house's need state as the election opened":
+            "need = {" in capture_text
+            and "SAO.Standing.larderOf(groupName)" in capture_text
+            and "SAO.Standing.waterStoreOf(groupName)" in capture_text
+            and "SAO.Standing.hearthOf(groupName)" in capture_text
+            and "SAO.Standing.feudBetween(groupName, other)" in capture_text,
         "the capture reads the same verbs the need-pull reads":
             "S.larderOf(groupName)" in standing
             and "S.waterStoreOf(groupName)" in standing
             and "S.hearthOf(groupName)" in standing
             and "S.feudBetween(groupName, g2)" in standing,
-        "the dump's own record says why ([C88])":
-            "[C88]" in dump,
+        "the dump delegates the moment to the immutable capture owner":
+            "decision_capture.lua" in dump
+            and "SAODecisionCapture.begin" in dump,
         "the gate runs this border":
             "tools/trades_moment_test.py" in read(CHECK),
     }
@@ -384,14 +385,42 @@ def main():
     if data is None:
         print("  FAULT: the instrument would not run - %s" % err)
         return 1
+    capture = data.get("capture") or {}
+    events = capture.get("events") or []
+    failures = capture.get("failures") or []
     print("  one engine county, one day owed: %d moments, "
           "captureFailures=%s"
-          % (data["moments"], data["captureFailures"]))
-    if data.get("firstCaptureError"):
+          % (capture.get("eventCount", len(events)),
+             capture.get("captureFailureCount", len(failures))))
+    if failures:
         faults.append("a capture failed inside the instrument's own "
-                      "pcall: %s" % data["firstCaptureError"][:200])
+                      "pcall: %s" % str(failures[0].get("detail"))[:200])
 
-    rows = data["rows"]
+    # C64 freezes the decision and the immediate authored result separately.
+    # Join only this border's same-event views in memory so the historical C88
+    # assertions can compare before/after without weakening that boundary.
+    rows = []
+    for event in events:
+        decision = event.get("decision") or {}
+        result = event.get("result") or {}
+        if event.get("eventId") != decision.get("eventId") \
+                or event.get("eventId") != result.get("eventId"):
+            faults.append("a decision/result pair does not share one event id")
+            continue
+        row = dict(decision)
+        row["leaderAfter"] = result.get("leaderAfter")
+        after = {snap.get("id"): snap for snap in result.get("roster") or []}
+        roster = []
+        for before in decision.get("roster") or []:
+            snap = dict(before)
+            observed = after.get(snap.get("id")) or {}
+            if "designationAfter" in observed:
+                snap["designationAfter"] = observed["designationAfter"]
+            if "designatedByAfter" in observed:
+                snap["designatedByAfter"] = observed["designatedByAfter"]
+            roster.append(snap)
+        row["roster"] = roster
+        rows.append(row)
     groups = {}
     for r in rows:
         groups.setdefault(r["group"], []).append(r)

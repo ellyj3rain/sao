@@ -154,6 +154,22 @@ public final class RuntimeReconstructionProbe {
                 and type(SAO.Branching.surfaces.fixture) == 'function'
                 and type(SAO.Branching.branches.fixture.weight) == 'function',
                 'runtime graph was not built')
+            assert(not SAO.Integration.registerExtension('fixture', function(branching)
+                branching.registerSurface('fixture', function() return 'false replacement' end)
+                return false
+            end), 'false replacement was accepted')
+            assert(SAO.Integration.ready
+                and SAO.Branching.surfaces.fixture() == 'fixture'
+                and SAO.Branching.branches.fixture.weight() == 2,
+                'false replacement destroyed the last valid graph')
+            assert(not SAO.Integration.registerExtension('fixture', function(branching)
+                branching.registerSurface('fixture', function() return 'throwing replacement' end)
+                error('replacement fault')
+            end), 'throwing replacement was accepted')
+            assert(SAO.Integration.ready
+                and SAO.Branching.surfaces.fixture() == 'fixture'
+                and SAO.Branching.branches.fixture.weight() == 2,
+                'throwing replacement destroyed the last valid graph')
             SAO.Branching.record('p1', 'work', 123)
             """);
 

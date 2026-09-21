@@ -286,14 +286,17 @@ PROBE = r'''(function()
   local legacyBound = SAO.GraphPersistence.bind()
   local migration = legacyGraph.migrations
     and legacyGraph.migrations.c63FalseOutputRetirement or nil
+  local partialMigration = migration
+    and legacyGraph.migrations.c64PartialMaterialCorrection or nil
   check('legacy_false_outputs_retired_on_upgrade', legacyBound
-    and legacyGraph.schema == 2
+    and legacyGraph.schema == 3
     and legacyGraph.material.stores['house:legacy'] == nil
     and legacyGraph.material.stores['personal-legacy'] ~= nil
     and legacyGraph.settlement.bases.legacy == nil
     and migration and migration.retiredHouseStores == 1
     and migration.retiredSettlementBases == 2
     and migration.fromSchema == 0 and migration.toSchema == 2
+    and partialMigration and partialMigration.toSchema == 3
     and migration.provenance ==
       'initialized at C63 upgrade from represented C62 state; no earlier history inferred')
   local elected = legacyGraph.organization.organizations.elected
@@ -328,10 +331,10 @@ PROBE = r'''(function()
   check('finite_categories_not_item_double_counted',
     houseG.items['Base.Apple'] == 1 and houseG.items['Base.Soup'] == 1
     and houseG.categories.food == 2 and houseG.categories.water == 1)
-  check('standing_has_exact_basis', __larder.g.word == 'full'
-    and __larder.g.count == 2 and __larder.g.basis == 'completed-native-source-results'
-    and __water.g.word == 'fair' and __water.g.units == 1
-    and __water.g.basis == 'completed-native-source-results')
+  check('partial_projection_publishes_no_house_claim',
+    houseG.coverage and houseG.coverage.complete == false
+    and houseG.coverage.basis == 'selected-native-sources'
+    and __larder.g == nil and __water.g == nil and __standingWrites == 0)
   check('ack_last_records_reason', acknowledged(firstRaw)
     and firstRaw.acknowledgements.provisioning.reason == 'reconciled')
   check('provisioning_does_not_found_settlement', SAO.Settlement.bases.g == nil)
@@ -350,6 +353,15 @@ PROBE = r'''(function()
   check('settlement_claim_requires_completed_place_result', refusedBase == nil
     and groundedBase and SAO.Settlement.isGrounded(groundedBase))
   apply(%(pantry2)s)
+  local ambientRefreshed, ambientPending =
+    SAO.Provisioning.refreshProjectedSources(32)
+  check('ambient_native_change_refreshes_exact_projection_without_credit',
+    ambientRefreshed == 1 and ambientPending == 0
+    and houseG.items['Base.Apple'] == nil and houseG.items['Base.Soup'] == nil
+    and houseG.items['Base.Banana'] == 1 and houseG.categories.food == 1
+    and houseG.coverage.complete == false
+    and __larder.g == nil and __water.g == nil
+    and empty(groundedBase.storage))
   local secondRaw = receipt('r2','C:pantry:0','pantry-fp','g',
     { revision='pantry-r2' })
   local second = delivered('r2')
@@ -358,13 +370,14 @@ PROBE = r'''(function()
   check('replacement_not_addition', secondOk
     and houseG.items['Base.Apple'] == nil and houseG.items['Base.Soup'] == nil
     and houseG.items['Base.Banana'] == 1 and houseG.categories.food == 1)
-  check('grounded_settlement_storage_only', baseG.building.rooms == 7
+  check('partial_projection_does_not_replace_settlement_storage',
+    baseG.building.rooms == 7
     and baseG.building.water == false and baseG.building.food == false
-    and baseG.storage['Base.Banana'] == 1
-    and baseG.storageEvidence.reservationId == 'r2')
+    and empty(baseG.storage) and baseG.storageProjection == nil
+    and baseG.storageEvidence == nil)
   local repeated = SAO.Provisioning.processReceipt(second)
   check('redelivery_idempotent', repeated
-    and houseG.items['Base.Banana'] == 1 and baseG.storage['Base.Banana'] == 1)
+    and houseG.items['Base.Banana'] == 1 and empty(baseG.storage))
 
   local durableGraph = __stores['SurvivorAwareness_Graph']
   SAO.Material.stores, SAO.Material.reconciliations, SAO.Material.sourceOwners = {}, {}, {}
@@ -381,24 +394,12 @@ PROBE = r'''(function()
   __refuseStanding = true
   local retryOk, retryWhy = process('retry')
   __refuseStanding = false
-  local retryStayedPending = not acknowledged(retryRaw)
   local world = __stores[WORLD_STORE]
-  world.sources['C:pantry:0'] = nil
-  SAO.Material.stores, SAO.Material.reconciliations, SAO.Material.sourceOwners = {}, {}, {}
-  SAO.Settlement.bases = {}
-  SAO.GraphPersistence.bind()
-  SandboxVars.SurvivorAwareness.Material = false
-  local retriedOk, retriedWhy = process('retry')
-  SandboxVars.SurvivorAwareness.Material = true
   houseG = SAO.Material.storeOf('house:g')
-  check('derived_refusal_keeps_ack_pending', not retryOk
-    and retryWhy == 'standing-unavailable' and retryStayedPending)
-  check('reload_retry_reuses_material_decision', retriedOk
-    and acknowledged(retryRaw) and houseG.items['Base.Banana'] == 1
-    and SAO.Material.reconciliations.retry == nil)
-  check('material_toggle_resumes_applied_transaction', retriedOk
-    and retriedWhy ~= 'material-disabled'
-    and retryRaw.acknowledgements.provisioning.reason == 'reconciled')
+  check('partial_projection_skips_aggregate_writer_refusal', retryOk
+    and retryWhy == 'reconciled' and acknowledged(retryRaw)
+    and houseG.items['Base.Banana'] == 1
+    and __standingWrites == 0 and empty(baseG.storage))
 
   apply(%(pantry2)s)
   local ackRetryRaw = receipt('ack-retry','C:pantry:0','pantry-fp','g',
@@ -409,7 +410,6 @@ PROBE = r'''(function()
   SAO.WorldSources.acknowledgeResult = savedAcknowledge
   local persistedAckDecision = SAO.Material.reconciliations['ack-retry']
   local ackWrites = __standingWrites
-  local ackEvidenceAt = __larder.g and __larder.g.atHours
   SAO.Material.stores, SAO.Material.reconciliations, SAO.Material.sourceOwners = {}, {}, {}
   SAO.Settlement.bases = {}
   SAO.GraphPersistence.bind()
@@ -423,8 +423,8 @@ PROBE = r'''(function()
     and persistedAckDecision.derivations.g.standing == true
     and persistedAckDecision.derivations.g.recognition == true
     and ackRetryCompleted and ackRetryOutcome == 'reconciled'
-    and __standingWrites == ackWrites and __larder.g.atHours == ackEvidenceAt
-    and ackEvidenceAt == persistedAckDecision.evidenceAt
+    and __standingWrites == ackWrites and __larder.g == nil and __water.g == nil
+    and empty(SAO.Settlement.bases.g.storage)
     and acknowledged(ackRetryRaw)
     and SAO.Material.reconciliations['ack-retry'] == nil
     and SAO.Material.projectedOwner('C:pantry:0','pantry-fp') == 'g')
@@ -439,7 +439,6 @@ PROBE = r'''(function()
   local newerRaw = receipt('derived-order-b','C:pantry:0','pantry-fp','g',
     { revision='pantry-r2' })
   local newerOk = process('derived-order-b')
-  local newerEvidence = SAO.Settlement.bases.g.storageEvidence
   local newerWrites = __standingWrites
   local olderRetry = process('derived-order-a')
   check('older_applied_retry_cannot_reverse_newer_derivations',
@@ -448,10 +447,8 @@ PROBE = r'''(function()
     and olderDecision.derivations.g.recognition == true
     and newerOk and olderRetry and acknowledged(olderRaw)
     and acknowledged(newerRaw) and __standingWrites == newerWrites
-    and newerEvidence.reservationId == 'derived-order-b'
-    and SAO.Settlement.bases.g.storageEvidence == newerEvidence
-    and __larder.g.reservationId == 'derived-order-b'
-    and __water.g.reservationId == 'derived-order-b')
+    and SAO.Settlement.bases.g.storageEvidence == nil
+    and __larder.g == nil and __water.g == nil)
 
   local cleanupRaw = receipt('cleanup-after-ack','C:pantry:0','pantry-fp','g',
     { revision='pantry-r2' })
@@ -480,15 +477,15 @@ PROBE = r'''(function()
     sourceX=26, sourceY=10, revision='spent-r1' })
   local spentOk = process('spent-first')
   local spentHouse = SAO.Material.storeOf('house:h')
-  check('first_spent_source_derives_zero_and_clears_storage', spentOk
+  check('first_spent_source_records_partial_zero_without_house_claim', spentOk
     and acknowledged(spentRaw) and spentHouse
     and spentHouse.projection == 'native-sources'
     and empty(spentHouse.nativeSources)
     and empty(spentHouse.items) and empty(spentHouse.categories)
-    and __larder.h.word == 'lean' and __larder.h.count == 0
-    and __water.h.word == 'dry' and __water.h.units == 0
-    and empty(spentBase.storage)
-    and spentBase.storageEvidence.reservationId == 'spent-first')
+    and spentHouse.coverage.complete == false
+    and __larder.h == nil and __water.h == nil
+    and spentBase.storage['Base.Stale'] == 3
+    and spentBase.storageEvidence == nil)
 
   apply(%(moved)s)
   local movedRaw = receipt('move','C:pantry:0','pantry-fp','h', {
@@ -517,7 +514,7 @@ PROBE = r'''(function()
     and SAO.Material.projectedOwner('C:pantry:0','pantry-fp') == 'h'
     and houseG.nativeSources['C:pantry:0'] == nil
     and houseH.nativeSources['C:pantry:0'] ~= nil
-    and SAO.Settlement.bases.h.storageEvidence.reservationId == 'newer-order')
+    and SAO.Settlement.bases.h.storageEvidence == nil)
 
   apply(%(replaced)s)
   apply(%(replaced)s)
@@ -538,8 +535,8 @@ PROBE = r'''(function()
   check('old_receipt_cannot_remove_replacement', oldOk
     and oldWhy == 'source-replaced' and acknowledged(oldRaw)
     and houseG.nativeSources['C:pantry:0'].fingerprint == 'replacement-fp'
-    and baseG.storageEvidence.reservationId == 'replacement'
-    and SAO.Settlement.bases.h.storageEvidence.reservationId == 'replacement')
+    and baseG.storageEvidence == nil
+    and SAO.Settlement.bases.h.storageEvidence == nil)
 
   local personalRaw = receipt('personal','C:pantry:0','replacement-fp',nil)
   local personalOk = process('personal')
@@ -587,10 +584,8 @@ PROBE = r'''(function()
   SAO.Recognition = nil
   local recognitionOk, recognitionWhy = process('recognition-missing')
   SAO.Recognition = savedRecognition
-  local recognitionRetry = process('recognition-missing')
-  check('recognition_unavailable_keeps_ack_pending', not recognitionOk
-    and recognitionWhy == 'recognition-unavailable'
-    and recognitionRetry and acknowledged(recognitionRaw))
+  check('partial_projection_needs_no_settlement_recognition', recognitionOk
+    and recognitionWhy == 'reconciled' and acknowledged(recognitionRaw))
 
   local refusedRaw = receipt('recognition-refused','C:pantry:0',
     'replacement-fp','g')
@@ -598,10 +593,8 @@ PROBE = r'''(function()
   SAO.Recognition.onProvisioned = function() return nil end
   local refusedOk, refusedWhy = process('recognition-refused')
   SAO.Recognition.onProvisioned = savedOnProvisioned
-  local refusedRetry = process('recognition-refused')
-  check('nil_recognition_is_refusal', not refusedOk
-    and refusedWhy == 'recognition-refused'
-    and refusedRetry and acknowledged(refusedRaw))
+  check('partial_projection_does_not_call_recognition', refusedOk
+    and refusedWhy == 'reconciled' and acknowledged(refusedRaw))
 
   SAO.Material.add('a','Base.Personal',2)
   local view = SAO.Material.storeForPerson('a')
@@ -655,12 +648,13 @@ PROBE = r'''(function()
     sourceX=18, sourceY=18 })
   local firstGroundOk = process('ground-first-empty')
   local firstGroundHouse = SAO.Material.storeOf('house:g')
-  check('first_ground_absence_derives_zero_and_clears_storage', firstGroundOk
+  check('first_ground_absence_records_partial_zero', firstGroundOk
     and acknowledged(firstGroundRaw) and firstGroundHouse
     and firstGroundHouse.projection == 'native-sources'
     and empty(firstGroundHouse.nativeSources)
-    and empty(emptyBase.storage)
-    and emptyBase.storageEvidence.reservationId == 'ground-first-empty')
+    and firstGroundHouse.coverage.complete == false
+    and emptyBase.storage['Base.Stale'] == 2
+    and emptyBase.storageEvidence == nil)
 
   apply(%(ground)s)
   local groundRaw = receipt('ground-add','G:crate','ground-fp','g', {
@@ -668,6 +662,11 @@ PROBE = r'''(function()
     sourceX=18, sourceY=18 })
   local groundAdded = process('ground-add')
   apply(%(ground_empty)s)
+  local ambientGroundRefresh = SAO.Provisioning.refreshProjectedSources(32)
+  check('ambient_source_removal_retires_exact_projection',
+    ambientGroundRefresh >= 1
+    and SAO.Material.projectedOwner('G:crate','ground-fp') == nil
+    and SAO.Material.storeOf('house:g').nativeSources['G:crate'] == nil)
   world.sources['G:crate'] = nil
   world.conflictBySource['G:crate'] = nil
   local removedRaw = receipt('ground-remove','G:crate','ground-fp','g', {
@@ -688,7 +687,7 @@ PROBE = r'''(function()
   world = __stores[WORLD_STORE]
   local legacyResult = delivered('legacy')
   local legacyOk, legacyWhy = SAO.Provisioning.processReceipt(legacyResult)
-  check('schema3_results_migrate_unattributed', world.schema == 4
+  check('schema3_results_migrate_unattributed', world.schema == 5
     and legacyResult.provisioningContext == 'legacy-unattributed'
     and world.reservations.post.provisioningContext == 'legacy-unattributed'
     and legacyOk and legacyWhy == 'legacy-unattributed'
@@ -751,14 +750,14 @@ PROBE = r'''(function()
 
   local currentGraph = __stores['SurvivorAwareness_Graph']
   local futureRaw = receipt('future-consumer','C:future','future-fp','g')
-  __stores['SurvivorAwareness_Graph'] = { schema=3, marker='unchanged' }
+  __stores['SurvivorAwareness_Graph'] = { schema=4, marker='unchanged' }
   local futureConsumed, futureConsumeWhy = process('future-consumer')
   local integrationReady = SAO.Integration.rebuild()
   local worldApplied = SAO.WorldGenesis.applyDay(1)
   local futureBound, futureWhy = SAO.GraphPersistence.bind()
   local futureGraph = __stores['SurvivorAwareness_Graph']
   check('future_graph_schema_refuses_without_mutation', not futureBound
-    and futureWhy == 'future-schema' and futureGraph.schema == 3
+    and futureWhy == 'future-schema' and futureGraph.schema == 4
     and futureGraph.marker == 'unchanged' and futureGraph.material == nil)
   check('future_graph_callers_stop_and_detach_prior_world',
     not futureConsumed and futureConsumeWhy == 'graph-future-schema'
@@ -804,7 +803,7 @@ STANDING_PROBE = r'''(function()
   local migrated = __stores[key]
   local receipt = migrated.migrations
     and migrated.migrations.c63LegacyMaterialClaims or nil
-  check('standing_legacy_false_claims_retired', migrated.schema == 2
+  check('standing_legacy_false_claims_retired', migrated.schema == 3
     and migrated.groupMeta.old.larder == nil
     and migrated.groupMeta.old.waterStore == nil
     and migrated.groupMeta.old.hearth == nil
@@ -820,6 +819,28 @@ STANDING_PROBE = r'''(function()
     and receipt.migratedGroupClaims == 1
     and incarnation and incarnation > 0
     and migrated.groupClaims.old.claimIncarnation == incarnation)
+  __stores[key] = { schema=2, groupMeta={
+    partial={
+      larder={ word='full', count=9, basis='completed-native-source-results' },
+      waterStore={ word='full', units=9,
+        basis='completed-native-source-results' } },
+    scanned={
+      larder={ word='fair', count=2, basis='quartermaster-native-scan' },
+      waterStore={ word='fair', units=2,
+        basis='quartermaster-native-scan' } } },
+    groupClaims={} }
+  SAO.Standing.larderOf('partial')
+  local corrected = __stores[key]
+  local correction = corrected.migrations
+    and corrected.migrations.c64PartialMaterialCorrection or nil
+  check('standing_partial_projection_claims_retired', corrected.schema == 3
+    and corrected.groupMeta.partial.larder == nil
+    and corrected.groupMeta.partial.waterStore == nil
+    and corrected.groupMeta.scanned.larder.word == 'fair'
+    and corrected.groupMeta.scanned.waterStore.word == 'fair'
+    and correction and correction.retiredPartialLarders == 1
+    and correction.retiredPartialWaterStores == 1)
+  __stores[key] = migrated
   local eventEvidence = { reservationId='standing-event', sourceId='source-a',
     at=250, order=1, materialProjectionEnabled=true, materialGeneration=1 }
   SAO.Standing.setLarder('old','lean',0,
@@ -907,12 +928,12 @@ STANDING_PROBE = r'''(function()
     and migrated.groupMeta.old.hearth == retainedHearth
     and visibleLarder == retainedLarder and visibleWater == retainedWater
     and visibleHearth == retainedHearth)
-  __stores[key] = { schema=3, marker='unchanged', groupMeta={
+  __stores[key] = { schema=4, marker='unchanged', groupMeta={
     future={ larder={ word='full', count=9, atHours=240 } } } }
   local futureLarder = SAO.Standing.larderOf('future')
   local future = __stores[key]
   check('future_standing_schema_refuses_without_mutation',
-    futureLarder == nil and future.schema == 3 and future.marker == 'unchanged'
+    futureLarder == nil and future.schema == 4 and future.marker == 'unchanged'
     and future.groupMeta.future.larder.count == 9 and future.migrations == nil)
   return table.concat(checks,'|')
 end)()'''
@@ -923,18 +944,20 @@ EXPECTED = {
     "legacy_provisioning_organizations_retired_or_sanitized",
     "material_dial_skips_all_projections",
     "exact_source_projection", "source_projection_isolated",
-    "finite_categories_not_item_double_counted", "standing_has_exact_basis",
+    "finite_categories_not_item_double_counted",
+    "partial_projection_publishes_no_house_claim",
     "ack_last_records_reason", "provisioning_does_not_found_settlement",
     "material_toggle_hides_house_stock_from_labor",
-    "replacement_not_addition", "grounded_settlement_storage_only",
+    "ambient_native_change_refreshes_exact_projection_without_credit",
+    "replacement_not_addition",
+    "partial_projection_does_not_replace_settlement_storage",
     "settlement_claim_requires_completed_place_result",
     "redelivery_idempotent", "projection_indexes_survive_rebind",
-    "derived_refusal_keeps_ack_pending", "reload_retry_reuses_material_decision",
-    "material_toggle_resumes_applied_transaction",
+    "partial_projection_skips_aggregate_writer_refusal",
     "ack_refusal_reload_uses_persisted_decision_before_source_conflict",
     "older_applied_retry_cannot_reverse_newer_derivations",
     "acknowledged_crash_window_cleans_durable_transaction",
-    "first_spent_source_derives_zero_and_clears_storage",
+    "first_spent_source_records_partial_zero_without_house_claim",
     "one_source_has_one_house_owner",
     "older_same_source_result_cannot_reverse_owner",
     "replacement_fingerprint_retires_old_owner",
@@ -944,13 +967,15 @@ EXPECTED = {
     "absent_personal_owner_waits",
     "released_claim_downgrades_without_resurrection",
     "same_group_key_new_incarnation_gets_no_old_credit",
-    "recognition_unavailable_keeps_ack_pending", "nil_recognition_is_refusal",
+    "partial_projection_needs_no_settlement_recognition",
+    "partial_projection_does_not_call_recognition",
     "personal_and_house_ownership_remain_distinct",
     "material_toggle_hides_access_view_without_erasing",
     "person_access_views_are_detached",
     "personal_only_view_keeps_owner_and_access",
     "dissolution_retires_all_house_projections",
-    "first_ground_absence_derives_zero_and_clears_storage",
+    "first_ground_absence_records_partial_zero",
+    "ambient_source_removal_retires_exact_projection",
     "proved_ground_absence_removes_projection",
     "schema3_results_migrate_unattributed",
     "rotating_cursor_prevents_retry_starvation",
@@ -961,6 +986,7 @@ EXPECTED = {
     "future_graph_callers_stop_and_detach_prior_world",
     "standing_legacy_false_claims_retired",
     "standing_migration_is_idempotent",
+    "standing_partial_projection_claims_retired",
     "standing_evidence_time_and_cross_producer_order",
     "material_toggle_hides_standing_without_erasing",
     "future_standing_schema_refuses_without_mutation",
@@ -1027,7 +1053,7 @@ def contract(texts: dict[str, str]) -> bool:
     claim_revalidation = provisioning.find("local effectiveContext = context")
     source_absence = provisioning.find('sourceState == "source-absent"')
     return all((
-        "if priorSchema > 4 then" in texts["world"],
+        "if priorSchema > 5 then" in texts["world"],
         'receipt.provisioningContext = "legacy-unattributed"' in texts["world"],
         "sourceFingerprint = reservation.fingerprint" in texts["world"],
         "provisioningContext = reservation.provisioningContext" in texts["world"],
@@ -1036,6 +1062,9 @@ def contract(texts: dict[str, str]) -> bool:
         in texts["world"],
         "function WS.resultAcknowledged" in texts["world"],
         "function WS.sourceProjection(id)" in texts["world"],
+        "function WS.pendingProjectionChanges(limit)" in texts["world"],
+        "function WS.acknowledgeProjectionChange(sourceId, order)"
+        in texts["world"],
         "reason = tostring(reason or \"consumed\")" in texts["world"],
         "provisioningContextAt" in texts["source_use"],
         "reservation.provisioningClaimIncarnation =\n"
@@ -1053,12 +1082,15 @@ def contract(texts: dict[str, str]) -> bool:
         "tonumber(claim.claimIncarnation) ~= claimIncarnation" in provisioning,
         "SAO.Material.resumeReconciliation(receipt.reservationId)"
         in provisioning,
+        "    Provisioning.refreshProjectedSources(limit)\n"
         "    cleanupAcknowledgedReconciliations()\n    local consumed"
         in provisioning,
         "SAO.Material.projectedOwner" in provisioning,
         "SAO.Standing.provisioningClaimOf" in provisioning,
         'effectiveContext = "retired-group"' in provisioning,
         'if accepted ~= true then' in provisioning,
+        "store.coverage.complete ~= true" in provisioning,
+        "projection.store.coverage.complete == true" in provisioning,
         claim_revalidation >= 0 and source_absence > claim_revalidation,
         'if effectiveContext ~= "retired-group" then' in provisioning,
         "receipt.materialEvidenceAt = tonumber(source and source.observedAt)"
@@ -1078,6 +1110,9 @@ def contract(texts: dict[str, str]) -> bool:
         "function Material.derivationComplete" in texts["material"],
         "function Material.markDerivationComplete" in texts["material"],
         "function Material.houseProjectionGeneration" in texts["material"],
+        "function Material.refreshProjectedSource" in texts["material"],
+        'complete = false,\n        basis = "selected-native-sources"'
+        in texts["material"],
         "store.projectionGeneration = (tonumber(store.projectionGeneration) or 0) + 1"
         in texts["material"],
         "evidenceAt = tonumber(transaction.evidenceAt)" in texts["material"],
@@ -1093,6 +1128,7 @@ def contract(texts: dict[str, str]) -> bool:
         'if priorSchema > GRAPH_SCHEMA then return nil, "future-schema" end'
         in texts["graph"],
         "migrateLegacyFalseOutputs(store, priorSchema)" in texts["graph"],
+        "migratePartialMaterialOutputs(store, priorSchema)" in texts["graph"],
         "        detachDurableOwners()\n        return false, why"
         in texts["graph"],
         "retiredProvisioningOrganizations" in texts["graph"],
@@ -1115,6 +1151,7 @@ def contract(texts: dict[str, str]) -> bool:
         "priorGeneration > incomingGeneration" in texts["settlement"],
         "materialGeneration = receipt.materialGeneration" in texts["settlement"],
         "not Settlement.isGrounded(base)" in texts["settlement"],
+        "materialStore.coverage.complete ~= true" in texts["settlement"],
         "Settlement.claim(" not in texts["recognition"],
         'return false, "ungrounded-settlement"' in texts["recognition"],
         "SAO.Material.forgetHouse(groupName)" in texts["recognition"],
@@ -1123,6 +1160,7 @@ def contract(texts: dict[str, str]) -> bool:
         "if priorSchema > STANDING_SCHEMA then return nil end"
         in texts["standing"],
         "migrateLegacyMaterialClaims(s, priorSchema)" in texts["standing"],
+        "migratePartialMaterialClaims(s, priorSchema)" in texts["standing"],
         "claim.claimIncarnation = claimSequence" in texts["standing"],
         "claimIncarnation = claimIncarnation," in texts["standing"],
         "return \"held-group\", tostring(groupName), claim.claimIncarnation"
@@ -1191,8 +1229,14 @@ def static_controls() -> tuple[bool, list[str]]:
     if not contract(baseline):
         return False, ["baseline production contract incomplete"]
     controls = [
-        ("schema migration removed", "world", "if priorSchema > 4 then",
-         "if priorSchema > 3 then"),
+        ("schema migration removed", "world", "if priorSchema > 5 then",
+         "if priorSchema > 4 then"),
+        ("ambient source change queue removed", "world",
+         "function WS.pendingProjectionChanges(limit)",
+         "function WS.noPendingProjectionChanges(limit)"),
+        ("ambient source acknowledgement removed", "world",
+         "function WS.acknowledgeProjectionChange(sourceId, order)",
+         "function WS.noAcknowledgeProjectionChange(sourceId, order)"),
         ("legacy result inferred later membership", "world",
          'receipt.provisioningContext = "legacy-unattributed"',
          'receipt.provisioningContext = "held-group"'),
@@ -1239,6 +1283,9 @@ def static_controls() -> tuple[bool, list[str]]:
         ("derivation evidence omitted from standing", "provisioning",
          '"completed-native-source-results", evidence',
          '"completed-native-source-results"'),
+        ("ambient projection refresh removed", "provisioning",
+         "    Provisioning.refreshProjectedSources(limit)",
+         "    -- ambient refresh removed"),
         ("acknowledged cleanup call removed", "provisioning",
          "    cleanupAcknowledgedReconciliations()\n    local consumed",
          "    -- cleanup removed\n    local consumed"),
@@ -1254,6 +1301,10 @@ def static_controls() -> tuple[bool, list[str]]:
          'effectiveContext = "retired-group"', 'effectiveContext = "held-group"'),
         ("nil recognition accepted", "provisioning",
          'if accepted ~= true then', 'if accepted == false then'),
+        ("partial projection writes house claims", "provisioning",
+         "store.coverage.complete ~= true", "false"),
+        ("partial projection reaches settlement", "provisioning",
+         "projection.store.coverage.complete == true", "true"),
         ("retry decision reapplied", "material", "transaction.applied == true",
          "transaction.applied == false"),
         ("first empty result treated as no event", "material",
@@ -1266,6 +1317,12 @@ def static_controls() -> tuple[bool, list[str]]:
         ("house projection generation frozen", "material",
          "store.projectionGeneration = (tonumber(store.projectionGeneration) or 0) + 1",
          "store.projectionGeneration = tonumber(store.projectionGeneration) or 0"),
+        ("ambient projected source refresh removed", "material",
+         "function Material.refreshProjectedSource",
+         "function Material.noRefreshProjectedSource"),
+        ("partial coverage marked complete", "material",
+         'complete = false,\n        basis = "selected-native-sources"',
+         'complete = true,\n        basis = "selected-native-sources"'),
         ("durable derivation phase removed", "material",
          "function Material.markDerivationComplete",
          "function Material.dropDerivationComplete"),
@@ -1285,6 +1342,9 @@ def static_controls() -> tuple[bool, list[str]]:
         ("legacy false-output migration removed", "graph",
          "migrateLegacyFalseOutputs(store, priorSchema)",
          "store.schema = priorSchema -- migration removed"),
+        ("partial material migration removed", "graph",
+         "migratePartialMaterialOutputs(store, priorSchema)",
+         "store.schema = priorSchema -- partial migration removed"),
         ("legacy provisioning organization retained", "graph",
          "electionGroundedOrganization(store, organizationId)",
          "true -- preserve every linked organization"),
@@ -1302,6 +1362,9 @@ def static_controls() -> tuple[bool, list[str]]:
         ("older settlement generation overwrites newer", "settlement",
          "priorGeneration > incomingGeneration",
          "priorGeneration < incomingGeneration"),
+        ("settlement accepts partial source projection", "settlement",
+         "materialStore.coverage.complete ~= true",
+         "false"),
         ("settlement storage survives claim lapse", "settlement",
          "function Settlement.clearStorageProjection",
          "function Settlement.keepStorageProjection"),
@@ -1313,6 +1376,9 @@ def static_controls() -> tuple[bool, list[str]]:
         ("standing migration removed", "standing",
          "migrateLegacyMaterialClaims(s, priorSchema)",
          "s.schema = priorSchema -- migration removed"),
+        ("partial standing claim migration removed", "standing",
+         "migratePartialMaterialClaims(s, priorSchema)",
+         "s.schema = priorSchema -- partial migration removed"),
         ("future standing schema accepted", "standing",
          "if priorSchema > STANDING_SCHEMA then return nil end",
          "if false then return nil end"),

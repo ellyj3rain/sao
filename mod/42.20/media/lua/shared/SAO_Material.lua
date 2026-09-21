@@ -155,6 +155,7 @@ local function itemQuantity(item)
 end
 
 local function sourceCopy(source, receipt)
+    receipt = receipt or {}
     local copy = {
         id = tostring(source.id),
         fingerprint = source.fingerprint,
@@ -201,6 +202,16 @@ local function sourceCopy(source, receipt)
         end
     end
     return copy
+end
+
+local function markPartialCoverage(store, reason, atHours)
+    if type(store) ~= "table" then return end
+    store.coverage = {
+        complete = false,
+        basis = "selected-native-sources",
+        reason = tostring(reason or "source-result"),
+        atHours = tonumber(atHours) or 0,
+    }
 end
 
 local function rebuildProjection(store)
@@ -410,6 +421,8 @@ function Material.reconcileSource(groupId, receipt, source, context, outcome)
     if owner and keepOwner then
         ownerStore.nativeSources[receipt.sourceId] = sourceCopy(source, receipt)
         local generation = rebuildAndAdvance(ownerStore)
+        markPartialCoverage(ownerStore, "completed-source-refresh",
+            transaction.evidenceAt)
         transaction.groups[tostring(owner.groupId)] = generation
         stampResult(ownerStore, receipt)
         Material.sourceOwners[receipt.sourceId] = {
@@ -421,6 +434,8 @@ function Material.reconcileSource(groupId, receipt, source, context, outcome)
         or tostring(owner.fingerprint or "") == receipt.sourceFingerprint) then
         ownerStore.nativeSources[receipt.sourceId] = nil
         local generation = rebuildAndAdvance(ownerStore)
+        markPartialCoverage(ownerStore, "completed-source-retirement",
+            transaction.evidenceAt)
         transaction.groups[tostring(owner.groupId)] = generation
         stampResult(ownerStore, receipt)
         Material.sourceOwners[receipt.sourceId] = nil
@@ -463,6 +478,8 @@ function Material.reconcileSource(groupId, receipt, source, context, outcome)
             local removed = trimNativeSources(target)
             clearTrimmedOwners(groupId, removed)
             local generation = rebuildAndAdvance(target)
+            markPartialCoverage(target, "completed-source-result",
+                transaction.evidenceAt)
             transaction.groups[groupId] = generation
             stampResult(target, receipt)
         end
@@ -470,6 +487,58 @@ function Material.reconcileSource(groupId, receipt, source, context, outcome)
     transaction.applied = true
     transaction.context = context
     return true, target, affectedStores(transaction)
+end
+
+-- Refresh or retire an already-owned source from a later native observation.
+-- This is reconciliation only: it preserves the completed result that first
+-- attributed the source and never grants a new owner or completed work credit.
+function Material.refreshProjectedSource(change, source, sourceState)
+    if type(change) ~= "table" or type(change.sourceId) ~= "string"
+        or change.sourceId == "" then
+        return false, nil
+    end
+    local owner, store, prior = indexedOwner(change.sourceId)
+    if not owner then return true, nil end
+
+    local keep = type(source) == "table" and source.state == "available"
+        and tostring(source.id or "") == change.sourceId
+        and sameProjectedPlace(prior, source)
+    if keep then
+        local attribution = {
+            placeId = prior.placeId,
+            reservationId = prior.resultId,
+            at = prior.resultAt,
+            order = prior.resultOrder,
+        }
+        store.nativeSources[change.sourceId] = sourceCopy(source, attribution)
+        Material.sourceOwners[change.sourceId] = {
+            groupId = tostring(owner.groupId),
+            fingerprint = source.fingerprint,
+            resultOrder = prior.resultOrder,
+        }
+    else
+        store.nativeSources[change.sourceId] = nil
+        Material.sourceOwners[change.sourceId] = nil
+    end
+    local generation = rebuildAndAdvance(store)
+    markPartialCoverage(store,
+        keep and "ambient-source-refresh" or "ambient-source-retirement",
+        change.observedAt)
+    store.lastObservation = {
+        sourceId = change.sourceId,
+        fingerprint = source and source.fingerprint or change.fingerprint,
+        revision = source and source.revision or change.revision,
+        state = source and source.state or tostring(sourceState or change.state),
+        reason = change.reason,
+        atHours = tonumber(change.observedAt) or 0,
+        order = tonumber(change.order) or 0,
+    }
+    return true, {
+        groupId = tostring(owner.groupId),
+        store = store,
+        generation = generation,
+        evidenceAt = tonumber(change.observedAt) or 0,
+    }
 end
 
 function Material.derivationComplete(reservationId, groupId, phase)

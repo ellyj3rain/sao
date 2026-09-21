@@ -1,6 +1,6 @@
 | Document | Survivor Awareness Overhaul Engine Contract |
 |---|---|
-| Version | `2.8.0.0-pre-alpha` |
+| Version | `2.8.1.0-pre-alpha` |
 | Author | ellyj3rain |
 | Repository | `ENGINE_CONTRACT.md` |
 | Status | CANONICAL - the verified engine mechanics an IsoPlayer NPC requires. |
@@ -498,7 +498,7 @@ tools/luacheck/PersonSnapshotProbe.java and the final shipping jar.
 | IsoPlayer.load | Includes player-specific initialization and option writes; C51 uses component serializers instead. |
 | Nutrition.save/load plus private cadence fields | Native save carries four nutrients and float-rounded weight. C54 separately preserves `updatedWeight`, extrema and direction flags; weight below 35 refuses before native load can damage the staged body. |
 | Fitness.save/load | Carries regularity, stiffness, affected parts and exercise timestamps but inserts without clearing. C54 loads a new component, then initializes its exercise definitions. `lastUpdate` begins at the current-body baseline; an in-progress exercise remains runtime action state. |
-| HumanVisual.save/load | Carries skin, hair/beard color and models, body marks and body visuals. C54 also preserves stable outfit/forced-script references and the separate hair/beard growth timers, restoring after worn references and before model reset. |
+| HumanVisual.save/load | Carries skin, hair/beard color and models, body marks and body visuals. C54 also preserves stable outfit/forced-script references and the separate hair/beard growth timers, restoring after worn references and before model reset. C64 captures both timers from the person being returned rather than the temporary living shell used to reconstruct them. |
 | KahluaTableImpl.save/load | Supports string/double keys and string/double/boolean/table values, and silently omits unsupported pairs. C54 preflights declared durable character ModData and excludes SAO/ZAO runtime ownership keys. |
 | FluidContainer.save/load | Reached by native item/entity serialization. Missing definitions can change a mixture without rejecting the item; C54 records and compares native fluid-component facts per root or nested item. |
 
@@ -554,23 +554,42 @@ C62 supports carried food and clean-water items. A world object's direct fluid
 source remains on the existing loaded direct-drink path; the revision-bound
 carried-use lifecycle does not invent a transferable fluid item for it.
 
-## Addendum K - completed source results and native material projection (2026-09-20, C63)
+## Addendum K - completed source results and native material projection (2026-09-20, C63-C64)
 
 C63 adds no engine mutation surface. It consumes the post-action native truth
 produced through Addendum J and preserves the boundary between that truth and
-SAO's durable social projections. Border 180 runs the production consumer in
-the installed Kahlua VM.
+SAO's durable social projections. C64 corrects that projection to remain partial
+and removes the aggregates C63 inferred from one selected source. Border 180
+runs the production consumer in the installed Kahlua VM.
 
 | Surface | Verified contract |
 |---|---|
 | Addendum J's exact post-use observation and durable completed receipt | The receipt identifies the actor, source, item, measured quantity, pre/post revision, place, event-time Material setting, and held group plus claim incarnation captured at final binding. Observation, reservation and interruption do not enter the consumer. |
 | `SAO_WorldSources.sourceProjection(sourceId)` | Returns an isolated scalar copy of the current exact source and finite item/category data. A conflict remains pending. An unavailable non-ground observation is not proof of removal; only the completing ground action supplies that postcondition. |
-| `GlobalModData` through `SAO_GraphPersistence` | Material source rows, single-source ownership, replay decisions and grounded-settlement storage survive save/load. Graph schema 2 retires legacy non-native house stores, ungrounded bases and linked provisioning-only organization shells; an election-grounded organization retains its chair with false base-authored fields cleared. Standing schema 2 retires legacy larder/water/hearth projections and seeds claim incarnations. Both migrations record no-history-inferred provenance. A future schema refuses without mutation, and graph refusal detaches prior-world owners. |
+| `GlobalModData` through `SAO_GraphPersistence` | Material source rows, single-source ownership and replay decisions survive save/load. Graph schema 2 retires legacy non-native house stores, ungrounded bases and linked provisioning-only organization shells; an election-grounded organization retains its chair with false base-authored fields cleared. Standing schema 2 retires legacy larder/water/hearth projections and seeds claim incarnations. Graph/Standing schema 3 mark retained C63 selected-source stores partial and remove only storage and larder/water claims inferred from them. Migrations record explicit provenance without inferring history. A future schema refuses without mutation, and graph refusal detaches prior-world owners. |
 | `SAO_Material.storeForPerson` | Returns detached scalar personal/house access maps. A composite has no aggregate owner; its nested views retain their distinct owners. Branching, Labor and inspection can read the view but cannot mutate durable Material state through an alias. |
 | `SAO_Settlement.claim` | Requires a completed `place-development` result identity. It records that grounding and does not create an organization or membership; provisioning may only synchronize storage on a base carrying that provenance. |
 | `SandboxVars.SurvivorAwareness.Material` off | The native action remains complete, but the setting captured when its result is published makes that result terminally acknowledge as `material-disabled` before Material, Standing or Settlement projection. Re-enabling the record surface does not retroactively count it; disabling later does not abandon an applied replay decision. |
-| Result acknowledgement | The sole `provisioning` consumer acknowledges after material replacement, derived standing and any applicable existing-settlement synchronization, then retires the replay decision. A refused acknowledgement resumes that durable outcome before current-source lookup. A stop after acknowledgement is cleaned on the next delivery pass. Redelivery repeats replacement rather than addition. |
+| Result acknowledgement | The sole `provisioning` consumer acknowledges after exact partial-source replacement, then retires the replay decision. That partial store derives no aggregate standing or settlement synchronization. A refused acknowledgement resumes the durable outcome before current-source lookup. A stop after acknowledgement is cleaned on the next delivery pass. Redelivery repeats replacement rather than addition. |
 
 The projection is evidence about material on held ground. It does not found a
 settlement or prove acquisition, shelving, sharing, trade, development or any
 other R9 action whose own result has not yet been implemented.
+
+## Addendum L - corrected projection and decision evidence (2026-09-20, C64)
+
+C64 adds no new in-game engine mutation. It corrects what SAO may conclude from
+Addenda H-K and hardens the headless evidence boundary.
+
+| Surface | Verified contract |
+|---|---|
+| Addendum J's one selected native source | Exact source contents are partial coverage of a held place. They may update that source row and its owner; they do not establish a complete larder, water store or settlement inventory. Graph schema 3 and Standing schema 3 retire the unsupported C63 aggregates with explicit migration provenance. |
+| Later `observeWorldChunk` / `hydrateWorldChunk` truth | WorldSources schema 5 retains an ordered, bounded and coalescing change only for a source that can make an existing Material projection stale. Provisioning refreshes or retires the existing exact owner; ambient observation never grants an owner, performed work or need credit. |
+| Headless Kahlua evidence host | `surveyClaim` returns unavailable. No door, board or room fixture enters decision evidence. The county still runs the shipped modules through their registered tick owner. |
+| Standing election observation | The observer freezes supported deterministic JSON before the real election and records its immediate result separately afterwards. A reader fault or unsupported/cyclic value rejects evidence without suppressing the real verb. The observer supplies no executable options or choice. |
+| County evidence publication | Run identity is unique per execution and county while `configurationSha256` remains deterministic. Seed/draw state, settings, engine mode, requested/reached clock, schemas and source/model hashes remain separate fields. Callback, capture and incomplete-horizon failures withhold the whole requested dump; publication is one atomic directory rename. |
+
+Border 181 exercises these evidence properties in the installed Kahlua VM.
+Its one-day smoke also demonstrates refusal: the canonical county sweep records
+protected callback faults at that horizon, so neither tool publishes it as a
+completed county.

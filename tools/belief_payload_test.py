@@ -26,7 +26,7 @@ the engine's own `Translate/EN/SurvivorNames.json` and holds that
 every entry renders as its suffix, entry for entry. The ruling: a
 row reads the plain form, the engine's storage is unchanged, and the
 raw key stays beside it. `plainNameOf` lives in the sweep prelude -
-the environment the dump actually runs - and the dump's member row
+the environment the dump actually runs - and the decision capture's member row
 carries `displayName` beside `name`, so nothing captured is curated
 and nothing raw is lost.
 
@@ -69,6 +69,7 @@ SRC = HERE / "luacheck" / "LuaRun.java"
 OUT = ROOT / "java" / "out" / "luacheck"
 PRELUDE_FILE = ROOT / "tools" / "sweep" / "prelude.lua"
 DUMP = ROOT / "tools" / "county_dump.py"
+CAPTURE = ROOT / "tools" / "sweep" / "decision_capture.lua"
 JDK = pathlib.Path(r"C:\Users\jleyv\Peanut Butter\JetBrains\Java\bin")
 PZ_DIR = pathlib.Path(
     r"C:\Program Files (x86)\Steam\steamapps\common\ProjectZomboid")
@@ -280,6 +281,7 @@ def main():
     perception = read(LUA / "shared" / "SAO_Perception.lua")
     prelude = read(PRELUDE_FILE)
     dump = read(DUMP)
+    capture = read(CAPTURE)
     seams = {
         "the meeting passes the distance it computed":
             re.search(r"local metDist = math\.sqrt\(dx \* dx \+ dy \* dy\)",
@@ -296,8 +298,10 @@ def main():
             and "dist = dist or (prev and prev.dist) or 0" in perception,
         "the prelude carries the plain reading":
             "plainNameOf" in prelude,
-        "the dump's member row carries the plain reading beside the key":
-            "snap.displayName" in dump and "plainNameOf" in dump,
+        "the capture's member row carries the plain reading beside the key":
+            "displayName = required" in capture
+            and "plainNameOf(record.forename, record.surname)" in capture
+            and "decision_capture.lua" in dump,
         "the gate runs this border":
             "tools/belief_payload_test.py" in read(CHECK),
     }

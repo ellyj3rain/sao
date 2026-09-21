@@ -73,6 +73,14 @@ local function derivationEvidence(receipt, generation, evidenceAt)
 end
 
 local function standingFrom(store, groupId, evidence)
+    -- One used source is exact material evidence, but it is not a complete
+    -- inventory of the held place. Aggregate larder/water claims remain owned
+    -- by a complete quartermaster observation until a future Material producer
+    -- can prove complete coverage of the claim.
+    if type(store) ~= "table" or type(store.coverage) ~= "table"
+        or store.coverage.complete ~= true then
+        return true
+    end
     if not (SAO.Standing and SAO.Standing.provisioningMembers
         and SAO.Standing.setLarder and SAO.Standing.setWaterStore) then
         return false
@@ -119,23 +127,28 @@ local function deriveAndAcknowledge(receipt, affected, outcome)
         end
         if not SAO.Material.derivationComplete(receipt.reservationId,
             groupId, "recognition") then
-            if not (SAO.Settlement
-                and type(SAO.Settlement.bases) == "table") then
-                return false, "settlement-unavailable"
-            end
-            local settlementExists = SAO.Settlement.bases[groupId] ~= nil
-            if settlementExists then
-                if not (SAO.Recognition and SAO.Recognition.onProvisioned) then
-                    return false, "recognition-unavailable"
+            local complete = type(projection.store) == "table"
+                and type(projection.store.coverage) == "table"
+                and projection.store.coverage.complete == true
+            if complete then
+                if not (SAO.Settlement
+                    and type(SAO.Settlement.bases) == "table") then
+                    return false, "settlement-unavailable"
                 end
-                local ok, accepted = pcall(SAO.Recognition.onProvisioned,
-                    groupId, {
-                        receipt = evidence,
-                        material = projection.store,
-                    })
-                if not ok then return false, "recognition-fault" end
-                if accepted ~= true then
-                    return false, "recognition-refused"
+                local settlementExists = SAO.Settlement.bases[groupId] ~= nil
+                if settlementExists then
+                    if not (SAO.Recognition and SAO.Recognition.onProvisioned) then
+                        return false, "recognition-unavailable"
+                    end
+                    local ok, accepted = pcall(SAO.Recognition.onProvisioned,
+                        groupId, {
+                            receipt = evidence,
+                            material = projection.store,
+                        })
+                    if not ok then return false, "recognition-fault" end
+                    if accepted ~= true then
+                        return false, "recognition-refused"
+                    end
                 end
             end
             if not SAO.Material.markDerivationComplete(receipt.reservationId,
@@ -151,6 +164,41 @@ local function deriveAndAcknowledge(receipt, affected, outcome)
     -- afterwards; consumeCompleted also cleans it if execution stops here.
     SAO.Material.finishReconciliation(receipt.reservationId)
     return true, outcome or "reconciled"
+end
+
+-- Drain native changes for sources already copied into a house projection.
+-- These observations never create an owner and never carry action credit; they
+-- only keep the exact prior projection synchronized with current engine truth.
+function Provisioning.refreshProjectedSources(limit)
+    if not (SAO.WorldSources and SAO.WorldSources.pendingProjectionChanges
+        and SAO.WorldSources.acknowledgeProjectionChange and SAO.Material
+        and SAO.Material.refreshProjectedSource
+        and SAO.WorldSources.sourceProjection) then
+        return 0, 0
+    end
+    limit = math.floor(tonumber(limit) or DEFAULT_LIMIT)
+    if limit < 1 then limit = 1 end
+    if limit > MAX_LIMIT then limit = MAX_LIMIT end
+    local changes = SAO.WorldSources.pendingProjectionChanges(limit)
+    if type(changes) ~= "table" then return 0, 0 end
+    local refreshed, pending = 0, 0
+    for _, change in ipairs(changes) do
+        local source, state = SAO.WorldSources.sourceProjection(change.sourceId)
+        if state == "store-unavailable" then
+            pending = pending + 1
+        else
+            local ok, accepted = pcall(SAO.Material.refreshProjectedSource,
+                change, source, state)
+            if ok and accepted == true
+                and SAO.WorldSources.acknowledgeProjectionChange(
+                    change.sourceId, change.order) then
+                refreshed = refreshed + 1
+            else
+                pending = pending + 1
+            end
+        end
+    end
+    return refreshed, pending
 end
 
 local function cleanupAcknowledgedReconciliations()
@@ -352,6 +400,7 @@ function Provisioning.consumeCompleted(limit)
     if limit > MAX_LIMIT then limit = MAX_LIMIT end
     local delivery = deliveryState()
     if not delivery then return 0, 0 end
+    Provisioning.refreshProjectedSources(limit)
     cleanupAcknowledgedReconciliations()
     local consumed, pending = 0, 0
     local results = SAO.WorldSources.completedResults(CONSUMER)

@@ -47,8 +47,19 @@ function Integration.registerExtension(id, installer)
         return false
     end
     local wasReady = Integration.ready
+    local prior = Integration.extensions[id]
     Integration.extensions[id] = installer
-    if wasReady then return Integration.rebuild() end
+    if wasReady then
+        if Integration.rebuild() then return true end
+        -- Replacement is a transaction over runtime code. A new installer may
+        -- have registered half a graph before throwing or refusing; ensure()
+        -- clears that graph on failure. Restore the last accepted installer
+        -- and reconstruct it before reporting that the replacement was refused.
+        Integration.extensions[id] = prior
+        Integration.ready = false
+        Integration.ensure()
+        return false
+    end
     return true
 end
 
@@ -57,9 +68,19 @@ function Integration.unregisterExtension(id)
         return false
     end
     local wasReady = Integration.ready
+    local prior = Integration.extensions[id]
     Integration.extensions[id] = nil
     Integration.ready = false
-    if wasReady then return Integration.ensure() end
+    if wasReady then
+        if Integration.ensure() then return true end
+        -- A transient base/peer failure must not turn removal into permanent
+        -- loss of the last valid registry. Put the installer back and make the
+        -- best possible reconstruction of the accepted graph.
+        Integration.extensions[id] = prior
+        Integration.ready = false
+        Integration.ensure()
+        return false
+    end
     return true
 end
 

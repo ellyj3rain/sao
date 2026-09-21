@@ -96,6 +96,8 @@ function Settlement.reconcileStorage(organizationId, materialStore, receipt)
     local base = Settlement.bases[organizationId]
     if not Settlement.isGrounded(base) or type(materialStore) ~= "table"
         or materialStore.projection ~= "native-sources"
+        or type(materialStore.coverage) ~= "table"
+        or materialStore.coverage.complete ~= true
         or type(receipt) ~= "table" or receipt.status ~= "completed" then
         return false
     end
