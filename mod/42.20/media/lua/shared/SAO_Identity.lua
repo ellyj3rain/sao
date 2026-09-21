@@ -336,6 +336,12 @@ function Identity.markDead(rec, tick, cause)
     if SAO.Standing and SAO.Standing.forgetPolitics then
         pcall(SAO.Standing.forgetPolitics, rec.id)
     end
+    -- A personal transfer still in a native queue retains both bodies, the
+    -- item and its inventories. Death ends pending work through its owner;
+    -- completed handovers remain in the durable history.
+    if SAO.Handover and SAO.Handover.forgetPerson then
+        pcall(SAO.Handover.forgetPerson, rec.id)
+    end
     -- [C68] And the company. The dead are not members - electLeader
     -- and groupSize both already filtered them - but nothing removed
     -- the row or settled the house, so a survivor whose company died

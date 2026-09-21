@@ -16,11 +16,11 @@ next tick and every tick after.
 Two things are checked, both against the SHIPPED Lua rather than a
 model of it - [B34]'s lesson, which [B34] proved has to be relearned:
 
-  SEQUENCED LEGS      two transfers where the second is conditional on
-                      the first. The first has already happened, so a
-                      failure of the second MUST have a recovery
-                      branch - a debt, a reversal, or at minimum a
-                      cooldown so it does not repeat immediately.
+  SEQUENCED LEGS      two handover requests where the second is conditional
+                      on queue acceptance of the first. The first may later
+                      complete alone, so failure of the second MUST at least
+                      cool the exchange down. Border 182 owns the later
+                      native-proof and partial-term debt.
 
   EFFECT BEFORE PROOF standing adjusted, debt settled or a cooldown
                       set before the transfer it is paying for is
@@ -52,9 +52,9 @@ RECOVERY = re.compile(r"addDebt|settleDebt|next\w*At\s*=")
 
 
 def _elseif_body(lines, after_line):
-    """The body of the first `elseif` following a trade's second leg.
+    """The body of the first `elseif` following a trade's second request.
 
-    That branch is where "the first leg moved goods and the second did
+    That branch is where "the first request queued and the second did
     not" has to be answered. Bounded by the next `elseif`, `else` or
     `end` at the same indent, so the success branch above it and the
     code below it are both excluded.
@@ -100,7 +100,7 @@ def main():
     # result, within a short window.
     print()
     print("=" * 70)
-    print("SEQUENCED LEGS - the first has already moved goods")
+    print("SEQUENCED LEGS - the first request may complete alone")
     print("=" * 70)
     seq, unprotected = [], []
     for i, (ln, kind, text) in enumerate(legs):

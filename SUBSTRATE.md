@@ -1,6 +1,6 @@
 | Document | Survivor Awareness Overhaul Dependency Substrate |
 |---|---|
-| Version | `2.8.4.0-pre-alpha` |
+| Version | `2.8.5.0-pre-alpha` |
 | Author | ellyj3rain |
 | Repository | `SUBSTRATE.md` |
 | Status | CANONICAL - what exists, what is planned, and what each area of concern needs. |
@@ -696,3 +696,19 @@ by existing personal memory conditions. The fourteen-day base follows the
 existing relation window; it is an implementation calibration, not a population
 measurement. Request expiry remains the existing 96-hour window. Original event
 identity/time and eviction floors prevent replay from refreshing forgotten acts.
+
+### C68 producer update
+
+| Contract | Producer and durable owner | Behavioral consumer | Remaining boundary |
+|---|---|---|---|
+| Performed personal handover | Needs item selection -> Handover reservation -> verified vanilla transfer -> exact destination holder | Existing share, reading, care-gift, settlement and yield consequences | Reload-unknown pending work stays reserved until an item-resolution producer exists. |
+| Accepted exchange | Exchange need/surplus proposal -> two independently admitted handover legs -> Handover acceptance | Existing food/water and smoke/food barter | No dormant barter or player trade interface is claimed. |
+| Partial exchange debt | One accepted leg completes while its opposite leg reaches a terminal failed state | Existing Standing debt and later settlement handover | Private perceived obligation remains separate; gifts create no debt. |
+| Treatment boundary | Existing `ISApplyBandage` action | Existing loaded care behavior | Native treatment completion, patient response and care skill still need a treatment-specific result owner. |
+
+Handover retains at most 512 records and 256 terms, evicting only terminal
+history when capacity is needed. Current bodies, items, inventories and actions
+are never serialized. Duplicate reservation of the same pending actor/item is
+refused. The existing death funnel releases a dead participant's pending work
+and live handles. Border 182 executes the owner in the installed Kahlua VM and
+rejects a production mutation that applies social credit at queue time.

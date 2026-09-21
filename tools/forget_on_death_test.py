@@ -239,6 +239,11 @@ NOT_A_SURVIVOR_ID = {
         "keyed by an exact native SOURCE id, not a survivor id. It enforces "
         "one projected house owner per physical source; replacement, removal, "
         "projection trimming and house dissolution clear or replace entries"),
+    ("SAO_Handover.lua", "runtime"): (
+        "keyed by a HANDOVER id, not a survivor id. Every terminal path drops "
+        "that exact entry, world rebind clears the table, and H.forgetPerson "
+        "releases pending records involving a dead participant through the "
+        "Identity.markDead funnel"),
 }
 
 # What an index has to look like to be a survivor id. `subFaults[name]`

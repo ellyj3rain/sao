@@ -1,6 +1,6 @@
 | Document | Survivor Awareness Overhaul Architecture |
 |---|---|
-| Version | `2.8.4.0-pre-alpha` |
+| Version | `2.8.5.0-pre-alpha` |
 | Author | ellyj3rain |
 | Repository | `ARCHITECTURE.md` |
 | Status | ACTIVE - ratified framework shape. |
@@ -534,3 +534,27 @@ and worn gear; saved reading creates no body or item. Generated default access
 has explicit Identity provenance. PhysicalFacts captures sleep. Older unknown
 state and dormant sleeping state await measured acquisition or an actual wake
 producer; possession alone does not prove radio comprehension.
+
+## Personal handovers and terms (C68)
+
+Handover owns person-to-person item transfer state. Its saved record contains
+only scalar people, item identity, kind, term, status and consequence data. Live
+bodies, inventories, items and timed actions exist only in its runtime map. The
+vanilla transfer subclass repeats person binding, same-floor proximity and exact
+source-holder checks at mutation, then requires the destination holder before it
+publishes completion. Queue admission is only a pending reservation.
+
+Exchange and Controller supply the intended consequence with the request.
+Handover applies trust, voice, settlement, aid stamps and care experience once
+after a non-term completion. Reading and fear-driven yielding use the same
+owner. A pending record without a runtime witness after reload remains pending
+and reserves its exact item; neither elapsed time nor queue absence supplies
+holder proof. The person-death funnel releases pending work involving either
+participant and drops its live engine handles while retaining completed history.
+
+A bilateral term begins as a proposal. Both directed native actions must be
+admitted before Handover records acceptance. A failed proposal cancels the
+pending actions and creates no debt. Once accepted, two completed legs apply the
+trade consequence; one completed leg and one terminal failed leg add exactly one
+existing Standing debt in the completed giver's favor. Gifts never enter that
+path. Open-wound treatment remains a separate action/result boundary.

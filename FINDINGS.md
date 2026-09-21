@@ -1,6 +1,6 @@
 | Document | Survivor Awareness Overhaul Findings |
 |---|---|
-| Version | `2.8.4.0-pre-alpha` |
+| Version | `2.8.5.0-pre-alpha` |
 | Author | ellyj3rain |
 | Repository | `FINDINGS.md` |
 | Status | CANONICAL, APPEND-ONLY - verified engine findings. |
@@ -2073,3 +2073,27 @@ replay and the absence of material/social credit. Mutations removing the native
 proof, observation delivery or retention make their named cases fail. The
 [C67 evidence record](artifacts/audits/20260921-0424Z-2124PST-delivery-knowledge/README.md)
 separates these controlled production probes from actual loaded-save behavior.
+
+## F-093 | 2026-09-21 07:14 UTC / 00:14 PST | Personal transfer effects preceded native completion and agreement
+
+Legacy sharing, settlement, barter, yielding, reading and care-gift paths called
+the vanilla inventory queue directly. A successful Lua call immediately changed
+trust, debt, settlement, voice, care timestamps or experience even when the queue
+refused the action or the later action stopped. Barter recorded debt after the
+first queue call failed to obtain a reciprocal item; no bilateral acceptance or
+completed first leg was required.
+
+C68 adds one durable Handover owner. It retains scalar records, keeps native
+objects in the current runtime, repeats body/range/source-holder checks at the
+mutation boundary and requires the recipient holder before publishing effects.
+Barter records a proposal, admits both directed actions and only then records
+acceptance. Failed proposals cancel their pending actions and create no debt.
+Accepted terms create one debt only after one leg completes and the opposite leg
+reaches a terminal failed state.
+
+Border 182 executes queue refusal, native completion, interruption, holder
+conflict, proposal cancellation, accepted partial/full terms, repeat
+reconciliation, reload-unknown state and duplicate reservation in the installed
+Kahlua VM. Its controlled production mutation restores queue-time social credit
+and flips `queued_without_effect`. Open-wound treatment uses a different native
+action and remains an explicit completion gap.
