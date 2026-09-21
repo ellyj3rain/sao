@@ -226,9 +226,10 @@ function Capture.beginSourceUse(context)
     end
     local runId, county = context.runId, context.county
     local selectOriginal, beginOriginal = sourceUse.chooseOption, world.beginAction
+    local transferOriginal = world.beginTransfer
     local events, failures, selectedEvents = {}, {}, {}
     local attempted, overflow, closed = 0, false, false
-    local selectWrapped, beginWrapped, owner
+    local selectWrapped, beginWrapped, transferWrapped, owner
     local function failure(eventId, stage, detail)
         failures[#failures + 1] = { eventId = eventId, stage = stage,
             detail = detail or pendingFailure or "source capture reader failed" }
@@ -296,14 +297,33 @@ function Capture.beginSourceUse(context)
         end
         return reservation, why
     end
+    if type(transferOriginal) == "function" then
+        transferWrapped = function(actorId, body, category, admission, item,
+                                   container, operation, selected)
+            local event = selected and selectedEvents[selected] or nil
+            if selected then selectedEvents[selected] = nil end
+            local reservation, why = transferOriginal(actorId, body, category,
+                admission, item, container, operation, selected)
+            if event then
+                if reservation then event.reservationId = reservation.id
+                else event.refusal = tostring(why or "reservation-refused") end
+            end
+            return reservation, why
+        end
+        world.beginTransfer = transferWrapped
+    end
     owner = { finish = function()
         if closed then raise("source capture already finished") end
         closed = true
-        if sourceUse.chooseOption ~= selectWrapped or world.beginAction ~= beginWrapped then
+        if sourceUse.chooseOption ~= selectWrapped or world.beginAction ~= beginWrapped
+            or (transferWrapped and world.beginTransfer ~= transferWrapped) then
             failure(runId, "ownership", "source selection owner changed during capture")
         end
         if sourceUse.chooseOption == selectWrapped then sourceUse.chooseOption = selectOriginal end
         if world.beginAction == beginWrapped then world.beginAction = beginOriginal end
+        if transferWrapped and world.beginTransfer == transferWrapped then
+            world.beginTransfer = transferOriginal
+        end
         Capture.sourceOwner = nil
         local rendered = {}
         for _, event in ipairs(events) do

@@ -141,6 +141,12 @@ public final class SAOWorldSources {
         return binding == null ? null : binding.sourceContainer;
     }
 
+    /** The item's actual holder at binding, including a carried nested bag. */
+    public static synchronized Object actionOriginContainer(IsoPlayer shell) {
+        ActionBinding binding = ACTIONS.get(shell);
+        return binding == null ? null : binding.originContainer;
+    }
+
     public static synchronized Object actionPermissionContainer(IsoPlayer shell) {
         ActionBinding binding = ACTIONS.get(shell);
         return binding == null ? null : binding.permissionContainer;
@@ -159,6 +165,18 @@ public final class SAOWorldSources {
                 itemType, 0);
         } catch (Throwable throwable) {
             return null;
+        }
+    }
+
+    public static synchronized String carriedTransferItem(IsoPlayer shell, int itemId,
+            String itemType) {
+        try {
+            ItemContainer inventory = shell == null ? null : shell.getInventory();
+            InventoryItem item = findItem(inventory, itemId, itemType, 0);
+            return item == null || countItemId(inventory, itemId, 0) != 1
+                ? "" : "T" + itemFields(ItemRow.of(item));
+        } catch (Throwable throwable) {
+            return "";
         }
     }
 
@@ -250,6 +268,220 @@ public final class SAOWorldSources {
 
     public static synchronized void clearAction(IsoPlayer shell) {
         ACTIONS.remove(shell);
+    }
+
+    /** Locate a currently reachable native holder for use-time claim checks. */
+    public static synchronized String transferPosition(IsoPlayer shell,
+            ItemContainer container) {
+        try {
+            if (!SAONeeds.containerAccessibleNow(shell, container)) return "";
+            IsoGridSquare square;
+            if (container.isVehiclePart()) {
+                square = container.getVehicle().getSquare();
+            } else {
+                IsoObject parent = container.getParent();
+                square = parent == null ? null : parent.getSquare();
+                if (square == null || !square.getObjects().contains(parent)) return "";
+                boolean owns = false;
+                for (int index = 0; index < parent.getContainerCount(); index++) {
+                    if (parent.getContainerByIndex(index) == container) owns = true;
+                }
+                if (!owns) return "";
+            }
+            return square == null ? "" : "AT:" + square.getX() + ":"
+                + square.getY() + ":" + square.getZ();
+        } catch (Throwable unavailable) {
+            return "";
+        }
+    }
+
+    /** Inspect one reachable transfer while retaining complete chunk coverage. */
+    public static synchronized String transferOffer(IsoPlayer shell,
+            InventoryItem item, ItemContainer worldContainer, String operation) {
+        if (transactionActive || shell == null || item == null
+                || worldContainer == null
+                || !("acquire".equals(operation) || "store".equals(operation))) {
+            return "";
+        }
+        transactionActive = true;
+        try {
+            boolean storing = "store".equals(operation);
+            if (!transferPermitted(shell, item, worldContainer, storing)) return "";
+            IsoCell cell = shell.getCell();
+            if (cell == null || cell != currentCell()) return "";
+            IsoGridSquare square;
+            IsoObject object = null;
+            BaseVehicle vehicle = null;
+            VehiclePart part = null;
+            int containerIndex = -1;
+            if (worldContainer.isVehiclePart()) {
+                vehicle = worldContainer.getVehicle();
+                part = worldContainer.getVehiclePart();
+                if (vehicle == null || part == null || vehicle.getSqlId() < 0
+                        || vehicle.isRemovedFromWorld()
+                        || !cell.getVehicles().contains(vehicle)
+                        || part.getItemContainer() != worldContainer) return "";
+                square = vehicle.getSquare();
+            } else {
+                object = worldContainer.getParent();
+                square = object == null ? null : object.getSquare();
+                if (square == null || !square.getObjects().contains(object)) return "";
+                for (int index = 0; index < object.getContainerCount(); index++) {
+                    if (object.getContainerByIndex(index) == worldContainer) {
+                        containerIndex = index;
+                        break;
+                    }
+                }
+                if (containerIndex < 0) return "";
+            }
+            if (square == null || square.getCell() != cell
+                    || cell.getGridSquare(square.getX(), square.getY(), square.getZ())
+                        != square) return "";
+            int chunkX = Math.floorDiv(square.getX(), CHUNK_SIZE);
+            int chunkY = Math.floorDiv(square.getY(), CHUNK_SIZE);
+            IsoChunk chunk = cell.getChunk(chunkX, chunkY);
+            if (chunk == null) return "";
+            Snapshot snapshot = scan(chunk, false);
+            String sourceId = vehicle == null
+                ? "C:" + value((String) object.getModData().rawget(SOURCE_TOKEN))
+                    + ":" + containerIndex
+                : "V:" + vehicle.getSqlId() + ":" + part.getIndex();
+            Source source = snapshot.byId.get(sourceId);
+            if (source == null || !source.explored) return "";
+            Located located = locate(shell, source.id, source.fingerprint,
+                source.revision, item.getID(), item.getFullType(), source.x,
+                source.y, source.z, storing ? ItemLocation.CARRIED : ItemLocation.SOURCE);
+            if (located.item != item || located.permissionContainer != worldContainer
+                    || !transferPermitted(shell, item, worldContainer, storing)) return "";
+            if (snapshot.identitiesStamped) save(chunk);
+            ItemRow row = ItemRow.of(item);
+            return "T|operation=" + operation + "|source=" + field(source.id)
+                + itemFields(row) + "\n" + encode(snapshot);
+        } catch (Throwable throwable) {
+            SAOAgent.log("world transfer offer refused: " + throwable);
+            return "";
+        } finally {
+            transactionActive = false;
+        }
+    }
+
+    public static synchronized String storeActionTarget(IsoPlayer shell,
+            String sourceId, String fingerprint, String revision, int itemId,
+            String itemType, int expectedX, int expectedY, int expectedZ) {
+        try {
+            Located located = locate(shell, sourceId, fingerprint, revision,
+                itemId, itemType, expectedX, expectedY, expectedZ, ItemLocation.CARRIED);
+            IsoGridSquare target = located.vehicle == null
+                ? interactionSquare(shell, located.square)
+                : vehicleInteractionSquare(located.vehicle, located.vehiclePart);
+            if (target == null) return "NO_INTERACTION_POINT";
+            return "READY:" + target.getX() + ":" + target.getY() + ":"
+                + target.getZ() + ":" + located.square.getX() + ":"
+                + located.square.getY() + ":" + located.square.getZ();
+        } catch (ActionRefusal refusal) {
+            return refusal.code;
+        } catch (Throwable throwable) {
+            SAOAgent.log("world store target threw: " + throwable);
+            return "FAILED";
+        }
+    }
+
+    public static synchronized String bindStoreAction(IsoPlayer shell,
+            String sourceId, String fingerprint, String revision, int itemId,
+            String itemType, int expectedX, int expectedY, int expectedZ) {
+        try {
+            Located located = locate(shell, sourceId, fingerprint, revision,
+                itemId, itemType, expectedX, expectedY, expectedZ, ItemLocation.CARRIED);
+            if (!transferPermitted(shell, located.item, located.permissionContainer,
+                    true)) return "ACCESS_REFUSED";
+            ACTIONS.put(shell, new ActionBinding(located));
+            return "BOUND:" + located.square.getX() + ":"
+                + located.square.getY() + ":" + located.square.getZ();
+        } catch (ActionRefusal refusal) {
+            return refusal.code;
+        } catch (Throwable throwable) {
+            SAOAgent.log("world store bind threw: " + throwable);
+            return "FAILED";
+        }
+    }
+
+    /** Holder evidence survives queue loss and never moves or recreates an item. */
+    public static synchronized String storeTransferState(IsoPlayer shell,
+            String sourceId, String fingerprint, int itemId, String itemType,
+            int expectedX, int expectedY, int expectedZ) {
+        try {
+            Located located = locate(shell, sourceId, fingerprint, null, itemId,
+                itemType, expectedX, expectedY, expectedZ, ItemLocation.CONTAINER);
+            return transferHolderState(shell.getInventory(),
+                located.permissionContainer, itemId, itemType);
+        } catch (ActionRefusal refusal) {
+            return "NOT_LOADED".equals(refusal.code)
+                || ("SOURCE_MISSING".equals(refusal.code)
+                    && sourceId != null && sourceId.startsWith("V:"))
+                || "BAD_REQUEST".equals(refusal.code) ? "UNAVAILABLE" : "CONFLICT";
+        } catch (Throwable throwable) {
+            SAOAgent.log("world store state unreadable: " + throwable);
+            return "UNAVAILABLE";
+        }
+    }
+
+    private static String transferHolderState(ItemContainer carried,
+            ItemContainer destination, int itemId, String itemType) {
+        if (carried == null || destination == null || carried == destination) {
+            return "CONFLICT";
+        }
+        int carriedCount = countItemId(carried, itemId, 0);
+        int destinationCount = countItemId(destination, itemId, 0);
+        InventoryItem atDestination = findItem(destination, itemId, itemType, 0);
+        if (carriedCount == 0 && destinationCount == 1 && atDestination != null
+                && atDestination.getContainer() == destination) return "TRANSFERRED";
+        if (carriedCount == 1 && destinationCount == 0
+                && findItem(carried, itemId, itemType, 0) != null) return "CARRIED";
+        return "CONFLICT";
+    }
+
+    private static boolean transferPermitted(IsoPlayer shell, InventoryItem item,
+            ItemContainer worldContainer, boolean storing) {
+        if (shell == null || item == null || worldContainer == null
+                || !worldContainer.isExplored()
+                || worldContainer.getOutermostContainer() != worldContainer
+                || worldContainer.isInCharacterInventory(shell)
+                || !SAONeeds.containerAccessibleNow(shell, worldContainer)
+                || item instanceof InventoryContainer || item.getIsCraftingConsumed()
+                || "CandleLit".equals(item.getType())
+                || "Lantern_HurricaneLit".equals(item.getType())) return false;
+        ItemRow row = ItemRow.of(item);
+        if (!(row.categories.contains("food") || row.categories.contains("water"))) {
+            return false;
+        }
+        ItemContainer inventory = shell.getInventory();
+        ItemContainer holder = storing ? inventory : worldContainer;
+        ItemContainer other = storing ? worldContainer : inventory;
+        if (findItem(holder, item.getID(), item.getFullType(), 0) != item
+                || countItemId(holder, item.getID(), 0) != 1
+                || countItemId(other, item.getID(), 0) != 0) return false;
+        ItemContainer origin = item.getContainer();
+        ItemContainer destination = storing ? worldContainer : inventory;
+        return origin != null && origin != destination && origin.contains(item)
+            && (!storing || !item.isFavorite()) && origin.isRemoveItemAllowed(item)
+            && destination.isItemAllowed(item) && !destination.isInside(item)
+            && destination.hasRoomFor(shell, item);
+    }
+
+    private static int countItemId(ItemContainer container, int itemId, int depth) {
+        if (container == null) return 0;
+        if (depth > MAX_CONTAINER_DEPTH) {
+            throw new IllegalStateException("native transfer nesting exceeds bound");
+        }
+        int count = 0;
+        for (InventoryItem item : new ArrayList<>(container.getItems())) {
+            if (item == null) continue;
+            if (item.getID() == itemId) count++;
+            if (item instanceof InventoryContainer nested) {
+                count += countItemId(nested.getInventory(), itemId, depth + 1);
+            }
+        }
+        return count;
     }
 
     /** Observe a chunk already owned by a live player map. Never rolls loot. */
@@ -643,19 +875,21 @@ public final class SAOWorldSources {
             out.append('\n');
             for (ItemRow item : source.items) {
                 out.append("I|source=").append(field(source.id))
-                    .append("|id=").append(item.itemId)
-                    .append("|type=").append(field(item.fullType))
-                    .append("|uses=").append(item.uses)
-                    .append("|amount=").append(number(item.amount))
-                    .append("|fluid=").append(field(item.fluid))
-                    .append("|poison=").append(item.poison ? 1 : 0)
-                    .append("|rotten=").append(item.rotten ? 1 : 0)
-                    .append("|cats=").append(field(String.join(",", item.categories)))
+                    .append(itemFields(item))
                     .append('\n');
             }
         }
         out.append("E\n");
         return out.toString();
+    }
+
+    private static String itemFields(ItemRow item) {
+        return "|id=" + item.itemId + "|type=" + field(item.fullType)
+            + "|uses=" + item.uses + "|currentUses=" + number(item.currentUses)
+            + "|condition=" + item.condition + "|amount=" + number(item.amount)
+            + "|fluid=" + field(item.fluid) + "|poison=" + (item.poison ? 1 : 0)
+            + "|rotten=" + (item.rotten ? 1 : 0)
+            + "|cats=" + field(String.join(",", item.categories));
     }
 
     private static String error(String status, String detail, int chunkX, int chunkY) {
@@ -727,9 +961,19 @@ public final class SAOWorldSources {
         }
     }
 
+    private enum ItemLocation { SOURCE, CARRIED, CONTAINER }
+
     private static Located locate(IsoPlayer shell, String sourceId,
             String fingerprint, String revision, int itemId, String itemType,
             int expectedX, int expectedY, int expectedZ) throws ActionRefusal {
+        return locate(shell, sourceId, fingerprint, revision, itemId, itemType,
+            expectedX, expectedY, expectedZ, ItemLocation.SOURCE);
+    }
+
+    private static Located locate(IsoPlayer shell, String sourceId,
+            String fingerprint, String revision, int itemId, String itemType,
+            int expectedX, int expectedY, int expectedZ, ItemLocation location)
+            throws ActionRefusal {
         if (shell == null || sourceId == null || sourceId.isBlank()) {
             throw new ActionRefusal("BAD_REQUEST");
         }
@@ -737,7 +981,7 @@ public final class SAOWorldSources {
         if (cell == null) throw new ActionRefusal("NOT_LOADED");
         String[] parts = sourceId.split(":");
         Source source;
-        InventoryItem item;
+        InventoryItem item = null;
         ItemContainer sourceContainer = null;
         ItemContainer permissionContainer = null;
         IsoWorldInventoryObject worldItem = null;
@@ -767,11 +1011,12 @@ public final class SAOWorldSources {
                 if (root == null) throw new ActionRefusal("SOURCE_MISSING");
                 source = containerSourceKnown(square, matched, root,
                     containerIndex, parts[1]);
-                item = findItem(root, itemId, itemType, 0);
-                if (item == null) throw new ActionRefusal("ITEM_MISSING");
-                sourceContainer = item.getContainer();
+                sourceContainer = root;
                 permissionContainer = root;
             } else if (parts.length == 2 && "G".equals(parts[0])) {
+                if (location != ItemLocation.SOURCE) {
+                    throw new ActionRefusal("STORE_SOURCE_UNSUPPORTED");
+                }
                 square = cell.getGridSquare(expectedX, expectedY, expectedZ);
                 if (square == null) throw new ActionRefusal("NOT_LOADED");
                 InventoryItem matchedItem = null;
@@ -814,9 +1059,7 @@ public final class SAOWorldSources {
                     throw new ActionRefusal("SOURCE_MISSING");
                 }
                 source = vehicleSource(matched, part, root);
-                item = findItem(root, itemId, itemType, 0);
-                if (item == null) throw new ActionRefusal("ITEM_MISSING");
-                sourceContainer = item.getContainer();
+                sourceContainer = root;
                 permissionContainer = root;
                 sourceVehicle = matched;
                 sourceVehiclePart = part;
@@ -834,12 +1077,25 @@ public final class SAOWorldSources {
         if (!value(fingerprint).equals(source.fingerprint)) {
             throw new ActionRefusal("FINGERPRINT_CHANGED");
         }
-        if (!value(revision).equals(source.revision)) {
+        if (revision != null && !value(revision).equals(source.revision)) {
             throw new ActionRefusal("REVISION_CHANGED");
         }
-        if (item.getID() != itemId
-                || !value(itemType).equals(value(item.getFullType()))) {
-            throw new ActionRefusal("ITEM_CHANGED");
+        if (location != ItemLocation.CONTAINER) {
+            if (location == ItemLocation.CARRIED) {
+                item = findItem(shell.getInventory(), itemId, itemType, 0);
+                if (countItemId(shell.getInventory(), itemId, 0) != 1
+                        || countItemId(permissionContainer, itemId, 0) != 0) {
+                    throw new ActionRefusal("ITEM_CONFLICT");
+                }
+            } else if (worldItem == null) {
+                item = findItem(sourceContainer, itemId, itemType, 0);
+                if (item != null) sourceContainer = item.getContainer();
+            }
+            if (item == null) throw new ActionRefusal("ITEM_MISSING");
+            if (item.getID() != itemId
+                    || !value(itemType).equals(value(item.getFullType()))) {
+                throw new ActionRefusal("ITEM_CHANGED");
+            }
         }
         return new Located(source, item, sourceContainer, permissionContainer,
             worldItem, square, sourceVehicle, sourceVehiclePart);
@@ -980,6 +1236,7 @@ public final class SAOWorldSources {
     private static final class ActionBinding {
         InventoryItem item;
         final ItemContainer sourceContainer;
+        final ItemContainer originContainer;
         final ItemContainer permissionContainer;
         final IsoWorldInventoryObject worldItem;
         String category = "";
@@ -994,6 +1251,7 @@ public final class SAOWorldSources {
         ActionBinding(Located located) {
             item = located.item;
             sourceContainer = located.sourceContainer;
+            originContainer = item == null ? null : item.getContainer();
             permissionContainer = located.permissionContainer;
             worldItem = located.worldItem;
         }
@@ -1001,6 +1259,7 @@ public final class SAOWorldSources {
         ActionBinding(InventoryItem item) {
             this.item = item;
             sourceContainer = null;
+            originContainer = item == null ? null : item.getContainer();
             permissionContainer = null;
             worldItem = null;
         }
@@ -1107,18 +1366,23 @@ public final class SAOWorldSources {
         final int itemId;
         final String fullType;
         final int uses;
+        final float currentUses;
+        final int condition;
         final float amount;
         final String fluid;
         final boolean poison;
         final boolean rotten;
         final boolean cleanWater;
         final ArrayList<String> categories;
-        ItemRow(int itemId, String fullType, int uses, float amount, String fluid,
+        ItemRow(int itemId, String fullType, int uses, float currentUses,
+                int condition, float amount, String fluid,
                 boolean poison, boolean rotten, boolean cleanWater,
                 ArrayList<String> categories) {
             this.itemId = itemId;
             this.fullType = fullType;
             this.uses = uses;
+            this.currentUses = currentUses;
+            this.condition = condition;
             this.amount = amount;
             this.fluid = fluid;
             this.poison = poison;
@@ -1138,7 +1402,8 @@ public final class SAOWorldSources {
             ArrayList<String> categories = categories(item, fluids, amount,
                 cleanWater);
             return new ItemRow(item.getID(), value(item.getFullType()), item.getUses(),
-                amount, primary == null ? "" : value(primary.getFluidTypeString()),
+                item.getCurrentUsesFloat(), item.getCondition(), amount,
+                primary == null ? "" : value(primary.getFluidTypeString()),
                 poison, rotten, cleanWater, categories);
         }
 
@@ -1151,7 +1416,7 @@ public final class SAOWorldSources {
                     categories.add("water");
                 }
             }
-            return new ItemRow(0, "", 0, amount,
+            return new ItemRow(0, "", 0, 0.0f, 0, amount,
                 fluid == null ? "" : value(fluid.getFluidTypeString()),
                 fluid != null && fluid.isPoisonous(), false, cleanWater,
                 categories);
@@ -1167,6 +1432,7 @@ public final class SAOWorldSources {
 
         String revisionLine() {
             return itemId + "|" + fullType + "|" + uses + "|"
+                + Float.toHexString(currentUses) + "|" + condition + "|"
                 + Float.toHexString(amount) + "|" + fluid + "|" + poison + "|"
                 + rotten + "|" + String.join(",", categories);
         }

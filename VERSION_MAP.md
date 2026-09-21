@@ -16,9 +16,9 @@ the machine. Names, dates, and threads below come from
 | Form | `major.minor.kohai.patch-maturity` |
 | Hard caps | minor 12; kohai 16; patch 24 |
 | Replay start | `0.1.0.0-pre-alpha` |
-| Current version | `2.8.2.0-pre-alpha` |
-| Closed chronology | `A1-C65` |
-| Next batch | `C66` |
+| Current version | `2.8.3.0-pre-alpha` |
+| Closed chronology | `A1-C66` |
+| Next batch | `C67` |
 | Executable source | [`tools/version_replay.py`](tools/version_replay.py) |
 
 ## Tier meanings
@@ -181,6 +181,7 @@ the machine. Names, dates, and threads below come from
 | `C63` | 2026-09-20 | kohai | `2.8.0.0-pre-alpha` | Provisioning result consumption | Consume completed native-use results through one bounded reconciliation boundary: project the exact current source into house material state, derive standing claims from that state, update only an already-grounded settlement and acknowledge last. This matures the source-action capability without treating queue acceptance, dormant need projection or standing setters as provisioning, and without completing the remaining R9 producer families. |
 | `C64` | 2026-09-20 | kohai | `2.8.1.0-pre-alpha` | Corrective integrity and decision evidence | Correct integrity defects found across C54-C63: returned bodies retain their own appearance timing, failed runtime-extension replacement restores the accepted graph, and selected native sources remain partial projections that refresh or retire after ambient change without inventing house totals. Establish a fail-closed immutable decision-evidence envelope and the fully namespaced atomic Speakeasy join while preserving approved intent separately from ineligible conditioning. R9 producers and executable-option/choice capture remain open. |
 | `C65` | 2026-09-21 | kohai | `2.8.2.0-pre-alpha` | Source action decisions | Expose the existing native-source action as explicit private options, exact revalidated selection and immutable decision/choice/result evidence. Preserve the current policy and loaded execution semantics, distinguish requested quantity from observed use, and refuse outcome-reader faults. This matures the R11 source-choice slice while broader action producers, ratified choices, reconstructed knowledge and later consequences remain open. |
+| `C66` | 2026-09-21 | kohai | `2.8.3.0-pre-alpha` | Performed provisioning | Extend the existing exact-source action owner to performed food/water acquisition and storage, current transfer-time authority, conserved native holders, durable recovery and completion-only credit. Reuse the explicit choice/result capture and advance Speakeasy decision-time views and unratified proposal authoring; complete inventory, recipient recognition and eligible training remain open. |
 
 ## The former number
 
@@ -201,11 +202,11 @@ establish release maturity.
 
 ## Next movement
 
-`C66` is the next batch. Its content determines its tier after it
+`C67` is the next batch. Its content determines its tier after it
 exists:
 
-| If C66 is | Result |
+| If C67 is | Result |
 |---|---|
-| patch or hotfix | `2.8.2.1-pre-alpha` |
-| kohai | `2.8.3.0-pre-alpha` |
+| patch or hotfix | `2.8.3.1-pre-alpha` |
+| kohai | `2.8.4.0-pre-alpha` |
 | minor | `2.9.0.0-pre-alpha` |

@@ -358,7 +358,7 @@ def source_capture_controls(faults):
                 or outcome.get("measurement") != "not-recorded"):
             faults.append("unspent action reported requested quantity as observed use")
     unreadable = run_source_probe(SOURCE_PENDING.replace("OUTCOME_CHANGE",
-        "__stores.SurvivorAwareness_WorldSources.schema = 6"))
+        "__stores.SurvivorAwareness_WorldSources.schema = 7"))
     if (unreadable["capture"]["eventCount"] != 0
             or unreadable["capture"]["captureFailureCount"] != 1
             or "WorldSources.actionOutcome" not in unreadable["capture"]["failures"][0]["detail"]):

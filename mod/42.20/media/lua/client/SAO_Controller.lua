@@ -238,6 +238,42 @@ local function activityParticipantAtHand(
     return ok and visible == true
 end
 
+-- Completion, rather than an empty queue, is the input to performed-work
+-- credit. The cursor is persisted before side effects, so repeat delivery
+-- cannot grant experience twice. A failed credit is not guessed on reload.
+function Ctl.provisioningCompleted(id, body, receipt, action)
+    if not receipt or receipt.status ~= "completed"
+        or tostring(receipt.actorId) ~= tostring(id)
+        or (action.operation ~= "acquire" and action.operation ~= "store") then
+        return false
+    end
+    local record = SAO.Identity.get(id)
+    local order = tonumber(receipt.order) or 0
+    if not record or order <= (tonumber(record.provisioningCreditOrder) or 0) then
+        return false
+    end
+    record.provisioningCreditOrder = order
+    local perk = action.operation == "store" and "Fitness"
+        or action.transferPurpose == "forage" and "Foraging" or nil
+    if perk then pcall(function() SAOJavaBridge:grantXP(body, perk, 1.0) end) end
+    local agent = Ctl.agents[tostring(id)]
+    if agent and action.operation == "acquire" and action.haulRemaining
+        and action.haulRemaining > 0 then
+        agent.pendingHaul = { remaining = action.haulRemaining,
+            radius = action.haulRadius or 4 }
+    end
+    if action.operation == "store" and action.deliveryGroup then
+        -- The carrier knows the deposit occurred. Other people acquire that
+        -- information through perception/communication; their leaders do not
+        -- receive remote trust or debt changes from the carrier's queue.
+        pcall(function()
+            SAO.Voice.onEvent(id,
+                action.requestedByGroup and "answered" or "pactKept", tickCount)
+        end)
+    end
+    return true
+end
+
 function Ctl.adopt(rec)
     if not rec or not rec.id then return false end
     Ctl.agents[rec.id] = Ctl.agents[rec.id] or {
@@ -692,6 +728,14 @@ local function orderTravelState(agent, id, body, x, y, z, state, why, answer)
         return false
     end
     return true
+end
+
+local function startNearbyCollection(agent, id, body, radius, remaining, why)
+    local state, context = SAO.Needs.collectNearby(id, body, radius, remaining)
+    if not state then return false end
+    agent.forageContext = state == "FORAGE" and context or nil
+    agent.taskDeadline = tickCount + (state == "FORAGE" and 3600 or 1800)
+    return setState(agent, id, state, why)
 end
 
 function Ctl.orderEngageNearest(id, live)
@@ -1524,6 +1568,10 @@ local function decideNeedsAndCompanion(id, agent, body, tick, needs)
                 end
                 if fx then
                     if SAO.Locomotion.order(id, body, fx, fy, fz) then
+                        agent.forageContext = { category = "food", purpose = "forage",
+                            admission = needs.hunger >= policy().desperation
+                                + SAO.Lessons.desperationBump(id)
+                                and "desperate" or "standing" }
                         agent.taskDeadline = tick + 3600
                         setState(agent, id, "FORAGE",
                             string.format("hunger %.2f: heads for %s", needs.hunger,
@@ -1828,6 +1876,7 @@ local function decideNeedsAndCompanion(id, agent, body, tick, needs)
                     dx = nil
                 end
                 if dx and SAO.Locomotion.order(id, body, dx, dy, dz) then
+                    agent.forageContext = { category = "legacy" }
                     agent.taskDeadline = tick + 3600
                     setState(agent, id, "FORAGE",
                         "the shakes: heads for " .. tostring(dname))
@@ -1862,6 +1911,7 @@ local function decideNeedsAndCompanion(id, agent, body, tick, needs)
                     dx = nil
                 end
                 if dx and SAO.Locomotion.order(id, body, dx, dy, dz) then
+                    agent.forageContext = { category = "legacy" }
                     agent.taskDeadline = tick + 3600
                     setState(agent, id, "FORAGE",
                         "the habit: heads for " .. tostring(dname))
@@ -4231,44 +4281,19 @@ local function decideRoam(id, agent, body, tick, interval, desig, idleRec)
             local inAlly = SAO.Standing.onGroundOf(bringTo,
                 body:getX(), body:getY())
             if inAlly
-                and SAO.Needs.depositSpareFood(id, body) then
+                and SAO.Needs.depositSpareFood(id, body, {
+                    purpose = "delivery", deliveryGroup = bringTo,
+                    requestedByGroup = asked }) then
                 agent.taskDeadline = tick + 900
                 agent.takePurpose = "deposit"
                 agent.nextPactRunAt = tick + 21600
-                -- [B23] State first, bookkeeping after. The
-                -- queuing call is the branch condition right
-                -- above; keeping setState next to it is what
-                -- border 6 exists to enforce, and the code
-                -- reads better this way regardless.
-                local why52 = "delivers the bread - the pact kept"
+                local why52 = "starts the delivery"
                 if asked then
-                    why52 = "answers the ask - bread to "
+                    why52 = "starts requested delivery to "
                         .. tostring(SAO.Standing.factionName(asked)
                             or asked)
                 end
                 setState(agent, id, "TAKE", why52, "designation")
-                if asked then
-                    -- A gift, and it is remembered. No price -
-                    -- this county has never had one, and does
-                    -- not need one to keep accounts.
-                    pcall(function()
-                        local theirLead = SAO.Standing.leaderOf(asked)
-                        local ourLead = SAO.Standing.leaderOf(pg)
-                        if theirLead and ourLead then
-                            SAO.Standing.addDebt(ourLead,
-                                theirLead, 1)
-                            SAO.Standing.adjustTrust(theirLead,
-                                ourLead, 0.15)
-                        end
-                    end)
-                    pcall(function()
-                        SAO.Voice.onEvent(id, "answered", tick)
-                    end)
-                else
-                    pcall(function()
-                        SAO.Voice.onEvent(id, "pactKept", tick)
-                    end)
-                end
                 return true
             end
             -- A lean ally quickens the runs ([A28]): pact
@@ -5624,16 +5649,9 @@ local function updateMovement(id, agent, body)
                         and SAO.Census.skillOf(id, "Foraging") or 0
                     if fLvl < 0 then fLvl = 0 end
                     local haulMax = math.min(4, 2 + math.floor(fLvl / 4))
-                    local okT, took = pcall(function()
-                        return SAOJavaBridge:takeWantedFromNearby(
-                            body, 4, "food", haulMax)
-                    end)
-                    if okT and type(took) == "number" and took > 0 then
-                        pcall(function()
-                            SAOJavaBridge:grantXP(body, "Foraging", 1.0)
-                        end)
-                        log(id .. " gathered " .. took
-                            .. " from the sweep")
+                    if startNearbyCollection(agent, id, body, 4, haulMax,
+                        "collects from the sweep") then
+                        return true
                     end
                 end
                 -- [C118] The raid's haul. A warpath walk ([A27]) that
@@ -5656,14 +5674,9 @@ local function updateMovement(id, agent, body)
                     if okH3 and holder
                         and (SAO.Standing.isHostileTo(id, holder)
                             or SAO.Standing.isHostileTo(holder, id)) then
-                        local okT3, took3 = pcall(function()
-                            return SAOJavaBridge:takeWantedFromNearby(
-                                body, 4, "food", 4)
-                        end)
-                        if okT3 and type(took3) == "number" and took3 > 0 then
-                            log(id .. " takes " .. took3
-                                .. " from the enemy's stores - the"
-                                .. " feud's answer")
+                        if startNearbyCollection(agent, id, body, 4, 4,
+                            "collects from the raided stores") then
+                            return true
                         end
                     end
                 end
@@ -6077,7 +6090,9 @@ local function updateMovement(id, agent, body)
             if agent.state == "FORAGE" then
                 -- Arrived (or gave up). Within reach: take through the
                 -- vanilla transfer. Out of reach or failed: rescan later.
-                if s:find("arrived", 1, true) and SAO.Needs.queueTake(id, body) then
+                local takeContext = agent.forageContext
+                agent.forageContext = nil
+                if s:find("arrived", 1, true) and SAO.Needs.queueTake(id, body, takeContext) then
                     agent.taskDeadline = tickCount + 1800
                     setState(agent, id, "TAKE", "at the container, taking food")
                     return true
@@ -6345,6 +6360,12 @@ local function updateAgent(id, agent)
             agent.nextDecisionAt = 0
             setState(agent, id, "IDLE",
                 "source action result: " .. tostring(verdict))
+            local haul = agent.pendingHaul
+            agent.pendingHaul = nil
+            if verdict == "completed" and haul then
+                startNearbyCollection(agent, id, body, haul.radius, haul.remaining,
+                    "continues collecting supplies")
+            end
         end
         return
     end
@@ -6688,14 +6709,10 @@ local function updateAgent(id, agent)
                 pcall(function() SAOJavaBridge:equipBestMelee(body) end)
                 setState(agent, id, "IDLE", "ground item taken")
             elseif agent.state == "TAKE" and agent.takePurpose == "deposit" then
-                -- A deposit ends with the shelf fuller, not a snack
-                -- ([A19]): nothing to clear, nothing to eat. Work
-                -- teaches ([A24]): a sliver of fitness for the labor.
+                -- Owned transfers finish through SourceUse. A legacy or
+                -- lost queue has no completed-work evidence here.
                 agent.takePurpose = nil
-                pcall(function()
-                    SAOJavaBridge:grantXP(body, "Fitness", 1.0)
-                end)
-                setState(agent, id, "IDLE", "the stores are stocked")
+                setState(agent, id, "IDLE", "storage action ended without a result")
             elseif agent.state == "TAKE" and agent.takePurpose == "ammo" then
                 agent.takePurpose = nil
                 SAO.Needs.clearAmmo(body)
@@ -6709,11 +6726,8 @@ local function updateAgent(id, agent)
                 setState(agent, id, "IDLE",
                     "gear taken: " .. (okE and tostring(what) or "equip failed"))
             elseif agent.state == "TAKE" then
-                -- Food now in the pack (or the take failed) - eat if possible.
-                -- Work teaches ([A24]): the forage take builds Foraging.
-                pcall(function()
-                    SAOJavaBridge:grantXP(body, "Foraging", 1.0)
-                end)
+                -- A legacy queue may have left carried food, but its end
+                -- alone supplies no acquisition or experience receipt.
                 SAO.Needs.clearSource(body)
                 if SAO.Needs.eatCarried(id, body) then
                     -- The engine already removed the exact item. Re-read that

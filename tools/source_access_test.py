@@ -79,8 +79,22 @@ def source_faults(needs, bridge, lua):
     ):
         if seam not in lua:
             faults.append(message)
-    if lua.count("worldTransfer(") < 7:
-        faults.append("a cached or generic world transfer bypasses the verified action")
+    # C66 transfers reach the same verified native constructor through their
+    # action owner. Check each caller's route instead of counting call sites.
+    for name, route in (
+        ("worldSourceTransferAction", "worldTransfer("),
+        ("worldStoreTransferAction", "worldTransfer("),
+        ("queueTake", "SAO.SourceUse.beginTransfer("),
+        ("queueTakeGear", "worldTransfer("),
+        ("queueTakeAmmo", "worldTransfer("),
+        ("depositSpareFood", "SAO.SourceUse.beginTransfer("),
+        ("depositWater", "SAO.SourceUse.beginTransfer("),
+        ("takeStoredWater", "SAO.SourceUse.beginTransfer("),
+    ):
+        found = re.search(r"^function N\." + name + r"\([^\n]*.*?(?=^function |\Z)",
+                          lua, re.M | re.S)
+        if not found or route not in found.group(0):
+            faults.append("verified transfer route missing: " + name)
     return faults
 
 
@@ -121,6 +135,9 @@ def main():
         (needs, bridge, lua.replace(
             "SAOJavaBridge:containerAccessibleNow(", "SAOJavaBridge:missingAuthority(", 1),
          "timed-action revalidation"),
+        (needs, bridge, lua.replace("return worldTransfer(body, item, srcContainer, destContainer, destContainer)",
+             "return ISInventoryTransferAction:new(body, item, srcContainer, destContainer)", 1),
+         "store transfer bypass"),
     )
     for n, b, l, label in mutations:
         if not source_faults(n, b, l):

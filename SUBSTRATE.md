@@ -1,6 +1,6 @@
 | Document | Survivor Awareness Overhaul Dependency Substrate |
 |---|---|
-| Version | `2.8.2.0-pre-alpha` |
+| Version | `2.8.3.0-pre-alpha` |
 | Author | ellyj3rain |
 | Repository | `SUBSTRATE.md` |
 | Status | CANONICAL - what exists, what is planned, and what each area of concern needs. |
@@ -79,7 +79,7 @@ ported, and whether it is required.
 |---|---|---|
 | SAO to ZAO: the turn | defined and evidenced | SAO owns death; ZAO owns the risen body; one controller per body |
 | SAO to ZAO: afflicted and crossed | C52/A35 close returned-body adoption and dormant recovery; C56/A37 close intentional blood conversion and exact ownership transfer; the retained Crossed action vocabulary remains incomplete | SAO executes the afflicted; ZAO owns pathogen state and executes the crossed |
-| SAO to Speakeasy: dataset | 190 choices and nine world documents are protected; C64 closes immutable capture-envelope and exact-join integrity; C65 exposes private source options, the runtime choice and immediate action result when loaded execution runs; broader options, ratified choices, later consequences, reconstructed knowledge and trained models remain incomplete | SAO supplies people and moments; Speakeasy supplies protected source views, rows and models |
+| SAO to Speakeasy: dataset | 190 choices and nine world documents are protected; C64 closes immutable capture-envelope and exact-join integrity; C65-C66 expose private consume/acquire/store options, runtime choice and immediate action result; Speakeasy supplies decision-time views and unratified proposals; broader options, curated acquisition, ratification, later consequences and trained models remain incomplete | SAO supplies people and moments; Speakeasy supplies protected source views, rows and models |
 | ZAO to Speakeasy: degraded cognition | cross-module rows and state producers exist; complete learned consumption remains absent | cognition reads event-derived pathogen state with provenance; the row contract does not establish a functioning model |
 
 When a seam moves, the repository that owns it updates its record and the
@@ -144,7 +144,7 @@ former batch labels inside evidence retain their historical meaning.
 | Saved state reconstructs usable runtime behavior | GraphPersistence binds only serializable Branching history; Integration registers built-ins and stable-ID extensions into a fresh runtime graph | Pattern/office history survives; callbacks, caches, indexes, controllers, courses and Java maps are reconstructed projections | C55 Border 170 serializes through Kahlua, creates a fresh environment and then a second world; ZAO Border 8 reconstructs settlement/controller/course state and clears prior-world maps | R4 is closed for the inventoried owners. Later features must declare durable/runtime ownership as they add state; loaded-world play acceptance remains separate. |
 | Facts are private and acquired | Java scans feed Perception; Knowledge preserves acquisition and Standing evaluates permission | Beliefs with source, time and uncertainty | A reproduces animals entering the IsoPlayer human path and traces global activity participant discovery | Narrow scanner output before decision use, preserve provenance and distinguish animal facts. Visibility and permission do not imply physical access. |
 | Actions have owned completion and interruption | Controller selects and queues engine actions; Driving, Medical, Animals and inventory adapters execute | Records should change from observed consequences | A exercises moving-vehicle cancellation, cancelled surrender, refused CPR and remote egg collection | Approach, queue, completion, failure and cancellation must be connected. A request must not award goods, experience, trust changes or learned capability. |
-| Loaded and dormant opportunities describe the same world | `SAO_WorldSources` requests bounded native chunks, records exact revisions and reconciles loaded changes; `SAO_SourceUse` turns one actor's private revision into a two-leg approach, current permission proof, exact native transfer and carried native use; `SAO_Provisioning` consumes only completed results and later native change | Native UUIDs and item IDs; bounded observations/conflicts and a schema-5 ambient-change queue; one live reservation per actor; bounded ordered completed receipts; durable partial `Material` source projection, replay decision, projection generation and single-source owner index; schema-3 migrations retire unsupported aggregate claims/storage; detached owner-explicit person access views; runtime-only engine bindings | C61 Border 178 proves native grounding. C62 Border 179 runs the executable lifecycle. C63-C64 Border 180 executes 53 projection, zero-state, replacement, partial-coverage, ambient-refresh, refusal, retry, acknowledgement recovery, evidence-order, persistence, migration, option, isolation and boundedness cases plus named mutations in installed Kahlua. | R6 is closed for the selected source path, R7's source-action slice is complete and R9's exact partial-source projection slice is closed. Complete house inventory, performed shelving and other action/producer families remain open. |
+| Loaded and dormant opportunities describe the same world | `SAO_WorldSources` requests bounded native chunks, records exact revisions and reconciles loaded changes; `SAO_SourceUse` turns one actor's private revision into a two-leg approach, current permission proof, exact native transfer and carried native use; `SAO_Provisioning` consumes only completed results and later native change | Native UUIDs and item IDs; bounded observations/conflicts and a schema-6 action/ambient-change store; one live reservation per actor; bounded ordered completed receipts; durable partial `Material` source projection, replay decision, projection generation and single-source owner index; schema-3 migrations retire unsupported aggregate claims/storage; detached owner-explicit person access views; runtime-only engine bindings | C61 Border 178 proves native grounding. C62 Border 179 runs the executable lifecycle. C63-C64 Border 180 executes 53 projection, zero-state, replacement, partial-coverage, ambient-refresh, refusal, retry, acknowledgement recovery, evidence-order, persistence, migration, option, isolation and boundedness cases plus named mutations in installed Kahlua. | R6 is closed for the selected source path, R7's source-action slice is complete and R9's exact partial-source projection slice is closed. C66 adds exact native acquisition/storage and completion-only experience to the same owner. Complete house inventory, recipient recognition and other action/producer families remain open. |
 | Health integrates actual events over time | Course, Medical, Habits and Neuro consume current person/body facts; ZAO StateStore owns pathogen transitions and ZAO Brain owns history when installed | Durable health cursors, infection windows and brain event history; standalone SAO uses the same schema | C56 Borders 171-175 execute callback offsets, current exposures, exact interval partitions, reload, graphs and behavioral consumers; Borders 163/174 execute native dormant consumption | R5 is closed. Later health-and-care actions still require R7/R9 completion receipts and grounded opportunities. |
 | Social outcomes follow performed acts and recognition | Standing, Organization, Settlement and Integration mutate social records; Branching.record currently counts selections | Claims, membership, offices, patterns and experience | A traces automatic relocation, selection recorded before execution and recognition by repetition | Affiliation, legitimacy, dissent and development need causal producers. A chosen branch is not performed work; repeated choices do not establish public recognition. |
 | Diagnostic populations support valid claims | Population genesis/refill and mortality produce open-population histories; county sweep exports observations | People, deaths, seeds and run progress | C50's independent 90/365-day receipts distinguish 12-person targets from 27/72 created records | Reconcile admission/refill with the life-simulation contract. These samples cannot be reported as 100 percent cohort survival or full simulation fidelity. |
@@ -533,9 +533,11 @@ C61 supplies R10a's grounded unloaded opportunity, persistent source identity,
 exact private observations and loaded reconciliation. C62 supplies the selected
 actor-specific access, exact transfer, native consequence and durable result;
 C63-C64 consume that result into bounded partial-source material and reconcile
-later native change. R7/R9 next supply the remaining action families, performed
-shelving, complete inventory evidence and the other provisioning and development
-producers. R10b then validates integrated historical behavior
+later native change. C66 extends the same actor-owned lifecycle to performed
+food/water acquisition and storage, with conserved holders, current authority,
+reconstruction and completion-only experience. R7/R9 next supply the remaining
+action families, complete inventory, recipient recognition and other provisioning
+and development producers. R10b then validates integrated historical behavior
 after those relevant producers exist.
 A fixture such as universal rooms/food/water is not a source. Preserve
 day-zero-off and the same causal machinery through ordinary life, collapse and
@@ -576,7 +578,9 @@ refusal, interruption and evicted results are explicit; unreadable result storag
 rejects capture. The source executor is absent from the current county sweep,
 which reports unavailable coverage. R11 next extends real option producers across
 the remaining actions and supplies separately authored/ratified choices and
-later consequence horizons. R12 still reconstructs person-specific knowledge.
+later consequence horizons. C66 extends capture to acquire/store. Speakeasy
+now constructs decision-time knowledge views and unratified proposals; curated
+claim/acquisition evidence and ratification remain R12 obligations.
 
 Speakeasy version 3 namespaces joins by originating run, county, person, event
 and hour, prevalidates both inputs, refuses protected inputs/destinations and
@@ -602,7 +606,8 @@ claims a person can know. LOW-confidence material cannot teach; October context
 cannot become July knowledge. Apply age-at-event, occupation, region, literacy,
 hearing and testimony constraints from Speakeasy's world plan. Speakeasy v3
 corrects the mutable README/training status against its append-only RECORD;
-versioned reconstruction and person-specific acquisition remain R12 work.
+C66/Speakeasy supplies versioned reconstruction tooling. Person-specific
+acquisition curation/adjudication and approved eligible views remain R12 work.
 
 Build versioned corpus extraction with pinned dependencies and source hashes,
 deterministic voice-seed expansion, understander utterance-to-meaning examples,

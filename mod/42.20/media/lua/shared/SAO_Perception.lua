@@ -1685,6 +1685,38 @@ function P.learnSource(id, place, sourceId, tick, source)
     return true
 end
 
+-- A current, reachable container inspection admits precisely one source.
+-- The caller has verified the native inspection; other sources in the same
+-- engine chunk never become this person's knowledge through this operation.
+function P.learnInspectedSource(id, place, sourceId, tick, provenance)
+    if not place or place.id == nil or not sourceId then return false end
+    local fact = SAO.WorldSources and SAO.WorldSources.beliefFact(sourceId)
+    if not fact then return false end
+    local belongs = tostring(fact.buildingId) == tostring(place.id)
+        or tostring(place.sourceId or "") == tostring(sourceId)
+        or (fact.kind == "vehicle" and place.minX and place.minY
+            and place.maxX and place.maxY and fact.x >= place.minX
+            and fact.x < place.maxX and fact.y >= place.minY
+            and fact.y < place.maxY)
+    if not belongs then return false end
+    local b = store(tostring(id))
+    b.known = b.known or {}
+    local key = b.known[place.id] and place.id or tostring(place.id)
+    local belief = b.known[place.id] or b.known[key] or { id = place.id }
+    belief.cx, belief.cy, belief.z = place.cx, place.cy, place.z
+    belief.minX, belief.minY = place.minX, place.minY
+    belief.maxX, belief.maxY = place.maxX, place.maxY
+    belief.sourceId = place.sourceId
+    belief.sourceFacts = belief.sourceFacts or {}
+    belief.sourceFacts[tostring(sourceId)] = fact
+    rebuildKnownSources(belief)
+    belief.at = tick or b.lastScanAt
+    belief.source = tostring(provenance or "inspected-source")
+    b.known[key] = belief
+    P.beliefVersion = P.beliefVersion + 1
+    return true
+end
+
 function P.forgetSource(id, placeId, sourceId, tick, source)
     local b = store(id)
     local belief = b.known and (b.known[placeId]
@@ -1701,9 +1733,16 @@ end
 
 -- Everything this survivor knows is out there. Empty for someone who
 -- has not been anywhere, which is the correct answer for them.
-function P.knownPlaces(id)
+function P.knownPlaces(id, includeSourceAnchors)
     local b = P.beliefs[id]
-    return (b and b.known) or {}
+    local known = (b and b.known) or {}
+    if includeSourceAnchors then return known end
+    -- Physical source anchors carry remembered goods, not building visits.
+    local places = {}
+    for key, belief in pairs(known) do
+        if not belief.sourceId then places[key] = belief end
+    end
+    return places
 end
 
 -- Have they been here, and how long ago in ticks? nil when the place
@@ -1757,7 +1796,7 @@ function P.returnsOf(members)
         local b = P.beliefs[mid]
         if b and b.known then
             for pid, kp in pairs(b.known) do
-                if kp.minX and kp.cx then
+                if not kp.sourceId and kp.minX and kp.cx then
                     local t = returns[pid]
                     if not t then
                         t = { id = pid, place = kp, visits = 0,

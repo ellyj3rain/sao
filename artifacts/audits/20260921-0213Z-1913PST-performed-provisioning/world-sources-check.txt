@@ -1,0 +1,14 @@
+==========================================================================
+NATIVE HYDRATION ESTABLISHES TRUTH WITHOUT AWARDING USE
+==========================================================================
+  installed chunk edge: 8
+  agent manifest: PASS
+  offline density weave: PASS
+  premain retransformation: PASS
+  Kahlua ledger controls: PASS
+  178) demand hydrates bounded native ground and records exact identity;
+       unknown access cannot establish availability or award use;
+       loaded observation retries, replacement/movement conflict,
+       and receipts compact
+
+Exit code: 0

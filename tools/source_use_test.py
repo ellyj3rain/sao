@@ -509,7 +509,7 @@ ACTION_PROBE = r'''(function()
           sourceId="keep", status="reserved", category="food" } } }
   local kept = SAO.WorldSources.source("keep")
   local migrated = __stores[STORE]
-  check("schema2_migration", kept and migrated.schema == 5
+  check("schema2_migration", kept and migrated.schema == 6
       and migrated.reservations["old-r"].status == "released"
       and migrated.results["old-r"].detail == "schema-2-action-incompatible"
       and __records.m.worldSourceReservation == nil)
@@ -540,11 +540,11 @@ ACTION_PROBE = r'''(function()
       boundedReservations = boundedReservations + 1
       if reservation.status == "reserved" then stillReserved = true end
   end
-  check("schema2_migration_bounded", __stores[STORE].schema == 5
+  check("schema2_migration_bounded", __stores[STORE].schema == 6
       and boundedResults <= 2048 and boundedReservations <= 2048
       and not stillReserved)
 
-  __stores[STORE] = { schema=6, sentinel="future-owned" }
+  __stores[STORE] = { schema=7, sentinel="future-owned" }
   __records.future = { id="future",
       worldSourceReservation="future-reservation" }
   local future = SAO.WorldSources.source("future-probe")
@@ -552,7 +552,7 @@ ACTION_PROBE = r'''(function()
   local futureExit = SAO.SourceUse.beforeStateChange(
       "future",__newBody(0,0),"IDLE","TRAVEL","future-schema")
   check("future_schema_refused", future == nil
-      and __stores[STORE].schema == 6
+      and __stores[STORE].schema == 7
       and __stores[STORE].sentinel == "future-owned"
       and __stores[STORE].sources == nil and futurePending
       and futurePending.unavailable == true and futureExit == false
@@ -1255,6 +1255,42 @@ def engine_probe():
     return not missing, "missing=" + repr(missing)
 
 
+def native_transfer_probe():
+    """Exercise real native holders and reject a proof that accepts both."""
+    probe = ROOT / "tools/javacheck/WorldTransferProbe.java"
+    with tempfile.TemporaryDirectory(prefix="sao-native-transfer-") as directory:
+        work = pathlib.Path(directory)
+        compiled = subprocess.run(
+            [str(JDK / "javac.exe"), "-cp", f"{JAR};{PZ}", "-d", str(work),
+             str(probe)], capture_output=True, text=True, timeout=120)
+        if compiled.returncode:
+            return False, (compiled.stderr or compiled.stdout)[-1000:]
+        command = [str(JDK / "java.exe"), "-cp", f"{work};{JAR};{PZ}",
+                   "WorldTransferProbe"]
+        baseline = subprocess.run(command, capture_output=True, text=True,
+                                  timeout=120, cwd=PZ_DIR)
+        if baseline.returncode or "PASS native transfer holders 16 checks" not in baseline.stdout:
+            return False, (baseline.stderr or baseline.stdout)[-1000:]
+        original = JAVA.read_text(encoding="utf-8")
+        before = "carriedCount == 0 && destinationCount == 1 && atDestination != null"
+        if original.count(before) != 1:
+            return False, "holder mutation anchor is not unique"
+        mutant = work / "SAOWorldSources.java"
+        mutant.write_text(original.replace(before,
+            "destinationCount >= 1 && atDestination != null", 1), encoding="utf-8")
+        compiled = subprocess.run(
+            [str(JDK / "javac.exe"), "-cp", f"{JAR};{PZ}", "-d", str(work),
+             str(mutant)], capture_output=True, text=True, timeout=120)
+        if compiled.returncode:
+            return False, "mutant did not compile: " + compiled.stderr[-1000:]
+        broken = subprocess.run(command, capture_output=True, text=True,
+                                timeout=120, cwd=PZ_DIR)
+        if not broken.returncode or "both holders accepted: TRANSFERRED" not in broken.stderr:
+            return False, "both-holder defect survived or failed for another reason: " + (
+                broken.stderr or broken.stdout)[-1000:]
+    return True, "16 native checks; both-holder production mutation rejected"
+
+
 def main():
     print("=" * 74)
     print("PRIVATE SOURCE OBSERVATION BECOMES PERFORMED NATIVE USE")
@@ -1263,6 +1299,11 @@ def main():
         WORLD, SOURCE_USE, CROSSED_TRANSFER, CONTROLLER, BODY, DORMANT,
         NEEDS, STANDING, JAVA, NEEDS_JAVA, BRIDGE, RUNNER, JAR,
         ROOT / "tools/luacheck/VehicleAccessTargetProbe.java",
+        ROOT / "tools/javacheck/WorldTransferProbe.java",
+        ROOT / "tools/provisioning_transfer_cases.py",
+        ROOT / "tools/provisioning_lifecycle_cases.py",
+        ROOT / "tools/sweep/provisioning_transfer_cases.lua",
+        ROOT / "tools/sweep/provisioning_lifecycle_cases.lua",
     ]
     missing = [path for path in repository_inputs if not path.is_file()]
     if missing:
@@ -1293,11 +1334,18 @@ def main():
     runtime_ok = ledger_ok and action_ok
     anchors_ok, anchors_detail = contract_anchor_probe()
     engine_ok, engine_detail = engine_probe()
+    transfer_ok, transfer_detail = native_transfer_probe()
+    import provisioning_transfer_cases
+    import provisioning_lifecycle_cases
+    ledger_transfer_ok = provisioning_transfer_cases.main() == 0
+    lifecycle_transfer_ok = provisioning_lifecycle_cases.main() == 0
     print(f"  durable ledger: {'PASS' if ledger_ok else 'FAIL'}")
     print(f"  shipped action lifecycle: {'PASS' if action_ok else 'FAIL'}")
     print(f"  static contract anchors: {'PASS' if anchors_ok else 'FAIL'}"
           f" ({anchors_detail})")
     print(f"  installed engine seam: {'PASS' if engine_ok else 'FAIL'}")
+    print(f"  native transfer holders: {'PASS' if transfer_ok else 'FAIL'}"
+          f" ({transfer_detail})")
     if not ledger_ok:
         print(f"  FAULT: missing={sorted(EXPECTED-found)} failed={failed} value={value!r}")
         print("  " + detail[-1000:].replace("\n", " "))
@@ -1308,10 +1356,12 @@ def main():
         print("  " + action_detail[-1500:].replace("\n", " "))
     if not engine_ok:
         print("  FAULT: " + engine_detail)
-    if runtime_ok and anchors_ok and engine_ok:
+    passed = (runtime_ok and anchors_ok and engine_ok and transfer_ok
+              and ledger_transfer_ok and lifecycle_transfer_ok)
+    if passed:
         print("  179) exact source access and native use preserve private knowledge,"
               " current permission and revision-bound results")
-    return 0 if runtime_ok and anchors_ok and engine_ok else 1
+    return 0 if passed else 1
 
 
 if __name__ == "__main__":

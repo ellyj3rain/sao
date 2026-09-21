@@ -38,7 +38,7 @@ on the simulation.
 
 ## Status
 
-`2.8.2.0-pre-alpha` - the coordinate is computed by the version machine
+`2.8.3.0-pre-alpha` - the coordinate is computed by the version machine
 (`tools/version_replay.py`), never picked; `VERSION_MAP.md` shows the
 classification and the arithmetic.
 
@@ -106,10 +106,13 @@ C65 adds explicit private food/water source options, exact selection revalidatio
 and capture tied to the performed action's result. This preserves the existing
 policy and distinguishes pending, refused, interrupted and completed attempts.
 The county sweep reports loaded-source capture unavailable because it does not
-run that executor. Runtime choices remain unratified; broader option coverage,
-choice authoring and later consequences remain R11 work.
-Performed shelving, the remaining material actions and settlement development
-stay under R7-R9.
+run that executor. C66 extends the same owner and capture to performed food/water
+acquisition and storage: exact native goods, current authority, durable recovery
+and completion-only experience. Speakeasy now creates decision-time knowledge
+views and unratified proposals. Runtime choices remain unratified; curated
+acquisition, broader options, ratification and later consequences remain R11-R12
+work. Recipient recognition, complete inventory, remaining material actions and
+settlement development stay under R7-R9.
 `ROADMAP.md` preserves the remaining social and learned-model obligations.
 
 ## Requirements

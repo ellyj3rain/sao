@@ -30,7 +30,7 @@ local MAX_ACTION_OPTIONS = 128
 local RESULT_CONSUMER = "provisioning"
 local SOURCE_CATEGORY_ORDER = {
     "device", "drink", "food", "fuel", "instrument", "medical",
-    "memento", "nails", "plank", "reading", "smokes", "tools",
+    "medicine", "memento", "nails", "plank", "reading", "smokes", "tools",
     "water", "weapons",
 }
 local SOURCE_CATEGORIES = {}
@@ -90,7 +90,7 @@ local function store()
     end)
     if not ok or type(value) ~= "table" then return nil end
     local priorSchema = tonumber(value.schema) or 0
-    if priorSchema > 5 then
+    if priorSchema > 6 then
         log("refusing unsupported world-source schema " .. tostring(priorSchema))
         return nil
     end
@@ -179,7 +179,17 @@ local function store()
     -- into Material. Native truth may change without another survivor action;
     -- retaining that observation lets Provisioning refresh or retire the exact
     -- projection after reload instead of leaving house stock stale forever.
-    if priorSchema < 5 then value.schema = 5 else value.schema = priorSchema end
+    -- Schema 6 distinguishes consumption from exact acquisition and storage.
+    -- An older action/result has consumption semantics; preserve them on load.
+    if priorSchema < 6 then
+        for _, reservation in pairs(value.reservations) do
+            reservation.operation = reservation.operation or "consume"
+        end
+        for _, receipt in pairs(value.results) do
+            receipt.operation = receipt.operation or "consume"
+        end
+    end
+    value.schema = 6
     if SAO.Identity and SAO.Identity.get then
         for actorId, reservationId in pairs(value.migrationPointers) do
             local record = SAO.Identity.get(actorId)
@@ -264,7 +274,7 @@ local function categories(value)
     return out
 end
 
-local function itemSignature(item)
+local function itemSignature(item, knownSignature)
     if not item then return nil end
     -- Java emits these names in lexical order. Walk the same finite
     -- vocabulary explicitly: PZ 42's recursive table.sort can overflow on
@@ -275,12 +285,35 @@ local function itemSignature(item)
             names[#names + 1] = name
         end
     end
-    return table.concat({ tostring(item.type or ""),
+    local signature = table.concat({ tostring(item.type or ""),
         tostring(tonumber(item.uses) or 0),
         string.format("%.6f", tonumber(item.amount) or 0),
         tostring(item.fluid or ""),
         item.poison and "1" or "0", item.rotten and "1" or "0",
         table.concat(names, ",") }, "|")
+    -- Old observations did not record these optional native fields. Compare
+    -- every field the saved observation knew; a later reader cannot invent a
+    -- missing historical condition or drainable baseline.
+    for _, key in ipairs({ "condition", "currentUses" }) do
+        if (not knownSignature or string.find(knownSignature,
+            "|" .. key .. "=", 1, true)) and item[key] ~= nil then
+            signature = signature .. "|" .. key .. "="
+                .. string.format("%.6f", item[key])
+        end
+    end
+    return signature
+end
+
+local function signatureMatches(signature, item)
+    return type(signature) == "string" and item ~= nil
+        and itemSignature(item, signature) == signature
+end
+
+local function finiteNumber(value, low, high, integer)
+    local number = tonumber(value)
+    if not number or number ~= number or number < low or number > high
+        or (integer and number ~= math.floor(number)) then return nil end
+    return number
 end
 
 local function itemSignatures(source)
@@ -352,6 +385,12 @@ function WS.parse(text)
                     rotten = tonumber(raw.rotten) == 1,
                     categories = itemCategories,
                 }
+                for _, key in ipairs({ "condition", "currentUses" }) do
+                    if raw[key] ~= nil then
+                        item[key] = finiteNumber(raw[key], 0, 1000000, false)
+                        if item[key] == nil then return nil end
+                    end
+                end
                 local key = tostring(item.id)
                 if source.items[key] then return nil end
                 source.items[key] = item
@@ -398,9 +437,8 @@ local function actionReservation(value, reservationId, sourceId)
     return nil
 end
 
--- The only source delta this action owns is removal of its exact selected
--- item. Additions, removals or changes to every other item remain concurrent
--- native changes and conflict even when the actor completed a use action.
+-- An action owns only its exact item's removal or addition. Every previously
+-- observed unrelated item must remain unchanged for either operation.
 local function expectedActionPost(reservation, observed)
     if not reservation or not reservation.transferProven or not observed
         or observed.id ~= reservation.sourceId
@@ -408,12 +446,29 @@ local function expectedActionPost(reservation, observed)
         or observed.fingerprint ~= reservation.fingerprint
         or observed.revision == reservation.preRevision then return false end
     local selected = tostring(reservation.itemId)
-    if observed.items and observed.items[selected] then return false end
     local pre = reservation.preItems or {}
+    if reservation.operation == "store" then
+        if pre[selected] ~= nil or not signatureMatches(
+            reservation.itemSignature, observed.items and observed.items[selected]) then
+            return false
+        end
+        for key, signature in pairs(pre) do
+            if not signatureMatches(signature, observed.items and observed.items[key]) then
+                return false
+            end
+        end
+        for key in pairs(observed.items or {}) do
+            if tostring(key) ~= selected and pre[tostring(key)] == nil then
+                return false
+            end
+        end
+        return true
+    end
+    if observed.items and observed.items[selected] then return false end
     if pre[selected] == nil then return false end
     for key, signature in pairs(pre) do
         if key ~= selected
-            and itemSignature(observed.items and observed.items[key]) ~= signature then
+            and not signatureMatches(signature, observed.items and observed.items[key]) then
             return false
         end
     end
@@ -425,6 +480,7 @@ end
 
 local function expectedGroundRemoval(reservation)
     if not reservation or not reservation.transferProven
+        or reservation.operation == "store"
         or reservation.sourceKind ~= "ground" then return false end
     local selected, count = tostring(reservation.itemId), 0
     for key in pairs(reservation.preItems or {}) do
@@ -596,13 +652,31 @@ end
 -- a reservation they are a conflict: automatic mutation stops until a fresh
 -- native result resolves ownership. A physical fingerprint change is always a
 -- conflict because a replacement object must never alias the old source.
-function WS.applySnapshot(snapshot, exceptReservationId)
+function WS.applySnapshot(snapshot, exceptReservationId, inspectedSourceId)
     local value = store()
     if not value or not snapshot or not snapshot.header then return false, 0 end
     local header = snapshot.header
     local accepted = header.status == "OBSERVED"
         or header.status == "HYDRATED"
     if not accepted or not header.cx or not header.cy then return false, 0 end
+
+    -- An executor's full-chunk scan owns evidence for its exact source. A
+    -- different actor in that chunk may already have moved an item while its
+    -- completion callback is still pending. Keep that other source's previous
+    -- observation until its own executor resolves the transfer. Unscoped
+    -- observations retain the ordinary concurrent-change conflict rules.
+    local scopeOwner = exceptReservationId
+        and value.reservations[tostring(exceptReservationId)] or nil
+    local scopedSourceId = scopeOwner and scopeOwner.status == "reserved"
+        and scopeOwner.sourceId or nil
+    if type(scopedSourceId) ~= "string" or scopedSourceId == "" then
+        scopedSourceId = nil
+    end
+    if not scopedSourceId and type(inspectedSourceId) == "string"
+        and snapshot.sources[inspectedSourceId]
+        and not pendingFor(value, inspectedSourceId, nil) then
+        scopedSourceId = inspectedSourceId
+    end
 
     local chunkKey = header.cx .. ":" .. header.cy
     local priorChunk = value.chunks[chunkKey]
@@ -612,7 +686,11 @@ function WS.applySnapshot(snapshot, exceptReservationId)
         local observed = copyObservation(nativeSource, header)
         local old = value.sources[nativeSource.id]
         local priorConflict = value.conflictBySource[nativeSource.id]
-        if priorConflict then
+        if scopedSourceId and nativeSource.id ~= scopedSourceId
+            and pendingFor(value, nativeSource.id, nil) then
+            -- The other reservation still owns its source, including any
+            -- prior conflict. This scan cannot replace or retire its evidence.
+        elseif priorConflict then
             if not pendingFor(value, nativeSource.id, nil) then
                 -- Conflict receipts are historical evidence, not a permanent
                 -- poison pill. Once the owning reservation is terminal, one
@@ -687,7 +765,12 @@ function WS.applySnapshot(snapshot, exceptReservationId)
     -- not a duplicate of the vanished native inventory.
     for id in pairs((priorChunk and priorChunk.sourceIds) or {}) do
         local old = value.sources[id]
-        if old and not seen[id] then
+        if not seen[id] and scopedSourceId and id ~= scopedSourceId
+            and pendingFor(value, id, nil) then
+            -- Preserve membership as well as the old observation. Otherwise a
+            -- later owner scan could no longer detect a missing container.
+            seen[id] = true
+        elseif old and not seen[id] then
             -- A source already observed in another chunk has moved; clearing
             -- this chunk's old index must not delete the newer observation.
             if old.chunkX ~= header.cx or old.chunkY ~= header.cy then
@@ -864,6 +947,7 @@ end
 
 local function sourceBelongsToPlace(source, place)
     if not source or not place or place.id == nil then return false end
+    if place.sourceId then return source.id == tostring(place.sourceId) end
     if source.buildingId == tostring(place.id) then return true end
     -- Vehicles have no BuildingDef even when they stand inside the bounded
     -- place an actor just observed. Keep their exact moving identity in that
@@ -896,6 +980,9 @@ local function beliefFact(source)
                     fact.candidates[category] = {
                         id = item.id, type = item.type, uses = item.uses,
                         amount = item.amount,
+                        fluid = item.fluid, poison = item.poison,
+                        rotten = item.rotten, condition = item.condition,
+                        currentUses = item.currentUses,
                         categories = { [category] = true },
                     }
                 end
@@ -973,9 +1060,27 @@ function WS.beliefFact(sourceId)
     return value and beliefFact(value.sources[tostring(sourceId or "")]) or nil
 end
 
+local function rememberedPlace(placeId, belief)
+    if belief.sourceId then
+        if tostring(placeId) ~= "source:" .. tostring(belief.sourceId)
+            or not belief.cx or not belief.cy or not belief.minX
+            or not belief.minY or not belief.maxX or not belief.maxY
+            or not (belief.sourceFacts and belief.sourceFacts[belief.sourceId]) then
+            return nil
+        end
+        return { id = placeId, sourceId = belief.sourceId,
+            cx = belief.cx, cy = belief.cy, z = belief.z,
+            minX = belief.minX, minY = belief.minY,
+            maxX = belief.maxX, maxY = belief.maxY }
+    end
+    local place = nil
+    pcall(function() place = SAO.Places.at(belief.cx, belief.cy) end)
+    return place and tostring(place.id) == tostring(placeId) and place or nil
+end
+
 function WS.nearestBelieved(id, x, y, category, horizon)
     if not (SAO.Perception and SAO.Perception.knownPlaces) then return nil end
-    local known = SAO.Perception.knownPlaces(id)
+    local known = SAO.Perception.knownPlaces(id, true)
     local best, bestDistance = nil, nil
     local limit = (tonumber(horizon) or 0) ^ 2
     for placeId, belief in pairs(known) do
@@ -984,9 +1089,8 @@ function WS.nearestBelieved(id, x, y, category, horizon)
             local dx, dy = (belief.cx or 0) - x, (belief.cy or 0) - y
             local distance = dx * dx + dy * dy
             if distance <= limit and (not bestDistance or distance < bestDistance) then
-                local place = nil
-                pcall(function() place = SAO.Places.at(belief.cx, belief.cy) end)
-                if place and tostring(place.id) == tostring(placeId) then
+                local place = rememberedPlace(placeId, belief)
+                if place then
                     best, bestDistance = place, distance
                 end
             end
@@ -1000,7 +1104,7 @@ end
 -- callers require a source that was already executable.
 function WS.nearestObserved(id, x, y, category, horizon)
     if not (SAO.Perception and SAO.Perception.knownPlaces) then return nil end
-    local known = SAO.Perception.knownPlaces(id)
+    local known = SAO.Perception.knownPlaces(id, true)
     local best, bestDistance = nil, nil
     local limit = (tonumber(horizon) or 0) ^ 2
     for placeId, belief in pairs(known) do
@@ -1010,9 +1114,8 @@ function WS.nearestObserved(id, x, y, category, horizon)
             local dx, dy = (belief.cx or 0) - x, (belief.cy or 0) - y
             local distance = dx * dx + dy * dy
             if distance <= limit and (not bestDistance or distance < bestDistance) then
-                local place = nil
-                pcall(function() place = SAO.Places.at(belief.cx, belief.cy) end)
-                if place and tostring(place.id) == tostring(placeId) then
+                local place = rememberedPlace(placeId, belief)
+                if place then
                     best, bestDistance = place, distance
                 end
             end
@@ -1051,6 +1154,26 @@ local function categoryItem(source, category, wanted)
     return nil
 end
 
+local function reservationRoom(value)
+    local reservationCount = 0
+    for _, reservation in pairs(value.reservations) do
+        if reservation.status == "reserved" then
+            reservationCount = reservationCount + 1
+        end
+    end
+    if reservationCount >= MAX_RESERVATIONS then return false, "reservation-bound" end
+    local durableInputs = reservationCount
+    for _, receipt in pairs(value.results) do
+        local acknowledgements = receipt.acknowledgements or {}
+        if receipt.status == "completed"
+            and not acknowledgements[RESULT_CONSUMER] then
+            durableInputs = durableInputs + 1
+        end
+    end
+    if durableInputs >= MAX_RESULTS then return false, "result-bound" end
+    return true
+end
+
 -- Options describe attempts over this person's own observations. The caller
 -- has already selected the place/category under its need and ration policy.
 -- Neither listing nor selecting an option proves current physical access.
@@ -1077,7 +1200,7 @@ function WS.actionOptions(place, category, actorId, body, quantity, admission)
         return nil, "standing-refused"
     end
     local known = SAO.Perception and SAO.Perception.knownPlaces
-        and SAO.Perception.knownPlaces(actorId) or nil
+        and SAO.Perception.knownPlaces(actorId, true) or nil
     local belief = known and (known[place.id] or known[tostring(place.id)]) or nil
     if not (belief and belief.sources and belief.sources[category]) then
         return nil, "not-privately-observed"
@@ -1086,27 +1209,14 @@ function WS.actionOptions(place, category, actorId, body, quantity, admission)
     if quantity <= 0 or quantity ~= quantity or quantity == math.huge then
         return nil, "bad-quantity"
     end
-    local reservationCount = 0
-    for _, reservation in pairs(value.reservations) do
-        if reservation.status == "reserved" then
-            reservationCount = reservationCount + 1
-        end
-    end
-    if reservationCount >= MAX_RESERVATIONS then return nil, "reservation-bound" end
-    local durableInputs = reservationCount
-    for _, receipt in pairs(value.results) do
-        local acknowledgements = receipt.acknowledgements or {}
-        if receipt.status == "completed"
-            and not acknowledgements[RESULT_CONSUMER] then
-            durableInputs = durableInputs + 1
-        end
-    end
-    if durableInputs >= MAX_RESULTS then return nil, "result-bound" end
+    local room, roomWhy = reservationRoom(value)
+    if not room then return nil, roomWhy end
 
     local offered = {
         schemaVersion = 1, actorId = actorId, category = category,
         quantity = quantity, admission = admission, atHours = nowHours(),
-        place = { id = place.id, cx = place.cx, cy = place.cy,
+        place = { id = place.id, sourceId = place.sourceId, z = place.z,
+            cx = place.cx, cy = place.cy,
             minX = place.minX, minY = place.minY,
             maxX = place.maxX, maxY = place.maxY },
         scope = "selected-place-and-need", options = {}, candidateCount = 0,
@@ -1164,6 +1274,184 @@ function WS.actionOptions(place, category, actorId, body, quantity, admission)
     return offered
 end
 
+local function transferItemRow(line)
+    if type(line) ~= "string" or #line > 8192 or string.sub(line, 1, 2) ~= "T|"
+        or string.find(line, "[\r\n]") or string.find(line, "||", 1, true)
+        or string.sub(line, -1) == "|" then return nil end
+    local allowed = { operation = true, source = true, id = true, type = true,
+        uses = true, amount = true, fluid = true, poison = true, rotten = true,
+        cats = true, condition = true, currentUses = true }
+    local raw = {}
+    for part in string.gmatch(string.sub(line, 3), "[^|]+") do
+        local key, encoded = string.match(part, "^([^=]+)=(.*)$")
+        if not key or not allowed[key] or raw[key] ~= nil then return nil end
+        local residual = string.gsub(encoded, "%%(%x%x)", "")
+        if string.find(residual, "%", 1, true) then return nil end
+        raw[key] = decode(encoded)
+        if string.find(raw[key], "[%z\1-\31]") then return nil end
+    end
+    if not raw.type or raw.type == "" or #raw.type > 512
+        or not raw.fluid or #raw.fluid > 2048 or not raw.cats or #raw.cats > 256
+        or (raw.poison ~= "0" and raw.poison ~= "1")
+        or (raw.rotten ~= "0" and raw.rotten ~= "1") then return nil end
+    local item = { id = finiteNumber(raw.id, -2147483648, 2147483647, true),
+        type = raw.type, uses = finiteNumber(raw.uses, 0, 1000000, true),
+        amount = finiteNumber(raw.amount, 0, 1000000, false), fluid = raw.fluid,
+        poison = raw.poison == "1", rotten = raw.rotten == "1",
+        categories = categories(raw.cats) }
+    if not item.id or item.id == 0 or not item.uses or not item.amount
+        or not item.categories then return nil end
+    for _, key in ipairs({ "condition", "currentUses" }) do
+        if raw[key] ~= nil then
+            item[key] = finiteNumber(raw[key], 0, 1000000, false)
+            if item[key] == nil then return nil end
+        end
+    end
+    return item, raw
+end
+
+local function transferPlace(actorId, source)
+    local place = nil
+    pcall(function() place = SAO.Places.at(source.x, source.y) end)
+    local known = SAO.Perception and SAO.Perception.knownPlaces
+        and SAO.Perception.knownPlaces(actorId) or nil
+    if place and place.id ~= nil and sourceBelongsToPlace(source, place)
+        and known and (known[place.id] or known[tostring(place.id)]) then
+        return { id = place.id, cx = place.cx, cy = place.cy,
+            minX = place.minX, minY = place.minY,
+            maxX = place.maxX, maxY = place.maxY }
+    end
+    -- A reached container is a physical anchor even outside a known building.
+    -- It never registers a settlement, household or new social place.
+    return { id = "source:" .. source.id, sourceId = source.id,
+        cx = source.x, cy = source.y, z = source.z,
+        minX = source.x, minY = source.y,
+        maxX = source.x + 1, maxY = source.y + 1 }
+end
+
+-- Native inspection admits one exact reachable item/holder proposal. Applying
+-- its complete chunk snapshot keeps physical truth coherent; only that source
+-- enters this person's private belief and offered options.
+function WS.transferOptions(actorId, body, category, admission, item,
+    worldContainer, operation)
+    local value = store()
+    actorId, category = tostring(actorId or ""), tostring(category or "")
+    if category ~= "food" and category ~= "water" then
+        return nil, "unsupported-category"
+    end
+    if operation ~= "acquire" and operation ~= "store" then
+        return nil, "unsupported-operation"
+    end
+    if not value or actorId == "" or not body or not item or not worldContainer then
+        return nil, "bad-request"
+    end
+    local record = SAO.Identity and SAO.Identity.get and SAO.Identity.get(actorId)
+    local live = SAO.Body and SAO.Body.get and SAO.Body.get(actorId)
+    if not record or record.dead or live ~= body then return nil, "no-live-body" end
+    if record.worldSourceReservation then return nil, "already-pending" end
+    local room, roomWhy = reservationRoom(value)
+    if not room then return nil, roomWhy end
+    if not SAOJavaBridge then return nil, "no-bridge" end
+    local ok, text = pcall(function()
+        return SAOJavaBridge:worldTransferOffer(body, item, worldContainer, operation)
+    end)
+    if not ok or type(text) ~= "string" or text == "" then
+        return nil, "native-transfer-refused"
+    end
+    local line, bodyText = string.match(text, "^([^\r\n]+)\r?\n(.*)$")
+    local offeredItem, raw = transferItemRow(line)
+    local snapshot = bodyText and WS.parse(bodyText) or nil
+    if not offeredItem or not raw.source or raw.source == "" or #raw.source > 512
+        or raw.operation ~= operation or not offeredItem.categories[category]
+        or not snapshot or snapshot.header.status ~= "OBSERVED" then
+        return nil, "bad-transfer-protocol"
+    end
+    local source = snapshot.sources[raw.source]
+    if not source or (source.kind ~= "container" and source.kind ~= "vehicle")
+        or (source.state ~= "available" and source.state ~= "spent")
+        or not source.explored or not source.fingerprint or source.fingerprint == ""
+        or not source.revision or source.revision == ""
+        or not finiteNumber(source.x, -10000000, 10000000, true)
+        or not finiteNumber(source.y, -10000000, 10000000, true)
+        or not finiteNumber(source.z, -1000, 1000, true)
+        or math.floor(source.x / CHUNK_SIZE) ~= snapshot.header.cx
+        or math.floor(source.y / CHUNK_SIZE) ~= snapshot.header.cy then
+        return nil, "bad-transfer-source"
+    end
+    local selected = source.items[tostring(offeredItem.id)]
+    local signature = itemSignature(offeredItem)
+    if (operation == "store" and selected ~= nil)
+        or (operation == "acquire" and not signatureMatches(signature, selected)) then
+        return nil, "transfer-item-mismatch"
+    end
+    if pendingFor(value, source.id, nil) then return nil, "source-pending" end
+    admission = tostring(admission or "standing")
+    if not (SAO.Standing and SAO.Standing.mayTakeCurrent
+        and SAO.Standing.mayTakeCurrent(actorId, source.x, source.y, admission)) then
+        return nil, "current-claim-refused"
+    end
+    if not WS.applySnapshot(snapshot, nil, source.id)
+        or value.conflictBySource[source.id] then
+        return nil, "native-source-conflict"
+    end
+    source = value.sources[source.id]
+    if not source then return nil, "source-unavailable" end
+    local place = transferPlace(actorId, source)
+    local learned = false
+    pcall(function()
+        local tick = SAO.History and SAO.History.ticksFromHours
+            and SAO.History.ticksFromHours(nowHours()) or nil
+        learned = SAO.Perception.learnInspectedSource(actorId, place, source.id,
+            tick, "native-transfer-inspection")
+    end)
+    if not learned then return nil, "private-inspection-unavailable" end
+    local names = {}
+    for _, name in ipairs(SOURCE_CATEGORY_ORDER) do
+        if offeredItem.categories[name] then names[#names + 1] = name end
+    end
+    local parameters = { action = "attempt-inventory-transfer", operation = operation,
+        actorId = actorId, placeId = tostring(place.id), category = category,
+        admission = admission, quantity = 1, quantityUnit = "item",
+        sourceId = source.id, sourceKind = source.kind,
+        sourceX = source.x, sourceY = source.y, sourceZ = source.z,
+        chunkX = source.chunkX, chunkY = source.chunkY,
+        fingerprint = source.fingerprint, revision = source.revision,
+        itemId = offeredItem.id, itemType = offeredItem.type,
+        itemAmount = offeredItem.amount, itemUses = offeredItem.uses,
+        itemFluid = offeredItem.fluid, itemPoison = offeredItem.poison,
+        itemRotten = offeredItem.rotten, itemCategories = table.concat(names, ","),
+        itemCondition = offeredItem.condition, itemCurrentUses = offeredItem.currentUses,
+        itemSignature = signature,
+        preItemSignature = operation == "store" and signature or nil }
+    return { schemaVersion = 1, actorId = actorId, category = category,
+        operation = operation, quantity = 1, quantityUnit = "item",
+        admission = admission, atHours = nowHours(), place = place,
+        scope = "inspected-item-and-holder", candidateCount = 1,
+        limit = MAX_ACTION_OPTIONS, truncated = false,
+        options = { { id = source.id, owner = "SAO.SourceUse", parameters = parameters,
+            eligibility = { status = "eligible", evidence = {
+                { kind = "private-source-inspection", actorId = actorId,
+                    sourceId = source.id, revision = source.revision,
+                    provenance = "native-transfer-inspection", atHours = nowHours() },
+                { kind = "current-transfer-admission", admission = admission,
+                    physicalAccess = "native-reachable-inspection" },
+            } } } } }
+end
+
+function WS.carriedTransferMatches(reservation, body)
+    if not reservation or not body or not SAOJavaBridge then return false end
+    local live = SAO.Body and SAO.Body.get and SAO.Body.get(reservation.actorId)
+    if live ~= body then return false end
+    local ok, text = pcall(function()
+        return SAOJavaBridge:carriedWorldTransferItem(body,
+            reservation.itemId, reservation.itemType)
+    end)
+    local item = ok and transferItemRow(text) or nil
+    return item ~= nil and item.id == reservation.itemId
+        and item.type == reservation.itemType
+        and signatureMatches(reservation.itemSignature, item)
+end
+
 local function sameActionOption(left, right)
     if type(left) ~= "table" or type(left.parameters) ~= "table"
         or left.id ~= right.id or left.owner ~= right.owner then return false end
@@ -1201,7 +1489,8 @@ function WS.beginAction(place, category, actorId, body, quantity, admission, sel
     local reservationId = "R:" .. value.sequence .. ":" .. actorId
     local reservation = {
         id = reservationId, actorId = actorId, placeId = tostring(place.id),
-        placeX = place.cx, placeY = place.cy, placeZ = 0,
+        placeSourceId = place.sourceId,
+        placeX = place.cx, placeY = place.cy, placeZ = place.z or 0,
         placeMinX = place.minX, placeMinY = place.minY,
         placeMaxX = place.maxX, placeMaxY = place.maxY,
         sourceId = parameters.sourceId,
@@ -1216,12 +1505,56 @@ function WS.beginAction(place, category, actorId, body, quantity, admission, sel
         itemType = parameters.itemType,
         itemAmount = parameters.itemAmount,
         itemUses = parameters.itemUses,
+        operation = "consume",
         useTargetQuantity = category == "water"
             and (parameters.itemAmount * 0.5) or 1,
         category = category, quantity = parameters.quantity,
         admission = offered.admission,
         status = "reserved", phase = "approaching-place",
         reservedAt = nowHours(),
+    }
+    value.reservations[reservationId] = reservation
+    record.worldSourceReservation = reservationId
+    return reservation
+end
+
+function WS.beginTransfer(actorId, body, category, admission, item,
+    worldContainer, operation, selected)
+    local offered, why = WS.transferOptions(actorId, body, category, admission,
+        item, worldContainer, operation)
+    if not offered then return nil, why end
+    local option = offered.options[1]
+    if selected ~= nil and not sameActionOption(selected, option) then
+        return nil, "selected-option-changed"
+    end
+    local value = store()
+    if not value then return nil, "store-unavailable" end
+    actorId = tostring(actorId)
+    local record, parameters, place = SAO.Identity.get(actorId), option.parameters,
+        offered.place
+    value.sequence = value.sequence + 1
+    local reservationId = "R:" .. value.sequence .. ":" .. actorId
+    local reservation = {
+        id = reservationId, actorId = actorId, placeId = tostring(place.id),
+        placeSourceId = place.sourceId,
+        placeX = place.cx, placeY = place.cy, placeZ = place.z or parameters.sourceZ,
+        placeMinX = place.minX, placeMinY = place.minY,
+        placeMaxX = place.maxX, placeMaxY = place.maxY,
+        sourceId = parameters.sourceId, sourceKind = parameters.sourceKind,
+        sourceX = parameters.sourceX, sourceY = parameters.sourceY,
+        sourceZ = parameters.sourceZ, chunkX = parameters.chunkX,
+        chunkY = parameters.chunkY, fingerprint = parameters.fingerprint,
+        revision = parameters.revision, preRevision = parameters.revision,
+        itemId = parameters.itemId, itemType = parameters.itemType,
+        itemAmount = parameters.itemAmount, itemUses = parameters.itemUses,
+        itemFluid = parameters.itemFluid, itemPoison = parameters.itemPoison,
+        itemRotten = parameters.itemRotten, itemCategories = parameters.itemCategories,
+        itemCondition = parameters.itemCondition, itemCurrentUses = parameters.itemCurrentUses,
+        itemSignature = parameters.itemSignature, preItemSignature = parameters.preItemSignature,
+        preItems = itemSignatures(value.sources[parameters.sourceId]),
+        operation = operation, quantityUnit = "item", category = category, quantity = 1,
+        admission = offered.admission, status = "reserved",
+        phase = "approaching-source", reservedAt = nowHours(),
     }
     value.reservations[reservationId] = reservation
     record.worldSourceReservation = reservationId
@@ -1322,7 +1655,17 @@ function WS.prepareActionPre(reservationId, actorId)
         or source.revision ~= reservation.preRevision
         or source.kind ~= reservation.sourceKind then return false end
     local item = source.items and source.items[tostring(reservation.itemId)] or nil
+    if reservation.operation == "store" then
+        local body = SAO.Body and SAO.Body.get and SAO.Body.get(reservation.actorId)
+        if item ~= nil or not WS.carriedTransferMatches(reservation, body) then
+            return false
+        end
+        reservation.preItems = itemSignatures(source)
+        return true
+    end
     if not item or item.type ~= reservation.itemType then return false end
+    if reservation.operation == "acquire"
+        and not signatureMatches(reservation.itemSignature, item) then return false end
     reservation.preItems = itemSignatures(source)
     return reservation.preItems[tostring(reservation.itemId)] ~= nil
 end
@@ -1337,6 +1680,7 @@ local function result(value, reservation, status, detail)
         reservationId = reservation.id,
         actorId = reservation.actorId,
         placeId = reservation.placeId,
+        placeSourceId = reservation.placeSourceId,
         placeX = reservation.placeX,
         placeY = reservation.placeY,
         placeZ = reservation.placeZ,
@@ -1352,6 +1696,17 @@ local function result(value, reservation, status, detail)
         sourceZ = reservation.currentSourceZ or reservation.sourceZ,
         itemId = reservation.itemId,
         itemType = reservation.itemType,
+        operation = reservation.operation or "consume",
+        quantityUnit = reservation.quantityUnit,
+        itemAmount = reservation.itemAmount,
+        itemUses = reservation.itemUses,
+        itemFluid = reservation.itemFluid,
+        itemPoison = reservation.itemPoison,
+        itemRotten = reservation.itemRotten,
+        itemCategories = reservation.itemCategories,
+        itemSignature = reservation.itemSignature,
+        itemCondition = reservation.itemCondition,
+        itemCurrentUses = reservation.itemCurrentUses,
         category = reservation.category,
         provisioningGroup = reservation.provisioningGroup,
         provisioningContext = reservation.provisioningContext,
@@ -1386,6 +1741,7 @@ local function receiptCopy(receipt)
         reservationId = receipt.reservationId,
         actorId = receipt.actorId,
         placeId = receipt.placeId,
+        placeSourceId = receipt.placeSourceId,
         placeX = receipt.placeX,
         placeY = receipt.placeY,
         placeZ = receipt.placeZ,
@@ -1401,12 +1757,25 @@ local function receiptCopy(receipt)
         sourceZ = receipt.sourceZ,
         itemId = receipt.itemId,
         itemType = receipt.itemType,
+        operation = receipt.operation or "consume",
+        quantityUnit = receipt.quantityUnit,
+        itemAmount = receipt.itemAmount,
+        itemUses = receipt.itemUses,
+        itemFluid = receipt.itemFluid,
+        itemPoison = receipt.itemPoison,
+        itemRotten = receipt.itemRotten,
+        itemCategories = receipt.itemCategories,
+        itemSignature = receipt.itemSignature,
+        itemCondition = receipt.itemCondition,
+        itemCurrentUses = receipt.itemCurrentUses,
         category = receipt.category,
         provisioningGroup = receipt.provisioningGroup,
         provisioningContext = receipt.provisioningContext,
         provisioningClaimIncarnation = receipt.provisioningClaimIncarnation,
         materialProjectionEnabled = receipt.materialProjectionEnabled,
         quantity = receipt.quantity,
+        requestedQuantity = receipt.requestedQuantity,
+        observedQuantity = receipt.observedQuantity,
         preRevision = receipt.preRevision,
         postRevision = receipt.postRevision,
         status = receipt.status,
@@ -1430,7 +1799,8 @@ function WS.actionOutcome(reservationId, actorId)
         outcome.requestedQuantity = receipt.requestedQuantity
         outcome.observedQuantity = receipt.observedQuantity
         outcome.measurement = receipt.observedQuantity ~= nil
-            and "native-use" or "not-recorded"
+            and ((receipt.operation == "acquire" or receipt.operation == "store")
+                and "native-item-transfer" or "native-use") or "not-recorded"
         return outcome
     end
     local reservation = value.reservations[reservationId]
@@ -1438,6 +1808,9 @@ function WS.actionOutcome(reservationId, actorId)
         and reservation.status == "reserved" then
         return { reservationId = reservationId, actorId = actorId,
             status = "pending", phase = reservation.phase,
+            operation = reservation.operation or "consume",
+            quantityUnit = reservation.quantityUnit,
+            requestedQuantity = reservation.quantity,
             sourceId = reservation.sourceId, itemId = reservation.itemId,
             at = nowHours() }
     end
@@ -1530,6 +1903,10 @@ function WS.markNative(reservationId, actorId, status, quantity, detail)
         or reservation.actorId ~= tostring(actorId)
         or reservation.phase == "native-complete" then return false end
     if status ~= "completed" and status ~= "interrupted" then return false end
+    if reservation.operation == "acquire" or reservation.operation == "store" then
+        if status ~= "completed" or not reservation.transferProven
+            or tonumber(quantity) ~= 1 then return false end
+    end
     reservation.phase = "native-complete"
     reservation.nativeStatus = status
     reservation.actualQuantity = math.max(0, tonumber(quantity) or 0)
@@ -1590,7 +1967,8 @@ function WS.finishAction(reservationId, actorId)
         or not reservation.postRevision then return nil end
     local receipt = result(value, reservation, reservation.nativeStatus,
         reservation.nativeDetail)
-    if receipt and receipt.status == "completed" then
+    if receipt and receipt.status == "completed"
+        and (reservation.operation or "consume") == "consume" then
         local record = SAO.Identity and SAO.Identity.get
             and SAO.Identity.get(reservation.actorId) or nil
         local today = math.floor(nowHours() / 24.0)

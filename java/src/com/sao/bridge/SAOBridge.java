@@ -2955,6 +2955,53 @@ public final class SAOBridge {
             ? com.sao.engine.SAOWorldSources.actionSourceContainer(shell) : null;
     }
 
+    public Object worldSourceActionOriginContainer(Object object) {
+        return object instanceof com.sao.engine.SAOIsoPlayerShell shell
+            ? com.sao.engine.SAOWorldSources.actionOriginContainer(shell) : null;
+    }
+
+    public String worldTransferPosition(Object object, Object containerObject) {
+        return object instanceof com.sao.engine.SAOIsoPlayerShell shell
+            && containerObject instanceof zombie.inventory.ItemContainer container
+            ? com.sao.engine.SAOWorldSources.transferPosition(shell, container) : "";
+    }
+
+    public String worldTransferOffer(Object object, Object itemObject,
+            Object containerObject, String operation) {
+        return object instanceof com.sao.engine.SAOIsoPlayerShell shell
+            && itemObject instanceof zombie.inventory.InventoryItem item
+            && containerObject instanceof zombie.inventory.ItemContainer container
+            ? com.sao.engine.SAOWorldSources.transferOffer(shell, item, container,
+                operation) : "";
+    }
+
+    public String worldStoreActionTarget(Object object, String sourceId,
+            String fingerprint, String revision, double itemId, String itemType,
+            double x, double y, double z) {
+        return object instanceof com.sao.engine.SAOIsoPlayerShell shell
+            ? com.sao.engine.SAOWorldSources.storeActionTarget(shell, sourceId,
+                fingerprint, revision, (int) itemId, itemType,
+                (int) x, (int) y, (int) z) : "NO_LIVE_BODY";
+    }
+
+    public String bindWorldStoreAction(Object object, String sourceId,
+            String fingerprint, String revision, double itemId, String itemType,
+            double x, double y, double z) {
+        return object instanceof com.sao.engine.SAOIsoPlayerShell shell
+            ? com.sao.engine.SAOWorldSources.bindStoreAction(shell, sourceId,
+                fingerprint, revision, (int) itemId, itemType,
+                (int) x, (int) y, (int) z) : "NO_LIVE_BODY";
+    }
+
+    public String worldStoreTransferState(Object object, String sourceId,
+            String fingerprint, double itemId, String itemType,
+            double x, double y, double z) {
+        return object instanceof com.sao.engine.SAOIsoPlayerShell shell
+            ? com.sao.engine.SAOWorldSources.storeTransferState(shell, sourceId,
+                fingerprint, (int) itemId, itemType,
+                (int) x, (int) y, (int) z) : "UNAVAILABLE";
+    }
+
     public Object worldSourceActionPermissionContainer(Object object) {
         return object instanceof com.sao.engine.SAOIsoPlayerShell shell
             ? com.sao.engine.SAOWorldSources.actionPermissionContainer(shell) : null;
@@ -2970,6 +3017,13 @@ public final class SAOBridge {
         return object instanceof com.sao.engine.SAOIsoPlayerShell shell
             ? com.sao.engine.SAOWorldSources.carriedActionItem(shell,
                 (int) itemId, itemType) : null;
+    }
+
+    public String carriedWorldTransferItem(Object object, double itemId,
+            String itemType) {
+        return object instanceof com.sao.engine.SAOIsoPlayerShell shell
+            ? com.sao.engine.SAOWorldSources.carriedTransferItem(shell,
+                (int) itemId, itemType) : "";
     }
 
     public double carriedWorldSourceMeasure(Object object, double itemId,
