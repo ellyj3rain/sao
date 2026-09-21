@@ -1,11 +1,13 @@
 #!/usr/bin/env python3
-r"""Border 180 - completed exact use becomes replay-safe provisioning.
+r"""Border 180 - exact results and private delivery response remain causal.
 
 The dynamic probe runs the shipped WorldSources, Material, Settlement,
 Recognition, Provisioning and GraphPersistence modules in Project Zomboid's
 Kahlua VM. It exercises upgrade, retry/reload, ownership transfer, claim lapse,
-personal access and acknowledgement order. Static mutation controls keep the
-surrounding action, scheduling and false-producer boundaries attached.
+personal access and acknowledgement order. Its delivery seams also execute
+private transfer/request acquisition and listener-owned testimony appraisal.
+Static mutation controls keep the surrounding action, scheduling and
+false-producer boundaries attached.
 """
 from __future__ import annotations
 

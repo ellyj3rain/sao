@@ -1,6 +1,6 @@
 | Document | Survivor Awareness Overhaul Decision Registry |
 |---|---|
-| Version | `2.8.5.0-pre-alpha` |
+| Version | `2.8.6.0-pre-alpha` |
 | Author | ellyj3rain |
 | Repository | `DECISION_REGISTRY.md` |
 | Status | CANONICAL, APPEND-ONLY - ratified decisions. |
@@ -1540,6 +1540,12 @@ performed transfer and allows remembered assistance to bend their existing
 charity decision toward that benefactor. Queue acceptance, roster membership
 and repeated reports create neither debt nor accumulating trust. A told fact
 does not reconstruct a listener's unobserved historical need or reaction.
+
+**C69 application.** A later listener can form a new response when their own
+active household request, current membership and explicit private ground claim
+join an accepted told act. The response freezes that listener's relationships
+and acquisition provenance. Retelling carries the act without the response, and
+the appraisal writes neither trust nor debt.
 
 **Origin.** Mousecat Crucible interaction `skill-8ef8bacdc2e9a510`, answered
 `separate_perceived_obligation`. The structured answer and source lineage are

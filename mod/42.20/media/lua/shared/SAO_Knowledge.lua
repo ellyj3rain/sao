@@ -271,7 +271,8 @@ local function aboutNeed(id, offer, opts)
                 local x = request.minX and (request.minX + request.maxX) / 2 or nil
                 local y = request.minY and (request.minY + request.maxY) / 2 or nil
                 out[#out + 1] = { fact = "aidRequest", groupId = request.groupId,
-                    requestedAt = request.requestedAt, acquiredAt = request.acquiredAt,
+                    category = request.category, requestedAt = request.requestedAt,
+                    acquiredAt = request.acquiredAt,
                     source = request.source, teller = request.teller,
                     originId = request.originId, originAcquiredAt = request.originAcquiredAt,
                     whereWord = whereWord(x, y, sx, sy) }

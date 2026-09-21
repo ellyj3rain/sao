@@ -208,7 +208,91 @@ local function transferNow(given)
     return ok and transferNumber(at) and at >= 0 and at or nil
 end
 
-local function transferCopy(fact, includeAppraisal)
+local function appraisalCopy(fact, now)
+    local appraisal = fact.appraisal
+    if type(appraisal) ~= "table" or not transferNumber(appraisal.reciprocity)
+        or appraisal.reciprocity < -1 or appraisal.reciprocity > 1 then return nil end
+    if fact.source == "observed" and transferNumber(appraisal.pressure)
+        and appraisal.pressure >= 0 and appraisal.pressure <= 1 then
+        return { pressure = appraisal.pressure,
+            reciprocity = appraisal.reciprocity }
+    end
+    if fact.source ~= "told" or appraisal.basis ~= "testimony-household-request"
+        or not transferNumber(appraisal.appraisedAt)
+        or appraisal.appraisedAt < fact.acquiredAt
+        or (now ~= nil and appraisal.appraisedAt > now)
+        or not transferNumber(appraisal.evidenceWeight)
+        or appraisal.evidenceWeight < 0 or appraisal.evidenceWeight > 0.4
+        or not transferNumber(appraisal.relationshipTrust)
+        or appraisal.relationshipTrust < -1 or appraisal.relationshipTrust > 1
+        or not transferNumber(appraisal.tellerTrust)
+        or appraisal.tellerTrust < -1 or appraisal.tellerTrust > 1
+        or not transferNumber(appraisal.compassion)
+        or appraisal.compassion < 0.15 or appraisal.compassion > 0.85
+        or type(appraisal.requestGroupId) ~= "string"
+        or appraisal.requestGroupId == ""
+        or appraisal.requestCategory ~= "food"
+        or not transferNumber(appraisal.requestedAt)
+        or not transferNumber(appraisal.requestAcquiredAt)
+        or appraisal.requestedAt > fact.eventAt
+        or appraisal.requestedAt > appraisal.requestAcquiredAt
+        or appraisal.requestAcquiredAt > appraisal.appraisedAt
+        or (appraisal.requestSource ~= "requested"
+            and appraisal.requestSource ~= "told")
+        or (appraisal.requestSource == "told"
+            and (type(appraisal.requestTeller) ~= "string"
+                or appraisal.requestTeller == ""))
+        or (appraisal.requestSource == "requested"
+            and appraisal.requestTeller ~= nil)
+        or type(appraisal.requestOriginId) ~= "string"
+        or appraisal.requestOriginId == ""
+        or not transferNumber(appraisal.requestOriginAcquiredAt)
+        or appraisal.requestOriginAcquiredAt < appraisal.requestedAt
+        or appraisal.requestOriginAcquiredAt > appraisal.requestAcquiredAt
+        or (appraisal.claimKind ~= "faction" and appraisal.claimKind ~= "place")
+        or (appraisal.claimSource ~= "observed"
+            and appraisal.claimSource ~= "heard"
+            and appraisal.claimSource ~= "told")
+        or (appraisal.claimSource == "told"
+            and (type(appraisal.claimTeller) ~= "string"
+                or appraisal.claimTeller == ""))
+        or (appraisal.claimSource ~= "told"
+            and appraisal.claimTeller ~= nil)
+        or not transferNumber(appraisal.claimMinX)
+        or not transferNumber(appraisal.claimMinY)
+        or not transferNumber(appraisal.claimMaxX)
+        or not transferNumber(appraisal.claimMaxY)
+        or appraisal.claimMinX > appraisal.claimMaxX
+        or appraisal.claimMinY > appraisal.claimMaxY
+        or not transferNumber(fact.x) or not transferNumber(fact.y)
+        or fact.x < appraisal.claimMinX or fact.x > appraisal.claimMaxX
+        or fact.y < appraisal.claimMinY or fact.y > appraisal.claimMaxY then
+        return nil
+    end
+    return {
+        basis = appraisal.basis, appraisedAt = appraisal.appraisedAt,
+        reciprocity = appraisal.reciprocity,
+        evidenceWeight = appraisal.evidenceWeight,
+        relationshipTrust = appraisal.relationshipTrust,
+        tellerTrust = appraisal.tellerTrust,
+        compassion = appraisal.compassion,
+        requestGroupId = appraisal.requestGroupId,
+        requestCategory = appraisal.requestCategory,
+        requestedAt = appraisal.requestedAt,
+        requestAcquiredAt = appraisal.requestAcquiredAt,
+        requestSource = appraisal.requestSource,
+        requestTeller = appraisal.requestTeller,
+        requestOriginId = appraisal.requestOriginId,
+        requestOriginAcquiredAt = appraisal.requestOriginAcquiredAt,
+        claimKind = appraisal.claimKind,
+        claimSource = appraisal.claimSource,
+        claimTeller = appraisal.claimTeller,
+        claimMinX = appraisal.claimMinX, claimMinY = appraisal.claimMinY,
+        claimMaxX = appraisal.claimMaxX, claimMaxY = appraisal.claimMaxY,
+    }
+end
+
+local function transferCopy(fact, includeAppraisal, now)
     local out = {}
     for _, key in ipairs({ "eventId", "actorId", "operation", "itemType",
         "category", "sourceId", "placeId", "x", "y", "z", "eventAt",
@@ -216,15 +300,7 @@ local function transferCopy(fact, includeAppraisal)
         "originAcquiredAt" }) do
         out[key] = fact[key]
     end
-    if includeAppraisal and fact.source == "observed"
-        and type(fact.appraisal) == "table"
-        and transferNumber(fact.appraisal.pressure)
-        and fact.appraisal.pressure >= 0 and fact.appraisal.pressure <= 1
-        and transferNumber(fact.appraisal.reciprocity)
-        and fact.appraisal.reciprocity >= -1 and fact.appraisal.reciprocity <= 1 then
-        out.appraisal = { pressure = fact.appraisal.pressure,
-            reciprocity = fact.appraisal.reciprocity }
-    end
+    if includeAppraisal then out.appraisal = appraisalCopy(fact, now) end
     return out
 end
 
@@ -286,7 +362,7 @@ function P.transferFacts(id, nowHours)
     local out, horizon = {}, transferHorizon(id)
     for _, entry in ipairs(ordered) do
         local state = transferState(entry.fact, now, horizon)
-        local fact = state == "remembered" and transferCopy(entry.fact, true)
+        local fact = state == "remembered" and transferCopy(entry.fact, true, now)
             or { eventId = entry.eventId }
         fact.state = state
         out[#out + 1] = fact
@@ -308,7 +384,8 @@ function P.reciprocityToward(id, actorId, nowHours)
     local strongest, eventId = 0, nil
     for _, fact in ipairs(P.transferFacts(id, nowHours)) do
         local value = fact.appraisal and fact.appraisal.reciprocity
-        if fact.state == "remembered" and fact.source == "observed"
+        if fact.state == "remembered"
+            and (fact.source == "observed" or fact.source == "told")
             and fact.actorId == tostring(actorId or "") and transferNumber(value)
             and math.abs(value) >= math.abs(strongest) then
             strongest, eventId = value, fact.eventId
@@ -338,7 +415,7 @@ local function rememberTransfer(id, fact)
     if existing and (existing.source ~= "told" or fact.source == "told") then
         return false
     end
-    b.transfers[fact.eventId] = transferCopy(fact, true)
+    b.transfers[fact.eventId] = transferCopy(fact, true, transferNow())
     local ordered = {}
     for eventId, entry in pairs(b.transfers) do
         ordered[#ordered + 1] = { eventId = eventId, eventAt = entry.eventAt }
@@ -459,19 +536,24 @@ end
 
 local AID_REQUEST_HOURS = 96
 
-function P.recordAidRequest(id, groupId, requestedAt, source, teller)
+function P.recordAidRequest(id, groupId, requestedAt, source, teller, category)
     local now = transferNow()
     if not now or type(id) ~= "string" or id == ""
         or type(groupId) ~= "string" or groupId == ""
         or not transferNumber(requestedAt) or requestedAt < 0
         or requestedAt > now or now - requestedAt > AID_REQUEST_HOURS
+        or (category ~= nil and category ~= "food")
         or (source ~= "requested" and source ~= "told") then return false end
+    category = category or "food"
     local originId, originAcquiredAt = id, requestedAt
     if source == "told" then
         if type(teller) ~= "string" or teller == "" then return false end
         local from = P.beliefs[teller]
         local original = from and from.aidRequests and from.aidRequests[groupId]
+        local originalCategory = type(original) == "table"
+            and (original.category or "food") or nil
         if type(original) ~= "table" or original.requestedAt ~= requestedAt
+            or originalCategory ~= category
             or not transferNumber(original.acquiredAt)
             or original.acquiredAt > now then return false end
         originId = original.originId
@@ -490,12 +572,14 @@ function P.recordAidRequest(id, groupId, requestedAt, source, teller)
     local existing = b.aidRequests[groupId]
     if type(existing) == "table" then
         if existing.requestedAt > requestedAt then return false end
+        if (existing.category or "food") ~= category then return false end
         if existing.requestedAt == requestedAt
             and (existing.source == "requested" or source == "told") then
             return true
         end
     end
-    b.aidRequests[groupId] = { groupId = groupId, requestedAt = requestedAt,
+    b.aidRequests[groupId] = { groupId = groupId, category = category,
+        requestedAt = requestedAt,
         acquiredAt = source == "requested" and requestedAt or now,
         source = source, teller = source == "told" and teller or nil,
         originId = originId, originAcquiredAt = originAcquiredAt }
@@ -526,8 +610,13 @@ function P.knownAidRequests(id, nowHours)
             and transferNumber(request.acquiredAt) and request.requestedAt >= 0
             and request.requestedAt <= request.acquiredAt and request.acquiredAt <= now
             and now - request.requestedAt <= AID_REQUEST_HOURS
+            and (request.category == nil or request.category == "food")
             and (request.source == "requested" or request.source == "told") then
-            local copy = { groupId = groupId, requestedAt = request.requestedAt,
+            -- C67 had one request producer, callForBread, so a persisted
+            -- pre-C69 row with no category is unambiguously food.
+            local category = request.category or "food"
+            local copy = { groupId = groupId, category = category,
+                requestedAt = request.requestedAt,
                 acquiredAt = request.acquiredAt, source = request.source,
                 teller = request.teller, originId = request.originId,
                 originAcquiredAt = request.originAcquiredAt }
@@ -581,9 +670,82 @@ local function tellAidRequests(fromId, toId, channel, aroundX, aroundY)
         local existing = to and to.aidRequests and to.aidRequests[request.groupId]
         if inGround and (not existing or existing.requestedAt < request.requestedAt)
             and P.recordAidRequest(toId, request.groupId, request.requestedAt,
-                "told", fromId) then moved = moved + 1 end
+                "told", fromId, request.category) then moved = moved + 1 end
     end
     return moved
+end
+
+-- A non-witness can form a private response only from evidence that belongs to
+-- them now.  The completed act and food request arrive independently; current
+-- household membership and an explicit private ground claim join them.  No
+-- historical body need, giver intent, trust write, or collectible debt is
+-- reconstructed.  Once formed, this appraisal stays frozen with the episode.
+function P.appraiseKnownTransfers(id)
+    id = tostring(id or "")
+    local now = transferNow()
+    local b = P.beliefs[id]
+    if id == "" or not now or not b or type(b.transfers) ~= "table"
+        or not (SAO.Standing and SAO.Standing.groupOf
+            and SAO.Standing.trust and SAO.Disposition
+            and SAO.Disposition.testimonyAssistanceAppraisal) then return 0 end
+    local okGroup, groupId = pcall(SAO.Standing.groupOf, id)
+    groupId = okGroup and groupId and tostring(groupId) or nil
+    if not groupId or groupId == "" then return 0 end
+    local request = P.knownAidRequest(id, groupId, now)
+    if not request or request.category ~= "food" then return 0 end
+    local claim, claimKind = b.factions and b.factions[groupId], "faction"
+    if type(claim) ~= "table" then
+        claim, claimKind = b.places and b.places[groupId], "place"
+    end
+    if type(claim) ~= "table"
+        or (claim.source ~= "observed" and claim.source ~= "heard"
+            and claim.source ~= "told")
+        or (claim.source == "told"
+            and (type(claim.teller) ~= "string" or claim.teller == ""))
+        or (claim.source ~= "told" and claim.teller ~= nil)
+        or not transferNumber(claim.minX) or not transferNumber(claim.minY)
+        or not transferNumber(claim.maxX) or not transferNumber(claim.maxY)
+        or claim.minX > claim.maxX or claim.minY > claim.maxY then return 0 end
+    local changed, horizon = 0, transferHorizon(id)
+    for _, fact in pairs(b.transfers) do
+        if transferState(fact, now, horizon) == "remembered"
+            and fact.source == "told" and fact.operation == "store"
+            and fact.category == request.category and fact.actorId ~= id
+            and fact.appraisal == nil and request.requestedAt <= fact.eventAt
+            and fact.x >= claim.minX and fact.x <= claim.maxX
+            and fact.y >= claim.minY and fact.y <= claim.maxY then
+            local okTrust, tellerTrust = pcall(SAO.Standing.trust,
+                id, fact.teller)
+            if okTrust and transferNumber(tellerTrust)
+                and tellerTrust >= -1 and tellerTrust <= 1 then
+                local okAppraisal, appraisal = pcall(
+                    SAO.Disposition.testimonyAssistanceAppraisal,
+                    id, fact.actorId, tellerTrust)
+                if okAppraisal and type(appraisal) == "table" then
+                    appraisal.basis = "testimony-household-request"
+                    appraisal.appraisedAt = now
+                    appraisal.requestGroupId = groupId
+                    appraisal.requestCategory = request.category
+                    appraisal.requestedAt = request.requestedAt
+                    appraisal.requestAcquiredAt = request.acquiredAt
+                    appraisal.requestSource = request.source
+                    appraisal.requestTeller = request.teller
+                    appraisal.requestOriginId = request.originId
+                    appraisal.requestOriginAcquiredAt = request.originAcquiredAt
+                    appraisal.claimKind = claimKind
+                    appraisal.claimSource = claim.source
+                    appraisal.claimTeller = claim.teller
+                    appraisal.claimMinX, appraisal.claimMinY = claim.minX, claim.minY
+                    appraisal.claimMaxX, appraisal.claimMaxY = claim.maxX, claim.maxY
+                    fact.appraisal = appraisal
+                    fact.appraisal = appraisalCopy(fact, now)
+                    if fact.appraisal then changed = changed + 1 end
+                end
+            end
+        end
+    end
+    if changed > 0 then P.beliefVersion = P.beliefVersion + 1 end
+    return changed
 end
 
 local function split(s, sep)
@@ -1540,6 +1702,7 @@ function P.tell(fromId, toId, tick, chosen, channel)
             spoken = "Whose ground is whose - I'll leave it be."
         end
     end
+    P.appraiseKnownTransfers(toId)
     return shared, spoken
 end
 
@@ -1613,11 +1776,12 @@ function P.reportReturn(fromId, toId, tick, aroundX, aroundY, channel)
             to.factions[gname] = { baseX = fb.baseX, baseY = fb.baseY,
                 minX = fb.minX, minY = fb.minY,
                 maxX = fb.maxX, maxY = fb.maxY, at = fb.at,
-                source = "told", name = fb.name,
+                source = "told", teller = fromId, name = fb.name,
                 stance = fb.stance }
             moved = moved + 1
         end
     end
+    P.appraiseKnownTransfers(toId)
     return moved
 end
 
@@ -1906,6 +2070,7 @@ function P.learnPlace(id, ownerKey, bounds, source)
         maxX = bounds.maxX, maxY = bounds.maxY,
         at = b.lastScanAt, source = tostring(source or "unknown"),
     }
+    P.appraiseKnownTransfers(id)
 end
 
 -- [B42] Being near somebody's ground teaches you it is theirs, and a

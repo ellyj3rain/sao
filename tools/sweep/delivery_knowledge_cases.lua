@@ -8,7 +8,7 @@
     local function reset()
         P.beliefs, P.beliefVersion = {}, 0
         __now, __canConverse, __socialWrites = 100, true, 0
-        __factors, __trust, __persisted = {}, {}, {}
+        __factors, __trust, __persisted, __groups = {}, {}, {}, {}
         __traitUnits = {}
         __communicationPresent = true
     end
@@ -274,6 +274,7 @@
     check("appraisal_detached", P.reciprocityToward("bea", "ada") == 0.4)
     P.tell("bea", "cy", 900000, true)
     check("appraisal_does_not_travel", fact("cy").appraisal == nil
+        and P.beliefs.cy.transfers["transfer-1"].appraisal == nil
         and P.reciprocityToward("cy", "ada") == 0
         and transferClaim("bea").appraisal == nil
         and transferClaim("bea").reciprocity == nil)
@@ -390,6 +391,166 @@
     check("request_bound_and_eviction_floor", #P.knownAidRequests("holder") == 64
         and P.knownAidRequest("holder", "old-house") == nil
         and P.beliefs.holder.aidRequestFloor ~= nil)
+
+    -- C69: a household member who learns about a completed delivery later
+    -- forms their own response from their own request, current membership,
+    -- private ground claim and relationships.  No witness feeling travels.
+    reset()
+    __now = 100
+    P.recordAidRequest("asker", "hungry-house", 100, "requested", nil, "food")
+    local explicitRequest = P.knownAidRequest("asker", "hungry-house")
+    local requestClaim = nil
+    for _, value in ipairs(K.about("asker", "food", { nowHours = 100 }) or {}) do
+        if value.fact == "aidRequest" then requestClaim = value end
+    end
+    check("request_category_explicit", explicitRequest
+        and explicitRequest.category == "food" and requestClaim
+        and requestClaim.category == "food"
+        and not P.recordAidRequest("water-asker", "hungry-house", 100,
+            "requested", nil, "water"))
+    __now = 102
+    P.receiveTransferResult(receipt("reported-help", 102, "ada", { "bea" }))
+    P.receiveTransferResult(receipt("before-request", 99, "old-actor", { "old-teller" }))
+
+    local home = { minX=8,minY=10,maxX=12,maxY=14 }
+    local function context(person, unit, actorTrust, tellerTrust, source, bounds, group)
+        if group == false then __groups[person] = nil
+        else __groups[person] = group or "hungry-house" end
+        __traitUnits[person] = unit
+        __trust[person .. "|ada"] = actorTrust
+        __trust[person .. "|bea"] = tellerTrust
+        if bounds then P.learnPlace(person, "hungry-house", bounds, source) end
+    end
+    local function hearRequest(person, at)
+        __now = at
+        return P.tell("asker", person, at * 9000, true)
+    end
+    local function hearAct(person, at, teller)
+        __now = at
+        return P.tell(teller or "bea", person, at * 9000, true)
+    end
+
+    context("low-listener", 0, -0.8, 0.6, "observed", home)
+    hearRequest("low-listener", 103); hearAct("low-listener", 104)
+    context("high-listener", 1, 0.6, 0.6, "observed", home)
+    hearRequest("high-listener", 105); hearAct("high-listener", 106)
+    local lowFact = fact("low-listener", "reported-help")
+    local highFact = fact("high-listener", "reported-help")
+    local lowApp = lowFact and lowFact.appraisal
+    local highApp = highFact and highFact.appraisal
+    check("testimony_household_appraisal", highApp
+        and highApp.basis == "testimony-household-request"
+        and highApp.appraisedAt == 106
+        and P.reciprocityToward("high-listener", "ada") == highApp.reciprocity)
+    check("testimony_appraisal_private_provenance", highApp
+        and highFact.source == "told" and highFact.teller == "bea"
+        and highApp.requestGroupId == "hungry-house"
+        and highApp.requestCategory == "food" and highApp.requestedAt == 100
+        and highApp.requestAcquiredAt == 105 and highApp.requestSource == "told"
+        and highApp.requestTeller == "asker" and highApp.requestOriginId == "asker"
+        and highApp.requestOriginAcquiredAt == 100
+        and highApp.claimKind == "place" and highApp.claimSource == "observed"
+        and highApp.claimMinX == 8 and highApp.claimMaxY == 14
+        and highApp.relationshipTrust == 0.6 and highApp.tellerTrust == 0.6)
+    check("testimony_uses_no_historical_need", highApp and highApp.pressure == nil
+        and highApp.requestedAt <= highFact.eventAt
+        and highApp.appraisedAt > highFact.eventAt)
+    check("testimony_disagreement_preserved", lowApp and highApp
+        and lowApp.reciprocity < 0 and highApp.reciprocity > 0
+        and lowApp.relationshipTrust == -0.8 and highApp.relationshipTrust == 0.6)
+
+    context("late-context", 0.5, 0.2, 0.6, "observed", home)
+    hearAct("late-context", 107)
+    local beforeRequest = fact("late-context", "reported-help")
+    local absentBefore = beforeRequest and beforeRequest.appraisal == nil
+    hearRequest("late-context", 108)
+    local joinedLater = fact("late-context", "reported-help")
+    check("testimony_order_independent", absentBefore and joinedLater
+        and joinedLater.appraisal and joinedLater.appraisal.appraisedAt == 108
+        and joinedLater.appraisal.requestAcquiredAt == 108)
+
+    context("nonmember", 0.5, 0.2, 0.6, "observed", home, false)
+    hearRequest("nonmember", 109); hearAct("nonmember", 110)
+    check("testimony_current_household_required",
+        fact("nonmember", "reported-help").appraisal == nil)
+    context("no-claim", 0.5, 0.2, 0.6, nil, nil)
+    hearRequest("no-claim", 111); hearAct("no-claim", 112)
+    context("unknown-claim", 0.5, 0.2, 0.6, "unknown", home)
+    hearRequest("unknown-claim", 113); hearAct("unknown-claim", 114)
+    context("unattributed-claim", 0.5, 0.2, 0.6, "told", home)
+    hearRequest("unattributed-claim", 113); hearAct("unattributed-claim", 114)
+    check("testimony_explicit_claim_required",
+        fact("no-claim", "reported-help").appraisal == nil
+        and fact("unknown-claim", "reported-help").appraisal == nil
+        and fact("unattributed-claim", "reported-help").appraisal == nil)
+    context("outside-claim", 0.5, 0.2, 0.6, "observed",
+        {minX=20,minY=20,maxX=30,maxY=30})
+    hearRequest("outside-claim", 115); hearAct("outside-claim", 116)
+    check("testimony_claim_location_required",
+        fact("outside-claim", "reported-help").appraisal == nil)
+    context("late-request", 0.5, 0.2, 0.6, "observed", home)
+    hearRequest("late-request", 117); hearAct("late-request", 118, "old-teller")
+    check("testimony_request_predates_act",
+        fact("late-request", "before-request").appraisal == nil)
+
+    __now = 119
+    P.tell("high-listener", "no-context-relay", 119 * 9000, true)
+    local copied = fact("no-context-relay", "reported-help")
+    check("testimony_appraisal_does_not_travel", copied and copied.source == "told"
+        and copied.appraisal == nil
+        and P.reciprocityToward("no-context-relay", "ada") == 0)
+    context("local-relay", 4 / 7, 0.1, 0.3, nil, nil)
+    __trust["local-relay|high-listener"] = 0.3
+    __now = 120
+    P.tell("high-listener", "local-relay", 120 * 9000, true)
+    local relayFact = fact("local-relay", "reported-help")
+    local relayApp = relayFact and relayFact.appraisal
+    check("retold_appraisal_is_local", relayApp and highApp
+        and relayFact.teller == "high-listener" and relayFact.originId == "bea"
+        and relayApp.requestTeller == "high-listener"
+        and relayApp.requestOriginId == "asker"
+        and relayApp.claimSource == "told"
+        and relayApp.claimTeller == "high-listener"
+        and relayApp.reciprocity ~= highApp.reciprocity)
+    check("testimony_weight_and_credibility", highApp and relayApp
+        and math.abs(highApp.evidenceWeight - 0.24) < 0.000001
+        and math.abs(relayApp.evidenceWeight - 0.12) < 0.000001)
+
+    context("choice-listener", 22 / 35, 0.6, 1, "observed", home)
+    local declinedBefore = not SAO.Disposition.wouldGiveToStranger(
+        "choice-listener", "ada")
+    hearRequest("choice-listener", 121); hearAct("choice-listener", 122)
+    check("testimony_reciprocity_changes_own_choice", declinedBefore
+        and SAO.Disposition.wouldGiveToStranger("choice-listener", "ada"))
+
+    local frozen = highApp and highApp.reciprocity
+    __trust["high-listener|ada"], __traitUnits["high-listener"] = -1, 0
+    __groups["high-listener"] = nil
+    __now = 123
+    local frozenFact = fact("high-listener", "reported-help")
+    check("testimony_appraisal_frozen", frozen ~= nil
+        and P.appraiseKnownTransfers("high-listener") == 0
+        and frozenFact and frozenFact.appraisal
+        and frozenFact.appraisal.reciprocity == frozen)
+    local storedHigh = P.beliefs["high-listener"].transfers["reported-help"]
+    local futureAppraisalHidden = false
+    if storedHigh and storedHigh.appraisal then
+        local actualAt = storedHigh.appraisal.appraisedAt
+        storedHigh.appraisal.appraisedAt = __now + 1
+        futureAppraisalHidden = fact("high-listener", "reported-help").appraisal == nil
+        storedHigh.appraisal.appraisedAt = actualAt
+        storedHigh.appraisal.claimMaxX = 9
+    end
+    check("testimony_appraisal_validation",
+        futureAppraisalHidden and storedHigh and storedHigh.appraisal
+        and fact("high-listener", "reported-help").appraisal == nil
+        and P.reciprocityToward("high-listener", "ada") == 0)
+    context("expired-request", 0.5, 0.2, 0.6, "observed", home)
+    hearRequest("expired-request", 197); hearAct("expired-request", 197)
+    check("testimony_active_request_required",
+        fact("expired-request", "reported-help").appraisal == nil
+        and P.knownAidRequest("expired-request", "hungry-house") == nil)
+    check("testimony_no_social_ledger_write", __socialWrites == 0)
 
     reset()
     local D = SAO.Disposition

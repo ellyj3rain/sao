@@ -1,6 +1,6 @@
 | Document | Survivor Awareness Overhaul Findings |
 |---|---|
-| Version | `2.8.5.0-pre-alpha` |
+| Version | `2.8.6.0-pre-alpha` |
 | Author | ellyj3rain |
 | Repository | `FINDINGS.md` |
 | Status | CANONICAL, APPEND-ONLY - verified engine findings. |
@@ -2097,3 +2097,27 @@ reconciliation, reload-unknown state and duplicate reservation in the installed
 Kahlua VM. Its controlled production mutation restores queue-time social credit
 and flips `queued_without_effect`. Open-wound treatment uses a different native
 action and remains an explicit completion gap.
+
+## F-094 | 2026-09-21 09:09 UTC / 02:09 PST | Reported assistance had no listener-owned appraisal producer
+
+C67 deliberately kept a witness's appraisal out of testimony. That prevented a
+later listener from inheriting somebody else's gratitude, but no separate
+producer could let the listener evaluate an accepted report from facts they
+personally held. The only available alternatives were equally false: copy the
+teller's feeling, reconstruct the listener's historical hunger, or turn a report
+directly into trust or debt.
+
+C69 joins only current listener-owned evidence. The listener must presently
+belong to the requesting household, have acquired its still-active food request,
+hold an explicit private ground claim containing the recorded delivery location,
+and remember accepted testimony of a completed store act after that request.
+Disposition freezes compassion, actor trust and immediate-teller credibility at
+the established testimony weight. Different listeners can reach opposite signed
+responses. Retelling strips the appraisal, so each later listener must form a
+new response from their own evidence.
+
+Border 180 executes 90 production cases and 21 named mutations, including forced
+membership, location snapping, request backdating, full testimony weight and
+copied appraisals. The response changes the existing charity decision while the
+trust and debt ledgers remain untouched. Complete inventory, giver intent,
+historical body pressure and loaded-save play are outside this finding.

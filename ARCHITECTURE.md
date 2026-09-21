@@ -1,6 +1,6 @@
 | Document | Survivor Awareness Overhaul Architecture |
 |---|---|
-| Version | `2.8.5.0-pre-alpha` |
+| Version | `2.8.6.0-pre-alpha` |
 | Author | ellyj3rain |
 | Repository | `ARCHITECTURE.md` |
 | Status | ACTIVE - ratified framework shape. |
@@ -558,3 +558,20 @@ pending actions and creates no debt. Once accepted, two completed legs apply the
 trade consequence; one completed leg and one terminal failed leg add exactly one
 existing Standing debt in the completed giver's favor. Gifts never enter that
 path. Open-wound treatment remains a separate action/result boundary.
+
+## Recipient appraisal after testimony (C69)
+
+Testimony transfers a performed act, not the teller's response to it. A listener
+who did not witness a stored food delivery may appraise it only when their own
+private state supplies a still-active request from their current household and
+an explicit faction/place claim containing the recorded event location. The
+request must precede the act. Event, request and claim keep separate acquisition
+and origin provenance; no historical body pressure or giver intent is rebuilt.
+
+The listener's compassion, current trust in the actor and credibility assigned
+to the immediate teller produce one signed reciprocity value at the established
+testimony weight. That value and all inputs are frozen on the listener's told
+episode. Retelling omits it, so the next listener either forms a different
+appraisal from their own evidence or forms none. The existing private
+reciprocity reader bends the listener's charity decision without adding trust,
+debt, settlement credit or a public account of what the act meant.

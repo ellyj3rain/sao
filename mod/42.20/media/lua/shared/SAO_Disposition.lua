@@ -299,6 +299,38 @@ function D.assistanceAppraisal(id, benefactorId, pressure)
         reciprocity = math.max(-1, math.min(1, pressure * receptiveness)) }
 end
 
+-- A later account of help cannot recover how hungry the listener was when the
+-- act happened.  An explicit, still-current household request is categorical
+-- evidence instead: it opens the appraisal, while the established testimony
+-- weight and the listener's present relationship/disposition determine how
+-- strongly it matters.  The returned inputs are frozen with the private
+-- episode so later personality or relationship changes do not rewrite it.
+function D.testimonyAssistanceAppraisal(id, benefactorId, tellerCredibility)
+    tellerCredibility = tonumber(tellerCredibility)
+    if not tellerCredibility or tellerCredibility ~= tellerCredibility
+        or tellerCredibility < -1 or tellerCredibility > 1 then return nil end
+    local relationshipTrust = SAO.Standing and SAO.Standing.trust
+        and tonumber(SAO.Standing.trust(id, benefactorId)) or 0
+    if not relationshipTrust or relationshipTrust ~= relationshipTrust
+        or relationshipTrust == math.huge
+        or relationshipTrust == -math.huge then relationshipTrust = 0 end
+    relationshipTrust = math.max(-1, math.min(1, relationshipTrust or 0))
+    local compassion = trait(id, "compassion")
+    local receptiveness = compassion - math.max(0, -relationshipTrust)
+    -- ARCHITECTURE's existing standing ladder gives testimony 0.4 of
+    -- firsthand weight, scaled by the same credibility floor used for good
+    -- and bad word-of-mouth.  This bends a future choice; it writes no trust.
+    local evidenceWeight = 0.4 * math.max(0.3, tellerCredibility)
+    return {
+        reciprocity = math.max(-1, math.min(1,
+            receptiveness * evidenceWeight)),
+        evidenceWeight = evidenceWeight,
+        relationshipTrust = relationshipTrust,
+        tellerTrust = tellerCredibility,
+        compassion = compassion,
+    }
+end
+
 function D.wouldGiveToStranger(id, otherId)
     local bar = 0.6
     if SAO.Lessons then bar = bar - SAO.Lessons.charityEase(id) end

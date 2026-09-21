@@ -38,7 +38,7 @@ on the simulation.
 
 ## Status
 
-`2.8.5.0-pre-alpha` - the coordinate is computed by the version machine
+`2.8.6.0-pre-alpha` - the coordinate is computed by the version machine
 (`tools/version_replay.py`), never picked; `VERSION_MAP.md` shows the
 classification and the arithmetic.
 
@@ -114,9 +114,13 @@ acquisition, broader options, ratification and later consequences remain R11-R12
 work. C67 connects performed transfers to private actor/witness memory and
 admitted testimony. Carriers answer requests they learned, using privately known
 destinations. Witnesses can develop personal willingness to reciprocate according
-to their own need and relationship; these source deliveries create no trade debt. Complete
-inventory, later appraisal of reports, remaining material actions and settlement
-development stay under R7-R9.
+to their own need and relationship; these source deliveries create no trade debt.
+C68 makes loaded personal handovers and accepted barter depend on native holder
+completion. C69 lets a later listener form their own response to reported
+household assistance only from their acquired active request, current membership,
+explicit claim and relationships. The teller's feeling does not travel and the
+new response creates no automatic trust or debt. Complete inventory, treatment,
+remaining material actions and settlement development stay under R7-R9.
 `ROADMAP.md` preserves the remaining social and learned-model obligations.
 
 ## Requirements

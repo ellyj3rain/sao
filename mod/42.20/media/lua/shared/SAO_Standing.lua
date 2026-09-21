@@ -2045,7 +2045,8 @@ function S.callForBread(groupName, speakerId)
     if speakerId then
         if S.groupOf(speakerId) ~= groupName
             or not (SAO.Perception and SAO.Perception.recordAidRequest) then return false end
-        if SAO.Perception.recordAidRequest(speakerId, groupName, now, "requested") ~= true then
+        if SAO.Perception.recordAidRequest(
+            speakerId, groupName, now, "requested", nil, "food") ~= true then
             return false
         end
     end
