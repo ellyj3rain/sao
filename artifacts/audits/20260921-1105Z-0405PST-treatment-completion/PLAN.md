@@ -1,0 +1,14 @@
+# C70 producer matrix
+
+| Contract | Existing substrate | C70 producer and owner | Persistence | Evidence | Remaining boundary |
+|---|---|---|---|---|---|
+| Open-wound request | Needs and the player menu select a real carried dressing and a bleeding, unbandaged body part | `Treatment.begin` validates actor and patient identity, same-floor reach, exact item holder and the part's membership in the named patient, then admits one vanilla action | Scalar actor, patient, item, part-index, status and consequence record; live engine objects remain runtime-only | Border 183 queue refusal, identity, reservation, self/NPC/player and scalar-record cases | A pending request with no live handle after reload remains unknown rather than reconstructed. |
+| Native treatment result | Build 42.20 `ISApplyBandage.complete` owns item removal, Doctor-level dressing life and the body-part mutation | `SAOTreatmentBandageAction.complete` calls vanilla, then classifies an effective dressing only when the exact part is bandaged with positive life and the exact item left the actor inventory | `completed`, `ineffective`, `interrupted` or `released`, with event time and reason | Effective, dirty-bandage, native-refusal, patient-change, stop and queue-loss cases | Disinfection, stitching and the other medical verbs require their own native result contracts. |
+| Patient response | Existing trust changes and the wounded agent's distress-reckoning stamp | The completed result consumes each response channel once; no response exists for interruption or ineffective dressing | Per-channel `consumed` receipt plus final `effectApplied` | Queue-credit mutation and repeat reconciliation | Dormant patient response needs a grounded dormant encounter and action producer. |
+| Care skill and voice | Vanilla already grants its own bandage XP from native success; SAO's existing care XP and `aid` voice are downstream consequences | The treatment result grants the existing additional Doctor experience only when the actor body is available and emits the saved voice once | Skill and voice consumption flags survive reload independently | Saved completion first runs without the actor body, then consumes skill after that body returns, without repeating response or voice | Broader learning and free-form speech remain under R9/R11-R14. |
+| Ownership exit | Identity death, controller release and player death are the existing body-ownership funnels | Each funnel releases pending treatment involving that person and drops live body, part, item and action handles while retaining terminal history | Terminal release remains scalar | Participant-release and static call-site cases | Loaded-save play acceptance remains separate. |
+
+The owner does not infer treatment from queue admission, elapsed time, a missing
+runtime handle or a bandage item merely leaving the actor. Native completion and
+an effective patient-side dressing are both required before consequences exist.
+

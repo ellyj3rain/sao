@@ -1,6 +1,6 @@
 | Document | Survivor Awareness Overhaul Architecture |
 |---|---|
-| Version | `2.8.6.0-pre-alpha` |
+| Version | `2.8.7.0-pre-alpha` |
 | Author | ellyj3rain |
 | Repository | `ARCHITECTURE.md` |
 | Status | ACTIVE - ratified framework shape. |
@@ -557,7 +557,31 @@ admitted before Handover records acceptance. A failed proposal cancels the
 pending actions and creates no debt. Once accepted, two completed legs apply the
 trade consequence; one completed leg and one terminal failed leg add exactly one
 existing Standing debt in the completed giver's favor. Gifts never enter that
-path. Open-wound treatment remains a separate action/result boundary.
+path. Open-wound treatment remains a separate owner because it mutates a named
+patient rather than changing an item's holder.
+
+## Open-wound treatment results (C70)
+
+Treatment owns SAO-initiated bandaging across self-care, survivor aid and player
+aid. Its saved record names the actor, patient, exact dressing and patient body
+part, plus status and consequence receipts. Bodies, parts, inventories, items
+and timed actions remain current-world handles only.
+
+The treatment action delegates the physical mutation to Build 42.20's
+`ISApplyBandage.complete`. It publishes effective completion only when vanilla
+returns success, the exact patient part carries a positive-life dressing and
+the exact item has left the actor inventory. Native refusal or a zero-life
+dressing is ineffective. Stop, cancellation and queue loss are interruption.
+Identity, reach, body-part membership and item ownership are rechecked before
+native mutation.
+
+Patient trust response, the answered-cry stamp, SAO care experience, aid voice,
+the treatment log and the critical-care gesture consume the completed result
+through separate durable flags. Reload can resume an unavailable channel, such
+as Doctor experience while the actor body is absent, without repeating the
+channels already consumed. A pending record with no current action handle stays
+pending and reserved; neither time nor the patient's later appearance proves
+who treated the wound. Death and body-ownership exit release unfinished work.
 
 ## Recipient appraisal after testimony (C69)
 

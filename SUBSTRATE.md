@@ -1,6 +1,6 @@
 | Document | Survivor Awareness Overhaul Dependency Substrate |
 |---|---|
-| Version | `2.8.6.0-pre-alpha` |
+| Version | `2.8.7.0-pre-alpha` |
 | Author | ellyj3rain |
 | Repository | `SUBSTRATE.md` |
 | Status | CANONICAL - what exists, what is planned, and what each area of concern needs. |
@@ -70,7 +70,7 @@ ported, and whether it is required.
 | Learning and teaching | lessons, census, knowledge | learning branch and dataset rows |
 | Conflict and defense | controller, combat, standing, claims | threat branch and, for the turned, ZAO's ownership seam |
 | Culture and memory | lessons, voice, gesture, knowledge | memory and ritual branches; Speakeasy world model |
-| Health and self-care | needs, medical, course, conditions, habits | treatment and self-care branches; ZAO pathogen state where relevant |
+| Health and self-care | needs, medical, course, conditions, habits, C70's patient-bound open-wound result | disinfection, stitching, dormant treatment and the remaining self-care branches; ZAO pathogen state where relevant |
 | Player interaction | harness, UI, command, organization actions | free-form conversation and player perturbation of the graph |
 
 ## Cross-repository synchronization
@@ -704,7 +704,7 @@ identity/time and eviction floors prevent replay from refreshing forgotten acts.
 | Performed personal handover | Needs item selection -> Handover reservation -> verified vanilla transfer -> exact destination holder | Existing share, reading, care-gift, settlement and yield consequences | Reload-unknown pending work stays reserved until an item-resolution producer exists. |
 | Accepted exchange | Exchange need/surplus proposal -> two independently admitted handover legs -> Handover acceptance | Existing food/water and smoke/food barter | No dormant barter or player trade interface is claimed. |
 | Partial exchange debt | One accepted leg completes while its opposite leg reaches a terminal failed state | Existing Standing debt and later settlement handover | Private perceived obligation remains separate; gifts create no debt. |
-| Treatment boundary | Existing `ISApplyBandage` action | Existing loaded care behavior | Native treatment completion, patient response and care skill still need a treatment-specific result owner. |
+| Treatment boundary | Needs/player request -> Treatment reservation -> exact vanilla `ISApplyBandage` -> effective patient dressing | Existing loaded patient response, care skill, voice and critical-care choreography consume the result once | C70 closes loaded open-wound bandaging. Disinfection, stitching, dormant care and other medical verbs retain separate result work. |
 
 Handover retains at most 512 records and 256 terms, evicting only terminal
 history when capacity is needed. Current bodies, items, inventories and actions
@@ -725,3 +725,17 @@ Border 180 executes 90 delivery-knowledge cases and 21 named mutations. It
 proves both evidence arrival orders, current-household and claim containment,
 request/event order, bounded lifetime, detached retelling, saved-state refusal
 and a changed existing charity choice without any social-ledger write.
+
+### C70 producer update
+
+| Contract | Producer and durable owner | Behavioral consumer | Remaining boundary |
+|---|---|---|---|
+| Open-wound request | Needs or player menu selects an exact bleeding part and carried dressing -> Treatment validates actor, patient, reach, part membership and holder -> one vanilla action | No consequence at admission | Reload-unknown pending work remains reserved because no native witness survives. |
+| Native result | `ISApplyBandage.complete` performs item removal and Doctor-shaped dressing life -> Treatment verifies the exact patient part and item outcome | Completed, ineffective, interrupted and released results | Disinfection, stitching and dormant treatment need their own native action owners. |
+| Result consumption | Completed result -> per-channel response, aid stamp, additional Doctor experience, aid voice, treatment log and post-treatment critical-care gesture | Existing distress, relationship, learning, speech and gesture consumers | Loaded-save player acceptance remains separate; broader care learning remains R9/R11-R14. |
+
+Treatment retains at most 512 scalar records and evicts only terminal history.
+Live bodies, body parts, inventories, items and actions are never serialized.
+The death, player-death and controller-release funnels terminate unfinished
+work involving either participant. Border 183 executes the shipped owner in the
+installed Kahlua VM and rejects a mutation that grants care credit at queue time.

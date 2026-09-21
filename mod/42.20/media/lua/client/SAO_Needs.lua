@@ -333,10 +333,11 @@ function N.bleeding(body)
     return ok and tonumber(n) or 0
 end
 
--- Queue self-bandaging the worst bleeding part with the best carried
--- bandage, through the vanilla action (animated, timed, interruptible).
+-- Queue self-bandaging through the treatment owner. Vanilla still performs
+-- the animated, timed and interruptible mutation; the owner records whether
+-- the exact dressing actually held.
 function N.bandageSelf(id, body)
-    if not SAOJavaBridge then return false end
+    if not (SAOJavaBridge and SAO.Treatment) then return false end
     local okP, part = pcall(function() return SAOJavaBridge:bleedingBodyPart(body) end)
     if not okP or part == nil then return false end
     local okB, item = pcall(function() return SAOJavaBridge:findBandage(body) end)
@@ -345,10 +346,10 @@ function N.bandageSelf(id, body)
     -- state, so it fires on a sleeping survivor - which is exactly
     -- when a survivor starts bleeding, because something found them
     -- asleep. A dropped bandage was reported as a bandage applied.
-    local queued = N.queueVerified(
-        ISApplyBandage:new(body, body, item, part, true))
-    if queued then log(id .. " bandages a wound") end
-    return queued
+    local receipt = SAO.Treatment.begin(id, body, id, body, item, part, {
+        effect = { log = id .. " bandages a wound" },
+    })
+    return receipt or false
 end
 
 -- Hand a spare piece of food to a fellow, through the vanilla transfer
@@ -403,10 +404,10 @@ end
 -- dressing holds. A Doctor-8 medic handing a bandage to a frightened
 -- clerk produced a clerk's dressing.
 --
--- Returns "treated", a pending Handover receipt, or false, because treatment
--- and giving the dressing are different acts with different completion proof.
+-- Returns a pending Treatment or Handover receipt, or false. The caller may
+-- react to the eventual durable result; queue admission is never treatment.
 function N.aidWound(id, body, patientBody, recipientId, options)
-    if not SAOJavaBridge then return false end
+    if not (SAOJavaBridge and SAO.Treatment and recipientId) then return false end
     local okS, item = pcall(function()
         return SAOJavaBridge:findSpareBandage(body)
     end)
@@ -425,16 +426,8 @@ function N.aidWound(id, body, patientBody, recipientId, options)
         end
     end)
     if part then
-        local okT = pcall(function()
-            ISTimedActionQueue.add(ISApplyBandage:new(
-                body, patientBody, item, part, true))
-        end)
-        if okT then
-            log(id .. " treats a wound - their own hands, their own"
-                .. " skill")
-            return "treated"
-        end
-        return false
+        return SAO.Treatment.begin(id, body, recipientId, patientBody, item,
+            part, options) or false
     end
     -- Nothing to treat, but a dressing they will need is still a
     -- kindness - just not a medical act. The old behaviour, kept
