@@ -17,6 +17,7 @@ CASES = ROOT / "tools/sweep/provisioning_lifecycle_cases.lua"
 CAPTURE = ROOT / "tools/sweep/decision_capture.lua"
 PERCEPTION = ROOT / "mod/42.20/media/lua/shared/SAO_Perception.lua"
 ATTACHMENT = ROOT / "mod/42.20/media/lua/shared/SAO_PlaceAttachment.lua"
+PROVISIONING = ROOT / "mod/42.20/media/lua/shared/SAO_Provisioning.lua"
 
 EXPECTED = {
     "acquire_performed", "store_performed", "no_consumption_or_need_credit",
@@ -37,6 +38,16 @@ EXPECTED = {
     "production_anchor_exact_scope", "production_consume_anchor",
     "production_inspection_no_attachment", "production_anchor_access_route",
     "production_building_visit_preserved",
+    "transfer_witnesses_at_mutation", "transfer_sleep_excluded",
+    "transfer_observation_detached", "transfer_no_reconstructed_witnesses",
+    "transfer_actor_intent_retained", "transfer_failed_move_unobserved",
+    "observed_holder_conflict_preserved", "observed_source_conflict_preserved",
+    "observed_terminal_ledger_scope", "observed_terminal_trim_protection",
+    "observed_terminal_reload_drain", "observed_terminal_replay_once",
+    "observed_terminal_no_material_credit", "observed_ack_allows_trim",
+    "observed_terminal_backpressure",
+    "transfer_large_sorted_witnesses", "transfer_large_reverse_witnesses",
+    "transfer_large_adversarial_witnesses", "transfer_large_witnesses_detached",
 }
 
 ADAPTERS = r'''
@@ -167,7 +178,7 @@ def _run(work, source, transfers, overrides=None):
     chunks.append(probe)
     # Load the real producer after adapter-based lifecycle coverage. These
     # cases cannot accidentally exercise the earlier perception test double.
-    for path in (PERCEPTION, ATTACHMENT):
+    for path in (PERCEPTION, ATTACHMENT, PROVISIONING):
         text = overrides.get(path.name)
         if text is not None:
             destination = work / path.name
@@ -207,6 +218,27 @@ def run_cases(overrides=None):
 
 
 MUTATIONS = (
+    ("native-witness-capture", "SAO_Needs.lua",
+     "if checked and fresh == true and SAO.SourceUse.observeNativeTransfer then",
+     "if false then", "transfer_witnesses_at_mutation"),
+    ("sleeping-witness", "SAO_SourceUse.lua",
+     "if agent and agent.sleeping then return end",
+     "if false then return end", "transfer_sleep_excluded"),
+    ("witness-order-retention", "SAO_WorldSources.lua",
+     "while at > 1 and ids[at - 1] > id do",
+     "while false do", "transfer_large_reverse_witnesses"),
+    ("native-observation-proof", "SAO_WorldSources.lua",
+     "nativeTransferProven = true,", "nativeTransferProven = false,",
+     "observed_source_conflict_preserved"),
+    ("observed-terminal-delivery", "SAO_Provisioning.lua",
+     "completedResults(CONSUMER, true)", "completedResults(CONSUMER)",
+     "observed_terminal_reload_drain"),
+    ("observed-terminal-retention", "SAO_WorldSources.lua",
+     'local protected = (receipt.status == "completed" or provedTransferObservation(receipt))',
+     'local protected = receipt.status == "completed"', "observed_terminal_trim_protection"),
+    ("observed-terminal-backpressure", "SAO_WorldSources.lua",
+     'if (receipt.status == "completed" or provedTransferObservation(receipt))',
+     'if receipt.status == "completed"', "observed_terminal_backpressure"),
     ("authority-at-transfer", "SAO_Needs.lua",
      "if not self:isValid() then self.dontAdd = true; return end", "if false then return end",
      "standing_revocation_prevents_mutation"),
@@ -230,6 +262,36 @@ MUTATIONS = (
      "production_inspection_no_attachment"),
 )
 
+WITNESS_INSERTION = """            local at = #ids + 1
+            while at > 1 and ids[at - 1] > id do
+                ids[at] = ids[at - 1]
+                at = at - 1
+            end
+            ids[at], seen[id] = id, true"""
+
+
+def _recursive_witness_control(work, source, transfers):
+    """Restore the former native sort; do not simulate an overflow verdict."""
+    original = source.WORLD.read_text(encoding="utf-8")
+    marker = "    local ownAppraisals = {}"
+    if original.count(WITNESS_INSERTION) != 1 or original.count(marker) != 1:
+        print("FAIL recursive witness sort control anchor")
+        return False
+    unsafe = original.replace(WITNESS_INSERTION,
+        "            ids[#ids + 1], seen[id] = id, true", 1)
+    unsafe = unsafe.replace(marker, "    table.sort(ids)\n" + marker, 1)
+    checks, detail = _run(work, source, transfers, {source.WORLD.name: unsafe})
+    if re.search(r"(?i)stack\s*overflow", detail):
+        print("PASS recursive witness sort control: installed Kahlua stack overflow reproduced")
+        return True
+    if set(checks) == EXPECTED and all(value == "true" for value in checks.values()):
+        print("LIMIT recursive witness sort did not overflow for these 1,601-witness inputs; "
+              "ordering/retention mutation is the bounded control")
+        return True
+    print("FAIL recursive witness sort control had an unclassified engine failure")
+    print(detail[-3000:])
+    return False
+
 
 def main():
     source, transfers = _dependencies()
@@ -239,7 +301,7 @@ def main():
         return 0
     paths = {path.name: path for path in (source.NEEDS, source.SOURCE_USE,
                                         source.CONTROLLER, source.WORLD,
-                                        CAPTURE, PERCEPTION)}
+                                        CAPTURE, PERCEPTION, PROVISIONING)}
     with tempfile.TemporaryDirectory(prefix="sao-transfer-lifecycle-") as temporary:
         work = pathlib.Path(temporary)
         _compile(work, source)
@@ -263,6 +325,8 @@ def main():
                 print(detail[-2500:])
                 return 1
             print(f"PASS lifecycle mutation {name}: {expected}=false")
+        if not _recursive_witness_control(work, source, transfers):
+            return 1
     return 0
 
 

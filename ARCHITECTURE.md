@@ -1,6 +1,6 @@
 | Document | Survivor Awareness Overhaul Architecture |
 |---|---|
-| Version | `2.8.3.0-pre-alpha` |
+| Version | `2.8.4.0-pre-alpha` |
 | Author | ellyj3rain |
 | Repository | `ARCHITECTURE.md` |
 | Status | ACTIVE - ratified framework shape. |
@@ -504,3 +504,33 @@ than cooperation with it. Rejected on those grounds.
 **Widening perception to fix a decision.** Any fix that gives a survivor more
 world access to make a better choice is treated as a defect in the decision model,
 not a solution.
+
+
+## Performed transfer knowledge (C67)
+
+WorldSources remains the durable action/result owner and Provisioning the sole
+result consumer. The verified native transfer wrapper freezes physical proof,
+actor, contemporaneous witnesses, time and position before later reconciliation.
+Private observation can survive a later material conflict without declaring the
+action's final source reconciliation successful. Unacknowledged observations
+remain protected until the same consumer delivers them.
+
+Perception owns bounded private episodes and aid requests in its existing saved
+beliefs. Episodes distinguish event time, personal acquisition time, origin and
+immediate teller. Testimony uses listener skepticism and speaker willingness,
+plus current loaded hearing or a supported adjacent dormant encounter. Actor
+intent, hidden item properties and source inventory do not become witness facts.
+Knowledge projects the facts through existing food/water topics without writes.
+Historical request readers withhold current-only location joins.
+
+A witness on their own held ground can assess a stored item against their own
+category need, compassion and trust at that moment. Only that person's episode
+contains the appraisal. Remembered reciprocity bends the existing charity
+decision toward the benefactor; it creates no collectible balance or accumulating
+trust. Appraisals never travel with testimony.
+
+Native hearing reads current loaded conditions or validated v3/v4 saved traits
+and worn gear; saved reading creates no body or item. Generated default access
+has explicit Identity provenance. PhysicalFacts captures sleep. Older unknown
+state and dormant sleeping state await measured acquisition or an actual wake
+producer; possession alone does not prove radio comprehension.

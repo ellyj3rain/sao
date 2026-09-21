@@ -113,6 +113,15 @@ BOUNDED = {
         "one building at a time as a person actually stands in it; a "
         "group is at most the county, so the widest honest bound is a "
         "town's own buildings - the map's number, not the code's",
+    ("SAO_Perception.lua", "ordered"):
+        "C67 transfer and aid-request maps are written only by acquisitions "
+        "that evict at TRANSFER_LIMIT (64); writers sort at most 65 entries "
+        "before eviction and transferFacts reads at most 64. Border180's "
+        "production retention cases and eviction mutation verify that bound",
+    ("SAO_Perception.lua", "out"):
+        "knownAidRequests filters one person's aid-request map, capped at "
+        "TRANSFER_LIMIT (64) by recordAidRequest on every acquisition; "
+        "Border180 checks retention and refusal to resurrect evicted requests",
     ("SAO_Integration.lua", "ids"):
         "stable runtime extension ids; registerExtension enforces an "
         "EXTENSION_CEILING of 128 and ensure refuses an inherited registry "

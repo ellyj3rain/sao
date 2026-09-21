@@ -1380,6 +1380,15 @@ public final class SAOBridge {
         return 0;
     }
 
+    /** [C67] Native saved hearing; unavailable evidence never means can-hear. */
+    public String hibernationHearingAccess(Object packed) {
+        try {
+            return com.sao.engine.SAONativeSnapshot.hearingAccess(SAODurableText.unpack(packed));
+        } catch (Throwable unavailable) {
+            return "UNKNOWN:invalid-snapshot";
+        }
+    }
+
     public Object createReturnBody(String first, String last, double x, double y, double z, boolean female) {
         return com.sao.engine.SAOReturnBody.create(first, last, x, y, z, female);
     }
@@ -2014,6 +2023,48 @@ public final class SAOBridge {
                 observer, other, (float) actionRange);
         } catch (Throwable throwable) {
             return false;
+        }
+    }
+
+    /** [C67] Current actor and exact holder visibility for transfer witnesses. */
+    public boolean canWitnessWorldTransfer(Object observerObject, Object actorObject,
+            Object containerObject, double range) {
+        try {
+            if (!(observerObject instanceof IsoGameCharacter observer)
+                    || !(actorObject instanceof IsoGameCharacter actor)
+                    || !(containerObject instanceof zombie.inventory.ItemContainer container)
+                    || !Double.isFinite(range) || range < 0.0 || range > Float.MAX_VALUE) {
+                return false;
+            }
+            return com.sao.engine.SAOPerceptionScanner.canWitnessWorldTransfer(
+                observer, actor, container, (float) range);
+        } catch (Throwable unavailable) {
+            return false;
+        }
+    }
+
+    /** [C67] Directed short-range speech admission using current native bodies. */
+    public boolean canConverseNow(Object speakerObject, Object listenerObject,
+            double range) {
+        try {
+            if (!(speakerObject instanceof IsoGameCharacter speaker)
+                    || !(listenerObject instanceof IsoGameCharacter listener)
+                    || !Double.isFinite(range) || range < 0.0 || range > Float.MAX_VALUE) {
+                return false;
+            }
+            return com.sao.engine.SAOPerceptionScanner.canConverseNow(
+                speaker, listener, (float) range);
+        } catch (Throwable unavailable) {
+            return false;
+        }
+    }
+
+    /** [C67] Shared native speech weather factor; NaN means unavailable. */
+    public double speechWeatherHearing() {
+        try {
+            return com.sao.engine.SAOPerceptionScanner.speechWeatherHearing();
+        } catch (Throwable unavailable) {
+            return Double.NaN;
         }
     }
 

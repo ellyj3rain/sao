@@ -67,6 +67,74 @@
         check("production_building_visit_preserved",known[42] and known[42].visits == 1
             and known[anchor.id] == nil and #ranking == 1 and ranking[1].id == 42
             and attachment.knownPlaces == 1 and attachment.visitedPlaces == 1)
+
+        -- Replay the actual native-move-then-conflict ledger produced below,
+        -- after replacing runtime minds and binding the production consumer.
+        __stores, __records = __observedConflict.stores, __observedConflict.records
+        local eventId = __observedConflict.id
+        local durable = __stores.SurvivorAwareness_WorldSources
+        P.beliefs, P.beliefVersion = {}, 0
+        __stores.SurvivorAwareness_Beliefs = {}
+        WS.resetRuntime()
+        WS.reconcileReservations()
+        local default = WS.completedResults("provisioning")
+        local observed = WS.completedResults("provisioning", true)
+        check("observed_terminal_ledger_scope",#default == 0 and #observed == 1
+            and observed[1].reservationId == eventId and observed[1].status == "conflict"
+            and #WS.completedResults("someone-else", true) == 0)
+        for i=1,2048 do
+            durable.results["retention-" .. i] = {reservationId="retention-" .. i,
+                status="released",actorId="absent",order=i+1}
+        end
+        local function triggerTrim(id)
+            durable.reservations[id] = {id=id,status="reserved",actorId="absent",
+                operation="consume",category="food"}
+            durable.resultSequence = durable.resultSequence + 3000
+            WS.release(id,"fixture-terminal")
+        end
+        triggerTrim("retention-trigger")
+        check("observed_terminal_trim_protection",durable.results[eventId] ~= nil
+            and not WS.resultAcknowledged(eventId,"provisioning"))
+        local graphCalls, materialCalls = 0, 0
+        SAO.GraphPersistence = {bind=function() graphCalls=graphCalls+1; return true end}
+        SAO.Material = {reconciliation=function() materialCalls=materialCalls+1 end,
+            reconcileCompleted=function() materialCalls=materialCalls+1 end}
+        __xpCalls, __trustCalls, __debtCalls, __voiceCalls = 0, 0, 0, 0
+        local consumed, pending = SAO.Provisioning.consumeCompleted()
+        local own, witness = P.transferFact("a",eventId), P.transferFact("witness",eventId)
+        check("observed_terminal_reload_drain",consumed == 1 and pending == 0 and own and witness
+            and own.source == "performed" and witness.source == "observed"
+            and own.eventAt == 48 and witness.x == 8 and witness.y == 8
+            and P.transferFact("late",eventId) == nil
+            and WS.resultAcknowledged(eventId,"provisioning")
+            and WS.actionOutcome(eventId,"a").status == "conflict")
+        local durableMind = __stores.SurvivorAwareness_Beliefs
+        P.beliefs = {}
+        P.bindPersistentStore()
+        local version = P.beliefVersion
+        consumed, pending = SAO.Provisioning.consumeCompleted()
+        local retained = P.transferFact("witness",eventId)
+        check("observed_terminal_replay_once",consumed == 0 and pending == 0
+            and witness and retained and retained.acquiredAt == witness.acquiredAt
+            and P.beliefs == durableMind and P.beliefVersion == version
+            and #P.transferFacts("witness") == 1)
+        check("observed_terminal_no_material_credit",graphCalls == 0 and materialCalls == 0
+            and __xpCalls == 0 and __trustCalls == 0 and __debtCalls == 0 and __voiceCalls == 0
+            and __records.a.provisioningCreditOrder == nil)
+        triggerTrim("after-ack-trigger")
+        check("observed_ack_allows_trim",durable.results[eventId] == nil)
+
+        -- A full undelivered observation ledger applies the same admission
+        -- backpressure as completions; it never grows past the durable bound.
+        durable.results = {}
+        for i=1,2048 do
+            durable.results["undelivered-" .. i] = {reservationId="undelivered-" .. i,
+                status="conflict",operation="store",order=i,
+                transferObservation={nativeTransferProven=true}}
+        end
+        local offered, why = WS.transferOptions("a",__bodies.a,"food","standing",
+            {id=101}, {}, "store")
+        check("observed_terminal_backpressure",offered == nil and why == "result-bound")
         return table.concat(checks,"|")
     end
     local WS, SU, Ctl = SAO.WorldSources, SAO.SourceUse, SAO.Controller
@@ -157,6 +225,122 @@
         and __carriedItem == __sourceItem and __nativeMoves == 1)
     local acquireNoUse = __consumeCalls == 0 and __records.a.lastFoodDay == nil
         and __records.a.lastWaterDay == nil
+
+    body = reset("store")
+    __bodies.witness, __bodies.sleeping, __bodies.hidden =
+        __newBody(8,8), __newBody(8,8), __newBody(8,8)
+    Ctl.agents.sleeping = {sleeping=true}
+    SAOJavaBridge.canWitnessWorldTransfer = function(self, observer)
+        return observer ~= __bodies.hidden
+    end
+    ok, reservation = begin(body,"store",{purpose="delivery",deliveryGroup="house",
+        requestedByGroup="house"})
+    local noEarlyWitness = reservation and reservation.transferObservation == nil
+    __queued:transferItem(__sourceItem)
+    local captured = reservation and reservation.transferObservation
+    __bodies.late = __newBody(8,8)
+    __busy, __queued = false, nil
+    SU.tick("a",body)
+    receipt = outcome(reservation)
+    local observation = receipt and receipt.transferObservation
+    check("transfer_witnesses_at_mutation",noEarlyWitness and captured
+        and observation and observation.at == 48 and observation.actorId == "a"
+        and #observation.witnesses == 1 and observation.witnesses[1] == "witness")
+    local noSleeper = true
+    for _, person in ipairs(observation and observation.witnesses or {}) do
+        if person == "sleeping" then noSleeper = false end
+    end
+    check("transfer_sleep_excluded",observation and noSleeper)
+    check("transfer_actor_intent_retained",receipt and receipt.transferPurpose == "delivery"
+        and receipt.deliveryGroup == "house" and receipt.requestedByGroup == "house")
+    if observation then observation.witnesses[1] = "tampered" end
+    local immutable = outcome(reservation)
+    check("transfer_observation_detached",immutable and immutable.transferObservation
+        and immutable.transferObservation.witnesses[1] == "witness")
+
+    -- Stress the production durable capture port, independently of native
+    -- visibility (covered above). Input order must not bound who can remember.
+    local largeDetached = true
+    for _, ordering in ipairs({"sorted", "reverse", "adversarial"}) do
+        body = reset("store")
+        ok, reservation = begin(body,"store")
+        __move()
+        local witnesses, expected = {}, {}
+        for i=1,1601 do
+            local index = ordering == "reverse" and 1602-i or i
+            local person = ordering == "adversarial" and ("modx:Fabricated" .. index)
+                or ("witness-" .. string.format("%04d", index))
+            witnesses[#witnesses+1], expected[person] = person, true
+        end
+        witnesses[#witnesses+1], witnesses[#witnesses+2] = witnesses[1], "a"
+        local capturedAll = WS.recordTransferObservation(reservation.id,"a",48,
+            witnesses,{x=8,y=8,z=0})
+        __busy, __queued = false, nil
+        SU.tick("a",body)
+        local capturedReceipt = outcome(reservation)
+        local stored = capturedReceipt and capturedReceipt.transferObservation
+        local all, ordered = stored and #stored.witnesses == 1601, true
+        local found = {}
+        for i, person in ipairs(stored and stored.witnesses or {}) do
+            all = all and expected[person] == true and not found[person]
+            found[person] = true
+            if i > 1 and stored.witnesses[i-1] >= person then ordered = false end
+        end
+        check("transfer_large_" .. ordering .. "_witnesses",capturedAll and all and ordered)
+        local first = stored and stored.witnesses[1]
+        witnesses[1] = "changed-input"
+        if stored then stored.witnesses[1] = "changed-output" end
+        local fresh = outcome(reservation)
+        largeDetached = largeDetached and fresh and fresh.transferObservation
+            and #fresh.transferObservation.witnesses == 1601
+            and fresh.transferObservation.witnesses[1] == first
+    end
+    check("transfer_large_witnesses_detached",largeDetached)
+
+    body = reset("store")
+    ok, reservation = begin(body,"store")
+    __move() -- A saved native effect without a contemporaneous observation.
+    body = reload(body)
+    SU.tick("a",body)
+    receipt = outcome(reservation)
+    check("transfer_no_reconstructed_witnesses",receipt and receipt.status == "completed"
+        and receipt.transferObservation == nil)
+
+    body = reset("store")
+    ok, reservation = begin(body,"store")
+    __move = function() end
+    __queued:transferItem(__sourceItem)
+    check("transfer_failed_move_unobserved",reservation and reservation.transferObservation == nil)
+
+    body = reset("store")
+    __bodies.witness = __newBody(8,8)
+    ok, reservation = begin(body,"store")
+    __queued:transferItem(__sourceItem)
+    __destinationItem, __carriedItem = nil, nil -- A later native actor took it.
+    __busy, __queued = false, nil
+    SU.tick("a",body)
+    receipt = outcome(reservation)
+    check("observed_holder_conflict_preserved",receipt and receipt.status == "conflict"
+        and receipt.detail == "transfer-holder-conflict" and receipt.transferObservation
+        and receipt.transferObservation.nativeTransferProven == true
+        and __nativeMoves == 1 and __xpCalls == 0)
+
+    body = reset("store")
+    __bodies.witness = __newBody(8,8)
+    ok, reservation = begin(body,"store")
+    __queued:transferItem(__sourceItem)
+    __observeText = __store_changed -- An unrelated item changed after our move.
+    __bodies.late = __newBody(8,8)
+    __busy, __queued = false, nil
+    SU.tick("a",body)
+    receipt = outcome(reservation)
+    check("observed_source_conflict_preserved",receipt and receipt.status == "conflict"
+        and receipt.detail == "native-source-conflict" and receipt.transferObservation
+        and receipt.transferObservation.nativeTransferProven == true
+        and #receipt.transferObservation.witnesses == 1
+        and receipt.transferObservation.witnesses[1] == "witness"
+        and __nativeMoves == 1 and __xpCalls == 0)
+    __observedConflict = {stores=__stores,records=__records,id=reservation.id}
 
     body = reset("store")
     ok, reservation = begin(body,"store",{deliveryGroup="home",requestedByGroup="home"})

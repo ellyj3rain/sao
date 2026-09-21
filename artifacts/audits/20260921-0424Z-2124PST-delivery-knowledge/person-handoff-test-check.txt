@@ -1,0 +1,32 @@
+production: VALUE PASS
+CONTROL invalid release snapshot was published: REJECTED ERROR KahluaException: invalid release snapshot was published
+CONTROL invalid transfer snapshot was published: REJECTED ERROR KahluaException: invalid transfer snapshot was published
+CONTROL invalid release snapshot was published: REJECTED ERROR KahluaException: invalid release snapshot was published
+CONTROL release refused durable table payload: REJECTED ERROR KahluaException: release refused durable table payload
+CONTROL death did not attempt pending cleanup: REJECTED ERROR KahluaException: death did not attempt pending cleanup
+CONTROL ordinary dead person reconstructed: REJECTED ERROR KahluaException: ordinary dead person reconstructed
+CONTROL dead transition falsely completed: REJECTED ERROR KahluaException: dead transition falsely completed
+CONTROL capture failure relinquished ownership: REJECTED ERROR KahluaException: capture failure relinquished ownership: empty
+CONTROL teardown failure reported success: REJECTED ERROR KahluaException: teardown failure reported success
+CONTROL saved pending release lost: REJECTED ERROR KahluaException: pending body remained available or became dormant
+CONTROL population dropped early: REJECTED ERROR KahluaException: population dropped early
+CONTROL release lost the observed infection interval: REJECTED ERROR KahluaException: release lost the observed infection interval
+CONTROL harness dropped early: REJECTED ERROR KahluaException: harness dropped early
+CONTROL harness did not restore current person: REJECTED ERROR KahluaException: harness did not restore current person
+CONTROL release lost captured appearance: REJECTED ERROR KahluaException: release lost captured appearance
+CONTROL failed visual restore exposed body: REJECTED ERROR KahluaException: failed visual restore exposed body
+CONTROL failed clear orphaned person: REJECTED ERROR KahluaException: failed clear orphaned person
+CONTROL pending body advanced: REJECTED ERROR KahluaException: pending body advanced
+CONTROL pending Crossed body advanced: REJECTED ERROR KahluaException: controller did not trigger Crossed handoff after source terminal
+CONTROL age mutated pending body: REJECTED ERROR KahluaException: age mutated pending body
+CONTROL drugs mutated pending body: REJECTED ERROR KahluaException: drugs mutated pending body
+CONTROL afflicted callback mutated pending body: REJECTED ERROR KahluaException: afflicted callback mutated pending body
+CONTROL incoming action did not retain target: REJECTED ERROR KahluaException: incoming action did not retain target
+CONTROL incoming action did not retain target: REJECTED ERROR KahluaException: incoming action did not retain target
+CONTROL external owner or snapshot did not commit: REJECTED ERROR KahluaException: external owner or snapshot did not commit
+CONTROL one body retained two runtime owners: REJECTED ERROR KahluaException: one body retained two runtime owners
+CONTROL ordinary SAO materialization stole external owner: REJECTED ERROR KahluaException: ordinary SAO materialization stole external owner
+CONTROL external death retained living ownership or lost its cause: REJECTED ERROR KahluaException: external death retained living ownership or lost its cause
+CONTROL busy conversion was not retried from durable pending state: REJECTED ERROR KahluaException: controller did not trigger Crossed handoff after source terminal
+CONTROL pending conversion reload did not transfer dormant snapshot: REJECTED ERROR KahluaException: pending conversion reload did not transfer dormant snapshot
+  162) PASS -- person ownership handoff

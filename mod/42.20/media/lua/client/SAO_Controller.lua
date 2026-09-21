@@ -4264,16 +4264,16 @@ local function decideRoam(id, agent, body, tick, interval, desig, idleRec)
         local pg = SAO.Standing.groupOf(id)
         local ally = pg and SAO.Standing.pactPartnerOf
             and SAO.Standing.pactPartnerOf(pg) or nil
-        -- [B23] And when there is no pact, a house that has
-        -- ASKED. Same legs, same deposit - the difference is
-        -- only who is owed at the end of it.
-        local asked = nil
+        -- A request reaches this carrier through their own knowledge.
+        -- Starting a delivery establishes neither completion nor obligation.
+        local asked, askedClaim = nil, nil
         if not ally and pg and SAO.Standing.nearestAsking then
-            asked = SAO.Standing.nearestAsking(pg)
+            asked, askedClaim = SAO.Standing.nearestAsking(pg, id)
         end
         local bringTo = ally or asked
-        local allyClaim = bringTo
-            and SAO.Standing.groupClaimOf(bringTo) or nil
+        local deliveryBeliefs = SAO.Perception.beliefs[id]
+        local allyClaim = askedClaim or (bringTo and deliveryBeliefs
+            and deliveryBeliefs.factions and deliveryBeliefs.factions[bringTo])
         if allyClaim then
             -- [C108] The delivery is kept standing on ANY of
             -- the ally's ground - a stash or a second house
@@ -4296,16 +4296,13 @@ local function decideRoam(id, agent, body, tick, interval, desig, idleRec)
                 setState(agent, id, "TAKE", why52, "designation")
                 return true
             end
-            -- A lean ally quickens the runs ([A28]): pact
-            -- houses talk, so the partner's own counted
-            -- shelves (their fresh larder claim) halve the
-            -- delivery cadence. Composition of existing
-            -- claims - no new fiat.
+            -- A heard request quickens a pact delivery. Remote shelf counts
+            -- remain world state until this carrier learns about them.
             local allyLean = false
             do
-                local al6 = ally and SAO.Standing.larderOf
-                    and SAO.Standing.larderOf(ally) or nil
-                allyLean = (al6 and al6.word == "lean") or false
+                for _, request in ipairs(SAO.Perception.knownAidRequests(id)) do
+                    if request.groupId == ally then allyLean = true; break end
+                end
             end
             if not inAlly
                 and tick >= (agent.nextPactRunAt or 0)
@@ -4379,7 +4376,7 @@ local function decideRoam(id, agent, body, tick, interval, desig, idleRec)
                         -- count is already made; this only
                         -- lets it leave the building.
                         pcall(function()
-                            SAO.Standing.callForBread(qG)
+                            SAO.Standing.callForBread(qG, id)
                         end)
                         pcall(function()
                             SAO.Voice.onEvent(id,

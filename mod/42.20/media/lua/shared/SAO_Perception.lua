@@ -189,6 +189,403 @@ local function store(id)
     return P.beliefs[id]
 end
 
+-- Completed transfers are dated episodes, separate from short-lived position
+-- sightings and current source contents. The initial recall span follows the
+-- existing fourteen-day relation window; personal memory conditions scale it.
+local TRANSFER_LIMIT = 64
+local TRANSFER_HOURS = 14 * 24
+
+local function transferNumber(value)
+    return type(value) == "number" and value == value
+        and value > -math.huge and value < math.huge
+end
+
+local function transferNow(given)
+    if given ~= nil then
+        return transferNumber(given) and given >= 0 and given or nil
+    end
+    local ok, at = pcall(function() return SAO.History.countyHours() end)
+    return ok and transferNumber(at) and at >= 0 and at or nil
+end
+
+local function transferCopy(fact, includeAppraisal)
+    local out = {}
+    for _, key in ipairs({ "eventId", "actorId", "operation", "itemType",
+        "category", "sourceId", "placeId", "x", "y", "z", "eventAt",
+        "acquiredAt", "source", "teller", "originId", "originSource",
+        "originAcquiredAt" }) do
+        out[key] = fact[key]
+    end
+    if includeAppraisal and fact.source == "observed"
+        and type(fact.appraisal) == "table"
+        and transferNumber(fact.appraisal.pressure)
+        and fact.appraisal.pressure >= 0 and fact.appraisal.pressure <= 1
+        and transferNumber(fact.appraisal.reciprocity)
+        and fact.appraisal.reciprocity >= -1 and fact.appraisal.reciprocity <= 1 then
+        out.appraisal = { pressure = fact.appraisal.pressure,
+            reciprocity = fact.appraisal.reciprocity }
+    end
+    return out
+end
+
+local function transferHorizon(id)
+    local ok, factor = pcall(function()
+        return SAO.Conditions.memoryFactor(id, "transfers")
+    end)
+    if not ok or not transferNumber(factor) or factor <= 0 then factor = 1 end
+    return TRANSFER_HOURS * factor
+end
+
+local function transferState(fact, now, horizon)
+    if type(fact) ~= "table" or not transferNumber(fact.eventAt)
+        or not transferNumber(fact.acquiredAt)
+        or fact.eventAt < 0 or fact.eventAt > fact.acquiredAt
+        or fact.acquiredAt > now
+        or type(fact.eventId) ~= "string" or fact.eventId == ""
+        or type(fact.actorId) ~= "string" or fact.actorId == ""
+        or type(fact.itemType) ~= "string" or fact.itemType == ""
+        or type(fact.sourceId) ~= "string" or fact.sourceId == ""
+        or (fact.operation ~= "store" and fact.operation ~= "acquire")
+        or (fact.category ~= "food" and fact.category ~= "water")
+        or not transferNumber(fact.x) or not transferNumber(fact.y)
+        or not transferNumber(fact.z)
+        or (fact.source ~= "performed" and fact.source ~= "observed"
+            and fact.source ~= "told")
+        or type(fact.originId) ~= "string" or fact.originId == ""
+        or (fact.originSource ~= "performed" and fact.originSource ~= "observed")
+        or not transferNumber(fact.originAcquiredAt)
+        or fact.originAcquiredAt < fact.eventAt
+        or fact.originAcquiredAt > fact.acquiredAt
+        or (fact.source == "told" and (type(fact.teller) ~= "string"
+            or fact.teller == "")) then return "unavailable" end
+    return now - fact.eventAt <= horizon and "remembered" or "forgotten"
+end
+
+local function transferOrder(a, b)
+    local atA, atB = tonumber(a.eventAt) or -math.huge,
+        tonumber(b.eventAt) or -math.huge
+    if atA ~= atB then return atA < atB end
+    return tostring(a.eventId) < tostring(b.eventId)
+end
+
+-- A detached reader: questions neither create a mind nor refresh its memory.
+-- Forgotten entries reveal no former actor, item or location to a consumer.
+function P.transferFacts(id, nowHours)
+    local now = transferNow(nowHours)
+    local b = P.beliefs[tostring(id or "")]
+    if not now or not b or type(b.transfers) ~= "table" then
+        return {}, "unavailable"
+    end
+    local ordered = {}
+    for eventId, fact in pairs(b.transfers) do
+        ordered[#ordered + 1] = { eventId = tostring(eventId),
+            eventAt = type(fact) == "table" and fact.eventAt or nil,
+            fact = fact }
+    end
+    table.sort(ordered, transferOrder)
+    local out, horizon = {}, transferHorizon(id)
+    for _, entry in ipairs(ordered) do
+        local state = transferState(entry.fact, now, horizon)
+        local fact = state == "remembered" and transferCopy(entry.fact, true)
+            or { eventId = entry.eventId }
+        fact.state = state
+        out[#out + 1] = fact
+    end
+    return out, "available"
+end
+
+function P.transferFact(id, eventId, nowHours)
+    local facts, availability = P.transferFacts(id, nowHours)
+    for _, fact in ipairs(facts) do
+        if fact.eventId == tostring(eventId or "") then
+            return fact, fact.state
+        end
+    end
+    return nil, availability == "available" and "not-known" or "unavailable"
+end
+
+function P.reciprocityToward(id, actorId, nowHours)
+    local strongest, eventId = 0, nil
+    for _, fact in ipairs(P.transferFacts(id, nowHours)) do
+        local value = fact.appraisal and fact.appraisal.reciprocity
+        if fact.state == "remembered" and fact.source == "observed"
+            and fact.actorId == tostring(actorId or "") and transferNumber(value)
+            and math.abs(value) >= math.abs(strongest) then
+            strongest, eventId = value, fact.eventId
+        end
+    end
+    return strongest, eventId
+end
+
+local function sameTransfer(a, b)
+    for _, key in ipairs({ "eventId", "actorId", "operation", "itemType",
+        "category", "sourceId", "placeId", "x", "y", "z", "eventAt" }) do
+        if a[key] ~= b[key] then return false end
+    end
+    return true
+end
+
+local function rememberTransfer(id, fact)
+    local b = store(tostring(id))
+    b.transfers = b.transfers or {}
+    if type(b.transferFloor) == "table" and not transferOrder(b.transferFloor, fact) then
+        return false
+    end
+    local existing = b.transfers[fact.eventId]
+    -- The first telling stays dated; another telling cannot refresh it or
+    -- replace a firsthand episode. A captured firsthand result may replace
+    -- testimony about that exact same event.
+    if existing and (existing.source ~= "told" or fact.source == "told") then
+        return false
+    end
+    b.transfers[fact.eventId] = transferCopy(fact, true)
+    local ordered = {}
+    for eventId, entry in pairs(b.transfers) do
+        ordered[#ordered + 1] = { eventId = eventId, eventAt = entry.eventAt }
+    end
+    table.sort(ordered, transferOrder)
+    for i = 1, #ordered - TRANSFER_LIMIT do
+        b.transfers[ordered[i].eventId] = nil
+        b.transferFloor = { eventAt = ordered[i].eventAt, eventId = ordered[i].eventId }
+    end
+    P.beliefVersion = P.beliefVersion + 1
+    return b.transfers[fact.eventId] ~= nil
+end
+
+-- The action owner supplies witnesses captured at the native transfer. Later
+-- membership, proximity and receipt reconciliation never add witnesses.
+function P.receiveTransferResult(receipt)
+    if type(receipt) ~= "table" then return false, "invalid-result" end
+    local observation = receipt.transferObservation
+    if receipt.status ~= "completed" and receipt.status ~= "conflict"
+        and receipt.status ~= "released" and receipt.status ~= "interrupted" then
+        return false, "unperformed-transfer"
+    end
+    if observation == nil then
+        if receipt.status == "completed" then return true, "observation-unavailable" end
+        return false, "unproved-transfer"
+    end
+    if type(observation) ~= "table" or observation.nativeTransferProven ~= true
+        or (receipt.operation ~= "store" and receipt.operation ~= "acquire") then
+        return false, "unproved-transfer"
+    end
+    local now = transferNow()
+    if not now then return false, "clock-unavailable" end
+    if type(observation) ~= "table"
+        or type(observation.witnesses) ~= "table"
+        or type(receipt.reservationId) ~= "string" or receipt.reservationId == ""
+        or type(receipt.actorId) ~= "string" or receipt.actorId == ""
+        or observation.actorId ~= receipt.actorId
+        or type(receipt.itemType) ~= "string" or receipt.itemType == ""
+        or type(receipt.sourceId) ~= "string" or receipt.sourceId == ""
+        or (receipt.category ~= "food" and receipt.category ~= "water")
+        or not transferNumber(observation.at) or observation.at < 0
+        or not transferNumber(receipt.at) or observation.at > receipt.at
+        or receipt.at > now or not transferNumber(observation.x)
+        or not transferNumber(observation.y) or not transferNumber(observation.z) then
+        return false, "invalid-observation"
+    end
+    local fact = { eventId = receipt.reservationId, actorId = receipt.actorId,
+        operation = receipt.operation, itemType = receipt.itemType,
+        category = receipt.category, sourceId = receipt.sourceId,
+        placeId = receipt.placeId and tostring(receipt.placeId) or nil,
+        x = observation.x, y = observation.y, z = observation.z,
+        eventAt = observation.at, acquiredAt = observation.at,
+        originAcquiredAt = observation.at }
+    local recipients = { [receipt.actorId] = "performed" }
+    local count = 0
+    for key, witness in pairs(observation.witnesses) do
+        count = count + 1
+        if type(key) ~= "number" or key < 1 or key ~= math.floor(key)
+            or type(witness) ~= "string" or witness == "" then
+            return false, "invalid-witnesses"
+        end
+        if witness ~= receipt.actorId then recipients[witness] = "observed" end
+    end
+    if count ~= #observation.witnesses then return false, "invalid-witnesses" end
+    local appraisals = observation.appraisals
+    if appraisals ~= nil and type(appraisals) ~= "table" then
+        return false, "invalid-appraisal"
+    end
+    for id, appraisal in pairs(appraisals or {}) do
+        if recipients[id] ~= "observed" or receipt.operation ~= "store"
+            or type(appraisal) ~= "table" or not transferNumber(appraisal.pressure)
+            or appraisal.pressure < 0 or appraisal.pressure > 1
+            or not transferNumber(appraisal.reciprocity)
+            or appraisal.reciprocity < -1 or appraisal.reciprocity > 1 then
+            return false, "invalid-appraisal"
+        end
+    end
+    for id in pairs(recipients) do
+        local b = P.beliefs[id]
+        local existing = b and b.transfers and b.transfers[fact.eventId]
+        if existing and (type(existing) ~= "table" or not sameTransfer(existing, fact)) then
+            return false, "conflicting-event"
+        end
+    end
+    for id, source in pairs(recipients) do
+        fact.source, fact.originSource, fact.originId = source, source, id
+        fact.appraisal = source == "observed" and appraisals and appraisals[id] or nil
+        rememberTransfer(id, fact)
+    end
+    return true, "recorded"
+end
+
+local function tellTransfers(fromId, toId, channel, aroundX, aroundY)
+    local admitted, canConverse = pcall(function()
+        return SAO.Communication.canConverse(fromId, toId, channel)
+    end)
+    if not admitted or canConverse ~= true then return 0 end
+    local now = transferNow()
+    if not now then return 0 end
+    local facts, moved = P.transferFacts(fromId, now), 0
+    for _, fact in ipairs(facts) do
+        local inGround = true
+        if aroundX and aroundY then
+            local dx, dy = (fact.x or math.huge) - aroundX,
+                (fact.y or math.huge) - aroundY
+            inGround = fact.source ~= "told"
+                and dx * dx + dy * dy <= P.GROUND_REACH * P.GROUND_REACH
+        end
+        if fact.state == "remembered" and inGround
+            and now - fact.eventAt <= transferHorizon(toId) then
+            local told = transferCopy(fact)
+            told.source, told.teller, told.acquiredAt = "told", tostring(fromId), now
+            if rememberTransfer(toId, told) then moved = moved + 1 end
+        end
+    end
+    return moved
+end
+
+local AID_REQUEST_HOURS = 96
+
+function P.recordAidRequest(id, groupId, requestedAt, source, teller)
+    local now = transferNow()
+    if not now or type(id) ~= "string" or id == ""
+        or type(groupId) ~= "string" or groupId == ""
+        or not transferNumber(requestedAt) or requestedAt < 0
+        or requestedAt > now or now - requestedAt > AID_REQUEST_HOURS
+        or (source ~= "requested" and source ~= "told") then return false end
+    local originId, originAcquiredAt = id, requestedAt
+    if source == "told" then
+        if type(teller) ~= "string" or teller == "" then return false end
+        local from = P.beliefs[teller]
+        local original = from and from.aidRequests and from.aidRequests[groupId]
+        if type(original) ~= "table" or original.requestedAt ~= requestedAt
+            or not transferNumber(original.acquiredAt)
+            or original.acquiredAt > now then return false end
+        originId = original.originId
+        originAcquiredAt = original.originAcquiredAt
+        if type(originId) ~= "string" or originId == ""
+            or not transferNumber(originAcquiredAt)
+            or originAcquiredAt < requestedAt
+            or originAcquiredAt > now then return false end
+    end
+    local b = store(id)
+    b.aidRequests = b.aidRequests or {}
+    local order = { eventAt = requestedAt, eventId = groupId }
+    if type(b.aidRequestFloor) == "table" and not transferOrder(b.aidRequestFloor, order) then
+        return false
+    end
+    local existing = b.aidRequests[groupId]
+    if type(existing) == "table" then
+        if existing.requestedAt > requestedAt then return false end
+        if existing.requestedAt == requestedAt
+            and (existing.source == "requested" or source == "told") then
+            return true
+        end
+    end
+    b.aidRequests[groupId] = { groupId = groupId, requestedAt = requestedAt,
+        acquiredAt = source == "requested" and requestedAt or now,
+        source = source, teller = source == "told" and teller or nil,
+        originId = originId, originAcquiredAt = originAcquiredAt }
+    local ordered = {}
+    for group, request in pairs(b.aidRequests) do
+        ordered[#ordered + 1] = { eventId = group, eventAt = request.requestedAt }
+    end
+    table.sort(ordered, transferOrder)
+    for i = 1, #ordered - TRANSFER_LIMIT do
+        b.aidRequests[ordered[i].eventId] = nil
+        b.aidRequestFloor = { eventAt = ordered[i].eventAt, eventId = ordered[i].eventId }
+    end
+    P.beliefVersion = P.beliefVersion + 1
+    return b.aidRequests[groupId] ~= nil
+end
+
+-- Request age and destination knowledge are independent. Hearing a request
+-- can leave a person unable to locate the house that asked.
+function P.knownAidRequests(id, nowHours)
+    local current = transferNow()
+    local b, now = P.beliefs[tostring(id or "")], transferNow(nowHours)
+    if not now or not b or type(b.aidRequests) ~= "table" then
+        return {}, "unavailable"
+    end
+    local out = {}
+    for groupId, request in pairs(b.aidRequests) do
+        if type(request) == "table" and transferNumber(request.requestedAt)
+            and transferNumber(request.acquiredAt) and request.requestedAt >= 0
+            and request.requestedAt <= request.acquiredAt and request.acquiredAt <= now
+            and now - request.requestedAt <= AID_REQUEST_HOURS
+            and (request.source == "requested" or request.source == "told") then
+            local copy = { groupId = groupId, requestedAt = request.requestedAt,
+                acquiredAt = request.acquiredAt, source = request.source,
+                teller = request.teller, originId = request.originId,
+                originAcquiredAt = request.originAcquiredAt }
+            local ground = b.factions and b.factions[groupId]
+                or b.places and b.places[groupId]
+            -- Legacy ground beliefs do not preserve this recipient's actual
+            -- acquisition time. They support current routing, not a historical
+            -- join that would give yesterday's request tomorrow's location.
+            if now == current and type(ground) == "table" and transferNumber(ground.minX)
+                and transferNumber(ground.minY) and transferNumber(ground.maxX)
+                and transferNumber(ground.maxY) and ground.minX <= ground.maxX
+                and ground.minY <= ground.maxY then
+                copy.minX, copy.minY, copy.maxX, copy.maxY = ground.minX,
+                    ground.minY, ground.maxX, ground.maxY
+            end
+            out[#out + 1] = copy
+        end
+    end
+    table.sort(out, function(a, b)
+        if a.requestedAt ~= b.requestedAt then return a.requestedAt < b.requestedAt end
+        return tostring(a.groupId) < tostring(b.groupId)
+    end)
+    return out, "available"
+end
+
+function P.knownAidRequest(id, groupId, nowHours)
+    local requests, availability = P.knownAidRequests(id, nowHours)
+    for _, request in ipairs(requests) do
+        if request.groupId == tostring(groupId or "") then return request, "available" end
+    end
+    return nil, availability == "available" and "not-known" or "unavailable"
+end
+
+local function tellAidRequests(fromId, toId, channel, aroundX, aroundY)
+    local admitted, canConverse = pcall(function()
+        return SAO.Communication.canConverse(fromId, toId, channel)
+    end)
+    if not admitted or canConverse ~= true then return 0 end
+    local requests, moved = P.knownAidRequests(fromId), 0
+    for _, request in ipairs(requests) do
+        local inGround = true
+        if aroundX and aroundY then
+            local dx = request.minX and ((request.minX + request.maxX) / 2 - aroundX)
+                or math.huge
+            local dy = request.minY and ((request.minY + request.maxY) / 2 - aroundY)
+                or math.huge
+            inGround = request.source == "requested"
+                and dx * dx + dy * dy <= P.GROUND_REACH * P.GROUND_REACH
+        end
+        local to = P.beliefs[toId]
+        local existing = to and to.aidRequests and to.aidRequests[request.groupId]
+        if inGround and (not existing or existing.requestedAt < request.requestedAt)
+            and P.recordAidRequest(toId, request.groupId, request.requestedAt,
+                "told", fromId) then moved = moved + 1 end
+    end
+    return moved
+end
+
 local function split(s, sep)
     local parts = {}
     for piece in string.gmatch(s, "([^" .. sep .. "]+)") do
@@ -903,6 +1300,10 @@ function P.hasAnythingToPass(id, tick)
     for _, pb in pairs(b.people or {}) do
         if pb.dead then return true end
     end
+    for _, fact in ipairs(P.transferFacts(id)) do
+        if fact.state == "remembered" then return true end
+    end
+    if #P.knownAidRequests(id) > 0 then return true end
     return false
 end
 
@@ -916,7 +1317,7 @@ end
 -- identical either way. Only the decision to open your mouth differs,
 -- because for a survivor that decision is a trust calculation and for
 -- a player it was a click.
-function P.tell(fromId, toId, tick, chosen)
+function P.tell(fromId, toId, tick, chosen, channel)
     local from = P.beliefs[fromId]
     if not from then return 0 end
     -- The LISTENER's skepticism is not waived by anyone choosing to
@@ -929,7 +1330,8 @@ function P.tell(fromId, toId, tick, chosen)
         return 0
     end
     local to = store(toId)
-    local shared = 0
+    local shared = tellTransfers(fromId, toId, channel)
+        + tellAidRequests(fromId, toId, channel)
     -- [C5] What actually landed, so the listener can SAY it. "They
     -- note 3 things" is not speech; a person acknowledges the thing
     -- itself. Every adoption below counts and leaves a note; the
@@ -1167,13 +1569,14 @@ end
 -- speaking would be believed simply because of which function carried
 -- it. Applied to every caller rather than only the new one: the rule
 -- is about the listener, not about the errand.
-function P.reportReturn(fromId, toId, tick, aroundX, aroundY)
+function P.reportReturn(fromId, toId, tick, aroundX, aroundY, channel)
     if not (aroundX and aroundY) then return 0 end
     local from = P.beliefs[fromId]
     local to = P.beliefs[toId]
     if not (from and to) then return 0 end
     if not P.willBelieve(toId, fromId) then return 0 end
-    local moved = 0
+    local moved = tellTransfers(fromId, toId, channel, aroundX, aroundY)
+        + tellAidRequests(fromId, toId, channel, aroundX, aroundY)
     for key, zb in pairs(from.zombies or {}) do
         if zb.source ~= "told" then
             local dx, dy = zb.x - aroundX, zb.y - aroundY

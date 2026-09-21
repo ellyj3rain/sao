@@ -285,9 +285,28 @@ end
 
 -- Whether this person gives to a suffering STRANGER. Company shares by
 -- bond; charity is temperament.
-function D.wouldGiveToStranger(id)
+-- A witnessed useful provision can be welcomed or distrusted. This records
+-- an observer's disposition under their own need; it asserts no giver intent,
+-- exchange agreement, owed quantity, or shared judgement.
+function D.assistanceAppraisal(id, benefactorId, pressure)
+    pressure = tonumber(pressure)
+    if not pressure or pressure ~= pressure or pressure < 0 or pressure > 1 then return nil end
+    local trust = SAO.Standing and SAO.Standing.trust
+        and tonumber(SAO.Standing.trust(id, benefactorId)) or 0
+    trust = math.max(-1, math.min(1, trust or 0))
+    local receptiveness = trait(id, "compassion") - math.max(0, -trust)
+    return { pressure = pressure,
+        reciprocity = math.max(-1, math.min(1, pressure * receptiveness)) }
+end
+
+function D.wouldGiveToStranger(id, otherId)
     local bar = 0.6
     if SAO.Lessons then bar = bar - SAO.Lessons.charityEase(id) end
+    if otherId and SAO.Perception and SAO.Perception.reciprocityToward then
+        -- Remembered assistance bends willingness inside the existing charity
+        -- decision. Repeated reports do not accumulate a debt or trust award.
+        bar = bar - SAO.Perception.reciprocityToward(id, otherId) * 0.2
+    end
     return trait(id, "compassion") > bar
 end
 

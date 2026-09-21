@@ -1,0 +1,12 @@
+==========================================================================
+WHICH JAR IS RUNNING
+==========================================================================
+  VERSION declares:     2.8.4.0-pre-alpha
+  shipped jar stamped:  2.8.4.0-pre-alpha
+  getVersion answers:   2.8.4.0-pre-alpha
+  getVersion is:        stamped from VERSION
+  Lua call sites:       1
+
+VERDICT:
+  42) version stamp: the shipped jar carries VERSION's own number, getVersion
+      returns it, and the county says it out loud

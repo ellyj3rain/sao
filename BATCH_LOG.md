@@ -1,6 +1,6 @@
 | Document | Survivor Awareness Overhaul Batch Log |
 |---|---|
-| Version | `2.8.3.0-pre-alpha` |
+| Version | `2.8.4.0-pre-alpha` |
 | Author | ellyj3rain |
 | Repository | `BATCH_LOG.md` |
 | Status | REGULATORY - chronological batch index. |
@@ -173,3 +173,4 @@ source mapping and hashes. Consolidation does not close implementation defects.
 | [C64](Batches/C64-2026-09-20-corrective-integrity-and-decision-evidence.md) | 2026-09-20 | Corrective integrity and decision evidence | [`T-003`](Batches/THREADS.md#t-003), [`T-006`](Batches/THREADS.md#t-006), [`T-008`](Batches/THREADS.md#t-008), [`T-009`](Batches/THREADS.md#t-009), [`T-030`](Batches/THREADS.md#t-030) |
 | [C65](Batches/C65-2026-09-21-source-action-decisions.md) | 2026-09-21 | Source action decisions | [`T-003`](Batches/THREADS.md#t-003), [`T-008`](Batches/THREADS.md#t-008), [`T-009`](Batches/THREADS.md#t-009), [`T-030`](Batches/THREADS.md#t-030) |
 | [C66](Batches/C66-2026-09-21-performed-provisioning.md) | 2026-09-21 | Performed provisioning | [`T-003`](Batches/THREADS.md#t-003), [`T-004`](Batches/THREADS.md#t-004), [`T-008`](Batches/THREADS.md#t-008), [`T-009`](Batches/THREADS.md#t-009), [`T-030`](Batches/THREADS.md#t-030) |
+| [C67](Batches/C67-2026-09-21-delivery-knowledge.md) | 2026-09-21 | Delivery knowledge | [`T-003`](Batches/THREADS.md#t-003), [`T-004`](Batches/THREADS.md#t-004), [`T-008`](Batches/THREADS.md#t-008), [`T-009`](Batches/THREADS.md#t-009), [`T-030`](Batches/THREADS.md#t-030) |

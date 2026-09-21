@@ -39,6 +39,7 @@ import zombie.iso.IsoWorld;
 import zombie.scripting.objects.ItemBodyLocation;
 import zombie.scripting.objects.ResourceLocation;
 import zombie.scripting.objects.Registries;
+import zombie.scripting.objects.CharacterTrait;
 
 /**
  * Native component snapshot for an unpublished NPC shell. No player save/load,
@@ -239,6 +240,43 @@ public final class SAONativeSnapshot {
 
     public static int formatVersion(String packed) throws IOException {
         return parse(packed).schema();
+    }
+
+    /** Read saved hearing without loading inventory or constructing a body. */
+    public static String hearingAccess(String packed) {
+        if (!isNative(packed)) return "UNKNOWN:unsupported-snapshot";
+        try {
+            Snapshot snapshot = parse(packed);
+            ByteBuffer experience = ByteBuffer.wrap(snapshot.sections()[3]);
+            int traits = bounded(experience.getInt(), MAX_ITEMS, "trait count");
+            for (int index = 0; index < traits; index++) {
+                String name = zombie.GameWindow.ReadString(experience);
+                if (Registries.CHARACTER_TRAIT.get(ResourceLocation.of(name))
+                        == CharacterTrait.DEAF) return "REFUSED:deaf";
+            }
+            float modifier = 1.0f;
+            for (Slot slot : snapshot.manifest().equipment().worn()) {
+                ItemFact fact = snapshot.manifest().items().get(slot.item());
+                var script = fact == null ? null
+                    : zombie.scripting.ScriptManager.instance.FindItem(fact.type());
+                if (script == null) return "UNKNOWN:missing-worn-script";
+                float itemModifier = script.getHearingModifier();
+                if (!Float.isFinite(itemModifier) || itemModifier < 0.0f) {
+                    return "UNKNOWN:invalid-worn-hearing";
+                }
+                // Installed updateWornItemsHearingModifier divides by each
+                // positive script modifier; its multiplier is the reciprocal.
+                if (itemModifier > 0.0f && itemModifier != 1.0f) modifier /= itemModifier;
+                if (!Float.isFinite(modifier) || modifier <= 0.0f) {
+                    return "UNKNOWN:invalid-worn-hearing";
+                }
+            }
+            float hearing = 1.0f / modifier;
+            return Float.isFinite(hearing) && hearing > 0.0f
+                ? "AVAILABLE:" + Float.toString(hearing) : "UNKNOWN:invalid-worn-hearing";
+        } catch (IOException | RuntimeException unavailable) {
+            return "UNKNOWN:invalid-snapshot";
+        }
     }
 
     private static String encode(int schema, byte[][] sections) throws IOException {

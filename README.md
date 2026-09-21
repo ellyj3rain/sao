@@ -38,7 +38,7 @@ on the simulation.
 
 ## Status
 
-`2.8.3.0-pre-alpha` - the coordinate is computed by the version machine
+`2.8.4.0-pre-alpha` - the coordinate is computed by the version machine
 (`tools/version_replay.py`), never picked; `VERSION_MAP.md` shows the
 classification and the arithmetic.
 
@@ -111,8 +111,12 @@ acquisition and storage: exact native goods, current authority, durable recovery
 and completion-only experience. Speakeasy now creates decision-time knowledge
 views and unratified proposals. Runtime choices remain unratified; curated
 acquisition, broader options, ratification and later consequences remain R11-R12
-work. Recipient recognition, complete inventory, remaining material actions and
-settlement development stay under R7-R9.
+work. C67 connects performed transfers to private actor/witness memory and
+admitted testimony. Carriers answer requests they learned, using privately known
+destinations. Witnesses can develop personal willingness to reciprocate according
+to their own need and relationship; these source deliveries create no trade debt. Complete
+inventory, later appraisal of reports, remaining material actions and settlement
+development stay under R7-R9.
 `ROADMAP.md` preserves the remaining social and learned-model obligations.
 
 ## Requirements

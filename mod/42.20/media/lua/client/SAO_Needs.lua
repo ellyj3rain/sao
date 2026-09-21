@@ -60,7 +60,19 @@ end
 -- the current authority check at the actual native mutation boundary.
 function SAOVerifiedWorldTransferAction:transferItem(item)
     if not self:isValid() then self.dontAdd = true; return end
-    return ISInventoryTransferAction.transferItem(self, item)
+    local checked, fresh = pcall(function()
+        return SAO.SourceUse and SAO.SourceUse.nativeTransferPending
+            and SAO.SourceUse.nativeTransferPending(self.saoSourceActor,
+                self.character, self.saoSourceReservation)
+    end)
+    local result = ISInventoryTransferAction.transferItem(self, item)
+    if checked and fresh == true and SAO.SourceUse.observeNativeTransfer then
+        -- Observation failure cannot undo a native move. Reconciliation still
+        -- owns completion, and does not invent witnesses on a later retry.
+        pcall(SAO.SourceUse.observeNativeTransfer, self.saoSourceActor,
+            self.character, self.saoSourceReservation, self.saoWorldContainer)
+    end
+    return result
 end
 
 function SAOVerifiedWorldTransferAction:new(

@@ -1455,6 +1455,21 @@ def static_controls() -> tuple[bool, list[str]]:
 
 
 def main() -> int:
+    repository_inputs = [
+        WORLD, MATERIAL, SETTLEMENT, RECOGNITION, PROVISIONING, GRAPH,
+        WORLD_GENESIS, STANDING, DORMANT, NEEDS, SOURCE_USE, POPULATION,
+        CONTROLLER, INSPECT, INTEGRATION, LABOR, COUNTY_SWEEP, CHECK,
+        SANDBOX, RUNNER,
+        TOOLS / "delivery_knowledge_cases.py",
+        TOOLS / "delivery_integration_cases.py",
+        TOOLS / "sweep/delivery_knowledge_cases.lua",
+        TOOLS / "sweep/delivery_integration_cases.lua",
+    ]
+    missing = [path for path in repository_inputs if not path.is_file()]
+    if missing:
+        print("FAULT repository input absent: " + ", ".join(
+            str(path.relative_to(ROOT)) for path in missing))
+        return 1
     faults: list[str] = []
     static_ok, static_faults = static_controls()
     faults.extend(static_faults)
@@ -1484,6 +1499,12 @@ def main() -> int:
         if failed:
             faults.append("failed dynamic checks: " + ", ".join(failed))
         print(f"production: {sum(observed.values())}/{len(EXPECTED)} provisioning cases")
+    import delivery_knowledge_cases
+    import delivery_integration_cases
+    if delivery_knowledge_cases.main() != 0:
+        faults.append("private delivery knowledge probe failed")
+    if delivery_integration_cases.main() != 0:
+        faults.append("delivery integration probe failed")
     if faults:
         for fault in faults:
             print("FAULT", fault)

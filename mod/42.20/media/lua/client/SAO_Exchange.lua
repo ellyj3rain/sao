@@ -83,7 +83,11 @@ end
 
 function Exchange.betweenPair(id, agent, body, otherId, otherBody, tickCount)
     Ctl = Ctl or SAO.Controller
-        local n = SAO.Perception.tell(id, otherId, tickCount)
+        local n = 0
+        if SAO.Communication and SAO.Communication.canConverse
+            and SAO.Communication.canConverse(id, otherId) then
+            n = SAO.Perception.tell(id, otherId, tickCount)
+        end
         if n > 0 then
             log(id .. " told " .. otherId .. " about " .. n .. " threat(s)")
             pcall(function() SAO.Voice.onEvent(id, "warned", tickCount) end)
@@ -296,7 +300,7 @@ function Exchange.betweenPair(id, agent, body, otherId, otherBody, tickCount)
             and warmC >= 0.85
             and not SAO.Standing.sameGroup(id, otherId)
             and tickCount >= (agent.nextShareAt or 0)
-            and (SAO.Disposition.wouldGiveToStranger(id) or larderOpen)
+            and (SAO.Disposition.wouldGiveToStranger(id, otherId) or larderOpen)
             and not refusesColors(id, agent, otherId, tickCount) then
             local otherName = SAO.Identity.beliefKey(   -- [C71]
                 SAO.Identity.get(otherId))

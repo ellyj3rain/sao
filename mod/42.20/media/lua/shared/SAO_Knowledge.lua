@@ -213,7 +213,7 @@ end
 
 -- Food or water: the house word, and the nearest KNOWN place
 -- offering it ([C25]'s own surface, spoken instead of walked).
-local function aboutNeed(id, offer)
+local function aboutNeed(id, offer, opts)
     local out = {}
     pcall(function()
         local g = SAO.Standing.groupOf(id)
@@ -243,6 +243,39 @@ local function aboutNeed(id, offer)
             out[#out + 1] = { fact = "knownPlace", offer = offer,
                 whereWord = whereWord(place.cx, place.cy, sx, sy),
                 source = "observed" }
+        end
+    end)
+    pcall(function()
+        local now = opts and opts.nowHours
+        if now == nil and opts and opts.tick ~= nil then
+            now = opts.tick / SAO.History.TICKS_PER_HOUR
+        end
+        if now == nil then now = SAO.History.countyHours() end
+        local sx, sy = K.speakerAt(id)
+        for _, episode in ipairs(SAO.Perception.transferFacts(id, now)) do
+            if episode.state == "remembered" and episode.category == offer then
+                out[#out + 1] = { fact = "transfer", eventId = episode.eventId,
+                    actorId = episode.actorId, operation = episode.operation,
+                    itemType = episode.itemType, category = episode.category,
+                    sourceId = episode.sourceId, placeId = episode.placeId,
+                    whereWord = whereWord(episode.x, episode.y, sx, sy),
+                    eventAt = episode.eventAt, acquiredAt = episode.acquiredAt,
+                    ageHours = now - episode.eventAt,
+                    source = episode.source, teller = episode.teller,
+                    originId = episode.originId, originSource = episode.originSource,
+                    originAcquiredAt = episode.originAcquiredAt }
+            end
+        end
+        if offer == "food" then
+            for _, request in ipairs(SAO.Perception.knownAidRequests(id, now)) do
+                local x = request.minX and (request.minX + request.maxX) / 2 or nil
+                local y = request.minY and (request.minY + request.maxY) / 2 or nil
+                out[#out + 1] = { fact = "aidRequest", groupId = request.groupId,
+                    requestedAt = request.requestedAt, acquiredAt = request.acquiredAt,
+                    source = request.source, teller = request.teller,
+                    originId = request.originId, originAcquiredAt = request.originAcquiredAt,
+                    whereWord = whereWord(x, y, sx, sy) }
+            end
         end
     end)
     if #out == 0 then return nil end
@@ -476,8 +509,8 @@ local ABOUT = {
     person = aboutPerson,
     zombies = aboutZombies,
     dead = aboutDead,
-    food = function(id) return aboutNeed(id, "food") end,
-    water = function(id) return aboutNeed(id, "water") end,
+    food = function(id, opts) return aboutNeed(id, "food", opts) end,
+    water = function(id, opts) return aboutNeed(id, "water", opts) end,
     house = aboutHouse,
     ground = aboutGround,
     lessons = aboutLessons,

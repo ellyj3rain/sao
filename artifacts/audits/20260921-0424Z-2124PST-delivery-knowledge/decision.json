@@ -1,0 +1,35 @@
+{
+  "interactionId": "skill-8ef8bacdc2e9a510",
+  "skillRef": "crucible",
+  "status": "answered",
+  "responses": [
+    {
+      "itemId": "seam-bcf00517096a1579",
+      "shape": "decision",
+      "status": "answered",
+      "value": "separate_perceived_obligation",
+      "selectedOption": "separate_perceived_obligation",
+      "selectedOptions": [
+        "separate_perceived_obligation"
+      ],
+      "ranking": null,
+      "checklist": null,
+      "notes": null,
+      "lineage": {
+        "host": "codex",
+        "sessionId": "01a0b758-3c1e-7522-92f4-31ae4ea1ffe3",
+        "threadId": "sao-c67-aid-obligation",
+        "parentThreadId": null,
+        "evidenceRef": "SAO B23:29-32; SAO_Standing.lua:353-374; C66; SUBSTRATE.md:523-527",
+        "originInteractionId": null,
+        "originItemId": null,
+        "delegationId": null,
+        "delegationAttempt": null,
+        "occurredAt": "2026-09-21T04:01:10.000Z",
+        "ordinal": null,
+        "sourceIndex": 0,
+        "sequence": 1
+      }
+    }
+  ]
+}

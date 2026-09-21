@@ -6,6 +6,10 @@ import zombie.characters.IsoZombie;
 import zombie.characters.animals.IsoAnimal;
 import zombie.iso.IsoCell;
 import zombie.iso.IsoGridSquare;
+import zombie.iso.LosUtil;
+import zombie.iso.weather.ClimateManager;
+import zombie.inventory.ItemContainer;
+import zombie.scripting.objects.CharacterTrait;
 
 /**
  * The Perception pillar's acquisition step. Scans what one survivor body can
@@ -341,6 +345,156 @@ public final class SAOPerceptionScanner {
         } catch (Throwable ignored) {
             return false;
         }
+    }
+
+    /** Admit a firsthand transfer observation at its native completion boundary. */
+    public static boolean canWitnessWorldTransfer(IsoGameCharacter observer,
+            IsoGameCharacter actor, ItemContainer container, float actionRange) {
+        try {
+            if (!Float.isFinite(actionRange) || actionRange < 0.0f
+                    || observer == actor || !awakeHuman(observer)
+                    || !awakeHuman(actor) || container == null
+                    || !Float.isFinite(observer.getForwardDirectionX())
+                    || !Float.isFinite(observer.getForwardDirectionY())
+                    || !sameLoadedCell(observer, actor)) return false;
+            float actorRange = isProneOrCrawling(actor)
+                ? Math.min(actionRange, Math.max(NEAR_SENSE, RANGE * 0.6f)) : actionRange;
+            if (!visibleTransferPoint(observer, actor.getCurrentSquare(),
+                    actor.getX(), actor.getY(), actor.getZ(),
+                    Math.min(RANGE, actorRange))) return false;
+            IsoGridSquare target = transferSquare(container, actor.getCell());
+            return target != null && visibleWorldPoint(observer, target,
+                Math.min(RANGE, actionRange));
+        } catch (Throwable unavailable) {
+            return false;
+        }
+    }
+
+    /** A directed spoken exchange: the listener must be able to hear it now. */
+    public static boolean canConverseNow(IsoGameCharacter speaker,
+            IsoGameCharacter listener, float actionRange) {
+        try {
+            if (!Float.isFinite(actionRange) || actionRange < 0.0f
+                    || speaker == listener || !awakeHuman(speaker)
+                    || !awakeHuman(listener) || !sameLoadedCell(speaker, listener)
+                    || listener.hasTrait(CharacterTrait.DEAF)) return false;
+            float hearing = listener.getWornItemsHearingMultiplier();
+            float weather = speechWeatherHearing();
+            if (!Float.isFinite(hearing) || hearing <= 0.0f
+                    || !Float.isFinite(weather) || weather <= 0.0f) return false;
+            float reach = Math.min(RANGE, actionRange)
+                * Math.min(1.0f, hearing) * Math.min(1.0f, weather);
+            return withinSameFloorRange(speaker.getX(), speaker.getY(),
+                speaker.getZ(), listener.getX(), listener.getY(), listener.getZ(),
+                reach) && clearPath(speaker.getCurrentSquare(),
+                    listener.getCurrentSquare(), false);
+        } catch (Throwable unavailable) {
+            return false;
+        }
+    }
+
+    private static boolean awakeHuman(IsoGameCharacter person) {
+        return person != null && !(person instanceof IsoAnimal)
+            && (person instanceof IsoPlayer
+                || (person instanceof IsoZombie zombie && SAOKnox.isKnoxHuman(zombie)))
+            && !person.isDead() && !person.isAsleep()
+            && Float.isFinite(person.getX()) && Float.isFinite(person.getY())
+            && Float.isFinite(person.getZ());
+    }
+
+    /** Installed IsoGameCharacter.getWeatherHearingMultiplier, without a body. */
+    public static float speechWeatherHearing() {
+        try {
+            ClimateManager climate = ClimateManager.getInstance();
+            if (climate == null) return Float.NaN;
+            float rain = climate.getRainIntensity(), fog = climate.getFogIntensity();
+            if (!Float.isFinite(rain) || rain < 0.0f || rain > 1.0f
+                    || !Float.isFinite(fog) || fog < 0.0f || fog > 1.0f) return Float.NaN;
+            return 1.0f - rain * 0.33f - fog * 0.1f;
+        } catch (Throwable unavailable) {
+            return Float.NaN;
+        }
+    }
+
+    private static boolean sameLoadedCell(IsoGameCharacter a, IsoGameCharacter b) {
+        IsoCell cell = a.getCell();
+        return cell != null && b.getCell() == cell
+            && currentSquare(a, cell) && currentSquare(b, cell);
+    }
+
+    private static boolean currentSquare(IsoGameCharacter person, IsoCell cell) {
+        IsoGridSquare square = person.getCurrentSquare();
+        return square != null && square.getCell() == cell
+            && cell.getGridSquare(square.getX(), square.getY(), square.getZ()) == square;
+    }
+
+    /** Resolve only the world holder that still owns this exact container. */
+    private static IsoGridSquare transferSquare(ItemContainer container, IsoCell cell) {
+        IsoGridSquare square;
+        if (container.isVehiclePart()) {
+            var vehicle = container.getVehicle();
+            var part = container.getVehiclePart();
+            if (vehicle == null || part == null || vehicle.isRemovedFromWorld()
+                    || !cell.getVehicles().contains(vehicle)
+                    || part.getItemContainer() != container) return null;
+            String area = part.getArea();
+            square = area == null || area.isBlank()
+                ? vehicle.getSquare() : vehicle.getSquareForArea(area);
+        } else {
+            var parent = container.getParent();
+            square = parent == null ? null : parent.getSquare();
+            if (square == null || !square.getObjects().contains(parent)) return null;
+            boolean owns = false;
+            for (int index = 0; index < parent.getContainerCount(); index++) {
+                if (parent.getContainerByIndex(index) == container) owns = true;
+            }
+            if (!owns) return null;
+        }
+        return square != null && square.getCell() == cell
+            && cell.getGridSquare(square.getX(), square.getY(), square.getZ()) == square
+            ? square : null;
+    }
+
+    private static boolean visibleWorldPoint(IsoGameCharacter observer,
+            IsoGridSquare target, float range) {
+        return visibleTransferPoint(observer, target, target.getX() + 0.5f,
+            target.getY() + 0.5f, target.getZ(), range);
+    }
+
+    private static boolean visibleTransferPoint(IsoGameCharacter observer,
+            IsoGridSquare target, float x, float y, float z, float range) {
+        float sx = observer.getX(), sy = observer.getY(), sz = observer.getZ();
+        if (!withinSameFloorRange(sx, sy, sz, x, y, z, range)) {
+            return false;
+        }
+        double dx = (double) x - sx, dy = (double) y - sy;
+        double distance = Math.sqrt(dx * dx + dy * dy);
+        if (distance > NEAR_SENSE) {
+            double alignment = (dx * observer.getForwardDirectionX()
+                + dy * observer.getForwardDirectionY()) / distance;
+            if (alignment < CONE_COS) return false;
+        }
+        return clearPath(observer.getCurrentSquare(), target, true);
+    }
+
+    private static boolean withinSameFloorRange(float ax, float ay, float az,
+            float bx, float by, float bz, float range) {
+        if (!Float.isFinite(ax) || !Float.isFinite(ay) || !Float.isFinite(az)
+                || !Float.isFinite(bx) || !Float.isFinite(by) || !Float.isFinite(bz)
+                || !Float.isFinite(range) || range < 0.0f
+                || Math.abs(az - bz) >= 0.5f) return false;
+        double dx = (double) ax - bx, dy = (double) ay - by;
+        return dx * dx + dy * dy <= (double) range * range;
+    }
+
+    /** Endpoint adjacency alone does not inspect intervening tiles. */
+    private static boolean clearPath(IsoGridSquare from, IsoGridSquare to,
+            boolean visual) {
+        LosUtil.TestResults result = LosUtil.lineClear(from.getCell(),
+            from.getX(), from.getY(), from.getZ(), to.getX(), to.getY(), to.getZ(), false);
+        return result == LosUtil.TestResults.Clear
+            || result == LosUtil.TestResults.ClearThroughOpenDoor
+            || (visual && result == LosUtil.TestResults.ClearThroughWindow);
     }
 
     private static boolean visibleFrom(

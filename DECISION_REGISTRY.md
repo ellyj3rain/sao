@@ -1,6 +1,6 @@
 | Document | Survivor Awareness Overhaul Decision Registry |
 |---|---|
-| Version | `2.8.3.0-pre-alpha` |
+| Version | `2.8.4.0-pre-alpha` |
 | Author | ellyj3rain |
 | Repository | `DECISION_REGISTRY.md` |
 | Status | CANONICAL, APPEND-ONLY - ratified decisions. |
@@ -1519,3 +1519,29 @@ result may credit need or provisioning.
 `demand-led-native-hydration`. The selected value is the durable decision
 record; no opaque interaction identifier was recovered from the current
 Mousecat runtime.
+
+---
+
+## DR-044 - Perceived obligation and trade debt
+
+**Timestamp** 2026-09-21 04:31 UTC / 21:31 PST
+
+**Status** RATIFIED; C67 implements the witnessed-provision response.
+
+**Decision.** Assistance enters the recipient's private experience. Gratitude,
+resentment and willingness to reciprocate depend on that person's situation
+and relationship with the giver. People can disagree about obligation. Trade
+debt records an accepted exchange or promise; a gift creates no automatic
+collectible balance.
+
+**Application.** Native transfer evidence, personal knowledge and personal
+response remain separate. C67 records a witness's own need and appraisal at the
+performed transfer and allows remembered assistance to bend their existing
+charity decision toward that benefactor. Queue acceptance, roster membership
+and repeated reports create neither debt nor accumulating trust. A told fact
+does not reconstruct a listener's unobserved historical need or reaction.
+
+**Origin.** Mousecat Crucible interaction `skill-8ef8bacdc2e9a510`, answered
+`separate_perceived_obligation`. The structured answer and source lineage are
+preserved in the C67 audit's `decision.json`. This resolves the conflict between
+B23's gift/debt wording and Standing's accepted-exchange debt contract.

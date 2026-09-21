@@ -56,6 +56,15 @@ local function nowHours()
     return tonumber(value) or 0
 end
 
+local function provedTransferObservation(receipt)
+    local status = receipt.status
+    local observation = receipt.transferObservation
+    return (status == "completed" or status == "conflict"
+        or status == "released" or status == "interrupted")
+        and (receipt.operation == "store" or receipt.operation == "acquire")
+        and type(observation) == "table" and observation.nativeTransferProven == true
+end
+
 local function trimResults(value)
     local count = 0
     for _ in pairs(value.results) do count = count + 1 end
@@ -63,7 +72,7 @@ local function trimResults(value)
         local oldestId, oldest = nil, nil
         for id, receipt in pairs(value.results) do
             local acknowledgements = receipt.acknowledgements or {}
-            local protected = receipt.status == "completed"
+            local protected = (receipt.status == "completed" or provedTransferObservation(receipt))
                 and not acknowledgements[RESULT_CONSUMER]
             if not protected and (not oldest
                 or (receipt.order or 0) < (oldest.order or 0)) then
@@ -1165,7 +1174,7 @@ local function reservationRoom(value)
     local durableInputs = reservationCount
     for _, receipt in pairs(value.results) do
         local acknowledgements = receipt.acknowledgements or {}
-        if receipt.status == "completed"
+        if (receipt.status == "completed" or provedTransferObservation(receipt))
             and not acknowledgements[RESULT_CONSUMER] then
             durableInputs = durableInputs + 1
         end
@@ -1640,6 +1649,67 @@ function WS.markTransferred(reservationId, actorId)
     return true
 end
 
+-- C67: observations are acquired at the native transfer, before reconciliation.
+-- A later holder check can prove completion but cannot reconstruct witnesses.
+-- The native callback reaches recordTransferObservation only after the item
+-- has moved. Its proof survives a later action conflict without relabeling it.
+local function transferObservationCopy(observation)
+    if type(observation) ~= "table" then return nil end
+    local witnesses = {}
+    for i, id in ipairs(observation.witnesses or {}) do witnesses[i] = id end
+    local appraisals = {}
+    for id, appraisal in pairs(observation.appraisals or {}) do
+        appraisals[id] = { pressure = appraisal.pressure,
+            reciprocity = appraisal.reciprocity }
+    end
+    return { at = observation.at, actorId = observation.actorId,
+        nativeTransferProven = observation.nativeTransferProven,
+        x = observation.x, y = observation.y, z = observation.z,
+        witnesses = witnesses, appraisals = appraisals }
+end
+
+function WS.recordTransferObservation(reservationId, actorId, at, witnesses,
+                                      position, appraisals)
+    local reservation = WS.reservation(reservationId)
+    if not reservation or reservation.status ~= "reserved"
+        or reservation.actorId ~= tostring(actorId)
+        or (reservation.operation ~= "store" and reservation.operation ~= "acquire")
+        or not finiteNumber(at, 0, 1000000000, false)
+        or at > nowHours() or type(witnesses) ~= "table"
+        or type(position) ~= "table"
+        or not finiteNumber(position.x, -10000000, 10000000, false)
+        or not finiteNumber(position.y, -10000000, 10000000, false)
+        or not finiteNumber(position.z, -1000, 1000, false) then return false end
+    if reservation.transferObservation then return true end
+    local ids, seen = {}, {}
+    for _, id in ipairs(witnesses) do
+        if type(id) ~= "string" or id == "" then return false end
+        if id ~= reservation.actorId and not seen[id] then
+            -- Witness count follows actual visibility. Keep every witness in
+            -- stable order without Kahlua's input-sensitive recursive sort.
+            local at = #ids + 1
+            while at > 1 and ids[at - 1] > id do
+                ids[at] = ids[at - 1]
+                at = at - 1
+            end
+            ids[at], seen[id] = id, true
+        end
+    end
+    local ownAppraisals = {}
+    for id, appraisal in pairs(appraisals or {}) do
+        if not seen[id] or type(appraisal) ~= "table"
+            or not finiteNumber(appraisal.pressure, 0, 1, false)
+            or not finiteNumber(appraisal.reciprocity, -1, 1, false) then return false end
+        ownAppraisals[id] = { pressure = appraisal.pressure,
+            reciprocity = appraisal.reciprocity }
+    end
+    reservation.transferObservation = {
+        nativeTransferProven = true,
+        at = at, actorId = reservation.actorId, witnesses = ids,
+        x = position.x, y = position.y, z = position.z, appraisals = ownAppraisals }
+    return true
+end
+
 -- The private belief stays compact. After Java has rebound the exact current
 -- revision, take the full pre-item signature set from the global observation
 -- only when it still matches that private revision. This cannot reveal a newer
@@ -1697,6 +1767,10 @@ local function result(value, reservation, status, detail)
         itemId = reservation.itemId,
         itemType = reservation.itemType,
         operation = reservation.operation or "consume",
+        transferPurpose = reservation.transferPurpose,
+        deliveryGroup = reservation.deliveryGroup,
+        requestedByGroup = reservation.requestedByGroup,
+        transferObservation = transferObservationCopy(reservation.transferObservation),
         quantityUnit = reservation.quantityUnit,
         itemAmount = reservation.itemAmount,
         itemUses = reservation.itemUses,
@@ -1758,6 +1832,10 @@ local function receiptCopy(receipt)
         itemId = receipt.itemId,
         itemType = receipt.itemType,
         operation = receipt.operation or "consume",
+        transferPurpose = receipt.transferPurpose,
+        deliveryGroup = receipt.deliveryGroup,
+        requestedByGroup = receipt.requestedByGroup,
+        transferObservation = transferObservationCopy(receipt.transferObservation),
         quantityUnit = receipt.quantityUnit,
         itemAmount = receipt.itemAmount,
         itemUses = receipt.itemUses,
@@ -1820,14 +1898,16 @@ end
 -- Provisioning is the sole R9 owner of this bridge. It receives stable ordered
 -- copies and acknowledges idempotently, so a downstream consumer cannot mutate
 -- the ledger and reload delivery order cannot drift with Lua table iteration.
-function WS.completedResults(consumer)
+function WS.completedResults(consumer, includeObservations)
     local value = store()
     local out = {}
     consumer = tostring(consumer or "")
     if not value or consumer ~= RESULT_CONSUMER then return out end
     for _, receipt in pairs(value.results) do
         local acknowledgements = receipt.acknowledgements or {}
-        if receipt.status == "completed" and not acknowledgements[consumer] then
+        if (receipt.status == "completed"
+            or (includeObservations == true and provedTransferObservation(receipt)))
+            and not acknowledgements[consumer] then
             local copy = receiptCopy(receipt)
             -- Kahlua's recursive table.sort is unsafe at this ledger's
             -- advertised 2,048-result bound. Insert each bounded scalar copy
@@ -1855,7 +1935,7 @@ function WS.acknowledgeResult(reservationId, consumer, reason)
     local value = store()
     consumer = tostring(consumer or "")
     local receipt = value and value.results[tostring(reservationId or "")]
-    if not receipt or receipt.status ~= "completed"
+    if not receipt or (receipt.status ~= "completed" and not provedTransferObservation(receipt))
         or consumer ~= RESULT_CONSUMER then
         return false
     end

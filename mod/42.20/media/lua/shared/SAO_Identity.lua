@@ -138,6 +138,8 @@ function Identity.create(forename, surname, x, y, z)
         x = tonumber(x) or 0, y = tonumber(y) or 0, z = tonumber(z) or 0,
         createdAt = tostring(getGameTime() and getGameTime():getCalender():getTimeInMillis() or 0),
         updatedAt = 0,
+        speechAccessOrigin = "generated-empty-traits",
+        dormantSleeping = false,
     }
     s.records[id] = rec
     -- [C73] Named here, where a person is made, rather than off the

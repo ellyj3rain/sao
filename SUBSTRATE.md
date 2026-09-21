@@ -1,6 +1,6 @@
 | Document | Survivor Awareness Overhaul Dependency Substrate |
 |---|---|
-| Version | `2.8.3.0-pre-alpha` |
+| Version | `2.8.4.0-pre-alpha` |
 | Author | ellyj3rain |
 | Repository | `SUBSTRATE.md` |
 | Status | CANONICAL - what exists, what is planned, and what each area of concern needs. |
@@ -679,3 +679,20 @@ Closing one row updates its implementation, controls and acceptance evidence in
 this map and ROADMAP. Source inspection, a passing structural border, native
 mechanism proof and observed gameplay remain separate evidence. Planning coverage
 does not upgrade an unfinished mechanism to implemented.
+
+
+### C67 producer update
+
+| Contract | Producer and durable owner | Behavioral consumer | Remaining boundary |
+|---|---|---|---|
+| Performed transfer knowledge | Needs/SourceUse native mutation -> frozen WorldSources observation -> existing Provisioning consumer -> private Perception episode | Knowledge food/water and admitted testimony | Later source conflict preserves observation but grants no successful material projection. |
+| Recipient response | Witness's own held-ground context and category need -> Disposition appraisal -> only their episode | Existing charity preference toward the actor | Appraisal of a told event needs its own acquired context; testimony does not copy feelings. |
+| Asked assistance | Quartermaster's actual request -> private dated request -> admitted testimony | Carrier's private request/destination and urgency | Actual radio reception and broader private work instructions remain separate producers. |
+| Dormant spoken access | Explicit generated-default provenance or native saved hearing; captured sleep; adjacent unloaded encounter | Perception transfer/request testimony | No dormant sleep/wake producer yet. Sleeping or unknown sleep does not become awake from elapsed time. |
+| Source curation | Speakeasy Record50 literal approved-document excerpts | Existing source validator/knowledge authoring | Extraction review, same-person acquisition, calendar join, ratification and eligible examples remain absent. |
+
+Episode retention is initially 64 recent acts over fourteen county days scaled
+by existing personal memory conditions. The fourteen-day base follows the
+existing relation window; it is an implementation calibration, not a population
+measurement. Request expiry remains the existing 96-hour window. Original event
+identity/time and eviction floors prevent replay from refreshing forgotten acts.

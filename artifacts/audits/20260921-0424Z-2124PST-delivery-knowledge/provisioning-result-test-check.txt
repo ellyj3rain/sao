@@ -1,0 +1,36 @@
+controls: all named mutations rejected
+production: 53/53 provisioning cases
+PASS 72 production delivery knowledge cases
+PASS delivery knowledge mutation terminal-result: unperformed_result_refused=false
+PASS delivery knowledge mutation native-transfer-proof: unproved_observation_refused=false
+PASS delivery knowledge mutation actor-binding: actor_binding_refused=false
+PASS delivery knowledge mutation conversation-proof: physical_conversation_required=false
+PASS delivery knowledge mutation testimony-cycle: testimony_cycle_no_refresh=false
+PASS delivery knowledge mutation personal-retention: person_specific_retention=false
+PASS delivery knowledge mutation episode-bound: bounded_by_event_time=false
+PASS delivery knowledge mutation knowledge-provenance: knowledge_food_provenance=false
+PASS delivery knowledge mutation event-position: observation_position_frozen=false
+PASS delivery knowledge mutation private-appraisal: appraisal_does_not_travel=false
+PASS delivery knowledge mutation eviction-watermark: evicted_event_cannot_return=false
+PASS delivery knowledge mutation request-channel: request_channel_required=false
+PASS delivery knowledge mutation request-origin-age: request_expires_from_origin=false
+PASS delivery knowledge mutation request-historical-location: request_historical_geometry_withheld=false
+PASS delivery knowledge mutation appraisal-needs-pressure: disposition_zero_need_neutral=false
+PASS delivery knowledge mutation appraisal-private-standing: disposition_hostility_can_decline=false
+PASS delivery knowledge mutation reciprocity-existing-charity-consumer: disposition_reciprocity_changes_own_choice=false
+PASS 2 delivery Controller static anchors and 2 known-bad controls (not runtime coverage)
+PASS 51 production delivery integration cases
+PASS delivery integration mutation request-source-contract: request_origin_production_api=false
+PASS delivery integration mutation failed-request-origin: failed_origin_has_no_cooldown=false
+PASS delivery integration mutation global-request-shortcut: global_only_request_not_selected=false
+PASS delivery integration mutation private-destination-return: private_place_destination_retained=false
+PASS delivery integration mutation request-original-expiry: request_expiry_uses_original_time=false
+PASS delivery integration mutation loaded-native-admission: loaded_listener_deaf_port_refusal=false
+PASS delivery integration mutation dormant-floor: dormant_floor_and_distance_refused=false
+PASS delivery integration mutation dormant-deaf-listener: dormant_access_is_directed=false
+PASS delivery integration mutation dormant-sleep-evidence: dormant_missing_sleep_refused=false
+PASS delivery integration mutation receipt-memory-delivery: receipt_memory_before_ack=false
+PASS delivery integration mutation receipt-durable-mind: unavailable_mind_blocks_ack=false
+PASS delivery integration mutation receipt-memory-refusal: rejected_memory_blocks_ack=false
+PASS delivery integration mutation observation-is-not-completion: terminal_observation_bypasses_projection=false
+Border 180 PASS: exact result consumption is bounded, replay-safe, single-owner and claim-lifecycle aware
