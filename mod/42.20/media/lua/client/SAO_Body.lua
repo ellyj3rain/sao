@@ -276,6 +276,40 @@ function Body.materialize(rec, externalOwner, externalToken)
         end
     end
 
+    -- The restored snapshot owns the captured device. The record owns battery
+    -- use only while that body is absent, so advance from the sidecar's own
+    -- hour and overlay power/off before the body can be published.
+    if rec.hibernation and rec.radioState ~= nil then
+        local radioAt = tonumber(rec.radioStateAtHours)
+        local radioElapsed = finite(radioAt) and math.max(0, wakeAt - radioAt)
+            or nil
+        local advanced = nil
+        if radioElapsed and SAOJavaBridge
+            and SAOJavaBridge.advanceDormantRadioState
+            and SAOJavaBridge.applyDormantRadioState then
+            local okAdvance, value = pcall(function()
+                return SAOJavaBridge:advanceDormantRadioState(
+                    rec.radioState, radioElapsed)
+            end)
+            if okAdvance and type(value) == "string" and value ~= ""
+                and SAOJavaBridge:validateRadioState(value) == true then
+                advanced = value
+            end
+        end
+        local okApply, applied = pcall(function()
+            return advanced and SAOJavaBridge:applyDormantRadioState(
+                body, advanced) or false
+        end)
+        if not okApply or applied ~= true then
+            Body.active[rec.id] = body
+            Body.failedRestore[rec.id] = true
+            Body.recover(rec)
+            return nil, "radio-restore-failed"
+        end
+        rec.radioState = advanced
+        rec.radioStateAtHours = wakeAt
+    end
+
     -- Native v4 owns appearance. Earlier formats use the supported visual
     -- sidecar when one exists; absent fields remain migration history.
     if snapshotVersion < 4 and rec.bodyVisual ~= nil then

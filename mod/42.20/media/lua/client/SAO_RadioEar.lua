@@ -23,36 +23,12 @@ SAO.RadioEar = SAO.RadioEar or {}
 local function hasLiveWireRadio(playerObj)
     local freq = SAOWire and SAOWire.freq or nil
     if not freq then return false end
-    if not SAOJavaBridge then return false end
-    local items = SAOJavaBridge:privateCarriedItems(playerObj)
-    for i = 0, items:size() - 1 do
-        local it = items:get(i)
-        -- [B42] ASK before calling. `getDeviceData` is declared on
-        -- `zombie.inventory.types.Radio`, not on `InventoryItem`, so
-        -- this threw on every ordinary item in the inventory - a claw
-        -- hammer, a bag of chips - once per item, every time the
-        -- context menu opened. The pcall swallowed the result and the
-        -- loop carried on, so the feature worked and the only symptom
-        -- was the console filling with Kahlua stack traces.
-        --
-        -- That is the class this project keeps finding: a pcall whose
-        -- failure is indistinguishable from "nothing there". Testing
-        -- the type first is not defensive - it is the difference
-        -- between asking a question and guessing.
-        local dd = nil
-        if instanceof(it, "Radio") then
-            local ok
-            ok, dd = pcall(function() return it:getDeviceData() end)
-            if not ok then dd = nil end
-        end
-        if dd
-            and dd:getIsTurnedOn()
-            and dd:getIsTwoWay()
-            and dd:getChannel() == freq then
-            return true
-        end
-    end
-    return false
+    if not (playerObj and SAO.Communication
+        and SAO.Communication.radioTransmitterAccess
+        and SAO.Standing and SAO.Standing.playerKey) then return false end
+    local key = SAO.Standing.playerKey(playerObj)
+    return SAO.Communication.radioTransmitterAccess(
+        key, freq, playerObj) ~= nil
 end
 
 SAO.RadioEar.hasLiveWireRadio = hasLiveWireRadio
@@ -66,7 +42,8 @@ local function onAddMessage(message, tabID)
         if not author or author ~= playerObj:getUsername() then return end
         if not hasLiveWireRadio(playerObj) then return end
         SAO.Standing.hearPlayerOnAir(
-            SAO.Standing.playerKey(playerObj))
+            SAO.Standing.playerKey(playerObj), playerObj,
+            SAOWire and SAOWire.freq or nil)
     end)
     if not ok then end
 end

@@ -6,8 +6,8 @@ knowledge surface answers what a person was before the fall - the
 year they were born, the war their life put them in, where they were
 from, where home is from here, innocent or hardened - and the day it
 started as they know it - their own first horror with its date and
-what it taught, the county's own stamps aired as news, the record's
-first day for anyone with a radio - every fact with its provenance
+what it taught, the county's own stamps aired as news, their first
+actual radio reception - every fact with its provenance
 and, where the calendar answers, the county's date in a person's
 words. The chronicle reads its days through the same calendar.
 
@@ -50,7 +50,7 @@ STDLIB = PZ_DIR / "stdlib.lua"
 
 # The stub county, grown: p1 was a veteran from Muldraugh with a home
 # to the north, born 1949, who learned their one lesson at hour 72;
-# the county's stamps; a radio; a calendar on a July 1 start.
+# the county's stamps; a received broadcast; a calendar on a July 1 start.
 STUB = (
     "local g = SAO.Identity.get "
     "SAO.Identity.get = function(id) local r = g(id) if r and id == 'p1' then "
@@ -59,7 +59,7 @@ STUB = (
     "SAO.History = { birthYearOf = function(id) return 1949 end, "
     "servedIn = function(id, occ) if occ == 'veteran' then return 'Vietnam' end return nil end } "
     "SAO.Standing.chronicle = function() return { outbreakAtHours = 100, firstTurnedAtHours = 130, tapsDryAtHours = 200 } end "
-    "SAO.Standing.ownsRadio = function(id) return true end "
+    "SAO.Perception.radioReceptions = function(id) return {{ receivedAt = 192 }} end "
     "SAO.Lessons.hasAny = function(id) return true end ")
 CALENDAR = (
     "SAOJavaBridge = { countyDate = function(self, h) return 'July ' .. (1 + math.floor(h / 24)) .. ', 1993' end, "
@@ -107,7 +107,7 @@ def facts(topic, prefix=""):
         "(function() " + STUB + prefix +
         "local f = SAO.Knowledge.about('p1', '%s') if not f then return 'none=true' end "
         "local out = {} for _, x in ipairs(f) do "
-        "local v = x.year or x.war or x.region or x.whereWord or x.lessons or x.key or x.day or x.date or x.source "
+        "local v = (x.fact == 'news' and (x.date or x.day)) or x.year or x.war or x.region or x.whereWord or x.lessons or x.key or x.day or x.date or x.source "
         "local d = (x.date and x.fact ~= 'news') and ('/' .. tostring(x.date)) or (x.fact == 'mine' or x.fact == 'county' or x.fact == 'turned' or x.fact == 'taps') and '/nil' or '' "
         "local s = (x.fact == 'first') and ('/' .. tostring(x.source)) or '' "
         "out[#out + 1] = x.fact .. '=' .. (tostring(v) .. d .. s):gsub('[ ,]', '_') end "
@@ -166,12 +166,20 @@ def main():
         if started.get(k) != v:
             faults.append("started: %s is %s, wanted %s" % (k, started.get(k), v))
 
+    possession = numbers(value(probe(facts("started", CALENDAR
+        + "SAO.Perception.radioReceptions = function(id) return {} end "
+        + "SAO.Standing.ownsRadio = function(id) return true end "))))
+    print("     possession only: "
+          + " ".join("%s=%s" % kv for kv in possession.items()))
+    if "news" in possession:
+        faults.append("radio possession created news without a reception")
+
     bare = numbers(value(probe(facts("started"))))
     print("     no calendar: " + " ".join("%s=%s" % kv for kv in bare.items()))
     if bare.get("mine") != "3/nil" or bare.get("county") != "4/nil":
         faults.append("with no bridge the day count should stand alone: %r" % bare)
-    if "news" in bare:
-        faults.append("with no bridge the record's first day is still claimed")
+    if bare.get("news") != "8":
+        faults.append("with no bridge the received-news day should stand alone: %r" % bare)
 
     ktext, st, ui = read(K), read(STANDING), read(UI)
     br, rc, chk = read(BRIDGE), read(RECORD), read(RECORD_CHECK)

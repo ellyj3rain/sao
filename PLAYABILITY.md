@@ -1,6 +1,6 @@
 | Document | Playability and observed behavior |
 |---|---|
-| Version | `2.8.9.0-pre-alpha` |
+| Version | `2.8.10.0-pre-alpha` |
 | Author | ellyj3rain |
 | Repository | `PLAYABILITY.md` |
 | Status | CANONICAL - current evidence and implementation limitations. |
@@ -29,7 +29,7 @@ mechanical work already authorized.
 | Social life | Relationships, companies, claims, demands, exchanges and governance state | Automatic relocation and recognition can substitute for actual choices and consequences; surrender lacks a complete transaction. |
 | Health and age | Infection course, conditions, habits, age, durable brain-health history and medical/inspect graph | Current physical causes integrate independently of callback partitions and affect memory, decisions, pressure and movement. Healthy-child fear and completed care remain later action repairs. |
 | Knowledge and optional integrations | Perception, remembered opportunities, vehicles, animals and combat adapters | Animal/human classification, inaccessible compartments and installed prone-state reads need correction. |
-| Communication | Existing talk, testimony and radio channels; inference and fact-constraint primitives | Free-form learned cognition and expression are unfinished; no trained model is shipped. |
+| Communication | Talk and testimony admission; C73 County Wire/player-radio delivery through powered, audible, tuned per-person endpoints with private receipts; inference and fact-constraint primitives | Autonomous survivor radio actions, free-form learned cognition and expression are unfinished; no trained model is shipped. Radio audio and loaded-save behavior still need play observation. |
 | Historical starts | Bounded causal catch-up with progress and diagnostic provenance | Remaining time consumers and missing producers prevent a full-fidelity claim. A learned accelerator remains unfinished. |
 
 The [implementation audit](artifacts/audits/20260919-0356Z-2056PST-c112-c126-implementation-audit.md)

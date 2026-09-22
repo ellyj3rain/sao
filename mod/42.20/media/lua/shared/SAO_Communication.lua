@@ -6,6 +6,11 @@ local Communication = SAO.Communication
 
 Communication.messages = Communication.messages or {}
 
+local function finite(value)
+    return type(value) == "number" and value == value
+        and value ~= math.huge and value ~= -math.huge
+end
+
 local function bodyFor(id)
     local body = SAO.Body and SAO.Body.get and SAO.Body.get(id)
     if body then return body end
@@ -80,6 +85,140 @@ function Communication.canConverse(fromId, toId, channel)
             SAO.Perception and SAO.Perception.EARSHOT or 10)
     end)
     return ok and heard == true
+end
+
+local function radioDetails(access, representation)
+    if type(access) ~= "string" then return nil, "device-unavailable" end
+    local itemId, fullType, channel, power = string.match(access,
+        "^AVAILABLE:(%-?%d+):([^:]+):(%d+):([%d%.eE%+%-]+)$")
+    itemId, channel, power = tonumber(itemId), tonumber(channel), tonumber(power)
+    if not itemId or type(fullType) ~= "string" or fullType == ""
+        or not channel or not finite(power) or power < 0 or power > 1.000001 then
+        return nil, string.match(access, "^REFUSED:(.+)$")
+            or "device-unavailable"
+    end
+    return { representation = representation, deviceItemId = itemId,
+        deviceType = fullType, channel = channel, power = power }
+end
+
+local function radioHour(value)
+    local ok, now = pcall(function() return SAO.History.countyHours() end)
+    if not ok or not finite(now) or now < 0 then return nil end
+    if value == nil then return now end
+    local at = tonumber(value)
+    if not finite(at) or at < 0 or math.abs(at - now) > 0.000001 then
+        return nil
+    end
+    return now
+end
+
+-- A receiver is an endpoint at an event, not an ownership flag. Loaded
+-- access reads the current direct-root DeviceData. Dormant access first
+-- advances the checkpointed battery state to the event hour and then admits
+-- the same device predicates. Legacy possession-only records stay unknown.
+function Communication.radioReceiverAccess(id, frequency, atHours, body)
+    if type(id) ~= "string" then return nil, "invalid-radio-event" end
+    frequency, atHours = tonumber(frequency), radioHour(atHours)
+    if id == "" or not frequency or frequency ~= math.floor(frequency)
+        or not atHours or not SAOJavaBridge then
+        return nil, "invalid-radio-event"
+    end
+    local resolved = bodyFor(id)
+    if body and resolved ~= body then return nil, "body-mismatch" end
+    body = resolved
+    if body then
+        local agent = SAO.Controller and SAO.Controller.agents
+            and SAO.Controller.agents[id]
+        if agent and agent.sleeping then return nil, "asleep" end
+        local okBody, awake = pcall(function()
+            return SAOJavaBridge:canReceiveRadioNow(body)
+        end)
+        if not okBody or awake ~= true then return nil, "cannot-hear-now" end
+        local okDevice, access = pcall(function()
+            return SAOJavaBridge:loadedRadioReceiverAccess(body, frequency)
+        end)
+        if not okDevice then return nil, "device-unavailable" end
+        return radioDetails(access, "loaded")
+    end
+    if not (SAO.Identity and SAO.Identity.get and SAO.Body
+        and SAO.Body.hasRepresentation) then return nil, "record-unavailable" end
+    local rec = SAO.Identity.get(id)
+    if not rec or rec.dead then return nil, "dead-or-missing" end
+    if SAO.Body.hasRepresentation(id) then return nil, "body-unavailable" end
+    local agent = SAO.Controller and SAO.Controller.agents
+        and SAO.Controller.agents[id]
+    if agent and agent.sleeping then return nil, "asleep" end
+    local hearing, hearingWhy = dormantHearing(rec, true)
+    if not hearing then return nil, hearingWhy end
+    local capturedAt = tonumber(rec.radioStateAtHours)
+    if type(rec.radioState) ~= "string" or rec.radioState == ""
+        or not finite(capturedAt) or capturedAt < 0 or capturedAt > atHours then
+        return nil, "receiver-unobserved"
+    end
+    local okAdvance, advanced = pcall(function()
+        return SAOJavaBridge:advanceDormantRadioState(
+            rec.radioState, atHours - capturedAt)
+    end)
+    if not okAdvance or type(advanced) ~= "string" or advanced == ""
+        or SAOJavaBridge:validateRadioState(advanced) ~= true then
+        return nil, "receiver-state-unavailable"
+    end
+    -- The advancement is physical passage of time and remains true whether or
+    -- not this broadcast finds a usable receiver.
+    rec.radioState = advanced
+    rec.radioStateAtHours = atHours
+    local okDevice, access = pcall(function()
+        return SAOJavaBridge:dormantRadioReceiverAccess(advanced, frequency)
+    end)
+    if not okDevice then return nil, "device-unavailable" end
+    return radioDetails(access, "dormant")
+end
+
+function Communication.radioTransmitterAccess(id, frequency, body)
+    if type(id) ~= "string" then return nil, "invalid-transmitter" end
+    frequency = tonumber(frequency)
+    local resolved = bodyFor(id)
+    if body and resolved ~= body then return nil, "body-mismatch" end
+    body = resolved
+    if id == "" or not body or not frequency
+        or frequency ~= math.floor(frequency) or not SAOJavaBridge then
+        return nil, "invalid-transmitter"
+    end
+    local agent = SAO.Controller and SAO.Controller.agents
+        and SAO.Controller.agents[id]
+    if agent and agent.sleeping then return nil, "asleep" end
+    local okBody, awake = pcall(function()
+        return SAOJavaBridge:canTransmitRadioNow(body)
+    end)
+    if not okBody or awake ~= true then return nil, "cannot-transmit-now" end
+    local okDevice, access = pcall(function()
+        return SAOJavaBridge:loadedRadioTransmitterAccess(body, frequency)
+    end)
+    if not okDevice then return nil, "device-unavailable" end
+    return radioDetails(access, "loaded")
+end
+
+function Communication.radioReception(id, broadcastId, frequency, atHours,
+        items, body, sourceId)
+    sourceId = sourceId or "county-wire"
+    if type(id) ~= "string" or id == ""
+        or type(broadcastId) ~= "string" or broadcastId == ""
+        or type(sourceId) ~= "string" or sourceId == "" then
+        return false, "invalid-radio-event"
+    end
+    local eventAt = radioHour(atHours)
+    if not eventAt then return false, "invalid-radio-event" end
+    local access, why = Communication.radioReceiverAccess(
+        id, frequency, eventAt, body)
+    if not access then return false, why end
+    if not (SAO.Perception and SAO.Perception.recordRadioReception) then
+        return false, "perception-unavailable"
+    end
+    local accepted, receipt = SAO.Perception.recordRadioReception(
+        id, broadcastId, sourceId, tonumber(frequency),
+        eventAt, access, items)
+    if accepted ~= true then return false, receipt or "receipt-refused" end
+    return true, receipt
 end
 
 function Communication.send(fromId, toId, kind, payload)

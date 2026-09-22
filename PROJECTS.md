@@ -1,6 +1,6 @@
 | Document | The three projects and what each owns |
 |---|---|
-| Version | `2.8.9.0-pre-alpha` |
+| Version | `2.8.10.0-pre-alpha` |
 | Author | ellyj3rain |
 | Repository | `PROJECTS.md` |
 | Status | CANONICAL - the architecture across the three repositories. Held here; `../zombie-awareness` and `../zomboid-speakeasy` point at it. |

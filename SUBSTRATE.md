@@ -1,6 +1,6 @@
 | Document | Survivor Awareness Overhaul Dependency Substrate |
 |---|---|
-| Version | `2.8.9.0-pre-alpha` |
+| Version | `2.8.10.0-pre-alpha` |
 | Author | ellyj3rain |
 | Repository | `SUBSTRATE.md` |
 | Status | CANONICAL - what exists, what is planned, and what each area of concern needs. |
@@ -697,8 +697,8 @@ does not upgrade an unfinished mechanism to implemented.
 |---|---|---|---|
 | Performed transfer knowledge | Needs/SourceUse native mutation -> frozen WorldSources observation -> existing Provisioning consumer -> private Perception episode | Knowledge food/water and admitted testimony | Later source conflict preserves observation but grants no successful material projection. |
 | Recipient response | Witness's own held-ground context and category need -> Disposition appraisal -> only their episode | Existing charity preference toward the actor | C69 closes the bounded household-request appraisal after testimony; testimony still does not copy feelings. |
-| Asked assistance | Quartermaster's actual request -> private dated request -> admitted testimony | Carrier's private request/destination and urgency | Actual radio reception and broader private work instructions remain separate producers. |
-| Dormant spoken access | C67 measured hearing plus C72 native/generated rest acquisition and record-owned rest/sleep/wake before the adjacent unloaded encounter | Perception transfer/request testimony | Closed for adjacent speech. Actual radio reception and dormant exchange remain separate producers. |
+| Asked assistance | Explicit request -> requesting speaker's private dated request -> admitted speech or C73 radio receipt | Carrier's private request/destination and urgency | C73 closes reception and origin-preserving radio delivery when a request exists. Complete-house shortage production and broader private work instructions remain separate producers. |
+| Dormant spoken access | C67 measured hearing plus C72 native/generated rest acquisition and record-owned rest/sleep/wake before the adjacent unloaded encounter | Perception transfer/request testimony | Closed for adjacent speech. C73 separately closes County Wire reception; dormant exchange actions remain separate producers. |
 | Source curation | Speakeasy Record50 literal approved-document excerpts | Existing source validator/knowledge authoring | Extraction review, same-person acquisition, calendar join, ratification and eligible examples remain absent. |
 
 Episode retention is initially 64 recent acts over fourteen county days scaled
@@ -761,7 +761,7 @@ person-specific, unexplored contents remain unknown and an inaccessible part
 refuses. A dormant view exposes exact recursive carriage and states that world
 holders are unknown.
 
-Needs, Controller, Harness, Animals, RadioEar and Standing consume the shared
+Needs, Controller, Harness, Animals and Standing consume the shared
 recursive reader. A selected nested item retains its direct source container
 while its root holder supplies current permission; native actions and their
 existing result owners still perform every mutation. The view stores no state,
@@ -798,5 +798,35 @@ endurance, asleep and seated posture with the completed record state and verifie
 the result before publication. Border 185 covers sleep, movement hold, encounter
 refusal, wake, encounter admission, legacy refusal, native acquisition and saved
 trait rates. Native-person and handoff suites cover exact read/apply and
-loaded/bodyless continuity. Operating receiver, channel and recipient reception
-remain the next communication producer.
+loaded/bodyless continuity. C73 supplies the separate operating receiver,
+channel and recipient-reception producer.
+
+### C73 producer update
+
+Project Zomboid remains the loaded radio owner. `SAOPrivateInventory` reads only
+direct-root communications radios, matching the installed carried-frequency
+boundary, and captures item identity plus current channel, on/off state, volume,
+battery presence, power, native use rate, two-way capability, mute and transmit
+permission. A television is excluded. A radio inside a bag remains possession
+and does not become an active endpoint.
+
+PhysicalFacts stages that state and its county hour with the body snapshot. The
+record advances only on battery power while no body exists; elapsed use can
+deplete and turn off the receiver. On wake the advanced power/off result must
+match and overlay the exact restored device before body publication. Legacy
+`hasRadio` state proves no receiver configuration and remains unknown.
+
+Communication joins that device state with the C67 hearing and C72 awake state.
+County Wire and explicit player transmissions then write a recipient-private,
+bounded, idempotent Perception receipt before any content effect. The receipt
+retains broadcast/source identity, time, frequency, loaded/dormant
+representation, device identity and carried claim descriptors. An aired request
+names the original requesting speaker and enters a listener's request memory as
+told testimony only when that speaker's original private request exists.
+
+Player aid calls, camp testimony, peace petitions and chat presence use the same
+endpoint proof. Effects apply only to the admitted listener; household
+membership performs no implicit relay. Border 186 covers the loaded and dormant
+paths, native battery and wake behavior, legacy refusal, private evidence,
+request provenance and per-person routing. C73 does not recreate the retired
+bounded-shelf shortage trigger or add an autonomous survivor radio scheduler.

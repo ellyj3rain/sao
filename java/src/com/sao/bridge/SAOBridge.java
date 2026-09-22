@@ -1464,6 +1464,62 @@ public final class SAOBridge {
         }
     }
 
+    /** Exact direct-root receiver state staged with the body checkpoint. */
+    public String captureRadioState(Object object) {
+        try {
+            return object instanceof zombie.characters.IsoGameCharacter person
+                ? com.sao.engine.SAOPrivateInventory.captureRadioState(person) : "";
+        } catch (Throwable error) {
+            SAOAgent.log("captureRadioState refused: " + error);
+            return "";
+        }
+    }
+
+    public boolean validateRadioState(Object value) {
+        return value instanceof String text
+            && com.sao.engine.SAOPrivateInventory.validateRadioState(text);
+    }
+
+    public String advanceDormantRadioState(Object value, double elapsedHours) {
+        return value instanceof String text
+            ? com.sao.engine.SAOPrivateInventory.advanceRadioState(
+                text, elapsedHours) : "";
+    }
+
+    public String loadedRadioReceiverAccess(Object object, int frequency) {
+        return object instanceof zombie.characters.IsoGameCharacter person
+            ? com.sao.engine.SAOPrivateInventory.loadedRadioAccess(
+                person, frequency, false) : "REFUSED:missing-body";
+    }
+
+    public String loadedRadioTransmitterAccess(Object object, int frequency) {
+        return object instanceof zombie.characters.IsoGameCharacter person
+            ? com.sao.engine.SAOPrivateInventory.loadedRadioAccess(
+                person, frequency, true) : "REFUSED:missing-body";
+    }
+
+    public String dormantRadioReceiverAccess(Object value, int frequency) {
+        return value instanceof String text
+            ? com.sao.engine.SAOPrivateInventory.dormantRadioAccess(
+                text, frequency, false) : "REFUSED:state-unavailable";
+    }
+
+    public boolean applyDormantRadioState(Object object, Object value) {
+        return object instanceof zombie.characters.IsoGameCharacter person
+            && value instanceof String text
+            && com.sao.engine.SAOPrivateInventory.applyRadioState(person, text);
+    }
+
+    public boolean canReceiveRadioNow(Object object) {
+        return object instanceof zombie.characters.IsoGameCharacter person
+            && com.sao.engine.SAOPerceptionScanner.canReceiveRadioNow(person);
+    }
+
+    public boolean canTransmitRadioNow(Object object) {
+        return object instanceof zombie.characters.IsoGameCharacter person
+            && com.sao.engine.SAOPerceptionScanner.canTransmitRadioNow(person);
+    }
+
     /** [C67] Native saved hearing; unavailable evidence never means can-hear. */
     public String hibernationHearingAccess(Object packed) {
         try {

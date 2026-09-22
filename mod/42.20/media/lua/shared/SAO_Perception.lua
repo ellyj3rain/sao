@@ -534,6 +534,157 @@ local function tellTransfers(fromId, toId, channel, aroundX, aroundY)
     return moved
 end
 
+-- A broadcast receipt is transport evidence owned by the listener. It says
+-- which physical endpoint received which bounded claims; it does not itself
+-- make any claim true. Content-specific consumers run only after this write.
+local RADIO_LIMIT = 64
+local RADIO_CLAIM_FIELDS = { "kind", "group", "requestedAt", "speakerId",
+    "id", "a", "b", "leader", "policy", "form", "x", "y", "z",
+    "target", "creed", "left", "name" }
+local RADIO_CLAIM_FIELD_SET = {}
+for _, key in ipairs(RADIO_CLAIM_FIELDS) do RADIO_CLAIM_FIELD_SET[key] = true end
+
+local function radioClaimCopy(item)
+    if type(item) ~= "table" or type(item.kind) ~= "string"
+        or item.kind == "" then return nil end
+    local copy = {}
+    for key, value in pairs(item) do
+        if type(key) ~= "string" or not RADIO_CLAIM_FIELD_SET[key] then
+            return nil
+        end
+        if type(value) ~= "string" and type(value) ~= "number"
+            and type(value) ~= "boolean" then return nil end
+        if type(value) == "number" and not transferNumber(value) then
+            return nil
+        end
+        copy[key] = value
+    end
+    return copy
+end
+
+local function radioReceiptCopy(receipt)
+    if type(receipt) ~= "table" then return nil end
+    local out = { broadcastId = receipt.broadcastId,
+        sourceId = receipt.sourceId, frequency = receipt.frequency,
+        receivedAt = receipt.receivedAt,
+        representation = receipt.representation,
+        deviceItemId = receipt.deviceItemId,
+        deviceType = receipt.deviceType, channel = receipt.channel,
+        power = receipt.power, claims = {} }
+    for _, item in ipairs(receipt.claims or {}) do
+        local claim = radioClaimCopy(item)
+        if not claim then return nil end
+        out.claims[#out.claims + 1] = claim
+    end
+    return out
+end
+
+local function sameRadioReceipt(a, b)
+    if type(a) ~= "table" or type(b) ~= "table" then return false end
+    for _, key in ipairs({ "broadcastId", "sourceId", "frequency",
+        "receivedAt", "representation", "deviceItemId", "deviceType",
+        "channel", "power" }) do
+        if a[key] ~= b[key] then return false end
+    end
+    if #(a.claims or {}) ~= #(b.claims or {}) then return false end
+    for i, left in ipairs(a.claims or {}) do
+        local right = b.claims[i]
+        for _, key in ipairs(RADIO_CLAIM_FIELDS) do
+            if left[key] ~= right[key] then return false end
+        end
+    end
+    return true
+end
+
+function P.recordRadioReception(id, broadcastId, sourceId, frequency,
+        receivedAt, access, items)
+    local now = transferNow()
+    if not now or type(id) ~= "string" or id == ""
+        or type(broadcastId) ~= "string" or broadcastId == ""
+        or type(sourceId) ~= "string" or sourceId == ""
+        or type(frequency) ~= "number" or frequency ~= math.floor(frequency)
+        or frequency <= 0 or frequency > 1000000
+        or not transferNumber(receivedAt) or receivedAt < 0 or receivedAt > now
+        or type(access) ~= "table"
+        or (access.representation ~= "loaded"
+            and access.representation ~= "dormant")
+        or type(access.deviceItemId) ~= "number"
+        or access.deviceItemId ~= math.floor(access.deviceItemId)
+        or type(access.deviceType) ~= "string" or access.deviceType == ""
+        or access.channel ~= frequency or not transferNumber(access.power)
+        or access.power < 0 or access.power > 1.000001
+        or type(items) ~= "table" then return false, "invalid-reception" end
+    local claims, count = {}, 0
+    for key, item in pairs(items) do
+        count = count + 1
+        if type(key) ~= "number" or key < 1 or key ~= math.floor(key)
+            or key > 64 then return false, "invalid-claims" end
+        local claim = radioClaimCopy(item)
+        if not claim then return false, "invalid-claims" end
+        claims[key] = claim
+    end
+    if count ~= #items then return false, "invalid-claims" end
+    local receipt = { broadcastId = broadcastId, sourceId = sourceId,
+        frequency = frequency, receivedAt = receivedAt,
+        representation = access.representation,
+        deviceItemId = access.deviceItemId, deviceType = access.deviceType,
+        channel = access.channel, power = access.power, claims = claims }
+    local b = store(id)
+    b.radioReceptions = b.radioReceptions or {}
+    local existing = b.radioReceptions[broadcastId]
+    if existing then
+        return sameRadioReceipt(existing, receipt),
+            sameRadioReceipt(existing, receipt) and radioReceiptCopy(existing)
+                or "conflicting-reception"
+    end
+    local order = { eventAt = receivedAt, eventId = broadcastId }
+    if type(b.radioReceptionFloor) == "table"
+        and not transferOrder(b.radioReceptionFloor, order) then
+        return false, "evicted-reception"
+    end
+    b.radioReceptions[broadcastId] = receipt
+    local ordered = {}
+    for eventId, value in pairs(b.radioReceptions) do
+        ordered[#ordered + 1] = { eventId = eventId,
+            eventAt = value.receivedAt }
+    end
+    table.sort(ordered, transferOrder)
+    for i = 1, #ordered - RADIO_LIMIT do
+        b.radioReceptions[ordered[i].eventId] = nil
+        b.radioReceptionFloor = { eventAt = ordered[i].eventAt,
+            eventId = ordered[i].eventId }
+    end
+    P.beliefVersion = P.beliefVersion + 1
+    return b.radioReceptions[broadcastId] ~= nil,
+        radioReceiptCopy(b.radioReceptions[broadcastId])
+end
+
+function P.radioReceptions(id)
+    local b = P.beliefs[tostring(id or "")]
+    if not b or type(b.radioReceptions) ~= "table" then return {} end
+    local ordered = {}
+    for broadcastId, receipt in pairs(b.radioReceptions) do
+        local copy = radioReceiptCopy(receipt)
+        if copy then
+            ordered[#ordered + 1] = { eventId = broadcastId,
+                eventAt = copy.receivedAt, receipt = copy }
+        end
+    end
+    table.sort(ordered, transferOrder)
+    local out = {}
+    for _, entry in ipairs(ordered) do out[#out + 1] = entry.receipt end
+    return out
+end
+
+function P.radioReception(id, broadcastId)
+    for _, receipt in ipairs(P.radioReceptions(id)) do
+        if receipt.broadcastId == tostring(broadcastId or "") then
+            return receipt
+        end
+    end
+    return nil
+end
+
 local AID_REQUEST_HOURS = 96
 
 function P.recordAidRequest(id, groupId, requestedAt, source, teller, category)

@@ -393,6 +393,27 @@ public final class SAOPerceptionScanner {
         }
     }
 
+    /** A radio removes distance and weather, but not death, sleep or deafness. */
+    public static boolean canReceiveRadioNow(IsoGameCharacter listener) {
+        try {
+            if (!awakeHuman(listener)
+                    || listener.hasTrait(CharacterTrait.DEAF)) return false;
+            float hearing = listener.getWornItemsHearingMultiplier();
+            return Float.isFinite(hearing) && hearing > 0.0f;
+        } catch (Throwable unavailable) {
+            return false;
+        }
+    }
+
+    /** A living awake human can key a proved transmitter even if deaf. */
+    public static boolean canTransmitRadioNow(IsoGameCharacter speaker) {
+        try {
+            return awakeHuman(speaker);
+        } catch (Throwable unavailable) {
+            return false;
+        }
+    }
+
     private static boolean awakeHuman(IsoGameCharacter person) {
         return person != null && !(person instanceof IsoAnimal)
             && (person instanceof IsoPlayer

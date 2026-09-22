@@ -459,8 +459,8 @@ end
 -- horror (lived - the day, the county's date, and what it taught,
 -- with a name when there was one); the county's own stamps, aired
 -- once as county news (told) - the first of them seen to kill, the
--- dead not staying dead, the taps; and the record's own first day,
--- for anyone with a radio to have heard it (told).
+-- dead not staying dead, the taps; and this person's first proved
+-- radio reception (told).
 local function aboutStarted(id, opts)
     local rec = nil
     pcall(function() rec = SAO.Identity.get(id) end)
@@ -494,11 +494,13 @@ local function aboutStarted(id, opts)
         end
     end)
     pcall(function()
-        if not SAO.Standing.ownsRadio(id) then return end
-        local d = nil
-        pcall(function() d = SAOJavaBridge:recordDayZero() end)
-        if type(d) == "string" and d ~= "" then
-            out[#out + 1] = { fact = "news", source = "told", date = d }
+        local receipts = SAO.Perception and SAO.Perception.radioReceptions
+            and SAO.Perception.radioReceptions(id) or {}
+        local first = receipts[1]
+        if first and type(first.receivedAt) == "number" then
+            out[#out + 1] = { fact = "news", source = "told",
+                day = dayOf(first.receivedAt),
+                date = K.dateOf(first.receivedAt) }
         end
     end)
     if #out == 0 then return nil end
