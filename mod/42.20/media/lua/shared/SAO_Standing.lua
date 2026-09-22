@@ -2077,7 +2077,8 @@ function S.callForBread(groupName, speakerId)
     end
     meta.askedAtHours = now
     s.groupMeta[groupName] = meta
-    S.pushRadioNews({ kind = "ask", group = groupName, requestedAt = now })
+    S.pushRadioNews({ kind = "ask", group = groupName, requestedAt = now,
+        speakerId = speakerId })
     return true
 end
 
@@ -3225,48 +3226,63 @@ function S.ownsRadio(id, body)
     return ok and has == true
 end
 
-function S.hearPlayerOnAir(playerKey)
+function S.beginRadioBroadcast(sourceId, kind)
+    local s = store(); if not s then return nil end
+    if type(sourceId) ~= "string" or sourceId == "" then return nil end
+    local okH, now = pcall(function() return SAO.History.countyHours() end)
+    if not okH or type(now) ~= "number" or now ~= now or now < 0
+        or now == math.huge or now == -math.huge then return nil end
+    s.onAir = s.onAir or {}
+    s.onAir.sequence = math.max(0, tonumber(s.onAir.sequence) or 0) + 1
+    return "player-radio:" .. tostring(s.onAir.sequence) .. ":"
+        .. tostring(kind or "voice"), now
+end
+
+function S.hearPlayerOnAir(playerKey, body, frequency)
     local s = store(); if not s then return end
     local okH, h = pcall(function()
         return SAO.History.countyHours()
     end)
-    local now = okH and h or 0
+    local now = okH and h or nil
+    if type(now) ~= "number" or now ~= now or now < 0
+        or now == math.huge or now == -math.huge then return false end
+    frequency = tonumber(frequency)
+    if not (SAO.Communication and SAO.Communication.radioTransmitterAccess
+        and SAO.Communication.radioTransmitterAccess(
+            playerKey, frequency, body)) then return false end
     s.onAir = s.onAir or {}
-    if now - (s.onAir.lastHeardAt or -9) < 1 then return end
+    if now - (s.onAir.lastHeardAt or -9) < 1 then return false end
+    local broadcastId, broadcastAt = S.beginRadioBroadcast(playerKey, "voice")
+    if not broadcastId then return false end
+    now = broadcastAt
     s.onAir.lastHeardAt = now
-    -- Hearing is OWNERSHIP ([A27]): whoever actually carries a
-    -- receiver catches the voice; their house learns it indoors (the
-    -- owner tells the room). No house set is conjured, no size gate -
-    -- a band of two with one handset hears as a band.
-    local heard = false
+    -- The transmission belongs only to the people whose current receivers
+    -- admit it. Household membership is not an unperformed second telling.
+    local heard = 0
     for _, rec in pairs((SAO.Identity and SAO.Identity.all
         and SAO.Identity.all()) or {}) do
-        if not rec.dead and S.ownsRadio(rec.id) then
-            heard = true
+        local received = false
+        if not rec.dead and rec.id ~= playerKey
+            and SAO.Communication and SAO.Communication.radioReception then
+            received = SAO.Communication.radioReception(rec.id, broadcastId,
+                frequency, now, { { kind = "onAir", speakerId = playerKey } },
+                nil, playerKey) == true
+        end
+        if received then
+            heard = heard + 1
             s.onAir.heardSolo = s.onAir.heardSolo or {}
             s.onAir.heardSolo[rec.id] = now
             S.adjustTrust(rec.id, playerKey, 0.02)
-            local g = s.groups and s.groups[rec.id] or nil
-            if g then
-                s.onAir.heardBy = s.onAir.heardBy or {}
-                if s.onAir.heardBy[g] ~= now then
-                    s.onAir.heardBy[g] = now
-                    for mid, mg in pairs(s.groups) do
-                        if mg == g and mid ~= rec.id then
-                            S.adjustTrust(mid, playerKey, 0.02)
-                        end
-                    end
-                end
-            end
         end
     end
-    if heard and now - (s.onAir.lastAckAt or -48) >= 24 then
+    if heard > 0 and now - (s.onAir.lastAckAt or -48) >= 24 then
         s.onAir.lastAckAt = now
         S.pushRadioNews({ kind = "onAir" })
     end
+    return heard
 end
 
--- Whether this survivor's company has heard the player on the wire.
+-- Whether this survivor has received the player's transmission.
 -- Death hygiene ([A27]): the dead leave the listener rolls.
 -- [B51] `politickAt` is keyed by a PAIR - "a|b", sorted - so one
 -- entry per pair of survivors who have ever argued doctrine, and
@@ -3299,12 +3315,8 @@ end
 
 function S.heardPlayerOnAir(id)
     local s = store(); if not s then return false end
-    if s.onAir and s.onAir.heardSolo and s.onAir.heardSolo[id] then
-        return true
-    end
-    local g = s.groups and s.groups[id] or nil
-    return (g and s.onAir and s.onAir.heardBy
-        and s.onAir.heardBy[g]) ~= nil
+    return s.onAir and s.onAir.heardSolo
+        and s.onAir.heardSolo[id] ~= nil or false
 end
 
 -- The county wire ([A26]): political events append themselves here as

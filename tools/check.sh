@@ -1928,6 +1928,14 @@ if ! "$PY" tools/dormant_spoken_access_test.py; then
     fail=1
 fi
 
+# [C73] Border 186 - an operating direct-root receiver, exact channel,
+# audible powered state and listener access produce a private receipt before
+# County Wire or player-radio claims affect that recipient.
+if ! "$PY" tools/radio_reception_test.py; then
+    note "BORDER FINDING - radio endpoint, reception evidence or claim order broken"
+    fail=1
+fi
+
 # [C63/C67/C69] Border 180 - provisioning consumes completed C62 results,
 # reconciles exact observed native stock, and preserves private delivery
 # knowledge, requests and independently formed recipient appraisals.

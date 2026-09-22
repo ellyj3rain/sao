@@ -1,8 +1,13 @@
 package com.sao.engine;
 
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
+import java.io.DataInputStream;
+import java.io.DataOutputStream;
 import java.nio.charset.StandardCharsets;
 import java.security.MessageDigest;
 import java.util.ArrayList;
+import java.util.Base64;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashSet;
@@ -16,6 +21,7 @@ import zombie.characters.IsoPlayer;
 import zombie.inventory.InventoryItem;
 import zombie.inventory.ItemContainer;
 import zombie.inventory.types.InventoryContainer;
+import zombie.inventory.types.Radio;
 import zombie.iso.IsoCell;
 import zombie.iso.IsoGridSquare;
 import zombie.iso.IsoObject;
@@ -23,6 +29,7 @@ import zombie.iso.objects.IsoDeadBody;
 import zombie.iso.objects.IsoWorldInventoryObject;
 import zombie.vehicles.BaseVehicle;
 import zombie.vehicles.VehiclePart;
+import zombie.radio.devices.DeviceData;
 
 /**
  * A fresh, read-only view of one person's native inventory ground.
@@ -35,10 +42,12 @@ import zombie.vehicles.VehiclePart;
  */
 public final class SAOPrivateInventory {
     private static final String PROTOCOL = "SAOPI1";
+    private static final String RADIO_PROTOCOL = "SAORAD1;";
     private static final int MAX_DEPTH = 64;
     private static final int MAX_ITEMS = 32767;
     private static final int MAX_HOLDERS = 4096;
     private static final int MAX_RADIUS = 64;
+    private static final int MAX_RADIOS = 1024;
 
     private SAOPrivateInventory() { }
 
@@ -55,6 +64,12 @@ public final class SAOPrivateInventory {
     public record View(String personId, String representation,
             String carriedCoverage, String worldCoverage, String revision,
             List<Holder> holders) { }
+
+    /** Direct-root device state that can survive an interval with no body. */
+    private record RadioFact(int itemId, String fullType, int channel,
+            boolean on, boolean batteryPowered, boolean hasBattery,
+            float power, float useDelta, float volume, boolean twoWay,
+            boolean micMuted, boolean noTransmit) { }
 
     /**
      * Complete recursive carriage for loaded decisions. The returned list is a
@@ -310,6 +325,266 @@ public final class SAOPrivateInventory {
             && definition.getItemType() == zombie.scripting.objects.ItemType.RADIO
             && !definition.isTelevision
             && "Communications".equals(definition.getDisplayCategory());
+    }
+
+    /**
+     * Capture only the direct inventory level the engine uses for carried
+     * radio frequencies. A receiver inside a bag remains possession, not a
+     * current endpoint.
+     */
+    public static String captureRadioState(IsoGameCharacter person) {
+        if (person == null || person.getInventory() == null) return "";
+        return encodeRadioFacts(loadedRadioFacts(person));
+    }
+
+    public static boolean validateRadioState(String encoded) {
+        try {
+            decodeRadioFacts(encoded);
+            return true;
+        } catch (Exception invalid) {
+            return false;
+        }
+    }
+
+    /** Advance power while the native body and its item updater do not exist. */
+    public static String advanceRadioState(String encoded, double elapsedHours) {
+        if (!Double.isFinite(elapsedHours) || elapsedHours < 0.0) return "";
+        try {
+            ArrayList<RadioFact> advanced = new ArrayList<>();
+            for (RadioFact fact : decodeRadioFacts(encoded)) {
+                float power = fact.power();
+                boolean on = fact.on();
+                if (on && fact.batteryPowered()) {
+                    if (!fact.hasBattery() || power <= 0.0f) {
+                        power = Math.max(0.0f, power);
+                        on = false;
+                    } else {
+                        double spent = (double) fact.useDelta()
+                            * elapsedHours * 60.0;
+                        power = (float) Math.max(0.0,
+                            Math.min(1.0, (double) power - spent));
+                        if (power <= 0.0f) on = false;
+                    }
+                }
+                advanced.add(new RadioFact(fact.itemId(), fact.fullType(),
+                    fact.channel(), on, fact.batteryPowered(),
+                    fact.hasBattery(), power, fact.useDelta(), fact.volume(),
+                    fact.twoWay(), fact.micMuted(), fact.noTransmit()));
+            }
+            return encodeRadioFacts(advanced);
+        } catch (Exception invalid) {
+            return "";
+        }
+    }
+
+    public static String loadedRadioAccess(IsoGameCharacter person,
+            int frequency, boolean transmitter) {
+        if (person == null || person.getInventory() == null) {
+            return "REFUSED:missing-body";
+        }
+        if (!validFrequency(frequency)) return "REFUSED:invalid-frequency";
+        try {
+            return radioAccess(loadedRadioFacts(person), frequency, transmitter);
+        } catch (Exception unavailable) {
+            return "REFUSED:device-unavailable";
+        }
+    }
+
+    public static String dormantRadioAccess(String encoded, int frequency,
+            boolean transmitter) {
+        if (!validFrequency(frequency)) return "REFUSED:invalid-frequency";
+        try {
+            return radioAccess(decodeRadioFacts(encoded), frequency, transmitter);
+        } catch (Exception unavailable) {
+            return "REFUSED:state-unavailable";
+        }
+    }
+
+    /** Apply only the power/on transition produced during the bodyless span. */
+    public static boolean applyRadioState(IsoGameCharacter person,
+            String encoded) {
+        if (person == null || person.getInventory() == null) return false;
+        try {
+            List<RadioFact> wanted = decodeRadioFacts(encoded);
+            List<RadioFact> current = loadedRadioFacts(person);
+            if (wanted.size() != current.size()) return false;
+            Map<String, Radio> devices = new LinkedHashMap<>();
+            Map<RadioFact, DeviceData> overlays = new LinkedHashMap<>();
+            for (InventoryItem item : new ArrayList<>(
+                    person.getInventory().getItems())) {
+                if (item instanceof Radio radio && isRadioReceiver(item)) {
+                    devices.put(radioKey(item.getID(), item.getFullType()), radio);
+                }
+            }
+            for (RadioFact fact : wanted) {
+                Radio radio = devices.remove(radioKey(fact.itemId(),
+                    fact.fullType()));
+                DeviceData data = radio == null ? null : radio.getDeviceData();
+                if (data == null || !sameRadioConfiguration(fact, data)) {
+                    return false;
+                }
+                overlays.put(fact, data);
+            }
+            if (!devices.isEmpty()) return false;
+            for (Map.Entry<RadioFact, DeviceData> entry : overlays.entrySet()) {
+                RadioFact fact = entry.getKey();
+                DeviceData data = entry.getValue();
+                data.setPower(fact.power());
+                data.setTurnedOnRaw(fact.on());
+                if (Math.abs(data.getPower() - fact.power()) > 0.00001f
+                        || data.getIsTurnedOn() != fact.on()) return false;
+            }
+            return true;
+        } catch (Exception unavailable) {
+            return false;
+        }
+    }
+
+    private static List<RadioFact> loadedRadioFacts(IsoGameCharacter person) {
+        ArrayList<RadioFact> out = new ArrayList<>();
+        for (InventoryItem item : new ArrayList<>(
+                person.getInventory().getItems())) {
+            if (!(item instanceof Radio radio) || !isRadioReceiver(item)) continue;
+            DeviceData data = radio.getDeviceData();
+            if (data == null || out.size() >= MAX_RADIOS) {
+                throw new IllegalStateException("invalid direct radio inventory");
+            }
+            RadioFact fact = new RadioFact(item.getID(), value(item.getFullType()),
+                data.getChannel(), data.getIsTurnedOn(),
+                data.getIsBatteryPowered(), data.getHasBattery(), data.getPower(),
+                data.getUseDelta(), data.getDeviceVolume(), data.getIsTwoWay(),
+                data.getMicIsMuted(), data.isNoTransmit());
+            validateRadioFact(fact);
+            out.add(fact);
+        }
+        out.sort(Comparator.comparingInt(RadioFact::itemId)
+            .thenComparing(RadioFact::fullType));
+        return List.copyOf(out);
+    }
+
+    private static String radioAccess(List<RadioFact> facts, int frequency,
+            boolean transmitter) {
+        String reason = "no-direct-receiver";
+        for (RadioFact fact : facts) {
+            if (!fact.on()) { reason = "off"; continue; }
+            if (fact.channel() != frequency) { reason = "mistuned"; continue; }
+            if (fact.batteryPowered()
+                    && (!fact.hasBattery() || fact.power() <= 0.0f)) {
+                reason = "unpowered";
+                continue;
+            }
+            if (transmitter) {
+                if (!fact.twoWay()) { reason = "receive-only"; continue; }
+                if (fact.micMuted()) { reason = "muted"; continue; }
+                if (fact.noTransmit()) { reason = "transmit-disabled"; continue; }
+            } else if (fact.volume() <= 0.0f) {
+                reason = "silent";
+                continue;
+            }
+            return "AVAILABLE:" + fact.itemId() + ":" + fact.fullType()
+                + ":" + fact.channel() + ":" + fact.power();
+        }
+        return "REFUSED:" + reason;
+    }
+
+    private static boolean sameRadioConfiguration(RadioFact fact,
+            DeviceData data) {
+        return fact.channel() == data.getChannel()
+            && fact.batteryPowered() == data.getIsBatteryPowered()
+            && fact.hasBattery() == data.getHasBattery()
+            && Math.abs(fact.useDelta() - data.getUseDelta()) <= 0.0000001f
+            && Math.abs(fact.volume() - data.getDeviceVolume()) <= 0.00001f
+            && fact.twoWay() == data.getIsTwoWay()
+            && fact.micMuted() == data.getMicIsMuted()
+            && fact.noTransmit() == data.isNoTransmit();
+    }
+
+    private static String encodeRadioFacts(List<RadioFact> facts) {
+        try {
+            ByteArrayOutputStream bytes = new ByteArrayOutputStream();
+            try (DataOutputStream out = new DataOutputStream(bytes)) {
+                out.writeInt(facts.size());
+                for (RadioFact fact : facts) {
+                    validateRadioFact(fact);
+                    out.writeInt(fact.itemId());
+                    out.writeUTF(fact.fullType());
+                    out.writeInt(fact.channel());
+                    out.writeBoolean(fact.on());
+                    out.writeBoolean(fact.batteryPowered());
+                    out.writeBoolean(fact.hasBattery());
+                    out.writeFloat(fact.power());
+                    out.writeFloat(fact.useDelta());
+                    out.writeFloat(fact.volume());
+                    out.writeBoolean(fact.twoWay());
+                    out.writeBoolean(fact.micMuted());
+                    out.writeBoolean(fact.noTransmit());
+                }
+            }
+            return RADIO_PROTOCOL + Base64.getEncoder().encodeToString(
+                bytes.toByteArray());
+        } catch (Exception impossible) {
+            throw new IllegalStateException(impossible);
+        }
+    }
+
+    private static List<RadioFact> decodeRadioFacts(String encoded)
+            throws Exception {
+        if (encoded == null || !encoded.startsWith(RADIO_PROTOCOL)) {
+            throw new IllegalArgumentException("radio protocol");
+        }
+        byte[] bytes = Base64.getDecoder().decode(
+            encoded.substring(RADIO_PROTOCOL.length()));
+        ArrayList<RadioFact> out = new ArrayList<>();
+        try (DataInputStream in = new DataInputStream(
+                new ByteArrayInputStream(bytes))) {
+            int count = in.readInt();
+            if (count < 0 || count > MAX_RADIOS) {
+                throw new IllegalArgumentException("radio count");
+            }
+            for (int i = 0; i < count; i++) {
+                RadioFact fact = new RadioFact(in.readInt(), in.readUTF(),
+                    in.readInt(), in.readBoolean(), in.readBoolean(),
+                    in.readBoolean(), in.readFloat(), in.readFloat(),
+                    in.readFloat(), in.readBoolean(), in.readBoolean(),
+                    in.readBoolean());
+                validateRadioFact(fact);
+                out.add(fact);
+            }
+            if (in.available() != 0) {
+                throw new IllegalArgumentException("radio trailing bytes");
+            }
+        }
+        out.sort(Comparator.comparingInt(RadioFact::itemId)
+            .thenComparing(RadioFact::fullType));
+        for (int i = 1; i < out.size(); i++) {
+            if (radioKey(out.get(i - 1).itemId(), out.get(i - 1).fullType())
+                    .equals(radioKey(out.get(i).itemId(),
+                        out.get(i).fullType()))) {
+                throw new IllegalArgumentException("duplicate radio");
+            }
+        }
+        return List.copyOf(out);
+    }
+
+    private static void validateRadioFact(RadioFact fact) {
+        if (fact.fullType() == null || fact.fullType().isBlank()
+                || fact.fullType().length() > 256 || fact.channel() < 0
+                || !Float.isFinite(fact.power()) || fact.power() < 0.0f
+                || fact.power() > 1.00001f
+                || !Float.isFinite(fact.useDelta()) || fact.useDelta() < 0.0f
+                || fact.useDelta() > 1.0f
+                || !Float.isFinite(fact.volume()) || fact.volume() < 0.0f
+                || fact.volume() > 100.0f) {
+            throw new IllegalArgumentException("invalid radio state");
+        }
+    }
+
+    private static boolean validFrequency(int frequency) {
+        return frequency > 0 && frequency <= 1_000_000;
+    }
+
+    private static String radioKey(int id, String fullType) {
+        return id + "|" + value(fullType);
     }
 
     private static Holder containerHolder(String id, String kind, int x, int y,

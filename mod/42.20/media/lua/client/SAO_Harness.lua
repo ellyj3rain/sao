@@ -2443,6 +2443,12 @@ local function fillMenu(playerNum, context, worldobjects)
         local wire = county:getNew(county)
         county:addSubMenu(wireOpt, wire)
         local function bandFree()
+            if not SAO.RadioEar.hasLiveWireRadio(playerObj) then
+                pcall(function()
+                    HaloTextHelper.addText(playerObj, "The transmitter is not live.")
+                end)
+                return nil
+            end
             local s = nil
             pcall(function()
                 s = ModData.getOrCreate("SurvivorAwareness_Standing")
@@ -2452,7 +2458,9 @@ local function fillMenu(playerNum, context, worldobjects)
             local okH, h = pcall(function()
                 return SAO.History.countyHours()
             end)
-            local now = okH and h or 0
+            local now = okH and h or nil
+            if type(now) ~= "number" or now ~= now or now < 0
+                or now == math.huge or now == -math.huge then return nil end
             if now - (s.onAir.lastCallAt or -9) < 2 then
                 pcall(function()
                     HaloTextHelper.addText(playerObj, "The band needs rest.")
@@ -2465,8 +2473,9 @@ local function fillMenu(playerNum, context, worldobjects)
         wire:addOption("Call for aid", nil, function()
             local s = bandFree(); if not s then return end
             local myKey = playerKeyOf(playerObj)
-            local heard = s.onAir and s.onAir.heardBy or {}
-            local heardSolo = s.onAir and s.onAir.heardSolo or {}
+            local broadcastId, now = SAO.Standing.beginRadioBroadcast(
+                myKey, "aid-call")
+            if not broadcastId then return end
             -- [B52] `bestD2`, not `bestD`. These hold SQUARED
             -- distances - correct, and the cheap way to find the
             -- nearest, since a square root would not change the
@@ -2475,9 +2484,12 @@ local function fillMenu(playerNum, context, worldobjects)
             -- against a plain literal here would be silently wrong.
             local best, bestD2 = nil, 1e9
             for _, r in pairs(SAO.Identity.all()) do
-                if not r.dead and SAO.Body.get(r.id) then
-                    local g = SAO.Standing.groupOf(r.id)
-                    if ((g and heard[g]) or heardSolo[r.id])
+                if not r.dead then
+                    local received = SAO.Communication.radioReception(r.id,
+                        broadcastId, SAOWire.freq, now,
+                        { { kind = "aidCall", speakerId = myKey } },
+                        nil, myKey) == true
+                    if received and SAO.Body.get(r.id)
                         and SAO.Standing.trust(r.id, myKey)
                             >= 0.15 + SAO.Standing.debt(r.id, myKey) * 0.3 then
                         local b = SAO.Body.get(r.id)
@@ -2511,23 +2523,31 @@ local function fillMenu(playerNum, context, worldobjects)
         end)
         wire:addOption("Share your camp", nil, function()
             local s = bandFree(); if not s then return end
-            local heard = s.onAir and s.onAir.heardBy or {}
-            local heardSolo = s.onAir and s.onAir.heardSolo or {}
+            local myKey = playerKeyOf(playerObj)
+            local broadcastId, now = SAO.Standing.beginRadioBroadcast(
+                myKey, "camp")
+            if not broadcastId then return end
             local pname = tostring(playerObj:getUsername())
             local px = math.floor(playerObj:getX())
             local py = math.floor(playerObj:getY())
             local n = 0
             for _, r in pairs(SAO.Identity.all()) do
                 if not r.dead then
-                    local g = SAO.Standing.groupOf(r.id)
-                    if (g and heard[g]) or heardSolo[r.id] then
+                    local received = SAO.Communication.radioReception(r.id,
+                        broadcastId, SAOWire.freq, now,
+                        { { kind = "camp", speakerId = myKey,
+                            x = px, y = py, z = math.floor(playerObj:getZ()) } },
+                        nil, myKey) == true
+                    if received then
                         local b2 = SAO.Perception.beliefs[r.id]
                         if b2 then
-                            b2.people[pname] = b2.people[pname]
-                                or { at = 0, dist = 999 }
-                            b2.people[pname].x = px
-                            b2.people[pname].y = py
-                            b2.people[pname].source = "told"
+                            local known = b2.people[pname]
+                            if not known or known.source == "told" then
+                                known = known or { at = 0, dist = 999 }
+                                known.x, known.y = px, py
+                                known.source, known.teller = "told", myKey
+                                b2.people[pname] = known
+                            end
                             n = n + 1
                         end
                     end
@@ -2540,8 +2560,8 @@ local function fillMenu(playerNum, context, worldobjects)
             end)
         end)
         -- The petition on the air ([B9]): influence on a polity you
-        -- are not standing in. A plea for peace reaches the leaders
-        -- of warring houses who really own receivers - dormant or
+        -- are not standing in. A plea for peace reaches every current
+        -- receiver. Leaders of warring houses decide whether it matters - dormant or
         -- loaded, anywhere - at TOLD weight (half what your face
         -- would carry), and only from a voice they have reason to
         -- heed. This is the survey's named gap: petitioning an
@@ -2549,7 +2569,19 @@ local function fillMenu(playerNum, context, worldobjects)
         wire:addOption("Urge peace on the air", nil, function()
             local s = bandFree(); if not s then return end
             local myKey = playerKeyOf(playerObj)
+            local broadcastId, now = SAO.Standing.beginRadioBroadcast(
+                myKey, "peace-petition")
+            if not broadcastId then return end
             local moved, deaf = 0, 0
+            local receivedBy = {}
+            for _, r in pairs(SAO.Identity.all()) do
+                if not r.dead then
+                    receivedBy[r.id] = SAO.Communication.radioReception(
+                        r.id, broadcastId, SAOWire.freq, now,
+                        { { kind = "peacePetition", speakerId = myKey } },
+                        nil, myKey) == true
+                end
+            end
             local seen = {}
             for _, r in pairs(SAO.Identity.all()) do
                 if not r.dead then
@@ -2567,7 +2599,7 @@ local function fillMenu(playerNum, context, worldobjects)
                                 end
                             end
                             if atWar then
-                                if not SAO.Standing.ownsRadio(lead) then
+                                if not receivedBy[lead] then
                                     deaf = deaf + 1
                                 elseif SAO.Standing.trust(lead, myKey)
                                     >= 0.25 then

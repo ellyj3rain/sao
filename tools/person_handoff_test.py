@@ -168,6 +168,22 @@ SAOJavaBridge={
  captureReturnLiving=function(self,b) return SAOJavaBridge:hibernate(b) end,
  validateHibernation=function(self,p) return type(p)=='string' and p:sub(1,5)=='SNAP:' end,
  hibernationRestState=function() return 'AVAILABLE:0.4:0.8:1.0' end,
+ captureRadioState=function(self,b)
+   if __mode=='radio-throw' then error('radio state unavailable') end
+   if __mode=='radio-malformed' then return 'broken-radio' end
+   return 'RADIO:live'
+ end,
+ validateRadioState=function(self,value)
+   return type(value)=='string' and value:sub(1,6)=='RADIO:'
+ end,
+ advanceDormantRadioState=function(self,value,elapsed)
+   if not self:validateRadioState(value) then return '' end
+   return 'RADIO:'..tostring(elapsed)
+ end,
+ applyDormantRadioState=function(self,b,value)
+   if not self:validateRadioState(value) then return false end
+   b.radioState=value return true
+ end,
  applyDormantRestState=function(self,b,fatigue,endurance)
    b.fatigue=fatigue b.endurance=endurance return true
  end,
@@ -233,7 +249,8 @@ end
 '''
 
 CASES = r'''
-for _,mode in ipairs({'empty','throw','malformed','facts-throw','busy','visual-throw','visual-empty'}) do
+for _,mode in ipairs({'empty','throw','malformed','facts-throw','radio-throw',
+  'radio-malformed','busy','visual-throw','visual-empty'}) do
  local r,b,a=__setup() __mode=mode
  local ok=SAO.Body.release(r)
  assert(not ok, 'capture failure reported success: '..mode)
@@ -270,6 +287,8 @@ for _,mode in ipairs({'false','throw'}) do
    'successful release kept ownership')
  assert(__events==1,'infection event missing or duplicated')
  assert(r.hasRadio==true,'current radio possession lost')
+ assert(r.radioState=='RADIO:live' and r.radioStateAtHours==42,
+   'current radio state was not checkpointed')
  assert(not SAO.Body.release(r) and __captures==1,'second release repeated capture')
 end
 do
@@ -277,6 +296,24 @@ do
  SAO.Body.active={} SAO.Controller.agents={} __remove='ok'
  assert(SAO.Body.recover(r) and r.hibernation=='SNAP:carried','saved pending release lost')
  assert(__captures==1 and __removed==1,'reload recaptured or removed absent body')
+end
+do
+ local r,b=__setup() __remove='false' SAO.Body.release(r)
+ r.bodyRelease.radioRequired=nil
+ r.bodyRelease.facts.radioState=nil
+ r.radioState='RADIO:stale' r.radioStateAtHours=5
+ SAO.Body.active={} SAO.Controller.agents={} __remove='ok'
+ assert(SAO.Body.recover(r) and r.hibernation=='SNAP:carried',
+   'pre-radio pending release did not recover')
+ assert(r.radioState==nil and r.radioStateAtHours==nil,
+   'pre-radio pending release retained unproven radio state')
+end
+do
+ local r,b=__setup()
+ local captured=SAO.BodySnapshot.capture(r,b)
+ captured.facts.radioState=nil
+ assert(not SAO.BodySnapshot.valid(captured),
+   'current snapshot accepted without radio state')
 end
 do
  local r,b=__setup() ISTimedActionQueue.queues[b]={queue={{}},current={}}
@@ -312,6 +349,8 @@ do
   assert(restored.fatigue==0.4 and restored.endurance==0.8
     and not restored.asleep and not restored.sit,
     'dormant rest state did not replace the captured native state')
+  assert(restored.radioState=='RADIO:3',
+    'dormant radio state did not replace the captured native state')
  assert(__restored==1 and not restored.randomDress and SAO.Controller.agents.p1,
    'restore duplicated or dressed new person')
  __rematerialize() assert(__restored==1,'active body restored twice')
@@ -960,11 +999,15 @@ def main():
               'return "AWAKENED skipped"','harness did not restore current person'),
             ('SAO_Body.lua','return SAOJavaBridge:applyDormantRestState(\n                    body, dormantFatigue, dormantEndurance)',
               'return false','harness did not restore current person'),
+            ('SAO_Body.lua','return advanced and SAOJavaBridge:applyDormantRadioState(\n                body, advanced) or false',
+              'return true','dormant radio state did not replace the captured native state'),
             ('SAO_Body.lua','if rec.dormantPhysiologyOrigin or rec.dormantResting == true\n        or rec.dormantSleeping == true then',
               'if false then',
               'dormant rest state did not replace the captured native state'),
             ('SAO_BodySnapshot.lua','rec.bodyVisual = captured.visual',
              '', 'release lost captured appearance'),
+            ('SAO_BodySnapshot.lua','radioRequired = true }',
+             'radioRequired = nil }', 'current snapshot accepted without radio state'),
             ('SAO_Body.lua','if not ok or restored ~= true then',
              'if false then', 'failed visual restore exposed body'),
             ('SAO_Harness.lua','if not ok then log("forget refused: " .. tostring(reason)) return end',

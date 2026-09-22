@@ -1,6 +1,6 @@
 | Document | Survivor Awareness Overhaul Architecture |
 |---|---|
-| Version | `2.8.9.0-pre-alpha` |
+| Version | `2.8.10.0-pre-alpha` |
 | Author | ellyj3rain |
 | Repository | `ARCHITECTURE.md` |
 | Status | ACTIVE - ratified framework shape. |
@@ -343,6 +343,23 @@ native measurement or explicit generated provenance remain unknown. Body first
 restores the native envelope, then applies and verifies the completed durable
 fatigue, endurance, sleep and posture before Controller adoption.
 
+C73 extends the same temporary-body boundary to radio state. The native
+inventory reader captures only direct-root communications radios, which is the
+installed carried-frequency boundary, and records item identity, tuning,
+on/off, volume, battery power/use and transmitter state. PhysicalFacts stages
+that sidecar with the snapshot. While no body exists the record advances only
+battery use and its resulting off transition; Body must match and apply that
+state to the exact restored device before publication. A bagged device and a
+legacy possession flag establish no endpoint.
+
+Communication owns radio admission at an event hour. It joins a living awake
+listener and measured hearing with an on, powered, audible, tuned receiver;
+transmission additionally requires a two-way unmuted device. Perception writes
+the recipient-private broadcast receipt before County Wire or player-radio
+content changes knowledge, relationships or action. The receipt is the durable
+link between transmission and claim acquisition. Household membership performs
+no implicit relay.
+
 ## Combat doctrine ([A7], [A8], [A10]-[A10])
 
 One evidence-based combat loop (approach, aim settle, `pressedAttack`,
@@ -545,7 +562,8 @@ and worn gear; saved reading creates no body or item. Generated default access
 has explicit Identity provenance. C72 adds record-owned rest/sleep/wake before
 the dormant encounter pass, from native measurements or explicit generated
 physiology. The prior speech marker alone does not establish an awake state.
-Possession alone still does not prove radio comprehension.
+C73 requires exact receiver access and a private reception receipt before radio
+content is available to that mind; possession remains a separate inventory fact.
 
 ## Personal handovers and terms (C68)
 

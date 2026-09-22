@@ -56,9 +56,15 @@ function F.captureBodyFacts(rec, body, now)
         local restRead, seated = pcall(function() return body:isSitOnGround() end)
         if restRead and type(seated) == "boolean" then resting = seated end
     end
+    local radioState = SAOJavaBridge:captureRadioState(body)
+    if type(radioState) ~= "string" or radioState == ""
+        or SAOJavaBridge:validateRadioState(radioState) ~= true then
+        error("invalid radio checkpoint")
+    end
     return { woundInfected = inf ~= nil and inf > 0,
         sleeping = sleeping,
         resting = resting,
+        radioState = radioState,
         hasRadio = SAO.Standing.ownsRadio(rec.id, body) == true,
         knoxInfected = infected, biteDeathAtHours = deadline,
         newInfection = infected and rec.knoxInfected ~= true }
@@ -68,10 +74,18 @@ end
 -- native clock provides the deadline; the first observation supplies the
 -- durable start.  Later observations may refine the deadline without moving
 -- the start, and recovery clears the live window while Neuro retains history.
-function F.commitBodyFacts(rec, facts, now)
+function F.commitBodyFacts(rec, facts, now, allowUnknownRadio)
     if not rec or type(facts) ~= "table" then return false end
     now = tonumber(now)
     if not now or now ~= now or now == math.huge or now == -math.huge then
+        return false
+    end
+    local radioKnown = type(facts.radioState) == "string"
+        and facts.radioState ~= ""
+        and SAOJavaBridge and SAOJavaBridge.validateRadioState
+        and SAOJavaBridge:validateRadioState(facts.radioState) == true
+    if not radioKnown and (allowUnknownRadio ~= true
+        or facts.radioState ~= nil) then
         return false
     end
     local wasInfected = rec.knoxInfected == true
@@ -82,6 +96,8 @@ function F.commitBodyFacts(rec, facts, now)
     rec.knoxInfected = infected or nil
     rec.biteDeathAtHours = facts.biteDeathAtHours or nil
     rec.hasRadio = facts.hasRadio == true
+    rec.radioState = radioKnown and facts.radioState or nil
+    rec.radioStateAtHours = radioKnown and now or nil
     rec.dormantSleeping = facts.sleeping
     rec.dormantResting = facts.resting == true or nil
     if firstObservation then

@@ -68,7 +68,8 @@ function Snapshot.capture(rec, body)
     local facts = SAO.Population.captureBodyFacts(rec, body, now)
     if type(facts) ~= "table" then return nil, "invalid-body-facts" end
     return { packed = packed, visual = visual, rest = rest,
-        hours = now, x = x, y = y, z = z, facts = facts }
+        hours = now, x = x, y = y, z = z, facts = facts,
+        radioRequired = true }
 end
 
 -- Pending journals can outlive their originating callback or Lua environment.
@@ -78,11 +79,20 @@ function Snapshot.valid(captured)
     if type(captured) ~= "table" then return false end
     local ok, valid = pcall(function()
         local rest = captured.rest or restAccess(captured.packed)
+        local facts = captured.facts
+        local radioKnown = type(facts) == "table"
+            and type(facts.radioState) == "string"
+            and SAOJavaBridge:validateRadioState(facts.radioState) == true
+        local radioValid = radioKnown
+            or (captured.radioRequired == nil and facts.radioState == nil)
         return SAOJavaBridge:validateHibernation(captured.packed) == true
             and Snapshot.restValues(rest) ~= nil
             and finite(captured.hours) and finite(captured.x)
             and finite(captured.y) and finite(captured.z)
-            and type(captured.facts) == "table"
+            and type(facts) == "table"
+            and (captured.radioRequired == nil
+                or captured.radioRequired == true)
+            and radioValid
             and (captured.visual == nil
                 or SAOJavaBridge:validateReturnVisual(captured.visual) == true)
     end)
@@ -94,7 +104,8 @@ function Snapshot.commit(rec, captured)
     rec.bodyVisual = captured.visual
     rec.releasedAtHours = captured.hours
     rec.x, rec.y, rec.z = captured.x, captured.y, captured.z
-    SAO.Population.commitBodyFacts(rec, captured.facts, captured.hours)
+    SAO.Population.commitBodyFacts(rec, captured.facts, captured.hours,
+        captured.radioRequired == nil)
     local fatigue, endurance, sleepNeed = Snapshot.restValues(
         captured.rest or restAccess(captured.packed))
     if fatigue then

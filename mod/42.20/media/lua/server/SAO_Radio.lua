@@ -143,6 +143,13 @@ local function say(bc, text)
     end
 end
 
+local function nextBroadcastId(s, kind)
+    s.radioBroadcastSequence = math.max(0,
+        tonumber(s.radioBroadcastSequence) or 0) + 1
+    return "county-wire:" .. tostring(s.radioBroadcastSequence)
+        .. ":" .. tostring(kind or "bulletin")
+end
+
 -- The bulletin composer, callable on demand ([A26]) as well as on
 -- the hourly cadence. force=true airs the beacon even off-schedule
 -- when there is no news (the caller ASKED; the wire answers).
@@ -154,11 +161,14 @@ function SAOWire.air(_channel, force)
     local okH, h = pcall(function()
         return SAO.History.countyHours()
     end)
-    local now = okH and h or 0
+    local now = okH and h or nil
+    if type(now) ~= "number" or now ~= now or now < 0
+        or now == math.huge or now == -math.huge then return false end
     local news = s.radioNews
     if news and #news > 0 then
+        local broadcastId = nextBroadcastId(s, "bulletin")
         local bc = RadioBroadCast.new(
-            "SAOW-" .. tostring(SAO.Rand.int(100000, 999999)), -1, -1)
+            "SAOW-" .. tostring(s.radioBroadcastSequence), -1, -1)
         say(bc, "This is the county wire.")
         local aired = math.min(#news, 6)
         for i = 1, aired do say(bc, SAOWire.render(news[i])) end
@@ -172,11 +182,12 @@ function SAOWire.air(_channel, force)
         say(bc, "That's the news. Hold your ground.")
         _channel:setAiringBroadcast(bc)
         s.radioLastAirAt = now
-        -- The county hears its own news ([B9]).
+        -- Each current receiver gets its own receipt for this bulletin.
         local airedItems = {}
         for i = 1, aired do airedItems[#airedItems + 1] = news[i] end
         local okD, reached = pcall(function()
-            return SAOWire.deliverToListeners(airedItems)
+            return SAOWire.deliverToListeners(
+                airedItems, broadcastId, now)
         end)
         if okD and reached and reached > 0 then
             SAO.Log.line("WIRE", "the bulletin reaches " .. reached
@@ -186,8 +197,9 @@ function SAOWire.air(_channel, force)
     elseif force or now - (s.radioLastAirAt or 0) >= 12 then
         -- Dead air is diegetic for a survivor band; the beacon is the
         -- find-the-frequency hook, not a chatterbox.
+        local broadcastId = nextBroadcastId(s, "beacon")
         local bc = RadioBroadCast.new(
-            "SAOW-" .. tostring(SAO.Rand.int(100000, 999999)), -1, -1)
+            "SAOW-" .. tostring(s.radioBroadcastSequence), -1, -1)
         -- The era decides the beacon's voice ([B3]/T-002): a county
         -- that has not fallen hears a hobbyist ham; a county that has
         -- hears the lifeline.
@@ -203,13 +215,16 @@ function SAOWire.air(_channel, force)
         end
         _channel:setAiringBroadcast(bc)
         s.radioLastAirAt = now
+        pcall(function()
+            SAOWire.deliverToListeners({}, broadcastId, now)
+        end)
         return true
     end
     return false
 end
 
 -- The county listens ([B9]): the claims behind an aired bulletin
--- reach everyone who really owns a receiver, at TOLD weight - the
+-- reach each person whose current receiver admits the event, at TOLD weight - the
 -- same as a neighbour's word, which is what a broadcast is. Only
 -- the kinds that map to a belief a person can HOLD are delivered;
 -- announcements are not knowledge.
@@ -280,23 +295,37 @@ local function hearTheWire(key, b, items, reactive)
                     heardSomething = true
                 end
             end
+        elseif item.kind == "ask" and type(item.group) == "string"
+            and type(item.speakerId) == "string"
+            and type(item.requestedAt) == "number"
+            and SAO.Perception.recordAidRequest(key, item.group,
+                item.requestedAt, "told", item.speakerId, "food") then
+            heardSomething = true
         end
     end
     return heardSomething
 end
 
-function SAOWire.deliverToListeners(items)
-    if not (SAO.Identity and SAO.Standing and SAO.Perception) then
+function SAOWire.deliverToListeners(items, broadcastId, atHours)
+    if not (SAO.Identity and SAO.Standing and SAO.Perception
+        and SAO.Communication and SAO.Communication.radioReception)
+        or type(items) ~= "table" or type(broadcastId) ~= "string"
+        or broadcastId == "" or type(atHours) ~= "number" then
         return 0
     end
-    local reached = 0
+    local reached, delivered = 0, {}
     for _, rec in pairs(SAO.Identity.all()) do
-        if not rec.dead and SAO.Standing.ownsRadio
-            and SAO.Standing.ownsRadio(rec.id) then
+        local received = false
+        if not rec.dead then
+            received = SAO.Communication.radioReception(rec.id,
+                broadcastId, SAOWire.freq, atHours, items, nil,
+                "county-wire") == true
+        end
+        if received then
+            delivered[rec.id] = true
             local b = SAO.Perception.beliefs[rec.id]
-            if b and hearTheWire(rec.id, b, items, true) then
-                reached = reached + 1
-            end
+            if b then hearTheWire(rec.id, b, items, true) end
+            reached = reached + 1
         end
     end
     -- [B27] And you, on the same terms: only if you are carrying a
@@ -308,11 +337,14 @@ function SAOWire.deliverToListeners(items)
         if not me or me:isDead() then return end
         local myKey = SAO.Standing.playerKey(me)
         if not myKey then return end
-        if not SAO.Standing.ownsRadio(myKey, me) then return end
+        if delivered[myKey] then return end
+        local received = SAO.Communication.radioReception(myKey,
+            broadcastId, SAOWire.freq, atHours, items, me,
+            "county-wire") == true
+        if not received then return end
         local b = SAO.Perception.beliefs[myKey]
-        if b and hearTheWire(myKey, b, items, false) then
-            reached = reached + 1
-        end
+        if b then hearTheWire(myKey, b, items, false) end
+        reached = reached + 1
     end)
     return reached
 end
