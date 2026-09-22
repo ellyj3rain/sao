@@ -126,6 +126,20 @@ BOUNDED = {
         "stable runtime extension ids; registerExtension enforces an "
         "EXTENSION_CEILING of 128 and ensure refuses an inherited registry "
         "above that ceiling before sorting",
+    ("SAO_Knowledge.lua", "entries"):
+        "the fields in one detached fact or conditioning table; "
+        "detachCanonical refuses the table at MAX_CATALOGUE_TABLE_ENTRIES "
+        "(512) before adding another entry or reaching the sort",
+    ("SAO_Knowledge.lua", "names"):
+        "one person's known-person belief keys; personFacts refuses above "
+        "MAX_CATALOGUE_SORT (512) while copying, before sorting",
+    ("SAO_Knowledge.lua", "candidates"):
+        "all claim entries in one conversation snapshot; claimCatalogue "
+        "refuses above MAX_CATALOGUE_CLAIMS (512) before sorting",
+    ("SAO_Knowledge.lua", "lines"):
+        "unique scalar fence values from the exact selected claims; "
+        "flatSelectedClaims refuses above MAX_SELECTED_FENCE_LINES (512) "
+        "before sorting",
     ("SAO_WorldSources.lua", "ordered"):
         "pendingProjectionChanges trims durable projectionChanges to "
         "MAX_PROJECTION_CHANGES (2048) before copying and also stops copying "

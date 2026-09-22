@@ -1943,6 +1943,13 @@ if ! "$PY" tools/world_knowledge_test.py; then
     fail=1
 fi
 
+# [C75] Border 188 - every fact in one immutable conversation snapshot has an
+# exact local reference, and only selected references widen the factual fence.
+if ! "$PY" tools/claim_catalogue_test.py; then
+    note "BORDER FINDING - typed claim references or selected fencing broken"
+    fail=1
+fi
+
 # [C63/C67/C69] Border 180 - provisioning consumes completed C62 results,
 # reconciles exact observed native stock, and preserves private delivery
 # knowledge, requests and independently formed recipient appraisals.

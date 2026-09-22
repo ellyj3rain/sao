@@ -703,4 +703,346 @@ function K.claims(id, listenerKey, tick, topics)
     return { conditioning = conditioning, facts = facts }
 end
 
+-- [C75] A learned result cannot point at a Lua table or at a value that merely
+-- happens to occur in one. Give every fact in one immutable conversation
+-- snapshot a local reference. The caller owns snapshotRef and must never reuse
+-- it for different bytes; this reader owns only the deterministic catalogue
+-- inside that boundary.
+local CATALOGUE_SCHEMA = 1
+local MAX_CATALOGUE_DEPTH = 16
+local MAX_CATALOGUE_VALUES = 8192
+-- Kahlua's table.sort always chooses the leftmost pivot and can exhaust the VM
+-- stack on adversarial order. Every list sorted below is therefore kept in the
+-- low hundreds, well below the earliest measured failure at 1500 entries.
+local MAX_CATALOGUE_SORT = 512
+local MAX_CATALOGUE_CLAIMS = MAX_CATALOGUE_SORT
+local MAX_CATALOGUE_TABLE_ENTRIES = MAX_CATALOGUE_SORT
+local MAX_SELECTED_FENCE_LINES = MAX_CATALOGUE_SORT
+
+local function finiteNumber(value)
+    return type(value) == "number" and value == value
+        and value ~= math.huge and value ~= -math.huge
+end
+
+local function arrayLength(value)
+    if type(value) ~= "table" then return nil end
+    local count, largest = 0, 0
+    for key in pairs(value) do
+        if not finiteNumber(key) or key < 1 or key ~= math.floor(key) then
+            return nil
+        end
+        count = count + 1
+        if key > largest then largest = key end
+    end
+    if count ~= largest then return nil end
+    return count
+end
+
+local function scalarKey(value)
+    local kind = type(value)
+    if kind == "string" then return "s" .. tostring(#value) .. ":" .. value end
+    if kind == "number" and finiteNumber(value) then
+        if value == 0 then value = 0 end
+        return "n" .. tostring(value)
+    end
+    return nil
+end
+
+-- One pass both detaches the plain data and derives bytes used only for stable
+-- ordering. Unsupported values and cycles refuse the catalogue instead of
+-- disappearing from a fact.
+local function detachCanonical(value, seen, depth, budget)
+    local kind = type(value)
+    if kind == "string" then
+        return value, "s" .. tostring(#value) .. ":" .. value
+    end
+    if kind == "boolean" then return value, value and "b1" or "b0" end
+    if kind == "number" then
+        if not finiteNumber(value) then return nil, nil, "non-finite-number" end
+        if value == 0 then value = 0 end
+        return value, "n" .. tostring(value)
+    end
+    if kind ~= "table" then return nil, nil, "unsupported-value" end
+    if depth > MAX_CATALOGUE_DEPTH then return nil, nil, "catalogue-too-deep" end
+    if seen[value] then return nil, nil, "cyclic-value" end
+    seen[value] = true
+    local entries = {}
+    for key, child in pairs(value) do
+        if #entries >= MAX_CATALOGUE_TABLE_ENTRIES then
+            seen[value] = nil
+            return nil, nil, "catalogue-table-too-wide"
+        end
+        budget.left = budget.left - 1
+        if budget.left < 0 then
+            seen[value] = nil
+            return nil, nil, "catalogue-too-large"
+        end
+        local keyBytes = scalarKey(key)
+        if not keyBytes then
+            seen[value] = nil
+            return nil, nil, "unsupported-key"
+        end
+        local childCopy, childBytes, why = detachCanonical(child, seen,
+            depth + 1, budget)
+        if not childBytes then
+            seen[value] = nil
+            return nil, nil, why
+        end
+        entries[#entries + 1] = {
+            key = key,
+            keyBytes = keyBytes,
+            value = childCopy,
+            valueBytes = childBytes,
+        }
+    end
+    seen[value] = nil
+    table.sort(entries, function(left, right)
+        if left.keyBytes ~= right.keyBytes then
+            return left.keyBytes < right.keyBytes
+        end
+        return left.valueBytes < right.valueBytes
+    end)
+    local copy, bytes = {}, { "t", tostring(#entries), "{" }
+    for _, entry in ipairs(entries) do
+        copy[entry.key] = entry.value
+        bytes[#bytes + 1] = tostring(#entry.keyBytes)
+        bytes[#bytes + 1] = ":"
+        bytes[#bytes + 1] = entry.keyBytes
+        bytes[#bytes + 1] = tostring(#entry.valueBytes)
+        bytes[#bytes + 1] = ":"
+        bytes[#bytes + 1] = entry.valueBytes
+    end
+    bytes[#bytes + 1] = "}"
+    return copy, table.concat(bytes)
+end
+
+local function detach(value, budget)
+    return detachCanonical(value, {}, 0,
+        budget or { left = MAX_CATALOGUE_VALUES })
+end
+
+local function catalogueTopics(topics)
+    topics = topics or K.TOPICS
+    local count = arrayLength(topics)
+    if count == nil then return nil, "topics-not-a-list" end
+    local out, seen = {}, {}
+    for index = 1, count do
+        local topic = topics[index]
+        if type(topic) ~= "string" or not ABOUT[topic] then
+            return nil, "unknown-topic"
+        end
+        if seen[topic] then return nil, "duplicate-topic" end
+        seen[topic] = true
+        out[index] = topic
+    end
+    return out
+end
+
+local function personFacts(id, opts)
+    local beliefs = beliefsOf(id)
+    local names = {}
+    for name in pairs((beliefs and beliefs.people) or {}) do
+        if type(name) ~= "string" or name == "" then
+            return nil, "person-belief-key-unreadable"
+        end
+        if #names >= MAX_CATALOGUE_SORT then
+            return nil, "too-many-known-people"
+        end
+        names[#names + 1] = name
+    end
+    table.sort(names)
+    local out = {}
+    for _, name in ipairs(names) do
+        local rows = aboutPerson(id, {
+            name = name,
+            tick = opts.tick,
+            trusted = opts.trusted,
+        })
+        for _, row in ipairs(rows or {}) do out[#out + 1] = row end
+    end
+    return out
+end
+
+function K.claimCatalogue(id, listenerKey, tick, snapshotRef, topics)
+    if type(id) ~= "string" or id == "" then return nil, "person-required" end
+    if listenerKey ~= nil
+        and (type(listenerKey) ~= "string" or listenerKey == "") then
+        return nil, "listener-reference-unreadable"
+    end
+    if not finiteNumber(tick) then return nil, "tick-required" end
+    if type(snapshotRef) ~= "string" or snapshotRef == "" then
+        return nil, "snapshot-reference-required"
+    end
+    local orderedTopics, topicWhy = catalogueTopics(topics)
+    if not orderedTopics then return nil, topicWhy end
+    local conditioning = K.conditioning(id, listenerKey, tick)
+    local budget = { left = MAX_CATALOGUE_VALUES }
+    local conditioningCopy, _, conditioningWhy = detach(conditioning, budget)
+    if not conditioningCopy then return nil, conditioningWhy end
+    local opts = { tick = tick, trusted = conditioning.trusted }
+    local candidates = {}
+    for topicIndex, topic in ipairs(orderedTopics) do
+        local rows, why
+        if topic == "person" then rows, why = personFacts(id, opts)
+        else rows = K.about(id, topic, opts) end
+        if rows == nil and why then return nil, why end
+        if rows ~= nil then
+            local rowCount = arrayLength(rows)
+            if rowCount == nil then return nil, "facts-not-a-list" end
+            for rowIndex = 1, rowCount do
+                local factCopy, factBytes, factWhy = detach(rows[rowIndex], budget)
+                if not factCopy then return nil, factWhy end
+                candidates[#candidates + 1] = {
+                    topic = topic,
+                    topicIndex = topicIndex,
+                    fact = factCopy,
+                    factBytes = factBytes,
+                }
+                if #candidates > MAX_CATALOGUE_CLAIMS then
+                    return nil, "catalogue-too-many-claims"
+                end
+            end
+        end
+    end
+    table.sort(candidates, function(left, right)
+        if left.topicIndex ~= right.topicIndex then
+            return left.topicIndex < right.topicIndex
+        end
+        return left.factBytes < right.factBytes
+    end)
+    local claims = {}
+    for index, candidate in ipairs(candidates) do
+        local entry = {
+            ref = snapshotRef .. "/claim/" .. string.format("%04d", index),
+            topic = candidate.topic,
+            fact = candidate.fact,
+        }
+        if type(candidate.fact.claimId) == "string"
+            and candidate.fact.claimId ~= "" then
+            entry.sourceClaimId = candidate.fact.claimId
+        end
+        claims[index] = entry
+    end
+    return {
+        schema = "sao-claim-catalogue",
+        schemaVersion = CATALOGUE_SCHEMA,
+        snapshotRef = snapshotRef,
+        personId = id,
+        listenerRef = listenerKey,
+        atTick = tick,
+        conditioning = conditioningCopy,
+        claims = claims,
+    }
+end
+
+local function validateCatalogue(catalogue)
+    if type(catalogue) ~= "table"
+        or catalogue.schema ~= "sao-claim-catalogue"
+        or catalogue.schemaVersion ~= CATALOGUE_SCHEMA
+        or type(catalogue.snapshotRef) ~= "string"
+        or catalogue.snapshotRef == ""
+        or type(catalogue.personId) ~= "string"
+        or catalogue.personId == ""
+        or (catalogue.listenerRef ~= nil
+            and (type(catalogue.listenerRef) ~= "string"
+                or catalogue.listenerRef == ""))
+        or not finiteNumber(catalogue.atTick) then
+        return nil, "catalogue-unreadable"
+    end
+    local count = arrayLength(catalogue.claims)
+    if count == nil then return nil, "catalogue-claims-not-a-list" end
+    if type(catalogue.conditioning) ~= "table" then
+        return nil, "catalogue-conditioning-unreadable"
+    end
+    local budget = { left = MAX_CATALOGUE_VALUES }
+    local _, _, conditioningWhy = detach(catalogue.conditioning, budget)
+    if conditioningWhy then return nil, conditioningWhy end
+    local byRef = {}
+    for index = 1, count do
+        local entry = catalogue.claims[index]
+        if type(entry) ~= "table" or type(entry.ref) ~= "string"
+            or entry.ref == "" or type(entry.topic) ~= "string"
+            or not ABOUT[entry.topic] or type(entry.fact) ~= "table" then
+            return nil, "catalogue-entry-unreadable"
+        end
+        local sourceClaimId = nil
+        if type(entry.fact.claimId) == "string"
+            and entry.fact.claimId ~= "" then
+            sourceClaimId = entry.fact.claimId
+        end
+        if entry.sourceClaimId ~= sourceClaimId then
+            return nil, "catalogue-entry-unreadable"
+        end
+        local expected = catalogue.snapshotRef .. "/claim/"
+            .. string.format("%04d", index)
+        if entry.ref ~= expected or byRef[entry.ref] then
+            return nil, "catalogue-reference-unreadable"
+        end
+        local entryCopy, _, why = detach(entry, budget)
+        if not entryCopy then return nil, why end
+        byRef[entry.ref] = entryCopy
+    end
+    return { count = count, byRef = byRef }
+end
+
+function K.selectClaims(catalogue, selection)
+    local checked, catalogueWhy = validateCatalogue(catalogue)
+    if not checked then return nil, catalogueWhy end
+    if type(selection) ~= "table"
+        or selection.snapshotRef ~= catalogue.snapshotRef then
+        return nil, "selection-snapshot-mismatch"
+    end
+    local refCount = arrayLength(selection.claimRefs)
+    if refCount == nil then return nil, "selection-references-not-a-list" end
+    local wanted = {}
+    for index = 1, refCount do
+        local ref = selection.claimRefs[index]
+        if type(ref) ~= "string" or ref == "" then
+            return nil, "selection-reference-unreadable"
+        end
+        if wanted[ref] then return nil, "selection-reference-duplicate" end
+        if not checked.byRef[ref] then return nil, "selection-reference-unknown" end
+        wanted[ref] = true
+    end
+    local claims = {}
+    for index = 1, checked.count do
+        local ref = catalogue.claims[index].ref
+        if wanted[ref] then claims[#claims + 1] = checked.byRef[ref] end
+    end
+    return {
+        schema = "sao-claim-selection",
+        schemaVersion = CATALOGUE_SCHEMA,
+        snapshotRef = catalogue.snapshotRef,
+        personId = catalogue.personId,
+        listenerRef = catalogue.listenerRef,
+        atTick = catalogue.atTick,
+        claims = claims,
+    }
+end
+
+-- Project the selected claim records through the same slot/value rule as C47's
+-- full fence. The selection can narrow what is sayable; it cannot add a value.
+function K.flatSelectedClaims(catalogue, selection)
+    local selected, why = K.selectClaims(catalogue, selection)
+    if not selected then return nil, why end
+    local lines, seen = {}, {}
+    for _, entry in ipairs(selected.claims) do
+        for field, value in pairs(entry.fact) do
+            local kind = type(value)
+            if kind == "string" or kind == "number" then
+                local line = tostring(field) .. "=" .. tostring(value)
+                if not seen[line] then
+                    if #lines >= MAX_SELECTED_FENCE_LINES then
+                        return nil, "selected-fence-too-large"
+                    end
+                    seen[line] = true
+                    lines[#lines + 1] = line
+                end
+            end
+        end
+    end
+    table.sort(lines)
+    return table.concat(lines, "\n")
+end
+
 return K

@@ -102,9 +102,18 @@ first:
 Because the claim set is the contract, the renderer is swappable and
 rung 1 is not wasted either way.
 
+C75 supplies the dormant interface between those rungs. For one person,
+listener, tick and caller-owned immutable snapshot, Knowledge emits detached
+facts with deterministic local references. A future retriever selects exact
+references from that catalogue; the factual fence then admits only scalar
+values from the selected claims. Unknown, duplicate or foreign references
+refuse the whole selection. Current inspection and speech still use their
+existing paths, so this interface changes no conversation until R13-R14 provide
+reviewed targets, model artifacts and the asynchronous snapshot owner.
+
 ## The risk, stated once
 
-A model handed a survivor's claim set will cheerfully invent a brother,
+A model handed a survivor's selected claim set will cheerfully invent a brother,
 a hometown, a grudge. Whatever renders speech must be structurally
 unable to assert what the claim set does not contain - enforced by
 construction, not by instruction. If that cannot be guaranteed, rung 1

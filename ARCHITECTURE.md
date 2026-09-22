@@ -1,6 +1,6 @@
 | Document | Survivor Awareness Overhaul Architecture |
 |---|---|
-| Version | `2.8.11.0-pre-alpha` |
+| Version | `2.8.12.0-pre-alpha` |
 | Author | ellyj3rain |
 | Repository | `ARCHITECTURE.md` |
 | Status | ACTIVE - ratified framework shape. |
@@ -567,10 +567,13 @@ content is available to that mind; possession remains a separate inventory fact.
 
 ## Personal world-knowledge evidence (C74)
 
-Speakeasy owns protected claim text, extraction standing, acquisition review and
-training eligibility. SAO owns whether one particular person acquired a claim.
-The boundary carries a stable claim identifier, protected source and excerpt
-hashes, and personal evidence records; protected prose stays outside the mod.
+Speakeasy owns protected claim text, repository review of source extraction and
+person-specific acquisition, and training-data standing. Operator rulings apply
+to authored behavior and to the usefulness, voice and conversational quality of
+a trained runtime candidate. SAO owns whether one particular person acquired a
+claim. The boundary carries a stable claim identifier, protected source and
+excerpt hashes, and personal evidence records; protected prose stays outside
+the mod.
 
 `SAORecord` maps every durable county hour to a complete local instant using the
 same save-start-minus-history anchor as the mature-world clock. Population
@@ -591,8 +594,32 @@ evidence used at the decision hour.
 The evidence port freezes one production SourceUse decision whose person record
 contains that acquisition, then hashes the calendar, presence, acquisition,
 retention and event records. This is evidence of the bounded mechanism on
-controlled native ground. Speakeasy must still review and adjudicate the data
-before an operator ratification can grant training standing.
+controlled native ground. Speakeasy Record 52 reviews the literal outage claim
+and Ada North's acquisition as a repository-reviewed reference. It creates no
+training row and grants no behavior standing. The forced source selection,
+complete personal knowledge, natural choice and later consequences remain
+absent, so the example is conditioning-ineligible.
+
+## Typed claim catalogues (C75)
+
+`Knowledge.claimCatalogue` compiles the existing read-only knowledge surface
+for one person, listener and tick into a detached, schema-versioned catalogue.
+Every fact receives a reference local to the caller-owned immutable snapshot.
+Ordering follows canonical fact content rather than Lua table insertion order;
+known-person beliefs enter the same catalogue, and a protected world claim
+retains its stable source claim identifier inside its local entry.
+
+`Knowledge.selectClaims` accepts only references from that exact snapshot and
+refuses malformed, duplicate, foreign or unknown references for the whole
+selection. `Knowledge.flatSelectedClaims` projects only the admitted facts
+through C47's existing scalar field/value rule. A future retriever can therefore
+narrow what a speaker may say without adding a fact or exposing another fact the
+person also knows.
+
+C75 does not route current speech through this interface. The future asynchronous
+runtime must own and bind the immutable snapshot reference; Speakeasy must still
+author retriever targets and task datasets; and SAO's protected-world source
+remains the one C74 claim rather than a complete county catalogue.
 
 ## Personal handovers and terms (C68)
 

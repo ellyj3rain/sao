@@ -1,6 +1,6 @@
 | Document | Survivor Awareness Overhaul Dependency Substrate |
 |---|---|
-| Version | `2.8.11.0-pre-alpha` |
+| Version | `2.8.12.0-pre-alpha` |
 | Author | ellyj3rain |
 | Repository | `SUBSTRATE.md` |
 | Status | CANONICAL - what exists, what is planned, and what each area of concern needs. |
@@ -79,7 +79,7 @@ ported, and whether it is required.
 |---|---|---|
 | SAO to ZAO: the turn | defined and evidenced | SAO owns death; ZAO owns the risen body; one controller per body |
 | SAO to ZAO: afflicted and crossed | C52/A35 close returned-body adoption and dormant recovery; C56/A37 close intentional blood conversion and exact ownership transfer; the retained Crossed action vocabulary remains incomplete | SAO executes the afflicted; ZAO owns pathogen state and executes the crossed |
-| SAO to Speakeasy: dataset | 190 choices and nine world documents are protected; C64 closes immutable capture-envelope and exact-join integrity; C65-C66 expose private consume/acquire/store options, runtime choice and immediate action result; Speakeasy supplies decision-time views and unratified proposals; broader options, curated acquisition, ratification, later consequences and trained models remain incomplete | SAO supplies people and moments; Speakeasy supplies protected source views, rows and models |
+| SAO to Speakeasy: dataset | 190 choices and nine world documents are protected; C64 closes immutable capture-envelope and exact-join integrity; C65-C66 expose private consume/acquire/store options, runtime choice and immediate action result; C74 plus Speakeasy Record 52 establish one reviewed personal-knowledge reference; C75 exposes typed current-knowledge references and selected fencing; broader options, claim coverage, authored behavior rulings, later consequences and trained models remain incomplete | SAO supplies people and moments; Speakeasy supplies protected source views, rows and models |
 | ZAO to Speakeasy: degraded cognition | cross-module rows and state producers exist; complete learned consumption remains absent | cognition reads event-derived pathogen state with provenance; the row contract does not establish a functioning model |
 
 When a seam moves, the repository that owns it updates its record and the
@@ -591,8 +591,11 @@ the remaining actions and supplies separately authored/ratified choices and
 later consequence horizons. C66 extends capture to acquire/store. Speakeasy
 now constructs decision-time knowledge views and unratified proposals. C74 adds
 one exact calendar, county-presence, adult lived-acquisition and retention
-producer plus a deterministic same-person decision bundle. Protected extraction
-review, acquisition adjudication and ratification remain R12 obligations.
+producer plus a deterministic same-person decision bundle. Speakeasy Record 52
+reviews that exact protected extraction and person acquisition as repository
+evidence. It creates no training row; the forced choice stays excluded, and
+broader options, authored behavior rulings and later consequences remain R11-R12
+obligations.
 
 Speakeasy version 3 namespaces joins by originating run, county, person, event
 and hour, prevalidates both inputs, refuses protected inputs/destinations and
@@ -619,9 +622,11 @@ cannot become July knowledge. Apply age-at-event, occupation, region, literacy,
 hearing and testimony constraints from Speakeasy's world plan. Speakeasy v3
 corrects the mutable README/training status against its append-only RECORD;
 C66/Speakeasy supplies versioned reconstruction tooling. The C74 bundle supplies
-one bounded personal acquisition without protected prose.
-Extraction review, acquisition adjudication, explicit ratification and approved
-eligible views remain R12 work.
+one bounded personal acquisition without protected prose. Speakeasy Record 52
+reviews the exact outage claim and Ada North acquisition as a repository-reviewed
+reference while excluding the controlled source choice. A complete claim
+catalogue, natural decisions, later consequences, authored target rulings and
+eligible task views remain R12-R13 work.
 
 Build versioned corpus extraction with pinned dependencies and source hashes,
 deterministic voice-seed expansion, understander utterance-to-meaning examples,
@@ -861,4 +866,32 @@ runs production WorldSources, SourceUse, WorldKnowledge and decision capture in
 the installed Kahlua runtime and binds the same person's acquisition to the
 frozen event. The controlled source/holder is mechanism evidence; natural-county
 distribution and loaded-save acceptance remain unclaimed. Speakeasy owns the
-protected extraction and every standing after production.
+protected extraction and every standing after production. Record 52 has reviewed
+this exact extraction and acquisition as a mechanical reference, not as authored
+behavior or a training row.
+
+### C75 claim-catalogue update
+
+The existing Knowledge reader exposes a broad private surface: self history,
+known people, threats, material needs, houses, ground, lessons, mutations and
+world claims. Its C47 fence previously flattened every scalar value from that
+surface, and most facts had no stable handle that a retriever could return. C75
+adds a read-only compiler over that existing state. For one person, listener,
+tick and caller-owned immutable snapshot reference, it returns a detached typed
+catalogue with deterministic local claim references. The compiler enumerates
+all known-person beliefs, preserves a protected world's stable source claim ID,
+and refuses unsupported, cyclic, non-finite or over-budget facts rather than
+silently dropping them.
+
+A selection must name the same snapshot and exact catalogue references. Unknown,
+duplicate, malformed and foreign references refuse atomically. The selected
+fence then exposes only the top-level scalar fields and values from admitted
+claims, using the same projection rule as C47. This gives a future retriever a
+bounded effect: choosing Dana's location may permit Dana's fields, while Marcus,
+Ruth Hall and an unrelated world claim remain unavailable to the speaker even
+when the person also knows them.
+
+C75 installs no model and changes no current dialogue. It does not bind the
+snapshot reference to asynchronous runtime bytes, expand C74's one protected
+world claim, or author relevance targets. Those remain explicit producers for
+R12-R14.

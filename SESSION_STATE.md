@@ -1,29 +1,30 @@
 | Document | Survivor Awareness Overhaul Session State |
 |---|---|
-| Version | `2.8.11.0-pre-alpha` |
+| Version | `2.8.12.0-pre-alpha` |
 | Author | ellyj3rain |
 | Repository | `SESSION_STATE.md` |
 | Status | CANONICAL - current implementation and continuation. |
 
 # Session state
 
-**As of** 2026-09-21, `[C74]` supplies the first bounded producer for the R12
-person-specific world-knowledge path. Population admission writes a durable
-county-presence interval only after a person's origin ground exists. Initial
-residents begin on the record's first lived day; later arrivals begin at their
-actual admission hour. A dated adult lived claim appears only after its event
-falls inside that interval and no later than the current county hour. The person
-record retains the claim and protected-source hashes, lived path, access basis
-and supporting presence record. SAO carries no protected prose and grants no
-review or training standing. People saved before C74 have no explicit presence
-interval and remain acquisition-unknown; origin text is not backfilled.
+**As of** 2026-09-22, `[C75]` compiles one person's existing read-only knowledge
+surface into a detached catalogue for one listener, tick and caller-owned
+immutable snapshot reference. Each fact receives a deterministic snapshot-local
+reference; known-person beliefs enter the same surface; and a protected world
+claim retains its stable source identifier. Exact-reference selection refuses
+unknown, duplicate, malformed or foreign references, and the selected factual
+fence exposes only scalar fields from the admitted claims. Current speech does
+not call this interface, so C75 changes no dialogue or model behavior.
 
-The exact county calendar now uses the mature-world history offset as well as
-the save start. A deterministic evidence port runs the production source action
-and decision capture in the installed Kahlua runtime while the same frozen
-person record contains the acquisition and a separate retention observation.
-The port is ready for Speakeasy extraction review and acquisition adjudication;
-explicit ratification remains required before the example can train anything.
+`[C74]` supplies the first bounded producer for R12's person-specific world
+knowledge. Population admission writes a county-presence interval only after a
+person's origin ground exists, and the dated adult lived claim appears only
+inside that interval and no later than the current county hour. Speakeasy Record
+52 reviews the literal outage extraction and Ada North's acquisition as a
+repository-reviewed reference. It creates zero training rows and permanently
+excludes the forced source selection; complete personal knowledge, natural
+choice and later consequences remain absent. Pre-C74 people have no explicit
+presence interval and remain acquisition-unknown.
 
 `[C73]` makes County Wire and explicit player-radio delivery depend on an actual
 endpoint at the event hour. A loaded person needs a direct-root communications
@@ -161,9 +162,9 @@ producers, persistence, evidence and gaps.
 | Person continuity | Durable identity, C51's body transaction, C52's authorized return/adoption/teardown, C54's v4 native state, C55/A36 reconstruction and C56/A37 one-way Crossed ownership of the same human shell and dormant envelope | R7's general action completion and later action-specific ownership remain open. |
 | Time and health | Current decision time, durable drug/abstinence clocks, current physical inputs, exact interval-integrated brain history, medical/inspect graph and memory/decision/affective/motor consumers; C68 completion-proves care-item gifts, C70 completion-proves loaded open-wound bandaging and C72 advances measured rest/sleep/wake through bodyless intervals | R5 is closed. Disinfection, stitching, dormant treatment and other performed care still depend on R7/R9 action producers. |
 | Afflicted and Crossed | ZAO pathogen state, Afflicted return, reachable Crossed decisions and an interruptible non-feeding blood exposure whose exact-once result transfers SAO's living body to ZAO | The retained human weapons, tools, strategy and wider action vocabulary remains R7-R9 work; grounded dormant opportunities remain R10. |
-| Knowledge and access | Private beliefs; animal-safe scanner output; fresh/current activity partners; demand-hydrated exact source identities; C62's revision-bound approach, current claim/vehicle permission, exact transfer, carried native use and durable result; C63-C64's exact partial-source material projection and durable ambient refresh; C71's recursive actor-private loaded holder view and exact v4 dormant carriage; C72's produced dormant awake/asleep state joined with C67 measured hearing; C73's direct-root powered radio endpoints, elapsed dormant battery state and recipient-private reception receipts; C74's explicit county presence, dated personal acquisition and detached retention observation | R6 is closed for the selected source interaction and its completed result reaches bounded partial material state. R7 remains open beyond this source-action family. C66 adds exact acquisition/storage; C67 adds private transfer testimony and witnessed recipient response; C68 completion-proves loaded personal handovers; C69 closes the bounded recipient appraisal after testimony. C71-C73 close inventory, adjacent speech and actual radio admission. C74 closes SAO's first bounded R12 acquisition producer. Complete house stock and the other material action/result producers remain open. |
+| Knowledge and access | Private beliefs; animal-safe scanner output; fresh/current activity partners; demand-hydrated exact source identities; C62's revision-bound approach, current claim/vehicle permission, exact transfer, carried native use and durable result; C63-C64's exact partial-source material projection and durable ambient refresh; C71's recursive actor-private loaded holder view and exact v4 dormant carriage; C72's produced dormant awake/asleep state joined with C67 measured hearing; C73's direct-root powered radio endpoints, elapsed dormant battery state and recipient-private reception receipts; C74's explicit county presence, dated personal acquisition and detached retention observation; C75's deterministic snapshot-local claim catalogue and selected-claim fence | R6 is closed for the selected source interaction and its completed result reaches bounded partial material state. R7 remains open beyond this source-action family. C66 adds exact acquisition/storage; C67 adds private transfer testimony and witnessed recipient response; C68 completion-proves loaded personal handovers; C69 closes the bounded recipient appraisal after testimony. C71-C73 close inventory, adjacent speech and actual radio admission. C74 closes SAO's first bounded R12 acquisition producer. C75 makes the existing surface addressable but leaves protected-world coverage, target rows and runtime snapshot ownership open. Complete house stock and the other material action/result producers remain open. |
 | Social development | Company mechanics, claims, observations and graph APIs; C64 prevents partial selected-source evidence from creating aggregate claims or settlement storage; C68 separates gifts, proposed terms, accepted exchange and completion-derived debt; C69 preserves private disagreement without automatic ledger writes | Automatic relocation and recognition; incomplete affiliation, governance, place development and other provisioning producers. |
-| Speakeasy data | 190 protected choices, four historical derivatives, nine world documents, immutable capture and exact v3 join; C65 adds explicit source options/choice and immediate-result observation for loaded execution; C74 supplies one hash-bound same-person calendar/acquisition/retention/decision port | C66/Speakeasy adds exact acquisition/storage options, decision-time views and unratified proposal authoring. The C74 extraction still needs review, acquisition adjudication and explicit ratification. Broader options and later consequences remain; all current captures remain conditioning-ineligible. |
+| Speakeasy data | 190 protected choices, four historical derivatives, nine world documents, immutable capture and exact v3 join; C65 adds explicit source options/choice and immediate-result observation for loaded execution; C74 supplies one hash-bound same-person calendar/acquisition/retention/decision port; Record 52 repository-reviews the exact extraction/acquisition as a zero-row reference | C66/Speakeasy adds exact acquisition/storage options, decision-time views and unratified proposal authoring. Broader claim coverage, natural choices, later consequences, retriever-target authorship and task datasets remain; all current captures remain conditioning-ineligible. |
 | Models and late starts | Inference primitives, fact constraint, offline diagnostics | No trained cognition model, complete training/export path or validated accelerator. |
 
 ## Retained recovery evidence
@@ -287,7 +288,7 @@ results, and fail-closed outcome reading. This adds no new gate entry point.
 The existing source lifecycle remains covered by Border 179. The next R11 work
 is broader producer coverage and separately authored choices over these frozen
 events. C66/Speakeasy supplies decision-time views and unratified authoring;
-source/acquisition curation, explicit ratification and later consequences remain.
+broader source coverage, authored behavior rulings and later consequences remain.
 
 C66 closes performed container acquisition/storage under the same source owner.
 Border 179 adds 41 ledger cases/12 mutations, 39 lifecycle cases/six mutations,
@@ -301,8 +302,9 @@ adds decision-time views and unratified proposals, with 18 authoring tests and
 seven join controls. C67 supplies witnessed recipient response and C69 supplies
 the bounded listener-owned response after testimony. C70 supplies the loaded
 open-wound result and completion-only care consequences. C71 supplies the
-complete actor-private inventory view; curated acquisition, ratification and
-other material action/result producers remain explicit obligations.
+complete actor-private inventory view; broader reviewed claim coverage, authored
+behavior rulings and other material action/result producers remain explicit
+obligations.
 
 R1 closes in C52 and ZAO A35. The living transaction, source holding and
 acknowledged removal, controller adoption, failure diagnostics, repeated-death
@@ -418,8 +420,10 @@ and join integrity plus R12's source protection/conditioning audit. C65 adds
 private source options, exact runtime selection and immediate source-action
 outcomes. C66 extends capture to acquisition/storage and Speakeasy adds
 reconstructed knowledge views and unratified proposals; broader options,
-protected extraction review, acquisition adjudication, ratification and later
-consequences remain. Pathogen state and installed brain-history
+reviewed claim coverage, authored behavior rulings and later consequences remain.
+Record 52 closes review for C74's single source/acquisition reference, and C75
+makes the existing knowledge surface selectable without producing training rows.
+Pathogen state and installed brain-history
 ownership continue to belong to ZAO.
 
 C51 repairs the F-077 body handoff. Capture failure keeps the prior record and
@@ -446,9 +450,10 @@ consequences remain separate from the learned policy choosing among them.
 ## Verification and installed state
 
 C57 consolidates three native entry points into one. With C64's immutable
-capture border, C73's radio-reception border and C74's personal-world-knowledge
-border, the gate invokes 185 `*_test.py` files and 13 other Python entry points,
-198 distinct scripts. Border labels extend through 187; legacy labels
+capture border, C73's radio-reception border, C74's personal-world-knowledge
+border and C75's typed-claim border, the gate invokes 186 `*_test.py` files and
+13 other Python entry points, 199 distinct scripts. Border labels extend through
+188; legacy labels
 163/169/174 share the native suite. These are distinct counting units. The mod
 ships 79 Lua source files.
 ZAO A37 has ten borders. The
@@ -462,9 +467,9 @@ C51's separate first gate found a verdict-prefix defect and missing transition
 registry surfaces/lifetimes. Its failed output is preserved with the corrections;
 the closing full gate passed with exit 0.
 
-The current install is C74 with ZAO A37, deployed on 2026-09-22 UTC.
-All 261 installed SAO files match the C74 source; the companion remains unchanged.
-The installed SAO jar SHA-256 is `f10746b1698d8321eda69f33f7c520abe6674080cf4a740f326d4eaddcdc23ca`.
+The current install is C75 with ZAO A37, deployed on 2026-09-22 UTC.
+All 261 installed SAO files match the C75 source; the companion remains unchanged.
+The installed SAO jar SHA-256 is `a2ff1e081b72def676abc1817ff53c6da4d7e0ecbe50d5b6d060e432b5bf6c9f`.
 All 44,092 save-file sizes and modification times remained unchanged across
 deployment and startup. The [C61 evidence record](artifacts/audits/20260920-0844Z-0144PST-native-world-sources/README.md)
 retains the native-source substrate. The [C62 evidence record](artifacts/audits/20260920-1041Z-0341PST-source-access-native-use/README.md)
@@ -512,13 +517,20 @@ records exact loaded/dormant endpoints, battery passage, private reception
 evidence, request provenance and per-person player-radio effects. C74's
 [evidence record](artifacts/audits/20260922-0204Z-1904PST-world-knowledge-evidence/README.md)
 records the exact calendar, county presence, adult lived acquisition, retained
-person-private source identity and same-person native decision bundle. The next
-work is Speakeasy extraction review, acquisition adjudication and a concrete
-candidate for explicit ratification. Automatic household-shortage production
+person-private source identity and same-person native decision bundle. Speakeasy
+Record 52 reviews that exact source/acquisition reference while excluding its
+controlled choice. C75's
+[evidence record](artifacts/audits/20260922-0540Z-2240PST-typed-claim-catalogues/README.md)
+records deterministic typed references, complete known-person enumeration,
+fail-closed exact selection and selected-only fencing. The next learned-data work
+is complete reviewed claim coverage and a ruled retriever-target contract before
+task rows are authored. Automatic household-shortage production
 remains with R9 and cannot be inferred from C71's bounded holders.
-The C74 client reached a responsive main menu as the only Project Zomboid
-process with no SAO-specific startup errors and was left open after final
-deployment. No save was loaded; startup validation remains separate from
+The C75 client reached a responsive visible main menu as the only Project
+Zomboid process and was left open after final deployment. SAO's modules loaded
+without a C75-specific error. The client reports the existing ZombieBuddy
+installation/options warning, so this is not an entirely clean dependency
+startup. No save was loaded; startup validation remains separate from
 loaded-world acceptance.
 
 ## Decisions and observations still owed
