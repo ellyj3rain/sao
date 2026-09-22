@@ -38,7 +38,7 @@ on the simulation.
 
 ## Status
 
-`2.8.11.0-pre-alpha` - the coordinate is computed by the version machine
+`2.8.12.0-pre-alpha` - the coordinate is computed by the version machine
 (`tools/version_replay.py`), never picked; `VERSION_MAP.md` shows the
 classification and the arithmetic.
 
@@ -109,9 +109,9 @@ The county sweep reports loaded-source capture unavailable because it does not
 run that executor. C66 extends the same owner and capture to performed food/water
 acquisition and storage: exact native goods, current authority, durable recovery
 and completion-only experience. Speakeasy now creates decision-time knowledge
-views and unratified proposals. Runtime choices remain unratified; curated
-acquisition, broader options, ratification and later consequences remain R11-R12
-work. C67 connects performed transfers to private actor/witness memory and
+views and unratified proposals. Runtime choices remain unratified; broader
+options, authored behavior rulings and later consequences remain R11-R12 work.
+C67 connects performed transfers to private actor/witness memory and
 admitted testimony. Carriers answer requests they learned, using privately known
 destinations. Witnesses can develop personal willingness to reciprocate according
 to their own need and relationship; these source deliveries create no trade debt.
@@ -131,10 +131,15 @@ direct-root device and writes recipient-private reception evidence before any
 claim effect; dormant battery use crosses the temporary-body handoff. C74 adds
 the first protected world-claim producer: an explicit county-presence interval,
 dated adult lived acquisition, retained person-private source identity and a
-deterministic same-person decision evidence port. Protected prose, extraction
-review, adjudication and ratification remain in Speakeasy. Complete
-household stock, dormant world access, other medical verbs, remaining material
-actions and settlement development stay under R7-R9.
+deterministic same-person decision evidence port. Speakeasy Record 52 has
+repository-reviewed that exact extraction and acquisition as a reference; its
+forced source choice remains excluded and it creates no training row. C75 gives
+every fact in one immutable knowledge snapshot a deterministic local reference
+and narrows the existing factual fence to an exact selected subset. No current
+speech path calls the new interface, and the protected-world surface still has
+only C74's single claim. Complete household stock, dormant world access, other
+medical verbs, remaining material actions and settlement development stay under
+R7-R9.
 `ROADMAP.md` preserves the remaining social and learned-model obligations.
 
 ## Requirements

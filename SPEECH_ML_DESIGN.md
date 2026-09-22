@@ -136,10 +136,14 @@ is the person's world, three kinds:
 
 **RATIFIED 2026-08-30 (Crucible), the sources fixed:** the period
 world model comes as researched world documents - the county's 1993
-written as a document set, every claim carrying its confidence,
-RATIFIED BY THE OPERATOR before it teaches anything - with curated
-public-domain period text supplying language texture on top. And
-the pipeline lives as its own tracked project beside SAO (the
+written as a document set, every claim carrying its confidence and
+reviewed against its source before it teaches anything - with curated
+public-domain period text supplying language texture on top. Speakeasy
+records 43 and 52 establish repository review for mechanical extraction
+and person-specific acquisition. Operator rulings apply to authored
+behavior targets and rows, and to a trained runtime candidate's usefulness,
+voice and conversational quality. The pipeline lives as its own tracked project
+beside SAO (the
 mod-patches precedent): datasets, world documents, and training
 runs under their own records; SAO receives only the shipped models.
 The operator named it 2026-08-30: **Zomboid-Speakeasy**, at
@@ -193,6 +197,13 @@ language the fence allows, and the hardest single piece in the
 design. Its correctness gets its own border when built: no
 emitted sentence may assert a fact absent from the input claim
 set, verified mechanically over test corpora, not by review.
+
+**IMPLEMENTED SUBSTRATE 2026-09-21 (C75):** SAO can now compile the
+current private knowledge surface into deterministic references inside one
+caller-owned immutable snapshot. Exact selection refuses foreign, unknown or
+duplicate references, and the selected factual fence admits only scalar values
+from those claims. Current speech does not call this interface. The asynchronous
+snapshot owner, learned retriever, target rows and speaker remain R13-R14 work.
 
 ## Decision 5 - Whose voice is it?
 

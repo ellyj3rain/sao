@@ -1,6 +1,6 @@
 | Document | The three projects and what each owns |
 |---|---|
-| Version | `2.8.11.0-pre-alpha` |
+| Version | `2.8.12.0-pre-alpha` |
 | Author | ellyj3rain |
 | Repository | `PROJECTS.md` |
 | Status | CANONICAL - the architecture across the three repositories. Held here; `../zombie-awareness` and `../zomboid-speakeasy` point at it. |
@@ -167,9 +167,9 @@ SUBSTRATE.md records the implementation boundaries and current evidence.
 
 | | Version | Standing |
 |---|---|---|
-| SAO | see `VERSION` | C64-C66 establish immutable decision capture, exact source options and performed acquire/store results. C74 adds a dated person-private world-claim acquisition and deterministic same-person evidence port without protected prose. R7-R10 retain the missing action/life producers; Speakeasy still owns R12 extraction review, adjudication, ratification and eligible views. |
+| SAO | see `VERSION` | C64-C66 establish immutable decision capture, exact source options and performed acquire/store results. C74 adds a dated person-private world-claim acquisition and deterministic same-person evidence port without protected prose. C75 assigns deterministic snapshot-local references across the current private knowledge surface and restricts the factual fence to selected references; current speech is unchanged. R7-R10 retain the missing action/life producers. |
 | ZAO | `../zombie-awareness/VERSION` | A37 makes the Crossed pass reachable for the non-feeding Afflicted exposure and owns the same transferred human shell across loaded, dormant and dead states. The complete retained human action vocabulary and loaded-world observation remain open. |
-| Speakeasy | `../zomboid-speakeasy/RECORD.md` | 112 work-word and 78 trade-hinge choices plus nine world documents are hash-protected. Version 3 requires exact run/county/person/event/hour joins and executable option evidence, validates before atomic publication and refuses protected destinations. The approved choices remain intent; their future-conditioned legacy rows are ineligible. No trained cognition model or completed training/export/runtime path exists. |
+| Speakeasy | `../zomboid-speakeasy/RECORD.md` | 112 work-word and 78 trade-hinge choices plus nine world documents are hash-protected. Version 3 requires exact run/county/person/event/hour joins and executable option evidence, validates before atomic publication and refuses protected destinations. Record 52 repository-reviews C74's one outage extraction and Ada North acquisition as a conditioning-ineligible catalogue reference, with zero training rows. Authored behavior targets, task datasets and the trained runtime remain open. |
 
 Each of those is its own repository's to update. This table says where
 the three stand relative to each other, which is the thing no single
