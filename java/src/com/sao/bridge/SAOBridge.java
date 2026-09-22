@@ -2984,6 +2984,44 @@ public final class SAOBridge {
         }
     }
 
+    /** [C74] The exact local calendar instant on the durable county-hour axis. */
+    public String countyInstant(double hours, boolean dayZeroAsked) {
+        try {
+            int[] start = com.sao.engine.SAORecord.saveStart();
+            if (start == null) {
+                return "";
+            }
+            int behind = com.sao.engine.SAORecord.daysBehindAtStart(dayZeroAsked);
+            if (behind < 0) {
+                return "";
+            }
+            return com.sao.engine.SAORecord.countyInstant(
+                start[0], start[1], start[2], hours, behind);
+        } catch (Throwable throwable) {
+            return "";
+        }
+    }
+
+    /** [C74] A shipped-record day expressed on the durable county-hour axis. */
+    public double recordHour(int recordDay, boolean dayZeroAsked) {
+        try {
+            int[] start = com.sao.engine.SAORecord.saveStart();
+            if (start == null) {
+                return Double.NaN;
+            }
+            int behind = com.sao.engine.SAORecord.daysBehindAtStart(dayZeroAsked);
+            if (behind < 0) {
+                return Double.NaN;
+            }
+            boolean shifted = dayZeroAsked
+                && com.sao.engine.SAORecord.mayShift(start[0], start[1], start[2]);
+            return com.sao.engine.SAORecord.recordHourFor(
+                start[0], start[1], start[2], recordDay, behind, shifted);
+        } catch (Throwable throwable) {
+            return Double.NaN;
+        }
+    }
+
     /** [C38] The record's own first day, in the same words. */
     public String recordDayZero() {
         try {

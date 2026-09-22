@@ -1,6 +1,6 @@
 | Document | Survivor Awareness Overhaul Roadmap |
 |---|---|
-| Version | `2.8.10.0-pre-alpha` |
+| Version | `2.8.11.0-pre-alpha` |
 | Author | ellyj3rain |
 | Repository | `ROADMAP.md` |
 | Status | CANONICAL - readiness work and retained scope. |
@@ -75,7 +75,10 @@ existing County Wire and player-radio delivery paths with exact receiver state,
 elapsed dormant battery use and recipient-private reception evidence. R9 remains open for the other care,
 provisioning and development action/result producers. C64 closes R11's immutable
 envelope and join integrity plus R12's protected-source audit; both contracts
-remain open for their substantive data producers and views.
+remain open for their substantive data producers and views. C74 supplies R12's
+first dated personal acquisition producer and a hash-bound decision/evidence
+port; Speakeasy review, adjudication, ratification and eligible compilation
+remain open.
 
 R1's [evidence record](artifacts/audits/20260919-0735Z-0035PST-r1-return-evidence/README.md)
 names the implemented mechanisms, controls, native-source continuation and the
@@ -99,7 +102,7 @@ rather than indefinite deferrals.
 | **R9. Complete life-simulation producers — SAO + ZAO domain owners** | R5-R8 and C61's R10a ground, incrementally by concern | Implement the producer rows in SUBSTRATE: provisioning and places, exploration, affiliation, care, learning, culture, rest, governance, communication and conflict. C62 supplies provisioning's revision-bound completed-use input and stamps only the actor's food/water day; C63-C64 consume that result through one exact partial-source projection and reconcile later native change. No selected source establishes complete house stock, larder/water claims or settlement storage. C66 supplies performed acquisition/storage. C67 supplies contemporaneous witness knowledge and personal reciprocity without trade debt. C68 supplies completed loaded personal handovers, bilateral accepted terms and completion-derived settlement/debt. C69 supplies private recipient appraisal after testimony from the listener's own active household request, current membership, explicit claim and relationships, without reconstructed need or automatic debt. C70 supplies completed loaded open-wound treatment before patient response, care experience or voice. C71 closes recursive actor-private inventory observation across every loaded decision holder and exact v4 dormant carriage while refusing bounded house totals. C72 closes the rest producer needed for adjacent dormant speech: measured fatigue and explicit generated provenance advance through rest, sleep and wake before encounter admission, while older unknown state remains unknown. C73 closes actual County Wire and player-radio reception with powered, audible, tuned per-person endpoints and private receipts before claim effects; it delivers only requests whose explicit source already exists. The other medical verbs and remaining material/development actions still require their own results rather than observation, reservation or queue acceptance. Rebuild Crossed execution from its canonical body and mind: human appearance, retained cognition, experience, drives and action vocabulary; weapons, tools, strategy, coordination, use of the dead, variable settlement/leisure and deliberate work on Afflicted. Each concern first produces the bounded mechanism inventory below. Connect candidates to executors; prove conservation, private knowledge and socially grounded recognition in both representations. |
 | **R10b. Historical integration and population — SAO + ZAO** | R2, R4, R8-R9, R10a | Exercise grounded dormant opportunity and observable later changes across the integrated county. Account separately for initial people, arrivals, births, deaths and exits. Resolve the existing refill policy against the prohibition on target-seeking outcomes. Compare actual cohorts and open populations correctly; fixtures and target counts cannot establish fidelity. |
 | **R11. Decision capture and joins — SAO + Speakeasy (envelope/join integrity C64; source-choice slice C65)** | Start now; final eligibility follows R2, R6-R10 | C64 freezes person/situation evidence, namespaces runs/events, records provenance and refuses incomplete publication. Speakeasy v3 protects exact joins. C65 exposes private food/water source options, preserves the current selector, revalidates the exact choice and links capture to its immediate native action result. Pending, refused, interrupted and censored outcomes remain explicit; unreadable storage fails capture. The county sweep reports its absent loaded executor. C66 captures acquire/store choices and Speakeasy supplies knowledge views and separate unratified proposals. Broader option coverage, ratification, curated acquisition and later consequence horizons remain open. |
-| **R12. Approved data and world knowledge — Speakeasy; SAO knowledge reader (protection/audit closed C64)** | Start now; R11 for new captures | Speakeasy v3 hash-protects 190 approved choices, four historical derivatives and nine approved world documents. C64 audits conditioning independently: future state contaminates most legacy rows and all options are bare strings, so none are training-eligible. C66/Speakeasy implements versioned decision-time corpus/claim views with hash-bound sources and explicit person/time acquisition evidence, plus unratified proposal authoring. Curate and adjudicate the claim/acquisition corpus before granting eligibility. Future facts, LOW claims and lineage leakage are refused; historical corrections remain append-only. |
+| **R12. Approved data and world knowledge — Speakeasy; SAO knowledge reader (protection/audit closed C64; first acquisition producer closed C74)** | Start now; R11 for new captures | Speakeasy v3 hash-protects 190 approved choices, four historical derivatives and nine approved world documents. C64 audits conditioning independently: future state contaminates most legacy rows and all options are bare strings, so none are training-eligible. C66/Speakeasy implements versioned decision-time views and unratified proposal authoring. C74 produces one exact calendar, county-presence, lived acquisition, retention observation and same-person decision bundle without protected prose. Speakeasy must review the extraction, adjudicate acquisition, record explicit ratification and compile eligibility. Future facts, LOW claims and lineage leakage are refused; historical corrections remain append-only. |
 | **R13. Training and export — Speakeasy** | R11-R12; eligible R8-R10b coverage | Build decision authoring, deterministic voice expansion, understander utterance-to-meaning and speaker claims/conditioning-to-expression datasets, preserving actual approval status. Implement lineage-separated evaluation and reproducible training. Complete the architecture/export investigation; deliver deterministic versioned artifacts and reference inference with separate behavioral/grounding measures. |
 | **R14. Learned execution and exchange — SAO Java/Lua + Speakeasy artifacts** | R7, R9, R13 | Load a compatible model in Java, infer at the real decision point, revalidate and execute the selected option. Complete both understanding and constrained expression through existing belief, standing and command channels. A changed model output must change an actual action or exchange; false claim recombination, stale options and failed inference cannot manufacture success. |
 | **R15. Late-start acceleration — SAO + Speakeasy** | R10b; versioned policy/export from R13-R14 | Evaluate acceleration against the repaired causal stepper with matched seeds, initial conditions and policy version. Compare histories, distributions and subsequent behavior. Preserve provenance and quantify error/performance. Retain causal stepping until a candidate passes; fixed survival floors, settlement quotas and authored completed work remain invalid. |
@@ -163,17 +166,19 @@ continue without waiting on them. Play acceptance is distinct from mechanical
 verification; no new play-session prerequisite is introduced here.
 
 
-### Continuation after C73
+### Continuation after C74
 
 | Producer | Concrete next work | Evidence required |
 |---|---|---|
-| R12 example | Preserve a real decision event and its county calendar; join literal protected sources with the same person's acquisition/access/retention. | Reviewed extraction, adjudicated acquisition and explicit ratification before training eligibility. |
+| R12 example | Import C74's hash-bound calendar, presence, acquisition, retention and decision bundle into Speakeasy; review the literal protected extraction and compile the exact candidate. | Adjudicated acquisition and explicit ratification before training eligibility. |
 
 The selected native source and personal-handover item remain partial material
 evidence. C71 closes the actor-private inventory view used by decisions, and
 C72 supplies the sleep/wake producer for adjacent dormant speech. C73 proves
 actual County Wire and explicit player-radio reception per listener, including
-dormant battery passage and request-source provenance. None of these turns
+dormant battery passage and request-source provenance. C74 separately proves one
+adult county-lived world claim on the same person's durable record and decision
+event. It does not approve that claim for conditioning. None of these turns
 loaded-bounded holders into complete household stock, gives a dormant person
 access to world holders or produces a shortage request from incomplete stock.
 The other R9 action/result producers retain their existing owners in

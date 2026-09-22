@@ -506,6 +506,12 @@ local function ensurePopulation(conf, tickCounter)
         end
         rec.originRegion = origin.region
         rec.homeX, rec.homeY, rec.homeZ = origin.x, origin.y, origin.z
+        -- [C74] Presence, not an origin label, is what can support lived
+        -- county knowledge. Genesis starts on the record's first day; a later
+        -- admission begins now and cannot inherit the county's past.
+        pcall(function()
+            SAO.WorldKnowledge.markCountyPresence(rec, not arriving)
+        end)
         -- [B40] They know where they started.
         --
         -- `originAnchored` was written here and read NOWHERE in the
@@ -599,6 +605,9 @@ local function ensurePopulation(conf, tickCounter)
             end
             mate.originRegion = origin.region
             mate.homeX, mate.homeY, mate.homeZ = origin.x, origin.y, origin.z
+            pcall(function()
+                SAO.WorldKnowledge.markCountyPresence(mate, not arriving)
+            end)
             mate.unitId, mate.unitKind = unitId, kind
             mates[#mates + 1] = mate
             count = count + 1

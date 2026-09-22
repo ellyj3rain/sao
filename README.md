@@ -38,7 +38,7 @@ on the simulation.
 
 ## Status
 
-`2.8.10.0-pre-alpha` - the coordinate is computed by the version machine
+`2.8.11.0-pre-alpha` - the coordinate is computed by the version machine
 (`tools/version_replay.py`), never picked; `VERSION_MAP.md` shows the
 classification and the arithmetic.
 
@@ -128,7 +128,11 @@ with exact v4 dormant carriage and no inferred house totals. C72 advances
 record-owned rest, sleep and wake before adjacent dormant speech. C73 makes
 County Wire and player-radio delivery depend on a powered, audible, tuned
 direct-root device and writes recipient-private reception evidence before any
-claim effect; dormant battery use crosses the temporary-body handoff. Complete
+claim effect; dormant battery use crosses the temporary-body handoff. C74 adds
+the first protected world-claim producer: an explicit county-presence interval,
+dated adult lived acquisition, retained person-private source identity and a
+deterministic same-person decision evidence port. Protected prose, extraction
+review, adjudication and ratification remain in Speakeasy. Complete
 household stock, dormant world access, other medical verbs, remaining material
 actions and settlement development stay under R7-R9.
 `ROADMAP.md` preserves the remaining social and learned-model obligations.

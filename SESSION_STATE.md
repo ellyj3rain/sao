@@ -1,20 +1,37 @@
 | Document | Survivor Awareness Overhaul Session State |
 |---|---|
-| Version | `2.8.10.0-pre-alpha` |
+| Version | `2.8.11.0-pre-alpha` |
 | Author | ellyj3rain |
 | Repository | `SESSION_STATE.md` |
 | Status | CANONICAL - current implementation and continuation. |
 
 # Session state
 
-**As of** 2026-09-21, `[C73]` makes County Wire and explicit player-radio
-delivery depend on an actual endpoint at the event hour. A loaded person needs
-a direct-root communications radio that is on, powered, audible and tuned; a
-transmitter must also be two-way, unmuted and permitted to transmit. A radio in
-a bag remains possession without becoming access. Every admitted listener gets
-a private, bounded reception receipt before a request, camp location, trust or
-political effect changes their state. One household member's receiver no longer
-propagates the broadcast to the rest.
+**As of** 2026-09-21, `[C74]` supplies the first bounded producer for the R12
+person-specific world-knowledge path. Population admission writes a durable
+county-presence interval only after a person's origin ground exists. Initial
+residents begin on the record's first lived day; later arrivals begin at their
+actual admission hour. A dated adult lived claim appears only after its event
+falls inside that interval and no later than the current county hour. The person
+record retains the claim and protected-source hashes, lived path, access basis
+and supporting presence record. SAO carries no protected prose and grants no
+review or training standing. People saved before C74 have no explicit presence
+interval and remain acquisition-unknown; origin text is not backfilled.
+
+The exact county calendar now uses the mature-world history offset as well as
+the save start. A deterministic evidence port runs the production source action
+and decision capture in the installed Kahlua runtime while the same frozen
+person record contains the acquisition and a separate retention observation.
+The port is ready for Speakeasy extraction review and acquisition adjudication;
+explicit ratification remains required before the example can train anything.
+
+`[C73]` makes County Wire and explicit player-radio delivery depend on an actual
+endpoint at the event hour. A loaded person needs a direct-root communications
+radio that is on, powered, audible and tuned; a transmitter must also be two-way,
+unmuted and permitted to transmit. A radio in a bag remains possession without
+becoming access. Every admitted listener gets a private, bounded reception
+receipt before a request, camp location, trust or political effect changes their
+state. One household member's receiver no longer propagates the broadcast.
 
 The body checkpoint carries exact device identity and state into the dormant
 record. Battery use advances on the county clock; depletion turns the receiver
@@ -144,9 +161,9 @@ producers, persistence, evidence and gaps.
 | Person continuity | Durable identity, C51's body transaction, C52's authorized return/adoption/teardown, C54's v4 native state, C55/A36 reconstruction and C56/A37 one-way Crossed ownership of the same human shell and dormant envelope | R7's general action completion and later action-specific ownership remain open. |
 | Time and health | Current decision time, durable drug/abstinence clocks, current physical inputs, exact interval-integrated brain history, medical/inspect graph and memory/decision/affective/motor consumers; C68 completion-proves care-item gifts, C70 completion-proves loaded open-wound bandaging and C72 advances measured rest/sleep/wake through bodyless intervals | R5 is closed. Disinfection, stitching, dormant treatment and other performed care still depend on R7/R9 action producers. |
 | Afflicted and Crossed | ZAO pathogen state, Afflicted return, reachable Crossed decisions and an interruptible non-feeding blood exposure whose exact-once result transfers SAO's living body to ZAO | The retained human weapons, tools, strategy and wider action vocabulary remains R7-R9 work; grounded dormant opportunities remain R10. |
-| Knowledge and access | Private beliefs; animal-safe scanner output; fresh/current activity partners; demand-hydrated exact source identities; C62's revision-bound approach, current claim/vehicle permission, exact transfer, carried native use and durable result; C63-C64's exact partial-source material projection and durable ambient refresh; C71's recursive actor-private loaded holder view and exact v4 dormant carriage; C72's produced dormant awake/asleep state joined with C67 measured hearing; C73's direct-root powered radio endpoints, elapsed dormant battery state and recipient-private reception receipts | R6 is closed for the selected source interaction and its completed result reaches bounded partial material state. R7 remains open beyond this source-action family. C66 adds exact acquisition/storage; C67 adds private transfer testimony and witnessed recipient response; C68 completion-proves loaded personal handovers; C69 closes the bounded recipient appraisal after testimony. C71 closes private inventory observation, C72 closes adjacent dormant spoken access and C73 closes actual County Wire and explicit player-radio reception. Complete house stock and the other material action/result producers remain open. |
+| Knowledge and access | Private beliefs; animal-safe scanner output; fresh/current activity partners; demand-hydrated exact source identities; C62's revision-bound approach, current claim/vehicle permission, exact transfer, carried native use and durable result; C63-C64's exact partial-source material projection and durable ambient refresh; C71's recursive actor-private loaded holder view and exact v4 dormant carriage; C72's produced dormant awake/asleep state joined with C67 measured hearing; C73's direct-root powered radio endpoints, elapsed dormant battery state and recipient-private reception receipts; C74's explicit county presence, dated personal acquisition and detached retention observation | R6 is closed for the selected source interaction and its completed result reaches bounded partial material state. R7 remains open beyond this source-action family. C66 adds exact acquisition/storage; C67 adds private transfer testimony and witnessed recipient response; C68 completion-proves loaded personal handovers; C69 closes the bounded recipient appraisal after testimony. C71-C73 close inventory, adjacent speech and actual radio admission. C74 closes SAO's first bounded R12 acquisition producer. Complete house stock and the other material action/result producers remain open. |
 | Social development | Company mechanics, claims, observations and graph APIs; C64 prevents partial selected-source evidence from creating aggregate claims or settlement storage; C68 separates gifts, proposed terms, accepted exchange and completion-derived debt; C69 preserves private disagreement without automatic ledger writes | Automatic relocation and recognition; incomplete affiliation, governance, place development and other provisioning producers. |
-| Speakeasy data | 190 protected choices, four historical derivatives, nine world documents, immutable capture and exact v3 join; C65 adds explicit source options/choice and immediate-result observation for loaded execution | C66/Speakeasy adds exact acquisition/storage options, decision-time views and unratified proposal authoring. Broader options, curated person-specific acquisition, ratification and later consequences remain; all current captures remain conditioning-ineligible. |
+| Speakeasy data | 190 protected choices, four historical derivatives, nine world documents, immutable capture and exact v3 join; C65 adds explicit source options/choice and immediate-result observation for loaded execution; C74 supplies one hash-bound same-person calendar/acquisition/retention/decision port | C66/Speakeasy adds exact acquisition/storage options, decision-time views and unratified proposal authoring. The C74 extraction still needs review, acquisition adjudication and explicit ratification. Broader options and later consequences remain; all current captures remain conditioning-ineligible. |
 | Models and late starts | Inference primitives, fact constraint, offline diagnostics | No trained cognition model, complete training/export path or validated accelerator. |
 
 ## Retained recovery evidence
@@ -394,12 +411,15 @@ acquisition/storage, C67's witnessed-recipient response, C69's listener-owned
 appraisal after testimony and C70's loaded open-wound result. C72 closes the
 dormant rest producer needed for adjacent spoken admission. C73 closes actual
 County Wire and explicit player-radio admission without manufacturing the
-request or complete household stock. C64 closes R11's immutable envelope
+request or complete household stock. C74 closes SAO's first dated, retained
+person-specific world-claim acquisition and same-person evidence port. C64
+closes R11's immutable envelope
 and join integrity plus R12's source protection/conditioning audit. C65 adds
 private source options, exact runtime selection and immediate source-action
 outcomes. C66 extends capture to acquisition/storage and Speakeasy adds
 reconstructed knowledge views and unratified proposals; broader options,
-ratification, curated acquisition and later consequences remain. Pathogen state and installed brain-history
+protected extraction review, acquisition adjudication, ratification and later
+consequences remain. Pathogen state and installed brain-history
 ownership continue to belong to ZAO.
 
 C51 repairs the F-077 body handoff. Capture failure keeps the prior record and
@@ -426,11 +446,11 @@ consequences remain separate from the learned policy choosing among them.
 ## Verification and installed state
 
 C57 consolidates three native entry points into one. With C64's immutable
-capture border, C72's dormant-spoken border and C73's radio-reception border,
-the gate invokes 184 `*_test.py` files and 13 other Python entry points, 197
-distinct scripts. Border labels extend through 186; legacy labels
+capture border, C73's radio-reception border and C74's personal-world-knowledge
+border, the gate invokes 185 `*_test.py` files and 13 other Python entry points,
+198 distinct scripts. Border labels extend through 187; legacy labels
 163/169/174 share the native suite. These are distinct counting units. The mod
-ships 78 Lua source files.
+ships 79 Lua source files.
 ZAO A37 has ten borders. The
 published C51 baseline has 163 borders through 178 mirrors. These counts describe the
 apparatus, not acceptance. The audit reproduced defects while targeted checks
@@ -442,9 +462,9 @@ C51's separate first gate found a verdict-prefix defect and missing transition
 registry surfaces/lifetimes. Its failed output is preserved with the corrections;
 the closing full gate passed with exit 0.
 
-The current install is C73 with ZAO A37, deployed on 2026-09-22 UTC.
-All 260 installed SAO files match the C73 source; the companion remains unchanged.
-The installed SAO jar SHA-256 is `cdfa4c2a13b12fa001da4bc811c755a838774f8beafc81633ad28723bd374b2c`.
+The current install is C74 with ZAO A37, deployed on 2026-09-22 UTC.
+All 261 installed SAO files match the C74 source; the companion remains unchanged.
+The installed SAO jar SHA-256 is `f10746b1698d8321eda69f33f7c520abe6674080cf4a740f326d4eaddcdc23ca`.
 All 44,092 save-file sizes and modification times remained unchanged across
 deployment and startup. The [C61 evidence record](artifacts/audits/20260920-0844Z-0144PST-native-world-sources/README.md)
 retains the native-source substrate. The [C62 evidence record](artifacts/audits/20260920-1041Z-0341PST-source-access-native-use/README.md)
@@ -489,10 +509,14 @@ records native/generated rest acquisition, bodyless sleep/wake before dormant
 encounters and exact state restoration. C73's
 [evidence record](artifacts/audits/20260921-2351Z-1651PST-radio-reception/README.md)
 records exact loaded/dormant endpoints, battery passage, private reception
-evidence, request provenance and per-person player-radio effects. The next work
-is the selected R12 source/acquisition example. Automatic household-shortage
-production remains with R9 and cannot be inferred from C71's bounded holders.
-The C73 client reached a responsive main menu as the only Project Zomboid
+evidence, request provenance and per-person player-radio effects. C74's
+[evidence record](artifacts/audits/20260922-0204Z-1904PST-world-knowledge-evidence/README.md)
+records the exact calendar, county presence, adult lived acquisition, retained
+person-private source identity and same-person native decision bundle. The next
+work is Speakeasy extraction review, acquisition adjudication and a concrete
+candidate for explicit ratification. Automatic household-shortage production
+remains with R9 and cannot be inferred from C71's bounded holders.
+The C74 client reached a responsive main menu as the only Project Zomboid
 process with no SAO-specific startup errors and was left open after final
 deployment. No save was loaded; startup validation remains separate from
 loaded-world acceptance.

@@ -1,6 +1,6 @@
 | Document | Survivor Awareness Overhaul Dependency Substrate |
 |---|---|
-| Version | `2.8.10.0-pre-alpha` |
+| Version | `2.8.11.0-pre-alpha` |
 | Author | ellyj3rain |
 | Repository | `SUBSTRATE.md` |
 | Status | CANONICAL - what exists, what is planned, and what each area of concern needs. |
@@ -589,8 +589,10 @@ rejects capture. The source executor is absent from the current county sweep,
 which reports unavailable coverage. R11 next extends real option producers across
 the remaining actions and supplies separately authored/ratified choices and
 later consequence horizons. C66 extends capture to acquire/store. Speakeasy
-now constructs decision-time knowledge views and unratified proposals; curated
-claim/acquisition evidence and ratification remain R12 obligations.
+now constructs decision-time knowledge views and unratified proposals. C74 adds
+one exact calendar, county-presence, adult lived-acquisition and retention
+producer plus a deterministic same-person decision bundle. Protected extraction
+review, acquisition adjudication and ratification remain R12 obligations.
 
 Speakeasy version 3 namespaces joins by originating run, county, person, event
 and hour, prevalidates both inputs, refuses protected inputs/destinations and
@@ -616,8 +618,10 @@ claims a person can know. LOW-confidence material cannot teach; October context
 cannot become July knowledge. Apply age-at-event, occupation, region, literacy,
 hearing and testimony constraints from Speakeasy's world plan. Speakeasy v3
 corrects the mutable README/training status against its append-only RECORD;
-C66/Speakeasy supplies versioned reconstruction tooling. Person-specific
-acquisition curation/adjudication and approved eligible views remain R12 work.
+C66/Speakeasy supplies versioned reconstruction tooling. The C74 bundle supplies
+one bounded personal acquisition without protected prose.
+Extraction review, acquisition adjudication, explicit ratification and approved
+eligible views remain R12 work.
 
 Build versioned corpus extraction with pinned dependencies and source hashes,
 deterministic voice-seed expansion, understander utterance-to-meaning examples,
@@ -830,3 +834,31 @@ membership performs no implicit relay. Border 186 covers the loaded and dormant
 paths, native battery and wake behavior, legacy refusal, private evidence,
 request provenance and per-person routing. C73 does not recreate the retired
 bounded-shelf shortage trigger or add an autonomous survivor radio scheduler.
+
+### C74 producer update
+
+The selected protected source assigns the July 1-6 county events to county
+residents as lived days, while its age rules reserve the exact adult claim from
+children's vaguer memory. SAO therefore records the prerequisite rather than
+copying the conclusion: PopulationAdmissions writes a county-presence interval
+after choosing a person's origin ground. Genesis residents begin on the first
+record day; later arrivals begin at admission and inherit no earlier event.
+Pre-C74 people remain unknown because their origin labels do not prove a dated
+presence interval.
+
+History exposes a complete calendar instant and a record-day coordinate on its
+durable county-hour axis. The Java owner uses the same history offset as mature
+simulation, so late-start history and live time share one calendar. The daily
+population pass asks WorldKnowledge to advance; the selected claim appears only
+after its event hour lies inside that person's presence and only for the adult
+detail slice. It remains on that person's durable record with its lived path,
+source hashes and supporting presence record.
+
+Knowledge exposes detached claim identities and provenance. A separate
+retention observation binds the age, carrier, access and retained checks at the
+decision hour without reconstructing acquisition. The R12 evidence generator
+runs production WorldSources, SourceUse, WorldKnowledge and decision capture in
+the installed Kahlua runtime and binds the same person's acquisition to the
+frozen event. The controlled source/holder is mechanism evidence; natural-county
+distribution and loaded-save acceptance remain unclaimed. Speakeasy owns the
+protected extraction and every standing after production.

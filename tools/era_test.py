@@ -185,7 +185,7 @@ def main():
     br, rc, chk = read(BRIDGE), read(RECORD), read(RECORD_CHECK)
     seams = {
         "the topics are on the list":
-            '"before", "started" }' in ktext,
+            '"world"' in ktext and '"before", "started" }' in ktext,
         "the surface opens no store of its own":
             "ModData.getOrCreate(" not in ktext and "ModData.get(" not in ktext
             and "SAO.Standing.chronicle()" in ktext,
