@@ -1,6 +1,6 @@
 | Document | Survivor Awareness Overhaul Architecture |
 |---|---|
-| Version | `2.8.10.0-pre-alpha` |
+| Version | `2.8.11.0-pre-alpha` |
 | Author | ellyj3rain |
 | Repository | `ARCHITECTURE.md` |
 | Status | ACTIVE - ratified framework shape. |
@@ -564,6 +564,35 @@ the dormant encounter pass, from native measurements or explicit generated
 physiology. The prior speech marker alone does not establish an awake state.
 C73 requires exact receiver access and a private reception receipt before radio
 content is available to that mind; possession remains a separate inventory fact.
+
+## Personal world-knowledge evidence (C74)
+
+Speakeasy owns protected claim text, extraction standing, acquisition review and
+training eligibility. SAO owns whether one particular person acquired a claim.
+The boundary carries a stable claim identifier, protected source and excerpt
+hashes, and personal evidence records; protected prose stays outside the mod.
+
+`SAORecord` maps every durable county hour to a complete local instant using the
+same save-start-minus-history anchor as the mature-world clock. Population
+admission writes an explicit county-presence interval only after origin ground is
+selected. Initial residents begin on the record's first lived day; later
+arrivals begin at their actual admission hour. An origin label alone establishes
+no past presence. A pre-C74 record has no explicit interval and remains unknown
+rather than receiving a reconstructed acquisition.
+
+WorldKnowledge is the sole acquisition owner for the selected lived claim. It
+requires the dated event to fall inside that person's presence, to have occurred
+by the current county hour and to meet the approved adult-detail boundary. Its
+durable record retains source identity, path, access basis and the supporting
+presence record. Knowledge reads detached person-scoped copies and performs no
+write. A retention observation names the age, carrier, access and retention
+evidence used at the decision hour.
+
+The evidence port freezes one production SourceUse decision whose person record
+contains that acquisition, then hashes the calendar, presence, acquisition,
+retention and event records. This is evidence of the bounded mechanism on
+controlled native ground. Speakeasy must still review and adjudicate the data
+before an operator ratification can grant training standing.
 
 ## Personal handovers and terms (C68)
 

@@ -130,6 +130,10 @@ BOUNDED = {
         "pendingProjectionChanges trims durable projectionChanges to "
         "MAX_PROJECTION_CHANGES (2048) before copying and also stops copying "
         "at that ceiling, so a malformed save cannot widen the sorted list",
+    ("SAO_WorldKnowledge.lua", "out"):
+        "one person can hold at most one acquisition per entry in the static "
+        "CLAIMS registry; stateOf rejects a contiguous acquisition list above "
+        "that exact registry count before claimsOf copies or sorts it",
 }
 
 

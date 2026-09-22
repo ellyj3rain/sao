@@ -118,6 +118,29 @@ public final class RecordCheck {
         expect("the same start anchored eleven days behind is still July",
             SAORecord.countyMonth0(1993, 6, 19, 14 * 24.0, 11), 6);
 
+        // [C74] The full instant and dated record-event coordinate use that
+        // same anchor. These are the values exported beside a decision.
+        expect("county hour zero is a complete shipped-start instant",
+            SAORecord.countyInstant(1993, 6, 8, 0.0, 0),
+            "1993-07-09T00:00:00");
+        expect("negative prehistory reaches the July 2 outage",
+            SAORecord.countyInstant(1993, 6, 8, -7 * 24.0, 0),
+            "1993-07-02T00:00:00");
+        expect("fractional county hours keep seconds",
+            SAORecord.countyInstant(1993, 6, 8, 12.5, 0),
+            "1993-07-09T12:30:00");
+        expect("a mature save's county hour zero still begins in 1993",
+            SAORecord.countyInstant(1996, 6, 8, 0.0, 1096),
+            "1993-07-09T00:00:00");
+        expect("the July 2 event is minus 168 on the shipped axis",
+            SAORecord.recordHourFor(1993, 6, 8, -7, 0, false), -168.0);
+        expect("the same event is minus 168 on a mature county axis",
+            SAORecord.recordHourFor(1996, 6, 8, -7, 1096, false), -168.0);
+        expect("a shifted July 1 start lives the July 2 event at hour 24",
+            SAORecord.recordHourFor(1993, 6, 0, -7, 0, true), 24.0);
+        expect("an anchored July 1 start uses the shipped date at hour 24",
+            SAORecord.recordHourFor(1993, 6, 0, -7, 0, false), 24.0);
+
         // [C63] The days a save owes, and the day-zero switch that is
         // half the answer. `daysBehindAtStart` needs the engine's own
         // clock for the save start, so the arithmetic under it is what

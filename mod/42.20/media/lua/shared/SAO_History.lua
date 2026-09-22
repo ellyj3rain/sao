@@ -263,6 +263,36 @@ function H.countyTimeOfDay()
     return nil
 end
 
+-- [C74] A complete local calendar instant for one durable county-hour
+-- coordinate. Empty off the engine rather than reconstructing a date from a
+-- year or from prose. The bridge uses the same history offset as countyHours.
+function H.countyInstant(hours)
+    hours = tonumber(hours)
+    if not hours or hours ~= hours or hours == math.huge
+        or hours == -math.huge then return nil end
+    local instant = nil
+    pcall(function()
+        instant = SAOJavaBridge:countyInstant(hours, dayZeroAsked())
+    end)
+    return (type(instant) == "string" and instant ~= "") and instant or nil
+end
+
+-- One dated day from the shipped record on the same coordinate as
+-- countyHours. Negative hours are valid prehistory on an anchored July 9
+-- start; a requested day-zero timeline maps the record onto its actual save
+-- dates instead.
+function H.recordHour(recordDay)
+    recordDay = tonumber(recordDay)
+    if not recordDay or recordDay ~= math.floor(recordDay) then return nil end
+    local hour = nil
+    pcall(function()
+        hour = SAOJavaBridge:recordHour(recordDay, dayZeroAsked())
+    end)
+    if type(hour) ~= "number" or hour ~= hour or hour == math.huge
+        or hour == -math.huge then return nil end
+    return hour
+end
+
 -- [C113] The street hour - how much of ordinary life is outdoors at
 -- this hour of the day.
 --

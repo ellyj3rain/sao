@@ -29,6 +29,7 @@ local K = SAO.Knowledge
 K.TOPICS = { "self", "person", "zombies", "dead", "food", "water",
              "house", "ground", "lessons",
              "mutations",
+             "world",
              -- [C38] the life before, and the day it started.
              "before", "started" }
 
@@ -507,6 +508,28 @@ local function aboutStarted(id, opts)
     return out
 end
 
+-- [C74] Protected prose stays in Speakeasy. The living reader carries the
+-- claim identifier and personal provenance needed by a bounded retriever.
+local function aboutWorld(id, opts)
+    local rows = nil
+    pcall(function()
+        rows = SAO.WorldKnowledge.claimsOf(id,
+            SAO.History and SAO.History.countyHours())
+    end)
+    if type(rows) ~= "table" or #rows == 0 then return nil end
+    local out = {}
+    for _, row in ipairs(rows) do
+        out[#out + 1] = {
+            fact = "world-claim",
+            claimId = row.claimId,
+            source = row.path,
+            acquiredHour = row.acquiredHour,
+            carrier = row.carrier,
+        }
+    end
+    return out
+end
+
 local ABOUT = {
     self = aboutSelf,
     person = aboutPerson,
@@ -518,6 +541,7 @@ local ABOUT = {
     ground = aboutGround,
     lessons = aboutLessons,
     mutations = aboutMutations,
+    world = aboutWorld,
     before = aboutBefore,
     started = aboutStarted,
 }

@@ -509,6 +509,15 @@ local function dailyCounty()
     -- the simulated day itself, and across the boundary it is
     -- continuous with it.
     pcall(function() SAO.PathogenEvents.simulateDay(day) end)
+    -- [C74] Dated lived claims become available only after their record day.
+    -- This same daily pulse drives historical catch-up and live play, so a
+    -- July 1 start cannot know July 2 early and a mature county retains the
+    -- acquisition it actually lived.
+    pcall(function()
+        if SAO.WorldKnowledge and SAO.WorldKnowledge.advanceAll then
+            SAO.WorldKnowledge.advanceAll(hoursNow())
+        end
+    end)
     -- [C116] The reverted come back on the same clock the pathogen's
     -- own day runs - after the advance, so a reversion this day's
     -- draw produced is taken back the same day, and the years pass

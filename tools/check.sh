@@ -1936,6 +1936,13 @@ if ! "$PY" tools/radio_reception_test.py; then
     fail=1
 fi
 
+# [C74] Border 187 - explicit county presence covers a dated lived event
+# before a person-private acquisition is retained and exposed to decisions.
+if ! "$PY" tools/world_knowledge_test.py; then
+    note "BORDER FINDING - world-knowledge calendar, acquisition or retention broken"
+    fail=1
+fi
+
 # [C63/C67/C69] Border 180 - provisioning consumes completed C62 results,
 # reconciles exact observed native stock, and preserves private delivery
 # knowledge, requests and independently formed recipient appraisals.

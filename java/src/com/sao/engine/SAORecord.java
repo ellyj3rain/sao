@@ -2,6 +2,8 @@ package com.sao.engine;
 
 import com.sao.agent.SAOAgent;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import java.util.List;
@@ -35,6 +37,9 @@ import zombie.scripting.objects.Registries;
  * the two engine-facing calls never throw.
  */
 public final class SAORecord {
+
+    private static final DateTimeFormatter COUNTY_INSTANT =
+        DateTimeFormatter.ofPattern("uuuu-MM-dd'T'HH:mm:ss");
 
     /** The record's own day 0 (DR-031; the Speakeasy document knox-event.md). */
     public static final LocalDate RECORD_DAY_ZERO = LocalDate.of(1993, 7, 9);
@@ -297,6 +302,43 @@ public final class SAORecord {
         LocalDate anchor = dateOf(year, month0, day0).minusDays(Math.max(0, behind));
         LocalDate date = anchor.plusDays((long) Math.floor(hours / 24.0));
         return date.getMonthValue() - 1;
+    }
+
+    /** [C74] A county-hour coordinate as a complete local calendar instant.
+     *
+     * `SAO_History.countyHours` adds the days a mature save owes before the
+     * game clock begins. Its calendar therefore begins at save start minus
+     * that same offset. Using the raw save start here would date a 1996
+     * county's hour zero in 1996 while the simulation is actually living
+     * July 1993. Fractional hours retain whole-second resolution and negative
+     * prehistory is valid. */
+    public static String countyInstant(int year, int month0, int day0,
+                                       double hours, int behind) {
+        if (!Double.isFinite(hours)) {
+            return "";
+        }
+        LocalDateTime anchor = dateOf(year, month0, day0)
+            .minusDays(Math.max(0, behind)).atStartOfDay();
+        long seconds = (long) Math.floor(hours * 3600.0);
+        return COUNTY_INSTANT.format(anchor.plusSeconds(seconds));
+    }
+
+    /** [C74] Put one dated record event on the county-hour axis.
+     *
+     * An anchored timeline uses the record's shipped day zero. A requested
+     * 1993 day-zero timeline moves that day zero `leadIn()` days after the
+     * save begins. The returned coordinate uses the same start-minus-history
+     * anchor as `countyInstant`, so it remains comparable with every durable
+     * county-hour stamp. */
+    public static double recordHourFor(int year, int month0, int day0,
+                                       int recordDay, int behind,
+                                       boolean shiftedTimeline) {
+        LocalDate start = dateOf(year, month0, day0);
+        LocalDate anchor = start.minusDays(Math.max(0, behind));
+        LocalDate event = shiftedTimeline
+            ? start.plusDays(leadIn() + recordDay)
+            : RECORD_DAY_ZERO.plusDays(recordDay);
+        return ChronoUnit.DAYS.between(anchor, event) * 24.0;
     }
 
     /** [C38] The record's own first day, in the same words - and
