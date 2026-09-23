@@ -1,6 +1,6 @@
 | Document | Survivor Awareness Overhaul Architecture |
 |---|---|
-| Version | `2.8.13.1-pre-alpha` |
+| Version | `2.8.14.0-pre-alpha` |
 | Author | ellyj3rain |
 | Repository | `ARCHITECTURE.md` |
 | Status | ACTIVE - ratified framework shape. |
@@ -726,6 +726,22 @@ debt, settlement credit or a public account of what the act meant.
 
 
 ## Authored conversation capture (C76)
+
+C78 adds optional capture version 2 with detached behavioral evidence under its
+own schema. Trait contributions come from Disposition's decision calculation.
+Knowledge names each channel's owner and availability, separates source data
+from fact entitlement and rejects failed readers, foreign owners and future
+observations. Current Neuro projections require a current recorded observation;
+the read never advances it. Conditions, relationship, private zombie threat and
+lesson provenance retain their distinct meanings. Raw physiological causes are
+audit data, not model input or another person's knowledge.
+
+The bodyless host publishes five explicitly authored comparison cases. Loaded
+needs, controller state/reason and active movement have an ownership-checked
+read API and controlled boundary tests, but remain unavailable in those cases.
+Full active-purpose/alternative coverage needs action-specific producers;
+reading this surface never calls Integration.apply or Branching.select.
+Version 1 remains readable. No model or speech path is switched by this work.
 
 `Knowledge.catalogueEvidence` reports source failures alongside all requested
 Knowledge topics. Standing and WorldSources expose non-mutating readiness checks

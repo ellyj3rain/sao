@@ -74,6 +74,12 @@ function C.take(request)
         ownerRevisions = { perception = revision, personUpdateCounter = person.updatedAt,
             listenerUpdateCounter = listener.updatedAt },
         standing = "captured-authored-input", trainingEligible = false }
+    if request.includeBehavior then
+        local behavior, why = SAO.Knowledge.behaviorEvidence(person.id, listener.id, tick)
+        required(behavior, why or "behavior unavailable")
+        value.schemaVersion = 2
+        value.behavior = behavior
+    end
     local frozen = encode(value)
     required(SAO.History.countyHours() == hour and SAO.History.ticks() == tick
         and SAO.Perception.beliefVersion == revision

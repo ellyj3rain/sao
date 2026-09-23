@@ -16,9 +16,9 @@ the machine. Names, dates, and threads below come from
 | Form | `major.minor.kohai.patch-maturity` |
 | Hard caps | minor 12; kohai 16; patch 24 |
 | Replay start | `0.1.0.0-pre-alpha` |
-| Current version | `2.8.13.1-pre-alpha` |
-| Closed chronology | `A1-C77` |
-| Next batch | `C78` |
+| Current version | `2.8.14.0-pre-alpha` |
+| Closed chronology | `A1-C78` |
+| Next batch | `C79` |
 | Executable source | [`tools/version_replay.py`](tools/version_replay.py) |
 
 ## Tier meanings
@@ -193,6 +193,7 @@ the machine. Names, dates, and threads below come from
 | `C75` | 2026-09-21 | kohai | `2.8.12.0-pre-alpha` | Typed claim catalogues | Compile the existing person-private knowledge surface into deterministic snapshot-local claim references and restrict the factual fence to an exact selected subset. Preserve current speech, training and runtime behavior while complete protected-world coverage, retriever targets, task datasets and asynchronous snapshot ownership remain open. |
 | `C76` | 2026-09-22 | kohai | `2.8.13.0-pre-alpha` | Conversation capture | Capture authored conversation inputs from production knowledge owners with explicit reader coverage, immutable owner-state checks and content-addressed references. Reject unavailable or unsupported sources before reads, preserve personal radio provenance and keep authored captures separate from trained behavior. |
 | `C77` | 2026-09-22 | patch | `2.8.13.1-pre-alpha` | Evidenced world knowledge | Correct unsupported county-presence acquisition using exact native reading completion and person-bound report receipts; withhold legacy grants, preserve their history and regenerate the controlled capture with evidenced acquisition. |
+| `C78` | 2026-09-23 | kohai | `2.8.14.0-pre-alpha` | Person-state comparisons | Extend conversation capture with existing person-state contributions, explicit availability and controlled contextual comparisons; preserve source ownership and version-one compatibility. |
 
 ## The former number
 
@@ -213,11 +214,11 @@ establish release maturity.
 
 ## Next movement
 
-`C78` is the next batch. Its content determines its tier after it
+`C79` is the next batch. Its content determines its tier after it
 exists:
 
-| If C78 is | Result |
+| If C79 is | Result |
 |---|---|
-| patch or hotfix | `2.8.13.2-pre-alpha` |
-| kohai | `2.8.14.0-pre-alpha` |
+| patch or hotfix | `2.8.14.1-pre-alpha` |
+| kohai | `2.8.15.0-pre-alpha` |
 | minor | `2.9.0.0-pre-alpha` |

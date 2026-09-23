@@ -843,6 +843,135 @@ local function detach(value, budget)
         budget or { left = MAX_CATALOGUE_VALUES })
 end
 
+-- Current behavioral inputs remain separate from sayable factual claims.
+-- Readers never elect a branch, advance a cause, or normalize saved state.
+function K.behaviorEvidence(id, listenerId, tick)
+    local person = SAO.Identity.get(id)
+    local listener = SAO.Identity.get(listenerId)
+    if not person or person.id ~= id or not listener or listener.id ~= listenerId
+        or id == listenerId or person.dead or listener.dead then
+        return nil, "behavior-participants-invalid"
+    end
+    local hour = SAO.History.countyHours()
+    if tick ~= SAO.History.ticks() or tick ~= SAO.History.ticksFromHours(hour) then
+        return nil, "behavior-clock-not-current"
+    end
+    local out = { schema = "sao-behavior-evidence", schemaVersion = 1,
+        personId = id, listenerRef = listenerId, atTick = tick, atHour = hour,
+        channels = {} }
+    local failure
+    local function number(value)
+        if type(value) ~= "number" or value ~= value or value == math.huge or value == -math.huge then
+            error("nonfinite behavioral value")
+        end
+        return value
+    end
+    local function read(name, owner, fn)
+        local ok, value, reason = pcall(fn)
+        if not ok then failure = "behavior-reader-failed:" .. name; return end
+        local channel = { owner = owner, status = value and "available" or "unavailable" }
+        if value then channel.value = value else channel.reason = reason or "not-recorded" end
+        out.channels[name] = channel
+    end
+    read("temperament", "SAO.Disposition", function()
+        local values = SAO.Disposition.traitEvidence(id)
+        local count = 0
+        for _ in pairs(values) do count = count + 1 end
+        if count ~= 8 then error("trait axes differ") end
+        for _, axis in ipairs({ "nerve", "discipline", "aggression", "initiative",
+                "selfPreservation", "compassion", "appetite", "talkativeness" }) do
+            local p = values[axis]
+            local computed = math.max(0.15, math.min(0.85,
+                number(p.base) + number(p.history) + number(p.lesson) + number(p.condition)))
+            if math.abs(number(p.effective) - computed) > 0.000000000001 then error("trait contributions differ") end
+        end
+        return values
+    end)
+    read("conditions", "SAO.Conditions", function()
+        return { carried = SAO.Conditions.of(id), focus = SAO.Conditions.focusOf(id),
+            phase = SAO.Conditions.phaseOf(id), fearContribution = SAO.Conditions.fear(id, tick) }
+    end)
+    read("relationship", "SAO.Standing", function()
+        local ready = SAO.Standing.knowledgeEvidenceReady(id)
+        if not ready then error("standing unavailable") end
+        return { trust = SAO.Standing.trust(id, listenerId),
+            debt = SAO.Standing.debt(id, listenerId),
+            hostile = SAO.Standing.isHostileTo(id, listenerId) == true }
+    end)
+    read("threat", "SAO.Perception / SAO.Pressure", function()
+        local beliefs = SAO.Perception.beliefs[id]
+        if not beliefs or type(beliefs.zombies) ~= "table" then error("private beliefs absent") end
+        for _, belief in pairs(beliefs.zombies) do
+            if number(belief.at) > tick then error("threat time differs") end
+        end
+        return { nearest = SAO.Perception.nearestBelievedZombie(id, tick, person.x, person.y),
+            pressure = SAO.Pressure.threat(id, tick, person.x, person.y),
+            scope = "retained-zombie-beliefs" }
+    end)
+    read("cognition", "SAO.Neuro", function()
+        local state = SAO.Neuro.stateOf(person)
+        if not state then return nil, "no-recorded-observation" end
+        if state.version ~= 2 then error("cognitive schema differs") end
+        number(state.atHours)
+        if state.atHours > hour then error("future cognitive state") end
+        if state.atHours < hour then return nil, "observation-not-current" end
+        local base = SAO.Disposition.decisionInterval(id)
+        return { observedAtHour = state.atHours, enabled = SAO.Neuro.isActive(),
+            load = SAO.Neuro.loadOf(person), clarity = SAO.Neuro.clarityOf(person),
+            affectiveVolatility = SAO.Neuro.affectiveVolatility(person),
+            baseDecisionTicks = base, decisionTicks = SAO.Neuro.decisionInterval(id, base) }
+    end)
+    read("experience", "SAO.Identity / SAO.Lessons", function()
+        -- Raw provenance is audit input; it does not give another person access.
+        return { known = person.lessonsKnown or {}, provenance = person.lessonMeta or {},
+            legacy = person.lessons or {} }
+    end)
+    local body = SAO.Body.get(id)
+    if body then
+        local ok, owner = pcall(function()
+            if not body:hasModData() then return nil end
+            return body:getModData().SAOPersonId
+        end)
+        if not ok or owner ~= id then return nil, "behavior-body-owner-differs" end
+    end
+    read("needs", "SAO.Needs", function()
+        if not body then return nil, "body-not-loaded" end
+        local needs = SAO.Needs.read(body)
+        if not needs then error("native needs unreadable") end
+        return { hunger = number(needs.hunger), thirst = number(needs.thirst),
+            fatigue = number(needs.fatigue), endurance = number(needs.endurance) }
+    end)
+    read("activity", "SAO.Controller", function()
+        if not body then return nil, "body-not-loaded" end
+        local agent = SAO.Controller and SAO.Controller.agents[id]
+        if not agent then return nil, "controller-not-present" end
+        if agent.rec ~= person then error("controller owner differs") end
+        local p = agent.pressure
+        if not p then return nil, "controller-reason-not-recorded" end
+        if type(p.at) ~= "number" or p.at > tick then error("controller clock differs") end
+        return { state = agent.state, answer = p.answer, detail = p.detail,
+            recordedAtTick = p.at, ageTicks = tick - p.at,
+            scope = "controller-current-state-and-last-reason" }
+    end)
+    read("movementGoal", "SAO.Locomotion", function()
+        if not body then return nil, "body-not-loaded" end
+        local job = SAO.Locomotion and SAO.Locomotion.jobs[id]
+        if not job or job.done then return nil, "no-active-movement-job" end
+        if job.body ~= body then error("movement owner differs") end
+        return { goal = { x = number(job.goal.x), y = number(job.goal.y), z = number(job.goal.z) },
+            scope = "active-movement-target" }
+    end)
+    out.channels.alternatives = { owner = "action-specific producers", status = "unavailable",
+        reason = "no-complete-option-inventory-in-conversation-capture" }
+    if failure then return nil, failure end
+    for _, name in ipairs({ "temperament", "conditions", "relationship", "threat", "experience" }) do
+        if out.channels[name].status ~= "available" then return nil, "behavior-required-channel:" .. name end
+    end
+    local copy, _, why = detach(out)
+    if not copy then return nil, "behavior-" .. tostring(why) end
+    return copy
+end
+
 local function catalogueTopics(topics)
     topics = topics or K.TOPICS
     local count = arrayLength(topics)

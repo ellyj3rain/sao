@@ -38,7 +38,14 @@ on the simulation.
 
 ## Status
 
-`2.8.13.1-pre-alpha` - the coordinate is computed by the version machine
+C78 extends the authored conversation evidence with person-state comparisons:
+actual temperament contributions, relationships, private threat, learned
+experience and recorded cognitive strain. Speakeasy presents the first
+source-bound response candidates for review. They remain authored, unapproved
+and untrained; native loaded-state and complete goal/option capture are still
+needed for the broader comparisons.
+
+`2.8.14.0-pre-alpha` - the coordinate is computed by the version machine
 (`tools/version_replay.py`), never picked; `VERSION_MAP.md` shows the
 classification and the arithmetic.
 

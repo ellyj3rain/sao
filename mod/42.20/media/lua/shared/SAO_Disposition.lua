@@ -21,8 +21,9 @@ local function hash(id, salt)
     return SAO.Hash.unit(id, salt)
 end
 
-local function trait(id, name)
+local function trait(id, name, evidence)
     local value = 0.15 + hash(id, name) * 0.70
+    local base = value
     -- The lived past echoes into who a person is now ([A14] S1): formative
     -- events shift traits, bounded inside the human envelope - history
     -- bends a person, never breaks the species. Applied at the primitive
@@ -34,12 +35,29 @@ local function trait(id, name)
     -- the same envelope (SAO_Conditions.bend: a low spell, a scattered
     -- day, the anxious). Zero for everyone without one.
     local carried = 0
-    pcall(function() carried = SAO.Conditions.bend(id, name) end)
+    local conditionRead = pcall(function() carried = SAO.Conditions.bend(id, name) end)
+    if evidence and (not conditionRead or type(carried) ~= "number") then
+        error("condition contribution unavailable")
+    end
     if type(carried) ~= "number" then carried = 0 end
     if echo ~= 0 or learned ~= 0 or carried ~= 0 then
         value = math.max(0.15, math.min(0.85, value + echo + learned + carried))
     end
+    if evidence then
+        return { base = base, history = echo, lesson = learned,
+            condition = carried, effective = value }
+    end
     return value
+end
+
+-- The same calculation used by decisions, with contributions kept distinct.
+function D.traitEvidence(id)
+    local out = {}
+    for _, name in ipairs({ "nerve", "discipline", "aggression", "initiative",
+            "selfPreservation", "compassion", "appetite", "talkativeness" }) do
+        out[name] = trait(id, name, true)
+    end
+    return out
 end
 
 function D.traits(id)
