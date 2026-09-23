@@ -215,6 +215,7 @@ UNITS = [
     ('C74', 'kohai', 'Extend the existing person, knowledge and calendar substrate with explicit dated county-presence intervals, hash-bound personal claim acquisition and retention observations, plus a deterministic same-person decision evidence port. Preserve protected prose and all extraction review, adjudication and ratification in Speakeasy; the selected example remains conditioning-ineligible until those steps close.'),
     ('C75', 'kohai', 'Compile the existing person-private knowledge surface into deterministic snapshot-local claim references and restrict the factual fence to an exact selected subset. Preserve current speech, training and runtime behavior while complete protected-world coverage, retriever targets, task datasets and asynchronous snapshot ownership remain open.'),
     ('C76', 'kohai', 'Capture authored conversation inputs from production knowledge owners with explicit reader coverage, immutable owner-state checks and content-addressed references. Reject unavailable or unsupported sources before reads, preserve personal radio provenance and keep authored captures separate from trained behavior.'),
+    ('C77', 'patch', 'Correct unsupported county-presence acquisition using exact native reading completion and person-bound report receipts; withhold legacy grants, preserve their history and regenerate the controlled capture with evidenced acquisition.'),
 ]
 
 TIER_MEANINGS = [

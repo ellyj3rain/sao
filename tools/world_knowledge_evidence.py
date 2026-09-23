@@ -1,10 +1,8 @@
 #!/usr/bin/env python3
-"""Generate the bounded R12 decision/acquisition evidence port.
+"""Calendar/hash helpers and explicit refusal of the retired C74 evidence port.
 
-The controlled ground supplies an exact native source and holder. Production
-WorldSources, SourceUse, WorldKnowledge and decision-capture modules produce the
-records in the installed Project Zomboid Kahlua runtime. This proves the bounded
-mechanism and does not claim a sampled natural county or loaded-save acceptance.
+C74 artifacts remain immutable historical evidence. Their county-presence
+acquisition basis is unsupported and cannot be regenerated as a current claim.
 """
 from __future__ import annotations
 
@@ -13,58 +11,15 @@ import hashlib
 import json
 import os
 import pathlib
-import shutil
 import subprocess
 import tempfile
 
 import county_sweep as Sweep
-import decision_capture_test as Capture
 import source_use_test as Source
 
 
 ROOT = pathlib.Path(__file__).resolve().parent.parent
-WORLD_KNOWLEDGE = ROOT / "mod/42.20/media/lua/shared/SAO_WorldKnowledge.lua"
-HISTORY = ROOT / "mod/42.20/media/lua/shared/SAO_History.lua"
-POPULATION = ROOT / "mod/42.20/media/lua/client/SAO_Population.lua"
-ADMISSIONS = ROOT / "mod/42.20/media/lua/client/SAO_PopulationAdmissions.lua"
 RECORD = ROOT / "java/src/com/sao/engine/SAORecord.java"
-BRIDGE = ROOT / "java/src/com/sao/bridge/SAOBridge.java"
-VERSION = ROOT / "VERSION"
-RUN_ID = "r12-knox-lived-source-example-v1"
-COUNTY = "CountyR12Controlled"
-
-
-EXAMPLE = r'''
-  local sourceId = offered.options[2].id
-  SAO.SourceUse.chooseOption = function(offer) return offer.options[2] end
-  record.originRegion = "Muldraugh, KY"
-  SAO.History.recordHour = function(day)
-      if day == -8 then return -192 end
-      if day == -7 then return -168 end
-      return nil
-  end
-  SAO.History.ageInYear = function(id, year) return 31 end
-  local marked, markWhy = SAO.WorldKnowledge.markCountyPresence(record, true)
-  check("presence_recorded", marked == true and markWhy == nil)
-  check("claim_acquired", #SAO.WorldKnowledge.claimsOf("actor",48) == 1)
-  local owner = SAODecisionCapture.beginSourceUse({runId="RUN_ID",county="COUNTY"})
-  local reservation, first, second = toTransfer("actor",body,p,"food")
-  check("exact_selected_source", reservation and reservation.sourceId == sourceId
-      and first == "moving" and second == "using")
-  __carriedItem, __busy, __observeText = __sourceItem, false, SOURCE_POST
-  SAO.SourceUse.tick("actor",body)
-  __queued:complete(); __busy = false
-  local final = SAO.SourceUse.tick("actor",body)
-  local capture = owner.finish()
-  local observations = SAO.WorldKnowledge.observe("actor",48)
-  local presence = SAO.WorldKnowledge.presenceOf("actor")
-  return '{"checks":' .. SAODecisionCapture.encode(checks)
-      .. ',"final":' .. SAODecisionCapture.encode(final)
-      .. ',"observations":' .. SAODecisionCapture.encode(observations)
-      .. ',"presence":' .. SAODecisionCapture.encode(presence)
-      .. ',"capture":' .. capture .. '}'
-end)()'''.replace("RUN_ID", RUN_ID).replace("COUNTY", COUNTY)
-
 
 def encoded(value: object) -> bytes:
     return json.dumps(value, ensure_ascii=False, sort_keys=True,
@@ -92,47 +47,9 @@ def source_label(path: pathlib.Path) -> str:
             return "installed/projectzomboid.jar"
         if path.resolve() == Sweep.STDLIB.resolve():
             return "installed/stdlib.lua"
+        if path.resolve().is_relative_to(Sweep.PZ.parent.resolve()):
+            return "installed/" + path.resolve().relative_to(Sweep.PZ.parent.resolve()).as_posix()
         raise RuntimeError("unlabelled external evidence source: " + str(path))
-
-
-def run_kahlua() -> dict:
-    other = Source.source("C:second:0", "second-fp", "second-r1", 9, 8,
-                          42, 109, "Base.Banana")
-    hidden = Source.source("C:hidden:0", "hidden-fp", "hidden-r1", 8, 8,
-                           99, 110, "Base.Pear")
-    snapshot = Source.snapshot(1, 1, "source-pre", [Source.FOOD, other, hidden])
-    post = Source.snapshot(1, 1, "source-post", [Source.FOOD, dict(
-        other, rev="second-r2", state="spent", quantities={}, items=[]), hidden])
-    expression = (Capture.SOURCE_SETUP + EXAMPLE).replace(
-        "SOURCE_SNAPSHOT", json.dumps(snapshot)).replace("SOURCE_POST", json.dumps(post))
-    with tempfile.TemporaryDirectory(prefix="sao-r12-evidence-") as temporary:
-        work = pathlib.Path(temporary)
-        shutil.copy2(Sweep.STDLIB, work / "stdlib.lua")
-        for compiled in Sweep.OUT.glob("LuaRun*.class"):
-            shutil.copy2(compiled, work / compiled.name)
-        prelude = work / "prelude.lua"
-        prelude.write_text(Source.ACTION_PRELUDE, encoding="utf-8")
-        probe = work / "probe.lua"
-        probe.write_text("__r12Evidence = " + expression, encoding="utf-8")
-        completed = subprocess.run(
-            [str(Sweep.JDK / "java.exe"), "-cp", f"{Sweep.PZ};.", "LuaRun",
-             str(prelude), str(Source.WORLD), str(Source.SOURCE_USE),
-             str(WORLD_KNOWLEDGE), str(Capture.CAPTURE), str(probe),
-             "--", "__r12Evidence"], cwd=work, capture_output=True, text=True,
-            encoding="utf-8", errors="replace", timeout=180)
-        values = [line[6:] for line in completed.stdout.splitlines()
-                  if line.startswith("VALUE ")]
-        if completed.returncode or len(values) != 1:
-            raise RuntimeError("R12 evidence probe failed: " +
-                               (completed.stdout + completed.stderr)[-1800:])
-        result = json.loads(values[0])
-    bad = [check for check in result.get("checks", []) if not check.endswith("=true")]
-    if bad or result.get("final") != "completed":
-        raise RuntimeError("R12 production checks failed: " + repr(bad))
-    Capture.Dump.validate_source_capture(result["capture"], "R12 example")
-    if len(result.get("observations", [])) != 1 or len(result.get("presence", [])) != 1:
-        raise RuntimeError("R12 personal evidence is incomplete")
-    return result
 
 
 def calendar_values() -> dict:
@@ -172,6 +89,34 @@ public final class C74CalendarEvidence {
             "resolution": "second", "policy": "save-start-minus-history-offset"}
 
 
+def print_issue_keys() -> dict:
+    """Ask the installed issue producer, independently of the Lua fixture."""
+    source = '''import zombie.scripting.objects.Newspaper;
+public final class C77PrintIssue {
+  public static void main(String[] args) {
+    Newspaper paper = Newspaper.KNOX_KNEWS;
+    String issue = paper.getIssues().stream().filter(s -> s.equals("KnoxKnews_July2")).findFirst().orElseThrow();
+    System.out.println(paper.getTranslationInfoKey(issue));
+    System.out.println(paper.getTranslationTextKey(issue));
+    System.out.println(paper.toString());
+  }
+}'''
+    with tempfile.TemporaryDirectory(prefix="sao-print-issue-") as temporary:
+        work = pathlib.Path(temporary)
+        java = work / "C77PrintIssue.java"
+        java.write_text(source, encoding="utf-8")
+        subprocess.run([str(Sweep.JDK / "javac.exe"), "-cp", str(Sweep.PZ),
+                        "-d", str(work), str(java)], check=True, capture_output=True,
+                       text=True, timeout=90)
+        ran = subprocess.run([str(Sweep.JDK / "java.exe"), "-cp",
+                              os.pathsep.join([str(Sweep.PZ), str(work)]), "C77PrintIssue"],
+                             check=True, capture_output=True, text=True, timeout=90)
+        lines = [line.strip() for line in ran.stdout.splitlines() if line.strip()]
+        if len(lines) != 3:
+            raise RuntimeError("installed newspaper metadata probe differs: " + repr(lines))
+        return dict(zip(("info", "text", "mediaId"), lines))
+
+
 def atomic_json(path: pathlib.Path, value: object) -> None:
     path.parent.mkdir(parents=True, exist_ok=True)
     temporary = path.with_name(path.name + ".tmp")
@@ -181,59 +126,17 @@ def atomic_json(path: pathlib.Path, value: object) -> None:
 
 
 def generate(destination: pathlib.Path) -> None:
-    if not Sweep.build_runner():
-        raise RuntimeError("LuaRun does not compile against the installed game")
-    result = run_kahlua()
-    capture = result["capture"]
-    event = capture["events"][0]
-    observation = result["observations"][0]
-    acquisition = observation["acquisition"]
-    presence = result["presence"][0]
-    calendar = calendar_values()
-    namespace = {"runId": event["runId"], "county": event["county"],
-                 "personId": event["decision"]["person"]["id"],
-                 "eventId": event["eventId"], "hour": event["decision"]["hours"]}
-    records = [calendar, presence, acquisition, observation]
-    evidence = {
-        "schema": "sao-world-knowledge-evidence", "schemaVersion": 1,
-        "namespace": namespace, "eventSha256": digest(event),
-        "calendar": calendar, "presence": presence,
-        "acquisition": acquisition, "retentionObservation": observation,
-        "recordHashes": [{"recordId": row["recordId"], "sha256": digest(row)}
-                         for row in records],
-        "standing": "produced-not-adjudicated",
-        "limitations": [
-            "Controlled native source and holder; not a sampled natural county.",
-            "Installed Kahlua runtime and production action modules; not loaded-save acceptance.",
-            "SAO produces personal evidence and grants no extraction, choice, or training approval.",
-        ],
-    }
-    destination.mkdir(parents=True, exist_ok=True)
-    capture_path = destination / "decision-capture.json"
-    evidence_path = destination / "world-knowledge-evidence.json"
-    atomic_json(capture_path, capture)
-    atomic_json(evidence_path, evidence)
-    sources = [WORLD_KNOWLEDGE, HISTORY, POPULATION, ADMISSIONS, RECORD, BRIDGE,
-               Source.WORLD, Source.SOURCE_USE, Capture.CAPTURE, pathlib.Path(__file__),
-               Sweep.PZ, Sweep.STDLIB, Source.JAR, VERSION]
-    manifest = {
-        "schema": "sao-world-knowledge-evidence-manifest", "schemaVersion": 1,
-        "example": RUN_ID, "version": VERSION.read_text(encoding="utf-8").strip(),
-        "runtime": "Kahlua from the installed Project Zomboid jar",
-        "files": {capture_path.name: sha256(capture_path),
-                  evidence_path.name: sha256(evidence_path)},
-        "sourceHashes": {source_label(path): sha256(path) for path in sources},
-    }
-    manifest["contentSha256"] = digest(manifest)
-    atomic_json(destination / "manifest.json", manifest)
+    raise ValueError("C74 acquisition exporter retired: county presence does not prove acquisition; use evidenced conversation capture")
 
 
 def main(argv: list[str] | None = None) -> int:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--out", required=True, type=pathlib.Path)
     args = parser.parse_args(argv)
-    generate(args.out.resolve())
-    print("wrote R12 decision/acquisition evidence to " + str(args.out.resolve()))
+    try:
+        generate(args.out.resolve())
+    except ValueError as error:
+        parser.exit(2, "REFUSED: " + str(error) + "\n")
     return 0
 
 

@@ -38,7 +38,7 @@ on the simulation.
 
 ## Status
 
-`2.8.13.0-pre-alpha` - the coordinate is computed by the version machine
+`2.8.13.1-pre-alpha` - the coordinate is computed by the version machine
 (`tools/version_replay.py`), never picked; `VERSION_MAP.md` shows the
 classification and the arithmetic.
 
@@ -128,20 +128,19 @@ with exact v4 dormant carriage and no inferred house totals. C72 advances
 record-owned rest, sleep and wake before adjacent dormant speech. C73 makes
 County Wire and player-radio delivery depend on a powered, audible, tuned
 direct-root device and writes recipient-private reception evidence before any
-claim effect; dormant battery use crosses the temporary-body handoff. C74 adds
-the first protected world-claim producer: an explicit county-presence interval,
-dated adult lived acquisition, retained person-private source identity and a
-deterministic same-person decision evidence port. Speakeasy Record 52 has
-repository-reviewed that exact extraction and acquisition as a reference; its
-forced source choice remains excluded and it creates no training row. C75 gives
-every fact in one immutable knowledge snapshot a deterministic local reference
-and narrows the existing factual fence to an exact selected subset. No current
-speech path calls the new interface, and the protected-world surface still has
-only C74's single claim. C76 captures an authored bodyless conversation over
-production owners with explicit source failures and content-bound references.
-It also removes public county chronicle stamps from personal knowledge, retaining
-only this person's received news. The controlled capture is ready for Speakeasy
-import and typed task authoring; it is not yet training data. Complete household stock, dormant world access, other
+claim effect; dormant battery use crosses the temporary-body handoff. C77
+corrects C74's unsupported county-presence acquisition. A person now acquires the
+July 2 report through a completed, exact-issue native reading action, with a
+person-bound receipt and a separate acquisition time. Legacy grants remain in
+saved history but are withheld from current knowledge. Speakeasy Record 55 also
+revokes the old reference's acquisition basis while preserving its evidence.
+C75's typed references and selected factual fence preserve `reported` knowledge;
+C76's immutable capture is regenerated under C77 with an authored July 10 reading
+and a July 11 question about what the July 2 newspaper reported. Computer-source
+integration must supply actual person/endpoint/service/result evidence; device
+ownership and mod installation grant no awareness. No current speech path calls
+the learned-data interface, and the controlled capture is not training data.
+Complete household stock, dormant world access, other
 medical verbs, remaining material actions and settlement development stay under
 R7-R9.
 `ROADMAP.md` preserves the remaining social and learned-model obligations.

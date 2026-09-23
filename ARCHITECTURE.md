@@ -1,6 +1,6 @@
 | Document | Survivor Awareness Overhaul Architecture |
 |---|---|
-| Version | `2.8.13.0-pre-alpha` |
+| Version | `2.8.13.1-pre-alpha` |
 | Author | ellyj3rain |
 | Repository | `ARCHITECTURE.md` |
 | Status | ACTIVE - ratified framework shape. |
@@ -565,40 +565,57 @@ physiology. The prior speech marker alone does not establish an awake state.
 C73 requires exact receiver access and a private reception receipt before radio
 content is available to that mind; possession remains a separate inventory fact.
 
-## Personal world-knowledge evidence (C74)
+## Personal world-knowledge evidence (C77)
 
-Speakeasy owns protected claim text, repository review of source extraction and
-person-specific acquisition, and training-data standing. Operator rulings apply
-to authored behavior and to the usefulness, voice and conversational quality of
-a trained runtime candidate. SAO owns whether one particular person acquired a
-claim. The boundary carries a stable claim identifier, protected source and
-excerpt hashes, and personal evidence records; protected prose stays outside
-the mod.
+Speakeasy owns protected claim text, source review and training standing. SAO
+owns each person's acquisition and retention. The boundary carries stable claim
+identifiers, exact source/excerpt hashes and person-bound receipts. Protected
+prose stays outside the mod.
 
-`SAORecord` maps every durable county hour to a complete local instant using the
-same save-start-minus-history anchor as the mature-world clock. Population
-admission writes an explicit county-presence interval only after origin ground is
-selected. Initial residents begin on the record's first lived day; later
-arrivals begin at their actual admission hour. An origin label alone establishes
-no past presence. A pre-C74 record has no explicit interval and remains unknown
-rather than receiving a reconstructed acquisition.
+`SAORecord` maps county hours to local instants using the save-start-minus-history
+anchor. Population admission retains county-presence intervals as biographical
+evidence. Presence, age and time passage grant no world claim.
 
-WorldKnowledge is the sole acquisition owner for the selected lived claim. It
-requires the dated event to fall inside that person's presence, to have occurred
-by the current county hour and to meet the approved adult-detail boundary. Its
-durable record retains source identity, path, access basis and the supporting
-presence record. Knowledge reads detached person-scoped copies and performs no
-write. A retention observation names the age, carrier, access and retention
-evidence used at the decision hour.
+WorldKnowledge schema 2 records a dated report only after `ISReadABook.complete`
+returns success for an exact held issue and native print-read state confirms the
+result. The observer binds the same living person record, loaded body, item ID,
+item type and native info/text issue identifiers before and after completion.
+The acquisition carries `path=read`, `knowledgeKind=reported`, the actual
+completion hour and a durable linked receipt. Publication time remains separate.
+The current bounded claim is the July 2 Knox report. Reading it establishes
+knowledge of that report; it establishes no personal telephone or Internet use,
+provider-wide measurement, outage end time or July 11 service condition.
 
-The evidence port freezes one production SourceUse decision whose person record
-contains that acquisition, then hashes the calendar, presence, acquisition,
-retention and event records. This is evidence of the bounded mechanism on
-controlled native ground. Speakeasy Record 52 reviews the literal outage claim
-and Ada North's acquisition as a repository-reviewed reference. It creates no
-training row and grants no behavior standing. The forced source selection,
-complete personal knowledge, natural choice and later consequences remain
-absent, so the example is conditioning-ineligible.
+Queries return detached records and never migrate. Schema-1 county-presence
+acquisitions are withheld by ordinary and strict readers. The next producer
+preserves the entire old owner state under `legacy` and starts empty active
+acquisitions. Subsequent evidenced reading can establish new knowledge. Native
+print-read collections alone lack the exact dated issue, so they cannot repair
+legacy knowledge retrospectively.
+
+The completion observer uses the installed native action. NPC source selection
+and reading initiation remain their existing owners' responsibility; this batch
+adds no autonomous newspaper-seeking policy. The controlled capture explicitly
+supplies a reading encounter and executes the installed action over controlled
+engine objects. It is not a recorded play session or a training row.
+
+### Computer sources and service experience
+
+A future computer integration must identify the acting person, exact endpoint,
+service/application, reachable source or attempted operation, and the completed
+result at the acquisition time. Reading content preserves source/version and
+reception time as reported knowledge. An observed connection failure describes
+that person's attempt and endpoint; it does not establish county-wide service
+failure or its cause. Device ownership and installed-mod detection establish no
+acquisition. The adapter supplies evidence to the existing perception/acquisition
+owners; it does not assign awareness from compatibility flags. No computer
+adapter is implemented by C77.
+
+Speakeasy Record 55 preserves the C74 import and reviews as historical evidence,
+revokes their unsupported acquisition basis for current admission, and refuses
+regeneration of the retired reference. C74/C76 artifacts remain immutable.
+The next data work imports the corrected C77 capture and reviews its authored
+question and typed interpretation before independent retrieval review.
 
 ## Typed claim catalogues (C75)
 
@@ -619,7 +636,7 @@ person also knows.
 C75 does not route current speech through this interface. The future asynchronous
 runtime must own and bind the immutable snapshot reference; Speakeasy must still
 author retriever targets and task datasets; and SAO's protected-world source
-remains the one C74 claim rather than a complete county catalogue.
+remains one report claim with C77 reading evidence rather than a complete county catalogue.
 
 ## Personal handovers and terms (C68)
 

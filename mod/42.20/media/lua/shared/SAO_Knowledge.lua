@@ -543,6 +543,9 @@ local function aboutWorld(id, opts)
             source = row.path,
             acquiredHour = row.acquiredHour,
             carrier = row.carrier,
+            knowledgeKind = row.knowledgeKind,
+            receiptId = row.receiptId,
+            reportHour = row.sourceEvent and row.sourceEvent.atHours,
         }
     end
     return out

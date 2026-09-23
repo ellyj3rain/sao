@@ -24,7 +24,8 @@ class ConversationTests(unittest.TestCase):
         v = self.capture
         self.assertEqual(v['coverage']['topics'], E.TOPICS)
         self.assertEqual(v['calendar']['atInstant'], '1993-07-11T00:00:00')
-        self.assertEqual(v['sourceState']['worldRetention'][0]['acquisition']['ageAtEvent'], 31)
+        self.assertEqual(v['sourceState']['worldRetention'][0]['acquisition']['path'], 'read')
+        self.assertEqual(v['sourceState']['worldRetention'][0]['acquisition']['acquiredHour'], 24)
         world = [c for c in v['catalogue']['claims'] if c['topic'] == 'world']
         self.assertEqual(len(world), 1)
         self.assertEqual(world[0]['sourceClaimId'], 'knox-telecommunications-outage-1993-07-02')
@@ -40,7 +41,7 @@ class ConversationTests(unittest.TestCase):
                 self.assertEqual(value['schema'], 'sao-conversation-capture-refusal')
                 self.assertIn(reader, [x['reader'] for x in value['coverage']['failures']])
 
-    def test_recent_arrival_does_not_inherit_residents_outage(self):
+    def test_listener_does_not_inherit_the_speakers_read_report(self):
         value = self.run_lua('''__conversationRequest.personId=__conversationListener.id
             __conversationRequest.listenerRef=__conversationPerson.id
             return SAOConversationCapture.take(__conversationRequest)''')

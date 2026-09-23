@@ -1,7 +1,6 @@
 #!/usr/bin/env python3
-"""Border 187: explicit presence produces dated personal world knowledge."""
-from __future__ import annotations
-
+"""Border 187: a dated report needs a person-bound native reading completion."""
+from pathlib import Path
 import json
 import os
 import pathlib
@@ -9,200 +8,50 @@ import shutil
 import subprocess
 import sys
 import tempfile
+import unittest
 
 import county_sweep as Sweep
 import world_knowledge_evidence as Evidence
 
-
-ROOT = pathlib.Path(__file__).resolve().parent.parent
-WORLD = ROOT / "mod/42.20/media/lua/shared/SAO_WorldKnowledge.lua"
-KNOWLEDGE = ROOT / "mod/42.20/media/lua/shared/SAO_Knowledge.lua"
-CAPTURE = ROOT / "tools/sweep/decision_capture.lua"
-ADMISSIONS = ROOT / "mod/42.20/media/lua/client/SAO_PopulationAdmissions.lua"
-POPULATION = ROOT / "mod/42.20/media/lua/client/SAO_Population.lua"
-CHECK = ROOT / "tools/check.sh"
-CALENDAR = ROOT / "tools/record_calendar_test.py"
-RECORD = ROOT / "java/src/com/sao/engine/SAORecord.java"
-
-
+ROOT = Path(__file__).resolve().parents[1]
+WORLD = ROOT / 'mod/42.20/media/lua/shared/SAO_WorldKnowledge.lua'
+KNOWLEDGE = ROOT / 'mod/42.20/media/lua/shared/SAO_Knowledge.lua'
+FIXTURE = ROOT / 'tools/sweep/print_read_fixture.lua'
+NATIVE = Sweep.PZ.parent / 'media/lua/shared/TimedActions/ISReadABook.lua'
+ENCODER = ROOT / 'tools/sweep/decision_capture.lua'
 PRELUDE = r'''
-SAO = {}
-_G.__now = 0
-_G.__calendar = true
-_G.__recordHours = { [-8] = -192, [-7] = -168 }
-_G.__ages = { adult=31, newcomer=31, child=12, future=31, pending=31, other=31 }
-_G.__records = {}
-SAO.Identity = {
-    get = function(id) return __records[tostring(id)] end,
-    all = function() return __records end,
-}
-SAO.History = {
-    countyHours = function() return __now end,
-    recordHour = function(day)
-        if not __calendar then return nil end
-        return __recordHours[day]
-    end,
-    ageInYear = function(id, year) return __ages[tostring(id)] end,
-}
+SAO = {}; __now=48; __records={}
+SAO.Identity={get=function(id) return __records[id] end,all=function() return __records end}
+SAO.History={countyHours=function() return __now end,
+    recordHour=function(day) return day*24 end,ageInYear=function() return 31 end}
+'''
+SETUP = r'''
+for _, id in ipairs({"adult","other","arrival"}) do
+    __records[id]={id=id,originRegion="Muldraugh, KY"}
+    assert(SAO.WorldKnowledge.markCountyPresence(id,id~="arrival"))
+end
+function __facts(id) return SAO.WorldKnowledge.claimsOf(id,__now) end
 '''
 
 
-PROBE = r'''(function()
-    local function person(id)
-        local rec = { id=id, originRegion="Muldraugh, KY" }
-        __records[id] = rec
-        return rec
-    end
-    local function count(rows) return type(rows) == "table" and #rows or -1 end
-
-    local adult = person("adult")
-    local adultMarked = SAO.WorldKnowledge.markCountyPresence(adult, true)
-    local adultClaims = SAO.WorldKnowledge.claimsOf("adult", 0)
-    local adultObservation = SAO.WorldKnowledge.observe("adult", 0)
-    local adultPresence = SAO.WorldKnowledge.presenceOf("adult")
-    local first = adultClaims[1]
-    if first then
-        first.claimId = "tampered"
-        first.source.path = "tampered"
-    end
-    local detached = SAO.WorldKnowledge.claimsOf("adult", 0)
-    SAO.WorldKnowledge.markCountyPresence(adult, true)
-    local idempotentPresence = SAO.WorldKnowledge.presenceOf("adult")
-
-    local newcomer = person("newcomer")
-    SAO.WorldKnowledge.markCountyPresence(newcomer, false)
-    local newcomerClaims = SAO.WorldKnowledge.claimsOf("newcomer", 0)
-
-    local legacy = person("legacy")
-    SAO.WorldKnowledge.advancePerson(legacy, 24)
-    local legacyClaims = SAO.WorldKnowledge.claimsOf("legacy", 24)
-
-    local child = person("child")
-    SAO.WorldKnowledge.markCountyPresence(child, true)
-    local childClaims = SAO.WorldKnowledge.claimsOf("child", 0)
-
-    __recordHours = { [-8]=0, [-7]=24 }
-    __now = 0
-    local future = person("future")
-    SAO.WorldKnowledge.markCountyPresence(future, true)
-    local futureBefore = SAO.WorldKnowledge.claimsOf("future", 0)
-    __now = 24
-    SAO.WorldKnowledge.advancePerson(future)
-    local futureAfter = SAO.WorldKnowledge.claimsOf("future", 24)
-
-    __calendar = false
-    local pending = person("pending")
-    local pendingReady, pendingWhy = SAO.WorldKnowledge.markCountyPresence(pending, true)
-    __calendar = true
-    SAO.WorldKnowledge.advancePerson(pending, 24)
-    local pendingAfter = SAO.WorldKnowledge.claimsOf("pending", 24)
-
-    __recordHours = { [-8]=-192, [-7]=-168 }
-    __now = 0
-    local worldFacts = SAO.Knowledge.about("adult", "world") or {}
-    local ports = SAO.WorldKnowledge.claimPorts()
-    return SAODecisionCapture.encode({
-        adultMarked=adultMarked,
-        adultClaims=count(adultClaims),
-        adultAcquired=adultClaims[1] and adultClaims[1].acquiredHour,
-        adultPresence=count(adultPresence),
-        adultPresenceFrom=adultPresence[1] and adultPresence[1].fromHour,
-        adultObservation=count(adultObservation),
-        observationAsOf=adultObservation[1] and adultObservation[1].asOfHour,
-        observationChecks=adultObservation[1] and adultObservation[1].checks,
-        detachedClaim=detached[1] and detached[1].claimId,
-        detachedSource=detached[1] and detached[1].source.path,
-        idempotentPresence=count(idempotentPresence),
-        newcomerClaims=count(newcomerClaims),
-        legacyClaims=count(legacyClaims),
-        childClaims=count(childClaims),
-        futureBefore=count(futureBefore),
-        futureAfter=count(futureAfter),
-        pendingReady=pendingReady,
-        pendingWhy=pendingWhy,
-        pendingAfter=count(pendingAfter),
-        otherClaims=count(SAO.WorldKnowledge.claimsOf("other", 24)),
-        worldFacts=count(worldFacts),
-        worldFact=worldFacts[1] and worldFacts[1].claimId,
-        portCount=count(ports),
-        portHasText=ports[1] and ports[1].text ~= nil,
-        portSource=ports[1] and ports[1].sourceSha256,
-        portExcerpt=ports[1] and ports[1].excerptSha256,
-    })
-end)()'''
-
-
-def run(module: pathlib.Path = WORLD) -> dict:
-    with tempfile.TemporaryDirectory(prefix="sao-world-knowledge-") as temporary:
-        work = pathlib.Path(temporary)
-        shutil.copy2(Sweep.STDLIB, work / "stdlib.lua")
-        for compiled in Sweep.OUT.glob("LuaRun*.class"):
-            shutil.copy2(compiled, work / compiled.name)
-        prelude = work / "prelude.lua"
-        prelude.write_text(PRELUDE, encoding="utf-8")
-        probe = work / "probe.lua"
-        probe.write_text("__worldKnowledgeResult = " + PROBE, encoding="utf-8")
-        completed = subprocess.run(
-            [str(Sweep.JDK / "java.exe"), "-cp", f"{Sweep.PZ};.", "LuaRun",
-             str(prelude), str(module), str(KNOWLEDGE), str(CAPTURE),
-             str(probe), "--", "__worldKnowledgeResult"],
-            cwd=work, capture_output=True, text=True, encoding="utf-8",
-            errors="replace", timeout=180)
-        values = [line[6:] for line in completed.stdout.splitlines()
-                  if line.startswith("VALUE ")]
-        if completed.returncode or len(values) != 1:
-            raise RuntimeError("world-knowledge probe failed: " +
-                               (completed.stdout + completed.stderr)[-1600:])
+def run(code, module=WORLD):
+    with tempfile.TemporaryDirectory(prefix='sao-report-read-') as tmp:
+        work=Path(tmp)
+        shutil.copy2(Sweep.STDLIB,work/'stdlib.lua')
+        for p in Sweep.OUT.glob('LuaRun*.class'): shutil.copy2(p,work/p.name)
+        (work/'prelude.lua').write_text(PRELUDE)
+        (work/'setup.lua').write_text(SETUP)
+        expression='(function() '+code+' end)()'
+        paths=[work/'prelude.lua',FIXTURE,NATIVE,module,KNOWLEDGE,ENCODER,work/'setup.lua']
+        result=subprocess.run([str(Sweep.JDK/'java.exe'),'-cp',f'{Sweep.PZ};.','LuaRun',
+            *map(str,paths),'--',expression],cwd=work,capture_output=True,text=True,timeout=90)
+        values=[s[6:] for s in result.stdout.splitlines() if s.startswith('VALUE ')]
+        if result.returncode or len(values)!=1 or 'ERROR ' in result.stdout:
+            raise RuntimeError((result.stdout+result.stderr)[-1600:])
         return json.loads(values[0])
 
 
-def faults_for(result: dict) -> list[str]:
-    faults: list[str] = []
-    expected = {
-        "adultMarked": True,
-        "adultClaims": 1,
-        "adultAcquired": -168,
-        "adultPresence": 1,
-        "adultPresenceFrom": -192,
-        "adultObservation": 1,
-        "observationAsOf": 0,
-        "detachedClaim": "knox-telecommunications-outage-1993-07-02",
-        "detachedSource": "world/us-1993/knox-event.md",
-        "idempotentPresence": 1,
-        "newcomerClaims": 0,
-        "legacyClaims": 0,
-        "childClaims": 0,
-        "futureBefore": 0,
-        "futureAfter": 1,
-        "pendingReady": False,
-        "pendingWhy": "calendar-unavailable",
-        "pendingAfter": 1,
-        "otherClaims": 0,
-        "worldFacts": 1,
-        "worldFact": "knox-telecommunications-outage-1993-07-02",
-        "portCount": 1,
-        "portHasText": False,
-        "portSource": "bc4b723d8ba8a35eca4a43e88e1457c4dc225d7213ead5c52364f966c6aa0676",
-        "portExcerpt": "f663ffcbaa873c8fb228e1fbdf8574861a0f149559d1fec20695c6be32e82c60",
-    }
-    for name, wanted in expected.items():
-        if result.get(name) != wanted:
-            faults.append(f"{name}={result.get(name)!r}, wanted {wanted!r}")
-    checks = result.get("observationChecks", {})
-    if set(checks) != {"age", "carrier", "access", "retention"} or any(
-            row.get("status") != "supported" for row in checks.values()):
-        faults.append("retention observation lacks four supported personal checks")
-    return faults
-
-
-def mutation(module_text: str, old: str, new: str) -> dict:
-    if module_text.count(old) != 1:
-        raise RuntimeError("mutation anchor does not occur exactly once: " + old)
-    with tempfile.TemporaryDirectory(prefix="sao-world-knowledge-mutation-") as temporary:
-        path = pathlib.Path(temporary) / "SAO_WorldKnowledge.lua"
-        path.write_text(module_text.replace(old, new), encoding="utf-8")
-        return run(path)
-
+RECORD = Evidence.RECORD
 
 def calendar_control() -> str | None:
     """Compile one bad production source and require the mature anchor to move."""
@@ -246,114 +95,153 @@ public final class C74CalendarControl {
     return None
 
 
-def port_faults(capture: dict, evidence: dict) -> list[str]:
-    event = capture.get("events", [{}])[0]
-    record = event.get("decision", {}).get("person", {}).get("record", {})
-    acquisitions = record.get("worldKnowledge", {}).get("acquisitions", [])
-    faults: list[str] = []
-    if (capture.get("eventCount") != 1 or len(acquisitions) != 1
-            or evidence.get("namespace", {}).get("personId") != "actor"
-            or evidence.get("eventSha256") != Evidence.digest(event)
-            or evidence.get("acquisition", {}).get("recordId")
-            != acquisitions[0].get("recordId")):
-        faults.append("native decision and same-person acquisition are not hash-bound")
-    return faults
+class WorldKnowledgeTests(unittest.TestCase):
+    @classmethod
+    def setUpClass(cls):
+        if not Sweep.build_runner(): raise RuntimeError('installed Lua runner build failed')
+
+    def test_actual_engine_issue_metadata_reaches_completion(self):
+        keys=Evidence.print_issue_keys()
+        self.assertEqual(keys['info'],'Print_Media_KnoxKnews_July2_info')
+        self.assertEqual(keys['text'],'Print_Text_KnoxKnews_July2_info')
+        options='{info='+json.dumps(keys['info'])+',text='+json.dumps(keys['text'])+'}'
+        code='SAOPrintReadFixture.read("adult",'+options+'); return SAODecisionCapture.encode({count=#__facts("adult")})'
+        self.assertEqual(run(code),{'count':1})
+        source=WORLD.read_text()
+        anchor='Print_Media_KnoxKnews_July2_info'
+        self.assertEqual(source.count(anchor),1)
+        with tempfile.TemporaryDirectory() as tmp:
+            mutated=Path(tmp)/WORLD.name
+            mutated.write_text(source.replace(anchor,'Print_Text_KnoxKnews_July2_info'))
+            self.assertEqual(run(code,mutated),{'count':0})
+
+    def test_presence_and_time_never_grant_report(self):
+        value=run('''SAO.WorldKnowledge.advanceAll(96)
+            return SAODecisionCapture.encode({adult=#__facts("adult"),arrival=#__facts("arrival"),
+                raw=#__records.adult.worldKnowledge.acquisitions})''')
+        self.assertEqual(value,{'adult':0,'arrival':0,'raw':0})
+
+    def test_completed_read_is_report_knowledge_at_completion_time(self):
+        value=run('''assert(SAOPrintReadFixture.read("adult"))
+            return SAODecisionCapture.encode({facts=__facts("adult"),other=__facts("other"),
+                observation=SAO.WorldKnowledge.observe("adult",48),
+                ready=SAO.WorldKnowledge.knowledgeEvidenceReady("adult")})''')
+        row=value['facts'][0]
+        self.assertEqual((row['path'],row['knowledgeKind'],row['acquiredHour']),('read','reported',48))
+        self.assertEqual(row['sourceEvent']['resolution'],'publication-date')
+        self.assertEqual(row['sourceEvent']['atHours'],-168)
+        self.assertNotIn('ageAtEvent',row)
+        self.assertFalse(value['other'])
+        self.assertTrue(value['ready'])
+        self.assertEqual(value['observation'][0]['checks']['access']['recordId'],row['receiptId'])
+
+    def test_later_arrival_can_learn_an_earlier_report(self):
+        value=run('SAOPrintReadFixture.read("arrival"); return SAODecisionCapture.encode(__facts("arrival"))')
+        self.assertEqual(len(value),1)
+        self.assertEqual(value[0]['acquiredHour'],48)
+
+    def test_uncompleted_unheld_other_issue_and_missing_native_result_refuse(self):
+        for options in ('{stopped=true}','{held=false}','{noNativeResult=true}',
+                        '{info="Print_Text_KnoxKnews_July3_info"}',
+                        '{text="Print_Text_KnoxKnews_July3_text"}',
+                        '{replacePerson="other"}','{changeIssue=true}'):
+            with self.subTest(options=options):
+                value=run('''local before=SAODecisionCapture.encode(__records)
+                    SAOPrintReadFixture.read("adult",'''+options+''')
+                    return SAODecisionCapture.encode({unchanged=before==SAODecisionCapture.encode(__records),
+                        claims=#__facts("adult")})''')
+                self.assertEqual(value,{'unchanged':True,'claims':0})
+
+    def test_future_issue_is_not_acquired(self):
+        value=run('''__now=-180; SAOPrintReadFixture.read("adult")
+            return SAODecisionCapture.encode(__facts("adult"))''')
+        self.assertFalse(value)
+
+    def test_old_grants_are_withheld_and_preserved_during_migration(self):
+        value=run('''local old={schemaVersion=1,presence={},acquisitions={{claimId="legacy",path="lived",retained=true,acquiredHour=-168}}}
+            __records.adult.worldKnowledge=old
+            local before=SAODecisionCapture.encode(old)
+            local facts=__facts("adult")
+            local ordinary=SAO.Knowledge.about("adult","world")
+            local ready=SAO.WorldKnowledge.knowledgeEvidenceReady("adult")
+            local unchanged=before==SAODecisionCapture.encode(old)
+            SAO.WorldKnowledge.advancePerson("adult")
+            return SAODecisionCapture.encode({facts=#facts,ordinary=ordinary==nil,ready=ready,
+                unchanged=unchanged,preserved=before==SAODecisionCapture.encode(__records.adult.worldKnowledge.legacy.state),
+                after=#__facts("adult"),schema=__records.adult.worldKnowledge.schemaVersion})''')
+        self.assertEqual(value,{'facts':0,'ordinary':True,'ready':False,'unchanged':True,
+                              'preserved':True,'after':0,'schema':2})
+
+    def test_migrated_person_can_acquire_supported_report(self):
+        value=run('''__records.adult.worldKnowledge={schemaVersion=1,presence={},acquisitions={}}
+            SAOPrintReadFixture.read("adult")
+            return SAODecisionCapture.encode({count=#__facts("adult"),legacy=__records.adult.worldKnowledge.legacy.state.schemaVersion})''')
+        self.assertEqual(value,{'count':1,'legacy':1})
+
+    def test_receipt_is_idempotent_and_reader_detached(self):
+        value=run('''SAOPrintReadFixture.read("adult")
+            local before=SAODecisionCapture.encode(__records.adult)
+            SAOPrintReadFixture.read("adult")
+            local detached=__facts("adult"); detached[1].source.path="wrong"
+            return SAODecisionCapture.encode({unchanged=before==SAODecisionCapture.encode(__records.adult),count=#__facts("adult")})''')
+        self.assertEqual(value,{'unchanged':True,'count':1})
+
+    def test_malformed_receipt_or_acquisition_is_withheld_everywhere(self):
+        for mutation in ('r.personId="other"','r.completedHour=49','r.infoKey="wrong"',
+                         'a.path="lived"','a.knowledgeKind="experienced"','a.source.sha256="wrong"',
+                         'a.sourceEvent.atHours=-167','s.readReceipts[a.receiptId]=nil'):
+            value=run('''SAOPrintReadFixture.read("adult")
+                local s=__records.adult.worldKnowledge; local a=s.acquisitions[1]; local r=s.readReceipts[a.receiptId]
+                '''+mutation+'''
+                return SAODecisionCapture.encode({count=#__facts("adult"),
+                    observation=#SAO.WorldKnowledge.observe("adult",48),
+                    ready=SAO.WorldKnowledge.knowledgeEvidenceReady("adult"),
+                    ordinary=SAO.Knowledge.about("adult","world")==nil})''')
+            with self.subTest(mutation=mutation):
+                self.assertEqual(value,{'count':0,'observation':0,'ready':False,'ordinary':True})
+
+    def test_retention_and_decision_time_still_bound_access(self):
+        value=run('''SAOPrintReadFixture.read("adult")
+            local earlier=SAO.WorldKnowledge.claimsOf("adult",47)
+            __records.adult.worldKnowledge.acquisitions[1].retained=false
+            return SAODecisionCapture.encode({earlier=#earlier,current=#__facts("adult")})''')
+        self.assertEqual(value,{'earlier':0,'current':0})
+
+    def test_shipped_source_mutations_flip_named_verdicts(self):
+        source=WORLD.read_text(encoding='utf-8')
+        cases=[
+            ('completion producer','local recorded, why = pcall(completedPrintRead, before, action, result)',
+             'local recorded, why = true, nil',
+             'SAOPrintReadFixture.read("adult"); return SAODecisionCapture.encode({acquired=#__facts("adult")})',
+             {'acquired':1},{'acquired':0}),
+            ('receipt admission','if validAcquisition(entry, state, rec, atHour)', 'if true',
+             'SAOPrintReadFixture.read("adult"); __records.adult.worldKnowledge.readReceipts={}; return SAODecisionCapture.encode({acquired=#__facts("adult")})',
+             {'acquired':0},{'acquired':1}),
+            ('presence grants nothing','resolvePending(recordOf(person), state)\n    return 0',
+             'resolvePending(recordOf(person), state)\n    state.acquisitions[1]={path="lived"}\n    return 1',
+             'return SAODecisionCapture.encode({raw=#__records.adult.worldKnowledge.acquisitions})',
+             {'raw':0},{'raw':1}),
+        ]
+        for label,old,new,code,good,bad in cases:
+            with self.subTest(control=label),tempfile.TemporaryDirectory() as tmp:
+                self.assertEqual(source.count(old),1)
+                mutated=Path(tmp)/WORLD.name; mutated.write_text(source.replace(old,new))
+                self.assertEqual(run(code),good); self.assertEqual(run(code,mutated),bad)
+
+    def test_retired_exporter_refuses_without_writing(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            target=Path(tmp)/'legacy'
+            with self.assertRaisesRegex(ValueError,'exporter retired'): Evidence.generate(target)
+            self.assertFalse(target.exists())
+
+    def test_installed_calendar_remains_verified(self):
+        result=Evidence.calendar_values()
+        self.assertIn('recordId',result)
+        self.assertIsNone(calendar_control())
 
 
-def main() -> int:
-    print("=" * 74)
-    print("DATED COUNTY PRESENCE PRODUCES PERSONAL WORLD KNOWLEDGE")
-    print("=" * 74)
-    required = (Sweep.JDK, Sweep.PZ, Sweep.STDLIB, WORLD, KNOWLEDGE, CAPTURE)
-    if not all(path.exists() for path in required):
-        print("  SKIPPED - installed VM or C74 source absent")
-        print("  187) world-knowledge evidence: SKIPPED, engine absent")
-        return 0
-    if not Sweep.build_runner():
-        print("  FAULT: LuaRun will not compile against the installed jar")
-        return 1
-
-    result = run()
-    faults = faults_for(result)
-    text = WORLD.read_text(encoding="utf-8")
-    controls = {
-        "future acquisition": ("eventHour <= atHour", "eventHour > atHour"),
-        "presence interval": (
-            "local presence = eventHour and presenceAt(state, eventHour) or nil",
-            "local presence = eventHour and activePresence(state) or nil"),
-        "adult claim boundary": (
-            "and finite(age) and age >= claim.minimumAge then",
-            "and finite(age) and age < claim.minimumAge then"),
-        "detached reader": ("out[#out + 1] = copy(entry)",
-                            "out[#out + 1] = entry"),
-        "retention gate": ("entry.retained == true", "entry.retained ~= true"),
-    }
-    for label, (old, new) in controls.items():
-        changed = mutation(text, old, new)
-        if not faults_for(changed):
-            faults.append(label + " mutation did not change the verdict")
-
-    admissions = ADMISSIONS.read_text(encoding="utf-8")
-    population = POPULATION.read_text(encoding="utf-8")
-    knowledge = KNOWLEDGE.read_text(encoding="utf-8")
-    static = {
-        "origin precedes the genesis presence write":
-            admissions.find("rec.originRegion = origin.region") >= 0
-            and admissions.find("rec.originRegion = origin.region")
-            < admissions.find("SAO.WorldKnowledge.markCountyPresence(rec, not arriving)"),
-        "mates receive their own presence record":
-            "SAO.WorldKnowledge.markCountyPresence(mate, not arriving)" in admissions,
-        "the shared daily county advances dated claims":
-            "SAO.WorldKnowledge.advanceAll(hoursNow())" in population,
-        "the read-only knowledge surface exposes claim identifiers":
-            '"world"' in knowledge and "SAO.WorldKnowledge.claimsOf" in knowledge,
-        "protected prose did not cross into SAO":
-            "Knox Telecommunications' telephone" not in text,
-        "the gate runs Border 187": "tools/world_knowledge_test.py" in CHECK.read_text(encoding="utf-8"),
-    }
-    for label, passed in static.items():
-        if not passed:
-            faults.append(label)
-
-    calendar = subprocess.run(
-        [sys.executable, str(CALENDAR)], cwd=ROOT, capture_output=True, text=True,
-        encoding="utf-8", errors="replace", timeout=240)
-    if calendar.returncode or "RECORD PASS" not in calendar.stdout:
-        faults.append("compiled county instant/record-hour calendar failed")
-    calendar_fault = calendar_control()
-    if calendar_fault:
-        faults.append(calendar_fault)
-
-    with tempfile.TemporaryDirectory(prefix="sao-r12-port-one-") as first_dir, \
-            tempfile.TemporaryDirectory(prefix="sao-r12-port-two-") as second_dir:
-        first, second = pathlib.Path(first_dir), pathlib.Path(second_dir)
-        Evidence.generate(first)
-        Evidence.generate(second)
-        for name in ("decision-capture.json", "world-knowledge-evidence.json",
-                     "manifest.json"):
-            if (first / name).read_bytes() != (second / name).read_bytes():
-                faults.append("R12 evidence port is not deterministic: " + name)
-        capture = json.loads((first / "decision-capture.json").read_text(encoding="utf-8"))
-        evidence = json.loads((first / "world-knowledge-evidence.json").read_text(encoding="utf-8"))
-        faults.extend(port_faults(capture, evidence))
-        changed = json.loads(json.dumps(evidence))
-        changed["eventSha256"] = "0" * 64
-        if not port_faults(capture, changed):
-            faults.append("decision-binding mutation did not change the verdict")
-
-    if faults:
-        for fault in faults:
-            print("  FAULT: " + fault)
-        return 1
-    print("  producer: explicit genesis interval; arrivals begin at admission")
-    print("  acquisition: adult lived claim appears only on its record day")
-    print("  reader: person-scoped, retention-observed and detached")
-    print("  controls: time, presence, age, retention and detachment mutations rejected")
-    print("  calendar: compiled exact instant and mature-save anchor pass")
-    print("  port: deterministic native decision and same-person evidence bundle")
-    print("  187) PASS - dated personal world-knowledge acquisition")
-    return 0
-
-
-if __name__ == "__main__":
-    raise SystemExit(main())
+if __name__=='__main__':
+    if not all(p.exists() for p in (Sweep.PZ,Sweep.JDK,NATIVE)):
+        print('187) report acquisition: SKIPPED - installed engine absent'); sys.exit(0)
+    program=unittest.main(verbosity=1,exit=False)
+    sys.exit(0 if program.result.wasSuccessful() else 1)

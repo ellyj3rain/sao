@@ -3,14 +3,14 @@
 -- Speakeasy owns protected prose, extraction review and training standing.
 -- This runtime owns the other half of that seam: whether one particular
 -- person actually acquired and still carries a hash-bound claim identifier.
--- No read creates an acquisition. Population/history producers write the
--- personal event once; readers receive detached plain tables.
+-- A native reading completion writes a personal receipt. Knowledge queries
+-- return detached plain tables without creating acquisitions.
 
 SAO = SAO or {}
 SAO.WorldKnowledge = SAO.WorldKnowledge or {}
 local W = SAO.WorldKnowledge
 
-local SCHEMA_VERSION = 1
+local SCHEMA_VERSION = 2
 local FIRST_RECORD_DAY = -8 -- July 1 relative to the shipped July 9 day zero.
 
 -- Data port from Zomboid-Speakeasy. Protected text deliberately does not cross
@@ -26,11 +26,12 @@ local CLAIMS = {
         excerptSha256 = "f663ffcbaa873c8fb228e1fbdf8574861a0f149559d1fec20695c6be32e82c60",
         eventYear = 1993,
         recordDay = -7, -- July 2.
-        eventResolution = "date",
-        carrier = "county",
-        path = "lived",
-        minimumAge = 18,
-        access = "area-wide-telephone-and-internet-outage",
+        eventResolution = "publication-date",
+        carrier = "print",
+        path = "read",
+        knowledgeKind = "reported",
+        printInfoKey = "Print_Media_KnoxKnews_July2_info",
+        printTextKey = "Print_Text_KnoxKnews_July2_info",
     },
 }
 
@@ -60,12 +61,23 @@ local function stateOf(rec, create)
     if not rec then return nil end
     local state = rec.worldKnowledge
     if state == nil and create then
-        state = { schemaVersion = SCHEMA_VERSION, presence = {}, acquisitions = {} }
+        state = { schemaVersion = SCHEMA_VERSION, presence = {}, acquisitions = {},
+            readReceipts = {} }
+        rec.worldKnowledge = state
+    end
+    -- Only a producer migrates. The old assertion remains available for audit,
+    -- but presence and age never certify personal acquisition.
+    if create and type(state) == "table" and state.schemaVersion == 1
+        and type(state.presence) == "table" and type(state.acquisitions) == "table" then
+        state = { schemaVersion = SCHEMA_VERSION, presence = copy(state.presence),
+            pendingPresence = copy(state.pendingPresence), acquisitions = {}, readReceipts = {},
+            legacy = { reason = "county-presence-does-not-prove-acquisition", state = state } }
         rec.worldKnowledge = state
     end
     if type(state) ~= "table" or state.schemaVersion ~= SCHEMA_VERSION
         or type(state.presence) ~= "table"
-        or type(state.acquisitions) ~= "table" then return nil end
+        or type(state.acquisitions) ~= "table"
+        or type(state.readReceipts) ~= "table" then return nil end
     -- One active acquisition per versioned claim. Besides rejecting a
     -- malformed save, this is the bound that makes claimsOf's deterministic
     -- sort safe in Kahlua's recursive quicksort.
@@ -171,79 +183,141 @@ function W.markCountyPresence(person, initialResident)
     return true
 end
 
-local function presenceAt(state, hour)
-    for _, entry in ipairs(state.presence) do
-        if finite(entry.fromHour) and entry.fromHour <= hour
-            and (entry.throughHour == nil or entry.throughHour >= hour) then
-            return entry
-        end
-    end
-    return nil
-end
-
-local function ageAtEvent(id, year)
-    if not (SAO.History and SAO.History.ageInYear) then return nil end
-    local ok, age = pcall(SAO.History.ageInYear, id, year)
-    return (ok and finite(age)) and age or nil
-end
-
-local function acquired(state, claimId)
-    for _, entry in ipairs(state.acquisitions) do
-        if entry.claimId == claimId and entry.supersededAt == nil then return entry end
-    end
-    return nil
-end
-
+-- Time passage resolves presence bookkeeping; it grants no report knowledge.
 function W.advancePerson(person, atHour)
-    local rec = recordOf(person)
-    local state = stateOf(rec, false)
+    local state = stateOf(recordOf(person), true)
     if not state then return 0 end
-    resolvePending(rec, state)
-    atHour = tonumber(atHour) or nowHour()
-    if not finite(atHour) then return 0 end
-    local added = 0
+    resolvePending(recordOf(person), state)
+    return 0
+end
+
+local function claimFor(id)
     for _, claim in ipairs(CLAIMS) do
-        if not acquired(state, claim.id) then
-            local eventHour = hourFor(claim.recordDay)
-            local presence = eventHour and presenceAt(state, eventHour) or nil
-            local age = ageAtEvent(rec.id, claim.eventYear)
-            if finite(eventHour) and eventHour <= atHour and presence
-                and finite(age) and age >= claim.minimumAge then
-                local sequence = #state.acquisitions + 1
-                state.acquisitions[sequence] = {
-                    schemaVersion = SCHEMA_VERSION,
-                    recordId = tostring(rec.id) .. "/world-claim/"
-                        .. tostring(sequence),
-                    personId = tostring(rec.id),
-                    claimId = claim.id,
-                    source = {
-                        owner = claim.sourceOwner,
-                        path = claim.sourcePath,
-                        sha256 = claim.sourceSha256,
-                        line = claim.sourceLine,
-                        excerptSha256 = claim.excerptSha256,
-                    },
-                    sourceEvent = {
-                        kind = "county-lived-day",
-                        recordDay = claim.recordDay,
-                        atHours = eventHour,
-                        resolution = claim.eventResolution,
-                    },
-                    acquiredHour = eventHour,
-                    path = claim.path,
-                    carrier = claim.carrier,
-                    access = claim.access,
-                    ageAtEvent = age,
-                    presenceRecordId = presence.recordId,
-                    retained = true,
-                    retentionPolicy = "durable-until-explicit-supersession",
-                    producer = "SAO.WorldKnowledge.advancePerson",
-                }
-                added = added + 1
-            end
+        if claim.id == id then return claim end
+    end
+    return nil
+end
+
+local function nonempty(value)
+    return type(value) == "string" and value ~= ""
+end
+
+local function validAcquisition(entry, state, rec, atHour)
+    if type(entry) ~= "table" then return false end
+    local claim = claimFor(entry.claimId)
+    local receipt = state.readReceipts[entry.receiptId]
+    local published = claim and hourFor(claim.recordDay)
+    if not claim or not finite(published) or type(receipt) ~= "table"
+        or entry.schemaVersion ~= SCHEMA_VERSION or entry.personId ~= rec.id
+        or entry.path ~= "read" or entry.knowledgeKind ~= "reported"
+        or entry.carrier ~= "print" or entry.access ~= "completed-native-print-read"
+        or type(entry.retained) ~= "boolean" or not finite(entry.acquiredHour)
+        or not finite(atHour) or entry.acquiredHour > atHour
+        or entry.acquiredHour < published then return false end
+    local source, event = entry.source, entry.sourceEvent
+    if type(source) ~= "table" or source.owner ~= claim.sourceOwner
+        or source.path ~= claim.sourcePath or source.line ~= claim.sourceLine
+        or source.sha256 ~= claim.sourceSha256 or source.excerptSha256 ~= claim.excerptSha256
+        or type(event) ~= "table" or event.kind ~= "dated-report"
+        or event.recordDay ~= claim.recordDay or event.atHours ~= published
+        or event.resolution ~= "publication-date" then return false end
+    return receipt.schemaVersion == 1 and receipt.recordId == entry.receiptId
+        and receipt.recordId == rec.id .. "/print-read/" .. claim.id
+        and entry.recordId == rec.id .. "/world-report/" .. claim.id
+        and receipt.personId == rec.id and receipt.claimId == claim.id
+        and receipt.producer == "ISReadABook.complete" and receipt.result == "completed"
+        and receipt.completedHour == entry.acquiredHour
+        and receipt.infoKey == claim.printInfoKey and receipt.textKey == claim.printTextKey
+        and finite(receipt.itemId) and receipt.itemId >= 0
+        and receipt.itemId == math.floor(receipt.itemId)
+        and nonempty(receipt.itemType) and nonempty(receipt.mediaId)
+        and entry.producer == "SAO.WorldKnowledge.completedPrintRead"
+end
+
+-- Capture the exact issue before the completion callback can move or alter it.
+-- A source report is not a telephone or computer service observation.
+local function readingSubject(action)
+    if not action or action.forceStopped then return nil end
+    local body, item = action.character, action.item
+    if not body or not item then return nil end
+    local id = body:getModData().SAOPersonId
+    local rec = id and recordOf(id)
+    if not rec or rec.id ~= id or rec.dead or SAO.Body.get(id) ~= body
+        or not body:getInventory():contains(item) then return nil end
+    local media = item:getModData().printMedia
+    if type(media) ~= "table" or not nonempty(media.id) then return nil end
+    local claim
+    for _, candidate in ipairs(CLAIMS) do
+        if media.info == candidate.printInfoKey and media.text == candidate.printTextKey then
+            claim = candidate
         end
     end
-    return added
+    local hour = nowHour()
+    local published = claim and hourFor(claim.recordDay)
+    if not claim or not finite(hour) or not finite(published) or hour < published then return nil end
+    local itemId, itemType = item:getID(), item:getFullType()
+    if not finite(itemId) or itemId < 0 or itemId ~= math.floor(itemId)
+        or not nonempty(itemType) then return nil end
+    return { body = body, item = item, person = rec, claim = claim, hour = hour,
+        itemId = itemId, itemType = itemType, mediaId = media.id,
+        infoKey = media.info, textKey = media.text }
+end
+
+local function completedPrintRead(before, action, result)
+    if not before or result ~= true then return false end
+    local after = readingSubject(action)
+    if not after or after.body ~= before.body or after.item ~= before.item
+        or after.person ~= before.person or after.claim ~= before.claim
+        or after.itemId ~= before.itemId or after.itemType ~= before.itemType
+        or after.mediaId ~= before.mediaId or after.infoKey ~= before.infoKey
+        or after.textKey ~= before.textKey or after.hour < before.hour
+        or not after.body:getReadPrintMedia():contains(after.mediaId) then return false end
+    local state = stateOf(after.person, true)
+    if not state then return false end
+    for _, entry in ipairs(state.acquisitions) do
+        if entry.claimId == after.claim.id then
+            return validAcquisition(entry, state, after.person, after.hour)
+        end
+    end
+    if #state.acquisitions >= #CLAIMS then return false end
+    local claim, id = after.claim, after.person.id
+    local receiptId = id .. "/print-read/" .. claim.id
+    local receipt = { schemaVersion = 1, recordId = receiptId, personId = id,
+        claimId = claim.id, itemId = after.itemId, itemType = after.itemType,
+        mediaId = after.mediaId, infoKey = after.infoKey, textKey = after.textKey,
+        completedHour = after.hour, producer = "ISReadABook.complete", result = "completed" }
+    local entry = { schemaVersion = SCHEMA_VERSION,
+        recordId = id .. "/world-report/" .. claim.id, personId = id, claimId = claim.id,
+        source = { owner = claim.sourceOwner, path = claim.sourcePath,
+            sha256 = claim.sourceSha256, line = claim.sourceLine,
+            excerptSha256 = claim.excerptSha256 },
+        sourceEvent = { kind = "dated-report", recordDay = claim.recordDay,
+            atHours = hourFor(claim.recordDay), resolution = "publication-date" },
+        acquiredHour = after.hour, path = "read", knowledgeKind = "reported",
+        carrier = "print", access = "completed-native-print-read", receiptId = receiptId,
+        retained = true, retentionPolicy = "durable-until-explicit-supersession",
+        producer = "SAO.WorldKnowledge.completedPrintRead" }
+    state.readReceipts[receiptId] = receipt
+    state.acquisitions[#state.acquisitions + 1] = entry
+    return true
+end
+
+function W.installReadingObserver()
+    if not ISReadABook or type(ISReadABook.complete) ~= "function" then return false end
+    if ISReadABook.complete == W._observedReadComplete then return true end
+    local original = ISReadABook.complete
+    local wrapper = function(action, ...)
+        local ok, before = pcall(readingSubject, action)
+        local result = original(action, ...)
+        if ok and before then
+            local recorded, why = pcall(completedPrintRead, before, action, result)
+            if not recorded and SAO.Log then SAO.Log.line("KNOWLEDGE", "print receipt failed: " .. tostring(why)) end
+        end
+        return result
+    end
+    W._observedReadComplete = wrapper
+    ISReadABook.complete = wrapper
+    return true
 end
 
 function W.advanceAll(atHour)
@@ -264,8 +338,8 @@ function W.claimsOf(person, atHour)
     if not state or not finite(atHour) then return {} end
     local out = {}
     for _, entry in ipairs(state.acquisitions) do
-        if entry.retained == true and entry.supersededAt == nil
-            and finite(entry.acquiredHour) and entry.acquiredHour <= atHour then
+        if validAcquisition(entry, state, rec, atHour)
+            and entry.retained == true and entry.supersededAt == nil then
             out[#out + 1] = copy(entry)
         end
     end
@@ -296,11 +370,9 @@ function W.observe(person, atHour)
             path = entry.path,
             retained = true,
             checks = {
-                age = { status = "supported", recordId = entry.recordId },
-                carrier = { status = "supported",
-                    recordId = entry.presenceRecordId },
-                access = { status = "supported",
-                    recordId = entry.presenceRecordId },
+                source = { status = "supported", recordId = entry.receiptId },
+                acquisition = { status = "supported", recordId = entry.receiptId },
+                access = { status = "supported", recordId = entry.receiptId },
                 retention = { status = "supported", recordId = entry.recordId },
             },
             acquisition = entry,
@@ -321,25 +393,30 @@ end
 function W.knowledgeEvidenceReady(person)
     local rec = recordOf(person)
     local state = stateOf(rec, false)
-    if not state or state.pendingPresence ~= nil then return false end
-    local count, seen = 0, {}
+    local hour = nowHour()
+    if not state or state.pendingPresence ~= nil or not finite(hour) then return false end
+    local count, seen, receipts = 0, {}, {}
     for index, entry in pairs(state.acquisitions) do
         count = count + 1
         if type(index) ~= "number" or index < 1 or index ~= math.floor(index)
-            or index > #state.acquisitions or type(entry) ~= "table"
-            or entry.personId ~= rec.id or entry.schemaVersion ~= SCHEMA_VERSION
-            or type(entry.claimId) ~= "string" or seen[entry.claimId]
-            or not finite(entry.acquiredHour) or type(entry.retained) ~= "boolean"
-            or type(entry.source) ~= "table" then return false end
-        local known = false
-        for _, claim in ipairs(CLAIMS) do
-            if entry.claimId == claim.id and entry.source.sha256 == claim.sourceSha256
-                and entry.source.excerptSha256 == claim.excerptSha256 then known = true end
-        end
-        if not known then return false end
+            or index > #state.acquisitions or not validAcquisition(entry, state, rec, hour)
+            or seen[entry.claimId] then return false end
         seen[entry.claimId] = true
+        receipts[entry.receiptId] = true
     end
-    return count == #state.acquisitions
+    local receiptCount = 0
+    for key in pairs(state.readReceipts) do
+        if not receipts[key] then return false end
+        receiptCount = receiptCount + 1
+    end
+    return count == #state.acquisitions and receiptCount == count
 end
+
+-- Shared timed actions are the native completion owner on the local/server VM.
+-- Offline hosts without that engine module leave the observer unavailable.
+pcall(function()
+    require "TimedActions/ISReadABook"
+    W.installReadingObserver()
+end)
 
 return W

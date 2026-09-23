@@ -1,6 +1,6 @@
 | Document | Survivor Awareness Overhaul Findings |
 |---|---|
-| Version | `2.8.13.0-pre-alpha` |
+| Version | `2.8.13.1-pre-alpha` |
 | Author | ellyj3rain |
 | Repository | `FINDINGS.md` |
 | Status | CANONICAL, APPEND-ONLY - verified engine findings. |
@@ -2165,3 +2165,18 @@ validation, full host-owner comparison and content-addressed references address
 those controls. Border 189 executes them in the installed Kahlua VM; its two
 source mutations flip the intended refusal into acceptance. This is controlled
 producer evidence, not loaded-world conversational acceptance.
+
+## F-097 | 2026-09-23 02:27 UTC / 19:27 PST | County presence granted unsupported report knowledge
+
+C74 WorldKnowledge inferred a combined phone/Internet outage claim from adult
+county presence. C76's capture and Speakeasy Record 52 then preserved and reviewed
+that unsupported acquisition. The installed July 2 issue supplies a dated report,
+not personal service access or a measured recovery time. C77 removes automatic
+grants, preserves legacy state while withholding it, and requires exact native
+reading completion. Fourteen Border 187 tests execute the shipped module and
+installed action, including independent native issue identifiers and mutations
+of completion, receipt admission, presence grant and calendar anchoring.
+Speakeasy Record 55 revokes the underlying old acquisition/retention evidence;
+fully resealed path/claim-ID changes remain excluded. Historical artifacts remain
+unchanged. Controlled evidence does not establish autonomous reading behavior or
+live-play acceptance. See the C77 batch and evidence records.
