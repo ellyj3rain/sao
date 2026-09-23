@@ -38,6 +38,18 @@ local S = SAO.Standing
 S.FEUD_KEEP_OUT = 30   -- will not settle this close to a feuding company
 S.FEUD_DETOUR = 20     -- a day's walk bends away at this range
 local STANDING_SCHEMA = 4
+-- Evidence reads may not initialize or migrate standing as a side effect.
+function S.knowledgeEvidenceReady(id)
+    local s = ModData.get("SurvivorAwareness_Standing")
+    if type(s) ~= "table" or s.schema ~= STANDING_SCHEMA then return false end
+    for _, key in ipairs({ "relations", "groups", "claims", "groupMeta",
+        "groupClaims", "migrations" }) do
+        if type(s[key]) ~= "table" then return false end
+    end
+    if type(s.relations[id]) ~= "table" then return false end
+    return true
+end
+
 local C63_STANDING_PROVENANCE =
     "initialized at C63 upgrade from represented C62 state; no earlier history inferred"
 

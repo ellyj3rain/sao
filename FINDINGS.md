@@ -1,6 +1,6 @@
 | Document | Survivor Awareness Overhaul Findings |
 |---|---|
-| Version | `2.8.12.0-pre-alpha` |
+| Version | `2.8.13.0-pre-alpha` |
 | Author | ellyj3rain |
 | Repository | `FINDINGS.md` |
 | Status | CANONICAL, APPEND-ONLY - verified engine findings. |
@@ -2146,3 +2146,22 @@ body without repeating response or voice. Pending work without a live action
 stays unknown and reserved. Border 183 executes effective, ineffective,
 interrupted, identity-changed, self, NPC, player and staged-reload cases in the
 installed Kahlua VM; its queue-credit mutation flips the named verdict.
+
+
+## F-096 | 2026-09-23 00:51 UTC / 17:51 PST | Conversation evidence concealed failed sources and public history
+
+C76 reproduced two knowledge-boundary defects. C75's catalogue inherited
+Knowledge's swallowed read failures, allowing a missing WorldKnowledge producer
+to appear as an empty topic. The started topic read Standing's public chronicle
+without person-specific acquisition. Production-module controls show that an
+unreceived outbreak stamp entered the old answer, and that source failure could
+leave a plausible catalogue.
+
+The correction adds explicit reader/owner readiness evidence and reads personal
+radio receipts. Review also reproduced soft refusal, malformed receipt omission,
+wrong resolved identity, owner-table replacement, Standing normalization during
+capture, and snapshot-label reuse for changed questions. C76's strict receipt
+validation, full host-owner comparison and content-addressed references address
+those controls. Border 189 executes them in the installed Kahlua VM; its two
+source mutations flip the intended refusal into acceptance. This is controlled
+producer evidence, not loaded-world conversational acceptance.

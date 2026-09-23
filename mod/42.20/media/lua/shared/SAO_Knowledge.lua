@@ -23,6 +23,19 @@ SAO = SAO or {}
 SAO.Knowledge = SAO.Knowledge or {}
 local K = SAO.Knowledge
 
+-- A capture needs to distinguish an empty answer from a failed reader. Normal
+-- inspection keeps its partial-answer behavior; evidence collection records
+-- every invoked boundary and refuses completeness after any failure.
+local evidenceReads = nil
+local function readSource(name, fn, ...)
+    local ok, a, b = pcall(fn, ...)
+    if evidenceReads then
+        evidenceReads.readers[name] = true
+        if not ok then evidenceReads.failures[name] = "reader-failed" end
+    end
+    return ok, a, b
+end
+
 -- The closed set of things a person can be asked about. This is the
 -- understander's target space: free text resolves to these (plus a
 -- name for "person"), or to nothing, honestly.
@@ -55,7 +68,7 @@ end
 
 local function beliefsOf(id)
     local b = nil
-    pcall(function() b = SAO.Perception.beliefs[id] end)
+    readSource("perception.beliefs", function() b = SAO.Perception.beliefs[id] end)
     return b
 end
 
@@ -63,12 +76,12 @@ end
 -- become direction words from here, never coordinates (DR-017).
 function K.speakerAt(id)
     local sx, sy
-    pcall(function()
+    readSource("body.position", function()
         local body = SAO.Body.get(id)
         if body then sx, sy = body:getX(), body:getY() end
     end)
     if not sx then
-        pcall(function()
+        readSource("identity.position", function()
             local rec = SAO.Identity.get(id)
             sx, sy = rec and rec.x, rec and rec.y
         end)
@@ -78,7 +91,7 @@ end
 
 local function whereWord(x, y, sx, sy)
     local w = nil
-    pcall(function() w = SAO.Perception.whereWord(x, y, sx, sy) end)
+    readSource("perception.direction", function() w = SAO.Perception.whereWord(x, y, sx, sy) end)
     return w
 end
 
@@ -90,7 +103,7 @@ end
 function K.dateOf(hours)
     if type(hours) ~= "number" then return nil end
     local d = nil
-    pcall(function() d = SAOJavaBridge:countyDate(hours) end)
+    readSource("calendar.date", function() d = SAOJavaBridge:countyDate(hours) end)
     if type(d) == "string" and d ~= "" then return d end
     return nil
 end
@@ -107,17 +120,17 @@ end
 
 local function aboutSelf(id, opts)
     local rec = nil
-    pcall(function() rec = SAO.Identity.get(id) end)
+    readSource("identity.self", function() rec = SAO.Identity.get(id) end)
     if not rec then return nil end
     local out = {}
-    pcall(function()
+    readSource("census.trade", function()
         local trade = SAO.Census.describe(rec)
         if trade then
             out[#out + 1] = { fact = "trade", text = trade,
                               source = "lived" }
         end
     end)
-    pcall(function()
+    readSource("census.origin", function()
         local origin = SAO.Census.originNote(rec)
         if origin then
             out[#out + 1] = { fact = "origin", text = origin,
@@ -125,7 +138,7 @@ local function aboutSelf(id, opts)
         end
     end)
     if rec.newcomer and rec.arrivedAtHours then
-        pcall(function()
+        readSource("history.arrival", function()
             local nh = SAO.History.countyHours()
             out[#out + 1] = { fact = "arrival", source = "lived",
                 days = math.max(1,
@@ -136,7 +149,7 @@ local function aboutSelf(id, opts)
         out[#out + 1] = { fact = "work", source = "lived",
                           designation = tostring(rec.designation) }
     end
-    pcall(function()
+    readSource("lessons.first", function()
         local fh = SAO.Lessons.firstLessonHours(id)
         if fh then
             out[#out + 1] = { fact = "changed", source = "lived",
@@ -216,7 +229,7 @@ end
 -- offering it ([C25]'s own surface, spoken instead of walked).
 local function aboutNeed(id, offer, opts)
     local out = {}
-    pcall(function()
+    readSource("standing.stock", function()
         local g = SAO.Standing.groupOf(id)
         if not g then return end
         if offer == "water" then
@@ -235,7 +248,7 @@ local function aboutNeed(id, offer, opts)
             end
         end
     end)
-    pcall(function()
+    readSource("worldSources.nearest", function()
         local sx, sy = K.speakerAt(id)
         if not sx then return end
         local place = SAO.WorldSources.nearestBelieved(id, sx, sy, offer,
@@ -246,7 +259,7 @@ local function aboutNeed(id, offer, opts)
                 source = "observed" }
         end
     end)
-    pcall(function()
+    readSource("perception.transfers", function()
         local now = opts and opts.nowHours
         if now == nil and opts and opts.tick ~= nil then
             now = opts.tick / SAO.History.TICKS_PER_HOUR
@@ -286,17 +299,17 @@ end
 
 local function aboutHouse(id, opts)
     local g = nil
-    pcall(function() g = SAO.Standing.groupOf(id) end)
+    readSource("standing.group", function() g = SAO.Standing.groupOf(id) end)
     if not g then return nil end
     local out = {}
-    pcall(function()
+    readSource("standing.name", function()
         local fname = SAO.Standing.factionName(g)
         if fname then
             out[#out + 1] = { fact = "houseName", name = fname,
                               source = "lived" }
         end
     end)
-    pcall(function()
+    readSource("standing.leader", function()
         local leaderId = SAO.Standing.leaderOf(g)
         local lrec = leaderId and SAO.Identity.get(leaderId) or nil
         local lname = SAO.Identity.knownName(lrec)
@@ -305,7 +318,7 @@ local function aboutHouse(id, opts)
                               source = "lived" }
         end
     end)
-    pcall(function()
+    readSource("standing.creed", function()
         local creed = SAO.Standing.creedOf(g)
         if creed and creed.name then
             out[#out + 1] = { fact = "creed",
@@ -313,7 +326,7 @@ local function aboutHouse(id, opts)
                               source = "lived" }
         end
     end)
-    pcall(function()
+    readSource("standing.feuds", function()
         for og in pairs(SAO.Standing.allGroupClaims()) do
             if og ~= g and SAO.Standing.feudBetween(g, og) then
                 out[#out + 1] = { fact = "feud",
@@ -324,7 +337,7 @@ local function aboutHouse(id, opts)
     end)
     -- The pacts are the house's business ([C26]'s earned split).
     if opts and opts.trusted then
-        pcall(function()
+        readSource("standing.pacts", function()
             for og in pairs(SAO.Standing.allGroupClaims()) do
                 if og ~= g and SAO.Standing.pactBetween(g, og) then
                     out[#out + 1] = { fact = "pact",
@@ -348,7 +361,7 @@ local function aboutGround(id, opts)
     local sx, sy = K.speakerAt(id)
     for ownerKey, pc in pairs(b.places) do
         local owner = nil
-        pcall(function()
+        readSource("identity.groundOwner", function()
             owner = SAO.Identity.knownName(SAO.Identity.get(ownerKey))
         end)
         out[#out + 1] = { fact = "held", owner = owner,
@@ -369,7 +382,7 @@ local function aboutLessons(id, opts)
         return { { fact = "withheld", source = "lived" } }
     end
     local out = {}
-    pcall(function()
+    readSource("lessons.known", function()
         local rec = SAO.Identity.get(id)
         if not (rec and rec.lessonsKnown) then return end
         for key in pairs(rec.lessonsKnown) do
@@ -389,7 +402,7 @@ end
 
 local function aboutMutations(id, opts)
     local rec = nil
-    pcall(function() rec = SAO.Identity.get(id) end)
+    readSource("identity.mutations", function() rec = SAO.Identity.get(id) end)
     if not rec or not rec.mutationKnowledge then return nil end
     local out = {}
     for form, entry in pairs(rec.mutationKnowledge) do
@@ -416,16 +429,16 @@ end
 -- claims themselves are the lessons topic, past the earned line.
 local function aboutBefore(id, opts)
     local rec = nil
-    pcall(function() rec = SAO.Identity.get(id) end)
+    readSource("identity.before", function() rec = SAO.Identity.get(id) end)
     if not rec then return nil end
     local out = {}
-    pcall(function()
+    readSource("history.birth", function()
         local year = SAO.History.birthYearOf(id)
         if year then
             out[#out + 1] = { fact = "born", source = "lived", year = year }
         end
     end)
-    pcall(function()
+    readSource("history.service", function()
         local war = SAO.History.servedIn(id, rec.occupation)
         if war then
             out[#out + 1] = { fact = "war", source = "lived",
@@ -443,7 +456,7 @@ local function aboutBefore(id, opts)
             out[#out + 1] = { fact = "home", source = "lived", whereWord = w }
         end
     end
-    pcall(function()
+    readSource("lessons.hardened", function()
         if SAO.Lessons.hasAny(id) then
             local n = 0
             for _ in pairs(rec.lessonsKnown or {}) do n = n + 1 end
@@ -458,16 +471,14 @@ end
 
 -- [C38] The day it started, as this person knows it: their own first
 -- horror (lived - the day, the county's date, and what it taught,
--- with a name when there was one); the county's own stamps, aired
--- once as county news (told) - the first of them seen to kill, the
--- dead not staying dead, the taps; and this person's first proved
--- radio reception (told).
+-- with a name when there was one); county news this person actually
+-- received; and this person's first proved radio reception (told).
 local function aboutStarted(id, opts)
     local rec = nil
-    pcall(function() rec = SAO.Identity.get(id) end)
+    readSource("identity.started", function() rec = SAO.Identity.get(id) end)
     if not rec then return nil end
     local out = {}
-    pcall(function()
+    readSource("lessons.started", function()
         local fh = SAO.Lessons.firstLessonHours(id)
         if not fh then return end
         out[#out + 1] = { fact = "mine", source = "lived",
@@ -482,22 +493,27 @@ local function aboutStarted(id, opts)
             end
         end
     end)
-    pcall(function()
-        local c = SAO.Standing.chronicle()
-        if not c then return end
-        for _, row in ipairs({ { "county", c.outbreakAtHours },
-                               { "turned", c.firstTurnedAtHours },
-                               { "taps", c.tapsDryAtHours } }) do
-            if row[2] then
-                out[#out + 1] = { fact = row[1], source = "told",
-                                  day = dayOf(row[2]), date = K.dateOf(row[2]) }
+    readSource("perception.radio", function()
+        local receipts = SAO.Perception.radioReceptions(id, evidenceReads ~= nil)
+        if type(receipts) ~= "table" then error("radio-reception-unreadable") end
+        local now = opts and opts.nowHours
+            or (SAO.History and SAO.History.countyHours())
+        local first = nil
+        local names = { outbreak = "county", turned = "turned", tapsDry = "taps" }
+        for _, receipt in ipairs(receipts) do
+            if receipt.receivedAt <= now then
+                first = first or receipt
+                for _, claim in ipairs(receipt.claims) do
+                    if names[claim.kind] then
+                        out[#out + 1] = { fact = names[claim.kind], source = "told",
+                            receivedAt = receipt.receivedAt,
+                            broadcastId = receipt.broadcastId, teller = receipt.sourceId,
+                            heardDay = dayOf(receipt.receivedAt),
+                            heardDate = K.dateOf(receipt.receivedAt) }
+                    end
+                end
             end
         end
-    end)
-    pcall(function()
-        local receipts = SAO.Perception and SAO.Perception.radioReceptions
-            and SAO.Perception.radioReceptions(id) or {}
-        local first = receipts[1]
         if first and type(first.receivedAt) == "number" then
             out[#out + 1] = { fact = "news", source = "told",
                 day = dayOf(first.receivedAt),
@@ -512,9 +528,11 @@ end
 -- claim identifier and personal provenance needed by a bounded retriever.
 local function aboutWorld(id, opts)
     local rows = nil
-    pcall(function()
-        rows = SAO.WorldKnowledge.claimsOf(id,
-            SAO.History and SAO.History.countyHours())
+    readSource("worldKnowledge.claims", function()
+        local now = opts and opts.nowHours
+            or (SAO.History and SAO.History.countyHours())
+        rows = SAO.WorldKnowledge.claimsOf(id, now)
+        if type(rows) ~= "table" then error("world-claims-unreadable") end
     end)
     if type(rows) ~= "table" or #rows == 0 then return nil end
     local out = {}
@@ -552,7 +570,7 @@ local ABOUT = {
 function K.about(id, topic, opts)
     local f = ABOUT[topic]
     if not f then return nil end
-    local ok, facts = pcall(f, id, opts)
+    local ok, facts = readSource("topic", f, id, opts)
     if not ok then return nil end
     return facts
 end
@@ -564,12 +582,12 @@ end
 -- ---------------------------------------------------------------
 function K.conditioning(id, listenerKey, tick)
     local out = { moment = {} }
-    pcall(function() out.traits = SAO.Disposition.traits(id) end)
+    readSource("disposition.traits", function() out.traits = SAO.Disposition.traits(id) end)
     -- [C32] What they carry, in plain words (SAO_Conditions.words):
     -- a speaker model reads it beside the axes.
-    pcall(function() out.conditions = SAO.Conditions.words(id) end)
+    readSource("conditions.words", function() out.conditions = SAO.Conditions.words(id) end)
     -- [C33] And the habits, the same way.
-    pcall(function() out.habits = SAO.Habits.words(id) end)
+    readSource("habits.words", function() out.habits = SAO.Habits.words(id) end)
     -- [C34] The strain the speaker is under (DR-033): the situation
     -- the controller's own pressure answer names - working, under
     -- threat, resting - and whether they are spent, read off the
@@ -577,7 +595,8 @@ function K.conditioning(id, listenerKey, tick)
     -- SPEECH_ML_DESIGN.md (Decision 5, amended) shorten it under
     -- strain. Nothing where there is no live agent or body: a reader
     -- that cannot tell says nothing.
-    pcall(function()
+    readSource("controller.pressure", function()
+        if not SAO.Body.get(id) then return end
         local agent = SAO.Controller.agents[id]
         if not agent then return end
         local state = tostring(agent.state or "")
@@ -590,7 +609,7 @@ function K.conditioning(id, listenerKey, tick)
             out.moment.situation = "resting"
         end
     end)
-    pcall(function()
+    readSource("body.needs", function()
         local body = SAO.Body.get(id)
         if not body then return end
         local needs = SAO.Needs.read(body)
@@ -601,19 +620,19 @@ function K.conditioning(id, listenerKey, tick)
             or (needs.endurance or 1) < 0.3
     end)
     if listenerKey then
-        pcall(function()
+        readSource("standing.trust", function()
             out.trust = SAO.Standing.trust(id, listenerKey)
         end)
-        pcall(function()
+        readSource("standing.debt", function()
             out.moment.debt = SAO.Standing.debt(id, listenerKey) > 0
         end)
-        pcall(function()
+        readSource("standing.hostility", function()
             out.moment.hostile =
                 SAO.Standing.isHostileTo(id, listenerKey) == true
         end)
     end
     out.trusted = (out.trust or 0) >= K.EARNED_AT
-    pcall(function()
+    readSource("standing.war", function()
         local g = SAO.Standing.groupOf(id)
         if not g then return end
         for og in pairs(SAO.Standing.allGroupClaims()) do
@@ -625,7 +644,7 @@ function K.conditioning(id, listenerKey, tick)
     end)
     -- Grief: a lived loss with a name on it ([C26]'s contextual
     -- source, carried as data now).
-    pcall(function()
+    readSource("lessons.grief", function()
         local rec = SAO.Identity.get(id)
         local meta = rec and rec.lessonMeta or nil
         if not meta then return end
@@ -639,7 +658,7 @@ function K.conditioning(id, listenerKey, tick)
         end
     end)
     -- Their own bite, read off the body when there is one.
-    pcall(function()
+    readSource("body.bite", function()
         local body = SAO.Body.get(id)
         if body and body:getBodyDamage():getNumPartsBitten() > 0 then
             out.moment.bitten = true
@@ -879,7 +898,9 @@ function K.claimCatalogue(id, listenerKey, tick, snapshotRef, topics)
     local budget = { left = MAX_CATALOGUE_VALUES }
     local conditioningCopy, _, conditioningWhy = detach(conditioning, budget)
     if not conditioningCopy then return nil, conditioningWhy end
-    local opts = { tick = tick, trusted = conditioning.trusted }
+    local opts = { tick = tick, trusted = conditioning.trusted,
+        nowHours = SAO.History and SAO.History.TICKS_PER_HOUR
+            and tick / SAO.History.TICKS_PER_HOUR or nil }
     local candidates = {}
     for topicIndex, topic in ipairs(orderedTopics) do
         local rows, why
@@ -933,6 +954,47 @@ function K.claimCatalogue(id, listenerKey, tick, snapshotRef, topics)
         conditioning = conditioningCopy,
         claims = claims,
     }
+end
+
+-- Synchronous observation only: no callback or model runs while these
+-- readers are active, and the returned coverage has no alias to later reads.
+function K.catalogueEvidence(id, listenerKey, tick, snapshotRef)
+    if evidenceReads then return nil, { status = "refused", reason = "capture-reentrant" } end
+    local trace = { readers = {}, failures = {} }
+    evidenceReads = trace
+    local ready = true
+    for _, owner in ipairs({ "Standing", "WorldSources", "WorldKnowledge" }) do
+        local ok, supported = readSource(owner .. ".state", function()
+            return SAO[owner].knowledgeEvidenceReady(id)
+        end)
+        if not ok or supported ~= true then
+            trace.failures[owner .. ".state"] = "owner-state-unavailable"
+            ready = false
+        end
+    end
+    local ok, catalogue, why
+    if ready then
+        ok, catalogue, why = pcall(K.claimCatalogue, id, listenerKey, tick,
+            snapshotRef, K.TOPICS)
+    else
+        ok, why = true, "owner-state-unavailable"
+    end
+    evidenceReads = nil
+    local coverage = { scope = "knowledge-topics-v1", status = "complete",
+        topics = {}, readers = {}, failures = {} }
+    for _, topic in ipairs(K.TOPICS) do coverage.topics[#coverage.topics + 1] = topic end
+    for name in pairs(trace.readers) do coverage.readers[#coverage.readers + 1] = name end
+    for name, reason in pairs(trace.failures) do
+        coverage.failures[#coverage.failures + 1] = { reader = name, reason = reason }
+    end
+    table.sort(coverage.readers)
+    table.sort(coverage.failures, function(a, b) return a.reader < b.reader end)
+    if not ok or not catalogue or #coverage.failures > 0 then
+        coverage.status = "refused"
+        coverage.reason = why or (not ok and "catalogue-reader-failed") or "source-reader-failed"
+        return nil, coverage
+    end
+    return catalogue, coverage
 end
 
 local function validateCatalogue(catalogue)

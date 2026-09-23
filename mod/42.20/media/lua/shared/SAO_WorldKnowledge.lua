@@ -318,4 +318,28 @@ function W.claimPorts()
     return copy(CLAIMS)
 end
 
+function W.knowledgeEvidenceReady(person)
+    local rec = recordOf(person)
+    local state = stateOf(rec, false)
+    if not state or state.pendingPresence ~= nil then return false end
+    local count, seen = 0, {}
+    for index, entry in pairs(state.acquisitions) do
+        count = count + 1
+        if type(index) ~= "number" or index < 1 or index ~= math.floor(index)
+            or index > #state.acquisitions or type(entry) ~= "table"
+            or entry.personId ~= rec.id or entry.schemaVersion ~= SCHEMA_VERSION
+            or type(entry.claimId) ~= "string" or seen[entry.claimId]
+            or not finite(entry.acquiredHour) or type(entry.retained) ~= "boolean"
+            or type(entry.source) ~= "table" then return false end
+        local known = false
+        for _, claim in ipairs(CLAIMS) do
+            if entry.claimId == claim.id and entry.source.sha256 == claim.sourceSha256
+                and entry.source.excerptSha256 == claim.excerptSha256 then known = true end
+        end
+        if not known then return false end
+        seen[entry.claimId] = true
+    end
+    return count == #state.acquisitions
+end
+
 return W

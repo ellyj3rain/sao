@@ -2057,6 +2057,13 @@ if ! "$PY" tools/runtime_reconstruction_test.py; then
     fail=1
 fi
 
+# [C76] Border 189 - authored conversation snapshots retain exact owners,
+# source coverage and content identity; known failures cannot become emptiness.
+if ! "$PY" tools/conversation_capture_test.py; then
+    note "BORDER FINDING - conversation capture failed"
+    fail=1
+fi
+
 # Border 103 - the operator's speech is not in the repository: no
 # profanity in the tracked tree and no operator-quote attributions;
 # rulings are paraphrased content, speech stays with the speaker.

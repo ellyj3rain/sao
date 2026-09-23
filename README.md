@@ -38,7 +38,7 @@ on the simulation.
 
 ## Status
 
-`2.8.12.0-pre-alpha` - the coordinate is computed by the version machine
+`2.8.13.0-pre-alpha` - the coordinate is computed by the version machine
 (`tools/version_replay.py`), never picked; `VERSION_MAP.md` shows the
 classification and the arithmetic.
 
@@ -137,7 +137,11 @@ forced source choice remains excluded and it creates no training row. C75 gives
 every fact in one immutable knowledge snapshot a deterministic local reference
 and narrows the existing factual fence to an exact selected subset. No current
 speech path calls the new interface, and the protected-world surface still has
-only C74's single claim. Complete household stock, dormant world access, other
+only C74's single claim. C76 captures an authored bodyless conversation over
+production owners with explicit source failures and content-bound references.
+It also removes public county chronicle stamps from personal knowledge, retaining
+only this person's received news. The controlled capture is ready for Speakeasy
+import and typed task authoring; it is not yet training data. Complete household stock, dormant world access, other
 medical verbs, remaining material actions and settlement development stay under
 R7-R9.
 `ROADMAP.md` preserves the remaining social and learned-model obligations.
