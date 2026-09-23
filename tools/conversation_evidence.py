@@ -11,6 +11,7 @@ import argparse
 import copy
 import hashlib
 import json
+import math
 import os
 from pathlib import Path
 import shutil
@@ -28,6 +29,19 @@ PRINT_FIXTURE = ROOT / "tools/sweep/print_read_fixture.lua"
 NATIVE_READ = Sweep.PZ.parent / "media/lua/shared/TimedActions/ISReadABook.lua"
 TOPICS = ["self", "person", "zombies", "dead", "food", "water", "house",
           "ground", "lessons", "mutations", "world", "before", "started"]
+
+# Controlled interventions execute owners; these are authored inputs, not play logs.
+SCENARIOS = {
+    "baseline": ("Same person, report and listener; current native state unknown.", ""),
+    "trusted": ("Authored trust adjustment toward Jon through Standing; no shared history invented.",
+        'SAO.Standing.adjustTrust(__conversationPerson.id,__conversationListener.id,0.6)'),
+    "threat": ("Authored fresh private zombie sighting four tiles east; no controller response asserted.",
+        'SAO.Perception.beliefs[__conversationPerson.id].zombies["10604,9700"]={x=10604,y=9700,dist=4,at=432000,source="observed"}'),
+    "learned": ("Authored told lesson at hour 47 through Lessons.learn; current evidence at hour 48.",
+        '__hours=47; assert(SAO.Lessons.learn(__conversationPerson.id,"measure-the-danger",0.4,"told")); __hours=48'),
+    "strain": ("Authored wound-inflammation interval from hours 40 to 48 through Neuro.observe; no clinical observation asserted.",
+        'SAO.Neuro.observe(__conversationPerson,40,"authored-wound-start",{wound=true}); SAO.Neuro.observe(__conversationPerson,48,"authored-wound-end",{wound=false})'),
+}
 
 SETUP = r'''
 _G.__world = "C77ConversationControlled"
@@ -118,7 +132,7 @@ def source_hashes():
 
 
 def run(expression="SAOConversationCapture.take(__conversationRequest)", *,
-        knowledge=None, capture=None, world=None):
+        knowledge=None, capture=None, world=None, scenario=None, disposition=None):
     """Run one isolated scenario; optional source paths are for mutation controls."""
     if not Sweep.build_runner():
         raise RuntimeError("installed Kahlua runner did not compile")
@@ -128,12 +142,24 @@ def run(expression="SAOConversationCapture.take(__conversationRequest)", *,
         for path in Sweep.OUT.glob("LuaRun*.class"):
             shutil.copy2(path, work / path.name)
         setup = work / "setup.lua"
-        setup.write_text(SETUP, encoding="utf-8")
+        extra = ""
+        if scenario is not None:
+            if scenario not in SCENARIOS:
+                raise ValueError("unknown behavioral scenario")
+            extra = ('\n__conversationRequest.includeBehavior=true\n'
+                     '__conversationRequest.runId="c78-person-state-v1"\n'
+                     '__conversationRequest.eventId="' + scenario + '"\n'
+                     'SAO.Neuro.observe(__conversationPerson,40,"authored-baseline",{wound=false})\n'
+                     + SCENARIOS[scenario][1] + '\n'
+                     'SAO.Neuro.observe(__conversationPerson,48,"authored-capture",{wound=false})')
+        setup.write_text(SETUP + extra, encoding="utf-8")
         paths = [LUA / name for name in Sweep.MODULES]
         if knowledge is not None:
             paths[paths.index(LUA / "shared/SAO_Knowledge.lua")] = Path(knowledge)
         if world is not None:
             paths[paths.index(LUA / "shared/SAO_WorldKnowledge.lua")] = Path(world)
+        if disposition is not None:
+            paths[paths.index(LUA / "shared/SAO_Disposition.lua")] = Path(disposition)
         command = [str(Sweep.JDK / "java.exe"), "-cp", f"{Sweep.PZ};.", "LuaRun",
                    str(Sweep.SWEEP / "prelude.lua"), *map(str, paths),
                    str(ENCODER), str(capture or CAPTURE), str(PRINT_FIXTURE),
@@ -171,7 +197,7 @@ def freeze(raw):
 
 
 def validate(value):
-    if value.get("schema") != "sao-conversation-capture" or value.get("schemaVersion") != 1:
+    if value.get("schema") != "sao-conversation-capture" or value.get("schemaVersion") not in (1, 2):
         raise ValueError("conversation capture refused: " + str(value.get("coverage", {})))
     catalogue, context, ns = value["catalogue"], value["context"], value["namespace"]
     if value["coverage"]["status"] != "complete" or value["coverage"]["failures"] not in ({}, []):
@@ -194,16 +220,51 @@ def validate(value):
         raise ValueError("snapshot content identity differs")
     if value["trainingEligible"] is not False or value["inputOrigin"] != "authored":
         raise ValueError("capture standing differs")
+    if value['schemaVersion'] == 2:
+        behavior = value['behavior']
+        if (behavior['schema'] != 'sao-behavior-evidence' or behavior['schemaVersion'] != 1
+                or any(behavior[k] != context[k] for k in ('personId', 'listenerRef', 'atTick'))
+                or behavior['atHour'] != ns['hour']):
+            raise ValueError('behavior binding differs')
+        channels = behavior['channels']
+        if set(channels) != {'temperament', 'conditions', 'relationship', 'threat', 'cognition',
+                             'experience', 'needs', 'activity', 'movementGoal', 'alternatives'}:
+            raise ValueError('behavior channels differ')
+        for channel in channels.values():
+            if (not channel.get('owner') or channel['status'] not in ('available', 'unavailable')
+                    or set(channel) != {'owner', 'status', 'value' if channel['status']=='available' else 'reason'}):
+                raise ValueError('behavior availability differs')
+        owners = dict(temperament='SAO.Disposition', conditions='SAO.Conditions', relationship='SAO.Standing',
+                      threat='SAO.Perception / SAO.Pressure', cognition='SAO.Neuro', experience='SAO.Identity / SAO.Lessons',
+                      needs='SAO.Needs', activity='SAO.Controller', movementGoal='SAO.Locomotion', alternatives='action-specific producers')
+        if any(channels[k]['owner'] != owner for k, owner in owners.items()):
+            raise ValueError('behavior owner differs')
+        for name in ('temperament', 'conditions', 'relationship', 'threat', 'experience'):
+            if channels[name]['status'] != 'available' or not isinstance(channels[name]['value'], dict):
+                raise ValueError('required behavior channel unavailable')
+        nearest = channels['threat']['value'].get('nearest')
+        if nearest and (not isinstance(nearest.get('at'), (int, float)) or not math.isfinite(nearest['at']) or nearest['at'] > context['atTick']):
+            raise ValueError('behavior threat time differs')
+        if set(channels['temperament']['value']) != set(catalogue['conditioning']['traits']):
+            raise ValueError('behavior temperament axes differ')
+        for axis, parts in channels['temperament']['value'].items():
+            if set(parts) != {'base', 'history', 'lesson', 'condition', 'effective'}:
+                raise ValueError('behavior temperament contribution fields differ')
+            if any(type(v) not in (int, float) or not math.isfinite(v) for v in parts.values()):
+                raise ValueError('behavior temperament nonfinite')
+            effective = max(.15, min(.85, sum(parts[k] for k in ('base', 'history', 'lesson', 'condition'))))
+            if abs(parts['effective'] - effective) > 1e-12 or parts['effective'] != catalogue['conditioning']['traits'][axis]:
+                raise ValueError('behavior temperament differs')
     encoded(value)
 
 
-def generate(destination):
+def generate(destination, *, scenario=None):
     destination = Path(destination).resolve()
     if destination.exists():
         raise ValueError("destination exists; captured evidence is immutable")
     before = source_hashes()
     calendar = World.calendar_values()
-    value = run()
+    value = run(scenario=scenario) if scenario is not None else run()
     validate(value)
     if before != source_hashes():
         raise ValueError("source changed during capture")
@@ -216,6 +277,10 @@ def generate(destination):
                              "encounter": "authored mutual sighting and July 10 reading encounter; installed ISReadABook completion over controlled engine objects",
                              "clock": "controlled hour 48; installed SAORecord calendar checked",
                              "runtime": "installed Kahlua; bodyless production modules"}}
+    if scenario is not None:
+        manifest['scenario']['behaviorIntervention'] = {'id': scenario, 'description': SCENARIOS[scenario][0],
+            'common': 'Authored baseline Neuro observation at hour 40, advanced to hour 48. Historical causes are controlled scenario inputs.'}
+        manifest['scenario']['behaviorLimits'] = 'Bodyless evidence; native needs, controller activity, movement goal and full action alternatives remain unavailable. No learned output.'
     manifest["contentSha256"] = digest(manifest)
     destination.parent.mkdir(parents=True, exist_ok=True)
     with tempfile.TemporaryDirectory(prefix=".conversation-", dir=destination.parent) as temporary:
@@ -231,9 +296,10 @@ def generate(destination):
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--out", type=Path, required=True)
+    parser.add_argument("--scenario", choices=sorted(SCENARIOS))
     args = parser.parse_args()
     try:
-        manifest = generate(args.out)
+        manifest = generate(args.out, scenario=args.scenario)
     except (OSError, ValueError, RuntimeError) as error:
         parser.exit(1, "REFUSED: " + str(error) + "\n")
     print("Captured authored input: " + manifest["captureSha256"])

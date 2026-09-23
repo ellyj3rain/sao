@@ -1,13 +1,29 @@
 | Document | Survivor Awareness Overhaul Session State |
 |---|---|
-| Version | `2.8.13.1-pre-alpha` |
+| Version | `2.8.14.0-pre-alpha` |
 | Author | ellyj3rain |
 | Repository | `SESSION_STATE.md` |
 | Status | CANONICAL - current implementation and continuation. |
 
 # Session state
 
-**As of** 2026-09-22, `[C77]` corrects personal acquisition of the July 2
+**As of** 2026-09-23, `[C78]` extends authored conversation capture with existing
+person-state evidence. Disposition exposes its actual trait contributions;
+Knowledge reads conditions, relationships, private threat, current recorded
+cognitive projections and lesson provenance into detached channels. Five
+controlled scenarios compare unchanged report knowledge across baseline,
+trust, threat, told learning and strain. Speakeasy owns the corresponding
+unreviewed response comparisons. Source capture is not learned behavior.
+
+The source API also reads loaded needs, controller state/reason and active
+movement targets with exact ownership. Only controlled reader tests exercise
+those paths here. The published scenarios remain bodyless, explicitly lacking
+native needs, active work/movement and a complete action-option inventory.
+Those producers and their loaded capture remain required for broader goal and
+work/exhaustion comparisons. Current Speakeasy continuation is Record 60;
+its active worktree follows Record 59 rather than the older primary checkout.
+
+`[C77]` corrects personal acquisition of the July 2
 Knox report. County presence and age grant no knowledge. Native reading
 completion for an exact held issue writes a person-bound receipt and report
 knowledge at completion time. Ordinary queries and strict evidence both withhold

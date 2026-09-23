@@ -230,6 +230,131 @@ class ConversationTests(unittest.TestCase):
                 __md.SurvivorAwareness_Standing.relations==nil})''')
         self.assertTrue(value['unchanged'])
 
+    def test_behavior_scenarios_execute_owners_and_preserve_unknown_channels(self):
+        values = {name: E.run(scenario=name) for name in E.SCENARIOS}
+        for value in values.values():
+            E.validate(value)
+            channels = value['behavior']['channels']
+            self.assertEqual(channels['needs']['reason'], 'body-not-loaded')
+            self.assertEqual(channels['activity']['status'], 'unavailable')
+            self.assertEqual(channels['movementGoal']['status'], 'unavailable')
+            self.assertEqual(channels['alternatives']['status'], 'unavailable')
+        base = values['baseline']['behavior']['channels']
+        self.assertEqual(base['cognition']['value']['load'], 0)
+        self.assertEqual(values['trusted']['behavior']['channels']['relationship']['value']['trust'], .6)
+        self.assertEqual(values['trusted']['behavior']['channels']['temperament'], base['temperament'])
+        learned = values['learned']['behavior']['channels']
+        self.assertLess(learned['temperament']['value']['nerve']['effective'], base['temperament']['value']['nerve']['effective'])
+        self.assertEqual(learned['experience']['value']['provenance']['measure-the-danger']['src'], 'told')
+        strained = values['strain']['behavior']['channels']['cognition']['value']
+        self.assertGreater(strained['load'], 0)
+        self.assertGreater(strained['decisionTicks'], strained['baseDecisionTicks'])
+        self.assertGreater(values['threat']['behavior']['channels']['threat']['value']['pressure'], 0)
+        self.assertEqual(base['threat']['value']['pressure'], 0)
+        for value in values.values():
+            reports = [r['fact'] for r in value['catalogue']['claims'] if r['topic']=='world']
+            self.assertEqual(reports, [r['fact'] for r in values['baseline']['catalogue']['claims'] if r['topic']=='world'])
+
+    def test_behavior_missing_observation_and_stale_observation_are_not_health(self):
+        for setup, expected in [('', 'no-recorded-observation'),
+                ('SAO.Neuro.observe(__conversationPerson,47,"old",{wound=false});', 'observation-not-current')]:
+            result = self.run_lua(setup + '''__conversationRequest.includeBehavior=true;
+                return SAOConversationCapture.take(__conversationRequest)''')
+            self.assertEqual(result['behavior']['channels']['cognition']['reason'], expected)
+            self.assertNotIn('value', result['behavior']['channels']['cognition'])
+
+    def test_behavior_owner_failure_and_mutation_refuse(self):
+        self.refusal('''__conversationRequest.includeBehavior=true;
+            SAO.Conditions.bend=function() error("broken") end''', 'behavior-reader-failed:temperament')
+        self.refusal('''__conversationRequest.includeBehavior=true;
+            SAO.Disposition.traitEvidence=function() return {} end''', 'behavior-reader-failed:temperament')
+        self.refusal('''__conversationRequest.includeBehavior=true;
+            SAO.Perception.beliefs[__conversationPerson.id].zombies.bad={x=10601,y=9700,dist=1,at=999999,source="observed"}''',
+            'behavior-reader-failed:threat')
+        self.refusal('''__conversationRequest.includeBehavior=true;
+            local old=SAO.Disposition.traitEvidence
+            SAO.Disposition.traitEvidence=function(id)
+                local v=old(id); __conversationPerson.x=1; return v end''', 'source changed during capture')
+
+    def test_behavior_binding_and_contribution_mutations_refuse_after_resealing(self):
+        value = E.run(scenario='baseline')
+        for change, reason in [
+                (lambda v: v['behavior'].update(personId='other'), 'binding'),
+                (lambda v: v['behavior']['channels']['temperament'].update(value={}), 'axes'),
+                (lambda v: v['behavior']['channels']['temperament']['value']['nerve'].update(condition=0), 'temperament')]:
+            broken = copy.deepcopy(value)
+            change(broken)
+            broken = E.freeze(E.observation(broken))
+            with self.assertRaisesRegex(ValueError, reason): E.validate(broken)
+
+    def test_behavior_loaded_reader_binds_body_controller_and_movement(self):
+        # Controlled boundary objects exercise the read API, not native play or captures.
+        setup = '''local id=__conversationPerson.id
+            local body={hasModData=function() return true end,
+                getModData=function() return {SAOPersonId=id} end}
+            SAO.Body.get=function(key) if key==id then return body end end
+            SAO.Needs={read=function() return {hunger=.2,thirst=.3,fatigue=.7,endurance=.2} end}
+            SAO.Controller={agents={}}
+            SAO.Controller.agents[id]={rec=__conversationPerson,state="FORAGE",
+                pressure={answer="need",detail="food",at=432000}}
+            SAO.Locomotion={jobs={}}
+            SAO.Locomotion.jobs[id]={body=body,done=false,goal={x=10603,y=9700,z=0}}
+        '''
+        query = '''local value,reason=SAO.Knowledge.behaviorEvidence(id,__conversationListener.id,432000)
+            return SAODecisionCapture.encode({value=value,reason=reason})'''
+        good = self.run_lua(setup + query)['value']['channels']
+        self.assertEqual(good['needs']['value']['fatigue'], .7)
+        self.assertEqual(good['activity']['value']['answer'], 'need')
+        self.assertEqual(good['movementGoal']['value']['goal']['x'], 10603)
+        absent = '''body.hasModData=function() return false end
+            body.getModData=function() error("read allocated metadata") end;'''
+        self.assertEqual(self.run_lua(setup + absent + query)['reason'], 'behavior-body-owner-differs')
+        # IsoObject.getModData allocates when absent; hasModData reads only.
+        # Remove the actual guard and observe allocation, not just a code match.
+        source = E.LUA / 'shared/SAO_Knowledge.lua'
+        text = source.read_text(encoding='utf-8')
+        guard = 'if not body:hasModData() then return nil end'
+        self.assertEqual(text.count(guard), 1)
+        probe = setup + '''local allocated=false
+            body.hasModData=function() return false end
+            body.getModData=function() allocated=true; return {SAOPersonId=id} end
+            SAO.Knowledge.behaviorEvidence(id,__conversationListener.id,432000)
+            return SAODecisionCapture.encode({allocated=allocated})'''
+        self.assertFalse(self.run_lua(probe)['allocated'])
+        with tempfile.TemporaryDirectory() as temp:
+            bad = Path(temp) / source.name
+            bad.write_text(text.replace(guard, ''), encoding='utf-8')
+            self.assertTrue(E.run('(function() ' + probe + ' end)()', knowledge=bad)['allocated'])
+        for change, reason in [
+                ('SAO.Controller.agents[id].rec=__conversationListener;', 'behavior-reader-failed:activity'),
+                ('SAO.Locomotion.jobs[id].body={};', 'behavior-reader-failed:movementGoal'),
+                ('body.getModData=function() return {SAOPersonId="other"} end;', 'behavior-body-owner-differs')]:
+            self.assertEqual(self.run_lua(setup + change + query)['reason'], reason)
+
+    def test_actual_trait_contribution_mutation_changes_named_verdict(self):
+        source = E.LUA / 'shared/SAO_Disposition.lua'
+        text = source.read_text(encoding='utf-8')
+        old = 'condition = carried, effective = value'
+        self.assertEqual(text.count(old), 1)
+        with tempfile.TemporaryDirectory() as temp:
+            bad = Path(temp) / source.name
+            bad.write_text(text.replace(old, 'condition = 0, effective = value'), encoding='utf-8')
+            with self.assertRaisesRegex(RuntimeError, 'behavior-reader-failed:temperament'):
+                E.run(scenario='baseline', disposition=bad)
+
+    def test_behavior_does_not_elect_a_branch(self):
+        result = self.run_lua('''SAO.Branching.select=function() error("must not elect") end
+            __conversationRequest.includeBehavior=true
+            return SAOConversationCapture.take(__conversationRequest)''')
+        E.validate(result)
+
+    def test_direct_behavior_reader_refuses_nonfinite_threat_time(self):
+        result = self.run_lua('''SAO.Perception.beliefs[__conversationPerson.id].zombies.bad={
+            x=10601,y=9700,dist=1,at=0/0,source="observed"}
+            local value,reason=SAO.Knowledge.behaviorEvidence(__conversationPerson.id,__conversationListener.id,432000)
+            return SAODecisionCapture.encode({value=value,reason=reason})''')
+        self.assertEqual(result['reason'], 'behavior-reader-failed:threat')
+
 
 if __name__ == '__main__':
     if not (E.Sweep.PZ.exists() and E.Sweep.JDK.exists()):

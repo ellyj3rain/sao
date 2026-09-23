@@ -110,7 +110,9 @@ def main():
                        "a read, not a teller"),
             ("Identity.ensure", "creates records"),
             ("SAO.Seams", "even the seam ledger is a write")):
-        if banned in kcode:
+        # Global ModData opens persistent stores. Character getModData is a
+        # distinct native accessor, guarded by hasModData in the behavior reader.
+        if (re.search(r"\bModData\b", kcode) if banned == "ModData" else banned in kcode):
             faults.append(f"the knowledge module touches {banned} - "
                           f"{why} (the one-loop law, [B27])")
     if re.search(r"\brec\.\w+\s*=\s*", kcode):
