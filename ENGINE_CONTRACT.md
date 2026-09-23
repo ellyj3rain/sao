@@ -1,6 +1,6 @@
 | Document | Survivor Awareness Overhaul Engine Contract |
 |---|---|
-| Version | `2.8.12.0-pre-alpha` |
+| Version | `2.8.13.0-pre-alpha` |
 | Author | ellyj3rain |
 | Repository | `ENGINE_CONTRACT.md` |
 | Status | CANONICAL - the verified engine mechanics an IsoPlayer NPC requires. |
@@ -593,3 +593,11 @@ Border 181 exercises these evidence properties in the installed Kahlua VM.
 Its one-day smoke also demonstrates refusal: the canonical county sweep records
 protected callback faults at that horizon, so neither tool publishes it as a
 completed county.
+
+
+## Read-only mod data lookup (C76)
+
+Installed Build 42.20 `javap zombie.world.moddata.ModData` exposes static
+`get(String): KahluaTable` separately from `getOrCreate(String)`. C76's evidence
+readiness checks use `get` to inspect an already initialized owner; unavailable
+or unsupported state refuses without invoking the owner's normal migration path.

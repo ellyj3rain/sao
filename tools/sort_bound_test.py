@@ -130,6 +130,10 @@ BOUNDED = {
         "the fields in one detached fact or conditioning table; "
         "detachCanonical refuses the table at MAX_CATALOGUE_TABLE_ENTRIES "
         "(512) before adding another entry or reaching the sort",
+    ("SAO_Knowledge.lua", "coverage"):
+        "distinct statically named readSource sites plus the three declared "
+        "owner readiness checks; repeated person/topic reads deduplicate by "
+        "name, so neither readers nor failures grows with county population",
     ("SAO_Knowledge.lua", "names"):
         "one person's known-person belief keys; personFacts refuses above "
         "MAX_CATALOGUE_SORT (512) while copying, before sorting",

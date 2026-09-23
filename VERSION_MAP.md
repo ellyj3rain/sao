@@ -16,9 +16,9 @@ the machine. Names, dates, and threads below come from
 | Form | `major.minor.kohai.patch-maturity` |
 | Hard caps | minor 12; kohai 16; patch 24 |
 | Replay start | `0.1.0.0-pre-alpha` |
-| Current version | `2.8.12.0-pre-alpha` |
-| Closed chronology | `A1-C75` |
-| Next batch | `C76` |
+| Current version | `2.8.13.0-pre-alpha` |
+| Closed chronology | `A1-C76` |
+| Next batch | `C77` |
 | Executable source | [`tools/version_replay.py`](tools/version_replay.py) |
 
 ## Tier meanings
@@ -191,6 +191,7 @@ the machine. Names, dates, and threads below come from
 | `C73` | 2026-09-21 | kohai | `2.8.10.0-pre-alpha` | Radio reception | Extend the existing County Wire and player-radio capability with exact loaded and dormant endpoints, elapsed battery use and recipient-private reception evidence before any claim effect. Preserve request origin through aired testimony, refuse possession-only legacy state and remove automatic household propagation; complete-house shortage production and the selected R12 example remain open. |
 | `C74` | 2026-09-21 | kohai | `2.8.11.0-pre-alpha` | Personal world-knowledge evidence | Extend the existing person, knowledge and calendar substrate with explicit dated county-presence intervals, hash-bound personal claim acquisition and retention observations, plus a deterministic same-person decision evidence port. Preserve protected prose and all extraction review, adjudication and ratification in Speakeasy; the selected example remains conditioning-ineligible until those steps close. |
 | `C75` | 2026-09-21 | kohai | `2.8.12.0-pre-alpha` | Typed claim catalogues | Compile the existing person-private knowledge surface into deterministic snapshot-local claim references and restrict the factual fence to an exact selected subset. Preserve current speech, training and runtime behavior while complete protected-world coverage, retriever targets, task datasets and asynchronous snapshot ownership remain open. |
+| `C76` | 2026-09-22 | kohai | `2.8.13.0-pre-alpha` | Conversation capture | Capture authored conversation inputs from production knowledge owners with explicit reader coverage, immutable owner-state checks and content-addressed references. Reject unavailable or unsupported sources before reads, preserve personal radio provenance and keep authored captures separate from trained behavior. |
 
 ## The former number
 
@@ -211,11 +212,11 @@ establish release maturity.
 
 ## Next movement
 
-`C76` is the next batch. Its content determines its tier after it
+`C77` is the next batch. Its content determines its tier after it
 exists:
 
-| If C76 is | Result |
+| If C77 is | Result |
 |---|---|
-| patch or hotfix | `2.8.12.1-pre-alpha` |
-| kohai | `2.8.13.0-pre-alpha` |
+| patch or hotfix | `2.8.13.1-pre-alpha` |
+| kohai | `2.8.14.0-pre-alpha` |
 | minor | `2.9.0.0-pre-alpha` |

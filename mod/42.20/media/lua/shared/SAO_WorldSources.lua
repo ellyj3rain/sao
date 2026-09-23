@@ -13,6 +13,17 @@ SAO.WorldSources = SAO.WorldSources or {}
 local WS = SAO.WorldSources
 
 local STORE_KEY = "SurvivorAwareness_WorldSources"
+function WS.knowledgeEvidenceReady()
+    local value = ModData.get(STORE_KEY)
+    if type(value) ~= "table" or value.schema ~= 6 then return false end
+    for _, key in ipairs({ "sources", "chunks", "places", "reservations", "results",
+        "resultByActor", "resultCounts", "pointerRepairs", "projectionChanges",
+        "conflicts", "conflictBySource", "migrationPointers" }) do
+        if type(value[key]) ~= "table" then return false end
+    end
+    return true
+end
+
 -- Build 42.20.4's exported IsoChunkMap.CHUNK_SIZE_IN_SQUARES. Border 178
 -- reads the installed bytecode so this mapping cannot silently drift.
 local CHUNK_SIZE = 8

@@ -1,13 +1,31 @@
 | Document | Survivor Awareness Overhaul Session State |
 |---|---|
-| Version | `2.8.12.0-pre-alpha` |
+| Version | `2.8.13.0-pre-alpha` |
 | Author | ellyj3rain |
 | Repository | `SESSION_STATE.md` |
 | Status | CANONICAL - current implementation and continuation. |
 
 # Session state
 
-**As of** 2026-09-22, `[C75]` compiles one person's existing read-only knowledge
+**As of** 2026-09-22, `[C76]` captures an authored conversation input through
+production person, history, acquisition, perception and knowledge owners. It
+records all current Knowledge topics and source failures, refuses unsupported
+owner state before reads, checks every durable owner and private belief store
+for change, and binds references to the exact serialized content. The controlled
+bodyless example has eight claims for Mara Reed, including her retained July 2
+outage; the later-arriving Jon Vale does not inherit it. It is an authored
+scenario, not a play recording or an approved task/training row.
+
+The personal started topic now uses received radio evidence instead of public
+county chronicle stamps. Heard dates remain distinct from event dates. The
+capture host explicitly lacks loaded controller/body conditioning. Its coverage
+is the current Knowledge interface, not the entire protected-world corpus.
+Speakeasy Records 53-54 have settled independent target meaning and resolved
+approval evidence. The next step is exact capture import and typed understander
+validation, followed by concrete task review and independent retrieval review.
+The [C76 evidence](artifacts/audits/20260923-0051Z-1751PST-conversation-capture/README.md) records the boundaries and controls.
+
+`[C75]` compiles one person's existing read-only knowledge
 surface into a detached catalogue for one listener, tick and caller-owned
 immutable snapshot reference. Each fact receives a deterministic snapshot-local
 reference; known-person beliefs enter the same surface; and a protected world
@@ -451,9 +469,9 @@ consequences remain separate from the learned policy choosing among them.
 
 C57 consolidates three native entry points into one. With C64's immutable
 capture border, C73's radio-reception border, C74's personal-world-knowledge
-border and C75's typed-claim border, the gate invokes 186 `*_test.py` files and
-13 other Python entry points, 199 distinct scripts. Border labels extend through
-188; legacy labels
+border and C75's typed-claim border, the gate invokes 187 `*_test.py` files and
+13 other Python entry points, 200 distinct scripts. Border labels extend through
+189; legacy labels
 163/169/174 share the native suite. These are distinct counting units. The mod
 ships 79 Lua source files.
 ZAO A37 has ten borders. The
@@ -523,8 +541,9 @@ controlled choice. C75's
 [evidence record](artifacts/audits/20260922-0540Z-2240PST-typed-claim-catalogues/README.md)
 records deterministic typed references, complete known-person enumeration,
 fail-closed exact selection and selected-only fencing. The next learned-data work
-is complete reviewed claim coverage and a ruled retriever-target contract before
-task rows are authored. Automatic household-shortage production
+is the exact C76 capture import and typed understander validation before the
+first independent task and retrieval rulings. Records 53-54 have settled target
+meaning and corrected the evidence compiler. Automatic household-shortage production
 remains with R9 and cannot be inferred from C71's bounded holders.
 The C75 client reached a responsive visible main menu as the only Project
 Zomboid process and was left open after final deployment. SAO's modules loaded

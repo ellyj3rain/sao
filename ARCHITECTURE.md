@@ -1,6 +1,6 @@
 | Document | Survivor Awareness Overhaul Architecture |
 |---|---|
-| Version | `2.8.12.0-pre-alpha` |
+| Version | `2.8.13.0-pre-alpha` |
 | Author | ellyj3rain |
 | Repository | `ARCHITECTURE.md` |
 | Status | ACTIVE - ratified framework shape. |
@@ -706,3 +706,31 @@ episode. Retelling omits it, so the next listener either forms a different
 appraisal from their own evidence or forms none. The existing private
 reciprocity reader bends the listener's charity decision without adding trust,
 debt, settlement credit or a public account of what the act meant.
+
+
+## Authored conversation capture (C76)
+
+`Knowledge.catalogueEvidence` reports source failures alongside all requested
+Knowledge topics. Standing and WorldSources expose non-mutating readiness checks
+against supported initialized stores, and WorldKnowledge checks its owned
+acquisition structure. Unsupported, missing or uninitialized owners refuse before
+catalogue reading. Strict Perception reception reads reject malformed stored
+history. Personal started facts use received broadcasts with teller/broadcast
+identity and heard dates; county-wide chronicle stamps are not personal facts.
+
+The offline `tools/conversation_evidence.py` host runs the production modules
+with explicitly authored people, ground, sighting and calendar inputs. It is
+bodyless and records unavailable native needs, bite and controller conditioning.
+The capture binds living participant identities, clock and calendar, freezes the
+complete host durable stores and private beliefs around reading, and rejects
+mutation or table replacement. Its serialized observation becomes a canonical
+SHA-256 snapshot identity; claim references change with the question or source
+state. Source hashes and the measured installed calendar accompany atomic,
+non-overwriting publication. All captured data remains unapproved and
+training-ineligible.
+
+The Knowledge-topic coverage receipt proves successful reading under this
+specific host and supported schemas. It does not establish corpus-wide world
+knowledge, native loaded-body capture or task-specific output validity. Speakeasy
+owns the next exact import, source adjudication, typed proposal and readable
+operator review. Live asynchronous inference and result revalidation remain R14.

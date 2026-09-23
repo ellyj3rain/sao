@@ -659,12 +659,35 @@ function P.recordRadioReception(id, broadcastId, sourceId, frequency,
         radioReceiptCopy(b.radioReceptions[broadcastId])
 end
 
-function P.radioReceptions(id)
+function P.radioReceptions(id, strict)
     local b = P.beliefs[tostring(id or "")]
+    if strict and b and b.radioReceptions ~= nil
+        and type(b.radioReceptions) ~= "table" then
+        return nil, "radio-reception-unreadable"
+    end
     if not b or type(b.radioReceptions) ~= "table" then return {} end
     local ordered = {}
     for broadcastId, receipt in pairs(b.radioReceptions) do
+        if strict then
+            if type(receipt) ~= "table" or type(receipt.claims) ~= "table" then
+                return nil, "radio-reception-unreadable"
+            end
+            local count = 0
+            for index in pairs(receipt.claims) do
+                count = count + 1
+                if type(index) ~= "number" or index < 1 or index ~= math.floor(index)
+                    or index > #receipt.claims or count > 64 then
+                    return nil, "radio-reception-unreadable"
+                end
+            end
+            if count ~= #receipt.claims then return nil, "radio-reception-unreadable" end
+        end
         local copy = radioReceiptCopy(receipt)
+        if strict and (not copy or copy.broadcastId ~= broadcastId
+            or type(copy.sourceId) ~= "string" or copy.sourceId == ""
+            or not transferNumber(copy.receivedAt)) then
+            return nil, "radio-reception-unreadable"
+        end
         if copy then
             ordered[#ordered + 1] = { eventId = broadcastId,
                 eventAt = copy.receivedAt, receipt = copy }
