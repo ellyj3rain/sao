@@ -24,11 +24,13 @@ ROOT = Path(__file__).resolve().parents[1]
 LUA = ROOT / "mod/42.20/media/lua"
 CAPTURE = ROOT / "tools/sweep/conversation_capture.lua"
 ENCODER = ROOT / "tools/sweep/decision_capture.lua"
+PRINT_FIXTURE = ROOT / "tools/sweep/print_read_fixture.lua"
+NATIVE_READ = Sweep.PZ.parent / "media/lua/shared/TimedActions/ISReadABook.lua"
 TOPICS = ["self", "person", "zombies", "dead", "food", "water", "house",
           "ground", "lessons", "mutations", "world", "before", "started"]
 
 SETUP = r'''
-_G.__world = "C76ConversationControlled"
+_G.__world = "C77ConversationControlled"
 _G.__hours = 48
 _G.__owed = 0
 ModData.get = function(key) return __md[key] end
@@ -73,6 +75,11 @@ person.originRegion = "Muldraugh, KY"
 listener.originRegion = "Muldraugh, KY"
 assert(SAO.WorldKnowledge.markCountyPresence(person, true))
 assert(SAO.WorldKnowledge.markCountyPresence(listener, false))
+-- An authored encounter executes the installed native completion callback.
+-- Acquisition is July 10 reading, not July 2 personal service use.
+__hours = 24
+assert(SAOPrintReadFixture.read(person.id))
+__hours = 48
 SAO.Perception.sawPerson(person.id, "Jon Vale", listener.x, listener.y,
     SAO.History.ticks(), listener.id, 1)
 SAO.Perception.sawPerson(listener.id, "Mara Reed", person.x, person.y,
@@ -83,10 +90,10 @@ SAO.Standing.trust(person.id, listener.id)
 SAO.Standing.trust(listener.id, person.id)
 SAO.WorldSources.source("absent")
 __conversationPerson, __conversationListener = person, listener
-__conversationRequest = { inputOrigin = "authored", runId = "c76-authored-conversation-v1",
-    county = "C76ConversationControlled", eventId = "historical-outage-001",
+__conversationRequest = { inputOrigin = "authored", runId = "c77-authored-conversation-v1",
+    county = "C77ConversationControlled", eventId = "dated-report-001",
     personId = person.id, listenerRef = listener.id,
-    utterance = "Do you remember the telephone outage on July 2?" }
+    utterance = "What did the July 2 newspaper report about phone service?" }
 '''
 
 
@@ -103,7 +110,7 @@ def inputs():
     return [LUA / name for name in Sweep.MODULES] + [CAPTURE, ENCODER,
         ROOT / "tools/conversation_evidence.py", ROOT / "tools/county_sweep.py",
         ROOT / "tools/world_knowledge_evidence.py", Sweep.SWEEP / "prelude.lua",
-        Sweep.SRC, Sweep.PZ, Sweep.STDLIB, Sweep.SAO_JAR]
+        PRINT_FIXTURE, NATIVE_READ, Sweep.SRC, Sweep.PZ, Sweep.STDLIB, Sweep.SAO_JAR]
 
 
 def source_hashes():
@@ -111,7 +118,7 @@ def source_hashes():
 
 
 def run(expression="SAOConversationCapture.take(__conversationRequest)", *,
-        knowledge=None, capture=None):
+        knowledge=None, capture=None, world=None):
     """Run one isolated scenario; optional source paths are for mutation controls."""
     if not Sweep.build_runner():
         raise RuntimeError("installed Kahlua runner did not compile")
@@ -125,9 +132,12 @@ def run(expression="SAOConversationCapture.take(__conversationRequest)", *,
         paths = [LUA / name for name in Sweep.MODULES]
         if knowledge is not None:
             paths[paths.index(LUA / "shared/SAO_Knowledge.lua")] = Path(knowledge)
+        if world is not None:
+            paths[paths.index(LUA / "shared/SAO_WorldKnowledge.lua")] = Path(world)
         command = [str(Sweep.JDK / "java.exe"), "-cp", f"{Sweep.PZ};.", "LuaRun",
                    str(Sweep.SWEEP / "prelude.lua"), *map(str, paths),
-                   str(ENCODER), str(capture or CAPTURE), str(setup), "--", expression]
+                   str(ENCODER), str(capture or CAPTURE), str(PRINT_FIXTURE),
+                   str(NATIVE_READ), str(setup), "--", expression]
         done = subprocess.run(command, cwd=work, capture_output=True, text=True,
                               encoding="utf-8", errors="replace", timeout=120)
         values = [line[6:] for line in done.stdout.splitlines() if line.startswith("VALUE ")]
@@ -199,11 +209,11 @@ def generate(destination):
         raise ValueError("source changed during capture")
     manifest = {"schema": "sao-conversation-evidence", "schemaVersion": 1,
                 "captureSha256": digest(value), "sources": before,
-                "calendarControl": calendar,
+                "calendarControl": calendar, "nativePrintIssue": World.print_issue_keys(),
                 "scope": "controlled-people-production-owners",
                 "scenario": {"people": "authored identities; adult selected by production age",
                              "ground": "authored Muldraugh coordinates; no native ground claim",
-                             "encounter": "authored mutual sighting supplied to Perception",
+                             "encounter": "authored mutual sighting and July 10 reading encounter; installed ISReadABook completion over controlled engine objects",
                              "clock": "controlled hour 48; installed SAORecord calendar checked",
                              "runtime": "installed Kahlua; bodyless production modules"}}
     manifest["contentSha256"] = digest(manifest)

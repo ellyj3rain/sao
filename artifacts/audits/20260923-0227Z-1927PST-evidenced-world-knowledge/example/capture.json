@@ -1,0 +1,442 @@
+{
+  "calendar": {
+    "anchorHour": 0,
+    "anchorInstant": "1993-07-09T00:00:00",
+    "atHour": 48,
+    "atInstant": "1993-07-11T00:00:00",
+    "owner": "SAO.History",
+    "ticksPerHour": 9000
+  },
+  "catalogue": {
+    "atTick": 432000,
+    "claims": [
+      {
+        "fact": {
+          "fact": "trade",
+          "source": "lived",
+          "text": "was a salesperson in Muldraugh, KY when it started"
+        },
+        "ref": "sao-conversation/sha256-1226c3f890e674fc9e5a3db5d8bf9575d23455a7c0e00a19f8ab4d0b1b11dc93/claim/0001",
+        "topic": "self"
+      },
+      {
+        "fact": {
+          "fact": "origin",
+          "source": "lived",
+          "text": "a vacation that never ended"
+        },
+        "ref": "sao-conversation/sha256-1226c3f890e674fc9e5a3db5d8bf9575d23455a7c0e00a19f8ab4d0b1b11dc93/claim/0002",
+        "topic": "self"
+      },
+      {
+        "fact": {
+          "ageTicks": 0,
+          "ageWord": "just now",
+          "condition": "ok",
+          "dead": false,
+          "fact": "person",
+          "name": "Jon Vale",
+          "presumed": false,
+          "source": "observed",
+          "whereWord": "just east of here"
+        },
+        "ref": "sao-conversation/sha256-1226c3f890e674fc9e5a3db5d8bf9575d23455a7c0e00a19f8ab4d0b1b11dc93/claim/0003",
+        "topic": "person"
+      },
+      {
+        "fact": {
+          "fact": "withheld",
+          "source": "lived"
+        },
+        "ref": "sao-conversation/sha256-1226c3f890e674fc9e5a3db5d8bf9575d23455a7c0e00a19f8ab4d0b1b11dc93/claim/0004",
+        "topic": "lessons"
+      },
+      {
+        "fact": {
+          "acquiredHour": 24,
+          "carrier": "print",
+          "claimId": "knox-telecommunications-outage-1993-07-02",
+          "fact": "world-claim",
+          "knowledgeKind": "reported",
+          "receiptId": "sao-1/print-read/knox-telecommunications-outage-1993-07-02",
+          "reportHour": -168,
+          "source": "read"
+        },
+        "ref": "sao-conversation/sha256-1226c3f890e674fc9e5a3db5d8bf9575d23455a7c0e00a19f8ab4d0b1b11dc93/claim/0005",
+        "sourceClaimId": "knox-telecommunications-outage-1993-07-02",
+        "topic": "world"
+      },
+      {
+        "fact": {
+          "fact": "innocent",
+          "source": "lived"
+        },
+        "ref": "sao-conversation/sha256-1226c3f890e674fc9e5a3db5d8bf9575d23455a7c0e00a19f8ab4d0b1b11dc93/claim/0006",
+        "topic": "before"
+      },
+      {
+        "fact": {
+          "fact": "born",
+          "source": "lived",
+          "year": 1962
+        },
+        "ref": "sao-conversation/sha256-1226c3f890e674fc9e5a3db5d8bf9575d23455a7c0e00a19f8ab4d0b1b11dc93/claim/0007",
+        "topic": "before"
+      },
+      {
+        "fact": {
+          "fact": "from",
+          "region": "Muldraugh, KY",
+          "source": "lived"
+        },
+        "ref": "sao-conversation/sha256-1226c3f890e674fc9e5a3db5d8bf9575d23455a7c0e00a19f8ab4d0b1b11dc93/claim/0008",
+        "topic": "before"
+      }
+    ],
+    "conditioning": {
+      "conditions": [
+        "anxious"
+      ],
+      "habits": {},
+      "moment": {
+        "debt": false,
+        "hostile": false
+      },
+      "traits": {
+        "aggression": 0.5461999999999999,
+        "appetite": 0.8486,
+        "compassion": 0.24309999999999998,
+        "discipline": 0.2375,
+        "initiative": 0.6001,
+        "nerve": 0.32720000000000005,
+        "selfPreservation": 0.4432999999999999,
+        "talkativeness": 0.6897
+      },
+      "trust": 0,
+      "trusted": false
+    },
+    "listenerRef": "sao-2",
+    "personId": "sao-1",
+    "schema": "sao-claim-catalogue",
+    "schemaVersion": 1,
+    "snapshotRef": "sao-conversation/sha256-1226c3f890e674fc9e5a3db5d8bf9575d23455a7c0e00a19f8ab4d0b1b11dc93"
+  },
+  "context": {
+    "atTick": 432000,
+    "listenerRef": "sao-2",
+    "personId": "sao-1",
+    "situation": {
+      "atHour": 48,
+      "kind": "authored-conversation",
+      "listenerPosition": {
+        "x": 10601,
+        "y": 9700,
+        "z": 0
+      },
+      "personPosition": {
+        "x": 10600,
+        "y": 9700,
+        "z": 0
+      }
+    },
+    "utterance": "What did the July 2 newspaper report about phone service?"
+  },
+  "coverage": {
+    "failures": {},
+    "readers": [
+      "Standing.state",
+      "WorldKnowledge.state",
+      "WorldSources.state",
+      "body.bite",
+      "body.needs",
+      "body.position",
+      "census.origin",
+      "census.trade",
+      "conditions.words",
+      "controller.pressure",
+      "disposition.traits",
+      "habits.words",
+      "history.birth",
+      "history.service",
+      "identity.before",
+      "identity.mutations",
+      "identity.position",
+      "identity.self",
+      "identity.started",
+      "lessons.first",
+      "lessons.grief",
+      "lessons.hardened",
+      "lessons.started",
+      "perception.beliefs",
+      "perception.direction",
+      "perception.radio",
+      "perception.transfers",
+      "standing.debt",
+      "standing.group",
+      "standing.hostility",
+      "standing.stock",
+      "standing.trust",
+      "standing.war",
+      "topic",
+      "worldKnowledge.claims",
+      "worldSources.nearest"
+    ],
+    "scope": "knowledge-topics-v1",
+    "status": "complete",
+    "topics": [
+      "self",
+      "person",
+      "zombies",
+      "dead",
+      "food",
+      "water",
+      "house",
+      "ground",
+      "lessons",
+      "mutations",
+      "world",
+      "before",
+      "started"
+    ],
+    "unavailableInputs": [
+      "loaded-controller-pressure",
+      "native-current-needs",
+      "native-current-bite"
+    ]
+  },
+  "inputOrigin": "authored",
+  "namespace": {
+    "county": "C77ConversationControlled",
+    "eventId": "dated-report-001",
+    "hour": 48,
+    "personId": "sao-1",
+    "runId": "c77-authored-conversation-v1"
+  },
+  "ownerRevisions": {
+    "listenerUpdateCounter": 0,
+    "perception": 0,
+    "personUpdateCounter": 0
+  },
+  "schema": "sao-conversation-capture",
+  "schemaVersion": 1,
+  "snapshotRef": "sao-conversation/sha256-1226c3f890e674fc9e5a3db5d8bf9575d23455a7c0e00a19f8ab4d0b1b11dc93",
+  "sourceState": {
+    "beliefs": {
+      "factions": {},
+      "lastScanAt": 0,
+      "people": {
+        "Jon Vale": {
+          "at": 432000,
+          "atHours": 48,
+          "condition": "ok",
+          "dist": 1,
+          "id": "sao-2",
+          "source": "observed",
+          "x": 10601,
+          "y": 9700
+        }
+      },
+      "places": {},
+      "scanCount": 0,
+      "zombies": {}
+    },
+    "listener": {
+      "contactMonths": 0,
+      "createdAt": "0",
+      "dormantEndurance": 1,
+      "dormantFatigue": 0,
+      "dormantPhysiologyOrigin": "generated-default",
+      "dormantSleepNeed": 1,
+      "dormantSleeping": false,
+      "epistemicMonths": 0,
+      "forename": "Jon",
+      "id": "sao-2",
+      "lessonEchoes": {
+        "discipline": 0.016,
+        "initiative": -0.016
+      },
+      "lessonMeta": {
+        "routine-is-armor": {
+          "atHours": 48,
+          "src": "told"
+        }
+      },
+      "lessonsKnown": {
+        "routine-is-armor": 0.4
+      },
+      "monthsAlive": 0,
+      "occupation": "student",
+      "originRegion": "Muldraugh, KY",
+      "speechAccessOrigin": "generated-empty-traits",
+      "surname": "Vale",
+      "traitEchoes": {
+        "discipline": 0.020000000000000004,
+        "initiative": -0.016
+      },
+      "updatedAt": 0,
+      "worldKnowledge": {
+        "acquisitions": {},
+        "presence": [
+          {
+            "fromHour": 48,
+            "personId": "sao-2",
+            "producer": "SAO.PopulationAdmissions",
+            "recordId": "sao-2/county-presence/1",
+            "region": "Muldraugh, KY",
+            "schemaVersion": 2,
+            "source": "admitted-arrival"
+          }
+        ],
+        "readReceipts": {},
+        "schemaVersion": 2
+      },
+      "x": 10601,
+      "y": 9700,
+      "z": 0
+    },
+    "ownerStateBytes": "{\"beliefVersion\":0,\"beliefs\":{\"sao-1\":{\"factions\":{},\"lastScanAt\":0,\"people\":{\"Jon Vale\":{\"at\":432000,\"atHours\":48,\"condition\":\"ok\",\"dist\":1,\"id\":\"sao-2\",\"source\":\"observed\",\"x\":10601,\"y\":9700}},\"places\":{},\"scanCount\":0,\"zombies\":{}},\"sao-2\":{\"factions\":{},\"lastScanAt\":0,\"people\":{\"Mara Reed\":{\"at\":432000,\"atHours\":48,\"condition\":\"ok\",\"dist\":1,\"id\":\"sao-1\",\"source\":\"observed\",\"x\":10600,\"y\":9700}},\"places\":{},\"scanCount\":0,\"zombies\":{}}},\"durable\":{\"SurvivorAwareness_Records\":{\"nextId\":3,\"records\":{\"sao-1\":{\"contactMonths\":0,\"createdAt\":\"0\",\"dormantEndurance\":1,\"dormantFatigue\":0,\"dormantPhysiologyOrigin\":\"generated-default\",\"dormantSleepNeed\":1,\"dormantSleeping\":false,\"epistemicMonths\":0,\"forename\":\"Mara\",\"id\":\"sao-1\",\"monthsAlive\":0,\"occupation\":\"salesperson\",\"originRegion\":\"Muldraugh, KY\",\"speechAccessOrigin\":\"generated-empty-traits\",\"surname\":\"Reed\",\"traitEchoes\":{},\"updatedAt\":0,\"worldKnowledge\":{\"acquisitions\":[{\"access\":\"completed-native-print-read\",\"acquiredHour\":24,\"carrier\":\"print\",\"claimId\":\"knox-telecommunications-outage-1993-07-02\",\"knowledgeKind\":\"reported\",\"path\":\"read\",\"personId\":\"sao-1\",\"producer\":\"SAO.WorldKnowledge.completedPrintRead\",\"receiptId\":\"sao-1/print-read/knox-telecommunications-outage-1993-07-02\",\"recordId\":\"sao-1/world-report/knox-telecommunications-outage-1993-07-02\",\"retained\":true,\"retentionPolicy\":\"durable-until-explicit-supersession\",\"schemaVersion\":2,\"source\":{\"excerptSha256\":\"f663ffcbaa873c8fb228e1fbdf8574861a0f149559d1fec20695c6be32e82c60\",\"line\":71,\"owner\":\"Zomboid-Speakeasy\",\"path\":\"world/us-1993/knox-event.md\",\"sha256\":\"bc4b723d8ba8a35eca4a43e88e1457c4dc225d7213ead5c52364f966c6aa0676\"},\"sourceEvent\":{\"atHours\":-168,\"kind\":\"dated-report\",\"recordDay\":-7,\"resolution\":\"publication-date\"}}],\"presence\":[{\"fromHour\":-192,\"fromRecordDay\":-8,\"personId\":\"sao-1\",\"producer\":\"SAO.PopulationAdmissions\",\"recordId\":\"sao-1/county-presence/1\",\"region\":\"Muldraugh, KY\",\"schemaVersion\":2,\"source\":\"genesis-origin\"}],\"readReceipts\":{\"sao-1/print-read/knox-telecommunications-outage-1993-07-02\":{\"claimId\":\"knox-telecommunications-outage-1993-07-02\",\"completedHour\":24,\"infoKey\":\"Print_Media_KnoxKnews_July2_info\",\"itemId\":701,\"itemType\":\"Base.Newspaper_Knews\",\"mediaId\":\"KnoxKnews\",\"personId\":\"sao-1\",\"producer\":\"ISReadABook.complete\",\"recordId\":\"sao-1/print-read/knox-telecommunications-outage-1993-07-02\",\"result\":\"completed\",\"schemaVersion\":1,\"textKey\":\"Print_Text_KnoxKnews_July2_info\"}},\"schemaVersion\":2},\"x\":10600,\"y\":9700,\"z\":0},\"sao-2\":{\"contactMonths\":0,\"createdAt\":\"0\",\"dormantEndurance\":1,\"dormantFatigue\":0,\"dormantPhysiologyOrigin\":\"generated-default\",\"dormantSleepNeed\":1,\"dormantSleeping\":false,\"epistemicMonths\":0,\"forename\":\"Jon\",\"id\":\"sao-2\",\"lessonEchoes\":{\"discipline\":0.016,\"initiative\":-0.016},\"lessonMeta\":{\"routine-is-armor\":{\"atHours\":48,\"src\":\"told\"}},\"lessonsKnown\":{\"routine-is-armor\":0.4},\"monthsAlive\":0,\"occupation\":\"student\",\"originRegion\":\"Muldraugh, KY\",\"speechAccessOrigin\":\"generated-empty-traits\",\"surname\":\"Vale\",\"traitEchoes\":{\"discipline\":0.020000000000000004,\"initiative\":-0.016},\"updatedAt\":0,\"worldKnowledge\":{\"acquisitions\":{},\"presence\":[{\"fromHour\":48,\"personId\":\"sao-2\",\"producer\":\"SAO.PopulationAdmissions\",\"recordId\":\"sao-2/county-presence/1\",\"region\":\"Muldraugh, KY\",\"schemaVersion\":2,\"source\":\"admitted-arrival\"}],\"readReceipts\":{},\"schemaVersion\":2},\"x\":10601,\"y\":9700,\"z\":0}}},\"SurvivorAwareness_Standing\":{\"claimSequence\":0,\"claims\":{},\"groupClaims\":{},\"groupMeta\":{},\"groups\":{},\"migrations\":{\"c63LegacyMaterialClaims\":{\"fromSchema\":0,\"migratedGroupClaims\":0,\"provenance\":\"initialized at C63 upgrade from represented C62 state; no earlier history inferred\",\"retiredHearths\":0,\"retiredLarders\":0,\"retiredWaterStores\":0,\"toSchema\":2},\"c64PartialMaterialCorrection\":{\"fromSchema\":0,\"provenance\":\"C64 retires house-wide claims derived from selected source results\",\"retiredPartialLarders\":0,\"retiredPartialWaterStores\":0,\"toSchema\":4},\"c71InferredMaterialCorrection\":{\"fromSchema\":0,\"provenance\":\"C71 retires house totals inferred from bounded private inventory\",\"retiredInferredLarders\":0,\"retiredInferredWaterStores\":0,\"toSchema\":4}},\"relations\":{\"sao-1\":{},\"sao-2\":{}},\"schema\":4},\"SurvivorAwareness_WorldSources\":{\"chunks\":{},\"conflictBySource\":{},\"conflictSequence\":0,\"conflicts\":{},\"migratedFrom\":0,\"migrationPointers\":{},\"observationSequence\":0,\"places\":{},\"pointerRepairSequence\":0,\"pointerRepairs\":{},\"projectionChangeSequence\":0,\"projectionChanges\":{},\"reservations\":{},\"resultByActor\":{},\"resultCounts\":{},\"resultSequence\":0,\"results\":{},\"schema\":6,\"sequence\":0,\"sources\":{}}}}",
+    "person": {
+      "contactMonths": 0,
+      "createdAt": "0",
+      "dormantEndurance": 1,
+      "dormantFatigue": 0,
+      "dormantPhysiologyOrigin": "generated-default",
+      "dormantSleepNeed": 1,
+      "dormantSleeping": false,
+      "epistemicMonths": 0,
+      "forename": "Mara",
+      "id": "sao-1",
+      "monthsAlive": 0,
+      "occupation": "salesperson",
+      "originRegion": "Muldraugh, KY",
+      "speechAccessOrigin": "generated-empty-traits",
+      "surname": "Reed",
+      "traitEchoes": {},
+      "updatedAt": 0,
+      "worldKnowledge": {
+        "acquisitions": [
+          {
+            "access": "completed-native-print-read",
+            "acquiredHour": 24,
+            "carrier": "print",
+            "claimId": "knox-telecommunications-outage-1993-07-02",
+            "knowledgeKind": "reported",
+            "path": "read",
+            "personId": "sao-1",
+            "producer": "SAO.WorldKnowledge.completedPrintRead",
+            "receiptId": "sao-1/print-read/knox-telecommunications-outage-1993-07-02",
+            "recordId": "sao-1/world-report/knox-telecommunications-outage-1993-07-02",
+            "retained": true,
+            "retentionPolicy": "durable-until-explicit-supersession",
+            "schemaVersion": 2,
+            "source": {
+              "excerptSha256": "f663ffcbaa873c8fb228e1fbdf8574861a0f149559d1fec20695c6be32e82c60",
+              "line": 71,
+              "owner": "Zomboid-Speakeasy",
+              "path": "world/us-1993/knox-event.md",
+              "sha256": "bc4b723d8ba8a35eca4a43e88e1457c4dc225d7213ead5c52364f966c6aa0676"
+            },
+            "sourceEvent": {
+              "atHours": -168,
+              "kind": "dated-report",
+              "recordDay": -7,
+              "resolution": "publication-date"
+            }
+          }
+        ],
+        "presence": [
+          {
+            "fromHour": -192,
+            "fromRecordDay": -8,
+            "personId": "sao-1",
+            "producer": "SAO.PopulationAdmissions",
+            "recordId": "sao-1/county-presence/1",
+            "region": "Muldraugh, KY",
+            "schemaVersion": 2,
+            "source": "genesis-origin"
+          }
+        ],
+        "readReceipts": {
+          "sao-1/print-read/knox-telecommunications-outage-1993-07-02": {
+            "claimId": "knox-telecommunications-outage-1993-07-02",
+            "completedHour": 24,
+            "infoKey": "Print_Media_KnoxKnews_July2_info",
+            "itemId": 701,
+            "itemType": "Base.Newspaper_Knews",
+            "mediaId": "KnoxKnews",
+            "personId": "sao-1",
+            "producer": "ISReadABook.complete",
+            "recordId": "sao-1/print-read/knox-telecommunications-outage-1993-07-02",
+            "result": "completed",
+            "schemaVersion": 1,
+            "textKey": "Print_Text_KnoxKnews_July2_info"
+          }
+        },
+        "schemaVersion": 2
+      },
+      "x": 10600,
+      "y": 9700,
+      "z": 0
+    },
+    "worldRetention": [
+      {
+        "acquiredHour": 24,
+        "acquisition": {
+          "access": "completed-native-print-read",
+          "acquiredHour": 24,
+          "carrier": "print",
+          "claimId": "knox-telecommunications-outage-1993-07-02",
+          "knowledgeKind": "reported",
+          "path": "read",
+          "personId": "sao-1",
+          "producer": "SAO.WorldKnowledge.completedPrintRead",
+          "receiptId": "sao-1/print-read/knox-telecommunications-outage-1993-07-02",
+          "recordId": "sao-1/world-report/knox-telecommunications-outage-1993-07-02",
+          "retained": true,
+          "retentionPolicy": "durable-until-explicit-supersession",
+          "schemaVersion": 2,
+          "source": {
+            "excerptSha256": "f663ffcbaa873c8fb228e1fbdf8574861a0f149559d1fec20695c6be32e82c60",
+            "line": 71,
+            "owner": "Zomboid-Speakeasy",
+            "path": "world/us-1993/knox-event.md",
+            "sha256": "bc4b723d8ba8a35eca4a43e88e1457c4dc225d7213ead5c52364f966c6aa0676"
+          },
+          "sourceEvent": {
+            "atHours": -168,
+            "kind": "dated-report",
+            "recordDay": -7,
+            "resolution": "publication-date"
+          }
+        },
+        "asOfHour": 48,
+        "checks": {
+          "access": {
+            "recordId": "sao-1/print-read/knox-telecommunications-outage-1993-07-02",
+            "status": "supported"
+          },
+          "acquisition": {
+            "recordId": "sao-1/print-read/knox-telecommunications-outage-1993-07-02",
+            "status": "supported"
+          },
+          "retention": {
+            "recordId": "sao-1/world-report/knox-telecommunications-outage-1993-07-02",
+            "status": "supported"
+          },
+          "source": {
+            "recordId": "sao-1/print-read/knox-telecommunications-outage-1993-07-02",
+            "status": "supported"
+          }
+        },
+        "claimId": "knox-telecommunications-outage-1993-07-02",
+        "path": "read",
+        "personId": "sao-1",
+        "recordId": "sao-1/world-report/knox-telecommunications-outage-1993-07-02/retention/48",
+        "retained": true,
+        "schemaVersion": 2
+      }
+    ]
+  },
+  "standing": "captured-authored-input",
+  "trainingEligible": false
+}

@@ -156,7 +156,7 @@ KNOWN.update({n: LUA_STD for n in (
 KNOWN.update({n: ENGINE for n in (
     "BodyPartType", "DynamicRadio", "Events", "GameTime", "Keyboard",
     "keyBinding",
-    "HaloTextHelper", "ISApplyBandage", "ISBarricadeAction",
+    "HaloTextHelper", "ISApplyBandage", "ISReadABook", "ISBarricadeAction",
     # [C35] the timed-action base the gesture action derives from.
     "ISBaseTimedAction",
     "ISCollapsableWindow", "ISDrinkFluidAction", "ISEatFoodAction",

@@ -36,7 +36,7 @@ function C.take(request)
     local origin = required(SAO.History.countyInstant(0), "calendar anchor unavailable")
     local beliefs = required(SAO.Perception.beliefs[person.id], "private beliefs unavailable")
     local world = required(person.worldKnowledge, "world knowledge unavailable")
-    required(world.schemaVersion == 1 and type(world.presence) == "table"
+    required(world.schemaVersion == 2 and type(world.presence) == "table"
         and type(world.acquisitions) == "table" and not world.pendingPresence,
         "world knowledge unsupported")
     local readOwners = required(SAOConversationHost and SAOConversationHost.readOwners,

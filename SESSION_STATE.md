@@ -1,29 +1,47 @@
 | Document | Survivor Awareness Overhaul Session State |
 |---|---|
-| Version | `2.8.13.0-pre-alpha` |
+| Version | `2.8.13.1-pre-alpha` |
 | Author | ellyj3rain |
 | Repository | `SESSION_STATE.md` |
 | Status | CANONICAL - current implementation and continuation. |
 
 # Session state
 
-**As of** 2026-09-22, `[C76]` captures an authored conversation input through
-production person, history, acquisition, perception and knowledge owners. It
-records all current Knowledge topics and source failures, refuses unsupported
-owner state before reads, checks every durable owner and private belief store
-for change, and binds references to the exact serialized content. The controlled
-bodyless example has eight claims for Mara Reed, including her retained July 2
-outage; the later-arriving Jon Vale does not inherit it. It is an authored
-scenario, not a play recording or an approved task/training row.
+**As of** 2026-09-22, `[C77]` corrects personal acquisition of the July 2
+Knox report. County presence and age grant no knowledge. Native reading
+completion for an exact held issue writes a person-bound receipt and report
+knowledge at completion time. Ordinary queries and strict evidence both withhold
+schema-1 grants; producer migration preserves the old state under `legacy`.
 
-The personal started topic now uses received radio evidence instead of public
-county chronicle stamps. Heard dates remain distinct from event dates. The
-capture host explicitly lacks loaded controller/body conditioning. Its coverage
-is the current Knowledge interface, not the entire protected-world corpus.
-Speakeasy Records 53-54 have settled independent target meaning and resolved
-approval evidence. The next step is exact capture import and typed understander
-validation, followed by concrete task review and independent retrieval review.
-The [C76 evidence](artifacts/audits/20260923-0051Z-1751PST-conversation-capture/README.md) records the boundaries and controls.
+The corrected authored capture has Mara read the July 2 report on July 10, then
+receive the July 11 question, "What did the July 2 newspaper report about phone
+service?" Jon has no report acquisition. A later arrival can learn the same
+older report by reading it. The source is ongoing at publication; it establishes
+neither household Internet ubiquity nor recovery after hours. Eight current
+claims remain in Mara's catalogue. The controlled native completion is not a
+live-play observation or an autonomous reading policy.
+
+Speakeasy Record 55 rejects the old reviewed acquisition by its underlying
+evidence, even after labels and review hashes change. Historical C74/C76 imports
+and reviews remain intact. The next step is exact C77 capture import and typed
+understander validation, followed by concrete task review and independent
+retrieval review. No training row or model has been created.
+
+Speakeasy Record 55 is published at `1b7288d` (PR 20). Its original local
+main checkout still contains pre-existing uncommitted doctrine entries in
+`RECORD.md` and was preserved without overwrite. Continue from Speakeasy's
+`origin/main` or the `speakeasy-r55-acquisition-correction` worktree; the stale
+primary checkout is not the current acquisition implementation.
+
+Potential computer integrations must preserve source report, personal service
+experience and device access as separate evidence. The acquisition owner needs
+the exact person, endpoint, service, source/version or operation, result and
+time. Installation or ownership is insufficient. This boundary is documented in
+ARCHITECTURE.md; no computer adapter is implemented.
+
+The [C77 evidence](artifacts/audits/20260923-0227Z-1927PST-evidenced-world-knowledge/README.md)
+records the controlled example, native identifiers, legacy correction and limits.
+C76's coverage/failure capture and personal received-radio history remain active.
 
 `[C75]` compiles one person's existing read-only knowledge
 surface into a detached catalogue for one listener, tick and caller-owned
@@ -34,15 +52,10 @@ unknown, duplicate, malformed or foreign references, and the selected factual
 fence exposes only scalar fields from the admitted claims. Current speech does
 not call this interface, so C75 changes no dialogue or model behavior.
 
-`[C74]` supplies the first bounded producer for R12's person-specific world
-knowledge. Population admission writes a county-presence interval only after a
-person's origin ground exists, and the dated adult lived claim appears only
-inside that interval and no later than the current county hour. Speakeasy Record
-52 reviews the literal outage extraction and Ada North's acquisition as a
-repository-reviewed reference. It creates zero training rows and permanently
-excludes the forced source selection; complete personal knowledge, natural
-choice and later consequences remain absent. Pre-C74 people have no explicit
-presence interval and remain acquisition-unknown.
+`[C74]` introduced county-presence and source-identity evidence. Its automatic
+adult-resident acquisition was unsupported and is superseded by C77. Speakeasy
+Record 52's acquisition approval is superseded by Record 55. Their historical
+artifacts retain their original bytes and have no current acquisition authority.
 
 `[C73]` makes County Wire and explicit player-radio delivery depend on an actual
 endpoint at the event hour. A loaded person needs a direct-root communications
@@ -485,9 +498,10 @@ C51's separate first gate found a verdict-prefix defect and missing transition
 registry surfaces/lifetimes. Its failed output is preserved with the corrections;
 the closing full gate passed with exit 0.
 
-The current install is C75 with ZAO A37, deployed on 2026-09-22 UTC.
-All 261 installed SAO files match the C75 source; the companion remains unchanged.
-The installed SAO jar SHA-256 is `a2ff1e081b72def676abc1817ff53c6da4d7e0ecbe50d5b6d060e432b5bf6c9f`.
+The last verified install is C76 with ZAO A37, deployed
+on 2026-09-23 UTC. Its post-merge closure receipt verifies all 261 installed
+files and responsive main-menu startup. C77 deployment disposition is recorded
+in its local closure receipt; publication alone does not update an open game.
 All 44,092 save-file sizes and modification times remained unchanged across
 deployment and startup. The [C61 evidence record](artifacts/audits/20260920-0844Z-0144PST-native-world-sources/README.md)
 retains the native-source substrate. The [C62 evidence record](artifacts/audits/20260920-1041Z-0341PST-source-access-native-use/README.md)
@@ -541,7 +555,7 @@ controlled choice. C75's
 [evidence record](artifacts/audits/20260922-0540Z-2240PST-typed-claim-catalogues/README.md)
 records deterministic typed references, complete known-person enumeration,
 fail-closed exact selection and selected-only fencing. The next learned-data work
-is the exact C76 capture import and typed understander validation before the
+is the exact C77 capture import and typed understander validation before the
 first independent task and retrieval rulings. Records 53-54 have settled target
 meaning and corrected the evidence compiler. Automatic household-shortage production
 remains with R9 and cannot be inferred from C71's bounded holders.
