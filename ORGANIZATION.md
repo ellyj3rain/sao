@@ -1,6 +1,6 @@
 | Document | Survivor Awareness Overhaul Organization and Deference Contract |
 |---|---|
-| Version | `2.8.14.0-pre-alpha` |
+| Version | `2.9.0.0-pre-alpha` |
 | Author | ellyj3rain |
 | Repository | `ORGANIZATION.md` |
 | Status | CANONICAL - organization, hierarchy, offices, governance forms, and deference. |
@@ -215,33 +215,46 @@ coherently.
 
 ## Current state
 
-The organization surface is no longer thin. What the tree carries now:
+C79 makes the first bounded process executable:
 
 - [SAO_Organization.lua](mod/42.20/media/lua/shared/SAO_Organization.lua)
-  holds the model's own records - organizations, offices, claims with
-  recognizers and dissenters, and decision records with a basis.
-- [SAO_Recognition.lua](mod/42.20/media/lua/shared/SAO_Recognition.lua) is
-  the write side, and one law governs it: nothing there decides anything.
-  Every record is written after a real county event - a settled election,
-  a chair offer taken or declined, a join petition answered, an order
-  verdict, real provisioning, a pact, a schism.
+  owns versioned matters, intended participants, actual receptions, individual
+  responses and history, scoped commitments, work state and exact-once native
+  result receipts. Several responsibilities may coexist; a revision supersedes
+  unfinished prior terms and requires a fresh response.
+- [SAO_Communication.lua](mod/42.20/media/lua/shared/SAO_Communication.lua)
+  records proposal acquisition only from an admitted transport and resolves a
+  loaded body through its registered execution owner. A generic message is not
+  hearing, assent or work.
+- [SAO_Command.lua](mod/42.20/media/lua/shared/SAO_Command.lua) consumes only
+  delivered acceptance whose matter and scope cover the command. It also lets
+  the addressed person refuse, defer, qualify, counter or contest from their own
+  current activity, relationship and capability.
+- [SAO_Recognition.lua](mod/42.20/media/lua/shared/SAO_Recognition.lua) projects
+  an office or membership only from the matching delivered commitment. Its old
+  roster-election hook explicitly returns `explicit-process-required`.
+- [SAO_Standing.lua](mod/42.20/media/lua/shared/SAO_Standing.lua) can raise
+  membership, scarcity, office and separation matters. Encounter callers no
+  longer invoke trust-sum election or score-triggered schism. Death, departure
+  and house retirement still remove live membership and end active obligations.
+- [SAO_Controller.lua](mod/42.20/media/lua/client/SAO_Controller.lua) connects an
+  accepted food-delivery commitment to SourceUse acquisition, Locomotion carrying
+  and Handover completion. A competing activity may pause and later resume that
+  same commitment; queued, partial, failed and completed work remain distinct.
 - [SAO_PlayerInteraction.lua](mod/42.20/media/lua/shared/SAO_PlayerInteraction.lua)
-  is the sanctioned player-side claim surface, and the menu wires the
-  player-surface verbs above through it: observe, ask to join or leave,
-  petition, support or contest a claim, ask for work, accept or refuse an
-  order, claim an office, call a vote where the form allows one, appeal,
-  enforce, and resist. Every action is a claim with recognition and
-  response; the house may ignore any of them; an office never moves
-  through its claimant's assertion.
-- [SAO_Command.lua](mod/42.20/media/lua/shared/SAO_Command.lua) recognizes a
-  leader, a second, a proven hand, or nobody.
-- [SAO_Standing.lua](mod/42.20/media/lua/shared/SAO_Standing.lua) stores group
-  membership, a leader, a creed, ration policy, government history, and claims.
+  and the existing command/radio surfaces raise addressed processes. Hearing a
+  petition never changes trust, hostility, peace or authority by itself.
 
-The office model still has no overlapping authority and no localist layer;
-the rest of what this list once named as absent - governance form,
-succession, appeal - exists in the records the recognition bridge writes,
-in the county's own events, without an authoring pass.
+GraphPersistence schema 4 stores process history and consumed receipt identity.
+Actor-facing decision evidence contains only that person's acquired proposal,
+private appraisal, feasible responses and choice at the decision hour. Return
+delivery and physical work appear only in the later-outcome view. Speakeasy
+Record 63 validates those horizons without admitting a training row.
+
+This is limited voluntary coordination and contention. Election, deliberation,
+recall, appeal, coercive enforcement, physical separation and richer succession
+procedures remain to be produced. Governance-form labels remain observations of
+practiced arrangements; no label or roster decides for absent people.
 
 ## Model primitives
 

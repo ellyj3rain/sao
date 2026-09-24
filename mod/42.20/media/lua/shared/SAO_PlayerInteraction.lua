@@ -18,7 +18,7 @@ Player.actions = {
 
 Player.claims = Player.claims or {}
 
-function Player.claim(playerKey, organizationId, action, target)
+function Player.claim(playerKey, organizationId, action, target, recipientIds)
     local options = SandboxVars and SandboxVars.SurvivorAwareness or nil
     if options and options.PlayerInteraction == false then
         return nil
@@ -27,8 +27,14 @@ function Player.claim(playerKey, organizationId, action, target)
         return nil
     end
     if not SAO.Organization then return nil end
+    local addressed = {}
+    if type(recipientIds) == "string" and recipientIds ~= "" then
+        addressed[1] = recipientIds
+    elseif type(recipientIds) == "table" then
+        addressed = recipientIds
+    end
     local claim = SAO.Organization.playerAction(
-        playerKey, organizationId, action, target)
+        playerKey, organizationId, action, target, addressed)
     if claim then
         Player.claims[playerKey .. ":" .. action .. ":" .. tostring(target)] = claim
     end

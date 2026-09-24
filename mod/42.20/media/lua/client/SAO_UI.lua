@@ -120,6 +120,15 @@ function SAOCountyWindow:build()
         local pending = SAO.Body.pendingTransitionCount()
         if pending > 0 then row(pending .. " survivor handoff(s) pending") end
     end)
+    -- Cross-owner actors use their own executor and therefore do not appear
+    -- in Controller.agents. This count makes an active ZAO-owned coordination
+    -- route distinguishable from an empty/dead integration seam.
+    pcall(function()
+        local external = SAO.Controller.coordinationRuntimeCount()
+        if external > 0 then
+            row(external .. " external actor coordination route(s) active")
+        end
+    end)
     -- [B43] Which jar is actually loaded, said out loud. [B33] found
     -- the shipped SAO.jar two days stale and missing seventeen engine
     -- classes; deploy overwrote it on the way to the game, so the
@@ -230,6 +239,60 @@ function SAOCountyWindow:build()
                 .. (household > 0
                     and ("  -  " .. household .. " come home here")
                     or "  -  yours alone"))
+        end
+    end
+
+    -- Matter visibility follows acquisition. The Ledger asks Organization for
+    -- the player's view, so another person's unreceived proposal, private
+    -- appraisal, feasible options, or undelivered answer cannot leak through
+    -- a supposedly public status row. Later work is shown only where the
+    -- player is the originator or the responsible actor.
+    if myKey and SAO.Organization and SAO.Organization.viewFor then
+        local shown = 0
+        local order = SAO.Organization.processOrder or {}
+        for index = #order, 1, -1 do
+            if shown >= 8 then break end
+            local view = SAO.Organization.viewFor(
+                myKey, order[index], true)
+            if view then
+                if shown == 0 then header("Your shared matters") end
+                local detail = tostring(view.kind) .. " r"
+                    .. tostring(view.revision) .. " - "
+                    .. tostring(view.status or "open")
+                if view.response then
+                    detail = detail .. "; you "
+                        .. tostring(view.response.response)
+                elseif tostring(view.originatorId) == tostring(myKey) then
+                    local counts = {}
+                    for _, response in pairs(view.responses or {}) do
+                        local word = tostring(response.response or "unanswered")
+                        counts[word] = (counts[word] or 0) + 1
+                    end
+                    local responseWords = { "accept", "qualify",
+                        "counter-propose", "decline", "defer", "contest",
+                        "withdraw", "unanswered" }
+                    local rendered = {}
+                    for _, word in ipairs(responseWords) do
+                        if counts[word] then
+                            rendered[#rendered + 1] = word .. " " .. counts[word]
+                        end
+                    end
+                    if #rendered > 0 then
+                        detail = detail .. "; " .. table.concat(rendered, ", ")
+                    end
+                end
+                for _, commitment in pairs(view.commitments or {}) do
+                    local work = commitment.work or {}
+                    detail = detail .. "; work "
+                        .. tostring(work.phase or commitment.status or "accepted")
+                    if work.deliveryReceiptId then
+                        detail = detail .. " receipt "
+                            .. tostring(work.deliveryReceiptId)
+                    end
+                end
+                row(detail)
+                shown = shown + 1
+            end
         end
     end
 
@@ -475,22 +538,7 @@ function SAOCountyWindow:build()
         -- Governance in your absence ([A25]): the house's own
         -- decisions, discoverable.
         for _, ev in ipairs(SAO.Standing.govHistoryOf(g)) do
-            if ev.kind == "policy" then
-                chron[#chron + 1] = { at = ev.atHours,
-                    text = dayWord(ev.atHours)
-                    .. ": " .. fname2 .. " turned " .. tostring(ev.policy) }
-            elseif ev.kind == "schism" then
-                chron[#chron + 1] = { at = ev.atHours,
-                    text = dayWord(ev.atHours)
-                    .. ": " .. fname2 .. " broke - "
-                    .. tostring(ev.left) .. " walked out" }
-            elseif ev.kind == "pact" and tostring(g) < tostring(ev.other) then
-                chron[#chron + 1] = { at = ev.atHours,
-                    text = dayWord(ev.atHours)
-                    .. ": " .. fname2 .. " and " .. tostring(
-                        SAO.Standing.factionName(ev.other) or ev.other)
-                    .. " shook on bread-for-watch" }
-            elseif ev.kind == "creed" then
+            if ev.kind == "creed" then
                 -- [B23] A house turning is chronicle-grade. Written by
                 -- the election and, until this line, dropped silently
                 -- by the reader.
@@ -513,24 +561,6 @@ function SAOCountyWindow:build()
                     text = dayWord(ev.atHours)
                     .. ": " .. fname2 .. " "
                     .. (FORM_SAID[ev.form] or tostring(ev.form)) }
-            elseif ev.kind == "abandon" then
-                -- [B42] And WHERE. The record kept only a timestamp,
-                -- so this could say a house gave up their ground and
-                -- never which ground - the one fact that makes it a
-                -- place you could go and look at.
-                chron[#chron + 1] = { at = ev.atHours,
-                    text = dayWord(ev.atHours)
-                    .. ": " .. fname2 .. " gave up their ground"
-                    .. ((ev.atX and ev.atY)
-                        and (" at " .. ev.atX .. "," .. ev.atY) or "") }
-            elseif ev.kind == "chair" then
-                -- [B42] Written since [A25] and dropped by the reader
-                -- ever since, which is exactly what [B23] found for
-                -- `creed`. Both of the kinds this Chronicle silently
-                -- discarded are the two that are about YOU.
-                chron[#chron + 1] = { at = ev.atHours,
-                    text = dayWord(ev.atHours)
-                    .. ": " .. fname2 .. " gave you a seat" }
             elseif ev.kind == "unseated" then
                 chron[#chron + 1] = { at = ev.atHours,
                     text = dayWord(ev.atHours)
@@ -541,13 +571,6 @@ function SAOCountyWindow:build()
                 chron[#chron + 1] = { at = ev.atHours,
                     text = dayWord(ev.atHours)
                     .. ": you left the chair at " .. fname2 }
-            elseif ev.kind == "pactBroke"
-                and tostring(g) < tostring(ev.other) then
-                chron[#chron + 1] = { at = ev.atHours,
-                    text = dayWord(ev.atHours)
-                    .. ": the pact with " .. tostring(
-                        SAO.Standing.factionName(ev.other) or ev.other)
-                    .. " broke" }
             end
         end
     end

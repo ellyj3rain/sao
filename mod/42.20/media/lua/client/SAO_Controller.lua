@@ -260,7 +260,16 @@ function Ctl.provisioningCompleted(id, body, receipt, action)
     if agent and action.operation == "acquire" and action.haulRemaining
         and action.haulRemaining > 0 then
         agent.pendingHaul = { remaining = action.haulRemaining,
-            radius = action.haulRadius or 4 }
+            radius = action.haulRadius or 4,
+            context = action.commitmentId and {
+                purpose = action.transferPurpose,
+                admission = "standing",
+                processId = action.processId,
+                processRevision = action.processRevision,
+                commitmentId = action.commitmentId,
+                haulRemaining = math.max(0, action.haulRemaining - 1),
+                haulRadius = action.haulRadius or 4,
+            } or nil }
     end
     if action.operation == "store" and action.deliveryGroup then
         -- The carrier knows the deposit occurred. Other people acquire that
@@ -352,14 +361,8 @@ local function onTheirWord(giverId, id, kind, arg, act)
     pcall(function()
         verdict, reason = SAO.Command.order(giverId, id, kind, arg)
     end)
-    -- [C105] The verdict is the deference fact; the record hears it
-    -- (and ignores it unless the giver actually holds the chair).
-    if SAO.Recognition then
-        pcall(function()
-            SAO.Recognition.onOrder(tostring(giverId), tostring(id),
-                kind, arg, verdict)
-        end)
-    end
+    -- Command.order already owns the delivered request and this person's
+    -- revision-bound response; no second recognition projection is inferred.
     if verdict == "refuses" then
         pcall(function() SAO.Voice.onEvent(id, "orderNo", tickCount) end)
         log(id .. " does not take " .. tostring(giverId) .. "'s word ("
@@ -434,7 +437,7 @@ end
 local MOVEMENT_STATES = {
     TRAVEL = true, FLEE = true, ROAM = true, HOMEWARD = true,
     FORAGE = true, WATERWARD = true, GEARWARD = true, FOLLOW = true,
-    SOURCEWARD = true,
+    SOURCEWARD = true, WORKWARD = true,
     AMMOWARD = true, MOURNWARD = true, PLAYERFOLLOW = true,
     SETTLEWARD = true, MEDICWARD = true, SEARCHWARD = true,
     HEARTHWARD = true,
@@ -660,6 +663,15 @@ local function setState(agent, id, state, why, answer, repairingSourceProjection
     if state ~= "ROAM" and state ~= "DRIVE" then agent.onVenture = nil end
     if agent.state ~= state then
         if MOVEMENT_STATES[agent.state] and not MOVEMENT_STATES[state] then
+            if agent.coordinationRoute and agent.coordinationCommitment
+                and SAO.Organization and SAO.Organization.pauseWork then
+                SAO.Organization.pauseWork(agent.coordinationCommitment,
+                    why or "competing-pressure", {
+                        fromState = agent.state, toState = state,
+                        pressure = answer or PRESSURE_ANSWER[state],
+                    })
+                agent.coordinationRoute = nil
+            end
             SAO.Locomotion.cancel(id)
         end
         -- [C114] The wheel states own their bodies the way the
@@ -742,12 +754,385 @@ local function orderTravelState(agent, id, body, x, y, z, state, why, answer)
     return true
 end
 
-local function startNearbyCollection(agent, id, body, radius, remaining, why)
-    local state, context = SAO.Needs.collectNearby(id, body, radius, remaining)
+local function startNearbyCollection(agent, id, body, radius, remaining, why,
+                                     suppliedContext)
+    local state, context = SAO.Needs.collectNearby(id, body, radius, remaining,
+        suppliedContext)
     if not state then return false end
     agent.forageContext = state == "FORAGE" and context or nil
     agent.taskDeadline = tickCount + (state == "FORAGE" and 3600 or 1800)
     return setState(agent, id, state, why)
+end
+
+Ctl.coordinationRuntime = Ctl.coordinationRuntime or {}
+
+local function coordinationDestination(plan)
+    local proposal = plan and plan.proposal or nil
+    local destination = proposal and proposal.destination or nil
+    if type(destination) ~= "table" then return nil end
+    local minX, minY = tonumber(destination.minX), tonumber(destination.minY)
+    local maxX, maxY = tonumber(destination.maxX), tonumber(destination.maxY)
+    if not minX or not minY or not maxX or not maxY
+        or minX > maxX or minY > maxY then return nil end
+    return { minX = minX, minY = minY, maxX = maxX, maxY = maxY,
+        x = (minX + maxX) / 2, y = (minY + maxY) / 2,
+        z = tonumber(destination.z) or 0 }
+end
+
+local function privateCoordinationContext(id, agent, body, request)
+    local processView = SAO.Organization.viewFor(id, request.processId, false)
+    if not processView then return nil end
+    local proposal = processView.proposal and processView.proposal.proposal or {}
+    local rec = SAO.Identity.get(id)
+    local execution, executionUnavailable = {}, false
+    if rec and rec.bodyOwner and SAO.Communication
+        and SAO.Communication.actorSnapshot then
+        local snapshot = SAO.Communication.actorSnapshot(id)
+        if type(snapshot) == "table" then
+            execution = snapshot
+        else
+            executionUnavailable = true
+        end
+    end
+    local ownNeed = 0
+    if body then
+        local needs = SAO.Needs.read(body)
+        ownNeed = needs and tonumber(needs.hunger) or 0
+    elseif rec then
+        ownNeed = tonumber(rec.hunger) or 0
+    end
+    local originator = processView.originatorId
+    local relationship = 0
+    pcall(function() relationship = SAO.Standing.trust(id, originator) end)
+    local hostile = false
+    pcall(function() hostile = SAO.Standing.isHostileTo(id, originator) end)
+    local activity = agent and string.lower(tostring(agent.state or "idle"))
+        or "dormant"
+    local destination = proposal and proposal.destination or nil
+    local destinationKnown = type(destination) == "table"
+        and tonumber(destination.minX) ~= nil
+        and tonumber(destination.minY) ~= nil
+        and tonumber(destination.maxX) ~= nil
+        and tonumber(destination.maxY) ~= nil
+    local designation = rec and rec.designation or nil
+    local prior = processView.response
+    local choice = nil
+    if hostile then
+        choice = "contest"
+    elseif activity ~= "idle" and activity ~= "dormant" then
+        choice = "defer"
+    elseif ownNeed >= 0.75 then
+        choice = "qualify"
+    elseif destinationKnown and (designation == "forager"
+        or designation == "quartermaster" or relationship >= 0.30
+        or (SAO.Lessons and SAO.Lessons.has
+            and SAO.Lessons.has(id, "people-are-worth-it"))) then
+        choice = "accept"
+    elseif destinationKnown then
+        choice = "counter-propose"
+    else
+        choice = "defer"
+    end
+    return {
+        owner = "Controller.coordination",
+        executor = execution.executor or (rec and rec.bodyOwner == "ZAO"
+            and "ZAO.Controller" or "SAO.Controller"),
+        bodyOwner = execution.bodyOwner or (rec and rec.bodyOwner) or "SAO",
+        currentActivity = activity,
+        canAcquire = not executionUnavailable
+            and execution.canAcquire ~= false and not (rec and rec.dead),
+        canCarry = not executionUnavailable
+            and execution.canCarry ~= false and not (rec and rec.dead),
+        canDeliver = not executionUnavailable
+            and execution.canDeliver ~= false and not (rec and rec.dead),
+        canExecute = not executionUnavailable
+            and execution.canExecute ~= false and not (rec and rec.dead),
+        incapable = executionUnavailable or execution.incapable == true,
+        dead = execution.dead == true or rec and rec.dead or false,
+        contest = hostile,
+        ownNeed = ownNeed,
+        relationship = relationship,
+        destinationKnown = destinationKnown,
+        choice = choice,
+        reconsider = prior and prior.response == "defer"
+            and activity == "idle" or false,
+        interests = { designation = designation,
+            ownGroup = SAO.Standing.groupOf(id) },
+        constraints = { represented = body ~= nil,
+            currentActivity = activity,
+            executionOwnerAvailable = not executionUnavailable },
+        inputOwners = {
+            currentActivity = execution.executor
+                or (rec and rec.bodyOwner == "ZAO" and "ZAO.Controller")
+                or "SAO.Controller",
+            capabilities = execution.executor
+                or (rec and rec.bodyOwner == "ZAO" and "ZAO.Controller")
+                or "SAO.Controller",
+            ownNeed = body and "SAO.Needs" or "SAO.Identity",
+            relationship = "SAO.Standing",
+            interests = "SAO.Identity+SAO.Standing",
+            constraints = "SAO.Controller",
+        },
+    }
+end
+
+function Ctl.appraiseCoordination(id, body, activity)
+    if not (SAO.Organization and SAO.Perception) then return 0 end
+    id = tostring(id or "")
+    local agent = Ctl.agents[id]
+    if not agent and activity then
+        agent = { state = tostring(activity) }
+    end
+    local formed = 0
+    for _, request in ipairs(SAO.Perception.knownAidRequests(id)) do
+        if request.processId and request.processRevision then
+            local context = privateCoordinationContext(id, agent, body, request)
+            if context then
+                local response = SAO.Organization.appraiseMatter(
+                    request.processId, id, context)
+                if response then
+                    formed = formed + 1
+                    local processView = SAO.Organization.viewFor(
+                        id, request.processId, false)
+                    local originator = processView and processView.originatorId
+                    if originator and SAO.Communication
+                        and SAO.Communication.canConverse(id, originator) == true then
+                        SAO.Organization.deliverResponse(request.processId,
+                            id, originator, "spoken",
+                            { reply = "immediate", activity = context.currentActivity })
+                    end
+                end
+            end
+        end
+    end
+    return formed
+end
+
+local function carriedSpare(body)
+    local ok, item = pcall(function()
+        return SAOJavaBridge and SAOJavaBridge:findSpareFood(body) or nil
+    end)
+    return ok and item ~= nil
+end
+
+local function coordinationContext(plan)
+    return {
+        purpose = "committed-delivery",
+        category = "food",
+        admission = "standing",
+        haulRemaining = 1,
+        haulRadius = 4,
+        processId = plan.processId,
+        processRevision = plan.processRevision,
+        commitmentId = plan.commitmentId,
+        deliveryGroup = plan.organizationId,
+        requestedByGroup = plan.organizationId,
+    }
+end
+
+local function tickCoordinationRoute(id, body, runtime)
+    if not runtime.coordinationRoute then return false end
+    SAO.Locomotion.tick(id)
+    local status = SAO.Locomotion.status(id)
+    if string.sub(status, 1, 5) ~= "done:" then return true end
+    local result = string.sub(status, 6)
+    local route = runtime.coordinationRoute
+    runtime.coordinationRoute = nil
+    SAO.Locomotion.cancel(id)
+    SAO.Organization.routeOutcome(route.commitmentId,
+        result == "arrived" and "arrived" or "interrupted", result)
+    if result == "arrived" and route.phase == "acquiring" then
+        local queued = SAO.Needs.queueTake(id, body, route.context)
+        if queued then return true end
+        SAO.Organization.interruptWork(route.commitmentId,
+            "acquisition-queue-refused", false)
+    end
+    return result == "arrived"
+end
+
+local function advanceCoordination(id, body, owner, activity, agent)
+    if not (SAO.Organization and SAO.Needs and SAO.Locomotion) then
+        return false
+    end
+    id = tostring(id or "")
+    local runtime = agent or Ctl.coordinationRuntime[id] or {}
+    if not agent then Ctl.coordinationRuntime[id] = runtime end
+    if tickCoordinationRoute(id, body, runtime) then return true, "route" end
+    local rec = SAO.Identity.get(id)
+    if rec and rec.worldSourceReservation and SAO.SourceUse then
+        local result = SAO.SourceUse.tick(id, body)
+        return true, "source:" .. tostring(result)
+    end
+    if SAO.Handover then SAO.Handover.reconcile(false) end
+
+    local commitment = SAO.Organization.activeCommitment(id, "food-delivery")
+    if not commitment then return false end
+    local plan = SAO.Organization.workPlan(commitment.id)
+    if not plan then return false end
+    local phase = commitment.work and commitment.work.phase or "accepted"
+    if phase == "completed" or phase == "failed" or phase == "partial"
+        or commitment.status == "interrupted" then return false end
+    if tostring(activity or "idle") ~= "idle"
+        and tostring(activity or "idle") ~= "dormant" then
+        return false, "competing-activity"
+    end
+
+    if commitment.status == "paused" then
+        SAO.Organization.resumeWork(commitment.id, owner,
+            commitment.work and commitment.work.acquiredAt
+                and "carrying" or "acquiring",
+            { activity = tostring(activity or "idle") })
+    end
+
+    if not commitment.work.acquiredAt then
+        SAO.Organization.startWork(commitment.id, owner, "acquiring")
+        local context = coordinationContext(plan)
+        local state, returned = SAO.Needs.collectNearby(id, body, 20, 2,
+            context)
+        if not state then return false, "source-unavailable" end
+        if state == "FORAGE" then
+            runtime.coordinationRoute = { commitmentId = commitment.id,
+                phase = "acquiring", context = returned }
+            SAO.Organization.noteRoute(commitment.id, "Locomotion",
+                SAO.Locomotion.jobs[id].goal.x,
+                SAO.Locomotion.jobs[id].goal.y,
+                SAO.Locomotion.jobs[id].goal.z, "acquiring")
+            if agent then
+                agent.forageContext = returned
+                agent.coordinationCommitment = commitment.id
+                setState(agent, id, "FORAGE", "acquires food for an accepted request",
+                    "errand")
+            end
+        elseif agent then
+            -- collectNearby returns TAKE only after queueTake admitted the
+            -- exact native source reservation.
+            agent.coordinationCommitment = commitment.id
+            setState(agent, id, "TAKE", "takes food for an accepted request",
+                "errand")
+        end
+        return true, state
+    end
+
+    if not carriedSpare(body) then
+        SAO.Organization.interruptWork(commitment.id,
+            "committed-cargo-no-longer-held", true)
+        return false, "cargo-missing"
+    end
+
+    local requesterBody = SAO.Communication
+        and SAO.Communication.bodyFor(plan.requesterId) or nil
+    if requesterBody then
+        local ok, dx, dy = pcall(function()
+            return requesterBody:getX() - body:getX(),
+                requesterBody:getY() - body:getY()
+        end)
+        if ok and dx * dx + dy * dy <= TALK_REACH * TALK_REACH then
+            local receipt = SAO.Needs.shareFoodWith(id, body, requesterBody,
+                plan.requesterId, { processId = plan.processId,
+                    processRevision = plan.processRevision,
+                    commitmentId = plan.commitmentId })
+            if receipt then
+                if agent then
+                    agent.takePurpose = "coordination"
+                    agent.coordinationCommitment = commitment.id
+                    setState(agent, id, "TAKE",
+                        "hands over food under an accepted commitment",
+                        "errand")
+                end
+                return true, "handover"
+            end
+        elseif ok and SAO.Locomotion.order(id, body, requesterBody:getX(),
+            requesterBody:getY(), math.floor(requesterBody:getZ())) then
+            runtime.coordinationRoute = { commitmentId = commitment.id,
+                phase = "carrying" }
+            SAO.Organization.noteRoute(commitment.id, "Locomotion",
+                requesterBody:getX(), requesterBody:getY(),
+                math.floor(requesterBody:getZ()), "carrying")
+            if agent then
+                agent.coordinationCommitment = commitment.id
+                setState(agent, id, "WORKWARD",
+                    "carries food to the person who asked",
+                    "errand")
+            end
+            return true, "route"
+        end
+    end
+
+    local destination = coordinationDestination(plan)
+    if not destination then return false, "destination-unavailable" end
+    local bx, by = body:getX(), body:getY()
+    local inside = bx >= destination.minX and bx <= destination.maxX
+        and by >= destination.minY and by <= destination.maxY
+    if inside then
+        local queued = SAO.Needs.depositSpareFood(id, body,
+            coordinationContext(plan))
+        if queued then
+            if agent then
+                agent.takePurpose = "deposit"
+                agent.coordinationCommitment = commitment.id
+                setState(agent, id, "TAKE",
+                    "delivers food onto the ground that asked",
+                    "errand")
+            end
+            return true, "store"
+        end
+        return false, "delivery-holder-unavailable"
+    end
+    if SAO.Locomotion.order(id, body, destination.x, destination.y,
+        destination.z) then
+        runtime.coordinationRoute = { commitmentId = commitment.id,
+            phase = "carrying" }
+        SAO.Organization.noteRoute(commitment.id, "Locomotion",
+            destination.x, destination.y, destination.z, "carrying")
+        if agent then
+            agent.coordinationCommitment = commitment.id
+            setState(agent, id, "WORKWARD",
+                "carries food to the ground that asked",
+                "errand")
+        end
+        return true, "route"
+    end
+    SAO.Organization.routeOutcome(commitment.id, "interrupted",
+        "delivery-route-refused")
+    return false, "route-refused"
+end
+
+function Ctl.advanceExternalCoordination(id, body, owner, activity)
+    Ctl.appraiseCoordination(id, body, activity)
+    id = tostring(id or "")
+    activity = string.lower(tostring(activity or "idle"))
+    local competing = activity ~= "idle" and activity ~= "dormant"
+        and activity ~= "coordination"
+    if competing and SAO.Organization then
+        local commitment = SAO.Organization.activeCommitment(id,
+            "food-delivery")
+        local runtime = Ctl.coordinationRuntime[id]
+        local rec = SAO.Identity and SAO.Identity.get(id) or nil
+        if commitment and rec and rec.worldSourceReservation
+            and SAO.SourceUse and SAO.SourceUse.beforeStateChange then
+            local reconciled = SAO.SourceUse.beforeStateChange(id, body,
+                "coordination", activity, "external competing activity")
+            if reconciled == false then
+                return advanceCoordination(id, body, owner or "external",
+                    "coordination", nil)
+            end
+        end
+        if commitment and commitment.status ~= "paused"
+            and SAO.Organization.pauseWork then
+            SAO.Organization.pauseWork(commitment.id,
+                "external-competing-activity", {
+                    bodyOwner = tostring(owner or "external"),
+                    activity = activity,
+                })
+        end
+        if runtime and runtime.coordinationRoute then
+            if SAO.Locomotion then SAO.Locomotion.cancel(id) end
+            runtime.coordinationRoute = nil
+        end
+        return false, "competing-activity"
+    end
+    return advanceCoordination(id, body, owner or "external",
+        activity or "idle", nil)
 end
 
 function Ctl.orderEngageNearest(id, live)
@@ -1967,13 +2352,30 @@ local function decideNeedsAndCompanion(id, agent, body, tick, needs)
                 local avg = sum / #fellows
                 if trustPlayer > avg + 0.15 then
                     local groupName = convGroup
+                    local hearers = {}
                     for _, fid in ipairs(fellows) do
-                        SAO.Standing.adjustTrust(fid, myKey, -0.1)
+                        if SAO.Communication
+                            and SAO.Communication.canConverse(id, fid) == true then
+                            hearers[#hearers + 1] = fid
+                        end
                     end
-                    SAO.Standing.leaveGroup(id)
-                    pcall(function() SAO.Voice.onEvent(id, "companion", tick) end)
-                    log(id .. " leaves " .. tostring(groupName)
-                        .. " to walk with the player - their people remember")
+                    local _, left = SAO.Standing.withdrawFromCompany(id,
+                        "walk-with-player", hearers, nil, {
+                            source = "private-relationship-choice",
+                            playerStanding = trustPlayer,
+                            groupStanding = avg,
+                        })
+                    if left then
+                        for _, fid in ipairs(hearers) do
+                            SAO.Standing.adjustTrust(fid, myKey, -0.1)
+                        end
+                        pcall(function()
+                            SAO.Voice.onEvent(id, "companion", tick)
+                        end)
+                        log(id .. " leaves " .. tostring(groupName)
+                            .. " to walk with the player - "
+                            .. tostring(#hearers) .. " fellow(s) heard it")
+                    end
                 end
             end
         end
@@ -3696,6 +4098,12 @@ local function decidePromiseAndSearch(id, agent, body, tick, idleRec)
             end)
             verdict = tostring(okM and verdict or verdict)
             if verdict:find("COMBAT_STARTED", 1, true) then
+                local promiseCommitment = SAO.Standing.promiseCommitmentOf
+                    and SAO.Standing.promiseCommitmentOf(pt.deadId) or nil
+                if promiseCommitment and SAO.Organization then
+                    SAO.Organization.startWork(promiseCommitment,
+                        "SAO_Controller", "combat-started")
+                end
                 SAO.Standing.clearPromise(pt.deadId)
                 pcall(function()
                     SAO.Voice.onEvent(id, "promiseKept", tick)
@@ -5066,6 +5474,13 @@ local function decide(id, agent, body)
         return
     end
 
+    -- Hearing a concrete proposal opens an individual appraisal; it does not
+    -- bypass threat or manufacture assent from message delivery.
+    if SAO.Standing.maybeCallForBread then
+        SAO.Standing.maybeCallForBread(id)
+    end
+    Ctl.appraiseCoordination(id, body, agent.state)
+
     -- The branching graph's work projection. When no threat owns the
     -- moment, labor is the graph's own answer rather than a side table.
     if agent.graph and agent.graph.branch == "work" and agent.graph.work then
@@ -5082,6 +5497,10 @@ local function decide(id, agent, body)
 
     if decideNeedsAndCompanion(id, agent, body, tick, needs) then return end
     if decideCompany(id, agent, body, tick) then return end
+    if agent.state == "IDLE" then
+        local advanced = advanceCoordination(id, body, "SAO", "idle", agent)
+        if advanced then return end
+    end
     -- Dusk homing: a person with an address heads for it as night falls -
     -- before the night hold, not instead of it. Threats already returned above.
     -- A follower whose anchor is present stays with the company instead;
@@ -5419,6 +5838,7 @@ local function updateMovement(id, agent, body)
     if agent.state == "TRAVEL" or agent.state == "FLEE" or agent.state == "ROAM"
         or agent.state == "HOMEWARD" or agent.state == "FORAGE"
         or agent.state == "SOURCEWARD"
+        or agent.state == "WORKWARD"
         or agent.state == "FOLLOW" or agent.state == "WATERWARD"
         or agent.state == "GEARWARD" or agent.state == "AMMOWARD"
         or agent.state == "MOURNWARD" or agent.state == "PLAYERFOLLOW"
@@ -5539,6 +5959,20 @@ local function updateMovement(id, agent, body)
                 agent.nextForageAt = tickCount + 600
                 setState(agent, id, "IDLE",
                     "observed source action ended: " .. tostring(verdict))
+                return true
+            end
+            if agent.state == "WORKWARD" then
+                local commitmentId = agent.coordinationCommitment
+                agent.coordinationCommitment = nil
+                agent.coordinationRoute = nil
+                local result = s:sub(6)
+                if commitmentId and SAO.Organization then
+                    SAO.Organization.routeOutcome(commitmentId,
+                        result == "arrived" and "arrived" or "interrupted",
+                        result)
+                end
+                setState(agent, id, "IDLE",
+                    "committed delivery route ended: " .. tostring(result))
                 return true
             end
             -- The forager's haul ([A28]): a sweep that ARRIVES
@@ -5998,6 +6432,13 @@ local function updateMovement(id, agent, body)
                 -- vanilla transfer. Out of reach or failed: rescan later.
                 local takeContext = agent.forageContext
                 agent.forageContext = nil
+                local commitmentId = agent.coordinationCommitment
+                if commitmentId and SAO.Organization then
+                    SAO.Organization.routeOutcome(commitmentId,
+                        s:find("arrived", 1, true) and "arrived" or "interrupted",
+                        s:sub(6))
+                    agent.coordinationRoute = nil
+                end
                 if s:find("arrived", 1, true) and SAO.Needs.queueTake(id, body, takeContext) then
                     agent.taskDeadline = tickCount + 1800
                     setState(agent, id, "TAKE", "at the container, taking food")
@@ -6270,7 +6711,7 @@ local function updateAgent(id, agent)
             agent.pendingHaul = nil
             if verdict == "completed" and haul then
                 startNearbyCollection(agent, id, body, haul.radius, haul.remaining,
-                    "continues collecting supplies")
+                    "continues collecting supplies", haul.context)
             end
         end
         return
@@ -6614,6 +7055,12 @@ local function updateAgent(id, agent)
                 end
                 pcall(function() SAOJavaBridge:equipBestMelee(body) end)
                 setState(agent, id, "IDLE", "ground item taken")
+            elseif agent.state == "TAKE"
+                and agent.takePurpose == "coordination" then
+                agent.takePurpose = nil
+                if SAO.Handover then SAO.Handover.reconcile(true) end
+                setState(agent, id, "IDLE",
+                    "personal delivery action reached its native result")
             elseif agent.state == "TAKE" and agent.takePurpose == "deposit" then
                 -- Owned transfers finish through SourceUse. A legacy or
                 -- lost queue has no completed-work evidence here.
@@ -7031,35 +7478,17 @@ local function updateAgent(id, agent)
                                     if tBody and (tState == "FORAGE" or tState == "WATERWARD"
                                         or tState == "GEARWARD" or tState == "AMMOWARD"
                                         or tState == "TAKE") then
-                                        local tNeeds = SAO.Needs.read(tBody)
-                                        local desperationAt = policy().desperation
-                                        local desperate = tNeeds
-                                            and (tNeeds.hunger >= desperationAt
-                                                or tNeeds.thirst >= desperationAt)
-                                        -- [C49] "Out" is an order and
-                                        -- goes through SAO.Command
-                                        -- like the rest (DR-033). The
-                                        -- owner holds no office over a
-                                        -- stranger, so what carries it
-                                        -- is the claim: standing on
-                                        -- ground you hold counts as a
-                                        -- second's standing in the
-                                        -- matter of leaving it. Most
-                                        -- trespassers go, some
-                                        -- grudgingly, and one who
-                                        -- thinks little of the owner
-                                        -- keeps looting. Desperation
-                                        -- stays here rather than in
-                                        -- SAO.Command: the threshold
-                                        -- is the controller's, dial
-                                        -- and lesson bump included,
-                                        -- and a starving survivor is
-                                        -- not refusing anyone.
-                                        local heeds = not desperate
-                                            and onTheirWord(id, trespasserId,
-                                                "leave",
-                                                { x = belief.x, y = belief.y },
-                                                nil)
+                                        -- "Out" is an addressed request. The
+                                        -- trespasser's own current activity,
+                                        -- need, relationship, capability and
+                                        -- the claimant's proved interest are
+                                        -- frozen by Command before this site
+                                        -- changes their action. Desperation is
+                                        -- therefore a recorded decline, not a
+                                        -- silent bypass of the conversation.
+                                        local heeds = onTheirWord(id,
+                                            trespasserId, "leave",
+                                            { x = belief.x, y = belief.y }, nil)
                                         if heeds then
                                             pcall(function() ISTimedActionQueue.clear(tBody) end)
                                             SAO.Needs.clearSource(tBody)
@@ -7246,11 +7675,21 @@ local agentFaults = {}
 -- for the caches that just need to stop existing.
 function Ctl.forget(id)
     agentFaults[tostring(id)] = nil
+    -- External execution owners borrow this scratch state without entering
+    -- Ctl.agents. Durable commitments remain in Organization; a dead
+    -- person's current route/body scratch does not.
+    Ctl.coordinationRuntime[tostring(id)] = nil
     -- [C8] Belt to the sweep's braces: the net's own sweep clears an
     -- entry the moment it fires, and the death funnel forgets one too
     -- - so a re-fired markDead can never leave a stale hold. The one
     -- table whose whole population is dead by design still forgets.
     Ctl.pendingCorpses[tostring(id)] = nil
+end
+
+function Ctl.coordinationRuntimeCount()
+    local n = 0
+    for _ in pairs(Ctl.coordinationRuntime) do n = n + 1 end
+    return n
 end
 
 -- [C8] The net, countable from the Ledger: a body between its death

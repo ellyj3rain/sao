@@ -228,12 +228,17 @@ end
 
 -- A sweep discovers a candidate, then the exact transfer owner rechecks
 -- inspection, permission and holders. Each item takes its native action.
-function N.collectNearby(id, body, radius, remaining)
+function N.collectNearby(id, body, radius, remaining, suppliedContext)
     local x, y, z = N.findSource(id, body, radius)
     if not x then return nil end
-    local context = { purpose = "forage", category = "food", admission = "standing",
-        haulRemaining = math.max(0, math.min(3, (remaining or 1) - 1)),
-        haulRadius = math.max(1, math.min(4, radius or 4)) }
+    local context = type(suppliedContext) == "table" and suppliedContext or {}
+    context.purpose = context.purpose or "forage"
+    context.category = "food"
+    context.admission = context.admission or "standing"
+    context.haulRemaining = math.max(0, math.min(3,
+        context.haulRemaining or ((remaining or 1) - 1)))
+    context.haulRadius = math.max(1, math.min(4,
+        context.haulRadius or radius or 4))
     local ok, within = pcall(function()
         return SAOJavaBridge:foodSourceWithinReach(body)
     end)

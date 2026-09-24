@@ -66,6 +66,13 @@ manufacture a moment.
 
 An optional argv[1] points the checker at another tree root, which
 is how its control runs.
+
+C79 retires the automatic election this historical fixture forced. On a current
+tree this border is a retirement sentinel: the old call must refuse with
+`explicit-process-required`, the production capture must observe recipient
+appraisal instead, and Border 190 must remain in the gate. If the shortcut is
+restored, the original engine fixture below runs and continues to judge its
+legacy row contract.
 """
 import json
 import pathlib
@@ -333,6 +340,36 @@ def main():
     dump = read(DUMP)
     capture_text = read(CAPTURE)
     standing = read(STANDING)
+    election_retired = bool(re.search(
+        r'function\s+S\.electLeader\(groupName\).*?'
+        r'return\s+nil,\s*S\.leaderOf\(groupName\),\s*'
+        r'"explicit-process-required".*?end', standing, re.S))
+    if election_retired:
+        retirement = {
+            "automatic election refuses instead of selecting a roster member":
+                election_retired,
+            "production capture observes actual recipient appraisal":
+                "function Capture.beginCoordination(context)" in capture_text
+                and "organization.appraiseMatter, organization.raiseMatter = appraiseWrapped" in capture_text,
+            "the replacement enacted-process border remains in the gate":
+                "tools/enacted_coordination_test.py" in read(CHECK),
+            "legacy rows retain their original house-need evidence shape":
+                "need = {" in capture_text
+                and "SAO.Standing.larderOf(groupName)" in capture_text
+                and "SAO.Standing.waterStoreOf(groupName)" in capture_text,
+        }
+        print("  C79 retirement: no automatic election is forced or captured")
+        for label, held in retirement.items():
+            print("  %s  %s" % ("yes" if held else "NO ", label))
+            if not held:
+                faults.append(label)
+        print()
+        if faults:
+            print("VERDICT: FAIL")
+            return 1
+        print("  148) RETIRED -- trade-scored automatic election cannot create "
+              "an outcome; recipient appraisal is captured by Border 190")
+        return 0
     seams = {
         "the decision holds the house's need state as the election opened":
             "need = {" in capture_text

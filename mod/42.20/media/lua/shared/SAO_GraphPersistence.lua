@@ -5,9 +5,13 @@ SAO.GraphPersistence = SAO.GraphPersistence or {}
 local GraphPersistence = SAO.GraphPersistence
 
 local STORE_KEY = "SurvivorAwareness_Graph"
-local GRAPH_SCHEMA = 3
+local GRAPH_SCHEMA = 4
 local C63_UPGRADE_PROVENANCE =
     "initialized at C63 upgrade from represented C62 state; no earlier history inferred"
+local LEGACY_RATION_POLICY = {
+    ["watch-first"] = true, ["weak-first"] = true,
+    ["house-first"] = true, ["carry-light"] = true,
+}
 
 local function groundedSettlement(base)
     local grounding = type(base) == "table" and base.grounding or nil
@@ -43,6 +47,12 @@ local function detachDurableOwners()
         SAO.Organization.offices = {}
         SAO.Organization.claims = {}
         SAO.Organization.decisions = {}
+        SAO.Organization.claimHistory = {}
+        SAO.Organization.decisionHistory = {}
+        SAO.Organization.processes = {}
+        SAO.Organization.processOrder = {}
+        SAO.Organization.processMeta = { sequence = 0 }
+        SAO.Organization.workReceipts = {}
     end
     if SAO.Settlement then SAO.Settlement.bases = {} end
     if SAO.Material then
@@ -143,10 +153,104 @@ local function migratePartialMaterialOutputs(store, priorSchema)
     end
     store.migrations.c64PartialMaterialCorrection = {
         fromSchema = priorSchema,
-        toSchema = GRAPH_SCHEMA,
+        toSchema = 3,
         provenance = "C64 marks selected-source projections partial; no complete house inventory inferred",
         markedPartialHouseStores = markedPartial,
         clearedPartialSettlementStorage = clearedStorage,
+    }
+end
+
+local function migrateEnactedProcesses(store, priorSchema)
+    -- Old claim/decision maps are retained as their latest compatibility
+    -- projection.  No legacy roster, office, message, or score is converted
+    -- into assent, a participant response, authority, or completed work.
+    store.organization.claimHistory = {}
+    store.organization.decisionHistory = {}
+    store.organization.processes = {}
+    store.organization.processOrder = {}
+    store.organization.processMeta = { sequence = 0 }
+    store.organization.workReceipts = {}
+    -- Preserve the last policy an existing save was already living under as
+    -- a legacy projection, without inventing a proposal, ballot, participant
+    -- response, office mandate, or commitment. New policy authority can only
+    -- come from the enacted process owner; this record merely prevents an
+    -- upgrade from silently changing established material behaviour.
+    local migratedLegacyPolicies, migratedLegacyFormClaims = 0, 0
+    local okStanding, standing = pcall(function()
+        return ModData.get("SurvivorAwareness_Standing")
+    end)
+    if okStanding and type(standing) == "table"
+        and type(standing.groupMeta) == "table" then
+        for organizationId, meta in pairs(standing.groupMeta) do
+            local policy = type(meta) == "table" and meta.rationPolicy or nil
+            if LEGACY_RATION_POLICY[policy] then
+                local key = tostring(organizationId)
+                    .. ":assembly:ration-policy"
+                if not store.organization.decisions[key] then
+                    local atHours = 0
+                    for _, history in ipairs(type(meta.govHistory) == "table"
+                        and meta.govHistory or {}) do
+                        if type(history) == "table" and history.kind == "policy"
+                            and history.policy == policy then
+                            atHours = tonumber(history.atHours) or atHours
+                        end
+                    end
+                    local record = {
+                        id = key .. ":legacy-r1", revision = 1,
+                        organization = tostring(organizationId),
+                        office = "assembly", holder = nil,
+                        matter = "ration-policy", decision = policy,
+                        basis = {
+                            legacyProjection = true,
+                            source = "SurvivorAwareness_Standing.groupMeta.rationPolicy",
+                            consent = "unrecorded",
+                        },
+                        processId = nil, commitmentId = nil,
+                        recordedAt = atHours,
+                    }
+                    store.organization.decisions[key] = record
+                    store.organization.decisionHistory[key] = { record }
+                    migratedLegacyPolicies = migratedLegacyPolicies + 1
+                end
+            end
+            -- The old player verb stored an urged form directly on groupMeta.
+            -- Preserve an attributed ask as an unanswered legacy claim; do not
+            -- create a process, reception, response, commitment or authority.
+            local urgedForm = type(meta) == "table" and meta.urgedForm or nil
+            local urgedBy = type(meta) == "table" and meta.urgedBy or nil
+            local urgedAtHours = type(meta) == "table"
+                and tonumber(meta.urgedAtHours) or 0
+            if (urgedForm == "council" or urgedForm == "ladder")
+                and type(urgedBy) == "string" and urgedBy ~= "" then
+                local key = urgedBy .. ":governance-form:"
+                    .. tostring(organizationId)
+                if not store.organization.claims[key] then
+                    local claim = {
+                        id = key .. ":legacy-r1", key = key, revision = 1,
+                        claimant = urgedBy, kind = "governance-form",
+                        target = tostring(organizationId),
+                        organization = tostring(organizationId),
+                        recognizers = {}, dissenters = {},
+                        response = "unanswered",
+                        evidence = { legacyProjection = true,
+                            proposedForm = urgedForm,
+                            source = "SurvivorAwareness_Standing.groupMeta",
+                            consent = "unrecorded" },
+                        recordedAt = urgedAtHours,
+                    }
+                    store.organization.claims[key] = claim
+                    store.organization.claimHistory[key] = { claim }
+                    migratedLegacyFormClaims = migratedLegacyFormClaims + 1
+                end
+            end
+        end
+    end
+    store.migrations.c79EnactedProcesses = {
+        fromSchema = priorSchema,
+        toSchema = GRAPH_SCHEMA,
+        provenance = "C79 initializes empty enacted-process state; no prior consent or work inferred",
+        migratedLegacyPolicies = migratedLegacyPolicies,
+        migratedLegacyFormClaims = migratedLegacyFormClaims,
     }
 end
 
@@ -189,6 +293,18 @@ function GraphPersistence.store()
         and store.organization.claims or {}
     store.organization.decisions = type(store.organization.decisions) == "table"
         and store.organization.decisions or {}
+    store.organization.claimHistory = type(store.organization.claimHistory)
+        == "table" and store.organization.claimHistory or {}
+    store.organization.decisionHistory = type(store.organization.decisionHistory)
+        == "table" and store.organization.decisionHistory or {}
+    store.organization.processes = type(store.organization.processes)
+        == "table" and store.organization.processes or {}
+    store.organization.processOrder = type(store.organization.processOrder)
+        == "table" and store.organization.processOrder or {}
+    store.organization.processMeta = type(store.organization.processMeta)
+        == "table" and store.organization.processMeta or { sequence = 0 }
+    store.organization.workReceipts = type(store.organization.workReceipts)
+        == "table" and store.organization.workReceipts or {}
 
     store.settlement.bases = type(store.settlement.bases) == "table"
         and store.settlement.bases or {}
@@ -206,6 +322,9 @@ function GraphPersistence.store()
     end
     if priorSchema < 3 then
         migratePartialMaterialOutputs(store, priorSchema)
+    end
+    if priorSchema < 4 then
+        migrateEnactedProcesses(store, priorSchema)
     end
     if priorSchema < GRAPH_SCHEMA then
         store.schema = GRAPH_SCHEMA
@@ -231,6 +350,12 @@ function GraphPersistence.bind()
         SAO.Organization.offices = store.organization.offices
         SAO.Organization.claims = store.organization.claims
         SAO.Organization.decisions = store.organization.decisions
+        SAO.Organization.claimHistory = store.organization.claimHistory
+        SAO.Organization.decisionHistory = store.organization.decisionHistory
+        SAO.Organization.processes = store.organization.processes
+        SAO.Organization.processOrder = store.organization.processOrder
+        SAO.Organization.processMeta = store.organization.processMeta
+        SAO.Organization.workReceipts = store.organization.workReceipts
     end
 
     if SAO.Settlement then

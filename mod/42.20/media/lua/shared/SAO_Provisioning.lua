@@ -238,6 +238,21 @@ function Provisioning.processReceipt(receipt)
         local accepted, why = SAO.Perception.receiveTransferResult(receipt)
         if accepted ~= true then return false, why or "perception-refused" end
     end
+    -- Organization consumes the same native receipt before the sole ledger
+    -- acknowledgement. Its own receipt idempotency makes reload retry safe;
+    -- queue admission alone never advances shared work to completion.
+    if receipt.commitmentId ~= nil then
+        if not (SAO.GraphPersistence and SAO.GraphPersistence.bind
+            and SAO.Organization and SAO.Organization.consumeSourceResult) then
+            return false, "organization-unavailable"
+        end
+        local bound, bindWhy = SAO.GraphPersistence.bind()
+        if bound ~= true then return false, bindWhy or "graph-unavailable" end
+        local consumed, consumeWhy = SAO.Organization.consumeSourceResult(receipt)
+        if consumed ~= true then
+            return false, consumeWhy or "organization-result-refused"
+        end
+    end
     -- A proved native move remains an experience when later conservation or
     -- holder checks conflict. Deliver that experience without crediting a
     -- completed action or projecting any material or social result.

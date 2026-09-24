@@ -1,6 +1,6 @@
 | Document | The three projects and what each owns |
 |---|---|
-| Version | `2.8.14.0-pre-alpha` |
+| Version | `2.9.0.0-pre-alpha` |
 | Author | ellyj3rain |
 | Repository | `PROJECTS.md` |
 | Status | CANONICAL - the architecture across the three repositories. Held here; `../zombie-awareness` and `../zomboid-speakeasy` point at it. |
@@ -92,8 +92,9 @@ The second crossing between these two, opened at ZAO's `[A11]` and
 running the other way from the turn. A person becomes ZAO's while
 remaining inside SAO's county: an afflicted body is a person again, in a
 house, holding bonds, being argued over; a crossed one looks like a
-person and acts with the sister's own action vocabulary - driving,
-explosives, loudspeakers - with what humanity gave it stripped out. The
+person and retains cognition, identity, history and established capability
+within its actual constraints. Driving, explosives, loudspeakers and other
+human actions stay available when their prerequisites remain. The
 sister's machinery for houses, standing, fear and temperament reaches a
 body the sister no longer owns.
 
@@ -105,8 +106,8 @@ SAO executes the afflicted, because a person again is a person - the
 house argues over them because they never left the county's machinery
 - while ZAO owns the pathogen state on them and executes the crossed,
 who came through death as the risen did. The crossed's vocabulary is
-a bidirectional goal: they read SAO's action machinery stripped of
-what humanity gave it, and what they need from driving feeds forward
+a bidirectional goal: they use the applicable SAO action machinery under
+ZAO execution ownership, and what they need from driving feeds forward
 into SAO's mapping of it - `[C33]` has mapped what the engine gives a
 driver who is not the player, and F-067 holds the finding - a
 standing goal between the two repositories and never a dependency
@@ -143,7 +144,8 @@ own word for it, and no table can stand in for that (DR-038).
 The third edge carries cognition conditioned by event-derived pathogen state.
 Cross-module rows, a state producer and the row contract now exist. Complete
 training and learned runtime consumption remain unfinished. ZAO owns pathogen
-state; Speakeasy owns datasets and models; SAO owns living decision execution.
+state and Crossed execution; SAO owns survivor and living Afflicted execution;
+Speakeasy owns datasets and models.
 SUBSTRATE.md records the implementation boundaries and current evidence.
 
 ## What holds across all three
@@ -167,9 +169,9 @@ SUBSTRATE.md records the implementation boundaries and current evidence.
 
 | | Version | Standing |
 |---|---|---|
-| SAO | see `VERSION` | C64-C66 establish immutable decision capture, exact source options and performed acquire/store results. C74 adds a dated person-private world-claim acquisition and deterministic same-person evidence port without protected prose. C75 assigns deterministic snapshot-local references across the current private knowledge surface and restricts the factual fence to selected references; current speech is unchanged. R7-R10 retain the missing action/life producers. |
-| ZAO | `../zombie-awareness/VERSION` | A37 makes the Crossed pass reachable for the non-feeding Afflicted exposure and owns the same transferred human shell across loaded, dormant and dead states. The complete retained human action vocabulary and loaded-world observation remain open. |
-| Speakeasy | `../zomboid-speakeasy/RECORD.md` | 112 work-word and 78 trade-hinge choices plus nine world documents are hash-protected. Version 3 requires exact run/county/person/event/hour joins and executable option evidence, validates before atomic publication and refuses protected destinations. Record 52 repository-reviews C74's one outage extraction and Ada North acquisition as a conditioning-ineligible catalogue reference, with zero training rows. Authored behavior targets, task datasets and the trained runtime remain open. |
+| SAO | see `VERSION` | C79 adds acquired versioned proposals, individual responses, scoped concurrent commitments and exact acquisition/carry/delivery outcomes across loaded, dormant and registered external owners. Automatic roster elections, inferred recognition and score-triggered schism no longer decide. Wider institutions and life producers remain open. |
+| ZAO | `../zombie-awareness/VERSION` | A38 supplies Crossed activity/capability to the shared coordination path through the retained human shell and rejects malformed IsoZombie admission before side effects. Non-feeding intentional exposure remains distinct. Wider retained human actions and loaded-world observation remain open. |
+| Speakeasy | active Record 63 worktree | The exact v3 namespace and executable options now bind one enacted process revision, actor/executor ownership, current work/competing priorities and separate decision/outcome horizons. Candidate observations remain unreviewed and training-ineligible; no model or native learned consumer exists. |
 
 Each of those is its own repository's to update. This table says where
 the three stand relative to each other, which is the thing no single

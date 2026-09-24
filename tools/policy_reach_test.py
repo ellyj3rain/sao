@@ -1,7 +1,8 @@
 #!/usr/bin/env python3
-r"""[B35] A policy that governed nothing.
+r"""[B35/C79] A policy option that governed nothing.
 
-Four creeds each adopt a ration policy, mapped in SAO_Standing:
+Four lived pulls can inform a person's ration-policy proposal, mapped in
+SAO_Standing:
 
     order = "watch-first"   mercy = "weak-first"
     wall  = "house-first"   road  = "carry-light"
@@ -11,9 +12,11 @@ on the wire as "light packs, nothing held back", and then read by no
 gate anywhere - so a road house behaved exactly like a house with no
 policy at all. Authored intent, unreachable.
 
-This counts, per policy value, how many places READ it as a behaviour
-gate, and fails when a policy the map can assign has none. A policy
-that only the radio mentions is a policy in name.
+The map is preference, not enactment: C79 removed the automatic creed-to-house
+policy assignment. This counts, per proposed/preserved policy value, how many
+places READ an explicit Organization decision as a behaviour gate. A policy
+that can be proposed but can govern nothing is still authored intent without
+a consequence.
 
 Method notes, because getting here took two wrong passes:
 
@@ -42,12 +45,11 @@ ST = LUA / "shared" / "SAO_Standing.lua"
 
 
 def policy_map():
-    """creed -> policy, read from the map that assigns it."""
+    """lived pull -> policy preference, read from the proposal map."""
     src = ST.read_text(encoding="utf-8", errors="ignore")
-    m = re.search(r"local policy = creedName0 and \(\{(.*?)\}\)", src,
-                  re.S)
+    m = re.search(r"local RATION_PREFERENCE\s*=\s*\{(.*?)\}", src, re.S)
     if not m:
-        raise SystemExit("policy_reach_test: the creed->policy map "
+        raise SystemExit("policy_reach_test: the preference->policy map "
                          "moved; this tool is blind")
     return dict(re.findall(r"(\w+)\s*=\s*\"([\w-]+)\"", m.group(1)))
 
@@ -87,7 +89,7 @@ def main():
 
     print()
     print("VERDICT:")
-    print(f"  policies a creed can adopt: {len(set(mapping.values()))}")
+    print(f"  policies a person can propose: {len(set(mapping.values()))}")
     print(f"  governing nothing:          {len(dead)} {dead}")
     if dead:
         return 1

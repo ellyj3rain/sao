@@ -16,9 +16,9 @@ the machine. Names, dates, and threads below come from
 | Form | `major.minor.kohai.patch-maturity` |
 | Hard caps | minor 12; kohai 16; patch 24 |
 | Replay start | `0.1.0.0-pre-alpha` |
-| Current version | `2.8.14.0-pre-alpha` |
-| Closed chronology | `A1-C78` |
-| Next batch | `C79` |
+| Current version | `2.9.0.0-pre-alpha` |
+| Closed chronology | `A1-C79` |
+| Next batch | `C80` |
 | Executable source | [`tools/version_replay.py`](tools/version_replay.py) |
 
 ## Tier meanings
@@ -194,6 +194,7 @@ the machine. Names, dates, and threads below come from
 | `C76` | 2026-09-22 | kohai | `2.8.13.0-pre-alpha` | Conversation capture | Capture authored conversation inputs from production knowledge owners with explicit reader coverage, immutable owner-state checks and content-addressed references. Reject unavailable or unsupported sources before reads, preserve personal radio provenance and keep authored captures separate from trained behavior. |
 | `C77` | 2026-09-22 | patch | `2.8.13.1-pre-alpha` | Evidenced world knowledge | Correct unsupported county-presence acquisition using exact native reading completion and person-bound report receipts; withhold legacy grants, preserve their history and regenerate the controlled capture with evidenced acquisition. |
 | `C78` | 2026-09-23 | kohai | `2.8.14.0-pre-alpha` | Person-state comparisons | Extend conversation capture with existing person-state contributions, explicit availability and controlled contextual comparisons; preserve source ownership and version-one compatibility. |
+| `C79` | 2026-09-24 | minor | `2.9.0.0-pre-alpha` | Enacted social coordination | Introduce enacted social coordination as a player-visible and authoring contract: acquired versioned proposals, recipient-private responses, scoped concurrent commitments and exact-once native acquisition/carry/delivery results across loaded, dormant and external execution owners. Retire automatic roster authority and fracture shortcuts without claiming wider institutional procedures or remaining life producers complete. |
 
 ## The former number
 
@@ -214,11 +215,11 @@ establish release maturity.
 
 ## Next movement
 
-`C79` is the next batch. Its content determines its tier after it
+`C80` is the next batch. Its content determines its tier after it
 exists:
 
-| If C79 is | Result |
+| If C80 is | Result |
 |---|---|
-| patch or hotfix | `2.8.14.1-pre-alpha` |
-| kohai | `2.8.15.0-pre-alpha` |
-| minor | `2.9.0.0-pre-alpha` |
+| patch or hotfix | `2.9.0.1-pre-alpha` |
+| kohai | `2.9.1.0-pre-alpha` |
+| minor | `2.10.0.0-pre-alpha` |

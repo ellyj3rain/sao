@@ -62,6 +62,7 @@ STDLIB = PZ_DIR / "stdlib.lua"
 MODULES = [
     "shared/SAO_Log.lua", "shared/SAO_Hash.lua", "shared/SAO_Rand.lua",
     "shared/SAO_Census.lua", "shared/SAO_History.lua",
+    "shared/SAO_Organization.lua", "shared/SAO_Recognition.lua",
     "shared/SAO_Disposition.lua", "shared/SAO_Conditions.lua",
     "shared/SAO_Habits.lua", "shared/SAO_Claims.lua", "shared/SAO_Identity.lua",
     "shared/SAO_Lessons.lua", "shared/SAO_WorldKnowledge.lua", "shared/SAO_Knowledge.lua",
@@ -150,66 +151,64 @@ DEATH = r'''(function()
     for i = 1, 3 do SAO.Standing.joinGroup(made[i].id, name) end
   end
   local founded = rows(name)
-  local leader = SAO.Standing.leaderOf(name)
+  local autoLeader = SAO.Standing.leaderOf(name)
+  -- Give the house real enacted organization state so dissolution must clean
+  -- every office while preserving the process evidence that created it.
+  SAO.Organization.createOrganization(name, {}, 'communal')
+  for i = 1, 3 do SAO.Organization.join(name, made[i].id) end
+  SAO.Organization.createOffice(name, 'chair', { membership=true },
+    'consent', 'consent')
+  SAO.Organization.createOffice(name, 'deputy', { membership=true },
+    'consent', 'consent')
+  local officeProcess = SAO.Organization.raiseMatter('procedure',
+    'office:chair', name, {
+      officeId='chair', holderId=made[3].id,
+      scope={ officeId='chair', holderId=made[3].id },
+    }, { made[3].id }, { source='border136' })
+  SAO.Organization.recordReception(officeProcess.id, made[3].id,
+    officeProcess.revision, 'spoken', 'procedure', {})
+  SAO.Organization.appraiseMatter(officeProcess.id, made[3].id, {
+    choice='accept', owner='border136', executor='border136',
+    currentActivity='idle', canExecute=true, relationship=1,
+  })
+  SAO.Organization.deliverResponse(officeProcess.id, made[3].id,
+    'procedure', 'spoken', {})
+  local officeCommitment = SAO.Organization.activeCommitment(made[3].id,
+    'office:chair')
+  local appointed = officeCommitment and SAO.Organization.appoint(name,
+    'chair', made[3].id, officeCommitment.id) or false
   -- The group holds ground, so the widow release has something to hand on.
   s.groupClaims = s.groupClaims or {}
   s.groupClaims[name] = { minX = 1, minY = 2, maxX = 3, maxY = 4, z = 0 }
-  -- A non-leader dies.
-  local victim = nil
-  for i = 1, 3 do if made[i].id ~= leader then victim = made[i] break end end
+  -- A member dies. No automatic leader is needed to identify anyone.
+  local victim = made[1]
   SAO.Identity.markDead(victim, 0, "border")
   local afterOne = rows(name) .. "/" .. living(name)
   local corpseInHouse = tostring(SAO.Standing.groupOf(victim.id))
-  -- The LEADER dies. This is the case `SAO_Controller` used to handle
-  -- on its own, and this batch deleted that call site, so the funnel
-  -- has to be shown doing its job. Its own people and its own house:
-  -- borrowing the three above let this block decide their fate and
-  -- broke every assertion after it.
-  local leadGone = "n/a"
-  do
-    local p1 = SAO.Identity.create(nil, nil, 10600, 9100, 0)
-    local p2 = SAO.Identity.create(nil, nil, 10600, 9100, 0)
-    pcall(function() SAO.History.generate(p1.id, p1) end)
-    pcall(function() SAO.History.generate(p2.id, p2) end)
-    SAO.Standing.adjustTrust(p1.id, p2.id, 0.85)
-    SAO.Standing.adjustTrust(p2.id, p1.id, 0.85)
-    if SAO.Standing.formCompany then
-      SAO.Standing.formCompany({ p1.id, p2.id }, "chair-test")
-    else
-      SAO.Standing.joinGroup(p1.id, "chair-test")
-      SAO.Standing.joinGroup(p2.id, "chair-test")
-    end
-    local chair = SAO.Standing.leaderOf("chair-test")
-    local other = (p1.id == chair) and p2.id or p1.id
-    local chairRec = SAO.Identity.get(chair)
-    if chairRec then SAO.Identity.markDead(chairRec, 0, "border") end
-    leadGone = tostring(SAO.Standing.leaderOf("chair-test"))
-      .. ":" .. tostring(SAO.Standing.groupOf(other))
-  end
-
-  -- A second non-leader dies: one living member is left.
-  local victim2 = nil
-  for i = 1, 3 do
-    if made[i].id ~= leader and made[i].id ~= victim.id then
-      victim2 = made[i]
-    end
-  end
+  -- A second member dies: one living member is left and lifecycle cleanup
+  -- dissolves the house without choosing a successor.
+  local victim2 = made[2]
   SAO.Identity.markDead(victim2, 0, "border")
   local afterTwo = rows(name) .. "/" .. living(name)
-  local lastGroup = tostring(SAO.Standing.groupOf(leader))
-  local lastClaim = (s.claims and s.claims[leader]) and "kept" or "lost"
-  local lastJob = "nil"
-  for i = 1, 3 do
-    if made[i].id == leader then lastJob = tostring(made[i].designation) end
-  end
-  return "founded=" .. founded .. " leader=" .. tostring(leader)
+  local survivor = made[3]
+  local lastGroup = tostring(SAO.Standing.groupOf(survivor.id))
+  local lastClaim = (s.claims and s.claims[survivor.id]) and "kept" or "lost"
+  local lastJob = tostring(survivor.designation)
+  local organizationGone = SAO.Organization.organizations[name] == nil
+  local officesGone = SAO.Organization.offices[name .. ':chair'] == nil
+    and SAO.Organization.offices[name .. ':deputy'] == nil
+  local processKept = SAO.Organization.processes[officeProcess.id] ~= nil
+  return "founded=" .. founded .. " autoLeader=" .. tostring(autoLeader)
+    .. " appointed=" .. tostring(appointed)
     .. " afterOneDeath=" .. afterOne
     .. " corpseInHouse=" .. corpseInHouse
     .. " afterTwoDeaths=" .. afterTwo
     .. " lastMemberGroup=" .. lastGroup
     .. " lastMemberClaim=" .. lastClaim
     .. " lastMemberJob=" .. lastJob
-    .. " chairDied=" .. leadGone
+    .. " organizationGone=" .. tostring(organizationGone)
+    .. " officesGone=" .. tostring(officesGone)
+    .. " processKept=" .. tostring(processKept)
 end)()'''
 
 
@@ -300,8 +299,9 @@ def main():
     seams = {
         "the death funnel releases the dead from their house":
             "leaveOnDeath" in read(IDENTITY) or "S.releaseDead" in read(STANDING),
-        "the widow release is still in the election":
-            "s.groups[widow] = nil" in read(STANDING),
+        "the widow release remains lifecycle cleanup":
+            "function S.maintainRoster(" in read(STANDING)
+            and "s.groups[widow] = nil" in read(STANDING),
         "no call site settles a house the death already settled":
             not elects_after_a_death(),
         "the gate runs this border":
@@ -341,6 +341,12 @@ def main():
         faults.append("the house was not founded with three members (%s), "
                       "so nothing below measures what it claims"
                       % got.get("founded"))
+    if got.get("autoLeader") != "nil":
+        faults.append("forming the roster manufactured an automatic leader (%s)"
+                      % got.get("autoLeader"))
+    if got.get("appointed") != "true":
+        faults.append("the explicit office fixture was not enacted, so office "
+                      "cleanup was not exercised")
     if got.get("afterOneDeath") != "2/2":
         faults.append(
             "a house of three lost one member to death and holds %s "
@@ -366,23 +372,15 @@ def main():
             "the released widow did not keep the house: the group claim "
             "is meant to become their personal claim before it lapses, "
             "and a death took the ground with it")
-    chair = got.get("chairDied")
-    if chair == "n/a":
-        faults.append("this tree has no founding verb, so the chair "
-                      "case could not be set up")
-    elif chair != "nil:nil":
-        faults.append(
-            "a house of two lost its LEADER and came back %s "
-            "(leader:survivor's house), wanted nil:nil - the survivor "
-            "is the last of a house and is released with it. This is "
-            "the case SAO_Controller handled on its own before this "
-            "batch, and that call site is gone, so the funnel has to "
-            "do it for every death path including the dormant ones "
-            "that never reached the controller at all" % chair)
-
     if got.get("lastMemberJob") != "nil":
         faults.append("the released widow kept their designation (%s)"
                       % got.get("lastMemberJob"))
+    if got.get("organizationGone") != "true" or got.get("officesGone") != "true":
+        faults.append("dissolution left organization/office projections alive "
+                      "(%s/%s)" % (got.get("organizationGone"),
+                                    got.get("officesGone")))
+    if got.get("processKept") != "true":
+        faults.append("dissolution erased the enacted process evidence")
 
     print()
     for k, v in seams.items():
@@ -397,9 +395,8 @@ def main():
             print("  FAULT: " + f)
         print("  136) a death leaves the company: FAIL")
         return 1
-    print("  136) a death leaves the company, the house re-elects, and a "
-          "house emptied by death releases its last member with the "
-          "ground: PASS")
+    print("  136) deaths release roster rows, widow ground survives, live "
+          "organization projections retire, and process evidence remains: PASS")
     return 0
 
 

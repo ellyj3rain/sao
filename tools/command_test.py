@@ -1,363 +1,367 @@
 #!/usr/bin/env python3
-r"""Border 111 - an order lands through standing ([C37], DR-033 ruled).
+"""Border 111 - commands are acquired, answered, and scope-bound.
 
-The operator ruled that no authority table is authored: whether a
-person does what they are told is decided by the Standing that exists
-- houses, leaders, designations, trust - and the competence the giver
-has shown, the way CAO's Authority pillar decides it. SAO_Command
-carries that check: the giver's command standing (an office over the
-person, or a proven hand, shaded by the person's trust in them), the
-person's conformity read off the initiative axis and their discipline,
-three bands, a reason with every no; then the envelope - what the
-person would do at all - with the person's own reason.
-
-Checked in the engine's own VM (tools/luacheck/LuaRun) against Border
-105's stub county with a stub Standing installed, the real
-disposition loaded over the flat one:
-
-  * CAO's own tuning invariant on flat traits: the default person
-    under a peer scores 0.445 and complies cleanly;
-  * over the county sampled - the leader's word taken by everyone,
-    the disliked stranger's by nobody and for the right reason, the
-    stranger's by the share the axes give with the reason "sees no
-    standing", the reluctant band where CAO put it;
-  * the chair is the leader; a proven hand stands as a second, in a
-    fight by kills and in a job by the teaching margin;
-  * the envelope: nobody fights unarmed, a small child is too afraid,
-    another's ground is not walked onto, ground believed to be
-    somebody's is not walked onto;
-  * every word plain.
-
-And by text, every seam: each ask in the harness through the gate,
-the raw trust line gone from the crew, the three answers and the
-answer seen, the gesture map, the panel row, the controller's margin
-read from the module and the registry. An optional
-argv[1] points the checker at another tree root, which is how its
-control runs: the pre-batch tree faults at every seam.
+This border runs the production Organization and Command modules in Kahlua.
+It distinguishes voluntary agreement from authority, holds capability and
+current activity inside the recipient's private appraisal, and proves that an
+accepted food-delivery commitment cannot authorize an unrelated command.
 """
+from __future__ import annotations
+
 import pathlib
 import re
 import shutil
 import subprocess
-import sys
 import tempfile
 
-# Catalog references are verified by map_reference_test and version_replay.
-# A historical SHIPPED sentence is not a mechanical completion condition.
-ROOT = pathlib.Path(sys.argv[1]).resolve() if len(sys.argv) > 1 \
-    else pathlib.Path(__file__).resolve().parent.parent
-HERE = pathlib.Path(__file__).resolve().parent
-SHARED = ROOT / "mod" / "42.20" / "media" / "lua" / "shared"
-CLIENT = ROOT / "mod" / "42.20" / "media" / "lua" / "client"
-HASH = SHARED / "SAO_Hash.lua"
-HISTORY = SHARED / "SAO_History.lua"
-COND = SHARED / "SAO_Conditions.lua"
-DISP = SHARED / "SAO_Disposition.lua"
-COMMAND = SHARED / "SAO_Command.lua"
-HARNESS = CLIENT / "SAO_Harness.lua"
-VOICE = CLIENT / "SAO_Voice.lua"
-GESTURE = CLIENT / "SAO_Gesture.lua"
-INSPECT = CLIENT / "SAO_Inspect.lua"
-CONTROLLER = CLIENT / "SAO_Controller.lua"
-ARCH = ROOT / "ARCHITECTURE.md"
-REGISTRY = ROOT / "DECISION_REGISTRY.md"
-CHECK = ROOT / "tools" / "check.sh"
-PRELUDE = HERE / "luacheck" / "probe_age.lua"
-SRC = HERE / "luacheck" / "LuaRun.java"
-OUT = ROOT / "java" / "out" / "luacheck"
+
+ROOT = pathlib.Path(__file__).resolve().parent.parent
+LUA = ROOT / "mod/42.20/media/lua"
+ORGANIZATION = LUA / "shared/SAO_Organization.lua"
+COMMAND = LUA / "shared/SAO_Command.lua"
+CONTROLLER = LUA / "client/SAO_Controller.lua"
+HARNESS = LUA / "client/SAO_Harness.lua"
+CHECK = ROOT / "tools/check.sh"
+RUNNER = ROOT / "tools/luacheck/LuaRun.java"
+OUT = ROOT / "java/out/luacheck"
 JDK = pathlib.Path(r"C:\Users\jleyv\Peanut Butter\JetBrains\Java\bin")
-PZ_DIR = pathlib.Path(r"C:\Program Files (x86)\Steam\steamapps\common\ProjectZomboid")
+PZ_DIR = pathlib.Path(
+    r"C:\Program Files (x86)\Steam\steamapps\common\ProjectZomboid")
 PZ = PZ_DIR / "projectzomboid.jar"
 STDLIB = PZ_DIR / "stdlib.lua"
 
-IDS = 6000
+PRELUDE = r'''
+_G.__now = 100
+_G.__groups, _G.__trust, _G.__hostile = {}, {}, {}
+_G.__canConverse = true
+_G.__need, _G.__insideClaim = 0, false
+SAO = {
+  History = { countyHours = function() return __now end },
+  Standing = {}, Identity = {}, Body = {}, Controller = { agents = {} },
+  Census = { JOB_PERK = {}, skillOf = function() return 0 end },
+  Disposition = {
+    fear = function() return 0 end,
+    fleeDistance = function() return 10 end,
+    wouldEngage = function() return true end,
+  },
+  Perception = {
+    believedThreatCount = function() return 1 end,
+    believesClaimed = function() return nil end,
+    nearestBelievedZombie = function() return nil end,
+  },
+  Communication = {},
+  Needs = { read = function() return { hunger=__need, thirst=0 } end },
+}
+SAO.Standing.groupOf = function(id) return __groups[tostring(id)] end
+SAO.Standing.trust = function(id, other)
+  local row = __trust[tostring(id)]
+  return row and row[tostring(other)] or 0
+end
+SAO.Standing.isHostileTo = function(id, other)
+  return __hostile[tostring(id) .. '>' .. tostring(other)] == true
+end
+SAO.Standing.insideClaim = function() return __insideClaim end
+SAO.Standing.mayEnter = function() return true end
+SAO.Standing.isPlayerKey = function() return false end
+SAO.Standing.playerKey = function() return nil end
+SAO.Identity.get = function() return nil end
+SAO.Body.get = function() return nil end
+SAO.Communication.bodyFor = function(id)
+  if id == 'recipient' then return {} end
+  return nil
+end
+SAO.Communication.canConverse = function() return __canConverse end
+getSpecificPlayer = function() return nil end
+Perks = {}
+'''
 
-# A Standing the command surface can read, installed over the probe's
-# empty one; a player of five kills and Aiming 4; nobody has a body.
-STUB = (
-    "local trustT, groups, leaders, chairs, seconds = {}, {}, {}, {}, {} "
-    "SAO.Standing.trust = function(id, key) return trustT[id] and trustT[id][key] or 0 end "
-    "SAO.Standing.groupOf = function(id) return groups[id] end "
-    "SAO.Standing.leaderOf = function(g) return leaders[g] end "
-    "SAO.Standing.playerChairOf = function(g) return chairs[g] end "
-    "SAO.Standing.secondOf = function(g) return seconds[g] end "
-    "SAO.Standing.isPlayerKey = function(k) return string.sub(tostring(k), 1, 7) == 'player:' end "
-    "SAO.Standing.playerKey = function(b) return 'player:me' end "
-    "SAO.Standing.mayEnter = function(id, x, y) return x ~= 99 end "
-    "SAO.Standing.isHostileTo = function() return false end "
-    "SAO.Body = { get = function(id) return nil end } "
-    "SAO.Controller = { agents = {}, tick = function() return 1000 end } "
-    "SAO.Perception = { believesClaimed = function(id, x, y) if x == 77 then return 'other' end return nil end, "
-    "nearestBelievedZombie = function() return nil end, believedThreatCount = function() return 1 end } "
-    "SAO.Census.JOB_PERK = { watch = 'Aiming' } "
-    "SAO.Census.skillOf = function(id, perk) return 0 end "
-    "getSpecificPlayer = function(n) return { getZombieKills = function() return 5 end, "
-    "getPerkLevel = function() return 4 end, getUsername = function() return 'me' end } end "
-    "Perks = { Aiming = 'Aiming' } "
-    "local Cmd, H = SAO.Command, SAO.History local me = 'player:me' "
-    "local function setTrust(id, v) trustT[id] = trustT[id] or {} trustT[id][me] = v end ")
+PROBE = r'''(function()
+  local checks = {}
+  local function check(name, value)
+    checks[#checks + 1] = name .. '=' .. tostring(value == true)
+  end
+  local function latest(origin, kind)
+    for index = #SAO.Organization.processOrder, 1, -1 do
+      local p = SAO.Organization.processes[SAO.Organization.processOrder[index]]
+      if p and p.originatorId == origin and p.kind == 'command:' .. kind then
+        return p
+      end
+    end
+    return nil
+  end
+  local function accept(origin, actor, matter, proposal)
+    local p = SAO.Organization.raiseMatter(origin, matter, 'g', proposal,
+      { actor }, { source='border111' })
+    SAO.Organization.recordReception(p.id, actor, p.revision, 'spoken', origin, {})
+    SAO.Organization.appraiseMatter(p.id, actor, {
+      owner='border111', executor='border111', currentActivity='idle',
+      canAcquire=true, canCarry=true, canDeliver=true, canExecute=true,
+      relationship=1, destinationKnown=true, choice='accept',
+    })
+    SAO.Organization.deliverResponse(p.id, actor, origin, 'spoken', {})
+    return p, SAO.Organization.activeCommitment(actor, matter)
+  end
+
+  local Org, Cmd = SAO.Organization, SAO.Command
+  Org.createOrganization('g', {}, 'communal')
+  for _, id in ipairs({ 'recipient', 'giver', 'office-giver', 'requester' }) do
+    Org.join('g', id)
+  end
+  __groups.recipient = 'g'
+  SAO.Controller.agents.recipient = { state='IDLE', armed=false }
+
+  __canConverse = false
+  local verdict, reason = Cmd.order('unheard', 'recipient', 'walk', nil)
+  local unheard = latest('unheard', 'walk')
+  local unheardRow = unheard.participants.recipient
+  check('unheard_request_stays_unanswered', verdict == 'refuses'
+    and reason == 'did not receive the request'
+    and unheardRow.responses['1'] == nil)
+
+  __canConverse = true
+  verdict, reason = Cmd.order('neutral', 'recipient', 'walk', nil)
+  local neutral = latest('neutral', 'walk')
+  local neutralView = Org.viewFor('recipient', neutral.id, false)
+  check('neutral_recipient_qualifies_instead_of_inferred_assent',
+    verdict == 'refuses' and neutralView.response.response == 'qualify'
+    and neutralView.privateInputs.choice == 'qualify'
+    and neutralView.privateInputs.executor == 'SAO.Command')
+
+  __trust.recipient = { liked=0.4 }
+  verdict = Cmd.order('liked', 'recipient', 'walk', nil)
+  check('relationship_can_support_voluntary_acceptance', verdict == 'complies'
+    and Org.activeCommitment('recipient', 'command:walk') ~= nil)
+
+  SAO.Controller.agents.recipient.state = 'WORK'
+  verdict = Cmd.order('busy', 'recipient', 'hold', nil)
+  local busy = latest('busy', 'hold')
+  check('current_activity_can_defer', verdict == 'refuses'
+    and Org.viewFor('recipient', busy.id, false).response.response == 'defer')
+
+  SAO.Controller.agents.recipient.state = 'IDLE'
+  __hostile['recipient>hostile'] = true
+  verdict = Cmd.order('hostile', 'recipient', 'hold', nil)
+  local contested = latest('hostile', 'hold')
+  check('hostility_can_contest', verdict == 'refuses' and contested.contested == true
+    and Org.viewFor('recipient', contested.id, false).response.response == 'contest')
+
+  verdict, reason = Cmd.order('liked', 'recipient', 'engage', nil)
+  local incapable = latest('liked', 'engage')
+  check('capability_can_decline', verdict == 'refuses'
+    and reason == 'has nothing to fight with'
+    and Org.viewFor('recipient', incapable.id, false).response.response == 'decline')
+
+  __insideClaim, __need = true, 0.9
+  SAO.Controller.agents.recipient.state = 'FORAGE'
+  verdict = Cmd.order('owner', 'recipient', 'leave', { x=2, y=3 })
+  local desperate = latest('owner', 'leave')
+  local desperateView = Org.viewFor('recipient', desperate.id, false)
+  check('urgent_need_is_a_recorded_decline', verdict == 'refuses'
+    and desperateView.response.response == 'decline'
+    and desperateView.privateInputs.ownNeed == 0.9)
+  __need = 0.1
+  verdict = Cmd.order('owner2', 'recipient', 'leave', { x=2, y=3 })
+  check('interruptible_leave_can_be_accepted', verdict == 'complies')
+  __insideClaim, __need = false, 0
+  SAO.Controller.agents.recipient.state = 'IDLE'
+
+  __trust.recipient.giver = 0
+  local food, foodCommitment = accept('requester', 'giver', 'food-delivery', {
+    officeId='chair', holderId='giver',
+    scope={ quantity=1, category='food' },
+  })
+  check('delivery_commitment_is_not_command_authority', foodCommitment ~= nil
+    and Cmd.officeOf('giver', 'recipient', 'walk') == 'none')
+  verdict = Cmd.order('giver', 'recipient', 'walk', nil)
+  check('unrelated_commitment_does_not_change_conduct', verdict == 'refuses'
+    and Org.viewFor('recipient', latest('giver', 'walk').id, false)
+      .response.response == 'qualify')
+
+  local mandate, mandateCommitment = accept('procedure', 'giver',
+    'command:walk', { scope={ action='walk', recipientId='recipient' } })
+  check('exact_command_mandate_is_scoped', mandateCommitment ~= nil
+    and Cmd.officeOf('giver', 'recipient', 'walk') == 'mandate'
+    and Cmd.officeOf('giver', 'recipient', 'hold') == 'none')
+  verdict = Cmd.order('giver', 'recipient', 'walk', nil)
+  local holdVerdict = Cmd.order('giver', 'recipient', 'hold', nil)
+  check('scoped_mandate_affects_only_its_matter', verdict == 'complies'
+    and holdVerdict == 'refuses')
+
+  Org.createOffice('g', 'chair', { ['command:travel']=true },
+    'consent', 'consent')
+  local appointment, appointmentCommitment = accept('procedure',
+    'office-giver', 'office:chair', {
+      officeId='chair', holderId='office-giver',
+      scope={ officeId='chair', holderId='office-giver' },
+    })
+  check('office_requires_matching_appointment_process',
+    Org.appoint('g', 'chair', 'giver', foodCommitment.id) == false
+    and Org.appoint('g', 'chair', 'office-giver',
+      appointmentCommitment.id) == true)
+  check('office_jurisdiction_is_command_specific',
+    Cmd.officeOf('office-giver', 'recipient', 'travel') == 'leader'
+    and Cmd.officeOf('office-giver', 'recipient', 'hold') == 'none')
+  verdict = Cmd.order('office-giver', 'recipient', 'travel', { x=2, y=3 })
+  holdVerdict = Cmd.order('office-giver', 'recipient', 'hold', nil)
+  check('jurisdiction_changes_only_covered_request', verdict == 'complies'
+    and holdVerdict == 'refuses')
+
+  local words = Cmd.describe('recipient', 'giver')
+  check('panel_reports_enacted_history',
+    string.find(words, 'accepted the last request', 1, true) ~= nil)
+  return table.concat(checks, ',')
+end)()'''
+
+EXPECTED = {
+    "unheard_request_stays_unanswered",
+    "neutral_recipient_qualifies_instead_of_inferred_assent",
+    "relationship_can_support_voluntary_acceptance",
+    "current_activity_can_defer", "hostility_can_contest",
+    "capability_can_decline", "urgent_need_is_a_recorded_decline",
+    "interruptible_leave_can_be_accepted",
+    "delivery_commitment_is_not_command_authority",
+    "unrelated_commitment_does_not_change_conduct",
+    "exact_command_mandate_is_scoped",
+    "scoped_mandate_affects_only_its_matter",
+    "office_requires_matching_appointment_process",
+    "office_jurisdiction_is_command_specific",
+    "jurisdiction_changes_only_covered_request",
+    "panel_reports_enacted_history",
+}
 
 
-def build():
-    cls = OUT / "LuaRun.class"
-    if cls.exists() and cls.stat().st_mtime >= SRC.stat().st_mtime:
-        return True
+def compile_runner() -> tuple[bool, str]:
     OUT.mkdir(parents=True, exist_ok=True)
     done = subprocess.run(
-        [str(JDK / "javac.exe"), "-cp", str(PZ), "-d", str(OUT), str(SRC)],
+        [str(JDK / "javac.exe"), "-cp", str(PZ), "-d", str(OUT), str(RUNNER)],
         capture_output=True, text=True, timeout=300)
-    return done.returncode == 0
+    return done.returncode == 0, done.stderr or done.stdout
 
 
-def probe(expr):
-    with tempfile.TemporaryDirectory() as tmp:
-        work = pathlib.Path(tmp)
+def run_probe(command_source: str, organization_source: str) -> tuple[str | None, str]:
+    with tempfile.TemporaryDirectory(prefix="sao-command-") as temporary:
+        work = pathlib.Path(temporary)
         shutil.copy2(STDLIB, work / "stdlib.lua")
-        for c in OUT.glob("*.class"):
-            shutil.copy2(c, work / c.name)
+        for compiled in OUT.glob("LuaRun*.class"):
+            shutil.copy2(compiled, work / compiled.name)
+        files = {
+            "prelude.lua": PRELUDE,
+            "organization.lua": organization_source,
+            "command.lua": command_source,
+            "probe.lua": "__result = " + PROBE,
+        }
+        for name, source in files.items():
+            (work / name).write_text(source, encoding="utf-8")
         done = subprocess.run(
             [str(JDK / "java.exe"), "-cp", f"{PZ};.", "LuaRun",
-             str(PRELUDE), str(HASH), str(HISTORY), str(COND), str(DISP),
-             str(COMMAND), "--", expr],
-            cwd=str(work), capture_output=True, text=True, timeout=900)
-    return (done.stdout or "").strip().split("\n")[-1] if done.stdout else "ERROR no output"
+             str(work / "prelude.lua"), str(work / "organization.lua"),
+             str(work / "command.lua"), str(work / "probe.lua"),
+             "--", "__result"],
+            cwd=work, capture_output=True, text=True, timeout=300)
+    lines = (done.stdout or "").strip().splitlines()
+    value = lines[-1][6:] if lines and lines[-1].startswith("VALUE ") else None
+    return value, (done.stdout or "") + (done.stderr or "")
 
 
-def value(line):
-    return line[6:] if line.startswith("VALUE ") else None
+def verdicts(value: str | None) -> dict[str, str]:
+    return dict(re.findall(r"([a-z0-9_]+)=(true|false)", value or ""))
 
 
-def read(path):
-    return path.read_text(encoding="utf-8", errors="ignore") if path.exists() else ""
-
-
-def numbers(line):
-    return {k: v for k, v in re.findall(r"([\w.]+)=([-\w./']+)", line or "")}
-
-
-# CAO's tuning invariant, on flat traits: the default person under a
-# peer complies cleanly at 0.445.
-FLAT = (
-    "(function() " + STUB +
-    "SAO.Disposition.traits = function(id) return { nerve = 0.5, discipline = 0.5, aggression = 0.5, "
-    "initiative = 0.5, selfPreservation = 0.5, compassion = 0.5, appetite = 0.5, talkativeness = 0.5 } end "
-    "local v, r, s, st, o = Cmd.obedience(me, 'sao-1', 'walk', nil) "
-    "return 'verdict=' .. v .. ' score=' .. string.format('%.3f', s) .. ' standing=' .. string.format('%.2f', st) "
-    ".. ' office=' .. o .. ' reason=' .. tostring(r) end)()")
-
-# The county sampled under four givers.
-SAMPLE = (
-    "(function() " + STUB +
-    "local out = {} "
-    "local function tally(label, setup) local c, rl, rf, bad, band = 0, 0, 0, 0, 0 "
-    "for i = 1, %d do local id = 'sao-' .. i setup(id) "
-    "local v, r, s = Cmd.obedience(me, id, 'walk', nil) "
-    "if v == 'complies' then c = c + 1 elseif v == 'reluctant' then rl = rl + 1 "
-    "if not (s >= Cmd.RELUCTANT_AT and s < Cmd.COMPLIES_AT) then band = band + 1 end "
-    "else rf = rf + 1 end "
-    "if v ~= 'complies' and r ~= label then bad = bad + 1 end end "
-    "out[#out + 1] = string.format('%%s=%%d/%%d/%%d/%%d/%%d', label:gsub(' ', '_'), c, rl, rf, bad, band) end "
-    "tally('sees no standing in you', function(id) end) "
-    "tally('their leader', function(id) groups[id] = 'h' leaders['h'] = me end) "
-    "tally('does not think much of you', function(id) groups[id] = nil setTrust(id, -0.8) end) "
-    "return table.concat(out, ' ') end)()" % IDS)
-
-# Offices and the proven hand, on one person with flat trust.
-OFFICES = (
-    "(function() " + STUB +
-    "local id = 'sao-7' local out = {} "
-    "local function st(kind, job) local s, o = Cmd.standingOf(me, id, kind, job) return string.format('%.2f', s) .. '/' .. o end "
-    "out[#out + 1] = 'stranger=' .. st('walk') "
-    "out[#out + 1] = 'fight=' .. st('engage') "
-    "out[#out + 1] = 'watch=' .. st('work', 'watch') "
-    "out[#out + 1] = 'medic=' .. st('work', 'medic') "
-    "groups[id] = 'h' leaders['h'] = 'sao-2' seconds['h'] = me out[#out + 1] = 'second=' .. st('walk') "
-    "seconds['h'] = nil chairs['h'] = me out[#out + 1] = 'chair=' .. st('walk') "
-    "chairs['h'] = nil leaders['h'] = me setTrust(id, 0.6) out[#out + 1] = 'leader_liked=' .. st('walk') "
-    "setTrust(id, -1) out[#out + 1] = 'leader_hated=' .. st('walk') "
-    "return table.concat(out, ' ') end)()")
-
-# The envelope: the reasons a person who would take the word still
-# says no. The leader asks, so the word itself is never the reason.
-ENVELOPE = (
-    "(function() " + STUB +
-    "local out = {} local child = nil "
-    "for i = 1, 3000 do local id = 'sao-' .. i if H.ageOf(id) <= 7 then child = id break end end "
-    "local adult = nil for i = 1, 3000 do local id = 'sao-' .. i if H.ageOf(id) >= 30 and H.ageOf(id) <= 40 then adult = id break end end "
-    "for _, id in ipairs({ child, adult }) do groups[id] = 'h' end leaders['h'] = me "
-    "local v, r = Cmd.order(me, adult, 'engage', nil) out[#out + 1] = 'unarmed=' .. v .. '/' .. tostring(r):gsub(' ', '_') "
-    "SAO.Controller.agents[adult] = { armed = true } SAO.Controller.agents[child] = { armed = true } "
-    "v, r = Cmd.order(me, child, 'engage', nil) out[#out + 1] = 'child=' .. v .. '/' .. tostring(r):gsub(' ', '_') "
-    "v, r = Cmd.order(me, adult, 'travel', { x = 99, y = 1 }) out[#out + 1] = 'ground=' .. v .. '/' .. tostring(r):gsub(' ', '_') "
-    "v, r = Cmd.order(me, adult, 'travel', { x = 77, y = 1 }) out[#out + 1] = 'believed=' .. v .. '/' .. tostring(r):gsub(' ', '_') "
-    "v, r = Cmd.order(me, adult, 'travel', { x = 1, y = 1 }) out[#out + 1] = 'open=' .. v .. '/' .. tostring(r) "
-    "v, r = Cmd.order(me, adult, 'hold', nil) out[#out + 1] = 'hold=' .. v .. '/' .. tostring(r) "
-    "return table.concat(out, ' ') end)()")
-
-WORDS = (
-    "(function() " + STUB +
-    "local n, bad = 0, 0 "
-    "for i = 1, 400 do local id = 'sao-' .. i "
-    "for _, w in ipairs({ Cmd.describe(id, me) }) do n = n + 1 if not string.match(w, '^[a-z ,]+$') then bad = bad + 1 end end "
-    "groups[id] = 'h' leaders['h'] = me "
-    "for _, w in ipairs({ Cmd.describe(id, me) }) do n = n + 1 if not string.match(w, '^[a-z ,]+$') then bad = bad + 1 end end end "
-    "return 'words=' .. n .. ' bad=' .. bad end)()")
-
-
-def main():
-    faults = []
-    print("=" * 74)
-    print("AN ORDER LANDS THROUGH STANDING")
-    print("=" * 74)
-    for path, what in ((HASH, "SAO_Hash.lua"), (HISTORY, "SAO_History.lua"),
-                       (COND, "SAO_Conditions.lua"), (DISP, "SAO_Disposition.lua"),
-                       (COMMAND, "SAO_Command.lua"), (HARNESS, "SAO_Harness.lua"),
-                       (VOICE, "SAO_Voice.lua"), (GESTURE, "SAO_Gesture.lua"),
-                       (INSPECT, "SAO_Inspect.lua"), (CONTROLLER, "SAO_Controller.lua"),
-                       (PRELUDE, "the probe")):
-        if not path.exists():
-            faults.append(what + " does not exist")
-    if faults:
-        for fault in faults:
-            print("  FAULT: " + fault)
-        return 1
-    if not (JDK.exists() and PZ.exists() and STDLIB.exists() and SRC.exists()):
-        # [C56] SKIPPED, not a finding. This border reads the installed
-        # game, and a machine without it - CI, or anybody's clone - is
-        # not a machine with a defect. A check that cannot run must
-        # never look like a check that passed either, so it says so
-        # twice and the gate prints it.
-        print("  SKIPPED - no JDK, engine jar, stdlib or runner")
-        print("  111) an order lands through standing: SKIPPED, the engine install is absent")
-        return 0
-    if not build():
-        print("  FAULT: LuaRun does not compile against the installed jar")
-        return 1
-
-    flat = numbers(value(probe(FLAT)))
-    print("     flat: " + " ".join("%s=%s" % kv for kv in flat.items()))
-    if flat.get("verdict") != "complies" or flat.get("score") != "0.445" \
-            or flat.get("standing") != "0.40" or flat.get("office") != "none":
-        faults.append("CAO's tuning invariant does not hold: the default person "
-                      "under a peer answered %r" % flat)
-
-    sample = numbers(value(probe(SAMPLE)))
-    print("     county: " + " ".join("%s=%s" % kv for kv in sample.items()))
-    try:
-        for label, want in (("sees_no_standing_in_you", "stranger"),
-                            ("their_leader", "leader"),
-                            ("does_not_think_much_of_you", "disliked")):
-            c, rl, rf, bad, band = (int(x) for x in sample[label].split("/"))
-            total = c + rl + rf
-            if total != IDS:
-                faults.append("%s tallied %d of %d" % (want, total, IDS))
-            if want == "leader" and c != IDS:
-                faults.append("the leader's word is taken by %d of %d; an office "
-                              "at 0.8 alone clears the band" % (c, IDS))
-            if want == "disliked" and c != 0:
-                faults.append("the disliked stranger's word is taken by %d; at "
-                              "standing 0 nobody can clear 0.44" % c)
-            if want == "stranger":
-                if c == 0 or rl == 0:
-                    faults.append("the stranger's word: %d comply, %d reluctant - the "
-                                  "axes should spread the county across the bands"
-                                  % (c, rl))
-                if c / IDS < 0.5:
-                    faults.append("the stranger's word is taken by %.0f%%; CAO's "
-                                  "tuning makes the default person comply, so most "
-                                  "should" % (100 * c / IDS))
-            if want != "leader" and bad:
-                faults.append("%d people under the %s gave a reason other than "
-                              "the one CAO's order names" % (bad, want))
-            if band:
-                faults.append("%d reluctant verdicts under the %s fell outside "
-                              "CAO's 0.34 .. 0.44 band" % (band, want))
-    except (KeyError, ValueError):
-        faults.append("the county probe did not answer: %r" % sample)
-
-    offices = numbers(value(probe(OFFICES)))
-    print("     offices: " + " ".join("%s=%s" % kv for kv in offices.items()))
-    want = {"stranger": "0.40/none", "fight": "0.65/proven", "watch": "0.65/proven",
-            "medic": "0.40/none", "second": "0.65/second", "chair": "0.80/leader",
-            "leader_liked": "1.00/leader", "leader_hated": "0.30/leader"}
-    for k, v in want.items():
-        if offices.get(k) != v:
-            faults.append("office: %s is %s, wanted %s" % (k, offices.get(k), v))
-
-    env = numbers(value(probe(ENVELOPE)))
-    print("     envelope: " + " ".join("%s=%s" % kv for kv in env.items()))
-    wantE = {"unarmed": "refuses/has_nothing_to_fight_with",
-             "child": "refuses/is_too_afraid",
-             "ground": "refuses/will_not_walk_onto_someone_else's_ground",
-             "believed": "refuses/believes_that_ground_is_somebody's",
-             "open": "complies/nil", "hold": "complies/nil"}
-    for k, v in wantE.items():
-        if env.get(k) != v:
-            faults.append("envelope: %s is %s, wanted %s" % (k, env.get(k), v))
-
-    w = numbers(value(probe(WORDS)))
-    print("     words: " + " ".join("%s=%s" % kv for kv in w.items()))
-    try:
-        if int(w["words"]) == 0 or int(w["bad"]) != 0:
-            faults.append("%s of %s panel words are not plain" % (w["bad"], w["words"]))
-    except (KeyError, ValueError):
-        faults.append("the words probe did not answer: %r" % w)
-
-    cmd, hs, vo = read(COMMAND), read(HARNESS), read(VOICE)
-    ge, ins, ctl = read(GESTURE), read(INSPECT), read(CONTROLLER)
-    asks = hs.count("onYourWord(")
-    seams = {
-        "the module carries CAO's offices, weights and bands":
-            "Cmd.OFFICE = { leader = 0.80, second = 0.65, none = 0.40 }" in cmd
-            and "Cmd.COMPLIES_AT = 0.44" in cmd and "Cmd.RELUCTANT_AT = 0.34" in cmd,
-        "conformity is read off the initiative axis, inverted":
-            "1 - (t.initiative or 0.5)" in cmd,
-        # [C49] The fourth parameter is what the matter is about - the
-        # job for `work`, the square for `leave` - so it is `arg` down
-        # the whole chain now, rather than `job` at the top and `arg`
-        # at the bottom. Same seam: the word first, then the envelope.
-        "the word comes first, then the envelope":
-            "Cmd.obedience(giverKey, id, kind, arg)" in cmd
-            and "Cmd.envelope(id, kind, arg)" in cmd,
-        "the harness routes every ask through the gate (thirteen asks and the wrapper)":
-            asks >= 14 and "SAO.Command.order(key, id, kind, arg)" in hs,
-        "the chair's call and the crew land through it":
-            "\"travel\", { x = gx7, y = gy7 }" in hs and "\"board\",\n" in hs
-            and "trust(r8.id, pKey8) >= 0.4" not in hs,
-        "the three answers exist and are the player's":
-            all(k in vo for k in ("orderYes", "orderGrudging", "orderNo"))
-            and "Voice.answer(id, \"orderNo\")" in hs,
-        "an answer is seen as well as heard":
-            "SAO.Gesture.onEvent(id, event, tick)" in vo.split("function V.answer")[-1],
-        "the gesture map carries the three":
-            "orderNo = \"negative\"" in ge and "orderGrudging = \"frustrated\"" in ge,
-        "the panel says whether they would take your word":
-            "on your word: " in ins and "SAO.Command.describe(id, pKey)" in ins,
-        "the controller's teaching margin is the module's":
-            "SAO.Command.TEACH_MARGIN" in ctl and "theirs33 + 3 then" not in ctl,
-        "the architecture names the surface as Standing's":
-            "SAO_Command" in read(ARCH),
-        "the registry records the build under DR-033":
-            "[C37]" in read(REGISTRY).split("DR-033")[-1].split("## DR-034")[0],
-        "the gate runs this border":
-            "tools/command_test.py" in read(CHECK),
+def static_contract(command_source: str) -> tuple[bool, list[str]]:
+    controller = CONTROLLER.read_text(encoding="utf-8")
+    harness = HARNESS.read_text(encoding="utf-8")
+    checks = {
+        "command records actual reception and a private appraisal": all(
+            anchor in command_source for anchor in (
+                "SAO.Communication.canConverse", "recordReception(process.id",
+                "appraiseMatter(process.id", "deliverResponse(process.id",
+                'executor = "SAO.Command"')),
+        "authority is matter-scoped":
+            'Org.authorityFor(giverKey, group, "command:" .. kind)' in command_source
+            and "jurisdictionCovers(office, kind)" in command_source,
+        "aggregate obedience scoring is retired": all(
+            anchor not in command_source for anchor in (
+                "Cmd.WEIGHT", "Cmd.COMPLIES_AT", "Cmd.standingOf",
+                "Cmd.leansAway")),
+        "survivor orders use the same response owner":
+            "SAO.Command.order(giverId, id, kind, arg)" in controller
+            and controller.count("onTheirWord(") >= 4
+            and "local heeds = not desperate" not in controller,
+        "player asks use the same response owner":
+            "SAO.Command.order(key, id, kind, arg)" in harness,
+        "the gate runs this border": "tools/command_test.py" in
+            CHECK.read_text(encoding="utf-8"),
     }
-    print()
-    for k, v in seams.items():
-        print(f"  {'yes' if v else 'NO '}  {k}")
-        if not v:
-            faults.append(k)
+    return all(checks.values()), [name for name, ok in checks.items() if not ok]
 
-    print()
-    print("VERDICT:")
-    if faults:
-        for f in faults:
-            print("  FAULT: " + f)
+
+def main() -> int:
+    print("=" * 74)
+    print("COMMANDS ARE ACQUIRED, ANSWERED, AND SCOPE-BOUND")
+    print("=" * 74)
+    missing = [path for path in (ORGANIZATION, COMMAND, CONTROLLER, HARNESS,
+                                 RUNNER) if not path.is_file()]
+    if missing:
+        print("  FAULT: missing inputs: " + ", ".join(map(str, missing)))
         return 1
-    print("  111) an order lands through standing: CAO's check on the county's "
-          "own standing, refusal with its reason, every ask through the gate")
+    command_source = COMMAND.read_text(encoding="utf-8-sig")
+    organization_source = ORGANIZATION.read_text(encoding="utf-8-sig")
+    static_ok, static_faults = static_contract(command_source)
+    print("  static contract: " + ("PASS" if static_ok else "FAIL"))
+    for fault in static_faults:
+        print("  FAULT: " + fault)
+    installed = (PZ, STDLIB, JDK / "java.exe", JDK / "javac.exe")
+    if not all(path.is_file() for path in installed):
+        print("  SKIPPED Kahlua VM: installed game/JDK absent")
+        return 0 if static_ok else 1
+    built, detail = compile_runner()
+    if not built:
+        print("  FAULT: LuaRun compile failed: " + detail[-1000:])
+        return 1
+    value, detail = run_probe(command_source, organization_source)
+    found = verdicts(value)
+    failed = sorted(name for name, result in found.items() if result != "true")
+    controls = [
+        ("actual reception",
+         "SAO.Communication.canConverse(tostring(giverKey), tostring(id)) ~= true",
+         "false"),
+        ("matter-scoped mandate",
+         '#Org.authorityFor(giverKey, group, "command:" .. kind) > 0',
+         "#Org.authorityFor(giverKey, group) > 0"),
+        ("voluntary relationship",
+         "or trust >= 0.30) and \"accept\"",
+         "or true) and \"accept\""),
+        ("current activity",
+         'or (activity ~= "idle" and kind ~= "rouse" and kind ~= "leave")',
+         'or (false and kind ~= "rouse" and kind ~= "leave")'),
+        ("recipient need",
+         'or (kind == "leave" and ownNeed >= 0.75) and "decline"',
+         'or (kind == "leave" and false) and "decline"'),
+        ("office jurisdiction", "and jurisdictionCovers(office, kind)",
+         "and true"),
+    ]
+    controls_ok = True
+    for name, old, new in controls:
+        if command_source.count(old) != 1:
+            print(f"  FAULT: {name} mutation seam changed")
+            controls_ok = False
+            continue
+        mutant = command_source.replace(old, new, 1)
+        mutant_value, _ = run_probe(mutant, organization_source)
+        if not any(result == "false" for result in verdicts(mutant_value).values()):
+            print(f"  FAULT: {name} mutation survived")
+            controls_ok = False
+    print("  mutation controls: " + ("PASS" if controls_ok else "FAIL")
+          + " (six production controls)")
+    if not static_ok or not controls_ok or set(found) != EXPECTED or failed:
+        print("  FAULT: missing=" + repr(sorted(EXPECTED - set(found)))
+              + " failed=" + repr(failed) + " value=" + repr(value))
+        print("  " + detail[-1800:].replace("\n", " "))
+        return 1
+    print("  111) actual recipient responses, exact authority scope, private "
+          "activity/capability and voluntary agreement execute in Kahlua")
     return 0
 
 
 if __name__ == "__main__":
-    sys.exit(main())
+    raise SystemExit(main())

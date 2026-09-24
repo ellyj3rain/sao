@@ -1,6 +1,7 @@
 -- Immutable decision-time evidence for tools/county_dump.py.
 --
--- This instrument observes Standing elections and loaded SourceUse decisions.
+-- This instrument observes Standing elections, loaded SourceUse decisions and
+-- enacted Organization appraisals.
 -- Person, situation and offered options are encoded before the real choice;
 -- selection and the observed result stay separate. Runtime choices remain
 -- unratified, and an absent source executor is explicit coverage information.
@@ -373,6 +374,264 @@ function Capture.beginSourceUse(context)
     return owner
 end
 
+-- Observe the actual Organization appraisal boundary.  The decision-time half
+-- is encoded before the caller can deliver the response; later process/work
+-- state is refreshed independently and can never rewrite those bytes.  The
+-- raise wrapper takes a last read before bounded process retention may evict a
+-- terminal record, so long county runs retain the latest outcome they really
+-- observed without changing Organization's retention policy.
+function Capture.beginCoordination(context)
+    if type(context) ~= "table" or type(context.runId) ~= "string"
+        or context.runId == "" or type(context.county) ~= "string"
+        or context.county == "" then
+        raise("coordination capture requires runId and county")
+    end
+    if Capture.coordinationOwner then
+        raise("coordination capture is already active")
+    end
+    local organization = SAO and SAO.Organization
+    if not (organization and type(organization.appraiseMatter) == "function"
+        and type(organization.raiseMatter) == "function"
+        and type(organization.decisionEvidence) == "function") then
+        return { finish = function()
+            return '{"schema":"sao-coordination-decision-capture"'
+                .. ',"schemaVersion":1,"status":"unavailable"'
+                .. ',"reason":"organization-evidence-owner-not-loaded"'
+                .. ',"attemptedEvents":0,"eventCount":0'
+                .. ',"captureFailureCount":0,"failures":[],"events":[]}'
+        end }
+    end
+
+    local runId, county = context.runId, context.county
+    local appraiseOriginal, raiseOriginal = organization.appraiseMatter,
+        organization.raiseMatter
+    local events, eventIndexes, processIndexes, failures = {}, {}, {}, {}
+    local attempted, sequence, closed, overflow = 0, 0, false, false
+    local appraiseWrapped, raiseWrapped, owner
+
+    local function pack(...)
+        return { count = select("#", ...), ... }
+    end
+
+    local function failure(identity, stage, detail)
+        failures[#failures + 1] = { eventId = identity, stage = stage,
+            detail = detail or pendingFailure
+                or "coordination capture reader failed" }
+    end
+
+    local function refresh(event)
+        pendingFailure = nil
+        local evidence = required("Organization.decisionEvidence.outcome", function()
+            return organization.decisionEvidence(event.processId, event.actorId,
+                event.processRevision)
+        end)
+        if type(evidence) ~= "table" or evidence.processId ~= event.processId
+            or tonumber(evidence.processRevision) ~= event.processRevision
+            or evidence.actorId ~= event.actorId
+            or type(evidence.laterOutcome) ~= "table" then
+            raise("coordination outcome differs from captured actor/process/revision")
+        end
+        event.outcome = encode(evidence.laterOutcome)
+    end
+
+    local function refreshAll()
+        for _, event in ipairs(events) do
+            if not event.failed then
+                local ok = pcall(function() refresh(event) end)
+                if not ok then
+                    event.failed = true
+                    failure(event.id, "outcome")
+                end
+            end
+        end
+    end
+
+    local function refreshBeforeRetention()
+        if #(organization.processOrder or {}) < 1024 then return end
+        local now = required("History.countyHours.coordination-retention", function()
+            return SAO.History.countyHours()
+        end)
+        for _, processId in ipairs(organization.processOrder or {}) do
+            local process = organization.processes
+                and organization.processes[processId] or nil
+            local revision = process and process.revisions
+                and process.revisions[tostring(process.revision or 1)] or nil
+            local expiresAt = revision and revision.proposal
+                and tonumber(revision.proposal.expiresAtHours) or nil
+            local terminal = not process or process.status == "closed"
+                or process.status == "expired" or process.status == "withdrawn"
+                or process.status == "superseded"
+                or (process.status == "open" and expiresAt and expiresAt <= now)
+            local live = false
+            for _, commitment in pairs(process and process.commitments or {}) do
+                local status = commitment.status
+                if status ~= "completed" and status ~= "failed"
+                    and status ~= "interrupted" and status ~= "withdrawn"
+                    and status ~= "superseded" then live = true; break end
+            end
+            if terminal and not live then
+                for index in pairs(processIndexes[tostring(processId)] or {}) do
+                    local event = events[index]
+                    if event and not event.failed then
+                        local ok = pcall(function() refresh(event) end)
+                        if not ok then
+                            event.failed = true
+                            failure(event.id, "outcome")
+                        end
+                    end
+                end
+                return
+            end
+        end
+    end
+
+    appraiseWrapped = function(processId, personId, appraisal)
+        attempted = attempted + 1
+        local returned = pack(appraiseOriginal(processId, personId, appraisal))
+        local response = returned[1]
+        if response == nil then return unpack(returned, 1, returned.count) end
+        if attempted > 16384 then
+            if not overflow then
+                overflow = true
+                failure(runId, "bound", "coordination capture exceeded 16384 appraisals")
+            end
+            return unpack(returned, 1, returned.count)
+        end
+
+        sequence = sequence + 1
+        local identity = runId .. "/coordination/" .. tostring(sequence)
+        pendingFailure = nil
+        local ok = pcall(function()
+            local actorId = tostring(personId or "")
+            local revision = math.floor(tonumber(response.revision) or 0)
+            local evidence = required("Organization.decisionEvidence.decision", function()
+                return organization.decisionEvidence(processId, actorId, revision)
+            end)
+            if actorId == "" or revision < 1 or type(evidence) ~= "table"
+                or evidence.processId ~= tostring(processId)
+                or tonumber(evidence.processRevision) ~= revision
+                or evidence.actorId ~= actorId
+                or type(evidence.decisionTime) ~= "table"
+                or type(evidence.decisionTime.privateInputs) ~= "table"
+                or type(evidence.decisionTime.response) ~= "table" then
+                raise("coordination decision lacks exact actor/process/revision evidence")
+            end
+            local hour = evidence.decisionTime.asOfHour
+            if type(hour) ~= "number" or hour ~= hour
+                or hour == math.huge or hour == -math.huge then
+                raise("coordination decision hour is not finite")
+            end
+            local private = evidence.decisionTime.privateInputs
+            local feasible = private.feasibleOptions
+            if type(feasible) ~= "table" or #feasible == 0
+                or type(private.choice) ~= "string" then
+                raise("coordination decision lacks feasible options or choice")
+            end
+            local options, chosen = {}, false
+            for _, responseName in ipairs(feasible) do
+                if type(responseName) ~= "string" or responseName == "" then
+                    raise("coordination feasible option is not named")
+                end
+                if responseName == private.choice then chosen = true end
+                options[#options + 1] = {
+                    id = "coordination:" .. responseName,
+                    owner = "SAO.Organization.respond",
+                    parameters = { actorId = actorId,
+                        processId = tostring(processId),
+                        processRevision = revision, response = responseName },
+                    eligibility = { status = "eligible", evidence = {
+                        { kind = "actor-private-appraisal", actorId = actorId,
+                            processRevision = revision },
+                    } },
+                }
+            end
+            if not chosen or evidence.decisionTime.response.response ~= private.choice then
+                raise("coordination choice differs from its private appraisal")
+            end
+            local namespace = { runId = runId, county = county,
+                personId = actorId, eventId = identity, hour = hour }
+            local rowPrefix = '{"schema":"speakeasy-decision-row"'
+                .. ',"schemaVersion":3,"namespace":' .. encode(namespace)
+                .. ',"person":' .. encode(memberSnapshot(actorId))
+                .. ',"situation":' .. encode({ county = county, hour = hour,
+                    kind = evidence.decisionTime.kind,
+                    processId = tostring(processId), processRevision = revision })
+                .. ',"options":' .. encode(options)
+                .. ',"choice":' .. encode({
+                    optionId = "coordination:" .. private.choice })
+                .. ',"citation":' .. encode({ county = county,
+                    person = actorId, hour = hour,
+                    source = "SAO.Organization.decisionEvidence" })
+                .. ',"conditioning":' .. encode({ status = "ineligible",
+                    decisionHour = hour, latestEvidenceHour = hour,
+                    exclusions = { "independent-task-review-not-recorded",
+                        "learned-runtime-not-integrated" } })
+                .. ',"enactedProcess":{"schema":1,"processId":'
+                .. encode(tostring(processId))
+                .. ',"processRevision":' .. tostring(revision)
+                .. ',"actorId":' .. encode(actorId)
+                .. ',"decisionTime":' .. encode(evidence.decisionTime)
+            local event = { id = identity, processId = tostring(processId),
+                processRevision = revision, actorId = actorId,
+                prefix = rowPrefix, outcome = encode(evidence.laterOutcome) }
+            local key = event.processId .. string.char(31) .. tostring(revision)
+                .. string.char(31) .. actorId
+            local existing = eventIndexes[key]
+            if existing then events[existing] = event
+            else
+                events[#events + 1] = event
+                eventIndexes[key] = #events
+                processIndexes[event.processId] = processIndexes[event.processId] or {}
+                processIndexes[event.processId][#events] = true
+            end
+        end)
+        if not ok then failure(identity, "decision") end
+        return unpack(returned, 1, returned.count)
+    end
+
+    raiseWrapped = function(...)
+        local ok = pcall(refreshBeforeRetention)
+        if not ok then failure(runId, "retention") end
+        return raiseOriginal(...)
+    end
+
+    owner = { finish = function()
+        if closed then raise("coordination capture already finished") end
+        closed = true
+        refreshAll()
+        if organization.appraiseMatter ~= appraiseWrapped
+            or organization.raiseMatter ~= raiseWrapped then
+            failure(runId, "ownership",
+                "Organization appraisal owner changed during capture")
+        end
+        if organization.appraiseMatter == appraiseWrapped then
+            organization.appraiseMatter = appraiseOriginal
+        end
+        if organization.raiseMatter == raiseWrapped then
+            organization.raiseMatter = raiseOriginal
+        end
+        Capture.coordinationOwner = nil
+        local rendered = {}
+        for _, event in ipairs(events) do
+            if not event.failed and event.outcome then
+                rendered[#rendered + 1] = event.prefix
+                    .. ',"laterOutcome":' .. event.outcome .. '}}'
+            end
+        end
+        return '{"schema":"sao-coordination-decision-capture"'
+            .. ',"schemaVersion":1,"status":"observed"'
+            .. ',"attemptedEvents":' .. tostring(attempted)
+            .. ',"eventCount":' .. tostring(#rendered)
+            .. ',"captureFailureCount":' .. tostring(#failures)
+            .. ',"failures":' .. encode(failures)
+            .. ',"events":[' .. table.concat(rendered, ",") .. ']}'
+    end }
+    organization.appraiseMatter, organization.raiseMatter = appraiseWrapped,
+        raiseWrapped
+    Capture.coordinationOwner = owner
+    return owner
+end
+
 function Capture.begin(context)
     if type(context) ~= "table" or type(context.runId) ~= "string"
             or type(context.county) ~= "string" then
@@ -383,6 +642,7 @@ function Capture.begin(context)
     end
 
     local sourceCapture = Capture.beginSourceUse(context)
+    local coordinationCapture = Capture.beginCoordination(context)
 
     local standing = ModData.getOrCreate("SurvivorAwareness_Standing")
     local original = SAO.Standing.electLeader
@@ -547,6 +807,7 @@ function Capture.begin(context)
     return {
         finish = function()
             local sourceCaptured = sourceCapture.finish()
+            local coordinationCaptured = coordinationCapture.finish()
             if SAO.Standing.electLeader ~= wrapped then
                 failure(context.runId .. "/capture-owner", "ownership",
                     "Standing.electLeader changed while capture was active")
@@ -560,6 +821,7 @@ function Capture.begin(context)
                 .. ',"captureFailureCount":' .. tostring(#failures)
                 .. ',"failures":' .. encode(failures)
                 .. ',"sourceActions":' .. sourceCaptured
+                .. ',"coordinationActions":' .. coordinationCaptured
                 .. ',"events":[' .. table.concat(events, ",") .. ']}'
         end,
     }

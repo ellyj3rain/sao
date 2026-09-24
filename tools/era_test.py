@@ -196,7 +196,12 @@ def main():
         "Standing hands the stamps over":
             "function S.chronicle()" in st and "outbreakAtHours = s.outbreakAtHours" in st,
         "the chronicle reads one calendar and no day count of its own":
-            ui.count("dayWord(") >= 14 and ui.count('"day " .. math') == 1,
+            "local function dayWord(hours)" in ui
+            and "SAOJavaBridge:countyDate(hours or 0)" in ui
+            # C79 retired the automatic chair/pact/schism Chronicle branches.
+            # The surviving eight writers still share this one calendar owner.
+            and ui.count("dayWord(") >= 8
+            and ui.count('return "day " .. math.max') == 1,
         "the bridge gives the county's date and the record's first day":
             "public String countyDate(double hours)" in br and "public String recordDayZero()" in br,
         "the record class holds the words":

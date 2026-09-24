@@ -1,0 +1,20 @@
+{
+  "schema": "sao.field-test-presentation/1",
+  "interactionId": "skill-80395ed69ff069e0",
+  "itemId": "seam-80395ed69ff069e0",
+  "status": "open",
+  "planId": "sao-enacted-social-work-002",
+  "planFile": "field-test-plan-v2.json",
+  "invocationFile": "field-test-invocation-v2.json",
+  "evidenceRef": "field-test:plan-sha256:26a1eaf6289021eb14af995ab933b1646bc3bf48505b6dc9380bbde0e20b8092",
+  "descriptionMatches": true,
+  "evidenceMatches": true,
+  "specificationSha256": "fc7478508c22b5c269b8317dbdcb4e9fae2272968354d452c1b366321a2121f9",
+  "supersededInteraction": "skill-788c6e0cbf7953ad",
+  "revisionReason": "Explicit clickable source links; scope unchanged. Initial pending interaction withdrawn, not approved.",
+  "url": "http://127.0.0.1:4317/#questions?interaction=skill-80395ed69ff069e0",
+  "presentationChecks": "Desktop 1440x1000 and narrow 430x932, isolated headless Edge. Source links each returned 200 and resolved indexed records; actual detailed-source navigation rendered document; no page errors or document horizontal overflow. Response controls inspected. No operator response sent.",
+  "resume": "If the original continuation is unavailable, invoke the exact saved invocation unchanged for idempotent recovery, then use its returned continuation.arguments exactly; never infer approval from elapsed time or status open.",
+  "runtimeSourceChanged": false,
+  "implementationStarted": false
+}

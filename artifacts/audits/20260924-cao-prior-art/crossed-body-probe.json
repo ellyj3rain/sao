@@ -1,0 +1,16 @@
+{
+  "schema": "sao.crossed-body-probe/1",
+  "agentJarSha256": "e20b0c3f9bb0c4da83eeba737e2bb9422baa1328897956bc4690f417d8f9b339",
+  "engineJarSha256": "80e405a4bfc42f6072e75b3735f458a6514143da011d3226007ded305a442f44",
+  "build": {
+    "exitCode": 0,
+    "stdout": "",
+    "stderr": "C:\\Users\\jleyv\\Peanut Butter\\AI Assisted Software Engineering Mass Repository\\Projects\\survivor-awareness\\artifacts\\audits\\20260924-cao-prior-art\\CrossedBodyProbe.java:4: warning: Unsafe is internal proprietary API and may be removed in a future release\nimport sun.misc.Unsafe;\n               ^\nC:\\Users\\jleyv\\Peanut Butter\\AI Assisted Software Engineering Mass Repository\\Projects\\survivor-awareness\\artifacts\\audits\\20260924-cao-prior-art\\CrossedBodyProbe.java:9: warning: Unsafe is internal proprietary API and may be removed in a future release\n        var field = Unsafe.class.getDeclaredField(\"theUnsafe\");\n                    ^\nC:\\Users\\jleyv\\Peanut Butter\\AI Assisted Software Engineering Mass Repository\\Projects\\survivor-awareness\\artifacts\\audits\\20260924-cao-prior-art\\CrossedBodyProbe.java:11: warning: Unsafe is internal proprietary API and may be removed in a future release\n        var unsafe = (Unsafe) field.get(null);\n                      ^\n3 warnings\n"
+  },
+  "result": {
+    "exitCode": 0,
+    "stdout": "SHELL_CONTROL=true ZOMBIE_SHELL=false ZOMBIE_MOVE=NOT_A_SHELL\n",
+    "stderr": ""
+  },
+  "limits": "Allocated objects only establish bridge type admission. No native movement, complete character initialization, gameplay or save migration is exercised."
+}

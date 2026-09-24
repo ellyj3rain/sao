@@ -146,18 +146,24 @@ PROBE = r"""(function()
     readings[guest.id] = nil
     check("unread_contact_invents_no_strain", near(S.companyPressure(guest.id, "large"), 0))
 
-    -- Real election, same relations and three people. Only the dissenter's
-    -- firsthand shortage changes, so the departure cannot be a size policy.
+    -- The same relations and three people no longer feed an automatic
+    -- election or score-triggered schism. Private pressure may motivate a
+    -- later proposal; it cannot move the roster by itself.
     local leader, ally, dissenter = make(), make(), make()
     for _, r in ipairs({leader, ally, dissenter}) do store.groups[r.id] = "departure" end
     trust(ally.id, leader.id, 1); trust(dissenter.id, leader.id, -0.1)
     trust(leader.id, ally.id, 0.3); trust(dissenter.id, ally.id, 0.2)
     trust(leader.id, dissenter.id, 0.2); trust(ally.id, dissenter.id, 0.2)
-    S.electLeader("departure")
-    check("distrust_without_pressure_stays", S.groupOf(dissenter.id) == "departure")
+    local elected = S.electLeader("departure")
+    check("no_automatic_leader", elected == nil
+        and S.leaderOf("departure") == nil)
     dissenter.lastWaterDay = 6
-    S.electLeader("departure")
-    check("shortage_and_distrust_leave", S.groupOf(dissenter.id) == nil)
+    local split = S.checkSchism("departure")
+    check("automatic_schism_cannot_eject", split == nil
+        and S.groupSize("departure") == 3
+        and S.groupOf(dissenter.id) == "departure")
+    S.leaveGroup(dissenter.id)
+    check("explicit_departure_clears_work", S.groupOf(dissenter.id) == nil)
     check("departure_clears_work", dissenter.designation == nil and dissenter.designatedBy == nil)
     check("remaining_pair_stays", S.groupSize("departure") == 2)
     S.leaveGroup(ally.id)
@@ -258,8 +264,14 @@ def main():
         "unseen ground decides": (
             "function S.circleRefuses(id, groupName, otherKey)",
             "function S.circleRefuses(id, groupName, otherKey)\n    if S.groupClaimOf(groupName) then return true end", "unseen_ground_no_verdict"),
-        "departure disconnected": (
-            "if S.companyPressure(mid, groupName) > 0 then", "if false then", "shortage_and_distrust_leave"),
+        "automatic election restored": (
+            "return nil, S.leaderOf(groupName), \"explicit-process-required\"",
+            "local members = S.membersOf(groupName); return members[1], S.leaderOf(groupName), \"automatic\"",
+            "no_automatic_leader"),
+        "automatic schism restored": (
+            "return nil, nil, 0, \"explicit-process-required\"",
+            "local members = S.membersOf(_groupName); if members[1] then S.leaveGroup(members[1]) end; return \"automatic\", members[1], 1",
+            "automatic_schism_cannot_eject"),
         "declared hostility ignored": (
             "if otherKey and S.isHostileTo(id, otherKey) then return true end", "-- ignored hostile state", "declared_hostility_refuses"),
         "affiliation treated as experience": (

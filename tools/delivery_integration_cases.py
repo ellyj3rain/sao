@@ -17,6 +17,7 @@ import tempfile
 ROOT = pathlib.Path(__file__).resolve().parents[1]
 LUA = ROOT / "mod/42.20/media/lua"
 STANDING = LUA / "shared/SAO_Standing.lua"
+ORGANIZATION = LUA / "shared/SAO_Organization.lua"
 PERCEPTION = LUA / "shared/SAO_Perception.lua"
 COMMUNICATION = LUA / "shared/SAO_Communication.lua"
 PROVISIONING = LUA / "shared/SAO_Provisioning.lua"
@@ -26,7 +27,7 @@ CASES = ROOT / "tools/sweep/delivery_integration_cases.lua"
 EXPECTED = {
     "request_origin_production_api", "request_cooldown_preserves_time",
     "failed_origin_has_no_cooldown", "failed_origin_retry",
-    "global_request_has_no_private_backfill", "global_only_request_not_selected",
+    "source_less_request_refused", "global_only_request_not_selected",
     "private_request_missing_location", "private_place_destination_retained",
     "private_destination_detached", "private_request_beats_global_location",
     "request_expiry_uses_original_time", "request_future_refused",
@@ -127,20 +128,16 @@ def controller_anchors(text: str) -> dict[str, bool]:
 
 MUTATIONS = (
     ("request-source-contract", STANDING,
-     'speakerId, groupName, now, "requested", nil, "food")',
-     'speakerId, groupName, now, "performed", nil, "food")',
+     'speakerId, groupName, now, "requested", nil, "food",',
+     'speakerId, groupName, now, "performed", nil, "food",',
      "request_origin_production_api"),
     ("failed-request-origin", STANDING,
-     'speakerId, groupName, now, "requested", nil, "food") ~= true then',
-     'speakerId, groupName, now, "requested", nil, "food") == nil then',
+     '{ source = "call-for-bread" }) ~= true then',
+     '{ source = "call-for-bread" }) == nil then',
      "failed_origin_has_no_cooldown"),
-    ("global-request-shortcut", STANDING,
-     "local best, bestD, bestClaim = nil, 1e18, nil\n    for _, request",
-     "local best, bestD, bestClaim = nil, 1e18, nil\n"
-     "    for group in pairs(s.groupMeta or {}) do\n"
-     "        if group ~= fromGroup and S.isAsking(group) then\n"
-     "            return group, S.groupClaimOf(group)\n        end\n    end\n"
-     "    for _, request", "global_only_request_not_selected"),
+    ("source-less-request", STANDING,
+     'if not groupName or type(speakerId) ~= "string" or speakerId == "" then',
+     'if not groupName then', "source_less_request_refused"),
     ("private-destination-return", STANDING,
      "return best, bestClaim", "return best, nil", "private_place_destination_retained"),
     ("request-original-expiry", PERCEPTION,
@@ -193,7 +190,7 @@ def _run(work: pathlib.Path, border, overrides=None):
     prelude = work / "prelude.lua"
     prelude.write_text(PRELUDE, encoding="utf-8")
     chunks = [prelude]
-    for path in (STANDING, PERCEPTION, COMMUNICATION, PROVISIONING):
+    for path in (ORGANIZATION, STANDING, PERCEPTION, COMMUNICATION, PROVISIONING):
         if path.name in overrides:
             altered = work / path.name
             altered.write_text(overrides[path.name], encoding="utf-8")
@@ -228,7 +225,7 @@ def run_cases(overrides=None):
 
 def main() -> int:
     missing = [str(path.relative_to(ROOT)) for path in
-               (STANDING, PERCEPTION, COMMUNICATION, PROVISIONING, CONTROLLER,
+               (ORGANIZATION, STANDING, PERCEPTION, COMMUNICATION, PROVISIONING, CONTROLLER,
                 CASES, ROOT / "tools/provisioning_result_test.py") if not path.is_file()]
     if missing:
         print(f"FAIL delivery integration repository inputs missing: {missing}")
