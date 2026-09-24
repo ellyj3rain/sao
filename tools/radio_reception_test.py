@@ -23,6 +23,7 @@ JDK = pathlib.Path(os.environ.get(
     "JDK_BIN", r"C:\Users\jleyv\Peanut Butter\JetBrains\Java\bin"))
 LUA = ROOT / "mod/42.20/media/lua"
 STANDING = LUA / "shared/SAO_Standing.lua"
+ORGANIZATION = LUA / "shared/SAO_Organization.lua"
 PERCEPTION = LUA / "shared/SAO_Perception.lua"
 COMMUNICATION = LUA / "shared/SAO_Communication.lua"
 RADIO = LUA / "server/SAO_Radio.lua"
@@ -143,7 +144,7 @@ SAOJavaBridge={
 
 LUA_MUTATIONS = (
     ("request-source", STANDING,
-     "speakerId = speakerId })", "speakerId = nil })",
+     "speakerId = speakerId, processId", "speakerId = nil, processId",
      "request_producer_names_speaker"),
     ("receipt-before-effect", RADIO,
      "        if received then\n            delivered[rec.id] = true",
@@ -197,6 +198,11 @@ def static_contract() -> list[str]:
     knowledge = KNOWLEDGE.read_text(encoding="utf-8-sig")
     physical = PHYSICAL.read_text(encoding="utf-8-sig")
     body = BODY.read_text(encoding="utf-8-sig")
+    petition_start = harness.find('wire:addOption("Urge peace on the air"')
+    petition_end = harness.find('wire:addOption("Ask for the news"',
+                                 petition_start)
+    petition = (harness[petition_start:petition_end]
+                if petition_start >= 0 and petition_end > petition_start else "")
     plan = (ROOT / "artifacts/audits/20260921-2351Z-1651PST-radio-reception/PLAN.md").read_text(
         encoding="utf-8-sig")
     checks = {
@@ -229,6 +235,11 @@ def static_contract() -> list[str]:
             and "Communication.radioReception" in harness
             and "heardBy" not in harness and "local receivedBy = {}" in harness
             and "target = atWar" not in harness,
+        "radio petition is addressed not inferred":
+            "SAO.Organization.recordReception" in petition
+            and "answerPeacePetition" in petition
+            and "radioTransmitterAccess" in petition
+            and "adjustTrust" not in petition,
         "ownership removed from claims": "ownsRadio" not in radio
             and "ownsRadio" not in harness and "ownsRadio" not in knowledge,
         "knowledge from receipt": "SAO.Perception.radioReceptions" in knowledge,
@@ -266,7 +277,7 @@ def run_lua(work: pathlib.Path, overrides=None):
     prelude = work / "prelude.lua"
     prelude.write_text(PRELUDE, encoding="utf-8")
     chunks = [prelude]
-    for path in (STANDING, PERCEPTION, COMMUNICATION, RADIO):
+    for path in (ORGANIZATION, STANDING, PERCEPTION, COMMUNICATION, RADIO):
         if path.name in overrides:
             altered = work / ("altered-" + path.name)
             altered.write_text(overrides[path.name], encoding="utf-8")

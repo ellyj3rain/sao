@@ -540,7 +540,7 @@ end
 local RADIO_LIMIT = 64
 local RADIO_CLAIM_FIELDS = { "kind", "group", "requestedAt", "speakerId",
     "id", "a", "b", "leader", "policy", "form", "x", "y", "z",
-    "target", "creed", "left", "name" }
+    "target", "creed", "left", "name", "processId", "processRevision" }
 local RADIO_CLAIM_FIELD_SET = {}
 for _, key in ipairs(RADIO_CLAIM_FIELDS) do RADIO_CLAIM_FIELD_SET[key] = true end
 
@@ -710,7 +710,8 @@ end
 
 local AID_REQUEST_HOURS = 96
 
-function P.recordAidRequest(id, groupId, requestedAt, source, teller, category)
+function P.recordAidRequest(id, groupId, requestedAt, source, teller, category,
+                            processId, processRevision, channel, evidence)
     local now = transferNow()
     if not now or type(id) ~= "string" or id == ""
         or type(groupId) ~= "string" or groupId == ""
@@ -719,6 +720,10 @@ function P.recordAidRequest(id, groupId, requestedAt, source, teller, category)
         or (category ~= nil and category ~= "food")
         or (source ~= "requested" and source ~= "told") then return false end
     category = category or "food"
+    if processId ~= nil and (type(processId) ~= "string" or processId == ""
+        or type(processRevision) ~= "number"
+        or processRevision < 1
+        or processRevision ~= math.floor(processRevision)) then return false end
     local originId, originAcquiredAt = id, requestedAt
     if source == "told" then
         if type(teller) ~= "string" or teller == "" then return false end
@@ -728,6 +733,8 @@ function P.recordAidRequest(id, groupId, requestedAt, source, teller, category)
             and (original.category or "food") or nil
         if type(original) ~= "table" or original.requestedAt ~= requestedAt
             or originalCategory ~= category
+            or original.processId ~= processId
+            or original.processRevision ~= processRevision
             or not transferNumber(original.acquiredAt)
             or original.acquiredAt > now then return false end
         originId = original.originId
@@ -756,7 +763,8 @@ function P.recordAidRequest(id, groupId, requestedAt, source, teller, category)
         requestedAt = requestedAt,
         acquiredAt = source == "requested" and requestedAt or now,
         source = source, teller = source == "told" and teller or nil,
-        originId = originId, originAcquiredAt = originAcquiredAt }
+        originId = originId, originAcquiredAt = originAcquiredAt,
+        processId = processId, processRevision = processRevision }
     local ordered = {}
     for group, request in pairs(b.aidRequests) do
         ordered[#ordered + 1] = { eventId = group, eventAt = request.requestedAt }
@@ -767,6 +775,15 @@ function P.recordAidRequest(id, groupId, requestedAt, source, teller, category)
         b.aidRequestFloor = { eventAt = ordered[i].eventAt, eventId = ordered[i].eventId }
     end
     P.beliefVersion = P.beliefVersion + 1
+    if processId and SAO.Organization and SAO.Organization.recordReception then
+        local received = SAO.Organization.recordReception(processId, id,
+            processRevision, channel or source, teller or originId,
+            evidence or { requestedAt = requestedAt, category = category })
+        if received ~= true then
+            b.aidRequests[groupId] = existing
+            return false
+        end
+    end
     return b.aidRequests[groupId] ~= nil
 end
 
@@ -793,7 +810,9 @@ function P.knownAidRequests(id, nowHours)
                 requestedAt = request.requestedAt,
                 acquiredAt = request.acquiredAt, source = request.source,
                 teller = request.teller, originId = request.originId,
-                originAcquiredAt = request.originAcquiredAt }
+                originAcquiredAt = request.originAcquiredAt,
+                processId = request.processId,
+                processRevision = request.processRevision }
             local ground = b.factions and b.factions[groupId]
                 or b.places and b.places[groupId]
             -- Legacy ground beliefs do not preserve this recipient's actual
@@ -824,6 +843,78 @@ function P.knownAidRequest(id, groupId, nowHours)
     return nil, availability == "available" and "not-known" or "unavailable"
 end
 
+function P.appraiseAidRequest(id, groupId, owner, currentActivity)
+    if not (SAO.Organization and SAO.Organization.appraiseMatter) then
+        return nil, "organization-unavailable"
+    end
+    local request = P.knownAidRequest(id, groupId)
+    if not request or not request.processId then return nil, "request-unavailable" end
+    local rec = SAO.Identity and SAO.Identity.get and SAO.Identity.get(id) or nil
+    local view = SAO.Organization.viewFor(id, request.processId, false)
+    local proposal = view and view.proposal and view.proposal.proposal or {}
+    local destination = proposal.destination
+    local destinationKnown = type(destination) == "table"
+        and tonumber(destination.minX) ~= nil
+        and tonumber(destination.minY) ~= nil
+        and tonumber(destination.maxX) ~= nil
+        and tonumber(destination.maxY) ~= nil
+    local relationship, hostile = 0, false
+    pcall(function()
+        relationship = SAO.Standing.trust(id, view.originatorId)
+        hostile = SAO.Standing.isHostileTo(id, view.originatorId)
+    end)
+    local ownNeed = rec and tonumber(rec.hunger) or 0
+    local designation = rec and rec.designation or nil
+    local activity = string.lower(tostring(currentActivity or "dormant"))
+    local bodyOwner = rec and rec.bodyOwner or "SAO"
+    local registeredOwner = SAO.Communication
+        and SAO.Communication.executionOwners
+        and SAO.Communication.executionOwners[bodyOwner] or nil
+    local executionAvailable = bodyOwner ~= "ZAO" or registeredOwner ~= nil
+    local choice = not executionAvailable and "defer"
+        or hostile and "contest"
+        or (activity ~= "idle" and activity ~= "dormant") and "defer"
+        or ownNeed >= 0.75 and "qualify"
+        or destinationKnown and (designation == "forager"
+            or designation == "quartermaster" or relationship >= 0.30)
+            and "accept"
+        or destinationKnown and "counter-propose" or "defer"
+    return SAO.Organization.appraiseMatter(request.processId, id, {
+        owner = owner or "Perception.aid-request",
+        executor = owner or "private-aid-appraisal",
+        bodyOwner = bodyOwner,
+        currentActivity = activity,
+        canAcquire = executionAvailable and not (rec and rec.dead),
+        canCarry = executionAvailable and not (rec and rec.dead),
+        canDeliver = executionAvailable and not (rec and rec.dead),
+        canExecute = executionAvailable and not (rec and rec.dead),
+        executionOwnerAvailable = executionAvailable,
+        incapable = not executionAvailable,
+        dead = rec and rec.dead or false,
+        contest = hostile,
+        ownNeed = ownNeed,
+        relationship = relationship,
+        destinationKnown = destinationKnown,
+        choice = choice,
+        interests = { designation = designation,
+            ownGroup = SAO.Standing and SAO.Standing.groupOf
+                and SAO.Standing.groupOf(id) or nil },
+        constraints = { represented = SAO.Body
+            and SAO.Body.hasRepresentation
+            and SAO.Body.hasRepresentation(id) or false,
+            currentActivity = activity,
+            executionOwnerAvailable = executionAvailable },
+        inputOwners = {
+            currentActivity = owner or "Perception.aid-request",
+            capabilities = bodyOwner == "ZAO" and "ZAO.Controller"
+                or "SAO.DormantPopulation",
+            ownNeed = "SAO.Identity", relationship = "SAO.Standing",
+            interests = "SAO.Identity+SAO.Standing",
+            constraints = owner or "Perception.aid-request",
+        },
+    })
+end
+
 local function tellAidRequests(fromId, toId, channel, aroundX, aroundY)
     local admitted, canConverse = pcall(function()
         return SAO.Communication.canConverse(fromId, toId, channel)
@@ -844,7 +935,90 @@ local function tellAidRequests(fromId, toId, channel, aroundX, aroundY)
         local existing = to and to.aidRequests and to.aidRequests[request.groupId]
         if inGround and (not existing or existing.requestedAt < request.requestedAt)
             and P.recordAidRequest(toId, request.groupId, request.requestedAt,
-                "told", fromId, request.category) then moved = moved + 1 end
+                "told", fromId, request.category, request.processId,
+                request.processRevision, channel or "spoken",
+                { teller = fromId }) then
+            moved = moved + 1
+            -- A bodyless recipient still answers from their own durable
+            -- condition and relationship. The answer is formed here because
+            -- this encounter proved acquisition; work waits for a body-owning
+            -- executor and no dormant item transfer is invented.
+            if request.processId and SAO.Organization
+                and SAO.Organization.appraiseMatter then
+                local rec = SAO.Identity and SAO.Identity.get
+                    and SAO.Identity.get(toId) or nil
+                local relationship, hostile = 0, false
+                pcall(function()
+                    relationship = SAO.Standing.trust(toId,
+                        request.originId or fromId)
+                    hostile = SAO.Standing.isHostileTo(toId,
+                        request.originId or fromId)
+                end)
+                local view = SAO.Organization.viewFor(toId,
+                    request.processId, false)
+                local proposal = view and view.proposal
+                    and view.proposal.proposal or {}
+                local destination = proposal.destination
+                local destinationKnown = type(destination) == "table"
+                    and tonumber(destination.minX) ~= nil
+                    and tonumber(destination.minY) ~= nil
+                    and tonumber(destination.maxX) ~= nil
+                    and tonumber(destination.maxY) ~= nil
+                local ownNeed = rec and tonumber(rec.hunger) or 0
+                local designation = rec and rec.designation or nil
+                local bodyOwner = rec and rec.bodyOwner or "SAO"
+                local registeredOwner = SAO.Communication
+                    and SAO.Communication.executionOwners
+                    and SAO.Communication.executionOwners[bodyOwner] or nil
+                local executionAvailable = bodyOwner ~= "ZAO"
+                    or registeredOwner ~= nil
+                local choice = not executionAvailable and "defer"
+                    or hostile and "contest"
+                    or ownNeed >= 0.75 and "qualify"
+                    or destinationKnown and (designation == "forager"
+                        or designation == "quartermaster"
+                        or relationship >= 0.30) and "accept"
+                    or destinationKnown and "counter-propose" or "defer"
+                SAO.Organization.appraiseMatter(request.processId, toId, {
+                    owner = "Perception.dormant-encounter",
+                    executor = "dormant-person",
+                    bodyOwner = bodyOwner,
+                    currentActivity = "dormant",
+                    canAcquire = executionAvailable and not (rec and rec.dead),
+                    canCarry = executionAvailable and not (rec and rec.dead),
+                    canDeliver = executionAvailable and not (rec and rec.dead),
+                    canExecute = executionAvailable and not (rec and rec.dead),
+                    executionOwnerAvailable = executionAvailable,
+                    incapable = not executionAvailable,
+                    dead = rec and rec.dead or false,
+                    contest = hostile,
+                    ownNeed = ownNeed,
+                    relationship = relationship,
+                    destinationKnown = destinationKnown,
+                    choice = choice,
+                    interests = { designation = designation,
+                        ownGroup = SAO.Standing and SAO.Standing.groupOf
+                            and SAO.Standing.groupOf(toId) or nil },
+                    constraints = { represented = false,
+                        currentActivity = "dormant",
+                        executionOwnerAvailable = executionAvailable },
+                    inputOwners = {
+                        currentActivity = "SAO.DormantPopulation",
+                        capabilities = bodyOwner == "ZAO" and "ZAO.Controller"
+                            or "SAO.DormantPopulation",
+                        ownNeed = "SAO.Identity", relationship = "SAO.Standing",
+                        interests = "SAO.Identity+SAO.Standing",
+                        constraints = "SAO.DormantPopulation",
+                    },
+                })
+            end
+        end
+    end
+    if SAO.Communication and SAO.Communication.deliverPendingResponses then
+        moved = moved + SAO.Communication.deliverPendingResponses(
+            fromId, toId, channel, { exchange = "aid-request" })
+        moved = moved + SAO.Communication.deliverPendingResponses(
+            toId, fromId, channel, { exchange = "aid-request" })
     end
     return moved
 end

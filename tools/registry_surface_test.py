@@ -78,6 +78,10 @@ SURFACED = {
     "Ctl.pendingCorpses": ("pendingCorpseCount",
                            "bodies between their death and the ground, "
                            "waiting for the corpse net"),
+    "Ctl.coordinationRuntime": ("coordinationRuntimeCount",
+                                "external-owner people whose accepted work "
+                                "is currently being executed outside the "
+                                "ordinary SAO agent registry"),
 }
 
 

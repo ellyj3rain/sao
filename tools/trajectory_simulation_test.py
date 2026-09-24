@@ -49,7 +49,7 @@ def partial_probe(path):
 
 
 def observer_fixture(root):
-    """Exercise actual Standing append/election/widow transitions in Kahlua."""
+    """Exercise actual roster, withdrawal and widow transitions in Kahlua."""
     if not (Sweep.PZ.is_file() and (Sweep.JDK / 'java.exe').is_file()):
         print('  observer VM fixture SKIPPED - installed game/JDK absent')
         return []
@@ -58,7 +58,9 @@ def observer_fixture(root):
     fixture = importlib.util.module_from_spec(spec)
     spec.loader.exec_module(fixture)
     fixture.LUA = root / 'mod/42.20/media/lua'
-    fixture.MODULES = list(fixture.MODULES) + [str(HERE / 'sweep/evidence.lua')]
+    fixture.MODULES = list(fixture.MODULES) + [
+        'shared/SAO_Organization.lua', 'shared/SAO_Recognition.lua',
+        str(HERE / 'sweep/evidence.lua')]
     if not fixture.build():
         return ['observer fixture runner did not build']
     expression = r'''(function()
@@ -98,8 +100,9 @@ def observer_fixture(root):
         faults.append('nested mutations duplicated or missed company end')
     if report['snapshots']['0']['groups']:
         faults.append('observer final snapshot contradicts the actual empty roster')
-    # The election itself removes a dissenter directly, then recursively frees
-    # the remaining widow. Supply felt need, but run the real election verb.
+    # Trust loss and the retired election verb do not remove anybody. A named
+    # person withdraws through the process owner; lifecycle cleanup then frees
+    # the remaining widow without manufacturing a successor.
     expression = r'''(function()
       local a = SAO.Identity.create(nil, nil, 10500, 9000, 0)
       local b = SAO.Identity.create(nil, nil, 10500, 9000, 0)
@@ -108,20 +111,28 @@ def observer_fixture(root):
       local evidence = SAOSweepEvidence.begin()
       _G.__hours = 20
       SAO.Standing.formCompany({ a.id, b.id }, 'walkout-house')
-      local leader = SAO.Standing.leaderOf('walkout-house')
-      local dissenter = leader == a.id and b.id or a.id
-      SAO.Standing.adjustTrust(dissenter, leader, -1.0)
-      SAO.Standing.adjustTrust(leader, dissenter, -1.85)
-      SAO.Population = { companyNeedPressure = function(id)
-        return id == dissenter and 1 or 0 end }
+      SAO.Standing.adjustTrust(a.id, b.id, -1.0)
+      SAO.Standing.adjustTrust(b.id, a.id, -1.85)
       _G.__hours = 21
-      SAO.Standing.electLeader('walkout-house')
+      local changed, _, why = SAO.Standing.electLeader('walkout-house')
+      if changed ~= nil or SAO.Standing.groupSize('walkout-house') ~= 2
+        or why ~= 'explicit-process-required' then
+        error('retired election changed the roster')
+      end
+      local ok, process, left = pcall(SAO.Standing.withdrawFromCompany, a.id,
+        'voluntary-separation', {}, 'dormant-encounter', {})
+      if not ok then return 'withdraw-error:' .. tostring(process) end
+      if not process or not left then return 'withdraw-refused' end
       return evidence.finish()
     end)()'''
-    report = json.loads(fixture.probe(expression))
+    raw = fixture.probe(expression)
+    try:
+        report = json.loads(raw)
+    except (ValueError, OSError):
+        return faults + ['explicit withdrawal fixture failed: ' + raw]
     if (report['survivorsLeft'] != 2 or report['snapshots']['0']['groups']
             or report['companies']['walkout-house'].get('endedHour') != 21):
-        faults.append('actual election walkout/widow transition was not observed')
+        faults.append('explicit withdrawal/widow transition was not observed')
     expression = r'''(function()
       local people = {}
       for i = 1, 4 do people[i] = SAO.Identity.create(nil, nil, 10500, 9000, 0) end
@@ -132,29 +143,40 @@ def observer_fixture(root):
       _G.__hours = 30
       SAO.Standing.formCompany({ people[1].id, people[2].id,
         people[3].id, people[4].id }, 'split-house')
-      local leader = SAO.Standing.leaderOf('split-house')
-      local rest = {}
-      for _, person in ipairs(people) do if person.id ~= leader then
-        rest[#rest + 1] = person.id end end
-      table.sort(rest)
-      local core, ally = rest[1], rest[2]
-      SAO.Standing.setHostile(leader, core, true)
-      SAO.Standing.setHostile(core, leader, true)
+      local core, ally = people[1].id, people[2].id
+      SAO.Standing.setHostile(people[3].id, core, true)
+      SAO.Standing.setHostile(core, people[3].id, true)
       SAO.Standing.adjustTrust(ally, core, 0.4)
       _G.__hours = 31
-      local split = SAO.Standing.checkSchism('split-house')
-      if not split then error('actual schism did not occur') end
+      local split, _, _, why = SAO.Standing.checkSchism('split-house')
+      if split ~= nil or why ~= 'explicit-process-required'
+        or SAO.Standing.groupSize('split-house') ~= 4 then
+        error('hostility manufactured a schism')
+      end
+      local ok1, p1, left1 = pcall(SAO.Standing.withdrawFromCompany, core,
+        'contested-separation', {}, 'dormant-encounter', {})
+      local ok2, p2, left2 = pcall(SAO.Standing.withdrawFromCompany, ally,
+        'contested-separation', {}, 'dormant-encounter', {})
+      if not ok1 then return 'first-withdraw-error:' .. tostring(p1) end
+      if not ok2 then return 'second-withdraw-error:' .. tostring(p2) end
+      if not p1 or not p2 or not left1 or not left2 then
+        error('explicit separations failed')
+      end
       return evidence.finish()
     end)()'''
-    report = json.loads(fixture.probe(expression))
+    raw = fixture.probe(expression)
+    try:
+        report = json.loads(raw)
+    except (ValueError, OSError):
+        return faults + ['explicit separation fixture failed: ' + raw]
     snapshot = report['snapshots']['0']
     splits = [h for name, h in report['companies'].items() if name.startswith('schism-')]
-    if (report['housesFounded'] != 2 or report['survivorsLeft'] != 2
-            or report['survivorsJoined'] != 0 or snapshot['groupSizes'] != {'2': 2}
-            or len(splits) != 1 or splits[0].get('foundedHour') != 31
+    if (report['housesFounded'] != 1 or report['survivorsLeft'] != 2
+            or report['survivorsJoined'] != 0 or snapshot['groupSizes'] != {'2': 1}
+            or len(splits) != 0
             or report['companies']['split-house'].get('foundedHour') != 30
             or report['companies']['split-house'].get('maxSize') != 4):
-        faults.append('actual schism roster and lifetime observations disagree')
+        faults.append('explicit separation or no-automatic-schism observation disagrees')
     # Calendar host uses the same start-minus-behind rule as SAORecord. Verify
     # real Lua reads across month, year and leap-day boundaries.
     fixture.MODULES = list(fixture.MODULES[:-1])

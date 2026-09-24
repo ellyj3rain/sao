@@ -11,7 +11,7 @@ SAO.Handover = SAO.Handover or {}
 local H = SAO.Handover
 
 local STORE_KEY = "SurvivorAwareness_Handovers"
-local SCHEMA = 1
+local SCHEMA = 2
 local MAX_RECORDS = 512
 local MAX_TERMS = 256
 local MAX_DISTANCE = 6
@@ -54,6 +54,14 @@ local function store()
         value.nextSequence = tonumber(value.nextSequence) or 0
         value.records = type(value.records) == "table" and value.records or {}
         value.terms = type(value.terms) == "table" and value.terms or {}
+    elseif tonumber(value.schema) == 1 then
+        -- Optional coordination references did not exist in schema 1. Keep
+        -- every native handover result and infer no process or commitment.
+        value.schema = SCHEMA
+        value.nextSequence = tonumber(value.nextSequence) or 0
+        value.records = type(value.records) == "table" and value.records or {}
+        value.terms = type(value.terms) == "table" and value.terms or {}
+        for _, rec in pairs(value.records) do rec.schema = SCHEMA end
     elseif tonumber(value.schema) ~= SCHEMA then
         -- A future schema is not safe to reinterpret. Leave it untouched and
         -- refuse new work until its migration is explicit.
@@ -322,6 +330,7 @@ local function setTerminal(rec, status, reason)
     if terminal(rec.status) then return rec.status == status end
     rec.status = status
     rec.terminalAt = now()
+    rec.reason = tostring(reason or status)
     log(tostring(rec.id) .. " became " .. status .. " ("
         .. tostring(reason or status) .. ")")
     local t = rec.termsId and term(rec.termsId) or nil
@@ -330,6 +339,10 @@ local function setTerminal(rec, status, reason)
         finalizeTerm(rec.termsId)
     end
     runtime[tostring(rec.id)] = nil
+    if rec.commitmentId and SAO.Organization
+        and SAO.Organization.consumeHandoverResult then
+        pcall(SAO.Organization.consumeHandoverResult, rec)
+    end
     return true
 end
 
@@ -390,6 +403,10 @@ local function ensureTransferClass()
                 applyRecordEffect(rec)
             end
             runtime[tostring(rec.id)] = nil
+            if rec.commitmentId and SAO.Organization
+                and SAO.Organization.consumeHandoverResult then
+                pcall(SAO.Organization.consumeHandoverResult, rec)
+            end
             return result
         end
         setTerminal(rec, "conflict", "holder-mismatch")
@@ -573,6 +590,9 @@ function H.begin(actorId, actorBody, recipientId, recipientBody, item, kind,
         createdAt = now(), status = "pending",
         termsId = termsId, termLeg = legName,
         effect = termsId and {} or effectCopy(options.effect),
+        processId = identity(options.processId),
+        processRevision = tonumber(options.processRevision),
+        commitmentId = identity(options.commitmentId),
     }
     s.records[id] = rec
     runtime[id] = { item = item, actorBody = actorBody,
@@ -593,6 +613,11 @@ function H.begin(actorId, actorBody, recipientId, recipientBody, item, kind,
         leg.status = "pending"
     end
     log(a .. " queued " .. kind .. " for " .. b .. " as " .. id)
+    if rec.commitmentId and SAO.Organization
+        and SAO.Organization.noteWorkAdmission then
+        SAO.Organization.noteWorkAdmission(rec.commitmentId,
+            "Handover", rec.id, { recipientId = b, kind = kind })
+    end
     return rec
 end
 
@@ -631,6 +656,10 @@ function H.reconcile(force)
                         applyRecordEffect(rec)
                     end
                     runtime[tostring(rec.id)] = nil
+                    if rec.commitmentId and SAO.Organization
+                        and SAO.Organization.consumeHandoverResult then
+                        pcall(SAO.Organization.consumeHandoverResult, rec)
+                    end
                     changed = changed + 1
                 elseif hasQueue and not actionPresent then
                     if itemIn(live.item, live.sourceInventory) then
@@ -643,6 +672,10 @@ function H.reconcile(force)
             end
             -- A pending record without a live action is deliberately left
             -- pending on reload. No runtime handle means no native witness.
+        end
+        if rec and rec.commitmentId and rec.status ~= "pending"
+            and SAO.Organization and SAO.Organization.consumeHandoverResult then
+            pcall(SAO.Organization.consumeHandoverResult, rec)
         end
     end
     return changed

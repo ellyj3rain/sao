@@ -676,6 +676,9 @@ local function dormantLife(conf, tickCounter)
             and not SAO.Body.hasRepresentation(id)
             and not sourceOwnsDormantRecord(id) then
             advanceDormantPhysiology(id, rec, nowHours, fatigueBase)
+            if SAO.Standing.maybeCallForBread then
+                SAO.Standing.maybeCallForBread(id)
+            end
             if rec.homeX then
                 rec.nextDormantMoveAt = rec.nextDormantMoveAt or 0
                 -- [C112] This is the one persisted FUTURE due-time in the
@@ -1671,20 +1674,9 @@ local function dormantEncounters(tickCounter)
                             end
                         end
                     end
-                    -- Houses can break on the roads too ([A22]): a
-                    -- same-group dormant meeting is an election moment
-                    -- like any other.
-                    if gA and gA == gB then
-                        SAO.Standing.electLeader(gA)
-                        local newHouse, core, n =
-                            SAO.Standing.checkSchism(gA)
-                        if newHouse then
-                            log("SCHISM on the road: " .. tostring(core)
-                                .. " leads " .. tostring(n) .. " out of "
-                                .. tostring(SAO.Standing.factionName(gA)
-                                    or gA))
-                        end
-                    end
+                    -- The admitted encounter above carries concrete matters
+                    -- and return responses. Roster authority and departure are
+                    -- not inferred from a meeting, trust totals, or hostility.
                     -- [C111] Need reads alongside trust at the door
                     -- (`companyStanding`): each side's pull is their
                     -- own, and the mutual gate still clears on both
@@ -1699,18 +1691,17 @@ local function dormantEncounters(tickCounter)
                                 .. " part ways friendly - somebody keeps"
                                 .. " their own company")
                         else
-                            if gA or gB then
-                                local joiner = gA and idB or idA
-                                local hostG = gA or gB
-                                SAO.Standing.joinGroup(joiner, hostG)
-                                tally("joined company on the road")
-                            else
-                                SAO.Standing.formCompany(
-                                    { idA, idB }, groupName)
-                                -- [B47] 120 of these in one session, and
-                                -- they never stop - the dormant half meets
-                                -- people forever.
-                                tally("kept company on the road")
+                            local process, response, changed, result =
+                                SAO.Standing.proposeCompany(idA, idB,
+                                    "dormant-encounter", "dormant")
+                            if process and response and changed then
+                                tally(result == "founded"
+                                    and "kept company on the road"
+                                    or "joined company on the road")
+                            elseif process and response then
+                                log(idA .. " and " .. idB
+                                    .. " leave the membership proposal at "
+                                    .. tostring(result))
                             end
                         end
                     end

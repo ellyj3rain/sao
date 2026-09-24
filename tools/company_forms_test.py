@@ -1,58 +1,10 @@
 #!/usr/bin/env python3
-r"""Border 135 - a founded company is still standing afterwards ([C67]).
+r"""Border 135 - a roster can form without manufacturing government.
 
-Every company in this project was founded by joining one member and
-then the other:
-
-    SAO.Standing.joinGroup(idA, groupName)
-    SAO.Standing.joinGroup(idB, groupName)
-
-`joinGroup` elects, and a roster of one is where `electLeader` performs
-the widow release - "a group of one is a memory, not a membership" -
-so the first join freed the first founder, and the second join found a
-roster of one again and freed the second. The company was dissolved by
-the act of founding it. Every time, at all three sites a company is
-born: the road, the table, and Knox adoption.
-
-Nothing downstream of a company could ever run. No leader, no creed,
-no designation, no chair, no feud, no pact, no schism, no radio news
-of any of them. A county of two hundred people originating in bonded
-units at trust 0.85 - well over the 0.5 company line - stayed two
-hundred strangers for the life of the save, and the whole governance
-half of Standing was unreachable code that read as if it worked.
-
-It was measured before it was found: twelve counties, then twenty-four,
-across a packed map, a scattered map, an invented map, a real map,
-hand-built units and real genesis, produced companies 0 of N in every
-single configuration. That number survived every correction to the
-harness because it was never the harness.
-
-THIS BORDER MEASURES THE HOUSE, NOT THE CALL.
-
-A border asserting that the founding site calls `joinGroup` twice
-would have passed the defect - it called it, correctly, twice. A
-border asserting that `formCompany` exists would pass any future
-rewrite that spells the name and dissolves the house anyway. So the
-checks below run the real modules in the engine's own VM, found a
-company however THIS tree founds one, and then look at whether anybody
-is in it.
-
-Founding however the tree founds it is what makes the control work: on
-the pre-batch tree the branch takes the two consecutive joins, and the
-house comes back empty.
-
-The three properties it holds besides:
-
-  * THE WIDOW RULE STILL FIRES. A house that shrinks to one still
-    releases its last member and clears their designation. The rule is
-    right; it was only being asked at the wrong moment.
-  * A HOUSE OF ONE MAY NOT BE FOUNDED. The founding verb does not
-    smuggle a roster of one past the rule it stops firing mid-sentence.
-  * A STANDING HOUSE STILL TAKES A JOINER. The plain single verb is
-    correct once there is a house to join, and stays in use.
-
-An optional argv[1] points the checker at another tree root, which is
-how its control runs.
+The roster primitive writes two consenting founders atomically, a standing
+house can admit a third person through its owning procedure, and shrink-only
+lifecycle cleanup still releases a widow. Founding itself assigns no leader,
+office, job, policy, assent or outcome; those require their own enacted process.
 """
 import pathlib
 import re
@@ -75,9 +27,7 @@ PZ_DIR = pathlib.Path(
 PZ = PZ_DIR / "projectzomboid.jar"
 STDLIB = PZ_DIR / "stdlib.lua"
 
-# What a company needs to be able to form at all. Census is here
-# because `electLeader` deals designations out of it, and a sweep that
-# left it out ran for a whole session with nobody holding a trade.
+# Load the real roster and identity owners in the engine VM.
 MODULES = [
     "shared/SAO_Log.lua", "shared/SAO_Hash.lua", "shared/SAO_Rand.lua",
     "shared/SAO_Census.lua", "shared/SAO_History.lua",
@@ -134,8 +84,8 @@ SAOJavaBridge = {
 }
 '''
 
-# Two people who trust each other found a company, however this tree
-# founds one. Then: is anybody in it?
+# Exercise the roster primitive directly. Production encounter callers are
+# separately held to `proposeCompany`, where both people acquire and answer.
 FOUND = r'''(function()
   local s = ModData.getOrCreate("SurvivorAwareness_Standing")
   local function size(g)
@@ -256,8 +206,12 @@ def main():
     seams = {
         "a company is founded from its roster":
             "function S.formCompany(" in read(STANDING),
-        "the widow release is still in the election":
-            "s.groups[widow] = nil" in read(STANDING),
+        "the widow release remains lifecycle cleanup":
+            "function S.maintainRoster(" in read(STANDING)
+            and "s.groups[widow] = nil" in read(STANDING),
+        "founding assigns no automatic authority or work":
+            "assigns no leader, office, job, policy, assent, or outcome"
+            in read(STANDING),
         "no site founds a company a member at a time":
             not strays,
         "the gate runs this border":
@@ -302,14 +256,13 @@ def main():
             "election performs the widow release, so the company is "
             "dissolved by the act of founding it and no social structure "
             "can form in the county at all" % got.get("born"))
-    if got.get("leader") in (None, "nil"):
-        faults.append("the founded house elected no leader, so nothing "
-                      "downstream of a chair can run")
+    if got.get("leader") != "nil":
+        faults.append("founding manufactured a leader (%s) without an "
+                      "enacted authority process" % got.get("leader"))
     jobs = got.get("jobs") or ""
-    if "nil" in jobs:
-        faults.append("the founded house dealt no work (%s): a company has "
-                      "jobs, and a member without one is not in a company"
-                      % jobs)
+    if jobs != "nil/nil":
+        faults.append("founding manufactured work designations (%s) without "
+                      "an accepted work process" % jobs)
     if got.get("third") != "3":
         faults.append("a third member joining a standing house left %s in "
                       "it, so the plain single join no longer works once "
@@ -354,8 +307,8 @@ def main():
             print("  FAULT: " + f)
         print("  135) a founded company: FAIL")
         return 1
-    print("  135) a company founded from its roster stands, elects and "
-          "deals work, and a house that shrinks to one still ends: PASS")
+    print("  135) a consenting roster stands without an automatic leader or "
+          "jobs, and a house that shrinks to one still ends: PASS")
     return 0
 
 

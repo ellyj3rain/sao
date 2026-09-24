@@ -217,6 +217,7 @@ UNITS = [
     ('C76', 'kohai', 'Capture authored conversation inputs from production knowledge owners with explicit reader coverage, immutable owner-state checks and content-addressed references. Reject unavailable or unsupported sources before reads, preserve personal radio provenance and keep authored captures separate from trained behavior.'),
     ('C77', 'patch', 'Correct unsupported county-presence acquisition using exact native reading completion and person-bound report receipts; withhold legacy grants, preserve their history and regenerate the controlled capture with evidenced acquisition.'),
     ('C78', 'kohai', 'Extend conversation capture with existing person-state contributions, explicit availability and controlled contextual comparisons; preserve source ownership and version-one compatibility.'),
+    ('C79', 'minor', 'Introduce enacted social coordination as a player-visible and authoring contract: acquired versioned proposals, recipient-private responses, scoped concurrent commitments and exact-once native acquisition/carry/delivery results across loaded, dormant and external execution owners. Retire automatic roster authority and fracture shortcuts without claiming wider institutional procedures or remaining life producers complete.'),
 ]
 
 TIER_MEANINGS = [

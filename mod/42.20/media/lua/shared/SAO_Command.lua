@@ -1,58 +1,20 @@
--- SAO_Command - the Standing pillar's command surface (ARCHITECTURE
--- §Standing: "orders ... and who may direct whom").
--- ---------------------------------------------------------------------------
--- [C37] An order lands through standing (DR-033, ruled 2026-09-06).
--- Whether a person does what they are told is a social fact - the
--- houses, leaders and designations Standing keeps, the trust the
--- person holds in the one asking, and the competence that one has
--- shown - never a control scheme. CAO's Authority pillar is the model
--- the operator named, carried over whole: the giver's command
--- standing (an office over the follower, shaded by the follower's
--- opinion of them), the follower's conformity and discipline, three
--- bands, refusal a visible event with its reason. Refusal is
--- contextual: what the person would do at all is the disposition's
--- and Standing's business, asked here the way the controller asks it
--- for their own decisions.
+-- SAO_Command - a spoken request and its matter-scoped response.
 --
--- [C49] Survivor-to-survivor orders use this check too (DR-033).
--- [C37] routed only the player's asks through here. Three orders one
--- survivor gives another did not use it: the keeper rousing the
--- house, a housemate objecting to someone leaving, and an owner
--- telling a trespasser to go. The objection used its own hardcoded
--- authority test in SAO_Controller; that test is deleted. No weights
--- or thresholds were added here. Three Standing facts became inputs:
--- whether the house is divided, the giver's designation, and whether
--- the giver's claim covers the ground in question.
+-- A request is addressed to one person, must actually reach them, and is
+-- answered from that person's present activity, capability, relationship and
+-- interests. An accepted food delivery or any other unrelated responsibility
+-- is never command authority. Authority exists only through an active enacted
+-- office whose jurisdiction covers this command kind, or through an active
+-- commitment to this exact `command:<kind>` matter.
 --
--- Nothing here executes and nothing here speaks: the harness and the
--- controller voice the verdict and walk the order. Reads Standing,
--- Disposition, Perception, Identity and the census; writes nothing.
+-- Nothing here executes the requested act. The harness or controller may act
+-- only on the delivered response returned by `Cmd.order`; the durable proposal,
+-- private appraisal, response and any resulting scoped commitment belong to
+-- Organization.
 
 SAO = SAO or {}
 SAO.Command = SAO.Command or {}
 local Cmd = SAO.Command
-
--- CAO's Authority.CommandStanding: a squad leader's word 0.8, a
--- fire-team lead's 0.65, anyone else's 0.4; the follower's opinion
--- moves it by half a point either way (opinion -100 .. 100 over 200
--- there; trust -1 .. 1 over 2 here, the same half point).
-Cmd.OFFICE = { leader = 0.80, second = 0.65, none = 0.40 }
-
--- CAO's Authority.Check: standing 0.55, conformity 0.25, discipline
--- 0.20; at 0.44 complies, at 0.34 goes along reluctantly, under it
--- refuses. CAO's own tuning note holds here unchanged: the default
--- person under a peer scores 0.445 and complies cleanly - reluctance
--- and refusal are for genuinely low conformity or discipline, or real
--- dislike, not ambient noise.
-Cmd.WEIGHT = { standing = 0.55, conformity = 0.25, discipline = 0.20 }
-Cmd.COMPLIES_AT = 0.44
-Cmd.RELUCTANT_AT = 0.34
-
--- CAO's reasons, in order: thinks little of the giver (opinion at or
--- under -15 of 100, so trust at or under -0.15), sees no authority in
--- them (standing under 0.45), or simply will not be told.
-Cmd.DISLIKE_AT = -0.15
-Cmd.NO_STANDING_AT = 0.45
 
 -- [B19]'s teaching margin, the county's one measure of a hand that
 -- outranks another: three levels. The controller's teaching reads it
@@ -93,58 +55,64 @@ local function bodyOf(key)
     local S = SAO.Standing
     if S.isPlayerKey and S.isPlayerKey(key) then return playerBody(key) end
     local body = nil
-    pcall(function() body = SAO.Body.get(key) end)
+    pcall(function()
+        body = SAO.Communication and SAO.Communication.bodyFor(key) or nil
+    end)
     return body
 end
 
--- [C49] Divided houses. `formOf` reports a house as divided ([B23])
--- and `leansToward` reports which side one member is on ([B24]).
--- SAO_Controller read both, for one order only, to decide whether
--- the leader's word carried. That test lives here now, so it applies
--- to every order including the player's: a player in the chair of a
--- divided house holds no leader's office over members leaning the
--- other way.
---
--- `leansToward` returns nil for anyone with no strong creed pull,
--- which is most of the county ([B24]); those members keep their
--- leader. `secondOf` already returns nil in a divided house, so the
--- second needed no change.
-function Cmd.leansAway(group, id, giverKey)
-    local S = SAO.Standing
-    local form = nil
-    pcall(function() form = S.formOf and S.formOf(group) or nil end)
-    if form ~= "divided" then return false end
-    local mine = nil
-    pcall(function() mine = S.leansToward and S.leansToward(id) or nil end)
-    if not mine then return false end
-    local theirs = nil
-    pcall(function()
-        theirs = S.leansToward and S.leansToward(giverKey) or nil
-    end)
-    return theirs ~= nil and theirs ~= mine
+local function recipientNeed(id)
+    local body = bodyOf(id)
+    if not (body and SAO.Needs and SAO.Needs.read) then return 0 end
+    local need = nil
+    pcall(function() need = SAO.Needs.read(body) end)
+    if type(need) ~= "table" then return 0 end
+    return math.max(tonumber(need.hunger) or 0, tonumber(need.thirst) or 0)
 end
 
--- The office the giver holds over this person: their house's leader
--- (or the player seated in its chair, which is the same office), its
--- second, or none. A person of no house is under nobody's office, and
--- ([C49]) a person leaning away in a divided house is under nobody's
--- either.
-function Cmd.officeOf(giverKey, id)
+local function activeCommitment(commitmentId, giverKey, group, matter)
+    local Org = SAO.Organization
+    if not (Org and Org.authorityFor and commitmentId) then return false end
+    for _, scope in ipairs(Org.authorityFor(tostring(giverKey), group,
+        matter)) do
+        if scope.commitmentId == commitmentId then return true end
+    end
+    return false
+end
+
+local function jurisdictionCovers(office, kind)
+    local jurisdiction = office and office.jurisdiction or nil
+    return type(jurisdiction) == "table" and (jurisdiction.command == true
+        or jurisdiction[tostring(kind)] == true
+        or jurisdiction["command:" .. tostring(kind)] == true)
+end
+
+-- The office or direct mandate the giver holds for this exact command kind.
+-- Roster membership, a legacy leader projection and unrelated commitments
+-- supply no authority.
+function Cmd.officeOf(giverKey, id, kind)
     local S = SAO.Standing
     local group = nil
     pcall(function() group = S.groupOf(id) end)
     if not group then return "none" end
-    giverKey = tostring(giverKey)
-    local lead, chair, second = nil, nil, nil
-    pcall(function() lead = S.leaderOf(group) end)
-    pcall(function() chair = S.playerChairOf(group) end)
-    if (lead and tostring(lead) == giverKey)
-        or (chair and tostring(chair) == giverKey) then
-        if Cmd.leansAway(group, id, giverKey) then return "none" end
-        return "leader"
+    giverKey, group, kind = tostring(giverKey), tostring(group), tostring(kind)
+    local Org = SAO.Organization
+    for _, candidate in ipairs({ { "chair", "leader" },
+            { "deputy", "second" } }) do
+        local office = Org and Org.offices
+            and Org.offices[group .. ":" .. candidate[1]] or nil
+        local held = office and office.holders and office.holders[giverKey]
+            or nil
+        if type(held) == "table" and held.commitmentId
+            and jurisdictionCovers(office, kind)
+            and activeCommitment(held.commitmentId, giverKey, group) then
+            return candidate[2]
+        end
     end
-    pcall(function() second = S.secondOf(group) end)
-    if second and tostring(second) == giverKey then return "second" end
+    if Org and Org.authorityFor
+        and #Org.authorityFor(giverKey, group, "command:" .. kind) > 0 then
+        return "mandate"
+    end
     return "none"
 end
 
@@ -213,56 +181,29 @@ function Cmd.provenIn(giverKey, id, kind, arg)
         and mine >= 0 and theirs >= 0 and mine >= theirs + Cmd.TEACH_MARGIN
 end
 
--- Command standing: the office's word, or - where no office holds - a
--- proven hand's, followed like a second (the ruling's "competence and
--- background" in the currency CAO's ladder already has); then the
--- person's own trust in the giver, half a point either way.
-function Cmd.standingOf(giverKey, id, kind, arg)
-    local office = Cmd.officeOf(giverKey, id)
-    local base = Cmd.OFFICE[office] or Cmd.OFFICE.none
-    if office == "none" and Cmd.provenIn(giverKey, id, kind, arg) then
-        base = Cmd.OFFICE.second
-        office = "proven"
-    end
-    local trust = 0
-    pcall(function() trust = SAO.Standing.trust(id, giverKey) or 0 end)
-    if type(trust) ~= "number" then trust = 0 end
-    local standing = math.max(0, math.min(1, base + trust / 2))
-    return standing, office, trust
-end
-
--- Does this person take the giver's word in this matter? CAO's check
--- on the county's own axes. Conformity is not one of the eight; the
--- initiative axis is, and its own definition is "self-starts vs
--- waits" - the one who waits is the one who takes telling - so
--- conformity is read off it, inverted, inside the same envelope.
+-- Read the latest delivered response to a matching request. This compatibility
+-- query reports enacted history; it does not predict assent from a score.
 function Cmd.obedience(giverKey, id, kind, arg)
-    local standing, office, trust = Cmd.standingOf(giverKey, id, kind, arg)
-    local t = nil
-    pcall(function() t = SAO.Disposition.traits(id) end)
-    t = t or {}
-    local conformity = 1 - (t.initiative or 0.5)
-    local discipline = t.discipline or 0.5
-    local score = standing * Cmd.WEIGHT.standing
-        + conformity * Cmd.WEIGHT.conformity
-        + discipline * Cmd.WEIGHT.discipline
-    local verdict = "refuses"
-    if score >= Cmd.COMPLIES_AT then
-        verdict = "complies"
-    elseif score >= Cmd.RELUCTANT_AT then
-        verdict = "reluctant"
-    end
-    local reason = nil
-    if verdict ~= "complies" then
-        if trust <= Cmd.DISLIKE_AT then
-            reason = "does not think much of you"
-        elseif standing < Cmd.NO_STANDING_AT then
-            reason = "sees no standing in you"
-        else
-            reason = "is not one to be told"
+    local office = Cmd.officeOf(giverKey, id, kind)
+    local processes = SAO.Organization and SAO.Organization.processes or {}
+    local order = SAO.Organization and SAO.Organization.processOrder or {}
+    for index = #order, 1, -1 do
+        local process = processes[order[index]]
+        if process and process.originatorId == tostring(giverKey)
+            and process.kind == "command:" .. tostring(kind) then
+            local participant = process.participants
+                and process.participants[tostring(id)] or nil
+            local response = participant and participant.responses
+                and participant.responses[tostring(process.revision)] or nil
+            if response and response.delivered then
+                if response.response == "accept" then
+                    return "complies", nil, 1, 1, office
+                end
+                return "refuses", response.response, 0, 0, office
+            end
         end
     end
-    return verdict, reason, score, standing, office
+    return "refuses", "has not accepted this request", 0, 0, office
 end
 
 -- Would they do it at all? The same questions the controller asks for
@@ -333,30 +274,98 @@ function Cmd.envelope(id, kind, arg)
     return true, nil
 end
 
--- The whole of it: who is asking, of whom, what. Returns the verdict
--- - complies, reluctant, refuses - and the reason when it is not a
--- clean yes. The word comes first (a person who will not be told is
--- not asked whether they could), then the envelope.
+-- The whole of it: who asks whom to do what. The recipient's physical
+-- envelope is one input to their own response; it is not a substitute for
+-- acquiring the request or answering it.
 function Cmd.order(giverKey, id, kind, arg)
-    local verdict, reason = Cmd.obedience(giverKey, id, kind, arg)
-    if verdict == "refuses" then return verdict, reason end
     local ok, why = Cmd.envelope(id, kind, arg)
-    if not ok then return "refuses", why end
-    return verdict, reason
+    if not (SAO.Organization and SAO.Communication) then
+        return "refuses", "shared process is unavailable"
+    end
+    local group = SAO.Standing.groupOf(id)
+    local explicitOffice = Cmd.officeOf(giverKey, id, kind)
+    local process = SAO.Organization.raiseMatter(tostring(giverKey),
+        "command:" .. tostring(kind), group, {
+            kind = kind,
+            argument = type(arg) == "table" and arg or { value = arg },
+            recipientId = tostring(id),
+            requiredCapabilities = { execute = true },
+            scope = { action = kind, recipientId = tostring(id) },
+        }, { tostring(id) }, {
+            source = "spoken-command",
+            proven = Cmd.provenIn(giverKey, id, kind, arg),
+            office = explicitOffice,
+        })
+    if not process then return "refuses", "proposal could not be recorded" end
+    if SAO.Communication.canConverse(tostring(giverKey), tostring(id)) ~= true then
+        return "refuses", "did not receive the request"
+    end
+    if SAO.Organization.recordReception(process.id, tostring(id),
+        process.revision, "spoken", tostring(giverKey),
+        { kind = kind }) ~= true then
+        return "refuses", "request reception was not recorded"
+    end
+    local trust, hostile = 0, false
+    pcall(function()
+        trust = SAO.Standing.trust(id, giverKey) or 0
+        hostile = SAO.Standing.isHostileTo(id, giverKey) == true
+    end)
+    local agent = SAO.Controller and SAO.Controller.agents
+        and SAO.Controller.agents[tostring(id)] or nil
+    local activity = agent and string.lower(tostring(agent.state or "idle"))
+        or "dormant"
+    local explicit = explicitOffice ~= "none"
+    local ownNeed = recipientNeed(id)
+    local choice = not ok and "decline"
+        or hostile and "contest"
+        or (kind == "leave" and ownNeed >= 0.75) and "decline"
+        or (activity ~= "idle" and kind ~= "rouse" and kind ~= "leave")
+            and "defer"
+        or (explicit or Cmd.provenIn(giverKey, id, kind, arg)
+            or trust >= 0.30) and "accept"
+        or "qualify"
+    local response = SAO.Organization.appraiseMatter(process.id,
+        tostring(id), {
+            owner = "Command.order", executor = "SAO.Command",
+            currentActivity = activity,
+            canAcquire = ok, canCarry = ok, canDeliver = ok,
+            canExecute = ok,
+            incapable = not ok, contest = hostile,
+            relationship = trust, ownNeed = ownNeed,
+            destinationKnown = true,
+            choice = choice,
+            terms = choice == "qualify" and {
+                reason = "no accepted authority or relationship",
+            } or {},
+            constraints = { envelope = ok, reason = why },
+            interests = { explicitAuthority = explicit,
+                proven = Cmd.provenIn(giverKey, id, kind, arg),
+                currentNeed = ownNeed },
+        })
+    if not response then return "refuses", "did not answer the request" end
+    SAO.Organization.deliverResponse(process.id, tostring(id),
+        tostring(giverKey), "spoken", { kind = kind })
+    if response.response == "accept" then return "complies", nil end
+    if response.response == "qualify" then
+        return "refuses", "qualified the request; terms are not yet accepted"
+    end
+    return "refuses", why or response.response
 end
 
--- The panel's row, in plain words (DR-017): whether they would take
--- a word from the giver in no particular matter, and why not.
+-- The panel reports recorded response history rather than predicting what a
+-- person would do from a roster or aggregate score.
 function Cmd.describe(id, giverKey)
     local verdict, reason, _, _, office = Cmd.obedience(giverKey, id, "walk", nil)
     local who = ({ leader = "their leader", second = "their second",
-                   proven = "a proven hand", none = "no office" })[office]
+                   mandate = "a scoped mandate", none = "no office" })[office]
         or "no office"
-    if verdict == "complies" then return "would do it, " .. who end
-    if verdict == "reluctant" then
-        return "would, grudgingly, " .. tostring(reason)
+    if verdict == "complies" then
+        return "accepted the last request, " .. who
     end
-    return "would not, " .. tostring(reason)
+    if reason == "has not accepted this request" then
+        return "no accepted request, " .. who
+    end
+    return "last response " .. tostring(reason) .. ", " .. who
 end
 
 return Cmd

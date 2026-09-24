@@ -291,7 +291,7 @@ PROBE = r'''(function()
   local partialMigration = migration
     and legacyGraph.migrations.c64PartialMaterialCorrection or nil
   check('legacy_false_outputs_retired_on_upgrade', legacyBound
-    and legacyGraph.schema == 3
+    and legacyGraph.schema == 4
     and legacyGraph.material.stores['house:legacy'] == nil
     and legacyGraph.material.stores['personal-legacy'] ~= nil
     and legacyGraph.settlement.bases.legacy == nil
@@ -752,14 +752,14 @@ PROBE = r'''(function()
 
   local currentGraph = __stores['SurvivorAwareness_Graph']
   local futureRaw = receipt('future-consumer','C:future','future-fp','g')
-  __stores['SurvivorAwareness_Graph'] = { schema=4, marker='unchanged' }
+  __stores['SurvivorAwareness_Graph'] = { schema=5, marker='unchanged' }
   local futureConsumed, futureConsumeWhy = process('future-consumer')
   local integrationReady = SAO.Integration.rebuild()
   local worldApplied = SAO.WorldGenesis.applyDay(1)
   local futureBound, futureWhy = SAO.GraphPersistence.bind()
   local futureGraph = __stores['SurvivorAwareness_Graph']
   check('future_graph_schema_refuses_without_mutation', not futureBound
-    and futureWhy == 'future-schema' and futureGraph.schema == 4
+    and futureWhy == 'future-schema' and futureGraph.schema == 5
     and futureGraph.marker == 'unchanged' and futureGraph.material == nil)
   check('future_graph_callers_stop_and_detach_prior_world',
     not futureConsumed and futureConsumeWhy == 'graph-future-schema'

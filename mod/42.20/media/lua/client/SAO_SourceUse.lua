@@ -385,6 +385,12 @@ function SU.beginTransfer(id, body, category, admission, item, container,
         and tostring(context.deliveryGroup) or nil
     reservation.requestedByGroup = context.requestedByGroup
         and tostring(context.requestedByGroup) or nil
+    reservation.processId = context.processId
+        and tostring(context.processId) or nil
+    reservation.processRevision = context.processRevision
+        and math.floor(tonumber(context.processRevision) or 0) or nil
+    reservation.commitmentId = context.commitmentId
+        and tostring(context.commitmentId) or nil
     reservation.initialTransferProjection = true
     local queued
     queued, why = queueTransfer(id, body, reservation)
@@ -392,7 +398,15 @@ function SU.beginTransfer(id, body, category, admission, item, container,
         fail(id, body, reservation, why)
         return false, why
     end
-    return true
+    if reservation.commitmentId and SAO.Organization
+        and SAO.Organization.noteWorkAdmission then
+        SAO.Organization.noteWorkAdmission(reservation.commitmentId,
+            "SourceUse", reservation.id, {
+                operation = operation,
+                processId = reservation.processId,
+            })
+    end
+    return true, reservation
 end
 
 -- Start only after the controller has applied its need/ration/desperation law.

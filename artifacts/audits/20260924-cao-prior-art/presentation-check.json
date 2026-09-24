@@ -1,0 +1,211 @@
+{
+  "mode": "headless isolated browser; no operator UI input or response",
+  "results": [
+    {
+      "name": "desktop",
+      "url": "http://127.0.0.1:4317/#questions?interaction=skill-80395ed69ff069e0",
+      "errors": [],
+      "width": 1440,
+      "documentWidth": 1440,
+      "details": [
+        {
+          "title": "01OpenMake social decisions produce real shared workApprove this specific work plan for execution?Recommended pathApprove this planBegin the listed work within its scope, checks and stopping conditions.",
+          "open": true
+        },
+        {
+          "title": "Why this work follows the agreed direction",
+          "open": false
+        },
+        {
+          "title": "Boundaries of this approval",
+          "open": false
+        },
+        {
+          "title": "When the work must stop or return for revision",
+          "open": false
+        },
+        {
+          "title": "Concrete examples",
+          "open": false
+        },
+        {
+          "title": "Supporting evidence",
+          "open": false
+        },
+        {
+          "title": "Brief and source history",
+          "open": false
+        },
+        {
+          "title": "Source references",
+          "open": false
+        }
+      ],
+      "links": [
+        {
+          "text": "Detailed specification",
+          "href": "#history?ref=source%3Asao-social-work-plan%3Aartifacts%2Faudits%2F20260924-cao-prior-art%2FIMPLEMENTATION_SPEC.md"
+        },
+        {
+          "text": "Established direction and audited source anchors",
+          "href": "#history?ref=source%3Asao-social-work-plan%3Aartifacts%2Faudits%2F20260924-cao-prior-art%2FGOVERNANCE_AND_ML_PLAN.md"
+        },
+        {
+          "text": "CAO methods and transfer limits",
+          "href": "#history?ref=source%3Asao-social-work-plan%3Aartifacts%2Faudits%2F20260924-cao-prior-art%2FREVIEW.md"
+        }
+      ],
+      "sourceResults": [
+        {
+          "label": "Detailed specification",
+          "status": 200,
+          "ok": true,
+          "keys": [
+            "ok",
+            "record",
+            "links",
+            "backlinks",
+            "revisions",
+            "currentRevision",
+            "coverage"
+          ],
+          "resolved": true
+        },
+        {
+          "label": "Established direction and audited source anchors",
+          "status": 200,
+          "ok": true,
+          "keys": [
+            "ok",
+            "record",
+            "links",
+            "backlinks",
+            "revisions",
+            "currentRevision",
+            "coverage"
+          ],
+          "resolved": true
+        },
+        {
+          "label": "CAO methods and transfer limits",
+          "status": 200,
+          "ok": true,
+          "keys": [
+            "ok",
+            "record",
+            "links",
+            "backlinks",
+            "revisions",
+            "currentRevision",
+            "coverage"
+          ],
+          "resolved": true
+        }
+      ],
+      "sourceDialogVisible": true
+    },
+    {
+      "name": "narrow",
+      "url": "http://127.0.0.1:4317/#questions?interaction=skill-80395ed69ff069e0",
+      "errors": [],
+      "width": 430,
+      "documentWidth": 430,
+      "details": [
+        {
+          "title": "01OpenMake social decisions produce real shared workApprove this specific work plan for execution?Recommended pathApprove this planBegin the listed work within its scope, checks and stopping conditions.",
+          "open": true
+        },
+        {
+          "title": "Why this work follows the agreed direction",
+          "open": false
+        },
+        {
+          "title": "Boundaries of this approval",
+          "open": false
+        },
+        {
+          "title": "When the work must stop or return for revision",
+          "open": false
+        },
+        {
+          "title": "Concrete examples",
+          "open": false
+        },
+        {
+          "title": "Supporting evidence",
+          "open": false
+        },
+        {
+          "title": "Brief and source history",
+          "open": false
+        },
+        {
+          "title": "Source references",
+          "open": false
+        }
+      ],
+      "links": [
+        {
+          "text": "Detailed specification",
+          "href": "#history?ref=source%3Asao-social-work-plan%3Aartifacts%2Faudits%2F20260924-cao-prior-art%2FIMPLEMENTATION_SPEC.md"
+        },
+        {
+          "text": "Established direction and audited source anchors",
+          "href": "#history?ref=source%3Asao-social-work-plan%3Aartifacts%2Faudits%2F20260924-cao-prior-art%2FGOVERNANCE_AND_ML_PLAN.md"
+        },
+        {
+          "text": "CAO methods and transfer limits",
+          "href": "#history?ref=source%3Asao-social-work-plan%3Aartifacts%2Faudits%2F20260924-cao-prior-art%2FREVIEW.md"
+        }
+      ],
+      "sourceResults": [
+        {
+          "label": "Detailed specification",
+          "status": 200,
+          "ok": true,
+          "keys": [
+            "ok",
+            "record",
+            "links",
+            "backlinks",
+            "revisions",
+            "currentRevision",
+            "coverage"
+          ],
+          "resolved": true
+        },
+        {
+          "label": "Established direction and audited source anchors",
+          "status": 200,
+          "ok": true,
+          "keys": [
+            "ok",
+            "record",
+            "links",
+            "backlinks",
+            "revisions",
+            "currentRevision",
+            "coverage"
+          ],
+          "resolved": true
+        },
+        {
+          "label": "CAO methods and transfer limits",
+          "status": 200,
+          "ok": true,
+          "keys": [
+            "ok",
+            "record",
+            "links",
+            "backlinks",
+            "revisions",
+            "currentRevision",
+            "coverage"
+          ],
+          "resolved": true
+        }
+      ],
+      "sourceDialogVisible": true
+    }
+  ]
+}

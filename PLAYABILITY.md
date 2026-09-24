@@ -1,6 +1,6 @@
 | Document | Playability and observed behavior |
 |---|---|
-| Version | `2.8.14.0-pre-alpha` |
+| Version | `2.9.0.0-pre-alpha` |
 | Author | ellyj3rain |
 | Repository | `PLAYABILITY.md` |
 | Status | CANONICAL - current evidence and implementation limitations. |
@@ -26,7 +26,7 @@ mechanical work already authorized.
 | Inspection | County ledger, standing and person panels, knowledge and development observations | A visible state or selected branch does not establish that the associated action happened. |
 | Movement and travel | Walking, crossing, boarding and driving adapters | Driving can cancel its own approach or cancel actual progress; steering and passenger waiting need repair. The engine does support NPC vehicle control. |
 | Needs and material actions | Inventory, food, water, shelter, construction and care primitives; dormant carried food/fluid uses native partial effects with quantity and nutrition accounting | Ground access, completed loaded actions and unloaded resource producers remain incomplete. Queued treatment can prevent the following CPR action. |
-| Social life | Relationships, companies, claims, demands, exchanges and governance state | Automatic relocation and recognition can substitute for actual choices and consequences; surrender lacks a complete transaction. |
+| Social life | Relationships, companies, claims and exchange; C79 acquired proposals, individual responses, scoped concurrent commitments and completion-backed food delivery across loaded/dormant/external owners | The first unit covers voluntary coordination and contention. Elections, deliberation, succession, coercive enforcement, physical separation and wider institutional/material producers remain incomplete; loaded-world behavior is unobserved. |
 | Health and age | Infection course, conditions, habits, age, durable brain-health history and medical/inspect graph | Current physical causes integrate independently of callback partitions and affect memory, decisions, pressure and movement. Healthy-child fear and completed care remain later action repairs. |
 | Knowledge and optional integrations | Perception, remembered opportunities, vehicles, animals and combat adapters | Animal/human classification, inaccessible compartments and installed prone-state reads need correction. |
 | Communication | Talk and testimony admission; C73 County Wire/player-radio delivery through powered, audible, tuned per-person endpoints with private receipts; inference and fact-constraint primitives | Autonomous survivor radio actions, free-form learned cognition and expression are unfinished; no trained model is shipped. Radio audio and loaded-save behavior still need play observation. |

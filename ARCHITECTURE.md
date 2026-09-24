@@ -1,6 +1,6 @@
 | Document | Survivor Awareness Overhaul Architecture |
 |---|---|
-| Version | `2.8.14.0-pre-alpha` |
+| Version | `2.9.0.0-pre-alpha` |
 | Author | ellyj3rain |
 | Repository | `ARCHITECTURE.md` |
 | Status | ACTIVE - ratified framework shape. |
@@ -767,3 +767,60 @@ specific host and supported schemas. It does not establish corpus-wide world
 knowledge, native loaded-body capture or task-specific output validity. Speakeasy
 owns the next exact import, source adjudication, typed proposal and readable
 operator review. Live asynchronous inference and result revalidation remain R14.
+
+## Enacted social coordination (C79)
+
+`SAO_Organization` owns one durable process instead of a parallel planner. A
+matter contains immutable proposal revisions, addressed participants, actual
+receptions, per-person responses and history, scoped commitments, work state and
+events. GraphPersistence schema 4 serializes the data tables and consumed-result
+IDs; runtime communication and execution adapters re-register after load.
+
+Communication acquisition, response formation, response delivery and work are
+different transitions. A transport must explicitly admit the proposal before a
+person can answer. The recipient freezes their current activity, capability,
+need, relationship, interests and constraints with their feasible response set.
+Accept, qualify, counter-propose, decline, defer, contest and withdraw are
+individual choices; an addressed person without a response remains unanswered.
+A commitment exists only after the chosen response reaches the originator.
+
+Commitment scope is the authority boundary. Command and office consumers require
+the matching process matter, revision and jurisdiction. Several responsibilities
+may coexist, and revision supersedes unfinished prior terms. No trust score,
+roster size, title or generic message can authorize a different matter.
+
+Food-delivery commitments reuse native owners:
+
+```text
+Organization commitment
+  -> SourceUse exact acquisition
+  -> Locomotion carrying route
+  -> Handover exact delivery
+  -> Organization consumes each terminal receipt once
+```
+
+Competing activity pauses rather than completes or erases the commitment. The
+same actor may resume after the current execution owner revalidates capability
+and access. Loaded SAO bodies, dormant people and registered external owners use
+the same process record. Crossed keep the human identity/shell; ZAO supplies the
+external activity/capability snapshot and performs supported movement/work.
+
+`Organization.decisionEvidence` reconstructs a named proposal revision at the
+response-formation hour. Its decision view contains no delivered-response fact
+or commitment. The later view removes private inputs/proposal/reception and
+contains only that actor's revision-bound commitments and current observation
+hour. Speakeasy Record 63 binds those horizons to the exact v3 event namespace
+and keeps same-moment pathogen truth outside the decision input.
+
+`tools/sweep/decision_capture.lua` wraps the actual appraisal owner. It freezes
+the person, proposal, private appraisal, executable response set and chosen
+response before the caller can deliver it. It refreshes only the separate later
+outcome, including one final read before bounded process retention may evict a
+terminal record. `tools/county_dump.py` validates and atomically publishes those
+rows as `*.coordination.jsonl`; `--joint` runs the dormant SAO+ZAO configuration.
+The observer does not extend process retention or create a response or result.
+
+The first unit covers voluntary coordination and contention. It does not yet
+produce elections, deliberation, appeal, coercive enforcement, physical
+separation or general institutional succession. Legacy election and schism entry
+points explicitly require an enacted process while cleanup remains active.

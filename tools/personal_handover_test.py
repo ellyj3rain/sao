@@ -261,7 +261,7 @@ PROBE = r'''
 
   local badTerms = SAO.Handover.proposeTerms("a", "a", "food", "drink", nil, 100)
   check("same_actor_terms_refused", badTerms == nil)
-  ModData.getOrCreate("SurvivorAwareness_Handovers").schema = 2
+  ModData.getOrCreate("SurvivorAwareness_Handovers").schema = 3
   local future = SAO.Handover.proposeTerms("a", "b", "food", "drink", nil, 100)
   check("future_schema_refused", future == nil)
   return table.concat(checks, "|")

@@ -1,6 +1,6 @@
 | Document | Survivor Awareness Overhaul Decision Registry |
 |---|---|
-| Version | `2.8.14.0-pre-alpha` |
+| Version | `2.9.0.0-pre-alpha` |
 | Author | ellyj3rain |
 | Repository | `DECISION_REGISTRY.md` |
 | Status | CANONICAL, APPEND-ONLY - ratified decisions. |
@@ -1551,3 +1551,39 @@ the appraisal writes neither trust nor debt.
 `separate_perceived_obligation`. The structured answer and source lineage are
 preserved in the C67 audit's `decision.json`. This resolves the conflict between
 B23's gift/debt wording and Standing's accepted-exchange debt contract.
+
+---
+
+## DR-045 | 2026-09-24 09:09 UTC / 02:09 PST | Enacted social coordination
+
+**Status** RATIFIED and implemented in C79, ZAO A38 and Speakeasy Record 63.
+
+**Decision.** Governance develops through people with separate knowledge,
+capability, interests, relationships and stakes. A private situation may become
+a shared matter only through actual communication and participant responses.
+Authority and responsibility are scoped, concurrent, revisable and contestable.
+Accepted work must reach its native acquisition, movement and delivery owners;
+queue admission, generic delivery, roster membership, aggregate standing and
+silence create neither assent nor completion.
+
+The combined SAO+ZAO simulation is the central target while standalone SAO stays
+supported. Living Afflicted use SAO execution with ZAO effects; Crossed retain
+their human shell, identity, cognition, history and applicable capability under
+ZAO execution. Afflicted are not food. Intentional blood exposure remains a
+separate established action and does not imply spontaneous conversion.
+
+**Application.** C79 owns durable versioned processes in Organization and
+GraphPersistence, acquires them through Communication, consumes scope in
+Standing/Recognition/Command and connects accepted food delivery to SourceUse,
+Locomotion and Handover. Automatic trust-sum election, roster-wide recognition
+and score-triggered schism callers are retired while lifecycle cleanup remains.
+ZAO A38 supplies registered Crossed activity/capability and rejects malformed
+IsoZombie admission before side effects. Speakeasy Record 63 binds actor/executor
+provenance and keeps decision-time inputs separate from later outcomes. Wider
+institutions, actions, perception/combat priorities and learned execution remain
+their existing R-contract work.
+
+**Origin.** Mousecat Field Test interaction `skill-80395ed69ff069e0`, item
+`seam-80395ed69ff069e0`, selected `approved` without notes. The approved plan is
+`artifacts/audits/20260924-cao-prior-art/field-test-plan-v2.json`; the evidence
+anchor is `field-test:plan-sha256:26a1eaf6289021eb14af995ab933b1646bc3bf48505b6dc9380bbde0e20b8092`.

@@ -1,0 +1,71 @@
+{
+  "schema": "field-test.work-plan/1",
+  "planId": "sao-enacted-social-work-001",
+  "title": "Make social decisions produce real shared work",
+  "objective": "People propose, agree, refuse or revise a shared task, then actually perform it. Start with acquisition, carrying and delivery: commitments have a scope, absent people retain their own views, and interrupted work stays unfinished. Survivors, Afflicted and Crossed each need an executable path with individual motives and consequences.",
+  "context": "Your direction is settled: governance develops through people and can fracture; its processes occur physically and offscreen. SAO+ZAO is the combined simulation and ML target, with standalone SAO supported. Afflicted and Crossed require equivalent depth within their distinct constraints. The audit found encounter-triggered roster elections, inferred recognition and automatic group splits. This unit replaces those shortcuts through existing domain owners. It also addresses the last ML review's demand for real competing activity. Wider native perception, construction, institutional procedures and learned execution remain explicit follow-on work.",
+  "target": "Implement one connected unit across SAO's social, communication, action and persistence owners; ZAO's Crossed execution and actor-state integration; and the active Speakeasy worktree's capture/task readers. Deliver actual coordination and work across loaded/dormant states. The detailed implementation specification is supporting evidence; its first-unit scope and checks are part of this plan.",
+  "actions": [
+    {
+      "id": "owners",
+      "action": "Bind the process to existing owners.",
+      "output": "Versioned proposals, individual responses and scoped commitments; complete caller and save migration map.",
+      "check": "Preserve legacy records without inventing consent; remove every encounter-triggered roster election and automatic schism caller only as its replacement becomes executable."
+    },
+    {
+      "id": "participation",
+      "action": "Make participation happen in the world.",
+      "output": "Real issue initiation, contact, travel, attendance, response, contest and withdrawal. Concurrent responsibilities remain distinct.",
+      "check": "Unheard requests, absent members, revised terms and unrelated authority cannot supply agreement. Save/reload and offscreen passage retain actual participants and disagreements."
+    },
+    {
+      "id": "work",
+      "action": "Connect commitments to performed work for all three actor categories.",
+      "output": "Acquisition, carrying and delivery with current capability checks, justified interruption, partial results and resumption.",
+      "check": "Exercise survivor, Afflicted and Crossed executors. No completed credit for queued/interrupted work; no duplicate body owner or material result. Missing Crossed execution leaves this unit incomplete."
+    },
+    {
+      "id": "learning",
+      "action": "Capture decisions in scenes a person can judge.",
+      "output": "Each scene shows private knowledge, current work, feasible alternatives, personal response and later outcome; ZAO effects enter the correct task view.",
+      "check": "No hidden diagnosis, borrowed knowledge, future outcome or impossible option in actor inputs. Distinguish authored labels from observed behavior and unknown state from healthy baseline."
+    },
+    {
+      "id": "verify",
+      "action": "Verify and close the connected implementation.",
+      "output": "Production-path controls, save/configuration coverage, required gates and synchronized roadmap; publish source, evidence and the actual plan ruling together.",
+      "check": "Prove counterexamples fail for their stated reason. Report survivor/Afflicted/Crossed coverage separately. Mark any unobserved gameplay clearly; use background checks without disturbing the desktop."
+    }
+  ],
+  "completionEvidence": [
+    "A working causal chain from a person's own situation through delivered proposal, individual response, limited responsibility and actual work result.",
+    "Examples of conditional cooperation, shared responsibility, persistent dissent and withdrawal without an automatic leader, feud or group split.",
+    "Reload and loaded/dormant continuity, independent actor coverage, ML input/output checks and required repository gates."
+  ],
+  "boundaries": [
+    "Approval starts this implementation unit and its repairs, checks and normal branch/PR publication. It does not declare the full governance, perception or ML roadmap complete.",
+    "Acquisition, carrying and delivery are the first work family. The mechanism must support broader activity without defining a compulsory political model or settlement goal.",
+    "Preserve one execution owner per body and existing distinctions between survivors, Afflicted and Crossed, including intentional exposure and the prohibition on feeding on Afflicted.",
+    "Existing-save migration preserves identity and evidence. Standalone, ZAO-disabled and combined configurations remain explicit.",
+    "No Mousecat platform edits, desktop focus/opening, game launch or manipulation of the user's active saves. No new training-label approval or model deployment is implied."
+  ],
+  "stopConditions": [
+    "A required Crossed executor demands a materially different body/representation contract: document the demonstrated limit and revise the affected implementation scope.",
+    "A new political rule is needed beyond scoped voluntary coordination, contention and existing evidenced authority: present the concrete choice.",
+    "Migration would discard durable identity, obligations or evidence, or the replacement cannot execute through a real caller: repair or revise before publication."
+  ],
+  "examples": [
+    "Jon asks Mara to coordinate a supply delivery. Mara agrees to that task; Eve refuses because she is occupied elsewhere. Jon's request cannot appoint Mara over unrelated matters or bind an absent fourth person.",
+    "A participant contests the arrangement but continues a separately accepted task. Disagreement does not automatically split the group or declare hostility.",
+    "You approach during discussion and find its actual participants and current activity. Leave and return, or reopen the save, and their progress and disagreement persist.",
+    "Run the same relevant concerns for survivors, Afflicted and Crossed using their actual histories and constraints. Different choices are expected; missing work or response producers are implementation gaps."
+  ],
+  "sourceRefs": [
+    "Detailed specification: source:sao-social-work-plan:artifacts/audits/20260924-cao-prior-art/IMPLEMENTATION_SPEC.md",
+    "Specification SHA256: fc7478508c22b5c269b8317dbdcb4e9fae2272968354d452c1b366321a2121f9",
+    "Established direction and audited source anchors: source:sao-social-work-plan:artifacts/audits/20260924-cao-prior-art/GOVERNANCE_AND_ML_PLAN.md",
+    "CAO methods and transfer limits: source:sao-social-work-plan:artifacts/audits/20260924-cao-prior-art/REVIEW.md",
+    "Earlier qualitative review: skill-62e946a5714cb8f8 (four recorded responses; not approval of this plan)."
+  ],
+  "priorDecisionRef": "Established direction comes from this conversation: individual and physical governance, combined SAO/ZAO ML, and equivalent survivor/Afflicted/Crossed depth. Prior example judgments remain attached to skill-62e946a5714cb8f8."
+}

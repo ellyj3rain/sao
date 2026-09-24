@@ -86,7 +86,8 @@ print("5) voice events used but undefined:", sorted(used - ev_keys) or "none")
 # vessels never moved. Heuristic: for every setState(..., "TAKE", ...)
 # site, look back 15 lines in the same file for a queuing call.
 QUEUERS = ("depositSpareFood", "depositWater", "takeStoredWater",
-           "queueTake", "queueDrinkFrom", "queueEat", "shareBandageWith",
+    "queueTake", "queueDrinkFrom", "queueEat", "shareBandageWith",
+           "collectNearby", "shareFoodWith",
            "ISTimedActionQueue.add", "queueReload", "queueGrab",
            # [C123] `SAO.Animals.care` returns a truthy action kind only
            # after its module has added the verified engine timed action.
@@ -163,6 +164,16 @@ KNOWN_READ_ONLY = {
     # Legacy migration field: old saves carry rec.lessons and migrate()
     # converts it; new code never writes it, by design.
     "lessons",
+    # C79 legacy projection: old saves may carry the automatically selected
+    # groupMeta.rationPolicy. GraphPersistence reads it once into a labeled
+    # compatibility decision; new policy is process-enacted and never writes
+    # the retired field.
+    "rationPolicy",
+    # C79 reads these legacy governance projections without continuing their
+    # automatic writers. Attributed urged forms migrate to unanswered claims;
+    # feuds remain saved historical state but require an explicit process to
+    # change in this unit.
+    "urgedForm", "urgedBy", "urgedAtHours", "feudWith", "feudHistory",
 }
 RECV = ("rec", "r", "meta", "meta0", "metaA", "metaB", "metaC", "metaS",
         "metaH", "metaW", "metaA8", "meta2", "metaK", "agent", "pb",

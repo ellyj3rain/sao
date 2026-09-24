@@ -38,14 +38,15 @@ on the simulation.
 
 ## Status
 
-C78 extends the authored conversation evidence with person-state comparisons:
-actual temperament contributions, relationships, private threat, learned
-experience and recorded cognitive strain. Speakeasy presents the first
-source-bound response candidates for review. They remain authored, unapproved
-and untrained; native loaded-state and complete goal/option capture are still
-needed for the broader comparisons.
+C79 implements the first enacted social-work path. A private situation can
+become an acquired proposal, each actual recipient can answer independently,
+and delivered acceptance creates only a revision-bound scoped commitment.
+Food-delivery commitments reuse native acquisition, movement and handover owners;
+interruption, partial work, failure and completion remain distinct. Automatic
+roster elections, inferred recognition and score-triggered schism no longer
+decide. Wider institutions, actions and gameplay acceptance remain open.
 
-`2.8.14.0-pre-alpha` - the coordinate is computed by the version machine
+`2.9.0.0-pre-alpha` - the coordinate is computed by the version machine
 (`tools/version_replay.py`), never picked; `VERSION_MAP.md` shows the
 classification and the arithmetic.
 
@@ -147,6 +148,14 @@ and a July 11 question about what the July 2 newspaper reported. Computer-source
 integration must supply actual person/endpoint/service/result evidence; device
 ownership and mod installation grant no awareness. No current speech path calls
 the learned-data interface, and the controlled capture is not training data.
+The county evidence instrument now emits a C79 recipient's exact v3 event row
+from the real `Organization.appraiseMatter` boundary. Speakeasy Record 63 validates
+its namespace,
+source-owned current work and competing priorities, feasible responses, executor
+and later result without leaking later work or hidden pathogen truth into the
+decision horizon. A controlled Kahlua run produced and compiled these candidate
+observations; no loaded gameplay scene, independent review or training admission
+is claimed.
 Complete household stock, dormant world access, other
 medical verbs, remaining material actions and settlement development stay under
 R7-R9.

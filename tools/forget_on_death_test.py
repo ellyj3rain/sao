@@ -175,6 +175,11 @@ CACHES = {
         "grace period), and the death funnel's forget clears it too as "
         "belt-and-braces, so a re-fired markDead can never leave a "
         "stale hold on a body"),
+    ("SAO_Controller.lua", "Ctl.coordinationRuntime"): (
+        "Ctl.forget", "named",
+        "runtime route/body scratch used only while a person driven by an "
+        "external execution owner is alive; the durable commitment and "
+        "outcome remain in Organization"),
     ("SAO_Driving.lua", "Drv.jobs"): (
         "Drv.cancel", "named",
         "[C114] a drive in progress, holding the driver's body handle "
@@ -221,6 +226,14 @@ NOT_A_SURVIVOR_ID = {
         "and [C90] made the death funnel shed that: markDead walks "
         "`organizationsOf` and `Org.leave` drops the member row and "
         "the office-holdings"),
+    ("SAO_Organization.lua", "Org.processes"): (
+        "keyed by a durable PROCESS id, not a survivor id. Participant ids "
+        "are evidence inside the bounded record and survive death by design; "
+        "resolved processes are evicted only by trimProcesses retention"),
+    ("SAO_Communication.lua", "Communication.executionOwners"): (
+        "keyed by a stable EXECUTION OWNER id such as ZAO, not a survivor "
+        "id. The owner registers one adapter for the Lua environment and "
+        "unregisterExecutionOwner removes that adapter"),
     ("SAO_Settlement.lua", "Settlement.bases"): (
         "keyed by an ORGANIZATION id - the shape rule matched the "
         "local named `organizationId` in `claim`. A base belongs to a "

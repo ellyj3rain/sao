@@ -2064,6 +2064,14 @@ if ! "$PY" tools/conversation_capture_test.py; then
     fail=1
 fi
 
+# [C79] Border 190 - a private situation reaches addressed people through an
+# admitted transport, each answer remains actor-owned and revision-bound, and
+# only delivered acceptance can enter native acquisition/carrying/delivery.
+if ! "$PY" tools/enacted_coordination_test.py; then
+    note "BORDER FINDING - enacted coordination or exact work receipt failed"
+    fail=1
+fi
+
 # Border 103 - the operator's speech is not in the repository: no
 # profanity in the tracked tree and no operator-quote attributions;
 # rulings are paraphrased content, speech stays with the speaker.

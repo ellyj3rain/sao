@@ -650,8 +650,9 @@ local function askToWalk(playerObj, id)
     end
 end
 
--- Ask to join them: petition the LEADER of a settled faction. Acceptance
--- is one settled fact; refusal is voiced and costs nothing.
+-- Ask the person actually present to sponsor a membership petition. Their
+-- answer is theirs alone; membership changes only when that person also has
+-- explicit membership jurisdiction.
 local function askToJoin(playerObj, id)
     local key = playerKeyOf(playerObj)
     local group = SAO.Standing.groupOf(id)
@@ -659,51 +660,124 @@ local function askToJoin(playerObj, id)
         log(id .. " belongs to no faction")
         return
     end
-    local leaderId = SAO.Standing.leaderOf(group)
-    local leader = leaderId and SAO.Body.get(leaderId)
-    local judge = leaderId or id
+    local recipientBody = SAO.Body.get(id)
     local sv = SandboxVars and SandboxVars.SurvivorAwareness or nil
     local companyAt = (sv and tonumber(sv.TrustToCompany)) or 0.5
     if SAO.Standing.playerMemberOf(group) == key then
         log("already one of " .. tostring(SAO.Standing.factionName(group) or group))
         return
     end
-    -- [C111] The judge's need reads alongside their trust
-    -- (`companyStanding`): a small, short-handed house in a deep
-    -- county takes the petitioner the same way the road and the
-    -- table take a stranger.
-    if SAO.Standing.companyStanding(judge, key) > companyAt then
-        SAO.Standing.setPlayerMember(group, key)
-        -- [C105] The leader's acceptance is the recognition of the
-        -- player's petition claim.
-        if SAO.Recognition then
-            pcall(function()
-                SAO.Recognition.onPetitionAnswered(tostring(group),
-                    tostring(key), tostring(judge), true)
-            end)
+    local claim = SAO.PlayerInteraction and SAO.PlayerInteraction.claim(
+        key, group, "petition", "membership", tostring(id)) or nil
+    if not claim then return end
+    local standing = SAO.Standing.companyStanding(id, key)
+    local snapshot = SAO.Communication
+        and SAO.Communication.actorSnapshot(id) or {}
+    local activity = string.lower(tostring(
+        snapshot and snapshot.currentActivity or "dormant"))
+    local hostile = SAO.Standing.isHostileTo(id, key) == true
+    local choice = hostile and "contest"
+        or (activity ~= "idle" and activity ~= "dormant"
+            and activity ~= "conversation") and "defer"
+        or standing > companyAt and "accept" or "decline"
+    local response = nil
+    if SAO.Recognition then
+        response = SAO.Recognition.answerPlayerClaim(claim, tostring(id),
+            choice, { owner = "Harness.askToJoin",
+                executor = snapshot and snapshot.bodyOwner or "SAO.Harness",
+                currentActivity = activity,
+                bodyOwner = snapshot and snapshot.bodyOwner,
+                relationship = SAO.Standing.trust(id, key),
+                contest = hostile,
+                canAcquire = snapshot and snapshot.canAcquire,
+                canCarry = snapshot and snapshot.canCarry,
+                canDeliver = snapshot and snapshot.canDeliver,
+                canExecute = snapshot and snapshot.canExecute,
+                incapable = snapshot and snapshot.incapable == true,
+                dead = snapshot and snapshot.dead == true,
+                interests = { companyStanding = standing },
+                constraints = { actualRecipient = true }, })
+    end
+    if response and response.response == "accept" then
+        local canAdmit = SAO.Recognition.membershipAuthority(group, id)
+        if canAdmit then
+            SAO.Standing.setPlayerMember(group, key)
+            if SAO.Organization.organizations[group] then
+                SAO.Organization.join(group, key)
+            end
         end
-        if leader then
-            pcall(function() SAO.Voice.answer(leaderId, "joinYes") end)
+        if recipientBody then
+            pcall(function() SAO.Voice.answer(id, "joinYes") end)
         end
-        log("accepted into " .. tostring(SAO.Standing.factionName(group) or group)
-            .. " - their base is home ground now")
+        log(canAdmit
+            and ("accepted into " .. tostring(
+                SAO.Standing.factionName(group) or group))
+            or (id .. " supports your membership petition; the house has"
+                .. " not yet admitted you"))
     else
-        -- [C105] The refusal is the same claim, answered the other
-        -- way.
-        if SAO.Recognition then
-            pcall(function()
-                SAO.Recognition.onPetitionAnswered(tostring(group),
-                    tostring(key), tostring(judge), false)
-            end)
-        end
-        if leader then
-            pcall(function() SAO.Voice.answer(leaderId, "joinNo") end)
-        elseif SAO.Body.get(id) then
+        if recipientBody then
             pcall(function() SAO.Voice.answer(id, "joinNo") end)
         end
-        log("refused by " .. tostring(SAO.Standing.factionName(group) or group)
-            .. " (their leader does not trust you yet)")
+        log(id .. " declines your membership petition")
     end
+end
+
+-- A peace petition is a request to one actual person, not a relationship
+-- mutation between two offices. Even a sympathetic recipient can only
+-- qualify the request pending the other side and an enacted procedure in this
+-- unit; hearing the words never lifts a feud or manufactures assent.
+local function answerPeacePetition(claim, recipientId, petitionerId,
+        otherGroup, owner, channel, receptionEvidence)
+    if not (claim and SAO.Recognition and SAO.Communication) then return nil end
+    recipientId, petitionerId = tostring(recipientId), tostring(petitionerId)
+    local snapshot = SAO.Communication.actorSnapshot(recipientId) or {}
+    local activity = string.lower(tostring(
+        snapshot.currentActivity or "dormant"))
+    local relationship = SAO.Standing.trust(recipientId, petitionerId)
+    local hostile = SAO.Standing.isHostileTo(recipientId, petitionerId) == true
+    local counterpart = SAO.Standing.leaderOf(otherGroup)
+    local counterpartTrust = counterpart
+        and SAO.Standing.trust(recipientId, counterpart) or nil
+    local ownNeed = 0
+    local body = SAO.Communication.bodyFor(recipientId)
+    if body and SAO.Needs and SAO.Needs.read then
+        local need = nil
+        pcall(function() need = SAO.Needs.read(body) end)
+        if type(need) == "table" then
+            ownNeed = math.max(tonumber(need.hunger) or 0,
+                tonumber(need.thirst) or 0)
+        end
+    end
+    local choice = hostile and "contest"
+        or (activity ~= "idle" and activity ~= "dormant"
+            and activity ~= "conversation") and "defer"
+        or relationship < 0 and "decline"
+        or not counterpart and "counter-propose"
+        or relationship >= 0.25 and "qualify"
+        or "defer"
+    local terms = choice == "qualify" and {
+            requiresCounterparty = true, counterpartId = counterpart,
+            procedureOutstanding = true,
+        } or choice == "counter-propose" and {
+            requiresNamedCounterpart = true,
+            procedureOutstanding = true,
+        } or {}
+    return SAO.Recognition.answerPlayerClaim(claim, recipientId, choice, {
+        owner = owner, executor = snapshot.bodyOwner or "SAO.Harness",
+        channel = channel or "spoken",
+        receptionEvidence = receptionEvidence or { actualRecipient = true },
+        returnEvidence = receptionEvidence or { actualRecipient = true },
+        currentActivity = activity, bodyOwner = snapshot.bodyOwner,
+        relationship = relationship, ownNeed = ownNeed, contest = hostile,
+        canAcquire = snapshot.canAcquire, canCarry = snapshot.canCarry,
+        canDeliver = snapshot.canDeliver, canExecute = snapshot.canExecute,
+        incapable = snapshot.incapable == true, dead = snapshot.dead == true,
+        interests = { otherGroup = otherGroup,
+            counterpartId = counterpart, counterpartTrust = counterpartTrust },
+        constraints = { actualRecipient = true,
+            channel = channel or "spoken", recognizedProcedure = false },
+        terms = terms,
+    })
 end
 
 -- [C37] An order lands through standing (DR-033, ruled): every ask of
@@ -719,14 +793,8 @@ local function onYourWord(playerObj, id, kind, arg, act)
     pcall(function()
         verdict, reason = SAO.Command.order(key, id, kind, arg)
     end)
-    -- [C105] The verdict is the deference fact; the record hears it
-    -- (and ignores it unless the player actually holds the chair).
-    if SAO.Recognition then
-        pcall(function()
-            SAO.Recognition.onOrder(tostring(key), tostring(id),
-                kind, arg, verdict)
-        end)
-    end
+    -- Command.order already owns the delivered request and this person's
+    -- revision-bound response; no second recognition projection is inferred.
     if verdict == "refuses" then
         pcall(function() SAO.Voice.answer(id, "orderNo") end)
         log(id .. " refuses (" .. tostring(kind) .. "): "
@@ -1058,19 +1126,9 @@ local function fillMenu(playerNum, context, worldobjects)
             if cGroup6
                 and SAO.Standing.chairOfferOf
                 and SAO.Standing.chairOfferOf(cGroup6) == cKey then
-                person:addOption("Accept the chair", nil, function()
-                    if SAO.Standing.acceptChair(cGroup6, cKey) then
-                        pcall(function()
-                            SAO.Voice.answer(nearId, "chairYes")
-                        end)
-                        log("the " .. tostring(
-                            SAO.Standing.factionName(cGroup6) or cGroup6)
-                            .. " seats you in the chair")
-                    end
-                end)
-                person:addOption("Not for me", nil, function()
+                person:addOption("Decline the old chair offer", nil, function()
                     SAO.Standing.declineChair(cGroup6)
-                    log("you wave the chair off")
+                    log("you decline the unratified chair offer")
                 end)
             end
             if cGroup6
@@ -1167,17 +1225,25 @@ local function fillMenu(playerNum, context, worldobjects)
                             sub2:addOption("urge peace with "
                                 .. tostring(SAO.Standing.factionName(og) or og),
                                 nil, function()
-                                local eLeader = SAO.Standing.leaderOf(og)
-                                if eLeader then
-                                    SAO.Standing.adjustTrust(nearId,
-                                        eLeader, 0.1)
-                                    pcall(function()
-                                        SAO.Voice.answer(nearId,
-                                            "talkBack")
-                                    end)
-                                    log(nearId
-                                        .. " weighs your counsel toward peace")
-                                end
+                                local petition = SAO.PlayerInteraction.claim(
+                                    cKey, cGroup, "petition",
+                                    "peace:" .. tostring(og),
+                                    tostring(nearId))
+                                local answer = answerPeacePetition(petition,
+                                    nearId, cKey, og,
+                                    "Harness.counselPeace", "spoken",
+                                    { actualRecipient = true,
+                                        conversation = true })
+                                pcall(function()
+                                    SAO.Voice.answer(nearId,
+                                        answer and "talkBack"
+                                            or "petitionIgnored")
+                                end)
+                                log(answer and (nearId .. " answers your"
+                                    .. " peace counsel: "
+                                    .. tostring(answer.response))
+                                    or (nearId .. " does not acquire the"
+                                        .. " peace counsel"))
                             end)
                         end
                     end
@@ -1202,7 +1268,7 @@ local function fillMenu(playerNum, context, worldobjects)
                                 sub2:addOption("urge them to decide together",
                                     nil, function()
                                     SAO.Standing.urgeForm(cGroup, pKeyF,
-                                        "council")
+                                        "council", nearId)
                                     pcall(function()
                                         SAO.Voice.answer(nearId,
                                             "talkBack")
@@ -1215,7 +1281,7 @@ local function fillMenu(playerNum, context, worldobjects)
                                 sub2:addOption("urge them to name a second",
                                     nil, function()
                                     SAO.Standing.urgeForm(cGroup, pKeyF,
-                                        "ladder")
+                                        "ladder", nearId)
                                     pcall(function()
                                         SAO.Voice.answer(nearId,
                                             "talkBack")
@@ -1284,22 +1350,22 @@ local function fillMenu(playerNum, context, worldobjects)
                                 .. tostring(
                                     SAO.Standing.factionName(og) or og),
                                 nil, function()
-                                if not PI.claim(gKey, gGroup, "petition",
-                                    "peace") then
-                                    return
-                                end
-                                if gHeard then
-                                    local eL = SAO.Standing.leaderOf(og)
-                                    if eL then
-                                        SAO.Standing.adjustTrust(nearId,
-                                            eL, 0.1)
-                                    end
+                                local petition = PI.claim(gKey, gGroup,
+                                    "petition", "peace:" .. tostring(og),
+                                    tostring(nearId))
+                                if not petition then return end
+                                local answer = answerPeacePetition(petition,
+                                    nearId, gKey, og,
+                                    "Harness.peacePetition", "spoken",
+                                    { actualRecipient = true,
+                                        conversation = true })
+                                if answer then
                                     pcall(function()
                                         SAO.Voice.answer(nearId,
                                             "petitionHeard")
                                     end)
-                                    log(nearId
-                                        .. " weighs your petition toward peace")
+                                    log(nearId .. " answers your peace petition: "
+                                        .. tostring(answer.response))
                                 else
                                     pcall(function()
                                         SAO.Voice.answer(nearId,
@@ -1314,11 +1380,19 @@ local function fillMenu(playerNum, context, worldobjects)
                     if not SAO.Standing.groupClaimOf(gGroup) then
                         pSub:addOption("ground of their own", nil,
                             function()
-                            if not PI.claim(gKey, gGroup, "petition",
-                                "settle") then
-                                return
-                            end
-                            if gHeard then
+                            local petition = PI.claim(gKey, gGroup,
+                                "petition", "settle", tostring(nearId))
+                            if not petition then return end
+                            local answer = SAO.Recognition
+                                and SAO.Recognition.answerPlayerClaim(
+                                    petition, tostring(nearId),
+                                    gHeard and "accept" or "decline", {
+                                        owner = "Harness.settlePetition",
+                                        relationship = SAO.Standing.trust(
+                                            nearId, gKey),
+                                        interests = { lacksGround = true },
+                                    }) or nil
+                            if answer and answer.response == "accept" then
                                 local la = SAO.Controller.agents[nearId]
                                 if la then
                                     la.nextScoutAt = 0
@@ -1343,16 +1417,9 @@ local function fillMenu(playerNum, context, worldobjects)
                     -- matter; the house's ear decides whether it moves
                     -- anything.
                     pSub:addOption("to decide together", nil, function()
-                        -- An untrusted petitioner has no say in how
-                        -- the house runs: the claim is recorded, the
-                        -- form is not urged. The house's ear is the
-                        -- gate, not the menu.
-                        if not PI.claim(gKey, gGroup, "petition",
-                            "council") then
-                            return
-                        end
                         if gHeard then
-                            SAO.Standing.urgeForm(gGroup, gKey, "council")
+                            SAO.Standing.urgeForm(gGroup, gKey, "council",
+                                nearId)
                             pcall(function()
                                 SAO.Voice.answer(nearId, "petitionHeard")
                             end)
@@ -1363,12 +1430,9 @@ local function fillMenu(playerNum, context, worldobjects)
                         end
                     end)
                     pSub:addOption("to name a second", nil, function()
-                        if not PI.claim(gKey, gGroup, "petition",
-                            "ladder") then
-                            return
-                        end
                         if gHeard then
-                            SAO.Standing.urgeForm(gGroup, gKey, "ladder")
+                            SAO.Standing.urgeForm(gGroup, gKey, "ladder",
+                                nearId)
                             pcall(function()
                                 SAO.Voice.answer(nearId, "petitionHeard")
                             end)
@@ -1403,16 +1467,20 @@ local function fillMenu(playerNum, context, worldobjects)
                                     "Bottles are empty. Water first."
                             end
                         end)
-                        if not PI.claim(gKey, gGroup, "petition", "work") then
-                            return
-                        end
-                        if gHeard then
-                            if SAO.Recognition then
-                                pcall(function()
-                                    SAO.Recognition.onWorkDealt(gGroup,
-                                        gLeader, gKey, word, line)
-                                end)
-                            end
+                        local workClaim = PI.claim(gKey, gGroup,
+                            "petition", "work", tostring(nearId))
+                        if not workClaim then return end
+                        local workResponse = SAO.Recognition
+                            and SAO.Recognition.answerPlayerClaim(workClaim,
+                                tostring(nearId), gHeard and "accept" or "decline",
+                                { owner = "Harness.askForWork",
+                                    relationship = SAO.Standing.trust(nearId, gKey),
+                                    interests = { offeredWork = word },
+                                    constraints = { actualRecipient = true } })
+                            or nil
+                        if workResponse and workResponse.response == "accept" then
+                            SAO.Recognition.onWorkDealt(gGroup,
+                                nearId, gKey, word, line)
                             local bW = SAO.Body.get(nearId)
                             if bW then
                                 pcall(function() bW:Say(line) end)
@@ -1423,63 +1491,56 @@ local function fillMenu(playerNum, context, worldobjects)
                             pcall(function()
                                 SAO.Voice.answer(nearId, "petitionIgnored")
                             end)
-                            log("the house does not know you well"
-                                .. " enough to deal you work")
+                            log(nearId .. " declines to deal you work")
                         end
                     end)
                 end
-                -- The chair's word, answered: accept or refuse the
-                -- dealt work. Accepting is a claim the chair
-                -- recognizes; refusing is the same word refused,
-                -- recorded on the decision the office made.
+                -- A work offer is its own addressed matter. It appears only
+                -- after this player actually heard it, and the two buttons
+                -- return the player's response to the person who offered.
                 do
-                    local dealt = nil
-                    pcall(function()
-                        dealt = SAO.Organization.decisions[gGroup
-                            .. ":chair:work assignment"]
-                    end)
-                    if dealt and dealt.basis
-                        and tostring(dealt.basis.towards) == tostring(gKey)
-                        and not dealt.basis.response
-                        and leaderHere then
+                    local offer, offerView = nil, nil
+                    for oi = #(SAO.Organization.processOrder or {}), 1, -1 do
+                        local candidate = SAO.Organization.processes[
+                            SAO.Organization.processOrder[oi]]
+                        if candidate and candidate.kind == "work-offer"
+                            and candidate.organizationId == gGroup
+                            and tostring(candidate.originatorId)
+                                == tostring(nearId) then
+                            local view = SAO.Organization.viewFor(gKey,
+                                candidate.id, false)
+                            if view and view.reception and not view.response
+                                and candidate.status == "open" then
+                                offer, offerView = candidate, view
+                                break
+                            end
+                        end
+                    end
+                    local offered = offerView and offerView.proposal
+                        and offerView.proposal.proposal or nil
+                    if offer and offered then
                         local wOpt = person:addOption("The chair's word ("
-                            .. tostring(dealt.basis.label or dealt.decision)
+                            .. tostring(offered.label or offered.word)
                             .. ")...", nil, nil)
                         local wSub = person:getNew(person)
                         person:addSubMenu(wOpt, wSub)
                         wSub:addOption("take the work", nil, function()
-                            if not PI.claim(gKey, gGroup, "claim",
-                                dealt.decision) then
-                                return
-                            end
-                            if SAO.Recognition then
-                                pcall(function()
-                                    SAO.Recognition.onWorkAnswered(gGroup,
-                                        gKey, dealt.decision, gLeader, true)
-                                end)
-                            end
+                            SAO.Recognition.onWorkAnswered(offer.id,
+                                gKey, true)
                             pcall(function()
                                 SAO.Voice.answer(nearId, "orderYes")
                             end)
                             log("you take the "
-                                .. tostring(dealt.decision) .. " work")
+                                .. tostring(offered.word) .. " work")
                         end)
                         wSub:addOption("refuse the work", nil, function()
-                            if not PI.claim(gKey, gGroup, "contest",
-                                dealt.decision) then
-                                return
-                            end
-                            if SAO.Recognition then
-                                pcall(function()
-                                    SAO.Recognition.onWorkAnswered(gGroup,
-                                        gKey, dealt.decision, gLeader, false)
-                                end)
-                            end
+                            SAO.Recognition.onWorkAnswered(offer.id,
+                                gKey, false)
                             pcall(function()
                                 SAO.Voice.answer(nearId, "contested")
                             end)
                             log("you refuse the "
-                                .. tostring(dealt.decision) .. " work")
+                                .. tostring(offered.word) .. " work")
                         end)
                     end
                 end
@@ -1504,14 +1565,17 @@ local function fillMenu(playerNum, context, worldobjects)
                         if c.kind == "lead" then
                             person:addOption("Stand behind their word",
                                 nil, function()
-                                if not PI.claim(gKey, gGroup, "support",
-                                    nearId) then
-                                    return
-                                end
-                                pcall(function()
-                                    SAO.Organization.recognize(c.claimant,
-                                        "lead", c.target, tostring(gKey))
-                                end)
+                                local support = PI.claim(gKey, gGroup,
+                                    "support", c.id or nearId,
+                                    tostring(nearId))
+                                if not support then return end
+                                SAO.Recognition.answerPlayerClaim(support,
+                                    tostring(nearId), "accept", {
+                                        owner = "Harness.supportClaim",
+                                        relationship = SAO.Standing.trust(
+                                            nearId, gKey),
+                                        interests = { supportedClaim = c.id },
+                                    })
                                 pcall(function()
                                     SAO.Voice.answer(nearId, "backed")
                                 end)
@@ -1521,15 +1585,17 @@ local function fillMenu(playerNum, context, worldobjects)
                             person:addOption(
                                 "Call their leading into question", nil,
                                 function()
-                                if not PI.claim(gKey, gGroup, "contest",
-                                    nearId) then
-                                    return
-                                end
-                                pcall(function()
-                                    SAO.Organization.dissent(c.claimant,
-                                        "lead", c.target, tostring(gKey),
-                                        "contest")
-                                end)
+                                local challenge = PI.claim(gKey, gGroup,
+                                    "contest", c.id or nearId,
+                                    tostring(nearId))
+                                if not challenge then return end
+                                SAO.Recognition.answerPlayerClaim(challenge,
+                                    tostring(nearId), "contest", {
+                                        owner = "Harness.contestClaim",
+                                        relationship = SAO.Standing.trust(
+                                            nearId, gKey), contest = true,
+                                        interests = { contestedClaim = c.id },
+                                    })
                                 pcall(function()
                                     SAO.Voice.answer(nearId, "contested")
                                 end)
@@ -1540,14 +1606,17 @@ local function fillMenu(playerNum, context, worldobjects)
                         elseif c.kind == "promise" then
                             person:addOption("Stand behind their promise",
                                 nil, function()
-                                if not PI.claim(gKey, gGroup, "support",
-                                    nearId) then
-                                    return
-                                end
-                                pcall(function()
-                                    SAO.Organization.recognize(c.claimant,
-                                        "promise", c.target, tostring(gKey))
-                                end)
+                                local support = PI.claim(gKey, gGroup,
+                                    "support", c.id or nearId,
+                                    tostring(nearId))
+                                if not support then return end
+                                SAO.Recognition.answerPlayerClaim(support,
+                                    tostring(nearId), "accept", {
+                                        owner = "Harness.supportPromise",
+                                        relationship = SAO.Standing.trust(
+                                            nearId, gKey),
+                                        interests = { supportedClaim = c.id },
+                                    })
                                 pcall(function()
                                     SAO.Voice.answer(nearId, "backed")
                                 end)
@@ -1583,10 +1652,6 @@ local function fillMenu(playerNum, context, worldobjects)
                         person:addOption(
                             "Back the chair's word (they refused it)", nil,
                             function()
-                            if not PI.claim(gKey, gGroup, "enforce",
-                                nearId) then
-                                return
-                            end
                             local aE = SAO.Controller.agents[nearId]
                             onYourWord(playerObj, nearId, refused.matter,
                                 refused.basis.arg, function()
@@ -1648,14 +1713,15 @@ local function fillMenu(playerNum, context, worldobjects)
                             "Appeal over the chair to the house", nil,
                             function()
                             if not PI.claim(gKey, gGroup, "appeal",
-                                refusedMine.kind) then
+                                refusedMine.kind, tostring(nearId)) then
                                 return
                             end
                             local backers = {}
                             if SAO.Recognition then
                                 pcall(function()
                                     backers = SAO.Recognition.onAppealTaken(
-                                        gGroup, gKey, refusedMine.kind)
+                                        gGroup, gKey, refusedMine.kind,
+                                        nearId)
                                         or {}
                                 end)
                             end
@@ -1686,19 +1752,18 @@ local function fillMenu(playerNum, context, worldobjects)
                 -- or election. What this buys is the record, not the
                 -- seat.
                 if memberHere
-                    and not (SAO.Standing.chairOfferOf
-                        and SAO.Standing.chairOfferOf(gGroup) == gKey)
                     and not (SAO.Standing.playerChairOf
                         and SAO.Standing.playerChairOf(gGroup) == gKey) then
                     person:addOption("Claim the chair", nil, function()
-                        if not PI.claim(gKey, gGroup, "claim", "chair") then
+                        if not PI.claim(gKey, gGroup, "claim", "chair",
+                            tostring(nearId)) then
                             return
                         end
                         local recognized = {}
                         if SAO.Recognition then
                             pcall(function()
                                 recognized = SAO.Recognition.onOfficeClaimed(
-                                    gGroup, gKey) or {}
+                                    gGroup, gKey, nearId) or {}
                             end)
                         end
                         pcall(function()
@@ -2315,14 +2380,33 @@ local function fillMenu(playerNum, context, worldobjects)
         if lHouse and SAO.PlayerInteraction and SAO.Organization then
             local lName = tostring(
                 SAO.Standing.factionName(lHouse) or lHouse)
+            local function conversingHouseMember()
+                for _, memberId in ipairs(SAO.Standing.membersOf(lHouse)
+                    or {}) do
+                    if SAO.Communication
+                        and SAO.Communication.canConverse(lKey,
+                            tostring(memberId)) == true then
+                        return tostring(memberId)
+                    end
+                end
+                return nil
+            end
             -- Leave: the claim ends the membership, and a chair who
             -- leaves leaves the chair with it. The house says its
-            -- farewell through whoever of it is on their feet - and
-            -- goes on exactly as before, because it was never the
-            -- player's to begin with.
+            -- farewell only when one particular member can actually hear it.
+            -- Their missing answer remains unanswered: leaving does not require
+            -- the house to manufacture assent.
             county:addOption("Leave " .. lName, nil, function()
-                if not SAO.PlayerInteraction.claim(lKey, lHouse, "leave") then
+                local spoke = conversingHouseMember()
+                local leaving = SAO.PlayerInteraction.claim(lKey, lHouse,
+                    "leave", "membership", spoke)
+                if not leaving then
                     return
+                end
+                if spoke then
+                    SAO.Organization.recordReception(leaving.processId,
+                        spoke, leaving.processRevision, "spoken", lKey,
+                        { actualRecipient = true, notice = "withdrawal" })
                 end
                 local wasChair = SAO.Standing.playerChairOf
                     and SAO.Standing.playerChairOf(lHouse) == lKey
@@ -2334,14 +2418,10 @@ local function fillMenu(playerNum, context, worldobjects)
                 pcall(function()
                     SAO.Standing.clearPlayerMember(lHouse, lKey)
                 end)
-                local spoke = nil
-                pcall(function()
-                    for _, mL in ipairs(SAO.Standing.membersOf(lHouse)
-                        or {}) do
-                        local bL = SAO.Body.get(mL)
-                        if bL then spoke = mL break end
-                    end
-                end)
+                SAO.Organization.closeMatter(leaving.processId, lKey,
+                    "originator-left-membership", {
+                        organization = lHouse, relinquishedChair = wasChair,
+                    })
                 if spoke then
                     pcall(function()
                         SAO.Voice.answer(spoke, "farewell")
@@ -2350,12 +2430,10 @@ local function fillMenu(playerNum, context, worldobjects)
                 log("you leave " .. lName .. (wasChair
                     and " - the chair goes with you" or ""))
             end)
-            -- Call a vote, where the organization allows one: a house
-            -- that decides together may be called to the table by any
-            -- member, and the election is the house's own method - what
-            -- it settles is what the house wanted, never what the
-            -- caller did. A ladder house never shows the verb; that
-            -- form does not vote.
+            -- Call for a vote where an enacted council arrangement exists.
+            -- This first unit records one hearer's own answer and any scoped
+            -- responsibility they accept; it does not synthesize the missing
+            -- election procedure or bind absent members.
             do
                 local formL = nil
                 pcall(function()
@@ -2366,28 +2444,43 @@ local function fillMenu(playerNum, context, worldobjects)
                     and SAO.Standing.playerMemberOf(lHouse) == lKey then
                     county:addOption("Call the house to a vote on the chair",
                         nil, function()
-                        if not SAO.PlayerInteraction.claim(lKey, lHouse,
-                            "vote") then
+                        local spokeV = conversingHouseMember()
+                        if not spokeV then
+                            log("no member of the " .. lName
+                                .. " can hear the proposal")
                             return
                         end
+                        local voteClaim = SAO.PlayerInteraction.claim(lKey,
+                            lHouse, "vote", "chair", spokeV)
+                        if not voteClaim then return end
+                        local trust = SAO.Standing.trust(spokeV, lKey)
+                        local hostile = SAO.Standing.isHostileTo(
+                            spokeV, lKey) == true
+                        local snapshot = SAO.Communication.actorSnapshot(
+                            spokeV) or {}
+                        local activity = snapshot.currentActivity or "dormant"
+                        local choice = hostile and "contest"
+                            or (activity ~= "idle" and activity ~= "dormant")
+                                and "defer"
+                            or trust >= 0.30 and "accept"
+                            or "qualify"
+                        local response = SAO.Recognition.answerPlayerClaim(
+                            voteClaim, spokeV, choice, {
+                                owner = "Harness.callVote",
+                                currentActivity = activity,
+                                relationship = trust, contest = hostile,
+                                interests = { procedure = "chair-vote" },
+                                terms = choice == "qualify"
+                                    and { requiresMoreParticipants = true }
+                                    or {},
+                            })
                         pcall(function()
-                            SAO.Standing.electLeader(lHouse)
+                            SAO.Voice.answer(spokeV, "voteCalled")
                         end)
-                        local spokeV = nil
-                        pcall(function()
-                            for _, mV in ipairs(
-                                SAO.Standing.membersOf(lHouse) or {}) do
-                                local bV = SAO.Body.get(mV)
-                                if bV then spokeV = mV break end
-                            end
-                        end)
-                        if spokeV then
-                            pcall(function()
-                                SAO.Voice.answer(spokeV, "voteCalled")
-                            end)
+                        if response then
+                            log(spokeV .. " answers the vote proposal: "
+                                .. tostring(response.response))
                         end
-                        log("the " .. lName
-                            .. " counts again at your call")
                     end)
                 end
             end
@@ -2409,24 +2502,42 @@ local function fillMenu(playerNum, context, worldobjects)
                         or pactL.basis.with)
                     county:addOption("Openly stand against the pact with "
                         .. otherL, nil, function()
-                        if not SAO.PlayerInteraction.claim(lKey, lHouse,
-                            "resist", pactL.basis.with) then
+                        local spokeR = conversingHouseMember()
+                        if not spokeR then
+                            log("no member of the " .. lName
+                                .. " can hear the objection")
                             return
                         end
-                        local spokeR = nil
+                        local resistance = SAO.PlayerInteraction.claim(lKey,
+                            lHouse, "resist", pactL.basis.with, spokeR)
+                        if not resistance then return end
+                        local trust = SAO.Standing.trust(spokeR, lKey)
+                        local hostile = SAO.Standing.isHostileTo(
+                            spokeR, lKey) == true
+                        local snapshot = SAO.Communication.actorSnapshot(
+                            spokeR) or {}
+                        local activity = snapshot.currentActivity or "dormant"
+                        local choice = hostile and "contest"
+                            or (activity ~= "idle" and activity ~= "dormant")
+                                and "defer"
+                            or trust >= 0.30 and "accept"
+                            or "counter-propose"
+                        local response = SAO.Recognition.answerPlayerClaim(
+                            resistance, spokeR, choice, {
+                                owner = "Harness.resistPact",
+                                currentActivity = activity,
+                                relationship = trust, contest = hostile,
+                                interests = { pactWith = pactL.basis.with },
+                                terms = choice == "counter-propose"
+                                    and { reviewPact = true } or {},
+                            })
                         pcall(function()
-                            for _, mR in ipairs(
-                                SAO.Standing.membersOf(lHouse) or {}) do
-                                local bR = SAO.Body.get(mR)
-                                if bR then spokeR = mR break end
-                            end
+                            SAO.Voice.answer(spokeR, "resisted")
                         end)
-                        if spokeR then
-                            pcall(function()
-                                SAO.Voice.answer(spokeR, "resisted")
-                            end)
+                        if response then
+                            log(spokeR .. " answers your objection: "
+                                .. tostring(response.response))
                         end
-                        log("you stand against the pact with " .. otherL)
                     end)
                 end
             end
@@ -2559,27 +2670,28 @@ local function fillMenu(playerNum, context, worldobjects)
                     or "Nobody's listening yet.")
             end)
         end)
-        -- The petition on the air ([B9]): influence on a polity you
-        -- are not standing in. A plea for peace reaches every current
-        -- receiver. Leaders of warring houses decide whether it matters - dormant or
-        -- loaded, anywhere - at TOLD weight (half what your face
-        -- would carry), and only from a voice they have reason to
-        -- heed. This is the survey's named gap: petitioning an
-        -- off-screen polity.
+        -- The petition on the air ([B9]): the broadcast may reach people who
+        -- are not present, but receiver access proves only acquisition. Each
+        -- addressed office holder answers from their own state, and an answer
+        -- reaches the player only through a currently usable return radio.
+        -- No broadcast alters a feud, relationship or office by itself.
         wire:addOption("Urge peace on the air", nil, function()
             local s = bandFree(); if not s then return end
             local myKey = playerKeyOf(playerObj)
             local broadcastId, now = SAO.Standing.beginRadioBroadcast(
                 myKey, "peace-petition")
             if not broadcastId then return end
-            local moved, deaf = 0, 0
+            local heard, returned, unreached = 0, 0, 0
             local receivedBy = {}
+            local receipts = {}
             for _, r in pairs(SAO.Identity.all()) do
                 if not r.dead then
-                    receivedBy[r.id] = SAO.Communication.radioReception(
+                    local received, receipt = SAO.Communication.radioReception(
                         r.id, broadcastId, SAOWire.freq, now,
                         { { kind = "peacePetition", speakerId = myKey } },
-                        nil, myKey) == true
+                        nil, myKey)
+                    receivedBy[r.id] = received == true
+                    receipts[r.id] = receipt
                 end
             end
             local seen = {}
@@ -2600,17 +2712,41 @@ local function fillMenu(playerNum, context, worldobjects)
                             end
                             if atWar then
                                 if not receivedBy[lead] then
-                                    deaf = deaf + 1
-                                elseif SAO.Standing.trust(lead, myKey)
-                                    >= 0.25 then
-                                    local foe = SAO.Standing.leaderOf(atWar)
-                                    if foe then
-                                        SAO.Standing.adjustTrust(
-                                            lead, foe, 0.05)
-                                        moved = moved + 1
-                                        log("your voice on the band reaches "
-                                            .. lead .. " - they weigh peace"
-                                            .. " with " .. tostring(foe))
+                                    unreached = unreached + 1
+                                else
+                                    heard = heard + 1
+                                    local petition = SAO.PlayerInteraction.claim(
+                                        myKey, g, "petition",
+                                        "peace:" .. tostring(atWar), lead)
+                                    if petition then
+                                        SAO.Organization.recordReception(
+                                            petition.processId, lead,
+                                            petition.processRevision, "radio",
+                                            myKey, { broadcastId = broadcastId,
+                                                receipt = receipts[lead],
+                                                actualRecipient = true })
+                                        local transmitter =
+                                            SAO.Communication.radioTransmitterAccess(
+                                                lead, SAOWire.freq)
+                                        if transmitter then
+                                            local answer = answerPeacePetition(
+                                                petition, lead, myKey, atWar,
+                                                "Harness.radioPeacePetition",
+                                                "radio", {
+                                                    broadcastId = broadcastId,
+                                                    receipt = receipts[lead],
+                                                    actualRecipient = true,
+                                                })
+                                            if answer then
+                                                returned = returned + 1
+                                                log(lead .. " answers the peace"
+                                                    .. " petition on the band: "
+                                                    .. tostring(answer.response))
+                                            end
+                                        else
+                                            log("your peace petition reaches "
+                                                .. lead .. "; no answer returns")
+                                        end
                                     end
                                 end
                             end
@@ -2620,11 +2756,13 @@ local function fillMenu(playerNum, context, worldobjects)
             end
             pcall(function()
                 HaloTextHelper.addText(playerObj,
-                    moved > 0
-                    and ("Heard by " .. moved .. " at war.")
-                    or (deaf > 0
-                        and "The ones at war have no radio."
-                        or "Nobody's at war to hear it."))
+                    returned > 0 and (returned .. " answer on the band; "
+                        .. heard .. " received the petition.")
+                    or (heard > 0 and (heard .. " received it; no answer"
+                        .. " returned.")
+                    or (unreached > 0
+                        and "The ones at war did not receive it."
+                        or "Nobody's at war to address.")))
             end)
         end)
         wire:addOption("Ask for the news", nil, function()

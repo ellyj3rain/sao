@@ -5,6 +5,10 @@ SAO.Communication = SAO.Communication or {}
 local Communication = SAO.Communication
 
 Communication.messages = Communication.messages or {}
+-- Runtime-only execution ownership. Durable ownership remains on the Identity
+-- record; each owner must actively register how its currently driven human
+-- shell and activity snapshot are resolved.
+Communication.executionOwners = Communication.executionOwners or {}
 
 local function finite(value)
     return type(value) == "number" and value == value
@@ -12,12 +16,69 @@ local function finite(value)
 end
 
 local function bodyFor(id)
-    local body = SAO.Body and SAO.Body.get and SAO.Body.get(id)
+    id = tostring(id or "")
+    local rec = SAO.Identity and SAO.Identity.get and SAO.Identity.get(id)
+    if rec and rec.bodyOwner then
+        local owner = Communication.executionOwners[tostring(rec.bodyOwner)]
+        if not owner or type(owner.bodyFor) ~= "function" then return nil end
+        local ok, body = pcall(owner.bodyFor, id, rec)
+        if ok and body then return body end
+        return nil
+    end
+    local body = SAO.Body and SAO.Body.get and SAO.Body.get(id) or nil
+    if not body then
+        body = SAO.Body and SAO.Body.active and SAO.Body.active[id] or nil
+    end
     if body then return body end
     local ok, player = pcall(function() return getSpecificPlayer(0) end)
     if ok and player and SAO.Standing and SAO.Standing.playerKey
         and SAO.Standing.playerKey(player) == id then return player end
     return nil
+end
+
+function Communication.registerExecutionOwner(ownerId, adapter)
+    ownerId = type(ownerId) == "string" and ownerId or nil
+    if not ownerId or ownerId == "" or type(adapter) ~= "table"
+        or type(adapter.bodyFor) ~= "function" then return false end
+    Communication.executionOwners[ownerId] = adapter
+    return true
+end
+
+function Communication.unregisterExecutionOwner(ownerId, adapter)
+    local existing = Communication.executionOwners[tostring(ownerId or "")]
+    if not existing or (adapter ~= nil and existing ~= adapter) then return false end
+    Communication.executionOwners[tostring(ownerId)] = nil
+    return true
+end
+
+function Communication.bodyFor(id)
+    return bodyFor(id)
+end
+
+function Communication.actorSnapshot(id)
+    id = tostring(id or "")
+    local rec = SAO.Identity and SAO.Identity.get and SAO.Identity.get(id)
+    if rec and rec.bodyOwner then
+        local owner = Communication.executionOwners[tostring(rec.bodyOwner)]
+        if not owner then return nil, "execution-owner-unregistered" end
+        if type(owner.snapshot) == "function" then
+            local ok, snapshot = pcall(owner.snapshot, id, rec)
+            if ok and type(snapshot) == "table" then return snapshot end
+        end
+        return nil, "execution-snapshot-unavailable"
+    end
+    local body = bodyFor(id)
+    local agent = SAO.Controller and SAO.Controller.agents
+        and SAO.Controller.agents[id] or nil
+    return {
+        bodyOwner = "SAO",
+        represented = body ~= nil,
+        currentActivity = agent and string.lower(tostring(agent.state or "idle"))
+            or "dormant",
+        canAcquire = body ~= nil,
+        canCarry = body ~= nil,
+        canDeliver = body ~= nil,
+    }
 end
 
 local function dormantHearing(rec, listener)
@@ -251,6 +312,17 @@ function Communication.deliver(message)
             message.payload.organization
         )
     end
+    -- A process envelope remains only a message unless its transport supplied
+    -- explicit reception evidence. Generic delivery never means heard or
+    -- accepted and therefore creates no response or commitment.
+    if SAO.Organization and message.kind == "process-proposal"
+        and type(message.payload) == "table"
+        and message.transportAdmitted == true then
+        SAO.Organization.recordReception(message.payload.processId,
+            message.to, message.payload.revision,
+            message.channel or "communication", message.from,
+            message.transportEvidence or {})
+    end
     -- [C105] Delivered is done: the fact now lives where it was
     -- recorded, and the carrier does not hoard spent messages -
     -- a county that talks for years must not grow a wire that
@@ -262,6 +334,24 @@ function Communication.deliver(message)
         end
     end
     return true
+end
+
+-- Return already-formed answers during an actual bidirectional exchange.
+-- The caller names the same admitted channel that carried the conversation;
+-- this function rechecks it rather than treating a queued message as proof.
+function Communication.deliverPendingResponses(fromId, toId, channel, evidence)
+    if not (SAO.Organization and SAO.Organization.pendingResponses
+        and Communication.canConverse(fromId, toId, channel) == true) then
+        return 0
+    end
+    local delivered = 0
+    for _, pending in ipairs(SAO.Organization.pendingResponses(fromId, toId)) do
+        if SAO.Organization.deliverResponse(pending.processId, fromId, toId,
+            channel or "spoken", evidence or {}) then
+            delivered = delivered + 1
+        end
+    end
+    return delivered
 end
 
 function Communication.pendingFor(id)

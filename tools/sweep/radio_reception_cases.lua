@@ -23,6 +23,12 @@
         __player = nil
         __clockFail = false
         P.beliefs, P.beliefVersion = {}, 0
+        SAO.Organization.organizations, SAO.Organization.offices = {}, {}
+        SAO.Organization.claims, SAO.Organization.decisions = {}, {}
+        SAO.Organization.claimHistory, SAO.Organization.decisionHistory = {}, {}
+        SAO.Organization.processes, SAO.Organization.processOrder = {}, {}
+        SAO.Organization.processMeta, SAO.Organization.workReceipts =
+            { sequence = 0 }, {}
         __stores.SurvivorAwareness_Beliefs = P.beliefs
         local standing = { schema = 4,
             groups = { requester = "hungry", listener = "home",
@@ -90,11 +96,10 @@
         and #P.radioReceptions("listener") == 1)
 
     standing = reset()
-    S.callForBread("hungry")
-    local sourceLess = standing.radioNews[1]
-    check("source_less_request_stays_global", sourceLess.speakerId == nil
-        and SAOWire.deliverToListeners({ sourceLess }, "wire:global", 100) == 2
-        and request("listener") == nil and request("dormant") == nil)
+    check("source_less_request_stays_global", S.callForBread("hungry") == false
+        and (not standing.radioNews or #standing.radioNews == 0)
+        and request("listener") == nil
+        and request("dormant") == nil)
 
     standing = reset()
     __records.dormant.radioState = "RAD:0:101200:0.8:0.8:0.0001"

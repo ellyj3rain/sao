@@ -95,11 +95,14 @@ BOUNDED = {
         "the lessons one person holds, out of a registry of twelve",
     ("SAO_Seams.lua", "out"):
         "the subsystems that have gone dark - five bulkheads exist",
-    ("SAO_Standing.lua", "members"):
-        "the members of one company. The largest list this mod sorts, "
-        "and still the county itself: the sandbox caps population at "
-        "500 against an earliest observed sort failure at 1500 on "
-        "adversarial data",
+    ("SAO_Organization.lua", "members"):
+        "the members of one organization; organizations arise from county "
+        "groups and therefore cannot exceed the sandbox population cap of "
+        "500 against an earliest observed failure at 1500",
+    ("SAO_Organization.lua", "organizations"):
+        "the organizations one person belongs to; createOrganization "
+        "refuses a new id at MAX_ORGANIZATIONS (512), while migrated houses "
+        "were one-per-group under the same 500-person county cap",
     ("SAO_World.lua", "ranked"):
         "the item categories a world survey found, which is the game's "
         "own category list rather than the number of items",

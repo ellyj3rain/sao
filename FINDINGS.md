@@ -1,6 +1,6 @@
 | Document | Survivor Awareness Overhaul Findings |
 |---|---|
-| Version | `2.8.14.0-pre-alpha` |
+| Version | `2.9.0.0-pre-alpha` |
 | Author | ellyj3rain |
 | Repository | `FINDINGS.md` |
 | Status | CANONICAL, APPEND-ONLY - verified engine findings. |
@@ -2180,3 +2180,34 @@ Speakeasy Record 55 revokes the underlying old acquisition/retention evidence;
 fully resealed path/claim-ID changes remain excluded. Historical artifacts remain
 unchanged. Controlled evidence does not establish autonomous reading behavior or
 live-play acceptance. See the C77 batch and evidence records.
+
+## F-098 | 2026-09-24 09:09 UTC / 02:09 PST | Social shortcuts assigned assent and outcomes without participants
+
+Encounter, membership, death and dormant paths could call a whole-roster
+trust-sum election. Recognition then wrote acceptance for absent members. A
+standing-score schism could change memberships and create a feud in the same
+call. Radio peace reception directly raised trust. These paths collapsed
+proposal, hearing, response, authority, work and consequence into aggregate
+state; no person's private constraints or performed action could disagree.
+
+C79 gives Organization durable proposal revisions, separately acquired
+receptions, recipient-private response options and history, scoped concurrent
+commitments and exact-once work-result consumption. Command, office and
+membership consumers require the matching delivered commitment. SourceUse,
+Locomotion and Handover retain native mutation ownership. Work may pause, resume,
+fail, remain partial or complete without erasing the response. Graph schema 4
+preserves the process and consumed receipts through reload. Death, leave and
+empty-house cleanup end live obligations while retaining evidence.
+
+Production callers no longer invoke automatic election, roster recognition or
+score-triggered schism. Legacy functions explicitly require an enacted process.
+Radio petitions now record actual recipients and individual answers; hearing
+alone changes no trust or hostility. Border 190 and the command/request/radio
+borders execute these distinctions and their source mutations in installed
+Kahlua. ZAO and Speakeasy carry their own correction/evidence records.
+
+The result is the first bounded voluntary coordination and contention mechanism,
+not a complete political system. Elections, deliberation, appeal, succession,
+coercive enforcement, physical separation, wider material work and loaded-world
+gameplay acceptance remain unobserved or unimplemented as named in C79 and the
+roadmap.

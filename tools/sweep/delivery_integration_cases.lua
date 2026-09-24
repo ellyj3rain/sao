@@ -21,6 +21,12 @@
         __nativeCalls, __hearingCalls = {}, {}
         __weather, __weatherThrows = 1, false
         SAO.Controller.agents = {}
+        SAO.Organization.organizations, SAO.Organization.offices = {}, {}
+        SAO.Organization.claims, SAO.Organization.decisions = {}, {}
+        SAO.Organization.claimHistory, SAO.Organization.decisionHistory = {}, {}
+        SAO.Organization.processes, SAO.Organization.processOrder = {}, {}
+        SAO.Organization.processMeta, SAO.Organization.workReceipts =
+            { sequence = 0 }, {}
         SAO.Material = nil
         SandboxVars.SurvivorAwareness.Material = true
         P.beliefs, P.beliefVersion = {}, 0
@@ -71,7 +77,8 @@
     __now = 110
     check('request_cooldown_preserves_time',not S.callForBread('hungry','requester')
         and standing.groupMeta.hungry.askedAtHours == 100
-        and origin and origin.requestedAt == 100 and #standing.radioNews == 1)
+        and origin and origin.requestedAt == 100
+        and #(standing.radioNews or {}) == 1)
 
     standing = reset()
     local record = P.recordAidRequest
@@ -86,17 +93,19 @@
         and standing.groupMeta.hungry.askedAtHours == 100)
 
     standing = reset()
-    S.callForBread('hungry')
-    S.callForBread('hungry','requester')
-    check('global_request_has_no_private_backfill',request('requester') == nil
-        and #P.knownAidRequests('requester') == 0)
+    local sourceLess = S.callForBread('hungry')
+    check('source_less_request_refused',not sourceLess
+        and request('requester') == nil and not S.isAsking('hungry'))
     mind('carrier').factions.hungry = {minX=8,minY=8,maxX=12,maxY=12}
-    check('global_only_request_not_selected',S.isAsking('hungry')
+    check('global_only_request_not_selected',not S.isAsking('hungry')
         and S.nearestAsking('home','carrier') == nil)
 
     standing = reset()
     S.callForBread('hungry','requester')
-    P.recordAidRequest('carrier','hungry',100,'told','requester')
+    local firstRequest = request('requester')
+    P.recordAidRequest('carrier','hungry',100,'told','requester','food',
+        firstRequest and firstRequest.processId,
+        firstRequest and firstRequest.processRevision, 'spoken', {})
     check('private_request_missing_location',S.nearestAsking('home','carrier') == nil)
     mind('carrier').places.hungry = {minX=8,minY=9,maxX=12,maxY=13}
     local group, destination = S.nearestAsking('home','carrier')
@@ -112,7 +121,10 @@
     check('private_request_beats_global_location',privateGroup == 'hungry'
         and privateDestination and privateDestination.minX == 8)
     __now = 195
-    P.recordAidRequest('relay','hungry',100,'told','carrier')
+    local carrierRequest = request('carrier')
+    P.recordAidRequest('relay','hungry',100,'told','carrier','food',
+        carrierRequest and carrierRequest.processId,
+        carrierRequest and carrierRequest.processRevision, 'spoken', {})
     local retold = request('relay')
     __now = 197
     check('request_expiry_uses_original_time',retold and retold.acquiredAt == 195

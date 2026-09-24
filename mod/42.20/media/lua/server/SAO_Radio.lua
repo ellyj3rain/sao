@@ -87,13 +87,6 @@ function SAOWire.render(item)
             .. " walked out. Watch the roads."
     elseif item.kind == "death" then
         return "We lost " .. nameOf(item.id) .. "."
-    elseif item.kind == "pact" then
-        return houseOf(item.a) .. " and " .. houseOf(item.b)
-            .. " shook on a pact - bread for watch. The county gets"
-            .. " smaller, in the good way."
-    elseif item.kind == "pactBroke" then
-        return "The pact between " .. houseOf(item.a) .. " and "
-            .. houseOf(item.b) .. " is off. Draw your own conclusions."
     elseif item.kind == "abandon" then
         return houseOf(item.group) .. " has given up their ground."
             .. " Lean, dry, and cold. They're on the road now."
@@ -117,9 +110,6 @@ function SAOWire.render(item)
         -- the county wire is in a position to report.
         return "Someone new came in off the road. The county"
             .. " counts one more."
-    elseif item.kind == "chair" then
-        return houseOf(item.group) .. " put a new voice in the chair."
-            .. " County business runs through them now."
     elseif item.kind == "unseated" then
         return houseOf(item.group) .. " took the chair back. The house"
             .. " steers itself again."
@@ -243,7 +233,7 @@ end
 -- has to be. A player has their own interior and does not need one
 -- issued. What CROSSES is identical either way, which is the whole
 -- of the operator's law.
-local function hearTheWire(key, b, items, reactive)
+local function hearTheWire(key, b, items, reactive, broadcastId)
     local heardSomething = false
     for _, item in ipairs(items) do
         if item.kind == "death" and item.id ~= key then
@@ -297,10 +287,19 @@ local function hearTheWire(key, b, items, reactive)
             end
         elseif item.kind == "ask" and type(item.group) == "string"
             and type(item.speakerId) == "string"
-            and type(item.requestedAt) == "number"
-            and SAO.Perception.recordAidRequest(key, item.group,
-                item.requestedAt, "told", item.speakerId, "food") then
-            heardSomething = true
+            and type(item.requestedAt) == "number" then
+            local recorded = SAO.Perception.recordAidRequest(key, item.group,
+                item.requestedAt, "told", item.speakerId, "food",
+                item.processId, item.processRevision, "radio",
+                { broadcastId = tostring(broadcastId or ""),
+                    frequency = SAOWire.freq })
+            if recorded then
+                local agent = SAO.Controller and SAO.Controller.agents
+                    and SAO.Controller.agents[key] or nil
+                SAO.Perception.appraiseAidRequest(key, item.group,
+                    "Radio.receipt", agent and agent.state or "dormant")
+                heardSomething = true
+            end
         end
     end
     return heardSomething
@@ -324,7 +323,7 @@ function SAOWire.deliverToListeners(items, broadcastId, atHours)
         if received then
             delivered[rec.id] = true
             local b = SAO.Perception.beliefs[rec.id]
-            if b then hearTheWire(rec.id, b, items, true) end
+            if b then hearTheWire(rec.id, b, items, true, broadcastId) end
             reached = reached + 1
         end
     end
@@ -343,7 +342,7 @@ function SAOWire.deliverToListeners(items, broadcastId, atHours)
             "county-wire") == true
         if not received then return end
         local b = SAO.Perception.beliefs[myKey]
-        if b then hearTheWire(myKey, b, items, false) end
+        if b then hearTheWire(myKey, b, items, false, broadcastId) end
         reached = reached + 1
     end)
     return reached

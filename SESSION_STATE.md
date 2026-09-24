@@ -1,27 +1,49 @@
 | Document | Survivor Awareness Overhaul Session State |
 |---|---|
-| Version | `2.8.14.0-pre-alpha` |
+| Version | `2.9.0.0-pre-alpha` |
 | Author | ellyj3rain |
 | Repository | `SESSION_STATE.md` |
 | Status | CANONICAL - current implementation and continuation. |
 
 # Session state
 
-**As of** 2026-09-23, `[C78]` extends authored conversation capture with existing
-person-state evidence. Disposition exposes its actual trait contributions;
-Knowledge reads conditions, relationships, private threat, current recorded
-cognitive projections and lesson provenance into detached channels. Five
-controlled scenarios compare unchanged report knowledge across baseline,
-trust, threat, told learning and strain. Speakeasy owns the corresponding
-unreviewed response comparisons. Source capture is not learned behavior.
+**As of** 2026-09-24, `[C79]` implements enacted social coordination. A person's
+private need or situation can raise a versioned matter; actual recipients acquire
+it through Communication and form independent accept, qualify, counter-propose,
+decline, defer, contest or withdraw responses. Addressed silence remains
+unanswered. Only a response delivered back to the originator creates a scoped,
+revision-bound commitment. Concurrent and contested responsibilities coexist.
 
-The source API also reads loaded needs, controller state/reason and active
-movement targets with exact ownership. Only controlled reader tests exercise
-those paths here. The published scenarios remain bodyless, explicitly lacking
-native needs, active work/movement and a complete action-option inventory.
-Those producers and their loaded capture remain required for broader goal and
-work/exhaustion comparisons. Current Speakeasy continuation is Record 60;
-its active worktree follows Record 59 rather than the older primary checkout.
+Accepted food-delivery work now reaches the existing SourceUse, Locomotion and
+Handover owners. Queue admission is not completion; acquisition, carrying,
+delivery, pause, resumption, interruption, partial work, failure and completion
+remain distinct, and native results are consumed once. Graph schema 4 persists
+processes, revisions, participants, dissent, commitments and receipt identities
+across loaded/dormant handoff and reload. Death, leave and empty-house cleanup
+end live work without erasing its evidence.
+
+Automatic trust-sum election, roster-wide election recognition and score-triggered
+schism callers no longer create authority or fracture. Their legacy entry points
+explicitly require an enacted process; lifecycle cleanup remains wired. Player
+orders, membership requests, counsel and radio peace petitions use actual
+recipient processes and return channels. Hearing a petition changes no trust,
+hostility or peace by itself.
+
+The combined SAO+ZAO path reads the registered execution owner. Crossed retain
+their human shell and ZAO supplies current activity/capability; actionable danger
+can pause the same coordination commitment. ZAO's malformed IsoZombie admission
+repair is published separately. Standalone SAO remains supported. Speakeasy
+Record 63 consumes the exact version 3 namespace and separates actor-private
+decision evidence from later work outcomes. The production appraisal observer
+atomically publishes those v3 rows; one controlled Kahlua run carried 13 exact
+rows through ZAO's same-event state projection and the Speakeasy task compiler.
+No loaded gameplay scene, independent task ruling or admitted training row was
+produced.
+
+`[C78]` remains the prior bodyless person-state comparison family. Its controlled
+scenarios and returned Speakeasy Record 62 judgments are unchanged. The new C79
+path supplies source-owned current work and competing priorities for future
+enacted captures; it does not retroactively add them to C78.
 
 `[C77]` corrects personal acquisition of the July 2
 Knox report. County presence and age grant no knowledge. Native reading
@@ -210,8 +232,8 @@ producers, persistence, evidence and gaps.
 | Time and health | Current decision time, durable drug/abstinence clocks, current physical inputs, exact interval-integrated brain history, medical/inspect graph and memory/decision/affective/motor consumers; C68 completion-proves care-item gifts, C70 completion-proves loaded open-wound bandaging and C72 advances measured rest/sleep/wake through bodyless intervals | R5 is closed. Disinfection, stitching, dormant treatment and other performed care still depend on R7/R9 action producers. |
 | Afflicted and Crossed | ZAO pathogen state, Afflicted return, reachable Crossed decisions and an interruptible non-feeding blood exposure whose exact-once result transfers SAO's living body to ZAO | The retained human weapons, tools, strategy and wider action vocabulary remains R7-R9 work; grounded dormant opportunities remain R10. |
 | Knowledge and access | Private beliefs; animal-safe scanner output; fresh/current activity partners; demand-hydrated exact source identities; C62's revision-bound approach, current claim/vehicle permission, exact transfer, carried native use and durable result; C63-C64's exact partial-source material projection and durable ambient refresh; C71's recursive actor-private loaded holder view and exact v4 dormant carriage; C72's produced dormant awake/asleep state joined with C67 measured hearing; C73's direct-root powered radio endpoints, elapsed dormant battery state and recipient-private reception receipts; C74's explicit county presence, dated personal acquisition and detached retention observation; C75's deterministic snapshot-local claim catalogue and selected-claim fence | R6 is closed for the selected source interaction and its completed result reaches bounded partial material state. R7 remains open beyond this source-action family. C66 adds exact acquisition/storage; C67 adds private transfer testimony and witnessed recipient response; C68 completion-proves loaded personal handovers; C69 closes the bounded recipient appraisal after testimony. C71-C73 close inventory, adjacent speech and actual radio admission. C74 closes SAO's first bounded R12 acquisition producer. C75 makes the existing surface addressable but leaves protected-world coverage, target rows and runtime snapshot ownership open. Complete house stock and the other material action/result producers remain open. |
-| Social development | Company mechanics, claims, observations and graph APIs; C64 prevents partial selected-source evidence from creating aggregate claims or settlement storage; C68 separates gifts, proposed terms, accepted exchange and completion-derived debt; C69 preserves private disagreement without automatic ledger writes | Automatic relocation and recognition; incomplete affiliation, governance, place development and other provisioning producers. |
-| Speakeasy data | 190 protected choices, four historical derivatives, nine world documents, immutable capture and exact v3 join; C65 adds explicit source options/choice and immediate-result observation for loaded execution; C74 supplies one hash-bound same-person calendar/acquisition/retention/decision port; Record 52 repository-reviews the exact extraction/acquisition as a zero-row reference | C66/Speakeasy adds exact acquisition/storage options, decision-time views and unratified proposal authoring. Broader claim coverage, natural choices, later consequences, retriever-target authorship and task datasets remain; all current captures remain conditioning-ineligible. |
+| Social development | C79 adds acquired revisioned matters, individual responses, scoped concurrent commitments, contested/withdrawn responsibility, exact office/command jurisdiction and completion-backed food delivery across loaded/dormant execution. Automatic election recognition and score-triggered schism callers are retired without disabling cleanup. | The first unit is voluntary coordination and contention. Election/deliberation/succession procedures, physical separation, broader institutions, place development and the remaining R9 producers remain incomplete. |
+| Speakeasy data | Protected historical material remains intact. Record 63 requires the exact v3 namespace, actor/executor attribution, source-owned current work and competing priorities, feasible options and separate decision/outcome horizons for enacted coordination. C79 now emits those rows at the production appraisal boundary; a controlled 13-row SAO-to-ZAO-to-Speakeasy pass succeeds. | The compiler emits candidate observations only. No loaded scene, independent task ruling, admitted coordination row, learned model or runtime consumer exists; wider claim/action coverage remains open. |
 | Models and late starts | Inference primitives, fact constraint, offline diagnostics | No trained cognition model, complete training/export path or validated accelerator. |
 
 ## Retained recovery evidence
@@ -229,6 +251,15 @@ and exported no receipt. Original evidence lives in tools/sweep/receipts/;
 filenames, seeds and hashes remain unchanged.
 
 ## Continuation
+
+C79 is the first bounded R9 governance/coordination producer, not the completion
+of governance or life simulation. Continue with wider private perception and
+competing activity across work/combat, then performed material development and
+richer institutional procedures. Capture complete enacted scenes for Speakeasy
+only after their producers exist; preserve decision-time privacy and later
+outcomes as separate evidence. Loaded gameplay, route timing and dormant
+partition equivalence remain acceptance work rather than facts inferred from the
+headless borders.
 
 The post-C56 Crucible return establishes border compression as the immediate
 work, followed eventually by one private unified mod/project (DR-041).
@@ -498,9 +529,9 @@ consequences remain separate from the learned policy choosing among them.
 
 C57 consolidates three native entry points into one. With C64's immutable
 capture border, C73's radio-reception border, C74's personal-world-knowledge
-border and C75's typed-claim border, the gate invokes 187 `*_test.py` files and
-13 other Python entry points, 200 distinct scripts. Border labels extend through
-189; legacy labels
+border and C75's typed-claim border, the gate invokes 188 `*_test.py` files and
+13 other Python entry points, 201 distinct scripts. Border labels extend through
+190; legacy labels
 163/169/174 share the native suite. These are distinct counting units. The mod
 ships 79 Lua source files.
 ZAO A37 has ten borders. The

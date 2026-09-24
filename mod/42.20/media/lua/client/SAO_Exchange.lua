@@ -531,35 +531,52 @@ function Exchange.betweenPair(id, agent, body, otherId, otherBody, tickCount)
             end
         end
 
-        -- Leadership settles in conversation ([A14]):
-        -- same-group meetings re-derive the deferred-to
-        -- member from the trust web; a flip is a standing
-        -- event, logged and voiced by whoever takes point.
+        -- Same-group disagreement becomes a concrete, addressed matter. The
+        -- conversation is the transport; neither trust totals nor mutual
+        -- hostility elect anyone, move a roster, or found a rival house.
         if SAO.Standing.sameGroup(id, otherId)
             and tickCount >= (agent.nextElectionAt or 0) then
             agent.nextElectionAt = tickCount + 1800
             local electGroup = SAO.Standing.groupOf(id)
-            local newLeader, oldLeader =
-                SAO.Standing.electLeader(electGroup)
-            -- Schism ([A22]): the election moment is where a divided
-            -- house discovers it cannot stand.
-            -- Dissent has a voice ([A25]): a member whose class
-            -- chafes under the community's policy says so where
-            -- politics happen.
             if SAO.Standing.dissentsFromPolicy
                 and SAO.Standing.dissentsFromPolicy(id) then
-                -- [C119] Two grumbles make a protest: when the one
-                -- across ALSO dissents from the county's policy, the
-                -- pair stands together and the plain grumble grows
-                -- Week One's credited placard shape - a crowd of
-                -- exactly the size the county's own politics
-                -- produced, never one more. Both hold the shape;
-                -- the voice still says the grievance.
-                local together = false
-                pcall(function()
-                    together = SAO.Standing.dissentsFromPolicy(otherId)
-                        == true
-                end)
+                local proposedPolicy = SAO.Standing.policyPreferenceOf(id)
+                local otherPreference = SAO.Standing.policyPreferenceOf(otherId)
+                local together = proposedPolicy ~= nil
+                    and otherPreference == proposedPolicy
+                local process = SAO.Organization
+                    and SAO.Organization.raiseMatter(id, "ration-policy",
+                        electGroup, {
+                            proposedBy = id,
+                            proposedPolicy = proposedPolicy,
+                            currentPolicy = SAO.Standing.rationPolicyOf(electGroup),
+                            scope = { action = "support-policy-proposal",
+                                matter = "resource allocation",
+                                organization = electGroup,
+                                arrangement = true },
+                        }, { otherId }, {
+                            source = "private-policy-dissent",
+                            ownPreference = proposedPolicy,
+                        }) or nil
+                if process then
+                    SAO.Organization.recordReception(process.id, otherId,
+                        process.revision, "spoken", id,
+                        { conversationAt = tickCount })
+                    local response = together and "accept"
+                        or otherPreference and "contest" or "defer"
+                    SAO.Organization.appraiseMatter(process.id, otherId, {
+                        owner = "Exchange.policy-conversation",
+                        executor = "SAO.Exchange", choice = response,
+                        relationship = SAO.Standing.trust(otherId, id),
+                        currentActivity = "conversation",
+                        destinationKnown = true,
+                        interests = { ownPreference = otherPreference,
+                            currentPolicy = SAO.Standing.rationPolicyOf(electGroup) },
+                        constraints = { actualRecipient = true },
+                    })
+                    SAO.Organization.deliverResponse(process.id, otherId,
+                        id, "spoken", { conversationAt = tickCount })
+                end
                 if together then
                     pcall(function()
                         SAO.Gesture.protest(id, body)
@@ -571,26 +588,6 @@ function Exchange.betweenPair(id, agent, body, otherId, otherBody, tickCount)
                 pcall(function()
                     SAO.Voice.onEvent(id, "grumble", tickCount)
                 end)
-            end
-            local newHouse, core, leaverCount =
-                SAO.Standing.checkSchism(electGroup)
-            if newHouse then
-                pcall(function()
-                    SAO.Voice.onEvent(core, "feud", tickCount)
-                end)
-                log("SCHISM: " .. tostring(core) .. " leads "
-                    .. tostring(leaverCount) .. " out of "
-                    .. tostring(SAO.Standing.factionName(electGroup)
-                        or electGroup) .. " - two houses now, at feud")
-            end
-            if newLeader and oldLeader and newLeader ~= oldLeader then
-                log(electGroup .. ": leadership passes "
-                    .. tostring(oldLeader) .. " -> " .. newLeader)
-                if Ctl.agents[newLeader] then
-                    pcall(function()
-                        SAO.Voice.onEvent(newLeader, "takePoint", tickCount)
-                    end)
-                end
             end
         end
 
@@ -710,11 +707,18 @@ function Exchange.betweenPair(id, agent, body, otherId, otherBody, tickCount)
                 end
                 return
             end
-            if not SAO.Standing.formCompany({ id, otherId }, groupName) then
+            local companyProcess, companyResponse, changed, companyResult =
+                SAO.Standing.proposeCompany(id, otherId, nil, "conversation")
+            if not companyProcess or not companyResponse then
+                return
+            end
+            if not changed then
+                log(id .. " and " .. otherId .. " answer company: "
+                    .. tostring(companyResult))
                 return
             end
             log(id .. " and " .. otherId
-                .. " now keep company (trust and need)")
+                .. " now keep company by delivered agreement")
             -- Moving in: the JOINER moves; the standing
             -- member keeps their house. Only when both were
             -- unattached does lexical order pick the host.

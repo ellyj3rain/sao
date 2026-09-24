@@ -825,41 +825,156 @@ function S.circleRefuses(id, groupName, otherKey)
     return support < 0 or S.companyPressure(id, groupName) > support
 end
 
+-- One person proposes keeping company to the person actually encountered.
+-- Two unattached people can found a roster because they are its complete
+-- constituency. Joining an existing roster additionally requires explicit
+-- membership jurisdiction; otherwise acceptance is durable sponsorship, not
+-- admission silently imposed on absent members.
+function S.proposeCompany(originatorId, recipientId, channel, activity)
+    originatorId, recipientId = tostring(originatorId or ""),
+        tostring(recipientId or "")
+    if originatorId == "" or recipientId == ""
+        or originatorId == recipientId
+        or not (SAO.Organization and SAO.Communication)
+        or SAO.Communication.canConverse(originatorId, recipientId,
+            channel) ~= true then return nil, nil, false, "not-delivered" end
+    local originGroup, recipientGroup = S.groupOf(originatorId),
+        S.groupOf(recipientId)
+    if originGroup and recipientGroup then
+        return nil, nil, false, "already-affiliated"
+    end
+    local groupName = originGroup or recipientGroup
+        or ("company-" .. originatorId)
+    local options = SandboxVars and SandboxVars.SurvivorAwareness or nil
+    local bar = (options and tonumber(options.TrustToCompany)) or 0.5
+    if originGroup or recipientGroup then
+        local creed = S.creedOf(groupName)
+        if creed and creed.name == "mercy" then bar = bar - 0.1 end
+    end
+    local originStanding = S.companyStanding(originatorId, recipientId)
+    if originStanding <= bar
+        or S.circleRefuses(originatorId, groupName, recipientId) then
+        return nil, nil, false, "originator-declined"
+    end
+    local founding = not originGroup and not recipientGroup
+    local newcomerId = originGroup and recipientId or originatorId
+    local hostId = originGroup and originatorId
+        or recipientGroup and recipientId or nil
+    local process = SAO.Organization.raiseMatter(originatorId,
+        founding and "company-formation" or "membership", groupName, {
+            recipientId = recipientId, personId = newcomerId,
+            scope = { action = founding and "cofound-company"
+                    or "sponsor-membership",
+                organization = groupName, personId = newcomerId,
+                founding = founding },
+        }, { recipientId }, {
+            source = channel == "dormant-encounter"
+                and "dormant-encounter" or "represented-conversation",
+            companyStanding = originStanding,
+            currentGroup = originGroup,
+        })
+    if not process or not SAO.Organization.recordReception(process.id,
+        recipientId, process.revision, channel or "spoken", originatorId,
+        { actualRecipient = true }) then
+        return process, nil, false, "not-delivered"
+    end
+    local recipientStanding = S.companyStanding(recipientId, originatorId)
+    local hostile = S.isHostileTo(recipientId, originatorId) == true
+    local currentActivity = tostring(activity or (channel == "dormant-encounter"
+        and "dormant" or "conversation"))
+    local choice = hostile and "contest"
+        or S.circleRefuses(recipientId, groupName, originatorId) and "decline"
+        or (currentActivity ~= "idle" and currentActivity ~= "dormant"
+            and currentActivity ~= "conversation") and "defer"
+        or recipientStanding > bar and "accept"
+        or "decline"
+    local response = SAO.Organization.appraiseMatter(process.id,
+        recipientId, {
+            owner = "Standing.proposeCompany", executor = "SAO.Standing",
+            currentActivity = currentActivity,
+            relationship = S.trust(recipientId, originatorId),
+            contest = hostile, choice = choice,
+            interests = { companyStanding = recipientStanding,
+                currentGroup = recipientGroup },
+            constraints = { actualRecipient = true,
+                existingRoster = not founding },
+        })
+    if not response or not SAO.Organization.deliverResponse(process.id,
+        recipientId, originatorId, channel or "spoken",
+        { actualRecipient = true }) then
+        return process, response, false, "response-not-delivered"
+    end
+    if response.response ~= "accept" then
+        return process, response, false, response.response
+    end
+    if founding then
+        local formed = S.formCompany({ originatorId, recipientId }, groupName)
+        return process, response, formed == true,
+            formed and "founded" or "founding-refused"
+    end
+    local canAdmit = SAO.Recognition and SAO.Recognition.membershipAuthority
+        and SAO.Recognition.membershipAuthority(groupName, hostId) == true
+    if canAdmit then
+        return process, response, S.joinGroup(newcomerId, groupName), "admitted"
+    end
+    return process, response, false, "sponsor-only"
+end
+
+-- Membership cleanup is lifecycle work, not an election. It owns only the
+-- empty-house retirement and the one-survivor widow release that must still
+-- happen after leaving or death.
+function S.maintainRoster(groupName)
+    local s = store(); if not s or not groupName then return 0 end
+    groupName = tostring(groupName)
+    local members = {}
+    for id, group in pairs(s.groups or {}) do
+        if tostring(group) == groupName then
+            local rec = SAO.Identity and SAO.Identity.get
+                and SAO.Identity.get(id) or nil
+            if not (rec and rec.dead) then members[#members + 1] = id end
+        end
+    end
+    if #members == 0 then
+        s.groupMeta[groupName] = nil
+        if s.groupClaims then s.groupClaims[groupName] = nil end
+        if SAO.Material and SAO.Material.forgetHouse then
+            SAO.Material.forgetHouse(groupName)
+        end
+        if SAO.Recognition then SAO.Recognition.onHouseDissolved(groupName) end
+        return 0
+    end
+    if #members > 1 then return #members end
+    local widow = members[1]
+    local claim = s.groupClaims and s.groupClaims[groupName] or nil
+    if claim then
+        s.claims[widow] = { minX = claim.minX, minY = claim.minY,
+            maxX = claim.maxX, maxY = claim.maxY, z = claim.z or 0 }
+        s.groupClaims[groupName] = nil
+        if SAO.Material and SAO.Material.forgetHouse then
+            SAO.Material.forgetHouse(groupName)
+        end
+        if SAO.Settlement and SAO.Settlement.clearStorageProjection then
+            SAO.Settlement.clearStorageProjection(groupName)
+        end
+    end
+    s.groups[widow] = nil
+    s.groupMeta[groupName] = nil
+    local rec = SAO.Identity and SAO.Identity.get
+        and SAO.Identity.get(widow) or nil
+    if rec then rec.designation, rec.designatedBy = nil, nil end
+    if SAO.Recognition then SAO.Recognition.onHouseDissolved(groupName) end
+    return 1
+end
+
 function S.joinGroup(id, groupName)
     local s = store(); if not s then return false end
     s.groups[id] = tostring(groupName)
-    -- Membership changed: leadership settles again.
-    S.electLeader(tostring(groupName))
     return true
 end
 
--- Leaving is a verb ([A17]): membership ends, leadership reruns over
--- the remainder, and the leaver's own claims/home are untouched.
--- Founding a company ([C67]). The roster is written whole and the
--- election runs once, over a house that already exists.
---
--- Every company in this project was founded by joining one member and
--- then the other. The first join left a roster of ONE, and a roster of
--- one is where `electLeader` performs the widow release - so the
--- founder was freed, and then the second join left a roster of one
--- again, and the second founder was freed too. The company was
--- dissolved by the act of founding it, every time, at every site: the
--- road, the table, and Knox adoption alike. Nothing downstream of a
--- company could ever run - no leader, no creed, no designation, no
--- feud, no pact, no schism - and a county of two hundred people who
--- trusted each other stayed two hundred strangers for the life of the
--- save.
---
--- The widow release is not wrong. It is a rule about a roster that
--- SHRANK: the last member of a dissolved house is released rather than
--- left alone in it. `electLeader` is the verb that settles a roster and
--- it is called from both directions, so it cannot tell growth from
--- loss - and read as loss, a house being born looks exactly like a
--- house ending. `checkSchism` already knew and worked around it in its
--- own body. This is that workaround named and given to the three
--- places a company is BORN.
---
--- Returns true when the house stands.
+-- Founding writes the roster as one event. It creates the house's lifecycle
+-- metadata, but assigns no leader, office, job, policy, assent, or outcome.
+-- Widow release remains shrink-only cleanup in maintainRoster.
 function S.formCompany(ids, groupName)
     local s = store(); if not s then return false end
     if type(ids) ~= "table" then return false end
@@ -878,12 +993,13 @@ function S.formCompany(ids, groupName)
         n = n + 1
         s.groups[id] = groupName
     end
-    if n == 0 then return false end
-    -- A house of one is still a memory rather than a membership, and
-    -- the election says so - this verb does not smuggle one past the
-    -- rule, it only stops the rule from firing mid-sentence.
-    S.electLeader(groupName)
-    return S.groupSize(groupName) > 1
+    if n < 2 then
+        for id in pairs(roster) do s.groups[id] = nil end
+        return false
+    end
+    s.groupMeta = s.groupMeta or {}
+    s.groupMeta[groupName] = s.groupMeta[groupName] or {}
+    return true
 end
 
 -- How many LIVING members a company holds.
@@ -906,10 +1022,54 @@ function S.leaveGroup(id)
     local groupName = s.groups[id]
     if not groupName then return false end
     s.groups[id] = nil
+    if SAO.Organization and SAO.Organization.leave then
+        SAO.Organization.leave(groupName, tostring(id))
+    end
     local lrec = SAO.Identity and SAO.Identity.get(id) or nil
     if lrec then lrec.designation = nil end
-    S.electLeader(groupName)
+    S.maintainRoster(groupName)
     return true
+end
+
+-- Voluntary separation is an originator-owned act. Nearby named recipients
+-- may acquire the notice, but nobody's assent is invented or required. The
+-- process closes only after Standing, the roster owner, performs the leave.
+function S.withdrawFromCompany(id, reason, recipientIds, channel, evidence)
+    id = tostring(id or "")
+    local groupName = S.groupOf(id)
+    if id == "" or not groupName or not SAO.Organization then
+        return nil, false
+    end
+    local addressed = {}
+    for _, recipientId in ipairs(type(recipientIds) == "table"
+        and recipientIds or {}) do
+        recipientId = tostring(recipientId or "")
+        if recipientId ~= "" and recipientId ~= id
+            and SAO.Communication
+            and SAO.Communication.canConverse(id, recipientId, channel) == true then
+            addressed[#addressed + 1] = recipientId
+        end
+    end
+    local process = SAO.Organization.raiseMatter(id,
+        "membership-withdrawal", groupName, {
+            reason = tostring(reason or "voluntary"),
+            scope = { action = "leave-membership",
+                organization = groupName, personId = id },
+        }, addressed, evidence or { source = "private-choice" })
+    if not process then return nil, false end
+    for _, recipientId in ipairs(addressed) do
+        SAO.Organization.recordReception(process.id, recipientId,
+            process.revision, channel or "spoken", id,
+            { actualRecipient = true, notice = "withdrawal" })
+    end
+    local left = S.leaveGroup(id)
+    if left then
+        SAO.Organization.closeMatter(process.id, id,
+            "originator-left-membership", {
+                organization = groupName, reason = reason,
+            })
+    end
+    return process, left, groupName
 end
 
 -- A death leaves the company ([C68]).
@@ -938,8 +1098,18 @@ end
 function S.releaseDead(id)
     local s = store(); if not s then return nil end
     local groupName = s.groups[id]
-    if not groupName then return nil end
+    if not groupName then
+        if SAO.Organization and SAO.Organization.releaseActor then
+            SAO.Organization.releaseActor(tostring(id), "actor-dead")
+        end
+        return nil
+    end
     s.groups[id] = nil
+    if SAO.Organization and SAO.Organization.releaseActor then
+        SAO.Organization.releaseActor(tostring(id), "actor-dead")
+    elseif SAO.Organization and SAO.Organization.leave then
+        SAO.Organization.leave(groupName, tostring(id))
+    end
     local rec = SAO.Identity and SAO.Identity.get
         and SAO.Identity.get(id) or nil
     if rec then
@@ -947,41 +1117,43 @@ function S.releaseDead(id)
         rec.designation = nil
         rec.designatedBy = nil
     end
-    -- The house settles again: a new chair if the corpse held it, and
-    -- the widow release if nobody living is left beside one person.
-    S.electLeader(groupName)
+    S.maintainRoster(groupName)
     return groupName
 end
 
 -- ---------------------------------------------------------------------------
--- Governance (DR-006 S3): leadership is a settled standing fact - who the
--- group defers to - derived from trust-sums among LIVING members, stored
--- as group metadata, recomputed on membership and trust shifts. Claims-
--- first: no narrative, one fact with a timestamp.
+-- Governance is read from explicit enacted authority. A roster and its trust
+-- relations remain inputs people may use; neither produces a leader.
 
 function S.leaderOf(groupName)
-    local s = store(); if not s then return nil end
-    s.groupMeta = s.groupMeta or {}
-    local meta = s.groupMeta[tostring(groupName)]
-    return meta and meta.leaderId or nil
+    if not (SAO.Organization and groupName) then return nil end
+    local office = SAO.Organization.offices[
+        tostring(groupName) .. ":chair"]
+    local found = nil
+    for personId, evidence in pairs(office and office.holders or {}) do
+        if type(evidence) == "table" and evidence.commitmentId then
+            if found then return nil end -- shared authority has no sole leader
+            found = personId
+        end
+    end
+    return found
 end
 
--- Trust-sum election: each living member's standing is the sum of the
--- others' trust toward them. Highest defers to nobody; ties settle
--- lexically for determinism. Returns newLeaderId, oldLeaderId.
--- The four creeds, and which chafe against which ([A18]): rules
--- chafe the free (order vs road), gates chafe the open hand (wall vs
--- mercy). Opposition is structural, not a mood.
+-- The four creed terms below remain observations of a roster's lived
+-- composition. They do not appoint anyone or cause a split.
 --
 -- DECLARED HERE with the other creed constants rather than beside
--- `creedOf` where they read best: [B23]'s division block lives inside
--- `electLeader` five hundred lines above, and a Lua local is
--- invisible to any function compiled before it. Sitting lower, this
--- resolved to a nil global - which the [B23] border caught on the
--- first run of this very batch.
+-- `creedOf` where they read best: the related readers are compiled above and
+-- Lua locals remain invisible before their declaration.
 local CREED_KEYS = { "order", "mercy", "wall", "road" }
 local CREED_OPPOSES = { order = "road", road = "order",
                         wall = "mercy", mercy = "wall" }
+-- A person's lived pull may inform what they propose; it never installs a
+-- house policy. Only an explicit Organization decision can do that.
+local RATION_PREFERENCE = {
+    order = "watch-first", mercy = "weak-first",
+    wall = "house-first", road = "carry-light",
+}
 
 -- [B23] Whether a house has RANKS at all is what it believes.
 --
@@ -1410,515 +1582,11 @@ local function reviewElectionWork(s, groupName, members)
     end
 end
 
+-- Automatic trust-sum elections are retired. Leadership may be projected only
+-- from an explicit, revisioned authority process; that projector is owned by
+-- Organization rather than this standing reader.
 function S.electLeader(groupName)
-    local s = store(); if not s then return nil, nil end
-    groupName = tostring(groupName)
-    s.groupMeta = s.groupMeta or {}
-    local members = {}
-    for id, g in pairs(s.groups) do
-        if g == groupName then
-            local rec = SAO.Identity and SAO.Identity.get(id) or nil
-            if not (rec and rec.dead) then
-                members[#members + 1] = id
-            end
-        end
-    end
-    if #members == 0 then
-        -- The roster emptied: the faction is DONE. Meta, name, claim,
-        -- and player membership all lapse together; only the ghost of
-        -- its base in old heads remains ([A15] beliefs, deliberately).
-        s.groupMeta[groupName] = nil
-        if s.groupClaims then s.groupClaims[groupName] = nil end
-        if SAO.Material and SAO.Material.forgetHouse then
-            SAO.Material.forgetHouse(groupName)
-        end
-        -- [C105] The record lapses with the house.
-        if SAO.Recognition then
-            SAO.Recognition.onHouseDissolved(groupName)
-        end
-        return nil, nil
-    end
-    if #members == 1 then
-        -- The widow of a company ([A15]): a group of one is a memory,
-        -- not a membership. The last member is RELEASED - free to keep
-        -- company again - and keeps the house: the group claim becomes
-        -- their personal claim before it lapses.
-        local widow = members[1]
-        local gc = s.groupClaims and s.groupClaims[groupName] or nil
-        if gc then
-            s.claims[widow] = { minX = gc.minX, minY = gc.minY,
-                maxX = gc.maxX, maxY = gc.maxY, z = gc.z or 0 }
-            s.groupClaims[groupName] = nil
-            if SAO.Material and SAO.Material.forgetHouse then
-                SAO.Material.forgetHouse(groupName)
-            end
-            if SAO.Settlement and SAO.Settlement.clearStorageProjection then
-                SAO.Settlement.clearStorageProjection(groupName)
-            end
-        end
-        s.groups[widow] = nil
-        s.groupMeta[groupName] = nil
-        local wrec = SAO.Identity and SAO.Identity.get(widow) or nil
-        if wrec then
-            wrec.designation = nil
-            wrec.designatedBy = nil
-        end
-        -- [C105] The record lapses with the house.
-        if SAO.Recognition then
-            SAO.Recognition.onHouseDissolved(groupName)
-        end
-        return nil, nil
-    end
-    table.sort(members)
-    local bestId, bestSum
-    for _, id in ipairs(members) do
-        local sum = 0
-        for _, otherId in ipairs(members) do
-            if otherId ~= id then
-                sum = sum + S.trust(otherId, id)
-            end
-        end
-        if not bestSum or sum > bestSum then
-            bestId, bestSum = id, sum
-        end
-    end
-    -- The company has jobs (DR-011, [A18]): a designation per member,
-    -- dealt from who they were. The leader leads; the rest work their
-    -- class. Solo lives stay undesignated - that is a different day,
-    -- and the controller renders it honestly.
-    for _, mid in ipairs(members) do
-        local mrec = SAO.Identity and SAO.Identity.get(mid) or nil
-        if mrec then
-            if mid == bestId then
-                mrec.designation = "leads"
-            elseif mrec.designatedBy ~= "chair" then
-                -- The chair's assignments survive elections ([A27]):
-                -- the steward deals work only to the undealt.
-                local cls = (SAO.Census and SAO.Census.classOf)
-                    and SAO.Census.classOf(mrec.occupation) or nil
-                mrec.designation = (cls == "hardened" and "watch")
-                    or (cls == "outdoors" and "scout")
-                    or (cls == "carer" and "medic")
-                    or (cls == "settled" and "quartermaster")
-                    or "forager"
-                -- The deal follows the best hand ([B2]): the class
-                -- prior yields when this member's OWN skill for
-                -- another job beats their skill for the dealt one by
-                -- 3+ - the house hands the rifle to whoever can
-                -- shoot. Quartermaster has no honest perk (organized
-                -- is a trait, not a skill) - the class prior stands.
-                if SAO.Census.skillOf then
-                    -- [B20] The shared table - see Census.JOB_PERK.
-                    local JOB_PERK = SAO.Census.JOB_PERK or {}
-                    local dealt = mrec.designation
-                    local dealtPerk = JOB_PERK[dealt]
-                    local dealtLvl = dealtPerk
-                        and SAO.Census.skillOf(mid, dealtPerk) or 0
-                    if dealtLvl < 0 then dealtLvl = 0 end
-                    local bestJob, bestLvl = nil, dealtLvl
-                    for job, perk in pairs(JOB_PERK) do
-                        if job ~= dealt then
-                            local lvl = SAO.Census.skillOf(mid, perk)
-                            if lvl and lvl >= bestLvl + 3 then
-                                bestJob, bestLvl = job, lvl
-                            end
-                        end
-                    end
-                    if bestJob then
-                        mrec.designation = bestJob
-                        log(mid .. " takes the " .. bestJob
-                            .. " work - best hands for it ("
-                            .. bestLvl .. ")")
-                    end
-                end
-            end
-        end
-    end
-    updateElectionCreed(s, groupName)
-    applyElectionDivision(groupName, members)
-    applyAfflictedDispute(groupName, members)
-    reviewElectionWork(s, groupName, members)
-    -- The political economy of scale ([A26]): a COMMUNITY (8+) must
-    -- answer who eats first, and the answer comes from what the house
-    -- believes - order feeds the watch, mercy feeds the weakest, wall
-    -- feeds the house and no one else, road keeps every pack light.
-    -- Below 8 the question never formalizes (a band shares personally)
-    -- and any standing policy lapses. DISSENT is material: members
-    -- whose own class-creed conflicts with the policy lose a little
-    -- faith in the chair at every election - logistics feeding the
-    -- same trust, election, and schism machinery as everything else.
-    s.groupMeta = s.groupMeta or {}
-    do
-        local meta0 = s.groupMeta[groupName] or {}
-        if #members >= 8 then
-            -- [B23] Settled, not live - the policy follows what the
-            -- house has actually turned into.
-            local creedName0 = S.creedNameOf(groupName)
-            local policy = creedName0 and ({ order = "watch-first",
-                mercy = "weak-first", wall = "house-first",
-                road = "carry-light" })[creedName0] or nil
-            if policy and meta0.rationPolicy ~= policy then
-                meta0.rationPolicy = policy
-                -- Governance leaves traces: the change is chronicled
-                -- so a returning player DISCOVERS what the house
-                -- decided in their absence.
-                meta0.govHistory = meta0.govHistory or {}
-                local okGH, gh = pcall(function()
-                    return SAO.History.countyHours()
-                end)
-                meta0.govHistory[#meta0.govHistory + 1] = {
-                    kind = "policy", policy = policy,
-                    atHours = okGH and gh or 0,
-                }
-                s.groupMeta[groupName] = meta0
-                S.pushRadioNews({ kind = "policy", group = groupName,
-                    policy = policy })
-            end
-            local OPPOSED_POLICY = {
-                ["watch-first"] = "carer", ["house-first"] = "carer",
-                ["weak-first"] = "hardened",
-            }
-            local dissentClass = policy and OPPOSED_POLICY[policy] or nil
-            if dissentClass then
-                local lead0 = meta0.leaderId
-                for _, mid in ipairs(members) do
-                    if mid ~= lead0 then
-                        local mrec0 = SAO.Identity and SAO.Identity.get(mid)
-                        local cls0 = mrec0 and SAO.Census
-                            and SAO.Census.classOf
-                            and SAO.Census.classOf(mrec0.occupation) or nil
-                        if cls0 == dissentClass and lead0 then
-                            S.adjustTrust(mid, lead0, -0.02)
-                        end
-                    end
-                end
-            end
-        elseif meta0.rationPolicy then
-            meta0.rationPolicy = nil
-            s.groupMeta[groupName] = meta0
-        end
-    end
-
-    -- Doctrine colors the deal ([A24]): an ORDER company posts one
-    -- more watch - the first forager stands to it. Rules and watches
-    -- are what order means.
-    local creed = S.creedOf(groupName)
-    if creed and creed.name == "order" then
-        for _, mid in ipairs(members) do
-            local mrec = SAO.Identity and SAO.Identity.get(mid) or nil
-            if mrec and mrec.designation == "forager" then
-                mrec.designation = "watch"
-                break
-            end
-        end
-    end
-    -- The house adapts ([B13]): work was dealt from who people ARE
-    -- and never from what the house NEEDS. A company could hold a
-    -- fevered member and no medic until somebody died. Now an unmet
-    -- need pulls the best-suited person into the gap - skill first,
-    -- class affinity as tiebreak - and only from people whose
-    -- current job is not itself answering a need. One promotion per
-    -- election: houses change a person at a time.
-    do
-        local have = {}
-        for _, mid in ipairs(members) do
-            local mr = SAO.Identity and SAO.Identity.get(mid) or nil
-            if mr and mr.designation then have[mr.designation] = true end
-        end
-        local needJob = nil
-        local hurt = false
-        for _, mid in ipairs(members) do
-            local mb = SAO.Body and SAO.Body.get and SAO.Body.get(mid)
-            if mb and SAO.Needs then
-                if (SAO.Needs.bleeding and SAO.Needs.bleeding(mb) > 0)
-                    or (SAO.Needs.woundInfection
-                        and SAO.Needs.woundInfection(mb) > 0) then
-                    hurt = true
-                    break
-                end
-            end
-        end
-        if hurt and not have.medic then
-            needJob = "medic"
-        elseif not have.forager then
-            local lard = S.larderOf(groupName)
-            local wat = S.waterStoreOf(groupName)
-            local hear = S.hearthOf(groupName)
-            if (lard and lard.word == "lean")
-                or (wat and wat.word == "dry")
-                or (hear and hear.burning == false) then
-                needJob = "forager"
-            end
-        end
-        if not needJob and not have.watch then
-            for g2 in pairs(s.groupClaims or {}) do
-                if g2 ~= groupName and S.feudBetween(groupName, g2) then
-                    needJob = "watch"
-                    break
-                end
-            end
-        end
-        if needJob then
-            local NEED_PERK = { medic = "Doctor", forager = "Foraging",
-                watch = "Aiming" }
-            local ANSWERING = { medic = true, forager = true,
-                watch = true, leads = true }
-            local best, bestScore = nil, -1
-            for _, mid in ipairs(members) do
-                local mr = SAO.Identity and SAO.Identity.get(mid) or nil
-                if mr and not ANSWERING[mr.designation]
-                    and mr.designatedBy ~= "chair" then
-                    local sk = SAO.Census and SAO.Census.skillOf
-                        and SAO.Census.skillOf(mid, NEED_PERK[needJob]) or 0
-                    if sk < 0 then sk = 0 end
-                    local cls = SAO.Census and SAO.Census.classOf
-                        and SAO.Census.classOf(mr.occupation) or nil
-                    local affinity =
-                        (needJob == "medic" and cls == "carer" and 2)
-                        or (needJob == "forager" and cls == "outdoors" and 2)
-                        or (needJob == "watch" and cls == "hardened" and 2)
-                        or 0
-                    local score = sk + affinity
-                    if score > bestScore then
-                        best, bestScore = mid, score
-                    end
-                end
-            end
-            if best then
-                local brec = SAO.Identity.get(best)
-                if brec then
-                    brec.designation = needJob
-                    log(best .. " takes up the " .. needJob
-                        .. " work - the house needed one")
-                    if SAO.Body and SAO.Body.get and SAO.Body.get(best) then
-                        pcall(function()
-                            SAO.Voice.onEvent(best, "stepUp")
-                        end)
-                    end
-                end
-            end
-        end
-    end
-
-    -- [B8] A member under personal company pressure whose faith in the
-    -- chair has fallen below neutral may leave. The pressure is the same
-    -- firsthand reading used at admission; the roster has no capacity.
-    -- One departure per election, with the existing widow rule for a pair.
-    do
-        local metaW = s.groupMeta[groupName] or {}
-        local leadW = metaW.leaderId
-        if leadW and #members > 1 then
-            for memberIndex, mid in ipairs(members) do
-                if mid ~= leadW and S.trust(mid, leadW) < 0 then
-                    if S.companyPressure(mid, groupName) > 0 then
-                        s.groups[mid] = nil
-                        local wrecW = SAO.Identity and SAO.Identity.get
-                            and SAO.Identity.get(mid) or nil
-                        if wrecW then
-                            wrecW.designation = nil
-                            wrecW.designatedBy = nil
-                        end
-                        if SAO.Body and SAO.Body.get and SAO.Body.get(mid) then
-                            pcall(function()
-                                SAO.Voice.onEvent(mid, "walkOut")
-                            end)
-                        end
-                        log(mid .. " walks out of " .. tostring(groupName)
-                            .. " - personal needs and too little faith")
-                        table.remove(members, memberIndex)
-                        if #members == 1 then
-                            return S.electLeader(groupName)
-                        end
-                        break
-                    end
-                end
-            end
-        end
-    end
-
-    -- The council ([B7]): the house is already assembled here, and
-    -- three FRESH counts can say one thing together - this ground is
-    -- finished. Lean shelves, dry bottles, and a dark hearth is not
-    -- a mood; it is the house's own arithmetic. The claim is
-    -- released, the chronicle keeps it, and the settle machinery
-    -- carries them - it has always known how to find a home; now
-    -- there is nothing to go back to. Company-scale only: a pair
-    -- moves without a council.
-    if #members >= 4 then
-        local lard8 = S.larderOf(groupName)
-        local wat8 = S.waterStoreOf(groupName)
-        local hear8 = S.hearthOf(groupName)
-        if lard8 and wat8 and hear8
-            and lard8.word == "lean" and wat8.word == "dry"
-            and hear8.burning == false
-            and s.groupClaims and s.groupClaims[groupName] then
-            local metaA8 = s.groupMeta[groupName] or {}
-            local okA8, hA8 = pcall(function()
-                return SAO.History.countyHours()
-            end)
-            -- [B42] WHERE they gave up. Every other kind in this
-            -- history carries its subject - `creed` the creed, `form`
-            -- the form, `policy` the policy, `schism` how many walked -
-            -- and `abandon` carried a timestamp and nothing else, so
-            -- the Chronicle could say a house gave up their ground and
-            -- never which ground. Read off the claim before the line
-            -- below clears it, because after that nothing in the world
-            -- remembers it was theirs.
-            local goneA8 = s.groupClaims[groupName]
-            metaA8.govHistory = metaA8.govHistory or {}
-            metaA8.govHistory[#metaA8.govHistory + 1] = {
-                kind = "abandon", atHours = okA8 and hA8 or 0,
-                atX = goneA8 and math.floor(
-                    (goneA8.minX + goneA8.maxX) / 2) or nil,
-                atY = goneA8 and math.floor(
-                    (goneA8.minY + goneA8.maxY) / 2) or nil,
-            }
-            s.groupMeta[groupName] = metaA8
-            s.groupClaims[groupName] = nil
-            if SAO.Material and SAO.Material.forgetHouse then
-                SAO.Material.forgetHouse(groupName)
-            end
-            if SAO.Settlement and SAO.Settlement.clearStorageProjection then
-                SAO.Settlement.clearStorageProjection(groupName)
-            end
-            -- The counts that decided it are spent: the new ground
-            -- will be counted on its own terms.
-            metaA8.larder = nil
-            metaA8.waterStore = nil
-            metaA8.hearth = nil
-            -- And NOBODY GOES BACK ([B7], the audit's other half):
-            -- home fields still pointed at the dead ground, so dusk
-            -- homing and dormant night-drift would have walked them
-            -- home to the place they just gave up. Cleared - they
-            -- have no home until they find one, and both homing
-            -- paths already guard on its absence. The settle
-            -- machinery re-homes the whole roster at arrival.
-            for _, mid8 in ipairs(members) do
-                local mrec8 = SAO.Identity and SAO.Identity.get
-                    and SAO.Identity.get(mid8) or nil
-                if mrec8 then
-                    mrec8.homeX, mrec8.homeY, mrec8.homeZ = nil, nil, nil
-                end
-            end
-            S.pushRadioNews({ kind = "abandon", group = groupName })
-            -- The house says it out loud - whoever is standing there
-            -- to hear it. Voice is client-side; the guard keeps the
-            -- shared layer honest in any context.
-            for _, mid8 in ipairs(members) do
-                if SAO.Body and SAO.Body.get and SAO.Body.get(mid8) then
-                    pcall(function()
-                        SAO.Voice.onEvent(mid8, "abandon")
-                    end)
-                    break
-                end
-            end
-            log("COUNCIL: " .. tostring(groupName)
-                .. " gives up its ground - lean, dry, and dark")
-        end
-    end
-
-    -- Housekeeping ([B5] discipline, applied here because every
-    -- living house passes this table): the chronicles APPEND - policy
-    -- turns, schisms, pacts, wars - and a long county would grow them
-    -- without end inside a save. Trimmed oldest-first to the last 40
-    -- entries each; the Chronicle reads the recent past, and the
-    -- county's oldest griefs pass out of living memory the way they
-    -- do among people. Group death still lapses the whole meta
-    -- (verified: the roster-empty and widow branches nil it whole).
-    do
-        local metaH = s.groupMeta[groupName]
-        if metaH then
-            for _, field in ipairs({ "govHistory", "feudHistory" }) do
-                local list = metaH[field]
-                if type(list) == "table" then
-                    while #list > 40 do table.remove(list, 1) end
-                end
-            end
-        end
-    end
-
-    -- [A27] Unmet personal needs can erode faith in the chair. Keep the
-    -- existing election cadence and ordinary -0.02 consequence; only the
-    -- cause changes from a headcount to this member's own pressure weighing
-    -- more than their trust and social need. A supported member stays content.
-    do
-        local metaK = s.groupMeta[groupName] or {}
-        local leadK = metaK.leaderId
-        if leadK and #members > 1 then
-            for _, mid in ipairs(members) do
-                if mid ~= leadK then
-                    if S.companyPressure(mid, groupName)
-                        > S.companyStanding(mid, leadK) then
-                        S.adjustTrust(mid, leadK, -0.02)
-                    end
-                end
-            end
-        end
-    end
-
-    -- The chair ([A27]): a house whose members trust their player
-    -- fellow past the peak OFFERS the chair - governance by the user
-    -- is granted by the governed, never taken. A chaired house whose
-    -- trust collapses takes the chair back at the same table.
-    do
-        local metaC = s.groupMeta[groupName] or {}
-        local pKey = metaC.playerMemberOf
-        if pKey then
-            local sumC, nC = 0, 0
-            for _, mid in ipairs(members) do
-                sumC = sumC + S.trust(mid, pKey)
-                nC = nC + 1
-            end
-            local avgC = nC > 0 and (sumC / nC) or 0
-            local okCH, ch = pcall(function()
-                return SAO.History.countyHours()
-            end)
-            local nowC = okCH and ch or 0
-            if metaC.playerChair then
-                if avgC < 0.2 then
-                    metaC.playerChair = nil
-                    metaC.govHistory = metaC.govHistory or {}
-                    metaC.govHistory[#metaC.govHistory + 1] = {
-                        kind = "unseated", atHours = nowC,
-                    }
-                    S.pushRadioNews({ kind = "unseated",
-                        group = groupName })
-                    -- [C105] The office empties with the fact.
-                    if SAO.Recognition then
-                        SAO.Recognition.onChairWithdrawn(groupName, pKey)
-                    end
-                end
-            elseif not metaC.chairOffer
-                and avgC > 0.55
-                and nowC - (metaC.chairDeclinedAt or -1e9) > 48 then
-                metaC.chairOffer = pKey
-                -- [C105] The offer is the recognition half of the
-                -- claim, filed the moment the house makes it.
-                if SAO.Recognition then
-                    SAO.Recognition.onChairOffered(groupName, pKey)
-                end
-            end
-            s.groupMeta[groupName] = metaC
-        end
-    end
-    local meta = s.groupMeta[groupName] or {}
-    local old = meta.leaderId
-    if old ~= bestId then
-        meta.leaderId = bestId
-        local okH, h = pcall(function()
-            return SAO.History.countyHours()
-        end)
-        meta.sinceHours = okH and h or 0
-        s.groupMeta[groupName] = meta
-        S.pushRadioNews({ kind = "election", group = groupName,
-            leader = bestId })
-    end
-    -- [C105] The settle is the recognition event: the record layer
-    -- hears what the house just did. A hook, never a cause.
-    if SAO.Recognition then
-        SAO.Recognition.onElection(groupName, bestId, members)
-    end
-    return bestId, old
+    return nil, S.leaderOf(groupName), "explicit-process-required"
 end
 
 -- Doctrine (census C5, [A18]): a company's creed is RENDERED from its
@@ -2036,6 +1704,15 @@ function S.leansToward(id)
     return best
 end
 
+-- A lived pull supplies one person's preference, never the house's form.
+-- Multiple delivered commitments or an explicitly held office are what the
+-- form summary observes later.
+function S.formPreferenceOf(id)
+    local pull = S.leansToward(id)
+    if not pull then return nil end
+    return STRUCTURED_CREED[pull] and "ladder" or "council"
+end
+
 -- [B23] What FORM this house has taken. Not "how much hierarchy" -
 -- how many settled truths are under the roof, and whether the house
 -- can afford to argue about it.
@@ -2065,7 +1742,9 @@ end
 -- [B23] and was the one thing that never travelled.
 function S.callForBread(groupName, speakerId)
     local s = store(); if not s then return false end
-    if not groupName then return false end
+    if not groupName or type(speakerId) ~= "string" or speakerId == "" then
+        return false
+    end
     groupName = tostring(groupName)
     s.groupMeta = s.groupMeta or {}
     local meta = s.groupMeta[groupName] or {}
@@ -2077,21 +1756,78 @@ function S.callForBread(groupName, speakerId)
     if meta.askedAtHours and now - meta.askedAtHours < 72 then
         return false
     end
-    -- The person who made the request knows it. Other minds acquire it only
-    -- through an admitted conversation or a separately proven radio receipt.
+    -- The concrete proposal is owned by Organization. The speaker's larder
+    -- observation stays private; recipients get only the terms and destination
+    -- carried by speech or a separately proved radio receipt.
+    local process = nil
     if speakerId then
         if S.groupOf(speakerId) ~= groupName
-            or not (SAO.Perception and SAO.Perception.recordAidRequest) then return false end
+            or not (SAO.Perception and SAO.Perception.recordAidRequest
+                and SAO.Organization and SAO.Organization.raiseMatter) then
+            return false
+        end
+        local claim = S.groupClaimOf(groupName)
+        local larder = S.larderOf(groupName)
+        process = SAO.Organization.raiseMatter(speakerId,
+            "food-delivery", groupName, {
+                requesterId = speakerId,
+                targetGroup = groupName,
+                category = "food",
+                quantity = 1,
+                responsePolicy = "first-completion",
+                expiresAtHours = now + 72,
+                destinationRequired = true,
+                requiredCapabilities = {
+                    acquire = true, carry = true, deliver = true,
+                },
+                destination = claim and {
+                    minX = claim.minX, minY = claim.minY,
+                    maxX = claim.maxX, maxY = claim.maxY,
+                    z = claim.z or 0,
+                } or {},
+                scope = { action = "acquire-carry-deliver",
+                    category = "food", quantity = 1,
+                    targetGroup = groupName },
+            }, {}, {
+                source = "private-house-situation",
+                speakerId = speakerId,
+                larder = larder and {
+                    word = larder.word, amount = larder.amount,
+                    provenance = larder.provenance,
+                } or { availability = "unobserved" },
+            })
+        if not process then return false end
         if SAO.Perception.recordAidRequest(
-            speakerId, groupName, now, "requested", nil, "food") ~= true then
+            speakerId, groupName, now, "requested", nil, "food",
+            process.id, process.revision, "authored",
+            { source = "call-for-bread" }) ~= true then
+            process.status = "withdrawn"
             return false
         end
     end
     meta.askedAtHours = now
     s.groupMeta[groupName] = meta
+    meta.activeAidProcessId = process and process.id or nil
+    s.groupMeta[groupName] = meta
     S.pushRadioNews({ kind = "ask", group = groupName, requestedAt = now,
-        speakerId = speakerId })
+        speakerId = speakerId, processId = process and process.id or nil,
+        processRevision = process and process.revision or nil })
     return true
+end
+
+-- A member can turn the shortage they presently live with into a concrete
+-- proposal. This is called from both represented and dormant life; the
+-- seventy-two-hour source cooldown makes those execution modes one producer.
+function S.maybeCallForBread(id)
+    id = tostring(id or "")
+    if id == "" then return false end
+    local rec = SAO.Identity and SAO.Identity.get and SAO.Identity.get(id)
+    if not rec or rec.dead then return false end
+    local groupName = S.groupOf(id)
+    if not groupName then return false end
+    local larder = S.larderOf(groupName)
+    if not larder or larder.word ~= "lean" then return false end
+    return S.callForBread(groupName, id)
 end
 
 -- Whether a creed answers a stranger's hunger, read off the ration
@@ -2153,129 +1889,100 @@ function S.nearestAsking(fromGroup, actorId)
     return best, bestClaim
 end
 
--- [B23] The option to say how it should be. INFLUENCE, not command:
--- the operator's ruling that meeting enough people should earn the
--- option to say how the house ought to be - so it is gated on
--- standing, and it takes only where the house's own shape allows.
---
--- It is a standing wish rather than a one-shot order, and it fades.
--- A house does not remember being lectured forever.
-function S.urgeForm(groupName, playerKey, form)
-    local s = store(); if not s then return false end
-    if not (groupName and form) then return false end
-    groupName = tostring(groupName)
-    -- Only the two a person can actually ASK for. Nobody urges a
-    -- house to split, and nobody urges away an empty larder.
-    if form ~= "council" and form ~= "ladder" then return false end
-    s.groupMeta = s.groupMeta or {}
-    local meta = s.groupMeta[groupName] or {}
-    local okH, h = pcall(function()
-        return SAO.History.countyHours()
-    end)
-    meta.urgedForm = form
-    meta.urgedAtHours = okH and h or 0
-    meta.urgedBy = playerKey
-    s.groupMeta[groupName] = meta
-    return true
+-- A player can raise a concrete arrangement with the person they are
+-- actually speaking to. That person receives and answers for themselves;
+-- neither the click nor their answer settles the absent roster's form.
+function S.urgeForm(groupName, playerKey, form, recipientId)
+    local options = SandboxVars and SandboxVars.SurvivorAwareness or nil
+    if options and options.PlayerInteraction == false then return nil end
+    if not (groupName and playerKey and recipientId and SAO.Organization)
+        or (form ~= "council" and form ~= "ladder")
+        or S.groupOf(recipientId) ~= tostring(groupName) then return nil end
+    groupName, playerKey, recipientId = tostring(groupName),
+        tostring(playerKey), tostring(recipientId)
+    local process = SAO.Organization.raiseMatter(playerKey,
+        "governance-form", groupName, {
+            proposedForm = form,
+            scope = { action = "support-form-proposal",
+                organization = groupName, arrangement = true },
+        }, { recipientId }, {
+            source = "player-conversation", proposedForm = form,
+        })
+    if not process then return nil end
+    if not SAO.Organization.recordReception(process.id, recipientId,
+        process.revision, "spoken", playerKey,
+        { actualRecipient = true }) then return process end
+    local activity = "dormant"
+    local agent = SAO.Controller and SAO.Controller.agents
+        and SAO.Controller.agents[recipientId] or nil
+    if agent then activity = string.lower(tostring(agent.state or "idle")) end
+    local trust = S.trust(recipientId, playerKey)
+    local hostile = S.isHostileTo(recipientId, playerKey)
+    local preference = S.formPreferenceOf
+        and S.formPreferenceOf(recipientId) or nil
+    local choice = hostile and "contest"
+        or (activity ~= "idle" and activity ~= "dormant") and "defer"
+        or preference == form and "accept"
+        or preference and "counter-propose"
+        or trust >= 0.30 and "qualify"
+        or "defer"
+    local response = SAO.Organization.appraiseMatter(process.id,
+        recipientId, {
+            owner = "Standing.urgeForm", executor = "SAO.Standing",
+            currentActivity = activity, relationship = trust,
+            contest = hostile, destinationKnown = true, choice = choice,
+            terms = choice == "counter-propose"
+                and { proposedForm = preference }
+                or choice == "qualify" and { needsOtherParticipants = true }
+                or {},
+            interests = { preferredForm = preference,
+                currentForm = S.formOf(groupName) },
+            constraints = { actualRecipient = true },
+        })
+    if response then
+        SAO.Organization.deliverResponse(process.id, recipientId,
+            playerKey, "spoken", { actualRecipient = true })
+    end
+    return process, response
 end
 
+-- Form is a summary of enacted arrangements, not a target selected from
+-- creed, scarcity, roster size, or an urged label.
 function S.formOf(groupName)
-    local s = store(); if not s then return "empty" end
-    if not groupName then return "empty" end
+    if not groupName or S.groupSize(groupName) < 2 then return "empty" end
     groupName = tostring(groupName)
-    -- FLIGHT first, because it is terminal and it is not a form of
-    -- government at all - it is what is left when nobody held. The
-    -- same three counts [B7] reads before it gives up the ground.
-    local lardF = S.larderOf(groupName)
-    local watF = S.waterStoreOf(groupName)
-    local hearF = S.hearthOf(groupName)
-    if lardF and watF and hearF
-        and lardF.word == "lean" and watF.word == "dry"
-        and hearF.burning == false then
-        return "flight"
-    end
-    local live = S.creedOf(groupName)
-    local settled = S.creedNameOf(groupName)
-    if not (live and settled) then return "empty" end
-    local n = live.size or 0
-    if n < 3 then return "empty" end
-    -- DIVIDED: not two different creeds, two OPPOSED ones. The tree
-    -- has said which oppose which since [A18] - rules chafe the free,
-    -- gates chafe the open hand.
-    -- [B25] The quarrel a house is ACTUALLY having. This used to
-    -- compare the settled creed against its formal opposite - but
-    -- [B24] made the settled creed baseline-relative while these
-    -- components stayed raw, so the two can name different pairs. A
-    -- house holding wall 4.5 against mercy 2.0, named `road` because
-    -- road is what it has unusually much of, was checked for a
-    -- road-versus-order split, found none, and called undivided.
-    --
-    -- So: find the opposed pair the house is genuinely contesting -
-    -- the one whose WEAKER side is strongest, since that is the
-    -- faction with enough followers to be a faction at all - rather
-    -- than assuming the argument must involve the house's name.
-    local mine, theirs, foe = 0, 0, nil
-    do
-        local bestFloor = -1
-        for _, a in ipairs(CREED_KEYS) do
-            local b = CREED_OPPOSES[a]
-            local va = (live.comp and live.comp[a]) or 0
-            local vb = (b and live.comp and live.comp[b]) or 0
-            local floor = (va < vb) and va or vb
-            if b and floor > bestFloor then
-                bestFloor = floor
-                if va >= vb then
-                    mine, theirs, foe = va, vb, b
-                else
-                    mine, theirs, foe = vb, va, a
+    local holderCount, contested, shared = 0, false, 0
+    if SAO.Organization then
+        for _, office in pairs(SAO.Organization.offices or {}) do
+            if office.organization == groupName then
+                for _, holder in pairs(office.holders or {}) do
+                    if type(holder) == "table" and holder.commitmentId then
+                        holderCount = holderCount + 1
+                    end
+                end
+            end
+        end
+        for _, process in pairs(SAO.Organization.processes or {}) do
+            local revision = process.revisions
+                and process.revisions[tostring(process.revision or 1)] or nil
+            local scope = revision and revision.proposal
+                and revision.proposal.scope or nil
+            if process.organizationId == groupName
+                and type(scope) == "table" and scope.arrangement == true then
+                contested = contested or process.contested == true
+                for _, commitment in pairs(process.commitments or {}) do
+                    if commitment.status == "accepted"
+                        or commitment.status == "in-progress" then
+                        shared = shared + 1
+                    end
                 end
             end
         end
     end
-    -- [B25] The near-parity clause `(mine - theirs) < 1.5` is gone,
-    -- and this is a correction rather than a tuning. The operator's
-    -- conditions were "density, surplus enough to stay, and A MARGIN
-    -- OF FOLLOWERS" - and `theirs >= 1.5` IS that margin. Requiring
-    -- the two sides to be nearly EQUAL was something [B23] added on
-    -- its own, and it meant a house of seven holding four for wall
-    -- and three for mercy was not considered divided.
-    --
-    -- A faction does not need parity to split a house. [B23]'s schism
-    -- leaves with "everyone who trusts the core more than the
-    -- leader", which a determined minority can absolutely carry.
-    if n >= 4 and foe and theirs >= 1.5 then
-        -- Surplus enough to STAY. A house with nothing left does not
-        -- hold a quarrel; people leave.
-        local lard = S.larderOf(groupName)
-        if not (lard and lard.word == "lean") then
-            return "divided"
-        end
-    end
-    -- [B23] A standing wish from someone with the house's ear. It is
-    -- checked AFTER flight and division on purpose: you cannot talk a
-    -- splitting house back together, and you cannot wish shelves
-    -- full. It fades after a week of world time.
-    local meta = s.groupMeta and s.groupMeta[groupName] or nil
-    if meta and meta.urgedForm then
-        local okU, hu = pcall(function()
-            return SAO.History.countyHours()
-        end)
-        local fresh = okU and (hu - (meta.urgedAtHours or 0)) <= 168
-        if fresh then
-            if meta.urgedForm == "ladder" then return "ladder" end
-            if meta.urgedForm == "council" then
-                local lardU = S.larderOf(groupName)
-                -- Talk is still a luxury of surplus, whoever asked.
-                if not (lardU and lardU.word == "lean") then
-                    return "council"
-                end
-            end
-        end
-    end
-    if STRUCTURED_CREED[settled] then return "ladder" end
-    local lard2 = S.larderOf(groupName)
-    if lard2 and lard2.word == "lean" then return "ladder" end
-    return "council"
+    if contested then return "divided" end
+    if holderCount > 1 or shared > 1 then return "council" end
+    if holderCount == 1 then return "ladder" end
+    return "unsettled"
 end
 
 -- [B23] What a house has SETTLED into, as opposed to what a single
@@ -2304,43 +2011,17 @@ end
 -- ceremony: standing shifts the moment trust does, which is how
 -- [B21]'s "kept work becomes standing" reaches the top of a house.
 function S.secondOf(groupName)
-    local s = store(); if not s then return nil end
-    if not groupName then return nil end
-    groupName = tostring(groupName)
-    -- [B23] A deputy belongs to the LADDER form. A divided house has
-    -- no second because it has no single voice to be second to, and a
-    -- council house does not want one.
-    if S.formOf(groupName) ~= "ladder" then return nil end
-    local members = {}
-    for id, g in pairs(s.groups) do
-        if tostring(g) == groupName then
-            local rec = SAO.Identity and SAO.Identity.get(id) or nil
-            if not (rec and rec.dead) then
-                members[#members + 1] = id
-            end
+    if not (groupName and SAO.Organization) then return nil end
+    local office = SAO.Organization.offices[
+        tostring(groupName) .. ":deputy"]
+    local found = nil
+    for personId, evidence in pairs(office and office.holders or {}) do
+        if type(evidence) == "table" and evidence.commitmentId then
+            if found then return nil end
+            found = personId
         end
     end
-    -- A leader and one other person is not a hierarchy, it is two
-    -- people.
-    if #members < 3 then return nil end
-    table.sort(members)
-    local meta = s.groupMeta and s.groupMeta[groupName] or nil
-    local lead = meta and meta.leaderId or nil
-    local bestId, bestSum = nil, nil
-    for _, id in ipairs(members) do
-        if id ~= lead then
-            local sum = 0
-            for _, otherId in ipairs(members) do
-                if otherId ~= id then
-                    sum = sum + S.trust(otherId, id)
-                end
-            end
-            if not bestSum or sum > bestSum then
-                bestId, bestSum = id, sum
-            end
-        end
-    end
-    return bestId
+    return found
 end
 
 function S.creedOf(groupName)
@@ -2434,92 +2115,19 @@ function S.feudBetween(gA, gB)
     return true
 end
 
--- Peace has a path ([A21]): a feud lifts when the two LEADERS meet
--- with mutual personal trust healed past 0.3 - the warm channels
--- (charity, barter, smoke shares, witnessed respect) still run during
--- a feud, so peace is EARNED person-to-person by the two people who
--- can end it. Returns true when the feud lifted.
--- Feud history ([A22]): the county remembers its wars - declaration
--- and peace timestamps on the meta of each side.
-local function noteFeudEvent(s, gA, gB, field)
-    local okH, h = pcall(function()
-        return SAO.History.countyHours()
-    end)
-    local at = okH and h or 0
-    S.pushRadioNews({
-        kind = (field == "declaredAtHours") and "feud" or "peace",
-        a = tostring(gA), b = tostring(gB),
-    })
-    for _, pair in ipairs({ { gA, gB }, { gB, gA } }) do
-        local meta = s.groupMeta[tostring(pair[1])] or {}
-        meta.feudHistory = meta.feudHistory or {}
-        local entry = nil
-        for i = #meta.feudHistory, 1, -1 do
-            if meta.feudHistory[i].other == tostring(pair[2])
-                and not meta.feudHistory[i].liftedAtHours then
-                entry = meta.feudHistory[i]
-                break
-            end
-        end
-        if field == "declaredAtHours" then
-            if not entry then
-                meta.feudHistory[#meta.feudHistory + 1] = {
-                    other = tostring(pair[2]), declaredAtHours = at,
-                }
-            end
-        elseif entry then
-            entry.liftedAtHours = at
-        end
-        s.groupMeta[tostring(pair[1])] = meta
-    end
-end
-
+-- Compatibility entry points for the old trust-triggered treaty mutations.
+-- An encounter and a score can motivate a proposal; neither can enact a pact
+-- or peace for two absent rosters.
 function S.tryPeace(idA, idB, gA, gB)
-    local s = store(); if not s then return false end
-    if S.leaderOf(gA) ~= tostring(idA) or S.leaderOf(gB) ~= tostring(idB) then
-        return false
-    end
-    if S.trust(idA, idB) <= 0.3 or S.trust(idB, idA) <= 0.3 then
-        return false
-    end
-    local metaA = s.groupMeta[tostring(gA)]
-    local metaB = s.groupMeta[tostring(gB)]
-    if metaA and metaA.feudWith then metaA.feudWith[tostring(gB)] = nil end
-    if metaB and metaB.feudWith then metaB.feudWith[tostring(gA)] = nil end
-    noteFeudEvent(s, gA, gB, "liftedAtHours")
-    return true
-end
-
--- Hostile cross-pairs between two rosters (living members only) - the
--- evidence a feud declaration stands on.
-local function hostileCrossPairs(s, gA, gB)
-    local count = 0
-    for idA, g in pairs(s.groups) do
-        if tostring(g) == tostring(gA) then
-            local recA = SAO.Identity and SAO.Identity.get(idA) or nil
-            if not (recA and recA.dead) then
-                for idB, g2 in pairs(s.groups) do
-                    if tostring(g2) == tostring(gB) then
-                        local recB = SAO.Identity and SAO.Identity.get(idB) or nil
-                        if not (recB and recB.dead)
-                            and (S.isHostileTo(idA, idB)
-                                or S.isHostileTo(idB, idA)) then
-                            count = count + 1
-                        end
-                    end
-                end
-            end
-        end
-    end
-    return count
+    return false, "explicit-process-required"
 end
 
 function S.politick(idA, idB, tick)
     local gA, gB = S.groupOf(idA), S.groupOf(idB)
     if not gA or not gB or tostring(gA) == tostring(gB) then return nil end
-    -- Feuding companies are done talking ([A20]) - unless the two
-    -- who CAN end it meet with trust healed ([A21]): leaders whose
-    -- mutual regard crossed 0.3 lift the feud on the spot.
+    -- A feud remains a live constraint until an explicit inter-group process
+    -- changes it. Contact or repaired trust can motivate that process; neither
+    -- silently lifts the recorded conflict.
     if S.feudBetween(gA, gB) then
         if S.tryPeace(idA, idB, gA, gB) then
             return "peace"
@@ -2542,9 +2150,6 @@ function S.politick(idA, idB, tick)
     if verdict == "aligned" then
         S.adjustTrust(idA, idB, 0.05)
         S.adjustTrust(idB, idA, 0.05)
-        if S.tryPact(idA, idB, gA, gB) then
-            return "pact"
-        end
     elseif verdict == "opposed" then
         local tAB = S.adjustTrust(idA, idB, -0.08)
         local tBA = S.adjustTrust(idB, idA, -0.08)
@@ -2570,50 +2175,6 @@ function S.politick(idA, idB, tick)
             S.setHostile(idA, idB, true)
             S.setHostile(idB, idA, true)
             verdict = "hostile"
-            -- Two hostile cross-pairs make it the COMPANIES' business:
-            -- the feud settles on both metas, once.
-            local s2 = store()
-            if s2 and hostileCrossPairs(s2, gA, gB) >= 2 then
-                s2.groupMeta = s2.groupMeta or {}
-                local metaA = s2.groupMeta[tostring(gA)] or {}
-                local metaB = s2.groupMeta[tostring(gB)] or {}
-                metaA.feudWith = metaA.feudWith or {}
-                metaB.feudWith = metaB.feudWith or {}
-                if not metaA.feudWith[tostring(gB)] then
-                    metaA.feudWith[tostring(gB)] = true
-                    metaB.feudWith[tostring(gA)] = true
-                    -- A feud between pact partners is BETRAYAL
-                    -- ([A26]): the pact dies, the chronicle says so,
-                    -- and the two leaders carry the extra wound.
-                    if metaA.pactWith and metaA.pactWith[tostring(gB)] then
-                        metaA.pactWith[tostring(gB)] = nil
-                        if metaB.pactWith then
-                            metaB.pactWith[tostring(gA)] = nil
-                        end
-                        local okBH, bh = pcall(function()
-                            return SAO.History.countyHours()
-                        end)
-                        local bAt = okBH and bh or 0
-                        for _, pr in ipairs({ { metaA, gB }, { metaB, gA } }) do
-                            pr[1].govHistory = pr[1].govHistory or {}
-                            pr[1].govHistory[#pr[1].govHistory + 1] = {
-                                kind = "pactBroke",
-                                other = tostring(pr[2]), atHours = bAt,
-                            }
-                        end
-                        if metaA.leaderId and metaB.leaderId then
-                            S.adjustTrust(metaA.leaderId, metaB.leaderId, -0.2)
-                            S.adjustTrust(metaB.leaderId, metaA.leaderId, -0.2)
-                        end
-                        S.pushRadioNews({ kind = "pactBroke",
-                            a = tostring(gA), b = tostring(gB) })
-                    end
-                    s2.groupMeta[tostring(gA)] = metaA
-                    s2.groupMeta[tostring(gB)] = metaB
-                    noteFeudEvent(s2, gA, gB, "declaredAtHours")
-                    verdict = "feud-declared"
-                end
-            end
         end
     end
     return verdict
@@ -2667,123 +2228,10 @@ function S.migrateKey(oldKey, newKey)
     return moved
 end
 
--- Schism ([A22]): when a company holds INTERNAL mutual hostility, it
--- splits. The leader's bloc keeps the name and the ground; the
--- estranged core plus everyone trusting them more than the leader
--- leave and found their own company, at feud with the old house from
--- the first breath - the split is the declaration. Returns the new
--- group name, or nil when the house stands. Never called from inside
--- electLeader (the callers are meeting-time seams); leaveGroup/join
--- re-elections inside are recursion-safe because this function is not
--- in that path.
-function S.checkSchism(groupName)
-    local s = store(); if not s then return nil end
-    groupName = tostring(groupName)
-    local members = {}
-    for id, g in pairs(s.groups) do
-        if tostring(g) == groupName then
-            local rec = SAO.Identity and SAO.Identity.get(id) or nil
-            if not (rec and rec.dead) then
-                members[#members + 1] = id
-            end
-        end
-    end
-    if #members < 3 then return nil end
-    table.sort(members)
-    -- Any mutually hostile pair inside the roster?
-    local pairA, pairB = nil, nil
-    for i = 1, #members do
-        for j = i + 1, #members do
-            if S.isHostileTo(members[i], members[j])
-                and S.isHostileTo(members[j], members[i]) then
-                pairA, pairB = members[i], members[j]
-                break
-            end
-        end
-        if pairA then break end
-    end
-    if not pairA then return nil end
-    local leader = S.leaderOf(groupName)
-    -- The estranged core: whichever of the pair stands further from
-    -- the chair - the leader's enemy if the pair touches the leader,
-    -- else the one the roster trusts less.
-    local core
-    if pairA == leader then core = pairB
-    elseif pairB == leader then core = pairA
-    else
-        local sumA, sumB = 0, 0
-        for _, m in ipairs(members) do
-            if m ~= pairA then sumA = sumA + S.trust(m, pairA) end
-            if m ~= pairB then sumB = sumB + S.trust(m, pairB) end
-        end
-        core = (sumA <= sumB) and pairA or pairB
-    end
-    if core == leader then return nil end
-    -- The leaving bloc: the core and everyone who trusts them more
-    -- than the leader.
-    local leavers = { core }
-    for _, m in ipairs(members) do
-        if m ~= core and m ~= leader
-            and S.trust(m, core) > S.trust(m, leader) then
-            leavers[#leavers + 1] = m
-        end
-    end
-    -- A schism of ONE is an exile, not a rival house: the core leaves
-    -- alone (keeps their home; the personal hostility already speaks)
-    -- and no new company or feud forms.
-    if #leavers < 2 then
-        s.groups[core] = nil
-        local crec = SAO.Identity and SAO.Identity.get(core) or nil
-        if crec then crec.designation = nil end
-        S.electLeader(groupName)
-        return nil
-    end
-    local newGroup = "schism-" .. tostring(core)
-    -- The break is chronicled on the house that broke.
-    do
-        local metaS = s.groupMeta[groupName] or {}
-        metaS.govHistory = metaS.govHistory or {}
-        local okGH, gh = pcall(function()
-            return SAO.History.countyHours()
-        end)
-        metaS.govHistory[#metaS.govHistory + 1] = {
-            kind = "schism", left = #leavers,
-            atHours = okGH and gh or 0,
-        }
-        s.groupMeta[groupName] = metaS
-        S.pushRadioNews({ kind = "schism", group = groupName,
-            left = #leavers })
-    end
-    for _, m in ipairs(leavers) do
-        s.groups[m] = nil
-        local mrec = SAO.Identity and SAO.Identity.get(m) or nil
-        if mrec then mrec.designation = nil end
-    end
-    S.electLeader(groupName)
-    -- Batch-join THEN one election: joining one-by-one would run the
-    -- widow release at roster size 1 and dissolve the new house as it
-    -- formed. The store is this verb's to write.
-    for _, m in ipairs(leavers) do
-        s.groups[m] = newGroup
-    end
-    S.electLeader(newGroup)
-    -- The split is the declaration: the two houses start at feud.
-    s.groupMeta = s.groupMeta or {}
-    local metaOld = s.groupMeta[groupName] or {}
-    local metaNew = s.groupMeta[newGroup] or {}
-    metaOld.feudWith = metaOld.feudWith or {}
-    metaNew.feudWith = metaNew.feudWith or {}
-    metaOld.feudWith[newGroup] = true
-    metaNew.feudWith[groupName] = true
-    s.groupMeta[groupName] = metaOld
-    s.groupMeta[newGroup] = metaNew
-    noteFeudEvent(s, groupName, newGroup, "declaredAtHours")
-    -- [C105] The leavers answered with exit; the record hears the
-    -- break on the house that broke.
-    if SAO.Recognition then
-        SAO.Recognition.onSchism(groupName, core, #leavers)
-    end
-    return newGroup, core, #leavers
+-- Hostility is evidence a person may use in a withdrawal proposal; it no
+-- longer moves rosters, creates a faction, or declares a feud by score.
+function S.checkSchism(_groupName)
+    return nil, nil, 0, "explicit-process-required"
 end
 
 -- The community's standing answer to who eats first, or nil below the
@@ -2836,29 +2284,7 @@ function S.groupChairedBy(playerKey)
 end
 
 function S.acceptChair(groupName, playerKey)
-    local s = store(); if not s then return false end
-    local meta = s.groupMeta and s.groupMeta[tostring(groupName)] or nil
-    if not meta or meta.chairOffer ~= tostring(playerKey) then
-        return false
-    end
-    meta.chairOffer = nil
-    meta.playerChair = tostring(playerKey)
-    local okH, h = pcall(function()
-        return SAO.History.countyHours()
-    end)
-    meta.govHistory = meta.govHistory or {}
-    meta.govHistory[#meta.govHistory + 1] = {
-        kind = "chair", atHours = okH and h or 0,
-    }
-    s.groupMeta[tostring(groupName)] = meta
-    S.pushRadioNews({ kind = "chair", group = groupName })
-    -- [C105] The offer was the house's recognition; the sitting is
-    -- the response. The record hears both.
-    if SAO.Recognition then
-        SAO.Recognition.onChairTaken(tostring(groupName),
-            tostring(playerKey))
-    end
-    return true
+    return false, "explicit-process-required"
 end
 
 function S.declineChair(groupName)
@@ -2879,22 +2305,82 @@ function S.declineChair(groupName)
     return true
 end
 
--- The promise ([B3]): "if I turn, you do it" is a CLAIM between two
--- people, recorded at the moment it is asked, kept or carried.
+-- "If I turn, you do it" is a concrete addressed proposal. The old path
+-- wrote the hearer into `promises` at the instant the bitten person spoke,
+-- which converted hearing into assent. The compatibility projection below
+-- is written only after the hearer's delivered acceptance; Organization owns
+-- the durable response, scope and responsibility.
 function S.recordPromise(bittenId, keeperId)
-    local s = store(); if not s then return end
-    s.promises = s.promises or {}
-    s.promises[tostring(bittenId)] = tostring(keeperId)
-    -- [C105] The ask is the claim ([B3]).
-    if SAO.Recognition then
-        SAO.Recognition.onPromiseAsked(tostring(bittenId),
-            tostring(keeperId))
+    bittenId, keeperId = tostring(bittenId or ""), tostring(keeperId or "")
+    local s = store()
+    if not s or bittenId == "" or keeperId == ""
+        or not (SAO.Organization and SAO.Communication)
+        or SAO.Communication.canConverse(bittenId, keeperId) ~= true then
+        return nil, "not-delivered"
     end
+    local process = SAO.Organization.raiseMatter(bittenId, "promise",
+        S.groupOf(bittenId), {
+            action = "mercy-if-turned", recipientId = keeperId,
+            requiredCapabilities = { execute = true },
+            scope = { responsibility = "mercy-if-turned",
+                personId = bittenId },
+        }, { keeperId }, { source = "spoken-promise-request" })
+    if not process or not SAO.Organization.recordReception(process.id,
+        keeperId, process.revision, "spoken", bittenId,
+        { actualRecipient = true }) then return process, "not-delivered" end
+    local rec = SAO.Identity and SAO.Identity.get(keeperId) or nil
+    local snapshot = SAO.Communication.actorSnapshot(keeperId) or {}
+    local activity = snapshot.currentActivity or "dormant"
+    local trust, hostile, nerve = S.trust(keeperId, bittenId), false, 0.5
+    pcall(function()
+        hostile = S.isHostileTo(keeperId, bittenId) == true
+        nerve = SAO.Disposition.traits(keeperId).nerve or nerve
+    end)
+    local choice = hostile and "contest"
+        or (activity ~= "idle" and activity ~= "dormant") and "defer"
+        or (rec and not rec.dead and nerve >= 0.45 and trust >= 0.15)
+            and "accept"
+        or "decline"
+    local response = SAO.Organization.appraiseMatter(process.id, keeperId, {
+        owner = "Standing.recordPromise", executor = "SAO.Standing",
+        currentActivity = activity, relationship = trust,
+        canExecute = rec ~= nil and rec.dead ~= true,
+        incapable = rec == nil or rec.dead == true,
+        contest = hostile, choice = choice,
+        interests = { nerve = nerve },
+        constraints = { actualRecipient = true },
+    })
+    if not response or not SAO.Organization.deliverResponse(process.id,
+        keeperId, bittenId, "spoken", { actualRecipient = true }) then
+        return process, response
+    end
+    if response.response == "accept" then
+        local commitment = nil
+        for _, candidate in pairs(process.commitments or {}) do
+            if candidate.actorId == keeperId
+                and candidate.revision == process.revision then
+                commitment = candidate
+                break
+            end
+        end
+        s.promises = s.promises or {}
+        s.promises[bittenId] = { keeperId = keeperId,
+            processId = process.id,
+            commitmentId = commitment and commitment.id or nil }
+    end
+    return process, response
 end
 
 function S.promiseKeeperOf(bittenId)
     local s = store(); if not s then return nil end
-    return s.promises and s.promises[tostring(bittenId)] or nil
+    local promise = s.promises and s.promises[tostring(bittenId)] or nil
+    return type(promise) == "table" and promise.keeperId or promise
+end
+
+function S.promiseCommitmentOf(bittenId)
+    local s = store(); if not s then return nil end
+    local promise = s.promises and s.promises[tostring(bittenId)] or nil
+    return type(promise) == "table" and promise.commitmentId or nil
 end
 
 function S.clearPromise(bittenId)
@@ -3029,13 +2515,13 @@ function S.hearthOf(groupName)
     if not materialEnabled() then return nil end
     local s = store(); if not s then return nil end
     local meta = s.groupMeta and s.groupMeta[tostring(groupName)] or nil
-    local hh = meta and meta.hearth or nil
-    if not hh then return nil end
+    local rec = meta and meta.hearth or nil
+    if not rec or type(rec.burning) ~= "boolean" then return nil end
     local okH, h = pcall(function()
         return SAO.History.countyHours()
     end)
-    if okH and h - (hh.atHours or 0) > 48 then return nil end
-    return hh
+    if okH and h - (rec.atHours or 0) > 48 then return nil end
+    return rec
 end
 
 -- The water claim ([B6]): what the house knows it has to drink -
@@ -3125,57 +2611,8 @@ function S.pactBetween(gA, gB)
         and meta.pactWith[tostring(gB)]) == true
 end
 
--- The pact ([A26]): the positive mirror of the feud. Two leaders of
--- complementary companies - one bread-rich, one watch-rich - who meet
--- ALIGNED with mutual trust healed past 0.2 shake on bread-for-watch:
--- passage on each other's ground, chronicled, aired on the wire.
--- Formation is leader-to-leader like peace ([A21]) - made by the two
--- people who can make it.
 function S.tryPact(idA, idB, gA, gB)
-    local s = store(); if not s then return false end
-    s.groupMeta = s.groupMeta or {}
-    local metaA = s.groupMeta[tostring(gA)] or {}
-    local metaB = s.groupMeta[tostring(gB)] or {}
-    if metaA.leaderId ~= tostring(idA) and metaA.leaderId ~= idA then
-        return false
-    end
-    if metaB.leaderId ~= tostring(idB) and metaB.leaderId ~= idB then
-        return false
-    end
-    if metaA.pactWith and metaA.pactWith[tostring(gB)] then return false end
-    if S.trust(idA, idB) < 0.2 or S.trust(idB, idA) < 0.2 then
-        return false
-    end
-    local shA, shB = S.groupShape(gA), S.groupShape(gB)
-    if not shA or not shB or shA.n < 4 or shB.n < 4 then return false end
-    local complement =
-        (shA.forageShare >= 0.2 and shB.watchShare >= 0.2)
-        or (shB.forageShare >= 0.2 and shA.watchShare >= 0.2)
-    if not complement then return false end
-    metaA.pactWith = metaA.pactWith or {}
-    metaB.pactWith = metaB.pactWith or {}
-    metaA.pactWith[tostring(gB)] = true
-    metaB.pactWith[tostring(gA)] = true
-    local okH, h = pcall(function()
-        return SAO.History.countyHours()
-    end)
-    local at = okH and h or 0
-    for _, pair in ipairs({ { metaA, gB }, { metaB, gA } }) do
-        pair[1].govHistory = pair[1].govHistory or {}
-        pair[1].govHistory[#pair[1].govHistory + 1] = {
-            kind = "pact", other = tostring(pair[2]), atHours = at,
-        }
-    end
-    s.groupMeta[tostring(gA)] = metaA
-    s.groupMeta[tostring(gB)] = metaB
-    S.adjustTrust(idA, idB, 0.1)
-    S.adjustTrust(idB, idA, 0.1)
-    S.pushRadioNews({ kind = "pact", a = tostring(gA), b = tostring(gB) })
-    -- [C105] The pact is external relations, decided leader to leader.
-    if SAO.Recognition then
-        SAO.Recognition.onPactFormed(tostring(gA), tostring(gB))
-    end
-    return true
+    return false, "explicit-process-required"
 end
 
 -- The county hears you ([A26]): a player voice on the wire reaches
@@ -3341,20 +2778,21 @@ function S.pushRadioNews(item)
     while #s.radioNews > 24 do table.remove(s.radioNews, 1) end
 end
 
--- Does this member's own class dissent from their community's policy?
+function S.policyPreferenceOf(id)
+    local pull = S.leansToward(id)
+    return pull and RATION_PREFERENCE[pull] or nil
+end
+
+-- Does this member's own preference differ from their community's enacted or
+-- preserved legacy policy? Difference can raise a matter; it cannot change
+-- the policy or roster by itself.
 function S.dissentsFromPolicy(id)
     local g = S.groupOf(id)
     if not g then return false end
     local policy = S.rationPolicyOf(g)
     if not policy then return false end
-    local rec = SAO.Identity and SAO.Identity.get(id) or nil
-    local cls = rec and SAO.Census and SAO.Census.classOf
-        and SAO.Census.classOf(rec.occupation) or nil
-    if (policy == "watch-first" or policy == "house-first")
-        and cls == "carer" then
-        return true
-    end
-    return policy == "weak-first" and cls == "hardened"
+    local preferred = S.policyPreferenceOf(id)
+    return preferred ~= nil and preferred ~= policy
 end
 
 -- The chronicle of a group's own governance, or {}.
@@ -3365,9 +2803,17 @@ function S.govHistoryOf(groupName)
 end
 
 function S.rationPolicyOf(groupName)
-    local s = store(); if not s then return nil end
-    local meta = s.groupMeta and s.groupMeta[tostring(groupName)] or nil
-    return meta and meta.rationPolicy or nil
+    if not (groupName and SAO.Organization and SAO.Organization.decisions) then
+        return nil
+    end
+    local decision = SAO.Organization.decisions[
+        tostring(groupName) .. ":assembly:ration-policy"]
+    local policy = decision and decision.decision or nil
+    if policy == "watch-first" or policy == "weak-first"
+        or policy == "house-first" or policy == "carry-light" then
+        return policy
+    end
+    return nil
 end
 
 function S.groupOf(id)
