@@ -65,8 +65,9 @@ SAO = {
     WorldSources = {
         ownsActor = function(id) return sourceOwned[tostring(id)] == true end,
     },
-    CrossedTransfer = { begin = function(id, seen, token)
-        assert(id == "target" and seen == targetBody and token:sub(1, 6) == "blood:")
+    ZAOPersonTransfer = { begin = function(id, seen, token)
+        assert(id == "target" and seen == targetBody
+            and token:sub(1, 11) == "zao-person:")
         if not transferReady then return false, "body-busy" end
         transfers = transfers + 1
         return true, "transferred"
@@ -80,6 +81,20 @@ ZAO = {
     Sandbox = { policy = function() return {
         crossedOdds = 0.5, afflictedSusceptibility = 2.0,
     } end },
+}
+ZAO.Driver = {
+    routeTo = function(personId, seen, state, kind, targetId)
+        assert(personId == "carrier" and seen == carrierBody
+            and kind == "exposure" and targetId ~= nil)
+        seen.paths = seen.paths + 1
+        state.driver = state.driver or {}
+        state.driver.route = { kind = kind, targetId = targetId }
+        return true, "moving"
+    end,
+    cancelRoute = function(personId, state)
+        if state.driver then state.driver.route = nil end
+        return true
+    end,
 }
 function __bodies() return carrierBody, targetBody, target2Body end
 function __transfers() return transfers end
@@ -119,6 +134,9 @@ PROBE = r'''(function()
     assert(ZAO.Pathogen.stateOf("target").terminalState == "afflicted")
     assert(ZAO.Pathogen.stateOf("target").exposureTokens == nil,
         "daily proximity produced an exposure result")
+    local targetDriverToken = ZAO.Pathogen.stateOf("target").driverToken
+    assert(targetDriverToken ~= nil,
+        "Afflicted person did not acquire ZAO execution identity")
 
     -- Approach is a live action and does not complete at proximity alone.
     assert(ZAO.Exposure.step(carrier, "carrier", carrierState,
@@ -135,6 +153,8 @@ PROBE = r'''(function()
     assert(ZAO.Exposure.step(carrier, "carrier", carrierState,
         target, "target", 3, 0.04) == true)
     assert(ZAO.Pathogen.stateOf("target").terminalState == "crossed")
+    assert(ZAO.Pathogen.stateOf("target").driverToken == targetDriverToken,
+        "conversion replaced the shared ZAO execution identity")
     assert(__transfers() == 0
         and ZAO.Exposure.activeFor("carrier").phase == "transfer-pending",
         "busy body did not retain a durable transfer retry")
@@ -232,7 +252,7 @@ def main() -> int:
          "if state.exposureTokens[token] then return state.exposureTokens[token] end",
          "if false then return state.exposureTokens[token] end"),
         ("live-action authorization", pathogen,
-         "local action = store.exposures\n        and store.exposures[carrierId] or nil",
+         "local action = contact and store.exposures\n        and store.exposures[carrierId]\n        or weapon and store.contaminationHits\n        and store.contaminationHits[token] or nil",
          "local action = actionResult"),
         ("source transaction ownership", events,
          "and not sourceOwnsActor(id) then", "then"),

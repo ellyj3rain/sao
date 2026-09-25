@@ -1,6 +1,6 @@
 | Document | Survivor Awareness Overhaul Dependency Substrate |
 |---|---|
-| Version | `2.9.0.0-pre-alpha` |
+| Version | `2.9.1.0-pre-alpha` |
 | Author | ellyj3rain |
 | Repository | `SUBSTRATE.md` |
 | Status | CANONICAL - what exists, what is planned, and what each area of concern needs. |
@@ -78,7 +78,7 @@ ported, and whether it is required.
 | Seam | Current state | Rule |
 |---|---|---|
 | SAO to ZAO: the turn | defined and evidenced | SAO owns death; ZAO owns the risen body; one controller per body |
-| SAO to ZAO: afflicted and crossed | C52/A35 close returned-body adoption and dormant recovery; C56/A37 close intentional blood conversion and exact ownership transfer; the retained Crossed action vocabulary remains incomplete | SAO executes the afflicted; ZAO owns pathogen state and executes the crossed |
+| SAO to ZAO: afflicted and crossed | C80/A39 generalize returned-body and dormant transfer to one ZAO living-person driver; C56/A37 retain intentional blood conversion and exact action receipts; A39 adds distinct policies and first Crossed material producers | ZAO executes Afflicted and Crossed; SAO supplies identity, communication, handover, material and locomotion services without a second planner |
 | SAO to Speakeasy: dataset | 190 choices and nine world documents are protected; C64 closes immutable capture-envelope and exact-join integrity; C65-C66 expose private consume/acquire/store options, runtime choice and immediate action result; C74 plus Speakeasy Record 52 establish one reviewed personal-knowledge reference; C75 exposes typed current-knowledge references and selected fencing; broader options, claim coverage, authored behavior rulings, later consequences and trained models remain incomplete | SAO supplies people and moments; Speakeasy supplies protected source views, rows and models |
 | ZAO to Speakeasy: degraded cognition | cross-module rows and state producers exist; complete learned consumption remains absent | cognition reads event-derived pathogen state with provenance; the row contract does not establish a functioning model |
 
@@ -139,7 +139,7 @@ former batch labels inside evidence retain their historical meaning.
 | Contract | Producer and caller | Durable state | Observation or test | Remaining gap |
 |---|---|---|---|---|
 | One person across loaded and dormant life | Identity owns the record; Body.materialize creates a body; Controller.adopt attaches decisions; Population manages range transitions | Person registry and hibernation pack; body registry is transient | B executes Body.release in the installed VM, with successful, empty and throwing capture | C51 repairs the supported capture/teardown/restore transaction (Borders 162-163). C52 repairs authorized Afflicted return, exact-source transfer and controller adoption. Native components preserve inventory, equipment, Stats, BodyDamage and XP. Other character components remain R3 work. |
-| Returned afflicted people resume living | AfflictedReturn reads ZAO's loaded controlled bodies and calls Body.materialize; ZAO's save-generation journal reconciles the old source across engine save surfaces | Existing person identity and ZAO pathogen state; generation markers bind the participating return slices | C52/A35 execute the authorized return; C55/A36 exercise every old/new native/global generation pairing; C56/A37 transfer a later Crossed conversion back to ZAO through the same person envelope | R1, R4 and R5's conversion ownership are closed. General action receipts, the retained Crossed action vocabulary and grounded dormant execution remain R7-R10 work. |
+| Returned afflicted people resume living | AfflictedReturn reads ZAO's controlled or durable source, calls Body.materialize and transfers the shell to the registered ZAO driver; ZAO's save-generation journal reconciles the old source across engine save surfaces | Existing person identity, ZAO pathogen state and stable driver token; generation markers bind the participating return slices | C52/A35 execute authorized return; C55/A36 exercise every native/global generation pairing; C80/A39 prove loaded/dormant ZAO ownership and preserve the driver through later conversion | R1/R4 ownership is closed for the supported shell. Wider state-specific action producers and long-horizon grounded dormant behavior remain R7-R10 work. |
 | County time has consistent units | History owns county hours, day/tick conversion and quantization; Population advances historical substeps; Controller refreshes decision time | Historical progress and per-person timestamps | C53 Border 168 executes current substep reads, reload, midnight, Day Zero/DayLength invariance, WorldGenesis conversion and separate host pacing; three mutations restore the named defects | R2 is closed. R3-R10 consume this axis; their domain scheduling and event integration remain their own work. |
 | Saved state reconstructs usable runtime behavior | GraphPersistence binds only serializable Branching history; Integration registers built-ins and stable-ID extensions into a fresh runtime graph | Pattern/office history survives; callbacks, caches, indexes, controllers, courses and Java maps are reconstructed projections | C55 Border 170 serializes through Kahlua, creates a fresh environment and then a second world; ZAO Border 8 reconstructs settlement/controller/course state and clears prior-world maps | R4 is closed for the inventoried owners. Later features must declare durable/runtime ownership as they add state; loaded-world play acceptance remains separate. |
 | Facts are private and acquired | Java scans feed Perception; Knowledge preserves acquisition and Standing evaluates permission | Beliefs with source, time and uncertainty | A reproduces animals entering the IsoPlayer human path and traces global activity participant discovery | Narrow scanner output before decision use, preserve provenance and distinguish animal facts. Visibility and permission do not imply physical access. |
@@ -223,13 +223,15 @@ therefore blocks this caller. The actual-Lua
 reports no returned body. Removing the guard in its control permits a body but
 still supplies no controller, reproducing the earlier audit's separate defect.
 
-SAO owns the living-person transaction; ZAO.StateStore owns the recovery fact
-and ZAO.Controller owns the old turned body. C52/A35 implement the durable
-return phase with an authoritative event, staged position/state, ownership and
-retry information. They quiesce the old controller and source before capturing
-current possessions, retain the hold through teardown retry, validate the new
-body under a pending owner and acknowledge old-source removal before publishing
-and enrolling the living controller once. Failed phases retain a recoverable
+SAO owns the body transaction; ZAO.StateStore owns the recovery fact and
+ZAO.Controller owns both the old turned body and the returned living actor.
+C52/A35 implement the durable return phase with an authoritative event, staged
+position/state, ownership and retry information. C80/A39 change its terminal
+publication from SAO adoption to the ZAO living driver. The transaction
+quiesces the old controller and source before capturing current possessions,
+retains the hold through teardown retry, validates the new body under a pending
+owner and acknowledges old-source removal before publishing the driver once.
+Failed phases retain a recoverable
 owner; an acknowledged removal resumes forward rather than rerunning the death
 funnel, while a pre-removal refusal releases the hold back to the old owner.
 Prior death history stays historical.
@@ -371,13 +373,14 @@ the resolving phase authorizes the exact-once result; the existing Crossed odds
 times Afflicted susceptibility remains the probability. Proximity and forged
 receipts cannot roll, and no spontaneous Afflicted conversion exists.
 
-On success, the same human shell and supported person snapshot move from SAO's
-controller to ZAO. Busy actions quiesce new SAO decisions and retry; save-time
+On success, the same human shell and supported person snapshot retain their ZAO
+driver token while policy changes from Afflicted to Crossed. A legacy or
+otherwise untransferred shell uses the same generalized one-way handoff before
+work continues. Busy actions quiesce SAO services and retry; save-time
 checkpointing lets ZAO claim the dormant envelope after reload. External death
 returns the corpse through SAO's existing death, witness and mourning funnel.
-This closes the R5 exposure and ownership result. R7-R9 still own general
-intent-through-result, retained weapons/tools/strategy and the complete Crossed
-life/action producers.
+This closes the R5 exposure and ownership result. A39 adds the first Crossed
+material producers; R7-R9 still own the wider intent-through-result vocabulary.
 
 Positive-elapsed awakening now searches nested carried containers, refreshes
 food age, rejects spoiled, poisonous and dangerous uncooked food, and invokes
@@ -494,24 +497,25 @@ projection still asserts every other member's recognition. Replace that and
 the remaining invented facts with actual ground and each participant's
 expressed/observed response.
 
-F-084 also withdraws A32's completed-Crossed-execution claim. The Crossed are
-not a special zombie target policy. The canonical subject is human-looking and
-retains cognition, drives, learned competence and the ability to use the human
-action vocabulary, while ZAO remains its one execution owner. The repair begins
-from the following contract rather than by making the dormant pass callable in
-isolation:
+F-084 withdrew A32's completed-Crossed-execution claim. C56/A37, C79/A38 and
+C80/A39 repair its representation, handoff, coordination and first material
+actions. Crossed are not a special zombie target policy. The canonical subject
+is human-looking and retains cognition, identity, drives, learned competence
+and the applicable human action vocabulary, while ZAO remains its one execution
+owner. Afflicted use that same ZAO driver under a different policy. The current
+contract is:
 
 | Crossed substrate | Current implementation | Required producer and proof owner |
 |---|---|---|
-| Representation and ownership | A reanimated `IsoZombie`; Crossed state sets form `none`. No transition replaces a living Afflicted body. | ZAO chooses and owns a representation capable of the canonical appearance and actions. R1/R4's one-owner transaction pattern transfers SAO Afflicted to ZAO Crossed once and survives reload. |
-| Cognition and goals | `ZAO_Mind` reads four pillars, but `Crossed.decide` is unreachable because the controller requires a non-`none` form. Its target policy reduces living people to nearest distance with an Afflicted bias. | R9 derives goals from retained person state, current pressures, relationships, group life and perceived opportunities. Outcomes remain variable rather than a universal hunt. |
-| Retained human actions | Only `drive` is stamped as a retained verb. A special `IsoZombie` driver exists; weapons, tools, communication, leisure and most person actions do not. | R7-R9 enumerate the shared action contracts, map retained experience to available verbs, strip only the ruled human restraints, and obtain world-result receipts. No competence appears at the turn. |
-| Dead, living and Afflicted interaction | Noise can attract dead; the generic fallback assigns a human target to an `IsoZombie`. Afflicted proximity rolls exposure daily. | ZAO goal/action producers distinguish strategy, diversion, combat, capture, use of the dead and the specific Afflicted interaction. Afflicted are not food. Exposure is an intentional completed result, not generic zombie contact. |
-| Loaded and dormant continuity | Pathogen state persists; actions, goals and ownership transfer do not have equivalent loaded/dormant producers. | R4/R10 preserve pending actions and group/body ownership, ground dormant opportunities in available world facts, and reconcile later loaded consequences without replay or duplication. |
+| Representation and ownership | The transferred living human shell is registered under one ZAO driver for Afflicted and Crossed. The driver token survives conversion; identity-bearing Crossed `IsoZombie` admission is rejected before side effects. | Loaded-world appearance and lifecycle presentation still need play observation; no mortality, revival or migration rule is inferred from malformed bodies. |
+| Cognition and goals | `ZAO_Mind` feeds reachable state policies from actual Perception, Disposition and Standing. Afflicted fear observed Crossed, seek Afflicted peers and travel toward evidenced ground. Crossed choose among actor-private observed people, state actions, body pressures and accepted work; a farther target may outrank a nearer one. | R9 broadens long-horizon goals from retained person state, current pressure, relationships and perceived opportunity. Crossed strategy is routine retained cognition, not a rare subtype; current bounded tactics do not complete it. Outcomes remain variable rather than universal hunt or settlement. |
+| Retained human actions | Communication and scoped work reach the registered owner. Native locomotion, SourceUse acquisition, wound care/drink/rest, driving, state-specific food, human-origin butchery and selectively prepared finite blood-contaminated melee/projectile hits have concrete producers and receipts. Crossed fear/pain/control require separate heard/public/native results. | R7-R9 continue wider tools, weapons, strategy, leisure, agriculture, construction and material vocabulary. Existing examples are not its boundary; no competence appears at the turn. |
+| Dead, living and Afflicted interaction | Crossed may hunt ordinary humans and can use an Afflicted human corpse as a dispreferred food source. Ordinary food is valid Crossed sustenance; human origin remains motivationally preferred. Afflicted may choose human-origin food under individual pressure and precedent, with donor-conditioned protection. Intentional exposure has its own exact-once pathogen action. | Complete strategy, diversion, capture, mutilation, group precedent and use of the dead remain per-concern producers. Eating, killing and exposure remain separate results. |
+| Loaded and dormant continuity | Driver state, routes, settlement evidence, ownership and exposure receipts persist. Material timed actions interrupt on reconstruction rather than invent completion. | R10 grounds broader dormant opportunities and reconciles later loaded consequences without replay or duplication. Long-horizon combined behavior remains unobserved. |
 
 The representation is a design constraint, not a preselected class. Reusing a
-human action mechanism does not transfer SAO's planner or ownership to ZAO; it
-supplies an executor beneath ZAO's Crossed mind and goals.
+human action mechanism does not transfer SAO's planner into ZAO; it supplies a
+native service beneath ZAO's Afflicted or Crossed mind and goals.
 
 Every row below needs loaded and dormant opportunities, execution, persistence
 and consequence evidence. Existing modules are implementation starting points.
@@ -536,7 +540,7 @@ substantive ruling at that boundary instead of filling it with an invented rule.
 | Health and care — Course, Medical, Habits; ZAO pathogen owner | Offer feasible self-care and help, honor consent/standing where relevant and feed actual treatment and exposure into R5. Refusal, unmet need and ineffective treatment remain possible. |
 | Communication and player participation — Knowledge, Communication, Voice, Command | Deliver person-scoped testimony, requests, promises and orders through real channels, with comprehension, provenance, refusal and durable consequences. Player interaction changes the same state as other interaction. |
 | Conflict and defense — Perception, Standing, Controller, combat | Derive threat response, withdrawal, defense, diversion, capture and contested acquisition from perceived threats and permissions. Low skill affects execution within the human envelope; it does not grant hidden knowledge or impossible acts. |
-| Turned and afflicted life — ZAO mind/pathogen/controllers; SAO living execution | Preserve the separation of retained cognition from pathogen mechanics. Strategy, kin coordination, diet, capture/diversion, rare social development and living responses consume retained capabilities and actual events. No verb is acquired merely by turning. |
+| Turned, Afflicted and Crossed life — ZAO mind/pathogen/driver; SAO county and native-action services | Preserve the separation of retained cognition from pathogen mechanics and distinct state policies. Strategy, coordination, state-specific motives and satisfiers, capture/diversion, social development and living responses consume retained capabilities and actual events. Crossed planning is routine human cognition under altered motives; no verb is acquired merely by turning or returning. |
 
 C61 supplies R10a's grounded unloaded opportunity, persistent source identity,
 exact private observations and loaded reconciliation. C62 supplies the selected

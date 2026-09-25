@@ -625,6 +625,35 @@ function H.result(id)
     return record(id)
 end
 
+-- Consumers that react to a material transfer capture the current sequence at
+-- decision time, then ask for a completed matching receipt after that point.
+-- Queue admission is deliberately invisible here and a receipt id can be
+-- consumed exactly once by the caller.
+function H.currentSequence()
+    local s = store()
+    return s and (tonumber(s.nextSequence) or 0) or nil
+end
+
+function H.completedSince(sequence, actorId, recipientId, kind, consumed)
+    local s = store()
+    sequence = tonumber(sequence)
+    actorId, recipientId = identity(actorId), identity(recipientId)
+    if not s or not sequence or not actorId or not recipientId then return nil end
+    local best, bestSequence = nil, nil
+    for id, rec in pairs(s.records or {}) do
+        local recSequence = tonumber(string.match(tostring(id), "^H(%d+)$"))
+        if recSequence and recSequence > sequence
+            and (not consumed or consumed[tostring(id)] ~= true)
+            and rec.status == "completed" and rec.actorId == actorId
+            and rec.recipientId == recipientId
+            and (kind == nil or rec.kind == kind)
+            and (bestSequence == nil or recSequence < bestSequence) then
+            best, bestSequence = rec, recSequence
+        end
+    end
+    return best
+end
+
 function H.reconcile(force)
     local s = store()
     if not s or type(s.records) ~= "table" then return 0 end

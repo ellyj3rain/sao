@@ -46,7 +46,20 @@ interruption, partial work, failure and completion remain distinct. Automatic
 roster elections, inferred recognition and score-triggered schism no longer
 decide. Wider institutions, actions and gameplay acceptance remain open.
 
-`2.9.0.0-pre-alpha` - the coordinate is computed by the version machine
+C80 corrects the living ZAO ownership boundary. Authorized Afflicted return
+hands the retained human shell directly to ZAO instead of attaching SAO's
+ordinary survivor controller. Afflicted and Crossed share one durable ZAO
+driver but keep distinct state policies; conversion preserves that executor.
+SAO still supplies identity, communication, source use, handover and native
+locomotion. The former daily Afflicted relocation is replaced by ZAO-owned
+travel and arrival evidence. No Afflicted maintenance behavior is inferred.
+ZAO A39 separately admits ordinary food for retained Crossed physiology while
+keeping human-origin sustenance motivationally preferred, and ships first
+human-corpse butchery and selectively prepared finite blood-contaminated weapon
+producers. Actor-private evidence, not a global nearest-person scan, supplies
+targets. These examples do not define the full state.
+
+`2.9.1.0-pre-alpha` - the coordinate is computed by the version machine
 (`tools/version_replay.py`), never picked; `VERSION_MAP.md` shows the
 classification and the arithmetic.
 
@@ -82,9 +95,11 @@ interrupted return saves reconcile their native and global generations. The
 brain-health graph is a durable event history with behavioral consumers, and
 dormant carried food and drink use native partial effects. A completed,
 interruptible Crossed blood action is the sole Afflicted conversion producer
-and transfers the same human shell to ZAO without feeding on it. The complete
-Crossed weapons, tools and general action system and the broader audit findings
-remain explicit work in `SUBSTRATE.md`.
+and preserves the same human shell under ZAO without feeding on it. C80/A39
+make ZAO the Afflicted executor as well, then add first Crossed ordinary and
+human-origin sustenance plus weapon-blood actions. Wider tools, strategy,
+social life and the broader audit
+findings remain explicit work in `SUBSTRATE.md`.
 
 C57 begins the ratified whole-mod restructuring with one shared body snapshot
 contract for release, checkpoints and ownership transfer. Its native test suite

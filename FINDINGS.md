@@ -1,6 +1,6 @@
 | Document | Survivor Awareness Overhaul Findings |
 |---|---|
-| Version | `2.9.0.0-pre-alpha` |
+| Version | `2.9.1.0-pre-alpha` |
 | Author | ellyj3rain |
 | Repository | `FINDINGS.md` |
 | Status | CANONICAL, APPEND-ONLY - verified engine findings. |
@@ -2211,3 +2211,67 @@ not a complete political system. Elections, deliberation, appeal, succession,
 coercive enforcement, physical separation, wider material work and loaded-world
 gameplay acceptance remain unobserved or unimplemented as named in C79 and the
 roadmap.
+
+## F-099 | 2026-09-24 20:16 UTC / 13:16 PST | Afflicted return reattached the wrong execution owner
+
+C52/A35 returned an Afflicted person's viable human shell and then enrolled it
+in SAO's ordinary survivor controller. ZAO retained pathogen, fear, gathering,
+conversion and constraint state. The split left two incompatible answers to
+who decided what that person did and let ordinary-survivor needs stand in for
+state-specific policy. A full search of governed SAO/ZAO text found no rule for
+how Afflicted maintain themselves; only the prohibition on Crossed feeding on
+them was established. Physical pressure alone cannot supply the missing
+satisfier.
+
+C80 generalizes the external-person transfer owner and makes Afflicted return
+publish directly to ZAO. Loaded and dormant transfers preserve a stable driver
+token; Afflicted-to-Crossed conversion changes policy without returning through
+SAO. `SAO_Controller` no longer advances the ZAO-owned shell. Communication,
+Perception and Organization still reach the person through the registered
+execution owner, so proposals and scoped work do not disappear at the boundary.
+
+The old Standing daily pass also moved Afflicted records to a chosen group or
+vacant place by assignment. C80 leaves the private destination evidence in
+Standing but gives travel to ZAO's state policy and existing native Locomotion
+owner. Home, claim and group consequences commit only after arrival. A named
+arrival reach cannot silently change unrelated five-tile book handoff or gift
+attribution rules.
+
+Borders 162, 164, 173 and 179 execute loaded/dormant handoff, authorized return,
+stable exposure ownership and completion-only material work; reach Borders 47
+and 49 retain their independent-rule controls. ZAO Borders 12-13 separately
+execute the living-state policies, Crossed human physiology and sustenance,
+actor-private option choice and selective weapon contamination. These are
+headless VM/native receipts. No loaded gameplay, presentation, save/reopen play
+or long-horizon population outcome is claimed.
+
+## F-100 | 2026-09-25 00:24 UTC / 17:24 PST | The missing-maintenance premise conflated Afflicted and Crossed
+
+F-099 correctly identified the execution-owner split but carried forward two
+unsupported conclusions: that Afflicted maintenance was unknown and that
+Afflicted could not enter Crossed feeding at all. The operator clarified both
+states directly. Afflicted have altered meat/protein-oriented physiology,
+penalized non-dairy alternatives, water need and conditional human-food
+conduct; donor health and Knox adaptation can condition temporary protection
+from later intentional exposure. Crossed retain ordinary-food viability under
+reduced caloric pressure and have a separate pressure for fear, pain and
+control. They may consume Afflicted human remains but generally disprefer them.
+Eating and intentional exposure are distinct.
+
+C80 now prevents native survivor dormancy from silently applying its hunger and
+auto-food policy to either ZAO-owned state. It restores the snapshot at zero
+elapsed time and gives the full interval to the registered owner. The same
+SourceUse reservation still owns private source selection, locomotion, exact
+transfer, carrying, measured native use and the terminal receipt; the ZAO diet
+adapter supplies only state-specific admission and consequences. Threat delivery
+uses actual communication, public target response remains target-owned, control
+consumes a completed post-threat Handover once, and combat pain requires native
+health loss. Death closes the live flow without granting substitute relief.
+
+SAO Borders 162 and 179 discriminate external dormant ownership and registered
+native-use ownership. ZAO Borders 10 and 12-14 discriminate nutrition-conditioned
+exposure, shared driver serialization, exact eating/acquisition, reduced
+Crossed caloric passage, distinct Afflicted nutrition, and heard/native/completed
+predatory outcomes. These are headless VM and source controls. Loaded-world
+presentation, actual item diversity, long-horizon ecology and gameplay balance
+remain unobserved.

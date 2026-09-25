@@ -24,6 +24,7 @@ EXCHANGE = LUA / "client/SAO_Exchange.lua"
 DORMANT = LUA / "client/SAO_DormantPopulation.lua"
 HARNESS = LUA / "client/SAO_Harness.lua"
 CONTROLLER = LUA / "client/SAO_Controller.lua"
+PERCEPTION = LUA / "shared/SAO_Perception.lua"
 STANDING = LUA / "shared/SAO_Standing.lua"
 RECOGNITION = LUA / "shared/SAO_Recognition.lua"
 CAPTURE = ROOT / "tools/sweep/decision_capture.lua"
@@ -112,7 +113,9 @@ PROBE = r'''(function()
       ownNeed = choice == 'qualify' and 0.9 or 0.1,
       destinationKnown = choice ~= 'counter-propose',
       canAcquire = true, canCarry = true, canDeliver = true,
-      interests = { own = person }, constraints = { current = 'idle' },
+      interests = { own = person }, constraints = {
+        represented=false, currentActivity='idle',
+        executionOwnerAvailable=true, ownNeedAvailable=true },
       inputOwners = { currentActivity='border190.activity',
         capabilities='border190.capability', ownNeed='border190.need',
         relationship='border190.relationship', interests='border190.interest',
@@ -435,12 +438,14 @@ def verdicts(value: str | None) -> dict[str, str]:
 
 
 def static_contract() -> tuple[bool, str]:
+    organization = ORGANIZATION.read_text(encoding='utf-8')
     source_use = SOURCE_USE.read_text(encoding='utf-8')
     handover = HANDOVER.read_text(encoding='utf-8')
     provisioning = PROVISIONING.read_text(encoding='utf-8')
     standing = STANDING.read_text(encoding='utf-8')
     recognition = RECOGNITION.read_text(encoding='utf-8')
     controller = CONTROLLER.read_text(encoding='utf-8')
+    perception = PERCEPTION.read_text(encoding='utf-8')
     exchange = EXCHANGE.read_text(encoding='utf-8')
     dormant = DORMANT.read_text(encoding='utf-8')
     production = '\n'.join(path.read_text(encoding='utf-8')
@@ -476,6 +481,19 @@ def static_contract() -> tuple[bool, str]:
             'Standing.electLeader(', 'Recognition.onElection(',
             'Standing.checkSchism(')):
         return False, 'production caller retains automatic authority shortcut'
+    hidden = ('terminalState = execution.terminalState',
+              'diet = execution.diet', 'dietKnown = execution.dietKnown')
+    if any(field in controller or field in perception for field in hidden):
+        return False, 'private coordination evidence leaks ZAO diagnosis/diet labels'
+    if ('constraints.ownNeedAvailable' not in organization
+            or 'or "unavailable"' not in organization):
+        return False, 'private need availability lacks source normalization'
+    if ('and "ZAO.Driver" or "SAO.Controller"' not in controller
+            or 'execution.competingPressureAvailable ~= false' not in perception
+            or 'execution.inputOwners.competingPressure' not in perception
+            or 'elseif not ownNeedAvailable then' not in controller
+            or 'or not ownNeedAvailable and "defer"' not in perception):
+        return False, 'ZAO driver or source-owned competing pressure is not preserved'
     return True, 'native owners and production shortcut removals are wired'
 
 
@@ -483,7 +501,7 @@ def main() -> int:
     print('=' * 74)
     print('ENACTED SOCIAL COORDINATION AND RECEIPT-BACKED WORK')
     print('=' * 74)
-    required = [ORGANIZATION, COMMUNICATION, GRAPH, CAPTURE, RUNNER]
+    required = [ORGANIZATION, COMMUNICATION, GRAPH, CAPTURE, RUNNER, PERCEPTION]
     missing = [path for path in required if not path.is_file()]
     if missing:
         print('  FAULT: repository input absent: ' + ', '.join(map(str, missing)))
@@ -522,10 +540,17 @@ def main() -> int:
                 or withdrawer[0]["enactedProcess"]["laterOutcome"]
                 ["response"]["delivered"] is not True
                 or len(acceptor) != 1
-                or not any(commitment.get("status") == "completed"
-                           for commitment in acceptor[0]["enactedProcess"]
-                           ["laterOutcome"]["commitments"].values())):
+                 or not any(commitment.get("status") == "completed"
+                            for commitment in acceptor[0]["enactedProcess"]
+                            ["laterOutcome"]["commitments"].values())):
             capture_ok = False
+        for row in capture["events"]:
+            constraints = row["enactedProcess"]["decisionTime"][
+                "privateInputs"]["constraints"]
+            if (not isinstance(constraints.get("ownNeedAvailable"), bool)
+                    or any(name in constraints for name in
+                           ("terminalState", "diet", "dietKnown"))):
+                capture_ok = False
     except (KeyError, TypeError, ValueError, Dump.Sweep.EvidenceError) as error:
         capture_ok = False
         print("  FAULT: production coordination capture: " + str(error))

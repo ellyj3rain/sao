@@ -232,10 +232,38 @@ PROBE = r'''(function()
   settle()
   local c4 = SAO.Standing.groupClaimOf("house-late")
 
+  -- 5. An Afflicted route completes against the exact privately known
+  --    building it started toward. Known-place records omit their map key, so
+  --    comparing place.id would compare nil with nil and accept a stale route
+  --    after another destination becomes the person's best current ground.
+  local f1 = person(20000, 20000)
+  ZAO = { StateStore = { read = function(id)
+    if tostring(id) == tostring(f1.id) then
+      return { terminalState = "afflicted" }
+    end
+    return nil
+  end } }
+  beenTo(f1.id, 501, 20100, 20000, 2, false)
+  local staleDestination = SAO.Standing.outcastDriftDestination(f1.id)
+  beenTo(f1.id, 502, 20200, 20000, 5, false)
+  local arrived = {
+    getX = function() return 20200 end,
+    getY = function() return 20000 end,
+    getZ = function() return 0 end,
+  }
+  local staleAccepted = SAO.Standing.completeOutcastDrift(
+    f1.id, arrived, staleDestination)
+  local currentDestination = SAO.Standing.outcastDriftDestination(f1.id)
+  local currentAccepted = SAO.Standing.completeOutcastDrift(
+    f1.id, arrived, currentDestination)
+
   return "at1=" .. at1 .. " home1=" .. home1
     .. " none=" .. (c2 and "claimed" or "nothing")
     .. " solo=" .. (c3 and "claimed" or "nothing")
     .. " overHeld=" .. (c4 and "claimed" or "nothing")
+    .. " driftStale=" .. (staleAccepted and "accepted" or "refused")
+    .. " driftCurrent=" .. (currentAccepted and "accepted" or "refused")
+    .. " driftId=" .. tostring(currentDestination and currentDestination.id)
 end)()'''
 
 
@@ -379,6 +407,16 @@ def main():
             "a house claimed ground another living company already "
             "holds. Contested ground comes from politics, not from "
             "blindness ([A24])")
+    if got.get("driftStale") != "refused":
+        faults.append(
+            "an Afflicted person's completed route was credited to a newly "
+            "ranked building it never targeted. Completion must revalidate "
+            "the exact private known-place key, not compare two absent "
+            "place.id fields")
+    if got.get("driftCurrent") != "accepted" or got.get("driftId") != "502":
+        faults.append(
+            "the Afflicted arrival could not commit the current privately "
+            "known unheld ground after the exact building key was revalidated")
 
     print()
     for k, v in seams.items():

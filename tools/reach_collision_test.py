@@ -140,6 +140,14 @@ ALLOWED = {
         "sightlines. Three tens, three rules: present, audible, "
         "visible. They share a scale because a room is a room, and "
         "nothing more than that.",
+    ("SAO_Controller.lua", 5.0, "AFFLICTED_GROUND_ARRIVAL"):
+        "The two older bare fives are social contact rules: who is close "
+        "enough to receive a manual, and which freshly observed nearby "
+        "person can be credited for a gift. AFFLICTED_GROUND_ARRIVAL is "
+        "movement completion slack before ZAO may commit a destination "
+        "claim. Tightening arrival must not shrink book handoff or erase "
+        "kindness attribution; widening a social handoff must not let an "
+        "Afflicted route claim ground before the body gets there.",
 }
 
 

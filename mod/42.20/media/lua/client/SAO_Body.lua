@@ -196,9 +196,25 @@ function Body.materialize(rec, externalOwner, externalToken)
 
     -- Profession defaults precede restoration; native XP replaces them.
     -- Every caller restores before it can adopt or mutate the record.
+    local externalDormancy = rec.hibernation and rec.bodyOwner ~= nil
+    if externalDormancy and elapsed > 0 then
+        local owner = SAO.Communication
+            and SAO.Communication.executionOwners
+            and SAO.Communication.executionOwners[tostring(rec.bodyOwner)]
+            or nil
+        if not owner or type(owner.advanceDormant) ~= "function" then
+            return nil, not owner and "execution-owner-unregistered"
+                or "dormant-owner-unavailable"
+        end
+    end
+
     if rec.hibernation then
         local ok, journal = pcall(function()
-            return SAOJavaBridge:awaken(body, rec.hibernation, elapsed)
+            -- The native awaken path advances survivor hunger and may consume
+            -- survivor food.  External owners restore the same exact snapshot
+            -- at zero elapsed, then advance their own physiology below.
+            return SAOJavaBridge:awaken(body, rec.hibernation,
+                externalDormancy and 0 or elapsed)
         end)
         if not ok or type(journal) ~= "string"
             or journal:sub(1, 9) ~= "AWAKENED " then
@@ -211,6 +227,19 @@ function Body.materialize(rec, externalOwner, externalToken)
         log(rec.id .. " awakens: " .. journal)
         if snapshotVersion < 4 and rec.hibernationMigration == nil then
             rec.hibernationMigration = { from = snapshotVersion, atHours = wakeAt }
+        end
+        if externalDormancy and elapsed > 0 then
+            local advanced, reason =
+                SAO.Communication.advanceExternalDormancy(rec.bodyOwner,
+                    rec.id, rec, body, elapsed, wakeAt)
+            if advanced ~= true then
+                Body.active[rec.id] = body
+                Body.failedRestore[rec.id] = true
+                Body.recover(rec)
+                log("external dormant advance refused for " .. rec.id
+                    .. ": " .. tostring(reason))
+                return nil, "external-dormant-advance-failed"
+            end
         end
     end
 
@@ -877,6 +906,7 @@ function Body.activeCount()
     for id in pairs(Body.active) do
         local rec = SAO.Identity.get(id)
         if not rec or (not Body.isTransitioning(rec)
+            and not rec.zaoTransferPending
             and not rec.crossedTransferPending) then
             n = n + 1
         end
@@ -891,6 +921,7 @@ function Body.pendingTransitionCount()
     for id in pairs(Body.returning) do pending[id] = true end
     for id, rec in pairs(SAO.Identity.all()) do
         if rec.bodyRelease or rec.returnTransition or rec.bodyTransfer
+            or rec.zaoTransferPending
             or rec.crossedTransferPending then pending[id] = true end
     end
     for _ in pairs(pending) do n = n + 1 end

@@ -843,6 +843,40 @@ function P.knownAidRequest(id, groupId, nowHours)
     return nil, availability == "available" and "not-known" or "unavailable"
 end
 
+-- Private appraisal reads an external person's execution state through the
+-- registered owner. Both loaded and dormant reception use this one boundary
+-- so representation cannot change which ZAO-owned inputs are admitted.
+local function privateExecutionContext(id, rec, fallbackActivity)
+    local bodyOwner = rec and rec.bodyOwner or "SAO"
+    local registeredOwner = SAO.Communication
+        and SAO.Communication.executionOwners
+        and SAO.Communication.executionOwners[bodyOwner] or nil
+    local execution = nil
+    if bodyOwner ~= "SAO" and SAO.Communication
+        and SAO.Communication.actorSnapshot then
+        execution = SAO.Communication.actorSnapshot(id)
+    end
+    local executionAvailable = bodyOwner == "SAO"
+        or registeredOwner ~= nil and type(execution) == "table"
+    execution = type(execution) == "table" and execution or {}
+    local activity = string.lower(tostring(execution.currentActivity
+        or fallbackActivity or "dormant"))
+    local ownNeed, ownNeedAvailable = rec and tonumber(rec.hunger) or 0, true
+    if bodyOwner == "ZAO" then
+        -- ZAO reports a source-owned competing pressure, not a diet verdict.
+        -- The same value must feed loaded and dormant appraisal without SAO
+        -- inferring what either living pathogen state eats or how it acts.
+        if execution.competingPressureAvailable ~= false
+            and tonumber(execution.competingPressure) then
+            ownNeed = tonumber(execution.competingPressure)
+        else
+            ownNeed, ownNeedAvailable = 0, false
+        end
+    end
+    return bodyOwner, execution, executionAvailable, activity,
+        ownNeed, ownNeedAvailable
+end
+
 function P.appraiseAidRequest(id, groupId, owner, currentActivity)
     if not (SAO.Organization and SAO.Organization.appraiseMatter) then
         return nil, "organization-unavailable"
@@ -863,17 +897,14 @@ function P.appraiseAidRequest(id, groupId, owner, currentActivity)
         relationship = SAO.Standing.trust(id, view.originatorId)
         hostile = SAO.Standing.isHostileTo(id, view.originatorId)
     end)
-    local ownNeed = rec and tonumber(rec.hunger) or 0
     local designation = rec and rec.designation or nil
-    local activity = string.lower(tostring(currentActivity or "dormant"))
-    local bodyOwner = rec and rec.bodyOwner or "SAO"
-    local registeredOwner = SAO.Communication
-        and SAO.Communication.executionOwners
-        and SAO.Communication.executionOwners[bodyOwner] or nil
-    local executionAvailable = bodyOwner ~= "ZAO" or registeredOwner ~= nil
+    local bodyOwner, execution, executionAvailable, activity,
+        ownNeed, ownNeedAvailable = privateExecutionContext(
+            id, rec, currentActivity)
     local choice = not executionAvailable and "defer"
         or hostile and "contest"
         or (activity ~= "idle" and activity ~= "dormant") and "defer"
+        or not ownNeedAvailable and "defer"
         or ownNeed >= 0.75 and "qualify"
         or destinationKnown and (designation == "forager"
             or designation == "quartermaster" or relationship >= 0.30)
@@ -881,13 +912,17 @@ function P.appraiseAidRequest(id, groupId, owner, currentActivity)
         or destinationKnown and "counter-propose" or "defer"
     return SAO.Organization.appraiseMatter(request.processId, id, {
         owner = owner or "Perception.aid-request",
-        executor = owner or "private-aid-appraisal",
+        executor = execution.executor or owner or "private-aid-appraisal",
         bodyOwner = bodyOwner,
         currentActivity = activity,
-        canAcquire = executionAvailable and not (rec and rec.dead),
-        canCarry = executionAvailable and not (rec and rec.dead),
-        canDeliver = executionAvailable and not (rec and rec.dead),
-        canExecute = executionAvailable and not (rec and rec.dead),
+        canAcquire = executionAvailable and execution.canAcquire ~= false
+            and not (rec and rec.dead),
+        canCarry = executionAvailable and execution.canCarry ~= false
+            and not (rec and rec.dead),
+        canDeliver = executionAvailable and execution.canDeliver ~= false
+            and not (rec and rec.dead),
+        canExecute = executionAvailable and execution.canExecute ~= false
+            and not (rec and rec.dead),
         executionOwnerAvailable = executionAvailable,
         incapable = not executionAvailable,
         dead = rec and rec.dead or false,
@@ -903,12 +938,19 @@ function P.appraiseAidRequest(id, groupId, owner, currentActivity)
             and SAO.Body.hasRepresentation
             and SAO.Body.hasRepresentation(id) or false,
             currentActivity = activity,
-            executionOwnerAvailable = executionAvailable },
+            executionOwnerAvailable = executionAvailable,
+            ownNeedAvailable = ownNeedAvailable },
         inputOwners = {
-            currentActivity = owner or "Perception.aid-request",
-            capabilities = bodyOwner == "ZAO" and "ZAO.Controller"
+            currentActivity = execution.executor
+                or owner or "Perception.aid-request",
+            capabilities = execution.executor
+                or (bodyOwner == "ZAO" and "ZAO.Driver")
                 or "SAO.DormantPopulation",
-            ownNeed = "SAO.Identity", relationship = "SAO.Standing",
+            ownNeed = bodyOwner == "ZAO"
+                and (execution.inputOwners
+                    and execution.inputOwners.competingPressure
+                    or "ZAO.Driver") or "SAO.Identity",
+            relationship = "SAO.Standing",
             interests = "SAO.Identity+SAO.Standing",
             constraints = owner or "Perception.aid-request",
         },
@@ -964,16 +1006,14 @@ local function tellAidRequests(fromId, toId, channel, aroundX, aroundY)
                     and tonumber(destination.minY) ~= nil
                     and tonumber(destination.maxX) ~= nil
                     and tonumber(destination.maxY) ~= nil
-                local ownNeed = rec and tonumber(rec.hunger) or 0
                 local designation = rec and rec.designation or nil
-                local bodyOwner = rec and rec.bodyOwner or "SAO"
-                local registeredOwner = SAO.Communication
-                    and SAO.Communication.executionOwners
-                    and SAO.Communication.executionOwners[bodyOwner] or nil
-                local executionAvailable = bodyOwner ~= "ZAO"
-                    or registeredOwner ~= nil
+                local bodyOwner, execution, executionAvailable, activity,
+                    ownNeed, ownNeedAvailable = privateExecutionContext(
+                        toId, rec, nil)
                 local choice = not executionAvailable and "defer"
                     or hostile and "contest"
+                    or (activity ~= "idle" and activity ~= "dormant") and "defer"
+                    or not ownNeedAvailable and "defer"
                     or ownNeed >= 0.75 and "qualify"
                     or destinationKnown and (designation == "forager"
                         or designation == "quartermaster"
@@ -981,13 +1021,17 @@ local function tellAidRequests(fromId, toId, channel, aroundX, aroundY)
                     or destinationKnown and "counter-propose" or "defer"
                 SAO.Organization.appraiseMatter(request.processId, toId, {
                     owner = "Perception.dormant-encounter",
-                    executor = "dormant-person",
+                    executor = execution.executor or "dormant-person",
                     bodyOwner = bodyOwner,
-                    currentActivity = "dormant",
-                    canAcquire = executionAvailable and not (rec and rec.dead),
-                    canCarry = executionAvailable and not (rec and rec.dead),
-                    canDeliver = executionAvailable and not (rec and rec.dead),
-                    canExecute = executionAvailable and not (rec and rec.dead),
+                    currentActivity = activity,
+                    canAcquire = executionAvailable
+                        and execution.canAcquire ~= false and not (rec and rec.dead),
+                    canCarry = executionAvailable
+                        and execution.canCarry ~= false and not (rec and rec.dead),
+                    canDeliver = executionAvailable
+                        and execution.canDeliver ~= false and not (rec and rec.dead),
+                    canExecute = executionAvailable
+                        and execution.canExecute ~= false and not (rec and rec.dead),
                     executionOwnerAvailable = executionAvailable,
                     incapable = not executionAvailable,
                     dead = rec and rec.dead or false,
@@ -1000,13 +1044,20 @@ local function tellAidRequests(fromId, toId, channel, aroundX, aroundY)
                         ownGroup = SAO.Standing and SAO.Standing.groupOf
                             and SAO.Standing.groupOf(toId) or nil },
                     constraints = { represented = false,
-                        currentActivity = "dormant",
-                        executionOwnerAvailable = executionAvailable },
+                        currentActivity = activity,
+                        executionOwnerAvailable = executionAvailable,
+                        ownNeedAvailable = ownNeedAvailable },
                     inputOwners = {
-                        currentActivity = "SAO.DormantPopulation",
-                        capabilities = bodyOwner == "ZAO" and "ZAO.Controller"
+                        currentActivity = execution.executor
                             or "SAO.DormantPopulation",
-                        ownNeed = "SAO.Identity", relationship = "SAO.Standing",
+                        capabilities = execution.executor
+                            or (bodyOwner == "ZAO" and "ZAO.Driver")
+                            or "SAO.DormantPopulation",
+                        ownNeed = bodyOwner == "ZAO"
+                            and (execution.inputOwners
+                                and execution.inputOwners.competingPressure
+                                or "ZAO.Driver") or "SAO.Identity",
+                        relationship = "SAO.Standing",
                         interests = "SAO.Identity+SAO.Standing",
                         constraints = "SAO.DormantPopulation",
                     },

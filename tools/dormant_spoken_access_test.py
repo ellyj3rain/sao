@@ -97,7 +97,10 @@ def static_checks() -> dict[str, bool]:
     bridge = BRIDGE.read_text(encoding="utf-8")
     life_at = population.find('runSub("dormant-life", dormantLife, conf)')
     encounter_at = population.find('runSub("encounters", dormantEncounters)')
-    awaken_at = body.find("SAOJavaBridge:awaken(body, rec.hibernation, elapsed)")
+    awaken = re.search(
+        r"SAOJavaBridge:awaken\(body, rec\.hibernation,\s*"
+        r"(?:elapsed|externalDormancy\s+and\s+0\s+or\s+elapsed)\)", body)
+    awaken_at = awaken.start() if awaken else -1
     apply_at = body.find("SAOJavaBridge:applyDormantRestState(")
     return {
         "life_precedes_encounter": 0 <= life_at < encounter_at,
