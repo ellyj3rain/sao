@@ -1,6 +1,6 @@
 | Document | Survivor Awareness Overhaul Batch Log |
 |---|---|
-| Version | `2.9.5.0-pre-alpha` |
+| Version | `2.10.0.0-pre-alpha` |
 | Author | ellyj3rain |
 | Repository | `BATCH_LOG.md` |
 | Status | REGULATORY - chronological batch index. |
@@ -191,3 +191,4 @@ source mapping and hashes. Consolidation does not close implementation defects.
 | [C82](Batches/C82-20260925-0525Z-2225PST-native-coordination-shadow.md) | 2026-09-25 | Native coordination shadow | [`T-004`](Batches/THREADS.md#t-004), [`T-006`](Batches/THREADS.md#t-006), [`T-008`](Batches/THREADS.md#t-008), [`T-009`](Batches/THREADS.md#t-009), [`T-030`](Batches/THREADS.md#t-030) |
 | [C83](Batches/C83-20260925-0855Z-0155PST-external-life-coordination.md) | 2026-09-25 | External life coordination | [`T-002`](Batches/THREADS.md#t-002), [`T-003`](Batches/THREADS.md#t-003), [`T-004`](Batches/THREADS.md#t-004), [`T-006`](Batches/THREADS.md#t-006), [`T-007`](Batches/THREADS.md#t-007), [`T-008`](Batches/THREADS.md#t-008), [`T-030`](Batches/THREADS.md#t-030) |
 | [C84](Batches/C84-20260925-1201Z-0501PST-causal-episode-runtime.md) | 2026-09-25 | Causal episode runtime | [`T-002`](Batches/THREADS.md#t-002), [`T-004`](Batches/THREADS.md#t-004), [`T-006`](Batches/THREADS.md#t-006), [`T-007`](Batches/THREADS.md#t-007), [`T-008`](Batches/THREADS.md#t-008), [`T-009`](Batches/THREADS.md#t-009), [`T-030`](Batches/THREADS.md#t-030) |
+| [C85](Batches/C85-20260925-2145Z-1445PST-private-situation-contact-and-enacted-work.md) | 2026-09-25 | Private situation contact and enacted work | [`T-002`](Batches/THREADS.md#t-002), [`T-003`](Batches/THREADS.md#t-003), [`T-004`](Batches/THREADS.md#t-004), [`T-005`](Batches/THREADS.md#t-005), [`T-006`](Batches/THREADS.md#t-006), [`T-007`](Batches/THREADS.md#t-007), [`T-008`](Batches/THREADS.md#t-008), [`T-009`](Batches/THREADS.md#t-009), [`T-030`](Batches/THREADS.md#t-030) |

@@ -1,13 +1,40 @@
 | Document | Survivor Awareness Overhaul Session State |
 |---|---|
-| Version | `2.9.5.0-pre-alpha` |
+| Version | `2.10.0.0-pre-alpha` |
 | Author | ellyj3rain |
 | Repository | `SESSION_STATE.md` |
 | Status | CANONICAL - current implementation and continuation. |
 
 # Session state
 
-**As of** 2026-09-25, `[C84]` gives the production county one bounded causal
+**As of** 2026-09-25, `[C85]` supplies the first production path from a
+person-private retained situation into enacted coordination. Dormant and loaded
+people derive concrete provisioning pressure from their own current needs and
+knowledge, select particular known contacts and open or revise one durable
+matter. Contact attempts retain their address and state. Reaching the address
+does not prove hearing: Communication records reception only after an actual
+exchange, retains waiting and unanswered recipients and returns each formed
+response separately to the originator.
+
+Delivered acceptance creates only a scoped work obligation. The executor enters
+the existing SourceUse owner, and native transfer is required before the item is
+carried. Locomotion owns the carrying route; exact arrival makes the item merely
+delivery-ready; Handover owns the final native transfer. Organization consumes
+the matching terminal receipt once. A released or conflicted source attempt now
+returns a coordinated failure instead of disappearing from the completion read,
+so the commitment cannot remain pending forever. Partial handover, interruption,
+failure and completion stay distinct and survive GraphPersistence rebind.
+
+Border 197 executes that joined chain in installed Kahlua and kills four
+owner-boundary mutations. Borders 180, 190 and 194-196 retain source projection,
+process, external-owner and producer/contact controls. A deterministic ten-day
+headless run forms 78 matters, 104 attempts and 96 arrivals but no receptions or
+decisions under its bodyless seam; this measures the distinction instead of
+converting address arrival into hearing. Loaded-world speech, bodies, native
+movement and animation, save/reopen play and population-scale frequency remain
+unobserved.
+
+**Before that**, 2026-09-25, `[C84]` gives the production county one bounded causal
 episode and makes recipient appraisal available from the same shared owner in
 loaded, dormant and headless execution. One run advances once to its maximum
 horizon; every checkpoint is a prefix of that run. A second fresh Kahlua
@@ -388,7 +415,7 @@ producers, persistence, evidence and gaps.
 | Engine execution | NPC shell, bridge, movement, combat, timed-action adapters | Driving route ownership and progress; action cancellation and completion receipts. |
 | Person continuity | Durable identity, C51's body transaction, C52's authorized return/teardown, C54's v4 native state, C55/A36 reconstruction, C56/A37 external ownership and C80/A39's generalized Afflicted/Crossed handoff of the same shell and dormant envelope | Wider action-specific ownership remains open; one ZAO driver now survives the living state transition. |
 | Time and health | Current decision time, durable drug/abstinence clocks, current physical inputs, exact interval-integrated brain history, medical/inspect graph and memory/decision/affective/motor consumers; C68 completion-proves care-item gifts, C70 completion-proves loaded open-wound bandaging and C72 advances measured rest/sleep/wake through bodyless intervals | R5 is closed. Disinfection, stitching, dormant treatment and other performed care still depend on R7/R9 action producers. |
-| Afflicted and Crossed | ZAO pathogen state and one living driver with distinct policies; Afflicted fear/gathering/arrival, water, protein preference, penalized non-dairy alternatives and donor-conditioned exposure protection; Crossed reduced caloric pressure, ordinary/human-origin sustenance, actor-private targets and evidenced fear/pain/control; exact exposure, settlement, butchery and finite blood-weapon results persist | Broader food composition, group precedent, tools, strategy, social/material life and grounded long-horizon dormant opportunities remain R7-R10 work. Loaded-world behavior is unobserved. |
+| Afflicted and Crossed | ZAO pathogen state and one living driver with distinct policies; Afflicted fear/gathering/arrival and its separately owned maintenance remain state-specific; Crossed use ordinary human caloric passage, ordinary or eligible ordinary-human sustenance, actor-private targets and evidenced fear/pain/control, while Afflicted donor provenance is rejected; exact exposure, settlement, butchery and finite blood-weapon results persist | Broader food composition, group precedent, tools, strategy, social/material life and grounded long-horizon dormant opportunities remain R7-R10 work. Loaded-world behavior is unobserved. |
 | Knowledge and access | Private beliefs; animal-safe scanner output; fresh/current activity partners; demand-hydrated exact source identities; C62's revision-bound approach, current claim/vehicle permission, exact transfer, carried native use and durable result; C63-C64's exact partial-source material projection and durable ambient refresh; C71's recursive actor-private loaded holder view and exact v4 dormant carriage; C72's produced dormant awake/asleep state joined with C67 measured hearing; C73's direct-root powered radio endpoints, elapsed dormant battery state and recipient-private reception receipts; C74's explicit county presence, dated personal acquisition and detached retention observation; C75's deterministic snapshot-local claim catalogue and selected-claim fence | R6 is closed for the selected source interaction and its completed result reaches bounded partial material state. R7 remains open beyond this source-action family. C66 adds exact acquisition/storage; C67 adds private transfer testimony and witnessed recipient response; C68 completion-proves loaded personal handovers; C69 closes the bounded recipient appraisal after testimony. C71-C73 close inventory, adjacent speech and actual radio admission. C74 closes SAO's first bounded R12 acquisition producer. C75 makes the existing surface addressable but leaves protected-world coverage, target rows and runtime snapshot ownership open. Complete house stock and the other material action/result producers remain open. |
 | Social development | C79 adds acquired revisioned matters, individual responses, scoped concurrent commitments, contested/withdrawn responsibility, exact office/command jurisdiction and completion-backed food delivery across loaded/dormant execution. Automatic election recognition and score-triggered schism callers are retired without disabling cleanup. | The first unit is voluntary coordination and contention. Election/deliberation/succession procedures, physical separation, broader institutions, place development and the remaining R9 producers remain incomplete. |
 | Speakeasy data | Protected historical material remains intact. Record 63 requires the exact v3 namespace, actor/executor attribution, source-owned current work and competing priorities, feasible options and separate decision/outcome horizons. C81 emits 20 production-path rows; Record 66 independently reviews, admits and trains that exact synthetic family; Record 67 exports its sealed FP32 bundle and parity vectors. | Decline/withdraw examples, natural gameplay sampling, broader claim/action coverage and general understander/retriever/speaker datasets remain open. |
@@ -694,9 +721,9 @@ consequences remain separate from the learned policy choosing among them.
 
 C57 consolidates three native entry points into one. With C64's immutable
 capture border, C73's radio-reception border, C74's personal-world-knowledge
-border and C75's typed-claim border, the gate invokes 193 `*_test.py` files and
-13 other Python entry points, 206 distinct scripts. Border labels extend through
-195; legacy labels
+border and C75's typed-claim border, the gate invokes 195 `*_test.py` files and
+13 other Python entry points, 208 distinct scripts. Border labels extend through
+197; legacy labels
 163/169/174 share the native suite. These are distinct counting units. The mod
 ships 80 Lua source files.
 ZAO A41 has fifteen borders. The

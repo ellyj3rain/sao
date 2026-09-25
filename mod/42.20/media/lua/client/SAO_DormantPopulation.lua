@@ -5,6 +5,10 @@ SAO.DormantPopulation = SAO.DormantPopulation or {}
 local D = SAO.DormantPopulation
 local function log(msg) SAO.Log.line("POP", msg) end
 local function tally(kind) SAO.Log.tally("POP", kind) end
+local function finite(value)
+    return type(value) == "number" and value == value
+        and value ~= math.huge and value ~= -math.huge
+end
 local function hoursNow()
     local ok, h = pcall(function() return SAO.History.countyHours() end)
     return ok and h or 0
@@ -110,26 +114,77 @@ local function daysWithout(rec, field, today)
     return math.max(0, today - last)
 end
 
--- The person's own shortage beyond the same patience their next errand
--- reads. Standing uses this pressure without inspecting a house's stores.
-function D.companyNeedPressure(id)
+local function personalProvisioningPressure(id, suppliedBody)
     local rec = SAO.Identity and SAO.Identity.get(id)
-    if not rec or rec.dead then return 0 end
-    local body = SAO.Body and SAO.Body.get(id)
+    if not rec or rec.dead or rec.bodyOwner then return nil end
+    local body = suppliedBody or SAO.Body and SAO.Body.get(id)
     local dry, hungry = 0, 0
     if body then
         local need = SAO.Needs and SAO.Needs.read(body)
-        if not need or not SAO.Disposition then return 0 end
+        if not need or not SAO.Disposition then return nil end
         local thirstAt = SAO.Disposition.drinkAt(id)
         local hungerAt = SAO.Disposition.eatAt(id)
+        if not finite(thirstAt) or thirstAt <= 0
+            or not finite(hungerAt) or hungerAt <= 0 then return nil end
         dry = (tonumber(need.thirst) or 0) / thirstAt - 1
         hungry = (tonumber(need.hunger) or 0) / hungerAt - 1
     else
         local today = math.floor(hoursNow() / 24.0)
+        if rec.lastWaterDay == nil or rec.lastFoodDay == nil then return nil end
         dry = daysWithout(rec, "lastWaterDay", today) / THIRST_PATIENCE - 1
         hungry = daysWithout(rec, "lastFoodDay", today) / HUNGER_PATIENCE - 1
     end
-    return math.max(0, math.min(1, math.max(dry, hungry)))
+    return math.max(0, math.min(1, dry)),
+        math.max(0, math.min(1, hungry)), body ~= nil
+end
+
+-- The person's own shortage beyond the same patience their next errand
+-- reads. Standing uses this pressure without inspecting a house's stores.
+function D.companyNeedPressure(id)
+    local dry, hungry = personalProvisioningPressure(id)
+    if dry == nil or hungry == nil then return 0, false end
+    return math.max(dry, hungry), true
+end
+
+-- A concrete private situation for the common coordination owner.  The
+-- situation names only this person's measured pressure and a place they can
+-- ask someone to reach.  It does not infer a household stock total, choose a
+-- helper, prove communication or credit any material result.
+function D.privateProvisioningSituation(id, suppliedBody)
+    id = tostring(id or "")
+    local rec = SAO.Identity and SAO.Identity.get(id) or nil
+    local dry, hungry, represented = personalProvisioningPressure(id,
+        suppliedBody)
+    if not rec or dry == nil or hungry == nil then
+        return nil, "need-unavailable"
+    end
+    local pressure = math.max(dry, hungry)
+    local x = tonumber(rec.homeX) or tonumber(rec.x)
+    local y = tonumber(rec.homeY) or tonumber(rec.y)
+    local z = tonumber(rec.homeZ) or tonumber(rec.z) or 0
+    if not finite(x) or not finite(y) or not finite(z) then
+        return nil, "destination-unavailable"
+    end
+    local now = hoursNow()
+    return {
+        available = true,
+        resolved = pressure <= 0,
+        category = dry > hungry and "water" or "food",
+        pressure = pressure,
+        waterPressure = dry,
+        foodPressure = hungry,
+        destination = {
+            minX = math.floor(x) - 2, minY = math.floor(y) - 2,
+            maxX = math.floor(x) + 2, maxY = math.floor(y) + 2,
+            z = math.floor(z),
+        },
+        destinationSource = rec.homeX and rec.homeY
+            and "retained-home" or "current-record-position",
+        represented = represented == true,
+        observedAtHours = finite(now) and now or nil,
+        needOwner = represented and "SAO.Needs+SAO.Disposition"
+            or "SAO.DormantPopulation.personal-survival-history",
+    }
 end
 
 -- Whether a place is off limits to this person today: feud ground
@@ -258,13 +313,46 @@ local function chooseWhoToGoTo(id, rec, myG, b, desperate)
     return { x = pb.x, y = pb.y, person = best, seenAt = pb.at }
 end
 
+-- An authored but unheard matter is already a reason to seek the person it
+-- names.  The route goes only to this actor's retained address; it neither
+-- reads the recipient's current record nor turns arrival into communication.
+-- A goal already at the retained address is returned with `arrived=true` so
+-- the movement owner can persist presence there.  Arrival does not spend the
+-- lead or imply that the recipient was present; the actor waits through an
+-- ordinary encounter opportunity before the attempt can end unanswered.
+function D.pendingContactGoal(id, rec, tickCounter)
+    local candidate = SAO.Coordination and SAO.Coordination.pendingContact
+        and SAO.Coordination.pendingContact(id) or nil
+    if not candidate then return nil end
+    local x, y = tonumber(rec and rec.x), tonumber(rec and rec.y)
+    if x and y and math.abs(x - candidate.x) < 3
+        and math.abs(y - candidate.y) < 3 then
+        candidate.arrived = true
+    end
+    return {
+        x = candidate.x, y = candidate.y,
+        person = candidate.beliefKey, seenAt = candidate.observedAt,
+        processId = candidate.processId,
+        recipientId = candidate.recipientId,
+        contact = true,
+        arrived = candidate.arrived == true,
+    }
+end
+
 -- [C72] Where the day goes. Named for what it answers now: the goal
 -- may be a place or it may be a person, and until this batch a
 -- dormant survivor had no way to decide to go to anybody. Every
 -- meeting in the county was two need-driven walks coinciding within
 -- three tiles.
 local function chooseDayGoal(id, rec, reach, tickCounter)
-    if not (SAO.Places and rec.homeX) then return nil end
+    if not rec.homeX then return nil end
+
+    -- Contact for an already-authored proposal precedes the ordinary need /
+    -- work / visit chooser. The proposal would otherwise remain private
+    -- precisely while the need that caused it monopolized the day.
+    local contact = D.pendingContactGoal(id, rec, tickCounter)
+    if contact then return contact end
+    if not SAO.Places then return nil end
 
     local myG = SAO.Standing.groupOf(id)
     local b = SAO.Perception.beliefs[id]
@@ -469,11 +557,6 @@ local DEFAULT_AWAKE_FATIGUE_PER_HOUR = 0.1242
 local SLEEP_THRESHOLD = 0.2
 local RESTED_THRESHOLD = 0.000001
 
-local function finite(value)
-    return type(value) == "number" and value == value
-        and value ~= math.huge and value ~= -math.huge
-end
-
 local function acquireDormantPhysiology(rec)
     local fatigue = tonumber(rec.dormantFatigue)
     local endurance = tonumber(rec.dormantEndurance)
@@ -643,6 +726,50 @@ local function advanceDormantPhysiology(id, rec, nowHours, fatigueBase)
     return true
 end
 
+local function clearDayGoal(rec)
+    rec.dayGoalX, rec.dayGoalY = nil, nil
+    rec.dayGoalPlaceId = nil
+    rec.dayGoalSourceNeed = nil
+    rec.dayGoalPerson = nil
+    rec.dayGoalSeenAt = nil
+    rec.dayGoalProcessId = nil
+    rec.dayGoalRecipientId = nil
+    rec.dayGoalContactAttemptId = nil
+end
+
+local function finishDormantContact(id, rec, outcome, tickCounter, detail)
+    local processId, attemptId = rec.dayGoalProcessId,
+        rec.dayGoalContactAttemptId
+    if processId and attemptId and SAO.Organization
+        and SAO.Organization.finishContact then
+        pcall(SAO.Organization.finishContact, processId, attemptId, id,
+            outcome, {
+                owner = "SAO.DormantPopulation",
+                representation = "dormant",
+                tick = tickCounter,
+                x = rec.x, y = rec.y,
+                detail = detail,
+            })
+    end
+    rec.dayGoalContactAttemptId = nil
+end
+
+local function arriveDormantContact(id, rec, tickCounter, detail)
+    local processId, attemptId = rec.dayGoalProcessId,
+        rec.dayGoalContactAttemptId
+    if not (processId and attemptId and SAO.Organization
+        and SAO.Organization.arriveContact) then return nil end
+    local ok, attempt = pcall(SAO.Organization.arriveContact,
+        processId, attemptId, id, {
+            owner = "SAO.DormantPopulation",
+            representation = "dormant",
+            tick = tickCounter,
+            x = rec.x, y = rec.y,
+            detail = detail,
+        })
+    return ok and attempt or nil
+end
+
 local function dormantLife(conf, tickCounter)
     SAO.WorldSources.reconcileReservations()
     -- [C62] The county's hour, not the engine's. This runs once
@@ -675,9 +802,19 @@ local function dormantLife(conf, tickCounter)
         if not rec.dead and not SAO.Claims.isHeld(rec)
             and not SAO.Body.hasRepresentation(id)
             and not sourceOwnsDormantRecord(id) then
-            advanceDormantPhysiology(id, rec, nowHours, fatigueBase)
-            if SAO.Standing.maybeCallForBread then
-                SAO.Standing.maybeCallForBread(id)
+            -- An external execution token excludes survivor physiology and
+            -- movement.  Its registered owner may still originate/appraise a
+            -- social matter through the common process services below.
+            if not rec.bodyOwner then
+                advanceDormantPhysiology(id, rec, nowHours, fatigueBase)
+                if SAO.Standing.maybeCallForBread then
+                    SAO.Standing.maybeCallForBread(id)
+                end
+            end
+            if SAO.Coordination
+                and SAO.Coordination.originatePrivateSituation then
+                SAO.Coordination.originatePrivateSituation(id, nil, "dormant",
+                    "DormantPopulation.privateSituation")
             end
             -- Acquired matters remain thoughts a dormant person can appraise;
             -- physical work still waits for a represented body. Any answer
@@ -687,7 +824,17 @@ local function dormantLife(conf, tickCounter)
                 SAO.Coordination.appraisePending(id, nil, "dormant",
                     "DormantPopulation.coordination")
             end
-            if rec.homeX then
+            if rec.bodyOwner and SAO.Communication
+                and SAO.Communication.actorContactStep then
+                local candidate = SAO.Coordination
+                    and SAO.Coordination.pendingContact
+                    and SAO.Coordination.pendingContact(id) or nil
+                SAO.Communication.actorContactStep(id, candidate, {
+                    atHours = nowHours, tick = tickCounter,
+                    owner = "DormantPopulation.external-contact",
+                })
+            end
+            if not rec.bodyOwner and rec.homeX then
                 rec.nextDormantMoveAt = rec.nextDormantMoveAt or 0
                 -- [C112] This is the one persisted FUTURE due-time in the
                 -- county, and a stamp written by an older build counted
@@ -710,9 +857,109 @@ local function dormantLife(conf, tickCounter)
                     if night and not preFall then
                         tx, ty = rec.homeX, rec.homeY
                     else
-                        if not rec.dayGoalX
+                        -- A current unheard proposal is a new reason to move,
+                        -- not an errand that waits behind yesterday's random
+                        -- walk.  It supersedes an ordinary leg at this movement
+                        -- gate, but targets only the originator's retained
+                        -- address. Organization records the attempt; an actual
+                        -- encounter remains the only proof of reception.
+                        local contact = D.pendingContactGoal(id, rec, tickCounter)
+                        local spokenContacts = {}
+                        local contactKey = contact and (contact.processId .. "\31"
+                            .. contact.recipientId) or nil
+                        while contact and not spokenContacts[contactKey]
+                            and SAO.Communication
+                            and SAO.Communication.exchangeProcesses do
+                            -- The recipient may already be here. Ask the real
+                            -- transport before walking away; it rechecks current
+                            -- distance, wakefulness and speech access and is the
+                            -- only call in this branch allowed to record hearing.
+                            spokenContacts[contactKey] = true
+                            local exchanged = SAO.Communication.exchangeProcesses(
+                                id, contact.recipientId, "dormant-encounter", {
+                                    exchange = "contact-before-travel",
+                                    processId = contact.processId,
+                                    tick = tickCounter,
+                            })
+                            if not exchanged then break end
+                            contact = D.pendingContactGoal(id, rec, tickCounter)
+                            contactKey = contact and (contact.processId .. "\31"
+                                .. contact.recipientId) or nil
+                        end
+                        -- A fresh sighting may advance the privately retained
+                        -- stamp or move the address by a tile while this same
+                        -- attempt is travelling or waiting. That updates the
+                        -- route below; it is not a new act of contact and must
+                        -- not restart the recipient's full waiting window.
+                        local sameContact = contact
+                            and rec.dayGoalProcessId == contact.processId
+                            and rec.dayGoalRecipientId == contact.recipientId
+                        if rec.dayGoalProcessId and not sameContact then
+                            finishDormantContact(id, rec, "superseded",
+                                tickCounter, contact
+                                    and "another current recipient/address"
+                                    or "matter no longer pending at this address")
+                            clearDayGoal(rec)
+                        end
+                        if contact then
+                            rec.dayGoalX, rec.dayGoalY = contact.x, contact.y
+                            rec.dayGoalPlaceId = nil
+                            rec.dayGoalSourceNeed = nil
+                            rec.dayGoalPerson = contact.person
+                            rec.dayGoalSeenAt = contact.seenAt
+                            rec.dayGoalProcessId = contact.processId
+                            rec.dayGoalRecipientId = contact.recipientId
+                            local attempt = SAO.Organization
+                                and SAO.Organization.activeContact
+                                and SAO.Organization.activeContact(
+                                    contact.processId, id, contact.recipientId)
+                                or nil
+                            if not attempt and SAO.Organization
+                                and SAO.Organization.beginContact then
+                                attempt = SAO.Organization.beginContact(
+                                    contact.processId, id, contact.recipientId, {
+                                        owner = "SAO.DormantPopulation",
+                                        representation = "dormant",
+                                        beliefKey = contact.person,
+                                        observedAt = contact.seenAt,
+                                        x = contact.x, y = contact.y,
+                                        tick = tickCounter,
+                                    })
+                            end
+                            rec.dayGoalContactAttemptId = attempt and attempt.id
+                                or nil
+                            if not attempt then
+                                clearDayGoal(rec)
+                                contact = nil
+                            elseif contact.arrived then
+                                if attempt.status ~= "waiting" then
+                                    attempt = arriveDormantContact(id, rec,
+                                        tickCounter, "reached retained address")
+                                end
+                                if not attempt then
+                                    clearDayGoal(rec)
+                                    contact = nil
+                                elseif attempt.status == "waiting"
+                                    and nowHours > (tonumber(attempt.waitUntilAt)
+                                        or nowHours) then
+                                    finishDormantContact(id, rec, "unanswered",
+                                        tickCounter,
+                                        "recipient did not reach the address"
+                                            .. " during the contact day")
+                                    if SAO.Perception and SAO.Perception
+                                        .noteContactAttempt then
+                                        pcall(SAO.Perception.noteContactAttempt,
+                                            id, contact.person, contact.seenAt,
+                                            tickCounter)
+                                    end
+                                    clearDayGoal(rec)
+                                    contact = nil
+                                end
+                            end
+                        end
+                        if not contact and (not rec.dayGoalX
                             or (math.abs(rec.x - rec.dayGoalX) < 3
-                                and math.abs(rec.y - rec.dayGoalY) < 3) then
+                                and math.abs(rec.y - rec.dayGoalY) < 3)) then
                             -- [C25] The day reaches the home
                             -- neighborhood - the county's derived
                             -- horizon, not a dial (DR-027). Need can
@@ -746,15 +993,9 @@ local function dormantLife(conf, tickCounter)
                             -- would spend the belief of a person they had
                             -- just found.
                             if rec.dayGoalPerson then
-                                pcall(function()
-                                    local b2 = SAO.Perception.beliefs[id]
-                                    local pb = b2 and b2.people
-                                        and b2.people[rec.dayGoalPerson]
-                                    if pb and (pb.at or 0)
-                                        <= (rec.dayGoalSeenAt or 0) then
-                                        pb.lookedAt = tickCounter
-                                    end
-                                end)
+                                pcall(SAO.Perception.noteContactAttempt,
+                                    id, rec.dayGoalPerson,
+                                    rec.dayGoalSeenAt, tickCounter)
                             end
                             local retainSourceGoal = false
                             if rec.dayGoalPlaceId then
@@ -811,6 +1052,23 @@ local function dormantLife(conf, tickCounter)
                                 -- survive into today's walk.
                                 rec.dayGoalPerson = chosen.person
                                 rec.dayGoalSeenAt = chosen.seenAt
+                                rec.dayGoalProcessId = chosen.processId
+                                rec.dayGoalRecipientId = chosen.recipientId
+                                rec.dayGoalContactAttemptId = nil
+                                if chosen.contact and SAO.Organization
+                                    and SAO.Organization.beginContact then
+                                    local attempt = SAO.Organization.beginContact(
+                                        chosen.processId, id, chosen.recipientId, {
+                                            owner = "SAO.DormantPopulation",
+                                            representation = "dormant",
+                                            beliefKey = chosen.person,
+                                            observedAt = chosen.seenAt,
+                                            x = chosen.x, y = chosen.y,
+                                            tick = tickCounter,
+                                        })
+                                    rec.dayGoalContactAttemptId = attempt
+                                        and attempt.id or nil
+                                end
                             elseif out then
                                 -- Wilderness, or a neighbourhood whose
                                 -- every place is enemy ground. Nothing to
@@ -823,6 +1081,9 @@ local function dormantLife(conf, tickCounter)
                                 rec.dayGoalSourceNeed = nil
                                 rec.dayGoalPerson = nil
                                 rec.dayGoalSeenAt = nil
+                                rec.dayGoalProcessId = nil
+                                rec.dayGoalRecipientId = nil
+                                rec.dayGoalContactAttemptId = nil
                             else
                                 -- Staying in: the leg is home, and the
                                 -- goal machinery above is skipped
@@ -834,6 +1095,9 @@ local function dormantLife(conf, tickCounter)
                                 rec.dayGoalSourceNeed = nil
                                 rec.dayGoalPerson = nil
                                 rec.dayGoalSeenAt = nil
+                                rec.dayGoalProcessId = nil
+                                rec.dayGoalRecipientId = nil
+                                rec.dayGoalContactAttemptId = nil
                             end
                         end
                         tx, ty = rec.dayGoalX, rec.dayGoalY
@@ -1033,7 +1297,8 @@ local function dormantAttrition(tickCounter)
         if rec.dead then
             -- Nothing here: word of a death is delivered above, before
             -- the risk dial can silence it.
-        elseif not SAO.Claims.isHeld(rec) and not SAO.Body.hasRepresentation(id)
+        elseif not rec.bodyOwner and not SAO.Claims.isHeld(rec)
+            and not SAO.Body.hasRepresentation(id)
             and not sourceOwnsDormantRecord(id) then
             -- [B37] A world that predates this batch has never
             -- recorded either of these, and somebody who has "never"
@@ -1659,20 +1924,20 @@ local function dormantEncounters(tickCounter)
                         SAO.Perception.tell(idB, idA, tickCounter, nil, "dormant-encounter")
                     end)
                     pcall(function()
-                        if SAO.Coordination and SAO.Coordination.appraisePending then
-                            SAO.Coordination.appraisePending(idA, nil, "dormant",
-                                "DormantPopulation.coordination")
-                            SAO.Coordination.appraisePending(idB, nil, "dormant",
-                                "DormantPopulation.coordination")
+                        if SAO.Coordination
+                            and SAO.Coordination.originatePrivateSituation then
+                            SAO.Coordination.originatePrivateSituation(idA, nil,
+                                "dormant", "DormantPopulation.encounter")
+                            SAO.Coordination.originatePrivateSituation(idB, nil,
+                                "dormant", "DormantPopulation.encounter")
                         end
                         if SAO.Communication
-                            and SAO.Communication.deliverPendingResponses then
-                            SAO.Communication.deliverPendingResponses(idA, idB,
-                                "dormant-encounter",
-                                { exchange = "shared-matter" })
-                            SAO.Communication.deliverPendingResponses(idB, idA,
-                                "dormant-encounter",
-                                { exchange = "shared-matter" })
+                            and SAO.Communication.exchangeProcesses then
+                            SAO.Communication.exchangeProcesses(idA, idB,
+                                "dormant-encounter", {
+                                    exchange = "shared-matter",
+                                    tick = tickCounter,
+                                })
                         end
                     end)
                     -- Grudges travel the roads too ([A23]): testimony

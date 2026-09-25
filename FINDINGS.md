@@ -1,6 +1,6 @@
 | Document | Survivor Awareness Overhaul Findings |
 |---|---|
-| Version | `2.9.5.0-pre-alpha` |
+| Version | `2.10.0.0-pre-alpha` |
 | Author | ellyj3rain |
 | Repository | `FINDINGS.md` |
 | Status | CANONICAL, APPEND-ONLY - verified engine findings. |
@@ -2302,3 +2302,59 @@ Border 15 proves both producers and current-state reappraisal across conversion
 with six mutations. These are installed-VM/headless controls. Loaded-world
 speech, routing, animation, save/reopen play and long-horizon social outcomes
 remain unobserved.
+
+## F-102 | 2026-09-25 21:45 UTC / 14:45 PST | Address arrival and queue admission were mistaken for social and material completion
+
+C79-C84 established the durable coordination contract and state-specific
+appraisal, but the production county still depended on authored matters. A
+person's own retained pressure did not select particular contacts and persist a
+contact attempt into actual reception. The material fixture separately proved
+that work could be admitted, but not that the joined native SourceUse,
+Locomotion and Handover owners would close the commitment on every terminal
+outcome.
+
+C85 adds private provisioning producers in loaded and dormant life, retained
+contact addresses and durable attempts. Reaching an address records arrival,
+not hearing. Only an actual Communication exchange creates reception and only a
+returned private response can create scoped work. Silence stays unanswered;
+waiting, expiry and retry remain observable.
+
+The joined execution audit exposed a second defect. A coordinated SourceUse
+attempt could enter the queue and then release before native transfer.
+WorldSources had a terminal receipt, but its completed-result read hid that
+receipt because no material moved. Organization therefore retained a pending
+receipt forever. C85 makes explicitly commitment-bound release/conflict results
+deliverable exactly once to Provisioning and Organization without projecting a
+material gain; ordinary abandoned source attempts remain actor-private.
+
+Border 197 executes acceptance, source admission, exact transfer, carrying,
+rebind, route arrival, native handover, released failure, stopped partial and
+exact-once consumption through the actual owners. Four joined-owner mutations
+fail. The ten-day headless producer run forms matters and address arrivals but
+no receptions under its bodyless seam, confirming that the distinction is real.
+Loaded-world contact, movement, animation and save/reopen presentation remain
+unobserved.
+
+## F-103 | 2026-09-25 21:45 UTC / 14:45 PST | Crossed maintenance prose invented a caloric reduction and allowed a prohibited donor
+
+F-100 and its downstream canonical summaries incorrectly assigned reduced
+caloric pressure to Crossed and permitted Afflicted remains as dispreferred
+food. Those statements were unsupported inferences, not operator decisions.
+The corrected boundary is categorical: Crossed retain ordinary human caloric
+passage and may eat ordinary food; their preference for eligible human flesh is
+motivational and can combine sustenance with cruelty, fear, domination and
+contagion. They cannot feed on Afflicted. Intentional blood exposure is a
+separate established pathogen action. This correction does not define or alter
+Afflicted food policy.
+
+ZAO A42 enforces the donor boundary at option formation, timed-action start,
+native completion and SourceUse consumption. Raw human-origin items and evolved
+dishes retain donor provenance; known ordinary donors remain eligible, known
+Afflicted donors are rejected and legacy anonymous human-origin food fails
+closed. Crossed hunger and thirst observe the native retained human shell
+without a new multiplier. The common ZAO driver still serves both living states,
+but policy and maintenance remain state-specific.
+
+ZAO Borders 10, 12-15 and focused maintenance/material controls execute these
+boundaries headlessly. No loaded-world food diversity, balance, presentation or
+long-horizon ecology is established.

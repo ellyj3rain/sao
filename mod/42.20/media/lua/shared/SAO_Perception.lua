@@ -1481,6 +1481,69 @@ function P.believedPerson(id, name)
     return b and b.people[name] or nil
 end
 
+-- The people this person can name from their own retained knowledge.  This is
+-- an addressing surface, not a reachability or liveness oracle: a privately
+-- unknown death remains unknown, and an old location does not become proof
+-- that speech can reach it.  Communication still has to admit the eventual
+-- encounter before any proposal is received.
+function P.knownPeople(id)
+    local b = P.beliefs[tostring(id or "")]
+    local out, seen = {}, {}
+    for key, belief in pairs(b and b.people or {}) do
+        if type(belief) == "table" and belief.dead ~= true then
+            local otherId = belief.id
+            if not otherId and SAO.Identity and SAO.Identity.idByName then
+                otherId = SAO.Identity.idByName(key)
+            end
+            otherId = otherId and tostring(otherId) or nil
+            if otherId and otherId ~= "" and otherId ~= tostring(id)
+                and not seen[otherId] then
+                seen[otherId] = true
+                out[#out + 1] = {
+                    id = otherId,
+                    beliefKey = tostring(key),
+                    observedAt = tonumber(belief.at),
+                    observedAtHours = tonumber(belief.atHours),
+                    lookedAt = tonumber(belief.lookedAt),
+                    source = belief.source and tostring(belief.source) or nil,
+                    x = tonumber(belief.x), y = tonumber(belief.y),
+                    distance = tonumber(belief.dist),
+                    condition = belief.condition
+                        and tostring(belief.condition) or nil,
+                    form = belief.form and tostring(belief.form) or nil,
+                }
+            end
+        end
+    end
+    table.sort(out, function(a, b0)
+        local ah, bh = tonumber(a.observedAtHours) or -math.huge,
+            tonumber(b0.observedAtHours) or -math.huge
+        if ah ~= bh then return ah > bh end
+        local at, bt = tonumber(a.observedAt) or -math.huge,
+            tonumber(b0.observedAt) or -math.huge
+        if at ~= bt then return at > bt end
+        return a.id < b0.id
+    end)
+    return out
+end
+
+-- Record that this person physically reached the last place where they knew
+-- to look for somebody.  A newer sighting wins: arriving at yesterday's
+-- address cannot consume knowledge acquired during the walk.  This marks a
+-- failed location lead, not the other person's death, refusal, or absence
+-- from the county.
+function P.noteContactAttempt(id, beliefKey, observedAt, attemptedAt)
+    id, beliefKey = tostring(id or ""), tostring(beliefKey or "")
+    observedAt, attemptedAt = tonumber(observedAt), tonumber(attemptedAt)
+    local b = P.beliefs[id]
+    local belief = b and b.people and b.people[beliefKey] or nil
+    if id == "" or beliefKey == "" or type(belief) ~= "table"
+        or not observedAt or not attemptedAt
+        or tonumber(belief.at) ~= observedAt then return false end
+    belief.lookedAt = math.max(tonumber(belief.lookedAt) or 0, attemptedAt)
+    return true
+end
+
 -- [C60] A participant candidate acquired by this person's own eyes. The
 -- ordinary people horizon is memory; an immediate shared action needs the
 -- last two scanner intervals and refuses told, dead or stale records.

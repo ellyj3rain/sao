@@ -38,7 +38,7 @@ on the simulation.
 
 ## Status
 
-`2.9.5.0-pre-alpha` - the coordinate is computed by the version machine
+`2.10.0.0-pre-alpha` - the coordinate is computed by the version machine
 (`tools/version_replay.py`), never picked; `VERSION_MAP.md` shows the
 classification and the arithmetic.
 
@@ -60,8 +60,8 @@ travel and arrival evidence. SAO infers no maintenance policy from the shared
 driver. ZAO A39 owns the actual distinctions: Afflicted require water, prefer
 meat/protein, can use penalized non-dairy alternatives and may choose human-
 origin food with donor-conditioned exposure protection; Crossed retain ordinary
-food viability under reduced caloric pressure while fear, pain and control form
-a separate predatory pressure. A39 also ships the first human-corpse butchery
+human caloric passage while fear, pain and control form a separate predatory
+pressure. Crossed cannot feed on Afflicted provenance. A39 also ships the first human-corpse butchery
 and selectively prepared finite blood-contaminated weapon producers. Actor-
 private evidence, not a global nearest-person scan, supplies targets. These
 examples do not define either state's full life.
@@ -96,6 +96,19 @@ different. The tracked 30-day joint episode replayed exactly but formed no
 shared matter, so Speakeasy Record 68 preserves one empty episode and creates no
 training task. This is useful evidence of the remaining producer-density gap,
 not permission to fabricate a successful society.
+
+C85 adds the missing production path into that coordination contract. A
+person's private provisioning pressure can now become a concrete matter for
+particular retained contacts; a contact attempt, address arrival, proposal
+reception, private response and returned answer are separate transitions.
+Silence remains unanswered and attempts can wait, expire or retry without
+manufacturing hearing. Delivered acceptance drives the existing native
+SourceUse acquisition, Locomotion carrying and Handover delivery owners.
+Queue admission is not acquisition or completion, and completed, partial,
+interrupted and failed work each close through one exact durable result. The
+same process survives loaded/dormant handoff, registered ZAO execution and
+save/reload. Borders 180, 190 and 194-197 execute this headlessly; loaded-world
+speech, movement, animation and save/reopen play remain unobserved.
 
 Pre-alpha, and the evidence comes in two kinds.
 

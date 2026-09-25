@@ -115,6 +115,47 @@ local function event(process, kind, actorId, detail, at)
     })
 end
 
+local CONTACT_TERMINAL = {
+    -- `arrived` remains terminal for pre-C85 saves. New attempts record
+    -- arrival separately and wait for an actual reception or an unanswered
+    -- end, because reaching an address and reaching a person are different
+    -- events.
+    arrived = true, unanswered = true,
+    failed = true, interrupted = true, superseded = true,
+    received = true, expired = true, withdrawn = true, closed = true,
+}
+
+local function endContactAttempt(process, attempt, outcome, evidence, at)
+    if type(attempt) ~= "table" or CONTACT_TERMINAL[attempt.status] then
+        return false
+    end
+    outcome = CONTACT_TERMINAL[tostring(outcome or "")] and tostring(outcome)
+        or "interrupted"
+    attempt.status = outcome
+    attempt.endedAt = finite(at) and at or nowHours()
+    attempt.outcomeEvidence = dataCopy(evidence or {}) or {}
+    event(process, "contact-ended", attempt.actorId, {
+        contactAttemptId = attempt.id,
+        recipientId = attempt.recipientId,
+        outcome = outcome,
+    }, attempt.endedAt)
+    return true
+end
+
+local function endOpenContacts(process, outcome, recipientId, evidence, at)
+    local ended = 0
+    for _, attempt in ipairs(process and process.contactAttempts or {}) do
+        if not CONTACT_TERMINAL[attempt.status]
+            and (recipientId == nil
+                or attempt.recipientId == tostring(recipientId)) then
+            if endContactAttempt(process, attempt, outcome, evidence, at) then
+                ended = ended + 1
+            end
+        end
+    end
+    return ended
+end
+
 local function hasLiveCommitment(process)
     for _, commitment in pairs(process and process.commitments or {}) do
         if not TERMINAL_WORK[commitment.status] then return true end
@@ -140,6 +181,8 @@ local function trimProcesses()
                     "proposal-expired", at)
             end
             process.status = "expired"
+            endOpenContacts(process, "expired", nil,
+                { expiresAtHours = expiresAt }, at)
             process.closedAt = at
             process.closureReason = "proposal-expired"
             event(process, "process-expired", process.originatorId,
@@ -214,6 +257,9 @@ local function refreshProcessStatus(process)
                             "fulfilled-by-another-participant", closedAt)
                     end
                 end
+                endOpenContacts(process, "closed", nil,
+                    { reason = "first-completion",
+                        commitmentId = commitment.id }, closedAt)
                 process.status = "closed"
                 process.closedAt = closedAt
                 process.closureReason = "first-completion"
@@ -243,8 +289,11 @@ local function refreshProcessStatus(process)
         end
     end
     if addressed > 0 and not unresolved then
+        local closedAt = nowHours()
+        endOpenContacts(process, "closed", nil,
+            { reason = "all-addressed-resolved" }, closedAt)
         process.status = "closed"
-        process.closedAt = nowHours()
+        process.closedAt = closedAt
         process.closureReason = "all-addressed-resolved"
         event(process, "process-closed", process.originatorId,
             { reason = process.closureReason }, process.closedAt)
@@ -389,6 +438,8 @@ function Org.releaseActor(personId, reason)
                     changed = true
                 end
             end
+            endOpenContacts(process, "withdrawn", nil,
+                { reason = tostring(reason or "originator-unavailable") }, at)
             process.status = "withdrawn"
             process.closedAt = at
             process.closureReason = tostring(reason or "originator-unavailable")
@@ -427,6 +478,8 @@ function Org.retireOrganization(organizationId, reason)
                     changed = true
                 end
             end
+            endOpenContacts(process, "withdrawn", nil,
+                { reason = tostring(reason or "organization-retired") }, at)
             process.status = "withdrawn"
             process.closedAt = at
             process.closureReason = tostring(reason or "organization-retired")
@@ -634,6 +687,7 @@ function Org.raiseMatter(originatorId, kind, organizationId, proposal,
         originatorId = originatorId, createdAt = at, revisedAt = at,
         revision = 1, status = "open", revisions = {}, participants = {},
         commitments = {}, commitmentSequence = 0, privateInputs = {},
+        contactAttempts = {}, contactSequence = 0,
         events = {} }
     process.revisions["1"] = { revision = 1, proposedAt = at,
         proposedBy = originatorId, proposal = dataCopy(proposal) or {} }
@@ -718,6 +772,147 @@ function Org.transportRevision(processId, fromId, toId)
     return tonumber(process.revision), process.kind
 end
 
+-- Current addressed revisions that still need an actual transport.  This is
+-- intentionally narrower than "messages for a person": it exposes no private
+-- evidence or other participant response, and an addressed row remains
+-- unheard until Communication proves a channel and records reception.
+function Org.pendingProposals(fromId, toId)
+    fromId, toId = identity(fromId), identity(toId)
+    if not fromId or not toId or fromId == toId then return {} end
+    trimProcesses()
+    local out = {}
+    for _, processId in ipairs(Org.processOrder) do
+        local process = Org.processes[processId]
+        local row = process and process.participants
+            and process.participants[toId] or nil
+        local key = process and revisionKey(process.revision) or nil
+        if process and process.status == "open"
+            and process.originatorId == fromId and row
+            and row.addressed == true
+            and not (row.receptions and row.receptions[key]) then
+            out[#out + 1] = {
+                processId = process.id,
+                processRevision = tonumber(process.revision),
+                kind = process.kind,
+            }
+        end
+    end
+    return out
+end
+
+-- A contact attempt is movement toward a privately known address for one
+-- current addressed revision.  It is durable evidence of trying to convene,
+-- not evidence that the recipient was there or heard anything.
+function Org.beginContact(processId, originatorId, recipientId, evidence)
+    local process = processOf(processId)
+    originatorId, recipientId = identity(originatorId), identity(recipientId)
+    local row = process and process.participants
+        and process.participants[recipientId] or nil
+    local key = process and revisionKey(process.revision) or nil
+    if not process or process.status ~= "open"
+        or process.originatorId ~= originatorId or not recipientId
+        or recipientId == originatorId or not row or row.addressed ~= true
+        or row.receptions and row.receptions[key] then
+        return nil, "contact-not-pending"
+    end
+    process.contactAttempts = process.contactAttempts or {}
+    for index = #process.contactAttempts, 1, -1 do
+        local existing = process.contactAttempts[index]
+        if existing.actorId == originatorId
+            and existing.recipientId == recipientId
+            and tonumber(existing.revision) == tonumber(process.revision)
+            and not CONTACT_TERMINAL[existing.status] then
+            return existing, "existing"
+        end
+    end
+    process.contactSequence = math.max(0,
+        math.floor(tonumber(process.contactSequence) or 0)) + 1
+    local attempt = {
+        id = process.id .. ":contact:" .. tostring(process.contactSequence),
+        processId = process.id, revision = process.revision,
+        actorId = originatorId, recipientId = recipientId,
+        status = "travelling", startedAt = nowHours(),
+        evidence = dataCopy(evidence or {}) or {},
+    }
+    appendBounded(process.contactAttempts, attempt, 64)
+    event(process, "contact-started", originatorId, {
+        contactAttemptId = attempt.id, recipientId = recipientId,
+    }, attempt.startedAt)
+    return attempt, "started"
+end
+
+-- Reaching the retained address establishes presence there; it does not prove
+-- that the named recipient was present or acquired the proposal. The actor
+-- remains available to the ordinary encounter transport for one complete
+-- county day (or until the proposal expires), after which the attempt can end
+-- unanswered. `arrivedAt` remains on every eventual outcome so observers do
+-- not have to collapse arrival and reception into one status.
+function Org.arriveContact(processId, contactAttemptId, originatorId, evidence)
+    local process = processOf(processId)
+    originatorId, contactAttemptId = identity(originatorId),
+        identity(contactAttemptId)
+    if not process or process.originatorId ~= originatorId
+        or not contactAttemptId then return nil, "contact-not-owned" end
+    for _, attempt in ipairs(process.contactAttempts or {}) do
+        if attempt.id == contactAttemptId then
+            if CONTACT_TERMINAL[attempt.status] then
+                return nil, "contact-already-ended"
+            end
+            if attempt.status == "waiting" and finite(attempt.arrivedAt)
+                and finite(attempt.waitUntilAt) then
+                return attempt, "already-waiting"
+            end
+            local at = nowHours()
+            local current = proposalAt(process, process.revision)
+            local expiresAt = current and current.proposal
+                and tonumber(current.proposal.expiresAtHours) or nil
+            local waitUntil = at + 24
+            if finite(expiresAt) then waitUntil = math.min(waitUntil, expiresAt) end
+            attempt.status = "waiting"
+            attempt.arrivedAt = at
+            attempt.waitUntilAt = math.max(at, waitUntil)
+            attempt.arrivalEvidence = dataCopy(evidence or {}) or {}
+            event(process, "contact-arrived", originatorId, {
+                contactAttemptId = attempt.id,
+                recipientId = attempt.recipientId,
+                waitUntilAt = attempt.waitUntilAt,
+            }, at)
+            return attempt, "waiting"
+        end
+    end
+    return nil, "contact-not-found"
+end
+
+function Org.finishContact(processId, contactAttemptId, originatorId,
+        outcome, evidence)
+    local process = processOf(processId)
+    originatorId, contactAttemptId = identity(originatorId),
+        identity(contactAttemptId)
+    if not process or process.originatorId ~= originatorId
+        or not contactAttemptId then return false, "contact-not-owned" end
+    for _, attempt in ipairs(process.contactAttempts or {}) do
+        if attempt.id == contactAttemptId then
+            if CONTACT_TERMINAL[attempt.status] then return true, "duplicate" end
+            return endContactAttempt(process, attempt, outcome, evidence),
+                tostring(outcome or "interrupted")
+        end
+    end
+    return false, "contact-not-found"
+end
+
+function Org.activeContact(processId, originatorId, recipientId)
+    local process = processOf(processId)
+    originatorId, recipientId = identity(originatorId), identity(recipientId)
+    if not process or process.originatorId ~= originatorId then return nil end
+    for index = #(process.contactAttempts or {}), 1, -1 do
+        local attempt = process.contactAttempts[index]
+        if attempt.recipientId == recipientId
+            and tonumber(attempt.revision) == tonumber(process.revision)
+            and not CONTACT_TERMINAL[attempt.status] then return attempt end
+    end
+    return nil
+end
+
 function Org.reviseMatter(processId, originatorId, proposal, privateEvidence)
     local process = processOf(processId)
     if not process or process.originatorId ~= originatorId
@@ -725,6 +920,8 @@ function Org.reviseMatter(processId, originatorId, proposal, privateEvidence)
         return nil
     end
     local priorRevision = process.revision
+    endOpenContacts(process, "superseded", nil,
+        { priorRevision = priorRevision }, nowHours())
     process.revision = priorRevision + 1
     process.revisedAt = nowHours()
     process.revisions[revisionKey(process.revision)] = {
@@ -751,6 +948,8 @@ function Org.withdrawMatter(processId, originatorId, reason, evidence)
     if not process or process.status ~= "open"
         or process.originatorId ~= originatorId then return false end
     local at = nowHours()
+    endOpenContacts(process, "withdrawn", nil,
+        { reason = tostring(reason or "proposal-withdrawn") }, at)
     for _, commitment in pairs(process.commitments or {}) do
         endCommitment(process, commitment, nil,
             reason or "proposal-withdrawn", at)
@@ -779,8 +978,11 @@ function Org.closeMatter(processId, originatorId, reason, evidence)
             return false
         end
     end
+    local at = nowHours()
+    endOpenContacts(process, "closed", nil,
+        { reason = tostring(reason or "originator-completed") }, at)
     process.status = "closed"
-    process.closedAt = nowHours()
+    process.closedAt = at
     process.closureReason = tostring(reason or "originator-completed")
     event(process, "process-closed", originatorId, {
         reason = process.closureReason,
@@ -809,6 +1011,10 @@ function Org.recordReception(processId, personId, revision, channel,
         fromId = identity(fromId), evidence = dataCopy(evidence or {}) }
     event(process, "proposal-received", personId,
         { channel = channel, fromId = fromId }, row.receptions[key].at)
+    endOpenContacts(process, "received", personId, {
+        channel = tostring(channel or "communication"),
+        receptionRevision = revision,
+    }, row.receptions[key].at)
     return true
 end
 
@@ -855,7 +1061,8 @@ function Org.pendingAppraisals(personId)
         local key = process and revisionKey(process.revision) or nil
         local reception = row and row.receptions and row.receptions[key] or nil
         local response = row and row.responses and row.responses[key] or nil
-        if process and process.status == "open" and row and row.addressed
+        if process and process.status == "open"
+            and process.originatorId ~= personId and row and row.addressed
             and reception and (not response or response.delivered ~= true
                 or response.response == "defer") then
             out[#out + 1] = {

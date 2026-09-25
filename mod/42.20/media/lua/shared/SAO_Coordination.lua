@@ -9,6 +9,11 @@ SAO = SAO or {}
 SAO.Coordination = SAO.Coordination or {}
 local Coordination = SAO.Coordination
 
+local function finite(value)
+    return type(value) == "number" and value == value
+        and value ~= math.huge and value ~= -math.huge
+end
+
 local function destinationKnown(proposal)
     local destination = proposal and proposal.destination or nil
     return type(destination) == "table"
@@ -16,6 +21,214 @@ local function destinationKnown(proposal)
         and tonumber(destination.minY) ~= nil
         and tonumber(destination.maxX) ~= nil
         and tonumber(destination.maxY) ~= nil
+end
+
+local function nowHours()
+    local value = nil
+    pcall(function() value = SAO.History.countyHours() end)
+    return finite(value) and value or 0
+end
+
+-- Detached contacts assembled only from this person's retained perception and
+-- standing.  They are possible addressees, not proof of current location,
+-- health, willingness or reachability.
+function Coordination.knownContacts(id)
+    id = tostring(id or "")
+    local contacts = SAO.Perception and SAO.Perception.knownPeople
+        and SAO.Perception.knownPeople(id) or {}
+    local relations = SAO.Standing and SAO.Standing.relationsOf
+        and SAO.Standing.relationsOf(id) or {}
+    for _, contact in ipairs(contacts) do
+        local relation = relations[contact.id]
+            or relations[contact.beliefKey] or {}
+        contact.relationship = tonumber(relation.trust) or 0
+        contact.hostile = relation.hostile == true
+    end
+    table.sort(contacts, function(a, b)
+        if a.hostile ~= b.hostile then return b.hostile == true end
+        if a.relationship ~= b.relationship then
+            return a.relationship > b.relationship
+        end
+        local ah, bh = tonumber(a.observedAtHours) or -math.huge,
+            tonumber(b.observedAtHours) or -math.huge
+        if ah ~= bh then return ah > bh end
+        return a.id < b.id
+    end)
+    return contacts
+end
+
+-- The best privately known address for a current proposal that has not yet
+-- reached its named recipient.  Organization supplies only the current
+-- addressed envelope; Perception supplies only this originator's retained
+-- location.  No current body, liveness, or recipient response is consulted.
+function Coordination.pendingContact(id)
+    id = tostring(id or "")
+    if id == "" or not (SAO.Organization
+        and SAO.Organization.pendingProposals) then return nil end
+    local eligible = {}
+    for _, contact in ipairs(Coordination.knownContacts(id)) do
+        local x, y = tonumber(contact.x), tonumber(contact.y)
+        local observedAt, lookedAt = tonumber(contact.observedAt),
+            tonumber(contact.lookedAt)
+        local unspent = not (lookedAt and observedAt and lookedAt >= observedAt)
+        if contact.hostile ~= true and x and y and unspent then
+            local pending = SAO.Organization.pendingProposals(id, contact.id)
+            if #pending > 0 then
+                eligible[#eligible + 1] = {
+                    processId = pending[1].processId,
+                    processRevision = pending[1].processRevision,
+                    kind = pending[1].kind,
+                    recipientId = contact.id,
+                    beliefKey = contact.beliefKey,
+                    x = x, y = y,
+                    observedAt = observedAt,
+                    observedAtHours = contact.observedAtHours,
+                    relationship = contact.relationship,
+                    source = contact.source,
+                }
+            end
+        end
+    end
+    -- Trust and activity can reorder several possible recipients while an
+    -- actor is already travelling or waiting. That is not a decision to
+    -- abandon the current person. Resume the durable attempt first; ranking
+    -- selects a recipient only when no attempt is active. A newer private
+    -- sighting still changes the address returned to the movement owner, but
+    -- it does not make the same proposal/recipient attempt a new social act.
+    if SAO.Organization.activeContact then
+        for _, candidate in ipairs(eligible) do
+            if SAO.Organization.activeContact(candidate.processId, id,
+                candidate.recipientId) then return candidate end
+        end
+    end
+    if #eligible > 0 then return eligible[1] end
+    return nil
+end
+
+local function currentProposal(process, originatorId)
+    local view = process and SAO.Organization
+        and SAO.Organization.viewFor(originatorId, process.id, false) or nil
+    return view and view.proposal and view.proposal.proposal or nil
+end
+
+local function nativeRecipients(id, contacts)
+    local recipients = {}
+    for _, contact in ipairs(contacts or {}) do
+        if contact.hostile ~= true then
+            recipients[#recipients + 1] = contact.id
+            if #recipients >= 3 then break end
+        end
+    end
+    return recipients
+end
+
+local function originateNativeSituation(id, body, ownerLabel, contacts)
+    if not (SAO.DormantPopulation
+        and SAO.DormantPopulation.privateProvisioningSituation
+        and SAO.Organization and SAO.Organization.openMatter) then
+        return nil, "situation-owner-unavailable"
+    end
+    local situation, why = SAO.DormantPopulation.privateProvisioningSituation(
+        id, body)
+    local open = SAO.Organization.openMatter(id, "provisioning")
+    if not situation then return open, why or "situation-unavailable" end
+    if situation.resolved then
+        if open and SAO.Organization.withdrawMatter then
+            SAO.Organization.withdrawMatter(open.id, id, "personal-need-resolved", {
+                owner = situation.needOwner,
+                observedAtHours = situation.observedAtHours,
+            })
+            return open, "withdrawn"
+        end
+        return nil, "no-current-pressure"
+    end
+
+    local recipients = nativeRecipients(id, contacts)
+    if #recipients == 0 and not open then
+        return nil, "no-known-recipient"
+    end
+    local destination = situation.destination
+    local band = math.max(1, math.min(4,
+        math.ceil((tonumber(situation.pressure) or 0) * 4)))
+    local intentKey = table.concat({ tostring(situation.category),
+        tostring(destination.minX), tostring(destination.minY),
+        tostring(destination.z), tostring(band) }, ":")
+    local proposal = {
+        intentKey = intentKey,
+        requesterId = id,
+        category = situation.category,
+        quantity = 1,
+        purpose = "provisioning under current personal need",
+        responsePolicy = "first-completion",
+        expiresAtHours = nowHours() + 72,
+        destinationRequired = true,
+        destination = destination,
+        requiredCapabilities = {
+            acquire = true, carry = true, deliver = true,
+        },
+        scope = { action = "deliver-material",
+            category = situation.category, quantity = 1 },
+    }
+    local privateEvidence = {
+        source = "private-person-situation",
+        owner = ownerLabel or "SAO.Coordination",
+        needOwner = situation.needOwner,
+        pressure = situation.pressure,
+        waterPressure = situation.waterPressure,
+        foodPressure = situation.foodPressure,
+        represented = situation.represented,
+        destinationSource = situation.destinationSource,
+        observedAtHours = situation.observedAtHours,
+    }
+    if open then
+        local prior = currentProposal(open, id) or {}
+        if tostring(prior.intentKey or "") ~= intentKey then
+            open = SAO.Organization.reviseMatter(open.id, id, proposal,
+                privateEvidence)
+        end
+    else
+        open = SAO.Organization.raiseMatter(id, "provisioning",
+            SAO.Standing and SAO.Standing.groupOf
+                and SAO.Standing.groupOf(id) or nil,
+            proposal, recipients, privateEvidence)
+    end
+    if not open then return nil, "matter-refused" end
+    if SAO.Organization.addressMatter then
+        SAO.Organization.addressMatter(open.id, id, recipients)
+    end
+    local delivered = 0
+    for _, recipientId in ipairs(recipients) do
+        local message = SAO.Communication
+            and SAO.Communication.deliverProcessProposal
+            and SAO.Communication.deliverProcessProposal(id, recipientId,
+                open.id, nil, { source = ownerLabel or "SAO.Coordination",
+                    proposedAtHours = nowHours() }) or nil
+        if message then delivered = delivered + 1 end
+    end
+    return open, delivered > 0 and "delivered" or "open-unheard"
+end
+
+-- Turn a person's own current situation into durable social intent.  Native
+-- survivor need is read by its existing owner; an external person is handed
+-- back to the registered behavioral owner with only private contacts and
+-- common process context.  Neither branch infers reception or completion.
+function Coordination.originatePrivateSituation(id, body, activity, ownerLabel)
+    id = tostring(id or "")
+    local rec = SAO.Identity and SAO.Identity.get and SAO.Identity.get(id)
+    if id == "" or not rec or rec.dead then return nil, "actor-unavailable" end
+    local contacts = Coordination.knownContacts(id)
+    if rec.bodyOwner then
+        if not (SAO.Communication and SAO.Communication.actorMatter) then
+            return nil, "execution-owner-unavailable"
+        end
+        return SAO.Communication.actorMatter(id, {
+            owner = ownerLabel or "SAO.Coordination",
+            currentActivity = tostring(activity or "dormant"),
+            knownContacts = contacts,
+            atHours = nowHours(),
+        })
+    end
+    return originateNativeSituation(id, body, ownerLabel, contacts)
 end
 
 -- Build only from facts available to this recipient now. A registered
@@ -52,8 +265,14 @@ function Coordination.privateContext(id, agent, body, request, ownerLabel)
     elseif body and SAO.Needs and SAO.Needs.read then
         local needs = SAO.Needs.read(body)
         ownNeed = needs and tonumber(needs.hunger) or 0
+    elseif rec and SAO.DormantPopulation
+        and SAO.DormantPopulation.companyNeedPressure then
+        local available = false
+        ownNeed, available = SAO.DormantPopulation.companyNeedPressure(id)
+        ownNeedAvailable = available == true
     elseif rec then
         ownNeed = tonumber(rec.hunger) or 0
+        ownNeedAvailable = rec.hunger ~= nil
     end
 
     local originator = processView.originatorId

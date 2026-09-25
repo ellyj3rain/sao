@@ -96,6 +96,8 @@ def episode_record(name: str, horizon: int, checkpoints: list[int],
             "companies": copy.deepcopy(evidence.get("companies", {})),
             "deathCauses": copy.deepcopy(evidence.get("deathCauses", {})),
             "decisionCapture": copy.deepcopy(decisions),
+            "processObservation": copy.deepcopy(
+                decisions.get("processObservation", {})),
         },
         "terminal": {key: copy.deepcopy(simulation.get(key))
                      for key in terminal_fields},
@@ -200,8 +202,13 @@ def main() -> int:
                 print(json.dumps(record, sort_keys=True))
         for record in records:
             decisions = record["trajectory"]["decisionCapture"]["eventCount"]
+            processes = record["trajectory"].get("processObservation", {})
             terminal = record["terminal"]
-            print(f"{record['episodeId']}: decisions={decisions} "
+            print(f"{record['episodeId']}: matters={processes.get('processCount', 0)} "
+                  f"received={processes.get('receptionCount', 0)} "
+                  f"contacts={processes.get('contactAttemptCount', 0)} "
+                  f"arrivals={processes.get('contactArrivalCount', 0)} "
+                  f"decisions={decisions} "
                   f"alive={terminal['alive']} dead={terminal['dead']} "
                   f"replay={record['replay']['simulationSha256']}", file=sys.stderr)
         return 0

@@ -16,9 +16,9 @@ the machine. Names, dates, and threads below come from
 | Form | `major.minor.kohai.patch-maturity` |
 | Hard caps | minor 12; kohai 16; patch 24 |
 | Replay start | `0.1.0.0-pre-alpha` |
-| Current version | `2.9.5.0-pre-alpha` |
-| Closed chronology | `A1-C84` |
-| Next batch | `C85` |
+| Current version | `2.10.0.0-pre-alpha` |
+| Closed chronology | `A1-C85` |
+| Next batch | `C86` |
 | Executable source | [`tools/version_replay.py`](tools/version_replay.py) |
 
 ## Tier meanings
@@ -200,6 +200,7 @@ the machine. Names, dates, and threads below come from
 | `C82` | 2026-09-25 | kohai | `2.9.3.0-pre-alpha` | Native coordination shadow | Integrate Speakeasy Record 67 as an exact content-hashed FP32 artifact in the packaged Java consumer and a bounded asynchronous shadow after authoritative recipient appraisal. Revalidate response, process, feasible options and registered execution-owner state, cancel transient requests on world change and retain source-owned Afflicted and Crossed distinctions. This matures the R13-R14 interchange and runtime seam while behavior authority and loaded gameplay acceptance remain open, so kohai. |
 | `C83` | 2026-09-25 | kohai | `2.9.4.0-pre-alpha` | External life coordination | Generalize enacted coordination beyond its original survivor food fixture: registered external owners now appraise acquired matters from their current private state, provisioning admits food or stored portable water, and rendezvous commitments complete only on exact native arrival. Revision-bound work, interruption, reload reconstruction and exact-once terminal receipts remain in Organization and the existing native service owners. This matures the C79 capability without creating another planner, so kohai. |
 | `C84` | 2026-09-25 | kohai | `2.9.5.0-pre-alpha` | Causal episode runtime | Unify loaded and dormant recipient appraisal behind one shared coordination policy owner, register one representation-neutral ZAO execution adapter for both Afflicted and Crossed state dispatch, and carry production decision capture through a single-prefix county episode with isolated exact replay and exclusive export. Preserve empty natural episodes for downstream intake instead of manufacturing proposals or labels. This structurally matures the existing coordination, evidence and acceleration seams, so kohai. |
+| `C85` | 2026-09-25 | minor | `2.10.0.0-pre-alpha` | Private situation contact and enacted work | Turn a person's private retained situation into an addressed, revisable shared matter through actual contact attempts, independent acquisition and response, then carry accepted work through the existing SourceUse, Locomotion and Handover owners with exact-once terminal results. Loaded, dormant and registered external people share the process without inferred hearing, assent or success. This is the first production capability that originates and enacts the C79 coordination contract rather than requiring an authored fixture, so minor. |
 
 ## The former number
 
@@ -220,11 +221,11 @@ establish release maturity.
 
 ## Next movement
 
-`C85` is the next batch. Its content determines its tier after it
+`C86` is the next batch. Its content determines its tier after it
 exists:
 
-| If C85 is | Result |
+| If C86 is | Result |
 |---|---|
-| patch or hotfix | `2.9.5.1-pre-alpha` |
-| kohai | `2.9.6.0-pre-alpha` |
-| minor | `2.10.0.0-pre-alpha` |
+| patch or hotfix | `2.10.0.1-pre-alpha` |
+| kohai | `2.10.1.0-pre-alpha` |
+| minor | `2.11.0.0-pre-alpha` |

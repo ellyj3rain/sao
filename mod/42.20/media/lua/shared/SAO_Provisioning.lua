@@ -218,8 +218,12 @@ local function cleanupAcknowledgedReconciliations()
 end
 
 function Provisioning.processReceipt(receipt)
+    local coordinated = type(receipt) == "table"
+        and receipt.commitmentId ~= nil
+        and tostring(receipt.commitmentId) ~= ""
     if type(receipt) ~= "table"
-        or (receipt.status ~= "completed" and receipt.transferObservation == nil)
+        or (receipt.status ~= "completed" and receipt.transferObservation == nil
+            and not coordinated)
         or type(receipt.reservationId) ~= "string" then
         return false, "invalid-result"
     end
@@ -257,9 +261,12 @@ function Provisioning.processReceipt(receipt)
     -- holder checks conflict. Deliver that experience without crediting a
     -- completed action or projecting any material or social result.
     if receipt.status ~= "completed" then
+        local reason = receipt.transferObservation ~= nil
+            and "native-observation-delivered"
+            or "coordination-result-delivered"
         if not SAO.WorldSources.acknowledgeResult(receipt.reservationId,
-            CONSUMER, "native-observation-delivered") then return false, "ack-refused" end
-        return true, "native-observation-delivered"
+            CONSUMER, reason) then return false, "ack-refused" end
+        return true, reason
     end
     if not (SAO.GraphPersistence and SAO.GraphPersistence.bind) then
         return false, "graph-unavailable"

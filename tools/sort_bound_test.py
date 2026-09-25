@@ -109,6 +109,11 @@ BOUNDED = {
     ("SAO_CoordinationInference.lua", "ids"):
         "the pending shadow map is bounded by MAX_PENDING (128); poll copies "
         "at most those admitted request ids before sorting",
+    ("SAO_Coordination.lua", "contacts"):
+        "knownPeople returns distinct person beliefs from one actor; every "
+        "identity comes from the current county population, whose sandbox "
+        "ceiling is 500, below the earliest observed adversarial failure at "
+        "1500, and no contact-attempt row is added to this input",
     ("SAO_World.lua", "ranked"):
         "the item categories a world survey found, which is the game's "
         "own category list rather than the number of items",

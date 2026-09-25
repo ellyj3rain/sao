@@ -1,6 +1,6 @@
 | Document | Survivor Awareness Overhaul Decision Registry |
 |---|---|
-| Version | `2.9.5.0-pre-alpha` |
+| Version | `2.10.0.0-pre-alpha` |
 | Author | ellyj3rain |
 | Repository | `DECISION_REGISTRY.md` |
 | Status | CANONICAL, APPEND-ONLY - ratified decisions. |
@@ -1715,3 +1715,37 @@ diet or future outcome enters the generic decision record.
 `skill-61bcc92d536b113d`, item `seam-61bcc92d536b113d`, selected `approved`
 without notes. The approved plan evidence is
 `field-test:plan-sha256:b034d3db2599033973b37158332d10998eec79de2b24bceaebdf629cabaf6738`.
+
+---
+
+## DR-049 | 2026-09-25 21:45 UTC / 14:45 PST | Crossed retain ordinary caloric passage and cannot feed on Afflicted
+
+**Status** RATIFIED by direct operator correction during C85/A42. This
+supersedes only DR-047's Crossed reduced-calorie and Afflicted-donor clauses.
+It does not merge the two living states, change the common-driver decision or
+author a new Afflicted food policy.
+
+**Decision.** Crossed retain their living human shell and its ordinary human
+caloric passage. Ordinary food is valid. Eligible ordinary-human flesh can be
+preferred because sustenance may coincide with cruelty, mutilation, terror,
+domination and contagion, not because the pathogen imposes a zombie hunger or
+reduced-calorie physiology. Crossed cannot feed on Afflicted. Eating, killing,
+weapon contamination and intentional blood exposure are distinct acts and
+results.
+
+Shared execution does not imply shared maintenance. Afflicted and Crossed use
+one ZAO driver because ZAO owns both living pathogen states; each continues to
+use its own policy, private situation and constraints. SAO supplies county,
+Communication and native action services without inferring either diet.
+
+**Application.** ZAO A42 removes the Crossed caloric multiplier and validates
+donor provenance at option formation, timed-action admission, continued
+validity, native completion and SourceUse consumption. Known ordinary-human
+donors may remain eligible, known Afflicted donors are rejected, and anonymous
+legacy human-origin food fails closed. C85 keeps contact attempt, address
+arrival, reception, private response, returned answer and work completion
+separate for every registered owner.
+
+**Origin.** Direct operator correction and supplied source discussion on
+2026-09-25 during the already-approved implementation. The correction resolves
+assistant-inferred mechanics; it is not cancellation or a new approval gate.

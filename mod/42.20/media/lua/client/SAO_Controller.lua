@@ -315,6 +315,47 @@ function Ctl.adoptPassive(rec)
     return true
 end
 
+local function clearLoadedContact(agent)
+    if not agent then return end
+    agent.contactProcessId = nil
+    agent.contactRecipientId = nil
+    agent.contactBeliefKey = nil
+    agent.contactSeenAt = nil
+    agent.contactAttemptId = nil
+    agent.contactWaitUntilAt = nil
+end
+
+local function finishLoadedContact(id, agent, outcome, evidence)
+    if agent and agent.contactProcessId and agent.contactAttemptId
+        and SAO.Organization and SAO.Organization.finishContact then
+        pcall(SAO.Organization.finishContact, agent.contactProcessId,
+            agent.contactAttemptId, id, outcome, evidence or {
+                owner = "SAO.Controller",
+                representation = "loaded",
+                tick = tickCount,
+            })
+    end
+    if agent then agent.contactAttemptId = nil end
+end
+
+local function arriveLoadedContact(id, agent, evidence)
+    if not (agent and agent.contactProcessId and agent.contactAttemptId
+        and SAO.Organization and SAO.Organization.arriveContact) then
+        return nil
+    end
+    local ok, attempt = pcall(SAO.Organization.arriveContact,
+        agent.contactProcessId, agent.contactAttemptId, id, evidence or {
+            owner = "SAO.Controller",
+            representation = "loaded",
+            tick = tickCount,
+        })
+    if ok and attempt then
+        agent.contactWaitUntilAt = attempt.waitUntilAt
+        return attempt
+    end
+    return nil
+end
+
 function Ctl.drop(id)
     id = tostring(id)
     if Ctl.agents[id] then
@@ -335,6 +376,13 @@ function Ctl.drop(id)
         if SAO.Treatment and SAO.Treatment.releasePerson then
             pcall(SAO.Treatment.releasePerson, id, "controller-drop")
         end
+        -- Dropping a rendered controller is an execution handoff, not an
+        -- actor decision to abandon contact. The durable Organization attempt
+        -- remains active; DormantPopulation or the registered external owner
+        -- reconstructs its disposable movement/wait state from that attempt
+        -- and the same private address. Death/release and actual state changes
+        -- terminate through their own owners.
+        clearLoadedContact(Ctl.agents[id])
         local ok, err = pcall(SAO.Locomotion.cancel, id)
         Ctl.agents[id] = nil
         if not ok then log("cancel during drop " .. id .. ": " .. tostring(err)) end
@@ -438,6 +486,7 @@ local MOVEMENT_STATES = {
     TRAVEL = true, FLEE = true, ROAM = true, HOMEWARD = true,
     FORAGE = true, WATERWARD = true, GEARWARD = true, FOLLOW = true,
     SOURCEWARD = true, WORKWARD = true,
+    CONTACTWARD = true,
     AMMOWARD = true, MOURNWARD = true, PLAYERFOLLOW = true,
     SETTLEWARD = true, MEDICWARD = true, SEARCHWARD = true,
     HEARTHWARD = true,
@@ -450,6 +499,8 @@ local MOVEMENT_STATES = {
     -- no-op there and a correct cleanup for any stale walk.
     DRIVE = true, RIDE = true,
 }
+
+local CONTACT_STATES = { CONTACTWARD = true, CONTACTWAIT = true }
 
 -- The four answers (DR-011, [A18]): what is the pressure doing to this
 -- body right now - need, designation, chosen rest, or errand. Every
@@ -662,6 +713,17 @@ local function setState(agent, id, state, why, answer, repairingSourceProjection
     -- way it survives ROAM itself.
     if state ~= "ROAM" and state ~= "DRIVE" then agent.onVenture = nil end
     if agent.state ~= state then
+        if CONTACT_STATES[agent.state] and not CONTACT_STATES[state] then
+            finishLoadedContact(id, agent, "interrupted", {
+                owner = "SAO.Controller",
+                representation = "loaded",
+                tick = tickCount,
+                fromState = agent.state,
+                toState = state,
+                reason = why or "state-changed",
+            })
+            clearLoadedContact(agent)
+        end
         if MOVEMENT_STATES[agent.state] and not MOVEMENT_STATES[state] then
             if agent.coordinationRoute and agent.coordinationCommitment
                 and SAO.Organization and SAO.Organization.pauseWork then
@@ -795,6 +857,130 @@ function Ctl.appraiseCoordination(id, body, activity)
     end
     return SAO.Coordination.appraisePending(id, body, activity,
         "Controller.coordination")
+end
+
+-- Continue an originator's unheard proposal by walking to the recipient's
+-- last privately known address.  The route consumes no current target body
+-- or position. Exchange remains the only operation that can record reception.
+function Ctl.seekPendingContact(id, agent, body, tick)
+    if not (agent and agent.state == "IDLE" and body
+        and SAO.Coordination and SAO.Coordination.pendingContact) then
+        return false
+    end
+    local candidate = SAO.Coordination.pendingContact(id)
+    if not candidate then return false end
+    if SAO.Communication and SAO.Communication.exchangeProcesses then
+        local exchanged = SAO.Communication.exchangeProcesses(id,
+            candidate.recipientId, nil, {
+                exchange = "contact-before-travel",
+                processId = candidate.processId,
+                tick = tick,
+            })
+        if exchanged then return true end
+    end
+    local attempt = SAO.Organization and SAO.Organization.activeContact
+        and SAO.Organization.activeContact(candidate.processId, id,
+            candidate.recipientId) or nil
+    if not attempt and SAO.Organization and SAO.Organization.beginContact then
+        attempt = SAO.Organization.beginContact(candidate.processId, id,
+            candidate.recipientId, {
+                owner = "SAO.Controller",
+                representation = "loaded",
+                beliefKey = candidate.beliefKey,
+                observedAt = candidate.observedAt,
+                x = candidate.x, y = candidate.y,
+                tick = tick,
+            })
+    end
+    if not attempt then return false end
+    agent.contactProcessId = candidate.processId
+    agent.contactRecipientId = candidate.recipientId
+    agent.contactBeliefKey = candidate.beliefKey
+    agent.contactSeenAt = candidate.observedAt
+    agent.contactAttemptId = attempt.id
+    local dx, dy = candidate.x - body:getX(), candidate.y - body:getY()
+    if dx * dx + dy * dy < ARRIVAL_REACH * ARRIVAL_REACH then
+        local waiting = arriveLoadedContact(id, agent, {
+            owner = "SAO.Controller",
+            representation = "loaded",
+            tick = tick,
+            x = body:getX(), y = body:getY(), z = body:getZ(),
+            reason = "already-at-retained-address",
+        })
+        if not waiting then
+            finishLoadedContact(id, agent, "failed", {
+                owner = "SAO.Controller",
+                representation = "loaded",
+                tick = tick,
+                reason = "contact-arrival-not-recorded",
+            })
+            clearLoadedContact(agent)
+            return false
+        end
+        setState(agent, id, "CONTACTWAIT",
+            "waits at the last known address for an actual encounter")
+        return true
+    end
+    if not orderTravelState(agent, id, body,
+        math.floor(candidate.x), math.floor(candidate.y),
+        math.floor(body:getZ()), "CONTACTWARD",
+        "seeks a named recipient for an unheard matter") then
+        finishLoadedContact(id, agent, "failed", {
+            owner = "SAO.Controller",
+            representation = "loaded",
+            tick = tick,
+            reason = "native-route-refused",
+        })
+        clearLoadedContact(agent)
+        return false
+    end
+    return true
+end
+
+-- Arrival holds this actor at the address long enough for the ordinary speech
+-- transport to prove a meeting. Threats are evaluated before this function and
+-- can interrupt the wait. Silence remains silence: after one county day the
+-- stale lead is spent and the attempt ends unanswered.
+function Ctl.waitPendingContact(id, agent, body, tick)
+    if not (agent and agent.state == "CONTACTWAIT" and body
+        and agent.contactProcessId and agent.contactRecipientId
+        and agent.contactAttemptId) then return false end
+    if SAO.Communication and SAO.Communication.exchangeProcesses then
+        SAO.Communication.exchangeProcesses(id, agent.contactRecipientId,
+            nil, { exchange = "contact-at-address",
+                processId = agent.contactProcessId, tick = tick })
+    end
+    local attempt = SAO.Organization and SAO.Organization.activeContact
+        and SAO.Organization.activeContact(agent.contactProcessId, id,
+            agent.contactRecipientId) or nil
+    if not attempt then
+        clearLoadedContact(agent)
+        setState(agent, id, "IDLE",
+            "the address contact was received, closed, or superseded")
+        return true
+    end
+    local atHours = nil
+    pcall(function() atHours = SAO.History.countyHours() end)
+    local waitUntil = tonumber(attempt.waitUntilAt)
+        or tonumber(agent.contactWaitUntilAt)
+    if type(atHours) == "number" and waitUntil and atHours > waitUntil then
+        local beliefKey, seenAt = agent.contactBeliefKey, agent.contactSeenAt
+        finishLoadedContact(id, agent, "unanswered", {
+            owner = "SAO.Controller",
+            representation = "loaded",
+            tick = tick,
+            x = body:getX(), y = body:getY(), z = body:getZ(),
+            reason = "recipient-did-not-arrive-during-contact-day",
+        })
+        if beliefKey and SAO.Perception and SAO.Perception.noteContactAttempt then
+            SAO.Perception.noteContactAttempt(id, beliefKey, seenAt, tick)
+        end
+        clearLoadedContact(agent)
+        setState(agent, id, "IDLE",
+            "the recipient did not reach the address during the contact day")
+        return true
+    end
+    return true
 end
 
 local function carriedSupply(body, category)
@@ -5572,7 +5758,20 @@ local function decide(id, agent, body)
     if SAO.Standing.maybeCallForBread then
         SAO.Standing.maybeCallForBread(id)
     end
+    if SAO.Coordination and SAO.Coordination.originatePrivateSituation then
+        SAO.Coordination.originatePrivateSituation(id, body, agent.state,
+            "Controller.privateSituation")
+    end
     Ctl.appraiseCoordination(id, body, agent.state)
+
+    -- CONTACTWAIT is an explicit hold gate: only actual exchange, process
+    -- closure/supersession or the durable wait deadline can return it to IDLE.
+    if agent.state == "CONTACTWAIT" then
+        if Ctl.waitPendingContact(id, agent, body, tick) then return end
+    end
+
+    if agent.state == "IDLE"
+        and Ctl.seekPendingContact(id, agent, body, tick) then return end
 
     -- The branching graph's work projection. When no threat owns the
     -- moment, labor is the graph's own answer rather than a side table.
@@ -5927,11 +6126,28 @@ local function decisionIntervalFor(id)
 end
 
 local function updateMovement(id, agent, body)
+    if agent.state == "CONTACTWARD" and agent.contactRecipientId
+        and SAO.Organization and SAO.Organization.activeContact
+        and not SAO.Organization.activeContact(agent.contactProcessId, id,
+            agent.contactRecipientId) then
+        SAO.Locomotion.cancel(id)
+        finishLoadedContact(id, agent, "interrupted", {
+            owner = "SAO.Controller",
+            representation = "loaded",
+            tick = tickCount,
+            reason = "contact-no-longer-active",
+        })
+        clearLoadedContact(agent)
+        setState(agent, id, "IDLE",
+            "the contact attempt was resolved or superseded")
+        return false
+    end
     -- Locomotion verdicts drive state exits for movement states.
     if agent.state == "TRAVEL" or agent.state == "FLEE" or agent.state == "ROAM"
         or agent.state == "HOMEWARD" or agent.state == "FORAGE"
         or agent.state == "SOURCEWARD"
         or agent.state == "WORKWARD"
+        or agent.state == "CONTACTWARD"
         or agent.state == "FOLLOW" or agent.state == "WATERWARD"
         or agent.state == "GEARWARD" or agent.state == "AMMOWARD"
         or agent.state == "MOURNWARD" or agent.state == "PLAYERFOLLOW"
@@ -6067,6 +6283,36 @@ local function updateMovement(id, agent, body)
                 setState(agent, id, "IDLE",
                     "committed delivery route ended: " .. tostring(result))
                 return true
+            end
+            if agent.state == "CONTACTWARD" then
+                local arrived = s:find("arrived", 1, true) ~= nil
+                if arrived then
+                    local waiting = arriveLoadedContact(id, agent, {
+                        owner = "SAO.Controller",
+                        representation = "loaded",
+                        tick = tickCount,
+                        x = body:getX(), y = body:getY(), z = body:getZ(),
+                        locomotionStatus = s,
+                    })
+                    if waiting then
+                        setState(agent, id, "CONTACTWAIT",
+                            "waits at the last known address for an actual encounter")
+                        return false
+                    end
+                end
+                finishLoadedContact(id, agent, "failed", {
+                    owner = "SAO.Controller",
+                    representation = "loaded",
+                    tick = tickCount,
+                    x = body:getX(), y = body:getY(), z = body:getZ(),
+                    locomotionStatus = s,
+                    reason = arrived and "contact-arrival-not-recorded"
+                        or "native-route-did-not-arrive",
+                })
+                clearLoadedContact(agent)
+                setState(agent, id, "IDLE",
+                    "the contact route ended without a durable arrival")
+                return false
             end
             -- The forager's haul ([A28]): a sweep that ARRIVES
             -- somewhere actually collects - real food out of the real

@@ -1,6 +1,6 @@
 | Document | Survivor Awareness Overhaul Architecture |
 |---|---|
-| Version | `2.9.5.0-pre-alpha` |
+| Version | `2.10.0.0-pre-alpha` |
 | Author | ellyj3rain |
 | Repository | `ARCHITECTURE.md` |
 | Status | ACTIVE - ratified framework shape. |
@@ -820,8 +820,10 @@ travel, invokes SAO's native Locomotion owner, and reports arrival before
 Standing may commit home or claim. The former daily record relocation is gone.
 Afflicted-to-Crossed conversion preserves the owner token and changes only the
 state policy. ZAO reports the body's current competing pressure without
-exporting a diagnosis or diet label. Crossed human maintenance, including
-ordinary food at reduced caloric pressure, is admitted by Crossed policy.
+exporting a diagnosis or diet label. Crossed human maintenance uses ordinary
+human caloric passage under Crossed policy. Known Afflicted donor provenance is
+categorically unavailable to Crossed feeding; intentional exposure remains a
+distinct pathogen action.
 Afflicted water, protein preference, penalized non-dairy alternatives and
 donor-conditioned human-meal consequences remain under the distinct Afflicted
 policy. SAO does not infer either policy from the exported generic pressure.
@@ -906,6 +908,36 @@ emits no task. The separate twenty-scene audit exercises the response policies;
 its authored initial situations do not populate or relabel the natural run.
 Neither artifact establishes loaded gameplay, producer prevalence, training
 admission or accelerator equivalence.
+
+### Private situation contact and enacted work (C85 / ZAO A42)
+
+Perception retains each person's known communication contacts and their last
+usable address. A private provisioning pressure becomes one revisioned
+Organization matter addressed to particular contacts. Coordination owns neither
+telepathy nor a delivery shortcut: the originator opens a contact attempt,
+Locomotion may reach its address, Communication must still complete an actual
+exchange before reception exists, and every recipient forms and returns their
+own answer from current private state. Waiting, unanswered, expired and retried
+attempts remain explicit.
+
+Accepted material work keeps its existing native owners. SourceUse reserves and
+transfers the exact observed item; only a successful native transfer establishes
+carrying. Locomotion owns the carrying route and exact arrival; Handover owns the
+recipient transfer. Queue admission, source reservation, acquisition, arrival
+and delivery are different states. Organization consumes the exact terminal
+receipt once. A coordinated SourceUse release or conflict is therefore visible
+to the work reconciler even though it projects no material gain; ordinary
+abandoned source attempts remain private to their actor. GraphPersistence keeps
+attempts, receptions, responses, commitments, work and consumed results across
+loaded/dormant handoff and reload.
+
+Registered external people enter the same contact and work process through their
+execution owner. ZAO A42 supplies shared-driver contact continuation while its
+Afflicted and Crossed policies remain distinct. SAO neither infers either
+state's maintenance nor treats a generic message as hearing, assent or success.
+Border 197 executes the complete SourceUse-to-Handover chain and failure/partial
+branches in installed Kahlua. Loaded presentation and play acceptance remain
+separate evidence.
 
 ### Reference-learning source (C81)
 

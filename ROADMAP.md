@@ -1,6 +1,6 @@
 | Document | Survivor Awareness Overhaul Roadmap |
 |---|---|
-| Version | `2.9.5.0-pre-alpha` |
+| Version | `2.10.0.0-pre-alpha` |
 | Author | ellyj3rain |
 | Repository | `ROADMAP.md` |
 | Status | CANONICAL - readiness work and retained scope. |
@@ -64,6 +64,15 @@ tracked 30-day run preserves a zero-decision result and Speakeasy Record 68
 retains it without producing a task. This supplies the first exact R15 baseline
 artifact while exposing that broader R9 producers still did not form a matter
 in that seed.
+C85 closes the first production route from a person's own retained provisioning
+pressure into addressed contact, actual reception, independent response and
+performed work. Address arrival remains distinct from hearing; unanswered
+attempts wait or expire. Accepted work reaches SourceUse acquisition,
+Locomotion carrying and Handover delivery, and Organization consumes completed,
+partial, interrupted or failed terminal results exactly once. This closes one
+R9 provisioning producer and exposes it to later causal episodes; wider care,
+development, governance, household production and cultural producers remain
+open.
 Broader actions, institutions, reviewed data and learned execution remain
 R9-R14 work. Existing R work moves with its owning contract.
 
@@ -106,8 +115,10 @@ completion across reload.
 C84/A41 make that appraisal owner available identically in loaded and dormant
 execution and add an exact-reset episode/export boundary around the causal
 county. Record 68 accepts complete empty episodes without inventing labels.
-R9 remains open for wider governance, care, provisioning and development
-producers. C64 closes R11's immutable
+C85 closes the first natural private-situation/contact/provisioning producer and
+its exact SourceUse-to-Handover execution chain. R9 remains open for wider
+governance, care, household provisioning, development and cultural producers.
+C64 closes R11's immutable
 envelope and join integrity plus R12's protected-source audit; both contracts
 remain open for their substantive data producers and views. C74 supplies R12's
 first dated personal acquisition producer and a hash-bound decision/evidence
@@ -190,7 +201,7 @@ wiring; it does not introduce creation recipes or synthesis rules.
 | Person and life | Age, childhood, conditions, habits, hobbies, addictions, culture, relationships and material pressures condition choice. Work and roles are downstream observations. |
 | Places and resources | Ground follows use; organizations can hold several places, move or abandon them. Provisioning follows real access, consumption and work. |
 | Authority and recognition | Claims, recognition, response, jurisdiction, legitimacy and coercion remain distinct. Repetition alone does not appoint an office. |
-| Afflicted and crossed | ZAO executes both living pathogen states through one driver with distinct policies; SAO supplies county and native-action services. Afflicted require water, prefer meat/protein, can use penalized non-dairy alternatives and may gain donor-conditioned protection from a chosen human meal. Crossed remain human-looking, cognitive and routinely strategic; ordinary food sustains them under reduced caloric pressure, while evidenced fear, pain and control answer a separate predatory pressure. Afflicted human remains are dispreferred rather than categorically impossible food, and intentional exposure remains distinct. Conversion preserves the driver; examples never define the full vocabulary. |
+| Afflicted and crossed | ZAO executes both living pathogen states through one driver with distinct policies; SAO supplies county and native-action services. Afflicted maintenance remains owned by its distinct ZAO policy. Crossed remain human-looking, cognitive and routinely strategic; ordinary food supplies ordinary human calories, eligible ordinary-human flesh can carry a separate motivational preference, and evidenced fear, pain and control answer a separate predatory pressure. Crossed cannot feed on Afflicted, and intentional exposure remains distinct. Conversion preserves the driver; examples never define the full vocabulary. |
 | Brain health | ZAO-led per-person event-driven brain-health and inflammatory state, integrating drug and pathogen effects, memory, health markers and a graph visualization. Authored decline curves do not replace causes. |
 | Optional integrations | Every installed family is accounted for at its actual seam with its ratified settings and absence behavior. The nuke is optional and defaults off. |
 | Cognition and speech | Person, perceived situation, available options and choice form the data contract. Models cover decisions as well as expression; no player-speech harvesting. |
