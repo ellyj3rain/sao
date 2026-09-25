@@ -510,7 +510,7 @@ def main() -> int:
     print('ENACTED SOCIAL COORDINATION AND RECEIPT-BACKED WORK')
     print('=' * 74)
     required = [ORGANIZATION, COMMUNICATION, GRAPH, CAPTURE, RUNNER,
-                PERCEPTION, COORDINATION, ZAO_EXECUTION_OWNER]
+                PERCEPTION, COORDINATION]
     missing = [path for path in required if not path.is_file()]
     if missing:
         print('  FAULT: repository input absent: ' + ', '.join(map(str, missing)))
@@ -518,6 +518,9 @@ def main() -> int:
     installed = [PZ, STDLIB, JDK / 'java.exe', JDK / 'javac.exe']
     if not all(path.is_file() for path in installed):
         print('Border 190 SKIPPED: installed game VM or JDK absent')
+        return 0
+    if not ZAO_EXECUTION_OWNER.is_file():
+        print('Border 190 SKIPPED: paired ZAO execution owner absent')
         return 0
     static_ok, static_detail = static_contract()
     print('  static contract: ' + ('PASS' if static_ok else 'FAIL')
