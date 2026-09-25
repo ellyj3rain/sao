@@ -129,8 +129,43 @@ def digest(value: Any) -> str:
     return hashlib.sha256(canonical(value)).hexdigest()
 
 
-def file_hash(path: Path) -> str:
-    return hashlib.sha256(path.read_bytes()).hexdigest()
+def indexed_bytes(path: Path) -> bytes:
+    """Return the exact Git blob that the evidence source will publish.
+
+    Windows may materialize a tracked LF blob as CRLF in the checkout.  The
+    manifest is consumed from an immutable commit, so hashing checkout bytes
+    would make the same source unverifiable after publication.  Require the
+    working copy to agree with its index entry, then hash that index blob.
+    """
+    resolved = path.resolve()
+    if resolved.is_relative_to(ROOT):
+        repository = ROOT
+    elif resolved.is_relative_to(ZAO_ROOT):
+        repository = ZAO_ROOT
+    else:
+        raise RuntimeError("source path is outside the sister repositories: "
+                           + str(path))
+    relative = resolved.relative_to(repository).as_posix()
+    clean = subprocess.run(
+        ["git", "-C", str(repository), "diff", "--quiet", "--", relative],
+        capture_output=True,
+    )
+    if clean.returncode != 0:
+        raise RuntimeError("evidence source differs from Git index: " +
+                           source_name(resolved))
+    blob = subprocess.run(
+        ["git", "-C", str(repository), "show", ":" + relative],
+        capture_output=True,
+    )
+    if blob.returncode != 0:
+        detail = blob.stderr.decode("utf-8", errors="replace").strip()
+        raise RuntimeError("indexed evidence source unavailable: " +
+                           source_name(resolved) + (": " + detail if detail else ""))
+    return blob.stdout
+
+
+def indexed_hash(path: Path) -> str:
+    return hashlib.sha256(indexed_bytes(path)).hexdigest()
 
 
 def lua_value(value: Any) -> str:
@@ -438,8 +473,8 @@ def build() -> tuple[dict[str, Any], list[dict[str, Any]], dict[str, Any]]:
         "schemaVersion": 1,
         "catalogueSha256": catalogue["contentSha256"],
         "rowCount": len(rows),
-        "sourceHashes": {source_name(path): file_hash(path)
-                         for path in evidence_paths()},
+        "sourceHashes": {source_name(path): indexed_hash(path)
+                          for path in evidence_paths()},
         "index": index,
         "standing": "candidate-observation",
         "exclusions": ["synthetic-starting-conditions",

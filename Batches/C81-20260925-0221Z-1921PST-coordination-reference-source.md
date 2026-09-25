@@ -38,6 +38,10 @@ joint loader. It now requires shared `ZAO_Maintenance` and recognizes
 `ZAO.Driver` as a loaded-body owner that is deliberately absent from dormant
 county execution.
 
+Source hashes cover the exact Git index blobs after working-copy agreement is
+checked, so an immutable SAO or ZAO commit reproduces them even when the local
+checkout materializes different line endings.
+
 The attempted three-county, thirty-day combined diagnostic timed out under its
 bounded per-county limit and atomically published nothing. It therefore supplies
 no county sample. Source inspection establishes that dormant stepping does not

@@ -20,6 +20,11 @@ present in each predeclared partition. Decline and withdrawal remain supported
 by the enacted process but were not produced by these situations and therefore
 are not represented as learned labels.
 
+The manifest hashes the exact Git index blobs after refusing any source whose
+working copy differs from its index entry. That keeps the published source
+verifiable against immutable SAO and ZAO commits across checkout line-ending
+policies.
+
 Reproduce and compare the exact bytes with:
 
 ```text

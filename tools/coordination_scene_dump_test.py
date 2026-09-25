@@ -29,6 +29,10 @@ def main() -> int:
         catalogue, rows, manifest = Scenes.build()
     except Exception as error:  # the border must report the production fault
         return fail(str(error))
+    for path in Scenes.evidence_paths():
+        name = Scenes.source_name(path)
+        if manifest["sourceHashes"].get(name) != Scenes.indexed_hash(path):
+            return fail("source hash is not the exact Git index blob: " + name)
     saved = Scenes.ROOT / "artifacts/audits/c81-coordination-reference-source"
     for name, data in Scenes.output_bytes(catalogue, rows, manifest).items():
         path = saved / name
