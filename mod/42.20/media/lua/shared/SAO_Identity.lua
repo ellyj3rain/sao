@@ -352,6 +352,13 @@ function Identity.markDead(rec, tick, cause)
     if SAO.Treatment and SAO.Treatment.forgetPerson then
         pcall(SAO.Treatment.forgetPerson, rec.id)
     end
+    -- A learned shadow is runtime work for a living decision horizon. Remove
+    -- both its Lua snapshot and Java task at the same durable death funnel;
+    -- no model observation has authority or a reason to outlive the person.
+    if SAO.CoordinationInference
+        and SAO.CoordinationInference.forgetPerson then
+        pcall(SAO.CoordinationInference.forgetPerson, rec.id)
+    end
     -- [C68] And the company. The dead are not members - electLeader
     -- and groupSize both already filtered them - but nothing removed
     -- the row or settled the house, so a survivor whose company died

@@ -202,8 +202,10 @@ set, verified mechanically over test corpora, not by review.
 current private knowledge surface into deterministic references inside one
 caller-owned immutable snapshot. Exact selection refuses foreign, unknown or
 duplicate references, and the selected factual fence admits only scalar values
-from those claims. Current speech does not call this interface. The asynchronous
-snapshot owner, learned retriever, target rows and speaker remain R13-R14 work.
+from those claims. Current speech does not call this interface. C82 implements
+the first bounded asynchronous snapshot/evaluator path for coordination as a
+non-authoritative shadow; the learned retriever, target coverage and speaker
+remain R13-R14 work.
 
 ## Decision 5 - Whose voice is it?
 

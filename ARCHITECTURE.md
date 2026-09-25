@@ -1,6 +1,6 @@
 | Document | Survivor Awareness Overhaul Architecture |
 |---|---|
-| Version | `2.9.2.0-pre-alpha` |
+| Version | `2.9.3.0-pre-alpha` |
 | Author | ellyj3rain |
 | Repository | `ARCHITECTURE.md` |
 | Status | ACTIVE - ratified framework shape. |
@@ -868,6 +868,35 @@ These rows are controlled headless observations with synthetic initial facts.
 They are not loaded-world samples, independently approved labels, trained
 behavior or a runtime integration. Decline and withdrawal are valid process
 responses but are absent from this source family.
+
+### Native coordination shadow (C82)
+
+Speakeasy Records 66-67 independently review and train the exact C81 family,
+then export a content-hashed `SAOCRD01` version 1 FP32 artifact. C82 packages
+that 13,050-byte artifact as a jar resource. The JDK-only reader validates the
+complete tokenizer, label/support, feature, tensor and source-identity contract
+before constructing an evaluator; no external inference runtime participates.
+
+`SAO.Organization` forms the production response first. The shared Lua owner
+then serializes only the source-owned decision-time view and 16 typed channels
+to immutable strings and arrays. A single low-priority daemon evaluates them
+behind a bounded queue and pending map. On return, Lua requires the exact bundle
+and input hashes, process/response revisions, feasible options, rebuilt input
+and current registered execution-owner signature. Foreign, malformed, stale or
+owner-changed results become bounded withheld observations. Graph bind and
+world detach cancel all transient Lua and Java state; nothing is persisted.
+
+The shadow is not a decision owner. It cannot select, revise or deliver a
+response or create a commitment or work. Condition-private fields are refused
+from proposal, reception, capability, constraint, interest and owner containers.
+Afflicted and Crossed use the same registered ZAO executor while their distinct
+maintenance, motives and action policies remain outside the generic input.
+
+Borders 192-193 execute exact Python/Java/tokenizer parity, the packaged jar,
+capacity and reset controls, authoritative response ordering, Survivor and
+distinct ZAO-owner paths, and stale/foreign/hidden/owner-drift refusal. This is
+mechanical headless evidence. Behavior activation, decline/withdraw data, full
+JVM heap cost and loaded-world acceptance remain open.
 
 The first unit covers voluntary coordination and contention. It does not yet
 produce elections, deliberation, appeal, coercive enforcement, physical

@@ -1,6 +1,6 @@
 | Document | The three projects and what each owns |
 |---|---|
-| Version | `2.9.2.0-pre-alpha` |
+| Version | `2.9.3.0-pre-alpha` |
 | Author | ellyj3rain |
 | Repository | `PROJECTS.md` |
 | Status | CANONICAL - the architecture across the three repositories. Held here; `../zombie-awareness` and `../zomboid-speakeasy` point at it. |
@@ -117,13 +117,15 @@ ordinary food can also sustain their retained human physiology. Human-origin
 food is preferred because sustenance can reinforce cruelty, domination, fear
 and contagion, not because biology excludes ordinary food. Blood-contaminated
 weapons are a selected tactic and resolve through actual native hits and wounds,
-while Afflicted exposure remains a separate pathogen action. No governed source
-defines how Afflicted maintain themselves, so neither survivor maintenance nor
-Crossed motives fill the gap. Butchery, cooked human food, contaminated weapons
-and driving are concrete producers, not a closed list that defines Crossed
-functionality. Routine strategy remains retained human cognition; wider action
-remains open. How either state holds ground follows actual state-specific acts and
-needs; settlements are never placed.
+while Afflicted exposure remains a separate pathogen action. Afflicted require
+water, prefer meat/protein, can use penalized non-dairy alternatives and may
+individually choose human-origin food with donor-conditioned protection. Those
+are ZAO-owned maintenance facts, not survivor defaults or Crossed motives.
+Butchery, cooked human food, contaminated weapons and driving are concrete
+producers, not a closed list that defines Crossed functionality. Routine
+strategy remains retained human cognition; wider action remains open. How
+either state holds ground follows actual state-specific acts and needs;
+settlements are never placed.
 
 ZAO's `[A17]` records how the pathogen meets the branching graph: the
 pathogen owns the mutation roll and the roll for form performance, crossed
@@ -148,8 +150,9 @@ own word for it, and no table can stand in for that (DR-038).
 ### ZAO to Speakeasy - the degraded cognition
 
 The third edge carries cognition conditioned by event-derived pathogen state.
-Cross-module rows, a state producer and the row contract now exist. Complete
-training and learned runtime consumption remain unfinished. ZAO owns pathogen
+Cross-module rows, a state producer and the row contract now exist. Records
+66-67/C82 supply one bounded coordination model and native shadow; complete
+training and behavior-authoritative runtime consumption remain unfinished. ZAO owns pathogen
 state and Afflicted/Crossed execution; SAO owns ordinary survivor execution and
 the shared county/action services; Speakeasy owns datasets and models.
 SUBSTRATE.md records the implementation boundaries and current evidence.
@@ -175,9 +178,9 @@ SUBSTRATE.md records the implementation boundaries and current evidence.
 
 | | Version | Standing |
 |---|---|---|
-| SAO | see `VERSION` | C80 generalizes living external-owner handoff so Afflicted return enters ZAO directly and conversion preserves one driver token. Communication, coordination and native services still reach the person; Standing commits no Afflicted destination before arrival. C79's enacted proposals/work remain the bounded social path. |
-| ZAO | `../zombie-awareness/VERSION` | A39 supplies one driver with distinct Afflicted/Crossed policies, actor-private option selection, state-evidenced settlements, retained Crossed human physiology, ordinary/human-origin sustenance, human-corpse butchery and selectively prepared finite blood-contaminated weapon uses. Afflicted maintenance and loaded-world observation remain open. |
-| Speakeasy | active Record 63 worktree | The exact v3 namespace and executable options now bind one enacted process revision, actor/executor ownership, current work/competing priorities and separate decision/outcome horizons. Candidate observations remain unreviewed and training-ineligible; no model or native learned consumer exists. |
+| SAO | see `VERSION` | C82 packages Speakeasy Record 67's exact coordination artifact and runs it as a bounded non-authoritative shadow after the real C79 appraisal. Revision, option and registered-owner drift withhold returned results; no model output creates a response or work. |
+| ZAO | `../zombie-awareness/VERSION` | A39 supplies one driver with distinct Afflicted/Crossed policies, actor-private option selection and state-evidenced settlements. Afflicted water/protein/alternative/human-origin consequences and Crossed ordinary/human-origin sustenance, predatory results, butchery and finite contaminated-weapon uses remain separate owners. Broader life and loaded-world observation remain open. |
+| Speakeasy | Record 67 / `1e26f90` | Record 66 independently approves and trains the 20-row synthetic coordination family. Record 67 exports its exact FP32 tokenizer/model bundle and parity vectors with shadow-candidate standing; decline/withdraw data and broader learned conversation remain open. |
 
 Each of those is its own repository's to update. This table says where
 the three stand relative to each other, which is the thing no single

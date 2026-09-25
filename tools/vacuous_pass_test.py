@@ -152,6 +152,11 @@ NOT_ABOUT_LUA = {
         "builds before any Lua sees them. The Lua half is what those "
         "strings are read BY, not what they are built by, so removing "
         "it cannot change whether a builder sanitises its own fields",
+    "coordination_model_test.py":
+        "[C82] reads the sealed Speakeasy bundle, its parity/tokenizer "
+        "fixtures, the pure-Java evaluator and worker, then repeats the same "
+        "checks through the shipped jar. Lua submission and authority guards "
+        "are the separate subject of coordination_inference_test.py",
 }
 
 

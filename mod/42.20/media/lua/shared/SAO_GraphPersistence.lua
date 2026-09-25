@@ -35,6 +35,9 @@ local function electionGroundedOrganization(store, organizationId)
 end
 
 local function detachDurableOwners()
+    if SAO.CoordinationInference and SAO.CoordinationInference.reset then
+        SAO.CoordinationInference.reset()
+    end
     if SAO.Branching then
         SAO.Branching.surfaces = {}
         SAO.Branching.pressures = {}
@@ -334,6 +337,11 @@ function GraphPersistence.store()
 end
 
 function GraphPersistence.bind()
+    -- Shadow requests contain one world's process and owner revisions.  They
+    -- are deliberately transient and cannot cross a ModData rebind.
+    if SAO.CoordinationInference and SAO.CoordinationInference.reset then
+        SAO.CoordinationInference.reset()
+    end
     local store, why = GraphPersistence.store()
     if not store then
         detachDurableOwners()

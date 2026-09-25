@@ -1,13 +1,53 @@
 | Document | Survivor Awareness Overhaul Session State |
 |---|---|
-| Version | `2.9.2.0-pre-alpha` |
+| Version | `2.9.3.0-pre-alpha` |
 | Author | ellyj3rain |
 | Repository | `SESSION_STATE.md` |
 | Status | CANONICAL - current implementation and continuation. |
 
 # Session state
 
-**As of** 2026-09-25, `[C81]` supplies the first reproducible coordination
+**As of** 2026-09-25, `[C82]` consumes Speakeasy Record 67's exact native
+coordination artifact as a bounded non-authoritative shadow. The bundle is
+embedded in the shipped jar and verified by SHA-256 plus its format, schema,
+compatibility, tokenizer, label/support, feature, FP32 tensor and source
+identities. One low-priority Java thread accepts immutable strings and arrays
+behind a 64-entry queue and 128-request pending ceiling.
+
+Organization still forms the real response first. The shadow receives the same
+decision-time input only afterward, and returned output survives only exact
+bundle/input identity, process and response revision, feasible-option, rebuilt
+input and current registered execution-owner checks. It cannot select, revise
+or deliver a response and cannot create a commitment or work. Graph bind and
+world detach cancel Java work and clear Lua requests/observations; no model
+state enters GraphPersistence or a save.
+
+Survivors and ZAO-owned people share the generic task format, not a policy.
+Afflicted and Crossed both reach `ZAO.Driver`, while only that owner's current
+activity, capability and generic competing pressure enter. Condition labels,
+pathogen state, diagnosis, diet and visible forms are refused across every
+input container. ZAO continues to own their distinct maintenance, motivation
+and actions.
+
+Border 192 matches all 20 full inputs and six tokenizer cases from both source
+classes and the shipped jar with zero Java/vector probability delta. It refuses
+corruption, wrong feature width, unsupported-only masks, duplicate IDs and
+queue/pending overflow, then proves world-reset cancellation. The final shipped
+run measured 106.393 microseconds mean evaluator time and 524.987 microseconds
+mean async round trip on this machine. Its 11,804-byte measurement covers
+primitive tensor/merge payload only; full JVM heap overhead remains unmeasured.
+Border 193 executes authoritative response ordering, successful Survivor and
+two distinct ZAO-owner paths, stale revision, owner drift, foreign result,
+condition-private field and reset controls in Kahlua. Border 191 reproduces the
+unchanged 20-scene response family against C82's exact sources. The same Kahlua
+border refuses oversized canonical tables and proves person-death cancellation
+reaches both Lua and Java runtime holds.
+
+This is headless mechanical evidence. No game was launched, loaded-world
+behavior remains unobserved, decline and withdrawal remain unsupported by the
+learned family, and learned behavior activation still requires separate review.
+
+**Before that**, `[C81]` supplies the first reproducible coordination
 response source for reference learning. Twenty situations declare their
 synthetic starting facts and train, validation or test lineage before execution;
 none declares an expected response. Communication and Perception establish
@@ -286,8 +326,8 @@ producers, persistence, evidence and gaps.
 | Afflicted and Crossed | ZAO pathogen state and one living driver with distinct policies; Afflicted fear/gathering/arrival, water, protein preference, penalized non-dairy alternatives and donor-conditioned exposure protection; Crossed reduced caloric pressure, ordinary/human-origin sustenance, actor-private targets and evidenced fear/pain/control; exact exposure, settlement, butchery and finite blood-weapon results persist | Broader food composition, group precedent, tools, strategy, social/material life and grounded long-horizon dormant opportunities remain R7-R10 work. Loaded-world behavior is unobserved. |
 | Knowledge and access | Private beliefs; animal-safe scanner output; fresh/current activity partners; demand-hydrated exact source identities; C62's revision-bound approach, current claim/vehicle permission, exact transfer, carried native use and durable result; C63-C64's exact partial-source material projection and durable ambient refresh; C71's recursive actor-private loaded holder view and exact v4 dormant carriage; C72's produced dormant awake/asleep state joined with C67 measured hearing; C73's direct-root powered radio endpoints, elapsed dormant battery state and recipient-private reception receipts; C74's explicit county presence, dated personal acquisition and detached retention observation; C75's deterministic snapshot-local claim catalogue and selected-claim fence | R6 is closed for the selected source interaction and its completed result reaches bounded partial material state. R7 remains open beyond this source-action family. C66 adds exact acquisition/storage; C67 adds private transfer testimony and witnessed recipient response; C68 completion-proves loaded personal handovers; C69 closes the bounded recipient appraisal after testimony. C71-C73 close inventory, adjacent speech and actual radio admission. C74 closes SAO's first bounded R12 acquisition producer. C75 makes the existing surface addressable but leaves protected-world coverage, target rows and runtime snapshot ownership open. Complete house stock and the other material action/result producers remain open. |
 | Social development | C79 adds acquired revisioned matters, individual responses, scoped concurrent commitments, contested/withdrawn responsibility, exact office/command jurisdiction and completion-backed food delivery across loaded/dormant execution. Automatic election recognition and score-triggered schism callers are retired without disabling cleanup. | The first unit is voluntary coordination and contention. Election/deliberation/succession procedures, physical separation, broader institutions, place development and the remaining R9 producers remain incomplete. |
-| Speakeasy data | Protected historical material remains intact. Record 63 requires the exact v3 namespace, actor/executor attribution, source-owned current work and competing priorities, feasible options and separate decision/outcome horizons for enacted coordination. C79 now emits those rows at the production appraisal boundary; a controlled 13-row SAO-to-ZAO-to-Speakeasy pass succeeds. | The compiler emits candidate observations only. No loaded scene, independent task ruling, admitted coordination row, learned model or runtime consumer exists; wider claim/action coverage remains open. |
-| Models and late starts | Inference primitives, fact constraint, offline diagnostics | No trained cognition model, complete training/export path or validated accelerator. |
+| Speakeasy data | Protected historical material remains intact. Record 63 requires the exact v3 namespace, actor/executor attribution, source-owned current work and competing priorities, feasible options and separate decision/outcome horizons. C81 emits 20 production-path rows; Record 66 independently reviews, admits and trains that exact synthetic family; Record 67 exports its sealed FP32 bundle and parity vectors. | Decline/withdraw examples, natural gameplay sampling, broader claim/action coverage and general understander/retriever/speaker datasets remain open. |
+| Models and late starts | C82 embeds Record 67's exact coordination bundle, runs the packaged pure-Java evaluator asynchronously and retains only revision/option/current-owner-validated shadow observations. | The candidate has no behavior authority and no loaded-game memory, latency or quality acceptance. The complete shared conversation bundle and validated accelerator remain open. |
 
 ## Retained recovery evidence
 
@@ -589,11 +629,11 @@ consequences remain separate from the learned policy choosing among them.
 
 C57 consolidates three native entry points into one. With C64's immutable
 capture border, C73's radio-reception border, C74's personal-world-knowledge
-border and C75's typed-claim border, the gate invokes 189 `*_test.py` files and
-13 other Python entry points, 202 distinct scripts. Border labels extend through
-191; legacy labels
+border and C75's typed-claim border, the gate invokes 191 `*_test.py` files and
+13 other Python entry points, 204 distinct scripts. Border labels extend through
+193; legacy labels
 163/169/174 share the native suite. These are distinct counting units. The mod
-ships 79 Lua source files.
+ships 80 Lua source files.
 ZAO A39 has thirteen borders. The
 published C51 baseline has 163 borders through 178 mirrors. These counts describe the
 apparatus, not acceptance. The audit reproduced defects while targeted checks
@@ -661,11 +701,14 @@ Record 52 reviews that exact source/acquisition reference while excluding its
 controlled choice. C75's
 [evidence record](artifacts/audits/20260922-0540Z-2240PST-typed-claim-catalogues/README.md)
 records deterministic typed references, complete known-person enumeration,
-fail-closed exact selection and selected-only fencing. The next learned-data work
-is the exact C77 capture import and typed understander validation before the
-first independent task and retrieval rulings. Records 53-54 have settled target
-meaning and corrected the evidence compiler. Automatic household-shortage production
-remains with R9 and cannot be inferred from C71's bounded holders.
+fail-closed exact selection and selected-only fencing. C76-C81 then supply exact
+conversation/coordination capture and the reviewed coordination source; Speakeasy
+Records 56-67 carry the typed review, task-data/tokenizer work, bounded
+coordination training and native export. C82's
+[source-bound evidence](artifacts/audits/c82-native-coordination-shadow-source/README.md)
+and Borders 192-193 prove the current shadow boundary. Automatic household-
+shortage production remains with R9 and cannot be inferred from C71's bounded
+holders.
 The C75 client reached a responsive visible main menu as the only Project
 Zomboid process and was left open after final deployment. SAO's modules loaded
 without a C75-specific error. The client reports the existing ZombieBuddy

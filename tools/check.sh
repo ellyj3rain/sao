@@ -2082,6 +2082,22 @@ if ! "$PY" tools/coordination_scene_dump_test.py; then
     fail=1
 fi
 
+# [C82] Border 192 - Speakeasy's exact content-hashed FP32 artifact must load
+# in the shipped JDK-only evaluator, preserve tokenizer and response parity on
+# every R66 row, and remain behind a bounded resettable async shadow worker.
+if ! "$PY" tools/coordination_model_test.py; then
+    note "BORDER FINDING - native coordination bundle parity or worker guard failed"
+    fail=1
+fi
+
+# [C82] Border 193 - the actual Organization appraisal stays authoritative;
+# returned shadow output survives only exact decision and execution-owner
+# revalidation and is cleared with the world's transient runtime.
+if ! "$PY" tools/coordination_inference_test.py; then
+    note "BORDER FINDING - coordination shadow integration or stale guard failed"
+    fail=1
+fi
+
 # Border 103 - the operator's speech is not in the repository: no
 # profanity in the tracked tree and no operator-quote attributions;
 # rulings are paraphrased content, speech stays with the speaker.

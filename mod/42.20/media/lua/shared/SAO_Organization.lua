@@ -858,7 +858,7 @@ function Org.appraiseMatter(processId, personId, context)
         interests = inputOwner("interests", owner),
         constraints = inputOwner("constraints", owner),
     }
-    return Org.respond(processId, personId, selected, terms, {
+    local response = Org.respond(processId, personId, selected, terms, {
         owner = owner, bodyOwner = bodyOwner, currentActivity = activity,
         capabilities = capabilities, constraints = constraints,
         interests = dataCopy(context.interests or {}) or {},
@@ -869,6 +869,15 @@ function Org.appraiseMatter(processId, personId, context)
         feasibleOptions = options, choice = selected,
         reconsider = context.reconsider == true, executor = executor,
     })
+    -- [C82] The production rule above remains authoritative.  The learned
+    -- candidate sees the same frozen private horizon only after that response
+    -- exists, and any bridge/model failure is observationally inert.
+    if response and SAO.CoordinationInference
+        and type(SAO.CoordinationInference.submit) == "function" then
+        pcall(SAO.CoordinationInference.submit, processId, personId,
+            response.responseRevision)
+    end
+    return response
 end
 
 function Org.respond(processId, personId, response, terms, privateEvidence)

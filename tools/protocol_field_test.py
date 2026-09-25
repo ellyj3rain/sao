@@ -85,6 +85,11 @@ BUILDERS = {
     ("SAOPrivateInventory.java", "append"): (
         "|:",
         "one length-prefixed field in the exact revision input"),
+    ("SAOCoordinationWorker.java", "poll"): (
+        ",=",
+        "bundle labels returned beside numeric probabilities; the bundle "
+        "loader constrains the exact labels and poll still strips both wire "
+        "delimiters at the point it packs them"),
 }
 
 METHOD = re.compile(r"^\s{4}(?:public|private|protected|static).*?"

@@ -33,6 +33,7 @@ ZAO_ROOT = ROOT.parent / "zombie-awareness"
 ZAO_LUA = ZAO_ROOT / "mod/42.20/media/lua"
 
 GRAPH = LUA / "shared/SAO_GraphPersistence.lua"
+INFERENCE = LUA / "shared/SAO_CoordinationInference.lua"
 ORGANIZATION = LUA / "shared/SAO_Organization.lua"
 COMMUNICATION = LUA / "shared/SAO_Communication.lua"
 STANDING = LUA / "shared/SAO_Standing.lua"
@@ -384,7 +385,7 @@ end)()'''
 
 
 def source_paths() -> list[Path]:
-    return [GRAPH, ORGANIZATION, COMMUNICATION, STANDING, PERCEPTION,
+    return [GRAPH, INFERENCE, ORGANIZATION, COMMUNICATION, STANDING, PERCEPTION,
             CONTROLLER, ZAO_MAINTENANCE, ZAO_MIND, ZAO_DRIVER,
             ZAO_CONTROLLER, CAPTURE]
 
@@ -478,8 +479,9 @@ def build() -> tuple[dict[str, Any], list[dict[str, Any]], dict[str, Any]]:
         "index": index,
         "standing": "candidate-observation",
         "exclusions": ["synthetic-starting-conditions",
-                       "independent-task-review-not-recorded",
-                       "learned-runtime-not-integrated",
+                       "learned-shadow-not-executed-in-source-scenes",
+                       "learned-runtime-not-authoritative",
+                       "decline-withdraw-unobserved",
                        "loaded-gameplay-unobserved"],
     }
     manifest["contentSha256"] = digest(manifest)

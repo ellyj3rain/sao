@@ -33,7 +33,7 @@ def main() -> int:
         name = Scenes.source_name(path)
         if manifest["sourceHashes"].get(name) != Scenes.indexed_hash(path):
             return fail("source hash is not the exact Git index blob: " + name)
-    saved = Scenes.ROOT / "artifacts/audits/c81-coordination-reference-source"
+    saved = Scenes.ROOT / "artifacts/audits/c82-native-coordination-shadow-source"
     for name, data in Scenes.output_bytes(catalogue, rows, manifest).items():
         path = saved / name
         if not path.is_file() or path.read_bytes() != data:

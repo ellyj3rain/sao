@@ -150,6 +150,7 @@ MODULES = [
     "shared/SAO_Disposition.lua", "shared/SAO_Conditions.lua",
     "shared/SAO_Course.lua", "shared/SAO_Neuro.lua",
     "shared/SAO_Adaptation.lua", "shared/SAO_Isolation.lua",
+    "shared/SAO_CoordinationInference.lua",
     "shared/SAO_Organization.lua", "shared/SAO_Settlement.lua",
     "shared/SAO_Material.lua", "shared/SAO_Recognition.lua",
     "shared/SAO_Communication.lua", "shared/SAO_GraphPersistence.lua",
