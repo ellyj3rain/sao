@@ -227,6 +227,27 @@ def main(root):
     with mock.patch.object(Sweep, 'NOT_DORMANT', undeclared):
         if not rejects(lambda: Sweep.require_modules(lua)):
             faults.append('undeclared source executor accepted')
+    # The combined dormant path loads the state-owned maintenance module but
+    # deliberately leaves the loaded-body Driver absent.  Exercise this with
+    # an isolated sister tree so CI does not depend on a sibling checkout.
+    with tempfile.TemporaryDirectory() as joint_tmp:
+        joint_root = pathlib.Path(joint_tmp) / 'zao-lua'
+        for relative in Sweep.ZAO_MODULES:
+            path = joint_root / relative
+            path.parent.mkdir(parents=True, exist_ok=True)
+            owner = path.stem.removeprefix('ZAO_')
+            extra = '\nlocal optional = ZAO.Driver\n' if owner == 'Mind' else '\n'
+            path.write_text('ZAO = ZAO or {}\nZAO.%s = {}%s' %
+                            (owner, extra), encoding='utf-8')
+        with mock.patch.object(Sweep, 'ZAO_ROOT', joint_root):
+            try:
+                Sweep.require_modules(lua, joint=True)
+            except Sweep.EvidenceError as exc:
+                faults.append('combined dormant module inventory refused: %s' % exc)
+            maintenance = joint_root / 'shared/ZAO_Maintenance.lua'
+            maintenance.unlink()
+            if not rejects(lambda: Sweep.require_modules(lua, joint=True)):
+                faults.append('missing ZAO maintenance owner accepted')
     row = specimen()
     Sweep.validate_result(row, 90, True, {'names': 10, 'professions': 25}, True)
     cases = [('partial horizon', {'ranTo': 60}),

@@ -1,6 +1,6 @@
 | Document | Survivor Awareness Overhaul Architecture |
 |---|---|
-| Version | `2.9.1.0-pre-alpha` |
+| Version | `2.9.2.0-pre-alpha` |
 | Author | ellyj3rain |
 | Repository | `ARCHITECTURE.md` |
 | Status | ACTIVE - ratified framework shape. |
@@ -845,6 +845,29 @@ outcome, including one final read before bounded process retention may evict a
 terminal record. `tools/county_dump.py` validates and atomically publishes those
 rows as `*.coordination.jsonl`; `--joint` runs the dormant SAO+ZAO configuration.
 The observer does not extend process retention or create a response or result.
+
+### Reference-learning source (C81)
+
+`tools/coordination_scene_dump.py` declares twenty synthetic starting
+situations and fixes each independent lineage to train, validation or test
+before execution. The catalogue contains no expected response. Communication
+and Perception establish actual reception; the shipped Controller appraises the
+recipient; Organization freezes the response and its separate later-delivery
+horizon. The resulting choices contain four each of accept, qualify,
+counter-propose, defer and contest, with every observed response represented in
+every partition.
+
+Survivors execute through `SAO.Controller`. Afflicted and Crossed retain
+separate pathogen audit state but both resolve the living human shell, current
+activity, capability and generic competing pressure through the registered ZAO
+adapter and `ZAO.Driver`. Their condition identity is not a task input. Border
+191 changes or rejects the evidence when Controller pressure selection, ZAO
+execution registration or Driver attribution is broken.
+
+These rows are controlled headless observations with synthetic initial facts.
+They are not loaded-world samples, independently approved labels, trained
+behavior or a runtime integration. Decline and withdrawal are valid process
+responses but are absent from this source family.
 
 The first unit covers voluntary coordination and contention. It does not yet
 produce elections, deliberation, appeal, coercive enforcement, physical

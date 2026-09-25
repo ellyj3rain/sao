@@ -2074,6 +2074,14 @@ if ! "$PY" tools/enacted_coordination_test.py; then
     fail=1
 fi
 
+# [C81] Border 191 - declared situations never assign the answer.  The shipped
+# SAO controller and registered ZAO execution owner form the captured response,
+# with independent train/validation/test lineages and visible attribution.
+if ! "$PY" tools/coordination_scene_dump_test.py; then
+    note "BORDER FINDING - production coordination scene capture failed"
+    fail=1
+fi
+
 # Border 103 - the operator's speech is not in the repository: no
 # profanity in the tracked tree and no operator-quote attributions;
 # rulings are paraphrased content, speech stays with the speaker.
