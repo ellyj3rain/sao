@@ -1,6 +1,6 @@
 | Document | The three projects and what each owns |
 |---|---|
-| Version | `2.9.0.0-pre-alpha` |
+| Version | `2.9.1.0-pre-alpha` |
 | Author | ellyj3rain |
 | Repository | `PROJECTS.md` |
 | Status | CANONICAL - the architecture across the three repositories. Held here; `../zombie-awareness` and `../zomboid-speakeasy` point at it. |
@@ -12,8 +12,8 @@ licences and separate gates, not because they are three products.
 
 | | Repository | Licence | What it owns |
 |---|---|---|---|
-| **SAO** | `survivor-awareness` | GPL-3.0 | the living |
-| **ZAO** | `../zombie-awareness` | GPL-3.0 | the turned |
+| **SAO** | `survivor-awareness` | GPL-3.0 | ordinary living-survivor execution and the county's person, social and native-action services |
+| **ZAO** | `../zombie-awareness` | GPL-3.0 | the turned, the pathogen, and Afflicted/Crossed execution |
 | **Speakeasy** | `../zomboid-speakeasy` | MIT | how anybody decides |
 
 The county is the same county in all three. A person walks through it,
@@ -37,19 +37,23 @@ before choosing its source layout and packaging.
 
 ## What each one is
 
-**SAO owns the living, and owns death.** A person is a record; the
+**SAO owns ordinary living-survivor execution, the county substrate, and
+death.** A person is a record; the
 engine character is a body the record is loaded into and is never what
 persists (DR-002). Perception admits, Disposition decides, Standing
 channels, Execution acts. Death of the person is SAO's completely
 (DR-016) - the turn fires here, through the engine's own `die()`, and
-the person's id rides the engine's own modData copies through it.
+the person's id rides the engine's own modData copies through it. Identity,
+communication, relationships, material transfer and locomotion remain SAO
+services even when a registered sister owns the actor's decisions.
 
-**ZAO owns the turned.** What a turned body does follows from who the
-person was and how far the rot has gone, never from a species-level
-behaviour table. It is an add-on that can be switched off: with ZAO
-absent, vanilla handles the corpse and the engine misses nothing. Two
-mechanisms, litigated separately and never merged - the rotting of a
-particular mind, and the pathogen's own decay and mutation.
+**ZAO owns the turned and the living states its pathogen creates.** What a
+turned, Afflicted or Crossed person does follows from who the person was, the
+current state and its distinct constraints, never from a species-level behavior
+table or an SAO survivor controller applied by default. It is an add-on that can
+be switched off: with ZAO absent, vanilla handles the corpse and the ZAO living
+states are not produced. Two mechanisms remain litigated separately - the
+rotting of a particular mind, and the pathogen's own decay and mutation.
 
 **Speakeasy owns how anybody decides.** A dataset and the models fitted
 to it: how a person decides in the game space with limited awareness,
@@ -98,26 +102,28 @@ human actions stay available when their prerequisites remain. The
 sister's machinery for houses, standing, fear and temperament reaches a
 body the sister no longer owns.
 
-The seam is implemented through its first complete action in C56/A37. ZAO's
-`[A12]` carries the rulings, under one
-principle of the operator's own framing: three repositories, one
-project, separation of concerns, each machinery running what it owns.
-SAO executes the afflicted, because a person again is a person - the
-house argues over them because they never left the county's machinery
-- while ZAO owns the pathogen state on them and executes the crossed,
-who came through death as the risen did. The crossed's vocabulary is
-a bidirectional goal: they use the applicable SAO action machinery under
-ZAO execution ownership, and what they need from driving feeds forward
-into SAO's mapping of it - `[C33]` has mapped what the engine gives a
-driver who is not the player, and F-067 holds the finding - a
-standing goal between the two repositories and never a dependency
-in either direction. A reachable Crossed decision now approaches an Afflicted
-person, completes an interruptible non-feeding blood exposure, records one
-pathogen result and transfers the same living human shell and dormant envelope
-from SAO to ZAO. The wider retained action vocabulary remains unfinished. How they
-hold ground is variable - some groups settle, some stay nomadic - and
-never placed. The claim surface's concrete shape (ZAO's F-012) stays
-open until mod code is near.
+The seam is implemented through C80/A39. The governing principle is the
+operator's own framing: three repositories, one project, separation of
+concerns, each machinery running what it owns. ZAO executes both Afflicted and
+Crossed through one durable living-person driver, while each state keeps its
+own motives, constraints, actions and satisfiers. SAO supplies the county record,
+communication, social context, handover and native locomotion services; those
+services do not possess the person.
+
+An authorized Afflicted return transfers the human shell directly to that ZAO
+owner. Intentional blood exposure later changes the state to Crossed without
+replacing the driver. Crossed eat and may butcher or cook ordinary humans;
+ordinary food can also sustain their retained human physiology. Human-origin
+food is preferred because sustenance can reinforce cruelty, domination, fear
+and contagion, not because biology excludes ordinary food. Blood-contaminated
+weapons are a selected tactic and resolve through actual native hits and wounds,
+while Afflicted exposure remains a separate pathogen action. No governed source
+defines how Afflicted maintain themselves, so neither survivor maintenance nor
+Crossed motives fill the gap. Butchery, cooked human food, contaminated weapons
+and driving are concrete producers, not a closed list that defines Crossed
+functionality. Routine strategy remains retained human cognition; wider action
+remains open. How either state holds ground follows actual state-specific acts and
+needs; settlements are never placed.
 
 ZAO's `[A17]` records how the pathogen meets the branching graph: the
 pathogen owns the mutation roll and the roll for form performance, crossed
@@ -144,8 +150,8 @@ own word for it, and no table can stand in for that (DR-038).
 The third edge carries cognition conditioned by event-derived pathogen state.
 Cross-module rows, a state producer and the row contract now exist. Complete
 training and learned runtime consumption remain unfinished. ZAO owns pathogen
-state and Crossed execution; SAO owns survivor and living Afflicted execution;
-Speakeasy owns datasets and models.
+state and Afflicted/Crossed execution; SAO owns ordinary survivor execution and
+the shared county/action services; Speakeasy owns datasets and models.
 SUBSTRATE.md records the implementation boundaries and current evidence.
 
 ## What holds across all three
@@ -169,8 +175,8 @@ SUBSTRATE.md records the implementation boundaries and current evidence.
 
 | | Version | Standing |
 |---|---|---|
-| SAO | see `VERSION` | C79 adds acquired versioned proposals, individual responses, scoped concurrent commitments and exact acquisition/carry/delivery outcomes across loaded, dormant and registered external owners. Automatic roster elections, inferred recognition and score-triggered schism no longer decide. Wider institutions and life producers remain open. |
-| ZAO | `../zombie-awareness/VERSION` | A38 supplies Crossed activity/capability to the shared coordination path through the retained human shell and rejects malformed IsoZombie admission before side effects. Non-feeding intentional exposure remains distinct. Wider retained human actions and loaded-world observation remain open. |
+| SAO | see `VERSION` | C80 generalizes living external-owner handoff so Afflicted return enters ZAO directly and conversion preserves one driver token. Communication, coordination and native services still reach the person; Standing commits no Afflicted destination before arrival. C79's enacted proposals/work remain the bounded social path. |
+| ZAO | `../zombie-awareness/VERSION` | A39 supplies one driver with distinct Afflicted/Crossed policies, actor-private option selection, state-evidenced settlements, retained Crossed human physiology, ordinary/human-origin sustenance, human-corpse butchery and selectively prepared finite blood-contaminated weapon uses. Afflicted maintenance and loaded-world observation remain open. |
 | Speakeasy | active Record 63 worktree | The exact v3 namespace and executable options now bind one enacted process revision, actor/executor ownership, current work/competing priorities and separate decision/outcome horizons. Candidate observations remain unreviewed and training-ineligible; no model or native learned consumer exists. |
 
 Each of those is its own repository's to update. This table says where

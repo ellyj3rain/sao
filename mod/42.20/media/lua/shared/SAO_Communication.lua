@@ -51,6 +51,33 @@ function Communication.unregisterExecutionOwner(ownerId, adapter)
     return true
 end
 
+-- Body snapshots are shared physical envelopes, but elapsed bodyless
+-- physiology belongs to the registered execution owner.  SAO restores an
+-- externally owned shell without running survivor hunger/eating and asks the
+-- owner to advance its own state before the body becomes observable.
+function Communication.advanceExternalDormancy(ownerId, personId, rec, body,
+        elapsedHours, atHours)
+    ownerId, personId = tostring(ownerId or ""), tostring(personId or "")
+    elapsedHours = tonumber(elapsedHours) or 0
+    if ownerId == "" or personId == "" or type(rec) ~= "table"
+        or body == nil or elapsedHours < 0 then
+        return false, "invalid-external-dormancy"
+    end
+    if elapsedHours == 0 then return true, "no-elapsed-time" end
+    local owner = Communication.executionOwners[ownerId]
+    if not owner then return false, "execution-owner-unregistered" end
+    if type(owner.advanceDormant) ~= "function" then
+        return false, "dormant-owner-unavailable"
+    end
+    local ok, advanced, reason = pcall(owner.advanceDormant, personId, rec,
+        body, elapsedHours, tonumber(atHours))
+    if not ok then return false, "dormant-owner-exception" end
+    if advanced ~= true then
+        return false, reason or "dormant-owner-refused"
+    end
+    return true, reason or "advanced"
+end
+
 function Communication.bodyFor(id)
     return bodyFor(id)
 end
@@ -334,6 +361,80 @@ function Communication.deliver(message)
         end
     end
     return true
+end
+
+-- A threat is communication only when the ordinary speech transport admits
+-- it.  Delivery does not disclose the recipient's private fear and does not
+-- imply compliance.  The recipient's execution owner may register the event;
+-- callers receive only a public reception status and must observe later
+-- conduct or a completed material receipt for any consequence.
+function Communication.deliverThreat(fromId, toId, threatToken, evidence)
+    fromId, toId = tostring(fromId or ""), tostring(toId or "")
+    threatToken = tostring(threatToken or "")
+    if fromId == "" or toId == "" or threatToken == "" then
+        return nil, "invalid-threat"
+    end
+    local admitted, why = Communication.canConverse(fromId, toId)
+    if admitted ~= true then return nil, why or "transport-refused" end
+    local message = Communication.send(fromId, toId, "threat", {
+        threatToken = threatToken,
+        evidence = type(evidence) == "table" and evidence or {},
+    })
+    if not message then return nil, "message-refused" end
+    message.transportAdmitted = true
+    message.channel = "spoken"
+    message.transportEvidence = {
+        heard = true,
+        proximity = type(evidence) == "table" and evidence.proximity or nil,
+    }
+    if Communication.deliver(message) ~= true then
+        return nil, "delivery-refused"
+    end
+
+    local registered, response = false, "unanswered"
+    local rec = SAO.Identity and SAO.Identity.get and SAO.Identity.get(toId)
+        or nil
+    local owner = rec and rec.bodyOwner
+        and Communication.executionOwners[tostring(rec.bodyOwner)] or nil
+    local receiver = owner and owner.receiveThreat
+        or SAO.Controller and SAO.Controller.receiveThreat or nil
+    if type(receiver) == "function" then
+        local ok, accepted, publicResponse = pcall(receiver, toId, fromId,
+            threatToken, type(evidence) == "table" and evidence or {})
+        registered = ok and accepted == true
+        if registered and type(publicResponse) == "string"
+            and publicResponse ~= "" then response = publicResponse end
+    end
+    return {
+        version = 1,
+        token = threatToken,
+        fromId = fromId,
+        toId = toId,
+        delivered = true,
+        channel = "spoken",
+        receivedByOwner = registered,
+        response = response,
+        atHours = message.at,
+    }
+end
+
+-- A later query can expose conduct caused by the admitted event, never the
+-- recipient's hidden moodles or appraisal inputs.  Absence remains unanswered.
+function Communication.observeThreatResponse(toId, fromId, threatToken)
+    toId, fromId, threatToken = tostring(toId or ""), tostring(fromId or ""),
+        tostring(threatToken or "")
+    local rec = SAO.Identity and SAO.Identity.get and SAO.Identity.get(toId)
+        or nil
+    local owner = rec and rec.bodyOwner
+        and Communication.executionOwners[tostring(rec.bodyOwner)] or nil
+    local observer = owner and owner.observeThreatResponse
+        or SAO.Controller and SAO.Controller.observeThreatResponse or nil
+    if type(observer) ~= "function" then return nil, "owner-unavailable" end
+    local ok, result = pcall(observer, toId, fromId, threatToken)
+    if not ok or type(result) ~= "table" then
+        return nil, ok and "unanswered" or "owner-exception"
+    end
+    return result
 end
 
 -- Return already-formed answers during an actual bidirectional exchange.

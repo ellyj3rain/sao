@@ -163,7 +163,8 @@ MODULES = [
     "shared/SAO_Seams.lua", "shared/SAO_Standing.lua",
     "shared/SAO_Perception.lua", "shared/SAO_Places.lua",
     "shared/SAO_WorldSources.lua", "shared/SAO_Provisioning.lua",
-    "client/SAO_AfflictedReturn.lua", "client/SAO_Nuke.lua",
+    "client/SAO_CrossedTransfer.lua", "client/SAO_AfflictedReturn.lua",
+    "client/SAO_Nuke.lua",
     "client/SAO_Age.lua", "client/SAO_Telemetry.lua",
     "shared/SAO_PhysicalFacts.lua",
     "client/SAO_PopulationAdmissions.lua", "client/SAO_PopulationRepresentation.lua",
@@ -363,6 +364,12 @@ def modules_referenced(lua):
             continue
         loaded.add(p.stem.replace("SAO_", ""))
         text = p.read_text(encoding="utf-8", errors="ignore")
+        # A compatibility module may publish more than its filename (for
+        # example the generalized ZAO-person transfer while retaining the
+        # historical CrossedTransfer alias). Those explicit owners are loaded,
+        # not missing modules.
+        for owner in re.finditer(r"SAO\.([A-Z][A-Za-z]*)\s*=", text):
+            loaded.add(owner.group(1))
         for m in re.finditer(r"SAO\.([A-Z][A-Za-z]*)", text):
             named.add(m.group(1))
     return sorted(named - loaded - set(NOT_DORMANT)), sorted(loaded)

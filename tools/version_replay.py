@@ -218,6 +218,7 @@ UNITS = [
     ('C77', 'patch', 'Correct unsupported county-presence acquisition using exact native reading completion and person-bound report receipts; withhold legacy grants, preserve their history and regenerate the controlled capture with evidenced acquisition.'),
     ('C78', 'kohai', 'Extend conversation capture with existing person-state contributions, explicit availability and controlled contextual comparisons; preserve source ownership and version-one compatibility.'),
     ('C79', 'minor', 'Introduce enacted social coordination as a player-visible and authoring contract: acquired versioned proposals, recipient-private responses, scoped concurrent commitments and exact-once native acquisition/carry/delivery results across loaded, dormant and external execution owners. Retire automatic roster authority and fracture shortcuts without claiming wider institutional procedures or remaining life producers complete.'),
+    ('C80', 'kohai', 'Generalize the external living-person handoff so authorized Afflicted return and later Crossed conversion retain one ZAO driver across loaded and dormant representation, while SAO remains the county and native-service owner. Replace automatic Afflicted relocation with destination evidence and completion-backed travel. This structurally matures the existing ownership seam without adding a new state or action family, so kohai.'),
 ]
 
 TIER_MEANINGS = [

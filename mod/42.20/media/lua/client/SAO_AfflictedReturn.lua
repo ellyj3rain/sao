@@ -1,6 +1,7 @@
--- SAO_AfflictedReturn - authorized transfer from ZAO to a living person.
--- The durable phase owns the person until source removal and controller
--- adoption succeed. Detached staged shells never enter ordinary Body.get.
+-- SAO_AfflictedReturn - authorized reconstruction of a living Afflicted person.
+-- The durable phase owns the person until source removal, reconstruction, and
+-- ZAO execution ownership all succeed. Detached staged shells never enter
+-- ordinary Body.get and an Afflicted person is never adopted by SAO's driver.
 SAO = SAO or {}
 SAO.AfflictedReturn = SAO.AfflictedReturn or {}
 local Return = SAO.AfflictedReturn
@@ -15,6 +16,26 @@ local function dependencies()
     return ZAO and ZAO.StateStore and ZAO.StateStore.returnAuthorization
         and ZAO.Controller and ZAO.Controller.returnSource and SAOJavaBridge
         and SAO.Identity and SAO.Body and SAO.Controller
+        and (SAO.ZAOPersonTransfer or SAO.CrossedTransfer)
+end
+
+local function transferOwner()
+    return SAO.ZAOPersonTransfer or SAO.CrossedTransfer
+end
+
+local function driverToken(rec, state, eventToken)
+    if ZAO.Pathogen and ZAO.Pathogen.ensureDriverToken then
+        pcall(ZAO.Pathogen.ensureDriverToken, state, rec.id)
+    end
+    local token = state and (state.driverToken or state.crossedTransferToken)
+    if token == nil or tostring(token) == "" then
+        token = "afflicted:" .. tostring(rec.id) .. ":" .. tostring(eventToken)
+        if state then state.driverToken = token end
+    end
+    if state and ZAO.StateStore and ZAO.StateStore.write then
+        ZAO.StateStore.write(tostring(rec.id), state)
+    end
+    return tostring(token)
 end
 
 function Return.authorized(rec)
@@ -79,7 +100,7 @@ local function stamp(body, state)
     data.ZAODormantKnox = state.terminalState == "afflicted" or nil
 end
 
-local function commit(rec, p, body, destination)
+local function applyRecord(rec, p)
     rec.hibernation, rec.releasedAtHours = p.packed, SAO.History.countyHours()
     if SAO.BodySnapshot.version(p.packed) >= 4 then rec.bodyVisual = nil
     else rec.bodyVisual = p.visual end
@@ -90,11 +111,10 @@ local function commit(rec, p, body, destination)
     rec.afflictedReturn, rec.returnedAtHours, rec.returnEvent = true, p.hours, p.event
     rec.knoxInfected, rec.biteDeathAtHours = nil, nil
     rec.deathNewsAt = nil
-    -- Activation remains retryable under the phase; callbacks see no body
-    -- until both native publication and controller enrollment have succeeded.
-    if destination == "loaded" and not SAOJavaBridge:activateReturnBody(body) then
-        return false, "activation-pending"
-    end
+end
+
+local function commit(rec, p)
+    applyRecord(rec, p)
     SAO.Body.returning[rec.id] = nil
     rec.returnTransition = nil
     return true, "returned"
@@ -120,7 +140,17 @@ local function step(rec)
         -- Complete the existing temporary shell's teardown. Creating another
         -- shell here would restart deferred cleanup on every retry.
         if not SAO.Body.discardReturn(rec) then return false, "stage-cleanup-pending" end
-        return commit(rec, p, nil, "dormant")
+        applyRecord(rec, p)
+        local state = ZAO.StateStore.read(rec.id)
+        if not state or state.terminalState ~= "afflicted" then
+            return false, "pathogen-state-unavailable"
+        end
+        local token = driverToken(rec, state, p.event)
+        local transferred, transferReason = transferOwner().claimDormant(
+            rec.id, token, p.hours, "afflicted")
+        if not transferred then return false, transferReason end
+        p.zaoTransferred = true
+        return commit(rec, p)
     end
     if p.cleanup then
         if not SAO.Body.discardReturn(rec) then return false, "stage-cleanup-pending" end
@@ -204,16 +234,48 @@ local function step(rec)
     local destination = p.destination or p.source
     if destination == "dormant" then
         if not SAO.Body.discardReturn(rec) then return false, "stage-cleanup-pending" end
+        applyRecord(rec, p)
+        local token = driverToken(rec, state, p.event)
+        local transferred, transferReason = transferOwner().claimDormant(
+            rec.id, token, p.hours, "afflicted")
+        if not transferred then return false, transferReason end
+        p.zaoTransferred = true
     else
         if not SAOJavaBridge:publishReturnBody(body) then return false, "publication-pending" end
-        SAO.Body.active[rec.id] = body
-        local agent = SAO.Controller.agents[rec.id]
-        if agent and (agent.rec ~= rec or agent.passive) then SAO.Controller.drop(rec.id) end
-        if SAO.Controller.adopt(rec) ~= true then return false, "adoption-pending" end
-        agent = SAO.Controller.agents[rec.id]
-        if not agent or agent.rec ~= rec or agent.passive then return false, "adoption-pending" end
+        if not p.zaoTransferred then
+            applyRecord(rec, p)
+            SAO.Body.active[rec.id] = body
+            if rec.bodyOwner == "ZAO" then
+                -- A reload can retain the native staged shell and durable ZAO
+                -- owner while losing the disposable foreign-body index.
+                SAO.Body.active[rec.id] = nil
+                SAO.Body.foreign[rec.id] = body
+            end
+            local token = driverToken(rec, state, p.event)
+            local transferred, transferReason = transferOwner().begin(
+                rec.id, body, token, p.hours, "afflicted")
+            if not transferred then return false, transferReason end
+            p.zaoTransferred = true
+        elseif rec.bodyOwner == "ZAO" then
+            -- A full Lua reload loses the disposable foreign-body table while
+            -- the native staged shell and durable return phase survive. Rebind
+            -- that exact shell; do not materialize or recapture a replacement.
+            SAO.Body.active[rec.id] = nil
+            SAO.Body.foreign[rec.id] = body
+            local token = driverToken(rec, state, p.event)
+            transferOwner().begin(rec.id, body, token,
+                p.hours, "afflicted")
+        end
+        if SAO.Body.foreign[rec.id] ~= body or rec.bodyOwner ~= "ZAO" then
+            return false, "zao-ownership-pending"
+        end
+        -- Activation remains retryable under the phase; callbacks cannot see
+        -- the foreign body through Body.get until this transaction closes.
+        if not SAOJavaBridge:activateReturnBody(body) then
+            return false, "activation-pending"
+        end
     end
-    return commit(rec, p, body, destination)
+    return commit(rec, p)
 end
 
 function Return.resume(rec)
@@ -265,39 +327,59 @@ if Return.onGameStart then Events.OnGameStart.Remove(Return.onGameStart) end
 Return.onGameStart = function() Return.resumePending() end
 Events.OnGameStart.Add(Return.onGameStart)
 
--- [C116] The marks on every live afflicted body, once per county day.
--- The afflicted are not only the returned: a live infected person the
--- pathogen's recovery branch flipped to afflicted never died and
--- needs no adoption - but their live shell carries no marks, and a
--- body without marks reads as a body with nothing on it. The stamp
--- is the pathogen's own state read back onto the body that carries
--- it, on the same cadence the marks decay, so what the scanner
--- reports about a formed person is the form they have TODAY.
+-- The marks and the ZAO owner on every living Afflicted person. Afflicted who
+-- never died still cross the same ownership seam: SAO retains their identity,
+-- body and social services, while ZAO alone drives what that person does.
 function Return.stampLive(day)
     if not (ZAO and ZAO.StateStore and SAO.Body) then
         return false
     end
 
     local stamped = 0
+    local active = {}
     for id, body in pairs(SAO.Body.active) do
+        active[#active + 1] = { id = tostring(id), body = body }
+    end
+    for _, entry in ipairs(active) do
+        local id, body = entry.id, entry.body
         id = tostring(id)
         local okState, state = pcall(function()
             return ZAO.StateStore.read(id)
         end)
-        if okState and state and SAO.Body.get(id) == body
-            and state.terminalState == "afflicted"
-            and body then
+        if okState and state and state.terminalState == "afflicted"
+            and body and SAO.Body.active[id] == body then
+            local rec = SAO.Identity and SAO.Identity.get(id) or nil
+            if not rec or rec.dead or SAO.Body.isTransitioning(rec) then
+                -- A return, release or ownership transaction owns this shell.
+                -- Stamping it would make an observer mutate a pending phase.
+                body = nil
+            end
+        end
+        if okState and state and state.terminalState == "afflicted"
+            and body and SAO.Body.active[id] == body then
             local ok = pcall(function()
-                local data = body:getModData()
-                if type(data) == "table" then
-                    data.ZAOForm = state.currentForm or "none"
-                    data.ZAOFormPerformance =
-                        tonumber(state.formPerformance) or 0.0
-                    data.ZAOAttributes = ZAO.Pathogen
-                        and ZAO.Pathogen.attributeString(state) or ""
-                end
+                stamp(body, state)
             end)
-            if ok then stamped = stamped + 1 end
+            if ok then
+                local rec = SAO.Identity and SAO.Identity.get(id) or nil
+                if rec and not rec.dead and not rec.bodyOwner then
+                    local token = driverToken(rec, state,
+                        state.returnEvent and state.returnEvent.token
+                            or tostring(day or "live"))
+                    transferOwner().begin(id, body, token,
+                        SAO.History.countyHours(), "afflicted")
+                end
+                stamped = stamped + 1
+            end
+        end
+    end
+
+    for id, body in pairs(SAO.Body.foreign or {}) do
+        local rec = SAO.Identity and SAO.Identity.get(tostring(id)) or nil
+        local state = rec and ZAO.StateStore.read(tostring(id)) or nil
+        if rec and rec.bodyOwner == "ZAO" and state
+            and state.terminalState == "afflicted" and body then
+            if pcall(stamp, body, state) then stamped = stamped + 1 end
         end
     end
 

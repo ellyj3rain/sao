@@ -830,6 +830,13 @@ function Org.appraiseMatter(processId, personId, context)
     if type(constraints.executionOwnerAvailable) ~= "boolean" then
         constraints.executionOwnerAvailable = context.executionOwnerAvailable ~= false
     end
+    if type(constraints.ownNeedAvailable) ~= "boolean" then
+        if type(context.ownNeedAvailable) == "boolean" then
+            constraints.ownNeedAvailable = context.ownNeedAvailable
+        else
+            constraints.ownNeedAvailable = tonumber(context.ownNeed) ~= nil
+        end
+    end
     constraints.dead = context.dead == true
     constraints.incapable = context.incapable == true
     constraints.contest = context.contest == true
@@ -845,7 +852,8 @@ function Org.appraiseMatter(processId, personId, context)
     local inputOwners = {
         currentActivity = inputOwner("currentActivity", executor),
         capabilities = inputOwner("capabilities", executor),
-        ownNeed = inputOwner("ownNeed", owner),
+        ownNeed = inputOwner("ownNeed",
+            constraints.ownNeedAvailable and owner or "unavailable"),
         relationship = inputOwner("relationship", "SAO.Standing"),
         interests = inputOwner("interests", owner),
         constraints = inputOwner("constraints", owner),

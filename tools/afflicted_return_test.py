@@ -91,7 +91,10 @@ SAOJavaBridge.publishReturnBody=function(self,b)
  return true
 end
 SAOJavaBridge.activateReturnBody=function(self,b)
- assert(SAO.Controller.agents.p1,'activation without controller')
+ __activationAttempts=__activationAttempts+1
+ assert(__records.p1.bodyOwner=='ZAO' and SAO.Body.foreign.p1==b
+  and ZAO.Controller.controlled.p1==b
+  and not SAO.Controller.agents.p1,'activation without sole ZAO owner')
  if __fault=='activate' then return false end
  if not b.activated then __activations=__activations+1 b.activated=true end
  return true
@@ -100,12 +103,14 @@ function __returnSetup(dormant)
  local r,b=__setup()
  __realReturnHealth=__realReturnHealth or ZAO.Controller.restoreReturnHealth
  ZAO.Controller.restoreReturnHealth=__realReturnHealth
- SAO.Body.returning={} SAO.Body.active={} SAO.Controller.agents={} SAO.Controller.pendingCorpses={}
+ SAO.Body.returning={} SAO.Body.active={} SAO.Body.foreign={}
+ SAO.Controller.agents={} SAO.Controller.pendingCorpses={}
  r.dead=true r.diedAtHours=24 r.returnLiving='SNAP:living'
  r.returnLivingDeath=0
  r.turnedDormant=dormant==true r.hibernation='SNAP:dormant'
  __native={} __discardFail=false __deferEachDiscard=false __sourceSupported=true __sourceDormant=false
- __now=48 __fault='' __held=false __removeAttempts=0 __creates=0 __publishes=0 __activations=0 __healthCalls=0
+ __now=48 __fault='' __held=false __removeAttempts=0 __creates=0 __publishes=0
+ __activations=0 __activationAttempts=0 __healthCalls=0
  __source=dormant and nil or b
  if dormant then __source=nil end
  b.payload='current' b.visual='sourcevisual' b.md.SAOPersonId='p1'
@@ -115,10 +120,10 @@ function __returnSetup(dormant)
   returnEvent={token='reversion:1',day=2}}
  ZAO.Controller.controlled={} ZAO.Controller.nextScanAt=0
  SAO.Rand.unit=function() return 0.9 end
- __realAdopt=__realAdopt or SAO.Controller.adopt
- SAO.Controller.adopt=function(rec)
-  if __fault=='adopt' then return false end
-  return __realAdopt(rec)
+ __realAcceptExternal=__realAcceptExternal or ZAO.Controller.acceptExternal
+ ZAO.Controller.acceptExternal=function(personId,body,token,terminal)
+  if __fault=='owner' then return false end
+  return __realAcceptExternal(personId,body,token,terminal)
  end
  return r,b
 end
@@ -135,27 +140,34 @@ do
  assert(SAO.Body.materialize(r)==nil,'ordinary dead-record safeguard bypassed')
  assert(SAO.AfflictedReturn.adopt(2),'loaded return failed')
  assert(r.returnSaveTouched==true,'return did not enter cross-file generation journal')
- assert(b.removed and not r.dead and SAO.Controller.agents.p1,'return missing controller or source removal')
- assert(SAO.Body.get('p1').payload=='current','historical possessions restored')
+ assert(b.removed and not r.dead and r.bodyOwner=='ZAO'
+  and SAO.Body.foreign.p1 and ZAO.Controller.controlled.p1==SAO.Body.foreign.p1
+  and not SAO.Controller.agents.p1,'return missing sole ZAO owner or source removal')
+ assert(SAO.Body.foreign.p1.payload=='current','historical possessions restored')
  assert(r.bodyVisual=='VIS:sourcevisual','completed return lost durable appearance')
- assert(SAO.Body.get('p1').healthRestored and SAO.Body.get('p1').md.ZAODormantKnox==true,
+ assert(SAO.Body.foreign.p1.healthRestored and SAO.Body.foreign.p1.md.ZAODormantKnox==true,
   'return did not preserve systemic-dormant afflicted state')
  assert(r.diedAtHours==24 and r.hibernation=='SNAP:current','death history or current pack lost')
  SAO.AfflictedReturn.adopt(2) SAO.AfflictedReturn.resumePending()
  assert(__creates==1 and __publishes==1 and __activations==1,'repeat return duplicated destination')
  assert(__healthCalls==1,'completed phase repeated recovery physiology')
 end
-for _,fault in ipairs({'hold','create','health','capture','restore','visual','remove','publish','adopt','activate'}) do
+for _,fault in ipairs({'hold','create','health','capture','restore','visual','remove','publish','owner','activate'}) do
  local r,b=__returnSetup(false) __fault=fault
  SAO.AfflictedReturn.adopt(2)
+ if fault=='owner' then
+  assert(__activationAttempts==0,'activation attempted before ZAO accepted ownership')
+ end
  assert(r.returnTransition,'failure relinquished durable return: '..fault)
  assert(SAO.Body.pendingTransitionCount()==1,'pending return absent from ownership census')
  assert(SAO.Body.get('p1')==nil and SAO.Body.hasRepresentation('p1'),'pending ownership leaked: '..fault)
- if fault~='publish' and fault~='adopt' and fault~='activate' then
+ if fault~='publish' and fault~='owner' and fault~='activate' then
   assert(not b.removed,'source lost on pre-removal failure: '..fault)
  end
  __complete(r)
- assert(SAO.Controller.agents.p1 and __publishes==1 and __activations==1,'retry controller/publication duplication: '..fault)
+ assert(r.bodyOwner=='ZAO' and SAO.Body.foreign.p1
+  and not SAO.Controller.agents.p1 and __publishes==1 and __activations==1,
+  'retry owner/publication duplication: '..fault)
  assert(SAO.Body.returning.p1==nil,'completed return leaked staged ownership')
 end
 do
@@ -166,26 +178,30 @@ do
  SAO.AfflictedReturn.resumePending()
  assert(not b.removed and r.returnTransition.recapture==true,'changed source consumed stale capture')
  __complete(r)
- assert(SAO.Body.get('p1').payload=='after-loot','looted item reappeared')
+ assert(SAO.Body.foreign.p1.payload=='after-loot','looted item reappeared')
  assert(not r.hasRadio,'return retained stale inventory facts')
 end
-for _,fault in ipairs({'remove','publish','adopt','activate'}) do
+for _,fault in ipairs({'remove','publish','owner','activate'}) do
  local r,b=__returnSetup(false) __fault=fault
  SAO.AfflictedReturn.adopt(2)
  -- Lua-only reload retains native staged/published objects.
- SAO.Body.returning={} SAO.Body.active={} SAO.Controller.agents={} ZAO.Controller.controlled={}
+ SAO.Body.returning={} SAO.Body.active={} SAO.Body.foreign={}
+ SAO.Controller.agents={} ZAO.Controller.controlled={}
  __complete(r)
- assert(SAO.Body.get('p1').payload=='current' and SAO.Controller.agents.p1,'reload lost restored person: '..fault)
+ assert(SAO.Body.foreign.p1.payload=='current' and r.bodyOwner=='ZAO'
+  and not SAO.Controller.agents.p1,'reload lost ZAO-owned person: '..fault)
 end
-for _,fault in ipairs({'publish','adopt','activate'}) do
+for _,fault in ipairs({'publish','owner','activate'}) do
  local r,b=__returnSetup(false) __fault=fault
  SAO.AfflictedReturn.adopt(2)
  assert(r.returnTransition.sourceRemoved and b.removed,'world reload fixture lacks acknowledged source removal')
  -- A full world reload retains the durable phase and loses transient shells.
  -- Actual engine save/load coverage lives in the native probes.
- __native={} SAO.Body.returning={} SAO.Body.active={} SAO.Controller.agents={}
+ __native={} SAO.Body.returning={} SAO.Body.active={} SAO.Body.foreign={}
+ SAO.Controller.agents={} ZAO.Controller.controlled={}
  __complete(r)
- assert(__creates==2 and SAO.Body.get('p1').payload=='current','durable return did not rebuild destination')
+ assert(__creates==2 and SAO.Body.foreign.p1.payload=='current'
+  and r.bodyOwner=='ZAO','durable return did not rebuild ZAO destination')
 end
 do
  local r=__returnSetup(true)
@@ -277,7 +293,7 @@ do
  SAO.AfflictedReturn.adopt(2)
  b.x,b.y=345,678 __mode='ok'
  __complete(r)
- assert(SAO.Body.get('p1'):getX()==345 and SAO.Body.get('p1'):getY()==678
+ assert(SAO.Body.foreign.p1:getX()==345 and SAO.Body.foreign.p1:getY()==678
   and r.x==345 and r.y==678,'return published at pre-hold coordinates')
 end
 do
@@ -397,8 +413,9 @@ def main():
         result=vm.run(work,sources); print('production: '+result)
         if result!='VALUE PASS': faults.append('production')
         controls=[
-          ('SAO_AfflictedReturn.lua','if SAO.Controller.adopt(rec) ~= true then return false, "adoption-pending" end',
-           'if false then return false, "adoption-pending" end','loaded return failed'),
+          ('SAO_AfflictedReturn.lua','local transferred, transferReason = transferOwner().begin(\n                rec.id, body, token, p.hours, "afflicted")\n            if not transferred then return false, transferReason end',
+           'local transferred, transferReason = transferOwner().begin(\n                rec.id, body, token, p.hours, "afflicted")\n            if false then return false, transferReason end',
+           'activation attempted before ZAO accepted ownership'),
           ('ZAO_Controller.lua','if ZAOJavaBridge:removeReturnBody(body, personId, token) ~= true then return false end',
            'ZAOJavaBridge:removeReturnBody(body, personId, token)','retry did not complete'),
           ('SAO_AfflictedReturn.lua','if not SAOJavaBridge:returnMaterialsMatch(source, p.packed, p.visual) then',

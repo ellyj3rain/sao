@@ -83,6 +83,9 @@ READ_ELSEWHERE = {
                         "county does not act on it yet",
     "returnSaveTouched": "ZAO's ZAOSaveGeneration selects identities that "
                          "entered the cross-file return protocol",
+    "lastLivingHealth": "ZAO_Diet snapshots the source person's observed "
+                        "living health when a completed human-origin meal "
+                        "derives donor-conditioned Afflicted protection",
 }
 
 

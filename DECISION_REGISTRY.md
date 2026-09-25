@@ -1,6 +1,6 @@
 | Document | Survivor Awareness Overhaul Decision Registry |
 |---|---|
-| Version | `2.9.0.0-pre-alpha` |
+| Version | `2.9.1.0-pre-alpha` |
 | Author | ellyj3rain |
 | Repository | `DECISION_REGISTRY.md` |
 | Status | CANONICAL, APPEND-ONLY - ratified decisions. |
@@ -1587,3 +1587,93 @@ their existing R-contract work.
 `seam-80395ed69ff069e0`, selected `approved` without notes. The approved plan is
 `artifacts/audits/20260924-cao-prior-art/field-test-plan-v2.json`; the evidence
 anchor is `field-test:plan-sha256:26a1eaf6289021eb14af995ab933b1646bc3bf48505b6dc9380bbde0e20b8092`.
+
+---
+
+## DR-046 | 2026-09-24 20:16 UTC / 13:16 PST | ZAO owns Afflicted and Crossed execution
+
+**Status** RATIFIED by the operator's correction during the approved
+SAO/ZAO/Speakeasy implementation. This supersedes only DR-045's sentence that
+assigned living Afflicted execution to SAO; DR-045's enacted-coordination
+contract remains in force. DR-047 supersedes the later maintenance and feeding
+gap recorded here; the shared-owner decision remains current.
+
+**Decision.** ZAO owns behavioral execution for both living pathogen states,
+Afflicted and Crossed. They use one durable ZAO driver, with the terminal state
+selecting distinct motives, constraints, actions and satisfiers. SAO continues
+to own the person record, county/social substrate, communication, source use,
+handover and locomotion services. A ZAO-owned person can use those services
+without SAO becoming their planner or controller.
+
+Crossed retain the human shell, identity, history, cognition and applicable
+capabilities under their established constraints. Their human physiology can
+subsist on ordinary food. Human victims and human-origin food remain preferred
+where sustenance, mutilation, cruelty, domination, terror and contagion
+reinforce one another; that preference is motivational, not biological
+exclusivity. Routine short- and long-horizon planning remains ordinary retained
+cognition, not a rare subtype. Agriculture, tools and other human actions stay
+possible when actual knowledge, capability, means and motive support them.
+Blood exposure of Afflicted remains separate from feeding, and blood carried by
+a weapon must reach an actual wound. These examples are neither an automatic
+loop nor the boundary of Crossed behavior. No governed source establishes how
+Afflicted maintain themselves, so SAO survivor maintenance and Crossed motives
+are not inferred into that gap. Their physical pressure remains real evidence,
+not proof of a particular satisfier.
+
+**Application.** `SAO_AfflictedReturn` publishes a returned living shell under
+ZAO ownership instead of adopting it into `SAO_Controller`.
+`SAO.ZAOPersonTransfer` generalizes the former Crossed-only handoff and preserves
+one driver token across later conversion. Communication, Perception and
+coordination resolve the registered external owner. Standing supplies private
+unheld destination evidence to ZAO and commits home/claim only after ZAO's
+native locomotion arrives; its old daily Afflicted relocation is removed.
+
+**Origin.** Direct operator correction on 2026-09-24 while executing the
+already-approved Field Test. The correction resolves an assistant-proposed
+ownership split; the same correction's later Crossed clarification separates
+ordinary physiology from altered preference and strategy. It is not a
+cancellation or a new approval boundary.
+
+---
+
+## DR-047 | 2026-09-25 00:24 UTC / 17:24 PST | Afflicted maintenance and Crossed predatory pressure remain distinct
+
+**Status** RATIFIED by the operator's direct clarification during C80/A39.
+This supersedes DR-045's categorical statement that Afflicted are not food and
+DR-046's statement that Afflicted maintenance was undefined. It does not merge
+Afflicted and Crossed physiology, motivation or conduct.
+
+**Decision.** Afflicted have an altered living physiology. They require water,
+strongly prefer meat and protein, and can use non-dairy alternatives with
+reduced caloric relief and a temporary performance cost. Human-origin food is
+possible rather than automatic: current hunger, self-preservation,
+aggression, compassion and personal precedent govern willingness. A completed
+human meal may provide temporary resistance to later intentional Crossed
+exposure; the amount and duration follow the donor's evidenced living health
+and Knox adaptation. This benefit is neither immunity nor spontaneous state
+change.
+
+Crossed retain ordinary-food viability with substantially reduced caloric
+pressure. Their separate predatory pressure is not hunger. It can motivate
+threatening, pursuit, assault, mutilation or other feasible conduct, but only a
+distinct observed result relieves it: actually heard threat plus public flight
+for fear, native health loss for pain, a completed post-threat yield handover
+for control, or completed consumption/desecration for those outcomes. Killing
+closes live fear and control and supplies no substitute relief. Crossed may eat
+Afflicted human remains, but the source is dispreferred; intentional blood
+exposure remains a separate mechanism.
+
+**Application.** SAO restores externally owned dormant shells with zero
+survivor elapsed time, then passes the full interval to the registered ZAO
+owner. SourceUse remains the exact acquisition, carrying and native receipt
+owner; a registered ZAO diet adapter selects the state-specific eating action
+only after the exact item is carried. Threat delivery verifies the actual
+communication boundary, target-owned public response is observed separately,
+and Handover completion is consumed once. ZAO persists maintenance, predation
+actions and terminal results across save/reload.
+
+**Origin.** Direct operator clarification, followed by Mousecat Crucible
+interaction `skill-31bd395ca19f6aea`, item `seam-55277a5afc86a418`, selected
+`predatory-pressure-acute-flows`. The accompanying note requires need to remain
+separate from behavior/capacity and asks only for enough current mechanism to
+support convergent simulation rather than a permanent exhaustive model.

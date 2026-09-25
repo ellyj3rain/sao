@@ -1,6 +1,6 @@
 | Document | Survivor Awareness Overhaul Architecture |
 |---|---|
-| Version | `2.9.0.0-pre-alpha` |
+| Version | `2.9.1.0-pre-alpha` |
 | Author | ellyj3rain |
 | Repository | `ARCHITECTURE.md` |
 | Status | ACTIVE - ratified framework shape. |
@@ -234,7 +234,7 @@ history.
 The reservation is also the cross-pillar actor owner. Dormant population
 mutation, bodyless pathogen encounter/snapshot observation and WorldGenesis graph
 application skip a source-owned actor. The live controller settles mortality and
-Crossed transfer before restoring the durable source phase, and an unreadable
+ZAO living-person transfer before restoring the durable source phase, and an unreadable
 future-schema owner holds the actor rather than being interpreted as absence.
 
 ## Decision evidence boundary (C64-C65)
@@ -318,8 +318,11 @@ interpretation, capture, validation and durable commit. `SAO_Body` owns
 materialization, checkpoints, release and transfer transactions; the shared
 module owns no body registry. Release and transfer validate supplied native
 payloads and envelope fields before publishing durable state or ownership.
-Afflicted return shares the version reader and retains source removal and
-adoption. Native formats and save keys keep their existing readers.
+Afflicted return shares the version reader, retains source removal and hands the
+validated living shell to the registered ZAO owner. The historical
+`CrossedTransfer` name remains a compatibility alias for the generalized
+`ZAOPersonTransfer` owner. Native formats and save keys keep their existing
+readers.
 
 C58 gives `SAO_Population` the population cadence, fault gates, daily order and
 historical slice orchestration. `SAO_PopulationAdmissions` owns origins and
@@ -802,8 +805,31 @@ Organization commitment
 Competing activity pauses rather than completes or erases the commitment. The
 same actor may resume after the current execution owner revalidates capability
 and access. Loaded SAO bodies, dormant people and registered external owners use
-the same process record. Crossed keep the human identity/shell; ZAO supplies the
-external activity/capability snapshot and performs supported movement/work.
+the same process record. Afflicted and Crossed keep the human identity/shell;
+ZAO supplies the state-specific external activity/capability snapshot and
+performs supported movement/work. SAO's communication, SourceUse, Handover and
+Locomotion remain services, not a second actor planner.
+
+C80 applies the same boundary to return and ordinary state activity. A returned
+Afflicted body is never enrolled in `SAO_Controller`; ZAO accepts the loaded
+shell or dormant envelope under the stable driver token. Standing exposes only
+that person's private unheld destination evidence. ZAO decides whether to
+travel, invokes SAO's native Locomotion owner, and reports arrival before
+Standing may commit home or claim. The former daily record relocation is gone.
+Afflicted-to-Crossed conversion preserves the owner token and changes only the
+state policy. ZAO reports the body's current competing pressure without
+exporting a diagnosis or diet label. Crossed human maintenance, including
+ordinary food at reduced caloric pressure, is admitted by Crossed policy.
+Afflicted water, protein preference, penalized non-dairy alternatives and
+donor-conditioned human-meal consequences remain under the distinct Afflicted
+policy. SAO does not infer either policy from the exported generic pressure.
+
+Personal food acquisition still uses the same native owner as survivor work:
+SourceUse selects the privately known exact source, drives locomotion, transfers
+the exact item and publishes the measured receipt. A registered ZAO diet
+adapter selects only the terminal-state eating action after the item is carried.
+Queue admission, transfer and eating remain separate outcomes through
+interruption and reload.
 
 `Organization.decisionEvidence` reconstructs a named proposal revision at the
 response-formation hour. Its decision view contains no delivered-response fact

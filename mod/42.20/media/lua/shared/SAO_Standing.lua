@@ -37,6 +37,7 @@ local S = SAO.Standing
 -- discovered.
 S.FEUD_KEEP_OUT = 30   -- will not settle this close to a feuding company
 S.FEUD_DETOUR = 20     -- a day's walk bends away at this range
+S.AFFLICTED_GROUND_ARRIVAL = 5 -- ZAO must physically reach candidate ground
 local STANDING_SCHEMA = 4
 -- Evidence reads may not initialize or migrate standing as a side effect.
 function S.knowledgeEvidenceReady(id)
@@ -3163,50 +3164,73 @@ end
 -- the same abandoned ground cross paths, and the road and the table
 -- decide by the same `companyStanding` every other pair is decided
 -- by - a house of outcasts is a county's own answer, not a category.
-function S.outcastDrift()
-    local s = store(); if not s then return false end
-    if not (ZAO and ZAO.StateStore and ZAO.StateStore.read) then
-        return false
-    end
-    if not (SAO.Perception and SAO.Perception.returnsOf) then
-        return false
-    end
-    local moved = 0
-    for id, rec in pairs(SAO.Identity.all()) do
-        if not rec.dead and not s.groups[id] then
-            local saved = ZAO.StateStore.read(id)
-            local terminal = saved and saved.terminalState or nil
-            if terminal == "afflicted" then
-                local ranked = SAO.Perception.returnsOf({ id }) or {}
-                for _, t in ipairs(ranked) do
-                    local pc = t.place
-                    if pc and pc.cx and pc.minX
-                        and not S.claimedByOther(id, pc.cx, pc.cy)
-                        and not S.insideClaim(id, pc.cx, pc.cy) then
-                        local mnX, mnY, mxX, mxY =
-                            S.groundAround(SAO.Body.get(id),
-                                pc.cx, pc.cy, 4)
-                        S.releaseClaim(id)
-                        S.claim(id, mnX, mnY, mxX, mxY, 0)
-                        rec.homeX, rec.homeY, rec.homeZ =
-                            pc.cx, pc.cy, 0
-                        -- Say WHY this ground and not another, the
-                        -- settle pass's own law: the visits are the
-                        -- person's own, and the claim is the county's
-                        -- answer to who holds the rest.
-                        log(id .. " takes the abandoned ground at "
-                            .. tostring(pc.cx) .. "," .. tostring(pc.cy)
-                            .. " - they had been back "
-                            .. tostring(t.visits)
-                            .. " time(s) and nobody holds it")
-                        moved = moved + 1
-                        break
-                    end
-                end
-            end
+-- Standing supplies the person's privately evidenced, currently unheld
+-- destination. It no longer performs the Afflicted person's movement: ZAO is
+-- that person's execution owner. The claim is committed only after the ZAO
+-- driver reaches the same ground and this owner revalidates it.
+function S.outcastDriftDestination(id)
+    local s = store(); if not s then return nil end
+    id = tostring(id or "")
+    local rec = SAO.Identity and SAO.Identity.get(id) or nil
+    if not rec or rec.dead or s.groups[id] then return nil end
+    if not (ZAO and ZAO.StateStore and ZAO.StateStore.read
+        and SAO.Perception and SAO.Perception.returnsOf) then return nil end
+    local saved = ZAO.StateStore.read(id)
+    if not saved or saved.terminalState ~= "afflicted" then return nil end
+    local ranked = SAO.Perception.returnsOf({ id }) or {}
+    for _, candidate in ipairs(ranked) do
+        local place = candidate.place
+        if place and place.cx and place.minX
+            and not S.claimedByOther(id, place.cx, place.cy)
+            and not S.insideClaim(id, place.cx, place.cy) then
+            return { id = tostring(candidate.id), place = place,
+                visits = candidate.visits,
+                source = "private-return-history" }
         end
     end
-    return moved > 0
+    return nil
+end
+
+function S.completeOutcastDrift(id, body, candidate)
+    id = tostring(id or "")
+    local current = S.outcastDriftDestination(id)
+    local requested = candidate and candidate.place or nil
+    local requestedId = candidate and candidate.id or nil
+    local place = current and current.place or nil
+    -- Known-place records deliberately omit their map key. Bind completion to
+    -- the returnsOf entry's building id; comparing place.id would compare nil
+    -- with nil and could let a newly ranked destination consume an old route.
+    if not (body and place and requested and requestedId ~= nil
+        and current.id ~= nil
+        and tostring(current.id) == tostring(requestedId)) then return false end
+    local near = false
+    pcall(function()
+        local dx, dy = body:getX() - place.cx, body:getY() - place.cy
+        near = dx * dx + dy * dy
+            <= S.AFFLICTED_GROUND_ARRIVAL * S.AFFLICTED_GROUND_ARRIVAL
+    end)
+    if not near or S.claimedByOther(id, place.cx, place.cy) then return false end
+    local rec = SAO.Identity.get(id)
+    local mnX, mnY, mxX, mxY = S.groundAround(body, place.cx, place.cy, 4)
+    S.releaseClaim(id)
+    S.claim(id, mnX, mnY, mxX, mxY, math.floor(body:getZ()))
+    rec.homeX, rec.homeY, rec.homeZ = place.cx, place.cy,
+        math.floor(body:getZ())
+    log(id .. " takes the abandoned ground at "
+        .. tostring(place.cx) .. "," .. tostring(place.cy)
+        .. " after reaching it - they had been back "
+        .. tostring(current.visits) .. " time(s) and nobody holds it")
+    return true
+end
+
+-- Compatibility pulse retained for the county-day caller. It observes whether
+-- ZAO-owned Afflicted have a grounded destination but cannot move or settle
+-- them; their next ZAO driver pass consumes the same reader.
+function S.outcastDrift()
+    for id in pairs(SAO.Identity and SAO.Identity.all() or {}) do
+        if S.outcastDriftDestination(id) then return true end
+    end
+    return false
 end
 
 -- Faction naming: a settled fact, once, at 3+ members. Deterministic from

@@ -794,8 +794,17 @@ local function privateCoordinationContext(id, agent, body, request)
             executionUnavailable = true
         end
     end
-    local ownNeed = 0
-    if body then
+    local ownNeed, ownNeedAvailable = 0, true
+    if rec and rec.bodyOwner == "ZAO" then
+        if tonumber(execution.competingPressure) then
+            -- The external owner reports a body pressure, not a diet. It can
+            -- qualify or defer accepted work without SAO deciding how that
+            -- actor satisfies hunger, fear, fatigue or injury.
+            ownNeed = tonumber(execution.competingPressure)
+        else
+            ownNeed, ownNeedAvailable = 0, false
+        end
+    elseif body then
         local needs = SAO.Needs.read(body)
         ownNeed = needs and tonumber(needs.hunger) or 0
     elseif rec then
@@ -806,7 +815,9 @@ local function privateCoordinationContext(id, agent, body, request)
     pcall(function() relationship = SAO.Standing.trust(id, originator) end)
     local hostile = false
     pcall(function() hostile = SAO.Standing.isHostileTo(id, originator) end)
-    local activity = agent and string.lower(tostring(agent.state or "idle"))
+    local activity = execution.currentActivity
+        and string.lower(tostring(execution.currentActivity))
+        or agent and string.lower(tostring(agent.state or "idle"))
         or "dormant"
     local destination = proposal and proposal.destination or nil
     local destinationKnown = type(destination) == "table"
@@ -820,6 +831,10 @@ local function privateCoordinationContext(id, agent, body, request)
     if hostile then
         choice = "contest"
     elseif activity ~= "idle" and activity ~= "dormant" then
+        choice = "defer"
+    elseif not ownNeedAvailable then
+        -- Missing external pressure evidence is not a healthy default. Keep
+        -- the response revisable until the execution owner supplies it.
         choice = "defer"
     elseif ownNeed >= 0.75 then
         choice = "qualify"
@@ -836,7 +851,7 @@ local function privateCoordinationContext(id, agent, body, request)
     return {
         owner = "Controller.coordination",
         executor = execution.executor or (rec and rec.bodyOwner == "ZAO"
-            and "ZAO.Controller" or "SAO.Controller"),
+            and "ZAO.Driver" or "SAO.Controller"),
         bodyOwner = execution.bodyOwner or (rec and rec.bodyOwner) or "SAO",
         currentActivity = activity,
         canAcquire = not executionUnavailable
@@ -860,15 +875,20 @@ local function privateCoordinationContext(id, agent, body, request)
             ownGroup = SAO.Standing.groupOf(id) },
         constraints = { represented = body ~= nil,
             currentActivity = activity,
-            executionOwnerAvailable = not executionUnavailable },
+            executionOwnerAvailable = not executionUnavailable,
+            ownNeedAvailable = ownNeedAvailable },
         inputOwners = {
             currentActivity = execution.executor
-                or (rec and rec.bodyOwner == "ZAO" and "ZAO.Controller")
+                or (rec and rec.bodyOwner == "ZAO" and "ZAO.Driver")
                 or "SAO.Controller",
             capabilities = execution.executor
-                or (rec and rec.bodyOwner == "ZAO" and "ZAO.Controller")
+                or (rec and rec.bodyOwner == "ZAO" and "ZAO.Driver")
                 or "SAO.Controller",
-            ownNeed = body and "SAO.Needs" or "SAO.Identity",
+            ownNeed = rec and rec.bodyOwner == "ZAO"
+                and (execution.inputOwners
+                    and execution.inputOwners.competingPressure
+                    or "ZAO.Driver")
+                or body and "SAO.Needs" or "SAO.Identity",
             relationship = "SAO.Standing",
             interests = "SAO.Identity+SAO.Standing",
             constraints = "SAO.Controller",
@@ -1736,6 +1756,62 @@ local function decideThreat(id, agent, body, tick, threat, threatCount, governin
         return true
     end
 
+end
+
+-- Threat reception belongs to the threatened person.  This records a heard
+-- hostile act in their own runtime and standing; their ordinary decision pass
+-- still chooses whether to flee, resist, yield, hold, or do nothing from their
+-- private knowledge and disposition.  The sender learns only that reception
+-- reached this owner, never the inputs used by the later decision.
+function Ctl.receiveThreat(id, fromId, threatToken, evidence)
+    id, fromId, threatToken = tostring(id or ""), tostring(fromId or ""),
+        tostring(threatToken or "")
+    local agent = Ctl.agents[id]
+    local body = SAO.Body and SAO.Body.get and SAO.Body.get(id) or nil
+    if id == "" or fromId == "" or threatToken == ""
+        or not agent or not body or agent.rec and agent.rec.dead then
+        return false, "unanswered"
+    end
+    local atHours = 0
+    pcall(function() atHours = SAO.History.countyHours() end)
+    agent.externalThreat = {
+        version = 1,
+        token = threatToken,
+        fromId = fromId,
+        receivedAtHours = tonumber(atHours) or 0,
+        channel = "spoken",
+    }
+    if SAO.Standing and SAO.Standing.setHostile then
+        pcall(SAO.Standing.setHostile, id, fromId, true)
+    end
+    agent.nextDecisionAt = 0
+    return true, "received"
+end
+
+-- Public conduct only.  A matching heard event plus an actual controller
+-- state can evidence flight or resistance; ALERT/IDLE is not compliance.
+function Ctl.observeThreatResponse(id, fromId, threatToken)
+    id, fromId, threatToken = tostring(id or ""), tostring(fromId or ""),
+        tostring(threatToken or "")
+    local agent = Ctl.agents[id]
+    local event = agent and agent.externalThreat or nil
+    if not event or tostring(event.token or "") ~= threatToken
+        or tostring(event.fromId or "") ~= fromId then return nil end
+    local activity = tostring(agent.state or "IDLE")
+    local kind = activity == "FLEE" and "flight"
+        or activity == "ENGAGE" and "resistance" or nil
+    if not kind then return nil end
+    local atHours = 0
+    pcall(function() atHours = SAO.History.countyHours() end)
+    return {
+        version = 1,
+        token = threatToken,
+        personId = id,
+        sourceId = fromId,
+        kind = kind,
+        activity = string.lower(activity),
+        observedAtHours = tonumber(atHours) or 0,
+    }
 end
 
 local function decideNeedsAndCompanion(id, agent, body, tick, needs)
@@ -6459,13 +6535,14 @@ end
 local function updateAgent(id, agent)
     local pendingSource = SAO.WorldSources and SAO.WorldSources.pendingActionFor
         and SAO.WorldSources.pendingActionFor(id) or nil
-    local crossedPending = agent.rec.crossedTransferPending ~= nil
-    if SAO.Body.isTransitioning(agent.rec) and not crossedPending then return end
+    local zaoPending = agent.rec.zaoTransferPending ~= nil
+        or agent.rec.crossedTransferPending ~= nil
+    if SAO.Body.isTransitioning(agent.rec) and not zaoPending then return end
     local body = nil
     -- A captured Crossed handoff is a Body transition, so the public getter
     -- intentionally hides it. Mortality still owns the native shell until the
     -- transfer commits and must inspect that exact body first.
-    if crossedPending then
+    if zaoPending then
         body = SAO.Body.active[id] or SAO.Body.foreign[id]
     else
         body = SAO.Body.get(id)
@@ -6473,7 +6550,7 @@ local function updateAgent(id, agent)
     if not body then
         -- Reloaded dormant handoffs have no native body to die between these
         -- checks. The transfer module still refuses a canonically dead record.
-        if crossedPending and not pendingSource
+        if zaoPending and not pendingSource
             and SAO.CrossedTransfer and SAO.CrossedTransfer.resumePending then
             pcall(SAO.CrossedTransfer.resumePending)
         end
@@ -6584,18 +6661,18 @@ local function updateAgent(id, agent)
     -- close, or advance an action it cannot read.
     if pendingSource and pendingSource.unavailable then return end
 
-    -- A completed Crossed result quiesces survivor behavior at the first safe
+    -- A completed ZAO-person result quiesces survivor behavior at the first safe
     -- boundary after mortality. Source use may reconcile a physical delta
     -- already made, but perception, movement and exchange do not advance while
     -- the one-way ownership handoff is pending.
     pendingSource = SAO.WorldSources and SAO.WorldSources.pendingActionFor
         and SAO.WorldSources.pendingActionFor(id) or nil
-    if agent.rec.crossedTransferPending then
+    if agent.rec.zaoTransferPending or agent.rec.crossedTransferPending then
         if pendingSource then
             local closed = SAO.SourceUse
                 and SAO.SourceUse.closeForOwnershipTransfer
                 and SAO.SourceUse.closeForOwnershipTransfer(id, body,
-                    "crossed-ownership-transfer")
+                    "zao-person-ownership-transfer")
             if not closed then return end
         end
         if SAO.CrossedTransfer and SAO.CrossedTransfer.resumePending then
@@ -7254,6 +7331,10 @@ local function updateAgent(id, agent)
     -- this survivor becomes hostile standing, both ways, and trust collapses.
     local okHp, hp = pcall(function() return SAOJavaBridge:getShellHealth(body) end)
     if okHp and type(hp) == "number" and hp >= 0 then
+        if hp > 0 and agent.rec then
+            agent.rec.lastLivingHealth = math.max(0,
+                math.min(1, hp / 100.0))
+        end
         if agent.lastHealth and hp < agent.lastHealth - 0.4 then
             local okA, tag = pcall(function() return SAOJavaBridge:getLastAttackerTag(body) end)
             tag = okA and tostring(tag) or ""

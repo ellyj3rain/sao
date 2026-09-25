@@ -12,6 +12,21 @@ SAO = SAO or {}
 SAO.SourceUse = SAO.SourceUse or {}
 local SU = SAO.SourceUse
 
+-- SourceUse remains the sole owner of the world-source reservation, exact
+-- transfer and native-use receipt.  A registered execution owner may select
+-- the native timed action after the exact item is carried; this lets a living
+-- state apply its own food physiology without creating a second acquisition
+-- path or treating transfer admission as consumption.
+SU.nativeUseOwners = SU.nativeUseOwners or {}
+
+function SU.registerNativeUseOwner(ownerId, adapter)
+    ownerId = tostring(ownerId or "")
+    if ownerId == "" or type(adapter) ~= "table"
+        or type(adapter.createAction) ~= "function" then return false end
+    SU.nativeUseOwners[ownerId] = adapter
+    return true
+end
+
 local function log(message)
     if SAO.Log and SAO.Log.line then
         SAO.Log.line("SOURCE-USE", tostring(message))
@@ -194,8 +209,15 @@ local function queueNativeUse(id, body, reservation)
     end
     reservation.nativeStarted = true
     local action = nil
+    local nativeOwner = reservation.nativeUseOwner
+        and SU.nativeUseOwners[tostring(reservation.nativeUseOwner)] or nil
     local okAction = pcall(function()
-        if reservation.category == "food" then
+        if nativeOwner then
+            action = nativeOwner.createAction(tostring(id), body, item,
+                reservation)
+        elseif reservation.nativeUseOwner then
+            action = nil
+        elseif reservation.category == "food" then
             action = ISEatFoodAction:new(body, item, 1)
         elseif reservation.category == "water" then
             action = ISDrinkFluidAction:new(body, item, useFraction)
@@ -204,12 +226,18 @@ local function queueNativeUse(id, body, reservation)
     if not okAction or action == nil then
         clearBinding(body)
         SAO.WorldSources.markNative(reservation.id, id, "interrupted", 0,
-            "unsupported-native-use")
-        return false, "unsupported-native-use", true
+            reservation.nativeUseOwner and "native-use-owner-refused"
+                or "unsupported-native-use")
+        return false, reservation.nativeUseOwner
+            and "native-use-owner-refused" or "unsupported-native-use", true
     end
     action.saoSourceReservation = reservation.id
     action.saoSourceActor = tostring(id)
     if not SAO.Needs.queueVerified(action) then
+        if nativeOwner and type(nativeOwner.queueRefused) == "function" then
+            pcall(nativeOwner.queueRefused, tostring(id), body, item,
+                reservation, action)
+        end
         SAO.WorldSources.markNative(reservation.id, id, "interrupted", 0,
             "native-action-not-queued")
         return false, "native-action-not-queued", true
@@ -429,6 +457,22 @@ function SU.begin(id, body, place, category, admission, decisionContext)
     reservation, why = SAO.WorldSources.beginAction(place, category,
         id, body, quantity, admission, selected)
     if not reservation then return false, why end
+    -- Persist only the registered owner name and bounded scalar consent.  The
+    -- selected item and all physical proof remain in WorldSources; no runtime
+    -- body, offer table or private mind snapshot enters durable graph state.
+    local context = type(decisionContext) == "table" and decisionContext or {}
+    if context.nativeUseOwner ~= nil then
+        local owner = tostring(context.nativeUseOwner or "")
+        if owner == "" or not SU.nativeUseOwners[owner] then
+            SAO.WorldSources.release(reservation.id,
+                "native-use-owner-unavailable")
+            return false, "native-use-owner-unavailable"
+        end
+        reservation.nativeUseOwner = owner
+        reservation.nativeUsePermitHuman = context.nativeUsePermitHuman == true
+        reservation.nativeUseTerminalState = context.nativeUseTerminalState
+            and tostring(context.nativeUseTerminalState) or nil
+    end
     if not SAO.Locomotion.order(id, body, reservation.placeX,
         reservation.placeY, reservation.placeZ) then
         fail(id, body, reservation, "place-route-refused")

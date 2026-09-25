@@ -16,9 +16,9 @@ the machine. Names, dates, and threads below come from
 | Form | `major.minor.kohai.patch-maturity` |
 | Hard caps | minor 12; kohai 16; patch 24 |
 | Replay start | `0.1.0.0-pre-alpha` |
-| Current version | `2.9.0.0-pre-alpha` |
-| Closed chronology | `A1-C79` |
-| Next batch | `C80` |
+| Current version | `2.9.1.0-pre-alpha` |
+| Closed chronology | `A1-C80` |
+| Next batch | `C81` |
 | Executable source | [`tools/version_replay.py`](tools/version_replay.py) |
 
 ## Tier meanings
@@ -195,6 +195,7 @@ the machine. Names, dates, and threads below come from
 | `C77` | 2026-09-22 | patch | `2.8.13.1-pre-alpha` | Evidenced world knowledge | Correct unsupported county-presence acquisition using exact native reading completion and person-bound report receipts; withhold legacy grants, preserve their history and regenerate the controlled capture with evidenced acquisition. |
 | `C78` | 2026-09-23 | kohai | `2.8.14.0-pre-alpha` | Person-state comparisons | Extend conversation capture with existing person-state contributions, explicit availability and controlled contextual comparisons; preserve source ownership and version-one compatibility. |
 | `C79` | 2026-09-24 | minor | `2.9.0.0-pre-alpha` | Enacted social coordination | Introduce enacted social coordination as a player-visible and authoring contract: acquired versioned proposals, recipient-private responses, scoped concurrent commitments and exact-once native acquisition/carry/delivery results across loaded, dormant and external execution owners. Retire automatic roster authority and fracture shortcuts without claiming wider institutional procedures or remaining life producers complete. |
+| `C80` | 2026-09-24 | kohai | `2.9.1.0-pre-alpha` | ZAO-owned living person handoff | Generalize the external living-person handoff so authorized Afflicted return and later Crossed conversion retain one ZAO driver across loaded and dormant representation, while SAO remains the county and native-service owner. Replace automatic Afflicted relocation with destination evidence and completion-backed travel. This structurally matures the existing ownership seam without adding a new state or action family, so kohai. |
 
 ## The former number
 
@@ -215,11 +216,11 @@ establish release maturity.
 
 ## Next movement
 
-`C80` is the next batch. Its content determines its tier after it
+`C81` is the next batch. Its content determines its tier after it
 exists:
 
-| If C80 is | Result |
+| If C81 is | Result |
 |---|---|
-| patch or hotfix | `2.9.0.1-pre-alpha` |
-| kohai | `2.9.1.0-pre-alpha` |
+| patch or hotfix | `2.9.1.1-pre-alpha` |
+| kohai | `2.9.2.0-pre-alpha` |
 | minor | `2.10.0.0-pre-alpha` |

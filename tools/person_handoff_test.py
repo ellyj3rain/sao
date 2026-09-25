@@ -41,6 +41,7 @@ __records={} __logs={} __mode='ok' __remove='ok' __restore='ok' __now=42
  __sourceReservation=nil __sourceEvents={} __allowObserve=false __nearestObserved=nil
 __zombieThreat=nil __formedThreat=nil __hostileKey=nil __sourceBusy=false
 __locomotionStatus='moving' __locomotionTicks=0
+__externalAdvanceCalls=0 __externalAdvanceElapsed=nil
 SAO={
  Log={line=function(tag,msg) table.insert(__logs,msg) end},
  Identity={all=function() return __records end,
@@ -51,6 +52,17 @@ SAO={
    updatePosition=function(rec,x,y,z) rec.x=x rec.y=y rec.z=z end},
  History={countyHours=function() return __now end,
    countyTimeOfDay=function() return 12 end},
+ Communication={executionOwners={ZAO={advanceDormant=function(id,rec,body,elapsed)
+   __externalAdvanceCalls=__externalAdvanceCalls+1
+   __externalAdvanceElapsed=elapsed
+   return true,'fixture-owner-advanced'
+ end}},advanceExternalDormancy=function(owner,id,rec,body,elapsed,at)
+   local adapter=SAO.Communication.executionOwners[tostring(owner)]
+   if not adapter or not adapter.advanceDormant then
+     return false,'owner-unavailable'
+   end
+   return adapter.advanceDormant(id,rec,body,elapsed,at)
+ end},
   Standing={groupOf=function() return nil end,allGroupClaims=function() return {} end,
     ownsRadio=function() return __radio==true end,
     mayEnterBelieved=function() return true end,
@@ -236,6 +248,7 @@ function __setup()
  __allowObserve=false __nearestObserved=nil
  __zombieThreat=nil __formedThreat=nil __hostileKey=nil
  __sourceBusy=false __locomotionStatus='moving' __locomotionTicks=0
+ __externalAdvanceCalls=0 __externalAdvanceElapsed=nil
  SAO.Perception.beliefs={}
  __visualRestore='ok' __visualRestored=0 __expectRestoredVisual=nil
  SAO.Body.active={} SAO.Body.foreign={} SAO.Body.failedRestore={} SAO.Body.discarding={}
@@ -795,6 +808,9 @@ do
  local restored=SAO.Body.materializeExternal(r,'ZAO','blood:p1')
  assert(restored and SAO.Body.foreign.p1==restored and SAO.Body.active.p1==nil
    and restored.payload=='after-transfer','external reload did not restore same person')
+ assert(restored.elapsed==0 and __externalAdvanceCalls==1
+   and __externalAdvanceElapsed==8,
+   'external body used survivor dormancy or lost owner elapsed time')
  restored.isDead=function() return false end
  assert(SAO.Body.hibernateExternal(r,restored,'ZAO','blood:p1'),
    'external owner could not hibernate its shell')
@@ -830,7 +846,8 @@ do
  __mode='busy'
  assert(not SAO.CrossedTransfer.begin('p1',b,'crossed:p1:retry',42)
    and r.bodyTransfer==nil and r.bodyOwner==nil
-   and r.crossedTransferPending.token=='crossed:p1:retry',
+   and r.zaoTransferPending.token=='crossed:p1:retry'
+   and r.zaoTransferPending.terminalState=='crossed',
    'busy conversion falsely transferred')
  local get=SAO.Body.get
  SAO.Body.get=function() error('pending Crossed body advanced') end
@@ -857,7 +874,7 @@ do
  assert(SAO.CrossedTransfer.resumePending()
    and r.bodyOwner=='ZAO' and r.bodyOwnerToken=='crossed:p1:reload'
    and SAO.Body.foreign.p1==nil and SAO.Body.hasRepresentation('p1')
-   and r.crossedTransferPending==nil,
+   and r.zaoTransferPending==nil and r.crossedTransferPending==nil,
    'pending conversion reload did not transfer dormant snapshot')
 end
 -- One snapshot contract serves pending release and external ownership.
@@ -903,6 +920,46 @@ do
  SAOJavaBridge.hibernate,SAOJavaBridge.captureReturnVisual=capture,visual
  SAOJavaBridge.validateHibernation,SAOJavaBridge.validateReturnVisual=valid,validVisual
 end
+-- The external execution owner supplies action capacity, current work and a
+-- generic competing body pressure to social appraisal. Internal pathogen
+-- labels and state-specific satisfiers are not actor-private ML inputs.
+do
+ local r,b,a=__setup()
+ r.bodyOwner='ZAO'
+ SAO.Organization={viewFor=function()
+  return {originatorId='origin',proposal={proposal={
+    destination={minX=1,minY=1,maxX=2,maxY=2}}}}
+ end}
+ SAO.Standing.trust=function() return .5 end
+ local snapshot={executor='ZAO.Driver',bodyOwner='ZAO',currentActivity='idle',
+   canAcquire=true,canCarry=true,canDeliver=true,canExecute=true,
+   terminalState='afflicted',inputOwners={competingPressure='unrepresented'}}
+  SAO.Communication={actorSnapshot=function() return snapshot end}
+  local unavailable=__privateCoordinationContext('p1',a,b,{processId='matter'})
+  assert(unavailable.executor=='ZAO.Driver' and unavailable.bodyOwner=='ZAO'
+   and unavailable.choice=='defer'
+   and unavailable.constraints.ownNeedAvailable==false
+   and unavailable.constraints.terminalState==nil
+   and unavailable.inputOwners.currentActivity=='ZAO.Driver'
+   and unavailable.inputOwners.capabilities=='ZAO.Driver'
+   and unavailable.inputOwners.ownNeed=='unrepresented',
+   'missing external pressure became health or leaked diagnosis')
+  snapshot.competingPressure=.8
+  snapshot.inputOwners.competingPressure='SAO.Needs via ZAO.Mind'
+  local pressured=__privateCoordinationContext('p1',a,b,{processId='matter'})
+  assert(pressured.choice=='qualify' and pressured.ownNeed==.8
+   and pressured.constraints.ownNeedAvailable==true,
+   'external body pressure did not qualify competing work')
+  snapshot.terminalState='crossed'
+  snapshot.competingPressure=.2
+  local crossed=__privateCoordinationContext('p1',a,b,{processId='matter'})
+  assert(crossed.executor=='ZAO.Driver' and crossed.choice=='accept'
+   and crossed.constraints.ownNeedAvailable==true
+   and crossed.constraints.terminalState==nil
+   and crossed.constraints.diet==nil
+   and crossed.inputOwners.ownNeed=='SAO.Needs via ZAO.Mind',
+   'Crossed appraisal lost pressure ownership or exposed hidden state')
+end
 return 'PASS'
 '''
 
@@ -915,7 +972,8 @@ def instrument(name, source):
     if name == 'SAO_Controller.lua':
         return source.replace('return Ctl\n',
                 '__update=updateAgent __orderTravelState=orderTravelState '
-                '__beginObservedUse=beginObservedUse __setState=setState\nreturn Ctl\n')
+                '__beginObservedUse=beginObservedUse __setState=setState '
+                '__privateCoordinationContext=privateCoordinationContext\nreturn Ctl\n')
     if name == 'SAO_PopulationRepresentation.lua':
         return source.replace('return R\n', '__band=materializeBand\nreturn R\n')
     if name == 'SAO_Harness.lua':
@@ -995,8 +1053,14 @@ def main():
             ('SAO_Harness.lua','local ok, reason = SAO.Body.release(rec)',
              'SAO.Controller.drop(H.activeId) local ok, reason = SAO.Body.release(rec)',
              'harness dropped early'),
-             ('SAO_Body.lua','return SAOJavaBridge:awaken(body, rec.hibernation, elapsed)',
+             ('SAO_Body.lua','return SAOJavaBridge:awaken(body, rec.hibernation,\n                externalDormancy and 0 or elapsed)',
               'return "AWAKENED skipped"','harness did not restore current person'),
+            ('SAO_Body.lua','externalDormancy and 0 or elapsed)',
+              'elapsed)',
+              'external body used survivor dormancy or lost owner elapsed time'),
+            ('SAO_Body.lua','body, elapsed, wakeAt)',
+              'body, 0, wakeAt)',
+              'external body used survivor dormancy or lost owner elapsed time'),
             ('SAO_Body.lua','return SAOJavaBridge:applyDormantRestState(\n                    body, dormantFatigue, dormantEndurance)',
               'return false','harness did not restore current person'),
             ('SAO_Body.lua','return advanced and SAOJavaBridge:applyDormantRadioState(\n                body, advanced) or false',
@@ -1013,16 +1077,17 @@ def main():
             ('SAO_Harness.lua','if not ok then log("forget refused: " .. tostring(reason)) return end',
              'if not ok then log("forget refused: " .. tostring(reason)) end',
              'failed clear orphaned person'),
-            ('SAO_Controller.lua','if SAO.Body.isTransitioning(agent.rec) and not crossedPending then return end',
+            ('SAO_Controller.lua','if SAO.Body.isTransitioning(agent.rec) and not zaoPending then return end',
              'if false then return end', 'pending body advanced'),
-            ('SAO_Controller.lua','if agent.rec.crossedTransferPending then',
+            ('SAO_Controller.lua','if agent.rec.zaoTransferPending or agent.rec.crossedTransferPending then',
              'if false then', 'pending Crossed body advanced'),
             ('SAO_Age.lua','if rec and not SAO.Body.isTransitioning(rec) then',
              'if rec then', 'age mutated pending body'),
             ('SAO_Drugs.lua','if SAO.Body.isTransitioning(SAO.Identity.get(id)) then return end',
              '', 'drugs mutated pending body'),
-            ('SAO_AfflictedReturn.lua','if okState and state and SAO.Body.get(id) == body',
-             'if okState and state', 'afflicted callback mutated pending body'),
+            ('SAO_AfflictedReturn.lua','if not rec or rec.dead or SAO.Body.isTransitioning(rec) then',
+             'if not rec or rec.dead then',
+             'afflicted callback mutated pending body'),
             ('SAO_Body.lua','if reference == body or reference == inventory then return false end',
              'if false then return false end', 'incoming action did not retain target'),
             ('SAO_Body.lua','if SAOJavaBridge and SAOJavaBridge:isInventoryOf(body, reference) then',
@@ -1035,7 +1100,7 @@ def main():
              'if false then', 'ordinary SAO materialization stole external owner'),
             ('SAO_Controller.lua','rec.bodyOwner, rec.bodyOwnerToken = nil, nil',
              '', 'external death retained living ownership or lost its cause'),
-            ('SAO_CrossedTransfer.lua','elseif rec.crossedTransferPending then',
+            ('SAO_CrossedTransfer.lua','elseif pendingOf(rec) then',
              'elseif false then', 'busy conversion was not retried from durable pending state'),
             ('SAO_Body.lua','rec.bodyOwner, rec.bodyOwnerToken = owner, token',
              'rec.bodyOwnerToken = token',

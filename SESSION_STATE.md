@@ -1,13 +1,40 @@
 | Document | Survivor Awareness Overhaul Session State |
 |---|---|
-| Version | `2.9.0.0-pre-alpha` |
+| Version | `2.9.1.0-pre-alpha` |
 | Author | ellyj3rain |
 | Repository | `SESSION_STATE.md` |
 | Status | CANONICAL - current implementation and continuation. |
 
 # Session state
 
-**As of** 2026-09-24, `[C79]` implements enacted social coordination. A person's
+**As of** 2026-09-24, `[C80]` corrects living pathogen-state ownership. An
+authorized Afflicted return now publishes its retained human shell directly to
+the registered ZAO execution owner instead of enrolling SAO's ordinary survivor
+controller. Loaded and dormant handoff preserve one driver token, and later
+Afflicted-to-Crossed conversion changes policy without changing executor.
+
+SAO continues to supply person identity, communication, SourceUse, Handover and
+native Locomotion. Perception and Organization read the registered ZAO snapshot,
+so a particular Afflicted or Crossed person can receive a proposal, answer from
+their state/capability/current activity and perform accepted work without a
+second planner. Standing no longer relocates Afflicted records daily. It exposes
+private unheld destination evidence; ZAO owns travel and only arrival can commit
+home or claim. ZAO exports a generic, source-owned competing pressure rather
+than a diagnosis or diet. Afflicted maintenance and Crossed predatory pressure
+now remain distinct behind that owner boundary; SAO does not infer either
+satisfier from the generic value.
+
+ZAO A39 owns the distinct behavior behind that seam: one driver, separate
+Afflicted/Crossed policies, state-evidenced settlement acts, water and
+state-specific nutrition, reduced Crossed caloric pressure, evidenced Crossed
+fear/pain/control flows, human-origin butchery, and selectively prepared finite
+blood-contaminated weapon hits. Crossed targets come from actor-private observation rather than a global
+nearest-person scan. These actions are first concrete producers, not a closed
+feature list or species loop. SAO's focused handoff, return, exposure,
+source-use and reach controls pass; the complete gate is the close condition.
+No game was launched and loaded-world behavior remains unobserved.
+
+**Before that**, `[C79]` implements enacted social coordination. A person's
 private need or situation can raise a versioned matter; actual recipients acquire
 it through Communication and form independent accept, qualify, counter-propose,
 decline, defer, contest or withdraw responses. Addressed silence remains
@@ -29,10 +56,11 @@ orders, membership requests, counsel and radio peace petitions use actual
 recipient processes and return channels. Hearing a petition changes no trust,
 hostility or peace by itself.
 
-The combined SAO+ZAO path reads the registered execution owner. Crossed retain
-their human shell and ZAO supplies current activity/capability; actionable danger
-can pause the same coordination commitment. ZAO's malformed IsoZombie admission
-repair is published separately. Standalone SAO remains supported. Speakeasy
+The combined SAO+ZAO path reads the registered execution owner. Afflicted and
+Crossed retain their human shell and ZAO supplies state-specific current
+activity/capability; actionable danger can pause the same coordination
+commitment. ZAO's malformed IsoZombie admission repair is published separately.
+Standalone SAO remains supported. Speakeasy
 Record 63 consumes the exact version 3 namespace and separates actor-private
 decision evidence from later work outcomes. The production appraisal observer
 atomically publishes those v3 rows; one controlled Kahlua run carried 13 exact
@@ -228,9 +256,9 @@ producers, persistence, evidence and gaps.
 | Area | Existing substrate | Open implementation |
 |---|---|---|
 | Engine execution | NPC shell, bridge, movement, combat, timed-action adapters | Driving route ownership and progress; action cancellation and completion receipts. |
-| Person continuity | Durable identity, C51's body transaction, C52's authorized return/adoption/teardown, C54's v4 native state, C55/A36 reconstruction and C56/A37 one-way Crossed ownership of the same human shell and dormant envelope | R7's general action completion and later action-specific ownership remain open. |
+| Person continuity | Durable identity, C51's body transaction, C52's authorized return/teardown, C54's v4 native state, C55/A36 reconstruction, C56/A37 external ownership and C80/A39's generalized Afflicted/Crossed handoff of the same shell and dormant envelope | Wider action-specific ownership remains open; one ZAO driver now survives the living state transition. |
 | Time and health | Current decision time, durable drug/abstinence clocks, current physical inputs, exact interval-integrated brain history, medical/inspect graph and memory/decision/affective/motor consumers; C68 completion-proves care-item gifts, C70 completion-proves loaded open-wound bandaging and C72 advances measured rest/sleep/wake through bodyless intervals | R5 is closed. Disinfection, stitching, dormant treatment and other performed care still depend on R7/R9 action producers. |
-| Afflicted and Crossed | ZAO pathogen state, Afflicted return, reachable Crossed decisions and an interruptible non-feeding blood exposure whose exact-once result transfers SAO's living body to ZAO | The retained human weapons, tools, strategy and wider action vocabulary remains R7-R9 work; grounded dormant opportunities remain R10. |
+| Afflicted and Crossed | ZAO pathogen state and one living driver with distinct policies; Afflicted fear/gathering/arrival, water, protein preference, penalized non-dairy alternatives and donor-conditioned exposure protection; Crossed reduced caloric pressure, ordinary/human-origin sustenance, actor-private targets and evidenced fear/pain/control; exact exposure, settlement, butchery and finite blood-weapon results persist | Broader food composition, group precedent, tools, strategy, social/material life and grounded long-horizon dormant opportunities remain R7-R10 work. Loaded-world behavior is unobserved. |
 | Knowledge and access | Private beliefs; animal-safe scanner output; fresh/current activity partners; demand-hydrated exact source identities; C62's revision-bound approach, current claim/vehicle permission, exact transfer, carried native use and durable result; C63-C64's exact partial-source material projection and durable ambient refresh; C71's recursive actor-private loaded holder view and exact v4 dormant carriage; C72's produced dormant awake/asleep state joined with C67 measured hearing; C73's direct-root powered radio endpoints, elapsed dormant battery state and recipient-private reception receipts; C74's explicit county presence, dated personal acquisition and detached retention observation; C75's deterministic snapshot-local claim catalogue and selected-claim fence | R6 is closed for the selected source interaction and its completed result reaches bounded partial material state. R7 remains open beyond this source-action family. C66 adds exact acquisition/storage; C67 adds private transfer testimony and witnessed recipient response; C68 completion-proves loaded personal handovers; C69 closes the bounded recipient appraisal after testimony. C71-C73 close inventory, adjacent speech and actual radio admission. C74 closes SAO's first bounded R12 acquisition producer. C75 makes the existing surface addressable but leaves protected-world coverage, target rows and runtime snapshot ownership open. Complete house stock and the other material action/result producers remain open. |
 | Social development | C79 adds acquired revisioned matters, individual responses, scoped concurrent commitments, contested/withdrawn responsibility, exact office/command jurisdiction and completion-backed food delivery across loaded/dormant execution. Automatic election recognition and score-triggered schism callers are retired without disabling cleanup. | The first unit is voluntary coordination and contention. Election/deliberation/succession procedures, physical separation, broader institutions, place development and the remaining R9 producers remain incomplete. |
 | Speakeasy data | Protected historical material remains intact. Record 63 requires the exact v3 namespace, actor/executor attribution, source-owned current work and competing priorities, feasible options and separate decision/outcome horizons for enacted coordination. C79 now emits those rows at the production appraisal boundary; a controlled 13-row SAO-to-ZAO-to-Speakeasy pass succeeds. | The compiler emits candidate observations only. No loaded scene, independent task ruling, admitted coordination row, learned model or runtime consumer exists; wider claim/action coverage remains open. |
@@ -427,7 +455,8 @@ ZAO needs no R2 source change: its loaded controller reads the fresh SAO tick,
 and its durable pathogen history is explicitly day-based. The C57 installation includes C53;
 loaded-world pacing remains a play observation rather than a mechanical claim.
 
-The same audit found that the published A32 Crossed-execution claim is false.
+The same audit found that the published A32 Crossed-execution claim was false
+in the audited baseline.
 Normal Crossed state sets `currentForm` to `none`; the controller admits the
 whole Crossed decision pass only for a non-`none` form. Even if entered, it does
 not provide the canonical human-looking body's retained weapon, tool, combat or
@@ -437,6 +466,10 @@ body under SAO. There is no spontaneous Afflicted roll. F-084 and SUBSTRATE's
 Crossed contract make the representation, actions, non-feeding Afflicted
 interaction, exposure result, ownership transfer and loaded/dormant continuity
 explicit work under R4-R10 rather than calling the connector complete.
+ C56/A37 repaired exposure and one-way handoff; C79/A38 repaired registered
+coordination and malformed representation; C80/A39 now repair the Afflicted
+owner and first state-specific/material producers. The wider-life obligation
+remains.
 
 ROADMAP.md now defines R1-R15 with owners, dependencies and completion evidence;
 SUBSTRATE.md supplies the mechanisms, producer inventory and bounded technical
@@ -476,7 +509,8 @@ retirement and repeated saves. These are controlled installed-engine receipts,
 not loaded-world play acceptance. C55/A36 and C56/A37 were undeployed at
 this record.
 
-R5 closes in C56 and ZAO A37. Current physical inputs, partition-invariant
+R5 closes in C56 and ZAO A37; C80/A39 correct its living execution owner.
+Current physical inputs, partition-invariant
 dormant physiology, drug cadence, intentional Crossed blood exposure and the
 event-derived brain-health history now have durable producers and controlled
 receipts. The native-ground portion of R10a closes in C61: offscreen chunks
@@ -501,8 +535,9 @@ reconstructed knowledge views and unratified proposals; broader options,
 reviewed claim coverage, authored behavior rulings and later consequences remain.
 Record 52 closes review for C74's single source/acquisition reference, and C75
 makes the existing knowledge surface selectable without producing training rows.
-Pathogen state and installed brain-history
-ownership continue to belong to ZAO.
+Pathogen state, installed brain-history and Afflicted/Crossed behavioral
+execution belong to ZAO. SAO continues to own the shared county and native
+service surfaces.
 
 C51 repairs the F-077 body handoff. Capture failure keeps the prior record and
 ownership; incomplete teardown retains a durable snapshot for retry; all callers
@@ -534,7 +569,7 @@ border and C75's typed-claim border, the gate invokes 188 `*_test.py` files and
 190; legacy labels
 163/169/174 share the native suite. These are distinct counting units. The mod
 ships 79 Lua source files.
-ZAO A37 has ten borders. The
+ZAO A39 has thirteen borders. The
 published C51 baseline has 163 borders through 178 mirrors. These counts describe the
 apparatus, not acceptance. The audit reproduced defects while targeted checks
 passed. C57 reproduces one cause of intermittent Border 54 refusal: concurrent

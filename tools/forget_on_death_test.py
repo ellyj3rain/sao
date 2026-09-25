@@ -234,6 +234,10 @@ NOT_A_SURVIVOR_ID = {
         "keyed by a stable EXECUTION OWNER id such as ZAO, not a survivor "
         "id. The owner registers one adapter for the Lua environment and "
         "unregisterExecutionOwner removes that adapter"),
+    ("SAO_SourceUse.lua", "SU.nativeUseOwners"): (
+        "keyed by a stable NATIVE-USE ADAPTER id such as ZAO.Diet, not a "
+        "survivor id. One adapter is registered for the Lua environment and "
+        "is reused for every actor whose bounded reservation names that owner"),
     ("SAO_Settlement.lua", "Settlement.bases"): (
         "keyed by an ORGANIZATION id - the shape rule matched the "
         "local named `organizationId` in `claim`. A base belongs to a "

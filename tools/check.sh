@@ -12,8 +12,10 @@
 set -u
 cd "$(dirname "$0")/.." || exit 2
 
-PY=python
-command -v python >/dev/null 2>&1 || PY=python3
+if [ -z "${PY:-}" ]; then
+    PY=python
+    command -v python >/dev/null 2>&1 || PY=python3
+fi
 
 fail=0
 note() { printf '[check] %s\n' "$*"; }

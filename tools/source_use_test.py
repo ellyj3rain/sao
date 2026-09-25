@@ -617,6 +617,54 @@ ACTION_PROBE = r'''(function()
       and remaining[1].reservationId == "fixture-later")
   SAO.WorldSources.acknowledgeResult("fixture-later","provisioning")
 
+  -- A registered terminal-state consumer selects only the native eating
+  -- action. SourceUse still owns the private revision, exact transfer,
+  -- measurement and terminal receipt; an absent owner fails before routing.
+  local customCreates = 0
+  SAO.SourceUse.registerNativeUseOwner("fixture-diet", {
+      createAction = function(actor, seenBody, item, reservation)
+          customCreates = customCreates + 1
+          local action = ISEatFoodAction:new(seenBody,item,1)
+          action.kind = "fixture-diet-eat"
+          return action
+      end,
+  })
+  body = reset("custom-owner",p42,"food",%(food)s)
+  local customBegan = SAO.SourceUse.begin(
+      "custom-owner",body,p42,"food","standing",{
+          nativeUseOwner="fixture-diet",
+          nativeUseTerminalState="afflicted",
+          nativeUsePermitHuman=true,
+      })
+  local customReservation = SAO.WorldSources.pendingActionFor("custom-owner")
+  local customFirst = customBegan and SAO.SourceUse.onMovementDone(
+      "custom-owner",body,"arrived") or "failed"
+  local customSecond = customFirst == "moving"
+      and SAO.SourceUse.onMovementDone("custom-owner",body,"arrived")
+      or "failed"
+  __carriedItem, __busy, __observeText = __sourceItem, false, %(food_post)s
+  local customTick = SAO.SourceUse.tick("custom-owner",body)
+  local customAction = __queued
+  customAction:complete(); __busy = false
+  local customFinal = SAO.SourceUse.tick("custom-owner",body)
+  local customReceipt = __stores[STORE].results[customReservation.id]
+
+  body = reset("missing-owner",p42,"food",%(food)s)
+  local missingAccepted, missingWhy = SAO.SourceUse.begin(
+      "missing-owner",body,p42,"food","standing",{
+          nativeUseOwner="missing-diet",
+      })
+  local missingId = __stores[STORE].resultByActor["missing-owner"]
+  local missingReceipt = missingId and __stores[STORE].results[missingId]
+  check("registered_native_use_owner", customFirst == "moving"
+      and customSecond == "using" and customTick == "pending"
+      and customAction.kind == "fixture-diet-eat" and customCreates == 1
+      and customFinal == "completed" and customReceipt
+      and customReceipt.status == "completed"
+      and customReceipt.nativeUseOwner == "fixture-diet"
+      and not missingAccepted and missingWhy == "native-use-owner-unavailable"
+      and missingReceipt and missingReceipt.status == "released")
+
   -- An unavailable Standing store is not an ungrouped actor. The final bind
   -- refuses before the native transfer and publishes no completed receipt.
   local faultBody = reset("context-fault",p42,"food",%(food)s)
@@ -839,7 +887,7 @@ ACTION_PROBE = r'''(function()
   __carriedItem = __sourceItem
   local crossedFirst, crossedWhy = SAO.CrossedTransfer.begin(
       "crosseduse",body,"crossed:use",48)
-  local retainedIntent = __records.crosseduse.crossedTransferPending
+  local retainedIntent = __records.crosseduse.zaoTransferPending
   __observeText = %(food_post)s
   local crossedRetried = SAO.CrossedTransfer.resumePending()
   local crossedUseReceipt = __stores[STORE].results[crossedUse.id]
@@ -850,6 +898,7 @@ ACTION_PROBE = r'''(function()
       and crossedUseReceipt.quantity == 0
       and __records.crosseduse.lastFoodDay == nil
       and __records.crosseduse.bodyOwner == "ZAO"
+      and __records.crosseduse.zaoTransferPending == nil
       and __records.crosseduse.crossedTransferPending == nil
       and __queueClears == 1 and __preparedTransfers == 1)
 
@@ -1019,6 +1068,7 @@ ACTION_EXPECTED = {
     "schema2_migration", "schema2_migration_bounded",
     "future_schema_refused", "compact_private_stale_attempt",
     "shipped_protocol_and_completion",
+    "registered_native_use_owner",
     "attribution_unavailable_refuses_before_transfer",
     "transfer_interrupt_reconciles",
     "ordered_isolated_result_delivery", "native_begin_refusal_reconciles",
@@ -1129,6 +1179,10 @@ def production_contract(texts):
         (use, "function SU.beforeStateChange"),
         (use, "function SU.closeForOwnershipTransfer"),
         (use, "function SU.runtimeState"),
+        (use, "function SU.registerNativeUseOwner"),
+        (use, "nativeOwner.createAction"),
+        (use, "reservation.nativeUseOwner = owner"),
+        (world, "nativeUseOwner = reservation.nativeUseOwner"),
         (crossed, "SAO.SourceUse.closeForOwnershipTransfer"),
         (controller, 'SOURCEUSE = "need"'),
         (controller, "SAO.SourceUse.interrupt"),
@@ -1181,6 +1235,13 @@ def contract_anchor_probe():
         (1, "function SU.closeForOwnershipTransfer",
          "function SU.abandonForOwnershipTransfer"),
         (1, "function SU.runtimeState", "function SU.guessRuntimeState"),
+        (1, "function SU.registerNativeUseOwner",
+         "function SU.ignoreNativeUseOwner"),
+        (1, "nativeOwner.createAction", "ISEatFoodAction:new"),
+        (1, "reservation.nativeUseOwner = owner",
+         "reservation.nativeUseOwner = nil"),
+        (0, "nativeUseOwner = reservation.nativeUseOwner",
+         "nativeUseOwner = nil"),
         (2, "SAO.SourceUse.closeForOwnershipTransfer",
          "SAO.SourceUse.detach"),
         (3, 'SOURCEUSE = "need"', 'SOURCEUSE = "errand"'),

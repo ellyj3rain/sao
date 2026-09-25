@@ -106,7 +106,13 @@ def main():
         faults.append("the fresh materialize path does not verify or "
                       "report what is worn - dressed=true about a "
                       "naked body again (R-006)")
-    if "SAOJavaBridge:awaken(body, rec.hibernation, elapsed)" not in body:
+    # External execution owners restore the same native clothing/inventory
+    # snapshot at zero native elapsed, then advance their own physiology.  The
+    # conditional third argument must not make this border mistake a verified
+    # awaken for an absent clothing restore.
+    if not re.search(
+            r"SAOJavaBridge:awaken\(body, rec\.hibernation,\s*"
+            r"(?:elapsed|externalDormancy\s+and\s+0\s+or\s+elapsed)\)", body):
         faults.append("materialization does not restore the saved clothing")
     if "SAOJavaBridge:awaken(" in pop:
         faults.append("population restores a person a second time after Body.materialize")
