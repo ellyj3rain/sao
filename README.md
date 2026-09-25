@@ -59,7 +59,7 @@ human-corpse butchery and selectively prepared finite blood-contaminated weapon
 producers. Actor-private evidence, not a global nearest-person scan, supplies
 targets. These examples do not define the full state.
 
-`2.9.1.0-pre-alpha` - the coordinate is computed by the version machine
+`2.9.2.0-pre-alpha` - the coordinate is computed by the version machine
 (`tools/version_replay.py`), never picked; `VERSION_MAP.md` shows the
 classification and the arithmetic.
 

@@ -133,6 +133,7 @@ ZAO_MODULES = [
     "shared/ZAO_StateStore.lua",
     "shared/ZAO_Brain.lua",
     "shared/ZAO_State.lua",
+    "shared/ZAO_Maintenance.lua",
     "shared/ZAO_Mind.lua",
     "shared/ZAO_Recovery.lua",
     "shared/ZAO_Settlement.lua",
@@ -415,8 +416,9 @@ def require_modules(lua, joint=False):
         named = set()
         for path in paths:
             named.update(re.findall(r'ZAO\.([A-Z][A-Za-z]*)', path.read_text(encoding='utf-8')))
-        # Controller requires loaded zombie bodies; the dormant seam observes records.
-        absent = named - loaded - {'Controller'}
+        # Controller and Driver require loaded bodies; the dormant seam advances
+        # pathogen and maintenance state directly from durable person records.
+        absent = named - loaded - {'Controller', 'Driver'}
         if absent:
             raise EvidenceError('unloaded joint pathogen modules: ' + ', '.join(sorted(absent)))
     return paths

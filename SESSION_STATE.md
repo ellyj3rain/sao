@@ -1,13 +1,38 @@
 | Document | Survivor Awareness Overhaul Session State |
 |---|---|
-| Version | `2.9.1.0-pre-alpha` |
+| Version | `2.9.2.0-pre-alpha` |
 | Author | ellyj3rain |
 | Repository | `SESSION_STATE.md` |
 | Status | CANONICAL - current implementation and continuation. |
 
 # Session state
 
-**As of** 2026-09-24, `[C80]` corrects living pathogen-state ownership. An
+**As of** 2026-09-25, `[C81]` supplies the first reproducible coordination
+response source for reference learning. Twenty situations declare their
+synthetic starting facts and train, validation or test lineage before execution;
+none declares an expected response. Communication and Perception establish
+reception, the shipped Controller forms the response, and Organization freezes
+the decision before the actual return channel. The resulting production choices
+cover accept, qualify, counter-propose, defer and contest four times each, with
+every observed response present in every partition.
+
+Survivor scenes execute through SAO. Afflicted and Crossed scenes keep distinct
+audit state while both resolve their retained human shell, activity, capability
+and competing pressure through the registered ZAO adapter and `ZAO.Driver`.
+Neither terminal-state label enters the model-facing private appraisal. Border
+191 changes its verdict when Controller pressure selection, ZAO registration or
+executor attribution is broken. The tracked source is still a controlled
+headless run with synthetic starting conditions; decline, withdrawal, sampled
+gameplay, independent task approval, training and runtime consumption remain
+outside C81.
+
+C81 also repairs the canonical combined county loader exposed while looking for
+natural samples. Dormant joint counties load `ZAO_Maintenance`; `ZAO.Driver`
+remains an explicit loaded-body absence instead of being misreported as a
+missing shared module. The bounded 30-day diagnostic timed out and published no
+county, so it supplies no population or coordination observation.
+
+**Before that**, `[C80]` corrects living pathogen-state ownership. An
 authorized Afflicted return now publishes its retained human shell directly to
 the registered ZAO execution owner instead of enrolling SAO's ordinary survivor
 controller. Loaded and dormant handoff preserve one driver token, and later
@@ -564,9 +589,9 @@ consequences remain separate from the learned policy choosing among them.
 
 C57 consolidates three native entry points into one. With C64's immutable
 capture border, C73's radio-reception border, C74's personal-world-knowledge
-border and C75's typed-claim border, the gate invokes 188 `*_test.py` files and
-13 other Python entry points, 201 distinct scripts. Border labels extend through
-190; legacy labels
+border and C75's typed-claim border, the gate invokes 189 `*_test.py` files and
+13 other Python entry points, 202 distinct scripts. Border labels extend through
+191; legacy labels
 163/169/174 share the native suite. These are distinct counting units. The mod
 ships 79 Lua source files.
 ZAO A39 has thirteen borders. The
