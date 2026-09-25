@@ -1,6 +1,6 @@
 | Document | Survivor Awareness Overhaul Roadmap |
 |---|---|
-| Version | `2.9.3.0-pre-alpha` |
+| Version | `2.9.4.0-pre-alpha` |
 | Author | ellyj3rain |
 | Repository | `ROADMAP.md` |
 | Status | CANONICAL - readiness work and retained scope. |
@@ -51,6 +51,13 @@ policies and no SAO-inferred maintenance. ZAO A39 supplies Afflicted water,
 protein/alternative and conditional human-origin consequences, plus retained
 Crossed human physiology, ordinary and human-origin sustenance, human butchery,
 and selectively prepared blood-contaminated weapon producers.
+C83/ZAO A40 extend the enacted process through that owner boundary. Afflicted
+can originate necessity-backed food or water provisioning; Crossed can
+originate bounded rendezvous/holding with evidenced associates. Actual
+acquisition, independent current-state appraisal, returned response, native
+material transfer or exact arrival, interruption, reload and exact-once result
+remain separate transitions. These are first durable social-life producers for
+both states, not a complete model of either life.
 Broader actions, institutions, reviewed data and learned execution remain
 R9-R14 work. Existing R work moves with its owning contract.
 
@@ -87,6 +94,9 @@ performed food delivery, while retiring automatic authority/schism callers.
 C80/A39 closes the living ZAO handoff split, replaces automatic Afflicted
 relocation with ZAO-owned travel and arrival evidence, and adds first distinct
 Afflicted/Crossed action producers without treating them as a complete life.
+C83/A40 generalize that process to state-authored provisioning and
+rendezvous/holding with current-state recipient appraisal and exact native
+completion across reload.
 R9 remains open for wider governance, care, provisioning and development
 producers. C64 closes R11's immutable
 envelope and join integrity plus R12's protected-source audit; both contracts

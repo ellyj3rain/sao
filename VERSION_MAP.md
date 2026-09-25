@@ -16,9 +16,9 @@ the machine. Names, dates, and threads below come from
 | Form | `major.minor.kohai.patch-maturity` |
 | Hard caps | minor 12; kohai 16; patch 24 |
 | Replay start | `0.1.0.0-pre-alpha` |
-| Current version | `2.9.3.0-pre-alpha` |
-| Closed chronology | `A1-C82` |
-| Next batch | `C83` |
+| Current version | `2.9.4.0-pre-alpha` |
+| Closed chronology | `A1-C83` |
+| Next batch | `C84` |
 | Executable source | [`tools/version_replay.py`](tools/version_replay.py) |
 
 ## Tier meanings
@@ -198,6 +198,7 @@ the machine. Names, dates, and threads below come from
 | `C80` | 2026-09-24 | kohai | `2.9.1.0-pre-alpha` | ZAO-owned living person handoff | Generalize the external living-person handoff so authorized Afflicted return and later Crossed conversion retain one ZAO driver across loaded and dormant representation, while SAO remains the county and native-service owner. Replace automatic Afflicted relocation with destination evidence and completion-backed travel. This structurally matures the existing ownership seam without adding a new state or action family, so kohai. |
 | `C81` | 2026-09-25 | kohai | `2.9.2.0-pre-alpha` | Coordination reference source | Extend enacted coordination evidence with twenty pre-partitioned production-path response observations across survivor and shared ZAO execution, preserving condition-private inputs, decision/outcome horizons and source attribution. Repair the dormant combined loader inventory and add discriminating response, registration and executor controls. This matures the existing R11 authoring seam without claiming gameplay sampling, label approval or learned runtime behavior, so kohai. |
 | `C82` | 2026-09-25 | kohai | `2.9.3.0-pre-alpha` | Native coordination shadow | Integrate Speakeasy Record 67 as an exact content-hashed FP32 artifact in the packaged Java consumer and a bounded asynchronous shadow after authoritative recipient appraisal. Revalidate response, process, feasible options and registered execution-owner state, cancel transient requests on world change and retain source-owned Afflicted and Crossed distinctions. This matures the R13-R14 interchange and runtime seam while behavior authority and loaded gameplay acceptance remain open, so kohai. |
+| `C83` | 2026-09-25 | kohai | `2.9.4.0-pre-alpha` | External life coordination | Generalize enacted coordination beyond its original survivor food fixture: registered external owners now appraise acquired matters from their current private state, provisioning admits food or stored portable water, and rendezvous commitments complete only on exact native arrival. Revision-bound work, interruption, reload reconstruction and exact-once terminal receipts remain in Organization and the existing native service owners. This matures the C79 capability without creating another planner, so kohai. |
 
 ## The former number
 
@@ -218,11 +219,11 @@ establish release maturity.
 
 ## Next movement
 
-`C83` is the next batch. Its content determines its tier after it
+`C84` is the next batch. Its content determines its tier after it
 exists:
 
-| If C83 is | Result |
+| If C84 is | Result |
 |---|---|
-| patch or hotfix | `2.9.3.1-pre-alpha` |
-| kohai | `2.9.4.0-pre-alpha` |
+| patch or hotfix | `2.9.4.1-pre-alpha` |
+| kohai | `2.9.5.0-pre-alpha` |
 | minor | `2.10.0.0-pre-alpha` |

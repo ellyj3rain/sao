@@ -1,6 +1,6 @@
 | Document | Survivor Awareness Overhaul Findings |
 |---|---|
-| Version | `2.9.3.0-pre-alpha` |
+| Version | `2.9.4.0-pre-alpha` |
 | Author | ellyj3rain |
 | Repository | `FINDINGS.md` |
 | Status | CANONICAL, APPEND-ONLY - verified engine findings. |
@@ -2274,4 +2274,31 @@ exposure, shared driver serialization, exact eating/acquisition, reduced
 Crossed caloric passage, distinct Afflicted nutrition, and heard/native/completed
 predatory outcomes. These are headless VM and source controls. Loaded-world
 presentation, actual item diversity, long-horizon ecology and gameplay balance
+remain unobserved.
+
+## F-101 | 2026-09-25 08:55 UTC / 01:55 PST | External lives could answer work but could not originate and carry a durable purpose
+
+C79-C80 let a ZAO-owned person receive a food-delivery proposal, form an answer
+and execute supported work, but the generic recipient query was still coupled
+to the original aid-request view and the physical executor recognized only that
+fixture. ZAO's A39 policies mostly scored immediate options. Consequently an
+Afflicted need or a Crossed remembered place could not become a continuing,
+revisable social matter whose acquisition, dissent, work and result survived
+reload. A message or a scored option was not that mechanism.
+
+C83 adds a generic acquired-appraisal query and external-owner appraisal seam
+while retaining Organization as the sole store. It admits food and stored
+portable-water provisioning through SourceUse/Handover and bounded
+rendezvous/holding through an exact Locomotion arrival. Revision, expiry,
+withdrawal, interruption, failure/partial state and consumed results persist;
+route reconstruction reuses the pending attempt identity.
+
+ZAO A40 supplies distinct producers rather than labels: Afflicted provisioning
+requires actual personal or settlement necessity, while Crossed rendezvous
+requires evidenced associates and ground. Border 194 proves address and
+acquisition boundaries, independent external answers, exact arrival,
+revision/expiry persistence and nonduplicating reload with five mutations. ZAO
+Border 15 proves both producers and current-state reappraisal across conversion
+with six mutations. These are installed-VM/headless controls. Loaded-world
+speech, routing, animation, save/reopen play and long-horizon social outcomes
 remain unobserved.

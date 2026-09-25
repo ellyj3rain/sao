@@ -1,6 +1,6 @@
 | Document | Survivor Awareness Overhaul Decision Registry |
 |---|---|
-| Version | `2.9.3.0-pre-alpha` |
+| Version | `2.9.4.0-pre-alpha` |
 | Author | ellyj3rain |
 | Repository | `DECISION_REGISTRY.md` |
 | Status | CANONICAL, APPEND-ONLY - ratified decisions. |
@@ -1677,3 +1677,41 @@ interaction `skill-31bd395ca19f6aea`, item `seam-55277a5afc86a418`, selected
 `predatory-pressure-acute-flows`. The accompanying note requires need to remain
 separate from behavior/capacity and asks only for enough current mechanism to
 support convergent simulation rather than a permanent exhaustive model.
+
+---
+
+## DR-048 | 2026-09-25 08:55 UTC / 01:55 PST | Registered owners use one durable coordination process
+
+**Status** RATIFIED through the approved first ZAO life-depth implementation
+unit. This extends DR-045's enacted process and DR-046's ownership boundary; it
+does not merge Afflicted and Crossed policy.
+
+**Decision.** `SAO_Organization` and GraphPersistence remain the only durable
+social-process store. A registered external execution owner may appraise a
+matter only after the particular addressed person acquires its current
+revision through Communication. The owner supplies current actor-private
+activity, capability, pressure, relationships, interests and constraints.
+Missing representation or execution evidence defers. Generic delivery,
+proximity, membership, silence and queue admission create neither reception,
+assent nor completion.
+
+Accepted provisioning admits food and stored portable water through the
+existing SourceUse, Locomotion and Handover owners. Accepted rendezvous/holding
+uses native Locomotion and completes only from the exact route's promised
+arrival activity. Process revision, expiry, withdrawal, interruption,
+partial/failure state and exact-once terminal receipts remain durable. Reload
+reconstructs the same pending route identity rather than minting another
+attempt.
+
+**Application.** The registered ZAO owner supplies distinct Afflicted and
+Crossed appraisals. Afflicted can originate necessity-backed provisioning;
+Crossed can originate bounded rendezvous/holding with evidenced associates.
+Afflicted-to-Crossed conversion preserves the matter and proposal revision but
+dispatches later appraisal through current Crossed policy. No pathogen label,
+diet or future outcome enters the generic decision record.
+
+**Origin.** Mousecat Crucible interaction `skill-8ab3a6c22938008a`, item
+`seam-715fed80d31d2f9a`, selected `zao-life-depth`; Field Test interaction
+`skill-61bcc92d536b113d`, item `seam-61bcc92d536b113d`, selected `approved`
+without notes. The approved plan evidence is
+`field-test:plan-sha256:b034d3db2599033973b37158332d10998eec79de2b24bceaebdf629cabaf6738`.

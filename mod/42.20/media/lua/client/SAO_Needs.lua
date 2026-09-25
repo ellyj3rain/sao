@@ -622,7 +622,39 @@ function N.findHearth(id, body, radius)
         lit == "1"
 end
 
-function N.depositWater(id, body)
+-- Acquire one exact filled vessel for a scoped delivery.  This deliberately
+-- uses the same inspected-container transfer owner as food; a tap that only
+-- permits direct drinking is not silently converted into portable cargo.
+function N.collectStoredWater(id, body, context)
+    if not SAOJavaBridge then return false end
+    local okC, container = pcall(function()
+        return SAOJavaBridge:findNearbyContainer(body, 5)
+    end)
+    if not okC or container == nil then return false end
+    local found = nil
+    pcall(function()
+        local items = SAOJavaBridge:privateContainerItems(container)
+        for i = 0, items:size() - 1 do
+            local item = items:get(i)
+            local okF, fluid = pcall(function()
+                return item:getFluidContainerFromSelfOrWorldItem()
+            end)
+            local okA, amount = pcall(function()
+                return okF and fluid and fluid:getAmount() or nil
+            end)
+            if okA and tonumber(amount) and tonumber(amount) > 0.01 then
+                found = item
+                break
+            end
+        end
+    end)
+    if not found then return false end
+    return SAO.SourceUse and SAO.SourceUse.beginTransfer(id, body, "water",
+        "standing", found, container, "acquire",
+        context or { purpose = "deliver-water" }) or false
+end
+
+function N.depositWater(id, body, context)
     if not SAOJavaBridge then return false end
     local vessels = carriedVessels(body)
     if #vessels < 2 then return false end
@@ -631,7 +663,8 @@ function N.depositWater(id, body)
     end)
     if not okC or container == nil then return false end
     return SAO.SourceUse and SAO.SourceUse.beginTransfer(id, body, "water",
-        "standing", vessels[2].item, container, "store", { purpose = "storage" })
+        "standing", vessels[2].item, container, "store",
+        context or { purpose = "storage" })
         or false
 end
 

@@ -679,6 +679,13 @@ local function dormantLife(conf, tickCounter)
             if SAO.Standing.maybeCallForBread then
                 SAO.Standing.maybeCallForBread(id)
             end
+            -- Acquired matters remain thoughts a dormant person can appraise;
+            -- physical work still waits for a represented body. Any answer
+            -- stays private until a later admitted encounter reaches its
+            -- originator.
+            if SAO.Controller and SAO.Controller.appraiseCoordination then
+                SAO.Controller.appraiseCoordination(id, nil, "dormant")
+            end
             if rec.homeX then
                 rec.nextDormantMoveAt = rec.nextDormantMoveAt or 0
                 -- [C112] This is the one persisted FUTURE due-time in the
@@ -1649,6 +1656,21 @@ local function dormantEncounters(tickCounter)
                     pcall(function()
                         SAO.Perception.tell(idA, idB, tickCounter, nil, "dormant-encounter")
                         SAO.Perception.tell(idB, idA, tickCounter, nil, "dormant-encounter")
+                    end)
+                    pcall(function()
+                        if SAO.Controller and SAO.Controller.appraiseCoordination then
+                            SAO.Controller.appraiseCoordination(idA, nil, "dormant")
+                            SAO.Controller.appraiseCoordination(idB, nil, "dormant")
+                        end
+                        if SAO.Communication
+                            and SAO.Communication.deliverPendingResponses then
+                            SAO.Communication.deliverPendingResponses(idA, idB,
+                                "dormant-encounter",
+                                { exchange = "shared-matter" })
+                            SAO.Communication.deliverPendingResponses(idB, idA,
+                                "dormant-encounter",
+                                { exchange = "shared-matter" })
+                        end
                     end)
                     -- Grudges travel the roads too ([A23]): testimony
                     -- was the one cargo missing from dormant meetings -

@@ -71,7 +71,18 @@ response. Returned output survives exact revision, option and execution-owner
 checks but cannot alter the response or create work. Headless parity is proven;
 loaded gameplay and learned behavior activation remain open.
 
-`2.9.3.0-pre-alpha` - the coordinate is computed by the version machine
+C83 extends enacted coordination through the registered execution-owner seam.
+Only addressed recipients who actually acquire the current revision can answer;
+their returned responses remain independent and revision-bound. Accepted food
+or stored portable-water provisioning reuses SourceUse, Locomotion and Handover.
+Accepted rendezvous/holding completes only from the exact native arrival and
+promised activity. Pending routes reconstruct with the same durable identity,
+and terminal receipts are consumed once. ZAO A40 uses that service for distinct
+Afflicted necessity-backed provisioning and Crossed associate rendezvous; a
+state change retains the matter but dispatches a fresh current-state appraisal.
+The combined path is controlled headlessly; loaded gameplay remains unobserved.
+
+`2.9.4.0-pre-alpha` - the coordinate is computed by the version machine
 (`tools/version_replay.py`), never picked; `VERSION_MAP.md` shows the
 classification and the arithmetic.
 
@@ -107,7 +118,8 @@ interrupted return saves reconcile their native and global generations. The
 brain-health graph is a durable event history with behavioral consumers, and
 dormant carried food and drink use native partial effects. A completed,
 interruptible Crossed blood action is the sole Afflicted conversion producer
-and preserves the same human shell under ZAO without feeding on it. C80/A39
+and preserves the same human shell under ZAO; that exposure action does not
+itself feed. C80/A39
 make ZAO the Afflicted executor as well, then add first Crossed ordinary and
 human-origin sustenance plus weapon-blood actions. Wider tools, strategy,
 social life and the broader audit
