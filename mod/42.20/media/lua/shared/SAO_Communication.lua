@@ -129,6 +129,45 @@ function Communication.actorAppraisal(id, processView, baseContext)
     return context
 end
 
+-- Ask the registered behavioral owner whether this actor's current private
+-- situation warrants a social matter.  SAO supplies the process and transport
+-- services, but does not substitute survivor need, movement or motivation for
+-- an externally owned person.
+function Communication.actorMatter(id, context)
+    id = tostring(id or "")
+    local rec = SAO.Identity and SAO.Identity.get and SAO.Identity.get(id)
+    if not rec or not rec.bodyOwner then return nil, "native-owner" end
+    local owner = Communication.executionOwners[tostring(rec.bodyOwner)]
+    if not owner then return nil, "execution-owner-unregistered" end
+    if type(owner.originateMatter) ~= "function" then
+        return nil, "matter-owner-unavailable"
+    end
+    local ok, process, status = pcall(owner.originateMatter, id, rec,
+        type(context) == "table" and context or {})
+    if not ok then return nil, "matter-owner-exception" end
+    return process, status or (process and "originated" or "no-matter")
+end
+
+-- Continue contact-seeking under an external body's registered owner.  SAO
+-- supplies the actor-private address and common county time; the owner alone
+-- may move or update its durable execution state.  Reaching an address is not
+-- reception--the ordinary encounter transport must still prove that later.
+function Communication.actorContactStep(id, candidate, context)
+    id = tostring(id or "")
+    local rec = SAO.Identity and SAO.Identity.get and SAO.Identity.get(id)
+    if not rec or not rec.bodyOwner then return nil, "native-owner" end
+    local owner = Communication.executionOwners[tostring(rec.bodyOwner)]
+    if not owner then return nil, "execution-owner-unregistered" end
+    if type(owner.advanceContact) ~= "function" then
+        return nil, "contact-owner-unavailable"
+    end
+    local ok, advanced, status = pcall(owner.advanceContact, id, rec,
+        type(candidate) == "table" and candidate or nil,
+        type(context) == "table" and context or {})
+    if not ok then return nil, "contact-owner-exception" end
+    return advanced, status or (advanced and "advanced" or "idle")
+end
+
 local function dormantHearing(rec, listener)
     if rec.dormantSleeping == true then return nil, "asleep" end
     if rec.dormantSleeping ~= false then return nil, "sleep-unobserved" end
@@ -391,6 +430,22 @@ function Communication.deliverProcessProposal(fromId, toId, processId,
     return message, "received"
 end
 
+-- Carry every currently addressed revision between these two people through
+-- the same admitted channel.  Addressing remains durable intent; this call is
+-- the separate event that can turn it into reception.
+function Communication.deliverPendingProposals(fromId, toId, channel, evidence)
+    if not (SAO.Organization and SAO.Organization.pendingProposals) then
+        return 0
+    end
+    local delivered = 0
+    for _, pending in ipairs(SAO.Organization.pendingProposals(fromId, toId)) do
+        local message = Communication.deliverProcessProposal(fromId, toId,
+            pending.processId, channel, evidence)
+        if message then delivered = delivered + 1 end
+    end
+    return delivered
+end
+
 function Communication.deliver(message)
     if type(message) ~= "table" then return false end
     message.delivered = true
@@ -517,6 +572,36 @@ function Communication.deliverPendingResponses(fromId, toId, channel, evidence)
         end
     end
     return delivered
+end
+
+-- One proved conversation carries outstanding proposals in both directions,
+-- lets each recipient form only their own appraisal, then attempts the return
+-- path while the same channel is still present.  Silence and failed transport
+-- remain visible because no row is synthesized when any stage is unavailable.
+function Communication.exchangeProcesses(firstId, secondId, channel, evidence)
+    firstId, secondId = tostring(firstId or ""), tostring(secondId or "")
+    if firstId == "" or secondId == "" or firstId == secondId then
+        return nil, "invalid-participants"
+    end
+    local admitted, why = admittedConversation(firstId, secondId, channel)
+    if not admitted then return nil, why or "transport-refused" end
+    local carried = Communication.deliverPendingProposals(firstId, secondId,
+        channel, evidence) + Communication.deliverPendingProposals(secondId,
+        firstId, channel, evidence)
+    local appraised = 0
+    if SAO.Coordination and SAO.Coordination.appraisePending then
+        for _, id in ipairs({ firstId, secondId }) do
+            local snapshot = Communication.actorSnapshot(id) or {}
+            appraised = appraised + (SAO.Coordination.appraisePending(id,
+                bodyFor(id), snapshot.currentActivity or "dormant",
+                "Communication.exchangeProcesses") or 0)
+        end
+    end
+    local returned = Communication.deliverPendingResponses(firstId, secondId,
+        channel, evidence) + Communication.deliverPendingResponses(secondId,
+        firstId, channel, evidence)
+    return { channel = admitted, proposals = carried,
+        appraisals = appraised, responses = returned }, "exchanged"
 end
 
 function Communication.pendingFor(id)

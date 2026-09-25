@@ -1925,7 +1925,15 @@ function WS.completedResults(consumer, includeObservations)
     if not value or consumer ~= RESULT_CONSUMER then return out end
     for _, receipt in pairs(value.results) do
         local acknowledgements = receipt.acknowledgements or {}
-        if (receipt.status == "completed"
+        -- Coordinated work needs the native owner's terminal refusal too.
+        -- A released/conflicted reservation has no material effect to project,
+        -- but leaving that durable result outside the sole result-delivery
+        -- stream strands Organization's exact pending receipt forever.  Only
+        -- explicitly bound commitments enter this path; ordinary abandoned
+        -- source attempts remain private to WorldSources.
+        local coordinated = receipt.commitmentId ~= nil
+            and tostring(receipt.commitmentId) ~= ""
+        if (receipt.status == "completed" or coordinated
             or (includeObservations == true and provedTransferObservation(receipt)))
             and not acknowledgements[consumer] then
             local copy = receiptCopy(receipt)
@@ -1955,7 +1963,10 @@ function WS.acknowledgeResult(reservationId, consumer, reason)
     local value = store()
     consumer = tostring(consumer or "")
     local receipt = value and value.results[tostring(reservationId or "")]
-    if not receipt or (receipt.status ~= "completed" and not provedTransferObservation(receipt))
+    local coordinated = receipt and receipt.commitmentId ~= nil
+        and tostring(receipt.commitmentId) ~= ""
+    if not receipt or (receipt.status ~= "completed" and not coordinated
+        and not provedTransferObservation(receipt))
         or consumer ~= RESULT_CONSUMER then
         return false
     end

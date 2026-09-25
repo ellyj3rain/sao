@@ -90,9 +90,25 @@ function Exchange.betweenPair(id, agent, body, otherId, otherBody, tickCount)
             end
         end)
         local n = 0
+        local conversing = false
         if SAO.Communication and SAO.Communication.canConverse
             and SAO.Communication.canConverse(id, otherId) then
+            conversing = true
             n = SAO.Perception.tell(id, otherId, tickCount)
+        end
+        if conversing and SAO.Coordination
+            and SAO.Coordination.originatePrivateSituation then
+            SAO.Coordination.originatePrivateSituation(id, body,
+                agent.state, "Exchange.privateSituation")
+            local otherAgent = Ctl and Ctl.agents and Ctl.agents[otherId] or nil
+            SAO.Coordination.originatePrivateSituation(otherId, otherBody,
+                otherAgent and otherAgent.state or "idle",
+                "Exchange.privateSituation")
+            if SAO.Communication.exchangeProcesses then
+                SAO.Communication.exchangeProcesses(id, otherId, nil, {
+                    exchange = "loaded-shared-matter", tick = tickCount,
+                })
+            end
         end
         if n > 0 then
             log(id .. " told " .. otherId .. " about " .. n .. " threat(s)")

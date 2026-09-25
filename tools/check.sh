@@ -2114,6 +2114,23 @@ if ! "$PY" tools/causal_episode_test.py; then
     fail=1
 fi
 
+# [C85] Border 196 - a person's own current need raises a durable matter from
+# private knowledge; addressing stays unheard until a real conversation, and
+# reception, actor-private response and return remain separate causal events.
+if ! "$PY" tools/private_situation_producer_test.py; then
+    note "BORDER FINDING - private situation producer or communication boundary failed"
+    fail=1
+fi
+
+# [C85] Border 197 - an accepted material responsibility enters the production
+# controller, exact native acquisition, carrying route and Handover owners.
+# Queue admission and Locomotion arrival remain short of completion; native
+# release and stopped delivery close as failed/partial rather than stranding.
+if ! "$PY" tools/coordination_execution_test.py; then
+    note "BORDER FINDING - production coordination execution chain failed"
+    fail=1
+fi
+
 # Border 103 - the operator's speech is not in the repository: no
 # profanity in the tracked tree and no operator-quote attributions;
 # rulings are paraphrased content, speech stays with the speaker.

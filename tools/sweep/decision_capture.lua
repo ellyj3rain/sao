@@ -406,6 +406,7 @@ function Capture.beginCoordination(context)
     local appraiseOriginal, raiseOriginal = organization.appraiseMatter,
         organization.raiseMatter
     local events, eventIndexes, processIndexes, failures = {}, {}, {}, {}
+    local observedProcesses, observedProcessOrder = {}, {}
     local attempted, sequence, closed, overflow = 0, 0, false, false
     local appraiseWrapped, raiseWrapped, owner
 
@@ -417,6 +418,121 @@ function Capture.beginCoordination(context)
         failures[#failures + 1] = { eventId = identity, stage = stage,
             detail = detail or pendingFailure
                 or "coordination capture reader failed" }
+    end
+
+    local function countKeys(values)
+        local count = 0
+        for _ in pairs(values or {}) do count = count + 1 end
+        return count
+    end
+
+    -- Public causal topology only. Private inputs remain in Organization and
+    -- decision rows; this observation distinguishes addressed-but-unheard,
+    -- heard-but-unanswered, returned responses and physical work without
+    -- manufacturing a decision event for any of them.
+    local function observeProcess(process)
+        if type(process) ~= "table" or type(process.id) ~= "string" then return end
+        local currentKey = tostring(math.max(1,
+            math.floor(tonumber(process.revision) or 1)))
+        local addressed, currentReceived, currentResponded = 0, 0, 0
+        local receptionCount, responseCount, returnedCount = 0, 0, 0
+        local responses, commitments, workOutcomes = {}, {}, {}
+        local contactOutcomes, contactOwners = {}, {}
+        local contactAttemptCount, contactArrivalCount = 0, 0
+        local activeContactAttemptCount = 0
+        for personId, participant in pairs(process.participants or {}) do
+            if personId ~= process.originatorId and participant.addressed then
+                addressed = addressed + 1
+                if participant.receptions
+                    and participant.receptions[currentKey] then
+                    currentReceived = currentReceived + 1
+                end
+                if participant.responses and participant.responses[currentKey] then
+                    currentResponded = currentResponded + 1
+                end
+                for _ in pairs(participant.receptions or {}) do
+                    receptionCount = receptionCount + 1
+                end
+                for _, response in pairs(participant.responses or {}) do
+                    responseCount = responseCount + 1
+                    local choice = tostring(response.response or "unknown")
+                    responses[choice] = (responses[choice] or 0) + 1
+                    if response.delivered == true then
+                        returnedCount = returnedCount + 1
+                    end
+                end
+            end
+        end
+        for _, commitment in pairs(process.commitments or {}) do
+            local status = tostring(commitment.status or "unknown")
+            commitments[status] = (commitments[status] or 0) + 1
+            for _, outcome in ipairs(commitment.work
+                    and commitment.work.outcomes or {}) do
+                local result = tostring(outcome.status or outcome.outcome
+                    or outcome.phase or "observed")
+                workOutcomes[result] = (workOutcomes[result] or 0) + 1
+            end
+        end
+        for _, attempt in ipairs(process.contactAttempts or {}) do
+            contactAttemptCount = contactAttemptCount + 1
+            local status = tostring(attempt.status or "unknown")
+            contactOutcomes[status] = (contactOutcomes[status] or 0) + 1
+            if tonumber(attempt.arrivedAt) then
+                contactArrivalCount = contactArrivalCount + 1
+            end
+            if status == "travelling" or status == "waiting" then
+                activeContactAttemptCount = activeContactAttemptCount + 1
+            end
+            local owner = attempt.evidence and attempt.evidence.owner
+                or "unknown"
+            owner = tostring(owner)
+            contactOwners[owner] = (contactOwners[owner] or 0) + 1
+        end
+        local origin = SAO.Identity and SAO.Identity.get
+            and SAO.Identity.get(process.originatorId) or nil
+        local summary = {
+            processId = process.id,
+            kind = process.kind,
+            originatorId = process.originatorId,
+            originatorBodyOwner = origin and origin.bodyOwner or "SAO",
+            organizationId = process.organizationId,
+            status = process.status,
+            revision = tonumber(process.revision) or 1,
+            revisionCount = countKeys(process.revisions),
+            createdAt = process.createdAt,
+            revisedAt = process.revisedAt,
+            closedAt = process.closedAt,
+            closureReason = process.closureReason,
+            addressedCount = addressed,
+            currentReceivedCount = currentReceived,
+            currentRespondedCount = currentResponded,
+            currentUnheardCount = math.max(0, addressed - currentReceived),
+            currentUnansweredCount = math.max(0,
+                currentReceived - currentResponded),
+            receptionCount = receptionCount,
+            responseCount = responseCount,
+            returnedResponseCount = returnedCount,
+            responses = responses,
+            commitments = commitments,
+            workOutcomes = workOutcomes,
+            contactAttemptCount = contactAttemptCount,
+            contactArrivalCount = contactArrivalCount,
+            activeContactAttemptCount = activeContactAttemptCount,
+            contactOutcomes = contactOutcomes,
+            contactOwners = contactOwners,
+            eventCount = #(process.events or {}),
+        }
+        if not observedProcesses[process.id] then
+            observedProcessOrder[#observedProcessOrder + 1] = process.id
+        end
+        observedProcesses[process.id] = summary
+    end
+
+    local function observeAllProcesses()
+        for _, processId in ipairs(organization.processOrder or {}) do
+            observeProcess(organization.processes
+                and organization.processes[processId] or nil)
+        end
     end
 
     local function refresh(event)
@@ -470,6 +586,7 @@ function Capture.beginCoordination(context)
                     and status ~= "superseded" then live = true; break end
             end
             if terminal and not live then
+                observeProcess(process)
                 for index in pairs(processIndexes[tostring(processId)] or {}) do
                     local event = events[index]
                     if event and not event.failed then
@@ -592,13 +709,16 @@ function Capture.beginCoordination(context)
     raiseWrapped = function(...)
         local ok = pcall(refreshBeforeRetention)
         if not ok then failure(runId, "retention") end
-        return raiseOriginal(...)
+        local returned = pack(raiseOriginal(...))
+        observeProcess(returned[1])
+        return unpack(returned, 1, returned.count)
     end
 
     owner = { finish = function()
         if closed then raise("coordination capture already finished") end
         closed = true
         refreshAll()
+        observeAllProcesses()
         if organization.appraiseMatter ~= appraiseWrapped
             or organization.raiseMatter ~= raiseWrapped then
             failure(runId, "ownership",
@@ -618,13 +738,72 @@ function Capture.beginCoordination(context)
                     .. ',"laterOutcome":' .. event.outcome .. '}}'
             end
         end
+        local processRows = {}
+        local processKinds, processStatuses, responseChoices = {}, {}, {}
+        local contactOutcomes, contactOwners = {}, {}
+        local addressed, receptions, responses, returned = 0, 0, 0, 0
+        local unheard, unanswered = 0, 0
+        local contactAttempts, contactArrivals, activeContacts = 0, 0, 0
+        for _, processId in ipairs(observedProcessOrder) do
+            local process = observedProcesses[processId]
+            if process then
+                processRows[#processRows + 1] = process
+                processKinds[tostring(process.kind or "unknown")] =
+                    (processKinds[tostring(process.kind or "unknown")] or 0) + 1
+                processStatuses[tostring(process.status or "unknown")] =
+                    (processStatuses[tostring(process.status or "unknown")] or 0) + 1
+                addressed = addressed + (tonumber(process.addressedCount) or 0)
+                receptions = receptions + (tonumber(process.receptionCount) or 0)
+                responses = responses + (tonumber(process.responseCount) or 0)
+                returned = returned
+                    + (tonumber(process.returnedResponseCount) or 0)
+                unheard = unheard
+                    + (tonumber(process.currentUnheardCount) or 0)
+                unanswered = unanswered
+                    + (tonumber(process.currentUnansweredCount) or 0)
+                contactAttempts = contactAttempts
+                    + (tonumber(process.contactAttemptCount) or 0)
+                contactArrivals = contactArrivals
+                    + (tonumber(process.contactArrivalCount) or 0)
+                activeContacts = activeContacts
+                    + (tonumber(process.activeContactAttemptCount) or 0)
+                for choice, count in pairs(process.responses or {}) do
+                    responseChoices[choice] = (responseChoices[choice] or 0)
+                        + (tonumber(count) or 0)
+                end
+                for outcome, count in pairs(process.contactOutcomes or {}) do
+                    contactOutcomes[outcome] = (contactOutcomes[outcome] or 0)
+                        + (tonumber(count) or 0)
+                end
+                for contactOwner, count in pairs(process.contactOwners or {}) do
+                    contactOwners[contactOwner] = (contactOwners[contactOwner] or 0)
+                        + (tonumber(count) or 0)
+                end
+            end
+        end
+        local processObservation = {
+            schema = "sao-shared-process-observation", schemaVersion = 1,
+            processCount = #processRows, kindCounts = processKinds,
+            statusCounts = processStatuses, addressedCount = addressed,
+            receptionCount = receptions, responseCount = responses,
+            returnedResponseCount = returned,
+            currentUnheardCount = unheard,
+            currentUnansweredCount = unanswered,
+            contactAttemptCount = contactAttempts,
+            contactArrivalCount = contactArrivals,
+            activeContactAttemptCount = activeContacts,
+            contactOutcomeCounts = contactOutcomes,
+            contactOwnerCounts = contactOwners,
+            responseCounts = responseChoices, processes = processRows,
+        }
         return '{"schema":"sao-coordination-decision-capture"'
             .. ',"schemaVersion":1,"status":"observed"'
             .. ',"attemptedEvents":' .. tostring(attempted)
             .. ',"eventCount":' .. tostring(#rendered)
             .. ',"captureFailureCount":' .. tostring(#failures)
             .. ',"failures":' .. encode(failures)
-            .. ',"events":[' .. table.concat(rendered, ",") .. ']}'
+            .. ',"events":[' .. table.concat(rendered, ",") .. ']'
+            .. ',"processObservation":' .. encode(processObservation) .. '}'
     end }
     organization.appraiseMatter, organization.raiseMatter = appraiseWrapped,
         raiseWrapped

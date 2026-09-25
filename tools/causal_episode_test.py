@@ -39,6 +39,10 @@ def specimen() -> dict:
                       "schemaVersion": 1, "status": "observed",
                       "attemptedEvents": 1, "eventCount": 1,
                       "captureFailureCount": 0, "failures": [],
+                      "processObservation": {
+                          "schema": "sao-shared-process-observation",
+                          "schemaVersion": 1, "processCount": 1,
+                          "receptionCount": 1, "processes": []},
                       "events": [{"namespace": {"runId": "Episode000",
                                                   "county": "Episode000",
                                                   "personId": "p1",
@@ -74,7 +78,9 @@ def main() -> int:
     record = records[0]
     if ([point["day"] for point in record["checkpoints"]] != [0, 7, 30]
             or record["replay"]["exact"] is not True
-            or record["trajectory"]["decisionCapture"]["eventCount"] != 1):
+            or record["trajectory"]["decisionCapture"]["eventCount"] != 1
+            or record["trajectory"]["processObservation"].get(
+                "processCount") != 1):
         faults.append("one-prefix checkpoints or decision trajectory were lost")
     sealed = {key: value for key, value in record.items()
               if key != "episodeSha256"}

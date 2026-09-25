@@ -262,7 +262,11 @@ PROBE = r'''(function()
           and __claims[tostring(group)].claimIncarnation or nil),
       materialProjectionEnabled=options.materialEnabled ~= false,
       preRevision='pre', postRevision=options.revision or 'post',
-      status='completed', detail='native-complete',
+      processId=options.processId,
+      processRevision=options.processRevision,
+      commitmentId=options.commitmentId,
+      status=options.status or 'completed',
+      detail=options.detail or 'native-complete',
       at=240+sequence, order=sequence, acknowledgements={},
     }
     local world = __stores[WORLD_STORE]
@@ -309,6 +313,29 @@ PROBE = r'''(function()
     and elected.offices.chair == legacyGraph.organization.offices['elected:chair']
     and migration.retiredProvisioningOrganizations == 1
     and migration.sanitizedElectionOrganizations == 1)
+  local coordinationConsumes = 0
+  SAO.Organization.consumeSourceResult = function(result)
+    if result.commitmentId == 'commitment-release'
+        and result.status == 'released' then
+      coordinationConsumes = coordinationConsumes + 1
+      return true
+    end
+    return false, 'unexpected-coordination-result'
+  end
+  SAO.WorldSources.source('coordination-init')
+  local releasedRaw = receipt('coordinated-release','C:released:0',
+    'released-fp',nil,{ materialEnabled=false, status='released',
+      detail='native-transfer-not-performed', processId='process-release',
+      processRevision=1, commitmentId='commitment-release' })
+  local releasedOk, releasedWhy = process('coordinated-release')
+  local releaseReplay = delivered('coordinated-release')
+  SAO.Provisioning.consumeCompleted(32)
+  check('coordinated_terminal_source_result_closes_once', releasedOk
+    and releasedWhy == 'coordination-result-delivered'
+    and coordinationConsumes == 1 and releaseReplay == nil
+    and acknowledged(releasedRaw)
+    and releasedRaw.acknowledgements.provisioning.reason
+      == 'coordination-result-delivered')
   apply(%(pantry1)s)
   SandboxVars.SurvivorAwareness.Material = false
   local disabledRaw = receipt('material-off','C:pantry:0','pantry-fp','g',
@@ -950,6 +977,7 @@ end)()'''
 EXPECTED = {
     "legacy_false_outputs_retired_on_upgrade",
     "legacy_provisioning_organizations_retired_or_sanitized",
+    "coordinated_terminal_source_result_closes_once",
     "material_dial_skips_all_projections",
     "exact_source_projection", "source_projection_isolated",
     "finite_categories_not_item_double_counted",
@@ -1069,6 +1097,8 @@ def contract(texts: dict[str, str]) -> bool:
         "materialProjectionEnabled = not options or options.Material ~= false"
         in texts["world"],
         "function WS.resultAcknowledged" in texts["world"],
+        "local coordinated = receipt.commitmentId ~= nil" in texts["world"],
+        'if (receipt.status == "completed" or coordinated' in texts["world"],
         "function WS.sourceProjection(id)" in texts["world"],
         "function WS.pendingProjectionChanges(limit)" in texts["world"],
         "function WS.acknowledgeProjectionChange(sourceId, order)"
@@ -1079,6 +1109,8 @@ def contract(texts: dict[str, str]) -> bool:
         "        tonumber(claimIncarnation)" in texts["source_use"],
         'return false, "provisioning-context-unavailable"' in texts["source_use"],
         "local schema = tonumber(value.schema) or 0" in provisioning,
+        "and not coordinated" in provisioning,
+        'or "coordination-result-delivered"' in provisioning,
         "receipt.materialProjectionEnabled == false and not inFlight"
         in provisioning,
         'acknowledge(receipt, "material-disabled")' in provisioning,
@@ -1254,6 +1286,12 @@ def static_controls() -> tuple[bool, list[str]]:
         ("bind context guessed", "source_use", "provisioningContextAt", "groupOf"),
         ("future delivery schema accepted", "provisioning",
          "local schema = tonumber(value.schema) or 0", "local schema = 0"),
+        ("coordinated terminal result hidden", "world",
+         "or coordinated\n            or (includeObservations == true",
+         "or false\n            or (includeObservations == true"),
+        ("coordinated terminal result rejected", "provisioning",
+         "            and not coordinated)",
+         "            and true)"),
         ("captured material decision omitted", "world",
          "materialProjectionEnabled = not options or options.Material ~= false",
          "materialProjectionEnabled = true"),
