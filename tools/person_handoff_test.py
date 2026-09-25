@@ -16,7 +16,8 @@ ROOT = Path(sys.argv[1]).resolve() if len(sys.argv) > 1 else Path(__file__).reso
 LUA = ROOT / 'mod/42.20/media/lua/client'
 GAME = Path(r'C:\Program Files (x86)\Steam\steamapps\common\ProjectZomboid')
 JDK = Path(r'C:\Users\jleyv\Peanut Butter\JetBrains\Java\bin')
-SHARED_FILES = {'SAO_Identity.lua', 'SAO_BodySnapshot.lua', 'SAO_PhysicalFacts.lua'}
+SHARED_FILES = {'SAO_Identity.lua', 'SAO_BodySnapshot.lua', 'SAO_PhysicalFacts.lua',
+                'SAO_Coordination.lua'}
 
 
 def source_path(name):
@@ -24,7 +25,7 @@ def source_path(name):
 
 
 FILES = ['SAO_PhysicalFacts.lua', 'SAO_BodySnapshot.lua', 'SAO_Body.lua',
-         'SAO_SourceUse.lua', 'SAO_Controller.lua',
+         'SAO_SourceUse.lua', 'SAO_Coordination.lua', 'SAO_Controller.lua',
          'SAO_PopulationAdmissions.lua', 'SAO_PopulationRepresentation.lua', 'SAO_DormantPopulation.lua',
          'SAO_Population.lua', 'SAO_Harness.lua',
          'SAO_Age.lua', 'SAO_Drugs.lua', 'SAO_AfflictedReturn.lua',

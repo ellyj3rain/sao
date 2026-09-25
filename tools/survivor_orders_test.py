@@ -8,11 +8,13 @@ import re
 
 ROOT = pathlib.Path(__file__).resolve().parent.parent
 CONTROLLER = ROOT / "mod/42.20/media/lua/client/SAO_Controller.lua"
+COORDINATION = ROOT / "mod/42.20/media/lua/shared/SAO_Coordination.lua"
 COMMAND = ROOT / "mod/42.20/media/lua/shared/SAO_Command.lua"
 CHECK = ROOT / "tools/check.sh"
 
 
-def evaluate(controller: str, command: str) -> dict[str, bool]:
+def evaluate(controller: str, command: str,
+             coordination: str) -> dict[str, bool]:
     wrapper_match = re.search(
         r"local function onTheirWord\(giverId, id, kind, arg, act\)(.*?)\nend\n"
         r"Ctl\.onTheirWord", controller, re.S)
@@ -45,9 +47,9 @@ def evaluate(controller: str, command: str) -> dict[str, bool]:
             'SAO.Voice.onEvent(id, "orderNo", tickCount)' in wrapper
             and "Command.order already owns the delivered request" in wrapper,
         "external execution capability belongs to its registered owner":
-            "executionUnavailable" in controller
-            and "execution.canAcquire ~= false" in controller
-            and 'executor = execution.executor' in controller,
+            "executionUnavailable" in coordination
+            and "execution.canAcquire ~= false" in coordination
+            and 'executor = execution.executor' in coordination,
         "external danger pauses the same commitment and route":
             'activity ~= "coordination"' in external
             and 'SAO.Organization.pauseWork(commitment.id' in external
@@ -62,34 +64,42 @@ def main() -> int:
     print("=" * 74)
     print("SURVIVOR REQUESTS USE THE ENACTED COMMAND PROCESS")
     print("=" * 74)
-    if not CONTROLLER.is_file() or not COMMAND.is_file():
-        print("  FAULT: controller or command source is absent")
+    if not (CONTROLLER.is_file() and COORDINATION.is_file()
+            and COMMAND.is_file()):
+        print("  FAULT: controller, coordination or command source is absent")
         return 1
     controller = CONTROLLER.read_text(encoding="utf-8-sig")
+    coordination = COORDINATION.read_text(encoding="utf-8-sig")
     command = COMMAND.read_text(encoding="utf-8-sig")
-    checks = evaluate(controller, command)
+    checks = evaluate(controller, command, coordination)
     faults = [name for name, result in checks.items() if not result]
     for name, result in checks.items():
         print(f"  {'yes' if result else 'NO '}  {name}")
 
     controls = [
-        ("rouse", 'onTheirWord(id, otherId, "rouse", nil, nil)',
+        ("rouse", "controller", 'onTheirWord(id, otherId, "rouse", nil, nil)',
          'true'),
-        ("hold", 'and onTheirWord(objector, id,', 'and true -- removed request'),
-        ("leave", 'local heeds = onTheirWord(id,', 'local heeds = true -- removed request'),
-        ("external capability", "execution.canAcquire ~= false",
+        ("hold", "controller", 'and onTheirWord(objector, id,',
+         'and true -- removed request'),
+        ("leave", "controller", 'local heeds = onTheirWord(id,',
+         'local heeds = true -- removed request'),
+        ("external capability", "coordination", "execution.canAcquire ~= false",
          "true -- external capability ignored"),
-        ("external pause", "SAO.Organization.pauseWork(commitment.id,",
+        ("external pause", "controller", "SAO.Organization.pauseWork(commitment.id,",
          "true -- external work was not paused\n            and (commitment.id,"),
     ]
     controls_ok = True
-    for name, old, new in controls:
-        if controller.count(old) != 1:
+    for name, owner, old, new in controls:
+        source = controller if owner == "controller" else coordination
+        if source.count(old) != 1:
             print(f"  FAULT: {name} mutation seam changed")
             controls_ok = False
             continue
-        mutant = controller.replace(old, new, 1)
-        if all(evaluate(mutant, command).values()):
+        mutant = source.replace(old, new, 1)
+        mutated_controller = mutant if owner == "controller" else controller
+        mutated_coordination = mutant if owner == "coordination" else coordination
+        if all(evaluate(mutated_controller, command,
+                        mutated_coordination).values()):
             print(f"  FAULT: {name} routing mutation survived")
             controls_ok = False
     print("  mutation controls: " + ("PASS" if controls_ok else "FAIL")

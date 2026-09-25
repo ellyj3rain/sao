@@ -38,6 +38,10 @@ on the simulation.
 
 ## Status
 
+`2.9.5.0-pre-alpha` - the coordinate is computed by the version machine
+(`tools/version_replay.py`), never picked; `VERSION_MAP.md` shows the
+classification and the arithmetic.
+
 C79 implements the first enacted social-work path. A private situation can
 become an acquired proposal, each actual recipient can answer independently,
 and delivered acceptance creates only a revision-bound scoped commitment.
@@ -82,9 +86,16 @@ Afflicted necessity-backed provisioning and Crossed associate rendezvous; a
 state change retains the matter but dispatches a fresh current-state appraisal.
 The combined path is controlled headlessly; loaded gameplay remains unobserved.
 
-`2.9.4.0-pre-alpha` - the coordinate is computed by the version machine
-(`tools/version_replay.py`), never picked; `VERSION_MAP.md` shows the
-classification and the arithmetic.
+C84 adds a repeatable causal episode boundary around the production dormant
+county. Checkpoints come from one maximum-horizon prefix, a fresh Kahlua process
+must reproduce the complete result, and the exported row retains source
+provenance plus the real coordination trajectory. Loaded and dormant survivor
+appraisal now share `SAO_Coordination`; one registered ZAO adapter serves both
+living pathogen states while their Afflicted and Crossed policies remain
+different. The tracked 30-day joint episode replayed exactly but formed no
+shared matter, so Speakeasy Record 68 preserves one empty episode and creates no
+training task. This is useful evidence of the remaining producer-density gap,
+not permission to fabricate a successful society.
 
 Pre-alpha, and the evidence comes in two kinds.
 
@@ -101,7 +112,9 @@ instruments can observe. Engine claims are checked against the installed
 `projectzomboid.jar` and shipped scripts.
 
 Late-start history currently runs the causal dormant simulation in bounded
-slices. Its completion and reload behavior are tested in the installed game VM.
+slices. C84 can retain one complete maximum-horizon episode and prove an exact
+fresh-process replay before export. Its completion and reload behavior are
+tested in the installed game VM.
 The previous fast extrapolator was removed because it assigned outcomes from
 unsupported curves. A validated learned accelerator remains unfinished.
 Trajectory exports require completed horizons and report simulation faults;

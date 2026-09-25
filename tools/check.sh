@@ -2106,6 +2106,14 @@ if ! "$PY" tools/external_life_coordination_test.py; then
     fail=1
 fi
 
+# [C84] Border 195 - a production county runs once to one horizon, retains
+# decision/outcome checkpoints from that causal prefix, then a fresh Kahlua
+# process must reproduce the complete result before an episode can be exported.
+if ! "$PY" tools/causal_episode_test.py; then
+    note "BORDER FINDING - causal episode reset, replay or trajectory failed"
+    fail=1
+fi
+
 # Border 103 - the operator's speech is not in the repository: no
 # profanity in the tracked tree and no operator-quote attributions;
 # rulings are paraphrased content, speech stays with the speaker.

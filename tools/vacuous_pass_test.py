@@ -157,6 +157,12 @@ NOT_ABOUT_LUA = {
         "fixtures, the pure-Java evaluator and worker, then repeats the same "
         "checks through the shipped jar. Lua submission and authority guards "
         "are the separate subject of coordination_inference_test.py",
+    "causal_episode_test.py":
+        "[C84] exercises the Python episode compiler over controlled county "
+        "results: one-prefix checkpoint extraction, fresh-run exact comparison, "
+        "decision trajectory retention, exclusive publication and a replay "
+        "mutation. Production Lua execution remains the subject of the county "
+        "and trajectory simulation borders",
 }
 
 

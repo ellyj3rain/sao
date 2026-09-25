@@ -33,7 +33,7 @@ def main() -> int:
         name = Scenes.source_name(path)
         if manifest["sourceHashes"].get(name) != Scenes.indexed_hash(path):
             return fail("source hash is not the exact Git index blob: " + name)
-    saved = Scenes.ROOT / "artifacts/audits/c82-native-coordination-shadow-source"
+    saved = Scenes.ROOT / "artifacts/audits/c84-causal-episode-runtime/coordination-scenes"
     for name, data in Scenes.output_bytes(catalogue, rows, manifest).items():
         path = saved / name
         if not path.is_file() or path.read_bytes() != data:
@@ -44,8 +44,8 @@ def main() -> int:
     if len(by_namespace) != len(rows):
         return fail("full scene namespaces are not unique")
     choices = collections.Counter(entry["response"] for entry in manifest["index"])
-    expected = {name: 4 for name in
-                ("accept", "qualify", "counter-propose", "defer", "contest")}
+    expected = {"accept": 5, "qualify": 4, "counter-propose": 3,
+                "defer": 4, "contest": 4}
     if choices != expected:
         return fail("production response coverage differs: " + repr(dict(choices)))
     for split in ("train", "validation", "test"):
@@ -72,30 +72,31 @@ def main() -> int:
 
     # A pressure mutation must change a production label.  If the exporter had
     # assigned the label itself, this mutant would survive.
-    controller = Scenes.CONTROLLER.read_text(encoding="utf-8-sig")
+    coordination = Scenes.COORDINATION.read_text(encoding="utf-8-sig")
     original = 'elseif ownNeed >= 0.75 then\n        choice = "qualify"'
     replacement = 'elseif ownNeed >= 0.75 then\n        choice = "accept"'
-    if controller.count(original) != 1:
-        return fail("controller pressure decision seam changed")
+    if coordination.count(original) != 1:
+        return fail("coordination pressure decision seam changed")
     pressure = next(item for item in Scenes.SCENES
                     if item["sceneId"] == "train-survivor-pressured")
     changed = Scenes.run_scene(
-        pressure, controller_source=controller.replace(original, replacement, 1))
+        pressure, coordination_source=coordination.replace(
+            original, replacement, 1))
     if changed["choice"]["optionId"] != "coordination:accept":
         return fail("controller pressure mutation did not change captured choice")
 
     # Removing the registered execution owner must prevent a ZAO-owned trusted
     # person from being captured as an ordinary capable acceptor.
-    zao_controller = Scenes.ZAO_CONTROLLER.read_text(encoding="utf-8-sig")
-    registration = 'SAO.Communication.registerExecutionOwner("ZAO", executionAdapter)'
-    if zao_controller.count(registration) != 1:
+    execution_owner = Scenes.ZAO_EXECUTION_OWNER.read_text(encoding="utf-8-sig")
+    registration = 'return SAO.Communication.registerExecutionOwner("ZAO", adapter)'
+    if execution_owner.count(registration) != 1:
         return fail("ZAO execution registration seam changed")
     trusted = next(item for item in Scenes.SCENES
                    if item["sceneId"] == "train-crossed-trusted")
     try:
         unregistered = Scenes.run_scene(
-            trusted, zao_controller_source=zao_controller.replace(
-                registration, "false", 1))
+            trusted, zao_execution_owner_source=execution_owner.replace(
+                registration, "return false", 1))
     except RuntimeError:
         unregistered = None
     if unregistered and unregistered["choice"]["optionId"] == "coordination:accept":
@@ -103,12 +104,12 @@ def main() -> int:
 
     # A forged executor name must remain visible as a defect instead of being
     # normalized back to the expected owner by the capture layer.
-    driver = Scenes.ZAO_DRIVER.read_text(encoding="utf-8-sig")
+    crossed = Scenes.ZAO_CROSSED.read_text(encoding="utf-8-sig")
     executor = 'executor = "ZAO.Driver",'
-    if driver.count(executor) != 1:
-        return fail("ZAO driver attribution seam changed")
+    if crossed.count(executor) != 1:
+        return fail("Crossed appraisal attribution seam changed")
     forged = Scenes.run_scene(
-        trusted, zao_driver_source=driver.replace(
+        trusted, zao_crossed_source=crossed.replace(
             executor, 'executor = "SAO.Controller",', 1))
     forged_private = forged["enactedProcess"]["decisionTime"]["privateInputs"]
     if forged_private["executor"] != "SAO.Controller":
@@ -118,7 +119,7 @@ def main() -> int:
             key: value for key, value in catalogue.items()
             if key != "contentSha256"}):
         return fail("scene catalogue seal differs")
-    print("Border 191 PASS: 20 pre-split situations yielded five production responses across survivor, Afflicted and Crossed owners; pressure, registration and attribution mutants failed")
+    print("Border 191 PASS: 20 pre-split situations yielded five production responses through survivor, Afflicted and Crossed policy owners; pressure, registration and attribution mutants failed")
     return 0
 
 

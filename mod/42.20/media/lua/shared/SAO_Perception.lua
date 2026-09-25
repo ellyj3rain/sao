@@ -851,135 +851,14 @@ function P.knownAidRequest(id, groupId, nowHours)
     return nil, availability == "available" and "not-known" or "unavailable"
 end
 
--- Private appraisal reads an external person's execution state through the
--- registered owner. Both loaded and dormant reception use this one boundary
--- so representation cannot change which ZAO-owned inputs are admitted.
-local function privateExecutionContext(id, rec, fallbackActivity)
-    local bodyOwner = rec and rec.bodyOwner or "SAO"
-    local registeredOwner = SAO.Communication
-        and SAO.Communication.executionOwners
-        and SAO.Communication.executionOwners[bodyOwner] or nil
-    local execution = nil
-    if bodyOwner ~= "SAO" and SAO.Communication
-        and SAO.Communication.actorSnapshot then
-        execution = SAO.Communication.actorSnapshot(id)
-    end
-    local executionAvailable = bodyOwner == "SAO"
-        or registeredOwner ~= nil and type(execution) == "table"
-    execution = type(execution) == "table" and execution or {}
-    local activity = string.lower(tostring(execution.currentActivity
-        or fallbackActivity or "dormant"))
-    local ownNeed, ownNeedAvailable = rec and tonumber(rec.hunger) or 0, true
-    if bodyOwner == "ZAO" then
-        -- ZAO reports a source-owned competing pressure, not a diet verdict.
-        -- The same value must feed loaded and dormant appraisal without SAO
-        -- inferring what either living pathogen state eats or how it acts.
-        if execution.competingPressureAvailable ~= false
-            and tonumber(execution.competingPressure) then
-            ownNeed = tonumber(execution.competingPressure)
-        else
-            ownNeed, ownNeedAvailable = 0, false
-        end
-    end
-    return bodyOwner, execution, executionAvailable, activity,
-        ownNeed, ownNeedAvailable
-end
-
-local function executionOwnerAppraisal(id, rec, processView, context)
-    if not (rec and rec.bodyOwner and SAO.Communication
-        and SAO.Communication.actorAppraisal) then return context end
-    local supplied = SAO.Communication.actorAppraisal(id, processView, context)
-    if type(supplied) ~= "table" then return context end
-    for _, key in ipairs({ "owner", "executor", "bodyOwner",
-            "currentActivity", "canAcquire", "canCarry", "canDeliver",
-            "canExecute", "incapable", "dead", "contest", "ownNeed",
-            "relationship", "destinationKnown", "choice", "reconsider",
-            "terms", "interests", "constraints", "inputOwners" }) do
-        if supplied[key] ~= nil then context[key] = supplied[key] end
-    end
-    return context
-end
-
 function P.appraiseAidRequest(id, groupId, owner, currentActivity)
-    if not (SAO.Organization and SAO.Organization.appraiseMatter) then
-        return nil, "organization-unavailable"
+    if not (SAO.Coordination and SAO.Coordination.formResponse) then
+        return nil, "coordination-unavailable"
     end
     local request = P.knownAidRequest(id, groupId)
     if not request or not request.processId then return nil, "request-unavailable" end
-    local rec = SAO.Identity and SAO.Identity.get and SAO.Identity.get(id) or nil
-    local view = SAO.Organization.viewFor(id, request.processId, false)
-    local proposal = view and view.proposal and view.proposal.proposal or {}
-    local destination = proposal.destination
-    local destinationKnown = type(destination) == "table"
-        and tonumber(destination.minX) ~= nil
-        and tonumber(destination.minY) ~= nil
-        and tonumber(destination.maxX) ~= nil
-        and tonumber(destination.maxY) ~= nil
-    local relationship, hostile = 0, false
-    pcall(function()
-        relationship = SAO.Standing.trust(id, view.originatorId)
-        hostile = SAO.Standing.isHostileTo(id, view.originatorId)
-    end)
-    local designation = rec and rec.designation or nil
-    local bodyOwner, execution, executionAvailable, activity,
-        ownNeed, ownNeedAvailable = privateExecutionContext(
-            id, rec, currentActivity)
-    local choice = not executionAvailable and "defer"
-        or hostile and "contest"
-        or (activity ~= "idle" and activity ~= "dormant") and "defer"
-        or not ownNeedAvailable and "defer"
-        or ownNeed >= 0.75 and "qualify"
-        or destinationKnown and (designation == "forager"
-            or designation == "quartermaster" or relationship >= 0.30)
-            and "accept"
-        or destinationKnown and "counter-propose" or "defer"
-    local context = {
-        owner = owner or "Perception.aid-request",
-        executor = execution.executor or owner or "private-aid-appraisal",
-        bodyOwner = bodyOwner,
-        currentActivity = activity,
-        canAcquire = executionAvailable and execution.canAcquire ~= false
-            and not (rec and rec.dead),
-        canCarry = executionAvailable and execution.canCarry ~= false
-            and not (rec and rec.dead),
-        canDeliver = executionAvailable and execution.canDeliver ~= false
-            and not (rec and rec.dead),
-        canExecute = executionAvailable and execution.canExecute ~= false
-            and not (rec and rec.dead),
-        executionOwnerAvailable = executionAvailable,
-        incapable = not executionAvailable,
-        dead = rec and rec.dead or false,
-        contest = hostile,
-        ownNeed = ownNeed,
-        relationship = relationship,
-        destinationKnown = destinationKnown,
-        choice = choice,
-        interests = { designation = designation,
-            ownGroup = SAO.Standing and SAO.Standing.groupOf
-                and SAO.Standing.groupOf(id) or nil },
-        constraints = { represented = SAO.Body
-            and SAO.Body.hasRepresentation
-            and SAO.Body.hasRepresentation(id) or false,
-            currentActivity = activity,
-            executionOwnerAvailable = executionAvailable,
-            ownNeedAvailable = ownNeedAvailable },
-        inputOwners = {
-            currentActivity = execution.executor
-                or owner or "Perception.aid-request",
-            capabilities = execution.executor
-                or (bodyOwner == "ZAO" and "ZAO.Driver")
-                or "SAO.DormantPopulation",
-            ownNeed = bodyOwner == "ZAO"
-                and (execution.inputOwners
-                    and execution.inputOwners.competingPressure
-                    or "ZAO.Driver") or "SAO.Identity",
-            relationship = "SAO.Standing",
-            interests = "SAO.Identity+SAO.Standing",
-            constraints = owner or "Perception.aid-request",
-        },
-    }
-    context = executionOwnerAppraisal(id, rec, view, context)
-    return SAO.Organization.appraiseMatter(request.processId, id, context)
+    return SAO.Coordination.formResponse(id, request.processId, nil,
+        currentActivity or "dormant", owner or "Perception.aid-request")
 end
 
 local function tellAidRequests(fromId, toId, channel, aroundX, aroundY)
@@ -1010,85 +889,10 @@ local function tellAidRequests(fromId, toId, channel, aroundX, aroundY)
             -- condition and relationship. The answer is formed here because
             -- this encounter proved acquisition; work waits for a body-owning
             -- executor and no dormant item transfer is invented.
-            if request.processId and SAO.Organization
-                and SAO.Organization.appraiseMatter then
-                local rec = SAO.Identity and SAO.Identity.get
-                    and SAO.Identity.get(toId) or nil
-                local relationship, hostile = 0, false
-                pcall(function()
-                    relationship = SAO.Standing.trust(toId,
-                        request.originId or fromId)
-                    hostile = SAO.Standing.isHostileTo(toId,
-                        request.originId or fromId)
-                end)
-                local view = SAO.Organization.viewFor(toId,
-                    request.processId, false)
-                local proposal = view and view.proposal
-                    and view.proposal.proposal or {}
-                local destination = proposal.destination
-                local destinationKnown = type(destination) == "table"
-                    and tonumber(destination.minX) ~= nil
-                    and tonumber(destination.minY) ~= nil
-                    and tonumber(destination.maxX) ~= nil
-                    and tonumber(destination.maxY) ~= nil
-                local designation = rec and rec.designation or nil
-                local bodyOwner, execution, executionAvailable, activity,
-                    ownNeed, ownNeedAvailable = privateExecutionContext(
-                        toId, rec, nil)
-                local choice = not executionAvailable and "defer"
-                    or hostile and "contest"
-                    or (activity ~= "idle" and activity ~= "dormant") and "defer"
-                    or not ownNeedAvailable and "defer"
-                    or ownNeed >= 0.75 and "qualify"
-                    or destinationKnown and (designation == "forager"
-                        or designation == "quartermaster"
-                        or relationship >= 0.30) and "accept"
-                    or destinationKnown and "counter-propose" or "defer"
-                local context = {
-                    owner = "Perception.dormant-encounter",
-                    executor = execution.executor or "dormant-person",
-                    bodyOwner = bodyOwner,
-                    currentActivity = activity,
-                    canAcquire = executionAvailable
-                        and execution.canAcquire ~= false and not (rec and rec.dead),
-                    canCarry = executionAvailable
-                        and execution.canCarry ~= false and not (rec and rec.dead),
-                    canDeliver = executionAvailable
-                        and execution.canDeliver ~= false and not (rec and rec.dead),
-                    canExecute = executionAvailable
-                        and execution.canExecute ~= false and not (rec and rec.dead),
-                    executionOwnerAvailable = executionAvailable,
-                    incapable = not executionAvailable,
-                    dead = rec and rec.dead or false,
-                    contest = hostile,
-                    ownNeed = ownNeed,
-                    relationship = relationship,
-                    destinationKnown = destinationKnown,
-                    choice = choice,
-                    interests = { designation = designation,
-                        ownGroup = SAO.Standing and SAO.Standing.groupOf
-                            and SAO.Standing.groupOf(toId) or nil },
-                    constraints = { represented = false,
-                        currentActivity = activity,
-                        executionOwnerAvailable = executionAvailable,
-                        ownNeedAvailable = ownNeedAvailable },
-                    inputOwners = {
-                        currentActivity = execution.executor
-                            or "SAO.DormantPopulation",
-                        capabilities = execution.executor
-                            or (bodyOwner == "ZAO" and "ZAO.Driver")
-                            or "SAO.DormantPopulation",
-                        ownNeed = bodyOwner == "ZAO"
-                            and (execution.inputOwners
-                                and execution.inputOwners.competingPressure
-                                or "ZAO.Driver") or "SAO.Identity",
-                        relationship = "SAO.Standing",
-                        interests = "SAO.Identity+SAO.Standing",
-                        constraints = "SAO.DormantPopulation",
-                    },
-                }
-                context = executionOwnerAppraisal(toId, rec, view, context)
-                SAO.Organization.appraiseMatter(request.processId, toId, context)
+            if request.processId and SAO.Coordination
+                and SAO.Coordination.formResponse then
+                SAO.Coordination.formResponse(toId, request.processId, nil,
+                    "dormant", "Perception.dormant-encounter")
             end
         end
     end

@@ -23,6 +23,9 @@ _G.__md = {}
 _G.__out = {}
 
 ModData = {
+    get = function(k)
+        return __md[k]
+    end,
     getOrCreate = function(k)
         __md[k] = __md[k] or {}
         return __md[k]
@@ -149,6 +152,18 @@ SAOJavaBridge = {
     end,
     surveyClaim = function(self, a, b, c, d, e)
         return "ways=6 boarded=0 rooms=4"
+    end,
+    -- These native observations have no loaded engine state in a dormant
+    -- county.  An explicit unavailable result preserves the production
+    -- caller's refusal path without turning a missing Lua method into a
+    -- protected callback fault.
+    speechWeatherHearing = __forward("speechWeatherHearing"),
+    hydrateWorldChunk = function() return nil end,
+    -- The evidence host fixes county hour zero to the shipped July 9 anchor.
+    -- With DayZero disabled, a shipped record day is therefore day * 24.
+    recordHour = function(self, recordDay, dayZeroAsked)
+        if dayZeroAsked == true then return nil end
+        return tonumber(recordDay) and tonumber(recordDay) * 24 or nil
     end,
     listKnoxHumans = function() return "" end,
     isCombatPatchReady = function() return false end,

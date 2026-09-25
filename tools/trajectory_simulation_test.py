@@ -24,7 +24,10 @@ def specimen():
     return {'ranTo': 90, 'yearsTicks': 90 * 216000, 'alive': 4, 'dead': 6, 'completed': True,
             'housesStanding': 1, 'biggestHouse': 4,
             'evidence': {'faultCount': 0, 'faults': {}, 'seed': 'Control:1996-6-8',
-                         'callbackCounts': {'simulateDay': 90}}}
+                         'callbackCounts': {'simulateDay': 90}},
+            'decisions': {'status': 'observed', 'attemptedEvents': 0,
+                          'eventCount': 0, 'captureFailureCount': 0,
+                          'failures': [], 'events': []}}
 
 
 def rejects(call):
@@ -232,7 +235,7 @@ def main(root):
     # an isolated sister tree so CI does not depend on a sibling checkout.
     with tempfile.TemporaryDirectory() as joint_tmp:
         joint_root = pathlib.Path(joint_tmp) / 'zao-lua'
-        for relative in Sweep.ZAO_MODULES:
+        for relative in Sweep.ZAO_MODULES + Sweep.ZAO_POST_MODULES:
             path = joint_root / relative
             path.parent.mkdir(parents=True, exist_ok=True)
             owner = path.stem.removeprefix('ZAO_')
@@ -265,6 +268,11 @@ def main(root):
     bad['evidence']['callbackCounts']['simulateDay'] = 0
     if not rejects(lambda: Sweep.validate_result(bad, 90, joint=True)):
         faults.append('joint run without pathogen callbacks accepted')
+    bad = copy.deepcopy(row)
+    bad['decisions']['captureFailureCount'] = 1
+    bad['decisions']['failures'] = [{'stage': 'decision'}]
+    if not rejects(lambda: Sweep.validate_result(bad, 90)):
+        faults.append('failed coordination trajectory accepted')
     with tempfile.TemporaryDirectory() as tmp:
         absent = pathlib.Path(tmp) / 'lua'
         absent.mkdir()
