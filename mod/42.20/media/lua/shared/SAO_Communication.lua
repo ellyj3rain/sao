@@ -108,6 +108,27 @@ function Communication.actorSnapshot(id)
     }
 end
 
+-- A registered execution owner may interpret an acquired proposal from the
+-- actor's private state.  The returned context is still consumed by
+-- Organization, which freezes feasible options, choice and provenance; the
+-- adapter receives no authority to create a response or commitment itself.
+function Communication.actorAppraisal(id, processView, baseContext)
+    id = tostring(id or "")
+    local rec = SAO.Identity and SAO.Identity.get and SAO.Identity.get(id)
+    if not rec or not rec.bodyOwner then return nil, "native-owner" end
+    local owner = Communication.executionOwners[tostring(rec.bodyOwner)]
+    if not owner then return nil, "execution-owner-unregistered" end
+    if type(owner.appraiseMatter) ~= "function" then
+        return nil, "appraisal-owner-unavailable"
+    end
+    local ok, context = pcall(owner.appraiseMatter, id, rec, processView,
+        type(baseContext) == "table" and baseContext or {})
+    if not ok or type(context) ~= "table" then
+        return nil, ok and "appraisal-unanswered" or "appraisal-owner-exception"
+    end
+    return context
+end
+
 local function dormantHearing(rec, listener)
     if rec.dormantSleeping == true then return nil, "asleep" end
     if rec.dormantSleeping ~= false then return nil, "sleep-unobserved" end
@@ -326,6 +347,50 @@ function Communication.send(fromId, toId, kind, payload)
     return message
 end
 
+local function admittedConversation(fromId, toId, requestedChannel)
+    if requestedChannel == "dormant-encounter" then
+        local admitted, why = Communication.canConverse(fromId, toId,
+            "dormant-encounter")
+        return admitted == true and "dormant-encounter" or nil, why
+    end
+    local admitted, why = Communication.canConverse(fromId, toId)
+    if admitted == true then return "spoken" end
+    if requestedChannel == "spoken" then return nil, why end
+    admitted, why = Communication.canConverse(fromId, toId,
+        "dormant-encounter")
+    if admitted == true then return "dormant-encounter" end
+    return nil, why or "transport-refused"
+end
+
+-- Send the current revision to one addressed person through an actual speech
+-- or dormant-encounter transport.  This is the high-level path producers use;
+-- generic send/deliver deliberately remains insufficient evidence.
+function Communication.deliverProcessProposal(fromId, toId, processId,
+        requestedChannel, evidence)
+    fromId, toId, processId = tostring(fromId or ""), tostring(toId or ""),
+        tostring(processId or "")
+    if fromId == "" or toId == "" or processId == ""
+        or not (SAO.Organization and SAO.Organization.transportRevision) then
+        return nil, "invalid-process-proposal"
+    end
+    local revision, kind = SAO.Organization.transportRevision(
+        processId, fromId, toId)
+    if not revision then return nil, kind or "not-addressed" end
+    local channel, why = admittedConversation(fromId, toId, requestedChannel)
+    if not channel then return nil, why or "transport-refused" end
+    local message = Communication.send(fromId, toId, "process-proposal", {
+        processId = processId, revision = revision, kind = kind,
+    })
+    if not message then return nil, "message-refused" end
+    message.transportAdmitted = true
+    message.channel = channel
+    message.transportEvidence = type(evidence) == "table" and evidence or {}
+    if Communication.deliver(message) ~= true then
+        return nil, "delivery-refused"
+    end
+    return message, "received"
+end
+
 function Communication.deliver(message)
     if type(message) ~= "table" then return false end
     message.delivered = true
@@ -441,14 +506,13 @@ end
 -- The caller names the same admitted channel that carried the conversation;
 -- this function rechecks it rather than treating a queued message as proof.
 function Communication.deliverPendingResponses(fromId, toId, channel, evidence)
-    if not (SAO.Organization and SAO.Organization.pendingResponses
-        and Communication.canConverse(fromId, toId, channel) == true) then
-        return 0
-    end
+    if not (SAO.Organization and SAO.Organization.pendingResponses) then return 0 end
+    local admitted = admittedConversation(fromId, toId, channel)
+    if not admitted then return 0 end
     local delivered = 0
     for _, pending in ipairs(SAO.Organization.pendingResponses(fromId, toId)) do
         if SAO.Organization.deliverResponse(pending.processId, fromId, toId,
-            channel or "spoken", evidence or {}) then
+            admitted, evidence or {}) then
             delivered = delivered + 1
         end
     end

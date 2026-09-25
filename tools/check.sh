@@ -2098,6 +2098,14 @@ if ! "$PY" tools/coordination_inference_test.py; then
     fail=1
 fi
 
+# [C83] Border 194 - registered external owners appraise any acquired matter;
+# provisioning admits food/water native work and bounded rendezvous completes
+# only from one exact Locomotion arrival receipt, including dormant/reload.
+if ! "$PY" tools/external_life_coordination_test.py; then
+    note "BORDER FINDING - external life coordination or arrival receipt failed"
+    fail=1
+fi
+
 # Border 103 - the operator's speech is not in the repository: no
 # profanity in the tracked tree and no operator-quote attributions;
 # rulings are paraphrased content, speech stays with the speaker.

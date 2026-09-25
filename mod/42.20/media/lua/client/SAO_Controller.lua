@@ -848,7 +848,7 @@ local function privateCoordinationContext(id, agent, body, request)
     else
         choice = "defer"
     end
-    return {
+    local context = {
         owner = "Controller.coordination",
         executor = execution.executor or (rec and rec.bodyOwner == "ZAO"
             and "ZAO.Driver" or "SAO.Controller"),
@@ -870,7 +870,7 @@ local function privateCoordinationContext(id, agent, body, request)
         destinationKnown = destinationKnown,
         choice = choice,
         reconsider = prior and prior.response == "defer"
-            and activity == "idle" or false,
+            and choice ~= "defer" or false,
         interests = { designation = designation,
             ownGroup = SAO.Standing.groupOf(id) },
         constraints = { represented = body ~= nil,
@@ -894,17 +894,39 @@ local function privateCoordinationContext(id, agent, body, request)
             constraints = "SAO.Controller",
         },
     }
+    -- The shared controller supplies only the common execution envelope.  A
+    -- registered external owner may replace the bounded appraisal fields from
+    -- its actor-private state; diagnosis, diet and other condition-private
+    -- values have no accepted field and cannot cross this seam.
+    if rec and rec.bodyOwner and SAO.Communication
+        and SAO.Communication.actorAppraisal then
+        local supplied = SAO.Communication.actorAppraisal(
+            id, processView, context)
+        if type(supplied) == "table" then
+            for _, key in ipairs({ "owner", "executor", "bodyOwner",
+                    "currentActivity", "canAcquire", "canCarry",
+                    "canDeliver", "canExecute", "incapable", "dead",
+                    "contest", "ownNeed", "relationship",
+                    "destinationKnown", "choice", "reconsider", "terms",
+                    "interests", "constraints", "inputOwners" }) do
+                if supplied[key] ~= nil then context[key] = supplied[key] end
+            end
+        end
+    end
+    return context
 end
 
 function Ctl.appraiseCoordination(id, body, activity)
-    if not (SAO.Organization and SAO.Perception) then return 0 end
+    if not (SAO.Organization and SAO.Organization.pendingAppraisals) then
+        return 0
+    end
     id = tostring(id or "")
     local agent = Ctl.agents[id]
     if not agent and activity then
         agent = { state = tostring(activity) }
     end
     local formed = 0
-    for _, request in ipairs(SAO.Perception.knownAidRequests(id)) do
+    for _, request in ipairs(SAO.Organization.pendingAppraisals(id)) do
         if request.processId and request.processRevision then
             local context = privateCoordinationContext(id, agent, body, request)
             if context then
@@ -912,15 +934,18 @@ function Ctl.appraiseCoordination(id, body, activity)
                     request.processId, id, context)
                 if response then
                     formed = formed + 1
-                    local processView = SAO.Organization.viewFor(
-                        id, request.processId, false)
-                    local originator = processView and processView.originatorId
-                    if originator and SAO.Communication
-                        and SAO.Communication.canConverse(id, originator) == true then
-                        SAO.Organization.deliverResponse(request.processId,
-                            id, originator, "spoken",
-                            { reply = "immediate", activity = context.currentActivity })
-                    end
+                end
+                -- A formed answer remains private until an actual return
+                -- transport succeeds. This retry also covers an earlier answer
+                -- whose originator was temporarily out of reach.
+                local processView = SAO.Organization.viewFor(
+                    id, request.processId, false)
+                local originator = processView and processView.originatorId
+                if originator and SAO.Communication
+                    and SAO.Communication.deliverPendingResponses then
+                    SAO.Communication.deliverPendingResponses(id, originator,
+                        nil, { reply = response and "immediate" or "retry",
+                            activity = context.currentActivity })
                 end
             end
         end
@@ -928,17 +953,19 @@ function Ctl.appraiseCoordination(id, body, activity)
     return formed
 end
 
-local function carriedSpare(body)
+local function carriedSupply(body, category)
     local ok, item = pcall(function()
-        return SAOJavaBridge and SAOJavaBridge:findSpareFood(body) or nil
+        if not SAOJavaBridge then return nil end
+        if category == "water" then return SAOJavaBridge:findSpareDrink(body) end
+        return SAOJavaBridge:findSpareFood(body)
     end)
     return ok and item ~= nil
 end
 
-local function coordinationContext(plan)
+local function coordinationContext(plan, category)
     return {
         purpose = "committed-delivery",
-        category = "food",
+        category = category or "food",
         admission = "standing",
         haulRemaining = 1,
         haulRadius = 4,
@@ -950,34 +977,75 @@ local function coordinationContext(plan)
     }
 end
 
+local SUPPORTED_COORDINATION = {
+    ["food-delivery"] = true,
+    provisioning = true,
+    ["rendezvous-holding"] = true,
+}
+
+local function activeCoordinationCommitment(id)
+    if not SAO.Organization then return nil end
+    if SAO.Organization.activeCommitments then
+        for _, commitment in ipairs(SAO.Organization.activeCommitments(id)) do
+            if SUPPORTED_COORDINATION[tostring(commitment.matter or "")] then
+                return commitment
+            end
+        end
+        return nil
+    end
+    for _, matter in ipairs({ "food-delivery", "provisioning",
+            "rendezvous-holding" }) do
+        local commitment = SAO.Organization.activeCommitment(id, matter)
+        if commitment then return commitment end
+    end
+    return nil
+end
+
+local function latestRoute(commitment)
+    local routes = commitment and commitment.work
+        and commitment.work.routeAttempts or {}
+    return routes[#routes]
+end
+
 local function tickCoordinationRoute(id, body, runtime)
-    if not runtime.coordinationRoute then return false end
+    if not runtime.coordinationRoute then return false, nil end
     SAO.Locomotion.tick(id)
-    local status = SAO.Locomotion.status(id)
-    if string.sub(status, 1, 5) ~= "done:" then return true end
+    local status = tostring(SAO.Locomotion.status(id) or "none")
+    if string.sub(status, 1, 5) ~= "done:" then return true, "route" end
     local result = string.sub(status, 6)
     local route = runtime.coordinationRoute
     runtime.coordinationRoute = nil
     SAO.Locomotion.cancel(id)
-    SAO.Organization.routeOutcome(route.commitmentId,
+    local recorded, attempt = SAO.Organization.routeOutcome(route.commitmentId,
         result == "arrived" and "arrived" or "interrupted", result)
+    if not recorded then return true, "route-result-refused" end
     if result == "arrived" and route.phase == "acquiring" then
         local queued = SAO.Needs.queueTake(id, body, route.context)
-        if queued then return true end
+        if queued then return true, "acquiring" end
         SAO.Organization.interruptWork(route.commitmentId,
             "acquisition-queue-refused", false)
+        return true, "acquisition-queue-refused"
+    elseif result == "arrived" and route.phase == "travelling" then
+        local routeId = route.routeId or attempt and attempt.id
+        local completed = SAO.Organization.completeArrival(
+            route.commitmentId, routeId, route.arrivalActivity,
+            { owner = "Locomotion", result = result })
+        return true, completed and "completed:"
+            .. tostring(route.arrivalActivity or "holding-place")
+            or "arrival-result-refused"
     end
-    return result == "arrived"
+    return true, result
 end
 
 local function advanceCoordination(id, body, owner, activity, agent)
-    if not (SAO.Organization and SAO.Needs and SAO.Locomotion) then
+    if not (SAO.Organization and SAO.Locomotion) then
         return false
     end
     id = tostring(id or "")
     local runtime = agent or Ctl.coordinationRuntime[id] or {}
     if not agent then Ctl.coordinationRuntime[id] = runtime end
-    if tickCoordinationRoute(id, body, runtime) then return true, "route" end
+    local routeOwned, routeStatus = tickCoordinationRoute(id, body, runtime)
+    if routeOwned then return true, routeStatus end
     local rec = SAO.Identity.get(id)
     if rec and rec.worldSourceReservation and SAO.SourceUse then
         local result = SAO.SourceUse.tick(id, body)
@@ -985,10 +1053,19 @@ local function advanceCoordination(id, body, owner, activity, agent)
     end
     if SAO.Handover then SAO.Handover.reconcile(false) end
 
-    local commitment = SAO.Organization.activeCommitment(id, "food-delivery")
+    local commitment = activeCoordinationCommitment(id)
     if not commitment then return false end
     local plan = SAO.Organization.workPlan(commitment.id)
     if not plan then return false end
+    local proposal = plan.proposal or {}
+    local scope = type(proposal.scope) == "table" and proposal.scope or {}
+    local rendezvous = plan.kind == "rendezvous-holding"
+    local category = tostring(scope.category or proposal.category or "food")
+    if not rendezvous and category ~= "food" and category ~= "water" then
+        SAO.Organization.interruptWork(commitment.id,
+            "unsupported-material-category", false)
+        return false, "unsupported-material-category"
+    end
     local phase = commitment.work and commitment.work.phase or "accepted"
     if phase == "completed" or phase == "failed" or phase == "partial"
         or commitment.status == "interrupted" then return false end
@@ -999,41 +1076,130 @@ local function advanceCoordination(id, body, owner, activity, agent)
 
     if commitment.status == "paused" then
         SAO.Organization.resumeWork(commitment.id, owner,
-            commitment.work and commitment.work.acquiredAt
-                and "carrying" or "acquiring",
+            rendezvous and "travelling"
+                or commitment.work and commitment.work.acquiredAt
+                    and "carrying" or "acquiring",
             { activity = tostring(activity or "idle") })
     end
 
+    -- The durable route attempt outlives the controller's transient pointer.
+    -- After load or a represented/dormant handoff, reissue that exact pending
+    -- destination and keep its route id; a second attempt would otherwise
+    -- duplicate work and make the eventual arrival receipt ambiguous.
+    local remembered = latestRoute(commitment)
+    if remembered and remembered.status == "pending"
+        and not runtime.coordinationRoute then
+        if not (body and tonumber(remembered.x) and tonumber(remembered.y)
+            and tonumber(remembered.z)) then
+            SAO.Organization.routeOutcome(commitment.id, "interrupted",
+                "pending-route-reconstruction-unavailable")
+            return false, "route-reconstruction-unavailable"
+        end
+        if not SAO.Locomotion.order(id, body, remembered.x, remembered.y,
+            remembered.z) then
+            SAO.Organization.routeOutcome(commitment.id, "interrupted",
+                "pending-route-revalidation-refused")
+            return false, "route-refused"
+        end
+        runtime.coordinationRoute = {
+            commitmentId = commitment.id,
+            phase = remembered.phase,
+            routeId = remembered.id,
+            category = category,
+            context = remembered.phase == "acquiring"
+                and coordinationContext(plan, category) or nil,
+            arrivalActivity = rendezvous and (scope.arrivalActivity
+                or proposal.arrivalActivity or "holding-place") or nil,
+        }
+        return true, "route"
+    end
+
+    if rendezvous then
+        if phase == "arrival-ready" then
+            local arrived = latestRoute(commitment)
+            local completed = arrived and SAO.Organization.completeArrival(
+                commitment.id, arrived.id,
+                scope.arrivalActivity or proposal.arrivalActivity,
+                { owner = "Locomotion", reconstruction = true })
+            return completed == true, completed and "completed:"
+                .. tostring(scope.arrivalActivity or proposal.arrivalActivity
+                    or "holding-place") or "arrival-result-refused"
+        end
+        local destination = coordinationDestination(plan)
+        if not destination then
+            SAO.Organization.interruptWork(commitment.id,
+                "destination-unavailable", false)
+            return false, "destination-unavailable"
+        end
+        SAO.Organization.startWork(commitment.id, owner, "travelling")
+        if SAO.Locomotion.order(id, body, destination.x, destination.y,
+            destination.z) then
+            local attempt = SAO.Organization.noteRoute(commitment.id,
+                "Locomotion", destination.x, destination.y, destination.z,
+                "travelling")
+            if not attempt then
+                SAO.Locomotion.cancel(id)
+                return false, "route-admission-refused"
+            end
+            runtime.coordinationRoute = { commitmentId = commitment.id,
+                phase = "travelling", routeId = attempt.id,
+                arrivalActivity = scope.arrivalActivity
+                    or proposal.arrivalActivity or "holding-place" }
+            if agent then
+                agent.coordinationCommitment = commitment.id
+                setState(agent, id, "WORKWARD",
+                    "travels to accepted shared ground", "errand")
+            end
+            return true, "route"
+        end
+        SAO.Organization.interruptWork(commitment.id,
+            "rendezvous-route-refused", false)
+        return false, "route-refused"
+    end
+
+    if not SAO.Needs then return false, "material-owner-unavailable" end
+
     if not commitment.work.acquiredAt then
         SAO.Organization.startWork(commitment.id, owner, "acquiring")
-        local context = coordinationContext(plan)
-        local state, returned = SAO.Needs.collectNearby(id, body, 20, 2,
-            context)
+        local context = coordinationContext(plan, category)
+        local state, returned = nil, nil
+        if category == "water" then
+            local queued, reservation = SAO.Needs.collectStoredWater
+                and SAO.Needs.collectStoredWater(id, body, context) or false
+            if queued then state, returned = "TAKE", reservation end
+        else
+            state, returned = SAO.Needs.collectNearby(id, body, 20, 2,
+                context)
+        end
         if not state then return false, "source-unavailable" end
         if state == "FORAGE" then
-            runtime.coordinationRoute = { commitmentId = commitment.id,
-                phase = "acquiring", context = returned }
-            SAO.Organization.noteRoute(commitment.id, "Locomotion",
+            local attempt = SAO.Organization.noteRoute(commitment.id,
+                "Locomotion",
                 SAO.Locomotion.jobs[id].goal.x,
                 SAO.Locomotion.jobs[id].goal.y,
                 SAO.Locomotion.jobs[id].goal.z, "acquiring")
+            runtime.coordinationRoute = { commitmentId = commitment.id,
+                phase = "acquiring", category = category,
+                routeId = attempt and attempt.id, context = returned }
             if agent then
                 agent.forageContext = returned
                 agent.coordinationCommitment = commitment.id
-                setState(agent, id, "FORAGE", "acquires food for an accepted request",
+                    setState(agent, id, "FORAGE", "acquires " .. category
+                        .. " for an accepted request",
                     "errand")
             end
         elseif agent then
             -- collectNearby returns TAKE only after queueTake admitted the
             -- exact native source reservation.
             agent.coordinationCommitment = commitment.id
-            setState(agent, id, "TAKE", "takes food for an accepted request",
+            setState(agent, id, "TAKE", "takes " .. category
+                .. " for an accepted request",
                 "errand")
         end
         return true, state
     end
 
-    if not carriedSpare(body) then
+    if not carriedSupply(body, category) then
         SAO.Organization.interruptWork(commitment.id,
             "committed-cargo-no-longer-held", true)
         return false, "cargo-missing"
@@ -1047,7 +1213,9 @@ local function advanceCoordination(id, body, owner, activity, agent)
                 requesterBody:getY() - body:getY()
         end)
         if ok and dx * dx + dy * dy <= TALK_REACH * TALK_REACH then
-            local receipt = SAO.Needs.shareFoodWith(id, body, requesterBody,
+            local share = category == "water" and SAO.Needs.shareDrinkWith
+                or SAO.Needs.shareFoodWith
+            local receipt = share and share(id, body, requesterBody,
                 plan.requesterId, { processId = plan.processId,
                     processRevision = plan.processRevision,
                     commitmentId = plan.commitmentId })
@@ -1056,7 +1224,8 @@ local function advanceCoordination(id, body, owner, activity, agent)
                     agent.takePurpose = "coordination"
                     agent.coordinationCommitment = commitment.id
                     setState(agent, id, "TAKE",
-                        "hands over food under an accepted commitment",
+                        "hands over " .. category
+                            .. " under an accepted commitment",
                         "errand")
                 end
                 return true, "handover"
@@ -1064,14 +1233,16 @@ local function advanceCoordination(id, body, owner, activity, agent)
         elseif ok and SAO.Locomotion.order(id, body, requesterBody:getX(),
             requesterBody:getY(), math.floor(requesterBody:getZ())) then
             runtime.coordinationRoute = { commitmentId = commitment.id,
-                phase = "carrying" }
-            SAO.Organization.noteRoute(commitment.id, "Locomotion",
+                phase = "carrying", category = category }
+            local attempt = SAO.Organization.noteRoute(commitment.id,
+                "Locomotion",
                 requesterBody:getX(), requesterBody:getY(),
                 math.floor(requesterBody:getZ()), "carrying")
+            runtime.coordinationRoute.routeId = attempt and attempt.id
             if agent then
                 agent.coordinationCommitment = commitment.id
                 setState(agent, id, "WORKWARD",
-                    "carries food to the person who asked",
+                    "carries " .. category .. " to the person who asked",
                     "errand")
             end
             return true, "route"
@@ -1084,14 +1255,16 @@ local function advanceCoordination(id, body, owner, activity, agent)
     local inside = bx >= destination.minX and bx <= destination.maxX
         and by >= destination.minY and by <= destination.maxY
     if inside then
-        local queued = SAO.Needs.depositSpareFood(id, body,
-            coordinationContext(plan))
+        local context = coordinationContext(plan, category)
+        local queued = category == "water"
+            and SAO.Needs.depositWater(id, body, context)
+            or SAO.Needs.depositSpareFood(id, body, context)
         if queued then
             if agent then
                 agent.takePurpose = "deposit"
                 agent.coordinationCommitment = commitment.id
                 setState(agent, id, "TAKE",
-                    "delivers food onto the ground that asked",
+                    "delivers " .. category .. " onto the ground that asked",
                     "errand")
             end
             return true, "store"
@@ -1101,19 +1274,20 @@ local function advanceCoordination(id, body, owner, activity, agent)
     if SAO.Locomotion.order(id, body, destination.x, destination.y,
         destination.z) then
         runtime.coordinationRoute = { commitmentId = commitment.id,
-            phase = "carrying" }
-        SAO.Organization.noteRoute(commitment.id, "Locomotion",
+            phase = "carrying", category = category }
+        local attempt = SAO.Organization.noteRoute(commitment.id, "Locomotion",
             destination.x, destination.y, destination.z, "carrying")
+        runtime.coordinationRoute.routeId = attempt and attempt.id
         if agent then
             agent.coordinationCommitment = commitment.id
             setState(agent, id, "WORKWARD",
-                "carries food to the ground that asked",
+                "carries " .. category .. " to the ground that asked",
                 "errand")
         end
         return true, "route"
     end
-    SAO.Organization.routeOutcome(commitment.id, "interrupted",
-        "delivery-route-refused")
+    SAO.Organization.interruptWork(commitment.id,
+        "delivery-route-refused", true)
     return false, "route-refused"
 end
 
@@ -1124,8 +1298,7 @@ function Ctl.advanceExternalCoordination(id, body, owner, activity)
     local competing = activity ~= "idle" and activity ~= "dormant"
         and activity ~= "coordination"
     if competing and SAO.Organization then
-        local commitment = SAO.Organization.activeCommitment(id,
-            "food-delivery")
+        local commitment = activeCoordinationCommitment(id)
         local runtime = Ctl.coordinationRuntime[id]
         local rec = SAO.Identity and SAO.Identity.get(id) or nil
         if commitment and rec and rec.worldSourceReservation

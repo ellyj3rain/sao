@@ -1,13 +1,48 @@
 | Document | Survivor Awareness Overhaul Session State |
 |---|---|
-| Version | `2.9.3.0-pre-alpha` |
+| Version | `2.9.4.0-pre-alpha` |
 | Author | ellyj3rain |
 | Repository | `SESSION_STATE.md` |
 | Status | CANONICAL - current implementation and continuation. |
 
 # Session state
 
-**As of** 2026-09-25, `[C82]` consumes Speakeasy Record 67's exact native
+**As of** 2026-09-25, `[C83]` makes enacted coordination usable by every
+registered living execution owner without creating a parallel planner or
+store. Organization owns the one durable matter. Communication proves that the
+current proposal revision reached each addressed recipient and separately
+returns that person's independently formed answer; a generic message, silence,
+or an unaddressed body creates no reception, assent or commitment.
+
+Registered owners appraise from current activity, capability, pressure,
+relationships, interests and constraints. Missing representation or execution
+evidence defers rather than becoming incapacity. Food and stored portable-water
+provisioning now reach the existing SourceUse, Locomotion and Handover owners.
+Rendezvous/holding work reaches native Locomotion and completes only from the
+exact route's promised arrival activity. Admission is never completion.
+Interruptions, revisions, expiry, withdrawal and exact-once terminal receipts
+remain in the process history; reload reconstructs the same pending route ID
+instead of minting another attempt.
+
+ZAO A40 supplies the first state-authored users of this general service.
+Afflicted raise or revise food/water provisioning only from actual personal or
+settlement necessity, then withdraw when that evidence resolves. Crossed raise
+bounded rendezvous/holding proposals to currently evidenced associates and
+choose ground from retained home, an established holding, or present
+opportunity. Each state supplies its own appraisal. The same process revision
+survives Afflicted-to-Crossed change and is reappraised under the person's
+current policy; no pathogen label enters the generic decision record.
+
+Border 194 executes address, acquisition, independent external answers, exact
+arrival, exact-once completion, revision reacquisition, expiry, persistence and
+same-route reload reconstruction with five source mutations. ZAO Border 15
+executes distinct provisioning and rendezvous origins, mixed responses,
+withdrawal, missing-representation deferral and current-state reappraisal across
+conversion with six mutations. This is mechanical headless evidence. No game
+was launched; loaded-world speech, routing, animation, save/reopen play and
+long-horizon social outcomes remain unobserved.
+
+**Before that**, `[C82]` consumes Speakeasy Record 67's exact native
 coordination artifact as a bounded non-authoritative shadow. The bundle is
 embedded in the shipped jar and verified by SHA-256 plus its format, schema,
 compatibility, tokenizer, label/support, feature, FP32 tensor and source
@@ -629,12 +664,12 @@ consequences remain separate from the learned policy choosing among them.
 
 C57 consolidates three native entry points into one. With C64's immutable
 capture border, C73's radio-reception border, C74's personal-world-knowledge
-border and C75's typed-claim border, the gate invokes 191 `*_test.py` files and
-13 other Python entry points, 204 distinct scripts. Border labels extend through
-193; legacy labels
+border and C75's typed-claim border, the gate invokes 192 `*_test.py` files and
+13 other Python entry points, 205 distinct scripts. Border labels extend through
+194; legacy labels
 163/169/174 share the native suite. These are distinct counting units. The mod
 ships 80 Lua source files.
-ZAO A39 has thirteen borders. The
+ZAO A40 has fourteen borders. The
 published C51 baseline has 163 borders through 178 mirrors. These counts describe the
 apparatus, not acceptance. The audit reproduced defects while targeted checks
 passed. C57 reproduces one cause of intermittent Border 54 refusal: concurrent

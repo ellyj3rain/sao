@@ -122,6 +122,9 @@ local function hasLiveCommitment(process)
     return false
 end
 
+local activeCommitmentFor
+local endCommitment
+
 local function trimProcesses()
     local at = nowHours()
     for _, processId in ipairs(Org.processOrder) do
@@ -132,7 +135,13 @@ local function trimProcesses()
         local expiresAt = proposal and tonumber(proposal.expiresAtHours) or nil
         if process and process.status == "open" and expiresAt
             and expiresAt <= at then
+            for _, commitment in pairs(process.commitments or {}) do
+                endCommitment(process, commitment, nil,
+                    "proposal-expired", at)
+            end
             process.status = "expired"
+            process.closedAt = at
+            process.closureReason = "proposal-expired"
             event(process, "process-expired", process.originatorId,
                 { expiresAtHours = expiresAt }, at)
         end
@@ -190,9 +199,6 @@ local function responseAt(process, personId, revision)
     return row and row.responses
         and row.responses[revisionKey(revision or process.revision)] or nil
 end
-
-local activeCommitmentFor
-local endCommitment
 
 local function refreshProcessStatus(process)
     if not process or TERMINAL_PROCESS[process.status] then return end
@@ -646,6 +652,72 @@ function Org.raiseMatter(originatorId, kind, organizationId, proposal,
     return process
 end
 
+-- A state policy may keep one continuing matter open without keeping a second
+-- social-process registry.  The newest matching open process is authoritative;
+-- terminal history remains addressable in processOrder.
+function Org.openMatter(originatorId, kind)
+    originatorId, kind = identity(originatorId), identity(kind)
+    if not originatorId or not kind then return nil end
+    trimProcesses()
+    for index = #Org.processOrder, 1, -1 do
+        local process = Org.processes[Org.processOrder[index]]
+        if process and process.status == "open"
+            and process.originatorId == originatorId
+            and process.kind == kind then return process end
+    end
+    return nil
+end
+
+function Org.latestMatter(originatorId, kind)
+    originatorId, kind = identity(originatorId), identity(kind)
+    if not originatorId or not kind then return nil end
+    trimProcesses()
+    for index = #Org.processOrder, 1, -1 do
+        local process = Org.processes[Org.processOrder[index]]
+        if process and process.originatorId == originatorId
+            and process.kind == kind then return process end
+    end
+    return nil
+end
+
+-- Addressing someone records only that the proposal names them.  Reception is
+-- a later transport fact and remains absent until Communication proves it.
+function Org.addressMatter(processId, originatorId, addressedIds)
+    local process = processOf(processId)
+    originatorId = identity(originatorId)
+    if not process or process.status ~= "open"
+        or process.originatorId ~= originatorId then return false end
+    local added = {}
+    for _, personId in ipairs(type(addressedIds) == "table" and addressedIds or {}) do
+        personId = identity(personId)
+        if personId and personId ~= originatorId then
+            local row = process.participants and process.participants[personId]
+            if not row or row.addressed ~= true then
+                participant(process, personId, true)
+                added[#added + 1] = personId
+            end
+        end
+    end
+    if #added > 0 then
+        event(process, "participants-addressed", originatorId,
+            { addressedIds = added })
+    end
+    return true
+end
+
+-- Communication asks this owner for the exact current envelope.  A caller
+-- cannot turn an arbitrary process id into reception for an unaddressed person.
+function Org.transportRevision(processId, fromId, toId)
+    local process = processOf(processId)
+    fromId, toId = identity(fromId), identity(toId)
+    local row = process and process.participants
+        and process.participants[toId] or nil
+    if not process or process.status ~= "open"
+        or process.originatorId ~= fromId or not row or row.addressed ~= true
+        or toId == fromId then return nil, "not-addressed" end
+    return tonumber(process.revision), process.kind
+end
+
 function Org.reviseMatter(processId, originatorId, proposal, privateEvidence)
     local process = processOf(processId)
     if not process or process.originatorId ~= originatorId
@@ -668,6 +740,29 @@ function Org.reviseMatter(processId, originatorId, proposal, privateEvidence)
     event(process, "proposal-revised", originatorId,
         { priorRevision = priorRevision }, process.revisedAt)
     return process
+end
+
+-- An originator may abandon an open proposal.  Existing responsibility ends
+-- explicitly as withdrawal/partial work; neither silence nor deletion is used
+-- to manufacture a clean outcome.
+function Org.withdrawMatter(processId, originatorId, reason, evidence)
+    local process = processOf(processId)
+    originatorId = identity(originatorId)
+    if not process or process.status ~= "open"
+        or process.originatorId ~= originatorId then return false end
+    local at = nowHours()
+    for _, commitment in pairs(process.commitments or {}) do
+        endCommitment(process, commitment, nil,
+            reason or "proposal-withdrawn", at)
+    end
+    process.status = "withdrawn"
+    process.closedAt = at
+    process.closureReason = tostring(reason or "proposal-withdrawn")
+    event(process, "process-withdrawn", originatorId, {
+        reason = process.closureReason,
+        evidence = dataCopy(evidence or {}),
+    }, at)
+    return true
 end
 
 -- Close an originator-owned matter after the owning domain has performed the
@@ -700,10 +795,13 @@ function Org.recordReception(processId, personId, revision, channel,
     local process = processOf(processId)
     personId = identity(personId)
     revision = math.floor(tonumber(revision) or 0)
+    local addressed = process and process.participants
+        and process.participants[personId] or nil
     if not process or TERMINAL_PROCESS[process.status]
         or not personId or revision < 1
+        or not addressed or addressed.addressed ~= true
         or not proposalAt(process, revision) then return false end
-    local row = participant(process, personId, true)
+    local row = addressed
     local key = revisionKey(revision)
     if row.receptions[key] then return true end
     row.receptions[key] = { at = nowHours(),
@@ -712,6 +810,66 @@ function Org.recordReception(processId, personId, revision, channel,
     event(process, "proposal-received", personId,
         { channel = channel, fromId = fromId }, row.receptions[key].at)
     return true
+end
+
+-- Broadcast and person-to-person request transports discover their exact
+-- recipients only when the native communication owner proves reception.  This
+-- atomically names that proved recipient and records acquisition; callers that
+-- merely possess a process id must continue to use recordReception and are
+-- refused unless the person was already addressed.
+function Org.recordTransportReception(processId, originatorId, personId,
+        revision, channel, fromId, evidence)
+    local process = processOf(processId)
+    originatorId, personId, fromId = identity(originatorId),
+        identity(personId), identity(fromId)
+    revision = math.floor(tonumber(revision) or 0)
+    if not process or process.status ~= "open"
+        or process.originatorId ~= originatorId
+        or not personId or not fromId or personId == originatorId
+        or revision ~= math.floor(tonumber(process.revision) or 0)
+        or not proposalAt(process, revision) then return false end
+    local row = process.participants and process.participants[personId] or nil
+    if not row or row.addressed ~= true then
+        row = participant(process, personId, true)
+        event(process, "participant-addressed-by-transport", originatorId, {
+            personId = personId, channel = tostring(channel or "communication"),
+            fromId = fromId,
+        })
+    end
+    return Org.recordReception(processId, personId, revision, channel,
+        fromId, evidence)
+end
+
+-- Every row returned here was acquired at the current revision.  An
+-- undelivered answer remains present so its real return channel can retry;
+-- delivered deferral remains revisable when the actor's current state changes.
+function Org.pendingAppraisals(personId)
+    personId = identity(personId)
+    if not personId then return {} end
+    trimProcesses()
+    local out = {}
+    for _, processId in ipairs(Org.processOrder) do
+        local process = Org.processes[processId]
+        local row = process and process.participants
+            and process.participants[personId] or nil
+        local key = process and revisionKey(process.revision) or nil
+        local reception = row and row.receptions and row.receptions[key] or nil
+        local response = row and row.responses and row.responses[key] or nil
+        if process and process.status == "open" and row and row.addressed
+            and reception and (not response or response.delivered ~= true
+                or response.response == "defer") then
+            out[#out + 1] = {
+                processId = process.id,
+                processRevision = process.revision,
+                kind = process.kind,
+                originatorId = process.originatorId,
+                receivedAt = reception.at,
+                response = response and response.response or nil,
+                responseDelivered = response and response.delivered == true or false,
+            }
+        end
+    end
+    return out
 end
 
 function Org.responseOptions(processId, personId, context)
@@ -984,6 +1142,18 @@ function Org.activeCommitment(personId, matter)
     return nil
 end
 
+function Org.activeCommitments(personId)
+    personId = tostring(personId or "")
+    local out = {}
+    for _, processId in ipairs(Org.processOrder) do
+        local process = Org.processes[processId]
+        local commitment = process and activeCommitmentFor(process, personId)
+            or nil
+        if commitment then out[#out + 1] = commitment end
+    end
+    return out
+end
+
 function Org.workPlan(commitmentId)
     local commitment, process = Org.commitment(commitmentId)
     if not commitment or not process then return nil end
@@ -1061,6 +1231,14 @@ function Org.pauseWork(commitmentId, reason, evidence)
         route.status = "paused"
         route.endedAt = at
         route.detail = tostring(reason or "competing-pressure")
+        if route.id then
+            Org.workReceipts["route:" .. route.id] =
+                Org.workReceipts["route:" .. route.id] or {
+                    kind = "route", receiptId = route.id,
+                    commitmentId = commitment.id, status = route.status,
+                    at = route.endedAt,
+                }
+        end
     end
     commitment.work.pausedFrom = commitment.work.phase
     commitment.work.pauseReason = tostring(reason or "competing-pressure")
@@ -1105,13 +1283,18 @@ end
 function Org.noteRoute(commitmentId, owner, x, y, z, phase)
     local commitment = Org.commitment(commitmentId)
     if not commitment or TERMINAL_WORK[commitment.status] then return false end
-    phase = phase == "acquiring" and "acquiring" or "carrying"
-    local attempt = { owner = tostring(owner or "Locomotion"), phase = phase,
+    phase = phase == "acquiring" and "acquiring"
+        or phase == "travelling" and "travelling" or "carrying"
+    commitment.work.routeSequence = math.max(0,
+        math.floor(tonumber(commitment.work.routeSequence) or 0)) + 1
+    local attempt = { id = commitment.id .. ":route:"
+            .. tostring(commitment.work.routeSequence),
+        owner = tostring(owner or "Locomotion"), phase = phase,
         x = tonumber(x), y = tonumber(y), z = tonumber(z),
         startedAt = nowHours(), status = "pending" }
     appendBounded(commitment.work.routeAttempts, attempt, 64)
     workEvent(commitment, phase, { route = attempt })
-    return true
+    return attempt
 end
 
 function Org.routeOutcome(commitmentId, status, detail)
@@ -1119,21 +1302,92 @@ function Org.routeOutcome(commitmentId, status, detail)
     if not commitment or TERMINAL_WORK[commitment.status] then return false end
     local routes = commitment.work.routeAttempts or {}
     local route = routes[#routes]
-    if route and route.status == "pending" then
-        route.status = tostring(status or "interrupted")
-        route.endedAt = nowHours()
-        route.detail = tostring(detail or status or "")
+    if not route or route.status ~= "pending" then
+        return false, "no-pending-route"
+    end
+    route.status = tostring(status or "interrupted")
+    route.endedAt = nowHours()
+    route.detail = tostring(detail or status or "")
+    local routeKey = route.id and "route:" .. route.id or nil
+    if routeKey then
+        Org.workReceipts[routeKey] = Org.workReceipts[routeKey] or {
+            kind = "route", receiptId = route.id,
+            commitmentId = commitment.id, status = route.status,
+            at = route.endedAt,
+        }
     end
     if status == "arrived" then
-        workEvent(commitment, route and route.phase == "acquiring"
-            and "acquiring" or "delivery-ready", { detail = detail })
+        local arrivedPhase = route.phase == "acquiring" and "acquiring"
+            or route.phase == "travelling" and "arrival-ready"
+            or "delivery-ready"
+        workEvent(commitment, arrivedPhase,
+            { detail = detail, routeId = route.id })
     else
         commitment.status = commitment.work.acquiredAt
             and "interrupted" or "failed"
         workEvent(commitment, commitment.status, { detail = detail })
         commitment.work.endedAt = nowHours()
     end
-    return true
+    return true, route
+end
+
+-- Locomotion's arrived result is necessary but not, by itself, a social
+-- outcome.  This consumes that exact route once and records only the bounded
+-- holding activity promised by the proposal; downstream combat, exposure,
+-- settlement or affiliation remains owned elsewhere.
+function Org.completeArrival(commitmentId, routeId, activity, evidence)
+    local commitment, process = Org.commitment(commitmentId)
+    routeId = identity(routeId)
+    if not commitment or not process or not routeId then
+        return false, "arrival-not-admitted"
+    end
+    local key = "arrival:" .. routeId
+    local prior = Org.workReceipts[key]
+    if prior then
+        if prior.commitmentId == commitment.id then return true, "duplicate" end
+        return false, "receipt-conflict"
+    end
+    if TERMINAL_WORK[commitment.status]
+        or process.kind ~= "rendezvous-holding" then
+        return false, "arrival-not-admitted"
+    end
+    local matched = nil
+    for _, route in ipairs(commitment.work.routeAttempts or {}) do
+        if route.id == routeId then matched = route break end
+    end
+    if not matched or matched.status ~= "arrived"
+        or matched.phase ~= "travelling" then
+        return false, "arrival-not-admitted"
+    end
+    local proposalRevision = proposalAt(process, commitment.revision)
+    local proposal = proposalRevision and proposalRevision.proposal or {}
+    local scope = type(proposal.scope) == "table" and proposal.scope or {}
+    local promisedActivity = identity(scope.arrivalActivity
+        or proposal.arrivalActivity) or "holding-place"
+    activity = identity(activity) or promisedActivity
+    if activity ~= promisedActivity then return false, "arrival-scope-mismatch" end
+    local destination = type(proposal.destination) == "table"
+        and proposal.destination or nil
+    if not destination or not finite(matched.x) or not finite(matched.y)
+        or not finite(matched.z)
+        or not finite(destination.minX) or not finite(destination.minY)
+        or not finite(destination.maxX) or not finite(destination.maxY)
+        or matched.x < destination.minX or matched.x > destination.maxX
+        or matched.y < destination.minY or matched.y > destination.maxY
+        or (finite(destination.z) and matched.z ~= destination.z) then
+        return false, "arrival-route-mismatch"
+    end
+    Org.workReceipts[key] = { kind = "arrival", receiptId = routeId,
+        commitmentId = commitment.id, activity = activity, at = nowHours() }
+    commitment.status = "completed"
+    commitment.work.arrivalReceiptId = routeId
+    commitment.work.arrivalActivity = activity
+    commitment.work.completedAt = nowHours()
+    commitment.work.endedAt = commitment.work.completedAt
+    workEvent(commitment, "completed", { routeId = routeId,
+        activity = activity, evidence = dataCopy(evidence or {}) },
+        commitment.work.completedAt)
+    return true, "completed"
 end
 
 function Org.interruptWork(commitmentId, reason, partial)

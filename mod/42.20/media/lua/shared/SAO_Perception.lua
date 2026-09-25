@@ -776,9 +776,17 @@ function P.recordAidRequest(id, groupId, requestedAt, source, teller, category,
     end
     P.beliefVersion = P.beliefVersion + 1
     if processId and SAO.Organization and SAO.Organization.recordReception then
-        local received = SAO.Organization.recordReception(processId, id,
-            processRevision, channel or source, teller or originId,
-            evidence or { requestedAt = requestedAt, category = category })
+        local received = nil
+        if source == "told" and SAO.Organization.recordTransportReception then
+            received = SAO.Organization.recordTransportReception(processId,
+                originId, id, processRevision, channel or source,
+                teller, evidence or {
+                    requestedAt = requestedAt, category = category })
+        else
+            received = SAO.Organization.recordReception(processId, id,
+                processRevision, channel or source, teller or originId,
+                evidence or { requestedAt = requestedAt, category = category })
+        end
         if received ~= true then
             b.aidRequests[groupId] = existing
             return false
@@ -877,6 +885,21 @@ local function privateExecutionContext(id, rec, fallbackActivity)
         ownNeed, ownNeedAvailable
 end
 
+local function executionOwnerAppraisal(id, rec, processView, context)
+    if not (rec and rec.bodyOwner and SAO.Communication
+        and SAO.Communication.actorAppraisal) then return context end
+    local supplied = SAO.Communication.actorAppraisal(id, processView, context)
+    if type(supplied) ~= "table" then return context end
+    for _, key in ipairs({ "owner", "executor", "bodyOwner",
+            "currentActivity", "canAcquire", "canCarry", "canDeliver",
+            "canExecute", "incapable", "dead", "contest", "ownNeed",
+            "relationship", "destinationKnown", "choice", "reconsider",
+            "terms", "interests", "constraints", "inputOwners" }) do
+        if supplied[key] ~= nil then context[key] = supplied[key] end
+    end
+    return context
+end
+
 function P.appraiseAidRequest(id, groupId, owner, currentActivity)
     if not (SAO.Organization and SAO.Organization.appraiseMatter) then
         return nil, "organization-unavailable"
@@ -910,7 +933,7 @@ function P.appraiseAidRequest(id, groupId, owner, currentActivity)
             or designation == "quartermaster" or relationship >= 0.30)
             and "accept"
         or destinationKnown and "counter-propose" or "defer"
-    return SAO.Organization.appraiseMatter(request.processId, id, {
+    local context = {
         owner = owner or "Perception.aid-request",
         executor = execution.executor or owner or "private-aid-appraisal",
         bodyOwner = bodyOwner,
@@ -954,7 +977,9 @@ function P.appraiseAidRequest(id, groupId, owner, currentActivity)
             interests = "SAO.Identity+SAO.Standing",
             constraints = owner or "Perception.aid-request",
         },
-    })
+    }
+    context = executionOwnerAppraisal(id, rec, view, context)
+    return SAO.Organization.appraiseMatter(request.processId, id, context)
 end
 
 local function tellAidRequests(fromId, toId, channel, aroundX, aroundY)
@@ -1019,7 +1044,7 @@ local function tellAidRequests(fromId, toId, channel, aroundX, aroundY)
                         or designation == "quartermaster"
                         or relationship >= 0.30) and "accept"
                     or destinationKnown and "counter-propose" or "defer"
-                SAO.Organization.appraiseMatter(request.processId, toId, {
+                local context = {
                     owner = "Perception.dormant-encounter",
                     executor = execution.executor or "dormant-person",
                     bodyOwner = bodyOwner,
@@ -1061,7 +1086,9 @@ local function tellAidRequests(fromId, toId, channel, aroundX, aroundY)
                         interests = "SAO.Identity+SAO.Standing",
                         constraints = "SAO.DormantPopulation",
                     },
-                })
+                }
+                context = executionOwnerAppraisal(toId, rec, view, context)
+                SAO.Organization.appraiseMatter(request.processId, toId, context)
             end
         end
     end

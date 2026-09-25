@@ -1,6 +1,6 @@
 | Document | Survivor Awareness Overhaul Architecture |
 |---|---|
-| Version | `2.9.3.0-pre-alpha` |
+| Version | `2.9.4.0-pre-alpha` |
 | Author | ellyj3rain |
 | Repository | `ARCHITECTURE.md` |
 | Status | ACTIVE - ratified framework shape. |
@@ -830,6 +830,37 @@ the exact item and publishes the measured receipt. A registered ZAO diet
 adapter selects only the terminal-state eating action after the item is carried.
 Queue admission, transfer and eating remain separate outcomes through
 interruption and reload.
+
+### External life coordination (C83 / ZAO A40)
+
+The enacted process is now generic at the execution-owner boundary. An
+addressed person must acquire the current revision before their registered
+owner may appraise it; the formed answer remains private until Communication
+actually returns it. The external owner may replace only the bounded appraisal
+envelope with current source-owned activity, capability, pressure, relationship,
+interest and constraint evidence. It cannot write process state or export a
+condition, diagnosis or diet label through that generic seam. Missing body or
+owner evidence produces defer rather than inferred incapacity.
+When a broadcast or relayed request cannot know its recipients at authorship,
+the admitted radio or conversation transport atomically adds only the exact
+listener and records that reception. A caller holding only a process identifier
+cannot address itself or manufacture acquisition.
+
+Accepted provisioning admits food and stored portable water. SourceUse owns
+the exact reservation/acquisition, Locomotion owns approach and carrying travel,
+and Handover owns delivery. Accepted rendezvous/holding uses the proposal's
+bounded destination and an exact native Locomotion route; Organization closes
+it only when the matching attempt reports arrival with the promised activity.
+Pending attempts persist. A controller rebuilt after save/reload or a
+loaded/dormant handoff reissues the same route ID, so reconstruction cannot
+manufacture a second attempt or terminal receipt.
+
+ZAO policies use this one store differently. Afflicted can originate food or
+water provisioning from actual personal or settlement necessity. Crossed can
+originate bounded rendezvous/holding with evidenced associates and ground.
+Conversion keeps the process and revision while current-state dispatch selects
+the new policy's appraisal. The generic process therefore preserves continuity
+without flattening the two states' motives, physiology or action vocabularies.
 
 `Organization.decisionEvidence` reconstructs a named proposal revision at the
 response-formation hour. Its decision view contains no delivered-response fact

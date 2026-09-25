@@ -22,6 +22,14 @@ observation, stale revision and owner-state rejection, foreign-bundle and
 hidden-field rejection, oversized-table refusal, person-death cancellation and
 world-reset cancellation.
 
+C83 extends the same production owners with generic external appraisal and
+state-authored matters. The controlled catalogue and all twenty decision rows
+remain byte-identical. The source manifest alone was regenerated to bind the
+new indexed SAO/ZAO source blobs; its content SHA-256 is
+`3228a240c121810e6f8eb7fd8979d0c179a6144498a1313dd49c2254f85a2c18`.
+This is source-lineage maintenance, not a new label family, retraining event or
+behavior activation.
+
 Reproduce and compare the exact bytes with:
 
 ```text
