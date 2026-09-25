@@ -60,6 +60,13 @@ WIN_DIST="$(to_windows_path "$DIST")"
 "$JDK/javac.exe" -cp "$PZ_JAR;$ZB_JAR" -d "$WIN_OUT" \
     "@$WIN_OUT/sources.txt"
 
+# [C82] Native learned artifacts are classpath resources, so inference does
+# not depend on a working directory or an external runtime.  Speakeasy owns
+# their export; the tracked SAO copy is content-hash checked by the reader.
+if [ -d "$ROOT/java/resources" ]; then
+    cp -R "$ROOT/java/resources/." "$OUT/"
+fi
+
 cat > "$OUT/MANIFEST.MF" <<'EOF'
 Manifest-Version: 1.0
 Premain-Class: com.sao.agent.SAOAgent

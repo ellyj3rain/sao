@@ -16,9 +16,9 @@ the machine. Names, dates, and threads below come from
 | Form | `major.minor.kohai.patch-maturity` |
 | Hard caps | minor 12; kohai 16; patch 24 |
 | Replay start | `0.1.0.0-pre-alpha` |
-| Current version | `2.9.2.0-pre-alpha` |
-| Closed chronology | `A1-C81` |
-| Next batch | `C82` |
+| Current version | `2.9.3.0-pre-alpha` |
+| Closed chronology | `A1-C82` |
+| Next batch | `C83` |
 | Executable source | [`tools/version_replay.py`](tools/version_replay.py) |
 
 ## Tier meanings
@@ -197,6 +197,7 @@ the machine. Names, dates, and threads below come from
 | `C79` | 2026-09-24 | minor | `2.9.0.0-pre-alpha` | Enacted social coordination | Introduce enacted social coordination as a player-visible and authoring contract: acquired versioned proposals, recipient-private responses, scoped concurrent commitments and exact-once native acquisition/carry/delivery results across loaded, dormant and external execution owners. Retire automatic roster authority and fracture shortcuts without claiming wider institutional procedures or remaining life producers complete. |
 | `C80` | 2026-09-24 | kohai | `2.9.1.0-pre-alpha` | ZAO-owned living person handoff | Generalize the external living-person handoff so authorized Afflicted return and later Crossed conversion retain one ZAO driver across loaded and dormant representation, while SAO remains the county and native-service owner. Replace automatic Afflicted relocation with destination evidence and completion-backed travel. This structurally matures the existing ownership seam without adding a new state or action family, so kohai. |
 | `C81` | 2026-09-25 | kohai | `2.9.2.0-pre-alpha` | Coordination reference source | Extend enacted coordination evidence with twenty pre-partitioned production-path response observations across survivor and shared ZAO execution, preserving condition-private inputs, decision/outcome horizons and source attribution. Repair the dormant combined loader inventory and add discriminating response, registration and executor controls. This matures the existing R11 authoring seam without claiming gameplay sampling, label approval or learned runtime behavior, so kohai. |
+| `C82` | 2026-09-25 | kohai | `2.9.3.0-pre-alpha` | Native coordination shadow | Integrate Speakeasy Record 67 as an exact content-hashed FP32 artifact in the packaged Java consumer and a bounded asynchronous shadow after authoritative recipient appraisal. Revalidate response, process, feasible options and registered execution-owner state, cancel transient requests on world change and retain source-owned Afflicted and Crossed distinctions. This matures the R13-R14 interchange and runtime seam while behavior authority and loaded gameplay acceptance remain open, so kohai. |
 
 ## The former number
 
@@ -217,11 +218,11 @@ establish release maturity.
 
 ## Next movement
 
-`C82` is the next batch. Its content determines its tier after it
+`C83` is the next batch. Its content determines its tier after it
 exists:
 
-| If C82 is | Result |
+| If C83 is | Result |
 |---|---|
-| patch or hotfix | `2.9.2.1-pre-alpha` |
-| kohai | `2.9.3.0-pre-alpha` |
+| patch or hotfix | `2.9.3.1-pre-alpha` |
+| kohai | `2.9.4.0-pre-alpha` |
 | minor | `2.10.0.0-pre-alpha` |

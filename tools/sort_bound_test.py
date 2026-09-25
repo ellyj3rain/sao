@@ -103,6 +103,12 @@ BOUNDED = {
         "the organizations one person belongs to; createOrganization "
         "refuses a new id at MAX_ORGANIZATIONS (512), while migrated houses "
         "were one-per-group under the same 500-person county cap",
+    ("SAO_CoordinationInference.lua", "fields"):
+        "canonical refuses any table above MAX_TABLE_ENTRIES (512) before "
+        "copying its field names or reaching the sort",
+    ("SAO_CoordinationInference.lua", "ids"):
+        "the pending shadow map is bounded by MAX_PENDING (128); poll copies "
+        "at most those admitted request ids before sorting",
     ("SAO_World.lua", "ranked"):
         "the item categories a world survey found, which is the game's "
         "own category list rather than the number of items",

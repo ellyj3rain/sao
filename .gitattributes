@@ -1,5 +1,6 @@
 # Repository text uses repository-owned LF. (CRLF checkouts broke tools/check.sh
 # under every POSIX shell on this machine; the gate is the file that cannot drift.)
+.gitattributes text eol=lf
 *.md        text eol=lf
 *.py        text eol=lf
 *.lua       text eol=lf
@@ -15,3 +16,6 @@ VERSION     text eol=lf
 *.png       binary
 # Audit captures retain their recorded bytes across platforms.
 artifacts/audits/** -text -whitespace
+# Sealed model vectors retain their exported bytes. The empty tokenizer case
+# deliberately has two empty TSV fields and therefore ends in two tabs.
+tools/fixtures/coordination-r67/*.tsv -text -whitespace

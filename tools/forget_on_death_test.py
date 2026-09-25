@@ -193,6 +193,11 @@ CACHES = {
         "economy - the model, not the corpse's actual items, which "
         "belong to the engine's body. No trade ever asks a grave, so "
         "a dead person's stock was a table nothing would read again"),
+    ("SAO_CoordinationInference.lua", "Inference.pending"): (
+        "Inference.forgetPerson", "named",
+        "a request-id keyed runtime map whose immutable snapshot owns one "
+        "living person; death cancels and removes every matching Lua and "
+        "Java task while durable Organization decisions remain untouched"),
 }
 
 # Module-scope tables this border's shape rule matches and that are

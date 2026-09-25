@@ -7808,6 +7808,11 @@ local function onTickInner()
     -- the controller keeps a monotone per-callback fallback for that session.
     if not refreshCountyTick() then tickCount = tickCount + 1 end
     pcall(function()
+        if SAO.CoordinationInference and SAO.CoordinationInference.poll then
+            SAO.CoordinationInference.poll()
+        end
+    end)
+    pcall(function()
         if SAO.Treatment and SAO.Treatment.reconcile then
             SAO.Treatment.reconcile()
         end

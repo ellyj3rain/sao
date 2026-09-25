@@ -52,14 +52,26 @@ ordinary survivor controller. Afflicted and Crossed share one durable ZAO
 driver but keep distinct state policies; conversion preserves that executor.
 SAO still supplies identity, communication, source use, handover and native
 locomotion. The former daily Afflicted relocation is replaced by ZAO-owned
-travel and arrival evidence. No Afflicted maintenance behavior is inferred.
-ZAO A39 separately admits ordinary food for retained Crossed physiology while
-keeping human-origin sustenance motivationally preferred, and ships first
-human-corpse butchery and selectively prepared finite blood-contaminated weapon
-producers. Actor-private evidence, not a global nearest-person scan, supplies
-targets. These examples do not define the full state.
+travel and arrival evidence. SAO infers no maintenance policy from the shared
+driver. ZAO A39 owns the actual distinctions: Afflicted require water, prefer
+meat/protein, can use penalized non-dairy alternatives and may choose human-
+origin food with donor-conditioned exposure protection; Crossed retain ordinary
+food viability under reduced caloric pressure while fear, pain and control form
+a separate predatory pressure. A39 also ships the first human-corpse butchery
+and selectively prepared finite blood-contaminated weapon producers. Actor-
+private evidence, not a global nearest-person scan, supplies targets. These
+examples do not define either state's full life.
 
-`2.9.2.0-pre-alpha` - the coordinate is computed by the version machine
+C81 produces twenty exact coordination-response observations through the
+actual Survivor and registered ZAO execution paths. Speakeasy Records 66-67
+approve that bounded synthetic family, train its reference adapter and export
+the exact FP32 bundle. C82 loads it inside the shipped Java jar and submits a
+bounded asynchronous shadow only after Organization has formed the authoritative
+response. Returned output survives exact revision, option and execution-owner
+checks but cannot alter the response or create work. Headless parity is proven;
+loaded gameplay and learned behavior activation remain open.
+
+`2.9.3.0-pre-alpha` - the coordinate is computed by the version machine
 (`tools/version_replay.py`), never picked; `VERSION_MAP.md` shows the
 classification and the arithmetic.
 

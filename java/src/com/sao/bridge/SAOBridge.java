@@ -48,6 +48,10 @@ public final class SAOBridge {
      * survivor's trips are untouched. */
     private final Map<zombie.characters.IsoZombie, SAODriveState> crossedDrives =
         new WeakHashMap<>();
+    /** [C82] One bounded daemon owns shadow coordination inference.  It never
+     * receives engine objects and never mutates game state. */
+    private final com.sao.engine.SAOCoordinationWorker coordinationWorker =
+        new com.sao.engine.SAOCoordinationWorker();
 
     /**
      * Drop projections owned by the Lua/world environment that just ended.
@@ -59,9 +63,62 @@ public final class SAOBridge {
         combats.clear();
         drives.clear();
         crossedDrives.clear();
+        coordinationWorker.resetRuntimeForWorld();
         com.sao.engine.SAONeeds.resetRuntimeForWorld();
         com.sao.engine.SAOReturnBody.resetRuntimeForWorld();
         com.sao.engine.SAOWorldSources.resetRuntimeForWorld();
+    }
+
+    /** Exact native-bundle standing.  Lua refuses any hash other than C82's
+     * imported Speakeasy artifact before it submits a shadow request. */
+    public String coordinationBundleStatus() {
+        try {
+            return coordinationWorker.status();
+        } catch (Throwable throwable) {
+            SAOAgent.log("coordinationBundleStatus threw: " + throwable);
+            return "REFUSED\tbridge-exception";
+        }
+    }
+
+    /** Queue an immutable, non-authoritative recipient-decision snapshot. */
+    public String submitCoordinationShadow(String requestId, String canonicalJson,
+            String typedFeaturesCsv, String feasibleOptionsCsv) {
+        try {
+            return coordinationWorker.submit(requestId, canonicalJson,
+                typedFeaturesCsv, feasibleOptionsCsv);
+        } catch (Throwable throwable) {
+            SAOAgent.log("submitCoordinationShadow threw: " + throwable);
+            return "REFUSED\tbridge-exception";
+        }
+    }
+
+    /** Return PENDING/MISSING or one completed result.  Calling Lua performs
+     * current process, response, option and execution-owner revalidation. */
+    public String pollCoordinationShadow(String requestId) {
+        try {
+            return coordinationWorker.poll(requestId);
+        } catch (Throwable throwable) {
+            SAOAgent.log("pollCoordinationShadow threw: " + throwable);
+            return "FAILED\tbridge-exception";
+        }
+    }
+
+    /** Cancel one living person's obsolete shadow without touching another. */
+    public String cancelCoordinationShadow(String requestId) {
+        try {
+            return coordinationWorker.cancel(requestId);
+        } catch (Throwable throwable) {
+            SAOAgent.log("cancelCoordinationShadow threw: " + throwable);
+            return "REFUSED\tbridge-exception";
+        }
+    }
+
+    public int coordinationShadowPendingCount() {
+        try {
+            return coordinationWorker.pendingCount();
+        } catch (Throwable throwable) {
+            return -1;
+        }
     }
 
     /** Combat verbs (typed transplant; gated on the melee-callback patch). */
