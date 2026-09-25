@@ -1,13 +1,43 @@
 | Document | Survivor Awareness Overhaul Session State |
 |---|---|
-| Version | `2.9.4.0-pre-alpha` |
+| Version | `2.9.5.0-pre-alpha` |
 | Author | ellyj3rain |
 | Repository | `SESSION_STATE.md` |
 | Status | CANONICAL - current implementation and continuation. |
 
 # Session state
 
-**As of** 2026-09-25, `[C83]` makes enacted coordination usable by every
+**As of** 2026-09-25, `[C84]` gives the production county one bounded causal
+episode and makes recipient appraisal available from the same shared owner in
+loaded, dormant and headless execution. One run advances once to its maximum
+horizon; every checkpoint is a prefix of that run. A second fresh Kahlua
+process must reproduce the complete canonical result before exclusive JSONL
+publication. The episode retains source provenance, daily state, social events,
+terminal state and the full production coordination capture. It never assigns
+a target ending or manufactures a proposal when none occurred.
+
+`SAO_Coordination` now owns the common actor-private response envelope used by
+Controller, DormantPopulation and Perception. Registered external owners supply
+current capability, work and pressure and may replace only bounded appraisal
+fields. ZAO A41 registers one shared execution adapter for Afflicted and Crossed
+while dispatching the final appraisal to their distinct policies. Missing body
+evidence remains an observation gap; no body, physiology, mortality, migration,
+diet or conversion rule changed.
+
+The tracked 30-day joint episode reproduced exactly with checkpoints 0, 7 and
+30, 81,189 draws and complete-result SHA-256
+`4c96d2d0d6ceb7c2cce9fdd29d51394b0759b391fc44b072c060e5bed16dd09b`.
+It ended with 29 alive, 22 dead, six turned, three ZAO Afflicted and sixteen ZAO
+dead. It formed no house or shared matter and captured zero decisions with zero
+capture failures. Speakeasy Record 68 preserves that episode and emits zero
+candidate tasks rather than synthesizing labels. A separate source-bound audit
+executes twenty Survivor, Afflicted and Crossed appraisals and observes all five
+covered response families with pressure, registration and attribution mutants.
+This is mechanical headless evidence. Loaded-world bodies, speech, movement,
+animation and save/reopen play remain unobserved; wider R9 producer density and
+accelerator equivalence remain open.
+
+**Before that**, `[C83]` makes enacted coordination usable by every
 registered living execution owner without creating a parallel planner or
 store. Organization owns the one durable matter. Communication proves that the
 current proposal revision reached each addressed recipient and separately
@@ -664,12 +694,12 @@ consequences remain separate from the learned policy choosing among them.
 
 C57 consolidates three native entry points into one. With C64's immutable
 capture border, C73's radio-reception border, C74's personal-world-knowledge
-border and C75's typed-claim border, the gate invokes 192 `*_test.py` files and
-13 other Python entry points, 205 distinct scripts. Border labels extend through
-194; legacy labels
+border and C75's typed-claim border, the gate invokes 193 `*_test.py` files and
+13 other Python entry points, 206 distinct scripts. Border labels extend through
+195; legacy labels
 163/169/174 share the native suite. These are distinct counting units. The mod
 ships 80 Lua source files.
-ZAO A40 has fourteen borders. The
+ZAO A41 has fifteen borders. The
 published C51 baseline has 163 borders through 178 mirrors. These counts describe the
 apparatus, not acceptance. The audit reproduced defects while targeted checks
 passed. C57 reproduces one cause of intermittent Border 54 refusal: concurrent

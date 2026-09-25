@@ -139,7 +139,25 @@ ZAO_MODULES = [
     "shared/ZAO_Settlement.lua",
     "shared/ZAO_Pathogen.lua",
     "shared/ZAO_API.lua",
+    # These are the production state policies. Their body-owning executors are
+    # never called by the dormant runner, but their recipient appraisal is.
+    "client/ZAO_Driver.lua",
+    "client/ZAO_Afflicted.lua",
+    "client/ZAO_Crossed.lua",
 ]
+
+# Registration must occur after SAO Communication exists. The game reaches the
+# same adapter again from ZAO_Controller; the county has no loaded controller.
+ZAO_POST_MODULES = ["shared/ZAO_ExecutionOwner.lua"]
+
+ZAO_NOT_DORMANT = {
+    "Controller": "scans and owns loaded engine bodies; the dormant county has none",
+    "Diet": "executes native item selection and eating on a loaded body",
+    "Exposure": "executes intentional body contact and timed actions",
+    "Contamination": "prepares and resolves exact loaded weapons and wounds",
+    "Predation": "executes body contact, combat and yield observations",
+    "Log": "optional diagnostic hook; ZAO ships no Log module",
+}
 
 # The modules a dormant county runs. Client modules that need a body,
 # a screen or the player are absent on purpose - a sweep is the
@@ -151,7 +169,8 @@ MODULES = [
     "shared/SAO_Course.lua", "shared/SAO_Neuro.lua",
     "shared/SAO_Adaptation.lua", "shared/SAO_Isolation.lua",
     "shared/SAO_CoordinationInference.lua",
-    "shared/SAO_Organization.lua", "shared/SAO_Settlement.lua",
+    "shared/SAO_Organization.lua", "shared/SAO_Coordination.lua",
+    "shared/SAO_Settlement.lua",
     "shared/SAO_Material.lua", "shared/SAO_Recognition.lua",
     "shared/SAO_Communication.lua", "shared/SAO_GraphPersistence.lua",
     "shared/SAO_Integration.lua", "shared/SAO_Branching.lua",
@@ -209,6 +228,8 @@ NOT_DORMANT = {
 
 RUN = r'''(function()
   _G.__world = 'RUN_NAME'
+  local decisions = SAODecisionCapture.beginCoordination({
+    runId = 'RUN_NAME', county = 'RUN_NAME' })
   local evidence = SAOSweepEvidence.begin()
   local s = ModData.getOrCreate('SurvivorAwareness_Standing')
   -- No county is built here. ensurePopulation fills it through the
@@ -294,10 +315,12 @@ RUN = r'''(function()
   end
   pactCount = math.floor(pactCount / 2)
   local meanNeuro = alive > 0 and (totalNeuro / alive) or 0
+  local decisionDetail = decisions.finish()
   local detail = evidence.finish()
   return '{"ranTo":' .. tostring(s.yearsRun)
     .. ',"yearsTicks":' .. tostring(s.yearsTicks or 0)
     .. ',"evidence":' .. detail
+    .. ',"decisions":' .. decisionDetail
     .. ',"alive":' .. alive .. ',"dead":' .. dead
     .. ',"housesStanding":' .. standing
     .. ',"inAHouse":' .. inHouse
@@ -407,7 +430,8 @@ def _cell_span(path, modified):
 def require_modules(lua, joint=False):
     paths = [lua / rel for rel in MODULES]
     if joint:
-        paths = [ZAO_ROOT / rel for rel in ZAO_MODULES] + paths
+        paths = ([ZAO_ROOT / rel for rel in ZAO_MODULES] + paths
+                 + [ZAO_ROOT / rel for rel in ZAO_POST_MODULES])
     absent = [str(path) for path in paths if not path.is_file()]
     missing, _ = modules_referenced(lua)
     if absent or missing:
@@ -417,9 +441,7 @@ def require_modules(lua, joint=False):
         named = set()
         for path in paths:
             named.update(re.findall(r'ZAO\.([A-Z][A-Za-z]*)', path.read_text(encoding='utf-8')))
-        # Controller and Driver require loaded bodies; the dormant seam advances
-        # pathogen and maintenance state directly from durable person records.
-        absent = named - loaded - {'Controller', 'Driver'}
+        absent = named - loaded - set(ZAO_NOT_DORMANT)
         if absent:
             raise EvidenceError('unloaded joint pathogen modules: ' + ', '.join(sorted(absent)))
     return paths
@@ -443,6 +465,12 @@ def validate_result(result, owed, engine=False, engine_counts=None, joint=False)
         raise EvidenceError('engine name pools or profession registry absent')
     if joint and detail.get('callbackCounts', {}).get('simulateDay', 0) < owed:
         raise EvidenceError('joint pathogen daily callback did not cover the horizon')
+    decisions = result.get('decisions', {})
+    if decisions.get('status') != 'observed':
+        raise EvidenceError('coordination decision capture unavailable')
+    if decisions.get('captureFailureCount') != 0:
+        raise EvidenceError('coordination decision capture failed: %s'
+                            % decisions.get('failures', decisions))
     return result
 
 
@@ -466,7 +494,8 @@ def provenance(name, lua, owed, refill, population, engine, joint, paths):
     loaded = {str(path): sha256(path) for path in paths}
     host = [PZ, STDLIB, SRC, OUT / 'LuaRun.class', JDK / 'java.exe', JDK.parent / 'release',
             SWEEP / 'prelude.lua', SWEEP / 'places.lua',
-            SWEEP / 'evidence.lua', SWEEP / 'evidence_host.lua', pathlib.Path(__file__),
+            SWEEP / 'evidence.lua', SWEEP / 'decision_capture.lua',
+            SWEEP / 'evidence_host.lua', pathlib.Path(__file__),
             CACHE / 'map.lua', CACHE / 'regions.lua']
     if engine:
         host += [SAO_JAR, ENGINE_FILL_LUA, SWEEP / 'engine_fill.lua',
@@ -530,7 +559,10 @@ def one(name, lua, owed, refill, population=None, engine=False, joint=False,
         if joint:
             args += [str(ZAO_ROOT / m) for m in ZAO_MODULES]
         args += [str(lua / m) for m in MODULES]
+        if joint:
+            args += [str(ZAO_ROOT / m) for m in ZAO_POST_MODULES]
         args += [str(CACHE / "regions.lua"), str(SWEEP / 'evidence.lua'),
+                 str(SWEEP / 'decision_capture.lua'),
                  "--", RUN.replace("RUN_NAME", name)]
         try:
             done = subprocess.run(args, cwd=str(work), capture_output=True,

@@ -37,6 +37,7 @@ INFERENCE = LUA / "shared/SAO_CoordinationInference.lua"
 ORGANIZATION = LUA / "shared/SAO_Organization.lua"
 COMMUNICATION = LUA / "shared/SAO_Communication.lua"
 STANDING = LUA / "shared/SAO_Standing.lua"
+COORDINATION = LUA / "shared/SAO_Coordination.lua"
 PERCEPTION = LUA / "shared/SAO_Perception.lua"
 CONTROLLER = LUA / "client/SAO_Controller.lua"
 CAPTURE = ROOT / "tools/sweep/decision_capture.lua"
@@ -44,6 +45,9 @@ CAPTURE = ROOT / "tools/sweep/decision_capture.lua"
 ZAO_MAINTENANCE = ZAO_LUA / "shared/ZAO_Maintenance.lua"
 ZAO_MIND = ZAO_LUA / "shared/ZAO_Mind.lua"
 ZAO_DRIVER = ZAO_LUA / "client/ZAO_Driver.lua"
+ZAO_AFFLICTED = ZAO_LUA / "client/ZAO_Afflicted.lua"
+ZAO_CROSSED = ZAO_LUA / "client/ZAO_Crossed.lua"
+ZAO_EXECUTION_OWNER = ZAO_LUA / "shared/ZAO_ExecutionOwner.lua"
 ZAO_CONTROLLER = ZAO_LUA / "client/ZAO_Controller.lua"
 
 SCHEMA = "sao-coordination-scene-catalogue"
@@ -98,7 +102,8 @@ SCENES = [
     scene("validation-afflicted-trusted", "validation", "afflicted",
           relationship=.37, pressure=.27, designation="carpenter"),
     scene("validation-crossed-pressured", "validation", "crossed",
-          relationship=.46, pressure=.83, pressure_kind="predatory"),
+          relationship=.46, pressure=.83, destination_known=False,
+          pressure_kind="predatory"),
     scene("validation-survivor-occupied", "validation", "survivor",
           relationship=.55, pressure=.14, activity="treat"),
     scene("validation-afflicted-hostile", "validation", "afflicted",
@@ -386,7 +391,8 @@ end)()'''
 
 def source_paths() -> list[Path]:
     return [GRAPH, INFERENCE, ORGANIZATION, COMMUNICATION, STANDING, PERCEPTION,
-            CONTROLLER, ZAO_MAINTENANCE, ZAO_MIND, ZAO_DRIVER,
+            COORDINATION, CONTROLLER, ZAO_MAINTENANCE, ZAO_MIND, ZAO_DRIVER,
+            ZAO_AFFLICTED, ZAO_CROSSED, ZAO_EXECUTION_OWNER,
             ZAO_CONTROLLER, CAPTURE]
 
 
@@ -405,7 +411,11 @@ def source_name(path: Path) -> str:
 
 def run_scene(spec: dict[str, Any], *,
               controller_source: str | None = None,
+              coordination_source: str | None = None,
               zao_driver_source: str | None = None,
+              zao_afflicted_source: str | None = None,
+              zao_crossed_source: str | None = None,
+              zao_execution_owner_source: str | None = None,
               zao_controller_source: str | None = None) -> dict[str, Any]:
     prelude = PRELUDE.replace("__SCENE__", lua_value(spec))
     with tempfile.TemporaryDirectory(prefix="sao-coordination-scene-") as tmp:
@@ -418,7 +428,11 @@ def run_scene(spec: dict[str, Any], *,
         probe_path.write_text("__result = " + PROBE, encoding="utf-8")
         replacements = {
             CONTROLLER: controller_source,
+            COORDINATION: coordination_source,
             ZAO_DRIVER: zao_driver_source,
+            ZAO_AFFLICTED: zao_afflicted_source,
+            ZAO_CROSSED: zao_crossed_source,
+            ZAO_EXECUTION_OWNER: zao_execution_owner_source,
             ZAO_CONTROLLER: zao_controller_source,
         }
         loaded = []

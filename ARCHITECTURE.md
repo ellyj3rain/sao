@@ -1,6 +1,6 @@
 | Document | Survivor Awareness Overhaul Architecture |
 |---|---|
-| Version | `2.9.4.0-pre-alpha` |
+| Version | `2.9.5.0-pre-alpha` |
 | Author | ellyj3rain |
 | Repository | `ARCHITECTURE.md` |
 | Status | ACTIVE - ratified framework shape. |
@@ -781,7 +781,9 @@ IDs; runtime communication and execution adapters re-register after load.
 
 Communication acquisition, response formation, response delivery and work are
 different transitions. A transport must explicitly admit the proposal before a
-person can answer. The recipient freezes their current activity, capability,
+person can answer. `SAO_Coordination` owns the common appraisal path for loaded
+Controller, dormant population and Perception callers. The recipient freezes
+their current activity, capability,
 need, relationship, interests and constraints with their feasible response set.
 Accept, qualify, counter-propose, decline, defer, contest and withdraw are
 individual choices; an addressed person without a response remains unanswered.
@@ -876,6 +878,34 @@ outcome, including one final read before bounded process retention may evict a
 terminal record. `tools/county_dump.py` validates and atomically publishes those
 rows as `*.coordination.jsonl`; `--joint` runs the dormant SAO+ZAO configuration.
 The observer does not extend process retention or create a response or result.
+
+### Causal episode runtime (C84 / ZAO A41 / Speakeasy Record 68)
+
+`tools/county_episode.py` wraps the production county as one bounded causal
+episode. It advances once to the declared maximum day and selects every
+checkpoint from that trajectory. It then creates a fresh Kahlua process with
+the same save identity and compares the complete canonical simulation result.
+Only an exact match may be sealed and exclusively published as
+`sao-causal-episode` version 1. The row contains daily snapshots, social events,
+terminal state, source provenance and the complete coordination capture; it is
+a candidate observation even when that capture contains no decision.
+
+The joint loader installs ZAO's common execution owner before the county runs.
+That adapter locates the retained human shell when present, obtains current work
+and capability from the common driver and dispatches recipient appraisal to the
+current Afflicted or Crossed provider. It is usable without the loaded client
+controller, so dormant coordination does not fall back into SAO ownership.
+The common envelope copies neither terminal-state nor diet truth. A missing
+shell or unavailable pressure stays unavailable and can defer the answer.
+
+The tracked 30-day episode has checkpoints 0, 7 and 30 and exact replay SHA-256
+`4c96d2d0d6ceb7c2cce9fdd29d51394b0759b391fc44b072c060e5bed16dd09b`.
+It observed deaths and ZAO state changes but no organization, matter or
+coordination decision. Speakeasy retains the complete episode and therefore
+emits no task. The separate twenty-scene audit exercises the response policies;
+its authored initial situations do not populate or relabel the natural run.
+Neither artifact establishes loaded gameplay, producer prevalence, training
+admission or accelerator equivalence.
 
 ### Reference-learning source (C81)
 

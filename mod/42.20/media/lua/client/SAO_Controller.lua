@@ -779,178 +779,22 @@ local function coordinationDestination(plan)
         z = tonumber(destination.z) or 0 }
 end
 
+-- Kept local for saved diagnostic harnesses; the shared owner is authoritative
+-- and is also callable when no loaded Controller module exists.
 local function privateCoordinationContext(id, agent, body, request)
-    local processView = SAO.Organization.viewFor(id, request.processId, false)
-    if not processView then return nil end
-    local proposal = processView.proposal and processView.proposal.proposal or {}
-    local rec = SAO.Identity.get(id)
-    local execution, executionUnavailable = {}, false
-    if rec and rec.bodyOwner and SAO.Communication
-        and SAO.Communication.actorSnapshot then
-        local snapshot = SAO.Communication.actorSnapshot(id)
-        if type(snapshot) == "table" then
-            execution = snapshot
-        else
-            executionUnavailable = true
-        end
+    if not (SAO.Coordination and SAO.Coordination.privateContext) then
+        return nil
     end
-    local ownNeed, ownNeedAvailable = 0, true
-    if rec and rec.bodyOwner == "ZAO" then
-        if tonumber(execution.competingPressure) then
-            -- The external owner reports a body pressure, not a diet. It can
-            -- qualify or defer accepted work without SAO deciding how that
-            -- actor satisfies hunger, fear, fatigue or injury.
-            ownNeed = tonumber(execution.competingPressure)
-        else
-            ownNeed, ownNeedAvailable = 0, false
-        end
-    elseif body then
-        local needs = SAO.Needs.read(body)
-        ownNeed = needs and tonumber(needs.hunger) or 0
-    elseif rec then
-        ownNeed = tonumber(rec.hunger) or 0
-    end
-    local originator = processView.originatorId
-    local relationship = 0
-    pcall(function() relationship = SAO.Standing.trust(id, originator) end)
-    local hostile = false
-    pcall(function() hostile = SAO.Standing.isHostileTo(id, originator) end)
-    local activity = execution.currentActivity
-        and string.lower(tostring(execution.currentActivity))
-        or agent and string.lower(tostring(agent.state or "idle"))
-        or "dormant"
-    local destination = proposal and proposal.destination or nil
-    local destinationKnown = type(destination) == "table"
-        and tonumber(destination.minX) ~= nil
-        and tonumber(destination.minY) ~= nil
-        and tonumber(destination.maxX) ~= nil
-        and tonumber(destination.maxY) ~= nil
-    local designation = rec and rec.designation or nil
-    local prior = processView.response
-    local choice = nil
-    if hostile then
-        choice = "contest"
-    elseif activity ~= "idle" and activity ~= "dormant" then
-        choice = "defer"
-    elseif not ownNeedAvailable then
-        -- Missing external pressure evidence is not a healthy default. Keep
-        -- the response revisable until the execution owner supplies it.
-        choice = "defer"
-    elseif ownNeed >= 0.75 then
-        choice = "qualify"
-    elseif destinationKnown and (designation == "forager"
-        or designation == "quartermaster" or relationship >= 0.30
-        or (SAO.Lessons and SAO.Lessons.has
-            and SAO.Lessons.has(id, "people-are-worth-it"))) then
-        choice = "accept"
-    elseif destinationKnown then
-        choice = "counter-propose"
-    else
-        choice = "defer"
-    end
-    local context = {
-        owner = "Controller.coordination",
-        executor = execution.executor or (rec and rec.bodyOwner == "ZAO"
-            and "ZAO.Driver" or "SAO.Controller"),
-        bodyOwner = execution.bodyOwner or (rec and rec.bodyOwner) or "SAO",
-        currentActivity = activity,
-        canAcquire = not executionUnavailable
-            and execution.canAcquire ~= false and not (rec and rec.dead),
-        canCarry = not executionUnavailable
-            and execution.canCarry ~= false and not (rec and rec.dead),
-        canDeliver = not executionUnavailable
-            and execution.canDeliver ~= false and not (rec and rec.dead),
-        canExecute = not executionUnavailable
-            and execution.canExecute ~= false and not (rec and rec.dead),
-        incapable = executionUnavailable or execution.incapable == true,
-        dead = execution.dead == true or rec and rec.dead or false,
-        contest = hostile,
-        ownNeed = ownNeed,
-        relationship = relationship,
-        destinationKnown = destinationKnown,
-        choice = choice,
-        reconsider = prior and prior.response == "defer"
-            and choice ~= "defer" or false,
-        interests = { designation = designation,
-            ownGroup = SAO.Standing.groupOf(id) },
-        constraints = { represented = body ~= nil,
-            currentActivity = activity,
-            executionOwnerAvailable = not executionUnavailable,
-            ownNeedAvailable = ownNeedAvailable },
-        inputOwners = {
-            currentActivity = execution.executor
-                or (rec and rec.bodyOwner == "ZAO" and "ZAO.Driver")
-                or "SAO.Controller",
-            capabilities = execution.executor
-                or (rec and rec.bodyOwner == "ZAO" and "ZAO.Driver")
-                or "SAO.Controller",
-            ownNeed = rec and rec.bodyOwner == "ZAO"
-                and (execution.inputOwners
-                    and execution.inputOwners.competingPressure
-                    or "ZAO.Driver")
-                or body and "SAO.Needs" or "SAO.Identity",
-            relationship = "SAO.Standing",
-            interests = "SAO.Identity+SAO.Standing",
-            constraints = "SAO.Controller",
-        },
-    }
-    -- The shared controller supplies only the common execution envelope.  A
-    -- registered external owner may replace the bounded appraisal fields from
-    -- its actor-private state; diagnosis, diet and other condition-private
-    -- values have no accepted field and cannot cross this seam.
-    if rec and rec.bodyOwner and SAO.Communication
-        and SAO.Communication.actorAppraisal then
-        local supplied = SAO.Communication.actorAppraisal(
-            id, processView, context)
-        if type(supplied) == "table" then
-            for _, key in ipairs({ "owner", "executor", "bodyOwner",
-                    "currentActivity", "canAcquire", "canCarry",
-                    "canDeliver", "canExecute", "incapable", "dead",
-                    "contest", "ownNeed", "relationship",
-                    "destinationKnown", "choice", "reconsider", "terms",
-                    "interests", "constraints", "inputOwners" }) do
-                if supplied[key] ~= nil then context[key] = supplied[key] end
-            end
-        end
-    end
-    return context
+    return SAO.Coordination.privateContext(id, agent, body, request,
+        "Controller.coordination")
 end
 
 function Ctl.appraiseCoordination(id, body, activity)
-    if not (SAO.Organization and SAO.Organization.pendingAppraisals) then
+    if not (SAO.Coordination and SAO.Coordination.appraisePending) then
         return 0
     end
-    id = tostring(id or "")
-    local agent = Ctl.agents[id]
-    if not agent and activity then
-        agent = { state = tostring(activity) }
-    end
-    local formed = 0
-    for _, request in ipairs(SAO.Organization.pendingAppraisals(id)) do
-        if request.processId and request.processRevision then
-            local context = privateCoordinationContext(id, agent, body, request)
-            if context then
-                local response = SAO.Organization.appraiseMatter(
-                    request.processId, id, context)
-                if response then
-                    formed = formed + 1
-                end
-                -- A formed answer remains private until an actual return
-                -- transport succeeds. This retry also covers an earlier answer
-                -- whose originator was temporarily out of reach.
-                local processView = SAO.Organization.viewFor(
-                    id, request.processId, false)
-                local originator = processView and processView.originatorId
-                if originator and SAO.Communication
-                    and SAO.Communication.deliverPendingResponses then
-                    SAO.Communication.deliverPendingResponses(id, originator,
-                        nil, { reply = response and "immediate" or "retry",
-                            activity = context.currentActivity })
-                end
-            end
-        end
-    end
-    return formed
+    return SAO.Coordination.appraisePending(id, body, activity,
+        "Controller.coordination")
 end
 
 local function carriedSupply(body, category)

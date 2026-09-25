@@ -683,8 +683,9 @@ local function dormantLife(conf, tickCounter)
             -- physical work still waits for a represented body. Any answer
             -- stays private until a later admitted encounter reaches its
             -- originator.
-            if SAO.Controller and SAO.Controller.appraiseCoordination then
-                SAO.Controller.appraiseCoordination(id, nil, "dormant")
+            if SAO.Coordination and SAO.Coordination.appraisePending then
+                SAO.Coordination.appraisePending(id, nil, "dormant",
+                    "DormantPopulation.coordination")
             end
             if rec.homeX then
                 rec.nextDormantMoveAt = rec.nextDormantMoveAt or 0
@@ -1658,9 +1659,11 @@ local function dormantEncounters(tickCounter)
                         SAO.Perception.tell(idB, idA, tickCounter, nil, "dormant-encounter")
                     end)
                     pcall(function()
-                        if SAO.Controller and SAO.Controller.appraiseCoordination then
-                            SAO.Controller.appraiseCoordination(idA, nil, "dormant")
-                            SAO.Controller.appraiseCoordination(idB, nil, "dormant")
+                        if SAO.Coordination and SAO.Coordination.appraisePending then
+                            SAO.Coordination.appraisePending(idA, nil, "dormant",
+                                "DormantPopulation.coordination")
+                            SAO.Coordination.appraisePending(idB, nil, "dormant",
+                                "DormantPopulation.coordination")
                         end
                         if SAO.Communication
                             and SAO.Communication.deliverPendingResponses then

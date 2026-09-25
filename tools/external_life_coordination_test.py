@@ -14,6 +14,7 @@ LUA = ROOT / "mod/42.20/media/lua"
 ORG = LUA / "shared/SAO_Organization.lua"
 COMM = LUA / "shared/SAO_Communication.lua"
 GRAPH = LUA / "shared/SAO_GraphPersistence.lua"
+COORDINATION = LUA / "shared/SAO_Coordination.lua"
 CONTROLLER = LUA / "client/SAO_Controller.lua"
 NEEDS = LUA / "client/SAO_Needs.lua"
 DORMANT = LUA / "client/SAO_DormantPopulation.lua"
@@ -124,20 +125,16 @@ PROBE = r'''(function()
   check('admitted_transport_enqueues_current_appraisal',ma~=nil and mb~=nil
     and #SAO.Organization.pendingAppraisals('external-a')==1
     and #SAO.Organization.pendingAppraisals('external-b')==1)
-  local va=SAO.Organization.viewFor('external-a',p.id,false)
-  local ca=SAO.Communication.actorAppraisal('external-a',va,{})
-  local vb=SAO.Organization.viewFor('external-b',p.id,false)
-  local cb=SAO.Communication.actorAppraisal('external-b',vb,{})
-  SAO.Organization.appraiseMatter(p.id,'external-a',ca)
-  SAO.Organization.appraiseMatter(p.id,'external-b',cb)
-  SAO.Communication.deliverPendingResponses('external-a','origin',nil,{reply=true})
-  SAO.Communication.deliverPendingResponses('external-b','origin',nil,{reply=true})
+  local formedA=SAO.Coordination.appraisePending('external-a',nil,'dormant',
+    'DormantPopulation.coordination')
+  local formedB=SAO.Coordination.appraisePending('external-b',nil,'dormant',
+    'DormantPopulation.coordination')
   local originView=SAO.Organization.viewFor('origin',p.id,false)
   check('external_owner_forms_independent_responses',
-    originView.responses['external-a'].response=='accept'
+    formedA==1 and formedB==1
+    and originView.responses['external-a'].response=='accept'
     and originView.responses['external-b'].response=='contest'
-    and va.proposal.proposal.scope.category=='water'
-    and ca.terminalState==nil and ca.diet==nil)
+    and originView.proposal.proposal.scope.category=='water')
   check('delivered_acceptance_scopes_material_work',
     SAO.Organization.activeCommitment('external-a','provisioning')~=nil
     and SAO.Organization.workPlan(
@@ -289,7 +286,8 @@ def compile_runner() -> tuple[bool, str]:
     return done.returncode == 0, done.stderr or done.stdout
 
 
-def run_probe(org: str, communication: str, controller: str) -> tuple[str | None, str]:
+def run_probe(org: str, communication: str, coordination: str,
+              controller: str) -> tuple[str | None, str]:
     with tempfile.TemporaryDirectory(prefix="sao-external-life-") as tmp:
         work = pathlib.Path(tmp)
         shutil.copy2(STDLIB, work / "stdlib.lua")
@@ -299,6 +297,7 @@ def run_probe(org: str, communication: str, controller: str) -> tuple[str | None
             "prelude.lua": PRELUDE,
             "organization.lua": org,
             "communication.lua": communication,
+            "coordination.lua": coordination,
             "controller.lua": controller,
             "probe.lua": "__result = " + PROBE,
         }
@@ -308,6 +307,7 @@ def run_probe(org: str, communication: str, controller: str) -> tuple[str | None
             [str(JDK / "java.exe"), "-cp", f"{PZ};.", "LuaRun",
              str(work / "prelude.lua"), str(work / "organization.lua"),
              str(work / "communication.lua"), str(GRAPH),
+             str(work / "coordination.lua"),
              str(work / "controller.lua"),
              str(work / "probe.lua"), "--", "__result"],
             cwd=work, capture_output=True, text=True, timeout=300)
@@ -323,22 +323,28 @@ def verdicts(value: str | None) -> dict[str, str]:
 
 def static_contract() -> tuple[bool, str]:
     controller = CONTROLLER.read_text(encoding="utf-8")
+    coordination = COORDINATION.read_text(encoding="utf-8")
     needs = NEEDS.read_text(encoding="utf-8")
     dormant = DORMANT.read_text(encoding="utf-8")
-    required = {
+    coordination_required = {
         "generic acquired appraisal": "SAO.Organization.pendingAppraisals(id)",
         "registered owner appraisal": "SAO.Communication.actorAppraisal(",
+    }
+    controller_required = {
         "water acquisition": "SAO.Needs.collectStoredWater",
         "water handover": "SAO.Needs.shareDrinkWith",
         "arrival completion": "SAO.Organization.completeArrival(",
         "rendezvous work family": 'plan.kind == "rendezvous-holding"',
     }
-    for name, anchor in required.items():
+    for name, anchor in coordination_required.items():
+        if anchor not in coordination:
+            return False, f"coordination owner lacks {name}"
+    for name, anchor in controller_required.items():
         if anchor not in controller:
             return False, f"controller lacks {name}"
     if "function N.collectStoredWater" not in needs or "context or" not in needs:
         return False, "water transfer does not retain coordinated context"
-    if ("SAO.Controller.appraiseCoordination(id, nil, \"dormant\")" not in dormant
+    if ("SAO.Coordination.appraisePending(id, nil, \"dormant\"" not in dormant
             or '"dormant-encounter"' not in dormant):
         return False, "dormant appraisal/return channel is absent"
     return True, "generic appraisal, material and arrival owners are wired"
@@ -348,7 +354,8 @@ def main() -> int:
     print("=" * 74)
     print("EXTERNAL LIFE COORDINATION")
     print("=" * 74)
-    required = [ORG, COMM, GRAPH, CONTROLLER, NEEDS, DORMANT, RUNNER]
+    required = [ORG, COMM, GRAPH, COORDINATION, CONTROLLER, NEEDS, DORMANT,
+                RUNNER]
     missing = [path for path in required if not path.is_file()]
     if missing:
         print("  FAULT: repository input absent: " + ", ".join(map(str, missing)))
@@ -366,8 +373,9 @@ def main() -> int:
         return 1
     org = ORG.read_text(encoding="utf-8-sig")
     comm = COMM.read_text(encoding="utf-8-sig")
+    coordination = COORDINATION.read_text(encoding="utf-8-sig")
     controller = CONTROLLER.read_text(encoding="utf-8-sig")
-    value, output = run_probe(org, comm, controller)
+    value, output = run_probe(org, comm, coordination, controller)
     found = verdicts(value)
     failed = sorted(name for name, result in found.items() if result != "true")
     controls = [
@@ -386,9 +394,13 @@ def main() -> int:
         ("pending route reconstruction", "controller",
          'and not runtime.coordinationRoute then',
          'and false then'),
+        ("shared dormant appraisal owner", "coordination",
+         "for _, request in ipairs(SAO.Organization.pendingAppraisals(id)) do",
+         "for _, request in ipairs({}) do"),
     ]
     controls_ok = True
-    sources = {"organization": org, "controller": controller}
+    sources = {"organization": org, "coordination": coordination,
+               "controller": controller}
     for name, target, old, new in controls:
         if sources[target].count(old) != 1:
             print(f"  FAULT: {name} mutation seam changed")
@@ -397,12 +409,13 @@ def main() -> int:
         mutated = sources[target].replace(old, new, 1)
         mutant_value, _ = run_probe(
             mutated if target == "organization" else org,
-            comm, mutated if target == "controller" else controller)
+            comm, mutated if target == "coordination" else coordination,
+            mutated if target == "controller" else controller)
         if not any(result == "false" for result in verdicts(mutant_value).values()):
             print(f"  FAULT: {name} mutation survived")
             controls_ok = False
     print("  mutation controls: " + ("PASS" if controls_ok else "FAIL")
-          + " (five production controls)")
+          + " (six production controls)")
     if not static_ok or not controls_ok or set(found) != EXPECTED or failed:
         print("  FAULT: missing=" + repr(sorted(EXPECTED - set(found)))
               + " failed=" + repr(failed) + " value=" + repr(value))

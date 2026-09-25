@@ -1,6 +1,6 @@
 | Document | Survivor Awareness Overhaul Dependency Substrate |
 |---|---|
-| Version | `2.9.4.0-pre-alpha` |
+| Version | `2.9.5.0-pre-alpha` |
 | Author | ellyj3rain |
 | Repository | `SUBSTRATE.md` |
 | Status | CANONICAL - what exists, what is planned, and what each area of concern needs. |
@@ -676,7 +676,11 @@ state once. Shared representations between cognition and speech are an
 investigation, not an existing design ruling.
 
 Finally compare any learned late-start accelerator against a repaired causal
-baseline with matching initial conditions, seeds and model versions. Examine
+baseline with matching initial conditions, seeds and model versions. C84 now
+provides one-prefix checkpoints, complete episode retention, isolated reset and
+exact full-result replay; its first 30-day joint episode contains no shared
+matter and therefore supplies no decision target. That honest absence is a
+baseline observation, not a corpus or a reason to seed success. Examine
 event histories, joint state distributions, later decisions and resource/identity
 invariants as well as compute cost. Reject direct assignment of survival,
 settlements or completed work. Until evidence supports an accelerator, causal

@@ -25,8 +25,11 @@ DORMANT = LUA / "client/SAO_DormantPopulation.lua"
 HARNESS = LUA / "client/SAO_Harness.lua"
 CONTROLLER = LUA / "client/SAO_Controller.lua"
 PERCEPTION = LUA / "shared/SAO_Perception.lua"
+COORDINATION = LUA / "shared/SAO_Coordination.lua"
 STANDING = LUA / "shared/SAO_Standing.lua"
 RECOGNITION = LUA / "shared/SAO_Recognition.lua"
+ZAO_EXECUTION_OWNER = (ROOT.parent / "zombie-awareness" / "mod/42.20/media/lua"
+                       / "shared/ZAO_ExecutionOwner.lua")
 CAPTURE = ROOT / "tools/sweep/decision_capture.lua"
 RUNNER = ROOT / "tools/luacheck/LuaRun.java"
 OUT = ROOT / "java/out/luacheck"
@@ -446,6 +449,8 @@ def static_contract() -> tuple[bool, str]:
     recognition = RECOGNITION.read_text(encoding='utf-8')
     controller = CONTROLLER.read_text(encoding='utf-8')
     perception = PERCEPTION.read_text(encoding='utf-8')
+    coordination = COORDINATION.read_text(encoding='utf-8')
+    execution_owner = ZAO_EXECUTION_OWNER.read_text(encoding='utf-8')
     exchange = EXCHANGE.read_text(encoding='utf-8')
     dormant = DORMANT.read_text(encoding='utf-8')
     production = '\n'.join(path.read_text(encoding='utf-8')
@@ -483,16 +488,19 @@ def static_contract() -> tuple[bool, str]:
         return False, 'production caller retains automatic authority shortcut'
     hidden = ('terminalState = execution.terminalState',
               'diet = execution.diet', 'dietKnown = execution.dietKnown')
-    if any(field in controller or field in perception for field in hidden):
+    if any(field in controller or field in perception or field in coordination
+           for field in hidden):
         return False, 'private coordination evidence leaks ZAO diagnosis/diet labels'
     if ('constraints.ownNeedAvailable' not in organization
             or 'or "unavailable"' not in organization):
         return False, 'private need availability lacks source normalization'
-    if ('and "ZAO.Driver" or "SAO.Controller"' not in controller
-            or 'execution.competingPressureAvailable ~= false' not in perception
-            or 'execution.inputOwners.competingPressure' not in perception
-            or 'elseif not ownNeedAvailable then' not in controller
-            or 'or not ownNeedAvailable and "defer"' not in perception):
+    if ('and "ZAO.Driver" or "SAO.Controller"' not in coordination
+            or 'tonumber(execution.competingPressure)' not in coordination
+            or 'execution.inputOwners.competingPressure' not in coordination
+            or 'elseif not ownNeedAvailable then' not in coordination
+            or 'competingPressure = pressure' not in execution_owner
+            or 'competingPressureAvailable = pressure ~= nil' not in execution_owner
+            or 'competingPressure = pressureOwner' not in execution_owner):
         return False, 'ZAO driver or source-owned competing pressure is not preserved'
     return True, 'native owners and production shortcut removals are wired'
 
@@ -501,7 +509,8 @@ def main() -> int:
     print('=' * 74)
     print('ENACTED SOCIAL COORDINATION AND RECEIPT-BACKED WORK')
     print('=' * 74)
-    required = [ORGANIZATION, COMMUNICATION, GRAPH, CAPTURE, RUNNER, PERCEPTION]
+    required = [ORGANIZATION, COMMUNICATION, GRAPH, CAPTURE, RUNNER,
+                PERCEPTION, COORDINATION]
     missing = [path for path in required if not path.is_file()]
     if missing:
         print('  FAULT: repository input absent: ' + ', '.join(map(str, missing)))
@@ -509,6 +518,9 @@ def main() -> int:
     installed = [PZ, STDLIB, JDK / 'java.exe', JDK / 'javac.exe']
     if not all(path.is_file() for path in installed):
         print('Border 190 SKIPPED: installed game VM or JDK absent')
+        return 0
+    if not ZAO_EXECUTION_OWNER.is_file():
+        print('Border 190 SKIPPED: paired ZAO execution owner absent')
         return 0
     static_ok, static_detail = static_contract()
     print('  static contract: ' + ('PASS' if static_ok else 'FAIL')
