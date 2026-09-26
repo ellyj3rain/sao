@@ -38,9 +38,23 @@ on the simulation.
 
 ## Status
 
-`2.10.0.0-pre-alpha` - the coordinate is computed by the version machine
+`2.11.0.0-pre-alpha` - the coordinate is computed by the version machine
 (`tools/version_replay.py`), never picked; `VERSION_MAP.md` shows the
 classification and the arithmetic.
+
+C86 adds [native study worlds](tools/world_lab/README.md): configurable engine
+terrain, isolated copied mods and saves, an autonomous observer, and sealed
+observations. Speakeasy selects activity views and Mousecat displays actual
+engine pixels with person inspection and camera/time controls. Scenarios remain
+unreviewed until operator evaluation and explicit ratification. Native viewing
+and persistence checks establish their measured mechanics; behavioral quality
+and broader environment/mod compositions remain work to evaluate. God view and
+canopy cutaway keep the observer independent of each person's perception. The
+native observation also exposed false sound-to-enemy beliefs, repeated escape
+and follow-path interruption, duplicate threat locations left by continuous
+sight, and property claims manufactured from starting coordinates. Corrections
+preserve real crowds, hidden-threat uncertainty, existing claims and current
+entry permission; broader productive behavior remains to be evaluated.
 
 C79 implements the first enacted social-work path. A private situation can
 become an acquired proposal, each actual recipient can answer independently,

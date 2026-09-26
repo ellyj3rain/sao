@@ -58,8 +58,7 @@ end
 
 local function materializeBand(px, py, conf)
     for id, rec in pairs(SAO.Identity.all()) do
-      if not rec.dead then
-        SAO.Body.recover(rec)
+      if not rec.dead and SAO.Body.recover(rec) == true then
         local hasBody = SAO.Body.hasRepresentation(id)
         local d = dist(rec.x, rec.y, px, py)
         if SAO.Claims.isHeld(rec) then

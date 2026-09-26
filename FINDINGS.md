@@ -1,6 +1,6 @@
 | Document | Survivor Awareness Overhaul Findings |
 |---|---|
-| Version | `2.10.0.0-pre-alpha` |
+| Version | `2.11.0.0-pre-alpha` |
 | Author | ellyj3rain |
 | Repository | `FINDINGS.md` |
 | Status | CANONICAL, APPEND-ONLY - verified engine findings. |
@@ -2358,3 +2358,168 @@ but policy and maintenance remain state-specific.
 ZAO Borders 10, 12-15 and focused maintenance/material controls execute these
 boundaries headlessly. No loaded-world food diversity, balance, presentation or
 long-horizon ecology is established.
+
+## F-104 | 2026-09-26 07:40 UTC / 00:40 PST | Unclassified sounds and repeated escape orders created flight feedback
+
+Native study run 23 exposed repeated escape orders only a few frames apart.
+Installed `WorldSound` carries origin, radius, volume and source, without an
+acoustic identity. Native `IsoGameCharacter.DoFootstepSound` supplies the character
+as source. SAOPerceptionScanner admitted those own-source sounds after movement
+or tile rounding; Perception placed every S row in its zombie bucket. Controller
+also interpreted recent heard entries near people as proof of gunfire. These
+were invented identities, rather than uncertain sound evidence.
+
+C86 excludes own-source sounds and retains other audible origins as unknown
+sounds. Legacy nonphantom heard entries migrate on acquisition or bind; real
+observed/reported threats and explicit phantom beliefs survive. Direct query,
+sharing and briefing paths reject legacy unknown hearing. Recognizing a cry
+clears sound evidence without deleting an independent threat on the same tile.
+The unsupported shooter attribution is removed. Border 200 executes eight actual
+native WorldSound/scanner cases, 24 production Kahlua cases and nine source
+controls, including the original own-footstep and sound-as-enemy defects.
+
+Repeated Controller threat decisions also replaced active escape destinations;
+company rousing could reopen the decision within a few frames. C86 retains an
+executing route while its native tile-centre destination is still away from the
+private threat, on the current floor and permitted. It reconsiders completed,
+failed or invalid routes. Held and newly ordered routes share ongoing cries and
+responder accounting. Border 199 executes real Controller/Locomotion decisions
+and rousing under Kahlua and rejects twelve production-source defects.
+
+Run 23 recorded 9,137 movement orders over 27,381 native frames; interim run 24
+recorded 29 over 6,552 frames (333.7 versus 4.4 orders per thousand frames).
+At their approximately 2.75-hour observations,
+run 23 held 726 heard entries among 1,608 zombie beliefs; run 24 had zero heard
+entries among 13 zombie beliefs. Fresh populations and camera residency differ,
+so those counts are observations of the combined correction, not an isolated
+effect estimate. Separate native route/save evidence belongs in the C86 record;
+these controls do not establish long-horizon behavioral quality.
+
+## F-105 | 2026-09-26 08:43 UTC / 01:43 PST | Random follow offsets interrupted stationary companion routes
+
+Native27 attempt 2 records sao-4 repeatedly ordering alternating destinations
+beside sao-3 after sao-3 enters IDLE at frame 20530. Orders at frames 20531,
+20603, 20709, 20740 and 20815 alternate between tiles 375,383 and 377,382,
+restarting Working movement as ManualRoute with little progress. The follower
+eventually reaches walking-beside at frame 20992. This is a bounded restart
+defect rather than evidence of an infinite loop.
+
+Both company FOLLOW and PLAYERFOLLOW chose new random beside-anchor offsets on
+every decision. That random variation can exceed Locomotion's two-tile goal
+reuse threshold even when the anchor has not moved. C86 now uses one shared
+route helper to retain the offset for the same executing job and current
+anchor, actor bodies, floor and permitted goal. Actual anchor movement updates
+the requested position; terminal or invalid ownership causes reconsideration.
+Player crossing and close-gap behavior retain their existing execution owners.
+
+Border 199 now exercises both production Controller branches and Locomotion in
+installed Kahlua. Its 23 source controls comprise the twelve existing escape
+controls and eleven following controls, including alternating random offsets
+against stationary company and player anchors. Moving anchors, replacement
+bodies, floor, permission, terminal results, player crossing, hold and trust
+changes are distinguished. Native28 ended before a populated observation and
+does not establish following behavior. Native run 30 supplies the bounded
+native movement evidence; these controls make no productive or macro-social
+success claim.
+
+The closing lifecycle review extended Border 199 to 38 production-source
+controls. It executes movement update before decision, preserves failed
+PLAYERFOLLOW receipts for their traversal owner, retires a prior ROAM route on
+follow entry and distinguishes equal horizontal positions on different floors.
+New crossings check the current job, player, body, floor, destination and actual
+next-edge permission. An already-started crossing retains its exact owner.
+Missing, dead, unrelated or distant player contexts retire terminal follow jobs;
+refused entry leaves a valid idle state. The installed-Kahlua baseline and all
+38 controls pass. Native player obstacle traversal remains separate from these
+controlled receipts.
+
+## F-106 | 2026-09-26 09:21 UTC / 02:21 PST | Moving sightings accumulated as separate threat locations
+
+Perception keyed direct zombie observations by tile. A continuously visible
+moving body left a fresh entry on each successive tile until ordinary expiry;
+the count query could treat those locations as several nearby threats. Native27
+also contains real crowds: sao-24's 36 stored records include 22 acquired at one
+scan tick. A stored-record count therefore does not establish either 36 current
+threats or a single duplicated body.
+
+C86 assigns observer-local opaque tracks only across consecutive visible scans.
+Intervening native line of sight is checked. Lost visibility, observer/cell
+replacement, explicit world reset, a fresh JVM and Lua-filtered scan gaps break
+continuity. New direct sightings carry their floor. The scanner checks a bounded
+set of retained tiles and certifies negative evidence only for loaded, fully
+visible ground. Perception reconciles that evidence with current direct sightings
+and preserves hidden, unloaded, unknown-floor and explicit phantom memory.
+
+Multiple simultaneous bodies remain separate even on the same tile. Sharing
+projects eligible location reports without private tracking authority. A
+recipient's own sight and a report at that location overlap for threat counting.
+The review caught another inflation path: assigning report ordinals before
+filtering made an overlapping told record reserve the first slot, so repeated
+sharing could introduce a second reported body. Projection now filters eligible
+records before numbering them. Reciprocal and repeated sharing are checked
+through the production count query.
+
+Border 200 executes the native scanner against actual loaded chunk/square and
+zombie objects, then the production Perception module under installed Kahlua.
+Its controls restore moving trails, false empty-ground correction, hidden or
+cross-session tracking, duplicate report inflation and cross-floor retirement.
+The broader threat distance/radius queries retain their pre-existing horizontal
+coordinate contract. This correction establishes acquisition and retirement
+evidence; it does not establish productive behavior or macro-social quality.
+
+## F-107 | 2026-09-26 09:50 UTC / 02:50 PST | Starting coordinates manufactured property claims
+
+PopulationAdmissions granted each primary admission a radius claim around its
+origin. The origin carries coordinates and profession, with no residence or
+ownership evidence. Exchange created another radius when an accepted move-in
+had an anchor with no held claim. These producers converted a location into
+ownership before any decision to hold ground. Bonded mates did not each receive
+the primary-admission grant.
+
+Native29 logged 13,383 territory objections and zero "told to leave" transitions.
+Controller can cancel an admitted resource errand after a qualifying heard
+objection, but that separate transition is not established in this trace.
+Removing the unsupported producers does not establish the cause of all observed
+inactivity. DR-007 protects existing known claims; DR-028 distinguishes held and
+shared ground; DR-036 leaves choosing and settling ground to people.
+
+C86 removes the two unconditional claim fallbacks. Origin and home coordinates
+remain navigation references; profession, lived building knowledge, unit bonds
+and population cadence retain their owners. Accepted move-ins still copy actual
+held bounds. Existing claims lack provenance sufficient for retrospective
+deletion, so no claim migration or removal is performed.
+
+Border 115 executes the exported production ensurePopulation under installed
+Kahlua with recording dependencies. Eleven cases cover road/building genesis
+and refill, retained origin/home/profession knowledge, bonds, existing ownership
+and cadence. Restoring the exact removed block fails all four ownership cases
+while preserving the other seven. Border 152 executes production Exchange,
+Standing, Organization and Communication: four cases and 18 checks distinguish
+accepted unclaimed homes, actual held bounds, existing claims and refusal. Four
+source controls fail their named verdicts, including the original fallback.
+These controlled producer receipts are distinct from native relocation and
+long-horizon social behavior.
+
+## F-108 | 2026-09-26 10:29 UTC / 03:29 PST | Growing threat evidence reached recursive sorting
+
+The complete C86 gate found that knownZombieTiles passed every retained candidate
+to the engine's recursive table.sort before trimming to 512 requests. The new
+zombieReports sort also had an unbounded input; its reused variable name matched
+an older declaration for bounded transfer facts and concealed the distinction.
+The installed Kahlua sorter can exhaust its call stack on adversarial input.
+
+Both new evidence paths now use one private bottom-up merge sort. It preserves
+the existing distance/key and timestamp/key comparators, retains every eligible
+report, and applies the same nearest-512 request selection. The sort has fixed
+call depth, O(n log n) work and O(n) scratch storage; it moves row references
+without changing belief records.
+
+Border 200 adds four installed-Kahlua producer cases, including 4,099-entry
+requests and reports and odd-sized merge tails. Fractional remembered request
+coordinates exercise the Lua input bound without claiming that the native
+scanner accepts those tokens. Eight source controls restore unsafe sorting,
+break comparator/merge order or truncate reports and fail their named verdicts.
+The resulting border passes 28 native cases, 49 Lua cases and 34 source controls.
+The sort-bound checker passes without adding an allowance. Native run 30
+predates this repair; subsequent source-bound verification identifies the new
+Perception hash explicitly.

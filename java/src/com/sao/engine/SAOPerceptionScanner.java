@@ -1,5 +1,12 @@
 package com.sao.engine;
 
+import java.lang.ref.WeakReference;
+import java.util.HashSet;
+import java.util.LinkedHashSet;
+import java.util.Set;
+import java.util.UUID;
+import java.util.WeakHashMap;
+
 import zombie.characters.IsoGameCharacter;
 import zombie.characters.IsoPlayer;
 import zombie.characters.IsoZombie;
@@ -20,7 +27,8 @@ import zombie.scripting.objects.CharacterTrait;
  * The string format exists because engine objects must never cross into
  * Kahlua: every Lua-side interop failure this project has had came from that.
  * Format, '|'-separated entries:
- *   Z:x:y:dist        a zombie the survivor can see
+ *   Z:x:y:dist:...:track:token:floor:z   a zombie the survivor can see
+ *   V:x:y:z            a whole known or just-observed tile currently in sight
  *   P:username:x:y:dist  a player (or another shell) it can see
  * Coordinates are floored tiles; dist is one decimal.
  *
@@ -36,6 +44,33 @@ public final class SAOPerceptionScanner {
     private static final float RANGE = 14.0f;
     private static final float NEAR_SENSE = 2.5f;
     private static final double CONE_COS = Math.cos(Math.toRadians(72.0));
+
+    // Object identity is used only between consecutive visible scans by this
+    // observer. A UUID epoch keeps a restored belief from matching a new JVM,
+    // observer body or cell. Weak keys retain neither observer nor seen bodies.
+    private static final WeakHashMap<IsoGameCharacter, SightTracks> SIGHT_TRACKS = new WeakHashMap<>();
+    private static final int MAX_KNOWN_TILES = 512;
+    private static final int MAX_KNOWN_TEXT = 16384;
+
+    private static final class SightTracks {
+        final WeakReference<IsoCell> cell;
+        final String epoch = UUID.randomUUID().toString();
+        long next;
+        WeakHashMap<IsoGameCharacter, String> previous = new WeakHashMap<>();
+        SightTracks(IsoCell value) { cell = new WeakReference<>(value); }
+        String track(IsoGameCharacter body) {
+            String prior = previous.get(body);
+            return prior == null ? epoch + "-" + (++next) : prior;
+        }
+    }
+
+    private record SightTile(int x, int y, int z) {}
+
+    /** The bridge owns native world teardown; reachable pooled bodies cannot
+     * carry an observation epoch into the next world in the same process. */
+    public static synchronized void resetRuntimeForWorld() {
+        SIGHT_TRACKS.clear();
+    }
 
     private SAOPerceptionScanner() {
     }
@@ -122,12 +157,25 @@ public final class SAOPerceptionScanner {
      *  This is what lets the PLAYER acquire beliefs through the
      *  same scanner their people use - the alternative was a
      *  second acquisition path written to look like this one. */
-    public static String scan(IsoGameCharacter shell) {
+    /** Known tiles come from this observer's retained beliefs, never a map scan.
+     * V rows certify a whole loaded tile in sight, including an empty tile.
+     * Lua reconciles that tile's old beliefs with this scan's positive rows. */
+    public static synchronized String scan(IsoGameCharacter shell, String knownTiles) {
+        if (shell == null) return "";
         IsoCell cell = shell.getCell();
         IsoGridSquare eye = shell.getCurrentSquare();
         if (cell == null || eye == null) {
+            SIGHT_TRACKS.remove(shell);
             return "";
         }
+        SightTracks tracks = SIGHT_TRACKS.get(shell);
+        if (tracks == null || tracks.cell.get() != cell) {
+            tracks = new SightTracks(cell);
+            SIGHT_TRACKS.put(shell, tracks);
+        }
+        WeakHashMap<IsoGameCharacter, String> visible = new WeakHashMap<>();
+        Set<SightTile> requested = knownSightTiles(knownTiles);
+        Set<SightTile> uncertain = new HashSet<>();
         float sx = shell.getX();
         float sy = shell.getY();
         float sz = shell.getZ();
@@ -142,10 +190,18 @@ public final class SAOPerceptionScanner {
             if (zombie == null || zombie.isDead()) {
                 continue;
             }
+            SightTile tile = new SightTile((int) Math.floor(zombie.getX()),
+                (int) Math.floor(zombie.getY()), (int) Math.floor(zombie.getZ()));
+            // A hidden occupant can only withhold negative evidence. Its
+            // existence, identity and location are never reported to Lua.
+            boolean inSight = visibleFrom(eye, sx, sy, sz, faceX, faceY, zombie, RANGE)
+                && clearPath(eye, zombie.getCurrentSquare(), true);
+            if (Math.abs(zombie.getZ() - sz) < 0.5f && !inSight) uncertain.add(tile);
             try {
                 if (zombie.isUseless()) {
                     // [C124] Stealth mod / debug AI deactivation: useless
                     // zombies are left alone; nothing to perceive while active.
+                    uncertain.add(tile);
                     continue;
                 }
             } catch (Throwable ignored) {
@@ -157,7 +213,22 @@ public final class SAOPerceptionScanner {
                     eye, sx, sy, sz, faceX, faceY, zombie);
                 continue;
             }
-            appendIfVisible(out, "Z", null, eye, sx, sy, sz, faceX, faceY, zombie);
+            if (inSight && !visible.containsKey(zombie)) {
+                appendIfVisible(out, "Z", null, eye, sx, sy, sz, faceX, faceY, zombie);
+                String track = tracks.track(zombie);
+                visible.put(zombie, track);
+                out.append(":track:").append(track).append(":floor:").append(tile.z);
+                if (requested.size() < MAX_KNOWN_TILES) requested.add(tile);
+            }
+        }
+        tracks.previous = visible;
+        for (SightTile tile : requested) {
+            if (uncertain.contains(tile)) continue;
+            IsoGridSquare square = cell.getGridSquare(tile.x, tile.y, tile.z);
+            if (wholeTileVisible(shell, square)) {
+                if (out.length() > 0) out.append('|');
+                out.append("V:").append(tile.x).append(':').append(tile.y).append(':').append(tile.z);
+            }
         }
         // F-011: IsoPlayer.players is the SLOT array - real players only.
         // Off-slot shells live in the cell's moving objects; scanning there
@@ -209,13 +280,15 @@ public final class SAOPerceptionScanner {
         // Hearing: world sounds whose own radius reaches this survivor.
         // Omnidirectional, no occlusion (walls muffle, they rarely silence) —
         // and inherently imprecise: the report is the sound's origin tile,
-        // which Perception records as a "heard" belief, not an "observed" one.
+        // which Perception records as an unclassified heard sound. Audibility
+        // alone identifies neither a zombie nor a gunshot. A person's own
+        // sound is known to them, including footsteps behind their new tile.
         var sounds = zombie.WorldSoundManager.instance == null
             ? null : zombie.WorldSoundManager.instance.soundList;
         if (sounds != null) {
             for (int index = 0; index < sounds.size(); index++) {
                 var sound = sounds.get(index);
-                if (sound == null || !sound.stresshumans && sound.volume <= 0) {
+                if (sound == null || sound.source == shell || !sound.stresshumans && sound.volume <= 0) {
                     continue;
                 }
                 float dx = sound.x - sx;
@@ -241,6 +314,40 @@ public final class SAOPerceptionScanner {
             }
         }
         return out.toString();
+    }
+
+    public static String scan(IsoGameCharacter shell) {
+        return scan(shell, "");
+    }
+
+    private static Set<SightTile> knownSightTiles(String text) {
+        Set<SightTile> tiles = new LinkedHashSet<>();
+        if (text == null || text.length() > MAX_KNOWN_TEXT) return tiles;
+        for (String item : text.split(";", MAX_KNOWN_TILES + 1)) {
+            if (tiles.size() >= MAX_KNOWN_TILES) break;
+            String[] xy = item.split(",", -1);
+            if (xy.length != 3) continue;
+            try {
+                tiles.add(new SightTile(Integer.parseInt(xy[0]), Integer.parseInt(xy[1]),
+                    Integer.parseInt(xy[2])));
+            } catch (NumberFormatException ignored) { }
+        }
+        return tiles;
+    }
+
+    private static boolean wholeTileVisible(IsoGameCharacter observer, IsoGridSquare square) {
+        if (square == null) return false;
+        // Every corner must fit the shorter prone-body range and facing cone.
+        // An occupied tile with any unseen body was already withheld above.
+        // The native line test checks intervening squares, not just endpoints.
+        float range = Math.max(NEAR_SENSE, RANGE * 0.6f);
+        for (float dx : new float[] { 0.01f, 0.99f }) {
+            for (float dy : new float[] { 0.01f, 0.99f }) {
+                if (!withinSightCone(observer, square.getX() + dx,
+                        square.getY() + dy, square.getZ(), range)) return false;
+            }
+        }
+        return clearPath(observer.getCurrentSquare(), square, true);
     }
 
     private static void appendIfVisible(
@@ -496,6 +603,22 @@ public final class SAOPerceptionScanner {
             if (alignment < CONE_COS) return false;
         }
         return clearPath(observer.getCurrentSquare(), target, true);
+    }
+
+    private static boolean withinSightCone(IsoGameCharacter observer,
+            float x, float y, float z, float range) {
+        float sx = observer.getX(), sy = observer.getY(), sz = observer.getZ();
+        if (!withinSameFloorRange(sx, sy, sz, x, y, z, range)) {
+            return false;
+        }
+        double dx = (double) x - sx, dy = (double) y - sy;
+        double distance = Math.sqrt(dx * dx + dy * dy);
+        if (distance > NEAR_SENSE) {
+            double alignment = (dx * observer.getForwardDirectionX()
+                + dy * observer.getForwardDirectionY()) / distance;
+            if (alignment < CONE_COS) return false;
+        }
+        return true;
     }
 
     private static boolean withinSameFloorRange(float ax, float ay, float az,

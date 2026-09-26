@@ -53,6 +53,17 @@ end
 CASES = r'''
 do
  local r,b,a=__setup()
+ SAO.Body.unloaded.p1=true
+ assert(SAO.Body.get('p1')==nil and SAO.Body.hasRepresentation('p1'),
+   'unloaded checkpoint fixture lost retained ownership')
+ local report=__save()
+ assert(report.saved==1 and __persisted.p1.hibernation=='SNAP:carried',
+   'save persisted stale consumed/acquired items during unloaded checkpoint')
+ assert(SAO.Body.active.p1==b and SAO.Body.unloaded.p1,
+   'checkpoint changed live ownership during unloaded checkpoint')
+end
+do
+ local r,b,a=__setup()
  r.hibernation='SNAP:consumed-apple' b.payload='acquired-key'
  r.bodyVisual='VIS:old-look' b.visual='dyed-current-look'
  b.x=310 b.y=311 b.z=1 __now=57
@@ -223,7 +234,7 @@ def main():
          'capture failure reported faithful save'),
         ('rec.bodyCheckpointFailure = { reason = reason,', 'rec.bodyCheckpointFailure = nil local unused = { reason = reason,',
          'checkpoint failure was hidden'),
-        ('or Body.isTransitioning(rec) then', 'or false then', 'checkpoint captured excluded owner'),
+        ('or hasTransitionJournal(rec) then', 'or false then', 'checkpoint captured excluded owner'),
         ('not rec or rec.dead or Body.foreign[id] or Body.returning[id]',
          'not rec or rec.dead or false or Body.returning[id]', 'checkpoint captured excluded owner'),
         ('SAO.BodySnapshot.commit(rec, captured)\n                report.saved = report.saved + 1\n                local facts',

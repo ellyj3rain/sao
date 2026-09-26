@@ -5,7 +5,9 @@ The production owner is executed in the installed Kahlua VM against a small
 ISApplyBandage seam. The probe distinguishes queue admission, interruption,
 native refusal, an ineffective dirty dressing, effective completion, exact
 patient binding, saved-result consumption, and unavailable live work after a
-reload.
+reload. Body-unload cases bind the owner's real action handle to distinct Lua
+and native queues, exercise active and unstarted cancellation, and retain
+ownership when either queue or cancellation result is unknown.
 """
 import pathlib
 import re
@@ -33,6 +35,8 @@ SAO = { History = { ticks = function() return 100 end } }
 _G.__stores, _G.__queue, _G.__queueReject = {}, {}, false
 _G.__trust, _G.__voice, _G.__customXP, _G.__nativeXP = {}, 0, 0, 0
 _G.__logs, _G.__gesture = 0, 0
+_G.__timedQueues, _G.__cancelMode = {}, nil
+_G.__clearCalls, _G.__stopCalls, _G.__cancelCalls = 0, 0, 0
 ModData = { getOrCreate = function(key)
     __stores[key] = __stores[key] or {}; return __stores[key]
 end }
@@ -97,6 +101,10 @@ local function body(id, x, username)
     end
     function value:isKnockedDown() return self.knockedDown end
     function value:getHealth() return self.health end
+    function value:getCharacterActions()
+        if __cancelMode == "native-unknown" then error("native queue unavailable") end
+        return list(self.nativeActions or {})
+    end
     return value
 end
 local function item(id, dirty, holder)
@@ -119,9 +127,16 @@ _G.partP = part(3)
 bodyA.parts, bodyB.parts, bodyP.parts = { partA }, { partB }, { partP }
 _G.item = item
 _G.reset = reset
+_G.makeBody = body
 _G.__bodies = { a = bodyA, b = bodyB, ["player:operator"] = bodyP }
-SAO.Body = { get = function(id) return __bodies[tostring(id)] end }
+SAO.Body = { active = __bodies, foreign = {}, get = function(id)
+    if __hideBodies then return nil end
+    return __bodies[tostring(id)]
+end }
 function getSpecificPlayer(_) return bodyP end
+function instanceof(value, kind)
+    return kind == "LuaTimedActionNew" and value.getTable ~= nil
+end
 
 ISApplyBandage = {}
 function ISApplyBandage:derive(_)
@@ -141,15 +156,43 @@ function ISApplyBandage.complete(self)
     if life > 0 then __nativeXP = __nativeXP + 1 end
     return true
 end
-function ISApplyBandage.stop(_) return true end
-function ISApplyBandage.forceCancel(_) return true end
+function ISApplyBandage.stop(_)
+    __stopCalls = __stopCalls + 1
+    if __cancelMode == "stop-refused" then return false end
+    return true
+end
+function ISApplyBandage.forceCancel(_)
+    __cancelCalls = __cancelCalls + 1
+    if __cancelMode == "cancel-refused" then return false end
+    return true
+end
+function ISApplyBandage.isStarted(self)
+    return self.action and self.action.started
+end
 
 ISTimedActionQueue = {
+    queues = __timedQueues,
     add = function(action)
         if __queueReject then return end
         __queue[action] = true; __lastAction = action
     end,
-    hasAction = function(action) return __queue[action] == true end,
+    hasAction = function(action)
+        if __cancelMode == "lua-unknown" then return nil end
+        return __queue[action] == true
+    end,
+    getTimedActionQueue = function(character) return __timedQueues[character] end,
+    clear = function(character)
+        __clearCalls = __clearCalls + 1
+        if __cancelMode == "clear-error" then error("native clear refused") end
+        local owner = __timedQueues[character]
+        if owner.current then owner.current:stop() end
+        if __cancelMode == "clear-after-stop" then error("clear incomplete") end
+        for _, action in ipairs(owner.queue) do __queue[action] = nil end
+        owner.queue = {}
+        if __cancelMode ~= "stale-current" then owner.current = nil end
+        if __cancelMode ~= "native-retained" then character.nativeActions = {} end
+        return owner
+    end,
 }
 SAO.Needs = { queueVerified = function(action)
     if __queueReject then return false end
@@ -333,6 +376,156 @@ PROBE = r'''
   check("player_identity_uses_same_owner", playerCare.status == "completed"
     and trust("b", "player:operator") == 0.15)
 
+  -- Each case uses the action produced by the real Treatment.begin owner,
+  -- with separate Lua membership and the exact native handle held by its actor.
+  local nextUnloadItem = 30
+  local function unloadFixture(active, mode)
+    reset(partB)
+    __cancelMode = nil
+    __clearCalls, __stopCalls, __cancelCalls = 0, 0, 0
+    nextUnloadItem = nextUnloadItem + 1
+    local dressing = item(nextUnloadItem, false, bodyA.inventory)
+    local rec = SAO.Treatment.begin("a", bodyA, "b", bodyB, dressing,
+      partB, aidEffect("a", "b", 185))
+    local live = SAO.Treatment._runtime[rec.id]
+    local action = live.action
+    local other = { character = bodyA, action = { started = true },
+      stop = function() error("unrelated action stopped") end }
+    action.action = active and { started = true, getTable = function() return action end } or nil
+    local owner = { character = bodyA, current = active and action or other,
+      queue = active and { action } or { other, action } }
+    function owner:removeFromQueue(removing)
+      if __cancelMode == "remove-error" then error("queue removal refused") end
+      for i, value in ipairs(self.queue) do
+        if value == removing then table.remove(self.queue, i); break end
+      end
+      __queue[removing] = nil
+    end
+    __timedQueues[bodyA] = owner
+    __queue[action], __queue[other] = true, not active
+    bodyA.nativeActions = { active and action.action or other.action }
+    __cancelMode = mode
+    return rec, live, owner, other, dressing
+  end
+  local function finishFixture(rec)
+    -- Keep later verdicts observable even when a production mutation leaves
+    -- this case pending. This is fixture teardown, never an unload witness.
+    local live = SAO.Treatment._runtime[rec.id]
+    if live then live.unloadBlocked, live.unloadInterrupt = nil, nil end
+    SAO.Treatment.releasePerson("b", "fixture-reset")
+  end
+  local oldTrust, oldVoice, oldXP, oldNative =
+    trust("b", "a"), __voice, __customXP, __nativeXP
+  local active, activeLive, activeOwner, _, activeItem = unloadFixture(true)
+  local stopped = SAO.Treatment.interruptForBodyUnload("b", "region-unloaded")
+  check("unload_current_stops_native_and_lua", stopped == true
+    and active.status == "interrupted" and active.reason == "region-unloaded"
+    and __clearCalls == 1 and __stopCalls == 1
+    and #bodyA.nativeActions == 0 and #activeOwner.queue == 0
+    and SAO.Treatment._runtime[active.id] == nil)
+  activeLive.action:complete()
+  check("unload_withholds_all_care", activeItem.container == bodyA.inventory
+    and not partB:bandaged() and trust("b", "a") == oldTrust
+    and __voice == oldVoice and __customXP == oldXP and __nativeXP == oldNative)
+  finishFixture(active)
+
+  local waiting, waitingLive, waitingOwner, other, waitingItem = unloadFixture(false)
+  local cancelled = SAO.Treatment.interruptForBodyUnload("b", "region-unloaded")
+  check("unload_queued_preserves_other_actions", cancelled == true
+    and waiting.status == "interrupted" and __clearCalls == 0
+    and __cancelCalls == 1 and #waitingOwner.queue == 1
+    and waitingOwner.queue[1] == other and waitingOwner.current == other
+    and __queue[other] == true and __queue[waitingLive.action] == nil
+    and bodyA.nativeActions[1] == other.action
+    and waitingItem.container == bodyA.inventory)
+  finishFixture(waiting)
+
+  local retained, retainedLive, retainedOwner = unloadFixture(true)
+  __queue[retainedLive.action] = nil
+  retainedOwner.queue, retainedOwner.current = {}, nil
+  check("unload_native_presence_outlives_lua", SAO.Treatment.interruptForBodyUnload("b") == true
+    and __clearCalls == 1 and #bodyA.nativeActions == 0
+    and retained.status == "interrupted")
+  finishFixture(retained)
+
+  local stale, staleLive, staleOwner = unloadFixture(true, "stale-current")
+  check("unload_uses_membership_not_stale_pointer",
+    SAO.Treatment.interruptForBodyUnload("b") == true
+    and staleOwner.current == staleLive.action and #staleOwner.queue == 0
+    and #bodyA.nativeActions == 0 and stale.status == "interrupted")
+  finishFixture(stale)
+
+  local failuresHeld, retriesStopped = true, true
+  for _, mode in ipairs({ "lua-unknown", "native-unknown", "clear-error",
+      "clear-after-stop", "native-retained", "stop-refused",
+      "cancel-refused", "remove-error", "missing-runtime" }) do
+    local activeCase = mode ~= "cancel-refused" and mode ~= "remove-error"
+    local rec, live = unloadFixture(activeCase, mode)
+    if mode == "missing-runtime" then SAO.Treatment._runtime[rec.id] = nil end
+    local interrupted = SAO.Treatment.interruptForBodyUnload("b", "region-unloaded")
+    SAO.Treatment.reconcile(true)
+    failuresHeld = failuresHeld and interrupted == false and rec.status == "pending"
+      and (mode == "missing-runtime" or SAO.Treatment._runtime[rec.id] == live)
+      and not partB:bandaged() and __customXP == oldXP and __nativeXP == oldNative
+      and trust("b", "a") == oldTrust and __voice == oldVoice
+    __cancelMode = nil
+    if mode == "missing-runtime" then SAO.Treatment._runtime[rec.id] = live end
+    retriesStopped = retriesStopped
+      and SAO.Treatment.interruptForBodyUnload("b", "region-unloaded") == true
+      and rec.status == "interrupted" and SAO.Treatment._runtime[rec.id] == nil
+    finishFixture(rec)
+  end
+  check("unload_failure_retains_ownership", failuresHeld)
+  check("unload_retry_closes_only_after_cancellation", retriesStopped)
+  check("unload_no_owned_work_is_safe", SAO.Treatment.interruptForBodyUnload("b") == true)
+
+  local missing, missingLive, missingOwner = unloadFixture(true)
+  SAO.Treatment._runtime[missing.id] = nil
+  missingOwner.queue, missingOwner.current = {}, nil
+  __queue[missingLive.action], bodyA.nativeActions = nil, {}
+  check("same_world_missing_handle_remains_unknown",
+    SAO.Treatment.interruptForBodyUnload("b") == false and missing.status == "pending")
+  SAO.Treatment._runtime[missing.id] = missingLive
+  SAO.Treatment.interruptForBodyUnload("b")
+  finishFixture(missing)
+
+  local restored, restoredLive, restoredOwner = unloadFixture(true)
+  SAO.Treatment.rebindWorld()
+  __hideBodies = true
+  local retainedLua = SAO.Treatment.interruptForBodyUnload("b") == false
+    and restored.status == "pending" and SAO.Treatment._runtime[restored.id] == nil
+  restoredOwner.queue, restoredOwner.current = {}, nil
+  __queue[restoredLive.action] = nil
+  local retainedNative = SAO.Treatment.interruptForBodyUnload("b") == false
+    and restored.status == "pending"
+  __hideBodies = nil
+  check("reload_pending_checks_actual_actor_queues", retainedLua and retainedNative)
+
+  -- A new world represents new bodies; no action is fabricated from the saved
+  -- scalar receipt. The current actor's real queues witness its absence.
+  bodyA, bodyB = makeBody("a", 0), makeBody("b", 1)
+  bodyA.parts, bodyB.parts = { partA }, { partB }
+  __bodies.a, __bodies.b = bodyA, bodyB
+  __timedQueues, __queue = {}, {}
+  ISTimedActionQueue.queues = __timedQueues
+  check("reload_pending_unload_is_interrupted_without_credit",
+    SAO.Treatment.interruptForBodyUnload("b", "new-world-unload") == true
+    and restored.status == "interrupted" and restored.reason == "new-world-unload"
+    and SAO.Treatment._runtime[restored.id] == nil
+    and trust("b", "a") == oldTrust and __voice == oldVoice
+    and __customXP == oldXP and __nativeXP == oldNative and not partB:bandaged())
+
+  local dormant = unloadFixture(true)
+  SAO.Treatment.rebindWorld()
+  __bodies.a = nil
+  __timedQueues, __queue = {}, {}
+  ISTimedActionQueue.queues = __timedQueues
+  check("reload_pending_without_actor_representation_is_inert",
+    SAO.Treatment.interruptForBodyUnload("b") == true
+    and dormant.status == "interrupted" and __customXP == oldXP
+    and __nativeXP == oldNative and trust("b", "a") == oldTrust)
+  __bodies.a = bodyA
+
   ModData.getOrCreate("SurvivorAwareness_Treatments").schema = 2
   SAO.Treatment.rebindWorld()
   reset(partB)
@@ -356,6 +549,15 @@ EXPECTED = {
     "queue_refusal_withholds_consequences", "saved_completion_consumes_once",
     "reload_waits_for_skill_body",
     "player_identity_uses_same_owner", "future_schema_is_refused",
+    "unload_current_stops_native_and_lua", "unload_withholds_all_care",
+    "unload_queued_preserves_other_actions", "unload_failure_retains_ownership",
+    "unload_retry_closes_only_after_cancellation", "unload_no_owned_work_is_safe",
+    "unload_native_presence_outlives_lua",
+    "unload_uses_membership_not_stale_pointer",
+    "reload_pending_checks_actual_actor_queues",
+    "reload_pending_unload_is_interrupted_without_credit",
+    "reload_pending_without_actor_representation_is_inert",
+    "same_world_missing_handle_remains_unknown",
 }
 
 
@@ -394,16 +596,30 @@ def mutation_control():
     applyRecordEffect(rec, runtime[id])
     rec.status = \"pending\"
     log(actor .. \" began treating \" .. patient .. \" as \" .. id)"""
-    if source.count(needle) != 1:
-        return False, "queue-credit mutation anchor absent"
-    with tempfile.TemporaryDirectory() as tmp:
-        broken = pathlib.Path(tmp) / "SAO_Treatment_broken.lua"
-        broken.write_text(source.replace(needle, mutation), encoding="utf-8")
-        value, detail = run_probe(broken)
-    verdicts = dict(re.findall(r"([a-z0-9_]+)=(true|false)", value or ""))
-    if verdicts.get("queued_without_effect") != "false":
-        return False, "queue-credit mutation was not named: " + detail[-500:]
-    return True, "queue-created care credit rejected as queued_without_effect"
+    controls = [
+        ("queue-credit", needle, mutation, "queued_without_effect"),
+        ("native-stop", "return ISTimedActionQueue.clear(live.actorBody)",
+         "return true", "unload_current_stops_native_and_lua"),
+        ("queued-removal", "return owner:removeFromQueue(action)",
+         "return true", "unload_queued_preserves_other_actions"),
+        ("premature-release", "    if live and (live.unloadInterrupt or live.unloadBlocked) then return false end",
+         "", "unload_failure_retains_ownership"),
+        ("same-world-proof", "or not restoredPending[tostring(rec.id)]",
+         "", "same_world_missing_handle_remains_unknown"),
+        ("restored-action-proof", "or not restoredActionAbsent(rec)",
+         "", "reload_pending_checks_actual_actor_queues"),
+    ]
+    for label, old, new, expected in controls:
+        if source.count(old) != 1:
+            return False, label + " mutation anchor absent"
+        with tempfile.TemporaryDirectory() as tmp:
+            broken = pathlib.Path(tmp) / "SAO_Treatment_broken.lua"
+            broken.write_text(source.replace(old, new, 1), encoding="utf-8")
+            value, detail = run_probe(broken)
+        verdicts = dict(re.findall(r"([a-z0-9_]+)=(true|false)", value or ""))
+        if verdicts.get(expected) != "false":
+            return False, label + " mutation was not named: " + detail[-500:]
+    return True, "six controls reject premature credit, missing cancellation and unproved restored-action absence"
 
 
 def static_contract():
@@ -414,6 +630,7 @@ def static_contract():
     identity = IDENTITY.read_text(encoding="utf-8")
     required = (
         "function T.begin", "function T.reconcile", "function T.releasePerson",
+        "function T.interruptForBodyUnload",
         "function bandageClass:complete", "ISApplyBandage.complete",
         "effectiveDressing", "patientId", "bodyPartIndex", "effectApplied",
     )

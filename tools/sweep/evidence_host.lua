@@ -1,8 +1,8 @@
 -- Evidence sweeps use explicit unavailable ground and the installed cell span.
 -- The historical decision dump retains its own original prelude semantics.
 SAO.Controller = { tick = function() return SAO.History.ticks() end }
+getCellSizeInSquares = function() return SWEEP_CELL_SPAN end
 getCell = function() return {
-    getCellSizeInSquares = function() return SWEEP_CELL_SPAN end,
 } end
 -- There is no loaded chunk to survey. Do not manufacture doors or boards.
 SAOJavaBridge.surveyClaim = function() return nil end

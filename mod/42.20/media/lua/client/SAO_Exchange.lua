@@ -766,19 +766,12 @@ function Exchange.betweenPair(id, agent, body, otherId, otherBody, tickCount)
                     -- doorstep. Two people in one house now describe
                     -- the same house; before this they described two
                     -- overlapping squares that happened to share a
-                    -- centre. Only where the anchor holds nothing
-                    -- does a radius have to be guessed at.
+                    -- centre. An unclaimed home changes where the
+                    -- joiner lives without creating ownership.
                     local ac = SAO.Standing.claimOf(anchorId)
                     if ac then
                         SAO.Standing.claim(moverId, ac.minX, ac.minY,
                             ac.maxX, ac.maxY, ac.z or 0)
-                    else
-                        local mnX, mnY, mxX, mxY =
-                            SAO.Standing.groundAround(
-                                SAO.Body.get(anchorId),
-                                anchorRec.homeX, anchorRec.homeY, 4)
-                        SAO.Standing.claim(moverId, mnX, mnY, mxX, mxY,
-                            anchorRec.homeZ or 0)
                     end
                 end)
                 pcall(function()

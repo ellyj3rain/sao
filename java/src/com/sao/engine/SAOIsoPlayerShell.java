@@ -1,17 +1,18 @@
 package com.sao.engine;
 
-import com.sao.agent.SAOAgent;
 import java.lang.reflect.Field;
+import zombie.characters.IsoGameCharacter;
 import zombie.characters.IsoPlayer;
 import zombie.characters.SurvivorDesc;
 import zombie.characters.component.CharacterInputComponent;
 import zombie.iso.IsoCell;
+import zombie.iso.IsoCamera;
 import zombie.iso.Vector2;
 
 /**
  * The NPC body class. Construction alone is not enough for a drawn, safe NPC:
  * the body must be registered with ModelManager and hold an off-slot
- * playerIndex (SAOBridge does both), and this subclass must patch the four
+ * playerIndex (SAOBridge does both), and this subclass must patch the following
  * behaviors below, whose semantics were established against a working
  * IsoPlayer-NPC implementation and this build's engine:
  *
@@ -21,14 +22,13 @@ import zombie.iso.Vector2;
  *   controller aim source; its controller sets facing explicitly.
  * - updateLOS -> no-op: the inherited implementation writes per-player alpha
  *   channels from this character's viewpoint and would fade the real player.
- * - update() -> preserve the engine's global "the player" reference:
- *   IsoPlayer.updateInternal2 assigns the receiver to it even when the
- *   receiver is an NPC; camera/UI/Lua would then resolve an NPC as the player.
+ * - update()/postupdate() -> preserve the global player and camera owners.
+ *   Native updates assign local-player receivers to these globals even when
+ *   the receiver is an off-slot NPC; camera/UI/Lua must keep their prior owners.
  */
 public final class SAOIsoPlayerShell extends IsoPlayer {
 
-    private static Field instanceField;
-    private static boolean instanceFieldFailed;
+    private static Field cameraCharacterField;
 
     private final CharacterInputComponent isolatedInput = new CharacterInputComponent();
 
@@ -77,29 +77,40 @@ public final class SAOIsoPlayerShell extends IsoPlayer {
     public void update() {
         if (removalPending) return;
         IsoPlayer keep = IsoPlayer.getInstance();
+        IsoGameCharacter camera = IsoCamera.getCameraCharacter();
         try {
             super.update();
         } finally {
-            restoreGlobalInstance(keep);
+            restoreGlobalOwners(keep, camera);
         }
     }
 
-    private static void restoreGlobalInstance(IsoPlayer keep) {
-        if (instanceFieldFailed) {
-            return;
-        }
+    @Override
+    public void postupdate() {
+        if (removalPending) return;
+        IsoPlayer keep = IsoPlayer.getInstance();
+        IsoGameCharacter camera = IsoCamera.getCameraCharacter();
         try {
-            if (instanceField == null) {
-                instanceField = IsoPlayer.class.getDeclaredField("instance");
-                instanceField.setAccessible(true);
+            super.postupdate();
+        } finally {
+            restoreGlobalOwners(keep, camera);
+        }
+    }
+
+    private static void restoreGlobalOwners(IsoPlayer keep, IsoGameCharacter camera) {
+        IsoPlayer.setInstance(keep);
+        if (IsoCamera.getCameraCharacter() == camera || IsoCamera.setCameraCharacter(camera)) return;
+        // The native setter refuses IsoDummyCameraCharacter even though the
+        // follow API can install one. Restore that exact prior owner without
+        // replaying follow's UI side effects.
+        try {
+            if (cameraCharacterField == null) {
+                cameraCharacterField = IsoCamera.class.getDeclaredField("isoCameraGameCharacter");
+                cameraCharacterField.setAccessible(true);
             }
-            if (IsoPlayer.getInstance() != keep) {
-                instanceField.set(null, keep);
-            }
-        } catch (Throwable throwable) {
-            instanceFieldFailed = true;
-            SAOAgent.log("shell: cannot restore IsoPlayer.instance (" + throwable
-                + ") - override disabled");
+            cameraCharacterField.set(null, camera);
+        } catch (ReflectiveOperationException failure) {
+            throw new IllegalStateException("Cannot restore native camera owner", failure);
         }
     }
 }

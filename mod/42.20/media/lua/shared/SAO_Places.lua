@@ -393,15 +393,15 @@ end
 -- quantum (the cell), and it moves with the asker: knowledge anchors
 -- to where you live and where you stand, not to a sandbox number.
 
--- The engine's cell edge in squares (FACTS: IsoCell exposes it).
--- 300 is B42's actual value; the pcall answers if the engine ever
--- changes its mind.
+-- The native Lua global exposes IsoCell's static cell-size method. Calling
+-- that static method on a cell instance fails in the actual Lua binding.
+-- The fallback is the installed B42.20 format for bodyless execution.
 local cellSpanCache = nil
 function Pl.cellSpan()
     if cellSpanCache then return cellSpanCache end
     local span = nil
-    pcall(function() span = getCell():getCellSizeInSquares() end)
-    cellSpanCache = (type(span) == "number" and span > 0) and span or 300
+    if getCellSizeInSquares then span = getCellSizeInSquares() end
+    cellSpanCache = (type(span) == "number" and span > 0) and span or 256
     return cellSpanCache
 end
 

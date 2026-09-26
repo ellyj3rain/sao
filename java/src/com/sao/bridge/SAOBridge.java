@@ -67,6 +67,7 @@ public final class SAOBridge {
         com.sao.engine.SAONeeds.resetRuntimeForWorld();
         com.sao.engine.SAOReturnBody.resetRuntimeForWorld();
         com.sao.engine.SAOWorldSources.resetRuntimeForWorld();
+        com.sao.engine.SAOPerceptionScanner.resetRuntimeForWorld();
     }
 
     /** Exact native-bundle standing.  Lua refuses any hash other than C82's
@@ -2228,6 +2229,21 @@ public final class SAOBridge {
         }
     }
 
+    public String perceive(Object object, String knownTiles) {
+        try {
+            // [B41] Any character with a body. The real player
+            // reached this and got "" back, which is why their
+            // belief store only ever held what they were TOLD.
+            if (!(object instanceof zombie.characters.IsoGameCharacter who)) {
+                return "";
+            }
+            return com.sao.engine.SAOPerceptionScanner.scan(who, knownTiles);
+        } catch (Throwable throwable) {
+            SAOAgent.log("perceive threw: " + throwable);
+            return "";
+        }
+    }
+
     /** [C60] Recheck a perceived action participant at the point of use. */
     public boolean canSeePersonNow(Object observerObject, Object otherObject,
                                    double actionRange) {
@@ -3558,6 +3574,27 @@ public final class SAOBridge {
 
     public boolean isShell(Object object) {
         return object instanceof SAOIsoPlayerShell;
+    }
+
+    /** A live owned shell whose native world attachment has ended. Native chunk
+     * unloading removes the body from the cell and clears its current square.
+     * A missing square alone also occurs during admission or movement, while a
+     * staged/captured body is deliberately detached and belongs to its existing
+     * transaction. This reads attachment state; it does not infer an unload cause
+     * or interrupt, remove, or otherwise change the shell.
+     */
+    public boolean isShellUnloaded(Object object) {
+        try {
+            if (!(object instanceof SAOIsoPlayerShell shell)
+                    || shell.removalPending || shell.getCurrentSquare() != null) return false;
+            IsoWorld world = IsoWorld.instance;
+            IsoCell cell = world == null ? null : world.getCell();
+            if (cell == null || cell.getObjectList() == null || cell.getAddList() == null) return false;
+            return !cell.getObjectList().contains(shell) && !cell.getAddList().contains(shell);
+        } catch (Throwable throwable) {
+            SAOAgent.log("isShellUnloaded threw: " + throwable);
+            return false;
+        }
     }
 
     // ------------------------------------------------------------------

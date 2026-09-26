@@ -104,7 +104,7 @@ local function whereIs(key)
     local x, y = nil, nil
     pcall(function()
         if SAO.Standing.isPlayerKey(key) then
-            local me = getSpecificPlayer(0)
+            local me = (SAO.Participants and SAO.Participants.player or getSpecificPlayer)(0)
             if me then x, y = me:getX(), me:getY() end
             return
         end
@@ -167,11 +167,6 @@ local FOLLOW_TRAVERSE_REACH = 10.0
 -- [C4] tiles: a companion this near the player's vehicle makes for a
 -- seat instead of walking after the bumper.
 local VEHICLE_FOLD_REACH = 12.0
--- [C18] tiles: how close a person you can SEE must be to a shot you
--- only HEARD before you judge them its author. Named because it is
--- the same number as a route's retarget slack and an entirely
--- different question - moving one must never move the other.
-local SHOT_ORIGIN_REACH = 2.0
 -- [C10] tiles: how far around the promise site the keeper looks for
 -- the ONE risen body carrying the person's mark. Wider than arrival
 -- (the body wanders while the keeper walks), narrower than the
@@ -607,7 +602,7 @@ end
 -- actually carried, so the player hears exactly what a survivor
 -- standing in their shoes would.
 local function tellPlayerOfCry(crierId, crierRec, crierBody, reach)
-    local me = getSpecificPlayer(0)
+    local me = (SAO.Participants and SAO.Participants.player or getSpecificPlayer)(0)
     if not me or me:isDead() or not crierBody or not crierRec then return end
     local dx = crierBody:getX() - me:getX()
     local dy = crierBody:getY() - me:getY()
@@ -1445,11 +1440,11 @@ end
 -- Survivors have always SEEN them - the scanner emits a real player
 -- as a `P:` row with a condition bracket - so the only thing missing
 -- was a body to walk to.
-local function bodyForKey(key)
+local function bodyForKey(key, contextBody)
     local b = SAO.Body.get(key)
     if b then return b end
     if SAO.Standing.isPlayerKey(key) then
-        local me = getSpecificPlayer(0)
+        local me = (SAO.Participants and SAO.Participants.player or getSpecificPlayer)(0)
         if me and not me:isDead()
             and SAO.Standing.playerKey(me) == key then
             return me
@@ -1462,10 +1457,9 @@ local function bodyForKey(key)
     -- they were the whole time; nothing asked it the reverse question.
     if string.sub(tostring(key), 1, 8) == "foreign:" then
         local who = string.sub(tostring(key), 9)
-        local me2 = getSpecificPlayer(0)
-        if me2 and who ~= "" and SAOJavaBridge then
+        if contextBody and who ~= "" and SAOJavaBridge then
             local okF, fbody = pcall(function()
-                return SAOJavaBridge:foreignBodyByName(me2, who)
+                return SAOJavaBridge:foreignBodyByName(contextBody, who)
             end)
             if okF and fbody then return fbody end
         end
@@ -1614,6 +1608,106 @@ end
 
 -- Each decision phase returns true only when it consumed the decision.
 -- Separate functions also keep cumulative locals within the engine debug compiler limit.
+local function continueFleeRoute(id, agent, body, bx, by, awayX, awayY, awayLength)
+    local job = SAO.Locomotion.jobs[id]
+    if agent.state ~= "FLEE" or not job or job.done
+        or job.body ~= body or not job.goal then return false end
+    local goal = job.goal
+    -- The bridge narrows the requested tile toward zero; SAOMovement walks
+    -- to its centre. Testing the tile corner would abandon the last half
+    -- tile before the native arrival verdict. New-refuge ARRIVAL_REACH also
+    -- does not apply to an already executing route.
+    local targetX = (goal.x < 0 and math.ceil(goal.x) or math.floor(goal.x)) + 0.5
+    local targetY = (goal.y < 0 and math.ceil(goal.y) or math.floor(goal.y)) + 0.5
+    local gx, gy = targetX - bx, targetY - by
+    local remaining = math.sqrt(gx * gx + gy * gy)
+    local away = remaining ~= 0 and (awayLength < 0.1
+        or gx * awayX + gy * awayY > 0.1 * remaining * awayLength)
+    if goal.z == math.floor(body:getZ()) and away
+        and mayEnterBelieved(id, goal.x, goal.y) then
+        agent.fleeTargetX, agent.fleeTargetY = goal.x, goal.y
+        return true
+    end
+    -- An invalidated route is no longer a candidate for Loco.order's
+    -- two-tile retarget shortcut, even if the replacement happens to be near.
+    SAO.Locomotion.cancel(id)
+    return false
+end
+
+local function advanceFleeConsequences(id, agent, body, tick)
+    -- [B20] Hurt AND running is when a person actually
+    -- screams. The cooldown and the severity gate keep
+    -- it an act rather than a siren, and the sound it
+    -- makes draws more of what they are running from -
+    -- which is the honest price of shouting.
+    tryCry(id, agent, body, tick)
+    -- [B20] Did the player come? Sampled while the window is
+    -- open, because "did you show up" is the human measure of
+    -- answering a cry - not whether you happened to be carrying a
+    -- bandage. The offer verb needs them close anyway, so this
+    -- catches the player who actually helped as well as the one
+    -- who simply came running.
+    if agent.criedAt and not agent.playerCame then
+        local mePC = (SAO.Participants and SAO.Participants.player or getSpecificPlayer)(0)
+        if mePC and not mePC:isDead() then
+            local pcx = mePC:getX() - body:getX()
+            local pcy = mePC:getY() - body:getY()
+            if pcx * pcx + pcy * pcy
+                <= ARRIVAL_REACH * ARRIVAL_REACH then
+                agent.playerCame = true
+            end
+        end
+    end
+    -- [B20] And the reckoning, when nobody came. The crier judges
+    -- by OUTCOME - they cannot see that a hearer was answering
+    -- their own hunger, or is a loner, or was simply slower than
+    -- the window. They know they called and nobody came, and the
+    -- simulation should let a person be wronged by someone who
+    -- did nothing wrong rather than quietly forgive on their
+    -- behalf.
+    if agent.criedAt and tick > agent.criedAt + 1800 then
+        local answered = (agent.aidedAt or 0) >= agent.criedAt
+        local heardList = agent.criedHeard or {}
+        local playerCame = agent.playerCame
+        agent.criedAt, agent.criedHeard = nil, nil
+        agent.playerCame = nil
+        if not answered and #heardList > 0 then
+            local blamed = 0
+            for _, hid in ipairs(heardList) do
+                local hAgent = Ctl.agents[hid]
+                -- Anyone who SET OUT is not blamed: being slow is
+                -- not the same as ignoring. And no faith is lost
+                -- in an enemy who failed to save you, because
+                -- there was none to lose.
+                local tried = hAgent and hAgent.aidTarget == id
+                -- The player is judged by the same rule, measured
+                -- by the same mercy: coming counts, exactly as a
+                -- housemate who set out is not blamed for being
+                -- slow.
+                if SAO.Standing.isPlayerKey(hid) then
+                    tried = playerCame == true
+                end
+                if not tried
+                    and not SAO.Standing.isHostileTo(id, hid) then
+                    SAO.Standing.adjustTrust(id, hid, -0.10)
+                    blamed = blamed + 1
+                end
+            end
+            if blamed > 0 then
+                pcall(function()
+                    SAO.Lessons.learn(id, "trust-carefully",
+                        0.6, "lived", nil)
+                end)
+                pcall(function()
+                    SAO.Voice.onEvent(id, "unanswered", tick)
+                end)
+                log(id .. " called and nobody came - "
+                    .. blamed .. " heard it")
+            end
+        end
+    end
+end
+
 local function decideThreat(id, agent, body, tick, threat, threatCount, governingPerson, governingPersonKey)
     -- Threat beliefs outrank everything except an active flee.
     if threat then
@@ -1787,6 +1881,10 @@ local function decideThreat(id, agent, body, tick, threat, threatCount, governin
             local bx, by = body:getX(), body:getY()
             local dx, dy = bx - threat.x, by - threat.y
             local len = math.sqrt(dx * dx + dy * dy)
+            if continueFleeRoute(id, agent, body, bx, by, dx, dy, len) then
+                advanceFleeConsequences(id, agent, body, tick)
+                return true
+            end
             if len < 0.1 then dx, dy, len = 1, 0, 1 end
             local dist = 8 + math.min(6, threatCount * 2)
             local gx = math.floor(bx + dx / len * dist)
@@ -1876,77 +1974,7 @@ local function decideThreat(id, agent, body, tick, threat, threatCount, governin
                 if SAO.Locomotion.order(id, body, gx, gy, math.floor(body:getZ()), run) then
                     setState(agent, id, "FLEE",
                         string.format("believed threat at %.1f tiles, count=%d", threat.dist, threatCount))
-                    -- [B20] Hurt AND running is when a person actually
-                    -- screams. The cooldown and the severity gate keep
-                    -- it an act rather than a siren, and the sound it
-                    -- makes draws more of what they are running from -
-                    -- which is the honest price of shouting.
-                    tryCry(id, agent, body, tick)
-        -- [B20] Did the player come? Sampled while the window is
-        -- open, because "did you show up" is the human measure of
-        -- answering a cry - not whether you happened to be carrying a
-        -- bandage. The offer verb needs them close anyway, so this
-        -- catches the player who actually helped as well as the one
-        -- who simply came running.
-        if agent.criedAt and not agent.playerCame then
-            local mePC = getSpecificPlayer(0)
-            if mePC and not mePC:isDead() then
-                local pcx = mePC:getX() - body:getX()
-                local pcy = mePC:getY() - body:getY()
-                if pcx * pcx + pcy * pcy
-                    <= ARRIVAL_REACH * ARRIVAL_REACH then
-                    agent.playerCame = true
-                end
-            end
-        end
-        -- [B20] And the reckoning, when nobody came. The crier judges
-        -- by OUTCOME - they cannot see that a hearer was answering
-        -- their own hunger, or is a loner, or was simply slower than
-        -- the window. They know they called and nobody came, and the
-        -- simulation should let a person be wronged by someone who
-        -- did nothing wrong rather than quietly forgive on their
-        -- behalf.
-        if agent.criedAt and tick > agent.criedAt + 1800 then
-            local answered = (agent.aidedAt or 0) >= agent.criedAt
-            local heardList = agent.criedHeard or {}
-            local playerCame = agent.playerCame
-            agent.criedAt, agent.criedHeard = nil, nil
-            agent.playerCame = nil
-            if not answered and #heardList > 0 then
-                local blamed = 0
-                for _, hid in ipairs(heardList) do
-                    local hAgent = Ctl.agents[hid]
-                    -- Anyone who SET OUT is not blamed: being slow is
-                    -- not the same as ignoring. And no faith is lost
-                    -- in an enemy who failed to save you, because
-                    -- there was none to lose.
-                    local tried = hAgent and hAgent.aidTarget == id
-                    -- The player is judged by the same rule, measured
-                    -- by the same mercy: coming counts, exactly as a
-                    -- housemate who set out is not blamed for being
-                    -- slow.
-                    if SAO.Standing.isPlayerKey(hid) then
-                        tried = playerCame == true
-                    end
-                    if not tried
-                        and not SAO.Standing.isHostileTo(id, hid) then
-                        SAO.Standing.adjustTrust(id, hid, -0.10)
-                        blamed = blamed + 1
-                    end
-                end
-                if blamed > 0 then
-                    pcall(function()
-                        SAO.Lessons.learn(id, "trust-carefully",
-                            0.6, "lived", nil)
-                    end)
-                    pcall(function()
-                        SAO.Voice.onEvent(id, "unanswered", tick)
-                    end)
-                    log(id .. " called and nobody came - "
-                        .. blamed .. " heard it")
-                end
-            end
-        end
+                    advanceFleeConsequences(id, agent, body, tick)
                     return true
                 end
             end
@@ -2015,6 +2043,76 @@ function Ctl.observeThreatResponse(id, fromId, threatToken)
         activity = string.lower(activity),
         observedAtHours = tonumber(atHours) or 0,
     }
+end
+
+-- An admitted native climb/open animation owns its body until it finishes.
+-- Complete that exact window action when needed; permission to start another
+-- crossing is checked separately after the native action has ended.
+local function continueOwnedFollowCrossing(id, agent, body)
+    local crossing = agent.followCrossing
+    if not crossing then return false end
+    if agent.state ~= "PLAYERFOLLOW" or crossing.body ~= body
+        or crossing.job ~= SAO.Locomotion.jobs[id] then
+        agent.followCrossing = nil
+        return false
+    end
+    local climbing, opening = false, false
+    pcall(function()
+        climbing = body:isClimbing()
+        opening = tostring(body:getCurrentStateName()):find("OpenWindowState", 1, true) ~= nil
+    end)
+    if climbing then return true end
+    local square = body:getCurrentSquare()
+    if opening and square and square:getX() == crossing.fromX
+        and square:getY() == crossing.fromY and square:getZ() == crossing.z then
+        pcall(function()
+            SAOJavaBridge:followTraverse(body, crossing.x, crossing.y)
+        end)
+        return true
+    end
+    agent.followCrossing = nil
+    return false
+end
+
+-- Keep the chosen place beside a person while that route is executing.
+-- Redrawing this offset at every decision restarts a stationary companion's
+-- path; native27 showed the repeated Working -> ManualRoute interruptions.
+-- The same ownership rule applies to companions and the player's followers.
+local function orderBesideFollow(id, agent, body, anchor, anchorBody, state, why)
+    local follow = agent.followOffset
+    local job = SAO.Locomotion.jobs[id]
+    local az = math.floor(anchorBody:getZ())
+    local bz = math.floor(body:getZ())
+    local sameFollow = follow and agent.state == state
+        and follow.anchor == anchor and follow.anchorBody == anchorBody
+        and follow.z == az and follow.bodyZ == bz and job and not job.done
+        and follow.job == job and job.body == body and job.goal
+        and mayEnterBelieved(id, job.goal.x, job.goal.y)
+    if not sameFollow then
+        -- Retire the prior route even when entering from ROAM. Its nearby
+        -- destination is not this follow's permitted goal, and Locomotion's
+        -- reuse threshold must not silently retain that old destination.
+        if job then SAO.Locomotion.cancel(id) end
+        follow = { anchor = anchor, anchorBody = anchorBody, z = az, bodyZ = bz,
+            dx = SAO.Rand.int(-1, 2), dy = SAO.Rand.int(-1, 2) }
+        agent.followOffset = follow
+    end
+    -- A moving companion still moves the destination. Locomotion retains
+    -- its ordinary two-tile threshold for re-pathing an executing route.
+    local gx = math.floor(anchorBody:getX() + follow.dx)
+    local gy = math.floor(anchorBody:getY() + follow.dy)
+    if not mayEnterBelieved(id, gx, gy) then
+        agent.followOffset = nil
+        setState(agent, id, "IDLE", "company route is not permitted")
+        return true
+    end
+    if SAO.Locomotion.order(id, body, gx, gy, az) then
+        follow.job = SAO.Locomotion.jobs[id]
+        setState(agent, id, state, why)
+        return true
+    end
+    agent.followOffset = nil
+    return false
 end
 
 local function decideNeedsAndCompanion(id, agent, body, tick, needs)
@@ -2330,7 +2428,7 @@ local function decideNeedsAndCompanion(id, agent, body, tick, needs)
                                 and SAO.Standing.trust(id, hurtKey) > 0.3)
                         if mayAid and hurtKey ~= id
                             and not SAO.Standing.isHostileTo(id, hurtKey) then
-                            local hurtBody = bodyForKey(hurtKey)
+                            local hurtBody = bodyForKey(hurtKey, body)
                             if hurtBody then
                                 local hdx = hurtBody:getX() - body:getX()
                                 local hdy = hurtBody:getY() - body:getY()
@@ -2612,8 +2710,17 @@ local function decideNeedsAndCompanion(id, agent, body, tick, needs)
     -- gone a while.
     if (agent.state == "IDLE" or agent.state == "ROAM"
         or agent.state == "PLAYERFOLLOW") then
-        local me = getSpecificPlayer(0)
-        local myKey = SAO.Standing.playerKey(me)
+        if continueOwnedFollowCrossing(id, agent, body) then return true end
+        local me = (SAO.Participants and SAO.Participants.player or getSpecificPlayer)(0)
+        local myKey = me and not me:isDead() and SAO.Standing.playerKey(me) or nil
+        if not myKey then
+            agent.companioning, agent.followOffset = nil, nil
+            if agent.state == "PLAYERFOLLOW" then
+                setState(agent, id, "IDLE", "the player is no longer here to follow")
+                return true
+            end
+            return
+        end
         -- Costly conversion ([A17]): a GROUPED survivor walks with the
         -- player only by LEAVING their faction - and only when they
         -- trust the player clearly more than their own people on
@@ -2788,7 +2895,8 @@ local function decideNeedsAndCompanion(id, agent, body, tick, needs)
                 if agent.followTight then
                     companionGap = math.max(2.0, companionGap * 0.5)
                 end
-                if pdist > companionGap and pdist <= 30.0 then
+                local onPlayerFloor = math.floor(me:getZ()) == math.floor(body:getZ())
+                if (pdist > companionGap or not onPlayerFloor) and pdist <= 30.0 then
                     -- [C4] Follow through what the player crossed. A
                     -- walk toward a close same-floor player that FAILED
                     -- or stalled means one edge is in the way - the
@@ -2796,35 +2904,69 @@ local function decideNeedsAndCompanion(id, agent, body, tick, needs)
                     -- hopped. Work that edge (open, climb, hop - never
                     -- smash) before ordering another walk into it.
                     local lastWalk = SAO.Locomotion.status(id)
+                    local follow = agent.followOffset
+                    local followJob = SAO.Locomotion.jobs[id]
+                    local currentFollow = agent.state == "PLAYERFOLLOW" and follow
+                        and followJob and followJob.body == body and follow.job == followJob
+                        and follow.anchor == myKey and follow.anchorBody == me
+                        and follow.z == math.floor(me:getZ())
+                        and follow.bodyZ == math.floor(body:getZ()) and followJob.goal
+                        and followJob.goal.z == math.floor(me:getZ())
+                        and followJob.goal.x == math.floor(px2 + follow.dx)
+                        and followJob.goal.y == math.floor(py2 + follow.dy)
                     if type(lastWalk) == "string"
                         and lastWalk:find("^done:")
                         and not lastWalk:find("arrived")
                         and pdist <= FOLLOW_TRAVERSE_REACH
-                        and math.floor(me:getZ()) == math.floor(body:getZ()) then
-                        local crossing = nil
-                        pcall(function()
-                            crossing = tostring(SAOJavaBridge:followTraverse(
-                                body, math.floor(px2), math.floor(py2)))
-                        end)
-                        if crossing and (crossing:find("STARTED_")
-                            or crossing:find("TURNING_")
-                            or crossing:find("OPENING_")
-                            or crossing == "CLIMBING") then
-                            setState(agent, id, "PLAYERFOLLOW",
-                                "works the crossing after you")
-                            return true
+                        and onPlayerFloor and currentFollow
+                        and mayEnterBelieved(id, followJob.goal.x, followJob.goal.y)
+                        and mayEnterBelieved(id, math.floor(px2), math.floor(py2)) then
+                        local square = body:getCurrentSquare()
+                        if square then
+                            local tx, ty = math.floor(px2), math.floor(py2)
+                            local sx, sy = square:getX(), square:getY()
+                            local nx, ny = sx, sy
+                            -- SAOMovement.traverseToward takes one cardinal
+                            -- step on the dominant axis. Admit that actual
+                            -- edge as well as the destination before it acts.
+                            if math.abs(tx - sx) >= math.abs(ty - sy) then
+                                nx = sx + (tx > sx and 1 or (tx < sx and -1 or 0))
+                            else
+                                ny = sy + (ty > sy and 1 or (ty < sy and -1 or 0))
+                            end
+                            if mayEnterBelieved(id, nx, ny) then
+                                local crossing = nil
+                                pcall(function()
+                                    crossing = tostring(SAOJavaBridge:followTraverse(body, tx, ty))
+                                end)
+                                if crossing and (crossing:find("STARTED_")
+                                    or crossing:find("TURNING_")
+                                    or crossing:find("OPENING_")
+                                    or crossing == "CLIMBING") then
+                                    agent.followCrossing = { body = body, job = followJob,
+                                        x = tx, y = ty, fromX = sx, fromY = sy, z = square:getZ() }
+                                    setState(agent, id, "PLAYERFOLLOW",
+                                        "works the crossing after you")
+                                    return true
+                                end
+                            end
                         end
                     end
-                    local gx = math.floor(px2 + SAO.Rand.int(-1, 2))
-                    local gy = math.floor(py2 + SAO.Rand.int(-1, 2))
-                    if SAO.Locomotion.order(id, body, gx, gy, math.floor(me:getZ())) then
-                        setState(agent, id, "PLAYERFOLLOW",
-                            string.format("walks with the player (%.0f back)", pdist))
+                    if orderBesideFollow(id, agent, body, myKey, me, "PLAYERFOLLOW",
+                        string.format("walks with the player (%.0f back)", pdist)) then
                         return true
                     end
-                elseif agent.state == "PLAYERFOLLOW" and pdist <= companionGap then
+                elseif agent.state == "PLAYERFOLLOW" and pdist <= companionGap
+                    and onPlayerFloor then
+                    agent.followOffset = nil
                     SAO.Locomotion.cancel(id)
                     setState(agent, id, "IDLE", "beside the player")
+                elseif agent.state == "PLAYERFOLLOW" then
+                    local distantJob = SAO.Locomotion.jobs[id]
+                    if distantJob and distantJob.done then
+                        agent.followOffset = nil
+                        setState(agent, id, "IDLE", "the player is beyond following reach")
+                    end
                 end
                 -- [B19] What you teach them: [B11] made housemates
                 -- teach each other and left the PLAYER out, though a
@@ -2870,6 +3012,7 @@ local function decideNeedsAndCompanion(id, agent, body, tick, needs)
                 end
             elseif agent.companioning then
                 agent.companioning = nil
+                agent.followOffset = nil
                 pcall(function() SAO.Voice.onEvent(id, "parting", tick) end)
                 log(id .. " parts ways with the player ("
                     .. (playerFresh and "trust faded" or "player long gone") .. ")")
@@ -2878,6 +3021,9 @@ local function decideNeedsAndCompanion(id, agent, body, tick, needs)
                     setState(agent, id, "IDLE", "parted ways")
                 end
             end
+        elseif myKey and agent.state == "PLAYERFOLLOW" then
+            agent.companioning, agent.followOffset = nil, nil
+            setState(agent, id, "IDLE", "keeps company with their own group")
         end
     end
 
@@ -2995,22 +3141,21 @@ local function decideCompany(id, agent, body, tick)
             if anchor and SAO.Standing.isBondedTo(id, anchor) then
                 gap = math.max(2.0, gap * 0.5)   -- the bonded walk close
             end
-            if anchorDist > gap then
-                -- Aim beside the anchor, not on top of it.
-                local gx = math.floor(anchorBody:getX() + SAO.Rand.int(-1, 2))
-                local gy = math.floor(anchorBody:getY() + SAO.Rand.int(-1, 2))
-                if SAO.Locomotion.order(id, body, gx, gy, anchorBody:getZ()) then
-                    setState(agent, id, "FOLLOW",
-                        string.format("keeps pace with %s (%.0f tiles back)",
-                            anchor, anchorDist))
+            local onAnchorFloor = math.floor(anchorBody:getZ()) == math.floor(body:getZ())
+            if anchorDist > gap or not onAnchorFloor then
+                if orderBesideFollow(id, agent, body, anchor, anchorBody, "FOLLOW",
+                    string.format("keeps pace with %s (%.0f tiles back)",
+                        anchor, anchorDist)) then
                     return true
                 end
             elseif agent.state == "FOLLOW" then
+                agent.followOffset = nil
                 SAO.Locomotion.cancel(id)
                 setState(agent, id, "IDLE", "walking beside " .. anchor)
             end
         else
             agent.hasLiveAnchor = false
+            agent.followOffset = nil
             if agent.state == "FOLLOW" then
                 SAO.Locomotion.cancel(id)
                 setState(agent, id, "IDLE", "company is elsewhere; stays put")
@@ -5699,7 +5844,7 @@ local function decide(id, agent, body)
             if agent.companioning then
                 local playerOut = false
                 pcall(function()
-                    local me0 = getSpecificPlayer(0)
+                    local me0 = (SAO.Participants and SAO.Participants.player or getSpecificPlayer)(0)
                     playerOut = me0 ~= nil and me0:getVehicle() ~= rv
                 end)
                 if playerOut then
@@ -5908,7 +6053,7 @@ end
 -- console print they will never read. Strangers dying nearby are
 -- part of the world's noise; someone you knew is not.
 local function tellPlayerOfDeath(deadId, deadRec, deadBody)
-    local me = getSpecificPlayer(0)
+    local me = (SAO.Participants and SAO.Participants.player or getSpecificPlayer)(0)
     if not me or me:isDead() or not deadBody or not deadRec then return end
     local dx = deadBody:getX() - me:getX()
     local dy = deadBody:getY() - me:getY()
@@ -6384,7 +6529,7 @@ local function updateMovement(id, agent, body)
                         and tickCount >= (agent.nextCashierAt or 0) then
                         local customerNear = false
                         pcall(function()
-                            local me4 = getSpecificPlayer(0)
+                            local me4 = (SAO.Participants and SAO.Participants.player or getSpecificPlayer)(0)
                             if me4 and activityParticipantAtHand(
                                 id, body, nil, me4, tickCount,
                                 COUNTER_REACH) then
@@ -6445,7 +6590,7 @@ local function updateMovement(id, agent, body)
                         if hasBall then
                             local playmateNear = false
                             pcall(function()
-                                local meB = getSpecificPlayer(0)
+                                local meB = (SAO.Participants and SAO.Participants.player or getSpecificPlayer)(0)
                                 if meB and activityParticipantAtHand(
                                     id, body, nil, meB, tickCount,
                                     PLAY_REACH) then
@@ -6599,9 +6744,7 @@ local function updateMovement(id, agent, body)
                     -- The county writes itself ([A24]): a claim note at
                     -- the door - readable by anyone who walks up.
                     pcall(function()
-                        local me3 = getSpecificPlayer(0)
-                        if me3 then
-                            SAOJavaBridge:dropNoteAt(me3,
+                            SAOJavaBridge:dropNoteAt(body,
                                 cand.cx, cand.cy, 0,
                                 tostring(SAO.Standing.factionName(sGroup)
                                     or "A company") .. " - claim notice",
@@ -6609,7 +6752,6 @@ local function updateMovement(id, agent, body)
                                 .. tostring(SAO.Standing.factionName(sGroup)
                                     or "company")
                                 .. ". Ask before you wander in.")
-                        end
                     end)
                     log(tostring(SAO.Standing.factionName(sGroup))
                         .. " settles at " .. cand.cx .. "," .. cand.cy
@@ -6643,7 +6785,7 @@ local function updateMovement(id, agent, body)
                 local hurtKey = agent.aidTarget
                 agent.aidTarget = nil
                 if s:find("arrived", 1, true) and hurtKey then
-                    local hurtBody = bodyForKey(hurtKey)
+                    local hurtBody = bodyForKey(hurtKey, body)
                     if hurtBody then
                         local hdx = hurtBody:getX() - body:getX()
                         local hdy = hurtBody:getY() - body:getY()
@@ -6787,6 +6929,13 @@ local function updateMovement(id, agent, body)
                 agent.nextForageAt = tickCount + 600
                 setState(agent, id, "IDLE", "forage attempt ended: " .. s)
                 return true
+            end
+            if agent.state == "PLAYERFOLLOW" and not s:find("arrived", 1, true) then
+                -- The companion decision owns the response to a failed walk:
+                -- it may work the player's crossing before choosing a route.
+                -- Preserve the actual terminal job until that decision reads
+                -- it; leaving the movement state here would cancel the job.
+                return false
             end
             setState(agent, id, "IDLE", s)
         end
@@ -7742,7 +7891,7 @@ local function updateAgent(id, agent)
                                     if belief.dist <= 4.0 then
                                         heard = true
                                     else
-                                        local tb = bodyForKey(mindKey)
+                                        local tb = bodyForKey(mindKey, body)
                                         local okL, line = pcall(function()
                                             return SAOJavaBridge:hasLineTo(body, tb)
                                         end)
@@ -7810,7 +7959,7 @@ local function updateAgent(id, agent)
                                         tickCount)
                                 end)
                                 log(id .. " objects to " .. name .. " inside their claim")
-                                if heard and not trespasser.passive then
+                                if heard and trespasser and not trespasser.passive then
                                     -- F-026: a PASSIVE inhabitant hears the
                                     -- objection and pays the standing cost
                                     -- like anyone, but their body is never
@@ -7847,38 +7996,6 @@ local function updateAgent(id, agent)
                                             setState(trespasser, trespasserId, "ALERT",
                                                 "told to leave " .. id .. "'s place - leaving")
                                         end
-                                    end
-                                end
-                            end
-                        end
-                    end
-                end
-            end
-        end
-
-        -- Heard gunfire, attributed: a fresh HEARD threat belief whose
-        -- origin sits within 2 tiles of an OBSERVED person means they
-        -- fired. Gunfire makes strangers warier company - a small trust
-        -- bleed toward low-trust shooters (friends firing reads as
-        -- defense, and costs nothing).
-        do
-            local beliefsG = SAO.Perception.beliefs[id]
-            if beliefsG and tickCount >= (agent.nextShotJudgeAt or 0) then
-                for zkey, zb in pairs(beliefsG.zombies) do
-                    if zb.source == "heard" and (tickCount - zb.at) <= 60 then
-                        for pname, pb in pairs(beliefsG.people) do
-                            if pb.source == "observed"
-                                and (tickCount - pb.at) <= 60 then
-                                local gdx, gdy = pb.x - zb.x, pb.y - zb.y
-                                if gdx * gdx + gdy * gdy
-                                    <= SHOT_ORIGIN_REACH * SHOT_ORIGIN_REACH then
-                                    local pkey = SAO.Standing.keyForObserved(pname)
-                                    if SAO.Standing.trust(id, pkey) < 0.3
-                                        and not SAO.Standing.isHostileTo(id, pkey) then
-                                        SAO.Standing.adjustTrust(id, pkey, -0.05)
-                                        agent.nextShotJudgeAt = tickCount + 600
-                                        log(id .. " heard " .. pname
-                                            .. " shooting - wary of armed strangers")
                                     end
                                 end
                             end
@@ -8097,7 +8214,7 @@ local function onTickInner()
     -- SCAN_INTERVAL exactly as the survivors' does, and never runs
     -- asleep, because you are not asleep while you are playing.
     pcall(function()
-        local me = getSpecificPlayer(0)
+        local me = (SAO.Participants and SAO.Participants.player or getSpecificPlayer)(0)
         if not me or me:isDead() then return end
         local myKey = SAO.Standing.playerKey(me)
         if myKey then

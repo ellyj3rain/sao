@@ -556,7 +556,7 @@ local function talkTo(playerObj, id)
             if not contextual then
                 local pname3 = nil
                 pcall(function()
-                    pname3 = tostring(getSpecificPlayer(0):getUsername())
+                    pname3 = tostring((SAO.Participants and SAO.Participants.player or getSpecificPlayer)(0):getUsername())
                 end)
                 local b3 = SAO.Perception.beliefs[id]
                 local ppb3 = b3 and pname3 and b3.people[pname3] or nil
@@ -869,7 +869,7 @@ end
 local function fillMenu(playerNum, context, worldobjects)
     -- Pre-alpha, private mod: the harness is the operator's play-surface, so
     -- it is available in normal play, not just debug launches.
-    local playerObj = getSpecificPlayer(playerNum)
+    local playerObj = (SAO.Participants and SAO.Participants.player or getSpecificPlayer)(playerNum)
     if not playerObj then return end
 
     -- S5: any survivor under the cursor gets the three plain verbs.
@@ -1847,7 +1847,7 @@ local function fillMenu(playerNum, context, worldobjects)
                 -- and "unstick", so ours do - his labels, the
                 -- county's machinery underneath.
                 sub:addOption("regroup on me", nil, function()
-                    local me20 = getSpecificPlayer(0)
+                    local me20 = (SAO.Participants and SAO.Participants.player or getSpecificPlayer)(0)
                     if not me20 then return end
                     local gx20 = math.floor(me20:getX())
                     local gy20 = math.floor(me20:getY())
@@ -2980,7 +2980,7 @@ function H.countyLedger()
             -- key across the living who hold ANY relation to you, plus
             -- who wants you dead.
             do
-                local me2 = getSpecificPlayer(0)
+                local me2 = (SAO.Participants and SAO.Participants.player or getSpecificPlayer)(0)
                 -- [B35] Was building the key inline AND without
                 -- the pcall S.playerKey wraps getUsername in, so a
                 -- throw here would have escaped where every other
@@ -3123,7 +3123,7 @@ function H.standingWeb()
                             or " (keeping close to home)"))
                 end
             end
-            local me = getSpecificPlayer(0)
+            local me = (SAO.Participants and SAO.Participants.player or getSpecificPlayer)(0)
             local myKey = SAO.Standing.playerKey(me)
             for aid in pairs(SAO.Controller.agents) do
                 local rec2 = SAO.Identity.get(aid)

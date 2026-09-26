@@ -150,7 +150,7 @@ KNOWN = {n: OURS for n in (
 )}
 KNOWN.update({n: NEIGHBOUR for n in NEIGHBOURS})
 KNOWN.update({n: LUA_STD for n in (
-    "error", "ipairs", "math", "pairs", "pcall", "print", "require",
+    "assert", "error", "ipairs", "math", "pairs", "pcall", "print", "require", "setmetatable",
     "select", "string", "table", "tonumber", "tostring", "type",
 )})
 KNOWN.update({n: ENGINE for n in (
@@ -200,7 +200,7 @@ KNOWN.update({n: ENGINE for n in (
     "AnimationVariable", "ISAddWaterToTrough", "ISFeedAnimalFromHand",
     "ISHutchGrabEgg", "ISMilkAnimal", "ISPetAnimal", "ISShearAnimal",
     "addVirtualZombie",
-    "addSound", "farming_vegetableconf", "getCell", "getClimateManager",
+    "addSound", "farming_vegetableconf", "getCell", "getCellSizeInSquares", "getClimateManager",
     "getCore", "getFileWriter", "getGameTime",
     "getScriptManager", "getSpecificPlayer", "getText", "getTextManager",
     "getTimestampMs", "getWorld", "instanceof",

@@ -35,7 +35,7 @@ SAO.RadioEar.hasLiveWireRadio = hasLiveWireRadio
 
 local function onAddMessage(message, tabID)
     local ok = pcall(function()
-        local playerObj = getSpecificPlayer(0)
+        local playerObj = (SAO.Participants and SAO.Participants.player or getSpecificPlayer)(0)
         if not playerObj or playerObj:isDead() then return end
         local author = message and message.getAuthor
             and message:getAuthor() or nil

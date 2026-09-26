@@ -314,7 +314,7 @@ function T.county()
     -- loaded area samples the map, which oversamples wherever the
     -- player lingers - ratification reads many lines, never one.
     pcall(function()
-        local me = getSpecificPlayer(0)
+        local me = (SAO.Participants and SAO.Participants.player or getSpecificPlayer)(0)
         if not me or not SAOJavaBridge then return end
         local s = SAOJavaBridge:deadCensus(me)
         if type(s) ~= "string" or s == "" then return end

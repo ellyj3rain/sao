@@ -172,7 +172,7 @@ function SAOCountyWindow:build()
         if nbLine then header(nbLine) end
     end
 
-    local me = getSpecificPlayer(0)
+    local me = (SAO.Participants and SAO.Participants.player or getSpecificPlayer)(0)
     local myKey = SAO.Standing.playerKey(me)
     -- [B37] Your ground, and who knows about it. [B34] made the
     -- extent derive from the building; [B35] made a released claim
@@ -301,7 +301,7 @@ function SAOCountyWindow:build()
     -- computed on every decision and was rendered only to a debug
     -- console. Read at draw time; nothing stored.
     do
-        local me2 = getSpecificPlayer(0)
+        local me2 = (SAO.Participants and SAO.Participants.player or getSpecificPlayer)(0)
         local near = {}
         if me2 and SAO.Controller and SAO.Controller.agents then
             local myKey2 = SAO.Standing.playerKey(me2)
@@ -670,7 +670,7 @@ function SAOCountyWindow:build()
     -- said - a display that eats its own subject is [B39]'s defect
     -- with a header on it.
     pcall(function()
-        local me3 = getSpecificPlayer(0)
+        local me3 = (SAO.Participants and SAO.Participants.player or getSpecificPlayer)(0)
         if not (me3 and SAO.RadioEar and SAO.RadioEar.hasLiveWireRadio
             and SAO.RadioEar.hasLiveWireRadio(me3)) then return end
         local s3 = ModData.getOrCreate("SurvivorAwareness_Standing")

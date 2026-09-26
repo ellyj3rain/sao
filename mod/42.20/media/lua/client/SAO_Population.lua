@@ -122,7 +122,8 @@ local function cfg()
     }
 end
 
-local function playerPos()
+local function residencyPos()
+    if SAO.Participants then return SAO.Participants.residencyCenter() end
     local p = getSpecificPlayer(0)
     if not p then return nil end
     return p:getX(), p:getY(), p:getZ()
@@ -293,7 +294,7 @@ local function bootDigest(conf)
         if owed <= 0 then return end
         local points = loadRegionPoints()
         if not points or #points == 0 then return end
-        local px, py = playerPos()
+        local px, py = residencyPos()
         local placed = 0
         local tries = 0
         while placed < math.min(owed, RESTITUTION_PER_DAY)
@@ -708,7 +709,7 @@ local function populationTick()
         SAO.Body.recover(rec)
     end
     if not pending then dormantCountyPass(conf) end
-    local px, py = playerPos()
+    local px, py = residencyPos()
     if px then
         bandSkips = 0
         runSub("band", materializeBand, px, py, conf)
@@ -716,9 +717,9 @@ local function populationTick()
         bandSkips = bandSkips + 1
         if bandSkips >= BAND_PATIENCE and not bandSaid then
             bandSaid = true
-            log("nobody to stand near: the presence band has been"
+            log("no loaded-region reference: the presence band has been"
                 .. " skipped " .. bandSkips .. " passes running because"
-                .. " getSpecificPlayer(0) returns nothing, so no body"
+                .. " the residency center is unavailable, so no body"
                 .. " will be built until that changes")
         end
     end

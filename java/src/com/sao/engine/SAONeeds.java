@@ -960,7 +960,8 @@ public final class SAONeeds {
             float sx = shell.getX(), sy = shell.getY();
             for (int i = 0; i < IsoPlayer.players.length; i++) {
                 IsoPlayer person = IsoPlayer.players[i];
-                if (person == null || person == shell) continue;
+                if (person == null || person == shell
+                    || Boolean.TRUE.equals(person.getModData().rawget("SAO_ObserverAnchor"))) continue;
                 if (person.isDead()) continue;
                 float dx = person.getX() - sx, dy = person.getY() - sy;
                 if (dx * dx + dy * dy > (float) radius * radius) continue;

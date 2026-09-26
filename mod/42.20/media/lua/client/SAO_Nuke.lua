@@ -166,7 +166,7 @@ end
 local function strike(s)
     s.struck = true
     local player = nil
-    pcall(function() player = getSpecificPlayer(0) end)
+    pcall(function() player = (SAO.Participants and SAO.Participants.player or getSpecificPlayer)(0) end)
 
     if player then
         for _, c in ipairs(s.circles or {}) do
@@ -253,7 +253,7 @@ local function attrition(s)
         end
     end
     local player = nil
-    pcall(function() player = getSpecificPlayer(0) end)
+    pcall(function() player = (SAO.Participants and SAO.Participants.player or getSpecificPlayer)(0) end)
     if player then
         local inside = false
         pcall(function() inside = inCircles(s, player:getX(), player:getY()) end)

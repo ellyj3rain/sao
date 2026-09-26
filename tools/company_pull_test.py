@@ -42,6 +42,13 @@ the way a fixture holds a position, and steps the county's condition
 through the split clock's own seam (recordDay - the fact clockMonths
 reads).
 
+The loaded conversation also runs here: delivered company may change home
+coordinates, but moving into an unclaimed home creates no ownership. Actual
+anchor claims retain their bounds, existing claims survive an unclaimed move,
+and refusal changes neither home nor ownership. The production Exchange,
+Standing, Organization and Communication modules run together in Kahlua;
+source controls must fail the named behavioral checks.
+
 An optional argv[1] points the checker at another tree root, which
 is how its control runs.
 """
@@ -195,22 +202,183 @@ PROBE = r"""(function()
 end)()"""
 
 
-def build():
-    cls = OUT / "LuaRun.class"
+MOVE_IN_MODULES = MODULES[:MODULES.index("shared/SAO_Standing.lua") + 1] + [
+    "shared/SAO_Perception.lua", "shared/SAO_Organization.lua",
+    "shared/SAO_Communication.lua",
+]
+
+MOVE_IN_PROBE = r'''(function()
+  local S, Org = SAO.Standing, SAO.Organization
+  local checks, bodies, readings, voices = {}, {}, {}, {}
+  local function check(name, value)
+    if value ~= true then error("MOVE_IN_CHECK:" .. name) end
+    checks[#checks + 1] = name
+  end
+  local function count(rows)
+    local n = 0
+    for _ in pairs(rows or {}) do n = n + 1 end
+    return n
+  end
+  local function sameClaim(actual, expected)
+    return actual ~= nil and expected ~= nil
+      and actual.minX == expected.minX and actual.minY == expected.minY
+      and actual.maxX == expected.maxX and actual.maxY == expected.maxY
+      and actual.z == expected.z
+  end
+  local function home(rec)
+    return { homeX=rec.homeX, homeY=rec.homeY, homeZ=rec.homeZ }
+  end
+  local function sameHome(a, b)
+    return a.homeX == b.homeX and a.homeY == b.homeY and a.homeZ == b.homeZ
+  end
+  _G.__hours = 240
+  -- Fixtures hold physical access, current personal needs, and voice output.
+  -- Company choice, delivery, roster, bond and claim writes are production.
+  SAO.Controller = { agents={} }
+  SAO.Body = { active=bodies, get=function(id) return bodies[id] end,
+    hasRepresentation=function(id) return bodies[id] ~= nil end }
+  SAO.Isolation = { of=function(id) return readings[id] end }
+  SAO.Needs = { read=function() return { hunger=0, thirst=0 } end }
+  SAO.Gesture = { meet=function() end }
+  SAO.Voice = { onEvent=function(id, event)
+    local key = id .. ":" .. event
+    voices[key] = (voices[key] or 0) + 1
+  end }
+  SAOJavaBridge.canConverseNow = function(self, a, b, reach)
+    return a ~= nil and b ~= nil and a.z == b.z
+      and (a.x-b.x)^2 + (a.y-b.y)^2 <= reach^2
+  end
+  SAOJavaBridge.buildingBoundsAt = function() return nil end
+  local function make(prefix)
+    local a = SAO.Identity.ensure(prefix .. "-a", prefix, "Anchor", 42, 43, 0)
+    local b = SAO.Identity.ensure(prefix .. "-z", prefix, "Mover", 44, 43, 0)
+    a.homeX, a.homeY, a.homeZ = 111.25, 117.75, 2
+    b.homeX, b.homeY, b.homeZ = 321.5, 335.25, 0
+    for _, rec in ipairs({a, b}) do
+      bodies[rec.id] = { id=rec.id, x=rec.x, y=rec.y, z=rec.z }
+      readings[rec.id] = { appetite=1, experiencedContact=1, isolation=0 }
+      -- These future cooldowns keep unrelated item requests out of the case.
+      SAO.Controller.agents[rec.id] = { state="IDLE", nextShareAt=1e9,
+        nextBarterAt=1e9, nextSmokeShareAt=1e9, nextElectionAt=1e9 }
+    end
+    S.adjustTrust(a.id, b.id, 0.8)
+    S.adjustTrust(b.id, a.id, 0.8)
+    return a, b
+  end
+  local function exchange(a, b)
+    SAO.Exchange.betweenPair(a.id, SAO.Controller.agents[a.id],
+      bodies[a.id], b.id, bodies[b.id], 100)
+  end
+  local function delivered(a, b)
+    local p = Org.latestMatter(a.id, "company-formation")
+    local row = p and p.participants[b.id]
+    local key = p and tostring(p.revision)
+    local response = row and row.responses[key]
+    local reception = row and row.receptions[key]
+    return S.sameGroup(a.id, b.id) and reception ~= nil
+      and reception.channel == "spoken" and response ~= nil
+      and response.response == "accept" and response.delivered == true
+      and Org.activeCommitment(b.id, "company-formation") ~= nil
+  end
+
+  local a, b = make("unclaimed")
+  check("fixture_existing_bond", S.bond(a.id, b.id) == true)
+  exchange(a, b)
+  check("unclaimed_delivered_agreement", delivered(a, b))
+  check("unclaimed_home", sameHome(b, a))
+  check("unclaimed_no_ownership", count(S.allPersonalClaims()) == 0
+    and count(ModData.getOrCreate("SurvivorAwareness_Standing").groupClaims) == 0
+    and count(Org.claims) == 0)
+  check("unclaimed_movein_voices", voices[a.id .. ":movein"] == 1
+    and voices[a.id .. ":company"] == 1)
+  check("unclaimed_bond_preserved", S.isBondedTo(a.id, b.id)
+    and S.isBondedTo(b.id, a.id))
+
+  a, b = make("claimed")
+  local bounds = { minX=80, minY=90, maxX=125, maxY=140, z=3 }
+  S.claim(a.id, bounds.minX, bounds.minY, bounds.maxX, bounds.maxY, bounds.z)
+  local anchorClaim = S.claimOf(a.id)
+  exchange(a, b)
+  check("claimed_delivered_agreement", delivered(a, b))
+  check("claimed_home", sameHome(b, a))
+  check("actual_claim_bounds", sameClaim(S.claimOf(b.id), bounds))
+  check("anchor_claim_unchanged", S.claimOf(a.id) == anchorClaim
+    and sameClaim(anchorClaim, bounds))
+
+  a, b = make("existing")
+  local old = { minX=600, minY=700, maxX=650, maxY=760, z=1 }
+  S.claim(b.id, old.minX, old.minY, old.maxX, old.maxY, old.z)
+  S.claim("unrelated-owner", 1000, 1000, 1001, 1005, 0)
+  local moverClaim, unrelated = S.claimOf(b.id), S.claimOf("unrelated-owner")
+  local claimCount = count(S.allPersonalClaims())
+  exchange(a, b)
+  check("existing_delivered_agreement", delivered(a, b))
+  check("existing_home", sameHome(b, a))
+  check("existing_mover_claim_preserved", S.claimOf(b.id) == moverClaim
+    and sameClaim(moverClaim, old))
+  check("unrelated_claim_preserved", S.claimOf("unrelated-owner") == unrelated
+    and count(S.allPersonalClaims()) == claimCount and S.claimOf(a.id) == nil)
+
+  a, b = make("refused")
+  S.claim(a.id, 1, 2, 3, 4, 0)
+  S.claim(b.id, 8, 9, 10, 12, 1)
+  local aHome, bHome = home(a), home(b)
+  local aClaim, bClaim = S.claimOf(a.id), S.claimOf(b.id)
+  -- The recipient wants space: real Standing pressure exceeds their trust.
+  readings[b.id] = { appetite=0, experiencedContact=1, isolation=0 }
+  check("fixture_personal_refusal", S.circleRefuses(b.id,
+    "company-" .. a.id, a.id) == true)
+  exchange(a, b)
+  check("refusal_answered", voices[b.id .. ":ownCompany"] == 1
+    and not S.sameGroup(a.id, b.id)
+    and Org.latestMatter(a.id, "company-formation") == nil)
+  check("refusal_home_unchanged", sameHome(a, aHome) and sameHome(b, bHome))
+  check("refusal_claims_unchanged", S.claimOf(a.id) == aClaim
+    and S.claimOf(b.id) == bClaim and voices[a.id .. ":movein"] == nil)
+  return "PASS " .. tostring(#checks) .. " " .. table.concat(checks, " ")
+end)()'''
+
+# Mutation anchors select production statements; the Kahlua checks, not text
+# absence, decide whether the changed behavior is caught.
+CLAIM_COPY = """                        SAO.Standing.claim(moverId, ac.minX, ac.minY,
+                            ac.maxX, ac.maxY, ac.z or 0)"""
+OLD_GROUND_FALLBACK = """
+                    else
+                        local mnX, mnY, mxX, mxY =
+                            SAO.Standing.groundAround(
+                                SAO.Body.get(anchorId),
+                                anchorRec.homeX, anchorRec.homeY, 4)
+                        SAO.Standing.claim(moverId, mnX, mnY, mxX, mxY,
+                            anchorRec.homeZ or 0)"""
+MOVE_IN_CONTROLS = (
+    ("restored_ground_fallback", CLAIM_COPY, CLAIM_COPY + OLD_GROUND_FALLBACK,
+     "unclaimed_no_ownership"),
+    ("lost_actual_claim", CLAIM_COPY, "                        local unchanged = true",
+     "actual_claim_bounds"),
+    ("erased_existing_claim", CLAIM_COPY,
+     CLAIM_COPY + "\n                    else\n                        SAO.Standing.releaseClaim(moverId)",
+     "existing_mover_claim_preserved"),
+    ("lost_home_update", "                moverRec.homeX = anchorRec.homeX",
+     "                moverRec.homeX = moverRec.homeX", "unclaimed_home"),
+)
+
+
+def build(output=OUT):
+    cls = output / "LuaRun.class"
     if cls.exists() and cls.stat().st_mtime >= SRC.stat().st_mtime:
         return True
-    OUT.mkdir(parents=True, exist_ok=True)
+    output.mkdir(parents=True, exist_ok=True)
     done = subprocess.run(
-        [str(JDK / "javac.exe"), "-cp", str(PZ), "-d", str(OUT), str(SRC)],
+        [str(JDK / "javac.exe"), "-cp", str(PZ), "-d", str(output), str(SRC)],
         capture_output=True, text=True, timeout=300)
     return done.returncode == 0
 
 
-def probe(expr):
+def probe(expr, classes=OUT):
     with tempfile.TemporaryDirectory() as tmp:
         work = pathlib.Path(tmp)
         shutil.copy2(STDLIB, work / "stdlib.lua")
-        for c in OUT.glob("*.class"):
+        for c in classes.glob("*.class"):
             shutil.copy2(c, work / c.name)
         prelude = work / "prelude.lua"
         prelude.write_text(PRELUDE_FILE.read_text(encoding="utf-8"),
@@ -226,6 +394,47 @@ def probe(expr):
     if at < 0:
         return "ERROR " + (out + (done.stderr or "")).strip()[-400:]
     return out[at + 6:].strip().split("\n")[0]
+
+
+def move_in_checks(source, classes):
+    """Production conversation and ownership, with private compiled helpers."""
+    faults = []
+    with tempfile.TemporaryDirectory(prefix="sao-company-movein-") as tmp:
+        work = pathlib.Path(tmp)
+        shutil.copy2(STDLIB, work / "stdlib.lua")
+        for compiled in classes.glob("LuaRun*.class"):
+            shutil.copy2(compiled, work / compiled.name)
+        (work / "prelude.lua").write_text(read(PRELUDE_FILE), encoding="utf-8")
+        (work / "probe.lua").write_text("__result = " + MOVE_IN_PROBE,
+                                       encoding="utf-8")
+
+        def run(text):
+            (work / "exchange.lua").write_text(text, encoding="utf-8")
+            args = [str(JDK / "java.exe"), "-cp", "%s;." % PZ, "LuaRun",
+                    str(work / "prelude.lua")]
+            args += [str(LUA / module) for module in MOVE_IN_MODULES]
+            args += [str(work / "exchange.lua"), str(work / "probe.lua"),
+                     "--", "__result"]
+            result = subprocess.run(args, cwd=work, capture_output=True,
+                                    text=True, timeout=180)
+            return result.returncode, (result.stdout or "") + (result.stderr or "")
+
+        code, output = run(source)
+        if code or "VALUE PASS 18 " not in output:
+            return ["production move-in probe failed: " + output[-1800:]]
+        print("  PASS production Exchange/Standing/Organization/Communication: "
+              "4 move-in cases, 18 checks")
+        for name, old, new, reason in MOVE_IN_CONTROLS:
+            if source.count(old) != 1:
+                faults.append("move-in control seam differs: " + name)
+                continue
+            code, output = run(source.replace(old, new))
+            if not code or "MOVE_IN_CHECK:" + reason not in output:
+                faults.append("move-in control did not fail for " + reason
+                              + ": " + output[-1800:])
+            else:
+                print("  PASS rejected " + name + ": " + reason)
+    return faults
 
 
 def numbers(line):
@@ -302,11 +511,16 @@ def main():
         print("  152) need stands alongside trust: TEXT ONLY, the "
               "engine install is absent")
         return 0
-    if not build():
-        print("  FAULT: LuaRun does not compile against the installed jar")
-        return 1
-
-    line = probe(PROBE)
+    # Border 152 owns its compiler output. Other checkers import the legacy
+    # build/probe defaults, so keep that API while this executable uses a
+    # private lifetime and cannot race their shared helper.
+    with tempfile.TemporaryDirectory(prefix="sao-company-pull-runner-") as tmp:
+        classes = pathlib.Path(tmp)
+        if not build(classes):
+            print("  FAULT: LuaRun does not compile against the installed jar")
+            return 1
+        line = probe(PROBE, classes)
+        faults.extend(move_in_checks(exchange, classes))
     got = numbers(line)
     print()
     print("     a sociable person alone, six months into collapse:")
@@ -393,7 +607,8 @@ def main():
         return 1
     print("  152) appetite times isolation times openness, summed onto "
           "trust only where trust is not negative, zero when unreadable, "
-          "held within the county hour, at every door: PASS")
+          "held within the county hour, at every door; delivered move-in "
+          "does not invent ownership (4 production-source controls): PASS")
     return 0
 
 

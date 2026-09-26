@@ -128,6 +128,7 @@ CACHE = pathlib.Path(
 # Sister project ZAO modules for real pathogen and state tracking
 ZAO_ROOT = ROOT.parent / "zombie-awareness" / "mod" / "42.20" / "media" / "lua"
 ZAO_MODULES = [
+    "shared/ZAO_Participants.lua",
     "shared/ZAO_Sandbox.lua",
     "shared/ZAO_Forms.lua",
     "shared/ZAO_StateStore.lua",
@@ -163,6 +164,7 @@ ZAO_NOT_DORMANT = {
 # a screen or the player are absent on purpose - a sweep is the
 # unobserved half of the county.
 MODULES = [
+    "shared/SAO_Participants.lua",
     "shared/SAO_Log.lua", "shared/SAO_Hash.lua", "shared/SAO_Rand.lua",
     "shared/SAO_Census.lua", "shared/SAO_History.lua",
     "shared/SAO_Disposition.lua", "shared/SAO_Conditions.lua",

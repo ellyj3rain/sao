@@ -38,7 +38,7 @@ Cmd.KINDS = { "hold", "close", "walk", "travel", "board", "unboard",
 local function playerBody(giverKey)
     local body = nil
     pcall(function()
-        if getSpecificPlayer then body = getSpecificPlayer(0) end
+        if getSpecificPlayer then body = (SAO.Participants and SAO.Participants.player or getSpecificPlayer)(0) end
     end)
     if body then
         local ok, key = pcall(function()

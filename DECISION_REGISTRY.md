@@ -1,6 +1,6 @@
 | Document | Survivor Awareness Overhaul Decision Registry |
 |---|---|
-| Version | `2.10.0.0-pre-alpha` |
+| Version | `2.11.0.0-pre-alpha` |
 | Author | ellyj3rain |
 | Repository | `DECISION_REGISTRY.md` |
 | Status | CANONICAL, APPEND-ONLY - ratified decisions. |
@@ -1749,3 +1749,31 @@ separate for every registered owner.
 **Origin.** Direct operator correction and supplied source discussion on
 2026-09-25 during the already-approved implementation. The correction resolves
 assistant-inferred mechanics; it is not cancellation or a new approval gate.
+
+## DR-050 | 2026-09-26 03:32 UTC / 20:32 PST | Native camera owner restoration
+
+**Status.** Implementation choice within the authorized native simulation
+workbench work; C86 remains open.
+
+**Finding.** Installed 42.20.4 local-player update and postupdate paths assign
+both the global player and camera owner, including for off-slot SAO shells.
+The existing update-only player guard left camera and postupdate assignments
+exposed. Native run 09 reported a living body through `getPlayer()` after the
+launched player died. The exact native assignment paths were verified against
+the installed jar; the old receipt does not identify which shell replaced it.
+
+**Application.** `SAOIsoPlayerShell` preserves the independent player and
+camera references around both native update phases. It uses the public
+player setter and the public camera setter wherever accepted. The camera
+setter refuses `IsoDummyCameraCharacter`, although the native follow API can
+install one. The fallback restores the exact private camera-owner field for
+that refused type. Calling the follow API would introduce UI side effects
+and cannot provide exact restoration in every supported context.
+
+**Evidence.** Border 198 exercises production shell methods against the
+installed engine with distinct, null and dummy owners, including restoration
+through unloaded-world exceptions. Separate controls omit postupdate
+restoration and camera restoration and both fail. Native run 10 completed
+with launch-slot and global-player attribution agreeing through the launched
+character's death. These checks establish ownership protection; they do not
+establish a player-free observer host or ratify the scenario's behavior.

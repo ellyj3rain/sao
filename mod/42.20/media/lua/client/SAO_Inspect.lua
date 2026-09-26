@@ -36,7 +36,7 @@ local function knowledgeTally(id)
         unknown = 0 }
     local b = SAO.Perception.beliefs[id]
     if not b then return tally end
-    for _, bucket in ipairs({ b.zombies, b.people, b.factions, b.places }) do
+    for _, bucket in ipairs({ b.zombies, b.people, b.factions, b.places, b.sounds or {} }) do
         for _, belief in pairs(bucket or {}) do
             local s = belief.source or "unknown"
             tally[s] = (tally[s] or 0) + 1
@@ -46,7 +46,7 @@ local function knowledgeTally(id)
 end
 
 local function nearestSurvivor()
-    local me = getSpecificPlayer(0)
+    local me = (SAO.Participants and SAO.Participants.player or getSpecificPlayer)(0)
     if not me then return nil end
     local px, py = me:getX(), me:getY()
     local best, bestD = nil, nil
@@ -93,7 +93,7 @@ function SAOInspectWindow:build()
     header("The county")
     -- [C16] The dead census, read live (DR-021). Plain copy (DR-018).
     pcall(function()
-        local me = getSpecificPlayer(0)
+        local me = (SAO.Participants and SAO.Participants.player or getSpecificPlayer)(0)
         if not me or not SAOJavaBridge then return end
         local s = SAOJavaBridge:deadCensus(me)
         local crowd = s and tonumber(s:match("crowd=(%d+)"))
@@ -274,7 +274,7 @@ function SAOInspectWindow:build()
     end
 
     -- Standing: where they stand with you and with their people.
-    local me = getSpecificPlayer(0)
+    local me = (SAO.Participants and SAO.Participants.player or getSpecificPlayer)(0)
     local pKey = me and SAO.Standing.playerKey(me) or nil
     if pKey then
         local trust = SAO.Standing.trust(id, pKey)
