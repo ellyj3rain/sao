@@ -211,6 +211,10 @@ def main():
 
     def bodied(text):
         """The variable the engine bound, in observe's BODY position."""
+        # The participant adapter returns the same native body for an ordinary
+        # player. Border 198 separately rejects a detached observer reference.
+        text = text.replace("(SAO.Participants and SAO.Participants.player or getSpecificPlayer)",
+                            "getSpecificPlayer")
         for bind in re.finditer(
                 r"local\s+(\w+)\s*=\s*getSpecificPlayer\(\s*0\s*\)", text):
             var = bind.group(1)

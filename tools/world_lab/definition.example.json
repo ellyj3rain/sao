@@ -1,0 +1,111 @@
+{
+  "schema": "sao-study-world/1",
+  "id": "native-study",
+  "seed": "native-study-1",
+  "extent": {
+    "minCellX": 0,
+    "minCellY": 0,
+    "cellsX": 2,
+    "cellsY": 2
+  },
+  "generation": {
+    "roads": {},
+    "staticModules": [
+      {
+        "position": { "xmin": 0, "xmax": 511, "ymin": 124, "ymax": 131 },
+        "prefab": "normal_road_WE_00"
+      },
+      {
+        "position": { "xmin": 0, "xmax": 511, "ymin": 380, "ymax": 387 },
+        "prefab": "normal_road_WE_00"
+      },
+      {
+        "position": { "xmin": 64, "xmax": 191, "ymin": 64, "ymax": 191 },
+        "biome": "grass_plain"
+      },
+      {
+        "position": { "xmin": 320, "xmax": 447, "ymin": 64, "ymax": 191 },
+        "biome": "grass_plain"
+      },
+      {
+        "position": { "xmin": 64, "xmax": 191, "ymin": 320, "ymax": 447 },
+        "biome": "grass_plain"
+      },
+      {
+        "position": { "xmin": 320, "xmax": 447, "ymin": 320, "ymax": 447 },
+        "biome": "grass_plain"
+      }
+    ]
+  },
+  "origins": [
+    {
+      "x": 128,
+      "y": 128,
+      "z": 0,
+      "profession": "unemployed"
+    },
+    {
+      "x": 384,
+      "y": 128,
+      "z": 0,
+      "profession": "unemployed"
+    },
+    {
+      "x": 128,
+      "y": 384,
+      "z": 0,
+      "profession": "unemployed"
+    },
+    {
+      "x": 384,
+      "y": 384,
+      "z": 0,
+      "profession": "unemployed"
+    }
+  ],
+  "sandbox": {
+    "SurvivorAwareness.PopulationGoverned": true,
+    "SurvivorAwareness.Population": 32,
+    "SurvivorAwareness.NewcomersGoverned": true,
+    "SurvivorAwareness.Newcomers": 32
+  },
+  "observation": {
+    "everyHours": 0.25,
+    "maxPeople": 2048,
+    "maxProcesses": 1024,
+    "windows": [
+      {
+        "id": "northwest",
+        "x": 80,
+        "y": 80,
+        "z": 0,
+        "width": 96,
+        "height": 96
+      },
+      {
+        "id": "northeast",
+        "x": 336,
+        "y": 80,
+        "z": 0,
+        "width": 96,
+        "height": 96
+      },
+      {
+        "id": "southwest",
+        "x": 80,
+        "y": 336,
+        "z": 0,
+        "width": 96,
+        "height": 96
+      },
+      {
+        "id": "southeast",
+        "x": 336,
+        "y": 336,
+        "z": 0,
+        "width": 96,
+        "height": 96
+      }
+    ]
+  }
+}

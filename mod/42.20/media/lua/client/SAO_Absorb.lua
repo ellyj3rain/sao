@@ -167,7 +167,7 @@ function Ab.absorbProfile(ns, profile)
             end)
         elseif profile.owner then
             pcall(function()
-                local me = getSpecificPlayer(0)
+                local me = (SAO.Participants and SAO.Participants.player or getSpecificPlayer)(0)
                 local pkey = me and SAO.Standing.playerKey(me)
                 if pkey then SAO.Standing.adjustTrust(id, pkey, 0.4) end
             end)

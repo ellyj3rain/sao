@@ -536,19 +536,6 @@ local function ensurePopulation(conf, tickCounter)
                 end
             end
         end)
-        -- A home is a claim from the first day: a modest box around the
-        -- spawn house, the social fact other survivors will respect.
-        pcall(function()
-            -- [B34] One ruler for everybody. Genesis happens before
-            -- any body exists, so there is nothing to ask the engine
-            -- about yet and this is the one claim still measured by a
-            -- radius - the honest fallback, not a second policy. It
-            -- goes through the same function as the others so it
-            -- starts deriving the moment a body is there to ask.
-            local mnX, mnY, mxX, mxY = SAO.Standing.groundAround(
-                SAO.Body.get(rec.id), origin.x, origin.y, 4)
-            SAO.Standing.claim(rec.id, mnX, mnY, mxX, mxY, origin.z)
-        end)
         if arriving then
             -- An arrival is a FACT of the person and news on the air.
             rec.newcomer = true

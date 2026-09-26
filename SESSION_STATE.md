@@ -1,13 +1,143 @@
 | Document | Survivor Awareness Overhaul Session State |
 |---|---|
-| Version | `2.10.0.0-pre-alpha` |
+| Version | `2.11.0.0-pre-alpha` |
 | Author | ellyj3rain |
 | Repository | `SESSION_STATE.md` |
 | Status | CANONICAL - current implementation and continuation. |
 
 # Session state
 
-**As of** 2026-09-25, `[C85]` supplies the first production path from a
+**As of** 2026-09-26, `[C86]` implements native study worlds and the sound,
+escape, following, threat-memory and starting-claim corrections. Implementation
+review and combined native continuation are verified; the complete gate is
+enforced by the closing commit. The study
+workbench runs the installed Project Zomboid engine with copied SAO, ZAO and
+ZombieBuddy mods in an exclusive cache. The observer owns independent view and
+residency coordinates and stays outside births, player saves and actor
+participation. Mousecat displays native pixels through Speakeasy's bounded bridge.
+
+The operator watches autonomously, with optional play later. Automatic camera
+visits cover active individuals, nearby groups and quiet people. Manual movement
+holds the view until R restores automatic visits. Camera choices supply no goals,
+outcomes or training labels. Every scenario requires operator evaluation and
+explicit ratification before dataset admission.
+
+The circling report exposed arbitrary sounds and the body's own footsteps becoming
+enemy beliefs, repeated FLEE decisions replacing safe unfinished routes, random
+FOLLOW offsets interrupting stationary-companion routes, and moving sightings
+accumulating as separate threats. C86 keeps unknown sounds separate, retains valid
+escape/follow routes and tracks only continuously visible bodies. Current visible
+ground corrects old locations on their recorded floor; real crowds, hidden memory
+and explicit phantoms remain. Eligible reports are numbered after filtering so
+reciprocal sharing cannot inflate one sighting. Held escape routes still process
+injury cries and response accounting. New player-follow crossings check current
+context and entry permission while already-started actions keep their owner.
+Borders 199-200 reproduce these faults with production-source mutation controls.
+Threat-report and remembered-tile ordering use a private iterative merge sort,
+so growing evidence cannot exhaust Kahlua's recursive sort stack. Border 200
+passes 28 native cases, 49 Lua cases and 34 source controls, including large
+inputs and restored unsafe sorts. Comparators, multiplicity and the nearest-512
+tile request limit remain unchanged.
+
+Admissions also manufactured property claims from starting coordinates, and
+move-in handling manufactured one when its anchor held no ground. Both fallbacks
+are removed. Navigation homes, origins, learned buildings, unit bonds and
+existing claims remain; accepted move-ins can share actual held bounds.
+Borders 115 and 152 exercise the production owners in installed Kahlua and
+restore the former claim writes as failing controls. Native29 recorded 13,383
+territory objections but no "told to leave" transitions; that run does not prove
+the separate errand-interruption path occurred.
+
+Native run 24 records zero unfinished FLEE replacements and one actual escape
+arrival. At comparable hours 2.50-2.75, run 23 had 887 unfinished replacements
+and run 24 had zero. The changed sound and route logic, population and camera
+residency prevent an isolated effect estimate. A bounded unloaded-body retry
+burst ends at the existing reconciliation sweep; that delay remains a Low
+follow-up. Completed movement does not settle productive or macro-social quality.
+
+Sound/escape run 27 completed hour 2.0 to 2.389998, then reopened the same native
+save and advanced from 2.390368 to 4.684726. Both attempts preserve 32 durable
+people, zero persisted players, detached observer ownership, normal native save
+return and no runtime errors. Observation sequence resumes at 3 and reaches 12.
+Speakeasy's real SAO-validator intake seals attempt 2's ten observations as
+unreviewed, with zero teaching targets and training rows. Run 25 separately
+verifies pan, pause/resume, person focus, automatic viewing, speed and stop/save.
+
+Run 30, before the nonrecursive sorting repair, advances from hour 2.0 to 3.033822 and reopens save
+45796564428844718655 from 3.033896 to 3.433938. Both attempts save normally,
+retain 32 people and no persisted players, and report no runtime errors.
+Observations continue from sequence 5 through 6-7. The first attempt has 13
+movement orders, all cancelled, with no unfinished replacements or recorded
+native failures. Its saved Standing ledger has no personal or group claims,
+while 22 memberships in ten companies remain. This is bounded movement and
+ownership evidence, not proof of completed work. Speakeasy seals the two resumed
+observations as unreviewed with zero teaching targets and training rows.
+The resumed attempt adds five FOLLOW orders: four cancellations and one native
+arrival, with no unfinished replacements or recorded failures. All 32 durable
+IDs and seven creation/name/sex/profession/origin fields persist through the
+restart; all 510 copied mod files and engine/package/loading-agent identities
+match. Perception preserves remembered threats while clearing runtime tracking
+authority on bind; new direct acquisition continues afterward.
+
+Final-source run 31 advances from hour 2.0 to 2.671554, then reopens the same
+save 12411292092990057651 from 2.671924 to 3.253744. Both attempts save normally
+with 32 people, zero persisted players and no runtime errors. All durable IDs,
+the seven identity fields and 510 copied mod files match; observations advance
+from sequence 1-3 to 4-6. Speakeasy seals the three resumed observations as
+unreviewed with no targets or training rows. The trace records one arrival,
+41 cancellations and seven failures, with zero unfinished replacements.
+All seven failures occur in one person's unload interval: one missing-square
+failure followed by six generic failures before recovery. Twenty-three explicit
+FLEE cancel/replans remain; their private threat-vector validity was not captured.
+Both saved claim stores remain empty while company memberships grow from 23 to
+24 across ten companies. Productive or macro-social acceptance remains open.
+
+God view now uses actual terrain colors and native tree cutaway while actor
+lighting and perception remain private. Independent residency and native class
+retransformation fix the distant white view and streaming load-order gap. Native
+startup now warms ThreadLocalRandom before transformers; cold-JVM controls and
+both run 27 launches verify the correction. Run 26's earlier mod-loader startup
+failure remains a failed receipt. Unload handling reconciles native action owners
+before releasing a body and retries failed cancellation or capture.
+
+The terrain example is 512 by 512 tiles in native 256-tile cells, with actual
+roads and sparse grassland at four population origins. Native physics and square
+observations apply to loaded regions; durable-only positions and unavailable
+squares remain explicit. Authored buildings and wider mod compositions require
+their own world definitions and evidence.
+
+Capture publishes complete lossless PNGs from a bounded background encoder.
+Sixty-second samples delivered 10.98 native images/s in run 24 and 8.04 in run
+27; the latter overlapped build/check work. Run 30, before the sorting repair, delivered 10.30
+native images/s with median feed capture age 65.02 ms, without heavy build/check
+work during the sample. Mousecat's 60 FPS presentation rate is separate from
+native-image delivery. A final-source run 31 sample with checks idle delivers
+13.03 native and 13.01 bridged images/s, with median feed capture age 66.10 ms.
+The changed population and residency prevent attributing the difference to the
+sorter. The 20-image/s capture target remains
+unmet, with game-thread Lua a measured bottleneck. Accelerator and wider social
+simulation evaluation remain subsequent work.
+
+C86 also preserves global-player/camera ownership during NPC updates (DR-050),
+fractional dormant walking and observer participant exclusion. ZAO A43 is merged.
+The coordination catalogue and twenty choices match C85; row snapshots add
+empty sounds and migration-version fields with current source provenance. Their
+candidate-observation standing is unchanged and no dataset rows are admitted.
+
+Speakeasy's 196-test suite passes and R71 is merged through PR 39. Native observer, visibility, canopy, startup,
+terrain and capture probes include production-source defect controls. The final
+SAO gate covers 198 test files plus 13 other entries (211 distinct scripts), with
+Border labels through 200. Compact evidence identities are retained in
+`artifacts/audits/c86-native-study-worlds/verification.json`. Full reports and
+screenshots remain under `_scratch/c86-study/`. Mousecat's standalone client is
+verified in its isolated clone because the original checkout also holds unrelated
+work. Local A19 commit `5c0a5e8` builds and packages, passes five native automation
+tests and repository readiness, and was visually checked at desktop and compact
+sizes. Eight actual keyboard requests reached the producer and normal stop saved
+run 27's third continuation at hour 15.308191. Its configured publication remote
+remains unavailable.
+
+**Previously**, 2026-09-25, `[C85]` supplies the first production path from a
 person-private retained situation into enacted coordination. Dormant and loaded
 people derive concrete provisioning pressure from their own current needs and
 knowledge, select particular known contacts and open or revise one durable
@@ -721,9 +851,9 @@ consequences remain separate from the learned policy choosing among them.
 
 C57 consolidates three native entry points into one. With C64's immutable
 capture border, C73's radio-reception border, C74's personal-world-knowledge
-border and C75's typed-claim border, the gate invokes 195 `*_test.py` files and
-13 other Python entry points, 208 distinct scripts. Border labels extend through
-197; legacy labels
+border and C75's typed-claim border, and C86's native study, escape-continuity and sound-evidence borders, the gate invokes
+198 `*_test.py` files and 13 other Python entry points, 211 distinct scripts.
+Border labels extend through 200; legacy labels
 163/169/174 share the native suite. These are distinct counting units. The mod
 ships 80 Lua source files.
 ZAO A41 has fifteen borders. The

@@ -7,12 +7,17 @@
 -- world fact.
 --
 -- Belief sets per survivor:
---   zombies[key]  { x, y, dist, at, source, teller? } - source is
---                 "observed" | "heard" (sound origin, imprecise) |
+--   sounds[key]   { x, y, dist, at, source="heard", kind="unknown" }
+--                 an audible origin without an identified cause; never a
+--                 zombie or a shooter merely because a sound was heard
+--   zombies[key]  { x, y, z?, dist, at, source, teller?, track? } - source is
+--                 "observed" | "heard" (explicit phantom belief) |
 --                 "told" (teller named; observed > heard > told, and told
 --                 beliefs are never retold - no chains of whispers);
 --                 a ZAO body may also carry form, performance, and
---                 attribute mutations
+--                 attribute mutations. New direct sightings have a floor and
+--                 observer-local continuous track. Reports carry locations and
+--                 ordinals only; saved tracks never retain identity authority.
 --   people[name]  { x, y, dist, at, source, condition ("ok|hurt|bad"
 --                 with "+u" when visibly unkempt), seenInFaction? -
 --                 durable across re-scans: a fresh look updates position,
@@ -64,6 +69,7 @@ P.beliefVersion = P.beliefVersion or 0
 local ZOMBIE_HORIZON = 600     -- county ticks a zombie belief stays actionable
 local PEOPLE_HORIZON = 1800
 local SCAN_INTERVAL  = 20      -- acquisition cadence per survivor, county ticks
+local SCANNER_SIGHT_RANGE = 14 -- SAOPerceptionScanner.RANGE, in tiles
 -- [B20] How long a recognised cry keeps its tile from being read
 -- as a threat. ONE definition: the guard in the S-row path and
 -- the prune in the decay pass both read this, or they drift and
@@ -181,11 +187,33 @@ P.EARSHOT = 10
 -- through the shared logger.
 local function log(msg) SAO.Log.line("PERCEPT", msg) end
 
+-- Older acquisition put every world sound into the enemy bucket. Preserve
+-- those audible observations as unknown sounds, while retaining explicitly
+-- authored hallucinations and observed/reported threat evidence. Old told
+-- records lack their original sensory kind and cannot be reconstructed here.
+local function soundEvidence(b)
+    b.sounds = b.sounds or {}
+    if b.soundEvidenceVersion == 1 then return end
+    for key, belief in pairs(b.zombies or {}) do
+        if belief.source == "heard" and belief.phantom ~= true then
+            local existing = b.sounds[key]
+            if not existing or (existing.at or 0) < (belief.at or 0) then
+                b.sounds[key] = { x = belief.x, y = belief.y, dist = belief.dist,
+                    at = belief.at, source = "heard", kind = "unknown" }
+            end
+            b.zombies[key] = nil
+        end
+    end
+    b.soundEvidenceVersion = 1
+    P.beliefVersion = P.beliefVersion + 1
+end
+
 local function store(id)
     P.beliefs[id] = P.beliefs[id] or { zombies = {}, people = {},
         factions = {}, places = {}, lastScanAt = 0, scanCount = 0 }
     P.beliefs[id].factions = P.beliefs[id].factions or {}
     P.beliefs[id].places = P.beliefs[id].places or {}
+    soundEvidence(P.beliefs[id])
     return P.beliefs[id]
 end
 
@@ -986,6 +1014,83 @@ local function split(s, sep)
     return parts
 end
 
+-- A report describes a location and how many bodies were seen there. Its
+-- ordinal has no relation to the witness's private continuous sight tracks.
+local function zombieTile(belief)
+    return belief.x .. "," .. belief.y
+        .. (belief.z ~= nil and ("," .. belief.z) or "")
+end
+
+-- Sight memories and co-located reports have no population-sized bound.
+-- Kahlua's recursive quicksort can exhaust its stack before the request is
+-- trimmed. Merge adjacent runs iteratively: O(n log n) work, O(n) scratch,
+-- and fixed call depth regardless of input order or report multiplicity.
+local function sortSightEvidence(values, less)
+    local count, width, scratch = #values, 1, {}
+    while width < count do
+        for first = 1, count, width * 2 do
+            local middle = math.min(first + width, count + 1)
+            local finish = math.min(first + width * 2, count + 1)
+            local left, right = first, middle
+            for out = first, finish - 1 do
+                if left < middle and (right >= finish
+                    or not less(values[right], values[left])) then
+                    scratch[out] = values[left]
+                    left = left + 1
+                else
+                    scratch[out] = values[right]
+                    right = right + 1
+                end
+            end
+        end
+        for i = 1, count do values[i] = scratch[i] end
+        width = width * 2
+    end
+end
+
+local function zombieReports(zombies, accept)
+    local ordered, reports, counts = {}, {}, {}
+    for key, belief in pairs(zombies or {}) do
+        if accept(belief) then
+            ordered[#ordered + 1] = { key = tostring(key), belief = belief }
+        end
+    end
+    sortSightEvidence(ordered, function(a, b)
+        if a.belief.at ~= b.belief.at then return a.belief.at > b.belief.at end
+        return a.key < b.key
+    end)
+    for _, row in ipairs(ordered) do
+        local tile = zombieTile(row.belief)
+        counts[tile] = (counts[tile] or 0) + 1
+        local key = tile .. (counts[tile] > 1 and ("#" .. counts[tile]) or "")
+        reports[key] = row.belief
+    end
+    return reports
+end
+
+local function knownZombieTiles(b, body)
+    local keys, used, distance = {}, {}, {}
+    local sx, sy, sz = body:getX(), body:getY(), body:getZ()
+    for _, belief in pairs(b.zombies) do
+        -- Old saves did not record floor. New sight cannot assign one to an
+        -- old memory, so only a floor-bearing location requests correction.
+        local dx, dy = belief.x - sx, belief.y - sy
+        if belief.z ~= nil and math.abs(belief.z - sz) < 0.5
+            and dx * dx + dy * dy <= SCANNER_SIGHT_RANGE * SCANNER_SIGHT_RANGE
+            and belief.phantom ~= true then
+            local key = zombieTile(belief)
+            if not used[key] then keys[#keys + 1] = key used[key] = true end
+            distance[key] = dx * dx + dy * dy
+        end
+    end
+    sortSightEvidence(keys, function(a, c)
+        if distance[a] ~= distance[c] then return distance[a] < distance[c] end
+        return a < c
+    end)
+    while #keys > 512 do keys[#keys] = nil end
+    return table.concat(keys, ";")
+end
+
 -- Acquisition: ask the scanner what is visible, integrate as observed beliefs.
 -- [B19] `asleep` is not decoration. Acquisition used to run
 -- "regardless of state", and that included asleep - so every
@@ -997,6 +1102,7 @@ end
 function P.observe(id, body, tick, asleep)
     local b = store(id)
     if tick - b.lastScanAt < SCAN_INTERVAL then return end
+    local priorScanAt = b.lastScanAt
     b.lastScanAt = tick
     b.scanCount = b.scanCount + 1
 
@@ -1015,8 +1121,17 @@ function P.observe(id, body, tick, asleep)
     end)
 
     if not SAOJavaBridge then return end
-    local ok, seen = pcall(function() return SAOJavaBridge:perceive(body) end)
+    local ok, seen = pcall(function()
+        return SAOJavaBridge:perceive(body, asleep and "" or knownZombieTiles(b, body))
+    end)
     if not ok or type(seen) ~= "string" then return end
+
+    local priorTracks, currentSight, covered = {}, {}, {}
+    for key, belief in pairs(b.zombies) do
+        if belief.source == "observed" and belief.track and belief.at == priorScanAt then
+            priorTracks[belief.track] = key
+        end
+    end
 
     if seen ~= "" then
         local rows = split(seen, "|")
@@ -1066,7 +1181,17 @@ function P.observe(id, body, tick, asleep)
                                 day)
                         end)
                     end
-                    b.zombies[x .. "," .. y] = belief
+                    for idx = 5, #f - 1 do
+                        if f[idx] == "track" then belief.track = f[idx + 1] end
+                        if f[idx] == "floor" then belief.z = tonumber(f[idx + 1]) end
+                    end
+                    local sightKey = zombieTile(belief)
+                    if belief.track then
+                        sightKey = priorTracks[belief.track]
+                            or ("seen:" .. belief.track .. ":" .. tick)
+                    end
+                    b.zombies[sightKey] = belief
+                    currentSight[sightKey] = true
                     -- The turned are recognizable ([B3], corrected
                     -- [C8]): the zombie's descriptor is built FRESH at
                     -- reanimation, so a name in field 5 never comes off
@@ -1076,6 +1201,7 @@ function P.observe(id, body, tick, asleep)
                     -- face on the dead is still the county's darkest
                     -- moment, once per witness.
                     local ztag = f[5]
+                    if ztag == "track" or ztag == "floor" then ztag = nil end
                     if ztag and ztag ~= "" then
                         local zid, zrec, zname =
                             SAO.Identity.resolveBodyTag(ztag)
@@ -1098,14 +1224,16 @@ function P.observe(id, body, tick, asleep)
                         end
                     end
                 end
+            elseif f[1] == "V" and #f == 4 then
+                local x, y, z = tonumber(f[2]), tonumber(f[3]), tonumber(f[4])
+                if x and y and z then covered[zombieTile({ x = x, y = y, z = z })] = true end
             elseif f[1] == "S" and #f >= 4 then
-                -- Heard: origin tile of a world sound that reached this
-                -- survivor. Imprecise by nature - recorded as its own source
-                -- and never upgraded past an "observed" belief.
+                -- The scanner supplies audibility and an imprecise origin,
+                -- without an acoustic category or speaker identity. Keep that
+                -- uncertainty rather than manufacturing a zombie or shooter.
                 local x, y, d = tonumber(f[2]), tonumber(f[3]), tonumber(f[4])
                 if x and y then
                     local key = x .. "," .. y
-                    local existing = b.zombies[key]
                     -- [B20] You know what that was. A cry you
                     -- recognised a moment ago is not a monster on the
                     -- next scan - without this, the sound of a
@@ -1114,8 +1242,9 @@ function P.observe(id, body, tick, asleep)
                     local recognised = b.criedTiles and b.criedTiles[key]
                     if recognised and (tick - recognised) <= CRY_RECOGNITION then
                         -- a voice, already understood
-                    elseif not existing or existing.source ~= "observed" then
-                        b.zombies[key] = { x = x, y = y, dist = d, at = tick, source = "heard" }
+                    else
+                        b.sounds[key] = { x = x, y = y, dist = d, at = tick,
+                            source = "heard", kind = "unknown" }
                     end
                 end
             elseif f[1] == "P" and #f >= 5 then
@@ -1276,11 +1405,23 @@ function P.observe(id, body, tick, asleep)
         end
     end
 
+    -- Current sight retires only a location the native scanner certified as
+    -- fully visible on its recorded floor. Omission alone is never absence.
+    for key, belief in pairs(b.zombies) do
+        if belief.z ~= nil and covered[zombieTile(belief)]
+            and not currentSight[key] and belief.phantom ~= true then
+            b.zombies[key] = nil
+        end
+    end
+
     -- decay pass
     local zombieHorizon2 = horizonFor(id, "zombies") * 2   -- [C32] this person's
     local peopleHorizon2 = horizonFor(id, "people") * 2
     for key, belief in pairs(b.zombies) do
         if tick - belief.at > zombieHorizon2 then b.zombies[key] = nil end
+    end
+    for key, belief in pairs(b.sounds) do
+        if tick - belief.at > zombieHorizon2 then b.sounds[key] = nil end
     end
     for name, belief in pairs(b.people) do
         -- F-033: memory of the dead is durable - a dead-flagged belief
@@ -1354,13 +1495,14 @@ function P.nearestBelievedZombie(id, tick, fromX, fromY)
     local best, bestDist
     local horizon = horizonFor(id, "zombies")   -- [C32]
     for _, belief in pairs(b.zombies) do
-        if tick - belief.at <= horizon then
+        if (belief.source ~= "heard" or belief.phantom == true)
+            and tick - belief.at <= horizon then
             local d = distanceFor(belief, fromX, fromY)
             if not best or d < bestDist then best, bestDist = belief, d end
         end
     end
     if best then
-        return { x = best.x, y = best.y, dist = bestDist, at = best.at,
+        return { x = best.x, y = best.y, z = best.z, dist = bestDist, at = best.at,
                  source = best.source, teller = best.teller,
                  form = best.form, formPerformance = best.formPerformance,
                  attributeMutations = best.attributeMutations,
@@ -1440,14 +1582,26 @@ end
 function P.believedThreatCount(id, tick, radius, fromX, fromY)
     local b = P.beliefs[id]
     if not b then return 0 end
-    local n = 0
+    local n, tiles = 0, {}
     local horizon = horizonFor(id, "zombies")   -- [C32]
     for _, belief in pairs(b.zombies) do
-        if tick - belief.at <= horizon
+        if (belief.source ~= "heard" or belief.phantom == true)
+            and tick - belief.at <= horizon
             and distanceFor(belief, fromX, fromY) <= (radius or 10) then
-            n = n + 1
+            if belief.phantom == true then
+                n = n + 1
+            else
+                local key = zombieTile(belief)
+                local tile = tiles[key] or { observed = 0, told = 0 }
+                tiles[key] = tile
+                local kind = belief.source == "told" and "told" or "observed"
+                tile[kind] = tile[kind] + 1
+            end
         end
     end
+    -- A location report and one's own sight at that location are overlapping
+    -- evidence, not two extra bodies. Multiple direct bodies remain distinct.
+    for _, tile in pairs(tiles) do n = n + math.max(tile.observed, tile.told) end
     return n
 end
 
@@ -1690,15 +1844,20 @@ end
 function P.describe(id, tick)
     local b = P.beliefs[id]
     if not b then return "no-beliefs" end
-    local zn, pn = 0, 0
+    local zn, pn, sn = 0, 0, 0
     local zh, ph = horizonFor(id, "zombies"), horizonFor(id, "people")   -- [C32]
     for _, belief in pairs(b.zombies) do
-        if tick - belief.at <= zh then zn = zn + 1 end
+        if (belief.source ~= "heard" or belief.phantom == true)
+            and tick - belief.at <= zh then zn = zn + 1 end
     end
     for _, belief in pairs(b.people) do
         if tick - belief.at <= ph then pn = pn + 1 end
     end
+    for _, belief in pairs(b.sounds or {}) do
+        if tick - belief.at <= zh then sn = sn + 1 end
+    end
     return "beliefs: zombies=" .. zn .. " people=" .. pn
+        .. " sounds=" .. sn
         .. " scans=" .. b.scanCount
         .. " looked=" .. tostring(P.hasLookedRecently(id, tick))
 end
@@ -1744,6 +1903,7 @@ function P.hasAnythingToPass(id, tick)
     local horizon = horizonFor(id, "zombies")   -- [C32]
     for _, zb in pairs(b.zombies or {}) do
         if zb.source ~= "told"
+            and (zb.source ~= "heard" or zb.phantom == true)
             and tick and (tick - zb.at) <= horizon then
             return true
         end
@@ -1938,34 +2098,36 @@ function P.tell(fromId, toId, tick, chosen, channel)
         end
     end
     local tellerHorizon = horizonFor(fromId, "zombies")   -- [C32] the teller's own
-    for key, belief in pairs(from.zombies) do
-        if tick - belief.at <= tellerHorizon and belief.source ~= "told" then
-            local existing = to.zombies[key]
-            if not existing or existing.source == "told" then
-                -- dist here is the TELLER's; every consumer recomputes
-                -- from their own position (F-014), so it is only a seed.
-                to.zombies[key] = {
-                    x = belief.x, y = belief.y, dist = belief.dist,
-                    at = belief.at, source = "told", teller = fromId,
-                    form = belief.form,
-                    formPerformance = belief.formPerformance,
-                    attributeMutations = belief.attributeMutations,
-                }
-                shared = shared + 1
-                zSharedN = zSharedN + 1
-                if not zX then zX, zY = belief.x, belief.y end
-                if belief.form and belief.form ~= "none" then
-                    pcall(function()
-                        local day = math.floor(
-                            (SAO.History.countyHours() or 0) / 24.0)
-                        SAO.Adaptation.observe(
-                            toId,
-                            belief.form,
-                            belief.formPerformance,
-                            "told",
-                            day)
-                    end)
-                end
+    local function canTellZombie(belief)
+        return tick - belief.at <= tellerHorizon and belief.source ~= "told"
+            and (belief.source ~= "heard" or belief.phantom == true)
+    end
+    for key, belief in pairs(zombieReports(from.zombies, canTellZombie)) do
+        local existing = to.zombies[key]
+        if not existing or existing.source == "told" then
+            -- dist here is the TELLER's; every consumer recomputes
+            -- from their own position (F-014), so it is only a seed.
+            to.zombies[key] = {
+                x = belief.x, y = belief.y, z = belief.z, dist = belief.dist,
+                at = belief.at, source = "told", teller = fromId,
+                form = belief.form,
+                formPerformance = belief.formPerformance,
+                attributeMutations = belief.attributeMutations,
+            }
+            shared = shared + 1
+            zSharedN = zSharedN + 1
+            if not zX then zX, zY = belief.x, belief.y end
+            if belief.form and belief.form ~= "none" then
+                pcall(function()
+                    local day = math.floor(
+                        (SAO.History.countyHours() or 0) / 24.0)
+                    SAO.Adaptation.observe(
+                        toId,
+                        belief.form,
+                        belief.formPerformance,
+                        "told",
+                        day)
+                end)
             end
         end
     end
@@ -2033,32 +2195,32 @@ function P.reportReturn(fromId, toId, tick, aroundX, aroundY, channel)
     if not P.willBelieve(toId, fromId) then return 0 end
     local moved = tellTransfers(fromId, toId, channel, aroundX, aroundY)
         + tellAidRequests(fromId, toId, channel, aroundX, aroundY)
-    for key, zb in pairs(from.zombies or {}) do
-        if zb.source ~= "told" then
-            local dx, dy = zb.x - aroundX, zb.y - aroundY
-            if dx * dx + dy * dy <= P.GROUND_REACH * P.GROUND_REACH then
-                local existing = to.zombies[key]
-                if not existing or existing.source == "told" then
-                    to.zombies[key] = { x = zb.x, y = zb.y,
-                        dist = zb.dist, at = zb.at,
-                        source = "told", teller = fromId,
-                        form = zb.form,
-                        formPerformance = zb.formPerformance,
-                        attributeMutations = zb.attributeMutations }
-                    moved = moved + 1
-                    if zb.form and zb.form ~= "none" then
-                        pcall(function()
-                            local day = math.floor(
-                                (SAO.History.countyHours() or 0) / 24.0)
-                            SAO.Adaptation.observe(
-                                toId,
-                                zb.form,
-                                zb.formPerformance,
-                                "told",
-                                day)
-                        end)
-                    end
-                end
+    local function canReportZombie(zb)
+        local dx, dy = zb.x - aroundX, zb.y - aroundY
+        return zb.source ~= "told" and (zb.source ~= "heard" or zb.phantom == true)
+            and dx * dx + dy * dy <= P.GROUND_REACH * P.GROUND_REACH
+    end
+    for key, zb in pairs(zombieReports(from.zombies, canReportZombie)) do
+        local existing = to.zombies[key]
+        if not existing or existing.source == "told" then
+            to.zombies[key] = { x = zb.x, y = zb.y, z = zb.z,
+                dist = zb.dist, at = zb.at,
+                source = "told", teller = fromId,
+                form = zb.form,
+                formPerformance = zb.formPerformance,
+                attributeMutations = zb.attributeMutations }
+            moved = moved + 1
+            if zb.form and zb.form ~= "none" then
+                pcall(function()
+                    local day = math.floor(
+                        (SAO.History.countyHours() or 0) / 24.0)
+                    SAO.Adaptation.observe(
+                        toId,
+                        zb.form,
+                        zb.formPerformance,
+                        "told",
+                        day)
+                end)
             end
         end
     end
@@ -2157,13 +2319,12 @@ function P.cryForHelp(fromId, tick)
                                 condition = "bad",
                             }
                         end
-                        -- ...so it is not a monster to you. Marked so
-                        -- the NEXT scan's S row does not undo this by
-                        -- writing a threat on the tile they are lying
-                        -- on.
+                        -- The voice identifies this sound. An actual
+                        -- threat believed on the same tile remains
+                        -- independent evidence.
                         ob.criedTiles = ob.criedTiles or {}
                         ob.criedTiles[tileKey] = tick
-                        ob.zombies[tileKey] = nil
+                        if ob.sounds then ob.sounds[tileKey] = nil end
                         heardBy[#heardBy + 1] = otherId
                     end
                 end
@@ -2243,7 +2404,8 @@ function P.announceDeparture(fromId, kind, destX, destY)
                     if destX and goerB then
                         local known = 0
                         for _, zb in pairs(b2.zombies or {}) do
-                            if zb.source ~= "told" then
+                            if zb.source ~= "told"
+                                and (zb.source ~= "heard" or zb.phantom == true) then
                                 local zdx, zdy = zb.x - destX, zb.y - destY
                                 if zdx * zdx + zdy * zdy <= P.GROUND_REACH * P.GROUND_REACH then
                                     known = known + 1
@@ -2271,18 +2433,18 @@ function P.announceDeparture(fromId, kind, destX, destY)
     if bestBriefer and goerB then
         local bB = P.beliefs[bestBriefer]
         local moved = 0
-        for key, zb in pairs(bB.zombies or {}) do
-            if zb.source ~= "told" then
-                local zdx, zdy = zb.x - destX, zb.y - destY
-                if zdx * zdx + zdy * zdy <= P.GROUND_REACH * P.GROUND_REACH then
-                    local ex = goerB.zombies[key]
-                    if not ex or ex.source == "told" then
-                        goerB.zombies[key] = { x = zb.x, y = zb.y,
-                            dist = zb.dist, at = zb.at,
-                            source = "told", teller = bestBriefer }
-                        moved = moved + 1
-                    end
-                end
+        local function canBriefZombie(zb)
+            local zdx, zdy = zb.x - destX, zb.y - destY
+            return zb.source ~= "told" and (zb.source ~= "heard" or zb.phantom == true)
+                and zdx * zdx + zdy * zdy <= P.GROUND_REACH * P.GROUND_REACH
+        end
+        for key, zb in pairs(zombieReports(bB.zombies, canBriefZombie)) do
+            local ex = goerB.zombies[key]
+            if not ex or ex.source == "told" then
+                goerB.zombies[key] = { x = zb.x, y = zb.y, z = zb.z,
+                    dist = zb.dist, at = zb.at,
+                    source = "told", teller = bestBriefer }
+                moved = moved + 1
             end
         end
         for gname, fb in pairs(bB.factions or {}) do
@@ -2736,7 +2898,7 @@ local function dropForeignStamps(b, now)
             b[key] = 0
         end
     end
-    for _, tableName in ipairs({ "zombies", "people", "factions" }) do
+    for _, tableName in ipairs({ "zombies", "people", "factions", "sounds" }) do
         local entries = b[tableName]
         if type(entries) == "table" then
             for _, entry in pairs(entries) do
@@ -2787,6 +2949,9 @@ function P.bindPersistentStore()
         return false
     end
     if persisted == P.beliefs then
+        for _, b in pairs(persisted) do
+            if type(b) == "table" then soundEvidence(b) end
+        end
         return true   -- already bound; a second start must not rebind
     end
     -- [C112] The domain check's now. Read through a pcall: a bind
@@ -2800,10 +2965,15 @@ function P.bindPersistentStore()
     for _, b in pairs(persisted) do
         if type(b) == "table" then
             dropForeignStamps(b, now)
+            soundEvidence(b)
+            -- Restored records remain ordinary memories. Runtime tracking
+            -- authority belongs only to the current native observer session.
+            for _, belief in pairs(b.zombies or {}) do belief.track = nil end
             restored = restored + 1
         end
     end
     for id, b in pairs(P.beliefs) do
+        if type(b) == "table" then soundEvidence(b) end
         persisted[id] = b   -- pre-bind session entries carry over
     end
     P.beliefs = persisted

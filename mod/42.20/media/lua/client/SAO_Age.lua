@@ -414,7 +414,7 @@ local function everyTenMinutes()
     end
     -- [C39] The player carries what they took.
     pcall(function()
-        local me = getSpecificPlayer(0)
+        local me = (SAO.Participants and SAO.Participants.player or getSpecificPlayer)(0)
         if not me then return end
         local key = SAO.Standing.playerKey(me)
         if key then

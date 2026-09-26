@@ -30,7 +30,7 @@ local function bodyFor(id)
         body = SAO.Body and SAO.Body.active and SAO.Body.active[id] or nil
     end
     if body then return body end
-    local ok, player = pcall(function() return getSpecificPlayer(0) end)
+    local ok, player = pcall(function() return (SAO.Participants and SAO.Participants.player or getSpecificPlayer)(0) end)
     if ok and player and SAO.Standing and SAO.Standing.playerKey
         and SAO.Standing.playerKey(player) == id then return player end
     return nil

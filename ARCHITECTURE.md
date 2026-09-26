@@ -1,6 +1,6 @@
 | Document | Survivor Awareness Overhaul Architecture |
 |---|---|
-| Version | `2.10.0.0-pre-alpha` |
+| Version | `2.11.0.0-pre-alpha` |
 | Author | ellyj3rain |
 | Repository | `ARCHITECTURE.md` |
 | Status | ACTIVE - ratified framework shape. |
@@ -47,6 +47,23 @@ uncertainty, and the distinction between *there is no threat* and *I have not
 looked*. It does not own map truth the survivor has not acquired, and it never
 grants permission.
 
+Native world sounds supply an audible origin without a reliable acoustic kind.
+Perception retains them as unknown sounds. Own-source sounds are excluded by the
+scanner; hearing alone supplies neither an enemy identity nor a shooter. A
+recognized voice resolves that sound without erasing independent threat evidence
+at the same tile. Earlier unclassified heard entries migrate out of the threat
+bucket on bind or acquisition; observed, reported and explicit phantom beliefs
+retain their existing meaning.
+
+Consecutive visible sightings of the same body update one observer-local track.
+A visibility gap, observer replacement or new world breaks that continuity.
+Tracks provide no identity after disappearance. Reported and restored beliefs
+carry no tracking authority. Multiple bodies remain distinct even on the same tile.
+Current sight can retire an obsolete location only when the native scanner
+certifies the whole loaded tile on its recorded floor as visible. Hidden,
+unloaded and unknown-floor memories retain uncertainty and ordinary expiry;
+explicit phantom beliefs retain their separate owner.
+
 This pillar is the one whose absence produces the characteristic failure of
 existing NPC mods: a decision function that reads the world directly, computes
 against geometry the agent could not know, and so is simultaneously omniscient
@@ -72,12 +89,29 @@ that person. It does not own execution and it never invents knowledge. Its
 command surface is `SAO_Command` (`[C16]`, DR-033): whose word a person takes,
 in what matter, and why not - CAO's check on the standing that exists.
 
+An admission's origin and home coordinates identify a starting place and a
+navigation reference. They confer no ownership. A move-in agreement can share
+ground the anchor actually holds; an unclaimed destination remains unclaimed.
+Deliberate claim actions and existing recorded claims retain their Standing owner.
+
 ### Execution — what is done
 
 Movement, entry, combat, looting, work, treatment, withdrawal. Execution rides the
 engine: normal pathfinding, normal timed actions, normal combat resolution. It
 owns *how*, never *whether*. It does not consult global truth, personality, or
 relationships — those were already resolved upstream.
+
+Repeated threat decisions preserve an executing escape route while its current
+destination remains away from the privately believed threat, permitted and on
+the body's floor. Changed danger, permission or a terminal movement result
+returns the route to decision. Camera visits do not own or restart movement.
+
+Following retains its beside-companion offset for the same executing job,
+companion and body. Actual companion movement updates the goal. Changed owner,
+floor, permission or terminal result returns the route to decision. Player
+following preserves a failed movement receipt for its existing obstacle-crossing
+owner; every new crossing still requires current permission. An already-started
+crossing retains its exact body and job owner through completion.
 
 ## Worked example: entry
 

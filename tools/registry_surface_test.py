@@ -54,6 +54,8 @@ REGISTRY = re.compile(r"^(\w+)\.(\w+)\s*=\s*\1\.\2\s+or\s+\{\}", re.M)
 # The reader is named so "it is on the panel" is a claim that can be
 # checked rather than a thing somebody remembers doing.
 SURFACED = {
+    "Body.unloaded": ("pendingTransitionCount",
+                       "native-unloaded bodies retaining ownership while interrupted work reconciles"),
     "Body.returning": ("pendingTransitionCount",
                        "paused return bodies awaiting source removal and adoption"),
     "Body.failedRestore": ("pendingTransitionCount",

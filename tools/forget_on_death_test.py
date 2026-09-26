@@ -68,6 +68,11 @@ MARK_DEAD = "markDead"
 #   "calls"  - the clearing function calls Identity.markDead itself,
 #              so the clear and the death are the same event
 CACHES = {
+    ("SAO_Body.lua", "Body.unloaded"): (
+        "Body.discard", "named",
+        "unloaded bodies retained while interrupted owners reconcile; death "
+        "reaches discard, external deaths retain their existing body owner, "
+        "and failed SAO teardown is retried by Population recovery"),
     ("SAO_Body.lua", "Body.returning"): (
         "Body.discardReturn", "return",
         "a staged return body created after death, retained through failed "
@@ -271,6 +276,13 @@ NOT_A_SURVIVOR_ID = {
         "interrupted, released and queue-refused paths drop the exact entry; "
         "world rebind clears all live handles, and T.forgetPerson releases "
         "pending records involving a dead participant through Identity.markDead"),
+    ("SAO_Treatment.lua", "restoredPending"): (
+        "keyed by a TREATMENT id, not a survivor id. Runtime-only provenance "
+        "marks pending receipts restored from the durable treatment owner; "
+        "terminal transitions and trimming drop the exact entry, while world "
+        "rebind clears the map before rebuilding it from pending receipts. "
+        "T.forgetPerson releases pending records involving a dead participant "
+        "through Identity.markDead and the same terminal cleanup"),
 }
 
 # What an index has to look like to be a survivor id. `subFaults[name]`

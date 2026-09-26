@@ -108,8 +108,8 @@ ModData = { getOrCreate = function(k) __md[k] = __md[k] or {} return __md[k] end
 getWorld = function() return {
     getWorld = function() return "BorderSave" end,
     getMetaGrid = function() return nil end } end
-getCell = function() return {
-    getCellSizeInSquares = function() return 300 end } end
+getCellSizeInSquares = function() return 256 end
+getCell = function() return {} end
 GameTime = { getInstance = function() return {
     getWorldAgeHours = function() return _G.__hours end,
     getStartYear = function() return 1996 end,
@@ -223,6 +223,8 @@ PROBE = r'''(function()
   local oneDay = march(a, 10000 + reach * 8, 9000, 24, 1)
   a.x, a.y = 10000, 9000
   local manyPasses = march(a, 10000 + reach * 8, 9000, 24, 24)
+  a.x, a.y = 10000, 9000
+  local finePasses = march(a, 10000 + reach * 8, 9000, 24, 96)
 
   -- An hour of clock.
   local c = walker(10000, 9000)
@@ -247,6 +249,7 @@ PROBE = r'''(function()
   return "reach=" .. reach
     .. " oneDay=" .. oneDay
     .. " manyPasses=" .. manyPasses
+    .. " finePasses=" .. finePasses
     .. " oneHour=" .. oneHour
     .. " overshoot=" .. overshoot
     .. " afterIdle=" .. afterIdle
@@ -264,7 +267,7 @@ def build():
     return done.returncode == 0
 
 
-def probe(expr):
+def probe(expr, population_source=None):
     with tempfile.TemporaryDirectory() as tmp:
         work = pathlib.Path(tmp)
         shutil.copy2(STDLIB, work / "stdlib.lua")
@@ -274,7 +277,12 @@ def probe(expr):
         prelude.write_text(PRELUDE, encoding="utf-8")
         args = [str(JDK / "java.exe"), "-cp", "%s;." % PZ, "LuaRun",
                 str(prelude)]
-        args += [str(LUA / m) for m in MODULES]
+        for module in MODULES:
+            path = LUA / module
+            if population_source is not None and module == "client/SAO_DormantPopulation.lua":
+                path = work / "SAO_DormantPopulation.lua"
+                path.write_text(population_source, encoding="utf-8")
+            args.append(str(path))
         args += ["--", expr]
         done = subprocess.run(args, cwd=str(work), capture_output=True,
                               text=True, timeout=900)
@@ -370,6 +378,7 @@ def main():
         reach = int(got.get("reach") or 0)
         one_day = int(got.get("oneDay") or 0)
         many = int(got.get("manyPasses") or 0)
+        fine = int(got.get("finePasses") or 0)
         one_hour = int(got.get("oneHour") or 0)
         overshoot = int(got.get("overshoot") or 0)
     except ValueError:
@@ -405,6 +414,9 @@ def main():
             "delivered in twenty-four passes covered %d. Loaded and "
             "unloaded survivors are governed by the same rules ([B39], "
             "[B42]), and a day is a day in both halves" % (one_day, many))
+    if one_day > 0 and abs(fine - one_day) > max(2, one_day * 0.05):
+        faults.append("quarter-hour walking lost distance to update cadence: %d against %d"
+                      % (fine, one_day))
     after_idle = int(got.get("afterIdle") or 0)
     if one_day > 0 and after_idle > one_day * 1.6:
         faults.append(
@@ -418,6 +430,23 @@ def main():
             "a goal nearer than the day's reach was overshot by %d tiles. "
             "Walking further than the destination is not walking"
             % overshoot)
+
+    mutant = pop
+    for axis in ("x", "y"):
+        seam = f"rec.{axis} = rec.{axis} + d{axis} / len * step"
+        if mutant.count(seam) != 1:
+            faults.append("fractional walking control seam differs: " + axis)
+            break
+        mutant = mutant.replace(seam, f"rec.{axis} = math.floor(rec.{axis} + d{axis} / len * step + 0.5)")
+    else:
+        control = numbers(probe(PROBE, mutant))
+        control_day = int(control.get("oneDay") or 0)
+        control_fine = int(control.get("finePasses") or 0)
+        if control_day <= 0 or abs(control_fine - control_day) <= max(2, control_day * 0.05):
+            faults.append("per-pass rounding control was not detected")
+        else:
+            print("  CONTROL per-pass rounding rejected: %d quarter-hour tiles against %d daily tiles"
+                  % (control_fine, control_day))
 
     print()
     for k, v in seams.items():

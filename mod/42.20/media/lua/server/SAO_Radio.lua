@@ -332,7 +332,7 @@ function SAOWire.deliverToListeners(items, broadcastId, atHours)
     -- provenance. This is what makes the news yours to pass on -
     -- [B27] gave you a mouth and this is what puts something in it.
     pcall(function()
-        local me = getSpecificPlayer(0)
+        local me = (SAO.Participants and SAO.Participants.player or getSpecificPlayer)(0)
         if not me or me:isDead() then return end
         local myKey = SAO.Standing.playerKey(me)
         if not myKey then return end

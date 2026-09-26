@@ -18,6 +18,7 @@ local MAX_DISTANCE = 6
 
 local storeMemo = nil
 local runtime = {}
+local restoredPending = {}
 local bandageClass = nil
 local lastReconcileAt = nil
 
@@ -67,6 +68,9 @@ local function store()
         return nil
     end
     storeMemo = value
+    for id, rec in pairs(value.records or {}) do
+        if rec.status == "pending" then restoredPending[tostring(id)] = true end
+    end
     return value
 end
 
@@ -94,6 +98,7 @@ local function trimRecords(s)
         if oldestId == nil then return false end
         s.records[oldestId] = nil
         runtime[oldestId] = nil
+        restoredPending[oldestId] = nil
         count = count - 1
     end
     return true
@@ -252,7 +257,7 @@ local function bodyFor(id, live, field)
     end
     if SAO.Standing and SAO.Standing.isPlayerKey
         and SAO.Standing.isPlayerKey(id) and getSpecificPlayer then
-        local ok, value = pcall(getSpecificPlayer, 0)
+        local ok, value = pcall(SAO.Participants and SAO.Participants.player or getSpecificPlayer, 0)
         if ok and bodyMatches(id, value) then return value end
     end
     return nil
@@ -339,6 +344,9 @@ end
 
 local function setTerminal(rec, status, reason, live)
     if not rec or rec.status ~= "pending" then return false end
+    -- Unload cancellation acknowledges only after both native and Lua queues
+    -- release the exact action. Its stop callback alone is not that witness.
+    if live and (live.unloadInterrupt or live.unloadBlocked) then return false end
     rec.status = status
     rec.terminalAt = now()
     rec.reason = tostring(reason or status)
@@ -347,6 +355,7 @@ local function setTerminal(rec, status, reason, live)
         applyRecordEffect(rec, live)
     end
     runtime[tostring(rec.id)] = nil
+    restoredPending[tostring(rec.id)] = nil
     return true
 end
 
@@ -371,6 +380,7 @@ local function ensureBandageClass()
     function bandageClass:complete()
         local rec = record(self.saoTreatmentId)
         local live = rec and runtime[tostring(rec.id)] or nil
+        if live and live.unloadBlocked then return false end
         if not rec or rec.status ~= "pending" or not bindingValid(rec, live) then
             if rec and rec.status == "pending" then
                 setTerminal(rec, "ineffective", "binding-changed", live)
@@ -393,23 +403,31 @@ local function ensureBandageClass()
 
     function bandageClass:stop()
         local rec = record(self.saoTreatmentId)
+        local live = rec and runtime[tostring(rec.id)] or nil
         local ok, result = pcall(ISApplyBandage.stop, self)
-        if rec and rec.status == "pending" then
+        if live and live.unloadInterrupt and (not ok or result == false) then
+            live.unloadCancelFailed = true
+        end
+        if ok and result ~= false and rec and rec.status == "pending" then
             setTerminal(rec, "interrupted", "action-stopped",
-                runtime[tostring(rec.id)])
+                live)
         end
         return ok and result or nil
     end
 
     function bandageClass:forceCancel()
         local rec = record(self.saoTreatmentId)
+        local live = rec and runtime[tostring(rec.id)] or nil
         local ok, result = true, nil
         if ISApplyBandage.forceCancel then
             ok, result = pcall(ISApplyBandage.forceCancel, self)
         end
-        if rec and rec.status == "pending" then
+        if live and live.unloadInterrupt and (not ok or result == false) then
+            live.unloadCancelFailed = true
+        end
+        if ok and result ~= false and rec and rec.status == "pending" then
             setTerminal(rec, "interrupted", "action-cancelled",
-                runtime[tostring(rec.id)])
+                live)
         end
         return ok and result or nil
     end
@@ -515,7 +533,7 @@ function T.reconcile(force)
             end
         elseif rec and rec.status == "pending" then
             local live = runtime[tostring(id)]
-            if live and live.action and ISTimedActionQueue
+            if live and live.action and not live.unloadBlocked and ISTimedActionQueue
                 and ISTimedActionQueue.hasAction then
                 local present = false
                 local ok = pcall(function()
@@ -531,6 +549,125 @@ function T.reconcile(force)
         end
     end
     return changed
+end
+
+local function unloadQueueEvidence(live)
+    local ok, present, nativePresent, owner = pcall(function()
+        local action = live.action
+        if not ISTimedActionQueue or not ISTimedActionQueue.hasAction
+            or not ISTimedActionQueue.getTimedActionQueue
+            or action.character ~= live.actorBody
+            or action.otherPlayer ~= live.patientBody then return nil end
+        local queueOwner = ISTimedActionQueue.getTimedActionQueue(live.actorBody)
+        if not queueOwner or queueOwner.character ~= live.actorBody then
+            return nil
+        end
+        local inLua = ISTimedActionQueue.hasAction(action)
+        if type(inLua) ~= "boolean" then return nil end
+        local native = action.action
+        if queueOwner.current == action and native == nil then return nil end
+        local actions = live.actorBody:getCharacterActions()
+        local inNative = false
+        for i = 0, actions:size() - 1 do
+            if native ~= nil and actions:get(i) == native then inNative = true end
+        end
+        return inLua, inNative, queueOwner
+    end)
+    if not ok then return nil end
+    return present, nativePresent, owner
+end
+
+local function restoredActionAbsent(rec)
+    local ok, absent = pcall(function()
+        if not SAO.Body or type(SAO.Body.active) ~= "table"
+            or type(SAO.Body.foreign) ~= "table" then return false end
+        -- Body.get deliberately hides transitioning bodies. Their raw owner
+        -- reference can still carry the doctor's native treatment action.
+        local body = SAO.Body.active[rec.actorId] or SAO.Body.foreign[rec.actorId]
+        local player = SAO.Standing and SAO.Standing.isPlayerKey
+            and SAO.Standing.isPlayerKey(rec.actorId)
+        if player then body = bodyFor(rec.actorId, nil, "actorBody") end
+        if body == nil then
+            if player then return false end
+            for _, key in ipairs({ "returning", "failedRestore", "discarding", "unloaded" }) do
+                if SAO.Body[key] and SAO.Body[key][rec.actorId] then return false end
+            end
+            return true
+        end
+        if not bodyMatches(rec.actorId, body) or not ISTimedActionQueue
+            or type(ISTimedActionQueue.queues) ~= "table" then return false end
+        local owner = ISTimedActionQueue.queues[body]
+        if owner then
+            if owner.character ~= body or type(owner.queue) ~= "table" then return false end
+            for _, action in ipairs(owner.queue) do
+                if tostring(action.saoTreatmentId) == tostring(rec.id) then return false end
+            end
+        end
+        local actions = body:getCharacterActions()
+        for i = 0, actions:size() - 1 do
+            local action = actions:get(i)
+            if not instanceof then return false end
+            if instanceof(action, "LuaTimedActionNew") then
+                local lua = action:getTable()
+                if not lua or tostring(lua.saoTreatmentId) == tostring(rec.id) then return false end
+            end
+        end
+        return true
+    end)
+    return ok and absent == true
+end
+
+-- A patient's unloaded body can still be held by somebody else's treatment.
+-- Cancel through the action owner before releasing that cross-person handle.
+function T.interruptForBodyUnload(personId, reason)
+    local target, s = identity(personId), store()
+    if not target or not s or type(s.records) ~= "table" then return false end
+    for _, rec in pairs(s.records) do
+        if rec and rec.status == "pending"
+            and (rec.actorId == target or rec.patientId == target) then
+            local live = runtime[tostring(rec.id)]
+            if not live or not live.action then
+                if live or not restoredPending[tostring(rec.id)]
+                    or not restoredActionAbsent(rec) then return false end
+                setTerminal(rec, "interrupted", reason or "body-unloaded", nil)
+            else
+                live.unloadBlocked = true
+                if not bodyMatches(rec.actorId, live.actorBody) then return false end
+                local present, nativePresent, owner = unloadQueueEvidence(live)
+                if present == nil or nativePresent == nil then return false end
+                local action = live.action
+                live.unloadInterrupt, live.unloadCancelFailed = true, false
+                local ok, result = pcall(function()
+                    if nativePresent or owner.current == action then
+                        if not ISTimedActionQueue.clear then return false end
+                        return ISTimedActionQueue.clear(live.actorBody)
+                    elseif present then
+                        if not action.isStarted or not action.forceCancel
+                            or not owner.removeFromQueue then return false end
+                        local started = action:isStarted()
+                        if started == true or (started ~= false
+                            and action.action ~= nil) then return false end
+                        local cancelled = action:forceCancel()
+                        if cancelled == false or live.unloadCancelFailed then
+                            return false
+                        end
+                        return owner:removeFromQueue(action)
+                    end
+                end)
+                live.unloadInterrupt = nil
+                if not ok or result == false or live.unloadCancelFailed then
+                    return false
+                end
+                present, nativePresent, owner = unloadQueueEvidence(live)
+                -- Vanilla clearQueue may retain its current pointer after wiping
+                -- entries. Exact Lua membership and the native handle are decisive.
+                if present ~= false or nativePresent ~= false then return false end
+                live.unloadBlocked = nil
+                setTerminal(rec, "interrupted", reason or "body-unloaded", live)
+            end
+        end
+    end
+    return true
 end
 
 function T.releasePerson(personId, reason)
@@ -558,6 +695,7 @@ function T.rebindWorld()
     storeMemo = nil
     lastReconcileAt = nil
     for key in pairs(runtime) do runtime[key] = nil end
+    for key in pairs(restoredPending) do restoredPending[key] = nil end
     return store() ~= nil
 end
 

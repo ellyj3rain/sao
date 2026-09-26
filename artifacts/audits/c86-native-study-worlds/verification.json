@@ -1,0 +1,709 @@
+{
+  "schema": "sao-c86-verification/1",
+  "batch": "C86",
+  "datasetAdmission": "unreviewed",
+  "trainingRows": 0,
+  "behavioralVerdict": null,
+  "fullGate": {
+    "status": "enforced-by-closing-pre-commit",
+    "command": "tools/check.sh --staged",
+    "receipt": "_scratch/c86-study/closing-commit-gate.json",
+    "publicationRequiresExitZero": true,
+    "publicationRequiresAllBordersClean": true
+  },
+  "nativeRuns": [
+    {
+      "status": "completed",
+      "exitCode": 0,
+      "save": "64591137338913196677",
+      "launchNumber": 1,
+      "lastSequence": 4,
+      "runtimeErrors": [],
+      "definitionSha256": "ee550f2337d8985d3b13919defd2487c6e38692c145c1dab0c34f35e59347dc2",
+      "packageSha256": "4bc5af9d7e0bed6e9bded85b89677cc7ff05b2abae214e13edca20bca353a415",
+      "engineJarSha256": "80e405a4bfc42f6072e75b3735f458a6514143da011d3226007ded305a442f44",
+      "loadingAgentSha256": "99b21ac786dd113dd76e42d07e01dd8a56b42b0f38efac4f2bb9ed289bdb25d8",
+      "player": {
+        "count": 0,
+        "observerPersisted": false
+      },
+      "terminal": {
+        "endHours": 2.851377487182617,
+        "nativeSaveReturned": true,
+        "startHours": 2.0
+      },
+      "run": "native-run-24",
+      "report": "_scratch/c86-study/native-run-24/attempts/0001/report.json",
+      "reportSha256": "f789abab5d83e1cd5985a58d0cd63f4e7b623d4ba7f5f7673fbfbf1487b60e7c",
+      "observer": {
+        "startHours": 2.0,
+        "hours": 2.851377487182617,
+        "detached": true,
+        "objects": 0,
+        "squareMemberships": 0,
+        "playerSqlId": -1,
+        "displayMode": "native-god-view",
+        "canopyCutaway": true
+      },
+      "population": {
+        "captured": 32,
+        "dead": 0,
+        "represented": 11,
+        "total": 32,
+        "unrepresented": 21
+      },
+      "scope": "Earlier sound/escape, observer, persistence or viewer evidence; before final follow/sight/territory changes"
+    },
+    {
+      "status": "completed",
+      "exitCode": 0,
+      "save": "29521822173435749979",
+      "launchNumber": 1,
+      "lastSequence": 5,
+      "runtimeErrors": [],
+      "definitionSha256": "ee550f2337d8985d3b13919defd2487c6e38692c145c1dab0c34f35e59347dc2",
+      "packageSha256": "4bc5af9d7e0bed6e9bded85b89677cc7ff05b2abae214e13edca20bca353a415",
+      "engineJarSha256": "80e405a4bfc42f6072e75b3735f458a6514143da011d3226007ded305a442f44",
+      "loadingAgentSha256": "19e45dad18d76c4e9d3ec3b0748c92461248f3f35e54bf6f8c6ce5f270b8b8b5",
+      "player": {
+        "count": 0,
+        "observerPersisted": false
+      },
+      "terminal": {
+        "endHours": 3.1631107330322266,
+        "nativeSaveReturned": true,
+        "startHours": 2.0
+      },
+      "run": "native-run-25",
+      "report": "_scratch/c86-study/native-run-25/attempts/0001/report.json",
+      "reportSha256": "6e63e6754321e5271d321dc9787afdecfd25ffe7304d4b07c49396bb2814c52d",
+      "observer": {
+        "startHours": 2.0,
+        "hours": 3.1631107330322266,
+        "detached": true,
+        "objects": 0,
+        "squareMemberships": 0,
+        "playerSqlId": -1,
+        "displayMode": "native-god-view",
+        "canopyCutaway": true
+      },
+      "population": {
+        "captured": 32,
+        "dead": 0,
+        "represented": 8,
+        "total": 32,
+        "unrepresented": 24
+      },
+      "scope": "Earlier sound/escape, observer, persistence or viewer evidence; before final follow/sight/territory changes"
+    },
+    {
+      "status": "incomplete",
+      "exitCode": 4294967295,
+      "launchNumber": 1,
+      "runtimeErrors": [
+        "io.github.classgraph.ClassGraphException: Uncaught exception during scan",
+        "ERROR: General      f:0> Lua((MOD:ZombieBuddy)).applySettings> Exception thrown",
+        "java.lang.RuntimeException: attempted index: setAutoFixModOrder of non-table: null at KahluaThread.tableget(KahluaThread.java:1430).",
+        "observer evidence: state file absent after startup failure"
+      ],
+      "definitionSha256": "ee550f2337d8985d3b13919defd2487c6e38692c145c1dab0c34f35e59347dc2",
+      "packageSha256": "4bc5af9d7e0bed6e9bded85b89677cc7ff05b2abae214e13edca20bca353a415",
+      "engineJarSha256": "80e405a4bfc42f6072e75b3735f458a6514143da011d3226007ded305a442f44",
+      "loadingAgentSha256": "c9b7cac3b6c42e9798a796037acc6abb4fedb692ee0774e509944a3b62d875e4",
+      "terminal": null,
+      "run": "native-run-26",
+      "report": "_scratch/c86-study/native-run-26/attempts/0001/report.json",
+      "reportSha256": "414a7b2d9b93b88e4f1f92ea0b5799b8ef92570eeb7dbb232b28f5af50324314",
+      "observer": {
+        "startHours": null,
+        "hours": null,
+        "detached": null,
+        "objects": null,
+        "squareMemberships": null,
+        "playerSqlId": null,
+        "displayMode": null,
+        "canopyCutaway": null
+      },
+      "population": null
+    },
+    {
+      "status": "completed",
+      "exitCode": 0,
+      "save": "73517772808093796831",
+      "launchNumber": 1,
+      "lastSequence": 2,
+      "runtimeErrors": [],
+      "definitionSha256": "ee550f2337d8985d3b13919defd2487c6e38692c145c1dab0c34f35e59347dc2",
+      "packageSha256": "4bc5af9d7e0bed6e9bded85b89677cc7ff05b2abae214e13edca20bca353a415",
+      "engineJarSha256": "80e405a4bfc42f6072e75b3735f458a6514143da011d3226007ded305a442f44",
+      "loadingAgentSha256": "94d64c526b9528a984d7835304a37893f19c722c17a053eacc54cc12e9bf87c0",
+      "player": {
+        "count": 0,
+        "observerPersisted": false
+      },
+      "terminal": {
+        "endHours": 2.389998435974121,
+        "nativeSaveReturned": true,
+        "startHours": 2.0
+      },
+      "run": "native-run-27",
+      "report": "_scratch/c86-study/native-run-27/attempts/0001/report.json",
+      "reportSha256": "52e40220136ace032bbbf225e7ec624b0f09c467b6ef8dd157a5c428d9f25c91",
+      "observer": {
+        "startHours": 2.0,
+        "hours": 2.389998435974121,
+        "detached": true,
+        "objects": 0,
+        "squareMemberships": 0,
+        "playerSqlId": -1,
+        "displayMode": "native-god-view",
+        "canopyCutaway": true
+      },
+      "population": {
+        "captured": 32,
+        "dead": 0,
+        "represented": 5,
+        "total": 32,
+        "unrepresented": 27
+      },
+      "scope": "Earlier sound/escape, observer, persistence or viewer evidence; before final follow/sight/territory changes"
+    },
+    {
+      "status": "completed",
+      "exitCode": 0,
+      "save": "73517772808093796831",
+      "launchNumber": 2,
+      "lastSequence": 12,
+      "runtimeErrors": [],
+      "definitionSha256": "ee550f2337d8985d3b13919defd2487c6e38692c145c1dab0c34f35e59347dc2",
+      "packageSha256": "4bc5af9d7e0bed6e9bded85b89677cc7ff05b2abae214e13edca20bca353a415",
+      "engineJarSha256": "80e405a4bfc42f6072e75b3735f458a6514143da011d3226007ded305a442f44",
+      "loadingAgentSha256": "94d64c526b9528a984d7835304a37893f19c722c17a053eacc54cc12e9bf87c0",
+      "player": {
+        "count": 0,
+        "observerPersisted": false
+      },
+      "resumedFrom": {
+        "attempt": 1,
+        "lastSequence": 2,
+        "terminalHours": 2.389998435974121
+      },
+      "terminal": {
+        "endHours": 4.684725761413574,
+        "nativeSaveReturned": true,
+        "startHours": 2.3903684616088867
+      },
+      "run": "native-run-27",
+      "report": "_scratch/c86-study/native-run-27/attempts/0002/report.json",
+      "reportSha256": "7bc6491f0558a458d2c5713ab4e600ca53cd298556cb21bfdd08816f34c075de",
+      "observer": {
+        "startHours": 2.3903684616088867,
+        "hours": 4.684725761413574,
+        "detached": true,
+        "objects": 0,
+        "squareMemberships": 0,
+        "playerSqlId": -1,
+        "displayMode": "native-god-view",
+        "canopyCutaway": true
+      },
+      "population": {
+        "captured": 32,
+        "dead": 0,
+        "represented": 6,
+        "total": 32,
+        "unrepresented": 26
+      },
+      "scope": "Earlier sound/escape, observer, persistence or viewer evidence; before final follow/sight/territory changes"
+    },
+    {
+      "status": "completed",
+      "exitCode": 0,
+      "save": "73517772808093796831",
+      "launchNumber": 3,
+      "lastSequence": 55,
+      "runtimeErrors": [],
+      "definitionSha256": "ee550f2337d8985d3b13919defd2487c6e38692c145c1dab0c34f35e59347dc2",
+      "packageSha256": "4bc5af9d7e0bed6e9bded85b89677cc7ff05b2abae214e13edca20bca353a415",
+      "engineJarSha256": "80e405a4bfc42f6072e75b3735f458a6514143da011d3226007ded305a442f44",
+      "loadingAgentSha256": "94d64c526b9528a984d7835304a37893f19c722c17a053eacc54cc12e9bf87c0",
+      "player": {
+        "count": 0,
+        "observerPersisted": false
+      },
+      "resumedFrom": {
+        "attempt": 2,
+        "lastSequence": 12,
+        "terminalHours": 4.684725761413574
+      },
+      "terminal": {
+        "endHours": 15.308191299438477,
+        "nativeSaveReturned": true,
+        "startHours": 4.684774398803711
+      },
+      "run": "native-run-27",
+      "report": "_scratch/c86-study/native-run-27/attempts/0003/report.json",
+      "reportSha256": "2a428155e9898552bb1156e5c886a83f8551aa652a5764790a07105a2e3ad448",
+      "observer": {
+        "startHours": 4.684774398803711,
+        "hours": 15.308191299438477,
+        "detached": true,
+        "objects": 0,
+        "squareMemberships": 0,
+        "playerSqlId": -1,
+        "displayMode": "native-god-view",
+        "canopyCutaway": true
+      },
+      "population": {
+        "captured": 32,
+        "dead": 0,
+        "represented": 5,
+        "total": 32,
+        "unrepresented": 27
+      },
+      "scope": "Earlier sound/escape, observer, persistence or viewer evidence; before final follow/sight/territory changes"
+    },
+    {
+      "status": "completed",
+      "exitCode": 0,
+      "save": "2045533332145419461",
+      "launchNumber": 1,
+      "lastSequence": 1,
+      "runtimeErrors": [],
+      "definitionSha256": "ee550f2337d8985d3b13919defd2487c6e38692c145c1dab0c34f35e59347dc2",
+      "packageSha256": "4bc5af9d7e0bed6e9bded85b89677cc7ff05b2abae214e13edca20bca353a415",
+      "engineJarSha256": "80e405a4bfc42f6072e75b3735f458a6514143da011d3226007ded305a442f44",
+      "loadingAgentSha256": "efae01e5b2009926655c0c803536d1da2b47aa76c671a5ba4106958f9c7cb634",
+      "player": {
+        "count": 0,
+        "observerPersisted": false
+      },
+      "terminal": {
+        "endHours": 2.047297477722168,
+        "nativeSaveReturned": true,
+        "startHours": 2.0
+      },
+      "run": "native-run-28",
+      "report": "_scratch/c86-study/native-run-28/attempts/0001/report.json",
+      "reportSha256": "599b38a47b5ed6799cdf23a89b53becdfe331dfbde3227aba7bca8c5201e93c7",
+      "observer": {
+        "startHours": 2.0,
+        "hours": 2.047297477722168,
+        "detached": true,
+        "objects": 0,
+        "squareMemberships": 0,
+        "playerSqlId": -1,
+        "displayMode": "native-god-view",
+        "canopyCutaway": true
+      },
+      "population": {
+        "captured": 0,
+        "dead": 0,
+        "represented": 0,
+        "total": 0,
+        "unrepresented": 0
+      },
+      "scope": "Interim: before the named-radius declaration and unsupported-territory correction"
+    },
+    {
+      "status": "completed",
+      "exitCode": 0,
+      "save": "2547328061118454940",
+      "launchNumber": 1,
+      "lastSequence": 5,
+      "runtimeErrors": [],
+      "definitionSha256": "ee550f2337d8985d3b13919defd2487c6e38692c145c1dab0c34f35e59347dc2",
+      "packageSha256": "4bc5af9d7e0bed6e9bded85b89677cc7ff05b2abae214e13edca20bca353a415",
+      "engineJarSha256": "80e405a4bfc42f6072e75b3735f458a6514143da011d3226007ded305a442f44",
+      "loadingAgentSha256": "13c37ad8004aa24f984d83c9a922c0a2fe8e7b63403f63c54776eec1efec91f7",
+      "player": {
+        "count": 0,
+        "observerPersisted": false
+      },
+      "terminal": {
+        "endHours": 3.0133113861083984,
+        "nativeSaveReturned": true,
+        "startHours": 2.0
+      },
+      "run": "native-run-29",
+      "report": "_scratch/c86-study/native-run-29/attempts/0001/report.json",
+      "reportSha256": "223f32251b7ff83b320932eb0143c6b48e2e86fdaa03b146f77bc77da9502f67",
+      "observer": {
+        "startHours": 2.0,
+        "hours": 3.0133113861083984,
+        "detached": true,
+        "objects": 0,
+        "squareMemberships": 0,
+        "playerSqlId": -1,
+        "displayMode": "native-god-view",
+        "canopyCutaway": true
+      },
+      "population": {
+        "captured": 32,
+        "dead": 0,
+        "represented": 10,
+        "total": 32,
+        "unrepresented": 22
+      },
+      "scope": "Interim: before the named-radius declaration and unsupported-territory correction"
+    },
+    {
+      "status": "completed",
+      "exitCode": 0,
+      "save": "45796564428844718655",
+      "launchNumber": 1,
+      "lastSequence": 5,
+      "runtimeErrors": [],
+      "definitionSha256": "ee550f2337d8985d3b13919defd2487c6e38692c145c1dab0c34f35e59347dc2",
+      "packageSha256": "4bc5af9d7e0bed6e9bded85b89677cc7ff05b2abae214e13edca20bca353a415",
+      "engineJarSha256": "80e405a4bfc42f6072e75b3735f458a6514143da011d3226007ded305a442f44",
+      "loadingAgentSha256": "a17a1878e7eb0e7db384734c35c471015d5c8975bffa851213c142a51c878e6f",
+      "player": {
+        "count": 0,
+        "observerPersisted": false
+      },
+      "terminal": {
+        "endHours": 3.0338220596313477,
+        "nativeSaveReturned": true,
+        "startHours": 2.0
+      },
+      "run": "native-run-30",
+      "report": "_scratch/c86-study/native-run-30/attempts/0001/report.json",
+      "reportSha256": "4e54da8e3a00395fb4da4cd2f3b532cf7292b11c03017d14cd388dcdc0e3320d",
+      "observer": {
+        "startHours": 2.0,
+        "hours": 3.0338220596313477,
+        "detached": true,
+        "objects": 0,
+        "squareMemberships": 0,
+        "playerSqlId": -1,
+        "displayMode": "native-god-view",
+        "canopyCutaway": true
+      },
+      "population": {
+        "captured": 32,
+        "dead": 0,
+        "represented": 8,
+        "total": 32,
+        "unrepresented": 24
+      },
+      "scope": "Before nonrecursive evidence ordering; comparator and behavioral logic are unchanged by that repair"
+    },
+    {
+      "status": "completed",
+      "exitCode": 0,
+      "save": "45796564428844718655",
+      "launchNumber": 2,
+      "lastSequence": 7,
+      "runtimeErrors": [],
+      "definitionSha256": "ee550f2337d8985d3b13919defd2487c6e38692c145c1dab0c34f35e59347dc2",
+      "packageSha256": "4bc5af9d7e0bed6e9bded85b89677cc7ff05b2abae214e13edca20bca353a415",
+      "engineJarSha256": "80e405a4bfc42f6072e75b3735f458a6514143da011d3226007ded305a442f44",
+      "loadingAgentSha256": "a17a1878e7eb0e7db384734c35c471015d5c8975bffa851213c142a51c878e6f",
+      "player": {
+        "count": 0,
+        "observerPersisted": false
+      },
+      "resumedFrom": {
+        "attempt": 1,
+        "lastSequence": 5,
+        "terminalHours": 3.0338220596313477
+      },
+      "terminal": {
+        "endHours": 3.4339380264282227,
+        "nativeSaveReturned": true,
+        "startHours": 3.0338964462280273
+      },
+      "run": "native-run-30",
+      "report": "_scratch/c86-study/native-run-30/attempts/0002/report.json",
+      "reportSha256": "164c62e3aa65fbedc2df3985758160fc546364f8b8603e6df9ef94af04a81c91",
+      "observer": {
+        "startHours": 3.0338964462280273,
+        "hours": 3.433032989501953,
+        "detached": true,
+        "objects": 0,
+        "squareMemberships": 0,
+        "playerSqlId": -1,
+        "displayMode": "native-god-view",
+        "canopyCutaway": true
+      },
+      "population": {
+        "captured": 32,
+        "dead": 0,
+        "represented": 8,
+        "total": 32,
+        "unrepresented": 24
+      },
+      "scope": "Before nonrecursive evidence ordering; comparator and behavioral logic are unchanged by that repair"
+    },
+    {
+      "status": "completed",
+      "exitCode": 0,
+      "save": "45796564428844718655",
+      "launchNumber": 3,
+      "lastSequence": 29,
+      "runtimeErrors": [],
+      "definitionSha256": "ee550f2337d8985d3b13919defd2487c6e38692c145c1dab0c34f35e59347dc2",
+      "packageSha256": "4bc5af9d7e0bed6e9bded85b89677cc7ff05b2abae214e13edca20bca353a415",
+      "engineJarSha256": "80e405a4bfc42f6072e75b3735f458a6514143da011d3226007ded305a442f44",
+      "loadingAgentSha256": "a17a1878e7eb0e7db384734c35c471015d5c8975bffa851213c142a51c878e6f",
+      "player": {
+        "count": 0,
+        "observerPersisted": false
+      },
+      "resumedFrom": {
+        "attempt": 2,
+        "lastSequence": 7,
+        "terminalHours": 3.4339380264282227
+      },
+      "terminal": {
+        "endHours": 8.87651252746582,
+        "nativeSaveReturned": true,
+        "startHours": 3.4339380264282227
+      },
+      "run": "native-run-30",
+      "report": "_scratch/c86-study/native-run-30/attempts/0003/report.json",
+      "reportSha256": "cc0c693c57c42ebd862d98d4282de69ca5cd42d35aea0e2be39438d411e424f8",
+      "observer": {
+        "startHours": 3.4339380264282227,
+        "hours": 8.87651252746582,
+        "detached": true,
+        "objects": 0,
+        "squareMemberships": 0,
+        "playerSqlId": -1,
+        "displayMode": "native-god-view",
+        "canopyCutaway": true
+      },
+      "population": {
+        "captured": 32,
+        "dead": 0,
+        "represented": 11,
+        "total": 32,
+        "unrepresented": 21
+      },
+      "scope": "Before nonrecursive evidence ordering; comparator and behavioral logic are unchanged by that repair"
+    },
+    {
+      "status": "completed",
+      "exitCode": 0,
+      "save": "12411292092990057651",
+      "launchNumber": 1,
+      "lastSequence": 3,
+      "runtimeErrors": [],
+      "definitionSha256": "ee550f2337d8985d3b13919defd2487c6e38692c145c1dab0c34f35e59347dc2",
+      "packageSha256": "4bc5af9d7e0bed6e9bded85b89677cc7ff05b2abae214e13edca20bca353a415",
+      "engineJarSha256": "80e405a4bfc42f6072e75b3735f458a6514143da011d3226007ded305a442f44",
+      "loadingAgentSha256": "0fb4f5708c7c4371475f99061c18d95e6ba037dbfe483623e8e8b6c3000b18d4",
+      "player": {
+        "count": 0,
+        "observerPersisted": false
+      },
+      "terminal": {
+        "endHours": 2.671553611755371,
+        "nativeSaveReturned": true,
+        "startHours": 2.0
+      },
+      "run": "native-run-31",
+      "report": "_scratch/c86-study/native-run-31/attempts/0001/report.json",
+      "reportSha256": "c05cdea51197876de68951e6326ccc1a51d66ee45b7c4efa2b8e794e673c3d65",
+      "observer": {
+        "startHours": 2.0,
+        "hours": 2.671553611755371,
+        "detached": true,
+        "objects": 0,
+        "squareMemberships": 0,
+        "playerSqlId": -1,
+        "displayMode": "native-god-view",
+        "canopyCutaway": true
+      },
+      "population": {
+        "captured": 32,
+        "dead": 0,
+        "represented": 12,
+        "total": 32,
+        "unrepresented": 20
+      }
+    },
+    {
+      "status": "completed",
+      "exitCode": 0,
+      "save": "12411292092990057651",
+      "launchNumber": 2,
+      "lastSequence": 6,
+      "runtimeErrors": [],
+      "definitionSha256": "ee550f2337d8985d3b13919defd2487c6e38692c145c1dab0c34f35e59347dc2",
+      "packageSha256": "4bc5af9d7e0bed6e9bded85b89677cc7ff05b2abae214e13edca20bca353a415",
+      "engineJarSha256": "80e405a4bfc42f6072e75b3735f458a6514143da011d3226007ded305a442f44",
+      "loadingAgentSha256": "0fb4f5708c7c4371475f99061c18d95e6ba037dbfe483623e8e8b6c3000b18d4",
+      "player": {
+        "count": 0,
+        "observerPersisted": false
+      },
+      "resumedFrom": {
+        "attempt": 1,
+        "lastSequence": 3,
+        "terminalHours": 2.671553611755371
+      },
+      "terminal": {
+        "endHours": 3.253744125366211,
+        "nativeSaveReturned": true,
+        "startHours": 2.6719236373901367
+      },
+      "run": "native-run-31",
+      "report": "_scratch/c86-study/native-run-31/attempts/0002/report.json",
+      "reportSha256": "0f8d640b471c967c1b28f849c22b670c259a4f595fb344cc478d392f2ad5552f",
+      "observer": {
+        "startHours": 2.6719236373901367,
+        "hours": 3.253744125366211,
+        "detached": true,
+        "objects": 0,
+        "squareMemberships": 0,
+        "playerSqlId": -1,
+        "displayMode": "native-god-view",
+        "canopyCutaway": true
+      },
+      "population": {
+        "captured": 32,
+        "dead": 0,
+        "represented": 12,
+        "total": 32,
+        "unrepresented": 20
+      }
+    }
+  ],
+  "coordinationManifest": {
+    "path": "artifacts/audits/c86-native-study-worlds/coordination-scenes/manifest.json",
+    "sha256": "c1b648cb62c81410e35f30519856a57530752aa0335e19b49aab5d1683c9d997"
+  },
+  "soundReceipt": {
+    "path": "_scratch/c86-study/sort-repair/final.json",
+    "sha256": "5944108d29337b921546404648e20560995abfd223d1cd718ee3a84d03678eb1"
+  },
+  "native27Delivery": {
+    "path": "_scratch/c86-study/native-run-27/delivery-60s.json",
+    "sha256": "621977c8fa7184e7ddc23efacc39364bdc9b14f87677b7f7c2d0dd3e2a233f3d"
+  },
+  "limitations": [
+    "Twenty native images per second not sustained",
+    "Different populations and residency prevent isolated effect estimates",
+    "Bounded body-unload retry delay remains",
+    "Native player obstacle traversal is distinct from controlled Kahlua coverage",
+    "Broader threat distance/radius queries retain their existing XY-only contract",
+    "Productive and macro-social behavior remains unratified",
+    "Authored buildings and wider mod compositions require further packages"
+  ],
+  "soundClosure": {
+    "path": "_scratch/c86-study/sort-repair/closure.json",
+    "sha256": "fe5b9b346b244d448ffac0bb60433ec419f3e4e173d6cb901a8488ebcc239421"
+  },
+  "fleeFollowSourceControls": 38,
+  "soundSightChecks": {
+    "nativeCases": 28,
+    "kahluaCases": 49,
+    "sourceControls": 34,
+    "newJvmEpoch": true
+  },
+  "admissionOwnership": {
+    "path": "_scratch/c86-study/admission-ownership/closure.json",
+    "sha256": "367a908792fa3fb0244486b403c6a37abb9e3cd4c5058ee1075200627563b4c8"
+  },
+  "moveInOwnership": {
+    "productionCases": 4,
+    "checks": 18,
+    "sourceControls": 4,
+    "gate": "tools/company_pull_test.py",
+    "log": "_scratch/c86-study/closing-commit-gate.log",
+    "scope": "Installed Kahlua Exchange, Standing, Organization and Communication with fixture physical access"
+  },
+  "native29Movement": {
+    "path": "_scratch/c86-study/native29-behavior-review/20260926-0932Z-0232PST-native-run-29/receipt.json",
+    "sha256": "c0bc1c83bf9a4d904752004564c124cc66133d0a11fb9b3b4c74b0dbdf44c6ae"
+  },
+  "native29Handcheck": {
+    "path": "_scratch/c86-study/native29-behavior-review/20260926-0932Z-0232PST-native-run-29/handcheck.json",
+    "sha256": "ce1be85bc03be919571cddb8b24baad5b3ddffac396b1758d65ed6051c31857a"
+  },
+  "native29Delivery": {
+    "path": "_scratch/c86-study/native-run-29/delivery-60s.json",
+    "sha256": "38405bd2e91fc61aef2db2bfd3e4d3d4e1c9f1e0a549ac69e4359feb18b5dbb2"
+  },
+  "deliveryMeterControl": {
+    "path": "_scratch/c86-study/delivery-meter-control.json",
+    "sha256": "699acb393b21667eda22eabaf00f0fcd50ee0d0e39ba0c4cc889338270faf8a5"
+  },
+  "native30Delivery": {
+    "path": "_scratch/c86-study/native-run-30/delivery-60s.json",
+    "sha256": "1dec458463945c43b223805a9bb78078d5d2c2a6234572b02f9507045c91f3ef"
+  },
+  "native30ViewerImage": {
+    "path": "_scratch/c86-study/mousecat-minimal-30/Saved/Screenshots/Windows/ScreenShot00000.png",
+    "sha256": "50ef7548e8657abb13a8ae1d9f7b505265cc42f262300919b4571082093088d9"
+  },
+  "finalSourceHashes": {
+    "mod/42.20/media/java/SAO.jar": "98525f2ecea38b9f1ba580e3437e959086f10f5d5c9f307ed1f971848c6ca76b",
+    "java/src/com/sao/bridge/SAOBridge.java": "08ea60bbd08ef3d4f81b7d949096fbee6ed562df0bc492ef0ca08bac57735947",
+    "java/src/com/sao/engine/SAOPerceptionScanner.java": "78d78235285ad4554d54cb9397bbefd05e16a7e85fdfeec2dcaa33af875522b2",
+    "mod/42.20/media/lua/shared/SAO_Perception.lua": "38b5e4f81625148348cf243eb2d5e2bd69fb11a7ec14a507488d327a45f2972f",
+    "mod/42.20/media/lua/client/SAO_Controller.lua": "b8fb92ea0fbc2a7da38e2144e95562c63e131fe8a2405645326d9d1e2ba75a9a",
+    "mod/42.20/media/lua/client/SAO_PopulationAdmissions.lua": "c09debe887e3a47f028b3ee04af7af8972bb2d8a2e15563719eb03091d2aa4f4",
+    "mod/42.20/media/lua/client/SAO_Exchange.lua": "edbb696bd358221090ed2f0b35ccc066a5bb7979231965ef21aa6fcf84511c98"
+  },
+  "native30StudyPreview": {
+    "path": "../.worktrees/speakeasy-r57-speaker-example/runs/r71-native30-attempt2-intake/Study-5688844fa7f91782.preview.json",
+    "sha256": "46d071326bcb46c670b04555f83bb5953694262e8ca153324e1d09051535842c"
+  },
+  "relatedRepositories": {
+    "speakeasy": {
+      "pr": "https://github.com/ellyj3rain/zomboid-speakeasy/pull/39",
+      "main": "205fde13d85f7432971b84f7dfdc361705e3cd3a"
+    },
+    "zao": {
+      "pr": "https://github.com/ellyj3rain/zao/pull/32",
+      "main": "755aaa4a582c3959230c5b42ca5101f5d8d5920d"
+    },
+    "mousecat": {
+      "localCommit": "5c0a5e8feed1b4f444899099bdf4ab44e7f4dcad",
+      "publication": "configured origin reports Repository not found",
+      "packagedExecutableSha256": "f3734f9b6253ba10e274706138c2aa310c546b4e0f6964c5af503b60760d4eb3"
+    }
+  },
+  "native30Continuity": {
+    "path": "_scratch/c86-study/native30-continuity/comparison.json",
+    "sha256": "b9bd2bfdad92f374ea68befdce08aa54006d0e5c5124ff0543c62f161b2aaf9e"
+  },
+  "native30MovementAndClaims": {
+    "path": "_scratch/c86-study/native30-behavior-review/20260926-1000Z-0300PST-native-run-30/receipt.json",
+    "sha256": "c9ab802737aa24de89915ec9a222d648285a330cc7bb61c0c1384a501f71e3b0"
+  },
+  "interruptedGate": {
+    "path": "_scratch/c86-study/interrupted-collision-gate.json",
+    "sha256": "c360a6023b6eb2226d7b17a64bde878e5d145251a05b013efaa2ed057ecfeae4"
+  },
+  "earlierSoundReceipt": {
+    "path": "_scratch/c86-study/threat-tracks/reach-declared.json",
+    "sha256": "99b70404094d1a4382de59f023beb5c5a68f7eff960ce0e25b4e0b6455194068"
+  },
+  "native31Continuity": {
+    "path": "_scratch/c86-study/native31-continuity/comparison.json",
+    "sha256": "24a407f0a7c797223e885647b2a062473456dd1ec51b78f7b160e28bdfd1000c"
+  },
+  "native31MovementAndClaims": {
+    "path": "_scratch/c86-study/native31-behavior-review/20260926-1037Z-0337PST-native-run-31/receipt.json",
+    "sha256": "ecf250726e8d625f541e221fa767ccc29ed24fa70a7c2e5207951520a49ee1e1"
+  },
+  "native31Delivery": {
+    "path": "_scratch/c86-study/native-run-31/delivery-60s.json",
+    "sha256": "8016887367205181ce14b37f9f2da135e75db8b19c59bcebb8a99c55957bc4ad"
+  },
+  "native31ViewerImage": {
+    "path": "_scratch/c86-study/mousecat-minimal-31/Saved/Screenshots/Windows/ScreenShot00000.png",
+    "sha256": "2988aa9a8bb59c37ab0f4f6507f949e6a0b1d5932489713ba083b274140cded3"
+  },
+  "native31StudyPreview": {
+    "path": "../.worktrees/speakeasy-r57-speaker-example/runs/r71-native31-attempt2-intake/Study-519a477645a33a47.preview.json",
+    "sha256": "917a4c6ebb799aed9ea825d1ba9731a700b72438b118d39b04b58a66b98051a2"
+  },
+  "failedSortGate": {
+    "path": "_scratch/c86-study/failed-sort-gate.json",
+    "sha256": "39c99f49ac48e3994440109fecd0c4be8aa10745a2ca55117fa90c9a9b1fae5d"
+  }
+}

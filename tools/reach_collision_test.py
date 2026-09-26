@@ -75,6 +75,13 @@ FLAT_VAL = re.compile(r"\b\w*[Dd]ist\w*\s*<=\s*([0-9][0-9.]*)")
 # other. A sentence that would not survive being read aloud to someone
 # holding both sites is not an argument and does not belong here.
 ALLOWED = {
+    ("SAO_Controller.lua", 14.0, "SCANNER_SIGHT_RANGE"):
+        "[C86] The existing social-gathering radius decides which idle "
+        "company members may approach a shared rest activity. "
+        "SCANNER_SIGHT_RANGE bounds native visual evidence used to "
+        "correct remembered threat locations. Changing the scanner's "
+        "coverage must not change willingness to gather, and changing "
+        "gathering distance must not certify unseen ground as visible.",
     ("SAO_Controller.lua", 10.0, "FOLLOW_TRAVERSE_REACH"):
         "[C4] The bare tens that predate the name - the war-party "
         "fellow-armed check among them - are rules about company at "

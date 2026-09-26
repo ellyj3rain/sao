@@ -36,7 +36,18 @@ Events=setmetatable({}, {__index=function() return {Add=function() end,Remove=fu
 getSpecificPlayer=function() return nil end
 getGameTime=function() return {getMinutesStamp=function() return __minute or 0 end} end
 SandboxVars={ZombieLore={Mortality=5}}
-ISTimedActionQueue={queues={},clear=function() table.insert(__sourceEvents,'queue-clear') end}
+ISTimedActionQueue={queues={},clear=function(body)
+ table.insert(__sourceEvents,'queue-clear')
+ if __queueStopFails then error('queue stop unavailable') end
+ local q=ISTimedActionQueue.queues[body]
+ if q then
+  if q.current and q.current.stop then q.current:stop() end
+  for _,a in ipairs(q.queue or {}) do
+   if a~=q.current and a.forceCancel then a:forceCancel() end
+  end
+  q.queue={} q.current=nil
+ end
+end}
 __records={} __logs={} __mode='ok' __remove='ok' __restore='ok' __now=42
  __captures=0 __removed=0 __restored=0 __spawned=0 __forgot=0 __events=0 __accounted=0
  __sourceReservation=nil __sourceEvents={} __allowObserve=false __nearestObserved=nil
@@ -242,7 +253,7 @@ SAOJavaBridge={
  end
 }
 function __setup()
- __mode='ok' __remove='ok' __restore='ok' __now=42 __cancelThrow=false
+ __mode='ok' __remove='ok' __restore='ok' __now=42 __cancelThrow=false __queueStopFails=false
  __captures=0 __removed=0 __restored=0 __spawned=0 __forgot=0 __events=0 __logs={}
  __accounted=0 __radio=true
  __sourceReservation=nil __sourceEvents={} SAO.Locomotion.jobs={}
@@ -252,7 +263,7 @@ function __setup()
  __externalAdvanceCalls=0 __externalAdvanceElapsed=nil
  SAO.Perception.beliefs={}
  __visualRestore='ok' __visualRestored=0 __expectRestoredVisual=nil
- SAO.Body.active={} SAO.Body.foreign={} SAO.Body.failedRestore={} SAO.Body.discarding={}
+ SAO.Body.active={} SAO.Body.foreign={} SAO.Body.failedRestore={} SAO.Body.discarding={} SAO.Body.unloaded={}
  SAO.Controller.agents={} ISTimedActionQueue.queues={}
  local r={id='p1',forename='Test',surname='Person',occupation='test',x=190,y=195,z=0,
    hibernation='SNAP:previous',releasedAtHours=5,kitGranted=true,epistemicMonths=1}
@@ -263,6 +274,100 @@ end
 '''
 
 CASES = r'''
+-- Execute unloaded-body recovery through the shipped ownership transaction.
+do
+ local predicate=SAOJavaBridge.isShellUnloaded
+ local close=SAO.SourceUse.closeForOwnershipTransfer
+ SAOJavaBridge.isShellUnloaded=function(self,b) return b.unloaded==true end
+ local r,b,a=__setup()
+ local stopped=0
+ local action={Type='SAOGestureAction',stop=function() stopped=stopped+1 end,
+   perform=function() error('unloaded action completed') end}
+ ISTimedActionQueue.queues[b]={queue={action},current=action}
+ assert(SAO.Body.recover(r) and stopped==0 and SAO.Body.get('p1')==b,
+   'admitted body interrupted by unload recovery')
+ b.unloaded=true
+ SAO.Locomotion.jobs.p1={done=false,body=b}
+ SAO.SourceUse.closeForOwnershipTransfer=function() return false end
+ assert(not SAO.Body.recover(r) and stopped==1 and __captures==0,
+   'unloaded source ownership did not block capture')
+ assert(SAO.Body.active.p1==b and SAO.Body.get('p1')==nil
+   and SAO.Body.hasRepresentation('p1') and SAO.Body.isTransitioning(r),
+   'unloaded pending body became executable or dormant')
+ SAO.SourceUse.closeForOwnershipTransfer=close
+ __mode='throw'
+ assert(not SAO.Body.recover(r) and SAO.Body.active.p1==b and not b.removed,
+   'capture failure relinquished ownership during native unload')
+ __mode='ok'
+ assert(SAO.Body.recover(r) and r.hibernation=='SNAP:carried'
+   and not SAO.Body.active.p1 and not SAO.Body.unloaded.p1
+   and not SAO.Locomotion.jobs.p1 and stopped==1,
+   'unloaded gesture body did not preserve and release actual state')
+ SAOJavaBridge.isShellUnloaded=predicate
+end
+do
+ local predicate=SAOJavaBridge.isShellUnloaded
+ SAOJavaBridge.isShellUnloaded=function(self,b) return b.unloaded==true end
+ local r,b=__setup() b.unloaded=true __queueStopFails=true
+ assert(not SAO.Body.recover(r) and __captures==0 and SAO.Body.active.p1==b,
+   'unloaded failed action stop relinquished body')
+ __queueStopFails=false
+ assert(SAO.Body.recover(r),'unloaded action stop could not retry')
+ r,b=__setup() b.unloaded=true __queueStopFails=true
+ assert(not SAO.Body.recover(r),'unloaded action stop unexpectedly succeeded')
+ assert(SAO.Identity.markDead(r,1,'test-unloaded-death'))
+ __queueStopFails=false
+ assert(SAO.Body.recover(r) and not SAO.Body.active.p1 and not SAO.Body.unloaded.p1
+   and __captures==0,'dead unloaded ownership could not reconcile')
+ SAOJavaBridge.isShellUnloaded=predicate
+end
+do
+ local predicate=SAOJavaBridge.isShellUnloaded
+ SAOJavaBridge.isShellUnloaded=function(self,b) return b.unloaded==true end
+ local r,b=__setup() b.unloaded=true
+ r.bodyOwner='ZAO' r.bodyOwnerToken='retained-owner'
+ SAO.Body.active.p1=nil SAO.Body.foreign.p1=b
+ assert(SAO.Body.recover(r) and SAO.Body.foreign.p1==nil
+   and r.bodyOwner=='ZAO' and r.bodyOwnerToken=='retained-owner'
+   and r.hibernation=='SNAP:carried',
+   'unloaded external body lost person or execution owner')
+ SAOJavaBridge.isShellUnloaded=predicate
+end
+
+do
+ local predicate=SAOJavaBridge.isShellUnloaded
+ local treatment=SAO.Treatment
+ SAOJavaBridge.isShellUnloaded=function(self,b) return b.unloaded==true end
+ SAO.Treatment={interruptForBodyUnload=function() return false end}
+ local r,b=__setup() b.unloaded=true
+ assert(not SAO.Body.recover(r),'unresolved unload treatment was ignored')
+ assert(SAO.Body.activeCount()==0 and SAO.Body.pendingTransitionCount()==1,
+   'unloaded owner missing from pending count')
+ assert(not SAO.Body.release(r) and not SAO.Body.canTransfer(b)
+   and not SAO.Body.prepareExternalTransfer(r,b,'ZAO','pending')
+   and __captures==0 and SAO.Body.active.p1==b,
+   'public release bypassed unresolved unload owner')
+ local release=SAO.Body.release local calls=0
+ SAO.Body.release=function(...) calls=calls+1 return release(...) end
+ __band(0,0,{materialize=10,hibernate=20})
+ SAO.Body.release=release
+ assert(calls==0 and SAO.Body.active.p1==b,
+   'population band bypassed failed recovery')
+ SAO.Treatment.interruptForBodyUnload=function() return true end
+ assert(SAO.Body.recover(r),'resolved unload owner could not retry')
+ r,b=__setup() b.unloaded=true
+ r.bodyOwner='ZAO' r.bodyOwnerToken='pending'
+ SAO.Body.active.p1=nil SAO.Body.foreign.p1=b
+ SAO.Treatment.interruptForBodyUnload=function() return false end
+ assert(not SAO.Body.recover(r)
+   and not SAO.Body.hibernateExternal(r,b,'ZAO','pending')
+   and __captures==0 and SAO.Body.foreign.p1==b,
+   'external release bypassed unresolved unload owner')
+ SAO.Treatment.interruptForBodyUnload=function() return true end
+ assert(SAO.Body.recover(r) and not SAO.Body.foreign.p1,
+   'external resolved unload owner could not retry')
+ SAO.Treatment=treatment SAOJavaBridge.isShellUnloaded=predicate
+end
 for _,mode in ipairs({'empty','throw','malformed','facts-throw','radio-throw',
   'radio-malformed','busy','visual-throw','visual-empty'}) do
  local r,b,a=__setup() __mode=mode
@@ -1023,6 +1128,20 @@ def main():
         result=run(work,sources); print('production: '+result)
         if result!='VALUE PASS': faults.append('production')
         controls=[
+            ('SAO_Body.lua','if ok and unloaded then Body.unloaded[rec.id] = true end',
+             'if false then Body.unloaded[rec.id] = true end',
+             'unloaded source ownership did not block capture'),
+            ('SAO_Body.lua','if not okSource or closed ~= true then return false, "unloaded-source-pending" end',
+             'if false then return false, "unloaded-source-pending" end',
+             'unloaded source ownership did not block capture'),
+            ('SAO_Body.lua','if not stopped then return false, "unloaded-actions-pending" end',
+             'if false then return false, "unloaded-actions-pending" end',
+             'unloaded failed action stop relinquished body'),
+            ('SAO_Body.lua','if owned == body and Body.unloaded[id] and not reconciledUnload[body] then',
+             'if false then', 'public release bypassed unresolved unload owner'),
+            ('SAO_PopulationRepresentation.lua','if not rec.dead and SAO.Body.recover(rec) == true then',
+             'if not rec.dead then SAO.Body.recover(rec)',
+             'population band bypassed failed recovery'),
             ('SAO_Body.lua','if not SAO.BodySnapshot.valid(pending) then return false, "invalid-pending-snapshot" end',
              '', 'invalid release snapshot was published'),
             ('SAO_Body.lua','if not SAO.BodySnapshot.valid(pending.captured) then',
@@ -1089,8 +1208,8 @@ def main():
             ('SAO_AfflictedReturn.lua','if not rec or rec.dead or SAO.Body.isTransitioning(rec) then',
              'if not rec or rec.dead then',
              'afflicted callback mutated pending body'),
-            ('SAO_Body.lua','if reference == body or reference == inventory then return false end',
-             'if false then return false end', 'incoming action did not retain target'),
+            ('SAO_Body.lua','if reference == body or reference == inventory then',
+             'if false then', 'incoming action did not retain target'),
             ('SAO_Body.lua','if SAOJavaBridge and SAOJavaBridge:isInventoryOf(body, reference) then',
              'if false then', 'incoming action did not retain target'),
             ('SAO_Body.lua','SAO.BodySnapshot.commit(rec, pending.captured)',

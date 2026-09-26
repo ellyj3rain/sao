@@ -667,7 +667,7 @@ public final class SAOWorldSources {
                     continue;
                 }
                 if (fill && !container.isExplored()) {
-                    ItemPickerJava.fillContainer(container, IsoPlayer.getInstance());
+                    ItemPickerJava.fillContainer(container, lootParticipant());
                     container.setExplored(true);
                     ItemPickerJava.updateOverlaySprite(object);
                 }
@@ -697,11 +697,17 @@ public final class SAOWorldSources {
                 continue;
             }
             if (fill && !container.isExplored()) {
-                ItemPickerJava.fillContainer(container, IsoPlayer.getInstance());
+                ItemPickerJava.fillContainer(container, lootParticipant());
                 container.setExplored(true);
             }
             snapshot.add(vehicleSource(vehicle, part, container));
         }
+    }
+
+    private static IsoPlayer lootParticipant() {
+        IsoPlayer player = IsoPlayer.getInstance();
+        return player != null && Boolean.TRUE.equals(player.getModData().rawget("SAO_ObserverAnchor"))
+            ? null : player;
     }
 
     private static Source containerSource(Snapshot snapshot, IsoGridSquare square,

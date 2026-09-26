@@ -331,7 +331,7 @@ local function superimposePersonRoot(playerNum, context, worldobjects)
     end)
     if okSub then sub = got end
     if not sub then return end
-    local playerObj = getSpecificPlayer(playerNum)
+    local playerObj = (SAO.Participants and SAO.Participants.player or getSpecificPlayer)(playerNum)
     if not playerObj then return end
     pcall(function() sub:clear() end)
     -- One person, one name: the root's label is the person, not the

@@ -20,6 +20,9 @@ Body.active = Body.active or {}
 -- succeeds. Release snapshots themselves live on the durable record.
 Body.failedRestore = Body.failedRestore or {}
 Body.discarding = Body.discarding or {}
+-- Native chunk removal can precede the population band. Keep the handle while
+-- interrupted physical owners reconcile, without exposing it for execution.
+Body.unloaded = Body.unloaded or {}
 -- Return shells are detached and paused until the turned source is removed.
 Body.returning = Body.returning or {}
 
@@ -564,48 +567,74 @@ local function removeOwned(body)
     return ok and removed == true
 end
 
+local readinessReasons = setmetatable({}, { __mode = "k" })
+local reconciledUnload = setmetatable({}, { __mode = "k" })
 local function readyToRemove(body)
-    local ok, ready = pcall(function()
+    local ownerId = "external"
+    local ok, ready, reason = pcall(function()
+        for _, owners in ipairs({ Body.active, Body.foreign }) do
+            for id, owned in pairs(owners or {}) do
+                if owned == body and Body.unloaded[id] and not reconciledUnload[body] then
+                    return false, "unloaded-owner-pending"
+                end
+            end
+        end
         -- A route or exact-source reservation still owns this native body.
         -- Teardown would strand its carried item or erase the interaction
         -- point before the durable action reaches a result boundary.
         for id, active in pairs(Body.active) do
             if active == body then
+                ownerId = tostring(id)
                 local pending = SAO.WorldSources and SAO.WorldSources.pendingActionFor
                     and SAO.WorldSources.pendingActionFor(id) or nil
-                if pending then return false end
+                if pending then return false, "source-action:" .. tostring(pending) end
                 local job = SAO.Locomotion and SAO.Locomotion.jobs
                     and SAO.Locomotion.jobs[id] or nil
-                if job and not job.done then return false end
+                if job and not job.done then return false, "route:" .. tostring(job.lastVerdict or job.status) end
             end
         end
         -- The Lua queue can hold its next action before it reaches Java.
         local queue = ISTimedActionQueue and ISTimedActionQueue.queues[body]
-        if queue and #queue.queue > 0 then return false end
+        if queue and #queue.queue > 0 then
+            return false, "lua-actions:" .. #queue.queue .. ":" .. tostring(queue.queue[1].Type)
+        end
         -- Treatment is queued on the doctor; transfers can name the target
         -- inventory. These actions also own the departing person's state.
         local inventory = body:getInventory()
         for _, otherQueue in pairs(ISTimedActionQueue and ISTimedActionQueue.queues or {}) do
             for _, action in ipairs(otherQueue.queue or {}) do
                 for _, reference in pairs(action) do
-                    if reference == body or reference == inventory then return false end
+                    if reference == body or reference == inventory then
+                        return false, "incoming-action:" .. tostring(action.Type)
+                    end
                     if SAOJavaBridge and SAOJavaBridge:isInventoryOf(body, reference) then
-                        return false
+                        return false, "incoming-inventory:" .. tostring(action.Type)
                     end
                 end
             end
         end
         if SAOJavaBridge and SAOJavaBridge:isShell(body) then
-            return SAOJavaBridge:canReleaseShell(body)
+            if SAOJavaBridge:canReleaseShell(body) then return true end
+            return false, "native-actions:" .. body:getCharacterActions():size()
+                .. ":vehicle=" .. tostring(body:getVehicle() ~= nil)
         end
-        return body:getVehicle() == nil and body:getCharacterActions():isEmpty()
+        if body:getVehicle() == nil and body:getCharacterActions():isEmpty() then return true end
+        return false, "native-actions-or-vehicle"
     end)
+    if not ok then reason = "readiness-error:" .. tostring(ready) end
+    if ok and ready == true then
+        readinessReasons[body] = nil
+    elseif readinessReasons[body] ~= reason then
+        readinessReasons[body] = reason
+        log("release waiting " .. ownerId .. " reason=" .. tostring(reason))
+    end
     return ok and ready == true
 end
 
 local function dropOwner(rec)
     if SAO.Controller then SAO.Controller.drop(rec.id) end
     Body.active[rec.id] = nil
+    Body.unloaded[rec.id] = nil
 end
 
 function Body.canTransfer(body)
@@ -717,12 +746,17 @@ function Body.hibernateExternal(rec, body, owner, token)
     if not removeOwned(body) then return false, "teardown-failed" end
     SAO.BodySnapshot.commit(rec, captured)
     Body.foreign[rec.id] = nil
+    Body.unloaded[rec.id] = nil
     return true, "external-dormant"
 end
 
-function Body.isTransitioning(rec)
+local function hasTransitionJournal(rec)
     return rec and (rec.returnTransition ~= nil or rec.bodyRelease ~= nil or Body.failedRestore[rec.id]
         or rec.bodyTransfer ~= nil or Body.discarding[rec.id]) or false
+end
+
+function Body.isTransitioning(rec)
+    return hasTransitionJournal(rec) or rec and Body.unloaded[rec.id] == true or false
 end
 
 -- Off-slot living shells are not engine save entities. OnSave runs on the
@@ -734,7 +768,7 @@ function Body.checkpointActive()
     for id, body in pairs(Body.active) do
         local rec = SAO.Identity.get(id)
         if not rec or rec.dead or Body.foreign[id] or Body.returning[id]
-            or Body.isTransitioning(rec) then
+            or hasTransitionJournal(rec) then
             report.skipped = report.skipped + 1
         else
             local ok, captured, reason = pcall(function()
@@ -843,7 +877,10 @@ end
 function Body.discard(rec)
     if not rec or not rec.id then return false, "no-record" end
     if rec.returnTransition then return false, "return-pending" end
-    if Body.foreign[rec.id] then return false, "foreign-body" end
+    if Body.foreign[rec.id] then
+        if rec.dead then Body.unloaded[rec.id] = nil end
+        return false, "foreign-body"
+    end
     local body = Body.active[rec.id]
     if body then
         if not Body.discarding[rec.id] and not rec.bodyRelease
@@ -854,6 +891,7 @@ function Body.discard(rec)
         if not removeOwned(body) then return false, "teardown-failed" end
     end
     dropOwner(rec)
+    Body.unloaded[rec.id] = nil
     Body.discarding[rec.id] = nil
     Body.failedRestore[rec.id] = nil
     rec.bodyRelease = nil
@@ -865,7 +903,7 @@ function Body.recover(rec)
         if SAO.AfflictedReturn then return SAO.AfflictedReturn.resume(rec) end
         return false, "return-owner-unavailable"
     end
-    if rec.dead then
+    if rec.dead and not Body.unloaded[rec.id] then
         if Body.isTransitioning(rec) then return Body.discard(rec) end
         return true
     end
@@ -876,6 +914,52 @@ function Body.recover(rec)
         Body.active[rec.id], Body.failedRestore[rec.id] = nil, nil
     end
     if rec.bodyRelease then return Body.release(rec) end
+    local body = Body.active[rec.id] or Body.foreign[rec.id]
+    if body and not Body.returning[rec.id] and not rec.bodyTransfer then
+        local ok, unloaded = pcall(function()
+            return SAOJavaBridge and SAOJavaBridge:isShellUnloaded(body) == true
+        end)
+        if ok and unloaded then Body.unloaded[rec.id] = true end
+        if Body.unloaded[rec.id] then
+            -- Native removal stopped ticking these actions. Their real stop
+            -- callbacks settle interruption; no perform/completion is inferred.
+            local stopped = pcall(function()
+                assert(ISTimedActionQueue and ISTimedActionQueue.clear,
+                    "timed action owner unavailable")
+                ISTimedActionQueue.clear(body)
+            end)
+            if not stopped then return false, "unloaded-actions-pending" end
+            if SAO.Treatment and SAO.Treatment.interruptForBodyUnload then
+                local okTreatment, closed = pcall(SAO.Treatment.interruptForBodyUnload,
+                    rec.id, "native-body-unloaded")
+                if not okTreatment or closed ~= true then return false, "unloaded-treatment-pending" end
+            end
+            if SAO.SourceUse and SAO.SourceUse.closeForOwnershipTransfer then
+                local okSource, closed = pcall(SAO.SourceUse.closeForOwnershipTransfer,
+                    rec.id, body, "native-body-unloaded")
+                if not okSource or closed ~= true then return false, "unloaded-source-pending" end
+            end
+            if SAO.Locomotion and SAO.Locomotion.cancel then
+                local cancelled = pcall(SAO.Locomotion.cancel, rec.id)
+                if not cancelled then return false, "unloaded-route-pending" end
+            end
+            -- Only this completed owner reconciliation can cross the unload
+            -- boundary. Other release/transfer callers retain the handle.
+            reconciledUnload[body] = true
+            local okRelease, released, reason = pcall(function()
+                if rec.dead then return Body.discard(rec) end
+                if rec.bodyOwner then
+                    return Body.hibernateExternal(rec, body,
+                        rec.bodyOwner, rec.bodyOwnerToken)
+                end
+                return Body.release(rec)
+            end)
+            reconciledUnload[body] = nil
+            if not okRelease then return false, "unloaded-release-exception" end
+            if released then log("reconciled native unload for " .. tostring(rec.id)) end
+            return released, reason
+        end
+    end
     return true
 end
 
@@ -916,6 +1000,7 @@ end
 
 function Body.pendingTransitionCount()
     local pending, n = {}, 0
+    for id in pairs(Body.unloaded) do pending[id] = true end
     for id in pairs(Body.failedRestore) do pending[id] = true end
     for id in pairs(Body.discarding) do pending[id] = true end
     for id in pairs(Body.returning) do pending[id] = true end

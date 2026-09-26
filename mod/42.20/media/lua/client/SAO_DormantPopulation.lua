@@ -1159,8 +1159,10 @@ local function dormantLife(conf, tickCounter)
                         local perDay = SAO.Places.comfortHorizon()
                         local step = math.min(len,
                             perDay * pace * (sinceH / 24.0))
-                        rec.x = math.floor(rec.x + dx / len * step + 0.5)
-                        rec.y = math.floor(rec.y + dy / len * step + 0.5)
+                        -- Durable positions already support fractions. Rounding
+                        -- each pass loses or adds distance with update cadence.
+                        rec.x = rec.x + dx / len * step
+                        rec.y = rec.y + dy / len * step
                     end
                     -- A day's walking teaches places ([A15]): drifting past a
                     -- held claim leaves the coarse knowledge a passerby would

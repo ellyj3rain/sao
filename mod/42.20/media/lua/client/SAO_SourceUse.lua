@@ -690,7 +690,7 @@ function SU.observeNativeTransfer(id, body, reservationId, worldContainer)
         consider(personId, SAO.Body.get(personId))
     end
     pcall(function()
-        local player = getSpecificPlayer(0)
+        local player = (SAO.Participants and SAO.Participants.player or getSpecificPlayer)(0)
         if player then consider(SAO.Standing.playerKey(player), player) end
     end)
     return SAO.WorldSources.recordTransferObservation(

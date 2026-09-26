@@ -1,6 +1,6 @@
 | Document | Survivor Awareness Overhaul Engine Contract |
 |---|---|
-| Version | `2.10.0.0-pre-alpha` |
+| Version | `2.11.0.0-pre-alpha` |
 | Author | ellyj3rain |
 | Repository | `ENGINE_CONTRACT.md` |
 | Status | CANONICAL - the verified engine mechanics an IsoPlayer NPC requires. |
@@ -28,10 +28,22 @@ patches (`KSD:138-232` comments):
 | `isLocalPlayer() -> true` | zombie target/attack checks gate on it | zombies ignore or mishandle the NPC |
 | `getAimVector -> getForwardDirection` | off-slot bodies have no mouse/controller aim source | aim resolves from a missing input channel |
 | `updateLOS() -> no-op` | inherited version writes per-player alpha from this NPC's viewpoint | the real player and other NPCs fade |
-| `update()` preserves the global player | `updateInternal2` assigns the receiver to `IsoPlayer.getInstance()` even for NPCs | camera/UI/Lua resolve an NPC as "the player" |
+| `update()` and `postupdate()` preserve independent global player and camera owners | native local-player paths assign both references even for off-slot NPCs; both phases restore their entry references in `finally` | camera/UI/Lua resolve an NPC as the player or viewing subject |
 
 Plus an isolated `CharacterInputComponent` so the engine never reads slot-0
 input through the NPC. Ours: `SAOIsoPlayerShell.java`.
+
+The installed 42.20.4 `IsoMovingObject.postupdate()` writes both owners at
+bytecode offsets 38–64. Protecting `update()` alone leaves this later path
+exposed. `IsoPlayer.setInstance` restores the player directly. The camera
+setter accepts ordinary characters and null, but refuses
+`IsoDummyCameraCharacter`; that existing owner requires exact restoration of
+`IsoCamera.isoCameraGameCharacter`. Calling the follow API would replay UI
+effects. Border 198 exercises production shell updates against the installed
+engine, checks ordinary, null and dummy owners through unloaded-world
+exceptions, and rejects controls that omit either postupdate protection or
+camera restoration. This ownership check does not establish a player-free
+simulation host.
 
 ## 2 · Construction and registration (spawn sequence)
 
@@ -601,3 +613,74 @@ Installed Build 42.20 `javap zombie.world.moddata.ModData` exposes static
 `get(String): KahluaTable` separately from `getOrCreate(String)`. C76's evidence
 readiness checks use `get` to inspect an already initialized owner; unavailable
 or unsupported state refuses without invoking the owner's normal migration path.
+
+## Native study observer and unloaded bodies (C86)
+
+`tools/world_lab/StudyLoadingAgent.java` adapts the installed 42.20.4 engine for
+an observer in an exclusive study process. `StudyObserver.java` owns the exact
+detached slot-zero anchor and separate camera reference. Ordinary actor calls
+retain their native behavior. Retransformation covers already loaded classes,
+including `IsoChunkMap` loaded during another transform.
+The study agent initializes the JDK's `ThreadLocalRandom` before registering
+transformers. This prevents its first resolution inside the mod loader's
+concurrent class scan from re-entering transformation during bootstrap loading.
+A cold bundled-JVM probe invokes the installed mod loader and rejects missing
+or late initialization.
+
+| Installed surface | Study contract |
+|---|---|
+| `IsoCell.updateInternal` calls `IsoChunkMap.update` only for a player that passes its dead check | The exact observer passes that streaming check while remaining dead and ineligible to native targeting elsewhere. |
+| `IsoChunkMap.ProcessChunkPos` can insert a slot player into the cell's add list | The exact observer is rejected before insertion. Cell object, add and remove collections also exclude both observer references. |
+| Native filming options `FBORenderChunk.NoLighting`, `RenderVisionPolygon` and `Terrain.RenderTiles.ForceFullAlpha` | God view uses the native filming renderer with area lighting and camera vision masking disabled. Native geometry and textures remain the source of the image. Actor perception and world lighting retain their simulation owners; inspecting a person never substitutes their visual experience for the camera. |
+| `IsoTree` private render path and `FBORenderTrees.addTree` | The observer selects the native cutaway draw path. Jumbo trees retain their separate trunk while their canopy has zero display alpha; a single-texture tree's full image is cut away. Physical tree objects, collision, damage and actor perception stay under their existing owners. Ordinary owners and other render slots retain native display behavior. |
+| `WorldGenChunk.runLuaOverride` and per-map `WorldGenOverride.lua` | Native generation loads the map override before its static modules and procedural inputs. Ordered static-module rectangles use inclusive coordinates and first-match precedence. The study package derives this file from its validated definition and seals it with the native biome/prefab source identities. The example places native road strips before sparse grassland patches. |
+| `IsoChunkMap.getChunk` and `IsoChunk.getGridSquare` | Observer membership inspection visits active loaded chunks and their inclusive minimum/maximum levels, including basements and roofs. It avoids scanning empty height levels on each camera acknowledgement. |
+| `IsoChunk.removeFromWorld` removes moving bodies and clears their square references | `SAOBridge.isShellUnloaded` requires an owned shell with no current square and no object/add membership. Staged return bodies, unknown cells and attached bodies are excluded. |
+| `ISTimedActionQueue.clear`, action stop/cancel callbacks and the native character action stack | Unloaded bodies retain ownership while their real action owners record interruption. Incoming treatment checks its exact Lua and native handles. Only successful cancellation, snapshot capture and teardown release ownership; failures retry. OnSave still checkpoints the retained body's current supported state. |
+
+The native lighting probe found that the first `playerSet` boolean could expose
+visibility bits while producing zero RGB and darkness values. That flag is not
+a God-view render API. The observer uses the installed filming controls instead.
+Rendering tests must examine actual draw colors as well as visibility flags.
+
+The renderer's room-seen callbacks remain native: loaded buildings can activate
+room content, generators and other world systems. The observer does not provide
+a globally inert loading operation. The supplied terrain package has no authored
+rooms. Border 198 executes the installed engine and native lighting probes;
+Borders 162, 166 and 183 cover interruption, retained ownership and snapshots.
+
+## Native sound evidence and active escape paths (C86)
+
+Installed `WorldSoundManager.WorldSound` exposes source, origin, radius, volume
+and stress flags, without an acoustic category. `IsoGameCharacter.DoFootstepSound`
+passes the moving character as the sound source. The scanner excludes the exact
+listener source and reports other audible origins without an enemy or gunshot
+identity. Perception preserves that uncertainty in its sounds bucket. Neither
+`stresshumans` nor proximity to a visible person proves a shooter. Border 200
+executes the actual scanner against native WorldSound objects and passes its
+returned S rows into the shipped Perception module under installed Kahlua.
+
+`SAOBridge.moveToPaced` narrows requested tile coordinates toward zero;
+`SAOMovement` targets the tile centre. Controller therefore validates a retained
+escape against that centre, while Locomotion and the native movement result own
+arrival. Repeated decisions may reconsider danger and permission without
+restarting the same valid route. Border 199 exercises real Controller/Locomotion
+ordering and ongoing cry consequences, with native execution observed separately.
+
+Continuous native sight uses observer-local body tracks only between consecutive
+visible scans. Tracks have a fresh epoch per observer/cell session and provide no
+authority after a visibility gap or restore. Zombie admission checks intervening
+native line of sight. The scanner accepts a bounded list of retained threat tiles
+and emits coverage only for loaded, fully visible tiles on the observer's floor.
+The Lua consumer reconciles those coverage rows with all direct sightings from
+that scan. It preserves hidden, unavailable and unknown-floor memory, simultaneous
+bodies and explicit phantoms. Reports carry locations and observed multiplicity;
+they do not carry the sender's private tracks.
+
+`SAOMovement.traverseToward` uses installed native actions to toggle a door or start a
+fence/window action immediately. It has no Standing owner. Controller checks the
+current failed follow job, companion/body/floor and entry permission before
+initiating that native path. A crossing already started by that exact job retains
+its execution ownership while the native climb/window state is active. Border
+199 exercises movement update before the subsequent decision, including terminal
+receipts, entry refusal and companion loss.

@@ -2131,6 +2131,28 @@ if ! "$PY" tools/coordination_execution_test.py; then
     fail=1
 fi
 
+# [C86] Border 198 - generated study packages preserve native bounds and seed,
+# report only observed state, and retain review before dataset admission.
+if ! "$PY" tools/world_lab_test.py; then
+    note "BORDER FINDING - native study world or observation boundary failed"
+    fail=1
+fi
+
+# [C86] Border 199 - repeated decisions preserve a valid active escape route;
+# changed danger, permission, floor and terminal results reopen its owner.
+if ! "$PY" tools/flee_continuity_test.py; then
+    note "BORDER FINDING - active escape route continuity failed"
+    fail=1
+fi
+
+# [C86] Border 200 - native audibility is unknown sound evidence, not an
+# identified enemy or shooter; prior mistaken hearing migrates without
+# erasing observed, reported or explicitly hallucinated threats.
+if ! "$PY" tools/sound_evidence_test.py; then
+    note "BORDER FINDING - sound evidence identity or legacy migration failed"
+    fail=1
+fi
+
 # Border 103 - the operator's speech is not in the repository: no
 # profanity in the tracked tree and no operator-quote attributions;
 # rulings are paraphrased content, speech stays with the speaker.
