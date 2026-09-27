@@ -10,7 +10,7 @@ local function event()
     }
 end
 Events = {}
-for _, name in ipairs({ "OnGameBoot", "OnMainMenuEnter", "OnNewGame", "OnPlayerDeath", "OnGameStart", "OnTick" }) do
+for _, name in ipairs({ "OnGameBoot", "OnMainMenuEnter", "OnNewGame", "OnPlayerDeath", "OnGameStart", "OnTick", "OnTickEvenPaused" }) do
     Events[name] = event()
 end
 local character = {
@@ -44,4 +44,22 @@ function CheckLaunchReceipts()
     local _, deaths = all:gsub("event=death", "")
     assert(deaths == 1, "unrelated character death was attributed to the launch slot")
     return "PASS launch receipts retain the original character through death and global-player changes"
+end
+function CheckLaunchWallLimit(paused)
+    local timestamp = 1000
+    RunConfig.watch = true
+    RunConfig.wallDeadlineUnixMs = 2000
+    function getTimestampMs() return timestamp end
+    Events.OnGameStart.fire()
+    Events.OnTick.fire()
+    assert(not exited, "watch ended before its wall limit")
+    timestamp = 2000
+    local event = paused and Events.OnTickEvenPaused or Events.OnTick
+    event.fire()
+    event.fire()
+    assert(exited, "watch escaped its wall limit")
+    local all = table.concat(messages, "\n")
+    local _, stops = all:gsub("wall%-limit attempt=1 save=fixture start=2 end=2", "")
+    assert(stops == 1, "wall limit was not attributed exactly once at unchanged world time")
+    return "PASS native launcher wall limit running and paused"
 end

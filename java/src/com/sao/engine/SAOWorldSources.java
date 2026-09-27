@@ -31,6 +31,7 @@ import zombie.iso.IsoObject;
 import zombie.iso.IsoWorld;
 import zombie.iso.WorldStreamer;
 import zombie.iso.objects.IsoWorldInventoryObject;
+import zombie.iso.objects.IsoThumpable;
 import zombie.network.GameClient;
 import zombie.network.GameServer;
 import zombie.vehicles.BaseVehicle;
@@ -56,10 +57,16 @@ public final class SAOWorldSources {
     private static final int MAX_SOURCES_PER_CHUNK = 2048;
     private static final int MAX_ITEMS_PER_SOURCE = 2048;
     private static final int MAX_CONTAINER_DEPTH = 16;
+    private static final int MAX_INSPECTION_OPTIONS = 128;
+    private static final int INSPECTION_RANGE = 14;
     private static final int CHUNK_SIZE = IsoChunkMap.CHUNK_SIZE_IN_SQUARES;
     private static final ThreadLocal<Integer> HYDRATION_DEPTH =
         ThreadLocal.withInitial(() -> 0);
     private static final Map<IsoPlayer, ActionBinding> ACTIONS =
+        new WeakHashMap<>();
+    private static final Map<IsoPlayer, Map<String, InspectionBinding>> INSPECTIONS =
+        new WeakHashMap<>();
+    private static final Map<IsoPlayer, se.krka.kahlua.vm.KahluaTable> INSPECTION_MEMORY =
         new WeakHashMap<>();
     private static boolean transactionActive;
 
@@ -79,6 +86,203 @@ public final class SAOWorldSources {
     /** Drop body-keyed exact-source bindings when the owning world ends. */
     public static synchronized void resetRuntimeForWorld() {
         ACTIONS.clear();
+        INSPECTIONS.clear();
+        INSPECTION_MEMORY.clear();
+    }
+
+    /** Kahlua does not implement Lua weak tables. Keep body keys on the JVM;
+     * the returned table contains only data, never a native body or holder. */
+    public static synchronized Object inspectionMemory(IsoPlayer shell) {
+        if (!inspectionActor(shell)) return null;
+        return INSPECTION_MEMORY.computeIfAbsent(shell,
+            ignored -> zombie.Lua.LuaManager.platform.newTable());
+    }
+
+    /** Visible holder geometry only: listing never reads or generates contents. */
+    public static synchronized String inspectionCandidates(IsoPlayer shell, int radius) {
+        if (transactionActive || !inspectionActor(shell) || radius < 1
+                || radius > INSPECTION_RANGE) return "";
+        try {
+            IsoCell cell = shell.getCell();
+            int x = (int) Math.floor(shell.getX()), y = (int) Math.floor(shell.getY());
+            int z = (int) Math.floor(shell.getZ());
+            ArrayList<InspectionBinding> candidates = new ArrayList<>();
+            for (int dy = -radius; dy <= radius; dy++) {
+                for (int dx = -radius; dx <= radius; dx++) {
+                    IsoGridSquare square = cell.getGridSquare(x + dx, y + dy, z);
+                    if (!SAOPerceptionScanner.canSeeWorldSquareNow(shell, square, radius)) continue;
+                    IsoGridSquare approach = interactionSquare(shell, square);
+                    if (approach == null) continue;
+                    List<IsoObject> objects = square.getObjects();
+                    for (int objectIndex = 0; objectIndex < objects.size(); objectIndex++) {
+                        IsoObject object = objects.get(objectIndex);
+                        if (object == null || object.getSquare() != square
+                                || (object instanceof IsoThumpable locked
+                                    && locked.isLockedToCharacter(shell))) continue;
+                        for (int index = 0; index < object.getContainerCount(); index++) {
+                            ItemContainer container = object.getContainerByIndex(index);
+                            if (container == null || container.getParent() != object
+                                    || container.getSourceGrid() != square
+                                    || container.getOutermostContainer() != container) continue;
+                            String id = privateContainerId(object, index);
+                            String token = id.split(":")[1];
+                            String fingerprint = containerFingerprint(square, object, container, index, token);
+                            var candidate = new InspectionBinding(id, fingerprint, object, container,
+                                index, square, approach, shell);
+                            int at = Collections.binarySearch(candidates, candidate,
+                                Comparator.comparingDouble((InspectionBinding item) -> item.distance)
+                                    .thenComparing(item -> item.id));
+                            if (at < 0) at = -at - 1;
+                            if (at < MAX_INSPECTION_OPTIONS) {
+                                candidates.add(at, candidate);
+                                if (candidates.size() > MAX_INSPECTION_OPTIONS) {
+                                    candidates.remove(MAX_INSPECTION_OPTIONS);
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+            Map<String, InspectionBinding> bindings = new LinkedHashMap<>();
+            StringBuilder out = new StringBuilder("H|protocol=SAOWI1\n");
+            for (InspectionBinding candidate : candidates) {
+                if (bindings.put(candidate.id, candidate) != null) {
+                    INSPECTIONS.remove(shell);
+                    return "";
+                }
+                out.append("C|id=").append(field(candidate.id))
+                    .append("|fp=").append(candidate.fingerprint)
+                    .append("|sx=").append(candidate.sourceX)
+                    .append("|sy=").append(candidate.sourceY)
+                    .append("|sz=").append(candidate.sourceZ)
+                    .append("|x=").append(candidate.x)
+                    .append("|y=").append(candidate.y)
+                    .append("|z=").append(candidate.z)
+                    .append("|reachable=").append(SAONeeds.containerAccessibleNow(shell,
+                        candidate.container.get()) ? 1 : 0).append('\n');
+            }
+            INSPECTIONS.put(shell, bindings);
+            return out.append("E\n").toString();
+        } catch (Throwable unavailable) {
+            INSPECTIONS.remove(shell);
+            SAOAgent.log("world inspection candidates threw: " + unavailable);
+            return "";
+        }
+    }
+
+    /** Caller owns current social permission; this owns exact native access and loot opening. */
+    public static synchronized String inspectContainer(IsoPlayer shell, String sourceId,
+            String fingerprint, int x, int y, int z) {
+        if (transactionActive) return "BUSY";
+        if (!inspectionActor(shell)) return "NO_LIVE_BODY";
+        if (GameClient.client || GameServer.server) return "SERVER_AUTHORITY_REQUIRED";
+        var bindings = INSPECTIONS.get(shell);
+        InspectionBinding binding = bindings == null ? null : bindings.get(sourceId);
+        if (binding == null || !binding.fingerprint.equals(fingerprint)) return "NOT_OFFERED";
+        transactionActive = true;
+        try {
+            IsoGridSquare square = shell.getCell().getGridSquare(x, y, z);
+            IsoObject object = binding.object.get();
+            ItemContainer container = binding.container.get();
+            if (object == null || container == null || square == null
+                    || square != binding.square.get() || object.getSquare() != square
+                    || !square.getObjects().contains(object)
+                    || binding.index >= object.getContainerCount()
+                    || object.getContainerByIndex(binding.index) != container
+                    || container.getParent() != object || container.getSourceGrid() != square
+                    || !sourceId.equals(privateContainerId(object, binding.index))
+                    || !fingerprint.equals(containerFingerprint(square, object, container,
+                        binding.index, sourceId.split(":")[1]))) return "SOURCE_CHANGED";
+            if ((object instanceof IsoThumpable locked && locked.isLockedToCharacter(shell))
+                    || !SAONeeds.containerAccessibleNow(shell, container)) return "ACCESS_REFUSED";
+            IsoChunk chunk = square.getChunk();
+            if (chunk == null || shell.getCell().getChunk(chunk.wx, chunk.wy) != chunk) {
+                return "NOT_LOADED";
+            }
+            // ISInventoryPage.checkExplored: native fill uses the actual opener.
+            // An attempted roll is terminal even if a mod throws partway through;
+            // do not roll it twice. No successful inspection is emitted on error.
+            if (!container.isExplored()) {
+                try { ItemPickerJava.fillContainer(container, shell); }
+                finally { container.setExplored(true); }
+            }
+            Snapshot snapshot = scan(chunk, false);
+            Source source = snapshot.byId.get(sourceId);
+            if (source == null || !source.explored
+                    || !fingerprint.equals(source.fingerprint)) return "SOURCE_CHANGED";
+            binding.observedRevision = source.revision;
+            return "I|source=" + field(sourceId) + "\n" + encode(snapshot);
+        } catch (Throwable unavailable) {
+            SAOAgent.log("world container inspection threw: " + unavailable);
+            return "INSPECTION_FAILED";
+        } finally {
+            transactionActive = false;
+        }
+    }
+
+    private static boolean inspectionActor(IsoPlayer shell) {
+        return shell != null && !shell.isDead() && !shell.isAsleep()
+            && shell.getCell() != null && shell.getCell() == currentCell()
+            && shell.getCurrentSquare() != null
+            && shell.getCell().getGridSquare((int) Math.floor(shell.getX()),
+                (int) Math.floor(shell.getY()), (int) Math.floor(shell.getZ()))
+                == shell.getCurrentSquare();
+    }
+
+    /** An explored bit belongs to the world, not to every person's knowledge.
+     * Only exact private evidence can expose items through a decision view. */
+    static synchronized boolean knowsContainerContents(IsoPlayer person,
+            IsoObject object, ItemContainer container, int index) {
+        try {
+            if (person == null || object == null || container == null
+                    || !container.isExplored() || object.getContainerByIndex(index) != container
+                    || container.getParent() != object) return false;
+            IsoGridSquare square = object.getSquare();
+            if (square == null || square.getCell() != person.getCell()) return false;
+            String id = privateContainerId(object, index);
+            String token = id.split(":")[1];
+            String fingerprint = containerFingerprint(square, object, container, index, token);
+            var bindings = INSPECTIONS.get(person);
+            InspectionBinding own = bindings == null ? null : bindings.get(id);
+            String observed = own != null && own.object.get() == object
+                && own.container.get() == container && own.fingerprint.equals(fingerprint)
+                ? own.observedRevision : null;
+            var remembered = rememberedContainerRevisions(person, id, fingerprint);
+            if (observed == null && remembered.isEmpty()) return false;
+            String current = containerSourceKnown(square, object, container, index, token).revision;
+            return current.equals(observed) || remembered.contains(current);
+        } catch (Throwable unavailable) {
+            return false;
+        }
+    }
+
+    private static se.krka.kahlua.vm.KahluaTable table(Object value) {
+        return value instanceof se.krka.kahlua.vm.KahluaTable result ? result : null;
+    }
+
+    private static java.util.Set<String> rememberedContainerRevisions(IsoPlayer person, String id,
+            String fingerprint) {
+        var revisions = new java.util.HashSet<String>();
+        var env = zombie.Lua.LuaManager.env;
+        var sao = env == null ? null : table(env.rawget("SAO"));
+        var perception = sao == null ? null : table(sao.rawget("Perception"));
+        var beliefs = perception == null ? null : table(perception.rawget("beliefs"));
+        Object personId = person.getModData().rawget("SAOPersonId");
+        var mind = beliefs == null || !(personId instanceof String)
+            ? null : table(beliefs.rawget(personId));
+        var known = mind == null ? null : table(mind.rawget("known"));
+        if (known == null) return revisions;
+        var places = known.iterator();
+        while (places.advance()) {
+            var place = table(places.getValue());
+            var facts = place == null ? null : table(place.rawget("sourceFacts"));
+            var fact = facts == null ? null : table(facts.rawget(id));
+            if (fact != null && fingerprint.equals(fact.rawget("fingerprint"))
+                    && Boolean.TRUE.equals(fact.rawget("explored"))
+                    && ("available".equals(fact.rawget("state")) || "spent".equals(fact.rawget("state")))
+                    && fact.rawget("revision") instanceof String revision) revisions.add(revision);
+        }
+        return revisions;
     }
 
     /**
@@ -1043,7 +1247,10 @@ public final class SAOWorldSources {
                 if (square == null) throw new ActionRefusal("NOT_LOADED");
                 int containerIndex = Integer.parseInt(parts[2]);
                 IsoObject matched = null;
-                for (IsoObject object : square.getObjects()) {
+                // Native PZArrayList has no iterator or iterator-backed copy;
+                // use its installed indexed access on the game thread.
+                for (int objectIndex = 0; objectIndex < square.getObjects().size(); objectIndex++) {
+                    IsoObject object = square.getObjects().get(objectIndex);
                     Object token = object == null ? null
                         : object.getModData().rawget(SOURCE_TOKEN);
                     if (parts[1].equals(token)) {
@@ -1154,17 +1361,22 @@ public final class SAOWorldSources {
             String token) {
         long building = buildingId(square);
         String id = "C:" + token + ":" + containerIndex;
-        String physical = object.getClass().getName() + "|"
-            + value(object.getSpriteName()) + "|" + value(container.getType())
-            + "|" + building + "|" + square.getX() + "|" + square.getY()
-            + "|" + square.getZ() + "|" + containerIndex + "|" + token;
-        Source source = new Source(id, digest(physical), "container",
-            square.getX(), square.getY(), square.getZ(), building,
-            container.isExplored());
+        Source source = new Source(id, containerFingerprint(square, object, container,
+            containerIndex, token), "container", square.getX(), square.getY(),
+            square.getZ(), building, container.isExplored());
         source.containerType = value(container.getType());
         if (container.isExplored()) addItems(source, container.getItems(), 0);
         source.finish();
         return source;
+    }
+
+    private static String containerFingerprint(IsoGridSquare square,
+            IsoObject object, ItemContainer container, int containerIndex, String token) {
+        String physical = object.getClass().getName() + "|"
+            + value(object.getSpriteName()) + "|" + value(container.getType())
+            + "|" + buildingId(square) + "|" + square.getX() + "|" + square.getY()
+            + "|" + square.getZ() + "|" + containerIndex + "|" + token;
+        return digest(physical);
     }
 
     private static Source groundSourceKnown(IsoGridSquare square,
@@ -1199,7 +1411,7 @@ public final class SAOWorldSources {
         return null;
     }
 
-    private static IsoGridSquare interactionSquare(IsoPlayer shell,
+    static IsoGridSquare interactionSquare(IsoPlayer shell,
             IsoGridSquare source) {
         if (shell == null || source == null || shell.getCell() == null) return null;
         IsoGridSquare best = null;
@@ -1223,7 +1435,7 @@ public final class SAOWorldSources {
     }
 
     /** Use the same named part area that vanilla vehicle interactions path to. */
-    private static IsoGridSquare vehicleInteractionSquare(BaseVehicle vehicle,
+    static IsoGridSquare vehicleInteractionSquare(BaseVehicle vehicle,
             VehiclePart part) {
         if (vehicle == null || part == null || part.getArea() == null
                 || part.getArea().isBlank()) return null;
@@ -1278,6 +1490,31 @@ public final class SAOWorldSources {
             this.square = square;
             this.vehicle = vehicle;
             this.vehiclePart = vehiclePart;
+        }
+    }
+
+    private static final class InspectionBinding {
+        final String id, fingerprint;
+        final java.lang.ref.WeakReference<IsoObject> object;
+        final java.lang.ref.WeakReference<ItemContainer> container;
+        final java.lang.ref.WeakReference<IsoGridSquare> square;
+        final int index;
+        final int sourceX, sourceY, sourceZ, x, y, z;
+        final double distance;
+        String observedRevision;
+        InspectionBinding(String id, String fingerprint, IsoObject object,
+                ItemContainer container, int index, IsoGridSquare square,
+                IsoGridSquare approach, IsoPlayer shell) {
+            this.id = id; this.fingerprint = fingerprint;
+            this.object = new java.lang.ref.WeakReference<>(object);
+            this.container = new java.lang.ref.WeakReference<>(container);
+            this.square = new java.lang.ref.WeakReference<>(square);
+            this.index = index;
+            this.sourceX = square.getX(); this.sourceY = square.getY(); this.sourceZ = square.getZ();
+            this.x = approach.getX(); this.y = approach.getY(); this.z = approach.getZ();
+            double dx = approach.getX() + 0.5 - shell.getX();
+            double dy = approach.getY() + 0.5 - shell.getY();
+            this.distance = dx * dx + dy * dy;
         }
     }
 

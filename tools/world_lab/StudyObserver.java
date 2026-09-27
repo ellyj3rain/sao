@@ -6,6 +6,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.StandardCopyOption;
 import java.lang.reflect.Field;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.Iterator;
 import java.util.Properties;
@@ -25,6 +26,7 @@ import zombie.core.Core;
 import zombie.core.opengl.Shader;
 import zombie.core.physics.WorldSimulation;
 import zombie.core.textures.ColorInfo;
+import zombie.core.textures.MultiTextureFBO2;
 import zombie.iso.IsoCamera;
 import zombie.iso.IsoCell;
 import zombie.iso.IsoChunkMap;
@@ -34,6 +36,9 @@ import zombie.iso.IsoWorld;
 import zombie.iso.LightingJNI;
 import zombie.ui.SpeedControls;
 import zombie.ui.UIManager;
+import zombie.ui.UIElementInterface;
+import zombie.Lua.LuaManager;
+import se.krka.kahlua.vm.KahluaTable;
 
 /** Study-JVM host infrastructure, excluded from the world's actor collections.
  * The native player slot supplies rendering/streaming infrastructure only. The
@@ -43,7 +48,8 @@ import zombie.ui.UIManager;
 public final class StudyObserver {
     public static final String MARKER = "SAO_ObserverAnchor";
     private static final Set<String> CONTROL_KEYS = Set.of("sequence", "viewX", "viewY", "viewZ",
-        "residencyX", "residencyY", "residencyZ", "paused", "speed", "stop");
+        "residencyX", "residencyY", "residencyZ", "paused", "speed", "stop",
+        "selectedPersonId", "panelId", "panelPersonId", "panelVisible", "zoomStep");
     private static Anchor anchor;
     private static View camera;
     private static IsoCell cell;
@@ -61,6 +67,8 @@ public final class StudyObserver {
     private static int stateDeferrals;
     private static volatile boolean initializing, ready;
     private static String error;
+    private static String selectedPersonId, inspectionError;
+    private static UIElementInterface inspectionPanel;
     private static volatile String runtimeFailure;
     private static volatile String lastSnapshot = "{\"schema\":\"sao-study-observer/1\",\"status\":\"starting\",\"sequence\":0}";
 
@@ -186,6 +194,60 @@ public final class StudyObserver {
     }
 
     public static boolean hideNativeUi() { return initializing || hostOnly(); }
+
+    /** Called between installed Core.StartFrameUI and EndFrameUI. Only the
+     * explicit inspector is drawn. Blend/style setup follows UIManager.render;
+     * avatar UI, Lua draw events and player overlays remain suppressed.
+     */
+    public static boolean renderObserverUi() {
+        if (!hideNativeUi()) return false;
+        if (!ready || inspectionPanel == null || !Boolean.TRUE.equals(inspectionPanel.isVisible())
+            || UIManager.suspend || (UIManager.useUiFbo && !Core.getInstance().uiRenderThisFrame)) return true;
+        try {
+            requireGameThread();
+            Field stencil = zombie.ui.UIElement.class.getDeclaredField("stencilLevel");
+            stencil.setAccessible(true); stencil.setInt(null, 0);
+            zombie.IndieGL.enableBlend();
+            if (UIManager.useUiFbo) {
+                zombie.core.SpriteRenderer.instance.setDefaultStyle(zombie.core.Styles.UIFBOStyle.instance);
+                zombie.IndieGL.glBlendFuncSeparate(770, 771, 1, 771);
+            } else zombie.IndieGL.glBlendFunc(770, 771);
+            zombie.IndieGL.disableDepthTest();
+            inspectionPanel.render();
+        } catch (Exception failure) {
+            String message = failure.getClass().getSimpleName() + ": " + failure.getMessage();
+            if (!message.equals(inspectionError)) System.err.println("[StudyObserver] inspector render failed: " + message);
+            inspectionError = message;
+        } finally {
+            if (UIManager.useUiFbo) {
+                zombie.core.SpriteRenderer.instance.setDefaultStyle(zombie.core.Styles.TransparentStyle.instance);
+                zombie.IndieGL.glBlendFunc(770, 771);
+            }
+        }
+        return true;
+    }
+
+    private static Object observationCall(String name, Object... arguments) {
+        Object root = LuaManager.env == null ? null : LuaManager.env.rawget("SAO");
+        Object module = root instanceof KahluaTable ? ((KahluaTable) root).rawget("Observation") : null;
+        Object function = module instanceof KahluaTable ? ((KahluaTable) module).rawget(name) : null;
+        if (function == null || LuaManager.thread == null || LuaManager.caller == null)
+            throw new IllegalStateException("person inspection is not ready");
+        Object[] result = LuaManager.caller.pcall(LuaManager.thread, function, arguments);
+        if (result.length < 1 || !Boolean.TRUE.equals(result[0]))
+            throw new IllegalStateException("person inspection failed: " + (result.length > 1 ? result[1] : "missing Lua return"));
+        return result.length > 1 ? result[1] : null;
+    }
+
+    private static String person(Properties values, String key) {
+        String id = values.getProperty(key);
+        if (id == null || id.isEmpty() || id.length() > 128
+            || id.chars().anyMatch(c -> c < 32 || c == 127))
+            throw new IllegalArgumentException("invalid " + key);
+        if (!Boolean.TRUE.equals(observationCall("validatePerson", id)))
+            throw new IllegalArgumentException("person is unavailable: " + id);
+        return id;
+    }
 
     /** A hidden debugger would block the very game thread that polls stop.
      * Keep the original Lua error/log and permanently fail the observer receipt;
@@ -392,14 +454,74 @@ public final class StudyObserver {
             int speed = Integer.parseInt(values.getProperty("speed", Integer.toString(desiredSpeed)));
             if (speed < 1 || speed > 3) throw new IllegalArgumentException("speed must be 1, 2 or 3");
             SpeedControls controls = UIManager.getSpeedControls();
+            boolean changeClock = values.containsKey("paused") || values.containsKey("speed");
             boolean paused = bool(values, "paused", controls != null && controls.getCurrentGameSpeed() == 0);
             boolean stop = bool(values, "stop", false);
-            if (controls == null && (values.containsKey("paused") || values.containsKey("speed")))
+            if (controls == null && changeClock)
                 throw new IllegalStateException("native speed controls are not ready");
+            boolean selection = values.containsKey("selectedPersonId");
+            boolean panel = values.containsKey("panelId") || values.containsKey("panelPersonId") || values.containsKey("panelVisible");
+            boolean zoom = values.containsKey("zoomStep");
+            int zoomStep = 0;
+            float nextZoom = 0;
+            if (zoom) {
+                if (!values.stringPropertyNames().equals(Set.of("sequence", "zoomStep")))
+                    throw new IllegalArgumentException("zoom requests must be independent");
+                zoomStep = Integer.parseInt(values.getProperty("zoomStep"));
+                if (zoomStep != -1 && zoomStep != 1)
+                    throw new IllegalArgumentException("zoomStep must be -1 or 1");
+                float[] levels = nativeZoomLevels();
+                if (levels.length == 0) throw new IllegalStateException("native zoom is unavailable");
+                nextZoom = Core.getInstance().getNextZoom(0, zoomStep);
+                if (Arrays.binarySearch(levels, nextZoom) < 0)
+                    throw new IllegalStateException("native zoom did not select a configured level");
+            }
+            String inspectionId = null;
+            boolean panelVisible = false;
+            if (selection || panel) {
+                Set<String> allowed = selection ? Set.of("sequence", "selectedPersonId")
+                    : Set.of("sequence", "panelId", "panelPersonId", "panelVisible");
+                if (!allowed.equals(values.stringPropertyNames()))
+                    throw new IllegalArgumentException("inspection requests must be complete and independent");
+                if (panel && !"person-inspection".equals(values.getProperty("panelId")))
+                    throw new IllegalArgumentException("unsupported panel");
+                inspectionId = person(values, selection ? "selectedPersonId" : "panelPersonId");
+                panelVisible = panel && bool(values, "panelVisible", false);
+            }
             // Validate the entire command before changing any host coordinates.
-            setResidency(rx, ry, rz); setView(vx, vy, vz);
-            desiredSpeed = speed;
-            if (controls != null) controls.SetCurrentGameSpeed(paused ? 0 : speed);
+            if (zoom) {
+                Core core = Core.getInstance();
+                core.setAutoZoom(0, false);
+                core.doZoomScroll(0, zoomStep);
+                if (core.offscreenBuffer.getTargetZoom(0) != nextZoom)
+                    throw new IllegalStateException("native zoom target was not applied");
+                // Use the installed immediate setter so one command sequence
+                // names one projection scale, including while the world pauses.
+                core.offscreenBuffer.setZoomAndTargetZoom(0, nextZoom);
+            } else if (selection || panel) {
+                Object applied = selection ? observationCall("select", inspectionId)
+                    : observationCall("panel", "person-inspection", inspectionId, panelVisible);
+                if (!Boolean.TRUE.equals(applied)) throw new IllegalStateException("person inspection request was not applied");
+                if (panel) {
+                    Object element = observationCall("nativePanel");
+                    if (panelVisible && !(element instanceof UIElementInterface))
+                        throw new IllegalStateException("native person panel did not expose its UI element");
+                    inspectionPanel = panelVisible ? (UIElementInterface) element : null;
+                }
+                selectedPersonId = inspectionId;
+                inspectionError = null;
+            } else {
+                setResidency(rx, ry, rz); setView(vx, vy, vz);
+            }
+            if (changeClock) {
+                desiredSpeed = speed;
+                controls.SetCurrentGameSpeed(paused ? 0 : speed);
+                // Native SetCurrentGameSpeed resets the multiplier to 1. The
+                // installed button/key handlers then apply these native presets.
+                // Paused requests retain their intended preset for resume; camera
+                // and residency commands never touch either native speed owner.
+                if (!paused) GameTime.getInstance().setMultiplier(nativeSpeedMultiplier(speed));
+            }
             synchronized (StudyObserver.class) { sequence = candidate; }
             error = null;
             stopping = stop;
@@ -415,6 +537,47 @@ public final class StudyObserver {
             error = message;
             publish(true);
         }
+    }
+
+    private static float nativeSpeedMultiplier(int speed) {
+        return switch (speed) {
+            case 1 -> 1.0f;
+            case 2 -> 5.0f;
+            case 3 -> 20.0f;
+            default -> throw new IllegalArgumentException("speed must be 1, 2 or 3");
+        };
+    }
+
+    private static float[] nativeZoomLevels() {
+        MultiTextureFBO2 buffer = Core.getInstance().offscreenBuffer;
+        if (buffer == null || !buffer.zoomEnabled) return new float[0];
+        try {
+            // This installed build exposes current/target zoom publicly, but
+            // its active configured level array has no public getter.
+            Field field = MultiTextureFBO2.class.getDeclaredField("zoomLevels");
+            field.setAccessible(true);
+            float[] configured = (float[]) field.get(buffer);
+            if (configured == null || configured.length == 0) return new float[0];
+            if (configured.length > 64) throw new IllegalStateException("native zoom level limit");
+            float[] levels = configured.clone();
+            Arrays.sort(levels);
+            for (int index = 0; index < levels.length; index++)
+                if (!Float.isFinite(levels[index]) || levels[index] <= 0
+                    || (index > 0 && levels[index] <= levels[index - 1]))
+                    throw new IllegalStateException("invalid native zoom levels");
+            return levels;
+        } catch (ReflectiveOperationException failure) {
+            throw new IllegalStateException("cannot read installed native zoom levels", failure);
+        }
+    }
+
+    private static String viewportSnapshot() {
+        float[] levels = nativeZoomLevels();
+        if (levels.length == 0) return "";
+        MultiTextureFBO2 buffer = Core.getInstance().offscreenBuffer;
+        return ",\"viewport\":{\"zoom\":" + buffer.getZoom(0)
+            + ",\"targetZoom\":" + buffer.getTargetZoom(0)
+            + ",\"zoomLevels\":" + Arrays.toString(levels) + "}";
     }
 
     private static void finishStop() {
@@ -538,9 +701,14 @@ public final class StudyObserver {
             + ",\"hours\":" + hours + ",\"startHours\":" + startHours
             + ",\"worldAdvanced\":" + (hours > startHours) + ",\"logicCalls\":" + logicCalls
             + ",\"paused\":" + GameTime.isGamePaused() + ",\"speed\":" + speed
+            + ",\"requestedSpeed\":" + desiredSpeed + ",\"nativeMultiplier\":" + GameTime.getInstance().getTrueMultiplier()
+            + ",\"selectedPersonId\":" + quote(selectedPersonId)
+            + ",\"inspectionPanelVisible\":" + (inspectionPanel != null && Boolean.TRUE.equals(inspectionPanel.isVisible()))
+            + ",\"inspectionError\":" + quote(inspectionError)
             + ",\"originX\":" + originX + ",\"originY\":" + originY + ",\"originZ\":" + originZ
             + ",\"residencyX\":" + anchor.getX() + ",\"residencyY\":" + anchor.getY() + ",\"residencyZ\":" + anchor.getZ()
             + ",\"viewX\":" + camera.getX() + ",\"viewY\":" + camera.getY() + ",\"viewZ\":" + camera.getZ()
+            + viewportSnapshot()
             + ",\"displayMode\":\"native-god-view\",\"fullbright\":" + zombie.debug.DebugOptions.instance.fboRenderChunk.nolighting.getValue()
             + ",\"visionMask\":" + zombie.debug.DebugOptions.instance.fboRenderChunk.renderVisionPolygon.getValue()
             + ",\"canopyCutaway\":" + cutawayCanopy(0)

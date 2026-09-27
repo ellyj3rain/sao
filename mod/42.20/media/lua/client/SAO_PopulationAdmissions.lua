@@ -527,8 +527,9 @@ local function ensurePopulation(conf, tickCounter)
         -- Provenance `lived`, because they did not walk past it or
         -- hear about it - they were in it when the world ended
         -- ([B39]).
+        local startedIn
         pcall(function()
-            local startedIn = SAO.Places.at(origin.x, origin.y)
+            startedIn = SAO.Places.at(origin.x, origin.y)
             if startedIn then
                 SAO.Perception.learnBuilding(rec.id, startedIn, 0, "lived")
                 if rec.originAnchored then
@@ -595,6 +596,13 @@ local function ensurePopulation(conf, tickCounter)
             pcall(function()
                 SAO.WorldKnowledge.markCountyPresence(mate, not arriving)
             end)
+            -- The mate began at this same actual origin. Knowing the shared
+            -- building does not anchor their own profession to its trade.
+            if startedIn then
+                pcall(function()
+                    SAO.Perception.learnBuilding(mate.id, startedIn, 0, "lived")
+                end)
+            end
             mate.unitId, mate.unitKind = unitId, kind
             mates[#mates + 1] = mate
             count = count + 1

@@ -1099,6 +1099,7 @@ end
 -- depended on it, because nothing had to: an unwatched house was
 -- never punished. Asleep, only what is effectively on top of you
 -- registers, and nothing else does.
+local observeOccupiedBuilding
 function P.observe(id, body, tick, asleep)
     local b = store(id)
     if tick - b.lastScanAt < SCAN_INTERVAL then return end
@@ -1119,6 +1120,9 @@ function P.observe(id, body, tick, asleep)
     pcall(function()
         P.learnGroundNear(id, body:getX(), body:getY())
     end)
+    if not asleep then
+        pcall(function() observeOccupiedBuilding(id, body, tick) end)
+    end
 
     if not SAOJavaBridge then return end
     local ok, seen = pcall(function()
@@ -2630,16 +2634,53 @@ end
 -- whoever is standing in it. `sources` is the exact native stock this
 -- person observed on arrival; room vocabulary remains only a possible
 -- reason to explore and never enters the belief as availability.
-function P.learnBuilding(id, place, tick, source)
+local rebuildKnownSources
+local function canonicalBuildingBelief(b, place)
+    local known = b.known
+    if not known then return nil end
+    local occupied = tostring(place.id)
+    local was, alias = known[place.id], known[occupied]
+    if place.id ~= occupied and alias then
+        if was and was ~= alias then
+            -- Earlier source inspection and arrival could leave two keys for
+            -- this one building. Keep independent private facts, the existing
+            -- native row on revision conflicts, and the larger visit count.
+            was.sourceFacts = was.sourceFacts or {}
+            for sourceId, fact in pairs(alias.sourceFacts or {}) do
+                if was.sourceFacts[sourceId] == nil then
+                    was.sourceFacts[sourceId] = fact
+                end
+            end
+            was.visits = math.max(was.visits or 0, alias.visits or 0)
+            if (alias.at or 0) > (was.at or 0) then
+                was.at, was.source = alias.at, alias.source
+            end
+            rebuildKnownSources(was)
+        else
+            was = alias
+        end
+        known[place.id], known[occupied] = was, nil
+        P.beliefVersion = P.beliefVersion + 1
+    end
+    return was
+end
+
+local function rememberBuildingVisit(id, place, tick, source, withSources)
     if not place or not place.id then return end
     local b = store(id)
     b.known = b.known or {}
-    local was = b.known[place.id]
-    local sources, sourceRevision, sourceAccess, sourceFacts = {}, "", {}, {}
-    pcall(function()
-        sources, sourceRevision, sourceAccess, sourceFacts =
-            SAO.WorldSources.beliefSnapshot(place)
-    end)
+    local was = canonicalBuildingBelief(b, place)
+    local sources = was and was.sources or {}
+    local sourceRevision = was and was.sourceRevision or ""
+    local sourceAccess = was and was.sourceAccess or {}
+    local sourceFacts = was and was.sourceFacts or {}
+    if withSources then
+        sources, sourceRevision, sourceAccess, sourceFacts = {}, "", {}, {}
+        pcall(function()
+            sources, sourceRevision, sourceAccess, sourceFacts =
+                SAO.WorldSources.beliefSnapshot(place)
+        end)
+    end
     b.known[place.id] = {
         cx = place.cx, cy = place.cy,
         minX = place.minX, minY = place.minY,
@@ -2655,11 +2696,52 @@ function P.learnBuilding(id, place, tick, source)
         -- somewhere that gave them something.
         visits = (was and was.visits or 0) + 1,
     }
+    if source == "observed" or source == "lived" then
+        -- These callers admit an actual arrival, including the dormant and
+        -- genesis paths. Persist it with the mind so loading a body here
+        -- continues that visit instead of counting the same arrival twice.
+        b.occupiedBuilding = tostring(place.id)
+    end
     -- [C108] An arrival is a write; derived readers recompute.
     P.beliefVersion = P.beliefVersion + 1
 end
 
-local function rebuildKnownSources(belief)
+function P.learnBuilding(id, place, tick, source)
+    rememberBuildingVisit(id, place, tick, source, true)
+end
+
+observeOccupiedBuilding = function(id, body, tick)
+    local square = body:getCurrentSquare()
+    if not square then return end -- unavailable is not an observed exit
+    local b = store(id)
+    local def = square:getBuildingDef()
+    if not def then
+        -- A room can be temporarily unresolved on an interior square. Only
+        -- the native exterior property is positive evidence of leaving.
+        if square:isOutside() and b.occupiedBuilding ~= false then
+            b.occupiedBuilding = false
+            P.beliefVersion = P.beliefVersion + 1
+        end
+        return
+    end
+    local place = SAO.Places.at(body:getX(), body:getY())
+    if not place or tostring(place.id) ~= tostring(def:getID()) then return end
+    local occupied = tostring(place.id)
+    local was = canonicalBuildingBelief(b, place)
+    if b.occupiedBuilding == occupied then return end
+    if b.occupiedBuilding == nil and was and (was.visits or 0) > 0 then
+        -- Older saves already counted this known place, but have no entry
+        -- receipt. Establish continuity without inventing another arrival.
+        b.occupiedBuilding = occupied
+        P.beliefVersion = P.beliefVersion + 1
+        return
+    end
+    -- Occupying the building reveals its location, not other containers'
+    -- current contents. Existing private source facts and revisions survive.
+    rememberBuildingVisit(id, place, tick, "observed", false)
+end
+
+rebuildKnownSources = function(belief)
     local sources, access, revisions = {}, {}, {}
     for id, fact in pairs(belief.sourceFacts or {}) do
         if fact.state == "available" then

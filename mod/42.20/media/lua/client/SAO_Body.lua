@@ -139,11 +139,11 @@ function Body.materialize(rec, externalOwner, externalToken)
     local wx, wy, movedBy = wakeSquareFor(rec)
     local slotBefore = localSlotUser()
 
-    -- Construction. Preferred path is the Java agent's shell class: a bare
+    -- Construction. The Java agent owns shell creation when available: a bare
     -- IsoPlayer that is not a local player is refused by B21's exact-class
     -- render filter (F-009), so only the subclass draws. The bare-Lua path
-    -- stays as an explicit fallback (functional but invisible) so the slice
-    -- still runs without the agent; the log names which path built the body.
+    -- stays as an explicit fallback (functional but invisible) only without
+    -- the agent. A failed native construction retains the record for retry.
     local body, how
     if SAOJavaBridge then
         local okJ, shell = pcall(function()
@@ -158,7 +158,8 @@ function Body.materialize(rec, externalOwner, externalToken)
         if okJ and shell then
             body, how = shell, "java-shell"
         else
-            log("java bridge spawn failed (" .. tostring(shell) .. "); falling back to bare IsoPlayer")
+            log("java bridge spawn failed for " .. rec.id .. ": " .. tostring(shell))
+            return nil, "native-spawn-failed"
         end
     end
     if not body then

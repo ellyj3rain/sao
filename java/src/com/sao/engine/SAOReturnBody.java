@@ -206,7 +206,7 @@ public final class SAOReturnBody {
             shell.removeFromWorld();
             if (stage.cell.getObjectList().contains(shell) || stage.cell.getAddList().contains(shell)
                     || shell.getCurrentSquare() != null || shell.isAddedToModelManager()) return false;
-            IsoGameCharacter.getSurvivorMap().remove(shell.getDescriptor().getID(), shell.getDescriptor());
+            shell.retireNativeDescriptor();
             stage.phase = Phase.DISCARDED;
             PENDING.remove(shell);
             return true;

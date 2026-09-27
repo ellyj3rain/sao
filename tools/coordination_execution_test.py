@@ -30,7 +30,6 @@ CONTROLLER = LUA / "client/SAO_Controller.lua"
 WORLD_SOURCES = LUA / "shared/SAO_WorldSources.lua"
 CHECK = ROOT / "tools/check.sh"
 RUNNER = ROOT / "tools/luacheck/LuaRun.java"
-OUT = ROOT / "java/out/luacheck"
 JDK = pathlib.Path(r"C:\Users\jleyv\Peanut Butter\JetBrains\Java\bin")
 PZ_DIR = pathlib.Path(
     r"C:\Program Files (x86)\Steam\steamapps\common\ProjectZomboid")
@@ -51,6 +50,9 @@ _G.__queue, _G.__pending = {}, {}
 _G.__sourceSequence, _G.__resultSequence = 0, 0
 _G.__sourceReservations, _G.__sourceResults = {}, {}
 _G.__routeStatus, _G.__routeBody = 'none', nil
+_G.__orders, _G.__sourceX, _G.__within = 0, 0, true
+_G.__known, _G.__permitted = {}, true
+_G.__sourceCache = true
 
 ModData = { getOrCreate=function(key)
   __stores[key]=__stores[key] or {}; return __stores[key]
@@ -76,6 +78,7 @@ local function body(id, x)
   __bodies[id]=value
   return value
 end
+_G.replaceBody=function(id,x) return body(id,x) end
 function makeItem(id, fullType, container)
   local value={ id=id, fullType=fullType, container=container }
   function value:getID() return self.id end
@@ -103,12 +106,12 @@ SAO = {
     get=function(id) return __bodies[tostring(id)] end,
     hasRepresentation=function(id) return __bodies[tostring(id)]~=nil end },
   Controller={ agents={} },
-  Perception={ EARSHOT=10 },
+  Perception={ EARSHOT=10,knownPlaces=function(id) return __known[id] or {} end },
   Standing={
     groupOf=function() return nil end,
     trust=function() return .5 end,
     isHostileTo=function() return false end,
-    mayAttemptBelieved=function() return true end,
+    mayAttemptBelieved=function() return __permitted end,
     mayTakeCurrent=function() return true end,
     provisioningContextAt=function() return 'personal',nil,nil end,
   },
@@ -159,10 +162,15 @@ end
 
 SAOJavaBridge={
   canConverseNow=function(_,a,b,_) return a~=nil and b~=nil end,
-  findFoodSource=function(_,_,_) return '0:0:0:crate' end,
-  foodSourceWithinReach=function() return true end,
-  foodSourceItem=function() return __sourceItem end,
-  foodSourceContainer=function() return __sourceContainer end,
+  findFoodSource=function(_,_,_)
+    __sourceCache=true;return tostring(__sourceX)..':0:0:crate'
+  end,
+  foodSourceWithinReach=function() return __sourceCache and __within end,
+  resourceApproach=function(_,_,_,x,y,z)
+    return 'AT:'..tostring(x)..':'..tostring(y)..':'..tostring(z)
+  end,
+  foodSourceItem=function() return __sourceCache and __sourceItem or nil end,
+  foodSourceContainer=function() return __sourceCache and __sourceContainer or nil end,
   bindWorldSourceAction=function()
     return 'BOUND:0:0:0'
   end,
@@ -326,6 +334,7 @@ SAO.WorldSources={
 
 SAO.Locomotion={ jobs={} }
 function SAO.Locomotion.order(id,body,x,y,z)
+  __orders=__orders+1
   SAO.Locomotion.jobs[tostring(id)]={body=body,goal={x=x,y=y,z=z}}
   __routeBody=body; __routeStatus='moving'; return true
 end
@@ -349,6 +358,10 @@ PROBE = r'''(function()
   end
   local function outcomes(commitment)
     return #(commitment and commitment.work and commitment.work.outcomes or {})
+  end
+  local function empty(values)
+    for _ in pairs(values or {}) do return false end
+    return true
   end
   SAO.GraphPersistence.bind()
   SAO.Communication.registerExecutionOwner('ZAO',{
@@ -375,8 +388,11 @@ PROBE = r'''(function()
         executionOwnerAvailable=true,ownNeedAvailable=true} })
     local returned=SAO.Communication.deliverPendingResponses(
       actor,'origin',nil,{distance=1})
-    return process,SAO.Organization.activeCommitment(actor,'food-delivery'),
-      message,returned
+    local commitment=nil
+    for _,candidate in pairs(process.commitments or {}) do
+      if candidate.actorId==actor then commitment=candidate;break end
+    end
+    return process,commitment,message,returned
   end
   local function finishAcquisition(actor,itemId,suffix)
     __sourceItem=makeItem(itemId,'Base.Apple',__sourceContainer)
@@ -480,6 +496,190 @@ PROBE = r'''(function()
     and partialItem:getContainer()==__bodies.worker2:getInventory()
     and SAO.Handover.result(partialHandover).status=='interrupted')
 
+  -- Reproduce native02: accepted request -> real collectNearby FORAGE route
+  -- -> native failure without any acquisition. Retry remains the same goal.
+  __within=false;__sourceX=12;__sourceItem=makeItem(4,'Base.Apple',__sourceContainer)
+  __known.worker={oldHome={at=1,source='lived-place',sourceFacts={cabinet={
+    x=12,y=0,z=0,revision='old-r1',fingerprint='cabinet',state='available',access='open'}}},
+    rememberedAnchor={at=0,sourceFacts={cabinet={x=12,y=0,z=0,revision='old-r0',
+    fingerprint='cabinet',state='available',access='open'}}}}
+  local retryProcess,retry=accepted('worker','route-retry')
+  local function advanceRetry()
+    return SAO.Controller.advanceExternalCoordination('worker',__bodies.worker,'ZAO','idle')
+  end
+  local firstOrders=__orders
+  local beganRoute,firstStatus=advanceRetry()
+  local first=retry.work.routeAttempts[1]
+  check('private_old_source_still_admits_attempt',beganRoute==true and firstStatus=='FORAGE'
+    and first and first.retryEvidence and first.retryEvidence.knownSources:find('old-r1',1,true)~=nil)
+  check('private_duplicate_source_facts_are_stable',first and first.retryEvidence
+    and first.retryEvidence.knownSources:find('old-r0',1,true)~=nil
+    and first.retryEvidence.knownSources:find('old-r1',1,true)~=nil)
+  __routeStatus='done:failed';advanceRetry()
+  check('failed_attempt_retains_accepted_goal',first and first.status=='interrupted'
+    and first.detail=='failed' and retry.status=='paused'
+    and retry.work.acquiredAt==nil and retry.work.endedAt==nil
+    and empty(retry.work.sourceReceipts)
+    and SAO.Organization.activeCommitment('worker','food-delivery')==retry
+    and SAO.Organization.workReceipts['route:'..first.id]~=nil)
+  local beforeDuplicate=outcomes(retry)
+  local duplicate=SAO.Organization.routeOutcome(retry.id,'interrupted','failed')
+  check('failed_attempt_receipt_is_consumed_once',duplicate==false and outcomes(retry)==beforeDuplicate)
+  local held,heldReason=advanceRetry()
+  check('route_backoff_prevents_immediate_restart',held==false and heldReason=='route-backoff'
+    and __orders==firstOrders+1 and #retry.work.routeAttempts==1)
+
+  local retryId=retry.id
+  SAO.Organization.processes,SAO.Organization.processOrder={},{ }
+  SAO.Organization.processMeta,SAO.Organization.workReceipts={sequence=0},{}
+  SAO.Controller.coordinationRuntime={};SAO.GraphPersistence.bind()
+  retry=SAO.Organization.commitment(retryId)
+  held,heldReason=advanceRetry()
+  check('route_backoff_survives_graph_rebind',retry.status=='paused'
+    and held==false and heldReason=='route-backoff' and __orders==firstOrders+1)
+  for index=2,3 do
+    __now=(retry.work.routeRetryAt or __now)+.001
+    advanceRetry();__routeStatus='done:failed';advanceRetry()
+  end
+  __now=(retry.work.routeRetryAt or __now)+.001
+  local attemptsBefore=#retry.work.routeAttempts
+  local ordersBefore=__orders
+  for index=1,4 do advanceRetry() end
+  check('equivalent_failures_wait_for_changed_evidence',#retry.work.routeAttempts==3
+    and #retry.work.routeAttempts==attemptsBefore and __orders==ordersBefore
+    and retry.status=='paused' and retry.work.pauseReason=='route-awaits-changed-evidence')
+  local sameNativeTile=SAO.Organization.routeMayStart(retry.id,12.4,.4,0,'acquiring',
+    retry.work.routeAttempts[1].retryEvidence)
+  check('fractional_target_jitter_does_not_reset_failures',sameNativeTile==false)
+  __known.worker.oldHome.at=__now*60
+  advanceRetry()
+  check('unchanged_fact_rescan_does_not_reset_failures',__orders==ordersBefore)
+  __known.worker.oldHome.sourceFacts.cabinet.revision='old-r2'
+  __permitted=false;advanceRetry()
+  check('retry_rechecks_current_permission',__orders==ordersBefore and retry.status=='paused')
+  __permitted=true
+  local changed,changedStatus=advanceRetry()
+  local latest=retry.work.routeAttempts[#retry.work.routeAttempts]
+  check('changed_private_source_reopens_same_goal',changed==true and changedStatus=='FORAGE'
+    and __orders==ordersBefore+1 and #retry.work.routeAttempts==4
+    and latest.retryEvidence.knownSources:find('old-r2',1,true)~=nil
+    and retry.id==retryId and retry.work.acquiredAt==nil)
+  __routeStatus='done:failed';advanceRetry()
+  __now=(retry.work.routeRetryAt or __now)+.001
+  __sourceX=16
+  changed,changedStatus=advanceRetry()
+  check('different_selected_source_remains_eligible',changed==true and changedStatus=='FORAGE'
+    and retry.work.routeAttempts[#retry.work.routeAttempts].x==16
+    and retry.id==retryId and retry.status~='completed')
+  SAO.Organization.withdrawMatter(retryProcess.id,'origin','request-no-longer-needed',{})
+  local stopped,stopReason=advanceRetry()
+  check('explicit_withdrawal_stops_retained_route',stopped==true and stopReason=='work-ended'
+    and retry.status=='withdrawn' and SAO.Locomotion.jobs.worker==nil)
+
+  -- Carrying failures retain the measured acquisition, but confer no delivery.
+  __within=true;__sourceX=0
+  local carryProcess,carry=finishAcquisition('worker',5,'carryretry')
+  __bodies.origin.x,__bodies.worker.x=20,0
+  ordersBefore=__orders;__permitted=false;advanceRetry()
+  check('carrying_route_rechecks_permission',__orders==ordersBefore and carry.status=='paused')
+  __permitted=true
+  advanceRetry();__routeStatus='done:failed';advanceRetry()
+  check('carrying_route_failure_preserves_cargo_proof',carry.status=='paused'
+    and carry.work.acquisitionReceiptId~=nil and carry.work.acquiredAt~=nil
+    and carry.work.deliveryReceiptId==nil and carry.work.endedAt==nil)
+  __now=(carry.work.routeRetryAt or __now)+.001
+  SAO.Organization.reviseMatter(carryProcess.id,'origin',{
+    scope={category='food',quantity=2},destination={minX=19,minY=0,maxX=21,maxY=1,z=0}}, {})
+  ordersBefore=__orders;advanceRetry()
+  check('supersession_cannot_resume_old_goal',carry.status=='superseded' and __orders==ordersBefore)
+  local deathProcess,death=accepted('worker','dead')
+  __within=false;__sourceX=12;advanceRetry()
+  __people.worker.dead=true;SAO.Organization.releaseActor('worker','actor-dead')
+  stopped,stopReason=advanceRetry()
+  check('death_stops_retained_goal',death.status=='withdrawn' and stopReason=='work-ended'
+    and SAO.Locomotion.jobs.worker==nil)
+
+  -- The loaded FORAGE consumer runs updateMovement before the next decision.
+  __people.worker.dead=false
+  local loadedProcess,loaded=accepted('worker','loaded-route')
+  local agent={state='IDLE',rec=__people.worker}
+  local function advanceLoaded()
+    return SAO.Controller.__coordinationProbeAdvance('worker',__bodies.worker,'SAO','idle',agent)
+  end
+  advanceLoaded();__routeStatus='done:failed'
+  SAO.Controller.__coordinationProbeMovement('worker',agent,__bodies.worker)
+  check('loaded_forage_failure_preserves_goal',loaded.status=='paused' and agent.state=='IDLE'
+    and agent.coordinationRoute==nil and loaded.work.acquiredAt==nil
+    and loaded.work.routeAttempts[1].status=='interrupted')
+  ordersBefore=__orders;advanceLoaded()
+  check('loaded_forage_respects_backoff',__orders==ordersBefore and agent.state=='IDLE')
+  __now=(loaded.work.routeRetryAt or __now)+.001
+  local resumed,resumedStatus=advanceLoaded()
+  check('loaded_forage_resumes_same_commitment',resumed==true and resumedStatus=='FORAGE'
+    and agent.state=='FORAGE' and agent.coordinationCommitment==loaded.id
+    and #loaded.work.routeAttempts==2 and loaded.work.acquiredAt==nil)
+  SAO.Organization.withdrawMatter(loadedProcess.id,'origin','no-longer-needed',{})
+  SAO.Controller.__coordinationProbeMovement('worker',agent,__bodies.worker)
+  check('loaded_withdrawal_cancels_route_owner',agent.state=='IDLE'
+    and agent.coordinationCommitment==nil and SAO.Locomotion.jobs.worker==nil)
+
+  __sourceItem=makeItem(6,'Base.Apple',__sourceContainer)
+  local firstProcess,firstGoal=accepted('worker','first-paused')
+  for index=1,3 do
+    advanceRetry();__routeStatus='done:failed';advanceRetry()
+    __now=(firstGoal.work.routeRetryAt or __now)+.001
+  end
+  local secondProcess,secondGoal=accepted('worker','second-executable')
+  local secondAdvanced,secondStatus=advanceRetry()
+  check('paused_goal_does_not_starve_other_accepted_work',secondAdvanced==true
+    and secondStatus=='FORAGE' and firstGoal.status=='paused'
+    and #firstGoal.work.routeAttempts==3 and secondGoal.status=='in-progress'
+    and #secondGoal.work.routeAttempts==1)
+  SAO.Controller.advanceExternalCoordination('worker',__bodies.worker,'ZAO','flee')
+  check('competing_activity_pauses_actual_selected_goal',secondGoal.status=='paused'
+    and secondGoal.work.pauseReason=='external-competing-activity'
+    and firstGoal.work.pauseReason=='route-awaits-changed-evidence'
+    and SAO.Locomotion.jobs.worker==nil)
+  SAO.Organization.withdrawMatter(secondProcess.id,'origin','second-closed',{})
+  __known.worker.oldHome.sourceFacts.cabinet.revision='old-r3'
+  local revisited,revisitedStatus=advanceRetry()
+  check('earlier_paused_goal_can_be_revisited',revisited==true and revisitedStatus=='FORAGE'
+    and #firstGoal.work.routeAttempts==4 and firstGoal.status=='in-progress'
+    and firstGoal.work.acquiredAt==nil)
+  SAO.Organization.withdrawMatter(firstProcess.id,'origin','first-closed',{})
+  advanceRetry()
+
+  local pendingProcess,pendingGoal=accepted('worker','pending-reload')
+  advanceRetry()
+  local pendingRoute=pendingGoal.work.routeAttempts[1]
+  SAO.Controller.coordinationRuntime={}
+  __permitted=false;ordersBefore=__orders
+  advanceRetry()
+  check('pending_route_rechecks_permission_after_rebind',__orders==ordersBefore
+    and pendingRoute.status=='interrupted' and pendingGoal.status=='paused')
+  SAO.Organization.withdrawMatter(pendingProcess.id,'origin','pending-closed',{})
+  __permitted=true
+
+  local cacheProcess,cacheGoal=accepted('worker','native-cache-reload')
+  advanceRetry()
+  local cacheRoute=cacheGoal.work.routeAttempts[1]
+  SAO.Controller.coordinationRuntime={}
+  replaceBody('worker',1);__sourceCache=false
+  local restored,restoredStatus=advanceRetry()
+  check('pending_route_reuses_existing_attempt_after_rebind',restored==true
+    and restoredStatus=='route' and #cacheGoal.work.routeAttempts==1
+    and cacheGoal.work.routeAttempts[1].id==cacheRoute.id)
+  __routeStatus='done:arrived';__within=true
+  local atSource,atSourceStatus=advanceRetry()
+  check('lost_native_cache_preserves_arrived_goal',atSource==true
+    and atSourceStatus=='acquisition-queue-refused' and cacheRoute.status=='arrived'
+    and cacheGoal.status=='paused' and cacheGoal.work.acquiredAt==nil)
+  local reselected,reselectedStatus=advanceRetry()
+  check('source_selection_rebinds_cache_without_inventing_transfer',reselected==true
+    and reselectedStatus=='TAKE' and cacheGoal.work.pendingReceiptId~=nil
+    and cacheGoal.work.acquiredAt==nil and __sourceCache
+    and __sourceItem:getContainer()==__sourceContainer)
+
   return table.concat(checks,',')
 end)()'''
 
@@ -496,24 +696,55 @@ EXPECTED = {
     "partial_delivered_acceptance_enters_source_owner",
     "partial_native_acquisition_becomes_carrying_once",
     "stopped_native_handover_is_partial_not_completion",
+    "private_old_source_still_admits_attempt",
+    "private_duplicate_source_facts_are_stable",
+    "failed_attempt_retains_accepted_goal",
+    "failed_attempt_receipt_is_consumed_once",
+    "route_backoff_prevents_immediate_restart",
+    "route_backoff_survives_graph_rebind",
+    "equivalent_failures_wait_for_changed_evidence",
+    "fractional_target_jitter_does_not_reset_failures",
+    "unchanged_fact_rescan_does_not_reset_failures",
+    "retry_rechecks_current_permission",
+    "changed_private_source_reopens_same_goal",
+    "different_selected_source_remains_eligible",
+    "explicit_withdrawal_stops_retained_route",
+    "carryretry_delivered_acceptance_enters_source_owner",
+    "carryretry_native_acquisition_becomes_carrying_once",
+    "carrying_route_failure_preserves_cargo_proof",
+    "carrying_route_rechecks_permission",
+    "supersession_cannot_resume_old_goal",
+    "death_stops_retained_goal",
+    "loaded_forage_failure_preserves_goal",
+    "loaded_forage_respects_backoff",
+    "loaded_forage_resumes_same_commitment",
+    "loaded_withdrawal_cancels_route_owner",
+    "paused_goal_does_not_starve_other_accepted_work",
+    "competing_activity_pauses_actual_selected_goal",
+    "earlier_paused_goal_can_be_revisited",
+    "pending_route_rechecks_permission_after_rebind",
+    "pending_route_reuses_existing_attempt_after_rebind",
+    "lost_native_cache_preserves_arrived_goal",
+    "source_selection_rebinds_cache_without_inventing_transfer",
 }
 
 
-def compile_runner() -> tuple[bool, str]:
-    OUT.mkdir(parents=True, exist_ok=True)
+def compile_runner(output: pathlib.Path) -> tuple[bool, str]:
     done = subprocess.run(
-        [str(JDK / "javac.exe"), "-cp", str(PZ), "-d", str(OUT), str(RUNNER)],
+        [str(JDK / "javac.exe"), "-cp", str(PZ), "-d", str(output), str(RUNNER)],
         capture_output=True, text=True, timeout=300)
     return done.returncode == 0, done.stderr or done.stdout
 
 
-def run_probe(overrides: dict[str, str] | None = None) -> tuple[str | None, str]:
+def run_probe(overrides: dict[str, str] | None = None,
+              expected_failure: str | None = None) -> tuple[str | None, str]:
     overrides = overrides or {}
     with tempfile.TemporaryDirectory(prefix="sao-coordination-execution-") as tmp:
         work = pathlib.Path(tmp)
+        built, detail = compile_runner(work)
+        if not built:
+            return None, "Private Kahlua runner compile failed: " + detail
         shutil.copy2(STDLIB, work / "stdlib.lua")
-        for cls in OUT.glob("LuaRun*.class"):
-            shutil.copy2(cls, work / cls.name)
         source_paths = {
             "organization": ORGANIZATION,
             "communication": COMMUNICATION,
@@ -528,12 +759,23 @@ def run_probe(overrides: dict[str, str] | None = None) -> tuple[str | None, str]
         prelude.write_text(PRELUDE, encoding="utf-8")
         for name, path in source_paths.items():
             target = work / f"{name}.lua"
-            target.write_text(overrides.get(name,
-                              path.read_text(encoding="utf-8-sig")),
-                              encoding="utf-8")
+            source = overrides.get(name, path.read_text(encoding="utf-8-sig"))
+            if name == "controller":
+                if source.count("return Ctl\n") != 1:
+                    return None, "Controller exposure seam differs"
+                source = source.replace("return Ctl\n",
+                    "Ctl.__coordinationProbeAdvance = advanceCoordination\n"
+                    "Ctl.__coordinationProbeMovement = updateMovement\nreturn Ctl\n")
+            target.write_text(source, encoding="utf-8")
             generated[name] = target
         probe = work / "probe.lua"
-        probe.write_text("__result = " + PROBE, encoding="utf-8")
+        probe_text = PROBE
+        if expected_failure:
+            probe_text = probe_text.replace("local function check(name,value)\n",
+                "local function check(name,value)\n"
+                f"    if name=='{expected_failure}' and value~=true then "
+                "error('COORDINATION_CHECK:'..name) end\n", 1)
+        probe.write_text("__result = " + probe_text, encoding="utf-8")
         done = subprocess.run(
             [str(JDK / "java.exe"), "-cp", f"{PZ};.", "LuaRun",
              str(prelude), str(generated["organization"]),
@@ -594,10 +836,6 @@ def main() -> int:
     static_ok, detail = static_contract()
     print("  static contract: " + ("PASS" if static_ok else "FAIL")
           + " (" + detail + ")")
-    built, detail = compile_runner()
-    if not built:
-        print("  FAULT: runner compile failed " + detail[-1000:])
-        return 1
     value, output = run_probe()
     found = verdicts(value)
     failed = sorted(name for name, result in found.items() if result != "true")
@@ -608,43 +846,104 @@ def main() -> int:
         "provisioning": PROVISIONING.read_text(encoding="utf-8-sig"),
         "handover": HANDOVER.read_text(encoding="utf-8-sig"),
         "controller": CONTROLLER.read_text(encoding="utf-8-sig"),
+        "needs": NEEDS.read_text(encoding="utf-8-sig"),
     }
     controls = [
         ("queue admission is not acquisition", "organization",
          'workEvent(commitment, "admitted", { owner = ownerKind,',
-         'workEvent(commitment, "carrying", { owner = ownerKind,'),
+         'workEvent(commitment, "carrying", { owner = ownerKind,',
+         "complete_delivered_acceptance_enters_source_owner"),
         ("source completion reaches result consumer", "source_use",
          "pcall(SAO.Provisioning.consumeCompleted, 32)",
-         "pcall(function() end)"),
+         "pcall(function() end)", "complete_native_acquisition_becomes_carrying_once"),
         ("arrival is not delivery", "organization",
-         'or "delivery-ready"', 'or "completed"'),
+         'or "delivery-ready"', 'or "completed"',
+         "locomotion_arrival_is_delivery_ready_not_completion"),
         ("terminal source refusal is admitted", "provisioning",
-         "            and not coordinated)", "            and true)"),
+         "            and not coordinated)", "            and true)",
+         "released_native_transfer_closes_failed_work_once"),
+        ("failed navigation used to end the goal", "organization",
+         'Org.pauseWork(commitmentId, "route-" .. route.status, {\n            detail = detail, routeId = route.id,\n            retryAt = commitment.work.routeRetryAt,\n        })',
+         'Org.interruptWork(commitmentId, "route-" .. route.status, false)',
+         "failed_attempt_retains_accepted_goal"),
+        ("retry backoff cannot be skipped", "organization",
+         'if nowHours() < (tonumber(commitment.work.routeRetryAt) or 0) then',
+         'if false then', "route_backoff_prevents_immediate_restart"),
+        ("equivalent failures cannot repeat without bound", "organization",
+         '>= MAX_EQUIVALENT_ROUTE_FAILURES then', '>= math.huge then',
+         "equivalent_failures_wait_for_changed_evidence"),
+        ("changed private facts permit reappraisal", "organization",
+         '        and left.knownSources == right.knownSources\n', '\n',
+         "changed_private_source_reopens_same_goal"),
+        ("timestamps are not changed route facts", "controller",
+         'local value = tostring(sourceId) .. "@" .. tostring(fact.revision)',
+         'local value = tostring(sourceId) .. "@" .. tostring(fact.revision) .. tostring(belief.at)',
+         "unchanged_fact_rescan_does_not_reset_failures"),
+        ("current delivery permission is rechecked", "controller",
+         'and SAO.Standing.mayAttemptBelieved(id, x, y, "standing")', 'and true',
+         "carrying_route_rechecks_permission"),
+        ("withdrawal stops external movement owner", "controller",
+         'if coordinationWorkEnded(active) then', 'if false then',
+         "explicit_withdrawal_stops_retained_route"),
+        ("withdrawal stops loaded movement owner", "controller",
+         'if agent.coordinationRoute and agent.coordinationCommitment\n        and SAO.Organization and coordinationWorkEnded(',
+         'if false and agent.coordinationCommitment\n        and SAO.Organization and coordinationWorkEnded(',
+         "loaded_withdrawal_cancels_route_owner"),
+        ("native tile identity binds retry budget", "organization",
+         'and math.floor(route.x) == math.floor(x)', 'and route.x == x',
+         "fractional_target_jitter_does_not_reset_failures"),
+        ("duplicate private memories cannot depend on table iteration", "controller",
+         'if not seen[value] then\n                    seen[value] = true',
+         'if not seen[sourceId] then\n                    seen[sourceId] = true',
+         "private_duplicate_source_facts_are_stable"),
+        ("paused work cannot starve later accepted work", "controller",
+         'for offset = 0, math.min(count, 8) - 1 do', 'for offset = 0, 0 do',
+         "paused_goal_does_not_starve_other_accepted_work"),
+        ("competing pressure keeps exact work ownership", "controller",
+         'if commitment.id == preferredId then return commitment end',
+         'if false then return commitment end',
+         "competing_activity_pauses_actual_selected_goal"),
+        ("pending routes recheck permission", "controller",
+         'if not allowed then\n            SAO.Organization.routeOutcome(commitment.id, "interrupted",',
+         'if false then\n            SAO.Organization.routeOutcome(commitment.id, "interrupted",',
+         "pending_route_rechecks_permission_after_rebind"),
+        ("lost runtime source cache does not end responsibility", "controller",
+         'pauseCoordinationRoute(SAO.Organization.commitment(route.commitmentId),\n            "acquisition-source-revalidation-needed")',
+         'SAO.Organization.interruptWork(route.commitmentId, "acquisition-queue-refused", false)',
+         "lost_native_cache_preserves_arrived_goal"),
     ]
     controls_ok = True
-    for name, target, old, new in controls:
+    for control in controls:
+        name, target, old, new = control[:4]
+        reason = control[4] if len(control) > 4 else None
         if sources[target].count(old) != 1:
             print(f"  FAULT: {name} mutation seam changed")
             controls_ok = False
             continue
         mutated = sources[target].replace(old, new, 1)
-        mutant_value, _ = run_probe({target: mutated})
+        mutant_value, mutant_output = run_probe({target: mutated}, reason)
         mutant_found = verdicts(mutant_value)
-        if (mutant_value is not None
+        if reason and "COORDINATION_CHECK:" + reason not in mutant_output:
+            print(f"  FAULT: {name} did not fail named verdict {reason}: {mutant_value}")
+            controls_ok = False
+        elif (mutant_value is not None
                 and set(mutant_found) == EXPECTED
                 and not any(result == "false"
                             for result in mutant_found.values())):
             print(f"  FAULT: {name} mutation survived")
             controls_ok = False
+        else:
+            print(f"  PASS control: {name}" + (f" -> {reason}" if reason else ""))
     print("  mutation controls: " + ("PASS" if controls_ok else "FAIL")
-          + " (four joined-owner controls)")
+          + f" ({len(controls)} joined-owner controls)")
     if not static_ok or not controls_ok or set(found) != EXPECTED or failed:
         print("  FAULT: missing=" + repr(sorted(EXPECTED - set(found)))
               + " failed=" + repr(failed) + " value=" + repr(value))
         print("  " + output[-3000:].replace("\n", " "))
         return 1
     print("  197) delivered acceptance executes exact acquisition, carrying and "
-          "handover; release and interruption close as failed/partial")
+          "handover; route failures retain goals with bounded private-evidence reappraisal; "
+          "native transfer release/interruption remains failed/partial")
     return 0
 
 

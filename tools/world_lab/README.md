@@ -3,8 +3,13 @@
 `world_lab.py` builds a seeded, configurable native Project Zomboid world from
 `definition.example.json`. Extents use the installed Build 42 cell format:
 256 by 256 tiles per cell. The example is 512 by 512 tiles, with four population
-origins on native road strips surrounded by sparse grassland patches. Authored
-buildings and broader mod compositions need their own packages and evidence.
+origins on native road strips surrounded by sparse grassland patches. The
+`definitions/echo-creek-*.json` studies instead copy an isolated extent of the
+installed authored map, preserving native rooms, buildings and source assets.
+Residential, service and farm origins provide different material surroundings.
+The builder verifies intersecting building coverage against installed headers;
+offline verification checks the copied package and cannot independently recover
+the installed headers outside that package.
 
 Optional `generation.staticModules` declares up to 128 ordered native terrain
 regions. Each supplies an inclusive `position` rectangle (`xmin`, `xmax`, `ymin`,
@@ -42,6 +47,13 @@ generic native-view protocol. Mousecat displays actual engine framebuffer
 pixels, person inspection and bounded camera/time controls. Speakeasy selects
 activity views from observations. Selection changes observer coordinates and
 the loaded region; it does not command a person or supply a successful outcome.
+Mousecat's Simulation page provides native camera zoom through minus/plus
+buttons, the mouse wheel and keyboard. Larger native zoom factors show more
+world geometry without resizing the captured image or expanding residency.
+Current and target zoom come from the engine and remain bound to the rendered
+command. A selected person's inspector shows source-owned needs, inventory,
+current action, action receipts, reception and work on a separate bounded
+cadence. Optional detail failures preserve the core feed and archival export.
 
 Live capture targets twenty frames per second. Pixel readback happens after the
 native renderer swaps its completed frame; one background worker converts,
@@ -54,6 +66,16 @@ continues on its separate one-second cadence.
 Stop through the observer controls so the engine saves normally. The runner
 then seals the copied inputs, native logs, observer state, complete image,
 observations and save files. Verification and continuation are explicit:
+
+Every launch has a wall-time limit, including `--watch`: `--timeout` defaults
+to 600 seconds. The native launcher requests a normal save and exit at that
+limit, including while paused. The supervisor watches native logic and image
+progress independently of the world clock, detects fatal memory/producer
+failures, and allows 30 seconds for shutdown before terminating its own child.
+The dedicated runner joins an unnamed Windows job before spawning Java, so
+Windows also terminates that child if the runner itself dies. A forced exit,
+producer failure or simulation horizon that was not reached cannot become a
+completed run. A watched run that saves at its wall limit records that reason.
 
 ```powershell
 python tools/world_lab_run.py <package-directory> --out <run-directory> --verify

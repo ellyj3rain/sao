@@ -700,6 +700,14 @@ local function setState(agent, id, state, why, answer, repairingSourceProjection
         detail = why or string.lower(tostring(state)),
         at = tickCount,
     }
+    if state ~= "FORAGE" and agent.forageInspection then
+        local inspection = agent.forageInspection
+        agent.forageInspection = nil
+        if SAO.WorldSources and SAO.WorldSources.inspectionFailed then
+            SAO.WorldSources.inspectionFailed(id, SAO.Body.get(id), inspection,
+                "interrupted:" .. tostring(state))
+        end
+    end
     -- [B19] A venture ends when the state does. The ones who came
     -- along are following an announced TRIP, not a person - so the
     -- trip has to be able to end, or they would follow forever.
@@ -1008,15 +1016,17 @@ local SUPPORTED_COORDINATION = {
     ["rendezvous-holding"] = true,
 }
 
-local function activeCoordinationCommitment(id)
+local function activeCoordinationCommitment(id, preferredId)
     if not SAO.Organization then return nil end
     if SAO.Organization.activeCommitments then
+        local first = nil
         for _, commitment in ipairs(SAO.Organization.activeCommitments(id)) do
             if SUPPORTED_COORDINATION[tostring(commitment.matter or "")] then
-                return commitment
+                if commitment.id == preferredId then return commitment end
+                first = first or commitment
             end
         end
-        return nil
+        return first
     end
     for _, matter in ipairs({ "food-delivery", "provisioning",
             "rendezvous-holding" }) do
@@ -1032,8 +1042,93 @@ local function latestRoute(commitment)
     return routes[#routes]
 end
 
+local function coordinationWorkEnded(commitment)
+    return not commitment or commitment.status == "withdrawn"
+        or commitment.status == "superseded" or commitment.status == "completed"
+        or commitment.status == "failed" or commitment.status == "interrupted"
+end
+
+-- Retry evidence belongs to this person's current approach and remembered
+-- source facts. Observation timestamps alone do not make an unchanged failed
+-- route new; old, still-known facts remain usable by the existing selectors.
+function Ctl.coordinationRouteAllowed(id, body, commitmentId, x, y, z, phase,
+        sourceX, sourceY, sourceZ)
+    local commitment = SAO.Organization and SAO.Organization.commitment(commitmentId)
+    local rec = SAO.Identity and SAO.Identity.get(id)
+    if not body or not commitment or commitment.actorId ~= tostring(id)
+        or not rec or rec.dead then return false, "route-owner-unavailable" end
+    if not (SAO.Standing and SAO.Standing.mayAttemptBelieved
+        and SAO.Standing.mayAttemptBelieved(id, x, y, "standing")) then
+        return false, "route-not-permitted"
+    end
+    sourceX, sourceY, sourceZ = sourceX or x, sourceY or y, sourceZ or z
+    local evidence = { fromX = math.floor(body:getX()),
+        fromY = math.floor(body:getY()), fromZ = math.floor(body:getZ()),
+        sourceX = math.floor(sourceX), sourceY = math.floor(sourceY),
+        sourceZ = math.floor(sourceZ) }
+    local known = SAO.Perception and SAO.Perception.knownPlaces
+        and SAO.Perception.knownPlaces(id, true) or {}
+    local revisions, seen = {}, {}
+    for _, belief in pairs(known) do
+        for sourceId, fact in pairs(belief.sourceFacts or {}) do
+            if fact.x == evidence.sourceX
+                and fact.y == evidence.sourceY and fact.z == evidence.sourceZ then
+                local value = tostring(sourceId) .. "@" .. tostring(fact.revision)
+                    .. ":" .. tostring(fact.fingerprint) .. ":" .. tostring(fact.state)
+                    .. ":" .. tostring(fact.access)
+                if not seen[value] then
+                    seen[value] = true
+                    local at = #revisions + 1
+                    while at > 1 and revisions[at - 1] > value do
+                        revisions[at] = revisions[at - 1]
+                        at = at - 1
+                    end
+                    revisions[at] = value
+                end
+            end
+        end
+    end
+    evidence.knownSources = table.concat(revisions, "|")
+    local allowed, reason = SAO.Organization.routeMayStart(commitmentId,
+        x, y, z, phase, evidence)
+    return allowed, reason, evidence
+end
+
+local function pauseCoordinationRoute(commitment, reason)
+    if commitment.status ~= "paused" or commitment.work.pauseReason ~= reason then
+        SAO.Organization.pauseWork(commitment.id, reason)
+    end
+end
+
+local function orderCoordinationRoute(id, body, commitment, x, y, z, phase)
+    local allowed, reason, evidence = Ctl.coordinationRouteAllowed(id, body,
+        commitment.id, x, y, z, phase)
+    if not allowed then
+        pauseCoordinationRoute(commitment, reason)
+        return false, reason
+    end
+    if commitment.status == "paused" then
+        SAO.Organization.resumeWork(commitment.id, commitment.work.owner or "Locomotion",
+            phase, { routeEvidence = evidence })
+    end
+    local attempt = SAO.Organization.noteRoute(commitment.id,
+        "Locomotion", x, y, z, phase, evidence)
+    if not attempt then return false, "route-admission-refused" end
+    if not SAO.Locomotion.order(id, body, x, y, z) then
+        SAO.Organization.routeOutcome(commitment.id, "failed", "native-order-refused")
+        return false, "route-refused"
+    end
+    return attempt
+end
+
 local function tickCoordinationRoute(id, body, runtime)
     if not runtime.coordinationRoute then return false, nil end
+    local active = SAO.Organization.commitment(runtime.coordinationRoute.commitmentId)
+    if coordinationWorkEnded(active) then
+        SAO.Locomotion.cancel(id)
+        runtime.coordinationRoute = nil
+        return true, "work-ended"
+    end
     SAO.Locomotion.tick(id)
     local status = tostring(SAO.Locomotion.status(id) or "none")
     if string.sub(status, 1, 5) ~= "done:" then return true, "route" end
@@ -1047,8 +1142,8 @@ local function tickCoordinationRoute(id, body, runtime)
     if result == "arrived" and route.phase == "acquiring" then
         local queued = SAO.Needs.queueTake(id, body, route.context)
         if queued then return true, "acquiring" end
-        SAO.Organization.interruptWork(route.commitmentId,
-            "acquisition-queue-refused", false)
+        pauseCoordinationRoute(SAO.Organization.commitment(route.commitmentId),
+            "acquisition-source-revalidation-needed")
         return true, "acquisition-queue-refused"
     elseif result == "arrived" and route.phase == "travelling" then
         local routeId = route.routeId or attempt and attempt.id
@@ -1062,7 +1157,7 @@ local function tickCoordinationRoute(id, body, runtime)
     return true, result
 end
 
-local function advanceCoordination(id, body, owner, activity, agent)
+local function advanceCoordination(id, body, owner, activity, agent, selected)
     if not (SAO.Organization and SAO.Locomotion) then
         return false
     end
@@ -1078,7 +1173,34 @@ local function advanceCoordination(id, body, owner, activity, agent)
     end
     if SAO.Handover then SAO.Handover.reconcile(false) end
 
-    local commitment = activeCoordinationCommitment(id)
+    if not selected then
+        local candidates = SAO.Organization.activeCommitments
+            and SAO.Organization.activeCommitments(id)
+            or { activeCoordinationCommitment(id) }
+        local count = #candidates
+        if count == 0 then return false end
+        local first = ((runtime.coordinationChoiceIndex or 1) - 1) % count + 1
+        local lastReason = nil
+        -- A paused responsibility stays recorded while another accepted one
+        -- can act. The cursor bounds a decision without starving later work.
+        for offset = 0, math.min(count, 8) - 1 do
+            local index = (first + offset - 1) % count + 1
+            local candidate = candidates[index]
+            runtime.coordinationChoiceIndex = index % count + 1
+            if SUPPORTED_COORDINATION[tostring(candidate.matter or "")] then
+                local advanced, reason = advanceCoordination(id, body, owner,
+                    activity, agent, candidate)
+                if advanced then
+                    runtime.coordinationChoiceIndex = index
+                    runtime.coordinationCommitment = candidate.id
+                    return true, reason
+                end
+                lastReason = reason or lastReason
+            end
+        end
+        return false, lastReason
+    end
+    local commitment = selected
     if not commitment then return false end
     local plan = SAO.Organization.workPlan(commitment.id)
     if not plan then return false end
@@ -1099,13 +1221,8 @@ local function advanceCoordination(id, body, owner, activity, agent)
         return false, "competing-activity"
     end
 
-    if commitment.status == "paused" then
-        SAO.Organization.resumeWork(commitment.id, owner,
-            rendezvous and "travelling"
-                or commitment.work and commitment.work.acquiredAt
-                    and "carrying" or "acquiring",
-            { activity = tostring(activity or "idle") })
-    end
+    local retryReady, retryReason = SAO.Organization.routeRetryReady(commitment.id)
+    if not retryReady then return false, retryReason end
 
     -- The durable route attempt outlives the controller's transient pointer.
     -- After load or a represented/dormant handoff, reissue that exact pending
@@ -1119,6 +1236,15 @@ local function advanceCoordination(id, body, owner, activity, agent)
             SAO.Organization.routeOutcome(commitment.id, "interrupted",
                 "pending-route-reconstruction-unavailable")
             return false, "route-reconstruction-unavailable"
+        end
+        local prior = remembered.retryEvidence or {}
+        local allowed, reason = Ctl.coordinationRouteAllowed(id, body,
+            commitment.id, remembered.x, remembered.y, remembered.z,
+            remembered.phase, prior.sourceX, prior.sourceY, prior.sourceZ)
+        if not allowed then
+            SAO.Organization.routeOutcome(commitment.id, "interrupted",
+                "pending-route-" .. tostring(reason))
+            return false, reason
         end
         if not SAO.Locomotion.order(id, body, remembered.x, remembered.y,
             remembered.z) then
@@ -1156,16 +1282,9 @@ local function advanceCoordination(id, body, owner, activity, agent)
                 "destination-unavailable", false)
             return false, "destination-unavailable"
         end
-        SAO.Organization.startWork(commitment.id, owner, "travelling")
-        if SAO.Locomotion.order(id, body, destination.x, destination.y,
-            destination.z) then
-            local attempt = SAO.Organization.noteRoute(commitment.id,
-                "Locomotion", destination.x, destination.y, destination.z,
-                "travelling")
-            if not attempt then
-                SAO.Locomotion.cancel(id)
-                return false, "route-admission-refused"
-            end
+        local attempt, routeReason = orderCoordinationRoute(id, body, commitment,
+            destination.x, destination.y, destination.z, "travelling")
+        if attempt then
             runtime.coordinationRoute = { commitmentId = commitment.id,
                 phase = "travelling", routeId = attempt.id,
                 arrivalActivity = scope.arrivalActivity
@@ -1177,15 +1296,12 @@ local function advanceCoordination(id, body, owner, activity, agent)
             end
             return true, "route"
         end
-        SAO.Organization.interruptWork(commitment.id,
-            "rendezvous-route-refused", false)
-        return false, "route-refused"
+        return false, routeReason
     end
 
     if not SAO.Needs then return false, "material-owner-unavailable" end
 
     if not commitment.work.acquiredAt then
-        SAO.Organization.startWork(commitment.id, owner, "acquiring")
         local context = coordinationContext(plan, category)
         local state, returned = nil, nil
         if category == "water" then
@@ -1196,13 +1312,24 @@ local function advanceCoordination(id, body, owner, activity, agent)
             state, returned = SAO.Needs.collectNearby(id, body, 20, 2,
                 context)
         end
-        if not state then return false, "source-unavailable" end
+        if not state then
+            local reason = type(returned) == "table" and returned.routeRefusal
+                or "source-unavailable"
+            pauseCoordinationRoute(commitment, reason)
+            return false, reason
+        end
         if state == "FORAGE" then
             local attempt = SAO.Organization.noteRoute(commitment.id,
                 "Locomotion",
                 SAO.Locomotion.jobs[id].goal.x,
                 SAO.Locomotion.jobs[id].goal.y,
-                SAO.Locomotion.jobs[id].goal.z, "acquiring")
+                SAO.Locomotion.jobs[id].goal.z, "acquiring",
+                returned and returned.routeEvidence)
+            if not attempt then
+                SAO.Locomotion.cancel(id)
+                pauseCoordinationRoute(commitment, "route-admission-refused")
+                return false, "route-admission-refused"
+            end
             runtime.coordinationRoute = { commitmentId = commitment.id,
                 phase = "acquiring", category = category,
                 routeId = attempt and attempt.id, context = returned }
@@ -1255,14 +1382,13 @@ local function advanceCoordination(id, body, owner, activity, agent)
                 end
                 return true, "handover"
             end
-        elseif ok and SAO.Locomotion.order(id, body, requesterBody:getX(),
-            requesterBody:getY(), math.floor(requesterBody:getZ())) then
-            runtime.coordinationRoute = { commitmentId = commitment.id,
-                phase = "carrying", category = category }
-            local attempt = SAO.Organization.noteRoute(commitment.id,
-                "Locomotion",
+        elseif ok then
+            local attempt, routeReason = orderCoordinationRoute(id, body, commitment,
                 requesterBody:getX(), requesterBody:getY(),
                 math.floor(requesterBody:getZ()), "carrying")
+            if not attempt then return false, routeReason end
+            runtime.coordinationRoute = { commitmentId = commitment.id,
+                phase = "carrying", category = category }
             runtime.coordinationRoute.routeId = attempt and attempt.id
             if agent then
                 agent.coordinationCommitment = commitment.id
@@ -1296,12 +1422,11 @@ local function advanceCoordination(id, body, owner, activity, agent)
         end
         return false, "delivery-holder-unavailable"
     end
-    if SAO.Locomotion.order(id, body, destination.x, destination.y,
-        destination.z) then
+    local attempt, routeReason = orderCoordinationRoute(id, body, commitment,
+        destination.x, destination.y, destination.z, "carrying")
+    if attempt then
         runtime.coordinationRoute = { commitmentId = commitment.id,
             phase = "carrying", category = category }
-        local attempt = SAO.Organization.noteRoute(commitment.id, "Locomotion",
-            destination.x, destination.y, destination.z, "carrying")
         runtime.coordinationRoute.routeId = attempt and attempt.id
         if agent then
             agent.coordinationCommitment = commitment.id
@@ -1311,9 +1436,7 @@ local function advanceCoordination(id, body, owner, activity, agent)
         end
         return true, "route"
     end
-    SAO.Organization.interruptWork(commitment.id,
-        "delivery-route-refused", true)
-    return false, "route-refused"
+    return false, routeReason
 end
 
 function Ctl.advanceExternalCoordination(id, body, owner, activity)
@@ -1323,8 +1446,9 @@ function Ctl.advanceExternalCoordination(id, body, owner, activity)
     local competing = activity ~= "idle" and activity ~= "dormant"
         and activity ~= "coordination"
     if competing and SAO.Organization then
-        local commitment = activeCoordinationCommitment(id)
         local runtime = Ctl.coordinationRuntime[id]
+        local commitment = activeCoordinationCommitment(id,
+            runtime and runtime.coordinationCommitment)
         local rec = SAO.Identity and SAO.Identity.get(id) or nil
         if commitment and rec and rec.worldSourceReservation
             and SAO.SourceUse and SAO.SourceUse.beforeStateChange then
@@ -1604,6 +1728,36 @@ local function beginObservedUse(id, agent, body, needValue, category, rationBar)
         rationBar = rationBar, desperation = desperation,
         committed = committed, horizon = horizon, x = bx, y = by,
     })
+end
+
+-- A visible cupboard can be worth looking in without knowing what it holds.
+-- Inspection changes this actor's knowledge; ordinary source use owns taking.
+local function beginContainerInspection(id, agent, body, needValue, category, tick)
+    local sources = SAO.WorldSources
+    if not (sources and sources.inspectionCandidate and sources.inspectContainer
+        and sources.inspectionFailed) then return false end
+    local admission = needValue >= policy().desperation
+        + SAO.Lessons.desperationBump(id) and "desperate" or "standing"
+    local context = sources.inspectionCandidate(id, body, admission)
+    if not context then return false end
+    if not setState(agent, id, "FORAGE", "looks in a container for " .. category) then
+        sources.inspectionFailed(id, body, context, "state-refused")
+        return true
+    end
+    -- A new purpose needs its exact approach even if an old roam goal was
+    -- close enough for Locomotion's same-route continuation tolerance.
+    SAO.Locomotion.cancel(id)
+    agent.forageContext = nil
+    agent.forageInspection = context
+    agent.taskDeadline = tick + 3600
+    if not SAO.Locomotion.order(id, body, context.x, context.y, context.z) then
+        sources.inspectionFailed(id, body, context, "order-refused")
+        agent.forageInspection = nil
+        setState(agent, id, "IDLE", "could not approach the container")
+        agent.taskDeadline = nil
+        return false
+    end
+    return true
 end
 
 -- Each decision phase returns true only when it consumed the decision.
@@ -1982,9 +2136,20 @@ local function decideThreat(id, agent, body, tick, threat, threatCount, governin
             setState(agent, id, "ALERT", "flee blocked; holding")
             return true
         end
-        setState(agent, id, "ALERT",
-            string.format("believed threat at %.1f tiles (holds until %.1f)", threat.dist, fleeAt))
-        return true
+        -- A retreat already underway retains its valid owner beyond the
+        -- distance that first triggered it. Otherwise distant danger remains
+        -- known while ordinary needs and responsibilities keep their turn,
+        -- as they already do during source work and carried consumption.
+        if agent.state == "FLEE" then
+            local bx, by = body:getX(), body:getY()
+            local dx, dy = bx - threat.x, by - threat.y
+            if continueFleeRoute(id, agent, body, bx, by, dx, dy,
+                math.sqrt(dx * dx + dy * dy)) then
+                advanceFleeConsequences(id, agent, body, tick)
+                return true
+            end
+        end
+        return false
     end
 
 end
@@ -2058,8 +2223,11 @@ local function continueOwnedFollowCrossing(id, agent, body)
     end
     local climbing, opening = false, false
     pcall(function()
-        climbing = body:isClimbing()
-        opening = tostring(body:getCurrentStateName()):find("OpenWindowState", 1, true) ~= nil
+        local nativeState = body:getCurrentStateName()
+        -- Native fence/window states do not set the legacy climbing flag.
+        climbing = body:isClimbing() or nativeState == "ClimbOverFenceState"
+            or nativeState == "ClimbThroughWindowState"
+        opening = tostring(nativeState):find("OpenWindowState", 1, true) ~= nil
     end)
     if climbing then return true end
     local square = body:getCurrentSquare()
@@ -2247,6 +2415,8 @@ local function decideNeedsAndCompanion(id, agent, body, tick, needs)
                     -- [C25] Sources already proved accessible retain their
                     -- direct known-place route.
                     wx, wy, wz = knownSource(id, body, needs.thirst, "water")
+                    if not wx and beginContainerInspection(id, agent, body,
+                        needs.thirst, "water", tick) then return true end
                 end
                 if wx and needs.thirst < policy().desperation + SAO.Lessons.desperationBump(id)
                     and not mayEnterBelieved(id, wx, wy) then
@@ -2256,12 +2426,26 @@ local function decideNeedsAndCompanion(id, agent, body, tick, needs)
                     wx = nil
                 end
                 if wx then
-                    if SAO.Locomotion.order(id, body, wx, wy, wz) then
+                    local atHand = false
+                    pcall(function() atHand = SAOJavaBridge:waterSourceWithinReach(body) == true end)
+                    if atHand then
+                        if SAO.SourceUse and SAO.SourceUse.beforeStateChange
+                            and SAO.SourceUse.beforeStateChange(id, body, agent.state,
+                                "DRINK", "uses water within reach") == false then return true end
+                        if SAO.Needs.queueDrinkFrom(id, body) then
+                            agent.taskDeadline = tick + 1800
+                            setState(agent, id, "DRINK", "drinks from water within reach")
+                            return true
+                        end
+                    end
+                    local tx, ty, tz = SAO.Needs.approach(body, "water", wx, wy, wz)
+                    if tx and SAO.Locomotion.order(id, body, tx, ty, tz) then
                         agent.taskDeadline = tick + 3600
                         setState(agent, id, "WATERWARD",
                             string.format("thirst %.2f: heads for water", needs.thirst))
                         return true
                     end
+                    agent.nextWaterAt = tick + 600
                 else
                     agent.nextWaterAt = tick + 600
                     log(id .. " is thirsty but knows of no clean water nearby")
@@ -2314,6 +2498,8 @@ local function decideNeedsAndCompanion(id, agent, body, tick, needs)
                     -- older known-place route.
                     fx, fy, fz = knownSource(id, body, needs.hunger, "food")
                     if fx then fname = "a place they know" end
+                    if not fx and beginContainerInspection(id, agent, body,
+                        needs.hunger, "food", tick) then return true end
                 end
                 -- Store enforcement ([A25]): under watch-first, a
                 -- hungry non-watch member holds off on the COMMUNITY'S
@@ -2343,7 +2529,8 @@ local function decideNeedsAndCompanion(id, agent, body, tick, needs)
                     fx = nil
                 end
                 if fx then
-                    if SAO.Locomotion.order(id, body, fx, fy, fz) then
+                    local tx, ty, tz = SAO.Needs.approach(body, "food", fx, fy, fz)
+                    if tx and SAO.Locomotion.order(id, body, tx, ty, tz) then
                         agent.forageContext = { category = "food", purpose = "forage",
                             admission = needs.hunger >= policy().desperation
                                 + SAO.Lessons.desperationBump(id)
@@ -2354,6 +2541,7 @@ local function decideNeedsAndCompanion(id, agent, body, tick, needs)
                                 tostring(fname)))
                         return true
                     end
+                    agent.nextForageAt = tick + 600
                 else
                     -- Nothing edible loaded nearby; do not spin the scan.
                     agent.nextForageAt = tick + 600
@@ -3165,26 +3353,52 @@ local function decideCompany(id, agent, body, tick)
 
 end
 
+local function resolvedHomeAddress(id, rec)
+    local home = rec
+    local group = SAO.Standing.groupOf(id)
+    local leader = group and SAO.Standing.leaderOf(group) or nil
+    if leader and leader ~= id then
+        local leaderRec = SAO.Identity.get(leader)
+        if leaderRec and leaderRec.homeX then home = leaderRec end
+    end
+    return home.homeX, home.homeY, home.homeZ
+end
+
+-- A remembered address and occupying its interior are distinct facts. Lived
+-- building knowledge survives reload; checking it does not reveal new places
+-- or confer a property claim. Native room geometry resolves the current body.
+local function occupiesKnownHome(id, body, x, y, z)
+    if not x or not y then return false, false end
+    local ok, inside, known = pcall(function()
+        local place = SAO.Places.at(x, y)
+        local places = SAO.Perception.knownPlaces(id)
+        if not place or not (places[place.id] or places[tostring(place.id)])
+            or not mayEnterBelieved(id, x, y) then
+            return false, false
+        end
+        if not mayEnterBelieved(id, body:getX(), body:getY()) then return false, true end
+        local square = body:getCurrentSquare()
+        local def = square and square:getBuildingDef() or nil
+        return def ~= nil and def:getID() == place.id
+            and math.floor(body:getZ()) == math.floor(z or 0), true
+    end)
+    return ok and inside == true, ok and known == true
+end
+
 local function decideHomeAndEquipment(id, agent, body, tick, rec)
     if agent.state == "IDLE" and rec.homeX and not agent.hasLiveAnchor
         and not agent.companioning then
         -- Households consolidate around leadership ([A14]): a grouped
         -- survivor's night belongs at the LEADER's address when one is
         -- settled; the solitary keep their own.
-        local homeX, homeY, homeZ = rec.homeX, rec.homeY, rec.homeZ
-        local homeGroup = SAO.Standing.groupOf(id)
-        local homeLeader = homeGroup and SAO.Standing.leaderOf(homeGroup) or nil
-        if homeLeader and homeLeader ~= id then
-            local leaderRec = SAO.Identity.get(homeLeader)
-            if leaderRec and leaderRec.homeX then
-                homeX, homeY, homeZ = leaderRec.homeX, leaderRec.homeY, leaderRec.homeZ
-            end
-        end
+        local homeX, homeY, homeZ = resolvedHomeAddress(id, rec)
         local okH, hour = pcall(function() return GameTime.getInstance():getTimeOfDay() end)
         if okH and (hour >= 20.0 or hour < 6.0) then
             local bx, by = body:getX(), body:getY()
             local dh = math.sqrt((homeX - bx) ^ 2 + (homeY - by) ^ 2)
-            if dh > 10.0 then
+            local insideHome, knownHome = occupiesKnownHome(id, body, homeX, homeY, homeZ)
+            if not insideHome and (dh > 10.0 or knownHome)
+                and mayEnterBelieved(id, homeX, homeY) then
                 pcall(function() SAOJavaBridge:setForceEntry(body, false) end)
                 if SAO.Locomotion.order(id, body, homeX, homeY, homeZ or 0) then
                     setState(agent, id, "HOMEWARD",
@@ -3222,7 +3436,8 @@ local function decideHomeAndEquipment(id, agent, body, tick, rec)
                 SAO.Needs.clearGear(body)
                 gx = nil
             end
-            if gx and SAO.Locomotion.order(id, body, gx, gy, gz) then
+            local tx, ty, tz = SAO.Needs.approach(body, "weapon", gx, gy, gz)
+            if tx and SAO.Locomotion.order(id, body, tx, ty, tz) then
                 agent.taskDeadline = tick + 3600
                 setState(agent, id, "GEARWARD",
                     "knows of a better weapon: " .. tostring(gname))
@@ -3259,7 +3474,8 @@ local function decideHomeAndEquipment(id, agent, body, tick, rec)
                 SAO.Needs.clearAmmo(body)
                 ax = nil
             end
-            if ax and SAO.Locomotion.order(id, body, ax, ay, az) then
+            local tx, ty, tz = SAO.Needs.approach(body, "ammo", ax, ay, az)
+            if tx and SAO.Locomotion.order(id, body, tx, ty, tz) then
                 agent.taskDeadline = tick + 3600
                 setState(agent, id, "AMMOWARD",
                     "gun is dry - heads for " .. tostring(aname))
@@ -3493,14 +3709,15 @@ local function decideHomeAndEquipment(id, agent, body, tick, rec)
 end
 
 local function decideNightAndDrift(id, agent, body, tick, rec)
-    -- Night hold: people do not stroll in the dark. Threat responses are
-    -- untouched; only leisure movement pauses. At home, the hold has a
-    -- shape: the evening seat. Stood up from the moment anything
-    -- matters (every path out of IDLE stands first).
+    -- Actual home rest owns the night only after it is admitted. Useful work
+    -- still reaches its own decision owner when there is no resting place;
+    -- the generic leisure walk keeps its separate daylight restriction.
     local okH, hour = pcall(function() return GameTime.getInstance():getTimeOfDay() end)
     if okH and (hour >= 22.0 or hour < 6.0) then
+        local homeX, homeY, homeZ = resolvedHomeAddress(id, rec)
+        local insideHome = occupiesKnownHome(id, body, homeX, homeY, homeZ)
         if not agent.resting
-            and SAO.Standing.insideClaim(id, body:getX(), body:getY()) then
+            and (insideHome or SAO.Standing.insideClaim(id, body:getX(), body:getY())) then
             agent.resting = true
             agent.pressure = { answer = "chosen rest",
                 detail = "the evening seat, door in view", at = tick }
@@ -3521,6 +3738,7 @@ local function decideNightAndDrift(id, agent, body, tick, rec)
             -- tired sleep through a chill like anyone.
             if SAO.Needs.cold(body) >= 1.5 then
                 agent.resting = nil
+                agent.lastRestHours = nil
                 if agent.sleeping then
                     agent.sleeping = nil
                     pcall(function()
@@ -3531,7 +3749,7 @@ local function decideNightAndDrift(id, agent, body, tick, rec)
                 pcall(function() SAO.Gesture.standUp(body) end)   -- [C35]
                 log(id .. " wakes - too cold to sleep")
                 setState(agent, id, "IDLE", "woken by the cold", "need")
-                return true
+                return false
             end
             -- [B19] Somebody sits up. Decided ONCE per night,
             -- not once per tick - a full housemate scan every
@@ -3620,7 +3838,7 @@ local function decideNightAndDrift(id, agent, body, tick, rec)
                 log(id .. " slept enough")
             end
         end
-        return true
+        return agent.resting == true
     end
     if agent.resting then
         agent.resting = nil
@@ -4290,7 +4508,8 @@ local function decideLocalResources(id, agent, body, tick, idleRec)
                 -- becomes a WALK to the nearest known source, the
                 -- same machinery thirst already uses.
                 local wx6, wy6, wz6 = SAO.Needs.findWater(id, body, 30)
-                if wx6 and SAO.Locomotion.order(id, body, wx6, wy6, wz6) then
+                local tx, ty, tz = SAO.Needs.approach(body, "water", wx6, wy6, wz6)
+                if tx and SAO.Locomotion.order(id, body, tx, ty, tz) then
                     agent.taskDeadline = tick + 3600
                     -- They came to FILL, not to drink ([B6]) -
                     -- the arrival reads the errand's purpose.
@@ -5383,6 +5602,14 @@ local function decideRoam(id, agent, body, tick, interval, desig, idleRec)
     elseif desig == "leads" then
         why, answer = "walks the company's ground", "designation"
     else
+        local okHour, leisureHour = pcall(function()
+            return GameTime.getInstance():getTimeOfDay()
+        end)
+        if okHour and (leisureHour >= 22.0 or leisureHour < 6.0) and not streetWork then
+            agent.pressure = { answer = "chosen rest",
+                detail = "waits for daylight before a leisure walk", at = tick }
+            return true
+        end
         why = "stretching legs (" .. range .. " tile range)"
     end
     -- [B19] What wheels actually buy is DISTANCE - the
@@ -5891,11 +6118,14 @@ local function decide(id, agent, body)
         selectedThreat(id, tick, bodyX, bodyY)
 
     if decideThreat(id, agent, body, tick, threat, threatCount, governingPerson, governingPersonKey) then return end
-    -- No actionable threat beliefs.
+    -- The threat owner may release the turn while distant danger is still
+    -- believed. That is not evidence that the surroundings became clear.
     if agent.state == "FLEE" or agent.state == "ALERT" then
-        setState(agent, id, "IDLE",
-            SAO.Perception.hasLookedRecently(id, tick) and "believes clear" or "no recent look")
-        return
+        local reason = threat
+            and string.format("continues with believed threat at %.1f tiles", threat.dist)
+            or (SAO.Perception.hasLookedRecently(id, tick) and "believes clear" or "no recent look")
+        if not setState(agent, id, "IDLE", reason) then return end
+        if not threat then return end
     end
 
     -- Hearing a concrete proposal opens an individual appraisal; it does not
@@ -6271,6 +6501,15 @@ local function decisionIntervalFor(id)
 end
 
 local function updateMovement(id, agent, body)
+    if agent.coordinationRoute and agent.coordinationCommitment
+        and SAO.Organization and coordinationWorkEnded(
+            SAO.Organization.commitment(agent.coordinationCommitment)) then
+        agent.coordinationRoute, agent.coordinationCommitment = nil, nil
+        agent.forageContext = nil
+        SAO.Locomotion.cancel(id)
+        setState(agent, id, "IDLE", "the accepted commitment ended")
+        return false
+    end
     if agent.state == "CONTACTWARD" and agent.contactRecipientId
         and SAO.Organization and SAO.Organization.activeContact
         and not SAO.Organization.activeContact(agent.contactProcessId, id,
@@ -6300,6 +6539,46 @@ local function updateMovement(id, agent, body)
         or agent.state == "SEARCHWARD" or agent.state == "HEARTHWARD" then
         SAO.Locomotion.tick(id)
         local s = SAO.Locomotion.status(id)
+        if agent.state == "FORAGE" and agent.forageInspection
+            and agent.taskDeadline and tickCount >= agent.taskDeadline
+            and s:sub(1, 5) ~= "done:" then
+            local job = SAO.Locomotion.jobs and SAO.Locomotion.jobs[id]
+            local crossing = job and job.body == body and not job.done
+                and (job.lastVerdict == "CLIMBING"
+                    or job.lastVerdict == "STARTED_FENCE_CLIMB"
+                    or job.lastVerdict == "STARTED_WINDOW_CLIMB")
+            if not crossing then
+                if not setState(agent, id, "IDLE", "container inspection route expired") then
+                    return true
+                end
+                agent.taskDeadline = nil
+                agent.nextDecisionAt = 0
+                return false
+            end
+        end
+        -- These optional errands already receive a bounded search window.
+        -- Honour it while the route is still pending, so an old equipment
+        -- search cannot keep necessary decisions out for the rest of the day.
+        if (agent.state == "GEARWARD" or agent.state == "AMMOWARD")
+            and agent.taskDeadline and tickCount >= agent.taskDeadline
+            and s:sub(1, 5) ~= "done:" then
+            local job = SAO.Locomotion.jobs and SAO.Locomotion.jobs[id]
+            local crossing = job and job.body == body and not job.done
+                and (job.lastVerdict == "CLIMBING"
+                    or job.lastVerdict == "STARTED_FENCE_CLIMB"
+                    or job.lastVerdict == "STARTED_WINDOW_CLIMB")
+            if not crossing then
+                local wasGear = agent.state == "GEARWARD"
+                if not setState(agent, id, "IDLE", "equipment route deadline reached") then
+                    return true
+                end
+                if wasGear then SAO.Needs.clearGear(body)
+                else SAO.Needs.clearAmmo(body) end
+                agent.taskDeadline = nil
+                agent.nextDecisionAt = 0
+                return false
+            end
+        end
         if s:sub(1, 5) == "done:" then
             pcall(function()
                 SAO.Identity.updatePosition(agent.rec, body:getX(), body:getY(), body:getZ())
@@ -6324,9 +6603,13 @@ local function updateMovement(id, agent, body)
             -- other way.
             do
                 local barrierVerdict = nil
-                if s:find("LOCKED", 1, true) or s:find("BARRICADED", 1, true) then
-                    barrierVerdict = "barrier"
-                elseif s:find("WINDOW_DECLINED", 1, true) then
+            -- Match the terminal native code: "BLOCKED" contains "LOCKED"
+            -- but a blocked route edge is not evidence of a locked barrier.
+            if s == "done:FailedObstacle:FAILED_LOCKED_DOOR"
+                or s == "done:FailedObstacle:FAILED_BARRICADED_DOOR"
+                or s == "done:FailedObstacle:FAILED_BARRICADED_WINDOW" then
+                barrierVerdict = "barrier"
+            elseif s == "done:FailedObstacle:FAILED_WINDOW_DECLINED" then
                     barrierVerdict = "window"
                 end
                 if barrierVerdict then
@@ -6344,8 +6627,9 @@ local function updateMovement(id, agent, body)
                         local okN2, needs2 = pcall(function()
                             return SAO.Needs.read(body)
                         end)
-                        if okN2 and needs2 and needs2.hunger
-                            and needs2.hunger >= policy().desperation then
+                        if okN2 and needs2
+                            and ((needs2.hunger or 0) >= policy().desperation
+                                or (needs2.thirst or 0) >= policy().desperation) then
                             pressing = pressing + 0.5
                         end
                     end
@@ -6875,6 +7159,7 @@ local function updateMovement(id, agent, body)
                 end
             end
             if agent.state == "WATERWARD" then
+                SAO.Needs.noteWaterRouteFailure(id, body, s)
                 -- The water RUN fills vessels and carries them home
                 -- ([B6]); thirst drinks. Same walk, different errand.
                 if agent.waterRun then
@@ -6909,6 +7194,28 @@ local function updateMovement(id, agent, body)
                 return true
             end
             if agent.state == "FORAGE" then
+                if agent.forageInspection then
+                    if SAO.SourceUse and SAO.SourceUse.beforeStateChange
+                        and SAO.SourceUse.beforeStateChange(id, body, agent.state,
+                            "IDLE", "container inspection route ended") == false then return true end
+                    local context = agent.forageInspection
+                    local inspected, reason = false, s
+                    if s:find("arrived", 1, true) then
+                        inspected, reason = SAO.WorldSources.inspectContainer(id, body, context)
+                    else
+                        SAO.WorldSources.inspectionFailed(id, body, context, s)
+                    end
+                    agent.forageInspection = nil
+                    if not setState(agent, id, "IDLE", inspected
+                        and "inspected the container" or "container inspection ended: " .. tostring(reason)) then
+                        return true
+                    end
+                    agent.taskDeadline = nil
+                    agent.nextDecisionAt = 0
+                    agent.nextForageAt = nil
+                    agent.nextWaterAt = nil
+                    return false
+                end
                 -- Arrived (or gave up). Within reach: take through the
                 -- vanilla transfer. Out of reach or failed: rescan later.
                 local takeContext = agent.forageContext
@@ -6920,14 +7227,19 @@ local function updateMovement(id, agent, body)
                         s:sub(6))
                     agent.coordinationRoute = nil
                 end
-                if s:find("arrived", 1, true) and SAO.Needs.queueTake(id, body, takeContext) then
-                    agent.taskDeadline = tickCount + 1800
-                    setState(agent, id, "TAKE", "at the container, taking food")
-                    return true
+                local takeReason = s
+                if s:find("arrived", 1, true) then
+                    local started, reason = SAO.Needs.queueTake(id, body, takeContext)
+                    if started then
+                        agent.taskDeadline = tickCount + 1800
+                        setState(agent, id, "TAKE", "at the container, taking food")
+                        return true
+                    end
+                    takeReason = reason or "native-transfer-refused"
                 end
                 SAO.Needs.clearSource(body)
                 agent.nextForageAt = tickCount + 600
-                setState(agent, id, "IDLE", "forage attempt ended: " .. s)
+                setState(agent, id, "IDLE", "forage attempt ended: " .. tostring(takeReason))
                 return true
             end
             if agent.state == "PLAYERFOLLOW" and not s:find("arrived", 1, true) then
@@ -7543,7 +7855,7 @@ local function updateAgent(id, agent)
                     log(id .. " pockets a found item (nobody to thank)")
                 end
                 pcall(function() SAOJavaBridge:equipBestMelee(body) end)
-                setState(agent, id, "IDLE", "ground item taken")
+                setState(agent, id, "IDLE", "ground-item action ended")
             elseif agent.state == "TAKE"
                 and agent.takePurpose == "coordination" then
                 agent.takePurpose = nil
@@ -7558,7 +7870,7 @@ local function updateAgent(id, agent)
             elseif agent.state == "TAKE" and agent.takePurpose == "ammo" then
                 agent.takePurpose = nil
                 SAO.Needs.clearAmmo(body)
-                setState(agent, id, "IDLE", "ammunition pocketed")
+                setState(agent, id, "IDLE", "ammunition action ended")
             elseif agent.state == "TAKE" and agent.takePurpose == "gear" then
                 agent.takePurpose = nil
                 SAO.Needs.clearGear(body)
@@ -7566,7 +7878,7 @@ local function updateAgent(id, agent)
                     return SAOJavaBridge:equipBestMelee(body)
                 end)
                 setState(agent, id, "IDLE",
-                    "gear taken: " .. (okE and tostring(what) or "equip failed"))
+                    "gear action ended: " .. (okE and tostring(what) or "equip failed"))
             elseif agent.state == "TAKE" then
                 -- A legacy queue may have left carried food, but its end
                 -- alone supplies no acquisition or experience receipt.
@@ -7580,7 +7892,7 @@ local function updateAgent(id, agent)
                             body:getX(), body:getY(), 8)
                     end)
                     agent.taskDeadline = tickCount + 1800
-                    setState(agent, id, "EAT", "took food, now eats")
+                    setState(agent, id, "EAT", "eats carried food")
                 else
                     setState(agent, id, "IDLE", "take yielded nothing edible")
                 end
@@ -7592,7 +7904,7 @@ local function updateAgent(id, agent)
                     SAO.WorldSources.observeAt(
                         body:getX(), body:getY(), 8)
                 end)
-                setState(agent, id, "IDLE", "finished drinking")
+                setState(agent, id, "IDLE", "drinking action ended")
             elseif agent.state == "TAKE"
                 and agent.takePurpose == "farm" then
                 -- The plant is tended or the crop is in the pack
@@ -7619,7 +7931,7 @@ local function updateAgent(id, agent)
                 end)
                 setState(agent, id, "IDLE", "wound bound")
             else
-                setState(agent, id, "IDLE", "finished eating")
+                setState(agent, id, "IDLE", "eating action ended")
             end
         elseif agent.taskDeadline and tickCount > agent.taskDeadline then
             SAO.Needs.clearSource(body)

@@ -1,0 +1,48 @@
+{
+  "schema": "sao-study-world/1",
+  "id": "echo-creek-farm-cutoff",
+  "seed": "echo-creek-farm-cutoff-1",
+  "extent": {
+    "minCellX": 13,
+    "minCellY": 42,
+    "cellsX": 2,
+    "cellsY": 5
+  },
+  "generation": {
+    "roads": {}
+  },
+  "origins": [
+    {
+      "x": 3737,
+      "y": 11243,
+      "z": 0,
+      "profession": "unemployed"
+    }
+  ],
+  "sandbox": {
+    "SurvivorAwareness.PopulationGoverned": true,
+    "SurvivorAwareness.Population": 4,
+    "SurvivorAwareness.NewcomersGoverned": true,
+    "SurvivorAwareness.Newcomers": 4,
+    "WaterShutModifier": 0,
+    "ElecShutModifier": 0,
+    "FoodLootNew": 0.4,
+    "CannedFoodLootNew": 0.4
+  },
+  "observation": {
+    "everyHours": 0.25,
+    "maxPeople": 128,
+    "maxProcesses": 256,
+    "windows": [
+      {
+        "id": "echo-creek-farm-cutoff",
+        "x": 3705,
+        "y": 11211,
+        "z": 0,
+        "width": 96,
+        "height": 96
+      }
+    ]
+  },
+  "sourceMap": "Muldraugh, KY"
+}

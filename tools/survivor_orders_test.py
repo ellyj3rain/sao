@@ -13,15 +13,19 @@ COMMAND = ROOT / "mod/42.20/media/lua/shared/SAO_Command.lua"
 CHECK = ROOT / "tools/check.sh"
 
 
+def external_coordination(controller: str) -> re.Match[str] | None:
+    return re.search(
+        r"function Ctl\.advanceExternalCoordination\(.*?\)(.*?)\nend\n",
+        controller, re.S)
+
+
 def evaluate(controller: str, command: str,
              coordination: str) -> dict[str, bool]:
     wrapper_match = re.search(
         r"local function onTheirWord\(giverId, id, kind, arg, act\)(.*?)\nend\n"
         r"Ctl\.onTheirWord", controller, re.S)
     wrapper = wrapper_match.group(1) if wrapper_match else ""
-    external_match = re.search(
-        r"function Ctl\.advanceExternalCoordination\(.*?\)(.*?)\nend\n",
-        controller, re.S)
+    external_match = external_coordination(controller)
     external = external_match.group(1) if external_match else ""
     return {
         "one wrapper owns all survivor requests":
@@ -91,11 +95,17 @@ def main() -> int:
     controls_ok = True
     for name, owner, old, new in controls:
         source = controller if owner == "controller" else coordination
-        if source.count(old) != 1:
+        # The same Organization API also owns ordinary route pauses. This
+        # control must remove the call inside the external execution owner.
+        scope = external_coordination(source) if name == "external pause" else None
+        target = scope.group(1) if scope else source
+        if (name == "external pause" and scope is None) or target.count(old) != 1:
             print(f"  FAULT: {name} mutation seam changed")
             controls_ok = False
             continue
-        mutant = source.replace(old, new, 1)
+        replacement = target.replace(old, new, 1)
+        mutant = (source[:scope.start(1)] + replacement + source[scope.end(1):]
+                  if scope else replacement)
         mutated_controller = mutant if owner == "controller" else controller
         mutated_coordination = mutant if owner == "coordination" else coordination
         if all(evaluate(mutated_controller, command,

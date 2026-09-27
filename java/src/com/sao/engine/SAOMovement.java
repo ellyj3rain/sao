@@ -1,6 +1,7 @@
 package com.sao.engine;
 
 import com.sao.agent.SAOAgent;
+import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.List;
 import zombie.characters.IsoPlayer;
@@ -15,6 +16,8 @@ import zombie.iso.objects.IsoDoor;
 import zombie.iso.objects.IsoWindow;
 import zombie.pathfind.Path;
 import zombie.pathfind.PathFindBehavior2;
+import zombie.ai.states.ClimbOverFenceState;
+import zombie.ai.states.ClimbThroughWindowState;
 
 /**
  * The movement loop, transplanted faithfully from the reference implementation
@@ -65,8 +68,14 @@ public final class SAOMovement {
             }
             return result;
         }
+        String crossing = yieldCrossing(shell, state);
+        if (crossing != null) return crossing;
         PathFindBehavior2 behavior = shell.getPathFindBehavior2();
         PathFindBehavior2.BehaviorResult result = behavior.update();
+        // update() can itself report a climb event before entering its state.
+        // Capturing/cancelling that native behavior here would steal its crossing.
+        crossing = yieldCrossing(shell, state);
+        if (crossing != null) return crossing;
         if (result == PathFindBehavior2.BehaviorResult.Working) {
             if (captureEngineRoute(shell, state, behavior)) {
                 return driveCapturedRoute(shell, state);
@@ -117,6 +126,12 @@ public final class SAOMovement {
 
     /** KNF.driveCapturedRoute: advance nodes, gate transitions, drive intent. */
     private static String driveCapturedRoute(SAOIsoPlayerShell shell, SAORouteState state) {
+        String crossing = yieldCrossing(shell, state);
+        if (crossing != null) return crossing;
+        if (state.realignAfterCrossing && !realignAfterCrossing(shell, state)) {
+            clearIntent(shell);
+            return "FailedObstacle:FAILED_CROSSING_ROUTE_RECONCILIATION";
+        }
         float x = shell.getX();
         float y = shell.getY();
 
@@ -133,6 +148,14 @@ public final class SAOMovement {
 
         String transition = handleRouteTransition(shell, state, node);
         if (transition.startsWith("FAILED_")) {
+            // A terminal observation keeps the exact native waypoint and body
+            // position, so a failed diagonal can be distinguished from a bad
+            // captured route without logging every movement tick.
+            SAOAgent.log("route failed person=" + shell.getModData().rawget("SAOPersonId")
+                + " result=" + transition + " at=" + x + "," + y + "," + shell.getZ()
+                + " node=" + node[0] + "," + node[1] + "," + node[2]
+                + " index=" + state.routeIndex + "/" + state.route.size()
+                + " goal=" + state.targetX + "," + state.targetY + "," + state.targetZ);
             IsoGridSquare current = shell.getCurrentSquare();
             if (current != null) {
                 state.rememberEdgeFailure(
@@ -148,6 +171,108 @@ public final class SAOMovement {
 
         drive(shell, node[0], node[1], state.running);
         return "ManualRoute";
+    }
+
+    private static boolean nativeCrossing(SAOIsoPlayerShell shell) {
+        // isClimbing() covers ropes in this engine; fence/window states never
+        // set that flag. Match the same native states PathFindBehavior2 yields to.
+        return shell.isClimbing()
+            || shell.getCurrentState() == ClimbOverFenceState.instance()
+            || shell.getCurrentState() == ClimbThroughWindowState.instance();
+    }
+
+    /** A native event acknowledges a request, not completion or state entry. */
+    private static String crossingTransition(SAOIsoPlayerShell shell, SAORouteState state) {
+        if (nativeCrossing(shell)) {
+            state.crossingObserved = true;
+            state.pendingCrossingEvent = null;
+            return "CLIMBING";
+        }
+        if (state.crossingObserved) {
+            state.crossingObserved = false;
+            state.pendingCrossingEvent = null;
+            state.realignAfterCrossing = true;
+            return null;
+        }
+        if (state.pendingCrossingEvent != null) {
+            if (shell.getActionContext().hasEventOccurred(state.pendingCrossingEvent)) return "CLIMBING";
+            state.pendingCrossingEvent = null;
+            return "FAILED_CROSSING_NOT_ENTERED";
+        }
+        for (String event : new String[] { "EventClimbFence", "EventClimbWindow" }) {
+            if (shell.getActionContext().hasEventOccurred(event)) {
+                state.pendingCrossingEvent = event;
+                return "CLIMBING";
+            }
+        }
+        return null;
+    }
+
+    private static String yieldCrossing(SAOIsoPlayerShell shell, SAORouteState state) {
+        String transition = crossingTransition(shell, state);
+        if (transition == null) return null;
+        clearIntent(shell);
+        if (transition.startsWith("FAILED_")) {
+            state.requested = false;
+            return "FailedObstacle:" + transition;
+        }
+        return "Transition:" + transition;
+    }
+
+    private static String admittedCrossing(SAOIsoPlayerShell shell, SAORouteState state,
+            String event, String accepted, String refused) {
+        if (nativeCrossing(shell)) {
+            state.crossingObserved = true;
+            state.pendingCrossingEvent = null;
+            return accepted;
+        }
+        if (shell.getActionContext().hasEventOccurred(event)) {
+            state.pendingCrossingEvent = event;
+            return accepted;
+        }
+        return refused;
+    }
+
+    private static final class NativeRoutePoint {
+        // The installed helper is public; its result fields are package-private.
+        // Read its actual projection instead of inventing a nearest-node rule.
+        static final Field INDEX = field("pathIndex"), X = field("x"), Y = field("y");
+        private static Field field(String name) {
+            try {
+                Field field = PathFindBehavior2.PointOnPath.class.getDeclaredField(name);
+                field.setAccessible(true);
+                return field;
+            } catch (ReflectiveOperationException failure) {
+                throw new IllegalStateException("Native path projection unavailable", failure);
+            }
+        }
+    }
+
+    private static boolean realignAfterCrossing(SAOIsoPlayerShell shell, SAORouteState state) {
+        if (state.route.size() > 1) {
+            int first = Math.max(0, state.routeIndex - 1);
+            Path path = new Path();
+            for (int i = first; i < state.route.size(); i++) {
+                float[] node = state.route.get(i);
+                path.addNode(node[0], node[1], node[2]);
+            }
+            PathFindBehavior2.PointOnPath point = new PathFindBehavior2.PointOnPath();
+            try {
+                NativeRoutePoint.X.setFloat(point, Float.NaN);
+                NativeRoutePoint.Y.setFloat(point, Float.NaN);
+                // This native projection checks adjacent collisions, floors and
+                // apparent stair height before choosing the forward segment.
+                PathFindBehavior2.closestPointOnPath(shell.getX(), shell.getY(), shell.getZ(), shell, path, point);
+                if (!Float.isFinite(NativeRoutePoint.X.getFloat(point))
+                        || !Float.isFinite(NativeRoutePoint.Y.getFloat(point))) return false;
+                int next = first + NativeRoutePoint.INDEX.getInt(point) + 1;
+                while (state.routeIndex < next) state.advance();
+            } catch (ReflectiveOperationException failure) {
+                throw new IllegalStateException("Native path projection unreadable", failure);
+            }
+        }
+        state.realignAfterCrossing = false;
+        return true;
     }
 
     /** Whether the step between floors crosses stair geometry: stairs on
@@ -179,9 +304,8 @@ public final class SAOMovement {
      * without stair geometry stay loud failures rather than silent stalls. */
     private static String handleRouteTransition(
         SAOIsoPlayerShell shell, SAORouteState state, float[] node) {
-        if (shell.isClimbing()) {
-            return "CLIMBING";
-        }
+        String crossing = crossingTransition(shell, state);
+        if (crossing != null) return crossing;
         IsoGridSquare current = shell.getCurrentSquare();
         IsoCell cell = shell.getCell();
         if (current == null || cell == null) {
@@ -251,7 +375,8 @@ public final class SAOMovement {
                 return "TURNING_TO_FENCE";
             }
             shell.climbOverFence(cardinal(deltaX, deltaY));
-            return "STARTED_FENCE_CLIMB";
+            return admittedCrossing(shell, state, "EventClimbFence",
+                "STARTED_FENCE_CLIMB", "FAILED_FENCE_CLIMB_REFUSED");
         }
 
         IsoWindow window = current.getWindowTo(next);
@@ -309,7 +434,8 @@ public final class SAOMovement {
                 return "FAILED_BLOCKED_WINDOW";
             }
             shell.climbThroughWindow(window);
-            return "STARTED_WINDOW_CLIMB";
+            return admittedCrossing(shell, state, "EventClimbWindow",
+                "STARTED_WINDOW_CLIMB", "FAILED_WINDOW_CLIMB_REFUSED");
         }
         return "CLEAR";
     }
@@ -396,6 +522,8 @@ public final class SAOMovement {
      * follow keeps mayForceEntry wherever the composition left it. */
     public static String traverseToward(
         SAOIsoPlayerShell shell, SAORouteState state, int tx, int ty) {
+        String crossing = crossingTransition(shell, state);
+        if (crossing != null) return crossing;
         IsoGridSquare current = shell.getCurrentSquare();
         if (current == null) {
             return "FAILED_NO_CURRENT_SQUARE";

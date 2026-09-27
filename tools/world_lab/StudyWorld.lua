@@ -42,9 +42,25 @@ local function charge(budget, bytes)
     assert(bytes <= budget.left, "observation exceeds export byte budget")
     budget.left = budget.left - bytes
 end
+-- Kahlua stores Java UTF-16 strings; #s is not the UTF-8 byte count written by
+-- the native file writer. Paired surrogates become one four-byte code point.
+local function utf8Bytes(s)
+    local bytes, i = 0, 1
+    while i <= #s do
+        local c = string.byte(s, i)
+        if c < 128 then bytes = bytes + 1
+        elseif c < 2048 then bytes = bytes + 2
+        elseif c >= 55296 and c <= 56319 and i < #s
+                and string.byte(s, i + 1) >= 56320 and string.byte(s, i + 1) <= 57343 then
+            bytes, i = bytes + 4, i + 1
+        else bytes = bytes + 3 end
+        i = i + 1
+    end
+    return bytes
+end
 local function quote(s, budget)
     s = tostring(s)
-    local length = #s + 2
+    local length = utf8Bytes(s) + 2
     for c in s:gmatch('[%z\1-\31\\"]') do
         length = length + ((c == '"' or c == '\\') and 1 or 5)
     end
@@ -212,6 +228,94 @@ local function scalar(v)
     if type(v) == "string" or type(v) == "boolean" or finite(v) then return v end
     return nil
 end
+local INSPECTION_BYTES, LIVE_BYTES = 256 * 1024, 1024 * 1024
+local function inspectionSnapshot(maxBytes)
+    maxBytes = math.min(maxBytes or INSPECTION_BYTES, INSPECTION_BYTES)
+    local read, snapshot = pcall(function() return SAO.Observation and SAO.Observation.snapshot() end)
+    if not read or type(snapshot) ~= "table" then
+        return { status = read and "unavailable" or "failed", message = "Person inspection is unavailable", people = {} }
+    end
+    local result = { people = {} }
+    for _, key in ipairs({ "sequence", "capturedAtUnixMs", "worldHours", "status", "message",
+            "omittedPeople", "omittedEvents", "selectedPersonId" }) do result[key] = scalar(snapshot[key]) end
+    local omittedPeople, omittedSections, omittedRows, omittedEvents = 0, 0, 0, 0
+    local projected = pcall(function()
+        -- Reserve header growth for the explicit omission counts/message. Each
+        -- inserted value is measured once with the production JSON encoder.
+        local budget = { left = maxBytes - 1024 }
+        json(result, nil, budget)
+        local function take(value)
+            local trial = { left = budget.left - 1 } -- member/array comma
+            local ok = pcall(json, value, nil, trial)
+            if ok then budget.left = trial.left end
+            return ok
+        end
+        local ids = keys(snapshot.people)
+        if snapshot.selectedPersonId and snapshot.people[snapshot.selectedPersonId] then
+            for i, id in ipairs(ids) do
+                if id == snapshot.selectedPersonId then table.remove(ids, i); break end
+            end
+            table.insert(ids, 1, snapshot.selectedPersonId)
+        end
+        for _, id in ipairs(ids) do
+            local detail = snapshot.people[id]
+            local item = { sections = array(), events = array() }
+            if take({ [id] = item }) then
+                result.people[id] = item
+                for _, source in ipairs(detail.sections or {}) do
+                    local section = { rows = array() }
+                    for _, key in ipairs({ "id", "label", "source", "perspective", "status", "message" }) do
+                        section[key] = scalar(source[key])
+                    end
+                    if take(section) then
+                        item.sections[#item.sections + 1] = section
+                        for _, row in ipairs(source.rows or {}) do
+                            local value = { label = scalar(row.label), value = scalar(row.value) }
+                            if take(value) then section.rows[#section.rows + 1] = value
+                            else omittedRows = omittedRows + 1 end
+                        end
+                    else
+                        omittedSections = omittedSections + 1
+                        omittedRows = omittedRows + #(source.rows or {})
+                    end
+                end
+                for _, event in ipairs(detail.events or {}) do
+                    local value = {}
+                    for key, field in pairs(event) do value[key] = scalar(field) end
+                    if take(value) then item.events[#item.events + 1] = value
+                    else omittedEvents = omittedEvents + 1 end
+                end
+            else
+                omittedPeople, omittedEvents = omittedPeople + 1, omittedEvents + #(detail.events or {})
+                for _, source in ipairs(detail.sections or {}) do
+                    omittedSections, omittedRows = omittedSections + 1, omittedRows + #(source.rows or {})
+                end
+            end
+        end
+        result.omittedPeople = (result.omittedPeople or 0) + omittedPeople
+        result.omittedEvents = (result.omittedEvents or 0) + omittedEvents
+        if omittedPeople + omittedSections + omittedRows + omittedEvents > 0 then
+            result.message = (result.message or ""):sub(1, 384) .. " Export byte budget: " .. omittedPeople
+                .. " people, " .. omittedSections .. " sections, " .. omittedRows .. " rows and "
+                .. omittedEvents .. " events omitted."
+        end
+        json(result, nil, { left = maxBytes })
+    end)
+    if not projected then
+        -- Optional detail must not stop either producer. Keep the source's last
+        -- successful observation clock; do not stamp an export failure as new knowledge.
+        result.people, result.status = {}, "failed"
+        result.message = "Person inspection export unavailable; detail omitted"
+        local total, events = 0, 0
+        for _, detail in pairs(type(snapshot.people) == "table" and snapshot.people or {}) do
+            total = total + 1
+            if type(detail) == "table" and type(detail.events) == "table" then events = events + #detail.events end
+        end
+        result.omittedPeople = total + (tonumber(snapshot.omittedPeople) or 0)
+        result.omittedEvents = events + (tonumber(snapshot.omittedEvents) or 0)
+    end
+    return result
+end
 local function objectView(object)
     local sprite = object:getSprite()
     local result = { objectName = object:getObjectName(), sprite = sprite and sprite:getName() or nil }
@@ -272,6 +376,7 @@ function Study.observe()
         frame.windows[#frame.windows + 1] = result
     end
     local budget = { left = 100000, omitted = array(), omittedCount = 0 }
+    local inspection = inspectionSnapshot()
     local records = SAO.Identity.all()
     for _, id in ipairs(keys(records)) do
         local rec = records[id]
@@ -301,6 +406,13 @@ function Study.observe()
                 } or {},
                 beliefs = copy(beliefs or {}, "people." .. tostring(id) .. ".beliefs", budget, {}, 0) or {}
             }
+            local detail = inspection.people[tostring(id)]
+            if detail then
+                person.context.inspection = { sequence = inspection.sequence,
+                    capturedAtUnixMs = inspection.capturedAtUnixMs, worldHours = inspection.worldHours,
+                    status = inspection.status, message = inspection.message,
+                    sections = detail.sections, events = detail.events }
+            end
             frame.people[#frame.people + 1] = person
         end
     end
@@ -357,16 +469,31 @@ local function liveInspection(hours)
         end
     end
     frame.population.captured = #frame.people
-    local text = json(frame, nil, { left = 1024 * 1024 })
+    -- Core people remain complete rows. Their captured/total counts already
+    -- disclose truncation, and leave room for an explicit inspection status.
+    local coreBudget = { left = LIVE_BYTES - 2048 }
+    local fits = pcall(json, frame, nil, coreBudget)
+    while not fits and #frame.people > 0 do
+        -- At most logarithmically many whole-frame trials, even at the 2048-person cap.
+        local retain = math.floor(#frame.people / 2)
+        while #frame.people > retain do table.remove(frame.people) end
+        frame.population.captured = #frame.people
+        coreBudget = { left = LIVE_BYTES - 2048 }
+        fits = pcall(json, frame, nil, coreBudget)
+    end
+    assert(fits, "live observation core exceeds export byte budget")
+    frame.inspection = inspectionSnapshot(math.min(INSPECTION_BYTES, coreBudget.left + 2048 - 32))
+    local text = json(frame, nil, { left = LIVE_BYTES })
     local writer = assert(getFileWriter("StudyWorldLive.json", true, false), "live inspection writer unavailable")
     writer:write(text)
     writer:close()
     lastLiveAt = now
 end
 function Study.tick()
-    if not Study.active or isGamePaused() then return end
+    if not Study.active then return end
     local hours = getGameTime():getWorldAgeHours()
     liveInspection(hours)
+    if isGamePaused() then return end
     if lastHours and hours - lastHours < Config.observation.everyHours then return end
     local frame = Study.observe()
     local line = json(frame)
@@ -405,6 +532,7 @@ Events.OnInitGlobalModData.Add(function(isNewWorld)
 end)
 Events.OnGameStart.Add(guarded(Study.start))
 Events.OnTick.Add(guarded(Study.tick))
+Events.OnTickEvenPaused.Add(guarded(Study.tick))
 Study.encode = function(value, maxBytes)
     return json(value, nil, { left = maxBytes or 64 * 1024 * 1024 })
 end

@@ -73,26 +73,27 @@ public final class NativeObserverProbe {
         host("stateFile", state);
         quietPoll();
         byte[] previous = Files.readAllBytes(state);
+        long firstSequence = StudyObserver.commandSequence() + 1;
         // Real Windows reader sharing, through the production polling/command
         // path. A deferred receipt must not reject or apply a command twice.
         try (var reader = Files.newByteChannel(state,
                 Set.of(StandardOpenOption.READ, ExtendedOpenOption.NOSHARE_DELETE))) {
-            Files.writeString(control, "sequence=6\nviewX=12\n");
+            Files.writeString(control, "sequence=" + firstSequence + "\nviewX=12\n");
             check(quietPoll().isEmpty(), "transient state publication poisoned the run");
-            check(StudyObserver.commandSequence() == 6 && !StudyObserver.snapshot().contains("\"rejectedSequence\":6"),
+            check(StudyObserver.commandSequence() == firstSequence && !StudyObserver.snapshot().contains("\"rejectedSequence\":" + firstSequence),
                 "state sharing denial rejected an applied command");
             check(Arrays.equals(previous, Files.readAllBytes(state)), "state sharing denial changed prior acknowledgement");
         }
-        check(quietPoll().isEmpty() && Files.readString(state).contains("\"sequence\":6"),
+        check(quietPoll().isEmpty() && Files.readString(state).contains("\"sequence\":" + firstSequence),
             "deferred observer acknowledgement did not recover");
         check(field(StudyObserver.class, "stateDeferrals").getInt(null) == 0, "state deferrals did not reset");
         try (var reader = Files.newByteChannel(state,
                 Set.of(StandardOpenOption.READ, ExtendedOpenOption.NOSHARE_DELETE))) {
-            Files.writeString(control, "sequence=7\nstop=true\n");
+            Files.writeString(control, "sequence=" + (firstSequence + 1) + "\nstop=true\n");
             check(quietPoll().isEmpty(), "transient stopping state poisoned the run");
             check(!GameWindow.closeRequested, "stop quit before final state publication");
         }
-        check(quietPoll().isEmpty() && GameWindow.closeRequested && Files.readString(state).contains("\"sequence\":7"),
+        check(quietPoll().isEmpty() && GameWindow.closeRequested && Files.readString(state).contains("\"sequence\":" + (firstSequence + 1)),
             "stop did not complete after final state publication");
         // A permanently denied stop remains bounded and visibly failed, while
         // native exit still preserves the world's normal save/quit route.
@@ -102,14 +103,14 @@ public final class NativeObserverProbe {
         check(limit > 1 && limit <= 30, "state publication retry limit is unbounded");
         try (var reader = Files.newByteChannel(state,
                 Set.of(StandardOpenOption.READ, ExtendedOpenOption.NOSHARE_DELETE))) {
-            Files.writeString(control, "sequence=8\nstop=true\n");
+            Files.writeString(control, "sequence=" + (firstSequence + 2) + "\nstop=true\n");
             String errors = "";
             for (int i = 0; i < limit && !GameWindow.closeRequested; i++) errors += quietPoll();
             check(errors.contains("[StudyObserver] FAILED cannot publish observer state:")
                 && field(StudyObserver.class, "statePublicationFailed").getBoolean(null),
                 "persistent state publication denial was hidden");
             check(GameWindow.closeRequested, "permanently denied final state blocked native stop");
-            check(Files.readString(state).contains("\"sequence\":7"), "failed stop fabricated a durable acknowledgement");
+            check(Files.readString(state).contains("\"sequence\":" + (firstSequence + 1)), "failed stop fabricated a durable acknowledgement");
         }
     }
 
@@ -321,20 +322,28 @@ public final class NativeObserverProbe {
         Files.writeString(control, "sequence=3\npaused=false\n");
         host("nextPoll", 0L); StudyObserver.poll();
         check(speed.getCurrentGameSpeed() == 3, "resume did not retain requested native speed");
+        check(zombie.GameTime.getInstance().getTrueMultiplier() == 20,
+            "native resume did not restore requested multiplier");
         Files.writeString(control, "sequence=2\nresidencyX=100\n");
         host("nextPoll", 0L); StudyObserver.poll();
         check(anchor.getX() == 20 && StudyObserver.snapshot().contains("\"sequence\":3"), "stale command was applied");
         Files.writeString(control, "sequence=4\nviewX=30\nspeed=9\n");
         host("nextPoll", 0L); StudyObserver.poll();
         check(view.getX() == 10 && StudyObserver.snapshot().contains("\"sequence\":3"), "partially invalid command moved view or acknowledged");
+        check(speed.getCurrentGameSpeed() == 3 && zombie.GameTime.getInstance().getTrueMultiplier() == 20,
+            "invalid command changed native speed");
+        NativeObserverClockProbe.run(control, speed);
+        NativeObserverInspectionProbe.run(control, speed);
+        NativeObserverZoomProbe.run(control, speed);
         Class.forName("zombie.inventory.ItemPickerJava", false, NativeObserverProbe.class.getClassLoader());
         Class.forName("zombie.iso.LightingJNI", false, NativeObserverProbe.class.getClassLoader());
         zombie.ui.UIManager.debugBreakpoint("intentional-probe.lua", 7);
-        Files.writeString(control, "sequence=5\npaused=true\n");
+        long failureSequence = StudyObserver.commandSequence() + 1;
+        Files.writeString(control, "sequence=" + failureSequence + "\npaused=true\n");
         host("nextPoll", 0L); StudyObserver.poll();
         check(StudyObserver.snapshot().contains("\"status\":\"failed\"")
             && StudyObserver.snapshot().contains("intentional-probe.lua:7"), "debugger suppression concealed native failure");
-        check(StudyObserver.snapshot().contains("\"sequence\":5"), "debugger failure blocked subsequent controls");
+        check(StudyObserver.snapshot().contains("\"sequence\":" + failureSequence), "debugger failure blocked subsequent controls");
         statePublicationLocks(control);
         System.out.println("PASS native observer: detached constructors; birth/save interception; native attack method with living/ghost controls; camera/frame/loot ownership; avatar preview excluded; scheduling; no needs update; independent coordinates, pause/resume/speed, stale and invalid control rejection; debugger failure remains visible while controls continue. No rendered-world or native-physics claim.");
         System.exit(0);

@@ -1,0 +1,497 @@
+{
+  "schema": "sao-native-acquisition-outcome/1",
+  "createdAtUtc": "2026-09-27T00:49:58.790384+00:00",
+  "run": "residential-native-08",
+  "sessionId": "d00f4e5e-6c1f-4c8f-a746-c34fa36ae518",
+  "operational": {
+    "verified": true,
+    "receiptSha256": "2108d09b621616f48c43f5a3835ca3862e3737456813ad6dfdd6f623a7f581b7",
+    "terminal": {
+      "endHours": 28.33077049255371,
+      "nativeSaveReturned": true,
+      "startHours": 2.0,
+      "stopReason": "wall-time-limit"
+    },
+    "supervision": {
+      "exitCode": 0,
+      "failure": null,
+      "forced": false,
+      "limitSeconds": 600,
+      "progress": {
+        "native.json": 5706,
+        "observer-state.json": 16800
+      },
+      "stopReason": "wall-time-limit",
+      "wallSeconds": 602.248
+    },
+    "player": {
+      "count": 0,
+      "observerPersisted": false
+    },
+    "runtimeErrors": []
+  },
+  "evidence": {
+    "savedWorldSources": {
+      "path": "saved-source-results.json",
+      "sha256": "b8035047505a7d520ccf37d1b40851582e6e9fdfad603d88e3afc45f9f70d5c5",
+      "sealedGlobalModDataSha256": "18731fe4689f01be0ae828afe14436557722376faee3e7e352fa7472d1f72014",
+      "decoderSha256": "37fccaec0a2d6c70ac78e83d3c2baec9e32400ce405dc601187f90fe4950081e",
+      "projectionSha256": "de1b885a1f23d1533febb16fcef1a90f3af52a15e2a3f46d6ec2342f57f00e9f",
+      "decodeExit": 0,
+      "controlsRerun": false
+    },
+    "lastLiveSnapshotSha256": "f88191946dfbc3c1be3ae9b76a2f82d57b46ddf5ef768783248831e072415e08",
+    "nativeAgentLogSha256": "ebf1a1f6d045fbcbd953db2eb638e788579554a62f8dd7fac5a3c5031ce4e636"
+  },
+  "copiedRelevantSources": {
+    "42.20/media/java/SAO.jar": "293d41d3447cd2c05fb97459ad2d9ea00008b3f0849db36cbff9722dfd1d8694",
+    "42.20/media/lua/client/SAO_Body.lua": "3ebc6440731e709f5a6b8f07173539939a95a41715a81d872e4e83b247697937",
+    "42.20/media/lua/client/SAO_Controller.lua": "feeea135512a0610e79bcd4cafdee2b7b86fa43113b7b3527b35fb11b9edf126",
+    "42.20/media/lua/client/SAO_Locomotion.lua": "1028d023a4c539329fd9a4c52df685950c1b449b0ec08e0b8de6234b0c253a9b",
+    "42.20/media/lua/client/SAO_Needs.lua": "3c9f8dbbe04b48b30fe78a6c1ca92f0203ba1d8bed654c21740dcd9c86f6cccd",
+    "42.20/media/lua/client/SAO_PopulationAdmissions.lua": "532e6751dd50d9b79cd814a49833870ec0a05860d0ab165fd17522d12388ff56",
+    "42.20/media/lua/client/SAO_SourceUse.lua": "20d5d6a8a84f3efa360391f0745e0955079cc81458597b135d48f6e487c841c0",
+    "42.20/media/lua/shared/SAO_Perception.lua": "616eb8b7d3180c37a3259bf29acbf18cf69ba9e88e35784f073596ca1fcdc3ba",
+    "42.20/media/lua/shared/SAO_WorldSources.lua": "8110c4421510202b213f272efe4fcc45861bb41c16d20d29ff8ab8ae89e7b8c0"
+  },
+  "fullObservationFrames": {
+    "firstHours": 2,
+    "lastHours": 28.141132354736328,
+    "frames": 105,
+    "lastSequence": 105
+  },
+  "acquisition": {
+    "completedReceipts": [
+      {
+        "actorId": "sao-2",
+        "at": 20.714860916137695,
+        "category": "food",
+        "detail": "native-transfer-observed",
+        "itemCondition": 10.0,
+        "itemCurrentUses": 0.3,
+        "itemId": 649836813.0,
+        "itemPoison": false,
+        "itemRotten": false,
+        "itemType": "Base.MuttonChop",
+        "itemUses": 1.0,
+        "operation": "acquire",
+        "postRevision": "90815b6ccbdfb42162440f6df6b608fb351f8de5b4844b11dbcf6071033525fd",
+        "preRevision": "036140f20ff68761de6bfd56eac675e3af537ae9b75399576581b8451d8c1853",
+        "quantity": 1.0,
+        "requestedQuantity": 1.0,
+        "reservationId": "R:1:sao-2",
+        "sourceFingerprint": "c0e4f10530b2e4aceb519d15833b838ae50d40102d716a62c76ba401a108175b",
+        "sourceId": "C:701e49a8-6ca8-4de6-9c7c-c3dc16408378:0",
+        "sourceKind": "container",
+        "sourceX": 3424.0,
+        "sourceY": 10911.0,
+        "sourceZ": 0.0,
+        "status": "completed",
+        "transferPurpose": "forage"
+      }
+    ],
+    "nativeItemId": 649836813,
+    "holder": [
+      3424.0,
+      10911.0,
+      0.0
+    ],
+    "inventorySamplingLimit": "The acquired and then eaten native item was absent from both adjacent full inventory snapshots; its exact ID comes from the saved completed transfer receipt, not an observed inventory gain.",
+    "consumptionEvidence": {
+      "actorId": "sao-2",
+      "hungerBefore": 0.473,
+      "hungerAfter": 0.178,
+      "beforeInspectionHours": 20.533536911010742,
+      "afterInspectionHours": 20.783946990966797,
+      "beforeFrame": 75,
+      "afterFrame": 76,
+      "stage": "Native acquisition completion plus vanilla eating log and subsequent physical hunger reduction; no separate SourceUse consume receipt is claimed."
+    },
+    "foodState": {
+      "itemPoisonAtAcquisition": false,
+      "itemRottenAtAcquisition": false,
+      "cooked": "not exported",
+      "rawRisk": "not exported",
+      "healthLossInAvailableFullPhysicalSamples": false,
+      "safetyAcceptance": false
+    },
+    "logEvidence": [
+      {
+        "line": 3702,
+        "text": "LOG  : Lua          f:12490> [SAO][CTL] sao-2 FORAGE -> IDLE (inspected the container)"
+      },
+      {
+        "line": 3709,
+        "text": "LOG  : Lua          f:12492> [SAO][CTL] sao-2 FORAGE -> IDLE (inspected the container)"
+      },
+      {
+        "line": 3716,
+        "text": "LOG  : Lua          f:12494> [SAO][CTL] sao-2 FORAGE -> IDLE (inspected the container)"
+      },
+      {
+        "line": 3723,
+        "text": "LOG  : Lua          f:12496> [SAO][CTL] sao-2 FORAGE -> IDLE (inspected the container)"
+      },
+      {
+        "line": 3729,
+        "text": "LOG  : Lua          f:12498> [SAO][SOURCE-USE] sao-2 transfers exact item Base.MuttonChop from C:701e49a8-6ca8-4de6-9c7c-c3dc16408378:0"
+      },
+      {
+        "line": 3732,
+        "text": "LOG  : Lua          f:12499> [SAO][SOURCE-USE] sao-2 source action completed (036140f20ff68761de6bfd56eac675e3af537ae9b75399576581b8451d8c1853 -> 90815b6ccbdfb42162440f6df6b608fb351f8de5b4844b11dbcf6071033525fd)"
+      },
+      {
+        "line": 3733,
+        "text": "LOG  : Lua          f:12500> [SAO][NEED] sao-2 begins eating (vanilla action)"
+      },
+      {
+        "line": 3734,
+        "text": "LOG  : Lua          f:12500> [SAO][CTL] sao-2 TAKE -> EAT (eats carried food)"
+      },
+      {
+        "line": 3736,
+        "text": "LOG  : Lua          f:12528> [SAO][CTL] sao-2 EAT -> IDLE (eating action ended)"
+      }
+    ]
+  },
+  "lastPhysical": {
+    "sao-1": {
+      "needs": {
+        "Hunger": 0.564,
+        "Thirst": 0.278,
+        "Fatigue": 0.36,
+        "Endurance": 1.0,
+        "Nicotine withdrawal": 0.51,
+        "Health (%)": 100.0
+      },
+      "inventory": {
+        "id": "inventory",
+        "label": "Carried inventory",
+        "message": "10 items read",
+        "perspective": "Current physical state",
+        "rows": [
+          {
+            "label": "Base.Hat_PeakedCapYacht",
+            "value": "Captain's Hat [id 411437344]"
+          },
+          {
+            "label": "Base.Tshirt_DefaultTEXTURE_TINT",
+            "value": "T-shirt [id 729727250]"
+          },
+          {
+            "label": "Base.Shirt_HawaiianTINT",
+            "value": "Shirt - Hawaiian [id 288771799]"
+          },
+          {
+            "label": "Base.WristWatch_Left_DigitalRed",
+            "value": "Digital Watch [id 2079376512]"
+          },
+          {
+            "label": "Base.Socks_Heavy",
+            "value": "Socks - Heavy [id 548805198]"
+          },
+          {
+            "label": "Base.Shoes_HikingBoots",
+            "value": "Hiking Boots [id 1349571856]"
+          },
+          {
+            "label": "Base.Trousers_Denim",
+            "value": "Jeans [id 471352872]"
+          },
+          {
+            "label": "Base.Bag_Satchel_Leather",
+            "value": "Leather Satchel [id 1023873121]"
+          },
+          {
+            "label": "Base.Notebook",
+            "value": "Ross Sample's journal [id 1857432132]"
+          },
+          {
+            "label": "Base.IDcard_Male",
+            "value": "Ross Sample - ID [id 1478570227]"
+          }
+        ],
+        "source": "Native inventory containers",
+        "status": "available"
+      },
+      "inspectionHours": 28.3233642578125
+    },
+    "sao-2": {
+      "needs": {
+        "Hunger": 0.366,
+        "Thirst": 0.304,
+        "Fatigue": 0.006,
+        "Endurance": 1.0,
+        "Nicotine withdrawal": 0.0,
+        "Health (%)": 100.0
+      },
+      "inventory": {
+        "id": "inventory",
+        "label": "Carried inventory",
+        "message": "9 items read",
+        "perspective": "Current physical state",
+        "rows": [
+          {
+            "label": "Base.Vest_DefaultTEXTURE_TINT",
+            "value": "Tank Top [id 1363360215]"
+          },
+          {
+            "label": "Base.WristWatch_Left_ClassicBlack",
+            "value": "Wrist Watch - Classic [id 872188663]"
+          },
+          {
+            "label": "Base.Bracelet_RightFriendshipTINT",
+            "value": "Friendship Bracelet [id 76061161]"
+          },
+          {
+            "label": "Base.Shoes_Random",
+            "value": "Shoes [id 370460900]"
+          },
+          {
+            "label": "Base.Trousers_JeanBaggy",
+            "value": "Jeans - Baggy [id 392877468]"
+          },
+          {
+            "label": "Base.Jacket_Varsity",
+            "value": "Jacket - Varsity [id 1449649015]"
+          },
+          {
+            "label": "Base.Bag_Schoolbag",
+            "value": "Small Backpack [id 294072737]"
+          },
+          {
+            "label": "Base.Notebook",
+            "value": "Rickie Selby's journal [id 748140591]"
+          },
+          {
+            "label": "Base.IDcard_Male",
+            "value": "Rickie Selby - ID [id 1703781269]"
+          }
+        ],
+        "source": "Native inventory containers",
+        "status": "available"
+      },
+      "inspectionHours": 28.3233642578125
+    }
+  },
+  "broaderOutcome": {
+    "RossHungryWithoutKnownFood": {
+      "count": 48,
+      "lines": [
+        {
+          "line": 4035,
+          "text": "LOG  : Lua          f:14324> [SAO][CTL] sao-1 is hungry but knows of no food nearby"
+        },
+        {
+          "line": 4044,
+          "text": "LOG  : Lua          f:14353> [SAO][CTL] sao-1 is hungry but knows of no food nearby"
+        },
+        {
+          "line": 4047,
+          "text": "LOG  : Lua          f:14392> [SAO][CTL] sao-1 is hungry but knows of no food nearby"
+        },
+        {
+          "line": 4050,
+          "text": "LOG  : Lua          f:14423> [SAO][CTL] sao-1 is hungry but knows of no food nearby"
+        },
+        {
+          "line": 4062,
+          "text": "LOG  : Lua          f:14464> [SAO][CTL] sao-1 is hungry but knows of no food nearby"
+        },
+        {
+          "line": 4080,
+          "text": "LOG  : Lua          f:14502> [SAO][CTL] sao-1 is hungry but knows of no food nearby"
+        },
+        {
+          "line": 4092,
+          "text": "LOG  : Lua          f:14539> [SAO][CTL] sao-1 is hungry but knows of no food nearby"
+        },
+        {
+          "line": 4100,
+          "text": "LOG  : Lua          f:14571> [SAO][CTL] sao-1 is hungry but knows of no food nearby"
+        },
+        {
+          "line": 4109,
+          "text": "LOG  : Lua          f:14612> [SAO][CTL] sao-1 is hungry but knows of no food nearby"
+        },
+        {
+          "line": 4111,
+          "text": "LOG  : Lua          f:14657> [SAO][CTL] sao-1 is hungry but knows of no food nearby"
+        },
+        {
+          "line": 4113,
+          "text": "LOG  : Lua          f:14700> [SAO][CTL] sao-1 is hungry but knows of no food nearby"
+        },
+        {
+          "line": 4122,
+          "text": "LOG  : Lua          f:14742> [SAO][CTL] sao-1 is hungry but knows of no food nearby"
+        },
+        {
+          "line": 4125,
+          "text": "LOG  : Lua          f:14780> [SAO][CTL] sao-1 is hungry but knows of no food nearby"
+        },
+        {
+          "line": 4127,
+          "text": "LOG  : Lua          f:14822> [SAO][CTL] sao-1 is hungry but knows of no food nearby"
+        },
+        {
+          "line": 4137,
+          "text": "LOG  : Lua          f:14868> [SAO][CTL] sao-1 is hungry but knows of no food nearby"
+        },
+        {
+          "line": 4160,
+          "text": "LOG  : Lua          f:14896> [SAO][CTL] sao-1 is hungry but knows of no food nearby"
+        },
+        {
+          "line": 4165,
+          "text": "LOG  : Lua          f:14918> [SAO][CTL] sao-1 is hungry but knows of no food nearby"
+        },
+        {
+          "line": 4167,
+          "text": "LOG  : Lua          f:14939> [SAO][CTL] sao-1 is hungry but knows of no food nearby"
+        },
+        {
+          "line": 4171,
+          "text": "LOG  : Lua          f:14959> [SAO][CTL] sao-1 is hungry but knows of no food nearby"
+        },
+        {
+          "line": 4196,
+          "text": "LOG  : Lua          f:14980> [SAO][CTL] sao-1 is hungry but knows of no food nearby"
+        },
+        {
+          "line": 4205,
+          "text": "LOG  : Lua          f:15015> [SAO][CTL] sao-1 is hungry but knows of no food nearby"
+        },
+        {
+          "line": 4206,
+          "text": "LOG  : Lua          f:15036> [SAO][CTL] sao-1 is hungry but knows of no food nearby"
+        },
+        {
+          "line": 4211,
+          "text": "LOG  : Lua          f:15057> [SAO][CTL] sao-1 is hungry but knows of no food nearby"
+        },
+        {
+          "line": 4227,
+          "text": "LOG  : Lua          f:15088> [SAO][CTL] sao-1 is hungry but knows of no food nearby"
+        },
+        {
+          "line": 4239,
+          "text": "LOG  : Lua          f:15119> [SAO][CTL] sao-1 is hungry but knows of no food nearby"
+        },
+        {
+          "line": 4242,
+          "text": "LOG  : Lua          f:15142> [SAO][CTL] sao-1 is hungry but knows of no food nearby"
+        },
+        {
+          "line": 4251,
+          "text": "LOG  : Lua          f:15159> [SAO][CTL] sao-1 is hungry but knows of no food nearby"
+        },
+        {
+          "line": 4253,
+          "text": "LOG  : Lua          f:15189> [SAO][CTL] sao-1 is hungry but knows of no food nearby"
+        },
+        {
+          "line": 4259,
+          "text": "LOG  : Lua          f:15218> [SAO][CTL] sao-1 is hungry but knows of no food nearby"
+        },
+        {
+          "line": 4267,
+          "text": "LOG  : Lua          f:15239> [SAO][CTL] sao-1 is hungry but knows of no food nearby"
+        },
+        {
+          "line": 4280,
+          "text": "LOG  : Lua          f:15259> [SAO][CTL] sao-1 is hungry but knows of no food nearby"
+        },
+        {
+          "line": 4292,
+          "text": "LOG  : Lua          f:15291> [SAO][CTL] sao-1 is hungry but knows of no food nearby"
+        },
+        {
+          "line": 4294,
+          "text": "LOG  : Lua          f:15313> [SAO][CTL] sao-1 is hungry but knows of no food nearby"
+        },
+        {
+          "line": 4307,
+          "text": "LOG  : Lua          f:15334> [SAO][CTL] sao-1 is hungry but knows of no food nearby"
+        },
+        {
+          "line": 4328,
+          "text": "LOG  : Lua          f:15370> [SAO][CTL] sao-1 is hungry but knows of no food nearby"
+        },
+        {
+          "line": 4332,
+          "text": "LOG  : Lua          f:15392> [SAO][CTL] sao-1 is hungry but knows of no food nearby"
+        },
+        {
+          "line": 4334,
+          "text": "LOG  : Lua          f:15413> [SAO][CTL] sao-1 is hungry but knows of no food nearby"
+        },
+        {
+          "line": 4342,
+          "text": "LOG  : Lua          f:15434> [SAO][CTL] sao-1 is hungry but knows of no food nearby"
+        },
+        {
+          "line": 4361,
+          "text": "LOG  : Lua          f:15467> [SAO][CTL] sao-1 is hungry but knows of no food nearby"
+        },
+        {
+          "line": 4381,
+          "text": "LOG  : Lua          f:15507> [SAO][CTL] sao-1 is hungry but knows of no food nearby"
+        },
+        {
+          "line": 4388,
+          "text": "LOG  : Lua          f:15540> [SAO][CTL] sao-1 is hungry but knows of no food nearby"
+        },
+        {
+          "line": 4417,
+          "text": "LOG  : Lua          f:15568> [SAO][CTL] sao-1 is hungry but knows of no food nearby"
+        },
+        {
+          "line": 4422,
+          "text": "LOG  : Lua          f:15608> [SAO][CTL] sao-1 is hungry but knows of no food nearby"
+        },
+        {
+          "line": 4427,
+          "text": "LOG  : Lua          f:15634> [SAO][CTL] sao-1 is hungry but knows of no food nearby"
+        },
+        {
+          "line": 4436,
+          "text": "LOG  : Lua          f:15655> [SAO][CTL] sao-1 is hungry but knows of no food nearby"
+        },
+        {
+          "line": 4450,
+          "text": "LOG  : Lua          f:15675> [SAO][CTL] sao-1 is hungry but knows of no food nearby"
+        },
+        {
+          "line": 4474,
+          "text": "LOG  : Lua          f:15718> [SAO][CTL] sao-1 is hungry but knows of no food nearby"
+        },
+        {
+          "line": 4477,
+          "text": "LOG  : Lua          f:15740> [SAO][CTL] sao-1 is hungry but knows of no food nearby"
+        }
+      ],
+      "lastHunger": 0.564,
+      "lastKnown": {
+        "1.1822004856422402E16": {
+          "source": "observed",
+          "visits": 7,
+          "at": 136872,
+          "sourceFacts": {}
+        }
+      }
+    },
+    "firstUnobservedForRoss": "food discovery and acquisition",
+    "generalBehaviorAccepted": false
+  },
+  "agentTransferRefusalCount": 0,
+  "inspectionSuccessCount": 4,
+  "datasetAdmission": "unreviewed",
+  "limits": [
+    "The finite mechanical chain for Rickie does not establish effective search or survival for every person.",
+    "Both last physical health values are100; delayed sickness beyond this run is unobserved.",
+    "Raw/cooked state is unavailable and was not inferred from the item type.",
+    "The saved acquisition result and measured eating effect are distinct evidence; no consumption receipt was invented.",
+    "No native process, copied source or save was changed by the analysis."
+  ]
+}

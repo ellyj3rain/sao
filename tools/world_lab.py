@@ -9,6 +9,7 @@ from __future__ import annotations
 
 import argparse
 import hashlib
+import importlib.util
 import json
 import math
 from pathlib import Path
@@ -23,6 +24,9 @@ SCHEMA = "sao-study-world/1"
 FRAME = "sao-study-observation/1"
 CELL = 256
 CHUNK = 8
+_authored_spec = importlib.util.spec_from_file_location("study_authored_map", ROOT / "tools/world_lab/authored_map.py")
+Authored = importlib.util.module_from_spec(_authored_spec)
+_authored_spec.loader.exec_module(Authored)
 
 
 def require(condition, message):
@@ -78,8 +82,11 @@ def load(path):
 
 
 def validate(value):
-    fields(value, {"schema", "id", "seed", "extent", "origins", "sandbox", "generation",
-                   "observation"}, "world")
+    required = {"schema", "id", "seed", "extent", "origins", "sandbox", "generation", "observation"}
+    require(isinstance(value, dict) and required <= value.keys()
+            and value.keys() <= required | {"sourceMap"}, "invalid world fields")
+    if "sourceMap" in value:
+        Authored.source_name(value["sourceMap"])
     require(value["schema"] == SCHEMA, "unsupported world schema")
     require(isinstance(value["id"], str)
             and re.fullmatch(r"[a-z][a-z0-9-]{0,47}", value["id"]), "invalid world id")
@@ -114,6 +121,10 @@ def validate(value):
     require(isinstance(generation, dict)
             and {"roads"} <= generation.keys()
             and generation.keys() <= {"roads", "staticModules"}, "invalid generation fields")
+    if "sourceMap" in value:
+        require(generation == {"roads": {}}, "authored maps require unchanged native terrain (empty generation.roads)")
+        require(extent["cellsX"] * extent["cellsY"] <= Authored.MAX_CELLS,
+                "authored extent exceeds 64 cells")
     roads = value["generation"]["roads"]
     require(isinstance(roads, dict) and len(roads) <= 32, "invalid road definitions")
     for key, road in roads.items():
@@ -214,6 +225,19 @@ def static_modules_source(generation):
             "worldgen.static_modules = modules\n").encode("utf-8")
 
 
+def spawn_sources(value, map_name):
+    points = {}
+    for point in value["origins"]:
+        points.setdefault(point["profession"], []).append(
+            {"posX": point["x"], "posY": point["y"], "posZ": point["z"]})
+    return {
+        "spawnpoints.lua": "function SpawnPoints() return " + lua(points) + " end\n",
+        "spawnregions.lua": "function SpawnRegions() return " + lua([{
+            "name": map_name, "file": f"media/maps/{map_name}/spawnpoints.lua"
+        }]) + " end\n",
+    }
+
+
 def engine_evidence(game, generation=None):
     game = Path(game)
     sources = {
@@ -252,6 +276,9 @@ def build(value, destination, game):
     evidence = engine_evidence(game, value["generation"])
     subject = seal(value)
     map_name = "Study-" + value["id"] + "-" + subject[:12]
+    authored_files, authored_receipt = ({}, None)
+    if "sourceMap" in value:
+        authored_files, authored_receipt = Authored.prepare(game, value, map_name, lua, canonical)
     observer = TEMPLATE.read_text(encoding="utf-8")
     observer_hash = hashlib.sha256(observer.encode("utf-8")).hexdigest()
     config = {**value, "definitionSha256": subject, "mapName": map_name,
@@ -267,6 +294,12 @@ def build(value, destination, game):
         client = version / "media/lua/client"
         maps.mkdir(parents=True)
         client.mkdir(parents=True)
+        for relative, blob in authored_files.items():
+            target = version / relative
+            target.parent.mkdir(parents=True, exist_ok=True)
+            target.write_bytes(blob)
+        if authored_receipt is not None:
+            (staging / "source-map.json").write_bytes(canonical(authored_receipt) + b"\n")
         # MapGroups tests the common maps directory before visiting the version
         # directory. Keep it present in archives so native Continue finds this map.
         common_maps = mod / "common/media/maps"
@@ -275,7 +308,7 @@ def build(value, destination, game):
         metadata = (f"name=Study world: {value['id']}\nid={map_name}\n"
                     "author=ellyj3rain\nversionMin=42.20\nversionMax=42.20\n"
                     "require=SurvivorAwareness\n"
-                    "description=Native generated study world and explicit runtime observations.\n")
+                    "description=Native study world and explicit runtime observations.\n")
         (mod / "mod.info").write_text(metadata, encoding="utf-8")
         (version / "mod.info").write_text(metadata, encoding="utf-8")
         (maps / "map.info").write_text(
@@ -284,16 +317,8 @@ def build(value, destination, game):
         override = static_modules_source(value["generation"])
         if override is not None:
             (maps / "WorldGenOverride.lua").write_bytes(override)
-        points = {}
-        for point in value["origins"]:
-            points.setdefault(point["profession"], []).append(
-                {"posX": point["x"], "posY": point["y"], "posZ": point["z"]})
-        (maps / "spawnpoints.lua").write_text(
-            "function SpawnPoints() return " + lua(points) + " end\n", encoding="utf-8")
-        (maps / "spawnregions.lua").write_text(
-            "function SpawnRegions() return " + lua([{
-                "name": map_name, "file": f"media/maps/{map_name}/spawnpoints.lua"
-            }]) + " end\n", encoding="utf-8")
+        for name, source in spawn_sources(value, map_name).items():
+            (maps / name).write_text(source, encoding="utf-8")
         runtime = "local Config = " + lua(config) + "\n" + observer
         (client / (map_name + ".lua")).write_bytes(runtime.encode("utf-8"))
         (staging / "definition.json").write_bytes(canonical(value) + b"\n")
@@ -319,7 +344,7 @@ def verify_package(path):
     require(manifest["schema"] == "sao-study-package/1"
             and manifest["status"] == "built-unobserved"
             and manifest["datasetAdmission"] == "unreviewed", "invalid package standing")
-    require(isinstance(manifest["files"], dict) and 1 <= len(manifest["files"]) <= 100,
+    require(isinstance(manifest["files"], dict) and 1 <= len(manifest["files"]) <= 4096,
             "invalid package inventory")
     actual = {p.relative_to(path).as_posix() for p in path.rglob("*")
               if p.is_file() and p != path / "package.json"}
@@ -350,6 +375,28 @@ def verify_package(path):
     require((expected_override is None and not override.exists())
             or (expected_override is not None and override.is_file()
                 and override.read_bytes() == expected_override), "native terrain override differs from definition")
+    maps = override.parent
+    require((maps / "map.info").read_text(encoding="utf-8") ==
+            f"title={map_name}\nlots=NONE\nfixed2x=true\ndescription=Native study world\n",
+            "native map metadata differs; map dependencies are not permitted")
+    for name, source in spawn_sources(definition, map_name).items():
+        require((maps / name).read_text(encoding="utf-8") == source,
+                "native spawn source differs from definition")
+    if "sourceMap" in definition:
+        version = path / "mod" / map_name / "42.20"
+        authored = Authored.verify(version, definition, map_name, load(path / "source-map.json"), lua, canonical)
+        base = {"mod.info", f"media/lua/client/{map_name}.lua"}
+        base.update(f"media/maps/{map_name}/{name}" for name in ("map.info", "spawnpoints.lua", "spawnregions.lua"))
+        require({p.relative_to(version).as_posix() for p in version.rglob("*") if p.is_file()} == base | authored,
+                "authored package has unrequested files or whole-map spill")
+        prefix = f"mod/{map_name}/42.20/"
+        allowed = {prefix + name for name in base | authored}
+        allowed.update({"definition.json", "source-map.json", f"mod/{map_name}/mod.info",
+                        f"mod/{map_name}/common/media/maps/.keep"})
+        require(actual == allowed, "authored package contains an unrequested mod/source tree")
+    else:
+        require(len(manifest["files"]) <= 100 and not (path / "source-map.json").exists(),
+                "generated package contains authored-source data")
     return manifest, definition
 
 
@@ -473,7 +520,18 @@ def validate_frame(frame):
                 and set(person) <= {"id", "representation", "record", "positionSource", "context", "x", "y", "z"},
                 "invalid captured person")
         context = person["context"]
-        fields(context, {"controllerAvailable", "perceptionAvailable", "controller", "beliefs"}, "person context")
+        require(isinstance(context, dict), "person context must be an object")
+        fields({key: value for key, value in context.items() if key != "inspection"},
+               {"controllerAvailable", "perceptionAvailable", "controller", "beliefs"}, "person context")
+        if "inspection" in context:
+            detail = context["inspection"]
+            require(isinstance(detail, dict) and detail.get("status") in ("available", "unavailable", "failed")
+                    and isinstance(detail.get("sections"), list) and isinstance(detail.get("events"), list),
+                    "invalid captured inspection detail")
+            if "capturedAtUnixMs" in detail:
+                integer(detail["capturedAtUnixMs"], 0, 2**53-1, "inspection capture time")
+            if "worldHours" in detail:
+                number(detail["worldHours"], 0, frame["hours"] + 1e-6, "inspection world time")
         for flag, store in (("controllerAvailable", "controller"), ("perceptionAvailable", "beliefs")):
             require(type(context[flag]) is bool and isinstance(context[store], dict)
                     and (context[flag] or not context[store]), "invalid personal inspection coverage")

@@ -1,0 +1,520 @@
+[
+  {
+    "id": "sao-2",
+    "sequence": 12,
+    "hours": 4.763974189758301,
+    "known": {
+      "1.1822004856422402E16": {
+        "source": "observed",
+        "visits": 2,
+        "at": 42116,
+        "sourceFacts": {}
+      }
+    }
+  },
+  {
+    "id": "sao-1",
+    "sequence": 46,
+    "hours": 13.310409545898438,
+    "known": {
+      "1.1822004856422402E16": {
+        "source": "observed",
+        "visits": 2,
+        "at": 118575,
+        "sourceFacts": {}
+      }
+    }
+  },
+  {
+    "id": "sao-1",
+    "sequence": 47,
+    "hours": 13.56136703491211,
+    "known": {
+      "1.1822004856422402E16": {
+        "source": "observed",
+        "visits": 3,
+        "at": 122052,
+        "sourceFacts": {}
+      }
+    }
+  },
+  {
+    "id": "sao-1",
+    "sequence": 48,
+    "hours": 13.815637588500977,
+    "known": {
+      "1.1822004856422402E16": {
+        "source": "observed",
+        "visits": 4,
+        "at": 123662,
+        "sourceFacts": {}
+      }
+    }
+  },
+  {
+    "id": "sao-2",
+    "sequence": 49,
+    "hours": 14.066537857055664,
+    "known": {
+      "1.1822004856422402E16": {
+        "source": "observed",
+        "visits": 3,
+        "at": 124474,
+        "sourceFacts": {}
+      }
+    }
+  },
+  {
+    "id": "sao-1",
+    "sequence": 50,
+    "hours": 14.319189071655273,
+    "known": {
+      "1.1822004856422402E16": {
+        "source": "observed",
+        "visits": 5,
+        "at": 128321,
+        "sourceFacts": {}
+      }
+    }
+  },
+  {
+    "id": "sao-2",
+    "sequence": 50,
+    "hours": 14.319189071655273,
+    "known": {
+      "1.1822004856422402E16": {
+        "source": "observed",
+        "visits": 4,
+        "at": 127235,
+        "sourceFacts": {}
+      }
+    }
+  },
+  {
+    "id": "sao-1",
+    "sequence": 53,
+    "hours": 15.074663162231445,
+    "known": {
+      "1.1822004856422402E16": {
+        "source": "observed",
+        "visits": 6,
+        "at": 133917,
+        "sourceFacts": {}
+      }
+    }
+  },
+  {
+    "id": "sao-1",
+    "sequence": 54,
+    "hours": 15.32560920715332,
+    "known": {
+      "1.1822004856422402E16": {
+        "source": "observed",
+        "visits": 7,
+        "at": 136872,
+        "sourceFacts": {}
+      }
+    }
+  },
+  {
+    "id": "sao-2",
+    "sequence": 54,
+    "hours": 15.32560920715332,
+    "known": {
+      "1.1822004856422402E16": {
+        "source": "observed",
+        "visits": 5,
+        "at": 137557,
+        "sourceFacts": {}
+      }
+    }
+  },
+  {
+    "id": "sao-2",
+    "sequence": 76,
+    "hours": 20.851755142211914,
+    "known": {
+      "1.1822004856422402E16": {
+        "source": "observed",
+        "visits": 5,
+        "at": 137557,
+        "sourceFacts": {}
+      },
+      "source:C:02debfad-d7ae-434c-8fd3-5fc241ac202e:0": {
+        "source": "native-container-inspection",
+        "visits": null,
+        "at": 186116,
+        "sourceFacts": {
+          "C:02debfad-d7ae-434c-8fd3-5fc241ac202e:0": {
+            "access": "unknown",
+            "buildingId": "11822004856422402",
+            "candidates": {},
+            "chunkX": 428,
+            "chunkY": 1363,
+            "container": "counter",
+            "explored": true,
+            "fingerprint": "7837ec1ea676f77286e8e15972a7d07a0d017c788d30bbf559956fd8e4a0f413",
+            "id": "C:02debfad-d7ae-434c-8fd3-5fc241ac202e:0",
+            "kind": "container",
+            "quantities": {},
+            "revision": "56624dc2b118642186d97e7bb15e0987657bf73bd3ceb7f0f8067ea38864aa44",
+            "state": "spent",
+            "x": 3424,
+            "y": 10910,
+            "z": 0
+          }
+        }
+      },
+      "source:C:3e0eaecf-5f8b-4c26-8ca4-ef5f41618a57:0": {
+        "source": "native-container-inspection",
+        "visits": null,
+        "at": 186164,
+        "sourceFacts": {
+          "C:3e0eaecf-5f8b-4c26-8ca4-ef5f41618a57:0": {
+            "access": "unknown",
+            "buildingId": "11822004856422402",
+            "candidates": {
+              "fuel": {
+                "amount": 0,
+                "categories": {
+                  "fuel": true
+                },
+                "condition": 10,
+                "currentUses": 1,
+                "fluid": "",
+                "id": 656848071,
+                "poison": false,
+                "rotten": false,
+                "type": "Base.RoastingPan",
+                "uses": 1
+              }
+            },
+            "chunkX": 428,
+            "chunkY": 1363,
+            "container": "stove",
+            "explored": true,
+            "fingerprint": "6c555c8af1277ce9142d794b461ff349fcc4168e5079f01c125cc7c696897ca9",
+            "id": "C:3e0eaecf-5f8b-4c26-8ca4-ef5f41618a57:0",
+            "kind": "container",
+            "quantities": {
+              "fuel": 2
+            },
+            "revision": "f80d256ba2d6d7bcbd92192a99f248b670de2cd4fb033f2e23f28fa5ba0d1761",
+            "state": "available",
+            "x": 3424,
+            "y": 10909,
+            "z": 0
+          }
+        }
+      },
+      "source:C:47c517c3-f98f-43b6-874d-3d57859a42b1:0": {
+        "source": "native-container-inspection",
+        "visits": null,
+        "at": 186220,
+        "sourceFacts": {
+          "C:47c517c3-f98f-43b6-874d-3d57859a42b1:0": {
+            "access": "unknown",
+            "buildingId": "11822004856422402",
+            "candidates": {
+              "fuel": {
+                "amount": 0,
+                "categories": {
+                  "fuel": true
+                },
+                "condition": 10,
+                "currentUses": 1,
+                "fluid": "",
+                "id": 1578748170,
+                "poison": false,
+                "rotten": false,
+                "type": "Base.CannedBolognese",
+                "uses": 1
+              }
+            },
+            "chunkX": 428,
+            "chunkY": 1363,
+            "container": "overhead",
+            "explored": true,
+            "fingerprint": "8003c2b6159b037cef6fa122d259213857451e77cd9ff90bfc3dc9202985d277",
+            "id": "C:47c517c3-f98f-43b6-874d-3d57859a42b1:0",
+            "kind": "container",
+            "quantities": {
+              "fuel": 1
+            },
+            "revision": "4f0aa65ff808ddaa218bc2744da8d8b55d72fcd0f54d4b882770e26d891ef5e7",
+            "state": "available",
+            "x": 3424,
+            "y": 10911,
+            "z": 0
+          }
+        }
+      },
+      "source:C:701e49a8-6ca8-4de6-9c7c-c3dc16408378:0": {
+        "source": "observed-transfer",
+        "visits": null,
+        "at": 186433,
+        "sourceFacts": {
+          "C:701e49a8-6ca8-4de6-9c7c-c3dc16408378:0": {
+            "access": "unknown",
+            "buildingId": "11822004856422402",
+            "candidates": {
+              "drink": {
+                "amount": 1,
+                "categories": {
+                  "drink": true
+                },
+                "condition": 10,
+                "currentUses": 1,
+                "fluid": "CowMilk",
+                "id": 1788739435,
+                "poison": false,
+                "rotten": false,
+                "type": "Base.Milk",
+                "uses": 1
+              },
+              "food": {
+                "amount": 0,
+                "categories": {
+                  "food": true
+                },
+                "condition": 10,
+                "currentUses": 0.4,
+                "fluid": "",
+                "id": 783192894,
+                "poison": false,
+                "rotten": false,
+                "type": "Base.MeatPatty",
+                "uses": 1
+              },
+              "fuel": {
+                "amount": 0,
+                "categories": {
+                  "fuel": true
+                },
+                "condition": 10,
+                "currentUses": 0.4,
+                "fluid": "",
+                "id": 783192894,
+                "poison": false,
+                "rotten": false,
+                "type": "Base.MeatPatty",
+                "uses": 1
+              }
+            },
+            "chunkX": 428,
+            "chunkY": 1363,
+            "container": "fridge",
+            "explored": true,
+            "fingerprint": "c0e4f10530b2e4aceb519d15833b838ae50d40102d716a62c76ba401a108175b",
+            "id": "C:701e49a8-6ca8-4de6-9c7c-c3dc16408378:0",
+            "kind": "container",
+            "quantities": {
+              "drink": 2,
+              "food": 1,
+              "fuel": 3
+            },
+            "revision": "90815b6ccbdfb42162440f6df6b608fb351f8de5b4844b11dbcf6071033525fd",
+            "state": "available",
+            "x": 3424,
+            "y": 10911,
+            "z": 0
+          }
+        }
+      }
+    }
+  },
+  {
+    "id": "sao-2",
+    "sequence": 95,
+    "hours": 25.62380599975586,
+    "known": {
+      "1.1822004856422402E16": {
+        "source": "observed",
+        "visits": 7,
+        "at": 228721,
+        "sourceFacts": {}
+      },
+      "source:C:02debfad-d7ae-434c-8fd3-5fc241ac202e:0": {
+        "source": "native-container-inspection",
+        "visits": null,
+        "at": 186116,
+        "sourceFacts": {
+          "C:02debfad-d7ae-434c-8fd3-5fc241ac202e:0": {
+            "access": "unknown",
+            "buildingId": "11822004856422402",
+            "candidates": {},
+            "chunkX": 428,
+            "chunkY": 1363,
+            "container": "counter",
+            "explored": true,
+            "fingerprint": "7837ec1ea676f77286e8e15972a7d07a0d017c788d30bbf559956fd8e4a0f413",
+            "id": "C:02debfad-d7ae-434c-8fd3-5fc241ac202e:0",
+            "kind": "container",
+            "quantities": {},
+            "revision": "56624dc2b118642186d97e7bb15e0987657bf73bd3ceb7f0f8067ea38864aa44",
+            "state": "spent",
+            "x": 3424,
+            "y": 10910,
+            "z": 0
+          }
+        }
+      },
+      "source:C:3e0eaecf-5f8b-4c26-8ca4-ef5f41618a57:0": {
+        "source": "native-container-inspection",
+        "visits": null,
+        "at": 186164,
+        "sourceFacts": {
+          "C:3e0eaecf-5f8b-4c26-8ca4-ef5f41618a57:0": {
+            "access": "unknown",
+            "buildingId": "11822004856422402",
+            "candidates": {
+              "fuel": {
+                "amount": 0,
+                "categories": {
+                  "fuel": true
+                },
+                "condition": 10,
+                "currentUses": 1,
+                "fluid": "",
+                "id": 656848071,
+                "poison": false,
+                "rotten": false,
+                "type": "Base.RoastingPan",
+                "uses": 1
+              }
+            },
+            "chunkX": 428,
+            "chunkY": 1363,
+            "container": "stove",
+            "explored": true,
+            "fingerprint": "6c555c8af1277ce9142d794b461ff349fcc4168e5079f01c125cc7c696897ca9",
+            "id": "C:3e0eaecf-5f8b-4c26-8ca4-ef5f41618a57:0",
+            "kind": "container",
+            "quantities": {
+              "fuel": 2
+            },
+            "revision": "f80d256ba2d6d7bcbd92192a99f248b670de2cd4fb033f2e23f28fa5ba0d1761",
+            "state": "available",
+            "x": 3424,
+            "y": 10909,
+            "z": 0
+          }
+        }
+      },
+      "source:C:47c517c3-f98f-43b6-874d-3d57859a42b1:0": {
+        "source": "native-container-inspection",
+        "visits": null,
+        "at": 186220,
+        "sourceFacts": {
+          "C:47c517c3-f98f-43b6-874d-3d57859a42b1:0": {
+            "access": "unknown",
+            "buildingId": "11822004856422402",
+            "candidates": {
+              "fuel": {
+                "amount": 0,
+                "categories": {
+                  "fuel": true
+                },
+                "condition": 10,
+                "currentUses": 1,
+                "fluid": "",
+                "id": 1578748170,
+                "poison": false,
+                "rotten": false,
+                "type": "Base.CannedBolognese",
+                "uses": 1
+              }
+            },
+            "chunkX": 428,
+            "chunkY": 1363,
+            "container": "overhead",
+            "explored": true,
+            "fingerprint": "8003c2b6159b037cef6fa122d259213857451e77cd9ff90bfc3dc9202985d277",
+            "id": "C:47c517c3-f98f-43b6-874d-3d57859a42b1:0",
+            "kind": "container",
+            "quantities": {
+              "fuel": 1
+            },
+            "revision": "4f0aa65ff808ddaa218bc2744da8d8b55d72fcd0f54d4b882770e26d891ef5e7",
+            "state": "available",
+            "x": 3424,
+            "y": 10911,
+            "z": 0
+          }
+        }
+      },
+      "source:C:701e49a8-6ca8-4de6-9c7c-c3dc16408378:0": {
+        "source": "observed-transfer",
+        "visits": null,
+        "at": 186433,
+        "sourceFacts": {
+          "C:701e49a8-6ca8-4de6-9c7c-c3dc16408378:0": {
+            "access": "unknown",
+            "buildingId": "11822004856422402",
+            "candidates": {
+              "drink": {
+                "amount": 1,
+                "categories": {
+                  "drink": true
+                },
+                "condition": 10,
+                "currentUses": 1,
+                "fluid": "CowMilk",
+                "id": 1788739435,
+                "poison": false,
+                "rotten": false,
+                "type": "Base.Milk",
+                "uses": 1
+              },
+              "food": {
+                "amount": 0,
+                "categories": {
+                  "food": true
+                },
+                "condition": 10,
+                "currentUses": 0.4,
+                "fluid": "",
+                "id": 783192894,
+                "poison": false,
+                "rotten": false,
+                "type": "Base.MeatPatty",
+                "uses": 1
+              },
+              "fuel": {
+                "amount": 0,
+                "categories": {
+                  "fuel": true
+                },
+                "condition": 10,
+                "currentUses": 0.4,
+                "fluid": "",
+                "id": 783192894,
+                "poison": false,
+                "rotten": false,
+                "type": "Base.MeatPatty",
+                "uses": 1
+              }
+            },
+            "chunkX": 428,
+            "chunkY": 1363,
+            "container": "fridge",
+            "explored": true,
+            "fingerprint": "c0e4f10530b2e4aceb519d15833b838ae50d40102d716a62c76ba401a108175b",
+            "id": "C:701e49a8-6ca8-4de6-9c7c-c3dc16408378:0",
+            "kind": "container",
+            "quantities": {
+              "drink": 2,
+              "food": 1,
+              "fuel": 3
+            },
+            "revision": "90815b6ccbdfb42162440f6df6b608fb351f8de5b4844b11dbcf6071033525fd",
+            "state": "available",
+            "x": 3424,
+            "y": 10911,
+            "z": 0
+          }
+        }
+      }
+    }
+  }
+]

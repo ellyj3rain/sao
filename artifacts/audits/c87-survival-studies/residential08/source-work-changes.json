@@ -1,0 +1,111 @@
+[
+  {
+    "id": "sao-1",
+    "sequence": 2,
+    "hours": 2.250006675720215,
+    "section": {
+      "id": "source-work",
+      "label": "Source use and latest result",
+      "message": "",
+      "perspective": "Native action receipts",
+      "rows": [
+        {
+          "label": "Source action",
+          "value": "No recorded reservation pointer"
+        },
+        {
+          "label": "Latest result",
+          "value": "No retained receipt for this person"
+        }
+      ],
+      "source": "WorldSources durable action ledger",
+      "status": "available"
+    }
+  },
+  {
+    "id": "sao-2",
+    "sequence": 2,
+    "hours": 2.250006675720215,
+    "section": {
+      "id": "source-work",
+      "label": "Source use and latest result",
+      "message": "",
+      "perspective": "Native action receipts",
+      "rows": [
+        {
+          "label": "Source action",
+          "value": "No recorded reservation pointer"
+        },
+        {
+          "label": "Latest result",
+          "value": "No retained receipt for this person"
+        }
+      ],
+      "source": "WorldSources durable action ledger",
+      "status": "available"
+    }
+  },
+  {
+    "id": "sao-2",
+    "sequence": 76,
+    "hours": 20.851755142211914,
+    "section": {
+      "id": "source-work",
+      "label": "Source use and latest result",
+      "message": "",
+      "perspective": "Native action receipts",
+      "rows": [
+        {
+          "label": "Source action",
+          "value": "No recorded reservation pointer"
+        },
+        {
+          "label": "Latest result.reservationId",
+          "value": "R:1:sao-2"
+        },
+        {
+          "label": "Latest result.status",
+          "value": "completed"
+        },
+        {
+          "label": "Latest result.operation",
+          "value": "acquire"
+        },
+        {
+          "label": "Latest result.category",
+          "value": "food"
+        },
+        {
+          "label": "Latest result.itemType",
+          "value": "Base.MuttonChop"
+        },
+        {
+          "label": "Latest result.quantity",
+          "value": "1"
+        },
+        {
+          "label": "Latest result.requestedQuantity",
+          "value": "1"
+        },
+        {
+          "label": "Latest result.preRevision",
+          "value": "036140f20ff68761de6bfd56eac675e3af537ae9b75399576581b8451d8c1853"
+        },
+        {
+          "label": "Latest result.postRevision",
+          "value": "90815b6ccbdfb42162440f6df6b608fb351f8de5b4844b11dbcf6071033525fd"
+        },
+        {
+          "label": "Latest result.at",
+          "value": "20.714860916137695"
+        },
+        {
+          "label": "Latest result.detail",
+          "value": "native-transfer-observed"
+        }
+      ],
+      "source": "WorldSources durable action ledger",
+      "status": "available"
+    }
+  }
+]

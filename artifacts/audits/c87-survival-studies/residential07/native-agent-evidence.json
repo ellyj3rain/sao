@@ -1,0 +1,109 @@
+{
+  "sourceSha256": "fd94cdb0075398fb89861f5a44045c028a55c7c751edb0ceef277f041a5d7ee9",
+  "rows": [
+    {
+      "line": 62,
+      "text": "2026-09-27T00:23:14.453501100Z [SAO] spawn refused: no standable square near 3399,10943,0"
+    },
+    {
+      "line": 71,
+      "text": "2026-09-27T00:23:36.791686300Z [SAO] spawn refused: no standable square near 3442,10879,0"
+    },
+    {
+      "line": 89,
+      "text": "2026-09-27T00:24:20.737336700Z [SAO] spawn refused: no standable square near 3440,10883,0"
+    },
+    {
+      "line": 100,
+      "text": "2026-09-27T00:24:46.021112600Z [SAO] spawn refused: no standable square near 3428,10905,0"
+    },
+    {
+      "line": 119,
+      "text": "2026-09-27T00:24:58.493576200Z [SAO] water selected person=sao-1 body=38894418 fixture=IsoObject@7dcff424 sprite=fixtures_sinks_01_8 source=3424,10910,0 amount=10000.0 reach=false"
+    },
+    {
+      "line": 121,
+      "text": "2026-09-27T00:25:02.033016Z [SAO] water selected person=sao-1 body=38894418 fixture=IsoObject@52a63dbc sprite=fixtures_bathroom_01_1 source=3424,10908,0 amount=10000.0 reach=false"
+    },
+    {
+      "line": 124,
+      "text": "2026-09-27T00:25:02.228974Z [SAO] water failed result=done:FailedObstacle:FAILED_BLOCKED_DIAGONAL hours=15.351587295532227 approach=3425,10908,0 person=sao-1 body=38894418 fixture=IsoObject@52a63dbc sprite=fixtures_bathroom_01_1 source=3424,10908,0 amount=10000.0 reach=false"
+    },
+    {
+      "line": 136,
+      "text": "2026-09-27T00:25:02.987284200Z [SAO] water selected person=sao-1 body=38894418 fixture=IsoObject@7dcff424 sprite=fixtures_sinks_01_8 source=3424,10910,0 amount=10000.0 reach=false"
+    },
+    {
+      "line": 141,
+      "text": "2026-09-27T00:25:03.881532600Z [SAO] water selected person=sao-1 body=38894418 fixture=IsoObject@7dcff424 sprite=fixtures_sinks_01_8 source=3424,10910,0 amount=10000.0 reach=false"
+    },
+    {
+      "line": 142,
+      "text": "2026-09-27T00:25:06.908113900Z [SAO] water selected person=sao-1 body=38894418 fixture=IsoObject@7dcff424 sprite=fixtures_sinks_01_8 source=3424,10910,0 amount=10000.0 reach=true"
+    },
+    {
+      "line": 144,
+      "text": "2026-09-27T00:26:01.553549600Z [SAO] water selected person=sao-2 body=26f752e2 fixture=IsoObject@7dcff424 sprite=fixtures_sinks_01_8 source=3424,10910,0 amount=10000.0 reach=true"
+    },
+    {
+      "line": 147,
+      "text": "2026-09-27T00:27:13.830144Z [SAO] world transfer offer refused: com.sao.engine.SAOWorldSources$ActionRefusal: BAD_SOURCE_ID"
+    },
+    {
+      "line": 149,
+      "text": "2026-09-27T00:27:16.573340500Z [SAO] world transfer offer refused: com.sao.engine.SAOWorldSources$ActionRefusal: BAD_SOURCE_ID"
+    },
+    {
+      "line": 151,
+      "text": "2026-09-27T00:27:17.450670200Z [SAO] world transfer offer refused: com.sao.engine.SAOWorldSources$ActionRefusal: BAD_SOURCE_ID"
+    },
+    {
+      "line": 153,
+      "text": "2026-09-27T00:27:18.333190Z [SAO] world transfer offer refused: com.sao.engine.SAOWorldSources$ActionRefusal: BAD_SOURCE_ID"
+    },
+    {
+      "line": 155,
+      "text": "2026-09-27T00:27:20.872659900Z [SAO] world transfer offer refused: com.sao.engine.SAOWorldSources$ActionRefusal: BAD_SOURCE_ID"
+    },
+    {
+      "line": 157,
+      "text": "2026-09-27T00:27:21.733233900Z [SAO] world transfer offer refused: com.sao.engine.SAOWorldSources$ActionRefusal: BAD_SOURCE_ID"
+    },
+    {
+      "line": 159,
+      "text": "2026-09-27T00:27:22.582497Z [SAO] world transfer offer refused: com.sao.engine.SAOWorldSources$ActionRefusal: BAD_SOURCE_ID"
+    },
+    {
+      "line": 162,
+      "text": "2026-09-27T00:27:26.095238900Z [SAO] world transfer offer refused: com.sao.engine.SAOWorldSources$ActionRefusal: BAD_SOURCE_ID"
+    },
+    {
+      "line": 164,
+      "text": "2026-09-27T00:27:27.136983900Z [SAO] world transfer offer refused: com.sao.engine.SAOWorldSources$ActionRefusal: BAD_SOURCE_ID"
+    },
+    {
+      "line": 167,
+      "text": "2026-09-27T00:27:28.005342600Z [SAO] world transfer offer refused: com.sao.engine.SAOWorldSources$ActionRefusal: BAD_SOURCE_ID"
+    },
+    {
+      "line": 171,
+      "text": "2026-09-27T00:27:31.116961700Z [SAO] world transfer offer refused: com.sao.engine.SAOWorldSources$ActionRefusal: BAD_SOURCE_ID"
+    },
+    {
+      "line": 173,
+      "text": "2026-09-27T00:27:31.955942500Z [SAO] world transfer offer refused: com.sao.engine.SAOWorldSources$ActionRefusal: BAD_SOURCE_ID"
+    },
+    {
+      "line": 177,
+      "text": "2026-09-27T00:27:32.966593200Z [SAO] world transfer offer refused: com.sao.engine.SAOWorldSources$ActionRefusal: BAD_SOURCE_ID"
+    },
+    {
+      "line": 183,
+      "text": "2026-09-27T00:27:36.787266300Z [SAO] world transfer offer refused: com.sao.engine.SAOWorldSources$ActionRefusal: BAD_SOURCE_ID"
+    },
+    {
+      "line": 223,
+      "text": "2026-09-27T00:28:19.607516400Z [SAO] world transfer offer refused: com.sao.engine.SAOWorldSources$ActionRefusal: BAD_SOURCE_ID"
+    }
+  ]
+}

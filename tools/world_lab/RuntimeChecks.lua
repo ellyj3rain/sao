@@ -3,7 +3,7 @@
 Events = {}
 local messages = {}
 print = function(message) messages[#messages + 1] = tostring(message) end
-for _, name in ipairs({"OnPreMapLoad", "OnInitWorld", "OnInitGlobalModData", "OnNewGame", "OnGameStart", "OnTick"}) do
+for _, name in ipairs({"OnPreMapLoad", "OnInitWorld", "OnInitGlobalModData", "OnNewGame", "OnGameStart", "OnTick", "OnTickEvenPaused"}) do
     local callbacks = {}
     Events[name] = { Add = function(fn) callbacks[#callbacks + 1] = fn end,
         fire = function(value) for _, fn in ipairs(callbacks) do fn(value) end end }
@@ -170,5 +170,87 @@ function RunStudyChecks(Study)
     Events.OnGameStart.fire()
     assert(not Study.active and Study.error, "guarded late failure remained active")
     RESULT_FAILURE_LOG = table.concat(messages, "\n")
-    return "PASS study runtime: isolation, native coverage, lifecycle, cadence, reload, review boundary"
+    RunStudyInspectionChecks(Study)
+    return "PASS study runtime: isolation, native coverage, lifecycle, cadence, reload, review boundary, bounded inspection"
+end
+
+function RunStudyInspectionChecks(Study)
+    -- Construct Java characters at runtime: this installed compiler truncates
+    -- non-ASCII literal source characters while lexing, unlike native strings.
+    local accent, emoji = string.char(233), string.char(55357, 56898)
+    assert(Study.encode({ x = accent }, 10) == '{"x":"' .. accent .. '"}', "UTF-8 byte accounting differs")
+    assert(not pcall(Study.encode, { x = accent }, 9), "UTF-8 byte limit ignored")
+    assert(Study.encode({ x = emoji }, 12) == '{"x":"' .. emoji .. '"}', "surrogate-pair byte accounting differs")
+    assert(not pcall(Study.encode, { x = emoji }, 11), "surrogate-pair byte limit ignored")
+    local priorPeople, priorObservation, priorMaximum = people, SAO.Observation, Config.observation.maxPeople
+    local priorTimestamp, priorPlayer = getTimestampMs, getSpecificPlayer
+    local clock = 123466789
+    getTimestampMs = function() return clock end
+    getSpecificPlayer = function() return { getModData = function() return { SAO_ObserverStarted = true } end } end
+    people, persisted, currentMap, hour = {}, {}, Config.mapName, 12
+    Config.observation.maxPeople = 16
+    local cache = { sequence = 27, capturedAtUnixMs = 123450000, worldHours = 11.5,
+        status = "available", message = string.rep("m", 512), omittedPeople = 0, omittedEvents = 0,
+        selectedPersonId = "p16", people = {} }
+    -- All strings meet the owner's individual limits, while aggregate encoded
+    -- detail far exceeds the live writer's 1 MiB cap. Include escaping + Unicode.
+    local sample = '\n\t"\\' .. accent
+    local label, value, summary = string.rep(sample, 32), string.rep(sample, 76), string.rep(sample, 204)
+    for i = 1, 16 do
+        local id = "p" .. i
+        people[id] = { id = id, x = 10 + i, y = 20, z = 0, forename = "Person " .. i, surname = "Fixture" }
+        local detail = { sections = {}, events = {} }
+        for sectionIndex = 1, 6 do
+            local section = { id = "section-" .. sectionIndex, label = "Fixture section " .. sectionIndex,
+                source = "controller", perspective = "observer", status = "available", message = "", rows = {} }
+            for rowIndex = 1, 48 do section.rows[rowIndex] = { label = label, value = value } end
+            detail.sections[sectionIndex] = section
+        end
+        for eventIndex = 1, 24 do
+            detail.events[eventIndex] = { id = id .. ":" .. eventIndex, source = "controller", stage = "intent",
+                worldHours = 11.5, capturedAtUnixMs = 123450000, summary = summary }
+        end
+        cache.people[id] = detail
+    end
+    SAO.Observation = { snapshot = function() return cache end }
+    local before = Study.encode(cache)
+    assert(not pcall(Study.encode, cache, 1024 * 1024), "maximal inspection fixture does not exceed native limit")
+    Events.OnPreMapLoad.fire()
+    Events.OnInitWorld.fire()
+    Events.OnInitGlobalModData.fire(true)
+    Events.OnGameStart.fire()
+    Events.OnTick.fire()
+    assert(Study.active and persisted.sequence == 1, "oversized optional inspection stopped production")
+    local live = assert(files["StudyWorldLive.json"], "live inspection missing")
+    assert(live:find('"p16":', 1, true), "selected inspection omitted before other people")
+    assert(live:find('"section%-1"') and live:find('"rows":%[%{'), "selected inspection has no actual detail")
+    assert(live:find('"capturedAtUnixMs":123450000', 1, true), "inspection export changed successful source timestamp")
+    assert(live:find("Export byte budget:", 1, true), "inspection budget omissions are invisible")
+    assert(live:find('"omittedEvents":%d+') and not live:find('"omittedEvents":0[,}]'), "omitted events undercounted")
+    assert(Study.encode(cache) == before, "inspection projection mutated source cache")
+    RESULT_LIVE_FRAME = live
+    RESULT_INSPECTION_FIXTURE = #before
+    -- Optional malformed detail must fail visibly, retain its observation clock,
+    -- and leave both the live and archival producers able to advance.
+    local selected = cache.people.p16
+    selected.sections = { false }
+    clock, hour = clock + 1100, hour + Config.observation.everyHours
+    Events.OnTick.fire()
+    assert(Study.active and persisted.sequence == 2, "optional inspection failure stopped production")
+    live = files["StudyWorldLive.json"]
+    assert(live:find('"status":"failed"', 1, true) and live:find("detail omitted", 1, true),
+        "optional inspection failure is invisible")
+    assert(live:find('"capturedAtUnixMs":123450000', 1, true), "failed export changed successful source timestamp")
+    assert(live:find('"omittedPeople":16', 1, true) and live:find('"omittedEvents":384', 1, true),
+        "failed inspection lost omission counts")
+    cache.people = { p16 = { sections = { { id = "recovered", label = "Recovered", source = "controller",
+        perspective = "observer", status = "available", message = "", rows = { { label = "State", value = "ROAM" } } } }, events = {} } }
+    cache.message = ""
+    clock, hour = clock + 1100, hour + Config.observation.everyHours
+    Events.OnTick.fire()
+    assert(Study.active and persisted.sequence == 3, "normal archive did not recover after inspection failure")
+    assert(files["StudyWorldLive.json"]:find('"id":"recovered"', 1, true), "normal live inspection did not recover")
+    RESULT_RECOVERED_FRAME = files["StudyWorldLive.json"]
+    people, SAO.Observation, Config.observation.maxPeople = priorPeople, priorObservation, priorMaximum
+    getTimestampMs, getSpecificPlayer = priorTimestamp, priorPlayer
 end

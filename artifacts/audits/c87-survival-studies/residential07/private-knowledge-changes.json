@@ -1,0 +1,376 @@
+[
+  {
+    "id": "sao-1",
+    "sequence": 5,
+    "hours": 3.0040283203125,
+    "known": {
+      "1.1822004856422402E16": {
+        "source": "observed",
+        "visits": 2,
+        "at": 26127,
+        "sourceFacts": {}
+      }
+    }
+  },
+  {
+    "id": "sao-1",
+    "sequence": 26,
+    "hours": 8.269083976745605,
+    "known": {
+      "1.1822004856422402E16": {
+        "source": "observed",
+        "visits": 2,
+        "at": 26127,
+        "sourceFacts": {}
+      },
+      "1.1822004856422426E16": {
+        "source": "observed",
+        "visits": 1,
+        "at": 72848,
+        "sourceFacts": {}
+      }
+    }
+  },
+  {
+    "id": "sao-1",
+    "sequence": 28,
+    "hours": 8.770214080810547,
+    "known": {
+      "1.1822004856422402E16": {
+        "source": "observed",
+        "visits": 2,
+        "at": 26127,
+        "sourceFacts": {}
+      },
+      "1.1822004856422426E16": {
+        "source": "observed",
+        "visits": 3,
+        "at": 77594,
+        "sourceFacts": {}
+      }
+    }
+  },
+  {
+    "id": "sao-2",
+    "sequence": 33,
+    "hours": 10.023674011230469,
+    "known": {
+      "1.1822004856422402E16": {
+        "source": "lived",
+        "visits": 1,
+        "at": 0,
+        "sourceFacts": {}
+      },
+      "1.182200485642241E16": {
+        "source": "observed",
+        "visits": 1,
+        "at": 88390,
+        "sourceFacts": {}
+      }
+    }
+  },
+  {
+    "id": "sao-2",
+    "sequence": 39,
+    "hours": 11.530559539794922,
+    "known": {
+      "1.1822004856422402E16": {
+        "source": "lived",
+        "visits": 1,
+        "at": 0,
+        "sourceFacts": {}
+      },
+      "1.182200485642241E16": {
+        "source": "observed",
+        "visits": 2,
+        "at": 103744,
+        "sourceFacts": {}
+      }
+    }
+  },
+  {
+    "id": "sao-2",
+    "sequence": 52,
+    "hours": 14.78799819946289,
+    "known": {
+      "1.1822004856422402E16": {
+        "source": "observed",
+        "visits": 2,
+        "at": 131658,
+        "sourceFacts": {}
+      },
+      "1.182200485642241E16": {
+        "source": "observed",
+        "visits": 2,
+        "at": 103744,
+        "sourceFacts": {}
+      }
+    }
+  },
+  {
+    "id": "sao-1",
+    "sequence": 55,
+    "hours": 15.540596008300781,
+    "known": {
+      "1.1822004856422402E16": {
+        "source": "observed",
+        "visits": 4,
+        "at": 139722,
+        "sourceFacts": {}
+      },
+      "1.1822004856422426E16": {
+        "source": "observed",
+        "visits": 3,
+        "at": 77594,
+        "sourceFacts": {}
+      }
+    }
+  },
+  {
+    "id": "sao-2",
+    "sequence": 83,
+    "hours": 22.567867279052734,
+    "known": {
+      "1.1822004856422402E16": {
+        "source": "observed",
+        "visits": 2,
+        "at": 131658,
+        "sourceFacts": {}
+      },
+      "1.182200485642241E16": {
+        "source": "observed",
+        "visits": 2,
+        "at": 103744,
+        "sourceFacts": {}
+      },
+      "source:C:3f79869a-1700-413c-b18c-a29b0e903439:0": {
+        "source": "native-container-inspection",
+        "visits": null,
+        "at": 202725,
+        "sourceFacts": {
+          "C:3f79869a-1700-413c-b18c-a29b0e903439:0": {
+            "access": "unknown",
+            "buildingId": "11822004856422402",
+            "candidates": {
+              "food": {
+                "amount": 0,
+                "categories": {
+                  "food": true
+                },
+                "condition": 10,
+                "currentUses": 0.15,
+                "fluid": "",
+                "id": 38102500,
+                "poison": false,
+                "rotten": false,
+                "type": "Base.GranolaBar",
+                "uses": 1
+              },
+              "fuel": {
+                "amount": 0,
+                "categories": {
+                  "fuel": true
+                },
+                "condition": 10,
+                "currentUses": 0.15,
+                "fluid": "",
+                "id": 38102500,
+                "poison": false,
+                "rotten": false,
+                "type": "Base.GranolaBar",
+                "uses": 1
+              }
+            },
+            "chunkX": 428,
+            "chunkY": 1364,
+            "container": "counter",
+            "explored": true,
+            "fingerprint": "b825d31878483c1355233fdd3d94b7ee7fb3ceef965b98792327fd0ffcac2eb2",
+            "id": "C:3f79869a-1700-413c-b18c-a29b0e903439:0",
+            "kind": "container",
+            "quantities": {
+              "food": 3,
+              "fuel": 3
+            },
+            "revision": "d9111770932e91e59659f1455043947c0902b1230d3a43e37386a882822915ed",
+            "state": "available",
+            "x": 3424,
+            "y": 10912,
+            "z": 0
+          }
+        }
+      }
+    }
+  },
+  {
+    "id": "sao-1",
+    "sequence": 87,
+    "hours": 23.575037002563477,
+    "known": {
+      "1.1822004856422402E16": {
+        "source": "observed",
+        "visits": 5,
+        "at": 210038,
+        "sourceFacts": {}
+      },
+      "1.1822004856422426E16": {
+        "source": "observed",
+        "visits": 3,
+        "at": 77594,
+        "sourceFacts": {}
+      }
+    }
+  },
+  {
+    "id": "sao-2",
+    "sequence": 88,
+    "hours": 23.82556915283203,
+    "known": {
+      "1.1822004856422402E16": {
+        "source": "observed",
+        "visits": 3,
+        "at": 212949,
+        "sourceFacts": {}
+      },
+      "1.182200485642241E16": {
+        "source": "observed",
+        "visits": 2,
+        "at": 103744,
+        "sourceFacts": {}
+      },
+      "source:C:3f79869a-1700-413c-b18c-a29b0e903439:0": {
+        "source": "native-container-inspection",
+        "visits": null,
+        "at": 202725,
+        "sourceFacts": {
+          "C:3f79869a-1700-413c-b18c-a29b0e903439:0": {
+            "access": "unknown",
+            "buildingId": "11822004856422402",
+            "candidates": {
+              "food": {
+                "amount": 0,
+                "categories": {
+                  "food": true
+                },
+                "condition": 10,
+                "currentUses": 0.15,
+                "fluid": "",
+                "id": 38102500,
+                "poison": false,
+                "rotten": false,
+                "type": "Base.GranolaBar",
+                "uses": 1
+              },
+              "fuel": {
+                "amount": 0,
+                "categories": {
+                  "fuel": true
+                },
+                "condition": 10,
+                "currentUses": 0.15,
+                "fluid": "",
+                "id": 38102500,
+                "poison": false,
+                "rotten": false,
+                "type": "Base.GranolaBar",
+                "uses": 1
+              }
+            },
+            "chunkX": 428,
+            "chunkY": 1364,
+            "container": "counter",
+            "explored": true,
+            "fingerprint": "b825d31878483c1355233fdd3d94b7ee7fb3ceef965b98792327fd0ffcac2eb2",
+            "id": "C:3f79869a-1700-413c-b18c-a29b0e903439:0",
+            "kind": "container",
+            "quantities": {
+              "food": 3,
+              "fuel": 3
+            },
+            "revision": "d9111770932e91e59659f1455043947c0902b1230d3a43e37386a882822915ed",
+            "state": "available",
+            "x": 3424,
+            "y": 10912,
+            "z": 0
+          }
+        }
+      }
+    }
+  },
+  {
+    "id": "sao-2",
+    "sequence": 98,
+    "hours": 26.337848663330078,
+    "known": {
+      "1.1822004856422402E16": {
+        "source": "observed",
+        "visits": 4,
+        "at": 236102,
+        "sourceFacts": {}
+      },
+      "1.182200485642241E16": {
+        "source": "observed",
+        "visits": 2,
+        "at": 103744,
+        "sourceFacts": {}
+      },
+      "source:C:3f79869a-1700-413c-b18c-a29b0e903439:0": {
+        "source": "native-container-inspection",
+        "visits": null,
+        "at": 202725,
+        "sourceFacts": {
+          "C:3f79869a-1700-413c-b18c-a29b0e903439:0": {
+            "access": "unknown",
+            "buildingId": "11822004856422402",
+            "candidates": {
+              "food": {
+                "amount": 0,
+                "categories": {
+                  "food": true
+                },
+                "condition": 10,
+                "currentUses": 0.15,
+                "fluid": "",
+                "id": 38102500,
+                "poison": false,
+                "rotten": false,
+                "type": "Base.GranolaBar",
+                "uses": 1
+              },
+              "fuel": {
+                "amount": 0,
+                "categories": {
+                  "fuel": true
+                },
+                "condition": 10,
+                "currentUses": 0.15,
+                "fluid": "",
+                "id": 38102500,
+                "poison": false,
+                "rotten": false,
+                "type": "Base.GranolaBar",
+                "uses": 1
+              }
+            },
+            "chunkX": 428,
+            "chunkY": 1364,
+            "container": "counter",
+            "explored": true,
+            "fingerprint": "b825d31878483c1355233fdd3d94b7ee7fb3ceef965b98792327fd0ffcac2eb2",
+            "id": "C:3f79869a-1700-413c-b18c-a29b0e903439:0",
+            "kind": "container",
+            "quantities": {
+              "food": 3,
+              "fuel": 3
+            },
+            "revision": "d9111770932e91e59659f1455043947c0902b1230d3a43e37386a882822915ed",
+            "state": "available",
+            "x": 3424,
+            "y": 10912,
+            "z": 0
+          }
+        }
+      }
+    }
+  }
+]

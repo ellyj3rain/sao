@@ -1,0 +1,1103 @@
+[
+  {
+    "id": "sao-1",
+    "sequence": 2,
+    "hours": 2.2500534057617188,
+    "section": {
+      "id": "source-work",
+      "label": "Source use and latest result",
+      "message": "",
+      "perspective": "Native action receipts",
+      "rows": [
+        {
+          "label": "Source action",
+          "value": "No recorded reservation pointer"
+        },
+        {
+          "label": "Latest result",
+          "value": "No retained receipt for this person"
+        }
+      ],
+      "source": "WorldSources durable action ledger",
+      "status": "available"
+    }
+  },
+  {
+    "id": "sao-2",
+    "sequence": 2,
+    "hours": 2.2500534057617188,
+    "section": {
+      "id": "source-work",
+      "label": "Source use and latest result",
+      "message": "",
+      "perspective": "Native action receipts",
+      "rows": [
+        {
+          "label": "Source action",
+          "value": "No recorded reservation pointer"
+        },
+        {
+          "label": "Latest result",
+          "value": "No retained receipt for this person"
+        }
+      ],
+      "source": "WorldSources durable action ledger",
+      "status": "available"
+    }
+  },
+  {
+    "id": "sao-1",
+    "sequence": 25,
+    "hours": 8.018324851989746,
+    "section": {}
+  },
+  {
+    "id": "sao-1",
+    "sequence": 27,
+    "hours": 8.519414901733398,
+    "section": {
+      "id": "source-work",
+      "label": "Source use and latest result",
+      "message": "",
+      "perspective": "Native action receipts",
+      "rows": [
+        {
+          "label": "Source action",
+          "value": "No recorded reservation pointer"
+        },
+        {
+          "label": "Latest result",
+          "value": "No retained receipt for this person"
+        }
+      ],
+      "source": "WorldSources durable action ledger",
+      "status": "available"
+    }
+  },
+  {
+    "id": "sao-2",
+    "sequence": 27,
+    "hours": 8.519414901733398,
+    "section": {}
+  },
+  {
+    "id": "sao-1",
+    "sequence": 33,
+    "hours": 10.023674011230469,
+    "section": {}
+  },
+  {
+    "id": "sao-2",
+    "sequence": 33,
+    "hours": 10.023674011230469,
+    "section": {
+      "id": "source-work",
+      "label": "Source use and latest result",
+      "message": "",
+      "perspective": "Native action receipts",
+      "rows": [
+        {
+          "label": "Source action",
+          "value": "No recorded reservation pointer"
+        },
+        {
+          "label": "Latest result",
+          "value": "No retained receipt for this person"
+        }
+      ],
+      "source": "WorldSources durable action ledger",
+      "status": "available"
+    }
+  },
+  {
+    "id": "sao-1",
+    "sequence": 39,
+    "hours": 11.530559539794922,
+    "section": {
+      "id": "source-work",
+      "label": "Source use and latest result",
+      "message": "",
+      "perspective": "Native action receipts",
+      "rows": [
+        {
+          "label": "Source action",
+          "value": "No recorded reservation pointer"
+        },
+        {
+          "label": "Latest result",
+          "value": "No retained receipt for this person"
+        }
+      ],
+      "source": "WorldSources durable action ledger",
+      "status": "available"
+    }
+  },
+  {
+    "id": "sao-2",
+    "sequence": 39,
+    "hours": 11.530559539794922,
+    "section": {}
+  },
+  {
+    "id": "sao-1",
+    "sequence": 45,
+    "hours": 13.033437728881836,
+    "section": {}
+  },
+  {
+    "id": "sao-2",
+    "sequence": 45,
+    "hours": 13.033437728881836,
+    "section": {
+      "id": "source-work",
+      "label": "Source use and latest result",
+      "message": "",
+      "perspective": "Native action receipts",
+      "rows": [
+        {
+          "label": "Source action",
+          "value": "No recorded reservation pointer"
+        },
+        {
+          "label": "Latest result",
+          "value": "No retained receipt for this person"
+        }
+      ],
+      "source": "WorldSources durable action ledger",
+      "status": "available"
+    }
+  },
+  {
+    "id": "sao-1",
+    "sequence": 51,
+    "hours": 14.53750228881836,
+    "section": {
+      "id": "source-work",
+      "label": "Source use and latest result",
+      "message": "",
+      "perspective": "Native action receipts",
+      "rows": [
+        {
+          "label": "Source action",
+          "value": "No recorded reservation pointer"
+        },
+        {
+          "label": "Latest result",
+          "value": "No retained receipt for this person"
+        }
+      ],
+      "source": "WorldSources durable action ledger",
+      "status": "available"
+    }
+  },
+  {
+    "id": "sao-2",
+    "sequence": 95,
+    "hours": 25.582841873168945,
+    "section": {
+      "id": "source-work",
+      "label": "Source use and latest result",
+      "message": "",
+      "perspective": "Native action receipts",
+      "rows": [
+        {
+          "label": "Source action",
+          "value": "No recorded reservation pointer"
+        },
+        {
+          "label": "Latest result.reservationId",
+          "value": "R:1:sao-2"
+        },
+        {
+          "label": "Latest result.status",
+          "value": "conflict"
+        },
+        {
+          "label": "Latest result.operation",
+          "value": "consume"
+        },
+        {
+          "label": "Latest result.category",
+          "value": "food"
+        },
+        {
+          "label": "Latest result.itemType",
+          "value": "Base.GranolaBar"
+        },
+        {
+          "label": "Latest result.quantity",
+          "value": "1"
+        },
+        {
+          "label": "Latest result.requestedQuantity",
+          "value": "1"
+        },
+        {
+          "label": "Latest result.preRevision",
+          "value": "d9111770932e91e59659f1455043947c0902b1230d3a43e37386a882822915ed"
+        },
+        {
+          "label": "Latest result.at",
+          "value": "25.513164520263672"
+        },
+        {
+          "label": "Latest result.detail",
+          "value": "route-ended:done:Failed"
+        }
+      ],
+      "source": "WorldSources durable action ledger",
+      "status": "available"
+    }
+  },
+  {
+    "id": "sao-2",
+    "sequence": 96,
+    "hours": 25.834415435791016,
+    "section": {
+      "id": "source-work",
+      "label": "Source use and latest result",
+      "message": "",
+      "perspective": "Native action receipts",
+      "rows": [
+        {
+          "label": "Source action",
+          "value": "No recorded reservation pointer"
+        },
+        {
+          "label": "Latest result.reservationId",
+          "value": "R:4:sao-2"
+        },
+        {
+          "label": "Latest result.status",
+          "value": "conflict"
+        },
+        {
+          "label": "Latest result.operation",
+          "value": "consume"
+        },
+        {
+          "label": "Latest result.category",
+          "value": "food"
+        },
+        {
+          "label": "Latest result.itemType",
+          "value": "Base.GranolaBar"
+        },
+        {
+          "label": "Latest result.quantity",
+          "value": "1"
+        },
+        {
+          "label": "Latest result.requestedQuantity",
+          "value": "1"
+        },
+        {
+          "label": "Latest result.preRevision",
+          "value": "d9111770932e91e59659f1455043947c0902b1230d3a43e37386a882822915ed"
+        },
+        {
+          "label": "Latest result.at",
+          "value": "25.73467254638672"
+        },
+        {
+          "label": "Latest result.detail",
+          "value": "route-ended:done:Failed"
+        }
+      ],
+      "source": "WorldSources durable action ledger",
+      "status": "available"
+    }
+  },
+  {
+    "id": "sao-2",
+    "sequence": 97,
+    "hours": 26.086124420166016,
+    "section": {
+      "id": "source-work",
+      "label": "Source use and latest result",
+      "message": "",
+      "perspective": "Native action receipts",
+      "rows": [
+        {
+          "label": "Source action",
+          "value": "No recorded reservation pointer"
+        },
+        {
+          "label": "Latest result.reservationId",
+          "value": "R:7:sao-2"
+        },
+        {
+          "label": "Latest result.status",
+          "value": "conflict"
+        },
+        {
+          "label": "Latest result.operation",
+          "value": "consume"
+        },
+        {
+          "label": "Latest result.category",
+          "value": "food"
+        },
+        {
+          "label": "Latest result.itemType",
+          "value": "Base.GranolaBar"
+        },
+        {
+          "label": "Latest result.quantity",
+          "value": "1"
+        },
+        {
+          "label": "Latest result.requestedQuantity",
+          "value": "1"
+        },
+        {
+          "label": "Latest result.preRevision",
+          "value": "d9111770932e91e59659f1455043947c0902b1230d3a43e37386a882822915ed"
+        },
+        {
+          "label": "Latest result.at",
+          "value": "25.951967239379883"
+        },
+        {
+          "label": "Latest result.detail",
+          "value": "route-ended:done:Failed"
+        }
+      ],
+      "source": "WorldSources durable action ledger",
+      "status": "available"
+    }
+  },
+  {
+    "id": "sao-2",
+    "sequence": 103,
+    "hours": 27.593029022216797,
+    "section": {
+      "id": "source-work",
+      "label": "Source use and latest result",
+      "message": "",
+      "perspective": "Native action receipts",
+      "rows": [
+        {
+          "label": "Source action",
+          "value": "No recorded reservation pointer"
+        },
+        {
+          "label": "Latest result.reservationId",
+          "value": "R:8:sao-2"
+        },
+        {
+          "label": "Latest result.status",
+          "value": "conflict"
+        },
+        {
+          "label": "Latest result.operation",
+          "value": "consume"
+        },
+        {
+          "label": "Latest result.category",
+          "value": "food"
+        },
+        {
+          "label": "Latest result.itemType",
+          "value": "Base.GranolaBar"
+        },
+        {
+          "label": "Latest result.quantity",
+          "value": "1"
+        },
+        {
+          "label": "Latest result.requestedQuantity",
+          "value": "1"
+        },
+        {
+          "label": "Latest result.preRevision",
+          "value": "d9111770932e91e59659f1455043947c0902b1230d3a43e37386a882822915ed"
+        },
+        {
+          "label": "Latest result.at",
+          "value": "27.51718521118164"
+        },
+        {
+          "label": "Latest result.detail",
+          "value": "route-ended:done:Failed"
+        }
+      ],
+      "source": "WorldSources durable action ledger",
+      "status": "available"
+    }
+  },
+  {
+    "id": "sao-2",
+    "sequence": 104,
+    "hours": 27.84468650817871,
+    "section": {
+      "id": "source-work",
+      "label": "Source use and latest result",
+      "message": "",
+      "perspective": "Native action receipts",
+      "rows": [
+        {
+          "label": "Source action",
+          "value": "No recorded reservation pointer"
+        },
+        {
+          "label": "Latest result.reservationId",
+          "value": "R:11:sao-2"
+        },
+        {
+          "label": "Latest result.status",
+          "value": "conflict"
+        },
+        {
+          "label": "Latest result.operation",
+          "value": "consume"
+        },
+        {
+          "label": "Latest result.category",
+          "value": "food"
+        },
+        {
+          "label": "Latest result.itemType",
+          "value": "Base.GranolaBar"
+        },
+        {
+          "label": "Latest result.quantity",
+          "value": "1"
+        },
+        {
+          "label": "Latest result.requestedQuantity",
+          "value": "1"
+        },
+        {
+          "label": "Latest result.preRevision",
+          "value": "d9111770932e91e59659f1455043947c0902b1230d3a43e37386a882822915ed"
+        },
+        {
+          "label": "Latest result.at",
+          "value": "27.739994049072266"
+        },
+        {
+          "label": "Latest result.detail",
+          "value": "route-ended:done:Failed"
+        }
+      ],
+      "source": "WorldSources durable action ledger",
+      "status": "available"
+    }
+  },
+  {
+    "id": "sao-2",
+    "sequence": 105,
+    "hours": 28.096698760986328,
+    "section": {
+      "id": "source-work",
+      "label": "Source use and latest result",
+      "message": "",
+      "perspective": "Native action receipts",
+      "rows": [
+        {
+          "label": "Source action",
+          "value": "No recorded reservation pointer"
+        },
+        {
+          "label": "Latest result.reservationId",
+          "value": "R:14:sao-2"
+        },
+        {
+          "label": "Latest result.status",
+          "value": "conflict"
+        },
+        {
+          "label": "Latest result.operation",
+          "value": "consume"
+        },
+        {
+          "label": "Latest result.category",
+          "value": "food"
+        },
+        {
+          "label": "Latest result.itemType",
+          "value": "Base.GranolaBar"
+        },
+        {
+          "label": "Latest result.quantity",
+          "value": "1"
+        },
+        {
+          "label": "Latest result.requestedQuantity",
+          "value": "1"
+        },
+        {
+          "label": "Latest result.preRevision",
+          "value": "d9111770932e91e59659f1455043947c0902b1230d3a43e37386a882822915ed"
+        },
+        {
+          "label": "Latest result.at",
+          "value": "27.96000862121582"
+        },
+        {
+          "label": "Latest result.detail",
+          "value": "route-ended:done:Failed"
+        }
+      ],
+      "source": "WorldSources durable action ledger",
+      "status": "available"
+    }
+  },
+  {
+    "id": "sao-2",
+    "sequence": 106,
+    "hours": 28.347537994384766,
+    "section": {
+      "id": "source-work",
+      "label": "Source use and latest result",
+      "message": "",
+      "perspective": "Native action receipts",
+      "rows": [
+        {
+          "label": "Source action.id",
+          "value": "R:16:sao-2"
+        },
+        {
+          "label": "Source action.status",
+          "value": "reserved"
+        },
+        {
+          "label": "Source action.phase",
+          "value": "approaching-place"
+        },
+        {
+          "label": "Source action.operation",
+          "value": "consume"
+        },
+        {
+          "label": "Source action.category",
+          "value": "food"
+        },
+        {
+          "label": "Source action.itemType",
+          "value": "Base.GranolaBar"
+        },
+        {
+          "label": "Source action.quantity",
+          "value": "1"
+        },
+        {
+          "label": "Source action.preRevision",
+          "value": "d9111770932e91e59659f1455043947c0902b1230d3a43e37386a882822915ed"
+        },
+        {
+          "label": "Latest result.reservationId",
+          "value": "R:15:sao-2"
+        },
+        {
+          "label": "Latest result.status",
+          "value": "conflict"
+        },
+        {
+          "label": "Latest result.operation",
+          "value": "consume"
+        },
+        {
+          "label": "Latest result.category",
+          "value": "food"
+        },
+        {
+          "label": "Latest result.itemType",
+          "value": "Base.GranolaBar"
+        },
+        {
+          "label": "Latest result.quantity",
+          "value": "1"
+        },
+        {
+          "label": "Latest result.requestedQuantity",
+          "value": "1"
+        },
+        {
+          "label": "Latest result.preRevision",
+          "value": "d9111770932e91e59659f1455043947c0902b1230d3a43e37386a882822915ed"
+        },
+        {
+          "label": "Latest result.at",
+          "value": "28.03771209716797"
+        },
+        {
+          "label": "Latest result.detail",
+          "value": "route-ended:done:Failed"
+        }
+      ],
+      "source": "WorldSources durable action ledger",
+      "status": "available"
+    }
+  },
+  {
+    "id": "sao-2",
+    "sequence": 108,
+    "hours": 28.848419189453125,
+    "section": {
+      "id": "source-work",
+      "label": "Source use and latest result",
+      "message": "",
+      "perspective": "Native action receipts",
+      "rows": [
+        {
+          "label": "Source action.id",
+          "value": "R:18:sao-2"
+        },
+        {
+          "label": "Source action.status",
+          "value": "reserved"
+        },
+        {
+          "label": "Source action.phase",
+          "value": "approaching-place"
+        },
+        {
+          "label": "Source action.operation",
+          "value": "consume"
+        },
+        {
+          "label": "Source action.category",
+          "value": "food"
+        },
+        {
+          "label": "Source action.itemType",
+          "value": "Base.GranolaBar"
+        },
+        {
+          "label": "Source action.quantity",
+          "value": "1"
+        },
+        {
+          "label": "Source action.preRevision",
+          "value": "d9111770932e91e59659f1455043947c0902b1230d3a43e37386a882822915ed"
+        },
+        {
+          "label": "Latest result.reservationId",
+          "value": "R:17:sao-2"
+        },
+        {
+          "label": "Latest result.status",
+          "value": "conflict"
+        },
+        {
+          "label": "Latest result.operation",
+          "value": "consume"
+        },
+        {
+          "label": "Latest result.category",
+          "value": "food"
+        },
+        {
+          "label": "Latest result.itemType",
+          "value": "Base.GranolaBar"
+        },
+        {
+          "label": "Latest result.quantity",
+          "value": "1"
+        },
+        {
+          "label": "Latest result.requestedQuantity",
+          "value": "1"
+        },
+        {
+          "label": "Latest result.preRevision",
+          "value": "d9111770932e91e59659f1455043947c0902b1230d3a43e37386a882822915ed"
+        },
+        {
+          "label": "Latest result.at",
+          "value": "28.711090087890625"
+        },
+        {
+          "label": "Latest result.detail",
+          "value": "route-ended:done:Failed"
+        }
+      ],
+      "source": "WorldSources durable action ledger",
+      "status": "available"
+    }
+  },
+  {
+    "id": "sao-2",
+    "sequence": 109,
+    "hours": 29.100614547729492,
+    "section": {
+      "id": "source-work",
+      "label": "Source use and latest result",
+      "message": "",
+      "perspective": "Native action receipts",
+      "rows": [
+        {
+          "label": "Source action",
+          "value": "No recorded reservation pointer"
+        },
+        {
+          "label": "Latest result.reservationId",
+          "value": "R:20:sao-2"
+        },
+        {
+          "label": "Latest result.status",
+          "value": "conflict"
+        },
+        {
+          "label": "Latest result.operation",
+          "value": "consume"
+        },
+        {
+          "label": "Latest result.category",
+          "value": "food"
+        },
+        {
+          "label": "Latest result.itemType",
+          "value": "Base.GranolaBar"
+        },
+        {
+          "label": "Latest result.quantity",
+          "value": "1"
+        },
+        {
+          "label": "Latest result.requestedQuantity",
+          "value": "1"
+        },
+        {
+          "label": "Latest result.preRevision",
+          "value": "d9111770932e91e59659f1455043947c0902b1230d3a43e37386a882822915ed"
+        },
+        {
+          "label": "Latest result.at",
+          "value": "28.937557220458984"
+        },
+        {
+          "label": "Latest result.detail",
+          "value": "route-ended:done:Failed"
+        }
+      ],
+      "source": "WorldSources durable action ledger",
+      "status": "available"
+    }
+  },
+  {
+    "id": "sao-2",
+    "sequence": 110,
+    "hours": 29.35107421875,
+    "section": {
+      "id": "source-work",
+      "label": "Source use and latest result",
+      "message": "",
+      "perspective": "Native action receipts",
+      "rows": [
+        {
+          "label": "Source action",
+          "value": "No recorded reservation pointer"
+        },
+        {
+          "label": "Latest result.reservationId",
+          "value": "R:23:sao-2"
+        },
+        {
+          "label": "Latest result.status",
+          "value": "conflict"
+        },
+        {
+          "label": "Latest result.operation",
+          "value": "consume"
+        },
+        {
+          "label": "Latest result.category",
+          "value": "food"
+        },
+        {
+          "label": "Latest result.itemType",
+          "value": "Base.GranolaBar"
+        },
+        {
+          "label": "Latest result.quantity",
+          "value": "1"
+        },
+        {
+          "label": "Latest result.requestedQuantity",
+          "value": "1"
+        },
+        {
+          "label": "Latest result.preRevision",
+          "value": "d9111770932e91e59659f1455043947c0902b1230d3a43e37386a882822915ed"
+        },
+        {
+          "label": "Latest result.at",
+          "value": "29.188188552856445"
+        },
+        {
+          "label": "Latest result.detail",
+          "value": "route-ended:done:Failed"
+        }
+      ],
+      "source": "WorldSources durable action ledger",
+      "status": "available"
+    }
+  },
+  {
+    "id": "sao-2",
+    "sequence": 111,
+    "hours": 29.60138702392578,
+    "section": {
+      "id": "source-work",
+      "label": "Source use and latest result",
+      "message": "",
+      "perspective": "Native action receipts",
+      "rows": [
+        {
+          "label": "Source action",
+          "value": "No recorded reservation pointer"
+        },
+        {
+          "label": "Latest result.reservationId",
+          "value": "R:27:sao-2"
+        },
+        {
+          "label": "Latest result.status",
+          "value": "conflict"
+        },
+        {
+          "label": "Latest result.operation",
+          "value": "consume"
+        },
+        {
+          "label": "Latest result.category",
+          "value": "food"
+        },
+        {
+          "label": "Latest result.itemType",
+          "value": "Base.GranolaBar"
+        },
+        {
+          "label": "Latest result.quantity",
+          "value": "1"
+        },
+        {
+          "label": "Latest result.requestedQuantity",
+          "value": "1"
+        },
+        {
+          "label": "Latest result.preRevision",
+          "value": "d9111770932e91e59659f1455043947c0902b1230d3a43e37386a882822915ed"
+        },
+        {
+          "label": "Latest result.at",
+          "value": "29.529794692993164"
+        },
+        {
+          "label": "Latest result.detail",
+          "value": "route-ended:done:Failed"
+        }
+      ],
+      "source": "WorldSources durable action ledger",
+      "status": "available"
+    }
+  },
+  {
+    "id": "sao-2",
+    "sequence": 112,
+    "hours": 29.851642608642578,
+    "section": {
+      "id": "source-work",
+      "label": "Source use and latest result",
+      "message": "",
+      "perspective": "Native action receipts",
+      "rows": [
+        {
+          "label": "Source action",
+          "value": "No recorded reservation pointer"
+        },
+        {
+          "label": "Latest result.reservationId",
+          "value": "R:30:sao-2"
+        },
+        {
+          "label": "Latest result.status",
+          "value": "conflict"
+        },
+        {
+          "label": "Latest result.operation",
+          "value": "consume"
+        },
+        {
+          "label": "Latest result.category",
+          "value": "food"
+        },
+        {
+          "label": "Latest result.itemType",
+          "value": "Base.GranolaBar"
+        },
+        {
+          "label": "Latest result.quantity",
+          "value": "1"
+        },
+        {
+          "label": "Latest result.requestedQuantity",
+          "value": "1"
+        },
+        {
+          "label": "Latest result.preRevision",
+          "value": "d9111770932e91e59659f1455043947c0902b1230d3a43e37386a882822915ed"
+        },
+        {
+          "label": "Latest result.at",
+          "value": "29.750715255737305"
+        },
+        {
+          "label": "Latest result.detail",
+          "value": "route-ended:done:Failed"
+        }
+      ],
+      "source": "WorldSources durable action ledger",
+      "status": "available"
+    }
+  },
+  {
+    "id": "sao-2",
+    "sequence": 113,
+    "hours": 30.102313995361328,
+    "section": {
+      "id": "source-work",
+      "label": "Source use and latest result",
+      "message": "",
+      "perspective": "Native action receipts",
+      "rows": [
+        {
+          "label": "Source action",
+          "value": "No recorded reservation pointer"
+        },
+        {
+          "label": "Latest result.reservationId",
+          "value": "R:33:sao-2"
+        },
+        {
+          "label": "Latest result.status",
+          "value": "conflict"
+        },
+        {
+          "label": "Latest result.operation",
+          "value": "consume"
+        },
+        {
+          "label": "Latest result.category",
+          "value": "food"
+        },
+        {
+          "label": "Latest result.itemType",
+          "value": "Base.GranolaBar"
+        },
+        {
+          "label": "Latest result.quantity",
+          "value": "1"
+        },
+        {
+          "label": "Latest result.requestedQuantity",
+          "value": "1"
+        },
+        {
+          "label": "Latest result.preRevision",
+          "value": "d9111770932e91e59659f1455043947c0902b1230d3a43e37386a882822915ed"
+        },
+        {
+          "label": "Latest result.at",
+          "value": "29.993040084838867"
+        },
+        {
+          "label": "Latest result.detail",
+          "value": "route-ended:done:Failed"
+        }
+      ],
+      "source": "WorldSources durable action ledger",
+      "status": "available"
+    }
+  },
+  {
+    "id": "sao-2",
+    "sequence": 114,
+    "hours": 30.353652954101562,
+    "section": {
+      "id": "source-work",
+      "label": "Source use and latest result",
+      "message": "",
+      "perspective": "Native action receipts",
+      "rows": [
+        {
+          "label": "Source action.id",
+          "value": "R:34:sao-2"
+        },
+        {
+          "label": "Source action.status",
+          "value": "reserved"
+        },
+        {
+          "label": "Source action.phase",
+          "value": "approaching-place"
+        },
+        {
+          "label": "Source action.operation",
+          "value": "consume"
+        },
+        {
+          "label": "Source action.category",
+          "value": "food"
+        },
+        {
+          "label": "Source action.itemType",
+          "value": "Base.GranolaBar"
+        },
+        {
+          "label": "Source action.quantity",
+          "value": "1"
+        },
+        {
+          "label": "Source action.preRevision",
+          "value": "d9111770932e91e59659f1455043947c0902b1230d3a43e37386a882822915ed"
+        },
+        {
+          "label": "Latest result.reservationId",
+          "value": "R:33:sao-2"
+        },
+        {
+          "label": "Latest result.status",
+          "value": "conflict"
+        },
+        {
+          "label": "Latest result.operation",
+          "value": "consume"
+        },
+        {
+          "label": "Latest result.category",
+          "value": "food"
+        },
+        {
+          "label": "Latest result.itemType",
+          "value": "Base.GranolaBar"
+        },
+        {
+          "label": "Latest result.quantity",
+          "value": "1"
+        },
+        {
+          "label": "Latest result.requestedQuantity",
+          "value": "1"
+        },
+        {
+          "label": "Latest result.preRevision",
+          "value": "d9111770932e91e59659f1455043947c0902b1230d3a43e37386a882822915ed"
+        },
+        {
+          "label": "Latest result.at",
+          "value": "29.993040084838867"
+        },
+        {
+          "label": "Latest result.detail",
+          "value": "route-ended:done:Failed"
+        }
+      ],
+      "source": "WorldSources durable action ledger",
+      "status": "available"
+    }
+  }
+]

@@ -175,6 +175,8 @@
         __standingAllowed, __accessible, __nativeValid = true, true, true
         __withinReach, __routeAllowed, __attemptAllowed = true, true, true
         __lastOrder, __attempt, __searchedRadius = nil, nil, nil
+        __approachCall, __approachResult = nil, "NONE"
+        __guardCall, __guardAllowed, __permissionCalls = nil, true, {}
         __discoveredSource = "8:8:0:Apple"
         __bindCalls, __clears, __nativeMoves, __consumeCalls = 0, 0, 0, 0
         __xpCalls, __voiceCalls, __trustCalls, __debtCalls = 0, 0, 0, 0
@@ -483,27 +485,79 @@
     ok = SAO.Needs.queueTake("a",body)
     check("legacy_missing_context",ok and __queueCalls == 1 and not WS.pendingActionFor("a"))
 
+    do
+    -- Native approach/Organization are controlled inputs here; the actual
+    -- Needs and Controller guard still decide whether locomotion may start.
+    local nativeApproach, organization = SAOJavaBridge.resourceApproach, SAO.Organization
+    local mayAttempt = SAO.Standing.mayAttemptBelieved
+    SAOJavaBridge.resourceApproach = function(self, actorBody, kind, x, y, z)
+        __approachCall = {body=actorBody,kind=kind,x=x,y=y,z=z}
+        return __approachResult
+    end
+    SAO.Standing.mayAttemptBelieved = function(id, x, y, admission)
+        __permissionCalls[#__permissionCalls+1] = {id=id,x=x,y=y,admission=admission}
+        return mayAttempt(id,x,y,admission)
+    end
+    SAO.Organization = {
+        commitment=function(id)
+            if id == "fixture-commitment" then return {id=id,actorId="a"} end
+        end,
+        routeMayStart=function(id, x, y, z, phase, evidence)
+            __guardCall = {id=id,x=x,y=y,z=z,phase=phase,evidence=evidence}
+            if not __guardAllowed then return false, "fixture-retry-held" end
+            return true
+        end,
+    }
     body = reset("acquire")
     __withinReach, __discoveredSource = false, "12:11:2:Apple"
-    local nearbyState, nearbyContext = SAO.Needs.collectNearby("a",body,20,99)
+    __approachResult = "AT:11:11:2"
+    local supplied = {commitmentId="fixture-commitment",matterId="fixture-matter"}
+    local nearbyState, nearbyContext = SAO.Needs.collectNearby("a",body,20,99,supplied)
     check("nearby_approach_exact",nearbyState == "FORAGE" and nearbyContext
+        and nearbyContext == supplied and nearbyContext.matterId == "fixture-matter"
         and nearbyContext.category == "food" and nearbyContext.purpose == "forage"
         and nearbyContext.admission == "standing" and nearbyContext.haulRemaining == 3
         and nearbyContext.haulRadius == 4 and __searchedRadius == 20
-        and __lastOrder and __lastOrder.id == "a" and __lastOrder.x == 12
-        and __lastOrder.y == 11 and __lastOrder.z == 2 and __attempt
-        and __attempt.x == 12 and __attempt.y == 11 and __attempt.admission == "standing"
+        and __approachCall and __approachCall.body == body and __approachCall.kind == "food"
+        and __approachCall.x == 12 and __approachCall.y == 11 and __approachCall.z == 2
+        and __lastOrder and __lastOrder.id == "a" and __lastOrder.x == 11
+        and __lastOrder.y == 11 and __lastOrder.z == 2
+        and #__permissionCalls == 2 and __permissionCalls[1].x == 12
+        and __permissionCalls[1].y == 11 and __permissionCalls[1].admission == "standing"
+        and __permissionCalls[2].x == 11 and __permissionCalls[2].y == 11
+        and __guardCall and __guardCall.id == "fixture-commitment"
+        and __guardCall.x == 11 and __guardCall.y == 11 and __guardCall.z == 2
+        and __guardCall.phase == "acquiring" and nearbyContext.routeEvidence == __guardCall.evidence
+        and __guardCall.evidence.fromX == 8 and __guardCall.evidence.fromY == 8
+        and __guardCall.evidence.fromZ == 0 and __guardCall.evidence.sourceX == 12
+        and __guardCall.evidence.sourceY == 11 and __guardCall.evidence.sourceZ == 2
         and __queueCalls == 0 and not WS.pendingActionFor("a") and __nativeMoves == 0)
     body = reset("acquire")
     __withinReach, __routeAllowed = false, false
-    nearbyState = SAO.Needs.collectNearby("a",body,4,2)
-    check("nearby_route_refusal",nearbyState == nil and __lastOrder
+    nearbyState = SAO.Needs.collectNearby("a",body,4,2,{commitmentId="fixture-commitment"})
+    local nativeRefusal = nearbyState == nil and __lastOrder and __guardCall
+        and __queueCalls == 0 and not WS.pendingActionFor("a") and __nativeMoves == 0
+    body = reset("acquire")
+    __withinReach, __guardAllowed = false, false
+    nearbyState, nearbyContext = SAO.Needs.collectNearby("a",body,4,2,
+        {commitmentId="fixture-commitment"})
+    local guardRefusal = nearbyState == nil and nearbyContext
+        and nearbyContext.routeRefusal == "fixture-retry-held"
+        and __guardCall and nearbyContext.routeEvidence == __guardCall.evidence
+        and not __lastOrder and __queueCalls == 0
+        and not WS.pendingActionFor("a") and __nativeMoves == 0
+    body = reset("acquire")
+    __withinReach, __approachResult = false, "UNAVAILABLE"
+    nearbyState = SAO.Needs.collectNearby("a",body,4,2,{commitmentId="fixture-commitment"})
+    check("nearby_route_refusal",nativeRefusal and guardRefusal and nearbyState == nil
+        and __approachCall and not __guardCall and not __lastOrder
         and __queueCalls == 0 and not WS.pendingActionFor("a") and __nativeMoves == 0)
     body = reset("acquire")
     __withinReach, __attemptAllowed = false, false
     nearbyState = SAO.Needs.collectNearby("a",body,4,2)
     check("nearby_standing_refusal",nearbyState == nil and __attempt
-        and __attempt.admission == "standing" and not __lastOrder
+        and __attempt.admission == "standing" and not __approachCall and not __guardCall
+        and not __lastOrder
         and __queueCalls == 0 and not WS.pendingActionFor("a") and __nativeMoves == 0)
     body = reset("acquire")
     nearbyState, nearbyContext = SAO.Needs.collectNearby("a",body,0,0)
@@ -513,6 +567,9 @@
         and reservation and reservation.operation == "acquire" and reservation.itemId == 101
         and __queued and __queued.item == __sourceItem and __queueCalls == 1
         and not __lastOrder and __nativeMoves == 0)
+    SAOJavaBridge.resourceApproach, SAO.Organization = nativeApproach, organization
+    SAO.Standing.mayAttemptBelieved = mayAttempt
+    end
 
     body = reset("store")
     local choose = SU.chooseOption

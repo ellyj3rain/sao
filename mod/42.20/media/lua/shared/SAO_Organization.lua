@@ -1487,18 +1487,82 @@ function Org.noteWorkAdmission(commitmentId, ownerKind, receiptId, detail)
     return true
 end
 
-function Org.noteRoute(commitmentId, owner, x, y, z, phase)
+local MAX_EQUIVALENT_ROUTE_FAILURES = 3
+local ROUTE_RETRY_HOURS = 1 / 60
+
+local function sameRouteEvidence(left, right)
+    if type(left) ~= "table" or type(right) ~= "table" then return false end
+    return left.fromX == right.fromX and left.fromY == right.fromY
+        and left.fromZ == right.fromZ and left.sourceX == right.sourceX
+        and left.sourceY == right.sourceY and left.sourceZ == right.sourceZ
+        and left.knownSources == right.knownSources
+end
+
+local function equivalentRouteFailures(commitment, x, y, z, phase, evidence)
+    local count = 0
+    for _, route in ipairs(commitment.work.routeAttempts or {}) do
+        if finite(route.x) and finite(route.y) and finite(route.z)
+            and finite(x) and finite(y) and finite(z)
+            and math.floor(route.x) == math.floor(x)
+            and math.floor(route.y) == math.floor(y)
+            and math.floor(route.z) == math.floor(z)
+            and route.phase == phase
+            and sameRouteEvidence(route.retryEvidence, evidence) then
+            if route.status == "arrived" then count = 0
+            elseif route.status == "failed" or route.status == "interrupted" then
+                count = count + 1
+            end
+        end
+    end
+    return count
+end
+
+function Org.routeRetryReady(commitmentId)
+    local commitment = Org.commitment(commitmentId)
+    if not commitment or TERMINAL_WORK[commitment.status]
+        or commitment.status == "contested" then return false, "work-ended" end
+    if nowHours() < (tonumber(commitment.work.routeRetryAt) or 0) then
+        return false, "route-backoff"
+    end
+    return true
+end
+
+-- This guard describes failed attempts, not permission or source truth.
+-- Execution supplies its current private evidence and revalidates access.
+function Org.routeMayStart(commitmentId, x, y, z, phase, evidence)
+    if not finite(x) or not finite(y) or not finite(z) then
+        return false, "route-destination-unavailable"
+    end
+    local ready, reason = Org.routeRetryReady(commitmentId)
+    if not ready then return false, reason end
+    local commitment = Org.commitment(commitmentId)
+    if equivalentRouteFailures(commitment, x, y, z, phase, evidence)
+        >= MAX_EQUIVALENT_ROUTE_FAILURES then
+        return false, "route-awaits-changed-evidence"
+    end
+    return true
+end
+
+function Org.noteRoute(commitmentId, owner, x, y, z, phase, evidence)
     local commitment = Org.commitment(commitmentId)
     if not commitment or TERMINAL_WORK[commitment.status] then return false end
     phase = phase == "acquiring" and "acquiring"
         or phase == "travelling" and "travelling" or "carrying"
+    local allowed, reason = Org.routeMayStart(commitmentId, x, y, z, phase, evidence)
+    if not allowed then return false, reason end
+    if commitment.status == "paused" then
+        Org.resumeWork(commitmentId, commitment.work.owner or owner, phase,
+            { routeEvidence = evidence })
+    end
     commitment.work.routeSequence = math.max(0,
         math.floor(tonumber(commitment.work.routeSequence) or 0)) + 1
     local attempt = { id = commitment.id .. ":route:"
             .. tostring(commitment.work.routeSequence),
         owner = tostring(owner or "Locomotion"), phase = phase,
         x = tonumber(x), y = tonumber(y), z = tonumber(z),
-        startedAt = nowHours(), status = "pending" }
+        startedAt = nowHours(), status = "pending",
+        retryEvidence = dataCopy(evidence) }
+    commitment.status = "in-progress"
     appendBounded(commitment.work.routeAttempts, attempt, 64)
     workEvent(commitment, phase, { route = attempt })
     return attempt
@@ -1524,16 +1588,21 @@ function Org.routeOutcome(commitmentId, status, detail)
         }
     end
     if status == "arrived" then
+        commitment.work.routeRetryAt = nil
         local arrivedPhase = route.phase == "acquiring" and "acquiring"
             or route.phase == "travelling" and "arrival-ready"
             or "delivery-ready"
         workEvent(commitment, arrivedPhase,
             { detail = detail, routeId = route.id })
     else
-        commitment.status = commitment.work.acquiredAt
-            and "interrupted" or "failed"
-        workEvent(commitment, commitment.status, { detail = detail })
-        commitment.work.endedAt = nowHours()
+        local failures = equivalentRouteFailures(commitment,
+            route.x, route.y, route.z, route.phase, route.retryEvidence)
+        commitment.work.routeRetryAt = nowHours()
+            + ROUTE_RETRY_HOURS * math.min(4, 2 ^ math.max(0, failures - 1))
+        Org.pauseWork(commitmentId, "route-" .. route.status, {
+            detail = detail, routeId = route.id,
+            retryAt = commitment.work.routeRetryAt,
+        })
     end
     return true, route
 end

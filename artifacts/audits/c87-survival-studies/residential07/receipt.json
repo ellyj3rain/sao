@@ -1,0 +1,1341 @@
+{
+  "schema": "sao-residential-loaded-evidence/1",
+  "run": "residential-native-07",
+  "attempt": 1,
+  "createdAtUtc": "2026-09-27T00:30:54.322167+00:00",
+  "sessionId": "45c5c063-8019-4058-a61a-787179ed9e9d",
+  "save": "80366618805763933214",
+  "verification": {
+    "exit": 0,
+    "status": "completed",
+    "stdoutSha256": "59ab33d825028e3325093079aeec72ab363eab9d87e49167f26fd49148e14497",
+    "verifierSha256": "4c683af3eec8abe59abd5497750e98fc88dc92820f5a4e672b2340d8f480ab36",
+    "readerSha256": "cfb58f3aaee2f5cb4ae9f10ed02c4711cc0e9aeb9619e6b73a362a9d93a400d6",
+    "controls": [
+      "duplicate native item identity rejected",
+      "incomplete inventory comparison refused"
+    ]
+  },
+  "runReceiptSha256": "5cc722adc613c4bb296e7e9047bd440ddabd576d5d8f11ecc778fb20fda93e55",
+  "packageSha256": "9c6f3e3dd1b6665a560f48733c53bb21c39114e38216f56faba2c176631d35b3",
+  "definitionSha256": "41ec08c1cb104551409e304da0e5b051032bb05fc5f9d303ce9e1adfc455065a",
+  "engineJarSha256": "80e405a4bfc42f6072e75b3735f458a6514143da011d3226007ded305a442f44",
+  "loadingAgentSha256": "138f924d76961c3a4ca18550f0ea1c0574a945bd837e708814b5bb1afdf38f61",
+  "copiedRelevantSources": {
+    "42.20/media/java/SAO.jar": "9b8a64b5f6aca816a3b448e72b6eb0867cf0a0a12d9bd9a41a1caa28f7421334",
+    "42.20/media/lua/client/SAO_Body.lua": "4702355c726830d254e7ad24d1da4244acc13b61b0e130920c7ac395bb72b02e",
+    "42.20/media/lua/client/SAO_Controller.lua": "feeea135512a0610e79bcd4cafdee2b7b86fa43113b7b3527b35fb11b9edf126",
+    "42.20/media/lua/client/SAO_Locomotion.lua": "1028d023a4c539329fd9a4c52df685950c1b449b0ec08e0b8de6234b0c253a9b",
+    "42.20/media/lua/client/SAO_Needs.lua": "3c9f8dbbe04b48b30fe78a6c1ca92f0203ba1d8bed654c21740dcd9c86f6cccd",
+    "42.20/media/lua/client/SAO_PopulationAdmissions.lua": "532e6751dd50d9b79cd814a49833870ec0a05860d0ab165fd17522d12388ff56",
+    "42.20/media/lua/client/SAO_SourceUse.lua": "20d5d6a8a84f3efa360391f0745e0955079cc81458597b135d48f6e487c841c0",
+    "42.20/media/lua/shared/SAO_Perception.lua": "616eb8b7d3180c37a3259bf29acbf18cf69ba9e88e35784f073596ca1fcdc3ba",
+    "42.20/media/lua/shared/SAO_WorldSources.lua": "8110c4421510202b213f272efe4fcc45861bb41c16d20d29ff8ab8ae89e7b8c0"
+  },
+  "copiedInputCount": 973,
+  "terminal": {
+    "endHours": 30.353652954101562,
+    "nativeSaveReturned": true,
+    "startHours": 2.0,
+    "stopReason": "wall-time-limit"
+  },
+  "supervision": {
+    "exitCode": 0,
+    "failure": null,
+    "forced": false,
+    "limitSeconds": 600,
+    "progress": {
+      "native.json": 5755,
+      "observer-state.json": 19642
+    },
+    "stopReason": "wall-time-limit",
+    "wallSeconds": 602.411
+  },
+  "player": {
+    "count": 0,
+    "observerPersisted": false
+  },
+  "runtimeErrors": [],
+  "logs": {
+    "stderr.log": "a79a7ed269248454528f1939b044ddd146439a3424d504e16fbd4bf95eca1d72",
+    "stdout.log": "0cc174a29cca61f21dc31f06c65277247af1bfe479298c912139dedc81a3eeeb"
+  },
+  "evidence": {
+    "copiedInputs": {
+      "path": "copied-inputs.json",
+      "sha256": "e8d81d911d38f0b76f40b142f5f8c1f748b521f4429ff96ba556a0a5194705ef"
+    },
+    "observationInventory": {
+      "path": "observation-inventory.json",
+      "sha256": "018ae4e6d92dc72fc149c1bc12c7e4cabfd994d2e2e697677805661d1b3afa39"
+    },
+    "physicalSamples": {
+      "path": "physical-samples.json",
+      "sha256": "b45fb56274d3835f87f8bebf50b311b6df1233b70b5596f664bab2395e911ff0"
+    },
+    "privateKnowledgeChanges": {
+      "path": "private-knowledge-changes.json",
+      "sha256": "d7c7a7d099b32555a03d7d7f96c8d04d9239f2ab0e929cccf67d85f353080287"
+    },
+    "sourceWorkChanges": {
+      "path": "source-work-changes.json",
+      "sha256": "7492863db240e5ee6d32efdec1cf07f2b87acec21f57a037d3abc1e87eb13794"
+    },
+    "events": {
+      "path": "events.json",
+      "sha256": "2812f297f49210e34f93cf1d45a5244e32d60321b6ca57fe7b136dfa93230407"
+    },
+    "relevantLogs": {
+      "path": "relevant-logs.json",
+      "sha256": "7008b03afc6e0d513f7db13d7d1b149a59dc9d6ca05a08f4cfc01c1b88cc411d"
+    },
+    "nativeAgentEvidence": {
+      "path": "native-agent-evidence.json",
+      "sha256": "44a8cadfb6c2bb7c216d0e8503e501ab572969839a7aa111e6213dd186b9cbd3"
+    }
+  },
+  "fullObservationSpan": {
+    "firstHours": 2,
+    "lastHours": 30.353652954101562,
+    "frames": 114,
+    "lastSequence": 114
+  },
+  "population": {
+    "first": {
+      "captured": 0,
+      "dead": 0,
+      "represented": 0,
+      "total": 0,
+      "unrepresented": 0
+    },
+    "last": {
+      "captured": 2,
+      "dead": 0,
+      "represented": 2,
+      "total": 2,
+      "unrepresented": 0
+    },
+    "maxDead": 0,
+    "maxUnrepresented": 1
+  },
+  "lastLive": {
+    "sha256": "61c2eedf1bbd9e3fb4ddf05fb8a921edd302bd3fc4c58d6e7e6faa7289b3d33a",
+    "hours": 30.28021240234375,
+    "population": {
+      "captured": 2,
+      "dead": 0,
+      "represented": 2,
+      "total": 2
+    }
+  },
+  "people": [
+    {
+      "id": "sao-1",
+      "name": "Gilberto Schafer",
+      "first": {
+        "sequence": 2,
+        "hours": 2.2500534057617188,
+        "inspectionHours": 2.249384880065918,
+        "inspectionSequence": 58,
+        "representation": "represented",
+        "position": [
+          3426.5,
+          10910.5,
+          0
+        ],
+        "controller": {
+          "nextDecisionAt": 20266,
+          "state": "IDLE",
+          "stateSince": 18003
+        },
+        "needs": {
+          "Hunger": 0.009,
+          "Thirst": 0.007,
+          "Fatigue": 0.01,
+          "Endurance": 1.0,
+          "Nicotine withdrawal": 0.0,
+          "Health (%)": 100.0
+        },
+        "inventoryCount": 15
+      },
+      "firstInventory": {
+        "570590043": {
+          "label": "Base.Hat_BandanaMaskTINT",
+          "value": "Bandana [id 570590043]"
+        },
+        "651582516": {
+          "label": "Base.Hat_Raccoon",
+          "value": "Raccoon Hat [id 651582516]"
+        },
+        "2060612351": {
+          "label": "Base.Tshirt_DefaultTEXTURE_TINT",
+          "value": "T-shirt [id 2060612351]"
+        },
+        "1982864643": {
+          "label": "Base.Gloves_LeatherGloves",
+          "value": "Leather Gloves [id 1982864643]"
+        },
+        "166924283": {
+          "label": "Base.Socks_Heavy",
+          "value": "Socks - Heavy [id 166924283]"
+        },
+        "1725941602": {
+          "label": "Base.Shoes_BlackBoots",
+          "value": "Boots [id 1725941602]"
+        },
+        "1091261587": {
+          "label": "Base.Trousers_JeanBaggy",
+          "value": "Jeans - Baggy [id 1091261587]"
+        },
+        "1933203258": {
+          "label": "Base.JacketLong_Random",
+          "value": "Leather Coat [id 1933203258]"
+        },
+        "1801779523": {
+          "label": "Base.ThighScrapMetal_L",
+          "value": "Scrap Metal Thigh Armor [id 1801779523]"
+        },
+        "61109137": {
+          "label": "Base.ThighScrapMetal_R",
+          "value": "Scrap Metal Thigh Armor [id 61109137]"
+        },
+        "719327638": {
+          "label": "Base.Shoulderpad_MetalScrap_R",
+          "value": "Scrap Metal Shoulder Armor [id 719327638]"
+        },
+        "709856114": {
+          "label": "Base.Shoulderpad_MetalScrap_L",
+          "value": "Scrap Metal Shoulder Armor [id 709856114]"
+        },
+        "426943565": {
+          "label": "Base.AmmoStrap_Shells",
+          "value": "Shells Bandolier [id 426943565]"
+        },
+        "1373721359": {
+          "label": "Base.Notebook",
+          "value": "Gilberto Schafer's journal [id 1373721359]"
+        },
+        "145840361": {
+          "label": "Base.IDcard_Male",
+          "value": "Gilberto Schafer - ID [id 145840361]"
+        }
+      },
+      "firstKnown": {
+        "1.1822004856422402E16": {
+          "source": "lived",
+          "visits": 1,
+          "at": 0,
+          "sourceFacts": {}
+        }
+      },
+      "inventoryChanges": [],
+      "needsReductions": [
+        {
+          "need": "Thirst",
+          "from": 0.546,
+          "to": 0.001,
+          "fromInspectionHours": 15.470773696899414,
+          "toInspectionHours": 15.720830917358398,
+          "fromSequence": 55,
+          "toSequence": 56
+        },
+        {
+          "need": "Fatigue",
+          "from": 0.637,
+          "to": 0.6,
+          "fromInspectionHours": 15.470773696899414,
+          "toInspectionHours": 15.720830917358398,
+          "fromSequence": 55,
+          "toSequence": 56
+        },
+        {
+          "need": "Fatigue",
+          "from": 0.6,
+          "to": 0.533,
+          "fromInspectionHours": 15.720830917358398,
+          "toInspectionHours": 15.975959777832031,
+          "fromSequence": 56,
+          "toSequence": 57
+        },
+        {
+          "need": "Fatigue",
+          "from": 0.533,
+          "to": 0.466,
+          "fromInspectionHours": 15.975959777832031,
+          "toInspectionHours": 16.22732925415039,
+          "fromSequence": 57,
+          "toSequence": 58
+        },
+        {
+          "need": "Fatigue",
+          "from": 0.466,
+          "to": 0.401,
+          "fromInspectionHours": 16.22732925415039,
+          "toInspectionHours": 16.4726619720459,
+          "fromSequence": 58,
+          "toSequence": 59
+        },
+        {
+          "need": "Fatigue",
+          "from": 0.401,
+          "to": 0.333,
+          "fromInspectionHours": 16.4726619720459,
+          "toInspectionHours": 16.728595733642578,
+          "fromSequence": 59,
+          "toSequence": 60
+        },
+        {
+          "need": "Fatigue",
+          "from": 0.333,
+          "to": 0.28,
+          "fromInspectionHours": 16.728595733642578,
+          "toInspectionHours": 16.973800659179688,
+          "fromSequence": 60,
+          "toSequence": 61
+        },
+        {
+          "need": "Fatigue",
+          "from": 0.28,
+          "to": 0.237,
+          "fromInspectionHours": 16.973800659179688,
+          "toInspectionHours": 17.229700088500977,
+          "fromSequence": 61,
+          "toSequence": 62
+        },
+        {
+          "need": "Fatigue",
+          "from": 0.237,
+          "to": 0.195,
+          "fromInspectionHours": 17.229700088500977,
+          "toInspectionHours": 17.478403091430664,
+          "fromSequence": 62,
+          "toSequence": 63
+        },
+        {
+          "need": "Fatigue",
+          "from": 0.195,
+          "to": 0.153,
+          "fromInspectionHours": 17.478403091430664,
+          "toInspectionHours": 17.731977462768555,
+          "fromSequence": 63,
+          "toSequence": 64
+        },
+        {
+          "need": "Fatigue",
+          "from": 0.153,
+          "to": 0.111,
+          "fromInspectionHours": 17.731977462768555,
+          "toInspectionHours": 17.980915069580078,
+          "fromSequence": 64,
+          "toSequence": 65
+        },
+        {
+          "need": "Fatigue",
+          "from": 0.111,
+          "to": 0.069,
+          "fromInspectionHours": 17.980915069580078,
+          "toInspectionHours": 18.22907257080078,
+          "fromSequence": 65,
+          "toSequence": 66
+        },
+        {
+          "need": "Fatigue",
+          "from": 0.069,
+          "to": 0.027,
+          "fromInspectionHours": 18.22907257080078,
+          "toInspectionHours": 18.48175811767578,
+          "fromSequence": 66,
+          "toSequence": 67
+        },
+        {
+          "need": "Fatigue",
+          "from": 0.027,
+          "to": 0.003,
+          "fromInspectionHours": 18.48175811767578,
+          "toInspectionHours": 18.726696014404297,
+          "fromSequence": 67,
+          "toSequence": 68
+        }
+      ],
+      "last": {
+        "sequence": 114,
+        "hours": 30.353652954101562,
+        "inspectionHours": 30.28021240234375,
+        "inspectionSequence": 396,
+        "representation": "represented",
+        "position": [
+          3398.52734375,
+          10887.169921875,
+          0
+        ],
+        "controller": {
+          "nextDecisionAt": 273198,
+          "state": "ROAM",
+          "stateSince": 271594
+        },
+        "needs": {
+          "Hunger": 0.558,
+          "Thirst": 0.41,
+          "Fatigue": 0.428,
+          "Endurance": 1.0,
+          "Nicotine withdrawal": 0.51,
+          "Health (%)": 100.0
+        },
+        "inventoryCount": 15
+      },
+      "lastInventory": {
+        "570590043": {
+          "label": "Base.Hat_BandanaMaskTINT",
+          "value": "Bandana [id 570590043]"
+        },
+        "651582516": {
+          "label": "Base.Hat_Raccoon",
+          "value": "Raccoon Hat [id 651582516]"
+        },
+        "2060612351": {
+          "label": "Base.Tshirt_DefaultTEXTURE_TINT",
+          "value": "T-shirt [id 2060612351]"
+        },
+        "1982864643": {
+          "label": "Base.Gloves_LeatherGloves",
+          "value": "Leather Gloves [id 1982864643]"
+        },
+        "166924283": {
+          "label": "Base.Socks_Heavy",
+          "value": "Socks - Heavy [id 166924283]"
+        },
+        "1725941602": {
+          "label": "Base.Shoes_BlackBoots",
+          "value": "Boots [id 1725941602]"
+        },
+        "1091261587": {
+          "label": "Base.Trousers_JeanBaggy",
+          "value": "Jeans - Baggy [id 1091261587]"
+        },
+        "1933203258": {
+          "label": "Base.JacketLong_Random",
+          "value": "Leather Coat [id 1933203258]"
+        },
+        "1801779523": {
+          "label": "Base.ThighScrapMetal_L",
+          "value": "Scrap Metal Thigh Armor [id 1801779523]"
+        },
+        "61109137": {
+          "label": "Base.ThighScrapMetal_R",
+          "value": "Scrap Metal Thigh Armor [id 61109137]"
+        },
+        "719327638": {
+          "label": "Base.Shoulderpad_MetalScrap_R",
+          "value": "Scrap Metal Shoulder Armor [id 719327638]"
+        },
+        "709856114": {
+          "label": "Base.Shoulderpad_MetalScrap_L",
+          "value": "Scrap Metal Shoulder Armor [id 709856114]"
+        },
+        "426943565": {
+          "label": "Base.AmmoStrap_Shells",
+          "value": "Shells Bandolier [id 426943565]"
+        },
+        "1373721359": {
+          "label": "Base.Notebook",
+          "value": "Gilberto Schafer's journal [id 1373721359]"
+        },
+        "145840361": {
+          "label": "Base.IDcard_Male",
+          "value": "Gilberto Schafer - ID [id 145840361]"
+        }
+      },
+      "lastKnown": {
+        "1.1822004856422402E16": {
+          "source": "observed",
+          "visits": 5,
+          "at": 210038,
+          "sourceFacts": {}
+        },
+        "1.1822004856422426E16": {
+          "source": "observed",
+          "visits": 3,
+          "at": 77594,
+          "sourceFacts": {}
+        }
+      },
+      "lastWork": {
+        "id": "source-work",
+        "label": "Source use and latest result",
+        "message": "",
+        "perspective": "Native action receipts",
+        "rows": [
+          {
+            "label": "Source action",
+            "value": "No recorded reservation pointer"
+          },
+          {
+            "label": "Latest result",
+            "value": "No retained receipt for this person"
+          }
+        ],
+        "source": "WorldSources durable action ledger",
+        "status": "available"
+      },
+      "lastLivingHealth": 1
+    },
+    {
+      "id": "sao-2",
+      "name": "Doug Workman",
+      "first": {
+        "sequence": 2,
+        "hours": 2.2500534057617188,
+        "inspectionHours": 2.249384880065918,
+        "inspectionSequence": 58,
+        "representation": "represented",
+        "position": [
+          3427.5,
+          10910.5,
+          0
+        ],
+        "controller": {
+          "nextDecisionAt": 20255,
+          "state": "IDLE",
+          "stateSince": 18003
+        },
+        "needs": {
+          "Hunger": 0.009,
+          "Thirst": 0.007,
+          "Fatigue": 0.009,
+          "Endurance": 1.0,
+          "Nicotine withdrawal": 0.0,
+          "Health (%)": 100.0
+        },
+        "inventoryCount": 6
+      },
+      "firstInventory": {
+        "2026430194": {
+          "label": "Base.Vest_DefaultTEXTURE_TINT",
+          "value": "Tank Top [id 2026430194]"
+        },
+        "390259985": {
+          "label": "Base.Shoes_Random",
+          "value": "Shoes [id 390259985]"
+        },
+        "1521347981": {
+          "label": "Base.Trousers_Denim",
+          "value": "Jeans [id 1521347981]"
+        },
+        "1354585244": {
+          "label": "Base.Bag_Schoolbag_Kids",
+          "value": "Small Backpack [id 1354585244]"
+        },
+        "888521788": {
+          "label": "Base.Notebook",
+          "value": "Doug Workman's journal [id 888521788]"
+        },
+        "1621470568": {
+          "label": "Base.IDcard_Male",
+          "value": "Doug Workman - ID [id 1621470568]"
+        }
+      },
+      "firstKnown": {
+        "1.1822004856422402E16": {
+          "source": "lived",
+          "visits": 1,
+          "at": 0,
+          "sourceFacts": {}
+        }
+      },
+      "inventoryChanges": [],
+      "needsReductions": [
+        {
+          "need": "Fatigue",
+          "from": 0.009,
+          "to": 0.003,
+          "fromInspectionHours": 2.249384880065918,
+          "toInspectionHours": 2.4237146377563477,
+          "fromSequence": 2,
+          "toSequence": 3
+        },
+        {
+          "need": "Fatigue",
+          "from": 0.003,
+          "to": 0.001,
+          "fromInspectionHours": 2.4237146377563477,
+          "toInspectionHours": 2.6866369247436523,
+          "fromSequence": 3,
+          "toSequence": 4
+        },
+        {
+          "need": "Fatigue",
+          "from": 0.004,
+          "to": 0.001,
+          "fromInspectionHours": 2.9344663619995117,
+          "toInspectionHours": 3.1880407333374023,
+          "fromSequence": 5,
+          "toSequence": 6
+        },
+        {
+          "need": "Fatigue",
+          "from": 0.004,
+          "to": 0.001,
+          "fromInspectionHours": 3.4401473999023438,
+          "toInspectionHours": 3.690951347351074,
+          "fromSequence": 7,
+          "toSequence": 8
+        },
+        {
+          "need": "Fatigue",
+          "from": 0.007,
+          "to": 0.004,
+          "fromInspectionHours": 4.190817832946777,
+          "toInspectionHours": 4.4417009353637695,
+          "fromSequence": 10,
+          "toSequence": 11
+        },
+        {
+          "need": "Fatigue",
+          "from": 0.004,
+          "to": 0.001,
+          "fromInspectionHours": 4.4417009353637695,
+          "toInspectionHours": 4.692925453186035,
+          "fromSequence": 11,
+          "toSequence": 12
+        },
+        {
+          "need": "Fatigue",
+          "from": 0.004,
+          "to": 0.001,
+          "fromInspectionHours": 4.945162773132324,
+          "toInspectionHours": 5.194286346435547,
+          "fromSequence": 13,
+          "toSequence": 14
+        },
+        {
+          "need": "Fatigue",
+          "from": 0.029,
+          "to": 0.009,
+          "fromInspectionHours": 5.948600769042969,
+          "toInspectionHours": 6.198940277099609,
+          "fromSequence": 17,
+          "toSequence": 18
+        },
+        {
+          "need": "Fatigue",
+          "from": 0.018,
+          "to": 0.001,
+          "fromInspectionHours": 6.449999809265137,
+          "toInspectionHours": 6.698685646057129,
+          "fromSequence": 19,
+          "toSequence": 20
+        },
+        {
+          "need": "Fatigue",
+          "from": 0.004,
+          "to": 0.001,
+          "fromInspectionHours": 6.95101261138916,
+          "toInspectionHours": 7.200617790222168,
+          "fromSequence": 21,
+          "toSequence": 22
+        },
+        {
+          "need": "Fatigue",
+          "from": 0.023,
+          "to": 0.017,
+          "fromInspectionHours": 7.95039176940918,
+          "toInspectionHours": 8.20388126373291,
+          "fromSequence": 25,
+          "toSequence": 26
+        },
+        {
+          "need": "Fatigue",
+          "from": 0.082,
+          "to": 0.076,
+          "fromInspectionHours": 9.957000732421875,
+          "toInspectionHours": 10.209148406982422,
+          "fromSequence": 33,
+          "toSequence": 34
+        },
+        {
+          "need": "Fatigue",
+          "from": 0.076,
+          "to": 0.071,
+          "fromInspectionHours": 10.209148406982422,
+          "toInspectionHours": 10.459556579589844,
+          "fromSequence": 34,
+          "toSequence": 35
+        },
+        {
+          "need": "Fatigue",
+          "from": 0.071,
+          "to": 0.05,
+          "fromInspectionHours": 10.459556579589844,
+          "toInspectionHours": 10.71186637878418,
+          "fromSequence": 35,
+          "toSequence": 36
+        },
+        {
+          "need": "Fatigue",
+          "from": 0.05,
+          "to": 0.045,
+          "fromInspectionHours": 10.71186637878418,
+          "toInspectionHours": 10.96017074584961,
+          "fromSequence": 36,
+          "toSequence": 37
+        },
+        {
+          "need": "Fatigue",
+          "from": 0.045,
+          "to": 0.039,
+          "fromInspectionHours": 10.96017074584961,
+          "toInspectionHours": 11.210931777954102,
+          "fromSequence": 37,
+          "toSequence": 38
+        },
+        {
+          "need": "Fatigue",
+          "from": 0.104,
+          "to": 0.084,
+          "fromInspectionHours": 12.96823501586914,
+          "toInspectionHours": 13.21858024597168,
+          "fromSequence": 45,
+          "toSequence": 46
+        },
+        {
+          "need": "Fatigue",
+          "from": 0.084,
+          "to": 0.078,
+          "fromInspectionHours": 13.21858024597168,
+          "toInspectionHours": 13.470354080200195,
+          "fromSequence": 46,
+          "toSequence": 47
+        },
+        {
+          "need": "Fatigue",
+          "from": 0.078,
+          "to": 0.073,
+          "fromInspectionHours": 13.470354080200195,
+          "toInspectionHours": 13.71824836730957,
+          "fromSequence": 47,
+          "toSequence": 48
+        },
+        {
+          "need": "Fatigue",
+          "from": 0.073,
+          "to": 0.067,
+          "fromInspectionHours": 13.71824836730957,
+          "toInspectionHours": 13.970161437988281,
+          "fromSequence": 48,
+          "toSequence": 49
+        },
+        {
+          "need": "Fatigue",
+          "from": 0.067,
+          "to": 0.062,
+          "fromInspectionHours": 13.970161437988281,
+          "toInspectionHours": 14.219688415527344,
+          "fromSequence": 49,
+          "toSequence": 50
+        },
+        {
+          "need": "Fatigue",
+          "from": 0.071,
+          "to": 0.05,
+          "fromInspectionHours": 14.47121810913086,
+          "toInspectionHours": 14.72208023071289,
+          "fromSequence": 51,
+          "toSequence": 52
+        },
+        {
+          "need": "Fatigue",
+          "from": 0.05,
+          "to": 0.045,
+          "fromInspectionHours": 14.72208023071289,
+          "toInspectionHours": 14.972532272338867,
+          "fromSequence": 52,
+          "toSequence": 53
+        },
+        {
+          "need": "Fatigue",
+          "from": 0.058,
+          "to": 0.049,
+          "fromInspectionHours": 15.470773696899414,
+          "toInspectionHours": 15.720830917358398,
+          "fromSequence": 55,
+          "toSequence": 56
+        },
+        {
+          "need": "Fatigue",
+          "from": 0.049,
+          "to": 0.04,
+          "fromInspectionHours": 15.720830917358398,
+          "toInspectionHours": 15.975959777832031,
+          "fromSequence": 56,
+          "toSequence": 57
+        },
+        {
+          "need": "Fatigue",
+          "from": 0.04,
+          "to": 0.032,
+          "fromInspectionHours": 15.975959777832031,
+          "toInspectionHours": 16.22732925415039,
+          "fromSequence": 57,
+          "toSequence": 58
+        },
+        {
+          "need": "Fatigue",
+          "from": 0.032,
+          "to": 0.023,
+          "fromInspectionHours": 16.22732925415039,
+          "toInspectionHours": 16.4726619720459,
+          "fromSequence": 58,
+          "toSequence": 59
+        },
+        {
+          "need": "Fatigue",
+          "from": 0.023,
+          "to": 0.017,
+          "fromInspectionHours": 16.4726619720459,
+          "toInspectionHours": 16.728595733642578,
+          "fromSequence": 59,
+          "toSequence": 60
+        },
+        {
+          "need": "Fatigue",
+          "from": 0.017,
+          "to": 0.011,
+          "fromInspectionHours": 16.728595733642578,
+          "toInspectionHours": 16.973800659179688,
+          "fromSequence": 60,
+          "toSequence": 61
+        },
+        {
+          "need": "Fatigue",
+          "from": 0.03,
+          "to": 0.01,
+          "fromInspectionHours": 17.478403091430664,
+          "toInspectionHours": 17.731977462768555,
+          "fromSequence": 63,
+          "toSequence": 64
+        },
+        {
+          "need": "Fatigue",
+          "from": 0.01,
+          "to": 0.006,
+          "fromInspectionHours": 17.731977462768555,
+          "toInspectionHours": 17.980915069580078,
+          "fromSequence": 64,
+          "toSequence": 65
+        },
+        {
+          "need": "Thirst",
+          "from": 0.446,
+          "to": 0.002,
+          "fromInspectionHours": 18.48175811767578,
+          "toInspectionHours": 18.726696014404297,
+          "fromSequence": 67,
+          "toSequence": 68
+        },
+        {
+          "need": "Fatigue",
+          "from": 0.025,
+          "to": 0.018,
+          "fromInspectionHours": 18.48175811767578,
+          "toInspectionHours": 18.726696014404297,
+          "fromSequence": 67,
+          "toSequence": 68
+        },
+        {
+          "need": "Fatigue",
+          "from": 0.025,
+          "to": 0.002,
+          "fromInspectionHours": 18.98238754272461,
+          "toInspectionHours": 19.230024337768555,
+          "fromSequence": 69,
+          "toSequence": 70
+        },
+        {
+          "need": "Fatigue",
+          "from": 0.017,
+          "to": 0.001,
+          "fromInspectionHours": 19.983823776245117,
+          "toInspectionHours": 20.224136352539062,
+          "fromSequence": 73,
+          "toSequence": 74
+        },
+        {
+          "need": "Fatigue",
+          "from": 0.004,
+          "to": 0.002,
+          "fromInspectionHours": 20.485849380493164,
+          "toInspectionHours": 20.731342315673828,
+          "fromSequence": 75,
+          "toSequence": 76
+        },
+        {
+          "need": "Fatigue",
+          "from": 0.008,
+          "to": 0.002,
+          "fromInspectionHours": 20.9924259185791,
+          "toInspectionHours": 21.24013328552246,
+          "fromSequence": 77,
+          "toSequence": 78
+        },
+        {
+          "need": "Fatigue",
+          "from": 0.004,
+          "to": 0.002,
+          "fromInspectionHours": 21.491695404052734,
+          "toInspectionHours": 21.745208740234375,
+          "fromSequence": 79,
+          "toSequence": 80
+        },
+        {
+          "need": "Fatigue",
+          "from": 0.004,
+          "to": 0.002,
+          "fromInspectionHours": 21.986045837402344,
+          "toInspectionHours": 22.25050926208496,
+          "fromSequence": 81,
+          "toSequence": 82
+        },
+        {
+          "need": "Fatigue",
+          "from": 0.011,
+          "to": 0.0,
+          "fromInspectionHours": 22.74649429321289,
+          "toInspectionHours": 23.00204086303711,
+          "fromSequence": 84,
+          "toSequence": 85
+        },
+        {
+          "need": "Fatigue",
+          "from": 0.029,
+          "to": 0.024,
+          "fromInspectionHours": 23.748796463012695,
+          "toInspectionHours": 24.009187698364258,
+          "fromSequence": 88,
+          "toSequence": 89
+        },
+        {
+          "need": "Fatigue",
+          "from": 0.024,
+          "to": 0.019,
+          "fromInspectionHours": 24.009187698364258,
+          "toInspectionHours": 24.253358840942383,
+          "fromSequence": 89,
+          "toSequence": 90
+        },
+        {
+          "need": "Fatigue",
+          "from": 0.019,
+          "to": 0.014,
+          "fromInspectionHours": 24.253358840942383,
+          "toInspectionHours": 24.50963020324707,
+          "fromSequence": 90,
+          "toSequence": 91
+        },
+        {
+          "need": "Fatigue",
+          "from": 0.014,
+          "to": 0.009,
+          "fromInspectionHours": 24.50963020324707,
+          "toInspectionHours": 24.756425857543945,
+          "fromSequence": 91,
+          "toSequence": 92
+        },
+        {
+          "need": "Fatigue",
+          "from": 0.029,
+          "to": 0.009,
+          "fromInspectionHours": 25.263622283935547,
+          "toInspectionHours": 25.513164520263672,
+          "fromSequence": 94,
+          "toSequence": 95
+        },
+        {
+          "need": "Fatigue",
+          "from": 0.009,
+          "to": 0.004,
+          "fromInspectionHours": 25.513164520263672,
+          "toInspectionHours": 25.764318466186523,
+          "fromSequence": 95,
+          "toSequence": 96
+        },
+        {
+          "need": "Fatigue",
+          "from": 0.017,
+          "to": 0.001,
+          "fromInspectionHours": 26.267669677734375,
+          "toInspectionHours": 26.518768310546875,
+          "fromSequence": 98,
+          "toSequence": 99
+        },
+        {
+          "need": "Fatigue",
+          "from": 0.013,
+          "to": 0.008,
+          "fromInspectionHours": 27.02021598815918,
+          "toInspectionHours": 27.27301788330078,
+          "fromSequence": 101,
+          "toSequence": 102
+        },
+        {
+          "need": "Fatigue",
+          "from": 0.008,
+          "to": 0.001,
+          "fromInspectionHours": 27.27301788330078,
+          "toInspectionHours": 27.525890350341797,
+          "fromSequence": 102,
+          "toSequence": 103
+        },
+        {
+          "need": "Fatigue",
+          "from": 0.01,
+          "to": 0.007,
+          "fromInspectionHours": 27.774089813232422,
+          "toInspectionHours": 28.024742126464844,
+          "fromSequence": 104,
+          "toSequence": 105
+        },
+        {
+          "need": "Fatigue",
+          "from": 0.007,
+          "to": 0.004,
+          "fromInspectionHours": 28.024742126464844,
+          "toInspectionHours": 28.27721405029297,
+          "fromSequence": 105,
+          "toSequence": 106
+        },
+        {
+          "need": "Fatigue",
+          "from": 0.004,
+          "to": 0.001,
+          "fromInspectionHours": 28.27721405029297,
+          "toInspectionHours": 28.531089782714844,
+          "fromSequence": 106,
+          "toSequence": 107
+        },
+        {
+          "need": "Fatigue",
+          "from": 0.011,
+          "to": 0.001,
+          "fromInspectionHours": 28.781890869140625,
+          "toInspectionHours": 29.024490356445312,
+          "fromSequence": 108,
+          "toSequence": 109
+        },
+        {
+          "need": "Health (%)",
+          "from": 100.0,
+          "to": 92.79,
+          "fromInspectionHours": 29.27911949157715,
+          "toInspectionHours": 29.533851623535156,
+          "fromSequence": 110,
+          "toSequence": 111
+        },
+        {
+          "need": "Health (%)",
+          "from": 92.79,
+          "to": 43.49,
+          "fromInspectionHours": 29.533851623535156,
+          "toInspectionHours": 29.784788131713867,
+          "fromSequence": 111,
+          "toSequence": 112
+        },
+        {
+          "need": "Fatigue",
+          "from": 0.017,
+          "to": 0.001,
+          "fromInspectionHours": 29.784788131713867,
+          "toInspectionHours": 30.031452178955078,
+          "fromSequence": 112,
+          "toSequence": 113
+        },
+        {
+          "need": "Health (%)",
+          "from": 43.49,
+          "to": 30.0,
+          "fromInspectionHours": 29.784788131713867,
+          "toInspectionHours": 30.031452178955078,
+          "fromSequence": 112,
+          "toSequence": 113
+        },
+        {
+          "need": "Health (%)",
+          "from": 30.0,
+          "to": 28.7,
+          "fromInspectionHours": 30.031452178955078,
+          "toInspectionHours": 30.28021240234375,
+          "fromSequence": 113,
+          "toSequence": 114
+        }
+      ],
+      "last": {
+        "sequence": 114,
+        "hours": 30.353652954101562,
+        "inspectionHours": 30.28021240234375,
+        "inspectionSequence": 396,
+        "representation": "represented",
+        "position": [
+          3419.592529296875,
+          10909.0498046875,
+          0
+        ],
+        "controller": {
+          "nextDecisionAt": 270583,
+          "state": "SOURCEWARD",
+          "stateSince": 270562
+        },
+        "needs": {
+          "Hunger": 0.599,
+          "Thirst": 0.335,
+          "Fatigue": 0.004,
+          "Endurance": 1.0,
+          "Nicotine withdrawal": 0.0,
+          "Health (%)": 28.7
+        },
+        "inventoryCount": 6
+      },
+      "lastInventory": {
+        "2026430194": {
+          "label": "Base.Vest_DefaultTEXTURE_TINT",
+          "value": "Tank Top [id 2026430194]"
+        },
+        "390259985": {
+          "label": "Base.Shoes_Random",
+          "value": "Shoes [id 390259985]"
+        },
+        "1521347981": {
+          "label": "Base.Trousers_Denim",
+          "value": "Jeans [id 1521347981]"
+        },
+        "1354585244": {
+          "label": "Base.Bag_Schoolbag_Kids",
+          "value": "Small Backpack [id 1354585244]"
+        },
+        "888521788": {
+          "label": "Base.Notebook",
+          "value": "Doug Workman's journal [id 888521788]"
+        },
+        "1621470568": {
+          "label": "Base.IDcard_Male",
+          "value": "Doug Workman - ID [id 1621470568]"
+        }
+      },
+      "lastKnown": {
+        "1.1822004856422402E16": {
+          "source": "observed",
+          "visits": 4,
+          "at": 236102,
+          "sourceFacts": {}
+        },
+        "1.182200485642241E16": {
+          "source": "observed",
+          "visits": 2,
+          "at": 103744,
+          "sourceFacts": {}
+        },
+        "source:C:3f79869a-1700-413c-b18c-a29b0e903439:0": {
+          "source": "native-container-inspection",
+          "visits": null,
+          "at": 202725,
+          "sourceFacts": {
+            "C:3f79869a-1700-413c-b18c-a29b0e903439:0": {
+              "access": "unknown",
+              "buildingId": "11822004856422402",
+              "candidates": {
+                "food": {
+                  "amount": 0,
+                  "categories": {
+                    "food": true
+                  },
+                  "condition": 10,
+                  "currentUses": 0.15,
+                  "fluid": "",
+                  "id": 38102500,
+                  "poison": false,
+                  "rotten": false,
+                  "type": "Base.GranolaBar",
+                  "uses": 1
+                },
+                "fuel": {
+                  "amount": 0,
+                  "categories": {
+                    "fuel": true
+                  },
+                  "condition": 10,
+                  "currentUses": 0.15,
+                  "fluid": "",
+                  "id": 38102500,
+                  "poison": false,
+                  "rotten": false,
+                  "type": "Base.GranolaBar",
+                  "uses": 1
+                }
+              },
+              "chunkX": 428,
+              "chunkY": 1364,
+              "container": "counter",
+              "explored": true,
+              "fingerprint": "b825d31878483c1355233fdd3d94b7ee7fb3ceef965b98792327fd0ffcac2eb2",
+              "id": "C:3f79869a-1700-413c-b18c-a29b0e903439:0",
+              "kind": "container",
+              "quantities": {
+                "food": 3,
+                "fuel": 3
+              },
+              "revision": "d9111770932e91e59659f1455043947c0902b1230d3a43e37386a882822915ed",
+              "state": "available",
+              "x": 3424,
+              "y": 10912,
+              "z": 0
+            }
+          }
+        }
+      },
+      "lastWork": {
+        "id": "source-work",
+        "label": "Source use and latest result",
+        "message": "",
+        "perspective": "Native action receipts",
+        "rows": [
+          {
+            "label": "Source action.id",
+            "value": "R:34:sao-2"
+          },
+          {
+            "label": "Source action.status",
+            "value": "reserved"
+          },
+          {
+            "label": "Source action.phase",
+            "value": "approaching-place"
+          },
+          {
+            "label": "Source action.operation",
+            "value": "consume"
+          },
+          {
+            "label": "Source action.category",
+            "value": "food"
+          },
+          {
+            "label": "Source action.itemType",
+            "value": "Base.GranolaBar"
+          },
+          {
+            "label": "Source action.quantity",
+            "value": "1"
+          },
+          {
+            "label": "Source action.preRevision",
+            "value": "d9111770932e91e59659f1455043947c0902b1230d3a43e37386a882822915ed"
+          },
+          {
+            "label": "Latest result.reservationId",
+            "value": "R:33:sao-2"
+          },
+          {
+            "label": "Latest result.status",
+            "value": "conflict"
+          },
+          {
+            "label": "Latest result.operation",
+            "value": "consume"
+          },
+          {
+            "label": "Latest result.category",
+            "value": "food"
+          },
+          {
+            "label": "Latest result.itemType",
+            "value": "Base.GranolaBar"
+          },
+          {
+            "label": "Latest result.quantity",
+            "value": "1"
+          },
+          {
+            "label": "Latest result.requestedQuantity",
+            "value": "1"
+          },
+          {
+            "label": "Latest result.preRevision",
+            "value": "d9111770932e91e59659f1455043947c0902b1230d3a43e37386a882822915ed"
+          },
+          {
+            "label": "Latest result.at",
+            "value": "29.993040084838867"
+          },
+          {
+            "label": "Latest result.detail",
+            "value": "route-ended:done:Failed"
+          }
+        ],
+        "source": "WorldSources durable action ledger",
+        "status": "available"
+      },
+      "lastLivingHealth": 0.3
+    }
+  ],
+  "events": {
+    "uniqueRecovered": 534,
+    "counts": [
+      {
+        "source": "Locomotion",
+        "stage": "arrived",
+        "count": 91
+      },
+      {
+        "source": "Locomotion",
+        "stage": "cancelled",
+        "count": 37
+      },
+      {
+        "source": "Locomotion",
+        "stage": "failed",
+        "count": 68
+      },
+      {
+        "source": "Locomotion",
+        "stage": "replaced",
+        "count": 62
+      },
+      {
+        "source": "Locomotion",
+        "stage": "started",
+        "count": 261
+      },
+      {
+        "source": "Voice",
+        "stage": "emitted",
+        "count": 15
+      }
+    ]
+  },
+  "forageFailureReasons": {
+    "native-transfer-refused": 15,
+    "done:FailedObstacle:FAILED_BLOCKED_DIAGONAL": 4,
+    "done:stalled:ManualRoute": 1
+  },
+  "sourceUseFailureReasons": {
+    "route-ended:done:Failed": 32,
+    "route-ended:done:stalled:ManualRoute": 1
+  },
+  "inspectionSuccessLogCount": 1,
+  "outcome": {
+    "inspection": "Doug reached and successfully inspected one counter, acquiring exact private stock evidence.",
+    "firstUnobservedStage": "native transfer admission following the successful container inspection",
+    "evidence": "native-transfer-refused on the first and repeated forage arrivals; no carried food identity gain or hunger reduction in the full snapshots.",
+    "laterStage": "Later SourceUse reservations reached route failures and conflicts; the final reservation remained approaching-place.",
+    "water": "Both actors queued native drinking at the reachable sink; distinct physical snapshots independently show thirst reductions.",
+    "behavioralAcceptance": false
+  },
+  "datasetAdmission": "unreviewed",
+  "limits": [
+    "Normal stop/save is operational closure, not survival or behavioral acceptance.",
+    "No same-save reopening was performed by this analysis.",
+    "Event histories are bounded samples; recovered counts are lower bounds.",
+    "Native physical sample time is inspectionHours, which may precede its containing archive.",
+    "Inventory changes prove carriage, not transfer cause without a matching receipt.",
+    "Need log queue admission alone does not prove completion; sampled physical reductions are separate evidence.",
+    "No actor or world was mutated by this read-only analysis."
+  ]
+}

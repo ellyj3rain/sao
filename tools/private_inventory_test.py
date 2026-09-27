@@ -10,6 +10,7 @@ import pathlib
 import subprocess
 import tempfile
 import time
+import shutil
 
 
 ROOT = pathlib.Path(__file__).resolve().parent.parent
@@ -19,6 +20,207 @@ PZ = GAME / "projectzomboid.jar"
 ZB = GAME / "ZombieBuddy.jar"
 JDK = pathlib.Path(os.environ.get(
     "JDK_BIN", r"C:\Users\jleyv\Peanut Butter\JetBrains\Java\bin"))
+
+INSPECTION_PRELUDE = r'''
+local stores = {}
+ModData = { getOrCreate = function(key)
+    stores[key] = stores[key] or {}; return stores[key]
+end, get = function(key) return stores[key] end }
+Events = setmetatable({}, { __index = function(t, key)
+    local entry = { Add = function() end, Remove = function() end }; rawset(t,key,entry); return entry
+end })
+hours, permitted, inspectCalls = 2, true, 0
+bodies, records, memories = {}, {}, {}
+SAO = { Log = { line = function() end },
+    History = { countyHours = function() return hours end,
+        ticksFromHours = function(h) return h * 9000 end },
+    Places = { at = function() return nil end },
+    Identity = { get = function(id) return records[id] end },
+    Body = { get = function(id) return bodies[id] end },
+    Standing = { mayTakeCurrent = function() return permitted end } }
+for _, id in ipairs({"a", "b", "c", "d"}) do records[id] = { id = id }; bodies[id] = {} end
+SAOJavaBridge = { worldInspectionMemory = function(self, body)
+        memories[body] = memories[body] or {}; return memories[body]
+    end,
+    worldInspectionCandidates = function() return candidateText end,
+    worldInspectContainer = function(self, body, id, fp, x, y, z)
+        inspectCalls = inspectCalls + 1; return snapshotText
+    end }
+checks = 0
+function check(name, passed) assert(passed, name); checks = checks + 1; print("CASE " .. name) end
+'''
+
+INSPECTION_CASES = r'''
+local W, P = SAO.WorldSources, SAO.Perception
+local function facts(id)
+    local result = {}; for _, place in pairs(P.knownPlaces(id,true)) do
+        for key, fact in pairs(place.sourceFacts or {}) do result[key] = fact end
+    end; return result
+end
+local function count(t) local n=0; for _ in pairs(t) do n=n+1 end; return n end
+-- Native truth may already know a holder through another participant. That
+-- alone must never teach either actor or suppress their own inspection.
+local packet = string.match(snapshotText, "^[^\n]+\n(.*)$")
+check("other_observation_is_not_personal", W.applySnapshot(W.parse(packet)) and count(facts("a")) == 0)
+local ctx = W.inspectionCandidate("a", bodies.a, "standing", 12)
+check("offer_without_knowledge", ctx ~= nil and count(facts("a")) == 0 and inspectCalls == 0)
+check("foreign_context_refused", not W.inspectContainer("b", bodies.b, ctx) and inspectCalls == 0)
+permitted = false
+local ok, why = W.inspectContainer("a", bodies.a, ctx)
+check("permission_rechecked_before_fill", not ok and why == "current-claim-refused" and inspectCalls == 0)
+check("unpermitted_not_offered", W.inspectionCandidate("a", bodies.a, "standing",12) == nil)
+permitted = true
+ctx = W.inspectionCandidate("a", bodies.a, "standing",12)
+local forged={}; for k,v in pairs(ctx) do forged[k]=v end
+check("unowned_context_refused", not W.inspectContainer("a", bodies.a, forged) and inspectCalls == 0)
+W.resetRuntime()
+check("reset_drops_lua_intent", not W.inspectContainer("a", bodies.a, ctx) and inspectCalls == 0)
+ctx = W.inspectionCandidate("a", bodies.a, "standing",12)
+check("actual_snapshot_inspected", W.inspectContainer("a", bodies.a, ctx) and inspectCalls == 1)
+local remembered = facts("a")[ctx.sourceId]
+check("empty_holder_private_fact", remembered and remembered.state == "spent"
+    and remembered.explored and count(remembered.quantities) == 0)
+check("only_exact_holder_learned", count(facts("a")) == 1)
+check("other_actor_not_taught", count(facts("b")) == 0)
+local nextCtx = W.inspectionCandidate("a", bodies.a, "standing",12)
+check("empty_holder_not_repeated", not nextCtx or nextCtx.sourceId ~= ctx.sourceId)
+local second = W.inspectionCandidate("b", bodies.b, "standing",12)
+check("second_actor_still_unknown", second and second.sourceId == ctx.sourceId and count(facts("b")) == 0)
+check("second_actor_must_inspect", W.inspectContainer("b", bodies.b, second) and inspectCalls == 2
+    and count(facts("b")) == 1)
+local value = ModData.get("SurvivorAwareness_WorldSources")
+check("inspection_no_acquisition_receipt", count(value.reservations) == 0 and count(value.results) == 0)
+local original = candidateText
+candidateText = string.gsub(candidateText, "reachable=1", "reachable=0")
+local failed = W.inspectionCandidate("c", bodies.c, "standing",12)
+check("exact_failed_approach_recorded", W.inspectionFailed("c", bodies.c, failed, "done:Failed"))
+local alternate = W.inspectionCandidate("c", bodies.c, "standing",12)
+check("failed_holder_not_immediately_reselected", not alternate or alternate.sourceId ~= failed.sourceId)
+hours = hours + 0.25
+local retried = W.inspectionCandidate("c", bodies.c, "standing",12)
+check("bounded_retry_expires", retried and retried.sourceId == failed.sourceId)
+check("flee_does_not_penalize", not W.inspectionFailed("c", bodies.c, retried, "interrupted:FLEE"))
+retried = W.inspectionCandidate("c", bodies.c, "standing",12)
+check("flee_reselection_allowed", retried and retried.sourceId == failed.sourceId)
+W.inspectionFailed("c", bodies.c, retried, "done:FailedObstacle:FAILED_BLOCKED_DIAGONAL")
+candidateText = original
+check("actual_reach_overrides_route_refusal", W.inspectionCandidate("c", bodies.c, "standing",12) ~= nil)
+local valid = candidateText
+candidateText = string.gsub(valid, "|reachable=1", "|reachable=1|reachable=1")
+check("duplicate_protocol_key_refused", W.inspectionCandidate("d", bodies.d, "standing",12) == nil)
+candidateText = valid
+local stale = W.inspectionCandidate("d", bodies.d, "standing",12)
+snapshotText = string.gsub(snapshotText, "|x=11|", "|x=12|")
+check("changed_source_receipt_not_taught", not W.inspectContainer("d", bodies.d, stale) and count(facts("d")) == 0)
+RESULT = "PASS inspection Lua " .. checks
+'''
+
+
+def inspection_lua(root, work, production, receipt):
+    shutil.copyfile(GAME / "stdlib.lua", work / "stdlib.lua")
+    prelude = work / "inspection-prelude.lua"
+    prelude.write_text(INSPECTION_PRELUDE + "\ncandidateText=[=[" +
+        (work / "candidates.txt").read_text(encoding="utf-8") +
+        "]=]\nsnapshotText=[=[" + (work / "snapshot.txt").read_text(encoding="utf-8") + "]=]\n",
+        encoding="utf-8")
+    case = work / "inspection-cases.lua"
+    case.write_text(INSPECTION_CASES, encoding="utf-8")
+    inputs = [prelude, root / "mod/42.20/media/lua/shared/SAO_WorldSources.lua",
+        root / "mod/42.20/media/lua/shared/SAO_Perception.lua", case]
+    result = run([JDK / "java.exe", "-cp", os.pathsep.join(map(str,(production,PZ,ZB))),
+        "LuaRun", *inputs, "--", "RESULT"], work, "probe", "inspection-lua", receipt)
+    if result.returncode or "VALUE PASS inspection Lua" not in result.stdout:
+        raise RuntimeError("Inspection Lua failed: " + result.stdout + result.stderr)
+    print(result.stdout.strip())
+    receipt["results"].append({"case":"inspection-lua", "passed":True})
+    source = inputs[1].read_text(encoding="utf-8-sig")
+    controls = [
+        ("omit-private-inspection", "learned = SAO.Perception.learnInspectedSource(actorId,\n            transferPlace(actorId, source), context.sourceId, tick, \"native-container-inspection\")",
+            "learned = true", "empty_holder_private_fact"),
+        ("repeat-empty", "and not personallyInspected(known, row)", "and true", "empty_holder_not_repeated"),
+        ("ignore-route-failure", "if not delayed and not personallyInspected", "if true and not personallyInspected", "failed_holder_not_immediately_reselected"),
+        ("penalize-flee", "local INSPECTION_ACCESS_FAILURE = {", "local INSPECTION_ACCESS_FAILURE = { [\"interrupted:FLEE\"] = true,", "flee_does_not_penalize"),
+        ("leak-on-offer", "memory.pending = context\n            return context",
+            "memory.pending = context\n            SAO.Perception.learnInspectedSource(actorId, transferPlace(actorId, value.sources[row.id]), row.id, 0, 'bad-offer')\n            return context", "offer_without_knowledge"),
+        ("permission-after-fill", "if not (SAO.Standing and SAO.Standing.mayTakeCurrent\n        and SAO.Standing.mayTakeCurrent(actorId, context.sourceX, context.sourceY,\n            context.admission)) then return false, \"current-claim-refused\" end",
+            "if false then return false, \"current-claim-refused\" end", "permission_rechecked_before_fill"),
+        ("forget-current-coordinates", "or source.x ~= context.sourceX or source.y ~= context.sourceY or source.z ~= context.sourceZ", "or false", "changed_source_receipt_not_taught"),
+        ("teach-all-chunk-holders", "if not learnedOk or not learned then return false, \"private-inspection-unavailable\" end",
+            "for otherId, otherSource in pairs(snapshot.sources) do SAO.Perception.learnInspectedSource(actorId, transferPlace(actorId, otherSource), otherId, 0, 'bad-bulk') end\n    if not learnedOk or not learned then return false, \"private-inspection-unavailable\" end", "only_exact_holder_learned"),
+    ]
+    for name, before, after, marker in controls:
+        if source.count(before) != 1:
+            raise RuntimeError("Inspection Lua control drift: " + name)
+        changed = work / (name + ".lua")
+        changed.write_text(source.replace(before, after, 1), encoding="utf-8")
+        controlled = run([JDK / "java.exe", "-cp", os.pathsep.join(map(str,(production,PZ,ZB))),
+            "LuaRun", prelude, changed, inputs[2], case, "--", "RESULT"],
+            work, "control", name, receipt)
+        if "ERROR " not in controlled.stdout or marker not in controlled.stdout:
+            raise RuntimeError("Inspection Lua control did not reject " + name + ": " + controlled.stdout + controlled.stderr)
+        receipt["results"].append({"case":name, "passed":True, "reason":marker})
+        print("CONTROL " + name + ": " + marker)
+
+
+def inspection_controls(root, work, production, receipt):
+    source = (root / "java/src/com/sao/engine/SAOWorldSources.java").read_text(encoding="utf-8-sig")
+    controls = [
+        ("native-square-unsupported-iterator", "for (int objectIndex = 0; objectIndex < square.getObjects().size(); objectIndex++) {\n                    IsoObject object = square.getObjects().get(objectIndex);",
+            "for (IsoObject object : square.getObjects()) {", "inspected_native_holder_offers_exact_transfer"),
+        ("native-square-unsupported-copy", "for (int objectIndex = 0; objectIndex < square.getObjects().size(); objectIndex++) {\n                    IsoObject object = square.getObjects().get(objectIndex);",
+            "for (IsoObject object : new ArrayList<>(square.getObjects())) {", "inspected_native_holder_offers_exact_transfer"),
+        ("omit-native-fill", "try { ItemPickerJava.fillContainer(container, shell); }", "try { /* missing native opening */ }", "native_fill_once"),
+        ("repeat-native-roll", "if (!container.isExplored()) {\n                try { ItemPickerJava.fillContainer", "if (true) {\n                try { ItemPickerJava.fillContainer", "repeat_inspection_no_roll"),
+        ("foreign-native-binding", "var bindings = INSPECTIONS.get(shell);", "var bindings = INSPECTIONS.values().iterator().next();", "foreign_actor_refused"),
+        ("lost-native-reach", "|| !SAONeeds.containerAccessibleNow(shell, container)) return \"ACCESS_REFUSED\";", ") return \"ACCESS_REFUSED\";", "unreachable_refused"),
+        ("stale-native-object", "|| !square.getObjects().contains(object)\n                    || binding.index", "|| false\n                    || binding.index", "cloned_identity_refused"),
+        ("lost-native-visibility", "if (!SAOPerceptionScanner.canSeeWorldSquareNow(shell, square, radius)) continue;", "if (square == null) continue;", "opaque_holder_not_offered"),
+        ("lost-native-reset", "INSPECTIONS.clear();", "/* retained old world bindings */", "world_reset_drops_offers"),
+        ("lost-native-lock", "(object instanceof IsoThumpable locked && locked.isLockedToCharacter(shell))", "false", "lock_rechecked_at_inspection"),
+        ("omit-own-inspection-revision", "binding.observedRevision = source.revision;", "/* no own evidence */", "own_inspection_admits_direct_food"),
+        ("stale-private-stock-authority", "return current.equals(observed) || remembered.contains(current);", "return observed != null || !remembered.isEmpty();", "stale_private_revision_cannot_reveal_added_stock"),
+        ("drop-existing-private-memory", "var remembered = rememberedContainerRevisions(person, id, fingerprint);", "var remembered = java.util.Set.<String>of();", "unchanged_private_memory_survives_reset"),
+    ]
+    for name, before, after, marker in controls:
+        if source.count(before) != 1:
+            raise RuntimeError("Native inspection control drift: " + name)
+        directory = work / name; directory.mkdir()
+        changed = directory / "SAOWorldSources.java"
+        changed.write_text(source.replace(before,after,1),encoding="utf-8")
+        classes = directory / "classes"; classes.mkdir()
+        compiled = run([JDK / "javac.exe", "-encoding", "UTF-8", "-cp",
+            os.pathsep.join(map(str,(production,PZ,ZB))), "-d", classes, changed], directory,
+            "compile",name,receipt)
+        if compiled.returncode:
+            raise RuntimeError("Native inspection control compile failed " + name + ": " + compiled.stderr)
+        controlled = run([JDK / "java.exe", f"-Duser.home={directory}", "-cp",
+            os.pathsep.join(map(str,(classes,production,PZ,ZB))), "ContainerInspectionProbe"], GAME,
+            "control",name,receipt)
+        if controlled.returncode == 0 or "AssertionError: " + marker not in controlled.stderr:
+            raise RuntimeError("Native inspection control did not reject " + name + ": " + controlled.stdout + controlled.stderr)
+        receipt["results"].append({"case":name,"passed":True,"reason":marker})
+        print("CONTROL " + name + ": " + marker)
+    private_source = (root / "java/src/com/sao/engine/SAOPrivateInventory.java").read_text(encoding="utf-8-sig")
+    before = "SAOWorldSources.knowsContainerContents(person,\n                    object, container, containerIndex)"
+    if private_source.count(before) != 1:
+        raise RuntimeError("Global-explored privacy control drift")
+    directory = work / "global-explored-private"; directory.mkdir()
+    changed = directory / "SAOPrivateInventory.java"
+    changed.write_text(private_source.replace(before,"container.isExplored()",1),encoding="utf-8")
+    classes=directory / "classes"; classes.mkdir()
+    compiled=run([JDK / "javac.exe","-encoding","UTF-8","-cp",
+        os.pathsep.join(map(str,(production,PZ,ZB))),"-d",classes,changed],directory,
+        "compile","global-explored-private",receipt)
+    if compiled.returncode:
+        raise RuntimeError("Privacy restoration control compile failed: " + compiled.stderr)
+    controlled=run([JDK / "java.exe",f"-Duser.home={directory}","-cp",
+        os.pathsep.join(map(str,(classes,production,PZ,ZB))),"ContainerInspectionProbe"],GAME,
+        "control","global-explored-private",receipt)
+    marker="other_behind_wall_cannot_read_stock"
+    if controlled.returncode==0 or "AssertionError: " + marker not in controlled.stderr:
+        raise RuntimeError("Global explored control did not reproduce cross-person leak: " + controlled.stdout + controlled.stderr)
+    print("CONTROL global-explored-private: " + marker)
+    receipt["results"].append({"case":"global-explored-private","passed":True,"reason":marker})
 
 
 def sha(path: pathlib.Path) -> str:
@@ -124,7 +326,10 @@ def execute(root: pathlib.Path, receipt: dict) -> None:
             "private SAOVersion() {} }\n", encoding="utf-8")
         inputs = sorted((root / "java/src").rglob("*.java"))
         inputs.extend((generated,
-            root / "tools/luacheck/PrivateInventoryProbe.java"))
+            root / "tools/luacheck/PrivateInventoryProbe.java",
+            root / "tools/luacheck/ContainerInspectionProbe.java",
+            root / "tools/luacheck/MovementCrossingProbe.java",
+            root / "tools/luacheck/LuaRun.java"))
         classpath = os.pathsep.join(map(str, (PZ, ZB)))
         compiled = run([JDK / "javac.exe", "-encoding", "UTF-8", "-cp",
             classpath, "-d", production, *inputs], work, "compile",
@@ -140,6 +345,15 @@ def execute(root: pathlib.Path, receipt: dict) -> None:
                 + result.stdout + result.stderr)
         print(result.stdout.strip())
         receipt["results"].append({"case": "production", "passed": True})
+        inspection = run([JDK / "java.exe", f"-Duser.home={work}", "-cp",
+            os.pathsep.join(map(str, (production, PZ, ZB))),
+            "ContainerInspectionProbe", work], GAME, "probe", "native-inspection", receipt)
+        if inspection.returncode or "PASS container inspection" not in inspection.stdout:
+            raise RuntimeError("Native inspection probe failed: " + inspection.stdout + inspection.stderr)
+        print(inspection.stdout.strip())
+        receipt["results"].append({"case": "native-inspection", "passed": True})
+        inspection_lua(root, work, production, receipt)
+        inspection_controls(root, work, production, receipt)
 
         mutation = work / "mutation"
         mutation.mkdir()
@@ -174,6 +388,17 @@ def main(argv=None) -> int:
     args = parser.parse_args(argv)
     root = args.root.resolve()
     receipt = {"border": 184, "checks": [], "results": [], "commands": []}
+    bound = (
+        "java/src/com/sao/engine/SAOPrivateInventory.java",
+        "java/src/com/sao/engine/SAOWorldSources.java",
+        "java/src/com/sao/engine/SAOPerceptionScanner.java",
+        "mod/42.20/media/lua/shared/SAO_WorldSources.lua",
+        "mod/42.20/media/lua/shared/SAO_Perception.lua",
+        "tools/private_inventory_test.py", "tools/luacheck/PrivateInventoryProbe.java",
+        "tools/luacheck/ContainerInspectionProbe.java", "tools/luacheck/MovementCrossingProbe.java",
+        "tools/luacheck/LuaRun.java",
+    )
+    receipt["source_sha256"] = {name: sha(root / name) for name in bound}
     try:
         receipt["checks"] = static_contract(root)
         required = (PZ, ZB, JDK / "javac.exe", JDK / "java.exe")
@@ -185,6 +410,8 @@ def main(argv=None) -> int:
             receipt["engine_sha256"] = sha(PZ)
             receipt["compiler_sha256"] = sha(JDK / "javac.exe")
             execute(root, receipt)
+            if any(sha(root / name) != digest for name,digest in receipt["source_sha256"].items()):
+                raise RuntimeError("Bound inspection input changed during validation")
             receipt["status"] = "PASS"
     except Exception as error:
         receipt["status"] = "FAIL"

@@ -49,6 +49,8 @@ public final class SAONeeds {
     public static void resetRuntimeForWorld() {
         SOURCES.clear();
         WATER_SOURCES.clear();
+        WATER_APPROACHES.clear();
+        WATER_FAILURES.clear();
         WEAPON_SOURCES.clear();
         AMMO_SOURCES.clear();
         OFFERED.clear();
@@ -1446,7 +1448,20 @@ public final class SAONeeds {
      *  purpose. The true source floor is returned as "x:y:z"; tainted sources
      *  are refused. */
     public static String findWaterSourceNear(IsoPlayer shell, int radius) {
+        // Existing callers without a county clock retain the original query.
+        return findWaterSourceNear(shell, radius, 0, false);
+    }
+
+    /** County time dates only this body's failed attempts, not source contents. */
+    public static String findWaterSourceNear(IsoPlayer shell, int radius, double atHours) {
+        if (!Double.isFinite(atHours) || atHours < 0) return "";
+        return findWaterSourceNear(shell, radius, atHours, true);
+    }
+
+    private static String findWaterSourceNear(IsoPlayer shell, int radius,
+            double atHours, boolean avoidFailedApproaches) {
         try {
+            WATER_APPROACHES.remove(shell);
             IsoCell cell = shell.getCell();
             if (cell == null) {
                 return "";
@@ -1459,14 +1474,12 @@ public final class SAONeeds {
             int by = 0;
             int bz = cz;
             float bestDist = Float.MAX_VALUE;
+            boolean bestReachable = false;
             for (int zOff : FLOOR_RING) {
                 for (int dy = -radius; dy <= radius; dy++) {
                     for (int dx = -radius; dx <= radius; dx++) {
                         float dist = dx * dx + dy * dy
                             + (zOff == 0 ? 0.0f : CROSS_FLOOR_PENALTY);
-                        if (dist >= bestDist) {
-                            continue;
-                        }
                         IsoGridSquare square = cell.getGridSquare(cx + dx, cy + dy, cz + zOff);
                         if (square == null) {
                             continue;
@@ -1474,14 +1487,17 @@ public final class SAONeeds {
                         java.util.List<IsoObject> objects = square.getObjects();
                         for (int i = 0; i < objects.size(); i++) {
                             IsoObject object = objects.get(i);
-                            if (object.hasFluid() && object.getFluidAmount() > 0.1f
-                                && !object.isTaintedWater()) {
+                            if (cleanWaterSource(object)
+                                && (!avoidFailedApproaches || !waterApproachHeld(shell, object, atHours))) {
+                                boolean reachable = waterWithinReach(shell, object);
+                                if (best != null && ((!reachable && bestReachable)
+                                        || (reachable == bestReachable && dist >= bestDist))) continue;
                                 best = object;
                                 bx = square.getX();
                                 by = square.getY();
                                 bz = square.getZ();
                                 bestDist = dist;
-                                break;
+                                bestReachable = reachable;
                             }
                         }
                     }
@@ -1491,7 +1507,8 @@ public final class SAONeeds {
                 WATER_SOURCES.remove(shell);
                 return "";
             }
-            WATER_SOURCES.put(shell, best);
+            IsoObject previous = WATER_SOURCES.put(shell, best);
+            if (previous != best) logWaterSource(shell, best, "selected");
             return bx + ":" + by + ":" + bz;
         } catch (Throwable throwable) {
             return "";
@@ -1502,8 +1519,10 @@ public final class SAONeeds {
     public static IsoObject waterSource(IsoPlayer shell) {
         try {
             IsoObject object = WATER_SOURCES.get(shell);
-            if (object == null || !object.hasFluid()
-                || object.getFluidAmount() <= 0.1f || object.isTaintedWater()) {
+            IsoGridSquare square = object == null ? null : object.getSquare();
+            if (!cleanWaterSource(object) || square == null || shell == null
+                    || !loadedSourceSquare(shell.getCell(), square, square.getX(), square.getY(), square.getZ())
+                    || !square.getObjects().contains(object)) {
                 WATER_SOURCES.remove(shell);
                 return null;
             }
@@ -1515,12 +1534,7 @@ public final class SAONeeds {
 
     public static boolean waterSourceWithinReach(IsoPlayer shell) {
         try {
-            IsoObject object = WATER_SOURCES.get(shell);
-            IsoGridSquare square = object == null ? null : object.getSquare();
-            if (square == null || !squareWithinReach(shell, square)) {
-                return false;
-            }
-            return true;
+            return waterWithinReach(shell, waterSource(shell));
         } catch (Throwable throwable) {
             return false;
         }
@@ -1528,6 +1542,248 @@ public final class SAONeeds {
 
     public static void clearWaterSource(IsoPlayer shell) {
         WATER_SOURCES.remove(shell);
+        WATER_APPROACHES.remove(shell);
+    }
+
+    /** Exact native water identity, including piped/reserve fixtures and a final sip. */
+    private static boolean cleanWaterSource(IsoObject object) {
+        if (object == null || object.getFluidAmount() <= 0 || !object.hasWater()
+                || object.isTaintedWater()) return false;
+        var primary = object.getPrimaryFluid();
+        // An empty attached component can return null while native hasWater and
+        // getFluidAmount resolve the fixture's remaining pipe reserve.
+        return primary == null || !primary.isPoisonous();
+    }
+
+    /** The immediate-interaction branch of installed luautils.walkAdjObject. */
+    private static boolean waterWithinReach(IsoPlayer shell, IsoObject object) {
+        if (shell == null || object == null || shell.getCell() == null) return false;
+        IsoCell cell = shell.getCell();
+        IsoGridSquare square = object.getSquare();
+        IsoGridSquare here = shell.getCurrentSquare();
+        if (square == null || here == null || !square.getObjects().contains(object)
+                || !loadedSourceSquare(cell, square, square.getX(), square.getY(), square.getZ())
+                || !loadedSourceSquare(cell, here, here.getX(), here.getY(), here.getZ())
+                || square.getZ() != (int) shell.getZ()) return false;
+        // Preserve the installed getCorrectSquareForWall order and offsets.
+        if (square.has(zombie.iso.SpriteDetails.IsoFlagType.collideW) && shell.getX() < square.getX()) {
+            square = cell.getGridSquare(square.getX() + 1, square.getY(), square.getZ());
+        } else if (square.has(zombie.iso.SpriteDetails.IsoFlagType.collideN) && shell.getY() < square.getY()) {
+            square = cell.getGridSquare(square.getX(), square.getY() + 1, square.getZ());
+        }
+        if (square == null) return false;
+        float dx = Math.abs(square.getX() + 0.5f - shell.getX());
+        float dy = Math.abs(square.getY() + 0.5f - shell.getY());
+        return dx <= 1.6f && dy <= 1.6f && here.canReachTo(square);
+    }
+
+    private static void logWaterSource(IsoPlayer shell, IsoObject source, String event) {
+        try {
+            IsoGridSquare square = source.getSquare();
+            SAOAgent.log("water " + event + " person=" + shell.getModData().rawget("SAOPersonId")
+                + " body=" + Integer.toHexString(System.identityHashCode(shell))
+                + " fixture=" + source.getClass().getSimpleName() + "@"
+                + Integer.toHexString(System.identityHashCode(source))
+                + " sprite=" + (source.getSprite() == null ? "null" : source.getSprite().getName())
+                + " source=" + square.getX() + "," + square.getY() + "," + square.getZ()
+                + " amount=" + source.getFluidAmount() + " reach=" + waterWithinReach(shell, source));
+        } catch (Throwable unavailable) {
+            // Optional diagnostics cannot change source/action ownership.
+        }
+    }
+
+    // Execution receipts share the existing per-body native lookup lifetime.
+    // They are not a second place-belief store. Weak keys and weak source handles
+    // cannot retain a retired body or an unloaded fixture. County-time expiry
+    // permits a later attempt; failure never says that the source is dry.
+    private static final int WATER_FAILURE_LIMIT = 16;
+    private static final double WATER_RETRY_HOURS = 0.25;
+    private static final Map<IsoPlayer, WaterApproach> WATER_APPROACHES = new WeakHashMap<>();
+    private static final Map<IsoPlayer, java.util.List<WaterFailure>> WATER_FAILURES = new WeakHashMap<>();
+
+    private static final class WaterApproach {
+        final java.lang.ref.WeakReference<IsoObject> source;
+        final int x, y, z;
+        WaterApproach(IsoObject source, IsoGridSquare target) {
+            this.source = new java.lang.ref.WeakReference<>(source);
+            x = target.getX(); y = target.getY(); z = target.getZ();
+        }
+    }
+
+    private static final class WaterFailure {
+        final java.lang.ref.WeakReference<IsoObject> source;
+        final int sourceX, sourceY, sourceZ;
+        final int approachX, approachY, approachZ;
+        final double atHours, retryAtHours;
+        final int attempts;
+        WaterFailure(IsoObject source, WaterApproach approach, double atHours, int attempts) {
+            this.source = new java.lang.ref.WeakReference<>(source);
+            sourceX = source.getSquare().getX(); sourceY = source.getSquare().getY();
+            sourceZ = source.getSquare().getZ();
+            approachX = approach.x; approachY = approach.y; approachZ = approach.z;
+            this.atHours = atHours; this.attempts = attempts;
+            retryAtHours = atHours + WATER_RETRY_HOURS * Math.min(4, attempts);
+        }
+    }
+
+    private static boolean waterApproachHeld(IsoPlayer shell, IsoObject source, double atHours) {
+        var failures = WATER_FAILURES.get(shell);
+        if (failures == null) return false;
+        var iterator = failures.iterator();
+        while (iterator.hasNext()) {
+            WaterFailure failure = iterator.next();
+            IsoObject remembered = failure.source.get();
+            IsoGridSquare square = remembered == null ? null : remembered.getSquare();
+            if (square == null || square.getX() != failure.sourceX
+                    || square.getY() != failure.sourceY || square.getZ() != failure.sourceZ
+                    || !square.getObjects().contains(remembered)
+                    || (Double.isFinite(atHours) && atHours < failure.atHours)) {
+                iterator.remove();
+                continue;
+            }
+            if (remembered != source) continue;
+            // A different adjacent target or a little motion is not new access.
+            // Only actual native interaction reach clears this receipt early.
+            if (waterWithinReach(shell, source)) {
+                iterator.remove();
+                return false;
+            }
+            return !Double.isFinite(atHours) || atHours < failure.retryAtHours;
+        }
+        return false;
+    }
+
+    /** Record a terminal failure of the exact approach previously selected. */
+    public static boolean failWaterApproach(IsoPlayer shell, String result, double atHours,
+            int approachX, int approachY, int approachZ) {
+        try {
+            boolean accessFailure = result != null && switch (result) {
+                case "done:Failed", "done:stalled:ManualRoute",
+                    "done:FailedObstacle:FAILED_BLOCKED_DIAGONAL",
+                    "done:FailedObstacle:FAILED_LOCKED_DOOR",
+                    "done:FailedObstacle:FAILED_BARRICADED_DOOR",
+                    "done:FailedObstacle:FAILED_BARRICADED_WINDOW",
+                    "done:FailedObstacle:FAILED_BLOCKED_WINDOW",
+                    "done:FailedObstacle:FAILED_WINDOW_DECLINED",
+                    "done:FailedObstacle:FAILED_EDGE_COOLDOWN",
+                    "done:FailedObstacle:FAILED_UNSUPPORTED_Z_CHANGE" -> true;
+                default -> false;
+            };
+            if (!accessFailure || !Double.isFinite(atHours) || atHours < 0
+                    || shell == null || shell.isDead() || shell.getCurrentSquare() == null) return false;
+            WaterApproach approach = WATER_APPROACHES.get(shell);
+            IsoObject source = WATER_SOURCES.get(shell);
+            if (approach == null || source == null || approach.source.get() != source
+                    || approach.x != approachX || approach.y != approachY || approach.z != approachZ) return false;
+            IsoGridSquare square = source.getSquare();
+            if (square == null || !loadedSourceSquare(shell.getCell(), square,
+                    square.getX(), square.getY(), square.getZ())
+                    || !square.getObjects().contains(source)) return false;
+            var failures = WATER_FAILURES.computeIfAbsent(shell, ignored -> new java.util.ArrayList<>());
+            int attempts = 1;
+            var iterator = failures.iterator();
+            while (iterator.hasNext()) {
+                WaterFailure previous = iterator.next();
+                IsoObject remembered = previous.source.get();
+                if (remembered == null || remembered == source) {
+                    if (remembered == source) attempts = Math.min(4, previous.attempts + 1);
+                    iterator.remove();
+                }
+            }
+            if (failures.size() >= WATER_FAILURE_LIMIT) failures.remove(0);
+            failures.add(new WaterFailure(source, approach, atHours, attempts));
+            WATER_APPROACHES.remove(shell);
+            logWaterSource(shell, source, "failed result=" + result + " hours=" + atHours
+                + " approach=" + approachX + "," + approachY + "," + approachZ);
+            return true;
+        } catch (Throwable unavailable) {
+            return false;
+        }
+    }
+
+    /**
+     * A movement destination for an already selected resource. The supplied
+     * coordinates remain the physical source used by claim checks; selecting
+     * a free adjacent square grants neither access nor a completed transfer.
+     * NONE means there is no receipt (for example, a remembered place). An
+     * invalid receipt stays cached and returns UNAVAILABLE until reselected.
+     */
+    public static String resourceApproach(IsoPlayer shell, String kind,
+            int sourceX, int sourceY, int sourceZ) {
+        try {
+            if (shell == null || shell.getCell() == null) return "UNAVAILABLE";
+            IsoCell cell = shell.getCell();
+            IsoGridSquare target;
+            if ("water".equals(kind)) {
+                IsoObject source = WATER_SOURCES.get(shell);
+                if (source == null) return "NONE";
+                IsoGridSquare square = source.getSquare();
+                if (!loadedSourceSquare(cell, square, sourceX, sourceY, sourceZ)
+                        || !square.getObjects().contains(source)
+                        || !cleanWaterSource(source)) return "UNAVAILABLE";
+                target = SAOWorldSources.interactionSquare(shell, square);
+            } else {
+                Map<IsoPlayer, FoodSource> sources;
+                if ("food".equals(kind)) sources = SOURCES;
+                else if ("weapon".equals(kind)) sources = WEAPON_SOURCES;
+                else if ("ammo".equals(kind)) sources = AMMO_SOURCES;
+                else return "UNAVAILABLE";
+                FoodSource source = sources.get(shell);
+                if (source == null) return "NONE";
+                if (source.x != sourceX || source.y != sourceY || source.z != sourceZ
+                        || source.item == null || source.container == null
+                        || source.permissionContainer == null
+                        || source.item.getContainer() != source.container
+                        || !source.container.contains(source.item)
+                        || SAOPrivateInventory.rootContainer(source.container)
+                            != source.permissionContainer
+                        || !source.permissionContainer.isExplored()) return "UNAVAILABLE";
+                if (source.vehicle != null) {
+                    zombie.vehicles.BaseVehicle vehicle = source.vehicle;
+                    int index = source.vehiclePartIndex;
+                    if (vehicle.isRemovedFromWorld()
+                            || !cell.getVehicles().contains(vehicle)
+                            || !loadedSourceSquare(cell, vehicle.getSquare(),
+                                sourceX, sourceY, sourceZ)
+                            || (int) Math.floor(vehicle.getX()) != sourceX
+                            || (int) Math.floor(vehicle.getY()) != sourceY
+                            || index < 0 || index >= vehicle.getParts().size()) return "UNAVAILABLE";
+                    zombie.vehicles.VehiclePart part = vehicle.getParts().get(index);
+                    if (part == null || part.getItemContainer() != source.permissionContainer
+                            || source.permissionContainer.getVehicle() != vehicle
+                            || source.permissionContainer.getVehiclePart() != part
+                            || !vehicle.canAccessContainer(index, shell)
+                            || !SAOWorldSources.privateVehicleId(vehicle, part)
+                                .equals(source.holderId)) return "UNAVAILABLE";
+                    target = SAOWorldSources.vehicleInteractionSquare(vehicle, part);
+                } else {
+                    IsoObject parent = source.permissionContainer.getParent();
+                    IsoGridSquare square = parent == null ? null : parent.getSquare();
+                    if (!loadedSourceSquare(cell, square, sourceX, sourceY, sourceZ)
+                            || !square.getObjects().contains(parent)) return "UNAVAILABLE";
+                    int index = parent.getContainerIndex(source.permissionContainer);
+                    if (index < 0 || !SAOWorldSources.privateContainerId(parent, index)
+                            .equals(source.holderId)) return "UNAVAILABLE";
+                    target = SAOWorldSources.interactionSquare(shell, square);
+                }
+            }
+            if (target == null || target.getZ() != sourceZ
+                    || !loadedSourceSquare(cell, target, target.getX(),
+                        target.getY(), target.getZ())) return "UNAVAILABLE";
+            if ("water".equals(kind)) {
+                WATER_APPROACHES.put(shell, new WaterApproach(WATER_SOURCES.get(shell), target));
+            }
+            return "AT:" + target.getX() + ":" + target.getY() + ":" + target.getZ();
+        } catch (Throwable unavailable) {
+            return "UNAVAILABLE";
+        }
+    }
+
+    private static boolean loadedSourceSquare(IsoCell cell, IsoGridSquare square,
+            int x, int y, int z) {
+        return square != null && square.getCell() == cell
+            && square.getX() == x && square.getY() == y && square.getZ() == z
+            && cell.getGridSquare(x, y, z) == square;
     }
 
     private static final Map<IsoPlayer, FoodSource> WEAPON_SOURCES = new WeakHashMap<>();

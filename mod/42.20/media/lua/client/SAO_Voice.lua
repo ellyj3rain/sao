@@ -512,6 +512,9 @@ local function speak(id, body, line, tick, force, answering)
     if ok then
         if ms then lastSpokeMs[id] = ms end
         lastLine[id] = line
+        if SAO.Observation then
+            pcall(SAO.Observation.record, id, "Voice", "emitted", line)
+        end
     end
 end
 
