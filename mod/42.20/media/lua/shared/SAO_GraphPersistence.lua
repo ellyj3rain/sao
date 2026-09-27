@@ -257,6 +257,28 @@ local function migrateEnactedProcesses(store, priorSchema)
     }
 end
 
+local function normalizeCooperativeProcedures(store)
+    local initialized = 0
+    for _, process in pairs(store.organization.processes or {}) do
+        if type(process) == "table" then
+            if type(process.procedures) ~= "table" then
+                process.procedures = {}
+                initialized = initialized + 1
+            end
+            if type(process.privatePlans) ~= "table" then
+                process.privatePlans = {}
+            end
+        end
+    end
+    if type(store.migrations.c90CooperativeProcedures) ~= "table" then
+        store.migrations.c90CooperativeProcedures = {
+            schema = GRAPH_SCHEMA,
+            provenance = "C90 initializes empty procedure owners; no plan or progress inferred",
+            initializedProcesses = initialized,
+        }
+    end
+end
+
 function GraphPersistence.store()
     local ok, store = pcall(function()
         return ModData.getOrCreate(STORE_KEY)
@@ -329,6 +351,7 @@ function GraphPersistence.store()
     if priorSchema < 4 then
         migrateEnactedProcesses(store, priorSchema)
     end
+    normalizeCooperativeProcedures(store)
     if priorSchema < GRAPH_SCHEMA then
         store.schema = GRAPH_SCHEMA
     end

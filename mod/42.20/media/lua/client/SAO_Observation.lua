@@ -222,6 +222,27 @@ local function processes(id)
                     scalarRows(s, commitment.work or {}, "Work", 0)
                 end
             end
+            local revision = tostring(math.max(1,
+                math.floor(tonumber(process.revision) or 1)))
+            local enacted = process.procedures and process.procedures[revision]
+            if enacted then
+                row(s, "Enacted procedure", tostring(enacted.status))
+                for _, stepId in ipairs(enacted.order or {}) do
+                    local step = enacted.steps and enacted.steps[stepId]
+                    if step then row(s, "Actual: " .. tostring(step.verb),
+                        tostring(step.status)) end
+                end
+            end
+            local plans = process.privatePlans and process.privatePlans[id]
+            local plan = plans and plans[revision]
+            if plan then
+                row(s, "Personal next step", plan.intendedStepId or "No next step")
+                for _, stepId in ipairs(enacted and enacted.order or {}) do
+                    local belief = plan.beliefs and plan.beliefs[stepId]
+                    if belief then row(s, "Belief: " .. tostring(belief.verb),
+                        tostring(belief.status)) end
+                end
+            end
             if examined >= 8 or #s.rows >= 48 then s.message = "Recent process detail is bounded"; break end
         end
     end

@@ -1,6 +1,6 @@
 | Document | Survivor Awareness Overhaul Organization and Deference Contract |
 |---|---|
-| Version | `3.0.0.0-pre-alpha` |
+| Version | `3.1.0.0-pre-alpha` |
 | Author | ellyj3rain |
 | Repository | `ORGANIZATION.md` |
 | Status | CANONICAL - organization, hierarchy, offices, governance forms, and deference. |
@@ -241,11 +241,19 @@ C79 makes the first bounded process executable:
   accepted food-delivery commitment to SourceUse acquisition, Locomotion carrying
   and Handover completion. A competing activity may pause and later resume that
   same commitment; queued, partial, failed and completed work remain distinct.
+- A C90 procedure belongs to the enacted process, while each participant owns a
+  private projection acquired through authorship or actual proposal reception.
+  Native receipts update material truth and only the actor or direct witnesses.
+  Private reasoning and disagreement can revise an intended next step without
+  rewriting another person's knowledge or the enacted result.
 - [SAO_PlayerInteraction.lua](mod/42.20/media/lua/shared/SAO_PlayerInteraction.lua)
   and the existing command/radio surfaces raise addressed processes. Hearing a
   petition never changes trust, hostility, peace or authority by itself.
 
 GraphPersistence schema 4 stores process history and consumed receipt identity.
+It also stores bounded procedure graphs and person-private projections in the
+same process. Existing saves initialize empty owners and infer no prior plan or
+progress.
 Actor-facing decision evidence contains only that person's acquired proposal,
 private appraisal, feasible responses and choice at the decision hour. Return
 delivery and physical work appear only in the later-outcome view. Speakeasy

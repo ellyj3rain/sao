@@ -143,7 +143,8 @@ PROBE = r'''(function()
   check('delivered_acceptance_scopes_material_work',
     SAO.Organization.activeCommitment('external-a','provisioning')~=nil
     and SAO.Organization.workPlan(
-      SAO.Organization.activeCommitment('external-a','provisioning').id)
+      SAO.Organization.activeCommitment('external-a','provisioning').id,
+      'external-a')
       .proposal.scope.category=='water')
 
   local r=SAO.Organization.raiseMatter('origin','rendezvous-holding',nil,{
