@@ -1,0 +1,63 @@
+{
+  "schema": "sao-c89-orientation-seal/3",
+  "createdAtUtc": "2026-09-27T06:10:14.235977+00:00",
+  "status": "PASS",
+  "nativeChecks": 85,
+  "nativeLoadingOrders": [
+    "cold",
+    "preloaded",
+    "loaded-after-installer-snapshot"
+  ],
+  "weaveDiagnosticChecks": 36,
+  "lateNativeLoadChecks": 16,
+  "rejectedControls": 28,
+  "files": {
+    "INTEGRATION.md": "c2bbad68f71739103b6e35d56efef67dd0ad97e2d1f3bd7c0ed0633fe1882855",
+    "java/src/com/sao/agent/SAOAgent.java": "cf4a41ddb210c04da4e3d6eeac933068a23341ecfec1778c80bb0210cbe15a4c",
+    "java/src/com/sao/agent/SAOOrientationWeave.java": "700cbbb40ddfe2f69c24e7d915e342d20b2ed985595435456db375b48f841ce6",
+    "java/src/com/sao/engine/SAOIsoPlayerShell.java": "a2644a0c155eb51804a6de201888173484ed5aa4f474f32b3b6f5eb595b29eb2",
+    "java/src/com/sao/engine/SAOOrientation.java": "56e666b1b9a3c236908440453f3d0fc2ac17ef32231df1f9e28fe18832406670",
+    "java/src/com/sao/engine/SAOOrientationAnimation.java": "2ce5720a4a8a6ffa6c06dfc1f5503870d45207cd262b43764efe2255fd70ceae",
+    "java/src/com/sao/engine/SAOPerceptionScanner.java": "bc1b1fd8fb31bd4eb5654d045be10ac1543f5ad8af990a3972f11ea59b4836e2",
+    "java/src/com/sao/engine/SAOSenses.java": "6c0767bcbec7693b4e5da60b95e26ceaefac0c7cc49b3d886e8c0515d1d9ece7",
+    "java/src/com/sao/engine/SAOWorldSoundPulses.java": "4b78730b45ba4c1e2d703f2cc10a2ec0533186947542340c7a61ae5cbd56ad78",
+    "java/src/com/sao/Main.java": "38e132ca9dec83eec184a73045db48ceefebc763b563cc5893727a5e07cdb753",
+    "mod/42.20/media/SAOOrienting/children.xml": "ca9c4a56aaccaca795754222bb3c3f64fcffd321bbb01f85049891108bf0dc6a",
+    "mod/42.20/media/SAOOrienting/enter.xml": "aeb3630226745f0809fe91e8739c299369e3e41e4fb65afe0a3ca16b4074131b",
+    "mod/42.20/media/SAOOrienting/exit.xml": "51e697582eea82fca6490f444c0f05421ece65319d4022f8477cc59aa7468076",
+    "mod/42.20/media/SAOOrienting/look.xml": "0116b93221f82cc1d7c3a65486f1130ae375815e93a56dfaf1f130e5a1f4cff6",
+    "mod/42.20/media/SAOOrienting/tags.xml": "3fd3b3d374536a37b9395757eba63899a1a319973d151cc751872d054c20ab37",
+    "native-sound-review/FINDINGS.md": "94753b2921a046d107838d49d8e4f587d35a084e21c1e0668bddb4b98a258ab1",
+    "native-sound-review/native05-loaded-classes.json": "2123e237e9887ff8635513c506d62ddf84e412067b30cd48c9337e188a2082af",
+    "NATIVE_EVIDENCE.md": "3a884e87eaf078f058168762ec95290687b70fedc20a9c444470023937916210",
+    "tools/orienting_checks/controls.py": "88f97e19fe66de05ef4f03be48aa1279d67aa4dc7397637f278fe12725b3f494",
+    "tools/orienting_checks/late_loading.py": "00a8d0016012029515978a1521c1aeb89df38aad33ccca7e66d6d28994a89037",
+    "tools/orienting_checks/LateNativeLoadAgent.java": "a27e7356f64f3bd1036b7a7c949260ab764df7142f91662917ef5ed9426df279",
+    "tools/orienting_checks/LateNativeLoadProbe.java": "e0c74d2b36d8b80668e05a5168cc3ba9b183f57b29132df3c20a8b817ead6761",
+    "tools/orienting_checks/OrientationProbe.java": "26304d674034c34a354aed901e7b9ae32ca08c499cb3de1238ea91c7fed7ad7e",
+    "tools/orienting_checks/OrientationProbeAgent.java": "43cb83e5e426bdb375d72768c2a01a1c1785ca15682d1ad84ec0d2d9692a8067",
+    "tools/orienting_checks/RegistrationRaceAgent.java": "61b902d770c1df6b49e0db55808fdead73992e60f0fd1a8e19161c166a9a9d3f",
+    "tools/orienting_checks/run_checks.py": "2e29750ad3d79975216de55d975dcc27b113d9c78701cd6dedc94e5c451e9246",
+    "tools/orienting_checks/WeaveDiagnosticsAgent.java": "1453e236432bc4c4223711cd95db77d6b9d20e812318227f93686cf1411d120f",
+    "tools/orienting_checks/WeaveDiagnosticsProbe.java": "1c7a996e47f7777b47536435ecc36b526a5d720dbd657a34e66f93af3fd3d8ce",
+    "tools/orienting_native_test.py": "041f8b7dfb23c87041d35b14c24d01a8beca190e1f92261e95f445a1c9349502"
+  },
+  "proof": {
+    "path": "C:\\Users\\jleyv\\Peanut Butter\\AI Assisted Software Engineering Mass Repository\\Projects\\survivor-awareness\\_scratch\\c89-orienting\\engine\\native-sound-review\\late-sensor-proof\\receipt.json",
+    "sha256": "0cdc5d4628c8b69b247e942cc2ddefa9aebce2a725505f80b6a80bfe2b9efc88",
+    "runs": 73,
+    "inputsUnchanged": true
+  },
+  "skips": {
+    "path": "C:\\Users\\jleyv\\Peanut Butter\\AI Assisted Software Engineering Mass Repository\\Projects\\survivor-awareness\\_scratch\\c89-orienting\\engine\\native-sound-review\\late-sensor-proof\\skips.json",
+    "sha256": "ddd904ad01557e88984690d3a708363558b23760232a3f1940747fa898dcd92d"
+  },
+  "previousSeal": {
+    "path": "C:\\Users\\jleyv\\Peanut Butter\\AI Assisted Software Engineering Mass Repository\\Projects\\survivor-awareness\\_scratch\\c89-orienting\\engine\\native-sound-review\\seal-before-late-sensor.json",
+    "sha256": "046db17fab581e114b935dc845ad6e855ff802829a223517343c1519bbfbf3bd"
+  },
+  "limitations": [
+    "Actual agents and engine receivers with a controlled later nested load; native05 historical loader stack not recorded.",
+    "A fresh loaded game must still prove actual cue rows and visible head/body orientation. No private hearing bypass or reconstructed missed occurrences."
+  ]
+}

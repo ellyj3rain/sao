@@ -1,0 +1,713 @@
+{
+  "timestamp": "2026-09-27T06:34:15.032938+00:00",
+  "sessionId": "88973430-47da-41fb-8a40-e023c7d3e355",
+  "run": "_scratch/c89-orienting/native-07",
+  "copiedFixtureSha256": "94859a0fd834003b5e0ffe1d3d3f9f6e09894b8eb9a72cb1790d7ce2f32fc055",
+  "stdoutReadPrefixBytes": 444780,
+  "stdoutReadPrefixSha256": "d8cdd61a82c1b24e8bf34da08472c750d388a566f27e3b3ef20fe84d5067fe4e",
+  "rawNativeSamples": [
+    {
+      "line": 1433,
+      "actor": "sao-1",
+      "hours": 2.258810043334961,
+      "raw": "P:Trevor Hale:3427:10910:1.0:ok|S:3429:10907:4.3:cue:1f7c2cd4-e820-4aed-8757-a0681e0cbc8b-1"
+    },
+    {
+      "line": 1554,
+      "actor": "sao-1",
+      "hours": 2.468602180480957,
+      "raw": "S:3423:10912:5.1:cue:1f7c2cd4-e820-4aed-8757-a0681e0cbc8b-20"
+    },
+    {
+      "line": 1572,
+      "actor": "sao-1",
+      "hours": 2.509749412536621,
+      "raw": "P:Trevor Hale:3429:10908:7.0:ok|S:3429:10919:3.7:cue:1f7c2cd4-e820-4aed-8757-a0681e0cbc8b-23"
+    },
+    {
+      "line": 1627,
+      "actor": "sao-1",
+      "hours": 2.7144241333007812,
+      "raw": "P:Trevor Hale:3436:10910:9.0:ok|S:3430:10919:4.0:cue:1f7c2cd4-e820-4aed-8757-a0681e0cbc8b-31"
+    },
+    {
+      "line": 1654,
+      "actor": "sao-1",
+      "hours": 2.765427589416504,
+      "raw": "S:3426:10913:4.8:cue:1f7c2cd4-e820-4aed-8757-a0681e0cbc8b-33"
+    },
+    {
+      "line": 1706,
+      "actor": "sao-1",
+      "hours": 2.9789838790893555,
+      "raw": "S:3421:10924:3.8:cue:1f7c2cd4-e820-4aed-8757-a0681e0cbc8b-107"
+    }
+  ],
+  "selectedArchiveEvidence": [
+    {
+      "file": "_scratch/c89-orienting/native-07/cache/Lua/StudyWorld/41ec08c1cb104551409e304da0e5b051032bb05fc5f9d303ce9e1adfc455065a/3736313136383239393434373130313135333333/1790490252317/0000000000000002.json",
+      "sha256": "ab235d00ed9c333d4f105728a8705900bf460c38a02416bbe85cbac7ba15e19a",
+      "sequence": 2,
+      "hours": 2.2514028549194336,
+      "people": [
+        {
+          "id": "sao-1",
+          "beliefs": {
+            "Trevor Hale": {
+              "at": 20262,
+              "atHours": 2.2514028549194336,
+              "condition": "ok",
+              "dist": 1,
+              "prone": false,
+              "source": "observed",
+              "x": 3427,
+              "y": 10910
+            }
+          }
+        },
+        {
+          "id": "sao-2",
+          "beliefs": {
+            "Jose Worthy": {
+              "at": 20262,
+              "atHours": 2.2514028549194336,
+              "condition": "ok",
+              "dist": 1,
+              "prone": false,
+              "source": "observed",
+              "x": 3426,
+              "y": 10910
+            }
+          }
+        }
+      ]
+    },
+    {
+      "file": "_scratch/c89-orienting/native-07/cache/Lua/StudyWorld/41ec08c1cb104551409e304da0e5b051032bb05fc5f9d303ce9e1adfc455065a/3736313136383239393434373130313135333333/1790490252317/0000000000000003.json",
+      "sha256": "ccf0c0ce7098d8e930c0f2c08612c4793b2d5ca3d5025a0c0782ebbb4dfe2a98",
+      "sequence": 3,
+      "hours": 2.5023422241210938,
+      "people": [
+        {
+          "id": "sao-1",
+          "beliefs": {
+            "Trevor Hale": {
+              "at": 22507,
+              "atHours": 2.5008363723754883,
+              "condition": "ok",
+              "dist": 7,
+              "prone": false,
+              "source": "observed",
+              "x": 3429,
+              "y": 10908
+            }
+          }
+        },
+        {
+          "id": "sao-2",
+          "beliefs": {
+            "Jose Worthy": {
+              "at": 22507,
+              "atHours": 2.5008363723754883,
+              "condition": "ok",
+              "dist": 7,
+              "prone": false,
+              "source": "observed",
+              "x": 3428,
+              "y": 10915
+            }
+          }
+        }
+      ]
+    },
+    {
+      "file": "_scratch/c89-orienting/native-07/cache/Lua/StudyWorld/41ec08c1cb104551409e304da0e5b051032bb05fc5f9d303ce9e1adfc455065a/3736313136383239393434373130313135333333/1790490252317/0000000000000004.json",
+      "sha256": "de8e3e3d623fbee43a82ce88a1a4400c885f30389af4dd58e8e77e846f4ade2b",
+      "sequence": 4,
+      "hours": 2.7580204010009766,
+      "people": [
+        {
+          "id": "sao-1",
+          "beliefs": {
+            "Trevor Hale": {
+              "at": 24456,
+              "atHours": 2.7173871994018555,
+              "condition": "ok",
+              "dist": 9,
+              "prone": false,
+              "source": "observed",
+              "x": 3436,
+              "y": 10910
+            }
+          }
+        },
+        {
+          "id": "sao-2",
+          "beliefs": {
+            "Jose Worthy": {
+              "at": 24822,
+              "atHours": 2.7580204010009766,
+              "condition": "ok",
+              "dist": 11.6,
+              "prone": false,
+              "source": "observed",
+              "x": 3427,
+              "y": 10917
+            }
+          }
+        }
+      ]
+    },
+    {
+      "file": "_scratch/c89-orienting/native-07/cache/Lua/StudyWorld/41ec08c1cb104551409e304da0e5b051032bb05fc5f9d303ce9e1adfc455065a/3736313136383239393434373130313135333333/1790490252317/0000000000000005.json",
+      "sha256": "e19bd432e0760ef9f17344ef311833fded3c43e664b8c714845007b54548f50a",
+      "sequence": 5,
+      "hours": 3.008612632751465,
+      "people": [
+        {
+          "id": "sao-1",
+          "beliefs": {
+            "Trevor Hale": {
+              "at": 24456,
+              "atHours": 2.7173871994018555,
+              "condition": "ok",
+              "dist": 9,
+              "prone": false,
+              "source": "observed",
+              "x": 3436,
+              "y": 10910
+            }
+          }
+        },
+        {
+          "id": "sao-2",
+          "beliefs": {
+            "Jose Worthy": {
+              "at": 24985,
+              "atHours": 2.7761125564575195,
+              "condition": "ok",
+              "dist": 13.2,
+              "prone": false,
+              "source": "observed",
+              "x": 3426,
+              "y": 10918
+            }
+          }
+        }
+      ]
+    },
+    {
+      "file": "_scratch/c89-orienting/native-07/cache/Lua/StudyWorld/41ec08c1cb104551409e304da0e5b051032bb05fc5f9d303ce9e1adfc455065a/3736313136383239393434373130313135333333/1790490252317/0000000000000006.json",
+      "sha256": "02eff635eccd87545a01470183a659eca6effb793319a9135e003d5407063e07",
+      "sequence": 6,
+      "hours": 3.2596435546875,
+      "people": [
+        {
+          "id": "sao-1",
+          "beliefs": {}
+        },
+        {
+          "id": "sao-2",
+          "beliefs": {}
+        }
+      ]
+    },
+    {
+      "file": "_scratch/c89-orienting/native-07/cache/Lua/StudyWorld/41ec08c1cb104551409e304da0e5b051032bb05fc5f9d303ce9e1adfc455065a/3736313136383239393434373130313135333333/1790490252317/0000000000000008.json",
+      "sha256": "357bc5937a7a4a76714c67c83983913a7e91aee08926d6b8077092f3b622527f",
+      "sequence": 8,
+      "hours": 3.760652542114258,
+      "people": [
+        {
+          "id": "sao-1",
+          "beliefs": {}
+        },
+        {
+          "id": "sao-2",
+          "beliefs": {
+            "Jose Worthy": {
+              "at": 32282,
+              "atHours": 3.586912155151367,
+              "condition": "ok",
+              "dist": 13.7,
+              "prone": false,
+              "source": "observed",
+              "x": 3421,
+              "y": 10918
+            }
+          }
+        }
+      ]
+    }
+  ],
+  "firstObservedContacts": {
+    "sao-1": {
+      "sequence": 2,
+      "hours": 2.2514028549194336,
+      "beliefs": {
+        "Trevor Hale": {
+          "at": 20262,
+          "atHours": 2.2514028549194336,
+          "condition": "ok",
+          "dist": 1,
+          "prone": false,
+          "source": "observed",
+          "x": 3427,
+          "y": 10910
+        }
+      }
+    },
+    "sao-2": {
+      "sequence": 2,
+      "hours": 2.2514028549194336,
+      "beliefs": {
+        "Jose Worthy": {
+          "at": 20262,
+          "atHours": 2.2514028549194336,
+          "condition": "ok",
+          "dist": 1,
+          "prone": false,
+          "source": "observed",
+          "x": 3426,
+          "y": 10910
+        }
+      }
+    }
+  },
+  "latestObservedContactsInReadFrames": {
+    "sao-1": {
+      "sequence": 14,
+      "hours": 5.272125244140625,
+      "beliefs": {
+        "Trevor Hale": {
+          "at": 45652,
+          "atHours": 5.072465896606445,
+          "condition": "ok",
+          "dist": 13.3,
+          "prone": false,
+          "source": "observed",
+          "x": 3440,
+          "y": 10909
+        }
+      }
+    },
+    "sao-2": {
+      "sequence": 13,
+      "hours": 5.021156311035156,
+      "beliefs": {
+        "Jose Worthy": {
+          "at": 43153,
+          "atHours": 4.794849395751953,
+          "condition": "ok",
+          "dist": 10.4,
+          "prone": false,
+          "source": "observed",
+          "x": 3428,
+          "y": 10904
+        }
+      }
+    }
+  },
+  "frameCounts": [
+    {
+      "sequence": 1,
+      "hours": 2,
+      "people": []
+    },
+    {
+      "sequence": 2,
+      "hours": 2.2514028549194336,
+      "people": [
+        {
+          "id": "sao-1",
+          "people": 1
+        },
+        {
+          "id": "sao-2",
+          "people": 1
+        }
+      ]
+    },
+    {
+      "sequence": 3,
+      "hours": 2.5023422241210938,
+      "people": [
+        {
+          "id": "sao-1",
+          "people": 1
+        },
+        {
+          "id": "sao-2",
+          "people": 1
+        }
+      ]
+    },
+    {
+      "sequence": 4,
+      "hours": 2.7580204010009766,
+      "people": [
+        {
+          "id": "sao-1",
+          "people": 1
+        },
+        {
+          "id": "sao-2",
+          "people": 1
+        }
+      ]
+    },
+    {
+      "sequence": 5,
+      "hours": 3.008612632751465,
+      "people": [
+        {
+          "id": "sao-1",
+          "people": 1
+        },
+        {
+          "id": "sao-2",
+          "people": 1
+        }
+      ]
+    },
+    {
+      "sequence": 6,
+      "hours": 3.2596435546875,
+      "people": [
+        {
+          "id": "sao-1",
+          "people": 0
+        },
+        {
+          "id": "sao-2",
+          "people": 0
+        }
+      ]
+    },
+    {
+      "sequence": 7,
+      "hours": 3.5099382400512695,
+      "people": [
+        {
+          "id": "sao-1",
+          "people": 0
+        },
+        {
+          "id": "sao-2",
+          "people": 0
+        }
+      ]
+    },
+    {
+      "sequence": 8,
+      "hours": 3.760652542114258,
+      "people": [
+        {
+          "id": "sao-1",
+          "people": 0
+        },
+        {
+          "id": "sao-2",
+          "people": 1
+        }
+      ]
+    },
+    {
+      "sequence": 9,
+      "hours": 4.015413284301758,
+      "people": [
+        {
+          "id": "sao-1",
+          "people": 0
+        },
+        {
+          "id": "sao-2",
+          "people": 0
+        }
+      ]
+    },
+    {
+      "sequence": 10,
+      "hours": 4.266238212585449,
+      "people": [
+        {
+          "id": "sao-1",
+          "people": 0
+        },
+        {
+          "id": "sao-2",
+          "people": 0
+        }
+      ]
+    },
+    {
+      "sequence": 11,
+      "hours": 4.51786994934082,
+      "people": [
+        {
+          "id": "sao-1",
+          "people": 0
+        },
+        {
+          "id": "sao-2",
+          "people": 0
+        }
+      ]
+    },
+    {
+      "sequence": 12,
+      "hours": 4.771119117736816,
+      "people": [
+        {
+          "id": "sao-1",
+          "people": 1
+        },
+        {
+          "id": "sao-2",
+          "people": 1
+        }
+      ]
+    },
+    {
+      "sequence": 13,
+      "hours": 5.021156311035156,
+      "people": [
+        {
+          "id": "sao-1",
+          "people": 1
+        },
+        {
+          "id": "sao-2",
+          "people": 1
+        }
+      ]
+    },
+    {
+      "sequence": 14,
+      "hours": 5.272125244140625,
+      "people": [
+        {
+          "id": "sao-1",
+          "people": 1
+        },
+        {
+          "id": "sao-2",
+          "people": 0
+        }
+      ]
+    },
+    {
+      "sequence": 15,
+      "hours": 5.5236358642578125,
+      "people": [
+        {
+          "id": "sao-1",
+          "people": 0
+        },
+        {
+          "id": "sao-2",
+          "people": 0
+        }
+      ]
+    },
+    {
+      "sequence": 16,
+      "hours": 5.778912544250488,
+      "people": [
+        {
+          "id": "sao-1",
+          "people": 0
+        },
+        {
+          "id": "sao-2",
+          "people": 0
+        }
+      ]
+    },
+    {
+      "sequence": 17,
+      "hours": 6.031534194946289,
+      "people": [
+        {
+          "id": "sao-1",
+          "people": 0
+        },
+        {
+          "id": "sao-2",
+          "people": 0
+        }
+      ]
+    },
+    {
+      "sequence": 18,
+      "hours": 6.282313346862793,
+      "people": [
+        {
+          "id": "sao-1",
+          "people": 0
+        },
+        {
+          "id": "sao-2",
+          "people": 0
+        }
+      ]
+    },
+    {
+      "sequence": 19,
+      "hours": 6.533621788024902,
+      "people": [
+        {
+          "id": "sao-1",
+          "people": 0
+        },
+        {
+          "id": "sao-2",
+          "people": 0
+        }
+      ]
+    },
+    {
+      "sequence": 20,
+      "hours": 6.7851715087890625,
+      "people": [
+        {
+          "id": "sao-1",
+          "people": 0
+        },
+        {
+          "id": "sao-2",
+          "people": 0
+        }
+      ]
+    },
+    {
+      "sequence": 21,
+      "hours": 7.037253379821777,
+      "people": [
+        {
+          "id": "sao-1",
+          "people": 0
+        },
+        {
+          "id": "sao-2",
+          "people": 0
+        }
+      ]
+    },
+    {
+      "sequence": 22,
+      "hours": 7.288599967956543,
+      "people": [
+        {
+          "id": "sao-1",
+          "people": 0
+        },
+        {
+          "id": "sao-2",
+          "people": 0
+        }
+      ]
+    },
+    {
+      "sequence": 23,
+      "hours": 7.542214393615723,
+      "people": [
+        {
+          "id": "sao-1",
+          "people": 0
+        },
+        {
+          "id": "sao-2",
+          "people": 0
+        }
+      ]
+    },
+    {
+      "sequence": 24,
+      "hours": 7.793543815612793,
+      "people": [
+        {
+          "id": "sao-1",
+          "people": 0
+        },
+        {
+          "id": "sao-2",
+          "people": 0
+        }
+      ]
+    },
+    {
+      "sequence": 25,
+      "hours": 8.044878959655762,
+      "people": [
+        {
+          "id": "sao-1",
+          "people": 0
+        },
+        {
+          "id": "sao-2",
+          "people": 0
+        }
+      ]
+    },
+    {
+      "sequence": 26,
+      "hours": 8.295405387878418,
+      "people": [
+        {
+          "id": "sao-1",
+          "people": 0
+        },
+        {
+          "id": "sao-2",
+          "people": 0
+        }
+      ]
+    }
+  ],
+  "processRowsInReadFrames": 0,
+  "fixtureMarkers": [
+    {
+      "line": 1306,
+      "actor": "sao-2",
+      "first": "visible preparation offer",
+      "thenCause": "native sound pulses",
+      "waitingMilliseconds": 5000,
+      "hours": 2.007777214050293,
+      "wallMs": 1790490256636,
+      "kind": "setup-order"
+    },
+    {
+      "line": 1431,
+      "actor": "sao-2",
+      "reason": "bounded-eligibility-unavailable",
+      "preparationAdmitted": false,
+      "hours": 2.258810043334961,
+      "wallMs": 1790490262101,
+      "kind": "sound-intervention-released"
+    },
+    {
+      "line": 1742,
+      "actor": "sao-1",
+      "itemId": 2006030982,
+      "itemType": "SAO.SedativeTablets",
+      "beforeUses": 10,
+      "accepted": true,
+      "hours": 3.3696231842041016,
+      "wallMs": 1790490286225,
+      "kind": "dose-request"
+    }
+  ],
+  "conclusion": "Human acquisition works: direct native P rows and reciprocal observed Perception records exist. The current count reports retained recent location beliefs; it is not a durable acquaintance count. Source PEOPLE_HORIZON=1800, doubled decay, scaled by personal memoryFactor; observed separation permits expiry. No request-admission/cooking outcome exists in the sampled native07 interval. Existing conversation gestures occupied initial work eligibility.",
+  "limits": [
+    "The deliberately immediate fixture scanner calls prove native visibility at those moments; archive records independently prove ordinary Perception admission.",
+    "Gesture calls alone are not delivered speech or cooperation receipts. No process rows were exported in the read frames; this audit does not infer reception or completed cooperation from gestures.",
+    "Run bytes were read while live. This is a bounded historical prefix and immutable frame selection, not a terminal save verification."
+  ],
+  "sourceReferences": {
+    "scanner": "java/src/com/sao/engine/SAOPerceptionScanner.java:237-280",
+    "peopleAdmission": "mod/42.20/media/lua/shared/SAO_Perception.lua:1346-1438",
+    "peopleDecay": "mod/42.20/media/lua/shared/SAO_Perception.lua:1514-1529",
+    "liveCount": "tools/world_lab/StudyWorld.lua:500-511"
+  }
+}

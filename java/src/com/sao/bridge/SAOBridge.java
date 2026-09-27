@@ -65,6 +65,7 @@ public final class SAOBridge {
         crossedDrives.clear();
         coordinationWorker.resetRuntimeForWorld();
         com.sao.engine.SAONeeds.resetRuntimeForWorld();
+        com.sao.engine.SAOCooking.reset();
         com.sao.engine.SAOReturnBody.resetRuntimeForWorld();
         com.sao.engine.SAOWorldSources.resetRuntimeForWorld();
         com.sao.engine.SAOPerceptionScanner.resetRuntimeForWorld();
@@ -798,7 +799,12 @@ public final class SAOBridge {
      *  mod's own tag vocabulary; "" when the item is not a drug the
      *  county models. */
     public String drugFamilyOf(Object item) {
-        return com.sao.engine.SAONeeds.drugFamilyOf(item);
+        try {
+            return com.sao.engine.SAONeeds.drugFamilyOf(item);
+        } catch (Throwable unavailable) {
+            SAOAgent.log("drug family read refused: " + unavailable);
+            return "";
+        }
     }
 
     /** [C121] The first carried drug of a county family, for the
@@ -1763,6 +1769,14 @@ public final class SAOBridge {
         return "NOT_A_SHELL";
     }
 
+    /** Continue the existing physiological owner between pharmacology slices. */
+    public String advanceDormantMetabolism(Object object, double elapsedHours) {
+        try { return object instanceof SAOIsoPlayerShell body
+            ? com.sao.engine.SAOHibernation.advanceDormantMetabolism(body, elapsedHours)
+            : "METABOLISM_FAILED not a shell";
+        } catch (Throwable error) { SAOAgent.log("dormant metabolism refused: " + error); return "METABOLISM_FAILED " + error; }
+    }
+
     /** Fallback eat - the same engine call vanilla makes at action complete. */
     public boolean engineEat(Object object, Object itemObject) {
         if (object instanceof SAOIsoPlayerShell shell
@@ -2630,17 +2644,63 @@ public final class SAOBridge {
         return 0;
     }
 
-    /** [B20] Cook the larder - skill is throughput. */
-    public int cookNearbyFood(Object object, int radius, int level) {
+    public boolean requestOrientation(Object object, String cueId, double x, double y,
+            double readiness, double steadiness, boolean allowBodyTurn) {
         try {
-            if (object instanceof IsoPlayer) {
-                return com.sao.engine.SAONeeds.cookNearbyFood(
-                    (IsoPlayer) object, radius, level);
-            }
-        } catch (Throwable throwable) {
-            SAOAgent.log("cookNearbyFood threw: " + throwable);
-        }
-        return 0;
+            return object instanceof IsoGameCharacter body
+                && Double.isFinite(x) && Double.isFinite(y)
+                && Double.isFinite(readiness) && readiness >= 0 && readiness <= 1
+                && Double.isFinite(steadiness) && steadiness >= 0 && steadiness <= 1
+                && com.sao.engine.SAOOrientation.request(body, cueId, (float)x, (float)y,
+                    (float)readiness, (float)steadiness, allowBodyTurn);
+        } catch (Throwable error) { SAOAgent.log("orientation refused: " + error); return false; }
+    }
+    public void clearOrientation(Object object) {
+        try {
+            if (object instanceof IsoGameCharacter body) com.sao.engine.SAOOrientation.clear(body);
+        } catch (Throwable error) { SAOAgent.log("orientation release refused: " + error); }
+    }
+    public se.krka.kahlua.vm.KahluaTable orientationState(Object object) {
+        try { return com.sao.engine.SAOOrientation.state(object instanceof IsoGameCharacter body ? body : null); }
+        catch (Throwable error) { SAOAgent.log("orientation inspection unavailable: " + error); return null; }
+    }
+
+    public se.krka.kahlua.vm.KahluaTable cookingOffers(Object object, int radius) {
+        try { return object instanceof SAOIsoPlayerShell body ? com.sao.engine.SAOCooking.offers(body, radius) : null; }
+        catch (Throwable error) { SAOAgent.log("cooking offers unavailable: " + error); return null; }
+    }
+    public se.krka.kahlua.vm.KahluaTable inspectCookingAppliance(Object object, Object appliance, Object container) {
+        try {
+            return object instanceof SAOIsoPlayerShell body && appliance instanceof zombie.iso.IsoObject stove
+                && container instanceof zombie.inventory.ItemContainer items
+                ? com.sao.engine.SAOCooking.inspect(body, stove, items) : null;
+        } catch (Throwable error) { SAOAgent.log("cooking inspection unavailable: " + error); return null; }
+    }
+    public se.krka.kahlua.vm.KahluaTable cookingApproach(Object object, Object appliance, Object container) {
+        try {
+            return object instanceof SAOIsoPlayerShell body && appliance instanceof zombie.iso.IsoObject stove
+                && container instanceof zombie.inventory.ItemContainer items
+                ? com.sao.engine.SAOCooking.approach(body, stove, items) : null;
+        } catch (Throwable error) { SAOAgent.log("cooking approach unavailable: " + error); return null; }
+    }
+    public boolean beginCookingHeat(Object object, String workId, Object item, Object appliance, Object container) {
+        try {
+            return object instanceof SAOIsoPlayerShell body && item instanceof zombie.inventory.InventoryItem food
+                && appliance instanceof zombie.iso.IsoObject stove && container instanceof zombie.inventory.ItemContainer items
+                && com.sao.engine.SAOCooking.beginHeat(body, workId, food, stove, items);
+        } catch (Throwable error) { SAOAgent.log("cooking heat refused: " + error); return false; }
+    }
+    public se.krka.kahlua.vm.KahluaTable cookingHeatState(Object object, String workId) {
+        try { return object instanceof SAOIsoPlayerShell body ? com.sao.engine.SAOCooking.heatState(body, workId) : null; }
+        catch (Throwable error) { SAOAgent.log("cooking heat unavailable: " + error); return null; }
+    }
+    public se.krka.kahlua.vm.KahluaTable completeCookingHeat(Object object, String workId) {
+        try { return object instanceof SAOIsoPlayerShell body ? com.sao.engine.SAOCooking.completeHeat(body, workId) : null; }
+        catch (Throwable error) { SAOAgent.log("cooking result unavailable: " + error); return null; }
+    }
+    public void clearCookingHeat(Object object, String workId) {
+        try { if (object instanceof SAOIsoPlayerShell body) com.sao.engine.SAOCooking.clearHeat(body, workId); }
+        catch (Throwable error) { SAOAgent.log("cooking release unavailable: " + error); }
     }
 
     /** [B20] How much of a sound survives the sky right now - the

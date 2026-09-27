@@ -1,0 +1,53 @@
+{
+  "pr": "https://github.com/ellyj3rain/zao/pull/33",
+  "mergeCommit": "c1ce2db406a011cdfd39a3e307eecec647ff3d96",
+  "tree": "f03fc9a8cadedbae178f90767914fd0bc03fe309",
+  "version": "0.5.4.0-pre-alpha",
+  "clean": true,
+  "runtime": [
+    {
+      "source": "C:\\Users\\jleyv\\Peanut Butter\\AI Assisted Software Engineering Mass Repository\\Projects\\survivor-awareness\\_scratch\\c89-orienting\\policy\\ZAO_Driver.lua",
+      "target": "mod/42.20/media/lua/client/ZAO_Driver.lua",
+      "baseline": "a28a895fe48262d4ddf02c1228586e00fdd407184866397bc105704b0fbc6c58",
+      "candidate": "7251b03834df1db384f51d26b65b5675626145e72bef391eb5ecffbeac36bf91",
+      "current": "7251b03834df1db384f51d26b65b5675626145e72bef391eb5ecffbeac36bf91",
+      "committed": "657239c57dc9c4643df345434e247c076b3fdd3f787f31f59dd4f91b6e9e6852"
+    },
+    {
+      "source": "C:\\Users\\jleyv\\Peanut Butter\\AI Assisted Software Engineering Mass Repository\\Projects\\survivor-awareness\\_scratch\\c89-orienting\\integration\\zao\\ZAO_Maintenance.lua",
+      "target": "mod/42.20/media/lua/shared/ZAO_Maintenance.lua",
+      "baseline": "75c8097accb04f0e7acd8318226a747633f13263aec81424a95c8ba938fe307e",
+      "candidate": "3f625e76397b91f26ab2afdc3c980aab5f7a51bb6a5fbaf12551cbedd0b7eadb",
+      "current": "3f625e76397b91f26ab2afdc3c980aab5f7a51bb6a5fbaf12551cbedd0b7eadb",
+      "committed": "ba92e770f12825cb84ca8b80584c9871e71555b1c04f19445f48301e0dd9652b"
+    },
+    {
+      "source": "C:\\Users\\jleyv\\Peanut Butter\\AI Assisted Software Engineering Mass Repository\\Projects\\survivor-awareness\\_scratch\\c89-orienting\\integration\\zao\\ZAO_ExecutionOwner.lua",
+      "target": "mod/42.20/media/lua/shared/ZAO_ExecutionOwner.lua",
+      "baseline": "8f08ab5c4a66f623d5e696b69353c2cd886073bc97c6184f003cb1b478246008",
+      "candidate": "f178fc53577638f9b4d524abffc1e223ad1fdf12e7dab6ace61761e51e7c156b",
+      "current": "f178fc53577638f9b4d524abffc1e223ad1fdf12e7dab6ace61761e51e7c156b",
+      "committed": "4dd0f94315aab648d9a56a143a5ac78ba2f35d153a4e774b91146954d7c1e68c"
+    }
+  ],
+  "mainChecks": [
+    {
+      "conclusion": "success",
+      "databaseId": 36297594944,
+      "headSha": "c1ce2db406a011cdfd39a3e307eecec647ff3d96",
+      "name": "CI Verify",
+      "status": "completed",
+      "url": "https://github.com/ellyj3rain/zao/actions/runs/36297594944"
+    },
+    {
+      "conclusion": "success",
+      "databaseId": 36297594948,
+      "headSha": "c1ce2db406a011cdfd39a3e307eecec647ff3d96",
+      "name": "CodeQL",
+      "status": "completed",
+      "url": "https://github.com/ellyj3rain/zao/actions/runs/36297594948"
+    }
+  ],
+  "ahead": 0,
+  "committedDiffIsOnlyLineEndings": true
+}

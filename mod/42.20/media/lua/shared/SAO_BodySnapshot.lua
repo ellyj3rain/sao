@@ -67,15 +67,21 @@ function Snapshot.capture(rec, body)
     end
     local facts = SAO.Population.captureBodyFacts(rec, body, now)
     if type(facts) ~= "table" then return nil, "invalid-body-facts" end
+    local pharmacology
+    if SAO.Pharmacology then
+        pharmacology = SAO.Pharmacology.checkpoint(rec, body, now)
+        if not pharmacology then return nil, "incomplete-pharmacology-snapshot" end
+    end
     return { packed = packed, visual = visual, rest = rest,
         hours = now, x = x, y = y, z = z, facts = facts,
-        radioRequired = true }
+        actorId = tostring(rec.id), pharmacology = pharmacology,
+        pharmacologyRequired = SAO.Pharmacology ~= nil, radioRequired = true }
 end
 
 -- Pending journals can outlive their originating callback or Lua environment.
 -- Revalidate their native payloads before removal or publication of a new owner.
 -- DurableText payloads are opaque: either a string or a validated chunk table.
-function Snapshot.valid(captured)
+function Snapshot.valid(captured, rec)
     if type(captured) ~= "table" then return false end
     local ok, valid = pcall(function()
         local rest = captured.rest or restAccess(captured.packed)
@@ -85,7 +91,14 @@ function Snapshot.valid(captured)
             and SAOJavaBridge:validateRadioState(facts.radioState) == true
         local radioValid = radioKnown
             or (captured.radioRequired == nil and facts.radioState == nil)
-        return SAOJavaBridge:validateHibernation(captured.packed) == true
+        local pharmacologyValid = captured.pharmacology == nil
+            and captured.pharmacologyRequired ~= true
+        if captured.pharmacology ~= nil and SAO.Pharmacology
+            and type(captured.actorId) == "string" then
+            pharmacologyValid = SAO.Pharmacology.validCheckpoint(
+                rec or { id = captured.actorId }, captured.pharmacology)
+        end
+        return pharmacologyValid and SAOJavaBridge:validateHibernation(captured.packed) == true
             and Snapshot.restValues(rest) ~= nil
             and finite(captured.hours) and finite(captured.x)
             and finite(captured.y) and finite(captured.z)
@@ -100,6 +113,13 @@ function Snapshot.valid(captured)
 end
 
 function Snapshot.commit(rec, captured)
+    if captured.pharmacology ~= nil then
+        if not SAO.Pharmacology or not SAO.Pharmacology.commitCheckpoint(rec, captured.pharmacology) then
+            error("pharmacology-checkpoint-refused")
+        end
+    elseif captured.pharmacologyRequired == true then
+        error("pharmacology-checkpoint-missing")
+    end
     rec.hibernation = captured.packed
     rec.bodyVisual = captured.visual
     rec.releasedAtHours = captured.hours

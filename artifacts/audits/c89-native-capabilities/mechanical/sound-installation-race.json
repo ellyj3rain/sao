@@ -1,0 +1,20 @@
+{
+  "schema": "sao-native-sound-install-race/1",
+  "timestamp": "2026-09-27T05:29:26.666634+00:00",
+  "status": "PASS",
+  "runtimeSource": "_scratch\\c89-orienting\\engine\\java\\src\\com\\sao\\agent\\SAOOrientationWeave.java",
+  "runtimeSha256": "c964bb2f70bc205d2df8daa04a42c0de15aee94af8534d627c1b84f6ba73e2d9",
+  "priorSha256": "295c70f0292aa872e9557d63ecb380d8c4d4bb6a5810c2777bb66547a16c9d48",
+  "nativeChecks": 85,
+  "control": "Exact prior implementation fails CHECK native_pulse_weave=false under the same real Instrumentation/native-class loading race",
+  "mechanism": "WorldSound loaded after installation snapshot while Byte Buddy circularity lock is held; post-install exact-target retransformation recovers the missed class",
+  "evidence": {
+    "RegistrationRaceAgent.java": "61b902d770c1df6b49e0db55808fdead73992e60f0fd1a8e19161c166a9a9d3f",
+    "race-old.log": "0f1250ead381c219e8e3f1e012187f1df8f28dee8ef51243233cc37e032b97db",
+    "race-fixed.log": "c7474ff0f710392bea1bd807eb60efddd340e19ff8da80addcaab2237440199f",
+    "race-fixed-SAOAgent.log": "d8b00b848efdec3fb82b2196d5dc4cb7f8e4a5b200ec4544ea61425729d20264"
+  },
+  "limits": [
+    "Controlled installed-engine load ordering; the live native04 symptom matches but this does not establish that all unseen application loaders use that ordering. Fresh loaded-world verification remains required."
+  ]
+}

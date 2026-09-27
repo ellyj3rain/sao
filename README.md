@@ -38,9 +38,16 @@ on the simulation.
 
 ## Status
 
-`2.12.0.0-pre-alpha` - the coordinate is computed by the version machine
+`3.0.0.0-pre-alpha` - the coordinate is computed by the version machine
 (`tools/version_replay.py`), never picked; `VERSION_MAP.md` shows the
 classification and the arithmetic.
+
+C89 adds native head/body orientation to sound, source-owned drug items and
+physiology, real appliance preparation, and private experience from these
+actions. Mousecat exposes their current state beside the competing models.
+Native completion and persistence are checked separately from autonomous
+decision quality; broader action selection and admitted integration gaps remain
+listed in the [capability catalogue](artifacts/audits/c89-native-capabilities/prior-art.json).
 
 C88 adds independent competing cognition to native simulation. Ordinary and
 associative models retain separate beliefs and predictions, take bounded turns

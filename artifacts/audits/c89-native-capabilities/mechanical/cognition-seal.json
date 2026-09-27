@@ -1,0 +1,82 @@
+{
+  "schema": "sao-c89-cognition-seal/2",
+  "createdAtUtc": "2026-09-27T05:07:43.558276+00:00",
+  "verdict": "PASS",
+  "productionUnchanged": {
+    "mod/42.20/media/lua/shared/SAO_CognitiveModels.lua": "791d4a2392d85645508a0debb5c50abc1636573d71194ec4a435dfbc7caef31b",
+    "mod/42.20/media/lua/shared/SAO_Cognition.lua": "36f2f3f8714546be8205fbaad2d1c8af6a8fa856f158a9b1b7c6bf1052ab0e03"
+  },
+  "files": {
+    "mod/42.20/media/lua/shared/SAO_Cognition.lua": "bc195be32cad455b1c8a5b8044dc7dc06e9babbfc3efc06cac3ffd5797d17285",
+    "mod/42.20/media/lua/shared/SAO_CognitiveModels.lua": "8abb65720e2a16aee450b66d15c51d86d5470c9c46e21719eb16e8c3002e2f58",
+    "HANDOFF.md": "bcea3df5ef84eda85db09b2474a0820549ea497fc7e958e61a645bf5d3346093",
+    "INTEGRATION.md": "f982afccc8b5899d90b079ee45db3c08bb1b0a07792a907a5d6047ca5cd69c07",
+    "tools/capability_experience_test.py": "f75d2bede48283b3598057551ca8de07a0857e37d2e5439e724a762fb04d1ac1",
+    "tools/capability_experience_checks/controls.py": "d1c643bfb456c0a3d2834e02d9b3baf616205433db91b79a2ca4d94f5ef9cc9c",
+    "tools/capability_experience_checks/experience.lua": "2b495813a2dce1ff6a00c0bb944f9f742bc0a6c8fb4a6910ea79764f897bfdf3",
+    "tools/capability_experience_checks/legacy-archive-receipt.json": "988542b46658d363349edc9c3ba5fd40177c453307cf57877992d0d312a7fd26",
+    "tools/capability_experience_checks/legacy_archive.lua": "ecee00b4f87917ad8eb8386f2e6a52bb32f6ac4dbb63b8130983abcc7a07432d",
+    "tools/capability_experience_checks/restore_legacy.lua": "b677802f73aa4a72b11fe388a2bbf6225044dd73d385f5a398866ba29c2e7f05",
+    "tools/capability_experience_checks/run_checks.py": "83846301efc75092842ba4d7ed889f939e50c45ecaf56b74da9aa50a30721aa1"
+  },
+  "proof": {
+    "path": "C:\\Users\\jleyv\\AppData\\Local\\Temp\\sao-c89-portable-gates-49dsnb4i\\capability-context-proof-03\\receipt.json",
+    "sha256": "06f0e07e534cfa7bb466453e7acf1247b47422623c4897c2dc76adec1d957c61"
+  },
+  "wrapperMetadataControls": {
+    "path": "C:\\Users\\jleyv\\AppData\\Local\\Temp\\sao-c89-portable-gates-49dsnb4i\\metadata-wrapper-controls.json",
+    "sha256": "68daca88b0bc08ae277c3b5ead0e5b9b48b2a7cfe5457875e5e7aed007079fe1"
+  },
+  "checks": {
+    "existingModelCases": 29,
+    "existingLedgerCases": 49,
+    "extendedAssertions": 985,
+    "boundedHistoryAssertionsIncluded": 870,
+    "defectControls": 81,
+    "invocations": 84
+  },
+  "supersedes": {
+    "sealSha256": "219c8cea208d8e8d9ab2250fd549da280823608d47cf712c09a4176af3db9171",
+    "runtimeSha256": "6277618e42e091b226eefb061a1241bbc3b793509414256f28a9b697c3a43996",
+    "receiptSha256": "29247cc820f4d4d364618dce70be6c8f4653cee6028b556087188ae7c05468d5",
+    "reason": "Authenticated current Labor capability context on first native receipt; preserve original context on replay.",
+    "manifest": {
+      "schema": "sao-c89-cognition-seal/1",
+      "createdAtUtc": "2026-09-27T04:31:30.998262+00:00",
+      "verdict": "PASS",
+      "productionUnchanged": {
+        "mod/42.20/media/lua/shared/SAO_CognitiveModels.lua": "791d4a2392d85645508a0debb5c50abc1636573d71194ec4a435dfbc7caef31b",
+        "mod/42.20/media/lua/shared/SAO_Cognition.lua": "36f2f3f8714546be8205fbaad2d1c8af6a8fa856f158a9b1b7c6bf1052ab0e03"
+      },
+      "files": {
+        "archive_previous.py": "9000a61f48d0b380736fded8d3952c12142c3dd3b489221f267e49990ec8b4a2",
+        "baseline.json": "55d3c0c5fc2904f63c8e6197f77c3b52e9f86f3aeece8f2af764bdf487d4e174",
+        "check.py": "245d1406c6a65b8bb5db1383d5f9640fd7c628dbdb115ec09d1b03ff74ffb7d2",
+        "freeze.py": "8925018ceb93b968d751cd55f2a4fe9093b35defd9cf97e575c8be2241761513",
+        "full.log": "3aec7beca426c04ffe7ee50664f009ecb1fe875e106193a91e5596dcd827e4d4",
+        "HANDOFF.md": "a7fa6e43e855848888b2569ffa82cf7483cfc1b359f14789f94bee430f446d15",
+        "INTEGRATION.md": "c4d3a829db218222718b639575ca385e0c70eb41f254280a397604b54dcd8e1e",
+        "mod\\42.20\\media\\lua\\shared\\SAO_Cognition.lua": "6277618e42e091b226eefb061a1241bbc3b793509414256f28a9b697c3a43996",
+        "mod\\42.20\\media\\lua\\shared\\SAO_CognitiveModels.lua": "8abb65720e2a16aee450b66d15c51d86d5470c9c46e21719eb16e8c3002e2f58",
+        "proof\\receipt.json": "29247cc820f4d4d364618dce70be6c8f4653cee6028b556087188ae7c05468d5",
+        "tests\\archive_legacy.lua": "7707f8f71a261317da1083493274bcdd7d1963671f8fa1b70b2e45c4ed919b73",
+        "tests\\experience.lua": "6aa8b6a922888c90f3798f9db2fea534dddde826c53fcd32e79a00c0e421ed89",
+        "tests\\legacy-archive-receipt.json": "988542b46658d363349edc9c3ba5fd40177c453307cf57877992d0d312a7fd26",
+        "tests\\legacy.lua": "140e15d26e4fbf5f8839794cc138144d76ada1b706e3f17c125dcb4cab420f47",
+        "tests\\legacy_archive.lua": "ecee00b4f87917ad8eb8386f2e6a52bb32f6ac4dbb63b8130983abcc7a07432d",
+        "tests\\restore_legacy.lua": "b677802f73aa4a72b11fe388a2bbf6225044dd73d385f5a398866ba29c2e7f05",
+        "tools\\luacheck\\CognitiveModelChecks.lua": "356861a7b446c5be3238e341351ed0b25a322a09527244601db05b1e7be25434"
+      },
+      "checks": {
+        "existingModelCases": 29,
+        "existingLedgerCases": 49,
+        "extendedAssertions": 947,
+        "boundedHistoryAssertionsIncluded": 870,
+        "defectControls": 78,
+        "invocations": 81
+      },
+      "boundary": "Actual installed Kahlua executes candidate models/ledger with producer-shaped receipts. Authenticity of native dose, measured Stats and cooking receipts remains the separately owned producer proof; no rendered world, recipe realization or training admission."
+    }
+  },
+  "boundary": "Installed Kahlua executes production models and ledger with producer-shaped receipts. Native dose, measured Stats and thermal-preparation authenticity remain separately owned producer proofs; no rendered world, recipe realization or training admission."
+}

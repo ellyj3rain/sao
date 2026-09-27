@@ -19,3 +19,5 @@ artifacts/audits/** -text -whitespace
 # Sealed model vectors retain their exported bytes. The empty tokenizer case
 # deliberately has two empty TSV fields and therefore ends in two tabs.
 tools/fixtures/coordination-r67/*.tsv -text -whitespace
+# This sealed legacy producer artifact includes its original CRLF bytes.
+tools/capability_experience_checks/legacy_archive.lua -text -whitespace

@@ -1,0 +1,58 @@
+{
+  "schema": "mousecat-camera-inspection-context/1",
+  "status": "PASS",
+  "createdAtUtc": "2026-09-27T06:31:40.449724+00:00",
+  "files": [
+    {
+      "path": "src/operator/public/native-view.js",
+      "sha256": "735af4a44f078e16f6cc4407e90e581c3211b53736ee2d010189cd51e350b9de"
+    },
+    {
+      "path": "src/operator/public/native-view.css",
+      "sha256": "470480541ee6ab78a39c4fb5d672b2fe23c4db0bcb34c51fe58828edb1e452cd"
+    }
+  ],
+  "before": [
+    {
+      "path": "src/operator/public/native-view.js",
+      "sha256": "d13f6463022fb10ddc01c7d3fc92d6a3d054ede932ec2134465d92b4cb28c467"
+    },
+    {
+      "path": "src/operator/public/native-view.css",
+      "sha256": "5cfc165b999dbfe1326b9b10c05af28d61dac77ef1c6078cadcbb91b1c2637f3"
+    }
+  ],
+  "change": "Current source camera context above the native image; explicit inspected person beside image and outside scrolling cognition. Mobile rows follow expanded content and keep inspected identity pinned.",
+  "selectionPolicyChanged": false,
+  "newControls": false,
+  "runtimeCommandsSent": 0,
+  "browserAssertions": 24,
+  "nativeViewTests": {
+    "passed": 59,
+    "failed": 0,
+    "skipped": 2,
+    "skipReason": "Windows denied symlink fixture creation"
+  },
+  "actualDesktopVerified": true,
+  "verificationBoundary": "Browser layout/selection checks use actual served assets with intercepted control requests; root refreshed the existing installed Desktop and supplied its native window capture, visually reviewed here. No live action/speed/camera commands were sent by this slice.",
+  "artifacts": {
+    "native-view-tests.log": "57feff20fd958ef99cd2dc15dcbd84ef48c9c1763055c3b87fb57d9bfe92de58",
+    "browser-receipt.json": "fdf5928a0f34230289b87b2ea24f21d7b804162eb3cbff6a6f5272edb1a799c7",
+    "browser-check.log": "fc0f95f10d9c548b528b24176f2fac9371c6f61a7008f299ab299cf3a7b38bd8",
+    "desktop-readonly-service.png": "fbe511fb7792bbd3064827f62b319fa40ac51f8e0b68a3fc465cebd07a6f9ab0",
+    "desktop-controlled-divergent-selection.png": "a3b15f82c6b3a0b89398914008c287d52a6b650be0eaa8adc71c0922aebb27a8",
+    "mobile-controlled-top.png": "7ca1968ad9b84175b4bba6f0167d58613db8104a688306a346f73224d0fa2556",
+    "mobile-controlled-cognition.png": "1050481baeee22bd6dc46ed2bfb8ed9aecd728d40cb2189bdc2320b94f02a2bb",
+    "current-diff.patch": "2fb42def1d10dfdba188342c6a414430dea7279c6e5ccdfbf36597898f157a2a"
+  },
+  "actualDesktop": {
+    "capture": "C:\\Users\\jleyv\\Peanut Butter\\AI Assisted Software Engineering Mass Repository\\Projects\\survivor-awareness\\_scratch\\c89-orienting\\browser-07-resume\\actual-desktop.png",
+    "sha256": "eb953aefe67b00143c8b056c8f60af8370145c1a3a80ab7be3503b7ade0d6509",
+    "processId": 63652,
+    "webViewHandle": 104730756,
+    "sessionId": "88973430-47da-41fb-8a40-e023c7d3e355",
+    "worldHours": 9.326,
+    "refreshOwner": "root; F5 to existing WebView",
+    "visualReview": "Capture visibly shows Camera follows Jose Worthy above the native image, Inspecting Jose Worthy beside it and at the fixed inspector heading."
+  }
+}

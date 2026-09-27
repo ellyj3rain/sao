@@ -164,6 +164,9 @@ KNOWN_READ_ONLY = {
     # Legacy migration field: old saves carry rec.lessons and migrate()
     # converts it; new code never writes it, by design.
     "lessons",
+    # C89 imports the retired external-driver dependency flag from old saves
+    # once into owned Pharmacology. Current writers use pharmacology.families.
+    "nncWithdrawal",
     # C79 legacy projection: old saves may carry the automatically selected
     # groupMeta.rationPolicy. GraphPersistence reads it once into a labeled
     # compatibility decision; new policy is process-enacted and never writes

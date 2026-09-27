@@ -368,6 +368,16 @@ function Ctl.drop(id)
     id = tostring(id)
     if Ctl.agents[id] then
         local body = SAO.Body and SAO.Body.get and SAO.Body.get(id) or nil
+        local rec = Ctl.agents[id].rec
+        if rec and rec.cookingWork then
+            local okCooking, closedCooking = pcall(function()
+                return SAO.Cooking and SAO.Cooking.interrupt(id, body, "controller-drop")
+            end)
+            if not okCooking or closedCooking ~= true then
+                log("kept " .. id .. " while food preparation closes")
+                return false, "cooking-action-pending"
+            end
+        end
         if SAO.SourceUse and SAO.SourceUse.closeForOwnershipTransfer then
             local okClose, closed = pcall(
                 SAO.SourceUse.closeForOwnershipTransfer,
@@ -526,7 +536,7 @@ local CONTACT_STATES = { CONTACTWARD = true, CONTACTWAIT = true }
 -- `answer == "chosen rest"` it would silently miss four of the seven
 -- rests in the county. Border 78 holds the domain closed now.
 local PRESSURE_ANSWER = {
-    FLEE = "need", TREAT = "need", RIP = "need", EAT = "need",
+    COOK = "designation", FLEE = "need", TREAT = "need", RIP = "need", EAT = "need",
     TAKE = "need", DRINK = "need", WATERWARD = "need", FORAGE = "need",
     SOURCEWARD = "need", SOURCEUSE = "need",
     RELOAD = "need", AMMOWARD = "need", SMOKE = "need",
@@ -703,6 +713,10 @@ end
 local function setState(agent, id, state, why, answer, repairingSourceProjection)
     if agent.state ~= state and not repairingSourceProjection then
         local sourceBody = SAO.Body.get(id)
+        if state ~= "COOK" and agent.rec.cookingWork and SAO.Cooking
+            and SAO.Cooking.interrupt(id, sourceBody, "state-change:" .. tostring(state)) ~= true then
+            return false
+        end
         if SAO.SourceUse and SAO.SourceUse.beforeStateChange
             and SAO.SourceUse.beforeStateChange(id, sourceBody, agent.state,
                 state, why) == false then
@@ -861,6 +875,52 @@ local function coordinationDestination(plan)
     return { minX = minX, minY = minY, maxX = maxX, maxY = maxY,
         x = (minX + maxX) / 2, y = (minY + maxY) / 2,
         z = tonumber(destination.z) or 0 }
+end
+
+-- A received proposal supplies a complete address. Person memories currently
+-- have no floor, so their XY can replace that address only while the same
+-- privately identified person is actually visible on this body's floor.
+-- Resolving a native body is an encounter check, never a location lookup.
+local function coordinationRequesterInSight(id, body, plan)
+    if not (body and plan and plan.requesterId and SAO.Perception
+        and SAO.Perception.knownPeople and SAO.Perception.freshObservedPerson
+        and SAO.History and SAO.History.ticks and SAO.Communication
+        and SAO.Communication.bodyFor and SAOJavaBridge) then return nil end
+    local tick = SAO.History.ticks()
+    if type(tick) ~= "number" then return nil end
+    for _, known in ipairs(SAO.Perception.knownPeople(id)) do
+        if tostring(known.id) == tostring(plan.requesterId) then
+            local belief = SAO.Perception.freshObservedPerson(id,
+                known.beliefKey, tick)
+            local x, y = belief and tonumber(belief.x), belief and tonumber(belief.y)
+            if not x or not y or x ~= x or y ~= y
+                or math.abs(x) == math.huge or math.abs(y) == math.huge then
+                return nil
+            end
+            local other = SAO.Communication.bodyFor(known.id)
+            local ok, visible, floor = pcall(function()
+                local ownData, otherData = body:getModData(), other:getModData()
+                if not ownData or not otherData
+                    or tostring(ownData.SAOPersonId or "") ~= tostring(id)
+                    or tostring(otherData.SAOPersonId or "") ~= tostring(known.id)
+                    or body:getZ() ~= other:getZ() then return false end
+                -- Native admission clamps this to the actual scanner range.
+                return SAOJavaBridge:canSeePersonNow(body, other, math.huge),
+                    math.floor(body:getZ())
+            end)
+            if ok and visible == true then
+                return { body = other, x = x, y = y, z = floor }
+            end
+            return nil
+        end
+    end
+    return nil
+end
+
+local function sameCoordinationDestination(route, destination)
+    return destination and math.floor(route.x) == math.floor(destination.x)
+        and math.floor(route.y) == math.floor(destination.y)
+        and math.floor(route.z) == math.floor(destination.z)
 end
 
 -- Kept local for saved diagnostic harnesses; the shared owner is authoritative
@@ -1256,6 +1316,14 @@ local function advanceCoordination(id, body, owner, activity, agent, selected)
                 "pending-route-reconstruction-unavailable")
             return false, "route-reconstruction-unavailable"
         end
+        if remembered.phase == "carrying" and not (
+            sameCoordinationDestination(remembered, coordinationDestination(plan))
+            or sameCoordinationDestination(remembered,
+                coordinationRequesterInSight(id, body, plan))) then
+            SAO.Organization.routeOutcome(commitment.id, "interrupted",
+                "pending-route-destination-unavailable")
+            return false, "route-destination-unavailable"
+        end
         local prior = remembered.retryEvidence or {}
         local allowed, reason = Ctl.coordinationRouteAllowed(id, body,
             commitment.id, remembered.x, remembered.y, remembered.z,
@@ -1376,14 +1444,13 @@ local function advanceCoordination(id, body, owner, activity, agent, selected)
         return false, "cargo-missing"
     end
 
-    local requesterBody = SAO.Communication
-        and SAO.Communication.bodyFor(plan.requesterId) or nil
-    if requesterBody then
-        local ok, dx, dy = pcall(function()
-            return requesterBody:getX() - body:getX(),
-                requesterBody:getY() - body:getY()
+    local requester = coordinationRequesterInSight(id, body, plan)
+    if requester then
+        local requesterBody = requester.body
+        local ok, atHand = pcall(function()
+            return SAOJavaBridge:canSeePersonNow(body, requesterBody, TALK_REACH)
         end)
-        if ok and dx * dx + dy * dy <= TALK_REACH * TALK_REACH then
+        if ok and atHand == true then
             local share = category == "water" and SAO.Needs.shareDrinkWith
                 or SAO.Needs.shareFoodWith
             local receipt = share and share(id, body, requesterBody,
@@ -1403,8 +1470,7 @@ local function advanceCoordination(id, body, owner, activity, agent, selected)
             end
         elseif ok then
             local attempt, routeReason = orderCoordinationRoute(id, body, commitment,
-                requesterBody:getX(), requesterBody:getY(),
-                math.floor(requesterBody:getZ()), "carrying")
+                requester.x, requester.y, requester.z, "carrying")
             if not attempt then return false, routeReason end
             runtime.coordinationRoute = { commitmentId = commitment.id,
                 phase = "carrying", category = category }
@@ -1424,6 +1490,7 @@ local function advanceCoordination(id, body, owner, activity, agent, selected)
     local bx, by = body:getX(), body:getY()
     local inside = bx >= destination.minX and bx <= destination.maxX
         and by >= destination.minY and by <= destination.maxY
+        and math.floor(body:getZ()) == math.floor(destination.z)
     if inside then
         local context = coordinationContext(plan, category)
         local queued = category == "water"
@@ -3455,6 +3522,78 @@ local function occupiesKnownHome(id, body, x, y, z)
     return ok and inside == true, ok and known == true
 end
 
+-- A failed home route is the person's own attempt, not knowledge that the
+-- address is impassable. Keep one scalar receipt through body/save reloads.
+-- Reconsider on the same bounded county-time cadence as failed water access;
+-- a different destination or approach does not inherit the old failure.
+local HOME_ROUTE_RETRY_HOURS = 0.25
+local HOME_ROUTE_RETRY_LIMIT = 4
+local HOME_ROUTE_RECONSIDER_REACH = 2.0
+local HOME_ROUTE_FAILURES = {
+    ["done:Failed"] = true,
+    ["done:stalled:ManualRoute"] = true,
+    ["done:FailedObstacle:FAILED_BLOCKED_DIAGONAL"] = true,
+    ["done:FailedObstacle:FAILED_LOCKED_DOOR"] = true,
+    ["done:FailedObstacle:FAILED_BARRICADED_DOOR"] = true,
+    ["done:FailedObstacle:FAILED_BARRICADED_WINDOW"] = true,
+    ["done:FailedObstacle:FAILED_BLOCKED_WINDOW"] = true,
+    ["done:FailedObstacle:FAILED_WINDOW_DECLINED"] = true,
+    ["done:FailedObstacle:FAILED_EDGE_COOLDOWN"] = true,
+    ["done:FailedObstacle:FAILED_UNSUPPORTED_Z_CHANGE"] = true,
+}
+local function homeRouteNumber(value)
+    return type(value) == "number" and value == value
+        and value > -math.huge and value < math.huge
+end
+local function homeRouteClock()
+    local ok, now = pcall(function() return SAO.History.countyHours() end)
+    return ok and homeRouteNumber(now) and now >= 0 and now or nil
+end
+local function homeRouteReceipt(rec)
+    local failed = rec.homeRouteFailure
+    if type(failed) ~= "table" or not HOME_ROUTE_FAILURES[failed.reason] then return nil end
+    for _, key in ipairs({ "x", "y", "z", "fromX", "fromY", "fromZ", "atHours", "attempts" }) do
+        if not homeRouteNumber(failed[key]) then return nil end
+    end
+    if failed.atHours < 0 or failed.attempts < 1 or failed.attempts > HOME_ROUTE_RETRY_LIMIT
+        or failed.attempts ~= math.floor(failed.attempts) then return nil end
+    return failed
+end
+local function sameHomeRoute(failed, body, x, y, z)
+    if not failed or failed.x ~= math.floor(x) or failed.y ~= math.floor(y)
+        or failed.z ~= math.floor(z or 0) or failed.fromZ ~= math.floor(body:getZ()) then return false end
+    local dx, dy = body:getX() - failed.fromX, body:getY() - failed.fromY
+    return dx * dx + dy * dy <= HOME_ROUTE_RECONSIDER_REACH * HOME_ROUTE_RECONSIDER_REACH
+end
+local function homeRouteReady(rec, body, x, y, z)
+    local failed, now = homeRouteReceipt(rec), homeRouteClock()
+    if not failed or not sameHomeRoute(failed, body, x, y, z) then return true end
+    -- A rewound world cannot inherit a receipt from its discarded future.
+    if now and now < failed.atHours then rec.homeRouteFailure = nil; return true end
+    return now ~= nil and now >= failed.atHours + HOME_ROUTE_RETRY_HOURS * failed.attempts
+end
+local function homeRouteOutcome(id, agent, body, status)
+    local job = SAO.Locomotion.jobs[id]
+    local rec = agent.rec
+    if agent.state ~= "HOMEWARD" or not rec or not job or job.body ~= body
+        or not job.done or not job.goal or status ~= "done:" .. tostring(job.result) then return nil, false end
+    local x, y, z = resolvedHomeAddress(id, rec)
+    if not homeRouteNumber(x) or not homeRouteNumber(y) or not homeRouteNumber(z or 0)
+        or math.floor(job.goal.x) ~= math.floor(x) or math.floor(job.goal.y) ~= math.floor(y)
+        or math.floor(job.goal.z or 0) ~= math.floor(z or 0) then return nil, false end
+    if status == "done:arrived" then return nil, true end
+    if not HOME_ROUTE_FAILURES[status] then return nil, false end
+    local now = homeRouteClock()
+    if not now then return nil, false end
+    local prior, attempts = homeRouteReceipt(rec), 1
+    if sameHomeRoute(prior, body, x, y, z) and now >= prior.atHours then
+        attempts = math.min(HOME_ROUTE_RETRY_LIMIT, prior.attempts + 1)
+    end
+    return { x = math.floor(x), y = math.floor(y), z = math.floor(z or 0),
+        fromX = body:getX(), fromY = body:getY(), fromZ = math.floor(body:getZ()),
+        atHours = now, attempts = attempts, reason = status }, true
+end
+
 local function decideHomeAndEquipment(id, agent, body, tick, rec)
     if agent.state == "IDLE" and rec.homeX and not agent.hasLiveAnchor
         and not agent.companioning then
@@ -3467,8 +3606,10 @@ local function decideHomeAndEquipment(id, agent, body, tick, rec)
             local bx, by = body:getX(), body:getY()
             local dh = math.sqrt((homeX - bx) ^ 2 + (homeY - by) ^ 2)
             local insideHome, knownHome = occupiesKnownHome(id, body, homeX, homeY, homeZ)
+            if insideHome then rec.homeRouteFailure = nil end
             if not insideHome and (dh > 10.0 or knownHome)
-                and mayEnterBelieved(id, homeX, homeY) then
+                and mayEnterBelieved(id, homeX, homeY)
+                and homeRouteReady(rec, body, homeX, homeY, homeZ) then
                 pcall(function() SAOJavaBridge:setForceEntry(body, false) end)
                 if SAO.Locomotion.order(id, body, homeX, homeY, homeZ or 0) then
                     setState(agent, id, "HOMEWARD",
@@ -5625,46 +5766,15 @@ local function decideRoam(id, agent, body, tick, interval, desig, idleRec)
             end
         end
     elseif desig == "cook" then
-        -- [B20] The cook cooks. Vanilla gates dangerous raw
-        -- food on `isbDangerousUncooked() and not isCooked()`,
-        -- so this is the one job whose product is measured in
-        -- other people's stomachs: the house's own larder
-        -- stops being a thing that might kill you.
-        --
-        -- Needs a fire that is actually lit and ground that
-        -- is actually theirs. A cook with no hearth is a
-        -- person with a skill and nowhere to use it, which is
-        -- honest and is most of the county's problem.
-        why, answer = "works the fire", "designation"
-        if SAO.Standing.insideClaim(id, body:getX(), body:getY())
-            and tick >= (agent.nextCookAt or 0) then
-            local hearth41 = nil
-            pcall(function()
-                hearth41 = SAOJavaBridge:hearthNear(body, 6)
-            end)
-            if hearth41 and hearth41 ~= "" then
-                local lvl41 = SAO.Census.skillOf(id, "Cooking")
-                if lvl41 < 0 then lvl41 = 0 end
-                local made41 = 0
-                pcall(function()
-                    made41 = SAOJavaBridge:cookNearbyFood(
-                        body, 6, lvl41)
-                end)
-                if made41 and made41 > 0 then
-                    agent.nextCookAt = tick + 3600
-                    agent.taskDeadline = tick + 900
-                    pcall(function()
-                        SAOJavaBridge:grantXP(body, "Cooking", 3.0)
-                    end)
-                    pcall(function()
-                        SAO.Voice.onEvent(id, "cooks", tick)
-                    end)
-                    log(id .. " cooks " .. made41
-                        .. " - the larder stops being dangerous")
-                    setState(agent, id, "TREAT",
-                        "cooks for the house", "designation")
+        why, answer = "looks for food and an appliance", "designation"
+        if SAO.Cooking and tick >= (agent.nextCookAt or 0)
+            and SAO.Standing.insideClaim(id, body:getX(), body:getY()) then
+            agent.nextCookAt = tick + 600
+            if SAO.Cooking.begin(id, body) then
+                if setState(agent, id, "COOK", "prepares food at an appliance", "designation") then
                     return true
                 end
+                SAO.Cooking.interrupt(id, body, "controller-admission-refused")
             end
         end
     elseif desig == "medic" then
@@ -6548,6 +6658,14 @@ function Ctl.observeExternalDeath(id, body, owner)
     local dead = false
     local okDead = pcall(function() dead = body:isDead() == true end)
     if not okDead or not dead then return false end
+    pcall(function() ISTimedActionQueue.clear(body) end)
+    if SAO.SourceUse then
+        pcall(SAO.SourceUse.closeForOwnershipTransfer, id, body, "death")
+        pcall(SAO.SourceUse.detach, body)
+    end
+    if SAO.Cooking and SAO.Cooking.detach then
+        pcall(SAO.Cooking.detach, id, body, "death")
+    end
     pcall(function()
         SAO.Identity.updatePosition(rec, body:getX(), body:getY(), body:getZ())
     end)
@@ -7322,7 +7440,10 @@ local function updateMovement(id, agent, body)
                 -- it; leaving the movement state here would cancel the job.
                 return false
             end
-            setState(agent, id, "IDLE", s)
+            local homeFailure, homeEnded = homeRouteOutcome(id, agent, body, s)
+            if setState(agent, id, "IDLE", s) and homeEnded then
+                agent.rec.homeRouteFailure = homeFailure
+            end
         end
         if agent.state == "TRAVEL" then return true end  -- operator orders are not re-decided
     end
@@ -7367,10 +7488,14 @@ local function updateAgent(id, agent)
             -- witnessed, judged, and mourned by the one law all deaths
             -- share.
             local cause = witnessDeath(id, agent, body) or "unknown"
+            pcall(function() ISTimedActionQueue.clear(body) end)
             if SAO.SourceUse then
                 pcall(SAO.SourceUse.closeForOwnershipTransfer,
                     id, body, "death")
                 pcall(SAO.SourceUse.detach, body)
+            end
+            if SAO.Cooking and SAO.Cooking.detach then
+                pcall(SAO.Cooking.detach, id, body, "death")
             end
             if SAO.CrossedTransfer and SAO.CrossedTransfer.cancelForDeath then
                 pcall(SAO.CrossedTransfer.cancelForDeath, agent.rec)
@@ -7419,6 +7544,9 @@ local function updateAgent(id, agent)
                 id, body, "death")
             pcall(SAO.SourceUse.detach, body)
         end
+        if SAO.Cooking and SAO.Cooking.detach then
+            pcall(SAO.Cooking.detach, id, body, "death")
+        end
         if SAO.CrossedTransfer and SAO.CrossedTransfer.cancelForDeath then
             pcall(SAO.CrossedTransfer.cancelForDeath, agent.rec)
         end
@@ -7465,6 +7593,10 @@ local function updateAgent(id, agent)
     pendingSource = SAO.WorldSources and SAO.WorldSources.pendingActionFor
         and SAO.WorldSources.pendingActionFor(id) or nil
     if agent.rec.zaoTransferPending or agent.rec.crossedTransferPending then
+        if agent.rec.cookingWork and (not SAO.Cooking
+            or SAO.Cooking.interrupt(id, body, "zao-person-ownership-transfer") ~= true) then
+            return
+        end
         if pendingSource then
             local closed = SAO.SourceUse
                 and SAO.SourceUse.closeForOwnershipTransfer
@@ -7482,6 +7614,43 @@ local function updateAgent(id, agent)
     -- state - except for the one state that has always contradicted
     -- it ([B19]). A sleeping person is not a sentry.
     SAO.Perception.observe(id, body, tickCount, agent.sleeping)
+
+    -- Food preparation owns its routes and exact transfers as one operation.
+    -- Threats and bodily emergencies retire that operation before another owner acts.
+    if agent.rec.cookingWork and SAO.Cooking then
+        local threat = selectedThreat(id, tickCount, body:getX(), body:getY())
+        local interrupted = agent.passive or (threat
+            and threat.dist <= SAO.Disposition.fleeDistance(id))
+        local reason = interrupted and "threat-or-owner-interrupted" or nil
+        if not interrupted and tickCount >= (agent.nextCookingNeedsAt or 0) then
+            agent.nextCookingNeedsAt = tickCount + 60
+            local needs = SAO.Needs.read(body)
+            if SAO.Needs.bleeding(body) > 0
+                or needs and needs.thirst >= SAO.Disposition.drinkAt(id) then
+                interrupted, reason = true, "bodily-need-interrupted"
+            end
+        end
+        if interrupted then
+            if SAO.Cooking.interrupt(id, body, reason) then
+                agent.nextDecisionAt = 0
+                setState(agent, id, "IDLE", reason)
+            end
+            return
+        end
+        local outcome = SAO.Cooking.tick(id, body)
+        if not agent.rec.cookingWork then
+            agent.nextDecisionAt = 0
+            agent.nextCookAt = tickCount + 600
+            setState(agent, id, "IDLE", "food preparation: " .. tostring(outcome))
+            if outcome == "completed" and SAO.Voice then
+                pcall(function() SAO.Voice.onEvent(id, "cooks", tickCount) end)
+            end
+        end
+        return
+    elseif agent.state == "COOK" then
+        setState(agent, id, "IDLE", "food preparation owner ended")
+        return
+    end
 
     -- The durable phase, rather than a possibly interrupted state assignment,
     -- says which runtime projection owns the body. Resume also reconstructs
@@ -8608,6 +8777,19 @@ local function onTickInner()
     end)
     for id, agent in pairs(Ctl.agents) do
         local ok, err = pcall(updateAgent, id, agent)
+        if SAO.Orienting then
+            local body = SAO.Body.get(id)
+            if ok and not agent.passive and body then
+                local oriented, orientationError = pcall(SAO.Orienting.consider, id, body, {
+                    owner = "SAO", bodyOwnerToken = agent.rec.bodyOwnerToken,
+                    allowBodyTurn = agent.state == "IDLE",
+                })
+                if not oriented then
+                    pcall(SAO.Orienting.forget, id, body)
+                    log(id .. " orienting unavailable: " .. tostring(orientationError))
+                end
+            else pcall(SAO.Orienting.forget, id, body) end
+        end
         if not ok then
             agentFaults[id] = (agentFaults[id] or 0) + 1
             log(id .. " agent fault " .. agentFaults[id] .. "/3: "

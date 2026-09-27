@@ -1,0 +1,34 @@
+{
+  "schema": "speakeasy-r75-publication/1",
+  "timestamp": "2026-09-27T06:42:11.005401+00:00",
+  "pullRequest": "https://github.com/ellyj3rain/zomboid-speakeasy/pull/43",
+  "state": "MERGED",
+  "main": "be7aca0b4d0b530064e18c5efec409fcb65e91aa",
+  "testedCommit": "180791e8034e1fba0291ae529a0da016ee1f1bcd",
+  "treeMatchesPublishedMain": true,
+  "remoteBranchDeleted": true,
+  "ownedFiles": {
+    "tools/world_watch.py": {
+      "worktreeSha256": "f67eca644a7fd0a0e60af73239bc5a68b9d8e5d2dceb87a42d34c1285c66baee",
+      "publishedBlobSha256": "b16ca3efa48f242edaeecdd0fb42ef5a7fdca5a8c0976c3f1e45e9ed2fb9117a"
+    },
+    "tools/test_world_watch.py": {
+      "worktreeSha256": "8192ca10fa00cbbe43205b47b33c8aca99a66eca691564bfdbbc5ce99bf32eb1",
+      "publishedBlobSha256": "8192ca10fa00cbbe43205b47b33c8aca99a66eca691564bfdbbc5ce99bf32eb1"
+    },
+    "README.md": {
+      "worktreeSha256": "d79c7f188f82baf890e68109fcb8567cef953202e88cf7439b36af1111e850e5",
+      "publishedBlobSha256": "8090a8d683df0be006b20e59370c292a0b51dc05d82eadfc3745bb9d84d73899"
+    },
+    "RECORD.md": {
+      "worktreeSha256": "739b07267493d7f2803e00224738a22ab8366e2b15ac6938fd65fa7eaaaaaa33",
+      "publishedBlobSha256": "2592e000aae5c217e6ac09156cf9137bce4f7ea1ddedd6719b08354cd382085b"
+    }
+  },
+  "validationReceiptSha256": "199a2ef1995294b2b8d1739b52143c770cf31fd8fd7a5d697665ae2c4dc94cdf",
+  "trackedTreeClean": true,
+  "preservedUnrelatedStatus": [
+    "?? _scratch/"
+  ],
+  "boundary": "Observer wording only; no knowledge, memory, scenario admission or runtime behavior change. No service or game restart performed."
+}

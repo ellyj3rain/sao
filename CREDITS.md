@@ -158,32 +158,29 @@ shakes are ours in size).
 
 ## N and C's Narcotics (Neely, a_COW_says)
 
-Workshop 3404956403, Build 42. [C13] recorded "source not public" and
-"No code read" - wrong: the Workshop folder ships the mod's Lua
-uncompiled, and [C47] read it. That supersedes the finding; the
-line stands here as what was believed. **The page's own schedule
-taken ([C13]):** a dependency lost after eighteen to twenty clean
-days, with withdrawal medium from day one (three for sedatives),
-bad from day five (six) and mild from day ten. The page gives the
-tiers and not their sizes; the sizes in `SAO_Habits` are ours and
-say so. **[C47] The source read:** their dependency vocabulary
-(their registered traits, their item tags, read through their own
-registry globals), their driver's clock shape (the seven dependency
-steps a ten in-game-minute pass, the seven effects and the pain
-removal a minute), and their machinery itself - where their mod is
-loaded, `SAO_Drugs` drives their own globals on the county's
-bodies, so their counters, highs and withdrawal tiers run on a
-shell exactly as they run on the player, and the county's own
-schedule yields family by family where their trait takes the
-dependency over ([C47] in `SAO_Habits`). Their methadone freeze is
-carried through `SAO_Habits`' own freeze and resume pair. Their
-families are read by their item tags through the engine's own
-`ItemTag`/`ResourceLocation`, and a use of any of their items
-stamps the family's clock through the eat-action wrap in
-`SAO_Needs`. **Not carried, named:** their narcan (the knowledge
-rule - no verified 1993 figure teaches the county a reversing
-medic) and their joint rolling (the county's cannabis is what the
-item is; nobody rolls).
+Workshop 3404956403, Build 42. Neely and a_COW_says authored the
+reference mechanisms. The operator established permission for the selected
+mechanism study; no original runtime source or media is copied here.
+
+C89 owns the admitted seven effect/dependency families, pain effects, sensitivity
+and maintenance freeze in SAO source. Fifteen native item definitions use vanilla
+assets and owned distribution entries. The person's actual native dose, bodily
+state, use history and elapsed time drive effects. Existing alcohol mechanisms
+retain their separate provenance above. NPCs and living ZAO people use the same
+physical owner and private experience connection without an external drug runtime.
+
+C13's public-page dependency schedule and C47's later source reading remain
+historical provenance. C47's external callback adapter has been replaced by
+`SAO_PharmacologyProfiles`, `SAO_Pharmacology`, and the joined native action,
+physiology and persistence owners. Legacy saved keys are migration inputs.
+The dependency schedule and source rate provenance are retained separately from
+measured loaded behavior.
+
+Scoped exclusions retain the earlier decisions: narcan/reversal knowledge,
+joint rolling and consumable production/synthesis are not selected mechanics.
+Local players without an SAO person record do not yet enter this NPC physiology
+owner. [The C89 catalogue](artifacts/audits/c89-native-capabilities/prior-art.json)
+records exact source, producer and verification boundaries.
 
 ## Drugs of '93 (Red Jones), Just Drugs (Leuan), Psychology Skill (WindLother)
 

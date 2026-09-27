@@ -50,6 +50,7 @@ public final class Main {
         // location for PZ's own density calculation. Hydration refuses if
         // this narrow weave cannot be established.
         com.sao.agent.SAOLootDensityWeave.install();
+        com.sao.agent.SAOOrientationWeave.install();
         SAOBridgeBootstrap.start();
     }
 

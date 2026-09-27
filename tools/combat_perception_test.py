@@ -46,8 +46,9 @@ def source_faults(scanner_src, combat_src, director_src, equipment_src, bridge_s
     faults = []
 
     # 1. Acoustic perception
-    if "sound.radius * weatherHearing()" not in scanner_src:
-        faults.append("scanner does not scale sound reach by weather hearing")
+    if ("SAOSenses.hearing(shell, true)" not in scanner_src
+            or "sound.radius * hearing" not in scanner_src):
+        faults.append("scanner bypasses shared native hearing reach")
     if "WorldSoundManager.instance.soundList" not in scanner_src:
         faults.append("scanner does not read the engine sound list")
 

@@ -112,7 +112,8 @@ def main():
     # awaken for an absent clothing restore.
     if not re.search(
             r"SAOJavaBridge:awaken\(body, rec\.hibernation,\s*"
-            r"(?:elapsed|externalDormancy\s+and\s+0\s+or\s+elapsed)\)", body):
+            r"(?:elapsed|(?:externalDormancy|\(externalDormancy\s+or\s+joinedDormancy\))"
+            r"\s+and\s+0\s+or\s+elapsed)\)", body):
         faults.append("materialization does not restore the saved clothing")
     if "SAOJavaBridge:awaken(" in pop:
         faults.append("population restores a person a second time after Body.materialize")

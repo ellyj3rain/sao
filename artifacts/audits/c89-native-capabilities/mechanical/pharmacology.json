@@ -1,0 +1,317 @@
+{
+  "schema": "sao-owned-pharmacology-check/1",
+  "inputs": {
+    "C:\\Users\\jleyv\\Peanut Butter\\AI Assisted Software Engineering Mass Repository\\Projects\\survivor-awareness\\tools\\world_lab\\TransferUiChecks.lua": "c60e9180d67a478d6791bd012fda1027faa56e1169667f56dac56e1d296e8191",
+    "C:\\Program Files (x86)\\Steam\\steamapps\\common\\ProjectZomboid\\media\\lua\\client\\TimedActions\\ISInventoryTransferAction.lua": "96ee554609f9ae029809643d50e4f31dbc5a7d21a558934be0804fd909c345b4",
+    "C:\\Program Files (x86)\\Steam\\steamapps\\common\\ProjectZomboid\\media\\lua\\client\\ISUI\\ISInventoryPaneContextMenu.lua": "a28dc83b943d20c6fa59370195aa649af249ea2ebd7d670addd6a9b76a357291",
+    "C:\\Program Files (x86)\\Steam\\steamapps\\common\\ProjectZomboid\\media\\lua\\shared\\TimedActions\\ISEatFoodAction.lua": "76d6f2650000231f3917616356c37e4b2fd7bcabdff5fcb5298e43223b681368",
+    "C:\\Program Files (x86)\\Steam\\steamapps\\common\\ProjectZomboid\\media\\lua\\shared\\TimedActions\\ISTakePillAction.lua": "680e0346323cbd9afa536a3d115f431e9e613853cf55af3fdbf1ec72e345394f",
+    "C:\\Program Files (x86)\\Steam\\steamapps\\common\\ProjectZomboid\\media\\lua\\shared\\TimedActions\\ISDrinkFluidAction.lua": "d0e89b901ecd53321feeac1e3cc540652ca692afb25cab584f5a40d4453f2c0b",
+    "C:\\Program Files (x86)\\Steam\\steamapps\\common\\ProjectZomboid\\media\\lua\\shared\\TimedActions\\ISTakeWaterAction.lua": "48aa88c32d2e387897ea7a7696d410ae33517bcf75f2edec3837e090cb3a3456",
+    "C:\\Users\\jleyv\\Peanut Butter\\AI Assisted Software Engineering Mass Repository\\Projects\\survivor-awareness\\_scratch\\c89-orienting\\pharma\\tools\\pharmacology_checks\\prelude.lua": "655a9aded5637a8901122193b8fe8ee9f80cd9a845937baa4470f46b77d056ac",
+    "C:\\Users\\jleyv\\Peanut Butter\\AI Assisted Software Engineering Mass Repository\\Projects\\survivor-awareness\\mod\\42.20\\media\\lua\\shared\\SAO_Hash.lua": "63e172f4c7878cc50ea58ae4604acec50f24decd50a1db0206d4c298def69915",
+    "C:\\Users\\jleyv\\Peanut Butter\\AI Assisted Software Engineering Mass Repository\\Projects\\survivor-awareness\\_scratch\\c89-orienting\\pharma\\mod\\42.20\\media\\lua\\shared\\SAO_Habits.lua": "ca35b2ae8d37dd7abdcd7e19cd1bd0f761982ff52150e2d39c452935e6124fab",
+    "C:\\Users\\jleyv\\Peanut Butter\\AI Assisted Software Engineering Mass Repository\\Projects\\survivor-awareness\\_scratch\\c89-orienting\\pharma\\mod\\42.20\\media\\lua\\shared\\SAO_PharmacologyProfiles.lua": "11d737bb81f4755ce485fcdc0e4e8bd4373e36ed6e192dfc7ae170cb7b5c24a9",
+    "C:\\Users\\jleyv\\Peanut Butter\\AI Assisted Software Engineering Mass Repository\\Projects\\survivor-awareness\\_scratch\\c89-orienting\\integration\\SAO_Needs.lua": "dbe233778fd2f1c26539b57a843295d12a8f70fb5ebb105b84a5ba7d681c8ef1",
+    "C:\\Users\\jleyv\\Peanut Butter\\AI Assisted Software Engineering Mass Repository\\Projects\\survivor-awareness\\_scratch\\c89-orienting\\integration\\SAO_Neuro.lua": "c029b54a9e1df7effc9aa0e85540c4ffdea2c50b9728beab2a60eff07047f6f0",
+    "C:\\Users\\jleyv\\Peanut Butter\\AI Assisted Software Engineering Mass Repository\\Projects\\survivor-awareness\\_scratch\\c89-orienting\\integration\\SAO_DormantPopulation.lua": "b43287a41e158747617df9566162be22cb8a12d4c469319ca7610123ed2a6d46",
+    "C:\\Users\\jleyv\\Peanut Butter\\AI Assisted Software Engineering Mass Repository\\Projects\\survivor-awareness\\_scratch\\c89-orienting\\pharma\\mod\\42.20\\media\\lua\\client\\SAO_Drugs.lua": "427d72c5119916444f09caf45d14418e4f927a039d491d63e43a8800c5db8ef6",
+    "C:\\Program Files (x86)\\Steam\\steamapps\\common\\ProjectZomboid\\media\\lua\\server\\Items\\Distribution_BagsAndContainers.lua": "783d3becbfdc9f3b0e37e6d16bc267251176440c8c8906f198c21c95dd996fff",
+    "C:\\Program Files (x86)\\Steam\\steamapps\\common\\ProjectZomboid\\media\\lua\\server\\Items\\Distribution_BinJunk.lua": "51b0eb20e69e52e085e98ec913be11277ed3e12dfde849b9e0c1e1c4f64a4dd6",
+    "C:\\Program Files (x86)\\Steam\\steamapps\\common\\ProjectZomboid\\media\\lua\\server\\Items\\Distribution_ClosetJunk.lua": "67482403e95e54369cb30aafeb17815e2db4475aafd94503adfe96459b2c2705",
+    "C:\\Program Files (x86)\\Steam\\steamapps\\common\\ProjectZomboid\\media\\lua\\server\\Items\\Distribution_CounterJunk.lua": "208ff266729a789c16a32f21a61da3ce21c842dd27e7417b9c40b508a57266e9",
+    "C:\\Program Files (x86)\\Steam\\steamapps\\common\\ProjectZomboid\\media\\lua\\server\\Items\\Distribution_DeskJunk.lua": "46b67016097c097ef13a94fb3ff85e7a75479b2d95a6f46c2230a3b2c018a9df",
+    "C:\\Program Files (x86)\\Steam\\steamapps\\common\\ProjectZomboid\\media\\lua\\server\\Items\\Distribution_ShelfJunk.lua": "d4ff9709330beaf4c08fd50d1e37508acb6155702679e00c388d666b671d0662",
+    "C:\\Program Files (x86)\\Steam\\steamapps\\common\\ProjectZomboid\\media\\lua\\server\\Items\\Distribution_SideTableJunk.lua": "20d548d84594f15d0a186e4812aa0f2367f9131e114447e7db3dc66c01571650",
+    "C:\\Program Files (x86)\\Steam\\steamapps\\common\\ProjectZomboid\\media\\lua\\server\\Items\\ProceduralDistributions.lua": "0c4f020d4f3d8e76442842811ae30f7ae1854f8d446b31b0a8f55ad16384568e",
+    "C:\\Users\\jleyv\\Peanut Butter\\AI Assisted Software Engineering Mass Repository\\Projects\\survivor-awareness\\_scratch\\c89-orienting\\pharma\\mod\\42.20\\media\\lua\\server\\Items\\SAO_PharmacologyLoot.lua": "169ae54eb84d603a5059b7b24abac226ade97da7874fce7f97fbbdab6be96647",
+    "C:\\Users\\jleyv\\Peanut Butter\\AI Assisted Software Engineering Mass Repository\\Projects\\survivor-awareness\\_scratch\\c89-orienting\\pharma\\tools\\pharmacology_checks\\native.lua": "84a440e5f00d6d89963c8147aa0be0bc89ee17c68297b894ccfdccda578841bb",
+    "C:\\Users\\jleyv\\Peanut Butter\\AI Assisted Software Engineering Mass Repository\\Projects\\survivor-awareness\\_scratch\\c89-orienting\\pharma\\mod\\42.20\\media\\lua\\shared\\SAO_Pharmacology.lua": "4c02625ec7570bfad09d7b12eea6cdc3362bb85da976815b3d5002514dd92521",
+    "C:\\Users\\jleyv\\Peanut Butter\\AI Assisted Software Engineering Mass Repository\\Projects\\survivor-awareness\\_scratch\\c89-orienting\\pharma\\mod\\42.20\\media\\scripts\\items_SAO_pharmacology.txt": "7ecd278df3911d1042ce886c8092dbea8f0012e4eb35d7fbdca81c3acdc1f4ca",
+    "C:\\Users\\jleyv\\Peanut Butter\\AI Assisted Software Engineering Mass Repository\\Projects\\survivor-awareness\\_scratch\\c89-orienting\\integration\\SAOHibernation.java": "b3d0c832c920d7c0080435d8572b2ef2437bec5083b22f3569de82f45fab69d8",
+    "C:\\Users\\jleyv\\Peanut Butter\\AI Assisted Software Engineering Mass Repository\\Projects\\survivor-awareness\\_scratch\\c89-orienting\\integration\\SAONeeds.java": "b0cfa1a26f6b41151889cd82c752e91c2b481cb46d21ff1f8dbf97604ff6f11f",
+    "C:\\Users\\jleyv\\Peanut Butter\\AI Assisted Software Engineering Mass Repository\\Projects\\survivor-awareness\\_scratch\\c89-orienting\\pharma\\tools\\pharmacology_checks\\PharmacologyProbe.java": "8474221dc2b20e44499cb44da69cf824b032c428f997b5c2e3e6b61d2bbb0c44",
+    "C:\\Program Files (x86)\\Steam\\steamapps\\common\\ProjectZomboid\\projectzomboid.jar": "80e405a4bfc42f6072e75b3735f458a6514143da011d3226007ded305a442f44"
+  },
+  "variants": [
+    {
+      "name": "production",
+      "exit": 0,
+      "expected": null,
+      "target": "C:\\Users\\jleyv\\Peanut Butter\\AI Assisted Software Engineering Mass Repository\\Projects\\survivor-awareness\\_scratch\\c89-orienting\\pharma\\mod\\42.20\\media\\lua\\shared\\SAO_Pharmacology.lua",
+      "variantSha256": "59f54b894771381d136febbc559f5196f58af4f95bd8bcb57b5f89f5b9178997",
+      "cases": 145,
+      "logSha256": "03b6b68f4ed4998a5ab2ac258213f5c2c85ed98553252f7b0d66d6602b3b1ab0"
+    },
+    {
+      "name": "external-runtime-required",
+      "exit": 1,
+      "expected": "sedative_native_effect",
+      "target": "C:\\Users\\jleyv\\Peanut Butter\\AI Assisted Software Engineering Mass Repository\\Projects\\survivor-awareness\\_scratch\\c89-orienting\\pharma\\mod\\42.20\\media\\lua\\shared\\SAO_Pharmacology.lua",
+      "variantSha256": "1cfcc16acd38c8a903a6eff7d8db02ac24181c13c4c2debd2213c1efeb67b756",
+      "cases": 46,
+      "logSha256": "d28b47ab889dc1b88d56aaaf356a49b155bce8cd7c3689238cfb71244827e91d"
+    },
+    {
+      "name": "dose-check-removed",
+      "exit": 1,
+      "expected": "unconsumed_native_action_refused",
+      "target": "C:\\Users\\jleyv\\Peanut Butter\\AI Assisted Software Engineering Mass Repository\\Projects\\survivor-awareness\\_scratch\\c89-orienting\\pharma\\mod\\42.20\\media\\lua\\shared\\SAO_Pharmacology.lua",
+      "variantSha256": "9792a792fb0c86865df9199cdf5064c65ef4967435f68666025d4cd98ae4ae8b",
+      "cases": 68,
+      "logSha256": "f45bd562dd2f49d626f8e10986569f7a0d93d0e2dcc50f182b2d193b9942ee60"
+    },
+    {
+      "name": "completion-refusal-ignored",
+      "exit": 1,
+      "expected": "native_failure_censored",
+      "target": "C:\\Users\\jleyv\\Peanut Butter\\AI Assisted Software Engineering Mass Repository\\Projects\\survivor-awareness\\_scratch\\c89-orienting\\pharma\\mod\\42.20\\media\\lua\\shared\\SAO_Pharmacology.lua",
+      "variantSha256": "a66f488782ebadface19f39226af63b9193995fc1a2b997b84c1996d1a961faf",
+      "cases": 69,
+      "logSha256": "75f1c263392fec92d8deaa1e1b57f7bef146402c9152f9e6de64ccc71e881158"
+    },
+    {
+      "name": "sleep-ignored",
+      "exit": 1,
+      "expected": "sleep_suppresses_active_packets",
+      "target": "C:\\Users\\jleyv\\Peanut Butter\\AI Assisted Software Engineering Mass Repository\\Projects\\survivor-awareness\\_scratch\\c89-orienting\\pharma\\mod\\42.20\\media\\lua\\shared\\SAO_Pharmacology.lua",
+      "variantSha256": "abfe26a5d4633a136882ebd230fc8de07f9dd5d3276bc26c89410b4ef3f282f6",
+      "cases": 59,
+      "logSha256": "6d0c1c517afe6a709215abfc730f02dbb13ebd57a758bab0f3f4f9b663ce03a4"
+    },
+    {
+      "name": "maintenance-clock-ignored",
+      "exit": 1,
+      "expected": "maintenance_pauses_dependency",
+      "target": "C:\\Users\\jleyv\\Peanut Butter\\AI Assisted Software Engineering Mass Repository\\Projects\\survivor-awareness\\_scratch\\c89-orienting\\pharma\\mod\\42.20\\media\\lua\\shared\\SAO_Pharmacology.lua",
+      "variantSha256": "cdb63a4818814cbaf7cb16fb0c6e3a60b233a5b2255a21b987cafa65e6f69359",
+      "cases": 65,
+      "logSha256": "5a582c7fd14f6b191f3a4e05cd82fed2e866246806c2661b88406f92e0791fa2"
+    },
+    {
+      "name": "overload-ignored",
+      "exit": 1,
+      "expected": "overload_native_effect",
+      "target": "C:\\Users\\jleyv\\Peanut Butter\\AI Assisted Software Engineering Mass Repository\\Projects\\survivor-awareness\\_scratch\\c89-orienting\\pharma\\mod\\42.20\\media\\lua\\shared\\SAO_Pharmacology.lua",
+      "variantSha256": "8124bc6db16256291c0245f0d90e462c9e04197d893fd5df626ee9e9e7c845a4",
+      "cases": 58,
+      "logSha256": "e97eab68ca9b1c04a5856414cf081b262306e4da5c91bbfb22efc85de3d2df26"
+    },
+    {
+      "name": "duplicate-cursor-reset",
+      "exit": 1,
+      "expected": "same_minute_no_replay",
+      "target": "C:\\Users\\jleyv\\Peanut Butter\\AI Assisted Software Engineering Mass Repository\\Projects\\survivor-awareness\\_scratch\\c89-orienting\\pharma\\mod\\42.20\\media\\lua\\shared\\SAO_Pharmacology.lua",
+      "variantSha256": "c550eb7a6eb108aa79cb0f05791e79ef918baddf6a8a3a88cd258154150f7bde",
+      "cases": 49,
+      "logSha256": "75f8eeb33ccb3d8f9b998c48902d358f0169f7c918f8afc24a7f8dac8e5fc3a8"
+    },
+    {
+      "name": "pain-effect-omitted",
+      "exit": 1,
+      "expected": "pain_suppression_native_receiver",
+      "target": "C:\\Users\\jleyv\\Peanut Butter\\AI Assisted Software Engineering Mass Repository\\Projects\\survivor-awareness\\_scratch\\c89-orienting\\pharma\\mod\\42.20\\media\\lua\\shared\\SAO_Pharmacology.lua",
+      "variantSha256": "6b5845eeeb9896df469dcfeec356432cfb825ea8a4ef96f84782e790b776a862",
+      "cases": 53,
+      "logSha256": "410d649be668f446b4aebb8b3e60f101bd7708a2508d2e64dd91bccac633c51d"
+    },
+    {
+      "name": "history-unbounded",
+      "exit": 1,
+      "expected": "history_bounded_with_loss_count",
+      "target": "C:\\Users\\jleyv\\Peanut Butter\\AI Assisted Software Engineering Mass Repository\\Projects\\survivor-awareness\\_scratch\\c89-orienting\\pharma\\mod\\42.20\\media\\lua\\shared\\SAO_Pharmacology.lua",
+      "variantSha256": "7cb6380ff089a34a2b3a533b9da59e73993d1f9bc1d0f1a26616c0b8a7444982",
+      "cases": 84,
+      "logSha256": "46d05c42b80358c945f621d1b67b1f49de6075189dfc624ea3cc6bcdc9fbed9d"
+    },
+    {
+      "name": "id-only-owner",
+      "exit": 1,
+      "expected": "stale_shell_capture_refused",
+      "target": "C:\\Users\\jleyv\\Peanut Butter\\AI Assisted Software Engineering Mass Repository\\Projects\\survivor-awareness\\_scratch\\c89-orienting\\pharma\\mod\\42.20\\media\\lua\\shared\\SAO_Pharmacology.lua",
+      "variantSha256": "a19caf17f40d8e545bb4f522934075d1cb245d99019121f1effd5d96f2764b6a",
+      "cases": 87,
+      "logSha256": "80c961a3896b4bb5f2ea1b7c0fc2c3f619dd50a1b108b6a4481fa9afb53438b6"
+    },
+    {
+      "name": "foreign-token-ignored",
+      "exit": 1,
+      "expected": "foreign_token_refused",
+      "target": "C:\\Users\\jleyv\\Peanut Butter\\AI Assisted Software Engineering Mass Repository\\Projects\\survivor-awareness\\_scratch\\c89-orienting\\pharma\\mod\\42.20\\media\\lua\\shared\\SAO_Pharmacology.lua",
+      "variantSha256": "6adc5f6e8eb3e3cbd20253fec7358c31da72577ee337c45e0f040f8ce6dc83ae",
+      "cases": 92,
+      "logSha256": "fe5c3f34d9fc3372ad4db400ace4e1aca472ff4f0cc98d4f993d698ff0ccb5d2"
+    },
+    {
+      "name": "captured-token-ignored",
+      "exit": 1,
+      "expected": "changed_token_completion_refused",
+      "target": "C:\\Users\\jleyv\\Peanut Butter\\AI Assisted Software Engineering Mass Repository\\Projects\\survivor-awareness\\_scratch\\c89-orienting\\pharma\\mod\\42.20\\media\\lua\\shared\\SAO_Pharmacology.lua",
+      "variantSha256": "e73080eca155cac19e119f86a711630b3e6cc03ad13572a30116d4d6b273f997",
+      "cases": 95,
+      "logSha256": "214ce50a50cfcab1c064c2c125cacff0d083243ee1291caa0bb246773b8c9560"
+    },
+    {
+      "name": "foreign-driver-omitted",
+      "exit": 1,
+      "expected": "foreign_loaded_driver",
+      "target": "C:\\Users\\jleyv\\Peanut Butter\\AI Assisted Software Engineering Mass Repository\\Projects\\survivor-awareness\\_scratch\\c89-orienting\\pharma\\mod\\42.20\\media\\lua\\client\\SAO_Drugs.lua",
+      "variantSha256": "22c55ace3df9e76ffe09d08029505c1b57000c2530e00400372a04cb9f980a6c",
+      "cases": 97,
+      "logSha256": "fab664127985ba7b8a5ae5c9d31983b1452cc4fec96665cbc7be3b96a7886b63"
+    },
+    {
+      "name": "world-reset-omitted",
+      "exit": 1,
+      "expected": "world_reset_no_old_interval",
+      "target": "C:\\Users\\jleyv\\Peanut Butter\\AI Assisted Software Engineering Mass Repository\\Projects\\survivor-awareness\\_scratch\\c89-orienting\\pharma\\mod\\42.20\\media\\lua\\client\\SAO_Drugs.lua",
+      "variantSha256": "87b13ad20294b4a5cda02b6f8d70012d807d08bf0bf1c1c5d7c0b1a7d9f90f35",
+      "cases": 99,
+      "logSha256": "9f88f1333e153735621e1281e9a756065b01f8867d91ee81524b63786abc52f8"
+    },
+    {
+      "name": "sensitivity-ignored",
+      "exit": 1,
+      "expected": "owned_sensitivity_native_effect",
+      "target": "C:\\Users\\jleyv\\Peanut Butter\\AI Assisted Software Engineering Mass Repository\\Projects\\survivor-awareness\\_scratch\\c89-orienting\\pharma\\mod\\42.20\\media\\lua\\shared\\SAO_Pharmacology.lua",
+      "variantSha256": "06ed00dc57d38bebec4066636c0572f9f39d097a0cc1beae31b0cfa2e6faaa8d",
+      "cases": 103,
+      "logSha256": "f328bc6f8aa8748b04ccaa9e8fc90471983017f2c861470ac813b40ad48506d8"
+    },
+    {
+      "name": "native-loot-omitted",
+      "exit": 1,
+      "expected": "native_loot_registration",
+      "target": "C:\\Users\\jleyv\\Peanut Butter\\AI Assisted Software Engineering Mass Repository\\Projects\\survivor-awareness\\_scratch\\c89-orienting\\pharma\\mod\\42.20\\media\\lua\\server\\Items\\SAO_PharmacologyLoot.lua",
+      "variantSha256": "5792898d2cf84d6691cece54f371ab96bd3c954f8de28e6c864b920aa922db3c",
+      "cases": 126,
+      "logSha256": "f00a1feac4348011ea2f99fed84ad99a664b462170c6c0af6a789c9ad6fad91c"
+    },
+    {
+      "name": "native-loot-duplicated",
+      "exit": 1,
+      "expected": "loot_reload_no_weight_duplication",
+      "target": "C:\\Users\\jleyv\\Peanut Butter\\AI Assisted Software Engineering Mass Repository\\Projects\\survivor-awareness\\_scratch\\c89-orienting\\pharma\\mod\\42.20\\media\\lua\\server\\Items\\SAO_PharmacologyLoot.lua",
+      "variantSha256": "aabc7ec0819bd6c4ceb01b06e191f5c104a4e5d9a208f305c7ebd281ae414f1b",
+      "cases": 127,
+      "logSha256": "c0b414b1bcd3e44fc5b607cf048cbcb3a4e9ba2067c82426ef18688bb1d369c3"
+    },
+    {
+      "name": "start-refusal-ignored",
+      "exit": 1,
+      "expected": "unready_start_refuses_native_use",
+      "target": "C:\\Users\\jleyv\\Peanut Butter\\AI Assisted Software Engineering Mass Repository\\Projects\\survivor-awareness\\_scratch\\c89-orienting\\integration\\SAO_Needs.lua",
+      "variantSha256": "a0e6bcc71e7198d230279eeeef454d673be0e376e6c580a89d6573b66b76ebdb",
+      "cases": 117,
+      "logSha256": "4e66ae9d500e321beba0a5ea38a7042288f95d269c3f35b08029804f96be2a3b"
+    },
+    {
+      "name": "pre-completion-clock-ignored",
+      "exit": 1,
+      "expected": "unready_completion_refuses_native_use",
+      "target": "C:\\Users\\jleyv\\Peanut Butter\\AI Assisted Software Engineering Mass Repository\\Projects\\survivor-awareness\\_scratch\\c89-orienting\\integration\\SAO_Needs.lua",
+      "variantSha256": "8c3e163e63eea1db583cafb855148f332c77c2608f1ce91a9ecbeeff758ae702",
+      "cases": 118,
+      "logSha256": "0fcee522acabbf405a9f685d2ec43d5bfdbd630436293ca4d310be8a673c1f2c"
+    },
+    {
+      "name": "current-item-owner-ignored",
+      "exit": 1,
+      "expected": "moved_dose_refuses_native_completion",
+      "target": "C:\\Users\\jleyv\\Peanut Butter\\AI Assisted Software Engineering Mass Repository\\Projects\\survivor-awareness\\_scratch\\c89-orienting\\pharma\\mod\\42.20\\media\\lua\\shared\\SAO_Pharmacology.lua",
+      "variantSha256": "66fb1f1183db5be6a7e9bea1d368a5c59337de86c04c5203f4483396c9956b8b",
+      "cases": 119,
+      "logSha256": "d2da59a2a4059f7a60e0ef7efb4215c49f303946e5b4a1dc3199580179762159"
+    },
+    {
+      "name": "replay-uses-mutated-origin",
+      "exit": 1,
+      "expected": "restored_native_effect",
+      "target": "C:\\Users\\jleyv\\Peanut Butter\\AI Assisted Software Engineering Mass Repository\\Projects\\survivor-awareness\\_scratch\\c89-orienting\\pharma\\mod\\42.20\\media\\lua\\shared\\SAO_Pharmacology.lua",
+      "variantSha256": "4f76bea68387712e09f5a28da9d84171b2996455a309d4a8987c3bc4698f422d",
+      "cases": 82,
+      "logSha256": "cfd6962ccbaf7fd4767d26c5f73f35e89a935efcc86e8d255e9d067332bf3cd6"
+    },
+    {
+      "name": "dependency-history-repeated",
+      "exit": 1,
+      "expected": "replay_dependency_history_exact_once",
+      "target": "C:\\Users\\jleyv\\Peanut Butter\\AI Assisted Software Engineering Mass Repository\\Projects\\survivor-awareness\\_scratch\\c89-orienting\\pharma\\mod\\42.20\\media\\lua\\shared\\SAO_Pharmacology.lua",
+      "variantSha256": "c1eff645fedac07f7edca53b43a3dd4108ef91589eca484bad1256bd5497d69d",
+      "cases": 135,
+      "logSha256": "0c77a8124c4047365b40ae5b2e0463494b4367ab76dcaf31e64ed73185864191"
+    },
+    {
+      "name": "settled-dormancy-minute-loop",
+      "exit": 1,
+      "expected": "settled_dormancy_fast_forwards",
+      "target": "C:\\Users\\jleyv\\Peanut Butter\\AI Assisted Software Engineering Mass Repository\\Projects\\survivor-awareness\\_scratch\\c89-orienting\\pharma\\mod\\42.20\\media\\lua\\shared\\SAO_Pharmacology.lua",
+      "variantSha256": "33a3277f43f7a798df3374694b19c4d8a4080fe3e97c01893055efd9e44b3934",
+      "cases": 138,
+      "logSha256": "b029a5cb1d426735d3943982cf301f3eae7e0df7247dacd2dd9f7ba8d0646948"
+    },
+    {
+      "name": "first-checkpoint-migration-lost",
+      "exit": 1,
+      "expected": "first_checkpoint_retains_legacy_state",
+      "target": "C:\\Users\\jleyv\\Peanut Butter\\AI Assisted Software Engineering Mass Repository\\Projects\\survivor-awareness\\_scratch\\c89-orienting\\pharma\\mod\\42.20\\media\\lua\\shared\\SAO_Pharmacology.lua",
+      "variantSha256": "633b19130eea8a54528f8efb28ab9b7738532d888e03022579caa9cf971eb6c6",
+      "cases": 141,
+      "logSha256": "76570f93d24db3731b1bf4daf9bbf6c40adcd829822ef7b2e23f29c08ef80839"
+    },
+    {
+      "name": "native-fault-ignored",
+      "exit": 1,
+      "expected": "native_fault_does_not_replay",
+      "target": "C:\\Users\\jleyv\\Peanut Butter\\AI Assisted Software Engineering Mass Repository\\Projects\\survivor-awareness\\_scratch\\c89-orienting\\pharma\\mod\\42.20\\media\\lua\\shared\\SAO_Pharmacology.lua",
+      "variantSha256": "3121d76d9d9ead4808d6f39f9947f30f56fbb8f9d9ddb0440eb9b25fc289e61a",
+      "cases": 144,
+      "logSha256": "8b7340ecb79f12faba34bf08d7bb4d137961231432a79cb7fd3fc3b1d376c0a0"
+    },
+    {
+      "name": "drink-without-consumption",
+      "exit": 1,
+      "expected": "callback_without_fluid_loss_not_counted",
+      "target": "C:\\Users\\jleyv\\Peanut Butter\\AI Assisted Software Engineering Mass Repository\\Projects\\survivor-awareness\\_scratch\\c89-orienting\\integration\\SAO_Needs.lua",
+      "variantSha256": "c54a84931e87aa824ea574d01ebb78a72534437ff60a020303d7354ec1ffa8af",
+      "cases": 5,
+      "logSha256": "41ff6cc343bd06f7010dd1ed3005fe3d123955dc7174021c89403f4178f9d6ac"
+    },
+    {
+      "name": "drink-repeated-history",
+      "exit": 1,
+      "expected": "partial_then_complete_not_recounted",
+      "target": "C:\\Users\\jleyv\\Peanut Butter\\AI Assisted Software Engineering Mass Repository\\Projects\\survivor-awareness\\_scratch\\c89-orienting\\integration\\SAO_Needs.lua",
+      "variantSha256": "68b799c72a8e6b975c98ff22e68d9a548180ea0278087df6ec07400cd9742c5e",
+      "cases": 3,
+      "logSha256": "5c842cc93e78ffc8c4b3d91620fd565f88004bb6914ae37d24813c07cfd627dc"
+    },
+    {
+      "name": "water-counted-as-alcohol",
+      "exit": 1,
+      "expected": "native_water_not_alcohol",
+      "target": "C:\\Users\\jleyv\\Peanut Butter\\AI Assisted Software Engineering Mass Repository\\Projects\\survivor-awareness\\_scratch\\c89-orienting\\integration\\SAO_Needs.lua",
+      "variantSha256": "c0a3f61c8805182009e9b487cc946e8bc5d31954c2865eecf9c67b8b21d65af2",
+      "cases": 6,
+      "logSha256": "56b1c404a026382ee9087979d31de0658a42ac60d10191b562198e3c85bfecfe"
+    },
+    {
+      "name": "last-fluid-classified-too-late",
+      "exit": 1,
+      "expected": "last_alcohol_fluid_counted",
+      "target": "C:\\Users\\jleyv\\Peanut Butter\\AI Assisted Software Engineering Mass Repository\\Projects\\survivor-awareness\\_scratch\\c89-orienting\\integration\\SAO_Needs.lua",
+      "variantSha256": "3dd8a8e836db84cc87261fa61516b85a0a8812d3fbfe66d4a7826012add7aa81",
+      "cases": 4,
+      "logSha256": "25bd91a53a8dd197acf2dddfd4a00fedc4e26b1dc3a2064ba729dea05efd92c7"
+    },
+    {
+      "name": "changed-drink-owner-ignored",
+      "exit": 1,
+      "expected": "changed_owner_drink_not_attributed",
+      "target": "C:\\Users\\jleyv\\Peanut Butter\\AI Assisted Software Engineering Mass Repository\\Projects\\survivor-awareness\\_scratch\\c89-orienting\\integration\\SAO_Needs.lua",
+      "variantSha256": "83a10f495c1a81b70b6a3d8a2915c6e177588723cf3c281e546f463cb9a92b6e",
+      "cases": 10,
+      "logSha256": "2ff57849a72dbf4cca44bd876e43113417acad33f98da34bd483e3938c5eebac"
+    }
+  ]
+}

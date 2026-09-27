@@ -1,0 +1,222 @@
+{
+  "counts": {
+    "scope": 1,
+    "sound": 6,
+    "sample": 356,
+    "dose-request": 1,
+    "dose-remaining": 43
+  },
+  "errors": [],
+  "interventions": [
+    {
+      "intervention": "audible native pulses; one carried dose; one preparation request",
+      "outcome": "unmeasured",
+      "autonomousSelection": false,
+      "hours": 2.0003700256347656,
+      "wallMs": 1790485577113,
+      "kind": "scope"
+    },
+    {
+      "actor": "sao-1",
+      "x": 3429,
+      "y": 10907,
+      "sequence": 1,
+      "forwardX": -1,
+      "forwardY": 0,
+      "hours": 2.0007400512695312,
+      "wallMs": 1790485577869,
+      "kind": "sound"
+    },
+    {
+      "actor": "sao-1",
+      "x": 3429,
+      "y": 10907,
+      "sequence": 2,
+      "forwardX": -1,
+      "forwardY": 0,
+      "hours": 2.01151180267334,
+      "wallMs": 1790485580364,
+      "kind": "sound"
+    },
+    {
+      "actor": "sao-1",
+      "x": 3429,
+      "y": 10907,
+      "sequence": 3,
+      "forwardX": -1,
+      "forwardY": 0,
+      "hours": 2.022451400756836,
+      "wallMs": 1790485582865,
+      "kind": "sound"
+    },
+    {
+      "actor": "sao-1",
+      "x": 3429,
+      "y": 10907,
+      "sequence": 4,
+      "forwardX": -1,
+      "forwardY": 0,
+      "hours": 2.033585548400879,
+      "wallMs": 1790485585380,
+      "kind": "sound"
+    },
+    {
+      "actor": "sao-1",
+      "x": 3429,
+      "y": 10907,
+      "sequence": 5,
+      "forwardX": -1,
+      "forwardY": 0,
+      "hours": 2.044801712036133,
+      "wallMs": 1790485587882,
+      "kind": "sound"
+    },
+    {
+      "actor": "sao-1",
+      "x": 3429,
+      "y": 10907,
+      "sequence": 6,
+      "forwardX": -1,
+      "forwardY": 0,
+      "hours": 2.0560121536254883,
+      "wallMs": 1790485590399,
+      "kind": "sound"
+    },
+    {
+      "actor": "sao-1",
+      "itemId": 166888779,
+      "itemType": "SAO.SedativeTablets",
+      "beforeUses": 10,
+      "accepted": true,
+      "hours": 2.068094253540039,
+      "wallMs": 1790485593118,
+      "kind": "dose-request"
+    }
+  ],
+  "attentionPhases": {
+    "idle": 356
+  },
+  "activeAttention": 0,
+  "heardSamples": 0,
+  "activeDrugSamples": 13,
+  "cookingStages": {
+    "null": 356
+  },
+  "latestByActor": {
+    "sao-1": {
+      "actor": "sao-1",
+      "state": "ROAM",
+      "x": 3437.554443359375,
+      "y": 10902.447265625,
+      "forwardX": 0.7064681053161621,
+      "forwardY": -0.7077448964118958,
+      "attention": {
+        "active": false,
+        "cueId": "",
+        "phase": "idle",
+        "reason": "idle",
+        "remainingSeconds": 0,
+        "readiness": 0,
+        "steadiness": 0,
+        "allowBodyTurn": false,
+        "layerReady": false,
+        "headHorizontal": 0,
+        "gazeX": 0.7064681649208069,
+        "gazeY": -0.707744836807251
+      },
+      "lastUse": {
+        "kind": "physical-change",
+        "minute": 170,
+        "atHours": 2.8333333333333335,
+        "observedAtHours": 2.836162567138672,
+        "stats": {
+          "PANIC": {
+            "before": 25,
+            "after": 0
+          },
+          "STRESS": {
+            "before": 0.009999999776482582,
+            "after": 0
+          }
+        },
+        "exposures": {
+          "sedatives": 1
+        }
+      },
+      "effects": {
+        "atHours": 2.9,
+        "active": true,
+        "sedating": true,
+        "stimulating": false,
+        "overload": false,
+        "withdrawal": false,
+        "painSuppressed": false,
+        "families": {}
+      },
+      "clarity": 1,
+      "steadiness": 1,
+      "fatigue": 0.03409403935074806,
+      "thirst": 0.026196520775556564,
+      "hunger": 0.030949201434850693,
+      "hours": 2.9101810455322266,
+      "wallMs": 1790485623716,
+      "kind": "sample"
+    },
+    "sao-2": {
+      "actor": "sao-2",
+      "state": "FOLLOW",
+      "x": 3435.543212890625,
+      "y": 10904.435546875,
+      "forwardX": 0.9977387189865112,
+      "forwardY": 0.06721179187297821,
+      "attention": {
+        "active": false,
+        "cueId": "",
+        "phase": "idle",
+        "reason": "idle",
+        "remainingSeconds": 0,
+        "readiness": 0,
+        "steadiness": 0,
+        "allowBodyTurn": false,
+        "layerReady": false,
+        "headHorizontal": 0,
+        "gazeX": 0.9977197051048279,
+        "gazeY": 0.06749334931373596
+      },
+      "effects": {
+        "atHours": 2.9,
+        "active": false,
+        "sedating": false,
+        "stimulating": false,
+        "overload": false,
+        "withdrawal": false,
+        "painSuppressed": false,
+        "families": {}
+      },
+      "clarity": 1,
+      "steadiness": 1,
+      "fatigue": 0.002844573464244604,
+      "thirst": 0.026510218158364296,
+      "hunger": 0.030949201434850693,
+      "hours": 2.9101810455322266,
+      "wallMs": 1790485623718,
+      "kind": "sample"
+    }
+  },
+  "firstDoseRemaining": {
+    "actor": "sao-1",
+    "itemId": 166888779,
+    "currentUses": 10,
+    "hours": 2.068610191345215,
+    "wallMs": 1790485593255,
+    "kind": "dose-remaining"
+  },
+  "lastDoseRemaining": {
+    "actor": "sao-1",
+    "itemId": 166888779,
+    "currentUses": 9,
+    "hours": 2.9101810455322266,
+    "wallMs": 1790485623718,
+    "kind": "dose-remaining"
+  }
+}

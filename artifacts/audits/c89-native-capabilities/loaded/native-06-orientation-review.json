@@ -1,0 +1,240 @@
+{
+  "schema": "sao-c89-loaded-orientation/1",
+  "sessionId": "63969a67-5b69-4ce7-b600-8815c2b8c259",
+  "stdoutSha256": "a07dd6284461d55fe33d53a67517e0c151f31073c0deda22e76e730afef19f0c",
+  "samples": 418,
+  "activeSamples": 46,
+  "heardSamples": 45,
+  "phases": {
+    "idle": 372,
+    "attend": 14,
+    "sweep": 23,
+    "return": 8,
+    "turn": 1
+  },
+  "stationaryTurnExamples": [
+    {
+      "actor": "sao-1",
+      "cueId": "b5b9e685-4666-49e4-b420-510574f8d21c-1",
+      "stationaryBodyTurnDegrees": 125.5376789525001,
+      "before": {
+        "actor": "sao-1",
+        "state": "IDLE",
+        "x": 3426.5,
+        "y": 10910.5,
+        "forwardX": -1,
+        "forwardY": 0,
+        "hearingModifier": 1,
+        "weatherHearing": 1,
+        "deaf": false,
+        "asleep": false,
+        "attention": {
+          "active": true,
+          "cueId": "b5b9e685-4666-49e4-b420-510574f8d21c-1",
+          "phase": "attend",
+          "reason": "audible-cue",
+          "remainingSeconds": 2.4000000953674316,
+          "readiness": 1,
+          "steadiness": 1,
+          "allowBodyTurn": true,
+          "layerReady": true,
+          "headHorizontal": 0,
+          "gazeX": -1,
+          "gazeY": 8.742277657347586e-08
+        },
+        "cue": {
+          "cueId": "b5b9e685-4666-49e4-b420-510574f8d21c-1",
+          "x": 3429,
+          "y": 10907,
+          "distance": 4.3,
+          "heardAt": 18136,
+          "lastHeardAt": 18136,
+          "source": "heard"
+        },
+        "queues": {
+          "nativeCount": 0,
+          "luaCount": 0
+        },
+        "clarity": 1,
+        "steadiness": 1,
+        "fatigue": 0.0005520307458937168,
+        "thirst": 0.0004266666655894369,
+        "hunger": 0.0005119344568811357,
+        "hours": 2.0151844024658203,
+        "wallMs": 1790489257625,
+        "kind": "sample"
+      },
+      "after": {
+        "actor": "sao-1",
+        "state": "IDLE",
+        "x": 3426.5,
+        "y": 10910.5,
+        "forwardX": 0.5812382102012634,
+        "forwardY": -0.8137334585189819,
+        "hearingModifier": 1,
+        "weatherHearing": 1,
+        "deaf": false,
+        "asleep": false,
+        "attention": {
+          "active": true,
+          "cueId": "b5b9e685-4666-49e4-b420-510574f8d21c-1",
+          "phase": "sweep",
+          "reason": "audible-cue",
+          "remainingSeconds": 0.7333334684371948,
+          "readiness": 1,
+          "steadiness": 1,
+          "allowBodyTurn": true,
+          "layerReady": true,
+          "headHorizontal": 1,
+          "gazeX": 0.08715568482875824,
+          "gazeY": -0.9961947202682495
+        },
+        "cue": {
+          "cueId": "b5b9e685-4666-49e4-b420-510574f8d21c-1",
+          "x": 3429,
+          "y": 10907,
+          "distance": 4.3,
+          "heardAt": 18136,
+          "lastHeardAt": 18203,
+          "source": "heard"
+        },
+        "queues": {
+          "nativeCount": 0,
+          "luaCount": 0
+        },
+        "effects": {
+          "atHours": 2.0166666666666666,
+          "active": false,
+          "sedating": false,
+          "stimulating": false,
+          "overload": false,
+          "withdrawal": false,
+          "painSuppressed": false,
+          "families": {}
+        },
+        "clarity": 1,
+        "steadiness": 1,
+        "fatigue": 0.0008280813926830888,
+        "thirst": 0.0006399999838322401,
+        "hunger": 0.0007678034016862512,
+        "hours": 2.0225915908813477,
+        "wallMs": 1790489257944,
+        "kind": "sample"
+      }
+    },
+    {
+      "actor": "sao-2",
+      "cueId": "b5b9e685-4666-49e4-b420-510574f8d21c-1",
+      "stationaryBodyTurnDegrees": 113.19858992350898,
+      "before": {
+        "actor": "sao-2",
+        "state": "IDLE",
+        "x": 3427.5,
+        "y": 10910.5,
+        "forwardX": -1,
+        "forwardY": 0,
+        "hearingModifier": 1,
+        "weatherHearing": 1,
+        "deaf": false,
+        "asleep": false,
+        "attention": {
+          "active": true,
+          "cueId": "b5b9e685-4666-49e4-b420-510574f8d21c-1",
+          "phase": "attend",
+          "reason": "audible-cue",
+          "remainingSeconds": 2.4000000953674316,
+          "readiness": 1,
+          "steadiness": 1,
+          "allowBodyTurn": true,
+          "layerReady": true,
+          "headHorizontal": 0,
+          "gazeX": -1,
+          "gazeY": 8.742277657347586e-08
+        },
+        "cue": {
+          "cueId": "b5b9e685-4666-49e4-b420-510574f8d21c-1",
+          "x": 3429,
+          "y": 10907,
+          "distance": 3.8,
+          "heardAt": 18136,
+          "lastHeardAt": 18136,
+          "source": "heard"
+        },
+        "queues": {
+          "nativeCount": 0,
+          "luaCount": 0
+        },
+        "clarity": 1,
+        "steadiness": 1,
+        "fatigue": 0.0005520007107406855,
+        "thirst": 0.00042666716035455465,
+        "hunger": 0.0005119344568811357,
+        "hours": 2.0151844024658203,
+        "wallMs": 1790489257626,
+        "kind": "sample"
+      },
+      "after": {
+        "actor": "sao-2",
+        "state": "IDLE",
+        "x": 3427.5,
+        "y": 10910.5,
+        "forwardX": 0.39391928911209106,
+        "forwardY": -0.9191450476646423,
+        "hearingModifier": 1,
+        "weatherHearing": 1,
+        "deaf": false,
+        "asleep": false,
+        "attention": {
+          "active": true,
+          "cueId": "b5b9e685-4666-49e4-b420-510574f8d21c-1",
+          "phase": "sweep",
+          "reason": "audible-cue",
+          "remainingSeconds": 0.7333334684371948,
+          "readiness": 1,
+          "steadiness": 1,
+          "allowBodyTurn": true,
+          "layerReady": true,
+          "headHorizontal": 1,
+          "gazeX": 0.08715568482875824,
+          "gazeY": -0.9961947202682495
+        },
+        "cue": {
+          "cueId": "b5b9e685-4666-49e4-b420-510574f8d21c-1",
+          "x": 3429,
+          "y": 10907,
+          "distance": 3.8,
+          "heardAt": 18136,
+          "lastHeardAt": 18203,
+          "source": "heard"
+        },
+        "queues": {
+          "nativeCount": 0,
+          "luaCount": 0
+        },
+        "effects": {
+          "atHours": 2.0166666666666666,
+          "active": false,
+          "sedating": false,
+          "stimulating": false,
+          "overload": false,
+          "withdrawal": false,
+          "painSuppressed": false,
+          "families": {}
+        },
+        "clarity": 1,
+        "steadiness": 1,
+        "fatigue": 0.0008280021720565856,
+        "thirst": 0.0006400016136467457,
+        "hunger": 0.0007678034016862512,
+        "hours": 2.0225915908813477,
+        "wallMs": 1790489257946,
+        "kind": "sample"
+      }
+    }
+  ],
+  "limits": [
+    "Controlled sound placement tests native perception and orientation, not spontaneous threat prevalence.",
+    "Native body forward and gaze projection are sampled here; full Bob/Jassimp pose assertions are in the mechanical receipt.",
+    "The immediate diagnostic scan after each injected sound is excluded from these autonomous cached-cue samples."
+  ]
+}

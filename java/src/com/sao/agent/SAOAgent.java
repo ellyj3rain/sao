@@ -35,6 +35,7 @@ public final class SAOAgent {
         log("melee callback transformer installed");
         SAOBodyScaleWeave.install(instrumentation);
         SAOLootDensityWeave.install(instrumentation);
+        SAOOrientationWeave.install(instrumentation);
         SAOBridgeBootstrap.start();
     }
 

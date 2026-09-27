@@ -191,3 +191,4 @@ plainNameOf = function(forename, surname)
     local s = surname:gsub("^SurvivorSurname_", "")
     return f .. " " .. s
 end
+require = require or function() end

@@ -34,6 +34,7 @@ JAVA = ROOT / "java" / "src" / "com" / "sao" / "engine"
 DRIVER = JAVA / "SAODriver.java"
 NEEDS = JAVA / "SAONeeds.java"
 PRIVATE = JAVA / "SAOPrivateInventory.java"
+COOKING = JAVA / "SAOCooking.java"
 CONTROLLER = LUA / "client" / "SAO_Controller.lua"
 STANDING = LUA / "shared" / "SAO_Standing.lua"
 RUNNER = ROOT / "tools" / "luacheck" / "LuaRun.java"
@@ -77,14 +78,14 @@ def method_body(src, name):
     return ""
 
 
-def source_faults(driver_src, needs_src, private_src, controller_src, standing_src):
+def source_faults(driver_src, needs_src, private_src, controller_src, standing_src, cooking_src):
     """Check the source seams that the VM cannot construct by itself."""
     faults = []
     board = method_body(driver_src, "boardAsDriver")
     appraisal = method_body(needs_src, "appraiseVehiclesNear")
     containers = method_body(private_src, "addVehicleHolders")
     larder = method_body(needs_src, "countEdibleNearby")
-    cook = method_body(needs_src, "cookNearbyFood")
+    cook = method_body(cooking_src, "offers")
     nearest = method_body(needs_src, "nearestContainer")
     nearest_vehicle = method_body(needs_src, "nearestPrivateSource")
     refresh_vehicle = method_body(needs_src, "refreshVehicleSource")
@@ -154,8 +155,14 @@ def source_faults(driver_src, needs_src, private_src, controller_src, standing_s
         faults.append("remembered material sources can transfer across floors")
     if "privateStoreItems(shell, radius)" not in larder:
         faults.append("the larder does not read vehicle containers")
-    if "privateStoreItems(shell, radius)" not in cook:
-        faults.append("the cook does not read vehicle containers")
+    if any(seam not in cook for seam in (
+            "SAOPrivateInventory.loadedView(body, radius)",
+            '!"vehicle".equals(holder.kind())',
+            '"refused".equals(holder.access())',
+            '!"complete".equals(holder.contents())')):
+        faults.append("the cook does not retain private accessible vehicle containers")
+    if "cookNearbyFood(" in needs_src:
+        faults.append("the retired direct-cooking writer returned")
     if "nearestPrivateSource(shell, radius" not in drink_source:
         faults.append("the drink source does not read vehicle containers")
     if "nearestPrivateSource(shell, radius" not in drug_source:
@@ -217,20 +224,20 @@ def main():
     print("=" * 74)
     print("VEHICLES HOLD KEYS AND CONTAINERS")
     print("=" * 74)
-    paths = (DRIVER, NEEDS, PRIVATE, CONTROLLER, STANDING)
+    paths = (DRIVER, NEEDS, PRIVATE, CONTROLLER, STANDING, COOKING)
     if not all(path.exists() for path in paths):
         print("  FAULT: a vehicle source surface is missing")
         return 1
 
-    driver_src, needs_src, private_src, controller_src, standing_src = (
+    driver_src, needs_src, private_src, controller_src, standing_src, cooking_src = (
         path.read_text(encoding="utf-8", errors="ignore") for path in paths)
-    faults = source_faults(driver_src, needs_src, private_src, controller_src, standing_src)
+    faults = source_faults(driver_src, needs_src, private_src, controller_src, standing_src, cooking_src)
 
     bad_driver = driver_src.replace("vehicle.tryStartEngine(haveKey);",
                                     "vehicle.tryStartEngine(false);", 1)
     if bad_driver == driver_src:
         faults.append("CONTROL did not remove the held-key start")
-    elif not source_faults(bad_driver, needs_src, private_src, controller_src, standing_src):
+    elif not source_faults(bad_driver, needs_src, private_src, controller_src, standing_src, cooking_src):
         faults.append("CONTROL held-key start removed but the border passed")
 
     bad_private = private_src.replace(
@@ -238,7 +245,7 @@ def main():
         "ItemContainer container = null;", 1)
     if bad_private == private_src:
         faults.append("CONTROL did not remove the vehicle container guard")
-    elif not source_faults(driver_src, needs_src, bad_private, controller_src, standing_src):
+    elif not source_faults(driver_src, needs_src, bad_private, controller_src, standing_src, cooking_src):
         faults.append("CONTROL vehicle container guard removed but the "
                       "border passed")
 
@@ -248,7 +255,7 @@ def main():
         "FoodSource best = null;", 1)
     if bad_source == needs_src:
         faults.append("CONTROL did not remove the food vehicle source")
-    elif not source_faults(driver_src, bad_source, private_src, controller_src, standing_src):
+    elif not source_faults(driver_src, bad_source, private_src, controller_src, standing_src, cooking_src):
         faults.append("CONTROL food vehicle source removed but the border "
                       "passed")
 
@@ -257,7 +264,7 @@ def main():
         "String access = true", 1)
     if bad_access == private_src:
         faults.append("CONTROL did not remove vehicle access checks")
-    elif not source_faults(driver_src, needs_src, bad_access, controller_src, standing_src):
+    elif not source_faults(driver_src, needs_src, bad_access, controller_src, standing_src, cooking_src):
         faults.append("CONTROL removed vehicle access checks but the border passed")
 
     bad_refresh = needs_src.replace(
@@ -267,7 +274,7 @@ def main():
         "            if (source == null) {", 1)
     if bad_refresh == needs_src:
         faults.append("CONTROL did not bypass source reach revalidation")
-    elif not source_faults(driver_src, bad_refresh, private_src, controller_src, standing_src):
+    elif not source_faults(driver_src, bad_refresh, private_src, controller_src, standing_src, cooking_src):
         faults.append("CONTROL bypassed source reach revalidation but the border passed")
 
     bad_loaded = needs_src.replace(
@@ -276,15 +283,29 @@ def main():
         "", 1)
     if bad_loaded == needs_src:
         faults.append("CONTROL did not remove loaded vehicle membership")
-    elif not source_faults(driver_src, bad_loaded, private_src, controller_src, standing_src):
+    elif not source_faults(driver_src, bad_loaded, private_src, controller_src, standing_src, cooking_src):
         faults.append("CONTROL removed loaded vehicle membership but the border passed")
 
     bad_floor = needs_src.replace(
         " || (int) shell.getZ() != source.z", "", 1)
     if bad_floor == needs_src:
         faults.append("CONTROL did not remove source floor grounding")
-    elif not source_faults(driver_src, bad_floor, private_src, controller_src, standing_src):
+    elif not source_faults(driver_src, bad_floor, private_src, controller_src, standing_src, cooking_src):
         faults.append("CONTROL removed source floor grounding but the border passed")
+
+    for seam in ('!"vehicle".equals(holder.kind())',
+                 '"refused".equals(holder.access())',
+                 '!"complete".equals(holder.contents())'):
+        changed = cooking_src.replace(seam, "false", 1)
+        if changed == cooking_src:
+            faults.append("CONTROL cooking vehicle seam did not change: " + seam)
+        elif "the cook does not retain private accessible vehicle containers" not in source_faults(
+                driver_src, needs_src, private_src, controller_src, standing_src, changed):
+            faults.append("CONTROL cooking vehicle access defect passed: " + seam)
+    if "the retired direct-cooking writer returned" not in source_faults(
+            driver_src, needs_src + "\npublic static int cookNearbyFood() {}", private_src,
+            controller_src, standing_src, cooking_src):
+        faults.append("CONTROL the retired direct-cooking writer passed")
 
     print("  source seams: " + ("ok" if not faults else "FAULT"))
     required = (JDK.exists() and PZ.exists() and STDLIB.exists()

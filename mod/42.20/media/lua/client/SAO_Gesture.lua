@@ -155,6 +155,20 @@ local function free(body)
         if body:isDead() then return true end
         if body:getVehicle() ~= nil then return true end
         if body:isAsleep() then return true end
+        -- A physical work owner can be between native actions. A social
+        -- gesture must not fill that gap and cancel the admitted operation.
+        local data = body:getModData()
+        local id = data and data.SAOPersonId
+        local rec = id and SAO.Identity and SAO.Identity.get(tostring(id))
+        if rec then
+            if rec.cookingWork ~= nil or rec.worldSourceReservation ~= nil then return true end
+            if rec.bodyOwner ~= nil or rec.zaoTransferPending ~= nil
+                or rec.crossedTransferPending ~= nil then return true end
+        end
+        if data and (data.SAOExternalOwner ~= nil or data.ZAOOwned == true) then return true end
+        local queue = ISTimedActionQueue and ISTimedActionQueue.queues
+            and ISTimedActionQueue.queues[body]
+        if queue and type(queue.queue) == "table" and #queue.queue > 0 then return true end
         return false
     end)
     if not ok or blocked then return false end

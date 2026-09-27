@@ -1,0 +1,55 @@
+{
+  "atUtc": "2026-09-27T06:41:30.353538+00:00",
+  "scope": "Private requester destination repair; no production edit, staging, full gate, or game launch",
+  "baseline": {
+    "Controller": "abecb2a5a78128f881557c08eb6b92678c6ba766c1a5b32f6b4cc201912bef64",
+    "coordination_execution_test.py": "2df0db6ec1933f7a839d217d7ccbbff19bd69685f353dce35c51c45a5a32a937"
+  },
+  "candidates": {
+    "_scratch/c89-orienting/integration/SAO_Controller.lua": "2bd97f4ac377cbd255445928365b079c88deed868c482a43f6a9344c616e41f9",
+    "_scratch/c89-orienting/integration/tools/coordination_execution_test.py": "691c34860f174db484e2b7d74a2d9c6ac6c6b3e377b91fb4b2f9d796fc1abaf0"
+  },
+  "productionControllerAtFreeze": "abecb2a5a78128f881557c08eb6b92678c6ba766c1a5b32f6b4cc201912bef64",
+  "productionTestAtFreeze": "2df0db6ec1933f7a839d217d7ccbbff19bd69685f353dce35c51c45a5a32a937",
+  "dependencies": {
+    "mod/42.20/media/lua/shared/SAO_Organization.lua": "ef5514d150465c45e94ba562d15868271d00b5112a9e212a24b77cb3d3323f0a",
+    "mod/42.20/media/lua/shared/SAO_Communication.lua": "222604c73b857b18ae117a797c23b17a2ee100955b04d9d504ec99706ae94294",
+    "mod/42.20/media/lua/shared/SAO_GraphPersistence.lua": "f1719d99322ec44a97eff9eccc9fabf90dc4386994ad090e6e44b467f9faa691",
+    "mod/42.20/media/lua/shared/SAO_Provisioning.lua": "0329f16e11e8baf0d73794fb6932fb285cce5cbc1302fb77f032106a7947d943",
+    "mod/42.20/media/lua/shared/SAO_Handover.lua": "0ad88587951fa55783ba44ef3efb7b037b469bdffd809021c451d152df186e09",
+    "mod/42.20/media/lua/shared/SAO_WorldSources.lua": "8b94261a5e1d6a7522b0f4a3009aa6b736cc91cf70b720cb370c7839b72e01ce",
+    "mod/42.20/media/lua/shared/SAO_Perception.lua": "626a8230ff7434a326ea6928f8a01619bdf4eba5d29cb25bd9c78accd950eff1",
+    "mod/42.20/media/lua/client/SAO_Needs.lua": "dbe233778fd2f1c26539b57a843295d12a8f70fb5ebb105b84a5ba7d681c8ef1",
+    "mod/42.20/media/lua/client/SAO_SourceUse.lua": "177018859ad4587a5bb1b5559b1eaa3df2b60ccc28e2a0c4c6e9ccd9c8d1dfff",
+    "tools/check.sh": "acf1193d6e02f5aeae82f4df4fe14685735ed7a89802a1aac5e0f5e87dfea1f7",
+    "tools/luacheck/LuaRun.java": "f6f55e6da98c1f1249720666d862720efc025167d1df37d35820e877b14df741"
+  },
+  "engine": {
+    "C:/Program Files (x86)/Steam/steamapps/common/ProjectZomboid/projectzomboid.jar": "80e405a4bfc42f6072e75b3735f458a6514143da011d3226007ded305a442f44",
+    "C:/Program Files (x86)/Steam/steamapps/common/ProjectZomboid/stdlib.lua": "583c294996ae65310fb1191b9a70584b59c163a0f2d257af53f06728ba3931eb"
+  },
+  "command": "python _scratch/c89-orienting/integration/tools/coordination_execution_test.py --source-root . --controller _scratch/c89-orienting/integration/SAO_Controller.lua",
+  "result": {
+    "status": "PASS",
+    "cases": 89,
+    "retainedOriginalCases": 41,
+    "mutationControls": 28,
+    "retainedOriginalControls": 18,
+    "stableInputs": true
+  },
+  "log": {
+    "path": "_scratch/c89-orienting/requester-review/requester-repair-checks-02.log",
+    "sha256": "22e9d14eee27fa916f0c000c15b4a8fca22c5e71e3164f3e74fee08ec7b0774e"
+  },
+  "mechanism": [
+    "Known requester ID comes from actual Perception.knownPeople; actual freshObservedPerson refuses absent, stale, reported, future and invalid observations.",
+    "Native actor and requester IDs, exact same Z and actual canSeePersonNow must admit current encounter before observed XY can use that established floor.",
+    "Native current sight at TALK_REACH admits actual Needs/Handover; accepted proposal address remains full XYZ fallback.",
+    "Pending carrying routes may retain accepted proposal destination or currently admitted private target; refusal interrupts only the route and uses existing goal/cargo/retry ownership.",
+    "Destination deposit requires the received floor; unseen body availability/movement cannot supply position.",
+    "No source/commitment schema change and no durable native body reference introduced."
+  ],
+  "verificationBoundary": "Actual Perception, Organization, Communication, GraphPersistence, Needs, SourceUse, Provisioning, Handover and Controller loaded on installed Kahlua. Native sight/locomotion/action receivers are controlled. Existing native scanner tests own geometry. Assembly08 combined loaded continuation remains root-owned acceptance.",
+  "analogue": "CAO Source/BattlefieldPerceptionModule.cs:301-354 checks native target representation/map and native sight before an observed position becomes actionable; SAO uses its existing private Perception and native scanner authority.",
+  "unresolvedDesignIssues": []
+}

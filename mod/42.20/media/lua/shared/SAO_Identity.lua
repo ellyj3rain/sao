@@ -319,6 +319,15 @@ function Identity.markDead(rec, tick, cause)
     if SAO.Perception and SAO.Perception.forget then
         pcall(SAO.Perception.forget, rec.id)
     end
+    if SAO.Perception and SAO.Perception.forgetSoundCues then
+        pcall(SAO.Perception.forgetSoundCues, rec.id)
+    end
+    if SAO.Orienting and SAO.Orienting.forget then
+        pcall(SAO.Orienting.forget, rec.id)
+    end
+    if SAO.Cooking and SAO.Cooking.detach then
+        pcall(SAO.Cooking.detach, rec.id, nil, "death")
+    end
     if SAO.Voice and SAO.Voice.forget then
         pcall(SAO.Voice.forget, rec.id)
     end

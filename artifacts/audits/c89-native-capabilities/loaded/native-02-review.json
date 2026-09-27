@@ -1,0 +1,937 @@
+{
+  "schema": "sao-c89-native02-review/1",
+  "datasetAdmission": "unreviewed",
+  "run": "_scratch/c89-orienting/native-02",
+  "package": "_scratch/c89-orienting/residential-package-01",
+  "verifiedWithCurrentOwner": true,
+  "ownerValidatorSha256": "4c683af3eec8abe59abd5497750e98fc88dc92820f5a4e672b2340d8f480ab36",
+  "ownerWorldLabSha256": "2b66ccfca036a58e83e24a0d76c79c2c16b41824f32c4e5e2fa8da6d5928fb81",
+  "runSha256": "60c4236bef165f882ebe58c6fc700c5cefa2ffbd7a883e91fda98c8f9b40d844",
+  "packageSha256": "b5428973b1adc50a9ac4654208de0dcbb1ba8caa70c140931f3576bca2c4663a",
+  "save": "3649275848586939154",
+  "sessionId": "dc31b50a-0b41-433d-a91a-3bccdf36c452",
+  "status": "completed",
+  "terminal": {
+    "endHours": 19.62788963317871,
+    "nativeSaveReturned": true,
+    "startHours": 2.0,
+    "stopReason": "wall-time-limit"
+  },
+  "supervision": {
+    "exitCode": 0,
+    "failure": null,
+    "forced": false,
+    "limitSeconds": 600,
+    "progress": {
+      "native.json": 3657,
+      "observer-state.json": 10923
+    },
+    "stopReason": "wall-time-limit",
+    "wallSeconds": 603.01
+  },
+  "player": {
+    "count": 0,
+    "observerPersisted": false
+  },
+  "runtimeErrors": [],
+  "population": {
+    "captured": 2,
+    "dead": 0,
+    "represented": 2,
+    "total": 2,
+    "unrepresented": 0
+  },
+  "frames": 71,
+  "firstHours": 2,
+  "lastHours": 19.62788963317871,
+  "copiedMods": [
+    "Study-echo-creek-residential-41ec08c1cb10",
+    "SurvivorAwareness",
+    "ZombieAwareness",
+    "ZombieBuddy"
+  ],
+  "copiedModFileCount": 987,
+  "externalNarcoticsModPresent": false,
+  "sourceSeals": {
+    "SurvivorAwareness/42.20/media/java/SAO.jar": "14a6a984a3cd6ee0595f0a10943864368f661cd13cbfc3a540a7701094a74e88",
+    "SurvivorAwareness/42.20/media/lua/client/SAO_Body.lua": "b0bcada010b3e7c1be4579493cbeb173c0c1316fdb2d02343719234fc3d016c6",
+    "SurvivorAwareness/42.20/media/lua/client/SAO_CapabilityExperience.lua": "757aa34d8004f612de0f50867de4382663712ce83db7302ce184251830d74f52",
+    "SurvivorAwareness/42.20/media/lua/client/SAO_Controller.lua": "578b83a8a9c2e35cd4e29c4fca0a206517c2604d904d7906cd928d0b636e720a",
+    "SurvivorAwareness/42.20/media/lua/client/SAO_Cooking.lua": "b13e2c3596c965edb4e042b299c7f6d324385b557f4bf8a96ef8b9a121859c53",
+    "SurvivorAwareness/42.20/media/lua/client/SAO_Drugs.lua": "427d72c5119916444f09caf45d14418e4f927a039d491d63e43a8800c5db8ef6",
+    "SurvivorAwareness/42.20/media/lua/client/SAO_Needs.lua": "dbe233778fd2f1c26539b57a843295d12a8f70fb5ebb105b84a5ba7d681c8ef1",
+    "SurvivorAwareness/42.20/media/lua/client/SAO_Observation.lua": "ac0fa795d6eed72d029109c332278c3989c9b470a21744ffa59636fabb7f4d1a",
+    "SurvivorAwareness/42.20/media/lua/shared/SAO_BodySnapshot.lua": "2cb4b99eca3aa0ebd93c0edbc09776522aefdf78a8344185e587d6c3b30113d9",
+    "SurvivorAwareness/42.20/media/lua/shared/SAO_Cognition.lua": "6277618e42e091b226eefb061a1241bbc3b793509414256f28a9b697c3a43996",
+    "SurvivorAwareness/42.20/media/lua/shared/SAO_CognitiveModels.lua": "8abb65720e2a16aee450b66d15c51d86d5470c9c46e21719eb16e8c3002e2f58",
+    "SurvivorAwareness/42.20/media/lua/shared/SAO_Orienting.lua": "67c8aa3755869c934c3c14c99cf1593e675525b671f4a7aa14616bb844f0c876",
+    "SurvivorAwareness/42.20/media/lua/shared/SAO_Pharmacology.lua": "4c02625ec7570bfad09d7b12eea6cdc3362bb85da976815b3d5002514dd92521",
+    "SurvivorAwareness/42.20/media/lua/shared/SAO_PharmacologyProfiles.lua": "11d737bb81f4755ce485fcdc0e4e8bd4373e36ed6e192dfc7ae170cb7b5c24a9"
+  },
+  "currentBodySha256": "8336f0a87781ee787c7b86362f5eca76542c1c6033f91deff2ba262fdcf0dd7b",
+  "sourceBoundary": "Native run predates newest Body rollback changes; sealed copies remain authoritative.",
+  "people": {
+    "sao-1": {
+      "name": "Brady Hensley",
+      "representationCounts": {
+        "represented": 70
+      },
+      "controllerStates": {
+        "IDLE": 29,
+        "ROAM": 14,
+        "FLEE": 1,
+        "HOMEWARD": 26
+      },
+      "attentionPhases": {
+        "idle": 70
+      },
+      "activeAttentionSamples": 0,
+      "pharmacologyEvents": [],
+      "cookingOutcomes": [],
+      "maxModelMemory": {
+        "ordinary": {
+          "beliefs": 0,
+          "hypotheses": 0
+        },
+        "associative": {
+          "beliefs": 0,
+          "hypotheses": 0
+        }
+      },
+      "finalCognition": {
+        "actorId": "sao-1",
+        "omittedEpisodes": 531,
+        "omittedExperiences": 0,
+        "rejectedExperiences": 0,
+        "schema": "simulation.cognition/1",
+        "sequence": 595,
+        "settings": {
+          "enabled": true,
+          "maxDepth": 4,
+          "opponentShare": 0.5,
+          "opportunitiesPerHour": 48
+        }
+      },
+      "first": {
+        "sequence": 2,
+        "hours": 2.250020980834961,
+        "native": {
+          "Hunger": 0.008,
+          "Thirst": 0.007,
+          "Fatigue": 0.009,
+          "Endurance": 1.0,
+          "Nicotine withdrawal": 0.0,
+          "Health (%)": 100.0
+        },
+        "position": [
+          3426.5,
+          10910.5,
+          0
+        ],
+        "controller": "IDLE",
+        "inventory": {
+          "Base.Hat_WinterHat": "Winter Hat [id 437744278]",
+          "Base.Vest_Hunting_CamoGreen": "Hunting Vest - Green [id 453997423]",
+          "Base.Bag_TennisBag": "Duffel Bag [id 496277423]",
+          "Base.Notebook": "Brady Hensley's journal [id 1828372485]",
+          "Base.IDcard_Male": "Brady Hensley - ID [id 2004653883]"
+        },
+        "dead": false,
+        "attention": {
+          "Response": "No active sound response",
+          "Phase": "idle",
+          "Attention readiness": "1.000",
+          "Motor steadiness": "1.000"
+        },
+        "preparation": {},
+        "medication": {
+          "Active effects": "false",
+          "Sedating": "false",
+          "Stimulating": "false",
+          "Withdrawal": "false",
+          "Overload": "false"
+        }
+      },
+      "last": {
+        "sequence": 71,
+        "hours": 19.62788963317871,
+        "native": {
+          "Hunger": 0.453,
+          "Thirst": 0.554,
+          "Fatigue": 0.69,
+          "Endurance": 1.0,
+          "Nicotine withdrawal": 0.51,
+          "Health (%)": 83.77
+        },
+        "position": [
+          3391.89599609375,
+          10872.537109375,
+          0
+        ],
+        "controller": "HOMEWARD",
+        "inventory": {
+          "Base.Hat_WinterHat": "Winter Hat [id 437744278]",
+          "Base.Vest_Hunting_CamoGreen": "Hunting Vest - Green [id 453997423]",
+          "Base.Bag_TennisBag": "Duffel Bag [id 496277423]",
+          "Base.Notebook": "Brady Hensley's journal [id 1828372485]",
+          "Base.IDcard_Male": "Brady Hensley - ID [id 2004653883]"
+        },
+        "dead": false,
+        "attention": {
+          "Response": "No active sound response",
+          "Phase": "idle",
+          "Attention readiness": "0.750",
+          "Motor steadiness": "0.750"
+        },
+        "preparation": {},
+        "medication": {
+          "Active effects": "false",
+          "Sedating": "false",
+          "Stimulating": "false",
+          "Withdrawal": "false",
+          "Overload": "false"
+        }
+      },
+      "ranges": {
+        "Nicotine withdrawal": {
+          "min": 0.0,
+          "max": 0.51
+        },
+        "Hunger": {
+          "min": 0.008,
+          "max": 0.453
+        },
+        "Endurance": {
+          "min": 1.0,
+          "max": 1.0
+        },
+        "Thirst": {
+          "min": 0.007,
+          "max": 0.554
+        },
+        "Health (%)": {
+          "min": 80.0,
+          "max": 100.0
+        },
+        "Fatigue": {
+          "min": 0.009,
+          "max": 0.69
+        }
+      },
+      "sampledReductions": {
+        "Hunger": [],
+        "Thirst": [],
+        "Fatigue": [],
+        "Health (%)": [
+          {
+            "fromSequence": 17,
+            "toSequence": 18,
+            "before": 100.0,
+            "after": 99.32
+          },
+          {
+            "fromSequence": 18,
+            "toSequence": 19,
+            "before": 99.32,
+            "after": 97.36
+          },
+          {
+            "fromSequence": 19,
+            "toSequence": 20,
+            "before": 97.36,
+            "after": 95.52
+          },
+          {
+            "fromSequence": 20,
+            "toSequence": 21,
+            "before": 95.52,
+            "after": 93.7
+          },
+          {
+            "fromSequence": 21,
+            "toSequence": 22,
+            "before": 93.7,
+            "after": 92.04
+          },
+          {
+            "fromSequence": 22,
+            "toSequence": 23,
+            "before": 92.04,
+            "after": 90.07
+          },
+          {
+            "fromSequence": 23,
+            "toSequence": 24,
+            "before": 90.07,
+            "after": 88.16
+          },
+          {
+            "fromSequence": 24,
+            "toSequence": 25,
+            "before": 88.16,
+            "after": 86.58
+          },
+          {
+            "fromSequence": 25,
+            "toSequence": 26,
+            "before": 86.58,
+            "after": 84.66
+          },
+          {
+            "fromSequence": 26,
+            "toSequence": 27,
+            "before": 84.66,
+            "after": 82.74
+          },
+          {
+            "fromSequence": 27,
+            "toSequence": 28,
+            "before": 82.74,
+            "after": 80.93
+          },
+          {
+            "fromSequence": 28,
+            "toSequence": 29,
+            "before": 80.93,
+            "after": 80.0
+          }
+        ]
+      }
+    },
+    "sao-2": {
+      "name": "Chet Ferreira",
+      "representationCounts": {
+        "represented": 70
+      },
+      "controllerStates": {
+        "IDLE": 49,
+        "ROAM": 4,
+        "FOLLOW": 17
+      },
+      "attentionPhases": {
+        "idle": 70
+      },
+      "activeAttentionSamples": 0,
+      "pharmacologyEvents": [],
+      "cookingOutcomes": [],
+      "maxModelMemory": {
+        "ordinary": {
+          "beliefs": 0,
+          "hypotheses": 0
+        },
+        "associative": {
+          "beliefs": 0,
+          "hypotheses": 0
+        }
+      },
+      "finalCognition": {
+        "actorId": "sao-2",
+        "omittedEpisodes": 520,
+        "omittedExperiences": 0,
+        "rejectedExperiences": 0,
+        "schema": "simulation.cognition/1",
+        "sequence": 584,
+        "settings": {
+          "enabled": true,
+          "maxDepth": 4,
+          "opponentShare": 0.5,
+          "opportunitiesPerHour": 48
+        }
+      },
+      "first": {
+        "sequence": 2,
+        "hours": 2.250020980834961,
+        "native": {
+          "Hunger": 0.008,
+          "Thirst": 0.007,
+          "Fatigue": 0.009,
+          "Endurance": 1.0,
+          "Nicotine withdrawal": 0.0,
+          "Health (%)": 100.0
+        },
+        "position": [
+          3427.5,
+          10910.5,
+          0
+        ],
+        "controller": "IDLE",
+        "inventory": {
+          "Base.Vest_DefaultTEXTURE_TINT": "Tank Top [id 1438207533]",
+          "Base.Shoes_Random": "Shoes [id 1944183041]",
+          "Base.Trousers_JeanBaggy": "Jeans - Baggy [id 523156083]",
+          "Base.Jacket_Varsity": "Jacket - Varsity [id 268123938]",
+          "Base.Notebook": "Chet Ferreira's journal [id 384653606]",
+          "Base.IDcard_Male": "Chet Ferreira - ID [id 26081550]"
+        },
+        "dead": false,
+        "attention": {
+          "Response": "No active sound response",
+          "Phase": "idle",
+          "Attention readiness": "1.000",
+          "Motor steadiness": "1.000"
+        },
+        "preparation": {},
+        "medication": {
+          "Active effects": "false",
+          "Sedating": "false",
+          "Stimulating": "false",
+          "Withdrawal": "false",
+          "Overload": "false"
+        }
+      },
+      "last": {
+        "sequence": 71,
+        "hours": 19.62788963317871,
+        "native": {
+          "Hunger": 0.455,
+          "Thirst": 0.562,
+          "Fatigue": 0.009,
+          "Endurance": 1.0,
+          "Nicotine withdrawal": 0.0,
+          "Health (%)": 100.0
+        },
+        "position": [
+          3393.14013671875,
+          10872.94140625,
+          0
+        ],
+        "controller": "IDLE",
+        "inventory": {
+          "Base.Vest_DefaultTEXTURE_TINT": "Tank Top [id 1438207533]",
+          "Base.Shoes_Random": "Shoes [id 1944183041]",
+          "Base.Trousers_JeanBaggy": "Jeans - Baggy [id 523156083]",
+          "Base.Jacket_Varsity": "Jacket - Varsity [id 268123938]",
+          "Base.Notebook": "Chet Ferreira's journal [id 384653606]",
+          "Base.IDcard_Male": "Chet Ferreira - ID [id 26081550]"
+        },
+        "dead": false,
+        "attention": {
+          "Response": "No active sound response",
+          "Phase": "idle",
+          "Attention readiness": "1.000",
+          "Motor steadiness": "1.000"
+        },
+        "preparation": {},
+        "medication": {
+          "Active effects": "false",
+          "Sedating": "false",
+          "Stimulating": "false",
+          "Withdrawal": "false",
+          "Overload": "false"
+        }
+      },
+      "ranges": {
+        "Nicotine withdrawal": {
+          "min": 0.0,
+          "max": 0.0
+        },
+        "Hunger": {
+          "min": 0.008,
+          "max": 0.455
+        },
+        "Endurance": {
+          "min": 1.0,
+          "max": 1.0
+        },
+        "Thirst": {
+          "min": 0.007,
+          "max": 0.562
+        },
+        "Health (%)": {
+          "min": 100.0,
+          "max": 100.0
+        },
+        "Fatigue": {
+          "min": 0.0,
+          "max": 0.029
+        }
+      },
+      "sampledReductions": {
+        "Hunger": [],
+        "Thirst": [],
+        "Fatigue": [
+          {
+            "fromSequence": 2,
+            "toSequence": 3,
+            "before": 0.009,
+            "after": 0.0
+          },
+          {
+            "fromSequence": 17,
+            "toSequence": 18,
+            "before": 0.018,
+            "after": 0.012
+          },
+          {
+            "fromSequence": 24,
+            "toSequence": 25,
+            "before": 0.018,
+            "after": 0.012
+          },
+          {
+            "fromSequence": 26,
+            "toSequence": 27,
+            "before": 0.023,
+            "after": 0.003
+          },
+          {
+            "fromSequence": 28,
+            "toSequence": 29,
+            "before": 0.014,
+            "after": 0.008
+          },
+          {
+            "fromSequence": 34,
+            "toSequence": 35,
+            "before": 0.012,
+            "after": 0.001
+          },
+          {
+            "fromSequence": 42,
+            "toSequence": 43,
+            "before": 0.011,
+            "after": 0.002
+          },
+          {
+            "fromSequence": 44,
+            "toSequence": 45,
+            "before": 0.012,
+            "after": 0.003
+          },
+          {
+            "fromSequence": 56,
+            "toSequence": 57,
+            "before": 0.025,
+            "after": 0.004
+          },
+          {
+            "fromSequence": 63,
+            "toSequence": 64,
+            "before": 0.014,
+            "after": 0.007
+          },
+          {
+            "fromSequence": 66,
+            "toSequence": 67,
+            "before": 0.018,
+            "after": 0.012
+          },
+          {
+            "fromSequence": 68,
+            "toSequence": 69,
+            "before": 0.024,
+            "after": 0.018
+          },
+          {
+            "fromSequence": 69,
+            "toSequence": 70,
+            "before": 0.018,
+            "after": 0.001
+          }
+        ],
+        "Health (%)": []
+      }
+    }
+  },
+  "firstAttentionSamples": {},
+  "logEvidence": {
+    "consumption": {
+      "count": 0,
+      "first": [],
+      "last": []
+    },
+    "sourceUse": {
+      "count": 0,
+      "first": [],
+      "last": []
+    },
+    "cooking": {
+      "count": 0,
+      "first": [],
+      "last": []
+    },
+    "homeRouteFailed": {
+      "count": 1119,
+      "first": [
+        {
+          "line": 3394,
+          "text": "LOG  : Lua          f:7158> [SAO][CTL] sao-1 HOMEWARD -> IDLE (done:Failed)"
+        },
+        {
+          "line": 3400,
+          "text": "LOG  : Lua          f:7161> [SAO][CTL] sao-1 HOMEWARD -> IDLE (done:Failed)"
+        },
+        {
+          "line": 3406,
+          "text": "LOG  : Lua          f:7163> [SAO][CTL] sao-1 HOMEWARD -> IDLE (done:Failed)"
+        }
+      ],
+      "last": [
+        {
+          "line": 10510,
+          "text": "LOG  : Lua          f:9719> [SAO][CTL] sao-1 HOMEWARD -> IDLE (done:Failed)"
+        },
+        {
+          "line": 10517,
+          "text": "LOG  : Lua          f:9721> [SAO][CTL] sao-1 HOMEWARD -> IDLE (done:Failed)"
+        },
+        {
+          "line": 10523,
+          "text": "LOG  : Lua          f:9723> [SAO][CTL] sao-1 HOMEWARD -> IDLE (done:Failed)"
+        }
+      ]
+    },
+    "threatResponse": {
+      "count": 2,
+      "first": [
+        {
+          "line": 1877,
+          "text": "LOG  : Lua          f:4711> [SAO][CTL] sao-1 ROAM -> FLEE (believed threat at 8.7 tiles, count=2)"
+        },
+        {
+          "line": 2071,
+          "text": "LOG  : Lua          f:4767> [SAO][CTL] sao-1 ROAM -> FLEE (believed threat at 8.4 tiles, count=4)"
+        }
+      ],
+      "last": [
+        {
+          "line": 1877,
+          "text": "LOG  : Lua          f:4711> [SAO][CTL] sao-1 ROAM -> FLEE (believed threat at 8.7 tiles, count=2)"
+        },
+        {
+          "line": 2071,
+          "text": "LOG  : Lua          f:4767> [SAO][CTL] sao-1 ROAM -> FLEE (believed threat at 8.4 tiles, count=4)"
+        }
+      ]
+    },
+    "bodyRecovery": {
+      "count": 0,
+      "first": [],
+      "last": []
+    }
+  },
+  "startupDiagnostics": [
+    {
+      "stream": "stdout",
+      "line": 627,
+      "text": "WARN : General      f:0 at XuiSkin$EntityUiStyle.Load          > Could not find icon: Build_AnvilStone, script = Stone Anvil"
+    },
+    {
+      "stream": "stdout",
+      "line": 628,
+      "text": "WARN : General      f:0 at XuiSkin$EntityUiStyle.LoadComponentInfo> Could not find icon: Build_AnvilStone"
+    },
+    {
+      "stream": "stdout",
+      "line": 629,
+      "text": "WARN : General      f:0 at XuiSkin$EntityUiStyle.Load          > Could not find icon: Build_AnvilStone, script = Stone Anvil"
+    },
+    {
+      "stream": "stdout",
+      "line": 630,
+      "text": "WARN : General      f:0 at XuiSkin$EntityUiStyle.LoadComponentInfo> Could not find icon: Build_AnvilStone"
+    },
+    {
+      "stream": "stdout",
+      "line": 631,
+      "text": "WARN : General      f:0 at XuiSkin$EntityUiStyle.Load          > Could not find icon: Build_AnvilStone, script = Stone Anvil"
+    },
+    {
+      "stream": "stdout",
+      "line": 632,
+      "text": "WARN : General      f:0 at XuiSkin$EntityUiStyle.LoadComponentInfo> Could not find icon: Build_AnvilStone"
+    },
+    {
+      "stream": "stdout",
+      "line": 633,
+      "text": "WARN : General      f:0 at XuiSkin$EntityUiStyle.Load          > Could not find icon: Build_AnvilStone, script = Stone Anvil"
+    },
+    {
+      "stream": "stdout",
+      "line": 634,
+      "text": "WARN : General      f:0 at XuiSkin$EntityUiStyle.LoadComponentInfo> Could not find icon: Build_AnvilStone"
+    },
+    {
+      "stream": "stdout",
+      "line": 635,
+      "text": "WARN : General      f:0 at TaggedObjectManager.createTagBits   > manager-> new tag discovered that was not preprocessed, tag: keyduplicator"
+    },
+    {
+      "stream": "stdout",
+      "line": 636,
+      "text": "WARN : General      f:0 at TaggedObjectManager.createTagBits   > manager-> new tag discovered that was not preprocessed, tag: choppingblock"
+    },
+    {
+      "stream": "stdout",
+      "line": 640,
+      "text": "WARN : Lua          f:0 at Lua(Vanilla).corpseStorageCheck     > require(\"ISUI/ISInventoryPaneContextMenu\") failed"
+    },
+    {
+      "stream": "stdout",
+      "line": 641,
+      "text": "WARN : Lua          f:0 at Lua(Vanilla).corpseStorageCheck     > require(\"ISUI/ISVehicleMenu\") failed"
+    },
+    {
+      "stream": "stdout",
+      "line": 642,
+      "text": "WARN : Lua          f:0 at Lua(Vanilla).corpseStorageCheck     > require(\"ISUI/ISContextMenu\") failed"
+    },
+    {
+      "stream": "stdout",
+      "line": 643,
+      "text": "WARN : Lua          f:0 at Lua(Vanilla).ISCampingMenu          > require(\"Camping/CCampfireSystem\") failed"
+    },
+    {
+      "stream": "stdout",
+      "line": 644,
+      "text": "WARN : Lua          f:0 at Lua(Vanilla).ISInventoryTransferUtil> require(\"TimedActions/ISInventoryTransferAction\") failed"
+    },
+    {
+      "stream": "stdout",
+      "line": 645,
+      "text": "WARN : Lua          f:0 at Lua(Vanilla).ISInventoryTransferUtil> require(\"ISUI/PlayerData/ISPlayerData\") failed"
+    },
+    {
+      "stream": "stdout",
+      "line": 650,
+      "text": "WARN : Lua          f:0 at Lua(Vanilla).ISAnimalContextMenu    > require(\"BuildingObjects/ISAnimalPickMateCursor\") failed"
+    },
+    {
+      "stream": "stdout",
+      "line": 651,
+      "text": "WARN : Lua          f:0 at Lua(Vanilla).TakeSameType           > require(\"ISUI/InventoryWindow/ISLootWindowControlHandler\") failed"
+    },
+    {
+      "stream": "stdout",
+      "line": 652,
+      "text": "WARN : Lua          f:0 at Lua(Vanilla).FloorTakeSameType      > require(\"ISUI/InventoryWindow/ISLootWindowControlHandler\") failed"
+    },
+    {
+      "stream": "stdout",
+      "line": 653,
+      "text": "WARN : General      f:0> Translator.reportMissingArgumentsFromPastAbuse> Exception thrown java.util.MissingFormatArgumentException: Format specifier '% o' at Formatter.format(null:-1). Message: ERROR: Missing arguments for \"Sandbox_ZombieAwareness_MutationOdds_tooltip\""
+    },
+    {
+      "stream": "stdout",
+      "line": 654,
+      "text": "WARN : General      f:0> Translator.reportMissingArgumentsFromPastAbuse> Exception thrown java.util.UnknownFormatConversionException: Conversion = '.' at Formatter.parse(null:-1). Message: ERROR: Formatting \"Sandbox_ZombieAwareness_CrossedOdds_tooltip\""
+    },
+    {
+      "stream": "stdout",
+      "line": 655,
+      "text": "WARN : Lua          f:0 at Lua(Vanilla).testUI                 > require(\"pzapi/ui/ui\") failed"
+    },
+    {
+      "stream": "stdout",
+      "line": 690,
+      "text": "WARN : Lua          f:0 at Lua(Vanilla).namedColorToTable      > env.lua-> namedColorToTable color not found: ProgressYellow"
+    },
+    {
+      "stream": "stdout",
+      "line": 834,
+      "text": "WARN : Lua          f:0 at Lua(Vanilla).Features               > recursive require(): C:/Program Files (x86)/Steam/steamapps/common/ProjectZomboid/media/lua/server/WorldGen/WorldGen.lua"
+    },
+    {
+      "stream": "stdout",
+      "line": 835,
+      "text": "WARN : Lua          f:0 at Lua(Vanilla).Biomes                 > recursive require(): C:/Program Files (x86)/Steam/steamapps/common/ProjectZomboid/media/lua/server/WorldGen/WorldGen.lua"
+    },
+    {
+      "stream": "stdout",
+      "line": 836,
+      "text": "WARN : Lua          f:0 at Lua(Vanilla).Selection              > recursive require(): C:/Program Files (x86)/Steam/steamapps/common/ProjectZomboid/media/lua/server/WorldGen/WorldGen.lua"
+    },
+    {
+      "stream": "stdout",
+      "line": 837,
+      "text": "WARN : Lua          f:0 at Lua(Vanilla).Veins                  > recursive require(): C:/Program Files (x86)/Steam/steamapps/common/ProjectZomboid/media/lua/server/WorldGen/WorldGen.lua"
+    },
+    {
+      "stream": "stdout",
+      "line": 838,
+      "text": "WARN : Lua          f:0 at Lua(Vanilla).Roads                  > recursive require(): C:/Program Files (x86)/Steam/steamapps/common/ProjectZomboid/media/lua/server/WorldGen/WorldGen.lua"
+    },
+    {
+      "stream": "stdout",
+      "line": 839,
+      "text": "WARN : Lua          f:0 at Lua(Vanilla).WorldGen               > recursive require(): C:/Program Files (x86)/Steam/steamapps/common/ProjectZomboid/media/lua/server/WorldGen/attachments/Priorities.lua"
+    },
+    {
+      "stream": "stderr",
+      "line": 1,
+      "text": "WARNING: A terminally deprecated method in sun.misc.Unsafe has been called"
+    },
+    {
+      "stream": "stderr",
+      "line": 2,
+      "text": "WARNING: sun.misc.Unsafe::objectFieldOffset has been called by net.bytebuddy.dynamic.loading.ClassInjector$UsingUnsafe$Dispatcher$CreationAction (file:/C:/Program%20Files%20(x86)/Steam/steamapps/common/ProjectZomboid/ZombieBuddy.jar)"
+    },
+    {
+      "stream": "stderr",
+      "line": 3,
+      "text": "WARNING: Please consider reporting this to the maintainers of class net.bytebuddy.dynamic.loading.ClassInjector$UsingUnsafe$Dispatcher$CreationAction"
+    },
+    {
+      "stream": "stderr",
+      "line": 4,
+      "text": "WARNING: sun.misc.Unsafe::objectFieldOffset will be removed in a future release"
+    },
+    {
+      "stream": "stderr",
+      "line": 8,
+      "text": "LOG  : General      f:0> WARNING: A Java agent has been loaded dynamically (C:\\Users\\jleyv\\AppData\\Local\\Temp\\byteBuddyAgent4560425527422527896.jar)"
+    },
+    {
+      "stream": "stderr",
+      "line": 9,
+      "text": "WARNING: If a serviceability tool is in use, please run with -XX:+EnableDynamicAgentLoading to hide this warning"
+    },
+    {
+      "stream": "stderr",
+      "line": 10,
+      "text": "WARNING: If a serviceability tool is not in use, please run with -Djdk.instrument.traceUsage for more information"
+    },
+    {
+      "stream": "stderr",
+      "line": 11,
+      "text": "WARNING: Dynamic loading of agents will be disallowed by default in a future release"
+    },
+    {
+      "stream": "stderr",
+      "line": 12,
+      "text": "ERROR: General      f:0 at FluidContainerScript.load           > Sanitizing container name 'Large Bucket', name may not contain whitespaces."
+    },
+    {
+      "stream": "stderr",
+      "line": 13,
+      "text": "ERROR: General      f:0 at FluidContainerScript.load           > Sanitizing container name 'Fuel Pump', name may not contain whitespaces."
+    },
+    {
+      "stream": "stderr",
+      "line": 14,
+      "text": "ERROR: General      f:0 at CraftRecipeComponentScript.getIconTexture> CraftRecipeComponentScript: Recipe Piano missing UiConfigScript - falling back to SpriteConfigScript first world object face for recipe icon."
+    },
+    {
+      "stream": "stderr",
+      "line": 15,
+      "text": "ERROR: General      f:0 at CellLoader.DoTileObjectCreation     > CellLoader> missing tile vegetation_groundcover_01_23"
+    },
+    {
+      "stream": "stderr",
+      "line": 16,
+      "text": "ERROR: General      f:0 at CellLoader.DoTileObjectCreation     > CellLoader> missing tile vegetation_groundcover_01_21"
+    },
+    {
+      "stream": "stderr",
+      "line": 17,
+      "text": "ERROR: General      f:0 at CellLoader.DoTileObjectCreation     > CellLoader> missing tile vegetation_groundcover_01_22"
+    },
+    {
+      "stream": "stderr",
+      "line": 18,
+      "text": "ERROR: General      f:0 at CellLoader.DoTileObjectCreation     > CellLoader> missing tile vegetation_groundcover_01_18"
+    },
+    {
+      "stream": "stderr",
+      "line": 19,
+      "text": "ERROR: General      f:0 at CellLoader.DoTileObjectCreation     > CellLoader> missing tile vegetation_groundcover_01_19"
+    },
+    {
+      "stream": "stderr",
+      "line": 20,
+      "text": "ERROR: General      f:0 at ImportedSkeleton.collectBoneFrames  > Could not find bone index for node name: \"Cube\""
+    },
+    {
+      "stream": "stderr",
+      "line": 21,
+      "text": "ERROR: General      f:0 at ImportedSkeleton.collectBoneFrames  > Could not find bone index for node name: \"Camera\""
+    },
+    {
+      "stream": "stderr",
+      "line": 22,
+      "text": "ERROR: General      f:0 at ImportedSkeleton.collectBoneFrames  > Could not find bone index for node name: \"Light\""
+    },
+    {
+      "stream": "stderr",
+      "line": 23,
+      "text": "ERROR: General      f:0 at ImportedSkeleton.collectBoneFrames  > Could not find bone index for node name: \"Camera\""
+    },
+    {
+      "stream": "stderr",
+      "line": 24,
+      "text": "ERROR: General      f:0 at ImportedSkeleton.collectBoneFrames  > Could not find bone index for node name: \"Light\""
+    }
+  ],
+  "agentLogSha256": "caa6c195adda0e0d1837b738d54d9afc7d587e7b8ed90efa856daa32f404c148",
+  "agentFaultLines": [
+    {
+      "line": 11,
+      "text": "2026-09-27T04:35:39.573719800Z [SAO] bridge exposure attempt failed: java.lang.reflect.InvocationTargetException"
+    },
+    {
+      "line": 80,
+      "text": "2026-09-27T04:39:22.921144100Z [SAO] route failed person=sao-1 result=FAILED_BLOCKED_DIAGONAL at=3448.8,10915.513,0.0 node=3449.5,10914.5,0.0 index=9/12 goal=3448.5,10913.5,0"
+    },
+    {
+      "line": 92,
+      "text": "2026-09-27T04:39:35.317742300Z [SAO] route failed person=sao-2 result=FAILED_BLOCKED_DIAGONAL at=3449.337,10912.77,0.0 node=3448.5,10913.5,0.0 index=2/4 goal=3447.5,10913.5,0"
+    }
+  ],
+  "capturedEventStages": {
+    "Locomotion:started": 587,
+    "Locomotion:arrived": 41,
+    "Voice:emitted": 26,
+    "Locomotion:replaced": 66,
+    "Locomotion:cancelled": 112,
+    "Locomotion:failed": 368
+  },
+  "uniqueCapturedEvents": 1200,
+  "uniqueExperiences": [],
+  "cognition": {
+    "intakeAccepted": true,
+    "snapshots": 140,
+    "uniqueEpisodes": 1179,
+    "statuses": {
+      "censored": 1179
+    },
+    "selectedModels": {
+      "ordinary": 590,
+      "associative": 589
+    },
+    "selectedActions": {
+      "continue": 588,
+      "inspect": 213,
+      "water": 378
+    },
+    "disagreements": 503,
+    "versions": [
+      "sao-associative/2",
+      "sao-ordinary/2"
+    ],
+    "scoredOutcomes": 0,
+    "contractSha256": "c6fe81cc1343d21f8b3be1285dec285cf15e8297f82c873e38ee50af10a87af5",
+    "intakeSha256": "9fb592132fb669607c6e43b30175276a31ee990afe4d95ba9ba66a6228969c9d"
+  },
+  "feed": {
+    "sha256": "4ad3a0b5e3551f761045356ecc68089a2391ed7a79ebc603684690a26e10f66a",
+    "state": "ended",
+    "inspection": {
+      "capturedAtUnixMs": 1790484319673,
+      "message": "Current bodies and recorded execution facts; no decision or perception rerun",
+      "omittedEvents": 2760,
+      "omittedPeople": 0,
+      "sequence": 357,
+      "status": "available",
+      "worldHours": 19.62788963317871
+    },
+    "sequence": 4183,
+    "lastCommandSequence": 3
+  },
+  "browserReceiptSha256": "c5b0ea87dba2a729d281c2d9466c87334d9e03c8b693ed4ad5b463550fd5eada",
+  "limits": [
+    "Normal save is operational evidence, not behavioral acceptance.",
+    "Snapshot reductions alone do not identify a consumed item or prove causality.",
+    "Inspections/events are bounded samples; logs and complete cognition projections supply independent coverage.",
+    "No own medication use, cooking success or downstream association is inferred from module loading."
+  ]
+}

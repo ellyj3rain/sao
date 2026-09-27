@@ -1,0 +1,18 @@
+{
+  "status": "PASS",
+  "sourceSha256": "b3d0c832c920d7c0080435d8572b2ef2437bec5083b22f3569de82f45fab69d8",
+  "commands": [
+    {
+      "phase": "compile",
+      "exitCode": 0,
+      "stdout": "",
+      "stderr": "Note: C:\\Users\\jleyv\\Peanut Butter\\AI Assisted Software Engineering Mass Repository\\Projects\\survivor-awareness\\_scratch\\c89-orienting\\integration\\metabolism-check\\PersonSnapshotProbe.java uses unchecked or unsafe operations.\nNote: Recompile with -Xlint:unchecked for details.\n"
+    },
+    {
+      "phase": "native",
+      "exitCode": 0,
+      "stdout": "ENGINE oversized native item string: load succeeds, keyId 67890 -> 1633771873\nPASS native snapshot: v3/v4; root/nested items and fluids; equipment; stats/wounds/XP/traits; nutrition/fitness/learning/visual/ModData; repeated wake; dormant partial food/drink and partition stability; dormant rest state; next native updates; corruption/version/missing-definition controls\n",
+      "stderr": "WARNING: A restricted method in java.lang.System has been called\nWARNING: java.lang.System::load has been called by org.lwjgl.system.Library$$Lambda/0x00000000921cc528 in an unnamed module (file:/C:/Program%20Files%20(x86)/Steam/steamapps/common/ProjectZomboid/projectzomboid.jar)\nWARNING: Use --enable-native-access=ALL-UNNAMED to avoid a warning for callers in this module\nWARNING: Restricted methods will be blocked in a future release unless native access is enabled\n\n"
+    }
+  ]
+}

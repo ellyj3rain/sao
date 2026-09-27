@@ -1,0 +1,245 @@
+{
+  "timestamp": "2026-09-27T06:33:04.385821+00:00",
+  "fixture": "_scratch\\c89-orienting\\capability-check\\42.20\\media\\lua\\client\\ZZ_SAOCapabilityCheck.lua",
+  "fixtureSha256": "d1a8e3330b7aba5b49f8d5c20a361003991e6b21d7da59df2e89daf6a16abd5f",
+  "runnerSha256": "89caeaf19f3888a9f03e0c43f5f373f3b19ed9f9cd8a4ec68d77f95aed5846b3",
+  "engineSha256": "80e405a4bfc42f6072e75b3735f458a6514143da011d3226007ded305a442f44",
+  "baseline": {
+    "visible": {
+      "exitCode": 0,
+      "cases": 18,
+      "failed": [],
+      "valueTrue": true,
+      "scriptError": false
+    },
+    "no_offer": {
+      "exitCode": 0,
+      "cases": 11,
+      "failed": [],
+      "valueTrue": true,
+      "scriptError": false
+    },
+    "unavailable": {
+      "exitCode": 0,
+      "cases": 8,
+      "failed": [],
+      "valueTrue": true,
+      "scriptError": false
+    },
+    "refused": {
+      "exitCode": 0,
+      "cases": 10,
+      "failed": [],
+      "valueTrue": true,
+      "scriptError": false
+    },
+    "late_population": {
+      "exitCode": 0,
+      "cases": 8,
+      "failed": [],
+      "valueTrue": true,
+      "scriptError": false
+    },
+    "first_busy": {
+      "exitCode": 0,
+      "cases": 6,
+      "failed": [],
+      "valueTrue": true,
+      "scriptError": false
+    },
+    "first_no_offer": {
+      "exitCode": 0,
+      "cases": 7,
+      "failed": [],
+      "valueTrue": true,
+      "scriptError": false
+    },
+    "startup_gestures": {
+      "exitCode": 0,
+      "cases": 7,
+      "failed": [],
+      "valueTrue": true,
+      "scriptError": false
+    },
+    "foreign_actor": {
+      "exitCode": 0,
+      "cases": 5,
+      "failed": [],
+      "valueTrue": true,
+      "scriptError": false
+    }
+  },
+  "controls": {
+    "old_delayed_preparation": {
+      "exitCode": 0,
+      "cases": 17,
+      "failed": [
+        "immediate_visible_preparation",
+        "first_free_person_selected",
+        "offer_then_item_then_begin_then_sound",
+        "admission_logged_before_release",
+        "bounded_single_meal_and_dose"
+      ],
+      "valueTrue": false,
+      "scriptError": false,
+      "expectedFailedCase": "immediate_visible_preparation",
+      "rejected": true
+    },
+    "sound_ignores_release": {
+      "exitCode": 0,
+      "cases": 12,
+      "failed": [
+        "no_offer_no_injection_initially",
+        "sound_waits_full_bound",
+        "no_offer_sound_released_at_bound",
+        "later_real_offer_remains_eligible"
+      ],
+      "valueTrue": false,
+      "scriptError": false,
+      "expectedFailedCase": "no_offer_no_injection_initially",
+      "rejected": true
+    },
+    "no_offer_never_releases": {
+      "exitCode": 0,
+      "cases": 11,
+      "failed": [
+        "no_offer_sound_released_at_bound",
+        "later_cook_saved_without_changing_dose_actor"
+      ],
+      "valueTrue": false,
+      "scriptError": false,
+      "expectedFailedCase": "no_offer_sound_released_at_bound",
+      "rejected": true
+    },
+    "eligibility_bypass": {
+      "exitCode": 0,
+      "cases": 11,
+      "failed": [
+        "ineligible_does_not_query_or_inject_meal",
+        "ineligible_releases_sound_at_bound"
+      ],
+      "valueTrue": false,
+      "scriptError": false,
+      "expectedFailedCase": "ineligible_does_not_query_or_inject_meal",
+      "rejected": true
+    },
+    "refusal_claimed_admitted": {
+      "exitCode": 0,
+      "cases": 10,
+      "failed": [
+        "refusal_is_not_admission",
+        "refusal_release_is_explicit"
+      ],
+      "valueTrue": false,
+      "scriptError": false,
+      "expectedFailedCase": "refusal_is_not_admission",
+      "rejected": true
+    },
+    "reload_marker_ignored": {
+      "exitCode": 0,
+      "cases": 24,
+      "failed": [
+        "reload_no_reinjection",
+        "reload_samples_continue",
+        "reload_retains_original_people"
+      ],
+      "valueTrue": false,
+      "scriptError": false,
+      "expectedFailedCase": "reload_no_reinjection",
+      "rejected": true
+    },
+    "reload_people_reselected": {
+      "exitCode": 0,
+      "cases": 18,
+      "failed": [
+        "separate_medication_actor",
+        "reload_retains_original_people"
+      ],
+      "valueTrue": false,
+      "scriptError": false,
+      "expectedFailedCase": "reload_retains_original_people",
+      "rejected": true
+    },
+    "timeout_started_without_people": {
+      "exitCode": 0,
+      "cases": 8,
+      "failed": [
+        "present_pair_gets_full_bound"
+      ],
+      "valueTrue": false,
+      "scriptError": false,
+      "expectedFailedCase": "present_pair_gets_full_bound",
+      "rejected": true
+    },
+    "old_five_second_release": {
+      "exitCode": 0,
+      "cases": 8,
+      "failed": [
+        "startup_work_not_preempted_by_sound",
+        "first_free_startup_owner_cooks_before_sound"
+      ],
+      "valueTrue": false,
+      "scriptError": false,
+      "expectedFailedCase": "startup_work_not_preempted_by_sound",
+      "rejected": true
+    },
+    "fixed_second_cook": {
+      "exitCode": 0,
+      "cases": 18,
+      "failed": [
+        "first_free_person_selected",
+        "separate_medication_actor",
+        "reload_retains_original_people"
+      ],
+      "valueTrue": false,
+      "scriptError": false,
+      "expectedFailedCase": "first_free_person_selected",
+      "rejected": true
+    },
+    "first_offer_reused_for_second_actor": {
+      "exitCode": 0,
+      "cases": 4,
+      "failed": [
+        "second_person_uses_own_offer",
+        "selected_offer_source_logged",
+        "no_offer_actor_has_no_injected_meal"
+      ],
+      "valueTrue": false,
+      "scriptError": false,
+      "expectedFailedCase": "second_person_uses_own_offer",
+      "rejected": true
+    },
+    "same_medication_actor": {
+      "exitCode": 0,
+      "cases": 18,
+      "failed": [
+        "first_free_person_selected",
+        "separate_medication_actor",
+        "reload_retains_original_people"
+      ],
+      "valueTrue": false,
+      "scriptError": false,
+      "expectedFailedCase": "separate_medication_actor",
+      "rejected": true
+    },
+    "old_sound_before_offer": {
+      "exitCode": 0,
+      "cases": 18,
+      "failed": [
+        "first_free_person_selected",
+        "offer_then_item_then_begin_then_sound",
+        "separate_medication_actor",
+        "reload_retains_original_people"
+      ],
+      "valueTrue": false,
+      "scriptError": false,
+      "expectedFailedCase": "offer_then_item_then_begin_then_sound",
+      "rejected": true
+    }
+  },
+  "boundary": "Actual unchanged diagnostic script executed in installed Kahlua; body/action/offer/ModData receivers controlled. This proves fixture sequencing and same-script reload, not loaded cooking completion, native visibility, or actual disk save/reopen.",
+  "cases": 80,
+  "rejectedControls": 13,
+  "inputsUnchanged": true,
+  "passed": true
+}

@@ -1,0 +1,265 @@
+{
+  "boundary": "Installed native bodies, Food.update, stove, physical native containers, XP and item save/load; controlled cell fixture, no game/render loop.",
+  "inputs": {
+    "C:\\Users\\jleyv\\Peanut Butter\\AI Assisted Software Engineering Mass Repository\\Projects\\survivor-awareness\\_scratch\\c89-orienting\\cooking\\SAOCooking.java": "b64376f151f77a528bbfa6af90fca753a6c0ed55d536f5f528f5720bace04770",
+    "C:\\Users\\jleyv\\Peanut Butter\\AI Assisted Software Engineering Mass Repository\\Projects\\survivor-awareness\\tools\\luacheck\\MovementCrossingProbe.java": "ca9dbe9c356c98ff40e6aa63d577fd2ace052c139b83fc6f43664701fd2f1bd1",
+    "C:\\Users\\jleyv\\Peanut Butter\\AI Assisted Software Engineering Mass Repository\\Projects\\survivor-awareness\\tools\\luacheck\\ResourceApproachProbe.java": "c745867ad46933069d5077f38dccac8275e3031a7bead68adab464efeaf51244",
+    "C:\\Users\\jleyv\\Peanut Butter\\AI Assisted Software Engineering Mass Repository\\Projects\\survivor-awareness\\tools\\cognition_checks\\CognitionUseProbe.java": "0dd6382f99880d09129d81623930696e2d0d672f4dfc3869398d80395910ec30",
+    "C:\\Users\\jleyv\\Peanut Butter\\AI Assisted Software Engineering Mass Repository\\Projects\\survivor-awareness\\_scratch\\c89-orienting\\cooking\\tools\\cooking_checks\\CookingProbe.java": "0b45a3bf51e1fd2ac138d3a20f41d9b32cbddb9e30f9eecb7a6440e168c52e13",
+    "C:\\Program Files (x86)\\Steam\\steamapps\\common\\ProjectZomboid\\projectzomboid.jar": "80e405a4bfc42f6072e75b3735f458a6514143da011d3226007ded305a442f44",
+    "C:\\Program Files (x86)\\Steam\\steamapps\\common\\ProjectZomboid\\ZombieBuddy.jar": "6dd95cedce60f03bf8b8cefd0d19eb156230e0d54bffa07de9da5212a06c7be6",
+    "C:\\Users\\jleyv\\Peanut Butter\\AI Assisted Software Engineering Mass Repository\\Projects\\survivor-awareness\\mod\\42.20\\media\\java\\SAO.jar": "b0f9f2d762e3dae9ff17d591863754f4439fb28c85d7f390121d01ec15734e16"
+  },
+  "runs": [
+    {
+      "name": "compile",
+      "exit": 0,
+      "stdout": "",
+      "stderr": ""
+    },
+    {
+      "name": "native",
+      "exit": 0,
+      "stdout": "ITEM Base.MuttonChop=zombie.inventory.types.Food\nCHECK native_appliance_exact_and_reachable=true\nCHECK native_power_observed=true\nCHECK native_object_collection_offers_appliance=true\nCHECK missing_container_refused=true\nCHECK carried_food_cannot_bind_heat=true\nCHECK registered_player_refused=true\nCHECK sleeping_body_refused=true\nCHECK physical_deposit_binds_raw_item=true\nCHECK same_binding_idempotent=true\nCHECK recorded_cook_position_is_barely_in_reach=true\nCHECK small_displacement_requires_physical_return=true\nCHECK reapproach_has_same_source_and_fresh_coordinates=true\nCHECK fresh_approach_center_is_standable_and_within_strict_reach=true\nCHECK approach_does_not_advance_heat_or_credit=true\nCHECK removed_appliance_cannot_supply_reapproach=true\nCHECK unregistered_container_cannot_supply_reapproach=true\nCHECK reapproach_is_locally_bounded=true\nCHECK physical_return_restores_original_heat_binding=true\nCHECK offslot_chef_lookup_suppressed=true\nCHECK one_body_owns_exact_item=true\nCHECK changed_owner_token_refused=true\nCHECK changed_actor_identity_refused=true\nCHECK detached_body_refused=true\nCHECK removed_appliance_refused=true\nCHECK intervening_chef_change_refused=true\nCHECK queued_work_not_cooked_or_credited=true\nCHECK fake_cooked_field_rejected=true\nCHECK fake_cooked_write_rejected=true\nCHECK cold_appliance_has_no_thermal_progress=true\nCHECK native_stove_update_warms_container=true\nCHECK same_native_minute_cannot_fast_forward_cooking=true\nTHERMAL minute=45 heat=3.0 cook=51.086666 required=50.0 temperature=3.0\nCHECK native_food_update_cooks_exact_item=true\nCHECK native_heat_read_does_not_grant_xp=true\nCHECK heat_observation_detached=true\nCHECK different_body_cannot_consume_native_result=true\nCHECK completion_grants_native_xp=true\nCHECK completion_xp_once=true\nCHECK restored_chef_does_not_credit_other_player=true\nCHECK retrieved_food_cannot_reconsume_heat=true\nCHECK native_credit_survives_binding_release=true\nCHECK native_save_load_retains_credit_identity=true\nCHECK reload_cannot_recredit_cooked_item=true\nCHECK second_raw_food_can_bind=true\nCHECK native_burn_progression_not_completion=true\nITEM Base.Toast=zombie.inventory.types.Food\nITEM Base.BreadSlices=zombie.inventory.types.Food\nCHECK ordinary_replacement_food_may_be_prepared=true\nCHECK native_replacement_happens_but_unbound_result_has_no_credit=true\nCHECK native_power_loss_deactivates_stove=true\nCHECK native_shutdown_cools=true\nCOOKING_NATIVE_OK\n",
+      "stderr": ""
+    },
+    {
+      "name": "stale-current-square-approach-compile",
+      "exit": 0,
+      "stdout": "",
+      "stderr": ""
+    },
+    {
+      "name": "stale-current-square-approach",
+      "exit": 1,
+      "stdout": "ITEM Base.MuttonChop=zombie.inventory.types.Food\nCHECK native_appliance_exact_and_reachable=true\nCHECK native_power_observed=true\nCHECK native_object_collection_offers_appliance=true\nCHECK missing_container_refused=true\nCHECK carried_food_cannot_bind_heat=true\nCHECK registered_player_refused=true\nCHECK sleeping_body_refused=true\nCHECK physical_deposit_binds_raw_item=true\nCHECK same_binding_idempotent=true\nCHECK recorded_cook_position_is_barely_in_reach=true\nCHECK small_displacement_requires_physical_return=true\nCHECK reapproach_has_same_source_and_fresh_coordinates=true\nCHECK fresh_approach_center_is_standable_and_within_strict_reach=false\n",
+      "stderr": "Exception in thread \"main\" java.lang.AssertionError: fresh_approach_center_is_standable_and_within_strict_reach\n\tat CookingProbe.check(CookingProbe.java:27)\n\tat CookingProbe.main(CookingProbe.java:101)\n"
+    },
+    {
+      "name": "unbounded-reapproach-compile",
+      "exit": 0,
+      "stdout": "",
+      "stderr": ""
+    },
+    {
+      "name": "unbounded-reapproach",
+      "exit": 1,
+      "stdout": "ITEM Base.MuttonChop=zombie.inventory.types.Food\nCHECK native_appliance_exact_and_reachable=true\nCHECK native_power_observed=true\nCHECK native_object_collection_offers_appliance=true\nCHECK missing_container_refused=true\nCHECK carried_food_cannot_bind_heat=true\nCHECK registered_player_refused=true\nCHECK sleeping_body_refused=true\nCHECK physical_deposit_binds_raw_item=true\nCHECK same_binding_idempotent=true\nCHECK recorded_cook_position_is_barely_in_reach=true\nCHECK small_displacement_requires_physical_return=true\nCHECK reapproach_has_same_source_and_fresh_coordinates=true\nCHECK fresh_approach_center_is_standable_and_within_strict_reach=true\nCHECK approach_does_not_advance_heat_or_credit=true\nCHECK removed_appliance_cannot_supply_reapproach=true\nCHECK unregistered_container_cannot_supply_reapproach=true\nCHECK reapproach_is_locally_bounded=false\n",
+      "stderr": "Exception in thread \"main\" java.lang.AssertionError: reapproach_is_locally_bounded\n\tat CookingProbe.check(CookingProbe.java:27)\n\tat CookingProbe.main(CookingProbe.java:113)\n"
+    },
+    {
+      "name": "detached-appliance-reapproach-compile",
+      "exit": 0,
+      "stdout": "",
+      "stderr": ""
+    },
+    {
+      "name": "detached-appliance-reapproach",
+      "exit": 1,
+      "stdout": "ITEM Base.MuttonChop=zombie.inventory.types.Food\nCHECK native_appliance_exact_and_reachable=true\nCHECK native_power_observed=true\nCHECK native_object_collection_offers_appliance=true\nCHECK missing_container_refused=true\nCHECK carried_food_cannot_bind_heat=true\nCHECK registered_player_refused=true\nCHECK sleeping_body_refused=true\nCHECK physical_deposit_binds_raw_item=true\nCHECK same_binding_idempotent=true\nCHECK recorded_cook_position_is_barely_in_reach=true\nCHECK small_displacement_requires_physical_return=true\nCHECK reapproach_has_same_source_and_fresh_coordinates=true\nCHECK fresh_approach_center_is_standable_and_within_strict_reach=true\nCHECK approach_does_not_advance_heat_or_credit=true\nCHECK removed_appliance_cannot_supply_reapproach=false\n",
+      "stderr": "Exception in thread \"main\" java.lang.AssertionError: removed_appliance_cannot_supply_reapproach\n\tat CookingProbe.check(CookingProbe.java:27)\n\tat CookingProbe.main(CookingProbe.java:108)\n"
+    },
+    {
+      "name": "loosen-native-inspection-reach-compile",
+      "exit": 0,
+      "stdout": "",
+      "stderr": ""
+    },
+    {
+      "name": "loosen-native-inspection-reach",
+      "exit": 1,
+      "stdout": "ITEM Base.MuttonChop=zombie.inventory.types.Food\nCHECK native_appliance_exact_and_reachable=true\nCHECK native_power_observed=true\nCHECK native_object_collection_offers_appliance=true\nCHECK missing_container_refused=true\nCHECK carried_food_cannot_bind_heat=true\nCHECK registered_player_refused=true\nCHECK sleeping_body_refused=true\nCHECK physical_deposit_binds_raw_item=true\nCHECK same_binding_idempotent=true\nCHECK recorded_cook_position_is_barely_in_reach=true\nCHECK small_displacement_requires_physical_return=false\n",
+      "stderr": "Exception in thread \"main\" java.lang.AssertionError: small_displacement_requires_physical_return\n\tat CookingProbe.check(CookingProbe.java:27)\n\tat CookingProbe.main(CookingProbe.java:91)\n"
+    },
+    {
+      "name": "iterator-backed-object-copy-compile",
+      "exit": 0,
+      "stdout": "",
+      "stderr": ""
+    },
+    {
+      "name": "iterator-backed-object-copy",
+      "exit": 1,
+      "stdout": "ITEM Base.MuttonChop=zombie.inventory.types.Food\nCHECK native_appliance_exact_and_reachable=true\nCHECK native_power_observed=true\nOFFER_FAILURE java.lang.UnsupportedOperationException\nCHECK native_object_collection_offers_appliance=false\n",
+      "stderr": "Exception in thread \"main\" java.lang.AssertionError: native_object_collection_offers_appliance\n\tat CookingProbe.check(CookingProbe.java:27)\n\tat CookingProbe.main(CookingProbe.java:72)\n"
+    },
+    {
+      "name": "setter-is-thermal-proof-compile",
+      "exit": 0,
+      "stdout": "",
+      "stderr": ""
+    },
+    {
+      "name": "setter-is-thermal-proof",
+      "exit": 1,
+      "stdout": "ITEM Base.MuttonChop=zombie.inventory.types.Food\nCHECK native_appliance_exact_and_reachable=true\nCHECK native_power_observed=true\nCHECK native_object_collection_offers_appliance=true\nCHECK missing_container_refused=true\nCHECK carried_food_cannot_bind_heat=true\nCHECK registered_player_refused=true\nCHECK sleeping_body_refused=true\nCHECK physical_deposit_binds_raw_item=true\nCHECK same_binding_idempotent=true\nCHECK recorded_cook_position_is_barely_in_reach=true\nCHECK small_displacement_requires_physical_return=true\nCHECK reapproach_has_same_source_and_fresh_coordinates=true\nCHECK fresh_approach_center_is_standable_and_within_strict_reach=true\nCHECK approach_does_not_advance_heat_or_credit=true\nCHECK removed_appliance_cannot_supply_reapproach=true\nCHECK unregistered_container_cannot_supply_reapproach=true\nCHECK reapproach_is_locally_bounded=true\nCHECK physical_return_restores_original_heat_binding=true\nCHECK offslot_chef_lookup_suppressed=true\nCHECK one_body_owns_exact_item=true\nCHECK changed_owner_token_refused=true\nCHECK changed_actor_identity_refused=true\nCHECK detached_body_refused=true\nCHECK removed_appliance_refused=true\nCHECK intervening_chef_change_refused=true\nCHECK queued_work_not_cooked_or_credited=true\nCHECK fake_cooked_field_rejected=true\nCHECK fake_cooked_write_rejected=false\n",
+      "stderr": "Exception in thread \"main\" java.lang.AssertionError: fake_cooked_write_rejected\n\tat CookingProbe.check(CookingProbe.java:27)\n\tat CookingProbe.main(CookingProbe.java:153)\n"
+    },
+    {
+      "name": "repeated-completion-xp-compile",
+      "exit": 0,
+      "stdout": "",
+      "stderr": ""
+    },
+    {
+      "name": "repeated-completion-xp",
+      "exit": 1,
+      "stdout": "ITEM Base.MuttonChop=zombie.inventory.types.Food\nCHECK native_appliance_exact_and_reachable=true\nCHECK native_power_observed=true\nCHECK native_object_collection_offers_appliance=true\nCHECK missing_container_refused=true\nCHECK carried_food_cannot_bind_heat=true\nCHECK registered_player_refused=true\nCHECK sleeping_body_refused=true\nCHECK physical_deposit_binds_raw_item=true\nCHECK same_binding_idempotent=true\nCHECK recorded_cook_position_is_barely_in_reach=true\nCHECK small_displacement_requires_physical_return=true\nCHECK reapproach_has_same_source_and_fresh_coordinates=true\nCHECK fresh_approach_center_is_standable_and_within_strict_reach=true\nCHECK approach_does_not_advance_heat_or_credit=true\nCHECK removed_appliance_cannot_supply_reapproach=true\nCHECK unregistered_container_cannot_supply_reapproach=true\nCHECK reapproach_is_locally_bounded=true\nCHECK physical_return_restores_original_heat_binding=true\nCHECK offslot_chef_lookup_suppressed=true\nCHECK one_body_owns_exact_item=true\nCHECK changed_owner_token_refused=true\nCHECK changed_actor_identity_refused=true\nCHECK detached_body_refused=true\nCHECK removed_appliance_refused=true\nCHECK intervening_chef_change_refused=true\nCHECK queued_work_not_cooked_or_credited=true\nCHECK fake_cooked_field_rejected=true\nCHECK fake_cooked_write_rejected=true\nCHECK cold_appliance_has_no_thermal_progress=true\nCHECK native_stove_update_warms_container=true\nCHECK same_native_minute_cannot_fast_forward_cooking=true\nTHERMAL minute=45 heat=3.0 cook=51.086666 required=50.0 temperature=3.0\nCHECK native_food_update_cooks_exact_item=true\nCHECK native_heat_read_does_not_grant_xp=true\nCHECK heat_observation_detached=true\nCHECK different_body_cannot_consume_native_result=true\nCHECK completion_grants_native_xp=true\nCHECK completion_xp_once=false\n",
+      "stderr": "Exception in thread \"main\" java.lang.AssertionError: completion_xp_once\n\tat CookingProbe.check(CookingProbe.java:27)\n\tat CookingProbe.main(CookingProbe.java:191)\n"
+    },
+    {
+      "name": "ignore-body-owner-token-compile",
+      "exit": 0,
+      "stdout": "",
+      "stderr": ""
+    },
+    {
+      "name": "ignore-body-owner-token",
+      "exit": 1,
+      "stdout": "ITEM Base.MuttonChop=zombie.inventory.types.Food\nCHECK native_appliance_exact_and_reachable=true\nCHECK native_power_observed=true\nCHECK native_object_collection_offers_appliance=true\nCHECK missing_container_refused=true\nCHECK carried_food_cannot_bind_heat=true\nCHECK registered_player_refused=true\nCHECK sleeping_body_refused=true\nCHECK physical_deposit_binds_raw_item=true\nCHECK same_binding_idempotent=true\nCHECK recorded_cook_position_is_barely_in_reach=true\nCHECK small_displacement_requires_physical_return=true\nCHECK reapproach_has_same_source_and_fresh_coordinates=true\nCHECK fresh_approach_center_is_standable_and_within_strict_reach=true\nCHECK approach_does_not_advance_heat_or_credit=true\nCHECK removed_appliance_cannot_supply_reapproach=true\nCHECK unregistered_container_cannot_supply_reapproach=true\nCHECK reapproach_is_locally_bounded=true\nCHECK physical_return_restores_original_heat_binding=true\nCHECK offslot_chef_lookup_suppressed=true\nCHECK one_body_owns_exact_item=true\nCHECK changed_owner_token_refused=false\n",
+      "stderr": "Exception in thread \"main\" java.lang.AssertionError: changed_owner_token_refused\n\tat CookingProbe.check(CookingProbe.java:27)\n\tat CookingProbe.main(CookingProbe.java:128)\n"
+    },
+    {
+      "name": "ignore-actor-identity-compile",
+      "exit": 0,
+      "stdout": "",
+      "stderr": ""
+    },
+    {
+      "name": "ignore-actor-identity",
+      "exit": 1,
+      "stdout": "ITEM Base.MuttonChop=zombie.inventory.types.Food\nCHECK native_appliance_exact_and_reachable=true\nCHECK native_power_observed=true\nCHECK native_object_collection_offers_appliance=true\nCHECK missing_container_refused=true\nCHECK carried_food_cannot_bind_heat=true\nCHECK registered_player_refused=true\nCHECK sleeping_body_refused=true\nCHECK physical_deposit_binds_raw_item=true\nCHECK same_binding_idempotent=true\nCHECK recorded_cook_position_is_barely_in_reach=true\nCHECK small_displacement_requires_physical_return=true\nCHECK reapproach_has_same_source_and_fresh_coordinates=true\nCHECK fresh_approach_center_is_standable_and_within_strict_reach=true\nCHECK approach_does_not_advance_heat_or_credit=true\nCHECK removed_appliance_cannot_supply_reapproach=true\nCHECK unregistered_container_cannot_supply_reapproach=true\nCHECK reapproach_is_locally_bounded=true\nCHECK physical_return_restores_original_heat_binding=true\nCHECK offslot_chef_lookup_suppressed=true\nCHECK one_body_owns_exact_item=true\nCHECK changed_owner_token_refused=true\nCHECK changed_actor_identity_refused=false\n",
+      "stderr": "Exception in thread \"main\" java.lang.AssertionError: changed_actor_identity_refused\n\tat CookingProbe.check(CookingProbe.java:27)\n\tat CookingProbe.main(CookingProbe.java:131)\n"
+    },
+    {
+      "name": "ignore-intervening-chef-compile",
+      "exit": 0,
+      "stdout": "",
+      "stderr": ""
+    },
+    {
+      "name": "ignore-intervening-chef",
+      "exit": 1,
+      "stdout": "ITEM Base.MuttonChop=zombie.inventory.types.Food\nCHECK native_appliance_exact_and_reachable=true\nCHECK native_power_observed=true\nCHECK native_object_collection_offers_appliance=true\nCHECK missing_container_refused=true\nCHECK carried_food_cannot_bind_heat=true\nCHECK registered_player_refused=true\nCHECK sleeping_body_refused=true\nCHECK physical_deposit_binds_raw_item=true\nCHECK same_binding_idempotent=true\nCHECK recorded_cook_position_is_barely_in_reach=true\nCHECK small_displacement_requires_physical_return=true\nCHECK reapproach_has_same_source_and_fresh_coordinates=true\nCHECK fresh_approach_center_is_standable_and_within_strict_reach=true\nCHECK approach_does_not_advance_heat_or_credit=true\nCHECK removed_appliance_cannot_supply_reapproach=true\nCHECK unregistered_container_cannot_supply_reapproach=true\nCHECK reapproach_is_locally_bounded=true\nCHECK physical_return_restores_original_heat_binding=true\nCHECK offslot_chef_lookup_suppressed=true\nCHECK one_body_owns_exact_item=true\nCHECK changed_owner_token_refused=true\nCHECK changed_actor_identity_refused=true\nCHECK detached_body_refused=true\nCHECK removed_appliance_refused=true\nCHECK intervening_chef_change_refused=false\n",
+      "stderr": "Exception in thread \"main\" java.lang.AssertionError: intervening_chef_change_refused\n\tat CookingProbe.check(CookingProbe.java:27)\n\tat CookingProbe.main(CookingProbe.java:140)\n"
+    },
+    {
+      "name": "ignore-body-attachment-compile",
+      "exit": 0,
+      "stdout": "",
+      "stderr": ""
+    },
+    {
+      "name": "ignore-body-attachment",
+      "exit": 1,
+      "stdout": "ITEM Base.MuttonChop=zombie.inventory.types.Food\nCHECK native_appliance_exact_and_reachable=true\nCHECK native_power_observed=true\nCHECK native_object_collection_offers_appliance=true\nCHECK missing_container_refused=true\nCHECK carried_food_cannot_bind_heat=true\nCHECK registered_player_refused=true\nCHECK sleeping_body_refused=true\nCHECK physical_deposit_binds_raw_item=true\nCHECK same_binding_idempotent=true\nCHECK recorded_cook_position_is_barely_in_reach=true\nCHECK small_displacement_requires_physical_return=true\nCHECK reapproach_has_same_source_and_fresh_coordinates=true\nCHECK fresh_approach_center_is_standable_and_within_strict_reach=true\nCHECK approach_does_not_advance_heat_or_credit=true\nCHECK removed_appliance_cannot_supply_reapproach=true\nCHECK unregistered_container_cannot_supply_reapproach=true\nCHECK reapproach_is_locally_bounded=true\nCHECK physical_return_restores_original_heat_binding=true\nCHECK offslot_chef_lookup_suppressed=true\nCHECK one_body_owns_exact_item=true\nCHECK changed_owner_token_refused=true\nCHECK changed_actor_identity_refused=true\nCHECK detached_body_refused=false\n",
+      "stderr": "Exception in thread \"main\" java.lang.AssertionError: detached_body_refused\n\tat CookingProbe.check(CookingProbe.java:27)\n\tat CookingProbe.main(CookingProbe.java:134)\n"
+    },
+    {
+      "name": "disable-replacement-foods-compile",
+      "exit": 0,
+      "stdout": "",
+      "stderr": ""
+    },
+    {
+      "name": "disable-replacement-foods",
+      "exit": 1,
+      "stdout": "ITEM Base.MuttonChop=zombie.inventory.types.Food\nCHECK native_appliance_exact_and_reachable=true\nCHECK native_power_observed=true\nCHECK native_object_collection_offers_appliance=true\nCHECK missing_container_refused=true\nCHECK carried_food_cannot_bind_heat=true\nCHECK registered_player_refused=true\nCHECK sleeping_body_refused=true\nCHECK physical_deposit_binds_raw_item=true\nCHECK same_binding_idempotent=true\nCHECK recorded_cook_position_is_barely_in_reach=true\nCHECK small_displacement_requires_physical_return=true\nCHECK reapproach_has_same_source_and_fresh_coordinates=true\nCHECK fresh_approach_center_is_standable_and_within_strict_reach=true\nCHECK approach_does_not_advance_heat_or_credit=true\nCHECK removed_appliance_cannot_supply_reapproach=true\nCHECK unregistered_container_cannot_supply_reapproach=true\nCHECK reapproach_is_locally_bounded=true\nCHECK physical_return_restores_original_heat_binding=true\nCHECK offslot_chef_lookup_suppressed=true\nCHECK one_body_owns_exact_item=true\nCHECK changed_owner_token_refused=true\nCHECK changed_actor_identity_refused=true\nCHECK detached_body_refused=true\nCHECK removed_appliance_refused=true\nCHECK intervening_chef_change_refused=true\nCHECK queued_work_not_cooked_or_credited=true\nCHECK fake_cooked_field_rejected=true\nCHECK fake_cooked_write_rejected=true\nCHECK cold_appliance_has_no_thermal_progress=true\nCHECK native_stove_update_warms_container=true\nCHECK same_native_minute_cannot_fast_forward_cooking=true\nTHERMAL minute=45 heat=3.0 cook=51.086666 required=50.0 temperature=3.0\nCHECK native_food_update_cooks_exact_item=true\nCHECK native_heat_read_does_not_grant_xp=true\nCHECK heat_observation_detached=true\nCHECK different_body_cannot_consume_native_result=true\nCHECK completion_grants_native_xp=true\nCHECK completion_xp_once=true\nCHECK restored_chef_does_not_credit_other_player=true\nCHECK retrieved_food_cannot_reconsume_heat=true\nCHECK native_credit_survives_binding_release=true\nCHECK native_save_load_retains_credit_identity=true\nCHECK reload_cannot_recredit_cooked_item=true\nCHECK second_raw_food_can_bind=true\nCHECK native_burn_progression_not_completion=true\nITEM Base.Toast=zombie.inventory.types.Food\nITEM Base.BreadSlices=zombie.inventory.types.Food\nCHECK ordinary_replacement_food_may_be_prepared=false\n",
+      "stderr": "Exception in thread \"main\" java.lang.AssertionError: ordinary_replacement_food_may_be_prepared\n\tat CookingProbe.check(CookingProbe.java:27)\n\tat CookingProbe.main(CookingProbe.java:222)\n"
+    },
+    {
+      "name": "consume-result-from-removed-appliance-compile",
+      "exit": 0,
+      "stdout": "",
+      "stderr": ""
+    },
+    {
+      "name": "consume-result-from-removed-appliance",
+      "exit": 1,
+      "stdout": "ITEM Base.MuttonChop=zombie.inventory.types.Food\nCHECK native_appliance_exact_and_reachable=true\nCHECK native_power_observed=true\nCHECK native_object_collection_offers_appliance=true\nCHECK missing_container_refused=true\nCHECK carried_food_cannot_bind_heat=true\nCHECK registered_player_refused=true\nCHECK sleeping_body_refused=true\nCHECK physical_deposit_binds_raw_item=true\nCHECK same_binding_idempotent=true\nCHECK recorded_cook_position_is_barely_in_reach=true\nCHECK small_displacement_requires_physical_return=false\n",
+      "stderr": "Exception in thread \"main\" java.lang.AssertionError: small_displacement_requires_physical_return\n\tat CookingProbe.check(CookingProbe.java:27)\n\tat CookingProbe.main(CookingProbe.java:91)\n"
+    }
+  ],
+  "controls": [
+    {
+      "name": "stale-current-square-approach",
+      "target": "fresh_approach_center_is_standable_and_within_strict_reach",
+      "source_sha256": "d5a4389b98ac3bddfd0b06fcc9ab2e1e3db23fb13a94c67b8aafba7655c1bb23",
+      "verdict": "false"
+    },
+    {
+      "name": "unbounded-reapproach",
+      "target": "reapproach_is_locally_bounded",
+      "source_sha256": "f6f300356a24d5941cd50ff2b18fe86f3eb4e55d47bf8d141640e455514f4042",
+      "verdict": "false"
+    },
+    {
+      "name": "detached-appliance-reapproach",
+      "target": "removed_appliance_cannot_supply_reapproach",
+      "source_sha256": "34ce480a0300486a228211cac1194395263f054247a38a31e831aff20b1ad240",
+      "verdict": "false"
+    },
+    {
+      "name": "loosen-native-inspection-reach",
+      "target": "small_displacement_requires_physical_return",
+      "source_sha256": "990703171cc467c6f048a8e7847766ca8afc984fae26246450fdec27d9e9c9b5",
+      "verdict": "false"
+    },
+    {
+      "name": "iterator-backed-object-copy",
+      "target": "native_object_collection_offers_appliance",
+      "source_sha256": "4bbe563e8ee98b9484d0f237d35787dfb422d80e21f84deb6f03b6fd28b6f32f",
+      "verdict": "false"
+    },
+    {
+      "name": "setter-is-thermal-proof",
+      "target": "fake_cooked_write_rejected",
+      "source_sha256": "7a594779603fff5ba991f2c0cd4c3a30928c0d01038678cc52eb6dc6d9d13664",
+      "verdict": "false"
+    },
+    {
+      "name": "repeated-completion-xp",
+      "target": "completion_xp_once",
+      "source_sha256": "3b65cb502865155e82bc9d8f15f7b8a17d19662aac1ac461b68a610d7b07941e",
+      "verdict": "false"
+    },
+    {
+      "name": "ignore-body-owner-token",
+      "target": "changed_owner_token_refused",
+      "source_sha256": "cadc3ba96d16fe550709c0cffb24857639e088ff1ff8a0cdfa972bb893ad7d55",
+      "verdict": "false"
+    },
+    {
+      "name": "ignore-actor-identity",
+      "target": "changed_actor_identity_refused",
+      "source_sha256": "e0d826eb3df0eb54f851ad02e0d2deeca07b1b066bd07044b99cd995a4bd73f9",
+      "verdict": "false"
+    },
+    {
+      "name": "ignore-intervening-chef",
+      "target": "intervening_chef_change_refused",
+      "source_sha256": "1c2b78d65b530ba9a3dbd38e3d158039a1d2847495ea113b5775d10d57bba045",
+      "verdict": "false"
+    },
+    {
+      "name": "ignore-body-attachment",
+      "target": "detached_body_refused",
+      "source_sha256": "8477bc8f096d814afa83601d443badd07e51dac02816091940f481143a61e9a8",
+      "verdict": "false"
+    },
+    {
+      "name": "disable-replacement-foods",
+      "target": "ordinary_replacement_food_may_be_prepared",
+      "source_sha256": "21bf1e51061c12ae78367aa1fab75fdc0c952971cbda785272731593c5916846",
+      "verdict": "false"
+    },
+    {
+      "name": "consume-result-from-removed-appliance",
+      "target": "small_displacement_requires_physical_return",
+      "source_sha256": "f79ae752a5a0ff59a6a084a714e8257613102d4073732e143e540f8a12cc2b0b",
+      "verdict": "false"
+    }
+  ],
+  "cases": 48,
+  "status": "passed"
+}

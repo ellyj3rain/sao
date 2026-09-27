@@ -136,6 +136,28 @@ function Body.materialize(rec, externalOwner, externalToken)
         wakeAt = now
         elapsed = math.max(0, now - (rec.releasedAtHours or now))
     end
+    local externalReplayOwner
+    local externalDormancy = rec.hibernation and rec.bodyOwner ~= nil
+    local pharmacy = rec.pharmacology
+    local joinedDormancy = rec.hibernation and SAO.Pharmacology and pharmacy
+        and (pharmacy.dormant ~= nil or pharmacy.saved ~= nil)
+    if externalDormancy and elapsed > 0 then
+        local owner = SAO.Communication
+            and SAO.Communication.executionOwners
+            and SAO.Communication.executionOwners[tostring(rec.bodyOwner)]
+            or nil
+        if not owner or type(owner.advanceDormant) ~= "function" then
+            return nil, not owner and "execution-owner-unregistered"
+                or "dormant-owner-unavailable"
+        end
+        if joinedDormancy then
+            if type(owner.beginDormancy) ~= "function"
+                or type(owner.rollbackDormancy) ~= "function" then
+                return nil, "dormant-owner-rollback-unavailable"
+            end
+            externalReplayOwner = owner
+        end
+    end
     local wx, wy, movedBy = wakeSquareFor(rec)
     local slotBefore = localSlotUser()
 
@@ -200,25 +222,13 @@ function Body.materialize(rec, externalOwner, externalToken)
 
     -- Profession defaults precede restoration; native XP replaces them.
     -- Every caller restores before it can adopt or mutate the record.
-    local externalDormancy = rec.hibernation and rec.bodyOwner ~= nil
-    if externalDormancy and elapsed > 0 then
-        local owner = SAO.Communication
-            and SAO.Communication.executionOwners
-            and SAO.Communication.executionOwners[tostring(rec.bodyOwner)]
-            or nil
-        if not owner or type(owner.advanceDormant) ~= "function" then
-            return nil, not owner and "execution-owner-unregistered"
-                or "dormant-owner-unavailable"
-        end
-    end
-
     if rec.hibernation then
         local ok, journal = pcall(function()
             -- The native awaken path advances survivor hunger and may consume
             -- survivor food.  External owners restore the same exact snapshot
             -- at zero elapsed, then advance their own physiology below.
             return SAOJavaBridge:awaken(body, rec.hibernation,
-                externalDormancy and 0 or elapsed)
+                (externalDormancy or joinedDormancy) and 0 or elapsed)
         end)
         if not ok or type(journal) ~= "string"
             or journal:sub(1, 9) ~= "AWAKENED " then
@@ -232,7 +242,7 @@ function Body.materialize(rec, externalOwner, externalToken)
         if snapshotVersion < 4 and rec.hibernationMigration == nil then
             rec.hibernationMigration = { from = snapshotVersion, atHours = wakeAt }
         end
-        if externalDormancy and elapsed > 0 then
+        if externalDormancy and elapsed > 0 and not joinedDormancy then
             local advanced, reason =
                 SAO.Communication.advanceExternalDormancy(rec.bodyOwner,
                     rec.id, rec, body, elapsed, wakeAt)
@@ -252,7 +262,7 @@ function Body.materialize(rec, externalOwner, externalToken)
     -- only fatigue/endurance through the elapsed bodyless interval.
     local dormantFatigue = tonumber(rec.dormantFatigue)
     local dormantEndurance = tonumber(rec.dormantEndurance)
-    if rec.dormantPhysiologyOrigin and finite(dormantFatigue)
+    if not joinedDormancy and rec.dormantPhysiologyOrigin and finite(dormantFatigue)
         and finite(dormantEndurance) then
         local applied = false
         if SAOJavaBridge and SAOJavaBridge.applyDormantRestState then
@@ -275,7 +285,7 @@ function Body.materialize(rec, externalOwner, externalToken)
         end
     end
 
-    if rec.dormantSleeping == true or rec.dormantSleeping == false then
+    if not joinedDormancy and (rec.dormantSleeping == true or rec.dormantSleeping == false) then
         local wanted = rec.dormantSleeping == true
         local okState = pcall(function()
             if SAOJavaBridge then
@@ -296,8 +306,8 @@ function Body.materialize(rec, externalOwner, externalToken)
             return nil, "sleep-restore-failed"
         end
     end
-    if rec.dormantPhysiologyOrigin or rec.dormantResting == true
-        or rec.dormantSleeping == true then
+    if not joinedDormancy and (rec.dormantPhysiologyOrigin or rec.dormantResting == true
+        or rec.dormantSleeping == true) then
         local wanted = rec.dormantResting == true or rec.dormantSleeping == true
         local okState = pcall(function() body:setSitOnGround(wanted) end)
         local okRead, held = pcall(function() return body:isSitOnGround() end)
@@ -549,6 +559,84 @@ function Body.materialize(rec, externalOwner, externalToken)
             data.SAOExternalToken = tostring(externalToken)
         end
     end)
+    if joinedDormancy then
+        local restKeys = { "dormantPhysiologyOrigin", "dormantFatigue", "dormantEndurance",
+            "dormantSleepNeed", "dormantPhysiologyAtHours", "dormantSleeping", "dormantResting" }
+        local beforeRest = {}
+        for _, key in ipairs(restKeys) do beforeRest[key] = rec[key] end
+        local externalReplayToken
+        if externalReplayOwner then
+            local ready, token = pcall(externalReplayOwner.beginDormancy, rec.id, rec, body)
+            if not ready or token == nil or token == false then
+                Body.failedRestore[rec.id] = true
+                Body.recover(rec)
+                return nil, "dormant-owner-checkpoint-failed"
+            end
+            externalReplayToken = token
+        end
+        local function ownerSlice(deltaHours, toHours, origin)
+            if origin then
+                local _, _, sleepNeed = SAO.BodySnapshot.restValues(
+                    SAOJavaBridge:hibernationRestState(rec.hibernation))
+                if not sleepNeed then return false end
+                rec.dormantPhysiologyOrigin = "native-snapshot"
+                rec.dormantFatigue = origin.stats.FATIGUE
+                rec.dormantEndurance = origin.stats.ENDURANCE
+                rec.dormantSleepNeed = sleepNeed
+                rec.dormantPhysiologyAtHours = toHours
+                rec.dormantSleeping = origin.sleeping
+                rec.dormantResting = origin.resting
+                if SAOJavaBridge:applyDormantRestState(body,
+                    rec.dormantFatigue, rec.dormantEndurance) ~= true then return false end
+                SAOJavaBridge:setShellAsleep(body, origin.sleeping == true)
+                body:setSitOnGround(origin.resting == true or origin.sleeping == true)
+                if body:isAsleep() ~= (origin.sleeping == true)
+                    or body:isSitOnGround() ~= (origin.resting == true or origin.sleeping == true) then return false end
+                return true
+            end
+            if externalDormancy then
+                if externalReplayOwner and SAO.Communication.executionOwners[rec.bodyOwner] ~= externalReplayOwner then
+                    return false
+                end
+                local advanced = SAO.Communication.advanceExternalDormancy(rec.bodyOwner,
+                    rec.id, rec, body, deltaHours, toHours)
+                if advanced ~= true then return false end
+                -- ZAO owns its own rest choices. Do not impose survivor schedules.
+                rec.dormantFatigue = body:getStats():get(CharacterStat.FATIGUE)
+                rec.dormantEndurance = body:getStats():get(CharacterStat.ENDURANCE)
+                rec.dormantPhysiologyAtHours = toHours
+                rec.dormantSleeping = body:isAsleep()
+                rec.dormantResting = body:isSitOnGround()
+            else
+                local journal = SAOJavaBridge:advanceDormantMetabolism(body, deltaHours)
+                if type(journal) ~= "string" or journal:sub(1, 11) ~= "METABOLIZED" then return false end
+                if not SAO.DormantPopulation
+                    or SAO.DormantPopulation.advanceRest(rec.id, rec, toHours) ~= true then return false end
+                if SAOJavaBridge:applyDormantRestState(body,
+                    rec.dormantFatigue, rec.dormantEndurance) ~= true then return false end
+                SAOJavaBridge:setShellAsleep(body, rec.dormantSleeping == true)
+                body:setSitOnGround(rec.dormantResting == true or rec.dormantSleeping == true)
+                if body:isAsleep() ~= (rec.dormantSleeping == true)
+                    or body:isSitOnGround() ~= (rec.dormantResting == true or rec.dormantSleeping == true) then return false end
+            end
+            return true
+        end
+        local okPh, restoredPh = pcall(SAO.Pharmacology.restore, rec, body, wakeAt, ownerSlice)
+        if not okPh or restoredPh ~= true then
+            local rollbackOk, rolledBack = true, true
+            if externalReplayToken then
+                rollbackOk, rolledBack = pcall(externalReplayOwner.rollbackDormancy, externalReplayToken)
+            end
+            for _, key in ipairs(restKeys) do rec[key] = beforeRest[key] end
+            Body.failedRestore[rec.id] = true
+            Body.recover(rec)
+            if not rollbackOk or rolledBack ~= true then
+                rec.bodyCheckpointFailure = { reason = "dormant-owner-rollback-failed", atHours = wakeAt }
+                return nil, "dormant-owner-rollback-failed"
+            end
+            return nil, "pharmacology-restore-failed"
+        end
+    end
     return body
 end
 
@@ -556,7 +644,28 @@ function Body.materializeExternal(rec, owner, token)
     return Body.materialize(rec, owner, token)
 end
 
+local function quiesceCooking(rec, body, reason)
+    if not rec or not rec.cookingWork then return true end
+    if not SAO.Cooking then return false end
+    local ok, closed = pcall(SAO.Cooking.interrupt, rec.id, body, reason)
+    return ok and closed == true
+end
+
+local function releaseAttention(id, body)
+    if SAO.Orienting then pcall(SAO.Orienting.forget, id, body) end
+    if SAO.Perception and SAO.Perception.forgetSoundCues then
+        pcall(SAO.Perception.forgetSoundCues, id, body)
+    end
+end
+
 local function removeOwned(body)
+    for _, owners in ipairs({ Body.active, Body.foreign }) do
+        for id, owned in pairs(owners) do
+            if owned == body and not quiesceCooking(SAO.Identity.get(id), body, "body-removal") then
+                return false
+            end
+        end
+    end
     local ok, removed = pcall(function()
         if SAOJavaBridge and SAOJavaBridge:isShell(body) then
             return SAOJavaBridge:removeShell(body) == true
@@ -565,7 +674,15 @@ local function removeOwned(body)
         body:removeFromSquare()
         return true
     end)
-    return ok and removed == true
+    if ok and removed == true then
+        for _, owners in ipairs({ Body.active, Body.foreign }) do
+            for id, owned in pairs(owners) do
+                if owned == body then releaseAttention(id, body) end
+            end
+        end
+        return true
+    end
+    return false
 end
 
 local readinessReasons = setmetatable({}, { __mode = "k" })
@@ -583,15 +700,17 @@ local function readyToRemove(body)
         -- A route or exact-source reservation still owns this native body.
         -- Teardown would strand its carried item or erase the interaction
         -- point before the durable action reaches a result boundary.
-        for id, active in pairs(Body.active) do
-            if active == body then
-                ownerId = tostring(id)
-                local pending = SAO.WorldSources and SAO.WorldSources.pendingActionFor
-                    and SAO.WorldSources.pendingActionFor(id) or nil
-                if pending then return false, "source-action:" .. tostring(pending) end
-                local job = SAO.Locomotion and SAO.Locomotion.jobs
-                    and SAO.Locomotion.jobs[id] or nil
-                if job and not job.done then return false, "route:" .. tostring(job.lastVerdict or job.status) end
+        for _, owners in ipairs({ Body.active, Body.foreign }) do
+            for id, owned in pairs(owners) do
+                if owned == body then
+                    ownerId = tostring(id)
+                    local pending = SAO.WorldSources and SAO.WorldSources.pendingActionFor
+                        and SAO.WorldSources.pendingActionFor(id) or nil
+                    if pending then return false, "source-action:" .. tostring(pending) end
+                    local job = SAO.Locomotion and SAO.Locomotion.jobs
+                        and SAO.Locomotion.jobs[id] or nil
+                    if job and not job.done then return false, "route:" .. tostring(job.lastVerdict or job.status) end
+                end
             end
         end
         -- The Lua queue can hold its next action before it reaches Java.
@@ -663,6 +782,7 @@ function Body.prepareExternalTransfer(rec, body, owner, token)
         return false, "another-transfer-pending"
     end
     if Body.active[rec.id] ~= body then return false, "not-sao-owned" end
+    if not quiesceCooking(rec, body, "body-owner-transfer") then return false, "cooking-reconciliation-pending" end
     if not readyToRemove(body) then return false, "body-busy" end
     local ok, captured, reason = pcall(SAO.BodySnapshot.capture, rec, body)
     if not ok or not captured then
@@ -679,11 +799,13 @@ function Body.commitExternalTransfer(rec)
         or type(pending.captured) ~= "table" then
         return false, "no-prepared-transfer"
     end
-    if not SAO.BodySnapshot.valid(pending.captured) then
+    if not SAO.BodySnapshot.valid(pending.captured, rec) then
         return false, "invalid-pending-snapshot"
     end
     local body = Body.active[rec.id]
+    if rec.cookingWork then return false, "cooking-work-after-capture" end
     SAO.BodySnapshot.commit(rec, pending.captured)
+    if body then releaseAttention(rec.id, body) end
     if SAO.Controller then SAO.Controller.drop(rec.id) end
     Body.active[rec.id] = nil
     rec.bodyOwner = pending.owner
@@ -739,15 +861,33 @@ function Body.hibernateExternal(rec, body, owner, token)
         return false, "external-owner-mismatch"
     end
     if Body.foreign[rec.id] ~= body then return false, "external-body-mismatch" end
-    if not readyToRemove(body) then return false, "body-busy" end
-    local ok, captured, reason = pcall(SAO.BodySnapshot.capture, rec, body)
-    if not ok or not captured then
-        return false, ok and (reason or "capture-failed") or "capture-exception"
+    local captured = rec.bodyRelease
+    if captured then
+        if captured.releaseOwner ~= rec.bodyOwner or captured.releaseToken ~= rec.bodyOwnerToken then
+            return false, "external-release-owner-mismatch"
+        end
+    else
+        if not body then return false, "no-owned-body" end
+        if not quiesceCooking(rec, body, "external-body-release") then return false, "cooking-reconciliation-pending" end
+        if not readyToRemove(body) then return false, "body-busy" end
+        local ok, value, reason = pcall(SAO.BodySnapshot.capture, rec, body)
+        if not ok or not value then
+            return false, ok and (reason or "capture-failed") or "capture-exception"
+        end
+        if not SAO.BodySnapshot.valid(value, rec) then return false, "invalid-pending-snapshot" end
+        captured = value
+        captured.releaseOwner, captured.releaseToken = rec.bodyOwner, rec.bodyOwnerToken
+        rec.bodyRelease = captured
     end
-    if not removeOwned(body) then return false, "teardown-failed" end
+    if not SAO.BodySnapshot.valid(captured, rec) then return false, "invalid-pending-snapshot" end
+    if body and not removeOwned(body) then return false, "teardown-failed" end
     SAO.BodySnapshot.commit(rec, captured)
+    if captured.pharmacology and not SAO.Pharmacology.enterDormancy(rec, captured.pharmacology) then
+        error("external-pharmacology-dormancy-refused")
+    end
     Body.foreign[rec.id] = nil
     Body.unloaded[rec.id] = nil
+    rec.bodyRelease = nil
     return true, "external-dormant"
 end
 
@@ -811,7 +951,8 @@ function Body.checkpointActive()
     -- envelope.  Capture it without taking control back.
     for id, body in pairs(Body.foreign) do
         local rec = SAO.Identity.get(id)
-        if rec and rec.bodyOwner == "ZAO" and body and not rec.dead then
+        if rec and rec.bodyOwner == "ZAO" and body and not rec.dead
+            and not hasTransitionJournal(rec) then
             local ok, captured, reason = pcall(function()
                 if not SAOJavaBridge or not SAOJavaBridge:isShell(body) then
                     return nil, "not-owned-shell"
@@ -845,20 +986,25 @@ function Body.release(rec)
     local pending = rec.bodyRelease
     if not pending then
         if not body then return false, "no-owned-body" end
+        if not quiesceCooking(rec, body, "body-release") then return false, "cooking-reconciliation-pending" end
         if not readyToRemove(body) then return false, "body-busy" end
         -- No durable field changes until the complete current capture has
         -- passed validation. A pending copy survives save/load and is never
         -- recaptured from a partly removed body.
         local ok, captured = pcall(SAO.BodySnapshot.capture, rec, body)
         if not ok or not captured then return false, "capture-failed" end
+        if not SAO.BodySnapshot.valid(captured, rec) then return false, "invalid-pending-snapshot" end
         pending = captured
         rec.bodyRelease = pending
     end
-    if not SAO.BodySnapshot.valid(pending) then return false, "invalid-pending-snapshot" end
+    if not SAO.BodySnapshot.valid(pending, rec) then return false, "invalid-pending-snapshot" end
     if body and not removeOwned(body) then return false, "teardown-failed" end
     -- No body after reload means the old engine representation is gone.
     -- Commit the saved transition before constructing its replacement.
     SAO.BodySnapshot.commit(rec, pending)
+    if pending.pharmacology and not SAO.Pharmacology.enterDormancy(rec, pending.pharmacology) then
+        error("pharmacology-dormancy-refused")
+    end
     local facts = pending.facts
     dropOwner(rec)
     rec.bodyRelease = nil
@@ -910,11 +1056,17 @@ function Body.recover(rec)
     end
     if Body.discarding[rec.id] then return false, "discard-pending" end
     if Body.failedRestore[rec.id] then
-        local body = Body.active[rec.id]
+        local body = Body.active[rec.id] or Body.foreign[rec.id]
         if body and not removeOwned(body) then return false, "restore-teardown-failed" end
-        Body.active[rec.id], Body.failedRestore[rec.id] = nil, nil
+        Body.active[rec.id], Body.foreign[rec.id], Body.failedRestore[rec.id] = nil, nil, nil
     end
-    if rec.bodyRelease then return Body.release(rec) end
+    if rec.bodyRelease then
+        if rec.bodyRelease.releaseOwner ~= nil then
+            return Body.hibernateExternal(rec, Body.foreign[rec.id],
+                rec.bodyOwner, rec.bodyOwnerToken)
+        end
+        return Body.release(rec)
+    end
     local body = Body.active[rec.id] or Body.foreign[rec.id]
     if body and not Body.returning[rec.id] and not rec.bodyTransfer then
         local ok, unloaded = pcall(function()

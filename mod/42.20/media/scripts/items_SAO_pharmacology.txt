@@ -1,0 +1,200 @@
+module SAO
+{
+    item SedativeTablets
+    {
+        DisplayName = Sedative Tablets,
+        DisplayCategory = Drugs,
+        ItemType = base:drainable,
+        Weight = 0.2,
+        Icon = PillsPainkiller,
+        UseDelta = 0.1,
+        UseWhileEquipped = false,
+        StaticModel = PillBottle,
+        WorldStaticModel = PainKillers_Ground,
+        Tags = base:consumable,
+    }
+    item LongSedativeTablets
+    {
+        DisplayName = Long Sedative Tablets,
+        DisplayCategory = Drugs,
+        ItemType = base:drainable,
+        Weight = 0.2,
+        Icon = PillsPainkiller,
+        UseDelta = 0.1,
+        UseWhileEquipped = false,
+        StaticModel = PillBottle,
+        WorldStaticModel = PainKillers_Ground,
+        Tags = base:consumable,
+    }
+    item Cocaine
+    {
+        DisplayName = Cocaine,
+        DisplayCategory = Drugs,
+        ItemType = base:drainable,
+        Weight = 0.2,
+        Icon = PillsPainkiller,
+        UseDelta = 0.1,
+        UseWhileEquipped = false,
+        StaticModel = PillBottle,
+        WorldStaticModel = PainKillers_Ground,
+        Tags = base:consumable,
+    }
+    item CocainePure
+    {
+        DisplayName = Cocaine Pure,
+        DisplayCategory = Drugs,
+        ItemType = base:drainable,
+        Weight = 0.2,
+        Icon = PillsPainkiller,
+        UseDelta = 0.1,
+        UseWhileEquipped = false,
+        StaticModel = PillBottle,
+        WorldStaticModel = PainKillers_Ground,
+        Tags = base:consumable,
+    }
+    item Stimulant
+    {
+        DisplayName = Stimulant,
+        DisplayCategory = Drugs,
+        ItemType = base:drainable,
+        Weight = 0.2,
+        Icon = PillsPainkiller,
+        UseDelta = 0.1,
+        UseWhileEquipped = false,
+        StaticModel = PillBottle,
+        WorldStaticModel = PainKillers_Ground,
+        Tags = base:consumable,
+    }
+    item AttentionTablets
+    {
+        DisplayName = Attention Tablets,
+        DisplayCategory = Drugs,
+        ItemType = base:drainable,
+        Weight = 0.2,
+        Icon = PillsPainkiller,
+        UseDelta = 0.1,
+        UseWhileEquipped = false,
+        StaticModel = PillBottle,
+        WorldStaticModel = PainKillers_Ground,
+        Tags = base:consumable,
+    }
+    item Amphetamine
+    {
+        DisplayName = Amphetamine,
+        DisplayCategory = Drugs,
+        ItemType = base:drainable,
+        Weight = 0.2,
+        Icon = PillsPainkiller,
+        UseDelta = 0.1,
+        UseWhileEquipped = false,
+        StaticModel = PillBottle,
+        WorldStaticModel = PainKillers_Ground,
+        Tags = base:consumable,
+    }
+    item Opioid
+    {
+        DisplayName = Opioid,
+        DisplayCategory = Drugs,
+        ItemType = base:drainable,
+        Weight = 0.2,
+        Icon = PillsPainkiller,
+        UseDelta = 0.1,
+        UseWhileEquipped = false,
+        StaticModel = PillBottle,
+        WorldStaticModel = PainKillers_Ground,
+        Tags = base:consumable,
+    }
+    item OpioidTablets
+    {
+        DisplayName = Opioid Tablets,
+        DisplayCategory = Drugs,
+        ItemType = base:drainable,
+        Weight = 0.2,
+        Icon = PillsPainkiller,
+        UseDelta = 0.1,
+        UseWhileEquipped = false,
+        StaticModel = PillBottle,
+        WorldStaticModel = PainKillers_Ground,
+        Tags = base:consumable,
+    }
+    item Psychedelic
+    {
+        DisplayName = Psychedelic,
+        DisplayCategory = Drugs,
+        ItemType = base:drainable,
+        Weight = 0.2,
+        Icon = PillsPainkiller,
+        UseDelta = 0.1,
+        UseWhileEquipped = false,
+        StaticModel = PillBottle,
+        WorldStaticModel = PainKillers_Ground,
+        Tags = base:consumable,
+    }
+    item PsychoactiveTablets
+    {
+        DisplayName = Psychoactive Tablets,
+        DisplayCategory = Drugs,
+        ItemType = base:drainable,
+        Weight = 0.2,
+        Icon = PillsPainkiller,
+        UseDelta = 0.1,
+        UseWhileEquipped = false,
+        StaticModel = PillBottle,
+        WorldStaticModel = PainKillers_Ground,
+        Tags = base:consumable,
+    }
+    item Cannabis
+    {
+        DisplayName = Cannabis,
+        DisplayCategory = Drugs,
+        ItemType = base:drainable,
+        Weight = 0.2,
+        Icon = PillsPainkiller,
+        UseDelta = 0.1,
+        UseWhileEquipped = false,
+        StaticModel = PillBottle,
+        WorldStaticModel = PainKillers_Ground,
+        Tags = base:consumable;base:smokable,
+        EatType = Cigarettes,
+        RequireInHandOrInventory = Base.CandleLit/Base.Matches/Base.Matchbox/Base.LighterDisposable/Base.Lighter/Base.LighterBBQ/Base.Lighter_Battery,
+    }
+    item CannabisEdible
+    {
+        DisplayName = Cannabis Edible,
+        DisplayCategory = Drugs,
+        ItemType = base:drainable,
+        Weight = 0.2,
+        Icon = PillsPainkiller,
+        UseDelta = 0.1,
+        UseWhileEquipped = false,
+        StaticModel = PillBottle,
+        WorldStaticModel = PainKillers_Ground,
+        Tags = base:consumable,
+    }
+    item SteroidTablets
+    {
+        DisplayName = Steroid Tablets,
+        DisplayCategory = Drugs,
+        ItemType = base:drainable,
+        Weight = 0.2,
+        Icon = PillsPainkiller,
+        UseDelta = 0.1,
+        UseWhileEquipped = false,
+        StaticModel = PillBottle,
+        WorldStaticModel = PainKillers_Ground,
+        Tags = base:consumable,
+    }
+    item MaintenanceTablets
+    {
+        DisplayName = Maintenance Tablets,
+        DisplayCategory = Drugs,
+        ItemType = base:drainable,
+        Weight = 0.2,
+        Icon = PillsPainkiller,
+        UseDelta = 0.1,
+        UseWhileEquipped = false,
+        StaticModel = PillBottle,
+        WorldStaticModel = PainKillers_Ground,
+        Tags = base:consumable,
+    }
+}

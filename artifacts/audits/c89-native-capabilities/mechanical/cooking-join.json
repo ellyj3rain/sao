@@ -1,0 +1,188 @@
+{
+  "boundary": "Actual private Controller/Body + Cooking and production CrossedTransfer in installed Kahlua.\n\nNative actions, SourceUse receipt closure and snapshot receivers are controlled.\nOnly existing private functions/runtime are exported in temporary probe copies.\nRoot integration sources are read-only and identified by hash in the receipt.\n",
+  "inputs": {
+    "C:\\Users\\jleyv\\Peanut Butter\\AI Assisted Software Engineering Mass Repository\\Projects\\survivor-awareness\\_scratch\\c89-orienting\\cooking\\SAO_Cooking.lua": "8722759869e736e62f61d1ce52a400a8fa5ab3524c366c07c0dd95499c772742",
+    "C:\\Users\\jleyv\\Peanut Butter\\AI Assisted Software Engineering Mass Repository\\Projects\\survivor-awareness\\mod\\42.20\\media\\lua\\client\\SAO_Body.lua": "8336f0a87781ee787c7b86362f5eca76542c1c6033f91deff2ba262fdcf0dd7b",
+    "C:\\Users\\jleyv\\Peanut Butter\\AI Assisted Software Engineering Mass Repository\\Projects\\survivor-awareness\\mod\\42.20\\media\\lua\\client\\SAO_Controller.lua": "abecb2a5a78128f881557c08eb6b92678c6ba766c1a5b32f6b4cc201912bef64",
+    "C:\\Users\\jleyv\\Peanut Butter\\AI Assisted Software Engineering Mass Repository\\Projects\\survivor-awareness\\mod\\42.20\\media\\lua\\client\\SAO_CrossedTransfer.lua": "a0a54e1ddf992cd06d3e8ea977d05ba76697bd2a2ea443355a6a89a6408356b5",
+    "C:\\Users\\jleyv\\Peanut Butter\\AI Assisted Software Engineering Mass Repository\\Projects\\survivor-awareness\\_scratch\\c89-orienting\\cooking\\tools\\cooking_checks\\prelude.lua": "62cb1e287c15859c810d30cb796307cc375974872609102c27882862bf8eae19",
+    "C:\\Users\\jleyv\\Peanut Butter\\AI Assisted Software Engineering Mass Repository\\Projects\\survivor-awareness\\_scratch\\c89-orienting\\cooking\\tools\\cooking_checks\\join_prelude.lua": "1731d152ceffc2b85864fc2ef7febda7a1aecc719635831cb462173bf2db590a",
+    "C:\\Program Files (x86)\\Steam\\steamapps\\common\\ProjectZomboid\\media\\lua\\shared\\ISBaseObject.lua": "5dae034ac3471c03f81f89fdaa371b493990636148f075fac58581ac573521ef",
+    "C:\\Program Files (x86)\\Steam\\steamapps\\common\\ProjectZomboid\\media\\lua\\shared\\TimedActions\\ISBaseTimedAction.lua": "ad72e57f976bd1564d59d08d98d06f8c8d4acea6386aace48e0d99ce9d02a1f0",
+    "C:\\Program Files (x86)\\Steam\\steamapps\\common\\ProjectZomboid\\media\\lua\\shared\\TimedActions\\ISToggleStoveAction.lua": "5dea9492eb47b5dcc3a7a233b349497ecd61dfeac62b1f4c474927fec7818002",
+    "C:\\Users\\jleyv\\Peanut Butter\\AI Assisted Software Engineering Mass Repository\\Projects\\survivor-awareness\\_scratch\\c89-orienting\\cooking\\tools\\cooking_checks\\join_cases.lua": "9ee6920ca97db5faacb108d275121c2926128577bbc43a9697786617286e42b5",
+    "C:\\Program Files (x86)\\Steam\\steamapps\\common\\ProjectZomboid\\projectzomboid.jar": "80e405a4bfc42f6072e75b3735f458a6514143da011d3226007ded305a442f44"
+  },
+  "runs": [
+    {
+      "name": "compile",
+      "exit": 0,
+      "stdout": "",
+      "stderr": ""
+    },
+    {
+      "name": "candidate",
+      "exit": 0,
+      "stdout": "VALUE root_pending_zao_retires_cooking_route_before_handoff=true\nroot_pending_zao_preserves_unresolved_cooking_transfer=true\nroot_prepare_handoff_quiesces_route_before_capture=true\nroot_foreign_unresolved_transfer_blocks_capture_and_removal=true\nroot_foreign_readiness_honors_non_cooking_source_owner=true\nroot_release_clears_heat_before_snapshot=true\nroot_remove_owned_refuses_unresolved_cooking=true\nroot_captured_journal_refuses_new_cooking_owner=true\nroot_ordinary_death_detaches_unresolved_cooking=true\nroot_external_death_detaches_unresolved_cooking=true\nroot_passive_death_detaches_restored_cooking=true\nroot_direct_drop_retires_idle_heat_runtime=true\nroot_direct_drop_preserves_unresolved_cooking_owner=true\nDIAGNOSTIC release=true/released,capture=1,commit=1,remove=1,work=false,heat=false,binding=nil,active=nil\n",
+      "stderr": ""
+    },
+    {
+      "name": "resume-before-cooking-quiescence",
+      "exit": 0,
+      "stdout": "VALUE root_pending_zao_retires_cooking_route_before_handoff=false\nroot_pending_zao_preserves_unresolved_cooking_transfer=false\nroot_prepare_handoff_quiesces_route_before_capture=true\nroot_foreign_unresolved_transfer_blocks_capture_and_removal=true\nroot_foreign_readiness_honors_non_cooking_source_owner=true\nroot_release_clears_heat_before_snapshot=true\nroot_remove_owned_refuses_unresolved_cooking=true\nroot_captured_journal_refuses_new_cooking_owner=true\nroot_ordinary_death_detaches_unresolved_cooking=true\nroot_external_death_detaches_unresolved_cooking=true\nroot_passive_death_detaches_restored_cooking=true\nroot_direct_drop_retires_idle_heat_runtime=true\nroot_direct_drop_preserves_unresolved_cooking_owner=true\nDIAGNOSTIC release=true/released,capture=1,commit=1,remove=1,work=false,heat=false,binding=nil,active=nil\n",
+      "stderr": ""
+    },
+    {
+      "name": "prepare-before-cooking-quiescence",
+      "exit": 0,
+      "stdout": "VALUE root_pending_zao_retires_cooking_route_before_handoff=true\nroot_pending_zao_preserves_unresolved_cooking_transfer=true\nroot_prepare_handoff_quiesces_route_before_capture=false\nroot_foreign_unresolved_transfer_blocks_capture_and_removal=true\nroot_foreign_readiness_honors_non_cooking_source_owner=true\nroot_release_clears_heat_before_snapshot=true\nroot_remove_owned_refuses_unresolved_cooking=true\nroot_captured_journal_refuses_new_cooking_owner=true\nroot_ordinary_death_detaches_unresolved_cooking=true\nroot_external_death_detaches_unresolved_cooking=true\nroot_passive_death_detaches_restored_cooking=true\nroot_direct_drop_retires_idle_heat_runtime=true\nroot_direct_drop_preserves_unresolved_cooking_owner=true\nDIAGNOSTIC release=true/released,capture=1,commit=1,remove=1,work=false,heat=false,binding=nil,active=nil\n",
+      "stderr": ""
+    },
+    {
+      "name": "foreign-release-before-cooking-quiescence",
+      "exit": 0,
+      "stdout": "VALUE root_pending_zao_retires_cooking_route_before_handoff=true\nroot_pending_zao_preserves_unresolved_cooking_transfer=true\nroot_prepare_handoff_quiesces_route_before_capture=true\nroot_foreign_unresolved_transfer_blocks_capture_and_removal=false\nroot_foreign_readiness_honors_non_cooking_source_owner=true\nroot_release_clears_heat_before_snapshot=true\nroot_remove_owned_refuses_unresolved_cooking=true\nroot_captured_journal_refuses_new_cooking_owner=true\nroot_ordinary_death_detaches_unresolved_cooking=true\nroot_external_death_detaches_unresolved_cooking=true\nroot_passive_death_detaches_restored_cooking=true\nroot_direct_drop_retires_idle_heat_runtime=true\nroot_direct_drop_preserves_unresolved_cooking_owner=true\nDIAGNOSTIC release=true/released,capture=1,commit=1,remove=1,work=false,heat=false,binding=nil,active=nil\n",
+      "stderr": ""
+    },
+    {
+      "name": "foreign-source-owner-ignored",
+      "exit": 0,
+      "stdout": "VALUE root_pending_zao_retires_cooking_route_before_handoff=true\nroot_pending_zao_preserves_unresolved_cooking_transfer=true\nroot_prepare_handoff_quiesces_route_before_capture=true\nroot_foreign_unresolved_transfer_blocks_capture_and_removal=true\nroot_foreign_readiness_honors_non_cooking_source_owner=false\nroot_release_clears_heat_before_snapshot=true\nroot_remove_owned_refuses_unresolved_cooking=true\nroot_captured_journal_refuses_new_cooking_owner=true\nroot_ordinary_death_detaches_unresolved_cooking=true\nroot_external_death_detaches_unresolved_cooking=true\nroot_passive_death_detaches_restored_cooking=true\nroot_direct_drop_retires_idle_heat_runtime=true\nroot_direct_drop_preserves_unresolved_cooking_owner=true\nDIAGNOSTIC release=true/released,capture=1,commit=1,remove=1,work=false,heat=false,binding=nil,active=nil\n",
+      "stderr": ""
+    },
+    {
+      "name": "release-captures-live-cooking",
+      "exit": 0,
+      "stdout": "VALUE root_pending_zao_retires_cooking_route_before_handoff=true\nroot_pending_zao_preserves_unresolved_cooking_transfer=true\nroot_prepare_handoff_quiesces_route_before_capture=true\nroot_foreign_unresolved_transfer_blocks_capture_and_removal=true\nroot_foreign_readiness_honors_non_cooking_source_owner=true\nroot_release_clears_heat_before_snapshot=false\nroot_remove_owned_refuses_unresolved_cooking=true\nroot_captured_journal_refuses_new_cooking_owner=true\nroot_ordinary_death_detaches_unresolved_cooking=true\nroot_external_death_detaches_unresolved_cooking=true\nroot_passive_death_detaches_restored_cooking=true\nroot_direct_drop_retires_idle_heat_runtime=true\nroot_direct_drop_preserves_unresolved_cooking_owner=true\nDIAGNOSTIC release=true/released,capture=1,commit=1,remove=1,work=true,heat=true,binding=nil,active=nil\n",
+      "stderr": ""
+    },
+    {
+      "name": "remove-before-cooking-reconciliation",
+      "exit": 0,
+      "stdout": "VALUE root_pending_zao_retires_cooking_route_before_handoff=true\nroot_pending_zao_preserves_unresolved_cooking_transfer=true\nroot_prepare_handoff_quiesces_route_before_capture=true\nroot_foreign_unresolved_transfer_blocks_capture_and_removal=true\nroot_foreign_readiness_honors_non_cooking_source_owner=true\nroot_release_clears_heat_before_snapshot=true\nroot_remove_owned_refuses_unresolved_cooking=false\nroot_captured_journal_refuses_new_cooking_owner=true\nroot_ordinary_death_detaches_unresolved_cooking=true\nroot_external_death_detaches_unresolved_cooking=true\nroot_passive_death_detaches_restored_cooking=true\nroot_direct_drop_retires_idle_heat_runtime=true\nroot_direct_drop_preserves_unresolved_cooking_owner=true\nDIAGNOSTIC release=true/released,capture=1,commit=1,remove=1,work=false,heat=false,binding=nil,active=nil\n",
+      "stderr": ""
+    },
+    {
+      "name": "commit-over-new-cooking",
+      "exit": 0,
+      "stdout": "VALUE root_pending_zao_retires_cooking_route_before_handoff=true\nroot_pending_zao_preserves_unresolved_cooking_transfer=true\nroot_prepare_handoff_quiesces_route_before_capture=true\nroot_foreign_unresolved_transfer_blocks_capture_and_removal=true\nroot_foreign_readiness_honors_non_cooking_source_owner=true\nroot_release_clears_heat_before_snapshot=true\nroot_remove_owned_refuses_unresolved_cooking=true\nroot_captured_journal_refuses_new_cooking_owner=false\nroot_ordinary_death_detaches_unresolved_cooking=true\nroot_external_death_detaches_unresolved_cooking=true\nroot_passive_death_detaches_restored_cooking=true\nroot_direct_drop_retires_idle_heat_runtime=true\nroot_direct_drop_preserves_unresolved_cooking_owner=true\nDIAGNOSTIC release=true/released,capture=1,commit=1,remove=1,work=false,heat=false,binding=nil,active=nil\n",
+      "stderr": ""
+    },
+    {
+      "name": "ordinary-death-retains-cooking",
+      "exit": 0,
+      "stdout": "VALUE root_pending_zao_retires_cooking_route_before_handoff=true\nroot_pending_zao_preserves_unresolved_cooking_transfer=true\nroot_prepare_handoff_quiesces_route_before_capture=true\nroot_foreign_unresolved_transfer_blocks_capture_and_removal=true\nroot_foreign_readiness_honors_non_cooking_source_owner=true\nroot_release_clears_heat_before_snapshot=true\nroot_remove_owned_refuses_unresolved_cooking=true\nroot_captured_journal_refuses_new_cooking_owner=true\nroot_ordinary_death_detaches_unresolved_cooking=false\nroot_external_death_detaches_unresolved_cooking=true\nroot_passive_death_detaches_restored_cooking=true\nroot_direct_drop_retires_idle_heat_runtime=true\nroot_direct_drop_preserves_unresolved_cooking_owner=true\nDIAGNOSTIC release=true/released,capture=1,commit=1,remove=1,work=false,heat=false,binding=nil,active=nil\n",
+      "stderr": ""
+    },
+    {
+      "name": "external-death-retains-cooking",
+      "exit": 0,
+      "stdout": "VALUE root_pending_zao_retires_cooking_route_before_handoff=true\nroot_pending_zao_preserves_unresolved_cooking_transfer=true\nroot_prepare_handoff_quiesces_route_before_capture=true\nroot_foreign_unresolved_transfer_blocks_capture_and_removal=true\nroot_foreign_readiness_honors_non_cooking_source_owner=true\nroot_release_clears_heat_before_snapshot=true\nroot_remove_owned_refuses_unresolved_cooking=true\nroot_captured_journal_refuses_new_cooking_owner=true\nroot_ordinary_death_detaches_unresolved_cooking=true\nroot_external_death_detaches_unresolved_cooking=false\nroot_passive_death_detaches_restored_cooking=true\nroot_direct_drop_retires_idle_heat_runtime=true\nroot_direct_drop_preserves_unresolved_cooking_owner=true\nDIAGNOSTIC release=true/released,capture=1,commit=1,remove=1,work=false,heat=false,binding=nil,active=nil\n",
+      "stderr": ""
+    },
+    {
+      "name": "passive-death-retains-cooking",
+      "exit": 0,
+      "stdout": "VALUE root_pending_zao_retires_cooking_route_before_handoff=true\nroot_pending_zao_preserves_unresolved_cooking_transfer=true\nroot_prepare_handoff_quiesces_route_before_capture=true\nroot_foreign_unresolved_transfer_blocks_capture_and_removal=true\nroot_foreign_readiness_honors_non_cooking_source_owner=true\nroot_release_clears_heat_before_snapshot=true\nroot_remove_owned_refuses_unresolved_cooking=true\nroot_captured_journal_refuses_new_cooking_owner=true\nroot_ordinary_death_detaches_unresolved_cooking=true\nroot_external_death_detaches_unresolved_cooking=true\nroot_passive_death_detaches_restored_cooking=false\nroot_direct_drop_retires_idle_heat_runtime=true\nroot_direct_drop_preserves_unresolved_cooking_owner=true\nDIAGNOSTIC release=true/released,capture=1,commit=1,remove=1,work=false,heat=false,binding=nil,active=nil\n",
+      "stderr": ""
+    },
+    {
+      "name": "direct-drop-retains-cooking",
+      "exit": 0,
+      "stdout": "VALUE root_pending_zao_retires_cooking_route_before_handoff=true\nroot_pending_zao_preserves_unresolved_cooking_transfer=true\nroot_prepare_handoff_quiesces_route_before_capture=true\nroot_foreign_unresolved_transfer_blocks_capture_and_removal=true\nroot_foreign_readiness_honors_non_cooking_source_owner=true\nroot_release_clears_heat_before_snapshot=true\nroot_remove_owned_refuses_unresolved_cooking=true\nroot_captured_journal_refuses_new_cooking_owner=true\nroot_ordinary_death_detaches_unresolved_cooking=true\nroot_external_death_detaches_unresolved_cooking=true\nroot_passive_death_detaches_restored_cooking=true\nroot_direct_drop_retires_idle_heat_runtime=false\nroot_direct_drop_preserves_unresolved_cooking_owner=false\nDIAGNOSTIC release=true/released,capture=1,commit=1,remove=1,work=false,heat=false,binding=nil,active=nil\n",
+      "stderr": ""
+    }
+  ],
+  "controls": [
+    {
+      "name": "resume-before-cooking-quiescence",
+      "target": "root_pending_zao_retires_cooking_route_before_handoff",
+      "verdict": "false",
+      "source_sha256": {
+        "controller": "2ed81ff26aa3e7fab8827eeb1983e78c850f04107f1f743fb48083c63bf809c5"
+      }
+    },
+    {
+      "name": "prepare-before-cooking-quiescence",
+      "target": "root_prepare_handoff_quiesces_route_before_capture",
+      "verdict": "false",
+      "source_sha256": {
+        "body": "ecc5387be16e0b78ac173c4ad7b392b07148473710d2d488818099da2f29159a"
+      }
+    },
+    {
+      "name": "foreign-release-before-cooking-quiescence",
+      "target": "root_foreign_unresolved_transfer_blocks_capture_and_removal",
+      "verdict": "false",
+      "source_sha256": {
+        "body": "a6f02e739474be3964abedcd3192a6f61ac714fc58d3b383bc6d495c3d692222"
+      }
+    },
+    {
+      "name": "foreign-source-owner-ignored",
+      "target": "root_foreign_readiness_honors_non_cooking_source_owner",
+      "verdict": "false",
+      "source_sha256": {
+        "body": "907b2e6a70c54f1e647c01205ed91056ad18cd4314d5709dd6da1f81c8eace04"
+      }
+    },
+    {
+      "name": "release-captures-live-cooking",
+      "target": "root_release_clears_heat_before_snapshot",
+      "verdict": "false",
+      "source_sha256": {
+        "body": "be577abd3f59ea8907bfa4b047ea4fa0b5dc8ca158daf28e62939d0c97d312d6"
+      }
+    },
+    {
+      "name": "remove-before-cooking-reconciliation",
+      "target": "root_remove_owned_refuses_unresolved_cooking",
+      "verdict": "false",
+      "source_sha256": {
+        "body": "898bb22f040109c9de6803973392597e5ed7e4d9bf4addb784c57f9516d6adae"
+      }
+    },
+    {
+      "name": "commit-over-new-cooking",
+      "target": "root_captured_journal_refuses_new_cooking_owner",
+      "verdict": "false",
+      "source_sha256": {
+        "body": "18f660d6a3f4c038941cbddafe10b8b9596bb60c66b700d29937df351df9df8c"
+      }
+    },
+    {
+      "name": "ordinary-death-retains-cooking",
+      "target": "root_ordinary_death_detaches_unresolved_cooking",
+      "verdict": "false",
+      "source_sha256": {
+        "controller": "d508cccb3138c09f616a61d8df7d5d34932d8764bd59c4b91eac1f1a517d5861"
+      }
+    },
+    {
+      "name": "external-death-retains-cooking",
+      "target": "root_external_death_detaches_unresolved_cooking",
+      "verdict": "false",
+      "source_sha256": {
+        "controller": "9df121310f68e252931fef6e0a6782af34630a62fe15e942c54f428e3aa3e568"
+      }
+    },
+    {
+      "name": "passive-death-retains-cooking",
+      "target": "root_passive_death_detaches_restored_cooking",
+      "verdict": "false",
+      "source_sha256": {
+        "controller": "8c140e3f8a9d89b50849b59f526c158398c0eac46a9475743606d00267edc484"
+      }
+    },
+    {
+      "name": "direct-drop-retains-cooking",
+      "target": "root_direct_drop_retires_idle_heat_runtime",
+      "verdict": "false",
+      "source_sha256": {
+        "controller": "413e608334c8d3e26ed3eccdb37a2f7dccf6cc7436fa4778d61b7583b3fa56b9"
+      }
+    }
+  ],
+  "cases": 13,
+  "status": "passed"
+}

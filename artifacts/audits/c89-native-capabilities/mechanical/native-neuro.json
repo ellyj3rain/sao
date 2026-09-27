@@ -1,0 +1,35 @@
+{
+  "scope": "Actual production Lua in installed Kahlua, controlled native moodle readings; native drug receivers are verified separately.",
+  "sourceHashes": {
+    "state": "49fdcdf43740bf2d5a7d8065c66d281c5868ac56efc37fc89119e4758fd92074",
+    "brain": "e7d9dab56ac584a8271bdd005d900e03b753101548c295f7f0df04d65983d30b",
+    "neuro": "4c328d6f9d87007e9edcd36cbf5412b3ff7310f28506130f04bcdf69c5c3d17a",
+    "conditions": "3b3027892a1144f1bef5a210ea5defa131d3adec654aa0c691f107d3bdccf6cc",
+    "pressure": "466ce7d7d39bfedbe44f797f76ce7c7c680a40f6830299fcbe417f93baf9da15",
+    "locomotion": "1028d023a4c539329fd9a4c52df685950c1b449b0ec08e0b8de6234b0c253a9b",
+    "controller": "6d164048988c50f1fc5e006c8871c1db0fee5c8e66e5fbb078c578c7375f46d9"
+  },
+  "controls": [
+    {
+      "name": "attention",
+      "diagnostic": "native tired severity",
+      "rejected": true
+    },
+    {
+      "name": "motor",
+      "diagnostic": "native tired severity",
+      "rejected": true
+    },
+    {
+      "name": "acute-cadence",
+      "diagnostic": "acute state did not reach actual decision cadence",
+      "rejected": true
+    },
+    {
+      "name": "owned-withdrawal",
+      "diagnostic": "owned withdrawal did not reach existing brain history",
+      "rejected": true
+    }
+  ],
+  "baseline": "passed"
+}

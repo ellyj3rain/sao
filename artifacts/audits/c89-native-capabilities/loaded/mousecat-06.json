@@ -1,0 +1,811 @@
+{
+  "route": "#native-view?session=survival-observatory",
+  "connection": "Running",
+  "settings": "Simulation discovery paceSource settings: active · 50% associative selection · 48 opportunities / world hour · depth 4Associative shareOpportunities / world hourAssociation depthApplyApplied and reported by the simulation.",
+  "cognition": "Competing cognitionPrivate evidence for Rolando Stephenson. 0 episodes and 0 experiences outside this projection.Simulation discovery paceSource settings: active · 50% associative selection · 48 opportunities / world hour · depth 4Associative shareOpportunities / world hourAssociation depthApplyApplied and reported by the simulation.Decisions and outcomesHour 2.008 · same proposed goal · censoredSelected Associative · continue · allocation weight 50%Execution: censoredcontinues ordinary activity; no experiment selectedOrdinaryProposed continue · confidence 50% · version sao-ordinary/2No admissible ordinary need threshold is reached.Prediction for continue: 50%No new goal is initiated; its outcome remains unobserved without a matching action receipt.Censored: this episode supplies no success or failure label.Other predictions · unobservedfood: 50% · The next qualified food acquisition succeeds or measured own consumption relieves hunger. · outcome unobservedinspect: 50% · A performed inspection returns definite contents evidence, including an empty result. · outcome unobservedwater: 50% · The next qualified water acquisition succeeds or measured own consumption relieves thirst. · outcome unobservedAssociative · selectedProposed continue · confidence 50% · version sao-associative/2Current pressure leaves room to retain the ongoing intent.Prediction for continue: 50%No new goal is initiated; its outcome remains unobserved without a matching action receipt.Censored: this episode supplies no success or failure label.Other predictions · unobservedfood: 50% · The next qualified food acquisition succeeds or measured own consumption relieves hunger. · outcome unobservedinspect: 50% · A performed inspection returns definite contents evidence, including an empty result. · outcome unobservedwater: 50% · The next qualified water acquisition succeeds or measured own consumption relieves thirst. · outcome unobservedWorld result: unavailable; episode censored.Evidence and shared inputEpisode episode/1 · frame frame/1NeedsHunger 0% · thirst 0% · fatigue 0%Known sourcesFood 0 · water 0 · places 1Admitted goalsFood true · water true · inspect trueBeliefs and discoveryOrdinary · 0 associationsVersion sao-ordinary/20 beliefsAssociative · 0 associationsVersion sao-associative/20 beliefs",
+  "body": "Mousecat\nProjects\nQuestions\nSimulation\nHistory\n0 drafts\n0 drafts: 0 ready, 0 need completion.\nReview 0 drafts\nLive\nSurvival simulation\nProject\nSession \nSurvival simulation\nRunning\nFrame just received\n0.0 images/s\nPause\nNormal\nFast\nFastest\nFollow activity\n−\n80%\n+\n←\n↑\n↓\n→\nEnd run\n\nFollowing activity · Watching Rolando Stephenson with 1 nearby; idle\n\nApplied: Observer request applied\n\nWorld hour 2.065 | 2 people, 2 represented. People observed at hour 2.0931310653686523. God view; canopy cutaway; full physics applies in the loaded region. Unreviewed.\n\nPeople\nBrent Compton\nRolando Stephenson\nShow in world\nOpen game panel\nClose game panel\n\nPerson information: available · 0.6s old\n\nCompeting cognition\n\nPrivate evidence for Rolando Stephenson. 0 episodes and 0 experiences outside this projection.\n\nSimulation discovery pace\n\nSource settings: active · 50% associative selection · 48 opportunities / world hour · depth 4\n\nAssociative share\nOpportunities / world hour\nAssociation depth\nApply\n\nApplied and reported by the simulation.\n\nDecisions and outcomes\nBeliefs and discovery\nOrdinary · 0 associations\n\nVersion sao-ordinary/2\n\n0 beliefs\nAssociative · 0 associations\n\nVersion sao-associative/2\n\n0 beliefs\nRolando Stephenson\n\nstudent\nActivity: IDLE\nRecorded reason: reads a while, back to the wall\nPosition from native-body\nRecorded alive\nLocation 3427.5, 10910.5; floor 0\nKnown people: 1\nStored threat memories: 0\nUnclassified sounds: 1\n\nCurrent needs\n\nCurrent physical state · Native body\n\nHunger\n0.0020\nThirst\n0.0020\nFatigue\n0.0020\nEndurance\n1.0000\nNicotine withdrawal\n0.0000\nHealth (%)\n100.00\nAttention and movement\n\nCurrent physical state · Native body\n\nResponse\nNo active sound response\nPhase\nidle\nAttention readiness\n1.000\nMotor steadiness\n1.000\nSubstance effects\n\nCurrent physical state and recorded use · Personal physiology\n\nActive effects\nNo\nSedating\nNo\nStimulating\nNo\nWithdrawal\nNo\nOverload\nNo\nFood preparation\n\nCurrent work and recorded outcome · Native appliance and food\n\nNo current food preparation\n\nCarried inventory\n\nCurrent physical state · Native inventory containers\n\n9 items read\n\nBase.Hat_BaseballCap_Reverse\nBaseball Cap [id 1756270243]\nBase.Tshirt_SpiffoDECAL\nT-shirt - Spiffo [id 1966630617]\nBase.Bracelet_RightFriendshipTINT\nFriendship Bracelet [id 107824133]\nBase.Shoes_Random\nShoes [id 868103192]\nBase.TrousersMesh_DenimLight\nJeans [id 614917048]\nBase.Jacket_Varsity\nJacket - Varsity [id 537942619]\nBase.Bag_Schoolbag\nSmall Backpack [id 1233795155]\nBase.Notebook\nRolando Stephenson's journal [id 93260437]\nBase.IDcard_Male\nRolando Stephenson - ID [id 1653070412]\nPressure and recorded reason\n\nMost recent decision receipt · Controller\n\nanswer\nchosen rest\ndetail\nreads a while, back to the wall\nat\n18069\ngraph\n1\nCurrent action\n\nExecution owners · Controller, Locomotion and native timed-action queue\n\nController state\nIDLE\nMovement\nNo owned route\nSource use and latest result\n\nNative action receipts · WorldSources durable action ledger\n\nSource action\nNo recorded reservation pointer\nLatest result\nNo retained receipt for this person\nReception, responses and work\n\nRecorded stages for this person · Organization durable process records\n\nProcess matter:1:sao-1\ncompany-formation / open\nReceived revision 1\nhour 2.0003700256347656 via dormant-encounter from sao-1\nFormed response 1\naccept at hour 2.0003700256347656\nResponse delivery 1\nDelivered at hour 2.0003700256347656\nCommitment matter:1:sao-1:commitment:1\naccepted\nWork.phase\naccepted\nWork.acceptedAt\n2.0003700256347656\nRecent activity and dialogue\n\nNo recorded events in this observation.",
+  "dimensions": [
+    960,
+    540
+  ],
+  "overflow": false,
+  "errors": [],
+  "snapshot": {
+    "schema": "mousecat.native-view-response/1",
+    "binding": {
+      "id": "survival-observatory",
+      "label": "Survival simulation",
+      "projectRef": "project:survivor-awareness",
+      "bindingId": "e4bda7bcacb5745a33e52c329c9c5897463e645c826e3c3b96acd33273aa7be1"
+    },
+    "view": {
+      "camera": {
+        "mode": "automatic",
+        "personIds": [
+          "sao-2",
+          "sao-1"
+        ],
+        "summary": "Watching Rolando Stephenson with 1 nearby; idle"
+      },
+      "capturedAtUnixMs": 1790489259038,
+      "commandResult": {
+        "message": "Observer request applied",
+        "sequence": 3,
+        "status": "applied"
+      },
+      "image": {
+        "file": "study-live-0000000000000013.png",
+        "height": 540,
+        "sha256": "e1dad96089cfdf31c7b9e58b36f08f6efd3375b1af6dc90646844e8490591b6f",
+        "width": 960
+      },
+      "inspection": {
+        "capturedAtUnixMs": 1790489258477,
+        "message": "Current bodies and recorded execution facts; no decision or perception rerun",
+        "omittedEvents": 0,
+        "omittedPeople": 0,
+        "sequence": 4,
+        "status": "available",
+        "worldHours": 2.065309524536133
+      },
+      "lastCommandSequence": 3,
+      "panels": [
+        {
+          "id": "person-inspection",
+          "label": "Native person inspector"
+        }
+      ],
+      "people": [
+        {
+          "cognition": {
+            "actorId": "sao-1",
+            "episodes": [
+              {
+                "disagreement": false,
+                "executionStatus": "censored",
+                "frame": {
+                  "actorId": "sao-1",
+                  "capabilities": {
+                    "cook": false,
+                    "forage": false,
+                    "treat": false
+                  },
+                  "drinkAt": 0.41972,
+                  "eatAt": 0.51215,
+                  "fatigue": 0,
+                  "foodAllowed": true,
+                  "hunger": 0,
+                  "id": "frame/1",
+                  "inspectionAllowed": true,
+                  "knownFood": 0,
+                  "knownPlaces": 1,
+                  "knownWater": 0,
+                  "thirst": 0,
+                  "waterAllowed": true,
+                  "worldHours": 2.007777214050293
+                },
+                "id": "episode/1",
+                "proposals": [
+                  {
+                    "actionId": "continue",
+                    "confidence": 0.5,
+                    "interpretation": "No admissible ordinary need threshold is reached.",
+                    "modelId": "ordinary",
+                    "predictions": {
+                      "continue": {
+                        "claim": "No new goal is initiated; its outcome remains unobserved without a matching action receipt.",
+                        "probability": 0.5
+                      },
+                      "food": {
+                        "claim": "The next qualified food acquisition succeeds or measured own consumption relieves hunger.",
+                        "probability": 0.5
+                      },
+                      "inspect": {
+                        "claim": "A performed inspection returns definite contents evidence, including an empty result.",
+                        "probability": 0.5
+                      },
+                      "water": {
+                        "claim": "The next qualified water acquisition succeeds or measured own consumption relieves thirst.",
+                        "probability": 0.5
+                      }
+                    },
+                    "version": "sao-ordinary/2"
+                  },
+                  {
+                    "actionId": "continue",
+                    "confidence": 0.5,
+                    "interpretation": "Current pressure leaves room to retain the ongoing intent.",
+                    "modelId": "associative",
+                    "predictions": {
+                      "continue": {
+                        "claim": "No new goal is initiated; its outcome remains unobserved without a matching action receipt.",
+                        "probability": 0.5
+                      },
+                      "food": {
+                        "claim": "The next qualified food acquisition succeeds or measured own consumption relieves hunger.",
+                        "probability": 0.5
+                      },
+                      "inspect": {
+                        "claim": "A performed inspection returns definite contents evidence, including an empty result.",
+                        "probability": 0.5
+                      },
+                      "water": {
+                        "claim": "The next qualified water acquisition succeeds or measured own consumption relieves thirst.",
+                        "probability": 0.5
+                      }
+                    },
+                    "version": "sao-associative/2"
+                  }
+                ],
+                "reason": "continues ordinary activity; no experiment selected",
+                "selectedActionId": "continue",
+                "selectedModelId": "ordinary",
+                "selectionPolicy": "deterministic-balanced",
+                "selectionWeight": 0.5,
+                "status": "censored",
+                "worldHours": 2.007777214050293
+              }
+            ],
+            "models": [
+              {
+                "beliefs": [],
+                "hypotheses": [],
+                "id": "ordinary",
+                "omittedBeliefs": 0,
+                "omittedHypotheses": 0,
+                "version": "sao-ordinary/2"
+              },
+              {
+                "beliefs": [],
+                "hypotheses": [],
+                "id": "associative",
+                "omittedBeliefs": 0,
+                "omittedHypotheses": 0,
+                "version": "sao-associative/2"
+              }
+            ],
+            "omittedEpisodes": 0,
+            "omittedExperiences": 0,
+            "rejectedExperiences": 0,
+            "schema": "simulation.cognition/1",
+            "sequence": 1,
+            "settings": {
+              "enabled": true,
+              "maxDepth": 4,
+              "opponentShare": 0.5,
+              "opportunitiesPerHour": 48
+            }
+          },
+          "events": [],
+          "id": "sao-1",
+          "label": "Brent Compton",
+          "sections": [
+            {
+              "id": "needs",
+              "label": "Current needs",
+              "message": "",
+              "perspective": "Current physical state",
+              "rows": [
+                {
+                  "label": "Hunger",
+                  "value": "0.0020"
+                },
+                {
+                  "label": "Thirst",
+                  "value": "0.0020"
+                },
+                {
+                  "label": "Fatigue",
+                  "value": "0.0020"
+                },
+                {
+                  "label": "Endurance",
+                  "value": "1.0000"
+                },
+                {
+                  "label": "Nicotine withdrawal",
+                  "value": "0.0000"
+                },
+                {
+                  "label": "Health (%)",
+                  "value": "100.00"
+                }
+              ],
+              "source": "Native body",
+              "status": "available"
+            },
+            {
+              "id": "attention",
+              "label": "Attention and movement",
+              "message": "",
+              "perspective": "Current physical state",
+              "rows": [
+                {
+                  "label": "Response",
+                  "value": "No active sound response"
+                },
+                {
+                  "label": "Phase",
+                  "value": "idle"
+                },
+                {
+                  "label": "Attention readiness",
+                  "value": "1.000"
+                },
+                {
+                  "label": "Motor steadiness",
+                  "value": "1.000"
+                }
+              ],
+              "source": "Native body",
+              "status": "available"
+            },
+            {
+              "id": "medication",
+              "label": "Substance effects",
+              "message": "",
+              "perspective": "Current physical state and recorded use",
+              "rows": [
+                {
+                  "label": "Active effects",
+                  "value": "No"
+                },
+                {
+                  "label": "Sedating",
+                  "value": "No"
+                },
+                {
+                  "label": "Stimulating",
+                  "value": "No"
+                },
+                {
+                  "label": "Withdrawal",
+                  "value": "No"
+                },
+                {
+                  "label": "Overload",
+                  "value": "No"
+                }
+              ],
+              "source": "Personal physiology",
+              "status": "available"
+            },
+            {
+              "id": "cooking",
+              "label": "Food preparation",
+              "message": "No current food preparation",
+              "perspective": "Current work and recorded outcome",
+              "rows": [],
+              "source": "Native appliance and food",
+              "status": "available"
+            },
+            {
+              "id": "inventory",
+              "label": "Carried inventory",
+              "message": "9 items read",
+              "perspective": "Current physical state",
+              "rows": [
+                {
+                  "label": "Base.Tshirt_SuperColor",
+                  "value": "T-shirt [id 1441766385]"
+                },
+                {
+                  "label": "Base.WristWatch_Left_DigitalRed",
+                  "value": "Digital Watch [id 1398330321]"
+                },
+                {
+                  "label": "Base.Bracelet_RightFriendshipTINT",
+                  "value": "Friendship Bracelet [id 498378339]"
+                },
+                {
+                  "label": "Base.Necklace_YingYang",
+                  "value": "Necklace - Yin and Yang Symbol [id 382976139]"
+                },
+                {
+                  "label": "Base.Socks_Ankle",
+                  "value": "Socks [id 2013481425]"
+                },
+                {
+                  "label": "Base.Shoes_BlueTrainers",
+                  "value": "Sneakers [id 344138259]"
+                },
+                {
+                  "label": "Base.Trousers_Sport",
+                  "value": "Sport Pants [id 957396078]"
+                },
+                {
+                  "label": "Base.Notebook",
+                  "value": "Brent Compton's journal [id 1896509720]"
+                },
+                {
+                  "label": "Base.IDcard_Male",
+                  "value": "Brent Compton - ID [id 941777153]"
+                }
+              ],
+              "source": "Native inventory containers",
+              "status": "available"
+            },
+            {
+              "id": "pressure",
+              "label": "Pressure and recorded reason",
+              "message": "",
+              "perspective": "Most recent decision receipt",
+              "rows": [
+                {
+                  "label": "answer",
+                  "value": "chosen rest"
+                },
+                {
+                  "label": "detail",
+                  "value": "reads a while, back to the wall"
+                },
+                {
+                  "label": "at",
+                  "value": "18069"
+                },
+                {
+                  "label": "graph",
+                  "value": "1"
+                }
+              ],
+              "source": "Controller",
+              "status": "available"
+            },
+            {
+              "id": "actions",
+              "label": "Current action",
+              "message": "",
+              "perspective": "Execution owners",
+              "rows": [
+                {
+                  "label": "Controller state",
+                  "value": "IDLE"
+                },
+                {
+                  "label": "Movement",
+                  "value": "No owned route"
+                }
+              ],
+              "source": "Controller, Locomotion and native timed-action queue",
+              "status": "available"
+            },
+            {
+              "id": "source-work",
+              "label": "Source use and latest result",
+              "message": "",
+              "perspective": "Native action receipts",
+              "rows": [
+                {
+                  "label": "Source action",
+                  "value": "No recorded reservation pointer"
+                },
+                {
+                  "label": "Latest result",
+                  "value": "No retained receipt for this person"
+                }
+              ],
+              "source": "WorldSources durable action ledger",
+              "status": "available"
+            },
+            {
+              "id": "processes",
+              "label": "Reception, responses and work",
+              "message": "",
+              "perspective": "Recorded stages for this person",
+              "rows": [
+                {
+                  "label": "Process matter:1:sao-1",
+                  "value": "company-formation / open"
+                },
+                {
+                  "label": "Received revision 1",
+                  "value": "hour 2.0003700256347656 via authored from sao-1"
+                }
+              ],
+              "source": "Organization durable process records",
+              "status": "available"
+            }
+          ],
+          "summary": "retiree\nActivity: IDLE\nRecorded reason: reads a while, back to the wall\nPosition from native-body\nRecorded alive\nLocation 3426.5, 10910.5; floor 0\nKnown people: 1\nStored threat memories: 0\nUnclassified sounds: 1"
+        },
+        {
+          "cognition": {
+            "actorId": "sao-2",
+            "episodes": [
+              {
+                "disagreement": false,
+                "executionStatus": "censored",
+                "frame": {
+                  "actorId": "sao-2",
+                  "capabilities": {
+                    "cook": false,
+                    "forage": false,
+                    "treat": false
+                  },
+                  "drinkAt": 0.39074,
+                  "eatAt": 0.475925,
+                  "fatigue": 0,
+                  "foodAllowed": true,
+                  "hunger": 0,
+                  "id": "frame/1",
+                  "inspectionAllowed": true,
+                  "knownFood": 0,
+                  "knownPlaces": 1,
+                  "knownWater": 0,
+                  "thirst": 0,
+                  "waterAllowed": true,
+                  "worldHours": 2.007777214050293
+                },
+                "id": "episode/1",
+                "proposals": [
+                  {
+                    "actionId": "continue",
+                    "confidence": 0.5,
+                    "interpretation": "No admissible ordinary need threshold is reached.",
+                    "modelId": "ordinary",
+                    "predictions": {
+                      "continue": {
+                        "claim": "No new goal is initiated; its outcome remains unobserved without a matching action receipt.",
+                        "probability": 0.5
+                      },
+                      "food": {
+                        "claim": "The next qualified food acquisition succeeds or measured own consumption relieves hunger.",
+                        "probability": 0.5
+                      },
+                      "inspect": {
+                        "claim": "A performed inspection returns definite contents evidence, including an empty result.",
+                        "probability": 0.5
+                      },
+                      "water": {
+                        "claim": "The next qualified water acquisition succeeds or measured own consumption relieves thirst.",
+                        "probability": 0.5
+                      }
+                    },
+                    "version": "sao-ordinary/2"
+                  },
+                  {
+                    "actionId": "continue",
+                    "confidence": 0.5,
+                    "interpretation": "Current pressure leaves room to retain the ongoing intent.",
+                    "modelId": "associative",
+                    "predictions": {
+                      "continue": {
+                        "claim": "No new goal is initiated; its outcome remains unobserved without a matching action receipt.",
+                        "probability": 0.5
+                      },
+                      "food": {
+                        "claim": "The next qualified food acquisition succeeds or measured own consumption relieves hunger.",
+                        "probability": 0.5
+                      },
+                      "inspect": {
+                        "claim": "A performed inspection returns definite contents evidence, including an empty result.",
+                        "probability": 0.5
+                      },
+                      "water": {
+                        "claim": "The next qualified water acquisition succeeds or measured own consumption relieves thirst.",
+                        "probability": 0.5
+                      }
+                    },
+                    "version": "sao-associative/2"
+                  }
+                ],
+                "reason": "continues ordinary activity; no experiment selected",
+                "selectedActionId": "continue",
+                "selectedModelId": "associative",
+                "selectionPolicy": "deterministic-balanced",
+                "selectionWeight": 0.5,
+                "status": "censored",
+                "worldHours": 2.007777214050293
+              }
+            ],
+            "models": [
+              {
+                "beliefs": [],
+                "hypotheses": [],
+                "id": "ordinary",
+                "omittedBeliefs": 0,
+                "omittedHypotheses": 0,
+                "version": "sao-ordinary/2"
+              },
+              {
+                "beliefs": [],
+                "hypotheses": [],
+                "id": "associative",
+                "omittedBeliefs": 0,
+                "omittedHypotheses": 0,
+                "version": "sao-associative/2"
+              }
+            ],
+            "omittedEpisodes": 0,
+            "omittedExperiences": 0,
+            "rejectedExperiences": 0,
+            "schema": "simulation.cognition/1",
+            "sequence": 1,
+            "settings": {
+              "enabled": true,
+              "maxDepth": 4,
+              "opponentShare": 0.5,
+              "opportunitiesPerHour": 48
+            }
+          },
+          "events": [],
+          "id": "sao-2",
+          "label": "Rolando Stephenson",
+          "sections": [
+            {
+              "id": "needs",
+              "label": "Current needs",
+              "message": "",
+              "perspective": "Current physical state",
+              "rows": [
+                {
+                  "label": "Hunger",
+                  "value": "0.0020"
+                },
+                {
+                  "label": "Thirst",
+                  "value": "0.0020"
+                },
+                {
+                  "label": "Fatigue",
+                  "value": "0.0020"
+                },
+                {
+                  "label": "Endurance",
+                  "value": "1.0000"
+                },
+                {
+                  "label": "Nicotine withdrawal",
+                  "value": "0.0000"
+                },
+                {
+                  "label": "Health (%)",
+                  "value": "100.00"
+                }
+              ],
+              "source": "Native body",
+              "status": "available"
+            },
+            {
+              "id": "attention",
+              "label": "Attention and movement",
+              "message": "",
+              "perspective": "Current physical state",
+              "rows": [
+                {
+                  "label": "Response",
+                  "value": "No active sound response"
+                },
+                {
+                  "label": "Phase",
+                  "value": "idle"
+                },
+                {
+                  "label": "Attention readiness",
+                  "value": "1.000"
+                },
+                {
+                  "label": "Motor steadiness",
+                  "value": "1.000"
+                }
+              ],
+              "source": "Native body",
+              "status": "available"
+            },
+            {
+              "id": "medication",
+              "label": "Substance effects",
+              "message": "",
+              "perspective": "Current physical state and recorded use",
+              "rows": [
+                {
+                  "label": "Active effects",
+                  "value": "No"
+                },
+                {
+                  "label": "Sedating",
+                  "value": "No"
+                },
+                {
+                  "label": "Stimulating",
+                  "value": "No"
+                },
+                {
+                  "label": "Withdrawal",
+                  "value": "No"
+                },
+                {
+                  "label": "Overload",
+                  "value": "No"
+                }
+              ],
+              "source": "Personal physiology",
+              "status": "available"
+            },
+            {
+              "id": "cooking",
+              "label": "Food preparation",
+              "message": "No current food preparation",
+              "perspective": "Current work and recorded outcome",
+              "rows": [],
+              "source": "Native appliance and food",
+              "status": "available"
+            },
+            {
+              "id": "inventory",
+              "label": "Carried inventory",
+              "message": "9 items read",
+              "perspective": "Current physical state",
+              "rows": [
+                {
+                  "label": "Base.Hat_BaseballCap_Reverse",
+                  "value": "Baseball Cap [id 1756270243]"
+                },
+                {
+                  "label": "Base.Tshirt_SpiffoDECAL",
+                  "value": "T-shirt - Spiffo [id 1966630617]"
+                },
+                {
+                  "label": "Base.Bracelet_RightFriendshipTINT",
+                  "value": "Friendship Bracelet [id 107824133]"
+                },
+                {
+                  "label": "Base.Shoes_Random",
+                  "value": "Shoes [id 868103192]"
+                },
+                {
+                  "label": "Base.TrousersMesh_DenimLight",
+                  "value": "Jeans [id 614917048]"
+                },
+                {
+                  "label": "Base.Jacket_Varsity",
+                  "value": "Jacket - Varsity [id 537942619]"
+                },
+                {
+                  "label": "Base.Bag_Schoolbag",
+                  "value": "Small Backpack [id 1233795155]"
+                },
+                {
+                  "label": "Base.Notebook",
+                  "value": "Rolando Stephenson's journal [id 93260437]"
+                },
+                {
+                  "label": "Base.IDcard_Male",
+                  "value": "Rolando Stephenson - ID [id 1653070412]"
+                }
+              ],
+              "source": "Native inventory containers",
+              "status": "available"
+            },
+            {
+              "id": "pressure",
+              "label": "Pressure and recorded reason",
+              "message": "",
+              "perspective": "Most recent decision receipt",
+              "rows": [
+                {
+                  "label": "answer",
+                  "value": "chosen rest"
+                },
+                {
+                  "label": "detail",
+                  "value": "reads a while, back to the wall"
+                },
+                {
+                  "label": "at",
+                  "value": "18069"
+                },
+                {
+                  "label": "graph",
+                  "value": "1"
+                }
+              ],
+              "source": "Controller",
+              "status": "available"
+            },
+            {
+              "id": "actions",
+              "label": "Current action",
+              "message": "",
+              "perspective": "Execution owners",
+              "rows": [
+                {
+                  "label": "Controller state",
+                  "value": "IDLE"
+                },
+                {
+                  "label": "Movement",
+                  "value": "No owned route"
+                }
+              ],
+              "source": "Controller, Locomotion and native timed-action queue",
+              "status": "available"
+            },
+            {
+              "id": "source-work",
+              "label": "Source use and latest result",
+              "message": "",
+              "perspective": "Native action receipts",
+              "rows": [
+                {
+                  "label": "Source action",
+                  "value": "No recorded reservation pointer"
+                },
+                {
+                  "label": "Latest result",
+                  "value": "No retained receipt for this person"
+                }
+              ],
+              "source": "WorldSources durable action ledger",
+              "status": "available"
+            },
+            {
+              "id": "processes",
+              "label": "Reception, responses and work",
+              "message": "",
+              "perspective": "Recorded stages for this person",
+              "rows": [
+                {
+                  "label": "Process matter:1:sao-1",
+                  "value": "company-formation / open"
+                },
+                {
+                  "label": "Received revision 1",
+                  "value": "hour 2.0003700256347656 via dormant-encounter from sao-1"
+                },
+                {
+                  "label": "Formed response 1",
+                  "value": "accept at hour 2.0003700256347656"
+                },
+                {
+                  "label": "Response delivery 1",
+                  "value": "Delivered at hour 2.0003700256347656"
+                },
+                {
+                  "label": "Commitment matter:1:sao-1:commitment:1",
+                  "value": "accepted"
+                },
+                {
+                  "label": "Work.phase",
+                  "value": "accepted"
+                },
+                {
+                  "label": "Work.acceptedAt",
+                  "value": "2.0003700256347656"
+                }
+              ],
+              "source": "Organization durable process records",
+              "status": "available"
+            }
+          ],
+          "summary": "student\nActivity: IDLE\nRecorded reason: reads a while, back to the wall\nPosition from native-body\nRecorded alive\nLocation 3427.5, 10910.5; floor 0\nKnown people: 1\nStored threat memories: 0\nUnclassified sounds: 1"
+        }
+      ],
+      "schema": "mousecat.native-view/1",
+      "sequence": 19,
+      "sessionId": "63969a67-5b69-4ce7-b600-8815c2b8c259",
+      "state": "running",
+      "summary": "World hour 2.065 | 2 people, 2 represented. People observed at hour 2.0931310653686523. God view; canopy cutaway; full physics applies in the loaded region. Unreviewed.",
+      "title": "Simulation observatory",
+      "viewport": {
+        "targetZoom": 1.25,
+        "zoom": 1.25,
+        "zoomLevels": [
+          0.25,
+          0.5,
+          0.75,
+          1,
+          1.25,
+          1.5,
+          1.75,
+          2,
+          2.25,
+          2.5
+        ]
+      }
+    },
+    "connection": "live",
+    "ageMs": 142,
+    "imageUrl": "/api/native-views/survival-observatory/image?binding=e4bda7bcacb5745a33e52c329c9c5897463e645c826e3c3b96acd33273aa7be1&file=study-live-0000000000000013.png&sha256=e1dad96089cfdf31c7b9e58b36f08f6efd3375b1af6dc90646844e8490591b6f"
+  }
+}

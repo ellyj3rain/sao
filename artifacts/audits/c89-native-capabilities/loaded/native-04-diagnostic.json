@@ -1,0 +1,308 @@
+{
+  "counts": {
+    "scope": 1,
+    "sound": 6,
+    "intervention-sensor-sample": 6,
+    "sample": 364,
+    "preparation-request": 1,
+    "dose-request": 1,
+    "dose-remaining": 70
+  },
+  "errors": [],
+  "interventions": [
+    {
+      "intervention": "audible native pulses; one carried dose; one preparation request",
+      "outcome": "unmeasured",
+      "autonomousSelection": false,
+      "hours": 2.0003700256347656,
+      "wallMs": 1790486707789,
+      "kind": "scope"
+    },
+    {
+      "actor": "sao-1",
+      "x": 3429,
+      "y": 10907,
+      "sequence": 1,
+      "forwardX": -1,
+      "forwardY": 0,
+      "hours": 2.0007400512695312,
+      "wallMs": 1790486708479,
+      "kind": "sound"
+    },
+    {
+      "actor": "sao-1",
+      "sequence": 1,
+      "raw": "P:Jamar McDowell:3427:10910:1.0:ok|S:3429:10907:4.3",
+      "boundary": "Deliberate immediate native sensor read; autonomous scan timing unmeasured",
+      "hours": 2.0007400512695312,
+      "wallMs": 1790486708481,
+      "kind": "intervention-sensor-sample"
+    },
+    {
+      "actor": "sao-2",
+      "itemId": 1545964846,
+      "itemType": "Base.MuttonChop",
+      "accepted": true,
+      "appliances": 1,
+      "sourceId": "C:d8287925-ccf7-4d0d-8a49-7cf218d87bc9:0",
+      "hours": 2.0063552856445312,
+      "wallMs": 1790486709715,
+      "kind": "preparation-request"
+    },
+    {
+      "actor": "sao-1",
+      "x": 3429,
+      "y": 10907,
+      "sequence": 2,
+      "forwardX": -1,
+      "forwardY": 0,
+      "hours": 2.011837959289551,
+      "wallMs": 1790486711002,
+      "kind": "sound"
+    },
+    {
+      "actor": "sao-1",
+      "sequence": 2,
+      "raw": "P:Jamar McDowell:3427:10910:1.0:ok|S:3429:10907:4.3",
+      "boundary": "Deliberate immediate native sensor read; autonomous scan timing unmeasured",
+      "hours": 2.011837959289551,
+      "wallMs": 1790486711003,
+      "kind": "intervention-sensor-sample"
+    },
+    {
+      "actor": "sao-1",
+      "x": 3429,
+      "y": 10907,
+      "sequence": 3,
+      "forwardX": -1,
+      "forwardY": 0,
+      "hours": 2.0231266021728516,
+      "wallMs": 1790486713517,
+      "kind": "sound"
+    },
+    {
+      "actor": "sao-1",
+      "sequence": 3,
+      "raw": "P:Jamar McDowell:3427:10910:1.0:ok|S:3429:10907:4.3",
+      "boundary": "Deliberate immediate native sensor read; autonomous scan timing unmeasured",
+      "hours": 2.0231266021728516,
+      "wallMs": 1790486713518,
+      "kind": "intervention-sensor-sample"
+    },
+    {
+      "actor": "sao-1",
+      "x": 3429,
+      "y": 10907,
+      "sequence": 4,
+      "forwardX": -1,
+      "forwardY": 0,
+      "hours": 2.0338239669799805,
+      "wallMs": 1790486716032,
+      "kind": "sound"
+    },
+    {
+      "actor": "sao-1",
+      "sequence": 4,
+      "raw": "P:Jamar McDowell:3427:10910:1.0:ok|S:3429:10907:4.3",
+      "boundary": "Deliberate immediate native sensor read; autonomous scan timing unmeasured",
+      "hours": 2.0338239669799805,
+      "wallMs": 1790486716032,
+      "kind": "intervention-sensor-sample"
+    },
+    {
+      "actor": "sao-1",
+      "x": 3429,
+      "y": 10907,
+      "sequence": 5,
+      "forwardX": -1,
+      "forwardY": 0,
+      "hours": 2.1724624633789062,
+      "wallMs": 1790486718563,
+      "kind": "sound"
+    },
+    {
+      "actor": "sao-1",
+      "sequence": 5,
+      "raw": "P:Jamar McDowell:3427:10910:1.0:ok|S:3429:10907:4.3",
+      "boundary": "Deliberate immediate native sensor read; autonomous scan timing unmeasured",
+      "hours": 2.1724624633789062,
+      "wallMs": 1790486718564,
+      "kind": "intervention-sensor-sample"
+    },
+    {
+      "actor": "sao-1",
+      "x": 3429,
+      "y": 10907,
+      "sequence": 6,
+      "forwardX": -1,
+      "forwardY": 0,
+      "hours": 2.259457588195801,
+      "wallMs": 1790486724627,
+      "kind": "sound"
+    },
+    {
+      "actor": "sao-1",
+      "sequence": 6,
+      "raw": "P:Jamar McDowell:3427:10910:1.0:ok|S:3429:10907:4.3|S:3429:10907:4.3",
+      "boundary": "Deliberate immediate native sensor read; autonomous scan timing unmeasured",
+      "hours": 2.259457588195801,
+      "wallMs": 1790486724627,
+      "kind": "intervention-sensor-sample"
+    },
+    {
+      "actor": "sao-1",
+      "itemId": 844989912,
+      "itemType": "SAO.SedativeTablets",
+      "beforeUses": 10,
+      "accepted": true,
+      "hours": 2.637455940246582,
+      "wallMs": 1790486735400,
+      "kind": "dose-request"
+    }
+  ],
+  "attentionPhases": {
+    "idle": 364
+  },
+  "activeAttention": 0,
+  "heardSamples": 0,
+  "activeDrugSamples": 57,
+  "cookingStages": {
+    "null": 364
+  },
+  "latestByActor": {
+    "sao-1": {
+      "actor": "sao-1",
+      "state": "FORAGE",
+      "x": 3444.42041015625,
+      "y": 10871.3994140625,
+      "forwardX": 0.700264573097229,
+      "forwardY": 0.7138833999633789,
+      "hearingModifier": 1,
+      "weatherHearing": 1,
+      "deaf": false,
+      "asleep": false,
+      "attention": {
+        "active": false,
+        "cueId": "",
+        "phase": "idle",
+        "reason": "idle",
+        "remainingSeconds": 0,
+        "readiness": 0,
+        "steadiness": 0,
+        "allowBodyTurn": false,
+        "layerReady": false,
+        "headHorizontal": 0,
+        "gazeX": 0.7002646327018738,
+        "gazeY": 0.7138833403587341
+      },
+      "lastUse": {
+        "kind": "physical-change",
+        "minute": 539,
+        "atHours": 8.983333333333333,
+        "observedAtHours": 8.986771583557129,
+        "stats": {
+          "NICOTINE_WITHDRAWAL": {
+            "before": 0.0010844629723578691,
+            "after": 0
+          }
+        },
+        "exposures": {
+          "sedatives": 1
+        }
+      },
+      "effects": {
+        "atHours": 10.45,
+        "active": false,
+        "sedating": false,
+        "stimulating": false,
+        "overload": false,
+        "withdrawal": false,
+        "painSuppressed": false,
+        "families": {}
+      },
+      "clarity": 1,
+      "steadiness": 1,
+      "fatigue": 0.3208077847957611,
+      "thirst": 0.24571214616298676,
+      "hunger": 0.2476685345172882,
+      "hours": 10.460058212280273,
+      "wallMs": 1790487028617,
+      "kind": "sample"
+    },
+    "sao-2": {
+      "actor": "sao-2",
+      "state": "IDLE",
+      "x": 3464.391357421875,
+      "y": 10908.314453125,
+      "forwardX": -0.41322827339172363,
+      "forwardY": -0.9106274843215942,
+      "hearingModifier": 1,
+      "weatherHearing": 1,
+      "deaf": false,
+      "asleep": false,
+      "attention": {
+        "active": false,
+        "cueId": "",
+        "phase": "idle",
+        "reason": "idle",
+        "remainingSeconds": 0,
+        "readiness": 0,
+        "steadiness": 0,
+        "allowBodyTurn": false,
+        "layerReady": false,
+        "headHorizontal": 0,
+        "gazeX": -0.41322827339172363,
+        "gazeY": -0.9106274843215942
+      },
+      "outcome": {
+        "id": "cooking/sao-2/1",
+        "sequence": 1,
+        "actorId": "sao-2",
+        "itemId": 1545964846,
+        "itemType": "Base.MuttonChop",
+        "sourceId": "C:d8287925-ccf7-4d0d-8a49-7cf218d87bc9:0",
+        "startedAt": 2.0063552856445312,
+        "atHours": 2.0064697265625,
+        "status": "interrupted",
+        "detail": "different-native-action",
+        "heatObserved": false,
+        "retrieved": false,
+        "detached": false
+      },
+      "effects": {
+        "atHours": 10.45,
+        "active": false,
+        "sedating": false,
+        "stimulating": false,
+        "overload": false,
+        "withdrawal": false,
+        "painSuppressed": false,
+        "families": {}
+      },
+      "clarity": 1,
+      "steadiness": 1,
+      "fatigue": 0.005409160163253546,
+      "thirst": 0.26985660195350647,
+      "hunger": 0.2535214424133301,
+      "hours": 10.460058212280273,
+      "wallMs": 1790487028619,
+      "kind": "sample"
+    }
+  },
+  "firstDoseRemaining": {
+    "actor": "sao-1",
+    "itemId": 844989912,
+    "currentUses": 9,
+    "hours": 2.669830322265625,
+    "wallMs": 1790486735967,
+    "kind": "dose-remaining"
+  },
+  "lastDoseRemaining": {
+    "actor": "sao-1",
+    "itemId": 844989912,
+    "currentUses": 9,
+    "hours": 10.460058212280273,
+    "wallMs": 1790487028621,
+    "kind": "dose-remaining"
+  }
+}

@@ -1,0 +1,103 @@
+{
+  "schema": "sao-c89-native-resume/1",
+  "status": "PASS",
+  "priorSessionId": "bc78a3da-37ca-4566-b028-babeb284af56",
+  "resumedSessionId": "88973430-47da-41fb-8a40-e023c7d3e355",
+  "sameSave": "76116829944710115333",
+  "sameCopiedMods": true,
+  "playerCount": 0,
+  "priorTerminal": {
+    "endHours": 8.331809043884277,
+    "nativeSaveReturned": true,
+    "startHours": 2.0
+  },
+  "resumedTerminal": {
+    "endHours": 15.962261199951172,
+    "nativeSaveReturned": true,
+    "startHours": 8.333769798278809,
+    "stopReason": "wall-time-limit"
+  },
+  "lastBefore": {
+    "sequence": 26,
+    "hours": 8.295405387878418
+  },
+  "firstAfter": {
+    "sequence": 27,
+    "hours": 8.333769798278809
+  },
+  "people": [
+    {
+      "id": "sao-1",
+      "name": "Jose Worthy",
+      "models": [
+        {
+          "id": "ordinary",
+          "retained": {
+            "beliefs": 4,
+            "hypotheses": 0
+          }
+        },
+        {
+          "id": "associative",
+          "retained": {
+            "beliefs": 4,
+            "hypotheses": 8
+          }
+        }
+      ],
+      "priorPhysiologyHours": 8.283333333333333,
+      "resumedPhysiologyHours": 8.333333333333334,
+      "retainedDoseProvenance": {
+        "sedatives": 1
+      }
+    },
+    {
+      "id": "sao-2",
+      "name": "Trevor Hale",
+      "models": [
+        {
+          "id": "ordinary",
+          "retained": {
+            "beliefs": 0,
+            "hypotheses": 0
+          }
+        },
+        {
+          "id": "associative",
+          "retained": {
+            "beliefs": 0,
+            "hypotheses": 0
+          }
+        }
+      ],
+      "priorPhysiologyHours": 8.283333333333333,
+      "resumedPhysiologyHours": 8.333333333333334,
+      "retainedDoseProvenance": {}
+    }
+  ],
+  "resumedFixtureCounts": {
+    "resumed-observation-only": 1,
+    "sample": 438
+  },
+  "inputs": {
+    "cache\\Lua\\StudyWorld\\41ec08c1cb104551409e304da0e5b051032bb05fc5f9d303ce9e1adfc455065a\\3736313136383239393434373130313135333333\\1790490252317\\0000000000000026.json": {
+      "sha256": "1c3435b64948cd0993c4c6ad38ed1194346a12fd44446cc5975839c2529fb864"
+    },
+    "cache\\Lua\\StudyWorld\\41ec08c1cb104551409e304da0e5b051032bb05fc5f9d303ce9e1adfc455065a\\3736313136383239393434373130313135333333\\1790490561548\\0000000000000027.json": {
+      "sha256": "f262877a07a985bf778bc999851d08a6ba32cea23beb93f2735bc2ea8c00316e"
+    },
+    "attempts\\0001\\report.json": {
+      "sha256": "540fac03fc55a935799b35c5b021f5af14ae7e2a09e67c2007b708d23c44912d"
+    },
+    "run.json": {
+      "sha256": "d121a032a2a2ab5684bdea691dd59a33e7752c5f5b307250347efa2e3f85f0fa"
+    },
+    "attempts\\0002\\stdout.log": {
+      "sha256": "e5e0b87d7508bce818d790dac94a248673bb7c4d4feea1a6206c01bf925404fc"
+    }
+  },
+  "limits": [
+    "Adjacent observation frames bracket the native save; they are not exact snapshots at save time.",
+    "This run admitted no preparation, so the reload check covers people, physiology provenance and cognitive retention, not unfinished cooking."
+  ]
+}

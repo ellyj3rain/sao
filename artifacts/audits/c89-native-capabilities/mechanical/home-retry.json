@@ -1,0 +1,119 @@
+{
+  "schema": "sao-home-route-check/1",
+  "border": 206,
+  "status": "passed",
+  "cases": 136,
+  "controls": [
+    {
+      "name": "old-unbounded-retry",
+      "assertion": "immediate_retry_suppressed",
+      "rejected": true
+    },
+    {
+      "name": "drop-receipt",
+      "assertion": "receipt_retained",
+      "rejected": true
+    },
+    {
+      "name": "forget-record-on-read",
+      "assertion": "immediate_retry_suppressed",
+      "rejected": true
+    },
+    {
+      "name": "never-reconsider",
+      "assertion": "retry_at_delay_allowed",
+      "rejected": true
+    },
+    {
+      "name": "ignore-delay",
+      "assertion": "immediate_retry_suppressed",
+      "rejected": true
+    },
+    {
+      "name": "fixed-first-delay",
+      "assertion": "second_delay_not_first_delay",
+      "rejected": true
+    },
+    {
+      "name": "ignore-target-x",
+      "assertion": "changed_target_allowed",
+      "rejected": true
+    },
+    {
+      "name": "ignore-target-floor",
+      "assertion": "changed_target_floor_allowed",
+      "rejected": true
+    },
+    {
+      "name": "ignore-changed-approach",
+      "assertion": "changed_approach_allowed",
+      "rejected": true
+    },
+    {
+      "name": "reset-on-small-motion",
+      "assertion": "small_motion_keeps_failure",
+      "rejected": true
+    },
+    {
+      "name": "ignore-approach-floor",
+      "assertion": "changed_approach_floor_allowed",
+      "rejected": true
+    },
+    {
+      "name": "future-receipt-holds",
+      "assertion": "rewound_clock_does_not_permanently_hold",
+      "rejected": true
+    },
+    {
+      "name": "uncapped-failure-count",
+      "assertion": "failure_count_capped",
+      "rejected": true
+    },
+    {
+      "name": "ignore-arrival",
+      "assertion": "successful_arrival_clears_failure",
+      "rejected": true
+    },
+    {
+      "name": "ignore-occupancy",
+      "assertion": "actual_occupancy_clears_failure",
+      "rejected": true
+    },
+    {
+      "name": "write-before-owner-closes",
+      "assertion": "refused_reconciliation_keeps_owner",
+      "rejected": true
+    },
+    {
+      "name": "learn-censored-result",
+      "assertion": "non_access_result_not_learned_IDLE",
+      "rejected": true
+    },
+    {
+      "name": "ignore-job-body",
+      "assertion": "foreign_job_body_not_learned",
+      "rejected": true
+    },
+    {
+      "name": "ignore-job-goal",
+      "assertion": "different_job_goal_not_learned",
+      "rejected": true
+    },
+    {
+      "name": "home-hold-consumes-decision",
+      "assertion": "other_productive_decision_remains_available",
+      "rejected": true
+    }
+  ],
+  "sources": {
+    "SAO_Controller.lua": "abecb2a5a78128f881557c08eb6b92678c6ba766c1a5b32f6b4cc201912bef64",
+    "SAO_Locomotion.lua": "1028d023a4c539329fd9a4c52df685950c1b449b0ec08e0b8de6234b0c253a9b",
+    "SAO_Identity.lua": "a3f8878de7d3ea3d163a30f8e77a813cf3b86b6371351f3794da313050f0188b",
+    "flee_continuity_test.py": "225d9d9b7380105e73132143ce2db33ccf48ac5bf9603fe25e7588618aa1d115",
+    "LuaRun.java": "f6f55e6da98c1f1249720666d862720efc025167d1df37d35820e877b14df741",
+    "probe.lua": "67bab9e2305e6324cfebfce9edb86867a528c1d6e51b29511a5ddad1518efc0a",
+    "controls.py": "7013102c71631f0c6be2a0eb22a355db78a325a7c8841a59758ab1ac215f4f89",
+    "home_route_test.py": "a8d4c9a0b2032b5cbe2b0d4a65dd34d9a612522b7d3f6e9e569a11db86b8961a"
+  },
+  "engineSha256": "80e405a4bfc42f6072e75b3735f458a6514143da011d3226007ded305a442f44"
+}

@@ -75,6 +75,7 @@ public final class SAOIsoPlayerShell extends IsoPlayer {
             }
             ownedDescriptor.setInstance(null);
         }
+        SAOOrientation.forget(this);
     }
 
     @Override
@@ -99,7 +100,7 @@ public final class SAOIsoPlayerShell extends IsoPlayer {
 
     @Override
     public void update() {
-        if (removalPending) return;
+        if (removalPending) { SAOOrientation.forget(this); return; }
         IsoPlayer keep = IsoPlayer.getInstance();
         IsoGameCharacter camera = IsoCamera.getCameraCharacter();
         try {
@@ -111,14 +112,20 @@ public final class SAOIsoPlayerShell extends IsoPlayer {
 
     @Override
     public void postupdate() {
-        if (removalPending) return;
+        if (removalPending) { SAOOrientation.forget(this); return; }
         IsoPlayer keep = IsoPlayer.getInstance();
         IsoGameCharacter camera = IsoCamera.getCameraCharacter();
         try {
+            SAOOrientation.beforePostUpdate(this);
             super.postupdate();
         } finally {
             restoreGlobalOwners(keep, camera);
         }
+    }
+
+    @Override
+    public float getTurnDelta() {
+        return super.getTurnDelta() * SAOOrientation.turnMultiplier(this);
     }
 
     private static void restoreGlobalOwners(IsoPlayer keep, IsoGameCharacter camera) {

@@ -1,6 +1,6 @@
 | Document | Survivor Awareness Overhaul Decision Registry |
 |---|---|
-| Version | `2.12.0.0-pre-alpha` |
+| Version | `3.0.0.0-pre-alpha` |
 | Author | ellyj3rain |
 | Repository | `DECISION_REGISTRY.md` |
 | Status | CANONICAL, APPEND-ONLY - ratified decisions. |
@@ -1777,3 +1777,25 @@ restoration and camera restoration and both fail. Native run 10 completed
 with launch-slot and global-player attribution agreeing through the launched
 character's death. These checks establish ownership protection; they do not
 establish a player-free observer host or ratify the scenario's behavior.
+
+## DR-051 | 2026-09-27 05:16 UTC / 22:16 PST | Owned mechanisms and native orienting
+
+**Authority.** The operator clarified that admitted prior-art mechanisms belong
+to SAO and its constituents as fundamental simulation behavior. An optional
+external gameplay adapter does not satisfy integration. C89 applies that
+correction to drug execution, physiology, persistence and private experience,
+and records other admitted gaps in a producer catalogue.
+
+**Native seam.** Hearing supplies an uncertain stimulus to a finite head/body
+orientation owner. Current posture and Neuro projections constrain the turn;
+native gaze and occlusion continue to own sight. The installed public animation
+player getters initialize or mutate state, so the pure observer uses one cached
+reflective read of the existing animation-player field. Public action/context
+and ordinary native animation update seams still own motion. Border 202 tests
+the actual native skeleton, animation, physical gaze and bounded response.
+
+**Consequences.** Source-owned native effects can change actual awareness and
+execution. Cognitive interpretations receive private observations with the
+person's acquired capability context. Internal effect profiles and attribution
+remain with the physical owner. The two models continue independently, and
+dataset admission retains operator evaluation.

@@ -1,0 +1,526 @@
+{
+  "schema": "sao-c89-native-capability-evidence/1",
+  "recordedAtUtc": "2026-09-27T07:09:34.510196+00:00",
+  "version": "3.0.0.0-pre-alpha",
+  "datasetAdmission": "unreviewed",
+  "sources": {
+    "tools/globals_census_test.py": {
+      "sha256": "73d3c4a3783cf7b80c24d4e08c63bcbc9e27cbda4cb7ecf1b9a737c3a440a5ab"
+    },
+    "tools/health_clock_test.py": {
+      "sha256": "f06cab1687b080ac52e41df41ff2aaaff5b1568fa59397039e59bcfb308985a1"
+    },
+    "tools/pharmacology_test.py": {
+      "sha256": "3cae35d6e308bd927fc940babaedca1fcd70e4529872cdde26bd718546d303b2"
+    },
+    "tools/pharmacology_checks/native.lua": {
+      "sha256": "84a440e5f00d6d89963c8147aa0be0bc89ee17c68297b894ccfdccda578841bb"
+    },
+    "tools/pharmacology_checks/PharmacologyProbe.java": {
+      "sha256": "8474221dc2b20e44499cb44da69cf824b032c428f997b5c2e3e6b61d2bbb0c44"
+    },
+    "tools/pharmacology_checks/prelude.lua": {
+      "sha256": "655a9aded5637a8901122193b8fe8ee9f80cd9a845937baa4470f46b77d056ac"
+    },
+    "tools/cooking_test.py": {
+      "sha256": "8a282726782b2761ca9cb78a4a274d1af51c06c7dfc00e997127c7e123ae946a"
+    },
+    "tools/person_handoff_test.py": {
+      "sha256": "329df24990bbf83dfe9ede992e67581cd7bebe33f8feae6f61dea25c73c9d9bb"
+    },
+    "tools/cooking_checks/cases.lua": {
+      "sha256": "4354e88fa71aa7750e6edfccea7cb01bd4c583d36eb9f568480c293952df3fc1"
+    },
+    "tools/cooking_checks/config.py": {
+      "sha256": "82a0fc0d67b9df9e8fb5fab7e3978a3b1f0f4109f2a08b7c06ad90b3c6073b95"
+    },
+    "tools/cooking_checks/CookingProbe.java": {
+      "sha256": "0b45a3bf51e1fd2ac138d3a20f41d9b32cbddb9e30f9eecb7a6440e168c52e13"
+    },
+    "tools/cooking_checks/inspection_cases.lua": {
+      "sha256": "c4a54c1a0400e76ba90d1a7c8b3ef3234ea2228878e0a843ad4a34f0219a22c9"
+    },
+    "tools/cooking_checks/join_cases.lua": {
+      "sha256": "9ee6920ca97db5faacb108d275121c2926128577bbc43a9697786617286e42b5"
+    },
+    "tools/cooking_checks/join_prelude.lua": {
+      "sha256": "1731d152ceffc2b85864fc2ef7febda7a1aecc719635831cb462173bf2db590a"
+    },
+    "tools/cooking_checks/prelude.lua": {
+      "sha256": "62cb1e287c15859c810d30cb796307cc375974872609102c27882862bf8eae19"
+    },
+    "tools/cooking_checks/run_inspection.py": {
+      "sha256": "e76018f68548e9c424ed28925ec4502f06ac2ffcb7cfebf7cd7f6d2403a3510c"
+    },
+    "tools/cooking_checks/run_join.py": {
+      "sha256": "4443697e8b078835380b20de2ff543603f9b84614d8ae63ee29e5856067e829d"
+    },
+    "tools/cooking_checks/run_lua.py": {
+      "sha256": "72059256ba311f6d640d952b72f8c87c7361be7ba340f483375783ec7978d934"
+    },
+    "tools/cooking_checks/run_native.py": {
+      "sha256": "571cb68202d0c5f159307dc2f0e1a4701900381bfc09663367bb3a02ce27dbe8"
+    },
+    "tools/cooking_checks/run_transaction.py": {
+      "sha256": "109b860ad138d507fb3cc0a03e203e509c5b4200d3d2041017fe42c9254a2f34"
+    },
+    "tools/cooking_checks/transaction_cases.lua": {
+      "sha256": "9a6b40ab73701883b451144fb6a75f865e2b966a17bc577f8ec565082cdc57c9"
+    },
+    "tools/cooking_checks/transaction_prelude.lua": {
+      "sha256": "312b652454c2a8d7b985192449b18c5780d60692f728571a7b58a25c1c3776b9"
+    },
+    "tools/orienting_policy_checks/cases.lua": {
+      "sha256": "f9c072aefc2d82401807d2569f233755dc649d097d26b8653109810d32ef3dff"
+    },
+    "tools/orienting_policy_checks/prelude.lua": {
+      "sha256": "e434b84da15e2e025203cc10ddfe46187d56a203abecf4c994d30a42500c0424"
+    },
+    "tools/orienting_policy_checks/run.py": {
+      "sha256": "28846cf10c353883e5eb8867ae6e697bd106557da7a1fc9fe77ff7f7b45c05f3"
+    },
+    "tools/capability_experience_test.py": {
+      "sha256": "f75d2bede48283b3598057551ca8de07a0857e37d2e5439e724a762fb04d1ac1"
+    },
+    "tools/capability_experience_checks/controls.py": {
+      "sha256": "d1c643bfb456c0a3d2834e02d9b3baf616205433db91b79a2ca4d94f5ef9cc9c"
+    },
+    "tools/capability_experience_checks/experience.lua": {
+      "sha256": "2b495813a2dce1ff6a00c0bb944f9f742bc0a6c8fb4a6910ea79764f897bfdf3"
+    },
+    "tools/capability_experience_checks/legacy-archive-receipt.json": {
+      "sha256": "988542b46658d363349edc9c3ba5fd40177c453307cf57877992d0d312a7fd26"
+    },
+    "tools/capability_experience_checks/legacy_archive.lua": {
+      "sha256": "ecee00b4f87917ad8eb8386f2e6a52bb32f6ac4dbb63b8130983abcc7a07432d"
+    },
+    "tools/capability_experience_checks/restore_legacy.lua": {
+      "sha256": "b677802f73aa4a72b11fe388a2bbf6225044dd73d385f5a398866ba29c2e7f05"
+    },
+    "tools/capability_experience_checks/run_checks.py": {
+      "sha256": "83846301efc75092842ba4d7ed889f939e50c45ecaf56b74da9aa50a30721aa1"
+    },
+    "tools/luacheck/CognitiveModelChecks.lua": {
+      "sha256": "356861a7b446c5be3238e341351ed0b25a322a09527244601db05b1e7be25434"
+    },
+    "tools/county_sweep.py": {
+      "sha256": "c49e3b369a6ea7f96690c1c90d5c0edc2f3b13331a8d17b6c181ffe4542ee05e"
+    },
+    "tools/hibernation_pact_test.py": {
+      "sha256": "9f3b2a891f5f46bf55cf9c18f78365e6b460c97748eea530fe5d7383b9fe4dd8"
+    },
+    "tools/home_route_test.py": {
+      "sha256": "a8d4c9a0b2032b5cbe2b0d4a65dd34d9a612522b7d3f6e9e569a11db86b8961a"
+    },
+    "tools/orienting_policy_test.py": {
+      "sha256": "7097cadde3b4b71f2e02ff3eaee0d08b8496f94478ae08e4d2547d2642fc53e4"
+    },
+    "tools/vehicle_ground_test.py": {
+      "sha256": "a979f965efc264f69a3452667d86ff2abf0d96174d56c3c90cf8eb30d320017d"
+    },
+    "tools/home_route_checks/controls.py": {
+      "sha256": "7013102c71631f0c6be2a0eb22a355db78a325a7c8841a59758ab1ac215f4f89"
+    },
+    "tools/home_route_checks/probe.lua": {
+      "sha256": "67bab9e2305e6324cfebfce9edb86867a528c1d6e51b29511a5ddad1518efc0a"
+    },
+    "mod/42.20/media/scripts/items_SAO_pharmacology.txt": {
+      "sha256": "7ecd278df3911d1042ce886c8092dbea8f0012e4eb35d7fbdca81c3acdc1f4ca"
+    },
+    "mod/42.20/media/lua/client/SAO_Drugs.lua": {
+      "sha256": "427d72c5119916444f09caf45d14418e4f927a039d491d63e43a8800c5db8ef6"
+    },
+    "mod/42.20/media/lua/shared/SAO_Habits.lua": {
+      "sha256": "ca35b2ae8d37dd7abdcd7e19cd1bd0f761982ff52150e2d39c452935e6124fab"
+    },
+    "mod/42.20/media/lua/shared/SAO_Pharmacology.lua": {
+      "sha256": "4c02625ec7570bfad09d7b12eea6cdc3362bb85da976815b3d5002514dd92521"
+    },
+    "mod/42.20/media/lua/shared/SAO_PharmacologyProfiles.lua": {
+      "sha256": "11d737bb81f4755ce485fcdc0e4e8bd4373e36ed6e192dfc7ae170cb7b5c24a9"
+    },
+    "mod/42.20/media/lua/server/Items/SAO_PharmacologyLoot.lua": {
+      "sha256": "169ae54eb84d603a5059b7b24abac226ade97da7874fce7f97fbbdab6be96647"
+    },
+    "mod/42.20/media/lua/client/SAO_Body.lua": {
+      "sha256": "8336f0a87781ee787c7b86362f5eca76542c1c6033f91deff2ba262fdcf0dd7b"
+    },
+    "mod/42.20/media/lua/shared/SAO_BodySnapshot.lua": {
+      "sha256": "2cb4b99eca3aa0ebd93c0edbc09776522aefdf78a8344185e587d6c3b30113d9"
+    },
+    "mod/42.20/media/lua/client/SAO_CapabilityExperience.lua": {
+      "sha256": "757aa34d8004f612de0f50867de4382663712ce83db7302ce184251830d74f52"
+    },
+    "mod/42.20/media/lua/client/SAO_Controller.lua": {
+      "sha256": "2bd97f4ac377cbd255445928365b079c88deed868c482a43f6a9344c616e41f9"
+    },
+    "mod/42.20/media/lua/client/SAO_DormantPopulation.lua": {
+      "sha256": "b43287a41e158747617df9566162be22cb8a12d4c469319ca7610123ed2a6d46"
+    },
+    "mod/42.20/media/lua/client/SAO_Needs.lua": {
+      "sha256": "dbe233778fd2f1c26539b57a843295d12a8f70fb5ebb105b84a5ba7d681c8ef1"
+    },
+    "mod/42.20/media/lua/shared/SAO_Neuro.lua": {
+      "sha256": "c029b54a9e1df7effc9aa0e85540c4ffdea2c50b9728beab2a60eff07047f6f0"
+    },
+    "mod/42.20/media/lua/client/SAO_Observation.lua": {
+      "sha256": "167e603aeb6ee1e6537aae50e269d4bf366d08cabaafbbcb83cb7c026cbd8ca4"
+    },
+    "mod/42.20/media/lua/shared/SAO_Orienting.lua": {
+      "sha256": "67c8aa3755869c934c3c14c99cf1593e675525b671f4a7aa14616bb844f0c876"
+    },
+    "mod/42.20/media/lua/shared/SAO_Perception.lua": {
+      "sha256": "626a8230ff7434a326ea6928f8a01619bdf4eba5d29cb25bd9c78accd950eff1"
+    },
+    "mod/42.20/media/lua/client/SAO_Cooking.lua": {
+      "sha256": "8722759869e736e62f61d1ce52a400a8fa5ab3524c366c07c0dd95499c772742"
+    },
+    "mod/42.20/media/lua/shared/SAO_WorldSources.lua": {
+      "sha256": "8b94261a5e1d6a7522b0f4a3009aa6b736cc91cf70b720cb370c7839b72e01ce"
+    },
+    "mod/42.20/media/lua/shared/SAO_Cognition.lua": {
+      "sha256": "bc195be32cad455b1c8a5b8044dc7dc06e9babbfc3efc06cac3ffd5797d17285"
+    },
+    "mod/42.20/media/lua/shared/SAO_CognitiveModels.lua": {
+      "sha256": "8abb65720e2a16aee450b66d15c51d86d5470c9c46e21719eb16e8c3002e2f58"
+    },
+    "java/src/com/sao/Main.java": {
+      "sha256": "38e132ca9dec83eec184a73045db48ceefebc763b563cc5893727a5e07cdb753"
+    },
+    "java/src/com/sao/agent/SAOAgent.java": {
+      "sha256": "cf4a41ddb210c04da4e3d6eeac933068a23341ecfec1778c80bb0210cbe15a4c"
+    },
+    "java/src/com/sao/agent/SAOOrientationWeave.java": {
+      "sha256": "700cbbb40ddfe2f69c24e7d915e342d20b2ed985595435456db375b48f841ce6"
+    },
+    "java/src/com/sao/engine/SAOIsoPlayerShell.java": {
+      "sha256": "a2644a0c155eb51804a6de201888173484ed5aa4f474f32b3b6f5eb595b29eb2"
+    },
+    "java/src/com/sao/engine/SAOOrientation.java": {
+      "sha256": "56e666b1b9a3c236908440453f3d0fc2ac17ef32231df1f9e28fe18832406670"
+    },
+    "java/src/com/sao/engine/SAOOrientationAnimation.java": {
+      "sha256": "2ce5720a4a8a6ffa6c06dfc1f5503870d45207cd262b43764efe2255fd70ceae"
+    },
+    "java/src/com/sao/engine/SAOPerceptionScanner.java": {
+      "sha256": "bc1b1fd8fb31bd4eb5654d045be10ac1543f5ad8af990a3972f11ea59b4836e2"
+    },
+    "java/src/com/sao/engine/SAOSenses.java": {
+      "sha256": "6c0767bcbec7693b4e5da60b95e26ceaefac0c7cc49b3d886e8c0515d1d9ece7"
+    },
+    "java/src/com/sao/engine/SAOWorldSoundPulses.java": {
+      "sha256": "4b78730b45ba4c1e2d703f2cc10a2ec0533186947542340c7a61ae5cbd56ad78"
+    },
+    "mod/42.20/media/SAOOrienting/children.xml": {
+      "sha256": "ca9c4a56aaccaca795754222bb3c3f64fcffd321bbb01f85049891108bf0dc6a"
+    },
+    "mod/42.20/media/SAOOrienting/enter.xml": {
+      "sha256": "aeb3630226745f0809fe91e8739c299369e3e41e4fb65afe0a3ca16b4074131b"
+    },
+    "mod/42.20/media/SAOOrienting/exit.xml": {
+      "sha256": "51e697582eea82fca6490f444c0f05421ece65319d4022f8477cc59aa7468076"
+    },
+    "mod/42.20/media/SAOOrienting/look.xml": {
+      "sha256": "0116b93221f82cc1d7c3a65486f1130ae375815e93a56dfaf1f130e5a1f4cff6"
+    },
+    "mod/42.20/media/SAOOrienting/tags.xml": {
+      "sha256": "3fd3b3d374536a37b9395757eba63899a1a319973d151cc751872d054c20ab37"
+    },
+    "tools/orienting_native_test.py": {
+      "sha256": "041f8b7dfb23c87041d35b14c24d01a8beca190e1f92261e95f445a1c9349502"
+    },
+    "tools/orienting_checks/controls.py": {
+      "sha256": "88f97e19fe66de05ef4f03be48aa1279d67aa4dc7397637f278fe12725b3f494"
+    },
+    "tools/orienting_checks/OrientationProbe.java": {
+      "sha256": "26304d674034c34a354aed901e7b9ae32ca08c499cb3de1238ea91c7fed7ad7e"
+    },
+    "tools/orienting_checks/OrientationProbeAgent.java": {
+      "sha256": "43cb83e5e426bdb375d72768c2a01a1c1785ca15682d1ad84ec0d2d9692a8067"
+    },
+    "tools/orienting_checks/run_checks.py": {
+      "sha256": "2e29750ad3d79975216de55d975dcc27b113d9c78701cd6dedc94e5c451e9246"
+    },
+    "java/src/com/sao/engine/SAOCooking.java": {
+      "sha256": "b64376f151f77a528bbfa6af90fca753a6c0ed55d536f5f528f5720bace04770"
+    },
+    "java/src/com/sao/bridge/SAOBridge.java": {
+      "sha256": "36797d971cee225b463e299d19640dee46ecdb58796fa27552684bdafd7e4ea2"
+    },
+    "java/src/com/sao/engine/SAOHibernation.java": {
+      "sha256": "b3d0c832c920d7c0080435d8572b2ef2437bec5083b22f3569de82f45fab69d8"
+    },
+    "java/src/com/sao/engine/SAONeeds.java": {
+      "sha256": "b0cfa1a26f6b41151889cd82c752e91c2b481cb46d21ff1f8dbf97604ff6f11f"
+    },
+    "mod/42.20/media/java/SAO.jar": {
+      "sha256": "e2eea661fa3be076d691f209727b3185a39b07e872768acd313085f0ddf69ea9"
+    },
+    "tools/orienting_checks/RegistrationRaceAgent.java": {
+      "sha256": "61b902d770c1df6b49e0db55808fdead73992e60f0fd1a8e19161c166a9a9d3f"
+    },
+    "tools/orienting_checks/WeaveDiagnosticsAgent.java": {
+      "sha256": "1453e236432bc4c4223711cd95db77d6b9d20e812318227f93686cf1411d120f"
+    },
+    "tools/orienting_checks/WeaveDiagnosticsProbe.java": {
+      "sha256": "1c7a996e47f7777b47536435ecc36b526a5d720dbd657a34e66f93af3fd3d8ce"
+    },
+    "mod/42.20/media/lua/client/SAO_Gesture.lua": {
+      "sha256": "62f394b329a2916290ec2ec7b23ba0ad940909c569afd4e577b7d006149d134f"
+    },
+    "tools/gesture_ownership_checks/cases.lua": {
+      "sha256": "a3edc9afc360a3e5b924ea2248a8f9fece1c0f0ef93050aa28bf20585c57f7a4"
+    },
+    "tools/gesture_ownership_checks/prelude.lua": {
+      "sha256": "1bbd332f61dc80d9cf67f8bb4ffcfb27c2b45a30300452b110e75d25be4c3a37"
+    },
+    "tools/gesture_ownership_checks/run_checks.py": {
+      "sha256": "7df8992592ff52aeacb758e25b000666e422036ef0b33981a8de4825f24b0a16"
+    },
+    "tools/luacheck/GestureOwnershipProbe.java": {
+      "sha256": "1ff53270dee1047c73e3a818c368e93fcb663668a43ee03c41b98f64a47f9074"
+    },
+    "tools/gestures_test.py": {
+      "sha256": "fbf315ca82710ff6e6af6b8dd4f3561ec24b99584e3e5a2bbf1f356164fcb0ba"
+    },
+    "tools/orienting_checks/LateNativeLoadAgent.java": {
+      "sha256": "a27e7356f64f3bd1036b7a7c949260ab764df7142f91662917ef5ed9426df279"
+    },
+    "tools/orienting_checks/LateNativeLoadProbe.java": {
+      "sha256": "e0c74d2b36d8b80668e05a5168cc3ba9b183f57b29132df3c20a8b817ead6761"
+    },
+    "tools/orienting_checks/late_loading.py": {
+      "sha256": "00a8d0016012029515978a1521c1aeb89df38aad33ccca7e66d6d28994a89037"
+    },
+    "tools/coordination_execution_test.py": {
+      "sha256": "691c34860f174db484e2b7d74a2d9c6ac6c6b3e377b91fb4b2f9d796fc1abaf0"
+    }
+  },
+  "mechanicalReceipts": {
+    "mechanical/pharmacology.json": {
+      "sha256": "b2bc822d5f4cbb943b0b8a15ef2151c015e155445ab76a2cd455265c8ca47f2f",
+      "source": "C:\\Users\\jleyv\\Peanut Butter\\AI Assisted Software Engineering Mass Repository\\Projects\\survivor-awareness\\_scratch\\c89-orienting\\pharma\\results\\controls\\receipt.json"
+    },
+    "mechanical/orienting-policy.json": {
+      "sha256": "827b0ad2638c205267d7d2823e50ab5ba127c9a232de4ca3234d979023e55fa4",
+      "source": "C:\\Users\\jleyv\\Peanut Butter\\AI Assisted Software Engineering Mass Repository\\Projects\\survivor-awareness\\_scratch\\c89-orienting\\policy\\portable-verification.json"
+    },
+    "mechanical/cooking-before-offer-repair.json": {
+      "sha256": "3674e9822ff7b339722ae3e582632746f6e05435de91849e67c8bf4245748c90",
+      "source": "C:\\Users\\jleyv\\Peanut Butter\\AI Assisted Software Engineering Mass Repository\\Projects\\survivor-awareness\\_scratch\\c89-orienting\\cooking\\portable-results\\cooking-verification.json"
+    },
+    "mechanical/cooking-offer-repair.json": {
+      "sha256": "3fceab6b5816a5e3ef63543138f7b05ca606100c8dad6e67ee1322458e269bd8",
+      "source": "C:\\Users\\jleyv\\Peanut Butter\\AI Assisted Software Engineering Mass Repository\\Projects\\survivor-awareness\\_scratch\\c89-orienting\\cooking\\offer-repair-proof\\native-verification.json"
+    },
+    "mechanical/body-transaction.json": {
+      "sha256": "c929c27ed42b2446a9f46b0905b4f119ccb61c98b054f5853c6ffd4373e2b885",
+      "source": "C:\\Users\\jleyv\\Peanut Butter\\AI Assisted Software Engineering Mass Repository\\Projects\\survivor-awareness\\_scratch\\c89-orienting\\cooking\\portable-results\\transaction-verification.json"
+    },
+    "mechanical/home-retry.json": {
+      "sha256": "5a83aed3c223cabe792adc102e5b8ce7d40359157993f356be42c5bdf0b82288",
+      "source": "C:\\Users\\jleyv\\Peanut Butter\\AI Assisted Software Engineering Mass Repository\\Projects\\survivor-awareness\\_scratch\\c89-orienting\\native-02-navigation-review\\border206-final-owner\\receipt.json"
+    },
+    "mechanical/gesture-ownership.json": {
+      "sha256": "05a6caa94432222c74719e6e2fdc8557658c8f1524dcaa8bbe5eac10944adddd",
+      "source": "C:\\Users\\jleyv\\Peanut Butter\\AI Assisted Software Engineering Mass Repository\\Projects\\survivor-awareness\\_scratch\\c89-orienting\\native-02-navigation-review\\gesture-final\\gesture-ownership.json"
+    },
+    "mechanical/gesture-manifest.json": {
+      "sha256": "7e946495ca93f60bf2643c0fa9d62112f089face1b25dad9baffe15315edb41c",
+      "source": "C:\\Users\\jleyv\\Peanut Butter\\AI Assisted Software Engineering Mass Repository\\Projects\\survivor-awareness\\_scratch\\c89-orienting\\native-02-navigation-review\\gesture-manifest.json"
+    },
+    "mechanical/cooking-native.json": {
+      "sha256": "da0ab86a75131b79290f82e1c4ddd6741eba049b111ec35c77454ff21cc56483",
+      "source": "C:\\Users\\jleyv\\Peanut Butter\\AI Assisted Software Engineering Mass Repository\\Projects\\survivor-awareness\\_scratch\\c89-orienting\\native-02-navigation-review\\cooking-reach-final\\native-verification.json"
+    },
+    "mechanical/cooking-lua.json": {
+      "sha256": "134297ce72eea5a36d7070534c2b036957e40b7ef6772db6ede65f257fe3a2b9",
+      "source": "C:\\Users\\jleyv\\Peanut Butter\\AI Assisted Software Engineering Mass Repository\\Projects\\survivor-awareness\\_scratch\\c89-orienting\\native-02-navigation-review\\cooking-reach-final\\lua-verification.json"
+    },
+    "mechanical/cooking-inspection.json": {
+      "sha256": "a63450ad0c1b175235cee190f356bee0704d8122afd86e6b14695480373a4f84",
+      "source": "C:\\Users\\jleyv\\Peanut Butter\\AI Assisted Software Engineering Mass Repository\\Projects\\survivor-awareness\\_scratch\\c89-orienting\\native-02-navigation-review\\cooking-reach-final\\inspection-verification.json"
+    },
+    "mechanical/cooking-join.json": {
+      "sha256": "b85fe2a8e8b4f2c6aeec4b01c19b49fd2e76aeb2729bfadd1161d6d3af2ad7d7",
+      "source": "C:\\Users\\jleyv\\Peanut Butter\\AI Assisted Software Engineering Mass Repository\\Projects\\survivor-awareness\\_scratch\\c89-orienting\\native-02-navigation-review\\cooking-reach-final\\join-verification.json"
+    },
+    "mechanical/cooking-reach-manifest.json": {
+      "sha256": "2ef3d9d152d3a61df8daa10459d0754fa05bbb73a37862488c52a37e9ee5083f",
+      "source": "C:\\Users\\jleyv\\Peanut Butter\\AI Assisted Software Engineering Mass Repository\\Projects\\survivor-awareness\\_scratch\\c89-orienting\\native-02-navigation-review\\cooking-reach-manifest.json"
+    },
+    "review/native05-cooking-reach.json": {
+      "sha256": "0f351cc0e42f6969fc7c784f44267bae41151e23d68b589307c4befbc920b16b",
+      "source": "C:\\Users\\jleyv\\Peanut Butter\\AI Assisted Software Engineering Mass Repository\\Projects\\survivor-awareness\\_scratch\\c89-orienting\\native-02-navigation-review\\native05-cooking-reach-review.json"
+    },
+    "mechanical/fixture-first-ordering.json": {
+      "sha256": "f879297fb31c19136876298edd313c81a9844493bcf5519622ade06710c2b0db",
+      "source": "C:\\Users\\jleyv\\Peanut Butter\\AI Assisted Software Engineering Mass Repository\\Projects\\survivor-awareness\\_scratch\\c89-orienting\\native-02-navigation-review\\fixture-sequencing\\receipt.json"
+    },
+    "mechanical/fixture-private-offer-ordering.json": {
+      "sha256": "4889714e09c8c3fbf0564f054625e432a8f7db5472a28f5356a84205799a579a",
+      "source": "C:\\Users\\jleyv\\Peanut Butter\\AI Assisted Software Engineering Mass Repository\\Projects\\survivor-awareness\\_scratch\\c89-orienting\\native-02-navigation-review\\fixture-sequencing-pair\\receipt.json"
+    },
+    "loaded/mousecat-observer-context.json": {
+      "sha256": "9fa29e602f974d60d582dcf4b38e701f48ac607b14ebe2604f2fb0dd5f321268",
+      "source": "C:\\Users\\jleyv\\Peanut Butter\\AI Assisted Software Engineering Mass Repository\\Projects\\survivor-awareness\\_scratch\\c89-orienting\\mousecat-context\\receipt.json"
+    },
+    "mechanical/private-delivery-address.json": {
+      "sha256": "8a1e2a1858239b6e82d0a263acc7e27287099d0224ba985986ef774c88081faa",
+      "source": "C:\\Users\\jleyv\\Peanut Butter\\AI Assisted Software Engineering Mass Repository\\Projects\\survivor-awareness\\_scratch\\c89-orienting\\requester-review\\requester-repair-frozen.json"
+    },
+    "review/native07-contact-acquisition.json": {
+      "sha256": "9ebca050f76855cb77e606ca4d0fba3ec6612088494a2701388714cc2b4753e1",
+      "source": "C:\\Users\\jleyv\\Peanut Butter\\AI Assisted Software Engineering Mass Repository\\Projects\\survivor-awareness\\_scratch\\c89-orienting\\native-02-navigation-review\\native07-contact-review.json"
+    },
+    "loaded/native-08-cooperation.json": {
+      "sha256": "6d38c75f14daea73409d375984a8132e40baa3ed244f54caefbce993100e18ac",
+      "source": "C:\\Users\\jleyv\\Peanut Butter\\AI Assisted Software Engineering Mass Repository\\Projects\\survivor-awareness\\_scratch\\c89-orienting\\cooperation-review\\native08-audit-0104.json"
+    },
+    "loaded/mousecat-08-desktop.png": {
+      "sha256": "90c03a9ffc06113c623d7bd89ea8f4c1f820ff4c9327a047c1d9170956797a78",
+      "source": "C:\\Users\\jleyv\\Peanut Butter\\AI Assisted Software Engineering Mass Repository\\Projects\\survivor-awareness\\_scratch\\c89-orienting\\browser-08\\actual-desktop.png"
+    },
+    "mechanical/sound-installation-race.json": {
+      "sha256": "46f63e63112cb37141bd3228ee9fd2332279a69feaab61991bae8c555e1923ef",
+      "source": "C:\\Users\\jleyv\\Peanut Butter\\AI Assisted Software Engineering Mass Repository\\Projects\\survivor-awareness\\_scratch\\c89-orienting\\engine\\native-sound-review\\race-receipt.json"
+    },
+    "mechanical/native-neuro.json": {
+      "sha256": "4007cf9f2e3fda706cdfd24f9eed314202cda776135f24618f2fc627328cd145",
+      "source": "C:\\Users\\jleyv\\Peanut Butter\\AI Assisted Software Engineering Mass Repository\\Projects\\survivor-awareness\\_scratch\\c89-orienting\\integration\\neuro-verification.json"
+    },
+    "mechanical/elapsed-metabolism.json": {
+      "sha256": "b8c92ba8b78fe4576100f9b4fbf3c91d24ae820a4ae9b50a76e1cf9d72dcc6a6",
+      "source": "C:\\Users\\jleyv\\Peanut Butter\\AI Assisted Software Engineering Mass Repository\\Projects\\survivor-awareness\\_scratch\\c89-orienting\\integration\\metabolism-verification.json"
+    },
+    "mechanical/cognition-seal.json": {
+      "sha256": "cd1a642a6a616d5628921ebdcdde8890c3549cd49cf609a0d12a3a520583ae4b",
+      "source": "C:\\Users\\jleyv\\Peanut Butter\\AI Assisted Software Engineering Mass Repository\\Projects\\survivor-awareness\\_scratch\\c89-orienting\\cognition\\seal.json"
+    },
+    "mechanical/orienting-seal.json": {
+      "sha256": "b197fe44fe226792c5950453a4a26ac05baec4fe384438142cda1a91f0367940",
+      "source": "C:\\Users\\jleyv\\Peanut Butter\\AI Assisted Software Engineering Mass Repository\\Projects\\survivor-awareness\\_scratch\\c89-orienting\\engine\\seal.json"
+    },
+    "loaded/native-02-review.json": {
+      "sha256": "7cb7dc47f929ca5cc95a0c04de6feaf690d28dc0f2e3a98f25a6d3c7064c7545",
+      "source": "C:\\Users\\jleyv\\Peanut Butter\\AI Assisted Software Engineering Mass Repository\\Projects\\survivor-awareness\\_scratch\\c89-orienting\\native-02-review\\receipt.json"
+    },
+    "mechanical/private-experience.json": {
+      "sha256": "06f0e07e534cfa7bb466453e7acf1247b47422623c4897c2dc76adec1d957c61",
+      "source": "C:\\Users\\jleyv\\AppData\\Local\\Temp\\sao-c89-portable-gates-49dsnb4i\\capability-context-proof-03\\receipt.json"
+    },
+    "mechanical/native-orienting.json": {
+      "sha256": "0cdc5d4628c8b69b247e942cc2ddefa9aebce2a725505f80b6a80bfe2b9efc88",
+      "source": "C:\\Users\\jleyv\\Peanut Butter\\AI Assisted Software Engineering Mass Repository\\Projects\\survivor-awareness\\_scratch\\c89-orienting\\engine\\native-sound-review\\late-sensor-proof\\receipt.json"
+    },
+    "review/final-review-20260927-0526Z-2226PST.json": {
+      "sha256": "a935a679055f4065fdbbf7686ac0d2f38f1f5da651467329957d15d8c021e3fd",
+      "source": "C:\\Users\\jleyv\\Peanut Butter\\AI Assisted Software Engineering Mass Repository\\Projects\\survivor-awareness\\_scratch\\c89-orienting\\native-02-navigation-review\\final-review-20260927-0526Z-2226PST.json"
+    },
+    "loaded/native-03-diagnostic.json": {
+      "sha256": "8833b43802fa0ac5c769fb4de7240f249b3e5972414ea9ae8d8cb9244f3df7ea",
+      "source": "C:\\Users\\jleyv\\Peanut Butter\\AI Assisted Software Engineering Mass Repository\\Projects\\survivor-awareness\\_scratch\\c89-orienting\\native-03\\capability-diagnostic.json"
+    },
+    "loaded/mousecat-03.json": {
+      "sha256": "4ee9ee654ceb86cec763792986ddf838e75c13a5f2901dd37598a9b5cab54a7b",
+      "source": "C:\\Users\\jleyv\\Peanut Butter\\AI Assisted Software Engineering Mass Repository\\Projects\\survivor-awareness\\_scratch\\c89-orienting\\browser-03\\receipt.json"
+    },
+    "loaded/native-04-diagnostic.json": {
+      "sha256": "89a04f10f7c3e5f791c382e52901293af2e8ae30e72d081850ac2d57007282a0",
+      "source": "C:\\Users\\jleyv\\Peanut Butter\\AI Assisted Software Engineering Mass Repository\\Projects\\survivor-awareness\\_scratch\\c89-orienting\\native-04\\capability-diagnostic.json"
+    },
+    "loaded/mousecat-04.json": {
+      "sha256": "5199f12214cd69822b33d2d6304f3bed44e340be6dd1de0270696dd6a98f4f01",
+      "source": "C:\\Users\\jleyv\\Peanut Butter\\AI Assisted Software Engineering Mass Repository\\Projects\\survivor-awareness\\_scratch\\c89-orienting\\browser-04\\receipt.json"
+    },
+    "loaded/native-05-diagnostic.json": {
+      "sha256": "a92e4d17671d3afa0e9afba74a43e4aab094c31deff6ba712f2a70a8d18c55b2",
+      "source": "C:\\Users\\jleyv\\Peanut Butter\\AI Assisted Software Engineering Mass Repository\\Projects\\survivor-awareness\\_scratch\\c89-orienting\\native-05\\capability-diagnostic.json"
+    },
+    "loaded/native-05-rate.json": {
+      "sha256": "738f12c5980891509e5903c1d4e2b08d7910100acbae69876888ef7f924c9a17",
+      "source": "C:\\Users\\jleyv\\Peanut Butter\\AI Assisted Software Engineering Mass Repository\\Projects\\survivor-awareness\\_scratch\\c89-orienting\\native-05\\rate.json"
+    },
+    "loaded/mousecat-05.json": {
+      "sha256": "8194e04220c41acbbdf937ac1c2be45cecf568e4e36c2141ca75c6e01e88b7a1",
+      "source": "C:\\Users\\jleyv\\Peanut Butter\\AI Assisted Software Engineering Mass Repository\\Projects\\survivor-awareness\\_scratch\\c89-orienting\\browser-05\\receipt.json"
+    },
+    "loaded/native-06-diagnostic.json": {
+      "sha256": "849543f99f45466c797310de8de473922b26e098410da2413d2a171ac054cb7a",
+      "source": "C:\\Users\\jleyv\\Peanut Butter\\AI Assisted Software Engineering Mass Repository\\Projects\\survivor-awareness\\_scratch\\c89-orienting\\native-06\\capability-diagnostic.json"
+    },
+    "loaded/native-06-rate.json": {
+      "sha256": "b916413a6eaad448f5a32450a75644e7c76873fd534fc81185cf40cf5f610afc",
+      "source": "C:\\Users\\jleyv\\Peanut Butter\\AI Assisted Software Engineering Mass Repository\\Projects\\survivor-awareness\\_scratch\\c89-orienting\\native-06\\rate.json"
+    },
+    "loaded/native-06-orientation-review.json": {
+      "sha256": "b0f04a40cce8365c5720a0395fd5b340fcc1512180125b0f1a9e28b7dba4819b",
+      "source": "C:\\Users\\jleyv\\Peanut Butter\\AI Assisted Software Engineering Mass Repository\\Projects\\survivor-awareness\\_scratch\\c89-orienting\\native-06\\orientation-review.json"
+    },
+    "loaded/mousecat-06.json": {
+      "sha256": "37595c61a11c0fc8934958cff1747a54d2e9bba51f37b8fa3111db219269e944",
+      "source": "C:\\Users\\jleyv\\Peanut Butter\\AI Assisted Software Engineering Mass Repository\\Projects\\survivor-awareness\\_scratch\\c89-orienting\\browser-06\\receipt.json"
+    },
+    "loaded/native-07-diagnostic.json": {
+      "sha256": "294b5b800f78c1d8b4179909ada1455c12858c1a682f95ed3e7a96f37440508c",
+      "source": "C:\\Users\\jleyv\\Peanut Butter\\AI Assisted Software Engineering Mass Repository\\Projects\\survivor-awareness\\_scratch\\c89-orienting\\native-07\\capability-diagnostic.json"
+    },
+    "loaded/native-07-resume-review.json": {
+      "sha256": "de4666156a7fae4434879dc55071c2765fd395827ab34190d10cbbe08936dd16",
+      "source": "C:\\Users\\jleyv\\Peanut Butter\\AI Assisted Software Engineering Mass Repository\\Projects\\survivor-awareness\\_scratch\\c89-orienting\\native-07\\resume-review.json"
+    },
+    "loaded/mousecat-07.json": {
+      "sha256": "26baaee17d5c994292df6cc6a785b35b30d9e0719a832cdff76f6cdeaf3eb4bd",
+      "source": "C:\\Users\\jleyv\\Peanut Butter\\AI Assisted Software Engineering Mass Repository\\Projects\\survivor-awareness\\_scratch\\c89-orienting\\browser-07\\receipt.json"
+    },
+    "loaded/mousecat-07-resume.json": {
+      "sha256": "17ed31968500d226712cd8aa639ac20266b1e9995ad8a1f724785c42b90d2600",
+      "source": "C:\\Users\\jleyv\\Peanut Butter\\AI Assisted Software Engineering Mass Repository\\Projects\\survivor-awareness\\_scratch\\c89-orienting\\browser-07-resume\\receipt.json"
+    },
+    "loaded/native-08-diagnostic.json": {
+      "sha256": "3776fac7b805cdc8d13ca579a529d1a8231ab7222d5dfba8e803358a08ee1297",
+      "source": "C:\\Users\\jleyv\\Peanut Butter\\AI Assisted Software Engineering Mass Repository\\Projects\\survivor-awareness\\_scratch\\c89-orienting\\native-08\\capability-diagnostic.json"
+    },
+    "loaded/native-08-rate.json": {
+      "sha256": "319ff6b2786cd8da39093d2adea1a090726c96073bc3d89fde9917d96a3de8ab",
+      "source": "C:\\Users\\jleyv\\Peanut Butter\\AI Assisted Software Engineering Mass Repository\\Projects\\survivor-awareness\\_scratch\\c89-orienting\\native-08\\rate.json"
+    },
+    "loaded/mousecat-08.json": {
+      "sha256": "0d0944cfefd2bba966f9914bfeae27a98b806cad24b43331410f1f380a313f2a",
+      "source": "C:\\Users\\jleyv\\Peanut Butter\\AI Assisted Software Engineering Mass Repository\\Projects\\survivor-awareness\\_scratch\\c89-orienting\\browser-08\\receipt.json"
+    },
+    "integration/zao-a44-publication.json": {
+      "sha256": "9a3538c83f0a41235d2f9215bc202ba69c13c67d6bf5c4c65753e0e2d3bf551d",
+      "source": "C:\\Users\\jleyv\\Peanut Butter\\AI Assisted Software Engineering Mass Repository\\Projects\\zombie-awareness\\_scratch\\a44\\publication.json"
+    },
+    "integration/speakeasy-r74-publication.json": {
+      "sha256": "ed21a2af325564ad8e87ce3118e7691130cdbd4490463c4a2c6ed826c28d2da1",
+      "source": "C:\\Users\\jleyv\\Peanut Butter\\AI Assisted Software Engineering Mass Repository\\Projects\\.worktrees\\speakeasy-r57-speaker-example\\runs\\r74-final-verification\\publication.json"
+    },
+    "integration/speakeasy-r75-publication.json": {
+      "sha256": "cc68c38e05869a377c598269f2712cc2fa0f160fe6cd73e2e1259da7bfc7b69c",
+      "source": "C:\\Users\\jleyv\\Peanut Butter\\AI Assisted Software Engineering Mass Repository\\Projects\\.worktrees\\speakeasy-r57-speaker-example\\runs\\r75-20260927-0638Z-2338PST\\publication.json"
+    }
+  },
+  "loadedRunIds": [
+    "b28f9981-5fb1-4396-a162-45e387d0d1a9",
+    "7807b0b8-9b31-42fb-940e-b2bdfe7e9c60",
+    "8b878f28-6f81-4e63-b7da-063547b89d10",
+    "63969a67-5b69-4ce7-b600-8815c2b8c259",
+    "88973430-47da-41fb-8a40-e023c7d3e355",
+    "95d05f2c-9d8b-4f3e-a867-d4744073d7be"
+  ],
+  "closingGate": {
+    "entry": "tools/pre-commit -> tools/check.sh",
+    "receipt": "_scratch/c89-orienting/full-gate/precommit-01/verification-receipt.json",
+    "boundary": "The commit hook generates its receipt after these inputs are frozen. The receipt and CI outcome establish closure; this file does not predeclare a pass."
+  },
+  "limits": [
+    "Controlled interventions supply two carried items and request preparation; they do not prove autonomous action selection.",
+    "Native03 and04 are partial evidence and retain their exposed appliance, sound and competing gesture failures.",
+    "Private model disagreement and changed beliefs do not establish policy superiority or validated technological knowledge.",
+    "Owned horse execution, local-player physiology and general native verb completion remain the catalogue gaps.",
+    "Mousecat image arrival measures delivered observation images, not engine renderer FPS.",
+    "Native08 observed reception, returned responses, commitments and one acquisition; no carrying route or completed delivery was observed."
+  ]
+}

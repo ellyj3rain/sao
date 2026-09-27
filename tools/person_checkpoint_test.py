@@ -23,10 +23,6 @@ Events.OnSave={
   for i=#__saveCallbacks,1,-1 do if __saveCallbacks[i]==fn then table.remove(__saveCallbacks,i) end end
  end
 }
-local oldBody=__body
-function __body()
- local b=oldBody() b.isDead=function() return b.nativeDead==true end return b
-end
 function __plainCopy(value, seen)
  local kind=type(value)
  assert(kind=='table' or kind=='number' or kind=='string' or kind=='boolean' or kind=='nil',
@@ -121,7 +117,7 @@ for _,kind in ipairs({'return','release','restore','discard','returning','dead',
  elseif kind=='discard' then SAO.Body.discarding.p1=true
  elseif kind=='returning' then SAO.Body.returning.p1=b
  elseif kind=='dead' then r.dead=true
- elseif kind=='native-dead' then b.nativeDead=true
+ elseif kind=='native-dead' then b.dead=true
  elseif kind=='foreign' then SAO.Body.foreign.p1=b
  else SAOJavaBridge.isShell=function() return false end end
  local journal=r.returnTransition or r.bodyRelease

@@ -1,0 +1,350 @@
+{
+  "counts": {
+    "scope": 1,
+    "sound": 6,
+    "intervention-sensor-sample": 6,
+    "sample": 556,
+    "preparation-queue-before": 1,
+    "preparation-queue-after": 1,
+    "preparation-request": 1,
+    "dose-request": 1,
+    "dose-remaining": 141
+  },
+  "errors": [],
+  "interventions": [
+    {
+      "intervention": "audible native pulses; one carried dose; one preparation request",
+      "outcome": "unmeasured",
+      "autonomousSelection": false,
+      "hours": 2.0003700256347656,
+      "wallMs": 1790488108022,
+      "kind": "scope"
+    },
+    {
+      "actor": "sao-1",
+      "x": 3429,
+      "y": 10907,
+      "sequence": 1,
+      "forwardX": -1,
+      "forwardY": 0,
+      "hours": 2.0007400512695312,
+      "wallMs": 1790488108523,
+      "kind": "sound"
+    },
+    {
+      "actor": "sao-1",
+      "sequence": 1,
+      "raw": "P:Jimmie Andres:3427:10910:1.0:ok|S:3427:10904:6.5|S:3429:10907:4.3",
+      "boundary": "Deliberate immediate native sensor read; autonomous scan timing unmeasured",
+      "hours": 2.0007400512695312,
+      "wallMs": 1790488108524,
+      "kind": "intervention-sensor-sample"
+    },
+    {
+      "actor": "sao-2",
+      "queues": {
+        "nativeCount": 0,
+        "luaCount": 0
+      },
+      "hours": 2.0031614303588867,
+      "wallMs": 1790488109038,
+      "kind": "preparation-queue-before"
+    },
+    {
+      "actor": "sao-2",
+      "queues": {
+        "nativeCount": 0,
+        "luaCount": 0
+      },
+      "work": {
+        "stage": "approach-appliance",
+        "itemType": "Base.MuttonChop",
+        "sourceId": "C:a67382e8-1164-4834-a167-ca805f58002a:0",
+        "startedAt": 2.0031614303588867,
+        "heatObserved": false
+      },
+      "hours": 2.0031614303588867,
+      "wallMs": 1790488109042,
+      "kind": "preparation-queue-after"
+    },
+    {
+      "actor": "sao-2",
+      "itemId": 1176783481,
+      "itemType": "Base.MuttonChop",
+      "accepted": true,
+      "appliances": 1,
+      "sourceId": "C:a67382e8-1164-4834-a167-ca805f58002a:0",
+      "hours": 2.0031614303588867,
+      "wallMs": 1790488109043,
+      "kind": "preparation-request"
+    },
+    {
+      "actor": "sao-1",
+      "x": 3428,
+      "y": 10907,
+      "sequence": 2,
+      "forwardX": -1,
+      "forwardY": 0,
+      "hours": 2.011690139770508,
+      "wallMs": 1790488111036,
+      "kind": "sound"
+    },
+    {
+      "actor": "sao-1",
+      "sequence": 2,
+      "raw": "P:Jimmie Andres:3426:10910:0.5:ok|S:3428:10907:4.2",
+      "boundary": "Deliberate immediate native sensor read; autonomous scan timing unmeasured",
+      "hours": 2.011690139770508,
+      "wallMs": 1790488111036,
+      "kind": "intervention-sensor-sample"
+    },
+    {
+      "actor": "sao-1",
+      "x": 3428,
+      "y": 10907,
+      "sequence": 3,
+      "forwardX": -1,
+      "forwardY": 0,
+      "hours": 2.022672653198242,
+      "wallMs": 1790488113546,
+      "kind": "sound"
+    },
+    {
+      "actor": "sao-1",
+      "sequence": 3,
+      "raw": "P:Jimmie Andres:3426:10910:0.5:ok|S:3428:10907:4.2",
+      "boundary": "Deliberate immediate native sensor read; autonomous scan timing unmeasured",
+      "hours": 2.022672653198242,
+      "wallMs": 1790488113546,
+      "kind": "intervention-sensor-sample"
+    },
+    {
+      "actor": "sao-1",
+      "x": 3428,
+      "y": 10907,
+      "sequence": 4,
+      "forwardX": -1,
+      "forwardY": 0,
+      "hours": 2.0336742401123047,
+      "wallMs": 1790488116049,
+      "kind": "sound"
+    },
+    {
+      "actor": "sao-1",
+      "sequence": 4,
+      "raw": "P:Jimmie Andres:3426:10910:0.5:ok|S:3428:10907:4.2",
+      "boundary": "Deliberate immediate native sensor read; autonomous scan timing unmeasured",
+      "hours": 2.0336742401123047,
+      "wallMs": 1790488116050,
+      "kind": "intervention-sensor-sample"
+    },
+    {
+      "actor": "sao-1",
+      "x": 3428,
+      "y": 10907,
+      "sequence": 5,
+      "forwardX": -1,
+      "forwardY": 0,
+      "hours": 2.044576644897461,
+      "wallMs": 1790488118561,
+      "kind": "sound"
+    },
+    {
+      "actor": "sao-1",
+      "sequence": 5,
+      "raw": "P:Jimmie Andres:3426:10910:0.5:ok|S:3428:10907:4.2",
+      "boundary": "Deliberate immediate native sensor read; autonomous scan timing unmeasured",
+      "hours": 2.044576644897461,
+      "wallMs": 1790488118561,
+      "kind": "intervention-sensor-sample"
+    },
+    {
+      "actor": "sao-1",
+      "x": 3428,
+      "y": 10907,
+      "sequence": 6,
+      "forwardX": -1,
+      "forwardY": 0,
+      "hours": 2.0558032989501953,
+      "wallMs": 1790488121079,
+      "kind": "sound"
+    },
+    {
+      "actor": "sao-1",
+      "sequence": 6,
+      "raw": "P:Jimmie Andres:3426:10910:0.5:ok|S:3428:10907:4.2",
+      "boundary": "Deliberate immediate native sensor read; autonomous scan timing unmeasured",
+      "hours": 2.0558032989501953,
+      "wallMs": 1790488121079,
+      "kind": "intervention-sensor-sample"
+    },
+    {
+      "actor": "sao-1",
+      "itemId": 1651815459,
+      "itemType": "SAO.SedativeTablets",
+      "beforeUses": 10,
+      "accepted": true,
+      "hours": 2.0689287185668945,
+      "wallMs": 1790488124030,
+      "kind": "dose-request"
+    }
+  ],
+  "attentionPhases": {
+    "idle": 556
+  },
+  "activeAttention": 0,
+  "heardSamples": 0,
+  "activeDrugSamples": 64,
+  "cookingStages": {
+    "null": 378,
+    "approach-appliance": 11,
+    "store": 4,
+    "heat": 163
+  },
+  "latestByActor": {
+    "sao-1": {
+      "actor": "sao-1",
+      "state": "IDLE",
+      "x": 3406.312744140625,
+      "y": 10900.6826171875,
+      "forwardX": 0.04419420287013054,
+      "forwardY": -0.9990229606628418,
+      "hearingModifier": 1,
+      "weatherHearing": 0.9637551307678223,
+      "deaf": false,
+      "asleep": false,
+      "attention": {
+        "active": false,
+        "cueId": "",
+        "phase": "idle",
+        "reason": "idle",
+        "remainingSeconds": 0,
+        "readiness": 0,
+        "steadiness": 0,
+        "allowBodyTurn": false,
+        "layerReady": false,
+        "headHorizontal": 0,
+        "gazeX": 0.04419420287013054,
+        "gazeY": -0.9990229606628418
+      },
+      "queues": {
+        "nativeCount": 0,
+        "luaCount": 0
+      },
+      "lastUse": {
+        "kind": "physical-change",
+        "minute": 509,
+        "atHours": 8.483333333333333,
+        "observedAtHours": 8.487909317016602,
+        "stats": {
+          "NICOTINE_WITHDRAWAL": {
+            "before": 0.0012294839834794402,
+            "after": 0
+          }
+        },
+        "exposures": {
+          "sedatives": 1
+        }
+      },
+      "effects": {
+        "atHours": 14.083333333333334,
+        "active": false,
+        "sedating": false,
+        "stimulating": false,
+        "overload": false,
+        "withdrawal": false,
+        "painSuppressed": false,
+        "families": {}
+      },
+      "clarity": 1,
+      "steadiness": 1,
+      "fatigue": 0.5349851250648499,
+      "thirst": 0.34842413663864136,
+      "hunger": 0.3417208194732666,
+      "hours": 14.09913444519043,
+      "wallMs": 1790488473876,
+      "kind": "sample"
+    },
+    "sao-2": {
+      "actor": "sao-2",
+      "state": "IDLE",
+      "x": 3405.44921875,
+      "y": 10902.15625,
+      "forwardX": -0.05800558254122734,
+      "forwardY": 0.9983162879943848,
+      "hearingModifier": 1,
+      "weatherHearing": 0.9637551307678223,
+      "deaf": false,
+      "asleep": false,
+      "attention": {
+        "active": false,
+        "cueId": "",
+        "phase": "idle",
+        "reason": "idle",
+        "remainingSeconds": 0,
+        "readiness": 0,
+        "steadiness": 0,
+        "allowBodyTurn": false,
+        "layerReady": false,
+        "headHorizontal": 0,
+        "gazeX": -0.05800558254122734,
+        "gazeY": 0.9983162879943848
+      },
+      "queues": {
+        "nativeCount": 0,
+        "luaCount": 0
+      },
+      "outcome": {
+        "id": "cooking/sao-2/1",
+        "sequence": 1,
+        "actorId": "sao-2",
+        "itemId": 1176783481,
+        "itemType": "Base.MuttonChop",
+        "sourceId": "C:a67382e8-1164-4834-a167-ca805f58002a:0",
+        "startedAt": 2.0031614303588867,
+        "atHours": 2.272507667541504,
+        "status": "interrupted",
+        "detail": "appliance-unavailable",
+        "beforeCookingTime": 0,
+        "afterCookingTime": 24.028383255004883,
+        "heatObserved": true,
+        "retrieved": false,
+        "detached": false
+      },
+      "effects": {
+        "atHours": 14.083333333333334,
+        "active": false,
+        "sedating": false,
+        "stimulating": false,
+        "overload": false,
+        "withdrawal": false,
+        "painSuppressed": false,
+        "families": {}
+      },
+      "clarity": 1,
+      "steadiness": 1,
+      "fatigue": 0.009946132078766823,
+      "thirst": 0.3484351933002472,
+      "hunger": 0.3417208194732666,
+      "hours": 14.09913444519043,
+      "wallMs": 1790488473877,
+      "kind": "sample"
+    }
+  },
+  "firstDoseRemaining": {
+    "actor": "sao-1",
+    "itemId": 1651815459,
+    "currentUses": 10,
+    "hours": 2.0689287185668945,
+    "wallMs": 1790488124031,
+    "kind": "dose-remaining"
+  },
+  "lastDoseRemaining": {
+    "actor": "sao-1",
+    "itemId": 1651815459,
+    "currentUses": 9,
+    "hours": 14.09913444519043,
+    "wallMs": 1790488473878,
+    "kind": "dose-remaining"
+  }
+}

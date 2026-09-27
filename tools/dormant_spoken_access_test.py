@@ -87,9 +87,11 @@ SAOJavaBridge = {
 '''
 
 
-def static_checks() -> dict[str, bool]:
-    population = POPULATION.read_text(encoding="utf-8")
-    body = BODY.read_text(encoding="utf-8")
+def static_checks(population_text: str | None = None,
+                  body_text: str | None = None) -> dict[str, bool]:
+    population = (POPULATION.read_text(encoding="utf-8")
+                  if population_text is None else population_text)
+    body = BODY.read_text(encoding="utf-8") if body_text is None else body_text
     capture = SNAPSHOT_LUA.read_text(encoding="utf-8")
     controller = CONTROLLER.read_text(encoding="utf-8")
     identity = IDENTITY.read_text(encoding="utf-8")
@@ -97,11 +99,17 @@ def static_checks() -> dict[str, bool]:
     bridge = BRIDGE.read_text(encoding="utf-8")
     life_at = population.find('runSub("dormant-life", dormantLife, conf)')
     encounter_at = population.find('runSub("encounters", dormantEncounters)')
+    materialize_at = body.find("function Body.materialize(")
+    materialize_end = body.find("function Body.materializeExternal(", materialize_at)
+    materialize = body[materialize_at:materialize_end]
     awaken = re.search(
         r"SAOJavaBridge:awaken\(body, rec\.hibernation,\s*"
-        r"(?:elapsed|externalDormancy\s+and\s+0\s+or\s+elapsed)\)", body)
+        r"(?:elapsed|(?:externalDormancy|\(externalDormancy\s+or\s+joinedDormancy\))"
+        r"\s+and\s+0\s+or\s+elapsed)\)", materialize)
     awaken_at = awaken.start() if awaken else -1
-    apply_at = body.find("SAOJavaBridge:applyDormantRestState(")
+    apply_at = materialize.find(
+        "return SAOJavaBridge:applyDormantRestState(\n"
+        "                    body, dormantFatigue, dormantEndurance)")
     return {
         "life_precedes_encounter": 0 <= life_at < encounter_at,
         "overlay_follows_native_restore": 0 <= awaken_at < apply_at,
@@ -183,8 +191,8 @@ def main() -> int:
     if swapped == population or no_apply == body:
         print("FAULT dormant spoken-access static control anchor")
         return 1
-    if ('runSub("dormant-life", dormantLife, conf)' in swapped
-            or "SAOJavaBridge:applyDormantRestState(" in no_apply):
+    if (static_checks(population_text=swapped)["life_precedes_encounter"]
+            or static_checks(body_text=no_apply)["overlay_follows_native_restore"]):
         print("FAULT dormant spoken-access static control survived")
         return 1
     print(f"Border 185 PASS: {len(anchors)} dormant spoken-access integration anchors and 2 controls")

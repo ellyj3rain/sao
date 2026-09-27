@@ -1,0 +1,1928 @@
+{
+  "schema": "sao-native-sample/1",
+  "sessionId": "8b878f28-6f81-4e63-b7da-063547b89d10",
+  "pid": 118532,
+  "seconds": 55.006160300108604,
+  "distinctImagesObserved": 331,
+  "distinctImagesPerWallSecondLowerBound": 5.999328042523784,
+  "images": [
+    {
+      "sequence": 859,
+      "capturedAtUnixMs": 1790488197782,
+      "firstObservedSeconds": 3.500026650726795e-06
+    },
+    {
+      "sequence": 860,
+      "capturedAtUnixMs": 1790488197840,
+      "firstObservedSeconds": 0.041279900004155934
+    },
+    {
+      "sequence": 861,
+      "capturedAtUnixMs": 1790488197895,
+      "firstObservedSeconds": 0.1028435000916943
+    },
+    {
+      "sequence": 862,
+      "capturedAtUnixMs": 1790488197957,
+      "firstObservedSeconds": 0.16445610008668154
+    },
+    {
+      "sequence": 863,
+      "capturedAtUnixMs": 1790488198010,
+      "firstObservedSeconds": 0.20559390005655587
+    },
+    {
+      "sequence": 864,
+      "capturedAtUnixMs": 1790488198074,
+      "firstObservedSeconds": 0.2674829000607133
+    },
+    {
+      "sequence": 865,
+      "capturedAtUnixMs": 1790488198132,
+      "firstObservedSeconds": 0.3290993000846356
+    },
+    {
+      "sequence": 866,
+      "capturedAtUnixMs": 1790488198186,
+      "firstObservedSeconds": 0.37018650001846254
+    },
+    {
+      "sequence": 867,
+      "capturedAtUnixMs": 1790488198240,
+      "firstObservedSeconds": 0.4320857001002878
+    },
+    {
+      "sequence": 868,
+      "capturedAtUnixMs": 1790488198294,
+      "firstObservedSeconds": 0.4945156000321731
+    },
+    {
+      "sequence": 869,
+      "capturedAtUnixMs": 1790488198354,
+      "firstObservedSeconds": 0.5567223000107333
+    },
+    {
+      "sequence": 870,
+      "capturedAtUnixMs": 1790488198418,
+      "firstObservedSeconds": 0.618261200026609
+    },
+    {
+      "sequence": 871,
+      "capturedAtUnixMs": 1790488198469,
+      "firstObservedSeconds": 0.6593078000005335
+    },
+    {
+      "sequence": 872,
+      "capturedAtUnixMs": 1790488198529,
+      "firstObservedSeconds": 0.7209437000565231
+    },
+    {
+      "sequence": 873,
+      "capturedAtUnixMs": 1790488198595,
+      "firstObservedSeconds": 0.7824886000016704
+    },
+    {
+      "sequence": 874,
+      "capturedAtUnixMs": 1790488198859,
+      "firstObservedSeconds": 1.0497543000383303
+    },
+    {
+      "sequence": 875,
+      "capturedAtUnixMs": 1790488198926,
+      "firstObservedSeconds": 1.1323629000689834
+    },
+    {
+      "sequence": 876,
+      "capturedAtUnixMs": 1790488199037,
+      "firstObservedSeconds": 1.2357068000128493
+    },
+    {
+      "sequence": 877,
+      "capturedAtUnixMs": 1790488199120,
+      "firstObservedSeconds": 1.3177421001018956
+    },
+    {
+      "sequence": 878,
+      "capturedAtUnixMs": 1790488199207,
+      "firstObservedSeconds": 1.4001660000067204
+    },
+    {
+      "sequence": 879,
+      "capturedAtUnixMs": 1790488199270,
+      "firstObservedSeconds": 1.4615267000626773
+    },
+    {
+      "sequence": 880,
+      "capturedAtUnixMs": 1790488199351,
+      "firstObservedSeconds": 1.5435808000620455
+    },
+    {
+      "sequence": 881,
+      "capturedAtUnixMs": 1790488199409,
+      "firstObservedSeconds": 1.6053327000699937
+    },
+    {
+      "sequence": 882,
+      "capturedAtUnixMs": 1790488199481,
+      "firstObservedSeconds": 1.6874742000363767
+    },
+    {
+      "sequence": 883,
+      "capturedAtUnixMs": 1790488199561,
+      "firstObservedSeconds": 1.750095000024885
+    },
+    {
+      "sequence": 884,
+      "capturedAtUnixMs": 1790488199955,
+      "firstObservedSeconds": 2.1623339001089334
+    },
+    {
+      "sequence": 885,
+      "capturedAtUnixMs": 1790488200002,
+      "firstObservedSeconds": 2.203564100083895
+    },
+    {
+      "sequence": 886,
+      "capturedAtUnixMs": 1790488200060,
+      "firstObservedSeconds": 2.265122600016184
+    },
+    {
+      "sequence": 887,
+      "capturedAtUnixMs": 1790488203279,
+      "firstObservedSeconds": 5.4716215000953525
+    },
+    {
+      "sequence": 888,
+      "capturedAtUnixMs": 1790488203538,
+      "firstObservedSeconds": 5.739139400073327
+    },
+    {
+      "sequence": 889,
+      "capturedAtUnixMs": 1790488203609,
+      "firstObservedSeconds": 5.800774100003764
+    },
+    {
+      "sequence": 890,
+      "capturedAtUnixMs": 1790488203688,
+      "firstObservedSeconds": 5.883357100072317
+    },
+    {
+      "sequence": 891,
+      "capturedAtUnixMs": 1790488203749,
+      "firstObservedSeconds": 5.944905500044115
+    },
+    {
+      "sequence": 892,
+      "capturedAtUnixMs": 1790488203809,
+      "firstObservedSeconds": 6.006291500059888
+    },
+    {
+      "sequence": 893,
+      "capturedAtUnixMs": 1790488203880,
+      "firstObservedSeconds": 6.067816500086337
+    },
+    {
+      "sequence": 894,
+      "capturedAtUnixMs": 1790488203938,
+      "firstObservedSeconds": 6.1294483001111075
+    },
+    {
+      "sequence": 895,
+      "capturedAtUnixMs": 1790488203996,
+      "firstObservedSeconds": 6.191353100002743
+    },
+    {
+      "sequence": 896,
+      "capturedAtUnixMs": 1790488204046,
+      "firstObservedSeconds": 6.232800800004043
+    },
+    {
+      "sequence": 897,
+      "capturedAtUnixMs": 1790488204107,
+      "firstObservedSeconds": 6.294271800084971
+    },
+    {
+      "sequence": 898,
+      "capturedAtUnixMs": 1790488204172,
+      "firstObservedSeconds": 6.377431300003082
+    },
+    {
+      "sequence": 899,
+      "capturedAtUnixMs": 1790488204248,
+      "firstObservedSeconds": 6.439132700092159
+    },
+    {
+      "sequence": 900,
+      "capturedAtUnixMs": 1790488204522,
+      "firstObservedSeconds": 6.726649700081907
+    },
+    {
+      "sequence": 901,
+      "capturedAtUnixMs": 1790488204583,
+      "firstObservedSeconds": 6.7887482000514865
+    },
+    {
+      "sequence": 902,
+      "capturedAtUnixMs": 1790488204640,
+      "firstObservedSeconds": 6.850290900096297
+    },
+    {
+      "sequence": 903,
+      "capturedAtUnixMs": 1790488204713,
+      "firstObservedSeconds": 6.911625300068408
+    },
+    {
+      "sequence": 904,
+      "capturedAtUnixMs": 1790488204808,
+      "firstObservedSeconds": 7.035594200016931
+    },
+    {
+      "sequence": 905,
+      "capturedAtUnixMs": 1790488204896,
+      "firstObservedSeconds": 7.097649700008333
+    },
+    {
+      "sequence": 906,
+      "capturedAtUnixMs": 1790488204979,
+      "firstObservedSeconds": 7.200616900110617
+    },
+    {
+      "sequence": 907,
+      "capturedAtUnixMs": 1790488205063,
+      "firstObservedSeconds": 7.262612999998964
+    },
+    {
+      "sequence": 908,
+      "capturedAtUnixMs": 1790488205126,
+      "firstObservedSeconds": 7.3450852000387385
+    },
+    {
+      "sequence": 909,
+      "capturedAtUnixMs": 1790488205187,
+      "firstObservedSeconds": 7.386001700069755
+    },
+    {
+      "sequence": 910,
+      "capturedAtUnixMs": 1790488205244,
+      "firstObservedSeconds": 7.448392800055444
+    },
+    {
+      "sequence": 911,
+      "capturedAtUnixMs": 1790488205527,
+      "firstObservedSeconds": 7.736866100109182
+    },
+    {
+      "sequence": 912,
+      "capturedAtUnixMs": 1790488205590,
+      "firstObservedSeconds": 7.798394900048152
+    },
+    {
+      "sequence": 913,
+      "capturedAtUnixMs": 1790488205667,
+      "firstObservedSeconds": 7.880877200048417
+    },
+    {
+      "sequence": 915,
+      "capturedAtUnixMs": 1790488205796,
+      "firstObservedSeconds": 8.004876400111243
+    },
+    {
+      "sequence": 916,
+      "capturedAtUnixMs": 1790488205855,
+      "firstObservedSeconds": 8.066825700108893
+    },
+    {
+      "sequence": 917,
+      "capturedAtUnixMs": 1790488205909,
+      "firstObservedSeconds": 8.128628900041804
+    },
+    {
+      "sequence": 918,
+      "capturedAtUnixMs": 1790488205962,
+      "firstObservedSeconds": 8.14914710004814
+    },
+    {
+      "sequence": 919,
+      "capturedAtUnixMs": 1790488206016,
+      "firstObservedSeconds": 8.232269000029191
+    },
+    {
+      "sequence": 920,
+      "capturedAtUnixMs": 1790488206113,
+      "firstObservedSeconds": 8.31500370008871
+    },
+    {
+      "sequence": 921,
+      "capturedAtUnixMs": 1790488206185,
+      "firstObservedSeconds": 8.39713020005729
+    },
+    {
+      "sequence": 922,
+      "capturedAtUnixMs": 1790488206247,
+      "firstObservedSeconds": 8.45873670000583
+    },
+    {
+      "sequence": 923,
+      "capturedAtUnixMs": 1790488206542,
+      "firstObservedSeconds": 8.746301500010304
+    },
+    {
+      "sequence": 924,
+      "capturedAtUnixMs": 1790488206609,
+      "firstObservedSeconds": 8.80835070007015
+    },
+    {
+      "sequence": 925,
+      "capturedAtUnixMs": 1790488206687,
+      "firstObservedSeconds": 8.890983700053766
+    },
+    {
+      "sequence": 926,
+      "capturedAtUnixMs": 1790488206745,
+      "firstObservedSeconds": 8.952580700046383
+    },
+    {
+      "sequence": 927,
+      "capturedAtUnixMs": 1790488210248,
+      "firstObservedSeconds": 12.449944300111383
+    },
+    {
+      "sequence": 928,
+      "capturedAtUnixMs": 1790488210301,
+      "firstObservedSeconds": 12.491473100031726
+    },
+    {
+      "sequence": 929,
+      "capturedAtUnixMs": 1790488210351,
+      "firstObservedSeconds": 12.55310650006868
+    },
+    {
+      "sequence": 930,
+      "capturedAtUnixMs": 1790488210410,
+      "firstObservedSeconds": 12.594267400098033
+    },
+    {
+      "sequence": 931,
+      "capturedAtUnixMs": 1790488210469,
+      "firstObservedSeconds": 12.65607860009186
+    },
+    {
+      "sequence": 932,
+      "capturedAtUnixMs": 1790488210535,
+      "firstObservedSeconds": 12.738188400049694
+    },
+    {
+      "sequence": 933,
+      "capturedAtUnixMs": 1790488210594,
+      "firstObservedSeconds": 12.779409200069495
+    },
+    {
+      "sequence": 934,
+      "capturedAtUnixMs": 1790488210645,
+      "firstObservedSeconds": 12.841448800056241
+    },
+    {
+      "sequence": 935,
+      "capturedAtUnixMs": 1790488210695,
+      "firstObservedSeconds": 12.882948100101203
+    },
+    {
+      "sequence": 936,
+      "capturedAtUnixMs": 1790488210767,
+      "firstObservedSeconds": 12.969203700078651
+    },
+    {
+      "sequence": 937,
+      "capturedAtUnixMs": 1790488210821,
+      "firstObservedSeconds": 13.010235800058581
+    },
+    {
+      "sequence": 938,
+      "capturedAtUnixMs": 1790488210892,
+      "firstObservedSeconds": 13.092765300069004
+    },
+    {
+      "sequence": 939,
+      "capturedAtUnixMs": 1790488210942,
+      "firstObservedSeconds": 13.13396470004227
+    },
+    {
+      "sequence": 941,
+      "capturedAtUnixMs": 1790488211341,
+      "firstObservedSeconds": 13.545672000036575
+    },
+    {
+      "sequence": 942,
+      "capturedAtUnixMs": 1790488211420,
+      "firstObservedSeconds": 13.628079800051637
+    },
+    {
+      "sequence": 943,
+      "capturedAtUnixMs": 1790488211505,
+      "firstObservedSeconds": 13.710247500101104
+    },
+    {
+      "sequence": 944,
+      "capturedAtUnixMs": 1790488211573,
+      "firstObservedSeconds": 13.772388400044292
+    },
+    {
+      "sequence": 945,
+      "capturedAtUnixMs": 1790488211643,
+      "firstObservedSeconds": 13.855384199996479
+    },
+    {
+      "sequence": 946,
+      "capturedAtUnixMs": 1790488211712,
+      "firstObservedSeconds": 13.917111300048418
+    },
+    {
+      "sequence": 947,
+      "capturedAtUnixMs": 1790488211776,
+      "firstObservedSeconds": 13.978943400084972
+    },
+    {
+      "sequence": 948,
+      "capturedAtUnixMs": 1790488211845,
+      "firstObservedSeconds": 14.04151410004124
+    },
+    {
+      "sequence": 949,
+      "capturedAtUnixMs": 1790488211923,
+      "firstObservedSeconds": 14.124835300026461
+    },
+    {
+      "sequence": 950,
+      "capturedAtUnixMs": 1790488211984,
+      "firstObservedSeconds": 14.186714900075458
+    },
+    {
+      "sequence": 951,
+      "capturedAtUnixMs": 1790488212265,
+      "firstObservedSeconds": 14.47416060010437
+    },
+    {
+      "sequence": 952,
+      "capturedAtUnixMs": 1790488212350,
+      "firstObservedSeconds": 14.556689300108701
+    },
+    {
+      "sequence": 953,
+      "capturedAtUnixMs": 1790488212409,
+      "firstObservedSeconds": 14.61826960009057
+    },
+    {
+      "sequence": 954,
+      "capturedAtUnixMs": 1790488212479,
+      "firstObservedSeconds": 14.680047600064427
+    },
+    {
+      "sequence": 955,
+      "capturedAtUnixMs": 1790488212552,
+      "firstObservedSeconds": 14.742123100091703
+    },
+    {
+      "sequence": 956,
+      "capturedAtUnixMs": 1790488212605,
+      "firstObservedSeconds": 14.804170300019905
+    },
+    {
+      "sequence": 957,
+      "capturedAtUnixMs": 1790488212695,
+      "firstObservedSeconds": 14.886501000029966
+    },
+    {
+      "sequence": 958,
+      "capturedAtUnixMs": 1790488212762,
+      "firstObservedSeconds": 14.969094400061294
+    },
+    {
+      "sequence": 959,
+      "capturedAtUnixMs": 1790488212836,
+      "firstObservedSeconds": 15.03068130009342
+    },
+    {
+      "sequence": 960,
+      "capturedAtUnixMs": 1790488212900,
+      "firstObservedSeconds": 15.112696100026369
+    },
+    {
+      "sequence": 961,
+      "capturedAtUnixMs": 1790488212961,
+      "firstObservedSeconds": 15.153785700094886
+    },
+    {
+      "sequence": 962,
+      "capturedAtUnixMs": 1790488213266,
+      "firstObservedSeconds": 15.462514900020324
+    },
+    {
+      "sequence": 963,
+      "capturedAtUnixMs": 1790488213330,
+      "firstObservedSeconds": 15.525065700057894
+    },
+    {
+      "sequence": 964,
+      "capturedAtUnixMs": 1790488213385,
+      "firstObservedSeconds": 15.586944000096992
+    },
+    {
+      "sequence": 965,
+      "capturedAtUnixMs": 1790488216103,
+      "firstObservedSeconds": 18.299555800040253
+    },
+    {
+      "sequence": 966,
+      "capturedAtUnixMs": 1790488216343,
+      "firstObservedSeconds": 18.54607580008451
+    },
+    {
+      "sequence": 967,
+      "capturedAtUnixMs": 1790488216409,
+      "firstObservedSeconds": 18.60752030008007
+    },
+    {
+      "sequence": 968,
+      "capturedAtUnixMs": 1790488216488,
+      "firstObservedSeconds": 18.69016910006758
+    },
+    {
+      "sequence": 969,
+      "capturedAtUnixMs": 1790488216548,
+      "firstObservedSeconds": 18.751730100018904
+    },
+    {
+      "sequence": 970,
+      "capturedAtUnixMs": 1790488216604,
+      "firstObservedSeconds": 18.79280280007515
+    },
+    {
+      "sequence": 971,
+      "capturedAtUnixMs": 1790488216672,
+      "firstObservedSeconds": 18.87532780005131
+    },
+    {
+      "sequence": 972,
+      "capturedAtUnixMs": 1790488216729,
+      "firstObservedSeconds": 18.937443000031635
+    },
+    {
+      "sequence": 973,
+      "capturedAtUnixMs": 1790488216798,
+      "firstObservedSeconds": 18.99890000000596
+    },
+    {
+      "sequence": 974,
+      "capturedAtUnixMs": 1790488216854,
+      "firstObservedSeconds": 19.040021400083788
+    },
+    {
+      "sequence": 975,
+      "capturedAtUnixMs": 1790488216907,
+      "firstObservedSeconds": 19.101681500091217
+    },
+    {
+      "sequence": 976,
+      "capturedAtUnixMs": 1790488216965,
+      "firstObservedSeconds": 19.163296900107525
+    },
+    {
+      "sequence": 977,
+      "capturedAtUnixMs": 1790488217037,
+      "firstObservedSeconds": 19.224930300028063
+    },
+    {
+      "sequence": 978,
+      "capturedAtUnixMs": 1790488217094,
+      "firstObservedSeconds": 19.28701140009798
+    },
+    {
+      "sequence": 979,
+      "capturedAtUnixMs": 1790488217323,
+      "firstObservedSeconds": 19.51335000002291
+    },
+    {
+      "sequence": 980,
+      "capturedAtUnixMs": 1790488217390,
+      "firstObservedSeconds": 19.596395100001246
+    },
+    {
+      "sequence": 981,
+      "capturedAtUnixMs": 1790488217451,
+      "firstObservedSeconds": 19.65824830008205
+    },
+    {
+      "sequence": 982,
+      "capturedAtUnixMs": 1790488217523,
+      "firstObservedSeconds": 19.71971110010054
+    },
+    {
+      "sequence": 983,
+      "capturedAtUnixMs": 1790488217592,
+      "firstObservedSeconds": 19.802628200035542
+    },
+    {
+      "sequence": 984,
+      "capturedAtUnixMs": 1790488217655,
+      "firstObservedSeconds": 19.843518100096844
+    },
+    {
+      "sequence": 985,
+      "capturedAtUnixMs": 1790488217770,
+      "firstObservedSeconds": 19.987619300023653
+    },
+    {
+      "sequence": 986,
+      "capturedAtUnixMs": 1790488217873,
+      "firstObservedSeconds": 20.090797600103542
+    },
+    {
+      "sequence": 987,
+      "capturedAtUnixMs": 1790488217981,
+      "firstObservedSeconds": 20.19437830010429
+    },
+    {
+      "sequence": 988,
+      "capturedAtUnixMs": 1790488218037,
+      "firstObservedSeconds": 20.25647190003656
+    },
+    {
+      "sequence": 989,
+      "capturedAtUnixMs": 1790488218097,
+      "firstObservedSeconds": 20.318740000016987
+    },
+    {
+      "sequence": 990,
+      "capturedAtUnixMs": 1790488218706,
+      "firstObservedSeconds": 20.91709460003767
+    },
+    {
+      "sequence": 991,
+      "capturedAtUnixMs": 1790488218774,
+      "firstObservedSeconds": 20.999986100010574
+    },
+    {
+      "sequence": 992,
+      "capturedAtUnixMs": 1790488218832,
+      "firstObservedSeconds": 21.041296200011857
+    },
+    {
+      "sequence": 993,
+      "capturedAtUnixMs": 1790488218883,
+      "firstObservedSeconds": 21.10346890008077
+    },
+    {
+      "sequence": 994,
+      "capturedAtUnixMs": 1790488218975,
+      "firstObservedSeconds": 21.186418000026606
+    },
+    {
+      "sequence": 995,
+      "capturedAtUnixMs": 1790488219076,
+      "firstObservedSeconds": 21.269285200047307
+    },
+    {
+      "sequence": 996,
+      "capturedAtUnixMs": 1790488219145,
+      "firstObservedSeconds": 21.37192250008229
+    },
+    {
+      "sequence": 997,
+      "capturedAtUnixMs": 1790488219565,
+      "firstObservedSeconds": 21.78446920006536
+    },
+    {
+      "sequence": 998,
+      "capturedAtUnixMs": 1790488219626,
+      "firstObservedSeconds": 21.82552520011086
+    },
+    {
+      "sequence": 999,
+      "capturedAtUnixMs": 1790488219684,
+      "firstObservedSeconds": 21.88761170010548
+    },
+    {
+      "sequence": 1000,
+      "capturedAtUnixMs": 1790488219751,
+      "firstObservedSeconds": 21.949673300026916
+    },
+    {
+      "sequence": 1001,
+      "capturedAtUnixMs": 1790488219804,
+      "firstObservedSeconds": 22.011451600003056
+    },
+    {
+      "sequence": 1002,
+      "capturedAtUnixMs": 1790488219865,
+      "firstObservedSeconds": 22.073553000111133
+    },
+    {
+      "sequence": 1003,
+      "capturedAtUnixMs": 1790488223192,
+      "firstObservedSeconds": 25.380883500096388
+    },
+    {
+      "sequence": 1004,
+      "capturedAtUnixMs": 1790488223255,
+      "firstObservedSeconds": 25.442647200077772
+    },
+    {
+      "sequence": 1005,
+      "capturedAtUnixMs": 1790488223313,
+      "firstObservedSeconds": 25.504214100074023
+    },
+    {
+      "sequence": 1006,
+      "capturedAtUnixMs": 1790488223379,
+      "firstObservedSeconds": 25.586354700033553
+    },
+    {
+      "sequence": 1007,
+      "capturedAtUnixMs": 1790488223460,
+      "firstObservedSeconds": 25.648425600025803
+    },
+    {
+      "sequence": 1008,
+      "capturedAtUnixMs": 1790488223525,
+      "firstObservedSeconds": 25.73119580000639
+    },
+    {
+      "sequence": 1009,
+      "capturedAtUnixMs": 1790488223587,
+      "firstObservedSeconds": 25.772306200000457
+    },
+    {
+      "sequence": 1010,
+      "capturedAtUnixMs": 1790488223658,
+      "firstObservedSeconds": 25.85448500001803
+    },
+    {
+      "sequence": 1011,
+      "capturedAtUnixMs": 1790488223712,
+      "firstObservedSeconds": 25.895558400079608
+    },
+    {
+      "sequence": 1012,
+      "capturedAtUnixMs": 1790488223763,
+      "firstObservedSeconds": 25.9579469000455
+    },
+    {
+      "sequence": 1013,
+      "capturedAtUnixMs": 1790488223815,
+      "firstObservedSeconds": 26.01984480000101
+    },
+    {
+      "sequence": 1014,
+      "capturedAtUnixMs": 1790488223884,
+      "firstObservedSeconds": 26.08202670002356
+    },
+    {
+      "sequence": 1015,
+      "capturedAtUnixMs": 1790488224148,
+      "firstObservedSeconds": 26.349258200032637
+    },
+    {
+      "sequence": 1016,
+      "capturedAtUnixMs": 1790488224195,
+      "firstObservedSeconds": 26.390097800060175
+    },
+    {
+      "sequence": 1017,
+      "capturedAtUnixMs": 1790488224252,
+      "firstObservedSeconds": 26.451646100031212
+    },
+    {
+      "sequence": 1018,
+      "capturedAtUnixMs": 1790488224311,
+      "firstObservedSeconds": 26.51326080004219
+    },
+    {
+      "sequence": 1019,
+      "capturedAtUnixMs": 1790488224422,
+      "firstObservedSeconds": 26.637146900058724
+    },
+    {
+      "sequence": 1020,
+      "capturedAtUnixMs": 1790488224477,
+      "firstObservedSeconds": 26.67820580000989
+    },
+    {
+      "sequence": 1021,
+      "capturedAtUnixMs": 1790488224582,
+      "firstObservedSeconds": 26.781106500071473
+    },
+    {
+      "sequence": 1022,
+      "capturedAtUnixMs": 1790488224648,
+      "firstObservedSeconds": 26.864067600108683
+    },
+    {
+      "sequence": 1023,
+      "capturedAtUnixMs": 1790488224717,
+      "firstObservedSeconds": 26.926649200031534
+    },
+    {
+      "sequence": 1024,
+      "capturedAtUnixMs": 1790488224772,
+      "firstObservedSeconds": 26.967649800004438
+    },
+    {
+      "sequence": 1025,
+      "capturedAtUnixMs": 1790488224848,
+      "firstObservedSeconds": 27.04983410006389
+    },
+    {
+      "sequence": 1026,
+      "capturedAtUnixMs": 1790488225223,
+      "firstObservedSeconds": 27.41960550006479
+    },
+    {
+      "sequence": 1027,
+      "capturedAtUnixMs": 1790488225302,
+      "firstObservedSeconds": 27.50273410009686
+    },
+    {
+      "sequence": 1028,
+      "capturedAtUnixMs": 1790488225369,
+      "firstObservedSeconds": 27.564847300061956
+    },
+    {
+      "sequence": 1029,
+      "capturedAtUnixMs": 1790488225435,
+      "firstObservedSeconds": 27.64756540011149
+    },
+    {
+      "sequence": 1030,
+      "capturedAtUnixMs": 1790488225517,
+      "firstObservedSeconds": 27.70977950002998
+    },
+    {
+      "sequence": 1031,
+      "capturedAtUnixMs": 1790488225568,
+      "firstObservedSeconds": 27.772121700108983
+    },
+    {
+      "sequence": 1032,
+      "capturedAtUnixMs": 1790488225652,
+      "firstObservedSeconds": 27.875837100087665
+    },
+    {
+      "sequence": 1033,
+      "capturedAtUnixMs": 1790488225713,
+      "firstObservedSeconds": 27.916938600013964
+    },
+    {
+      "sequence": 1034,
+      "capturedAtUnixMs": 1790488225778,
+      "firstObservedSeconds": 27.978815600043163
+    },
+    {
+      "sequence": 1035,
+      "capturedAtUnixMs": 1790488225879,
+      "firstObservedSeconds": 28.082061300054193
+    },
+    {
+      "sequence": 1036,
+      "capturedAtUnixMs": 1790488225949,
+      "firstObservedSeconds": 28.14366120006889
+    },
+    {
+      "sequence": 1037,
+      "capturedAtUnixMs": 1790488226287,
+      "firstObservedSeconds": 28.493306200020015
+    },
+    {
+      "sequence": 1038,
+      "capturedAtUnixMs": 1790488226341,
+      "firstObservedSeconds": 28.53435349999927
+    },
+    {
+      "sequence": 1039,
+      "capturedAtUnixMs": 1790488228885,
+      "firstObservedSeconds": 31.08214100007899
+    },
+    {
+      "sequence": 1040,
+      "capturedAtUnixMs": 1790488229143,
+      "firstObservedSeconds": 31.328601800021715
+    },
+    {
+      "sequence": 1041,
+      "capturedAtUnixMs": 1790488229214,
+      "firstObservedSeconds": 31.41089830000419
+    },
+    {
+      "sequence": 1042,
+      "capturedAtUnixMs": 1790488229273,
+      "firstObservedSeconds": 31.47277400002349
+    },
+    {
+      "sequence": 1043,
+      "capturedAtUnixMs": 1790488229349,
+      "firstObservedSeconds": 31.55524710007012
+    },
+    {
+      "sequence": 1044,
+      "capturedAtUnixMs": 1790488229432,
+      "firstObservedSeconds": 31.6379208000144
+    },
+    {
+      "sequence": 1045,
+      "capturedAtUnixMs": 1790488229488,
+      "firstObservedSeconds": 31.67904840002302
+    },
+    {
+      "sequence": 1046,
+      "capturedAtUnixMs": 1790488229541,
+      "firstObservedSeconds": 31.740861000027508
+    },
+    {
+      "sequence": 1047,
+      "capturedAtUnixMs": 1790488229598,
+      "firstObservedSeconds": 31.78257190005388
+    },
+    {
+      "sequence": 1048,
+      "capturedAtUnixMs": 1790488229657,
+      "firstObservedSeconds": 31.84413720003795
+    },
+    {
+      "sequence": 1049,
+      "capturedAtUnixMs": 1790488229710,
+      "firstObservedSeconds": 31.905813300050795
+    },
+    {
+      "sequence": 1050,
+      "capturedAtUnixMs": 1790488229764,
+      "firstObservedSeconds": 31.967826800071634
+    },
+    {
+      "sequence": 1051,
+      "capturedAtUnixMs": 1790488229823,
+      "firstObservedSeconds": 32.00875410006847
+    },
+    {
+      "sequence": 1052,
+      "capturedAtUnixMs": 1790488230113,
+      "firstObservedSeconds": 32.316910100053065
+    },
+    {
+      "sequence": 1053,
+      "capturedAtUnixMs": 1790488230156,
+      "firstObservedSeconds": 32.35795470001176
+    },
+    {
+      "sequence": 1054,
+      "capturedAtUnixMs": 1790488230206,
+      "firstObservedSeconds": 32.39927070005797
+    },
+    {
+      "sequence": 1055,
+      "capturedAtUnixMs": 1790488230274,
+      "firstObservedSeconds": 32.48189690010622
+    },
+    {
+      "sequence": 1056,
+      "capturedAtUnixMs": 1790488230352,
+      "firstObservedSeconds": 32.56456200010143
+    },
+    {
+      "sequence": 1057,
+      "capturedAtUnixMs": 1790488230412,
+      "firstObservedSeconds": 32.626369500067085
+    },
+    {
+      "sequence": 1058,
+      "capturedAtUnixMs": 1790488230516,
+      "firstObservedSeconds": 32.72970210004132
+    },
+    {
+      "sequence": 1059,
+      "capturedAtUnixMs": 1790488230590,
+      "firstObservedSeconds": 32.79145620006602
+    },
+    {
+      "sequence": 1060,
+      "capturedAtUnixMs": 1790488230680,
+      "firstObservedSeconds": 32.87376220000442
+    },
+    {
+      "sequence": 1061,
+      "capturedAtUnixMs": 1790488230760,
+      "firstObservedSeconds": 32.95605990011245
+    },
+    {
+      "sequence": 1062,
+      "capturedAtUnixMs": 1790488230825,
+      "firstObservedSeconds": 33.01799210009631
+    },
+    {
+      "sequence": 1063,
+      "capturedAtUnixMs": 1790488230882,
+      "firstObservedSeconds": 33.0800792000955
+    },
+    {
+      "sequence": 1064,
+      "capturedAtUnixMs": 1790488231174,
+      "firstObservedSeconds": 33.36784690001514
+    },
+    {
+      "sequence": 1065,
+      "capturedAtUnixMs": 1790488231253,
+      "firstObservedSeconds": 33.450393500039354
+    },
+    {
+      "sequence": 1066,
+      "capturedAtUnixMs": 1790488231327,
+      "firstObservedSeconds": 33.53280830010772
+    },
+    {
+      "sequence": 1067,
+      "capturedAtUnixMs": 1790488231407,
+      "firstObservedSeconds": 33.61581390001811
+    },
+    {
+      "sequence": 1068,
+      "capturedAtUnixMs": 1790488231490,
+      "firstObservedSeconds": 33.698162400047295
+    },
+    {
+      "sequence": 1069,
+      "capturedAtUnixMs": 1790488231548,
+      "firstObservedSeconds": 33.7604435000103
+    },
+    {
+      "sequence": 1070,
+      "capturedAtUnixMs": 1790488231601,
+      "firstObservedSeconds": 33.80157960008364
+    },
+    {
+      "sequence": 1071,
+      "capturedAtUnixMs": 1790488231664,
+      "firstObservedSeconds": 33.86365620000288
+    },
+    {
+      "sequence": 1072,
+      "capturedAtUnixMs": 1790488231758,
+      "firstObservedSeconds": 33.96708930004388
+    },
+    {
+      "sequence": 1073,
+      "capturedAtUnixMs": 1790488231833,
+      "firstObservedSeconds": 34.02916010003537
+    },
+    {
+      "sequence": 1074,
+      "capturedAtUnixMs": 1790488231899,
+      "firstObservedSeconds": 34.09090440010186
+    },
+    {
+      "sequence": 1075,
+      "capturedAtUnixMs": 1790488232176,
+      "firstObservedSeconds": 34.37832950009033
+    },
+    {
+      "sequence": 1076,
+      "capturedAtUnixMs": 1790488232243,
+      "firstObservedSeconds": 34.4399773000041
+    },
+    {
+      "sequence": 1077,
+      "capturedAtUnixMs": 1790488234743,
+      "firstObservedSeconds": 36.94484560005367
+    },
+    {
+      "sequence": 1078,
+      "capturedAtUnixMs": 1790488234965,
+      "firstObservedSeconds": 37.149408900062554
+    },
+    {
+      "sequence": 1079,
+      "capturedAtUnixMs": 1790488235029,
+      "firstObservedSeconds": 37.23168790002819
+    },
+    {
+      "sequence": 1080,
+      "capturedAtUnixMs": 1790488235085,
+      "firstObservedSeconds": 37.273113000090234
+    },
+    {
+      "sequence": 1081,
+      "capturedAtUnixMs": 1790488235136,
+      "firstObservedSeconds": 37.33495650009718
+    },
+    {
+      "sequence": 1082,
+      "capturedAtUnixMs": 1790488235191,
+      "firstObservedSeconds": 37.396486600046046
+    },
+    {
+      "sequence": 1083,
+      "capturedAtUnixMs": 1790488235250,
+      "firstObservedSeconds": 37.43750760005787
+    },
+    {
+      "sequence": 1084,
+      "capturedAtUnixMs": 1790488235305,
+      "firstObservedSeconds": 37.49907050002366
+    },
+    {
+      "sequence": 1085,
+      "capturedAtUnixMs": 1790488235378,
+      "firstObservedSeconds": 37.581355300033465
+    },
+    {
+      "sequence": 1086,
+      "capturedAtUnixMs": 1790488235433,
+      "firstObservedSeconds": 37.622423300053924
+    },
+    {
+      "sequence": 1087,
+      "capturedAtUnixMs": 1790488235492,
+      "firstObservedSeconds": 37.684000900015235
+    },
+    {
+      "sequence": 1088,
+      "capturedAtUnixMs": 1790488235562,
+      "firstObservedSeconds": 37.76635020005051
+    },
+    {
+      "sequence": 1089,
+      "capturedAtUnixMs": 1790488235622,
+      "firstObservedSeconds": 37.807602400076576
+    },
+    {
+      "sequence": 1090,
+      "capturedAtUnixMs": 1790488235680,
+      "firstObservedSeconds": 37.8703202001052
+    },
+    {
+      "sequence": 1091,
+      "capturedAtUnixMs": 1790488235954,
+      "firstObservedSeconds": 38.15821050002705
+    },
+    {
+      "sequence": 1092,
+      "capturedAtUnixMs": 1790488236003,
+      "firstObservedSeconds": 38.199933400028385
+    },
+    {
+      "sequence": 1093,
+      "capturedAtUnixMs": 1790488236059,
+      "firstObservedSeconds": 38.26132320007309
+    },
+    {
+      "sequence": 1094,
+      "capturedAtUnixMs": 1790488236130,
+      "firstObservedSeconds": 38.34421550005209
+    },
+    {
+      "sequence": 1095,
+      "capturedAtUnixMs": 1790488236246,
+      "firstObservedSeconds": 38.467609900049865
+    },
+    {
+      "sequence": 1096,
+      "capturedAtUnixMs": 1790488236320,
+      "firstObservedSeconds": 38.529451100039296
+    },
+    {
+      "sequence": 1097,
+      "capturedAtUnixMs": 1790488236404,
+      "firstObservedSeconds": 38.63266340002883
+    },
+    {
+      "sequence": 1098,
+      "capturedAtUnixMs": 1790488236468,
+      "firstObservedSeconds": 38.673555400106125
+    },
+    {
+      "sequence": 1099,
+      "capturedAtUnixMs": 1790488236537,
+      "firstObservedSeconds": 38.73563460004516
+    },
+    {
+      "sequence": 1100,
+      "capturedAtUnixMs": 1790488236611,
+      "firstObservedSeconds": 38.818377000046894
+    },
+    {
+      "sequence": 1101,
+      "capturedAtUnixMs": 1790488236691,
+      "firstObservedSeconds": 38.90355430007912
+    },
+    {
+      "sequence": 1102,
+      "capturedAtUnixMs": 1790488237191,
+      "firstObservedSeconds": 39.39755310001783
+    },
+    {
+      "sequence": 1103,
+      "capturedAtUnixMs": 1790488237249,
+      "firstObservedSeconds": 39.45959470001981
+    },
+    {
+      "sequence": 1104,
+      "capturedAtUnixMs": 1790488237310,
+      "firstObservedSeconds": 39.501029500039294
+    },
+    {
+      "sequence": 1105,
+      "capturedAtUnixMs": 1790488237381,
+      "firstObservedSeconds": 39.58358350000344
+    },
+    {
+      "sequence": 1106,
+      "capturedAtUnixMs": 1790488237447,
+      "firstObservedSeconds": 39.666394900064915
+    },
+    {
+      "sequence": 1107,
+      "capturedAtUnixMs": 1790488237515,
+      "firstObservedSeconds": 39.72849110001698
+    },
+    {
+      "sequence": 1108,
+      "capturedAtUnixMs": 1790488237642,
+      "firstObservedSeconds": 39.83167159999721
+    },
+    {
+      "sequence": 1109,
+      "capturedAtUnixMs": 1790488237722,
+      "firstObservedSeconds": 39.914139600005
+    },
+    {
+      "sequence": 1110,
+      "capturedAtUnixMs": 1790488238054,
+      "firstObservedSeconds": 40.24383320007473
+    },
+    {
+      "sequence": 1111,
+      "capturedAtUnixMs": 1790488238105,
+      "firstObservedSeconds": 40.30591100000311
+    },
+    {
+      "sequence": 1112,
+      "capturedAtUnixMs": 1790488238243,
+      "firstObservedSeconds": 40.45007220003754
+    },
+    {
+      "sequence": 1113,
+      "capturedAtUnixMs": 1790488238301,
+      "firstObservedSeconds": 40.51164000004064
+    },
+    {
+      "sequence": 1114,
+      "capturedAtUnixMs": 1790488238350,
+      "firstObservedSeconds": 40.553179000038654
+    },
+    {
+      "sequence": 1115,
+      "capturedAtUnixMs": 1790488240720,
+      "firstObservedSeconds": 42.921111200004816
+    },
+    {
+      "sequence": 1116,
+      "capturedAtUnixMs": 1790488240942,
+      "firstObservedSeconds": 43.12663080007769
+    },
+    {
+      "sequence": 1117,
+      "capturedAtUnixMs": 1790488241004,
+      "firstObservedSeconds": 43.208638600073755
+    },
+    {
+      "sequence": 1118,
+      "capturedAtUnixMs": 1790488241058,
+      "firstObservedSeconds": 43.249672800069675
+    },
+    {
+      "sequence": 1119,
+      "capturedAtUnixMs": 1790488241126,
+      "firstObservedSeconds": 43.331989200087264
+    },
+    {
+      "sequence": 1120,
+      "capturedAtUnixMs": 1790488241195,
+      "firstObservedSeconds": 43.39321010001004
+    },
+    {
+      "sequence": 1121,
+      "capturedAtUnixMs": 1790488241252,
+      "firstObservedSeconds": 43.45471110008657
+    },
+    {
+      "sequence": 1122,
+      "capturedAtUnixMs": 1790488241311,
+      "firstObservedSeconds": 43.495817100047134
+    },
+    {
+      "sequence": 1123,
+      "capturedAtUnixMs": 1790488241372,
+      "firstObservedSeconds": 43.55786060006358
+    },
+    {
+      "sequence": 1124,
+      "capturedAtUnixMs": 1790488241425,
+      "firstObservedSeconds": 43.61990869999863
+    },
+    {
+      "sequence": 1125,
+      "capturedAtUnixMs": 1790488241478,
+      "firstObservedSeconds": 43.68150180007797
+    },
+    {
+      "sequence": 1126,
+      "capturedAtUnixMs": 1790488241556,
+      "firstObservedSeconds": 43.742947600083426
+    },
+    {
+      "sequence": 1127,
+      "capturedAtUnixMs": 1790488241613,
+      "firstObservedSeconds": 43.805429200059734
+    },
+    {
+      "sequence": 1128,
+      "capturedAtUnixMs": 1790488241685,
+      "firstObservedSeconds": 43.88751330005471
+    },
+    {
+      "sequence": 1129,
+      "capturedAtUnixMs": 1790488241942,
+      "firstObservedSeconds": 44.13468160002958
+    },
+    {
+      "sequence": 1130,
+      "capturedAtUnixMs": 1790488241989,
+      "firstObservedSeconds": 44.196735900011845
+    },
+    {
+      "sequence": 1131,
+      "capturedAtUnixMs": 1790488242041,
+      "firstObservedSeconds": 44.238500800100155
+    },
+    {
+      "sequence": 1132,
+      "capturedAtUnixMs": 1790488242108,
+      "firstObservedSeconds": 44.30073820007965
+    },
+    {
+      "sequence": 1133,
+      "capturedAtUnixMs": 1790488242170,
+      "firstObservedSeconds": 44.36332100001164
+    },
+    {
+      "sequence": 1134,
+      "capturedAtUnixMs": 1790488242251,
+      "firstObservedSeconds": 44.44591140002012
+    },
+    {
+      "sequence": 1135,
+      "capturedAtUnixMs": 1790488242300,
+      "firstObservedSeconds": 44.487037600018084
+    },
+    {
+      "sequence": 1136,
+      "capturedAtUnixMs": 1790488242353,
+      "firstObservedSeconds": 44.54860090010334
+    },
+    {
+      "sequence": 1137,
+      "capturedAtUnixMs": 1790488242405,
+      "firstObservedSeconds": 44.6107455000747
+    },
+    {
+      "sequence": 1138,
+      "capturedAtUnixMs": 1790488242457,
+      "firstObservedSeconds": 44.65197400003672
+    },
+    {
+      "sequence": 1139,
+      "capturedAtUnixMs": 1790488242534,
+      "firstObservedSeconds": 44.73408910003491
+    },
+    {
+      "sequence": 1140,
+      "capturedAtUnixMs": 1790488242598,
+      "firstObservedSeconds": 44.79617040010635
+    },
+    {
+      "sequence": 1141,
+      "capturedAtUnixMs": 1790488242657,
+      "firstObservedSeconds": 44.8583101000404
+    },
+    {
+      "sequence": 1142,
+      "capturedAtUnixMs": 1790488242709,
+      "firstObservedSeconds": 44.920321400044486
+    },
+    {
+      "sequence": 1143,
+      "capturedAtUnixMs": 1790488243035,
+      "firstObservedSeconds": 45.25121700007003
+    },
+    {
+      "sequence": 1144,
+      "capturedAtUnixMs": 1790488243091,
+      "firstObservedSeconds": 45.29267570003867
+    },
+    {
+      "sequence": 1145,
+      "capturedAtUnixMs": 1790488243174,
+      "firstObservedSeconds": 45.375130300060846
+    },
+    {
+      "sequence": 1146,
+      "capturedAtUnixMs": 1790488243304,
+      "firstObservedSeconds": 45.4982663000701
+    },
+    {
+      "sequence": 1147,
+      "capturedAtUnixMs": 1790488243364,
+      "firstObservedSeconds": 45.559653100091964
+    },
+    {
+      "sequence": 1148,
+      "capturedAtUnixMs": 1790488243451,
+      "firstObservedSeconds": 45.66284760006238
+    },
+    {
+      "sequence": 1149,
+      "capturedAtUnixMs": 1790488243512,
+      "firstObservedSeconds": 45.724431100068614
+    },
+    {
+      "sequence": 1150,
+      "capturedAtUnixMs": 1790488243602,
+      "firstObservedSeconds": 45.80642290005926
+    },
+    {
+      "sequence": 1151,
+      "capturedAtUnixMs": 1790488243677,
+      "firstObservedSeconds": 45.88889980001841
+    },
+    {
+      "sequence": 1152,
+      "capturedAtUnixMs": 1790488243750,
+      "firstObservedSeconds": 45.95105950010475
+    },
+    {
+      "sequence": 1153,
+      "capturedAtUnixMs": 1790488243990,
+      "firstObservedSeconds": 46.17657280003186
+    },
+    {
+      "sequence": 1154,
+      "capturedAtUnixMs": 1790488244048,
+      "firstObservedSeconds": 46.238158000051044
+    },
+    {
+      "sequence": 1155,
+      "capturedAtUnixMs": 1790488244111,
+      "firstObservedSeconds": 46.32061490009073
+    },
+    {
+      "sequence": 1156,
+      "capturedAtUnixMs": 1790488246666,
+      "firstObservedSeconds": 48.868867300101556
+    },
+    {
+      "sequence": 1157,
+      "capturedAtUnixMs": 1790488246738,
+      "firstObservedSeconds": 48.93048630002886
+    },
+    {
+      "sequence": 1158,
+      "capturedAtUnixMs": 1790488246801,
+      "firstObservedSeconds": 48.992380000068806
+    },
+    {
+      "sequence": 1159,
+      "capturedAtUnixMs": 1790488246871,
+      "firstObservedSeconds": 49.07469880010467
+    },
+    {
+      "sequence": 1160,
+      "capturedAtUnixMs": 1790488246931,
+      "firstObservedSeconds": 49.1158199000638
+    },
+    {
+      "sequence": 1161,
+      "capturedAtUnixMs": 1790488247001,
+      "firstObservedSeconds": 49.1998982001096
+    },
+    {
+      "sequence": 1162,
+      "capturedAtUnixMs": 1790488247071,
+      "firstObservedSeconds": 49.26124120003078
+    },
+    {
+      "sequence": 1163,
+      "capturedAtUnixMs": 1790488247134,
+      "firstObservedSeconds": 49.32296060002409
+    },
+    {
+      "sequence": 1164,
+      "capturedAtUnixMs": 1790488247196,
+      "firstObservedSeconds": 49.405840900028124
+    },
+    {
+      "sequence": 1165,
+      "capturedAtUnixMs": 1790488247253,
+      "firstObservedSeconds": 49.44700350007042
+    },
+    {
+      "sequence": 1166,
+      "capturedAtUnixMs": 1790488247318,
+      "firstObservedSeconds": 49.50952950003557
+    },
+    {
+      "sequence": 1167,
+      "capturedAtUnixMs": 1790488247405,
+      "firstObservedSeconds": 49.612757600029
+    },
+    {
+      "sequence": 1168,
+      "capturedAtUnixMs": 1790488247779,
+      "firstObservedSeconds": 49.983504400006495
+    },
+    {
+      "sequence": 1169,
+      "capturedAtUnixMs": 1790488247859,
+      "firstObservedSeconds": 50.06659890001174
+    },
+    {
+      "sequence": 1170,
+      "capturedAtUnixMs": 1790488247926,
+      "firstObservedSeconds": 50.12869430007413
+    },
+    {
+      "sequence": 1171,
+      "capturedAtUnixMs": 1790488248008,
+      "firstObservedSeconds": 50.23184280004352
+    },
+    {
+      "sequence": 1172,
+      "capturedAtUnixMs": 1790488248062,
+      "firstObservedSeconds": 50.27312340005301
+    },
+    {
+      "sequence": 1173,
+      "capturedAtUnixMs": 1790488248159,
+      "firstObservedSeconds": 50.37706920003984
+    },
+    {
+      "sequence": 1174,
+      "capturedAtUnixMs": 1790488248209,
+      "firstObservedSeconds": 50.41856130002998
+    },
+    {
+      "sequence": 1175,
+      "capturedAtUnixMs": 1790488248309,
+      "firstObservedSeconds": 50.521350800059736
+    },
+    {
+      "sequence": 1176,
+      "capturedAtUnixMs": 1790488248378,
+      "firstObservedSeconds": 50.58295609999914
+    },
+    {
+      "sequence": 1177,
+      "capturedAtUnixMs": 1790488248431,
+      "firstObservedSeconds": 50.64534570008982
+    },
+    {
+      "sequence": 1178,
+      "capturedAtUnixMs": 1790488248875,
+      "firstObservedSeconds": 51.08128020004369
+    },
+    {
+      "sequence": 1179,
+      "capturedAtUnixMs": 1790488248951,
+      "firstObservedSeconds": 51.163924899999984
+    },
+    {
+      "sequence": 1180,
+      "capturedAtUnixMs": 1790488249013,
+      "firstObservedSeconds": 51.22558320011012
+    },
+    {
+      "sequence": 1181,
+      "capturedAtUnixMs": 1790488249069,
+      "firstObservedSeconds": 51.267467500059865
+    },
+    {
+      "sequence": 1182,
+      "capturedAtUnixMs": 1790488249126,
+      "firstObservedSeconds": 51.351117900107056
+    },
+    {
+      "sequence": 1183,
+      "capturedAtUnixMs": 1790488249221,
+      "firstObservedSeconds": 51.43420730007347
+    },
+    {
+      "sequence": 1184,
+      "capturedAtUnixMs": 1790488249323,
+      "firstObservedSeconds": 51.53902670007665
+    },
+    {
+      "sequence": 1185,
+      "capturedAtUnixMs": 1790488249394,
+      "firstObservedSeconds": 51.62238320009783
+    },
+    {
+      "sequence": 1187,
+      "capturedAtUnixMs": 1790488250007,
+      "firstObservedSeconds": 52.22187670005951
+    },
+    {
+      "sequence": 1188,
+      "capturedAtUnixMs": 1790488250097,
+      "firstObservedSeconds": 52.32657150004525
+    },
+    {
+      "sequence": 1189,
+      "capturedAtUnixMs": 1790488250170,
+      "firstObservedSeconds": 52.389493599999696
+    },
+    {
+      "sequence": 1190,
+      "capturedAtUnixMs": 1790488250284,
+      "firstObservedSeconds": 52.49312420003116
+    },
+    {
+      "sequence": 1191,
+      "capturedAtUnixMs": 1790488250336,
+      "firstObservedSeconds": 52.555788600002415
+    },
+    {
+      "sequence": 1192,
+      "capturedAtUnixMs": 1790488250460,
+      "firstObservedSeconds": 52.6604556000093
+    }
+  ],
+  "samples": [
+    {
+      "elapsedSeconds": 3.500026650726795e-06,
+      "hours": 4.350873947143555,
+      "logicCalls": 3741,
+      "speed": 3,
+      "loadedChunks": 81,
+      "privateBytes": 6870548480,
+      "workingBytes": 9587609600
+    },
+    {
+      "elapsedSeconds": 2.0174000000115484,
+      "hours": 4.43215274810791,
+      "logicCalls": 3780,
+      "speed": 3,
+      "loadedChunks": 81,
+      "privateBytes": 6870695936,
+      "workingBytes": 9588678656
+    },
+    {
+      "elapsedSeconds": 4.033345100004226,
+      "hours": 4.505917549133301,
+      "logicCalls": 3800,
+      "speed": 3,
+      "loadedChunks": 81,
+      "privateBytes": 6870695936,
+      "workingBytes": 9588678656
+    },
+    {
+      "elapsedSeconds": 6.047295500058681,
+      "hours": 4.5275163650512695,
+      "logicCalls": 3805,
+      "speed": 3,
+      "loadedChunks": 81,
+      "privateBytes": 6871093248,
+      "workingBytes": 9589448704
+    },
+    {
+      "elapsedSeconds": 8.066825700108893,
+      "hours": 4.705007553100586,
+      "logicCalls": 3861,
+      "speed": 3,
+      "loadedChunks": 81,
+      "privateBytes": 6872367104,
+      "workingBytes": 9590923264
+    },
+    {
+      "elapsedSeconds": 10.083619000040926,
+      "hours": 4.754673004150391,
+      "logicCalls": 3883,
+      "speed": 3,
+      "loadedChunks": 81,
+      "privateBytes": 6873206784,
+      "workingBytes": 9591648256
+    },
+    {
+      "elapsedSeconds": 12.100487100076862,
+      "hours": 4.754673004150391,
+      "logicCalls": 3883,
+      "speed": 3,
+      "loadedChunks": 81,
+      "privateBytes": 6875475968,
+      "workingBytes": 9594126336
+    },
+    {
+      "elapsedSeconds": 14.10381890006829,
+      "hours": 4.859755516052246,
+      "logicCalls": 3922,
+      "speed": 3,
+      "loadedChunks": 81,
+      "privateBytes": 6882586624,
+      "workingBytes": 9601011712
+    },
+    {
+      "elapsedSeconds": 16.120902900001965,
+      "hours": 5.016523361206055,
+      "logicCalls": 3965,
+      "speed": 3,
+      "loadedChunks": 81,
+      "privateBytes": 6883885056,
+      "workingBytes": 9603489792
+    },
+    {
+      "elapsedSeconds": 18.13515950005967,
+      "hours": 5.016523361206055,
+      "logicCalls": 3965,
+      "speed": 3,
+      "loadedChunks": 81,
+      "privateBytes": 6883885056,
+      "workingBytes": 9603489792
+    },
+    {
+      "elapsedSeconds": 20.15285480010789,
+      "hours": 5.112191200256348,
+      "logicCalls": 3995,
+      "speed": 3,
+      "loadedChunks": 81,
+      "privateBytes": 6883713024,
+      "workingBytes": 9603846144
+    },
+    {
+      "elapsedSeconds": 22.155746300006285,
+      "hours": 5.250897407531738,
+      "logicCalls": 4024,
+      "speed": 3,
+      "loadedChunks": 81,
+      "privateBytes": 6883962880,
+      "workingBytes": 9604202496
+    },
+    {
+      "elapsedSeconds": 24.168934300076216,
+      "hours": 5.250897407531738,
+      "logicCalls": 4024,
+      "speed": 3,
+      "loadedChunks": 81,
+      "privateBytes": 6883962880,
+      "workingBytes": 9604202496
+    },
+    {
+      "elapsedSeconds": 26.18448460008949,
+      "hours": 5.288496017456055,
+      "logicCalls": 4033,
+      "speed": 3,
+      "loadedChunks": 72,
+      "privateBytes": 6883352576,
+      "workingBytes": 9604415488
+    },
+    {
+      "elapsedSeconds": 28.18474680010695,
+      "hours": 5.435362815856934,
+      "logicCalls": 4080,
+      "speed": 3,
+      "loadedChunks": 81,
+      "privateBytes": 6884179968,
+      "workingBytes": 9605730304
+    },
+    {
+      "elapsedSeconds": 30.19860880007036,
+      "hours": 5.512223243713379,
+      "logicCalls": 4099,
+      "speed": 3,
+      "loadedChunks": 81,
+      "privateBytes": 6884179968,
+      "workingBytes": 9605730304
+    },
+    {
+      "elapsedSeconds": 32.21432160004042,
+      "hours": 5.532689094543457,
+      "logicCalls": 4104,
+      "speed": 3,
+      "loadedChunks": 81,
+      "privateBytes": 6885486592,
+      "workingBytes": 9607110656
+    },
+    {
+      "elapsedSeconds": 34.234454400022514,
+      "hours": 5.6903181076049805,
+      "logicCalls": 4159,
+      "speed": 3,
+      "loadedChunks": 81,
+      "privateBytes": 6885376000,
+      "workingBytes": 9607061504
+    },
+    {
+      "elapsedSeconds": 36.2470336999977,
+      "hours": 5.772791862487793,
+      "logicCalls": 4179,
+      "speed": 3,
+      "loadedChunks": 81,
+      "privateBytes": 6885376000,
+      "workingBytes": 9607061504
+    },
+    {
+      "elapsedSeconds": 38.26132320007309,
+      "hours": 5.866826057434082,
+      "logicCalls": 4216,
+      "speed": 3,
+      "loadedChunks": 81,
+      "privateBytes": 6885949440,
+      "workingBytes": 9607720960
+    },
+    {
+      "elapsedSeconds": 40.26488200004678,
+      "hours": 5.942893981933594,
+      "logicCalls": 4233,
+      "speed": 3,
+      "loadedChunks": 81,
+      "privateBytes": 6886486016,
+      "workingBytes": 9607823360
+    },
+    {
+      "elapsedSeconds": 42.28047310002148,
+      "hours": 6.0178632736206055,
+      "logicCalls": 4250,
+      "speed": 3,
+      "loadedChunks": 81,
+      "privateBytes": 6886592512,
+      "workingBytes": 9607929856
+    },
+    {
+      "elapsedSeconds": 44.30073820007965,
+      "hours": 6.117605209350586,
+      "logicCalls": 4286,
+      "speed": 3,
+      "loadedChunks": 81,
+      "privateBytes": 6886518784,
+      "workingBytes": 9607925760
+    },
+    {
+      "elapsedSeconds": 46.32061490009073,
+      "hours": 6.27651309967041,
+      "logicCalls": 4335,
+      "speed": 3,
+      "loadedChunks": 81,
+      "privateBytes": 6887088128,
+      "workingBytes": 9609064448
+    },
+    {
+      "elapsedSeconds": 48.33423280005809,
+      "hours": 6.27651309967041,
+      "logicCalls": 4335,
+      "speed": 3,
+      "loadedChunks": 81,
+      "privateBytes": 6887194624,
+      "workingBytes": 9609170944
+    },
+    {
+      "elapsedSeconds": 50.335179800051264,
+      "hours": 6.369050979614258,
+      "logicCalls": 4368,
+      "speed": 3,
+      "loadedChunks": 81,
+      "privateBytes": 6889472000,
+      "workingBytes": 9612505088
+    },
+    {
+      "elapsedSeconds": 52.34775440010708,
+      "hours": 6.499415397644043,
+      "logicCalls": 4399,
+      "speed": 3,
+      "loadedChunks": 72,
+      "privateBytes": 6892347392,
+      "workingBytes": 9616179200
+    },
+    {
+      "elapsedSeconds": 54.36620450008195,
+      "hours": 6.499415397644043,
+      "logicCalls": 4399,
+      "speed": 3,
+      "loadedChunks": 72,
+      "privateBytes": 6892449792,
+      "workingBytes": 9616338944
+    }
+  ],
+  "boundary": "Read-only 20ms native image-manifest sampling. Missed images make this a lower bound; not renderer FPS. Short memory samples cannot settle leakage.",
+  "summary": {
+    "sampledSeconds": 54.3662010000553,
+    "logicCallsPerSecond": 12.103107958551872,
+    "countyHoursPerWallMinute": 2.3711880664587577,
+    "privateMiBChange": 20.88671875,
+    "loadedChunksFirst": 81,
+    "loadedChunksLast": 72
+  }
+}

@@ -2174,6 +2174,33 @@ if ! "$PY" tools/cognition_test.py; then
     fail=1
 fi
 
+# [C89] Borders 202-206: actual hearing/pose, current body ownership,
+# owned item physiology, native preparation, private experience and home retry.
+if ! "$PY" tools/orienting_native_test.py; then
+    note "BORDER FINDING - native auditory orientation or physical gaze failed"
+    fail=1
+fi
+if ! "$PY" tools/orienting_policy_test.py; then
+    note "BORDER FINDING - private sound admission or current body owner failed"
+    fail=1
+fi
+if ! "$PY" tools/pharmacology_test.py; then
+    note "BORDER FINDING - owned native dose or physiological continuity failed"
+    fail=1
+fi
+if ! "$PY" tools/cooking_test.py; then
+    note "BORDER FINDING - native appliance preparation or exact completion failed"
+    fail=1
+fi
+if ! "$PY" tools/capability_experience_test.py; then
+    note "BORDER FINDING - private native capability experience failed"
+    fail=1
+fi
+if ! "$PY" tools/home_route_test.py; then
+    note "BORDER FINDING - failed home route reconsideration failed"
+    fail=1
+fi
+
 # Border 103 - the operator's speech is not in the repository: no
 # profanity in the tracked tree and no operator-quote attributions;
 # rulings are paraphrased content, speech stays with the speaker.

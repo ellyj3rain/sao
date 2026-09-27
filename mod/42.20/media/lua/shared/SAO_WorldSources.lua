@@ -1422,7 +1422,9 @@ local function personallyInspected(known, row)
 end
 
 -- A visible holder is an affordance, never an inference about its stock.
-function WS.inspectionCandidate(actorId, body, admission, radius)
+function WS.inspectionCandidate(actorId, body, admission, radius, sourceId)
+    if sourceId ~= nil and (type(sourceId) ~= "string" or #sourceId > 512
+        or #sourceId == 0) then return nil, "bad-source" end
     actorId, admission = tostring(actorId or ""), tostring(admission or "standing")
     if not inspectionActor(actorId, body) then return nil, "no-live-body" end
     local memory = inspectionRuntime(body)
@@ -1443,7 +1445,8 @@ function WS.inspectionCandidate(actorId, body, admission, radius)
     for _, row in ipairs(rows) do
         local failure = failures[row.id .. "|" .. row.fp]
         local delayed = failure and hours < failure.retryAtHours and row.reachable ~= "1"
-        if not delayed and not personallyInspected(known, row)
+        if not delayed and (sourceId == nil or row.id == sourceId)
+            and (sourceId ~= nil or not personallyInspected(known, row))
             and not value.conflictBySource[row.id] and not pendingFor(value, row.id, nil)
             and SAO.Standing and SAO.Standing.mayTakeCurrent
             and SAO.Standing.mayTakeCurrent(actorId, row.sx, row.sy, admission) then

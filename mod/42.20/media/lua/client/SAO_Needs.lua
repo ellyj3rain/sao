@@ -1056,11 +1056,8 @@ function N.busy(body)
     return ok and pending == true
 end
 
--- [C121] A dose, for the shakes: the first carried drug of a county
--- family, through the vanilla eat action - the same one the context
--- menu queues. The item's own OnEat hooks run the drug mod's own
--- counters and highs, exactly as they would for the player. Returns
--- true when queued.
+-- A carried dose uses the native Food or consumable-drainable action.
+-- Owned pharmacology receives only its measured completion.
 function N.useCarriedDrug(id, body, family)
     if not SAOJavaBridge then return false end
     local okF, item = pcall(function()
@@ -1086,69 +1083,132 @@ function N.findDrugSource(id, body, radius, family)
     return tonumber(x), tonumber(y), tonumber(z), name
 end
 
--- [C33] The county's drinks are counted (The Alcoholic wraps the eat
--- action the same way, CREDITS.md): when one of OUR bodies finishes
--- a drink of anything alcoholic - by its own hand or the player's
--- gift - the habit hears it. A field on the vanilla class, wrapped
--- once; the player's own drinks pass straight through.
--- [C121] The drink also reaches the ladder SAO_Drugs carries (the
--- per-drink relief at The Alcoholic's own figures), the same way the
--- player's drinks reach theirs.
+-- Native drinking consumes fluid during updateEat, including a drink later
+-- interrupted. Count the first measured alcoholic consumption once per action.
+-- A completion callback alone supplies no evidence of a drink.
 if ISDrinkFluidAction and not ISDrinkFluidAction.SAOHabitsWrapped then
     ISDrinkFluidAction.SAOHabitsWrapped = true
-    local baseComplete = ISDrinkFluidAction.complete
-    function ISDrinkFluidAction:complete()
-        local result = baseComplete(self)
+    local baseUpdateEat = ISDrinkFluidAction.updateEat
+    function ISDrinkFluidAction:updateEat(...)
+        local before
         pcall(function()
-            local body = self.character
-            local id = body and body:getModData().SAOPersonId or nil
-            if id and SAOJavaBridge and SAOJavaBridge:isAlcoholicDrink(self.item) then
-                if SAO.Habits.drank(tostring(id)) then
-                    log(tostring(id) .. " has had a drink")
-                end
-                if SAO.Drugs and SAO.Drugs.onDrink then
-                    SAO.Drugs.onDrink(tostring(id), body)
-                end
+            local body, item, ph = self.character, self.item, SAO.Pharmacology
+            local id = body and body:getModData().SAOPersonId
+            local rec = id and SAO.Identity.get(tostring(id))
+            if not self.saoDrinkObserved and ph and ph.ownsBody(rec, body)
+                and SAOJavaBridge:isShell(body)
+                and SAOJavaBridge:isAlcoholicDrink(item)
+                and self.fluidContainer == item:getFluidContainer()
+                and body:getInventory():contains(item) then
+                before = { body = body, item = item, fluid = self.fluidContainer,
+                    amount = self.fluidContainer:getAmount(), rec = rec,
+                    owner = rec.bodyOwner, ownerToken = rec.bodyOwnerToken }
             end
         end)
+        local ok, result = pcall(baseUpdateEat, self, ...)
+        pcall(function()
+            if not before or self.saoDrinkObserved or self.character ~= before.body
+                or self.item ~= before.item or self.fluidContainer ~= before.fluid
+                or before.item:getFluidContainer() ~= before.fluid
+                or before.rec.bodyOwner ~= before.owner
+                or before.rec.bodyOwnerToken ~= before.ownerToken
+                or not SAO.Pharmacology.ownsBody(before.rec, before.body) then return end
+            local after = before.fluid:getAmount()
+            if type(before.amount) ~= "number" or type(after) ~= "number"
+                or not (before.amount > after and after >= 0) then return end
+            self.saoDrinkObserved = true
+            local id = tostring(before.rec.id)
+            if SAO.Habits.drank(id) then log(id .. " has had a drink") end
+            if SAO.Drugs and SAO.Drugs.onDrink then
+                SAO.Drugs.onDrink(id, before.body)
+            end
+        end)
+        if not ok then error(result) end
         return result
     end
 end
 
--- [C121] The county's uses are recorded: when one of OUR bodies
--- finishes eating anything - a pill, a joint, whatever the drug
--- mod's own items are - the family it belongs to is stamped on the
--- record and that family's clean clock starts over. Native completion owns
--- the item's effects; this bookkeeping retains the existing use stamp for
--- both the Food and consumable-drainable action paths.
--- The Alcoholic wraps this same perform the same way; a field on the
--- vanilla class, wrapped once, and the player's own meals pass
--- straight through.
-local function wrapHabitUse(actionClass)
-    if not actionClass or actionClass.SAODrugsWrapped then return end
-    actionClass.SAODrugsWrapped = true
-    local basePerform = actionClass.perform
-    function actionClass:perform()
-        local result = basePerform(self)
-        pcall(function()
-            local body = self.character
-            local id = body and body:getModData().SAOPersonId or nil
-            if id and SAOJavaBridge then
-                local ok, family = pcall(function()
-                    return SAOJavaBridge:drugFamilyOf(self.item)
-                end)
-                if ok and family and family ~= "" then
-                    if SAO.Habits.used(tostring(id), family) then
-                        log(tostring(id) .. " has had a use of " .. family)
-                    end
-                end
-            end
+-- The native action consumes a real dose before owned pharmacology records
+-- exposure. Tokens remain on the exact runtime action and never enter ModData.
+local function stopPharmacologyUse(action, reason)
+    action.saoPharmacologyDenied = true
+    if action.saoPharmacologyToken and SAO.Pharmacology then
+        pcall(SAO.Pharmacology.interruptUse, action.saoPharmacologyToken, reason)
+    end
+    pcall(function() action:forceStop() end)
+    log("substance use refused: " .. tostring(reason))
+end
+local function wrapPharmacology(actionClass)
+    if not actionClass or actionClass.SAOPharmacologyWrapped then return end
+    actionClass.SAOPharmacologyWrapped = true
+    local baseStart, baseComplete, baseStop = actionClass.start,
+        actionClass.complete, actionClass.stop
+    function actionClass:start(...)
+        local body = self.character
+        local id = body and body:getModData().SAOPersonId
+        local ph = SAO.Pharmacology
+        local okOwned, owned = pcall(function()
+            return id and ph and SAOJavaBridge:isShell(body)
+                and ph.familyForItem(self.item) ~= nil
         end)
+        if okOwned and owned and not self.saoPharmacologyStarted then
+            self.saoPharmacologyStarted = true
+            local ok, token, reason = pcall(ph.captureUse, tostring(id), body, self.item)
+            self.saoPharmacologyToken = ok and token or nil
+            if not self.saoPharmacologyToken then
+                stopPharmacologyUse(self, ok and reason or "capture-unavailable")
+                return false
+            end
+        end
+        if self.saoPharmacologyDenied then return false end
+        local ok, result = pcall(baseStart, self, ...)
+        if not ok then
+            if self.saoPharmacologyToken then
+                pcall(ph.interruptUse, self.saoPharmacologyToken, "native-start-error")
+            end
+            error(result)
+        end
+        return result
+    end
+    function actionClass:complete(...)
+        if self.saoPharmacologyDenied then return false end
+        local token, ph = self.saoPharmacologyToken, SAO.Pharmacology
+        if token then
+            local ok, ready, reason = pcall(function() return ph.prepareUse(token, self.character) end)
+            if not ok or ready ~= true then
+                stopPharmacologyUse(self, ok and reason or "pre-completion-unavailable")
+                return false
+            end
+        end
+        local ok, result = pcall(baseComplete, self, ...)
+        if token then
+            local settled, receipt, reason = pcall(ph.completeUse, token,
+                self.character, ok and result == true)
+            if not settled then
+                pcall(ph.interruptUse, token, "exposure-accounting-unavailable")
+                log("consumed substance accounting failed: " .. tostring(receipt))
+            elseif receipt and ph.onNativeOutcome then
+                local observed, observationError = pcall(ph.onNativeOutcome, receipt.actorId, receipt)
+                if not observed then log("substance observation unavailable: " .. tostring(observationError)) end
+            elseif not receipt then
+                log("substance completion censored: " .. tostring(reason))
+            end
+        end
+        if not ok then error(result) end
+        return result
+    end
+    function actionClass:stop(...)
+        local ok, result = pcall(baseStop, self, ...)
+        self.saoPharmacologyDenied = true
+        if self.saoPharmacologyToken and SAO.Pharmacology then
+            pcall(SAO.Pharmacology.interruptUse, self.saoPharmacologyToken, "native-action-stopped")
+        end
+        if not ok then error(result) end
         return result
     end
 end
-wrapHabitUse(ISEatFoodAction)
-wrapHabitUse(ISTakePillAction)
+wrapPharmacology(ISEatFoodAction)
+wrapPharmacology(ISTakePillAction)
 
 -- Observe the native action's own before/after need; queueing grants no evidence.
 -- Runtime handles stay on the native Lua action. Only the scalar admission token

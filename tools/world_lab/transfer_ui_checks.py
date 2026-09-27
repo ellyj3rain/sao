@@ -102,7 +102,7 @@ def run(work, game, jdk, baseline_only=False):
         "installedHashes": {path.relative_to(game).as_posix(): hashlib.sha256(path.read_bytes()).hexdigest() for path in native_paths},
         "luaVariants": verdicts, "nativeReceivers": receivers,
         "limits": "Headless installed Kahlua/native items, inventory, shell and effects; controlled queue/animation receiver, "
-                  "controlled geometry and explicitly controlled positive Habits family classifier; no rendered gameplay claim."}
+                  "controlled geometry and explicitly controlled Pharmacology classifier/lifecycle; no rendered gameplay claim."}
     (work / "consume-receipt.json").write_text(json.dumps(receipt, indent=2) + "\n", encoding="utf-8")
 
 
@@ -135,10 +135,10 @@ def native_receivers(root, work, game, jdk, needs, fixture, native, native_menu,
          "inventoryPane"),
         ("food-rejected", changed('if foodOnly and not instanceof(item, "Food") then', 'if foodOnly then'),
          "attempted index: Type of non-table: null"),
-        ("pill-habits-omitted", changed('wrapHabitUse(ISTakePillAction)', '-- pill perform unwrapped'),
-         "NATIVE_EAT_CHECK:classified ISTakePillAction perform forwarded"),
-        ("food-habits-omitted", changed('wrapHabitUse(ISEatFoodAction)', '-- food perform unwrapped'),
-         "NATIVE_EAT_CHECK:classified ISEatFoodAction perform forwarded"),
+        ("pill-pharmacology-omitted", changed('wrapPharmacology(ISTakePillAction)', '-- pill pharmacology unwrapped'),
+         "NATIVE_EAT_CHECK:classified ISTakePillAction captured before native use"),
+        ("food-pharmacology-omitted", changed('wrapPharmacology(ISEatFoodAction)', '-- food pharmacology unwrapped'),
+         "NATIVE_EAT_CHECK:classified ISEatFoodAction captured before native use"),
         ("native-completion-bypassed", changed(
             'and not action:getRequiredItem() then return nil end\n        return action',
             'and not action:getRequiredItem() then return nil end\n'

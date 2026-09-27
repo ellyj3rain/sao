@@ -1,0 +1,440 @@
+{
+  "schema": "sao-c89-final-coherence-review/1",
+  "timestamp": "2026-09-27 05:26 UTC / 22:26 PST",
+  "timestampUtc": "2026-09-27T05:26:19.934829+00:00",
+  "scope": "C89 current candidate/promoted joins and three ZAO A44 runtime files",
+  "result": "NO_NEW_ACTIONABLE_FINDING_IN_BOUNDED_REVIEW",
+  "findings": [],
+  "blockingFindings": 0,
+  "checks": [
+    {
+      "scope": "HOMEWARD versus SourceUse/cooking",
+      "refs": [
+        "integration/SAO_Controller.lua:3476",
+        "integration/SAO_Controller.lua:3522",
+        "integration/SAO_Controller.lua:3559",
+        "integration/SAO_Controller.lua:7390",
+        "integration/SAO_Controller.lua:716",
+        "integration/SAO_Controller.lua:7567"
+      ],
+      "conclusion": "One exact HOMEWARD terminal job creates a private scalar receipt only after reversible state closure succeeds. The home-only reconsideration guard does not consume cooking routes, bypass SourceUse, mark arrival or suppress other need/threat decisions."
+    },
+    {
+      "scope": "Physical cooking and native collections",
+      "refs": [
+        "cooking/SAOCooking.java:166",
+        "cooking/SAOCooking.java:210",
+        "cooking/SAO_Cooking.lua:55",
+        "cooking/SAO_Cooking.lua:253",
+        "integration/SAOBridge.java:2663"
+      ],
+      "conclusion": "Indexed PZ square object traversal is present; native item and appliance identity/reach remain checked. Depositing and retrieving require the exact completed native transfer; native thermal progression and once-only credit remain separate from queue/arrival/toggle. Installed vanilla stove callbacks and public native facing method match the called receiver shape."
+    },
+    {
+      "scope": "Body/pharmacology and ZAO A44 rollback",
+      "refs": [
+        "integration/SAO_Body.lua:139",
+        "integration/SAO_Body.lua:568",
+        "integration/SAO_Body.lua:628",
+        "integration/SAO_Body.lua:861",
+        "integration/SAO_BodySnapshot.lua:116",
+        "integration/zao/ZAO_ExecutionOwner.lua:159",
+        "integration/zao/ZAO_Maintenance.lua:121",
+        "policy/ZAO_Driver.lua:1169"
+      ],
+      "conclusion": "Restore validates the external execution owner before allocation, checkpoints that owner and rolls back its Maintenance state on replay refusal. Native body removal precedes durable dormancy publication. Exact foreign ownership/token and separate ZAO arbitration are retained."
+    },
+    {
+      "scope": "Private capability evidence and mod ownership",
+      "refs": [
+        "integration/SAO_CapabilityExperience.lua:7",
+        "integration/SAO_Needs.lua:1145",
+        "cognition/mod/42.20/media/lua/shared/SAO_Cognition.lua:420",
+        "pharma/catalogue.json",
+        "integration/SAO_Controller.lua:7710"
+      ],
+      "conclusion": "New receipts enter the same actor private ledger after qualified native use/change/preparation. New events capture personal Labor capability; replay retains its old context. Family/profile causal truth is not passed as cognitive evidence. Owned pharmacology has definitions/availability and no external effect callbacks; legacy save keys remain migration only. Horse remains an explicitly recorded ownership gap."
+    }
+  ],
+  "closedPriorFindings": [
+    "Cooking offers PZArrayList iterator refusal: current production uses size/get.",
+    "Native cognitive experience capability omission: new events use own Labor capability and duplicates retain prior context.",
+    "HOMEWARD immediate retry loop: exact durable failure receipt and existing owner closure, focused Border206 proof retained."
+  ],
+  "limits": [
+    "This is a bounded read-only source/manifests/installed-API review. No game, build, test suite or save mutation was performed.",
+    "The reviewer authored HOMEWARD and pharmacology previously; this is an independent joined-boundary check, not a second independent reimplementation or rerun of those proofs.",
+    "Current native02 loaded evidence predates the HOMEWARD correction and newest body rollback joins. It contains no executed dose/cooking/resource outcomes and cannot accept those behaviors.",
+    "Sound weave registration/retransformation tests now have explicit diagnostics. No loaded sound-behavior defect or repair was established by that diagnostic change; root diagnostic04 remains separate.",
+    "Final combined loaded route reconsideration, cooking queue/appliance shutdown, streaming animation readability and save/reopen pharmacology/ZAO continuity are not demonstrated by this read-only review.",
+    "The exact engine cause of native02 plain Failed remains unidentified; the retry correction records and bounds that experienced failure without making the route traversable.",
+    "Horse mounting/riding is still externally owned and local players without an SAO record remain outside the new pharmacology admission. Neither is silently counted as completed source integration.",
+    "Existing proof receipts pin their historical inputs; the current assembly source inventory below does not retroactively rebind older joined tests to newer Controller bytes."
+  ],
+  "inputs": [
+    {
+      "candidate": "_scratch/c89-orienting/engine/java/src/com/sao/Main.java",
+      "destination": "java/src/com/sao/Main.java",
+      "repository": "SAO",
+      "sha256": "38e132ca9dec83eec184a73045db48ceefebc763b563cc5893727a5e07cdb753",
+      "promotedSha256": "38e132ca9dec83eec184a73045db48ceefebc763b563cc5893727a5e07cdb753",
+      "assemblySha256": "38e132ca9dec83eec184a73045db48ceefebc763b563cc5893727a5e07cdb753"
+    },
+    {
+      "candidate": "_scratch/c89-orienting/engine/java/src/com/sao/agent/SAOAgent.java",
+      "destination": "java/src/com/sao/agent/SAOAgent.java",
+      "repository": "SAO",
+      "sha256": "cf4a41ddb210c04da4e3d6eeac933068a23341ecfec1778c80bb0210cbe15a4c",
+      "promotedSha256": "cf4a41ddb210c04da4e3d6eeac933068a23341ecfec1778c80bb0210cbe15a4c",
+      "assemblySha256": "cf4a41ddb210c04da4e3d6eeac933068a23341ecfec1778c80bb0210cbe15a4c"
+    },
+    {
+      "candidate": "_scratch/c89-orienting/engine/java/src/com/sao/agent/SAOOrientationWeave.java",
+      "destination": "java/src/com/sao/agent/SAOOrientationWeave.java",
+      "repository": "SAO",
+      "sha256": "295c70f0292aa872e9557d63ecb380d8c4d4bb6a5810c2777bb66547a16c9d48",
+      "promotedSha256": "295c70f0292aa872e9557d63ecb380d8c4d4bb6a5810c2777bb66547a16c9d48",
+      "assemblySha256": "295c70f0292aa872e9557d63ecb380d8c4d4bb6a5810c2777bb66547a16c9d48"
+    },
+    {
+      "candidate": "_scratch/c89-orienting/engine/java/src/com/sao/engine/SAOIsoPlayerShell.java",
+      "destination": "java/src/com/sao/engine/SAOIsoPlayerShell.java",
+      "repository": "SAO",
+      "sha256": "a2644a0c155eb51804a6de201888173484ed5aa4f474f32b3b6f5eb595b29eb2",
+      "promotedSha256": "a2644a0c155eb51804a6de201888173484ed5aa4f474f32b3b6f5eb595b29eb2",
+      "assemblySha256": "a2644a0c155eb51804a6de201888173484ed5aa4f474f32b3b6f5eb595b29eb2"
+    },
+    {
+      "candidate": "_scratch/c89-orienting/engine/java/src/com/sao/engine/SAOOrientation.java",
+      "destination": "java/src/com/sao/engine/SAOOrientation.java",
+      "repository": "SAO",
+      "sha256": "56e666b1b9a3c236908440453f3d0fc2ac17ef32231df1f9e28fe18832406670",
+      "promotedSha256": "56e666b1b9a3c236908440453f3d0fc2ac17ef32231df1f9e28fe18832406670",
+      "assemblySha256": "56e666b1b9a3c236908440453f3d0fc2ac17ef32231df1f9e28fe18832406670"
+    },
+    {
+      "candidate": "_scratch/c89-orienting/engine/java/src/com/sao/engine/SAOOrientationAnimation.java",
+      "destination": "java/src/com/sao/engine/SAOOrientationAnimation.java",
+      "repository": "SAO",
+      "sha256": "2ce5720a4a8a6ffa6c06dfc1f5503870d45207cd262b43764efe2255fd70ceae",
+      "promotedSha256": "2ce5720a4a8a6ffa6c06dfc1f5503870d45207cd262b43764efe2255fd70ceae",
+      "assemblySha256": "2ce5720a4a8a6ffa6c06dfc1f5503870d45207cd262b43764efe2255fd70ceae"
+    },
+    {
+      "candidate": "_scratch/c89-orienting/engine/java/src/com/sao/engine/SAOPerceptionScanner.java",
+      "destination": "java/src/com/sao/engine/SAOPerceptionScanner.java",
+      "repository": "SAO",
+      "sha256": "f930194a7963b2566dacb62c399e1b821f2f2dd94561a42f70d0e1fc43c570a8",
+      "promotedSha256": "f930194a7963b2566dacb62c399e1b821f2f2dd94561a42f70d0e1fc43c570a8",
+      "assemblySha256": "f930194a7963b2566dacb62c399e1b821f2f2dd94561a42f70d0e1fc43c570a8"
+    },
+    {
+      "candidate": "_scratch/c89-orienting/engine/java/src/com/sao/engine/SAOSenses.java",
+      "destination": "java/src/com/sao/engine/SAOSenses.java",
+      "repository": "SAO",
+      "sha256": "6c0767bcbec7693b4e5da60b95e26ceaefac0c7cc49b3d886e8c0515d1d9ece7",
+      "promotedSha256": "6c0767bcbec7693b4e5da60b95e26ceaefac0c7cc49b3d886e8c0515d1d9ece7",
+      "assemblySha256": "6c0767bcbec7693b4e5da60b95e26ceaefac0c7cc49b3d886e8c0515d1d9ece7"
+    },
+    {
+      "candidate": "_scratch/c89-orienting/engine/java/src/com/sao/engine/SAOWorldSoundPulses.java",
+      "destination": "java/src/com/sao/engine/SAOWorldSoundPulses.java",
+      "repository": "SAO",
+      "sha256": "4b78730b45ba4c1e2d703f2cc10a2ec0533186947542340c7a61ae5cbd56ad78",
+      "promotedSha256": "4b78730b45ba4c1e2d703f2cc10a2ec0533186947542340c7a61ae5cbd56ad78",
+      "assemblySha256": "4b78730b45ba4c1e2d703f2cc10a2ec0533186947542340c7a61ae5cbd56ad78"
+    },
+    {
+      "candidate": "_scratch/c89-orienting/engine/mod/42.20/media/SAOOrienting/children.xml",
+      "destination": "mod/42.20/media/SAOOrienting/children.xml",
+      "repository": "SAO",
+      "sha256": "ca9c4a56aaccaca795754222bb3c3f64fcffd321bbb01f85049891108bf0dc6a",
+      "promotedSha256": "ca9c4a56aaccaca795754222bb3c3f64fcffd321bbb01f85049891108bf0dc6a",
+      "assemblySha256": "ca9c4a56aaccaca795754222bb3c3f64fcffd321bbb01f85049891108bf0dc6a"
+    },
+    {
+      "candidate": "_scratch/c89-orienting/engine/mod/42.20/media/SAOOrienting/enter.xml",
+      "destination": "mod/42.20/media/SAOOrienting/enter.xml",
+      "repository": "SAO",
+      "sha256": "aeb3630226745f0809fe91e8739c299369e3e41e4fb65afe0a3ca16b4074131b",
+      "promotedSha256": "aeb3630226745f0809fe91e8739c299369e3e41e4fb65afe0a3ca16b4074131b",
+      "assemblySha256": "aeb3630226745f0809fe91e8739c299369e3e41e4fb65afe0a3ca16b4074131b"
+    },
+    {
+      "candidate": "_scratch/c89-orienting/engine/mod/42.20/media/SAOOrienting/exit.xml",
+      "destination": "mod/42.20/media/SAOOrienting/exit.xml",
+      "repository": "SAO",
+      "sha256": "51e697582eea82fca6490f444c0f05421ece65319d4022f8477cc59aa7468076",
+      "promotedSha256": "51e697582eea82fca6490f444c0f05421ece65319d4022f8477cc59aa7468076",
+      "assemblySha256": "51e697582eea82fca6490f444c0f05421ece65319d4022f8477cc59aa7468076"
+    },
+    {
+      "candidate": "_scratch/c89-orienting/engine/mod/42.20/media/SAOOrienting/look.xml",
+      "destination": "mod/42.20/media/SAOOrienting/look.xml",
+      "repository": "SAO",
+      "sha256": "0116b93221f82cc1d7c3a65486f1130ae375815e93a56dfaf1f130e5a1f4cff6",
+      "promotedSha256": "0116b93221f82cc1d7c3a65486f1130ae375815e93a56dfaf1f130e5a1f4cff6",
+      "assemblySha256": "0116b93221f82cc1d7c3a65486f1130ae375815e93a56dfaf1f130e5a1f4cff6"
+    },
+    {
+      "candidate": "_scratch/c89-orienting/engine/mod/42.20/media/SAOOrienting/tags.xml",
+      "destination": "mod/42.20/media/SAOOrienting/tags.xml",
+      "repository": "SAO",
+      "sha256": "3fd3b3d374536a37b9395757eba63899a1a319973d151cc751872d054c20ab37",
+      "promotedSha256": "3fd3b3d374536a37b9395757eba63899a1a319973d151cc751872d054c20ab37",
+      "assemblySha256": "3fd3b3d374536a37b9395757eba63899a1a319973d151cc751872d054c20ab37"
+    },
+    {
+      "candidate": "_scratch/c89-orienting/policy/SAO_Orienting.lua",
+      "destination": "mod/42.20/media/lua/shared/SAO_Orienting.lua",
+      "repository": "SAO",
+      "sha256": "67c8aa3755869c934c3c14c99cf1593e675525b671f4a7aa14616bb844f0c876",
+      "promotedSha256": "67c8aa3755869c934c3c14c99cf1593e675525b671f4a7aa14616bb844f0c876",
+      "assemblySha256": "67c8aa3755869c934c3c14c99cf1593e675525b671f4a7aa14616bb844f0c876"
+    },
+    {
+      "candidate": "_scratch/c89-orienting/policy/SAO_Perception.lua",
+      "destination": "mod/42.20/media/lua/shared/SAO_Perception.lua",
+      "repository": "SAO",
+      "sha256": "626a8230ff7434a326ea6928f8a01619bdf4eba5d29cb25bd9c78accd950eff1",
+      "promotedSha256": "626a8230ff7434a326ea6928f8a01619bdf4eba5d29cb25bd9c78accd950eff1",
+      "assemblySha256": "626a8230ff7434a326ea6928f8a01619bdf4eba5d29cb25bd9c78accd950eff1"
+    },
+    {
+      "candidate": "_scratch/c89-orienting/cooking/SAOCooking.java",
+      "destination": "java/src/com/sao/engine/SAOCooking.java",
+      "repository": "SAO",
+      "sha256": "46adcb02714f9384879faadef7537f5d4b6a47f0e530f7c4215c7ce57793c12b",
+      "promotedSha256": "46adcb02714f9384879faadef7537f5d4b6a47f0e530f7c4215c7ce57793c12b",
+      "assemblySha256": "46adcb02714f9384879faadef7537f5d4b6a47f0e530f7c4215c7ce57793c12b"
+    },
+    {
+      "candidate": "_scratch/c89-orienting/cooking/SAO_Cooking.lua",
+      "destination": "mod/42.20/media/lua/client/SAO_Cooking.lua",
+      "repository": "SAO",
+      "sha256": "b13e2c3596c965edb4e042b299c7f6d324385b557f4bf8a96ef8b9a121859c53",
+      "promotedSha256": "b13e2c3596c965edb4e042b299c7f6d324385b557f4bf8a96ef8b9a121859c53",
+      "assemblySha256": "b13e2c3596c965edb4e042b299c7f6d324385b557f4bf8a96ef8b9a121859c53"
+    },
+    {
+      "candidate": "_scratch/c89-orienting/cooking/SAO_WorldSources.lua",
+      "destination": "mod/42.20/media/lua/shared/SAO_WorldSources.lua",
+      "repository": "SAO",
+      "sha256": "8b94261a5e1d6a7522b0f4a3009aa6b736cc91cf70b720cb370c7839b72e01ce",
+      "promotedSha256": "8b94261a5e1d6a7522b0f4a3009aa6b736cc91cf70b720cb370c7839b72e01ce",
+      "assemblySha256": "8b94261a5e1d6a7522b0f4a3009aa6b736cc91cf70b720cb370c7839b72e01ce"
+    },
+    {
+      "candidate": "_scratch/c89-orienting/pharma/mod/42.20/media/scripts/items_SAO_pharmacology.txt",
+      "destination": "mod/42.20/media/scripts/items_SAO_pharmacology.txt",
+      "repository": "SAO",
+      "sha256": "7ecd278df3911d1042ce886c8092dbea8f0012e4eb35d7fbdca81c3acdc1f4ca",
+      "promotedSha256": "7ecd278df3911d1042ce886c8092dbea8f0012e4eb35d7fbdca81c3acdc1f4ca",
+      "assemblySha256": "7ecd278df3911d1042ce886c8092dbea8f0012e4eb35d7fbdca81c3acdc1f4ca"
+    },
+    {
+      "candidate": "_scratch/c89-orienting/pharma/mod/42.20/media/lua/client/SAO_Drugs.lua",
+      "destination": "mod/42.20/media/lua/client/SAO_Drugs.lua",
+      "repository": "SAO",
+      "sha256": "427d72c5119916444f09caf45d14418e4f927a039d491d63e43a8800c5db8ef6",
+      "promotedSha256": "427d72c5119916444f09caf45d14418e4f927a039d491d63e43a8800c5db8ef6",
+      "assemblySha256": "427d72c5119916444f09caf45d14418e4f927a039d491d63e43a8800c5db8ef6"
+    },
+    {
+      "candidate": "_scratch/c89-orienting/pharma/mod/42.20/media/lua/shared/SAO_Habits.lua",
+      "destination": "mod/42.20/media/lua/shared/SAO_Habits.lua",
+      "repository": "SAO",
+      "sha256": "ca35b2ae8d37dd7abdcd7e19cd1bd0f761982ff52150e2d39c452935e6124fab",
+      "promotedSha256": "ca35b2ae8d37dd7abdcd7e19cd1bd0f761982ff52150e2d39c452935e6124fab",
+      "assemblySha256": "ca35b2ae8d37dd7abdcd7e19cd1bd0f761982ff52150e2d39c452935e6124fab"
+    },
+    {
+      "candidate": "_scratch/c89-orienting/pharma/mod/42.20/media/lua/shared/SAO_Pharmacology.lua",
+      "destination": "mod/42.20/media/lua/shared/SAO_Pharmacology.lua",
+      "repository": "SAO",
+      "sha256": "4c02625ec7570bfad09d7b12eea6cdc3362bb85da976815b3d5002514dd92521",
+      "promotedSha256": "4c02625ec7570bfad09d7b12eea6cdc3362bb85da976815b3d5002514dd92521",
+      "assemblySha256": "4c02625ec7570bfad09d7b12eea6cdc3362bb85da976815b3d5002514dd92521"
+    },
+    {
+      "candidate": "_scratch/c89-orienting/pharma/mod/42.20/media/lua/shared/SAO_PharmacologyProfiles.lua",
+      "destination": "mod/42.20/media/lua/shared/SAO_PharmacologyProfiles.lua",
+      "repository": "SAO",
+      "sha256": "11d737bb81f4755ce485fcdc0e4e8bd4373e36ed6e192dfc7ae170cb7b5c24a9",
+      "promotedSha256": "11d737bb81f4755ce485fcdc0e4e8bd4373e36ed6e192dfc7ae170cb7b5c24a9",
+      "assemblySha256": "11d737bb81f4755ce485fcdc0e4e8bd4373e36ed6e192dfc7ae170cb7b5c24a9"
+    },
+    {
+      "candidate": "_scratch/c89-orienting/pharma/mod/42.20/media/lua/server/Items/SAO_PharmacologyLoot.lua",
+      "destination": "mod/42.20/media/lua/server/Items/SAO_PharmacologyLoot.lua",
+      "repository": "SAO",
+      "sha256": "169ae54eb84d603a5059b7b24abac226ade97da7874fce7f97fbbdab6be96647",
+      "promotedSha256": "169ae54eb84d603a5059b7b24abac226ade97da7874fce7f97fbbdab6be96647",
+      "assemblySha256": "169ae54eb84d603a5059b7b24abac226ade97da7874fce7f97fbbdab6be96647"
+    },
+    {
+      "candidate": "_scratch/c89-orienting/integration/SAO_Body.lua",
+      "destination": "mod/42.20/media/lua/client/SAO_Body.lua",
+      "repository": "SAO",
+      "sha256": "8336f0a87781ee787c7b86362f5eca76542c1c6033f91deff2ba262fdcf0dd7b",
+      "promotedSha256": "8336f0a87781ee787c7b86362f5eca76542c1c6033f91deff2ba262fdcf0dd7b",
+      "assemblySha256": "8336f0a87781ee787c7b86362f5eca76542c1c6033f91deff2ba262fdcf0dd7b"
+    },
+    {
+      "candidate": "_scratch/c89-orienting/integration/SAO_BodySnapshot.lua",
+      "destination": "mod/42.20/media/lua/shared/SAO_BodySnapshot.lua",
+      "repository": "SAO",
+      "sha256": "2cb4b99eca3aa0ebd93c0edbc09776522aefdf78a8344185e587d6c3b30113d9",
+      "promotedSha256": "2cb4b99eca3aa0ebd93c0edbc09776522aefdf78a8344185e587d6c3b30113d9",
+      "assemblySha256": "2cb4b99eca3aa0ebd93c0edbc09776522aefdf78a8344185e587d6c3b30113d9"
+    },
+    {
+      "candidate": "_scratch/c89-orienting/integration/SAO_CapabilityExperience.lua",
+      "destination": "mod/42.20/media/lua/client/SAO_CapabilityExperience.lua",
+      "repository": "SAO",
+      "sha256": "757aa34d8004f612de0f50867de4382663712ce83db7302ce184251830d74f52",
+      "promotedSha256": "757aa34d8004f612de0f50867de4382663712ce83db7302ce184251830d74f52",
+      "assemblySha256": "757aa34d8004f612de0f50867de4382663712ce83db7302ce184251830d74f52"
+    },
+    {
+      "candidate": "_scratch/c89-orienting/integration/SAO_Controller.lua",
+      "destination": "mod/42.20/media/lua/client/SAO_Controller.lua",
+      "repository": "SAO",
+      "sha256": "abecb2a5a78128f881557c08eb6b92678c6ba766c1a5b32f6b4cc201912bef64",
+      "promotedSha256": "abecb2a5a78128f881557c08eb6b92678c6ba766c1a5b32f6b4cc201912bef64",
+      "assemblySha256": "abecb2a5a78128f881557c08eb6b92678c6ba766c1a5b32f6b4cc201912bef64"
+    },
+    {
+      "candidate": "_scratch/c89-orienting/integration/SAO_DormantPopulation.lua",
+      "destination": "mod/42.20/media/lua/client/SAO_DormantPopulation.lua",
+      "repository": "SAO",
+      "sha256": "b43287a41e158747617df9566162be22cb8a12d4c469319ca7610123ed2a6d46",
+      "promotedSha256": "b43287a41e158747617df9566162be22cb8a12d4c469319ca7610123ed2a6d46",
+      "assemblySha256": "b43287a41e158747617df9566162be22cb8a12d4c469319ca7610123ed2a6d46"
+    },
+    {
+      "candidate": "_scratch/c89-orienting/integration/SAO_Needs.lua",
+      "destination": "mod/42.20/media/lua/client/SAO_Needs.lua",
+      "repository": "SAO",
+      "sha256": "dbe233778fd2f1c26539b57a843295d12a8f70fb5ebb105b84a5ba7d681c8ef1",
+      "promotedSha256": "dbe233778fd2f1c26539b57a843295d12a8f70fb5ebb105b84a5ba7d681c8ef1",
+      "assemblySha256": "dbe233778fd2f1c26539b57a843295d12a8f70fb5ebb105b84a5ba7d681c8ef1"
+    },
+    {
+      "candidate": "_scratch/c89-orienting/integration/SAO_Neuro.lua",
+      "destination": "mod/42.20/media/lua/shared/SAO_Neuro.lua",
+      "repository": "SAO",
+      "sha256": "c029b54a9e1df7effc9aa0e85540c4ffdea2c50b9728beab2a60eff07047f6f0",
+      "promotedSha256": "c029b54a9e1df7effc9aa0e85540c4ffdea2c50b9728beab2a60eff07047f6f0",
+      "assemblySha256": "c029b54a9e1df7effc9aa0e85540c4ffdea2c50b9728beab2a60eff07047f6f0"
+    },
+    {
+      "candidate": "_scratch/c89-orienting/integration/SAO_Observation.lua",
+      "destination": "mod/42.20/media/lua/client/SAO_Observation.lua",
+      "repository": "SAO",
+      "sha256": "167e603aeb6ee1e6537aae50e269d4bf366d08cabaafbbcb83cb7c026cbd8ca4",
+      "promotedSha256": "167e603aeb6ee1e6537aae50e269d4bf366d08cabaafbbcb83cb7c026cbd8ca4",
+      "assemblySha256": "167e603aeb6ee1e6537aae50e269d4bf366d08cabaafbbcb83cb7c026cbd8ca4"
+    },
+    {
+      "candidate": "_scratch/c89-orienting/integration/SAOBridge.java",
+      "destination": "java/src/com/sao/bridge/SAOBridge.java",
+      "repository": "SAO",
+      "sha256": "03761d7b79d29e68b39d81a46237b58c533a1030d496f053104b432265d0ecba",
+      "promotedSha256": "03761d7b79d29e68b39d81a46237b58c533a1030d496f053104b432265d0ecba",
+      "assemblySha256": "03761d7b79d29e68b39d81a46237b58c533a1030d496f053104b432265d0ecba"
+    },
+    {
+      "candidate": "_scratch/c89-orienting/integration/SAOHibernation.java",
+      "destination": "java/src/com/sao/engine/SAOHibernation.java",
+      "repository": "SAO",
+      "sha256": "b3d0c832c920d7c0080435d8572b2ef2437bec5083b22f3569de82f45fab69d8",
+      "promotedSha256": "b3d0c832c920d7c0080435d8572b2ef2437bec5083b22f3569de82f45fab69d8",
+      "assemblySha256": "b3d0c832c920d7c0080435d8572b2ef2437bec5083b22f3569de82f45fab69d8"
+    },
+    {
+      "candidate": "_scratch/c89-orienting/integration/SAONeeds.java",
+      "destination": "java/src/com/sao/engine/SAONeeds.java",
+      "repository": "SAO",
+      "sha256": "b0cfa1a26f6b41151889cd82c752e91c2b481cb46d21ff1f8dbf97604ff6f11f",
+      "promotedSha256": "b0cfa1a26f6b41151889cd82c752e91c2b481cb46d21ff1f8dbf97604ff6f11f",
+      "assemblySha256": "b0cfa1a26f6b41151889cd82c752e91c2b481cb46d21ff1f8dbf97604ff6f11f"
+    },
+    {
+      "candidate": "_scratch/c89-orienting/cognition/mod/42.20/media/lua/shared/SAO_Cognition.lua",
+      "destination": "mod/42.20/media/lua/shared/SAO_Cognition.lua",
+      "repository": "SAO",
+      "sha256": "bc195be32cad455b1c8a5b8044dc7dc06e9babbfc3efc06cac3ffd5797d17285",
+      "promotedSha256": "bc195be32cad455b1c8a5b8044dc7dc06e9babbfc3efc06cac3ffd5797d17285",
+      "assemblySha256": "bc195be32cad455b1c8a5b8044dc7dc06e9babbfc3efc06cac3ffd5797d17285"
+    },
+    {
+      "candidate": "_scratch/c89-orienting/cognition/mod/42.20/media/lua/shared/SAO_CognitiveModels.lua",
+      "destination": "mod/42.20/media/lua/shared/SAO_CognitiveModels.lua",
+      "repository": "SAO",
+      "sha256": "8abb65720e2a16aee450b66d15c51d86d5470c9c46e21719eb16e8c3002e2f58",
+      "promotedSha256": "8abb65720e2a16aee450b66d15c51d86d5470c9c46e21719eb16e8c3002e2f58",
+      "assemblySha256": "8abb65720e2a16aee450b66d15c51d86d5470c9c46e21719eb16e8c3002e2f58"
+    },
+    {
+      "candidate": "_scratch/c89-orienting/policy/ZAO_Driver.lua",
+      "destination": "mod/42.20/media/lua/client/ZAO_Driver.lua",
+      "repository": "ZAO",
+      "sha256": "7251b03834df1db384f51d26b65b5675626145e72bef391eb5ecffbeac36bf91",
+      "promotedSha256": "7251b03834df1db384f51d26b65b5675626145e72bef391eb5ecffbeac36bf91",
+      "assemblySha256": "7251b03834df1db384f51d26b65b5675626145e72bef391eb5ecffbeac36bf91"
+    },
+    {
+      "candidate": "_scratch/c89-orienting/integration/zao/ZAO_ExecutionOwner.lua",
+      "destination": "mod/42.20/media/lua/shared/ZAO_ExecutionOwner.lua",
+      "repository": "ZAO",
+      "sha256": "f178fc53577638f9b4d524abffc1e223ad1fdf12e7dab6ace61761e51e7c156b",
+      "promotedSha256": "f178fc53577638f9b4d524abffc1e223ad1fdf12e7dab6ace61761e51e7c156b",
+      "assemblySha256": "f178fc53577638f9b4d524abffc1e223ad1fdf12e7dab6ace61761e51e7c156b"
+    },
+    {
+      "candidate": "_scratch/c89-orienting/integration/zao/ZAO_Maintenance.lua",
+      "destination": "mod/42.20/media/lua/shared/ZAO_Maintenance.lua",
+      "repository": "ZAO",
+      "sha256": "3f625e76397b91f26ab2afdc3c980aab5f7a51bb6a5fbaf12551cbedd0b7eadb",
+      "promotedSha256": "3f625e76397b91f26ab2afdc3c980aab5f7a51bb6a5fbaf12551cbedd0b7eadb",
+      "assemblySha256": "3f625e76397b91f26ab2afdc3c980aab5f7a51bb6a5fbaf12551cbedd0b7eadb"
+    }
+  ],
+  "assembly": {
+    "path": "_scratch/c89-orienting/assembly.json",
+    "sha256": "b52e045b2ba256187775e1fd11c1a782b694b42332b94ebd592a42225fa3ec68",
+    "status": "PASS",
+    "jarSha256": "29c7ce897379de0b884e2b2e446f4c53db1db9108eefbee0253ad2e15e2f541b"
+  },
+  "priorProofs": [
+    {
+      "path": "_scratch/c89-orienting/native-02-navigation-review/border206-final-owner/receipt.json",
+      "sha256": "5a83aed3c223cabe792adc102e5b8ce7d40359157993f356be42c5bdf0b82288",
+      "role": "existing evidence read or referenced, not rerun"
+    },
+    {
+      "path": "_scratch/c89-orienting/cooking/portable-results/transaction-verification.json",
+      "sha256": "c929c27ed42b2446a9f46b0905b4f119ccb61c98b054f5853c6ffd4373e2b885",
+      "role": "existing evidence read or referenced, not rerun"
+    },
+    {
+      "path": "_scratch/c89-orienting/engine/native-sound-review/weave-proof/receipt.json",
+      "sha256": "543a67ebd505ccdb3698d78c884b583afa10f8d2262443e39a77c8388c74a70e",
+      "role": "existing evidence read or referenced, not rerun"
+    },
+    {
+      "path": "_scratch/c89-orienting/pharma/results/controls/receipt.json",
+      "sha256": "b2bc822d5f4cbb943b0b8a15ef2151c015e155445ab76a2cd455265c8ca47f2f",
+      "role": "existing evidence read or referenced, not rerun"
+    },
+    {
+      "path": "_scratch/c89-orienting/native-02-review/receipt.json",
+      "sha256": "7cb7dc47f929ca5cc95a0c04de6feaf690d28dc0f2e3a98f25a6d3c7064c7545",
+      "role": "existing evidence read or referenced, not rerun"
+    }
+  ],
+  "executedTests": [],
+  "sourceEdits": false,
+  "processOrSaveActions": false
+}

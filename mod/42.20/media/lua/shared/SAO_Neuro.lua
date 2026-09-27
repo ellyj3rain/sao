@@ -125,7 +125,8 @@ local function withdrawalOf(rec, override)
     if rec and rec.id and SAO.Habits and SAO.Habits.withdrawalPhase then
         pcall(function() phase = SAO.Habits.withdrawalPhase(rec.id) or 0 end)
     end
-    return tonumber(phase) and tonumber(phase) >= 3 or false
+    local drug = SAO.Pharmacology and SAO.Pharmacology.effects(rec)
+    return tonumber(phase) and tonumber(phase) >= 3 or drug and drug.withdrawal == true or false
 end
 
 local function knoxWindow(rec, override)
@@ -407,13 +408,32 @@ function Neuro.loadOfId(id)
     return Neuro.loadOf(rec)
 end
 
+-- Read the body's native severity levels. Drug effects, fatigue, pain and
+-- intoxication reach perception through these same physical states.
+function Neuro.physicalReadiness(rec)
+    local body = rec and rec.id and SAO.Body and SAO.Body.get(rec.id)
+    if not body then return 1.0, 1.0 end
+    local ok, tired, drunk, pain = pcall(function()
+        local moodles = body:getMoodles()
+        return moodles:getMoodleLevel(MoodleType.TIRED),
+            moodles:getMoodleLevel(MoodleType.DRUNK),
+            moodles:getMoodleLevel(MoodleType.PAIN)
+    end)
+    if not ok or type(tired) ~= "number" or type(drunk) ~= "number"
+        or type(pain) ~= "number" then return 1.0, 1.0 end
+    local attention = clamp(1.0 - math.max(tired, drunk) / 4.0, 0.0, 1.0)
+    local motor = clamp(1.0 - math.max(tired, drunk, pain) / 4.0, 0.0, 1.0)
+    return attention, motor
+end
+
 function Neuro.clarityOf(rec)
-    if not rec or not Neuro.isActive() then return 1.0 end
-    return clamp(1.0 - Neuro.loadOf(rec), 0.0, 1.0)
+    if not rec then return 1.0 end
+    local attention = Neuro.physicalReadiness(rec)
+    return math.min(attention, clamp(1.0 - Neuro.loadOf(rec), 0.0, 1.0))
 end
 
 function Neuro.clarityOfId(id)
-    if id == nil or not Neuro.isActive() then return 1.0 end
+    if id == nil then return 1.0 end
     local rec = nil
     pcall(function() rec = SAO.Identity and SAO.Identity.get(id) end)
     return Neuro.clarityOf(rec)
@@ -425,13 +445,14 @@ function Neuro.affectiveVolatility(rec)
 end
 
 function Neuro.motorSteadiness(rec)
-    if not rec or not Neuro.isActive() then return 1.0 end
-    return clamp(1.0 - Neuro.loadOf(rec) * 0.70, 0.0, 1.0)
+    if not rec then return 1.0 end
+    local _, motor = Neuro.physicalReadiness(rec)
+    return math.min(motor, clamp(1.0 - Neuro.loadOf(rec) * 0.70, 0.0, 1.0))
 end
 
 function Neuro.decisionInterval(id, base)
     base = math.max(1, tonumber(base) or 1)
-    local load = Neuro.loadOfId(id)
+    local load = math.max(Neuro.loadOfId(id), 1.0 - Neuro.clarityOfId(id))
     return math.max(1, math.floor(base * (1.0 + load * 0.75) + 0.5))
 end
 

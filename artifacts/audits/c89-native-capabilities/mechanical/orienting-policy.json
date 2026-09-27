@@ -1,0 +1,184 @@
+{
+  "boundary": "Installed Kahlua; controlled body/native admission fixtures; no native pose claim",
+  "sources": {
+    "perception": {
+      "path": "C:\\Users\\jleyv\\Peanut Butter\\AI Assisted Software Engineering Mass Repository\\Projects\\survivor-awareness\\_scratch\\c89-orienting\\assembled\\mod\\42.20\\media\\lua\\shared\\SAO_Perception.lua",
+      "sha256": "626a8230ff7434a326ea6928f8a01619bdf4eba5d29cb25bd9c78accd950eff1"
+    },
+    "orienting": {
+      "path": "C:\\Users\\jleyv\\Peanut Butter\\AI Assisted Software Engineering Mass Repository\\Projects\\survivor-awareness\\_scratch\\c89-orienting\\assembled\\mod\\42.20\\media\\lua\\shared\\SAO_Orienting.lua",
+      "sha256": "67c8aa3755869c934c3c14c99cf1593e675525b671f4a7aa14616bb844f0c876"
+    },
+    "driver": {
+      "path": "C:\\Users\\jleyv\\Peanut Butter\\AI Assisted Software Engineering Mass Repository\\Projects\\survivor-awareness\\_scratch\\c89-orienting\\assembled-zao\\mod\\42.20\\media\\lua\\client\\ZAO_Driver.lua",
+      "sha256": "7251b03834df1db384f51d26b65b5675626145e72bef391eb5ecffbeac36bf91"
+    },
+    "neuro": {
+      "path": "C:\\Users\\jleyv\\Peanut Butter\\AI Assisted Software Engineering Mass Repository\\Projects\\survivor-awareness\\_scratch\\c89-orienting\\assembled\\mod\\42.20\\media\\lua\\shared\\SAO_Neuro.lua",
+      "sha256": "c029b54a9e1df7effc9aa0e85540c4ffdea2c50b9728beab2a60eff07047f6f0"
+    }
+  },
+  "engine_sha256": "80e405a4bfc42f6072e75b3735f458a6514143da011d3226007ded305a442f44",
+  "runs": [
+    {
+      "label": "compile-runner",
+      "exit": 0,
+      "stdout": "",
+      "stderr": ""
+    },
+    {
+      "label": "candidate",
+      "exit": 0,
+      "stdout": "VALUE private_fresh_sound_admitted=true\ntimestamp_refresh_never_restarts=true\nnew_pulse_same_tile_admitted=true\nlegacy_memory_has_no_pulse=true\nmalformed_occurrences_refused=true\nstale_acquisition_refused=true\nnative_refusal_remains_retryable=true\nnative_refusal_expires_despite_refresh=true\nnative_throw_never_consumes=true\nnonboolean_admission_refused=true\nbind_clears_runtime_authority=true\nrestored_sound_cannot_mint_authority=true\nexact_body_required=true\nowner_token_mismatch_refused=true\nnative_owner_mark_mismatch_refused=true\nexternal_owner_excludes_survivor=true\ndouble_controller_refused=true\nperson_private_acquisition=true\nnative_sleeping_refused=true\nnative_dead_refused=true\nnative_attack_refused=true\nnative_aim_refused=true\nnative_climb_refused=true\nnative_rope_refused=true\ndetached_native_body_refused=true\nmissing_square_refused=true\nnative_vehicle_refused=true\nnonshell_body_refused=true\nsource_owner_read_is_nonmutating=true\nqueued_work_yields_and_clears=true\nroute_only_admits_head_without_mutation=true\nneuro_state_shapes_response=true\nneuro_disabled_uses_existing_projection=true\ninvalid_projection_refused=true\nprivate_cue_query_detached=true\ncue_retention_bounded=true\npending_cue_keeps_original_coordinates=true\nforget_preserves_native_consumption=true\nafflicted_driver_admits_after_own_policy=true\ncrossed_driver_admits_after_own_policy=true\ndriver_queue_precedes_orientation=true\ndriver_source_precedes_orientation=true\ndriver_route_admits_only_head=true\ndriver_combat_yields_orientation=true\ndriver_new_timed_action_prevents_glance=true\n",
+      "stderr": ""
+    },
+    {
+      "label": "refresh_is_new_pulse",
+      "exit": 0,
+      "stdout": "VALUE private_fresh_sound_admitted=true\ntimestamp_refresh_never_restarts=false\nnew_pulse_same_tile_admitted=true\nlegacy_memory_has_no_pulse=true\nmalformed_occurrences_refused=true\nstale_acquisition_refused=true\nnative_refusal_remains_retryable=true\nnative_refusal_expires_despite_refresh=false\nnative_throw_never_consumes=true\nnonboolean_admission_refused=true\nbind_clears_runtime_authority=true\nrestored_sound_cannot_mint_authority=true\nexact_body_required=true\nowner_token_mismatch_refused=true\nnative_owner_mark_mismatch_refused=true\nexternal_owner_excludes_survivor=true\ndouble_controller_refused=true\nperson_private_acquisition=true\nnative_sleeping_refused=true\nnative_dead_refused=true\nnative_attack_refused=true\nnative_aim_refused=true\nnative_climb_refused=true\nnative_rope_refused=true\ndetached_native_body_refused=true\nmissing_square_refused=true\nnative_vehicle_refused=true\nnonshell_body_refused=true\nsource_owner_read_is_nonmutating=true\nqueued_work_yields_and_clears=true\nroute_only_admits_head_without_mutation=true\nneuro_state_shapes_response=true\nneuro_disabled_uses_existing_projection=true\ninvalid_projection_refused=true\nprivate_cue_query_detached=true\ncue_retention_bounded=true\npending_cue_keeps_original_coordinates=true\nforget_preserves_native_consumption=true\nafflicted_driver_admits_after_own_policy=true\ncrossed_driver_admits_after_own_policy=true\ndriver_queue_precedes_orientation=true\ndriver_source_precedes_orientation=true\ndriver_route_admits_only_head=true\ndriver_combat_yields_orientation=true\ndriver_new_timed_action_prevents_glance=true\n",
+      "stderr": ""
+    },
+    {
+      "label": "malformed_token_admitted",
+      "exit": 0,
+      "stdout": "VALUE private_fresh_sound_admitted=true\ntimestamp_refresh_never_restarts=true\nnew_pulse_same_tile_admitted=true\nlegacy_memory_has_no_pulse=true\nmalformed_occurrences_refused=false\nstale_acquisition_refused=true\nnative_refusal_remains_retryable=true\nnative_refusal_expires_despite_refresh=true\nnative_throw_never_consumes=true\nnonboolean_admission_refused=true\nbind_clears_runtime_authority=true\nrestored_sound_cannot_mint_authority=true\nexact_body_required=true\nowner_token_mismatch_refused=true\nnative_owner_mark_mismatch_refused=true\nexternal_owner_excludes_survivor=true\ndouble_controller_refused=true\nperson_private_acquisition=true\nnative_sleeping_refused=true\nnative_dead_refused=true\nnative_attack_refused=true\nnative_aim_refused=true\nnative_climb_refused=true\nnative_rope_refused=true\ndetached_native_body_refused=true\nmissing_square_refused=true\nnative_vehicle_refused=true\nnonshell_body_refused=true\nsource_owner_read_is_nonmutating=true\nqueued_work_yields_and_clears=true\nroute_only_admits_head_without_mutation=true\nneuro_state_shapes_response=true\nneuro_disabled_uses_existing_projection=true\ninvalid_projection_refused=true\nprivate_cue_query_detached=true\ncue_retention_bounded=true\npending_cue_keeps_original_coordinates=true\nforget_preserves_native_consumption=true\nafflicted_driver_admits_after_own_policy=true\ncrossed_driver_admits_after_own_policy=true\ndriver_queue_precedes_orientation=true\ndriver_source_precedes_orientation=true\ndriver_route_admits_only_head=true\ndriver_combat_yields_orientation=true\ndriver_new_timed_action_prevents_glance=true\n",
+      "stderr": ""
+    },
+    {
+      "label": "restored_runtime_authority",
+      "exit": 0,
+      "stdout": "VALUE private_fresh_sound_admitted=true\ntimestamp_refresh_never_restarts=true\nnew_pulse_same_tile_admitted=true\nlegacy_memory_has_no_pulse=true\nmalformed_occurrences_refused=true\nstale_acquisition_refused=true\nnative_refusal_remains_retryable=true\nnative_refusal_expires_despite_refresh=true\nnative_throw_never_consumes=true\nnonboolean_admission_refused=true\nbind_clears_runtime_authority=false\nrestored_sound_cannot_mint_authority=true\nexact_body_required=true\nowner_token_mismatch_refused=true\nnative_owner_mark_mismatch_refused=true\nexternal_owner_excludes_survivor=true\ndouble_controller_refused=true\nperson_private_acquisition=true\nnative_sleeping_refused=true\nnative_dead_refused=true\nnative_attack_refused=true\nnative_aim_refused=true\nnative_climb_refused=true\nnative_rope_refused=true\ndetached_native_body_refused=true\nmissing_square_refused=true\nnative_vehicle_refused=true\nnonshell_body_refused=true\nsource_owner_read_is_nonmutating=true\nqueued_work_yields_and_clears=true\nroute_only_admits_head_without_mutation=true\nneuro_state_shapes_response=true\nneuro_disabled_uses_existing_projection=true\ninvalid_projection_refused=true\nprivate_cue_query_detached=true\ncue_retention_bounded=true\npending_cue_keeps_original_coordinates=true\nforget_preserves_native_consumption=true\nafflicted_driver_admits_after_own_policy=true\ncrossed_driver_admits_after_own_policy=true\ndriver_queue_precedes_orientation=true\ndriver_source_precedes_orientation=true\ndriver_route_admits_only_head=true\ndriver_combat_yields_orientation=true\ndriver_new_timed_action_prevents_glance=true\n",
+      "stderr": ""
+    },
+    {
+      "label": "repeat_admission",
+      "exit": 0,
+      "stdout": "VALUE private_fresh_sound_admitted=true\ntimestamp_refresh_never_restarts=false\nnew_pulse_same_tile_admitted=true\nlegacy_memory_has_no_pulse=true\nmalformed_occurrences_refused=true\nstale_acquisition_refused=true\nnative_refusal_remains_retryable=false\nnative_refusal_expires_despite_refresh=true\nnative_throw_never_consumes=true\nnonboolean_admission_refused=true\nbind_clears_runtime_authority=true\nrestored_sound_cannot_mint_authority=true\nexact_body_required=true\nowner_token_mismatch_refused=true\nnative_owner_mark_mismatch_refused=true\nexternal_owner_excludes_survivor=true\ndouble_controller_refused=true\nperson_private_acquisition=true\nnative_sleeping_refused=true\nnative_dead_refused=true\nnative_attack_refused=true\nnative_aim_refused=true\nnative_climb_refused=true\nnative_rope_refused=true\ndetached_native_body_refused=true\nmissing_square_refused=true\nnative_vehicle_refused=true\nnonshell_body_refused=true\nsource_owner_read_is_nonmutating=true\nqueued_work_yields_and_clears=true\nroute_only_admits_head_without_mutation=true\nneuro_state_shapes_response=true\nneuro_disabled_uses_existing_projection=true\ninvalid_projection_refused=true\nprivate_cue_query_detached=true\ncue_retention_bounded=true\npending_cue_keeps_original_coordinates=true\nforget_preserves_native_consumption=true\nafflicted_driver_admits_after_own_policy=true\ncrossed_driver_admits_after_own_policy=true\ndriver_queue_precedes_orientation=true\ndriver_source_precedes_orientation=true\ndriver_route_admits_only_head=true\ndriver_combat_yields_orientation=true\ndriver_new_timed_action_prevents_glance=true\n",
+      "stderr": ""
+    },
+    {
+      "label": "refusal_reported_success",
+      "exit": 0,
+      "stdout": "VALUE private_fresh_sound_admitted=true\ntimestamp_refresh_never_restarts=true\nnew_pulse_same_tile_admitted=true\nlegacy_memory_has_no_pulse=true\nmalformed_occurrences_refused=true\nstale_acquisition_refused=true\nnative_refusal_remains_retryable=false\nnative_refusal_expires_despite_refresh=false\nnative_throw_never_consumes=true\nnonboolean_admission_refused=false\nbind_clears_runtime_authority=true\nrestored_sound_cannot_mint_authority=true\nexact_body_required=true\nowner_token_mismatch_refused=true\nnative_owner_mark_mismatch_refused=true\nexternal_owner_excludes_survivor=true\ndouble_controller_refused=true\nperson_private_acquisition=true\nnative_sleeping_refused=true\nnative_dead_refused=true\nnative_attack_refused=true\nnative_aim_refused=true\nnative_climb_refused=true\nnative_rope_refused=true\ndetached_native_body_refused=true\nmissing_square_refused=true\nnative_vehicle_refused=true\nnonshell_body_refused=true\nsource_owner_read_is_nonmutating=true\nqueued_work_yields_and_clears=true\nroute_only_admits_head_without_mutation=true\nneuro_state_shapes_response=true\nneuro_disabled_uses_existing_projection=true\ninvalid_projection_refused=true\nprivate_cue_query_detached=true\ncue_retention_bounded=true\npending_cue_keeps_original_coordinates=false\nforget_preserves_native_consumption=false\nafflicted_driver_admits_after_own_policy=true\ncrossed_driver_admits_after_own_policy=true\ndriver_queue_precedes_orientation=true\ndriver_source_precedes_orientation=true\ndriver_route_admits_only_head=true\ndriver_combat_yields_orientation=true\ndriver_new_timed_action_prevents_glance=true\n",
+      "stderr": ""
+    },
+    {
+      "label": "sleeping_body_admitted",
+      "exit": 0,
+      "stdout": "VALUE private_fresh_sound_admitted=true\ntimestamp_refresh_never_restarts=true\nnew_pulse_same_tile_admitted=true\nlegacy_memory_has_no_pulse=true\nmalformed_occurrences_refused=true\nstale_acquisition_refused=true\nnative_refusal_remains_retryable=true\nnative_refusal_expires_despite_refresh=true\nnative_throw_never_consumes=true\nnonboolean_admission_refused=true\nbind_clears_runtime_authority=true\nrestored_sound_cannot_mint_authority=true\nexact_body_required=true\nowner_token_mismatch_refused=true\nnative_owner_mark_mismatch_refused=true\nexternal_owner_excludes_survivor=true\ndouble_controller_refused=true\nperson_private_acquisition=true\nnative_sleeping_refused=false\nnative_dead_refused=true\nnative_attack_refused=true\nnative_aim_refused=true\nnative_climb_refused=true\nnative_rope_refused=true\ndetached_native_body_refused=true\nmissing_square_refused=true\nnative_vehicle_refused=true\nnonshell_body_refused=true\nsource_owner_read_is_nonmutating=true\nqueued_work_yields_and_clears=true\nroute_only_admits_head_without_mutation=true\nneuro_state_shapes_response=true\nneuro_disabled_uses_existing_projection=true\ninvalid_projection_refused=true\nprivate_cue_query_detached=true\ncue_retention_bounded=true\npending_cue_keeps_original_coordinates=true\nforget_preserves_native_consumption=true\nafflicted_driver_admits_after_own_policy=true\ncrossed_driver_admits_after_own_policy=true\ndriver_queue_precedes_orientation=true\ndriver_source_precedes_orientation=true\ndriver_route_admits_only_head=true\ndriver_combat_yields_orientation=true\ndriver_new_timed_action_prevents_glance=true\n",
+      "stderr": ""
+    },
+    {
+      "label": "owner_token_ignored",
+      "exit": 0,
+      "stdout": "VALUE private_fresh_sound_admitted=true\ntimestamp_refresh_never_restarts=true\nnew_pulse_same_tile_admitted=true\nlegacy_memory_has_no_pulse=true\nmalformed_occurrences_refused=true\nstale_acquisition_refused=true\nnative_refusal_remains_retryable=true\nnative_refusal_expires_despite_refresh=true\nnative_throw_never_consumes=true\nnonboolean_admission_refused=true\nbind_clears_runtime_authority=true\nrestored_sound_cannot_mint_authority=true\nexact_body_required=true\nowner_token_mismatch_refused=false\nnative_owner_mark_mismatch_refused=true\nexternal_owner_excludes_survivor=true\ndouble_controller_refused=true\nperson_private_acquisition=true\nnative_sleeping_refused=true\nnative_dead_refused=true\nnative_attack_refused=true\nnative_aim_refused=true\nnative_climb_refused=true\nnative_rope_refused=true\ndetached_native_body_refused=true\nmissing_square_refused=true\nnative_vehicle_refused=true\nnonshell_body_refused=true\nsource_owner_read_is_nonmutating=true\nqueued_work_yields_and_clears=true\nroute_only_admits_head_without_mutation=true\nneuro_state_shapes_response=true\nneuro_disabled_uses_existing_projection=true\ninvalid_projection_refused=true\nprivate_cue_query_detached=true\ncue_retention_bounded=true\npending_cue_keeps_original_coordinates=true\nforget_preserves_native_consumption=true\nafflicted_driver_admits_after_own_policy=true\ncrossed_driver_admits_after_own_policy=true\ndriver_queue_precedes_orientation=true\ndriver_source_precedes_orientation=true\ndriver_route_admits_only_head=true\ndriver_combat_yields_orientation=true\ndriver_new_timed_action_prevents_glance=true\n",
+      "stderr": ""
+    },
+    {
+      "label": "source_reservation_ignored",
+      "exit": 0,
+      "stdout": "VALUE private_fresh_sound_admitted=true\ntimestamp_refresh_never_restarts=true\nnew_pulse_same_tile_admitted=true\nlegacy_memory_has_no_pulse=true\nmalformed_occurrences_refused=true\nstale_acquisition_refused=true\nnative_refusal_remains_retryable=true\nnative_refusal_expires_despite_refresh=true\nnative_throw_never_consumes=true\nnonboolean_admission_refused=true\nbind_clears_runtime_authority=true\nrestored_sound_cannot_mint_authority=true\nexact_body_required=true\nowner_token_mismatch_refused=true\nnative_owner_mark_mismatch_refused=true\nexternal_owner_excludes_survivor=true\ndouble_controller_refused=true\nperson_private_acquisition=true\nnative_sleeping_refused=true\nnative_dead_refused=true\nnative_attack_refused=true\nnative_aim_refused=true\nnative_climb_refused=true\nnative_rope_refused=true\ndetached_native_body_refused=true\nmissing_square_refused=true\nnative_vehicle_refused=true\nnonshell_body_refused=true\nsource_owner_read_is_nonmutating=false\nqueued_work_yields_and_clears=true\nroute_only_admits_head_without_mutation=true\nneuro_state_shapes_response=true\nneuro_disabled_uses_existing_projection=true\ninvalid_projection_refused=true\nprivate_cue_query_detached=true\ncue_retention_bounded=true\npending_cue_keeps_original_coordinates=true\nforget_preserves_native_consumption=true\nafflicted_driver_admits_after_own_policy=true\ncrossed_driver_admits_after_own_policy=true\ndriver_queue_precedes_orientation=true\ndriver_source_precedes_orientation=true\ndriver_route_admits_only_head=true\ndriver_combat_yields_orientation=true\ndriver_new_timed_action_prevents_glance=true\n",
+      "stderr": ""
+    },
+    {
+      "label": "route_pivots_body",
+      "exit": 0,
+      "stdout": "VALUE private_fresh_sound_admitted=true\ntimestamp_refresh_never_restarts=true\nnew_pulse_same_tile_admitted=true\nlegacy_memory_has_no_pulse=true\nmalformed_occurrences_refused=true\nstale_acquisition_refused=true\nnative_refusal_remains_retryable=true\nnative_refusal_expires_despite_refresh=true\nnative_throw_never_consumes=true\nnonboolean_admission_refused=true\nbind_clears_runtime_authority=true\nrestored_sound_cannot_mint_authority=true\nexact_body_required=true\nowner_token_mismatch_refused=true\nnative_owner_mark_mismatch_refused=true\nexternal_owner_excludes_survivor=true\ndouble_controller_refused=true\nperson_private_acquisition=true\nnative_sleeping_refused=true\nnative_dead_refused=true\nnative_attack_refused=true\nnative_aim_refused=true\nnative_climb_refused=true\nnative_rope_refused=true\ndetached_native_body_refused=true\nmissing_square_refused=true\nnative_vehicle_refused=true\nnonshell_body_refused=true\nsource_owner_read_is_nonmutating=true\nqueued_work_yields_and_clears=true\nroute_only_admits_head_without_mutation=false\nneuro_state_shapes_response=true\nneuro_disabled_uses_existing_projection=true\ninvalid_projection_refused=true\nprivate_cue_query_detached=true\ncue_retention_bounded=true\npending_cue_keeps_original_coordinates=true\nforget_preserves_native_consumption=true\nafflicted_driver_admits_after_own_policy=true\ncrossed_driver_admits_after_own_policy=true\ndriver_queue_precedes_orientation=true\ndriver_source_precedes_orientation=true\ndriver_route_admits_only_head=true\ndriver_combat_yields_orientation=true\ndriver_new_timed_action_prevents_glance=true\n",
+      "stderr": ""
+    },
+    {
+      "label": "neuro_projection_bypassed",
+      "exit": 0,
+      "stdout": "VALUE private_fresh_sound_admitted=true\ntimestamp_refresh_never_restarts=true\nnew_pulse_same_tile_admitted=true\nlegacy_memory_has_no_pulse=true\nmalformed_occurrences_refused=true\nstale_acquisition_refused=true\nnative_refusal_remains_retryable=true\nnative_refusal_expires_despite_refresh=true\nnative_throw_never_consumes=true\nnonboolean_admission_refused=true\nbind_clears_runtime_authority=true\nrestored_sound_cannot_mint_authority=true\nexact_body_required=true\nowner_token_mismatch_refused=true\nnative_owner_mark_mismatch_refused=true\nexternal_owner_excludes_survivor=true\ndouble_controller_refused=true\nperson_private_acquisition=true\nnative_sleeping_refused=true\nnative_dead_refused=true\nnative_attack_refused=true\nnative_aim_refused=true\nnative_climb_refused=true\nnative_rope_refused=true\ndetached_native_body_refused=true\nmissing_square_refused=true\nnative_vehicle_refused=true\nnonshell_body_refused=true\nsource_owner_read_is_nonmutating=true\nqueued_work_yields_and_clears=true\nroute_only_admits_head_without_mutation=true\nneuro_state_shapes_response=false\nneuro_disabled_uses_existing_projection=true\ninvalid_projection_refused=false\nprivate_cue_query_detached=true\ncue_retention_bounded=true\npending_cue_keeps_original_coordinates=true\nforget_preserves_native_consumption=true\nafflicted_driver_admits_after_own_policy=true\ncrossed_driver_admits_after_own_policy=true\ndriver_queue_precedes_orientation=true\ndriver_source_precedes_orientation=true\ndriver_route_admits_only_head=true\ndriver_combat_yields_orientation=true\ndriver_new_timed_action_prevents_glance=true\n",
+      "stderr": ""
+    },
+    {
+      "label": "zao_admission_unwired",
+      "exit": 0,
+      "stdout": "VALUE private_fresh_sound_admitted=true\ntimestamp_refresh_never_restarts=true\nnew_pulse_same_tile_admitted=true\nlegacy_memory_has_no_pulse=true\nmalformed_occurrences_refused=true\nstale_acquisition_refused=true\nnative_refusal_remains_retryable=true\nnative_refusal_expires_despite_refresh=true\nnative_throw_never_consumes=true\nnonboolean_admission_refused=true\nbind_clears_runtime_authority=true\nrestored_sound_cannot_mint_authority=true\nexact_body_required=true\nowner_token_mismatch_refused=true\nnative_owner_mark_mismatch_refused=true\nexternal_owner_excludes_survivor=true\ndouble_controller_refused=true\nperson_private_acquisition=true\nnative_sleeping_refused=true\nnative_dead_refused=true\nnative_attack_refused=true\nnative_aim_refused=true\nnative_climb_refused=true\nnative_rope_refused=true\ndetached_native_body_refused=true\nmissing_square_refused=true\nnative_vehicle_refused=true\nnonshell_body_refused=true\nsource_owner_read_is_nonmutating=true\nqueued_work_yields_and_clears=true\nroute_only_admits_head_without_mutation=true\nneuro_state_shapes_response=true\nneuro_disabled_uses_existing_projection=true\ninvalid_projection_refused=true\nprivate_cue_query_detached=true\ncue_retention_bounded=true\npending_cue_keeps_original_coordinates=true\nforget_preserves_native_consumption=true\nafflicted_driver_admits_after_own_policy=false\ncrossed_driver_admits_after_own_policy=false\ndriver_queue_precedes_orientation=true\ndriver_source_precedes_orientation=true\ndriver_route_admits_only_head=false\ndriver_combat_yields_orientation=false\ndriver_new_timed_action_prevents_glance=true\n",
+      "stderr": ""
+    },
+    {
+      "label": "queue_ownership_ignored",
+      "exit": 0,
+      "stdout": "VALUE private_fresh_sound_admitted=true\ntimestamp_refresh_never_restarts=true\nnew_pulse_same_tile_admitted=true\nlegacy_memory_has_no_pulse=true\nmalformed_occurrences_refused=true\nstale_acquisition_refused=true\nnative_refusal_remains_retryable=true\nnative_refusal_expires_despite_refresh=true\nnative_throw_never_consumes=true\nnonboolean_admission_refused=true\nbind_clears_runtime_authority=true\nrestored_sound_cannot_mint_authority=true\nexact_body_required=true\nowner_token_mismatch_refused=true\nnative_owner_mark_mismatch_refused=true\nexternal_owner_excludes_survivor=true\ndouble_controller_refused=true\nperson_private_acquisition=true\nnative_sleeping_refused=true\nnative_dead_refused=true\nnative_attack_refused=true\nnative_aim_refused=true\nnative_climb_refused=true\nnative_rope_refused=true\ndetached_native_body_refused=true\nmissing_square_refused=true\nnative_vehicle_refused=true\nnonshell_body_refused=true\nsource_owner_read_is_nonmutating=true\nqueued_work_yields_and_clears=false\nroute_only_admits_head_without_mutation=true\nneuro_state_shapes_response=true\nneuro_disabled_uses_existing_projection=true\ninvalid_projection_refused=true\nprivate_cue_query_detached=true\ncue_retention_bounded=true\npending_cue_keeps_original_coordinates=true\nforget_preserves_native_consumption=true\nafflicted_driver_admits_after_own_policy=true\ncrossed_driver_admits_after_own_policy=true\ndriver_queue_precedes_orientation=true\ndriver_source_precedes_orientation=true\ndriver_route_admits_only_head=true\ndriver_combat_yields_orientation=true\ndriver_new_timed_action_prevents_glance=false\n",
+      "stderr": ""
+    }
+  ],
+  "cases": 45,
+  "controls": [
+    {
+      "name": "refresh_is_new_pulse",
+      "target": "native_refusal_expires_despite_refresh",
+      "verdict": "false",
+      "source_sha256": "e0a13f5816c19a5f0753c503ceb3f9beda9a43d01bdcbbcc8e9433821f2bb9fa"
+    },
+    {
+      "name": "malformed_token_admitted",
+      "target": "malformed_occurrences_refused",
+      "verdict": "false",
+      "source_sha256": "2938d2a8e041731f320ebd6baf257d369ffd23a724137e9ec9b418630adec7ad"
+    },
+    {
+      "name": "restored_runtime_authority",
+      "target": "bind_clears_runtime_authority",
+      "verdict": "false",
+      "source_sha256": "111325b00d4c8163b712ac3a5aba40d61763d60bbe85c0f3d167f34f07158d3f"
+    },
+    {
+      "name": "repeat_admission",
+      "target": "timestamp_refresh_never_restarts",
+      "verdict": "false",
+      "source_sha256": "d46fbcdd28d3e7cfdd8a9bb2a4255749f0e9698031fb31ccb88c12cf323db32d"
+    },
+    {
+      "name": "refusal_reported_success",
+      "target": "native_refusal_remains_retryable",
+      "verdict": "false",
+      "source_sha256": "0063ca0450f373ba7c4a97ffe2e38c394cca41783d9fea8009aa945346d2ff93"
+    },
+    {
+      "name": "sleeping_body_admitted",
+      "target": "native_sleeping_refused",
+      "verdict": "false",
+      "source_sha256": "8186dd80e8f29aa18421a16344a9d02fcb47c79396c96fde8fb341ae4bda13e4"
+    },
+    {
+      "name": "owner_token_ignored",
+      "target": "owner_token_mismatch_refused",
+      "verdict": "false",
+      "source_sha256": "d01f684d6869939121433bb9d6929a6cfe2d1e5f8e238274f83774a51873354f"
+    },
+    {
+      "name": "source_reservation_ignored",
+      "target": "source_owner_read_is_nonmutating",
+      "verdict": "false",
+      "source_sha256": "7e0e57c715f78bee81a9dbcdc4b4ff1cb571d3cbc8abab9fa0105f2bfddeff83"
+    },
+    {
+      "name": "route_pivots_body",
+      "target": "route_only_admits_head_without_mutation",
+      "verdict": "false",
+      "source_sha256": "adf6468ec34bc4a3011de832037af10e8eea2a048ddeeb071516bf97a7cafd5e"
+    },
+    {
+      "name": "neuro_projection_bypassed",
+      "target": "neuro_state_shapes_response",
+      "verdict": "false",
+      "source_sha256": "2ce1491a1d7cee734673d6da433dc4e7984a119a949c4833288fb28207612b40"
+    },
+    {
+      "name": "zao_admission_unwired",
+      "target": "crossed_driver_admits_after_own_policy",
+      "verdict": "false",
+      "source_sha256": "7fb82aa88b8bd8bc295294342795063940461cf799dc9080ac12f812536b0928"
+    },
+    {
+      "name": "queue_ownership_ignored",
+      "target": "driver_new_timed_action_prevents_glance",
+      "verdict": "false",
+      "source_sha256": "4b5f6cca5deaa2ebe50b61215752acd13c118e4569e3659c845319ce02685aa7"
+    }
+  ],
+  "status": "passed"
+}

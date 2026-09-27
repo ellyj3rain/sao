@@ -1,0 +1,259 @@
+{
+  "boundary": "Private whole Body/Snapshot/owned Pharmacology transaction fault probes.\n\nActual Lua owners execute in installed Kahlua; native receivers are controlled.\nThis is complementary to the installed native pharmacology suite.\n",
+  "inputs": {
+    "C:\\Users\\jleyv\\Peanut Butter\\AI Assisted Software Engineering Mass Repository\\Projects\\survivor-awareness\\_scratch\\c89-orienting\\assembled\\mod\\42.20\\media\\lua\\shared\\SAO_Hash.lua": "63e172f4c7878cc50ea58ae4604acec50f24decd50a1db0206d4c298def69915",
+    "C:\\Users\\jleyv\\Peanut Butter\\AI Assisted Software Engineering Mass Repository\\Projects\\survivor-awareness\\_scratch\\c89-orienting\\assembled\\mod\\42.20\\media\\lua\\shared\\SAO_PharmacologyProfiles.lua": "11d737bb81f4755ce485fcdc0e4e8bd4373e36ed6e192dfc7ae170cb7b5c24a9",
+    "C:\\Users\\jleyv\\Peanut Butter\\AI Assisted Software Engineering Mass Repository\\Projects\\survivor-awareness\\_scratch\\c89-orienting\\assembled\\mod\\42.20\\media\\lua\\shared\\SAO_Pharmacology.lua": "4c02625ec7570bfad09d7b12eea6cdc3362bb85da976815b3d5002514dd92521",
+    "C:\\Users\\jleyv\\Peanut Butter\\AI Assisted Software Engineering Mass Repository\\Projects\\survivor-awareness\\_scratch\\c89-orienting\\assembled\\mod\\42.20\\media\\lua\\shared\\SAO_PhysicalFacts.lua": "79c235e01cf68bf0bbe560d541b3efc0f4e460468faa6452351be37a30d64988",
+    "C:\\Users\\jleyv\\Peanut Butter\\AI Assisted Software Engineering Mass Repository\\Projects\\survivor-awareness\\_scratch\\c89-orienting\\assembled\\mod\\42.20\\media\\lua\\shared\\SAO_BodySnapshot.lua": "2cb4b99eca3aa0ebd93c0edbc09776522aefdf78a8344185e587d6c3b30113d9",
+    "C:\\Users\\jleyv\\Peanut Butter\\AI Assisted Software Engineering Mass Repository\\Projects\\survivor-awareness\\_scratch\\c89-orienting\\assembled\\mod\\42.20\\media\\lua\\client\\SAO_Body.lua": "8336f0a87781ee787c7b86362f5eca76542c1c6033f91deff2ba262fdcf0dd7b",
+    "C:\\Users\\jleyv\\Peanut Butter\\AI Assisted Software Engineering Mass Repository\\Projects\\survivor-awareness\\_scratch\\c89-orienting\\assembled\\mod\\42.20\\media\\lua\\client\\SAO_SourceUse.lua": "177018859ad4587a5bb1b5559b1eaa3df2b60ccc28e2a0c4c6e9ccd9c8d1dfff",
+    "C:\\Users\\jleyv\\Peanut Butter\\AI Assisted Software Engineering Mass Repository\\Projects\\survivor-awareness\\_scratch\\c89-orienting\\assembled\\mod\\42.20\\media\\lua\\shared\\SAO_Coordination.lua": "61de2d2b913c1243543d102e3373ddfb9418de58d25bb606be6ad70155eabbb1",
+    "C:\\Users\\jleyv\\Peanut Butter\\AI Assisted Software Engineering Mass Repository\\Projects\\survivor-awareness\\_scratch\\c89-orienting\\assembled\\mod\\42.20\\media\\lua\\client\\SAO_Controller.lua": "578b83a8a9c2e35cd4e29c4fca0a206517c2604d904d7906cd928d0b636e720a",
+    "C:\\Users\\jleyv\\Peanut Butter\\AI Assisted Software Engineering Mass Repository\\Projects\\survivor-awareness\\_scratch\\c89-orienting\\assembled\\mod\\42.20\\media\\lua\\client\\SAO_PopulationAdmissions.lua": "532e6751dd50d9b79cd814a49833870ec0a05860d0ab165fd17522d12388ff56",
+    "C:\\Users\\jleyv\\Peanut Butter\\AI Assisted Software Engineering Mass Repository\\Projects\\survivor-awareness\\_scratch\\c89-orienting\\assembled\\mod\\42.20\\media\\lua\\client\\SAO_PopulationRepresentation.lua": "792291ecd201150bd71b26eca0b141bda99f661d6a23e88e81b36263f9d32f78",
+    "C:\\Users\\jleyv\\Peanut Butter\\AI Assisted Software Engineering Mass Repository\\Projects\\survivor-awareness\\_scratch\\c89-orienting\\assembled\\mod\\42.20\\media\\lua\\client\\SAO_DormantPopulation.lua": "b43287a41e158747617df9566162be22cb8a12d4c469319ca7610123ed2a6d46",
+    "C:\\Users\\jleyv\\Peanut Butter\\AI Assisted Software Engineering Mass Repository\\Projects\\survivor-awareness\\_scratch\\c89-orienting\\assembled\\mod\\42.20\\media\\lua\\client\\SAO_Population.lua": "a5d728ba2712f01030fb3af2f2d6f8840d47c5ff7770f5a310a38a949b4b48f8",
+    "C:\\Users\\jleyv\\Peanut Butter\\AI Assisted Software Engineering Mass Repository\\Projects\\survivor-awareness\\_scratch\\c89-orienting\\assembled\\mod\\42.20\\media\\lua\\client\\SAO_Harness.lua": "1d9e36c130c4a426bbaaee1134df4e49c93a1915eab49fcc5e5bfced60510f70",
+    "C:\\Users\\jleyv\\Peanut Butter\\AI Assisted Software Engineering Mass Repository\\Projects\\survivor-awareness\\_scratch\\c89-orienting\\assembled\\mod\\42.20\\media\\lua\\client\\SAO_Age.lua": "462f4738a8f9fd6ea491c003dcb3ab9573c50fab37779337e0dc84b782fd09c8",
+    "C:\\Users\\jleyv\\Peanut Butter\\AI Assisted Software Engineering Mass Repository\\Projects\\survivor-awareness\\_scratch\\c89-orienting\\assembled\\mod\\42.20\\media\\lua\\client\\SAO_Drugs.lua": "427d72c5119916444f09caf45d14418e4f927a039d491d63e43a8800c5db8ef6",
+    "C:\\Users\\jleyv\\Peanut Butter\\AI Assisted Software Engineering Mass Repository\\Projects\\survivor-awareness\\_scratch\\c89-orienting\\assembled\\mod\\42.20\\media\\lua\\client\\SAO_AfflictedReturn.lua": "0331412d3924ce7f323074c6368b39f0288d31c8254995286a28c694577392c3",
+    "C:\\Users\\jleyv\\Peanut Butter\\AI Assisted Software Engineering Mass Repository\\Projects\\survivor-awareness\\_scratch\\c89-orienting\\assembled\\mod\\42.20\\media\\lua\\client\\SAO_CrossedTransfer.lua": "a0a54e1ddf992cd06d3e8ea977d05ba76697bd2a2ea443355a6a89a6408356b5",
+    "C:\\Users\\jleyv\\Peanut Butter\\AI Assisted Software Engineering Mass Repository\\Projects\\survivor-awareness\\_scratch\\c89-orienting\\assembled\\mod\\42.20\\media\\lua\\client\\SAO_Nuke.lua": "80f6e21576c1b4c504c334d13662b02d5e0821aae26beb87a77e2919c0a8e6e8",
+    "C:\\Users\\jleyv\\Peanut Butter\\AI Assisted Software Engineering Mass Repository\\Projects\\survivor-awareness\\_scratch\\c89-orienting\\assembled\\mod\\42.20\\media\\lua\\shared\\SAO_Identity.lua": "a3f8878de7d3ea3d163a30f8e77a813cf3b86b6371351f3794da313050f0188b",
+    "C:\\Users\\jleyv\\Peanut Butter\\AI Assisted Software Engineering Mass Repository\\Projects\\survivor-awareness\\_scratch\\c89-orienting\\assembled-zao\\mod\\42.20\\media\\lua\\shared\\ZAO_Maintenance.lua": "3f625e76397b91f26ab2afdc3c980aab5f7a51bb6a5fbaf12551cbedd0b7eadb",
+    "C:\\Users\\jleyv\\Peanut Butter\\AI Assisted Software Engineering Mass Repository\\Projects\\survivor-awareness\\_scratch\\c89-orienting\\assembled-zao\\mod\\42.20\\media\\lua\\shared\\ZAO_ExecutionOwner.lua": "f178fc53577638f9b4d524abffc1e223ad1fdf12e7dab6ace61761e51e7c156b",
+    "C:\\Users\\jleyv\\Peanut Butter\\AI Assisted Software Engineering Mass Repository\\Projects\\survivor-awareness\\_scratch\\c89-orienting\\cooking\\tools\\cooking_checks\\transaction_prelude.lua": "312b652454c2a8d7b985192449b18c5780d60692f728571a7b58a25c1c3776b9",
+    "C:\\Users\\jleyv\\Peanut Butter\\AI Assisted Software Engineering Mass Repository\\Projects\\survivor-awareness\\_scratch\\c89-orienting\\cooking\\tools\\cooking_checks\\transaction_cases.lua": "9a6b40ab73701883b451144fb6a75f865e2b966a17bc577f8ec565082cdc57c9",
+    "C:\\Users\\jleyv\\Peanut Butter\\AI Assisted Software Engineering Mass Repository\\Projects\\survivor-awareness\\_scratch\\c89-orienting\\cooking\\tools\\cooking_checks\\run_transaction.py": "109b860ad138d507fb3cc0a03e203e509c5b4200d3d2041017fe42c9254a2f34",
+    "C:\\Users\\jleyv\\Peanut Butter\\AI Assisted Software Engineering Mass Repository\\Projects\\survivor-awareness\\_scratch\\c89-orienting\\cooking\\tools\\person_handoff_test.py": "329df24990bbf83dfe9ede992e67581cd7bebe33f8feae6f61dea25c73c9d9bb",
+    "C:\\Program Files (x86)\\Steam\\steamapps\\common\\ProjectZomboid\\projectzomboid.jar": "80e405a4bfc42f6072e75b3735f458a6514143da011d3226007ded305a442f44",
+    "C:\\Users\\jleyv\\Peanut Butter\\AI Assisted Software Engineering Mass Repository\\Projects\\survivor-awareness\\_scratch\\c89-orienting\\assembled\\tools\\luacheck\\LuaRun.java": "f6f55e6da98c1f1249720666d862720efc025167d1df37d35820e877b14df741"
+  },
+  "runs": [
+    {
+      "name": "candidate",
+      "exit": 0,
+      "stdout": "VALUE failed_external_rollback_blocks_future_materialization=true\nfailed_native_replay_restores_record_and_retires_shell=true\nfailed_replay_teardown_retains_exact_handle_until_retry=true\nforeign_failed_removal_retries_original_snapshot=true\nforeign_failed_replay_retains_exact_maintenance_origin=true\nforeign_invalid_drug_clock_retains_native_body=true\nforeign_pending_release_is_not_checkpointed_again=true\nforeign_pending_release_refuses_replaced_owner=true\nforeign_pending_release_replays_after_reload=true\nforeign_replay_commits_actual_maintenance_once=true\nmissing_external_owner_allocates_no_shell=true\nmissing_external_replay_hooks_allocate_no_shell=true\nnative_posture_refusal_during_replay_is_not_published=true\nnative_sleep_refusal_during_replay_is_not_published=true\nordinary_invalid_drug_clock_retains_native_body=true\nreplaced_execution_adapter_cannot_advance_restore=true\n",
+      "stderr": ""
+    },
+    {
+      "name": "foreign-invalid-checkpoint-removal",
+      "exit": 0,
+      "stdout": "VALUE failed_external_rollback_blocks_future_materialization=true\nfailed_native_replay_restores_record_and_retires_shell=true\nfailed_replay_teardown_retains_exact_handle_until_retry=true\nforeign_failed_removal_retries_original_snapshot=true\nforeign_failed_replay_retains_exact_maintenance_origin=true\nforeign_invalid_drug_clock_retains_native_body=native body removed before invalid pharmacology commit was refused\nforeign_pending_release_is_not_checkpointed_again=true\nforeign_pending_release_refuses_replaced_owner=true\nforeign_pending_release_replays_after_reload=true\nforeign_replay_commits_actual_maintenance_once=true\nmissing_external_owner_allocates_no_shell=true\nmissing_external_replay_hooks_allocate_no_shell=true\nnative_posture_refusal_during_replay_is_not_published=true\nnative_sleep_refusal_during_replay_is_not_published=true\nordinary_invalid_drug_clock_retains_native_body=true\nreplaced_execution_adapter_cannot_advance_restore=true\n",
+      "stderr": ""
+    },
+    {
+      "name": "foreign-journal-forgotten",
+      "exit": 0,
+      "stdout": "VALUE failed_external_rollback_blocks_future_materialization=true\nfailed_native_replay_restores_record_and_retires_shell=true\nfailed_replay_teardown_retains_exact_handle_until_retry=true\nforeign_failed_removal_retries_original_snapshot=foreign retry recaptured a partly removed shell\nforeign_failed_replay_retains_exact_maintenance_origin=true\nforeign_invalid_drug_clock_retains_native_body=true\nforeign_pending_release_is_not_checkpointed_again=true\nforeign_pending_release_refuses_replaced_owner=true\nforeign_pending_release_replays_after_reload=foreign journal did not recover without old native body\nforeign_replay_commits_actual_maintenance_once=true\nmissing_external_owner_allocates_no_shell=true\nmissing_external_replay_hooks_allocate_no_shell=true\nnative_posture_refusal_during_replay_is_not_published=true\nnative_sleep_refusal_during_replay_is_not_published=true\nordinary_invalid_drug_clock_retains_native_body=true\nreplaced_execution_adapter_cannot_advance_restore=true\n",
+      "stderr": ""
+    },
+    {
+      "name": "foreign-journal-owner-ignored",
+      "exit": 0,
+      "stdout": "VALUE failed_external_rollback_blocks_future_materialization=true\nfailed_native_replay_restores_record_and_retires_shell=true\nfailed_replay_teardown_retains_exact_handle_until_retry=true\nforeign_failed_removal_retries_original_snapshot=true\nforeign_failed_replay_retains_exact_maintenance_origin=true\nforeign_invalid_drug_clock_retains_native_body=true\nforeign_pending_release_is_not_checkpointed_again=true\nforeign_pending_release_refuses_replaced_owner=saved foreign journal removed replacement owner\nforeign_pending_release_replays_after_reload=true\nforeign_replay_commits_actual_maintenance_once=true\nmissing_external_owner_allocates_no_shell=true\nmissing_external_replay_hooks_allocate_no_shell=true\nnative_posture_refusal_during_replay_is_not_published=true\nnative_sleep_refusal_during_replay_is_not_published=true\nordinary_invalid_drug_clock_retains_native_body=true\nreplaced_execution_adapter_cannot_advance_restore=true\n",
+      "stderr": ""
+    },
+    {
+      "name": "sleep-readback-ignored",
+      "exit": 0,
+      "stdout": "VALUE failed_external_rollback_blocks_future_materialization=true\nfailed_native_replay_restores_record_and_retires_shell=true\nfailed_replay_teardown_retains_exact_handle_until_retry=true\nforeign_failed_removal_retries_original_snapshot=true\nforeign_failed_replay_retains_exact_maintenance_origin=true\nforeign_invalid_drug_clock_retains_native_body=true\nforeign_pending_release_is_not_checkpointed_again=true\nforeign_pending_release_refuses_replaced_owner=true\nforeign_pending_release_replays_after_reload=true\nforeign_replay_commits_actual_maintenance_once=true\nmissing_external_owner_allocates_no_shell=true\nmissing_external_replay_hooks_allocate_no_shell=true\nnative_posture_refusal_during_replay_is_not_published=true\nnative_sleep_refusal_during_replay_is_not_published=published shell asleep while replay record says awake\nordinary_invalid_drug_clock_retains_native_body=true\nreplaced_execution_adapter_cannot_advance_restore=true\n",
+      "stderr": ""
+    },
+    {
+      "name": "posture-readback-ignored",
+      "exit": 0,
+      "stdout": "VALUE failed_external_rollback_blocks_future_materialization=true\nfailed_native_replay_restores_record_and_retires_shell=true\nfailed_replay_teardown_retains_exact_handle_until_retry=true\nforeign_failed_removal_retries_original_snapshot=true\nforeign_failed_replay_retains_exact_maintenance_origin=true\nforeign_invalid_drug_clock_retains_native_body=true\nforeign_pending_release_is_not_checkpointed_again=true\nforeign_pending_release_refuses_replaced_owner=true\nforeign_pending_release_replays_after_reload=true\nforeign_replay_commits_actual_maintenance_once=true\nmissing_external_owner_allocates_no_shell=true\nmissing_external_replay_hooks_allocate_no_shell=true\nnative_posture_refusal_during_replay_is_not_published=published sitting shell after replay record stopped resting\nnative_sleep_refusal_during_replay_is_not_published=true\nordinary_invalid_drug_clock_retains_native_body=true\nreplaced_execution_adapter_cannot_advance_restore=true\n",
+      "stderr": ""
+    },
+    {
+      "name": "external-owner-rollback-ignored",
+      "exit": 0,
+      "stdout": "VALUE failed_external_rollback_blocks_future_materialization=failed external rollback lost explicit unknown-state boundary\nfailed_native_replay_restores_record_and_retires_shell=true\nfailed_replay_teardown_retains_exact_handle_until_retry=true\nforeign_failed_removal_retries_original_snapshot=true\nforeign_failed_replay_retains_exact_maintenance_origin=failed native replay committed external Maintenance state\nforeign_invalid_drug_clock_retains_native_body=true\nforeign_pending_release_is_not_checkpointed_again=true\nforeign_pending_release_refuses_replaced_owner=true\nforeign_pending_release_replays_after_reload=true\nforeign_replay_commits_actual_maintenance_once=true\nmissing_external_owner_allocates_no_shell=true\nmissing_external_replay_hooks_allocate_no_shell=true\nnative_posture_refusal_during_replay_is_not_published=true\nnative_sleep_refusal_during_replay_is_not_published=true\nordinary_invalid_drug_clock_retains_native_body=true\nreplaced_execution_adapter_cannot_advance_restore=true\n",
+      "stderr": ""
+    },
+    {
+      "name": "external-owner-copy-aliased",
+      "exit": 0,
+      "stdout": "VALUE failed_external_rollback_blocks_future_materialization=true\nfailed_native_replay_restores_record_and_retires_shell=true\nfailed_replay_teardown_retains_exact_handle_until_retry=true\nforeign_failed_removal_retries_original_snapshot=true\nforeign_failed_replay_retains_exact_maintenance_origin=failed native replay committed external Maintenance state\nforeign_invalid_drug_clock_retains_native_body=true\nforeign_pending_release_is_not_checkpointed_again=true\nforeign_pending_release_refuses_replaced_owner=true\nforeign_pending_release_replays_after_reload=true\nforeign_replay_commits_actual_maintenance_once=true\nmissing_external_owner_allocates_no_shell=true\nmissing_external_replay_hooks_allocate_no_shell=true\nnative_posture_refusal_during_replay_is_not_published=true\nnative_sleep_refusal_during_replay_is_not_published=true\nordinary_invalid_drug_clock_retains_native_body=true\nreplaced_execution_adapter_cannot_advance_restore=true\n",
+      "stderr": ""
+    },
+    {
+      "name": "rest-rollback-ignored",
+      "exit": 0,
+      "stdout": "VALUE failed_external_rollback_blocks_future_materialization=true\nfailed_native_replay_restores_record_and_retires_shell=failed replay retained advanced Rest\nfailed_replay_teardown_retains_exact_handle_until_retry=true\nforeign_failed_removal_retries_original_snapshot=true\nforeign_failed_replay_retains_exact_maintenance_origin=true\nforeign_invalid_drug_clock_retains_native_body=true\nforeign_pending_release_is_not_checkpointed_again=true\nforeign_pending_release_refuses_replaced_owner=true\nforeign_pending_release_replays_after_reload=true\nforeign_replay_commits_actual_maintenance_once=true\nmissing_external_owner_allocates_no_shell=true\nmissing_external_replay_hooks_allocate_no_shell=true\nnative_posture_refusal_during_replay_is_not_published=true\nnative_sleep_refusal_during_replay_is_not_published=true\nordinary_invalid_drug_clock_retains_native_body=true\nreplaced_execution_adapter_cannot_advance_restore=true\n",
+      "stderr": ""
+    },
+    {
+      "name": "failed-native-shell-lost",
+      "exit": 0,
+      "stdout": "VALUE failed_external_rollback_blocks_future_materialization=failed external rollback lost explicit unknown-state boundary\nfailed_native_replay_restores_record_and_retires_shell=failed replay leaked native shell\nfailed_replay_teardown_retains_exact_handle_until_retry=failed native teardown exposed or dropped partial restoration handle\nforeign_failed_removal_retries_original_snapshot=true\nforeign_failed_replay_retains_exact_maintenance_origin=true\nforeign_invalid_drug_clock_retains_native_body=true\nforeign_pending_release_is_not_checkpointed_again=true\nforeign_pending_release_refuses_replaced_owner=true\nforeign_pending_release_replays_after_reload=true\nforeign_replay_commits_actual_maintenance_once=true\nmissing_external_owner_allocates_no_shell=true\nmissing_external_replay_hooks_allocate_no_shell=true\nnative_posture_refusal_during_replay_is_not_published=true\nnative_sleep_refusal_during_replay_is_not_published=true\nordinary_invalid_drug_clock_retains_native_body=true\nreplaced_execution_adapter_cannot_advance_restore=replacement execution adapter entered an already-owned restoration\n",
+      "stderr": ""
+    },
+    {
+      "name": "external-missing-owner-allocated",
+      "exit": 0,
+      "stdout": "VALUE failed_external_rollback_blocks_future_materialization=true\nfailed_native_replay_restores_record_and_retires_shell=true\nfailed_replay_teardown_retains_exact_handle_until_retry=true\nforeign_failed_removal_retries_original_snapshot=true\nforeign_failed_replay_retains_exact_maintenance_origin=true\nforeign_invalid_drug_clock_retains_native_body=true\nforeign_pending_release_is_not_checkpointed_again=true\nforeign_pending_release_refuses_replaced_owner=true\nforeign_pending_release_replays_after_reload=true\nforeign_replay_commits_actual_maintenance_once=true\nmissing_external_owner_allocates_no_shell=assertion failed\nmissing_external_replay_hooks_allocate_no_shell=true\nnative_posture_refusal_during_replay_is_not_published=true\nnative_sleep_refusal_during_replay_is_not_published=true\nordinary_invalid_drug_clock_retains_native_body=true\nreplaced_execution_adapter_cannot_advance_restore=true\n",
+      "stderr": ""
+    },
+    {
+      "name": "foreign-pending-checkpoint-overwritten",
+      "exit": 0,
+      "stdout": "VALUE failed_external_rollback_blocks_future_materialization=true\nfailed_native_replay_restores_record_and_retires_shell=true\nfailed_replay_teardown_retains_exact_handle_until_retry=true\nforeign_failed_removal_retries_original_snapshot=true\nforeign_failed_replay_retains_exact_maintenance_origin=true\nforeign_invalid_drug_clock_retains_native_body=true\nforeign_pending_release_is_not_checkpointed_again=save checkpoint replaced a pending foreign journal\nforeign_pending_release_refuses_replaced_owner=true\nforeign_pending_release_replays_after_reload=true\nforeign_replay_commits_actual_maintenance_once=true\nmissing_external_owner_allocates_no_shell=true\nmissing_external_replay_hooks_allocate_no_shell=true\nnative_posture_refusal_during_replay_is_not_published=true\nnative_sleep_refusal_during_replay_is_not_published=true\nordinary_invalid_drug_clock_retains_native_body=true\nreplaced_execution_adapter_cannot_advance_restore=true\n",
+      "stderr": ""
+    },
+    {
+      "name": "external-rollback-hook-admission-ignored",
+      "exit": 0,
+      "stdout": "VALUE failed_external_rollback_blocks_future_materialization=true\nfailed_native_replay_restores_record_and_retires_shell=true\nfailed_replay_teardown_retains_exact_handle_until_retry=true\nforeign_failed_removal_retries_original_snapshot=true\nforeign_failed_replay_retains_exact_maintenance_origin=true\nforeign_invalid_drug_clock_retains_native_body=true\nforeign_pending_release_is_not_checkpointed_again=true\nforeign_pending_release_refuses_replaced_owner=true\nforeign_pending_release_replays_after_reload=true\nforeign_replay_commits_actual_maintenance_once=true\nmissing_external_owner_allocates_no_shell=true\nmissing_external_replay_hooks_allocate_no_shell=foreign replay allocated before rollback capability admission\nnative_posture_refusal_during_replay_is_not_published=true\nnative_sleep_refusal_during_replay_is_not_published=true\nordinary_invalid_drug_clock_retains_native_body=true\nreplaced_execution_adapter_cannot_advance_restore=true\n",
+      "stderr": ""
+    },
+    {
+      "name": "failed-rollback-unmarked",
+      "exit": 0,
+      "stdout": "VALUE failed_external_rollback_blocks_future_materialization=failed external rollback lost explicit unknown-state boundary\nfailed_native_replay_restores_record_and_retires_shell=true\nfailed_replay_teardown_retains_exact_handle_until_retry=true\nforeign_failed_removal_retries_original_snapshot=true\nforeign_failed_replay_retains_exact_maintenance_origin=true\nforeign_invalid_drug_clock_retains_native_body=true\nforeign_pending_release_is_not_checkpointed_again=true\nforeign_pending_release_refuses_replaced_owner=true\nforeign_pending_release_replays_after_reload=true\nforeign_replay_commits_actual_maintenance_once=true\nmissing_external_owner_allocates_no_shell=true\nmissing_external_replay_hooks_allocate_no_shell=true\nnative_posture_refusal_during_replay_is_not_published=true\nnative_sleep_refusal_during_replay_is_not_published=true\nordinary_invalid_drug_clock_retains_native_body=true\nreplaced_execution_adapter_cannot_advance_restore=true\n",
+      "stderr": ""
+    },
+    {
+      "name": "replaced-adapter-advances",
+      "exit": 0,
+      "stdout": "VALUE failed_external_rollback_blocks_future_materialization=true\nfailed_native_replay_restores_record_and_retires_shell=true\nfailed_replay_teardown_retains_exact_handle_until_retry=true\nforeign_failed_removal_retries_original_snapshot=true\nforeign_failed_replay_retains_exact_maintenance_origin=true\nforeign_invalid_drug_clock_retains_native_body=true\nforeign_pending_release_is_not_checkpointed_again=true\nforeign_pending_release_refuses_replaced_owner=true\nforeign_pending_release_replays_after_reload=true\nforeign_replay_commits_actual_maintenance_once=true\nmissing_external_owner_allocates_no_shell=true\nmissing_external_replay_hooks_allocate_no_shell=true\nnative_posture_refusal_during_replay_is_not_published=true\nnative_sleep_refusal_during_replay_is_not_published=true\nordinary_invalid_drug_clock_retains_native_body=true\nreplaced_execution_adapter_cannot_advance_restore=replacement execution adapter entered an already-owned restoration\n",
+      "stderr": ""
+    }
+  ],
+  "controls": [
+    {
+      "name": "foreign-invalid-checkpoint-removal",
+      "target": "foreign_invalid_drug_clock_retains_native_body",
+      "failure": "native body removed before invalid pharmacology commit was refused",
+      "sha256": {
+        "SAO_Body.lua": "9d01c0d2162c5d03228ccf00c2f9bc1e49077faadc8422e62be0b1d4e73f073b"
+      }
+    },
+    {
+      "name": "foreign-journal-forgotten",
+      "target": "foreign_failed_removal_retries_original_snapshot",
+      "failure": "foreign retry recaptured a partly removed shell",
+      "sha256": {
+        "SAO_Body.lua": "b2bb4114ca253f3875b70211dcc116b25fb356ad31bf0c625d205feb49be058d"
+      }
+    },
+    {
+      "name": "foreign-journal-owner-ignored",
+      "target": "foreign_pending_release_refuses_replaced_owner",
+      "failure": "saved foreign journal removed replacement owner",
+      "sha256": {
+        "SAO_Body.lua": "2ce8531bc53050c824766578934c6e3585814a58d2b7d55832a838e119e249f7"
+      }
+    },
+    {
+      "name": "sleep-readback-ignored",
+      "target": "native_sleep_refusal_during_replay_is_not_published",
+      "failure": "published shell asleep while replay record says awake",
+      "sha256": {
+        "SAO_Body.lua": "88910471a30fbd239fe20ef6741095341cb4decb2fd0f2e35f6357fb3c68383d"
+      }
+    },
+    {
+      "name": "posture-readback-ignored",
+      "target": "native_posture_refusal_during_replay_is_not_published",
+      "failure": "published sitting shell after replay record stopped resting",
+      "sha256": {
+        "SAO_Body.lua": "d9bdce95c080d265a3bf6fb731f939937d6e94cab166d56484d502a8534209ef"
+      }
+    },
+    {
+      "name": "external-owner-rollback-ignored",
+      "target": "foreign_failed_replay_retains_exact_maintenance_origin",
+      "failure": "failed native replay committed external Maintenance state",
+      "sha256": {
+        "SAO_Body.lua": "10ac9bf8753390dbea73ca0a811887c09c4ce10200ab50178fc867b4f2d196c3"
+      }
+    },
+    {
+      "name": "external-owner-copy-aliased",
+      "target": "foreign_failed_replay_retains_exact_maintenance_origin",
+      "failure": "failed native replay committed external Maintenance state",
+      "sha256": {
+        "ZAO_Maintenance.lua": "32e01a0f3648c35b21adb3420c2e8f3bd7e2901b505b20960d2f3c9ecd3cc494"
+      }
+    },
+    {
+      "name": "rest-rollback-ignored",
+      "target": "failed_native_replay_restores_record_and_retires_shell",
+      "failure": "failed replay retained advanced Rest",
+      "sha256": {
+        "SAO_Body.lua": "339a63a48f78cc794356dc78d402a7ac1db80d0e5dee8c452254d7aca7077917"
+      }
+    },
+    {
+      "name": "failed-native-shell-lost",
+      "target": "failed_replay_teardown_retains_exact_handle_until_retry",
+      "failure": "failed native teardown exposed or dropped partial restoration handle",
+      "sha256": {
+        "SAO_Body.lua": "451df49b3780e6be2c2a3487604156911a668a2518acb804dd8c0d836c4c20bc"
+      }
+    },
+    {
+      "name": "external-missing-owner-allocated",
+      "target": "missing_external_owner_allocates_no_shell",
+      "failure": "assertion failed",
+      "sha256": {
+        "SAO_Body.lua": "1d631b2e6a4b23f2aedd719df9eb2e5cd271fdf1f746d70f9b34d7e3c64f07ea"
+      }
+    },
+    {
+      "name": "foreign-pending-checkpoint-overwritten",
+      "target": "foreign_pending_release_is_not_checkpointed_again",
+      "failure": "save checkpoint replaced a pending foreign journal",
+      "sha256": {
+        "SAO_Body.lua": "3434d9046d7e23d7ca293f8ff5037681135ce3a5e9a182ff25a0c242e4e27a68"
+      }
+    },
+    {
+      "name": "external-rollback-hook-admission-ignored",
+      "target": "missing_external_replay_hooks_allocate_no_shell",
+      "failure": "foreign replay allocated before rollback capability admission",
+      "sha256": {
+        "SAO_Body.lua": "e386b067e66ce94e3f6c1a377923ffc79cef8708a583ad8c038972d1a9b24a0f"
+      }
+    },
+    {
+      "name": "failed-rollback-unmarked",
+      "target": "failed_external_rollback_blocks_future_materialization",
+      "failure": "failed external rollback lost explicit unknown-state boundary",
+      "sha256": {
+        "SAO_Body.lua": "0a54c14ed1f2b4e679215a5d2a9f322d5b42a6bf0dc143ae9b963dc902b1c882"
+      }
+    },
+    {
+      "name": "replaced-adapter-advances",
+      "target": "replaced_execution_adapter_cannot_advance_restore",
+      "failure": "replacement execution adapter entered an already-owned restoration",
+      "sha256": {
+        "SAO_Body.lua": "9add8bcb723da504d4a4a24c610f3939a444c7c2a5e475fc3bd9fada7752eca9"
+      }
+    }
+  ],
+  "checks": {
+    "failed_external_rollback_blocks_future_materialization": "true",
+    "failed_native_replay_restores_record_and_retires_shell": "true",
+    "failed_replay_teardown_retains_exact_handle_until_retry": "true",
+    "foreign_failed_removal_retries_original_snapshot": "true",
+    "foreign_failed_replay_retains_exact_maintenance_origin": "true",
+    "foreign_invalid_drug_clock_retains_native_body": "true",
+    "foreign_pending_release_is_not_checkpointed_again": "true",
+    "foreign_pending_release_refuses_replaced_owner": "true",
+    "foreign_pending_release_replays_after_reload": "true",
+    "foreign_replay_commits_actual_maintenance_once": "true",
+    "missing_external_owner_allocates_no_shell": "true",
+    "missing_external_replay_hooks_allocate_no_shell": "true",
+    "native_posture_refusal_during_replay_is_not_published": "true",
+    "native_sleep_refusal_during_replay_is_not_published": "true",
+    "ordinary_invalid_drug_clock_retains_native_body": "true",
+    "replaced_execution_adapter_cannot_advance_restore": "true"
+  },
+  "cases": 16,
+  "status": "passed"
+}

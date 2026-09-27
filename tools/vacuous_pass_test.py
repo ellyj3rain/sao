@@ -163,6 +163,10 @@ NOT_ABOUT_LUA = {
         "decision trajectory retention, exclusive publication and a replay "
         "mutation. Production Lua execution remains the subject of the county "
         "and trajectory simulation borders",
+    "orienting_native_test.py":
+        "[C89] compiles and executes the native orientation sensor, actuator, "
+        "animation weave and installed-engine reconciliation probes. The Lua "
+        "policy is exercised separately by orienting_policy_test.py",
 }
 
 
@@ -276,6 +280,13 @@ def main():
 
     with ThreadPoolExecutor(max_workers=8) as pool:
         results = dict(pool.map(lambda n: run_blind(dest, n), mirrors))
+    # Several native borders compile into repository-local scratch paths. A
+    # parallel collision can make a declared non-Lua border refuse even though
+    # blinding did not move it. Re-run only those ambiguous declarations after
+    # the pool is quiet; a real Lua dependency will refuse again.
+    for name in NOT_ABOUT_LUA:
+        if results.get(name) in ("refused", "silent"):
+            _, results[name] = run_blind(dest, name)
     shutil.rmtree(dest, ignore_errors=True)
 
     survivors = sorted(n for n, state in results.items() if state == "clean")
