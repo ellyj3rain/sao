@@ -1,0 +1,63 @@
+{
+  "boundary": "Actual WorldSources candidate and Perception in installed Kahlua; controlled native protocol receiver.",
+  "inputs": {
+    "C:\\Users\\jleyv\\Peanut Butter\\AI Assisted Software Engineering Mass Repository\\Projects\\survivor-awareness\\mod\\42.20\\media\\lua\\shared\\SAO_WorldSources.lua": "8b94261a5e1d6a7522b0f4a3009aa6b736cc91cf70b720cb370c7839b72e01ce",
+    "C:\\Users\\jleyv\\Peanut Butter\\AI Assisted Software Engineering Mass Repository\\Projects\\survivor-awareness\\mod\\42.20\\media\\lua\\shared\\SAO_Perception.lua": "626a8230ff7434a326ea6928f8a01619bdf4eba5d29cb25bd9c78accd950eff1",
+    "C:\\Users\\jleyv\\Peanut Butter\\AI Assisted Software Engineering Mass Repository\\Projects\\survivor-awareness\\_scratch\\c89-orienting\\cooking\\tools\\cooking_checks\\inspection_cases.lua": "c4a54c1a0400e76ba90d1a7c8b3ef3234ea2228878e0a843ad4a34f0219a22c9",
+    "C:\\Program Files (x86)\\Steam\\steamapps\\common\\ProjectZomboid\\projectzomboid.jar": "80e405a4bfc42f6072e75b3735f458a6514143da011d3226007ded305a442f44"
+  },
+  "runs": [
+    {
+      "name": "compile",
+      "exit": 0,
+      "stdout": "",
+      "stderr": ""
+    },
+    {
+      "name": "candidate",
+      "exit": 0,
+      "stdout": "VALUE PASS cooking exact inspection 17\n",
+      "stderr": ""
+    },
+    {
+      "name": "ignore-explicit-source",
+      "exit": 1,
+      "stdout": "ERROR KahluaException: at exact_target_selected_without_fallback: exact_target_selected_without_fallback\n",
+      "stderr": ""
+    },
+    {
+      "name": "forbid-known-explicit-source",
+      "exit": 1,
+      "stdout": "ERROR KahluaException: at explicit_known_target_can_be_reinspected: explicit_known_target_can_be_reinspected\n",
+      "stderr": ""
+    },
+    {
+      "name": "skip-target-permission",
+      "exit": 1,
+      "stdout": "ERROR KahluaException: at target_permission_rechecked_before_native_fill: target_permission_rechecked_before_native_fill\n",
+      "stderr": ""
+    }
+  ],
+  "controls": [
+    {
+      "name": "ignore-explicit-source",
+      "target": "exact_target_selected_without_fallback",
+      "source_sha256": "729d40d48663f18b78689a91f91bebe92708921638af870ab3c6060e710f5964",
+      "verdict": "false"
+    },
+    {
+      "name": "forbid-known-explicit-source",
+      "target": "explicit_known_target_can_be_reinspected",
+      "source_sha256": "45d0c2460c10e1e214a31290a5587fd1eda96373155b53414fd136aba1a01871",
+      "verdict": "false"
+    },
+    {
+      "name": "skip-target-permission",
+      "target": "target_permission_rechecked_before_native_fill",
+      "source_sha256": "48c9f8c04a8d2723f248988fe8f0836802d484fe5a2f77d2ecbf8edf451a0fd1",
+      "verdict": "false"
+    }
+  ],
+  "cases": 17,
+  "status": "passed"
+}

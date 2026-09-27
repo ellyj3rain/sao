@@ -68,6 +68,19 @@ MARK_DEAD = "markDead"
 #   "calls"  - the clearing function calls Identity.markDead itself,
 #              so the clear and the death are the same event
 CACHES = {
+    ("SAO_Cooking.lua", "runtime"): (
+        "C.detach", "named",
+        "native cooking actions and appliance handles exist only while their "
+        "person is living; death retires the exact runtime owner while the "
+        "durable interrupted work receipt remains on the person record"),
+    ("SAO_Orienting.lua", "states"): (
+        "O.forget", "named",
+        "native head and body orientation state is bound to one living body; "
+        "death clears both the Lua state and its native actuator"),
+    ("SAO_Perception.lua", "soundPulses"): (
+        "P.forgetSoundCues", "named",
+        "short-lived private native sound occurrences have no reader after "
+        "their listener dies"),
     ("SAO_Body.lua", "Body.unloaded"): (
         "Body.discard", "named",
         "unloaded bodies retained while interrupted owners reconcile; death "

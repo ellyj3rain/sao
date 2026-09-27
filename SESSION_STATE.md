@@ -1,27 +1,56 @@
 | Document | Survivor Awareness Overhaul Session State |
 |---|---|
-| Version | `2.12.0.0-pre-alpha` |
+| Version | `3.0.0.0-pre-alpha` |
 | Author | ellyj3rain |
 | Repository | `SESSION_STATE.md` |
 | Status | CANONICAL - current implementation and continuation. |
 
 # Session state
 
-**As of** 2026-09-27, [C88] integrates independent competing
-cognition with native resource execution and Mousecat observation. Both models
-retain separate beliefs and predictions; ordinary cognition has no veto. Native
-receipts, actor-private inspection and measured own relief update them
-independently. Native C88 run01 saved normally after 603.381 seconds with both
-people alive, zero runtime errors and 82 source frames. Validated intake retains
-1,363 deliberations, 230 disagreements, fifteen observed outcomes and nineteen
-private experiences. Both models revised; each associative model retained eight
-associations through depth two. All fifteen observed episodes selected the
-associative model, so these results establish the execution and learning path,
-not policy superiority. Installed Mousecat displays the competing states and
-confirmed a native change to 48 opportunities per world hour. The C88 batch and
-portable verification artifact preserve exact evidence and limits. Its complete
-gate is enforced by the closing commit. C87 is merged through PR106 after all
-213 unchanged closing-hook checks and CI passed.
+**As of** 2026-09-27, [C89] joins native auditory orientation, owned
+drug physiology, exact appliance preparation and private capability experience
+to the person lifecycle. Its source and evidence boundaries are recorded in
+ARCHITECTURE and the C89 producer catalogue. ZAO retains the living external
+execution/rest owner, Speakeasy validates the new private facts, and the
+installed Mousecat observer exposes attention, medication and preparation.
+
+The C89 runs exposed unsupported native collection traversal, late sound-class
+loading, a social gesture displacing preparation, and lost appliance reach.
+Their causal repairs and failed histories remain in the evidence artifact.
+Native06 saved normally after observing real heard cues and stationary body
+turns with changed head/gaze projection. Native07 reopened the same native save:
+observation sequence 26 continued at 27, both people retained their separate
+models and dose provenance, and the fixture issued no repeated interventions.
+Native08 advanced six people from hour 2.0 through 27.934. Ralph Larose
+completed native heating, retrieval and shutdown. Five natural provisioning
+matters reached three receptions, three returned responses, two commitments
+and one acquisition; none reached a carrying route or completed handover.
+
+Organization already retains accepted acquisition, carrying, handover and
+holding commitments through interruptions, route failures and save. The C89
+delivery correction requires private identity and an actual visible same-floor
+encounter before routing to a requester; otherwise it uses the received
+destination. The cognitive contestants still choose food, water, inspection
+and continuation. General procedure decomposition and a committed
+collect-prepare-deliver chain remain producer gaps. Longer cooperation now has
+actual reception and returned-response evidence; acquisition-to-carrying and
+completed transfer remain the first missing execution joins.
+
+Private failed-home evidence now delays the same route from the same approach
+with bounded reconsideration. Changed home, changed approach, actual arrival
+and actual occupancy release it; other work and immediate threats continue.
+Mechanical controls establish this repair without claiming to make an unknown
+native pathfinding failure traversable.
+
+C88 is published through PR107 at `ccb70cd`. Its full unchanged closing gate
+passed 215 distinct scripts; CI and CodeQL passed. Independent ordinary and
+associative models retain separate beliefs and frozen predictions. C88 native01
+saved normally after 603.381 seconds with both people alive, 1,363 deliberations,
+230 disagreements, fifteen observed outcomes and nineteen private experiences.
+All observed episodes selected the associative model; that evidence does not
+establish comparative superiority. Mousecat acknowledged 48 opportunities per
+county hour. C87 is published through PR106. New run artifacts remain unreviewed
+for dataset admission.
 
 Previously, `[C87]` extends native survival observation and repairs
 continuity between knowledge, accepted work, movement and rest. Authored
@@ -917,11 +946,11 @@ consequences remain separate from the learned policy choosing among them.
 C57 consolidates three native entry points into one. With C64's immutable
 capture border, C73's radio-reception border, C74's personal-world-knowledge
 border, C75's typed-claim border, C86's native study, escape-continuity and
-sound-evidence borders, and C88's cognitive competition border, the gate invokes
-202 `*_test.py` files and 13 other Python entry points, 215 distinct scripts.
-Border labels extend through 201; legacy labels
+sound-evidence borders, C88's cognitive competition border and C89's native
+capability borders, the gate invokes 208 `*_test.py` files and 13 other Python
+entry points, 221 distinct scripts. Border labels extend through 206; legacy labels
 163/169/174 share the native suite. These are distinct counting units. The mod
-ships 85 Lua source files.
+ships 91 Lua source files.
 ZAO A41 has fifteen borders. The
 published C51 baseline has 163 borders through 178 mirrors. These counts describe the
 apparatus, not acceptance. The audit reproduced defects while targeted checks

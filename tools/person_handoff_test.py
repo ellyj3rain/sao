@@ -6,25 +6,38 @@ and staging are production code. Native snapshot fidelity has a separate JVM
 probe. Controls mutate shipped functions and must fail on their named defect.
 """
 from pathlib import Path
+import argparse
+import hashlib
+import json
+import os
 import shutil
 import subprocess
 import sys
 import tempfile
+TOOLS = Path(__file__).resolve().parent
+parser=argparse.ArgumentParser(description=__doc__)
+parser.add_argument('root',nargs='?',type=Path,default=TOOLS.parent)
+parser.add_argument('--zao-root',type=Path)
+parser.add_argument('--output',type=Path)
+args=parser.parse_args()
+ROOT = args.root.resolve()
+ZAO_ROOT=(args.zao_root or ROOT.parent/'zombie-awareness').resolve()
+sys.path.insert(0, str(ROOT / 'tools'))
 from lua_read import function_body
-
-ROOT = Path(sys.argv[1]).resolve() if len(sys.argv) > 1 else Path(__file__).resolve().parents[1]
 LUA = ROOT / 'mod/42.20/media/lua/client'
-GAME = Path(r'C:\Program Files (x86)\Steam\steamapps\common\ProjectZomboid')
-JDK = Path(r'C:\Users\jleyv\Peanut Butter\JetBrains\Java\bin')
+GAME = Path(os.environ.get('PZ_DIR',r'C:\Program Files (x86)\Steam\steamapps\common\ProjectZomboid'))
+JDK = Path(os.environ.get('JDK_BIN',r'C:\Users\jleyv\Peanut Butter\JetBrains\Java\bin'))
 SHARED_FILES = {'SAO_Identity.lua', 'SAO_BodySnapshot.lua', 'SAO_PhysicalFacts.lua',
-                'SAO_Coordination.lua'}
+                'SAO_Coordination.lua', 'SAO_Hash.lua', 'SAO_Pharmacology.lua',
+                'SAO_PharmacologyProfiles.lua'}
 
 
 def source_path(name):
     return LUA.parent / ('shared' if name in SHARED_FILES else 'client') / name
 
 
-FILES = ['SAO_PhysicalFacts.lua', 'SAO_BodySnapshot.lua', 'SAO_Body.lua',
+FILES = ['SAO_Hash.lua', 'SAO_PharmacologyProfiles.lua', 'SAO_Pharmacology.lua',
+         'SAO_PhysicalFacts.lua', 'SAO_BodySnapshot.lua', 'SAO_Body.lua',
          'SAO_SourceUse.lua', 'SAO_Coordination.lua', 'SAO_Controller.lua',
          'SAO_PopulationAdmissions.lua', 'SAO_PopulationRepresentation.lua', 'SAO_DormantPopulation.lua',
          'SAO_Population.lua', 'SAO_Harness.lua',
@@ -32,6 +45,7 @@ FILES = ['SAO_PhysicalFacts.lua', 'SAO_BodySnapshot.lua', 'SAO_Body.lua',
          'SAO_CrossedTransfer.lua', 'SAO_Nuke.lua', 'SAO_Identity.lua']
 
 PRELUDE = r'''
+require=function() end
 Events=setmetatable({}, {__index=function() return {Add=function() end,Remove=function() end} end})
 getSpecificPlayer=function() return nil end
 getGameTime=function() return {getMinutesStamp=function() return __minute or 0 end} end
@@ -528,9 +542,22 @@ do
  SAO.Age.drift=mutate SAO.Age.hearThings=mutate SAO.Age.woundWatch=mutate
  SAO.Age.forgetSkills=mutate SAO.Age.growthSpurt=mutate
  __age() assert(__mutations==0,'age mutated pending body')
- BenzoAddict=mutate BenzoEffect=mutate
+ -- Actual owned pharmacology must reject this in-flight body transaction.
+ -- Initialize a real owned exposure while admitted, then restore the pending
+ -- handoff. Native receiver values and the durable dose clock must not move.
+ SAO.Pharmacology=__ownedPharmacology
+ local pending=r.bodyRelease r.bodyRelease=nil
+ assert(SAO.Pharmacology.advance(r,b,__now))
+ r.pharmacology.families.sedatives.effect=40
+ local beforeDrug=SAO.Pharmacology.snapshot(r)
+ local beforeStats=__copy(b.values)
+ r.bodyRelease=pending
+ SAO.Drugs.resetRuntimeForWorld()
+ __now=__now+11/60
  __minute=0 __drug() __minute=11 __drug()
- assert(__mutations==0,'drugs mutated pending body')
+ assert(__equal(beforeDrug,SAO.Pharmacology.snapshot(r)) and __equal(beforeStats,b.values),
+   'drugs mutated pending body')
+ SAO.Pharmacology=nil
  ZAO={StateStore={read=function() return {terminalState='afflicted',currentForm='test'} end}}
  SAO.AfflictedReturn.stampLive(1)
  assert(b.md.ZAOForm==nil,'afflicted callback mutated pending body')
@@ -1171,7 +1198,12 @@ def run(work, sources):
     for name in FILES:
         path = work / name; path.write_text(instrument(name, sources[name]), encoding='utf-8')
         chunks.append(str(path))
-    case = work / 'cases.lua'; case.write_text('function __cases()\n'+CASES+'\nend', encoding='utf-8')
+    receivers = TOOLS / 'cooking_checks/transaction_prelude.lua'
+    chunks.append(str(receivers))
+    # Existing journal cases also prove legacy/no-pharmacology compatibility.
+    # The drug transition case re-enables the actual owned module; complete
+    # joined Ph restoration has its own whole-module transaction proof.
+    case = work / 'cases.lua'; case.write_text('function __cases()\nlocal __ownedPharmacology=SAO.Pharmacology\nSAO.Pharmacology=nil\n'+CASES+'\nend', encoding='utf-8')
     chunks.append(str(case))
     result = subprocess.run([str(JDK/'java.exe'), '-cp', str(GAME/'projectzomboid.jar')+';.',
         'LuaRun', *chunks, '--', '__cases()'], cwd=work, capture_output=True, text=True, timeout=90)
@@ -1180,14 +1212,18 @@ def run(work, sources):
 
 
 def main():
+    if not (GAME/'projectzomboid.jar').is_file() or not (JDK/'javac.exe').is_file():
+        print('SKIPPED: installed game and JDK required for handoff proof'); return 0
     sources = {}
+    receipt={'status':'running','inputs':{},'runs':[],'controls':[]}
     for name in FILES:
         path = source_path(name)
         if not path.is_file():
             print('FAULT: missing production module '+name); return 1
         sources[name] = path.read_text(encoding='utf-8')
-    if not (GAME/'projectzomboid.jar').is_file() or not (JDK/'javac.exe').is_file():
-        print('SKIPPED: installed game and JDK required for handoff proof'); return 0
+        receipt['inputs'][str(path)]=hashlib.sha256(path.read_bytes()).hexdigest()
+    for path in [Path(__file__),TOOLS/'cooking_checks/transaction_prelude.lua']:
+        receipt['inputs'][str(path)]=hashlib.sha256(path.read_bytes()).hexdigest()
     faults = []
     with tempfile.TemporaryDirectory(prefix='sao-person-handoff-') as tmp:
         work=Path(tmp); shutil.copy2(GAME/'stdlib.lua',work/'stdlib.lua')
@@ -1196,7 +1232,9 @@ def main():
         if built.returncode:
             print('FAULT: runner compilation\n'+built.stderr); return 1
         result=run(work,sources); print('production: '+result)
-        if result!='VALUE PASS': faults.append('production')
+        receipt['runs'].append({'name':'candidate','result':result})
+        if result!='VALUE PASS':
+            print('FAULT: candidate baseline failed'); return 1
         controls=[
             ('SAO_Body.lua','            return nil, "native-spawn-failed"',
              '', 'native nil spawn allocated a bare player or descriptor'),
@@ -1223,9 +1261,9 @@ def main():
             ('SAO_PopulationRepresentation.lua','if not rec.dead and SAO.Body.recover(rec) == true then',
              'if not rec.dead then SAO.Body.recover(rec)',
              'population band bypassed failed recovery'),
-            ('SAO_Body.lua','if not SAO.BodySnapshot.valid(pending) then return false, "invalid-pending-snapshot" end',
+            ('SAO_Body.lua','if not SAO.BodySnapshot.valid(pending, rec) then return false, "invalid-pending-snapshot" end',
              '', 'invalid release snapshot was published'),
-            ('SAO_Body.lua','if not SAO.BodySnapshot.valid(pending.captured) then',
+            ('SAO_Body.lua','if not SAO.BodySnapshot.valid(pending.captured, rec) then',
              'if false then', 'invalid transfer snapshot was published'),
             ('SAO_BodySnapshot.lua','or SAOJavaBridge:validateReturnVisual(captured.visual) == true)',
              'or true)', 'invalid release snapshot was published'),
@@ -1254,9 +1292,9 @@ def main():
             ('SAO_Harness.lua','local ok, reason = SAO.Body.release(rec)',
              'SAO.Controller.drop(H.activeId) local ok, reason = SAO.Body.release(rec)',
              'harness dropped early'),
-             ('SAO_Body.lua','return SAOJavaBridge:awaken(body, rec.hibernation,\n                externalDormancy and 0 or elapsed)',
+             ('SAO_Body.lua','return SAOJavaBridge:awaken(body, rec.hibernation,\n                (externalDormancy or joinedDormancy) and 0 or elapsed)',
               'return "AWAKENED skipped"','harness did not restore current person'),
-            ('SAO_Body.lua','externalDormancy and 0 or elapsed)',
+            ('SAO_Body.lua','(externalDormancy or joinedDormancy) and 0 or elapsed)',
               'elapsed)',
               'external body used survivor dormancy or lost owner elapsed time'),
             ('SAO_Body.lua','body, elapsed, wakeAt)',
@@ -1266,7 +1304,7 @@ def main():
               'return false','harness did not restore current person'),
             ('SAO_Body.lua','return advanced and SAOJavaBridge:applyDormantRadioState(\n                body, advanced) or false',
               'return true','dormant radio state did not replace the captured native state'),
-            ('SAO_Body.lua','if rec.dormantPhysiologyOrigin or rec.dormantResting == true\n        or rec.dormantSleeping == true then',
+            ('SAO_Body.lua','if not joinedDormancy and (rec.dormantPhysiologyOrigin or rec.dormantResting == true\n        or rec.dormantSleeping == true) then',
               'if false then',
               'dormant rest state did not replace the captured native state'),
             ('SAO_BodySnapshot.lua','rec.bodyVisual = captured.visual',
@@ -1284,8 +1322,8 @@ def main():
              'if false then', 'pending Crossed body advanced'),
             ('SAO_Age.lua','if rec and not SAO.Body.isTransitioning(rec) then',
              'if rec then', 'age mutated pending body'),
-            ('SAO_Drugs.lua','if SAO.Body.isTransitioning(SAO.Identity.get(id)) then return end',
-             '', 'drugs mutated pending body'),
+            ('SAO_Pharmacology.lua','(not transaction and owner.isTransitioning(rec))',
+             'false', 'drugs mutated pending body'),
             ('SAO_AfflictedReturn.lua','if not rec or rec.dead or SAO.Body.isTransitioning(rec) then',
              'if not rec or rec.dead then',
              'afflicted callback mutated pending body'),
@@ -1323,8 +1361,23 @@ def main():
                 reasons+=['controller did not trigger Crossed handoff after source terminal']
             rejected=result.startswith('ERROR ') and any(x in result for x in reasons)
             print('CONTROL '+expected+': '+('REJECTED ' if rejected else 'SURVIVED ')+result)
+            receipt['controls'].append({'module':name,'target':expected,'rejected':rejected,'result':result})
             if not rejected: faults.append(expected)
+        if not faults:
+            extra=subprocess.run([sys.executable,str(TOOLS/'cooking_checks/run_transaction.py'),
+                str(ROOT),'--zao-root',str(ZAO_ROOT),'--output',str(work/'transaction-verification.json')],
+                capture_output=True,text=True,encoding='utf-8',errors='replace',timeout=120)
+            print(extra.stdout)
+            if extra.returncode:
+                print(extra.stderr);faults.append('owned pharmacology body transaction')
+            proof=work/'transaction-verification.json'
+            if proof.is_file():receipt['transaction']=json.loads(proof.read_text(encoding='utf-8'))
     print("  162) "+('FAULT '+', '.join(faults) if faults else 'PASS')+' -- person ownership handoff')
+    receipt['status']='failed' if faults else 'passed'
+    receipt['faults']=faults
+    if args.output:
+        args.output.parent.mkdir(parents=True,exist_ok=True)
+        args.output.write_text(json.dumps(receipt,indent=2)+'\n',encoding='utf-8')
     return bool(faults)
 
 

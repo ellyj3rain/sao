@@ -1,6 +1,6 @@
 | Document | Survivor Awareness Overhaul Architecture |
 |---|---|
-| Version | `2.12.0.0-pre-alpha` |
+| Version | `3.0.0.0-pre-alpha` |
 | Author | ellyj3rain |
 | Repository | `ARCHITECTURE.md` |
 | Status | ACTIVE - ratified framework shape. |
@@ -1126,3 +1126,55 @@ to 64 episodes and 256 experiences per person, separate from the small live view
 Speakeasy validates and joins source-hashed trajectories for later aggregate
 training, preserving frozen predictions, censoring and gaps. Scenario admission
 keeps its existing operator evaluation boundary.
+
+### Native perception and capabilities (C89)
+
+SAO owns the admitted behavioral mechanisms in its source. Pharmacology,
+conditions, selected gestures and material actions participate in the same
+person, perception, decision and execution system. The prior-art catalogue
+records each selected mechanism, producer, consumer, test and remaining gap.
+ZombieBuddy remains the explicit native Java loader.
+
+| Owner | Native mechanism and evidence |
+|---|---|
+| WorldSoundPulses, Perception | Bounded identities for actual audible occurrences; each person retains acquisition time and uncertainty. |
+| Orienting, Orientation, OrientationAnimation, Senses | Exact current body ownership admits a finite head sweep and safe idle body turn. Existing Neuro and native physical state shape response. Sight uses the actual gaze and ordinary occlusion. |
+| PharmacologyProfiles, Pharmacology, Habits, Drugs | Fifteen owned native items span seven admitted families and maintenance. Native dose completion, physiological passage and dependence persist on the person. |
+| Needs | Actual timed-action start, completion and consumption identity bind dose receipts. Real partial alcohol consumption updates its existing history once. |
+| Cooking, WorldSources, SAOCooking | Visible appliances and private food offers lead to exact acquisition, deposit, native activation, native heat, retrieval and shutdown. |
+| BodySnapshot, Body, DormantPopulation; ZAO Maintenance | Pure checkpoints and exact removal precede dormancy. Existing metabolism/rest and owned effects replay chronologically; refused reconstruction restores prior owner state. |
+| CapabilityExperience, Cognition, CognitiveModels | Own consumption, measured bodily change and completed preparation enter the same private evidence stream with capabilities captured at acquisition. Both models interpret independently. |
+| Observation, Speakeasy, Mousecat | Read-only attention, medication and preparation state accompany the native camera and competing model inspector. |
+
+Sound can initiate attention toward a possible source. Hearing itself admits no
+visual target, identity or wall bypass. Head movement preserves native legs and
+path ownership; body turns yield to work, travel, combat, sleep and handoff.
+Repeated reads and repeated observations of the same occurrence cannot restart
+it. Runtime native handles expire at removal, binding change and world reset.
+
+Pharmacology requires the exact ordinary or ZAO-owned living body and a real
+carried registered item. Completion follows a measured single dose consumed by
+the native action. Physical effects use actual native Stats, body parts and
+fitness receivers. Durable cursors prevent duplicate passage. Bounded dormant
+replay composes with the current rest owner, including rollback of ZAO's own
+Maintenance state when native reconstruction refuses.
+
+The action owner preserves unresolved SourceUse evidence across interruption,
+death and handoff. Cooking credit requires the same deposited raw item to cross
+the engine's cooking threshold through native heat. Queueing, a cooked flag or
+arrival supplies no completion. A later replacement item remains a physical
+result with unavailable attribution until its continuity can be established.
+
+Actor-private experience strips internal family, exposure and thermal-credit
+attribution. A felt change is an observation; its cause remains inferential.
+The first receipt captures current Labor capabilities and duplicate delivery
+retains that original context. Existing saved model versions and frozen
+predictions remain readable. Medication and preparation facts cannot settle an
+earlier unperformed resource action, and conjectures grant no recipes or skills.
+
+The current decision seam still selects food, water, inspection and continuation.
+Cooking is available through its existing work designation. Broader autonomous
+verb selection, local-player pharmacology without a person record, mounted
+horse execution and complete animal/crafting/repair receipts remain explicit
+producer work. The catalogue distinguishes these admitted gaps from reference
+material whose mechanisms were never selected.

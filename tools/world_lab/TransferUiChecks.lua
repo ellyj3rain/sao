@@ -261,7 +261,7 @@ end
 
 -- The separate native runner supplies actual installed item definitions,
 -- inventory, body, script callbacks and item effects. Only the timed-action
--- queue/animation receiver and Habits observer are controlled here.
+-- queue/animation receiver and Pharmacology lifecycle are controlled here.
 function CheckNativeEat()
     print = __nativePrint
     local checks, stamps, queued = 0, 0, nil
@@ -287,10 +287,37 @@ function CheckNativeEat()
     }
     local body, pack, single, matches, pills = __realBody, __pack, __single, __matches, __pills
     body:getModData().SAOPersonId = "native-eat-person"
-    SAO.Habits = { used = function(id, family)
-        check(id == "native-eat-person" and family ~= "", "native habit identity")
-        stamps = stamps + 1; return true
-    end }
+    local classifiedItem = nil
+    SAO.Pharmacology = {
+        familyForItem = function(item)
+            return item == classifiedItem and "fixture-family" or nil
+        end,
+        captureUse = function(id, seenBody, item)
+            check(id == "native-eat-person" and seenBody == body and item == classifiedItem,
+                "classified use keeps actor body and item identity")
+            return { actorId = id, body = seenBody, item = item,
+                beforeUses = item:getCurrentUses() }
+        end,
+        prepareUse = function(token, seenBody)
+            check(token and token.body == seenBody
+                and token.item:getCurrentUses() == token.beforeUses,
+                "classified dose remains exact before native completion")
+            return true
+        end,
+        completeUse = function(token, seenBody, completed)
+            check(completed == true and token.body == seenBody
+                and token.item:getCurrentUses() == token.beforeUses - 1,
+                "classified dose records measured native consumption")
+            stamps = stamps + 1
+            return { actorId = token.actorId, family = "fixture-family" }
+        end,
+        interruptUse = function() return true end,
+        onNativeOutcome = function(id, receipt)
+            check(id == "native-eat-person" and receipt.family == "fixture-family",
+                "classified outcome keeps actor and family")
+            return true
+        end,
+    }
     local originalContainers = ISInventoryPaneContextMenu.getContainers
     check(SAOJavaBridge:isShell(body), "actual off-slot shell")
     check(instanceof(pack, "DrainableComboItem") and not instanceof(pack, "Food"), "actual pack has no Food receiver")
@@ -310,8 +337,8 @@ function CheckNativeEat()
     action:start()
     check(math.abs(matches:getCurrentUsesFloat() - (fuel - matches:getUseDelta())) < .00001,
         "native pack start consumes carried ignition")
-    -- IsoGameCharacter.updateInternal calls perform before complete. Habits
-    -- keeps its existing perform-stage stamp; it is not completion evidence.
+    -- IsoGameCharacter.updateInternal calls perform before complete. The
+    -- pharmacology receipt waits for measured native completion.
     action:perform()
     check(action.baseCompleted and stamps == 0, "native pack perform preserves unclassified habit")
     check(math.abs(body:getStats():get(Stat.HUNGER) - .5) < .00001, "pack perform does not apply consumption effects")
@@ -345,27 +372,29 @@ function CheckNativeEat()
     check(ISEatFoodAction:new(body, pack, 1) == nil, "native pack missing ignition refuses")
     check(ISInventoryPaneContextMenu.getContainers == originalContainers, "native refusal helper restored")
     body:getInventory():AddItem(matches)
-    -- An explicitly controlled family selector checks the existing Habits
-    -- forwarding for both actions without relabelling native tobacco scripts.
-    local function classifiedPerform(value, expected)
-        local nativeBridge, before = SAOJavaBridge, stamps
-        SAOJavaBridge = { drugFamilyOf = function(_, item)
-            check(item == expected, "perform keeps classified item identity")
-            return "fixture-family"
-        end }
+    -- A controlled classifier exercises the production completion wrapper
+    -- for both native action classes without relabelling installed items.
+    local function classifiedComplete(value, expected)
+        local before = stamps
+        classifiedItem = expected
+        value:start()
+        check(value.saoPharmacologyToken ~= nil,
+            "classified " .. value.Type .. " captured before native use")
         value:perform()
-        SAOJavaBridge = nativeBridge
-        check(value.baseCompleted and stamps == before + 1, "classified " .. value.Type .. " perform forwarded")
+        check(value.baseCompleted and stamps == before,
+            "classified " .. value.Type .. " waits for completion")
+        local result = value:complete()
+        classifiedItem = nil
+        check(result == true and stamps == before + 1,
+            "classified " .. value.Type .. " completion forwarded")
     end
     pack:setUsedDelta(pack:getUseDelta())
-    action = ISEatFoodAction:new(body, pack, 1); action:start()
-    classifiedPerform(action, pack)
-    check(body:getInventory():contains(pack), "last-dose pack still owned at perform")
-    check(action:complete() == true and not body:getInventory():contains(pack), "last-dose pack removed at native complete")
-    action = ISEatFoodAction:new(body, __receiptSingle, 1); action:start()
-    classifiedPerform(action, __receiptSingle)
-    check(body:getInventory():contains(__receiptSingle), "classified Food still owned at perform")
-    check(action:complete() == true and not body:getInventory():contains(__receiptSingle), "classified Food native completion retained")
+    action = ISEatFoodAction:new(body, pack, 1)
+    classifiedComplete(action, pack)
+    check(not body:getInventory():contains(pack), "last-dose pack removed at native complete")
+    action = ISEatFoodAction:new(body, __receiptSingle, 1)
+    classifiedComplete(action, __receiptSingle)
+    check(not body:getInventory():contains(__receiptSingle), "classified Food native completion retained")
     return "PASS real installed consume receivers: " .. checks .. " checks"
 end
 SAOJavaBridge = {

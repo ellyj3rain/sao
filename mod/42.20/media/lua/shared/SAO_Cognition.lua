@@ -266,12 +266,20 @@ function C.attempted(id, token)
     return true
 end
 local KINDS = { inspection = true, acquire = true, store = true, consume = true }
+local EXTENDED = { ["medication-use"] = true, ["physical-change"] = true, preparation = true }
 local STATUSES = { completed = true, ["no-effect"] = true, interrupted = true, unavailable = true }
 local EXPERIENCE_KEYS = { id = true, actorId = true, observerId = true, worldHours = true,
     kind = true, category = true, perspective = true, status = true, sourceId = true,
     itemType = true, episodeId = true, detail = true, foodPresent = true, waterPresent = true,
     hungerDelta = true, thirstDelta = true, capabilities = true }
 local function experienceCopy(id, x, now)
+    if type(x) == "table" and EXTENDED[x.kind] then
+        -- These experiences are independent of the four executable intents.
+        -- A new private fact cannot settle an unrelated selected action.
+        if x.observerId ~= id or not finite(x.worldHours, 0, now) or x.episodeId ~= nil
+            or not SAO.CognitiveModels.acceptsExperience(x) then return nil end
+        return detached(x)
+    end
     if type(x) ~= "table" or not text(x.id, 128) or not text(x.actorId, 128)
         or x.observerId ~= id or not finite(x.worldHours, 0, now)
         or not KINDS[x.kind] or not STATUSES[x.status]
@@ -308,6 +316,7 @@ local function experienceCopy(id, x, now)
 end
 local function qualified(x)
     if x.status ~= "completed" and x.status ~= "no-effect" then return false end
+    if EXTENDED[x.kind] then return x.status == "completed" end
     if x.kind == "inspection" then return type(x.foodPresent) == "boolean" and type(x.waterPresent) == "boolean" end
     if x.kind == "consume" then
         return x.category == "food" and x.hungerDelta ~= nil
@@ -340,9 +349,11 @@ function C.experience(id, supplied)
         s.rejectedExperiences = s.rejectedExperiences + 1
         return false, "conflicting-event-id"
     end
-    if x.worldHours <= s.retiredThroughHour then
-        s.rejectedExperiences = s.rejectedExperiences + 1
-        return false, "retired-evidence-frontier"
+    if not EXTENDED[x.kind] then
+        if x.worldHours <= s.retiredThroughHour then
+            s.rejectedExperiences = s.rejectedExperiences + 1
+            return false, "retired-evidence-frontier"
+        end
     end
     local good, updated, revisions = qualified(x), {}, {}
     if good then
@@ -402,6 +413,84 @@ function C.publish(id, token, values)
     if not finite(token.observedAt, token.admittedAt, clock() or -1) then return false end
     x.capabilities, x.worldHours = detached(token.capabilities), token.observedAt
     return C.experience(id, x)
+end
+-- Producer callbacks use their existing monotonic durable positions. These
+-- three scalar cursors prevent replay after the bounded experience log evicts
+-- the original event. They are not exposure-to-effect attribution links.
+local function nativeExperience(id, producer, position, x)
+    if not finite(position, 0, 9007199254740991) or position ~= math.floor(position) then
+        return false, "invalid-native-position"
+    end
+    if not experienceCopy(id, x, clock() or -1) then return false, "invalid-experience" end
+    local s = state(id, false)
+    local cursors = s and s.nativeExperienceCursors
+    if cursors ~= nil and type(cursors) ~= "table" then return false, "invalid-native-cursors" end
+    local prior = cursors and cursors[producer]
+    if prior ~= nil and not finite(prior, 0, 9007199254740991) then return false, "invalid-native-cursor" end
+    if prior and position <= prior then
+        local retained
+        for _, old in ipairs(s.experiences) do if old.id == x.id then retained = old break end end
+        if not retained then return false, "retired-native-receipt" end
+        -- Re-delivery does not refresh the original private acquisition time.
+        -- The ordinary conflict check still compares every normalized fact.
+        x.worldHours = retained.worldHours
+        x.capabilities = detached(retained.capabilities)
+    else
+        -- Existing personal capacities contextualize this newly acquired fact.
+        -- They are read from Labor, never inferred from the native receipt.
+        x.capabilities = C.capabilities(id)
+    end
+    local ok, reason = C.experience(id, x)
+    if ok then
+        s = state(id, false)
+        s.nativeExperienceCursors = s.nativeExperienceCursors or {}
+        s.nativeExperienceCursors[producer] = math.max(prior or 0, position)
+    end
+    return ok, reason
+end
+local function privateFact(id, kind, category, eventId, acquired, occurred)
+    return { id = eventId, actorId = id, observerId = id, worldHours = acquired,
+        occurredAtHours = occurred, kind = kind, category = category,
+        perspective = "performed", status = "completed" }
+end
+function C.medicationUse(id, receipt)
+    local now = clock()
+    if not now or type(receipt) ~= "table" or receipt.actorId ~= id
+        or receipt.status ~= "completed" or receipt.consumed ~= 1
+        or not finite(receipt.sequence, 1, 9007199254740991) or receipt.sequence ~= math.floor(receipt.sequence)
+        or not finite(receipt.atHours, 0, now) then return false, "unqualified-medication-use" end
+    local x = privateFact(id, "medication-use", "medicine", "medication/" .. tostring(receipt.sequence), now, receipt.atHours)
+    x.itemId, x.itemType = receipt.itemId, receipt.itemType
+    -- family/profile/dose efficacy from the producer never enters cognition.
+    return nativeExperience(id, "medication", receipt.sequence, x)
+end
+function C.physicalChange(id, receipt)
+    local now = clock()
+    if not now or type(receipt) ~= "table" or receipt.kind ~= "physical-change"
+        or not finite(receipt.minute, 0, 60000000000) or receipt.minute ~= math.floor(receipt.minute)
+        or not finite(receipt.atHours, 0, now) or math.abs(receipt.atHours - receipt.minute / 60) > 0.00000001
+        or not finite(receipt.observedAtHours, receipt.atHours, now)
+        or receipt.actorId ~= nil and receipt.actorId ~= id then return false, "unqualified-physical-change" end
+    local x = privateFact(id, "physical-change", "body", "physical/" .. tostring(receipt.minute), receipt.observedAtHours, receipt.atHours)
+    x.stats = detached(receipt.stats)
+    -- Only the felt values cross this boundary. In particular, exposures and
+    -- last-dose/family counters are God-view accounting, not private evidence.
+    return nativeExperience(id, "physical", receipt.minute, x)
+end
+function C.preparationOutcome(id, receipt)
+    local now = clock()
+    if not now or type(receipt) ~= "table" or receipt.actorId ~= id
+        or not finite(receipt.sequence, 1, 9007199254740991) or receipt.sequence ~= math.floor(receipt.sequence)
+        or receipt.id ~= "cooking/" .. tostring(id) .. "/" .. tostring(receipt.sequence)
+        or receipt.status ~= "completed" or receipt.detail ~= "native-food-cooked-and-retrieved"
+        or receipt.nativeCredit ~= receipt.id or receipt.retrieved ~= true or receipt.heatObserved ~= true
+        or not finite(receipt.atHours, 0, now) or not finite(receipt.startedAt, 0, receipt.atHours) then
+        return false, "unqualified-preparation"
+    end
+    local x = privateFact(id, "preparation", "food", receipt.id, now, receipt.atHours)
+    x.itemId, x.itemType, x.sourceId = receipt.itemId, receipt.itemType, receipt.sourceId
+    x.beforeCookingTime, x.afterCookingTime, x.heatObserved = receipt.beforeCookingTime, receipt.afterCookingTime, true
+    return nativeExperience(id, "preparation", receipt.sequence, x)
 end
 -- A result reader is independent of Provisioning's acknowledgement stream.
 function C.sourceResult(receipt, token)

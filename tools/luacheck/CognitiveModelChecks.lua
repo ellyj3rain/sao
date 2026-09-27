@@ -112,7 +112,7 @@ end)
 case("pre-outcome predictions",function()
     for _,id in ipairs({"ordinary","associative"}) do
         local s=M.newState(id) local p=M.propose(id,s,frame()) local n=0
-        check(p.version==(id=="ordinary" and "sao-ordinary/1" or "sao-associative/1")
+        check(p.version==(id=="ordinary" and "sao-ordinary/2" or "sao-associative/2")
             and p.modelId==id,"version or model identity absent")
         for _,goal in ipairs({"food","water","inspect","continue"}) do
             local prediction=p.predictions[goal]

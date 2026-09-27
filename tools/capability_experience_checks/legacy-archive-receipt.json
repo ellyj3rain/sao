@@ -1,0 +1,20 @@
+{
+  "schema": "sao-cognition-legacy-archive/1",
+  "engineSha256": "80e405a4bfc42f6072e75b3735f458a6514143da011d3226007ded305a442f44",
+  "inputs": {
+    "tools\\luacheck\\LuaRun.java": "f6f55e6da98c1f1249720666d862720efc025167d1df37d35820e877b14df741",
+    "tools\\cognition_checks\\prelude.lua": "283cfd5374fbb461291d876825528f52bf4b765a3ffb77a2d6c5c02a2700f1e3",
+    "mod\\42.20\\media\\lua\\shared\\SAO_Hash.lua": "63e172f4c7878cc50ea58ae4604acec50f24decd50a1db0206d4c298def69915",
+    "mod\\42.20\\media\\lua\\shared\\SAO_Labor.lua": "20a04e518c9943ff6e81784c6b50b4408a4b8b5ae1c1795adc35e78da091d082",
+    "mod\\42.20\\media\\lua\\shared\\SAO_CognitiveModels.lua": "791d4a2392d85645508a0debb5c50abc1636573d71194ec4a435dfbc7caef31b",
+    "mod\\42.20\\media\\lua\\shared\\SAO_Cognition.lua": "36f2f3f8714546be8205fbaad2d1c8af6a8fa856f158a9b1b7c6bf1052ab0e03",
+    "_scratch\\c89-orienting\\cognition\\tests\\legacy.lua": "140e15d26e4fbf5f8839794cc138144d76ada1b706e3f17c125dcb4cab420f47",
+    "_scratch\\c89-orienting\\cognition\\tests\\archive_legacy.lua": "7707f8f71a261317da1083493274bcdd7d1963671f8fa1b70b2e45c4ed919b73"
+  },
+  "artifact": {
+    "path": "tests\\legacy_archive.lua",
+    "sha256": "ecee00b4f87917ad8eb8386f2e6a52bb32f6ac4dbb63b8130983abcc7a07432d"
+  },
+  "exit": 0,
+  "verdict": "PASS"
+}

@@ -96,7 +96,7 @@ def source_faults(perception, controller, scanner, bridge):
         ("Math.abs(other.getZ() - sz) >= 0.5f", "current visibility ignores floors"),
         ("dist > maxRange", "current visibility ignores action range"),
         ("alignment < CONE_COS", "current visibility ignores the observer's facing"),
-        ("!eye.isSomethingTo(target)", "current visibility ignores occlusion"),
+        ("clearPath(eye, target, true)", "current visibility ignores occlusion"),
     ):
         if seam not in visible:
             faults.append(message)
@@ -154,6 +154,23 @@ public final class ActivityAdmissionProbe {
     static class IsoAnimal extends IsoPlayer {}
     static class IsoZombie extends IsoGameCharacter { boolean human; }
     static class SAOKnox { static boolean isKnoxHuman(IsoZombie person) { return person.human; } }
+    static class SAOSenses {
+        static boolean awakeHuman(IsoGameCharacter person) {
+            return person != null && !(person instanceof IsoAnimal)
+                && (person instanceof IsoPlayer || person instanceof IsoZombie z && z.human)
+                && !person.dead && !person.asleep
+                && Float.isFinite(person.x) && Float.isFinite(person.y) && Float.isFinite(person.z);
+        }
+        static float hearing(IsoGameCharacter person, boolean includeWeather) {
+            if (!awakeHuman(person) || person.deaf || !Float.isFinite(person.hearing)
+                    || person.hearing <= 0) return 0;
+            float weather = includeWeather ? person.weather : 1;
+            if (!Float.isFinite(weather) || weather <= 0) return 0;
+            return Math.min(1, person.hearing) * Math.min(1, weather);
+        }
+        static float gazeX(IsoGameCharacter person) { return person.fx; }
+        static float gazeY(IsoGameCharacter person) { return person.fy; }
+    }
     static class ClimateManager {
         static ClimateManager current;
         float rain, fog;
@@ -265,22 +282,24 @@ public final class ActivityAdmissionProbe {
         f=new Fixture(); f.actor.deaf=true; check(f.converse(),"deaf speaker forbidden to speak");
         f=new Fixture(); f.observer.hearing=0.4f;
         check(!f.converse(),"hearing protection failed to reduce reach");
-        f=new Fixture(); at(f.actor,f.cell,5.0f,0.5f,0); ClimateManager.current.rain=1;
+        f=new Fixture(); at(f.actor,f.cell,5.0f,0.5f,0); f.observer.weather=0.5f;
         check(!f.converse(),"weather failed to reduce hearing reach");
+        ClimateManager.current.rain=1;
         ClimateManager.current.fog=1;
         check(Math.abs(speechWeatherHearing()-0.57f)<0.000001f,"native rain/fog formula changed");
         f=new Fixture(); f.observer.hearing=Float.NaN;
         check(!f.converse(),"nonfinite hearing admitted");
-        f=new Fixture(); ClimateManager.current.fog=Float.POSITIVE_INFINITY;
+        f=new Fixture(); f.observer.weather=Float.POSITIVE_INFINITY;
         check(!f.converse(),"nonfinite weather admitted");
-        f=new Fixture(); ClimateManager.current.rain=Float.NaN;
-        check(!f.converse(),"NaN rain admitted");
-        f=new Fixture(); ClimateManager.current.rain=-0.1f;
-        check(!f.converse(),"negative rain admitted");
-        f=new Fixture(); ClimateManager.current.fog=1.1f;
-        check(!f.converse(),"out-of-range fog admitted");
+        f=new Fixture(); f.observer.weather=Float.NaN;
+        check(!f.converse(),"NaN weather admitted");
+        f=new Fixture(); f.observer.weather=-0.1f;
+        check(!f.converse(),"negative weather admitted");
+        f=new Fixture(); f.observer.weather=1.1f;
+        check(f.converse(),"native weather multiplier above one was not bounded");
         f=new Fixture(); ClimateManager.current=null;
-        check(!f.converse(),"unavailable weather became clear weather");
+        check(Float.isNaN(speechWeatherHearing()),"unavailable dormant weather became clear weather");
+        check(f.converse(),"loaded native hearing depended on bodyless weather fallback");
         f=new Fixture(); at(f.actor,f.cell,3.5f,0.5f,1);
         check(!f.witness(),"other-floor actor admitted"); check(!f.converse(),"other-floor speech admitted");
         f=new Fixture(); at(f.actor,f.cell,9.5f,0.5f,0);
@@ -528,8 +547,8 @@ def admission_source_faults(scanner, bridge):
         port = java_method(bridge, name)
         if "SAOPerceptionScanner." + name not in port or "Double.isFinite(range)" not in port:
             faults.append("bridge does not preserve finite " + name + " admission")
-    if "float weather = speechWeatherHearing();" not in java_method(scanner, "canConverseNow"):
-        faults.append("loaded conversation bypasses shared speech weather")
+    if "SAOSenses.hearing(listener, true)" not in java_method(scanner, "canConverseNow"):
+        faults.append("loaded conversation bypasses shared native hearing")
     if "SAOPerceptionScanner.speechWeatherHearing()" not in java_method(bridge, "speechWeatherHearing"):
         faults.append("dormant weather bridge bypasses shared speech weather")
     return faults
@@ -553,8 +572,12 @@ def admission_behavior(scanner):
         return subprocess.run([java, "-cp", str(work), "ActivityAdmissionProbe"],
             capture_output=True, text=True, timeout=60)
     mutations = (
-        ("&& !person.isAsleep()", "", "sleeping witness admitted"),
-        ("|| listener.hasTrait(CharacterTrait.DEAF)", "", "deaf listener admitted"),
+        ("return SAOSenses.awakeHuman(person);",
+         "return person != null && !person.isDead();", "sleeping witness admitted"),
+        ("|| listener.hasTrait(CharacterTrait.DEAF)) return false;\n"
+         "            float hearing = SAOSenses.hearing(listener, true);",
+         "|| false) return false;\n"
+         "            float hearing = 1.0f;", "deaf listener admitted"),
         ("target != null && visibleWorldPoint(observer, target,\n                Math.min(RANGE, actionRange))",
          "target != null", "intervening holder wall ignored"),
         ("return result == LosUtil.TestResults.Clear", "return true || result == LosUtil.TestResults.Clear",
@@ -563,10 +586,11 @@ def admission_behavior(scanner):
         ("vehicle.getSquareForArea(area)", "vehicle.getSquare()",
          "vehicle origin substituted for actual part area"),
         ("!Float.isFinite(actionRange)", "false", "infinite witness range admitted"),
-        ("float weather = speechWeatherHearing();", "float weather = 1.0f;",
+        ("float hearing = SAOSenses.hearing(listener, true);",
+         "float hearing = SAOSenses.hearing(listener, false);",
          "weather failed to reduce hearing reach"),
         ("if (climate == null) return Float.NaN;", "if (climate == null) return 1.0f;",
-         "unavailable weather became clear weather"),
+         "unavailable dormant weather became clear weather"),
     )
     faults = []
     try:
@@ -619,7 +643,8 @@ def main():
             "Math.abs(other.getZ() - sz) >= 0.5f", "false", 1), bridge,
          "same-floor check"),
         (perception, controller, scanner.replace(
-            "!eye.isSomethingTo(target)", "true", 1), bridge, "occlusion check"),
+            "return target != null && clearPath(eye, target, true);",
+            "return target != null;", 1), bridge, "occlusion check"),
     )
     for p, c, s, b, label in mutations:
         if not source_faults(p, c, s, b):

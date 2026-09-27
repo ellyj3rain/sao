@@ -41,7 +41,7 @@ def method(src, name):
 def source_faults(src, native):
     faults = []
     bodies = {name: method(src, name) for name in
-              ("hibernate", "validate", "awaken", "parseLegacy", "finiteFloat", "nonnegativeInt", "requireType")}
+              ("hibernate", "validate", "awaken", "metabolize", "advanceDormantMetabolism", "parseLegacy", "finiteFloat", "nonnegativeInt", "requireType")}
     for name, body in bodies.items():
         if body is None:
             faults.append("missing Java snapshot method: " + name)
@@ -62,7 +62,13 @@ def source_faults(src, native):
         faults.append("native restoration precedes validation")
     if "if (!nativeSnapshot)" not in wake:
         faults.append("legacy reconstruction can overwrite native body/equipment state")
-    if (any(seam not in wake for seam in (
+    metabolism = bodies["metabolize"]
+    if "metabolize(shell, elapsedHours)" not in wake or any(
+            seam not in bodies["advanceDormantMetabolism"] for seam in (
+                "!Double.isFinite(elapsedHours)", "elapsedHours < 0",
+                "metabolize(shell, elapsedHours)")):
+        faults.append("native restoration and elapsed slices do not share validated metabolism")
+    if (any(seam not in metabolism for seam in (
             "hunger + elapsedHours * HUNGER_PER_HOUR",
             "thirst + elapsedHours * THIRST_PER_HOUR",
             "while (elapsedHours > 0 && hungerAfter > 0.5f)",
@@ -74,7 +80,7 @@ def source_faults(src, native):
                 "food.updateAge();",
                 "food.isRotten()",
                 "food.getPoisonPower() > 0"))
-            or "meal.getContainer().Remove(meal)" in wake):
+            or "meal.getContainer().Remove(meal)" in metabolism):
         faults.append("dormant metabolism bypasses elapsed demand, native partial consumption, spoilage, or nested inventory")
     if "catch (Throwable ignored)" in wake:
         faults.append("restoration failures are silently ignored")

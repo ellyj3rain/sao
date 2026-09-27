@@ -228,12 +228,64 @@ local function processes(id)
     if examined == 0 then s.message = "No recorded process participation in the current store" end
     return s
 end
+local function attention(rec, body)
+    local s = section("attention", "Attention and movement", "Native body", "Current physical state")
+    local ok, state = pcall(function() return body and SAOJavaBridge:orientationState(body) end)
+    if not ok or type(state) ~= "table" then
+        s.status, s.message = "unavailable", "No current physical attention sample"
+        return s
+    end
+    row(s, "Response", state.active and "Turning toward a heard sound" or "No active sound response")
+    if state.phase then row(s, "Phase", state.phase) end
+    if state.active then
+        row(s, "Body may turn", state.allowBodyTurn == true and "Yes" or "No")
+        if finite(state.remainingSeconds) then row(s, "Seconds remaining", string.format("%.2f", state.remainingSeconds)) end
+    end
+    if SAO.Neuro then
+        row(s, "Attention readiness", string.format("%.3f", SAO.Neuro.clarityOf(rec)))
+        row(s, "Motor steadiness", string.format("%.3f", SAO.Neuro.motorSteadiness(rec)))
+    end
+    return s
+end
+local function medication(rec)
+    local s = section("medication", "Substance effects", "Personal physiology", "Current physical state and recorded use")
+    local effects = SAO.Pharmacology and SAO.Pharmacology.effects(rec)
+    if not effects then s.message = "No recorded substance state"; return s end
+    row(s, "Active effects", effects.active == true and "Yes" or "No")
+    row(s, "Sedating", effects.sedating == true and "Yes" or "No")
+    row(s, "Stimulating", effects.stimulating == true and "Yes" or "No")
+    row(s, "Withdrawal", effects.withdrawal == true and "Yes" or "No")
+    row(s, "Overload", effects.overload == true and "Yes" or "No")
+    if #(effects.families or {}) > 0 then row(s, "Active families", table.concat(effects.families, ", ")) end
+    local events = rec.pharmacology and rec.pharmacology.events or {}
+    local first = math.max(1, #events - 5)
+    for i = first, #events do
+        local event = events[i]
+        if event.kind == "use" then row(s, "Use at hour " .. tostring(event.atHours),
+            tostring(event.itemType) .. ": " .. tostring(event.status)) end
+    end
+    return s
+end
+local function preparation(id, rec)
+    local s = section("cooking", "Food preparation", "Native appliance and food", "Current work and recorded outcome")
+    local state = SAO.Cooking and SAO.Cooking.snapshot(id)
+    if state then
+        row(s, "Stage", state.stage); row(s, "Food", state.itemType)
+        row(s, "Heat progression observed", state.heatObserved == true and "Yes" or "No")
+        if finite(state.cookingTime) then row(s, "Cooking progress", state.cookingTime) end
+    else s.message = "No current food preparation" end
+    local outcomes = rec.cookingOutcomes or {}
+    local latest = outcomes[#outcomes]
+    if latest then row(s, "Latest result", tostring(latest.status) .. ": " .. tostring(latest.detail)) end
+    return s
+end
 local function samplePerson(id, rec, body)
     local agent = SAO.Controller and SAO.Controller.agents and SAO.Controller.agents[id]
     local pressure = section("pressure", "Pressure and recorded reason", "Controller", "Most recent decision receipt")
     if agent and agent.pressure then scalarRows(pressure, agent.pressure, "", 0)
     else pressure.status = "unavailable"; pressure.message = "No active pressure receipt" end
-    local out = { sections = { needs(body), inventory(body), pressure, currentAction(id, body), sourceWork(id, rec), processes(id) }, events = {} }
+    local out = { sections = { needs(body), attention(rec, body), medication(rec), preparation(id, rec),
+        inventory(body), pressure, currentAction(id, body), sourceWork(id, rec), processes(id) }, events = {} }
     if SAO.Cognition and SAO.Cognition.snapshot then out.cognition = SAO.Cognition.snapshot(id) end
     for _, event in ipairs(histories[id] or {}) do
         local copy = {}; for k, v in pairs(event) do copy[k] = v end

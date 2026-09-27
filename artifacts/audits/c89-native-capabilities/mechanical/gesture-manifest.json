@@ -1,0 +1,55 @@
+{
+  "status": "passed",
+  "created_at": "2026-09-27T05:48:20.591663+00:00",
+  "border": 109,
+  "cases": 17,
+  "controls": 11,
+  "existing_assets": {
+    "rigged": 73,
+    "nodes": 73,
+    "names": 71,
+    "sounds": 23
+  },
+  "boundary": "Actual installed native shells, item, appliance, LuaTimedActionNew and timed-action queue; real full Gesture, Exchange and Cooking modules. Unrelated social policy and SourceUse transfer admission are controlled. No rendered animation or native transfer completion claim.",
+  "files": [
+    {
+      "candidate": "_scratch\\c89-orienting\\integration\\SAO_Gesture.lua",
+      "target": "mod/42.20/media/lua/client/SAO_Gesture.lua",
+      "sha256": "62f394b329a2916290ec2ec7b23ba0ad940909c569afd4e577b7d006149d134f"
+    },
+    {
+      "candidate": "_scratch\\c89-orienting\\integration\\tools\\gestures_test.py",
+      "target": "tools/gestures_test.py",
+      "sha256": "fbf315ca82710ff6e6af6b8dd4f3561ec24b99584e3e5a2bbf1f356164fcb0ba"
+    },
+    {
+      "candidate": "_scratch\\c89-orienting\\integration\\tools\\luacheck\\GestureOwnershipProbe.java",
+      "target": "tools/luacheck/GestureOwnershipProbe.java",
+      "sha256": "1ff53270dee1047c73e3a818c368e93fcb663668a43ee03c41b98f64a47f9074"
+    },
+    {
+      "candidate": "_scratch\\c89-orienting\\integration\\tools\\gesture_ownership_checks\\prelude.lua",
+      "target": "tools/gesture_ownership_checks/prelude.lua",
+      "sha256": "1bbd332f61dc80d9cf67f8bb4ffcfb27c2b45a30300452b110e75d25be4c3a37"
+    },
+    {
+      "candidate": "_scratch\\c89-orienting\\integration\\tools\\gesture_ownership_checks\\cases.lua",
+      "target": "tools/gesture_ownership_checks/cases.lua",
+      "sha256": "a3edc9afc360a3e5b924ea2248a8f9fece1c0f0ef93050aa28bf20585c57f7a4"
+    },
+    {
+      "candidate": "_scratch\\c89-orienting\\integration\\tools\\gesture_ownership_checks\\run_checks.py",
+      "target": "tools/gesture_ownership_checks/run_checks.py",
+      "sha256": "7df8992592ff52aeacb758e25b000666e422036ef0b33981a8de4825f24b0a16"
+    }
+  ],
+  "receipt": "_scratch\\c89-orienting\\native-02-navigation-review\\gesture-final\\gesture-ownership.json",
+  "receipt_sha256": "05a6caa94432222c74719e6e2fdc8557658c8f1524dcaa8bbe5eac10944adddd",
+  "log": "_scratch\\c89-orienting\\native-02-navigation-review\\gesture-border109.log",
+  "exit": 0,
+  "fixture": {
+    "path": "_scratch\\c89-orienting\\capability-check\\42.20\\media\\lua\\client\\ZZ_SAOCapabilityCheck.lua",
+    "sha256": "8b18b1b38fe6b259762ad2f162446719ccf2aae7afecf4e070aeb54c49ba0906",
+    "gate_scope": "Diagnostic only; not a gameplay source promotion."
+  }
+}

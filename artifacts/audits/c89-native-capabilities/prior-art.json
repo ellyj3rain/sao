@@ -1,0 +1,354 @@
+{
+  "schema": "sao-prior-art-reconciliation/1",
+  "authority": "Current operator correction: admitted mechanisms belong to SAO and constituents as fundamental behavior. Historical optional adapter wording is implementation history, not a renewed design choice.",
+  "rows": [
+    {
+      "name": "CAO",
+      "disposition": "methodology-adapted",
+      "source": "CREDITS.md:12",
+      "scope": "Composition and process; no shared runtime code.",
+      "producer": [
+        "NEO.md",
+        "CORE.md"
+      ],
+      "liveConsumer": "Repository composition/process only.",
+      "license": "GPL-3.0, same author (CREDITS:14).",
+      "verification": "Document/source inspection.",
+      "gap": "No game-runtime dependency."
+    },
+    {
+      "name": "KnoxSurvivors",
+      "disposition": "reference-and-explicit-legacy-coexistence",
+      "source": "CREDITS.md:28",
+      "scope": "Native seam read and legacy provenance recognition; no wholesale NPC implementation.",
+      "producer": [
+        "mod/42.20/media/lua/client/SAO_Absorb.lua:340",
+        "mod/42.20/media/lua/client/SAO_Neighbours.lua:62",
+        "mod/42.20/media/lua/shared/SAO_Claims.lua:43"
+      ],
+      "liveConsumer": "Separate foreign-person namespace and explicitly enabled legacy takeover/menu paths. Default county people are SAO-owned (DR-035; CREDITS:38).",
+      "license": "No source code taken; launcher source reuse terms unstated in ZAO CREDITS.",
+      "verification": "Existing absorption/menu/claims borders; not re-executed here.",
+      "gap": "Legacy adapter can intentionally call the neighbor's API if explicitly enabled; this is coexistence, not the county's native population producer."
+    },
+    {
+      "name": "ZombieBuddy",
+      "disposition": "runtime-loader",
+      "source": "CREDITS.md:50",
+      "scope": "Native Java loader dependency, distinct from accepted behavioral mechanisms.",
+      "producer": [
+        "mod/42.20/mod.info:12",
+        "java/src/com/sao/bridge/SAOBridgeBootstrap.java"
+      ],
+      "liveConsumer": "Loads SAO/ZAO jars and exposes native methods.",
+      "license": "MIT per sibling CREDITS:36; ByteBuddy remains Apache-2.0.",
+      "verification": "Current private Java/Kahlua native suite uses installed jars.",
+      "gap": "Explicit loader/library dependency, not external behavioral machinery."
+    },
+    {
+      "name": "Infirmities / Even More Traits",
+      "disposition": "owned-source-selected",
+      "source": "DECISION_REGISTRY.md:1244",
+      "scope": "Amendment replaces external requirements with owned conditions/traits; runtime requirement wording is historical.",
+      "producer": [
+        "mod/42.20/media/lua/shared/SAO_Conditions.lua:159",
+        "mod/42.20/media/lua/shared/SAO_Traits.lua"
+      ],
+      "liveConsumer": "Owned condition prevalence, native trait registration and player/record binding.",
+      "license": "Infirmities page allows credited use/extension; shared registration technique credited, no foreign code copied (CREDITS:71-94).",
+      "verification": "tools/conditions_test.py; tools/habit_traits_test.py (existing tests, not re-run).",
+      "gap": "Historical required-mod language superseded in DR-032 amendment; no required Moodle Framework/TchernoLib for owned conditions."
+    },
+    {
+      "name": "Neurodiverse Traits / Custom Traits / Scotty Mental Health",
+      "disposition": "owned-source-selected",
+      "source": "DECISION_REGISTRY.md:1164",
+      "scope": "Specific memory/focus/reading/fatigue/anxiety/phantom mechanisms; excludes unselected medication, journal and whole-mod systems.",
+      "producer": [
+        "mod/42.20/media/lua/shared/SAO_Conditions.lua:238",
+        "mod/42.20/media/lua/shared/SAO_Conditions.lua:331",
+        "mod/42.20/media/lua/shared/SAO_Conditions.lua:355",
+        "mod/42.20/media/lua/shared/SAO_Conditions.lua:375",
+        "mod/42.20/media/lua/client/SAO_Age.lua:169",
+        "mod/42.20/media/lua/client/SAO_Age.lua:265"
+      ],
+      "liveConsumer": "Daily focus/phase, native skill-memory loss, reading/XP scale, fatigue/panic, subjective phantom admission; Perception memory horizon and Controller cadence.",
+      "license": "Neurodiverse mechanism permission recorded; Custom Traits two page figures/no source read; Scotty MIT (CREDITS:96-123).",
+      "verification": "tools/conditions_test.py, age_test.py, brain_effects_test.py; existing source/VM evidence, not new rendered proof.",
+      "gap": "Selected mechanisms are owned. Unselected medications/journals/self-help and whole-mod systems remain outside selection. C89 orienting and native moodle joins are separate candidates."
+    },
+    {
+      "name": "ADHD Trait",
+      "disposition": "rejected-unsafe-mechanism",
+      "source": "CREDITS.md:125",
+      "scope": "Death after standing still is not an admitted memory condition.",
+      "producer": [],
+      "liveConsumer": "None.",
+      "license": "MIT; reference read only.",
+      "verification": "Canonical explicit rejection at CREDITS:125.",
+      "gap": "Comic rapid-action/death-on-idle rule deliberately rejected; do not integrate."
+    },
+    {
+      "name": "Alcoholic",
+      "disposition": "owned-source-selected",
+      "source": "CREDITS.md:133",
+      "scope": "Dependency, withdrawal, relief and tolerance already owned by Habits/Drugs; retain existing history.",
+      "producer": [
+        "mod/42.20/media/lua/shared/SAO_Habits.lua",
+        "mod/42.20/media/lua/client/SAO_Drugs.lua",
+        "mod/42.20/media/lua/client/SAO_Needs.lua:1091"
+      ],
+      "liveConsumer": "Drink completion clock → withdrawal/dependence/tolerance/physical sickness → Neuro history and ordinary needs.",
+      "license": "MIT (axxessdenied/thealcoholic), mechanism attribution CREDITS:133.",
+      "verification": "Existing habits/health-clock borders; C89 native suite preserves alcohol counters while adding owned families.",
+      "gap": "Core machinery is already owned. This candidate does not add the explicitly excluded source trait poison scaling, alcoholicStress persistence or source headache rule."
+    },
+    {
+      "name": "N and C Narcotics",
+      "disposition": "owned-source-selected",
+      "source": "CREDITS.md:159",
+      "scope": "Seven admitted dependency/effect families, native pain effects and maintenance freeze operate in SAO source. Historical external adapter replaced. Narcan and joint rolling retain their recorded unselected status.",
+      "producer": [
+        "mod/42.20/media/lua/shared/SAO_PharmacologyProfiles.lua",
+        "mod/42.20/media/lua/shared/SAO_Pharmacology.lua",
+        "mod/42.20/media/lua/client/SAO_Drugs.lua",
+        "mod/42.20/media/lua/client/SAO_Needs.lua",
+        "mod/42.20/media/lua/server/Items/SAO_PharmacologyLoot.lua",
+        "mod/42.20/media/scripts/items_SAO_pharmacology.txt"
+      ],
+      "liveConsumer": "Native completed dose -> owned physiology and native Stats -> Neuro projection and private physical facts -> independent cognitive updates; Body owns capture/removal/replay with the current ZAO owner when present.",
+      "license": "Installed Workshop3404956403, authors Neely/a_COW_says; admitted mechanism/source-reading permission is recorded by the operator. No separate license grant is inferred, no original source/assets copied.",
+      "installedSource": "C:/Program Files (x86)/Steam/steamapps/workshop/content/108600/3404956403/mods/N&C's Narcotics/42",
+      "authorityFiles": [
+        "media/lua/shared/NnC_TraitEffects.lua",
+        "media/lua/server/NnC_OnEat.lua",
+        "media/lua/server/items/NnC_ProcDistributions.lua"
+      ],
+      "verification": "mechanical/pharmacology.json:145 native cases and30 source controls; native03/04 actual one-dose consumption and independent private belief updates. The test runs omit the external gameplay mod.",
+      "gap": "Native human players without an SAO record lack the NPC physical owner. Loaded controlled consumption does not establish population prevalence, all-family calibration or autonomous selection."
+    },
+    {
+      "name": "Drugs of 93 / Just Drugs / Psychology Skill",
+      "disposition": "reference-only",
+      "source": "CREDITS.md:188",
+      "scope": "Catalogue reading does not authorize wholesale source or feature import.",
+      "producer": [],
+      "liveConsumer": "None.",
+      "license": "Reference-only CREDITS:188; no reuse grant assumed.",
+      "verification": "Canonical read-only classification.",
+      "gap": "No admitted runtime mechanism to port; do not expand from catalogue naming."
+    },
+    {
+      "name": "Lifestyle Hobbies / Week One / Bandits",
+      "disposition": "selected-assets-and-mechanisms",
+      "source": "DECISION_REGISTRY.md:1311",
+      "scope": "Permitted selected animations/sounds and documented street/vehicle mechanisms; no separate NPC population or timeline dependency.",
+      "producer": [
+        "mod/42.20/media/lua/client/SAO_Gesture.lua:166",
+        "mod/42.20/media/lua/client/SAO_Gesture.lua:287",
+        "mod/42.20/media/lua/shared/SAO_History.lua:324",
+        "java/src/com/sao/engine/SAODriver.java:242",
+        "mod/42.20/media/lua/client/SAO_Nuke.lua"
+      ],
+      "liveConsumer": "Own timed gesture nodes/assets, street-hour values, native driver, separately configured strike mechanism. No Lifestyle/Bandits globals required.",
+      "license": "Express asset permissions recorded in CREDITS:194-269 and DR-034. Lifestyle broader code/items/skills/systems not taken; Bandits source restrictions retained for unselected material.",
+      "verification": "tools/gestures_test.py + gestures_manifest.json; driver/native-source and strike tests are existing coverage, not re-run here.",
+      "gap": "Lifestyle hobby progression and Bandits scripted people/timeline/spawners/ghost drivers remain unselected. Existing selected mechanisms already have SAO owners; loaded use varies by actual world."
+    },
+    {
+      "name": "Growing Up / Realism V4 / Getting Old",
+      "disposition": "owned-source-selected",
+      "source": "DECISION_REGISTRY.md:1182",
+      "scope": "Age curves, fear/literacy/experience/archetypes and owned age truth; rejected obsolete replaced-class route does not transfer.",
+      "producer": [
+        "mod/42.20/media/lua/shared/SAO_History.lua:532",
+        "mod/42.20/media/lua/shared/SAO_History.lua:587",
+        "mod/42.20/media/lua/shared/SAO_History.lua:754",
+        "mod/42.20/media/lua/client/SAO_Age.lua",
+        "mod/42.20/media/lua/client/SAO_Body.lua:445"
+      ],
+      "liveConsumer": "Owned height/age/physiology/fear/literacy/experience/child kit/driver age inputs.",
+      "license": "Mechanism permission recorded at CREDITS:286-328; no source files taken.",
+      "verification": "age_bands_test.py, age_test.py and native body-scale seams; current candidate does not rerun them.",
+      "gap": "Replaced-class implementation, nightmare/grief machine, source driving adaptation, stumbling and extra death chance explicitly unselected."
+    },
+    {
+      "name": "Think of the Children",
+      "disposition": "reference-only",
+      "source": "CREDITS.md:314",
+      "scope": "Historical smaller-body reference; native owned body work has separate evidence.",
+      "producer": [],
+      "liveConsumer": "Native owned body work has independent source authority.",
+      "license": "MIT; reference-read, no source copied.",
+      "verification": "CREDITS:314 and ENGINE_CONTRACT AddendumF.",
+      "gap": "Old model-instance scale assumption did not hold for installed character bodies."
+    },
+    {
+      "name": "PZ Optimization",
+      "disposition": "reference-only",
+      "source": "CREDITS.md:330",
+      "scope": "Native update ordering reference, no copied optimization runtime.",
+      "producer": [],
+      "liveConsumer": "Native engine/update ordering reference only.",
+      "license": "No grant established for referenced commit ae971981f582b702ddcf82469f7aa8d26970cffd; no code taken.",
+      "verification": "CREDITS:330; existing substrate assessment.",
+      "gap": "No optimization runtime integrated or owed by mere reference."
+    },
+    {
+      "name": "Byte Buddy",
+      "disposition": "runtime-library",
+      "source": "CREDITS.md:279",
+      "scope": "Instrumentation dependency through native loader, not behavior import.",
+      "producer": [
+        "java/src/com/sao/agent"
+      ],
+      "liveConsumer": "Instrumentation under ZombieBuddy.",
+      "license": "Apache-2.0; bundled by loader, not redistributed (CREDITS:279).",
+      "verification": "Native helpers run installed instrumentation-dependent classes.",
+      "gap": "Infrastructure library dependency, not external behavior."
+    },
+    {
+      "name": "Humans: Are Weak",
+      "disposition": "reference-only-incompatible-source-terms",
+      "source": "CREDITS.md:270",
+      "scope": "CREDITS explicitly resolves earlier DR-032 selection: no code taken, no runtime requirement, noncommercial source terms incompatible.",
+      "producer": [],
+      "liveConsumer": "None.",
+      "license": "Noncommercial source terms explicitly incompatible with repository GPL-3.0 (CREDITS:270).",
+      "verification": "Canonical resolution of older DR-032 selection.",
+      "gap": "Do not silently treat older mention as admitted source integration."
+    },
+    {
+      "name": "Horse riding",
+      "disposition": "accepted-behavior-with-unimplemented-owned-producer",
+      "source": "Batches/history/C-roadmap-before-consolidation.md:842",
+      "scope": "Native horse care and adult riding were called closed; riding still has an external owner.",
+      "producer": [
+        "mod/42.20/media/lua/client/SAO_Animals.lua:198",
+        "mod/42.20/media/lua/client/SAO_Controller.lua:7594"
+      ],
+      "liveConsumer": "mountedHorse reads Mounts and animation flag; Controller yields foot movement. SAO has no mount, dismount, steering, stamina or persisted rider-pair producer.",
+      "installedSource": "C:/Program Files (x86)/Steam/steamapps/workshop/content/108600/3661336777/mods/HorseMod/42",
+      "authorityFiles": [
+        "mod.info:1-11 (Horse team,1.1.2)",
+        "media/lua/shared/HorseMod/Mounts.lua:39,195,250,318,341,629",
+        "media/lua/client/HorseMod/Mounting.lua:20,66",
+        "media/lua/shared/HorseMod/TimedActions/MountAction.lua",
+        "media/lua/shared/HorseMod/TimedActions/DismountAction.lua",
+        "media/lua/client/HorseMod/mount/MountController.lua",
+        "media/lua/client/HorseMod/riding/RidingMovement.lua",
+        "media/lua/server/HorseMod/StaminaSystem.lua"
+      ],
+      "license": "No license/README file found in installed HorseMod tree; mod.info names Horse team but no reuse terms. Operator authority for accepted mechanisms does not establish a new media redistribution license; use bespoke native implementation and retain attribution.",
+      "verification": "tools/animal_care_ground_test.py:47 checks presence of global names; no installed mounted receiver or loaded riding proof.",
+      "gap": "Installed Mounts is a returned local module, not the global SAO reads; current adapter is not connected to installed API. Owning code and meaningful native action/ownership/teardown/obstacle tests are still required.",
+      "nextConnection": "Owned exact rider↔native animal association with action admission and native movement owner; integrate mount/dismount/steering/stamina and save/teardown first, then connect perceived horse affordance to planner. Preserve real reach/taming/equipment requirements; no invented horse entitlement."
+    },
+    {
+      "name": "Native animal care",
+      "disposition": "owned-native-action-adapter",
+      "source": "Batches/history/C-roadmap-before-consolidation.md:842",
+      "producer": [
+        "java/src/com/sao/engine/SAOAnimals.java",
+        "mod/42.20/media/lua/client/SAO_Animals.lua:100"
+      ],
+      "liveConsumer": "Farm work selects real animal/trough/hutch targets then vanilla milk/shear/eggs/water/feed/pet actions.",
+      "license": "Native game APIs, no imported care code.",
+      "verification": "Border156 mostly source/record checks; lacks executed native completion for every care verb.",
+      "gap": "Successful queueing is not proof of milk/wool/eggs or private learning; completion receipt extension is a separate real evidence task."
+    },
+    {
+      "name": "Combat compatibility (suppression, point blank, ballistics, buttstroke, tripping/prone)",
+      "disposition": "engine-visible-compatibility-not-selected-port",
+      "source": "Batches/history/C-roadmap-before-consolidation.md:860",
+      "producer": [
+        "java/src/com/sao/engine/SAOPerceptionScanner.java:802",
+        "java/src/com/sao/engine/SAOCombat.java:227"
+      ],
+      "liveConsumer": "Native noise/health/stance reads; generic and Lethal Stealth prone variables only.",
+      "license": "No external code or media taken; source terms not generalized.",
+      "verification": "tools/combat_perception_test.py existing coverage. No new loaded combat acceptance here.",
+      "gap": "No owned prone/crawl action producer is established by a stance read. Historical entry explicitly says all engine-visible, none ported; do not promise wholesale combat-overhaul integration."
+    },
+    {
+      "name": "ZAO Antibodies and recovery input",
+      "disposition": "owned-pathogen-plus-foreign-state-input",
+      "source": "../zombie-awareness/DECISION_REGISTRY.md:101",
+      "producer": [
+        "../zombie-awareness/mod/42.20/media/lua/shared/ZAO_Recovery.lua:40",
+        "../zombie-awareness/mod/42.20/media/lua/shared/ZAO_Pathogen.lua:286",
+        "../zombie-awareness/mod/42.20/media/lua/shared/ZAO_Brain.lua:15"
+      ],
+      "liveConsumer": "ZAO_Controller:616 consumes recovery; ZAO_Pathogen.advance owns independent course and brain store. Recovery reads existing Antibodies.medicalFile data, not external executable functions.",
+      "license": "Antibodies MIT per sibling CREDITS:52; reference/state adapter only. They Knew/The Only Cure named as compatibility inputs by DR-005, not code imports.",
+      "verification": "Sibling pathogen_vm_test and recovery/native ownership checks exist; not run in this slice.",
+      "gap": "Sibling CREDITS still says not integrated/read-only despite a current data adapter. Core owned course exists; external recovery item/action machinery is not shown to be source-integrated by that adapter. Do not auto-port unselected cure systems."
+    },
+    {
+      "name": "ZAO The Mutants capability shapes",
+      "disposition": "owned-bespoke-native-behavior",
+      "source": "../zombie-awareness/CREDITS.md:71",
+      "producer": [
+        "../zombie-awareness/mod/42.20/media/lua/client/ZAO_Behaviors.lua:272",
+        "../zombie-awareness/mod/42.20/media/lua/client/ZAO_Behaviors.lua:433",
+        "../zombie-awareness/mod/42.20/media/lua/client/ZAO_Behaviors.lua:587"
+      ],
+      "liveConsumer": "Owned forms/phase selection, real native target/effects and controller admission.",
+      "license": "Source tree/page stated no reuse terms; no code/assets/sounds copied; capability designs reimplemented under DR-017.",
+      "verification": "Existing native_facing/pathogen/crossed_material_actions tests; no new rendered-form proof in this slice.",
+      "gap": "Pathing substitutes for some source animation acts remain documented limits. No PZTheMutants runtime dependency."
+    },
+    {
+      "name": "ZAO Bandits / Knox / Special Zombies Framework",
+      "disposition": "reference-and-coexistence-only",
+      "source": "../zombie-awareness/CREDITS.md:111",
+      "producer": [],
+      "liveConsumer": "Shared-person admission/foreign compatibility, not their spawners or actor classes.",
+      "license": "Bandits restrictive reuse; Knox/Special Zombies terms unstated in sibling credits. No files taken.",
+      "verification": "Canonical per-entry statuses and shared-person owner tests.",
+      "gap": "These references do not authorize new populations or importing their taxonomy."
+    }
+  ],
+  "candidate": "C89 source-owned admitted mechanisms. Provenance classifications preserve prior decisions; the remainingPriority entries are actual unclosed producers.",
+  "sourceSha256": {
+    "CREDITS.md": {
+      "sha256": "e751277b2f9cb142a4c711fe1f8cebea3c5199e4f1c113e3f15ac2e5c38e6569"
+    },
+    "DECISION_REGISTRY.md": {
+      "sha256": "0f2352f7a34802c5b5c1baed81271e0dde032a52505cf0628b969ca4b37bb205"
+    },
+    "GOVERNANCE.md": {
+      "sha256": "1108d2cb21909d4092c7b7aeec296e6f651c2365499b5e7fbee6f8c76c425262"
+    }
+  },
+  "reconciliationBoundary": "All entries in current SAO CREDITS, decisions DR-032/034 and former C123/C124, plus ZAO CREDITS and recovery inputs. This classifies existing admission, implementation and dependency; it is not authorization to import reference-only systems.",
+  "completedAt": "2026-09-27T04:23:28.780Z",
+  "remainingPriority": [
+    {
+      "priority": 1,
+      "id": "horse-owned-execution",
+      "status": "Open",
+      "reference": "Horse riding row"
+    },
+    {
+      "priority": 2,
+      "id": "player-owned-pharmacology",
+      "status": "Outside current NPC candidate",
+      "reference": "Owned item actions on native human players do not enter SAO-record pharmacology."
+    },
+    {
+      "priority": 3,
+      "id": "other-native-action-receipts",
+      "status": "Open evidence integration",
+      "reference": "Care/crafting/building/repair completion and individual observation must be connected before rival models receive physical success."
+    }
+  ],
+  "itemAvailability": {
+    "candidate": "15 SAO-owned fullTypes; native default selected pools at existing source weights .05 ordinary/gym, .5 medical. Native ItemPickerJava parser admits all; no guarantee a random loaded container contains one.",
+    "source": "Installed NnC_ProcDistributions.lua rarity168-200, ordinary295-471, steroids528-538,medical540-555.",
+    "startingKit": "Current History.kitOf:754 is a child/archetype Base-only kit, consumed at Body:445; no old foreign drug fullType to preserve there. Candidate adds no automatic drug gift or new prevalence.",
+    "externalReferences": "The former Java NNC tag and Lua foreign registry/callback lookups are removed. Old ModData keys and the legacy sensitivity trait name remain one-time migration inputs.",
+    "limits": "Native loot parsing and controlled action/effect proof are not a loaded-world prevalence, distribution roll, addiction calibration or player-use claim."
+  },
+  "publishedAtUtc": "2026-09-27T07:09:34.459229+00:00"
+}

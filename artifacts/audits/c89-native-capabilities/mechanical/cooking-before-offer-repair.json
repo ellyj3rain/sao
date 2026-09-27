@@ -1,0 +1,23 @@
+{
+  "status": "passed",
+  "proofs": {
+    "native": {
+      "cases": 38,
+      "controls": 8
+    },
+    "lua": {
+      "cases": 67,
+      "controls": 26
+    },
+    "inspection": {
+      "cases": 17,
+      "controls": 3
+    },
+    "join": {
+      "cases": 13,
+      "controls": 11
+    }
+  },
+  "cases": 135,
+  "controls": 48
+}

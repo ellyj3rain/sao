@@ -1,0 +1,92 @@
+{
+  "status": "passed",
+  "created_at": "2026-09-27T06:04:33.466389+00:00",
+  "border": 204,
+  "files": [
+    {
+      "candidate": "_scratch\\c89-orienting\\cooking\\SAOCooking.java",
+      "target": "java/src/com/sao/engine/SAOCooking.java",
+      "sha256": "b64376f151f77a528bbfa6af90fca753a6c0ed55d536f5f528f5720bace04770"
+    },
+    {
+      "candidate": "_scratch\\c89-orienting\\cooking\\SAO_Cooking.lua",
+      "target": "mod/42.20/media/lua/client/SAO_Cooking.lua",
+      "sha256": "8722759869e736e62f61d1ce52a400a8fa5ab3524c366c07c0dd95499c772742"
+    },
+    {
+      "candidate": "_scratch\\c89-orienting\\cooking\\tools\\cooking_checks\\CookingProbe.java",
+      "target": "tools/cooking_checks/CookingProbe.java",
+      "sha256": "0b45a3bf51e1fd2ac138d3a20f41d9b32cbddb9e30f9eecb7a6440e168c52e13"
+    },
+    {
+      "candidate": "_scratch\\c89-orienting\\cooking\\tools\\cooking_checks\\config.py",
+      "target": "tools/cooking_checks/config.py",
+      "sha256": "82a0fc0d67b9df9e8fb5fab7e3978a3b1f0f4109f2a08b7c06ad90b3c6073b95"
+    },
+    {
+      "candidate": "_scratch\\c89-orienting\\cooking\\tools\\cooking_checks\\prelude.lua",
+      "target": "tools/cooking_checks/prelude.lua",
+      "sha256": "62cb1e287c15859c810d30cb796307cc375974872609102c27882862bf8eae19"
+    },
+    {
+      "candidate": "_scratch\\c89-orienting\\cooking\\tools\\cooking_checks\\cases.lua",
+      "target": "tools/cooking_checks/cases.lua",
+      "sha256": "4354e88fa71aa7750e6edfccea7cb01bd4c583d36eb9f568480c293952df3fc1"
+    },
+    {
+      "candidate": "_scratch\\c89-orienting\\cooking\\tools\\cooking_checks\\run_native.py",
+      "target": "tools/cooking_checks/run_native.py",
+      "sha256": "571cb68202d0c5f159307dc2f0e1a4701900381bfc09663367bb3a02ce27dbe8"
+    },
+    {
+      "candidate": "_scratch\\c89-orienting\\cooking\\tools\\cooking_checks\\run_lua.py",
+      "target": "tools/cooking_checks/run_lua.py",
+      "sha256": "72059256ba311f6d640d952b72f8c87c7361be7ba340f483375783ec7978d934"
+    },
+    {
+      "candidate": "_scratch\\c89-orienting\\cooking\\tools\\cooking_checks\\run_join.py",
+      "target": "tools/cooking_checks/run_join.py",
+      "sha256": "4443697e8b078835380b20de2ff543603f9b84614d8ae63ee29e5856067e829d"
+    }
+  ],
+  "proofs": {
+    "native": {
+      "receipt": "_scratch\\c89-orienting\\native-02-navigation-review\\cooking-reach-final\\native-verification.json",
+      "sha256": "da0ab86a75131b79290f82e1c4ddd6741eba049b111ec35c77454ff21cc56483",
+      "cases": 48,
+      "controls": 13
+    },
+    "lua": {
+      "receipt": "_scratch\\c89-orienting\\native-02-navigation-review\\cooking-reach-final\\lua-verification.json",
+      "sha256": "134297ce72eea5a36d7070534c2b036957e40b7ef6772db6ede65f257fe3a2b9",
+      "cases": 76,
+      "controls": 33
+    },
+    "inspection": {
+      "receipt": "_scratch\\c89-orienting\\native-02-navigation-review\\cooking-reach-final\\inspection-verification.json",
+      "sha256": "a63450ad0c1b175235cee190f356bee0704d8122afd86e6b14695480373a4f84",
+      "cases": 17,
+      "controls": 3
+    },
+    "join": {
+      "receipt": "_scratch\\c89-orienting\\native-02-navigation-review\\cooking-reach-final\\join-verification.json",
+      "sha256": "b85fe2a8e8b4f2c6aeec4b01c19b49fd2e76aeb2729bfadd1161d6d3af2ad7d7",
+      "cases": 13,
+      "controls": 11
+    }
+  },
+  "cases": 154,
+  "controls": 60,
+  "source_boundary": "Candidate files only; native05 remains original copied input. Bridge.cookingApproach wrapper is root-owned.",
+  "loaded_limit": "Native05 exact failure position was not sampled. Controlled installed receiver reproduces reach-only loss for the recorded geometry plus0.06tile displacement. No assertion of completed loaded recovery until fresh run.",
+  "bridge_candidate": {
+    "path": "_scratch/c89-orienting/integration/SAOBridge.java",
+    "sha256": "36797d971cee225b463e299d19640dee46ecdb58796fa27552684bdafd7e4ea2"
+  },
+  "commands": [
+    "SAO_COOKING_JAVA=<candidate SAOCooking.java> SAO_COOKING_LUA=<candidate SAO_Cooking.lua> python _scratch/c89-orienting/cooking/tools/cooking_checks/run_native.py . --output _scratch/c89-orienting/native-02-navigation-review/cooking-reach-final",
+    "SAO_COOKING_JAVA=<candidate SAOCooking.java> SAO_COOKING_LUA=<candidate SAO_Cooking.lua> python _scratch/c89-orienting/cooking/tools/cooking_checks/run_lua.py . --output _scratch/c89-orienting/native-02-navigation-review/cooking-reach-final",
+    "SAO_COOKING_JAVA=<candidate SAOCooking.java> SAO_COOKING_LUA=<candidate SAO_Cooking.lua> python _scratch/c89-orienting/cooking/tools/cooking_checks/run_inspection.py . --output _scratch/c89-orienting/native-02-navigation-review/cooking-reach-final",
+    "SAO_COOKING_JAVA=<candidate SAOCooking.java> SAO_COOKING_LUA=<candidate SAO_Cooking.lua> python _scratch/c89-orienting/cooking/tools/cooking_checks/run_join.py . --output _scratch/c89-orienting/native-02-navigation-review/cooking-reach-final"
+  ]
+}

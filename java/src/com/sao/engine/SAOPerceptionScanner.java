@@ -70,6 +70,8 @@ public final class SAOPerceptionScanner {
      * carry an observation epoch into the next world in the same process. */
     public static synchronized void resetRuntimeForWorld() {
         SIGHT_TRACKS.clear();
+        SAOOrientation.resetRuntimeForWorld();
+        SAOWorldSoundPulses.resetRuntimeForWorld();
     }
 
     private SAOPerceptionScanner() {
@@ -168,6 +170,7 @@ public final class SAOPerceptionScanner {
             SIGHT_TRACKS.remove(shell);
             return "";
         }
+        com.sao.agent.SAOOrientationWeave.atNativeSensorBoundary();
         SightTracks tracks = SIGHT_TRACKS.get(shell);
         if (tracks == null || tracks.cell.get() != cell) {
             tracks = new SightTracks(cell);
@@ -179,8 +182,9 @@ public final class SAOPerceptionScanner {
         float sx = shell.getX();
         float sy = shell.getY();
         float sz = shell.getZ();
-        float faceX = shell.getForwardDirectionX();
-        float faceY = shell.getForwardDirectionY();
+        float faceX = SAOSenses.gazeX(shell);
+        float faceY = SAOSenses.gazeY(shell);
+        if (!Float.isFinite(faceX) || !Float.isFinite(faceY)) return "";
 
         StringBuilder out = new StringBuilder(256);
 
@@ -285,7 +289,8 @@ public final class SAOPerceptionScanner {
         // sound is known to them, including footsteps behind their new tile.
         var sounds = zombie.WorldSoundManager.instance == null
             ? null : zombie.WorldSoundManager.instance.soundList;
-        if (sounds != null) {
+        float hearing = SAOSenses.hearing(shell, true);
+        if (sounds != null && hearing > 0) {
             for (int index = 0; index < sounds.size(); index++) {
                 var sound = sounds.get(index);
                 if (sound == null || sound.source == shell || !sound.stresshumans && sound.volume <= 0) {
@@ -294,11 +299,8 @@ public final class SAOPerceptionScanner {
                 float dx = sound.x - sx;
                 float dy = sound.y - sy;
                 float dist = (float) Math.sqrt(dx * dx + dy * dy);
-                // [B17] Hard weather MASKS hearing: rain and wind eat
-                // a sound's reach, down to half of it in a real
-                // storm. Survivors know less in bad weather, which is
-                // true, and everything downstream inherits it.
-                float reach = sound.radius * weatherHearing();
+                // The same installed hearing/gear/trait/weather access as speech.
+                float reach = sound.radius * hearing;
                 if (dist > reach || dist < 0.5f) {
                     continue;
                 }
@@ -311,6 +313,8 @@ public final class SAOPerceptionScanner {
                 out.append("S:").append((int) Math.floor(sound.x))
                     .append(':').append((int) Math.floor(sound.y))
                     .append(':').append(Math.round(dist * 10.0f) / 10.0f);
+                String cue = SAOWorldSoundPulses.heard(shell, sound);
+                if (cue != null) out.append(":cue:").append(cue);
             }
         }
         return out.toString();
@@ -447,7 +451,7 @@ public final class SAOPerceptionScanner {
             return visibleFrom(
                 eye,
                 observer.getX(), observer.getY(), observer.getZ(),
-                observer.getForwardDirectionX(), observer.getForwardDirectionY(),
+                SAOSenses.gazeX(observer), SAOSenses.gazeY(observer),
                 other, Math.min(RANGE, actionRange));
         } catch (Throwable ignored) {
             return false;
@@ -461,8 +465,8 @@ public final class SAOPerceptionScanner {
             if (!Float.isFinite(actionRange) || actionRange < 0.0f
                     || observer == actor || !awakeHuman(observer)
                     || !awakeHuman(actor) || container == null
-                    || !Float.isFinite(observer.getForwardDirectionX())
-                    || !Float.isFinite(observer.getForwardDirectionY())
+                    || !Float.isFinite(SAOSenses.gazeX(observer))
+                    || !Float.isFinite(SAOSenses.gazeY(observer))
                     || !sameLoadedCell(observer, actor)) return false;
             float actorRange = isProneOrCrawling(actor)
                 ? Math.min(actionRange, Math.max(NEAR_SENSE, RANGE * 0.6f)) : actionRange;
@@ -485,12 +489,10 @@ public final class SAOPerceptionScanner {
                     || speaker == listener || !awakeHuman(speaker)
                     || !awakeHuman(listener) || !sameLoadedCell(speaker, listener)
                     || listener.hasTrait(CharacterTrait.DEAF)) return false;
-            float hearing = listener.getWornItemsHearingMultiplier();
-            float weather = speechWeatherHearing();
-            if (!Float.isFinite(hearing) || hearing <= 0.0f
-                    || !Float.isFinite(weather) || weather <= 0.0f) return false;
+            float hearing = SAOSenses.hearing(listener, true);
+            if (!Float.isFinite(hearing) || hearing <= 0.0f) return false;
             float reach = Math.min(RANGE, actionRange)
-                * Math.min(1.0f, hearing) * Math.min(1.0f, weather);
+                * Math.min(1.0f, hearing);
             return withinSameFloorRange(speaker.getX(), speaker.getY(),
                 speaker.getZ(), listener.getX(), listener.getY(), listener.getZ(),
                 reach) && clearPath(speaker.getCurrentSquare(),
@@ -505,7 +507,7 @@ public final class SAOPerceptionScanner {
         try {
             if (!awakeHuman(listener)
                     || listener.hasTrait(CharacterTrait.DEAF)) return false;
-            float hearing = listener.getWornItemsHearingMultiplier();
+            float hearing = SAOSenses.hearing(listener, false);
             return Float.isFinite(hearing) && hearing > 0.0f;
         } catch (Throwable unavailable) {
             return false;
@@ -522,12 +524,7 @@ public final class SAOPerceptionScanner {
     }
 
     private static boolean awakeHuman(IsoGameCharacter person) {
-        return person != null && !(person instanceof IsoAnimal)
-            && (person instanceof IsoPlayer
-                || (person instanceof IsoZombie zombie && SAOKnox.isKnoxHuman(zombie)))
-            && !person.isDead() && !person.isAsleep()
-            && Float.isFinite(person.getX()) && Float.isFinite(person.getY())
-            && Float.isFinite(person.getZ());
+        return SAOSenses.awakeHuman(person);
     }
 
     /** Installed IsoGameCharacter.getWeatherHearingMultiplier, without a body. */
@@ -593,8 +590,8 @@ public final class SAOPerceptionScanner {
                 && observer.getCell().getGridSquare(target.getX(), target.getY(),
                     target.getZ()) == target
                 && Float.isFinite(range) && range >= 0.0f
-                && Float.isFinite(observer.getForwardDirectionX())
-                && Float.isFinite(observer.getForwardDirectionY())
+                && Float.isFinite(SAOSenses.gazeX(observer))
+                && Float.isFinite(SAOSenses.gazeY(observer))
                 && visibleWorldPoint(observer, target, Math.min(RANGE, range));
         } catch (Throwable unavailable) {
             return false;
@@ -616,8 +613,9 @@ public final class SAOPerceptionScanner {
         double dx = (double) x - sx, dy = (double) y - sy;
         double distance = Math.sqrt(dx * dx + dy * dy);
         if (distance > NEAR_SENSE) {
-            double alignment = (dx * observer.getForwardDirectionX()
-                + dy * observer.getForwardDirectionY()) / distance;
+            double alignment = (dx * SAOSenses.gazeX(observer)
+                + dy * SAOSenses.gazeY(observer)) / distance;
+            if (!Double.isFinite(alignment)) return false;
             if (alignment < CONE_COS) return false;
         }
         return clearPath(observer.getCurrentSquare(), target, true);
@@ -632,8 +630,9 @@ public final class SAOPerceptionScanner {
         double dx = (double) x - sx, dy = (double) y - sy;
         double distance = Math.sqrt(dx * dx + dy * dy);
         if (distance > NEAR_SENSE) {
-            double alignment = (dx * observer.getForwardDirectionX()
-                + dy * observer.getForwardDirectionY()) / distance;
+            double alignment = (dx * SAOSenses.gazeX(observer)
+                + dy * SAOSenses.gazeY(observer)) / distance;
+            if (!Double.isFinite(alignment)) return false;
             if (alignment < CONE_COS) return false;
         }
         return true;
@@ -683,12 +682,12 @@ public final class SAOPerceptionScanner {
             // outside near-sense radius, require the facing cone
             float inv = dist <= 0.001f ? 0.0f : 1.0f / dist;
             double alignment = (dx * inv) * faceX + (dy * inv) * faceY;
-            if (alignment < CONE_COS) {
+            if (!Double.isFinite(alignment) || alignment < CONE_COS) {
                 return false;
             }
         }
         IsoGridSquare target = other.getCurrentSquare();
-        return target != null && !eye.isSomethingTo(target);
+        return target != null && clearPath(eye, target, true);
     }
 
     /** [C104] The sister mod's form and performance, appended the

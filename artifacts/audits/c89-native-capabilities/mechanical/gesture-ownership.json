@@ -1,0 +1,195 @@
+{
+  "status": "passed",
+  "boundary": "Actual installed native shells, item, appliance, LuaTimedActionNew and timed-action queue; real full Gesture, Exchange and Cooking modules. Unrelated social policy and SourceUse transfer admission are controlled. No rendered animation or native transfer completion claim.",
+  "inputs": {
+    "C:\\Users\\jleyv\\Peanut Butter\\AI Assisted Software Engineering Mass Repository\\Projects\\survivor-awareness\\java\\src\\com\\sao\\engine\\SAOCooking.java": "46adcb02714f9384879faadef7537f5d4b6a47f0e530f7c4215c7ce57793c12b",
+    "C:\\Users\\jleyv\\Peanut Butter\\AI Assisted Software Engineering Mass Repository\\Projects\\survivor-awareness\\tools\\luacheck\\MovementCrossingProbe.java": "ca9dbe9c356c98ff40e6aa63d577fd2ace052c139b83fc6f43664701fd2f1bd1",
+    "C:\\Users\\jleyv\\Peanut Butter\\AI Assisted Software Engineering Mass Repository\\Projects\\survivor-awareness\\tools\\luacheck\\ResourceApproachProbe.java": "c745867ad46933069d5077f38dccac8275e3031a7bead68adab464efeaf51244",
+    "C:\\Users\\jleyv\\Peanut Butter\\AI Assisted Software Engineering Mass Repository\\Projects\\survivor-awareness\\tools\\cognition_checks\\CognitionUseProbe.java": "0dd6382f99880d09129d81623930696e2d0d672f4dfc3869398d80395910ec30",
+    "C:\\Users\\jleyv\\Peanut Butter\\AI Assisted Software Engineering Mass Repository\\Projects\\survivor-awareness\\_scratch\\c89-orienting\\integration\\tools\\luacheck\\GestureOwnershipProbe.java": "1ff53270dee1047c73e3a818c368e93fcb663668a43ee03c41b98f64a47f9074",
+    "C:\\Program Files (x86)\\Steam\\steamapps\\common\\ProjectZomboid\\projectzomboid.jar": "80e405a4bfc42f6072e75b3735f458a6514143da011d3226007ded305a442f44",
+    "C:\\Program Files (x86)\\Steam\\steamapps\\common\\ProjectZomboid\\ZombieBuddy.jar": "6dd95cedce60f03bf8b8cefd0d19eb156230e0d54bffa07de9da5212a06c7be6",
+    "C:\\Users\\jleyv\\Peanut Butter\\AI Assisted Software Engineering Mass Repository\\Projects\\survivor-awareness\\mod\\42.20\\media\\java\\SAO.jar": "b0f9f2d762e3dae9ff17d591863754f4439fb28c85d7f390121d01ec15734e16",
+    "C:\\Program Files (x86)\\Steam\\steamapps\\common\\ProjectZomboid\\media\\lua\\shared\\ISBaseObject.lua": "5dae034ac3471c03f81f89fdaa371b493990636148f075fac58581ac573521ef",
+    "C:\\Program Files (x86)\\Steam\\steamapps\\common\\ProjectZomboid\\media\\lua\\shared\\TimedActions\\ISBaseTimedAction.lua": "ad72e57f976bd1564d59d08d98d06f8c8d4acea6386aace48e0d99ce9d02a1f0",
+    "C:\\Program Files (x86)\\Steam\\steamapps\\common\\ProjectZomboid\\media\\lua\\client\\TimedActions\\ISTimedActionQueue.lua": "23c98152728172b44ccb41bc8ddc97798fee7a91b57b20620fb11d5f41e7792c",
+    "C:\\Program Files (x86)\\Steam\\steamapps\\common\\ProjectZomboid\\media\\lua\\shared\\TimedActions\\ISToggleStoveAction.lua": "5dea9492eb47b5dcc3a7a233b349497ecd61dfeac62b1f4c474927fec7818002",
+    "C:\\Users\\jleyv\\Peanut Butter\\AI Assisted Software Engineering Mass Repository\\Projects\\survivor-awareness\\_scratch\\c89-orienting\\integration\\SAO_Gesture.lua": "62f394b329a2916290ec2ec7b23ba0ad940909c569afd4e577b7d006149d134f",
+    "C:\\Users\\jleyv\\Peanut Butter\\AI Assisted Software Engineering Mass Repository\\Projects\\survivor-awareness\\mod\\42.20\\media\\lua\\client\\SAO_Cooking.lua": "b13e2c3596c965edb4e042b299c7f6d324385b557f4bf8a96ef8b9a121859c53",
+    "C:\\Users\\jleyv\\Peanut Butter\\AI Assisted Software Engineering Mass Repository\\Projects\\survivor-awareness\\mod\\42.20\\media\\lua\\client\\SAO_Exchange.lua": "edbb696bd358221090ed2f0b35ccc066a5bb7979231965ef21aa6fcf84511c98",
+    "C:\\Users\\jleyv\\Peanut Butter\\AI Assisted Software Engineering Mass Repository\\Projects\\survivor-awareness\\_scratch\\c89-orienting\\integration\\tools\\gesture_ownership_checks\\prelude.lua": "1bbd332f61dc80d9cf67f8bb4ffcfb27c2b45a30300452b110e75d25be4c3a37",
+    "C:\\Users\\jleyv\\Peanut Butter\\AI Assisted Software Engineering Mass Repository\\Projects\\survivor-awareness\\_scratch\\c89-orienting\\integration\\tools\\gesture_ownership_checks\\cases.lua": "a3edc9afc360a3e5b924ea2248a8f9fece1c0f0ef93050aa28bf20585c57f7a4",
+    "C:\\Users\\jleyv\\Peanut Butter\\AI Assisted Software Engineering Mass Repository\\Projects\\survivor-awareness\\_scratch\\c89-orienting\\integration\\tools\\gesture_ownership_checks\\run_checks.py": "7df8992592ff52aeacb758e25b000666e422036ef0b33981a8de4825f24b0a16"
+  },
+  "runs": [
+    {
+      "name": "compile",
+      "exit": 0,
+      "stdout": "",
+      "stderr": ""
+    },
+    {
+      "name": "baseline",
+      "exit": 0,
+      "stdout": "ITEM Base.MuttonChop=zombie.inventory.types.Food\nCHECK ordinary_gesture_starts_real_native_action=true\nCHECK idle_cooking_resists_other_person_meeting=true\nCHECK cook_state_resists_other_person_meeting=true\nCHECK source_owner_gap_rejects_social_gesture=true\nCHECK source_reconciliation_allows_later_gesture=true\nCHECK external_owner_rejects_unsolicited_gesture=true\nCHECK external_native_mark_rejects_gesture=true\nCHECK pending_handoff_rejects_gesture=true\nCHECK pending_crossed_handoff_rejects_gesture=true\nCHECK lua_queued_action_gap_rejects_gesture=true\nCHECK real_foreign_action_still_interrupts_cooking=true\nCHECK standup_cleanup_survives_work_owner=true\nCHECK legitimate_cpr_keeps_three_native_queue_members=true\nCHECK instrument_rest_gesture_still_admitted=true\nCHECK owned_work_blocks_native_emote=true\nCHECK native_busy_still_refuses_second_gesture=true\nCHECK sleeping_body_still_refuses=true\nGESTURE_NATIVE_DONE\n",
+      "stderr": ""
+    },
+    {
+      "name": "old-native-busy-only",
+      "exit": 0,
+      "stdout": "ITEM Base.MuttonChop=zombie.inventory.types.Food\nCHECK ordinary_gesture_starts_real_native_action=true\nCHECK idle_cooking_resists_other_person_meeting=false\nCHECK cook_state_resists_other_person_meeting=false\nCHECK source_owner_gap_rejects_social_gesture=false\nCHECK source_reconciliation_allows_later_gesture=true\nCHECK external_owner_rejects_unsolicited_gesture=false\nCHECK external_native_mark_rejects_gesture=false\nCHECK pending_handoff_rejects_gesture=false\nCHECK pending_crossed_handoff_rejects_gesture=false\nCHECK lua_queued_action_gap_rejects_gesture=false\nCHECK real_foreign_action_still_interrupts_cooking=true\nCHECK standup_cleanup_survives_work_owner=true\nCHECK legitimate_cpr_keeps_three_native_queue_members=true\nCHECK instrument_rest_gesture_still_admitted=true\nCHECK owned_work_blocks_native_emote=false\nCHECK native_busy_still_refuses_second_gesture=true\nCHECK sleeping_body_still_refuses=true\nGESTURE_NATIVE_DONE\n",
+      "stderr": ""
+    },
+    {
+      "name": "ignore-cooking-owner",
+      "exit": 0,
+      "stdout": "ITEM Base.MuttonChop=zombie.inventory.types.Food\nCHECK ordinary_gesture_starts_real_native_action=true\nCHECK idle_cooking_resists_other_person_meeting=false\nCHECK cook_state_resists_other_person_meeting=false\nCHECK source_owner_gap_rejects_social_gesture=true\nCHECK source_reconciliation_allows_later_gesture=true\nCHECK external_owner_rejects_unsolicited_gesture=true\nCHECK external_native_mark_rejects_gesture=true\nCHECK pending_handoff_rejects_gesture=true\nCHECK pending_crossed_handoff_rejects_gesture=true\nCHECK lua_queued_action_gap_rejects_gesture=true\nCHECK real_foreign_action_still_interrupts_cooking=true\nCHECK standup_cleanup_survives_work_owner=true\nCHECK legitimate_cpr_keeps_three_native_queue_members=true\nCHECK instrument_rest_gesture_still_admitted=true\nCHECK owned_work_blocks_native_emote=false\nCHECK native_busy_still_refuses_second_gesture=true\nCHECK sleeping_body_still_refuses=true\nGESTURE_NATIVE_DONE\n",
+      "stderr": ""
+    },
+    {
+      "name": "ignore-source-owner",
+      "exit": 0,
+      "stdout": "ITEM Base.MuttonChop=zombie.inventory.types.Food\nCHECK ordinary_gesture_starts_real_native_action=true\nCHECK idle_cooking_resists_other_person_meeting=true\nCHECK cook_state_resists_other_person_meeting=true\nCHECK source_owner_gap_rejects_social_gesture=false\nCHECK source_reconciliation_allows_later_gesture=true\nCHECK external_owner_rejects_unsolicited_gesture=true\nCHECK external_native_mark_rejects_gesture=true\nCHECK pending_handoff_rejects_gesture=true\nCHECK pending_crossed_handoff_rejects_gesture=true\nCHECK lua_queued_action_gap_rejects_gesture=true\nCHECK real_foreign_action_still_interrupts_cooking=true\nCHECK standup_cleanup_survives_work_owner=true\nCHECK legitimate_cpr_keeps_three_native_queue_members=true\nCHECK instrument_rest_gesture_still_admitted=true\nCHECK owned_work_blocks_native_emote=true\nCHECK native_busy_still_refuses_second_gesture=true\nCHECK sleeping_body_still_refuses=true\nGESTURE_NATIVE_DONE\n",
+      "stderr": ""
+    },
+    {
+      "name": "ignore-external-record",
+      "exit": 0,
+      "stdout": "ITEM Base.MuttonChop=zombie.inventory.types.Food\nCHECK ordinary_gesture_starts_real_native_action=true\nCHECK idle_cooking_resists_other_person_meeting=true\nCHECK cook_state_resists_other_person_meeting=true\nCHECK source_owner_gap_rejects_social_gesture=true\nCHECK source_reconciliation_allows_later_gesture=true\nCHECK external_owner_rejects_unsolicited_gesture=false\nCHECK external_native_mark_rejects_gesture=true\nCHECK pending_handoff_rejects_gesture=true\nCHECK pending_crossed_handoff_rejects_gesture=true\nCHECK lua_queued_action_gap_rejects_gesture=true\nCHECK real_foreign_action_still_interrupts_cooking=true\nCHECK standup_cleanup_survives_work_owner=true\nCHECK legitimate_cpr_keeps_three_native_queue_members=true\nCHECK instrument_rest_gesture_still_admitted=true\nCHECK owned_work_blocks_native_emote=true\nCHECK native_busy_still_refuses_second_gesture=true\nCHECK sleeping_body_still_refuses=true\nGESTURE_NATIVE_DONE\n",
+      "stderr": ""
+    },
+    {
+      "name": "ignore-external-native-mark",
+      "exit": 0,
+      "stdout": "ITEM Base.MuttonChop=zombie.inventory.types.Food\nCHECK ordinary_gesture_starts_real_native_action=true\nCHECK idle_cooking_resists_other_person_meeting=true\nCHECK cook_state_resists_other_person_meeting=true\nCHECK source_owner_gap_rejects_social_gesture=true\nCHECK source_reconciliation_allows_later_gesture=true\nCHECK external_owner_rejects_unsolicited_gesture=true\nCHECK external_native_mark_rejects_gesture=false\nCHECK pending_handoff_rejects_gesture=true\nCHECK pending_crossed_handoff_rejects_gesture=true\nCHECK lua_queued_action_gap_rejects_gesture=true\nCHECK real_foreign_action_still_interrupts_cooking=true\nCHECK standup_cleanup_survives_work_owner=true\nCHECK legitimate_cpr_keeps_three_native_queue_members=true\nCHECK instrument_rest_gesture_still_admitted=true\nCHECK owned_work_blocks_native_emote=true\nCHECK native_busy_still_refuses_second_gesture=true\nCHECK sleeping_body_still_refuses=true\nGESTURE_NATIVE_DONE\n",
+      "stderr": ""
+    },
+    {
+      "name": "ignore-zao-handoff",
+      "exit": 0,
+      "stdout": "ITEM Base.MuttonChop=zombie.inventory.types.Food\nCHECK ordinary_gesture_starts_real_native_action=true\nCHECK idle_cooking_resists_other_person_meeting=true\nCHECK cook_state_resists_other_person_meeting=true\nCHECK source_owner_gap_rejects_social_gesture=true\nCHECK source_reconciliation_allows_later_gesture=true\nCHECK external_owner_rejects_unsolicited_gesture=true\nCHECK external_native_mark_rejects_gesture=true\nCHECK pending_handoff_rejects_gesture=false\nCHECK pending_crossed_handoff_rejects_gesture=true\nCHECK lua_queued_action_gap_rejects_gesture=true\nCHECK real_foreign_action_still_interrupts_cooking=true\nCHECK standup_cleanup_survives_work_owner=true\nCHECK legitimate_cpr_keeps_three_native_queue_members=true\nCHECK instrument_rest_gesture_still_admitted=true\nCHECK owned_work_blocks_native_emote=true\nCHECK native_busy_still_refuses_second_gesture=true\nCHECK sleeping_body_still_refuses=true\nGESTURE_NATIVE_DONE\n",
+      "stderr": ""
+    },
+    {
+      "name": "ignore-crossed-handoff",
+      "exit": 0,
+      "stdout": "ITEM Base.MuttonChop=zombie.inventory.types.Food\nCHECK ordinary_gesture_starts_real_native_action=true\nCHECK idle_cooking_resists_other_person_meeting=true\nCHECK cook_state_resists_other_person_meeting=true\nCHECK source_owner_gap_rejects_social_gesture=true\nCHECK source_reconciliation_allows_later_gesture=true\nCHECK external_owner_rejects_unsolicited_gesture=true\nCHECK external_native_mark_rejects_gesture=true\nCHECK pending_handoff_rejects_gesture=true\nCHECK pending_crossed_handoff_rejects_gesture=false\nCHECK lua_queued_action_gap_rejects_gesture=true\nCHECK real_foreign_action_still_interrupts_cooking=true\nCHECK standup_cleanup_survives_work_owner=true\nCHECK legitimate_cpr_keeps_three_native_queue_members=true\nCHECK instrument_rest_gesture_still_admitted=true\nCHECK owned_work_blocks_native_emote=true\nCHECK native_busy_still_refuses_second_gesture=true\nCHECK sleeping_body_still_refuses=true\nGESTURE_NATIVE_DONE\n",
+      "stderr": ""
+    },
+    {
+      "name": "ignore-lua-pending-queue",
+      "exit": 0,
+      "stdout": "ITEM Base.MuttonChop=zombie.inventory.types.Food\nCHECK ordinary_gesture_starts_real_native_action=true\nCHECK idle_cooking_resists_other_person_meeting=true\nCHECK cook_state_resists_other_person_meeting=true\nCHECK source_owner_gap_rejects_social_gesture=true\nCHECK source_reconciliation_allows_later_gesture=true\nCHECK external_owner_rejects_unsolicited_gesture=true\nCHECK external_native_mark_rejects_gesture=true\nCHECK pending_handoff_rejects_gesture=true\nCHECK pending_crossed_handoff_rejects_gesture=true\nCHECK lua_queued_action_gap_rejects_gesture=false\nCHECK real_foreign_action_still_interrupts_cooking=true\nCHECK standup_cleanup_survives_work_owner=true\nCHECK legitimate_cpr_keeps_three_native_queue_members=true\nCHECK instrument_rest_gesture_still_admitted=true\nCHECK owned_work_blocks_native_emote=true\nCHECK native_busy_still_refuses_second_gesture=true\nCHECK sleeping_body_still_refuses=true\nGESTURE_NATIVE_DONE\n",
+      "stderr": ""
+    },
+    {
+      "name": "block-all-nonidle-work",
+      "exit": 0,
+      "stdout": "ITEM Base.MuttonChop=zombie.inventory.types.Food\nCHECK ordinary_gesture_starts_real_native_action=true\nCHECK idle_cooking_resists_other_person_meeting=true\nCHECK cook_state_resists_other_person_meeting=true\nCHECK source_owner_gap_rejects_social_gesture=true\nCHECK source_reconciliation_allows_later_gesture=true\nCHECK external_owner_rejects_unsolicited_gesture=true\nCHECK external_native_mark_rejects_gesture=true\nCHECK pending_handoff_rejects_gesture=true\nCHECK pending_crossed_handoff_rejects_gesture=true\nCHECK lua_queued_action_gap_rejects_gesture=true\nCHECK real_foreign_action_still_interrupts_cooking=true\nCHECK standup_cleanup_survives_work_owner=true\nCHECK legitimate_cpr_keeps_three_native_queue_members=false\nCHECK instrument_rest_gesture_still_admitted=false\nCHECK owned_work_blocks_native_emote=true\nCHECK native_busy_still_refuses_second_gesture=true\nCHECK sleeping_body_still_refuses=true\nGESTURE_NATIVE_DONE\n",
+      "stderr": ""
+    },
+    {
+      "name": "block-required-standup-cleanup",
+      "exit": 0,
+      "stdout": "ITEM Base.MuttonChop=zombie.inventory.types.Food\nCHECK ordinary_gesture_starts_real_native_action=true\nCHECK idle_cooking_resists_other_person_meeting=true\nCHECK cook_state_resists_other_person_meeting=true\nCHECK source_owner_gap_rejects_social_gesture=true\nCHECK source_reconciliation_allows_later_gesture=true\nCHECK external_owner_rejects_unsolicited_gesture=true\nCHECK external_native_mark_rejects_gesture=true\nCHECK pending_handoff_rejects_gesture=true\nCHECK pending_crossed_handoff_rejects_gesture=true\nCHECK lua_queued_action_gap_rejects_gesture=true\nCHECK real_foreign_action_still_interrupts_cooking=true\nCHECK standup_cleanup_survives_work_owner=false\nCHECK legitimate_cpr_keeps_three_native_queue_members=true\nCHECK instrument_rest_gesture_still_admitted=true\nCHECK owned_work_blocks_native_emote=true\nCHECK native_busy_still_refuses_second_gesture=true\nCHECK sleeping_body_still_refuses=true\nGESTURE_NATIVE_DONE\n",
+      "stderr": ""
+    },
+    {
+      "name": "allow-real-foreign-action",
+      "exit": 0,
+      "stdout": "ITEM Base.MuttonChop=zombie.inventory.types.Food\nCHECK ordinary_gesture_starts_real_native_action=true\nCHECK idle_cooking_resists_other_person_meeting=true\nCHECK cook_state_resists_other_person_meeting=true\nCHECK source_owner_gap_rejects_social_gesture=true\nCHECK source_reconciliation_allows_later_gesture=true\nCHECK external_owner_rejects_unsolicited_gesture=true\nCHECK external_native_mark_rejects_gesture=true\nCHECK pending_handoff_rejects_gesture=true\nCHECK pending_crossed_handoff_rejects_gesture=true\nCHECK lua_queued_action_gap_rejects_gesture=true\nCHECK real_foreign_action_still_interrupts_cooking=false\nCHECK standup_cleanup_survives_work_owner=true\nCHECK legitimate_cpr_keeps_three_native_queue_members=true\nCHECK instrument_rest_gesture_still_admitted=true\nCHECK owned_work_blocks_native_emote=true\nCHECK native_busy_still_refuses_second_gesture=true\nCHECK sleeping_body_still_refuses=true\nGESTURE_NATIVE_DONE\n",
+      "stderr": ""
+    }
+  ],
+  "controls": [
+    {
+      "name": "old-native-busy-only",
+      "target": "idle_cooking_resists_other_person_meeting",
+      "verdict": "false",
+      "source_sha256": {
+        "gesture": "a204970eea813acf35aa2cc85b63670e032df8b8c8f7dbac775dcc5d5f942d32"
+      }
+    },
+    {
+      "name": "ignore-cooking-owner",
+      "target": "idle_cooking_resists_other_person_meeting",
+      "verdict": "false",
+      "source_sha256": {
+        "gesture": "3749a03b638efa99eacaea71bfc7e00b9922a46ae5ca999b5bf8ea19d9a8e112"
+      }
+    },
+    {
+      "name": "ignore-source-owner",
+      "target": "source_owner_gap_rejects_social_gesture",
+      "verdict": "false",
+      "source_sha256": {
+        "gesture": "e98a4de46267f6547bf4f5ae43ba37587c50e501b14a975adb36f6b882ae0e61"
+      }
+    },
+    {
+      "name": "ignore-external-record",
+      "target": "external_owner_rejects_unsolicited_gesture",
+      "verdict": "false",
+      "source_sha256": {
+        "gesture": "531d9d60934d99133cc56d817f69c391fa0c48bde8af4e8c299274c26ee32444"
+      }
+    },
+    {
+      "name": "ignore-external-native-mark",
+      "target": "external_native_mark_rejects_gesture",
+      "verdict": "false",
+      "source_sha256": {
+        "gesture": "7dec7994174b4116a2e8826cb5519eb6ede602f48e9693cf5085addf963adda7"
+      }
+    },
+    {
+      "name": "ignore-zao-handoff",
+      "target": "pending_handoff_rejects_gesture",
+      "verdict": "false",
+      "source_sha256": {
+        "gesture": "44f083ff2bce21081b687f46add7eb0ec7931fe5673c549edd04ca814bbef988"
+      }
+    },
+    {
+      "name": "ignore-crossed-handoff",
+      "target": "pending_crossed_handoff_rejects_gesture",
+      "verdict": "false",
+      "source_sha256": {
+        "gesture": "d28f3d8b171a6f74c656352aceeed69132a15c823db322552f0e2a1b8b624882"
+      }
+    },
+    {
+      "name": "ignore-lua-pending-queue",
+      "target": "lua_queued_action_gap_rejects_gesture",
+      "verdict": "false",
+      "source_sha256": {
+        "gesture": "18ae58cb68410bb8adeff13d10905a3762967ad81717274a8a706d8476ca2b43"
+      }
+    },
+    {
+      "name": "block-all-nonidle-work",
+      "target": "instrument_rest_gesture_still_admitted",
+      "verdict": "false",
+      "source_sha256": {
+        "gesture": "154c631588fa852461bad2f116476daf8acd55f88e419d05d09343ee72a34cee"
+      }
+    },
+    {
+      "name": "block-required-standup-cleanup",
+      "target": "standup_cleanup_survives_work_owner",
+      "verdict": "false",
+      "source_sha256": {
+        "gesture": "1ac4e628503dff1a48790499b4fc6695d52f28bdc17cf4026beed33cb5423395"
+      }
+    },
+    {
+      "name": "allow-real-foreign-action",
+      "target": "real_foreign_action_still_interrupts_cooking",
+      "verdict": "false",
+      "source_sha256": {
+        "cooking": "f54d1c2291d4cf66a1fcfa4a288f3e1d03c974536b6cf0cff0e7d62eac0564d4"
+      }
+    }
+  ],
+  "cases": 17
+}

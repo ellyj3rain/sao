@@ -1,0 +1,43 @@
+{
+  "schema": "speakeasy-r74-publication/1",
+  "timestamp": "2026-09-27T05:46:08.553399+00:00",
+  "pullRequest": {
+    "headRefOid": "584bcc9a0347ac13efabf78237c202cf48c12605",
+    "mergeCommit": {
+      "oid": "96701faeb25860ad5f3d2dc597bce1b1306a5546"
+    },
+    "mergedAt": "2026-09-27T05:45:25Z",
+    "number": 42,
+    "state": "MERGED",
+    "statusCheckRollup": [],
+    "url": "https://github.com/ellyj3rain/zomboid-speakeasy/pull/42"
+  },
+  "branchCommit": "584bcc9a0347ac13efabf78237c202cf48c12605",
+  "remoteMain": "96701faeb25860ad5f3d2dc597bce1b1306a5546",
+  "exactTree": "637cd2631b25c870f23901dadf97f0f565611476",
+  "publishedPaths": {
+    "README.md": {
+      "rawSha256": "bd9ac134c88eeafa3261363ed5ee745e540b7e47598420a42ba361524fcf4fdf",
+      "gitBlob": "1b919457fc4d9c5f9643d4508e3ada25bd893c76"
+    },
+    "RECORD.md": {
+      "rawSha256": "48c54286c00bc636bea62bf0b3b4846465898d7574364993fe2937cfac03808b",
+      "gitBlob": "0df12ad180ee0130da533355be9ab53455578948"
+    },
+    "world/autonomous-observer.md": {
+      "rawSha256": "840cb1f5f8e8848914aa7b6e68ee4c2165bcad72d1c2d73ffd01359bbb56f8aa",
+      "gitBlob": "0befc2aeaff5c1a79f11938bdda4002b975a3722"
+    },
+    "tools/cognition_contract.py": {
+      "rawSha256": "c6fe81cc1343d21f8b3be1285dec285cf15e8297f82c873e38ee50af10a87af5",
+      "gitBlob": "4f660ec3838261bb7539bc1f9c1d1b2150978287"
+    },
+    "tools/test_cognition_capability_experience.py": {
+      "rawSha256": "93cc76197b7c14109c3ccc38ff20666ae2e1e62dc22dd8ad7620e2f05bd28f08",
+      "gitBlob": "894ecea5a83c7bdfd4ab6ef695925768e53085d2"
+    }
+  },
+  "trackedWorktreeClean": true,
+  "untrackedPreserved": "?? _scratch/",
+  "suiteReceiptSha256": "a91844d9246c6c48f8cc6c292407173a80d84e29f6ce75b8012b7153a403b50b"
+}

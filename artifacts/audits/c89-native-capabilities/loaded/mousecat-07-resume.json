@@ -1,0 +1,2218 @@
+{
+  "route": "#native-view?session=survival-observatory",
+  "connection": "Running",
+  "settings": "Simulation discovery paceSource settings: active · 50% associative selection · 48 opportunities / world hour · depth 4Associative shareOpportunities / world hourAssociation depthApplyApplied and reported by the simulation.",
+  "cognition": "Competing cognitionPrivate evidence for Trevor Hale. 206 episodes and 0 experiences outside this projection.Simulation discovery paceSource settings: active · 50% associative selection · 48 opportunities / world hour · depth 4Associative shareOpportunities / world hourAssociation depthApplyApplied and reported by the simulation.Decisions and outcomesHour 8.424 · same proposed goal · censoredSelected Ordinary · continue · allocation weight 50%Execution: censoredcontinues ordinary activity; no experiment selectedOrdinary · selectedProposed continue · confidence 50% · version sao-ordinary/2No admissible ordinary need threshold is reached.Prediction for continue: 50%No new goal is initiated; its outcome remains unobserved without a matching action receipt.Censored: this episode supplies no success or failure label.Other predictions · unobservedfood: 50% · The next qualified food acquisition succeeds or measured own consumption relieves hunger. · outcome unobservedinspect: 50% · A performed inspection returns definite contents evidence, including an empty result. · outcome unobservedwater: 50% · The next qualified water acquisition succeeds or measured own consumption relieves thirst. · outcome unobservedAssociativeProposed continue · confidence 50% · version sao-associative/2Current pressure leaves room to retain the ongoing intent.Prediction for continue: 50%No new goal is initiated; its outcome remains unobserved without a matching action receipt.Censored: this episode supplies no success or failure label.Other predictions · unobservedfood: 50% · The next qualified food acquisition succeeds or measured own consumption relieves hunger. · outcome unobservedinspect: 50% · A performed inspection returns definite contents evidence, including an empty result. · outcome unobservedwater: 50% · The next qualified water acquisition succeeds or measured own consumption relieves thirst. · outcome unobservedWorld result: unavailable; episode censored.Evidence and shared inputEpisode episode/214 · frame frame/214NeedsHunger 19.8% · thirst 21% · fatigue 1.3%Known sourcesFood 0 · water 0 · places 1Admitted goalsFood true · water true · inspect trueHour 8.400 · same proposed goal · censoredSelected Associative · continue · allocation weight 50%Execution: censoredcontinues ordinary activity; no experiment selectedOrdinaryProposed continue · confidence 50% · version sao-ordinary/2No admissible ordinary need threshold is reached.Prediction for continue: 50%No new goal is initiated; its outcome remains unobserved without a matching action receipt.Censored: this episode supplies no success or failure label.Other predictions · unobservedfood: 50% · The next qualified food acquisition succeeds or measured own consumption relieves hunger. · outcome unobservedinspect: 50% · A performed inspection returns definite contents evidence, including an empty result. · outcome unobservedwater: 50% · The next qualified water acquisition succeeds or measured own consumption relieves thirst. · outcome unobservedAssociative · selectedProposed continue · confidence 50% · version sao-associative/2Current pressure leaves room to retain the ongoing intent.Prediction for continue: 50%No new goal is initiated; its outcome remains unobserved without a matching action receipt.Censored: this episode supplies no success or failure label.Other predictions · unobservedfood: 50% · The next qualified food acquisition succeeds or measured own consumption relieves hunger. · outcome unobservedinspect: 50% · A performed inspection returns definite contents evidence, including an empty result. · outcome unobservedwater: 50% · The next qualified water acquisition succeeds or measured own consumption relieves thirst. · outcome unobservedWorld result: unavailable; episode censored.Evidence and shared inputEpisode episode/213 · frame frame/213NeedsHunger 19.7% · thirst 20.9% · fatigue 1.2%Known sourcesFood 0 · water 0 · places 1Admitted goalsFood true · water true · inspect trueHour 8.379 · same proposed goal · censoredSelected Ordinary · continue · allocation weight 50%Execution: censoredcontinues ordinary activity; no experiment selectedOrdinary · selectedProposed continue · confidence 50% · version sao-ordinary/2No admissible ordinary need threshold is reached.Prediction for continue: 50%No new goal is initiated; its outcome remains unobserved without a matching action receipt.Censored: this episode supplies no success or failure label.Other predictions · unobservedfood: 50% · The next qualified food acquisition succeeds or measured own consumption relieves hunger. · outcome unobservedinspect: 50% · A performed inspection returns definite contents evidence, including an empty result. · outcome unobservedwater: 50% · The next qualified water acquisition succeeds or measured own consumption relieves thirst. · outcome unobservedAssociativeProposed continue · confidence 50% · version sao-associative/2Current pressure leaves room to retain the ongoing intent.Prediction for continue: 50%No new goal is initiated; its outcome remains unobserved without a matching action receipt.Censored: this episode supplies no success or failure label.Other predictions · unobservedfood: 50% · The next qualified food acquisition succeeds or measured own consumption relieves hunger. · outcome unobservedinspect: 50% · A performed inspection returns definite contents evidence, including an empty result. · outcome unobservedwater: 50% · The next qualified water acquisition succeeds or measured own consumption relieves thirst. · outcome unobservedWorld result: unavailable; episode censored.Evidence and shared inputEpisode episode/212 · frame frame/212NeedsHunger 19.7% · thirst 20.8% · fatigue 1.1%Known sourcesFood 0 · water 0 · places 1Admitted goalsFood true · water true · inspect trueHour 8.358 · same proposed goal · censoredSelected Associative · continue · allocation weight 50%Execution: censoredcontinues ordinary activity; no experiment selectedOrdinaryProposed continue · confidence 50% · version sao-ordinary/2No admissible ordinary need threshold is reached.Prediction for continue: 50%No new goal is initiated; its outcome remains unobserved without a matching action receipt.Censored: this episode supplies no success or failure label.Other predictions · unobservedfood: 50% · The next qualified food acquisition succeeds or measured own consumption relieves hunger. · outcome unobservedinspect: 50% · A performed inspection returns definite contents evidence, including an empty result. · outcome unobservedwater: 50% · The next qualified water acquisition succeeds or measured own consumption relieves thirst. · outcome unobservedAssociative · selectedProposed continue · confidence 50% · version sao-associative/2Current pressure leaves room to retain the ongoing intent.Prediction for continue: 50%No new goal is initiated; its outcome remains unobserved without a matching action receipt.Censored: this episode supplies no success or failure label.Other predictions · unobservedfood: 50% · The next qualified food acquisition succeeds or measured own consumption relieves hunger. · outcome unobservedinspect: 50% · A performed inspection returns definite contents evidence, including an empty result. · outcome unobservedwater: 50% · The next qualified water acquisition succeeds or measured own consumption relieves thirst. · outcome unobservedWorld result: unavailable; episode censored.Evidence and shared inputEpisode episode/211 · frame frame/211NeedsHunger 19.6% · thirst 20.8% · fatigue 1%Known sourcesFood 0 · water 0 · places 1Admitted goalsFood true · water true · inspect trueHour 8.337 · same proposed goal · censoredSelected Ordinary · continue · allocation weight 50%Execution: censoredcontinues ordinary activity; no experiment selectedOrdinary · selectedProposed continue · confidence 50% · version sao-ordinary/2No admissible ordinary need threshold is reached.Prediction for continue: 50%No new goal is initiated; its outcome remains unobserved without a matching action receipt.Censored: this episode supplies no success or failure label.Other predictions · unobservedfood: 50% · The next qualified food acquisition succeeds or measured own consumption relieves hunger. · outcome unobservedinspect: 50% · A performed inspection returns definite contents evidence, including an empty result. · outcome unobservedwater: 50% · The next qualified water acquisition succeeds or measured own consumption relieves thirst. · outcome unobservedAssociativeProposed continue · confidence 50% · version sao-associative/2Current pressure leaves room to retain the ongoing intent.Prediction for continue: 50%No new goal is initiated; its outcome remains unobserved without a matching action receipt.Censored: this episode supplies no success or failure label.Other predictions · unobservedfood: 50% · The next qualified food acquisition succeeds or measured own consumption relieves hunger. · outcome unobservedinspect: 50% · A performed inspection returns definite contents evidence, including an empty result. · outcome unobservedwater: 50% · The next qualified water acquisition succeeds or measured own consumption relieves thirst. · outcome unobservedWorld result: unavailable; episode censored.Evidence and shared inputEpisode episode/210 · frame frame/210NeedsHunger 19.5% · thirst 20.7% · fatigue 1%Known sourcesFood 0 · water 0 · places 1Admitted goalsFood true · water true · inspect trueHour 8.315 · same proposed goal · censoredSelected Associative · continue · allocation weight 50%Execution: censoredcontinues ordinary activity; no experiment selectedOrdinaryProposed continue · confidence 50% · version sao-ordinary/2No admissible ordinary need threshold is reached.Prediction for continue: 50%No new goal is initiated; its outcome remains unobserved without a matching action receipt.Censored: this episode supplies no success or failure label.Other predictions · unobservedfood: 50% · The next qualified food acquisition succeeds or measured own consumption relieves hunger. · outcome unobservedinspect: 50% · A performed inspection returns definite contents evidence, including an empty result. · outcome unobservedwater: 50% · The next qualified water acquisition succeeds or measured own consumption relieves thirst. · outcome unobservedAssociative · selectedProposed continue · confidence 50% · version sao-associative/2Current pressure leaves room to retain the ongoing intent.Prediction for continue: 50%No new goal is initiated; its outcome remains unobserved without a matching action receipt.Censored: this episode supplies no success or failure label.Other predictions · unobservedfood: 50% · The next qualified food acquisition succeeds or measured own consumption relieves hunger. · outcome unobservedinspect: 50% · A performed inspection returns definite contents evidence, including an empty result. · outcome unobservedwater: 50% · The next qualified water acquisition succeeds or measured own consumption relieves thirst. · outcome unobservedWorld result: unavailable; episode censored.Evidence and shared inputEpisode episode/209 · frame frame/209NeedsHunger 19.5% · thirst 20.6% · fatigue 2.4%Known sourcesFood 0 · water 0 · places 1Admitted goalsFood true · water true · inspect trueHour 8.293 · same proposed goal · censoredSelected Ordinary · continue · allocation weight 50%Execution: censoredcontinues ordinary activity; no experiment selectedOrdinary · selectedProposed continue · confidence 50% · version sao-ordinary/2No admissible ordinary need threshold is reached.Prediction for continue: 50%No new goal is initiated; its outcome remains unobserved without a matching action receipt.Censored: this episode supplies no success or failure label.Other predictions · unobservedfood: 50% · The next qualified food acquisition succeeds or measured own consumption relieves hunger. · outcome unobservedinspect: 50% · A performed inspection returns definite contents evidence, including an empty result. · outcome unobservedwater: 50% · The next qualified water acquisition succeeds or measured own consumption relieves thirst. · outcome unobservedAssociativeProposed continue · confidence 50% · version sao-associative/2Current pressure leaves room to retain the ongoing intent.Prediction for continue: 50%No new goal is initiated; its outcome remains unobserved without a matching action receipt.Censored: this episode supplies no success or failure label.Other predictions · unobservedfood: 50% · The next qualified food acquisition succeeds or measured own consumption relieves hunger. · outcome unobservedinspect: 50% · A performed inspection returns definite contents evidence, including an empty result. · outcome unobservedwater: 50% · The next qualified water acquisition succeeds or measured own consumption relieves thirst. · outcome unobservedWorld result: unavailable; episode censored.Evidence and shared inputEpisode episode/208 · frame frame/208NeedsHunger 19.4% · thirst 20.6% · fatigue 2.3%Known sourcesFood 0 · water 0 · places 1Admitted goalsFood true · water true · inspect trueHour 8.271 · same proposed goal · censoredSelected Associative · continue · allocation weight 50%Execution: censoredcontinues ordinary activity; no experiment selectedOrdinaryProposed continue · confidence 50% · version sao-ordinary/2No admissible ordinary need threshold is reached.Prediction for continue: 50%No new goal is initiated; its outcome remains unobserved without a matching action receipt.Censored: this episode supplies no success or failure label.Other predictions · unobservedfood: 50% · The next qualified food acquisition succeeds or measured own consumption relieves hunger. · outcome unobservedinspect: 50% · A performed inspection returns definite contents evidence, including an empty result. · outcome unobservedwater: 50% · The next qualified water acquisition succeeds or measured own consumption relieves thirst. · outcome unobservedAssociative · selectedProposed continue · confidence 50% · version sao-associative/2Current pressure leaves room to retain the ongoing intent.Prediction for continue: 50%No new goal is initiated; its outcome remains unobserved without a matching action receipt.Censored: this episode supplies no success or failure label.Other predictions · unobservedfood: 50% · The next qualified food acquisition succeeds or measured own consumption relieves hunger. · outcome unobservedinspect: 50% · A performed inspection returns definite contents evidence, including an empty result. · outcome unobservedwater: 50% · The next qualified water acquisition succeeds or measured own consumption relieves thirst. · outcome unobservedWorld result: unavailable; episode censored.Evidence and shared inputEpisode episode/207 · frame frame/207NeedsHunger 19.4% · thirst 20.5% · fatigue 2.2%Known sourcesFood 0 · water 0 · places 1Admitted goalsFood true · water true · inspect trueBeliefs and discoveryOrdinary · 0 associationsVersion sao-ordinary/20 beliefsAssociative · 0 associationsVersion sao-associative/20 beliefs",
+  "body": "Mousecat\nProjects\nQuestions\nSimulation\nHistory\n0 drafts\n0 drafts: 0 ready, 0 need completion.\nReview 0 drafts\nLive\nSurvival simulation\nProject\nSession \nSurvival simulation\nRunning\n\nCamera follows Trevor Hale\nWatching Trevor Hale; idle\n\nInspecting\nTrevor Hale\n\nFrame just received\nPause\nNormal\nFast\nFastest\nFollow activity\n−\n80%\n+\n←\n↑\n↓\n→\nEnd run\n\nApplied: Observer request applied\n\nWorld hour 8.438 | 2 people, 2 represented. People observed at hour 8.463360786437988. God view; canopy cutaway; full physics applies in the loaded region. Unreviewed.\n\nInspecting Trevor Hale\nJose Worthy\nTrevor Hale\nShow in world\nOpen game panel\nClose game panel\n\nPerson information: available · 0.7s old\n\nCompeting cognition\n\nPrivate evidence for Trevor Hale. 206 episodes and 0 experiences outside this projection.\n\nSimulation discovery pace\n\nSource settings: active · 50% associative selection · 48 opportunities / world hour · depth 4\n\nAssociative share\nOpportunities / world hour\nAssociation depth\nApply\n\nApplied and reported by the simulation.\n\nDecisions and outcomes\nBeliefs and discovery\nOrdinary · 0 associations\n\nVersion sao-ordinary/2\n\n0 beliefs\nAssociative · 0 associations\n\nVersion sao-associative/2\n\n0 beliefs\n\nstudent\nActivity: IDLE\nRecorded reason: turns something over in their hands\nPosition from native-body\nRecorded alive\nLocation 3439.5, 10910.5; floor 0\nKnown people: 0\nStored threat memories: 0\nUnclassified sounds: 0\n\nCurrent needs\n\nCurrent physical state · Native body\n\nHunger\n0.1980\nThirst\n0.2100\nFatigue\n0.0140\nEndurance\n1.0000\nNicotine withdrawal\n0.0000\nHealth (%)\n100.00\nAttention and movement\n\nCurrent physical state · Native body\n\nResponse\nNo active sound response\nPhase\nidle\nAttention readiness\n1.000\nMotor steadiness\n1.000\nSubstance effects\n\nCurrent physical state and recorded use · Personal physiology\n\nActive effects\nNo\nSedating\nNo\nStimulating\nNo\nWithdrawal\nNo\nOverload\nNo\nFood preparation\n\nCurrent work and recorded outcome · Native appliance and food\n\nNo current food preparation\n\nCarried inventory\n\nCurrent physical state · Native inventory containers\n\n7 items read\n\nBase.Vest_DefaultTEXTURE_TINT\nTank Top [id 2011521361]\nBase.Bracelet_RightFriendshipTINT\nFriendship Bracelet [id 1403263306]\nBase.Shoes_TrainerTINT\nSneakers [id 1879192191]\nBase.Trousers_Denim\nJeans [id 229812404]\nBase.Jacket_Varsity\nJacket - Varsity [id 791625646]\nBase.Notebook\nTrevor Hale's journal [id 884881207]\nBase.IDcard_Male\nTrevor Hale - ID [id 1612527344]\nPressure and recorded reason\n\nMost recent decision receipt · Controller\n\nanswer\nchosen rest\ndetail\nturns something over in their hands\nat\n75626\ngraph\n1\nCurrent action\n\nExecution owners · Controller, Locomotion and native timed-action queue\n\nController state\nIDLE\nMovement\nNo owned route\nSource use and latest result\n\nNative action receipts · WorldSources durable action ledger\n\nSource action\nNo recorded reservation pointer\nLatest result\nNo retained receipt for this person\nReception, responses and work\n\nRecorded stages for this person · Organization durable process records\n\nNo recorded process participation in the current store\n\nRecent activity and dialogue\n\nNo recorded events in this observation.",
+  "dimensions": [
+    960,
+    540
+  ],
+  "overflow": false,
+  "errors": [],
+  "snapshot": {
+    "schema": "mousecat.native-view-response/1",
+    "binding": {
+      "id": "survival-observatory",
+      "label": "Survival simulation",
+      "projectRef": "project:survivor-awareness",
+      "bindingId": "8ef03157fa8c88deec2f7bb9a0a68d8a587424bf6f73976c84b37577c09b2698"
+    },
+    "view": {
+      "camera": {
+        "mode": "automatic",
+        "personIds": [
+          "sao-2"
+        ],
+        "summary": "Watching Trevor Hale; idle"
+      },
+      "capturedAtUnixMs": 1790490589403,
+      "commandResult": {
+        "message": "Observer request applied",
+        "sequence": 3,
+        "status": "applied"
+      },
+      "image": {
+        "file": "study-live-0000000000000310.png",
+        "height": 540,
+        "sha256": "f4a0fdac25fe310ef34f4eb88bae8c8e1dd97ce36dab8d17e7177e95772c011c",
+        "width": 960
+      },
+      "inspection": {
+        "capturedAtUnixMs": 1790490588801,
+        "message": "Current bodies and recorded execution facts; no decision or perception rerun",
+        "omittedEvents": 0,
+        "omittedPeople": 0,
+        "sequence": 25,
+        "status": "available",
+        "worldHours": 8.437810897827148
+      },
+      "lastCommandSequence": 3,
+      "panels": [
+        {
+          "id": "person-inspection",
+          "label": "Native person inspector"
+        }
+      ],
+      "people": [
+        {
+          "cognition": {
+            "actorId": "sao-1",
+            "episodes": [
+              {
+                "disagreement": false,
+                "executionStatus": "censored",
+                "frame": {
+                  "actorId": "sao-1",
+                  "capabilities": {
+                    "cook": false,
+                    "forage": false,
+                    "treat": false
+                  },
+                  "drinkAt": 0.41972,
+                  "eatAt": 0.51215,
+                  "fatigue": 0.234,
+                  "foodAllowed": true,
+                  "hunger": 0.194,
+                  "id": "frame/223",
+                  "inspectionAllowed": true,
+                  "knownFood": 0,
+                  "knownPlaces": 1,
+                  "knownWater": 0,
+                  "thirst": 0.18,
+                  "waterAllowed": true,
+                  "worldHours": 8.261308670043945
+                },
+                "id": "episode/223",
+                "proposals": [
+                  {
+                    "actionId": "continue",
+                    "confidence": 0.5,
+                    "interpretation": "No admissible ordinary need threshold is reached.",
+                    "modelId": "ordinary",
+                    "predictions": {
+                      "continue": {
+                        "claim": "No new goal is initiated; its outcome remains unobserved without a matching action receipt.",
+                        "probability": 0.5
+                      },
+                      "food": {
+                        "claim": "The next qualified food acquisition succeeds or measured own consumption relieves hunger.",
+                        "probability": 0.5
+                      },
+                      "inspect": {
+                        "claim": "A performed inspection returns definite contents evidence, including an empty result.",
+                        "probability": 0.5
+                      },
+                      "water": {
+                        "claim": "The next qualified water acquisition succeeds or measured own consumption relieves thirst.",
+                        "probability": 0.5
+                      }
+                    },
+                    "version": "sao-ordinary/2"
+                  },
+                  {
+                    "actionId": "continue",
+                    "confidence": 0.5,
+                    "interpretation": "Current pressure leaves room to retain the ongoing intent.",
+                    "modelId": "associative",
+                    "predictions": {
+                      "continue": {
+                        "claim": "No new goal is initiated; its outcome remains unobserved without a matching action receipt.",
+                        "probability": 0.5
+                      },
+                      "food": {
+                        "claim": "The next qualified food acquisition succeeds or measured own consumption relieves hunger.",
+                        "probability": 0.5
+                      },
+                      "inspect": {
+                        "claim": "A performed inspection returns definite contents evidence, including an empty result.",
+                        "probability": 0.5
+                      },
+                      "water": {
+                        "claim": "The next qualified water acquisition succeeds or measured own consumption relieves thirst.",
+                        "probability": 0.5
+                      }
+                    },
+                    "version": "sao-associative/2"
+                  }
+                ],
+                "reason": "continues ordinary activity; no experiment selected",
+                "selectedActionId": "continue",
+                "selectedModelId": "ordinary",
+                "selectionPolicy": "deterministic-balanced",
+                "selectionWeight": 0.5,
+                "status": "censored",
+                "worldHours": 8.261308670043945
+              },
+              {
+                "disagreement": false,
+                "executionStatus": "censored",
+                "frame": {
+                  "actorId": "sao-1",
+                  "capabilities": {
+                    "cook": false,
+                    "forage": false,
+                    "treat": false
+                  },
+                  "drinkAt": 0.41972,
+                  "eatAt": 0.51215,
+                  "fatigue": 0.235,
+                  "foodAllowed": true,
+                  "hunger": 0.194,
+                  "id": "frame/224",
+                  "inspectionAllowed": true,
+                  "knownFood": 0,
+                  "knownPlaces": 1,
+                  "knownWater": 0,
+                  "thirst": 0.181,
+                  "waterAllowed": true,
+                  "worldHours": 8.283530235290527
+                },
+                "id": "episode/224",
+                "proposals": [
+                  {
+                    "actionId": "continue",
+                    "confidence": 0.5,
+                    "interpretation": "No admissible ordinary need threshold is reached.",
+                    "modelId": "ordinary",
+                    "predictions": {
+                      "continue": {
+                        "claim": "No new goal is initiated; its outcome remains unobserved without a matching action receipt.",
+                        "probability": 0.5
+                      },
+                      "food": {
+                        "claim": "The next qualified food acquisition succeeds or measured own consumption relieves hunger.",
+                        "probability": 0.5
+                      },
+                      "inspect": {
+                        "claim": "A performed inspection returns definite contents evidence, including an empty result.",
+                        "probability": 0.5
+                      },
+                      "water": {
+                        "claim": "The next qualified water acquisition succeeds or measured own consumption relieves thirst.",
+                        "probability": 0.5
+                      }
+                    },
+                    "version": "sao-ordinary/2"
+                  },
+                  {
+                    "actionId": "continue",
+                    "confidence": 0.5,
+                    "interpretation": "Current pressure leaves room to retain the ongoing intent.",
+                    "modelId": "associative",
+                    "predictions": {
+                      "continue": {
+                        "claim": "No new goal is initiated; its outcome remains unobserved without a matching action receipt.",
+                        "probability": 0.5
+                      },
+                      "food": {
+                        "claim": "The next qualified food acquisition succeeds or measured own consumption relieves hunger.",
+                        "probability": 0.5
+                      },
+                      "inspect": {
+                        "claim": "A performed inspection returns definite contents evidence, including an empty result.",
+                        "probability": 0.5
+                      },
+                      "water": {
+                        "claim": "The next qualified water acquisition succeeds or measured own consumption relieves thirst.",
+                        "probability": 0.5
+                      }
+                    },
+                    "version": "sao-associative/2"
+                  }
+                ],
+                "reason": "continues ordinary activity; no experiment selected",
+                "selectedActionId": "continue",
+                "selectedModelId": "associative",
+                "selectionPolicy": "deterministic-balanced",
+                "selectionWeight": 0.5,
+                "status": "censored",
+                "worldHours": 8.283530235290527
+              },
+              {
+                "disagreement": false,
+                "executionStatus": "censored",
+                "frame": {
+                  "actorId": "sao-1",
+                  "capabilities": {
+                    "cook": false,
+                    "forage": false,
+                    "treat": false
+                  },
+                  "drinkAt": 0.41972,
+                  "eatAt": 0.51215,
+                  "fatigue": 0.236,
+                  "foodAllowed": true,
+                  "hunger": 0.195,
+                  "id": "frame/225",
+                  "inspectionAllowed": true,
+                  "knownFood": 0,
+                  "knownPlaces": 1,
+                  "knownWater": 0,
+                  "thirst": 0.182,
+                  "waterAllowed": true,
+                  "worldHours": 8.310219764709473
+                },
+                "id": "episode/225",
+                "proposals": [
+                  {
+                    "actionId": "continue",
+                    "confidence": 0.5,
+                    "interpretation": "No admissible ordinary need threshold is reached.",
+                    "modelId": "ordinary",
+                    "predictions": {
+                      "continue": {
+                        "claim": "No new goal is initiated; its outcome remains unobserved without a matching action receipt.",
+                        "probability": 0.5
+                      },
+                      "food": {
+                        "claim": "The next qualified food acquisition succeeds or measured own consumption relieves hunger.",
+                        "probability": 0.5
+                      },
+                      "inspect": {
+                        "claim": "A performed inspection returns definite contents evidence, including an empty result.",
+                        "probability": 0.5
+                      },
+                      "water": {
+                        "claim": "The next qualified water acquisition succeeds or measured own consumption relieves thirst.",
+                        "probability": 0.5
+                      }
+                    },
+                    "version": "sao-ordinary/2"
+                  },
+                  {
+                    "actionId": "continue",
+                    "confidence": 0.5,
+                    "interpretation": "Current pressure leaves room to retain the ongoing intent.",
+                    "modelId": "associative",
+                    "predictions": {
+                      "continue": {
+                        "claim": "No new goal is initiated; its outcome remains unobserved without a matching action receipt.",
+                        "probability": 0.5
+                      },
+                      "food": {
+                        "claim": "The next qualified food acquisition succeeds or measured own consumption relieves hunger.",
+                        "probability": 0.5
+                      },
+                      "inspect": {
+                        "claim": "A performed inspection returns definite contents evidence, including an empty result.",
+                        "probability": 0.5
+                      },
+                      "water": {
+                        "claim": "The next qualified water acquisition succeeds or measured own consumption relieves thirst.",
+                        "probability": 0.5
+                      }
+                    },
+                    "version": "sao-associative/2"
+                  }
+                ],
+                "reason": "continues ordinary activity; no experiment selected",
+                "selectedActionId": "continue",
+                "selectedModelId": "ordinary",
+                "selectionPolicy": "deterministic-balanced",
+                "selectionWeight": 0.5,
+                "status": "censored",
+                "worldHours": 8.310219764709473
+              },
+              {
+                "disagreement": false,
+                "executionStatus": "censored",
+                "frame": {
+                  "actorId": "sao-1",
+                  "capabilities": {
+                    "cook": false,
+                    "forage": false,
+                    "treat": false
+                  },
+                  "drinkAt": 0.41972,
+                  "eatAt": 0.51215,
+                  "fatigue": 0.237,
+                  "foodAllowed": true,
+                  "hunger": 0.196,
+                  "id": "frame/226",
+                  "inspectionAllowed": true,
+                  "knownFood": 0,
+                  "knownPlaces": 1,
+                  "knownWater": 0,
+                  "thirst": 0.182,
+                  "waterAllowed": true,
+                  "worldHours": 8.331809043884277
+                },
+                "id": "episode/226",
+                "proposals": [
+                  {
+                    "actionId": "continue",
+                    "confidence": 0.5,
+                    "interpretation": "No admissible ordinary need threshold is reached.",
+                    "modelId": "ordinary",
+                    "predictions": {
+                      "continue": {
+                        "claim": "No new goal is initiated; its outcome remains unobserved without a matching action receipt.",
+                        "probability": 0.5
+                      },
+                      "food": {
+                        "claim": "The next qualified food acquisition succeeds or measured own consumption relieves hunger.",
+                        "probability": 0.5
+                      },
+                      "inspect": {
+                        "claim": "A performed inspection returns definite contents evidence, including an empty result.",
+                        "probability": 0.5
+                      },
+                      "water": {
+                        "claim": "The next qualified water acquisition succeeds or measured own consumption relieves thirst.",
+                        "probability": 0.5
+                      }
+                    },
+                    "version": "sao-ordinary/2"
+                  },
+                  {
+                    "actionId": "continue",
+                    "confidence": 0.5,
+                    "interpretation": "Current pressure leaves room to retain the ongoing intent.",
+                    "modelId": "associative",
+                    "predictions": {
+                      "continue": {
+                        "claim": "No new goal is initiated; its outcome remains unobserved without a matching action receipt.",
+                        "probability": 0.5
+                      },
+                      "food": {
+                        "claim": "The next qualified food acquisition succeeds or measured own consumption relieves hunger.",
+                        "probability": 0.5
+                      },
+                      "inspect": {
+                        "claim": "A performed inspection returns definite contents evidence, including an empty result.",
+                        "probability": 0.5
+                      },
+                      "water": {
+                        "claim": "The next qualified water acquisition succeeds or measured own consumption relieves thirst.",
+                        "probability": 0.5
+                      }
+                    },
+                    "version": "sao-associative/2"
+                  }
+                ],
+                "reason": "continues ordinary activity; no experiment selected",
+                "selectedActionId": "continue",
+                "selectedModelId": "associative",
+                "selectionPolicy": "deterministic-balanced",
+                "selectionWeight": 0.5,
+                "status": "censored",
+                "worldHours": 8.331809043884277
+              },
+              {
+                "disagreement": false,
+                "executionStatus": "censored",
+                "frame": {
+                  "actorId": "sao-1",
+                  "capabilities": {
+                    "cook": false,
+                    "forage": false,
+                    "treat": false
+                  },
+                  "drinkAt": 0.41972,
+                  "eatAt": 0.51215,
+                  "fatigue": 0.238,
+                  "foodAllowed": true,
+                  "hunger": 0.196,
+                  "id": "frame/227",
+                  "inspectionAllowed": true,
+                  "knownFood": 0,
+                  "knownPlaces": 1,
+                  "knownWater": 0,
+                  "thirst": 0.183,
+                  "waterAllowed": true,
+                  "worldHours": 8.352739334106445
+                },
+                "id": "episode/227",
+                "proposals": [
+                  {
+                    "actionId": "continue",
+                    "confidence": 0.5,
+                    "interpretation": "No admissible ordinary need threshold is reached.",
+                    "modelId": "ordinary",
+                    "predictions": {
+                      "continue": {
+                        "claim": "No new goal is initiated; its outcome remains unobserved without a matching action receipt.",
+                        "probability": 0.5
+                      },
+                      "food": {
+                        "claim": "The next qualified food acquisition succeeds or measured own consumption relieves hunger.",
+                        "probability": 0.5
+                      },
+                      "inspect": {
+                        "claim": "A performed inspection returns definite contents evidence, including an empty result.",
+                        "probability": 0.5
+                      },
+                      "water": {
+                        "claim": "The next qualified water acquisition succeeds or measured own consumption relieves thirst.",
+                        "probability": 0.5
+                      }
+                    },
+                    "version": "sao-ordinary/2"
+                  },
+                  {
+                    "actionId": "continue",
+                    "confidence": 0.5,
+                    "interpretation": "Current pressure leaves room to retain the ongoing intent.",
+                    "modelId": "associative",
+                    "predictions": {
+                      "continue": {
+                        "claim": "No new goal is initiated; its outcome remains unobserved without a matching action receipt.",
+                        "probability": 0.5
+                      },
+                      "food": {
+                        "claim": "The next qualified food acquisition succeeds or measured own consumption relieves hunger.",
+                        "probability": 0.5
+                      },
+                      "inspect": {
+                        "claim": "A performed inspection returns definite contents evidence, including an empty result.",
+                        "probability": 0.5
+                      },
+                      "water": {
+                        "claim": "The next qualified water acquisition succeeds or measured own consumption relieves thirst.",
+                        "probability": 0.5
+                      }
+                    },
+                    "version": "sao-associative/2"
+                  }
+                ],
+                "reason": "continues ordinary activity; no experiment selected",
+                "selectedActionId": "continue",
+                "selectedModelId": "ordinary",
+                "selectionPolicy": "deterministic-balanced",
+                "selectionWeight": 0.5,
+                "status": "censored",
+                "worldHours": 8.352739334106445
+              },
+              {
+                "disagreement": false,
+                "executionStatus": "censored",
+                "frame": {
+                  "actorId": "sao-1",
+                  "capabilities": {
+                    "cook": false,
+                    "forage": false,
+                    "treat": false
+                  },
+                  "drinkAt": 0.41972,
+                  "eatAt": 0.51215,
+                  "fatigue": 0.239,
+                  "foodAllowed": true,
+                  "hunger": 0.197,
+                  "id": "frame/228",
+                  "inspectionAllowed": true,
+                  "knownFood": 0,
+                  "knownPlaces": 1,
+                  "knownWater": 0,
+                  "thirst": 0.183,
+                  "waterAllowed": true,
+                  "worldHours": 8.374028205871582
+                },
+                "id": "episode/228",
+                "proposals": [
+                  {
+                    "actionId": "continue",
+                    "confidence": 0.5,
+                    "interpretation": "No admissible ordinary need threshold is reached.",
+                    "modelId": "ordinary",
+                    "predictions": {
+                      "continue": {
+                        "claim": "No new goal is initiated; its outcome remains unobserved without a matching action receipt.",
+                        "probability": 0.5
+                      },
+                      "food": {
+                        "claim": "The next qualified food acquisition succeeds or measured own consumption relieves hunger.",
+                        "probability": 0.5
+                      },
+                      "inspect": {
+                        "claim": "A performed inspection returns definite contents evidence, including an empty result.",
+                        "probability": 0.5
+                      },
+                      "water": {
+                        "claim": "The next qualified water acquisition succeeds or measured own consumption relieves thirst.",
+                        "probability": 0.5
+                      }
+                    },
+                    "version": "sao-ordinary/2"
+                  },
+                  {
+                    "actionId": "continue",
+                    "confidence": 0.5,
+                    "interpretation": "Current pressure leaves room to retain the ongoing intent.",
+                    "modelId": "associative",
+                    "predictions": {
+                      "continue": {
+                        "claim": "No new goal is initiated; its outcome remains unobserved without a matching action receipt.",
+                        "probability": 0.5
+                      },
+                      "food": {
+                        "claim": "The next qualified food acquisition succeeds or measured own consumption relieves hunger.",
+                        "probability": 0.5
+                      },
+                      "inspect": {
+                        "claim": "A performed inspection returns definite contents evidence, including an empty result.",
+                        "probability": 0.5
+                      },
+                      "water": {
+                        "claim": "The next qualified water acquisition succeeds or measured own consumption relieves thirst.",
+                        "probability": 0.5
+                      }
+                    },
+                    "version": "sao-associative/2"
+                  }
+                ],
+                "reason": "continues ordinary activity; no experiment selected",
+                "selectedActionId": "continue",
+                "selectedModelId": "associative",
+                "selectionPolicy": "deterministic-balanced",
+                "selectionWeight": 0.5,
+                "status": "censored",
+                "worldHours": 8.374028205871582
+              },
+              {
+                "disagreement": false,
+                "executionStatus": "censored",
+                "frame": {
+                  "actorId": "sao-1",
+                  "capabilities": {
+                    "cook": false,
+                    "forage": false,
+                    "treat": false
+                  },
+                  "drinkAt": 0.41972,
+                  "eatAt": 0.51215,
+                  "fatigue": 0.239,
+                  "foodAllowed": true,
+                  "hunger": 0.198,
+                  "id": "frame/229",
+                  "inspectionAllowed": true,
+                  "knownFood": 0,
+                  "knownPlaces": 1,
+                  "knownWater": 0,
+                  "thirst": 0.184,
+                  "waterAllowed": true,
+                  "worldHours": 8.395606994628906
+                },
+                "id": "episode/229",
+                "proposals": [
+                  {
+                    "actionId": "continue",
+                    "confidence": 0.5,
+                    "interpretation": "No admissible ordinary need threshold is reached.",
+                    "modelId": "ordinary",
+                    "predictions": {
+                      "continue": {
+                        "claim": "No new goal is initiated; its outcome remains unobserved without a matching action receipt.",
+                        "probability": 0.5
+                      },
+                      "food": {
+                        "claim": "The next qualified food acquisition succeeds or measured own consumption relieves hunger.",
+                        "probability": 0.5
+                      },
+                      "inspect": {
+                        "claim": "A performed inspection returns definite contents evidence, including an empty result.",
+                        "probability": 0.5
+                      },
+                      "water": {
+                        "claim": "The next qualified water acquisition succeeds or measured own consumption relieves thirst.",
+                        "probability": 0.5
+                      }
+                    },
+                    "version": "sao-ordinary/2"
+                  },
+                  {
+                    "actionId": "continue",
+                    "confidence": 0.5,
+                    "interpretation": "Current pressure leaves room to retain the ongoing intent.",
+                    "modelId": "associative",
+                    "predictions": {
+                      "continue": {
+                        "claim": "No new goal is initiated; its outcome remains unobserved without a matching action receipt.",
+                        "probability": 0.5
+                      },
+                      "food": {
+                        "claim": "The next qualified food acquisition succeeds or measured own consumption relieves hunger.",
+                        "probability": 0.5
+                      },
+                      "inspect": {
+                        "claim": "A performed inspection returns definite contents evidence, including an empty result.",
+                        "probability": 0.5
+                      },
+                      "water": {
+                        "claim": "The next qualified water acquisition succeeds or measured own consumption relieves thirst.",
+                        "probability": 0.5
+                      }
+                    },
+                    "version": "sao-associative/2"
+                  }
+                ],
+                "reason": "continues ordinary activity; no experiment selected",
+                "selectedActionId": "continue",
+                "selectedModelId": "ordinary",
+                "selectionPolicy": "deterministic-balanced",
+                "selectionWeight": 0.5,
+                "status": "censored",
+                "worldHours": 8.395606994628906
+              },
+              {
+                "disagreement": false,
+                "executionStatus": "censored",
+                "frame": {
+                  "actorId": "sao-1",
+                  "capabilities": {
+                    "cook": false,
+                    "forage": false,
+                    "treat": false
+                  },
+                  "drinkAt": 0.41972,
+                  "eatAt": 0.51215,
+                  "fatigue": 0.24,
+                  "foodAllowed": true,
+                  "hunger": 0.198,
+                  "id": "frame/230",
+                  "inspectionAllowed": true,
+                  "knownFood": 0,
+                  "knownPlaces": 1,
+                  "knownWater": 0,
+                  "thirst": 0.185,
+                  "waterAllowed": true,
+                  "worldHours": 8.417112350463867
+                },
+                "id": "episode/230",
+                "proposals": [
+                  {
+                    "actionId": "continue",
+                    "confidence": 0.5,
+                    "interpretation": "No admissible ordinary need threshold is reached.",
+                    "modelId": "ordinary",
+                    "predictions": {
+                      "continue": {
+                        "claim": "No new goal is initiated; its outcome remains unobserved without a matching action receipt.",
+                        "probability": 0.5
+                      },
+                      "food": {
+                        "claim": "The next qualified food acquisition succeeds or measured own consumption relieves hunger.",
+                        "probability": 0.5
+                      },
+                      "inspect": {
+                        "claim": "A performed inspection returns definite contents evidence, including an empty result.",
+                        "probability": 0.5
+                      },
+                      "water": {
+                        "claim": "The next qualified water acquisition succeeds or measured own consumption relieves thirst.",
+                        "probability": 0.5
+                      }
+                    },
+                    "version": "sao-ordinary/2"
+                  },
+                  {
+                    "actionId": "continue",
+                    "confidence": 0.5,
+                    "interpretation": "Current pressure leaves room to retain the ongoing intent.",
+                    "modelId": "associative",
+                    "predictions": {
+                      "continue": {
+                        "claim": "No new goal is initiated; its outcome remains unobserved without a matching action receipt.",
+                        "probability": 0.5
+                      },
+                      "food": {
+                        "claim": "The next qualified food acquisition succeeds or measured own consumption relieves hunger.",
+                        "probability": 0.5
+                      },
+                      "inspect": {
+                        "claim": "A performed inspection returns definite contents evidence, including an empty result.",
+                        "probability": 0.5
+                      },
+                      "water": {
+                        "claim": "The next qualified water acquisition succeeds or measured own consumption relieves thirst.",
+                        "probability": 0.5
+                      }
+                    },
+                    "version": "sao-associative/2"
+                  }
+                ],
+                "reason": "continues ordinary activity; no experiment selected",
+                "selectedActionId": "continue",
+                "selectedModelId": "associative",
+                "selectionPolicy": "deterministic-balanced",
+                "selectionWeight": 0.5,
+                "status": "censored",
+                "worldHours": 8.417112350463867
+              }
+            ],
+            "models": [
+              {
+                "beliefs": [
+                  {
+                    "confidence": 0.6508613543532491,
+                    "id": "ordinary/belief/1",
+                    "label": "Ingested SAO.SedativeTablets into self; efficacy unmeasured",
+                    "status": "supported"
+                  },
+                  {
+                    "confidence": 0.8998570508949313,
+                    "id": "ordinary/belief/2",
+                    "label": "Felt STRESS decrease; cause unassigned",
+                    "status": "supported"
+                  },
+                  {
+                    "confidence": 0.8996260723149533,
+                    "id": "ordinary/belief/3",
+                    "label": "Felt NICOTINE_WITHDRAWAL decrease; cause unassigned",
+                    "status": "supported"
+                  },
+                  {
+                    "confidence": 0.898408943826361,
+                    "id": "ordinary/belief/4",
+                    "label": "Felt PANIC decrease; cause unassigned",
+                    "status": "supported"
+                  }
+                ],
+                "hypotheses": [],
+                "id": "ordinary",
+                "omittedBeliefs": 0,
+                "omittedHypotheses": 0,
+                "version": "sao-ordinary/2"
+              },
+              {
+                "beliefs": [
+                  {
+                    "confidence": 0.6508613543532491,
+                    "id": "associative/belief/1",
+                    "label": "convey(medicine:SAO.SedativeTablets, body) observed association",
+                    "status": "supported"
+                  },
+                  {
+                    "confidence": 0.8998570508949313,
+                    "id": "associative/belief/2",
+                    "label": "vary(body, felt:STRESS:decrease) observed association",
+                    "status": "supported"
+                  },
+                  {
+                    "confidence": 0.8996260723149533,
+                    "id": "associative/belief/3",
+                    "label": "vary(body, felt:NICOTINE_WITHDRAWAL:decrease) observed association",
+                    "status": "supported"
+                  },
+                  {
+                    "confidence": 0.898408943826361,
+                    "id": "associative/belief/4",
+                    "label": "vary(body, felt:PANIC:decrease) observed association",
+                    "status": "supported"
+                  }
+                ],
+                "hypotheses": [
+                  {
+                    "branch": "logistics-preservation",
+                    "confidence": 0.6508613543532491,
+                    "depth": 1,
+                    "evidenceIds": [
+                      "medication/1"
+                    ],
+                    "id": "associative/hypothesis/1",
+                    "label": "Observed association convey(medicine:SAO.SedativeTablets, body)",
+                    "missing": [
+                      "Association does not establish an operating method or recipe."
+                    ],
+                    "parentIds": [],
+                    "status": "supported"
+                  },
+                  {
+                    "branch": "logistics-preservation",
+                    "confidence": 0.8998570508949313,
+                    "depth": 1,
+                    "evidenceIds": [
+                      "physical/499",
+                      "physical/500",
+                      "physical/501",
+                      "physical/502",
+                      "physical/503",
+                      "physical/504",
+                      "physical/505",
+                      "physical/506"
+                    ],
+                    "id": "associative/hypothesis/2",
+                    "label": "Observed association vary(body, felt:STRESS:decrease)",
+                    "missing": [
+                      "Association does not establish an operating method or recipe."
+                    ],
+                    "parentIds": [],
+                    "status": "supported"
+                  },
+                  {
+                    "branch": "logistics-preservation",
+                    "confidence": 0.8996260723149533,
+                    "depth": 1,
+                    "evidenceIds": [
+                      "physical/493",
+                      "physical/494",
+                      "physical/495",
+                      "physical/496",
+                      "physical/497",
+                      "physical/498",
+                      "physical/499",
+                      "physical/500"
+                    ],
+                    "id": "associative/hypothesis/3",
+                    "label": "Observed association vary(body, felt:NICOTINE_WITHDRAWAL:decrease)",
+                    "missing": [
+                      "Association does not establish an operating method or recipe."
+                    ],
+                    "parentIds": [],
+                    "status": "supported"
+                  },
+                  {
+                    "branch": "logistics-preservation",
+                    "confidence": 0.898408943826361,
+                    "depth": 1,
+                    "evidenceIds": [
+                      "physical/430",
+                      "physical/440",
+                      "physical/450",
+                      "physical/460",
+                      "physical/470",
+                      "physical/480",
+                      "physical/490",
+                      "physical/500"
+                    ],
+                    "id": "associative/hypothesis/7",
+                    "label": "Observed association vary(body, felt:PANIC:decrease)",
+                    "missing": [
+                      "Association does not establish an operating method or recipe."
+                    ],
+                    "parentIds": [],
+                    "status": "supported"
+                  },
+                  {
+                    "branch": "logistics-preservation",
+                    "confidence": 0.357973744894287,
+                    "depth": 2,
+                    "evidenceIds": [
+                      "physical/499",
+                      "physical/500",
+                      "physical/501",
+                      "physical/502",
+                      "physical/503",
+                      "physical/504",
+                      "physical/505",
+                      "physical/506"
+                    ],
+                    "id": "associative/hypothesis/4",
+                    "label": "Analogy compose(medicine:SAO.SedativeTablets, felt:STRESS:decrease)",
+                    "missing": [
+                      "The composed operation has not been performed.",
+                      "Interfaces, timing and losses remain unmeasured.",
+                      "Separate felt changes do not establish an ingestion's cause or efficacy; timing and alternatives remain untested."
+                    ],
+                    "parentIds": [
+                      "associative/hypothesis/1",
+                      "associative/hypothesis/2"
+                    ],
+                    "status": "hypothesis"
+                  },
+                  {
+                    "branch": "logistics-preservation",
+                    "confidence": 0.357973744894287,
+                    "depth": 2,
+                    "evidenceIds": [
+                      "physical/493",
+                      "physical/494",
+                      "physical/495",
+                      "physical/496",
+                      "physical/497",
+                      "physical/498",
+                      "physical/499",
+                      "physical/500"
+                    ],
+                    "id": "associative/hypothesis/5",
+                    "label": "Analogy compose(medicine:SAO.SedativeTablets, felt:NICOTINE_WITHDRAWAL:decrease)",
+                    "missing": [
+                      "The composed operation has not been performed.",
+                      "Interfaces, timing and losses remain unmeasured.",
+                      "Separate felt changes do not establish an ingestion's cause or efficacy; timing and alternatives remain untested."
+                    ],
+                    "parentIds": [
+                      "associative/hypothesis/1",
+                      "associative/hypothesis/3"
+                    ],
+                    "status": "hypothesis"
+                  },
+                  {
+                    "branch": "logistics-preservation",
+                    "confidence": 0.357973744894287,
+                    "depth": 2,
+                    "evidenceIds": [
+                      "physical/430",
+                      "physical/440",
+                      "physical/450",
+                      "physical/460",
+                      "physical/470",
+                      "physical/480",
+                      "physical/490",
+                      "physical/500"
+                    ],
+                    "id": "associative/hypothesis/8",
+                    "label": "Analogy compose(medicine:SAO.SedativeTablets, felt:PANIC:decrease)",
+                    "missing": [
+                      "The composed operation has not been performed.",
+                      "Interfaces, timing and losses remain unmeasured.",
+                      "Separate felt changes do not establish an ingestion's cause or efficacy; timing and alternatives remain untested."
+                    ],
+                    "parentIds": [
+                      "associative/hypothesis/1",
+                      "associative/hypothesis/7"
+                    ],
+                    "status": "hypothesis"
+                  },
+                  {
+                    "branch": "logistics-preservation",
+                    "confidence": 0.357973744894287,
+                    "depth": 2,
+                    "evidenceIds": [
+                      "physical/499",
+                      "physical/500",
+                      "physical/501",
+                      "physical/502",
+                      "physical/503",
+                      "physical/504",
+                      "physical/505",
+                      "physical/506"
+                    ],
+                    "id": "associative/hypothesis/6",
+                    "label": "Analogy transfer(medicine:SAO.SedativeTablets, body)",
+                    "missing": [
+                      "A usable transfer interface and its losses are unknown.",
+                      "Connected containment, conveyance or use is an analogy basis, not the proposed mechanism.",
+                      "No demonstrated recipe, apparatus or operating method.",
+                      "Separate felt changes do not establish an ingestion's cause or efficacy; timing and alternatives remain untested."
+                    ],
+                    "parentIds": [
+                      "associative/hypothesis/1"
+                    ],
+                    "status": "hypothesis"
+                  }
+                ],
+                "id": "associative",
+                "omittedBeliefs": 0,
+                "omittedHypotheses": 0,
+                "version": "sao-associative/2"
+              }
+            ],
+            "omittedEpisodes": 222,
+            "omittedExperiences": 47,
+            "rejectedExperiences": 0,
+            "schema": "simulation.cognition/1",
+            "sequence": 230,
+            "settings": {
+              "enabled": true,
+              "maxDepth": 4,
+              "opponentShare": 0.5,
+              "opportunitiesPerHour": 48
+            }
+          },
+          "events": [],
+          "id": "sao-1",
+          "label": "Jose Worthy",
+          "sections": [
+            {
+              "id": "needs",
+              "label": "Current needs",
+              "message": "",
+              "perspective": "Current physical state",
+              "rows": [
+                {
+                  "label": "Hunger",
+                  "value": "0.1990"
+                },
+                {
+                  "label": "Thirst",
+                  "value": "0.1850"
+                },
+                {
+                  "label": "Fatigue",
+                  "value": "0.2410"
+                },
+                {
+                  "label": "Endurance",
+                  "value": "1.0000"
+                },
+                {
+                  "label": "Nicotine withdrawal",
+                  "value": "0.0000"
+                },
+                {
+                  "label": "Health (%)",
+                  "value": "100.00"
+                }
+              ],
+              "source": "Native body",
+              "status": "available"
+            },
+            {
+              "id": "attention",
+              "label": "Attention and movement",
+              "message": "",
+              "perspective": "Current physical state",
+              "rows": [
+                {
+                  "label": "Response",
+                  "value": "No active sound response"
+                },
+                {
+                  "label": "Phase",
+                  "value": "idle"
+                },
+                {
+                  "label": "Attention readiness",
+                  "value": "1.000"
+                },
+                {
+                  "label": "Motor steadiness",
+                  "value": "1.000"
+                }
+              ],
+              "source": "Native body",
+              "status": "available"
+            },
+            {
+              "id": "medication",
+              "label": "Substance effects",
+              "message": "",
+              "perspective": "Current physical state and recorded use",
+              "rows": [
+                {
+                  "label": "Active effects",
+                  "value": "Yes"
+                },
+                {
+                  "label": "Sedating",
+                  "value": "Yes"
+                },
+                {
+                  "label": "Stimulating",
+                  "value": "No"
+                },
+                {
+                  "label": "Withdrawal",
+                  "value": "No"
+                },
+                {
+                  "label": "Overload",
+                  "value": "No"
+                },
+                {
+                  "label": "Active families",
+                  "value": "sedatives"
+                }
+              ],
+              "source": "Personal physiology",
+              "status": "available"
+            },
+            {
+              "id": "cooking",
+              "label": "Food preparation",
+              "message": "No current food preparation",
+              "perspective": "Current work and recorded outcome",
+              "rows": [],
+              "source": "Native appliance and food",
+              "status": "available"
+            },
+            {
+              "id": "inventory",
+              "label": "Carried inventory",
+              "message": "14 items read",
+              "perspective": "Current physical state",
+              "rows": [
+                {
+                  "label": "Base.Hat_HockeyMask",
+                  "value": "Hockey Mask [id 1428280819]"
+                },
+                {
+                  "label": "Base.Shoes_WorkBoots",
+                  "value": "Work Boots [id 391048479]"
+                },
+                {
+                  "label": "Base.VambraceTire_Left",
+                  "value": "Tire Forearm Armor [id 1697464534]"
+                },
+                {
+                  "label": "Base.VambraceTire_Right",
+                  "value": "Tire Forearm Armor [id 406064946]"
+                },
+                {
+                  "label": "Base.GreaveTire_Left",
+                  "value": "Tire Shin Armor [id 642655280]"
+                },
+                {
+                  "label": "Base.GreaveTire_Right",
+                  "value": "Tire Shin Armor [id 940669253]"
+                },
+                {
+                  "label": "Base.ThighTire_L",
+                  "value": "Tire Thigh Armor [id 1144062812]"
+                },
+                {
+                  "label": "Base.ThighTire_R",
+                  "value": "Tire Thigh Armor [id 2046024015]"
+                },
+                {
+                  "label": "Base.Shoulderpad_Tire_R",
+                  "value": "Tire Shoulder Armor - Right [id 2109331093]"
+                },
+                {
+                  "label": "Base.Shoulderpad_Tire_L",
+                  "value": "Tire Shoulder Armor - Left [id 1356381203]"
+                },
+                {
+                  "label": "Base.Cuirass_Tire",
+                  "value": "Tire Body Armor [id 1132570497]"
+                },
+                {
+                  "label": "Base.Notebook",
+                  "value": "Jose Worthy's journal [id 1263015582]"
+                },
+                {
+                  "label": "Base.IDcard_Male",
+                  "value": "Jose Worthy - ID [id 262209913]"
+                },
+                {
+                  "label": "SAO.SedativeTablets",
+                  "value": "Sedative Tablets [id 2006030982]"
+                }
+              ],
+              "source": "Native inventory containers",
+              "status": "available"
+            },
+            {
+              "id": "pressure",
+              "label": "Pressure and recorded reason",
+              "message": "",
+              "perspective": "Most recent decision receipt",
+              "rows": [
+                {
+                  "label": "answer",
+                  "value": "chosen rest"
+                },
+                {
+                  "label": "detail",
+                  "value": "waits for someone to come"
+                },
+                {
+                  "label": "at",
+                  "value": "75626"
+                },
+                {
+                  "label": "graph",
+                  "value": "1"
+                }
+              ],
+              "source": "Controller",
+              "status": "available"
+            },
+            {
+              "id": "actions",
+              "label": "Current action",
+              "message": "",
+              "perspective": "Execution owners",
+              "rows": [
+                {
+                  "label": "Controller state",
+                  "value": "IDLE"
+                },
+                {
+                  "label": "Movement",
+                  "value": "No owned route"
+                }
+              ],
+              "source": "Controller, Locomotion and native timed-action queue",
+              "status": "available"
+            },
+            {
+              "id": "source-work",
+              "label": "Source use and latest result",
+              "message": "",
+              "perspective": "Native action receipts",
+              "rows": [
+                {
+                  "label": "Source action",
+                  "value": "No recorded reservation pointer"
+                },
+                {
+                  "label": "Latest result",
+                  "value": "No retained receipt for this person"
+                }
+              ],
+              "source": "WorldSources durable action ledger",
+              "status": "available"
+            },
+            {
+              "id": "processes",
+              "label": "Reception, responses and work",
+              "message": "No recorded process participation in the current store",
+              "perspective": "Recorded stages for this person",
+              "rows": [],
+              "source": "Organization durable process records",
+              "status": "available"
+            }
+          ],
+          "summary": "retiree\nActivity: IDLE\nRecorded reason: waits for someone to come\nPosition from native-body\nRecorded alive\nLocation 3458.5, 10885.5; floor 0\nKnown people: 0\nStored threat memories: 0\nUnclassified sounds: 0"
+        },
+        {
+          "cognition": {
+            "actorId": "sao-2",
+            "episodes": [
+              {
+                "disagreement": false,
+                "executionStatus": "censored",
+                "frame": {
+                  "actorId": "sao-2",
+                  "capabilities": {
+                    "cook": false,
+                    "forage": false,
+                    "treat": false
+                  },
+                  "drinkAt": 0.39074,
+                  "eatAt": 0.475925,
+                  "fatigue": 0.022,
+                  "foodAllowed": true,
+                  "hunger": 0.194,
+                  "id": "frame/207",
+                  "inspectionAllowed": true,
+                  "knownFood": 0,
+                  "knownPlaces": 1,
+                  "knownWater": 0,
+                  "thirst": 0.205,
+                  "waterAllowed": true,
+                  "worldHours": 8.271204948425293
+                },
+                "id": "episode/207",
+                "proposals": [
+                  {
+                    "actionId": "continue",
+                    "confidence": 0.5,
+                    "interpretation": "No admissible ordinary need threshold is reached.",
+                    "modelId": "ordinary",
+                    "predictions": {
+                      "continue": {
+                        "claim": "No new goal is initiated; its outcome remains unobserved without a matching action receipt.",
+                        "probability": 0.5
+                      },
+                      "food": {
+                        "claim": "The next qualified food acquisition succeeds or measured own consumption relieves hunger.",
+                        "probability": 0.5
+                      },
+                      "inspect": {
+                        "claim": "A performed inspection returns definite contents evidence, including an empty result.",
+                        "probability": 0.5
+                      },
+                      "water": {
+                        "claim": "The next qualified water acquisition succeeds or measured own consumption relieves thirst.",
+                        "probability": 0.5
+                      }
+                    },
+                    "version": "sao-ordinary/2"
+                  },
+                  {
+                    "actionId": "continue",
+                    "confidence": 0.5,
+                    "interpretation": "Current pressure leaves room to retain the ongoing intent.",
+                    "modelId": "associative",
+                    "predictions": {
+                      "continue": {
+                        "claim": "No new goal is initiated; its outcome remains unobserved without a matching action receipt.",
+                        "probability": 0.5
+                      },
+                      "food": {
+                        "claim": "The next qualified food acquisition succeeds or measured own consumption relieves hunger.",
+                        "probability": 0.5
+                      },
+                      "inspect": {
+                        "claim": "A performed inspection returns definite contents evidence, including an empty result.",
+                        "probability": 0.5
+                      },
+                      "water": {
+                        "claim": "The next qualified water acquisition succeeds or measured own consumption relieves thirst.",
+                        "probability": 0.5
+                      }
+                    },
+                    "version": "sao-associative/2"
+                  }
+                ],
+                "reason": "continues ordinary activity; no experiment selected",
+                "selectedActionId": "continue",
+                "selectedModelId": "associative",
+                "selectionPolicy": "deterministic-balanced",
+                "selectionWeight": 0.5,
+                "status": "censored",
+                "worldHours": 8.271204948425293
+              },
+              {
+                "disagreement": false,
+                "executionStatus": "censored",
+                "frame": {
+                  "actorId": "sao-2",
+                  "capabilities": {
+                    "cook": false,
+                    "forage": false,
+                    "treat": false
+                  },
+                  "drinkAt": 0.39074,
+                  "eatAt": 0.475925,
+                  "fatigue": 0.023,
+                  "foodAllowed": true,
+                  "hunger": 0.194,
+                  "id": "frame/208",
+                  "inspectionAllowed": true,
+                  "knownFood": 0,
+                  "knownPlaces": 1,
+                  "knownWater": 0,
+                  "thirst": 0.206,
+                  "waterAllowed": true,
+                  "worldHours": 8.293436050415039
+                },
+                "id": "episode/208",
+                "proposals": [
+                  {
+                    "actionId": "continue",
+                    "confidence": 0.5,
+                    "interpretation": "No admissible ordinary need threshold is reached.",
+                    "modelId": "ordinary",
+                    "predictions": {
+                      "continue": {
+                        "claim": "No new goal is initiated; its outcome remains unobserved without a matching action receipt.",
+                        "probability": 0.5
+                      },
+                      "food": {
+                        "claim": "The next qualified food acquisition succeeds or measured own consumption relieves hunger.",
+                        "probability": 0.5
+                      },
+                      "inspect": {
+                        "claim": "A performed inspection returns definite contents evidence, including an empty result.",
+                        "probability": 0.5
+                      },
+                      "water": {
+                        "claim": "The next qualified water acquisition succeeds or measured own consumption relieves thirst.",
+                        "probability": 0.5
+                      }
+                    },
+                    "version": "sao-ordinary/2"
+                  },
+                  {
+                    "actionId": "continue",
+                    "confidence": 0.5,
+                    "interpretation": "Current pressure leaves room to retain the ongoing intent.",
+                    "modelId": "associative",
+                    "predictions": {
+                      "continue": {
+                        "claim": "No new goal is initiated; its outcome remains unobserved without a matching action receipt.",
+                        "probability": 0.5
+                      },
+                      "food": {
+                        "claim": "The next qualified food acquisition succeeds or measured own consumption relieves hunger.",
+                        "probability": 0.5
+                      },
+                      "inspect": {
+                        "claim": "A performed inspection returns definite contents evidence, including an empty result.",
+                        "probability": 0.5
+                      },
+                      "water": {
+                        "claim": "The next qualified water acquisition succeeds or measured own consumption relieves thirst.",
+                        "probability": 0.5
+                      }
+                    },
+                    "version": "sao-associative/2"
+                  }
+                ],
+                "reason": "continues ordinary activity; no experiment selected",
+                "selectedActionId": "continue",
+                "selectedModelId": "ordinary",
+                "selectionPolicy": "deterministic-balanced",
+                "selectionWeight": 0.5,
+                "status": "censored",
+                "worldHours": 8.293436050415039
+              },
+              {
+                "disagreement": false,
+                "executionStatus": "censored",
+                "frame": {
+                  "actorId": "sao-2",
+                  "capabilities": {
+                    "cook": false,
+                    "forage": false,
+                    "treat": false
+                  },
+                  "drinkAt": 0.39074,
+                  "eatAt": 0.475925,
+                  "fatigue": 0.024,
+                  "foodAllowed": true,
+                  "hunger": 0.195,
+                  "id": "frame/209",
+                  "inspectionAllowed": true,
+                  "knownFood": 0,
+                  "knownPlaces": 1,
+                  "knownWater": 0,
+                  "thirst": 0.206,
+                  "waterAllowed": true,
+                  "worldHours": 8.315437316894531
+                },
+                "id": "episode/209",
+                "proposals": [
+                  {
+                    "actionId": "continue",
+                    "confidence": 0.5,
+                    "interpretation": "No admissible ordinary need threshold is reached.",
+                    "modelId": "ordinary",
+                    "predictions": {
+                      "continue": {
+                        "claim": "No new goal is initiated; its outcome remains unobserved without a matching action receipt.",
+                        "probability": 0.5
+                      },
+                      "food": {
+                        "claim": "The next qualified food acquisition succeeds or measured own consumption relieves hunger.",
+                        "probability": 0.5
+                      },
+                      "inspect": {
+                        "claim": "A performed inspection returns definite contents evidence, including an empty result.",
+                        "probability": 0.5
+                      },
+                      "water": {
+                        "claim": "The next qualified water acquisition succeeds or measured own consumption relieves thirst.",
+                        "probability": 0.5
+                      }
+                    },
+                    "version": "sao-ordinary/2"
+                  },
+                  {
+                    "actionId": "continue",
+                    "confidence": 0.5,
+                    "interpretation": "Current pressure leaves room to retain the ongoing intent.",
+                    "modelId": "associative",
+                    "predictions": {
+                      "continue": {
+                        "claim": "No new goal is initiated; its outcome remains unobserved without a matching action receipt.",
+                        "probability": 0.5
+                      },
+                      "food": {
+                        "claim": "The next qualified food acquisition succeeds or measured own consumption relieves hunger.",
+                        "probability": 0.5
+                      },
+                      "inspect": {
+                        "claim": "A performed inspection returns definite contents evidence, including an empty result.",
+                        "probability": 0.5
+                      },
+                      "water": {
+                        "claim": "The next qualified water acquisition succeeds or measured own consumption relieves thirst.",
+                        "probability": 0.5
+                      }
+                    },
+                    "version": "sao-associative/2"
+                  }
+                ],
+                "reason": "continues ordinary activity; no experiment selected",
+                "selectedActionId": "continue",
+                "selectedModelId": "associative",
+                "selectionPolicy": "deterministic-balanced",
+                "selectionWeight": 0.5,
+                "status": "censored",
+                "worldHours": 8.315437316894531
+              },
+              {
+                "disagreement": false,
+                "executionStatus": "censored",
+                "frame": {
+                  "actorId": "sao-2",
+                  "capabilities": {
+                    "cook": false,
+                    "forage": false,
+                    "treat": false
+                  },
+                  "drinkAt": 0.39074,
+                  "eatAt": 0.475925,
+                  "fatigue": 0.01,
+                  "foodAllowed": true,
+                  "hunger": 0.195,
+                  "id": "frame/210",
+                  "inspectionAllowed": true,
+                  "knownFood": 0,
+                  "knownPlaces": 1,
+                  "knownWater": 0,
+                  "thirst": 0.207,
+                  "waterAllowed": true,
+                  "worldHours": 8.336895942687988
+                },
+                "id": "episode/210",
+                "proposals": [
+                  {
+                    "actionId": "continue",
+                    "confidence": 0.5,
+                    "interpretation": "No admissible ordinary need threshold is reached.",
+                    "modelId": "ordinary",
+                    "predictions": {
+                      "continue": {
+                        "claim": "No new goal is initiated; its outcome remains unobserved without a matching action receipt.",
+                        "probability": 0.5
+                      },
+                      "food": {
+                        "claim": "The next qualified food acquisition succeeds or measured own consumption relieves hunger.",
+                        "probability": 0.5
+                      },
+                      "inspect": {
+                        "claim": "A performed inspection returns definite contents evidence, including an empty result.",
+                        "probability": 0.5
+                      },
+                      "water": {
+                        "claim": "The next qualified water acquisition succeeds or measured own consumption relieves thirst.",
+                        "probability": 0.5
+                      }
+                    },
+                    "version": "sao-ordinary/2"
+                  },
+                  {
+                    "actionId": "continue",
+                    "confidence": 0.5,
+                    "interpretation": "Current pressure leaves room to retain the ongoing intent.",
+                    "modelId": "associative",
+                    "predictions": {
+                      "continue": {
+                        "claim": "No new goal is initiated; its outcome remains unobserved without a matching action receipt.",
+                        "probability": 0.5
+                      },
+                      "food": {
+                        "claim": "The next qualified food acquisition succeeds or measured own consumption relieves hunger.",
+                        "probability": 0.5
+                      },
+                      "inspect": {
+                        "claim": "A performed inspection returns definite contents evidence, including an empty result.",
+                        "probability": 0.5
+                      },
+                      "water": {
+                        "claim": "The next qualified water acquisition succeeds or measured own consumption relieves thirst.",
+                        "probability": 0.5
+                      }
+                    },
+                    "version": "sao-associative/2"
+                  }
+                ],
+                "reason": "continues ordinary activity; no experiment selected",
+                "selectedActionId": "continue",
+                "selectedModelId": "ordinary",
+                "selectionPolicy": "deterministic-balanced",
+                "selectionWeight": 0.5,
+                "status": "censored",
+                "worldHours": 8.336895942687988
+              },
+              {
+                "disagreement": false,
+                "executionStatus": "censored",
+                "frame": {
+                  "actorId": "sao-2",
+                  "capabilities": {
+                    "cook": false,
+                    "forage": false,
+                    "treat": false
+                  },
+                  "drinkAt": 0.39074,
+                  "eatAt": 0.475925,
+                  "fatigue": 0.01,
+                  "foodAllowed": true,
+                  "hunger": 0.196,
+                  "id": "frame/211",
+                  "inspectionAllowed": true,
+                  "knownFood": 0,
+                  "knownPlaces": 1,
+                  "knownWater": 0,
+                  "thirst": 0.208,
+                  "waterAllowed": true,
+                  "worldHours": 8.358281135559082
+                },
+                "id": "episode/211",
+                "proposals": [
+                  {
+                    "actionId": "continue",
+                    "confidence": 0.5,
+                    "interpretation": "No admissible ordinary need threshold is reached.",
+                    "modelId": "ordinary",
+                    "predictions": {
+                      "continue": {
+                        "claim": "No new goal is initiated; its outcome remains unobserved without a matching action receipt.",
+                        "probability": 0.5
+                      },
+                      "food": {
+                        "claim": "The next qualified food acquisition succeeds or measured own consumption relieves hunger.",
+                        "probability": 0.5
+                      },
+                      "inspect": {
+                        "claim": "A performed inspection returns definite contents evidence, including an empty result.",
+                        "probability": 0.5
+                      },
+                      "water": {
+                        "claim": "The next qualified water acquisition succeeds or measured own consumption relieves thirst.",
+                        "probability": 0.5
+                      }
+                    },
+                    "version": "sao-ordinary/2"
+                  },
+                  {
+                    "actionId": "continue",
+                    "confidence": 0.5,
+                    "interpretation": "Current pressure leaves room to retain the ongoing intent.",
+                    "modelId": "associative",
+                    "predictions": {
+                      "continue": {
+                        "claim": "No new goal is initiated; its outcome remains unobserved without a matching action receipt.",
+                        "probability": 0.5
+                      },
+                      "food": {
+                        "claim": "The next qualified food acquisition succeeds or measured own consumption relieves hunger.",
+                        "probability": 0.5
+                      },
+                      "inspect": {
+                        "claim": "A performed inspection returns definite contents evidence, including an empty result.",
+                        "probability": 0.5
+                      },
+                      "water": {
+                        "claim": "The next qualified water acquisition succeeds or measured own consumption relieves thirst.",
+                        "probability": 0.5
+                      }
+                    },
+                    "version": "sao-associative/2"
+                  }
+                ],
+                "reason": "continues ordinary activity; no experiment selected",
+                "selectedActionId": "continue",
+                "selectedModelId": "associative",
+                "selectionPolicy": "deterministic-balanced",
+                "selectionWeight": 0.5,
+                "status": "censored",
+                "worldHours": 8.358281135559082
+              },
+              {
+                "disagreement": false,
+                "executionStatus": "censored",
+                "frame": {
+                  "actorId": "sao-2",
+                  "capabilities": {
+                    "cook": false,
+                    "forage": false,
+                    "treat": false
+                  },
+                  "drinkAt": 0.39074,
+                  "eatAt": 0.475925,
+                  "fatigue": 0.011,
+                  "foodAllowed": true,
+                  "hunger": 0.197,
+                  "id": "frame/212",
+                  "inspectionAllowed": true,
+                  "knownFood": 0,
+                  "knownPlaces": 1,
+                  "knownWater": 0,
+                  "thirst": 0.208,
+                  "waterAllowed": true,
+                  "worldHours": 8.379287719726562
+                },
+                "id": "episode/212",
+                "proposals": [
+                  {
+                    "actionId": "continue",
+                    "confidence": 0.5,
+                    "interpretation": "No admissible ordinary need threshold is reached.",
+                    "modelId": "ordinary",
+                    "predictions": {
+                      "continue": {
+                        "claim": "No new goal is initiated; its outcome remains unobserved without a matching action receipt.",
+                        "probability": 0.5
+                      },
+                      "food": {
+                        "claim": "The next qualified food acquisition succeeds or measured own consumption relieves hunger.",
+                        "probability": 0.5
+                      },
+                      "inspect": {
+                        "claim": "A performed inspection returns definite contents evidence, including an empty result.",
+                        "probability": 0.5
+                      },
+                      "water": {
+                        "claim": "The next qualified water acquisition succeeds or measured own consumption relieves thirst.",
+                        "probability": 0.5
+                      }
+                    },
+                    "version": "sao-ordinary/2"
+                  },
+                  {
+                    "actionId": "continue",
+                    "confidence": 0.5,
+                    "interpretation": "Current pressure leaves room to retain the ongoing intent.",
+                    "modelId": "associative",
+                    "predictions": {
+                      "continue": {
+                        "claim": "No new goal is initiated; its outcome remains unobserved without a matching action receipt.",
+                        "probability": 0.5
+                      },
+                      "food": {
+                        "claim": "The next qualified food acquisition succeeds or measured own consumption relieves hunger.",
+                        "probability": 0.5
+                      },
+                      "inspect": {
+                        "claim": "A performed inspection returns definite contents evidence, including an empty result.",
+                        "probability": 0.5
+                      },
+                      "water": {
+                        "claim": "The next qualified water acquisition succeeds or measured own consumption relieves thirst.",
+                        "probability": 0.5
+                      }
+                    },
+                    "version": "sao-associative/2"
+                  }
+                ],
+                "reason": "continues ordinary activity; no experiment selected",
+                "selectedActionId": "continue",
+                "selectedModelId": "ordinary",
+                "selectionPolicy": "deterministic-balanced",
+                "selectionWeight": 0.5,
+                "status": "censored",
+                "worldHours": 8.379287719726562
+              },
+              {
+                "disagreement": false,
+                "executionStatus": "censored",
+                "frame": {
+                  "actorId": "sao-2",
+                  "capabilities": {
+                    "cook": false,
+                    "forage": false,
+                    "treat": false
+                  },
+                  "drinkAt": 0.39074,
+                  "eatAt": 0.475925,
+                  "fatigue": 0.012,
+                  "foodAllowed": true,
+                  "hunger": 0.197,
+                  "id": "frame/213",
+                  "inspectionAllowed": true,
+                  "knownFood": 0,
+                  "knownPlaces": 1,
+                  "knownWater": 0,
+                  "thirst": 0.209,
+                  "waterAllowed": true,
+                  "worldHours": 8.400232315063477
+                },
+                "id": "episode/213",
+                "proposals": [
+                  {
+                    "actionId": "continue",
+                    "confidence": 0.5,
+                    "interpretation": "No admissible ordinary need threshold is reached.",
+                    "modelId": "ordinary",
+                    "predictions": {
+                      "continue": {
+                        "claim": "No new goal is initiated; its outcome remains unobserved without a matching action receipt.",
+                        "probability": 0.5
+                      },
+                      "food": {
+                        "claim": "The next qualified food acquisition succeeds or measured own consumption relieves hunger.",
+                        "probability": 0.5
+                      },
+                      "inspect": {
+                        "claim": "A performed inspection returns definite contents evidence, including an empty result.",
+                        "probability": 0.5
+                      },
+                      "water": {
+                        "claim": "The next qualified water acquisition succeeds or measured own consumption relieves thirst.",
+                        "probability": 0.5
+                      }
+                    },
+                    "version": "sao-ordinary/2"
+                  },
+                  {
+                    "actionId": "continue",
+                    "confidence": 0.5,
+                    "interpretation": "Current pressure leaves room to retain the ongoing intent.",
+                    "modelId": "associative",
+                    "predictions": {
+                      "continue": {
+                        "claim": "No new goal is initiated; its outcome remains unobserved without a matching action receipt.",
+                        "probability": 0.5
+                      },
+                      "food": {
+                        "claim": "The next qualified food acquisition succeeds or measured own consumption relieves hunger.",
+                        "probability": 0.5
+                      },
+                      "inspect": {
+                        "claim": "A performed inspection returns definite contents evidence, including an empty result.",
+                        "probability": 0.5
+                      },
+                      "water": {
+                        "claim": "The next qualified water acquisition succeeds or measured own consumption relieves thirst.",
+                        "probability": 0.5
+                      }
+                    },
+                    "version": "sao-associative/2"
+                  }
+                ],
+                "reason": "continues ordinary activity; no experiment selected",
+                "selectedActionId": "continue",
+                "selectedModelId": "associative",
+                "selectionPolicy": "deterministic-balanced",
+                "selectionWeight": 0.5,
+                "status": "censored",
+                "worldHours": 8.400232315063477
+              },
+              {
+                "disagreement": false,
+                "executionStatus": "censored",
+                "frame": {
+                  "actorId": "sao-2",
+                  "capabilities": {
+                    "cook": false,
+                    "forage": false,
+                    "treat": false
+                  },
+                  "drinkAt": 0.39074,
+                  "eatAt": 0.475925,
+                  "fatigue": 0.013,
+                  "foodAllowed": true,
+                  "hunger": 0.198,
+                  "id": "frame/214",
+                  "inspectionAllowed": true,
+                  "knownFood": 0,
+                  "knownPlaces": 1,
+                  "knownWater": 0,
+                  "thirst": 0.21,
+                  "waterAllowed": true,
+                  "worldHours": 8.424025535583496
+                },
+                "id": "episode/214",
+                "proposals": [
+                  {
+                    "actionId": "continue",
+                    "confidence": 0.5,
+                    "interpretation": "No admissible ordinary need threshold is reached.",
+                    "modelId": "ordinary",
+                    "predictions": {
+                      "continue": {
+                        "claim": "No new goal is initiated; its outcome remains unobserved without a matching action receipt.",
+                        "probability": 0.5
+                      },
+                      "food": {
+                        "claim": "The next qualified food acquisition succeeds or measured own consumption relieves hunger.",
+                        "probability": 0.5
+                      },
+                      "inspect": {
+                        "claim": "A performed inspection returns definite contents evidence, including an empty result.",
+                        "probability": 0.5
+                      },
+                      "water": {
+                        "claim": "The next qualified water acquisition succeeds or measured own consumption relieves thirst.",
+                        "probability": 0.5
+                      }
+                    },
+                    "version": "sao-ordinary/2"
+                  },
+                  {
+                    "actionId": "continue",
+                    "confidence": 0.5,
+                    "interpretation": "Current pressure leaves room to retain the ongoing intent.",
+                    "modelId": "associative",
+                    "predictions": {
+                      "continue": {
+                        "claim": "No new goal is initiated; its outcome remains unobserved without a matching action receipt.",
+                        "probability": 0.5
+                      },
+                      "food": {
+                        "claim": "The next qualified food acquisition succeeds or measured own consumption relieves hunger.",
+                        "probability": 0.5
+                      },
+                      "inspect": {
+                        "claim": "A performed inspection returns definite contents evidence, including an empty result.",
+                        "probability": 0.5
+                      },
+                      "water": {
+                        "claim": "The next qualified water acquisition succeeds or measured own consumption relieves thirst.",
+                        "probability": 0.5
+                      }
+                    },
+                    "version": "sao-associative/2"
+                  }
+                ],
+                "reason": "continues ordinary activity; no experiment selected",
+                "selectedActionId": "continue",
+                "selectedModelId": "ordinary",
+                "selectionPolicy": "deterministic-balanced",
+                "selectionWeight": 0.5,
+                "status": "censored",
+                "worldHours": 8.424025535583496
+              }
+            ],
+            "models": [
+              {
+                "beliefs": [],
+                "hypotheses": [],
+                "id": "ordinary",
+                "omittedBeliefs": 0,
+                "omittedHypotheses": 0,
+                "version": "sao-ordinary/2"
+              },
+              {
+                "beliefs": [],
+                "hypotheses": [],
+                "id": "associative",
+                "omittedBeliefs": 0,
+                "omittedHypotheses": 0,
+                "version": "sao-associative/2"
+              }
+            ],
+            "omittedEpisodes": 206,
+            "omittedExperiences": 0,
+            "rejectedExperiences": 0,
+            "schema": "simulation.cognition/1",
+            "sequence": 214,
+            "settings": {
+              "enabled": true,
+              "maxDepth": 4,
+              "opponentShare": 0.5,
+              "opportunitiesPerHour": 48
+            }
+          },
+          "events": [],
+          "id": "sao-2",
+          "label": "Trevor Hale",
+          "sections": [
+            {
+              "id": "needs",
+              "label": "Current needs",
+              "message": "",
+              "perspective": "Current physical state",
+              "rows": [
+                {
+                  "label": "Hunger",
+                  "value": "0.1980"
+                },
+                {
+                  "label": "Thirst",
+                  "value": "0.2100"
+                },
+                {
+                  "label": "Fatigue",
+                  "value": "0.0140"
+                },
+                {
+                  "label": "Endurance",
+                  "value": "1.0000"
+                },
+                {
+                  "label": "Nicotine withdrawal",
+                  "value": "0.0000"
+                },
+                {
+                  "label": "Health (%)",
+                  "value": "100.00"
+                }
+              ],
+              "source": "Native body",
+              "status": "available"
+            },
+            {
+              "id": "attention",
+              "label": "Attention and movement",
+              "message": "",
+              "perspective": "Current physical state",
+              "rows": [
+                {
+                  "label": "Response",
+                  "value": "No active sound response"
+                },
+                {
+                  "label": "Phase",
+                  "value": "idle"
+                },
+                {
+                  "label": "Attention readiness",
+                  "value": "1.000"
+                },
+                {
+                  "label": "Motor steadiness",
+                  "value": "1.000"
+                }
+              ],
+              "source": "Native body",
+              "status": "available"
+            },
+            {
+              "id": "medication",
+              "label": "Substance effects",
+              "message": "",
+              "perspective": "Current physical state and recorded use",
+              "rows": [
+                {
+                  "label": "Active effects",
+                  "value": "No"
+                },
+                {
+                  "label": "Sedating",
+                  "value": "No"
+                },
+                {
+                  "label": "Stimulating",
+                  "value": "No"
+                },
+                {
+                  "label": "Withdrawal",
+                  "value": "No"
+                },
+                {
+                  "label": "Overload",
+                  "value": "No"
+                }
+              ],
+              "source": "Personal physiology",
+              "status": "available"
+            },
+            {
+              "id": "cooking",
+              "label": "Food preparation",
+              "message": "No current food preparation",
+              "perspective": "Current work and recorded outcome",
+              "rows": [],
+              "source": "Native appliance and food",
+              "status": "available"
+            },
+            {
+              "id": "inventory",
+              "label": "Carried inventory",
+              "message": "7 items read",
+              "perspective": "Current physical state",
+              "rows": [
+                {
+                  "label": "Base.Vest_DefaultTEXTURE_TINT",
+                  "value": "Tank Top [id 2011521361]"
+                },
+                {
+                  "label": "Base.Bracelet_RightFriendshipTINT",
+                  "value": "Friendship Bracelet [id 1403263306]"
+                },
+                {
+                  "label": "Base.Shoes_TrainerTINT",
+                  "value": "Sneakers [id 1879192191]"
+                },
+                {
+                  "label": "Base.Trousers_Denim",
+                  "value": "Jeans [id 229812404]"
+                },
+                {
+                  "label": "Base.Jacket_Varsity",
+                  "value": "Jacket - Varsity [id 791625646]"
+                },
+                {
+                  "label": "Base.Notebook",
+                  "value": "Trevor Hale's journal [id 884881207]"
+                },
+                {
+                  "label": "Base.IDcard_Male",
+                  "value": "Trevor Hale - ID [id 1612527344]"
+                }
+              ],
+              "source": "Native inventory containers",
+              "status": "available"
+            },
+            {
+              "id": "pressure",
+              "label": "Pressure and recorded reason",
+              "message": "",
+              "perspective": "Most recent decision receipt",
+              "rows": [
+                {
+                  "label": "answer",
+                  "value": "chosen rest"
+                },
+                {
+                  "label": "detail",
+                  "value": "turns something over in their hands"
+                },
+                {
+                  "label": "at",
+                  "value": "75626"
+                },
+                {
+                  "label": "graph",
+                  "value": "1"
+                }
+              ],
+              "source": "Controller",
+              "status": "available"
+            },
+            {
+              "id": "actions",
+              "label": "Current action",
+              "message": "",
+              "perspective": "Execution owners",
+              "rows": [
+                {
+                  "label": "Controller state",
+                  "value": "IDLE"
+                },
+                {
+                  "label": "Movement",
+                  "value": "No owned route"
+                }
+              ],
+              "source": "Controller, Locomotion and native timed-action queue",
+              "status": "available"
+            },
+            {
+              "id": "source-work",
+              "label": "Source use and latest result",
+              "message": "",
+              "perspective": "Native action receipts",
+              "rows": [
+                {
+                  "label": "Source action",
+                  "value": "No recorded reservation pointer"
+                },
+                {
+                  "label": "Latest result",
+                  "value": "No retained receipt for this person"
+                }
+              ],
+              "source": "WorldSources durable action ledger",
+              "status": "available"
+            },
+            {
+              "id": "processes",
+              "label": "Reception, responses and work",
+              "message": "No recorded process participation in the current store",
+              "perspective": "Recorded stages for this person",
+              "rows": [],
+              "source": "Organization durable process records",
+              "status": "available"
+            }
+          ],
+          "summary": "student\nActivity: IDLE\nRecorded reason: turns something over in their hands\nPosition from native-body\nRecorded alive\nLocation 3439.5, 10910.5; floor 0\nKnown people: 0\nStored threat memories: 0\nUnclassified sounds: 0"
+        }
+      ],
+      "schema": "mousecat.native-view/1",
+      "sequence": 339,
+      "sessionId": "88973430-47da-41fb-8a40-e023c7d3e355",
+      "state": "running",
+      "summary": "World hour 8.438 | 2 people, 2 represented. People observed at hour 8.463360786437988. God view; canopy cutaway; full physics applies in the loaded region. Unreviewed.",
+      "title": "Simulation observatory",
+      "viewport": {
+        "targetZoom": 1.25,
+        "zoom": 1.25,
+        "zoomLevels": [
+          0.25,
+          0.5,
+          0.75,
+          1,
+          1.25,
+          1.5,
+          1.75,
+          2,
+          2.25,
+          2.5
+        ]
+      }
+    },
+    "connection": "live",
+    "ageMs": 75,
+    "imageUrl": "/api/native-views/survival-observatory/image?binding=8ef03157fa8c88deec2f7bb9a0a68d8a587424bf6f73976c84b37577c09b2698&file=study-live-0000000000000310.png&sha256=f4a0fdac25fe310ef34f4eb88bae8c8e1dd97ce36dab8d17e7177e95772c011c"
+  }
+}

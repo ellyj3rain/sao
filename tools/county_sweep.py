@@ -100,6 +100,7 @@ ROOT = pathlib.Path(__file__).resolve().parent.parent
 HERE = pathlib.Path(__file__).resolve().parent
 sys.path.insert(0, str(HERE / "sweep"))
 import world as World                                   # noqa: E402
+from lua_read import strip_lua                         # noqa: E402
 
 SWEEP = HERE / "sweep"
 SRC = HERE / "luacheck" / "LuaRun.java"
@@ -183,6 +184,7 @@ MODULES = [
     "shared/SAO_PlaceAttachment.lua", "shared/SAO_PlayerInteraction.lua",
     "shared/SAO_Pressure.lua", "shared/SAO_WorldDevelopment.lua",
     "shared/SAO_Habits.lua", "shared/SAO_Claims.lua", "shared/SAO_Identity.lua",
+    "shared/SAO_PharmacologyProfiles.lua", "shared/SAO_Pharmacology.lua",
     "shared/SAO_BodySnapshot.lua",
     "shared/SAO_Lessons.lua", "shared/SAO_WorldKnowledge.lua", "shared/SAO_Knowledge.lua",
     "shared/SAO_PathogenEvents.lua", "shared/SAO_WorldGenesis.lua",
@@ -208,6 +210,8 @@ NOT_DORMANT = {
     "Controller": "drives materialised agents; the dormant half has none",
     "Locomotion": "queues a move onto a body",
     "Needs": "acts on a body's needs through the engine",
+    "Orienting": "turns the head and body in response to loaded sound cues; dormant people have no native pose",
+    "Cooking": "owns exact loaded transfers and appliance heat; dormant cooking has no native appliance executor",
     "Handover": "executes native item actions between materialised bodies; dormant exchange remains unimplemented",
     "Treatment": "executes patient-bound native bandaging on materialised bodies; dormant treatment remains unimplemented",
     "SourceUse": "executes source actions on materialised bodies; dormant capture reports the absent executor",
@@ -393,7 +397,7 @@ def modules_referenced(lua):
         if not p.exists():
             continue
         loaded.add(p.stem.replace("SAO_", ""))
-        text = p.read_text(encoding="utf-8", errors="ignore")
+        text = strip_lua(p.read_text(encoding="utf-8", errors="ignore"))
         # A compatibility module may publish more than its filename (for
         # example the generalized ZAO-person transfer while retaining the
         # historical CrossedTransfer alias). Those explicit owners are loaded,

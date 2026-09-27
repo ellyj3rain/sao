@@ -1,0 +1,1084 @@
+{
+  "schema": "sao-c89-native-capability-review/1",
+  "sessionId": "bc78a3da-37ca-4566-b028-babeb284af56",
+  "datasetAdmission": "unreviewed",
+  "status": "completed",
+  "terminal": {
+    "endHours": 8.331809043884277,
+    "nativeSaveReturned": true,
+    "startHours": 2.0
+  },
+  "supervision": {
+    "exitCode": 0,
+    "failure": null,
+    "forced": false,
+    "limitSeconds": 600,
+    "progress": {
+      "native.json": 1064,
+      "observer-state.json": 4259
+    },
+    "stopReason": null,
+    "wallSeconds": 212.166
+  },
+  "player": {
+    "count": 0,
+    "observerPersisted": false
+  },
+  "runtimeErrors": [],
+  "population": {
+    "captured": 2,
+    "dead": 0,
+    "represented": 2,
+    "total": 2,
+    "unrepresented": 0
+  },
+  "frames": 26,
+  "snapshots": 50,
+  "trajectoryEpisodes": 432,
+  "experienceKinds": {
+    "medication-use": 1,
+    "physical-change": 293
+  },
+  "nativeDiagnostics": {
+    "applianceOfferExceptions": {
+      "count": 0,
+      "first": [],
+      "last": []
+    },
+    "orientationWeaveFailure": {
+      "count": 0,
+      "first": [],
+      "last": []
+    },
+    "orientationWeaveUnavailable": {
+      "count": 0,
+      "first": [],
+      "last": []
+    },
+    "orientationWeaveRegistered": {
+      "count": 1,
+      "first": [
+        "2026-09-27T06:23:24.611084300Z [SAO] orientation sound weave registered class=zombie.WorldSoundManager$WorldSound sound-pulses=waiting"
+      ],
+      "last": [
+        "2026-09-27T06:23:24.611084300Z [SAO] orientation sound weave registered class=zombie.WorldSoundManager$WorldSound sound-pulses=waiting"
+      ]
+    },
+    "orientationWeaveTransformed": {
+      "count": 1,
+      "first": [
+        "2026-09-27T06:24:16.533879300Z [SAO] orientation sound weave transformed class=zombie.WorldSoundManager$WorldSound loaded=true loader=jdk.internal.loader.ClassLoaders$AppClassLoader@6060146b"
+      ],
+      "last": [
+        "2026-09-27T06:24:16.533879300Z [SAO] orientation sound weave transformed class=zombie.WorldSoundManager$WorldSound loaded=true loader=jdk.internal.loader.ClassLoaders$AppClassLoader@6060146b"
+      ]
+    },
+    "recoveredBridgeExposureAttempts": {
+      "count": 1,
+      "first": [
+        "2026-09-27T06:23:38.177814500Z [SAO] bridge exposure attempt failed: java.lang.reflect.InvocationTargetException"
+      ],
+      "last": [
+        "2026-09-27T06:23:38.177814500Z [SAO] bridge exposure attempt failed: java.lang.reflect.InvocationTargetException"
+      ]
+    },
+    "nativeRouteFailures": {
+      "count": 8,
+      "first": [
+        "2026-09-27T06:24:22.976744Z [SAO] route failed person=sao-2 result=FAILED_BLOCKED_DIAGONAL at=3430.2073,10908.793,0.0 node=3429.5,10909.5,0.0 index=2/4 goal=3429.5,10908.5,0"
+      ],
+      "last": [
+        "2026-09-27T06:26:06.946150500Z [SAO] route failed person=sao-1 result=FAILED_BLOCKED_DIAGONAL at=3445.5107,10901.93,0.0 node=3444.5,10902.5,0.0 index=5/9 goal=3444.5,10905.5,0"
+      ]
+    }
+  },
+  "models": {
+    "sao-1/ordinary": {
+      "version": "sao-ordinary/2",
+      "beliefs": 4,
+      "hypotheses": 0
+    },
+    "sao-1/associative": {
+      "version": "sao-associative/2",
+      "beliefs": 4,
+      "hypotheses": 8
+    },
+    "sao-2/ordinary": {
+      "version": "sao-ordinary/2",
+      "beliefs": 0,
+      "hypotheses": 0
+    },
+    "sao-2/associative": {
+      "version": "sao-associative/2",
+      "beliefs": 0,
+      "hypotheses": 0
+    }
+  },
+  "preparation": [],
+  "sourceReceipt": {
+    "path": "C:\\Users\\jleyv\\Peanut Butter\\AI Assisted Software Engineering Mass Repository\\Projects\\survivor-awareness\\_scratch\\c89-orienting\\native-07\\attempts\\0001\\capability-review.json",
+    "sha256": "b13db7107a7c0d737c5728780c3efad6dbf3aa913907ff199272d5207996e192"
+  },
+  "sourceInventory": {
+    "SAOCapabilityCheck": {
+      "42.20/media/lua/client/ZZ_SAOCapabilityCheck.lua": {
+        "sha256": "94859a0fd834003b5e0ffe1d3d3f9f6e09894b8eb9a72cb1790d7ce2f32fc055"
+      },
+      "42.20/mod.info": {
+        "sha256": "b7add3b25f7c11ff9f832909f02b60369d9fdfe111c751420080250fb436bbeb"
+      },
+      "mod.info": {
+        "sha256": "b7add3b25f7c11ff9f832909f02b60369d9fdfe111c751420080250fb436bbeb"
+      }
+    },
+    "SurvivorAwareness": {
+      "42.20/icon.png": {
+        "sha256": "62f62b5b98672870205bb4eadbdf2c0ffe56157604aee09b9800f334ed7500eb"
+      },
+      "42.20/media/AnimSets/player/actions/SAO_BallThrow.xml": {
+        "sha256": "9ef542e509a29782ba8fae3003a2500327c936038342930394d273b50f47047b"
+      },
+      "42.20/media/AnimSets/player/actions/SAO_BardFlute.xml": {
+        "sha256": "5b5bb04441d6041e27a39e57b7abb2af47382d463dde7f9f8efcb382df1792cf"
+      },
+      "42.20/media/AnimSets/player/actions/SAO_BardGuitarBass.xml": {
+        "sha256": "634bc3af69483b45f6ae540219a62d9e181b0e16f3bc9bde71135485b987d0dd"
+      },
+      "42.20/media/AnimSets/player/actions/SAO_BardGuitarElectric.xml": {
+        "sha256": "7940e45fccdb3705307ad67a91c45298e9a688938cc6e10377c40dc0c6e155a5"
+      },
+      "42.20/media/AnimSets/player/actions/SAO_BardSaxophone.xml": {
+        "sha256": "5f37264bc749081b0c9ffbfcaa38db32d3f4b2c0f2c1c3ba109203d66bc52a1d"
+      },
+      "42.20/media/AnimSets/player/actions/SAO_BardTrumpet.xml": {
+        "sha256": "7c3dcb4ca12a42a7f7aad256726c61b807a82f29793a0f4ba1e7ab2c506d22c1"
+      },
+      "42.20/media/AnimSets/player/actions/SAO_BardViolin.xml": {
+        "sha256": "3ef65cfcdd81770178ada7d66b6c2d6ad4d1484a5d74d942309e5ceba76c18ed"
+      },
+      "42.20/media/AnimSets/player/actions/SAO_Cashier.xml": {
+        "sha256": "b4a61ea3e7ad07a70bd9824daea8d7ecb3dfc8fa7f96a50f75e5f1ef0a282370"
+      },
+      "42.20/media/AnimSets/player/actions/SAO_ConverseEnd_Frustrated01.xml": {
+        "sha256": "b5308d838b2ee9dbc42ab517a57e0b619f24bb685d8dc68867550cf6743c9a5d"
+      },
+      "42.20/media/AnimSets/player/actions/SAO_ConverseEnd_Frustrated02.xml": {
+        "sha256": "e0fdba280893f459b89a293d07142e0ff72a018fb20b9c6e0933e84a45e69fc9"
+      },
+      "42.20/media/AnimSets/player/actions/SAO_ConverseEnd_Frustrated03.xml": {
+        "sha256": "256b5a7e0296fe959627aff663ad8d13b106504ac925f7f9c9d64d59f007e516"
+      },
+      "42.20/media/AnimSets/player/actions/SAO_ConverseEnd_Frustrated04.xml": {
+        "sha256": "3b7f0d463406dc53183f70b7393b9ffde7ab71b438073f40c68ab730d88229b7"
+      },
+      "42.20/media/AnimSets/player/actions/SAO_Converse_Acknowledging.xml": {
+        "sha256": "b67beb6f0cc4c41821961153e7cafb6d265fa60a1ec8ad890e3401a0e358c495"
+      },
+      "42.20/media/AnimSets/player/actions/SAO_Converse_Agony.xml": {
+        "sha256": "d7e39acd25710db441c867015745fff76c015b6d66aa248c6309ab2d4be8d8a5"
+      },
+      "42.20/media/AnimSets/player/actions/SAO_Converse_Agreeing.xml": {
+        "sha256": "a532e03dbb4f506c787db92dc773f0133386ecfb180af6b97790ab9c4e30de85"
+      },
+      "42.20/media/AnimSets/player/actions/SAO_Converse_AgreeingHandGesture.xml": {
+        "sha256": "4d8b1dbc6a402a514654205f9b78b5e87dfee234c84e2310f037a9e438094632"
+      },
+      "42.20/media/AnimSets/player/actions/SAO_Converse_Angry01.xml": {
+        "sha256": "9aa423e6d56f19c4ec882656eb128dc6b224687c4592c16e81e3547ea69f6ef4"
+      },
+      "42.20/media/AnimSets/player/actions/SAO_Converse_Angry02.xml": {
+        "sha256": "0fac64af097b853868d9d141ee33e5bb8d6bcb530cfd8d5e417e2626b1c55a7b"
+      },
+      "42.20/media/AnimSets/player/actions/SAO_Converse_ArmForward.xml": {
+        "sha256": "6a0e569dfa2e6bd34b7961512501478d023b786adb355407526f2ed3fce31943"
+      },
+      "42.20/media/AnimSets/player/actions/SAO_Converse_ArmGesture.xml": {
+        "sha256": "22b282bf4e7c4848c06b678ebcc09e9213765a084b55a568a5db158aee0c6721"
+      },
+      "42.20/media/AnimSets/player/actions/SAO_Converse_Dismissive01.xml": {
+        "sha256": "d86c81a8bf4ddfeecd2f3cb182d7bbf1b11739778dc970b433113a32ecfc9eda"
+      },
+      "42.20/media/AnimSets/player/actions/SAO_Converse_Dismissive02.xml": {
+        "sha256": "17029b1d7a02bc2d81ce60f6e79f0780f9e775bcecb147033b0afc7482b89062"
+      },
+      "42.20/media/AnimSets/player/actions/SAO_Converse_HeadNod.xml": {
+        "sha256": "42a038aaed55b8db4610bfd887889c2fbad4dca221853fdceda9999e951ddcc7"
+      },
+      "42.20/media/AnimSets/player/actions/SAO_Converse_InformalBow.xml": {
+        "sha256": "d3f11dddee60fe0085ffe101cc9f0a3557591aef4e0e08637e2ddf8b815ce65d"
+      },
+      "42.20/media/AnimSets/player/actions/SAO_Converse_Listening01.xml": {
+        "sha256": "326a79b49b325afad4e825b99df9992273ed32f4253bacf22d2b750d71f73a91"
+      },
+      "42.20/media/AnimSets/player/actions/SAO_Converse_Listening02.xml": {
+        "sha256": "c400e0f5215f3e0bb1949634dc06f0aa08ae480a9b1ff49eb62bb034e59287cd"
+      },
+      "42.20/media/AnimSets/player/actions/SAO_Converse_LookingDown.xml": {
+        "sha256": "643268f5a461f1500270ec89ef39e9712cecb6d076184147bc7aa33b680d60c3"
+      },
+      "42.20/media/AnimSets/player/actions/SAO_Converse_Meditation.xml": {
+        "sha256": "b020c35d8b9102767d191964354f423454d8335ff7d5ce5f0d873382f465199e"
+      },
+      "42.20/media/AnimSets/player/actions/SAO_Converse_ShakeHeadNo.xml": {
+        "sha256": "4471ef42b0dc5696043cc499a3b7a3a115a3bb3bf1c36883847381efab4b29da"
+      },
+      "42.20/media/AnimSets/player/actions/SAO_Converse_Yawn.xml": {
+        "sha256": "aeb1e55c1051f1902d2f6420fd979cafacb435fdd8d63907b0fdce6e8161d2d1"
+      },
+      "42.20/media/AnimSets/player/actions/SAO_DancingFreestyleA.xml": {
+        "sha256": "10f1b6104af793bf957347849eb333beaebde4543fa18958b906d32de93f4882"
+      },
+      "42.20/media/AnimSets/player/actions/SAO_DancingFreestyleB.xml": {
+        "sha256": "c0cea5781450d229d0f4eed78f0e1adc47510be7f60fd26276e60ce1f61c9145"
+      },
+      "42.20/media/AnimSets/player/actions/SAO_DancingFreestyleC.xml": {
+        "sha256": "d01b1eb20c6abc7098362f32124019c779ea92ac288daba0e934860abb0f4403"
+      },
+      "42.20/media/AnimSets/player/actions/SAO_DancingFreestyleD.xml": {
+        "sha256": "8707a6d5e562824944a3ecf1a6667102b77f02839006c9e36a361ee0453c8c7b"
+      },
+      "42.20/media/AnimSets/player/actions/SAO_DancingFreestyleE.xml": {
+        "sha256": "716d193e00769e24d81c8684c79b55a3b83fc5e9b8e7386101d71157cdb90f0b"
+      },
+      "42.20/media/AnimSets/player/actions/SAO_DancingFreestyleF.xml": {
+        "sha256": "ded6210a14f7f01e69c5d3072c84f7e4c6b18afd147e521f2901e9e12b587cae"
+      },
+      "42.20/media/AnimSets/player/actions/SAO_DancingFreestyleG.xml": {
+        "sha256": "763f74bcc412b60b03f1220913d20979fc58314e39a0dbdf212c371216e88218"
+      },
+      "42.20/media/AnimSets/player/actions/SAO_DancingFreestyleH.xml": {
+        "sha256": "21948de240866ebd524768e66012e8ee7b5d937bfadc7b078e388c37cf9f449c"
+      },
+      "42.20/media/AnimSets/player/actions/SAO_DancingFreestyleI.xml": {
+        "sha256": "e13a1ff11f13c0399f30ab417f3389811d8cc5d965ef78d9f7bc375077c7b4d6"
+      },
+      "42.20/media/AnimSets/player/actions/SAO_DancingHandWave.xml": {
+        "sha256": "d2c39ac12a1f60208a3d60a088fe99412a2b00561c4249f0bfdadb34984cc97a"
+      },
+      "42.20/media/AnimSets/player/actions/SAO_DancingHandsInAir.xml": {
+        "sha256": "d470da5bb2865de77a3d2ef7fbf1b46fc23b2ef79f650ac38cc2989aaca8fba6"
+      },
+      "42.20/media/AnimSets/player/actions/SAO_DancingMacarena.xml": {
+        "sha256": "0be53eb6a1cfa2029787aad7845c538f9ae4db6c17f210284584a45d49f1c97c"
+      },
+      "42.20/media/AnimSets/player/actions/SAO_DancingMoveAround.xml": {
+        "sha256": "6021c77ffc1401f00c98b4f88e59de0db0e190a63e9e5d60a6bcc06ce50f4716"
+      },
+      "42.20/media/AnimSets/player/actions/SAO_DancingRunningMan.xml": {
+        "sha256": "1ea3c8b3498941d2487c204dcb4190a6fc21825bd6b1690cbd834c495d7a6d10"
+      },
+      "42.20/media/AnimSets/player/actions/SAO_DancingShake.xml": {
+        "sha256": "b995a62744dd9e86974f8bd0a245d0f1019585fcbb7e3de86ffb7090065ebf75"
+      },
+      "42.20/media/AnimSets/player/actions/SAO_DancingSideStep.xml": {
+        "sha256": "f42a90a3f09e34f7717b7a8611c93a950e3253e7712c5ef80740308729ba8df4"
+      },
+      "42.20/media/AnimSets/player/actions/SAO_DancingWeekOne1.xml": {
+        "sha256": "b5669f5e97362e6c0c809b04583faa70369e5e492e1ebf561694d85a4c86d8e3"
+      },
+      "42.20/media/AnimSets/player/actions/SAO_DancingWeekOne2.xml": {
+        "sha256": "2d8ded42688d9ed494aa6dd122692d78b20773d211cba96a7eeccf539930ef94"
+      },
+      "42.20/media/AnimSets/player/actions/SAO_DancingWeekOne3.xml": {
+        "sha256": "ea46d6be1d97df6b8d57f411e3a795737dfc9bc2b10d69ffcb176a43af80abfd"
+      },
+      "42.20/media/AnimSets/player/actions/SAO_DancingWeekOne4.xml": {
+        "sha256": "546247754e31d7b911066515db184cc47f7393de3f32cbb67657f8266d3c04c3"
+      },
+      "42.20/media/AnimSets/player/actions/SAO_EndCpr.xml": {
+        "sha256": "06043d4cfb98d39ae79dc9255b7c08e41665f759505c47e1b15f617ca87ec03f"
+      },
+      "42.20/media/AnimSets/player/actions/SAO_LoopCpr.xml": {
+        "sha256": "b129f0c8b13143eb8ccdcd0663c671225b5984e023e66272038eaca632d16a2c"
+      },
+      "42.20/media/AnimSets/player/actions/SAO_PlayGuitarAcoustic.xml": {
+        "sha256": "45a7a390de3df0ed359c9044489cb9272b88d753cdf35dbda8a93d70dd441369"
+      },
+      "42.20/media/AnimSets/player/actions/SAO_PlayGuitarDefault.xml": {
+        "sha256": "c0c45ddf485cdf4c50c67cedfb8cd72e270e37192178b2bc6f12b125d7b67aa8"
+      },
+      "42.20/media/AnimSets/player/actions/SAO_PlayGuitarExperiencedA.xml": {
+        "sha256": "67cac3cce2c0eabba518532250956e75884e7a78e8294c16c418520aa81a66bf"
+      },
+      "42.20/media/AnimSets/player/actions/SAO_PlayGuitarExperiencedB.xml": {
+        "sha256": "6b218c715193b8af67a596d9822cc17cb1b97be7bcc87ef0704b82409904fb0f"
+      },
+      "42.20/media/AnimSets/player/actions/SAO_PlayGuitarProficientA.xml": {
+        "sha256": "915b6f294c28cf6608238ab0487eedeafbfb815c9452499114c3f13d2ba6c8e9"
+      },
+      "42.20/media/AnimSets/player/actions/SAO_PlayHarmonicaDefault.xml": {
+        "sha256": "d5cc368c1bd5941b9768cd2c6fd8665dd6df0864ac134803e111664c02527a16"
+      },
+      "42.20/media/AnimSets/player/actions/SAO_PlayHarmonicaExperiencedA.xml": {
+        "sha256": "7fbbe400752661f4806b76afc05c6847c5f69c78f6a51ec555bcc83d0c09a2d1"
+      },
+      "42.20/media/AnimSets/player/actions/SAO_PlayHarmonicaProficientA.xml": {
+        "sha256": "9df40865e4e5827a6c8ff32a89e55205b6edef6ef81f5eb7796c6c5605d2e3c5"
+      },
+      "42.20/media/AnimSets/player/actions/SAO_Protest1.xml": {
+        "sha256": "a68ec3c2c88e1c1cc89e6155da52a301ea77df6b2154e6e782d5217415563ffe"
+      },
+      "42.20/media/AnimSets/player/actions/SAO_Protest2.xml": {
+        "sha256": "5b192351038a12e3ee4e4b533fb641093c7be93dfa3205ca16f9eca0f4ab8a3d"
+      },
+      "42.20/media/AnimSets/player/actions/SAO_Protest3.xml": {
+        "sha256": "9d62239d95f3f3e99bfac77bf01bef712d374a9261942dda0a793ddfc14776c6"
+      },
+      "42.20/media/AnimSets/player/actions/SAO_StartCpr.xml": {
+        "sha256": "4115b62f815adecd15cf8fb30ca5a44c02377034d65f8f29777419336a1bf304"
+      },
+      "42.20/media/AnimSets/player/actions/SAO_WaiterServing.xml": {
+        "sha256": "f57231a8fc89f56fb17d1500d17f68b1ff4d5d3e5510fd70c2906751e715db17"
+      },
+      "42.20/media/AnimSets/player/sitonground-sitting/SAO_Seat_IsSittingLoop.xml": {
+        "sha256": "217bbe3648137cb756b924898aa7a4b07e23e313709adbc44a3faefda9793d68"
+      },
+      "42.20/media/AnimSets/player/sitonground-sitting/SAO_Seat_IsSittingLoopArmsCrossed.xml": {
+        "sha256": "e1e4b262eaa17ba7146779c176a5440cd8720596995eb583586a55be5e377af3"
+      },
+      "42.20/media/AnimSets/player/sitonground-sitting/SAO_Seat_IsSittingLoopHandsOnFace.xml": {
+        "sha256": "8144ce7a71f4be67209f1a5e75d6de3733e4a8b85248ce6bfcdab3ce228da389"
+      },
+      "42.20/media/AnimSets/player/sitonground-sitting/SAO_Seat_IsSittingLoopHandsOnThigh.xml": {
+        "sha256": "be23cd700dffd9348e475870ca11d2881f838ccff8b4a856cd0c7015e6ecff45"
+      },
+      "42.20/media/AnimSets/player/sitonground-sitting/SAO_Seat_IsSittingLoopHandsOnThigh_SlightLeanForward.xml": {
+        "sha256": "d0206db116876e2712fbed856837dd628d94f4d107f83368ba0fd15f1ee07803"
+      },
+      "42.20/media/AnimSets/player/sitonground-sitting/SAO_Seat_IsSittingLoopLeanForward_CleanTear.xml": {
+        "sha256": "784ec354eed6cde7e2b518de7c9bb05e50f778606bdd4b1516631d22977a0612"
+      },
+      "42.20/media/AnimSets/player/sitonground-sitting/SAO_Seat_IsSittingLoopLeanForward_Pensive.xml": {
+        "sha256": "f2f50a9a81b41ac4c3c24f134c6cef9236be6e4a4142da5111a144ab916f0571"
+      },
+      "42.20/media/AnimSets/player/sitonground-sitting/SAO_Seat_IsSittingLoopLegAbove.xml": {
+        "sha256": "e9d73a8cc42e8e1a29253d36839f5dfdc8c8a85dbb78d11bca11152fd6023e0d"
+      },
+      "42.20/media/SAOOrienting/children.xml": {
+        "sha256": "ca9c4a56aaccaca795754222bb3c3f64fcffd321bbb01f85049891108bf0dc6a"
+      },
+      "42.20/media/SAOOrienting/enter.xml": {
+        "sha256": "aeb3630226745f0809fe91e8739c299369e3e41e4fb65afe0a3ca16b4074131b"
+      },
+      "42.20/media/SAOOrienting/exit.xml": {
+        "sha256": "51e697582eea82fca6490f444c0f05421ece65319d4022f8477cc59aa7468076"
+      },
+      "42.20/media/SAOOrienting/look.xml": {
+        "sha256": "0116b93221f82cc1d7c3a65486f1130ae375815e93a56dfaf1f130e5a1f4cff6"
+      },
+      "42.20/media/SAOOrienting/tags.xml": {
+        "sha256": "3fd3b3d374536a37b9395757eba63899a1a319973d151cc751872d054c20ab37"
+      },
+      "42.20/media/anims_X/Bob/BWO_Dance1.fbx": {
+        "sha256": "91ff6473f3ba52ea4303ab85daa7fdd3e09d60ee135d4d8ea01ae492f4ead5a5"
+      },
+      "42.20/media/anims_X/Bob/BWO_Dance2.fbx": {
+        "sha256": "ba5815bfe7e4cea6c727568c41910b318c8f1192f3fa158cba42126891ef4b32"
+      },
+      "42.20/media/anims_X/Bob/BWO_Dance3.fbx": {
+        "sha256": "f618601d0e8101beaf5296a52adeab2a6e8d199044eb8cb38387278eba41eb5c"
+      },
+      "42.20/media/anims_X/Bob/BWO_Dance4.fbx": {
+        "sha256": "2bb85f869a553d2fba111122889ebcb9f7e417a8498e1432e76d6e55c2b49121"
+      },
+      "42.20/media/anims_X/Bob/BallThrow.fbx": {
+        "sha256": "bdf2cb9c62cb59652a7caddeca424a0f64b80fd6cad81b0f7e9c1de6474ccf2c"
+      },
+      "42.20/media/anims_X/Bob/BardPlayFlute.fbx": {
+        "sha256": "5b04d20399827a11ade1c78af67d85d243bcc8e65d8e7a8b0b6fb154a8344cfa"
+      },
+      "42.20/media/anims_X/Bob/BardPlayGuitarBass.fbx": {
+        "sha256": "8a79cb066eb71019ad6bf0d0df9a57002958e81ff03625b47a8eb5aaa396986c"
+      },
+      "42.20/media/anims_X/Bob/BardPlayGuitarElectric.fbx": {
+        "sha256": "62e25ef3025c212147e95a80cd8e831b82a291d1f6d3c4bdf265ef5e0ddc1af6"
+      },
+      "42.20/media/anims_X/Bob/BardPlaySaxophone.fbx": {
+        "sha256": "2a5a3a70bc0ab93df9e64ef8f679fe757a00cce6dffd52b1a891e7b7fc154248"
+      },
+      "42.20/media/anims_X/Bob/BardPlayTrumpet.fbx": {
+        "sha256": "6712c8c7974c1ac013ac3791f6a196dd08703d58b3a7967f2edc3a94ae8378cb"
+      },
+      "42.20/media/anims_X/Bob/BardPlayViolin.fbx": {
+        "sha256": "186475d16378e4158ccb4ca87afe85c381ec7d7a00377da7bff3a7b1f2bbc977"
+      },
+      "42.20/media/anims_X/Bob/Bob_ConverseEnd_Frustrated01.fbx": {
+        "sha256": "a271ea3a85d002ee04b398d83dbb8c18980da53b7e421b2c48fccba0644151f5"
+      },
+      "42.20/media/anims_X/Bob/Bob_ConverseEnd_Frustrated02.fbx": {
+        "sha256": "ded918b31e4047dcc04cb6f6d9519f81ce7dbd4625782d0e8ed5841c170e104e"
+      },
+      "42.20/media/anims_X/Bob/Bob_ConverseEnd_Frustrated03.fbx": {
+        "sha256": "e64d65540559172608a06c35f3bca9a83e5e0d33ec01182cf187375b5674f967"
+      },
+      "42.20/media/anims_X/Bob/Bob_ConverseEnd_Frustrated04.fbx": {
+        "sha256": "ce3e04a7046a449a1e1048f5065c259a26881cac3c0cdee6e70b5be5d3b30f50"
+      },
+      "42.20/media/anims_X/Bob/Bob_Converse_Acknowledging.fbx": {
+        "sha256": "d371a4e6f8e844d8b5801414e8d1945c05dd98519dfebf50ccee7cc3db3964f6"
+      },
+      "42.20/media/anims_X/Bob/Bob_Converse_Agony.fbx": {
+        "sha256": "d721aa0db158f051ca3fa84467cfc338f964c4547b9ef73bf1c9888edb28461f"
+      },
+      "42.20/media/anims_X/Bob/Bob_Converse_Agreeing.fbx": {
+        "sha256": "14ec6443615cb774c9c355ace7a2e3b14d6ddbcd3027dee3877f4cd81920029b"
+      },
+      "42.20/media/anims_X/Bob/Bob_Converse_AgreeingHandGesture.fbx": {
+        "sha256": "543729885f6436988c234bee2587f453b21a91388058ba233a17ed279f72264c"
+      },
+      "42.20/media/anims_X/Bob/Bob_Converse_Angry01.fbx": {
+        "sha256": "f67a3696dd5cbd039a001040fa5a20ac5e4a598b0fc360c022404fe18e408b5f"
+      },
+      "42.20/media/anims_X/Bob/Bob_Converse_Angry02.fbx": {
+        "sha256": "10808f6fa80057096f592987a09afe854404126ede3ecdaa635a438ced7b860d"
+      },
+      "42.20/media/anims_X/Bob/Bob_Converse_ArmForward.fbx": {
+        "sha256": "938e85add7b4016ff3b06249b24422973e592acf65b5523b5af818c444ed7127"
+      },
+      "42.20/media/anims_X/Bob/Bob_Converse_ArmGesture.fbx": {
+        "sha256": "71fbad696fd79817c05bc0eede1f71032ebf7a6e66f4ebf6f61f8c0053781ebe"
+      },
+      "42.20/media/anims_X/Bob/Bob_Converse_Dismissive01.fbx": {
+        "sha256": "733bf9dd596321ff935d95efe7c0a9dd4209b86c24aaee96e2f2ea853aa6b34b"
+      },
+      "42.20/media/anims_X/Bob/Bob_Converse_Dismissive02.fbx": {
+        "sha256": "0b0960fe1f478804ab6e8de1e5ef2c06be4a7326c67dcc4d7ab1b089a9c17d28"
+      },
+      "42.20/media/anims_X/Bob/Bob_Converse_HeadNod.fbx": {
+        "sha256": "1f064ef9b915477086b77826829a23cd76047ea2434ec530347088160adc7fb7"
+      },
+      "42.20/media/anims_X/Bob/Bob_Converse_InformalBow.fbx": {
+        "sha256": "fa7478d2c51159442a36519144cadbe0830ddabe2c8cda06ded3a8423ed32b7f"
+      },
+      "42.20/media/anims_X/Bob/Bob_Converse_Listening01.fbx": {
+        "sha256": "06d05f7f15437a8bd10ee6a2cc8be36e6ce74aab72c1945958f204b6a38d3ed8"
+      },
+      "42.20/media/anims_X/Bob/Bob_Converse_Listening02.fbx": {
+        "sha256": "402b5b6a8d581d20ee62ca7ed0151d6cf4e29059245316d9efa6d41e9b12b68c"
+      },
+      "42.20/media/anims_X/Bob/Bob_Converse_LookingDown.fbx": {
+        "sha256": "d1662635fea9c2f70ba54b2668ac80802085c2b10ca3d702f50ab5ed28fb67b4"
+      },
+      "42.20/media/anims_X/Bob/Bob_Converse_Meditation.fbx": {
+        "sha256": "82a9ec62cd23675f9bfef629c3217189769702b9b6fb980035843e68b149ec69"
+      },
+      "42.20/media/anims_X/Bob/Bob_Converse_ShakeHeadNo.fbx": {
+        "sha256": "42a5ca882bc725d25f2687678c4eb3b96f78801ebd0bb62b4c5b92f3a0e4fa12"
+      },
+      "42.20/media/anims_X/Bob/Bob_Converse_Yawn.fbx": {
+        "sha256": "ee81efc6e2a69b2f63c63ef372bbf7b4259be0006560e42db5fc7f3fe2501bce"
+      },
+      "42.20/media/anims_X/Bob/Bob_DancingFreestyleA.fbx": {
+        "sha256": "df43f99472fbe6806b7700534c856fe0c171495e840af10ffc8ee92ae5ff15c3"
+      },
+      "42.20/media/anims_X/Bob/Bob_DancingFreestyleB.fbx": {
+        "sha256": "8f8c872089708addf9b73e1afa36eebc823742d7279ec852d155ffea190d3909"
+      },
+      "42.20/media/anims_X/Bob/Bob_DancingFreestyleC.fbx": {
+        "sha256": "4bbf1b2700f55a9ba31ecffb895d556db2ccc34d91f68aaf80b174d5838a6a8c"
+      },
+      "42.20/media/anims_X/Bob/Bob_DancingFreestyleD.fbx": {
+        "sha256": "be507c2aa0cfe8f1a23360f1763155564999838f81211103896ecb99f14a9839"
+      },
+      "42.20/media/anims_X/Bob/Bob_DancingFreestyleE.fbx": {
+        "sha256": "2e83f6039f23f678426377e625c0a3f000777faddf4bb0ea7ea3f7186cd62758"
+      },
+      "42.20/media/anims_X/Bob/Bob_DancingFreestyleF.fbx": {
+        "sha256": "9f5b6e07981e4fff3b2f081e74d6c415090942effc1d4adebd0abf99e32c0bf2"
+      },
+      "42.20/media/anims_X/Bob/Bob_DancingFreestyleG.fbx": {
+        "sha256": "fffa15ba0463c0d805e69a6402732e254e28f986d1c76f5a15fd9c1c1d8f0fbf"
+      },
+      "42.20/media/anims_X/Bob/Bob_DancingFreestyleH.fbx": {
+        "sha256": "81aebf00be1e8d5793a8d26629b5235b85906ffd1b7fc99534bc1cf56b924aee"
+      },
+      "42.20/media/anims_X/Bob/Bob_DancingFreestyleI.fbx": {
+        "sha256": "af552b35798760477137e55979cd8149e03c070f9e23585d80005084b989ff8b"
+      },
+      "42.20/media/anims_X/Bob/Bob_DancingHandWave.fbx": {
+        "sha256": "60335f351f0cc1d2cf399a6c80c8d1a871c1e1c36a0e27bbca1b8855952fed64"
+      },
+      "42.20/media/anims_X/Bob/Bob_DancingHandsInAir.fbx": {
+        "sha256": "e04504f875d10c0d236672d70ee7996799059129b456a41cc19798fa5dbae721"
+      },
+      "42.20/media/anims_X/Bob/Bob_DancingMacarena.fbx": {
+        "sha256": "011440b55a217b682674c24b3d0f8f508ff32b10fd294fdc4a7a21f4bf47dad1"
+      },
+      "42.20/media/anims_X/Bob/Bob_DancingMoveAround.fbx": {
+        "sha256": "6ace52c8b170dbc0b124f37bd65b9971a9ca50a5af35eb8b8c268e955f347ab7"
+      },
+      "42.20/media/anims_X/Bob/Bob_DancingRunningMan.fbx": {
+        "sha256": "8abfcd4d9a716bbb81d4166c0e50fde82680e501839f5373786c30278816f002"
+      },
+      "42.20/media/anims_X/Bob/Bob_DancingShake.fbx": {
+        "sha256": "dfeae318634bdf5430f9f3d2578eea58a2303ea09de91adae39aa57b1c6ed48d"
+      },
+      "42.20/media/anims_X/Bob/Bob_DancingSideStep.fbx": {
+        "sha256": "69749882b59dd65e9cccf0073f39c68594aa4a38bc56dc28f80397e589f7db9b"
+      },
+      "42.20/media/anims_X/Bob/Bob_IsSittingLoop.fbx": {
+        "sha256": "006393d13250eb9ea23d7d82c5b71f64d41c67b4862dc6c826022608cfa85551"
+      },
+      "42.20/media/anims_X/Bob/Bob_IsSittingLoopArmsCrossed.fbx": {
+        "sha256": "1b1efce1bfe4886bb5177b938ff9a72139bbf26ca196d1469dd46772fef23f42"
+      },
+      "42.20/media/anims_X/Bob/Bob_IsSittingLoopHandsOnFace.fbx": {
+        "sha256": "64cbc655a24206aab4d624548f924c6e404c2adfc2dace0863c47d811e2c6d70"
+      },
+      "42.20/media/anims_X/Bob/Bob_IsSittingLoopHandsOnThigh.fbx": {
+        "sha256": "a80cb51aa9df9571455a5ffe612a148f1e73f97b87ce63938bedb5039b87f82f"
+      },
+      "42.20/media/anims_X/Bob/Bob_IsSittingLoopHandsOnThigh_SlightLeanForward.fbx": {
+        "sha256": "33327c7769e5cbb5f143408dfa427c062f2c01d0519894198fde04075c3e4ec6"
+      },
+      "42.20/media/anims_X/Bob/Bob_IsSittingLoopLeanForward_CleanTear.fbx": {
+        "sha256": "a3c831dbc2c5cd503fc5c2d4e22b475a2a8eb522377fd3ad921f253ab2c683ad"
+      },
+      "42.20/media/anims_X/Bob/Bob_IsSittingLoopLeanForward_Pensive.fbx": {
+        "sha256": "d2334f66d664ba3fcb485477ea40018e31ede009eeb66955f9269c25c4b0c561"
+      },
+      "42.20/media/anims_X/Bob/Bob_IsSittingLoopLegAbove.fbx": {
+        "sha256": "de402b781a23c84a5ff3cc639050e95cc57227b6d123e0d44fc2f4a206220e57"
+      },
+      "42.20/media/anims_X/Bob/Bob_PlayGuitarAcoustic.fbx": {
+        "sha256": "676beeda105db9e99a1935e8ce5d4d61f7bf9915f81b0e4b24b866a0dfb5b38b"
+      },
+      "42.20/media/anims_X/Bob/Bob_PlayGuitarDefault.fbx": {
+        "sha256": "6df2a5886559b247a45ea534806359f87e7c0494455bc47afb43d749318be131"
+      },
+      "42.20/media/anims_X/Bob/Bob_PlayGuitarExperiencedA.fbx": {
+        "sha256": "fff39722ceaa1607cc3323632d6f64c6f1aed50a93b4e69dba88dc432349c231"
+      },
+      "42.20/media/anims_X/Bob/Bob_PlayGuitarExperiencedB.fbx": {
+        "sha256": "bf575bb00572df94a54f322cafc8bdc4f0844f059cd27872b0ce0844aa4ec11c"
+      },
+      "42.20/media/anims_X/Bob/Bob_PlayGuitarProficientA.fbx": {
+        "sha256": "176477497e7d86dd763dd1c60d3dd92d97dc06c770cb601db2c86826cc9eeabf"
+      },
+      "42.20/media/anims_X/Bob/Bob_PlayHarmonicaDefault.fbx": {
+        "sha256": "7545ba2249ba40dd93d4868edc55d129c116e22e1b8f7c9f98b333554204a1ab"
+      },
+      "42.20/media/anims_X/Bob/Bob_PlayHarmonicaExperiencedA.fbx": {
+        "sha256": "e920253a85bb022989703fcbc66ac9de52f61dbe205e02143028230e3359b4e7"
+      },
+      "42.20/media/anims_X/Bob/Bob_PlayHarmonicaProficientA.fbx": {
+        "sha256": "c466313eac47a5fb0bf0b6ad39aebd45099c89821a5d92bf95ab8b052070ca6f"
+      },
+      "42.20/media/anims_X/Bob/Cashier.fbx": {
+        "sha256": "b9d54dbfff42d66bf38394c00bd71df9bdddd38b0a6b65e246526f564d6e0ee6"
+      },
+      "42.20/media/anims_X/Bob/EndCPR.fbx": {
+        "sha256": "c9870d1e120b7ad06086398eb5a8ae5593fe693b0a0cc99b04223cd35055eb96"
+      },
+      "42.20/media/anims_X/Bob/LoopCPR.fbx": {
+        "sha256": "3397d915c9e111b760bc8c1befac5b41e8c3cab40553f5395391b4f53b1f1f05"
+      },
+      "42.20/media/anims_X/Bob/Protest1.fbx": {
+        "sha256": "f4ace62d272b43e8807a4875b44a9970f629cc1fcc1c60e55db7fcfa698d76fd"
+      },
+      "42.20/media/anims_X/Bob/Protest2.fbx": {
+        "sha256": "461e4c01e0d80f7e2b2a636ede6cf30beb4ec06829f8a401ec97ebc09501a121"
+      },
+      "42.20/media/anims_X/Bob/Protest3.fbx": {
+        "sha256": "4e087bf2f5e65549efa34aa3f8e7df99da2647a3a3614fab21860408cf37de1a"
+      },
+      "42.20/media/anims_X/Bob/StartCPR.fbx": {
+        "sha256": "848498300e0164ede0d9570dfa7e39f3a871985a040573c3f75c846778e347f5"
+      },
+      "42.20/media/anims_X/Bob/WaiterServing.fbx": {
+        "sha256": "9491a3ab3d7914f54daa327ba30a6242c0edce703af39623885d010f308e339e"
+      },
+      "42.20/media/java/SAO.jar": {
+        "sha256": "e2eea661fa3be076d691f209727b3185a39b07e872768acd313085f0ddf69ea9"
+      },
+      "42.20/media/lua/client/SAO_Absorb.lua": {
+        "sha256": "cb10e789657ff9c62df875f52c2821883a039b548edf77ad78cebc317d22bcad"
+      },
+      "42.20/media/lua/client/SAO_AfflictedReturn.lua": {
+        "sha256": "0331412d3924ce7f323074c6368b39f0288d31c8254995286a28c694577392c3"
+      },
+      "42.20/media/lua/client/SAO_Age.lua": {
+        "sha256": "462f4738a8f9fd6ea491c003dcb3ab9573c50fab37779337e0dc84b782fd09c8"
+      },
+      "42.20/media/lua/client/SAO_Animals.lua": {
+        "sha256": "b86af7b04c40a4b43b91edf4262482dba21344a76cb942fcd83831120e999dbb"
+      },
+      "42.20/media/lua/client/SAO_Appearance.lua": {
+        "sha256": "a86cc6ebb7951217081a6595e5a8a2d500cf22bf6d1c3214d05c5668289d78a9"
+      },
+      "42.20/media/lua/client/SAO_Body.lua": {
+        "sha256": "8336f0a87781ee787c7b86362f5eca76542c1c6033f91deff2ba262fdcf0dd7b"
+      },
+      "42.20/media/lua/client/SAO_CapabilityExperience.lua": {
+        "sha256": "757aa34d8004f612de0f50867de4382663712ce83db7302ce184251830d74f52"
+      },
+      "42.20/media/lua/client/SAO_Controller.lua": {
+        "sha256": "abecb2a5a78128f881557c08eb6b92678c6ba766c1a5b32f6b4cc201912bef64"
+      },
+      "42.20/media/lua/client/SAO_Cooking.lua": {
+        "sha256": "8722759869e736e62f61d1ce52a400a8fa5ab3524c366c07c0dd95499c772742"
+      },
+      "42.20/media/lua/client/SAO_CrossedTransfer.lua": {
+        "sha256": "a0a54e1ddf992cd06d3e8ea977d05ba76697bd2a2ea443355a6a89a6408356b5"
+      },
+      "42.20/media/lua/client/SAO_DormantPopulation.lua": {
+        "sha256": "b43287a41e158747617df9566162be22cb8a12d4c469319ca7610123ed2a6d46"
+      },
+      "42.20/media/lua/client/SAO_Driving.lua": {
+        "sha256": "ad4913794871e6baf290cd95108ea71fc67edd57d2f583fb8cc409a19bd7d3bc"
+      },
+      "42.20/media/lua/client/SAO_Drugs.lua": {
+        "sha256": "427d72c5119916444f09caf45d14418e4f927a039d491d63e43a8800c5db8ef6"
+      },
+      "42.20/media/lua/client/SAO_Exchange.lua": {
+        "sha256": "edbb696bd358221090ed2f0b35ccc066a5bb7979231965ef21aa6fcf84511c98"
+      },
+      "42.20/media/lua/client/SAO_Gesture.lua": {
+        "sha256": "62f394b329a2916290ec2ec7b23ba0ad940909c569afd4e577b7d006149d134f"
+      },
+      "42.20/media/lua/client/SAO_Harness.lua": {
+        "sha256": "1d9e36c130c4a426bbaaee1134df4e49c93a1915eab49fcc5e5bfced60510f70"
+      },
+      "42.20/media/lua/client/SAO_Inspect.lua": {
+        "sha256": "2d841c709b85649a440ccbaac0dc8dddca39d750ca2099cf0279d89c57f6d14b"
+      },
+      "42.20/media/lua/client/SAO_Locomotion.lua": {
+        "sha256": "1028d023a4c539329fd9a4c52df685950c1b449b0ec08e0b8de6234b0c253a9b"
+      },
+      "42.20/media/lua/client/SAO_Medical.lua": {
+        "sha256": "4864450d8e411c8af9841c745af7581d6b0c38c907049ea05617e2f9eacdae23"
+      },
+      "42.20/media/lua/client/SAO_MedicalWindow.lua": {
+        "sha256": "cf3c660e49c975ec23ea08748a2d9ca276ba105fe9025f9c3ca228beae092064"
+      },
+      "42.20/media/lua/client/SAO_Needs.lua": {
+        "sha256": "dbe233778fd2f1c26539b57a843295d12a8f70fb5ebb105b84a5ba7d681c8ef1"
+      },
+      "42.20/media/lua/client/SAO_Neighbours.lua": {
+        "sha256": "1b85bdffe538034da9aab6b90b551e8018eb2a3a70fefd603d2578ae5935eb03"
+      },
+      "42.20/media/lua/client/SAO_Nuke.lua": {
+        "sha256": "80f6e21576c1b4c504c334d13662b02d5e0821aae26beb87a77e2919c0a8e6e8"
+      },
+      "42.20/media/lua/client/SAO_Observation.lua": {
+        "sha256": "167e603aeb6ee1e6537aae50e269d4bf366d08cabaafbbcb83cb7c026cbd8ca4"
+      },
+      "42.20/media/lua/client/SAO_Population.lua": {
+        "sha256": "a5d728ba2712f01030fb3af2f2d6f8840d47c5ff7770f5a310a38a949b4b48f8"
+      },
+      "42.20/media/lua/client/SAO_PopulationAdmissions.lua": {
+        "sha256": "532e6751dd50d9b79cd814a49833870ec0a05860d0ab165fd17522d12388ff56"
+      },
+      "42.20/media/lua/client/SAO_PopulationRepresentation.lua": {
+        "sha256": "792291ecd201150bd71b26eca0b141bda99f661d6a23e88e81b36263f9d32f78"
+      },
+      "42.20/media/lua/client/SAO_RadioEar.lua": {
+        "sha256": "613546ee3614d9d9ebc40a83ead725797002219df8442dc166bd9ad52695886f"
+      },
+      "42.20/media/lua/client/SAO_Sandbox.lua": {
+        "sha256": "48f0c7bb191932ebcacbbf7b7641987bc8a5d367804396860847191ad6b40a9c"
+      },
+      "42.20/media/lua/client/SAO_SourceUse.lua": {
+        "sha256": "177018859ad4587a5bb1b5559b1eaa3df2b60ccc28e2a0c4c6e9ccd9c8d1dfff"
+      },
+      "42.20/media/lua/client/SAO_Telemetry.lua": {
+        "sha256": "a1e94634a8c18864a3a397a5f4651faedbba3e4b121f172366faf0d9323ba2f3"
+      },
+      "42.20/media/lua/client/SAO_UI.lua": {
+        "sha256": "a1b18125cc3c70d58efc379f2624966abe8fd0235c6ad162bd10fda83493d446"
+      },
+      "42.20/media/lua/client/SAO_Voice.lua": {
+        "sha256": "3333103a19427fbace1dcb8d04e8ecac8d5a3d20fe0f78f0a8c3672d8d72066b"
+      },
+      "42.20/media/lua/server/Items/SAO_PharmacologyLoot.lua": {
+        "sha256": "169ae54eb84d603a5059b7b24abac226ade97da7874fce7f97fbbdab6be96647"
+      },
+      "42.20/media/lua/server/SAO_Radio.lua": {
+        "sha256": "7446099e744d248fcd160e9ca373994f41d57b6ca2928e400ea345a3631f47bf"
+      },
+      "42.20/media/lua/server/SAO_Record.lua": {
+        "sha256": "6efc86d1fe59ad2f5ff1243eea71a926b3a95b0905076117160584ef77a96353"
+      },
+      "42.20/media/lua/shared/NPCs/SAO_Traits.lua": {
+        "sha256": "e612c426f598ac512565e9e320fe7f1730e294377d5293279c6f7d07f4fe73ce"
+      },
+      "42.20/media/lua/shared/SAO_Adaptation.lua": {
+        "sha256": "ff79ef48cb30f26b388ce2c4e71d78b09beff400ea4a8e32e5f13c9fce62dd6f"
+      },
+      "42.20/media/lua/shared/SAO_Binding.lua": {
+        "sha256": "c42a958ce0a972d0bced6c487dc2e61126506749d2a1ebd2674e38ad855730d1"
+      },
+      "42.20/media/lua/shared/SAO_BodySnapshot.lua": {
+        "sha256": "2cb4b99eca3aa0ebd93c0edbc09776522aefdf78a8344185e587d6c3b30113d9"
+      },
+      "42.20/media/lua/shared/SAO_Branching.lua": {
+        "sha256": "0706d325aa73e3800e6713983053abb36b01f24dfee7639b2bf23f880967f852"
+      },
+      "42.20/media/lua/shared/SAO_Census.lua": {
+        "sha256": "998ee14968ec61480a985fb1c3e968e1b587b51842a741e460b6b1f406d2d8bd"
+      },
+      "42.20/media/lua/shared/SAO_Claims.lua": {
+        "sha256": "80202b6b1cf1e8197ddcf2c6ead46104c39be19351ac1d919a528f4bfaeebaf3"
+      },
+      "42.20/media/lua/shared/SAO_Cognition.lua": {
+        "sha256": "bc195be32cad455b1c8a5b8044dc7dc06e9babbfc3efc06cac3ffd5797d17285"
+      },
+      "42.20/media/lua/shared/SAO_CognitiveModels.lua": {
+        "sha256": "8abb65720e2a16aee450b66d15c51d86d5470c9c46e21719eb16e8c3002e2f58"
+      },
+      "42.20/media/lua/shared/SAO_Command.lua": {
+        "sha256": "493fb7d58e8272e50c08175d0bd65c99804faa6e8de7081e1a924bfa6a981ea3"
+      },
+      "42.20/media/lua/shared/SAO_Communication.lua": {
+        "sha256": "222604c73b857b18ae117a797c23b17a2ee100955b04d9d504ec99706ae94294"
+      },
+      "42.20/media/lua/shared/SAO_Conditions.lua": {
+        "sha256": "3b3027892a1144f1bef5a210ea5defa131d3adec654aa0c691f107d3bdccf6cc"
+      },
+      "42.20/media/lua/shared/SAO_Coordination.lua": {
+        "sha256": "61de2d2b913c1243543d102e3373ddfb9418de58d25bb606be6ad70155eabbb1"
+      },
+      "42.20/media/lua/shared/SAO_CoordinationInference.lua": {
+        "sha256": "89c7d0639d390003cc57aacffa1b572aea743454805ffafbc7010b23c7758d7c"
+      },
+      "42.20/media/lua/shared/SAO_Course.lua": {
+        "sha256": "8710aa560ec4c27bf0eebdf550485dc52ff51f69aeedff09240a5189702706e3"
+      },
+      "42.20/media/lua/shared/SAO_Disposition.lua": {
+        "sha256": "24895a4d636c0fd1bd572a8bdc9a36c4a18725df4bb53e7cb40b7936fddd3a42"
+      },
+      "42.20/media/lua/shared/SAO_GraphPersistence.lua": {
+        "sha256": "f1719d99322ec44a97eff9eccc9fabf90dc4386994ad090e6e44b467f9faa691"
+      },
+      "42.20/media/lua/shared/SAO_Habits.lua": {
+        "sha256": "ca35b2ae8d37dd7abdcd7e19cd1bd0f761982ff52150e2d39c452935e6124fab"
+      },
+      "42.20/media/lua/shared/SAO_Handover.lua": {
+        "sha256": "0ad88587951fa55783ba44ef3efb7b037b469bdffd809021c451d152df186e09"
+      },
+      "42.20/media/lua/shared/SAO_Hash.lua": {
+        "sha256": "63e172f4c7878cc50ea58ae4604acec50f24decd50a1db0206d4c298def69915"
+      },
+      "42.20/media/lua/shared/SAO_History.lua": {
+        "sha256": "38a15b6d7a0f2143e752d4aa7ccc86ee96f0a6fc39f597aefac041d18d7822f1"
+      },
+      "42.20/media/lua/shared/SAO_Identity.lua": {
+        "sha256": "a3f8878de7d3ea3d163a30f8e77a813cf3b86b6371351f3794da313050f0188b"
+      },
+      "42.20/media/lua/shared/SAO_Integration.lua": {
+        "sha256": "3d1ce5dbaf3ee0c06c58d1d5be2c9288b397c28b0c30ac0ef386a6135352f7e4"
+      },
+      "42.20/media/lua/shared/SAO_Isolation.lua": {
+        "sha256": "a3955320e0cbc1e98c1274794c49fb8828fa082ae321aec0fd473e66a7c05350"
+      },
+      "42.20/media/lua/shared/SAO_Knowledge.lua": {
+        "sha256": "bbf745443542238931ba7738b05c12134b55d5ed60c5a61a177b688fd9bd44c7"
+      },
+      "42.20/media/lua/shared/SAO_Labor.lua": {
+        "sha256": "20a04e518c9943ff6e81784c6b50b4408a4b8b5ae1c1795adc35e78da091d082"
+      },
+      "42.20/media/lua/shared/SAO_Lessons.lua": {
+        "sha256": "99929c41e68c4242e570595487c66fee18fcdf39091ee15009c8cd6941860957"
+      },
+      "42.20/media/lua/shared/SAO_Log.lua": {
+        "sha256": "439c4bd4a3cf3ab057494b64717404761796e85f072701df71cd8dd083385973"
+      },
+      "42.20/media/lua/shared/SAO_Material.lua": {
+        "sha256": "8942805a2c1492acec4aac5ca73da4c5c6c984a90be6bb794551937ab22e5a0b"
+      },
+      "42.20/media/lua/shared/SAO_Neuro.lua": {
+        "sha256": "c029b54a9e1df7effc9aa0e85540c4ffdea2c50b9728beab2a60eff07047f6f0"
+      },
+      "42.20/media/lua/shared/SAO_Organization.lua": {
+        "sha256": "ef5514d150465c45e94ba562d15868271d00b5112a9e212a24b77cb3d3323f0a"
+      },
+      "42.20/media/lua/shared/SAO_Orienting.lua": {
+        "sha256": "67c8aa3755869c934c3c14c99cf1593e675525b671f4a7aa14616bb844f0c876"
+      },
+      "42.20/media/lua/shared/SAO_Participants.lua": {
+        "sha256": "b73468b4f01bd62a5fb3bab9b469af1c027227042eeddf9e1038f740ba81f71c"
+      },
+      "42.20/media/lua/shared/SAO_PathogenEvents.lua": {
+        "sha256": "039586a5dabe882250e1fda107442aae1c8155b29b4f195f1755b8f3ecb0ea9a"
+      },
+      "42.20/media/lua/shared/SAO_PathogenPressure.lua": {
+        "sha256": "acf957d925c835d9aacf3e04d216c986fae93a58e0a16435efa5946c816e2132"
+      },
+      "42.20/media/lua/shared/SAO_Perception.lua": {
+        "sha256": "626a8230ff7434a326ea6928f8a01619bdf4eba5d29cb25bd9c78accd950eff1"
+      },
+      "42.20/media/lua/shared/SAO_Pharmacology.lua": {
+        "sha256": "4c02625ec7570bfad09d7b12eea6cdc3362bb85da976815b3d5002514dd92521"
+      },
+      "42.20/media/lua/shared/SAO_PharmacologyProfiles.lua": {
+        "sha256": "11d737bb81f4755ce485fcdc0e4e8bd4373e36ed6e192dfc7ae170cb7b5c24a9"
+      },
+      "42.20/media/lua/shared/SAO_PhysicalFacts.lua": {
+        "sha256": "79c235e01cf68bf0bbe560d541b3efc0f4e460468faa6452351be37a30d64988"
+      },
+      "42.20/media/lua/shared/SAO_PlaceAttachment.lua": {
+        "sha256": "0fc3995111fc3fb023dfa607ead9a185cef3cee7a59aea7a76126c2062801bb0"
+      },
+      "42.20/media/lua/shared/SAO_Places.lua": {
+        "sha256": "8ce7fccfb3b0cbe8e74550a461b0b048dada591bd7e855e0a45e26354f93ea1f"
+      },
+      "42.20/media/lua/shared/SAO_PlayerInteraction.lua": {
+        "sha256": "9fd2c301caf48ae4c5280c28988eebd006db3a7c423db52e8f280d2e983c0998"
+      },
+      "42.20/media/lua/shared/SAO_Pressure.lua": {
+        "sha256": "466ce7d7d39bfedbe44f797f76ce7c7c680a40f6830299fcbe417f93baf9da15"
+      },
+      "42.20/media/lua/shared/SAO_Provisioning.lua": {
+        "sha256": "0329f16e11e8baf0d73794fb6932fb285cce5cbc1302fb77f032106a7947d943"
+      },
+      "42.20/media/lua/shared/SAO_Rand.lua": {
+        "sha256": "aa65e04733335f83e22210cdc9b837b4a92d5eab0dec4b07b56f4cb505d377c7"
+      },
+      "42.20/media/lua/shared/SAO_Recognition.lua": {
+        "sha256": "3359d1892149716d10696918431d7dc43d47bcd8cde864cc5853fd372fbeeacc"
+      },
+      "42.20/media/lua/shared/SAO_Seams.lua": {
+        "sha256": "e55a60c39e3a8c8f0cef089d30c4199fd3cf40affa411b5071e2b3bddd11cf84"
+      },
+      "42.20/media/lua/shared/SAO_Settlement.lua": {
+        "sha256": "d270281a986fae2444fc0694e5c7cd9b08a9d4bc242553a3b84ca5ba0a054eb7"
+      },
+      "42.20/media/lua/shared/SAO_Standing.lua": {
+        "sha256": "a4dbeb452ceb01d433a1d806e3ec56929f277b10d6329b7f41b3f998843592fb"
+      },
+      "42.20/media/lua/shared/SAO_Treatment.lua": {
+        "sha256": "660132fc2a5bed3474525684e1d3700cbbe50ceba34c291eea238b3ac26c50b6"
+      },
+      "42.20/media/lua/shared/SAO_World.lua": {
+        "sha256": "860a52a66d4d29970ed87b8dfe136348da222da9be2096f0f17a7ef07d9a470c"
+      },
+      "42.20/media/lua/shared/SAO_WorldDevelopment.lua": {
+        "sha256": "4b2fa1e74b1012ecb722cbb562fc6be9a078256c5ef9e8126cf83d7cf65dc1ef"
+      },
+      "42.20/media/lua/shared/SAO_WorldGenesis.lua": {
+        "sha256": "d59960bfdb8cf983aa1311f77164ae0084b19f90b202f6a6955fdb1bdb0512a0"
+      },
+      "42.20/media/lua/shared/SAO_WorldKnowledge.lua": {
+        "sha256": "8d47b46aadcd19f5cb65c6664e82688ff3b1701d86b6dd9cc482ec1b4589113f"
+      },
+      "42.20/media/lua/shared/SAO_WorldSources.lua": {
+        "sha256": "8b94261a5e1d6a7522b0f4a3009aa6b736cc91cf70b720cb370c7839b72e01ce"
+      },
+      "42.20/media/lua/shared/Translate/EN/Sandbox.json": {
+        "sha256": "be824c244bf02fefff2788c864765ee1c06b4a21e981d06fc7be76e127bd47e3"
+      },
+      "42.20/media/lua/shared/Translate/EN/UI_EN.txt": {
+        "sha256": "4d1ec28ed3eaedc28231c07c96943b7d013bedaee2e7a6995889fe362abd886f"
+      },
+      "42.20/media/sandbox-options.txt": {
+        "sha256": "f74df071f82b35539f3b25bbd09b24f0481b53ce729e0b22ed52842aca47a0f6"
+      },
+      "42.20/media/scripts/items_SAO_pharmacology.txt": {
+        "sha256": "7ecd278df3911d1042ce886c8092dbea8f0012e4eb35d7fbdca81c3acdc1f4ca"
+      },
+      "42.20/media/scripts/sounds_SAO.txt": {
+        "sha256": "cdc2ac225ddc1a93ac7fdbe4b1fb59e9385bf8d3f08399cf5199ff234ff3bd3d"
+      },
+      "42.20/media/sound/sao/clap_1.wav": {
+        "sha256": "4f5585dfb805ce139346403e4fa4241659ca282865fc1b6458f0be274636172a"
+      },
+      "42.20/media/sound/sao/clap_10.wav": {
+        "sha256": "1e0f3bfe41c846e079e3e2cd69275ea63c36bc866fb2411288bb8fba43e12781"
+      },
+      "42.20/media/sound/sao/clap_11.wav": {
+        "sha256": "969707056c39b2756299fb32802674a2f660bfa5f2ef65ad3332f8884954a5d2"
+      },
+      "42.20/media/sound/sao/clap_12.wav": {
+        "sha256": "965272fda0262c6dc1915c2b7d7e053de303e4bdc9b3c84a4d4eb7b7a3b1c4e0"
+      },
+      "42.20/media/sound/sao/clap_13.wav": {
+        "sha256": "97445652c8b017e5b9d83a9858b86ce7305038808887af1a3034e04ec33e3bde"
+      },
+      "42.20/media/sound/sao/clap_2.wav": {
+        "sha256": "8ee1d95f207df7118f26b74a520221b56e18becdcde13bd7994898590f95670d"
+      },
+      "42.20/media/sound/sao/clap_3.wav": {
+        "sha256": "cb9db09b42fb8455b4171347fdc05b9248c7f372534a015e4a722c4ad551b14d"
+      },
+      "42.20/media/sound/sao/clap_4.wav": {
+        "sha256": "8a29312ab6e078d7adaed9fbdd1d39f76f466a4f8f94557b5505a1f8ce05600a"
+      },
+      "42.20/media/sound/sao/clap_5.wav": {
+        "sha256": "0da5ab3d94fb540be93ec599c5760450cd46b4348c47e4d792b9322bb78301bd"
+      },
+      "42.20/media/sound/sao/clap_6.wav": {
+        "sha256": "2c79acdb7624a1560cfb04562397e0c21040cfe3582cbf3d508bc700d81926cf"
+      },
+      "42.20/media/sound/sao/clap_7.wav": {
+        "sha256": "d994112ed4a90da25904f449e6bff0bfbb7a60fc77c788769cd5bd9756669b40"
+      },
+      "42.20/media/sound/sao/clap_8.wav": {
+        "sha256": "83a6d6731b2442490e1a7b09e2785ecd2eafb11ecd471d7cc8e522ca829337d9"
+      },
+      "42.20/media/sound/sao/clap_9.wav": {
+        "sha256": "a048e0bfd9a0cbdef7e4d5e140bf7e926a6f813ba1218e3466d834732da39e8c"
+      },
+      "42.20/media/sound/sao/cough_female_1.wav": {
+        "sha256": "5325b2b7849131eac3b58465801a7962467d83ad6ffab508ed218678c631fce4"
+      },
+      "42.20/media/sound/sao/cough_female_2.wav": {
+        "sha256": "6406cbcf04324c87816ab396b6a5bea143a166a1c4fc0b61eed254406e941217"
+      },
+      "42.20/media/sound/sao/cough_female_3.wav": {
+        "sha256": "1dedcbecc3eb943e8049307cb6b00beced9595fba9608d7878e81034c387408b"
+      },
+      "42.20/media/sound/sao/cough_female_4.wav": {
+        "sha256": "4ced3ad9b2a214f6075f3418297d5a9a5b4f48f187757db246e583e8363ffaca"
+      },
+      "42.20/media/sound/sao/cough_male_1.wav": {
+        "sha256": "a6de40ca53777e1691abcca6ee6db0ecba479fcd556739b7e7c880aa43bd0634"
+      },
+      "42.20/media/sound/sao/cough_male_2.wav": {
+        "sha256": "739567e9482c16b613c78bb560a0f0b658df905f47d7486d66f45e2f636857c1"
+      },
+      "42.20/media/sound/sao/cough_male_3.wav": {
+        "sha256": "39d8ff7cc79034e771cf3fed32aa3eb3faf7ab8d6456aad821c50bc91b16acc2"
+      },
+      "42.20/media/sound/sao/cough_male_4.wav": {
+        "sha256": "b13608df3e7e9182230469ca5a15fb51cb5f6c44cc87aeebdc99a3f202842125"
+      },
+      "42.20/media/sound/sao/day_one_kaboom.wav": {
+        "sha256": "2cccccaeaa70450724baa3acf901ede8132d0658e5913ed6445c3ea045b970a1"
+      },
+      "42.20/media/sound/sao/nuke_dist.ogg": {
+        "sha256": "0917876f2b2e3689d28b9482e750fd26adf6edc58c41eaf395a23674ad7cfb57"
+      },
+      "42.20/mod.info": {
+        "sha256": "b741caddc6ad5bc0e9e5e6e4c28d02795e0284e902f35b32905d80ff5ccc22f9"
+      },
+      "42.20/poster.png": {
+        "sha256": "e011f7474fc607b71ec9a9419b837ca8950fb1feb9ec2d85665b0ab0b29e848f"
+      },
+      "icon.png": {
+        "sha256": "62f62b5b98672870205bb4eadbdf2c0ffe56157604aee09b9800f334ed7500eb"
+      },
+      "mod.info": {
+        "sha256": "b741caddc6ad5bc0e9e5e6e4c28d02795e0284e902f35b32905d80ff5ccc22f9"
+      },
+      "poster.png": {
+        "sha256": "e011f7474fc607b71ec9a9419b837ca8950fb1feb9ec2d85665b0ab0b29e848f"
+      }
+    },
+    "ZombieAwareness": {
+      "42.20/icon.png": {
+        "sha256": "a929812de6815bc49a6fbfbb034e310f861b88e4dfcf62bcce6b2fb8bf2d161b"
+      },
+      "42.20/media/java/ZAO.jar": {
+        "sha256": "dda7944cc6920254df7f2644697cfd07bb8942f5c7c80c510ed229e49f0ff008"
+      },
+      "42.20/media/lua/client/ZAO_Afflicted.lua": {
+        "sha256": "89d171b3645b952ee3706d67f3170e36d1f173b96b644b98c7161648f64fdcd4"
+      },
+      "42.20/media/lua/client/ZAO_Behaviors.lua": {
+        "sha256": "a9e520ae6fc9d20b19604ea3714e06491b7586d10db3e44efdd4b3817517599f"
+      },
+      "42.20/media/lua/client/ZAO_Contamination.lua": {
+        "sha256": "3ee877122fcb89570de671cd3467832b22f59d48f52c0001a1be6bf7ada04db0"
+      },
+      "42.20/media/lua/client/ZAO_Controller.lua": {
+        "sha256": "95431ba28353dd846fed23601e8f93f2b7aa2cfb94020a46f9b46dac855dd956"
+      },
+      "42.20/media/lua/client/ZAO_Crossed.lua": {
+        "sha256": "31cfe2fa506d86513687544ba3173d331c78e239da15abae5c7ddb1035d1222b"
+      },
+      "42.20/media/lua/client/ZAO_Diet.lua": {
+        "sha256": "27786267f0919d7d7195bf38f3e6165f222e295bf941d7ca93c80f59ceca61da"
+      },
+      "42.20/media/lua/client/ZAO_Driver.lua": {
+        "sha256": "7251b03834df1db384f51d26b65b5675626145e72bef391eb5ecffbeac36bf91"
+      },
+      "42.20/media/lua/client/ZAO_Exposure.lua": {
+        "sha256": "152455edea09ba1a5508b5aec84d7aab7f98985ba859909915fab3e123cbf663"
+      },
+      "42.20/media/lua/client/ZAO_Inspect.lua": {
+        "sha256": "00a399d5e87ab8134a9fe84ef16add0855fbf7e2142b31614ce37588a2f8dad3"
+      },
+      "42.20/media/lua/client/ZAO_Overlay.lua": {
+        "sha256": "04ae3de3fc4e9a514dad9b235b4f1056aa7da2551db58379edc7761de6d55315"
+      },
+      "42.20/media/lua/client/ZAO_Predation.lua": {
+        "sha256": "4a0542e54460c4edcea063f2020d2f69ff4a37ec06f2525cd6606f33018f95a5"
+      },
+      "42.20/media/lua/shared/Translate/EN/Sandbox.json": {
+        "sha256": "c3a219c16a56c15c8b4bbe1c5e811c231e1b0e157a724142d69511f3a89fcd42"
+      },
+      "42.20/media/lua/shared/Translate/EN/UI_EN.txt": {
+        "sha256": "741d5c7ab901d6e2848765a17c6691ed60344377d234cf9f0839a0e2ba307cec"
+      },
+      "42.20/media/lua/shared/ZAO_API.lua": {
+        "sha256": "8a0b74f7b88d0a6f3dd71a8c7704954e40c38d2833dc70fe4a5ec72dadd7f153"
+      },
+      "42.20/media/lua/shared/ZAO_Binding.lua": {
+        "sha256": "2b00f23fef74912efa878761bc2b1e64ff78405bcd20f0831f82185343d5edec"
+      },
+      "42.20/media/lua/shared/ZAO_Brain.lua": {
+        "sha256": "06ab7b702729b2b0f126930977a0fe77cdc044083347ce9eafd89aea63ce85bc"
+      },
+      "42.20/media/lua/shared/ZAO_ExecutionOwner.lua": {
+        "sha256": "f178fc53577638f9b4d524abffc1e223ad1fdf12e7dab6ace61761e51e7c156b"
+      },
+      "42.20/media/lua/shared/ZAO_Forms.lua": {
+        "sha256": "ef34b4f0999cca1042b3ed7696dfeea58ed4c2deb25eaf79c12e55787bd047fb"
+      },
+      "42.20/media/lua/shared/ZAO_Maintenance.lua": {
+        "sha256": "3f625e76397b91f26ab2afdc3c980aab5f7a51bb6a5fbaf12551cbedd0b7eadb"
+      },
+      "42.20/media/lua/shared/ZAO_Mind.lua": {
+        "sha256": "651d6e1065e7aebd58c161247d0e18ab2f03450946e00b8186a6b308483c1e59"
+      },
+      "42.20/media/lua/shared/ZAO_Participants.lua": {
+        "sha256": "437588bead8e5edcee5861f95789527f3e4c6c34ee5a28dca0ac683158f80c2e"
+      },
+      "42.20/media/lua/shared/ZAO_Pathogen.lua": {
+        "sha256": "a816c4aeaf91e7cec1f2ca655372d67b17bd87e2e816acdaea283d93445aefd5"
+      },
+      "42.20/media/lua/shared/ZAO_Recovery.lua": {
+        "sha256": "d3152a49f6b89743075d2bfc6b4c798e2a3d38cca31641e9beccf33b25947ea2"
+      },
+      "42.20/media/lua/shared/ZAO_Sandbox.lua": {
+        "sha256": "725f1438b949e3e2524fcf125859aeaf49e560ea3e3b416f5046b8070e7224cc"
+      },
+      "42.20/media/lua/shared/ZAO_Settlement.lua": {
+        "sha256": "3342a7a021e2d47f2da7fab5754431b8a7c07e6210d3aef740d0f9f4144f0674"
+      },
+      "42.20/media/lua/shared/ZAO_State.lua": {
+        "sha256": "d6648b3f1f55945860f0e56a3f4dceeca4ffecdfb851e30af94fa94509f0d34d"
+      },
+      "42.20/media/lua/shared/ZAO_StateStore.lua": {
+        "sha256": "5ef423c001a85480994ffaf0fca5b26def18ac772001510a0d3e7fada9fc37a6"
+      },
+      "42.20/media/sandbox-options.txt": {
+        "sha256": "bf5b8f91506e62918e7a102962b3a52c33eae5dca00c920bdf064e9e951ce46d"
+      },
+      "42.20/media/scripts/ZAO_HumanFood.txt": {
+        "sha256": "69e941a084bbf3aad749ce623ec401f8faf2761eb02ad76f2d4fa6534f14f85b"
+      },
+      "42.20/mod.info": {
+        "sha256": "cb636c53de4139dd5c5f597fe62c9d076b099adda8e81ac7d228ac0ea778d8e4"
+      },
+      "42.20/poster.png": {
+        "sha256": "7e22af8c81b0d28d9b8f61c743070d060f5714017ac753f6abe63c8e805b8d44"
+      },
+      "CREDITS.md": {
+        "sha256": "872ab42d2e9c2ec09597de38c5ffcf4eed6156d2ea3c67ee3be1e765560df9cb"
+      },
+      "LICENSE": {
+        "sha256": "230184f60bae2feaf244f10a8bac053c8ff33a183bcc365b4d8b876d2b7f4809"
+      },
+      "icon.png": {
+        "sha256": "a929812de6815bc49a6fbfbb034e310f861b88e4dfcf62bcce6b2fb8bf2d161b"
+      },
+      "mod.info": {
+        "sha256": "cb636c53de4139dd5c5f597fe62c9d076b099adda8e81ac7d228ac0ea778d8e4"
+      },
+      "poster.png": {
+        "sha256": "7e22af8c81b0d28d9b8f61c743070d060f5714017ac753f6abe63c8e805b8d44"
+      }
+    }
+  }
+}

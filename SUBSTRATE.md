@@ -1,6 +1,6 @@
 | Document | Survivor Awareness Overhaul Dependency Substrate |
 |---|---|
-| Version | `2.12.0.0-pre-alpha` |
+| Version | `3.0.0.0-pre-alpha` |
 | Author | ellyj3rain |
 | Repository | `SUBSTRATE.md` |
 | Status | CANONICAL - what exists, what is planned, and what each area of concern needs. |
@@ -931,3 +931,16 @@ specific host and supported schemas. It does not establish corpus-wide world
 knowledge, native loaded-body capture or task-specific output validity. Speakeasy
 owns the next exact import, source adjudication, typed proposal and readable
 operator review. Live asynchronous inference and result revalidation remain R14.
+
+## C89 native capability connections
+
+The C89 architecture and [prior-art catalogue](artifacts/audits/c89-native-capabilities/prior-art.json)
+connect admitted mechanics to their owned producers. Native auditory orienting,
+owned drug physiology, exact appliance preparation and private discovery are
+joined to the current person and body lifecycle. The catalogue reports horse
+mounting as an unimplemented owned producer; the old global lookup was not a
+working integration. Native local-player drug physiology, broader autonomous
+verb choice and complete animal/crafting/building/repair receipts remain work.
+Compatibility observations and accepted mechanism ownership are recorded as
+different relationships. No external gameplay mod is required to run the owned
+drug families.

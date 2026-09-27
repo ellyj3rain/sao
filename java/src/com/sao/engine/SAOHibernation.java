@@ -93,57 +93,9 @@ public final class SAOHibernation {
             float thirst = nativeSnapshot ? shell.getStats().get(CharacterStat.THIRST)
                 : finiteFloat(legacy.fields.get("t"));
 
-            // Dormant metabolism: retain demand above the display/stat cap
-            // while resources are reconciled. This makes one 48-hour wake and
-            // two 24-hour wakes consume the same quantity when their event
-            // history is otherwise equal.
-            double hungerAfter = hunger + elapsedHours * HUNGER_PER_HOUR;
-            double thirstAfter = thirst + elapsedHours * THIRST_PER_HOUR;
-            int foodActions = 0;
-            double foodHunger = 0.0;
-            double caloriesBefore = shell.getNutrition().getCalories();
-            shell.getStats().set(CharacterStat.HUNGER,
-                (float) Math.min(1.0, hungerAfter));
-            shell.getStats().set(CharacterStat.THIRST,
-                (float) Math.min(1.0, thirstAfter));
-            while (elapsedHours > 0 && hungerAfter > 0.5f) {
-                Food meal = bestDormantFood(shell);
-                if (meal == null) break;
-                double available = Math.max(0.0, -meal.getHungChange());
-                if (available <= 0.000001) break;
-                double taken = Math.min(hungerAfter - 0.5, available);
-                double base = Math.max(0.000001, Math.abs(meal.getBaseHunger()));
-                float engineFraction = (float) Math.min(1.0, taken / base);
-                if (!shell.Eat(meal, engineFraction, false)) break;
-                hungerAfter -= taken;
-                foodHunger += taken;
-                foodActions++;
-            }
-            int drinkActions = 0;
-            double fluidConsumed = 0.0;
-            while (elapsedHours > 0 && thirstAfter > 0.5f) {
-                InventoryItem drink = bestDormantDrink(shell);
-                if (drink == null) break;
-                var fluids = drink.getFluidContainer();
-                float amountBefore = fluids.getAmount();
-                double available = fluidRelief(fluids);
-                if (amountBefore <= 0.000001f || available <= 0.000001) break;
-                float engineFraction = (float) Math.min(1.0,
-                    (thirstAfter - 0.5) / available);
-                if (!shell.DrinkFluid(drink, engineFraction, false)) break;
-                float consumed = Math.max(0.0f, amountBefore - fluids.getAmount());
-                if (consumed <= 0.000001f) break;
-                double relief = available * consumed / amountBefore;
-                thirstAfter -= relief;
-                fluidConsumed += consumed;
-                drinkActions++;
-            }
-            zombie.characters.Stats stats = shell.getStats();
-            hungerAfter = Math.max(0.0, Math.min(DORMANT_CAP, hungerAfter));
-            thirstAfter = Math.max(0.0, Math.min(DORMANT_CAP, thirstAfter));
-            stats.set(CharacterStat.HUNGER, (float) hungerAfter);
-            stats.set(CharacterStat.THIRST, (float) thirstAfter);
-            double caloriesGained = shell.getNutrition().getCalories() - caloriesBefore;
+            shell.getStats().set(CharacterStat.HUNGER, hunger);
+            shell.getStats().set(CharacterStat.THIRST, thirst);
+            Metabolism metabolism = metabolize(shell, elapsedHours);
 
             // Native restore already restored wounds, clothing and equipment.
             // Only old snapshots need their original coarse reconstruction.
@@ -215,16 +167,92 @@ public final class SAOHibernation {
                     }
                 }
             }
-            return "AWAKENED items=" + restored + " foodActions=" + foodActions
-                + " foodHunger=" + format3(foodHunger)
-                + " drinkActions=" + drinkActions
-                + " fluidConsumed=" + format3(fluidConsumed)
-                + " caloriesDormant=" + format3(caloriesGained)
-                + " hunger=" + String.format(java.util.Locale.ROOT, "%.2f", hungerAfter)
-                + " thirst=" + String.format(java.util.Locale.ROOT, "%.2f", thirstAfter);
+            return "AWAKENED items=" + restored + metabolism.journal();
         } catch (Throwable throwable) {
             return "AWAKEN_FAILED " + throwable;
         }
+    }
+
+    /** Apply the existing native elapsed physiology to an already restored shell.
+     * The body owner interleaves this receiver with its other minute effects. */
+    public static String advanceDormantMetabolism(IsoPlayer shell, double elapsedHours) {
+        if (shell == null || !Double.isFinite(elapsedHours) || elapsedHours < 0)
+            return "METABOLISM_FAILED invalid body or elapsed time";
+        try {
+            return "METABOLIZED" + metabolize(shell, elapsedHours).journal();
+        } catch (Throwable throwable) {
+            return "METABOLISM_FAILED " + throwable;
+        }
+    }
+
+    private record Metabolism(int foodActions, double foodHunger, int drinkActions,
+            double fluidConsumed, double caloriesGained, double hungerAfter,
+            double thirstAfter) {
+        String journal() {
+            return " foodActions=" + foodActions + " foodHunger=" + format3(foodHunger)
+                + " drinkActions=" + drinkActions + " fluidConsumed=" + format3(fluidConsumed)
+                + " caloriesDormant=" + format3(caloriesGained)
+                + " hunger=" + String.format(java.util.Locale.ROOT, "%.2f", hungerAfter)
+                + " thirst=" + String.format(java.util.Locale.ROOT, "%.2f", thirstAfter);
+        }
+    }
+
+    private static Metabolism metabolize(IsoPlayer shell, double elapsedHours) {
+        float hunger = shell.getStats().get(CharacterStat.HUNGER);
+        float thirst = shell.getStats().get(CharacterStat.THIRST);
+        // Dormant metabolism: retain demand above the display/stat cap
+        // while resources are reconciled. This makes one 48-hour wake and
+        // two 24-hour wakes consume the same quantity when their event
+        // history is otherwise equal.
+        double hungerAfter = hunger + elapsedHours * HUNGER_PER_HOUR;
+        double thirstAfter = thirst + elapsedHours * THIRST_PER_HOUR;
+        int foodActions = 0;
+        double foodHunger = 0.0;
+        double caloriesBefore = shell.getNutrition().getCalories();
+        shell.getStats().set(CharacterStat.HUNGER,
+            (float) Math.min(1.0, hungerAfter));
+        shell.getStats().set(CharacterStat.THIRST,
+            (float) Math.min(1.0, thirstAfter));
+        while (elapsedHours > 0 && hungerAfter > 0.5f) {
+            Food meal = bestDormantFood(shell);
+            if (meal == null) break;
+            double available = Math.max(0.0, -meal.getHungChange());
+            if (available <= 0.000001) break;
+            double taken = Math.min(hungerAfter - 0.5, available);
+            double base = Math.max(0.000001, Math.abs(meal.getBaseHunger()));
+            float engineFraction = (float) Math.min(1.0, taken / base);
+            if (!shell.Eat(meal, engineFraction, false)) break;
+            hungerAfter -= taken;
+            foodHunger += taken;
+            foodActions++;
+        }
+        int drinkActions = 0;
+        double fluidConsumed = 0.0;
+        while (elapsedHours > 0 && thirstAfter > 0.5f) {
+            InventoryItem drink = bestDormantDrink(shell);
+            if (drink == null) break;
+            var fluids = drink.getFluidContainer();
+            float amountBefore = fluids.getAmount();
+            double available = fluidRelief(fluids);
+            if (amountBefore <= 0.000001f || available <= 0.000001) break;
+            float engineFraction = (float) Math.min(1.0,
+                (thirstAfter - 0.5) / available);
+            if (!shell.DrinkFluid(drink, engineFraction, false)) break;
+            float consumed = Math.max(0.0f, amountBefore - fluids.getAmount());
+            if (consumed <= 0.000001f) break;
+            double relief = available * consumed / amountBefore;
+            thirstAfter -= relief;
+            fluidConsumed += consumed;
+            drinkActions++;
+        }
+        zombie.characters.Stats stats = shell.getStats();
+        hungerAfter = Math.max(0.0, Math.min(DORMANT_CAP, hungerAfter));
+        thirstAfter = Math.max(0.0, Math.min(DORMANT_CAP, thirstAfter));
+        stats.set(CharacterStat.HUNGER, (float) hungerAfter);
+        stats.set(CharacterStat.THIRST, (float) thirstAfter);
+        double caloriesGained = shell.getNutrition().getCalories() - caloriesBefore;
+        return new Metabolism(foodActions, foodHunger, drinkActions, fluidConsumed,
+            caloriesGained, hungerAfter, thirstAfter);
     }
 
     private static java.util.List<InventoryItem> carriedItems(IsoPlayer shell) {

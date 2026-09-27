@@ -137,8 +137,10 @@ def inspection_lua(root, work, production, receipt):
     controls = [
         ("omit-private-inspection", "learned = SAO.Perception.learnInspectedSource(actorId,\n            transferPlace(actorId, source), context.sourceId, tick, \"native-container-inspection\")",
             "learned = true", "empty_holder_private_fact"),
-        ("repeat-empty", "and not personallyInspected(known, row)", "and true", "empty_holder_not_repeated"),
-        ("ignore-route-failure", "if not delayed and not personallyInspected", "if true and not personallyInspected", "failed_holder_not_immediately_reselected"),
+        ("repeat-empty", "and (sourceId ~= nil or not personallyInspected(known, row))",
+            "and true", "empty_holder_not_repeated"),
+        ("ignore-route-failure", "if not delayed and (sourceId == nil or row.id == sourceId)",
+            "if true and (sourceId == nil or row.id == sourceId)", "failed_holder_not_immediately_reselected"),
         ("penalize-flee", "local INSPECTION_ACCESS_FAILURE = {", "local INSPECTION_ACCESS_FAILURE = { [\"interrupted:FLEE\"] = true,", "flee_does_not_penalize"),
         ("leak-on-offer", "memory.pending = context\n            return context",
             "memory.pending = context\n            SAO.Perception.learnInspectedSource(actorId, transferPlace(actorId, value.sources[row.id]), row.id, 0, 'bad-offer')\n            return context", "offer_without_knowledge"),

@@ -1,0 +1,1797 @@
+{
+  "route": "#native-view?session=survival-observatory",
+  "connection": "Running",
+  "settings": "Simulation discovery paceSource settings: active · 50% associative selection · 48 opportunities / world hour · depth 4Associative shareOpportunities / world hourAssociation depthApplyApplied and reported by the simulation.",
+  "cognition": "Competing cognitionPrivate evidence for Ralph Larose. 0 episodes and 0 experiences outside this projection.Simulation discovery paceSource settings: active · 50% associative selection · 48 opportunities / world hour · depth 4Associative shareOpportunities / world hourAssociation depthApplyApplied and reported by the simulation.Decisions and outcomesNo decision episodes have been reported.Beliefs and discoveryNo model state has been reported.",
+  "body": "Mousecat\nProjects\nQuestions\nSimulation\nHistory\n0 drafts\n0 drafts: 0 ready, 0 need completion.\nReview 0 drafts\nLive\nSurvival simulation\nProject\nSession \nSurvival simulation\nRunning\n\nCamera follows Ralph Larose, Emanuel Calhoun, Dolores Sorrento, Arron Whitney, Vincent Graff\nWatching Ralph Larose with 4 nearby; idle\n\nInspecting\nRalph Larose\n\nFrame just received\n1.0 images/s\nPause\nNormal\nFast\nFastest\nFollow activity\n−\n80%\n+\n←\n↑\n↓\n→\nEnd run\n\nApplied: Observer request applied\n\nWorld hour 2.030 | 6 people, 6 represented. People observed at hour 2.0448131561279297. God view; canopy cutaway; full physics applies in the loaded region. Unreviewed.\n\nInspecting Ralph Larose\nArron Whitney\nEmanuel Calhoun\nVincent Graff\nDolores Sorrento\nMonica Brownlee\nRalph Larose\nShow in world\nOpen game panel\nClose game panel\n\nPerson information: available · 0.8s old\n\nCompeting cognition\n\nPrivate evidence for Ralph Larose. 0 episodes and 0 experiences outside this projection.\n\nSimulation discovery pace\n\nSource settings: active · 50% associative selection · 48 opportunities / world hour · depth 4\n\nAssociative share\nOpportunities / world hour\nAssociation depth\nApply\n\nApplied and reported by the simulation.\n\nDecisions and outcomes\nBeliefs and discovery\n\nNo model state has been reported.\n\nmechanic\nActivity: IDLE\nRecorded reason: reads a while, back to the wall\nPosition from native-body\nRecorded alive\nLocation 3427.5, 10911.5; floor 0\nRemembered person locations: 5\nStored threat memories: 0\nUnclassified sounds: 0\n\nCurrent needs\n\nCurrent physical state · Native body\n\nHunger\n0.0010\nThirst\n0.0010\nFatigue\n0.0010\nEndurance\n1.0000\nNicotine withdrawal\n0.0000\nHealth (%)\n100.00\nAttention and movement\n\nCurrent physical state · Native body\n\nResponse\nNo active sound response\nPhase\nidle\nAttention readiness\n1.000\nMotor steadiness\n1.000\nSubstance effects\n\nCurrent physical state and recorded use · Personal physiology\n\nActive effects\nNo\nSedating\nNo\nStimulating\nNo\nWithdrawal\nNo\nOverload\nNo\nFood preparation\n\nCurrent work and recorded outcome · Native appliance and food\n\nNo current food preparation\n\nCarried inventory\n\nCurrent physical state · Native inventory containers\n\n9 items read\n\nBase.Belt2\nBelt [id 434741805]\nBase.Tshirt_DefaultDECAL_TINT\nT-shirt [id 1471737814]\nBase.Socks_Ankle\nSocks [id 1788179831]\nBase.Shoes_WorkBoots\nWork Boots [id 1553991838]\nBase.Boilersuit_BlueRed\nCoveralls [id 1400554831]\nBase.Kneepad_Left_Workman\nKneepad [id 1525944415]\nBase.Kneepad_Right_Workman\nKneepad [id 513917671]\nBase.Notebook\nRalph Larose's journal [id 1151967447]\nBase.IDcard_Male\nRalph Larose - ID [id 1935775964]\nPressure and recorded reason\n\nMost recent decision receipt · Controller\n\nanswer\nchosen rest\ndetail\nreads a while, back to the wall\nat\n18069\ngraph\n1\nCurrent action\n\nExecution owners · Controller, Locomotion and native timed-action queue\n\nController state\nIDLE\nMovement\nNo owned route\nTimed action 1\nSAOGestureAction\nNative progress 1\n0\nSource use and latest result\n\nNative action receipts · WorldSources durable action ledger\n\nSource action\nNo recorded reservation pointer\nLatest result\nNo retained receipt for this person\nReception, responses and work\n\nRecorded stages for this person · Organization durable process records\n\nNo recorded process participation in the current store\n\nRecent activity and dialogue\n\nNo recorded events in this observation.",
+  "dimensions": [
+    960,
+    540
+  ],
+  "overflow": false,
+  "errors": [],
+  "snapshot": {
+    "schema": "mousecat.native-view-response/1",
+    "binding": {
+      "id": "survival-observatory",
+      "label": "Survival simulation",
+      "projectRef": "project:survivor-awareness",
+      "bindingId": "1ff5faf7f553d2a533fb632aa6cc298e1602c41c156ec64f64de9ee013703aea"
+    },
+    "view": {
+      "camera": {
+        "mode": "automatic",
+        "personIds": [
+          "sao-6",
+          "sao-2",
+          "sao-4",
+          "sao-1",
+          "sao-3"
+        ],
+        "summary": "Watching Ralph Larose with 4 nearby; idle"
+      },
+      "capturedAtUnixMs": 1790491489223,
+      "commandResult": {
+        "message": "Observer request applied",
+        "sequence": 3,
+        "status": "applied"
+      },
+      "image": {
+        "file": "study-live-0000000000000004.png",
+        "height": 540,
+        "sha256": "955a56af15bcce0eb882664e3bca9e5ab88d8c56a7511d597dc45b3e484afd6f",
+        "width": 960
+      },
+      "inspection": {
+        "capturedAtUnixMs": 1790491488680,
+        "message": "Current bodies and recorded execution facts; no decision or perception rerun",
+        "omittedEvents": 0,
+        "omittedPeople": 0,
+        "sequence": 4,
+        "status": "available",
+        "worldHours": 2.029998779296875
+      },
+      "lastCommandSequence": 3,
+      "panels": [
+        {
+          "id": "person-inspection",
+          "label": "Native person inspector"
+        }
+      ],
+      "people": [
+        {
+          "cognition": {
+            "actorId": "sao-1",
+            "episodes": [
+              {
+                "disagreement": false,
+                "executionStatus": "censored",
+                "frame": {
+                  "actorId": "sao-1",
+                  "capabilities": {
+                    "cook": false,
+                    "forage": false,
+                    "treat": false
+                  },
+                  "drinkAt": 0.41972,
+                  "eatAt": 0.51215,
+                  "fatigue": 0,
+                  "foodAllowed": true,
+                  "hunger": 0,
+                  "id": "frame/1",
+                  "inspectionAllowed": true,
+                  "knownFood": 0,
+                  "knownPlaces": 1,
+                  "knownWater": 0,
+                  "thirst": 0,
+                  "waterAllowed": true,
+                  "worldHours": 2.007777214050293
+                },
+                "id": "episode/1",
+                "proposals": [
+                  {
+                    "actionId": "continue",
+                    "confidence": 0.5,
+                    "interpretation": "No admissible ordinary need threshold is reached.",
+                    "modelId": "ordinary",
+                    "predictions": {
+                      "continue": {
+                        "claim": "No new goal is initiated; its outcome remains unobserved without a matching action receipt.",
+                        "probability": 0.5
+                      },
+                      "food": {
+                        "claim": "The next qualified food acquisition succeeds or measured own consumption relieves hunger.",
+                        "probability": 0.5
+                      },
+                      "inspect": {
+                        "claim": "A performed inspection returns definite contents evidence, including an empty result.",
+                        "probability": 0.5
+                      },
+                      "water": {
+                        "claim": "The next qualified water acquisition succeeds or measured own consumption relieves thirst.",
+                        "probability": 0.5
+                      }
+                    },
+                    "version": "sao-ordinary/2"
+                  },
+                  {
+                    "actionId": "continue",
+                    "confidence": 0.5,
+                    "interpretation": "Current pressure leaves room to retain the ongoing intent.",
+                    "modelId": "associative",
+                    "predictions": {
+                      "continue": {
+                        "claim": "No new goal is initiated; its outcome remains unobserved without a matching action receipt.",
+                        "probability": 0.5
+                      },
+                      "food": {
+                        "claim": "The next qualified food acquisition succeeds or measured own consumption relieves hunger.",
+                        "probability": 0.5
+                      },
+                      "inspect": {
+                        "claim": "A performed inspection returns definite contents evidence, including an empty result.",
+                        "probability": 0.5
+                      },
+                      "water": {
+                        "claim": "The next qualified water acquisition succeeds or measured own consumption relieves thirst.",
+                        "probability": 0.5
+                      }
+                    },
+                    "version": "sao-associative/2"
+                  }
+                ],
+                "reason": "continues ordinary activity; no experiment selected",
+                "selectedActionId": "continue",
+                "selectedModelId": "ordinary",
+                "selectionPolicy": "deterministic-balanced",
+                "selectionWeight": 0.5,
+                "status": "censored",
+                "worldHours": 2.007777214050293
+              }
+            ],
+            "models": [
+              {
+                "beliefs": [],
+                "hypotheses": [],
+                "id": "ordinary",
+                "omittedBeliefs": 0,
+                "omittedHypotheses": 0,
+                "version": "sao-ordinary/2"
+              },
+              {
+                "beliefs": [],
+                "hypotheses": [],
+                "id": "associative",
+                "omittedBeliefs": 0,
+                "omittedHypotheses": 0,
+                "version": "sao-associative/2"
+              }
+            ],
+            "omittedEpisodes": 0,
+            "omittedExperiences": 0,
+            "rejectedExperiences": 0,
+            "schema": "simulation.cognition/1",
+            "sequence": 1,
+            "settings": {
+              "enabled": true,
+              "maxDepth": 4,
+              "opponentShare": 0.5,
+              "opportunitiesPerHour": 48
+            }
+          },
+          "events": [],
+          "id": "sao-1",
+          "label": "Arron Whitney",
+          "sections": [
+            {
+              "id": "needs",
+              "label": "Current needs",
+              "message": "",
+              "perspective": "Current physical state",
+              "rows": [
+                {
+                  "label": "Hunger",
+                  "value": "0.0010"
+                },
+                {
+                  "label": "Thirst",
+                  "value": "0.0010"
+                },
+                {
+                  "label": "Fatigue",
+                  "value": "0.0010"
+                },
+                {
+                  "label": "Endurance",
+                  "value": "1.0000"
+                },
+                {
+                  "label": "Nicotine withdrawal",
+                  "value": "0.0000"
+                },
+                {
+                  "label": "Health (%)",
+                  "value": "100.00"
+                }
+              ],
+              "source": "Native body",
+              "status": "available"
+            },
+            {
+              "id": "attention",
+              "label": "Attention and movement",
+              "message": "",
+              "perspective": "Current physical state",
+              "rows": [
+                {
+                  "label": "Response",
+                  "value": "No active sound response"
+                },
+                {
+                  "label": "Phase",
+                  "value": "idle"
+                },
+                {
+                  "label": "Attention readiness",
+                  "value": "1.000"
+                },
+                {
+                  "label": "Motor steadiness",
+                  "value": "1.000"
+                }
+              ],
+              "source": "Native body",
+              "status": "available"
+            },
+            {
+              "id": "medication",
+              "label": "Substance effects",
+              "message": "",
+              "perspective": "Current physical state and recorded use",
+              "rows": [
+                {
+                  "label": "Active effects",
+                  "value": "No"
+                },
+                {
+                  "label": "Sedating",
+                  "value": "No"
+                },
+                {
+                  "label": "Stimulating",
+                  "value": "No"
+                },
+                {
+                  "label": "Withdrawal",
+                  "value": "No"
+                },
+                {
+                  "label": "Overload",
+                  "value": "No"
+                }
+              ],
+              "source": "Personal physiology",
+              "status": "available"
+            },
+            {
+              "id": "cooking",
+              "label": "Food preparation",
+              "message": "No current food preparation",
+              "perspective": "Current work and recorded outcome",
+              "rows": [],
+              "source": "Native appliance and food",
+              "status": "available"
+            },
+            {
+              "id": "inventory",
+              "label": "Carried inventory",
+              "message": "9 items read",
+              "perspective": "Current physical state",
+              "rows": [
+                {
+                  "label": "Base.Belt2",
+                  "value": "Belt [id 737331393]"
+                },
+                {
+                  "label": "Base.Tshirt_DefaultTEXTURE_TINT",
+                  "value": "T-shirt [id 1817939349]"
+                },
+                {
+                  "label": "Base.WristWatch_Left_ClassicBrown",
+                  "value": "Wrist Watch - Classic [id 238217435]"
+                },
+                {
+                  "label": "Base.Shirt_OfficerWhite",
+                  "value": "Shirt - Police [id 356891266]"
+                },
+                {
+                  "label": "Base.Socks_Ankle",
+                  "value": "Socks [id 975144544]"
+                },
+                {
+                  "label": "Base.Shoes_Random",
+                  "value": "Shoes [id 1776072676]"
+                },
+                {
+                  "label": "Base.Trousers_Suit",
+                  "value": "Suit Pants [id 742261279]"
+                },
+                {
+                  "label": "Base.Notebook",
+                  "value": "Arron Whitney's journal [id 586593046]"
+                },
+                {
+                  "label": "Base.IDcard_Male",
+                  "value": "Arron Whitney - ID [id 1092389865]"
+                }
+              ],
+              "source": "Native inventory containers",
+              "status": "available"
+            },
+            {
+              "id": "pressure",
+              "label": "Pressure and recorded reason",
+              "message": "",
+              "perspective": "Most recent decision receipt",
+              "rows": [
+                {
+                  "label": "answer",
+                  "value": "chosen rest"
+                },
+                {
+                  "label": "detail",
+                  "value": "reads a while, back to the wall"
+                },
+                {
+                  "label": "at",
+                  "value": "18069"
+                },
+                {
+                  "label": "graph",
+                  "value": "1"
+                }
+              ],
+              "source": "Controller",
+              "status": "available"
+            },
+            {
+              "id": "actions",
+              "label": "Current action",
+              "message": "",
+              "perspective": "Execution owners",
+              "rows": [
+                {
+                  "label": "Controller state",
+                  "value": "IDLE"
+                },
+                {
+                  "label": "Movement",
+                  "value": "No owned route"
+                },
+                {
+                  "label": "Timed action 1",
+                  "value": "SAOGestureAction"
+                },
+                {
+                  "label": "Native progress 1",
+                  "value": "0"
+                }
+              ],
+              "source": "Controller, Locomotion and native timed-action queue",
+              "status": "available"
+            },
+            {
+              "id": "source-work",
+              "label": "Source use and latest result",
+              "message": "",
+              "perspective": "Native action receipts",
+              "rows": [
+                {
+                  "label": "Source action",
+                  "value": "No recorded reservation pointer"
+                },
+                {
+                  "label": "Latest result",
+                  "value": "No retained receipt for this person"
+                }
+              ],
+              "source": "WorldSources durable action ledger",
+              "status": "available"
+            },
+            {
+              "id": "processes",
+              "label": "Reception, responses and work",
+              "message": "No recorded process participation in the current store",
+              "perspective": "Recorded stages for this person",
+              "rows": [],
+              "source": "Organization durable process records",
+              "status": "available"
+            }
+          ],
+          "summary": "retiree\nActivity: IDLE\nRecorded reason: reads a while, back to the wall\nPosition from native-body\nRecorded alive\nLocation 3426.5, 10910.5; floor 0\nRemembered person locations: 5\nStored threat memories: 0\nUnclassified sounds: 0"
+        },
+        {
+          "cognition": {
+            "actorId": "sao-2",
+            "episodes": [],
+            "models": [],
+            "omittedEpisodes": 0,
+            "omittedExperiences": 0,
+            "rejectedExperiences": 0,
+            "schema": "simulation.cognition/1",
+            "sequence": 0,
+            "settings": {
+              "enabled": true,
+              "maxDepth": 4,
+              "opponentShare": 0.5,
+              "opportunitiesPerHour": 48
+            }
+          },
+          "events": [
+            {
+              "actorId": "sao-2",
+              "capturedAtUnixMs": 1790491487690,
+              "id": "observation-1",
+              "source": "Voice",
+              "stage": "emitted",
+              "summary": "Your lot sees it right.",
+              "worldHours": 2.007777214050293
+            }
+          ],
+          "id": "sao-2",
+          "label": "Emanuel Calhoun",
+          "sections": [
+            {
+              "id": "needs",
+              "label": "Current needs",
+              "message": "",
+              "perspective": "Current physical state",
+              "rows": [
+                {
+                  "label": "Hunger",
+                  "value": "0.0010"
+                },
+                {
+                  "label": "Thirst",
+                  "value": "0.0010"
+                },
+                {
+                  "label": "Fatigue",
+                  "value": "0.0010"
+                },
+                {
+                  "label": "Endurance",
+                  "value": "1.0000"
+                },
+                {
+                  "label": "Nicotine withdrawal",
+                  "value": "0.0000"
+                },
+                {
+                  "label": "Health (%)",
+                  "value": "100.00"
+                }
+              ],
+              "source": "Native body",
+              "status": "available"
+            },
+            {
+              "id": "attention",
+              "label": "Attention and movement",
+              "message": "",
+              "perspective": "Current physical state",
+              "rows": [
+                {
+                  "label": "Response",
+                  "value": "No active sound response"
+                },
+                {
+                  "label": "Phase",
+                  "value": "idle"
+                },
+                {
+                  "label": "Attention readiness",
+                  "value": "1.000"
+                },
+                {
+                  "label": "Motor steadiness",
+                  "value": "1.000"
+                }
+              ],
+              "source": "Native body",
+              "status": "available"
+            },
+            {
+              "id": "medication",
+              "label": "Substance effects",
+              "message": "",
+              "perspective": "Current physical state and recorded use",
+              "rows": [
+                {
+                  "label": "Active effects",
+                  "value": "No"
+                },
+                {
+                  "label": "Sedating",
+                  "value": "No"
+                },
+                {
+                  "label": "Stimulating",
+                  "value": "No"
+                },
+                {
+                  "label": "Withdrawal",
+                  "value": "No"
+                },
+                {
+                  "label": "Overload",
+                  "value": "No"
+                }
+              ],
+              "source": "Personal physiology",
+              "status": "available"
+            },
+            {
+              "id": "cooking",
+              "label": "Food preparation",
+              "message": "No current food preparation",
+              "perspective": "Current work and recorded outcome",
+              "rows": [],
+              "source": "Native appliance and food",
+              "status": "available"
+            },
+            {
+              "id": "inventory",
+              "label": "Carried inventory",
+              "message": "9 items read",
+              "perspective": "Current physical state",
+              "rows": [
+                {
+                  "label": "Base.Tshirt_DefaultTEXTURE_TINT",
+                  "value": "T-shirt [id 1444379268]"
+                },
+                {
+                  "label": "Base.WristWatch_Left_ClassicBlack",
+                  "value": "Wrist Watch - Classic [id 11991171]"
+                },
+                {
+                  "label": "Base.Bracelet_RightFriendshipTINT",
+                  "value": "Friendship Bracelet [id 1092199694]"
+                },
+                {
+                  "label": "Base.Shoes_Random",
+                  "value": "Shoes [id 163394732]"
+                },
+                {
+                  "label": "Base.Trousers_Denim",
+                  "value": "Jeans [id 1601722134]"
+                },
+                {
+                  "label": "Base.Jacket_Varsity",
+                  "value": "Jacket - Varsity [id 1106239310]"
+                },
+                {
+                  "label": "Base.Bag_Satchel",
+                  "value": "Satchel [id 1241568176]"
+                },
+                {
+                  "label": "Base.Notebook",
+                  "value": "Emanuel Calhoun's journal [id 951353439]"
+                },
+                {
+                  "label": "Base.IDcard_Male",
+                  "value": "Emanuel Calhoun - ID [id 1364282619]"
+                }
+              ],
+              "source": "Native inventory containers",
+              "status": "available"
+            },
+            {
+              "id": "pressure",
+              "label": "Pressure and recorded reason",
+              "message": "",
+              "perspective": "Most recent decision receipt",
+              "rows": [
+                {
+                  "label": "answer",
+                  "value": "chosen rest"
+                },
+                {
+                  "label": "detail",
+                  "value": "reads a while, back to the wall"
+                },
+                {
+                  "label": "at",
+                  "value": "18069"
+                },
+                {
+                  "label": "graph",
+                  "value": "1"
+                }
+              ],
+              "source": "Controller",
+              "status": "available"
+            },
+            {
+              "id": "actions",
+              "label": "Current action",
+              "message": "",
+              "perspective": "Execution owners",
+              "rows": [
+                {
+                  "label": "Controller state",
+                  "value": "IDLE"
+                },
+                {
+                  "label": "Movement",
+                  "value": "No owned route"
+                },
+                {
+                  "label": "Timed action 1",
+                  "value": "SAOGestureAction"
+                },
+                {
+                  "label": "Native progress 1",
+                  "value": "0"
+                }
+              ],
+              "source": "Controller, Locomotion and native timed-action queue",
+              "status": "available"
+            },
+            {
+              "id": "source-work",
+              "label": "Source use and latest result",
+              "message": "",
+              "perspective": "Native action receipts",
+              "rows": [
+                {
+                  "label": "Source action",
+                  "value": "No recorded reservation pointer"
+                },
+                {
+                  "label": "Latest result",
+                  "value": "No retained receipt for this person"
+                }
+              ],
+              "source": "WorldSources durable action ledger",
+              "status": "available"
+            },
+            {
+              "id": "processes",
+              "label": "Reception, responses and work",
+              "message": "",
+              "perspective": "Recorded stages for this person",
+              "rows": [
+                {
+                  "label": "Process matter:1:sao-2",
+                  "value": "company-formation / open"
+                },
+                {
+                  "label": "Received revision 1",
+                  "value": "hour 2.0003700256347656 via authored from sao-2"
+                }
+              ],
+              "source": "Organization durable process records",
+              "status": "available"
+            }
+          ],
+          "summary": "student\nActivity: IDLE\nRecorded reason: reads a while, back to the wall\nPosition from native-body\nRecorded alive\nLocation 3427.5, 10910.5; floor 0\nRemembered person locations: 5\nStored threat memories: 0\nUnclassified sounds: 0"
+        },
+        {
+          "cognition": {
+            "actorId": "sao-3",
+            "episodes": [],
+            "models": [],
+            "omittedEpisodes": 0,
+            "omittedExperiences": 0,
+            "rejectedExperiences": 0,
+            "schema": "simulation.cognition/1",
+            "sequence": 0,
+            "settings": {
+              "enabled": true,
+              "maxDepth": 4,
+              "opponentShare": 0.5,
+              "opportunitiesPerHour": 48
+            }
+          },
+          "events": [
+            {
+              "actorId": "sao-3",
+              "capturedAtUnixMs": 1790491487727,
+              "id": "observation-2",
+              "source": "Voice",
+              "stage": "emitted",
+              "summary": "Your lot sees it right.",
+              "worldHours": 2.007777214050293
+            }
+          ],
+          "id": "sao-3",
+          "label": "Vincent Graff",
+          "sections": [
+            {
+              "id": "needs",
+              "label": "Current needs",
+              "message": "",
+              "perspective": "Current physical state",
+              "rows": [
+                {
+                  "label": "Hunger",
+                  "value": "0.0010"
+                },
+                {
+                  "label": "Thirst",
+                  "value": "0.0010"
+                },
+                {
+                  "label": "Fatigue",
+                  "value": "0.0010"
+                },
+                {
+                  "label": "Endurance",
+                  "value": "1.0000"
+                },
+                {
+                  "label": "Nicotine withdrawal",
+                  "value": "0.0000"
+                },
+                {
+                  "label": "Health (%)",
+                  "value": "100.00"
+                }
+              ],
+              "source": "Native body",
+              "status": "available"
+            },
+            {
+              "id": "attention",
+              "label": "Attention and movement",
+              "message": "",
+              "perspective": "Current physical state",
+              "rows": [
+                {
+                  "label": "Response",
+                  "value": "No active sound response"
+                },
+                {
+                  "label": "Phase",
+                  "value": "idle"
+                },
+                {
+                  "label": "Attention readiness",
+                  "value": "1.000"
+                },
+                {
+                  "label": "Motor steadiness",
+                  "value": "1.000"
+                }
+              ],
+              "source": "Native body",
+              "status": "available"
+            },
+            {
+              "id": "medication",
+              "label": "Substance effects",
+              "message": "",
+              "perspective": "Current physical state and recorded use",
+              "rows": [
+                {
+                  "label": "Active effects",
+                  "value": "No"
+                },
+                {
+                  "label": "Sedating",
+                  "value": "No"
+                },
+                {
+                  "label": "Stimulating",
+                  "value": "No"
+                },
+                {
+                  "label": "Withdrawal",
+                  "value": "No"
+                },
+                {
+                  "label": "Overload",
+                  "value": "No"
+                }
+              ],
+              "source": "Personal physiology",
+              "status": "available"
+            },
+            {
+              "id": "cooking",
+              "label": "Food preparation",
+              "message": "No current food preparation",
+              "perspective": "Current work and recorded outcome",
+              "rows": [],
+              "source": "Native appliance and food",
+              "status": "available"
+            },
+            {
+              "id": "inventory",
+              "label": "Carried inventory",
+              "message": "16 items read",
+              "perspective": "Current physical state",
+              "rows": [
+                {
+                  "label": "Base.MakeUp_Football",
+                  "value": "Base.MakeUp_Football [id 1718182173]"
+                },
+                {
+                  "label": "Base.AthleticCup",
+                  "value": "Athletic Cup [id 693987040]"
+                },
+                {
+                  "label": "Base.Hat_FootballHelmet_Blue",
+                  "value": "Football Helmet [id 1287314129]"
+                },
+                {
+                  "label": "Base.Tshirt_DefaultTEXTURE_TINT",
+                  "value": "T-shirt [id 219373895]"
+                },
+                {
+                  "label": "Base.Gloves_FingerlessGloves",
+                  "value": "Fingerless Gloves [id 1500808486]"
+                },
+                {
+                  "label": "Base.Socks_Heavy",
+                  "value": "Socks - Heavy [id 1405114992]"
+                },
+                {
+                  "label": "Base.Shoes_TrainerTINT",
+                  "value": "Sneakers [id 71717416]"
+                },
+                {
+                  "label": "Base.Shorts_FootballPants_Gold",
+                  "value": "Padded Football Pants [id 335227214]"
+                },
+                {
+                  "label": "Base.Shoulderpads_Football",
+                  "value": "Football Shoulderpads [id 1651476897]"
+                },
+                {
+                  "label": "Base.Football_Jersey_Blue",
+                  "value": "Blue LSU Football Jersey [id 1162103203]"
+                },
+                {
+                  "label": "Base.Kneepad_Left_Sport",
+                  "value": "Kneepad [id 332052653]"
+                },
+                {
+                  "label": "Base.Kneepad_Right_Sport",
+                  "value": "Kneepad [id 791756284]"
+                },
+                {
+                  "label": "Base.ElbowPad_Left_Sport",
+                  "value": "Elbow Pad [id 420287686]"
+                },
+                {
+                  "label": "Base.ElbowPad_Right_Sport",
+                  "value": "Elbow Pad [id 1243188415]"
+                },
+                {
+                  "label": "Base.Notebook",
+                  "value": "Vincent Graff's journal [id 374083111]"
+                },
+                {
+                  "label": "Base.IDcard_Male",
+                  "value": "Vincent Graff - ID [id 1788947687]"
+                }
+              ],
+              "source": "Native inventory containers",
+              "status": "available"
+            },
+            {
+              "id": "pressure",
+              "label": "Pressure and recorded reason",
+              "message": "",
+              "perspective": "Most recent decision receipt",
+              "rows": [
+                {
+                  "label": "answer",
+                  "value": "chosen rest"
+                },
+                {
+                  "label": "detail",
+                  "value": "reads a while, back to the wall"
+                },
+                {
+                  "label": "at",
+                  "value": "18069"
+                },
+                {
+                  "label": "graph",
+                  "value": "1"
+                }
+              ],
+              "source": "Controller",
+              "status": "available"
+            },
+            {
+              "id": "actions",
+              "label": "Current action",
+              "message": "",
+              "perspective": "Execution owners",
+              "rows": [
+                {
+                  "label": "Controller state",
+                  "value": "IDLE"
+                },
+                {
+                  "label": "Movement",
+                  "value": "No owned route"
+                },
+                {
+                  "label": "Timed action 1",
+                  "value": "SAOGestureAction"
+                },
+                {
+                  "label": "Native progress 1",
+                  "value": "0"
+                }
+              ],
+              "source": "Controller, Locomotion and native timed-action queue",
+              "status": "available"
+            },
+            {
+              "id": "source-work",
+              "label": "Source use and latest result",
+              "message": "",
+              "perspective": "Native action receipts",
+              "rows": [
+                {
+                  "label": "Source action",
+                  "value": "No recorded reservation pointer"
+                },
+                {
+                  "label": "Latest result",
+                  "value": "No retained receipt for this person"
+                }
+              ],
+              "source": "WorldSources durable action ledger",
+              "status": "available"
+            },
+            {
+              "id": "processes",
+              "label": "Reception, responses and work",
+              "message": "",
+              "perspective": "Recorded stages for this person",
+              "rows": [
+                {
+                  "label": "Process matter:1:sao-2",
+                  "value": "company-formation / open"
+                },
+                {
+                  "label": "Received revision 1",
+                  "value": "hour 2.0003700256347656 via dormant-encounter from sao-2"
+                },
+                {
+                  "label": "Formed response 1",
+                  "value": "accept at hour 2.0003700256347656"
+                },
+                {
+                  "label": "Response delivery 1",
+                  "value": "Delivered at hour 2.0003700256347656"
+                },
+                {
+                  "label": "Commitment matter:1:sao-2:commitment:1",
+                  "value": "accepted"
+                },
+                {
+                  "label": "Work.phase",
+                  "value": "accepted"
+                },
+                {
+                  "label": "Work.acceptedAt",
+                  "value": "2.0003700256347656"
+                }
+              ],
+              "source": "Organization durable process records",
+              "status": "available"
+            }
+          ],
+          "summary": "retiree\nActivity: IDLE\nRecorded reason: reads a while, back to the wall\nPosition from native-body\nRecorded alive\nLocation 3425.5, 10910.5; floor 0\nRemembered person locations: 5\nStored threat memories: 0\nUnclassified sounds: 0"
+        },
+        {
+          "cognition": {
+            "actorId": "sao-4",
+            "episodes": [],
+            "models": [],
+            "omittedEpisodes": 0,
+            "omittedExperiences": 0,
+            "rejectedExperiences": 0,
+            "schema": "simulation.cognition/1",
+            "sequence": 0,
+            "settings": {
+              "enabled": true,
+              "maxDepth": 4,
+              "opponentShare": 0.5,
+              "opportunitiesPerHour": 48
+            }
+          },
+          "events": [],
+          "id": "sao-4",
+          "label": "Dolores Sorrento",
+          "sections": [
+            {
+              "id": "needs",
+              "label": "Current needs",
+              "message": "",
+              "perspective": "Current physical state",
+              "rows": [
+                {
+                  "label": "Hunger",
+                  "value": "0.0010"
+                },
+                {
+                  "label": "Thirst",
+                  "value": "0.0010"
+                },
+                {
+                  "label": "Fatigue",
+                  "value": "0.0010"
+                },
+                {
+                  "label": "Endurance",
+                  "value": "1.0000"
+                },
+                {
+                  "label": "Nicotine withdrawal",
+                  "value": "0.0000"
+                },
+                {
+                  "label": "Health (%)",
+                  "value": "100.00"
+                }
+              ],
+              "source": "Native body",
+              "status": "available"
+            },
+            {
+              "id": "attention",
+              "label": "Attention and movement",
+              "message": "",
+              "perspective": "Current physical state",
+              "rows": [
+                {
+                  "label": "Response",
+                  "value": "No active sound response"
+                },
+                {
+                  "label": "Phase",
+                  "value": "idle"
+                },
+                {
+                  "label": "Attention readiness",
+                  "value": "1.000"
+                },
+                {
+                  "label": "Motor steadiness",
+                  "value": "1.000"
+                }
+              ],
+              "source": "Native body",
+              "status": "available"
+            },
+            {
+              "id": "medication",
+              "label": "Substance effects",
+              "message": "",
+              "perspective": "Current physical state and recorded use",
+              "rows": [
+                {
+                  "label": "Active effects",
+                  "value": "No"
+                },
+                {
+                  "label": "Sedating",
+                  "value": "No"
+                },
+                {
+                  "label": "Stimulating",
+                  "value": "No"
+                },
+                {
+                  "label": "Withdrawal",
+                  "value": "No"
+                },
+                {
+                  "label": "Overload",
+                  "value": "No"
+                }
+              ],
+              "source": "Personal physiology",
+              "status": "available"
+            },
+            {
+              "id": "cooking",
+              "label": "Food preparation",
+              "message": "No current food preparation",
+              "perspective": "Current work and recorded outcome",
+              "rows": [],
+              "source": "Native appliance and food",
+              "status": "available"
+            },
+            {
+              "id": "inventory",
+              "label": "Carried inventory",
+              "message": "9 items read",
+              "perspective": "Current physical state",
+              "rows": [
+                {
+                  "label": "Base.MakeUp_LipsRed",
+                  "value": "Base.MakeUp_LipsRed [id 1452587006]"
+                },
+                {
+                  "label": "Base.Corset",
+                  "value": "Corset [id 519907510]"
+                },
+                {
+                  "label": "Base.TightsFishnets",
+                  "value": "Tights - Fishnet [id 2035406627]"
+                },
+                {
+                  "label": "Base.Necklace_Pearl",
+                  "value": "Pearl Necklace [id 1133444580]"
+                },
+                {
+                  "label": "Base.Gloves_LongWomenGloves",
+                  "value": "Long Gloves [id 1619537309]"
+                },
+                {
+                  "label": "Base.Shoes_RidingBoots",
+                  "value": "Riding Boots [id 1069391962]"
+                },
+                {
+                  "label": "Base.Skirt_Normal",
+                  "value": "Skirt [id 1286741360]"
+                },
+                {
+                  "label": "Base.Notebook",
+                  "value": "Dolores Sorrento's journal [id 1339112867]"
+                },
+                {
+                  "label": "Base.IDcard_Female",
+                  "value": "Dolores Sorrento - ID [id 1742312009]"
+                }
+              ],
+              "source": "Native inventory containers",
+              "status": "available"
+            },
+            {
+              "id": "pressure",
+              "label": "Pressure and recorded reason",
+              "message": "",
+              "perspective": "Most recent decision receipt",
+              "rows": [
+                {
+                  "label": "answer",
+                  "value": "chosen rest"
+                },
+                {
+                  "label": "detail",
+                  "value": "reads a while, back to the wall"
+                },
+                {
+                  "label": "at",
+                  "value": "18069"
+                },
+                {
+                  "label": "graph",
+                  "value": "1"
+                }
+              ],
+              "source": "Controller",
+              "status": "available"
+            },
+            {
+              "id": "actions",
+              "label": "Current action",
+              "message": "",
+              "perspective": "Execution owners",
+              "rows": [
+                {
+                  "label": "Controller state",
+                  "value": "IDLE"
+                },
+                {
+                  "label": "Movement",
+                  "value": "No owned route"
+                },
+                {
+                  "label": "Timed action 1",
+                  "value": "SAOGestureAction"
+                },
+                {
+                  "label": "Native progress 1",
+                  "value": "0"
+                }
+              ],
+              "source": "Controller, Locomotion and native timed-action queue",
+              "status": "available"
+            },
+            {
+              "id": "source-work",
+              "label": "Source use and latest result",
+              "message": "",
+              "perspective": "Native action receipts",
+              "rows": [
+                {
+                  "label": "Source action",
+                  "value": "No recorded reservation pointer"
+                },
+                {
+                  "label": "Latest result",
+                  "value": "No retained receipt for this person"
+                }
+              ],
+              "source": "WorldSources durable action ledger",
+              "status": "available"
+            },
+            {
+              "id": "processes",
+              "label": "Reception, responses and work",
+              "message": "",
+              "perspective": "Recorded stages for this person",
+              "rows": [
+                {
+                  "label": "Process matter:2:sao-4",
+                  "value": "company-formation / open"
+                },
+                {
+                  "label": "Received revision 1",
+                  "value": "hour 2.0003700256347656 via authored from sao-4"
+                }
+              ],
+              "source": "Organization durable process records",
+              "status": "available"
+            }
+          ],
+          "summary": "salesperson\nActivity: IDLE\nRecorded reason: reads a while, back to the wall\nPosition from native-body\nRecorded alive\nLocation 3426.5, 10911.5; floor 0\nRemembered person locations: 5\nStored threat memories: 0\nUnclassified sounds: 0"
+        },
+        {
+          "cognition": {
+            "actorId": "sao-5",
+            "episodes": [],
+            "models": [],
+            "omittedEpisodes": 0,
+            "omittedExperiences": 0,
+            "rejectedExperiences": 0,
+            "schema": "simulation.cognition/1",
+            "sequence": 0,
+            "settings": {
+              "enabled": true,
+              "maxDepth": 4,
+              "opponentShare": 0.5,
+              "opportunitiesPerHour": 48
+            }
+          },
+          "events": [],
+          "id": "sao-5",
+          "label": "Monica Brownlee",
+          "sections": [
+            {
+              "id": "needs",
+              "label": "Current needs",
+              "message": "",
+              "perspective": "Current physical state",
+              "rows": [
+                {
+                  "label": "Hunger",
+                  "value": "0.0010"
+                },
+                {
+                  "label": "Thirst",
+                  "value": "0.0010"
+                },
+                {
+                  "label": "Fatigue",
+                  "value": "0.0010"
+                },
+                {
+                  "label": "Endurance",
+                  "value": "1.0000"
+                },
+                {
+                  "label": "Nicotine withdrawal",
+                  "value": "0.0000"
+                },
+                {
+                  "label": "Health (%)",
+                  "value": "100.00"
+                }
+              ],
+              "source": "Native body",
+              "status": "available"
+            },
+            {
+              "id": "attention",
+              "label": "Attention and movement",
+              "message": "",
+              "perspective": "Current physical state",
+              "rows": [
+                {
+                  "label": "Response",
+                  "value": "No active sound response"
+                },
+                {
+                  "label": "Phase",
+                  "value": "idle"
+                },
+                {
+                  "label": "Attention readiness",
+                  "value": "1.000"
+                },
+                {
+                  "label": "Motor steadiness",
+                  "value": "1.000"
+                }
+              ],
+              "source": "Native body",
+              "status": "available"
+            },
+            {
+              "id": "medication",
+              "label": "Substance effects",
+              "message": "",
+              "perspective": "Current physical state and recorded use",
+              "rows": [
+                {
+                  "label": "Active effects",
+                  "value": "No"
+                },
+                {
+                  "label": "Sedating",
+                  "value": "No"
+                },
+                {
+                  "label": "Stimulating",
+                  "value": "No"
+                },
+                {
+                  "label": "Withdrawal",
+                  "value": "No"
+                },
+                {
+                  "label": "Overload",
+                  "value": "No"
+                }
+              ],
+              "source": "Personal physiology",
+              "status": "available"
+            },
+            {
+              "id": "cooking",
+              "label": "Food preparation",
+              "message": "No current food preparation",
+              "perspective": "Current work and recorded outcome",
+              "rows": [],
+              "source": "Native appliance and food",
+              "status": "available"
+            },
+            {
+              "id": "inventory",
+              "label": "Carried inventory",
+              "message": "7 items read",
+              "perspective": "Current physical state",
+              "rows": [
+                {
+                  "label": "Base.BoobTube",
+                  "value": "Bandeau [id 327820779]"
+                },
+                {
+                  "label": "Base.StockingsWhite",
+                  "value": "Stockings - White [id 584061697]"
+                },
+                {
+                  "label": "Base.Tshirt_DefaultTEXTURE_TINT",
+                  "value": "T-shirt [id 1714772761]"
+                },
+                {
+                  "label": "Base.Shoes_Random",
+                  "value": "Shoes [id 1846282763]"
+                },
+                {
+                  "label": "Base.Trousers",
+                  "value": "Pants [id 1095415511]"
+                },
+                {
+                  "label": "Base.Notebook",
+                  "value": "Monica Brownlee's journal [id 1615701101]"
+                },
+                {
+                  "label": "Base.IDcard_Female",
+                  "value": "Monica Brownlee - ID [id 1163244264]"
+                }
+              ],
+              "source": "Native inventory containers",
+              "status": "available"
+            },
+            {
+              "id": "pressure",
+              "label": "Pressure and recorded reason",
+              "message": "",
+              "perspective": "Most recent decision receipt",
+              "rows": [
+                {
+                  "label": "answer",
+                  "value": "chosen rest"
+                },
+                {
+                  "label": "detail",
+                  "value": "reads a while, back to the wall"
+                },
+                {
+                  "label": "at",
+                  "value": "18069"
+                },
+                {
+                  "label": "graph",
+                  "value": "1"
+                }
+              ],
+              "source": "Controller",
+              "status": "available"
+            },
+            {
+              "id": "actions",
+              "label": "Current action",
+              "message": "",
+              "perspective": "Execution owners",
+              "rows": [
+                {
+                  "label": "Controller state",
+                  "value": "IDLE"
+                },
+                {
+                  "label": "Movement",
+                  "value": "No owned route"
+                },
+                {
+                  "label": "Timed action 1",
+                  "value": "SAOGestureAction"
+                },
+                {
+                  "label": "Native progress 1",
+                  "value": "0"
+                }
+              ],
+              "source": "Controller, Locomotion and native timed-action queue",
+              "status": "available"
+            },
+            {
+              "id": "source-work",
+              "label": "Source use and latest result",
+              "message": "",
+              "perspective": "Native action receipts",
+              "rows": [
+                {
+                  "label": "Source action",
+                  "value": "No recorded reservation pointer"
+                },
+                {
+                  "label": "Latest result",
+                  "value": "No retained receipt for this person"
+                }
+              ],
+              "source": "WorldSources durable action ledger",
+              "status": "available"
+            },
+            {
+              "id": "processes",
+              "label": "Reception, responses and work",
+              "message": "",
+              "perspective": "Recorded stages for this person",
+              "rows": [
+                {
+                  "label": "Process matter:2:sao-4",
+                  "value": "company-formation / open"
+                },
+                {
+                  "label": "Received revision 1",
+                  "value": "hour 2.0003700256347656 via dormant-encounter from sao-4"
+                },
+                {
+                  "label": "Formed response 1",
+                  "value": "accept at hour 2.0003700256347656"
+                },
+                {
+                  "label": "Response delivery 1",
+                  "value": "Delivered at hour 2.0003700256347656"
+                },
+                {
+                  "label": "Commitment matter:2:sao-4:commitment:1",
+                  "value": "accepted"
+                },
+                {
+                  "label": "Work.phase",
+                  "value": "accepted"
+                },
+                {
+                  "label": "Work.acceptedAt",
+                  "value": "2.0003700256347656"
+                }
+              ],
+              "source": "Organization durable process records",
+              "status": "available"
+            }
+          ],
+          "summary": "student\nActivity: IDLE\nRecorded reason: reads a while, back to the wall\nPosition from native-body\nRecorded alive\nLocation 3426.5, 10909.5; floor 0\nRemembered person locations: 5\nStored threat memories: 0\nUnclassified sounds: 0"
+        },
+        {
+          "cognition": {
+            "actorId": "sao-6",
+            "episodes": [],
+            "models": [],
+            "omittedEpisodes": 0,
+            "omittedExperiences": 0,
+            "rejectedExperiences": 0,
+            "schema": "simulation.cognition/1",
+            "sequence": 0,
+            "settings": {
+              "enabled": true,
+              "maxDepth": 4,
+              "opponentShare": 0.5,
+              "opportunitiesPerHour": 48
+            }
+          },
+          "events": [],
+          "id": "sao-6",
+          "label": "Ralph Larose",
+          "sections": [
+            {
+              "id": "needs",
+              "label": "Current needs",
+              "message": "",
+              "perspective": "Current physical state",
+              "rows": [
+                {
+                  "label": "Hunger",
+                  "value": "0.0010"
+                },
+                {
+                  "label": "Thirst",
+                  "value": "0.0010"
+                },
+                {
+                  "label": "Fatigue",
+                  "value": "0.0010"
+                },
+                {
+                  "label": "Endurance",
+                  "value": "1.0000"
+                },
+                {
+                  "label": "Nicotine withdrawal",
+                  "value": "0.0000"
+                },
+                {
+                  "label": "Health (%)",
+                  "value": "100.00"
+                }
+              ],
+              "source": "Native body",
+              "status": "available"
+            },
+            {
+              "id": "attention",
+              "label": "Attention and movement",
+              "message": "",
+              "perspective": "Current physical state",
+              "rows": [
+                {
+                  "label": "Response",
+                  "value": "No active sound response"
+                },
+                {
+                  "label": "Phase",
+                  "value": "idle"
+                },
+                {
+                  "label": "Attention readiness",
+                  "value": "1.000"
+                },
+                {
+                  "label": "Motor steadiness",
+                  "value": "1.000"
+                }
+              ],
+              "source": "Native body",
+              "status": "available"
+            },
+            {
+              "id": "medication",
+              "label": "Substance effects",
+              "message": "",
+              "perspective": "Current physical state and recorded use",
+              "rows": [
+                {
+                  "label": "Active effects",
+                  "value": "No"
+                },
+                {
+                  "label": "Sedating",
+                  "value": "No"
+                },
+                {
+                  "label": "Stimulating",
+                  "value": "No"
+                },
+                {
+                  "label": "Withdrawal",
+                  "value": "No"
+                },
+                {
+                  "label": "Overload",
+                  "value": "No"
+                }
+              ],
+              "source": "Personal physiology",
+              "status": "available"
+            },
+            {
+              "id": "cooking",
+              "label": "Food preparation",
+              "message": "No current food preparation",
+              "perspective": "Current work and recorded outcome",
+              "rows": [],
+              "source": "Native appliance and food",
+              "status": "available"
+            },
+            {
+              "id": "inventory",
+              "label": "Carried inventory",
+              "message": "9 items read",
+              "perspective": "Current physical state",
+              "rows": [
+                {
+                  "label": "Base.Belt2",
+                  "value": "Belt [id 434741805]"
+                },
+                {
+                  "label": "Base.Tshirt_DefaultDECAL_TINT",
+                  "value": "T-shirt [id 1471737814]"
+                },
+                {
+                  "label": "Base.Socks_Ankle",
+                  "value": "Socks [id 1788179831]"
+                },
+                {
+                  "label": "Base.Shoes_WorkBoots",
+                  "value": "Work Boots [id 1553991838]"
+                },
+                {
+                  "label": "Base.Boilersuit_BlueRed",
+                  "value": "Coveralls [id 1400554831]"
+                },
+                {
+                  "label": "Base.Kneepad_Left_Workman",
+                  "value": "Kneepad [id 1525944415]"
+                },
+                {
+                  "label": "Base.Kneepad_Right_Workman",
+                  "value": "Kneepad [id 513917671]"
+                },
+                {
+                  "label": "Base.Notebook",
+                  "value": "Ralph Larose's journal [id 1151967447]"
+                },
+                {
+                  "label": "Base.IDcard_Male",
+                  "value": "Ralph Larose - ID [id 1935775964]"
+                }
+              ],
+              "source": "Native inventory containers",
+              "status": "available"
+            },
+            {
+              "id": "pressure",
+              "label": "Pressure and recorded reason",
+              "message": "",
+              "perspective": "Most recent decision receipt",
+              "rows": [
+                {
+                  "label": "answer",
+                  "value": "chosen rest"
+                },
+                {
+                  "label": "detail",
+                  "value": "reads a while, back to the wall"
+                },
+                {
+                  "label": "at",
+                  "value": "18069"
+                },
+                {
+                  "label": "graph",
+                  "value": "1"
+                }
+              ],
+              "source": "Controller",
+              "status": "available"
+            },
+            {
+              "id": "actions",
+              "label": "Current action",
+              "message": "",
+              "perspective": "Execution owners",
+              "rows": [
+                {
+                  "label": "Controller state",
+                  "value": "IDLE"
+                },
+                {
+                  "label": "Movement",
+                  "value": "No owned route"
+                },
+                {
+                  "label": "Timed action 1",
+                  "value": "SAOGestureAction"
+                },
+                {
+                  "label": "Native progress 1",
+                  "value": "0"
+                }
+              ],
+              "source": "Controller, Locomotion and native timed-action queue",
+              "status": "available"
+            },
+            {
+              "id": "source-work",
+              "label": "Source use and latest result",
+              "message": "",
+              "perspective": "Native action receipts",
+              "rows": [
+                {
+                  "label": "Source action",
+                  "value": "No recorded reservation pointer"
+                },
+                {
+                  "label": "Latest result",
+                  "value": "No retained receipt for this person"
+                }
+              ],
+              "source": "WorldSources durable action ledger",
+              "status": "available"
+            },
+            {
+              "id": "processes",
+              "label": "Reception, responses and work",
+              "message": "No recorded process participation in the current store",
+              "perspective": "Recorded stages for this person",
+              "rows": [],
+              "source": "Organization durable process records",
+              "status": "available"
+            }
+          ],
+          "summary": "mechanic\nActivity: IDLE\nRecorded reason: reads a while, back to the wall\nPosition from native-body\nRecorded alive\nLocation 3427.5, 10911.5; floor 0\nRemembered person locations: 5\nStored threat memories: 0\nUnclassified sounds: 0"
+        }
+      ],
+      "schema": "mousecat.native-view/1",
+      "sequence": 11,
+      "sessionId": "95d05f2c-9d8b-4f3e-a867-d4744073d7be",
+      "state": "running",
+      "summary": "World hour 2.030 | 6 people, 6 represented. People observed at hour 2.0448131561279297. God view; canopy cutaway; full physics applies in the loaded region. Unreviewed.",
+      "title": "Simulation observatory",
+      "viewport": {
+        "targetZoom": 1.25,
+        "zoom": 1.25,
+        "zoomLevels": [
+          0.25,
+          0.5,
+          0.75,
+          1,
+          1.25,
+          1.5,
+          1.75,
+          2,
+          2.25,
+          2.5
+        ]
+      }
+    },
+    "connection": "live",
+    "ageMs": 218,
+    "imageUrl": "/api/native-views/survival-observatory/image?binding=1ff5faf7f553d2a533fb632aa6cc298e1602c41c156ec64f64de9ee013703aea&file=study-live-0000000000000004.png&sha256=955a56af15bcce0eb882664e3bca9e5ab88d8c56a7511d597dc45b3e484afd6f"
+  }
+}

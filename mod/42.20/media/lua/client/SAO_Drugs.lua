@@ -1,56 +1,5 @@
--- SAO_Drugs - where the county meets the drug mods ([C121], the
--- totality arc's drugs batch; [A14] S6).
--- ---------------------------------------------------------------------------
--- C33 gave the county its own habit schedules: The Alcoholic's drinker
--- phases and N and C's Narcotics' per-family clean days, drawn at the
--- 1993 record's prevalence, with the supply cut the day the world
--- began. C121 source-reads both mods (CREDITS.md) and this file is
--- what came back:
---
--- THE CARRY. Where N and C's Narcotics is loaded, the county's own
--- bodies run their machinery - their own globals, on their own clock
--- shape, one pass per ten in-game minutes and one per minute, the
--- exact cadence their OnTick driver keeps for the player. Their
--- driver only ever finds the four player slots ([B46] law), so the
--- county's shells never appear in it, and no body is driven twice.
--- Their functions take the character as their argument, so they run
--- on a shell the same way they run on a player: their counters rise
--- in the shell's modData, their dependency traits are gained and
--- lost ON the shell, their highs and withdrawals apply to the shell's
--- own stats. Where their globals are absent the calls are nothing -
--- a nil global is checked, not called, so a county without the mod
--- runs exactly as C33 built it.
---
--- THE YIELD. Their withdrawal fires only on their own trait, so the
--- county's schedule yields family by family the moment the trait is
--- observed on the body - SAO_Habits reads the stamp this module keeps
--- on the record, and the two withdrawals never stack ([C121] there).
--- A use stamped without the trait does NOT yield: a person their
--- machinery has not taken over still has only the county's schedule,
--- which is what their tier packets not firing means.
---
--- METHADONE. Their methadone holds the opioid clock still, and
--- SAO_Habits provides the freeze and resume for exactly that; the
--- level is read here, because the engine read lives in the client
--- and the record is the county's own surface.
---
--- THE LADDER. The Alcoholic's late withdrawal is carried at its own
--- read figures: a sickness that builds through the phases, poisons
--- past its cap, and can kill - the drink being the only thing that
--- stops it, at the per-drink relief of their own numbers. Their death
--- is the county's death: the identity is marked with the cause FIRST
--- (markDead is idempotent, so the controller funnel's later marking
--- no-ops and the cause stands), and the body dies through their own
--- call. What is NOT carried is named in CREDITS.md - their poison
--- scaling by player trait, their alcoholicStress channel, their
--- headaches as BodyPart pain (C33's shakes are ours in size).
---
--- Every draw goes through the county's own generator ([C66] law) -
--- the same one-in-N shapes their randInt calls have.
---
--- OFFLINE BY CONSTRUCTION: every engine read sits behind pcall and
--- the event registration is guarded, so the file loads in a bare VM
--- and does nothing there.
+-- Owned alcohol and pharmacology cadence. Source provenance is recorded in CREDITS.
+require "SAO_Pharmacology"
 
 SAO = SAO or {}
 SAO.Drugs = SAO.Drugs or {}
@@ -71,94 +20,6 @@ local function statOf(stats, name)
     end)
     if ok and type(v) == "number" then return v end
     return nil
-end
-
--- ---------------------------------------------------------------------------
--- The carry: N and C's own globals, on the county's bodies.
--- ---------------------------------------------------------------------------
-
--- Their registries.lua registers the traits their machinery gains and
--- loses, and the functions their driver calls per character. Their
--- names are written directly, the way this tree names every engine
--- global: the engine's interpreter is Kahlua, which registers rawget
--- and getfenv in its BaseLib and no _G (read in the jar, and no
--- vanilla script uses one), so a lookup by string would index a nil
--- on this engine and die in the pcall. A named global that is not
--- there reads nil, and the check is on the call - so a county
--- without their mod runs these lists and does nothing.
-local function callNnC(fn, body)
-    if type(fn) ~= "function" then return end
-    pcall(fn, body)
-end
-
-local NNC_TEN = {
-    function(body) callNnC(BenzoAddict, body) end,
-    function(body) callNnC(CokeHead, body) end,
-    function(body) callNnC(MethHead, body) end,
-    function(body) callNnC(MDMAAddict, body) end,
-    function(body) callNnC(OpioidAddict, body) end,
-    function(body) callNnC(PotHead, body) end,
-    function(body) callNnC(SteroidAddict, body) end,
-}
-local NNC_MINUTE = {
-    function(body) callNnC(BenzoEffect, body) end,
-    function(body) callNnC(CokeEffect, body) end,
-    function(body) callNnC(MethEffect, body) end,
-    function(body) callNnC(MDMAEffect, body) end,
-    function(body) callNnC(OpioidEffect, body) end,
-    function(body) callNnC(WeeeeedEffect, body) end,
-    function(body) callNnC(SteroidEffect, body) end,
-    function(body) callNnC(NnCPainRemoval, body) end,
-}
-
--- The county families their traits carry, keyed by the record's own
--- family names (SAO_Habits' ORDER). Steroids and psychedelics are
--- usable and never sought - no verified 1993 dependency figure, and a
--- LOW-confidence claim never teaches.
-local NNC_TRAIT = {
-    sedatives  = "BenzoAddict",
-    cocaine    = "CokeHead",
-    stimulants = "MethHead",
-    opioids    = "OpioidAddict",
-    cannabis   = "PotHead",
-}
-
--- The trait observation: their machinery withdraws only on their own
--- trait, so the trait is what the yield reads. Stamped on the record
--- ([C121] in SAO_Habits), never read here by the drift - this file is
--- the engine side of the seam and the record is the county's surface.
-local function observeTraits(id, body, nowHours)
-    local rec = nil
-    pcall(function() rec = SAO.Identity.get(id) end)
-    if not rec or rec.dead then return end
-    if not NnCReg then return end
-    for key, regName in pairs(NNC_TRAIT) do
-        local reg = NnCReg[regName]
-        local holds = false
-        if reg then
-            pcall(function() holds = body:hasTrait(reg) == true end)
-        end
-        rec.nncWithdrawal = rec.nncWithdrawal or {}
-        if holds and not rec.nncWithdrawal[key] then
-            rec.nncWithdrawal[key] = true
-            log(id .. "'s " .. key .. " withdrawal now carries on their own trait")
-        elseif not holds and rec.nncWithdrawal[key] then
-            rec.nncWithdrawal[key] = nil
-            log(id .. "'s " .. key .. " withdrawal back on the county's clock")
-        end
-    end
-    -- Their methadone freezes the opioid clock for exactly this
-    -- purpose; SAO_Habits provides the pair and this is the reader.
-    local frozen = nil
-    pcall(function()
-        local level = body:getModData().NnCMethadoneEffect
-        frozen = type(level) == "number" and level > 0 or false
-    end)
-    if frozen == true then
-        SAO.Habits.freezeUse(id, "opioids", nowHours)
-    elseif frozen == false then
-        SAO.Habits.resumeUse(id, "opioids", nowHours)
-    end
 end
 
 -- ---------------------------------------------------------------------------
@@ -348,7 +209,7 @@ function Dg.completeThrough(rec, today)
 end
 
 -- ---------------------------------------------------------------------------
--- The driver: their clock shape, the county's bodies.
+-- One physiology driver for the county's currently owned living bodies.
 -- ---------------------------------------------------------------------------
 
 local lastTenMinutes = nil
@@ -371,18 +232,21 @@ local function onTick()
     pcall(function() nowHours = SAO.History and SAO.History.countyHours() or nil end)
     local tick = nil
     pcall(function() tick = SAO.Controller.tick() end)
-    for id, body in pairs(SAO.Body.active) do
-        pcall(function()
-            if SAO.Body.isTransitioning(SAO.Identity.get(id)) then return end
-            if tenPasses > 0 then
-                -- Their ten-minute pass: the seven dependency steps,
-                -- once per elapsed interval - their pass scaling exists to fit their
-                -- magnitudes to a day length, and the county's clock
-                -- is its own ([C112]).
-                for _ = 1, tenPasses do
-                    for _, step in ipairs(NNC_TEN) do step(body) end
+    local seen={}
+    local function visit(id,body)
+        if seen[body] then return end
+        local rec=SAO.Identity.get(id)
+        if not SAO.Pharmacology.ownsBody(rec,body) then return end
+        seen[body]=true
+        local ran,failure=pcall(function()
+            local rec = SAO.Identity.get(id)
+            if rec and SAO.Pharmacology and nowHours then
+                local current, reason = SAO.Pharmacology.advance(rec, body, nowHours)
+                if not current and reason ~= "catching-up" then
+                    log(tostring(id) .. " pharmacology unavailable: " .. tostring(reason))
                 end
-                observeTraits(id, body, nowHours)
+            end
+            if tenPasses > 0 then
                 local rec = nil
                 pcall(function() rec = SAO.Identity.get(id) end)
                 if rec then
@@ -403,13 +267,18 @@ local function onTick()
                     end
                 end
             end
-            if onePasses > 0 then
-                for _ = 1, onePasses do
-                    for _, step in ipairs(NNC_MINUTE) do step(body) end
-                end
-            end
         end)
+        if not ran then log(tostring(id).." physiology receiver failed: "..tostring(failure)) end
     end
+    for id,body in pairs(SAO.Body.active) do visit(id,body) end
+    for id,body in pairs(SAO.Body.foreign) do visit(id,body) end
+end
+
+function Dg.resetRuntimeForWorld()
+    lastTenMinutes=nil;lastOneMinute=nil
+end
+for _,name in ipairs({"OnGameStart","OnLoad","OnNewGame"}) do
+    if Events and Events[name] then Events[name].Add(Dg.resetRuntimeForWorld) end
 end
 
 if Events and Events.OnTick then
@@ -418,9 +287,7 @@ end
 
 SAO.Log = SAO.Log or {}
 if SAO.Log.line then
-    SAO.Log.line("DRUG", "the drug mods' own machinery on the county's bodies,"
-        .. " the trait the yield reads, methadone's freeze, and the drink's"
-        .. " ladder - sickness, poison, death, and what a drink relieves")
+    SAO.Log.line("DRUG", "owned pharmacology and alcohol physiology ready")
 end
 
 return Dg

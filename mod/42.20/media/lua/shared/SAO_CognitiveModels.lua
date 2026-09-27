@@ -4,7 +4,8 @@
 SAO = SAO or {}
 SAO.CognitiveModels = SAO.CognitiveModels or {}
 local M = SAO.CognitiveModels
-local VERSION = {ordinary="sao-ordinary/1",associative="sao-associative/1"}
+local VERSION = {ordinary="sao-ordinary/2",associative="sao-associative/2"}
+local PREVIOUS_VERSION = {ordinary="sao-ordinary/1",associative="sao-associative/1"}
 local MAX_BELIEFS, MAX_HYPOTHESES, MAX_EVENTS = 32, 32, 256
 local CONFIDENCE_HALF_LIFE_HOURS = 24
 local ACTIONS = { "food", "water", "inspect", "continue" }
@@ -15,7 +16,13 @@ local FRAME_KEYS = { id=true, actorId=true, worldHours=true, hunger=true,
 local EVENT_KEYS = { id=true, actorId=true, observerId=true, worldHours=true,
     kind=true, category=true, sourceId=true, itemType=true, perspective=true,
     status=true, foodPresent=true, waterPresent=true, hungerDelta=true,
-    thirstDelta=true, detail=true, capabilities=true }
+    thirstDelta=true, detail=true, capabilities=true, itemId=true,
+    occurredAtHours=true, stats=true, beforeCookingTime=true,
+    afterCookingTime=true, heatObserved=true }
+local EXTENDED = { ["medication-use"]=true, ["physical-change"]=true, preparation=true }
+local STATS = { "HUNGER", "THIRST", "FATIGUE", "ENDURANCE", "PANIC", "STRESS",
+    "NICOTINE_WITHDRAWAL", "BOREDOM", "UNHAPPINESS", "DISCOMFORT", "INTOXICATION", "ANGER", "PAIN" }
+local STAT_KEYS = {} for _,name in ipairs(STATS) do STAT_KEYS[name]=true end
 local CAPABILITIES = { cook="manufacturing", forage="agriculture", treat="medicine" }
 -- A relational grammar, not an unlock sequence. Rules state possible
 -- analogies and their missing mechanisms, never that an operation exists.
@@ -32,6 +39,8 @@ local RULES = {
       missing="A usable energy source and conversion mechanism are unknown." },
     { from="transfer", into="separate", branch="metallurgy-materials",
       missing="Selective separation and compatible material properties are unknown." },
+    { from="transform", into="regulate", branch="manufacturing",
+      missing="Repeatability, safe heating ranges and apparatus controls remain untested." },
 }
 
 local function finite(n)
@@ -53,6 +62,28 @@ local function capabilities(value)
     return true
 end
 local function model(id) return id=="ordinary" or id=="associative" end
+local function occurrencePosition(e)
+    local prefix=e.kind=="medication-use" and "medication/"
+        or e.kind=="physical-change" and "physical/"
+        or e.kind=="preparation" and ("cooking/"..e.actorId.."/") or nil
+    if not prefix or not text(e.id,128) or string.sub(e.id,1,#prefix)~=prefix then return nil end
+    local suffix=string.sub(e.id,#prefix+1)
+    local position=tonumber(suffix)
+    if not finite(position) or position<(e.kind=="physical-change" and 0 or 1)
+        or position>9007199254740991 or position~=math.floor(position)
+        or tostring(position)~=suffix then return nil end
+    return position
+end
+local function validPositions(value)
+    if value==nil then return true end
+    if type(value)~="table" then return false end
+    for kind,position in pairs(value) do
+        local n=tonumber(position)
+        if not EXTENDED[kind] or not text(position,32) or not finite(n)
+            or n<0 or n>9007199254740991 or n~=math.floor(n) then return false end
+    end
+    return true
+end
 local function action(id)
     for _, candidate in ipairs(ACTIONS) do if candidate==id then return true end end
     return false
@@ -76,8 +107,8 @@ local function validEvent(e)
     if not plainKeys(e, EVENT_KEYS) or not text(e.id,128)
         or not text(e.actorId,128) or not text(e.observerId,128)
         or not finite(e.worldHours) or e.worldHours<0
-        or (e.kind~="inspection" and e.kind~="acquire" and e.kind~="store" and e.kind~="consume")
-        or (e.category~="food" and e.category~="water" and e.category~="container")
+        or (e.kind~="inspection" and e.kind~="acquire" and e.kind~="store" and e.kind~="consume" and not EXTENDED[e.kind])
+        or (e.category~="food" and e.category~="water" and e.category~="container" and e.category~="medicine" and e.category~="body")
         or (e.status~="completed" and e.status~="no-effect"
             and e.status~="interrupted" and e.status~="unavailable")
         or (e.perspective~="performed" and e.perspective~="observed") then return false end
@@ -92,6 +123,38 @@ local function validEvent(e)
     for _, key in ipairs({"hungerDelta","thirstDelta"}) do
         if e[key]~=nil and (not finite(e[key]) or math.abs(e[key])>1) then return false end
     end
+    if EXTENDED[e.kind] then
+        if e.perspective~="performed" or e.actorId~=e.observerId
+            or e.foodPresent~=nil or e.waterPresent~=nil or e.hungerDelta~=nil or e.thirstDelta~=nil
+            or not finite(e.occurredAtHours) or e.occurredAtHours<0
+            or e.occurredAtHours>e.worldHours or not occurrencePosition(e) then return false end
+        if e.kind=="physical-change" then
+            if e.category~="body" or e.itemId~=nil or e.itemType~=nil or e.sourceId~=nil
+                or e.beforeCookingTime~=nil or e.afterCookingTime~=nil or e.heatObserved~=nil
+                or type(e.stats)~="table" then return false end
+            local n=0
+            for name,value in pairs(e.stats) do
+                if not STAT_KEYS[name] or not plainKeys(value,{before=true,after=true})
+                    or not finite(value.before) or not finite(value.after)
+                    or math.abs(value.before)>1000000 or math.abs(value.after)>1000000
+                    or value.before==value.after then return false end
+                n=n+1
+            end
+            return n>0 and n<=#STATS
+        end
+        if e.stats~=nil or not text(e.itemType,160) or not finite(e.itemId)
+            or e.itemId~=math.floor(e.itemId) or e.itemId< -2147483648 or e.itemId>2147483647 then return false end
+        if e.kind=="medication-use" then
+            return e.category=="medicine" and e.sourceId==nil
+                and e.beforeCookingTime==nil and e.afterCookingTime==nil and e.heatObserved==nil
+        end
+        return e.category=="food" and text(e.sourceId,160) and e.heatObserved==true
+            and finite(e.beforeCookingTime) and e.beforeCookingTime>=0
+            and finite(e.afterCookingTime) and e.afterCookingTime>e.beforeCookingTime
+            and e.afterCookingTime<=1000000000
+    end
+    if e.category=="medicine" or e.category=="body" or e.itemId~=nil or e.occurredAtHours~=nil
+        or e.stats~=nil or e.beforeCookingTime~=nil or e.afterCookingTime~=nil or e.heatObserved~=nil then return false end
     if e.kind=="inspection" and e.category~="container" then return false end
     if e.kind~="inspection" and (e.foodPresent~=nil or e.waterPresent~=nil) then return false end
     if e.kind~="consume" and (e.hungerDelta~=nil or e.thirstDelta~=nil) then return false end
@@ -103,9 +166,13 @@ local function validEvent(e)
         or (e.kind~="acquire" and e.kind~="store") then return false end
     return true
 end
+-- The ledger uses this same strict boundary for the new private fact types.
+-- It does not authenticate a native callback; its producer owns that receipt.
+function M.acceptsExperience(e) return validEvent(e) end
 local function validState(id, state)
     return model(id) and type(state)=="table" and state.modelId==id
-        and state.version==VERSION[id] and type(state.beliefs)=="table"
+        and (state.version==VERSION[id] or state.version==PREVIOUS_VERSION[id]) and type(state.beliefs)=="table"
+        and validPositions(state.nativePositions)
         and type(state.beliefOrder)=="table" and type(state.hypotheses)=="table"
         and type(state.seen)=="table" and type(state.eventOrder)=="table"
         and #state.beliefOrder<=MAX_BELIEFS and #state.hypotheses<=MAX_HYPOTHESES
@@ -169,9 +236,9 @@ local function remember(state, key, label, yes, e, relation, from, into)
     appendUnique(b.evidenceIds,e.id,8)
     return b
 end
-local function relation(state, verb, from, into, yes, e)
+local function relation(state, verb, from, into, yes, e, branch)
     return remember(state,"relation:"..verb..":"..from..":"..into,
-        verb.."("..from..", "..into..") observed association",yes,e,verb,from,into)
+        verb.."("..from..", "..into..") observed association",yes,e,verb,from,into,branch)
 end
 local function mergeEvidence(roots)
     local out={}
@@ -209,10 +276,16 @@ local function rebuildHypotheses(state, maxDepth, contexts)
             state.nextHypothesis=state.nextHypothesis+1
             id="associative/hypothesis/"..tostring(state.nextHypothesis)
         end
+        local gaps=copyList(missing,8)
+        local physical=false
+        for _,base in ipairs(bases) do if base.relation=="vary" then physical=true end end
+        if depth>1 and physical then
+            appendUnique(gaps,"Separate felt changes do not establish an ingestion's cause or efficacy; timing and alternatives remain untested.",8)
+        end
         local h={id=id,key=key,label=string.sub((depth==1 and "Observed association " or "Analogy ")..verb.."("..from..", "..into..")",1,256),
             relation=verb,from=from,into=into,branch=branch,depth=depth,
             confidence=confidence,status=disposition,evidenceIds=mergeEvidence(bases),
-            parentIds=copyList(parents,4),missing=copyList(missing,8),roots=bases,active=active,
+            parentIds=copyList(parents,4),missing=gaps,roots=bases,active=active,
             revisions={},omittedRevisions=previous and (previous.omittedRevisions or 0) or 0}
         for _, revision in ipairs(previous and previous.revisions or {}) do
             h.revisions[#h.revisions+1]={worldHours=revision.worldHours,status=revision.status,
@@ -245,7 +318,7 @@ local function rebuildHypotheses(state, maxDepth, contexts)
                     and posterior(a,state.lastHours)>0.5 and posterior(b,state.lastHours)>0.5
                     and keys["seed:"..a.id] and keys["seed:"..b.id] then
                     add("compose:"..a.id..":"..b.id,"compose",a.from,b.into,
-                        "logistics-preservation",2,{a,b},
+                        b.branch or "logistics-preservation",2,{a,b},
                         {keys["seed:"..a.id].id,keys["seed:"..b.id].id},
                         {"The composed operation has not been performed.",
                          "Interfaces, timing and losses remain unmeasured."})
@@ -345,6 +418,10 @@ end
 
 local function measurable(e)
     if e.status=="interrupted" or e.status=="unavailable" then return nil,"censored-access-or-interruption" end
+    if EXTENDED[e.kind] then
+        if e.status~="completed" then return nil,"completion-unmeasured" end
+        return "private-fact",true
+    end
     if e.kind=="inspection" then
         if e.perspective~="performed" or e.status~="completed"
             or (e.foodPresent==nil and e.waterPresent==nil) then return nil,"contents-unmeasured" end
@@ -359,6 +436,43 @@ local function measurable(e)
     return e.category,e.status=="completed"
 end
 
+local function extendedEvidence(modelId,state,e)
+    if e.kind=="physical-change" then
+        -- Numeric changes remain separate from dose identity and pharmacology.
+        -- A reversed measured direction challenges the prior direction; it
+        -- does not refute or support any particular medicine's effectiveness.
+        for _,name in ipairs(STATS) do
+            local values=e.stats[name]
+            if values then
+                local direction=values.after>values.before and "increase" or "decrease"
+                local opposite=direction=="increase" and "decrease" or "increase"
+                if modelId=="ordinary" then
+                    local key="direct:physical-change:"..name..":"
+                    if state.beliefs[key..opposite] then
+                        remember(state,key..opposite,"Felt "..name.." "..opposite.."; cause unassigned",false,e)
+                    end
+                    remember(state,key..direction,"Felt "..name.." "..direction.."; cause unassigned",true,e)
+                else
+                    local into="felt:"..name..":"
+                    if state.beliefs["relation:vary:body:"..into..opposite] then
+                        relation(state,"vary","body",into..opposite,false,e,"medicine")
+                    end
+                    relation(state,"vary","body",into..direction,true,e,"medicine")
+                end
+            end
+        end
+    elseif e.kind=="medication-use" then
+        if modelId=="ordinary" then
+            remember(state,"direct:medication-use:"..e.itemType,"Ingested "..e.itemType.." into self; efficacy unmeasured",true,e)
+        else relation(state,"convey","medicine:"..e.itemType,"body",true,e,"medicine") end
+    else
+        if modelId=="ordinary" then
+            remember(state,"direct:preparation:"..e.sourceId..":"..e.itemType,
+                "Native thermal preparation of "..e.itemType.."; ingestion and relief unmeasured",true,e)
+        else relation(state,"transform","food","thermally-prepared-food",true,e,"manufacturing") end
+    end
+end
+
 function M.observe(modelId, state, experience, maxDepth)
     if not validState(modelId,state) then return "rejected:model-state" end
     if not validEvent(experience) then return "rejected:experience" end
@@ -368,9 +482,26 @@ function M.observe(modelId, state, experience, maxDepth)
     local e=experience
     if state.actorId and state.actorId~=e.observerId then return "rejected:foreign-observer" end
     if state.seen[e.id] then return "ignored:duplicate" end
-    if e.worldHours<=state.evictedThroughHours then return "ignored:evicted-evidence-frontier" end
+    local position=EXTENDED[e.kind] and occurrencePosition(e)
+    local previousPosition=position and state.nativePositions and tonumber(state.nativePositions[e.kind])
+    if previousPosition and position<=previousPosition then return "ignored:native-receipt" end
+    if not position then
+        if e.worldHours<=state.evictedThroughHours then return "ignored:evicted-evidence-frontier" end
+    end
     local goal, yes=measurable(e)
     if not goal then return "ignored:"..yes end
+    if position then
+        state.nativePositions=state.nativePositions or {}
+        -- Three scalar strings stay within existing serialized-number bounds.
+        -- Distinct catch-up minutes may share the true acquisition timestamp.
+        state.nativePositions[e.kind]=tostring(position)
+    end
+    -- Keep stored beliefs/IDs and old frozen proposals. Reading a /1 state is
+    -- inert; only an authentic new observation migrates its learning variant.
+    if state.version~=VERSION[modelId] then
+        state.migratedFrom=state.version
+        state.version=VERSION[modelId]
+    end
     state.actorId=e.observerId
     state.seen[e.id]=true
     state.eventOrder[#state.eventOrder+1]={id=e.id,hours=e.worldHours}
@@ -383,10 +514,11 @@ function M.observe(modelId, state, experience, maxDepth)
     state.revision=state.revision+1
     state.lastHours=math.max(state.lastHours or e.worldHours,e.worldHours)
     -- Store is evidence of placement, not a new food/water-goal completion.
-    if e.kind~="store" then
+    if e.kind~="store" and action(goal) then
         remember(state,"goal:"..goal,"Qualified "..goal.." outcomes",yes,e)
     end
-    if modelId=="ordinary" then
+    if EXTENDED[e.kind] then extendedEvidence(modelId,state,e)
+    elseif modelId=="ordinary" then
         remember(state,"direct:"..e.kind..":"..e.category..":"..tostring(e.sourceId or e.itemType or "unspecified"),
             e.perspective.." "..e.kind.." "..e.category.." at "..tostring(e.sourceId or "unlocated source"),yes,e)
     else
@@ -400,6 +532,8 @@ function M.observe(modelId, state, experience, maxDepth)
         else
             relation(state,"contain","container",e.category,yes,e)
         end
+    end
+    if modelId=="associative" then
         local contexts=state.capabilities or {}
         if e.capabilities and (not state.capabilityHours or e.worldHours>=state.capabilityHours) then
             contexts={cook=e.capabilities.cook==true,forage=e.capabilities.forage==true,treat=e.capabilities.treat==true}

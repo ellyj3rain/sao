@@ -70,6 +70,78 @@ local ZOMBIE_HORIZON = 600     -- county ticks a zombie belief stays actionable
 local PEOPLE_HORIZON = 1800
 local SCAN_INTERVAL  = 20      -- acquisition cadence per survivor, county ticks
 local SCANNER_SIGHT_RANGE = 14 -- SAOPerceptionScanner.RANGE, in tiles
+-- Audible occurrence authority belongs only to the current native body.
+-- This table is never placed in the persistent belief store. A sound memory's
+-- refreshed `at` field is not a new occurrence.
+local soundPulses = {}
+local SOUND_CUE_LIMIT = 64
+P.SOUND_CUE_FRESH = 120 -- county ticks from the first personal acquisition
+
+local function finiteSoundNumber(value)
+    return type(value) == "number" and value == value
+        and value ~= math.huge and value ~= -math.huge
+end
+
+local function validSoundToken(token)
+    if type(token) ~= "string" or #token > 56 then return false end
+    local a, c, d, e, f, sequence = string.match(token,
+        "^([0-9a-f]+)%-([0-9a-f]+)%-([0-9a-f]+)%-([0-9a-f]+)%-([0-9a-f]+)%-([1-9][0-9]*)$")
+    return a ~= nil and #a == 8 and #c == 4 and #d == 4 and #e == 4
+        and #f == 12 and #sequence <= 19
+end
+
+local function acquireSoundCue(id, body, entry, fields, x, y, distance, tick)
+    if not string.match(entry, "^S:[^:|]+:[^:|]+:[^:|]+:cue:[^:|]+$")
+        or #fields ~= 6 or fields[5] ~= "cue"
+        or not validSoundToken(fields[6]) or not body
+        or not finiteSoundNumber(x) or not finiteSoundNumber(y)
+        or not finiteSoundNumber(distance) or distance < 0
+        or not finiteSoundNumber(tick) then return end
+    local row = soundPulses[id]
+    if not row or row.body ~= body or tick < row.at then
+        row = { body = body, at = tick, cues = {} }
+        soundPulses[id] = row
+    end
+    row.at = tick
+    local token, count = fields[6], 0
+    for key, cue in pairs(row.cues) do
+        if tick - cue.lastHeardAt > P.SOUND_CUE_FRESH then
+            row.cues[key] = nil
+        else
+            count = count + 1
+        end
+    end
+    local cue = row.cues[token]
+    if cue then
+        -- The pulse's original origin and acquisition time stay fixed.
+        if cue.x == x and cue.y == y then cue.lastHeardAt = tick end
+    elseif count < SOUND_CUE_LIMIT then
+        row.cues[token] = { cueId = token, x = x, y = y,
+            distance = distance, heardAt = tick, lastHeardAt = tick,
+            source = "heard" }
+    end
+end
+
+-- Detached, bounded private cues. Legacy/restored sound beliefs provide no
+-- pulse authority. The native actuator independently refuses consumed tokens.
+function P.soundCues(id, body, tick)
+    local out, row = {}, soundPulses[id]
+    if not row or row.body ~= body or not finiteSoundNumber(tick) then return out end
+    for _, cue in pairs(row.cues) do
+        local age = tick - cue.heardAt
+        if age >= 0 and age <= P.SOUND_CUE_FRESH then
+            out[#out + 1] = { cueId = cue.cueId, x = cue.x, y = cue.y,
+                distance = cue.distance, heardAt = cue.heardAt,
+                lastHeardAt = cue.lastHeardAt, source = cue.source }
+        end
+    end
+    return out
+end
+
+function P.forgetSoundCues(id, body)
+    local row = soundPulses[id]
+    if row and (body == nil or row.body == body) then soundPulses[id] = nil end
+end
 -- [B20] How long a recognised cry keeps its tile from being read
 -- as a threat. ONE definition: the guard in the S-row path and
 -- the prune in the decay pass both read this, or they drift and
@@ -1257,6 +1329,7 @@ function P.observe(id, body, tick, asleep)
                 local x, y, d = tonumber(f[2]), tonumber(f[3]), tonumber(f[4])
                 if x and y then
                     local key = x .. "," .. y
+                    acquireSoundCue(id, body, entry, f, x, y, d, tick)
                     -- [B20] You know what that was. A cry you
                     -- recognised a moment ago is not a monster on the
                     -- next scan - without this, the sound of a
@@ -2879,6 +2952,8 @@ function P.placeAge(id, placeId, tick)
 end
 
 function P.forget(id)
+    P.forgetSoundCues(id)
+    if SAO.Orienting and SAO.Orienting.forget then SAO.Orienting.forget(id) end
     P.beliefs[id] = nil
     -- [C108] A dropped mind is a write; derived readers recompute.
     P.beliefVersion = P.beliefVersion + 1
@@ -3039,6 +3114,9 @@ local function dropForeignStamps(b, now)
 end
 
 function P.bindPersistentStore()
+    -- A world/load boundary never restores pulse or body authority.
+    soundPulses = {}
+    if SAO.Orienting and SAO.Orienting.reset then SAO.Orienting.reset() end
     local ok, persisted = pcall(function()
         return ModData.getOrCreate("SurvivorAwareness_Beliefs")
     end)

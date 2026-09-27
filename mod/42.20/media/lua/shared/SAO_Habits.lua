@@ -5,26 +5,14 @@
 -- on comes into SAO's habits (CREDITS.md): The Alcoholic (axxessdenied,
 -- MIT) for the drinker - hours since the last drink, four withdrawal
 -- phases, the habit lost after three weeks dry and gained by drinking
--- often; N and C's Narcotics for the users the county fell with - a
--- dependency gained by frequent use, lost after eighteen to twenty
--- clean days, with withdrawal at days one, five and ten. [C121] Both
--- are now source-read, and where their mods are loaded SAO_Drugs
--- drives their own machinery per body - the figures below are the
--- county's own schedule for a supply nobody has recorded, which yields
--- family by family the moment their trait takes the dependency over.
--- Smoking ([A14]) stays as it was: a third of the county, and the end
--- did not help anyone quit.
+-- often; the seven pharmacology families for dependency gained through actual
+-- completed doses and retired after elapsed abstinence. Pharmacology owns the
+-- admitted effects and counters. No separately installed behavioral mod is
+-- required. Smoking keeps its established prevalence.
 --
--- A habit is drawn from the person's own hash at the record's
--- prevalence like a condition ([C32]) and then LIVES on the record:
--- the last drink, the last use of each drug family, the habit quit or
--- acquired. The fall cut the supply the day it came, so a never-user's
--- clean clock runs from the world's first day and the dependency is
--- gone by the twentieth - which is exactly the county the living
--- start ([C28], DR-031) walks into. [C121] Where the drug mod's items
--- exist, a use is recorded (the eat-action wrap in SAO_Needs) and
--- that family's clock runs from the last use instead - the same clean
--- read C33's comment here said it was waiting for.
+-- Last-use, quit and acquired histories remain on the person. The established
+-- prevalence table is unchanged; the two additional families can acquire
+-- dependence through actual use without inventing initial prevalence.
 --
 -- Read by the age drift (what the body carries every ten minutes),
 -- the controller (a drink when the shakes come, and where to find
@@ -207,6 +195,9 @@ end
 -- what the record says has happened since: quit, or acquired.
 function Hb.has(id, key)
     local rec = recordOf(id)
+    if SAO.Pharmacology and SAO.Pharmacology.ownsWithdrawal(rec, key) then
+        return SAO.Pharmacology.dependent(rec, key)
+    end
     if rec and rec.habitsQuit and rec.habitsQuit[key] then return false end
     if rec and rec.habitsGained and rec.habitsGained[key] then return true end
     local said = Hb.asserted[tostring(id)]
@@ -365,6 +356,10 @@ end
 -- supply runs the same schedule from the last use, which is what the
 -- schedule always meant: withdrawal after use stops.
 function Hb.userTier(id, key, now)
+    local rec = recordOf(id)
+    if SAO.Pharmacology and SAO.Pharmacology.ownsWithdrawal(rec, key) then
+        return SAO.Pharmacology.tier(rec, key)
+    end
     if not Hb.has(id, key) then return nil end
     local schedule = USER_SCHEDULE[key]
     if not schedule then return nil end
@@ -382,6 +377,7 @@ function Hb.settleUsers(id, now)
     local settled = 0
     for _, key in ipairs(Hb.ORDER) do
         if key ~= "drinker" and Hb.has(id, key)
+           and not (SAO.Pharmacology and SAO.Pharmacology.ownsWithdrawal(rec, key))
            and Hb.cleanDays(id, key, now) > Hb.daysToLose(id) then
             rec.habitsQuit = rec.habitsQuit or {}
             rec.habitsQuit[key] = true
@@ -391,14 +387,11 @@ function Hb.settleUsers(id, now)
     return settled
 end
 
--- [C121] True while the drug mod's own dependency trait holds this
--- family on the body. SAO_Drugs observes the trait each pass and
--- stamps it on the record - the engine read lives there, not here,
--- because this file loads in a bare VM and the record is the county's
--- own surface.
-local function carriedByNnC(id, key)
+-- Family-specific withdrawal is owned by the durable pharmacology state.
+-- A historical foreign-trait stamp alone no longer suppresses owned effects.
+local function ownedWithdrawal(id, key)
     local rec = recordOf(id)
-    return rec and rec.nncWithdrawal and rec.nncWithdrawal[key] == true or false
+    return SAO.Pharmacology and SAO.Pharmacology.ownsWithdrawal(rec, key) or false
 end
 
 -- ---------------------------------------------------------------------------
@@ -428,7 +421,7 @@ function Hb.drift(id, now, pass)
             -- the trait does NOT yield: their machinery withdraws only
             -- on the trait, so the county schedule from the last use is
             -- the only withdrawal the person has.
-            if tier and not carriedByNnC(id, key) then
+            if tier and not ownedWithdrawal(id, key) then
                 add("STRESS", TIER_LOAD[tier])
                 add("FATIGUE", TIER_LOAD[tier])
                 if key == "opioids" then add("PAIN", TIER_LOAD[tier]) end

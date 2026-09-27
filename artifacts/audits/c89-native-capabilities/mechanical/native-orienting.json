@@ -1,0 +1,826 @@
+{
+  "schema": "sao-orienting-native-proof/1",
+  "status": "PASS",
+  "runs": [
+    {
+      "name": "compile",
+      "exit": 0,
+      "passed": true,
+      "seconds": 2.54,
+      "expectedFailure": null,
+      "logSha256": "66fee180576767deb3dc743db728cd37f1e8fb73767bc97b9282c4dd6f1dad02"
+    },
+    {
+      "name": "jar",
+      "exit": 0,
+      "passed": true,
+      "seconds": 0.459,
+      "expectedFailure": null,
+      "logSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "name": "baseline",
+      "exit": 0,
+      "passed": true,
+      "seconds": 7.331,
+      "expectedFailure": null,
+      "logSha256": "19e0197bf205804a17a40116058d603b8fa3c209929f8543672369d4b24f225b"
+    },
+    {
+      "name": "preloaded-worldsound",
+      "exit": 0,
+      "passed": true,
+      "seconds": 7.091,
+      "expectedFailure": null,
+      "logSha256": "0898d38116cbcee5d2b45398160cb6795fcf951560c7b20ba8f7ea71aa01f619"
+    },
+    {
+      "name": "registration-race-jar",
+      "exit": 0,
+      "passed": true,
+      "seconds": 0.141,
+      "expectedFailure": null,
+      "logSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "name": "loaded-during-installation",
+      "exit": 0,
+      "passed": true,
+      "seconds": 7.339,
+      "expectedFailure": null,
+      "logSha256": "a764e5e592e68c30bd6f5e0875083f6a88eac0d66384aac095209cce1155f71a"
+    },
+    {
+      "name": "diagnostics-jar",
+      "exit": 0,
+      "passed": true,
+      "seconds": 0.151,
+      "expectedFailure": null,
+      "logSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "name": "weave-cold",
+      "exit": 0,
+      "passed": true,
+      "seconds": 0.748,
+      "expectedFailure": null,
+      "logSha256": "e3f23a08b6d21f7c1905eaa3f0502f34e8930971ea6d8158989006491c1ab011"
+    },
+    {
+      "name": "weave-preload",
+      "exit": 0,
+      "passed": true,
+      "seconds": 0.732,
+      "expectedFailure": null,
+      "logSha256": "e3f23a08b6d21f7c1905eaa3f0502f34e8930971ea6d8158989006491c1ab011"
+    },
+    {
+      "name": "weave-full",
+      "exit": 0,
+      "passed": true,
+      "seconds": 0.943,
+      "expectedFailure": null,
+      "logSha256": "e3f23a08b6d21f7c1905eaa3f0502f34e8930971ea6d8158989006491c1ab011"
+    },
+    {
+      "name": "weave-full-preload",
+      "exit": 0,
+      "passed": true,
+      "seconds": 0.926,
+      "expectedFailure": null,
+      "logSha256": "e3f23a08b6d21f7c1905eaa3f0502f34e8930971ea6d8158989006491c1ab011"
+    },
+    {
+      "name": "compile-invalid-advice",
+      "exit": 0,
+      "passed": true,
+      "seconds": 0.857,
+      "expectedFailure": null,
+      "logSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "name": "invalid-advice-cold",
+      "exit": 0,
+      "passed": true,
+      "seconds": 0.805,
+      "expectedFailure": null,
+      "logSha256": "ca33f7f190b7de3a9098bea04f3a6e673db0bbe120fb864686318f6bfed3b7c8"
+    },
+    {
+      "name": "invalid-advice-preloaded",
+      "exit": 0,
+      "passed": true,
+      "seconds": 0.811,
+      "expectedFailure": null,
+      "logSha256": "ca33f7f190b7de3a9098bea04f3a6e673db0bbe120fb864686318f6bfed3b7c8"
+    },
+    {
+      "name": "compile-silent-transform-failure",
+      "exit": 0,
+      "passed": true,
+      "seconds": 0.902,
+      "expectedFailure": null,
+      "logSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "name": "silent-transform-failure",
+      "exit": 1,
+      "passed": true,
+      "seconds": 0.904,
+      "expectedFailure": "CHECK actual_transform_failure_logged=false",
+      "logSha256": "ce9dc4b33033d567e00c00f3b73948e753f64d7a3d22a8cd27e8f695a6b485e3"
+    },
+    {
+      "name": "compile-missing-agent-pulse-binding",
+      "exit": 0,
+      "passed": true,
+      "seconds": 0.74,
+      "expectedFailure": null,
+      "logSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "name": "missing-agent-pulse-binding",
+      "exit": 1,
+      "passed": true,
+      "seconds": 1.103,
+      "expectedFailure": "CHECK entry_point_registered_weave=false",
+      "logSha256": "5c3e49a22c09ae3d48bc2b333bacbfb036afe778281a66ce22aca0d86cb799be"
+    },
+    {
+      "name": "compile-missing-install-reconciliation",
+      "exit": 0,
+      "passed": true,
+      "seconds": 0.898,
+      "expectedFailure": null,
+      "logSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "name": "missing-install-reconciliation",
+      "exit": 1,
+      "passed": true,
+      "seconds": 7.222,
+      "expectedFailure": "CHECK native_pulse_weave=false",
+      "logSha256": "74ddb9ace4b9a1cdf09f29c5d6d278031cdbf7db772ec047a849e0c7f061b294"
+    },
+    {
+      "name": "late-study-compile",
+      "exit": 0,
+      "passed": true,
+      "seconds": 1.558,
+      "expectedFailure": null,
+      "logSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "name": "late-study-jar",
+      "exit": 0,
+      "passed": true,
+      "seconds": 0.326,
+      "expectedFailure": null,
+      "logSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "name": "late-sao-jar",
+      "exit": 0,
+      "passed": true,
+      "seconds": 0.154,
+      "expectedFailure": null,
+      "logSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "name": "late-load-jar",
+      "exit": 0,
+      "passed": true,
+      "seconds": 0.152,
+      "expectedFailure": null,
+      "logSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "name": "late-native-sensor",
+      "exit": 0,
+      "passed": true,
+      "seconds": 12.975,
+      "expectedFailure": null,
+      "logSha256": "5a3df0e3ccfe609dca6bc43496f12a48143c67ac5822a429a85f8c5d7a57cead"
+    },
+    {
+      "name": "compile-missing-sensor-binding",
+      "exit": 0,
+      "passed": true,
+      "seconds": 1.085,
+      "expectedFailure": null,
+      "logSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "name": "missing-sensor-binding",
+      "exit": 1,
+      "passed": true,
+      "seconds": 12.661,
+      "expectedFailure": "CHECK native_sensor_reconciles_late_class=false",
+      "logSha256": "ef0e2a56ac83d87f50221d26b9eaf3b815a21438ea9d1b205743038f73ef6b6b"
+    },
+    {
+      "name": "compile-missing-late-native-retransform",
+      "exit": 0,
+      "passed": true,
+      "seconds": 0.921,
+      "expectedFailure": null,
+      "logSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "name": "missing-late-native-retransform",
+      "exit": 1,
+      "passed": true,
+      "seconds": 18.888,
+      "expectedFailure": "CHECK native_sensor_reconciles_late_class=false",
+      "logSha256": "f9f2fe37c0814a0eed1a5eb6f73ecd56453a1cdb0a11ece9ceb68417ac72d7f5"
+    },
+    {
+      "name": "compile-invent-missed-pulse",
+      "exit": 0,
+      "passed": true,
+      "seconds": 0.974,
+      "expectedFailure": null,
+      "logSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "name": "invent-missed-pulse",
+      "exit": 1,
+      "passed": true,
+      "seconds": 19.775,
+      "expectedFailure": "CHECK sensor_keeps_missed_occurrence_unclassified=false",
+      "logSha256": "dd7ffafa51449fee87214afceb1ac52220f5cc675799f323089e712ee2cb5bf2"
+    },
+    {
+      "name": "compile-cue-replay",
+      "exit": 0,
+      "passed": true,
+      "seconds": 1.025,
+      "expectedFailure": null,
+      "logSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "name": "cue-replay",
+      "exit": 1,
+      "passed": true,
+      "seconds": 12.466,
+      "expectedFailure": "CHECK duplicate_cue_refused=false",
+      "logSha256": "243cd5eb97292a9c73a6afd3483a66de965764089a3ffbfe48b2a0ee063a620d"
+    },
+    {
+      "name": "compile-movement-owner",
+      "exit": 0,
+      "passed": true,
+      "seconds": 1.04,
+      "expectedFailure": null,
+      "logSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "name": "movement-owner",
+      "exit": 1,
+      "passed": true,
+      "seconds": 14.61,
+      "expectedFailure": "CHECK moving_route_direction_preserved=false",
+      "logSha256": "63725b79c1e2670610d6f4d071515c03e79754e4e82bed1ba9f1f24fac81a157"
+    },
+    {
+      "name": "compile-virtual-head",
+      "exit": 0,
+      "passed": true,
+      "seconds": 0.749,
+      "expectedFailure": null,
+      "logSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "name": "virtual-head",
+      "exit": 1,
+      "passed": true,
+      "seconds": 12.278,
+      "expectedFailure": "CHECK head_request_without_layer_cannot_change_gaze=false",
+      "logSha256": "57cba5651d587d9e00a55628cd9072c404a5509bc1d37d9a1594a98580a1358f"
+    },
+    {
+      "name": "compile-snapped-body",
+      "exit": 0,
+      "passed": true,
+      "seconds": 1.1,
+      "expectedFailure": null,
+      "logSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "name": "snapped-body",
+      "exit": 1,
+      "passed": true,
+      "seconds": 11.744,
+      "expectedFailure": "CHECK body_not_snapped_before_native_interpolation=false",
+      "logSha256": "72bdd25c8ade278f39a699675dd32ed2e5d1d34e90bb9ccb91c53a90fca9867d"
+    },
+    {
+      "name": "compile-unbounded-cue",
+      "exit": 0,
+      "passed": true,
+      "seconds": 0.92,
+      "expectedFailure": null,
+      "logSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "name": "unbounded-cue",
+      "exit": 1,
+      "passed": true,
+      "seconds": 13.037,
+      "expectedFailure": "CHECK native_time_expires_orientation=false",
+      "logSha256": "2f1693bffa9c047dcd225ff222a580c0daf427a16fdae7561e6fca202796be93"
+    },
+    {
+      "name": "compile-readiness-ignored",
+      "exit": 0,
+      "passed": true,
+      "seconds": 0.944,
+      "expectedFailure": null,
+      "logSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "name": "readiness-ignored",
+      "exit": 1,
+      "passed": true,
+      "seconds": 11.842,
+      "expectedFailure": "CHECK readiness_delays_response=false",
+      "logSha256": "8a81d445d289d9040fd2d95312fb8a5476c45ea6f1a947d0ed4ffb9e19123e11"
+    },
+    {
+      "name": "compile-steadiness-ignored",
+      "exit": 0,
+      "passed": true,
+      "seconds": 0.995,
+      "expectedFailure": null,
+      "logSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "name": "steadiness-ignored",
+      "exit": 1,
+      "passed": true,
+      "seconds": 13.837,
+      "expectedFailure": "CHECK steadiness_scales_native_turn=false",
+      "logSha256": "c0f5c83cc0c04f568eb8e799c6e8bef5447f82017f5a9663baea5e3e2772b44a"
+    },
+    {
+      "name": "compile-timed-owner",
+      "exit": 0,
+      "passed": true,
+      "seconds": 1.074,
+      "expectedFailure": null,
+      "logSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "name": "timed-owner",
+      "exit": 1,
+      "passed": true,
+      "seconds": 13.142,
+      "expectedFailure": "CHECK action_yields=false",
+      "logSha256": "392630a583838c540d967a0feafb9e3dfa8faa8698853f960363d65de4b765da"
+    },
+    {
+      "name": "compile-combat-owner",
+      "exit": 0,
+      "passed": true,
+      "seconds": 1.065,
+      "expectedFailure": null,
+      "logSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "name": "combat-owner",
+      "exit": 1,
+      "passed": true,
+      "seconds": 11.557,
+      "expectedFailure": "CHECK combat_yields=false",
+      "logSha256": "55c745346a0e2566f0e71c3990f6658294904497a2248710955718f4810f3c04"
+    },
+    {
+      "name": "compile-cue-identity",
+      "exit": 0,
+      "passed": true,
+      "seconds": 0.998,
+      "expectedFailure": null,
+      "logSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "name": "cue-identity",
+      "exit": 1,
+      "passed": true,
+      "seconds": 12.465,
+      "expectedFailure": "CHECK pooled_reinit_new_occurrence=false",
+      "logSha256": "dc2f691b4f4bc53e6047758e0c3839ff7d67f022a8344b57f0125b03e61d090b"
+    },
+    {
+      "name": "compile-unheard-cue",
+      "exit": 0,
+      "passed": true,
+      "seconds": 0.92,
+      "expectedFailure": null,
+      "logSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "name": "unheard-cue",
+      "exit": 1,
+      "passed": true,
+      "seconds": 10.578,
+      "expectedFailure": "CHECK unheard_other_body_refused=false",
+      "logSha256": "271a0b7190b0194a6bd87dc5b5bd6d53d5e2e759137682073239f2e03b882ab4"
+    },
+    {
+      "name": "compile-deaf-access",
+      "exit": 0,
+      "passed": true,
+      "seconds": 0.719,
+      "expectedFailure": null,
+      "logSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "name": "deaf-access",
+      "exit": 1,
+      "passed": true,
+      "seconds": 10.495,
+      "expectedFailure": "CHECK native_hearing_modifiers=false",
+      "logSha256": "3cef7a642420e82c75d6181ae3b95fa659d224fe3db51bca35a4a8e7b03d3a73"
+    },
+    {
+      "name": "compile-hearing-modifier",
+      "exit": 0,
+      "passed": true,
+      "seconds": 0.717,
+      "expectedFailure": null,
+      "logSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "name": "hearing-modifier",
+      "exit": 1,
+      "passed": true,
+      "seconds": 10.369,
+      "expectedFailure": "CHECK native_hearing_modifiers=false",
+      "logSha256": "3cef7a642420e82c75d6181ae3b95fa659d224fe3db51bca35a4a8e7b03d3a73"
+    },
+    {
+      "name": "compile-scan-heading",
+      "exit": 0,
+      "passed": true,
+      "seconds": 1.145,
+      "expectedFailure": null,
+      "logSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "name": "scan-heading",
+      "exit": 1,
+      "passed": true,
+      "seconds": 11.045,
+      "expectedFailure": "CHECK scan_actual_gaze=false",
+      "logSha256": "749c08c87118da28d113b97518d23df54bf8052f6bb825d92f84528188f1d471"
+    },
+    {
+      "name": "compile-person-heading",
+      "exit": 0,
+      "passed": true,
+      "seconds": 1.133,
+      "expectedFailure": null,
+      "logSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "name": "person-heading",
+      "exit": 1,
+      "passed": true,
+      "seconds": 10.658,
+      "expectedFailure": "CHECK person_recheck_actual_gaze=false",
+      "logSha256": "23b39797a719ab0e862eb29cba808ae932a031100cfbe5967a5a5608cdbe635b"
+    },
+    {
+      "name": "compile-intervening-wall",
+      "exit": 0,
+      "passed": true,
+      "seconds": 1.018,
+      "expectedFailure": null,
+      "logSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "name": "intervening-wall",
+      "exit": 1,
+      "passed": true,
+      "seconds": 10.91,
+      "expectedFailure": "CHECK person_occluded_by_native_wall=false",
+      "logSha256": "e76e47f1be5bd1a46b0b4628006ba85f83ac6be4af7d0f87d2c2751753e06260"
+    },
+    {
+      "name": "compile-impure-animator-read",
+      "exit": 0,
+      "passed": true,
+      "seconds": 0.81,
+      "expectedFailure": null,
+      "logSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "name": "impure-animator-read",
+      "exit": 1,
+      "passed": true,
+      "seconds": 11.031,
+      "expectedFailure": "CHECK inspection_model_mismatch_no_mutation=false",
+      "logSha256": "0e9d6d57c3168bacff5616807c3bcc040969a050a37e90e4458bb84984043b74"
+    },
+    {
+      "name": "compile-transfer-heading",
+      "exit": 0,
+      "passed": true,
+      "seconds": 1.152,
+      "expectedFailure": null,
+      "logSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "name": "transfer-heading",
+      "exit": 1,
+      "passed": true,
+      "seconds": 11.018,
+      "expectedFailure": "CHECK transfer_witness_actual_gaze=false",
+      "logSha256": "863fd5cad0d19683cf8cdca9a95f0dbaa229658022f412a57c1c5faf305006c2"
+    },
+    {
+      "name": "compile-tile-heading",
+      "exit": 0,
+      "passed": true,
+      "seconds": 1.004,
+      "expectedFailure": null,
+      "logSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "name": "tile-heading",
+      "exit": 1,
+      "passed": true,
+      "seconds": 10.524,
+      "expectedFailure": "CHECK known_tile_actual_gaze=false",
+      "logSha256": "4884c41691f90e8e5a76d13752ea5160fb62db13f348a8954e359c383c7133e6"
+    },
+    {
+      "name": "head-mask",
+      "exit": 1,
+      "passed": true,
+      "seconds": 11.573,
+      "expectedFailure": "CHECK idle_native_head_pose_changes=false",
+      "logSha256": "26931ae592743bc44ec60959fba1f12020d63a6de88b570f7e2d737465a20778"
+    },
+    {
+      "name": "head-admission",
+      "exit": 1,
+      "passed": true,
+      "seconds": 10.111,
+      "expectedFailure": "CHECK native_head_child_admitted=false",
+      "logSha256": "419a10d399d870c01e86569c88618284adadfe4f68ffc8d19c9e380298810f09"
+    },
+    {
+      "name": "compile-native-crossing",
+      "exit": 0,
+      "passed": true,
+      "seconds": 0.909,
+      "expectedFailure": null,
+      "logSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "name": "native-crossing",
+      "exit": 1,
+      "passed": true,
+      "seconds": 13.248,
+      "expectedFailure": "CHECK fence_yields=false",
+      "logSha256": "d192394c19f338e79e961a23ae6fe8bbb5f3842862a1675c3cc84d82087a8ebc"
+    }
+  ],
+  "sourceRoot": "C:\\Users\\jleyv\\AppData\\Local\\Temp\\sao-late-loader-final-rv2ixyt4\\source",
+  "timestamp": "2026-09-27T06:03:35.026749+00:00",
+  "controls": [
+    {
+      "name": "silent-transform-failure",
+      "assertion": "actual_transform_failure_logged",
+      "mutantSha256": "535f075edb326ce4d7ead71d40390a632a29230b0ad7dbd38d89610b51fc9e94"
+    },
+    {
+      "name": "missing-agent-pulse-binding",
+      "assertion": "entry_point_registered_weave",
+      "mutantSha256": "50da475d74baf25d652d7a2744285395de7555a61b88362e630c97038c351bd0"
+    },
+    {
+      "name": "missing-install-reconciliation",
+      "assertion": "native_pulse_weave",
+      "mutantSha256": "e3870276f69dd9ffc494a5c3efa38137a5527aa5806504e139c3bdf69a002505"
+    },
+    {
+      "name": "missing-sensor-binding",
+      "assertion": "native_sensor_reconciles_late_class",
+      "mutantSha256": "85a4e6115dd50fb36a302483d4e152093327176d8123cde543befa6441a9996e"
+    },
+    {
+      "name": "missing-late-native-retransform",
+      "assertion": "native_sensor_reconciles_late_class",
+      "mutantSha256": "2fa66727d5b3d79a59775b21b8cd29f8f5918b75f27b88824c7b3bc54ceff39a"
+    },
+    {
+      "name": "invent-missed-pulse",
+      "assertion": "sensor_keeps_missed_occurrence_unclassified",
+      "mutantSha256": "e9476f818375771a3770ccf621a5c6e322751e4e67294e0e6e9cbe2926fa0280"
+    },
+    {
+      "name": "cue-replay",
+      "assertion": "duplicate_cue_refused",
+      "mutantSha256": "6bc35ea63971c3a5cffc8c2685594b98e0bd0d38c219b85dfb109cb9a7f24ca5"
+    },
+    {
+      "name": "movement-owner",
+      "assertion": "moving_route_direction_preserved",
+      "mutantSha256": "f73da5f91e441be13597f50224496f0b706c057023bc64cbb63e07628348b08d"
+    },
+    {
+      "name": "virtual-head",
+      "assertion": "head_request_without_layer_cannot_change_gaze",
+      "mutantSha256": "ef5ac3e5eb84c1f8fd09efc61ad2a04643083e8ea6bc4fb08f79a6908a0d475c"
+    },
+    {
+      "name": "snapped-body",
+      "assertion": "body_not_snapped_before_native_interpolation",
+      "mutantSha256": "d4eae154a624443cc39095d3165a2c6c0b81257d6810aed8d6c283f517920bd9"
+    },
+    {
+      "name": "unbounded-cue",
+      "assertion": "native_time_expires_orientation",
+      "mutantSha256": "6a826d13c754451c41ab3556159ee93b080b16d91ad9935443950fb415327a53"
+    },
+    {
+      "name": "readiness-ignored",
+      "assertion": "readiness_delays_response",
+      "mutantSha256": "bdecec15b5f9c57cf9565a2f02dcc5df957d36258016275ccb0e1ad93153ec7e"
+    },
+    {
+      "name": "steadiness-ignored",
+      "assertion": "steadiness_scales_native_turn",
+      "mutantSha256": "c4f517ffa1c58c2ac811711053318bb459670cc7b032e4baffcc82f50e8e61e9"
+    },
+    {
+      "name": "timed-owner",
+      "assertion": "action_yields",
+      "mutantSha256": "b97943f463d1baf240c16787cb34f81bbfc56901b371da86a28f2c28fae5688c"
+    },
+    {
+      "name": "combat-owner",
+      "assertion": "combat_yields",
+      "mutantSha256": "254e4e19f431ecb8476a9fdb7612b3c70ed1fc405413886270d93d1b79c4831c"
+    },
+    {
+      "name": "cue-identity",
+      "assertion": "pooled_reinit_new_occurrence",
+      "mutantSha256": "5b0e9531770233884226547a380795ba2485fbe7f36b9265d3c0e6e3ab67cc37"
+    },
+    {
+      "name": "unheard-cue",
+      "assertion": "unheard_other_body_refused",
+      "mutantSha256": "4d05382a13f7201746f6b61dad752d4fdc3b4f1eeafa28e432c240faf741b8c6"
+    },
+    {
+      "name": "deaf-access",
+      "assertion": "native_hearing_modifiers",
+      "mutantSha256": "9db929de510206315d9112d09ad1ac47e46194367b9b708e7074f1e27cb27c38"
+    },
+    {
+      "name": "hearing-modifier",
+      "assertion": "native_hearing_modifiers",
+      "mutantSha256": "5eb26458725777dfd3a1c6bd4045d52331e40eab76ff3975fde2cdd39381643b"
+    },
+    {
+      "name": "scan-heading",
+      "assertion": "scan_actual_gaze",
+      "mutantSha256": "997aeac13244a1efa0d9b1a9ad317a3d4297ee260062c54d58113dbd23f8fa6a"
+    },
+    {
+      "name": "person-heading",
+      "assertion": "person_recheck_actual_gaze",
+      "mutantSha256": "f5420f87f0e531b68001be214200baa374366db5e2378b2512c8d0c05337899b"
+    },
+    {
+      "name": "intervening-wall",
+      "assertion": "person_occluded_by_native_wall",
+      "mutantSha256": "efbb7cdb4669ce899c44be74eb594ae210ec32262ecc2fbe4dba7b9a8b16b72b"
+    },
+    {
+      "name": "impure-animator-read",
+      "assertion": "inspection_model_mismatch_no_mutation",
+      "mutantSha256": "e062bc03c1cfb52a18cae2b4ee96fbfe64ddc127adcc3ed2cc1c91ccc85e106f"
+    },
+    {
+      "name": "transfer-heading",
+      "assertion": "transfer_witness_actual_gaze",
+      "mutantSha256": "11d13a0a27195f6835150c2b51052d781e706b4e73d4e19ad90d3fefa6bda40a"
+    },
+    {
+      "name": "tile-heading",
+      "assertion": "known_tile_actual_gaze",
+      "mutantSha256": "8c3953bc2c476b3b22a341e7a98939ffb343a959ceba4993889cbe254ff36ca4"
+    },
+    {
+      "name": "head-mask",
+      "assertion": "idle_native_head_pose_changes",
+      "mutantSha256": "98df3242b24e73be5acd21db9ad16f10ab94d7cfcf247252edbce39b6dd6eb5b"
+    },
+    {
+      "name": "head-admission",
+      "assertion": "native_head_child_admitted",
+      "mutantSha256": "56772091ee489e05cbc42937068c71dcd9596c0efe067ad06c2034d65766d0a9"
+    },
+    {
+      "name": "native-crossing",
+      "assertion": "fence_yields",
+      "mutantSha256": "03923f628c92c0b962b7696562394ec779160f46824e64d169cde6070a1a2c18"
+    }
+  ],
+  "limits": [
+    "Installed method and actual animation-pose fixture; no rendered gameplay or live-world timing acceptance."
+  ],
+  "inputs": {
+    "C:\\Users\\jleyv\\AppData\\Local\\Temp\\sao-late-loader-final-rv2ixyt4\\source\\java\\src\\com\\sao\\engine\\SAOOrientation.java": "56e666b1b9a3c236908440453f3d0fc2ac17ef32231df1f9e28fe18832406670",
+    "C:\\Users\\jleyv\\AppData\\Local\\Temp\\sao-late-loader-final-rv2ixyt4\\source\\java\\src\\com\\sao\\engine\\SAOOrientationAnimation.java": "2ce5720a4a8a6ffa6c06dfc1f5503870d45207cd262b43764efe2255fd70ceae",
+    "C:\\Users\\jleyv\\AppData\\Local\\Temp\\sao-late-loader-final-rv2ixyt4\\source\\java\\src\\com\\sao\\engine\\SAOSenses.java": "6c0767bcbec7693b4e5da60b95e26ceaefac0c7cc49b3d886e8c0515d1d9ece7",
+    "C:\\Users\\jleyv\\AppData\\Local\\Temp\\sao-late-loader-final-rv2ixyt4\\source\\java\\src\\com\\sao\\engine\\SAOWorldSoundPulses.java": "4b78730b45ba4c1e2d703f2cc10a2ec0533186947542340c7a61ae5cbd56ad78",
+    "C:\\Users\\jleyv\\AppData\\Local\\Temp\\sao-late-loader-final-rv2ixyt4\\source\\java\\src\\com\\sao\\agent\\SAOOrientationWeave.java": "700cbbb40ddfe2f69c24e7d915e342d20b2ed985595435456db375b48f841ce6",
+    "C:\\Users\\jleyv\\AppData\\Local\\Temp\\sao-late-loader-final-rv2ixyt4\\source\\tools\\luacheck\\MovementCrossingProbe.java": "ca9dbe9c356c98ff40e6aa63d577fd2ace052c139b83fc6f43664701fd2f1bd1",
+    "C:\\Users\\jleyv\\AppData\\Local\\Temp\\sao-late-loader-final-rv2ixyt4\\source\\mod\\42.20\\media\\java\\SAO.jar": "b0f9f2d762e3dae9ff17d591863754f4439fb28c85d7f390121d01ec15734e16",
+    "C:\\Users\\jleyv\\AppData\\Local\\Temp\\sao-late-loader-final-rv2ixyt4\\source\\mod\\42.20\\media\\SAOOrienting\\tags.xml": "3fd3b3d374536a37b9395757eba63899a1a319973d151cc751872d054c20ab37",
+    "C:\\Users\\jleyv\\AppData\\Local\\Temp\\sao-late-loader-final-rv2ixyt4\\source\\mod\\42.20\\media\\SAOOrienting\\look.xml": "0116b93221f82cc1d7c3a65486f1130ae375815e93a56dfaf1f130e5a1f4cff6",
+    "C:\\Users\\jleyv\\AppData\\Local\\Temp\\sao-late-loader-final-rv2ixyt4\\source\\mod\\42.20\\media\\SAOOrienting\\enter.xml": "aeb3630226745f0809fe91e8739c299369e3e41e4fb65afe0a3ca16b4074131b",
+    "C:\\Users\\jleyv\\AppData\\Local\\Temp\\sao-late-loader-final-rv2ixyt4\\source\\mod\\42.20\\media\\SAOOrienting\\exit.xml": "51e697582eea82fca6490f444c0f05421ece65319d4022f8477cc59aa7468076",
+    "C:\\Users\\jleyv\\AppData\\Local\\Temp\\sao-late-loader-final-rv2ixyt4\\source\\mod\\42.20\\media\\SAOOrienting\\children.xml": "ca9c4a56aaccaca795754222bb3c3f64fcffd321bbb01f85049891108bf0dc6a",
+    "C:\\Users\\jleyv\\AppData\\Local\\Temp\\sao-late-loader-final-rv2ixyt4\\source\\tools\\orienting_checks\\OrientationProbe.java": "26304d674034c34a354aed901e7b9ae32ca08c499cb3de1238ea91c7fed7ad7e",
+    "C:\\Users\\jleyv\\AppData\\Local\\Temp\\sao-late-loader-final-rv2ixyt4\\source\\tools\\orienting_checks\\OrientationProbeAgent.java": "43cb83e5e426bdb375d72768c2a01a1c1785ca15682d1ad84ec0d2d9692a8067",
+    "C:\\Users\\jleyv\\AppData\\Local\\Temp\\sao-late-loader-final-rv2ixyt4\\source\\tools\\orienting_checks\\WeaveDiagnosticsAgent.java": "1453e236432bc4c4223711cd95db77d6b9d20e812318227f93686cf1411d120f",
+    "C:\\Users\\jleyv\\AppData\\Local\\Temp\\sao-late-loader-final-rv2ixyt4\\source\\tools\\orienting_checks\\WeaveDiagnosticsProbe.java": "1c7a996e47f7777b47536435ecc36b526a5d720dbd657a34e66f93af3fd3d8ce",
+    "C:\\Users\\jleyv\\AppData\\Local\\Temp\\sao-late-loader-final-rv2ixyt4\\source\\tools\\orienting_checks\\controls.py": "88f97e19fe66de05ef4f03be48aa1279d67aa4dc7397637f278fe12725b3f494",
+    "C:\\Users\\jleyv\\AppData\\Local\\Temp\\sao-late-loader-final-rv2ixyt4\\source\\tools\\orienting_checks\\RegistrationRaceAgent.java": "61b902d770c1df6b49e0db55808fdead73992e60f0fd1a8e19161c166a9a9d3f",
+    "C:\\Users\\jleyv\\AppData\\Local\\Temp\\sao-late-loader-final-rv2ixyt4\\source\\tools\\orienting_checks\\LateNativeLoadAgent.java": "a27e7356f64f3bd1036b7a7c949260ab764df7142f91662917ef5ed9426df279",
+    "C:\\Users\\jleyv\\AppData\\Local\\Temp\\sao-late-loader-final-rv2ixyt4\\source\\tools\\orienting_checks\\LateNativeLoadProbe.java": "e0c74d2b36d8b80668e05a5168cc3ba9b183f57b29132df3c20a8b817ead6761",
+    "C:\\Users\\jleyv\\AppData\\Local\\Temp\\sao-late-loader-final-rv2ixyt4\\source\\tools\\orienting_checks\\late_loading.py": "00a8d0016012029515978a1521c1aeb89df38aad33ccca7e66d6d28994a89037",
+    "C:\\Users\\jleyv\\AppData\\Local\\Temp\\sao-late-loader-final-rv2ixyt4\\source\\tools\\orienting_checks\\run_checks.py": "2e29750ad3d79975216de55d975dcc27b113d9c78701cd6dedc94e5c451e9246",
+    "C:\\Users\\jleyv\\AppData\\Local\\Temp\\sao-late-loader-final-rv2ixyt4\\source\\tools\\orienting_native_test.py": "041f8b7dfb23c87041d35b14c24d01a8beca190e1f92261e95f445a1c9349502",
+    "C:\\Users\\jleyv\\AppData\\Local\\Temp\\sao-late-loader-final-rv2ixyt4\\source\\tools\\world_lab\\StudyLoadingAgent.java": "0247f0517c024815a71726c836a0690211e00bec48edbef9153d75bf1dbc65e0",
+    "C:\\Users\\jleyv\\AppData\\Local\\Temp\\sao-late-loader-final-rv2ixyt4\\source\\tools\\world_lab\\StudyObserver.java": "eb48e9d3587dfe93f72c7618380c2a979a4a1edcdb49534ff46aae517c07fb79",
+    "C:\\Users\\jleyv\\AppData\\Local\\Temp\\sao-late-loader-final-rv2ixyt4\\source\\tools\\world_lab\\StudyViewCapture.java": "6e2da6d620e3a1b2f3074cbc804e467531b08a175c6bba32a1167f5749ab07fc",
+    "C:\\Users\\jleyv\\AppData\\Local\\Temp\\sao-late-loader-final-rv2ixyt4\\source\\java\\src\\com\\sao\\agent\\SAOAgent.java": "cf4a41ddb210c04da4e3d6eeac933068a23341ecfec1778c80bb0210cbe15a4c",
+    "C:\\Users\\jleyv\\AppData\\Local\\Temp\\sao-late-loader-final-rv2ixyt4\\source\\java\\src\\com\\sao\\agent\\SAOBodyScale.java": "46af1e2d4dbc4e02f43c8588661fc546472d4588bd60f95c70d51e979369a264",
+    "C:\\Users\\jleyv\\AppData\\Local\\Temp\\sao-late-loader-final-rv2ixyt4\\source\\java\\src\\com\\sao\\agent\\SAOBodyScaleWeave.java": "f1710885758b83834c3323f198982c1c39f8470df3c1b70da482c90befb9a813",
+    "C:\\Users\\jleyv\\AppData\\Local\\Temp\\sao-late-loader-final-rv2ixyt4\\source\\java\\src\\com\\sao\\agent\\SAOCombatGate.java": "1a47aef46f79d8bbf26b24174cc86f03253f286d2d5491aaac01cf9b0bc6b9c1",
+    "C:\\Users\\jleyv\\AppData\\Local\\Temp\\sao-late-loader-final-rv2ixyt4\\source\\java\\src\\com\\sao\\agent\\SAOLootDensityWeave.java": "f6c7aeb74e6b90f4ad007a9eb8dfa5f67c7d21b83fa7556b49ffdb6b70c2ee9e",
+    "C:\\Users\\jleyv\\AppData\\Local\\Temp\\sao-late-loader-final-rv2ixyt4\\source\\java\\src\\com\\sao\\agent\\SAOMeleeTransformer.java": "9f3bef731859269a11d85754fe1a10ee66b6aeb94ec1fb4ff53373312aec3a63",
+    "C:\\Users\\jleyv\\AppData\\Local\\Temp\\sao-late-loader-final-rv2ixyt4\\source\\java\\src\\com\\sao\\bridge\\SAOBridge.java": "03761d7b79d29e68b39d81a46237b58c533a1030d496f053104b432265d0ecba",
+    "C:\\Users\\jleyv\\AppData\\Local\\Temp\\sao-late-loader-final-rv2ixyt4\\source\\java\\src\\com\\sao\\bridge\\SAOBridgeBootstrap.java": "6068db304f84bf48aea2a7f97de924a4bb17159825ff0c377bff45ad69d5b8ed",
+    "C:\\Users\\jleyv\\AppData\\Local\\Temp\\sao-late-loader-final-rv2ixyt4\\source\\java\\src\\com\\sao\\engine\\SAOAnimals.java": "b8cab0148d289fd871d3d280572e45e19a379873cc93f7fb67778aaa3ac65ae9",
+    "C:\\Users\\jleyv\\AppData\\Local\\Temp\\sao-late-loader-final-rv2ixyt4\\source\\java\\src\\com\\sao\\engine\\SAOBuild.java": "7db143ef7ce566c27332916bd7fcfa562543b12d25a2a06c3d16b4ed6d932376",
+    "C:\\Users\\jleyv\\AppData\\Local\\Temp\\sao-late-loader-final-rv2ixyt4\\source\\java\\src\\com\\sao\\engine\\SAOCombat.java": "651001a7a3080c2100383f8938392b846a252bb1d7ff516293e006555e5a5bda",
+    "C:\\Users\\jleyv\\AppData\\Local\\Temp\\sao-late-loader-final-rv2ixyt4\\source\\java\\src\\com\\sao\\engine\\SAOCooking.java": "46adcb02714f9384879faadef7537f5d4b6a47f0e530f7c4215c7ce57793c12b",
+    "C:\\Users\\jleyv\\AppData\\Local\\Temp\\sao-late-loader-final-rv2ixyt4\\source\\java\\src\\com\\sao\\engine\\SAOCoordinationModel.java": "357a180e7c5bf21aac68fb13f12465cbe40213532d67c3963fa1b10b7a3d6633",
+    "C:\\Users\\jleyv\\AppData\\Local\\Temp\\sao-late-loader-final-rv2ixyt4\\source\\java\\src\\com\\sao\\engine\\SAOCoordinationWorker.java": "f75d20836af2b853c433d26aca78d3a55db0e292a901dcedcc5e7800c8afaace",
+    "C:\\Users\\jleyv\\AppData\\Local\\Temp\\sao-late-loader-final-rv2ixyt4\\source\\java\\src\\com\\sao\\engine\\SAOCrossedDriver.java": "7ddcf5588a6f7f5fa908c3fe3676a5826b78539979a0abf1778ea25035445330",
+    "C:\\Users\\jleyv\\AppData\\Local\\Temp\\sao-late-loader-final-rv2ixyt4\\source\\java\\src\\com\\sao\\engine\\SAODriveLaw.java": "74ad13706f0c0a4bc8e93ced4b97ea5fe520ff9776b5b65b0245436185ea8ae8",
+    "C:\\Users\\jleyv\\AppData\\Local\\Temp\\sao-late-loader-final-rv2ixyt4\\source\\java\\src\\com\\sao\\engine\\SAODriver.java": "5e1c671642ad9e5e5d87d374d7dee2678ac1ed2b781da4ebdd74e94d4a7145be",
+    "C:\\Users\\jleyv\\AppData\\Local\\Temp\\sao-late-loader-final-rv2ixyt4\\source\\java\\src\\com\\sao\\engine\\SAODriveState.java": "7b50f92589443526f6945a6aa5b1a4dc5220b064e7214c56ecafc96e15825bd6",
+    "C:\\Users\\jleyv\\AppData\\Local\\Temp\\sao-late-loader-final-rv2ixyt4\\source\\java\\src\\com\\sao\\engine\\SAODurableText.java": "fa5e89d9123af855b25dd7772b35d6c0b56275feb15eab6ad70717a6869aebc9",
+    "C:\\Users\\jleyv\\AppData\\Local\\Temp\\sao-late-loader-final-rv2ixyt4\\source\\java\\src\\com\\sao\\engine\\SAOEquipment.java": "1061d4ecf208c9b3ae7e8b9743d2545339b25efade6165c0f39a153f23a3a2dc",
+    "C:\\Users\\jleyv\\AppData\\Local\\Temp\\sao-late-loader-final-rv2ixyt4\\source\\java\\src\\com\\sao\\engine\\SAOFence.java": "6b01cd1628c718389e72a62e6b7b3a9636e480cc8ff6b14546aba621eb4d44e6",
+    "C:\\Users\\jleyv\\AppData\\Local\\Temp\\sao-late-loader-final-rv2ixyt4\\source\\java\\src\\com\\sao\\engine\\SAOGround.java": "185975bc264ce44a41dcf9d283bd3c96562422e100fd2b66b8490cd4127d1f18",
+    "C:\\Users\\jleyv\\AppData\\Local\\Temp\\sao-late-loader-final-rv2ixyt4\\source\\java\\src\\com\\sao\\engine\\SAOHibernation.java": "b3d0c832c920d7c0080435d8572b2ef2437bec5083b22f3569de82f45fab69d8",
+    "C:\\Users\\jleyv\\AppData\\Local\\Temp\\sao-late-loader-final-rv2ixyt4\\source\\java\\src\\com\\sao\\engine\\SAOIsoPlayerShell.java": "a2644a0c155eb51804a6de201888173484ed5aa4f474f32b3b6f5eb595b29eb2",
+    "C:\\Users\\jleyv\\AppData\\Local\\Temp\\sao-late-loader-final-rv2ixyt4\\source\\java\\src\\com\\sao\\engine\\SAOKnox.java": "1d335c4b5900daa227fa394477da24d75f7c2cf8a16e1c49e98f490a3532fa05",
+    "C:\\Users\\jleyv\\AppData\\Local\\Temp\\sao-late-loader-final-rv2ixyt4\\source\\java\\src\\com\\sao\\engine\\SAOMovement.java": "1eed99c33e075f034e737a6eb2c78802f3953b06dd88eb5b98a0f2c4e81123c2",
+    "C:\\Users\\jleyv\\AppData\\Local\\Temp\\sao-late-loader-final-rv2ixyt4\\source\\java\\src\\com\\sao\\engine\\SAONativeSnapshot.java": "0839989775d9c37b0dc8978847e05d8dca17e59a825624d492fb245dde12d7b4",
+    "C:\\Users\\jleyv\\AppData\\Local\\Temp\\sao-late-loader-final-rv2ixyt4\\source\\java\\src\\com\\sao\\engine\\SAONeeds.java": "b0cfa1a26f6b41151889cd82c752e91c2b481cb46d21ff1f8dbf97604ff6f11f",
+    "C:\\Users\\jleyv\\AppData\\Local\\Temp\\sao-late-loader-final-rv2ixyt4\\source\\java\\src\\com\\sao\\engine\\SAOPerceptionScanner.java": "bc1b1fd8fb31bd4eb5654d045be10ac1543f5ad8af990a3972f11ea59b4836e2",
+    "C:\\Users\\jleyv\\AppData\\Local\\Temp\\sao-late-loader-final-rv2ixyt4\\source\\java\\src\\com\\sao\\engine\\SAOPrivateInventory.java": "0bebc9ab7c010bf668872a684dc101e96b5dbe3293a29ebd4f978c1c6f93bf89",
+    "C:\\Users\\jleyv\\AppData\\Local\\Temp\\sao-late-loader-final-rv2ixyt4\\source\\java\\src\\com\\sao\\engine\\SAORecord.java": "029b6274a8eb674271a1bf18d0b9f45e0217a4a7bfc41e28faf66cd170176c7f",
+    "C:\\Users\\jleyv\\AppData\\Local\\Temp\\sao-late-loader-final-rv2ixyt4\\source\\java\\src\\com\\sao\\engine\\SAOReturnBody.java": "7d393f431e64e5e9ac3b3ed0d8b76aebb3efb022fe20383fba0750eda768efdc",
+    "C:\\Users\\jleyv\\AppData\\Local\\Temp\\sao-late-loader-final-rv2ixyt4\\source\\java\\src\\com\\sao\\engine\\SAORouteState.java": "7fc0130999e0b26c45d399b47f780be3e4b581f8dcc675192984b3fa12268068",
+    "C:\\Users\\jleyv\\AppData\\Local\\Temp\\sao-late-loader-final-rv2ixyt4\\source\\java\\src\\com\\sao\\engine\\SAOSettlement.java": "26ea65de141accd6fb5f5811b53791fc673b22d9670d96cade5f0a1fb12020ed",
+    "C:\\Users\\jleyv\\AppData\\Local\\Temp\\sao-late-loader-final-rv2ixyt4\\source\\java\\src\\com\\sao\\engine\\SAOWorldCensus.java": "c95b91d7e530396a1627936e57d4df0cd2305de6c6d9bcd2978a3d95a08c6f7f",
+    "C:\\Users\\jleyv\\AppData\\Local\\Temp\\sao-late-loader-final-rv2ixyt4\\source\\java\\src\\com\\sao\\engine\\SAOWorldSources.java": "25c9afb6eba995373561347e8b68c81c5c2e35bd6b3d516d61f2fd002dfd0fcb",
+    "C:\\Users\\jleyv\\AppData\\Local\\Temp\\sao-late-loader-final-rv2ixyt4\\source\\java\\src\\com\\sao\\engine\\SAOZombieDirector.java": "bfde951c0e93c799b13257e296ec7498ad7e24bacc529a0565ac99a1c0afffe5",
+    "C:\\Users\\jleyv\\AppData\\Local\\Temp\\sao-late-loader-final-rv2ixyt4\\source\\java\\src\\com\\sao\\Main.java": "38e132ca9dec83eec184a73045db48ceefebc763b563cc5893727a5e07cdb753"
+  },
+  "engineInputs": {
+    "C:\\Program Files (x86)\\Steam\\steamapps\\common\\ProjectZomboid\\projectzomboid.jar": "80e405a4bfc42f6072e75b3735f458a6514143da011d3226007ded305a442f44",
+    "C:\\Program Files (x86)\\Steam\\steamapps\\common\\ProjectZomboid\\ZombieBuddy.jar": "6dd95cedce60f03bf8b8cefd0d19eb156230e0d54bffa07de9da5212a06c7be6",
+    "C:\\Users\\jleyv\\AppData\\Local\\Temp\\sao-late-loader-final-rv2ixyt4\\source\\mod\\42.20\\media\\java\\SAO.jar": "b0f9f2d762e3dae9ff17d591863754f4439fb28c85d7f390121d01ec15734e16",
+    "C:\\Program Files (x86)\\Steam\\steamapps\\common\\ProjectZomboid\\zbNative.dll": "c2ae9335e717ee24b2f4a40d1a3bf77f1519762a72a0459e766a2bbafc077f6c"
+  },
+  "checks": 85,
+  "nativeLoadingOrders": [
+    "cold",
+    "preloaded",
+    "loaded-after-installer-snapshot"
+  ],
+  "weaveDiagnosticChecks": 36,
+  "nativeTransformFaultInjections": 2,
+  "lateAgentLogs": {
+    "late-native-sensor": "2026-09-27T06:04:24.673426800Z [SAO] agent start arguments=sao\n2026-09-27T06:04:24.677425500Z [SAO] verified zombie.characters.IsoPlayer on system classpath\n2026-09-27T06:04:24.678425300Z [SAO] melee callback transformer installed\n2026-09-27T06:04:24.709431Z [SAO] body scale woven into zombie.core.skinnedmodel.animation.AnimationPlayer.updateModelTransformsInternal (retransformed, already loaded)\n2026-09-27T06:04:25.593479400Z [SAO] world sources: loot density woven into zombie.inventory.ItemPickerJava.getZombieDensityFactor (retransformed, already loaded)\n2026-09-27T06:04:25.599479Z [SAO] orientation sound weave registered class=zombie.WorldSoundManager$WorldSound sound-pulses=waiting\n2026-09-27T06:04:25.601483Z [SAO] Lua bridge watchdog started\n2026-09-27T06:04:33.096486200Z [SAO] orientation sound weave sensor reconciliation class=zombie.WorldSoundManager$WorldSound loaded=true modifiable=true loader=jdk.internal.loader.ClassLoaders$AppClassLoader@7612f385\n2026-09-27T06:04:33.101487800Z [SAO] orientation sound weave transformed class=zombie.WorldSoundManager$WorldSound loaded=true loader=jdk.internal.loader.ClassLoaders$AppClassLoader@7612f385\n",
+    "missing-sensor-binding": "2026-09-27T06:04:38.620323100Z [SAO] agent start arguments=sao\n2026-09-27T06:04:38.624320700Z [SAO] verified zombie.characters.IsoPlayer on system classpath\n2026-09-27T06:04:38.625329600Z [SAO] melee callback transformer installed\n2026-09-27T06:04:38.655851100Z [SAO] body scale woven into zombie.core.skinnedmodel.animation.AnimationPlayer.updateModelTransformsInternal (retransformed, already loaded)\n2026-09-27T06:04:39.600495800Z [SAO] world sources: loot density woven into zombie.inventory.ItemPickerJava.getZombieDensityFactor (retransformed, already loaded)\n2026-09-27T06:04:39.609494700Z [SAO] orientation sound weave registered class=zombie.WorldSoundManager$WorldSound sound-pulses=waiting\n2026-09-27T06:04:39.611494500Z [SAO] Lua bridge watchdog started\n",
+    "missing-late-native-retransform": "2026-09-27T06:04:52.837587900Z [SAO] agent start arguments=sao\n2026-09-27T06:04:52.843586400Z [SAO] verified zombie.characters.IsoPlayer on system classpath\n2026-09-27T06:04:52.844586400Z [SAO] melee callback transformer installed\n2026-09-27T06:04:52.911587300Z [SAO] body scale woven into zombie.core.skinnedmodel.animation.AnimationPlayer.updateModelTransformsInternal (retransformed, already loaded)\n2026-09-27T06:04:54.266336700Z [SAO] world sources: loot density woven into zombie.inventory.ItemPickerJava.getZombieDensityFactor (retransformed, already loaded)\n2026-09-27T06:04:54.280898200Z [SAO] orientation sound weave registered class=zombie.WorldSoundManager$WorldSound sound-pulses=waiting\n2026-09-27T06:04:54.283899200Z [SAO] Lua bridge watchdog started\n2026-09-27T06:05:06.728338400Z [SAO] orientation sound weave sensor reconciliation class=zombie.WorldSoundManager$WorldSound loaded=true modifiable=true loader=jdk.internal.loader.ClassLoaders$AppClassLoader@7524125c\n2026-09-27T06:05:06.732354700Z [SAO] orientation sound weave failed class=zombie.WorldSoundManager$WorldSound phase=native-sensor loaded=true loader=jdk.internal.loader.ClassLoaders$AppClassLoader@7524125c error=java.lang.IllegalStateException: native sensor reconciliation returned without transforming sound class\n",
+    "invent-missed-pulse": "2026-09-27T06:05:12.568267900Z [SAO] agent start arguments=sao\n2026-09-27T06:05:12.574228300Z [SAO] verified zombie.characters.IsoPlayer on system classpath\n2026-09-27T06:05:12.576266Z [SAO] melee callback transformer installed\n2026-09-27T06:05:12.648194400Z [SAO] body scale woven into zombie.core.skinnedmodel.animation.AnimationPlayer.updateModelTransformsInternal (retransformed, already loaded)\n2026-09-27T06:05:14.063088300Z [SAO] world sources: loot density woven into zombie.inventory.ItemPickerJava.getZombieDensityFactor (retransformed, already loaded)\n2026-09-27T06:05:14.078005Z [SAO] orientation sound weave registered class=zombie.WorldSoundManager$WorldSound sound-pulses=waiting\n2026-09-27T06:05:14.080005100Z [SAO] Lua bridge watchdog started\n2026-09-27T06:05:27.378689400Z [SAO] orientation sound weave sensor reconciliation class=zombie.WorldSoundManager$WorldSound loaded=true modifiable=true loader=jdk.internal.loader.ClassLoaders$AppClassLoader@7524125c\n2026-09-27T06:05:27.385688300Z [SAO] orientation sound weave transformed class=zombie.WorldSoundManager$WorldSound loaded=true loader=jdk.internal.loader.ClassLoaders$AppClassLoader@7524125c\n"
+  },
+  "lateNativeLoadChecks": 16,
+  "lateNativeLoadBoundary": "Actual installed agents plus a controlled later nested native class load. Reproduces native05 loaded/unwoven state; does not establish the unobserved live loader call stack.",
+  "inputsUnchanged": true
+}

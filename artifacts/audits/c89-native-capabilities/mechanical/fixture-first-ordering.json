@@ -1,0 +1,162 @@
+{
+  "timestamp": "2026-09-27T06:22:48.385124+00:00",
+  "fixture": "_scratch\\c89-orienting\\capability-check\\42.20\\media\\lua\\client\\ZZ_SAOCapabilityCheck.lua",
+  "fixtureSha256": "94859a0fd834003b5e0ffe1d3d3f9f6e09894b8eb9a72cb1790d7ce2f32fc055",
+  "runnerSha256": "ad2f9d469996405bffad8021892470ef2d8ae44ee3a7d93ddfbaaa2ee64761f4",
+  "engineSha256": "80e405a4bfc42f6072e75b3735f458a6514143da011d3226007ded305a442f44",
+  "baseline": {
+    "visible": {
+      "exitCode": 0,
+      "cases": 16,
+      "failed": [],
+      "valueTrue": true,
+      "scriptError": false
+    },
+    "no_offer": {
+      "exitCode": 0,
+      "cases": 8,
+      "failed": [],
+      "valueTrue": true,
+      "scriptError": false
+    },
+    "unavailable": {
+      "exitCode": 0,
+      "cases": 8,
+      "failed": [],
+      "valueTrue": true,
+      "scriptError": false
+    },
+    "refused": {
+      "exitCode": 0,
+      "cases": 10,
+      "failed": [],
+      "valueTrue": true,
+      "scriptError": false
+    },
+    "late_population": {
+      "exitCode": 0,
+      "cases": 6,
+      "failed": [],
+      "valueTrue": true,
+      "scriptError": false
+    }
+  },
+  "controls": {
+    "old_delayed_preparation": {
+      "exitCode": 0,
+      "cases": 15,
+      "failed": [
+        "immediate_visible_preparation",
+        "offer_then_item_then_begin_then_sound",
+        "admission_logged_before_release",
+        "bounded_single_meal_and_dose"
+      ],
+      "valueTrue": false,
+      "scriptError": false,
+      "expectedFailedCase": "immediate_visible_preparation",
+      "rejected": true
+    },
+    "sound_ignores_release": {
+      "exitCode": 0,
+      "cases": 9,
+      "failed": [
+        "no_offer_no_injection_initially",
+        "sound_waits_full_bound",
+        "no_offer_sound_released_at_bound",
+        "later_real_offer_remains_eligible"
+      ],
+      "valueTrue": false,
+      "scriptError": false,
+      "expectedFailedCase": "no_offer_no_injection_initially",
+      "rejected": true
+    },
+    "no_offer_never_releases": {
+      "exitCode": 0,
+      "cases": 8,
+      "failed": [
+        "no_offer_sound_released_at_bound"
+      ],
+      "valueTrue": false,
+      "scriptError": false,
+      "expectedFailedCase": "no_offer_sound_released_at_bound",
+      "rejected": true
+    },
+    "eligibility_bypass": {
+      "exitCode": 0,
+      "cases": 9,
+      "failed": [
+        "ineligible_does_not_query_or_inject_meal",
+        "ineligible_releases_sound_at_bound"
+      ],
+      "valueTrue": false,
+      "scriptError": false,
+      "expectedFailedCase": "ineligible_does_not_query_or_inject_meal",
+      "rejected": true
+    },
+    "refusal_claimed_admitted": {
+      "exitCode": 0,
+      "cases": 11,
+      "failed": [
+        "refusal_is_not_admission",
+        "refusal_bounded_release_is_explicit"
+      ],
+      "valueTrue": false,
+      "scriptError": false,
+      "expectedFailedCase": "refusal_is_not_admission",
+      "rejected": true
+    },
+    "reload_marker_ignored": {
+      "exitCode": 0,
+      "cases": 22,
+      "failed": [
+        "reload_no_reinjection",
+        "reload_samples_continue",
+        "reload_retains_original_people"
+      ],
+      "valueTrue": false,
+      "scriptError": false,
+      "expectedFailedCase": "reload_no_reinjection",
+      "rejected": true
+    },
+    "reload_people_reselected": {
+      "exitCode": 0,
+      "cases": 16,
+      "failed": [
+        "reload_retains_original_people"
+      ],
+      "valueTrue": false,
+      "scriptError": false,
+      "expectedFailedCase": "reload_retains_original_people",
+      "rejected": true
+    },
+    "timeout_started_without_people": {
+      "exitCode": 0,
+      "cases": 7,
+      "failed": [
+        "gate_starts_with_present_people",
+        "present_pair_gets_full_bound",
+        "late_pair_still_exercises_sound"
+      ],
+      "valueTrue": false,
+      "scriptError": false,
+      "expectedFailedCase": "gate_starts_with_present_people",
+      "rejected": true
+    },
+    "old_sound_before_offer": {
+      "exitCode": 0,
+      "cases": 16,
+      "failed": [
+        "offer_then_item_then_begin_then_sound"
+      ],
+      "valueTrue": false,
+      "scriptError": false,
+      "expectedFailedCase": "offer_then_item_then_begin_then_sound",
+      "rejected": true
+    }
+  },
+  "boundary": "Actual unchanged diagnostic script executed in installed Kahlua; body/action/offer/ModData receivers controlled. This proves fixture sequencing and same-script reload, not loaded cooking completion, native visibility, or actual disk save/reopen.",
+  "cases": 48,
+  "rejectedControls": 9,
+  "inputsUnchanged": true,
+  "passed": true
+}

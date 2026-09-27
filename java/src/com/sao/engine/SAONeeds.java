@@ -916,35 +916,6 @@ public final class SAONeeds {
         return count;
     }
 
-    /** [B20] COOK the larder. Vanilla gates dangerous raw food on
-     *  `isbDangerousUncooked() && !isCooked()` - so making it cooked
-     *  is precisely what turns food nobody should eat into food they
-     *  can. The house feels this: it is the cook's knowledge landing
-     *  on somebody else's dinner.
-     *
-     *  Skill is throughput. A trained cook makes more of the larder
-     *  safe in a session than a willing amateur - the count is a
-     *  judgment on a real scale, the way the [B7] cold thresholds are
-     *  judgments on real degrees. Returns how many were cooked. */
-    public static int cookNearbyFood(IsoPlayer shell, int radius, int level) {
-        int cooked = 0;
-        int allowance = 2 + Math.max(0, level);
-        try {
-            for (SAOPrivateInventory.ItemRef ref
-                    : privateStoreItems(shell, radius)) {
-                if (cooked >= allowance) break;
-                if (!(ref.item() instanceof Food food)) continue;
-                if (food.isCooked() || food.isBurnt() || food.isRotten()
-                        || !food.isbDangerousUncooked()) continue;
-                food.cooked = true;
-                cooked++;
-            }
-        } catch (Throwable throwable) {
-            SAOAgent.log("cookNearbyFood threw: " + throwable);
-        }
-        return cooked;
-    }
-
     /** [B21] What the music does to whoever is near enough to hear
      *  it. BOREDOM down, MORALE up - real engine stats, not a number
      *  this mod invented. Every living person in reach counts,
@@ -2561,46 +2532,20 @@ public static InventoryItem ammoSourceItem(IsoPlayer shell) {
         }
     }
 
-    /** [C121] The county's drug families, read through the tag
-     *  vocabulary the drug mod's own scripts declare on its items
-     *  (`NnC:Benzos` and the rest, credited in CREDITS.md). A tag
-     *  resolves only when that mod is loaded; unresolvable reads
-     *  answer null and the family reads "", so without the mod no
-     *  item below ever matches. Never throws. */
-    private static final String[] NNC_TAG = { "NnC:Benzos", "NnC:Opioids",
-                                              "NnC:Cocaine", "NnC:ADHD" };
-    private static final String[] NNC_FAMILY = { "sedatives", "opioids",
-                                                 "cocaine", "stimulants" };
-
-    /** [C121] The county family of an item: "sedatives", "opioids",
-     *  "cocaine", "stimulants" or "cannabis" (the weed smokables carry
-     *  no family tag of their own - vanilla's SMOKABLE tag plus the
-     *  mod's own Drugs display category is their whole declaration),
-     *  or "" when the item is not a drug the county models. The
-     *  psychedelics and the steroids are deliberately absent: usable
-     *  by whoever holds them, never sought, because the county's 1993
-     *  figures name no dependency on them. */
+    /** Source-owned item identity is available without a separately installed provider. */
     public static String drugFamilyOf(Object object) {
-        try {
-            if (!(object instanceof InventoryItem item)) {
-                return "";
-            }
-            for (int i = 0; i < NNC_TAG.length; i++) {
-                zombie.scripting.objects.ItemTag tag =
-                    zombie.scripting.objects.ItemTag.get(
-                        zombie.scripting.objects.ResourceLocation.of(NNC_TAG[i]));
-                if (tag != null && item.hasTag(tag)) {
-                    return NNC_FAMILY[i];
-                }
-            }
-            if (item.hasTag(zombie.scripting.objects.ItemTag.SMOKABLE)
-                    && "Drugs".equals(item.getDisplayCategory())) {
-                return "cannabis";
-            }
-            return "";
-        } catch (Throwable throwable) {
-            return "";
-        }
+        if (!(object instanceof InventoryItem item)) return "";
+        return switch (item.getFullType()) {
+            case "SAO.SedativeTablets", "SAO.LongSedativeTablets" -> "sedatives";
+            case "SAO.Cocaine", "SAO.CocainePure" -> "cocaine";
+            case "SAO.Stimulant", "SAO.AttentionTablets", "SAO.Amphetamine" -> "stimulants";
+            case "SAO.Opioid", "SAO.OpioidTablets" -> "opioids";
+            case "SAO.Psychedelic", "SAO.PsychoactiveTablets" -> "psychedelics";
+            case "SAO.Cannabis", "SAO.CannabisEdible" -> "cannabis";
+            case "SAO.SteroidTablets" -> "steroids";
+            case "SAO.MaintenanceTablets" -> "maintenance";
+            default -> "";
+        };
     }
 
     /** [C121] The first carried item of a county family, or null. */

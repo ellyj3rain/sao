@@ -1,0 +1,502 @@
+{
+  "scope": "All attempt stdout files in this saved-world lineage",
+  "logs": {
+    "attempts\\0001\\stdout.log": {
+      "sha256": "2a72636b2e6565f636a4bfe46dd04f1d93d46de6b6ee6cb80614a29d416a7a00"
+    }
+  },
+  "counts": {
+    "scope": 1,
+    "setup-order": 1,
+    "sample": 372,
+    "sound-intervention-released": 1,
+    "sound": 6,
+    "intervention-sensor-sample": 6,
+    "preparation-offers": 12,
+    "preparation-queue-before": 1,
+    "preparation-queue-after": 1,
+    "preparation-request": 1,
+    "interventions-ended": 1
+  },
+  "errors": [],
+  "interventions": [
+    {
+      "intervention": "audible native pulses; one carried dose; one preparation request",
+      "outcome": "unmeasured",
+      "autonomousSelection": false,
+      "hours": 2.0003700256347656,
+      "wallMs": 1790491487014,
+      "kind": "scope"
+    },
+    {
+      "first": "free person's visible preparation offer",
+      "thenCause": "native sound pulses",
+      "waitingMilliseconds": 30000,
+      "hours": 2.007777214050293,
+      "wallMs": 1790491487817,
+      "kind": "setup-order"
+    },
+    {
+      "actor": "sao-2",
+      "reason": "bounded-eligibility-unavailable",
+      "preparationAdmitted": false,
+      "hours": 2.844789505004883,
+      "wallMs": 1790491517927,
+      "kind": "sound-intervention-released"
+    },
+    {
+      "actor": "sao-1",
+      "x": 3428,
+      "y": 10909,
+      "sequence": 1,
+      "forwardX": -0.9177121520042419,
+      "forwardY": 0.39724597334861755,
+      "hours": 2.844789505004883,
+      "wallMs": 1790491517929,
+      "kind": "sound"
+    },
+    {
+      "actor": "sao-1",
+      "sequence": 1,
+      "raw": "P:Emanuel Calhoun:3427:10914:1.2:ok|P:Monica Brownlee:3426:10913:0.3:ok|P:Dolores Sorrento:3424:10913:2.3:ok|S:3429:10914:2.1:cue:163f62ea-c07a-4341-bb56-9ced086e8224-149|S:3429:10913:2.0:cue:163f62ea-c07a-4341-bb56-9ced086e8224-151|S:3428:10913:1.1:cue:163f62ea-c07a-4341-bb56-9ced086e8224-154|S:3428:10913:1.1:cue:163f62ea-c07a-4341-bb56-9ced086e8224-155|S:3427:10915:1.7:cue:163f62ea-c07a-4341-bb56-9ced086e8224-156|S:3424:10913:3.0:cue:163f62ea-c07a-4341-bb56-9ced086e8224-157|S:3428:10913:1.1:cue:163f62ea-c07a-4341-bb56-9ced086e8224-159|S:3428:10913:1.1:cue:163f62ea-c07a-4341-bb56-9ced086e8224-162|S:3428:10913:1.1:cue:163f62ea-c07a-4341-bb56-9ced086e8224-163|S:3427:10914:0.7:cue:163f62ea-c07a-4341-bb56-9ced086e8224-164|S:3427:10915:1.7:cue:163f62ea-c07a-4341-bb56-9ced086e8224-165|S:3428:10915:2.0:cue:163f62ea-c07a-4341-bb56-9ced086e8224-167|S:3428:10913:1.1:cue:163f62ea-c07a-4341-bb56-9ced086e8224-168|S:3427:10914:0.7:cue:163f62ea-c07a-4341-bb56-9ced086e8224-169|S:3423:10913:4.0:cue:163f62ea-c07a-4341-bb56-9ced086e8224-170|S:3426:10914:1.2:cue:163f62ea-c07a-4341-bb56-9ced086e8224-171|S:3426:10914:1.2:cue:163f62ea-c07a-4341-bb56-9ced086e8224-172|S:3428:10913:1.1:cue:163f62ea-c07a-4341-bb56-9ced086e8224-174|S:3426:10913:1.0:cue:163f62ea-c07a-4341-bb56-9ced086e8224-175|S:3424:10913:3.0:cue:163f62ea-c07a-4341-bb56-9ced086e8224-176|S:3427:10914:0.7:cue:163f62ea-c07a-4341-bb56-9ced086e8224-177|S:3428:10909:4.4:cue:163f62ea-c07a-4341-bb56-9ced086e8224-180",
+      "boundary": "Deliberate immediate native sensor read; autonomous scan timing unmeasured",
+      "hours": 2.844789505004883,
+      "wallMs": 1790491517929,
+      "kind": "intervention-sensor-sample"
+    },
+    {
+      "actor": "sao-1",
+      "x": 3428,
+      "y": 10911,
+      "sequence": 2,
+      "forwardX": -0.9999091029167175,
+      "forwardY": -0.013483266346156597,
+      "hours": 2.9633045196533203,
+      "wallMs": 1790491520559,
+      "kind": "sound"
+    },
+    {
+      "actor": "sao-1",
+      "sequence": 2,
+      "raw": "P:Monica Brownlee:3426:10913:1.7:ok|S:3428:10909:6.1:cue:163f62ea-c07a-4341-bb56-9ced086e8224-180|S:3427:10915:1.8:cue:163f62ea-c07a-4341-bb56-9ced086e8224-181|S:3429:10911:5.1:cue:163f62ea-c07a-4341-bb56-9ced086e8224-182|S:3428:10915:2.7:cue:163f62ea-c07a-4341-bb56-9ced086e8224-183|S:3429:10911:5.1:cue:163f62ea-c07a-4341-bb56-9ced086e8224-184|S:3429:10914:3.7:cue:163f62ea-c07a-4341-bb56-9ced086e8224-186|S:3429:10913:4.0:cue:163f62ea-c07a-4341-bb56-9ced086e8224-187|S:3422:10913:3.6:cue:163f62ea-c07a-4341-bb56-9ced086e8224-188|S:3428:10913:3.1:cue:163f62ea-c07a-4341-bb56-9ced086e8224-189|S:3427:10914:1.8:cue:163f62ea-c07a-4341-bb56-9ced086e8224-190|S:3427:10915:1.8:cue:163f62ea-c07a-4341-bb56-9ced086e8224-192|S:3428:10915:2.7:cue:163f62ea-c07a-4341-bb56-9ced086e8224-193|S:3429:10914:3.7:cue:163f62ea-c07a-4341-bb56-9ced086e8224-194|S:3426:10913:1.7:cue:163f62ea-c07a-4341-bb56-9ced086e8224-195|S:3429:10911:5.1:cue:163f62ea-c07a-4341-bb56-9ced086e8224-197|S:3428:10913:3.1:cue:163f62ea-c07a-4341-bb56-9ced086e8224-198|S:3428:10912:3.7:cue:163f62ea-c07a-4341-bb56-9ced086e8224-201|S:3427:10914:1.8:cue:163f62ea-c07a-4341-bb56-9ced086e8224-202|S:3423:10913:2.7:cue:163f62ea-c07a-4341-bb56-9ced086e8224-204|S:3427:10915:1.8:cue:163f62ea-c07a-4341-bb56-9ced086e8224-207|S:3422:10913:3.6:cue:163f62ea-c07a-4341-bb56-9ced086e8224-210|S:3422:10913:3.6:cue:163f62ea-c07a-4341-bb56-9ced086e8224-211|S:3429:10914:3.7:cue:163f62ea-c07a-4341-bb56-9ced086e8224-212|S:3428:10911:4.4:cue:163f62ea-c07a-4341-bb56-9ced086e8224-214",
+      "boundary": "Deliberate immediate native sensor read; autonomous scan timing unmeasured",
+      "hours": 2.9633045196533203,
+      "wallMs": 1790491520559,
+      "kind": "intervention-sensor-sample"
+    },
+    {
+      "actor": "sao-1",
+      "x": 3429,
+      "y": 10916,
+      "sequence": 3,
+      "forwardX": -0.5234964489936829,
+      "forwardY": -0.8520278334617615,
+      "hours": 3.0151548385620117,
+      "wallMs": 1790491525305,
+      "kind": "sound"
+    },
+    {
+      "actor": "sao-1",
+      "sequence": 3,
+      "raw": "P:Monica Brownlee:3425:10914:1.1:ok|P:Dolores Sorrento:3423:10913:2.6:ok|S:3428:10915:3.1:cue:163f62ea-c07a-4341-bb56-9ced086e8224-193|S:3429:10914:4.2:cue:163f62ea-c07a-4341-bb56-9ced086e8224-194|S:3426:10913:2.5:cue:163f62ea-c07a-4341-bb56-9ced086e8224-195|S:3429:10911:5.9:cue:163f62ea-c07a-4341-bb56-9ced086e8224-197|S:3428:10913:3.8:cue:163f62ea-c07a-4341-bb56-9ced086e8224-198|S:3428:10912:4.4:cue:163f62ea-c07a-4341-bb56-9ced086e8224-201|S:3427:10914:2.4:cue:163f62ea-c07a-4341-bb56-9ced086e8224-202|S:3423:10913:2.9:cue:163f62ea-c07a-4341-bb56-9ced086e8224-204|S:3427:10915:2.1:cue:163f62ea-c07a-4341-bb56-9ced086e8224-207|S:3422:10913:3.7:cue:163f62ea-c07a-4341-bb56-9ced086e8224-210|S:3422:10913:3.7:cue:163f62ea-c07a-4341-bb56-9ced086e8224-211|S:3429:10914:4.2:cue:163f62ea-c07a-4341-bb56-9ced086e8224-212|S:3428:10911:5.2:cue:163f62ea-c07a-4341-bb56-9ced086e8224-214|S:3428:10913:3.8:cue:163f62ea-c07a-4341-bb56-9ced086e8224-215|S:3423:10913:2.9:cue:163f62ea-c07a-4341-bb56-9ced086e8224-217|S:3427:10915:2.1:cue:163f62ea-c07a-4341-bb56-9ced086e8224-218|S:3425:10914:1.2:cue:163f62ea-c07a-4341-bb56-9ced086e8224-219|S:3424:10913:2.4:cue:163f62ea-c07a-4341-bb56-9ced086e8224-221|S:3428:10915:3.1:cue:163f62ea-c07a-4341-bb56-9ced086e8224-222|S:3429:10913:4.6:cue:163f62ea-c07a-4341-bb56-9ced086e8224-226|S:3428:10913:3.8:cue:163f62ea-c07a-4341-bb56-9ced086e8224-228|S:3423:10913:2.9:cue:163f62ea-c07a-4341-bb56-9ced086e8224-229|S:3429:10916:4.1:cue:163f62ea-c07a-4341-bb56-9ced086e8224-230",
+      "boundary": "Deliberate immediate native sensor read; autonomous scan timing unmeasured",
+      "hours": 3.0151548385620117,
+      "wallMs": 1790491525305,
+      "kind": "intervention-sensor-sample"
+    },
+    {
+      "actor": "sao-1",
+      "x": 3423,
+      "y": 10909,
+      "sequence": 4,
+      "forwardX": -0.46949663758277893,
+      "forwardY": 0.8829342722892761,
+      "hours": 3.133669853210449,
+      "wallMs": 1790491527810,
+      "kind": "sound"
+    },
+    {
+      "actor": "sao-1",
+      "sequence": 4,
+      "raw": "P:Emanuel Calhoun:3429:10914:4.5:ok|P:Monica Brownlee:3426:10915:2.1:ok|P:Dolores Sorrento:3424:10913:0.4:ok|S:3429:10916:4.7:cue:163f62ea-c07a-4341-bb56-9ced086e8224-230|S:3427:10914:2.1:cue:163f62ea-c07a-4341-bb56-9ced086e8224-231|S:3422:10913:3.0:cue:163f62ea-c07a-4341-bb56-9ced086e8224-233|S:3427:10915:2.4:cue:163f62ea-c07a-4341-bb56-9ced086e8224-234|S:3428:10915:3.3:cue:163f62ea-c07a-4341-bb56-9ced086e8224-235|S:3423:10913:2.0:cue:163f62ea-c07a-4341-bb56-9ced086e8224-243|S:3424:10913:1.2:cue:163f62ea-c07a-4341-bb56-9ced086e8224-246|S:3427:10915:2.4:cue:163f62ea-c07a-4341-bb56-9ced086e8224-248|S:3422:10913:3.0:cue:163f62ea-c07a-4341-bb56-9ced086e8224-253|S:3426:10915:1.7:cue:163f62ea-c07a-4341-bb56-9ced086e8224-254|S:3427:10914:2.1:cue:163f62ea-c07a-4341-bb56-9ced086e8224-255|S:3429:10912:4.5:cue:163f62ea-c07a-4341-bb56-9ced086e8224-256|S:3427:10915:2.4:cue:163f62ea-c07a-4341-bb56-9ced086e8224-257|S:3423:10913:2.0:cue:163f62ea-c07a-4341-bb56-9ced086e8224-258|S:3423:10913:2.0:cue:163f62ea-c07a-4341-bb56-9ced086e8224-259|S:3429:10914:4.1:cue:163f62ea-c07a-4341-bb56-9ced086e8224-260|S:3424:10913:1.2:cue:163f62ea-c07a-4341-bb56-9ced086e8224-261|S:3423:10909:5.1:cue:163f62ea-c07a-4341-bb56-9ced086e8224-262",
+      "boundary": "Deliberate immediate native sensor read; autonomous scan timing unmeasured",
+      "hours": 3.133669853210449,
+      "wallMs": 1790491527810,
+      "kind": "intervention-sensor-sample"
+    },
+    {
+      "actor": "sao-1",
+      "x": 3425,
+      "y": 10919,
+      "sequence": 5,
+      "forwardX": 0.4665047526359558,
+      "forwardY": -0.8845186829566956,
+      "hours": 3.2447776794433594,
+      "wallMs": 1790491530414,
+      "kind": "sound"
+    },
+    {
+      "actor": "sao-1",
+      "sequence": 5,
+      "raw": "P:Monica Brownlee:3425:10914:1.4:ok|P:Dolores Sorrento:3422:10913:2.5:ok|S:3429:10914:5.0:cue:163f62ea-c07a-4341-bb56-9ced086e8224-260|S:3424:10913:2.2:cue:163f62ea-c07a-4341-bb56-9ced086e8224-261|S:3423:10909:6.3:cue:163f62ea-c07a-4341-bb56-9ced086e8224-262|S:3429:10913:5.4:cue:163f62ea-c07a-4341-bb56-9ced086e8224-263|S:3428:10913:4.5:cue:163f62ea-c07a-4341-bb56-9ced086e8224-266|S:3427:10914:3.1:cue:163f62ea-c07a-4341-bb56-9ced086e8224-269|S:3427:10915:2.9:cue:163f62ea-c07a-4341-bb56-9ced086e8224-270|S:3423:10913:2.5:cue:163f62ea-c07a-4341-bb56-9ced086e8224-271|S:3428:10915:3.9:cue:163f62ea-c07a-4341-bb56-9ced086e8224-272|S:3422:10913:3.1:cue:163f62ea-c07a-4341-bb56-9ced086e8224-274|S:3428:10913:4.5:cue:163f62ea-c07a-4341-bb56-9ced086e8224-276|S:3423:10913:2.5:cue:163f62ea-c07a-4341-bb56-9ced086e8224-278|S:3425:10914:1.5:cue:163f62ea-c07a-4341-bb56-9ced086e8224-280|S:3427:10915:2.9:cue:163f62ea-c07a-4341-bb56-9ced086e8224-283|S:3424:10913:2.2:cue:163f62ea-c07a-4341-bb56-9ced086e8224-284|S:3428:10915:3.9:cue:163f62ea-c07a-4341-bb56-9ced086e8224-285|S:3429:10914:5.0:cue:163f62ea-c07a-4341-bb56-9ced086e8224-286|S:3429:10913:5.4:cue:163f62ea-c07a-4341-bb56-9ced086e8224-288|S:3423:10913:2.5:cue:163f62ea-c07a-4341-bb56-9ced086e8224-290|S:3427:10914:3.1:cue:163f62ea-c07a-4341-bb56-9ced086e8224-292|S:3422:10913:3.1:cue:163f62ea-c07a-4341-bb56-9ced086e8224-294|S:3422:10913:3.1:cue:163f62ea-c07a-4341-bb56-9ced086e8224-295|S:3425:10919:3.9:cue:163f62ea-c07a-4341-bb56-9ced086e8224-296",
+      "boundary": "Deliberate immediate native sensor read; autonomous scan timing unmeasured",
+      "hours": 3.2447776794433594,
+      "wallMs": 1790491530414,
+      "kind": "intervention-sensor-sample"
+    },
+    {
+      "actor": "sao-1",
+      "x": 3423,
+      "y": 10909,
+      "sequence": 6,
+      "forwardX": -0.4639962613582611,
+      "forwardY": 0.8858371376991272,
+      "hours": 3.2669992446899414,
+      "wallMs": 1790491534366,
+      "kind": "sound"
+    },
+    {
+      "actor": "sao-1",
+      "sequence": 6,
+      "raw": "P:Emanuel Calhoun:3429:10914:4.5:ok|P:Monica Brownlee:3425:10914:0.4:ok|P:Dolores Sorrento:3423:10913:1.9:ok|S:3427:10914:2.1:cue:163f62ea-c07a-4341-bb56-9ced086e8224-269|S:3427:10915:2.4:cue:163f62ea-c07a-4341-bb56-9ced086e8224-270|S:3423:10913:2.0:cue:163f62ea-c07a-4341-bb56-9ced086e8224-271|S:3428:10915:3.3:cue:163f62ea-c07a-4341-bb56-9ced086e8224-272|S:3422:10913:3.0:cue:163f62ea-c07a-4341-bb56-9ced086e8224-274|S:3428:10913:3.2:cue:163f62ea-c07a-4341-bb56-9ced086e8224-276|S:3423:10913:2.0:cue:163f62ea-c07a-4341-bb56-9ced086e8224-278|S:3427:10915:2.4:cue:163f62ea-c07a-4341-bb56-9ced086e8224-283|S:3424:10913:1.2:cue:163f62ea-c07a-4341-bb56-9ced086e8224-284|S:3428:10915:3.3:cue:163f62ea-c07a-4341-bb56-9ced086e8224-285|S:3429:10914:4.1:cue:163f62ea-c07a-4341-bb56-9ced086e8224-286|S:3429:10913:4.2:cue:163f62ea-c07a-4341-bb56-9ced086e8224-288|S:3423:10913:2.0:cue:163f62ea-c07a-4341-bb56-9ced086e8224-290|S:3427:10914:2.1:cue:163f62ea-c07a-4341-bb56-9ced086e8224-292|S:3422:10913:3.0:cue:163f62ea-c07a-4341-bb56-9ced086e8224-294|S:3422:10913:3.0:cue:163f62ea-c07a-4341-bb56-9ced086e8224-295|S:3425:10919:5.3:cue:163f62ea-c07a-4341-bb56-9ced086e8224-296|S:3428:10915:3.3:cue:163f62ea-c07a-4341-bb56-9ced086e8224-299|S:3429:10914:4.1:cue:163f62ea-c07a-4341-bb56-9ced086e8224-301|S:3423:10909:5.1:cue:163f62ea-c07a-4341-bb56-9ced086e8224-303",
+      "boundary": "Deliberate immediate native sensor read; autonomous scan timing unmeasured",
+      "hours": 3.2669992446899414,
+      "wallMs": 1790491534367,
+      "kind": "intervention-sensor-sample"
+    },
+    {
+      "actor": "sao-4",
+      "appliances": 0,
+      "forwardX": 1,
+      "forwardY": 0,
+      "hours": 3.9558677673339844,
+      "wallMs": 1790491555353,
+      "kind": "preparation-offers"
+    },
+    {
+      "actor": "sao-4",
+      "appliances": 0,
+      "forwardX": 0.9667984843254089,
+      "forwardY": -0.25553998351097107,
+      "hours": 4.000310897827148,
+      "wallMs": 1790491556469,
+      "kind": "preparation-offers"
+    },
+    {
+      "actor": "sao-4",
+      "appliances": 0,
+      "forwardX": 0.9959993958473206,
+      "forwardY": 0.08935973048210144,
+      "hours": 4.0225324630737305,
+      "wallMs": 1790491560142,
+      "kind": "preparation-offers"
+    },
+    {
+      "actor": "sao-4",
+      "appliances": 0,
+      "forwardX": 0.9667984843254089,
+      "forwardY": -0.25553998351097107,
+      "hours": 4.081789970397949,
+      "wallMs": 1790491561270,
+      "kind": "preparation-offers"
+    },
+    {
+      "actor": "sao-5",
+      "appliances": 0,
+      "forwardX": -0.38261786103248596,
+      "forwardY": -0.923906683921814,
+      "hours": 4.081789970397949,
+      "wallMs": 1790491561271,
+      "kind": "preparation-offers"
+    },
+    {
+      "actor": "sao-5",
+      "appliances": 0,
+      "forwardX": 0.9613420367240906,
+      "forwardY": -0.27535712718963623,
+      "hours": 4.133640289306641,
+      "wallMs": 1790491562344,
+      "kind": "preparation-offers"
+    },
+    {
+      "actor": "sao-4",
+      "appliances": 0,
+      "forwardX": 0.9580197930335999,
+      "forwardY": 0.2867019772529602,
+      "hours": 4.185490608215332,
+      "wallMs": 1790491563416,
+      "kind": "preparation-offers"
+    },
+    {
+      "actor": "sao-4",
+      "appliances": 0,
+      "forwardX": 0.636635959148407,
+      "forwardY": 0.7711644768714905,
+      "hours": 4.237340927124023,
+      "wallMs": 1790491564433,
+      "kind": "preparation-offers"
+    },
+    {
+      "actor": "sao-3",
+      "appliances": 0,
+      "forwardX": -0.6807253956794739,
+      "forwardY": -0.7325387597084045,
+      "hours": 4.273975372314453,
+      "wallMs": 1790491568250,
+      "kind": "preparation-offers"
+    },
+    {
+      "actor": "sao-4",
+      "appliances": 0,
+      "forwardX": 0.9577727913856506,
+      "forwardY": 0.28752610087394714,
+      "hours": 4.273975372314453,
+      "wallMs": 1790491568252,
+      "kind": "preparation-offers"
+    },
+    {
+      "actor": "sao-5",
+      "appliances": 0,
+      "forwardX": 0.9954699277877808,
+      "forwardY": 0.09507695585489273,
+      "hours": 4.273975372314453,
+      "wallMs": 1790491568253,
+      "kind": "preparation-offers"
+    },
+    {
+      "actor": "sao-3",
+      "appliances": 0,
+      "forwardX": -0.6807253956794739,
+      "forwardY": -0.7325387597084045,
+      "hours": 4.3258256912231445,
+      "wallMs": 1790491569380,
+      "kind": "preparation-offers"
+    },
+    {
+      "actor": "sao-6",
+      "queues": {
+        "nativeCount": 0,
+        "luaCount": 0
+      },
+      "hours": 7.142729759216309,
+      "wallMs": 1790491687091,
+      "kind": "preparation-queue-before"
+    },
+    {
+      "actor": "sao-6",
+      "queues": {
+        "nativeCount": 0,
+        "luaCount": 0
+      },
+      "work": {
+        "stage": "approach-appliance",
+        "itemType": "Base.MuttonChop",
+        "sourceId": "C:16788ded-9fd0-446e-8ced-be2a0c5e16e3:0",
+        "startedAt": 7.142729759216309,
+        "heatObserved": false
+      },
+      "hours": 7.142729759216309,
+      "wallMs": 1790491687092,
+      "kind": "preparation-queue-after"
+    },
+    {
+      "actor": "sao-6",
+      "itemId": 1629026501,
+      "itemType": "Base.MuttonChop",
+      "accepted": true,
+      "appliances": 1,
+      "sourceId": "C:16788ded-9fd0-446e-8ced-be2a0c5e16e3:0",
+      "hours": 7.142729759216309,
+      "wallMs": 1790491687092,
+      "kind": "preparation-request"
+    },
+    {
+      "doseAttempted": false,
+      "mealAttempted": true,
+      "sounds": 6,
+      "hours": 15.286142349243164,
+      "wallMs": 1790491967029,
+      "kind": "interventions-ended"
+    }
+  ],
+  "attentionPhases": {
+    "idle": 312,
+    "attend": 38,
+    "sweep": 22
+  },
+  "activeAttention": 60,
+  "heardSamples": 211,
+  "activeDrugSamples": 0,
+  "cookingStages": {
+    "null": 365,
+    "approach-appliance": 1,
+    "heat": 6
+  },
+  "latestByActor": {
+    "sao-1": {
+      "actor": "sao-1",
+      "state": "IDLE",
+      "x": 3425.513916015625,
+      "y": 10912.259765625,
+      "forwardX": 0.42733034491539,
+      "forwardY": -0.9040955305099487,
+      "hearingModifier": 1,
+      "weatherHearing": 1,
+      "deaf": false,
+      "asleep": true,
+      "attention": {
+        "active": false,
+        "cueId": "163f62ea-c07a-4341-bb56-9ced086e8224-3636",
+        "phase": "idle",
+        "reason": "released",
+        "remainingSeconds": 0,
+        "readiness": 1,
+        "steadiness": 1,
+        "allowBodyTurn": false,
+        "layerReady": true,
+        "headHorizontal": 0,
+        "gazeX": 0.4273301959037781,
+        "gazeY": -0.9040956497192383
+      },
+      "queues": {
+        "nativeCount": 0,
+        "luaCount": 0
+      },
+      "effects": {
+        "atHours": 15.266666666666667,
+        "active": false,
+        "sedating": false,
+        "stimulating": false,
+        "overload": false,
+        "withdrawal": false,
+        "painSuppressed": false,
+        "families": {}
+      },
+      "clarity": 1,
+      "steadiness": 1,
+      "fatigue": 0.42474135756492615,
+      "thirst": 0.35278794169425964,
+      "hunger": 0.3336643576622009,
+      "hours": 15.271965026855469,
+      "wallMs": 1790491966499,
+      "kind": "sample"
+    },
+    "sao-2": {
+      "actor": "sao-2",
+      "state": "ROAM",
+      "x": 3423.4423828125,
+      "y": 10928.3671875,
+      "forwardX": -0.990214467048645,
+      "forwardY": 0.1395537555217743,
+      "hearingModifier": 1,
+      "weatherHearing": 1,
+      "deaf": false,
+      "asleep": false,
+      "attention": {
+        "active": false,
+        "cueId": "163f62ea-c07a-4341-bb56-9ced086e8224-1403",
+        "phase": "idle",
+        "reason": "expired",
+        "remainingSeconds": 0,
+        "readiness": 1,
+        "steadiness": 1,
+        "allowBodyTurn": false,
+        "layerReady": true,
+        "headHorizontal": 0,
+        "gazeX": -0.990214467048645,
+        "gazeY": 0.1395537555217743
+      },
+      "queues": {
+        "nativeCount": 0,
+        "luaCount": 0
+      },
+      "effects": {
+        "atHours": 7.033333333333333,
+        "active": false,
+        "sedating": false,
+        "stimulating": false,
+        "overload": false,
+        "withdrawal": false,
+        "painSuppressed": false,
+        "families": {}
+      },
+      "clarity": 1,
+      "steadiness": 1,
+      "fatigue": 0.001629348611459136,
+      "thirst": 0.1453542858362198,
+      "hunger": 0.16007791459560394,
+      "hours": 7.047207832336426,
+      "wallMs": 1790491684944,
+      "kind": "sample"
+    },
+    "sao-6": {
+      "actor": "sao-6",
+      "state": "HOMEWARD",
+      "x": 3431.5,
+      "y": 10960.2138671875,
+      "forwardX": -4.371138828673793e-08,
+      "forwardY": -1,
+      "hearingModifier": 1,
+      "weatherHearing": 1,
+      "deaf": false,
+      "asleep": false,
+      "attention": {
+        "active": false,
+        "cueId": "",
+        "phase": "idle",
+        "reason": "idle",
+        "remainingSeconds": 0,
+        "readiness": 0,
+        "steadiness": 0,
+        "allowBodyTurn": false,
+        "layerReady": false,
+        "headHorizontal": 0,
+        "gazeX": -4.371138828673793e-08,
+        "gazeY": -1
+      },
+      "queues": {
+        "nativeCount": 0,
+        "luaCount": 0
+      },
+      "outcome": {
+        "id": "cooking/sao-6/1",
+        "sequence": 1,
+        "actorId": "sao-6",
+        "itemId": 1629026501,
+        "itemType": "Base.MuttonChop",
+        "sourceId": "C:16788ded-9fd0-446e-8ced-be2a0c5e16e3:0",
+        "startedAt": 7.142729759216309,
+        "atHours": 7.677105903625488,
+        "status": "completed",
+        "detail": "native-food-cooked-and-retrieved",
+        "beforeCookingTime": 0,
+        "afterCookingTime": 51.140602111816406,
+        "heatObserved": true,
+        "nativeCredit": "cooking/sao-6/1",
+        "retrieved": true,
+        "shutdown": "off",
+        "detached": false
+      },
+      "effects": {
+        "atHours": 15.266666666666667,
+        "active": false,
+        "sedating": false,
+        "stimulating": false,
+        "overload": false,
+        "withdrawal": false,
+        "painSuppressed": false,
+        "families": {}
+      },
+      "clarity": 1,
+      "steadiness": 1,
+      "fatigue": 0.4954969882965088,
+      "thirst": 0.3613673150539398,
+      "hunger": 0.040518660098314285,
+      "hours": 15.271965026855469,
+      "wallMs": 1790491966500,
+      "kind": "sample"
+    }
+  },
+  "firstDoseRemaining": null,
+  "lastDoseRemaining": null
+}

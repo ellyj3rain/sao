@@ -719,7 +719,10 @@ def execute(receipt):
              "bridge_world_reset_ends_tracking_epoch"),
             ("coverage-without-sight", "if (wholeTileVisible(shell, square))", "if (square != null)",
              "behind_tile_not_certified"),
-            ("intervening-wall-ignored", "\n                && clearPath(eye, zombie.getCurrentSquare(), true)", "",
+            ("intervening-wall-ignored", "return result == LosUtil.TestResults.Clear\n"
+             "            || result == LosUtil.TestResults.ClearThroughOpenDoor\n"
+             "            || (visual && result == LosUtil.TestResults.ClearThroughWindow);",
+             "return true;",
              "intervening_wall_hides_actual_body"),
         ]
         for label, before, after, verdict in native_controls:

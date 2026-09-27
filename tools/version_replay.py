@@ -227,6 +227,7 @@ UNITS = [
     ('C86', 'minor', 'Introduce configurable native study worlds, isolated engine runs and an autonomous detached observer with sealed observations, native image capture, bounded camera/time controls and verified continuation. This is a new simulation evaluation capability; scenario ratification remains operator-owned.'),
     ('C87', 'kohai', 'Mature native study observation with authored places, finite process ownership, bounded person inspection and engine zoom; join exact resource approaches, native crossing completion, lived-place knowledge, accepted-work reconsideration and home/rest continuation. These extend and repair existing simulation owners without introducing a new capability boundary.'),
     ('C88', 'minor', 'Introduce independent competing cognitive models with separate durable beliefs, pre-outcome predictions and balanced execution opportunities inside the native simulation. Bind authentic actor-private experience, semantic hypotheses, Mousecat acceleration and downstream aggregate trajectory evidence without model hierarchy or automatic knowledge grants. This is the first runtime cognitive-competition contract, so minor.'),
+    ('C89', 'minor', 'Introduce owned native perceptual orientation, item physiology and appliance preparation with authenticated private result acquisition. These are new executable simulation contracts; existing lifecycle joins and failed-route repairs support them.'),
 ]
 
 TIER_MEANINGS = [

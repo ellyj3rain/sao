@@ -1,0 +1,801 @@
+{
+  "schema": "sao-capability-experience-proof/1",
+  "status": "PASS",
+  "checks": [
+    {
+      "name": "existing-model-baseline",
+      "exit": 0,
+      "expectedFailure": null,
+      "passed": true,
+      "seconds": 0.496,
+      "logSha256": "95baeaa1a23201592ecf6eed47d49edab327ebea489156fa3338b9eb52b87f6c",
+      "result": "VALUE PASS 29 cases"
+    },
+    {
+      "name": "existing-ledger-baseline",
+      "exit": 0,
+      "expectedFailure": null,
+      "passed": true,
+      "seconds": 3.79,
+      "logSha256": "2d5a91ee6f146b1a4b72978ba990d06fd0154f7089a61c89c43aa8fa60de5d6f",
+      "result": "VALUE PASS cognition runtime 49"
+    },
+    {
+      "name": "extended-baseline",
+      "exit": 0,
+      "expectedFailure": null,
+      "passed": true,
+      "seconds": 3.678,
+      "logSha256": "0643f8d1891089535b4895f484cfa5eafae1d38f2ef70ade53251289574031c0",
+      "result": "VALUE PASS extended cognition 985"
+    },
+    {
+      "name": "existing-model-control-1",
+      "exit": 1,
+      "expectedFailure": "ordinary drinking equality or priority changed",
+      "passed": true,
+      "seconds": 0.223,
+      "logSha256": "0ed537487a81361484ecfcf4ac393fecd7ac32469e420ae442654f33f625a41f",
+      "result": "ERROR KahluaException: ordinary thresholds: ordinary drinking equality or priority changed"
+    },
+    {
+      "name": "existing-model-control-2",
+      "exit": 1,
+      "expectedFailure": "ordinary drinking equality or priority changed",
+      "passed": true,
+      "seconds": 0.216,
+      "logSha256": "0ed537487a81361484ecfcf4ac393fecd7ac32469e420ae442654f33f625a41f",
+      "result": "ERROR KahluaException: ordinary thresholds: ordinary drinking equality or priority changed"
+    },
+    {
+      "name": "existing-model-control-3",
+      "exit": 1,
+      "expectedFailure": "inadmissible goal selected",
+      "passed": true,
+      "seconds": 0.225,
+      "logSha256": "ec0c09b0190836f117e65ec70ac8e5b622834c7672d066524940769cb2431344",
+      "result": "ERROR KahluaException: shared feasibility: inadmissible goal selected"
+    },
+    {
+      "name": "existing-model-control-4",
+      "exit": 1,
+      "expectedFailure": "associative anticipation missing",
+      "passed": true,
+      "seconds": 0.25,
+      "logSha256": "3ceea74c026306d613ecced3067b80cfc0334f05753fb99f9b31b4bfdf87576e",
+      "result": "ERROR KahluaException: anticipation: associative anticipation missing"
+    },
+    {
+      "name": "existing-model-control-5",
+      "exit": 1,
+      "expectedFailure": "foreign model output admitted",
+      "passed": true,
+      "seconds": 0.27,
+      "logSha256": "9c9208f018db8363e104779ef9852916f74dbe710f19f67e2d3ec488baa97ce3",
+      "result": "ERROR KahluaException: private frame boundary: foreign model output admitted"
+    },
+    {
+      "name": "existing-model-control-6",
+      "exit": 1,
+      "expectedFailure": "foreign model state admitted",
+      "passed": true,
+      "seconds": 0.278,
+      "logSha256": "11ac1e4ac29467fb0a9aa2fa435cb9744fb9539ff97b69c9fb102c78b13c587b",
+      "result": "ERROR KahluaException: independent owners: foreign model state admitted"
+    },
+    {
+      "name": "existing-model-control-7",
+      "exit": 1,
+      "expectedFailure": "model states share evidence storage",
+      "passed": true,
+      "seconds": 0.251,
+      "logSha256": "433e6fe2f102bd7395b8c381ab21dbe06b196cea836b3ab5bc57055f6d789497",
+      "result": "ERROR KahluaException: independent owners: model states share evidence storage"
+    },
+    {
+      "name": "existing-model-control-8",
+      "exit": 1,
+      "expectedFailure": "foreign actor proposal admitted",
+      "passed": true,
+      "seconds": 0.267,
+      "logSha256": "7630d43079c44d8511a679e2caf0f6032bbce58482b72b4aef7955cbe145ca76",
+      "result": "ERROR KahluaException: actor boundary: foreign actor proposal admitted"
+    },
+    {
+      "name": "existing-model-control-9",
+      "exit": 1,
+      "expectedFailure": "query or elapsed time strengthened beliefs",
+      "passed": true,
+      "seconds": 0.337,
+      "logSha256": "67ffe947c95ca85f5f2972739f11cd5d5fa84109b7f408492f8e51e5e74011a1",
+      "result": "ERROR KahluaException: queries cannot teach: query or elapsed time strengthened beliefs"
+    },
+    {
+      "name": "existing-model-control-10",
+      "exit": 1,
+      "expectedFailure": "duplicate outcome was not recognized",
+      "passed": true,
+      "seconds": 0.287,
+      "logSha256": "02d90b2c17641cc67700b6fc6e11ffbaea816c1280b4d7fcf683e08fef198e0c",
+      "result": "ERROR KahluaException: exact repeated evidence: duplicate outcome was not recognized"
+    },
+    {
+      "name": "existing-model-control-11",
+      "exit": 1,
+      "expectedFailure": "censored access or absent measure became counterevidence",
+      "passed": true,
+      "seconds": 0.311,
+      "logSha256": "31ec976595b59cd3291eb8e0e07252e69d48819b6c1b13c8249074b03e6dc6da",
+      "result": "ERROR KahluaException: censored access: censored access or absent measure became counterevidence"
+    },
+    {
+      "name": "existing-model-control-12",
+      "exit": 1,
+      "expectedFailure": "other person's private relief leaked",
+      "passed": true,
+      "seconds": 0.297,
+      "logSha256": "bbe38171bdd893fc1fff661057d8b9e1873eca4b251862a4cd305b51a3a440f1",
+      "result": "ERROR KahluaException: private observation boundary: other person's private relief leaked"
+    },
+    {
+      "name": "existing-model-control-13",
+      "exit": 1,
+      "expectedFailure": "zero native relief became success",
+      "passed": true,
+      "seconds": 0.312,
+      "logSha256": "540dbb1c76b778184ea87ffeed16570bb4320c9a44fbd5bdc51f6839c2e8598a",
+      "result": "ERROR KahluaException: measured counterexample: zero native relief became success"
+    },
+    {
+      "name": "existing-model-control-14",
+      "exit": 1,
+      "expectedFailure": "authenticated witnessed transfer was discarded",
+      "passed": true,
+      "seconds": 0.325,
+      "logSha256": "466d241defe652c2da11ad5197264e6835d54d89eebd8acd2872d49eb16d373d",
+      "result": "ERROR KahluaException: private observation boundary: authenticated witnessed transfer was discarded"
+    },
+    {
+      "name": "existing-model-control-15",
+      "exit": 1,
+      "expectedFailure": "empty inspection mislabeled as failed observation",
+      "passed": true,
+      "seconds": 0.321,
+      "logSha256": "f805a2bc336ea378f3d1119d6ce96261aa1b4ee51cdb3ed7e50eab31a105c5e9",
+      "result": "ERROR KahluaException: empty inspection: empty inspection mislabeled as failed observation"
+    },
+    {
+      "name": "existing-model-control-16",
+      "exit": 1,
+      "expectedFailure": "container experience did not transfer information value",
+      "passed": true,
+      "seconds": 0.317,
+      "logSha256": "6ea2ee74ed5bf49e97c7178fba585b0ff03156cc2d7e7ae895e06c4559ec9177",
+      "result": "ERROR KahluaException: semantic transfer: container experience did not transfer information value"
+    },
+    {
+      "name": "existing-model-control-17",
+      "exit": 1,
+      "expectedFailure": "distinct observed links did not compose",
+      "passed": true,
+      "seconds": 0.325,
+      "logSha256": "297a86b4684f4732bba932b5812ab76d503c0a40b217b1fbaae970a04c11c672",
+      "result": "ERROR KahluaException: compositional paths: distinct observed links did not compose"
+    },
+    {
+      "name": "existing-model-control-18",
+      "exit": 1,
+      "expectedFailure": "cross-domain conjecture missing or overconfident",
+      "passed": true,
+      "seconds": 0.345,
+      "logSha256": "80adb6b1d1ae274fe19fa737a90680bb181644d0b9d13745c8f2ab10c05da903",
+      "result": "ERROR KahluaException: compositional paths: cross-domain conjecture missing or overconfident"
+    },
+    {
+      "name": "existing-model-control-19",
+      "exit": 1,
+      "expectedFailure": "configured depth bound bypassed",
+      "passed": true,
+      "seconds": 0.334,
+      "logSha256": "9dc1ddb1f02220f867343c139d29a9ca26558fe7b300b77e2beba874f2634d53",
+      "result": "ERROR KahluaException: depth bound: configured depth bound bypassed"
+    },
+    {
+      "name": "existing-model-control-20",
+      "exit": 1,
+      "expectedFailure": "counterexample erased provenance or failed to refine",
+      "passed": true,
+      "seconds": 0.327,
+      "logSha256": "e6a2391ab4d269ea76371f78352428f09f2d92f6330757b41c19142b87a32d58",
+      "result": "ERROR KahluaException: counterexample refinement: counterexample erased provenance or failed to refine"
+    },
+    {
+      "name": "existing-model-control-21",
+      "exit": 1,
+      "expectedFailure": "summary aliases evidence or hypothesis state",
+      "passed": true,
+      "seconds": 0.35,
+      "logSha256": "8e406bccc14f57aa9bf62e97b55585d31ec1fedd5e51abb92392285505f5b612",
+      "result": "ERROR KahluaException: detached summaries: summary aliases evidence or hypothesis state"
+    },
+    {
+      "name": "existing-model-control-22",
+      "exit": 1,
+      "expectedFailure": "state or receipt history unbounded",
+      "passed": true,
+      "seconds": 0.445,
+      "logSha256": "1f2a99ee3885ad3f21a492fc7d0712d4d84344bf064ba331933519ff8081c5c0",
+      "result": "ERROR KahluaException: bounds and old replay: state or receipt history unbounded"
+    },
+    {
+      "name": "existing-model-control-23",
+      "exit": 1,
+      "expectedFailure": "evicted evidence relearned as new",
+      "passed": true,
+      "seconds": 0.433,
+      "logSha256": "2ee5be89e8504852632dd5ea8245558231d639cbe74c9849bf939e74ebeaba2f",
+      "result": "ERROR KahluaException: bounds and old replay: evicted evidence relearned as new"
+    },
+    {
+      "name": "existing-model-control-24",
+      "exit": 1,
+      "expectedFailure": "repeated single action unlocked a fixed hypothesis ladder",
+      "passed": true,
+      "seconds": 0.45,
+      "logSha256": "cb20c7cc9583730a3cdb4c4c4ff00ce935fb4ac7d35f4294b4504546677e9a66",
+      "result": "ERROR KahluaException: evidence diversity controls depth: repeated single action unlocked a fixed hypothesis ladder"
+    },
+    {
+      "name": "existing-model-control-25",
+      "exit": 1,
+      "expectedFailure": "unrelated object outcome escalated another association",
+      "passed": true,
+      "seconds": 0.434,
+      "logSha256": "e3e1487974d22a5000b6936591e25f64d1193384ef9ac613c3bfa611f22a858d",
+      "result": "ERROR KahluaException: evidence diversity controls depth: unrelated object outcome escalated another association"
+    },
+    {
+      "name": "existing-model-control-26",
+      "exit": 1,
+      "expectedFailure": "aging altered receipts or failed to reduce certainty",
+      "passed": true,
+      "seconds": 0.433,
+      "logSha256": "7f6c9488caaade907109d3977baba6a59841743d964252be0fc6fab9260a5bd2",
+      "result": "ERROR KahluaException: confidence aging retains provenance: aging altered receipts or failed to reduce certainty"
+    },
+    {
+      "name": "existing-model-control-27",
+      "exit": 1,
+      "expectedFailure": "future evidence entered past prediction",
+      "passed": true,
+      "seconds": 0.448,
+      "logSha256": "3f764336f0b8b5ac4b3d26f4afa47045592cd8a5b206fc0e4c0fa2ad4eb4be89",
+      "result": "ERROR KahluaException: confidence aging retains provenance: future evidence entered past prediction"
+    },
+    {
+      "name": "existing-model-control-28",
+      "exit": 1,
+      "expectedFailure": "overlong frame identity admitted",
+      "passed": true,
+      "seconds": 0.439,
+      "logSha256": "061972cefbe089aee9e8a412013de9c508ae3068f1cb83436b45d96598daca60",
+      "result": "ERROR KahluaException: public transport limits: overlong frame identity admitted"
+    },
+    {
+      "name": "existing-model-control-29",
+      "exit": 1,
+      "expectedFailure": "unbounded known count admitted",
+      "passed": true,
+      "seconds": 0.445,
+      "logSha256": "3379f1c32d0ac42e4212ec1cba3204c3585e5bfe54ae8f61c299155798c6ef4b",
+      "result": "ERROR KahluaException: public transport limits: unbounded known count admitted"
+    },
+    {
+      "name": "existing-model-control-30",
+      "exit": 1,
+      "expectedFailure": "overlong source identity admitted",
+      "passed": true,
+      "seconds": 0.475,
+      "logSha256": "b746761f61dd4132c0c801fd207f0b2d9133071d598513b2f8f121d4e10f7699",
+      "result": "ERROR KahluaException: public transport limits: overlong source identity admitted"
+    },
+    {
+      "name": "existing-model-control-31",
+      "exit": 1,
+      "expectedFailure": "late evidence rewound capability context",
+      "passed": true,
+      "seconds": 0.504,
+      "logSha256": "47fda61d54640a1d784c599aec2a57057b6c8493981ed6a4a73b2454443a0a51",
+      "result": "ERROR KahluaException: late evidence preserves current capability context: late evidence rewound capability context"
+    },
+    {
+      "name": "existing-model-control-32",
+      "exit": 1,
+      "expectedFailure": "contradicted derived branch lost its identity",
+      "passed": true,
+      "seconds": 0.527,
+      "logSha256": "fd159541abb30fbb65ad9b405cde88ca53d901a3bdd5a7027f3576593ad45575",
+      "result": "ERROR KahluaException: derived refutation continuity: contradicted derived branch lost its identity"
+    },
+    {
+      "name": "existing-model-control-33",
+      "exit": 1,
+      "expectedFailure": "renewed support invented a fresh branch identity",
+      "passed": true,
+      "seconds": 0.478,
+      "logSha256": "9b84a478a03423bc6b783f2c3ef5f90209f030e48f49828512fb1d0ab696284f",
+      "result": "ERROR KahluaException: derived refutation continuity: renewed support invented a fresh branch identity"
+    },
+    {
+      "name": "existing-model-control-34",
+      "exit": 1,
+      "expectedFailure": "branch refutation history was erased",
+      "passed": true,
+      "seconds": 0.445,
+      "logSha256": "12236663fc64c3a1f7b0136c3c9d81b80e9779b78b65803b5ee1e3594cbd621c",
+      "result": "ERROR KahluaException: derived refutation continuity: branch refutation history was erased"
+    },
+    {
+      "name": "existing-model-control-35",
+      "exit": 1,
+      "expectedFailure": "held branch was used as current interpretation",
+      "passed": true,
+      "seconds": 0.47,
+      "logSha256": "7a55a37b8d8ef41061249cc8f99319af45c97fc0e0e4b0591286d2e986005b92",
+      "result": "ERROR KahluaException: derived refutation continuity: held branch was used as current interpretation"
+    },
+    {
+      "name": "existing-model-control-36",
+      "exit": 1,
+      "expectedFailure": "refutation history exceeded its bound or lost identity",
+      "passed": true,
+      "seconds": 0.518,
+      "logSha256": "b7b50ac6f9d8002c08e5ea515cae85022affb9f4d2a51a789275f5841faa6fee",
+      "result": "ERROR KahluaException: bounded refutation history: refutation history exceeded its bound or lost identity"
+    },
+    {
+      "name": "existing-ledger-control-1",
+      "exit": 1,
+      "expectedFailure": "COGNITION:both_receive_same_private_frame",
+      "passed": true,
+      "seconds": 0.234,
+      "logSha256": "1f97cd83f2f3d7c8d9bd38cc77583768e1c1c9a1f8305a99d6a53010566c25d4",
+      "result": "ERROR KahluaException: COGNITION:both_receive_same_private_frame"
+    },
+    {
+      "name": "existing-ledger-control-2",
+      "exit": 1,
+      "expectedFailure": "COGNITION:immutable_prior_frame",
+      "passed": true,
+      "seconds": 0.225,
+      "logSha256": "e40c6afe1cf6bc08cf2d279312f69cef4cf1fb00bb43195b9eab373e3f3f6535",
+      "result": "ERROR KahluaException: COGNITION:immutable_prior_frame"
+    },
+    {
+      "name": "existing-ledger-control-3",
+      "exit": 1,
+      "expectedFailure": "COGNITION:duplicate_no_learning",
+      "passed": true,
+      "seconds": 0.285,
+      "logSha256": "57eb25aefe1d0848e9cfbf4d8098b30cbff9250936ecef67f1c30765dd7b7d4b",
+      "result": "ERROR KahluaException: COGNITION:duplicate_no_learning"
+    },
+    {
+      "name": "existing-ledger-control-4",
+      "exit": 1,
+      "expectedFailure": "COGNITION:conflicting_duplicate_rejected",
+      "passed": true,
+      "seconds": 0.282,
+      "logSha256": "effba970be17eabd98c54779f88cce6dccf668e5e15396c3195d9c8467d3810d",
+      "result": "ERROR KahluaException: COGNITION:conflicting_duplicate_rejected"
+    },
+    {
+      "name": "existing-ledger-control-5",
+      "exit": 1,
+      "expectedFailure": "COGNITION:late_outcome_cannot_resolve_new_episode",
+      "passed": true,
+      "seconds": 0.276,
+      "logSha256": "24868d704c3d3ceb17c3caed922bc77f4fc9abeb32792ed7aacd243fe3d24b73",
+      "result": "ERROR KahluaException: COGNITION:late_outcome_cannot_resolve_new_episode"
+    },
+    {
+      "name": "existing-ledger-control-6",
+      "exit": 1,
+      "expectedFailure": "COGNITION:measured_no_effect",
+      "passed": true,
+      "seconds": 0.277,
+      "logSha256": "4dd44811b557f4e20b019993b0056f2be826e0245dfb86ea435a4610725c4095",
+      "result": "ERROR KahluaException: COGNITION:measured_no_effect"
+    },
+    {
+      "name": "existing-ledger-control-7",
+      "exit": 1,
+      "expectedFailure": "COGNITION:paused_configuration",
+      "passed": true,
+      "seconds": 0.226,
+      "logSha256": "1b0941c9abd3050da77e701f0e6aedc9cc2e8c6a61f6de67fa016ad94e125383",
+      "result": "ERROR KahluaException: COGNITION:paused_configuration"
+    },
+    {
+      "name": "existing-ledger-control-8",
+      "exit": 1,
+      "expectedFailure": "COGNITION:evicted_replay_refused",
+      "passed": true,
+      "seconds": 1.612,
+      "logSha256": "76aae20cced3d1ad57f607d09c273a4ea74eec0a25aa375ef73072d201cb761f",
+      "result": "ERROR KahluaException: COGNITION:evicted_replay_refused"
+    },
+    {
+      "name": "existing-ledger-control-9",
+      "exit": 1,
+      "expectedFailure": "COGNITION:single_pending",
+      "passed": true,
+      "seconds": 0.264,
+      "logSha256": "23f6169fc2337b4767db798459d800abbf56a71c436205677b73bf55073960c7",
+      "result": "ERROR KahluaException: COGNITION:single_pending"
+    },
+    {
+      "name": "existing-ledger-control-10",
+      "exit": 1,
+      "expectedFailure": "COGNITION:rival_can_execute",
+      "passed": true,
+      "seconds": 0.352,
+      "logSha256": "52dc70a827c9a4ddf1514c50a2f0b8ad40f30a24acecb5a525427c6fe093f9a5",
+      "result": "ERROR KahluaException: COGNITION:rival_can_execute"
+    },
+    {
+      "name": "existing-ledger-control-11",
+      "exit": 1,
+      "expectedFailure": "COGNITION:objective_frame_rejected",
+      "passed": true,
+      "seconds": 0.362,
+      "logSha256": "97a89d1f2f93350ebd8182071ddcf25a8400a2a7b8beaa5cb77dfbdfe9166261",
+      "result": "ERROR KahluaException: COGNITION:objective_frame_rejected"
+    },
+    {
+      "name": "existing-ledger-control-12",
+      "exit": 1,
+      "expectedFailure": "COGNITION:dead_snapshot_retained",
+      "passed": true,
+      "seconds": 1.659,
+      "logSha256": "f05c4db4ed51d9b62e3820bf92e577887615d0edce0e73d63a68152f79159c03",
+      "result": "ERROR KahluaException: COGNITION:dead_snapshot_retained"
+    },
+    {
+      "name": "existing-ledger-control-13",
+      "exit": 1,
+      "expectedFailure": "COGNITION:zero_weight_never_selected",
+      "passed": true,
+      "seconds": 1.46,
+      "logSha256": "579d9390e1098b332bfa64ebc119a568814091d9ea550020516fcb9fcaac7dfa",
+      "result": "ERROR KahluaException: COGNITION:zero_weight_never_selected"
+    },
+    {
+      "name": "existing-ledger-control-14",
+      "exit": 1,
+      "expectedFailure": "COGNITION:bounded_projection_reports_omissions",
+      "passed": true,
+      "seconds": 1.707,
+      "logSha256": "273078feeaec95042fa197a14c3af920e356a2fa2ada80719df0844111de42ea",
+      "result": "ERROR KahluaException: COGNITION:bounded_projection_reports_omissions"
+    },
+    {
+      "name": "extended-control-legacy-rejected",
+      "exit": 1,
+      "expectedFailure": "EXTENDED:legacy_read_supported",
+      "passed": true,
+      "seconds": 0.241,
+      "logSha256": "c8ffd12b1e7641896620f21285d5cd9cd3ca1fee8f6117895a549db0f6ef887e",
+      "result": "ERROR KahluaException: EXTENDED:legacy_read_supported"
+    },
+    {
+      "name": "extended-control-migration-missing",
+      "exit": 1,
+      "expectedFailure": "EXTENDED:legacy_observation_migrates",
+      "passed": true,
+      "seconds": 0.262,
+      "logSha256": "05d6b81427c15ab2c37c2e41cf075b87e4c4e8b6f53ea3d3f765825efad52a89",
+      "result": "ERROR KahluaException: EXTENDED:legacy_observation_migrates"
+    },
+    {
+      "name": "extended-control-frozen-provenance-rewritten",
+      "exit": 1,
+      "expectedFailure": "EXTENDED:frozen_provenance_preserved",
+      "passed": true,
+      "seconds": 0.315,
+      "logSha256": "88b5748efcb1b6c5453182c697924da8b71dedcddcc81db641121cd89c3a8b44",
+      "result": "ERROR KahluaException: EXTENDED:frozen_provenance_preserved"
+    },
+    {
+      "name": "extended-control-dose-hidden-family",
+      "exit": 1,
+      "expectedFailure": "EXTENDED:medication_private_projection",
+      "passed": true,
+      "seconds": 0.286,
+      "logSha256": "b08658f1021a2a01e60e55b00e0f4e650233c375efefc6211c22adde5ad73b6f",
+      "result": "ERROR KahluaException: EXTENDED:medication_private_projection"
+    },
+    {
+      "name": "extended-control-dose-implies-efficacy",
+      "exit": 1,
+      "expectedFailure": "EXTENDED:legacy_beliefs_preserved",
+      "passed": true,
+      "seconds": 0.28,
+      "logSha256": "cc97b329f7dd1879b2edeb61126acf1fb405b9bceade9e1312c314678e71b3e6",
+      "result": "ERROR KahluaException: EXTENDED:legacy_beliefs_preserved"
+    },
+    {
+      "name": "extended-control-extended-settles-episode",
+      "exit": 1,
+      "expectedFailure": "EXTENDED:dose_does_not_settle_episode",
+      "passed": true,
+      "seconds": 0.335,
+      "logSha256": "47ac86575a2af4d0568aeb77d84982a9beab0f7f2f020754d46ceb742da57290",
+      "result": "ERROR KahluaException: EXTENDED:dose_does_not_settle_episode"
+    },
+    {
+      "name": "extended-control-dose-unconsumed",
+      "exit": 1,
+      "expectedFailure": "EXTENDED:dose_requires_actual_use_consumed",
+      "passed": true,
+      "seconds": 0.352,
+      "logSha256": "19d2f71d7e711a0e43cf722d7b3573f6f15f708a487e7e185b2ef7224d82d4dc",
+      "result": "ERROR KahluaException: EXTENDED:dose_requires_actual_use_consumed"
+    },
+    {
+      "name": "extended-control-physical-occurrence-as-acquisition",
+      "exit": 1,
+      "expectedFailure": "EXTENDED:physical_acquisition_clock",
+      "passed": true,
+      "seconds": 0.349,
+      "logSha256": "47836416225017cc4089f65a6c029f24aca14b60cbf5b8b57d2239a1711ed153",
+      "result": "ERROR KahluaException: EXTENDED:physical_acquisition_clock"
+    },
+    {
+      "name": "extended-control-physical-hidden-exposures",
+      "exit": 1,
+      "expectedFailure": "EXTENDED:physical_private_projection",
+      "passed": true,
+      "seconds": 0.356,
+      "logSha256": "5f91c735dce4ae90dd11b44cda31cecee34057c78a904889f4194677f9d74654",
+      "result": "ERROR KahluaException: EXTENDED:physical_private_projection"
+    },
+    {
+      "name": "extended-control-physical-need-credit",
+      "exit": 1,
+      "expectedFailure": "EXTENDED:physical_no_goal_or_episode_credit",
+      "passed": true,
+      "seconds": 0.34,
+      "logSha256": "c2f06cac2963b06f83d72523701e121b5ad95bef32d46d7c05fab58de8f556ce",
+      "result": "ERROR KahluaException: EXTENDED:physical_no_goal_or_episode_credit"
+    },
+    {
+      "name": "extended-control-physical-old-aging",
+      "exit": 1,
+      "expectedFailure": "EXTENDED:physical_receipts_age_at_acquisition",
+      "passed": true,
+      "seconds": 0.359,
+      "logSha256": "84f186ebeb87e790bf37afd23607d9bd6babe2ebf6a4400c03c50ba39829257e",
+      "result": "ERROR KahluaException: EXTENDED:physical_receipts_age_at_acquisition"
+    },
+    {
+      "name": "extended-control-causal-gap-omitted",
+      "exit": 1,
+      "expectedFailure": "EXTENDED:causal_gap_explicit",
+      "passed": true,
+      "seconds": 0.396,
+      "logSha256": "db759aa0d29a6203d8a402afeed141c1bf1b68f8032465518b8620cbd5c7c124",
+      "result": "ERROR KahluaException: EXTENDED:causal_gap_explicit"
+    },
+    {
+      "name": "extended-control-reversal-not-revised",
+      "exit": 1,
+      "expectedFailure": "EXTENDED:reversal_refines_same_record",
+      "passed": true,
+      "seconds": 0.436,
+      "logSha256": "9ed1702bebdebd38123c25743a5085429267dd3dd9030a27dfe80483e82899b8",
+      "result": "ERROR KahluaException: EXTENDED:reversal_refines_same_record"
+    },
+    {
+      "name": "extended-control-unchanged-feelings",
+      "exit": 1,
+      "expectedFailure": "EXTENDED:physical_refuses_unchanged",
+      "passed": true,
+      "seconds": 0.448,
+      "logSha256": "b7c6adca518d568e83543a57017a8d9f37e3d9b201e0b879ca5c5fb7dc539995",
+      "result": "ERROR KahluaException: EXTENDED:physical_refuses_unchanged"
+    },
+    {
+      "name": "extended-control-unknown-stat",
+      "exit": 1,
+      "expectedFailure": "EXTENDED:physical_refuses_unknown",
+      "passed": true,
+      "seconds": 0.36,
+      "logSha256": "82d5f8b81886367f5261857f17f166c613f7cd1283fed01f44bbf4bcf813ba94",
+      "result": "ERROR KahluaException: EXTENDED:physical_refuses_unknown"
+    },
+    {
+      "name": "extended-control-private-other-body",
+      "exit": 1,
+      "expectedFailure": "EXTENDED:other_body_changes_private",
+      "passed": true,
+      "seconds": 0.428,
+      "logSha256": "2deff95e28426e3207c950afa64d5c26a4b6809d8953624c5b003b3e4ab5f127",
+      "result": "ERROR KahluaException: EXTENDED:other_body_changes_private"
+    },
+    {
+      "name": "extended-control-preparation-eating-credit",
+      "exit": 1,
+      "expectedFailure": "EXTENDED:preparation_is_not_eating",
+      "passed": true,
+      "seconds": 0.497,
+      "logSha256": "b47a88b943f8f6b5bbce3b1f3cea252c8b38d7e743faf10fe86e0ce2d1a585f5",
+      "result": "ERROR KahluaException: EXTENDED:preparation_is_not_eating"
+    },
+    {
+      "name": "extended-control-preparation-wrong-receipt",
+      "exit": 1,
+      "expectedFailure": "EXTENDED:preparation_refuses_credit",
+      "passed": true,
+      "seconds": 0.451,
+      "logSha256": "6654a7a95e9b4f3b38c8359f144926c6f93d71b378d950866e3aac424f4a7f86",
+      "result": "ERROR KahluaException: EXTENDED:preparation_refuses_credit"
+    },
+    {
+      "name": "extended-control-preparation-no-heat",
+      "exit": 1,
+      "expectedFailure": "EXTENDED:preparation_refuses_heat",
+      "passed": true,
+      "seconds": 0.435,
+      "logSha256": "ba7d180bf4f1a931db40b0864aa5375073aaf0e2a1b9b3d980440209316dbdc9",
+      "result": "ERROR KahluaException: EXTENDED:preparation_refuses_heat"
+    },
+    {
+      "name": "extended-control-preparation-no-progress",
+      "exit": 1,
+      "expectedFailure": "EXTENDED:preparation_refuses_progress",
+      "passed": true,
+      "seconds": 0.439,
+      "logSha256": "bae40e388c7b9c4777ab8ed935b0e32ad2566053cd9638d2bd84920d540cb5eb",
+      "result": "ERROR KahluaException: EXTENDED:preparation_refuses_progress"
+    },
+    {
+      "name": "extended-control-preparation-not-retrieved",
+      "exit": 1,
+      "expectedFailure": "EXTENDED:preparation_refuses_retrieved",
+      "passed": true,
+      "seconds": 0.413,
+      "logSha256": "41254cf2b1321aa6281134ab22ceab7fa5fc8b3e100a70439c52dbcbc335e1b8",
+      "result": "ERROR KahluaException: EXTENDED:preparation_refuses_retrieved"
+    },
+    {
+      "name": "extended-control-preparation-id-alias",
+      "exit": 1,
+      "expectedFailure": "EXTENDED:preparation_refuses_sequence",
+      "passed": true,
+      "seconds": 0.413,
+      "logSha256": "e3b8cae051a993540208709e19729a16af42f01bf3ea8e9c232d0cb02725539e",
+      "result": "ERROR KahluaException: EXTENDED:preparation_refuses_sequence"
+    },
+    {
+      "name": "extended-control-preparation-association-absent",
+      "exit": 1,
+      "expectedFailure": "EXTENDED:independent_preparation_memory",
+      "passed": true,
+      "seconds": 0.403,
+      "logSha256": "c713ae6ae45762bef654a86c89b6499234d884799890dfb96c28a23663ebc3c2",
+      "result": "ERROR KahluaException: EXTENDED:independent_preparation_memory"
+    },
+    {
+      "name": "extended-control-callback-reacquisition",
+      "exit": 1,
+      "expectedFailure": "EXTENDED:dose_repeat_is_inert",
+      "passed": true,
+      "seconds": 0.345,
+      "logSha256": "3da0862b9f33a472b05ecd2c00fe3ed4def23d8fd11ea9d75c03870f79d10995",
+      "result": "ERROR KahluaException: EXTENDED:dose_repeat_is_inert"
+    },
+    {
+      "name": "extended-control-invalid-callback-allocation",
+      "exit": 1,
+      "expectedFailure": "EXTENDED:invalid_callback_does_not_allocate",
+      "passed": true,
+      "seconds": 0.275,
+      "logSha256": "beed7a1200b3a9fae24fa393a282ee0e3ff97764a88241ab21b02e38180e77b8",
+      "result": "ERROR KahluaException: EXTENDED:invalid_callback_does_not_allocate"
+    },
+    {
+      "name": "extended-control-ledger-old-time-frontier",
+      "exit": 1,
+      "expectedFailure": "EXTENDED:batch_same_acquisition_258",
+      "passed": true,
+      "seconds": 3.731,
+      "logSha256": "7de5f8275a75ff751365efa3bb177e94a5155c500eb912b23b02bfe6c4487bb5",
+      "result": "ERROR KahluaException: EXTENDED:batch_same_acquisition_258"
+    },
+    {
+      "name": "extended-control-model-old-time-frontier",
+      "exit": 1,
+      "expectedFailure": "EXTENDED:batch_same_acquisition_258",
+      "passed": true,
+      "seconds": 3.586,
+      "logSha256": "7de5f8275a75ff751365efa3bb177e94a5155c500eb912b23b02bfe6c4487bb5",
+      "result": "ERROR KahluaException: EXTENDED:batch_same_acquisition_258"
+    },
+    {
+      "name": "extended-control-model-evicted-occurrence",
+      "exit": 1,
+      "expectedFailure": "EXTENDED:model_old_native_receipt_ordinary",
+      "passed": true,
+      "seconds": 3.825,
+      "logSha256": "94ccf314176d2a4c2861d8a2fab6ad47631a537a447d503ceeb516e72e659853",
+      "result": "ERROR KahluaException: EXTENDED:model_old_native_receipt_ordinary"
+    },
+    {
+      "name": "extended-control-native-capability-context-omitted",
+      "exit": 1,
+      "expectedFailure": "EXTENDED:context_first_private_medication",
+      "passed": true,
+      "seconds": 3.85,
+      "logSha256": "77304b100f933bf49293fb5f650c728beac1a6b7638c8ee91d1b7ed68fa7a2c9",
+      "result": "ERROR KahluaException: EXTENDED:context_first_private_medication"
+    },
+    {
+      "name": "extended-control-native-replay-refreshes-context",
+      "exit": 1,
+      "expectedFailure": "EXTENDED:context_repeat_admitted_medication",
+      "passed": true,
+      "seconds": 3.749,
+      "logSha256": "7947dd028184748f9f8f4743005e14049b7f4f43d0498c3254ad245eeec4a72f",
+      "result": "ERROR KahluaException: EXTENDED:context_repeat_admitted_medication"
+    },
+    {
+      "name": "extended-control-native-new-context-stale",
+      "exit": 1,
+      "expectedFailure": "EXTENDED:context_new_private_medication",
+      "passed": true,
+      "seconds": 3.743,
+      "logSha256": "599429651a7fce1d33cf3d29d56de91416e3b88d83fb0b4815fb7dbad7a3a2e8",
+      "result": "ERROR KahluaException: EXTENDED:context_new_private_medication"
+    }
+  ],
+  "sourceRoot": "C:\\Users\\jleyv\\AppData\\Local\\Temp\\sao-c89-portable-gates-49dsnb4i\\source",
+  "timestamp": "2026-09-27T05:02:26.288626+00:00",
+  "boundary": "Installed Kahlua executes production models and ledger with producer-shaped receipts. Native dose, measured Stats and thermal-preparation authenticity remain separately owned producer proofs; no rendered world, recipe realization or training admission.",
+  "inputs": {
+    "C:\\Users\\jleyv\\AppData\\Local\\Temp\\sao-c89-portable-gates-49dsnb4i\\source\\mod\\42.20\\media\\lua\\shared\\SAO_CognitiveModels.lua": "8abb65720e2a16aee450b66d15c51d86d5470c9c46e21719eb16e8c3002e2f58",
+    "C:\\Users\\jleyv\\AppData\\Local\\Temp\\sao-c89-portable-gates-49dsnb4i\\source\\mod\\42.20\\media\\lua\\shared\\SAO_Cognition.lua": "bc195be32cad455b1c8a5b8044dc7dc06e9babbfc3efc06cac3ffd5797d17285",
+    "C:\\Users\\jleyv\\AppData\\Local\\Temp\\sao-c89-portable-gates-49dsnb4i\\source\\tools\\capability_experience_checks\\legacy_archive.lua": "ecee00b4f87917ad8eb8386f2e6a52bb32f6ac4dbb63b8130983abcc7a07432d",
+    "C:\\Users\\jleyv\\AppData\\Local\\Temp\\sao-c89-portable-gates-49dsnb4i\\source\\tools\\capability_experience_checks\\legacy-archive-receipt.json": "988542b46658d363349edc9c3ba5fd40177c453307cf57877992d0d312a7fd26",
+    "C:\\Users\\jleyv\\AppData\\Local\\Temp\\sao-c89-portable-gates-49dsnb4i\\source\\tools\\capability_experience_checks\\restore_legacy.lua": "b677802f73aa4a72b11fe388a2bbf6225044dd73d385f5a398866ba29c2e7f05",
+    "C:\\Users\\jleyv\\AppData\\Local\\Temp\\sao-c89-portable-gates-49dsnb4i\\source\\tools\\capability_experience_checks\\experience.lua": "2b495813a2dce1ff6a00c0bb944f9f742bc0a6c8fb4a6910ea79764f897bfdf3",
+    "C:\\Users\\jleyv\\AppData\\Local\\Temp\\sao-c89-portable-gates-49dsnb4i\\source\\tools\\capability_experience_checks\\controls.py": "d1c643bfb456c0a3d2834e02d9b3baf616205433db91b79a2ca4d94f5ef9cc9c",
+    "C:\\Users\\jleyv\\AppData\\Local\\Temp\\sao-c89-portable-gates-49dsnb4i\\source\\tools\\capability_experience_checks\\run_checks.py": "83846301efc75092842ba4d7ed889f939e50c45ecaf56b74da9aa50a30721aa1",
+    "C:\\Users\\jleyv\\AppData\\Local\\Temp\\sao-c89-portable-gates-49dsnb4i\\source\\tools\\capability_experience_test.py": "12b0fb883fcb17b934f87c3b17104aebfe5c2657d124e51c478514ce8103d0ec",
+    "C:\\Users\\jleyv\\AppData\\Local\\Temp\\sao-c89-portable-gates-49dsnb4i\\source\\mod\\42.20\\media\\lua\\shared\\SAO_Hash.lua": "63e172f4c7878cc50ea58ae4604acec50f24decd50a1db0206d4c298def69915",
+    "C:\\Users\\jleyv\\AppData\\Local\\Temp\\sao-c89-portable-gates-49dsnb4i\\source\\mod\\42.20\\media\\lua\\shared\\SAO_Labor.lua": "20a04e518c9943ff6e81784c6b50b4408a4b8b5ae1c1795adc35e78da091d082",
+    "C:\\Users\\jleyv\\AppData\\Local\\Temp\\sao-c89-portable-gates-49dsnb4i\\source\\tools\\luacheck\\CognitiveModelChecks.lua": "356861a7b446c5be3238e341351ed0b25a322a09527244601db05b1e7be25434",
+    "C:\\Users\\jleyv\\AppData\\Local\\Temp\\sao-c89-portable-gates-49dsnb4i\\source\\tools\\cognitive_models_test.py": "39e20e7239ff43834abce9cc64e9a08cb8dc4ce2a52c2ba5d796218e80dc2870",
+    "C:\\Users\\jleyv\\AppData\\Local\\Temp\\sao-c89-portable-gates-49dsnb4i\\source\\tools\\cognition_checks\\prelude.lua": "283cfd5374fbb461291d876825528f52bf4b765a3ffb77a2d6c5c02a2700f1e3",
+    "C:\\Users\\jleyv\\AppData\\Local\\Temp\\sao-c89-portable-gates-49dsnb4i\\source\\tools\\cognition_checks\\runtime.lua": "63abb3aa7f3bea050ecb8ee71bd809d1f0c45a788090c365312b69e7dfd2064f",
+    "C:\\Users\\jleyv\\AppData\\Local\\Temp\\sao-c89-portable-gates-49dsnb4i\\source\\tools\\cognition_checks\\run_checks.py": "9c9f4c69c320e0744c6cecee4970f452fc6dbd579d40f443b201d1669e7dcb64",
+    "C:\\Users\\jleyv\\AppData\\Local\\Temp\\sao-c89-portable-gates-49dsnb4i\\source\\tools\\luacheck\\LuaRun.java": "f6f55e6da98c1f1249720666d862720efc025167d1df37d35820e877b14df741"
+  },
+  "legacyArchive": {
+    "sha256": "ecee00b4f87917ad8eb8386f2e6a52bb32f6ac4dbb63b8130983abcc7a07432d",
+    "producerReceiptSha256": "988542b46658d363349edc9c3ba5fd40177c453307cf57877992d0d312a7fd26",
+    "containsOldRuntime": false
+  },
+  "engineInputs": {
+    "C:\\Program Files (x86)\\Steam\\steamapps\\common\\ProjectZomboid\\projectzomboid.jar": "80e405a4bfc42f6072e75b3735f458a6514143da011d3226007ded305a442f44",
+    "C:\\Program Files (x86)\\Steam\\steamapps\\common\\ProjectZomboid\\stdlib.lua": "583c294996ae65310fb1191b9a70584b59c163a0f2d257af53f06728ba3931eb"
+  },
+  "derivedFixtureSha256": "356861a7b446c5be3238e341351ed0b25a322a09527244601db05b1e7be25434",
+  "compile": {
+    "exit": 0,
+    "logSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  "inputsUnchanged": true,
+  "invocations": 84,
+  "controls": 81
+}

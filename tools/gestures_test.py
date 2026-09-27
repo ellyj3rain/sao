@@ -12,22 +12,26 @@ CREDITS.md, and that the county's moments are wired to the gesture
 that shows them: the meeting, the voice's events, the evening seat
 and the stand, the porch tune and its listeners.
 
-It never runs the game: an animation node is a claim the engine
+It never launches a game world: an animation node is a claim the engine
 reads at load, so the claim is checked for form (the XML parses, the
 conditions name SAO's own variables, the node names start with SAO_
 so nothing overlaps another mod) and for reference (the file the
 node names exists and is rigged). The live receipt is the operator's:
 a survivor seen agreeing, arguing, dancing or playing from the
-harness's four clicks.
+harness's four clicks. The installed native/Kahlua companion also checks
+real Exchange listener admission around native action ownership; it does
+not claim rendered animation or completed cooking.
 
 An optional argv[1] points the checker at another tree root, which is
 how its control runs: the pre-batch tree faults at every seam.
 """
 import json
+import os
 import pathlib
 import re
 import sys
 import xml.etree.ElementTree as ET
+sys.path.append(str(pathlib.Path(sys.argv[1]).resolve() / "tools") if len(sys.argv) > 1 else str(pathlib.Path(__file__).resolve().parent))
 from lua_read import strip_lua
 
 ROOT = pathlib.Path(sys.argv[1]).resolve() if len(sys.argv) > 1 \
@@ -233,6 +237,10 @@ def main():
     if faults:
         for f in faults:
             print("  FAULT: " + f)
+        return 1
+    from gesture_ownership_checks.run_checks import run as check_native_ownership
+    if check_native_ownership(ROOT, output=os.environ.get("SAO_GESTURE_PROOF"),
+            gesture=os.environ.get("SAO_GESTURE_SOURCE")) != 0:
         return 1
     print("  109) the county's gestures: %d rigged files, %d nodes, %d names bound, %d sounds, every moment wired"
           % (rigged, len(nodes), len(asked) + len(seats), len(defined)))

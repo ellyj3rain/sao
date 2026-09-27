@@ -10,6 +10,8 @@ prove failed and partial outcomes cannot strand an exact pending receipt.
 """
 from __future__ import annotations
 
+import argparse
+import hashlib
 import pathlib
 import re
 import shutil
@@ -28,6 +30,7 @@ PROVISIONING = LUA / "shared/SAO_Provisioning.lua"
 HANDOVER = LUA / "shared/SAO_Handover.lua"
 CONTROLLER = LUA / "client/SAO_Controller.lua"
 WORLD_SOURCES = LUA / "shared/SAO_WorldSources.lua"
+PERCEPTION = LUA / "shared/SAO_Perception.lua"
 CHECK = ROOT / "tools/check.sh"
 RUNNER = ROOT / "tools/luacheck/LuaRun.java"
 JDK = pathlib.Path(r"C:\Users\jleyv\Peanut Butter\JetBrains\Java\bin")
@@ -53,6 +56,7 @@ _G.__routeStatus, _G.__routeBody = 'none', nil
 _G.__orders, _G.__sourceX, _G.__within = 0, 0, true
 _G.__known, _G.__permitted = {}, true
 _G.__sourceCache = true
+_G.__visible, _G.__sightCalls = true, 0
 
 ModData = { getOrCreate=function(key)
   __stores[key]=__stores[key] or {}; return __stores[key]
@@ -162,6 +166,15 @@ end
 
 SAOJavaBridge={
   canConverseNow=function(_,a,b,_) return a~=nil and b~=nil end,
+  -- Controlled native receiver: actual scanner geometry is covered by the
+  -- installed-engine perception/orienting gates. This probe varies its answer.
+  canSeePersonNow=function(_,a,b,range)
+    __sightCalls=__sightCalls+1
+    if not __visible or not a or not b or a.z~=b.z then return false end
+    local dx,dy=a.x-b.x,a.y-b.y
+    local reach=math.min(14,range)
+    return dx*dx+dy*dy<=reach*reach
+  end,
   findFoodSource=function(_,_,_)
     __sourceCache=true;return tostring(__sourceX)..':0:0:crate'
   end,
@@ -372,6 +385,10 @@ PROBE = r'''(function()
   })
   local function accepted(actor,suffix)
     __bodies.origin.x,__bodies[actor].x=0,1
+    __bodies.origin.y,__bodies[actor].y=0,0
+    __bodies.origin.z,__bodies[actor].z=0,0
+    __visible=true
+    SAO.Perception.sawPerson(actor,'origin',0,0,SAO.History.ticks(),'origin',1)
     local process=SAO.Organization.raiseMatter('origin','food-delivery',nil,{
       intentKey='food:'..suffix,destinationRequired=true,
       destination={minX=19,minY=0,maxX=21,maxY=1,z=0},
@@ -504,6 +521,7 @@ PROBE = r'''(function()
     rememberedAnchor={at=0,sourceFacts={cabinet={x=12,y=0,z=0,revision='old-r0',
     fingerprint='cabinet',state='available',access='open'}}}}
   local retryProcess,retry=accepted('worker','route-retry')
+  SAO.Perception.beliefs.worker.known=__known.worker
   local function advanceRetry()
     return SAO.Controller.advanceExternalCoordination('worker',__bodies.worker,'ZAO','idle')
   end
@@ -680,6 +698,170 @@ PROBE = r'''(function()
     and cacheGoal.work.acquiredAt==nil and __sourceCache
     and __sourceItem:getContainer()==__sourceContainer)
 
+
+  -- Private requester targeting uses the same delivered proposal, actual
+  -- acquisition and durable commitment as the retained C85 controls above.
+  -- Only the native visibility/transfer receivers are controlled here.
+  local shareFood=SAO.Needs.shareFoodWith
+  local shareAttempts=0
+  SAO.Needs.shareFoodWith=function(...)
+    shareAttempts=shareAttempts+1
+    return shareFood(...)
+  end
+  local depositChecks=0
+  SAOJavaBridge.findNearbyContainer=function()
+    depositChecks=depositChecks+1;return nil
+  end
+  local itemSequence=100
+  local function carryingCase(label)
+    itemSequence=itemSequence+1
+    local actor='address-'..label
+    __people[actor]={id=actor,forename=actor,surname='Border',dead=false,
+      bodyOwner='ZAO',profile={frozen='private'}}
+    replaceBody(actor,1)
+    __bodies.origin.id='origin'
+    __within=true;__sourceX=0;__permitted=true
+    local process,goal,cargo=finishAcquisition(actor,itemSequence,'address_'..label)
+    __bodies[actor].x,__bodies[actor].y=0,0
+    return actor,process,goal,cargo
+  end
+  local function observe(actor,x,y)
+    SAO.Perception.sawPerson(actor,'origin',x,y,SAO.History.ticks(),'origin',12)
+  end
+  local function advanceAddress(actor)
+    return SAO.Controller.advanceExternalCoordination(actor,__bodies[actor],'ZAO','idle')
+  end
+  local function jobAt(actor,x,y,z)
+    local job=SAO.Locomotion.jobs[actor]
+    return job and job.goal.x==x and job.goal.y==y and job.goal.z==z
+  end
+
+  local actor,addressProcess,addressGoal,cargo=carryingCase('visible')
+  __bodies.origin.x,__bodies.origin.y=13,2
+  __bodies.origin.z,__bodies[actor].z=1,1
+  observe(actor,12,1)
+  local addressReceipt=addressGoal.work.acquisitionReceiptId
+  local did,why=advanceAddress(actor)
+  local addressRoute=addressGoal.work.routeAttempts[#addressGoal.work.routeAttempts]
+  check('fresh_private_identity_routes_observed_xy_on_seen_floor',did==true and why=='route'
+    and jobAt(actor,12,1,1) and addressRoute.x==12 and addressRoute.y==1
+    and addressRoute.z==1 and addressGoal.work.deliveryReceiptId==nil
+    and SAO.Perception.believedPerson(actor,'origin').x==12)
+
+  SAO.Controller.coordinationRuntime={};SAO.Locomotion.cancel(actor)
+  did,why=advanceAddress(actor)
+  check('visible_pending_route_keeps_private_attempt_identity',did==true and why=='route'
+    and jobAt(actor,12,1,1) and #addressGoal.work.routeAttempts==1
+    and addressGoal.work.routeAttempts[1].id==addressRoute.id)
+
+  -- The native cache disappears on load. Private memory and the accepted
+  -- destination survive; the currently unseen body supplies neither XY nor Z.
+  SAO.Perception.bindPersistentStore()
+  SAO.Perception.beliefs={};SAO.Perception.bindPersistentStore()
+  SAO.Organization.processes,SAO.Organization.processOrder={},{ }
+  SAO.Organization.processMeta,SAO.Organization.workReceipts={sequence=0},{}
+  SAO.Controller.coordinationRuntime={};SAO.Locomotion.cancel(actor)
+  SAO.GraphPersistence.bind()
+  addressGoal=SAO.Organization.commitment(addressGoal.id)
+  __visible=false;__bodies.origin.x=70;__bodies.origin.z=4
+  local beforeOrders=__orders
+  did,why=advanceAddress(actor)
+  check('pending_person_route_revalidates_after_reload',did==false
+    and why=='route-destination-unavailable' and __orders==beforeOrders
+    and addressRoute.status=='interrupted' and addressGoal.status=='paused'
+    and addressGoal.work.acquisitionReceiptId==addressReceipt
+    and addressGoal.work.deliveryReceiptId==nil and addressGoal.work.endedAt==nil)
+  __now=(addressGoal.work.routeRetryAt or __now)+.001
+  did,why=advanceAddress(actor)
+  local fallback=addressGoal.work.routeAttempts[#addressGoal.work.routeAttempts]
+  check('unseen_requester_uses_complete_received_address',did==true and why=='route'
+    and jobAt(actor,20,.5,0) and fallback.id~=addressRoute.id
+    and addressGoal.work.acquisitionReceiptId==addressReceipt)
+  __bodies.origin.x,__bodies.origin.y,__bodies.origin.z=90,30,5
+  beforeOrders=__orders
+  advanceAddress(actor)
+  check('unseen_moving_requester_cannot_redirect_owned_route',__orders==beforeOrders
+    and jobAt(actor,20,.5,0) and #addressGoal.work.routeAttempts==2)
+  -- A still-valid received destination remains authoritative even when a
+  -- different nearby address becomes visible during reconstruction.
+  __visible=true;__bodies.origin.x,__bodies.origin.y,__bodies.origin.z=13,2,1
+  observe(actor,12,1)
+  SAO.Controller.coordinationRuntime={};SAO.Locomotion.cancel(actor)
+  did,why=advanceAddress(actor)
+  check('received_pending_route_keeps_attempt_identity',did==true and why=='route'
+    and jobAt(actor,20,.5,0) and #addressGoal.work.routeAttempts==2
+    and addressGoal.work.routeAttempts[2].id==fallback.id)
+  __visible=false;__bodies.origin.x,__bodies.origin.y,__bodies.origin.z=90,30,5
+  __routeStatus='done:arrived';advanceAddress(actor)
+  local attemptsAtAddress=#addressGoal.work.routeAttempts
+  local sharesAtAddress=shareAttempts
+  did,why=advanceAddress(actor)
+  check('absent_requester_at_address_is_unresolved_not_delivery',did==false
+    and why=='delivery-holder-unavailable' and shareAttempts==sharesAtAddress
+    and addressGoal.work.deliveryReceiptId==nil and addressGoal.status~='completed'
+    and cargo:getContainer()==__bodies[actor]:getInventory())
+  __now=__now+24
+  SAO.Controller.coordinationRuntime={};SAO.GraphPersistence.bind()
+  beforeOrders=__orders;advanceAddress(actor)
+  check('unresolved_address_retains_same_goal_across_day',__orders==beforeOrders
+    and addressGoal.work.acquisitionReceiptId==addressReceipt
+    and #addressGoal.work.routeAttempts==attemptsAtAddress
+    and addressGoal.work.deliveryReceiptId==nil and addressGoal.work.endedAt==nil)
+  __bodies.origin.x,__bodies.origin.y,__bodies.origin.z=21,0,0
+  __visible=true;observe(actor,21,0)
+  did,why=advanceAddress(actor)
+  local received=addressGoal.work.pendingReceiptId
+  local receivedAction=received and SAO.Handover._runtime[received]
+  check('fresh_evidence_repairs_same_delivery_goal',did==true and why=='handover'
+    and receivedAction and shareAttempts==sharesAtAddress+1
+    and addressGoal.work.acquisitionReceiptId==addressReceipt
+    and addressGoal.work.deliveryReceiptId==nil
+    and cargo:getContainer()==__bodies[actor]:getInventory())
+  if receivedAction then receivedAction.action:transferItem(cargo) end
+  check('repaired_target_requires_exact_native_transfer',addressGoal.status=='completed'
+    and addressGoal.work.deliveryReceiptId==received
+    and cargo:getContainer()==__bodies.origin:getInventory())
+
+  for _,label in ipairs({'absent','stale','told','false_sight','private_id',
+      'native_id','actor_id','floor','future','invalid'}) do
+    local a,_,goal,item=carryingCase(label)
+    __bodies.origin.x=1;observe(a,1,0)
+    local belief=SAO.Perception.believedPerson(a,'origin')
+    if label=='absent' then SAO.Perception.beliefs[a].people={}
+    elseif label=='stale' then belief.at=SAO.History.ticks()-41
+    elseif label=='told' then belief.source='told'
+    elseif label=='false_sight' then __visible=false
+    elseif label=='private_id' then
+      SAO.Perception.sawPerson(a,'origin',1,0,SAO.History.ticks(),'other-person',1)
+    elseif label=='native_id' then __bodies.origin.id='different-shell'
+    elseif label=='actor_id' then __bodies[a].id='different-actor'
+    elseif label=='floor' then __bodies.origin.z=1
+    elseif label=='future' then belief.at=SAO.History.ticks()+1
+    elseif label=='invalid' then belief.x=math.huge end
+    local sharesBefore=shareAttempts
+    local advanced,status=advanceAddress(a)
+    check(label..'_requester_cannot_admit_handover',advanced==true and status=='route'
+      and jobAt(a,20,.5,0) and shareAttempts==sharesBefore
+      and goal.work.pendingReceiptId==nil and goal.work.deliveryReceiptId==nil
+      and item:getContainer()==__bodies[a]:getInventory())
+  end
+
+  local floorActor,_,floorGoal=carryingCase('destination_floor')
+  __bodies[floorActor].x,__bodies[floorActor].y,__bodies[floorActor].z=20,.5,1
+  __visible=false;local depositsBefore=depositChecks
+  did,why=advanceAddress(floorActor)
+  check('received_destination_floor_is_not_current_deposit_floor',did==true
+    and why=='route' and jobAt(floorActor,20,.5,0)
+    and depositChecks==depositsBefore and floorGoal.work.pendingReceiptId==nil)
+
+  local missingActor,_,missingGoal=carryingCase('missing_body')
+  observe(missingActor,12,0)
+  local savedOrigin=__bodies.origin;__bodies.origin=nil;SAO.Body.active.origin=nil
+  did,why=advanceAddress(missingActor)
+  check('missing_native_requester_uses_received_destination',did==true and why=='route'
+    and jobAt(missingActor,20,.5,0) and missingGoal.work.deliveryReceiptId==nil)
+  __bodies.origin=savedOrigin;SAO.Body.active.origin=savedOrigin
+
   return table.concat(checks,',')
 end)()'''
 
@@ -728,6 +910,30 @@ EXPECTED = {
     "source_selection_rebinds_cache_without_inventing_transfer",
 }
 
+ADDRESS_CASES = {'visible', 'absent', 'stale', 'told', 'false_sight',
+                 'private_id', 'native_id', 'actor_id', 'floor', 'future',
+                 'invalid', 'destination_floor', 'missing_body'}
+EXPECTED.update('address_' + label + suffix for label in ADDRESS_CASES
+                for suffix in ('_delivered_acceptance_enters_source_owner',
+                               '_native_acquisition_becomes_carrying_once'))
+EXPECTED.update(label + '_requester_cannot_admit_handover' for label in
+                ADDRESS_CASES - {'visible', 'destination_floor', 'missing_body'})
+EXPECTED.update({
+    'fresh_private_identity_routes_observed_xy_on_seen_floor',
+    'pending_person_route_revalidates_after_reload',
+    'visible_pending_route_keeps_private_attempt_identity',
+    'unseen_requester_uses_complete_received_address',
+    'unseen_moving_requester_cannot_redirect_owned_route',
+    'received_pending_route_keeps_attempt_identity',
+    'absent_requester_at_address_is_unresolved_not_delivery',
+    'unresolved_address_retains_same_goal_across_day',
+    'fresh_evidence_repairs_same_delivery_goal',
+    'repaired_target_requires_exact_native_transfer',
+    'received_destination_floor_is_not_current_deposit_floor',
+    'missing_native_requester_uses_received_destination',
+})
+
+
 
 def compile_runner(output: pathlib.Path) -> tuple[bool, str]:
     done = subprocess.run(
@@ -746,6 +952,7 @@ def run_probe(overrides: dict[str, str] | None = None,
             return None, "Private Kahlua runner compile failed: " + detail
         shutil.copy2(STDLIB, work / "stdlib.lua")
         source_paths = {
+            "perception": PERCEPTION,
             "organization": ORGANIZATION,
             "communication": COMMUNICATION,
             "needs": NEEDS,
@@ -778,7 +985,8 @@ def run_probe(overrides: dict[str, str] | None = None,
         probe.write_text("__result = " + probe_text, encoding="utf-8")
         done = subprocess.run(
             [str(JDK / "java.exe"), "-cp", f"{PZ};.", "LuaRun",
-             str(prelude), str(generated["organization"]),
+             str(prelude), str(generated["perception"]),
+             str(generated["organization"]),
              str(generated["communication"]), str(GRAPH),
              str(generated["needs"]), str(generated["source_use"]),
              str(generated["provisioning"]), str(generated["handover"]),
@@ -819,11 +1027,31 @@ def static_contract() -> tuple[bool, str]:
 
 
 def main() -> int:
+    global ROOT, LUA, ORGANIZATION, COMMUNICATION, GRAPH, NEEDS, SOURCE_USE
+    global PROVISIONING, HANDOVER, CONTROLLER, WORLD_SOURCES, PERCEPTION, CHECK, RUNNER
+    parser = argparse.ArgumentParser(description=__doc__)
+    parser.add_argument("--source-root", type=pathlib.Path, default=ROOT)
+    parser.add_argument("--controller", type=pathlib.Path)
+    args = parser.parse_args()
+    ROOT = args.source_root.resolve()
+    LUA = ROOT / "mod/42.20/media/lua"
+    ORGANIZATION = LUA / "shared/SAO_Organization.lua"
+    COMMUNICATION = LUA / "shared/SAO_Communication.lua"
+    GRAPH = LUA / "shared/SAO_GraphPersistence.lua"
+    NEEDS = LUA / "client/SAO_Needs.lua"
+    SOURCE_USE = LUA / "client/SAO_SourceUse.lua"
+    PROVISIONING = LUA / "shared/SAO_Provisioning.lua"
+    HANDOVER = LUA / "shared/SAO_Handover.lua"
+    CONTROLLER = args.controller.resolve() if args.controller else LUA / "client/SAO_Controller.lua"
+    WORLD_SOURCES = LUA / "shared/SAO_WorldSources.lua"
+    PERCEPTION = LUA / "shared/SAO_Perception.lua"
+    CHECK = ROOT / "tools/check.sh"
+    RUNNER = ROOT / "tools/luacheck/LuaRun.java"
     print("=" * 74)
     print("PRODUCTION COORDINATION ACQUISITION, CARRYING AND DELIVERY")
     print("=" * 74)
     required = [ORGANIZATION, COMMUNICATION, GRAPH, NEEDS, SOURCE_USE,
-                PROVISIONING, HANDOVER, CONTROLLER, WORLD_SOURCES, CHECK,
+                PROVISIONING, HANDOVER, CONTROLLER, WORLD_SOURCES, PERCEPTION, CHECK,
                 RUNNER]
     missing = [path for path in required if not path.is_file()]
     if missing:
@@ -833,6 +1061,8 @@ def main() -> int:
     if not all(path.is_file() for path in installed):
         print("Border 197 SKIPPED: installed game VM or JDK absent")
         return 0
+    before_hashes = {str(path): hashlib.sha256(path.read_bytes()).hexdigest()
+                     for path in required}
     static_ok, detail = static_contract()
     print("  static contract: " + ("PASS" if static_ok else "FAIL")
           + " (" + detail + ")")
@@ -841,6 +1071,7 @@ def main() -> int:
     failed = sorted(name for name, result in found.items() if result != "true")
 
     sources = {
+        "perception": PERCEPTION.read_text(encoding="utf-8-sig"),
         "organization": ORGANIZATION.read_text(encoding="utf-8-sig"),
         "source_use": SOURCE_USE.read_text(encoding="utf-8-sig"),
         "provisioning": PROVISIONING.read_text(encoding="utf-8-sig"),
@@ -912,6 +1143,52 @@ def main() -> int:
          'SAO.Organization.interruptWork(route.commitmentId, "acquisition-queue-refused", false)',
          "lost_native_cache_preserves_arrived_goal"),
     ]
+
+    # Restored defect: registry membership supplies an unseen body's location.
+    # Keep the real downstream source, permission and handover owners intact.
+    private_target = "    local requester = coordinationRequesterInSight(id, body, plan)"
+    global_target = """    local requesterBody = SAO.Communication.bodyFor(plan.requesterId)
+    local requester = requesterBody and { body = requesterBody,
+        x = requesterBody:getX(), y = requesterBody:getY(),
+        z = math.floor(requesterBody:getZ()) } or nil"""
+    controls.extend([
+        ("unseen live registry position cannot replace received address", "controller",
+         private_target, global_target,
+         "unseen_requester_uses_complete_received_address"),
+        ("body availability is not private identity", "controller",
+         private_target, global_target, "absent_requester_cannot_admit_handover"),
+        ("native sight cannot be replaced by distance", "controller",
+         'if ok and visible == true then\n                return { body = other',
+         'if ok and floor ~= nil and (body:getX()-other:getX())^2 '
+         '+ (body:getY()-other:getY())^2 <= 14^2 then\n                return { body = other',
+         "false_sight_requester_cannot_admit_handover"),
+        ("retained observation is not fresh action evidence", "controller",
+         'local belief = SAO.Perception.freshObservedPerson(id,',
+         'local belief = SAO.Perception.believedPerson(id,',
+         "stale_requester_cannot_admit_handover"),
+        ("private contact identity cannot become the desired requester", "controller",
+         'if tostring(known.id) == tostring(plan.requesterId) then',
+         'if true then\n            known.id = plan.requesterId',
+         "private_id_requester_cannot_admit_handover"),
+        ("recipient native identity is checked before sharing", "controller",
+         '                    or tostring(otherData.SAOPersonId or "") ~= tostring(known.id)\n',
+         '', "native_id_requester_cannot_admit_handover"),
+        ("actor native identity is checked before sharing", "controller",
+         '                    or tostring(ownData.SAOPersonId or "") ~= tostring(id)\n',
+         '', "actor_id_requester_cannot_admit_handover"),
+        ("route coordinates remain acquired observations", "controller",
+         'requester.x, requester.y, requester.z, "carrying")',
+         'requesterBody:getX(), requesterBody:getY(), requester.z, "carrying")',
+         "fresh_private_identity_routes_observed_xy_on_seen_floor"),
+        ("unseen saved target is revalidated after reload", "controller",
+         'if remembered.phase == "carrying" and not (',
+         'if false and not (',
+         "pending_person_route_revalidates_after_reload"),
+        ("received floor is required before local deposit", "controller",
+         '        and math.floor(body:getZ()) == math.floor(destination.z)\n', '',
+         "received_destination_floor_is_not_current_deposit_floor"),
+    ])
+
     controls_ok = True
     for control in controls:
         name, target, old, new = control[:4]
@@ -936,14 +1213,20 @@ def main() -> int:
             print(f"  PASS control: {name}" + (f" -> {reason}" if reason else ""))
     print("  mutation controls: " + ("PASS" if controls_ok else "FAIL")
           + f" ({len(controls)} joined-owner controls)")
-    if not static_ok or not controls_ok or set(found) != EXPECTED or failed:
+    after_hashes = {str(path): hashlib.sha256(path.read_bytes()).hexdigest()
+                    for path in required}
+    stable_inputs = before_hashes == after_hashes
+    print("  stable source inputs: " + ("PASS" if stable_inputs else "FAIL"))
+    if not static_ok or not controls_ok or not stable_inputs or set(found) != EXPECTED or failed:
         print("  FAULT: missing=" + repr(sorted(EXPECTED - set(found)))
               + " failed=" + repr(failed) + " value=" + repr(value))
         print("  " + output[-3000:].replace("\n", " "))
         return 1
+    print(f"  verdicts: PASS ({len(EXPECTED)} actual-owner cases)")
     print("  197) delivered acceptance executes exact acquisition, carrying and "
           "handover; route failures retain goals with bounded private-evidence reappraisal; "
-          "native transfer release/interruption remains failed/partial")
+          "native transfer release/interruption remains failed/partial; "
+          "requester destinations require private identity and current sight or received address")
     return 0
 
 

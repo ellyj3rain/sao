@@ -1,6 +1,6 @@
 | Document | Survivor Awareness Overhaul Findings |
 |---|---|
-| Version | `2.12.0.0-pre-alpha` |
+| Version | `3.0.0.0-pre-alpha` |
 | Author | ellyj3rain |
 | Repository | `FINDINGS.md` |
 | Status | CANONICAL, APPEND-ONLY - verified engine findings. |
@@ -2663,3 +2663,141 @@ Kahlua executes the real Body producer with injected constructor outcomes; the
 45-control suite includes allocation refusal, snapshot preservation, subsequent
 native success and absent-bridge compatibility. This is a causal allocation
 repair, not a measurement of retained heap size in a running world.
+
+## F-116 | 2026-09-27 05:16 UTC / 22:16 PST | Cooking discovery used an unsupported collection copy
+
+Controlled native C89 run03 consumed one owned dose and produced private
+experience, but appliance discovery repeatedly returned unavailable. Its
+`home/Zomboid/SAOAgent.log` records UnsupportedOperationException at cooking
+offers. `SAOCooking.offers` copied `square.getObjects()` into an ArrayList.
+Installed PZArrayList inherits the iterator-based toArray path while iterator
+throws unconditionally. This is the same collection limitation recorded in
+F-114, occurring in the new appliance producer.
+
+Indexed size/get traversal reaches the native appliance. The cooking probe now
+calls actual offers against an installed native square and stove. Restoring the
+collection copy fails that exact assertion. Existing native heat, ownership,
+interruption and completion controls remain. This establishes the producer fix;
+loaded preparation completion is recorded separately in the batch evidence.
+
+## F-117 | 2026-09-27 05:38 UTC / 22:38 PST | A failed home route immediately became the same decision
+
+C89 native02 repeated 1,119 HOMEWARD attempts to the same destination after
+native failure without leaving the same approach. Immediate need decisions
+therefore competed with an unchanged failed route on every reconsideration.
+The underlying native path failure did not establish that another attempt was
+productive or that the destination was reachable.
+
+Controller now retains the exact terminal job's failed home and approach after
+existing work owners permit closure. Repeated failure defers that same attempt
+for a bounded county interval. Changed destination or approach, arrival and
+actual occupancy release it. Other decisions remain available. Installed Kahlua
+executes the real controller and saved-record rebind in 136 assertions with
+20 defect controls; those checks prove reconsideration, not native reachability.
+
+## F-118 | 2026-09-27 05:38 UTC / 22:38 PST | Sound class loading escaped transformer installation
+
+C89 native04's immediate native sensor read found a real audible WorldSound,
+but its output lacked an occurrence token. The sound transformer reported
+registration and remained waiting; no transformation or transformer error was
+reported. Unidentified sound memory correctly failed fresh-cue admission.
+
+The installed-class fixture reproduces WorldSound loading after Byte Buddy's
+initial class snapshot while the installation circularity lock is held. The
+class escapes both that snapshot and transformation during the lock. An exact
+target reconciliation pass after installation retransforms already loaded
+WorldSound classes. The original source fails native pulse acquisition under
+the same race; the repair passes all 85 native pose and sense assertions.
+It creates no substitute sound evidence. Loaded response is verified separately.
+
+## F-119 | 2026-09-27 05:54 UTC / 22:54 PST | A listener gesture displaced admitted preparation
+
+C89 native04 accepted preparation at frame 45. Another person's exchange queued
+the cook's listening gesture at frame 46; cooking correctly refused that
+unrelated native action at frame 47. The gesture's old admission checked only
+momentary native action occupancy. It could therefore claim a body between an
+operation's own actions, regardless of the recipient's controller state.
+
+Gesture admission now reads the recipient's existing work, transfer and external
+ownership plus the pending Lua queue. Stand-up cleanup remains unconditional.
+The real Exchange-to-Gesture path executes with native bodies and timed actions
+in 17 cases and 11 rejected defect controls. The next loaded run reached actual
+heating. It later lost appliance access; that separate result is retained rather
+than treating the repaired gesture boundary as completed preparation.
+
+## F-120 | 2026-09-27 06:21 UTC / 23:21 PST | Native sound loaded after the first reconciliation
+
+Native05 still emitted tokenless sounds after the F-118 repair. Read-only loaded
+class inspection established that WorldSound and the scanner shared one loader;
+the historical class-loading call stack was not captured. A full installed-agent
+fixture reproduces a later nested load after the installer's reconciliation.
+
+The first valid native scanner call now reconciles that exact sound class once,
+outside agent bootstrap. Missed occurrences remain unidentified. Later native
+initialization creates real occurrence receipts. The sealed gate passes 85 pose
+and sense checks under three loading orders, 36 diagnostics and 16 full-agent
+late-load checks, and rejects 28 restored defects. Native06 independently records
+45 heard-cue samples and 46 active orientation samples. Two stationary bodies
+turned 125.54 and 113.20 degrees while their matching heard occurrence remained
+current; head/gaze projection also changed. The fixture supplied the sounds.
+
+## F-121 | 2026-09-27 06:21 UTC / 23:21 PST | Small displacement ended valid appliance work
+
+Native05 reached actual heat progression and then refused appliance access.
+Its last sampled approach was near the native reach boundary. Replaying that
+geometry with the installed appliance reproduces refusal after approximately
+six hundredths of a tile of displacement while holder identity, food and the
+clear path remain valid. The exact displacement at native05's refusal was not
+sampled, so that reproduction establishes the mechanism rather than the
+historical cause of movement.
+
+Cooking now preserves the same work and heat binding while obtaining a fresh
+standable approach and physically returning to the exact appliance. Source
+identity, original location, private permission, route ownership, action
+admission and the six-hour budget remain enforced. Destroyed appliances,
+replaced items and conflicting actions still terminate the job. The current
+native, Lua, inspection and join probes pass 154 cases and reject 60 defects;
+loaded completed preparation and reload evidence are recorded separately.
+
+## F-122 | 2026-09-27 06:45 UTC / 23:45 PST | An accepted delivery could track an unseen requester
+
+The acquired-work branch in Controller obtained the requester's global native
+body and used its current coordinates for a carrying route. The obligation and
+cargo were real, but the destination could change without the carrier learning
+that the requester had moved.
+
+Requester targeting now joins a privately known identity, fresh observed
+location, exact native identities, current sight and the same floor. Handover
+rechecks the native talk reach. Without that encounter, the carrier uses the
+whole destination received in the accepted proposal. A saved pending route
+must still match an admitted destination; losing authority interrupts only the
+attempt and retains the accepted goal and acquired cargo receipt. A received
+address route stays valid when another requester point becomes visible.
+
+Installed Kahlua executes the actual Perception, Organization, Controller,
+SourceUse and Handover owners in 89 cases and 28 rejected controls. Native sight,
+locomotion and action receivers are controlled in that probe. The test preserves
+the previous 41 cases and 18 controls and adds unseen movement, wrong identity,
+floor separation, reload, 24-hour retention and subsequent valid handover.
+Loaded initiation, reception and completed cooperative delivery remain separate
+observations in the combined run.
+
+## F-123 | 2026-09-27 07:08 UTC / 00:08 PST | Sustained provisioning reached commitment and acquisition but not delivery
+
+Native08 advanced six people from hour 2.0 through 27.934 and retained 104
+archived observations. Five naturally produced provisioning matters recorded
+six addresses. Three requests were actually received, appraised and answered;
+two produced commitments and one commitment acquired an item. No matter entered
+a carrying route or recorded completed delivery.
+
+This separates social formation from material execution. The loaded path can
+create pressure, address another person, receive a response and retain accepted
+work. Its next missing joins differ by matter: some stop at reception, some at
+commitment, one at acquisition and one after acquisition before delivery. The
+read-only audit preserves each first absent stage without generating a response,
+commitment, route or outcome and remains unreviewed for dataset admission.
+
+The same run separately completed one native cooking operation for Ralph Larose:
+heat advanced from 0 to 51.141, the exact item was retrieved and the appliance
+was off. That physical completion does not claim it was part of a provisioning
+commitment; collect, prepare and deliver are not yet one retained procedure.

@@ -726,6 +726,14 @@ local function advanceDormantPhysiology(id, rec, nowHours, fatigueBase)
     return true
 end
 
+-- Existing rest physiology is shared with the body's chronological restore.
+-- External behavioral owners retain their own dormant physiology.
+function D.advanceRest(id, rec, toHours)
+    if not rec or tostring(rec.id) ~= tostring(id) or rec.bodyOwner
+        or not finite(toHours) or toHours < 0 then return false end
+    return advanceDormantPhysiology(id, rec, toHours, awakeFatigueBase())
+end
+
 local function clearDayGoal(rec)
     rec.dayGoalX, rec.dayGoalY = nil, nil
     rec.dayGoalPlaceId = nil
@@ -806,7 +814,16 @@ local function dormantLife(conf, tickCounter)
             -- movement.  Its registered owner may still originate/appraise a
             -- social matter through the common process services below.
             if not rec.bodyOwner then
-                advanceDormantPhysiology(id, rec, nowHours, fatigueBase)
+                local pharmacy = rec.pharmacology
+                if SAO.Pharmacology and pharmacy and (pharmacy.dormant or pharmacy.saved) then
+                    local current, reason = SAO.Pharmacology.advanceDormant(rec, nowHours,
+                        function(_, toHours) return D.advanceRest(id, rec, toHours) end)
+                    if not current and reason ~= "catching-up" then
+                        log(tostring(id) .. " dormant physiology unavailable: " .. tostring(reason))
+                    end
+                else
+                    advanceDormantPhysiology(id, rec, nowHours, fatigueBase)
+                end
                 if SAO.Standing.maybeCallForBread then
                     SAO.Standing.maybeCallForBread(id)
                 end

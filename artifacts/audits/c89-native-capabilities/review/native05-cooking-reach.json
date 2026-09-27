@@ -1,0 +1,111 @@
+{
+  "status": "reproduced-and-candidate-repair",
+  "run": "native-05",
+  "boundary": "Native05 exact failure position was not sampled; small native separation is a hypothesis. Actual installed geometry probe proves reach-only refusal under a small displacement without source identity loss.",
+  "source": {
+    "x": 3424,
+    "y": 10909,
+    "z": 0,
+    "sourceId": "C:a67382e8-1164-4834-a167-ca805f58002a:0"
+  },
+  "evidence": [
+    {
+      "line": 1742,
+      "actor": "sao-2",
+      "hours": 2.139662742614746,
+      "x": 3426.24072265625,
+      "y": 10910.4765625,
+      "state": "IDLE",
+      "queues": {
+        "nativeCount": 0,
+        "luaCount": 0
+      },
+      "preparation": {
+        "stage": "heat",
+        "itemType": "Base.MuttonChop",
+        "sourceId": "C:a67382e8-1164-4834-a167-ca805f58002a:0",
+        "startedAt": 2.0031614303588867,
+        "cookingTime": 8.25638198852539,
+        "heatObserved": true
+      },
+      "outcome": null
+    },
+    {
+      "line": 1745,
+      "actor": "sao-2",
+      "hours": 2.148383140563965,
+      "x": 3426.24072265625,
+      "y": 10910.4765625,
+      "state": "IDLE",
+      "queues": {
+        "nativeCount": 0,
+        "luaCount": 0
+      },
+      "preparation": {
+        "stage": "heat",
+        "itemType": "Base.MuttonChop",
+        "sourceId": "C:a67382e8-1164-4834-a167-ca805f58002a:0",
+        "startedAt": 2.0031614303588867,
+        "cookingTime": 8.25638198852539,
+        "heatObserved": true
+      },
+      "outcome": null
+    },
+    {
+      "line": 1754,
+      "actor": "sao-2",
+      "hours": 2.2595014572143555,
+      "x": 3426.24072265625,
+      "y": 10910.4765625,
+      "state": "IDLE",
+      "queues": {
+        "nativeCount": 0,
+        "luaCount": 0
+      },
+      "preparation": {
+        "stage": "heat",
+        "itemType": "Base.MuttonChop",
+        "sourceId": "C:a67382e8-1164-4834-a167-ca805f58002a:0",
+        "startedAt": 2.0031614303588867,
+        "cookingTime": 22.028383255004883,
+        "heatObserved": true
+      },
+      "outcome": null
+    },
+    {
+      "line": 1791,
+      "actor": "sao-2",
+      "hours": 2.4313507080078125,
+      "x": 3428.67626953125,
+      "y": 10914.099609375,
+      "state": "FOLLOW",
+      "queues": {
+        "nativeCount": 0,
+        "luaCount": 0
+      },
+      "preparation": null,
+      "outcome": {
+        "id": "cooking/sao-2/1",
+        "sequence": 1,
+        "actorId": "sao-2",
+        "itemId": 1176783481,
+        "itemType": "Base.MuttonChop",
+        "sourceId": "C:a67382e8-1164-4834-a167-ca805f58002a:0",
+        "startedAt": 2.0031614303588867,
+        "atHours": 2.272507667541504,
+        "status": "interrupted",
+        "detail": "appliance-unavailable",
+        "beforeCookingTime": 0,
+        "afterCookingTime": 24.028383255004883,
+        "heatObserved": true,
+        "retrieved": false,
+        "detached": false
+      }
+    }
+  ],
+  "previous_distance_squared": 3.9837896823883057,
+  "next_logged_rounded_distance_squared": 4.240000000000655,
+  "log_sha256": "5fe0710017e4258a00f360cf4d9305261312958c47ebe78a084fe8c9777f526c",
+  "reproduction": "cooking-reach-reproduction.json",
+  "repair": "Fresh native standable approach to the exact known appliance; preserve same work/thermal binding, no remote heat read or credit. Same private permission, time limit and foreign owner refusal."
+}
