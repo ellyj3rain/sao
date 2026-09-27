@@ -1,0 +1,182 @@
+{
+  "schema": "sao-c88-verification/1",
+  "recordedAt": "2026-09-27T02:41:33.840830+00:00",
+  "version": "2.12.0.0-pre-alpha",
+  "runtimeSourceHashes": {
+    "java/dist/SAOAgent.jar": "a341bab90bf793bc6f73308e0b478de55ea98cf9a2256e9969eeaf33eea8f4d4",
+    "mod/42.20/media/java/SAO.jar": "a341bab90bf793bc6f73308e0b478de55ea98cf9a2256e9969eeaf33eea8f4d4",
+    "mod/42.20/media/lua/client/SAO_Controller.lua": "6f164ae95699244793eb6cd64d82fac938f9172168a165f13fa290ee5ffb5f6c",
+    "mod/42.20/media/lua/client/SAO_Needs.lua": "b5c061d0ff33a9cc104aa2c0c5718f6b5da39b1a71e280100e9197f95d4454a9",
+    "mod/42.20/media/lua/client/SAO_Observation.lua": "ed83a8f2b00c9dbcfa711aa44c2690913ef38c6a3b0041434694c6c45ce9ac8c",
+    "mod/42.20/media/lua/client/SAO_SourceUse.lua": "177018859ad4587a5bb1b5559b1eaa3df2b60ccc28e2a0c4c6e9ccd9c8d1dfff",
+    "mod/42.20/media/lua/shared/SAO_Cognition.lua": "36f2f3f8714546be8205fbaad2d1c8af6a8fa856f158a9b1b7c6bf1052ab0e03",
+    "mod/42.20/media/lua/shared/SAO_CognitiveModels.lua": "791d4a2392d85645508a0debb5c50abc1636573d71194ec4a435dfbc7caef31b",
+    "mod/42.20/media/lua/shared/SAO_Identity.lua": "a3f8878de7d3ea3d163a30f8e77a813cf3b86b6371351f3794da313050f0188b",
+    "mod/42.20/media/lua/shared/SAO_Perception.lua": "a25834cc9e490d92fa19be8bad54d02bb8f54098e4b51ea0cc5c4f54fca54b66",
+    "mod/42.20/media/lua/shared/SAO_WorldSources.lua": "d2bca1eb17b50d54935d45db08f6ae51ea61dbc04a25cfacdbf741b6cbcb723c",
+    "mod/42.20/mod.info": "12ab513b5887829ac860644a9be1f2a2b3676eb688ad4eba1cddd44c6c3173df",
+    "mod/mod.info": "12ab513b5887829ac860644a9be1f2a2b3676eb688ad4eba1cddd44c6c3173df",
+    "tools/check.sh": "f8e3951d0068ac3243047263a21463f8bbf97fd71c66d4afdffa0e3ba6a3e1e7",
+    "tools/cognition_checks/CognitionUseProbe.java": "0dd6382f99880d09129d81623930696e2d0d672f4dfc3869398d80395910ec30",
+    "tools/cognition_checks/export.lua": "79cb72def21983cfb6144d0fd268c6647041da0d22f69cf40ff9e18e7053abef",
+    "tools/cognition_checks/inspection.lua": "9984142a99f5d69aa5331e6d557f9e86894d63472178213f4828a1d115d18f1c",
+    "tools/cognition_checks/lifecycle.lua": "7c11642874d32b2113a29f7e5a934fcc177ae946e36f6f88d4f130a71266b8ea",
+    "tools/cognition_checks/lifecycle_prelude.lua": "05f3dcf069c1eb0184c92afbbc55f0bfbfb635ddbb2621094592689fe191b797",
+    "tools/cognition_checks/native_use.lua": "769862355bfb43c69178a81485e48e44a0ea6ead52d58a25b1aea7a2837890a1",
+    "tools/cognition_checks/prelude.lua": "283cfd5374fbb461291d876825528f52bf4b765a3ffb77a2d6c5c02a2700f1e3",
+    "tools/cognition_checks/run_checks.py": "9c9f4c69c320e0744c6cecee4970f452fc6dbd579d40f443b201d1669e7dcb64",
+    "tools/cognition_checks/run_lifecycle.py": "932573350b0ee60e6ca663392ef4f45aa984a94f32ced52e11cc0c4ef5f8e0c6",
+    "tools/cognition_checks/run_native_use.py": "a587309c09712abe0761789731794fad3166318a3c6f56710c5baca9ffd37d10",
+    "tools/cognition_checks/run_producers.py": "37c16520821862c79aeb4ab13c1a80ecce0946f1b096bd20ca09aaa1bae1dcf4",
+    "tools/cognition_checks/runtime.lua": "63abb3aa7f3bea050ecb8ee71bd809d1f0c45a788090c365312b69e7dfd2064f",
+    "tools/cognition_checks/transfer.lua": "7ca58862f7e60e2e837bb8ecd743e841a2f801de8d953b4c6c611c5d5dae739e",
+    "tools/cognition_test.py": "26559afb340754baf8001d2196f4aa558202d3b11844662f17a0889faf9a2ebe",
+    "tools/cognitive_models_test.py": "39e20e7239ff43834abce9cc64e9a08cb8dc4ce2a52c2ba5d796218e80dc2870",
+    "tools/coordination_scene_dump_test.py": "da80dec1ca670a1b60bbba46ac11ccbf46a964e29efa6faf7ba4c26c4023f978",
+    "tools/luacheck/CognitiveModelChecks.lua": "df9675b48babf656238d9744a3d45480ad1ebdc0fe19116aadf6c43ea514f63c",
+    "tools/luacheck/WaterRouteChecks.lua": "34c6057f3115d8ceeaae54ea3c0f24a610f018da2ea4822ec376040358c7776b",
+    "tools/resource_approach_test.py": "60ae966feabb680acd2dfefdeac614107e7b864d89808332684f181a93ef4784",
+    "tools/version_replay.py": "bb25e5cbba656cf4239c669175eb36551df371325d8d8ffa429c6d15df5d4151",
+    "tools/world_lab.py": "2b66ccfca036a58e83e24a0d76c79c2c16b41824f32c4e5e2fa8da6d5928fb81",
+    "tools/world_lab/NativeObserverInspectionProbe.java": "32bffc6f96ee2961ef8db5cc1ab2af8fd7c11204746d9ed231c83535e9e5e06d",
+    "tools/world_lab/README.md": "97cb2d0164feb5f587a322ae1d4d99128c9197669f48c9ff34577cf21cbe3284",
+    "tools/world_lab/RuntimeChecks.lua": "5be688ed04e7a9cf09ed10a1e3a9f0decb5ac2b395e7ea18039960a21a7b68cd",
+    "tools/world_lab/StudyObserver.java": "eb48e9d3587dfe93f72c7618380c2a979a4a1edcdb49534ff46aae517c07fb79",
+    "tools/world_lab/StudyWorld.lua": "9b68f94ba2639045a1839612ab3dd20a772515c26b20444f68fa5d84ef9beb51",
+    "tools/world_lab/observer_probe_checks.py": "7f4591b97e01c2bd35d1a2c32e1e9e2fa3cba412aa82b7438277d10e83083426",
+    "tools/world_lab_test.py": "c3a2b56aef3964aa6023c1a4721eb474806f1ab35f5ffc5c98c69b9d63bfd120",
+    "tools/county_sweep.py": "2f014068d5f12dbd02263dfdddb48d24cd3e06fd5483e1017f4a46009cf4be87",
+    "tools/trajectory_simulation_test.py": "3276d85f5e1992a5b2008182ab908b4a51fc26a3c275d9331d1a0faaac422e4f"
+  },
+  "loadedModHashesMatch": {
+    "mod/42.20/media/java/SAO.jar": "a341bab90bf793bc6f73308e0b478de55ea98cf9a2256e9969eeaf33eea8f4d4",
+    "mod/42.20/media/lua/client/SAO_Controller.lua": "6f164ae95699244793eb6cd64d82fac938f9172168a165f13fa290ee5ffb5f6c",
+    "mod/42.20/media/lua/client/SAO_Needs.lua": "b5c061d0ff33a9cc104aa2c0c5718f6b5da39b1a71e280100e9197f95d4454a9",
+    "mod/42.20/media/lua/client/SAO_Observation.lua": "ed83a8f2b00c9dbcfa711aa44c2690913ef38c6a3b0041434694c6c45ce9ac8c",
+    "mod/42.20/media/lua/client/SAO_SourceUse.lua": "177018859ad4587a5bb1b5559b1eaa3df2b60ccc28e2a0c4c6e9ccd9c8d1dfff",
+    "mod/42.20/media/lua/shared/SAO_Cognition.lua": "36f2f3f8714546be8205fbaad2d1c8af6a8fa856f158a9b1b7c6bf1052ab0e03",
+    "mod/42.20/media/lua/shared/SAO_CognitiveModels.lua": "791d4a2392d85645508a0debb5c50abc1636573d71194ec4a435dfbc7caef31b",
+    "mod/42.20/media/lua/shared/SAO_Identity.lua": "a3f8878de7d3ea3d163a30f8e77a813cf3b86b6371351f3794da313050f0188b",
+    "mod/42.20/media/lua/shared/SAO_Perception.lua": "a25834cc9e490d92fa19be8bad54d02bb8f54098e4b51ea0cc5c4f54fca54b66",
+    "mod/42.20/media/lua/shared/SAO_WorldSources.lua": "d2bca1eb17b50d54935d45db08f6ae51ea61dbc04a25cfacdbf741b6cbcb723c",
+    "mod/42.20/mod.info": "12ab513b5887829ac860644a9be1f2a2b3676eb688ad4eba1cddd44c6c3173df",
+    "mod/mod.info": "12ab513b5887829ac860644a9be1f2a2b3676eb688ad4eba1cddd44c6c3173df"
+  },
+  "native": {
+    "sessionId": "6b4e4090-596e-4faa-a0a4-a57d9ad3cea2",
+    "runSha256": "b808a4287815c4f6af18e4ccee80b62695320534be89192fabebe0ae3391fa32",
+    "packageSha256": "b5428973b1adc50a9ac4654208de0dcbb1ba8caa70c140931f3576bca2c4663a",
+    "engineJarSha256": "80e405a4bfc42f6072e75b3735f458a6514143da011d3226007ded305a442f44",
+    "loadingAgentSha256": "ce95c2f2a40ce1ea2eb8bf18f2c79e9ab9f042a01e12a959fbc8748ef7dca86a",
+    "runDirectory": "_scratch/c88-competition/native-01",
+    "packageDirectory": "_scratch/c88-competition/residential-package-01",
+    "datasetAdmission": "unreviewed"
+  },
+  "mechanical": {
+    "modelCases": 29,
+    "modelDefectsRejected": 36,
+    "cognitionCases": 108,
+    "cognitionDefectsRejected": 36,
+    "archiveDefectsRejected": 17,
+    "observerDefectsRejected": 33,
+    "observerLogSha256": "fca30bfb92291a96d1ebe7b3b50a8368b57655d352a979d4cd99e1a274698ab0",
+    "resourceBoundary": "The resource control receipt predates the final lifecycle edits; final source is covered by the unchanged closing hook.",
+    "postFocusedChange": "Cognition checker final PASS line now prints Border201; production source unchanged. Complete hook verifies final bytes.",
+    "dormantLoadRepair": {
+      "command": "C:/Python314/python.exe tools/trajectory_simulation_test.py",
+      "exitCode": 0,
+      "observedVerdict": "159) simulation evidence: completion, modules, callback faults, engine data, joint coverage, seed identity and source hashes held; partial-horizon control flips",
+      "controls": "Removal of either durable cognitive owner is refused; production Lua loads without creating dormant decisions or experiences."
+    }
+  },
+  "speakeasy": {
+    "tests": 214,
+    "seconds": 41.835,
+    "logSha256": "1fd81de44425bc09cf70c6d88f736914d6cb4b469c2a8940223b51fa41602766",
+    "sourceHashes": {
+      "tools/cognition_contract.py": "343d48004d21975432e8802c486266da65bcedac3572e73ebee8a26e9bc356b6",
+      "tools/cognition_episodes.py": "9fb592132fb669607c6e43b30175276a31ee990afe4d95ba9ba66a6228969c9d",
+      "tools/test_cognition_episodes.py": "d1f0ac4ba360a56ea345ae873b3c89e3f8ec9a749fb8f1e4ca9495cbf6359b8e",
+      "tools/world_watch.py": "192a2ec1375d74bed884990b2b956c42af4e7f77b1e30617439c97c9104d50a8"
+    },
+    "intakeManifestSha256": "3e04c4320385409a4e0876a204b301af5b27be90a7805a77946fa2826073e4d7",
+    "intakeDirectory": "runs/r73-c88-native01-cognition",
+    "episodes": 1363,
+    "observedTargets": 15,
+    "snapshots": 162,
+    "trainingRows": 0,
+    "teachingTargets": 0
+  },
+  "mousecat": {
+    "prReadyExitCode": 0,
+    "logSha256": "49302bb4607393c1d287bcc3b6f07c0c01c74d628d87a3b662e6d352634bf771",
+    "sourceHashes": {
+      "src/core/cognition-view.mjs": {
+        "sha256": "030d08dbb17824e040f4b41f15304bd45fec579c6ccb8c15d8c85079f3a7ac3b"
+      },
+      "src/core/native-view.mjs": {
+        "sha256": "217a4172a4750e4e73723c5463aaa9adc90c9823ba50687edde1003e1ce82544"
+      },
+      "src/operator/public/native-view.js": {
+        "sha256": "d13f6463022fb10ddc01c7d3fc92d6a3d054ede932ec2134465d92b4cb28c467"
+      },
+      "src/operator/public/native-view.css": {
+        "sha256": "5cfc165b999dbfe1326b9b10c05af28d61dac77ef1c6078cadcbb91b1c2637f3"
+      },
+      "test/native-view.test.mjs": {
+        "sha256": "c0fa5b15796aff316e869a68ace0f1305f1d1948d502117ae390b372f0326f42"
+      }
+    },
+    "installedDesktopVerified": true,
+    "settingsNativeApplied": {
+      "opponentShare": 0.5,
+      "opportunitiesPerWorldHour": 48,
+      "maxAssociationDepth": 4
+    },
+    "publication": "Local installed integration; existing unrelated A19 checkout is not included in SAO publication."
+  },
+  "rateSample": {
+    "schema": "sao-native-sample/1",
+    "sessionId": "6b4e4090-596e-4faa-a0a4-a57d9ad3cea2",
+    "pid": 69556,
+    "seconds": 60.00539870001376,
+    "distinctImagesObserved": 413,
+    "distinctImagesPerWallSecondLowerBound": 6.866048871031092,
+    "boundary": "Read-only 20ms sampling of actual native image manifests. Missed publications make image rate a lower bound; capture attempts and bridge publications are not counted as images. Not native renderer FPS. Short memory samples cannot settle leakage.",
+    "endpointSeconds": 58.4201546999393,
+    "countyHoursPerWallMinute": 2.4271195212470307,
+    "logicCallsPerWallSecond": 21.978716191269072,
+    "privateMiBDelta": 19.98046875
+  },
+  "closingGate": {
+    "command": "git commit invokes unchanged tools/pre-commit and tools/check.sh --staged",
+    "receipt": "_scratch/c88-competition/full-gate/precommit-05/verification-receipt.json",
+    "status": "Enforced by the closing commit; this file does not predeclare its result.",
+    "previousAttempts": [
+      "precommit-01 stopped after Border44 rejected the missing session batch delimiter.",
+      "precommit-02 stopped after Border76 rejected stale canonical gate counts.",
+      "precommit-03 stopped after Border159 rejected the missing dormant Cognition module. Both durable owners now load; focused Border159 passes, including module removal controls.",
+      "precommit-04 executed all 215 distinct entry points without input drift. The final speech lint misclassified a frontend file path followed by its hash as attribution. Hash values now occupy separate object fields; no check was relaxed."
+    ]
+  },
+  "files": {
+    "intake-manifest.json": "3e04c4320385409a4e0876a204b301af5b27be90a7805a77946fa2826073e4d7",
+    "mousecat-discovery-receipt.json": "86fc63f5348692f012af992f9aa713cba33f53ae07bd5fd3e88bb42a3d61ed2d",
+    "mousecat-installed.png": "e245b6877dc215a1cc1e04d71743ff6a7c9103599ca014c4d7a1a4472b1e3c55",
+    "mousecat-receipt.json": "67091d8362a343360c574955acc15eb3efb0237c0bbc31bdf812993a046b8750",
+    "native-evidence.json": "0a0b9f72d45283b1a8e2e1af5c18c83bdef3770100cbd8222372f29b5cb9f7a8",
+    "native-run.json": "b808a4287815c4f6af18e4ccee80b62695320534be89192fabebe0ae3391fa32",
+    "coordination-scenes/catalogue.json": "fb6901396a46b97da642d2fc69bf8d68e9e8da8d58f3cd8dd825c93c6714c54c",
+    "coordination-scenes/decisions.jsonl": "fac1c21ecb01700e4c2573d98896edd295a144f95cc604752a87dc4bb6048b32",
+    "coordination-scenes/manifest.json": "25d02acbc367b532ae715566512b7561d8b287ce8764229c1eeb9dba135e1fef",
+    "mechanical/applied-controls.json": "48729ebcf2e8c82883e3e272ad7c7f340a353111af93fa3e96a80abfa66de6de",
+    "mechanical/archive-runtime-receipt.json": "68b2371ae1cb1cd82dbb6899ecee0979cb60ef57db03421700b75579b7609619",
+    "mechanical/combined-receipt.json": "f9b0adafc411900bdad024d858fb0e92bd7fe646d66186de865a1a5337d24008",
+    "mechanical/lifecycle-receipt.json": "a4c25b7a90ab365df8b9b6abedd6373ac60cb3f04a6ec96842a2f8e98ab7c012",
+    "mechanical/native-use-receipt.json": "f3b938691656e24cd53c57096c47eccbc5df0031ed36c6807ecc7c1a06e99ac7",
+    "mechanical/producer-receipt.json": "38e9c12ce5525a8271383657f217f3b3190f4829f9dae3fd99e70b4ddf8c0c60",
+    "mechanical/receipt.json": "c5aaae5d529c39454e352b616caa657a77a9b471e897913e854ad78cb4311884",
+    "mechanical/resource-controller-controls.json": "d0f394d7dffc19d0e5370666e745db21639deaf82f2e4b495b357f9d28087aba",
+    "native-data-review.json": "0ab786dee2da386fc2c8714f5e06ca4868e2a6de1057b2ff74f2beb3d98af4ef"
+  }
+}

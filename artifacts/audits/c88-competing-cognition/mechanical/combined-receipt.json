@@ -1,0 +1,21 @@
+{
+  "schema": "sao-cognition-checks/1",
+  "sources": {
+    "C:\\Users\\jleyv\\Peanut Butter\\AI Assisted Software Engineering Mass Repository\\Projects\\survivor-awareness\\mod\\42.20\\media\\lua\\shared\\SAO_Cognition.lua": "36f2f3f8714546be8205fbaad2d1c8af6a8fa856f158a9b1b7c6bf1052ab0e03",
+    "C:\\Users\\jleyv\\Peanut Butter\\AI Assisted Software Engineering Mass Repository\\Projects\\survivor-awareness\\mod\\42.20\\media\\lua\\shared\\SAO_Perception.lua": "a25834cc9e490d92fa19be8bad54d02bb8f54098e4b51ea0cc5c4f54fca54b66",
+    "C:\\Users\\jleyv\\Peanut Butter\\AI Assisted Software Engineering Mass Repository\\Projects\\survivor-awareness\\mod\\42.20\\media\\lua\\shared\\SAO_WorldSources.lua": "d2bca1eb17b50d54935d45db08f6ae51ea61dbc04a25cfacdbf741b6cbcb723c",
+    "C:\\Users\\jleyv\\Peanut Butter\\AI Assisted Software Engineering Mass Repository\\Projects\\survivor-awareness\\mod\\42.20\\media\\lua\\client\\SAO_SourceUse.lua": "177018859ad4587a5bb1b5559b1eaa3df2b60ccc28e2a0c4c6e9ccd9c8d1dfff",
+    "C:\\Users\\jleyv\\Peanut Butter\\AI Assisted Software Engineering Mass Repository\\Projects\\survivor-awareness\\mod\\42.20\\media\\lua\\client\\SAO_Needs.lua": "b5c061d0ff33a9cc104aa2c0c5718f6b5da39b1a71e280100e9197f95d4454a9",
+    "C:\\Users\\jleyv\\Peanut Butter\\AI Assisted Software Engineering Mass Repository\\Projects\\survivor-awareness\\mod\\42.20\\media\\lua\\shared\\SAO_CognitiveModels.lua": "791d4a2392d85645508a0debb5c50abc1636573d71194ec4a435dfbc7caef31b",
+    "C:\\Users\\jleyv\\Peanut Butter\\AI Assisted Software Engineering Mass Repository\\Projects\\survivor-awareness\\mod\\42.20\\media\\lua\\client\\SAO_Controller.lua": "6f164ae95699244793eb6cd64d82fac938f9172168a165f13fa290ee5ffb5f6c",
+    "C:\\Users\\jleyv\\Peanut Butter\\AI Assisted Software Engineering Mass Repository\\Projects\\survivor-awareness\\mod\\42.20\\media\\lua\\shared\\SAO_Identity.lua": "a3f8878de7d3ea3d163a30f8e77a813cf3b86b6371351f3794da313050f0188b",
+    "C:\\Users\\jleyv\\Peanut Butter\\AI Assisted Software Engineering Mass Repository\\Projects\\survivor-awareness\\mod\\42.20\\media\\lua\\shared\\SAO_Labor.lua": "20a04e518c9943ff6e81784c6b50b4408a4b8b5ae1c1795adc35e78da091d082"
+  },
+  "receipts": {
+    "receipt.json": "c5aaae5d529c39454e352b616caa657a77a9b471e897913e854ad78cb4311884",
+    "producer-receipt.json": "38e9c12ce5525a8271383657f217f3b3190f4829f9dae3fd99e70b4ddf8c0c60",
+    "native-use-receipt.json": "f3b938691656e24cd53c57096c47eccbc5df0031ed36c6807ecc7c1a06e99ac7",
+    "lifecycle-receipt.json": "a4c25b7a90ab365df8b9b6abedd6373ac60cb3f04a6ec96842a2f8e98ab7c012"
+  },
+  "limits": "Installed Kahlua production modules; native shell/item/fluid effects with controlled queue/animation context. WorldSources/SourceUse inspection and transfer adapters are controlled separately. No rendered gameplay or dataset admission."
+}

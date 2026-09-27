@@ -1,13 +1,29 @@
 | Document | Survivor Awareness Overhaul Session State |
 |---|---|
-| Version | `2.11.1.0-pre-alpha` |
+| Version | `2.12.0.0-pre-alpha` |
 | Author | ellyj3rain |
 | Repository | `SESSION_STATE.md` |
 | Status | CANONICAL - current implementation and continuation. |
 
 # Session state
 
-**As of** 2026-09-26, `[C87]` extends native survival observation and repairs
+**As of** 2026-09-27, [C88] integrates independent competing
+cognition with native resource execution and Mousecat observation. Both models
+retain separate beliefs and predictions; ordinary cognition has no veto. Native
+receipts, actor-private inspection and measured own relief update them
+independently. Native C88 run01 saved normally after 603.381 seconds with both
+people alive, zero runtime errors and 82 source frames. Validated intake retains
+1,363 deliberations, 230 disagreements, fifteen observed outcomes and nineteen
+private experiences. Both models revised; each associative model retained eight
+associations through depth two. All fifteen observed episodes selected the
+associative model, so these results establish the execution and learning path,
+not policy superiority. Installed Mousecat displays the competing states and
+confirmed a native change to 48 opportunities per world hour. The C88 batch and
+portable verification artifact preserve exact evidence and limits. Its complete
+gate is enforced by the closing commit. C87 is merged through PR106 after all
+213 unchanged closing-hook checks and CI passed.
+
+Previously, `[C87]` extends native survival observation and repairs
 continuity between knowledge, accepted work, movement and rest. Authored
 residential, service and farm worlds provide real native rooms and resources.
 Every launch has finite supervision and records its save outcome. The installed
@@ -900,11 +916,12 @@ consequences remain separate from the learned policy choosing among them.
 
 C57 consolidates three native entry points into one. With C64's immutable
 capture border, C73's radio-reception border, C74's personal-world-knowledge
-border and C75's typed-claim border, and C86's native study, escape-continuity and sound-evidence borders, the gate invokes
-200 `*_test.py` files and 13 other Python entry points, 213 distinct scripts.
-Border labels extend through 200; legacy labels
+border, C75's typed-claim border, C86's native study, escape-continuity and
+sound-evidence borders, and C88's cognitive competition border, the gate invokes
+202 `*_test.py` files and 13 other Python entry points, 215 distinct scripts.
+Border labels extend through 201; legacy labels
 163/169/174 share the native suite. These are distinct counting units. The mod
-ships 80 Lua source files.
+ships 85 Lua source files.
 ZAO A41 has fifteen borders. The
 published C51 baseline has 163 borders through 178 mirrors. These counts describe the
 apparatus, not acceptance. The audit reproduced defects while targeted checks

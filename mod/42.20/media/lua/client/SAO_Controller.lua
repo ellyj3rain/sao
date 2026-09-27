@@ -278,8 +278,20 @@ function Ctl.provisioningCompleted(id, body, receipt, action)
     return true
 end
 
+local function closeUnownedCognitionOnAdoption(id)
+    if not (SAO.Cognition and SAO.Cognition.interrupt) then return end
+    local ok, sourceOwner = pcall(function()
+        return SAO.WorldSources.pendingActionFor(id)
+    end)
+    -- A durable exact-source action can still reconcile its original token.
+    -- Unknown ownership is retained until its existing owner resolves it.
+    if not ok or sourceOwner then return end
+    SAO.Cognition.interrupt(id, "controller-adopt-without-execution")
+end
+
 function Ctl.adopt(rec)
     if not rec or not rec.id then return false end
+    if not Ctl.agents[rec.id] then closeUnownedCognitionOnAdoption(rec.id) end
     Ctl.agents[rec.id] = Ctl.agents[rec.id] or {
         rec = rec, state = "IDLE", stateSince = tickCount, nextDecisionAt = 0,
     }
@@ -302,6 +314,7 @@ end
 function Ctl.adoptPassive(rec)
     if not rec or not rec.id then return false end
     if Ctl.agents[rec.id] then return true end
+    closeUnownedCognitionOnAdoption(rec.id)
     Ctl.agents[rec.id] = {
         rec = rec, state = "PASSIVE", stateSince = tickCount,
         nextDecisionAt = 0, passive = true,
@@ -380,6 +393,9 @@ function Ctl.drop(id)
         clearLoadedContact(Ctl.agents[id])
         local ok, err = pcall(SAO.Locomotion.cancel, id)
         Ctl.agents[id] = nil
+        if SAO.Cognition and SAO.Cognition.interrupt then
+            SAO.Cognition.interrupt(id, "controller-drop")
+        end
         if not ok then log("cancel during drop " .. id .. ": " .. tostring(err)) end
         log("dropped " .. id)
     end
@@ -764,6 +780,9 @@ local function setState(agent, id, state, why, answer, repairingSourceProjection
             end
         end
         log(id .. " " .. agent.state .. " -> " .. state .. " (" .. why .. ")")
+        if state == "IDLE" and SAO.Cognition and SAO.Cognition.interrupt then
+            SAO.Cognition.interrupt(id, "intent ended: " .. tostring(why or "state changed"))
+        end
         agent.state = state
         agent.stateSince = tickCount
         -- Voice renders the decision audible; it never decides.
@@ -2283,6 +2302,37 @@ local function orderBesideFollow(id, agent, body, anchor, anchorBody, state, why
     return false
 end
 
+local function competeForResources(id, agent, body, tick, needs)
+    local cognition = SAO.Cognition
+    if not cognition or not cognition.choose or not needs or agent.state ~= "IDLE"
+        or agent.coordinationCommitment or agent.forageInspection
+        or (agent.rec and agent.rec.worldSourceReservation) then return nil end
+    if cognition.isDue and not cognition.isDue(id) then return nil end
+    local queue = ISTimedActionQueue and ISTimedActionQueue.queues
+        and ISTimedActionQueue.queues[body]
+    if queue and (queue.current or #(queue.queue or {}) > 0) then return nil end
+    local known = SAO.Perception and SAO.Perception.beliefs[id]
+    local food, water, places = 0, 0, 0
+    for _, place in pairs(known and known.known or {}) do
+        places = places + 1
+        if place.sources and place.sources.food then food = food + 1 end
+        if place.sources and place.sources.water then water = water + 1 end
+        if places >= 100000 then break end
+    end
+    local cap = SAO.Labor and SAO.Labor.capabilityOf(id) or {}
+    local eatAt = SAO.Disposition.eatAt(id)
+    if agent.rec and agent.rec.designation == "forager" then eatAt = math.max(0.1, eatAt - 0.1) end
+    local frame = { actorId = tostring(id), worldHours = SAO.History.countyHours(),
+        hunger = needs.hunger, thirst = needs.thirst, fatigue = needs.fatigue,
+        eatAt = eatAt, drinkAt = SAO.Disposition.drinkAt(id),
+        foodAllowed = true, waterAllowed = true,
+        inspectionAllowed = not agent.nextCognitiveInspectionAt or tick >= agent.nextCognitiveInspectionAt,
+        knownFood = food, knownWater = water, knownPlaces = places,
+        capabilities = { cook = cap.canCook == true, forage = cap.canForage == true,
+            treat = cap.canTreat == true } }
+    return cognition.choose(id, frame)
+end
+
 local function decideNeedsAndCompanion(id, agent, body, tick, needs)
     -- Bleeding outranks every appetite: a wound left open is the fastest
     -- clock there is. Bandage in place when carrying one; without one,
@@ -2385,15 +2435,31 @@ local function decideNeedsAndCompanion(id, agent, body, tick, needs)
         end
     end
 
+    local selection, episodeId = competeForResources(id, agent, body, tick, needs)
+    local function cognitionStarted(admitted, reason)
+        if episodeId then SAO.Cognition.started(id, episodeId, admitted, reason); episodeId = nil end
+        return admitted
+    end
+    if selection == "inspect" then
+        local started = beginContainerInspection(id, agent, body,
+            math.max(needs.hunger, needs.thirst), "resources", tick)
+        agent.nextCognitiveInspectionAt = tick + 600
+        if started then return cognitionStarted(true, "approaching a visible container") end
+        cognitionStarted(false, "no admitted visible container")
+    elseif selection == "continue" then
+        cognitionStarted(false, "continues ordinary activity; no experiment selected")
+    end
+
     -- Thirst: the sharper clock, checked before hunger. Carried drink
     -- first; else walk to clean water and drink from it directly.
     if agent.state == "IDLE" or agent.state == "ROAM" or agent.state == "HOMEWARD" then
-        if needs and needs.thirst >= SAO.Disposition.drinkAt(id) then
+        if needs and ((selection == "water") or (selection == nil
+            and needs.thirst >= SAO.Disposition.drinkAt(id))) then
             if SAO.Needs.drinkCarried(id, body) then
                 agent.taskDeadline = tick + 1800
                 setState(agent, id, "DRINK",
                     string.format("thirst %.2f: drinks from pack", needs.thirst))
-                return true
+                return cognitionStarted(true, "native intent admitted")
             end
             if not agent.nextWaterAt or tick >= agent.nextWaterAt then
                 local wx, wy, wz = SAO.Needs.findWater(id, body)
@@ -2408,7 +2474,7 @@ local function decideNeedsAndCompanion(id, agent, body, tick, needs)
                         setState(agent, id, "SOURCEWARD",
                             string.format("thirst %.2f: approaches observed water",
                                 needs.thirst))
-                        return true
+                        return cognitionStarted(true, "native intent admitted")
                     elseif why == "standing-refused" then
                         log(id .. " will not enter the observed water place")
                     end
@@ -2416,7 +2482,7 @@ local function decideNeedsAndCompanion(id, agent, body, tick, needs)
                     -- direct known-place route.
                     wx, wy, wz = knownSource(id, body, needs.thirst, "water")
                     if not wx and beginContainerInspection(id, agent, body,
-                        needs.thirst, "water", tick) then return true end
+                        needs.thirst, "water", tick) then return cognitionStarted(true, "native intent admitted") end
                 end
                 if wx and needs.thirst < policy().desperation + SAO.Lessons.desperationBump(id)
                     and not mayEnterBelieved(id, wx, wy) then
@@ -2431,11 +2497,12 @@ local function decideNeedsAndCompanion(id, agent, body, tick, needs)
                     if atHand then
                         if SAO.SourceUse and SAO.SourceUse.beforeStateChange
                             and SAO.SourceUse.beforeStateChange(id, body, agent.state,
-                                "DRINK", "uses water within reach") == false then return true end
+                                "DRINK", "uses water within reach") == false then
+                                cognitionStarted(false, "source reconciliation still owns the body"); return true end
                         if SAO.Needs.queueDrinkFrom(id, body) then
                             agent.taskDeadline = tick + 1800
                             setState(agent, id, "DRINK", "drinks from water within reach")
-                            return true
+                            return cognitionStarted(true, "native intent admitted")
                         end
                     end
                     local tx, ty, tz = SAO.Needs.approach(body, "water", wx, wy, wz)
@@ -2443,7 +2510,7 @@ local function decideNeedsAndCompanion(id, agent, body, tick, needs)
                         agent.taskDeadline = tick + 3600
                         setState(agent, id, "WATERWARD",
                             string.format("thirst %.2f: heads for water", needs.thirst))
-                        return true
+                        return cognitionStarted(true, "native intent admitted")
                     end
                     agent.nextWaterAt = tick + 600
                 else
@@ -2469,12 +2536,13 @@ local function decideNeedsAndCompanion(id, agent, body, tick, needs)
                 eatBar = math.max(0.1, eatBar - 0.1)
             end
         end
-        if needs and needs.hunger >= eatBar then
+        if needs and ((selection == "food") or (selection == nil
+            and needs.hunger >= eatBar)) then
             if SAO.Needs.eatCarried(id, body) then
                 agent.taskDeadline = tick + 1800
                 setState(agent, id, "EAT",
                     string.format("hunger %.2f: eats from pack", needs.hunger))
-                return true
+                return cognitionStarted(true, "native intent admitted")
             end
             if not agent.nextForageAt or tick >= agent.nextForageAt then
                 local fx, fy, fz, fname = SAO.Needs.findSource(id, body)
@@ -2488,7 +2556,7 @@ local function decideNeedsAndCompanion(id, agent, body, tick, needs)
                         setState(agent, id, "SOURCEWARD",
                             string.format("hunger %.2f: approaches observed food",
                                 needs.hunger))
-                        return true
+                        return cognitionStarted(true, "native intent admitted")
                     elseif why == "watch-first" then
                         log(id .. " waits on the observed stores - the watch eats first")
                     elseif why == "standing-refused" then
@@ -2499,7 +2567,7 @@ local function decideNeedsAndCompanion(id, agent, body, tick, needs)
                     fx, fy, fz = knownSource(id, body, needs.hunger, "food")
                     if fx then fname = "a place they know" end
                     if not fx and beginContainerInspection(id, agent, body,
-                        needs.hunger, "food", tick) then return true end
+                        needs.hunger, "food", tick) then return cognitionStarted(true, "native intent admitted") end
                 end
                 -- Store enforcement ([A25]): under watch-first, a
                 -- hungry non-watch member holds off on the COMMUNITY'S
@@ -2539,7 +2607,7 @@ local function decideNeedsAndCompanion(id, agent, body, tick, needs)
                         setState(agent, id, "FORAGE",
                             string.format("hunger %.2f: heads for %s", needs.hunger,
                                 tostring(fname)))
-                        return true
+                        return cognitionStarted(true, "native intent admitted")
                     end
                     agent.nextForageAt = tick + 600
                 else
@@ -2550,6 +2618,8 @@ local function decideNeedsAndCompanion(id, agent, body, tick, needs)
             end
         end
     end
+
+    cognitionStarted(false, "selected intent unavailable")
 
     -- Aid ([A19], C4): the bleeding are seen. A medic on their rounds,
     -- a carer by nature, the bonded, or anyone who has watched someone
@@ -6117,7 +6187,10 @@ local function decide(id, agent, body)
     local threat, threatCount, governingPerson, governingPersonKey =
         selectedThreat(id, tick, bodyX, bodyY)
 
-    if decideThreat(id, agent, body, tick, threat, threatCount, governingPerson, governingPersonKey) then return end
+    if decideThreat(id, agent, body, tick, threat, threatCount, governingPerson, governingPersonKey) then
+        if SAO.Cognition and SAO.Cognition.interrupt then SAO.Cognition.interrupt(id, "threat response") end
+        return
+    end
     -- The threat owner may release the turn while distant danger is still
     -- believed. That is not evidence that the surroundings became clear.
     if agent.state == "FLEE" or agent.state == "ALERT" then

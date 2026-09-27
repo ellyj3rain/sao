@@ -167,6 +167,9 @@ MODULES = [
     "shared/SAO_Participants.lua",
     "shared/SAO_Log.lua", "shared/SAO_Hash.lua", "shared/SAO_Rand.lua",
     "shared/SAO_Census.lua", "shared/SAO_History.lua",
+    # Personal model state survives loaded/dormant transitions. Native action
+    # proposals still require the loaded Controller and its real executors.
+    "shared/SAO_CognitiveModels.lua", "shared/SAO_Cognition.lua",
     "shared/SAO_Disposition.lua", "shared/SAO_Conditions.lua",
     "shared/SAO_Course.lua", "shared/SAO_Neuro.lua",
     "shared/SAO_Adaptation.lua", "shared/SAO_Isolation.lua",

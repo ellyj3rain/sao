@@ -1,0 +1,55 @@
+{
+  "schema": "sao-cognition-lifecycle/1",
+  "sources": {
+    "C:\\Users\\jleyv\\Peanut Butter\\AI Assisted Software Engineering Mass Repository\\Projects\\survivor-awareness\\mod\\42.20\\media\\lua\\shared\\SAO_Cognition.lua": "36f2f3f8714546be8205fbaad2d1c8af6a8fa856f158a9b1b7c6bf1052ab0e03",
+    "C:\\Users\\jleyv\\Peanut Butter\\AI Assisted Software Engineering Mass Repository\\Projects\\survivor-awareness\\mod\\42.20\\media\\lua\\shared\\SAO_CognitiveModels.lua": "791d4a2392d85645508a0debb5c50abc1636573d71194ec4a435dfbc7caef31b",
+    "C:\\Users\\jleyv\\Peanut Butter\\AI Assisted Software Engineering Mass Repository\\Projects\\survivor-awareness\\mod\\42.20\\media\\lua\\client\\SAO_Controller.lua": "6f164ae95699244793eb6cd64d82fac938f9172168a165f13fa290ee5ffb5f6c",
+    "C:\\Users\\jleyv\\Peanut Butter\\AI Assisted Software Engineering Mass Repository\\Projects\\survivor-awareness\\mod\\42.20\\media\\lua\\shared\\SAO_Identity.lua": "a3f8878de7d3ea3d163a30f8e77a813cf3b86b6371351f3794da313050f0188b",
+    "C:\\Users\\jleyv\\Peanut Butter\\AI Assisted Software Engineering Mass Repository\\Projects\\survivor-awareness\\tools\\cognition_checks\\lifecycle.lua": "7c11642874d32b2113a29f7e5a934fcc177ae946e36f6f88d4f130a71266b8ea",
+    "C:\\Users\\jleyv\\Peanut Butter\\AI Assisted Software Engineering Mass Repository\\Projects\\survivor-awareness\\tools\\cognition_checks\\lifecycle_prelude.lua": "05f3dcf069c1eb0184c92afbbc55f0bfbfb635ddbb2621094592689fe191b797"
+  },
+  "variants": [
+    {
+      "name": "production",
+      "exit": 0,
+      "expected": null,
+      "sha256": "a993f50c28330de01143d816beb0da77cef64318d09171f8b72db70235339cfa"
+    },
+    {
+      "name": "missing-drop",
+      "exit": 1,
+      "expected": "successful_drop_censors",
+      "sha256": "a18c32324419d27fcdbc23222836cc3842f200331d6e8ec5ee0c25c1e83378a0"
+    },
+    {
+      "name": "premature-drop",
+      "exit": 1,
+      "expected": "refused_drop_retains_episode",
+      "sha256": "f559fe06b89097788211972d80887b0f0b8a4164e55807b9a7b52778da17c5ce"
+    },
+    {
+      "name": "missing-adoption",
+      "exit": 1,
+      "expected": "fresh_adoption_closes_orphan",
+      "sha256": "cfe801110059c786c89cd1a17b4fc0d31b1122ca6dc1ab537501e0b5b1469e24"
+    },
+    {
+      "name": "ignore-source-owner",
+      "exit": 1,
+      "expected": "adoption_retains_source_owner",
+      "sha256": "97a17fcb4b2a5f0c899d66f8d14ae4d1b76929057fd46924744d50aefabca071"
+    },
+    {
+      "name": "missing-death",
+      "exit": 1,
+      "expected": "canonical_death_censors_after_dead",
+      "sha256": "d1c6633d8b2211f7f21491f4058d5e0f34c3b167b3392dd6eda2f3ea473889ba"
+    },
+    {
+      "name": "premature-death",
+      "exit": 1,
+      "expected": "refused_death_retains_episode",
+      "sha256": "6a37adc4f33ea2ac286cb3be6108da19135558a381265296de72f3431f153ca7"
+    }
+  ]
+}

@@ -96,6 +96,10 @@ def run(tmp, GAME, JDK):
         raise AssertionError("observer native debugger failure was not visible")
 
     controls = (
+        ("cognition_budget", "StudyObserver.java", "opportunitiesPerHour < 1 || opportunitiesPerHour > 60", "false", 1,
+         "invalid inspection command acknowledged"),
+        ("cognition_apply", "StudyObserver.java", 'if (!Boolean.TRUE.equals(observationCall("cognition", opponentShare, (double) opportunitiesPerHour, (double) maxDepth)))',
+         'if (false)', 1, "cognition settings did not reach Lua receiver"),
         ("zoom_projection", "StudyObserver.java", "core.offscreenBuffer.setZoomAndTargetZoom(0, nextZoom);",
          "// Only the target changes; the actual projection remains unchanged.", 1,
          "native zoom did not enlarge rendered world projection"),

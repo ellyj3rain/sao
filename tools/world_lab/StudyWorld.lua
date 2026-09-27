@@ -195,6 +195,11 @@ function Study.start()
     state.definitionSha256 = Config.definitionSha256
     state.sequence = tonumber(state.sequence) or 0
     session = tostring(getTimestampMs())
+    -- A saved study resumes its model budget; first launch enables equal participation.
+    if SAO.Cognition and SAO.Cognition.settings and SAO.Cognition.configure then
+        local settings = SAO.Cognition.settings()
+        if not settings.enabled then assert(SAO.Cognition.configure(0.5, 12, 3), "cognition configuration refused") end
+    end
     Study.active = true
     print("[StudyWorld] observation active save=" .. getWorld():getWorld())
     return true
@@ -262,6 +267,12 @@ local function inspectionSnapshot(maxBytes)
             local item = { sections = array(), events = array() }
             if take({ [id] = item }) then
                 result.people[id] = item
+                if detail.cognition then
+                    local cognitionBudget = {left=12000,omitted={},omittedCount=0}
+                    local cognition = copy(detail.cognition, "cognition", cognitionBudget, {}, 0)
+                    if cognition and cognitionBudget.omittedCount == 0 and take({ cognition = cognition }) then item.cognition = cognition
+                    else omittedSections = omittedSections + 1 end
+                end
                 for _, source in ipairs(detail.sections or {}) do
                     local section = { rows = array() }
                     for _, key in ipairs({ "id", "label", "source", "perspective", "status", "message" }) do
@@ -345,7 +356,8 @@ function Study.observe()
         packageEngineJarSha256 = Config.engineJarSha256, engineVersion = getCore():getVersion(),
         observerSha256 = Config.observerSha256,
         map = getWorld():getMap(), save = getWorld():getWorld(), sequence = state.sequence + 1,
-        hours = hours, session = session, datasetAdmission = "unreviewed", extent = Config.extent,
+        hours = hours, countyHours = SAO.History.countyHours(),
+        session = session, datasetAdmission = "unreviewed", extent = Config.extent,
         sandbox = Config.sandbox, generation = Config.generation,
         source = "loaded-native-world", mods = array(), windows = array(), people = array(),
         processes = array(), population = { total = 0, captured = 0, dead = 0,
@@ -387,8 +399,10 @@ function Study.observe()
         local category = represented and "represented" or "unrepresented"
         frame.population[category] = frame.population[category] + 1
         if #frame.people < Config.observation.maxPeople then
+            local recordView = {}
+            for key, value in pairs(rec) do if key ~= "cognition" then recordView[key] = value end end
             local person = { id = tostring(id), representation = category,
-                record = copy(rec, "people." .. tostring(id), budget, {}, 0) or {},
+                record = copy(recordView, "people." .. tostring(id), budget, {}, 0) or {},
                 positionSource = "durable-record", x = scalar(rec.x), y = scalar(rec.y), z = scalar(rec.z) }
             if body then
                 person.x, person.y, person.z = body:getX(), body:getY(), body:getZ()
@@ -430,6 +444,35 @@ function Study.observe()
     frame.coverage.processesComplete = #processIds == #frame.processes
     frame.coverage.omittedFields = budget.omitted
     frame.coverage.omittedFieldCount = budget.omittedCount
+    if SAO.Cognition and SAO.Cognition.snapshot then
+        -- Optional cognitive archives share the actual frame's remaining byte
+        -- budget. Core capture survives unavailable or oversized model detail.
+        local encoded = { left = 64 * 1024 * 1024 - 65536 }
+        local fits = pcall(json, frame, nil, encoded)
+        local remaining = fits and math.min(4 * 1024 * 1024, encoded.left) or 0
+        for _, person in ipairs(frame.people) do
+            local accepted = false
+            if remaining > 32 then
+                local ok, cognition = pcall(SAO.Cognition.snapshot, person.id, true)
+                if ok and type(cognition) == "table" then
+                    local trial = { left = math.min(512 * 1024, remaining) - 16 }
+                    local start = trial.left
+                    if pcall(json, cognition, nil, trial) then
+                        person.context.cognition = cognition
+                        remaining = remaining - (start - trial.left + 16)
+                        accepted = true
+                    end
+                end
+            end
+            if not accepted then
+                budget.omittedCount = budget.omittedCount + 1
+                if #budget.omitted < 256 then
+                    budget.omitted[#budget.omitted + 1] = "people." .. person.id .. ".cognition"
+                end
+            end
+        end
+        frame.coverage.omittedFieldCount = budget.omittedCount
+    end
     return frame
 end
 local lastLiveAt = 0

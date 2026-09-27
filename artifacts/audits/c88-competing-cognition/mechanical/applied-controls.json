@@ -1,0 +1,288 @@
+{
+  "schema": "sao-cognitive-model-proof/1",
+  "inputs": [
+    {
+      "path": "C:\\Users\\jleyv\\Peanut Butter\\AI Assisted Software Engineering Mass Repository\\Projects\\survivor-awareness\\mod\\42.20\\media\\lua\\shared\\SAO_CognitiveModels.lua",
+      "sha256": "791d4a2392d85645508a0debb5c50abc1636573d71194ec4a435dfbc7caef31b"
+    },
+    {
+      "path": "C:\\Users\\jleyv\\Peanut Butter\\AI Assisted Software Engineering Mass Repository\\Projects\\survivor-awareness\\tools\\luacheck\\CognitiveModelChecks.lua",
+      "sha256": "df9675b48babf656238d9744a3d45480ad1ebdc0fe19116aadf6c43ea514f63c"
+    },
+    {
+      "path": "C:\\Users\\jleyv\\Peanut Butter\\AI Assisted Software Engineering Mass Repository\\Projects\\survivor-awareness\\tools\\cognitive_models_test.py",
+      "sha256": "39e20e7239ff43834abce9cc64e9a08cb8dc4ce2a52c2ba5d796218e80dc2870"
+    }
+  ],
+  "engine": {
+    "path": "C:\\Program Files (x86)\\Steam\\steamapps\\common\\ProjectZomboid\\projectzomboid.jar",
+    "sha256": "80e405a4bfc42f6072e75b3735f458a6514143da011d3226007ded305a442f44"
+  },
+  "controls": [
+    {
+      "name": "ordinary equality",
+      "expected": "ordinary drinking equality or priority changed",
+      "exit": 1,
+      "result": "ERROR KahluaException: ordinary thresholds: ordinary drinking equality or priority changed",
+      "rejected": true
+    },
+    {
+      "name": "ordinary priority",
+      "expected": "ordinary drinking equality or priority changed",
+      "exit": 1,
+      "result": "ERROR KahluaException: ordinary thresholds: ordinary drinking equality or priority changed",
+      "rejected": true
+    },
+    {
+      "name": "shared admission",
+      "expected": "inadmissible goal selected",
+      "exit": 1,
+      "result": "ERROR KahluaException: shared feasibility: inadmissible goal selected",
+      "rejected": true
+    },
+    {
+      "name": "anticipation",
+      "expected": "associative anticipation missing",
+      "exit": 1,
+      "result": "ERROR KahluaException: anticipation: associative anticipation missing",
+      "rejected": true
+    },
+    {
+      "name": "private frame",
+      "expected": "foreign model output admitted",
+      "exit": 1,
+      "result": "ERROR KahluaException: private frame boundary: foreign model output admitted",
+      "rejected": true
+    },
+    {
+      "name": "state identity",
+      "expected": "foreign model state admitted",
+      "exit": 1,
+      "result": "ERROR KahluaException: independent owners: foreign model state admitted",
+      "rejected": true
+    },
+    {
+      "name": "shared belief table",
+      "expected": "model states share evidence storage",
+      "exit": 1,
+      "result": "ERROR KahluaException: independent owners: model states share evidence storage",
+      "rejected": true
+    },
+    {
+      "name": "foreign actor",
+      "expected": "foreign actor proposal admitted",
+      "exit": 1,
+      "result": "ERROR KahluaException: actor boundary: foreign actor proposal admitted",
+      "rejected": true
+    },
+    {
+      "name": "query self-amplification",
+      "expected": "query or elapsed time strengthened beliefs",
+      "exit": 1,
+      "result": "ERROR KahluaException: queries cannot teach: query or elapsed time strengthened beliefs",
+      "rejected": true
+    },
+    {
+      "name": "repeated evidence",
+      "expected": "duplicate outcome was not recognized",
+      "exit": 1,
+      "result": "ERROR KahluaException: exact repeated evidence: duplicate outcome was not recognized",
+      "rejected": true
+    },
+    {
+      "name": "censored outcome",
+      "expected": "censored access or absent measure became counterevidence",
+      "exit": 1,
+      "result": "ERROR KahluaException: censored access: censored access or absent measure became counterevidence",
+      "rejected": true
+    },
+    {
+      "name": "private relief leak",
+      "expected": "other person's private relief leaked",
+      "exit": 1,
+      "result": "ERROR KahluaException: private observation boundary: other person's private relief leaked",
+      "rejected": true
+    },
+    {
+      "name": "zero relief",
+      "expected": "zero native relief became success",
+      "exit": 1,
+      "result": "ERROR KahluaException: measured counterexample: zero native relief became success",
+      "rejected": true
+    },
+    {
+      "name": "ignore outcomes",
+      "expected": "authenticated witnessed transfer was discarded",
+      "exit": 1,
+      "result": "ERROR KahluaException: private observation boundary: authenticated witnessed transfer was discarded",
+      "rejected": true
+    },
+    {
+      "name": "inspection emptiness",
+      "expected": "empty inspection mislabeled as failed observation",
+      "exit": 1,
+      "result": "ERROR KahluaException: empty inspection: empty inspection mislabeled as failed observation",
+      "rejected": true
+    },
+    {
+      "name": "semantic transfer",
+      "expected": "container experience did not transfer information value",
+      "exit": 1,
+      "result": "ERROR KahluaException: semantic transfer: container experience did not transfer information value",
+      "rejected": true
+    },
+    {
+      "name": "composition",
+      "expected": "distinct observed links did not compose",
+      "exit": 1,
+      "result": "ERROR KahluaException: compositional paths: distinct observed links did not compose",
+      "rejected": true
+    },
+    {
+      "name": "unsupported certainty",
+      "expected": "cross-domain conjecture missing or overconfident",
+      "exit": 1,
+      "result": "ERROR KahluaException: compositional paths: cross-domain conjecture missing or overconfident",
+      "rejected": true
+    },
+    {
+      "name": "depth limit",
+      "expected": "configured depth bound bypassed",
+      "exit": 1,
+      "result": "ERROR KahluaException: depth bound: configured depth bound bypassed",
+      "rejected": true
+    },
+    {
+      "name": "counterexample erasure",
+      "expected": "counterexample erased provenance or failed to refine",
+      "exit": 1,
+      "result": "ERROR KahluaException: counterexample refinement: counterexample erased provenance or failed to refine",
+      "rejected": true
+    },
+    {
+      "name": "mutable summary",
+      "expected": "summary aliases evidence or hypothesis state",
+      "exit": 1,
+      "result": "ERROR KahluaException: detached summaries: summary aliases evidence or hypothesis state",
+      "rejected": true
+    },
+    {
+      "name": "state capacity",
+      "expected": "state or receipt history unbounded",
+      "exit": 1,
+      "result": "ERROR KahluaException: bounds and old replay: state or receipt history unbounded",
+      "rejected": true
+    },
+    {
+      "name": "old receipt replay",
+      "expected": "evicted evidence relearned as new",
+      "exit": 1,
+      "result": "ERROR KahluaException: bounds and old replay: evicted evidence relearned as new",
+      "rejected": true
+    },
+    {
+      "name": "fixed ladder",
+      "expected": "repeated single action unlocked a fixed hypothesis ladder",
+      "exit": 1,
+      "result": "ERROR KahluaException: evidence diversity controls depth: repeated single action unlocked a fixed hypothesis ladder",
+      "rejected": true
+    },
+    {
+      "name": "irrelevant evidence",
+      "expected": "unrelated object outcome escalated another association",
+      "exit": 1,
+      "result": "ERROR KahluaException: evidence diversity controls depth: unrelated object outcome escalated another association",
+      "rejected": true
+    },
+    {
+      "name": "confidence aging",
+      "expected": "aging altered receipts or failed to reduce certainty",
+      "exit": 1,
+      "result": "ERROR KahluaException: confidence aging retains provenance: aging altered receipts or failed to reduce certainty",
+      "rejected": true
+    },
+    {
+      "name": "future horizon",
+      "expected": "future evidence entered past prediction",
+      "exit": 1,
+      "result": "ERROR KahluaException: confidence aging retains provenance: future evidence entered past prediction",
+      "rejected": true
+    },
+    {
+      "name": "frame identity bound",
+      "expected": "overlong frame identity admitted",
+      "exit": 1,
+      "result": "ERROR KahluaException: public transport limits: overlong frame identity admitted",
+      "rejected": true
+    },
+    {
+      "name": "known count bound",
+      "expected": "unbounded known count admitted",
+      "exit": 1,
+      "result": "ERROR KahluaException: public transport limits: unbounded known count admitted",
+      "rejected": true
+    },
+    {
+      "name": "source identity bound",
+      "expected": "overlong source identity admitted",
+      "exit": 1,
+      "result": "ERROR KahluaException: public transport limits: overlong source identity admitted",
+      "rejected": true
+    },
+    {
+      "name": "late capability context",
+      "expected": "late evidence rewound capability context",
+      "exit": 1,
+      "result": "ERROR KahluaException: late evidence preserves current capability context: late evidence rewound capability context",
+      "rejected": true
+    },
+    {
+      "name": "discard contradicted path",
+      "expected": "contradicted derived branch lost its identity",
+      "exit": 1,
+      "result": "ERROR KahluaException: derived refutation continuity: contradicted derived branch lost its identity",
+      "rejected": true
+    },
+    {
+      "name": "renewed branch identity",
+      "expected": "renewed support invented a fresh branch identity",
+      "exit": 1,
+      "result": "ERROR KahluaException: derived refutation continuity: renewed support invented a fresh branch identity",
+      "rejected": true
+    },
+    {
+      "name": "erase refutation history",
+      "expected": "branch refutation history was erased",
+      "exit": 1,
+      "result": "ERROR KahluaException: derived refutation continuity: branch refutation history was erased",
+      "rejected": true
+    },
+    {
+      "name": "held interpretation",
+      "expected": "held branch was used as current interpretation",
+      "exit": 1,
+      "result": "ERROR KahluaException: derived refutation continuity: held branch was used as current interpretation",
+      "rejected": true
+    },
+    {
+      "name": "unbounded revision history",
+      "expected": "refutation history exceeded its bound or lost identity",
+      "exit": 1,
+      "result": "ERROR KahluaException: bounded refutation history: refutation history exceeded its bound or lost identity",
+      "rejected": true
+    }
+  ],
+  "boundary": "Execute independent cognitive models in installed Kahlua, with source controls.\n\nNative event authenticity belongs to the separate producer tests. No world,\nmodel training, recipe realization or loaded-game behavior is claimed here.",
+  "runner": {
+    "path": "C:\\Users\\jleyv\\Peanut Butter\\AI Assisted Software Engineering Mass Repository\\Projects\\survivor-awareness\\tools\\luacheck\\LuaRun.java",
+    "sha256": "f6f55e6da98c1f1249720666d862720efc025167d1df37d35820e877b14df741"
+  },
+  "baseline": {
+    "exit": 0,
+    "result": "VALUE PASS 29 cases"
+  },
+  "verdict": "PASS",
+  "faults": [],
+  "baselineOnly": false,
+  "inputsUnchanged": true
+}

@@ -1,0 +1,72 @@
+{
+  "schema": "sao-cognition-native-use/1",
+  "inputs": {
+    "C:\\Users\\jleyv\\Peanut Butter\\AI Assisted Software Engineering Mass Repository\\Projects\\survivor-awareness\\tools\\world_lab\\TransferUiChecks.lua": "c60e9180d67a478d6791bd012fda1027faa56e1169667f56dac56e1d296e8191",
+    "C:\\Program Files (x86)\\Steam\\steamapps\\common\\ProjectZomboid\\media\\lua\\client\\TimedActions\\ISInventoryTransferAction.lua": "96ee554609f9ae029809643d50e4f31dbc5a7d21a558934be0804fd909c345b4",
+    "C:\\Program Files (x86)\\Steam\\steamapps\\common\\ProjectZomboid\\media\\lua\\client\\ISUI\\ISInventoryPaneContextMenu.lua": "a28dc83b943d20c6fa59370195aa649af249ea2ebd7d670addd6a9b76a357291",
+    "C:\\Program Files (x86)\\Steam\\steamapps\\common\\ProjectZomboid\\media\\lua\\shared\\TimedActions\\ISEatFoodAction.lua": "76d6f2650000231f3917616356c37e4b2fd7bcabdff5fcb5298e43223b681368",
+    "C:\\Program Files (x86)\\Steam\\steamapps\\common\\ProjectZomboid\\media\\lua\\shared\\TimedActions\\ISTakePillAction.lua": "680e0346323cbd9afa536a3d115f431e9e613853cf55af3fdbf1ec72e345394f",
+    "C:\\Program Files (x86)\\Steam\\steamapps\\common\\ProjectZomboid\\media\\lua\\shared\\TimedActions\\ISDrinkFluidAction.lua": "d0e89b901ecd53321feeac1e3cc540652ca692afb25cab584f5a40d4453f2c0b",
+    "C:\\Program Files (x86)\\Steam\\steamapps\\common\\ProjectZomboid\\media\\lua\\shared\\TimedActions\\ISTakeWaterAction.lua": "48aa88c32d2e387897ea7a7696d410ae33517bcf75f2edec3837e090cb3a3456",
+    "C:\\Users\\jleyv\\Peanut Butter\\AI Assisted Software Engineering Mass Repository\\Projects\\survivor-awareness\\tools\\cognition_checks\\prelude.lua": "283cfd5374fbb461291d876825528f52bf4b765a3ffb77a2d6c5c02a2700f1e3",
+    "C:\\Users\\jleyv\\Peanut Butter\\AI Assisted Software Engineering Mass Repository\\Projects\\survivor-awareness\\mod\\42.20\\media\\lua\\shared\\SAO_Hash.lua": "63e172f4c7878cc50ea58ae4604acec50f24decd50a1db0206d4c298def69915",
+    "C:\\Users\\jleyv\\Peanut Butter\\AI Assisted Software Engineering Mass Repository\\Projects\\survivor-awareness\\mod\\42.20\\media\\lua\\shared\\SAO_Labor.lua": "20a04e518c9943ff6e81784c6b50b4408a4b8b5ae1c1795adc35e78da091d082",
+    "C:\\Users\\jleyv\\Peanut Butter\\AI Assisted Software Engineering Mass Repository\\Projects\\survivor-awareness\\mod\\42.20\\media\\lua\\shared\\SAO_CognitiveModels.lua": "791d4a2392d85645508a0debb5c50abc1636573d71194ec4a435dfbc7caef31b",
+    "C:\\Users\\jleyv\\Peanut Butter\\AI Assisted Software Engineering Mass Repository\\Projects\\survivor-awareness\\mod\\42.20\\media\\lua\\shared\\SAO_Cognition.lua": "36f2f3f8714546be8205fbaad2d1c8af6a8fa856f158a9b1b7c6bf1052ab0e03",
+    "C:\\Users\\jleyv\\Peanut Butter\\AI Assisted Software Engineering Mass Repository\\Projects\\survivor-awareness\\mod\\42.20\\media\\lua\\client\\SAO_Needs.lua": "b5c061d0ff33a9cc104aa2c0c5718f6b5da39b1a71e280100e9197f95d4454a9",
+    "C:\\Users\\jleyv\\Peanut Butter\\AI Assisted Software Engineering Mass Repository\\Projects\\survivor-awareness\\tools\\cognition_checks\\native_use.lua": "769862355bfb43c69178a81485e48e44a0ea6ead52d58a25b1aea7a2837890a1",
+    "C:\\Users\\jleyv\\Peanut Butter\\AI Assisted Software Engineering Mass Repository\\Projects\\survivor-awareness\\tools\\cognition_checks\\CognitionUseProbe.java": "0dd6382f99880d09129d81623930696e2d0d672f4dfc3869398d80395910ec30",
+    "C:\\Program Files (x86)\\Steam\\steamapps\\common\\ProjectZomboid\\projectzomboid.jar": "80e405a4bfc42f6072e75b3735f458a6514143da011d3226007ded305a442f44",
+    "C:\\Users\\jleyv\\Peanut Butter\\AI Assisted Software Engineering Mass Repository\\Projects\\survivor-awareness\\mod\\42.20\\media\\java\\SAO.jar": "a341bab90bf793bc6f73308e0b478de55ea98cf9a2256e9969eeaf33eea8f4d4"
+  },
+  "variants": [
+    {
+      "name": "production",
+      "exit": 0,
+      "expected": null,
+      "sha256": "939b9676940cda9fcf9bb6ab53725ff6c8e476fdfef747e91fde4bcb1914fa46"
+    },
+    {
+      "name": "omit-use-producer",
+      "exit": 1,
+      "expected": "native_start_is_attempted",
+      "sha256": "4363d4df31f27a2d7fa16ec7efe5f1f8e15ec86f357f0ed89c9c8769b0cbfc86"
+    },
+    {
+      "name": "reverse-relief",
+      "exit": 1,
+      "expected": "native_food_delta_published",
+      "sha256": "026ef418df8e2c3e1eaac5bf02278d23b67d8ce50b03e5f17b8b9eba675c5a93"
+    },
+    {
+      "name": "omit-fixture-water",
+      "exit": 1,
+      "expected": "fixture_water_delta_published",
+      "sha256": "4f626e9c00d5657582accdd01c5723a5df80d910d882d0ba21d3feb70bc3f792"
+    },
+    {
+      "name": "fill-as-consume",
+      "exit": 1,
+      "expected": "bottle_filling_not_consumption",
+      "sha256": "0c43411620fdd09588fc9a9933afb66cc2cf99cc8e03fe7791cb49df1efba239"
+    },
+    {
+      "name": "error-as-completed",
+      "exit": 1,
+      "expected": "native_callback_error_censored",
+      "sha256": "ae500084ea6ba3d64df2e677150ef24f723324951cf2a293261fab4ce5b75aa2"
+    },
+    {
+      "name": "body-binding-omitted",
+      "exit": 1,
+      "expected": "replaced_body_binding_censored",
+      "sha256": "75cdb17dc508670b70f43f9af53d34497a977e9a9635588e4b6c173cdef8d3ed"
+    },
+    {
+      "name": "missing-need-as-zero",
+      "exit": 1,
+      "expected": "absent_baseline_is_not_zero_need",
+      "sha256": "45947213b47a33ce7e6c2b0919d0100d28e30afed1d2e79cef1e906693e0b2ef"
+    }
+  ]
+}

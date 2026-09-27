@@ -1451,6 +1451,7 @@ function WS.inspectionCandidate(actorId, body, admission, radius)
                 sourceId = row.id, fingerprint = row.fp,
                 sourceX = row.sx, sourceY = row.sy, sourceZ = row.sz,
                 x = row.x, y = row.y, z = row.z }
+            if SAO.Cognition then context.cognitionToken = SAO.Cognition.capture(actorId, "inspection") end
             memory.pending = context
             return context
         end
@@ -1537,6 +1538,14 @@ function WS.inspectContainer(actorId, body, context)
             transferPlace(actorId, source), context.sourceId, tick, "native-container-inspection")
     end)
     if not learnedOk or not learned then return false, "private-inspection-unavailable" end
+    if SAO.Cognition and context.cognitionToken then
+        pcall(SAO.Cognition.attempted, actorId, context.cognitionToken)
+        pcall(SAO.Cognition.publish, actorId, context.cognitionToken, {
+            kind = "inspection", category = "container", status = "completed",
+            sourceId = source.id, detail = "native-container-inspection",
+            foodPresent = (tonumber(source.quantities.food) or 0) > 0,
+            waterPresent = (tonumber(source.quantities.water) or 0) > 0 })
+    end
     memory.failures[context.sourceId .. "|" .. context.fingerprint] = nil
     return true, "inspected"
 end
@@ -1865,10 +1874,17 @@ local function transferObservationCopy(observation)
         appraisals[id] = { pressure = appraisal.pressure,
             reciprocity = appraisal.reciprocity }
     end
+    local cognitionCapabilities
+    if type(observation.cognitionCapabilities) == "table" then
+        cognitionCapabilities = {}
+        for id, caps in pairs(observation.cognitionCapabilities) do
+            cognitionCapabilities[id] = { cook = caps.cook, forage = caps.forage, treat = caps.treat }
+        end
+    end
     return { at = observation.at, actorId = observation.actorId,
         nativeTransferProven = observation.nativeTransferProven,
         x = observation.x, y = observation.y, z = observation.z,
-        witnesses = witnesses, appraisals = appraisals }
+        witnesses = witnesses, appraisals = appraisals, cognitionCapabilities = cognitionCapabilities }
 end
 
 function WS.recordTransferObservation(reservationId, actorId, at, witnesses,
@@ -1906,10 +1922,16 @@ function WS.recordTransferObservation(reservationId, actorId, at, witnesses,
         ownAppraisals[id] = { pressure = appraisal.pressure,
             reciprocity = appraisal.reciprocity }
     end
+    local cognitionCapabilities
+    if SAO.Cognition then
+        cognitionCapabilities = {}
+        for _, id in ipairs(ids) do cognitionCapabilities[id] = SAO.Cognition.capabilities(id) end
+    end
     reservation.transferObservation = {
         nativeTransferProven = true,
         at = at, actorId = reservation.actorId, witnesses = ids,
-        x = position.x, y = position.y, z = position.z, appraisals = ownAppraisals }
+        x = position.x, y = position.y, z = position.z, appraisals = ownAppraisals,
+        cognitionCapabilities = cognitionCapabilities }
     return true
 end
 
@@ -2013,6 +2035,9 @@ local function result(value, reservation, status, detail)
         and SAO.Identity.get(reservation.actorId) or nil
     if record and record.worldSourceReservation == reservation.id then
         record.worldSourceReservation = nil
+    end
+    if SAO.Cognition and reservation.cognitionToken then
+        pcall(SAO.Cognition.sourceResult, receipt, reservation.cognitionToken)
     end
     return receipt
 end

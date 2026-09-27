@@ -38,9 +38,16 @@ on the simulation.
 
 ## Status
 
-`2.11.1.0-pre-alpha` - the coordinate is computed by the version machine
+`2.12.0.0-pre-alpha` - the coordinate is computed by the version machine
 (`tools/version_replay.py`), never picked; `VERSION_MAP.md` shows the
 classification and the arithmetic.
+
+C88 adds independent competing cognition to native simulation. Ordinary and
+associative models retain separate beliefs and predictions, take bounded turns
+through existing native action owners, and learn from authenticated experience.
+Mousecat exposes their disagreements and conjectures alongside actual outcomes.
+Source-bound trajectories support later aggregate training; conceptual
+associations do not grant recipes or skills.
 
 C87 extends [native study worlds](tools/world_lab/README.md) with authored
 residential, service and farm settings, finite process supervision, native zoom

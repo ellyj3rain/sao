@@ -62,6 +62,7 @@ def observer_fixture(root):
     spec.loader.exec_module(fixture)
     fixture.LUA = root / 'mod/42.20/media/lua'
     fixture.MODULES = list(fixture.MODULES) + [
+        'shared/SAO_CognitiveModels.lua', 'shared/SAO_Cognition.lua',
         'shared/SAO_Organization.lua', 'shared/SAO_Recognition.lua',
         str(HERE / 'sweep/evidence.lua')]
     if not fixture.build():
@@ -71,6 +72,9 @@ def observer_fixture(root):
       for i = 1, 3 do
         made[i] = SAO.Identity.create(nil, nil, 10500, 9000, 0)
         SAO.History.generate(made[i].id, made[i])
+        if SAO.Cognition.isDue(made[i].id) or made[i].cognition ~= nil then
+          error('dormant load manufactured a cognitive decision or experience')
+        end
       end
       for i = 1, 3 do for j = 1, 3 do if i ~= j then
         SAO.Standing.adjustTrust(made[i].id, made[j].id, 0.85)
@@ -223,6 +227,16 @@ def main(root):
     # declares that absent owner; it neither loads a body driver nor hides an
     # undeclared dependency. Removing the declaration must restore refusal.
     _, loaded = Sweep.modules_referenced(lua)
+    for owner in ('CognitiveModels', 'Cognition'):
+        if owner not in loaded or owner in Sweep.NOT_DORMANT:
+            faults.append('durable cognitive owner was excluded: ' + owner)
+        removed = [path for path in Sweep.MODULES
+                   if path != 'shared/SAO_' + owner + '.lua']
+        if len(removed) != len(Sweep.MODULES) - 1:
+            faults.append('cognitive load-removal control did not land: ' + owner)
+        with mock.patch.object(Sweep, 'MODULES', removed):
+            if not rejects(lambda: Sweep.require_modules(lua)):
+                faults.append('missing cognitive owner accepted: ' + owner)
     if 'SourceUse' in loaded:
         faults.append('dormant county silently acquired the loaded source executor')
     undeclared = dict(Sweep.NOT_DORMANT)

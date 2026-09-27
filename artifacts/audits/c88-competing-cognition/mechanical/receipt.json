@@ -1,0 +1,110 @@
+{
+  "schema": "sao-cognition-runtime-checks/1",
+  "cases": [
+    {
+      "name": "production",
+      "exit": 0,
+      "expectedFailure": null,
+      "logSha256": "2d5a91ee6f146b1a4b72978ba990d06fd0154f7089a61c89c43aa8fa60de5d6f"
+    },
+    {
+      "name": "independent-frames",
+      "exit": 1,
+      "expectedFailure": "both_receive_same_private_frame",
+      "logSha256": "1f97cd83f2f3d7c8d9bd38cc77583768e1c1c9a1f8305a99d6a53010566c25d4"
+    },
+    {
+      "name": "prior-frame",
+      "exit": 1,
+      "expectedFailure": "immutable_prior_frame",
+      "logSha256": "e40c6afe1cf6bc08cf2d279312f69cef4cf1fb00bb43195b9eab373e3f3f6535"
+    },
+    {
+      "name": "duplicate",
+      "exit": 1,
+      "expectedFailure": "duplicate_no_learning",
+      "logSha256": "57eb25aefe1d0848e9cfbf4d8098b30cbff9250936ecef67f1c30765dd7b7d4b"
+    },
+    {
+      "name": "duplicate-conflict",
+      "exit": 1,
+      "expectedFailure": "conflicting_duplicate_rejected",
+      "logSha256": "effba970be17eabd98c54779f88cce6dccf668e5e15396c3195d9c8467d3810d"
+    },
+    {
+      "name": "late-binding",
+      "exit": 1,
+      "expectedFailure": "late_outcome_cannot_resolve_new_episode",
+      "logSha256": "24868d704c3d3ceb17c3caed922bc77f4fc9abeb32792ed7aacd243fe3d24b73"
+    },
+    {
+      "name": "no-effect-scored",
+      "exit": 1,
+      "expectedFailure": "measured_no_effect",
+      "logSha256": "4dd44811b557f4e20b019993b0056f2be826e0245dfb86ea435a4610725c4095"
+    },
+    {
+      "name": "settings-paused",
+      "exit": 1,
+      "expectedFailure": "paused_configuration",
+      "logSha256": "1b0941c9abd3050da77e701f0e6aedc9cc2e8c6a61f6de67fa016ad94e125383"
+    },
+    {
+      "name": "evicted-replay",
+      "exit": 1,
+      "expectedFailure": "evicted_replay_refused",
+      "logSha256": "76aae20cced3d1ad57f607d09c273a4ea74eec0a25aa375ef73072d201cb761f"
+    },
+    {
+      "name": "pending",
+      "exit": 1,
+      "expectedFailure": "single_pending",
+      "logSha256": "23f6169fc2337b4767db798459d800abbf56a71c436205677b73bf55073960c7"
+    },
+    {
+      "name": "allocation",
+      "exit": 1,
+      "expectedFailure": "rival_can_execute",
+      "logSha256": "52dc70a827c9a4ddf1514c50a2f0b8ad40f30a24acecb5a525427c6fe093f9a5"
+    },
+    {
+      "name": "frame-scope",
+      "exit": 1,
+      "expectedFailure": "objective_frame_rejected",
+      "logSha256": "97a89d1f2f93350ebd8182071ddcf25a8400a2a7b8beaa5cb77dfbdfe9166261"
+    },
+    {
+      "name": "dead-snapshot",
+      "exit": 1,
+      "expectedFailure": "dead_snapshot_retained",
+      "logSha256": "f05c4db4ed51d9b62e3820bf92e577887615d0edce0e73d63a68152f79159c03"
+    },
+    {
+      "name": "zero-weight",
+      "exit": 1,
+      "expectedFailure": "zero_weight_never_selected",
+      "logSha256": "579d9390e1098b332bfa64ebc119a568814091d9ea550020516fcb9fcaac7dfa"
+    },
+    {
+      "name": "projection-budget",
+      "exit": 1,
+      "expectedFailure": "bounded_projection_reports_omissions",
+      "logSha256": "273078feeaec95042fa197a14c3af920e356a2fa2ada80719df0844111de42ea"
+    },
+    {
+      "name": "utf16-unit-count",
+      "expectedFailure": "unicode-projection-byte-budget",
+      "actualBytes": 137275,
+      "logSha256": "3a24d9dce2b7965438ff9b0e5b75e26963be07a39715d3c69b1474da9f4d66d8"
+    }
+  ],
+  "sources": {
+    "mod\\42.20\\media\\lua\\shared\\SAO_Cognition.lua": "36f2f3f8714546be8205fbaad2d1c8af6a8fa856f158a9b1b7c6bf1052ab0e03",
+    "mod\\42.20\\media\\lua\\shared\\SAO_CognitiveModels.lua": "791d4a2392d85645508a0debb5c50abc1636573d71194ec4a435dfbc7caef31b",
+    "mod\\42.20\\media\\lua\\shared\\SAO_Labor.lua": "20a04e518c9943ff6e81784c6b50b4408a4b8b5ae1c1795adc35e78da091d082",
+    "tools\\cognition_checks\\runtime.lua": "63abb3aa7f3bea050ecb8ee71bd809d1f0c45a788090c365312b69e7dfd2064f",
+    "tools\\cognition_checks\\prelude.lua": "283cfd5374fbb461291d876825528f52bf4b765a3ffb77a2d6c5c02a2700f1e3"
+  },
+  "maximalProjectionBytes": 58995,
+  "unicodeProjectionBytes": 61787
+}

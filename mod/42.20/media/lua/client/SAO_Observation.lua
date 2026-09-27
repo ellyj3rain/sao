@@ -70,6 +70,12 @@ function O.panel(panelId, personId, visible)
     selected = personId
     return true
 end
+function O.cognition(opponentShare, opportunitiesPerHour, maxDepth)
+    if not enabled or not SAO.Cognition or not SAO.Cognition.configure then return false end
+    local applied = SAO.Cognition.configure(opponentShare, opportunitiesPerHour, maxDepth)
+    if applied then nextSample = 0 end
+    return applied == true
+end
 function O.nativePanel()
     return enabled and SAO.Inspect and SAO.Inspect.nativePanel and SAO.Inspect.nativePanel() or nil
 end
@@ -228,6 +234,7 @@ local function samplePerson(id, rec, body)
     if agent and agent.pressure then scalarRows(pressure, agent.pressure, "", 0)
     else pressure.status = "unavailable"; pressure.message = "No active pressure receipt" end
     local out = { sections = { needs(body), inventory(body), pressure, currentAction(id, body), sourceWork(id, rec), processes(id) }, events = {} }
+    if SAO.Cognition and SAO.Cognition.snapshot then out.cognition = SAO.Cognition.snapshot(id) end
     for _, event in ipairs(histories[id] or {}) do
         local copy = {}; for k, v in pairs(event) do copy[k] = v end
         out.events[#out.events + 1] = copy
