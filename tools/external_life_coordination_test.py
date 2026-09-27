@@ -30,6 +30,7 @@ PRELUDE = r'''
 _G.__now = 100
 _G.__people = {}
 _G.__bodies = {}
+_G.__routePermissions = {}
 local function body(id, x)
   local b = { id=id, x=x or 0, y=0, z=0 }
   function b:getX() return self.x end
@@ -53,7 +54,11 @@ SAO = {
   Controller={ agents={} },
   Perception={ EARSHOT=10 },
   Standing={ groupOf=function() return nil end,trust=function() return .5 end,
-    isHostileTo=function() return false end },
+    isHostileTo=function() return false end,
+    mayAttemptBelieved=function(id,x,y,admission)
+      __routePermissions[#__routePermissions+1]={id=id,x=x,y=y,admission=admission}
+      return true
+    end },
   Needs={ read=function() return {hunger=.1,thirst=.1,fatigue=.1} end },
 }
 SAOJavaBridge = {
@@ -226,7 +231,7 @@ PROBE = r'''(function()
     4,4,0,'travelling')
   local routeStatus='moving'
   SAO.Locomotion={jobs={},
-    order=function(id,b,x,y,z) __reissued={id=id,x=x,y=y,z=z}; return true end,
+    order=function(id,b,x,y,z) __reissued={id=id,body=b,x=x,y=y,z=z}; return true end,
     tick=function() end,status=function() return routeStatus end,
     cancel=function() end}
   SAO.Controller.coordinationRuntime={}
@@ -235,10 +240,16 @@ PROBE = r'''(function()
   SAO.GraphPersistence.bind()
   resumedCommit=SAO.Organization.activeCommitment(
     'external-a','rendezvous-holding')
+  __routePermissions={}
   local resumedOwned,resumedStatus=SAO.Controller.advanceExternalCoordination(
     'external-a',__bodies['external-a'],'ZAO','idle')
   check('pending_route_rebinds_without_duplicate',resumedOwned==true
     and resumedStatus=='route' and __reissued~=nil
+    and __reissued.id=='external-a' and __reissued.body==__bodies['external-a']
+    and __reissued.x==4 and __reissued.y==4 and __reissued.z==0
+    and #__routePermissions==1 and __routePermissions[1].id=='external-a'
+    and __routePermissions[1].x==4 and __routePermissions[1].y==4
+    and __routePermissions[1].admission=='standing'
     and #resumedCommit.work.routeAttempts==1
     and SAO.Controller.coordinationRuntime['external-a'].coordinationRoute.routeId
       ==remembered.id)
@@ -394,6 +405,9 @@ def main() -> int:
         ("pending route reconstruction", "controller",
          'and not runtime.coordinationRoute then',
          'and false then'),
+        ("pending route current permission", "controller",
+         'and SAO.Standing.mayAttemptBelieved(id, x, y, "standing")) then',
+         'and true) then'),
         ("shared dormant appraisal owner", "coordination",
          "for _, request in ipairs(SAO.Organization.pendingAppraisals(id)) do",
          "for _, request in ipairs({}) do"),
@@ -411,11 +425,16 @@ def main() -> int:
             mutated if target == "organization" else org,
             comm, mutated if target == "coordination" else coordination,
             mutated if target == "controller" else controller)
-        if not any(result == "false" for result in verdicts(mutant_value).values()):
+        mutated_checks = verdicts(mutant_value)
+        rejected = (set(mutated_checks) == EXPECTED
+                    and mutated_checks.get("pending_route_rebinds_without_duplicate") == "false"
+                    if name == "pending route current permission" else
+                    any(result == "false" for result in mutated_checks.values()))
+        if not rejected:
             print(f"  FAULT: {name} mutation survived")
             controls_ok = False
     print("  mutation controls: " + ("PASS" if controls_ok else "FAIL")
-          + " (six production controls)")
+          + f" ({len(controls)} production controls)")
     if not static_ok or not controls_ok or set(found) != EXPECTED or failed:
         print("  FAULT: missing=" + repr(sorted(EXPECTED - set(found)))
               + " failed=" + repr(failed) + " value=" + repr(value))

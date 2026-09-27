@@ -1066,6 +1066,76 @@ do
    and crossed.inputOwners.ownNeed=='SAO.Needs via ZAO.Mind',
    'Crossed appraisal lost pressure ownership or exposed hidden state')
 end
+-- An available native constructor owns this attempt. Its refusal cannot
+-- allocate a bare player/descriptor, which native awaken cannot restore.
+do
+ local function copy(value)
+  if type(value)~='table' then return value end
+  local out={} for k,v in pairs(value) do out[k]=copy(v) end return out
+ end
+ local function equal(a,b)
+  if type(a)~=type(b) then return false end
+  if type(a)~='table' then return a==b end
+  for k,v in pairs(a) do if not equal(v,b[k]) then return false end end
+  for k in pairs(b) do if a[k]==nil then return false end end
+  return true
+ end
+ local oldFactory,oldPlayer,oldCell=SurvivorFactory,IsoPlayer,getCell
+ local nativeSpawn,nativeAwaken=SAOJavaBridge.spawnShellNamed,SAOJavaBridge.awaken
+ local counters={desc=0,bare=0}
+ SurvivorFactory={CreateSurvivor=function()
+  counters.desc=counters.desc+1
+  return {setForename=function() end,setSurname=function() end}
+ end}
+ getCell=function() return {} end
+ IsoPlayer={new=function(cell,desc,x,y,z)
+  counters.bare=counters.bare+1
+  local body=__body() body.bare=true body.x=x body.y=y body.z=z return body
+ end}
+ SAOJavaBridge.awaken=function(self,body,packed,elapsed)
+  if body.bare then return 'NOT_A_SHELL' end
+  return nativeAwaken(self,body,packed,elapsed)
+ end
+ for _,mode in ipairs({'nil','throw'}) do
+  local r,b=__setup()
+  assert(SAO.Body.release(r),'spawn refusal fixture did not retain a valid snapshot')
+  local before=copy(r)
+  local captures,removed=__captures,__removed
+  counters.desc,counters.bare=0,0
+  local attempts=0
+  SAOJavaBridge.spawnShellNamed=function()
+   attempts=attempts+1
+   if mode=='throw' then error('native constructor unavailable') end
+   return nil
+  end
+  local restored,why=SAO.Body.materialize(r)
+  assert(counters.desc==0 and counters.bare==0,
+    'native '..mode..' spawn allocated a bare player or descriptor')
+  assert(restored==nil and why=='native-spawn-failed' and attempts==1,
+    'native spawn refusal was not returned')
+  assert(equal(r,before) and __records.p1==r,
+    'native spawn refusal changed retained record or snapshot')
+  assert(SAO.Body.active.p1==nil and SAO.Body.failedRestore.p1==nil
+    and SAO.Controller.agents.p1==nil and __restored==0 and __accounted==0
+    and __captures==captures and __removed==removed,
+    'native spawn refusal published or restored a body')
+  SAOJavaBridge.spawnShellNamed=nativeSpawn __now=45
+  restored=SAO.Body.materialize(r)
+  assert(restored and restored.payload=='carried' and restored.elapsed==3
+    and restored.visual=='current-look' and __restored==1 and __accounted==1
+    and SAO.Body.active.p1==restored and counters.desc==0 and counters.bare==0,
+    'later native spawn did not awaken the retained person')
+ end
+ SAOJavaBridge.spawnShellNamed,SAOJavaBridge.awaken=nativeSpawn,nativeAwaken
+ local r=__setup() SAO.Body.active={} SAO.Controller.agents={} r.hibernation=nil
+ counters.desc,counters.bare=0,0
+ local bridge=SAOJavaBridge SAOJavaBridge=nil
+ local legacy=SAO.Body.materialize(r)
+ SAOJavaBridge=bridge
+ assert(legacy and legacy.bare and counters.desc==1 and counters.bare==1
+   and SAO.Body.active.p1==legacy,'absent bridge lost legacy construction policy')
+ SurvivorFactory,IsoPlayer,getCell=oldFactory,oldPlayer,oldCell
+end
 return 'PASS'
 '''
 
@@ -1128,6 +1198,17 @@ def main():
         result=run(work,sources); print('production: '+result)
         if result!='VALUE PASS': faults.append('production')
         controls=[
+            ('SAO_Body.lua','            return nil, "native-spawn-failed"',
+             '', 'native nil spawn allocated a bare player or descriptor'),
+            ('SAO_Body.lua','            return nil, "native-spawn-failed"',
+             '            if okJ then return nil, "native-spawn-failed" end',
+             'native throw spawn allocated a bare player or descriptor'),
+            ('SAO_Body.lua','            return nil, "native-spawn-failed"',
+             '            rec.hibernation=nil return nil, "native-spawn-failed"',
+             'native spawn refusal changed retained record or snapshot'),
+            ('SAO_Body.lua','    if not body then\n        local okDesc, desc = pcall(function() return SurvivorFactory.CreateSurvivor() end)',
+             '    if not body and SAOJavaBridge then\n        local okDesc, desc = pcall(function() return SurvivorFactory.CreateSurvivor() end)',
+             'absent bridge lost legacy construction policy'),
             ('SAO_Body.lua','if ok and unloaded then Body.unloaded[rec.id] = true end',
              'if false then Body.unloaded[rec.id] = true end',
              'unloaded source ownership did not block capture'),

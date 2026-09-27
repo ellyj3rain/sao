@@ -20,6 +20,14 @@ local STALL_TICKS = 300   -- identical verdict with no arrival for this long = g
 -- through the shared logger.
 local function log(msg) SAO.Log.line("LOCO", msg) end
 
+local function observed(id, stage, job, reason)
+    if not SAO.Observation then return end
+    local goal = job and job.goal
+    local destination = goal and (tostring(goal.x) .. "," .. tostring(goal.y) .. "," .. tostring(goal.z)) or "unavailable"
+    pcall(SAO.Observation.record, id, "Locomotion", stage,
+        tostring(reason or stage) .. "; destination " .. destination)
+end
+
 -- [C18] How far a goal must move before a LIVE route is worth
 -- restarting. Under a tile is the same errand; a re-path costs the
 -- whole route and any transition in flight.
@@ -71,13 +79,16 @@ function Loco.order(id, body, x, y, z, running)
     end)
     if not ok or not verdict or not tostring(verdict):find("MOVE_STARTED", 1, true) then
         log("FAIL order " .. tostring(id) .. ": " .. tostring(verdict))
+        observed(id, "refused", { goal = { x = x, y = y, z = z } }, verdict)
         return false
     end
+    if job and not job.done then observed(id, "replaced", job, "Accepted a different route") end
     Loco.jobs[id] = {
         body = body, goal = { x = x, y = y, z = z },
         lastVerdict = "", sameVerdictTicks = 0,
         done = false, result = nil,
     }
+    observed(id, "started", Loco.jobs[id], "Native move accepted")
     log("order " .. tostring(id) .. " -> " .. x .. "," .. y .. "," .. z)
     return true
 end
@@ -101,16 +112,19 @@ local function tickInner(id)
 
     if verdict == "Succeeded" then
         job.done, job.result = true, "arrived"
+        observed(id, "arrived", job, verdict)
         log(tostring(id) .. " ARRIVED at "
             .. string.format("%.1f,%.1f", job.body:getX(), job.body:getY()))
         return
     end
     if verdict:find("Failed", 1, true) or verdict == "IDLE" or verdict:find("_FAILED", 1, true) then
         job.done, job.result = true, verdict
+        observed(id, "failed", job, verdict)
         return
     end
     if job.sameVerdictTicks >= STALL_TICKS then
         job.done, job.result = true, "stalled:" .. verdict
+        observed(id, "failed", job, job.result)
         pcall(function() SAOJavaBridge:cancelMove(job.body) end)
         log(tostring(id) .. " gave up after " .. STALL_TICKS
             .. " unchanged ticks of " .. verdict)
@@ -128,6 +142,7 @@ function Loco.tick(id)
     end
     if job.faults >= 3 then
         job.done, job.result = true, "tick-fault"
+        observed(id, "failed", job, job.result)
         pcall(function() SAOJavaBridge:cancelMove(job.body) end)
         log(tostring(id) .. " disabled after " .. job.faults .. " tick faults")
     end
@@ -137,6 +152,7 @@ function Loco.cancel(id)
     local job = Loco.jobs[id]
     if not job then return end
     pcall(function() SAOJavaBridge:cancelMove(job.body) end)
+    if not job.done then observed(id, "cancelled", job, "Route owner cancelled") end
     Loco.jobs[id] = nil
     log("cancelled " .. tostring(id))
 end

@@ -94,6 +94,9 @@ Ctl.__fleeProbeTick=function(t) tickCount=t end
 Ctl.__companyProbeDecide=decideCompany
 Ctl.__playerProbeDecide=decideNeedsAndCompanion
 Ctl.__followProbeMovement=updateMovement
+Ctl.__threatProbeDecide=decideThreat
+Ctl.__inspectionProbeBegin=beginContainerInspection
+Ctl.__inspectionProbeState=setState
 return Ctl
 '''
 
@@ -436,6 +439,30 @@ b.climbing=false;followDecide(a,b,true,false)
 check('completed_climb_rechecks_permission',__traversals==1 and __cancels==1
  and a.state=='IDLE' and SAO.Locomotion.jobs.runner==nil)
 
+-- Installed fence/window state owners leave isClimbing() false. The exact
+-- admitted body/job must finish even when the target moves or permission is
+-- revoked during root motion; IdleState then restores ordinary reappraisal.
+for _,nativeState in ipairs({'ClimbOverFenceState','ClimbThroughWindowState'}) do
+ a,b,job,anchor=freshFollow(true);__verdict='FailedObstacle:FAILED_BLOCKED_DIAGONAL'
+ __traverseResult='STARTED_FENCE_CLIMB';followDecide(a,b,true,false)
+ b.nativeState=nativeState;b.climbing=false;__blockAll=true;anchor.x=30.5
+ b.x=b.x+0.75
+ for i=1,3 do followDecide(a,b,true,false) end
+ check('owned_'..nativeState..'_finishes_without_new_action',__traversals==1
+  and __starts==1 and __cancels==0 and a.state=='PLAYERFOLLOW'
+  and SAO.Locomotion.jobs.runner==job)
+ b.nativeState='IdleState';anchor.x=9.5;followDecide(a,b,true,false)
+ check('completed_'..nativeState..'_rechecks_permission',__traversals==1
+  and __cancels==1 and a.state=='IDLE' and SAO.Locomotion.jobs.runner==nil)
+end
+for _,nativeState in ipairs({'OtherClimbOverFenceState','ClimbThroughWindowStateOther'}) do
+ a,b,job=freshFollow(true);__verdict='FailedObstacle:FAILED_BLOCKED_DIAGONAL'
+ __traverseResult='STARTED_FENCE_CLIMB';followDecide(a,b,true,false)
+ b.nativeState=nativeState;__blockAll=true;followDecide(a,b,true,false)
+ check('unrelated_native_state_does_not_own_crossing',__traversals==1
+  and __cancels==1 and a.state=='IDLE' and SAO.Locomotion.jobs.runner==nil)
+end
+
 a,b,job,anchor=freshFollow(true);__verdict='FailedObstacle:FAILED_BLOCKED_DIAGONAL'
 __traverseResult='STARTED_WINDOW_OPEN';followDecide(a,b,true,false)
 b.nativeState='OpenWindowState';__blockAll=true;anchor.x=30.5
@@ -483,14 +510,252 @@ a,b,job=freshFollow(true);__companyStanding=0
 followDecide(a,b,true,false)
 check('player_trust_loss_releases_route',__starts==1 and __cancels==1
  and SAO.Locomotion.jobs.runner==nil and a.state=='IDLE' and not a.companioning)
+
+-- Native04 reached home/water routes, then a distant observed threat cancelled
+-- them for the rest of the day. Exercise the full decision caller up to its
+-- real needs read; the sentinel stops only the unrelated appetite fixture.
+local priorRead=SAO.Needs.read
+local priorFlee=SAO.Disposition.fleeDistance
+local priorOverwhelm=SAO.Disposition.overwhelmThreshold
+local function reachesNeeds(agent,native)
+ local reached=false
+ SAO.Needs.read=function() reached=true;error('NEEDS_BOUNDARY_REACHED') end
+ local ok,why=pcall(function()
+  SAO.Controller.__fleeProbeDecide('runner',agent,native)
+ end)
+ SAO.Needs.read=priorRead
+ check('decision_reaches_only_expected_boundary',ok or reached
+  and tostring(why):find('NEEDS_BOUNDARY_REACHED',1,true)~=nil)
+ return reached
+end
+for _,state in ipairs({'HOMEWARD','WATERWARD','FOLLOW','WORKWARD'}) do
+ a,b,job=fresh();a.state=state
+ SAO.Disposition.fleeDistance=function() return 8 end
+ __threat={x=-13.5,y=.5,dist=14,source='observed'}
+ for turn=1,4 do
+  check('distant_'..state..'_reaches_needs',reachesNeeds(a,b))
+  check('distant_'..state..'_retains_route',SAO.Locomotion.jobs.runner==job
+   and __starts==1 and __cancels==0 and a.state==state)
+ end
+ SAO.Disposition.fleeDistance=priorFlee
+end
+a,b,job=fresh();SAO.Locomotion.cancel('runner');a.state='ALERT'
+SAO.Disposition.fleeDistance=function() return 8 end
+__threat={x=-13.5,y=.5,dist=14,source='told',teller='fellow'}
+check('old_alert_reaches_needs_same_turn',reachesNeeds(a,b) and a.state=='IDLE')
+check('distant_belief_is_not_clear',a.pressure.detail:find('believed threat',1,true)~=nil
+ and not a.pressure.detail:find('clear',1,true))
+a.state='ALERT';SAO.SourceUse={beforeStateChange=function() return false end}
+check('reconciliation_keeps_ownership',not reachesNeeds(a,b) and a.state=='ALERT')
+SAO.SourceUse=nil;SAO.Disposition.fleeDistance=priorFlee
+
+a,b,job=fresh();SAO.Disposition.fleeDistance=function() return 8 end
+__threat={x=-13.5,y=.5,dist=14,source='observed'}
+check('beyond_trigger_retreat_keeps_route',not reachesNeeds(a,b)
+ and SAO.Locomotion.jobs.runner==job and a.state=='FLEE' and __cancels==0 and __starts==1)
+__forbidden[tostring(job.goal.x)..','..tostring(job.goal.y)]=true
+check('beyond_trigger_permission_releases_route',reachesNeeds(a,b)
+ and SAO.Locomotion.jobs.runner==nil and __cancels==1)
+SAO.Disposition.fleeDistance=priorFlee
+
+for _,kind in ipairs({'close','crowd','pathogen'}) do
+ a,b,job=fresh();a.state='HOMEWARD'
+ SAO.Disposition.fleeDistance=function() return 8 end
+ __threat={x=-13.5,y=.5,dist=14,source='observed'}
+ local count=1
+ if kind=='close' then __threat.dist=7;__threat.x=-6.5
+ elseif kind=='crowd' then count=3;SAO.Disposition.overwhelmThreshold=function() return 2 end
+ else SAO.PathogenPressure={fleeDistance=function() return 16 end} end
+ check(kind..'_still_owns_threat_turn',SAO.Controller.__threatProbeDecide('runner',a,b,__tick,
+  __threat,count,nil,nil)==true and a.state=='FLEE')
+ SAO.PathogenPressure=nil;SAO.Disposition.fleeDistance=priorFlee
+ SAO.Disposition.overwhelmThreshold=priorOverwhelm
+end
+-- Native03 retained equipment routes beyond their already assigned deadline.
+-- Exercise real movement/state cancellation, leaving native crossings and
+-- terminal arrival results under their existing owners.
+local gearClears,ammoClears=0,0
+SAO.Needs.clearGear=function(native) check('gear_clear_has_exact_body',native==b);gearClears=gearClears+1 end
+SAO.Needs.clearAmmo=function(native) check('ammo_clear_has_exact_body',native==b);ammoClears=ammoClears+1 end
+for _,state in ipairs({'GEARWARD','AMMOWARD'}) do
+ a,b,job=fresh();a.state=state;a.taskDeadline=100;a.nextDecisionAt=500
+ SAO.Controller.__fleeProbeTick(99)
+ SAO.Controller.__followProbeMovement('runner',a,b)
+ check('equipment_before_deadline_keeps_route',a.state==state and __cancels==0 and SAO.Locomotion.jobs.runner==job)
+ SAO.Controller.__fleeProbeTick(100)
+ local held=SAO.Controller.__followProbeMovement('runner',a,b)
+ check('equipment_deadline_reopens_decision',held==false and a.state=='IDLE'
+  and a.nextDecisionAt==0 and a.taskDeadline==nil and __cancels==1 and SAO.Locomotion.jobs.runner==nil)
+end
+check('equipment_cache_owner_cleared',gearClears==1 and ammoClears==1)
+for _,verdict in ipairs({'CLIMBING','STARTED_FENCE_CLIMB','STARTED_WINDOW_CLIMB'}) do
+ a,b,job=fresh();a.state='GEARWARD';a.taskDeadline=100
+ SAO.Controller.__fleeProbeTick(100);__verdict=verdict
+ SAO.Controller.__followProbeMovement('runner',a,b)
+ check('equipment_owned_crossing_finishes',a.state=='GEARWARD' and __cancels==0 and SAO.Locomotion.jobs.runner==job)
+ __verdict='ManualRoute'
+ SAO.Controller.__followProbeMovement('runner',a,b)
+ check('equipment_completed_crossing_reconsiders',a.state=='IDLE' and __cancels==1)
+end
+a,b,job=fresh();a.state='GEARWARD';a.taskDeadline=100
+SAO.Controller.__fleeProbeTick(100)
+SAO.SourceUse={beforeStateChange=function() return false end}
+local priorClears=gearClears
+check('equipment_reconciliation_keeps_owner',SAO.Controller.__followProbeMovement('runner',a,b)==true
+ and a.state=='GEARWARD' and SAO.Locomotion.jobs.runner==job and __cancels==0 and gearClears==priorClears)
+SAO.SourceUse=nil
+SAO.Identity={updatePosition=function() end}
+SAO.Needs.queueTakeGear=function() return true end
+a,b,job=fresh();a.state='GEARWARD';a.taskDeadline=100
+SAO.Controller.__fleeProbeTick(100);__verdict='Succeeded'
+SAO.Controller.__followProbeMovement('runner',a,b)
+check('equipment_arrival_keeps_native_acquisition',a.state=='TAKE' and a.takePurpose=='gear' and a.taskDeadline==1900)
+a,b,job=fresh();a.taskDeadline=1;SAO.Controller.__fleeProbeTick(100)
+SAO.Controller.__followProbeMovement('runner',a,b)
+check('equipment_deadline_does_not_end_escape',a.state=='FLEE' and SAO.Locomotion.jobs.runner==job and __cancels==0)
+
+-- Inspection owns a route and changes knowledge, never an acquisition. The
+-- WorldSources boundary is a controlled receiver; its real native/private
+-- knowledge behavior is independently exercised by Border 184.
+local inspectionContext, inspected, inspectionFailures, inspectionOffers, takes
+local inspectAllowed, offerAvailable, inspectionPending
+SAO.Lessons.desperationBump=function() return 0 end
+SAO.Needs.queueTake=function() takes=takes+1;return true end
+SAO.WorldSources={
+ inspectionCandidate=function(id,body,admission)
+  inspectionOffers=inspectionOffers+1
+  if not offerAvailable then return nil end
+  inspectionContext={actorId=id,admission=admission,sourceId='container:a',fingerprint='fp:a',
+   sourceX=11,sourceY=0,sourceZ=0,x=11,y=0,z=0}
+  inspectionPending=inspectionContext
+  return inspectionContext
+ end,
+ inspectContainer=function(id,body,context)
+  check('inspection_exact_context',context==inspectionContext and inspectionPending==context)
+  inspected=inspected+1;inspectionPending=nil
+  return inspectAllowed,inspectAllowed and 'inspected' or 'current-claim-refused'
+ end,
+ inspectionFailed=function(id,body,context,reason)
+  inspectionFailures[#inspectionFailures+1]={context=context,reason=reason}
+  inspectionPending=nil
+ end,
+}
+local function inspectionFresh()
+ SAO.SourceUse=nil
+ local a,b,job=fresh();a.state='ROAM'
+ inspected=0;inspectionFailures={};inspectionOffers=0;takes=0
+ inspectAllowed=true;offerAvailable=true;inspectionPending=nil
+ return a,b,job
+end
+local function startInspection(a,b)
+ return SAO.Controller.__inspectionProbeBegin('runner',a,b,.6,'food',100)
+end
+a,b,job=inspectionFresh()
+check('inspection_route_admitted',startInspection(a,b)==true and a.state=='FORAGE'
+ and a.forageInspection==inspectionContext and a.taskDeadline==3700)
+check('inspection_replaces_close_old_purpose',SAO.Locomotion.jobs.runner~=job
+ and SAO.Locomotion.jobs.runner.goal.x==11 and __starts==2 and __cancels==1)
+__verdict='Succeeded';SAO.Controller.__fleeProbeTick(101)
+local handled=SAO.Controller.__followProbeMovement('runner',a,b)
+check('inspection_arrival_teaches_then_redecides',inspected==1 and takes==0 and handled==false
+ and a.state=='IDLE' and a.forageInspection==nil and a.nextDecisionAt==0
+ and a.taskDeadline==nil and #inspectionFailures==0)
+
+a,b,job=inspectionFresh();startInspection(a,b)
+__verdict='FailedObstacle:FAILED_BLOCKED_DIAGONAL'
+SAO.Controller.__followProbeMovement('runner',a,b)
+check('inspection_route_failure_no_take',inspected==0 and takes==0 and a.state=='IDLE'
+ and #inspectionFailures==1 and inspectionFailures[1].context==inspectionContext
+ and inspectionFailures[1].reason=='done:FailedObstacle:FAILED_BLOCKED_DIAGONAL')
+
+a,b,job=inspectionFresh();startInspection(a,b)
+SAO.Controller.__inspectionProbeState(a,'runner','FLEE','danger')
+check('inspection_interrupt_releases_without_access_failure',a.forageInspection==nil
+ and #inspectionFailures==1 and inspectionFailures[1].reason=='interrupted:FLEE'
+ and inspected==0 and takes==0)
+
+a,b,job=inspectionFresh();SAO.SourceUse={beforeStateChange=function() return false end}
+check('inspection_start_reconciliation_preserves_route',startInspection(a,b)==true
+ and a.state=='ROAM' and a.forageInspection==nil and SAO.Locomotion.jobs.runner==job
+ and __starts==1 and __cancels==0 and inspectionPending==nil)
+
+a,b,job=inspectionFresh();startInspection(a,b);job=SAO.Locomotion.jobs.runner
+SAO.SourceUse={beforeStateChange=function() return false end};__verdict='Succeeded'
+check('inspection_terminal_reconciliation_preserves_intent',
+ SAO.Controller.__followProbeMovement('runner',a,b)==true and a.state=='FORAGE'
+ and a.forageInspection==inspectionContext and inspectionPending==inspectionContext
+ and SAO.Locomotion.jobs.runner==job and inspected==0 and takes==0)
+
+a,b,job=inspectionFresh();startInspection(a,b);inspectAllowed=false;__verdict='Succeeded'
+SAO.Controller.__followProbeMovement('runner',a,b)
+check('inspection_permission_change_no_take',inspected==1 and takes==0 and a.state=='IDLE'
+ and a.pressure.detail=='container inspection ended: current-claim-refused')
+
+a,b,job=inspectionFresh();offerAvailable=false
+check('inspection_no_offer_preserves_route',startInspection(a,b)==false
+ and a.state=='ROAM' and SAO.Locomotion.jobs.runner==job and __cancels==0)
+
+a,b,job=inspectionFresh();startInspection(a,b);SAO.Controller.__fleeProbeTick(3700)
+check('inspection_deadline_reopens_decision',SAO.Controller.__followProbeMovement('runner',a,b)==false
+ and a.state=='IDLE' and a.forageInspection==nil and inspectionPending==nil
+ and inspected==0 and takes==0 and a.nextDecisionAt==0)
+for _,verdict in ipairs({'CLIMBING','STARTED_FENCE_CLIMB','STARTED_WINDOW_CLIMB'}) do
+ a,b,job=inspectionFresh();startInspection(a,b);job=SAO.Locomotion.jobs.runner
+ SAO.Controller.__fleeProbeTick(3700);__verdict=verdict
+ SAO.Controller.__followProbeMovement('runner',a,b)
+ check('inspection_owned_crossing_finishes',a.state=='FORAGE'
+  and a.forageInspection==inspectionContext and SAO.Locomotion.jobs.runner==job)
+end
+
+SAO.Disposition.drinkAt=function() return .4 end
+SAO.Needs.eatCarried=function() return false end
+SAO.Needs.findSource=function() return 2,0,0,'known food' end
+SAO.Needs.approach=function(body,kind,x,y,z) return x,y,z end
+a,b,job=inspectionFresh();a.state='IDLE'
+SAO.Controller.__playerProbeDecide('runner',a,b,100,{hunger=.6,thirst=0})
+check('inspection_known_food_first',a.state=='FORAGE' and not a.forageInspection
+ and inspectionOffers==0 and a.forageContext~=nil)
+SAO.Needs.findSource=function() return nil end
+a,b,job=inspectionFresh();a.state='IDLE'
+SAO.Controller.__playerProbeDecide('runner',a,b,100,{hunger=.6,thirst=0})
+check('inspection_unknown_holder_after_food_absent',a.state=='FORAGE'
+ and a.forageInspection==inspectionContext and inspectionOffers==1)
+a,b,job=inspectionFresh();a.state='FORAGE'
+SAO.Needs.clearSource=function() end
+SAO.Needs.queueTake=function() return false,'current-claim-refused' end
+__verdict='Succeeded'
+SAO.Controller.__followProbeMovement('runner',a,b)
+check('forage_arrival_reports_transfer_refusal',a.state=='IDLE'
+ and a.pressure.detail=='forage attempt ended: current-claim-refused')
 __result='PASS '..table.concat(checks,',')
 '''
 
 CONTROLS = (
+    ("forage_refusal_discarded", 'takeReason = reason or "native-transfer-refused"', 'takeReason = s', 'forage_arrival_reports_transfer_refusal'),
+    ("equipment_deadline_missing", '(agent.state == "GEARWARD" or agent.state == "AMMOWARD")\n            and agent.taskDeadline and tickCount >= agent.taskDeadline', '(agent.state == "GEARWARD" or agent.state == "AMMOWARD")\n            and false', 'equipment_deadline_reopens_decision'),
+    ("equipment_deadline_early", '(agent.state == "GEARWARD" or agent.state == "AMMOWARD")\n            and agent.taskDeadline and tickCount >= agent.taskDeadline', '(agent.state == "GEARWARD" or agent.state == "AMMOWARD")\n            and agent.taskDeadline and tickCount + 1 >= agent.taskDeadline', 'equipment_before_deadline_keeps_route'),
+    ("equipment_crossing_cut", 'if not crossing then\n                local wasGear', 'if true then\n                local wasGear', 'equipment_owned_crossing_finishes'),
+    ("equipment_cache_not_cleared", 'if wasGear then SAO.Needs.clearGear(body)', 'if wasGear then', 'equipment_cache_owner_cleared'),
+    ("equipment_reconciliation_ignored", 'if not setState(agent, id, "IDLE", "equipment route deadline reached") then', 'if setState(agent, id, "IDLE", "equipment route deadline reached") and false then', 'equipment_reconciliation_keeps_owner'),
+    ("equipment_arrival_expired", '(agent.state == "GEARWARD" or agent.state == "AMMOWARD")\n            and agent.taskDeadline and tickCount >= agent.taskDeadline\n            and s:sub(1, 5) ~= "done:" then', '(agent.state == "GEARWARD" or agent.state == "AMMOWARD")\n            and agent.taskDeadline and tickCount >= agent.taskDeadline then', 'equipment_arrival_keeps_native_acquisition'),
+    ("inspection_old_purpose_reused", 'SAO.Locomotion.cancel(id)\n    agent.forageContext = nil', 'agent.forageContext = nil', 'inspection_replaces_close_old_purpose'),
+    ("inspection_arrival_skipped", 'inspected, reason = SAO.WorldSources.inspectContainer(id, body, context)', 'inspected, reason = true, "invented inspection"', 'inspection_arrival_teaches_then_redecides'),
+    ("inspection_failure_unrecorded", 'SAO.WorldSources.inspectionFailed(id, body, context, s)', '', 'inspection_route_failure_no_take'),
+    ("inspection_interruption_retained", 'if state ~= "FORAGE" and agent.forageInspection then', 'if false then', 'inspection_interrupt_releases_without_access_failure'),
+    ("inspection_start_reconciliation_ignored", 'if not setState(agent, id, "FORAGE", "looks in a container for " .. category) then', 'if setState(agent, id, "FORAGE", "looks in a container for " .. category) and false then', 'inspection_start_reconciliation_preserves_route'),
+    ("inspection_terminal_reconciliation_ignored", '"IDLE", "container inspection route ended") == false then return true end', '"IDLE", "container inspection route ended") == false then end', 'inspection_terminal_reconciliation_preserves_intent'),
+    ("inspection_deadline_missing", 'if agent.state == "FORAGE" and agent.forageInspection\n            and agent.taskDeadline', 'if false\n            and agent.taskDeadline', 'inspection_deadline_reopens_decision'),
+    ("inspection_crossing_cut", 'if not crossing then\n                if not setState(agent, id, "IDLE", "container inspection route expired")', 'if true then\n                if not setState(agent, id, "IDLE", "container inspection route expired")', 'inspection_owned_crossing_finishes'),
     ("missing_hold", "if continueFleeRoute(id, agent, body, bx, by, dx, dy, len) then",
      "if false then", "roused_safe_route_not_restarted"),
-    ("held_consequences", "                advanceFleeConsequences(id, agent, body, tick)\n                return true",
-     "                return true", "mid_route_injury_still_calls"),
+    ("held_consequences", "if continueFleeRoute(id, agent, body, bx, by, dx, dy, len) then\n                advanceFleeConsequences(id, agent, body, tick)",
+     "if continueFleeRoute(id, agent, body, bx, by, dx, dy, len) then", "mid_route_injury_still_calls"),
+    ("distant_starvation", "        return false\n    end\n\nend\n\n-- Threat reception", "        return true\n    end\n\nend\n\n-- Threat reception", "distant_HOMEWARD_reaches_needs"),
+    ("distant_route_cancellation", "        -- A retreat already underway", "        setState(agent, id, \"ALERT\", \"distant threat hold\")\n        -- A retreat already underway", "distant_HOMEWARD_retains_route"),
+    ("distant_false_clear", 'and string.format("continues with believed threat at %.1f tiles", threat.dist)', 'and "believes clear"', "distant_belief_is_not_clear"),
+    ("distant_delayed_needs", 'if not threat then return end', 'return', "old_alert_reaches_needs_same_turn"),
+    ("distant_reconciliation_bypass", 'if not setState(agent, id, "IDLE", reason) then return end', 'setState(agent, id, "IDLE", reason)', "reconciliation_keeps_ownership"),
+    ("distant_retreat_discarded", 'if continueFleeRoute(id, agent, body, bx, by, dx, dy,\n                math.sqrt(dx * dx + dy * dy)) then', 'if false then', "beyond_trigger_retreat_keeps_route"),
     ("held_player_arrival", "            agent.playerCame = true\n",
      "            agent.playerCame = false\n", "held_route_records_player_arrival"),
     ("held_cry_expiry", "if agent.criedAt and tick > agent.criedAt + 1800 then",
@@ -549,6 +814,13 @@ CONTROLS = (
      "owned_climb_finishes_without_new_action"),
     ("crossing_wrong_body", 'or crossing.body ~= body\n', '\n',
      "crossing_receipt_cannot_own_replacement_body"),
+    ("crossing_legacy_flag_only", 'body:isClimbing() or nativeState == "ClimbOverFenceState"\n            or nativeState == "ClimbThroughWindowState"',
+     'body:isClimbing()', "owned_ClimbOverFenceState_finishes_without_new_action"),
+    ("crossing_window_state_missing", '\n            or nativeState == "ClimbThroughWindowState"', '',
+     "owned_ClimbThroughWindowState_finishes_without_new_action"),
+    ("crossing_state_substring", 'nativeState == "ClimbOverFenceState"',
+     'tostring(nativeState):find("ClimbOverFenceState", 1, true) ~= nil',
+     "unrelated_native_state_does_not_own_crossing"),
     ("denied_roam_state", 'setState(agent, id, "IDLE", "company route is not permitted")',
      'if agent.state == state then setState(agent, id, "IDLE", "company route is not permitted") end',
      "denied_roam_follow_has_honest_state"),

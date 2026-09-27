@@ -39,6 +39,9 @@ def run(tmp, GAME, JDK):
     _execute([javac, "-encoding", "UTF-8", "-cp", native, "-d", classes,
               *(SOURCE / name for name in ("StudyObserver.java", "StudyLoadingAgent.java",
                                            "StudyViewCapture.java", "NativeObserverProbe.java",
+                                           "NativeObserverClockProbe.java",
+                                           "NativeObserverInspectionProbe.java",
+                                           "NativeObserverZoomProbe.java",
                                            "NativeObserverPreload.java"))], work / "compile")
     manifest, agent = work / "MANIFEST.MF", work / "observer-agent.jar"
     manifest.write_text("Manifest-Version: 1.0\nPremain-Class: StudyLoadingAgent\nCan-Retransform-Classes: true\n\n", encoding="utf-8")
@@ -93,6 +96,30 @@ def run(tmp, GAME, JDK):
         raise AssertionError("observer native debugger failure was not visible")
 
     controls = (
+        ("zoom_projection", "StudyObserver.java", "core.offscreenBuffer.setZoomAndTargetZoom(0, nextZoom);",
+         "// Only the target changes; the actual projection remains unchanged.", 1,
+         "native zoom did not enlarge rendered world projection"),
+        ("zoom_validate", "StudyObserver.java", "if (zoomStep != -1 && zoomStep != 1)", "if (false)", 1,
+         "invalid zoom command acknowledged"),
+        ("zoom_automatic", "StudyObserver.java", "core.setAutoZoom(0, false);", "// Leave automatic zoom in control.", 1,
+         "native automatic zoom can overwrite observer zoom"),
+        ("inspection_validate", "StudyObserver.java", '!Boolean.TRUE.equals(observationCall("validatePerson", id))',
+         'false', 1, "invalid inspection command acknowledged"),
+        ("inspection_apply", "StudyObserver.java", 'if (!Boolean.TRUE.equals(applied)) throw new IllegalStateException("person inspection request was not applied");',
+         '// Ignore the actual Lua dispatch result.', 1, "invalid inspection command acknowledged"),
+        ("inspection_render", "StudyObserver.java", "inspectionPanel.render();", "// Inspector drawing omitted.", 1,
+         "native inspector rendering did not isolate its UI element"),
+        ("speed_multiplier", "StudyObserver.java", "if (!paused) GameTime.getInstance().setMultiplier(nativeSpeedMultiplier(speed));",
+         "// Former UI-slot-only command omitted the native multiplier.", 1,
+         "native resume did not restore requested multiplier"),
+        ("speed_preset", "StudyObserver.java", "case 2 -> 5.0f;", "case 2 -> 1.0f;", 1,
+         "native speed 2 multiplier did not match installed preset"),
+        ("speed_camera", "StudyObserver.java", "if (changeClock) {", "if (controls != null) {", 1,
+         "camera-only command changed native speed multiplier"),
+        ("speed_pause", "StudyObserver.java", "controls.SetCurrentGameSpeed(paused ? 0 : speed);",
+         "controls.SetCurrentGameSpeed(speed);", 1, "native pause command did not apply"),
+        ("speed_resume", "StudyObserver.java", "desiredSpeed = speed;", "desiredSpeed = 1;", 1,
+         "resume did not retain requested native speed"),
         ("scan_basement", "StudyObserver.java", "int z = chunk.getMinLevel();", "int z = 0;", 1,
          "observer scan omitted basement or roof membership"),
         ("scan_roof", "StudyObserver.java", "z <= chunk.getMaxLevel();", "z < chunk.getMaxLevel();", 1,

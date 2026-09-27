@@ -14,12 +14,107 @@ SAO = SAO or {}
 SAO.Needs = SAO.Needs or {}
 local N = SAO.Needs
 
+-- The installed eat constructor asks the inventory UI for nearby heat even
+-- when a smokable already has carried ignition. Supply real reachable world
+-- containers for that synchronous lookup; required items still come only from
+-- the character's own inventory through vanilla getRequiredItem/start.
+local function eatHeatContainers(character)
+    local containers = ArrayList.new()
+    containers:add(character:getInventory())
+    local current = character:getCurrentSquare()
+    if not current or character:getVehicle() then return containers end
+    local cell = character:getCell()
+    for dy = -1, 1 do
+        for dx = -1, 1 do
+            local square = cell:getGridSquare(current:getX() + dx,
+                current:getY() + dy, current:getZ())
+            -- The installed inventory page uses this same local reach test.
+            if square and (square == current or current:canReachTo(square))
+                and (not isClient() or SafeHouse.isSafehouseAllowLoot(square, character)) then
+                local objects = square:getObjects()
+                for i = 0, objects:size() - 1 do
+                    local object = objects:get(i)
+                    if not instanceof(object, "IsoThumpable")
+                        or not object:isLockedToCharacter(character) then
+                        for index = 0, object:getContainerCount() - 1 do
+                            containers:add(object:getContainerByIndex(index))
+                        end
+                    end
+                end
+            end
+        end
+    end
+    return containers
+end
+
+-- Food and consumable drainables use different native actions. In particular,
+-- CigaretteSingle is Food, while CigarettePack has no Food hunger methods and
+-- vanilla dispatches it through ISTakePillAction/BodyDamage.JustTookPill.
+local function wrapNpcConsumeConstructor(actionClass, foodOnly)
+    if not actionClass or actionClass.SAONpcNewWrapped then return end
+    actionClass.SAONpcNewWrapped = true
+    local baseEatNew = actionClass.new
+    function actionClass:new(character, item, percentage)
+        local checked, shell = pcall(function() return SAOJavaBridge:isShell(character) end)
+        if not checked or shell ~= true then
+            return baseEatNew(self, character, item, percentage)
+        end
+        if foodOnly and not instanceof(item, "Food") then
+            if ISTakePillAction and instanceof(item, "DrainableComboItem")
+                and item:hasTag(ItemTag.CONSUMABLE) then
+                return ISTakePillAction:new(character, item)
+            end
+            return nil
+        end
+        local menu = ISInventoryPaneContextMenu
+        local previousContainers = menu and menu.getContainers
+        if previousContainers then
+            menu.getContainers = function(requested)
+                if requested == character then return eatHeatContainers(character) end
+                return previousContainers(requested)
+            end
+        end
+        local ok, action = pcall(baseEatNew, self, character, item, percentage)
+        if previousContainers then menu.getContainers = previousContainers end
+        if not ok then error(action) end
+        -- The player's context menu checks this before constructing an action.
+        -- Direct NPC callers must provide that same real prerequisite.
+        if action and item:getRequireInHandOrInventory()
+            and not (action.carLighter or action.openFlame)
+            and not action:getRequiredItem() then return nil end
+        return action
+    end
+end
+wrapNpcConsumeConstructor(ISEatFoodAction, true)
+wrapNpcConsumeConstructor(ISTakePillAction, false)
+
 -- [C60] Vanilla validates item/container identity but does not re-ask a
 -- vehicle whether this character may use its part. Keep the vanilla action
 -- and add the one authority it lacks. isValid runs throughout the timed
 -- action, so movement, unload or a lock change refuses before completion.
 local SAOVerifiedWorldTransferAction =
     ISInventoryTransferAction:derive("SAOVerifiedWorldTransferAction")
+
+function SAOVerifiedWorldTransferAction:startActionAnim()
+    ISInventoryTransferAction.startActionAnim(self)
+    if self.saoOffSlot then
+        -- The native animation selects a container for two independent uses:
+        -- facing its world object and reopening a local player's loot panel.
+        -- An off-slot body retains the former without inventing a player UI.
+        self.saoFacingContainer = self.selectedContainer
+        self.selectedContainer = nil
+    end
+end
+
+function SAOVerifiedWorldTransferAction:update()
+    if self.saoOffSlot and self.saoFacingContainer then
+        local ok, faced = pcall(function()
+            return SAOJavaBridge:faceTransferContainer(self.character, self.saoFacingContainer)
+        end)
+        if not ok or faced ~= true then self:forceStop(); return end
+    end
+    return ISInventoryTransferAction.update(self)
+end
 
 function SAOVerifiedWorldTransferAction:isValid()
     if not ISInventoryTransferAction.isValid(self) then return false end
@@ -80,6 +175,8 @@ function SAOVerifiedWorldTransferAction:new(
     local o = ISInventoryTransferAction.new(
         self, character, item, srcContainer, destContainer)
     o.saoWorldContainer = worldContainer
+    local ok, shell = pcall(function() return SAOJavaBridge:isShell(character) end)
+    o.saoOffSlot = ok and shell == true
     return o
 end
 
@@ -119,6 +216,21 @@ end
 -- controller's knowledge step). A perception span is not a leash,
 -- and it is nobody's option.
 N.PERCEPTION_TILES = 12
+
+-- Admission is decided against the resource's original coordinates. Only
+-- after that decision does the controller ask where this body can stand.
+function N.approach(body, kind, x, y, z)
+    if x == nil or not SAOJavaBridge then return nil end
+    local ok, result = pcall(function()
+        return SAOJavaBridge:resourceApproach(body, kind, x, y, z)
+    end)
+    if not ok then return nil end
+    if result == "NONE" then return x, y, z end -- a remembered place, not a cached physical source
+    if type(result) ~= "string" then return nil end
+    local tx, ty, tz = string.match(result, "^AT:(%-?%d+):(%-?%d+):(%-?%d+)$")
+    if not tx then return nil end
+    return tonumber(tx), tonumber(ty), tonumber(tz)
+end
 
 -- [B47] One door out: everything this module says goes
 -- through the shared logger.
@@ -173,7 +285,9 @@ function N.eatCarried(id, body)
     if not SAOJavaBridge then return false end
     local okF, item = pcall(function() return SAOJavaBridge:findCarriedFood(body) end)
     if not okF or item == nil then return false end
-    local queued = N.queueVerified(ISEatFoodAction:new(body, item, 1))
+    local action = ISEatFoodAction:new(body, item, 1)
+    if not action then return false end
+    local queued = N.queueVerified(action)
     if queued then
         log(id .. " begins eating (vanilla action)")
         return true
@@ -207,23 +321,28 @@ end
 -- Queue taking the remembered source item through the vanilla transfer
 -- action (into the body's own inventory). Java revalidates the source.
 function N.queueTake(id, body, context)
-    if not SAOJavaBridge then return false end
+    if not SAOJavaBridge then return false, "native-transfer-unavailable" end
     local okR, within = pcall(function()
         return SAOJavaBridge:foodSourceWithinReach(body)
     end)
-    if not okR or not within then return false end
+    if not okR then return false, "native-reach-unavailable" end
+    if not within then return false, "source-out-of-native-reach" end
     local okI, item = pcall(function() return SAOJavaBridge:foodSourceItem(body) end)
     local okC, container = pcall(function() return SAOJavaBridge:foodSourceContainer(body) end)
-    if not (okI and okC) or item == nil or container == nil then return false end
+    if not (okI and okC) or item == nil or container == nil then
+        return false, "exact-source-no-longer-available"
+    end
     if not context or context.category == "legacy" then
         -- Medication and other older FORAGE consumers retain their native
         -- transfer adapter until their own action family has an exact result.
         return N.queueVerified(worldTransfer(body, item, container,
             body:getInventory(), container))
     end
-    return SAO.SourceUse and SAO.SourceUse.beginTransfer(id, body, "food",
+    if not (SAO.SourceUse and SAO.SourceUse.beginTransfer) then
+        return false, "source-use-unavailable"
+    end
+    return SAO.SourceUse.beginTransfer(id, body, "food",
         context.admission or "standing", item, container, "acquire", context)
-        or false
 end
 
 -- A sweep discovers a candidate, then the exact transfer owner rechecks
@@ -250,7 +369,23 @@ function N.collectNearby(id, body, radius, remaining, suppliedContext)
         and SAO.Standing.mayAttemptBelieved(id, x, y, context.admission)) then
         return nil
     end
-    if SAO.Locomotion.order(id, body, x, y, z) then
+    local approachX, approachY, approachZ = N.approach(body, "food", x, y, z)
+    if not approachX then return nil end
+    if context.commitmentId then
+        if not (SAO.Controller and SAO.Controller.coordinationRouteAllowed) then
+            return nil, context
+        end
+        local allowed, reason, evidence = SAO.Controller.coordinationRouteAllowed(
+            id, body, context.commitmentId, approachX, approachY, approachZ,
+            "acquiring", x, y, z)
+        context.routeEvidence = evidence
+        if not allowed then
+            context.routeRefusal = reason
+            return nil, context
+        end
+        context.routeRefusal = nil
+    end
+    if SAO.Locomotion.order(id, body, approachX, approachY, approachZ) then
         return "FORAGE", context
     end
     return nil
@@ -277,12 +412,26 @@ end
 function N.findWater(id, body, radius)
     if not SAOJavaBridge then return nil end
     local ok, s = pcall(function()
-        return SAOJavaBridge:findWaterSource(body, radius or N.PERCEPTION_TILES)
+        return SAOJavaBridge:findWaterSource(body, radius or N.PERCEPTION_TILES,
+            SAO.History.countyHours())
     end)
     if not ok or type(s) ~= "string" or s == "" then return nil end
     local x, y, z = string.match(s, "^(%-?%d+):(%-?%d+):(%-?%d+)$")
     if not x then return nil end
     return tonumber(x), tonumber(y), tonumber(z)
+end
+
+-- A failed owned route is evidence about this attempt, not about water stock.
+-- Cancellation for danger never reaches this terminal failure owner.
+function N.noteWaterRouteFailure(id, body, status)
+    local job = SAO.Locomotion and SAO.Locomotion.jobs[id]
+    if not job or job.body ~= body or not job.done or not job.goal
+        or status ~= "done:" .. tostring(job.result) then return false end
+    local ok, recorded = pcall(function()
+        return SAOJavaBridge:failWaterApproach(body, status, SAO.History.countyHours(),
+            job.goal.x, job.goal.y, job.goal.z)
+    end)
+    return ok and recorded == true
 end
 
 -- Drink directly from the remembered water object (vanilla item=nil form -
@@ -297,11 +446,11 @@ function N.queueDrinkFrom(id, body)
         return SAOJavaBridge:waterSourceObject(body)
     end)
     if not okO or waterObject == nil then return false end
-    local okQ = pcall(function()
-        ISTimedActionQueue.add(ISTakeWaterAction:new(body, nil, waterObject, nil))
+    local okQ, queued = pcall(function()
+        return N.queueVerified(ISTakeWaterAction:new(body, nil, waterObject, nil))
     end)
-    if okQ then log(id .. " drinks from a water source") end
-    return okQ
+    if okQ and queued then log(id .. " drinks from a water source") end
+    return okQ and queued == true
 end
 
 -- Ask the world for a clearly better melee weapon nearby.
@@ -805,11 +954,9 @@ function N.smokeCarried(id, body)
     if not SAOJavaBridge then return false end
     local ok, item = pcall(function() return SAOJavaBridge:findCarriedSmokable(body) end)
     if not ok or item == nil then return false end
-    local okQ = pcall(function()
-        ISTimedActionQueue.add(ISEatFoodAction:new(body, item, 1))
-    end)
-    if okQ then log(id .. " lights one up") end
-    return okQ
+    local queued = N.queueVerified(ISEatFoodAction:new(body, item, 1))
+    if queued then log(id .. " lights one up") end
+    return queued
 end
 
 function N.smokableCount(body)
@@ -967,17 +1114,17 @@ end
 -- [C121] The county's uses are recorded: when one of OUR bodies
 -- finishes eating anything - a pill, a joint, whatever the drug
 -- mod's own items are - the family it belongs to is stamped on the
--- record and that family's clean clock starts over. The item's own
--- OnEat globals have already run inside the base call (the engine
--- fires them from perform), so the drug mod's counters rise before
--- the stamp does, and the stamp only says when the use happened.
+-- record and that family's clean clock starts over. Native completion owns
+-- the item's effects; this bookkeeping retains the existing use stamp for
+-- both the Food and consumable-drainable action paths.
 -- The Alcoholic wraps this same perform the same way; a field on the
 -- vanilla class, wrapped once, and the player's own meals pass
 -- straight through.
-if ISEatFoodAction and not ISEatFoodAction.SAODrugsWrapped then
-    ISEatFoodAction.SAODrugsWrapped = true
-    local basePerform = ISEatFoodAction.perform
-    function ISEatFoodAction:perform()
+local function wrapHabitUse(actionClass)
+    if not actionClass or actionClass.SAODrugsWrapped then return end
+    actionClass.SAODrugsWrapped = true
+    local basePerform = actionClass.perform
+    function actionClass:perform()
         local result = basePerform(self)
         pcall(function()
             local body = self.character
@@ -996,6 +1143,8 @@ if ISEatFoodAction and not ISEatFoodAction.SAODrugsWrapped then
         return result
     end
 end
+wrapHabitUse(ISEatFoodAction)
+wrapHabitUse(ISTakePillAction)
 
 log("needs module loaded")
 

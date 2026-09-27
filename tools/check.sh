@@ -1889,8 +1889,8 @@ fi
 # approach/reservation lifecycle, bind only after current route/permission
 # proof, transfer the exact native item, and publish credit only after the
 # installed eat/drink action proves a physical effect.
-if ! "$PY" tools/source_use_test.py > /dev/null; then
-    "$PY" tools/source_use_test.py 2>&1 | grep -E "FAULT|CONTROL|SKIPPED" || true
+if ! source_use_result=$("$PY" tools/source_use_test.py 2>&1); then
+    printf '%s\n' "$source_use_result"
     note "BORDER FINDING - exact source access or native-use lifecycle broken"
     fail=1
 fi
@@ -2135,6 +2135,16 @@ fi
 # report only observed state, and retain review before dataset admission.
 if ! "$PY" tools/world_lab_test.py; then
     note "BORDER FINDING - native study world or observation boundary failed"
+    fail=1
+fi
+
+# [C87] The resource and inspection probes expose their own controlled verdicts.
+if ! "$PY" tools/resource_approach_test.py; then
+    note "BORDER FINDING - native resource approach or source identity failed"
+    fail=1
+fi
+if ! "$PY" tools/observation_test.py; then
+    note "BORDER FINDING - cached person inspection or execution observations failed"
     fail=1
 fi
 

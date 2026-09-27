@@ -1,6 +1,6 @@
 | Document | Survivor Awareness Overhaul Findings |
 |---|---|
-| Version | `2.11.0.0-pre-alpha` |
+| Version | `2.11.1.0-pre-alpha` |
 | Author | ellyj3rain |
 | Repository | `FINDINGS.md` |
 | Status | CANONICAL, APPEND-ONLY - verified engine findings. |
@@ -17,7 +17,7 @@ Verification source unless stated otherwise: `javap` against the installed
 
 ---
 
-## F-001 — The NPC flag's setter and getter live on different classes
+## F-001 â€” The NPC flag's setter and getter live on different classes
 
 **Claim.** `setNpc(boolean)` is declared on `zombie.characters.IsoPlayer`.
 `isNpc()` is not; it is declared on `zombie.characters.IsoGameCharacter` and
@@ -34,7 +34,7 @@ missing-method failure at runtime rather than at authoring time.
 
 ---
 
-## F-002 — `AIComponent` is an ECS component under `zombie.characters.component`
+## F-002 â€” `AIComponent` is an ECS component under `zombie.characters.component`
 
 **Claim.** The class is `zombie.characters.component.AIComponent`, and it extends
 `zombie.characters.ecs.ECSComponent`. It is not under `zombie.ai`.
@@ -51,7 +51,7 @@ which is the enumeration path.
 
 ---
 
-## F-003 — The NPC control seam is an input channel, not a goal channel
+## F-003 â€” The NPC control seam is an input channel, not a goal channel
 
 **Claim.** `AIComponent.getHumanControlVars()` returns
 `zombie.ai.AIBrainPlayerControlVars`, whose entire public surface is:
@@ -64,7 +64,7 @@ float   strafeX, strafeY
 There is no destination, path, or goal field. Movement is expressed as analog
 axis values applied per update.
 
-**Verification.** `javap zombie.ai.AIBrainPlayerControlVars` — the class is
+**Verification.** `javap zombie.ai.AIBrainPlayerControlVars` â€” the class is
 `final` and declares exactly the eight public fields above plus a default
 constructor. `AIComponent` additionally declares
 `doUpdatePlayerControls(IsoPlayer)`, `postUpdatePlayer(IsoPlayer)`, `update()`,
@@ -82,7 +82,7 @@ established. Treated as a hypothesis until tested.
 
 ---
 
-## F-004 — `IsoPlayer` exposes three usable constructors
+## F-004 â€” `IsoPlayer` exposes three usable constructors
 
 **Claim.**
 
@@ -100,7 +100,7 @@ survivor at its recorded square rather than at a default.
 
 ---
 
-## F-005 — Real spawn-region tables are reachable from shipped Lua
+## F-005 â€” Real spawn-region tables are reachable from shipped Lua
 
 **Claim.** `SpawnRegionMgr.getSpawnRegions()` is defined in shipped game Lua and
 returns the loaded region tables.
@@ -115,7 +115,7 @@ world property instead of a refill effect.
 
 ---
 
-## F-006 — `IsoPlayer` carries a static player table and an explicit local-player setter
+## F-006 â€” `IsoPlayer` carries a static player table and an explicit local-player setter
 
 **Claim.** `public static final IsoPlayer[] players`, `public static void
 setLocalPlayer(int, IsoPlayer)`, `public static int numPlayers`.
@@ -123,27 +123,27 @@ setLocalPlayer(int, IsoPlayer)`, `public static int numPlayers`.
 **Verification.** `javap zombie.characters.IsoPlayer`, static member listing.
 
 **Depends on this.** NPC bodies occupy player slots. Slot handling is therefore a
-correctness concern for the primary player, not an internal detail — construction
+correctness concern for the primary player, not an internal detail â€” construction
 must not disturb the local player's slot.
 
 ---
 
-## F-007 — Route production is separable from state-machine consumption, by design
+## F-007 â€” Route production is separable from state-machine consumption, by design
 
 **Claim.** `zombie.pathfind.PathFindBehavior2` is independently drivable and its
 output is readable without entering any engine walk state. The full contract:
 
-- **Request** — `pathToLocationF(float,float,float)` (plus `pathToCharacter`,
+- **Request** â€” `pathToLocationF(float,float,float)` (plus `pathToCharacter`,
   `pathToSound`, vehicle/furniture/corpse goal forms, and
-  `pathToNearestTable(KahluaTable)` — a Lua-table overload, so route requests are
+  `pathToNearestTable(KahluaTable)` â€” a Lua-table overload, so route requests are
   Lua-callable by the engine's own design).
-- **Poll** — `public BehaviorResult update()` returning `Working | Failed |
+- **Poll** â€” `public BehaviorResult update()` returning `Working | Failed |
   Succeeded` (the enum's only three values).
-- **Follow** — the live next waypoint is exposed as public fields:
+- **Follow** â€” the live next waypoint is exposed as public fields:
   `pathNextIsSet`, `pathNextX`, `pathNextY`. The computed route is also readable
-  node-by-node: `getPath2()` → `zombie.pathfind.Path` with `size()`,
+  node-by-node: `getPath2()` â†’ `zombie.pathfind.Path` with `size()`,
   `getNode(int)`, `length()`.
-- **Teardown** — `cancel()`, `reset()`.
+- **Teardown** â€” `cancel()`, `reset()`.
 
 **Verification.** `javap` listings of `zombie.pathfind.PathFindBehavior2`,
 `zombie.pathfind.PathFindBehavior2$BehaviorResult`, and `zombie.pathfind.Path`
@@ -160,7 +160,7 @@ control channel and the pathfinder from fighting over the body.
 
 ---
 
-## F-008 — Desc creation and body removal are verified; Lua-side construction is the G1 test
+## F-008 â€” Desc creation and body removal are verified; Lua-side construction is the G1 test
 
 **Claim.** `SurvivorFactory.CreateSurvivor()` is static, returns `SurvivorDesc`,
 and is Lua-callable. `removeFromWorld()` / `removeFromSquare()` exist on the
@@ -178,15 +178,15 @@ tree finds no `IsoPlayer.new` call anywhere.
 is built so that its only untested line is the constructor call itself. Every
 other call it makes is a recorded finding. If the constructor is unreachable from
 Kahlua, the probe logs that verdict cleanly and the construction seam moves to
-the Java side — a bounded design change, not a debugging session.
+the Java side â€” a bounded design change, not a debugging session.
 
 ---
 
-## F-009 — B21's renderer refuses a bare non-local IsoPlayer; a subclass draws
+## F-009 â€” B21's renderer refuses a bare non-local IsoPlayer; a subclass draws
 
 **Claim.** An `IsoPlayer` constructed at runtime that is not a local player is
 excluded from rendering by an exact-class filter. A subclass of `IsoPlayer` is
-not excluded. Rendering NPC bodies therefore requires a Java-defined subclass —
+not excluded. Rendering NPC bodies therefore requires a Java-defined subclass â€”
 unreachable from Kahlua, which cannot define Java classes.
 
 **Verification.** Two independent lines. (1) Live runs: a Lua-constructed body
@@ -2523,3 +2523,143 @@ The resulting border passes 28 native cases, 49 Lua cases and 34 source controls
 The sort-bound checker passes without adding an allowance. Native run 30
 predates this repair; subsequent source-bound verification identifies the new
 Perception hash explicitly.
+
+
+## F-109 | 2026-09-26 23:09 UTC / 16:09 PST | Native consumption requires actual item classes
+
+C87 service-area run01 reached vanilla hasOpenFlame through an NPC smoking
+constructor and failed because the body had no local-player inventory panel.
+The synchronous constructor now supplies the same reachable world heat
+containers for the verified NPC body and restores the UI helper afterward.
+Required ignition still comes from the actual carried inventory. Ordinary
+players keep the installed UI path.
+
+Run02 passed that lookup and exposed a separate failure: Base.CigarettePack
+is a DrainableComboItem, while ISEatFoodAction.getDuration calls Food methods.
+The initial fixture had falsely supplied Food methods to every smokable.
+Installed inventory-menu dispatch uses ISTakePillAction for consumable
+drainables; SAO now follows that dispatch and retains Food's native action.
+Both action classes retain their existing perform-stage Habits forwarding.
+Native consumption effects remain owned by complete, which follows perform
+in the installed single-player action loop.
+
+Border198 now executes 224 installed-Lua assertions, 36 real native receiver
+and effect checks, and 18 source controls. Installed item definitions create
+actual Pack, Single, Matches and Pills objects. Checks preserve carried
+ignition, fuel use, final-dose removal and native nicotine/medicine effects.
+Run03 passes the former failure path and completes its bounded session without
+runtime errors. Its queue and inspection evidence does not itself establish a
+consumption receipt. The two failed runs remain failed evidence.
+
+## F-110 | 2026-09-26 23:09 UTC / 16:09 PST | Equipment search and acquisition had different evidence
+
+C87 service-area observations showed two people queueing for the same kind of
+weapon: one later equipped it and the other reported NO_MELEE_WEAPON. The logs
+lack exact item IDs, so contention is supported rather than proved. A drained
+queue cannot establish acquisition. The Controller now reports that the gear,
+ammunition or ground-item action ended and retains the actual equip verdict.
+
+Optional equipment routes were assigned a deadline that their movement phase
+did not enforce. Border199 now checks the existing deadline for pending gear
+and ammunition routes, retaining exact owned native crossings and terminal
+arrival handling. Source reconciliation precedes cache clearing. Successful
+expiry reopens the same decision loop. Six additional controls bring the joined
+flee/follow/route suite to 53; this does not introduce obstacle learning or an
+alternative-source planner.
+
+Separately, installed Firecracker is a non-ranged HandWeapon with a Throw swing,
+physics object and zero melee damage. The shared melee score admitted it and
+rewarded its range and condition. Native throw indicators and nonpositive melee
+damage now exclude such candidates from both search and equip selection.
+Installed BarBell remains an eligible heavy melee weapon. Border157 adds 19
+real installed item/query/equip checks and seven independent source controls.
+This corrects new selection; existing hands are retained when no eligible
+replacement exists, following the existing equipment contract.
+
+
+## F-111 | 2026-09-26 23:29 UTC / 16:29 PST | Character health concealed declining body health
+
+C87 residential run05 ended with both survivors dead after sustained maximum
+thirst and repeated failed water approaches. The observer displayed character
+getHealth() as 1 while the Controller recorded the independent BodyDamage
+health falling toward zero. The installed health panel uses BodyDamage on a
+0-100 scale. Inspection now reads that same physical receiver, labels Health
+(%) explicitly and preserves missing, throwing, nonfinite and out-of-range
+reads as unavailable without losing the other cached needs.
+
+The observation check executes 42 installed-Kahlua assertions and 14 source
+controls, then a real native shell with character health 1 and BodyDamage
+health 37.5 through the actual Lua inspector. Four native checks and three
+source controls preserve scale, zero and the distinct receiver. The former
+fixture supplied character health alone and never asserted its displayed value.
+
+The sealed run remains failure evidence. Its records retain unknown death
+causes. Smooth health decline at maximum thirst and the installed severe-thirst
+damage branch support dehydration; no native damage-reason event was captured
+and no affirmative attack-target evidence establishes homicide. Normal process
+shutdown does not establish successful survival, completed work or sleep.
+
+
+## F-112 | 2026-09-27 00:40 UTC / 17:40 PST | Reachable water and native fixture interaction
+
+Residential05 repeatedly routed toward water without drinking. The installed
+walkAdjObject interaction uses the fixture-corrected square and canReachTo;
+SAO's isSomethingTo check could reject an open door as an obstruction. The
+corrected query prefers an already usable clean source, preserves municipal
+and reserve supplies and positive final sips, and drinks directly when in reach.
+Owned terminal failures suppress that exact approach for a bounded county-time
+interval. Fleeing and cancellation do not teach that the fixture failed.
+
+The joined checks cover 46 native approaches, 61 water/Kahlua cases, 21 actual
+Controller/queue assertions and 43 source controls. Residential07 independently
+records drinking and physical thirst reductions for both people. Raw loaded
+fixture discovery still differs from durable private appliance knowledge; these
+results establish usable native interaction, not a complete affordance model.
+
+## F-113 | 2026-09-27 00:40 UTC / 17:40 PST | Inspection must teach the person who inspected
+
+Loaded need search previously depended on container exploration without an
+autonomous inspection path. Visible static holders now admit an exact native
+approach, fill once through the installed loot owner, and teach only the
+inspecting person's source facts. Current stock queries require the person's
+successful inspection or matching private fingerprint and revision. Another
+person's inspection and the globally shared explored flag cannot reveal stock.
+Hidden stock changes cannot themselves cue reinspection. Native weak ownership
+bounds pending state because installed Kahlua weak-key metatables do not supply
+the presumed weak-key lifetime.
+
+Residential07 records Doug inspecting a counter and learning its granola bars.
+This establishes learning, but its following transfer failed. The mechanism
+checks also preserve empty/nonfood memory, interruption, source identity,
+revision authority and the distinction between inspection and acquisition.
+
+## F-114 | 2026-09-27 00:40 UTC / 17:40 PST | A native collection rejected every exact source lookup
+
+Residential07 recorded 15 native-transfer-refused forage arrivals after learning
+the source. Its separate SAOAgent.log identified BAD_SOURCE_ID at transferOffer.
+The source token was valid. locate used enhanced-for on square.getObjects(),
+whose installed PZArrayList.iterator unconditionally throws; a catch-all then
+misclassified the exception as malformed identity. Native06's separate Java log
+also contains 1,424 such offer calls, distinct from its 125 FORAGE entries.
+
+Indexed size/get traversal now reaches the exact native holder and item without
+changing permissions, reach, fingerprint or revision checks. A joined fixture
+runs real picker inspection, transfer offer, action target and exact-item binding.
+Restoring either enhanced-for or an iterator-backed ArrayList copy fails that
+actual transfer assertion. An accepted offer still does not establish that the
+native transfer or consumption completed; the next loaded run checks those stages.
+
+## F-115 | 2026-09-27 00:40 UTC / 17:40 PST | Refused native spawning fell into a retained bare body
+
+Residential07 contains four available-bridge construction refusals followed by
+bare IsoPlayer fallback and NOT_A_SHELL restoration refusal. Native constructors
+register the descriptor in two persistent registries and bind descriptor.instance.
+The bare teardown removed world/square membership but did not retire those roots.
+
+An available bridge returning nil or throwing now refuses materialization before
+fallback construction. The person record and retained snapshot remain unchanged
+for retry. The existing absent-bridge compatibility branch is retained. Installed
+Kahlua executes the real Body producer with injected constructor outcomes; the
+45-control suite includes allocation refusal, snapshot preservation, subsequent
+native success and absent-bridge compatibility. This is a causal allocation
+repair, not a measurement of retained heap size in a running world.

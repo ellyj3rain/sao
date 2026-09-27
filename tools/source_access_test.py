@@ -123,11 +123,19 @@ def main():
             faults.append("CONTROL model admitted unloaded, cross-floor, distant, "
                           "blocked or unauthorized ground")
 
+    # C87 adds the same floor guard to native fixture reach. This control
+    # targets the cached-item authority, independently of source order.
+    square_body = java_method(needs, "squareWithinReach")
+    same_floor = "square.getZ() != (int) shell.getZ()"
+    if not square_body or square_body.count(same_floor) != 1:
+        faults.append("CONTROL cannot isolate cached-item same-floor authority")
+    without_same_floor = needs.replace(
+        square_body, square_body.replace(same_floor, "false", 1), 1)
+
     mutations = (
         (needs.replace("square.getWorldObjects().contains(worldItem)", "true", 1),
          bridge, lua, "offered-item square membership"),
-        (needs.replace("square.getZ() != (int) shell.getZ()", "false", 1),
-         bridge, lua, "same-floor access"),
+        (without_same_floor, bridge, lua, "same-floor access"),
         (needs.replace("!here.isSomethingTo(square)", "true", 1),
          bridge, lua, "obstruction access"),
         (needs.replace("vehicle.canAccessContainer(part.getIndex(), shell)",

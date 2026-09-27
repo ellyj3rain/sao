@@ -1,0 +1,1339 @@
+{
+  "schema": "sao-residential-loaded-evidence/1",
+  "run": "residential-native-08",
+  "attempt": 1,
+  "createdAtUtc": "2026-09-27T00:48:23.295067+00:00",
+  "sessionId": "d00f4e5e-6c1f-4c8f-a746-c34fa36ae518",
+  "save": "656829751840255405",
+  "verification": {
+    "exit": 0,
+    "status": "completed",
+    "stdoutSha256": "2b85fcec1b923b6eb0a00a2a10ec3eb517fa3385fdfbbb4c5c7451ea0bb3fec4",
+    "verifierSha256": "4c683af3eec8abe59abd5497750e98fc88dc92820f5a4e672b2340d8f480ab36",
+    "readerSha256": "879d12d6155e53499f6ca07bc4c520bd95de647aa69cb3966d7fb7a9b472ae41",
+    "inheritedReaderControls": {
+      "source": "../residential07-loaded/extract.py",
+      "sha256": "cfb58f3aaee2f5cb4ae9f10ed02c4711cc0e9aeb9619e6b73a362a9d93a400d6",
+      "rerun": false
+    }
+  },
+  "runReceiptSha256": "857f1ed3e6931b53477d1775bc0897685dc4db6f077650ef8c7e0ba4b7677a31",
+  "packageSha256": "9c6f3e3dd1b6665a560f48733c53bb21c39114e38216f56faba2c176631d35b3",
+  "definitionSha256": "41ec08c1cb104551409e304da0e5b051032bb05fc5f9d303ce9e1adfc455065a",
+  "engineJarSha256": "80e405a4bfc42f6072e75b3735f458a6514143da011d3226007ded305a442f44",
+  "loadingAgentSha256": "fbb349866be936421626fc3d45c8b8ac99993db31d152aad42ab917a3b75de56",
+  "copiedRelevantSources": {
+    "42.20/media/java/SAO.jar": "293d41d3447cd2c05fb97459ad2d9ea00008b3f0849db36cbff9722dfd1d8694",
+    "42.20/media/lua/client/SAO_Body.lua": "3ebc6440731e709f5a6b8f07173539939a95a41715a81d872e4e83b247697937",
+    "42.20/media/lua/client/SAO_Controller.lua": "feeea135512a0610e79bcd4cafdee2b7b86fa43113b7b3527b35fb11b9edf126",
+    "42.20/media/lua/client/SAO_Locomotion.lua": "1028d023a4c539329fd9a4c52df685950c1b449b0ec08e0b8de6234b0c253a9b",
+    "42.20/media/lua/client/SAO_Needs.lua": "3c9f8dbbe04b48b30fe78a6c1ca92f0203ba1d8bed654c21740dcd9c86f6cccd",
+    "42.20/media/lua/client/SAO_PopulationAdmissions.lua": "532e6751dd50d9b79cd814a49833870ec0a05860d0ab165fd17522d12388ff56",
+    "42.20/media/lua/client/SAO_SourceUse.lua": "20d5d6a8a84f3efa360391f0745e0955079cc81458597b135d48f6e487c841c0",
+    "42.20/media/lua/shared/SAO_Perception.lua": "616eb8b7d3180c37a3259bf29acbf18cf69ba9e88e35784f073596ca1fcdc3ba",
+    "42.20/media/lua/shared/SAO_WorldSources.lua": "8110c4421510202b213f272efe4fcc45861bb41c16d20d29ff8ab8ae89e7b8c0"
+  },
+  "copiedInputCount": 973,
+  "terminal": {
+    "endHours": 28.33077049255371,
+    "nativeSaveReturned": true,
+    "startHours": 2.0,
+    "stopReason": "wall-time-limit"
+  },
+  "supervision": {
+    "exitCode": 0,
+    "failure": null,
+    "forced": false,
+    "limitSeconds": 600,
+    "progress": {
+      "native.json": 5706,
+      "observer-state.json": 16800
+    },
+    "stopReason": "wall-time-limit",
+    "wallSeconds": 602.248
+  },
+  "player": {
+    "count": 0,
+    "observerPersisted": false
+  },
+  "runtimeErrors": [],
+  "logs": {
+    "stderr.log": "98b1d37de6ca5041e5b605d8ee11320d80d9d99f02b1201e2bd10ce4cceb9d96",
+    "stdout.log": "b8007a72a9135a2a4796f20e75eae2ccab05aa44f444c6cf060887b1521f6156"
+  },
+  "evidence": {
+    "copiedInputs": {
+      "path": "copied-inputs.json",
+      "sha256": "641faff87803928e55e5e975847144b9e0ed91d4f95a0d5e206a945707bb9e9c"
+    },
+    "observationInventory": {
+      "path": "observation-inventory.json",
+      "sha256": "1af17b147cfee4b7d7dd012c70dbeba4ffc1618d74783e654ce0d4e9659c91f9"
+    },
+    "physicalSamples": {
+      "path": "physical-samples.json",
+      "sha256": "086b519e0515deab755277f3ac2aca6c8e529914dcdc118f3e248f7040918734"
+    },
+    "privateKnowledgeChanges": {
+      "path": "private-knowledge-changes.json",
+      "sha256": "807829f5d067a26a104aeaa4e6cb0e005c604d6d957c66d6a2b9fb611c28f46a"
+    },
+    "sourceWorkChanges": {
+      "path": "source-work-changes.json",
+      "sha256": "1f57c419bc0256eafdc864083193441880ac107fbc795c94c37c86b1407a5ba3"
+    },
+    "events": {
+      "path": "events.json",
+      "sha256": "bf017b0ab81b5a55397dcba04c45213d58794b207a642ad849fd55273821ad76"
+    },
+    "relevantLogs": {
+      "path": "relevant-logs.json",
+      "sha256": "93dd63a931b9beeaf40ce289492768e0afd054e83edec80483b26a4d28ecdb83"
+    },
+    "nativeAgentEvidence": {
+      "path": "native-agent-evidence.json",
+      "sha256": "b70da347c34e855ec072c85875fc5b509563f65734694976d79e2efa2e158aba"
+    }
+  },
+  "fullObservationSpan": {
+    "firstHours": 2,
+    "lastHours": 28.141132354736328,
+    "frames": 105,
+    "lastSequence": 105
+  },
+  "population": {
+    "first": {
+      "captured": 0,
+      "dead": 0,
+      "represented": 0,
+      "total": 0,
+      "unrepresented": 0
+    },
+    "last": {
+      "captured": 2,
+      "dead": 0,
+      "represented": 2,
+      "total": 2,
+      "unrepresented": 0
+    },
+    "maxDead": 0,
+    "maxUnrepresented": 0
+  },
+  "lastLive": {
+    "sha256": "f88191946dfbc3c1be3ae9b76a2f82d57b46ddf5ef768783248831e072415e08",
+    "hours": 28.3233642578125,
+    "population": {
+      "captured": 2,
+      "dead": 0,
+      "represented": 2,
+      "total": 2
+    }
+  },
+  "people": [
+    {
+      "id": "sao-1",
+      "name": "Ross Sample",
+      "first": {
+        "sequence": 2,
+        "hours": 2.250006675720215,
+        "inspectionHours": 2.2494125366210938,
+        "inspectionSequence": 58,
+        "representation": "represented",
+        "position": [
+          3426.5,
+          10910.5,
+          0
+        ],
+        "controller": {
+          "nextDecisionAt": 20262,
+          "state": "IDLE",
+          "stateSince": 18003
+        },
+        "needs": {
+          "Hunger": 0.009,
+          "Thirst": 0.007,
+          "Fatigue": 0.009,
+          "Endurance": 1.0,
+          "Nicotine withdrawal": 0.0,
+          "Health (%)": 100.0
+        },
+        "inventoryCount": 10
+      },
+      "firstInventory": {
+        "411437344": {
+          "label": "Base.Hat_PeakedCapYacht",
+          "value": "Captain's Hat [id 411437344]"
+        },
+        "729727250": {
+          "label": "Base.Tshirt_DefaultTEXTURE_TINT",
+          "value": "T-shirt [id 729727250]"
+        },
+        "288771799": {
+          "label": "Base.Shirt_HawaiianTINT",
+          "value": "Shirt - Hawaiian [id 288771799]"
+        },
+        "2079376512": {
+          "label": "Base.WristWatch_Left_DigitalRed",
+          "value": "Digital Watch [id 2079376512]"
+        },
+        "548805198": {
+          "label": "Base.Socks_Heavy",
+          "value": "Socks - Heavy [id 548805198]"
+        },
+        "1349571856": {
+          "label": "Base.Shoes_HikingBoots",
+          "value": "Hiking Boots [id 1349571856]"
+        },
+        "471352872": {
+          "label": "Base.Trousers_Denim",
+          "value": "Jeans [id 471352872]"
+        },
+        "1023873121": {
+          "label": "Base.Bag_Satchel_Leather",
+          "value": "Leather Satchel [id 1023873121]"
+        },
+        "1857432132": {
+          "label": "Base.Notebook",
+          "value": "Ross Sample's journal [id 1857432132]"
+        },
+        "1478570227": {
+          "label": "Base.IDcard_Male",
+          "value": "Ross Sample - ID [id 1478570227]"
+        }
+      },
+      "firstKnown": {
+        "1.1822004856422402E16": {
+          "source": "lived",
+          "visits": 1,
+          "at": 0,
+          "sourceFacts": {}
+        }
+      },
+      "inventoryChanges": [],
+      "needsReductions": [
+        {
+          "need": "Fatigue",
+          "from": 0.487,
+          "to": 0.484,
+          "fromInspectionHours": 15.005966186523438,
+          "toInspectionHours": 15.259130477905273,
+          "fromSequence": 53,
+          "toSequence": 54
+        },
+        {
+          "need": "Fatigue",
+          "from": 0.484,
+          "to": 0.417,
+          "fromInspectionHours": 15.259130477905273,
+          "toInspectionHours": 15.510683059692383,
+          "fromSequence": 54,
+          "toSequence": 55
+        },
+        {
+          "need": "Fatigue",
+          "from": 0.417,
+          "to": 0.351,
+          "fromInspectionHours": 15.510683059692383,
+          "toInspectionHours": 15.761116027832031,
+          "fromSequence": 55,
+          "toSequence": 56
+        },
+        {
+          "need": "Fatigue",
+          "from": 0.351,
+          "to": 0.29,
+          "fromInspectionHours": 15.761116027832031,
+          "toInspectionHours": 16.010353088378906,
+          "fromSequence": 56,
+          "toSequence": 57
+        },
+        {
+          "need": "Fatigue",
+          "from": 0.29,
+          "to": 0.248,
+          "fromInspectionHours": 16.010353088378906,
+          "toInspectionHours": 16.263193130493164,
+          "fromSequence": 57,
+          "toSequence": 58
+        },
+        {
+          "need": "Fatigue",
+          "from": 0.248,
+          "to": 0.206,
+          "fromInspectionHours": 16.263193130493164,
+          "toInspectionHours": 16.514095306396484,
+          "fromSequence": 58,
+          "toSequence": 59
+        },
+        {
+          "need": "Fatigue",
+          "from": 0.206,
+          "to": 0.164,
+          "fromInspectionHours": 16.514095306396484,
+          "toInspectionHours": 16.763227462768555,
+          "fromSequence": 59,
+          "toSequence": 60
+        },
+        {
+          "need": "Fatigue",
+          "from": 0.164,
+          "to": 0.122,
+          "fromInspectionHours": 16.763227462768555,
+          "toInspectionHours": 17.01445770263672,
+          "fromSequence": 60,
+          "toSequence": 61
+        },
+        {
+          "need": "Fatigue",
+          "from": 0.122,
+          "to": 0.08,
+          "fromInspectionHours": 17.01445770263672,
+          "toInspectionHours": 17.265287399291992,
+          "fromSequence": 61,
+          "toSequence": 62
+        },
+        {
+          "need": "Fatigue",
+          "from": 0.08,
+          "to": 0.037,
+          "fromInspectionHours": 17.265287399291992,
+          "toInspectionHours": 17.516616821289062,
+          "fromSequence": 62,
+          "toSequence": 63
+        },
+        {
+          "need": "Fatigue",
+          "from": 0.037,
+          "to": 0.001,
+          "fromInspectionHours": 17.516616821289062,
+          "toInspectionHours": 17.767671585083008,
+          "fromSequence": 63,
+          "toSequence": 64
+        },
+        {
+          "need": "Thirst",
+          "from": 0.415,
+          "to": 0.003,
+          "fromInspectionHours": 18.522666931152344,
+          "toInspectionHours": 18.77391815185547,
+          "fromSequence": 67,
+          "toSequence": 68
+        }
+      ],
+      "last": {
+        "sequence": 105,
+        "hours": 28.141132354736328,
+        "inspectionHours": 28.071094512939453,
+        "inspectionSequence": 391,
+        "representation": "represented",
+        "position": [
+          3439.42041015625,
+          10942.630859375,
+          0
+        ],
+        "controller": {
+          "nextDecisionAt": 253286,
+          "state": "ROAM",
+          "stateSince": 252919
+        },
+        "needs": {
+          "Hunger": 0.56,
+          "Thirst": 0.27,
+          "Fatigue": 0.35,
+          "Endurance": 1.0,
+          "Nicotine withdrawal": 0.51,
+          "Health (%)": 100.0
+        },
+        "inventoryCount": 10
+      },
+      "lastInventory": {
+        "411437344": {
+          "label": "Base.Hat_PeakedCapYacht",
+          "value": "Captain's Hat [id 411437344]"
+        },
+        "729727250": {
+          "label": "Base.Tshirt_DefaultTEXTURE_TINT",
+          "value": "T-shirt [id 729727250]"
+        },
+        "288771799": {
+          "label": "Base.Shirt_HawaiianTINT",
+          "value": "Shirt - Hawaiian [id 288771799]"
+        },
+        "2079376512": {
+          "label": "Base.WristWatch_Left_DigitalRed",
+          "value": "Digital Watch [id 2079376512]"
+        },
+        "548805198": {
+          "label": "Base.Socks_Heavy",
+          "value": "Socks - Heavy [id 548805198]"
+        },
+        "1349571856": {
+          "label": "Base.Shoes_HikingBoots",
+          "value": "Hiking Boots [id 1349571856]"
+        },
+        "471352872": {
+          "label": "Base.Trousers_Denim",
+          "value": "Jeans [id 471352872]"
+        },
+        "1023873121": {
+          "label": "Base.Bag_Satchel_Leather",
+          "value": "Leather Satchel [id 1023873121]"
+        },
+        "1857432132": {
+          "label": "Base.Notebook",
+          "value": "Ross Sample's journal [id 1857432132]"
+        },
+        "1478570227": {
+          "label": "Base.IDcard_Male",
+          "value": "Ross Sample - ID [id 1478570227]"
+        }
+      },
+      "lastKnown": {
+        "1.1822004856422402E16": {
+          "source": "observed",
+          "visits": 7,
+          "at": 136872,
+          "sourceFacts": {}
+        }
+      },
+      "lastWork": {
+        "id": "source-work",
+        "label": "Source use and latest result",
+        "message": "",
+        "perspective": "Native action receipts",
+        "rows": [
+          {
+            "label": "Source action",
+            "value": "No recorded reservation pointer"
+          },
+          {
+            "label": "Latest result",
+            "value": "No retained receipt for this person"
+          }
+        ],
+        "source": "WorldSources durable action ledger",
+        "status": "available"
+      },
+      "lastLivingHealth": 1
+    },
+    {
+      "id": "sao-2",
+      "name": "Rickie Selby",
+      "first": {
+        "sequence": 2,
+        "hours": 2.250006675720215,
+        "inspectionHours": 2.2494125366210938,
+        "inspectionSequence": 58,
+        "representation": "represented",
+        "position": [
+          3427.5,
+          10910.5,
+          0
+        ],
+        "controller": {
+          "nextDecisionAt": 20254,
+          "state": "IDLE",
+          "stateSince": 18003
+        },
+        "needs": {
+          "Hunger": 0.009,
+          "Thirst": 0.007,
+          "Fatigue": 0.009,
+          "Endurance": 1.0,
+          "Nicotine withdrawal": 0.0,
+          "Health (%)": 100.0
+        },
+        "inventoryCount": 9
+      },
+      "firstInventory": {
+        "1363360215": {
+          "label": "Base.Vest_DefaultTEXTURE_TINT",
+          "value": "Tank Top [id 1363360215]"
+        },
+        "872188663": {
+          "label": "Base.WristWatch_Left_ClassicBlack",
+          "value": "Wrist Watch - Classic [id 872188663]"
+        },
+        "76061161": {
+          "label": "Base.Bracelet_RightFriendshipTINT",
+          "value": "Friendship Bracelet [id 76061161]"
+        },
+        "370460900": {
+          "label": "Base.Shoes_Random",
+          "value": "Shoes [id 370460900]"
+        },
+        "392877468": {
+          "label": "Base.Trousers_JeanBaggy",
+          "value": "Jeans - Baggy [id 392877468]"
+        },
+        "1449649015": {
+          "label": "Base.Jacket_Varsity",
+          "value": "Jacket - Varsity [id 1449649015]"
+        },
+        "294072737": {
+          "label": "Base.Bag_Schoolbag",
+          "value": "Small Backpack [id 294072737]"
+        },
+        "748140591": {
+          "label": "Base.Notebook",
+          "value": "Rickie Selby's journal [id 748140591]"
+        },
+        "1703781269": {
+          "label": "Base.IDcard_Male",
+          "value": "Rickie Selby - ID [id 1703781269]"
+        }
+      },
+      "firstKnown": {
+        "1.1822004856422402E16": {
+          "source": "lived",
+          "visits": 1,
+          "at": 0,
+          "sourceFacts": {}
+        }
+      },
+      "inventoryChanges": [],
+      "needsReductions": [
+        {
+          "need": "Fatigue",
+          "from": 0.009,
+          "to": 0.005,
+          "fromInspectionHours": 2.2494125366210938,
+          "toInspectionHours": 2.464949607849121,
+          "fromSequence": 2,
+          "toSequence": 3
+        },
+        {
+          "need": "Fatigue",
+          "from": 0.005,
+          "to": 0.001,
+          "fromInspectionHours": 2.464949607849121,
+          "toInspectionHours": 2.685795783996582,
+          "fromSequence": 3,
+          "toSequence": 4
+        },
+        {
+          "need": "Fatigue",
+          "from": 0.004,
+          "to": 0.001,
+          "fromInspectionHours": 2.933138847351074,
+          "toInspectionHours": 3.1845054626464844,
+          "fromSequence": 5,
+          "toSequence": 6
+        },
+        {
+          "need": "Fatigue",
+          "from": 0.004,
+          "to": 0.001,
+          "fromInspectionHours": 3.439173698425293,
+          "toInspectionHours": 3.692185401916504,
+          "fromSequence": 7,
+          "toSequence": 8
+        },
+        {
+          "need": "Fatigue",
+          "from": 0.007,
+          "to": 0.004,
+          "fromInspectionHours": 4.192117691040039,
+          "toInspectionHours": 4.442887306213379,
+          "fromSequence": 10,
+          "toSequence": 11
+        },
+        {
+          "need": "Fatigue",
+          "from": 0.004,
+          "to": 0.001,
+          "fromInspectionHours": 4.442887306213379,
+          "toInspectionHours": 4.695826530456543,
+          "fromSequence": 11,
+          "toSequence": 12
+        },
+        {
+          "need": "Fatigue",
+          "from": 0.004,
+          "to": 0.001,
+          "fromInspectionHours": 4.948692321777344,
+          "toInspectionHours": 5.202967643737793,
+          "fromSequence": 13,
+          "toSequence": 14
+        },
+        {
+          "need": "Fatigue",
+          "from": 0.029,
+          "to": 0.009,
+          "fromInspectionHours": 5.951292037963867,
+          "toInspectionHours": 6.2012786865234375,
+          "fromSequence": 17,
+          "toSequence": 18
+        },
+        {
+          "need": "Fatigue",
+          "from": 0.018,
+          "to": 0.001,
+          "fromInspectionHours": 6.45289421081543,
+          "toInspectionHours": 6.701790809631348,
+          "fromSequence": 19,
+          "toSequence": 20
+        },
+        {
+          "need": "Fatigue",
+          "from": 0.005,
+          "to": 0.002,
+          "fromInspectionHours": 6.9586029052734375,
+          "toInspectionHours": 7.20991325378418,
+          "fromSequence": 21,
+          "toSequence": 22
+        },
+        {
+          "need": "Fatigue",
+          "from": 0.024,
+          "to": 0.018,
+          "fromInspectionHours": 7.963953018188477,
+          "toInspectionHours": 8.211808204650879,
+          "fromSequence": 25,
+          "toSequence": 26
+        },
+        {
+          "need": "Fatigue",
+          "from": 0.018,
+          "to": 0.013,
+          "fromInspectionHours": 8.211808204650879,
+          "toInspectionHours": 8.459894180297852,
+          "fromSequence": 26,
+          "toSequence": 27
+        },
+        {
+          "need": "Fatigue",
+          "from": 0.013,
+          "to": 0.008,
+          "fromInspectionHours": 8.459894180297852,
+          "toInspectionHours": 8.708796501159668,
+          "fromSequence": 27,
+          "toSequence": 28
+        },
+        {
+          "need": "Fatigue",
+          "from": 0.008,
+          "to": 0.005,
+          "fromInspectionHours": 8.708796501159668,
+          "toInspectionHours": 8.9641695022583,
+          "fromSequence": 28,
+          "toSequence": 29
+        },
+        {
+          "need": "Fatigue",
+          "from": 0.005,
+          "to": 0.002,
+          "fromInspectionHours": 8.9641695022583,
+          "toInspectionHours": 9.219812393188477,
+          "fromSequence": 29,
+          "toSequence": 30
+        },
+        {
+          "need": "Fatigue",
+          "from": 0.005,
+          "to": 0.002,
+          "fromInspectionHours": 9.471912384033203,
+          "toInspectionHours": 9.722026824951172,
+          "fromSequence": 31,
+          "toSequence": 32
+        },
+        {
+          "need": "Fatigue",
+          "from": 0.012,
+          "to": 0.006,
+          "fromInspectionHours": 9.969825744628906,
+          "toInspectionHours": 10.22191047668457,
+          "fromSequence": 33,
+          "toSequence": 34
+        },
+        {
+          "need": "Fatigue",
+          "from": 0.006,
+          "to": 0.005,
+          "fromInspectionHours": 10.22191047668457,
+          "toInspectionHours": 10.474925994873047,
+          "fromSequence": 34,
+          "toSequence": 35
+        },
+        {
+          "need": "Fatigue",
+          "from": 0.005,
+          "to": 0.002,
+          "fromInspectionHours": 10.474925994873047,
+          "toInspectionHours": 10.729621887207031,
+          "fromSequence": 35,
+          "toSequence": 36
+        },
+        {
+          "need": "Fatigue",
+          "from": 0.006,
+          "to": 0.002,
+          "fromInspectionHours": 10.97791862487793,
+          "toInspectionHours": 11.23063850402832,
+          "fromSequence": 37,
+          "toSequence": 38
+        },
+        {
+          "need": "Fatigue",
+          "from": 0.025,
+          "to": 0.005,
+          "fromInspectionHours": 11.984588623046875,
+          "toInspectionHours": 12.236856460571289,
+          "fromSequence": 41,
+          "toSequence": 42
+        },
+        {
+          "need": "Fatigue",
+          "from": 0.009,
+          "to": 0.006,
+          "fromInspectionHours": 12.739593505859375,
+          "toInspectionHours": 12.992076873779297,
+          "fromSequence": 44,
+          "toSequence": 45
+        },
+        {
+          "need": "Fatigue",
+          "from": 0.006,
+          "to": 0.003,
+          "fromInspectionHours": 12.992076873779297,
+          "toInspectionHours": 13.23946762084961,
+          "fromSequence": 45,
+          "toSequence": 46
+        },
+        {
+          "need": "Fatigue",
+          "from": 0.009,
+          "to": 0.006,
+          "fromInspectionHours": 13.746171951293945,
+          "toInspectionHours": 13.999954223632812,
+          "fromSequence": 48,
+          "toSequence": 49
+        },
+        {
+          "need": "Fatigue",
+          "from": 0.006,
+          "to": 0.003,
+          "fromInspectionHours": 13.999954223632812,
+          "toInspectionHours": 14.246919631958008,
+          "fromSequence": 49,
+          "toSequence": 50
+        },
+        {
+          "need": "Fatigue",
+          "from": 0.003,
+          "to": 0.0,
+          "fromInspectionHours": 14.246919631958008,
+          "toInspectionHours": 14.503816604614258,
+          "fromSequence": 50,
+          "toSequence": 51
+        },
+        {
+          "need": "Fatigue",
+          "from": 0.025,
+          "to": 0.019,
+          "fromInspectionHours": 15.510683059692383,
+          "toInspectionHours": 15.761116027832031,
+          "fromSequence": 55,
+          "toSequence": 56
+        },
+        {
+          "need": "Fatigue",
+          "from": 0.019,
+          "to": 0.0,
+          "fromInspectionHours": 15.761116027832031,
+          "toInspectionHours": 16.010353088378906,
+          "fromSequence": 56,
+          "toSequence": 57
+        },
+        {
+          "need": "Fatigue",
+          "from": 0.01,
+          "to": 0.007,
+          "fromInspectionHours": 16.263193130493164,
+          "toInspectionHours": 16.514095306396484,
+          "fromSequence": 58,
+          "toSequence": 59
+        },
+        {
+          "need": "Fatigue",
+          "from": 0.007,
+          "to": 0.004,
+          "fromInspectionHours": 16.514095306396484,
+          "toInspectionHours": 16.763227462768555,
+          "fromSequence": 59,
+          "toSequence": 60
+        },
+        {
+          "need": "Fatigue",
+          "from": 0.016,
+          "to": 0.01,
+          "fromInspectionHours": 17.265287399291992,
+          "toInspectionHours": 17.516616821289062,
+          "fromSequence": 62,
+          "toSequence": 63
+        },
+        {
+          "need": "Thirst",
+          "from": 0.453,
+          "to": 0.011,
+          "fromInspectionHours": 17.516616821289062,
+          "toInspectionHours": 17.767671585083008,
+          "fromSequence": 63,
+          "toSequence": 64
+        },
+        {
+          "need": "Fatigue",
+          "from": 0.01,
+          "to": 0.005,
+          "fromInspectionHours": 17.516616821289062,
+          "toInspectionHours": 17.767671585083008,
+          "fromSequence": 63,
+          "toSequence": 64
+        },
+        {
+          "need": "Thirst",
+          "from": 0.011,
+          "to": 0.007,
+          "fromInspectionHours": 17.767671585083008,
+          "toInspectionHours": 18.018688201904297,
+          "fromSequence": 64,
+          "toSequence": 65
+        },
+        {
+          "need": "Fatigue",
+          "from": 0.011,
+          "to": 0.002,
+          "fromInspectionHours": 18.270898818969727,
+          "toInspectionHours": 18.522666931152344,
+          "fromSequence": 66,
+          "toSequence": 67
+        },
+        {
+          "need": "Fatigue",
+          "from": 0.008,
+          "to": 0.001,
+          "fromInspectionHours": 18.77391815185547,
+          "toInspectionHours": 19.024168014526367,
+          "fromSequence": 68,
+          "toSequence": 69
+        },
+        {
+          "need": "Fatigue",
+          "from": 0.011,
+          "to": 0.002,
+          "fromInspectionHours": 19.77753257751465,
+          "toInspectionHours": 20.032129287719727,
+          "fromSequence": 72,
+          "toSequence": 73
+        },
+        {
+          "need": "Fatigue",
+          "from": 0.003,
+          "to": 0.001,
+          "fromInspectionHours": 20.281217575073242,
+          "toInspectionHours": 20.533536911010742,
+          "fromSequence": 74,
+          "toSequence": 75
+        },
+        {
+          "need": "Hunger",
+          "from": 0.473,
+          "to": 0.178,
+          "fromInspectionHours": 20.533536911010742,
+          "toInspectionHours": 20.783946990966797,
+          "fromSequence": 75,
+          "toSequence": 76
+        },
+        {
+          "need": "Fatigue",
+          "from": 0.004,
+          "to": 0.001,
+          "fromInspectionHours": 20.783946990966797,
+          "toInspectionHours": 21.036502838134766,
+          "fromSequence": 76,
+          "toSequence": 77
+        },
+        {
+          "need": "Fatigue",
+          "from": 0.003,
+          "to": 0.001,
+          "fromInspectionHours": 21.28703498840332,
+          "toInspectionHours": 21.538434982299805,
+          "fromSequence": 78,
+          "toSequence": 79
+        },
+        {
+          "need": "Fatigue",
+          "from": 0.003,
+          "to": 0.001,
+          "fromInspectionHours": 21.792194366455078,
+          "toInspectionHours": 22.037551879882812,
+          "fromSequence": 80,
+          "toSequence": 81
+        },
+        {
+          "need": "Fatigue",
+          "from": 0.011,
+          "to": 0.002,
+          "fromInspectionHours": 22.79380226135254,
+          "toInspectionHours": 23.041934967041016,
+          "fromSequence": 84,
+          "toSequence": 85
+        },
+        {
+          "need": "Fatigue",
+          "from": 0.031,
+          "to": 0.026,
+          "fromInspectionHours": 23.795276641845703,
+          "toInspectionHours": 24.046579360961914,
+          "fromSequence": 88,
+          "toSequence": 89
+        },
+        {
+          "need": "Fatigue",
+          "from": 0.026,
+          "to": 0.021,
+          "fromInspectionHours": 24.046579360961914,
+          "toInspectionHours": 24.298227310180664,
+          "fromSequence": 89,
+          "toSequence": 90
+        },
+        {
+          "need": "Fatigue",
+          "from": 0.021,
+          "to": 0.016,
+          "fromInspectionHours": 24.298227310180664,
+          "toInspectionHours": 24.549671173095703,
+          "fromSequence": 90,
+          "toSequence": 91
+        },
+        {
+          "need": "Fatigue",
+          "from": 0.016,
+          "to": 0.011,
+          "fromInspectionHours": 24.549671173095703,
+          "toInspectionHours": 24.80112648010254,
+          "fromSequence": 91,
+          "toSequence": 92
+        },
+        {
+          "need": "Fatigue",
+          "from": 0.03,
+          "to": 0.01,
+          "fromInspectionHours": 25.302928924560547,
+          "toInspectionHours": 25.558624267578125,
+          "fromSequence": 94,
+          "toSequence": 95
+        },
+        {
+          "need": "Fatigue",
+          "from": 0.01,
+          "to": 0.005,
+          "fromInspectionHours": 25.558624267578125,
+          "toInspectionHours": 25.805763244628906,
+          "fromSequence": 95,
+          "toSequence": 96
+        },
+        {
+          "need": "Fatigue",
+          "from": 0.018,
+          "to": 0.002,
+          "fromInspectionHours": 26.305822372436523,
+          "toInspectionHours": 26.560874938964844,
+          "fromSequence": 98,
+          "toSequence": 99
+        },
+        {
+          "need": "Fatigue",
+          "from": 0.015,
+          "to": 0.01,
+          "fromInspectionHours": 27.06351089477539,
+          "toInspectionHours": 27.315237045288086,
+          "fromSequence": 101,
+          "toSequence": 102
+        },
+        {
+          "need": "Fatigue",
+          "from": 0.01,
+          "to": 0.002,
+          "fromInspectionHours": 27.315237045288086,
+          "toInspectionHours": 27.56850814819336,
+          "fromSequence": 102,
+          "toSequence": 103
+        },
+        {
+          "need": "Fatigue",
+          "from": 0.012,
+          "to": 0.009,
+          "fromInspectionHours": 27.81886100769043,
+          "toInspectionHours": 28.071094512939453,
+          "fromSequence": 104,
+          "toSequence": 105
+        }
+      ],
+      "last": {
+        "sequence": 105,
+        "hours": 28.141132354736328,
+        "inspectionHours": 28.071094512939453,
+        "inspectionSequence": 391,
+        "representation": "represented",
+        "position": [
+          3440.82470703125,
+          10942.509765625,
+          0
+        ],
+        "controller": {
+          "nextDecisionAt": 253291,
+          "state": "IDLE",
+          "stateSince": 252550
+        },
+        "needs": {
+          "Hunger": 0.361,
+          "Thirst": 0.297,
+          "Fatigue": 0.009,
+          "Endurance": 1.0,
+          "Nicotine withdrawal": 0.0,
+          "Health (%)": 100.0
+        },
+        "inventoryCount": 9
+      },
+      "lastInventory": {
+        "1363360215": {
+          "label": "Base.Vest_DefaultTEXTURE_TINT",
+          "value": "Tank Top [id 1363360215]"
+        },
+        "872188663": {
+          "label": "Base.WristWatch_Left_ClassicBlack",
+          "value": "Wrist Watch - Classic [id 872188663]"
+        },
+        "76061161": {
+          "label": "Base.Bracelet_RightFriendshipTINT",
+          "value": "Friendship Bracelet [id 76061161]"
+        },
+        "370460900": {
+          "label": "Base.Shoes_Random",
+          "value": "Shoes [id 370460900]"
+        },
+        "392877468": {
+          "label": "Base.Trousers_JeanBaggy",
+          "value": "Jeans - Baggy [id 392877468]"
+        },
+        "1449649015": {
+          "label": "Base.Jacket_Varsity",
+          "value": "Jacket - Varsity [id 1449649015]"
+        },
+        "294072737": {
+          "label": "Base.Bag_Schoolbag",
+          "value": "Small Backpack [id 294072737]"
+        },
+        "748140591": {
+          "label": "Base.Notebook",
+          "value": "Rickie Selby's journal [id 748140591]"
+        },
+        "1703781269": {
+          "label": "Base.IDcard_Male",
+          "value": "Rickie Selby - ID [id 1703781269]"
+        }
+      },
+      "lastKnown": {
+        "1.1822004856422402E16": {
+          "source": "observed",
+          "visits": 7,
+          "at": 228721,
+          "sourceFacts": {}
+        },
+        "source:C:02debfad-d7ae-434c-8fd3-5fc241ac202e:0": {
+          "source": "native-container-inspection",
+          "visits": null,
+          "at": 186116,
+          "sourceFacts": {
+            "C:02debfad-d7ae-434c-8fd3-5fc241ac202e:0": {
+              "access": "unknown",
+              "buildingId": "11822004856422402",
+              "candidates": {},
+              "chunkX": 428,
+              "chunkY": 1363,
+              "container": "counter",
+              "explored": true,
+              "fingerprint": "7837ec1ea676f77286e8e15972a7d07a0d017c788d30bbf559956fd8e4a0f413",
+              "id": "C:02debfad-d7ae-434c-8fd3-5fc241ac202e:0",
+              "kind": "container",
+              "quantities": {},
+              "revision": "56624dc2b118642186d97e7bb15e0987657bf73bd3ceb7f0f8067ea38864aa44",
+              "state": "spent",
+              "x": 3424,
+              "y": 10910,
+              "z": 0
+            }
+          }
+        },
+        "source:C:3e0eaecf-5f8b-4c26-8ca4-ef5f41618a57:0": {
+          "source": "native-container-inspection",
+          "visits": null,
+          "at": 186164,
+          "sourceFacts": {
+            "C:3e0eaecf-5f8b-4c26-8ca4-ef5f41618a57:0": {
+              "access": "unknown",
+              "buildingId": "11822004856422402",
+              "candidates": {
+                "fuel": {
+                  "amount": 0,
+                  "categories": {
+                    "fuel": true
+                  },
+                  "condition": 10,
+                  "currentUses": 1,
+                  "fluid": "",
+                  "id": 656848071,
+                  "poison": false,
+                  "rotten": false,
+                  "type": "Base.RoastingPan",
+                  "uses": 1
+                }
+              },
+              "chunkX": 428,
+              "chunkY": 1363,
+              "container": "stove",
+              "explored": true,
+              "fingerprint": "6c555c8af1277ce9142d794b461ff349fcc4168e5079f01c125cc7c696897ca9",
+              "id": "C:3e0eaecf-5f8b-4c26-8ca4-ef5f41618a57:0",
+              "kind": "container",
+              "quantities": {
+                "fuel": 2
+              },
+              "revision": "f80d256ba2d6d7bcbd92192a99f248b670de2cd4fb033f2e23f28fa5ba0d1761",
+              "state": "available",
+              "x": 3424,
+              "y": 10909,
+              "z": 0
+            }
+          }
+        },
+        "source:C:47c517c3-f98f-43b6-874d-3d57859a42b1:0": {
+          "source": "native-container-inspection",
+          "visits": null,
+          "at": 186220,
+          "sourceFacts": {
+            "C:47c517c3-f98f-43b6-874d-3d57859a42b1:0": {
+              "access": "unknown",
+              "buildingId": "11822004856422402",
+              "candidates": {
+                "fuel": {
+                  "amount": 0,
+                  "categories": {
+                    "fuel": true
+                  },
+                  "condition": 10,
+                  "currentUses": 1,
+                  "fluid": "",
+                  "id": 1578748170,
+                  "poison": false,
+                  "rotten": false,
+                  "type": "Base.CannedBolognese",
+                  "uses": 1
+                }
+              },
+              "chunkX": 428,
+              "chunkY": 1363,
+              "container": "overhead",
+              "explored": true,
+              "fingerprint": "8003c2b6159b037cef6fa122d259213857451e77cd9ff90bfc3dc9202985d277",
+              "id": "C:47c517c3-f98f-43b6-874d-3d57859a42b1:0",
+              "kind": "container",
+              "quantities": {
+                "fuel": 1
+              },
+              "revision": "4f0aa65ff808ddaa218bc2744da8d8b55d72fcd0f54d4b882770e26d891ef5e7",
+              "state": "available",
+              "x": 3424,
+              "y": 10911,
+              "z": 0
+            }
+          }
+        },
+        "source:C:701e49a8-6ca8-4de6-9c7c-c3dc16408378:0": {
+          "source": "observed-transfer",
+          "visits": null,
+          "at": 186433,
+          "sourceFacts": {
+            "C:701e49a8-6ca8-4de6-9c7c-c3dc16408378:0": {
+              "access": "unknown",
+              "buildingId": "11822004856422402",
+              "candidates": {
+                "drink": {
+                  "amount": 1,
+                  "categories": {
+                    "drink": true
+                  },
+                  "condition": 10,
+                  "currentUses": 1,
+                  "fluid": "CowMilk",
+                  "id": 1788739435,
+                  "poison": false,
+                  "rotten": false,
+                  "type": "Base.Milk",
+                  "uses": 1
+                },
+                "food": {
+                  "amount": 0,
+                  "categories": {
+                    "food": true
+                  },
+                  "condition": 10,
+                  "currentUses": 0.4,
+                  "fluid": "",
+                  "id": 783192894,
+                  "poison": false,
+                  "rotten": false,
+                  "type": "Base.MeatPatty",
+                  "uses": 1
+                },
+                "fuel": {
+                  "amount": 0,
+                  "categories": {
+                    "fuel": true
+                  },
+                  "condition": 10,
+                  "currentUses": 0.4,
+                  "fluid": "",
+                  "id": 783192894,
+                  "poison": false,
+                  "rotten": false,
+                  "type": "Base.MeatPatty",
+                  "uses": 1
+                }
+              },
+              "chunkX": 428,
+              "chunkY": 1363,
+              "container": "fridge",
+              "explored": true,
+              "fingerprint": "c0e4f10530b2e4aceb519d15833b838ae50d40102d716a62c76ba401a108175b",
+              "id": "C:701e49a8-6ca8-4de6-9c7c-c3dc16408378:0",
+              "kind": "container",
+              "quantities": {
+                "drink": 2,
+                "food": 1,
+                "fuel": 3
+              },
+              "revision": "90815b6ccbdfb42162440f6df6b608fb351f8de5b4844b11dbcf6071033525fd",
+              "state": "available",
+              "x": 3424,
+              "y": 10911,
+              "z": 0
+            }
+          }
+        }
+      },
+      "lastWork": {
+        "id": "source-work",
+        "label": "Source use and latest result",
+        "message": "",
+        "perspective": "Native action receipts",
+        "rows": [
+          {
+            "label": "Source action",
+            "value": "No recorded reservation pointer"
+          },
+          {
+            "label": "Latest result.reservationId",
+            "value": "R:1:sao-2"
+          },
+          {
+            "label": "Latest result.status",
+            "value": "completed"
+          },
+          {
+            "label": "Latest result.operation",
+            "value": "acquire"
+          },
+          {
+            "label": "Latest result.category",
+            "value": "food"
+          },
+          {
+            "label": "Latest result.itemType",
+            "value": "Base.MuttonChop"
+          },
+          {
+            "label": "Latest result.quantity",
+            "value": "1"
+          },
+          {
+            "label": "Latest result.requestedQuantity",
+            "value": "1"
+          },
+          {
+            "label": "Latest result.preRevision",
+            "value": "036140f20ff68761de6bfd56eac675e3af537ae9b75399576581b8451d8c1853"
+          },
+          {
+            "label": "Latest result.postRevision",
+            "value": "90815b6ccbdfb42162440f6df6b608fb351f8de5b4844b11dbcf6071033525fd"
+          },
+          {
+            "label": "Latest result.at",
+            "value": "20.714860916137695"
+          },
+          {
+            "label": "Latest result.detail",
+            "value": "native-transfer-observed"
+          }
+        ],
+        "source": "WorldSources durable action ledger",
+        "status": "available"
+      },
+      "lastLivingHealth": 1
+    }
+  ],
+  "events": {
+    "uniqueRecovered": 862,
+    "counts": [
+      {
+        "source": "Locomotion",
+        "stage": "arrived",
+        "count": 84
+      },
+      {
+        "source": "Locomotion",
+        "stage": "cancelled",
+        "count": 199
+      },
+      {
+        "source": "Locomotion",
+        "stage": "failed",
+        "count": 44
+      },
+      {
+        "source": "Locomotion",
+        "stage": "replaced",
+        "count": 88
+      },
+      {
+        "source": "Locomotion",
+        "stage": "started",
+        "count": 413
+      },
+      {
+        "source": "Voice",
+        "stage": "emitted",
+        "count": 34
+      }
+    ]
+  },
+  "forageFailureReasons": {
+    "done:FailedObstacle:FAILED_BLOCKED_DIAGONAL": 1,
+    "done:stalled:ManualRoute": 1
+  },
+  "sourceUseFailureReasons": {},
+  "inspectionSuccessLogCount": 4,
+  "datasetAdmission": "unreviewed",
+  "limits": [
+    "Normal stop/save is operational closure, not survival or behavioral acceptance.",
+    "No same-save reopening was performed by this analysis.",
+    "Event histories are bounded samples; recovered counts are lower bounds.",
+    "Native physical sample time is inspectionHours, which may precede its containing archive.",
+    "Inventory changes prove carriage, not transfer cause without a matching receipt.",
+    "Need log queue admission alone does not prove completion; sampled physical reductions are separate evidence.",
+    "No actor or world was mutated by this read-only analysis."
+  ]
+}

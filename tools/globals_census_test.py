@@ -154,6 +154,9 @@ KNOWN.update({n: LUA_STD for n in (
     "select", "string", "table", "tonumber", "tostring", "type",
 )})
 KNOWN.update({n: ENGINE for n in (
+    # [C87] Installed ISInventoryPaneContextMenu.getContainers/hasOpenFlame
+    # and ISInventoryPage.refreshBackpacks use these native client surfaces.
+    "ArrayList", "ISInventoryPaneContextMenu", "SafeHouse", "isClient",
     "BodyPartType", "DynamicRadio", "Events", "GameTime", "Keyboard",
     "keyBinding",
     "HaloTextHelper", "ISApplyBandage", "ISReadABook", "ISBarricadeAction",
@@ -162,7 +165,7 @@ KNOWN.update({n: ENGINE for n in (
     "ISCollapsableWindow", "ISDrinkFluidAction", "ISEatFoodAction",
     "ISFarmingMenu", "ISGrabItemAction", "ISHarvestPlantAction",
     "ISInventoryTransferAction", "ISPlowAction", "ISReloadWeaponAction",
-    "ISSeedActionNew", "ISTakeWaterAction", "ISTimedActionQueue",
+    "ISSeedActionNew", "ISTakePillAction", "ISTakeWaterAction", "ISTimedActionQueue",
     "ISWaterPlantAction", "ImmutableColor", "IsoPlayer", "ItemTag",
     "ModData", "Perks", "ProceduralDistributions", "RadioBroadCast",
     "RadioLine", "SFarmingSystem", "SandboxVars", "SpawnRegionMgr",

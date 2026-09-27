@@ -217,7 +217,8 @@ public final class SAOPrivateInventory {
                 if (container == null || !seenContainers.add(container)) continue;
                 String access = SAONeeds.containerAccessibleNow(person, container)
                     ? "now" : "approach";
-                String contents = container.isExplored() ? "complete" : "unknown";
+                String contents = SAOWorldSources.knowsContainerContents(person,
+                    object, container, containerIndex) ? "complete" : "unknown";
                 holders.add(containerHolder(
                     SAOWorldSources.privateContainerId(object, containerIndex),
                     "container", square.getX(), square.getY(), square.getZ(),

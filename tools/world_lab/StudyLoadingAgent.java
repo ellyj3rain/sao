@@ -151,7 +151,7 @@ public final class StudyLoadingAgent {
             .installOn(instrumentation);
         observerBuilder().type(ElementMatchers.named("zombie.ui.UIManager"))
             .transform((builder, type, loader, module, domain) -> builder
-                .visit(Advice.to(ObserverPreviewRender.class).on(ElementMatchers.named("render")
+                .visit(Advice.to(ObserverUiRender.class).on(ElementMatchers.named("render")
                     .and(ElementMatchers.takesArguments(0))))
                 .visit(Advice.to(ObserverDebugger.class).on(ElementMatchers.named("debugBreakpoint")
                     .and(ElementMatchers.takesArguments(String.class, long.class)))))
@@ -230,6 +230,11 @@ public final class StudyLoadingAgent {
     public static final class ObserverPreviewRender {
         @Advice.OnMethodEnter(skipOn = Advice.OnNonDefaultValue.class)
         public static boolean enter() { return StudyObserver.hideNativeUi(); }
+    }
+
+    public static final class ObserverUiRender {
+        @Advice.OnMethodEnter(skipOn = Advice.OnNonDefaultValue.class)
+        public static boolean enter() { return StudyObserver.renderObserverUi(); }
     }
 
     public static final class ObserverDebugger {

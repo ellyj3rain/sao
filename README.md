@@ -38,11 +38,20 @@ on the simulation.
 
 ## Status
 
-`2.11.0.0-pre-alpha` - the coordinate is computed by the version machine
+`2.11.1.0-pre-alpha` - the coordinate is computed by the version machine
 (`tools/version_replay.py`), never picked; `VERSION_MAP.md` shows the
 classification and the arithmetic.
 
-C86 adds [native study worlds](tools/world_lab/README.md): configurable engine
+C87 extends [native study worlds](tools/world_lab/README.md) with authored
+residential, service and farm settings, finite process supervision, native zoom
+and cached person/action inspection in the installed Mousecat Desktop. It joins
+lived-place familiarity, accepted-work persistence, actual source approach,
+crossing completion and home/rest decisions. Distant known danger no longer
+monopolizes every decision. Static-container inspection teaches the actual
+actor, and direct sink use follows native fixture reach. The batch record
+separates controlled mechanisms from behavior observed in native runs.
+
+C86 adds configurable engine
 terrain, isolated copied mods and saves, an autonomous observer, and sealed
 observations. Speakeasy selects activity views and Mousecat displays actual
 engine pixels with person inspection and camera/time controls. Scenarios remain

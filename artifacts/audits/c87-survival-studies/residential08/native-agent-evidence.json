@@ -1,0 +1,13 @@
+{
+  "sourceSha256": "ebf1a1f6d045fbcbd953db2eb638e788579554a62f8dd7fac5a3c5031ce4e636",
+  "rows": [
+    {
+      "line": 347,
+      "text": "2026-09-27T00:44:50.669205400Z [SAO] water selected person=sao-2 body=97c87bb fixture=IsoObject@31858e2e sprite=fixtures_sinks_01_8 source=3424,10910,0 amount=10000.0 reach=false"
+    },
+    {
+      "line": 349,
+      "text": "2026-09-27T00:45:06.794429900Z [SAO] water selected person=sao-1 body=4a22d47b fixture=IsoObject@31858e2e sprite=fixtures_sinks_01_8 source=3424,10910,0 amount=10000.0 reach=true"
+    }
+  ]
+}

@@ -19,7 +19,13 @@ public final class SAOEquipment {
     public static float meleeScore(InventoryItem item) {
         if (!(item instanceof HandWeapon weapon)
             || weapon.isRanged()
-            || weapon.isBroken()) {
+            || weapon.isBroken()
+            // Native WeaponType identifies Throw independently of isRanged;
+            // SwipeStatePlayer also treats a physics object as a projectile.
+            // A zero-damage noise maker has no melee value to score.
+            || "Throw".equalsIgnoreCase(weapon.getSwingAnim())
+            || weapon.getPhysicsObject() != null
+            || weapon.getMaxDamage() <= 0.0f) {
             return Float.NEGATIVE_INFINITY;
         }
         int conditionMax = weapon.getConditionMax();

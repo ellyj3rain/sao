@@ -1,13 +1,62 @@
 | Document | Survivor Awareness Overhaul Session State |
 |---|---|
-| Version | `2.11.0.0-pre-alpha` |
+| Version | `2.11.1.0-pre-alpha` |
 | Author | ellyj3rain |
 | Repository | `SESSION_STATE.md` |
 | Status | CANONICAL - current implementation and continuation. |
 
 # Session state
 
-**As of** 2026-09-26, `[C86]` implements native study worlds and the sound,
+**As of** 2026-09-26, `[C87]` extends native survival observation and repairs
+continuity between knowledge, accepted work, movement and rest. Authored
+residential, service and farm worlds provide real native rooms and resources.
+Every launch has finite supervision and records its save outcome. The installed
+Mousecat Desktop displays native pixels with zoom, cached person/action/dialogue
+inspection and a recorded behavioral reason. Its obsolete schematic preview is
+removed. Dataset admission still follows operator evaluation.
+
+Co-residents acquire the existing lived-home knowledge. Actual building entry
+updates personal familiarity without turning repeated scans or unresolved
+interiors into extra visits. Save/load and representation changes preserve that
+continuity. Place familiarity keeps its existing visit/recency semantics; person
+and threat memory keep their own aging. Distinct lived-years/vividness weights
+are not implemented by this repair.
+
+Failed movement attempts pause accepted responsibility with bounded, privately
+evidenced reconsideration. Exact native source approach and transfer authority
+remain separate from arrival. Native fence/window crossing owns its completion,
+and blocked diagonals no longer match locked-barrier handling. Known permitted
+home occupancy admits rest without creating a claim; cold and awake intervals
+cannot count as sleep recovery. Distant danger remains known while ordinary
+needs and work continue. Close/overwhelming danger retains priority, and an
+already-owned safe retreat continues beyond its initial trigger.
+
+Native residential run04 saved normally after 600 wall seconds, advancing from
+hour 2.0 to 25.2193 with two durable people and 93 observations. Both began with
+lived-home knowledge; all 33 sampled fence starts entered native CLIMBING on the
+next frame. That run exposed the subsequently repaired distant-threat hold.
+The seven-person service run03 saved normally with all seven alive and actual
+spoken receptions. Residential run05 exposed a direct-water reselection loop:
+both people died after sustained maximum thirst. No homicide is established.
+The misleading character-health reading is repaired to native BodyDamage
+percent. Direct fixture use follows native reach and reconsiders actual failed
+approaches. Static-container inspection teaches that actor's private source
+facts; another person's inspection does not reveal its contents. Exact native
+transfer lookup uses supported indexed access to the engine's object list.
+
+Residential run08 saved normally after 602.248 seconds, advancing from hour
+2.0 to 28.3308. Both people remained alive and represented with sampled native
+health at 100. Both drank from the sink. Rickie inspected containers, acquired
+a MuttonChop through a completed native transfer receipt and ate; sampled hunger
+fell from 0.473 to 0.178. Ross later remained hungry outside with no known nearby
+food. Raw/cooked state was not exposed in the observation. This establishes the
+repaired action connection while preserving the broader search and strategic
+gap. Fixture discovery still lacks a complete private appliance-memory model.
+Distinct lived-history weighting, macro-social quality and sustained bounded
+memory remain open. C87's batch record distinguishes real native evidence from
+controlled engine fixtures; the complete gate is enforced by its closing commit.
+
+C86 established native study worlds and the sound,
 escape, following, threat-memory and starting-claim corrections. Implementation
 review and combined native continuation are verified; the complete gate is
 enforced by the closing commit. The study
@@ -18,7 +67,7 @@ participation. Mousecat displays native pixels through Speakeasy's bounded bridg
 
 The operator watches autonomously, with optional play later. Automatic camera
 visits cover active individuals, nearby groups and quiet people. Manual movement
-holds the view until R restores automatic visits. Camera choices supply no goals,
+holds the view until Follow activity restores automatic visits. Camera choices supply no goals,
 outcomes or training labels. Every scenario requires operator evaluation and
 explicit ratification before dataset admission.
 
@@ -126,7 +175,7 @@ candidate-observation standing is unchanged and no dataset rows are admitted.
 
 Speakeasy's 196-test suite passes and R71 is merged through PR 39. Native observer, visibility, canopy, startup,
 terrain and capture probes include production-source defect controls. The final
-SAO gate covers 198 test files plus 13 other entries (211 distinct scripts), with
+SAO gate covers 200 test files plus 13 other entries (213 distinct scripts), with
 Border labels through 200. Compact evidence identities are retained in
 `artifacts/audits/c86-native-study-worlds/verification.json`. Full reports and
 screenshots remain under `_scratch/c86-study/`. Mousecat's standalone client is
@@ -852,7 +901,7 @@ consequences remain separate from the learned policy choosing among them.
 C57 consolidates three native entry points into one. With C64's immutable
 capture border, C73's radio-reception border, C74's personal-world-knowledge
 border and C75's typed-claim border, and C86's native study, escape-continuity and sound-evidence borders, the gate invokes
-198 `*_test.py` files and 13 other Python entry points, 211 distinct scripts.
+200 `*_test.py` files and 13 other Python entry points, 213 distinct scripts.
 Border labels extend through 200; legacy labels
 163/169/174 share the native suite. These are distinct counting units. The mod
 ships 80 Lua source files.

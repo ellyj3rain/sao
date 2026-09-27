@@ -1,0 +1,674 @@
+[
+  {
+    "line": 2168,
+    "text": "LOG  : Lua          f:6754> [SAO][BODY] java bridge spawn failed (nil); falling back to bare IsoPlayer"
+  },
+  {
+    "line": 2169,
+    "text": "LOG  : Lua          f:6754> [SAO][BODY] restore refused for sao-1: NOT_A_SHELL"
+  },
+  {
+    "line": 2173,
+    "text": "LOG  : Lua          f:6771> [SAO][BODY] sao-1 awakens: AWAKENED items=15 foodActions=0 foodHunger=0.000 drinkActions=0 fluidConsumed=0.000 caloriesDormant=0.000 hunger=0.19 thirst=0.23"
+  },
+  {
+    "line": 2267,
+    "text": "LOG  : Lua          f:7665> [SAO][BODY] java bridge spawn failed (nil); falling back to bare IsoPlayer"
+  },
+  {
+    "line": 2268,
+    "text": "LOG  : Lua          f:7665> [SAO][BODY] restore refused for sao-2: NOT_A_SHELL"
+  },
+  {
+    "line": 2270,
+    "text": "LOG  : Lua          f:7681> [SAO][BODY] sao-2 awakens: AWAKENED items=6 foodActions=0 foodHunger=0.000 drinkActions=0 fluidConsumed=0.000 caloriesDormant=0.000 hunger=0.21 thirst=0.21"
+  },
+  {
+    "line": 2337,
+    "text": "LOG  : Lua          f:8601> [SAO][BODY] sao-1 awakens: AWAKENED items=15 foodActions=0 foodHunger=0.000 drinkActions=0 fluidConsumed=0.000 caloriesDormant=0.000 hunger=0.25 thirst=0.33"
+  },
+  {
+    "line": 2435,
+    "text": "LOG  : Lua          f:9573> [SAO][BODY] java bridge spawn failed (nil); falling back to bare IsoPlayer"
+  },
+  {
+    "line": 2436,
+    "text": "LOG  : Lua          f:9573> [SAO][BODY] restore refused for sao-2: NOT_A_SHELL"
+  },
+  {
+    "line": 2438,
+    "text": "LOG  : Lua          f:9591> [SAO][BODY] sao-2 awakens: AWAKENED items=6 foodActions=0 foodHunger=0.000 drinkActions=0 fluidConsumed=0.000 caloriesDormant=0.000 hunger=0.27 thirst=0.28"
+  },
+  {
+    "line": 2505,
+    "text": "LOG  : Lua          f:10488> [SAO][BODY] sao-1 awakens: AWAKENED items=15 foodActions=0 foodHunger=0.000 drinkActions=0 fluidConsumed=0.000 caloriesDormant=0.000 hunger=0.30 thirst=0.47"
+  },
+  {
+    "line": 2528,
+    "text": "LOG  : Lua          f:10589> [SAO][BODY] java bridge spawn failed (nil); falling back to bare IsoPlayer"
+  },
+  {
+    "line": 2529,
+    "text": "LOG  : Lua          f:10589> [SAO][BODY] restore refused for sao-2: NOT_A_SHELL"
+  },
+  {
+    "line": 2531,
+    "text": "LOG  : Lua          f:10607> [SAO][BODY] sao-2 awakens: AWAKENED items=6 foodActions=0 foodHunger=0.000 drinkActions=0 fluidConsumed=0.000 caloriesDormant=0.000 hunger=0.31 thirst=0.33"
+  },
+  {
+    "line": 2816,
+    "text": "LOG  : Lua          f:11288> [SAO][NEED] sao-1 drinks from a water source"
+  },
+  {
+    "line": 2848,
+    "text": "LOG  : Lua          f:13068> [SAO][NEED] sao-2 drinks from a water source"
+  },
+  {
+    "line": 2880,
+    "text": "LOG  : Lua          f:14469> [SAO][CTL] sao-2 IDLE -> FORAGE (looks in a container for food)"
+  },
+  {
+    "line": 2886,
+    "text": "LOG  : Lua          f:14471> [SAO][CTL] sao-2 FORAGE -> IDLE (inspected the container)"
+  },
+  {
+    "line": 2888,
+    "text": "LOG  : Lua          f:14471> [SAO][CTL] sao-2 IDLE -> FORAGE (hunger 0.48: heads for Granola Bar)"
+  },
+  {
+    "line": 2893,
+    "text": "LOG  : Lua          f:14473> [SAO][CTL] sao-2 FORAGE -> IDLE (forage attempt ended: native-transfer-refused)"
+  },
+  {
+    "line": 2898,
+    "text": "LOG  : Lua          f:14492> [SAO][CTL] sao-2 IDLE -> FORAGE (hunger 0.48: heads for Granola Bar)"
+  },
+  {
+    "line": 2903,
+    "text": "LOG  : Lua          f:14494> [SAO][CTL] sao-2 FORAGE -> IDLE (forage attempt ended: native-transfer-refused)"
+  },
+  {
+    "line": 2907,
+    "text": "LOG  : Lua          f:14525> [SAO][CTL] sao-2 IDLE -> FORAGE (hunger 0.48: heads for Granola Bar)"
+  },
+  {
+    "line": 2912,
+    "text": "LOG  : Lua          f:14527> [SAO][CTL] sao-2 FORAGE -> IDLE (forage attempt ended: native-transfer-refused)"
+  },
+  {
+    "line": 2916,
+    "text": "LOG  : Lua          f:14550> [SAO][CTL] sao-2 IDLE -> FORAGE (hunger 0.48: heads for Granola Bar)"
+  },
+  {
+    "line": 2921,
+    "text": "LOG  : Lua          f:14552> [SAO][CTL] sao-2 FORAGE -> IDLE (forage attempt ended: native-transfer-refused)"
+  },
+  {
+    "line": 2928,
+    "text": "LOG  : Lua          f:14576> [SAO][CTL] sao-2 IDLE -> FORAGE (hunger 0.48: heads for Granola Bar)"
+  },
+  {
+    "line": 2933,
+    "text": "LOG  : Lua          f:14578> [SAO][CTL] sao-2 FORAGE -> IDLE (forage attempt ended: native-transfer-refused)"
+  },
+  {
+    "line": 2937,
+    "text": "LOG  : Lua          f:14605> [SAO][CTL] sao-2 IDLE -> FORAGE (hunger 0.48: heads for Granola Bar)"
+  },
+  {
+    "line": 2942,
+    "text": "LOG  : Lua          f:14607> [SAO][CTL] sao-2 FORAGE -> IDLE (forage attempt ended: native-transfer-refused)"
+  },
+  {
+    "line": 2946,
+    "text": "LOG  : Lua          f:14628> [SAO][CTL] sao-2 IDLE -> FORAGE (hunger 0.48: heads for Granola Bar)"
+  },
+  {
+    "line": 2951,
+    "text": "LOG  : Lua          f:14630> [SAO][CTL] sao-2 FORAGE -> IDLE (forage attempt ended: native-transfer-refused)"
+  },
+  {
+    "line": 2961,
+    "text": "LOG  : Lua          f:14647> [SAO][CTL] sao-2 ROAM -> FORAGE (hunger 0.48: heads for Granola Bar)"
+  },
+  {
+    "line": 2968,
+    "text": "LOG  : Lua          f:14661> [SAO][CTL] sao-2 FORAGE -> IDLE (forage attempt ended: native-transfer-refused)"
+  },
+  {
+    "line": 2971,
+    "text": "LOG  : Lua          f:14681> [SAO][CTL] sao-2 IDLE -> FORAGE (hunger 0.49: heads for Granola Bar)"
+  },
+  {
+    "line": 2977,
+    "text": "LOG  : Lua          f:14689> [SAO][CTL] sao-2 FORAGE -> IDLE (forage attempt ended: native-transfer-refused)"
+  },
+  {
+    "line": 2983,
+    "text": "LOG  : Lua          f:14708> [SAO][CTL] sao-2 IDLE -> FORAGE (hunger 0.49: heads for Granola Bar)"
+  },
+  {
+    "line": 2989,
+    "text": "LOG  : Lua          f:14710> [SAO][CTL] sao-2 FORAGE -> IDLE (forage attempt ended: native-transfer-refused)"
+  },
+  {
+    "line": 3005,
+    "text": "LOG  : Lua          f:14733> [SAO][CTL] sao-2 ROAM -> FORAGE (hunger 0.49: heads for Granola Bar)"
+  },
+  {
+    "line": 3011,
+    "text": "LOG  : Lua          f:14760> [SAO][CTL] sao-2 FORAGE -> IDLE (forage attempt ended: native-transfer-refused)"
+  },
+  {
+    "line": 3014,
+    "text": "LOG  : Lua          f:14780> [SAO][CTL] sao-2 IDLE -> FORAGE (hunger 0.49: heads for Granola Bar)"
+  },
+  {
+    "line": 3019,
+    "text": "LOG  : Lua          f:14782> [SAO][CTL] sao-2 FORAGE -> IDLE (forage attempt ended: native-transfer-refused)"
+  },
+  {
+    "line": 3034,
+    "text": "LOG  : Lua          f:14804> [SAO][CTL] sao-2 IDLE -> FORAGE (hunger 0.49: heads for Granola Bar)"
+  },
+  {
+    "line": 3042,
+    "text": "LOG  : Lua          f:14812> [SAO][CTL] sao-2 FORAGE -> IDLE (forage attempt ended: native-transfer-refused)"
+  },
+  {
+    "line": 3063,
+    "text": "LOG  : Lua          f:14865> [SAO][CTL] sao-2 IDLE -> FORAGE (hunger 0.50: heads for Granola Bar)"
+  },
+  {
+    "line": 3070,
+    "text": "LOG  : Lua          f:14874> [SAO][CTL] sao-2 FORAGE -> IDLE (forage attempt ended: native-transfer-refused)"
+  },
+  {
+    "line": 3104,
+    "text": "LOG  : Lua          f:14976> [SAO][CTL] sao-2 ROAM -> FORAGE (hunger 0.50: heads for Granola Bar)"
+  },
+  {
+    "line": 3122,
+    "text": "LOG  : Lua          f:15031> [SAO][CTL] sao-2 FORAGE -> IDLE (forage attempt ended: done:FailedObstacle:FAILED_BLOCKED_DIAGONAL)"
+  },
+  {
+    "line": 3164,
+    "text": "LOG  : Lua          f:15125> [SAO][CTL] sao-2 IDLE -> FORAGE (hunger 0.50: heads for Granola Bar)"
+  },
+  {
+    "line": 3179,
+    "text": "LOG  : Lua          f:15194> [SAO][CTL] sao-2 FORAGE -> IDLE (forage attempt ended: done:FailedObstacle:FAILED_BLOCKED_DIAGONAL)"
+  },
+  {
+    "line": 3230,
+    "text": "LOG  : Lua          f:15411> [SAO][CTL] sao-2 ROAM -> FORAGE (hunger 0.51: heads for Granola Bar)"
+  },
+  {
+    "line": 3266,
+    "text": "LOG  : Lua          f:15734> [SAO][CTL] sao-2 FORAGE -> IDLE (forage attempt ended: done:stalled:ManualRoute)"
+  },
+  {
+    "line": 3298,
+    "text": "LOG  : Lua          f:15861> [SAO][SOURCE-USE] sao-2 approaches privately observed food at place source:C:3f79869a-1700-413c-b18c-a29b0e903439:0"
+  },
+  {
+    "line": 3302,
+    "text": "LOG  : Lua          f:15863> [SAO][SOURCE-USE] sao-2 source action refused: route-ended:done:Failed"
+  },
+  {
+    "line": 3306,
+    "text": "LOG  : Lua          f:15884> [SAO][SOURCE-USE] sao-2 approaches privately observed food at place source:C:3f79869a-1700-413c-b18c-a29b0e903439:0"
+  },
+  {
+    "line": 3313,
+    "text": "LOG  : Lua          f:15886> [SAO][SOURCE-USE] sao-2 source action refused: route-ended:done:Failed"
+  },
+  {
+    "line": 3318,
+    "text": "LOG  : Lua          f:15907> [SAO][SOURCE-USE] sao-2 approaches privately observed food at place source:C:3f79869a-1700-413c-b18c-a29b0e903439:0"
+  },
+  {
+    "line": 3322,
+    "text": "LOG  : Lua          f:15909> [SAO][SOURCE-USE] sao-2 source action refused: route-ended:done:Failed"
+  },
+  {
+    "line": 3340,
+    "text": "LOG  : Lua          f:15939> [SAO][SOURCE-USE] sao-2 approaches privately observed food at place source:C:3f79869a-1700-413c-b18c-a29b0e903439:0"
+  },
+  {
+    "line": 3344,
+    "text": "LOG  : Lua          f:15941> [SAO][SOURCE-USE] sao-2 source action refused: route-ended:done:Failed"
+  },
+  {
+    "line": 3348,
+    "text": "LOG  : Lua          f:15963> [SAO][SOURCE-USE] sao-2 approaches privately observed food at place source:C:3f79869a-1700-413c-b18c-a29b0e903439:0"
+  },
+  {
+    "line": 3352,
+    "text": "LOG  : Lua          f:15965> [SAO][SOURCE-USE] sao-2 source action refused: route-ended:done:Failed"
+  },
+  {
+    "line": 3370,
+    "text": "LOG  : Lua          f:15986> [SAO][SOURCE-USE] sao-2 approaches privately observed food at place source:C:3f79869a-1700-413c-b18c-a29b0e903439:0"
+  },
+  {
+    "line": 3374,
+    "text": "LOG  : Lua          f:15988> [SAO][SOURCE-USE] sao-2 source action refused: route-ended:done:Failed"
+  },
+  {
+    "line": 3382,
+    "text": "LOG  : Lua          f:16013> [SAO][SOURCE-USE] sao-2 approaches privately observed food at place source:C:3f79869a-1700-413c-b18c-a29b0e903439:0"
+  },
+  {
+    "line": 3386,
+    "text": "LOG  : Lua          f:16015> [SAO][SOURCE-USE] sao-2 source action refused: route-ended:done:Failed"
+  },
+  {
+    "line": 3403,
+    "text": "LOG  : Lua          f:16046> [SAO][CTL] sao-2 IDLE -> FORAGE (hunger 0.54: heads for Granola Bar)"
+  },
+  {
+    "line": 3425,
+    "text": "LOG  : Lua          f:16185> [SAO][CTL] sao-2 FORAGE -> IDLE (forage attempt ended: native-transfer-refused)"
+  },
+  {
+    "line": 3475,
+    "text": "LOG  : Lua          f:16423> [SAO][CTL] sao-2 ROAM -> FORAGE (hunger 0.55: heads for Granola Bar)"
+  },
+  {
+    "line": 3495,
+    "text": "LOG  : Lua          f:16474> [SAO][CTL] sao-2 FORAGE -> IDLE (forage attempt ended: done:FailedObstacle:FAILED_BLOCKED_DIAGONAL)"
+  },
+  {
+    "line": 3526,
+    "text": "LOG  : Lua          f:16597> [SAO][CTL] sao-2 IDLE -> FORAGE (hunger 0.55: heads for Granola Bar)"
+  },
+  {
+    "line": 3542,
+    "text": "LOG  : Lua          f:16643> [SAO][CTL] sao-2 FORAGE -> IDLE (forage attempt ended: done:FailedObstacle:FAILED_BLOCKED_DIAGONAL)"
+  },
+  {
+    "line": 3579,
+    "text": "LOG  : Lua          f:16828> [SAO][CTL] sao-1 is hungry but knows of no food nearby"
+  },
+  {
+    "line": 3592,
+    "text": "LOG  : Lua          f:16869> [SAO][CTL] sao-1 is hungry but knows of no food nearby"
+  },
+  {
+    "line": 3600,
+    "text": "LOG  : Lua          f:16886> [SAO][SOURCE-USE] sao-2 approaches privately observed food at place source:C:3f79869a-1700-413c-b18c-a29b0e903439:0"
+  },
+  {
+    "line": 3604,
+    "text": "LOG  : Lua          f:16888> [SAO][SOURCE-USE] sao-2 source action refused: route-ended:done:Failed"
+  },
+  {
+    "line": 3627,
+    "text": "LOG  : Lua          f:16908> [SAO][CTL] sao-1 is hungry but knows of no food nearby"
+  },
+  {
+    "line": 3636,
+    "text": "LOG  : Lua          f:16928> [SAO][SOURCE-USE] sao-2 approaches privately observed food at place source:C:3f79869a-1700-413c-b18c-a29b0e903439:0"
+  },
+  {
+    "line": 3640,
+    "text": "LOG  : Lua          f:16930> [SAO][SOURCE-USE] sao-2 source action refused: route-ended:done:Failed"
+  },
+  {
+    "line": 3645,
+    "text": "LOG  : Lua          f:16939> [SAO][CTL] sao-1 is hungry but knows of no food nearby"
+  },
+  {
+    "line": 3648,
+    "text": "LOG  : Lua          f:16950> [SAO][SOURCE-USE] sao-2 approaches privately observed food at place source:C:3f79869a-1700-413c-b18c-a29b0e903439:0"
+  },
+  {
+    "line": 3652,
+    "text": "LOG  : Lua          f:16952> [SAO][SOURCE-USE] sao-2 source action refused: route-ended:done:Failed"
+  },
+  {
+    "line": 3656,
+    "text": "LOG  : Lua          f:16964> [SAO][CTL] sao-1 is hungry but knows of no food nearby"
+  },
+  {
+    "line": 3669,
+    "text": "LOG  : Lua          f:16986> [SAO][SOURCE-USE] sao-2 approaches privately observed food at place source:C:3f79869a-1700-413c-b18c-a29b0e903439:0"
+  },
+  {
+    "line": 3673,
+    "text": "LOG  : Lua          f:16988> [SAO][SOURCE-USE] sao-2 source action refused: route-ended:done:Failed"
+  },
+  {
+    "line": 3693,
+    "text": "LOG  : Lua          f:17004> [SAO][CTL] sao-1 is hungry but knows of no food nearby"
+  },
+  {
+    "line": 3697,
+    "text": "LOG  : Lua          f:17022> [SAO][SOURCE-USE] sao-2 approaches privately observed food at place source:C:3f79869a-1700-413c-b18c-a29b0e903439:0"
+  },
+  {
+    "line": 3701,
+    "text": "LOG  : Lua          f:17024> [SAO][SOURCE-USE] sao-2 source action refused: route-ended:done:Failed"
+  },
+  {
+    "line": 3708,
+    "text": "LOG  : Lua          f:17032> [SAO][CTL] sao-1 is hungry but knows of no food nearby"
+  },
+  {
+    "line": 3714,
+    "text": "LOG  : Lua          f:17047> [SAO][SOURCE-USE] sao-2 approaches privately observed food at place source:C:3f79869a-1700-413c-b18c-a29b0e903439:0"
+  },
+  {
+    "line": 3718,
+    "text": "LOG  : Lua          f:17052> [SAO][SOURCE-USE] sao-2 source action refused: route-ended:done:Failed"
+  },
+  {
+    "line": 3721,
+    "text": "LOG  : Lua          f:17057> [SAO][CTL] sao-1 is hungry but knows of no food nearby"
+  },
+  {
+    "line": 3723,
+    "text": "LOG  : Lua          f:17090> [SAO][SOURCE-USE] sao-2 approaches privately observed food at place source:C:3f79869a-1700-413c-b18c-a29b0e903439:0"
+  },
+  {
+    "line": 3727,
+    "text": "LOG  : Lua          f:17092> [SAO][SOURCE-USE] sao-2 source action refused: route-ended:done:Failed"
+  },
+  {
+    "line": 3730,
+    "text": "LOG  : Lua          f:17096> [SAO][CTL] sao-1 is hungry but knows of no food nearby"
+  },
+  {
+    "line": 3751,
+    "text": "LOG  : Lua          f:17127> [SAO][SOURCE-USE] sao-2 approaches privately observed food at place source:C:3f79869a-1700-413c-b18c-a29b0e903439:0"
+  },
+  {
+    "line": 3753,
+    "text": "LOG  : Lua          f:17128> [SAO][CTL] sao-1 is hungry but knows of no food nearby"
+  },
+  {
+    "line": 3756,
+    "text": "LOG  : Lua          f:17129> [SAO][SOURCE-USE] sao-2 source action refused: route-ended:done:Failed"
+  },
+  {
+    "line": 3773,
+    "text": "LOG  : Lua          f:17153> [SAO][CTL] sao-1 is hungry but knows of no food nearby"
+  },
+  {
+    "line": 3775,
+    "text": "LOG  : Lua          f:17154> [SAO][SOURCE-USE] sao-2 approaches privately observed food at place source:C:3f79869a-1700-413c-b18c-a29b0e903439:0"
+  },
+  {
+    "line": 3781,
+    "text": "LOG  : Lua          f:17188> [SAO][CTL] sao-1 is hungry but knows of no food nearby"
+  },
+  {
+    "line": 3786,
+    "text": "LOG  : Lua          f:17231> [SAO][CTL] sao-1 is hungry but knows of no food nearby"
+  },
+  {
+    "line": 3789,
+    "text": "LOG  : Lua          f:17274> [SAO][CTL] sao-1 is hungry but knows of no food nearby"
+  },
+  {
+    "line": 3791,
+    "text": "LOG  : Lua          f:17313> [SAO][CTL] sao-1 is hungry but knows of no food nearby"
+  },
+  {
+    "line": 3792,
+    "text": "LOG  : Lua          f:17357> [SAO][CTL] sao-1 is hungry but knows of no food nearby"
+  },
+  {
+    "line": 3795,
+    "text": "LOG  : Lua          f:17403> [SAO][CTL] sao-1 is hungry but knows of no food nearby"
+  },
+  {
+    "line": 3798,
+    "text": "LOG  : Lua          f:17446> [SAO][CTL] sao-1 is hungry but knows of no food nearby"
+  },
+  {
+    "line": 3801,
+    "text": "LOG  : Lua          f:17457> [SAO][SOURCE-USE] sao-2 source action refused: route-ended:done:stalled:ManualRoute"
+  },
+  {
+    "line": 3825,
+    "text": "LOG  : Lua          f:17485> [SAO][CTL] sao-1 is hungry but knows of no food nearby"
+  },
+  {
+    "line": 3844,
+    "text": "LOG  : Lua          f:17517> [SAO][SOURCE-USE] sao-2 approaches privately observed food at place source:C:3f79869a-1700-413c-b18c-a29b0e903439:0"
+  },
+  {
+    "line": 3849,
+    "text": "LOG  : Lua          f:17519> [SAO][SOURCE-USE] sao-2 source action refused: route-ended:done:Failed"
+  },
+  {
+    "line": 3852,
+    "text": "LOG  : Lua          f:17527> [SAO][CTL] sao-1 is hungry but knows of no food nearby"
+  },
+  {
+    "line": 3855,
+    "text": "LOG  : Lua          f:17565> [SAO][SOURCE-USE] sao-2 approaches privately observed food at place source:C:3f79869a-1700-413c-b18c-a29b0e903439:0"
+  },
+  {
+    "line": 3859,
+    "text": "LOG  : Lua          f:17567> [SAO][SOURCE-USE] sao-2 source action refused: route-ended:done:Failed"
+  },
+  {
+    "line": 3862,
+    "text": "LOG  : Lua          f:17568> [SAO][CTL] sao-1 is hungry but knows of no food nearby"
+  },
+  {
+    "line": 3867,
+    "text": "LOG  : Lua          f:17606> [SAO][SOURCE-USE] sao-2 approaches privately observed food at place source:C:3f79869a-1700-413c-b18c-a29b0e903439:0"
+  },
+  {
+    "line": 3869,
+    "text": "LOG  : Lua          f:17607> [SAO][CTL] sao-1 is hungry but knows of no food nearby"
+  },
+  {
+    "line": 3872,
+    "text": "LOG  : Lua          f:17608> [SAO][SOURCE-USE] sao-2 source action refused: route-ended:done:Failed"
+  },
+  {
+    "line": 3879,
+    "text": "LOG  : Lua          f:17652> [SAO][CTL] sao-1 is hungry but knows of no food nearby"
+  },
+  {
+    "line": 3881,
+    "text": "LOG  : Lua          f:17653> [SAO][SOURCE-USE] sao-2 approaches privately observed food at place source:C:3f79869a-1700-413c-b18c-a29b0e903439:0"
+  },
+  {
+    "line": 3885,
+    "text": "LOG  : Lua          f:17655> [SAO][SOURCE-USE] sao-2 source action refused: route-ended:done:Failed"
+  },
+  {
+    "line": 3905,
+    "text": "LOG  : Lua          f:17691> [SAO][CTL] sao-1 is hungry but knows of no food nearby"
+  },
+  {
+    "line": 3912,
+    "text": "LOG  : Lua          f:17709> [SAO][SOURCE-USE] sao-2 approaches privately observed food at place source:C:3f79869a-1700-413c-b18c-a29b0e903439:0"
+  },
+  {
+    "line": 3916,
+    "text": "LOG  : Lua          f:17711> [SAO][SOURCE-USE] sao-2 source action refused: route-ended:done:Failed"
+  },
+  {
+    "line": 3919,
+    "text": "LOG  : Lua          f:17724> [SAO][CTL] sao-1 is hungry but knows of no food nearby"
+  },
+  {
+    "line": 3924,
+    "text": "LOG  : Lua          f:17737> [SAO][SOURCE-USE] sao-2 approaches privately observed food at place source:C:3f79869a-1700-413c-b18c-a29b0e903439:0"
+  },
+  {
+    "line": 3928,
+    "text": "LOG  : Lua          f:17739> [SAO][SOURCE-USE] sao-2 source action refused: route-ended:done:Failed"
+  },
+  {
+    "line": 3931,
+    "text": "LOG  : Lua          f:17747> [SAO][CTL] sao-1 is hungry but knows of no food nearby"
+  },
+  {
+    "line": 3943,
+    "text": "LOG  : Lua          f:17779> [SAO][SOURCE-USE] sao-2 approaches privately observed food at place source:C:3f79869a-1700-413c-b18c-a29b0e903439:0"
+  },
+  {
+    "line": 3947,
+    "text": "LOG  : Lua          f:17781> [SAO][SOURCE-USE] sao-2 source action refused: route-ended:done:Failed"
+  },
+  {
+    "line": 3950,
+    "text": "LOG  : Lua          f:17786> [SAO][CTL] sao-1 is hungry but knows of no food nearby"
+  },
+  {
+    "line": 3964,
+    "text": "LOG  : Lua          f:17832> [SAO][CTL] sao-1 is hungry but knows of no food nearby"
+  },
+  {
+    "line": 3968,
+    "text": "LOG  : Lua          f:17842> [SAO][SOURCE-USE] sao-2 approaches privately observed food at place source:C:3f79869a-1700-413c-b18c-a29b0e903439:0"
+  },
+  {
+    "line": 3972,
+    "text": "LOG  : Lua          f:17844> [SAO][SOURCE-USE] sao-2 source action refused: route-ended:done:Failed"
+  },
+  {
+    "line": 3983,
+    "text": "LOG  : Lua          f:17865> [SAO][CTL] sao-1 is hungry but knows of no food nearby"
+  },
+  {
+    "line": 3995,
+    "text": "LOG  : Lua          f:17871> [SAO][SOURCE-USE] sao-2 approaches privately observed food at place source:C:3f79869a-1700-413c-b18c-a29b0e903439:0"
+  },
+  {
+    "line": 4004,
+    "text": "LOG  : Lua          f:17874> [SAO][SOURCE-USE] sao-2 source action refused: route-ended:done:Failed"
+  },
+  {
+    "line": 4013,
+    "text": "LOG  : Lua          f:17885> [SAO][CTL] sao-1 is hungry but knows of no food nearby"
+  },
+  {
+    "line": 4021,
+    "text": "LOG  : Lua          f:17902> [SAO][SOURCE-USE] sao-2 approaches privately observed food at place source:C:3f79869a-1700-413c-b18c-a29b0e903439:0"
+  },
+  {
+    "line": 4025,
+    "text": "LOG  : Lua          f:17904> [SAO][SOURCE-USE] sao-2 source action refused: route-ended:done:Failed"
+  },
+  {
+    "line": 4040,
+    "text": "LOG  : Lua          f:17920> [SAO][CTL] sao-1 is hungry but knows of no food nearby"
+  },
+  {
+    "line": 4057,
+    "text": "LOG  : Lua          f:17955> [SAO][SOURCE-USE] sao-2 approaches privately observed food at place source:C:3f79869a-1700-413c-b18c-a29b0e903439:0"
+  },
+  {
+    "line": 4061,
+    "text": "LOG  : Lua          f:17957> [SAO][SOURCE-USE] sao-2 source action refused: route-ended:done:Failed"
+  },
+  {
+    "line": 4064,
+    "text": "LOG  : Lua          f:17961> [SAO][CTL] sao-1 is hungry but knows of no food nearby"
+  },
+  {
+    "line": 4067,
+    "text": "LOG  : Lua          f:17990> [SAO][SOURCE-USE] sao-2 approaches privately observed food at place source:C:3f79869a-1700-413c-b18c-a29b0e903439:0"
+  },
+  {
+    "line": 4074,
+    "text": "LOG  : Lua          f:17993> [SAO][SOURCE-USE] sao-2 source action refused: route-ended:done:Failed"
+  },
+  {
+    "line": 4077,
+    "text": "LOG  : Lua          f:17994> [SAO][CTL] sao-1 is hungry but knows of no food nearby"
+  },
+  {
+    "line": 4094,
+    "text": "LOG  : Lua          f:18032> [SAO][SOURCE-USE] sao-2 approaches privately observed food at place source:C:3f79869a-1700-413c-b18c-a29b0e903439:0"
+  },
+  {
+    "line": 4098,
+    "text": "LOG  : Lua          f:18034> [SAO][SOURCE-USE] sao-2 source action refused: route-ended:done:Failed"
+  },
+  {
+    "line": 4104,
+    "text": "LOG  : Lua          f:18037> [SAO][CTL] sao-1 is hungry but knows of no food nearby"
+  },
+  {
+    "line": 4116,
+    "text": "LOG  : Lua          f:18077> [SAO][SOURCE-USE] sao-2 approaches privately observed food at place source:C:3f79869a-1700-413c-b18c-a29b0e903439:0"
+  },
+  {
+    "line": 4120,
+    "text": "LOG  : Lua          f:18079> [SAO][SOURCE-USE] sao-2 source action refused: route-ended:done:Failed"
+  },
+  {
+    "line": 4123,
+    "text": "LOG  : Lua          f:18080> [SAO][CTL] sao-1 is hungry but knows of no food nearby"
+  },
+  {
+    "line": 4126,
+    "text": "LOG  : Lua          f:18116> [SAO][SOURCE-USE] sao-2 approaches privately observed food at place source:C:3f79869a-1700-413c-b18c-a29b0e903439:0"
+  },
+  {
+    "line": 4128,
+    "text": "LOG  : Lua          f:18117> [SAO][CTL] sao-1 is hungry but knows of no food nearby"
+  },
+  {
+    "line": 4131,
+    "text": "LOG  : Lua          f:18118> [SAO][SOURCE-USE] sao-2 source action refused: route-ended:done:Failed"
+  },
+  {
+    "line": 4137,
+    "text": "LOG  : Lua          f:18147> [SAO][CTL] sao-1 is hungry but knows of no food nearby"
+  },
+  {
+    "line": 4139,
+    "text": "LOG  : Lua          f:18148> [SAO][SOURCE-USE] sao-2 approaches privately observed food at place source:C:3f79869a-1700-413c-b18c-a29b0e903439:0"
+  },
+  {
+    "line": 4143,
+    "text": "LOG  : Lua          f:18150> [SAO][SOURCE-USE] sao-2 source action refused: route-ended:done:Failed"
+  },
+  {
+    "line": 4164,
+    "text": "LOG  : Lua          f:18180> [SAO][CTL] sao-1 is hungry but knows of no food nearby"
+  },
+  {
+    "line": 4173,
+    "text": "LOG  : Lua          f:18203> [SAO][SOURCE-USE] sao-2 approaches privately observed food at place source:C:3f79869a-1700-413c-b18c-a29b0e903439:0"
+  },
+  {
+    "line": 4177,
+    "text": "LOG  : Lua          f:18205> [SAO][SOURCE-USE] sao-2 source action refused: route-ended:done:Failed"
+  },
+  {
+    "line": 4186,
+    "text": "LOG  : Lua          f:18222> [SAO][CTL] sao-1 is hungry but knows of no food nearby"
+  },
+  {
+    "line": 4189,
+    "text": "LOG  : Lua          f:18232> [SAO][SOURCE-USE] sao-2 approaches privately observed food at place source:C:3f79869a-1700-413c-b18c-a29b0e903439:0"
+  },
+  {
+    "line": 4194,
+    "text": "LOG  : Lua          f:18247> [SAO][CTL] sao-1 is hungry but knows of no food nearby"
+  },
+  {
+    "line": 4197,
+    "text": "LOG  : Lua          f:18281> [SAO][CTL] sao-1 is hungry but knows of no food nearby"
+  },
+  {
+    "line": 4205,
+    "text": "LOG  : Lua          f:18323> [SAO][CTL] sao-1 is hungry but knows of no food nearby"
+  },
+  {
+    "line": 4207,
+    "text": "LOG  : Lua          f:18365> [SAO][CTL] sao-1 is hungry but knows of no food nearby"
+  }
+]

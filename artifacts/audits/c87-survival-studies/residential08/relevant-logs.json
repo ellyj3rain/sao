@@ -1,0 +1,258 @@
+[
+  {
+    "line": 3665,
+    "text": "LOG  : Lua          f:11032> [SAO][NEED] sao-2 drinks from a water source"
+  },
+  {
+    "line": 3677,
+    "text": "LOG  : Lua          f:11484> [SAO][NEED] sao-1 drinks from a water source"
+  },
+  {
+    "line": 3696,
+    "text": "LOG  : Lua          f:12488> [SAO][CTL] sao-2 IDLE -> FORAGE (looks in a container for food)"
+  },
+  {
+    "line": 3702,
+    "text": "LOG  : Lua          f:12490> [SAO][CTL] sao-2 FORAGE -> IDLE (inspected the container)"
+  },
+  {
+    "line": 3703,
+    "text": "LOG  : Lua          f:12490> [SAO][CTL] sao-2 IDLE -> FORAGE (looks in a container for food)"
+  },
+  {
+    "line": 3709,
+    "text": "LOG  : Lua          f:12492> [SAO][CTL] sao-2 FORAGE -> IDLE (inspected the container)"
+  },
+  {
+    "line": 3710,
+    "text": "LOG  : Lua          f:12492> [SAO][CTL] sao-2 IDLE -> FORAGE (looks in a container for food)"
+  },
+  {
+    "line": 3716,
+    "text": "LOG  : Lua          f:12494> [SAO][CTL] sao-2 FORAGE -> IDLE (inspected the container)"
+  },
+  {
+    "line": 3717,
+    "text": "LOG  : Lua          f:12494> [SAO][CTL] sao-2 IDLE -> FORAGE (looks in a container for food)"
+  },
+  {
+    "line": 3723,
+    "text": "LOG  : Lua          f:12496> [SAO][CTL] sao-2 FORAGE -> IDLE (inspected the container)"
+  },
+  {
+    "line": 3725,
+    "text": "LOG  : Lua          f:12496> [SAO][CTL] sao-2 IDLE -> FORAGE (hunger 0.48: heads for Mutton Chop)"
+  },
+  {
+    "line": 3729,
+    "text": "LOG  : Lua          f:12498> [SAO][SOURCE-USE] sao-2 transfers exact item Base.MuttonChop from C:701e49a8-6ca8-4de6-9c7c-c3dc16408378:0"
+  },
+  {
+    "line": 3732,
+    "text": "LOG  : Lua          f:12499> [SAO][SOURCE-USE] sao-2 source action completed (036140f20ff68761de6bfd56eac675e3af537ae9b75399576581b8451d8c1853 -> 90815b6ccbdfb42162440f6df6b608fb351f8de5b4844b11dbcf6071033525fd)"
+  },
+  {
+    "line": 3733,
+    "text": "LOG  : Lua          f:12500> [SAO][NEED] sao-2 begins eating (vanilla action)"
+  },
+  {
+    "line": 4035,
+    "text": "LOG  : Lua          f:14324> [SAO][CTL] sao-1 is hungry but knows of no food nearby"
+  },
+  {
+    "line": 4044,
+    "text": "LOG  : Lua          f:14353> [SAO][CTL] sao-1 is hungry but knows of no food nearby"
+  },
+  {
+    "line": 4047,
+    "text": "LOG  : Lua          f:14392> [SAO][CTL] sao-1 is hungry but knows of no food nearby"
+  },
+  {
+    "line": 4050,
+    "text": "LOG  : Lua          f:14423> [SAO][CTL] sao-1 is hungry but knows of no food nearby"
+  },
+  {
+    "line": 4062,
+    "text": "LOG  : Lua          f:14464> [SAO][CTL] sao-1 is hungry but knows of no food nearby"
+  },
+  {
+    "line": 4073,
+    "text": "LOG  : Lua          f:14484> [SAO][CTL] sao-2 FORAGE -> IDLE (forage attempt ended: done:FailedObstacle:FAILED_BLOCKED_DIAGONAL)"
+  },
+  {
+    "line": 4080,
+    "text": "LOG  : Lua          f:14502> [SAO][CTL] sao-1 is hungry but knows of no food nearby"
+  },
+  {
+    "line": 4092,
+    "text": "LOG  : Lua          f:14539> [SAO][CTL] sao-1 is hungry but knows of no food nearby"
+  },
+  {
+    "line": 4100,
+    "text": "LOG  : Lua          f:14571> [SAO][CTL] sao-1 is hungry but knows of no food nearby"
+  },
+  {
+    "line": 4109,
+    "text": "LOG  : Lua          f:14612> [SAO][CTL] sao-1 is hungry but knows of no food nearby"
+  },
+  {
+    "line": 4111,
+    "text": "LOG  : Lua          f:14657> [SAO][CTL] sao-1 is hungry but knows of no food nearby"
+  },
+  {
+    "line": 4113,
+    "text": "LOG  : Lua          f:14700> [SAO][CTL] sao-1 is hungry but knows of no food nearby"
+  },
+  {
+    "line": 4122,
+    "text": "LOG  : Lua          f:14742> [SAO][CTL] sao-1 is hungry but knows of no food nearby"
+  },
+  {
+    "line": 4125,
+    "text": "LOG  : Lua          f:14780> [SAO][CTL] sao-1 is hungry but knows of no food nearby"
+  },
+  {
+    "line": 4127,
+    "text": "LOG  : Lua          f:14822> [SAO][CTL] sao-1 is hungry but knows of no food nearby"
+  },
+  {
+    "line": 4132,
+    "text": "LOG  : Lua          f:14838> [SAO][CTL] sao-2 FORAGE -> IDLE (forage attempt ended: done:stalled:ManualRoute)"
+  },
+  {
+    "line": 4137,
+    "text": "LOG  : Lua          f:14868> [SAO][CTL] sao-1 is hungry but knows of no food nearby"
+  },
+  {
+    "line": 4160,
+    "text": "LOG  : Lua          f:14896> [SAO][CTL] sao-1 is hungry but knows of no food nearby"
+  },
+  {
+    "line": 4165,
+    "text": "LOG  : Lua          f:14918> [SAO][CTL] sao-1 is hungry but knows of no food nearby"
+  },
+  {
+    "line": 4167,
+    "text": "LOG  : Lua          f:14939> [SAO][CTL] sao-1 is hungry but knows of no food nearby"
+  },
+  {
+    "line": 4171,
+    "text": "LOG  : Lua          f:14959> [SAO][CTL] sao-1 is hungry but knows of no food nearby"
+  },
+  {
+    "line": 4196,
+    "text": "LOG  : Lua          f:14980> [SAO][CTL] sao-1 is hungry but knows of no food nearby"
+  },
+  {
+    "line": 4205,
+    "text": "LOG  : Lua          f:15015> [SAO][CTL] sao-1 is hungry but knows of no food nearby"
+  },
+  {
+    "line": 4206,
+    "text": "LOG  : Lua          f:15036> [SAO][CTL] sao-1 is hungry but knows of no food nearby"
+  },
+  {
+    "line": 4211,
+    "text": "LOG  : Lua          f:15057> [SAO][CTL] sao-1 is hungry but knows of no food nearby"
+  },
+  {
+    "line": 4227,
+    "text": "LOG  : Lua          f:15088> [SAO][CTL] sao-1 is hungry but knows of no food nearby"
+  },
+  {
+    "line": 4239,
+    "text": "LOG  : Lua          f:15119> [SAO][CTL] sao-1 is hungry but knows of no food nearby"
+  },
+  {
+    "line": 4242,
+    "text": "LOG  : Lua          f:15142> [SAO][CTL] sao-1 is hungry but knows of no food nearby"
+  },
+  {
+    "line": 4251,
+    "text": "LOG  : Lua          f:15159> [SAO][CTL] sao-1 is hungry but knows of no food nearby"
+  },
+  {
+    "line": 4253,
+    "text": "LOG  : Lua          f:15189> [SAO][CTL] sao-1 is hungry but knows of no food nearby"
+  },
+  {
+    "line": 4259,
+    "text": "LOG  : Lua          f:15218> [SAO][CTL] sao-1 is hungry but knows of no food nearby"
+  },
+  {
+    "line": 4267,
+    "text": "LOG  : Lua          f:15239> [SAO][CTL] sao-1 is hungry but knows of no food nearby"
+  },
+  {
+    "line": 4280,
+    "text": "LOG  : Lua          f:15259> [SAO][CTL] sao-1 is hungry but knows of no food nearby"
+  },
+  {
+    "line": 4292,
+    "text": "LOG  : Lua          f:15291> [SAO][CTL] sao-1 is hungry but knows of no food nearby"
+  },
+  {
+    "line": 4294,
+    "text": "LOG  : Lua          f:15313> [SAO][CTL] sao-1 is hungry but knows of no food nearby"
+  },
+  {
+    "line": 4307,
+    "text": "LOG  : Lua          f:15334> [SAO][CTL] sao-1 is hungry but knows of no food nearby"
+  },
+  {
+    "line": 4328,
+    "text": "LOG  : Lua          f:15370> [SAO][CTL] sao-1 is hungry but knows of no food nearby"
+  },
+  {
+    "line": 4332,
+    "text": "LOG  : Lua          f:15392> [SAO][CTL] sao-1 is hungry but knows of no food nearby"
+  },
+  {
+    "line": 4334,
+    "text": "LOG  : Lua          f:15413> [SAO][CTL] sao-1 is hungry but knows of no food nearby"
+  },
+  {
+    "line": 4342,
+    "text": "LOG  : Lua          f:15434> [SAO][CTL] sao-1 is hungry but knows of no food nearby"
+  },
+  {
+    "line": 4361,
+    "text": "LOG  : Lua          f:15467> [SAO][CTL] sao-1 is hungry but knows of no food nearby"
+  },
+  {
+    "line": 4381,
+    "text": "LOG  : Lua          f:15507> [SAO][CTL] sao-1 is hungry but knows of no food nearby"
+  },
+  {
+    "line": 4388,
+    "text": "LOG  : Lua          f:15540> [SAO][CTL] sao-1 is hungry but knows of no food nearby"
+  },
+  {
+    "line": 4417,
+    "text": "LOG  : Lua          f:15568> [SAO][CTL] sao-1 is hungry but knows of no food nearby"
+  },
+  {
+    "line": 4422,
+    "text": "LOG  : Lua          f:15608> [SAO][CTL] sao-1 is hungry but knows of no food nearby"
+  },
+  {
+    "line": 4427,
+    "text": "LOG  : Lua          f:15634> [SAO][CTL] sao-1 is hungry but knows of no food nearby"
+  },
+  {
+    "line": 4436,
+    "text": "LOG  : Lua          f:15655> [SAO][CTL] sao-1 is hungry but knows of no food nearby"
+  },
+  {
+    "line": 4450,
+    "text": "LOG  : Lua          f:15675> [SAO][CTL] sao-1 is hungry but knows of no food nearby"
+  },
+  {
+    "line": 4474,
+    "text": "LOG  : Lua          f:15718> [SAO][CTL] sao-1 is hungry but knows of no food nearby"
+  },
+  {
+    "line": 4477,
+    "text": "LOG  : Lua          f:15740> [SAO][CTL] sao-1 is hungry but knows of no food nearby"
+  }
+]

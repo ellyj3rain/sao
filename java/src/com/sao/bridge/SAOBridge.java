@@ -880,6 +880,28 @@ public final class SAOBridge {
         return "";
     }
 
+    public String findWaterSource(Object object, double radius, double atHours) {
+        if (object instanceof SAOIsoPlayerShell shell
+                && Double.isFinite(atHours) && atHours >= 0) {
+            return com.sao.engine.SAONeeds.findWaterSourceNear(shell, (int) radius, atHours);
+        }
+        return "";
+    }
+
+    public boolean failWaterApproach(Object object, String result, double atHours,
+            double x, double y, double z) {
+        try {
+            return object instanceof SAOIsoPlayerShell shell
+                && Double.isFinite(x) && Double.isFinite(y) && Double.isFinite(z)
+                && x == Math.rint(x) && y == Math.rint(y) && z == Math.rint(z)
+                && Math.abs(x) <= 1_000_000 && Math.abs(y) <= 1_000_000 && z >= -32 && z < 32
+                && com.sao.engine.SAONeeds.failWaterApproach(shell, result, atHours, (int) x, (int) y, (int) z);
+        } catch (Throwable throwable) {
+            SAOAgent.log("failWaterApproach threw: " + throwable);
+            return false;
+        }
+    }
+
     public Object waterSourceObject(Object object) {
         if (object instanceof SAOIsoPlayerShell shell) {
             return com.sao.engine.SAONeeds.waterSource(shell);
@@ -908,6 +930,19 @@ public final class SAOBridge {
             SAOAgent.log("findWeaponUpgrade refused: " + error);
         }
         return "";
+    }
+
+    /** Keep the claimed source coordinates separate from its standing tile. */
+    public String resourceApproach(Object object, String kind, double x, double y, double z) {
+        try {
+            if (object instanceof SAOIsoPlayerShell shell
+                    && Double.isFinite(x) && Double.isFinite(y) && Double.isFinite(z)
+                    && x == Math.rint(x) && y == Math.rint(y) && z == Math.rint(z)
+                    && Math.abs(x) <= 1_000_000 && Math.abs(y) <= 1_000_000 && z >= -32 && z < 32) {
+                return com.sao.engine.SAONeeds.resourceApproach(shell, kind, (int) x, (int) y, (int) z);
+            }
+        } catch (Throwable error) { SAOAgent.log("resource approach refused: " + error); }
+        return "UNAVAILABLE";
     }
 
     public Object weaponSourceItem(Object object) {
@@ -3233,6 +3268,48 @@ public final class SAOBridge {
         }
     }
 
+    /** Visible holder identities, with contents left private until inspection. */
+    public String worldInspectionCandidates(Object object, double radius) {
+        try {
+            if (!(object instanceof com.sao.engine.SAOIsoPlayerShell shell)
+                    || !Double.isFinite(radius) || radius != Math.rint(radius)) {
+                return "NO_LIVE_BODY";
+            }
+            return com.sao.engine.SAOWorldSources.inspectionCandidates(shell, (int) radius);
+        } catch (Throwable throwable) {
+            SAOAgent.log("worldInspectionCandidates threw: " + throwable);
+            return "FAILED";
+        }
+    }
+
+    /** Body-owned attempt state; native weak ownership controls its lifetime. */
+    public Object worldInspectionMemory(Object object) {
+        try {
+            return object instanceof com.sao.engine.SAOIsoPlayerShell shell
+                ? com.sao.engine.SAOWorldSources.inspectionMemory(shell) : null;
+        } catch (Throwable throwable) {
+            SAOAgent.log("worldInspectionMemory threw: " + throwable);
+            return null;
+        }
+    }
+
+    /** Inspect the exact offered holder with this actor's native body. */
+    public String worldInspectContainer(Object object, String sourceId,
+            String fingerprint, double x, double y, double z) {
+        try {
+            if (!(object instanceof com.sao.engine.SAOIsoPlayerShell shell)
+                    || !Double.isFinite(x) || !Double.isFinite(y) || !Double.isFinite(z)
+                    || x != Math.rint(x) || y != Math.rint(y) || z != Math.rint(z)) {
+                return "NO_LIVE_BODY";
+            }
+            return com.sao.engine.SAOWorldSources.inspectContainer(shell, sourceId,
+                fingerprint, (int) x, (int) y, (int) z);
+        } catch (Throwable throwable) {
+            SAOAgent.log("worldInspectContainer threw: " + throwable);
+            return "FAILED";
+        }
+    }
+
     /** [C62] Resolve an observed source revision to a native interaction tile. */
     public String worldSourceActionTarget(Object object, String sourceId,
             String fingerprint, String revision, double itemId, String itemType,
@@ -3576,6 +3653,20 @@ public final class SAOBridge {
         return object instanceof SAOIsoPlayerShell;
     }
 
+    /** Native inventory-transfer facing, independent of a player loot panel. */
+    public boolean faceTransferContainer(Object object, Object container) {
+        try {
+            if (!(object instanceof SAOIsoPlayerShell shell)
+                    || !(container instanceof zombie.inventory.ItemContainer source)) return false;
+            zombie.iso.IsoObject parent = source.getParent();
+            if (parent != null && !shell.isSittingOnFurniture()) shell.faceThisObject(parent);
+            return true;
+        } catch (Throwable error) {
+            SAOAgent.log("transfer facing refused: " + error);
+            return false;
+        }
+    }
+
     /** A live owned shell whose native world attachment has ended. Native chunk
      * unloading removes the body from the cell and clears its current square.
      * A missing square alone also occurs during admission or movement, while a
@@ -3600,6 +3691,9 @@ public final class SAOBridge {
     // ------------------------------------------------------------------
 
     private static void removeShellInternal(SAOIsoPlayerShell shell) throws java.io.IOException {
+        // Spawn rollback enters here directly, before a body is published to
+        // the Lua owner. Every teardown path must suppress native updates.
+        shell.removalPending = true;
         try {
             clearMovementIntent(shell);
         } catch (Throwable ignored) {
@@ -3608,7 +3702,9 @@ public final class SAOBridge {
         com.sao.engine.SAONativeSnapshot.unregister(shell);
         ModelManager.instance.Remove((IsoGameCharacter) shell);
         shell.setMovingSquare(null);
+        shell.removeFromSquare();
         shell.removeFromWorld();
+        shell.retireNativeDescriptor();
     }
 
     /**

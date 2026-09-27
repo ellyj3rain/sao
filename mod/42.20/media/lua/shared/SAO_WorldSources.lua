@@ -52,6 +52,11 @@ end
 local loadedSeen = {}
 local pendingLoads = {}
 local loadTick = 0
+-- Body lifetime lives in the JVM's weak-key owner; Kahlua weak tables are not
+-- implemented. Its data-only table holds selections and bounded refusals.
+local inspectionEpoch = 0
+local MAX_INSPECTION_FAILURES = 16
+local INSPECTION_RETRY_HOURS = 0.25
 
 local function log(message)
     if SAO.Log and SAO.Log.line then
@@ -1349,6 +1354,193 @@ local function transferPlace(actorId, source)
         maxX = source.x + 1, maxY = source.y + 1 }
 end
 
+local function inspectionActor(actorId, body)
+    local record = SAO.Identity and SAO.Identity.get and SAO.Identity.get(actorId)
+    local live = SAO.Body and SAO.Body.get and SAO.Body.get(actorId)
+    return record and not record.dead and not record.worldSourceReservation
+        and body and live == body
+end
+
+local function inspectionRuntime(body)
+    if not body or not SAOJavaBridge then return nil end
+    local ok, memory = pcall(function() return SAOJavaBridge:worldInspectionMemory(body) end)
+    if not ok or type(memory) ~= "table" then return nil end
+    if memory.epoch ~= inspectionEpoch then
+        memory.pending, memory.failures, memory.epoch = nil, {}, inspectionEpoch
+    end
+    return memory
+end
+
+local function inspectionRows(text)
+    if type(text) ~= "string" or #text > 262144
+        or string.sub(text, 1, 20) ~= "H|protocol=SAOWI1\nC|"
+            and text ~= "H|protocol=SAOWI1\nE\n" then return nil end
+    local rows, ended = {}, false
+    local allowed = { id = true, fp = true, sx = true, sy = true, sz = true,
+        x = true, y = true, z = true, reachable = true }
+    local ids = {}
+    for line in string.gmatch(string.sub(text, 18), "[^\n]+") do
+        if ended then return nil end
+        if line == "E" then ended = true
+        else
+            if string.sub(line, 1, 2) ~= "C|" or #rows >= MAX_ACTION_OPTIONS then return nil end
+            local row, count = {}, 0
+            for part in string.gmatch(string.sub(line, 3), "[^|]+") do
+                local key, encoded = string.match(part, "^([^=]+)=(.*)$")
+                if not key or not allowed[key] or row[key] ~= nil then return nil end
+                if string.find(string.gsub(encoded, "%%(%x%x)", ""), "%", 1, true) then return nil end
+                row[key], count = decode(encoded), count + 1
+            end
+            if count ~= 9 or not row.id or #row.id > 512
+                or string.sub(row.id, 1, 2) ~= "C:" or ids[row.id]
+                or string.find(row.id, "[%z\1-\31]")
+                or not row.fp or #row.fp ~= 64 or string.find(row.fp, "[^%x]")
+                or (row.reachable ~= "0" and row.reachable ~= "1") then return nil end
+            for _, key in ipairs({ "sx", "sy", "x", "y" }) do
+                row[key] = finiteNumber(row[key], -10000000, 10000000, true)
+                if row[key] == nil then return nil end
+            end
+            for _, key in ipairs({ "sz", "z" }) do
+                row[key] = finiteNumber(row[key], -1000, 1000, true)
+                if row[key] == nil then return nil end
+            end
+            if row.z ~= row.sz or math.abs(row.x - row.sx) > 1
+                or math.abs(row.y - row.sy) > 1 then return nil end
+            ids[row.id], rows[#rows + 1] = true, row
+        end
+    end
+    return ended and rows or nil
+end
+
+local function personallyInspected(known, row)
+    for _, place in pairs(known or {}) do
+        local fact = place.sourceFacts and place.sourceFacts[row.id]
+        if fact and fact.fingerprint == row.fp and fact.explored
+            and (fact.state == "available" or fact.state == "spent") then return true end
+    end
+    return false
+end
+
+-- A visible holder is an affordance, never an inference about its stock.
+function WS.inspectionCandidate(actorId, body, admission, radius)
+    actorId, admission = tostring(actorId or ""), tostring(admission or "standing")
+    if not inspectionActor(actorId, body) then return nil, "no-live-body" end
+    local memory = inspectionRuntime(body)
+    if not memory then return nil, "inspection-unavailable" end
+    memory.pending = nil
+    local value = store()
+    if not value or not SAOJavaBridge or not SAO.Perception
+        or not SAO.Perception.knownPlaces or not SAO.Perception.learnInspectedSource then
+        return nil, "inspection-unavailable"
+    end
+    radius = finiteNumber(radius or 12, 1, 14, true)
+    if not radius then return nil, "bad-radius" end
+    local ok, text = pcall(function() return SAOJavaBridge:worldInspectionCandidates(body, radius) end)
+    local rows = ok and inspectionRows(text) or nil
+    if not rows then return nil, "native-inspection-refused" end
+    local known = SAO.Perception.knownPlaces(actorId, true)
+    local failures, hours = memory.failures, nowHours()
+    for _, row in ipairs(rows) do
+        local failure = failures[row.id .. "|" .. row.fp]
+        local delayed = failure and hours < failure.retryAtHours and row.reachable ~= "1"
+        if not delayed and not personallyInspected(known, row)
+            and not value.conflictBySource[row.id] and not pendingFor(value, row.id, nil)
+            and SAO.Standing and SAO.Standing.mayTakeCurrent
+            and SAO.Standing.mayTakeCurrent(actorId, row.sx, row.sy, admission) then
+            local context = { actorId = actorId, admission = admission,
+                sourceId = row.id, fingerprint = row.fp,
+                sourceX = row.sx, sourceY = row.sy, sourceZ = row.sz,
+                x = row.x, y = row.y, z = row.z }
+            memory.pending = context
+            return context
+        end
+    end
+    return nil, "no-uninspected-holder"
+end
+
+local INSPECTION_ACCESS_FAILURE = {
+    ["done:Failed"] = true, ["done:stalled:ManualRoute"] = true,
+    ["done:FailedObstacle:FAILED_BLOCKED_DIAGONAL"] = true,
+    ["done:FailedObstacle:FAILED_LOCKED_DOOR"] = true,
+    ["done:FailedObstacle:FAILED_BARRICADED_DOOR"] = true,
+    ["done:FailedObstacle:FAILED_BARRICADED_WINDOW"] = true,
+    ["done:FailedObstacle:FAILED_BLOCKED_WINDOW"] = true,
+    ["done:FailedObstacle:FAILED_WINDOW_DECLINED"] = true,
+    ["done:FailedObstacle:FAILED_EDGE_COOLDOWN"] = true,
+    ["done:FailedObstacle:FAILED_UNSUPPORTED_Z_CHANGE"] = true,
+}
+
+function WS.inspectionFailed(actorId, body, context, reason)
+    local memory = inspectionRuntime(body)
+    if not memory or memory.pending ~= context or not context
+        or context.actorId ~= tostring(actorId or "") then return false end
+    memory.pending = nil
+    if not INSPECTION_ACCESS_FAILURE[tostring(reason)]
+        or not inspectionActor(context.actorId, body) then return false end
+    local failures = memory.failures
+    local key, hours = context.sourceId .. "|" .. context.fingerprint, nowHours()
+    local previous = failures[key]
+    local attempts = math.min(4, (previous and previous.attempts or 0) + 1)
+    local count, oldestKey, oldest = 0, nil, nil
+    for id, failure in pairs(failures) do
+        count = count + 1
+        if not oldest or failure.atHours < oldest.atHours then oldestKey, oldest = id, failure end
+    end
+    if not previous and count >= MAX_INSPECTION_FAILURES then failures[oldestKey] = nil end
+    failures[key] = { attempts = attempts, atHours = hours,
+        retryAtHours = hours + INSPECTION_RETRY_HOURS * attempts,
+        x = context.x, y = context.y, z = context.z }
+    return true
+end
+
+function WS.inspectContainer(actorId, body, context)
+    actorId = tostring(actorId or "")
+    local memory = inspectionRuntime(body)
+    if not memory or not context or memory.pending ~= context
+        or context.actorId ~= actorId then return false, "not-offered" end
+    memory.pending = nil
+    if not inspectionActor(actorId, body) then return false, "no-live-body" end
+    local value = store()
+    if not value or pendingFor(value, context.sourceId, nil)
+        or value.conflictBySource[context.sourceId] then return false, "source-pending" end
+    if not (SAO.Standing and SAO.Standing.mayTakeCurrent
+        and SAO.Standing.mayTakeCurrent(actorId, context.sourceX, context.sourceY,
+            context.admission)) then return false, "current-claim-refused" end
+    if not SAO.Perception or not SAO.Perception.learnInspectedSource then
+        return false, "private-inspection-unavailable"
+    end
+    local ok, text = pcall(function()
+        return SAOJavaBridge:worldInspectContainer(body, context.sourceId,
+            context.fingerprint, context.sourceX, context.sourceY, context.sourceZ)
+    end)
+    if not ok or type(text) ~= "string" then return false, "native-inspection-refused" end
+    local encodedId, bodyText = string.match(text, "^I|source=([^\r\n]+)\n(.*)$")
+    local snapshot = bodyText and WS.parse(bodyText) or nil
+    local source = snapshot and snapshot.sources[context.sourceId]
+    if not encodedId or decode(encodedId) ~= context.sourceId
+        or not snapshot or snapshot.header.status ~= "OBSERVED"
+        or not source or source.kind ~= "container" or not source.explored
+        or source.fingerprint ~= context.fingerprint
+        or source.x ~= context.sourceX or source.y ~= context.sourceY or source.z ~= context.sourceZ
+        or math.floor(source.x / CHUNK_SIZE) ~= snapshot.header.cx
+        or math.floor(source.y / CHUNK_SIZE) ~= snapshot.header.cy
+        or (source.state ~= "available" and source.state ~= "spent") then
+        return false, "native-inspection-refused"
+    end
+    if not WS.applySnapshot(snapshot, nil, context.sourceId)
+        or value.conflictBySource[context.sourceId] then return false, "native-source-conflict" end
+    local learned = false
+    local learnedOk = pcall(function()
+        local tick = SAO.History and SAO.History.ticksFromHours
+            and SAO.History.ticksFromHours(nowHours()) or nil
+        learned = SAO.Perception.learnInspectedSource(actorId,
+            transferPlace(actorId, source), context.sourceId, tick, "native-container-inspection")
+    end)
+    if not learnedOk or not learned then return false, "private-inspection-unavailable" end
+    memory.failures[context.sourceId .. "|" .. context.fingerprint] = nil
+    return true, "inspected"
+end
+
 -- Native inspection admits one exact reachable item/holder proposal. Applying
 -- its complete chunk snapshot keeps physical truth coherent; only that source
 -- enters this person's private belief and offered options.
@@ -2200,6 +2392,7 @@ function WS.resetRuntime()
     loadedSeen = {}
     pendingLoads = {}
     loadTick = 0
+    inspectionEpoch = inspectionEpoch + 1
 end
 
 if Events and Events.LoadGridsquare then

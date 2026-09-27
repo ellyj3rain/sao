@@ -63,6 +63,33 @@ end)
 local started = nil
 local finished = false
 local captured = false
+local lastWallCheck = 0
+local function wallLimit()
+    if not started or finished then return end
+    if not RunConfig.wallDeadlineUnixMs and not RunConfig.stopFile then return end
+    local now = getTimestampMs()
+    if now - lastWallCheck < 250 then return end
+    lastWallCheck = now
+    if RunConfig.wallDeadlineUnixMs and now >= RunConfig.wallDeadlineUnixMs then
+        finished = true
+        print("[StudyLaunch] wall-limit attempt=" .. RunConfig.attempt .. " save=" .. getWorld():getWorld()
+            .. " start=" .. tostring(started) .. " end=" .. tostring(getGameTime():getWorldAgeHours()))
+        getCore():quitToDesktop()
+        return
+    end
+    if RunConfig.stopFile then
+        local reader = getFileReader(RunConfig.stopFile, false)
+        if reader then
+            local reason = reader:readLine()
+            reader:close()
+            if reason then
+                finished = true
+                print("[StudyLaunch] supervisor-stop attempt=" .. RunConfig.attempt .. " reason=" .. tostring(reason))
+                getCore():quitToDesktop()
+            end
+        end
+    end
+end
 Events.OnGameStart.Add(function()
     launchPlayer = assert(getSpecificPlayer(0), "native launch-slot character unavailable")
     if RunConfig.observer then
@@ -71,6 +98,7 @@ Events.OnGameStart.Add(function()
         assert(not ZAO or (ZAO.Participants and ZAO.Participants.player(0) == nil),
             "observer admitted as ZAO participant")
         launchPlayer:getModData().SAO_ObserverStarted = true
+        if SAO.Observation then SAO.Observation.enable() end
         UIManager.setVisibleAllUI(false)
         print("[StudyLaunch] nonparticipating observer started")
     else
@@ -82,6 +110,8 @@ Events.OnGameStart.Add(function()
 end)
 Events.OnTick.Add(function()
     if not started or finished then return end
+    wallLimit()
+    if finished then return end
     local elapsed = getGameTime():getWorldAgeHours() - started
     if RunConfig.captureName and not captured and elapsed >= math.min(0.01, RunConfig.hours / 2) then
         captured = true
@@ -95,3 +125,6 @@ Events.OnTick.Add(function()
         .. " start=" .. tostring(started) .. " end=" .. tostring(getGameTime():getWorldAgeHours()))
     getCore():quitToDesktop()
 end)
+-- The installed game fires this only in its paused branch. OnTick handles
+-- running time; both paths share the same real-time limit and exit latch.
+Events.OnTickEvenPaused.Add(wallLimit)

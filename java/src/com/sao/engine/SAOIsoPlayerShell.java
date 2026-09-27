@@ -7,6 +7,7 @@ import zombie.characters.SurvivorDesc;
 import zombie.characters.component.CharacterInputComponent;
 import zombie.iso.IsoCell;
 import zombie.iso.IsoCamera;
+import zombie.iso.IsoWorld;
 import zombie.iso.Vector2;
 
 /**
@@ -31,6 +32,10 @@ public final class SAOIsoPlayerShell extends IsoPlayer {
     private static Field cameraCharacterField;
 
     private final CharacterInputComponent isolatedInput = new CharacterInputComponent();
+    // Both SAO producers pass a freshly created native descriptor. Keep that
+    // exact ownership even if a later native load replaces getDescriptor().
+    private final SurvivorDesc ownedDescriptor;
+    private final IsoWorld descriptorWorld;
 
     /** [C29] The body's size, 1 for an adult. Read on the render path by
      *  SAOBodyScale after the animation player builds this body's model
@@ -51,6 +56,25 @@ public final class SAOIsoPlayerShell extends IsoPlayer {
 
     public SAOIsoPlayerShell(IsoCell cell, SurvivorDesc desc, int x, int y, int z) {
         super(cell, desc, x, y, z, false);
+        ownedDescriptor = desc;
+        descriptorWorld = IsoWorld.instance;
+    }
+
+    /** End this transient body's registration only after native teardown. */
+    public void retireNativeDescriptor() {
+        IsoCell cell = getCell();
+        if (!removalPending || getCurrentSquare() != null || isAddedToModelManager()
+                || (cell != null && (cell.getObjectList().contains(this)
+                    || cell.getAddList().contains(this)))) {
+            throw new IllegalStateException("Shell remains attached during descriptor retirement");
+        }
+        if (ownedDescriptor != null && ownedDescriptor.getInstance() == this) {
+            IsoGameCharacter.getSurvivorMap().remove(ownedDescriptor.getID(), ownedDescriptor);
+            if (descriptorWorld != null) {
+                descriptorWorld.survivorDescriptors.remove(ownedDescriptor.getID(), ownedDescriptor);
+            }
+            ownedDescriptor.setInstance(null);
+        }
     }
 
     @Override

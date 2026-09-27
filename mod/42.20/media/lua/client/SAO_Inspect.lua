@@ -83,6 +83,23 @@ function SAOInspectWindow:build()
         rows[#rows + 1] = { kind = "row", text = text }
     end
 
+    if SAO.Observation and SAO.Observation.isEnabled() then
+        local snapshot = SAO.Observation.snapshot()
+        header("Person " .. tostring(Ins.selectedId or "unselected"))
+        row(tostring(snapshot.status) .. ": " .. tostring(snapshot.message))
+        local detail = SAO.Observation.detail(Ins.selectedId)
+        for _, section in ipairs(detail and detail.sections or {}) do
+            header(section.label)
+            if section.message ~= "" then row(section.message) end
+            for _, value in ipairs(section.rows) do row(value.label .. ": " .. value.value) end
+        end
+        header("Recorded execution events")
+        for _, event in ipairs(detail and detail.events or {}) do
+            row(tostring(event.worldHours) .. " " .. event.source .. " / " .. event.stage .. ": " .. event.summary)
+        end
+        return rows, { id = Ins.selectedId, observationSequence = snapshot.sequence }
+    end
+
     -- The county, counted the way the boot digest counts it.
     local living, dead = 0, 0
     for _, r in pairs(SAO.Identity.all()) do
@@ -593,6 +610,21 @@ function Ins.show(id)
         and SAOInspectWindow.instance:isVisible()) then
         SAOInspectWindow.toggle()
     end
+    return SAOInspectWindow.instance ~= nil and SAOInspectWindow.instance:isVisible() == true
+end
+
+function Ins.hide()
+    if SAOInspectWindow.instance then
+        SAOInspectWindow.instance:setVisible(false)
+        SAOInspectWindow.instance:removeFromUIManager()
+        SAOInspectWindow.instance = nil
+    end
+    return true
+end
+
+function Ins.nativePanel()
+    local window = SAOInspectWindow.instance
+    return window and window:isVisible() and window.javaObject or nil
 end
 
 -- The bound key ([C6]): normal launch, the options screen owns the

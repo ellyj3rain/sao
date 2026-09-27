@@ -1,6 +1,6 @@
 | Document | Survivor Awareness Overhaul Architecture |
 |---|---|
-| Version | `2.11.0.0-pre-alpha` |
+| Version | `2.11.1.0-pre-alpha` |
 | Author | ellyj3rain |
 | Repository | `ARCHITECTURE.md` |
 | Status | ACTIVE - ratified framework shape. |
@@ -64,6 +64,14 @@ certifies the whole loaded tile on its recorded floor as visible. Hidden,
 unloaded and unknown-floor memories retain uncertainty and ordinary expiry;
 explicit phantom beliefs retain their separate owner.
 
+Place familiarity belongs to the durable person. Every actual co-resident learns
+the existing lived-home record at admission. Native building entry updates visits
+once per entry; positive exterior evidence admits a later reentry, while unknown
+interior binding preserves continuity. Save/load and dormant/loaded changes keep
+that receipt. Residence and entry provide place knowledge; exact stock still
+requires its separate private source evidence. Building visits and recency retain
+their existing semantics alongside the distinct aging of person and threat facts.
+
 This pillar is the one whose absence produces the characteristic failure of
 existing NPC mods: a decision function that reads the world directly, computes
 against geometry the agent could not know, and so is simultaneously omniscient
@@ -112,6 +120,18 @@ floor, permission or terminal result returns the route to decision. Player
 following preserves a failed movement receipt for its existing obstacle-crossing
 owner; every new crossing still requires current permission. An already-started
 crossing retains its exact body and job owner through completion.
+
+Distant nonoverwhelming danger remains believed while ordinary home, water and
+work routes continue. Close or overwhelming danger retains the person's existing
+flight and engagement policy. An already-owned safe retreat continues beyond its
+trigger distance. Leaving an old alert state preserves source reconciliation and
+does not claim the remaining danger became clear. Native locked/barricaded
+barriers and blocked diagonals have separate verdicts and handling.
+
+Nighttime rest requires actual occupancy of a privately known permitted home or
+the existing admitted claim. Home resolution uses the same household address for
+return and rest. An unadmitted rest does not consume the decision, and awake or
+cold intervals do not earn sleep recovery.
 
 ## Worked example: entry
 
@@ -200,6 +220,29 @@ partial native stop records interruption without need credit, and a completed
 effect publishes one pre/post-revision receipt and stamps that actor's food or
 water day. Completed receipts remain in durable order until the provisioning
 consumer acknowledges them idempotently.
+
+C87 connects loaded static-container inspection to that same private source
+record. Java offers visible holder identities and native approach squares;
+contents remain unknown until the actual actor reaches and inspects the exact
+holder. The installed native loot owner fills an unopened container once.
+WorldSources publishes the resulting physical source, and Perception admits
+only that inspected source to that person's memory. PrivateInventory exposes
+current static-container stock only through the body's own inspection or an
+exact remembered fingerprint and revision. A shared native explored flag alone
+does not authorize another actor's decision query. Pending inspection and
+bounded failed approaches have native weak body ownership and scalar state.
+Controller returns from inspection to need selection; SourceUse retains
+acquisition and completion authority.
+
+Direct fixture drinking retains its native IsoObject owner. The clean-water
+predicate includes municipal and reserve supplies, and immediate reach follows
+the installed corrected fixture square and native canReachTo rule. A currently
+usable source precedes a source requiring an approach; an at-hand drink enters
+the verified native queue directly. Terminal failures suppress only that
+body's exact attempted fixture for a bounded county-time interval. Native
+reach or expiry reopens consideration. Selection and terminal diagnostics name
+the actual fixture, while Controller preserves the transfer owner's refusal
+reason separately from a successful route arrival.
 
 C63-C64 consume that result without turning it into an authored outcome. At final
 native binding, an exact source inside the actor's current group claim captures
@@ -845,6 +888,13 @@ the same process record. Afflicted and Crossed keep the human identity/shell;
 ZAO supplies the state-specific external activity/capability snapshot and
 performs supported movement/work. SAO's communication, SourceUse, Handover and
 Locomotion remain services, not a second actor planner.
+
+An unsuccessful movement attempt retains its exact outcome and pauses the
+accepted responsibility. Bounded reappraisal compares the private source facts,
+approach and target rather than rescan timestamps. Other accepted work may proceed
+while one responsibility waits. Reconstructed bodies reestablish their native
+source cache before acquisition; withdrawal, death and supersession still stop
+execution. Arrival supplies no acquisition or delivery credit.
 
 C80 applies the same boundary to return and ordinary state activity. A returned
 Afflicted body is never enrolled in `SAO_Controller`; ZAO accepts the loaded

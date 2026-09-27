@@ -583,6 +583,24 @@ public final class SAOPerceptionScanner {
             ? square : null;
     }
 
+    /** The same personal sight policy used for witnessed world interactions. */
+    static boolean canSeeWorldSquareNow(IsoGameCharacter observer,
+            IsoGridSquare target, float range) {
+        try {
+            return awakeHuman(observer) && target != null
+                && observer.getCurrentSquare() != null
+                && target.getCell() == observer.getCell()
+                && observer.getCell().getGridSquare(target.getX(), target.getY(),
+                    target.getZ()) == target
+                && Float.isFinite(range) && range >= 0.0f
+                && Float.isFinite(observer.getForwardDirectionX())
+                && Float.isFinite(observer.getForwardDirectionY())
+                && visibleWorldPoint(observer, target, Math.min(RANGE, range));
+        } catch (Throwable unavailable) {
+            return false;
+        }
+    }
+
     private static boolean visibleWorldPoint(IsoGameCharacter observer,
             IsoGridSquare target, float range) {
         return visibleTransferPoint(observer, target, target.getX() + 0.5f,

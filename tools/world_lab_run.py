@@ -17,10 +17,12 @@ import sqlite3
 import struct
 import subprocess
 import sys
+import time
 import uuid
 import zlib
 
 import world_lab as Lab
+import world_lab_supervision as Supervision
 
 
 def digest(path):
@@ -107,17 +109,29 @@ def terminal(log, attempt, save, hours, watch=False):
     starts = list(Lab.re.finditer(prefix + r"started attempt=(\d+) save=(\S+) hours=([\d.eE+-]+)", log))
     ends = list(Lab.re.finditer(prefix + r"horizon attempt=(\d+) save=(\S+) start=([\d.eE+-]+) end=([\d.eE+-]+)", log))
     returned = list(Lab.re.finditer(prefix + r"native-save-returned attempt=(\d+)", log))
+    budgets = list(Lab.re.finditer(prefix + r"wall-limit attempt=(\d+) save=(\S+) start=([\d.eE+-]+) end=([\d.eE+-]+)", log))
     if watch:
         stops = list(Lab.re.finditer(r"\[StudyObserver\] stop hours=([\d.eE+-]+)", log))
-        Lab.require(len(starts) == len(stops) == len(returned) == 1 and not ends,
+        Lab.require(len(starts) == len(stops) + len(budgets) == len(returned) == 1 and not ends,
                     "native observer stop receipt missing or duplicated")
+        if budgets:
+            start, end, saved = starts[0], budgets[0], returned[0]
+            first, last = float(start[3]), float(end[4])
+            Lab.require(int(start[1]) == int(end[1]) == int(saved[1]) == attempt
+                        and start[2] == end[2] == save and float(end[3]) == first
+                        and start.start() < end.start() < saved.start(), "native wall-limit identity or order differs")
+            Lab.number(first, 0, 1e9, "start hours")
+            Lab.number(last, first, 1e9, "terminal hours")
+            return {"startHours": first, "endHours": last, "nativeSaveReturned": True,
+                    "stopReason": "wall-time-limit"}
         start, stop, saved = starts[0], stops[0], returned[0]
         first, last = float(start[3]), float(stop[1])
         Lab.require(int(start[1]) == int(saved[1]) == attempt and start[2] == save
                     and start.start() < stop.start() < saved.start(), "native stop identity or order differs")
         Lab.number(last, first, 1e9, "terminal hours")
         return {"startHours": first, "endHours": last, "nativeSaveReturned": True}
-    Lab.require(len(starts) == len(ends) == len(returned) == 1, "native terminal receipt missing or duplicated")
+    Lab.require(len(starts) == len(ends) == len(returned) == 1 and not budgets,
+                "native terminal receipt missing or duplicated")
     start, end, saved = starts[0], ends[0], returned[0]
     Lab.require(int(start[1]) == int(end[1]) == int(saved[1]) == attempt
                 and start[2] == end[2] == save and start.start() < end.start() < saved.start(),
@@ -131,7 +145,7 @@ def terminal(log, attempt, save, hours, watch=False):
 
 def runtime_errors(log, errors):
     found = [line.strip() for line in errors.splitlines()
-             if "Lua fail." in line or "Exception" in line or "[Byte Buddy] ERROR" in line]
+             if "Lua fail." in line or "Exception" in line or "OutOfMemoryError" in line or "[Byte Buddy] ERROR" in line]
     found += [line.strip() for line in log.splitlines()
               if "ExceptionLogger" in line or "[StudyWorld] stopped" in line or "[StudyObserver] FAILED" in line]
     return found
@@ -386,6 +400,8 @@ def run(args):
     config = {"mapName": manifest["mapName"], "origin": {k: origin[k] for k in ("x", "y", "z")},
               "hours": args.hours, "attempt": receipt["launchNumber"],
               "observer": args.host == "observer", "watch": args.watch,
+              "wallDeadlineUnixMs": int(time.time() * 1000) + args.timeout * 1000,
+              "stopFile": f"StudyRunnerStop{receipt['launchNumber']:04d}.txt",
               "captureName": f"study-attempt-{receipt['launchNumber']:04d}.png"}
     if previous is not None:
         config["resumeSave"] = previous["save"]
@@ -436,19 +452,15 @@ def run(args):
         startup.dwFlags |= subprocess.STARTF_USESHOWWINDOW
         startup.wShowWindow = 0
     before_observations = set((cache / "Lua/StudyWorld").rglob("*.json"))
-    with (attempt / "stdout.log").open("wb") as output, (attempt / "stderr.log").open("wb") as errors:
-        process = subprocess.Popen(command, cwd=game, stdout=output, stderr=errors, startupinfo=startup)
+    with (attempt / "stdout.log").open("wb") as output, (attempt / "stderr.log").open("wb") as errors, \
+            Supervision.owned_child(command, cwd=game, stdout=output, stderr=errors, startupinfo=startup) as process:
         receipt.update(pid=process.pid, status="running")
         publish(destination / "run.json", receipt)
         print(json.dumps({"pid": process.pid, "run": str(destination), "status": "running"}), flush=True)
-        try:
-            code = process.wait(timeout=None if args.watch else args.timeout)
-        except subprocess.TimeoutExpired:
-            process.terminate()
-            process.wait(timeout=30)
-            receipt.update(status="timed-out", exitCode=process.returncode)
-        else:
-            receipt.update(status="exited", exitCode=code)
+        supervision = Supervision.supervise(process, attempt, cache / "Lua" / config["stopFile"],
+                                            args.timeout, args.host == "observer")
+        receipt.update(supervision=supervision, exitCode=process.returncode,
+                       status="timed-out" if supervision["forced"] else "exited")
     observations = sorted(set((cache / "Lua/StudyWorld").rglob("*.json")) - before_observations)
     receipt["observationFiles"] = len(observations)
     receipt["saveFiles"] = {p.relative_to(cache).as_posix(): digest(p)
@@ -456,6 +468,8 @@ def run(args):
     log = (attempt / "stdout.log").read_text(encoding="utf-8", errors="replace")
     errors = (attempt / "stderr.log").read_text(encoding="utf-8", errors="replace")
     receipt["runtimeErrors"] = runtime_errors(log, errors)
+    if supervision["failure"]:
+        receipt["runtimeErrors"].append("run supervision: " + supervision["failure"])
     receipt["logs"] = {name: digest(attempt / name) for name in ("stdout.log", "stderr.log")}
     receipt["nativeImages"] = {p.relative_to(cache).as_posix(): digest(p)
                               for p in (cache / "Screenshots").glob(config["captureName"]) if p.is_file()}
@@ -517,10 +531,11 @@ def main():
                         help="with --resume, preserve the deceased database and create a native replacement character")
     parser.add_argument("--hours", type=float, default=1)
     parser.add_argument("--host", choices=("observer", "player"), default="observer")
-    parser.add_argument("--watch", action="store_true", help="observe until a native stop command; no automatic horizon or timeout")
+    parser.add_argument("--watch", action="store_true", help="observe until a native stop command or the wall-time limit")
     parser.add_argument("--window", choices=("visible", "hidden"), default="visible",
                         help="use the native game renderer visibly, or keep its window hidden for batch runs")
-    parser.add_argument("--timeout", type=int, default=600)
+    parser.add_argument("--timeout", type=int, default=600,
+                        help="wall-time limit in seconds for every run, including --watch (default: 600)")
     args = parser.parse_args()
     if args.verify:
         print(json.dumps(verify_run(args.out, args.package), allow_nan=False))

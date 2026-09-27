@@ -1,0 +1,2043 @@
+{
+  "schema": "sao.c87-verification/1",
+  "recordedAtUtc": "2026-09-27T01:22:34.329680+00:00",
+  "sourceSha256": {
+    "java/dist/SAOAgent.jar": "ce5479c10bc94f43dd4dd90c5330094ce139cd2e5be4bcefa9102fabccc2705d",
+    "java/src/com/sao/bridge/SAOBridge.java": "0ca77dee68ff1d944312bf3e389d3ee89bf0c6dcb31ea85c9e18bc6c98495249",
+    "java/src/com/sao/engine/SAOEquipment.java": "1061d4ecf208c9b3ae7e8b9743d2545339b25efade6165c0f39a153f23a3a2dc",
+    "java/src/com/sao/engine/SAOIsoPlayerShell.java": "d152c6342a6d7cfa82b09ac208c622ca88fac3e9e28ad1256479c171b9aac6fe",
+    "java/src/com/sao/engine/SAOMovement.java": "1eed99c33e075f034e737a6eb2c78802f3953b06dd88eb5b98a0f2c4e81123c2",
+    "java/src/com/sao/engine/SAONeeds.java": "afd76084c8ce04f02827a6069d37a170b1faba23db5ef36ed1ea373ca8565fa2",
+    "java/src/com/sao/engine/SAOPerceptionScanner.java": "6feea537186f3f1708e8cbc285258f0c942b9942f1b1527d2e74b6452c8cda11",
+    "java/src/com/sao/engine/SAOPrivateInventory.java": "0bebc9ab7c010bf668872a684dc101e96b5dbe3293a29ebd4f978c1c6f93bf89",
+    "java/src/com/sao/engine/SAOReturnBody.java": "7d393f431e64e5e9ac3b3ed0d8b76aebb3efb022fe20383fba0750eda768efdc",
+    "java/src/com/sao/engine/SAORouteState.java": "7fc0130999e0b26c45d399b47f780be3e4b581f8dcc675192984b3fa12268068",
+    "java/src/com/sao/engine/SAOWorldSources.java": "25c9afb6eba995373561347e8b68c81c5c2e35bd6b3d516d61f2fd002dfd0fcb",
+    "mod/42.20/media/java/SAO.jar": "ce5479c10bc94f43dd4dd90c5330094ce139cd2e5be4bcefa9102fabccc2705d",
+    "mod/42.20/media/lua/client/SAO_Body.lua": "3ebc6440731e709f5a6b8f07173539939a95a41715a81d872e4e83b247697937",
+    "mod/42.20/media/lua/client/SAO_Controller.lua": "feeea135512a0610e79bcd4cafdee2b7b86fa43113b7b3527b35fb11b9edf126",
+    "mod/42.20/media/lua/client/SAO_Inspect.lua": "2d841c709b85649a440ccbaac0dc8dddca39d750ca2099cf0279d89c57f6d14b",
+    "mod/42.20/media/lua/client/SAO_Locomotion.lua": "1028d023a4c539329fd9a4c52df685950c1b449b0ec08e0b8de6234b0c253a9b",
+    "mod/42.20/media/lua/client/SAO_Needs.lua": "3c9f8dbbe04b48b30fe78a6c1ca92f0203ba1d8bed654c21740dcd9c86f6cccd",
+    "mod/42.20/media/lua/client/SAO_Observation.lua": "c54f893bc4207448d60f8b3aa85db407e63077d348901b5c79916257f7634fd6",
+    "mod/42.20/media/lua/client/SAO_PopulationAdmissions.lua": "532e6751dd50d9b79cd814a49833870ec0a05860d0ab165fd17522d12388ff56",
+    "mod/42.20/media/lua/client/SAO_Voice.lua": "3333103a19427fbace1dcb8d04e8ecac8d5a3d20fe0f78f0a8c3672d8d72066b",
+    "mod/42.20/media/lua/shared/SAO_Organization.lua": "ef5514d150465c45e94ba562d15868271d00b5112a9e212a24b77cb3d3323f0a",
+    "mod/42.20/media/lua/shared/SAO_Perception.lua": "616eb8b7d3180c37a3259bf29acbf18cf69ba9e88e35784f073596ca1fcdc3ba",
+    "mod/42.20/media/lua/shared/SAO_WorldSources.lua": "8110c4421510202b213f272efe4fcc45861bb41c16d20d29ff8ab8ae89e7b8c0",
+    "mod/42.20/mod.info": "ebc2ef5fbc743e2bb5ec880d386ab87c45f5db767f2ceb36408ed4452e29db90",
+    "mod/mod.info": "ebc2ef5fbc743e2bb5ec880d386ab87c45f5db767f2ceb36408ed4452e29db90",
+    "tools/check.sh": "9fb74586775d039cc2b26ecfdf8bc6196109aecbf6cfd73855bc6abed7686283",
+    "tools/combat_perception_test.py": "77df73e52c0843c5eeb592d8366052a279024acb2624fc79a8e5039a6ea3963a",
+    "tools/coordination_execution_test.py": "2df0db6ec1933f7a839d217d7ccbbff19bd69685f353dce35c51c45a5a32a937",
+    "tools/coordination_scene_dump_test.py": "97ba85f514e7119baf9da2c36352cd077e1bb0176a2bb6457f51723446c209e1",
+    "tools/external_life_coordination_test.py": "016ceb1748fe4c7768e021213f18f5962ed75cb1ddddc33a9ace4d2a42f69432",
+    "tools/flee_continuity_test.py": "225d9d9b7380105e73132143ce2db33ccf48ac5bf9603fe25e7588618aa1d115",
+    "tools/globals_census_test.py": "6bd902d677767310a0e94982c0e16be3274bdd6527cf1e29e680ca5454b1c94b",
+    "tools/luacheck/ContainerInspectionProbe.java": "fe1d15b229a864291c0b04c37da4c4fc8bf655b44b1bfcfa01bd251ab59f8457",
+    "tools/luacheck/MovementCrossingProbe.java": "ca9dbe9c356c98ff40e6aa63d577fd2ace052c139b83fc6f43664701fd2f1bd1",
+    "tools/luacheck/ObservationHealthProbe.java": "516d2aec8a3cc8c717c4f82384d1bd452b23e988217da2a43439230364f4e92f",
+    "tools/luacheck/ResourceApproachProbe.java": "fb4aae58f6d5bbb61d6327b1b7a0330b7ebcf1111e5baa9a98f27d7c0bd84013",
+    "tools/luacheck/WaterApproachProbe.java": "c04dfdb6101ade6c0b8f2e14556f21e07cb157cd1aa621ebdd87fc33edc58b18",
+    "tools/luacheck/WaterRouteChecks.lua": "d35e1362e96f3b7b84491176e37e68ab0779fe7ba32c4752fc5149bd5f5911a2",
+    "tools/luacheck/WeaponEligibilityProbe.java": "178ce81ed3ed8f641d4e3ad6cbce199918609b0923e0628f8a5827ed428f60a5",
+    "tools/observation_test.py": "97d99451db1070af2ab9194cc9a5ee059515b4268869016358e22cfd485918a9",
+    "tools/person_handoff_test.py": "d55cd37da20b617368978687239fe74b21195d272265de1944d14015823a3208",
+    "tools/places_test.py": "f9516bd927673a57c6bddb26344514f17089baf7d3cc4768656aa0f312fa0348",
+    "tools/private_inventory_test.py": "3f4aa386e12969bce7446b486575eadd2bd736bd48e1d4ca0c48859c22eea527",
+    "tools/resource_approach_test.py": "c9495646daba7cb5348e5c2022cbb11c6339195c9d05f62d9c1d76cf8f316d8e",
+    "tools/seat_and_crossing_test.py": "cd7fa6e9523ce6427a99df48c2552acbeaf77953ff7515bea2a6d04c54c5f1fd",
+    "tools/source_access_test.py": "1f2db881b04e40e2b94ad9cdd633c1d108dd61cef6626b131e791b7830b986d2",
+    "tools/survivor_orders_test.py": "ab57f62620593da0ecfd591c33fa4aa190326d5cc58bcfd4ae0cef1e20661948",
+    "tools/sweep/provisioning_lifecycle_cases.lua": "acaa266450723733576f57524c4d7e16a0d5c36333415d71220822ca15b11194",
+    "tools/version_replay.py": "3ccca11768450b5852d8d0bb2ddc1ef8361b4e36d278b57e806e237b2f3f4e69",
+    "tools/world_before_spawn_test.py": "d4c7058181d015c903ff71907e90b4e61c9bf2d95e3d251a35eb29696ec5e834",
+    "tools/world_lab.py": "718631fcc23508a9d176c3790141c59a820be9960a011a7fadf848f156d20384",
+    "tools/world_lab/EatActionProbe.java": "bca41b6336ca3bb85ed4b0ef0829d806958f7bb6c4c3c8023ace02b11937a44d",
+    "tools/world_lab/LaunchChecks.lua": "9d43ed80b6d0b14754d9e8235033f903a24ed1701106c419273e5d1abab08b09",
+    "tools/world_lab/NativeAuthoredMapProbe.java": "8c7aed7918f87b7ecea8e3c24d3ac6a2389b9317fe2fb0bd9459826e64aad3d5",
+    "tools/world_lab/NativeObserverClockProbe.java": "710bb2347baf6666c54682125e918a7c43186eef1f59e4d8278aa934244d09e3",
+    "tools/world_lab/NativeObserverInspectionProbe.java": "80380a9a8f3a362eb23345e0b94aaff2261519608e0e42f4870a04174ef7de69",
+    "tools/world_lab/NativeObserverProbe.java": "10457639cd5d0bd4ae42b7747f141e33394b16fe61634d3c29d9812bc0b95a1e",
+    "tools/world_lab/NativeObserverZoomProbe.java": "018dddf187829c267c3869deac8d1c6502a6d22c76fa34f913f31196eff53b33",
+    "tools/world_lab/NightRestChecks.lua": "3029a99bba2477cf9a9fd223b969194cb4d40b19eb0c4037003eac0b7d9b8310",
+    "tools/world_lab/README.md": "70fe0135e9b87e06689969e435480c0baf85bea49e6a2785f1fb3e1d0861fdb1",
+    "tools/world_lab/RuntimeChecks.lua": "0504376cb6ab45315305f1eb994dcc7dcfc7e7211c6273521c547a1d8805295e",
+    "tools/world_lab/ShellRetirementProbe.java": "3ceb31f51068322463ddfa1820decd4b1554a39ea39a5717bd2df8b0471373eb",
+    "tools/world_lab/StudyLaunch.lua": "dd2ef8a4111d830c6c45e0b8f01fbf18a4478462a2cb649ce26b01b488cfc905",
+    "tools/world_lab/StudyLoadingAgent.java": "0247f0517c024815a71726c836a0690211e00bec48edbef9153d75bf1dbc65e0",
+    "tools/world_lab/StudyObserver.java": "a4b16439402a50e6ca0b6e2cf4a8108e06a06b5c3c2ce2727c5c229f5a290d86",
+    "tools/world_lab/StudyWorld.lua": "fdcc79d0d36682490394c9705d44e20806a1d6fd7eb806022a3d621ef892eafd",
+    "tools/world_lab/TransferUiChecks.lua": "c60e9180d67a478d6791bd012fda1027faa56e1169667f56dac56e1d296e8191",
+    "tools/world_lab/authored_map.py": "e1fb3f20db0fce7b75917d868ac0e6f23dc562511f43a6dbb745aba1b37d4ea3",
+    "tools/world_lab/definitions/echo-creek-farm-cutoff.json": "d7ed3046f6c45aac385badf3f0bb4908aa54662b58fd6e54ad8c9dd261651b57",
+    "tools/world_lab/definitions/echo-creek-residential.json": "0efe41fd15179ce58722e580a9d60b17a6469bae53870565914624f16af85209",
+    "tools/world_lab/definitions/echo-creek-services.json": "466be531613fc9d3829474a3fc8d9ea95f07d55661d58b413847c8c14c8a81ac",
+    "tools/world_lab/night_rest_checks.py": "af2200dae134de5ba8746beac304624a37380a0f59e3b2b6e8ea64d7c8978812",
+    "tools/world_lab/observer_probe_checks.py": "081445c6e55562e8dac2d3854fc568e807def5b9a9aaa1f9a3252d002f60d6d2",
+    "tools/world_lab/shell_unload_checks.py": "05ceeaafaeee26e703bb1d3bd4b6faa1691f6eb6e9157ad1bda29def97c0c22d",
+    "tools/world_lab/supervision_checks.py": "0b6cab7a075fa12de6da75121c0e42081878a130d51f15c26f5d9c3221b97353",
+    "tools/world_lab/transfer_ui_checks.py": "22228df664ac5bb8b8c4720312c2716c5fd66e642146042029e6d3d9e97f612f",
+    "tools/world_lab_run.py": "4c683af3eec8abe59abd5497750e98fc88dc92820f5a4e672b2340d8f480ab36",
+    "tools/world_lab_supervision.py": "af4fbc57871c035e18a587ed9c05e245e2481751b9b8eaf63e29ce7af6b0e5c1",
+    "tools/world_lab_test.py": "49bade6b09d396a43ac5b090993d096e2c3bb9003eb3d4b09f9cf03b7ad34459"
+  },
+  "mechanicalEvidence": {
+    "native-container-inspection-and-transfer": {
+      "sourceReceiptSha256": "4623a864d4cf32ed349b10a1211ebe96ae5e398f22083ce58eea0b205fc4eb33",
+      "receipt": {
+        "border": 184,
+        "checks": [
+          "read-only owner",
+          "coverage matrix",
+          "protocol",
+          "recursive carriage",
+          "direct parents",
+          "holder surfaces",
+          "aggregate refused",
+          "dormant world unknown",
+          "source identities",
+          "bridge views",
+          "java decisions use view",
+          "lua carried decisions use bridge",
+          "lua root scans removed",
+          "exact dormant radio",
+          "bounded totals refused",
+          "inferred totals retired",
+          "complete claims require coverage"
+        ],
+        "results": [
+          {
+            "case": "production",
+            "passed": true
+          },
+          {
+            "case": "native-inspection",
+            "passed": true
+          },
+          {
+            "case": "inspection-lua",
+            "passed": true
+          },
+          {
+            "case": "omit-private-inspection",
+            "passed": true,
+            "reason": "empty_holder_private_fact"
+          },
+          {
+            "case": "repeat-empty",
+            "passed": true,
+            "reason": "empty_holder_not_repeated"
+          },
+          {
+            "case": "ignore-route-failure",
+            "passed": true,
+            "reason": "failed_holder_not_immediately_reselected"
+          },
+          {
+            "case": "penalize-flee",
+            "passed": true,
+            "reason": "flee_does_not_penalize"
+          },
+          {
+            "case": "leak-on-offer",
+            "passed": true,
+            "reason": "offer_without_knowledge"
+          },
+          {
+            "case": "permission-after-fill",
+            "passed": true,
+            "reason": "permission_rechecked_before_fill"
+          },
+          {
+            "case": "forget-current-coordinates",
+            "passed": true,
+            "reason": "changed_source_receipt_not_taught"
+          },
+          {
+            "case": "teach-all-chunk-holders",
+            "passed": true,
+            "reason": "only_exact_holder_learned"
+          },
+          {
+            "case": "native-square-unsupported-iterator",
+            "passed": true,
+            "reason": "inspected_native_holder_offers_exact_transfer"
+          },
+          {
+            "case": "native-square-unsupported-copy",
+            "passed": true,
+            "reason": "inspected_native_holder_offers_exact_transfer"
+          },
+          {
+            "case": "omit-native-fill",
+            "passed": true,
+            "reason": "native_fill_once"
+          },
+          {
+            "case": "repeat-native-roll",
+            "passed": true,
+            "reason": "repeat_inspection_no_roll"
+          },
+          {
+            "case": "foreign-native-binding",
+            "passed": true,
+            "reason": "foreign_actor_refused"
+          },
+          {
+            "case": "lost-native-reach",
+            "passed": true,
+            "reason": "unreachable_refused"
+          },
+          {
+            "case": "stale-native-object",
+            "passed": true,
+            "reason": "cloned_identity_refused"
+          },
+          {
+            "case": "lost-native-visibility",
+            "passed": true,
+            "reason": "opaque_holder_not_offered"
+          },
+          {
+            "case": "lost-native-reset",
+            "passed": true,
+            "reason": "world_reset_drops_offers"
+          },
+          {
+            "case": "lost-native-lock",
+            "passed": true,
+            "reason": "lock_rechecked_at_inspection"
+          },
+          {
+            "case": "omit-own-inspection-revision",
+            "passed": true,
+            "reason": "own_inspection_admits_direct_food"
+          },
+          {
+            "case": "stale-private-stock-authority",
+            "passed": true,
+            "reason": "stale_private_revision_cannot_reveal_added_stock"
+          },
+          {
+            "case": "drop-existing-private-memory",
+            "passed": true,
+            "reason": "unchanged_private_memory_survives_reset"
+          },
+          {
+            "case": "global-explored-private",
+            "passed": true,
+            "reason": "other_behind_wall_cannot_read_stock"
+          },
+          {
+            "case": "omit-nested",
+            "passed": true,
+            "reason": "nested_loaded"
+          }
+        ],
+        "commands": [
+          {
+            "phase": "compile",
+            "case": "production",
+            "returncode": 0,
+            "seconds": 2.716108000022359,
+            "stdout": "",
+            "stderr": "Note: Some input files use or override a deprecated API.\nNote: Recompile with -Xlint:deprecation for details.\n"
+          },
+          {
+            "phase": "probe",
+            "case": "production",
+            "returncode": 0,
+            "seconds": 1.0131232000421733,
+            "stdout": "PASS private inventory: recursive exact holders; loaded/dormant/reload agreement; remove/replace/transfer; legacy refusal; aggregate refusal\n",
+            "stderr": "WARNING: A restricted method in java.lang.System has been called\nWARNING: java.lang.System::load has been called by org.lwjgl.system.Library$$Lambda/0x000000009f1ca610 in an unnamed module (file:/C:/Program%20Files%20(x86)/Steam/steamapps/common/ProjectZomboid/projectzomboid.jar)\nWARNING: Use --enable-native-access=ALL-UNNAMED to avoid a warning for callers in this module\nWARNING: Restricted methods will be blocked in a future release unless native access is enabled\n\n"
+          },
+          {
+            "phase": "probe",
+            "case": "native-inspection",
+            "returncode": 0,
+            "seconds": 6.8446612999541685,
+            "stdout": "CASE native_inspection_memory_isolated\nCASE native_fill_listener\nCASE metadata_only_unknown\nCASE foreign_actor_refused\nCASE unreachable_refused\nCASE wrong_fingerprint_refused\nCASE cloned_identity_refused\nCASE client_authority_refused\nCASE native_empty_inspection\nCASE native_fill_once\nCASE repeat_inspection_no_roll\nCASE second_actor_own_inspection\nCASE world_reset_drops_offers\nCASE world_reset_drops_memory\nCASE opaque_holder_not_offered\nCASE distribution_not_rolled_during_offer\nCASE native_picker_generates_exact_contents\nCASE generated_items_not_duplicated\nCASE own_inspection_admits_direct_food\nCASE native_square_objects_require_supported_traversal\nCASE inspected_native_holder_offers_exact_transfer\nCASE transfer_offer_does_not_move_items\nCASE inspected_native_action_target_resolves\nCASE inspected_native_action_binds_exact_item\nCASE native_action_stale_fingerprint_refused\nCASE native_action_stale_revision_refused\nCASE native_action_malformed_id_refused\nCASE native_transfer_requires_actual_reach\nCASE other_behind_wall_cannot_read_stock\nCASE reach_does_not_mean_inspected\nCASE other_stock_requires_own_inspection\nCASE unchanged_private_memory_survives_reset\nCASE numeric_string_alias_keeps_matching_private_fact\nCASE memory_is_not_shared\nCASE stale_private_revision_cannot_reveal_added_stock\nCASE native_locked_holder_not_offered\nCASE native_unlocked_holder_offered\nCASE lock_rechecked_at_inspection\nPASS container inspection: 38 actual native cases\n",
+            "stderr": "WARNING: A restricted method in java.lang.System has been called\nWARNING: java.lang.System::load has been called by org.lwjgl.system.Library$$Lambda/0x00000000061b1ab8 in an unnamed module (file:/C:/Program%20Files%20(x86)/Steam/steamapps/common/ProjectZomboid/projectzomboid.jar)\nWARNING: Use --enable-native-access=ALL-UNNAMED to avoid a warning for callers in this module\nWARNING: Restricted methods will be blocked in a future release unless native access is enabled\n\n"
+          },
+          {
+            "phase": "probe",
+            "case": "inspection-lua",
+            "returncode": 0,
+            "seconds": 0.345809799968265,
+            "stdout": "VALUE PASS inspection Lua 23\n",
+            "stderr": ""
+          },
+          {
+            "phase": "control",
+            "case": "omit-private-inspection",
+            "returncode": 1,
+            "seconds": 0.39567280001938343,
+            "stdout": "ERROR KahluaException: empty_holder_private_fact\n",
+            "stderr": ""
+          },
+          {
+            "phase": "control",
+            "case": "repeat-empty",
+            "returncode": 1,
+            "seconds": 0.37418799998704344,
+            "stdout": "ERROR KahluaException: empty_holder_not_repeated\n",
+            "stderr": ""
+          },
+          {
+            "phase": "control",
+            "case": "ignore-route-failure",
+            "returncode": 1,
+            "seconds": 0.4357404999900609,
+            "stdout": "ERROR KahluaException: failed_holder_not_immediately_reselected\n",
+            "stderr": ""
+          },
+          {
+            "phase": "control",
+            "case": "penalize-flee",
+            "returncode": 1,
+            "seconds": 0.45762420003302395,
+            "stdout": "ERROR KahluaException: flee_does_not_penalize\n",
+            "stderr": ""
+          },
+          {
+            "phase": "control",
+            "case": "leak-on-offer",
+            "returncode": 1,
+            "seconds": 0.4267001999542117,
+            "stdout": "ERROR KahluaException: offer_without_knowledge\n",
+            "stderr": ""
+          },
+          {
+            "phase": "control",
+            "case": "permission-after-fill",
+            "returncode": 1,
+            "seconds": 0.3997337999753654,
+            "stdout": "ERROR KahluaException: permission_rechecked_before_fill\n",
+            "stderr": ""
+          },
+          {
+            "phase": "control",
+            "case": "forget-current-coordinates",
+            "returncode": 1,
+            "seconds": 0.4047198999905959,
+            "stdout": "ERROR KahluaException: changed_source_receipt_not_taught\n",
+            "stderr": ""
+          },
+          {
+            "phase": "control",
+            "case": "teach-all-chunk-holders",
+            "returncode": 1,
+            "seconds": 0.46086300001479685,
+            "stdout": "ERROR KahluaException: only_exact_holder_learned\n",
+            "stderr": ""
+          },
+          {
+            "phase": "compile",
+            "case": "native-square-unsupported-iterator",
+            "returncode": 0,
+            "seconds": 1.3354022999992594,
+            "stdout": "",
+            "stderr": "Note: C:\\Users\\jleyv\\AppData\\Local\\Temp\\sao-private-inventory-fpfn6i1u\\native-square-unsupported-iterator\\SAOWorldSources.java uses or overrides a deprecated API.\nNote: Recompile with -Xlint:deprecation for details.\n"
+          },
+          {
+            "phase": "control",
+            "case": "native-square-unsupported-iterator",
+            "returncode": 1,
+            "seconds": 7.165326700080186,
+            "stdout": "CASE native_inspection_memory_isolated\nCASE native_fill_listener\nCASE metadata_only_unknown\nCASE foreign_actor_refused\nCASE unreachable_refused\nCASE wrong_fingerprint_refused\nCASE cloned_identity_refused\nCASE client_authority_refused\nCASE native_empty_inspection\nCASE native_fill_once\nCASE repeat_inspection_no_roll\nCASE second_actor_own_inspection\nCASE world_reset_drops_offers\nCASE world_reset_drops_memory\nCASE opaque_holder_not_offered\nCASE distribution_not_rolled_during_offer\nCASE native_picker_generates_exact_contents\nCASE generated_items_not_duplicated\nCASE own_inspection_admits_direct_food\nCASE native_square_objects_require_supported_traversal\n2026-09-27T00:36:33.111166700Z [SAO] world transfer offer refused: com.sao.engine.SAOWorldSources$ActionRefusal: BAD_SOURCE_ID\n\n",
+            "stderr": "WARNING: A restricted method in java.lang.System has been called\nWARNING: java.lang.System::load has been called by org.lwjgl.system.Library$$Lambda/0x00000000a01af630 in an unnamed module (file:/C:/Program%20Files%20(x86)/Steam/steamapps/common/ProjectZomboid/projectzomboid.jar)\nWARNING: Use --enable-native-access=ALL-UNNAMED to avoid a warning for callers in this module\nWARNING: Restricted methods will be blocked in a future release unless native access is enabled\n\nException in thread \"main\" java.lang.AssertionError: inspected_native_holder_offers_exact_transfer\n\tat ContainerInspectionProbe.check(ContainerInspectionProbe.java:23)\n\tat ContainerInspectionProbe.main(ContainerInspectionProbe.java:220)\n"
+          },
+          {
+            "phase": "compile",
+            "case": "native-square-unsupported-copy",
+            "returncode": 0,
+            "seconds": 1.3623992999782786,
+            "stdout": "",
+            "stderr": "Note: C:\\Users\\jleyv\\AppData\\Local\\Temp\\sao-private-inventory-fpfn6i1u\\native-square-unsupported-copy\\SAOWorldSources.java uses or overrides a deprecated API.\nNote: Recompile with -Xlint:deprecation for details.\n"
+          },
+          {
+            "phase": "control",
+            "case": "native-square-unsupported-copy",
+            "returncode": 1,
+            "seconds": 6.785921199945733,
+            "stdout": "CASE native_inspection_memory_isolated\nCASE native_fill_listener\nCASE metadata_only_unknown\nCASE foreign_actor_refused\nCASE unreachable_refused\nCASE wrong_fingerprint_refused\nCASE cloned_identity_refused\nCASE client_authority_refused\nCASE native_empty_inspection\nCASE native_fill_once\nCASE repeat_inspection_no_roll\nCASE second_actor_own_inspection\nCASE world_reset_drops_offers\nCASE world_reset_drops_memory\nCASE opaque_holder_not_offered\nCASE distribution_not_rolled_during_offer\nCASE native_picker_generates_exact_contents\nCASE generated_items_not_duplicated\nCASE own_inspection_admits_direct_food\nCASE native_square_objects_require_supported_traversal\n2026-09-27T00:36:41.315189900Z [SAO] world transfer offer refused: com.sao.engine.SAOWorldSources$ActionRefusal: BAD_SOURCE_ID\n\n",
+            "stderr": "WARNING: A restricted method in java.lang.System has been called\nWARNING: java.lang.System::load has been called by org.lwjgl.system.Library$$Lambda/0x000000009b1b9ab8 in an unnamed module (file:/C:/Program%20Files%20(x86)/Steam/steamapps/common/ProjectZomboid/projectzomboid.jar)\nWARNING: Use --enable-native-access=ALL-UNNAMED to avoid a warning for callers in this module\nWARNING: Restricted methods will be blocked in a future release unless native access is enabled\n\nException in thread \"main\" java.lang.AssertionError: inspected_native_holder_offers_exact_transfer\n\tat ContainerInspectionProbe.check(ContainerInspectionProbe.java:23)\n\tat ContainerInspectionProbe.main(ContainerInspectionProbe.java:220)\n"
+          },
+          {
+            "phase": "compile",
+            "case": "omit-native-fill",
+            "returncode": 0,
+            "seconds": 1.1794485999271274,
+            "stdout": "",
+            "stderr": "Note: C:\\Users\\jleyv\\AppData\\Local\\Temp\\sao-private-inventory-fpfn6i1u\\omit-native-fill\\SAOWorldSources.java uses or overrides a deprecated API.\nNote: Recompile with -Xlint:deprecation for details.\n"
+          },
+          {
+            "phase": "control",
+            "case": "omit-native-fill",
+            "returncode": 1,
+            "seconds": 6.884690699982457,
+            "stdout": "CASE native_inspection_memory_isolated\nCASE native_fill_listener\nCASE metadata_only_unknown\nCASE foreign_actor_refused\nCASE unreachable_refused\nCASE wrong_fingerprint_refused\nCASE cloned_identity_refused\nCASE client_authority_refused\nCASE native_empty_inspection\n",
+            "stderr": "WARNING: A restricted method in java.lang.System has been called\nWARNING: java.lang.System::load has been called by org.lwjgl.system.Library$$Lambda/0x000000000b1ad8d0 in an unnamed module (file:/C:/Program%20Files%20(x86)/Steam/steamapps/common/ProjectZomboid/projectzomboid.jar)\nWARNING: Use --enable-native-access=ALL-UNNAMED to avoid a warning for callers in this module\nWARNING: Restricted methods will be blocked in a future release unless native access is enabled\n\nException in thread \"main\" java.lang.AssertionError: native_fill_once\n\tat ContainerInspectionProbe.check(ContainerInspectionProbe.java:23)\n\tat ContainerInspectionProbe.main(ContainerInspectionProbe.java:155)\n"
+          },
+          {
+            "phase": "compile",
+            "case": "repeat-native-roll",
+            "returncode": 0,
+            "seconds": 1.3680155000183731,
+            "stdout": "",
+            "stderr": "Note: C:\\Users\\jleyv\\AppData\\Local\\Temp\\sao-private-inventory-fpfn6i1u\\repeat-native-roll\\SAOWorldSources.java uses or overrides a deprecated API.\nNote: Recompile with -Xlint:deprecation for details.\n"
+          },
+          {
+            "phase": "control",
+            "case": "repeat-native-roll",
+            "returncode": 1,
+            "seconds": 6.851452199975029,
+            "stdout": "CASE native_inspection_memory_isolated\nCASE native_fill_listener\nCASE metadata_only_unknown\nCASE foreign_actor_refused\nCASE unreachable_refused\nCASE wrong_fingerprint_refused\nCASE cloned_identity_refused\nCASE client_authority_refused\nCASE native_empty_inspection\nCASE native_fill_once\n",
+            "stderr": "WARNING: A restricted method in java.lang.System has been called\nWARNING: java.lang.System::load has been called by org.lwjgl.system.Library$$Lambda/0x00000000121b1ab8 in an unnamed module (file:/C:/Program%20Files%20(x86)/Steam/steamapps/common/ProjectZomboid/projectzomboid.jar)\nWARNING: Use --enable-native-access=ALL-UNNAMED to avoid a warning for callers in this module\nWARNING: Restricted methods will be blocked in a future release unless native access is enabled\n\nException in thread \"main\" java.lang.AssertionError: repeat_inspection_no_roll\n\tat ContainerInspectionProbe.check(ContainerInspectionProbe.java:23)\n\tat ContainerInspectionProbe.main(ContainerInspectionProbe.java:156)\n"
+          },
+          {
+            "phase": "compile",
+            "case": "foreign-native-binding",
+            "returncode": 0,
+            "seconds": 1.2935751000186428,
+            "stdout": "",
+            "stderr": "Note: C:\\Users\\jleyv\\AppData\\Local\\Temp\\sao-private-inventory-fpfn6i1u\\foreign-native-binding\\SAOWorldSources.java uses or overrides a deprecated API.\nNote: Recompile with -Xlint:deprecation for details.\n"
+          },
+          {
+            "phase": "control",
+            "case": "foreign-native-binding",
+            "returncode": 1,
+            "seconds": 6.935051699983887,
+            "stdout": "CASE native_inspection_memory_isolated\nCASE native_fill_listener\nCASE metadata_only_unknown\n",
+            "stderr": "WARNING: A restricted method in java.lang.System has been called\nWARNING: java.lang.System::load has been called by org.lwjgl.system.Library$$Lambda/0x000000008a1b9ab8 in an unnamed module (file:/C:/Program%20Files%20(x86)/Steam/steamapps/common/ProjectZomboid/projectzomboid.jar)\nWARNING: Use --enable-native-access=ALL-UNNAMED to avoid a warning for callers in this module\nWARNING: Restricted methods will be blocked in a future release unless native access is enabled\n\nException in thread \"main\" java.lang.AssertionError: foreign_actor_refused\n\tat ContainerInspectionProbe.check(ContainerInspectionProbe.java:23)\n\tat ContainerInspectionProbe.main(ContainerInspectionProbe.java:131)\n"
+          },
+          {
+            "phase": "compile",
+            "case": "lost-native-reach",
+            "returncode": 0,
+            "seconds": 1.2474054000340402,
+            "stdout": "",
+            "stderr": "Note: C:\\Users\\jleyv\\AppData\\Local\\Temp\\sao-private-inventory-fpfn6i1u\\lost-native-reach\\SAOWorldSources.java uses or overrides a deprecated API.\nNote: Recompile with -Xlint:deprecation for details.\n"
+          },
+          {
+            "phase": "control",
+            "case": "lost-native-reach",
+            "returncode": 1,
+            "seconds": 6.686256299959496,
+            "stdout": "CASE native_inspection_memory_isolated\nCASE native_fill_listener\nCASE metadata_only_unknown\nCASE foreign_actor_refused\n",
+            "stderr": "WARNING: A restricted method in java.lang.System has been called\nWARNING: java.lang.System::load has been called by org.lwjgl.system.Library$$Lambda/0x00000000231b9ab8 in an unnamed module (file:/C:/Program%20Files%20(x86)/Steam/steamapps/common/ProjectZomboid/projectzomboid.jar)\nWARNING: Use --enable-native-access=ALL-UNNAMED to avoid a warning for callers in this module\nWARNING: Restricted methods will be blocked in a future release unless native access is enabled\n\nException in thread \"main\" java.lang.AssertionError: unreachable_refused\n\tat ContainerInspectionProbe.check(ContainerInspectionProbe.java:23)\n\tat ContainerInspectionProbe.main(ContainerInspectionProbe.java:134)\n"
+          },
+          {
+            "phase": "compile",
+            "case": "stale-native-object",
+            "returncode": 0,
+            "seconds": 1.2051639000419527,
+            "stdout": "",
+            "stderr": "Note: C:\\Users\\jleyv\\AppData\\Local\\Temp\\sao-private-inventory-fpfn6i1u\\stale-native-object\\SAOWorldSources.java uses or overrides a deprecated API.\nNote: Recompile with -Xlint:deprecation for details.\n"
+          },
+          {
+            "phase": "control",
+            "case": "stale-native-object",
+            "returncode": 1,
+            "seconds": 6.65989350003656,
+            "stdout": "CASE native_inspection_memory_isolated\nCASE native_fill_listener\nCASE metadata_only_unknown\nCASE foreign_actor_refused\nCASE unreachable_refused\nCASE wrong_fingerprint_refused\n",
+            "stderr": "WARNING: A restricted method in java.lang.System has been called\nWARNING: java.lang.System::load has been called by org.lwjgl.system.Library$$Lambda/0x000000009c1af630 in an unnamed module (file:/C:/Program%20Files%20(x86)/Steam/steamapps/common/ProjectZomboid/projectzomboid.jar)\nWARNING: Use --enable-native-access=ALL-UNNAMED to avoid a warning for callers in this module\nWARNING: Restricted methods will be blocked in a future release unless native access is enabled\n\nException in thread \"main\" java.lang.AssertionError: cloned_identity_refused\n\tat ContainerInspectionProbe.check(ContainerInspectionProbe.java:23)\n\tat ContainerInspectionProbe.main(ContainerInspectionProbe.java:143)\n"
+          },
+          {
+            "phase": "compile",
+            "case": "lost-native-visibility",
+            "returncode": 0,
+            "seconds": 1.1977805000497028,
+            "stdout": "",
+            "stderr": "Note: C:\\Users\\jleyv\\AppData\\Local\\Temp\\sao-private-inventory-fpfn6i1u\\lost-native-visibility\\SAOWorldSources.java uses or overrides a deprecated API.\nNote: Recompile with -Xlint:deprecation for details.\n"
+          },
+          {
+            "phase": "control",
+            "case": "lost-native-visibility",
+            "returncode": 1,
+            "seconds": 6.621617699973285,
+            "stdout": "CASE native_inspection_memory_isolated\nCASE native_fill_listener\nCASE metadata_only_unknown\nCASE foreign_actor_refused\nCASE unreachable_refused\nCASE wrong_fingerprint_refused\nCASE cloned_identity_refused\nCASE client_authority_refused\nCASE native_empty_inspection\nCASE native_fill_once\nCASE repeat_inspection_no_roll\nCASE second_actor_own_inspection\nCASE world_reset_drops_offers\nCASE world_reset_drops_memory\n",
+            "stderr": "WARNING: A restricted method in java.lang.System has been called\nWARNING: java.lang.System::load has been called by org.lwjgl.system.Library$$Lambda/0x00000000271b7630 in an unnamed module (file:/C:/Program%20Files%20(x86)/Steam/steamapps/common/ProjectZomboid/projectzomboid.jar)\nWARNING: Use --enable-native-access=ALL-UNNAMED to avoid a warning for callers in this module\nWARNING: Restricted methods will be blocked in a future release unless native access is enabled\n\nException in thread \"main\" java.lang.AssertionError: opaque_holder_not_offered\n\tat ContainerInspectionProbe.check(ContainerInspectionProbe.java:23)\n\tat ContainerInspectionProbe.main(ContainerInspectionProbe.java:168)\n"
+          },
+          {
+            "phase": "compile",
+            "case": "lost-native-reset",
+            "returncode": 0,
+            "seconds": 1.3250748999416828,
+            "stdout": "",
+            "stderr": "Note: C:\\Users\\jleyv\\AppData\\Local\\Temp\\sao-private-inventory-fpfn6i1u\\lost-native-reset\\SAOWorldSources.java uses or overrides a deprecated API.\nNote: Recompile with -Xlint:deprecation for details.\n"
+          },
+          {
+            "phase": "control",
+            "case": "lost-native-reset",
+            "returncode": 1,
+            "seconds": 8.710874299984425,
+            "stdout": "CASE native_inspection_memory_isolated\nCASE native_fill_listener\nCASE metadata_only_unknown\nCASE foreign_actor_refused\nCASE unreachable_refused\nCASE wrong_fingerprint_refused\nCASE cloned_identity_refused\nCASE client_authority_refused\nCASE native_empty_inspection\nCASE native_fill_once\nCASE repeat_inspection_no_roll\nCASE second_actor_own_inspection\n",
+            "stderr": "WARNING: A restricted method in java.lang.System has been called\nWARNING: java.lang.System::load has been called by org.lwjgl.system.Library$$Lambda/0x00000000081af630 in an unnamed module (file:/C:/Program%20Files%20(x86)/Steam/steamapps/common/ProjectZomboid/projectzomboid.jar)\nWARNING: Use --enable-native-access=ALL-UNNAMED to avoid a warning for callers in this module\nWARNING: Restricted methods will be blocked in a future release unless native access is enabled\n\nException in thread \"main\" java.lang.AssertionError: world_reset_drops_offers\n\tat ContainerInspectionProbe.check(ContainerInspectionProbe.java:23)\n\tat ContainerInspectionProbe.main(ContainerInspectionProbe.java:162)\n"
+          },
+          {
+            "phase": "compile",
+            "case": "lost-native-lock",
+            "returncode": 0,
+            "seconds": 1.1582303000614047,
+            "stdout": "",
+            "stderr": "Note: C:\\Users\\jleyv\\AppData\\Local\\Temp\\sao-private-inventory-fpfn6i1u\\lost-native-lock\\SAOWorldSources.java uses or overrides a deprecated API.\nNote: Recompile with -Xlint:deprecation for details.\n"
+          },
+          {
+            "phase": "control",
+            "case": "lost-native-lock",
+            "returncode": 1,
+            "seconds": 6.905273100011982,
+            "stdout": "CASE native_inspection_memory_isolated\nCASE native_fill_listener\nCASE metadata_only_unknown\nCASE foreign_actor_refused\nCASE unreachable_refused\nCASE wrong_fingerprint_refused\nCASE cloned_identity_refused\nCASE client_authority_refused\nCASE native_empty_inspection\nCASE native_fill_once\nCASE repeat_inspection_no_roll\nCASE second_actor_own_inspection\nCASE world_reset_drops_offers\nCASE world_reset_drops_memory\nCASE opaque_holder_not_offered\nCASE distribution_not_rolled_during_offer\nCASE native_picker_generates_exact_contents\nCASE generated_items_not_duplicated\nCASE own_inspection_admits_direct_food\nCASE native_square_objects_require_supported_traversal\nCASE inspected_native_holder_offers_exact_transfer\nCASE transfer_offer_does_not_move_items\nCASE inspected_native_action_target_resolves\nCASE inspected_native_action_binds_exact_item\nCASE native_action_stale_fingerprint_refused\nCASE native_action_stale_revision_refused\nCASE native_action_malformed_id_refused\nCASE native_transfer_requires_actual_reach\nCASE other_behind_wall_cannot_read_stock\nCASE reach_does_not_mean_inspected\nCASE other_stock_requires_own_inspection\nCASE unchanged_private_memory_survives_reset\nCASE numeric_string_alias_keeps_matching_private_fact\nCASE memory_is_not_shared\nCASE stale_private_revision_cannot_reveal_added_stock\nCASE native_locked_holder_not_offered\nCASE native_unlocked_holder_offered\n",
+            "stderr": "WARNING: A restricted method in java.lang.System has been called\nWARNING: java.lang.System::load has been called by org.lwjgl.system.Library$$Lambda/0x000000009d1b58d0 in an unnamed module (file:/C:/Program%20Files%20(x86)/Steam/steamapps/common/ProjectZomboid/projectzomboid.jar)\nWARNING: Use --enable-native-access=ALL-UNNAMED to avoid a warning for callers in this module\nWARNING: Restricted methods will be blocked in a future release unless native access is enabled\n\nException in thread \"main\" java.lang.AssertionError: lock_rechecked_at_inspection\n\tat ContainerInspectionProbe.check(ContainerInspectionProbe.java:23)\n\tat ContainerInspectionProbe.main(ContainerInspectionProbe.java:295)\n"
+          },
+          {
+            "phase": "compile",
+            "case": "omit-own-inspection-revision",
+            "returncode": 0,
+            "seconds": 1.2841802999610081,
+            "stdout": "",
+            "stderr": "Note: C:\\Users\\jleyv\\AppData\\Local\\Temp\\sao-private-inventory-fpfn6i1u\\omit-own-inspection-revision\\SAOWorldSources.java uses or overrides a deprecated API.\nNote: Recompile with -Xlint:deprecation for details.\n"
+          },
+          {
+            "phase": "control",
+            "case": "omit-own-inspection-revision",
+            "returncode": 1,
+            "seconds": 8.590620000031777,
+            "stdout": "CASE native_inspection_memory_isolated\nCASE native_fill_listener\nCASE metadata_only_unknown\nCASE foreign_actor_refused\nCASE unreachable_refused\nCASE wrong_fingerprint_refused\nCASE cloned_identity_refused\nCASE client_authority_refused\nCASE native_empty_inspection\nCASE native_fill_once\nCASE repeat_inspection_no_roll\nCASE second_actor_own_inspection\nCASE world_reset_drops_offers\nCASE world_reset_drops_memory\nCASE opaque_holder_not_offered\nCASE distribution_not_rolled_during_offer\nCASE native_picker_generates_exact_contents\nCASE generated_items_not_duplicated\n",
+            "stderr": "WARNING: A restricted method in java.lang.System has been called\nWARNING: java.lang.System::load has been called by org.lwjgl.system.Library$$Lambda/0x00000000301af630 in an unnamed module (file:/C:/Program%20Files%20(x86)/Steam/steamapps/common/ProjectZomboid/projectzomboid.jar)\nWARNING: Use --enable-native-access=ALL-UNNAMED to avoid a warning for callers in this module\nWARNING: Restricted methods will be blocked in a future release unless native access is enabled\n\nException in thread \"main\" java.lang.AssertionError: own_inspection_admits_direct_food\n\tat ContainerInspectionProbe.check(ContainerInspectionProbe.java:23)\n\tat ContainerInspectionProbe.main(ContainerInspectionProbe.java:208)\n"
+          },
+          {
+            "phase": "compile",
+            "case": "stale-private-stock-authority",
+            "returncode": 0,
+            "seconds": 1.539481500047259,
+            "stdout": "",
+            "stderr": "Note: C:\\Users\\jleyv\\AppData\\Local\\Temp\\sao-private-inventory-fpfn6i1u\\stale-private-stock-authority\\SAOWorldSources.java uses or overrides a deprecated API.\nNote: Recompile with -Xlint:deprecation for details.\n"
+          },
+          {
+            "phase": "control",
+            "case": "stale-private-stock-authority",
+            "returncode": 1,
+            "seconds": 8.85089020000305,
+            "stdout": "CASE native_inspection_memory_isolated\nCASE native_fill_listener\nCASE metadata_only_unknown\nCASE foreign_actor_refused\nCASE unreachable_refused\nCASE wrong_fingerprint_refused\nCASE cloned_identity_refused\nCASE client_authority_refused\nCASE native_empty_inspection\nCASE native_fill_once\nCASE repeat_inspection_no_roll\nCASE second_actor_own_inspection\nCASE world_reset_drops_offers\nCASE world_reset_drops_memory\nCASE opaque_holder_not_offered\nCASE distribution_not_rolled_during_offer\nCASE native_picker_generates_exact_contents\nCASE generated_items_not_duplicated\nCASE own_inspection_admits_direct_food\nCASE native_square_objects_require_supported_traversal\nCASE inspected_native_holder_offers_exact_transfer\nCASE transfer_offer_does_not_move_items\nCASE inspected_native_action_target_resolves\nCASE inspected_native_action_binds_exact_item\nCASE native_action_stale_fingerprint_refused\nCASE native_action_stale_revision_refused\nCASE native_action_malformed_id_refused\nCASE native_transfer_requires_actual_reach\nCASE other_behind_wall_cannot_read_stock\nCASE reach_does_not_mean_inspected\nCASE other_stock_requires_own_inspection\nCASE unchanged_private_memory_survives_reset\nCASE numeric_string_alias_keeps_matching_private_fact\nCASE memory_is_not_shared\n",
+            "stderr": "WARNING: A restricted method in java.lang.System has been called\nWARNING: java.lang.System::load has been called by org.lwjgl.system.Library$$Lambda/0x00000000221b1ab8 in an unnamed module (file:/C:/Program%20Files%20(x86)/Steam/steamapps/common/ProjectZomboid/projectzomboid.jar)\nWARNING: Use --enable-native-access=ALL-UNNAMED to avoid a warning for callers in this module\nWARNING: Restricted methods will be blocked in a future release unless native access is enabled\n\nException in thread \"main\" java.lang.AssertionError: stale_private_revision_cannot_reveal_added_stock\n\tat ContainerInspectionProbe.check(ContainerInspectionProbe.java:23)\n\tat ContainerInspectionProbe.main(ContainerInspectionProbe.java:281)\n"
+          },
+          {
+            "phase": "compile",
+            "case": "drop-existing-private-memory",
+            "returncode": 0,
+            "seconds": 1.3510083999717608,
+            "stdout": "",
+            "stderr": "Note: C:\\Users\\jleyv\\AppData\\Local\\Temp\\sao-private-inventory-fpfn6i1u\\drop-existing-private-memory\\SAOWorldSources.java uses or overrides a deprecated API.\nNote: Recompile with -Xlint:deprecation for details.\n"
+          },
+          {
+            "phase": "control",
+            "case": "drop-existing-private-memory",
+            "returncode": 1,
+            "seconds": 9.203842799994163,
+            "stdout": "CASE native_inspection_memory_isolated\nCASE native_fill_listener\nCASE metadata_only_unknown\nCASE foreign_actor_refused\nCASE unreachable_refused\nCASE wrong_fingerprint_refused\nCASE cloned_identity_refused\nCASE client_authority_refused\nCASE native_empty_inspection\nCASE native_fill_once\nCASE repeat_inspection_no_roll\nCASE second_actor_own_inspection\nCASE world_reset_drops_offers\nCASE world_reset_drops_memory\nCASE opaque_holder_not_offered\nCASE distribution_not_rolled_during_offer\nCASE native_picker_generates_exact_contents\nCASE generated_items_not_duplicated\nCASE own_inspection_admits_direct_food\nCASE native_square_objects_require_supported_traversal\nCASE inspected_native_holder_offers_exact_transfer\nCASE transfer_offer_does_not_move_items\nCASE inspected_native_action_target_resolves\nCASE inspected_native_action_binds_exact_item\nCASE native_action_stale_fingerprint_refused\nCASE native_action_stale_revision_refused\nCASE native_action_malformed_id_refused\nCASE native_transfer_requires_actual_reach\nCASE other_behind_wall_cannot_read_stock\nCASE reach_does_not_mean_inspected\nCASE other_stock_requires_own_inspection\n",
+            "stderr": "WARNING: A restricted method in java.lang.System has been called\nWARNING: java.lang.System::load has been called by org.lwjgl.system.Library$$Lambda/0x00000000251b1ab8 in an unnamed module (file:/C:/Program%20Files%20(x86)/Steam/steamapps/common/ProjectZomboid/projectzomboid.jar)\nWARNING: Use --enable-native-access=ALL-UNNAMED to avoid a warning for callers in this module\nWARNING: Restricted methods will be blocked in a future release unless native access is enabled\n\nException in thread \"main\" java.lang.AssertionError: unchanged_private_memory_survives_reset\n\tat ContainerInspectionProbe.check(ContainerInspectionProbe.java:23)\n\tat ContainerInspectionProbe.main(ContainerInspectionProbe.java:271)\n"
+          },
+          {
+            "phase": "compile",
+            "case": "global-explored-private",
+            "returncode": 0,
+            "seconds": 1.5406454000622034,
+            "stdout": "",
+            "stderr": ""
+          },
+          {
+            "phase": "control",
+            "case": "global-explored-private",
+            "returncode": 1,
+            "seconds": 8.871343299979344,
+            "stdout": "CASE native_inspection_memory_isolated\nCASE native_fill_listener\nCASE metadata_only_unknown\nCASE foreign_actor_refused\nCASE unreachable_refused\nCASE wrong_fingerprint_refused\nCASE cloned_identity_refused\nCASE client_authority_refused\nCASE native_empty_inspection\nCASE native_fill_once\nCASE repeat_inspection_no_roll\nCASE second_actor_own_inspection\nCASE world_reset_drops_offers\nCASE world_reset_drops_memory\nCASE opaque_holder_not_offered\nCASE distribution_not_rolled_during_offer\nCASE native_picker_generates_exact_contents\nCASE generated_items_not_duplicated\nCASE own_inspection_admits_direct_food\nCASE native_square_objects_require_supported_traversal\nCASE inspected_native_holder_offers_exact_transfer\nCASE transfer_offer_does_not_move_items\nCASE inspected_native_action_target_resolves\nCASE inspected_native_action_binds_exact_item\nCASE native_action_stale_fingerprint_refused\nCASE native_action_stale_revision_refused\nCASE native_action_malformed_id_refused\nCASE native_transfer_requires_actual_reach\n",
+            "stderr": "WARNING: A restricted method in java.lang.System has been called\nWARNING: java.lang.System::load has been called by org.lwjgl.system.Library$$Lambda/0x00000000161b1ab8 in an unnamed module (file:/C:/Program%20Files%20(x86)/Steam/steamapps/common/ProjectZomboid/projectzomboid.jar)\nWARNING: Use --enable-native-access=ALL-UNNAMED to avoid a warning for callers in this module\nWARNING: Restricted methods will be blocked in a future release unless native access is enabled\n\nException in thread \"main\" java.lang.AssertionError: other_behind_wall_cannot_read_stock\n\tat ContainerInspectionProbe.check(ContainerInspectionProbe.java:23)\n\tat ContainerInspectionProbe.main(ContainerInspectionProbe.java:249)\n"
+          },
+          {
+            "phase": "compile",
+            "case": "omit-nested",
+            "returncode": 0,
+            "seconds": 1.6029674999881536,
+            "stdout": "",
+            "stderr": ""
+          },
+          {
+            "phase": "probe",
+            "case": "omit-nested",
+            "returncode": 1,
+            "seconds": 1.2695133000379428,
+            "stdout": "",
+            "stderr": "WARNING: A restricted method in java.lang.System has been called\nWARNING: java.lang.System::load has been called by org.lwjgl.system.Library$$Lambda/0x00000000921c5218 in an unnamed module (file:/C:/Program%20Files%20(x86)/Steam/steamapps/common/ProjectZomboid/projectzomboid.jar)\nWARNING: Use --enable-native-access=ALL-UNNAMED to avoid a warning for callers in this module\nWARNING: Restricted methods will be blocked in a future release unless native access is enabled\n\nException in thread \"main\" java.lang.AssertionError: nested_loaded\n\tat PrivateInventoryProbe.check(PrivateInventoryProbe.java:81)\n\tat PrivateInventoryProbe.main(PrivateInventoryProbe.java:182)\n"
+          }
+        ],
+        "source_sha256": {
+          "java/src/com/sao/engine/SAOPrivateInventory.java": "0bebc9ab7c010bf668872a684dc101e96b5dbe3293a29ebd4f978c1c6f93bf89",
+          "java/src/com/sao/engine/SAOWorldSources.java": "25c9afb6eba995373561347e8b68c81c5c2e35bd6b3d516d61f2fd002dfd0fcb",
+          "java/src/com/sao/engine/SAOPerceptionScanner.java": "6feea537186f3f1708e8cbc285258f0c942b9942f1b1527d2e74b6452c8cda11",
+          "mod/42.20/media/lua/shared/SAO_WorldSources.lua": "8110c4421510202b213f272efe4fcc45861bb41c16d20d29ff8ab8ae89e7b8c0",
+          "mod/42.20/media/lua/shared/SAO_Perception.lua": "616eb8b7d3180c37a3259bf29acbf18cf69ba9e88e35784f073596ca1fcdc3ba",
+          "tools/private_inventory_test.py": "3f4aa386e12969bce7446b486575eadd2bd736bd48e1d4ca0c48859c22eea527",
+          "tools/luacheck/PrivateInventoryProbe.java": "beaf2cfeef4cee6bde4d321db9d69ed960298fbf6e0814a5baabfa3f1f2c6024",
+          "tools/luacheck/ContainerInspectionProbe.java": "fe1d15b229a864291c0b04c37da4c4fc8bf655b44b1bfcfa01bd251ab59f8457",
+          "tools/luacheck/MovementCrossingProbe.java": "ca9dbe9c356c98ff40e6aa63d577fd2ace052c139b83fc6f43664701fd2f1bd1",
+          "tools/luacheck/LuaRun.java": "f6f55e6da98c1f1249720666d862720efc025167d1df37d35820e877b14df741"
+        },
+        "engine_sha256": "80e405a4bfc42f6072e75b3735f458a6514143da011d3226007ded305a442f44",
+        "compiler_sha256": "74f283ef1e26b3dfccfb56673d74a8a720d2c142e80881aa0084ce2e0379004e",
+        "status": "PASS"
+      }
+    },
+    "native-container-source-binding": {
+      "sourceReceiptSha256": "f54c51e377d34747ef42c09c85e367e7da2a49bc03dc3c5b507222372f7925a0",
+      "receipt": {
+        "schema": "sao-native-container-transfer-closure/1",
+        "createdAtUtc": "2026-09-27T00:38:56.436183+00:00",
+        "status": "focused-verified",
+        "sourceSha256": {
+          "java/src/com/sao/engine/SAOWorldSources.java": "25c9afb6eba995373561347e8b68c81c5c2e35bd6b3d516d61f2fd002dfd0fcb",
+          "tools/private_inventory_test.py": "3f4aa386e12969bce7446b486575eadd2bd736bd48e1d4ca0c48859c22eea527",
+          "tools/luacheck/ContainerInspectionProbe.java": "fe1d15b229a864291c0b04c37da4c4fc8bf655b44b1bfcfa01bd251ab59f8457"
+        },
+        "unchangedLuaSha256": "8110c4421510202b213f272efe4fcc45861bb41c16d20d29ff8ab8ae89e7b8c0",
+        "engineSha256": "80e405a4bfc42f6072e75b3735f458a6514143da011d3226007ded305a442f44",
+        "nativeOutcomeReceipt": {
+          "path": "../residential07-loaded/receipt.json",
+          "sha256": "5949b8dcabb6f581e8027ba3747b82151a0ed85c18d041fa21fec4b38274a2bc"
+        },
+        "cause": "locate used enhanced-for over installed PZArrayList whose iterator throws UnsupportedOperationException; the existing catch converted it to BAD_SOURCE_ID. ArrayList(Collection) also fails through inherited iterator-backed toArray.",
+        "fix": "Iterate this exact native square object collection with installed size/get methods; preserve source identity, fingerprint, revision, item identity, current holder, reach and permission checks.",
+        "evidence": {
+          "native07Refusals": 15,
+          "nativeAgentLog": "../residential-native-07/home/Zomboid/SAOAgent.log",
+          "nativeAgentLogSha256": "fd94cdb0075398fb89861f5a44045c028a55c7c751edb0ceef277f041a5d7ee9",
+          "knownBadReceiptSha256": "48718e3addfeb46129c596c7c4b0ae5d89e2276194cba636c1af2386085bda3b",
+          "receiptSha256": "4623a864d4cf32ed349b10a1211ebe96ae5e398f22083ce58eea0b205fc4eb33",
+          "logSha256": "9e1f6ed23f88249b7184608f5424a7f7fa1222e2682366a5692f5743f88e79a9",
+          "exit": 0,
+          "nativeCases": 38,
+          "luaCases": 23,
+          "rejectedSourceControls": 23,
+          "diffCheckExit": 0
+        },
+        "limits": [
+          "Joined controlled native inspection/offer/binding is verified; loaded-game acquisition after this correction remains pending.",
+          "Offer and binding do not transfer the item or prove timed-action completion.",
+          "No game process, copied run inputs or saved world were modified by this task.",
+          "No deployment jar build, full gate, commit or source staging was performed in this repair."
+        ]
+      }
+    },
+    "water-interaction": {
+      "sourceReceiptSha256": "45be3d2e765e757e526ce8c5a644d5533709c92e8fb59f898b34d7c4640dcd88",
+      "receipt": {
+        "schema": "sao.water-reach-review/1",
+        "status": "focused-verification-and-bounded-review-closed",
+        "capturedAt": "2026-09-27T00:28:57.883513+00:00",
+        "productionSha256": "afd76084c8ce04f02827a6069d37a170b1faba23db5ef36ed1ea373ca8565fa2",
+        "sourceSha256": {
+          "java/src/com/sao/engine/SAONeeds.java": "afd76084c8ce04f02827a6069d37a170b1faba23db5ef36ed1ea373ca8565fa2",
+          "tools/resource_approach_test.py": "c9495646daba7cb5348e5c2022cbb11c6339195c9d05f62d9c1d76cf8f316d8e",
+          "tools/luacheck/ResourceApproachProbe.java": "fb4aae58f6d5bbb61d6327b1b7a0330b7ebcf1111e5baa9a98f27d7c0bd84013",
+          "tools/luacheck/WaterApproachProbe.java": "c04dfdb6101ade6c0b8f2e14556f21e07cb157cd1aa621ebdd87fc33edc58b18",
+          "tools/luacheck/WaterRouteChecks.lua": "d35e1362e96f3b7b84491176e37e68ab0779fe7ba32c4752fc5149bd5f5911a2",
+          "tools/luacheck/WeaponEligibilityProbe.java": "178ce81ed3ed8f641d4e3ad6cbce199918609b0923e0628f8a5827ed428f60a5"
+        },
+        "evidence": {
+          "oldNativeMismatch": {
+            "path": "_scratch\\c87-study\\residential05-routing-review\\reach-before.json",
+            "sha256": "7891ba72864e237ef656308ef65aaf6ae2be6bd9bb2a406d92cb99840dfd03a0",
+            "expectedFailure": "water_open_door_matches_installed_interaction"
+          },
+          "water": {
+            "path": "_scratch\\c87-study\\residential05-routing-review\\reach-final.json",
+            "sha256": "58f3f5362f53ea2e6a0bed4fbfb9489e6d91f0a69380d78827299e641d1ae5db",
+            "approachChecks": 46,
+            "waterNativeKahluaChecks": 61,
+            "controllerQueueChecks": 21,
+            "sourceMutants": 43
+          },
+          "meleeFixture": {
+            "path": "_scratch\\c87-study\\residential05-routing-review\\weapon-fixture-final.json",
+            "sha256": "83e1d76381a15394e890b18de6bc18e4dbbd3df649629e0d578f77e72cbd295c",
+            "nativeChecks": 19,
+            "sourceMutants": 7
+          }
+        },
+        "review": {
+          "reviewer": "observer_coherence",
+          "sourceSha256": "afd76084c8ce04f02827a6069d37a170b1faba23db5ef36ed1ea373ca8565fa2",
+          "findings": "No actionable High/Medium in bounded reach/rank/eligibility delta"
+        },
+        "changes": [
+          "Water-only immediate interaction matches installed wall correction, axis distance and canReachTo.",
+          "Currently usable clean-water fixtures precede nearer blocked candidates; existing timed failed-approach suppression remains.",
+          "Native clean-water eligibility retains municipal water, pipe reserves with/without empty components, and a positive last sip; selected sources revalidate contents/membership.",
+          "Native selection diagnostics bind person/body/exact object/source/amount/reach on handle change; actual failed approach is logged once.",
+          "Resource and melee fixtures now obtain actor-owned native inspection before reading static holder contents."
+        ],
+        "limits": [
+          "Installed native receiver/Kahlua method fixtures; no loaded-world gameplay acceptance or native drinking-effect claim.",
+          "Existing resource path-target selection remains unchanged.",
+          "No dataset admission, jar build, process control, staging, commit or publication by this worker."
+        ]
+      }
+    },
+    "controller-inspection-continuity": {
+      "sourceReceiptSha256": "1f121e3164406531a9e4e25e4a34ffd1126ab834a15e38731aca8c1ca796f9d0",
+      "receipt": {
+        "schema": "sao-controller-inspection-checks/1",
+        "sourceSha256": {
+          "mod/42.20/media/lua/client/SAO_Controller.lua": "feeea135512a0610e79bcd4cafdee2b7b86fa43113b7b3527b35fb11b9edf126",
+          "mod/42.20/media/lua/client/SAO_Needs.lua": "3c9f8dbbe04b48b30fe78a6c1ca92f0203ba1d8bed654c21740dcd9c86f6cccd",
+          "java/src/com/sao/bridge/SAOBridge.java": "323514b3631c7655f54f45349c3fbc4f77b2689fcab62f45b4906a2da30a7bf4",
+          "tools/flee_continuity_test.py": "225d9d9b7380105e73132143ce2db33ccf48ac5bf9603fe25e7588618aa1d115"
+        },
+        "logSha256": "c1cbf2e888cde9547297dfc5125fedc1ca10ad492f234616b0105b54a89b214d",
+        "result": "PASS real installed-Kahlua Controller plus Locomotion; 62 rejected production mutations",
+        "scope": "Inspection approach, exact intent, successful inspection returns to needs without take credit, current permission refusal, FLEE interruption, reconciliation ownership, exact replacement of nearby unrelated goal, deadline and crossing continuity, known-food priority, exact transfer refusal reason. WorldSources native and private-knowledge authority verified separately.",
+        "receiptBoundary": "Source inventory captured after completed checks; no claim of an independent before/after inventory seal."
+      }
+    },
+    "native-spawn-refusal": {
+      "sourceReceiptSha256": "ce9e47d8dbdf7c72054173ec9a0532a1acc2205ca9d2172a3f1569157de599e0",
+      "receipt": {
+        "schema": "sao.native-spawn-refusal-check/1",
+        "recordedAtUtc": "2026-09-27T00:36:43.890929+00:00",
+        "timestamp": "2026-09-27 00:36 UTC / 16:36 PST",
+        "verdict": "PASS",
+        "command": "C:/Python314/python.exe -u tools/person_handoff_test.py",
+        "exitCode": 0,
+        "production": "actual Body and handoff Lua executed in installed Kahlua; native bridge/body fault-injection doubles",
+        "newCases": [
+          "native nil result refuses before fallback constructors",
+          "native throw refuses before fallback constructors",
+          "retained complete record and valid snapshot unchanged",
+          "no runtime body or failed-restore owner published on refusal",
+          "later successful native spawn awakens retained snapshot once",
+          "absent bridge retains legacy construction policy"
+        ],
+        "controls": {
+          "totalRejected": 45,
+          "newRejected": 4,
+          "newVerdicts": [
+            "CONTROL native nil spawn allocated a bare player or descriptor: REJECTED ERROR KahluaException: native nil spawn allocated a bare player or descriptor",
+            "CONTROL native throw spawn allocated a bare player or descriptor: REJECTED ERROR KahluaException: native throw spawn allocated a bare player or descriptor",
+            "CONTROL native spawn refusal changed retained record or snapshot: REJECTED ERROR KahluaException: native spawn refusal changed retained record or snapshot",
+            "CONTROL absent bridge lost legacy construction policy: REJECTED ERROR KahluaException: absent bridge lost legacy construction policy"
+          ]
+        },
+        "test": {
+          "path": "tools/person_handoff_test.py",
+          "sha256": "d55cd37da20b617368978687239fe74b21195d272265de1944d14015823a3208",
+          "bytes": 66233,
+          "lastWriteUtc": "2026-09-27T00:32:36.243614+00:00"
+        },
+        "changedProduction": {
+          "path": "mod/42.20/media/lua/client/SAO_Body.lua",
+          "sha256": "3ebc6440731e709f5a6b8f07173539939a95a41715a81d872e4e83b247697937",
+          "bytes": 47712,
+          "lastWriteUtc": "2026-09-27T00:32:36.242625+00:00"
+        },
+        "log": {
+          "path": "_scratch/c87-study/native-spawn-refusal/handoff.log",
+          "sha256": "7c2de88f29d9a89dacf26a80cd7513cd6b57d6c9e2be401d7222b3bf03e40107",
+          "bytes": 11682,
+          "lastWriteUtc": "2026-09-27T00:33:06.370154+00:00"
+        },
+        "inputInventoryRecordedAfterRun": [
+          {
+            "path": "mod/42.20/media/lua/shared/SAO_PhysicalFacts.lua",
+            "sha256": "79c235e01cf68bf0bbe560d541b3efc0f4e460468faa6452351be37a30d64988",
+            "bytes": 6557,
+            "lastWriteUtc": "2026-09-22T01:42:27.257206+00:00"
+          },
+          {
+            "path": "mod/42.20/media/lua/shared/SAO_BodySnapshot.lua",
+            "sha256": "f5220cdd9be5f01267d29c8359f79c1d8d32349adec68b66c0c94c800464d4af",
+            "bytes": 5271,
+            "lastWriteUtc": "2026-09-22T01:42:27.254206+00:00"
+          },
+          {
+            "path": "mod/42.20/media/lua/client/SAO_Body.lua",
+            "sha256": "3ebc6440731e709f5a6b8f07173539939a95a41715a81d872e4e83b247697937",
+            "bytes": 47712,
+            "lastWriteUtc": "2026-09-27T00:32:36.242625+00:00"
+          },
+          {
+            "path": "mod/42.20/media/lua/client/SAO_SourceUse.lua",
+            "sha256": "20d5d6a8a84f3efa360391f0745e0955079cc81458597b135d48f6e487c841c0",
+            "bytes": 43911,
+            "lastWriteUtc": "2026-09-26T03:59:25.727941+00:00"
+          },
+          {
+            "path": "mod/42.20/media/lua/shared/SAO_Coordination.lua",
+            "sha256": "61de2d2b913c1243543d102e3373ddfb9418de58d25bb606be6ad70155eabbb1",
+            "bytes": 18431,
+            "lastWriteUtc": "2026-09-25T22:57:54.531101+00:00"
+          },
+          {
+            "path": "mod/42.20/media/lua/client/SAO_Controller.lua",
+            "sha256": "feeea135512a0610e79bcd4cafdee2b7b86fa43113b7b3527b35fb11b9edf126",
+            "bytes": 431385,
+            "lastWriteUtc": "2026-09-27T00:12:31.832117+00:00"
+          },
+          {
+            "path": "mod/42.20/media/lua/client/SAO_PopulationAdmissions.lua",
+            "sha256": "532e6751dd50d9b79cd814a49833870ec0a05860d0ab165fd17522d12388ff56",
+            "bytes": 30628,
+            "lastWriteUtc": "2026-09-26T21:36:38.831517+00:00"
+          },
+          {
+            "path": "mod/42.20/media/lua/client/SAO_PopulationRepresentation.lua",
+            "sha256": "792291ecd201150bd71b26eca0b141bda99f661d6a23e88e81b36263f9d32f78",
+            "bytes": 30229,
+            "lastWriteUtc": "2026-09-26T06:07:55.859539+00:00"
+          },
+          {
+            "path": "mod/42.20/media/lua/client/SAO_DormantPopulation.lua",
+            "sha256": "22e31b80f4fcf110d9fd0d779383ee64f380172b8231cd9f5c7b48d5923da731",
+            "bytes": 103178,
+            "lastWriteUtc": "2026-09-26T03:38:39.001762+00:00"
+          },
+          {
+            "path": "mod/42.20/media/lua/client/SAO_Population.lua",
+            "sha256": "a5d728ba2712f01030fb3af2f2d6f8840d47c5ff7770f5a310a38a949b4b48f8",
+            "bytes": 34377,
+            "lastWriteUtc": "2026-09-26T04:03:31.970584+00:00"
+          },
+          {
+            "path": "mod/42.20/media/lua/client/SAO_Harness.lua",
+            "sha256": "1d9e36c130c4a426bbaaee1134df4e49c93a1915eab49fcc5e5bfced60510f70",
+            "bytes": 159083,
+            "lastWriteUtc": "2026-09-26T03:59:25.724941+00:00"
+          },
+          {
+            "path": "mod/42.20/media/lua/client/SAO_Age.lua",
+            "sha256": "462f4738a8f9fd6ea491c003dcb3ab9573c50fab37779337e0dc84b782fd09c8",
+            "bytes": 18950,
+            "lastWriteUtc": "2026-09-26T03:59:25.720941+00:00"
+          },
+          {
+            "path": "mod/42.20/media/lua/client/SAO_Drugs.lua",
+            "sha256": "6d9b443a076cefaec99635072d1b80cc6b246c2b44f75f43d8e45117da00e017",
+            "bytes": 18373,
+            "lastWriteUtc": "2026-09-20T01:05:10.073936+00:00"
+          },
+          {
+            "path": "mod/42.20/media/lua/client/SAO_AfflictedReturn.lua",
+            "sha256": "0331412d3924ce7f323074c6368b39f0288d31c8254995286a28c694577392c3",
+            "bytes": 17251,
+            "lastWriteUtc": "2026-09-25T01:35:52.554499+00:00"
+          },
+          {
+            "path": "mod/42.20/media/lua/client/SAO_CrossedTransfer.lua",
+            "sha256": "a0a54e1ddf992cd06d3e8ea977d05ba76697bd2a2ea443355a6a89a6408356b5",
+            "bytes": 9988,
+            "lastWriteUtc": "2026-09-25T01:35:52.558499+00:00"
+          },
+          {
+            "path": "mod/42.20/media/lua/client/SAO_Nuke.lua",
+            "sha256": "80f6e21576c1b4c504c334d13662b02d5e0821aae26beb87a77e2919c0a8e6e8",
+            "bytes": 12908,
+            "lastWriteUtc": "2026-09-26T03:59:25.725941+00:00"
+          },
+          {
+            "path": "mod/42.20/media/lua/shared/SAO_Identity.lua",
+            "sha256": "175088bf7a49a7e9b61626bc96cb99530f07f200ecb602b365a65107aea0ad45",
+            "bytes": 23117,
+            "lastWriteUtc": "2026-09-25T06:45:01.471303+00:00"
+          }
+        ],
+        "runner": {
+          "path": "tools/luacheck/LuaRun.java",
+          "sha256": "f6f55e6da98c1f1249720666d862720efc025167d1df37d35820e877b14df741",
+          "bytes": 10931,
+          "lastWriteUtc": "2026-09-25T01:35:52.575502+00:00"
+        },
+        "installedEngine": {
+          "path": "C:\\Program Files (x86)\\Steam\\steamapps\\common\\ProjectZomboid\\projectzomboid.jar",
+          "sha256": "80e405a4bfc42f6072e75b3735f458a6514143da011d3226007ded305a442f44",
+          "bytes": 64514905,
+          "lastWriteUtc": "2026-08-26T11:30:26.867442+00:00"
+        },
+        "readOnlyReview": {
+          "reviewer": "observer_coherence",
+          "result": "Native spawn-failure High closed on exact Body/test hashes; no new loaded heap-count proof implied."
+        },
+        "limits": [
+          "Controlled native nil/throw outcomes; this run does not execute actual native shell allocation or descriptor registry cleanup.",
+          "No game launch, Java jar build, save mutation, staging or commit.",
+          "Input inventory was recorded after the successful run; it is not an in-test captured source seal. Changed Body/test files remained unchanged during this run."
+        ]
+      }
+    },
+    "body-health-observation": {
+      "sourceReceiptSha256": "2c7aceb85aed1d7574dd310b3eedfc97afa9c38a0333c5026e9ccc7ffa01bf92",
+      "receipt": {
+        "schema": "sao-inspection-health-checks/1",
+        "sources": {
+          "mod/42.20/media/lua/client/SAO_Observation.lua": "c54f893bc4207448d60f8b3aa85db407e63077d348901b5c79916257f7634fd6",
+          "tools/observation_test.py": "97d99451db1070af2ab9194cc9a5ee059515b4268869016358e22cfd485918a9",
+          "tools/luacheck/ObservationHealthProbe.java": "516d2aec8a3cc8c717c4f82384d1bd452b23e988217da2a43439230364f4e92f"
+        },
+        "log": "_scratch/c87-study/health-observation-checks.log",
+        "logSha256": "324b7312f62b5a3ce04114826c827c94c74218d0afde911a566563ab63dc6d86",
+        "checks": {
+          "installedKahlua": 42,
+          "luaMutationsRejected": 14,
+          "actualNative": 4,
+          "nativeMutationsRejected": 3
+        },
+        "nativeFixture": {
+          "characterHealth": 1,
+          "bodyDamageHealth": 37.5
+        },
+        "review": "observer_coherence found no remaining High/Medium",
+        "limits": "Headless installed native receiver and Kahlua; visible inspector awaiting a fresh native run."
+      }
+    },
+    "thirst-barrier-deliberation": {
+      "sourceReceiptSha256": "5650a73c2535cb7cb1ca1fbd8016a3016225ceba6a09fb2082991fa6a29b4963",
+      "receipt": {
+        "schema": "sao-native-crossing-checks/1",
+        "boundary": "Installed native objects and production movement; controlled geometry/state, no rendered gameplay.",
+        "engineJarSha256": "80e405a4bfc42f6072e75b3735f458a6514143da011d3226007ded305a442f44",
+        "sources": {
+          "java\\src\\com\\sao\\engine\\SAOMovement.java": "1eed99c33e075f034e737a6eb2c78802f3953b06dd88eb5b98a0f2c4e81123c2",
+          "java\\src\\com\\sao\\engine\\SAORouteState.java": "7fc0130999e0b26c45d399b47f780be3e4b581f8dcc675192984b3fa12268068",
+          "tools\\luacheck\\MovementCrossingProbe.java": "ca9dbe9c356c98ff40e6aa63d577fd2ace052c139b83fc6f43664701fd2f1bd1",
+          "tools\\seat_and_crossing_test.py": "cd7fa6e9523ce6427a99df48c2552acbeaf77953ff7515bea2a6d04c54c5f1fd",
+          "mod\\42.20\\media\\lua\\client\\SAO_Controller.lua": "de034da5e789c8539cb39dcacb7f827e244cecf779a92c591f7f8957c52209ae",
+          "mod\\42.20\\media\\lua\\client\\SAO_Locomotion.lua": "1028d023a4c539329fd9a4c52df685950c1b449b0ec08e0b8de6234b0c253a9b",
+          "tools\\luacheck\\LuaRun.java": "f6f55e6da98c1f1249720666d862720efc025167d1df37d35820e877b14df741",
+          "tools\\flee_continuity_test.py": "6b4539a138b531834098522241f03b7595b898ca988f0aed6f85b14b87a60860"
+        },
+        "commands": [
+          {
+            "phase": "production-compile",
+            "exit": 0,
+            "seconds": 2.536770699894987,
+            "stdout": "",
+            "stderr": "Note: Some input files use or override a deprecated API.\nNote: Recompile with -Xlint:deprecation for details.\n"
+          },
+          {
+            "phase": "production-probe",
+            "exit": 0,
+            "seconds": 1.084949899930507,
+            "stdout": "CHECK ClimbOverFenceState_native_flag_false=true\nCHECK ClimbOverFenceState_holds_arrival=true\nCHECK ClimbOverFenceState_actual_exit_arrives=true\nCHECK native_diagonal_is_blocked=true\nCHECK ClimbOverFenceState_holds_blocked_diagonal=true\nCHECK ClimbOverFenceState_exit_keeps_diagonal_block=true\nVERDICT blocked_diagonal=FailedObstacle:FAILED_BLOCKED_DIAGONAL\nCHECK ClimbOverFenceState_native_route_not_stolen=true\nCHECK ClimbThroughWindowState_native_flag_false=true\nCHECK ClimbThroughWindowState_holds_arrival=true\nCHECK ClimbThroughWindowState_actual_exit_arrives=true\nCHECK native_diagonal_is_blocked=true\nCHECK ClimbThroughWindowState_holds_blocked_diagonal=true\nCHECK ClimbThroughWindowState_exit_keeps_diagonal_block=true\nVERDICT blocked_diagonal=FailedObstacle:FAILED_BLOCKED_DIAGONAL\nCHECK ClimbThroughWindowState_native_route_not_stolen=true\nCHECK EventClimbFence_pending_does_not_arrive=true\nCHECK EventClimbFence_pending_is_not_reissued=true\nCHECK EventClimbFence_unentered_request_fails=true\nCHECK EventClimbWindow_pending_does_not_arrive=true\nCHECK EventClimbWindow_pending_is_not_reissued=true\nCHECK EventClimbWindow_unentered_request_fails=true\nCHECK overshoot_crossing_owned=true\nCHECK native_exit_projects_forward=true\nCHECK native_projection_collision_present=true\nCHECK native_projection_collision_not_skipped=true\nCHECK native_fixture_fence_detected=true\nADMISSION Transition:STARTED_FENCE_CLIMB\nCHECK native_fence_request_acknowledged=true\nCHECK native_fence_pending_retains_route=true\nCHECK native_fence_pending_enters_state=true\nCHECK native_fence_entered_state_finishes=true\nNATIVE_UPDATE Transition:CLIMBING\nCHECK native_update_pending_route_not_captured=true\nREFUSAL FailedObstacle:FAILED_FENCE_CLIMB_REFUSED\nCHECK native_fence_refusal_not_started=true\nCHECK native_window_fixture_climbable=true\nWINDOW Transition:STARTED_WINDOW_CLIMB\nCHECK native_window_request_acknowledged=true\nCHECK native_window_pending_retains_route=true\nCHECK cleared_route_does_not_inherit_pending=true\nVERDICT window_declined=FailedObstacle:FAILED_WINDOW_DECLINED\nCHECK native_window_declined_verdict=true\nCHECK native_window_barricade_present=true\nVERDICT barricaded_window=FailedObstacle:FAILED_BARRICADED_WINDOW\nCHECK native_barricaded_window_verdict=true\nCHECK native_locked_door_present=true\nVERDICT locked_door=FailedObstacle:FAILED_LOCKED_DOOR\nCHECK native_locked_door_verdict=true\nCHECK native_door_barricade_present=true\nVERDICT barricaded_door=FailedObstacle:FAILED_BARRICADED_DOOR\nCHECK native_barricaded_door_verdict=true\nPASS movement crossing checks=42\n",
+            "stderr": ""
+          },
+          {
+            "phase": "obstacle-kahlua-compile",
+            "exit": 0,
+            "seconds": 0.7136907000094652,
+            "stdout": "",
+            "stderr": ""
+          },
+          {
+            "phase": "obstacle-production",
+            "exit": 0,
+            "seconds": 0.4008774000685662,
+            "stdout": "VALUE PASS 105\n",
+            "stderr": ""
+          },
+          {
+            "phase": "obstacle-ignore-thirst-desperation",
+            "exit": 1,
+            "seconds": 0.43439690000377595,
+            "stdout": "ERROR KahluaException: OBSTACLE_CHECK:thirst_desperation_admitted\n",
+            "stderr": ""
+          },
+          {
+            "phase": "obstacle-old-locked-substring",
+            "exit": 1,
+            "seconds": 0.36332090001087636,
+            "stdout": "ERROR KahluaException: OBSTACLE_CHECK:blocked_diagonal_refuse_not_a_lock\n",
+            "stderr": ""
+          },
+          {
+            "phase": "obstacle-drop-locked-door",
+            "exit": 1,
+            "seconds": 0.36639179999474436,
+            "stdout": "ERROR KahluaException: OBSTACLE_CHECK:locked_door_refuse_refusal_retained\n",
+            "stderr": ""
+          },
+          {
+            "phase": "obstacle-drop-barricaded-door",
+            "exit": 1,
+            "seconds": 0.3510042999405414,
+            "stdout": "ERROR KahluaException: OBSTACLE_CHECK:barricaded_door_refuse_refusal_retained\n",
+            "stderr": ""
+          },
+          {
+            "phase": "obstacle-drop-barricaded-window",
+            "exit": 1,
+            "seconds": 0.3787524000508711,
+            "stdout": "ERROR KahluaException: OBSTACLE_CHECK:barricaded_window_refuse_refusal_retained\n",
+            "stderr": ""
+          },
+          {
+            "phase": "obstacle-drop-window-declined",
+            "exit": 1,
+            "seconds": 0.38219560007564723,
+            "stdout": "ERROR KahluaException: OBSTACLE_CHECK:window_declined_refuse_refusal_retained\n",
+            "stderr": ""
+          },
+          {
+            "phase": "obstacle-unanchored-native-code",
+            "exit": 1,
+            "seconds": 0.39973109995480627,
+            "stdout": "ERROR KahluaException: OBSTACLE_CHECK:FAILED_LOCKED_DOOR_EXTRA_refuse_not_a_lock\n",
+            "stderr": ""
+          },
+          {
+            "phase": "old-boolean-only-guard-compile",
+            "exit": 0,
+            "seconds": 0.8986376000102609,
+            "stdout": "",
+            "stderr": ""
+          },
+          {
+            "phase": "old-boolean-only-guard",
+            "exit": 1,
+            "seconds": 0.955626800074242,
+            "stdout": "CHECK ClimbOverFenceState_native_flag_false=true\nCHECK ClimbOverFenceState_holds_arrival=false\n",
+            "stderr": "Exception in thread \"main\" java.lang.AssertionError: ClimbOverFenceState_holds_arrival\n\tat MovementCrossingProbe.check(MovementCrossingProbe.java:29)\n\tat MovementCrossingProbe.main(MovementCrossingProbe.java:123)\n"
+          },
+          {
+            "phase": "guard-after-arrival-compile",
+            "exit": 0,
+            "seconds": 0.9636805999325588,
+            "stdout": "",
+            "stderr": ""
+          },
+          {
+            "phase": "guard-after-arrival",
+            "exit": 1,
+            "seconds": 0.9535237000091001,
+            "stdout": "CHECK ClimbOverFenceState_native_flag_false=true\nCHECK ClimbOverFenceState_holds_arrival=false\n",
+            "stderr": "Exception in thread \"main\" java.lang.AssertionError: ClimbOverFenceState_holds_arrival\n\tat MovementCrossingProbe.check(MovementCrossingProbe.java:29)\n\tat MovementCrossingProbe.main(MovementCrossingProbe.java:123)\n"
+          },
+          {
+            "phase": "capture-native-pending-route-compile",
+            "exit": 0,
+            "seconds": 0.9503011000342667,
+            "stdout": "",
+            "stderr": ""
+          },
+          {
+            "phase": "capture-native-pending-route",
+            "exit": 1,
+            "seconds": 1.165007899980992,
+            "stdout": "CHECK ClimbOverFenceState_native_flag_false=true\nCHECK ClimbOverFenceState_holds_arrival=true\nCHECK ClimbOverFenceState_actual_exit_arrives=true\nCHECK native_diagonal_is_blocked=true\nCHECK ClimbOverFenceState_holds_blocked_diagonal=true\nCHECK ClimbOverFenceState_exit_keeps_diagonal_block=true\nVERDICT blocked_diagonal=FailedObstacle:FAILED_BLOCKED_DIAGONAL\nCHECK ClimbOverFenceState_native_route_not_stolen=true\nCHECK ClimbThroughWindowState_native_flag_false=true\nCHECK ClimbThroughWindowState_holds_arrival=true\nCHECK ClimbThroughWindowState_actual_exit_arrives=true\nCHECK native_diagonal_is_blocked=true\nCHECK ClimbThroughWindowState_holds_blocked_diagonal=true\nCHECK ClimbThroughWindowState_exit_keeps_diagonal_block=true\nVERDICT blocked_diagonal=FailedObstacle:FAILED_BLOCKED_DIAGONAL\nCHECK ClimbThroughWindowState_native_route_not_stolen=true\nCHECK EventClimbFence_pending_does_not_arrive=true\nCHECK EventClimbFence_pending_is_not_reissued=true\nCHECK EventClimbFence_unentered_request_fails=true\nCHECK EventClimbWindow_pending_does_not_arrive=true\nCHECK EventClimbWindow_pending_is_not_reissued=true\nCHECK EventClimbWindow_unentered_request_fails=true\nCHECK overshoot_crossing_owned=true\nCHECK native_exit_projects_forward=true\nCHECK native_projection_collision_present=true\nCHECK native_projection_collision_not_skipped=true\nCHECK native_fixture_fence_detected=true\nADMISSION Transition:STARTED_FENCE_CLIMB\nCHECK native_fence_request_acknowledged=true\nCHECK native_fence_pending_retains_route=true\nCHECK native_fence_pending_enters_state=true\nCHECK native_fence_entered_state_finishes=true\nNATIVE_UPDATE Transition:CLIMBING\nCHECK native_update_pending_route_not_captured=false\n",
+            "stderr": "Exception in thread \"main\" java.lang.AssertionError: native_update_pending_route_not_captured\n\tat MovementCrossingProbe.check(MovementCrossingProbe.java:29)\n\tat MovementCrossingProbe.main(MovementCrossingProbe.java:188)\n"
+          },
+          {
+            "phase": "ignore-native-pending-event-compile",
+            "exit": 0,
+            "seconds": 0.9466908999020234,
+            "stdout": "",
+            "stderr": ""
+          },
+          {
+            "phase": "ignore-native-pending-event",
+            "exit": 1,
+            "seconds": 0.9618692999938503,
+            "stdout": "CHECK ClimbOverFenceState_native_flag_false=true\nCHECK ClimbOverFenceState_holds_arrival=true\nCHECK ClimbOverFenceState_actual_exit_arrives=true\nCHECK native_diagonal_is_blocked=true\nCHECK ClimbOverFenceState_holds_blocked_diagonal=true\nCHECK ClimbOverFenceState_exit_keeps_diagonal_block=true\nVERDICT blocked_diagonal=FailedObstacle:FAILED_BLOCKED_DIAGONAL\nCHECK ClimbOverFenceState_native_route_not_stolen=true\nCHECK ClimbThroughWindowState_native_flag_false=true\nCHECK ClimbThroughWindowState_holds_arrival=true\nCHECK ClimbThroughWindowState_actual_exit_arrives=true\nCHECK native_diagonal_is_blocked=true\nCHECK ClimbThroughWindowState_holds_blocked_diagonal=true\nCHECK ClimbThroughWindowState_exit_keeps_diagonal_block=true\nVERDICT blocked_diagonal=FailedObstacle:FAILED_BLOCKED_DIAGONAL\nCHECK ClimbThroughWindowState_native_route_not_stolen=true\nCHECK EventClimbFence_pending_does_not_arrive=false\n",
+            "stderr": "Exception in thread \"main\" java.lang.AssertionError: EventClimbFence_pending_does_not_arrive\n\tat MovementCrossingProbe.check(MovementCrossingProbe.java:29)\n\tat MovementCrossingProbe.main(MovementCrossingProbe.java:151)\n"
+          },
+          {
+            "phase": "unentered-request-is-success-compile",
+            "exit": 0,
+            "seconds": 0.9113342999480665,
+            "stdout": "",
+            "stderr": ""
+          },
+          {
+            "phase": "unentered-request-is-success",
+            "exit": 1,
+            "seconds": 0.974339900072664,
+            "stdout": "CHECK ClimbOverFenceState_native_flag_false=true\nCHECK ClimbOverFenceState_holds_arrival=true\nCHECK ClimbOverFenceState_actual_exit_arrives=true\nCHECK native_diagonal_is_blocked=true\nCHECK ClimbOverFenceState_holds_blocked_diagonal=true\nCHECK ClimbOverFenceState_exit_keeps_diagonal_block=true\nVERDICT blocked_diagonal=FailedObstacle:FAILED_BLOCKED_DIAGONAL\nCHECK ClimbOverFenceState_native_route_not_stolen=true\nCHECK ClimbThroughWindowState_native_flag_false=true\nCHECK ClimbThroughWindowState_holds_arrival=true\nCHECK ClimbThroughWindowState_actual_exit_arrives=true\nCHECK native_diagonal_is_blocked=true\nCHECK ClimbThroughWindowState_holds_blocked_diagonal=true\nCHECK ClimbThroughWindowState_exit_keeps_diagonal_block=true\nVERDICT blocked_diagonal=FailedObstacle:FAILED_BLOCKED_DIAGONAL\nCHECK ClimbThroughWindowState_native_route_not_stolen=true\nCHECK EventClimbFence_pending_does_not_arrive=true\nCHECK EventClimbFence_pending_is_not_reissued=true\nCHECK EventClimbFence_unentered_request_fails=false\n",
+            "stderr": "Exception in thread \"main\" java.lang.AssertionError: EventClimbFence_unentered_request_fails\n\tat MovementCrossingProbe.check(MovementCrossingProbe.java:29)\n\tat MovementCrossingProbe.main(MovementCrossingProbe.java:154)\n"
+          },
+          {
+            "phase": "refused-call-is-started-compile",
+            "exit": 0,
+            "seconds": 0.9658494999166578,
+            "stdout": "",
+            "stderr": ""
+          },
+          {
+            "phase": "refused-call-is-started",
+            "exit": 1,
+            "seconds": 0.9944202000042424,
+            "stdout": "CHECK ClimbOverFenceState_native_flag_false=true\nCHECK ClimbOverFenceState_holds_arrival=true\nCHECK ClimbOverFenceState_actual_exit_arrives=true\nCHECK native_diagonal_is_blocked=true\nCHECK ClimbOverFenceState_holds_blocked_diagonal=true\nCHECK ClimbOverFenceState_exit_keeps_diagonal_block=true\nVERDICT blocked_diagonal=FailedObstacle:FAILED_BLOCKED_DIAGONAL\nCHECK ClimbOverFenceState_native_route_not_stolen=true\nCHECK ClimbThroughWindowState_native_flag_false=true\nCHECK ClimbThroughWindowState_holds_arrival=true\nCHECK ClimbThroughWindowState_actual_exit_arrives=true\nCHECK native_diagonal_is_blocked=true\nCHECK ClimbThroughWindowState_holds_blocked_diagonal=true\nCHECK ClimbThroughWindowState_exit_keeps_diagonal_block=true\nVERDICT blocked_diagonal=FailedObstacle:FAILED_BLOCKED_DIAGONAL\nCHECK ClimbThroughWindowState_native_route_not_stolen=true\nCHECK EventClimbFence_pending_does_not_arrive=true\nCHECK EventClimbFence_pending_is_not_reissued=true\nCHECK EventClimbFence_unentered_request_fails=true\nCHECK EventClimbWindow_pending_does_not_arrive=true\nCHECK EventClimbWindow_pending_is_not_reissued=true\nCHECK EventClimbWindow_unentered_request_fails=true\nCHECK overshoot_crossing_owned=true\nCHECK native_exit_projects_forward=true\nCHECK native_projection_collision_present=true\nCHECK native_projection_collision_not_skipped=true\nCHECK native_fixture_fence_detected=true\nADMISSION Transition:STARTED_FENCE_CLIMB\nCHECK native_fence_request_acknowledged=true\nCHECK native_fence_pending_retains_route=true\nCHECK native_fence_pending_enters_state=true\nCHECK native_fence_entered_state_finishes=true\nNATIVE_UPDATE Transition:CLIMBING\nCHECK native_update_pending_route_not_captured=true\nREFUSAL Transition:STARTED_FENCE_CLIMB\nCHECK native_fence_refusal_not_started=false\n",
+            "stderr": "Exception in thread \"main\" java.lang.AssertionError: native_fence_refusal_not_started\n\tat MovementCrossingProbe.check(MovementCrossingProbe.java:29)\n\tat MovementCrossingProbe.main(MovementCrossingProbe.java:197)\n"
+          },
+          {
+            "phase": "skip-post-exit-projection-compile",
+            "exit": 0,
+            "seconds": 0.9333316000411287,
+            "stdout": "",
+            "stderr": ""
+          },
+          {
+            "phase": "skip-post-exit-projection",
+            "exit": 1,
+            "seconds": 0.9578893000725657,
+            "stdout": "CHECK ClimbOverFenceState_native_flag_false=true\nCHECK ClimbOverFenceState_holds_arrival=true\nCHECK ClimbOverFenceState_actual_exit_arrives=true\nCHECK native_diagonal_is_blocked=true\nCHECK ClimbOverFenceState_holds_blocked_diagonal=true\nCHECK ClimbOverFenceState_exit_keeps_diagonal_block=true\nVERDICT blocked_diagonal=FailedObstacle:FAILED_BLOCKED_DIAGONAL\nCHECK ClimbOverFenceState_native_route_not_stolen=true\nCHECK ClimbThroughWindowState_native_flag_false=true\nCHECK ClimbThroughWindowState_holds_arrival=true\nCHECK ClimbThroughWindowState_actual_exit_arrives=true\nCHECK native_diagonal_is_blocked=true\nCHECK ClimbThroughWindowState_holds_blocked_diagonal=true\nCHECK ClimbThroughWindowState_exit_keeps_diagonal_block=true\nVERDICT blocked_diagonal=FailedObstacle:FAILED_BLOCKED_DIAGONAL\nCHECK ClimbThroughWindowState_native_route_not_stolen=true\nCHECK EventClimbFence_pending_does_not_arrive=true\nCHECK EventClimbFence_pending_is_not_reissued=true\nCHECK EventClimbFence_unentered_request_fails=true\nCHECK EventClimbWindow_pending_does_not_arrive=true\nCHECK EventClimbWindow_pending_is_not_reissued=true\nCHECK EventClimbWindow_unentered_request_fails=true\nCHECK overshoot_crossing_owned=true\nCHECK native_exit_projects_forward=false\n",
+            "stderr": "Exception in thread \"main\" java.lang.AssertionError: native_exit_projects_forward\n\tat MovementCrossingProbe.check(MovementCrossingProbe.java:29)\n\tat MovementCrossingProbe.main(MovementCrossingProbe.java:160)\n"
+          },
+          {
+            "phase": "ignore-native-projection-refusal-compile",
+            "exit": 0,
+            "seconds": 0.9151832999195904,
+            "stdout": "",
+            "stderr": ""
+          },
+          {
+            "phase": "ignore-native-projection-refusal",
+            "exit": 1,
+            "seconds": 0.9799524999689311,
+            "stdout": "CHECK ClimbOverFenceState_native_flag_false=true\nCHECK ClimbOverFenceState_holds_arrival=true\nCHECK ClimbOverFenceState_actual_exit_arrives=true\nCHECK native_diagonal_is_blocked=true\nCHECK ClimbOverFenceState_holds_blocked_diagonal=true\nCHECK ClimbOverFenceState_exit_keeps_diagonal_block=true\nVERDICT blocked_diagonal=FailedObstacle:FAILED_BLOCKED_DIAGONAL\nCHECK ClimbOverFenceState_native_route_not_stolen=true\nCHECK ClimbThroughWindowState_native_flag_false=true\nCHECK ClimbThroughWindowState_holds_arrival=true\nCHECK ClimbThroughWindowState_actual_exit_arrives=true\nCHECK native_diagonal_is_blocked=true\nCHECK ClimbThroughWindowState_holds_blocked_diagonal=true\nCHECK ClimbThroughWindowState_exit_keeps_diagonal_block=true\nVERDICT blocked_diagonal=FailedObstacle:FAILED_BLOCKED_DIAGONAL\nCHECK ClimbThroughWindowState_native_route_not_stolen=true\nCHECK EventClimbFence_pending_does_not_arrive=true\nCHECK EventClimbFence_pending_is_not_reissued=true\nCHECK EventClimbFence_unentered_request_fails=true\nCHECK EventClimbWindow_pending_does_not_arrive=true\nCHECK EventClimbWindow_pending_is_not_reissued=true\nCHECK EventClimbWindow_unentered_request_fails=true\nCHECK overshoot_crossing_owned=true\nCHECK native_exit_projects_forward=true\nCHECK native_projection_collision_present=true\nCHECK native_projection_collision_not_skipped=false\n",
+            "stderr": "Exception in thread \"main\" java.lang.AssertionError: native_projection_collision_not_skipped\n\tat MovementCrossingProbe.check(MovementCrossingProbe.java:29)\n\tat MovementCrossingProbe.main(MovementCrossingProbe.java:168)\n"
+          },
+          {
+            "phase": "relax-blocked-diagonal-compile",
+            "exit": 0,
+            "seconds": 0.8689415999688208,
+            "stdout": "",
+            "stderr": ""
+          },
+          {
+            "phase": "relax-blocked-diagonal",
+            "exit": 1,
+            "seconds": 0.9854434999870136,
+            "stdout": "CHECK ClimbOverFenceState_native_flag_false=true\nCHECK ClimbOverFenceState_holds_arrival=true\nCHECK ClimbOverFenceState_actual_exit_arrives=true\nCHECK native_diagonal_is_blocked=true\nCHECK ClimbOverFenceState_holds_blocked_diagonal=true\nCHECK ClimbOverFenceState_exit_keeps_diagonal_block=false\n",
+            "stderr": "Exception in thread \"main\" java.lang.AssertionError: ClimbOverFenceState_exit_keeps_diagonal_block\n\tat MovementCrossingProbe.check(MovementCrossingProbe.java:29)\n\tat MovementCrossingProbe.main(MovementCrossingProbe.java:137)\n"
+          },
+          {
+            "phase": "carry-old-crossing-owner-compile",
+            "exit": 0,
+            "seconds": 0.6548896000022069,
+            "stdout": "",
+            "stderr": ""
+          },
+          {
+            "phase": "carry-old-crossing-owner",
+            "exit": 1,
+            "seconds": 1.019020300009288,
+            "stdout": "CHECK ClimbOverFenceState_native_flag_false=true\nCHECK ClimbOverFenceState_holds_arrival=true\nCHECK ClimbOverFenceState_actual_exit_arrives=true\nCHECK native_diagonal_is_blocked=true\nCHECK ClimbOverFenceState_holds_blocked_diagonal=true\nCHECK ClimbOverFenceState_exit_keeps_diagonal_block=true\nVERDICT blocked_diagonal=FailedObstacle:FAILED_BLOCKED_DIAGONAL\nCHECK ClimbOverFenceState_native_route_not_stolen=true\nCHECK ClimbThroughWindowState_native_flag_false=true\nCHECK ClimbThroughWindowState_holds_arrival=true\nCHECK ClimbThroughWindowState_actual_exit_arrives=true\nCHECK native_diagonal_is_blocked=true\nCHECK ClimbThroughWindowState_holds_blocked_diagonal=true\nCHECK ClimbThroughWindowState_exit_keeps_diagonal_block=true\nVERDICT blocked_diagonal=FailedObstacle:FAILED_BLOCKED_DIAGONAL\nCHECK ClimbThroughWindowState_native_route_not_stolen=true\nCHECK EventClimbFence_pending_does_not_arrive=true\nCHECK EventClimbFence_pending_is_not_reissued=true\nCHECK EventClimbFence_unentered_request_fails=true\nCHECK EventClimbWindow_pending_does_not_arrive=true\nCHECK EventClimbWindow_pending_is_not_reissued=true\nCHECK EventClimbWindow_unentered_request_fails=true\nCHECK overshoot_crossing_owned=true\nCHECK native_exit_projects_forward=true\nCHECK native_projection_collision_present=true\nCHECK native_projection_collision_not_skipped=true\nCHECK native_fixture_fence_detected=true\nADMISSION Transition:STARTED_FENCE_CLIMB\nCHECK native_fence_request_acknowledged=true\nCHECK native_fence_pending_retains_route=true\nCHECK native_fence_pending_enters_state=true\nCHECK native_fence_entered_state_finishes=true\nNATIVE_UPDATE Transition:CLIMBING\nCHECK native_update_pending_route_not_captured=true\nREFUSAL FailedObstacle:FAILED_FENCE_CLIMB_REFUSED\nCHECK native_fence_refusal_not_started=true\nCHECK native_window_fixture_climbable=true\nWINDOW Transition:STARTED_WINDOW_CLIMB\nCHECK native_window_request_acknowledged=true\nCHECK native_window_pending_retains_route=true\nCHECK cleared_route_does_not_inherit_pending=false\n",
+            "stderr": "Exception in thread \"main\" java.lang.AssertionError: cleared_route_does_not_inherit_pending\n\tat MovementCrossingProbe.check(MovementCrossingProbe.java:29)\n\tat MovementCrossingProbe.main(MovementCrossingProbe.java:215)\n"
+          }
+        ],
+        "checks": [
+          "ClimbOverFenceState_native_flag_false",
+          "ClimbOverFenceState_holds_arrival",
+          "ClimbOverFenceState_actual_exit_arrives",
+          "native_diagonal_is_blocked",
+          "ClimbOverFenceState_holds_blocked_diagonal",
+          "ClimbOverFenceState_exit_keeps_diagonal_block",
+          "ClimbOverFenceState_native_route_not_stolen",
+          "ClimbThroughWindowState_native_flag_false",
+          "ClimbThroughWindowState_holds_arrival",
+          "ClimbThroughWindowState_actual_exit_arrives",
+          "native_diagonal_is_blocked",
+          "ClimbThroughWindowState_holds_blocked_diagonal",
+          "ClimbThroughWindowState_exit_keeps_diagonal_block",
+          "ClimbThroughWindowState_native_route_not_stolen",
+          "EventClimbFence_pending_does_not_arrive",
+          "EventClimbFence_pending_is_not_reissued",
+          "EventClimbFence_unentered_request_fails",
+          "EventClimbWindow_pending_does_not_arrive",
+          "EventClimbWindow_pending_is_not_reissued",
+          "EventClimbWindow_unentered_request_fails",
+          "overshoot_crossing_owned",
+          "native_exit_projects_forward",
+          "native_projection_collision_present",
+          "native_projection_collision_not_skipped",
+          "native_fixture_fence_detected",
+          "native_fence_request_acknowledged",
+          "native_fence_pending_retains_route",
+          "native_fence_pending_enters_state",
+          "native_fence_entered_state_finishes",
+          "native_update_pending_route_not_captured",
+          "native_fence_refusal_not_started",
+          "native_window_fixture_climbable",
+          "native_window_request_acknowledged",
+          "native_window_pending_retains_route",
+          "cleared_route_does_not_inherit_pending",
+          "native_window_declined_verdict",
+          "native_window_barricade_present",
+          "native_barricaded_window_verdict",
+          "native_locked_door_present",
+          "native_locked_door_verdict",
+          "native_door_barricade_present",
+          "native_barricaded_door_verdict"
+        ],
+        "obstacleVerdicts": {
+          "blocked_diagonal": "FailedObstacle:FAILED_BLOCKED_DIAGONAL",
+          "window_declined": "FailedObstacle:FAILED_WINDOW_DECLINED",
+          "barricaded_window": "FailedObstacle:FAILED_BARRICADED_WINDOW",
+          "locked_door": "FailedObstacle:FAILED_LOCKED_DOOR",
+          "barricaded_door": "FailedObstacle:FAILED_BARRICADED_DOOR"
+        },
+        "obstacleChecks": 105,
+        "obstacleControls": [
+          {
+            "name": "ignore-thirst-desperation",
+            "rejected": true,
+            "marker": "thirst_desperation_admitted"
+          },
+          {
+            "name": "old-locked-substring",
+            "rejected": true,
+            "marker": "blocked_diagonal_refuse_not_a_lock"
+          },
+          {
+            "name": "drop-locked-door",
+            "rejected": true,
+            "marker": "locked_door_refuse_refusal_retained"
+          },
+          {
+            "name": "drop-barricaded-door",
+            "rejected": true,
+            "marker": "barricaded_door_refuse_refusal_retained"
+          },
+          {
+            "name": "drop-barricaded-window",
+            "rejected": true,
+            "marker": "barricaded_window_refuse_refusal_retained"
+          },
+          {
+            "name": "drop-window-declined",
+            "rejected": true,
+            "marker": "window_declined_refuse_refusal_retained"
+          },
+          {
+            "name": "unanchored-native-code",
+            "rejected": true,
+            "marker": "FAILED_LOCKED_DOOR_EXTRA_refuse_not_a_lock"
+          }
+        ],
+        "controls": [
+          {
+            "name": "old-boolean-only-guard",
+            "rejected": true,
+            "marker": "ClimbOverFenceState_holds_arrival"
+          },
+          {
+            "name": "guard-after-arrival",
+            "rejected": true,
+            "marker": "ClimbOverFenceState_holds_arrival"
+          },
+          {
+            "name": "capture-native-pending-route",
+            "rejected": true,
+            "marker": "native_update_pending_route_not_captured"
+          },
+          {
+            "name": "ignore-native-pending-event",
+            "rejected": true,
+            "marker": "EventClimbFence_pending_does_not_arrive"
+          },
+          {
+            "name": "unentered-request-is-success",
+            "rejected": true,
+            "marker": "EventClimbFence_unentered_request_fails"
+          },
+          {
+            "name": "refused-call-is-started",
+            "rejected": true,
+            "marker": "native_fence_refusal_not_started"
+          },
+          {
+            "name": "skip-post-exit-projection",
+            "rejected": true,
+            "marker": "native_exit_projects_forward"
+          },
+          {
+            "name": "ignore-native-projection-refusal",
+            "rejected": true,
+            "marker": "native_projection_collision_not_skipped"
+          },
+          {
+            "name": "relax-blocked-diagonal",
+            "rejected": true,
+            "marker": "ClimbOverFenceState_exit_keeps_diagonal_block"
+          },
+          {
+            "name": "carry-old-crossing-owner",
+            "rejected": true,
+            "marker": "cleared_route_does_not_inherit_pending"
+          }
+        ],
+        "status": "passed"
+      }
+    },
+    "bounded-rate-sample": {
+      "sourceReceiptSha256": "e63faac0e84eaf616583d0b0008fb3643a43394ebff6b2450ba2f1f376ba7982",
+      "receipt": {
+        "schema": "sao-native-runtime-sample-review/1",
+        "recordedAtUtc": "2026-09-27T00:42:47.858051+00:00",
+        "run": "_scratch/c87-study/residential-native-08",
+        "sessionId": "d00f4e5e-6c1f-4c8f-a746-c34fa36ae518",
+        "pid": 40204,
+        "metrics": {
+          "sampleWallSeconds": 60.012007499928586,
+          "counterSampleWallSeconds": 58.38409479998518,
+          "distinctNativeImages": 572,
+          "nativeImagesPerSecondLowerBound": 9.51476252482771,
+          "speedPresets": [
+            3
+          ],
+          "worldHours": [
+            4.45028018951416,
+            7.779383659362793
+          ],
+          "worldHoursPerWallMinute": 3.4212435574314783,
+          "logicCallsPerSecond": 22.523257481425127,
+          "loadedChunksRange": [
+            81,
+            81
+          ],
+          "memoryBytes": {
+            "privateBytes": {
+              "start": 6863929344,
+              "end": 6945144832,
+              "min": 6863929344,
+              "max": 6946131968,
+              "delta": 81215488
+            },
+            "workingBytes": {
+              "start": 9683554304,
+              "end": 9764851712,
+              "min": 9669787648,
+              "max": 9765699584,
+              "delta": 81297408
+            }
+          }
+        },
+        "sample": {
+          "path": "_scratch/c87-study/residential08-runtime-review/fastest-60s.json",
+          "sha256": "683ad26726b59b4164e75484f1e7f914a7c1850974e8340efeab1a4c3ebae864",
+          "bytes": 82778
+        },
+        "sampler": {
+          "path": "_scratch/c87-study/sample_native.py",
+          "sha256": "e0a35d63ed09ba750a42c5ef6cdbe362ff34be3e04fa41d93dbc96524967b74c",
+          "bytes": 2926
+        },
+        "copiedBody": {
+          "path": "_scratch/c87-study/residential-native-08/cache/mods/SurvivorAwareness/42.20/media/lua/client/SAO_Body.lua",
+          "sha256": "3ebc6440731e709f5a6b8f07173539939a95a41715a81d872e4e83b247697937",
+          "bytes": 47712
+        },
+        "beforeState": {
+          "path": "_scratch/c87-study/residential08-runtime-review/before-observer-state.json",
+          "sha256": "f7e108408940c4ad4036c66f2cd05c2880d09f9a973c22302f5fed72245ced91",
+          "bytes": 1822
+        },
+        "afterState": {
+          "path": "_scratch/c87-study/residential08-runtime-review/after-observer-state.json",
+          "sha256": "0e799e5bbdd95009b4139aa513f6205cd3b561989e3459ba6260afd9f9bc428d",
+          "bytes": 1821
+        },
+        "afterStateSummary": {
+          "status": "active",
+          "hours": 10.544384002685547,
+          "sequence": 75,
+          "speed": 3,
+          "nativeMultiplier": 20.0,
+          "paused": false,
+          "detached": true,
+          "objects": 0,
+          "squareMemberships": 0,
+          "error": null,
+          "failure": null
+        },
+        "logPrefixes": {
+          "stdout": {
+            "snapshot": {
+              "path": "_scratch/c87-study/residential08-runtime-review/stdout-prefix.log",
+              "sha256": "8963fcfcf5305158790cbd65024688a8711ed848399207cf36bd8da0d1678594",
+              "bytes": 214893
+            },
+            "lineCount": 2504,
+            "matches": {
+              "bareFallback": [],
+              "notAShell": [],
+              "bareMaterialization": [],
+              "nativeSpawnRefusal": [],
+              "outOfMemory": []
+            }
+          },
+          "stderr": {
+            "snapshot": {
+              "path": "_scratch/c87-study/residential08-runtime-review/stderr-prefix.log",
+              "sha256": "98b1d37de6ca5041e5b605d8ee11320d80d9d99f02b1201e2bd10ce4cceb9d96",
+              "bytes": 3190
+            },
+            "lineCount": 24,
+            "matches": {
+              "bareFallback": [],
+              "notAShell": [],
+              "bareMaterialization": [],
+              "nativeSpawnRefusal": [],
+              "outOfMemory": []
+            }
+          }
+        },
+        "knownBadControl": {
+          "run": "residential-native-07",
+          "log": {
+            "path": "_scratch/c87-study/residential-native-07/attempts/0001/stdout.log",
+            "sha256": "0cc174a29cca61f21dc31f06c65277247af1bfe479298c912139dedc81a3eeeb",
+            "bytes": 361922
+          },
+          "counts": {
+            "bareFallback": 4,
+            "notAShell": 4,
+            "bareMaterialization": 0,
+            "nativeSpawnRefusal": 4,
+            "outOfMemory": 0
+          }
+        },
+        "limits": [
+          "60-second read-only process-memory window does not establish presence or absence of a leak.",
+          "Images counted by distinct native image filename; rate is a sampling lower bound, not renderer or Desktop display FPS.",
+          "Log checks are bounded by saved prefixes while native08 remains running. No later-run or final save verdict is implied.",
+          "Zero observed native spawn refusals means this log window does not itself exercise the repaired nil/throw branch."
+        ]
+      }
+    },
+    "bridge-exception-boundaries": {
+      "sourceReceiptSha256": "de0b151421918349328e99dc14541bf0addb266f4b2d8a72bf1722c764ee561e",
+      "receipt": {
+        "schema": "sao.c87-bridge-guards/1",
+        "changedInputs": {
+          "java/dist/SAOAgent.jar": {
+            "before": "293d41d3447cd2c05fb97459ad2d9ea00008b3f0849db36cbff9722dfd1d8694",
+            "after": "ce5479c10bc94f43dd4dd90c5330094ce139cd2e5be4bcefa9102fabccc2705d"
+          },
+          "java/src/com/sao/bridge/SAOBridge.java": {
+            "before": "323514b3631c7655f54f45349c3fbc4f77b2689fcab62f45b4906a2da30a7bf4",
+            "after": "0ca77dee68ff1d944312bf3e389d3ee89bf0c6dcb31ea85c9e18bc6c98495249"
+          },
+          "mod/42.20/media/java/SAO.jar": {
+            "before": "293d41d3447cd2c05fb97459ad2d9ea00008b3f0849db36cbff9722dfd1d8694",
+            "after": "ce5479c10bc94f43dd4dd90c5330094ce139cd2e5be4bcefa9102fabccc2705d"
+          }
+        },
+        "priorGate": "precommit-03 stopped after the guard finding; no commit",
+        "priorGateReceiptSha256": "2af91502b158b12d211f8f8fe65d3a39f6ca9b40ee3a8967aef8e696b5ff049e",
+        "focusedCommand": "C:/Python314/python.exe tools/bridge_safety_test.py",
+        "exitCode": 0,
+        "output": "==========================================================================\nA JAVA THROW INTO KAHLUA\n==========================================================================\n  public bridge methods  : 253\n  reach a guard, or cannot throw: 253\n  neither                : 0\n\nVERDICT:\n  71) bridge safety: all 253 Lua-facing methods either catch, reach something that catches, or cannot throw at all\n",
+        "checkScope": "Production source exception-coverage analysis, not native thrown-receiver execution.",
+        "mechanism": "Four bridge methods now catch, log and return refusal/unavailable. Existing guards and native delegates are unchanged.",
+        "review": "Independent read-only review confirmed Lua consumers reject fallback values without admitting results or knowledge.",
+        "buildLogSha256": "616c60c0062f3a40c4c93a22bfa2fa891ad6fa92f0a311b790526db0f1750665"
+      }
+    },
+    "cached-source-control-target": {
+      "sourceReceiptSha256": "3459d027257f993b1a908cfa2459b317a744ff7bc7143f7474aaf7a6d72ef0d1",
+      "receipt": {
+        "schema": "sao.c87-source-control-target/1",
+        "path": "tools/source_access_test.py",
+        "sha256": "1f2db881b04e40e2b94ad9cdd633c1d108dd61cef6626b131e791b7830b986d2",
+        "priorGateReceiptSha256": "775324d540be98b1f89aa8e802f43a65ac46005ec3106dfacbc293f13afb22fc",
+        "priorGate": "precommit-04 stopped after Border177 finding, no commit",
+        "cause": "First global text replacement targeted the newly added native-fixture floor guard instead of cached-item squareWithinReach.",
+        "repair": "Isolate squareWithinReach; fail if its one guard cannot be found; mutate only that guard. Existing assertions and remaining controls unchanged.",
+        "runtimeChanged": false,
+        "focusedCommand": "C:/Python314/python.exe tools/source_access_test.py",
+        "exitCode": 0,
+        "output": "177) cached world sources retain loaded, same-floor, unobstructed, permissioned access through action completion\n",
+        "review": "Independent read-only review cleared targeting and unchanged verdict; structural predicate coverage, not a new native execution test."
+      }
+    }
+  },
+  "loadedEvidence": {
+    "07": {
+      "receipt": "artifacts/audits/c87-survival-studies/residential07/receipt.json",
+      "sha256": "5949b8dcabb6f581e8027ba3747b82151a0ed85c18d041fa21fec4b38274a2bc",
+      "outcome": {
+        "inspection": "Doug reached and successfully inspected one counter, acquiring exact private stock evidence.",
+        "firstUnobservedStage": "native transfer admission following the successful container inspection",
+        "evidence": "native-transfer-refused on the first and repeated forage arrivals; no carried food identity gain or hunger reduction in the full snapshots.",
+        "laterStage": "Later SourceUse reservations reached route failures and conflicts; the final reservation remained approaching-place.",
+        "water": "Both actors queued native drinking at the reachable sink; distinct physical snapshots independently show thirst reductions.",
+        "behavioralAcceptance": false
+      },
+      "terminal": {
+        "endHours": 30.353652954101562,
+        "nativeSaveReturned": true,
+        "startHours": 2.0,
+        "stopReason": "wall-time-limit"
+      },
+      "supervision": {
+        "exitCode": 0,
+        "failure": null,
+        "forced": false,
+        "limitSeconds": 600,
+        "progress": {
+          "native.json": 5755,
+          "observer-state.json": 19642
+        },
+        "stopReason": "wall-time-limit",
+        "wallSeconds": 602.411
+      }
+    },
+    "08": {
+      "receipt": "artifacts/audits/c87-survival-studies/residential08/receipt.json",
+      "sha256": "2108d09b621616f48c43f5a3835ca3862e3737456813ad6dfdd6f623a7f581b7",
+      "outcome": {
+        "schema": "sao-native-acquisition-outcome/1",
+        "createdAtUtc": "2026-09-27T00:49:58.790384+00:00",
+        "run": "residential-native-08",
+        "sessionId": "d00f4e5e-6c1f-4c8f-a746-c34fa36ae518",
+        "operational": {
+          "verified": true,
+          "receiptSha256": "2108d09b621616f48c43f5a3835ca3862e3737456813ad6dfdd6f623a7f581b7",
+          "terminal": {
+            "endHours": 28.33077049255371,
+            "nativeSaveReturned": true,
+            "startHours": 2.0,
+            "stopReason": "wall-time-limit"
+          },
+          "supervision": {
+            "exitCode": 0,
+            "failure": null,
+            "forced": false,
+            "limitSeconds": 600,
+            "progress": {
+              "native.json": 5706,
+              "observer-state.json": 16800
+            },
+            "stopReason": "wall-time-limit",
+            "wallSeconds": 602.248
+          },
+          "player": {
+            "count": 0,
+            "observerPersisted": false
+          },
+          "runtimeErrors": []
+        },
+        "evidence": {
+          "savedWorldSources": {
+            "path": "saved-source-results.json",
+            "sha256": "b8035047505a7d520ccf37d1b40851582e6e9fdfad603d88e3afc45f9f70d5c5",
+            "sealedGlobalModDataSha256": "18731fe4689f01be0ae828afe14436557722376faee3e7e352fa7472d1f72014",
+            "decoderSha256": "37fccaec0a2d6c70ac78e83d3c2baec9e32400ce405dc601187f90fe4950081e",
+            "projectionSha256": "de1b885a1f23d1533febb16fcef1a90f3af52a15e2a3f46d6ec2342f57f00e9f",
+            "decodeExit": 0,
+            "controlsRerun": false
+          },
+          "lastLiveSnapshotSha256": "f88191946dfbc3c1be3ae9b76a2f82d57b46ddf5ef768783248831e072415e08",
+          "nativeAgentLogSha256": "ebf1a1f6d045fbcbd953db2eb638e788579554a62f8dd7fac5a3c5031ce4e636"
+        },
+        "copiedRelevantSources": {
+          "42.20/media/java/SAO.jar": "293d41d3447cd2c05fb97459ad2d9ea00008b3f0849db36cbff9722dfd1d8694",
+          "42.20/media/lua/client/SAO_Body.lua": "3ebc6440731e709f5a6b8f07173539939a95a41715a81d872e4e83b247697937",
+          "42.20/media/lua/client/SAO_Controller.lua": "feeea135512a0610e79bcd4cafdee2b7b86fa43113b7b3527b35fb11b9edf126",
+          "42.20/media/lua/client/SAO_Locomotion.lua": "1028d023a4c539329fd9a4c52df685950c1b449b0ec08e0b8de6234b0c253a9b",
+          "42.20/media/lua/client/SAO_Needs.lua": "3c9f8dbbe04b48b30fe78a6c1ca92f0203ba1d8bed654c21740dcd9c86f6cccd",
+          "42.20/media/lua/client/SAO_PopulationAdmissions.lua": "532e6751dd50d9b79cd814a49833870ec0a05860d0ab165fd17522d12388ff56",
+          "42.20/media/lua/client/SAO_SourceUse.lua": "20d5d6a8a84f3efa360391f0745e0955079cc81458597b135d48f6e487c841c0",
+          "42.20/media/lua/shared/SAO_Perception.lua": "616eb8b7d3180c37a3259bf29acbf18cf69ba9e88e35784f073596ca1fcdc3ba",
+          "42.20/media/lua/shared/SAO_WorldSources.lua": "8110c4421510202b213f272efe4fcc45861bb41c16d20d29ff8ab8ae89e7b8c0"
+        },
+        "fullObservationFrames": {
+          "firstHours": 2,
+          "lastHours": 28.141132354736328,
+          "frames": 105,
+          "lastSequence": 105
+        },
+        "acquisition": {
+          "completedReceipts": [
+            {
+              "actorId": "sao-2",
+              "at": 20.714860916137695,
+              "category": "food",
+              "detail": "native-transfer-observed",
+              "itemCondition": 10.0,
+              "itemCurrentUses": 0.3,
+              "itemId": 649836813.0,
+              "itemPoison": false,
+              "itemRotten": false,
+              "itemType": "Base.MuttonChop",
+              "itemUses": 1.0,
+              "operation": "acquire",
+              "postRevision": "90815b6ccbdfb42162440f6df6b608fb351f8de5b4844b11dbcf6071033525fd",
+              "preRevision": "036140f20ff68761de6bfd56eac675e3af537ae9b75399576581b8451d8c1853",
+              "quantity": 1.0,
+              "requestedQuantity": 1.0,
+              "reservationId": "R:1:sao-2",
+              "sourceFingerprint": "c0e4f10530b2e4aceb519d15833b838ae50d40102d716a62c76ba401a108175b",
+              "sourceId": "C:701e49a8-6ca8-4de6-9c7c-c3dc16408378:0",
+              "sourceKind": "container",
+              "sourceX": 3424.0,
+              "sourceY": 10911.0,
+              "sourceZ": 0.0,
+              "status": "completed",
+              "transferPurpose": "forage"
+            }
+          ],
+          "nativeItemId": 649836813,
+          "holder": [
+            3424.0,
+            10911.0,
+            0.0
+          ],
+          "inventorySamplingLimit": "The acquired and then eaten native item was absent from both adjacent full inventory snapshots; its exact ID comes from the saved completed transfer receipt, not an observed inventory gain.",
+          "consumptionEvidence": {
+            "actorId": "sao-2",
+            "hungerBefore": 0.473,
+            "hungerAfter": 0.178,
+            "beforeInspectionHours": 20.533536911010742,
+            "afterInspectionHours": 20.783946990966797,
+            "beforeFrame": 75,
+            "afterFrame": 76,
+            "stage": "Native acquisition completion plus vanilla eating log and subsequent physical hunger reduction; no separate SourceUse consume receipt is claimed."
+          },
+          "foodState": {
+            "itemPoisonAtAcquisition": false,
+            "itemRottenAtAcquisition": false,
+            "cooked": "not exported",
+            "rawRisk": "not exported",
+            "healthLossInAvailableFullPhysicalSamples": false,
+            "safetyAcceptance": false
+          },
+          "logEvidence": [
+            {
+              "line": 3702,
+              "text": "LOG  : Lua          f:12490> [SAO][CTL] sao-2 FORAGE -> IDLE (inspected the container)"
+            },
+            {
+              "line": 3709,
+              "text": "LOG  : Lua          f:12492> [SAO][CTL] sao-2 FORAGE -> IDLE (inspected the container)"
+            },
+            {
+              "line": 3716,
+              "text": "LOG  : Lua          f:12494> [SAO][CTL] sao-2 FORAGE -> IDLE (inspected the container)"
+            },
+            {
+              "line": 3723,
+              "text": "LOG  : Lua          f:12496> [SAO][CTL] sao-2 FORAGE -> IDLE (inspected the container)"
+            },
+            {
+              "line": 3729,
+              "text": "LOG  : Lua          f:12498> [SAO][SOURCE-USE] sao-2 transfers exact item Base.MuttonChop from C:701e49a8-6ca8-4de6-9c7c-c3dc16408378:0"
+            },
+            {
+              "line": 3732,
+              "text": "LOG  : Lua          f:12499> [SAO][SOURCE-USE] sao-2 source action completed (036140f20ff68761de6bfd56eac675e3af537ae9b75399576581b8451d8c1853 -> 90815b6ccbdfb42162440f6df6b608fb351f8de5b4844b11dbcf6071033525fd)"
+            },
+            {
+              "line": 3733,
+              "text": "LOG  : Lua          f:12500> [SAO][NEED] sao-2 begins eating (vanilla action)"
+            },
+            {
+              "line": 3734,
+              "text": "LOG  : Lua          f:12500> [SAO][CTL] sao-2 TAKE -> EAT (eats carried food)"
+            },
+            {
+              "line": 3736,
+              "text": "LOG  : Lua          f:12528> [SAO][CTL] sao-2 EAT -> IDLE (eating action ended)"
+            }
+          ]
+        },
+        "lastPhysical": {
+          "sao-1": {
+            "needs": {
+              "Hunger": 0.564,
+              "Thirst": 0.278,
+              "Fatigue": 0.36,
+              "Endurance": 1.0,
+              "Nicotine withdrawal": 0.51,
+              "Health (%)": 100.0
+            },
+            "inventory": {
+              "id": "inventory",
+              "label": "Carried inventory",
+              "message": "10 items read",
+              "perspective": "Current physical state",
+              "rows": [
+                {
+                  "label": "Base.Hat_PeakedCapYacht",
+                  "value": "Captain's Hat [id 411437344]"
+                },
+                {
+                  "label": "Base.Tshirt_DefaultTEXTURE_TINT",
+                  "value": "T-shirt [id 729727250]"
+                },
+                {
+                  "label": "Base.Shirt_HawaiianTINT",
+                  "value": "Shirt - Hawaiian [id 288771799]"
+                },
+                {
+                  "label": "Base.WristWatch_Left_DigitalRed",
+                  "value": "Digital Watch [id 2079376512]"
+                },
+                {
+                  "label": "Base.Socks_Heavy",
+                  "value": "Socks - Heavy [id 548805198]"
+                },
+                {
+                  "label": "Base.Shoes_HikingBoots",
+                  "value": "Hiking Boots [id 1349571856]"
+                },
+                {
+                  "label": "Base.Trousers_Denim",
+                  "value": "Jeans [id 471352872]"
+                },
+                {
+                  "label": "Base.Bag_Satchel_Leather",
+                  "value": "Leather Satchel [id 1023873121]"
+                },
+                {
+                  "label": "Base.Notebook",
+                  "value": "Ross Sample's journal [id 1857432132]"
+                },
+                {
+                  "label": "Base.IDcard_Male",
+                  "value": "Ross Sample - ID [id 1478570227]"
+                }
+              ],
+              "source": "Native inventory containers",
+              "status": "available"
+            },
+            "inspectionHours": 28.3233642578125
+          },
+          "sao-2": {
+            "needs": {
+              "Hunger": 0.366,
+              "Thirst": 0.304,
+              "Fatigue": 0.006,
+              "Endurance": 1.0,
+              "Nicotine withdrawal": 0.0,
+              "Health (%)": 100.0
+            },
+            "inventory": {
+              "id": "inventory",
+              "label": "Carried inventory",
+              "message": "9 items read",
+              "perspective": "Current physical state",
+              "rows": [
+                {
+                  "label": "Base.Vest_DefaultTEXTURE_TINT",
+                  "value": "Tank Top [id 1363360215]"
+                },
+                {
+                  "label": "Base.WristWatch_Left_ClassicBlack",
+                  "value": "Wrist Watch - Classic [id 872188663]"
+                },
+                {
+                  "label": "Base.Bracelet_RightFriendshipTINT",
+                  "value": "Friendship Bracelet [id 76061161]"
+                },
+                {
+                  "label": "Base.Shoes_Random",
+                  "value": "Shoes [id 370460900]"
+                },
+                {
+                  "label": "Base.Trousers_JeanBaggy",
+                  "value": "Jeans - Baggy [id 392877468]"
+                },
+                {
+                  "label": "Base.Jacket_Varsity",
+                  "value": "Jacket - Varsity [id 1449649015]"
+                },
+                {
+                  "label": "Base.Bag_Schoolbag",
+                  "value": "Small Backpack [id 294072737]"
+                },
+                {
+                  "label": "Base.Notebook",
+                  "value": "Rickie Selby's journal [id 748140591]"
+                },
+                {
+                  "label": "Base.IDcard_Male",
+                  "value": "Rickie Selby - ID [id 1703781269]"
+                }
+              ],
+              "source": "Native inventory containers",
+              "status": "available"
+            },
+            "inspectionHours": 28.3233642578125
+          }
+        },
+        "broaderOutcome": {
+          "RossHungryWithoutKnownFood": {
+            "count": 48,
+            "lines": [
+              {
+                "line": 4035,
+                "text": "LOG  : Lua          f:14324> [SAO][CTL] sao-1 is hungry but knows of no food nearby"
+              },
+              {
+                "line": 4044,
+                "text": "LOG  : Lua          f:14353> [SAO][CTL] sao-1 is hungry but knows of no food nearby"
+              },
+              {
+                "line": 4047,
+                "text": "LOG  : Lua          f:14392> [SAO][CTL] sao-1 is hungry but knows of no food nearby"
+              },
+              {
+                "line": 4050,
+                "text": "LOG  : Lua          f:14423> [SAO][CTL] sao-1 is hungry but knows of no food nearby"
+              },
+              {
+                "line": 4062,
+                "text": "LOG  : Lua          f:14464> [SAO][CTL] sao-1 is hungry but knows of no food nearby"
+              },
+              {
+                "line": 4080,
+                "text": "LOG  : Lua          f:14502> [SAO][CTL] sao-1 is hungry but knows of no food nearby"
+              },
+              {
+                "line": 4092,
+                "text": "LOG  : Lua          f:14539> [SAO][CTL] sao-1 is hungry but knows of no food nearby"
+              },
+              {
+                "line": 4100,
+                "text": "LOG  : Lua          f:14571> [SAO][CTL] sao-1 is hungry but knows of no food nearby"
+              },
+              {
+                "line": 4109,
+                "text": "LOG  : Lua          f:14612> [SAO][CTL] sao-1 is hungry but knows of no food nearby"
+              },
+              {
+                "line": 4111,
+                "text": "LOG  : Lua          f:14657> [SAO][CTL] sao-1 is hungry but knows of no food nearby"
+              },
+              {
+                "line": 4113,
+                "text": "LOG  : Lua          f:14700> [SAO][CTL] sao-1 is hungry but knows of no food nearby"
+              },
+              {
+                "line": 4122,
+                "text": "LOG  : Lua          f:14742> [SAO][CTL] sao-1 is hungry but knows of no food nearby"
+              },
+              {
+                "line": 4125,
+                "text": "LOG  : Lua          f:14780> [SAO][CTL] sao-1 is hungry but knows of no food nearby"
+              },
+              {
+                "line": 4127,
+                "text": "LOG  : Lua          f:14822> [SAO][CTL] sao-1 is hungry but knows of no food nearby"
+              },
+              {
+                "line": 4137,
+                "text": "LOG  : Lua          f:14868> [SAO][CTL] sao-1 is hungry but knows of no food nearby"
+              },
+              {
+                "line": 4160,
+                "text": "LOG  : Lua          f:14896> [SAO][CTL] sao-1 is hungry but knows of no food nearby"
+              },
+              {
+                "line": 4165,
+                "text": "LOG  : Lua          f:14918> [SAO][CTL] sao-1 is hungry but knows of no food nearby"
+              },
+              {
+                "line": 4167,
+                "text": "LOG  : Lua          f:14939> [SAO][CTL] sao-1 is hungry but knows of no food nearby"
+              },
+              {
+                "line": 4171,
+                "text": "LOG  : Lua          f:14959> [SAO][CTL] sao-1 is hungry but knows of no food nearby"
+              },
+              {
+                "line": 4196,
+                "text": "LOG  : Lua          f:14980> [SAO][CTL] sao-1 is hungry but knows of no food nearby"
+              },
+              {
+                "line": 4205,
+                "text": "LOG  : Lua          f:15015> [SAO][CTL] sao-1 is hungry but knows of no food nearby"
+              },
+              {
+                "line": 4206,
+                "text": "LOG  : Lua          f:15036> [SAO][CTL] sao-1 is hungry but knows of no food nearby"
+              },
+              {
+                "line": 4211,
+                "text": "LOG  : Lua          f:15057> [SAO][CTL] sao-1 is hungry but knows of no food nearby"
+              },
+              {
+                "line": 4227,
+                "text": "LOG  : Lua          f:15088> [SAO][CTL] sao-1 is hungry but knows of no food nearby"
+              },
+              {
+                "line": 4239,
+                "text": "LOG  : Lua          f:15119> [SAO][CTL] sao-1 is hungry but knows of no food nearby"
+              },
+              {
+                "line": 4242,
+                "text": "LOG  : Lua          f:15142> [SAO][CTL] sao-1 is hungry but knows of no food nearby"
+              },
+              {
+                "line": 4251,
+                "text": "LOG  : Lua          f:15159> [SAO][CTL] sao-1 is hungry but knows of no food nearby"
+              },
+              {
+                "line": 4253,
+                "text": "LOG  : Lua          f:15189> [SAO][CTL] sao-1 is hungry but knows of no food nearby"
+              },
+              {
+                "line": 4259,
+                "text": "LOG  : Lua          f:15218> [SAO][CTL] sao-1 is hungry but knows of no food nearby"
+              },
+              {
+                "line": 4267,
+                "text": "LOG  : Lua          f:15239> [SAO][CTL] sao-1 is hungry but knows of no food nearby"
+              },
+              {
+                "line": 4280,
+                "text": "LOG  : Lua          f:15259> [SAO][CTL] sao-1 is hungry but knows of no food nearby"
+              },
+              {
+                "line": 4292,
+                "text": "LOG  : Lua          f:15291> [SAO][CTL] sao-1 is hungry but knows of no food nearby"
+              },
+              {
+                "line": 4294,
+                "text": "LOG  : Lua          f:15313> [SAO][CTL] sao-1 is hungry but knows of no food nearby"
+              },
+              {
+                "line": 4307,
+                "text": "LOG  : Lua          f:15334> [SAO][CTL] sao-1 is hungry but knows of no food nearby"
+              },
+              {
+                "line": 4328,
+                "text": "LOG  : Lua          f:15370> [SAO][CTL] sao-1 is hungry but knows of no food nearby"
+              },
+              {
+                "line": 4332,
+                "text": "LOG  : Lua          f:15392> [SAO][CTL] sao-1 is hungry but knows of no food nearby"
+              },
+              {
+                "line": 4334,
+                "text": "LOG  : Lua          f:15413> [SAO][CTL] sao-1 is hungry but knows of no food nearby"
+              },
+              {
+                "line": 4342,
+                "text": "LOG  : Lua          f:15434> [SAO][CTL] sao-1 is hungry but knows of no food nearby"
+              },
+              {
+                "line": 4361,
+                "text": "LOG  : Lua          f:15467> [SAO][CTL] sao-1 is hungry but knows of no food nearby"
+              },
+              {
+                "line": 4381,
+                "text": "LOG  : Lua          f:15507> [SAO][CTL] sao-1 is hungry but knows of no food nearby"
+              },
+              {
+                "line": 4388,
+                "text": "LOG  : Lua          f:15540> [SAO][CTL] sao-1 is hungry but knows of no food nearby"
+              },
+              {
+                "line": 4417,
+                "text": "LOG  : Lua          f:15568> [SAO][CTL] sao-1 is hungry but knows of no food nearby"
+              },
+              {
+                "line": 4422,
+                "text": "LOG  : Lua          f:15608> [SAO][CTL] sao-1 is hungry but knows of no food nearby"
+              },
+              {
+                "line": 4427,
+                "text": "LOG  : Lua          f:15634> [SAO][CTL] sao-1 is hungry but knows of no food nearby"
+              },
+              {
+                "line": 4436,
+                "text": "LOG  : Lua          f:15655> [SAO][CTL] sao-1 is hungry but knows of no food nearby"
+              },
+              {
+                "line": 4450,
+                "text": "LOG  : Lua          f:15675> [SAO][CTL] sao-1 is hungry but knows of no food nearby"
+              },
+              {
+                "line": 4474,
+                "text": "LOG  : Lua          f:15718> [SAO][CTL] sao-1 is hungry but knows of no food nearby"
+              },
+              {
+                "line": 4477,
+                "text": "LOG  : Lua          f:15740> [SAO][CTL] sao-1 is hungry but knows of no food nearby"
+              }
+            ],
+            "lastHunger": 0.564,
+            "lastKnown": {
+              "1.1822004856422402E16": {
+                "source": "observed",
+                "visits": 7,
+                "at": 136872,
+                "sourceFacts": {}
+              }
+            }
+          },
+          "firstUnobservedForRoss": "food discovery and acquisition",
+          "generalBehaviorAccepted": false
+        },
+        "agentTransferRefusalCount": 0,
+        "inspectionSuccessCount": 4,
+        "datasetAdmission": "unreviewed",
+        "limits": [
+          "The finite mechanical chain for Rickie does not establish effective search or survival for every person.",
+          "Both last physical health values are100; delayed sickness beyond this run is unobserved.",
+          "Raw/cooked state is unavailable and was not inferred from the item type.",
+          "The saved acquisition result and measured eating effect are distinct evidence; no consumption receipt was invented.",
+          "No native process, copied source or save was changed by the analysis."
+        ]
+      },
+      "terminal": {
+        "endHours": 28.33077049255371,
+        "nativeSaveReturned": true,
+        "startHours": 2.0,
+        "stopReason": "wall-time-limit"
+      },
+      "supervision": {
+        "exitCode": 0,
+        "failure": null,
+        "forced": false,
+        "limitSeconds": 600,
+        "progress": {
+          "native.json": 5706,
+          "observer-state.json": 16800
+        },
+        "stopReason": "wall-time-limit",
+        "wallSeconds": 602.248
+      }
+    }
+  },
+  "postNative08Changes": {
+    "java/dist/SAOAgent.jar": {
+      "before": "293d41d3447cd2c05fb97459ad2d9ea00008b3f0849db36cbff9722dfd1d8694",
+      "after": "ce5479c10bc94f43dd4dd90c5330094ce139cd2e5be4bcefa9102fabccc2705d"
+    },
+    "java/src/com/sao/bridge/SAOBridge.java": {
+      "before": "323514b3631c7655f54f45349c3fbc4f77b2689fcab62f45b4906a2da30a7bf4",
+      "after": "0ca77dee68ff1d944312bf3e389d3ee89bf0c6dcb31ea85c9e18bc6c98495249"
+    },
+    "mod/42.20/media/java/SAO.jar": {
+      "before": "293d41d3447cd2c05fb97459ad2d9ea00008b3f0849db36cbff9722dfd1d8694",
+      "after": "ce5479c10bc94f43dd4dd90c5330094ce139cd2e5be4bcefa9102fabccc2705d"
+    }
+  },
+  "closingGate": {
+    "command": "unchanged tools/pre-commit -> tools/check.sh --staged",
+    "standing": "enforced by the closing commit",
+    "localReceipt": "_scratch/c87-study/full-gate/precommit-05/verification-receipt.json"
+  },
+  "boundaries": [
+    "Native runs establish only the observed actions and physical consequences.",
+    "Native08 predates the final four bridge exception wrappers and rebuilt jars; other runtime inputs are unchanged.",
+    "No general strategic, macro-social or sustained-memory acceptance follows from these bounded runs.",
+    "Fixture water discovery is not a completed private appliance-memory model.",
+    "Scenarios remain unreviewed for dataset admission.",
+    "Mousecat is verified in its installed local checkout; its separate A19 publication is pending.",
+    "Speakeasy R72 is merged through PR40."
+  ]
+}

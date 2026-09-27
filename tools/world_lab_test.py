@@ -13,6 +13,7 @@ import json
 import os
 from pathlib import Path
 import re
+import shutil
 import subprocess
 import sqlite3
 import struct
@@ -300,6 +301,249 @@ def command(args, cwd):
     return result.stdout
 
 
+@unittest.skipUnless((GAME / "projectzomboid.jar").is_file(), "installed authored map unavailable")
+class AuthoredMapTests(unittest.TestCase):
+    @classmethod
+    def setUpClass(cls):
+        cls.temporary = tempfile.TemporaryDirectory(prefix="study-authored-border-")
+        cls.addClassCleanup(cls.temporary.cleanup)
+        cls.work = Path(cls.temporary.name)
+        cls.definition = Lab.load(Lab.ROOT / "tools/world_lab/definitions/echo-creek-residential.json")
+        cls.package = cls.work / "package"
+        cls.manifest = Lab.build(cls.definition, cls.package, GAME)
+        cls.name = cls.manifest["mapName"]
+        cls.version = cls.package / "mod" / cls.name / "42.20"
+        cls.maps = cls.version / "media/maps" / cls.name
+        cls.receipt = Lab.load(cls.package / "source-map.json")
+        cls.source = cls.work / "source-installation"
+        for relative in cls.receipt["inputs"]:
+            target = cls.source / relative
+            target.parent.mkdir(parents=True, exist_ok=True)
+            shutil.copyfile(GAME / relative, target)
+
+    def test_native_loaders_and_exact_extent(self):
+        classes = self.work / "native-classes"
+        classes.mkdir()
+        command([JDK / "javac.exe", "-cp", GAME / "projectzomboid.jar", "-d", classes,
+                 Lab.ROOT / "tools/world_lab/NativeAuthoredMapProbe.java"], GAME)
+        launch = [JDK / "java.exe", "-ea", f"-Duser.home={classes}", "--enable-native-access=ALL-UNNAMED",
+                  "-cp", str(GAME / "projectzomboid.jar") + os.pathsep + str(classes),
+                  "zombie.pot.NativeAuthoredMapProbe", self.version, self.name, classes / "cache",
+                  "13", "42", "14", "46"]
+        definitions = [Lab.load(path) for path in sorted((Lab.ROOT / "tools/world_lab/definitions").glob("echo-creek-*.json"))]
+        for definition in definitions:
+            for origin in definition["origins"]:
+                launch.extend(str(origin[k]) for k in ("x", "y", "z"))
+        output = command(launch, GAME)
+        native = [list(map(int, line.split()[1:])) for line in output.splitlines() if line.startswith("CELL ")]
+        expected = [[row[k] for k in ("x", "y", "rooms", "buildings")] for row in self.receipt["cells"]]
+        self.assertEqual(native, expected)
+        self.assertIn("332 rooms, 76 buildings, 423 basement/access assets", output)
+        self.assertEqual(sum(line.startswith("ORIGIN ") for line in output.splitlines()), 3)
+        for line in output.splitlines():
+            if line.startswith("ORIGIN "):
+                print(line)
+        print(output.splitlines()[-1])
+        # Extra authored cell is actual native map-bound expansion, even though
+        # it contains no scripted actor or behavior fixture.
+        spill = self.maps / "15_42.lotheader"
+        shutil.copyfile(GAME / "media/maps/Muldraugh, KY/15_42.lotheader", spill)
+        try:
+            with self.assertRaisesRegex(AssertionError, "spilled beyond"):
+                command(launch, GAME)
+        finally:
+            spill.unlink()
+        print("PASS native control refused: extra authored cell expands the loaded map")
+
+    def test_real_copied_bytes_and_variants(self):
+        self.assertEqual(Lab.verify_package(self.package)[1], self.definition)
+        for relative, seal in self.receipt["inputs"].items():
+            blob = (GAME / relative).read_bytes()
+            self.assertEqual(seal, {"sha256": Lab.Authored.digest(blob), "bytes": len(blob)})
+        variants = [Lab.validate(Lab.load(path)) for path in (Lab.ROOT / "tools/world_lab/definitions").glob("echo-creek-*.json")]
+        self.assertEqual(sorted(v["sandbox"]["SurvivorAwareness.Population"] for v in variants), [2, 4, 7])
+        for value in variants:
+            self.assertEqual(value["sourceMap"], "Muldraugh, KY")
+            self.assertEqual(value["extent"], self.definition["extent"])
+        self.assertEqual(self.manifest["datasetAdmission"], "unreviewed")
+        self.assertEqual(self.receipt["headerCatalog"]["count"], 4065)
+
+    def test_native_spawn_regions_feed_actual_admissions_at_each_origin(self):
+        # Reuse Border115's dependency host, not its outcomes or producer. The
+        # actual installed region loader and production Admissions both run.
+        import world_before_spawn_test as Spawn
+        work = self.work / "spawn-kahlua"
+        work.mkdir()
+        command([JDK / "javac.exe", "-cp", GAME / "projectzomboid.jar", "-d", work,
+                 Lab.ROOT / "tools/luacheck/LuaRun.java"], work)
+        shutil.copyfile(GAME / "stdlib.lua", work / "stdlib.lua")
+        installed = (GAME / "media/lua/shared/SpawnRegions.lua").read_text(encoding="utf-8")
+        admissions = Spawn.ADMISSIONS.read_text(encoding="utf-8")
+        for path in sorted((Lab.ROOT / "tools/world_lab/definitions").glob("echo-creek-*.json")):
+            definition = Lab.load(path)
+            origin = definition["origins"][0]
+            target = definition["sandbox"]["SurvivorAwareness.Population"]
+            name = "Study-" + definition["id"] + "-" + Lab.seal(definition)[:12]
+            sources = {"media/maps/" + name + "/" + key: value
+                       for key, value in Lab.spawn_sources(definition, name).items()}
+            def source_table(values):
+                return "{" + ",".join("[" + Lab.lua(k) + "]=function()\n" + v + "\nend" for k, v in sorted(values.items())) + "}"
+            expected = Lab.lua({"x": origin["x"], "y": origin["y"], "z": origin["z"]})
+            script = (Spawn.ADMISSION_HOST + '\nlocal Sources=' + source_table(sources)
+                + '\nfileExists=function(path) return Sources[path]~=nil end\n'
+                + 'reloadLuaFile=function(path) assert(Sources[path])() end\n'
+                + 'string.contains=function(s,p) return string.find(s,p,1,true)~=nil end\n'
+                + 'getWorld=function() return {getGameMode=function() return "Sandbox" end,getMap=function() return '
+                + Lab.lua(name) + ' end} end\nisClient=function() return false end\ntriggerEvent=function() end\n'
+                + installed + '\n__store={claims={},news={}}\n'
+                + 'SAO.Census.rowOf=function() return {enginePath="unemployed",label="ordinary origin"} end\n'
+                + 'SAO.Places.at=function() return nil end\nlocal Admissions=(function()\n' + admissions + '\nend)()\n'
+                + 'local loaded=SpawnRegionMgr.getSpawnRegions() assert(loaded and #loaded==1,"native region not loaded")\n'
+                + '\nSAO.PopulationAdmissions.ensurePopulation({population=' + str(target)
+                + ',newcomers=' + str(target) + ',refillDays=3},5400)\nlocal expected=' + expected
+                + '\nassert(#__created==' + str(target) + ',"cohort population differs: "..tostring(#__created))\n'
+                + 'for _,rec in ipairs(__created) do assert(rec.x==expected.x and rec.y==expected.y and rec.z==expected.z'
+                + ' and rec.homeX==expected.x and rec.homeY==expected.y and rec.homeZ==expected.z,"origin moved") end\n'
+                + 'assert(#__claimCalls==0,"origin invented ownership")\nRESULT="PASS actual native spawn loader and admissions cohort '
+                + str(target) + '"\n')
+            check = work / "check.lua"
+            check.write_text(script, encoding="utf-8")
+            java = [JDK / "java.exe", "-cp", str(GAME / "projectzomboid.jar") + os.pathsep + str(work),
+                    "LuaRun", check, "--", "RESULT"]
+            print(command(java, work).strip())
+            # Alter the generated point before string serialization. A real
+            # origin change must flip the home/initial-position verdict.
+            bad_sources = dict(sources)
+            key = "media/maps/" + name + "/spawnpoints.lua"
+            bad_sources[key] = bad_sources[key].replace('["posX"]=' + str(origin["x"]), '["posX"]=' + str(origin["x"] + 1))
+            changed = script.replace(source_table(sources), source_table(bad_sources), 1)
+            self.assertNotEqual(changed, script)
+            check.write_text(changed, encoding="utf-8")
+            with self.assertRaisesRegex(AssertionError, "origin moved"):
+                command(java, work)
+
+    def test_invalid_source_names_and_composition(self):
+        for source in ("../Muldraugh, KY", "C:/maps", "Muldraugh, KY/../other", " bad", "Muldraugh, KY;other", "", None):
+            value = copy.deepcopy(self.definition)
+            value["sourceMap"] = source
+            with self.subTest(source=source), self.assertRaises(ValueError):
+                Lab.validate(value)
+        value = copy.deepcopy(self.definition)
+        value["generation"] = copy.deepcopy(BASE["generation"])
+        with self.assertRaisesRegex(ValueError, "unchanged native terrain"):
+            Lab.validate(value)
+        value = copy.deepcopy(self.definition)
+        value["extent"]["cellsX"] = 64
+        with self.assertRaisesRegex(ValueError, "64 cells"):
+            Lab.validate(value)
+        with self.assertRaisesRegex(ValueError, "lots dependency"):
+            Lab.Authored.map_info((GAME / "media/maps/Rosewood, KY/map.info").read_bytes())
+
+    def test_corrupt_native_binary_and_metadata_controls(self):
+        source = GAME / "media/maps/Muldraugh, KY"
+        head = (source / "13_42.lotheader").read_bytes()
+        info = Lab.Authored.header(head, 13, 42)
+        pack = (source / "world_13_42.lotpack").read_bytes()
+        chunks = (source / "chunkdata_13_42.bin").read_bytes()
+        asset = (GAME / "media/binmap/lot_basement_house_01.pzby").read_bytes()
+        bad_offset = pack[:12] + struct.pack("<q", len(pack) + 4) + pack[20:]
+        controls = [
+            (Lab.Authored.header, (b"NOPE" + head[4:], 13, 42)),
+            (Lab.Authored.header, (head[:-1], 13, 42)),
+            (Lab.Authored.lotpack, (bad_offset, info)),
+            (Lab.Authored.lotpack, (pack[:-4], info)),
+            (Lab.Authored.chunkdata, (b"\0\2" + chunks[2:],)),
+            (Lab.Authored.chunkdata, (chunks[:-1],)),
+            (Lab.Authored.binary_building, (b"NOPE" + asset[4:],)),
+            (Lab.Authored.binary_building, (asset[:-1],)),
+            (Lab.Authored.metadata_table, (b'objects={}; os.execute("command")', "objects")),
+            (Lab.Authored.metadata_table, (b'objects={{name="a",name="b"}}', "objects")),
+            (Lab.Authored.metadata_table, (b'objects={{x=1e999}}', "objects")),
+            (Lab.Authored.basements, ((source / "basements.lua").read_bytes().replace(b"'Muldraugh, KY'", b"'Other'"), "Muldraugh, KY")),
+        ]
+        for fn, args in controls:
+            with self.subTest(parser=fn.__name__, size=len(args[0])), self.assertRaises(ValueError):
+                fn(*args)
+        print("PASS 12 corrupt native binary / executable, duplicate, nonfinite or foreign metadata controls")
+
+    def test_missing_source_files_and_cut_buildings(self):
+        for relative in ("media/maps/Muldraugh, KY/world_13_42.lotpack",
+                         "media/maps/Muldraugh, KY/objects.lua", "media/binmap/lot_basement_house_01.pzby"):
+            path = self.source / relative
+            blob = path.read_bytes()
+            path.unlink()
+            try:
+                with self.subTest(source=relative), self.assertRaisesRegex(ValueError, "missing/escaped native source"):
+                    Lab.Authored.prepare(self.source, self.definition, self.name, Lab.lua, Lab.canonical)
+            finally:
+                path.write_bytes(blob)
+        value = copy.deepcopy(self.definition)
+        value["extent"].update(cellsX=1, cellsY=1)
+        with self.assertRaisesRegex(ValueError, "cuts building|cuts an authored room"):
+            Lab.Authored.prepare(GAME, value, self.name, Lab.lua, Lab.canonical)
+        # The same crop must fail if a partially overlapping building is rooted
+        # in an omitted header: checking selected headers alone cannot prove it.
+        value["extent"]["minCellX"] = 14
+        original_contains = Lab.Authored.contains
+        with patch.object(Lab.Authored, "contains", return_value=True):
+            with self.assertRaisesRegex(ValueError, "cuts building rooted"):
+                Lab.Authored.prepare(GAME, value, self.name, Lab.lua, Lab.canonical)
+        self.assertIs(Lab.Authored.contains, original_contains)
+
+    def test_resealed_cell_metadata_and_whole_map_spill(self):
+        package = self.package
+        manifest_path, receipt_path = package / "package.json", package / "source-map.json"
+        original_manifest, original_receipt = manifest_path.read_bytes(), receipt_path.read_bytes()
+        cases = [
+            (self.maps / "map.info", lambda b: b.replace(b"lots=NONE", b"lots=Muldraugh, KY"), "map metadata differs"),
+            (self.maps / "objects.lua", lambda b: b"objects={}\n", "metadata selection differs"),
+            (self.maps / "spawnpoints.lua", lambda b: b.replace(b'3426', b'3427'), "spawn source differs"),
+            (self.maps / "13_42.lotheader", lambda b: b[:-1], "truncated lotheader"),
+            (self.maps / "15_42.lotheader", lambda b: (GAME / "media/maps/Muldraugh, KY/15_42.lotheader").read_bytes(), "inventory differs"),
+        ]
+        for path, change, expected in cases:
+            old = path.read_bytes() if path.exists() else None
+            path.write_bytes(change(old))
+            try:
+                receipt = copy.deepcopy(self.receipt)
+                relative = path.relative_to(self.version).as_posix()
+                if path.name not in ("map.info", "spawnpoints.lua"):
+                    receipt["outputs"][relative] = Lab.Authored.digest(path.read_bytes())
+                    source_path = "media/maps/Muldraugh, KY/" + path.name
+                    if source_path in receipt["inputs"] and path.suffix in (".lotheader", ".lotpack", ".bin"):
+                        receipt["inputs"][source_path] = {"sha256": Lab.Authored.digest(path.read_bytes()), "bytes": path.stat().st_size}
+                receipt_path.write_bytes(Lab.canonical(receipt))
+                manifest = copy.deepcopy(self.manifest)
+                manifest["files"] = {p.relative_to(package).as_posix(): Lab.Authored.digest(p.read_bytes())
+                                     for p in package.rglob("*") if p.is_file() and p != manifest_path}
+                manifest_path.write_bytes(Lab.canonical(manifest))
+                with self.subTest(file=path.name), self.assertRaisesRegex(ValueError, expected):
+                    Lab.verify_package(package)
+            finally:
+                if old is None:
+                    path.unlink()
+                else:
+                    path.write_bytes(old)
+                manifest_path.write_bytes(original_manifest)
+                receipt_path.write_bytes(original_receipt)
+
+    def test_zone_geometry_and_source_override_are_not_silently_clipped(self):
+        bounds = Lab.Authored.extent_bounds(self.definition["extent"])
+        row = {"name": "native region", "type": "Region", "x": bounds[0] - 101, "y": bounds[1],
+               "width": 200, "height": 100, "z": 0}
+        source = ("regions=" + Lab.lua([row])).encode()
+        with self.assertRaisesRegex(ValueError, "would lose native zone"):
+            Lab.Authored.selected_metadata(source, "regions", bounds, "regions.lua")
+        row["x"] += 1
+        source = ("regions=" + Lab.lua([row])).encode()
+        selected, _ = Lab.Authored.selected_metadata(source, "regions", bounds, "regions.lua")
+        self.assertEqual(selected, [row], "original geometry must survive the native admission margin")
+        override = ('worldgen["static_modules"]={{position={xmin=3300,xmax=3600,ymin=10800,ymax=11000},'
+                    'biome=worldgen.biomes.water}}').encode()
+        with self.assertRaisesRegex(ValueError, "intersects a source WorldGenOverride"):
+            Lab.Authored.check_source_override(override, bounds)
+
+
 def shell_owner_checks(tmp, jar):
     shell_path = Lab.ROOT / "java/src/com/sao/engine/SAOIsoPlayerShell.java"
     source = shell_path.read_text(encoding="utf-8")
@@ -419,6 +663,10 @@ def generation_checks(tmp, jar):
 
 
 def native_checks():
+    supervision_spec = importlib.util.spec_from_file_location("supervision_checks", Lab.ROOT / "tools/world_lab/supervision_checks.py")
+    supervision = importlib.util.module_from_spec(supervision_spec)
+    supervision_spec.loader.exec_module(supervision)
+    supervision.run()
     jar = GAME / "projectzomboid.jar"
     if not jar.exists():
         print("SKIPPED study native checks: installed game unavailable")
@@ -439,6 +687,14 @@ def native_checks():
         unload_probe = importlib.util.module_from_spec(unload_spec)
         unload_spec.loader.exec_module(unload_probe)
         unload_probe.run(tmp, GAME, JDK)
+        transfer_spec = importlib.util.spec_from_file_location("transfer_ui_checks", Lab.ROOT / "tools/world_lab/transfer_ui_checks.py")
+        transfer_probe = importlib.util.module_from_spec(transfer_spec)
+        transfer_spec.loader.exec_module(transfer_probe)
+        transfer_probe.run(tmp, GAME, JDK)
+        night_spec = importlib.util.spec_from_file_location("night_rest_checks", Lab.ROOT / "tools/world_lab/night_rest_checks.py")
+        night_probe = importlib.util.module_from_spec(night_spec)
+        night_spec.loader.exec_module(night_probe)
+        night_probe.run(tmp, GAME, JDK)
         shell_owner_checks(tmp, jar)
         cache = tmp / "cache"
         cache.mkdir()
@@ -499,6 +755,10 @@ assert(SAO.Participants.player(0) == nil and SAO.Participants.residencyCenter() 
             else:
                 require(label == "production", "launch receipt control survived")
                 print(output.strip())
+        for paused in (True, False):
+            launch_path.write_text('local RunConfig = { attempt=1, hours=0.3 }\n' + launch_checks
+                + '\n' + launch + '\nRESULT = CheckLaunchWallLimit(' + str(paused).lower() + ')\n', encoding="utf-8")
+            print(command([*java, "LuaRun", launch_path, "--", "RESULT"], GAME).strip())
         package_path = tmp / "package"
         manifest = Lab.build(BASE, package_path, GAME)
         config = {**BASE, "mapName": manifest["mapName"], "definitionSha256": Lab.seal(BASE),
@@ -511,15 +771,41 @@ assert(SAO.Participants.player(0) == nil and SAO.Participants.residencyCenter() 
             script = tmp / "checks.lua"
             script.write_text("local Config = " + Lab.lua(config) + "\n" + checks
                               + "\nlocal Study = (function()\n" + runtime
-                              + "\nend)()\nRESULT = RunStudyChecks(Study)\n", encoding="utf-8")
-            return command([*java, "LuaRun", script, "--", expression], GAME)
+                              + "\nend)()\nRESULT = RunStudyChecks(Study)\n"
+                              + "RESULT_CAPTURE = Study.encode({result=RESULT, failureLog=RESULT_FAILURE_LOG, "
+                              + "frame=RESULT_FRAME, live=RESULT_LIVE_FRAME})\n", encoding="utf-8")
+            # Windows JVM stdout otherwise uses the native console charset even
+            # when Python decodes UTF-8, corrupting valid non-ASCII fixture data.
+            result = subprocess.run([str(value) for value in
+                [java[0], "-Dstdout.encoding=UTF-8", "-Dsun.stdout.encoding=UTF-8",
+                 *java[1:], "LuaRun", script, "--", expression]], cwd=GAME, text=True,
+                encoding="utf-8", capture_output=True, timeout=90)
+            if result.returncode:
+                raise AssertionError(result.stdout + result.stderr)
+            return result.stdout
 
-        execution = execute(source)
-        print(execution.strip())
-        require("[StudyWorld] stopped:" in execute(source, "RESULT_FAILURE_LOG"),
+        execution = Lab.decode(execute(source, "RESULT_CAPTURE").split("VALUE ", 1)[1].strip())
+        print(execution["result"])
+        require("[StudyWorld] stopped:" in execution["failureLog"],
                 "observer stop is invisible to native runner")
-        observed = Lab.decode(execute(source, "RESULT_FRAME").split("VALUE ", 1)[1].strip())
+        observed = Lab.decode(execution["frame"])
         Lab.validate_frame(observed)
+        live_text = execution["live"]
+        live = Lab.decode(live_text)
+        start = live_text.index('"inspection":') + len('"inspection":')
+        _, end = json.JSONDecoder().raw_decode(live_text, start)
+        require(len(live_text.encode("utf-8")) <= 1024 * 1024, "live native byte cap exceeded")
+        require(len(live_text[start:end].encode("utf-8")) <= 256 * 1024, "inspection native byte cap exceeded")
+        require(live["population"]["captured"] == live["population"]["total"] == 16,
+                "optional inspection displaced ordinary people")
+        inspection = live["inspection"]
+        require(inspection["capturedAtUnixMs"] == 123450000 and inspection["sequence"] == 27,
+                "inspection source clock changed")
+        selected_rows = inspection["people"]["p16"]["sections"][0]["rows"]
+        require(selected_rows and "\u00e9" in selected_rows[0]["label"], "selected Unicode inspection missing")
+        require(len(inspection["message"]) <= 512 and "Export byte budget:" in inspection["message"]
+                and inspection["omittedEvents"] > 0, "inspection omissions absent or malformed")
+        print("PASS bounded inspection: 16 maximal people, escaped UTF-8, selection, omissions, failure and recovery")
         observations = tmp / "observations"
         observations.mkdir()
         first = observations / "0001.json"
@@ -572,6 +858,18 @@ assert(SAO.Participants.player(0) == nil and SAO.Participants.residencyCenter() 
             raise AssertionError("duplicate frame keys accepted")
         print("PASS observation inspection: captured fixture, streaming session, 7 malformed controls")
         mutants = [
+            ("UTF-8 budget", "local length = utf8Bytes(s) + 2", "local length = #s + 2", "UTF-8 byte limit ignored"),
+            ("aggregate inspection budget", "local function inspectionSnapshot(maxBytes)",
+             "local function inspectionSnapshot(maxBytes)\n    if SAO.Observation then return SAO.Observation.snapshot() end",
+             "oversized optional inspection stopped production"),
+            ("selected inspection priority", "table.insert(ids, 1, snapshot.selectedPersonId)",
+             "table.insert(ids, snapshot.selectedPersonId)", "selected inspection omitted before other people"),
+            ("inspection source immutability", "return result\nend\nlocal function objectView(object)",
+             "snapshot.people[snapshot.selectedPersonId].events = {}\n    return result\nend\nlocal function objectView(object)",
+             "inspection projection mutated source cache"),
+            ("inspection source clock", 'result.people, result.status = {}, "failed"',
+             'result.people, result.status = {}, "failed"; result.capturedAtUnixMs = getTimestampMs()',
+             "failed export changed successful source timestamp"),
             ("native road selection", "originalRoads, worldgen.roads = worldgen.roads, roads",
              "originalRoads = worldgen.roads", "unrequested native roads retained"),
             ("other-world isolation", "getWorld():getMap() == Config.mapName", "true", "other-world isolation failed"),
@@ -598,7 +896,8 @@ assert(SAO.Participants.player(0) == nil and SAO.Participants.residencyCenter() 
 
 if __name__ == "__main__":
     result = unittest.TextTestRunner(verbosity=1).run(
-        unittest.defaultTestLoader.loadTestsFromTestCase(DefinitionTests))
+        unittest.TestSuite(unittest.defaultTestLoader.loadTestsFromTestCase(cls)
+                           for cls in (DefinitionTests, AuthoredMapTests)))
     if not result.wasSuccessful():
         raise SystemExit(1)
     native_checks()

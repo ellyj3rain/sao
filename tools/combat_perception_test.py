@@ -16,9 +16,16 @@ Combat perception operates entirely on engine-grounded state:
 6. Weapons and clothing are compatible by construction: meleeScore reads
    script stats, reload is the vanilla action, and clothing is uninspected.
 """
+import argparse
+import hashlib
+import json
+import os
 import pathlib
 import re
+import subprocess
 import sys
+import tempfile
+import time
 
 
 ROOT = pathlib.Path(__file__).resolve().parent.parent
@@ -29,6 +36,10 @@ EQUIPMENT = ROOT / "java" / "src" / "com" / "sao" / "engine" / "SAOEquipment.jav
 BRIDGE = ROOT / "java" / "src" / "com" / "sao" / "bridge" / "SAOBridge.java"
 PERCEPTION_LUA = ROOT / "mod" / "42.20" / "media" / "lua" / "shared" / "SAO_Perception.lua"
 NEEDS_LUA = ROOT / "mod" / "42.20" / "media" / "lua" / "client" / "SAO_Needs.lua"
+GAME = pathlib.Path(os.environ.get(
+    "PZ_DIR", r"C:\Program Files (x86)\Steam\steamapps\common\ProjectZomboid"))
+JDK = pathlib.Path(os.environ.get(
+    "JDK_BIN", r"C:\Users\jleyv\Peanut Butter\JetBrains\Java\bin"))
 
 
 def source_faults(scanner_src, combat_src, director_src, equipment_src, bridge_src, perp_lua, needs_lua):
@@ -93,6 +104,10 @@ def source_faults(scanner_src, combat_src, director_src, equipment_src, bridge_s
             faults.append(f"equipment meleeScore does not read script stat {stat}")
     if "ISReloadWeaponAction:new" not in needs_lua:
         faults.append("SAO_Needs.lua does not queue vanilla ISReloadWeaponAction")
+    for guard in ('"Throw".equalsIgnoreCase(weapon.getSwingAnim())',
+                  "weapon.getPhysicsObject() != null", "weapon.getMaxDamage() <= 0.0f"):
+        if guard not in equipment_src:
+            faults.append("equipment melee eligibility omits native guard: " + guard)
 
     return faults
 
@@ -115,7 +130,112 @@ def can_direct_aggro(is_useless, current_target, shell):
     return True
 
 
+def native_melee_checks(receipt_path=None):
+    """Execute production scoring and both native consumers in a private JVM.
+
+    Installed Item.Load/InventoryItemFactory own the shipped item semantics.
+    Cell/body setup is the existing method fixture; no attack/world loop runs.
+    """
+    suffix = ".exe" if os.name == "nt" else ""
+    javac, java = (JDK / (name + suffix) for name in ("javac", "java"))
+    jars = [GAME / "projectzomboid.jar", GAME / "ZombieBuddy.jar"]
+    if not all(path.is_file() for path in [javac, java, *jars]):
+        print("SKIP installed melee receivers: native engine/JDK unavailable")
+        return
+    source = EQUIPMENT.read_text(encoding="utf-8-sig")
+    probe = ROOT / "tools/luacheck/WeaponEligibilityProbe.java"
+    fixture = ROOT / "tools/luacheck/ResourceApproachProbe.java"
+    receipt = {"scope": "installed native item/query/equip methods; no loaded-game claim",
+               "checks": [], "controls": [], "commands": [], "passed": False,
+               "inputs": {str(path.relative_to(ROOT)) if path.is_relative_to(ROOT) else str(path):
+                          hashlib.sha256(path.read_bytes()).hexdigest()
+                          for path in [EQUIPMENT, probe, fixture, *jars,
+                              GAME / "media/scripts/generated/items/weapon.txt"]}}
+
+    def run(command, cwd, phase, name):
+        started = time.perf_counter()
+        result = subprocess.run([str(part) for part in command], cwd=cwd,
+            capture_output=True, text=True, encoding="utf-8", errors="replace", timeout=120)
+        receipt["commands"].append({"phase": phase, "name": name,
+            "seconds": time.perf_counter() - started, "exit": result.returncode,
+            "stdout": result.stdout, "stderr": result.stderr})
+        return result
+
+    def remove(guard):
+        if source.count(guard) != 1:
+            raise AssertionError("melee control target drifted: " + guard)
+        return source.replace(guard, "", 1)
+
+    throwing = '            || "Throw".equalsIgnoreCase(weapon.getSwingAnim())\n'
+    physics = '            || weapon.getPhysicsObject() != null\n'
+    damage = '            || weapon.getMaxDamage() <= 0.0f'
+    for guard in (throwing, physics, damage):
+        if source.count(guard) != 1:
+            raise AssertionError("melee control target drifted: " + guard)
+    former = source.replace(throwing, "").replace(physics, "").replace(damage, "")
+    variants = [
+        ("former-eligibility", former, "firecracker_not_melee"),
+        ("throw-animation", remove(throwing), "throw_animation_not_melee"),
+        ("physics-projectile", remove(physics), "physics_projectile_not_melee"),
+        ("zero-damage", remove(damage), "zero_damage_not_melee"),
+        ("reject-valid-heavy", source.replace(damage,
+            damage + "\n            || weapon.isTwoHandWeapon()", 1), "native_barbell_remains_melee"),
+        ("ranged-melee", remove('            || weapon.isRanged()\n'), "ranged_not_melee"),
+        ("broken-melee", remove('            || weapon.isBroken()\n'), "broken_not_melee"),
+    ]
+    try:
+        with tempfile.TemporaryDirectory(prefix="sao-melee-eligibility-") as temporary:
+            work = pathlib.Path(temporary)
+            classes = work / "classes"; classes.mkdir()
+            generated = work / "SAOVersion.java"
+            version = (ROOT / "VERSION").read_text(encoding="utf-8-sig").strip()
+            generated.write_text("package com.sao; public final class SAOVersion {"
+                f'public static final String VALUE = "{version}"; }}\n', encoding="utf-8")
+            sources = sorted((ROOT / "java/src").rglob("*.java")) + [generated, fixture, probe]
+            native_cp = os.pathsep.join(map(str, jars))
+            compiled = run([javac, "-encoding", "UTF-8", "-cp", native_cp,
+                "-d", classes, *sources], work, "compile", "production")
+            if compiled.returncode:
+                raise AssertionError("native melee compile failed: " + compiled.stdout + compiled.stderr)
+            classpath = os.pathsep.join((str(classes), native_cp))
+            result = run([java, f"-Duser.home={work}", "-cp", classpath,
+                "WeaponEligibilityProbe", GAME], work, "probe", "production")
+            if result.returncode or "PASS installed melee eligibility checks=19" not in result.stdout:
+                raise AssertionError("native melee probe failed: " + result.stdout + result.stderr)
+            receipt["checks"] = [line[6:-5] for line in result.stdout.splitlines()
+                if line.startswith("CHECK ") and line.endswith("=true")]
+            if len(receipt["checks"]) != 19:
+                raise AssertionError("native melee probe omitted checks")
+            print("PASS installed melee eligibility: 19 native item/query/equip checks")
+            for name, modified, reason in variants:
+                directory = work / name; directory.mkdir()
+                mutant = directory / "SAOEquipment.java"
+                mutant.write_text(modified, encoding="utf-8")
+                compiled = run([javac, "-encoding", "UTF-8", "-cp", classpath,
+                    "-d", directory, mutant], directory, "compile", name)
+                if compiled.returncode:
+                    raise AssertionError("melee mutant did not compile: " + name + compiled.stderr)
+                result = run([java, f"-Duser.home={directory}", "-cp",
+                    str(directory) + os.pathsep + classpath,
+                    "WeaponEligibilityProbe", GAME], directory, "probe", name)
+                if result.returncode == 0 or f"CHECK {reason}=false" not in result.stdout \
+                        or f"java.lang.AssertionError: {reason}" not in result.stderr:
+                    raise AssertionError("melee control survived or failed elsewhere: " + name
+                        + "\n" + result.stdout + result.stderr)
+                receipt["controls"].append({"name": name, "rejectedBy": reason})
+                print("CONTROL native melee " + name + ": " + reason)
+            receipt["passed"] = True
+    finally:
+        if receipt_path:
+            receipt_path = pathlib.Path(receipt_path)
+            receipt_path.parent.mkdir(parents=True, exist_ok=True)
+            receipt_path.write_text(json.dumps(receipt, indent=2) + "\n", encoding="utf-8")
+
+
 def main():
+    parser = argparse.ArgumentParser(description=__doc__)
+    parser.add_argument("--native-receipt", type=pathlib.Path)
+    args = parser.parse_args()
     sources = [SCANNER, COMBAT, DIRECTOR, EQUIPMENT, BRIDGE, PERCEPTION_LUA, NEEDS_LUA]
     for path in sources:
         if not path.exists():
@@ -194,6 +314,7 @@ def main():
             print("FAULT: " + fault)
         return 1
 
+    native_melee_checks(args.native_receipt)
     print("157) combat perception: acoustics, floor targeting, prone stance, stealth, aggro non-duplication, and weapons verified")
     return 0
 

@@ -29,7 +29,8 @@ WHAT THIS HOLDS
      per-person work is still in the loop - the past, the trade
      ground, the home navigation reference, the unit and its bonds. Actual
      admissions execute in installed Kahlua to check that location grants no
-     ownership and that existing explicit claims remain intact.
+     ownership, that every co-resident knows the actual starting building,
+     and that existing explicit claims remain intact.
 
 An optional argv[1] points the checker at another tree root, which is
 how its control runs: the pre-batch tree paces a fresh county.
@@ -60,7 +61,8 @@ JDK = pathlib.Path(os.environ.get("JDK_BIN",
 
 # The producer is the unmodified exported A.ensurePopulation from Admissions.
 # These dependencies record its writes; no replacement admissions function is
-# installed. Places supply a located building, without any residence evidence.
+# installed. Places supply the building at the actual starting coordinates;
+# its co-residents' location supports lived knowledge, not ownership.
 ADMISSION_HOST = r'''
 SAO={PopulationAdmissions={},Log={line=function() end,tally=function() end}}
 __records={} __store={} __hours=0 __building=false
@@ -164,6 +166,19 @@ end
 local function noNewClaims()
     return #__claimCalls==0 and __groundCalls==0
 end
+local function learnedByEveryPerson(expected)
+    if #__created~=expected or #__learned~=expected then return false end
+    local seen={}
+    for _,entry in ipairs(__learned) do
+        local rec=__records[entry.id]
+        if not rec or seen[entry.id] or entry.building~=__building
+            or entry.source~='lived' or entry.tick~=0
+            or rec.x~=120 or rec.y~=220 or rec.z~=1 then return false end
+        seen[entry.id]=true
+    end
+    for _,rec in ipairs(__created) do if not seen[rec.id] then return false end end
+    return true
+end
 local function references()
     if #__history~=#__created or #__presence~=#__created then return false end
     for _,rec in ipairs(__created) do
@@ -196,7 +211,7 @@ check('road_genesis_creates_no_claims',function()
 end)
 check('located_building_genesis_creates_no_claims',function()
     ensure(reset(true))
-    return noNewClaims() and size(__store.claims)==0 and #__learned==4
+    return noNewClaims() and size(__store.claims)==0 and #__learned==12
 end)
 check('genesis_keeps_home_origin_and_profession',function()
     ensure(reset(true))
@@ -205,13 +220,30 @@ check('genesis_keeps_home_origin_and_profession',function()
 end)
 check('genesis_keeps_lived_building_knowledge',function()
     ensure(reset(true))
-    if #__learned~=4 then return false end
-    for _,entry in ipairs(__learned) do
-        local rec=__records[entry.id]
-        if entry.building~=__building or entry.source~='lived' or entry.tick~=0
-            or not rec.originAnchored or not rec.knowsTradeGround then return false end
-    end
+    if not learnedByEveryPerson(12) then return false end
     for _,entry in ipairs(__presence) do if entry.genesis~=true then return false end end
+    return true
+end)
+check('mates_do_not_inherit_trade_anchor',function()
+    ensure(reset(true))
+    local primaries,mates=0,0
+    for _,rec in ipairs(__created) do
+        if rec.unitId==rec.id..'-u' then
+            primaries=primaries+1
+            if not rec.originAnchored or not rec.knowsTradeGround then return false end
+        else
+            mates=mates+1
+            if rec.originAnchored or rec.knowsTradeGround then return false end
+        end
+    end
+    return primaries==4 and mates==8 and learnedByEveryPerson(12)
+end)
+check('small_population_keeps_every_origin_witness',function()
+    for _,population in ipairs({2,5,7}) do
+        ensure(reset(true,population))
+        if SAO.Identity.livingCount()~=population or not learnedByEveryPerson(population)
+            or not noNewClaims() then return false end
+    end
     return true
 end)
 check('road_keeps_navigation_without_building_knowledge',function()
@@ -243,7 +275,11 @@ end)
 check('located_building_refill_creates_no_claims',function()
     local claim=refill(true)
     return noNewClaims() and size(__store.claims)==1 and preserved(claim)
-        and SAO.Identity.livingCount()==12 and #__learned==6
+        and SAO.Identity.livingCount()==12 and #__learned==18
+end)
+check('refill_all_admitted_people_learn_origin',function()
+    refill(true)
+    return learnedByEveryPerson(18)
 end)
 check('explicit_claim_survives_admissions',function()
     local claim=refill(true)
@@ -276,10 +312,11 @@ __admissionResult=table.concat(results,';')
 ADMISSION_EXPECTED = {
     'road_genesis_creates_no_claims', 'located_building_genesis_creates_no_claims',
     'genesis_keeps_home_origin_and_profession', 'genesis_keeps_lived_building_knowledge',
+    'mates_do_not_inherit_trade_anchor', 'small_population_keeps_every_origin_witness',
     'road_keeps_navigation_without_building_knowledge', 'genesis_keeps_units_bonds_and_mutual_sight',
     'road_refill_creates_no_claims', 'located_building_refill_creates_no_claims',
     'explicit_claim_survives_admissions', 'refill_keeps_arrival_and_presence_times',
-    'refill_keeps_six_person_pace_after_wait',
+    'refill_keeps_six_person_pace_after_wait', 'refill_all_admitted_people_learn_origin',
 }
 
 # The exact removed producer block, reinstated inside the real admission loop.
@@ -319,6 +356,16 @@ def producer_checks(receipt, faults):
     if source.count(anchor) != 1:
         faults.append('admissions claim mutation anchor drifted')
         return
+    mate_learning = '''            if startedIn then
+                pcall(function()
+                    SAO.Perception.learnBuilding(mate.id, startedIn, 0, "lived")
+                end)
+            end
+'''
+    mate_identity = '            mate.unitId, mate.unitKind = unitId, kind'
+    if source.count(mate_learning) != 1 or source.count(mate_identity) != 1:
+        faults.append('co-resident origin mutation anchor drifted')
+        return
     with tempfile.TemporaryDirectory(prefix='sao-admissions-') as raw:
         work = pathlib.Path(raw)
         def run(command, label):
@@ -338,7 +385,11 @@ def producer_checks(receipt, faults):
         cases.write_text(ADMISSION_CASES, encoding='utf-8')
         for label, content in (
                 ('production', source),
-                ('spawn-claim-restored', source.replace(anchor, SPAWN_CLAIM_BLOCK + anchor, 1))):
+                ('spawn-claim-restored', source.replace(anchor, SPAWN_CLAIM_BLOCK + anchor, 1)),
+                ('co-resident-knowledge-omitted', source.replace(mate_learning, '', 1)),
+                ('borrow-leader-trade', source.replace(mate_identity,
+                    '            mate.originAnchored = rec.originAnchored\n'
+                    '            mate.knowsTradeGround = rec.knowsTradeGround\n' + mate_identity, 1))):
             path = work / (label + '.lua')
             path.write_text(content, encoding='utf-8')
             result = run([JDK / 'java.exe', '-cp', os.pathsep.join(map(str, (engine, work))),
@@ -356,7 +407,7 @@ def producer_checks(receipt, faults):
                                   + '\n' + result.stdout + result.stderr)
                     return
                 print('  PASS ' + str(len(checks)) + ' actual Admissions cases in installed Kahlua')
-            else:
+            elif label == 'spawn-claim-restored':
                 defect_cases = {name for name in ADMISSION_EXPECTED if name.endswith('creates_no_claims')}
                 if any(checks[name] != 'false' for name in defect_cases) \
                         or checks['genesis_keeps_home_origin_and_profession'] != 'true' \
@@ -365,6 +416,23 @@ def producer_checks(receipt, faults):
                                   + result.stdout + result.stderr)
                     return
                 print('  PASS restored production claim block fails all four ownership cases')
+            elif label == 'co-resident-knowledge-omitted':
+                if checks['genesis_keeps_lived_building_knowledge'] != 'false' \
+                        or checks['refill_all_admitted_people_learn_origin'] != 'false' \
+                        or checks['small_population_keeps_every_origin_witness'] != 'false' \
+                        or checks['road_keeps_navigation_without_building_knowledge'] != 'true' \
+                        or checks['genesis_keeps_units_bonds_and_mutual_sight'] != 'true':
+                    faults.append('omitted co-resident knowledge did not expose the per-person defect\n'
+                                  + result.stdout + result.stderr)
+                    return
+                print('  PASS omitted co-resident knowledge fails genesis, refill and small populations')
+            elif label == 'borrow-leader-trade':
+                if checks['mates_do_not_inherit_trade_anchor'] != 'false' \
+                        or checks['genesis_keeps_lived_building_knowledge'] != 'true':
+                    faults.append('borrowed leader trade did not expose invented anchoring\n'
+                                  + result.stdout + result.stderr)
+                    return
+                print('  PASS borrowed leader trade fails independent profession anchoring')
         receipt['producer_status'] = 'PASS'
 
 

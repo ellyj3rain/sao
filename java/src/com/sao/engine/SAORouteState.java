@@ -15,6 +15,9 @@ public final class SAORouteState {
     public boolean running;
     public boolean mayForceEntry;
     public String interactionStage = "NONE";
+    String pendingCrossingEvent;
+    boolean crossingObserved;
+    boolean realignAfterCrossing;
     public float targetX;
     public float targetY;
     public int targetZ;
@@ -44,6 +47,9 @@ public final class SAORouteState {
         route.clear();
         routeIndex = 0;
         interactionStage = "NONE";
+        pendingCrossingEvent = null;
+        crossingObserved = false;
+        realignAfterCrossing = false;
     }
 
     public boolean edgeCooling(String key) {
