@@ -404,6 +404,9 @@ function SU.beginTransfer(id, body, category, admission, item, container,
     -- Only bounded scalar policy context enters the durable action. Engine
     -- objects and the offer table remain runtime inputs.
     local context = decisionContext or {}
+    if SAO.Cognition then
+        reservation.cognitionToken = SAO.Cognition.capture(tostring(id), "source")
+    end
     reservation.transferPurpose = tostring(context.purpose or operation)
     reservation.haulRemaining = math.max(0, math.min(3,
         tonumber(context.haulRemaining) or 0))
@@ -461,6 +464,9 @@ function SU.begin(id, body, place, category, admission, decisionContext)
     -- selected item and all physical proof remain in WorldSources; no runtime
     -- body, offer table or private mind snapshot enters durable graph state.
     local context = type(decisionContext) == "table" and decisionContext or {}
+    if SAO.Cognition then
+        reservation.cognitionToken = SAO.Cognition.capture(tostring(id), "source")
+    end
     if context.nativeUseOwner ~= nil then
         local owner = tostring(context.nativeUseOwner or "")
         if owner == "" or not SU.nativeUseOwners[owner] then

@@ -1,6 +1,6 @@
 | Document | Survivor Awareness Overhaul Architecture |
 |---|---|
-| Version | `2.11.1.0-pre-alpha` |
+| Version | `2.12.0.0-pre-alpha` |
 | Author | ellyj3rain |
 | Repository | `ARCHITECTURE.md` |
 | Status | ACTIVE - ratified framework shape. |
@@ -1079,3 +1079,50 @@ The first unit covers voluntary coordination and contention. It does not yet
 produce elections, deliberation, appeal, coercive enforcement, physical
 separation or general institutional succession. Legacy election and schism entry
 points explicitly require an enacted process while cleanup remains active.
+
+
+### Competing cognition and discovery (C88)
+
+`SAO_CognitiveModels` owns two independent computational contestants: ordinary
+need-threshold cognition with direct evidence, and associative cognition with
+anticipatory resource selection and a bounded relational hypothesis grammar.
+Each person persists separate model versions, beliefs, receipts and hypothesis
+revisions in `rec.cognition`. Neither model reads or adjudicates the other's
+output. `SAO_Cognition` freezes both proposals and every candidate action's
+prediction before deterministic balanced selection. Allocation weights describe
+that selection policy, not randomized treatment propensities.
+
+The initial executable seam is safe idle resource deliberation after immediate
+threat and medical handling. Existing accepted work and timed actions retain
+ownership. Water, food, inspection and continuing activity pass through existing
+Standing, routes, SourceUse and native action handlers. Current private needs,
+place/source counts, personal thresholds and Labor capabilities form the shared
+input. Observer position and hidden stock supply no model evidence.
+
+Actual personal inspection, exact native acquisition/storage, captured transfer
+witnessing and measured own consumption enter an event-bound ledger. Admission,
+queueing, attempts and effects remain distinct. Original episode tokens prevent
+a late result from resolving newer work. Both models revise independently from
+the same authenticated experience. Unavailable, interrupted and unmeasured
+results are censored. Both predictions are scored against the selected action's
+qualified outcome; unexecuted alternatives retain no outcome.
+
+Connected receipts can seed near associations and cross-domain technological
+conjectures. Repeated identical operations cannot manufacture deeper evidence.
+Contradicted branches keep bounded identity and revision continuity. Confidence
+ages each receipt without erasing the observed fact or learning on reads. Every
+hypothesis retains provenance and missing mechanisms. It supplies no recipe,
+skill, construction method or native effect. The initial action seam supports
+resource experiments; realization of deeper technological mechanisms remains an
+explicit capability gap. These computational models are a training substrate,
+not a trained aggregate or evidence of general awareness.
+
+Mousecat's existing native person inspector displays both models, disagreement,
+hypotheses and selected-action evidence through Speakeasy. Bounded controls set
+opposing allocation, opportunities per county hour and association depth. The
+complete command applies atomically, including while paused. Observation is
+read-only; display reductions expose omissions. Full native archives retain up
+to 64 episodes and 256 experiences per person, separate from the small live view.
+Speakeasy validates and joins source-hashed trajectories for later aggregate
+training, preserving frozen predictions, censoring and gaps. Scenario admission
+keeps its existing operator evaluation boundary.

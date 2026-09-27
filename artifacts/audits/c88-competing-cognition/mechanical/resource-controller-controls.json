@@ -1,0 +1,1135 @@
+{
+  "helper": "resource-approach",
+  "commands": [
+    {
+      "phase": "compile",
+      "case": "production",
+      "exit": 0,
+      "seconds": 2.451964700012468,
+      "stdout": "",
+      "stderr": "Note: Some input files use or override a deprecated API.\nNote: Recompile with -Xlint:deprecation for details.\n"
+    },
+    {
+      "phase": "probe",
+      "case": "production",
+      "exit": 0,
+      "seconds": 1.2579485999885947,
+      "stdout": "CHECK no_receipt_food=true\nCHECK no_receipt_water=true\nCHECK no_receipt_weapon=true\nCHECK no_receipt_ammo=true\nCHECK bad_kind_refused=true\nCHECK food_query_preserves_source=true\nCHECK weapon_query_preserves_source=true\nCHECK ammo_query_preserves_source=true\nCHECK adjacent_native_target_food=true\nCHECK adjacent_native_target_weapon=true\nCHECK adjacent_native_target_ammo=true\nCHECK nested_item_receipt_unchanged=true\nCHECK no_transfer_from_target_selection=true\nCHECK mismatched_coordinates_refused=true\nCHECK mismatched_floor_refused=true\nCHECK removed_item_refused=true\nCHECK invalid_receipt_does_not_become_none=true\nCHECK moved_nested_holder_refused=true\nCHECK removed_world_holder_refused=true\nCHECK unknown_contents_not_admitted=true\nCHECK query_does_not_discover_unknown_contents=true\nCHECK no_free_target_refused=true\nCHECK wall_between_free_target_and_source_refused=true\nCHECK actual_clear_side_restores_target=true\nCHECK selected_target_has_native_container_reach=true\nCHECK water_query_preserves_source=true\nCHECK water_avoids_occupied_source=true\nCHECK water_source_identity_retained=true\nCHECK tainted_water_refused=true\nCHECK dry_water_refused=true\nCHECK removed_water_object_refused=true\nCHECK moved_water_source_refused=true\nCHECK unloaded_source_square_refused=true\nCHECK upstairs_source_keeps_floor=true\nCHECK upstairs_target_keeps_floor=true\nCHECK native_vehicle_area_is_distinct=true\nCHECK vehicle_query_preserves_source=true\nCHECK vehicle_native_part_target=true\nCHECK revoked_vehicle_permission_refused=true\nCHECK moved_vehicle_refused=true\nCHECK removed_vehicle_refused=true\nCHECK replaced_vehicle_container_refused=true\nCHECK missing_vehicle_area_refused=true\nCHECK blocked_vehicle_area_refused=true\nCHECK vehicle_revalidation_restores_actual_target=true\nCHECK reset_discards_receipt=true\nPASS resource approach checks=46\n",
+      "stderr": "WARNING: A restricted method in java.lang.System has been called\nWARNING: java.lang.System::load has been called by org.lwjgl.system.Library$$Lambda/0x000000000f1523b0 in an unnamed module (file:/C:/Program%20Files%20(x86)/Steam/steamapps/common/ProjectZomboid/projectzomboid.jar)\nWARNING: Use --enable-native-access=ALL-UNNAMED to avoid a warning for callers in this module\nWARNING: Restricted methods will be blocked in a future release unless native access is enabled\n\nWARNING: A terminally deprecated method in sun.misc.Unsafe has been called\nWARNING: sun.misc.Unsafe::objectFieldOffset has been called by org.joml.MemUtil$MemUtilUnsafe (file:/C:/Program%20Files%20(x86)/Steam/steamapps/common/ProjectZomboid/projectzomboid.jar)\nWARNING: Please consider reporting this to the maintainers of class org.joml.MemUtil$MemUtilUnsafe\nWARNING: sun.misc.Unsafe::objectFieldOffset will be removed in a future release\n"
+    },
+    {
+      "phase": "probe",
+      "case": "water-production",
+      "exit": 0,
+      "seconds": 9.48254600004293,
+      "stdout": "CHECK installed_open_door_is_not_a_blocked_edge=true\nCHECK water_open_door_matches_installed_interaction=true\nCHECK water_selection_receipt_binds_actual_fixture=true\nCHECK unchanged_water_query_does_not_spam_receipts=true\nCHECK water_closed_door_refused_by_native_reach=true\nCHECK water_open_window_matches_installed_interaction=true\nCHECK water_closed_window_refused_by_native_reach=true\nCHECK water_native_adjacent_square_limit=true\nCHECK water_diagonal_axis_reach_matches_vanilla=true\nCHECK water_corrected_wall_square_matches_vanilla=true\nCHECK water_corrected_north_wall_matches_vanilla=true\nCHECK water_other_floor_not_interactable=true\nCHECK usable_water_precedes_nearer_blocked_fixture=true\nCHECK removed_water_cannot_remain_in_reach=true\nCHECK nonwater_fluid_is_not_a_thirst_source=true\nCHECK positive_last_sip_is_selected=true\nCHECK contaminated_selected_fluid_is_revalidated=true\nCHECK tainted_water_is_not_selected=true\nCHECK dry_selected_fluid_is_revalidated=true\nCHECK empty_component_still_has_native_pipe_reserve=true\nCHECK empty_component_pipe_reserve_is_selected=true\nCHECK componentless_pipe_reserve_is_selected=true\nCHECK municipal_supply_has_native_infinite_water=true\nCHECK municipal_supply_is_selected=true\nCHECK nearest_native_fixture_selected=true\nCHECK failed_exact_approach_recorded=true\nCHECK legacy_query_retains_unfiltered_contract=true\nCHECK failed_fixture_does_not_monopolize_query=true\nCHECK second_actual_failure_recorded=true\nCHECK both_failed_candidates_yield_to_knowledge=true\nCHECK small_motion_does_not_reset_failed_approach=true\nCHECK adjacency_behind_native_barrier_is_still_held=true\nCHECK actual_native_reach_releases_failure=true\nCHECK no_water_consumed_or_changed_by_reappraisal=true\nCHECK new_owned_approach_can_fail=true\nCHECK another_person_keeps_own_candidate=true\nCHECK county_time_expiry_allows_reconsideration=true\nCHECK repeat_failure_recorded=true\nCHECK repeated_failure_has_bounded_longer_backoff=true\nCHECK repeated_failure_eventually_expires=true\nCHECK flee_or_cancel_is_not_an_access_failure=true\nCHECK arrival_is_not_an_access_failure=true\nCHECK tick_fault_is_not_an_access_failure=true\nCHECK unloaded_route_is_not_an_access_failure=true\nCHECK unknown_native_failure_is_not_new_access_evidence=true\nCHECK invalid_clock_cannot_penalize_source=true\nCHECK unrelated_target_cannot_penalize_source=true\nCHECK failure_requires_approach_receipt=true\nCHECK replacement_test_failure_recorded=true\nCHECK replacement_fixture_is_independent=true\nCHECK replacement_attempt_recorded=true\nCHECK world_reset_discards_attempt_handles=true\nCHECK capacity_uses_actual_queries_and_failures=true\nCHECK failure_receipts_are_bounded=true\nCHECK body_owner_is_weak=true\nCHECK source_handles_are_weak=true\nCHECK actual_bridge_exposed=true\nCHECK kahlua_three_argument_query_uses_native_overload=true\nCHECK kahlua_failure_receipt_reaches_native_owner=true\nCHECK kahlua_query_applies_actual_failed_candidate=true\nCHECK kahlua_legacy_overload_remains_usable=true\nPASS water approach checks=61\n",
+      "stderr": "WARNING: A restricted method in java.lang.System has been called\nWARNING: java.lang.System::load has been called by org.lwjgl.system.Library$$Lambda/0x000000001e156448 in an unnamed module (file:/C:/Program%20Files%20(x86)/Steam/steamapps/common/ProjectZomboid/projectzomboid.jar)\nWARNING: Use --enable-native-access=ALL-UNNAMED to avoid a warning for callers in this module\nWARNING: Restricted methods will be blocked in a future release unless native access is enabled\n\n"
+    },
+    {
+      "phase": "probe",
+      "case": "water-lua-production",
+      "exit": 0,
+      "seconds": 0.3762129000388086,
+      "stdout": "VALUE PASS water route and native queue checks=27\n",
+      "stderr": ""
+    },
+    {
+      "phase": "probe",
+      "case": "cognition-ordinary-veto",
+      "exit": 1,
+      "seconds": 0.41742720000911504,
+      "stdout": "ERROR KahluaException: WATER_CHECK:rival_intent_executes_before_ordinary_threshold\n",
+      "stderr": ""
+    },
+    {
+      "phase": "probe",
+      "case": "cognition-admission-omitted",
+      "exit": 1,
+      "seconds": 0.3750991999404505,
+      "stdout": "ERROR KahluaException: WATER_CHECK:rival_intent_executes_before_ordinary_threshold\n",
+      "stderr": ""
+    },
+    {
+      "phase": "probe",
+      "case": "cognition-budget-bypass",
+      "exit": 1,
+      "seconds": 0.440375900012441,
+      "stdout": "ERROR KahluaException: WATER_CHECK:off_cadence_does_not_build_competition_frame\n",
+      "stderr": ""
+    },
+    {
+      "phase": "probe",
+      "case": "cognition-owned-work-bypass",
+      "exit": 1,
+      "seconds": 0.4856904000043869,
+      "stdout": "ERROR KahluaException: WATER_CHECK:accepted_work_retains_decision_ownership\n",
+      "stderr": ""
+    },
+    {
+      "phase": "probe",
+      "case": "cognition-terminal-uncensored",
+      "exit": 1,
+      "seconds": 0.43624790001194924,
+      "stdout": "ERROR KahluaException: WATER_CHECK:ending_intent_censors_pending_competition\n",
+      "stderr": ""
+    },
+    {
+      "phase": "probe",
+      "case": "water-queue-pcall-only",
+      "exit": 1,
+      "seconds": 0.4308449000818655,
+      "stdout": "ERROR KahluaException: WATER_CHECK:sleeping_native_queue_drop_is_refusal\n",
+      "stderr": ""
+    },
+    {
+      "phase": "probe",
+      "case": "water-terminal-no-feedback",
+      "exit": 1,
+      "seconds": 0.4460899999830872,
+      "stdout": "ERROR KahluaException: WATER_CHECK:actual_terminal_owner_records_before_clear\n",
+      "stderr": ""
+    },
+    {
+      "phase": "probe",
+      "case": "water-selector-loses-county-clock",
+      "exit": 1,
+      "seconds": 0.4018655000254512,
+      "stdout": "ERROR KahluaException: WATER_CHECK:selector_receives_county_clock\n",
+      "stderr": ""
+    },
+    {
+      "phase": "probe",
+      "case": "water-feedback-unbound-body",
+      "exit": 1,
+      "seconds": 0.37852819997351617,
+      "stdout": "ERROR KahluaException: WATER_CHECK:different_body_cannot_record_failure\n",
+      "stderr": ""
+    },
+    {
+      "phase": "probe",
+      "case": "water-ignore-already-usable-fixture",
+      "exit": 1,
+      "seconds": 0.41267870005685836,
+      "stdout": "ERROR KahluaException: WATER_CHECK:usable_fixture_drinks_without_a_route\n",
+      "stderr": ""
+    },
+    {
+      "phase": "probe",
+      "case": "water-direct-admission-ignored",
+      "exit": 1,
+      "seconds": 0.414314900059253,
+      "stdout": "ERROR KahluaException: WATER_CHECK:usable_fixture_drinks_without_a_route\n",
+      "stderr": ""
+    },
+    {
+      "phase": "probe",
+      "case": "water-direct-reconciliation-ignored",
+      "exit": 1,
+      "seconds": 0.3956424000207335,
+      "stdout": "ERROR KahluaException: WATER_CHECK:pending_source_reconciliation_preserves_route_and_queue\n",
+      "stderr": ""
+    },
+    {
+      "phase": "probe",
+      "case": "food-transfer-refusal-loses-reason",
+      "exit": 1,
+      "seconds": 0.3767103999853134,
+      "stdout": "ERROR KahluaException: WATER_CHECK:native_transfer_preserves_exact_refusal_reason\n",
+      "stderr": ""
+    },
+    {
+      "phase": "compile",
+      "case": "occupied-source-target",
+      "exit": 0,
+      "seconds": 1.1958414000691846,
+      "stdout": "",
+      "stderr": ""
+    },
+    {
+      "phase": "probe",
+      "case": "occupied-source-target",
+      "exit": 1,
+      "seconds": 1.0373239000327885,
+      "stdout": "CHECK no_receipt_food=true\nCHECK no_receipt_water=true\nCHECK no_receipt_weapon=true\nCHECK no_receipt_ammo=true\nCHECK bad_kind_refused=true\nCHECK food_query_preserves_source=true\nCHECK weapon_query_preserves_source=true\nCHECK ammo_query_preserves_source=true\nCHECK adjacent_native_target_food=false\n",
+      "stderr": "WARNING: A restricted method in java.lang.System has been called\nWARNING: java.lang.System::load has been called by org.lwjgl.system.Library$$Lambda/0x00000000281523b0 in an unnamed module (file:/C:/Program%20Files%20(x86)/Steam/steamapps/common/ProjectZomboid/projectzomboid.jar)\nWARNING: Use --enable-native-access=ALL-UNNAMED to avoid a warning for callers in this module\nWARNING: Restricted methods will be blocked in a future release unless native access is enabled\n\nException in thread \"main\" java.lang.AssertionError: adjacent_native_target_food\n\tat ResourceApproachProbe.check(ResourceApproachProbe.java:69)\n\tat ResourceApproachProbe.main(ResourceApproachProbe.java:298)\n"
+    },
+    {
+      "phase": "compile",
+      "case": "ignore-item-removal",
+      "exit": 0,
+      "seconds": 1.1669567000353709,
+      "stdout": "",
+      "stderr": ""
+    },
+    {
+      "phase": "probe",
+      "case": "ignore-item-removal",
+      "exit": 1,
+      "seconds": 1.1195874999975786,
+      "stdout": "CHECK no_receipt_food=true\nCHECK no_receipt_water=true\nCHECK no_receipt_weapon=true\nCHECK no_receipt_ammo=true\nCHECK bad_kind_refused=true\nCHECK food_query_preserves_source=true\nCHECK weapon_query_preserves_source=true\nCHECK ammo_query_preserves_source=true\nCHECK adjacent_native_target_food=true\nCHECK adjacent_native_target_weapon=true\nCHECK adjacent_native_target_ammo=true\nCHECK nested_item_receipt_unchanged=true\nCHECK no_transfer_from_target_selection=true\nCHECK mismatched_coordinates_refused=true\nCHECK mismatched_floor_refused=true\nCHECK removed_item_refused=false\n",
+      "stderr": "WARNING: A restricted method in java.lang.System has been called\nWARNING: java.lang.System::load has been called by org.lwjgl.system.Library$$Lambda/0x0000000004151ef0 in an unnamed module (file:/C:/Program%20Files%20(x86)/Steam/steamapps/common/ProjectZomboid/projectzomboid.jar)\nWARNING: Use --enable-native-access=ALL-UNNAMED to avoid a warning for callers in this module\nWARNING: Restricted methods will be blocked in a future release unless native access is enabled\n\nException in thread \"main\" java.lang.AssertionError: removed_item_refused\n\tat ResourceApproachProbe.check(ResourceApproachProbe.java:69)\n\tat ResourceApproachProbe.main(ResourceApproachProbe.java:307)\n"
+    },
+    {
+      "phase": "compile",
+      "case": "ignore-root-holder",
+      "exit": 0,
+      "seconds": 1.2257287999382243,
+      "stdout": "",
+      "stderr": ""
+    },
+    {
+      "phase": "probe",
+      "case": "ignore-root-holder",
+      "exit": 1,
+      "seconds": 1.0982809000415727,
+      "stdout": "CHECK no_receipt_food=true\nCHECK no_receipt_water=true\nCHECK no_receipt_weapon=true\nCHECK no_receipt_ammo=true\nCHECK bad_kind_refused=true\nCHECK food_query_preserves_source=true\nCHECK weapon_query_preserves_source=true\nCHECK ammo_query_preserves_source=true\nCHECK adjacent_native_target_food=true\nCHECK adjacent_native_target_weapon=true\nCHECK adjacent_native_target_ammo=true\nCHECK nested_item_receipt_unchanged=true\nCHECK no_transfer_from_target_selection=true\nCHECK mismatched_coordinates_refused=true\nCHECK mismatched_floor_refused=true\nCHECK removed_item_refused=true\nCHECK invalid_receipt_does_not_become_none=true\nCHECK moved_nested_holder_refused=false\n",
+      "stderr": "WARNING: A restricted method in java.lang.System has been called\nWARNING: java.lang.System::load has been called by org.lwjgl.system.Library$$Lambda/0x000000008a1523b0 in an unnamed module (file:/C:/Program%20Files%20(x86)/Steam/steamapps/common/ProjectZomboid/projectzomboid.jar)\nWARNING: Use --enable-native-access=ALL-UNNAMED to avoid a warning for callers in this module\nWARNING: Restricted methods will be blocked in a future release unless native access is enabled\n\nException in thread \"main\" java.lang.AssertionError: moved_nested_holder_refused\n\tat ResourceApproachProbe.check(ResourceApproachProbe.java:69)\n\tat ResourceApproachProbe.main(ResourceApproachProbe.java:311)\n"
+    },
+    {
+      "phase": "compile",
+      "case": "admit-unknown-contents",
+      "exit": 0,
+      "seconds": 1.1555726000806317,
+      "stdout": "",
+      "stderr": ""
+    },
+    {
+      "phase": "probe",
+      "case": "admit-unknown-contents",
+      "exit": 1,
+      "seconds": 1.0751600000075996,
+      "stdout": "CHECK no_receipt_food=true\nCHECK no_receipt_water=true\nCHECK no_receipt_weapon=true\nCHECK no_receipt_ammo=true\nCHECK bad_kind_refused=true\nCHECK food_query_preserves_source=true\nCHECK weapon_query_preserves_source=true\nCHECK ammo_query_preserves_source=true\nCHECK adjacent_native_target_food=true\nCHECK adjacent_native_target_weapon=true\nCHECK adjacent_native_target_ammo=true\nCHECK nested_item_receipt_unchanged=true\nCHECK no_transfer_from_target_selection=true\nCHECK mismatched_coordinates_refused=true\nCHECK mismatched_floor_refused=true\nCHECK removed_item_refused=true\nCHECK invalid_receipt_does_not_become_none=true\nCHECK moved_nested_holder_refused=true\nCHECK removed_world_holder_refused=true\nCHECK unknown_contents_not_admitted=false\n",
+      "stderr": "WARNING: A restricted method in java.lang.System has been called\nWARNING: java.lang.System::load has been called by org.lwjgl.system.Library$$Lambda/0x00000000881523b0 in an unnamed module (file:/C:/Program%20Files%20(x86)/Steam/steamapps/common/ProjectZomboid/projectzomboid.jar)\nWARNING: Use --enable-native-access=ALL-UNNAMED to avoid a warning for callers in this module\nWARNING: Restricted methods will be blocked in a future release unless native access is enabled\n\nException in thread \"main\" java.lang.AssertionError: unknown_contents_not_admitted\n\tat ResourceApproachProbe.check(ResourceApproachProbe.java:69)\n\tat ResourceApproachProbe.main(ResourceApproachProbe.java:317)\n"
+    },
+    {
+      "phase": "compile",
+      "case": "ignore-world-holder-removal",
+      "exit": 0,
+      "seconds": 1.136698600021191,
+      "stdout": "",
+      "stderr": ""
+    },
+    {
+      "phase": "probe",
+      "case": "ignore-world-holder-removal",
+      "exit": 1,
+      "seconds": 1.0543677000096068,
+      "stdout": "CHECK no_receipt_food=true\nCHECK no_receipt_water=true\nCHECK no_receipt_weapon=true\nCHECK no_receipt_ammo=true\nCHECK bad_kind_refused=true\nCHECK food_query_preserves_source=true\nCHECK weapon_query_preserves_source=true\nCHECK ammo_query_preserves_source=true\nCHECK adjacent_native_target_food=true\nCHECK adjacent_native_target_weapon=true\nCHECK adjacent_native_target_ammo=true\nCHECK nested_item_receipt_unchanged=true\nCHECK no_transfer_from_target_selection=true\nCHECK mismatched_coordinates_refused=true\nCHECK mismatched_floor_refused=true\nCHECK removed_item_refused=true\nCHECK invalid_receipt_does_not_become_none=true\nCHECK moved_nested_holder_refused=true\nCHECK removed_world_holder_refused=false\n",
+      "stderr": "WARNING: A restricted method in java.lang.System has been called\nWARNING: java.lang.System::load has been called by org.lwjgl.system.Library$$Lambda/0x000000000e1523b0 in an unnamed module (file:/C:/Program%20Files%20(x86)/Steam/steamapps/common/ProjectZomboid/projectzomboid.jar)\nWARNING: Use --enable-native-access=ALL-UNNAMED to avoid a warning for callers in this module\nWARNING: Restricted methods will be blocked in a future release unless native access is enabled\n\nException in thread \"main\" java.lang.AssertionError: removed_world_holder_refused\n\tat ResourceApproachProbe.check(ResourceApproachProbe.java:69)\n\tat ResourceApproachProbe.main(ResourceApproachProbe.java:314)\n"
+    },
+    {
+      "phase": "compile",
+      "case": "ignore-native-free-square",
+      "exit": 0,
+      "seconds": 1.1646369999507442,
+      "stdout": "",
+      "stderr": "Note: C:\\Users\\jleyv\\AppData\\Local\\Temp\\sao-resource-approach-dayfu_28\\ignore-native-free-square\\SAOWorldSources.java uses or overrides a deprecated API.\nNote: Recompile with -Xlint:deprecation for details.\n"
+    },
+    {
+      "phase": "probe",
+      "case": "ignore-native-free-square",
+      "exit": 1,
+      "seconds": 1.0764739000005648,
+      "stdout": "CHECK no_receipt_food=true\nCHECK no_receipt_water=true\nCHECK no_receipt_weapon=true\nCHECK no_receipt_ammo=true\nCHECK bad_kind_refused=true\nCHECK food_query_preserves_source=true\nCHECK weapon_query_preserves_source=true\nCHECK ammo_query_preserves_source=true\nCHECK adjacent_native_target_food=true\nCHECK adjacent_native_target_weapon=true\nCHECK adjacent_native_target_ammo=true\nCHECK nested_item_receipt_unchanged=true\nCHECK no_transfer_from_target_selection=true\nCHECK mismatched_coordinates_refused=true\nCHECK mismatched_floor_refused=true\nCHECK removed_item_refused=true\nCHECK invalid_receipt_does_not_become_none=true\nCHECK moved_nested_holder_refused=true\nCHECK removed_world_holder_refused=true\nCHECK unknown_contents_not_admitted=true\nCHECK query_does_not_discover_unknown_contents=true\nCHECK no_free_target_refused=false\n",
+      "stderr": "WARNING: A restricted method in java.lang.System has been called\nWARNING: java.lang.System::load has been called by org.lwjgl.system.Library$$Lambda/0x000000008d1523b0 in an unnamed module (file:/C:/Program%20Files%20(x86)/Steam/steamapps/common/ProjectZomboid/projectzomboid.jar)\nWARNING: Use --enable-native-access=ALL-UNNAMED to avoid a warning for callers in this module\nWARNING: Restricted methods will be blocked in a future release unless native access is enabled\n\nException in thread \"main\" java.lang.AssertionError: no_free_target_refused\n\tat ResourceApproachProbe.check(ResourceApproachProbe.java:69)\n\tat ResourceApproachProbe.main(ResourceApproachProbe.java:323)\n"
+    },
+    {
+      "phase": "compile",
+      "case": "ignore-native-interaction-barrier",
+      "exit": 0,
+      "seconds": 1.2287744999630377,
+      "stdout": "",
+      "stderr": "Note: C:\\Users\\jleyv\\AppData\\Local\\Temp\\sao-resource-approach-dayfu_28\\ignore-native-interaction-barrier\\SAOWorldSources.java uses or overrides a deprecated API.\nNote: Recompile with -Xlint:deprecation for details.\n"
+    },
+    {
+      "phase": "probe",
+      "case": "ignore-native-interaction-barrier",
+      "exit": 1,
+      "seconds": 1.1196599999675527,
+      "stdout": "CHECK no_receipt_food=true\nCHECK no_receipt_water=true\nCHECK no_receipt_weapon=true\nCHECK no_receipt_ammo=true\nCHECK bad_kind_refused=true\nCHECK food_query_preserves_source=true\nCHECK weapon_query_preserves_source=true\nCHECK ammo_query_preserves_source=true\nCHECK adjacent_native_target_food=true\nCHECK adjacent_native_target_weapon=true\nCHECK adjacent_native_target_ammo=true\nCHECK nested_item_receipt_unchanged=true\nCHECK no_transfer_from_target_selection=true\nCHECK mismatched_coordinates_refused=true\nCHECK mismatched_floor_refused=true\nCHECK removed_item_refused=true\nCHECK invalid_receipt_does_not_become_none=true\nCHECK moved_nested_holder_refused=true\nCHECK removed_world_holder_refused=true\nCHECK unknown_contents_not_admitted=true\nCHECK query_does_not_discover_unknown_contents=true\nCHECK no_free_target_refused=true\nCHECK wall_between_free_target_and_source_refused=false\n",
+      "stderr": "WARNING: A restricted method in java.lang.System has been called\nWARNING: java.lang.System::load has been called by org.lwjgl.system.Library$$Lambda/0x00000000041523b0 in an unnamed module (file:/C:/Program%20Files%20(x86)/Steam/steamapps/common/ProjectZomboid/projectzomboid.jar)\nWARNING: Use --enable-native-access=ALL-UNNAMED to avoid a warning for callers in this module\nWARNING: Restricted methods will be blocked in a future release unless native access is enabled\n\nException in thread \"main\" java.lang.AssertionError: wall_between_free_target_and_source_refused\n\tat ResourceApproachProbe.check(ResourceApproachProbe.java:69)\n\tat ResourceApproachProbe.main(ResourceApproachProbe.java:326)\n"
+    },
+    {
+      "phase": "compile",
+      "case": "admit-tainted-water",
+      "exit": 0,
+      "seconds": 1.2084427999798208,
+      "stdout": "",
+      "stderr": ""
+    },
+    {
+      "phase": "probe",
+      "case": "admit-tainted-water",
+      "exit": 1,
+      "seconds": 1.0714138000039384,
+      "stdout": "CHECK no_receipt_food=true\nCHECK no_receipt_water=true\nCHECK no_receipt_weapon=true\nCHECK no_receipt_ammo=true\nCHECK bad_kind_refused=true\nCHECK food_query_preserves_source=true\nCHECK weapon_query_preserves_source=true\nCHECK ammo_query_preserves_source=true\nCHECK adjacent_native_target_food=true\nCHECK adjacent_native_target_weapon=true\nCHECK adjacent_native_target_ammo=true\nCHECK nested_item_receipt_unchanged=true\nCHECK no_transfer_from_target_selection=true\nCHECK mismatched_coordinates_refused=true\nCHECK mismatched_floor_refused=true\nCHECK removed_item_refused=true\nCHECK invalid_receipt_does_not_become_none=true\nCHECK moved_nested_holder_refused=true\nCHECK removed_world_holder_refused=true\nCHECK unknown_contents_not_admitted=true\nCHECK query_does_not_discover_unknown_contents=true\nCHECK no_free_target_refused=true\nCHECK wall_between_free_target_and_source_refused=true\nCHECK actual_clear_side_restores_target=true\nCHECK selected_target_has_native_container_reach=true\nCHECK water_query_preserves_source=true\nCHECK water_avoids_occupied_source=true\nCHECK water_source_identity_retained=true\nCHECK tainted_water_refused=false\n",
+      "stderr": "WARNING: A restricted method in java.lang.System has been called\nWARNING: java.lang.System::load has been called by org.lwjgl.system.Library$$Lambda/0x000000008b1523b0 in an unnamed module (file:/C:/Program%20Files%20(x86)/Steam/steamapps/common/ProjectZomboid/projectzomboid.jar)\nWARNING: Use --enable-native-access=ALL-UNNAMED to avoid a warning for callers in this module\nWARNING: Restricted methods will be blocked in a future release unless native access is enabled\n\nException in thread \"main\" java.lang.AssertionError: tainted_water_refused\n\tat ResourceApproachProbe.check(ResourceApproachProbe.java:69)\n\tat ResourceApproachProbe.main(ResourceApproachProbe.java:338)\n"
+    },
+    {
+      "phase": "compile",
+      "case": "ignore-water-object-removal",
+      "exit": 0,
+      "seconds": 1.1312058999901637,
+      "stdout": "",
+      "stderr": ""
+    },
+    {
+      "phase": "probe",
+      "case": "ignore-water-object-removal",
+      "exit": 1,
+      "seconds": 1.0953327000606805,
+      "stdout": "CHECK no_receipt_food=true\nCHECK no_receipt_water=true\nCHECK no_receipt_weapon=true\nCHECK no_receipt_ammo=true\nCHECK bad_kind_refused=true\nCHECK food_query_preserves_source=true\nCHECK weapon_query_preserves_source=true\nCHECK ammo_query_preserves_source=true\nCHECK adjacent_native_target_food=true\nCHECK adjacent_native_target_weapon=true\nCHECK adjacent_native_target_ammo=true\nCHECK nested_item_receipt_unchanged=true\nCHECK no_transfer_from_target_selection=true\nCHECK mismatched_coordinates_refused=true\nCHECK mismatched_floor_refused=true\nCHECK removed_item_refused=true\nCHECK invalid_receipt_does_not_become_none=true\nCHECK moved_nested_holder_refused=true\nCHECK removed_world_holder_refused=true\nCHECK unknown_contents_not_admitted=true\nCHECK query_does_not_discover_unknown_contents=true\nCHECK no_free_target_refused=true\nCHECK wall_between_free_target_and_source_refused=true\nCHECK actual_clear_side_restores_target=true\nCHECK selected_target_has_native_container_reach=true\nCHECK water_query_preserves_source=true\nCHECK water_avoids_occupied_source=true\nCHECK water_source_identity_retained=true\nCHECK tainted_water_refused=true\nCHECK dry_water_refused=true\nCHECK removed_water_object_refused=false\n",
+      "stderr": "WARNING: A restricted method in java.lang.System has been called\nWARNING: java.lang.System::load has been called by org.lwjgl.system.Library$$Lambda/0x00000000811523b0 in an unnamed module (file:/C:/Program%20Files%20(x86)/Steam/steamapps/common/ProjectZomboid/projectzomboid.jar)\nWARNING: Use --enable-native-access=ALL-UNNAMED to avoid a warning for callers in this module\nWARNING: Restricted methods will be blocked in a future release unless native access is enabled\n\nException in thread \"main\" java.lang.AssertionError: removed_water_object_refused\n\tat ResourceApproachProbe.check(ResourceApproachProbe.java:69)\n\tat ResourceApproachProbe.main(ResourceApproachProbe.java:343)\n"
+    },
+    {
+      "phase": "compile",
+      "case": "ignore-unloaded-source",
+      "exit": 0,
+      "seconds": 1.2724157000193372,
+      "stdout": "",
+      "stderr": ""
+    },
+    {
+      "phase": "probe",
+      "case": "ignore-unloaded-source",
+      "exit": 1,
+      "seconds": 1.1422587999841198,
+      "stdout": "CHECK no_receipt_food=true\nCHECK no_receipt_water=true\nCHECK no_receipt_weapon=true\nCHECK no_receipt_ammo=true\nCHECK bad_kind_refused=true\nCHECK food_query_preserves_source=true\nCHECK weapon_query_preserves_source=true\nCHECK ammo_query_preserves_source=true\nCHECK adjacent_native_target_food=true\nCHECK adjacent_native_target_weapon=true\nCHECK adjacent_native_target_ammo=true\nCHECK nested_item_receipt_unchanged=true\nCHECK no_transfer_from_target_selection=true\nCHECK mismatched_coordinates_refused=true\nCHECK mismatched_floor_refused=true\nCHECK removed_item_refused=true\nCHECK invalid_receipt_does_not_become_none=true\nCHECK moved_nested_holder_refused=true\nCHECK removed_world_holder_refused=true\nCHECK unknown_contents_not_admitted=true\nCHECK query_does_not_discover_unknown_contents=true\nCHECK no_free_target_refused=true\nCHECK wall_between_free_target_and_source_refused=true\nCHECK actual_clear_side_restores_target=true\nCHECK selected_target_has_native_container_reach=true\nCHECK water_query_preserves_source=true\nCHECK water_avoids_occupied_source=true\nCHECK water_source_identity_retained=true\nCHECK tainted_water_refused=true\nCHECK dry_water_refused=true\nCHECK removed_water_object_refused=true\nCHECK moved_water_source_refused=true\nCHECK unloaded_source_square_refused=false\n",
+      "stderr": "WARNING: A restricted method in java.lang.System has been called\nWARNING: java.lang.System::load has been called by org.lwjgl.system.Library$$Lambda/0x00000000941523b0 in an unnamed module (file:/C:/Program%20Files%20(x86)/Steam/steamapps/common/ProjectZomboid/projectzomboid.jar)\nWARNING: Use --enable-native-access=ALL-UNNAMED to avoid a warning for callers in this module\nWARNING: Restricted methods will be blocked in a future release unless native access is enabled\n\nException in thread \"main\" java.lang.AssertionError: unloaded_source_square_refused\n\tat ResourceApproachProbe.check(ResourceApproachProbe.java:69)\n\tat ResourceApproachProbe.main(ResourceApproachProbe.java:351)\n"
+    },
+    {
+      "phase": "compile",
+      "case": "vehicle-origin-instead-of-part",
+      "exit": 0,
+      "seconds": 1.1847217000322416,
+      "stdout": "",
+      "stderr": ""
+    },
+    {
+      "phase": "probe",
+      "case": "vehicle-origin-instead-of-part",
+      "exit": 1,
+      "seconds": 1.1052200000267476,
+      "stdout": "CHECK no_receipt_food=true\nCHECK no_receipt_water=true\nCHECK no_receipt_weapon=true\nCHECK no_receipt_ammo=true\nCHECK bad_kind_refused=true\nCHECK food_query_preserves_source=true\nCHECK weapon_query_preserves_source=true\nCHECK ammo_query_preserves_source=true\nCHECK adjacent_native_target_food=true\nCHECK adjacent_native_target_weapon=true\nCHECK adjacent_native_target_ammo=true\nCHECK nested_item_receipt_unchanged=true\nCHECK no_transfer_from_target_selection=true\nCHECK mismatched_coordinates_refused=true\nCHECK mismatched_floor_refused=true\nCHECK removed_item_refused=true\nCHECK invalid_receipt_does_not_become_none=true\nCHECK moved_nested_holder_refused=true\nCHECK removed_world_holder_refused=true\nCHECK unknown_contents_not_admitted=true\nCHECK query_does_not_discover_unknown_contents=true\nCHECK no_free_target_refused=true\nCHECK wall_between_free_target_and_source_refused=true\nCHECK actual_clear_side_restores_target=true\nCHECK selected_target_has_native_container_reach=true\nCHECK water_query_preserves_source=true\nCHECK water_avoids_occupied_source=true\nCHECK water_source_identity_retained=true\nCHECK tainted_water_refused=true\nCHECK dry_water_refused=true\nCHECK removed_water_object_refused=true\nCHECK moved_water_source_refused=true\nCHECK unloaded_source_square_refused=true\nCHECK upstairs_source_keeps_floor=true\nCHECK upstairs_target_keeps_floor=true\nCHECK native_vehicle_area_is_distinct=true\nCHECK vehicle_query_preserves_source=true\nCHECK vehicle_native_part_target=false\n",
+      "stderr": "WARNING: A restricted method in java.lang.System has been called\nWARNING: java.lang.System::load has been called by org.lwjgl.system.Library$$Lambda/0x00000000131523b0 in an unnamed module (file:/C:/Program%20Files%20(x86)/Steam/steamapps/common/ProjectZomboid/projectzomboid.jar)\nWARNING: Use --enable-native-access=ALL-UNNAMED to avoid a warning for callers in this module\nWARNING: Restricted methods will be blocked in a future release unless native access is enabled\n\nWARNING: A terminally deprecated method in sun.misc.Unsafe has been called\nWARNING: sun.misc.Unsafe::objectFieldOffset has been called by org.joml.MemUtil$MemUtilUnsafe (file:/C:/Program%20Files%20(x86)/Steam/steamapps/common/ProjectZomboid/projectzomboid.jar)\nWARNING: Please consider reporting this to the maintainers of class org.joml.MemUtil$MemUtilUnsafe\nWARNING: sun.misc.Unsafe::objectFieldOffset will be removed in a future release\nException in thread \"main\" java.lang.AssertionError: vehicle_native_part_target\n\tat ResourceApproachProbe.check(ResourceApproachProbe.java:69)\n\tat ResourceApproachProbe.vehicle(ResourceApproachProbe.java:249)\n\tat ResourceApproachProbe.main(ResourceApproachProbe.java:358)\n"
+    },
+    {
+      "phase": "compile",
+      "case": "ignore-vehicle-permission",
+      "exit": 0,
+      "seconds": 1.174991200095974,
+      "stdout": "",
+      "stderr": ""
+    },
+    {
+      "phase": "probe",
+      "case": "ignore-vehicle-permission",
+      "exit": 1,
+      "seconds": 1.2531096999300644,
+      "stdout": "CHECK no_receipt_food=true\nCHECK no_receipt_water=true\nCHECK no_receipt_weapon=true\nCHECK no_receipt_ammo=true\nCHECK bad_kind_refused=true\nCHECK food_query_preserves_source=true\nCHECK weapon_query_preserves_source=true\nCHECK ammo_query_preserves_source=true\nCHECK adjacent_native_target_food=true\nCHECK adjacent_native_target_weapon=true\nCHECK adjacent_native_target_ammo=true\nCHECK nested_item_receipt_unchanged=true\nCHECK no_transfer_from_target_selection=true\nCHECK mismatched_coordinates_refused=true\nCHECK mismatched_floor_refused=true\nCHECK removed_item_refused=true\nCHECK invalid_receipt_does_not_become_none=true\nCHECK moved_nested_holder_refused=true\nCHECK removed_world_holder_refused=true\nCHECK unknown_contents_not_admitted=true\nCHECK query_does_not_discover_unknown_contents=true\nCHECK no_free_target_refused=true\nCHECK wall_between_free_target_and_source_refused=true\nCHECK actual_clear_side_restores_target=true\nCHECK selected_target_has_native_container_reach=true\nCHECK water_query_preserves_source=true\nCHECK water_avoids_occupied_source=true\nCHECK water_source_identity_retained=true\nCHECK tainted_water_refused=true\nCHECK dry_water_refused=true\nCHECK removed_water_object_refused=true\nCHECK moved_water_source_refused=true\nCHECK unloaded_source_square_refused=true\nCHECK upstairs_source_keeps_floor=true\nCHECK upstairs_target_keeps_floor=true\nCHECK native_vehicle_area_is_distinct=true\nCHECK vehicle_query_preserves_source=true\nCHECK vehicle_native_part_target=true\nCHECK revoked_vehicle_permission_refused=false\n",
+      "stderr": "WARNING: A restricted method in java.lang.System has been called\nWARNING: java.lang.System::load has been called by org.lwjgl.system.Library$$Lambda/0x000000003f1523b0 in an unnamed module (file:/C:/Program%20Files%20(x86)/Steam/steamapps/common/ProjectZomboid/projectzomboid.jar)\nWARNING: Use --enable-native-access=ALL-UNNAMED to avoid a warning for callers in this module\nWARNING: Restricted methods will be blocked in a future release unless native access is enabled\n\nWARNING: A terminally deprecated method in sun.misc.Unsafe has been called\nWARNING: sun.misc.Unsafe::objectFieldOffset has been called by org.joml.MemUtil$MemUtilUnsafe (file:/C:/Program%20Files%20(x86)/Steam/steamapps/common/ProjectZomboid/projectzomboid.jar)\nWARNING: Please consider reporting this to the maintainers of class org.joml.MemUtil$MemUtilUnsafe\nWARNING: sun.misc.Unsafe::objectFieldOffset will be removed in a future release\nException in thread \"main\" java.lang.AssertionError: revoked_vehicle_permission_refused\n\tat ResourceApproachProbe.check(ResourceApproachProbe.java:69)\n\tat ResourceApproachProbe.vehicle(ResourceApproachProbe.java:252)\n\tat ResourceApproachProbe.main(ResourceApproachProbe.java:358)\n"
+    },
+    {
+      "phase": "compile",
+      "case": "ignore-vehicle-movement",
+      "exit": 0,
+      "seconds": 1.133226800011471,
+      "stdout": "",
+      "stderr": ""
+    },
+    {
+      "phase": "probe",
+      "case": "ignore-vehicle-movement",
+      "exit": 1,
+      "seconds": 1.1230672999517992,
+      "stdout": "CHECK no_receipt_food=true\nCHECK no_receipt_water=true\nCHECK no_receipt_weapon=true\nCHECK no_receipt_ammo=true\nCHECK bad_kind_refused=true\nCHECK food_query_preserves_source=true\nCHECK weapon_query_preserves_source=true\nCHECK ammo_query_preserves_source=true\nCHECK adjacent_native_target_food=true\nCHECK adjacent_native_target_weapon=true\nCHECK adjacent_native_target_ammo=true\nCHECK nested_item_receipt_unchanged=true\nCHECK no_transfer_from_target_selection=true\nCHECK mismatched_coordinates_refused=true\nCHECK mismatched_floor_refused=true\nCHECK removed_item_refused=true\nCHECK invalid_receipt_does_not_become_none=true\nCHECK moved_nested_holder_refused=true\nCHECK removed_world_holder_refused=true\nCHECK unknown_contents_not_admitted=true\nCHECK query_does_not_discover_unknown_contents=true\nCHECK no_free_target_refused=true\nCHECK wall_between_free_target_and_source_refused=true\nCHECK actual_clear_side_restores_target=true\nCHECK selected_target_has_native_container_reach=true\nCHECK water_query_preserves_source=true\nCHECK water_avoids_occupied_source=true\nCHECK water_source_identity_retained=true\nCHECK tainted_water_refused=true\nCHECK dry_water_refused=true\nCHECK removed_water_object_refused=true\nCHECK moved_water_source_refused=true\nCHECK unloaded_source_square_refused=true\nCHECK upstairs_source_keeps_floor=true\nCHECK upstairs_target_keeps_floor=true\nCHECK native_vehicle_area_is_distinct=true\nCHECK vehicle_query_preserves_source=true\nCHECK vehicle_native_part_target=true\nCHECK revoked_vehicle_permission_refused=true\nCHECK moved_vehicle_refused=false\n",
+      "stderr": "WARNING: A restricted method in java.lang.System has been called\nWARNING: java.lang.System::load has been called by org.lwjgl.system.Library$$Lambda/0x0000000017152150 in an unnamed module (file:/C:/Program%20Files%20(x86)/Steam/steamapps/common/ProjectZomboid/projectzomboid.jar)\nWARNING: Use --enable-native-access=ALL-UNNAMED to avoid a warning for callers in this module\nWARNING: Restricted methods will be blocked in a future release unless native access is enabled\n\nWARNING: A terminally deprecated method in sun.misc.Unsafe has been called\nWARNING: sun.misc.Unsafe::objectFieldOffset has been called by org.joml.MemUtil$MemUtilUnsafe (file:/C:/Program%20Files%20(x86)/Steam/steamapps/common/ProjectZomboid/projectzomboid.jar)\nWARNING: Please consider reporting this to the maintainers of class org.joml.MemUtil$MemUtilUnsafe\nWARNING: sun.misc.Unsafe::objectFieldOffset will be removed in a future release\nException in thread \"main\" java.lang.AssertionError: moved_vehicle_refused\n\tat ResourceApproachProbe.check(ResourceApproachProbe.java:69)\n\tat ResourceApproachProbe.vehicle(ResourceApproachProbe.java:255)\n\tat ResourceApproachProbe.main(ResourceApproachProbe.java:358)\n"
+    },
+    {
+      "phase": "compile",
+      "case": "ignore-vehicle-membership",
+      "exit": 0,
+      "seconds": 1.189782700035721,
+      "stdout": "",
+      "stderr": ""
+    },
+    {
+      "phase": "probe",
+      "case": "ignore-vehicle-membership",
+      "exit": 1,
+      "seconds": 1.1108832999598235,
+      "stdout": "CHECK no_receipt_food=true\nCHECK no_receipt_water=true\nCHECK no_receipt_weapon=true\nCHECK no_receipt_ammo=true\nCHECK bad_kind_refused=true\nCHECK food_query_preserves_source=true\nCHECK weapon_query_preserves_source=true\nCHECK ammo_query_preserves_source=true\nCHECK adjacent_native_target_food=true\nCHECK adjacent_native_target_weapon=true\nCHECK adjacent_native_target_ammo=true\nCHECK nested_item_receipt_unchanged=true\nCHECK no_transfer_from_target_selection=true\nCHECK mismatched_coordinates_refused=true\nCHECK mismatched_floor_refused=true\nCHECK removed_item_refused=true\nCHECK invalid_receipt_does_not_become_none=true\nCHECK moved_nested_holder_refused=true\nCHECK removed_world_holder_refused=true\nCHECK unknown_contents_not_admitted=true\nCHECK query_does_not_discover_unknown_contents=true\nCHECK no_free_target_refused=true\nCHECK wall_between_free_target_and_source_refused=true\nCHECK actual_clear_side_restores_target=true\nCHECK selected_target_has_native_container_reach=true\nCHECK water_query_preserves_source=true\nCHECK water_avoids_occupied_source=true\nCHECK water_source_identity_retained=true\nCHECK tainted_water_refused=true\nCHECK dry_water_refused=true\nCHECK removed_water_object_refused=true\nCHECK moved_water_source_refused=true\nCHECK unloaded_source_square_refused=true\nCHECK upstairs_source_keeps_floor=true\nCHECK upstairs_target_keeps_floor=true\nCHECK native_vehicle_area_is_distinct=true\nCHECK vehicle_query_preserves_source=true\nCHECK vehicle_native_part_target=true\nCHECK revoked_vehicle_permission_refused=true\nCHECK moved_vehicle_refused=true\nCHECK removed_vehicle_refused=false\n",
+      "stderr": "WARNING: A restricted method in java.lang.System has been called\nWARNING: java.lang.System::load has been called by org.lwjgl.system.Library$$Lambda/0x000000008f1523b0 in an unnamed module (file:/C:/Program%20Files%20(x86)/Steam/steamapps/common/ProjectZomboid/projectzomboid.jar)\nWARNING: Use --enable-native-access=ALL-UNNAMED to avoid a warning for callers in this module\nWARNING: Restricted methods will be blocked in a future release unless native access is enabled\n\nWARNING: A terminally deprecated method in sun.misc.Unsafe has been called\nWARNING: sun.misc.Unsafe::objectFieldOffset has been called by org.joml.MemUtil$MemUtilUnsafe (file:/C:/Program%20Files%20(x86)/Steam/steamapps/common/ProjectZomboid/projectzomboid.jar)\nWARNING: Please consider reporting this to the maintainers of class org.joml.MemUtil$MemUtilUnsafe\nWARNING: sun.misc.Unsafe::objectFieldOffset will be removed in a future release\nException in thread \"main\" java.lang.AssertionError: removed_vehicle_refused\n\tat ResourceApproachProbe.check(ResourceApproachProbe.java:69)\n\tat ResourceApproachProbe.vehicle(ResourceApproachProbe.java:258)\n\tat ResourceApproachProbe.main(ResourceApproachProbe.java:358)\n"
+    },
+    {
+      "phase": "compile",
+      "case": "ignore-free-vehicle-area",
+      "exit": 0,
+      "seconds": 1.302708600065671,
+      "stdout": "",
+      "stderr": "Note: C:\\Users\\jleyv\\AppData\\Local\\Temp\\sao-resource-approach-dayfu_28\\ignore-free-vehicle-area\\SAOWorldSources.java uses or overrides a deprecated API.\nNote: Recompile with -Xlint:deprecation for details.\n"
+    },
+    {
+      "phase": "probe",
+      "case": "ignore-free-vehicle-area",
+      "exit": 1,
+      "seconds": 1.1446875999681652,
+      "stdout": "CHECK no_receipt_food=true\nCHECK no_receipt_water=true\nCHECK no_receipt_weapon=true\nCHECK no_receipt_ammo=true\nCHECK bad_kind_refused=true\nCHECK food_query_preserves_source=true\nCHECK weapon_query_preserves_source=true\nCHECK ammo_query_preserves_source=true\nCHECK adjacent_native_target_food=true\nCHECK adjacent_native_target_weapon=true\nCHECK adjacent_native_target_ammo=true\nCHECK nested_item_receipt_unchanged=true\nCHECK no_transfer_from_target_selection=true\nCHECK mismatched_coordinates_refused=true\nCHECK mismatched_floor_refused=true\nCHECK removed_item_refused=true\nCHECK invalid_receipt_does_not_become_none=true\nCHECK moved_nested_holder_refused=true\nCHECK removed_world_holder_refused=true\nCHECK unknown_contents_not_admitted=true\nCHECK query_does_not_discover_unknown_contents=true\nCHECK no_free_target_refused=true\nCHECK wall_between_free_target_and_source_refused=true\nCHECK actual_clear_side_restores_target=true\nCHECK selected_target_has_native_container_reach=true\nCHECK water_query_preserves_source=true\nCHECK water_avoids_occupied_source=true\nCHECK water_source_identity_retained=true\nCHECK tainted_water_refused=true\nCHECK dry_water_refused=true\nCHECK removed_water_object_refused=true\nCHECK moved_water_source_refused=true\nCHECK unloaded_source_square_refused=true\nCHECK upstairs_source_keeps_floor=true\nCHECK upstairs_target_keeps_floor=true\nCHECK native_vehicle_area_is_distinct=true\nCHECK vehicle_query_preserves_source=true\nCHECK vehicle_native_part_target=true\nCHECK revoked_vehicle_permission_refused=true\nCHECK moved_vehicle_refused=true\nCHECK removed_vehicle_refused=true\nCHECK replaced_vehicle_container_refused=true\nCHECK missing_vehicle_area_refused=true\nCHECK blocked_vehicle_area_refused=false\n",
+      "stderr": "WARNING: A restricted method in java.lang.System has been called\nWARNING: java.lang.System::load has been called by org.lwjgl.system.Library$$Lambda/0x0000000092152150 in an unnamed module (file:/C:/Program%20Files%20(x86)/Steam/steamapps/common/ProjectZomboid/projectzomboid.jar)\nWARNING: Use --enable-native-access=ALL-UNNAMED to avoid a warning for callers in this module\nWARNING: Restricted methods will be blocked in a future release unless native access is enabled\n\nWARNING: A terminally deprecated method in sun.misc.Unsafe has been called\nWARNING: sun.misc.Unsafe::objectFieldOffset has been called by org.joml.MemUtil$MemUtilUnsafe (file:/C:/Program%20Files%20(x86)/Steam/steamapps/common/ProjectZomboid/projectzomboid.jar)\nWARNING: Please consider reporting this to the maintainers of class org.joml.MemUtil$MemUtilUnsafe\nWARNING: sun.misc.Unsafe::objectFieldOffset will be removed in a future release\nException in thread \"main\" java.lang.AssertionError: blocked_vehicle_area_refused\n\tat ResourceApproachProbe.check(ResourceApproachProbe.java:69)\n\tat ResourceApproachProbe.vehicle(ResourceApproachProbe.java:267)\n\tat ResourceApproachProbe.main(ResourceApproachProbe.java:358)\n"
+    },
+    {
+      "phase": "compile",
+      "case": "ignore-water-attempt-feedback",
+      "exit": 0,
+      "seconds": 1.21230320003815,
+      "stdout": "",
+      "stderr": ""
+    },
+    {
+      "phase": "probe",
+      "case": "ignore-water-attempt-feedback",
+      "exit": 1,
+      "seconds": 9.182335500023328,
+      "stdout": "CHECK nearest_native_fixture_selected=true\nCHECK failed_exact_approach_recorded=true\nCHECK legacy_query_retains_unfiltered_contract=true\nCHECK failed_fixture_does_not_monopolize_query=false\n",
+      "stderr": "WARNING: A restricted method in java.lang.System has been called\nWARNING: java.lang.System::load has been called by org.lwjgl.system.Library$$Lambda/0x0000000096156968 in an unnamed module (file:/C:/Program%20Files%20(x86)/Steam/steamapps/common/ProjectZomboid/projectzomboid.jar)\nWARNING: Use --enable-native-access=ALL-UNNAMED to avoid a warning for callers in this module\nWARNING: Restricted methods will be blocked in a future release unless native access is enabled\n\nException in thread \"main\" java.lang.AssertionError: failed_fixture_does_not_monopolize_query\n\tat WaterApproachProbe.check(WaterApproachProbe.java:195)\n\tat WaterApproachProbe.main(WaterApproachProbe.java:251)\n"
+    },
+    {
+      "phase": "compile",
+      "case": "legacy-query-holds-without-clock",
+      "exit": 0,
+      "seconds": 1.124716499936767,
+      "stdout": "",
+      "stderr": ""
+    },
+    {
+      "phase": "probe",
+      "case": "legacy-query-holds-without-clock",
+      "exit": 1,
+      "seconds": 6.5524762000422925,
+      "stdout": "CHECK nearest_native_fixture_selected=true\nCHECK failed_exact_approach_recorded=true\nCHECK legacy_query_retains_unfiltered_contract=false\n",
+      "stderr": "WARNING: A restricted method in java.lang.System has been called\nWARNING: java.lang.System::load has been called by org.lwjgl.system.Library$$Lambda/0x0000000035156448 in an unnamed module (file:/C:/Program%20Files%20(x86)/Steam/steamapps/common/ProjectZomboid/projectzomboid.jar)\nWARNING: Use --enable-native-access=ALL-UNNAMED to avoid a warning for callers in this module\nWARNING: Restricted methods will be blocked in a future release unless native access is enabled\n\nException in thread \"main\" java.lang.AssertionError: legacy_query_retains_unfiltered_contract\n\tat WaterApproachProbe.check(WaterApproachProbe.java:195)\n\tat WaterApproachProbe.main(WaterApproachProbe.java:249)\n"
+    },
+    {
+      "phase": "compile",
+      "case": "erase-failure-with-source-cache",
+      "exit": 0,
+      "seconds": 1.249711100012064,
+      "stdout": "",
+      "stderr": ""
+    },
+    {
+      "phase": "probe",
+      "case": "erase-failure-with-source-cache",
+      "exit": 1,
+      "seconds": 6.4858751000138,
+      "stdout": "CHECK nearest_native_fixture_selected=true\nCHECK failed_exact_approach_recorded=true\nCHECK legacy_query_retains_unfiltered_contract=true\nCHECK failed_fixture_does_not_monopolize_query=false\n",
+      "stderr": "WARNING: A restricted method in java.lang.System has been called\nWARNING: java.lang.System::load has been called by org.lwjgl.system.Library$$Lambda/0x0000000005156968 in an unnamed module (file:/C:/Program%20Files%20(x86)/Steam/steamapps/common/ProjectZomboid/projectzomboid.jar)\nWARNING: Use --enable-native-access=ALL-UNNAMED to avoid a warning for callers in this module\nWARNING: Restricted methods will be blocked in a future release unless native access is enabled\n\nException in thread \"main\" java.lang.AssertionError: failed_fixture_does_not_monopolize_query\n\tat WaterApproachProbe.check(WaterApproachProbe.java:195)\n\tat WaterApproachProbe.main(WaterApproachProbe.java:251)\n"
+    },
+    {
+      "phase": "compile",
+      "case": "small-motion-forgets-failure",
+      "exit": 0,
+      "seconds": 1.1777234999462962,
+      "stdout": "",
+      "stderr": ""
+    },
+    {
+      "phase": "probe",
+      "case": "small-motion-forgets-failure",
+      "exit": 1,
+      "seconds": 6.58003730000928,
+      "stdout": "CHECK nearest_native_fixture_selected=true\nCHECK failed_exact_approach_recorded=true\nCHECK legacy_query_retains_unfiltered_contract=true\nCHECK failed_fixture_does_not_monopolize_query=true\nCHECK second_actual_failure_recorded=true\nCHECK both_failed_candidates_yield_to_knowledge=true\nCHECK small_motion_does_not_reset_failed_approach=false\n",
+      "stderr": "WARNING: A restricted method in java.lang.System has been called\nWARNING: java.lang.System::load has been called by org.lwjgl.system.Library$$Lambda/0x0000000085157418 in an unnamed module (file:/C:/Program%20Files%20(x86)/Steam/steamapps/common/ProjectZomboid/projectzomboid.jar)\nWARNING: Use --enable-native-access=ALL-UNNAMED to avoid a warning for callers in this module\nWARNING: Restricted methods will be blocked in a future release unless native access is enabled\n\nException in thread \"main\" java.lang.AssertionError: small_motion_does_not_reset_failed_approach\n\tat WaterApproachProbe.check(WaterApproachProbe.java:195)\n\tat WaterApproachProbe.main(WaterApproachProbe.java:255)\n"
+    },
+    {
+      "phase": "compile",
+      "case": "never-expire-water-failure",
+      "exit": 0,
+      "seconds": 1.113909500068985,
+      "stdout": "",
+      "stderr": ""
+    },
+    {
+      "phase": "probe",
+      "case": "never-expire-water-failure",
+      "exit": 1,
+      "seconds": 6.623755000066012,
+      "stdout": "CHECK nearest_native_fixture_selected=true\nCHECK failed_exact_approach_recorded=true\nCHECK legacy_query_retains_unfiltered_contract=true\nCHECK failed_fixture_does_not_monopolize_query=true\nCHECK second_actual_failure_recorded=true\nCHECK both_failed_candidates_yield_to_knowledge=true\nCHECK small_motion_does_not_reset_failed_approach=true\nCHECK adjacency_behind_native_barrier_is_still_held=true\nCHECK actual_native_reach_releases_failure=true\nCHECK no_water_consumed_or_changed_by_reappraisal=true\nCHECK new_owned_approach_can_fail=true\nCHECK another_person_keeps_own_candidate=true\nCHECK county_time_expiry_allows_reconsideration=false\n",
+      "stderr": "WARNING: A restricted method in java.lang.System has been called\nWARNING: java.lang.System::load has been called by org.lwjgl.system.Library$$Lambda/0x000000002a156448 in an unnamed module (file:/C:/Program%20Files%20(x86)/Steam/steamapps/common/ProjectZomboid/projectzomboid.jar)\nWARNING: Use --enable-native-access=ALL-UNNAMED to avoid a warning for callers in this module\nWARNING: Restricted methods will be blocked in a future release unless native access is enabled\n\nException in thread \"main\" java.lang.AssertionError: county_time_expiry_allows_reconsideration\n\tat WaterApproachProbe.check(WaterApproachProbe.java:195)\n\tat WaterApproachProbe.main(WaterApproachProbe.java:266)\n"
+    },
+    {
+      "phase": "compile",
+      "case": "never-release-demonstrated-reach",
+      "exit": 0,
+      "seconds": 1.1779617998981848,
+      "stdout": "",
+      "stderr": ""
+    },
+    {
+      "phase": "probe",
+      "case": "never-release-demonstrated-reach",
+      "exit": 1,
+      "seconds": 6.460114600020461,
+      "stdout": "CHECK nearest_native_fixture_selected=true\nCHECK failed_exact_approach_recorded=true\nCHECK legacy_query_retains_unfiltered_contract=true\nCHECK failed_fixture_does_not_monopolize_query=true\nCHECK second_actual_failure_recorded=true\nCHECK both_failed_candidates_yield_to_knowledge=true\nCHECK small_motion_does_not_reset_failed_approach=true\nCHECK adjacency_behind_native_barrier_is_still_held=true\nCHECK actual_native_reach_releases_failure=false\n",
+      "stderr": "WARNING: A restricted method in java.lang.System has been called\nWARNING: java.lang.System::load has been called by org.lwjgl.system.Library$$Lambda/0x000000000e158410 in an unnamed module (file:/C:/Program%20Files%20(x86)/Steam/steamapps/common/ProjectZomboid/projectzomboid.jar)\nWARNING: Use --enable-native-access=ALL-UNNAMED to avoid a warning for callers in this module\nWARNING: Restricted methods will be blocked in a future release unless native access is enabled\n\nException in thread \"main\" java.lang.AssertionError: actual_native_reach_releases_failure\n\tat WaterApproachProbe.check(WaterApproachProbe.java:195)\n\tat WaterApproachProbe.main(WaterApproachProbe.java:259)\n"
+    },
+    {
+      "phase": "compile",
+      "case": "unbound-failure-target",
+      "exit": 0,
+      "seconds": 1.1032217000611126,
+      "stdout": "",
+      "stderr": ""
+    },
+    {
+      "phase": "probe",
+      "case": "unbound-failure-target",
+      "exit": 1,
+      "seconds": 6.509413900086656,
+      "stdout": "CHECK nearest_native_fixture_selected=true\nCHECK failed_exact_approach_recorded=true\nCHECK legacy_query_retains_unfiltered_contract=true\nCHECK failed_fixture_does_not_monopolize_query=true\nCHECK second_actual_failure_recorded=true\nCHECK both_failed_candidates_yield_to_knowledge=true\nCHECK small_motion_does_not_reset_failed_approach=true\nCHECK adjacency_behind_native_barrier_is_still_held=true\nCHECK actual_native_reach_releases_failure=true\nCHECK no_water_consumed_or_changed_by_reappraisal=true\nCHECK new_owned_approach_can_fail=true\nCHECK another_person_keeps_own_candidate=true\nCHECK county_time_expiry_allows_reconsideration=true\nCHECK repeat_failure_recorded=true\nCHECK repeated_failure_has_bounded_longer_backoff=true\nCHECK repeated_failure_eventually_expires=true\nCHECK flee_or_cancel_is_not_an_access_failure=true\nCHECK arrival_is_not_an_access_failure=true\nCHECK tick_fault_is_not_an_access_failure=true\nCHECK unloaded_route_is_not_an_access_failure=true\nCHECK unknown_native_failure_is_not_new_access_evidence=true\nCHECK invalid_clock_cannot_penalize_source=true\nCHECK unrelated_target_cannot_penalize_source=false\n",
+      "stderr": "WARNING: A restricted method in java.lang.System has been called\nWARNING: java.lang.System::load has been called by org.lwjgl.system.Library$$Lambda/0x0000000036154310 in an unnamed module (file:/C:/Program%20Files%20(x86)/Steam/steamapps/common/ProjectZomboid/projectzomboid.jar)\nWARNING: Use --enable-native-access=ALL-UNNAMED to avoid a warning for callers in this module\nWARNING: Restricted methods will be blocked in a future release unless native access is enabled\n\nException in thread \"main\" java.lang.AssertionError: unrelated_target_cannot_penalize_source\n\tat WaterApproachProbe.check(WaterApproachProbe.java:195)\n\tat WaterApproachProbe.main(WaterApproachProbe.java:277)\n"
+    },
+    {
+      "phase": "compile",
+      "case": "cancel-counted-as-water-failure",
+      "exit": 0,
+      "seconds": 1.1348526999354362,
+      "stdout": "",
+      "stderr": ""
+    },
+    {
+      "phase": "probe",
+      "case": "cancel-counted-as-water-failure",
+      "exit": 1,
+      "seconds": 6.612154499976896,
+      "stdout": "CHECK nearest_native_fixture_selected=true\nCHECK failed_exact_approach_recorded=true\nCHECK legacy_query_retains_unfiltered_contract=true\nCHECK failed_fixture_does_not_monopolize_query=true\nCHECK second_actual_failure_recorded=true\nCHECK both_failed_candidates_yield_to_knowledge=true\nCHECK small_motion_does_not_reset_failed_approach=true\nCHECK adjacency_behind_native_barrier_is_still_held=true\nCHECK actual_native_reach_releases_failure=true\nCHECK no_water_consumed_or_changed_by_reappraisal=true\nCHECK new_owned_approach_can_fail=true\nCHECK another_person_keeps_own_candidate=true\nCHECK county_time_expiry_allows_reconsideration=true\nCHECK repeat_failure_recorded=true\nCHECK repeated_failure_has_bounded_longer_backoff=true\nCHECK repeated_failure_eventually_expires=true\nCHECK flee_or_cancel_is_not_an_access_failure=false\n",
+      "stderr": "WARNING: A restricted method in java.lang.System has been called\nWARNING: java.lang.System::load has been called by org.lwjgl.system.Library$$Lambda/0x000000009a159190 in an unnamed module (file:/C:/Program%20Files%20(x86)/Steam/steamapps/common/ProjectZomboid/projectzomboid.jar)\nWARNING: Use --enable-native-access=ALL-UNNAMED to avoid a warning for callers in this module\nWARNING: Restricted methods will be blocked in a future release unless native access is enabled\n\nException in thread \"main\" java.lang.AssertionError: flee_or_cancel_is_not_an_access_failure\n\tat WaterApproachProbe.check(WaterApproachProbe.java:195)\n\tat WaterApproachProbe.main(WaterApproachProbe.java:271)\n"
+    },
+    {
+      "phase": "compile",
+      "case": "unbounded-water-failures",
+      "exit": 0,
+      "seconds": 1.2528686999576166,
+      "stdout": "",
+      "stderr": ""
+    },
+    {
+      "phase": "probe",
+      "case": "unbounded-water-failures",
+      "exit": 1,
+      "seconds": 6.429215100011788,
+      "stdout": "CHECK nearest_native_fixture_selected=true\nCHECK failed_exact_approach_recorded=true\nCHECK legacy_query_retains_unfiltered_contract=true\nCHECK failed_fixture_does_not_monopolize_query=true\nCHECK second_actual_failure_recorded=true\nCHECK both_failed_candidates_yield_to_knowledge=true\nCHECK small_motion_does_not_reset_failed_approach=true\nCHECK adjacency_behind_native_barrier_is_still_held=true\nCHECK actual_native_reach_releases_failure=true\nCHECK no_water_consumed_or_changed_by_reappraisal=true\nCHECK new_owned_approach_can_fail=true\nCHECK another_person_keeps_own_candidate=true\nCHECK county_time_expiry_allows_reconsideration=true\nCHECK repeat_failure_recorded=true\nCHECK repeated_failure_has_bounded_longer_backoff=true\nCHECK repeated_failure_eventually_expires=true\nCHECK flee_or_cancel_is_not_an_access_failure=true\nCHECK arrival_is_not_an_access_failure=true\nCHECK tick_fault_is_not_an_access_failure=true\nCHECK unloaded_route_is_not_an_access_failure=true\nCHECK unknown_native_failure_is_not_new_access_evidence=true\nCHECK invalid_clock_cannot_penalize_source=true\nCHECK unrelated_target_cannot_penalize_source=true\nCHECK failure_requires_approach_receipt=true\nCHECK replacement_test_failure_recorded=true\nCHECK replacement_fixture_is_independent=true\nCHECK replacement_attempt_recorded=true\nCHECK world_reset_discards_attempt_handles=true\nCHECK capacity_uses_actual_queries_and_failures=true\nCHECK failure_receipts_are_bounded=false\n",
+      "stderr": "WARNING: A restricted method in java.lang.System has been called\nWARNING: java.lang.System::load has been called by org.lwjgl.system.Library$$Lambda/0x0000000038156448 in an unnamed module (file:/C:/Program%20Files%20(x86)/Steam/steamapps/common/ProjectZomboid/projectzomboid.jar)\nWARNING: Use --enable-native-access=ALL-UNNAMED to avoid a warning for callers in this module\nWARNING: Restricted methods will be blocked in a future release unless native access is enabled\n\nException in thread \"main\" java.lang.AssertionError: failure_receipts_are_bounded\n\tat WaterApproachProbe.check(WaterApproachProbe.java:195)\n\tat WaterApproachProbe.main(WaterApproachProbe.java:298)\n"
+    },
+    {
+      "phase": "compile",
+      "case": "world-keeps-water-attempts",
+      "exit": 0,
+      "seconds": 1.1867081000236794,
+      "stdout": "",
+      "stderr": ""
+    },
+    {
+      "phase": "probe",
+      "case": "world-keeps-water-attempts",
+      "exit": 1,
+      "seconds": 6.90541220002342,
+      "stdout": "CHECK nearest_native_fixture_selected=true\nCHECK failed_exact_approach_recorded=true\nCHECK legacy_query_retains_unfiltered_contract=true\nCHECK failed_fixture_does_not_monopolize_query=true\nCHECK second_actual_failure_recorded=true\nCHECK both_failed_candidates_yield_to_knowledge=true\nCHECK small_motion_does_not_reset_failed_approach=true\nCHECK adjacency_behind_native_barrier_is_still_held=true\nCHECK actual_native_reach_releases_failure=true\nCHECK no_water_consumed_or_changed_by_reappraisal=true\nCHECK new_owned_approach_can_fail=true\nCHECK another_person_keeps_own_candidate=true\nCHECK county_time_expiry_allows_reconsideration=true\nCHECK repeat_failure_recorded=true\nCHECK repeated_failure_has_bounded_longer_backoff=true\nCHECK repeated_failure_eventually_expires=true\nCHECK flee_or_cancel_is_not_an_access_failure=true\nCHECK arrival_is_not_an_access_failure=true\nCHECK tick_fault_is_not_an_access_failure=true\nCHECK unloaded_route_is_not_an_access_failure=true\nCHECK unknown_native_failure_is_not_new_access_evidence=true\nCHECK invalid_clock_cannot_penalize_source=true\nCHECK unrelated_target_cannot_penalize_source=true\nCHECK failure_requires_approach_receipt=true\nCHECK replacement_test_failure_recorded=true\nCHECK replacement_fixture_is_independent=true\nCHECK replacement_attempt_recorded=true\nCHECK world_reset_discards_attempt_handles=false\n",
+      "stderr": "WARNING: A restricted method in java.lang.System has been called\nWARNING: java.lang.System::load has been called by org.lwjgl.system.Library$$Lambda/0x000000002a156448 in an unnamed module (file:/C:/Program%20Files%20(x86)/Steam/steamapps/common/ProjectZomboid/projectzomboid.jar)\nWARNING: Use --enable-native-access=ALL-UNNAMED to avoid a warning for callers in this module\nWARNING: Restricted methods will be blocked in a future release unless native access is enabled\n\nException in thread \"main\" java.lang.AssertionError: world_reset_discards_attempt_handles\n\tat WaterApproachProbe.check(WaterApproachProbe.java:195)\n\tat WaterApproachProbe.main(WaterApproachProbe.java:287)\n"
+    },
+    {
+      "phase": "compile",
+      "case": "water-former-door-edge-reach",
+      "exit": 0,
+      "seconds": 1.215236800024286,
+      "stdout": "",
+      "stderr": ""
+    },
+    {
+      "phase": "probe",
+      "case": "water-former-door-edge-reach",
+      "exit": 1,
+      "seconds": 6.820579400053248,
+      "stdout": "CHECK installed_open_door_is_not_a_blocked_edge=true\nCHECK water_open_door_matches_installed_interaction=false\n",
+      "stderr": "WARNING: A restricted method in java.lang.System has been called\nWARNING: java.lang.System::load has been called by org.lwjgl.system.Library$$Lambda/0x00000000a01554a0 in an unnamed module (file:/C:/Program%20Files%20(x86)/Steam/steamapps/common/ProjectZomboid/projectzomboid.jar)\nWARNING: Use --enable-native-access=ALL-UNNAMED to avoid a warning for callers in this module\nWARNING: Restricted methods will be blocked in a future release unless native access is enabled\n\nException in thread \"main\" java.lang.AssertionError: water_open_door_matches_installed_interaction\n\tat WaterApproachProbe.check(WaterApproachProbe.java:195)\n\tat WaterApproachProbe.reachChecks(WaterApproachProbe.java:78)\n\tat WaterApproachProbe.main(WaterApproachProbe.java:239)\n"
+    },
+    {
+      "phase": "compile",
+      "case": "water-radial-instead-of-native-axis",
+      "exit": 0,
+      "seconds": 1.2854930000612512,
+      "stdout": "",
+      "stderr": ""
+    },
+    {
+      "phase": "probe",
+      "case": "water-radial-instead-of-native-axis",
+      "exit": 1,
+      "seconds": 6.6757297000149265,
+      "stdout": "CHECK installed_open_door_is_not_a_blocked_edge=true\nCHECK water_open_door_matches_installed_interaction=true\nCHECK water_selection_receipt_binds_actual_fixture=true\nCHECK unchanged_water_query_does_not_spam_receipts=true\nCHECK water_closed_door_refused_by_native_reach=true\nCHECK water_open_window_matches_installed_interaction=true\nCHECK water_closed_window_refused_by_native_reach=true\nCHECK water_native_adjacent_square_limit=true\nCHECK water_diagonal_axis_reach_matches_vanilla=false\n",
+      "stderr": "WARNING: A restricted method in java.lang.System has been called\nWARNING: java.lang.System::load has been called by org.lwjgl.system.Library$$Lambda/0x000000000a158410 in an unnamed module (file:/C:/Program%20Files%20(x86)/Steam/steamapps/common/ProjectZomboid/projectzomboid.jar)\nWARNING: Use --enable-native-access=ALL-UNNAMED to avoid a warning for callers in this module\nWARNING: Restricted methods will be blocked in a future release unless native access is enabled\n\nException in thread \"main\" java.lang.AssertionError: water_diagonal_axis_reach_matches_vanilla\n\tat WaterApproachProbe.check(WaterApproachProbe.java:195)\n\tat WaterApproachProbe.reachChecks(WaterApproachProbe.java:101)\n\tat WaterApproachProbe.main(WaterApproachProbe.java:239)\n"
+    },
+    {
+      "phase": "compile",
+      "case": "water-ignore-closed-native-edge",
+      "exit": 0,
+      "seconds": 1.1642477000132203,
+      "stdout": "",
+      "stderr": ""
+    },
+    {
+      "phase": "probe",
+      "case": "water-ignore-closed-native-edge",
+      "exit": 1,
+      "seconds": 6.642914799973369,
+      "stdout": "CHECK installed_open_door_is_not_a_blocked_edge=true\nCHECK water_open_door_matches_installed_interaction=true\nCHECK water_selection_receipt_binds_actual_fixture=true\nCHECK unchanged_water_query_does_not_spam_receipts=true\nCHECK water_closed_door_refused_by_native_reach=false\n",
+      "stderr": "WARNING: A restricted method in java.lang.System has been called\nWARNING: java.lang.System::load has been called by org.lwjgl.system.Library$$Lambda/0x0000000025159190 in an unnamed module (file:/C:/Program%20Files%20(x86)/Steam/steamapps/common/ProjectZomboid/projectzomboid.jar)\nWARNING: Use --enable-native-access=ALL-UNNAMED to avoid a warning for callers in this module\nWARNING: Restricted methods will be blocked in a future release unless native access is enabled\n\nException in thread \"main\" java.lang.AssertionError: water_closed_door_refused_by_native_reach\n\tat WaterApproachProbe.check(WaterApproachProbe.java:195)\n\tat WaterApproachProbe.reachChecks(WaterApproachProbe.java:84)\n\tat WaterApproachProbe.main(WaterApproachProbe.java:239)\n"
+    },
+    {
+      "phase": "compile",
+      "case": "water-ignore-west-fixture-correction",
+      "exit": 0,
+      "seconds": 1.1192912999540567,
+      "stdout": "",
+      "stderr": ""
+    },
+    {
+      "phase": "probe",
+      "case": "water-ignore-west-fixture-correction",
+      "exit": 1,
+      "seconds": 6.549246900016442,
+      "stdout": "CHECK installed_open_door_is_not_a_blocked_edge=true\nCHECK water_open_door_matches_installed_interaction=true\nCHECK water_selection_receipt_binds_actual_fixture=true\nCHECK unchanged_water_query_does_not_spam_receipts=true\nCHECK water_closed_door_refused_by_native_reach=true\nCHECK water_open_window_matches_installed_interaction=true\nCHECK water_closed_window_refused_by_native_reach=true\nCHECK water_native_adjacent_square_limit=true\nCHECK water_diagonal_axis_reach_matches_vanilla=true\nCHECK water_corrected_wall_square_matches_vanilla=false\n",
+      "stderr": "WARNING: A restricted method in java.lang.System has been called\nWARNING: java.lang.System::load has been called by org.lwjgl.system.Library$$Lambda/0x000000002e159190 in an unnamed module (file:/C:/Program%20Files%20(x86)/Steam/steamapps/common/ProjectZomboid/projectzomboid.jar)\nWARNING: Use --enable-native-access=ALL-UNNAMED to avoid a warning for callers in this module\nWARNING: Restricted methods will be blocked in a future release unless native access is enabled\n\nException in thread \"main\" java.lang.AssertionError: water_corrected_wall_square_matches_vanilla\n\tat WaterApproachProbe.check(WaterApproachProbe.java:195)\n\tat WaterApproachProbe.reachChecks(WaterApproachProbe.java:106)\n\tat WaterApproachProbe.main(WaterApproachProbe.java:239)\n"
+    },
+    {
+      "phase": "compile",
+      "case": "water-ignore-north-fixture-correction",
+      "exit": 0,
+      "seconds": 1.1499944999814034,
+      "stdout": "",
+      "stderr": ""
+    },
+    {
+      "phase": "probe",
+      "case": "water-ignore-north-fixture-correction",
+      "exit": 1,
+      "seconds": 6.634080499992706,
+      "stdout": "CHECK installed_open_door_is_not_a_blocked_edge=true\nCHECK water_open_door_matches_installed_interaction=true\nCHECK water_selection_receipt_binds_actual_fixture=true\nCHECK unchanged_water_query_does_not_spam_receipts=true\nCHECK water_closed_door_refused_by_native_reach=true\nCHECK water_open_window_matches_installed_interaction=true\nCHECK water_closed_window_refused_by_native_reach=true\nCHECK water_native_adjacent_square_limit=true\nCHECK water_diagonal_axis_reach_matches_vanilla=true\nCHECK water_corrected_wall_square_matches_vanilla=true\nCHECK water_corrected_north_wall_matches_vanilla=false\n",
+      "stderr": "WARNING: A restricted method in java.lang.System has been called\nWARNING: java.lang.System::load has been called by org.lwjgl.system.Library$$Lambda/0x0000000031158410 in an unnamed module (file:/C:/Program%20Files%20(x86)/Steam/steamapps/common/ProjectZomboid/projectzomboid.jar)\nWARNING: Use --enable-native-access=ALL-UNNAMED to avoid a warning for callers in this module\nWARNING: Restricted methods will be blocked in a future release unless native access is enabled\n\nException in thread \"main\" java.lang.AssertionError: water_corrected_north_wall_matches_vanilla\n\tat WaterApproachProbe.check(WaterApproachProbe.java:195)\n\tat WaterApproachProbe.reachChecks(WaterApproachProbe.java:113)\n\tat WaterApproachProbe.main(WaterApproachProbe.java:239)\n"
+    },
+    {
+      "phase": "compile",
+      "case": "water-nearest-before-usable",
+      "exit": 0,
+      "seconds": 1.1596053999383003,
+      "stdout": "",
+      "stderr": ""
+    },
+    {
+      "phase": "probe",
+      "case": "water-nearest-before-usable",
+      "exit": 1,
+      "seconds": 8.925165600026958,
+      "stdout": "CHECK installed_open_door_is_not_a_blocked_edge=true\nCHECK water_open_door_matches_installed_interaction=true\nCHECK water_selection_receipt_binds_actual_fixture=true\nCHECK unchanged_water_query_does_not_spam_receipts=true\nCHECK water_closed_door_refused_by_native_reach=true\nCHECK water_open_window_matches_installed_interaction=true\nCHECK water_closed_window_refused_by_native_reach=true\nCHECK water_native_adjacent_square_limit=true\nCHECK water_diagonal_axis_reach_matches_vanilla=true\nCHECK water_corrected_wall_square_matches_vanilla=true\nCHECK water_corrected_north_wall_matches_vanilla=true\nCHECK water_other_floor_not_interactable=true\nCHECK usable_water_precedes_nearer_blocked_fixture=false\n",
+      "stderr": "WARNING: A restricted method in java.lang.System has been called\nWARNING: java.lang.System::load has been called by org.lwjgl.system.Library$$Lambda/0x0000000034153258 in an unnamed module (file:/C:/Program%20Files%20(x86)/Steam/steamapps/common/ProjectZomboid/projectzomboid.jar)\nWARNING: Use --enable-native-access=ALL-UNNAMED to avoid a warning for callers in this module\nWARNING: Restricted methods will be blocked in a future release unless native access is enabled\n\nException in thread \"main\" java.lang.AssertionError: usable_water_precedes_nearer_blocked_fixture\n\tat WaterApproachProbe.check(WaterApproachProbe.java:195)\n\tat WaterApproachProbe.reachChecks(WaterApproachProbe.java:124)\n\tat WaterApproachProbe.main(WaterApproachProbe.java:239)\n"
+    },
+    {
+      "phase": "compile",
+      "case": "water-any-untainted-fluid",
+      "exit": 0,
+      "seconds": 1.1484603000571951,
+      "stdout": "",
+      "stderr": ""
+    },
+    {
+      "phase": "probe",
+      "case": "water-any-untainted-fluid",
+      "exit": 1,
+      "seconds": 6.45265200000722,
+      "stdout": "CHECK nonwater_fluid_is_not_a_thirst_source=false\n",
+      "stderr": "WARNING: A restricted method in java.lang.System has been called\nWARNING: java.lang.System::load has been called by org.lwjgl.system.Library$$Lambda/0x0000000088158410 in an unnamed module (file:/C:/Program%20Files%20(x86)/Steam/steamapps/common/ProjectZomboid/projectzomboid.jar)\nWARNING: Use --enable-native-access=ALL-UNNAMED to avoid a warning for callers in this module\nWARNING: Restricted methods will be blocked in a future release unless native access is enabled\n\nException in thread \"main\" java.lang.AssertionError: nonwater_fluid_is_not_a_thirst_source\n\tat WaterApproachProbe.check(WaterApproachProbe.java:195)\n\tat WaterApproachProbe.fluidChecks(WaterApproachProbe.java:137)\n\tat WaterApproachProbe.main(WaterApproachProbe.java:240)\n"
+    },
+    {
+      "phase": "compile",
+      "case": "water-ignore-positive-last-sip",
+      "exit": 0,
+      "seconds": 1.1802959999768063,
+      "stdout": "",
+      "stderr": ""
+    },
+    {
+      "phase": "probe",
+      "case": "water-ignore-positive-last-sip",
+      "exit": 1,
+      "seconds": 6.443472499959171,
+      "stdout": "CHECK nonwater_fluid_is_not_a_thirst_source=true\nCHECK positive_last_sip_is_selected=false\n",
+      "stderr": "WARNING: A restricted method in java.lang.System has been called\nWARNING: java.lang.System::load has been called by org.lwjgl.system.Library$$Lambda/0x0000000026159cf0 in an unnamed module (file:/C:/Program%20Files%20(x86)/Steam/steamapps/common/ProjectZomboid/projectzomboid.jar)\nWARNING: Use --enable-native-access=ALL-UNNAMED to avoid a warning for callers in this module\nWARNING: Restricted methods will be blocked in a future release unless native access is enabled\n\nException in thread \"main\" java.lang.AssertionError: positive_last_sip_is_selected\n\tat WaterApproachProbe.check(WaterApproachProbe.java:195)\n\tat WaterApproachProbe.fluidChecks(WaterApproachProbe.java:140)\n\tat WaterApproachProbe.main(WaterApproachProbe.java:240)\n"
+    },
+    {
+      "phase": "compile",
+      "case": "water-null-primary-rejects-native-reserve",
+      "exit": 0,
+      "seconds": 1.180306400055997,
+      "stdout": "",
+      "stderr": ""
+    },
+    {
+      "phase": "probe",
+      "case": "water-null-primary-rejects-native-reserve",
+      "exit": 1,
+      "seconds": 6.871344500104897,
+      "stdout": "CHECK nonwater_fluid_is_not_a_thirst_source=true\nCHECK positive_last_sip_is_selected=true\nCHECK contaminated_selected_fluid_is_revalidated=true\nCHECK tainted_water_is_not_selected=true\nCHECK dry_selected_fluid_is_revalidated=true\nCHECK empty_component_still_has_native_pipe_reserve=true\nCHECK empty_component_pipe_reserve_is_selected=false\n",
+      "stderr": "WARNING: A restricted method in java.lang.System has been called\nWARNING: java.lang.System::load has been called by org.lwjgl.system.Library$$Lambda/0x0000000006154310 in an unnamed module (file:/C:/Program%20Files%20(x86)/Steam/steamapps/common/ProjectZomboid/projectzomboid.jar)\nWARNING: Use --enable-native-access=ALL-UNNAMED to avoid a warning for callers in this module\nWARNING: Restricted methods will be blocked in a future release unless native access is enabled\n\nException in thread \"main\" java.lang.AssertionError: empty_component_pipe_reserve_is_selected\n\tat WaterApproachProbe.check(WaterApproachProbe.java:195)\n\tat WaterApproachProbe.fluidChecks(WaterApproachProbe.java:156)\n\tat WaterApproachProbe.main(WaterApproachProbe.java:240)\n"
+    },
+    {
+      "phase": "compile",
+      "case": "water-skip-selected-fluid-revalidation",
+      "exit": 0,
+      "seconds": 1.151073000044562,
+      "stdout": "",
+      "stderr": ""
+    },
+    {
+      "phase": "probe",
+      "case": "water-skip-selected-fluid-revalidation",
+      "exit": 1,
+      "seconds": 6.372406000038609,
+      "stdout": "CHECK nonwater_fluid_is_not_a_thirst_source=true\nCHECK positive_last_sip_is_selected=true\nCHECK contaminated_selected_fluid_is_revalidated=false\n",
+      "stderr": "WARNING: A restricted method in java.lang.System has been called\nWARNING: java.lang.System::load has been called by org.lwjgl.system.Library$$Lambda/0x0000000015156448 in an unnamed module (file:/C:/Program%20Files%20(x86)/Steam/steamapps/common/ProjectZomboid/projectzomboid.jar)\nWARNING: Use --enable-native-access=ALL-UNNAMED to avoid a warning for callers in this module\nWARNING: Restricted methods will be blocked in a future release unless native access is enabled\n\nException in thread \"main\" java.lang.AssertionError: contaminated_selected_fluid_is_revalidated\n\tat WaterApproachProbe.check(WaterApproachProbe.java:195)\n\tat WaterApproachProbe.fluidChecks(WaterApproachProbe.java:143)\n\tat WaterApproachProbe.main(WaterApproachProbe.java:240)\n"
+    }
+  ],
+  "checks": [
+    "no_receipt_food",
+    "no_receipt_water",
+    "no_receipt_weapon",
+    "no_receipt_ammo",
+    "bad_kind_refused",
+    "food_query_preserves_source",
+    "weapon_query_preserves_source",
+    "ammo_query_preserves_source",
+    "adjacent_native_target_food",
+    "adjacent_native_target_weapon",
+    "adjacent_native_target_ammo",
+    "nested_item_receipt_unchanged",
+    "no_transfer_from_target_selection",
+    "mismatched_coordinates_refused",
+    "mismatched_floor_refused",
+    "removed_item_refused",
+    "invalid_receipt_does_not_become_none",
+    "moved_nested_holder_refused",
+    "removed_world_holder_refused",
+    "unknown_contents_not_admitted",
+    "query_does_not_discover_unknown_contents",
+    "no_free_target_refused",
+    "wall_between_free_target_and_source_refused",
+    "actual_clear_side_restores_target",
+    "selected_target_has_native_container_reach",
+    "water_query_preserves_source",
+    "water_avoids_occupied_source",
+    "water_source_identity_retained",
+    "tainted_water_refused",
+    "dry_water_refused",
+    "removed_water_object_refused",
+    "moved_water_source_refused",
+    "unloaded_source_square_refused",
+    "upstairs_source_keeps_floor",
+    "upstairs_target_keeps_floor",
+    "native_vehicle_area_is_distinct",
+    "vehicle_query_preserves_source",
+    "vehicle_native_part_target",
+    "revoked_vehicle_permission_refused",
+    "moved_vehicle_refused",
+    "removed_vehicle_refused",
+    "replaced_vehicle_container_refused",
+    "missing_vehicle_area_refused",
+    "blocked_vehicle_area_refused",
+    "vehicle_revalidation_restores_actual_target",
+    "reset_discards_receipt"
+  ],
+  "controls": [
+    {
+      "name": "cognition-ordinary-veto",
+      "rejectedBy": "rival_intent_executes_before_ordinary_threshold"
+    },
+    {
+      "name": "cognition-admission-omitted",
+      "rejectedBy": "rival_intent_executes_before_ordinary_threshold"
+    },
+    {
+      "name": "cognition-budget-bypass",
+      "rejectedBy": "off_cadence_does_not_build_competition_frame"
+    },
+    {
+      "name": "cognition-owned-work-bypass",
+      "rejectedBy": "accepted_work_retains_decision_ownership"
+    },
+    {
+      "name": "cognition-terminal-uncensored",
+      "rejectedBy": "ending_intent_censors_pending_competition"
+    },
+    {
+      "name": "water-queue-pcall-only",
+      "rejectedBy": "sleeping_native_queue_drop_is_refusal"
+    },
+    {
+      "name": "water-terminal-no-feedback",
+      "rejectedBy": "actual_terminal_owner_records_before_clear"
+    },
+    {
+      "name": "water-selector-loses-county-clock",
+      "rejectedBy": "selector_receives_county_clock"
+    },
+    {
+      "name": "water-feedback-unbound-body",
+      "rejectedBy": "different_body_cannot_record_failure"
+    },
+    {
+      "name": "water-ignore-already-usable-fixture",
+      "rejectedBy": "usable_fixture_drinks_without_a_route"
+    },
+    {
+      "name": "water-direct-admission-ignored",
+      "rejectedBy": "usable_fixture_drinks_without_a_route"
+    },
+    {
+      "name": "water-direct-reconciliation-ignored",
+      "rejectedBy": "pending_source_reconciliation_preserves_route_and_queue"
+    },
+    {
+      "name": "food-transfer-refusal-loses-reason",
+      "rejectedBy": "native_transfer_preserves_exact_refusal_reason"
+    },
+    {
+      "name": "occupied-source-target",
+      "rejectedBy": "adjacent_native_target_food"
+    },
+    {
+      "name": "ignore-item-removal",
+      "rejectedBy": "removed_item_refused"
+    },
+    {
+      "name": "ignore-root-holder",
+      "rejectedBy": "moved_nested_holder_refused"
+    },
+    {
+      "name": "admit-unknown-contents",
+      "rejectedBy": "unknown_contents_not_admitted"
+    },
+    {
+      "name": "ignore-world-holder-removal",
+      "rejectedBy": "removed_world_holder_refused"
+    },
+    {
+      "name": "ignore-native-free-square",
+      "rejectedBy": "no_free_target_refused"
+    },
+    {
+      "name": "ignore-native-interaction-barrier",
+      "rejectedBy": "wall_between_free_target_and_source_refused"
+    },
+    {
+      "name": "admit-tainted-water",
+      "rejectedBy": "tainted_water_refused"
+    },
+    {
+      "name": "ignore-water-object-removal",
+      "rejectedBy": "removed_water_object_refused"
+    },
+    {
+      "name": "ignore-unloaded-source",
+      "rejectedBy": "unloaded_source_square_refused"
+    },
+    {
+      "name": "vehicle-origin-instead-of-part",
+      "rejectedBy": "vehicle_native_part_target"
+    },
+    {
+      "name": "ignore-vehicle-permission",
+      "rejectedBy": "revoked_vehicle_permission_refused"
+    },
+    {
+      "name": "ignore-vehicle-movement",
+      "rejectedBy": "moved_vehicle_refused"
+    },
+    {
+      "name": "ignore-vehicle-membership",
+      "rejectedBy": "removed_vehicle_refused"
+    },
+    {
+      "name": "ignore-free-vehicle-area",
+      "rejectedBy": "blocked_vehicle_area_refused"
+    },
+    {
+      "name": "ignore-water-attempt-feedback",
+      "rejectedBy": "failed_fixture_does_not_monopolize_query"
+    },
+    {
+      "name": "legacy-query-holds-without-clock",
+      "rejectedBy": "legacy_query_retains_unfiltered_contract"
+    },
+    {
+      "name": "erase-failure-with-source-cache",
+      "rejectedBy": "failed_fixture_does_not_monopolize_query"
+    },
+    {
+      "name": "small-motion-forgets-failure",
+      "rejectedBy": "small_motion_does_not_reset_failed_approach"
+    },
+    {
+      "name": "never-expire-water-failure",
+      "rejectedBy": "county_time_expiry_allows_reconsideration"
+    },
+    {
+      "name": "never-release-demonstrated-reach",
+      "rejectedBy": "actual_native_reach_releases_failure"
+    },
+    {
+      "name": "unbound-failure-target",
+      "rejectedBy": "unrelated_target_cannot_penalize_source"
+    },
+    {
+      "name": "cancel-counted-as-water-failure",
+      "rejectedBy": "flee_or_cancel_is_not_an_access_failure"
+    },
+    {
+      "name": "unbounded-water-failures",
+      "rejectedBy": "failure_receipts_are_bounded"
+    },
+    {
+      "name": "world-keeps-water-attempts",
+      "rejectedBy": "world_reset_discards_attempt_handles"
+    },
+    {
+      "name": "water-former-door-edge-reach",
+      "rejectedBy": "water_open_door_matches_installed_interaction"
+    },
+    {
+      "name": "water-radial-instead-of-native-axis",
+      "rejectedBy": "water_diagonal_axis_reach_matches_vanilla"
+    },
+    {
+      "name": "water-ignore-closed-native-edge",
+      "rejectedBy": "water_closed_door_refused_by_native_reach"
+    },
+    {
+      "name": "water-ignore-west-fixture-correction",
+      "rejectedBy": "water_corrected_wall_square_matches_vanilla"
+    },
+    {
+      "name": "water-ignore-north-fixture-correction",
+      "rejectedBy": "water_corrected_north_wall_matches_vanilla"
+    },
+    {
+      "name": "water-nearest-before-usable",
+      "rejectedBy": "usable_water_precedes_nearer_blocked_fixture"
+    },
+    {
+      "name": "water-any-untainted-fluid",
+      "rejectedBy": "nonwater_fluid_is_not_a_thirst_source"
+    },
+    {
+      "name": "water-ignore-positive-last-sip",
+      "rejectedBy": "positive_last_sip_is_selected"
+    },
+    {
+      "name": "water-null-primary-rejects-native-reserve",
+      "rejectedBy": "empty_component_pipe_reserve_is_selected"
+    },
+    {
+      "name": "water-skip-selected-fluid-revalidation",
+      "rejectedBy": "contaminated_selected_fluid_is_revalidated"
+    }
+  ],
+  "sourceSha256": {
+    "java/src/com/sao/engine/SAONeeds.java": "afd76084c8ce04f02827a6069d37a170b1faba23db5ef36ed1ea373ca8565fa2",
+    "java/src/com/sao/engine/SAOWorldSources.java": "25c9afb6eba995373561347e8b68c81c5c2e35bd6b3d516d61f2fd002dfd0fcb",
+    "tools/luacheck/ResourceApproachProbe.java": "c745867ad46933069d5077f38dccac8275e3031a7bead68adab464efeaf51244",
+    "tools/luacheck/WaterApproachProbe.java": "54790270fc8686605e3b16ebd6920758306678863af8c33e224bc7538fda1a89",
+    "tools/luacheck/WaterRouteChecks.lua": "34c6057f3115d8ceeaae54ea3c0f24a610f018da2ea4822ec376040358c7776b",
+    "mod/42.20/media/lua/client/SAO_Needs.lua": "3c9f8dbbe04b48b30fe78a6c1ca92f0203ba1d8bed654c21740dcd9c86f6cccd",
+    "mod/42.20/media/lua/client/SAO_Controller.lua": "968b6cd31eaba9bfe30cf935ed23da68f89e423b9ddca3ae2f3992356f213f79",
+    "mod/42.20/media/lua/client/SAO_Locomotion.lua": "1028d023a4c539329fd9a4c52df685950c1b449b0ec08e0b8de6234b0c253a9b",
+    "java/src/com/sao/bridge/SAOBridge.java": "0ca77dee68ff1d944312bf3e389d3ee89bf0c6dcb31ea85c9e18bc6c98495249",
+    "tools/resource_approach_test.py": "60ae966feabb680acd2dfefdeac614107e7b864d89808332684f181a93ef4784",
+    "java/src/com/sao/agent/SAOAgent.java": "82035356d37a6f32b978424ad43b22aa4aacea2d37de56256716fcc0af600290",
+    "java/src/com/sao/agent/SAOBodyScale.java": "46af1e2d4dbc4e02f43c8588661fc546472d4588bd60f95c70d51e979369a264",
+    "java/src/com/sao/agent/SAOBodyScaleWeave.java": "f1710885758b83834c3323f198982c1c39f8470df3c1b70da482c90befb9a813",
+    "java/src/com/sao/agent/SAOCombatGate.java": "1a47aef46f79d8bbf26b24174cc86f03253f286d2d5491aaac01cf9b0bc6b9c1",
+    "java/src/com/sao/agent/SAOLootDensityWeave.java": "f6c7aeb74e6b90f4ad007a9eb8dfa5f67c7d21b83fa7556b49ffdb6b70c2ee9e",
+    "java/src/com/sao/agent/SAOMeleeTransformer.java": "9f3bef731859269a11d85754fe1a10ee66b6aeb94ec1fb4ff53373312aec3a63",
+    "java/src/com/sao/bridge/SAOBridgeBootstrap.java": "6068db304f84bf48aea2a7f97de924a4bb17159825ff0c377bff45ad69d5b8ed",
+    "java/src/com/sao/engine/SAOAnimals.java": "b8cab0148d289fd871d3d280572e45e19a379873cc93f7fb67778aaa3ac65ae9",
+    "java/src/com/sao/engine/SAOBuild.java": "7db143ef7ce566c27332916bd7fcfa562543b12d25a2a06c3d16b4ed6d932376",
+    "java/src/com/sao/engine/SAOCombat.java": "651001a7a3080c2100383f8938392b846a252bb1d7ff516293e006555e5a5bda",
+    "java/src/com/sao/engine/SAOCoordinationModel.java": "357a180e7c5bf21aac68fb13f12465cbe40213532d67c3963fa1b10b7a3d6633",
+    "java/src/com/sao/engine/SAOCoordinationWorker.java": "f75d20836af2b853c433d26aca78d3a55db0e292a901dcedcc5e7800c8afaace",
+    "java/src/com/sao/engine/SAOCrossedDriver.java": "7ddcf5588a6f7f5fa908c3fe3676a5826b78539979a0abf1778ea25035445330",
+    "java/src/com/sao/engine/SAODriveLaw.java": "74ad13706f0c0a4bc8e93ced4b97ea5fe520ff9776b5b65b0245436185ea8ae8",
+    "java/src/com/sao/engine/SAODriver.java": "5e1c671642ad9e5e5d87d374d7dee2678ac1ed2b781da4ebdd74e94d4a7145be",
+    "java/src/com/sao/engine/SAODriveState.java": "7b50f92589443526f6945a6aa5b1a4dc5220b064e7214c56ecafc96e15825bd6",
+    "java/src/com/sao/engine/SAODurableText.java": "fa5e89d9123af855b25dd7772b35d6c0b56275feb15eab6ad70717a6869aebc9",
+    "java/src/com/sao/engine/SAOEquipment.java": "1061d4ecf208c9b3ae7e8b9743d2545339b25efade6165c0f39a153f23a3a2dc",
+    "java/src/com/sao/engine/SAOFence.java": "6b01cd1628c718389e72a62e6b7b3a9636e480cc8ff6b14546aba621eb4d44e6",
+    "java/src/com/sao/engine/SAOGround.java": "185975bc264ce44a41dcf9d283bd3c96562422e100fd2b66b8490cd4127d1f18",
+    "java/src/com/sao/engine/SAOHibernation.java": "b24a3359fb0ee633e2f71920183c3ca317936d60dfd3138222adade04f31ade3",
+    "java/src/com/sao/engine/SAOIsoPlayerShell.java": "d152c6342a6d7cfa82b09ac208c622ca88fac3e9e28ad1256479c171b9aac6fe",
+    "java/src/com/sao/engine/SAOKnox.java": "1d335c4b5900daa227fa394477da24d75f7c2cf8a16e1c49e98f490a3532fa05",
+    "java/src/com/sao/engine/SAOMovement.java": "1eed99c33e075f034e737a6eb2c78802f3953b06dd88eb5b98a0f2c4e81123c2",
+    "java/src/com/sao/engine/SAONativeSnapshot.java": "0839989775d9c37b0dc8978847e05d8dca17e59a825624d492fb245dde12d7b4",
+    "java/src/com/sao/engine/SAOPerceptionScanner.java": "6feea537186f3f1708e8cbc285258f0c942b9942f1b1527d2e74b6452c8cda11",
+    "java/src/com/sao/engine/SAOPrivateInventory.java": "0bebc9ab7c010bf668872a684dc101e96b5dbe3293a29ebd4f978c1c6f93bf89",
+    "java/src/com/sao/engine/SAORecord.java": "029b6274a8eb674271a1bf18d0b9f45e0217a4a7bfc41e28faf66cd170176c7f",
+    "java/src/com/sao/engine/SAOReturnBody.java": "7d393f431e64e5e9ac3b3ed0d8b76aebb3efb022fe20383fba0750eda768efdc",
+    "java/src/com/sao/engine/SAORouteState.java": "7fc0130999e0b26c45d399b47f780be3e4b581f8dcc675192984b3fa12268068",
+    "java/src/com/sao/engine/SAOSettlement.java": "26ea65de141accd6fb5f5811b53791fc673b22d9670d96cade5f0a1fb12020ed",
+    "java/src/com/sao/engine/SAOWorldCensus.java": "c95b91d7e530396a1627936e57d4df0cd2305de6c6d9bcd2978a3d95a08c6f7f",
+    "java/src/com/sao/engine/SAOZombieDirector.java": "bfde951c0e93c799b13257e296ec7498ad7e24bacc529a0565ac99a1c0afffe5",
+    "java/src/com/sao/Main.java": "5c8d5839e51adb428516bd3f58f7b6b7153f56595d1d02699096dd91591a5da3"
+  },
+  "engineSha256": "80e405a4bfc42f6072e75b3735f458a6514143da011d3226007ded305a442f44",
+  "installedWaterInputsSha256": {
+    "C:\\Program Files (x86)\\Steam\\steamapps\\common\\ProjectZomboid\\media\\lua\\shared\\luautils.lua": "d5a8f78fa1f240ea49d580be72fb7f988022eeff275960a22fa755f54818250f",
+    "C:\\Program Files (x86)\\Steam\\steamapps\\common\\ProjectZomboid\\media\\scripts\\generated\\fluids.txt": "444a9f693d51e557ee782ae761558ba6d6d970d49ed3e7bca586d231195e38c7",
+    "C:\\Program Files (x86)\\Steam\\steamapps\\common\\ProjectZomboid\\media\\scripts\\generated\\fluids_Beverages.txt": "fec81e22bc00a6224f694915213853bd3bc6779ffcfe081950a4e9fa96f6c37b",
+    "C:\\Program Files (x86)\\Steam\\steamapps\\common\\ProjectZomboid\\media\\scripts\\generated\\fluids_Alcoholic.txt": "d6efaf4689160e0be20d7d0eda843a48ca9c567887356f90beb2cce1ca9e5265"
+  },
+  "waterChecks": [
+    "installed_open_door_is_not_a_blocked_edge",
+    "water_open_door_matches_installed_interaction",
+    "water_selection_receipt_binds_actual_fixture",
+    "unchanged_water_query_does_not_spam_receipts",
+    "water_closed_door_refused_by_native_reach",
+    "water_open_window_matches_installed_interaction",
+    "water_closed_window_refused_by_native_reach",
+    "water_native_adjacent_square_limit",
+    "water_diagonal_axis_reach_matches_vanilla",
+    "water_corrected_wall_square_matches_vanilla",
+    "water_corrected_north_wall_matches_vanilla",
+    "water_other_floor_not_interactable",
+    "usable_water_precedes_nearer_blocked_fixture",
+    "removed_water_cannot_remain_in_reach",
+    "nonwater_fluid_is_not_a_thirst_source",
+    "positive_last_sip_is_selected",
+    "contaminated_selected_fluid_is_revalidated",
+    "tainted_water_is_not_selected",
+    "dry_selected_fluid_is_revalidated",
+    "empty_component_still_has_native_pipe_reserve",
+    "empty_component_pipe_reserve_is_selected",
+    "componentless_pipe_reserve_is_selected",
+    "municipal_supply_has_native_infinite_water",
+    "municipal_supply_is_selected",
+    "nearest_native_fixture_selected",
+    "failed_exact_approach_recorded",
+    "legacy_query_retains_unfiltered_contract",
+    "failed_fixture_does_not_monopolize_query",
+    "second_actual_failure_recorded",
+    "both_failed_candidates_yield_to_knowledge",
+    "small_motion_does_not_reset_failed_approach",
+    "adjacency_behind_native_barrier_is_still_held",
+    "actual_native_reach_releases_failure",
+    "no_water_consumed_or_changed_by_reappraisal",
+    "new_owned_approach_can_fail",
+    "another_person_keeps_own_candidate",
+    "county_time_expiry_allows_reconsideration",
+    "repeat_failure_recorded",
+    "repeated_failure_has_bounded_longer_backoff",
+    "repeated_failure_eventually_expires",
+    "flee_or_cancel_is_not_an_access_failure",
+    "arrival_is_not_an_access_failure",
+    "tick_fault_is_not_an_access_failure",
+    "unloaded_route_is_not_an_access_failure",
+    "unknown_native_failure_is_not_new_access_evidence",
+    "invalid_clock_cannot_penalize_source",
+    "unrelated_target_cannot_penalize_source",
+    "failure_requires_approach_receipt",
+    "replacement_test_failure_recorded",
+    "replacement_fixture_is_independent",
+    "replacement_attempt_recorded",
+    "world_reset_discards_attempt_handles",
+    "capacity_uses_actual_queries_and_failures",
+    "failure_receipts_are_bounded",
+    "body_owner_is_weak",
+    "source_handles_are_weak",
+    "actual_bridge_exposed",
+    "kahlua_three_argument_query_uses_native_overload",
+    "kahlua_failure_receipt_reaches_native_owner",
+    "kahlua_query_applies_actual_failed_candidate",
+    "kahlua_legacy_overload_remains_usable"
+  ],
+  "waterDiagnosticReceipts": [
+    "2026-09-27T02:09:17.579926300Z [SAO] water selected person=approach-person body=316acbb5 fixture=IsoObject@297c9a9b sprite=null source=14,20,0 amount=2.0 reach=false",
+    "2026-09-27T02:09:24.439596100Z [SAO] water selected person=water-probe body=5c3d4f05 fixture=IsoObject@70485aa sprite=null source=11,20,0 amount=2.0 reach=true",
+    "2026-09-27T02:09:24.463117400Z [SAO] water selected person=water-probe body=5c3d4f05 fixture=IsoObject@6f7a20da sprite=null source=9,21,0 amount=2.0 reach=true",
+    "2026-09-27T02:09:24.464123500Z [SAO] water selected person=water-probe body=5c3d4f05 fixture=IsoObject@70485aa sprite=null source=11,20,0 amount=2.0 reach=true",
+    "2026-09-27T02:09:24.469122400Z [SAO] water selected person=null body=77ba583 fixture=IsoObject@5368e981 sprite=null source=9,10,0 amount=0.05 reach=true",
+    "2026-09-27T02:09:24.470122Z [SAO] water selected person=null body=77ba583 fixture=IsoObject@5368e981 sprite=null source=9,10,0 amount=2.0 reach=true",
+    "2026-09-27T02:09:24.472122400Z [SAO] water selected person=null body=77ba583 fixture=IsoObject@5368e981 sprite=null source=9,10,0 amount=2.0 reach=true",
+    "2026-09-27T02:09:24.473122300Z [SAO] water selected person=null body=77ba583 fixture=IsoObject@1c171746 sprite=null source=9,10,0 amount=0.05 reach=true",
+    "2026-09-27T02:09:24.494658300Z [SAO] water selected person=null body=6a6e9289 fixture=IsoObject@687b0ddc sprite=null source=14,20,0 amount=2.0 reach=false",
+    "2026-09-27T02:09:24.503654200Z [SAO] water failed result=done:FailedObstacle:FAILED_LOCKED_DOOR hours=2.0 approach=14,19,0 person=null body=6a6e9289 fixture=IsoObject@687b0ddc sprite=null source=14,20,0 amount=2.0 reach=false",
+    "2026-09-27T02:09:24.505660600Z [SAO] water selected person=null body=6a6e9289 fixture=IsoObject@1008df1e sprite=null source=16,20,0 amount=2.0 reach=false",
+    "2026-09-27T02:09:24.506664900Z [SAO] water failed result=done:Failed hours=2.01 approach=15,20,0 person=null body=6a6e9289 fixture=IsoObject@1008df1e sprite=null source=16,20,0 amount=2.0 reach=false",
+    "2026-09-27T02:09:24.509654500Z [SAO] water selected person=null body=6a6e9289 fixture=IsoObject@687b0ddc sprite=null source=14,20,0 amount=2.0 reach=true",
+    "2026-09-27T02:09:24.510654600Z [SAO] water failed result=done:stalled:ManualRoute hours=2.06 approach=13,20,0 person=null body=6a6e9289 fixture=IsoObject@687b0ddc sprite=null source=14,20,0 amount=2.0 reach=false",
+    "2026-09-27T02:09:24.512654600Z [SAO] water selected person=null body=e72fb04 fixture=IsoObject@687b0ddc sprite=null source=14,20,0 amount=2.0 reach=false",
+    "2026-09-27T02:09:24.513654400Z [SAO] water failed result=done:Failed hours=2.32 approach=13,20,0 person=null body=6a6e9289 fixture=IsoObject@687b0ddc sprite=null source=14,20,0 amount=2.0 reach=false",
+    "2026-09-27T02:09:24.513654400Z [SAO] water selected person=null body=6a6e9289 fixture=IsoObject@687b0ddc sprite=null source=14,20,0 amount=2.0 reach=false",
+    "2026-09-27T02:09:24.515654300Z [SAO] water failed result=done:Failed hours=2.84 approach=13,20,0 person=null body=6a6e9289 fixture=IsoObject@687b0ddc sprite=null source=14,20,0 amount=2.0 reach=false",
+    "2026-09-27T02:09:24.515654300Z [SAO] water selected person=null body=6a6e9289 fixture=IsoObject@4df0d9f8 sprite=null source=14,20,0 amount=2.0 reach=false",
+    "2026-09-27T02:09:24.516654600Z [SAO] water failed result=done:Failed hours=2.85 approach=13,20,0 person=null body=6a6e9289 fixture=IsoObject@4df0d9f8 sprite=null source=14,20,0 amount=2.0 reach=false",
+    "2026-09-27T02:09:24.517654800Z [SAO] water selected person=null body=6a6e9289 fixture=IsoObject@4df0d9f8 sprite=null source=14,20,0 amount=2.0 reach=false",
+    "2026-09-27T02:09:24.520654600Z [SAO] water failed result=done:Failed hours=3.0 approach=13,20,0 person=null body=6a6e9289 fixture=IsoObject@4df0d9f8 sprite=null source=14,20,0 amount=2.0 reach=false",
+    "2026-09-27T02:09:24.522654800Z [SAO] water selected person=null body=6a6e9289 fixture=IsoObject@35e75f7a sprite=null source=14,16,0 amount=2.0 reach=false",
+    "2026-09-27T02:09:24.523664100Z [SAO] water failed result=done:Failed hours=3.0 approach=13,17,0 person=null body=6a6e9289 fixture=IsoObject@35e75f7a sprite=null source=14,16,0 amount=2.0 reach=false",
+    "2026-09-27T02:09:24.525654Z [SAO] water selected person=null body=6a6e9289 fixture=IsoObject@4f7bb8df sprite=null source=14,14,0 amount=2.0 reach=false",
+    "2026-09-27T02:09:24.526654600Z [SAO] water failed result=done:Failed hours=3.0 approach=13,15,0 person=null body=6a6e9289 fixture=IsoObject@4f7bb8df sprite=null source=14,14,0 amount=2.0 reach=false",
+    "2026-09-27T02:09:24.527654400Z [SAO] water selected person=null body=6a6e9289 fixture=IsoObject@269c7104 sprite=null source=16,16,0 amount=2.0 reach=false",
+    "2026-09-27T02:09:24.528655Z [SAO] water failed result=done:Failed hours=3.0 approach=15,17,0 person=null body=6a6e9289 fixture=IsoObject@269c7104 sprite=null source=16,16,0 amount=2.0 reach=false",
+    "2026-09-27T02:09:24.529654400Z [SAO] water selected person=null body=6a6e9289 fixture=IsoObject@6de84336 sprite=null source=16,14,0 amount=2.0 reach=false",
+    "2026-09-27T02:09:24.530653800Z [SAO] water failed result=done:Failed hours=3.0 approach=15,15,0 person=null body=6a6e9289 fixture=IsoObject@6de84336 sprite=null source=16,14,0 amount=2.0 reach=false",
+    "2026-09-27T02:09:24.531654200Z [SAO] water selected person=null body=6a6e9289 fixture=IsoObject@627bcd7e sprite=null source=14,12,0 amount=2.0 reach=false",
+    "2026-09-27T02:09:24.531654200Z [SAO] water failed result=done:Failed hours=3.0 approach=13,13,0 person=null body=6a6e9289 fixture=IsoObject@627bcd7e sprite=null source=14,12,0 amount=2.0 reach=false",
+    "2026-09-27T02:09:24.532653800Z [SAO] water selected person=null body=6a6e9289 fixture=IsoObject@70543cae sprite=null source=18,16,0 amount=2.0 reach=false",
+    "2026-09-27T02:09:24.532653800Z [SAO] water failed result=done:Failed hours=3.0 approach=17,17,0 person=null body=6a6e9289 fixture=IsoObject@70543cae sprite=null source=18,16,0 amount=2.0 reach=false",
+    "2026-09-27T02:09:24.533653600Z [SAO] water selected person=null body=6a6e9289 fixture=IsoObject@350567f1 sprite=null source=16,12,0 amount=2.0 reach=false",
+    "2026-09-27T02:09:24.534655300Z [SAO] water failed result=done:Failed hours=3.0 approach=15,13,0 person=null body=6a6e9289 fixture=IsoObject@350567f1 sprite=null source=16,12,0 amount=2.0 reach=false",
+    "2026-09-27T02:09:24.534655300Z [SAO] water selected person=null body=6a6e9289 fixture=IsoObject@1a5b7394 sprite=null source=18,14,0 amount=2.0 reach=false",
+    "2026-09-27T02:09:24.535655800Z [SAO] water failed result=done:Failed hours=3.0 approach=17,15,0 person=null body=6a6e9289 fixture=IsoObject@1a5b7394 sprite=null source=18,14,0 amount=2.0 reach=false",
+    "2026-09-27T02:09:24.536655Z [SAO] water selected person=null body=6a6e9289 fixture=IsoObject@26f75d9c sprite=null source=14,10,0 amount=2.0 reach=false",
+    "2026-09-27T02:09:24.536655Z [SAO] water failed result=done:Failed hours=3.0 approach=13,11,0 person=null body=6a6e9289 fixture=IsoObject@26f75d9c sprite=null source=14,10,0 amount=2.0 reach=false",
+    "2026-09-27T02:09:24.537655100Z [SAO] water selected person=null body=6a6e9289 fixture=IsoObject@7717b4a0 sprite=null source=20,16,0 amount=2.0 reach=false",
+    "2026-09-27T02:09:24.537655100Z [SAO] water failed result=done:Failed hours=3.0 approach=19,17,0 person=null body=6a6e9289 fixture=IsoObject@7717b4a0 sprite=null source=20,16,0 amount=2.0 reach=false",
+    "2026-09-27T02:09:24.538656600Z [SAO] water selected person=null body=6a6e9289 fixture=IsoObject@69b37f5c sprite=null source=18,12,0 amount=2.0 reach=false",
+    "2026-09-27T02:09:24.539661400Z [SAO] water failed result=done:Failed hours=3.0 approach=17,13,0 person=null body=6a6e9289 fixture=IsoObject@69b37f5c sprite=null source=18,12,0 amount=2.0 reach=false",
+    "2026-09-27T02:09:24.539661400Z [SAO] water selected person=null body=6a6e9289 fixture=IsoObject@28b5662d sprite=null source=16,10,0 amount=2.0 reach=false",
+    "2026-09-27T02:09:24.540664600Z [SAO] water failed result=done:Failed hours=3.0 approach=15,11,0 person=null body=6a6e9289 fixture=IsoObject@28b5662d sprite=null source=16,10,0 amount=2.0 reach=false",
+    "2026-09-27T02:09:24.541654400Z [SAO] water selected person=null body=6a6e9289 fixture=IsoObject@34b2d51a sprite=null source=20,14,0 amount=2.0 reach=false",
+    "2026-09-27T02:09:24.541654400Z [SAO] water failed result=done:Failed hours=3.0 approach=19,15,0 person=null body=6a6e9289 fixture=IsoObject@34b2d51a sprite=null source=20,14,0 amount=2.0 reach=false",
+    "2026-09-27T02:09:24.542654800Z [SAO] water selected person=null body=6a6e9289 fixture=IsoObject@7e4ac598 sprite=null source=14,8,0 amount=2.0 reach=false",
+    "2026-09-27T02:09:24.543653400Z [SAO] water failed result=done:Failed hours=3.0 approach=13,9,0 person=null body=6a6e9289 fixture=IsoObject@7e4ac598 sprite=null source=14,8,0 amount=2.0 reach=false",
+    "2026-09-27T02:09:24.543653400Z [SAO] water selected person=null body=6a6e9289 fixture=IsoObject@cf10c92 sprite=null source=22,16,0 amount=2.0 reach=false",
+    "2026-09-27T02:09:24.544655200Z [SAO] water failed result=done:Failed hours=3.0 approach=21,17,0 person=null body=6a6e9289 fixture=IsoObject@cf10c92 sprite=null source=22,16,0 amount=2.0 reach=false",
+    "2026-09-27T02:09:24.545656Z [SAO] water selected person=null body=6a6e9289 fixture=IsoObject@f76872f sprite=null source=18,10,0 amount=2.0 reach=false",
+    "2026-09-27T02:09:24.545656Z [SAO] water failed result=done:Failed hours=3.0 approach=17,11,0 person=null body=6a6e9289 fixture=IsoObject@f76872f sprite=null source=18,10,0 amount=2.0 reach=false",
+    "2026-09-27T02:09:24.546654700Z [SAO] water selected person=null body=6a6e9289 fixture=IsoObject@4df0d9f8 sprite=null source=14,20,0 amount=2.0 reach=false",
+    "2026-09-27T02:09:24.547655Z [SAO] water failed result=done:Failed hours=3.0 approach=13,20,0 person=null body=6a6e9289 fixture=IsoObject@4df0d9f8 sprite=null source=14,20,0 amount=2.0 reach=false",
+    "2026-09-27T02:09:24.547655Z [SAO] water selected person=null body=6a6e9289 fixture=IsoObject@35e75f7a sprite=null source=14,16,0 amount=2.0 reach=false",
+    "2026-09-27T02:09:24.548655100Z [SAO] water failed result=done:Failed hours=3.0 approach=13,17,0 person=null body=6a6e9289 fixture=IsoObject@35e75f7a sprite=null source=14,16,0 amount=2.0 reach=false",
+    "2026-09-27T02:09:24.549655Z [SAO] water selected person=null body=6a6e9289 fixture=IsoObject@4f7bb8df sprite=null source=14,14,0 amount=2.0 reach=false",
+    "2026-09-27T02:09:24.549655Z [SAO] water failed result=done:Failed hours=3.0 approach=13,15,0 person=null body=6a6e9289 fixture=IsoObject@4f7bb8df sprite=null source=14,14,0 amount=2.0 reach=false",
+    "2026-09-27T02:09:24.550655100Z [SAO] water selected person=null body=6a6e9289 fixture=IsoObject@269c7104 sprite=null source=16,16,0 amount=2.0 reach=false",
+    "2026-09-27T02:09:24.550655100Z [SAO] water failed result=done:Failed hours=3.0 approach=15,17,0 person=null body=6a6e9289 fixture=IsoObject@269c7104 sprite=null source=16,16,0 amount=2.0 reach=false",
+    "2026-09-27T02:09:24.551656200Z [SAO] water selected person=null body=6a6e9289 fixture=IsoObject@6de84336 sprite=null source=16,14,0 amount=2.0 reach=false",
+    "2026-09-27T02:09:24.552655100Z [SAO] water failed result=done:Failed hours=3.0 approach=15,15,0 person=null body=6a6e9289 fixture=IsoObject@6de84336 sprite=null source=16,14,0 amount=2.0 reach=false",
+    "2026-09-27T02:09:24.558656400Z [SAO] water selected person=null body=6a6e9289 fixture=IsoObject@4df0d9f8 sprite=null source=14,20,0 amount=2.0 reach=false",
+    "2026-09-27T02:09:24.562655100Z [SAO] water failed result=done:Failed hours=100.5 approach=13,20,0 person=null body=6a6e9289 fixture=IsoObject@4df0d9f8 sprite=null source=14,20,0 amount=2.0 reach=false",
+    "2026-09-27T02:09:24.563671300Z [SAO] water selected person=null body=6a6e9289 fixture=IsoObject@35e75f7a sprite=null source=14,16,0 amount=2.0 reach=false",
+    "2026-09-27T02:09:24.564678700Z [SAO] water selected person=null body=6a6e9289 fixture=IsoObject@4df0d9f8 sprite=null source=14,20,0 amount=2.0 reach=false"
+  ],
+  "waterNativeLuaSha256": {
+    "C:\\Program Files (x86)\\Steam\\steamapps\\common\\ProjectZomboid\\media\\lua\\client\\TimedActions\\ISTimedActionQueue.lua": "23c98152728172b44ccb41bc8ddc97798fee7a91b57b20620fb11d5f41e7792c",
+    "C:\\Program Files (x86)\\Steam\\steamapps\\common\\ProjectZomboid\\media\\lua\\shared\\TimedActions\\ISTakeWaterAction.lua": "48aa88c32d2e387897ea7a7696d410ae33517bcf75f2edec3837e090cb3a3456"
+  },
+  "waterLuaVerdict": "VALUE PASS water route and native queue checks=27",
+  "status": "PASS"
+}

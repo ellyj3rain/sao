@@ -1,0 +1,3149 @@
+{
+  "schema": "sao-c88-native-evidence/1",
+  "sessionId": "6b4e4090-596e-4faa-a0a4-a57d9ad3cea2",
+  "nativeSource": {
+    "path": "Lua/StudyWorld/41ec08c1cb104551409e304da0e5b051032bb05fc5f9d303ce9e1adfc455065a/3230303639363734343435313033373438303537/1790476102419/0000000000000082.json",
+    "sha256": "cb04717eaff12a042e9e058077fc39d18063c85fc2fac1e85159ba97590b6a80"
+  },
+  "supervision": {
+    "exitCode": 0,
+    "failure": null,
+    "forced": false,
+    "limitSeconds": 600,
+    "progress": {
+      "native.json": 3770,
+      "observer-state.json": 12960
+    },
+    "stopReason": "wall-time-limit",
+    "wallSeconds": 603.381
+  },
+  "terminal": {
+    "endHours": 22.413970947265625,
+    "nativeSaveReturned": true,
+    "startHours": 2.0,
+    "stopReason": "wall-time-limit"
+  },
+  "population": {
+    "captured": 2,
+    "dead": 0,
+    "represented": 2,
+    "total": 2,
+    "unrepresented": 0
+  },
+  "coverage": {
+    "loadedSquares": 4620,
+    "observerMovesWorld": false,
+    "omittedFieldCount": 0,
+    "omittedFields": [],
+    "organizationAvailable": true,
+    "peopleComplete": true,
+    "physicalCoverage": "loaded-squares-only",
+    "processesComplete": true,
+    "requestedSquares": 9216,
+    "totalProcesses": 2,
+    "unavailableSquares": 4596
+  },
+  "runtimeErrors": [],
+  "player": {
+    "count": 0,
+    "observerPersisted": false
+  },
+  "frames": 82,
+  "episodes": 1363,
+  "statusCounts": {
+    "censored": 1348,
+    "observed": 15
+  },
+  "selectedModelCounts": {
+    "ordinary": 681,
+    "associative": 682
+  },
+  "disagreements": 230,
+  "observedEpisodes": [
+    {
+      "actorId": "sao-1",
+      "datasetAdmission": "unreviewed",
+      "episode": {
+        "disagreement": true,
+        "executionStatus": "observed",
+        "frame": {
+          "actorId": "sao-1",
+          "capabilities": {
+            "cook": false,
+            "forage": false,
+            "treat": false
+          },
+          "drinkAt": 0.41972,
+          "eatAt": 0.51215,
+          "fatigue": 0.001,
+          "foodAllowed": true,
+          "hunger": 0.38,
+          "id": "frame/500",
+          "inspectionAllowed": true,
+          "knownFood": 0,
+          "knownPlaces": 1,
+          "knownWater": 0,
+          "thirst": 0.085,
+          "waterAllowed": true,
+          "worldHours": 18.476333618164062
+        },
+        "id": "episode/500",
+        "outcome": {
+          "actionId": "inspect",
+          "detail": "native-container-inspection",
+          "eventId": "native/16",
+          "predictions": {
+            "associative": {
+              "claim": "A performed inspection returns definite contents evidence, including an empty result.",
+              "probability": 0.5,
+              "squaredError": 0.25
+            },
+            "ordinary": {
+              "claim": "A performed inspection returns definite contents evidence, including an empty result.",
+              "probability": 0.5,
+              "squaredError": 0.25
+            }
+          },
+          "revisions": {
+            "associative": "revised:associative:2:observed-effect",
+            "ordinary": "revised:ordinary:2:observed-effect"
+          },
+          "status": "completed",
+          "success": true,
+          "worldHours": 18.485965728759766
+        },
+        "proposals": [
+          {
+            "actionId": "continue",
+            "confidence": 0.5,
+            "interpretation": "No admissible ordinary need threshold is reached.",
+            "modelId": "ordinary",
+            "predictions": {
+              "continue": {
+                "claim": "No new goal is initiated; its outcome remains unobserved without a matching action receipt.",
+                "probability": 0.5
+              },
+              "food": {
+                "claim": "The next qualified food acquisition succeeds or measured own consumption relieves hunger.",
+                "probability": 0.5
+              },
+              "inspect": {
+                "claim": "A performed inspection returns definite contents evidence, including an empty result.",
+                "probability": 0.5
+              },
+              "water": {
+                "claim": "The next qualified water acquisition succeeds or measured own consumption relieves thirst.",
+                "probability": 0.6506561362928611
+              }
+            },
+            "version": "sao-ordinary/1"
+          },
+          {
+            "actionId": "inspect",
+            "confidence": 0.5,
+            "interpretation": "Anticipated pressure, independently learned outcomes and information value favor inspect.",
+            "modelId": "associative",
+            "predictions": {
+              "continue": {
+                "claim": "No new goal is initiated; its outcome remains unobserved without a matching action receipt.",
+                "probability": 0.5
+              },
+              "food": {
+                "claim": "The next qualified food acquisition succeeds or measured own consumption relieves hunger.",
+                "probability": 0.5
+              },
+              "inspect": {
+                "claim": "A performed inspection returns definite contents evidence, including an empty result.",
+                "probability": 0.5
+              },
+              "water": {
+                "claim": "The next qualified water acquisition succeeds or measured own consumption relieves thirst.",
+                "probability": 0.6506561362928611
+              }
+            },
+            "version": "sao-associative/1"
+          }
+        ],
+        "reason": "approaching a visible container",
+        "selectedActionId": "inspect",
+        "selectedModelId": "associative",
+        "selectionPolicy": "deterministic-balanced",
+        "selectionWeight": 0.5,
+        "status": "observed",
+        "worldHours": 18.476333618164062
+      },
+      "firstFrameSha256": "fae10265221bcd067f030a7b9e721835b673983e26ff5f1fc30cef6ced5f12ed",
+      "firstObservedStatus": "observed",
+      "lastFrameSha256": "5d0cc0cfc1db331e9d7da6027a8476cfe7a9e1d27474d2c118a97632253ffa94",
+      "save": "20069674445103748057",
+      "schema": "speakeasy-cognition-episode/1",
+      "selectedActionComparison": [
+        {
+          "actionId": "inspect",
+          "claim": "A performed inspection returns definite contents evidence, including an empty result.",
+          "modelId": "ordinary",
+          "probability": 0.5,
+          "squaredError": 0.25,
+          "target": true,
+          "targetStatus": "observed"
+        },
+        {
+          "actionId": "inspect",
+          "claim": "A performed inspection returns definite contents evidence, including an empty result.",
+          "modelId": "associative",
+          "probability": 0.5,
+          "squaredError": 0.25,
+          "target": true,
+          "targetStatus": "observed"
+        }
+      ],
+      "unobservedAlternatives": [
+        "continue"
+      ]
+    },
+    {
+      "actorId": "sao-1",
+      "datasetAdmission": "unreviewed",
+      "episode": {
+        "disagreement": true,
+        "executionStatus": "observed",
+        "frame": {
+          "actorId": "sao-1",
+          "capabilities": {
+            "cook": false,
+            "forage": false,
+            "treat": false
+          },
+          "drinkAt": 0.41972,
+          "eatAt": 0.51215,
+          "fatigue": 0.004,
+          "foodAllowed": true,
+          "hunger": 0.382,
+          "id": "frame/504",
+          "inspectionAllowed": true,
+          "knownFood": 0,
+          "knownPlaces": 2,
+          "knownWater": 0,
+          "thirst": 0.088,
+          "waterAllowed": true,
+          "worldHours": 18.565156936645508
+        },
+        "id": "episode/504",
+        "outcome": {
+          "actionId": "inspect",
+          "detail": "native-container-inspection",
+          "eventId": "native/17",
+          "predictions": {
+            "associative": {
+              "claim": "A performed inspection returns definite contents evidence, including an empty result.",
+              "probability": 0.6664126378581133,
+              "squaredError": 0.11128052818078224
+            },
+            "ordinary": {
+              "claim": "A performed inspection returns definite contents evidence, including an empty result.",
+              "probability": 0.6664126378581133,
+              "squaredError": 0.11128052818078224
+            }
+          },
+          "revisions": {
+            "associative": "revised:associative:3:observed-effect",
+            "ordinary": "revised:ordinary:3:observed-effect"
+          },
+          "status": "completed",
+          "success": true,
+          "worldHours": 18.570404052734375
+        },
+        "proposals": [
+          {
+            "actionId": "continue",
+            "confidence": 0.5,
+            "interpretation": "No admissible ordinary need threshold is reached.",
+            "modelId": "ordinary",
+            "predictions": {
+              "continue": {
+                "claim": "No new goal is initiated; its outcome remains unobserved without a matching action receipt.",
+                "probability": 0.5
+              },
+              "food": {
+                "claim": "The next qualified food acquisition succeeds or measured own consumption relieves hunger.",
+                "probability": 0.5
+              },
+              "inspect": {
+                "claim": "A performed inspection returns definite contents evidence, including an empty result.",
+                "probability": 0.6664126378581133
+              },
+              "water": {
+                "claim": "The next qualified water acquisition succeeds or measured own consumption relieves thirst.",
+                "probability": 0.6503862445400703
+              }
+            },
+            "version": "sao-ordinary/1"
+          },
+          {
+            "actionId": "inspect",
+            "confidence": 0.6664126378581133,
+            "interpretation": "Anticipated pressure, independently learned outcomes and information value favor inspect.",
+            "modelId": "associative",
+            "predictions": {
+              "continue": {
+                "claim": "No new goal is initiated; its outcome remains unobserved without a matching action receipt.",
+                "probability": 0.5
+              },
+              "food": {
+                "claim": "The next qualified food acquisition succeeds or measured own consumption relieves hunger.",
+                "probability": 0.400152417285132
+              },
+              "inspect": {
+                "claim": "A performed inspection returns definite contents evidence, including an empty result.",
+                "probability": 0.6664126378581133
+              },
+              "water": {
+                "claim": "The next qualified water acquisition succeeds or measured own consumption relieves thirst.",
+                "probability": 0.6503862445400703
+              }
+            },
+            "version": "sao-associative/1"
+          }
+        ],
+        "reason": "approaching a visible container",
+        "selectedActionId": "inspect",
+        "selectedModelId": "associative",
+        "selectionPolicy": "deterministic-balanced",
+        "selectionWeight": 0.5,
+        "status": "observed",
+        "worldHours": 18.565156936645508
+      },
+      "firstFrameSha256": "fae10265221bcd067f030a7b9e721835b673983e26ff5f1fc30cef6ced5f12ed",
+      "firstObservedStatus": "observed",
+      "lastFrameSha256": "5d0cc0cfc1db331e9d7da6027a8476cfe7a9e1d27474d2c118a97632253ffa94",
+      "save": "20069674445103748057",
+      "schema": "speakeasy-cognition-episode/1",
+      "selectedActionComparison": [
+        {
+          "actionId": "inspect",
+          "claim": "A performed inspection returns definite contents evidence, including an empty result.",
+          "modelId": "ordinary",
+          "probability": 0.6664126378581133,
+          "squaredError": 0.11128052818078224,
+          "target": true,
+          "targetStatus": "observed"
+        },
+        {
+          "actionId": "inspect",
+          "claim": "A performed inspection returns definite contents evidence, including an empty result.",
+          "modelId": "associative",
+          "probability": 0.6664126378581133,
+          "squaredError": 0.11128052818078224,
+          "target": true,
+          "targetStatus": "observed"
+        }
+      ],
+      "unobservedAlternatives": [
+        "continue"
+      ]
+    },
+    {
+      "actorId": "sao-1",
+      "datasetAdmission": "unreviewed",
+      "episode": {
+        "disagreement": true,
+        "executionStatus": "observed",
+        "frame": {
+          "actorId": "sao-1",
+          "capabilities": {
+            "cook": false,
+            "forage": false,
+            "treat": false
+          },
+          "drinkAt": 0.41972,
+          "eatAt": 0.51215,
+          "fatigue": 0.006,
+          "foodAllowed": true,
+          "hunger": 0.384,
+          "id": "frame/508",
+          "inspectionAllowed": true,
+          "knownFood": 0,
+          "knownPlaces": 3,
+          "knownWater": 0,
+          "thirst": 0.091,
+          "waterAllowed": true,
+          "worldHours": 18.661096572875977
+        },
+        "id": "episode/508",
+        "outcome": {
+          "actionId": "inspect",
+          "detail": "native-container-inspection",
+          "eventId": "native/18",
+          "predictions": {
+            "associative": {
+              "claim": "A performed inspection returns definite contents evidence, including an empty result.",
+              "probability": 0.7495202635246008,
+              "squaredError": 0.06274009838478545
+            },
+            "ordinary": {
+              "claim": "A performed inspection returns definite contents evidence, including an empty result.",
+              "probability": 0.7495202635246008,
+              "squaredError": 0.06274009838478545
+            }
+          },
+          "revisions": {
+            "associative": "revised:associative:4:observed-effect",
+            "ordinary": "revised:ordinary:4:observed-effect"
+          },
+          "status": "completed",
+          "success": true,
+          "worldHours": 18.66380500793457
+        },
+        "proposals": [
+          {
+            "actionId": "continue",
+            "confidence": 0.5,
+            "interpretation": "No admissible ordinary need threshold is reached.",
+            "modelId": "ordinary",
+            "predictions": {
+              "continue": {
+                "claim": "No new goal is initiated; its outcome remains unobserved without a matching action receipt.",
+                "probability": 0.5
+              },
+              "food": {
+                "claim": "The next qualified food acquisition succeeds or measured own consumption relieves hunger.",
+                "probability": 0.5
+              },
+              "inspect": {
+                "claim": "A performed inspection returns definite contents evidence, including an empty result.",
+                "probability": 0.7495202635246008
+              },
+              "water": {
+                "claim": "The next qualified water acquisition succeeds or measured own consumption relieves thirst.",
+                "probability": 0.6500950394555435
+              }
+            },
+            "version": "sao-ordinary/1"
+          },
+          {
+            "actionId": "inspect",
+            "confidence": 0.7495202635246008,
+            "interpretation": "Anticipated pressure, independently learned outcomes and information value favor inspect.",
+            "modelId": "associative",
+            "predictions": {
+              "continue": {
+                "claim": "No new goal is initiated; its outcome remains unobserved without a matching action receipt.",
+                "probability": 0.5
+              },
+              "food": {
+                "claim": "The next qualified food acquisition succeeds or measured own consumption relieves hunger.",
+                "probability": 0.35028784188523954
+              },
+              "inspect": {
+                "claim": "A performed inspection returns definite contents evidence, including an empty result.",
+                "probability": 0.7495202635246008
+              },
+              "water": {
+                "claim": "The next qualified water acquisition succeeds or measured own consumption relieves thirst.",
+                "probability": 0.6500950394555435
+              }
+            },
+            "version": "sao-associative/1"
+          }
+        ],
+        "reason": "approaching a visible container",
+        "selectedActionId": "inspect",
+        "selectedModelId": "associative",
+        "selectionPolicy": "deterministic-balanced",
+        "selectionWeight": 0.5,
+        "status": "observed",
+        "worldHours": 18.661096572875977
+      },
+      "firstFrameSha256": "d3456d46d88eb54085e02eb7e50ecee509e43f8305e376615351a46df60bda10",
+      "firstObservedStatus": "observed",
+      "lastFrameSha256": "37e5e40e2feaba18fceae497ec46db13443a1bd597236ab09e5abb430ec92622",
+      "save": "20069674445103748057",
+      "schema": "speakeasy-cognition-episode/1",
+      "selectedActionComparison": [
+        {
+          "actionId": "inspect",
+          "claim": "A performed inspection returns definite contents evidence, including an empty result.",
+          "modelId": "ordinary",
+          "probability": 0.7495202635246008,
+          "squaredError": 0.06274009838478545,
+          "target": true,
+          "targetStatus": "observed"
+        },
+        {
+          "actionId": "inspect",
+          "claim": "A performed inspection returns definite contents evidence, including an empty result.",
+          "modelId": "associative",
+          "probability": 0.7495202635246008,
+          "squaredError": 0.06274009838478545,
+          "target": true,
+          "targetStatus": "observed"
+        }
+      ],
+      "unobservedAlternatives": [
+        "continue"
+      ]
+    },
+    {
+      "actorId": "sao-1",
+      "datasetAdmission": "unreviewed",
+      "episode": {
+        "disagreement": true,
+        "executionStatus": "observed",
+        "frame": {
+          "actorId": "sao-1",
+          "capabilities": {
+            "cook": false,
+            "forage": false,
+            "treat": false
+          },
+          "drinkAt": 0.41972,
+          "eatAt": 0.51215,
+          "fatigue": 0.009,
+          "foodAllowed": true,
+          "hunger": 0.386,
+          "id": "frame/512",
+          "inspectionAllowed": true,
+          "knownFood": 0,
+          "knownPlaces": 4,
+          "knownWater": 0,
+          "thirst": 0.093,
+          "waterAllowed": true,
+          "worldHours": 18.75551986694336
+        },
+        "id": "episode/512",
+        "outcome": {
+          "actionId": "inspect",
+          "detail": "native-container-inspection",
+          "eventId": "native/19",
+          "predictions": {
+            "associative": {
+              "claim": "A performed inspection returns definite contents evidence, including an empty result.",
+              "probability": 0.7993687250923341,
+              "squaredError": 0.04025290847107539
+            },
+            "ordinary": {
+              "claim": "A performed inspection returns definite contents evidence, including an empty result.",
+              "probability": 0.7993687250923341,
+              "squaredError": 0.04025290847107539
+            }
+          },
+          "revisions": {
+            "associative": "revised:associative:5:observed-effect",
+            "ordinary": "revised:ordinary:5:observed-effect"
+          },
+          "status": "completed",
+          "success": true,
+          "worldHours": 18.761001586914062
+        },
+        "proposals": [
+          {
+            "actionId": "continue",
+            "confidence": 0.5,
+            "interpretation": "No admissible ordinary need threshold is reached.",
+            "modelId": "ordinary",
+            "predictions": {
+              "continue": {
+                "claim": "No new goal is initiated; its outcome remains unobserved without a matching action receipt.",
+                "probability": 0.5
+              },
+              "food": {
+                "claim": "The next qualified food acquisition succeeds or measured own consumption relieves hunger.",
+                "probability": 0.5
+              },
+              "inspect": {
+                "claim": "A performed inspection returns definite contents evidence, including an empty result.",
+                "probability": 0.7993687250923341
+              },
+              "water": {
+                "claim": "The next qualified water acquisition succeeds or measured own consumption relieves thirst.",
+                "probability": 0.6498087515819225
+              }
+            },
+            "version": "sao-ordinary/1"
+          },
+          {
+            "actionId": "inspect",
+            "confidence": 0.7993687250923341,
+            "interpretation": "Anticipated pressure, independently learned outcomes and information value favor inspect.",
+            "modelId": "associative",
+            "predictions": {
+              "continue": {
+                "claim": "No new goal is initiated; its outcome remains unobserved without a matching action receipt.",
+                "probability": 0.5
+              },
+              "food": {
+                "claim": "The next qualified food acquisition succeeds or measured own consumption relieves hunger.",
+                "probability": 0.3203787649445995
+              },
+              "inspect": {
+                "claim": "A performed inspection returns definite contents evidence, including an empty result.",
+                "probability": 0.7993687250923341
+              },
+              "water": {
+                "claim": "The next qualified water acquisition succeeds or measured own consumption relieves thirst.",
+                "probability": 0.6498087515819225
+              }
+            },
+            "version": "sao-associative/1"
+          }
+        ],
+        "reason": "approaching a visible container",
+        "selectedActionId": "inspect",
+        "selectedModelId": "associative",
+        "selectionPolicy": "deterministic-balanced",
+        "selectionWeight": 0.5,
+        "status": "observed",
+        "worldHours": 18.75551986694336
+      },
+      "firstFrameSha256": "d3456d46d88eb54085e02eb7e50ecee509e43f8305e376615351a46df60bda10",
+      "firstObservedStatus": "observed",
+      "lastFrameSha256": "37e5e40e2feaba18fceae497ec46db13443a1bd597236ab09e5abb430ec92622",
+      "save": "20069674445103748057",
+      "schema": "speakeasy-cognition-episode/1",
+      "selectedActionComparison": [
+        {
+          "actionId": "inspect",
+          "claim": "A performed inspection returns definite contents evidence, including an empty result.",
+          "modelId": "ordinary",
+          "probability": 0.7993687250923341,
+          "squaredError": 0.04025290847107539,
+          "target": true,
+          "targetStatus": "observed"
+        },
+        {
+          "actionId": "inspect",
+          "claim": "A performed inspection returns definite contents evidence, including an empty result.",
+          "modelId": "associative",
+          "probability": 0.7993687250923341,
+          "squaredError": 0.04025290847107539,
+          "target": true,
+          "targetStatus": "observed"
+        }
+      ],
+      "unobservedAlternatives": [
+        "continue"
+      ]
+    },
+    {
+      "actorId": "sao-1",
+      "datasetAdmission": "unreviewed",
+      "episode": {
+        "disagreement": true,
+        "executionStatus": "observed",
+        "frame": {
+          "actorId": "sao-1",
+          "capabilities": {
+            "cook": false,
+            "forage": false,
+            "treat": false
+          },
+          "drinkAt": 0.41972,
+          "eatAt": 0.51215,
+          "fatigue": 0.01,
+          "foodAllowed": true,
+          "hunger": 0.388,
+          "id": "frame/514",
+          "inspectionAllowed": false,
+          "knownFood": 1,
+          "knownPlaces": 5,
+          "knownWater": 0,
+          "thirst": 0.095,
+          "waterAllowed": true,
+          "worldHours": 18.808576583862305
+        },
+        "id": "episode/514",
+        "outcome": {
+          "actionId": "food",
+          "detail": "native-transfer-observed",
+          "eventId": "native/20",
+          "predictions": {
+            "associative": {
+              "claim": "The next qualified food acquisition succeeds or measured own consumption relieves hunger.",
+              "probability": 0.40058730389644637,
+              "squaredError": 0.35929558025013114
+            },
+            "ordinary": {
+              "claim": "The next qualified food acquisition succeeds or measured own consumption relieves hunger.",
+              "probability": 0.5,
+              "squaredError": 0.25
+            }
+          },
+          "revisions": {
+            "associative": "revised:associative:6:observed-effect",
+            "ordinary": "revised:ordinary:6:observed-effect"
+          },
+          "status": "completed",
+          "success": true,
+          "worldHours": 18.820247650146484
+        },
+        "proposals": [
+          {
+            "actionId": "continue",
+            "confidence": 0.5,
+            "interpretation": "No admissible ordinary need threshold is reached.",
+            "modelId": "ordinary",
+            "predictions": {
+              "continue": {
+                "claim": "No new goal is initiated; its outcome remains unobserved without a matching action receipt.",
+                "probability": 0.5
+              },
+              "food": {
+                "claim": "The next qualified food acquisition succeeds or measured own consumption relieves hunger.",
+                "probability": 0.5
+              },
+              "inspect": {
+                "claim": "A performed inspection returns definite contents evidence, including an empty result.",
+                "probability": 0.8327290755520663
+              },
+              "water": {
+                "claim": "The next qualified water acquisition succeeds or measured own consumption relieves thirst.",
+                "probability": 0.6496480228031081
+              }
+            },
+            "version": "sao-ordinary/1"
+          },
+          {
+            "actionId": "food",
+            "confidence": 0.40058730389644637,
+            "hypothesisId": "associative/hypothesis/2",
+            "interpretation": "Anticipated pressure, independently learned outcomes and information value favor food.",
+            "modelId": "associative",
+            "predictions": {
+              "continue": {
+                "claim": "No new goal is initiated; its outcome remains unobserved without a matching action receipt.",
+                "probability": 0.5
+              },
+              "food": {
+                "claim": "The next qualified food acquisition succeeds or measured own consumption relieves hunger.",
+                "probability": 0.40058730389644637
+              },
+              "inspect": {
+                "claim": "A performed inspection returns definite contents evidence, including an empty result.",
+                "probability": 0.8327290755520663
+              },
+              "water": {
+                "claim": "The next qualified water acquisition succeeds or measured own consumption relieves thirst.",
+                "probability": 0.6496480228031081
+              }
+            },
+            "version": "sao-associative/1"
+          }
+        ],
+        "reason": "native intent admitted",
+        "selectedActionId": "food",
+        "selectedModelId": "associative",
+        "selectionPolicy": "deterministic-balanced",
+        "selectionWeight": 0.5,
+        "status": "observed",
+        "worldHours": 18.808576583862305
+      },
+      "firstFrameSha256": "d3456d46d88eb54085e02eb7e50ecee509e43f8305e376615351a46df60bda10",
+      "firstObservedStatus": "observed",
+      "lastFrameSha256": "37e5e40e2feaba18fceae497ec46db13443a1bd597236ab09e5abb430ec92622",
+      "save": "20069674445103748057",
+      "schema": "speakeasy-cognition-episode/1",
+      "selectedActionComparison": [
+        {
+          "actionId": "food",
+          "claim": "The next qualified food acquisition succeeds or measured own consumption relieves hunger.",
+          "modelId": "ordinary",
+          "probability": 0.5,
+          "squaredError": 0.25,
+          "target": true,
+          "targetStatus": "observed"
+        },
+        {
+          "actionId": "food",
+          "claim": "The next qualified food acquisition succeeds or measured own consumption relieves hunger.",
+          "modelId": "associative",
+          "probability": 0.40058730389644637,
+          "squaredError": 0.35929558025013114,
+          "target": true,
+          "targetStatus": "observed"
+        }
+      ],
+      "unobservedAlternatives": [
+        "continue"
+      ]
+    },
+    {
+      "actorId": "sao-2",
+      "datasetAdmission": "unreviewed",
+      "episode": {
+        "disagreement": true,
+        "executionStatus": "observed",
+        "frame": {
+          "actorId": "sao-2",
+          "capabilities": {
+            "cook": false,
+            "forage": false,
+            "treat": false
+          },
+          "drinkAt": 0.39074,
+          "eatAt": 0.475925,
+          "fatigue": 0.013,
+          "foodAllowed": true,
+          "hunger": 0.299,
+          "id": "frame/325",
+          "inspectionAllowed": true,
+          "knownFood": 0,
+          "knownPlaces": 1,
+          "knownWater": 0,
+          "thirst": 0.331,
+          "waterAllowed": true,
+          "worldHours": 12.313047409057617
+        },
+        "id": "episode/325",
+        "outcome": {
+          "actionId": "inspect",
+          "detail": "native-container-inspection",
+          "eventId": "native/2",
+          "predictions": {
+            "associative": {
+              "claim": "A performed inspection returns definite contents evidence, including an empty result.",
+              "probability": 0.5,
+              "squaredError": 0.25
+            },
+            "ordinary": {
+              "claim": "A performed inspection returns definite contents evidence, including an empty result.",
+              "probability": 0.5,
+              "squaredError": 0.25
+            }
+          },
+          "revisions": {
+            "associative": "revised:associative:1:observed-effect",
+            "ordinary": "revised:ordinary:1:observed-effect"
+          },
+          "status": "completed",
+          "success": true,
+          "worldHours": 12.333795547485352
+        },
+        "proposals": [
+          {
+            "actionId": "continue",
+            "confidence": 0.5,
+            "interpretation": "No admissible ordinary need threshold is reached.",
+            "modelId": "ordinary",
+            "predictions": {
+              "continue": {
+                "claim": "No new goal is initiated; its outcome remains unobserved without a matching action receipt.",
+                "probability": 0.5
+              },
+              "food": {
+                "claim": "The next qualified food acquisition succeeds or measured own consumption relieves hunger.",
+                "probability": 0.5
+              },
+              "inspect": {
+                "claim": "A performed inspection returns definite contents evidence, including an empty result.",
+                "probability": 0.5
+              },
+              "water": {
+                "claim": "The next qualified water acquisition succeeds or measured own consumption relieves thirst.",
+                "probability": 0.5
+              }
+            },
+            "version": "sao-ordinary/1"
+          },
+          {
+            "actionId": "inspect",
+            "confidence": 0.5,
+            "interpretation": "Anticipated pressure, independently learned outcomes and information value favor inspect.",
+            "modelId": "associative",
+            "predictions": {
+              "continue": {
+                "claim": "No new goal is initiated; its outcome remains unobserved without a matching action receipt.",
+                "probability": 0.5
+              },
+              "food": {
+                "claim": "The next qualified food acquisition succeeds or measured own consumption relieves hunger.",
+                "probability": 0.5
+              },
+              "inspect": {
+                "claim": "A performed inspection returns definite contents evidence, including an empty result.",
+                "probability": 0.5
+              },
+              "water": {
+                "claim": "The next qualified water acquisition succeeds or measured own consumption relieves thirst.",
+                "probability": 0.5
+              }
+            },
+            "version": "sao-associative/1"
+          }
+        ],
+        "reason": "approaching a visible container",
+        "selectedActionId": "inspect",
+        "selectedModelId": "associative",
+        "selectionPolicy": "deterministic-balanced",
+        "selectionWeight": 0.5,
+        "status": "observed",
+        "worldHours": 12.313047409057617
+      },
+      "firstFrameSha256": "95a13024ae5c7c91b15ae3cb6e0c2d41cc1e4a5adbe03361b969facab747295b",
+      "firstObservedStatus": "observed",
+      "lastFrameSha256": "65bf2dd8bc1eaf61c8ed081005c9a2e0cd1f495905a22b13b4c02b9cc9631bae",
+      "save": "20069674445103748057",
+      "schema": "speakeasy-cognition-episode/1",
+      "selectedActionComparison": [
+        {
+          "actionId": "inspect",
+          "claim": "A performed inspection returns definite contents evidence, including an empty result.",
+          "modelId": "ordinary",
+          "probability": 0.5,
+          "squaredError": 0.25,
+          "target": true,
+          "targetStatus": "observed"
+        },
+        {
+          "actionId": "inspect",
+          "claim": "A performed inspection returns definite contents evidence, including an empty result.",
+          "modelId": "associative",
+          "probability": 0.5,
+          "squaredError": 0.25,
+          "target": true,
+          "targetStatus": "observed"
+        }
+      ],
+      "unobservedAlternatives": [
+        "continue"
+      ]
+    },
+    {
+      "actorId": "sao-2",
+      "datasetAdmission": "unreviewed",
+      "episode": {
+        "disagreement": true,
+        "executionStatus": "observed",
+        "frame": {
+          "actorId": "sao-2",
+          "capabilities": {
+            "cook": false,
+            "forage": false,
+            "treat": false
+          },
+          "drinkAt": 0.39074,
+          "eatAt": 0.475925,
+          "fatigue": 0.007,
+          "foodAllowed": true,
+          "hunger": 0.342,
+          "id": "frame/377",
+          "inspectionAllowed": false,
+          "knownFood": 0,
+          "knownPlaces": 2,
+          "knownWater": 0,
+          "thirst": 0.39,
+          "waterAllowed": true,
+          "worldHours": 14.365438461303711
+        },
+        "id": "episode/377",
+        "outcome": {
+          "actionId": "water",
+          "detail": "native-complete",
+          "eventId": "native/6",
+          "predictions": {
+            "associative": {
+              "claim": "The next qualified water acquisition succeeds or measured own consumption relieves thirst.",
+              "probability": 0.4038727590581894,
+              "squaredError": 0.3553676873928955
+            },
+            "ordinary": {
+              "claim": "The next qualified water acquisition succeeds or measured own consumption relieves thirst.",
+              "probability": 0.5,
+              "squaredError": 0.25
+            }
+          },
+          "revisions": {
+            "associative": "revised:associative:2:observed-effect",
+            "ordinary": "revised:ordinary:2:observed-effect"
+          },
+          "status": "completed",
+          "success": true,
+          "worldHours": 14.406410217285156
+        },
+        "proposals": [
+          {
+            "actionId": "continue",
+            "confidence": 0.5,
+            "interpretation": "No admissible ordinary need threshold is reached.",
+            "modelId": "ordinary",
+            "predictions": {
+              "continue": {
+                "claim": "No new goal is initiated; its outcome remains unobserved without a matching action receipt.",
+                "probability": 0.5
+              },
+              "food": {
+                "claim": "The next qualified food acquisition succeeds or measured own consumption relieves hunger.",
+                "probability": 0.5
+              },
+              "inspect": {
+                "claim": "A performed inspection returns definite contents evidence, including an empty result.",
+                "probability": 0.6602120682363509
+              },
+              "water": {
+                "claim": "The next qualified water acquisition succeeds or measured own consumption relieves thirst.",
+                "probability": 0.5
+              }
+            },
+            "version": "sao-ordinary/1"
+          },
+          {
+            "actionId": "water",
+            "confidence": 0.4038727590581894,
+            "interpretation": "Anticipated pressure, independently learned outcomes and information value favor water.",
+            "modelId": "associative",
+            "predictions": {
+              "continue": {
+                "claim": "No new goal is initiated; its outcome remains unobserved without a matching action receipt.",
+                "probability": 0.5
+              },
+              "food": {
+                "claim": "The next qualified food acquisition succeeds or measured own consumption relieves hunger.",
+                "probability": 0.4038727590581894
+              },
+              "inspect": {
+                "claim": "A performed inspection returns definite contents evidence, including an empty result.",
+                "probability": 0.6602120682363509
+              },
+              "water": {
+                "claim": "The next qualified water acquisition succeeds or measured own consumption relieves thirst.",
+                "probability": 0.4038727590581894
+              }
+            },
+            "version": "sao-associative/1"
+          }
+        ],
+        "reason": "native intent admitted",
+        "selectedActionId": "water",
+        "selectedModelId": "associative",
+        "selectionPolicy": "deterministic-balanced",
+        "selectionWeight": 0.5,
+        "status": "observed",
+        "worldHours": 14.365438461303711
+      },
+      "firstFrameSha256": "286d45406714a0864721023ce9baa2ac1a4d4a45d7ba3061492e554b69198049",
+      "firstObservedStatus": "attempted",
+      "lastFrameSha256": "62c556debad625715a8e1054ceabdb76ef9b69a3ca25c39576720e08b34421aa",
+      "save": "20069674445103748057",
+      "schema": "speakeasy-cognition-episode/1",
+      "selectedActionComparison": [
+        {
+          "actionId": "water",
+          "claim": "The next qualified water acquisition succeeds or measured own consumption relieves thirst.",
+          "modelId": "ordinary",
+          "probability": 0.5,
+          "squaredError": 0.25,
+          "target": true,
+          "targetStatus": "observed"
+        },
+        {
+          "actionId": "water",
+          "claim": "The next qualified water acquisition succeeds or measured own consumption relieves thirst.",
+          "modelId": "associative",
+          "probability": 0.4038727590581894,
+          "squaredError": 0.3553676873928955,
+          "target": true,
+          "targetStatus": "observed"
+        }
+      ],
+      "unobservedAlternatives": [
+        "continue"
+      ]
+    },
+    {
+      "actorId": "sao-2",
+      "datasetAdmission": "unreviewed",
+      "episode": {
+        "disagreement": true,
+        "executionStatus": "observed",
+        "frame": {
+          "actorId": "sao-2",
+          "capabilities": {
+            "cook": false,
+            "forage": false,
+            "treat": false
+          },
+          "drinkAt": 0.39074,
+          "eatAt": 0.475925,
+          "fatigue": 0.01,
+          "foodAllowed": true,
+          "hunger": 0.343,
+          "id": "frame/379",
+          "inspectionAllowed": true,
+          "knownFood": 0,
+          "knownPlaces": 2,
+          "knownWater": 0,
+          "thirst": 0.001,
+          "waterAllowed": true,
+          "worldHours": 14.436038970947266
+        },
+        "id": "episode/379",
+        "outcome": {
+          "actionId": "inspect",
+          "detail": "native-container-inspection",
+          "eventId": "native/7",
+          "predictions": {
+            "associative": {
+              "claim": "A performed inspection returns definite contents evidence, including an empty result.",
+              "probability": 0.6599901484192717,
+              "squaredError": 0.11560669917194887
+            },
+            "ordinary": {
+              "claim": "A performed inspection returns definite contents evidence, including an empty result.",
+              "probability": 0.6599901484192717,
+              "squaredError": 0.11560669917194887
+            }
+          },
+          "revisions": {
+            "associative": "revised:associative:3:observed-effect",
+            "ordinary": "revised:ordinary:3:observed-effect"
+          },
+          "status": "completed",
+          "success": true,
+          "worldHours": 14.439001083374023
+        },
+        "proposals": [
+          {
+            "actionId": "continue",
+            "confidence": 0.5,
+            "interpretation": "No admissible ordinary need threshold is reached.",
+            "modelId": "ordinary",
+            "predictions": {
+              "continue": {
+                "claim": "No new goal is initiated; its outcome remains unobserved without a matching action receipt.",
+                "probability": 0.5
+              },
+              "food": {
+                "claim": "The next qualified food acquisition succeeds or measured own consumption relieves hunger.",
+                "probability": 0.5
+              },
+              "inspect": {
+                "claim": "A performed inspection returns definite contents evidence, including an empty result.",
+                "probability": 0.6599901484192717
+              },
+              "water": {
+                "claim": "The next qualified water acquisition succeeds or measured own consumption relieves thirst.",
+                "probability": 0.6665716011238083
+              }
+            },
+            "version": "sao-ordinary/1"
+          },
+          {
+            "actionId": "inspect",
+            "confidence": 0.6599901484192717,
+            "interpretation": "Anticipated pressure, independently learned outcomes and information value favor inspect.",
+            "modelId": "associative",
+            "predictions": {
+              "continue": {
+                "claim": "No new goal is initiated; its outcome remains unobserved without a matching action receipt.",
+                "probability": 0.5
+              },
+              "food": {
+                "claim": "The next qualified food acquisition succeeds or measured own consumption relieves hunger.",
+                "probability": 0.40400591094843696
+              },
+              "inspect": {
+                "claim": "A performed inspection returns definite contents evidence, including an empty result.",
+                "probability": 0.6599901484192717
+              },
+              "water": {
+                "claim": "The next qualified water acquisition succeeds or measured own consumption relieves thirst.",
+                "probability": 0.6665716011238083
+              }
+            },
+            "version": "sao-associative/1"
+          }
+        ],
+        "reason": "approaching a visible container",
+        "selectedActionId": "inspect",
+        "selectedModelId": "associative",
+        "selectionPolicy": "deterministic-balanced",
+        "selectionWeight": 0.5,
+        "status": "observed",
+        "worldHours": 14.436038970947266
+      },
+      "firstFrameSha256": "61f9a8e2bb1e2938aac2e2fa6af0909c13dcff200b669b81da640eeca52762a4",
+      "firstObservedStatus": "observed",
+      "lastFrameSha256": "62c556debad625715a8e1054ceabdb76ef9b69a3ca25c39576720e08b34421aa",
+      "save": "20069674445103748057",
+      "schema": "speakeasy-cognition-episode/1",
+      "selectedActionComparison": [
+        {
+          "actionId": "inspect",
+          "claim": "A performed inspection returns definite contents evidence, including an empty result.",
+          "modelId": "ordinary",
+          "probability": 0.6599901484192717,
+          "squaredError": 0.11560669917194887,
+          "target": true,
+          "targetStatus": "observed"
+        },
+        {
+          "actionId": "inspect",
+          "claim": "A performed inspection returns definite contents evidence, including an empty result.",
+          "modelId": "associative",
+          "probability": 0.6599901484192717,
+          "squaredError": 0.11560669917194887,
+          "target": true,
+          "targetStatus": "observed"
+        }
+      ],
+      "unobservedAlternatives": [
+        "continue"
+      ]
+    },
+    {
+      "actorId": "sao-2",
+      "datasetAdmission": "unreviewed",
+      "episode": {
+        "disagreement": true,
+        "executionStatus": "observed",
+        "frame": {
+          "actorId": "sao-2",
+          "capabilities": {
+            "cook": false,
+            "forage": false,
+            "treat": false
+          },
+          "drinkAt": 0.39074,
+          "eatAt": 0.475925,
+          "fatigue": 0.006,
+          "foodAllowed": true,
+          "hunger": 0.356,
+          "id": "frame/381",
+          "inspectionAllowed": true,
+          "knownFood": 0,
+          "knownPlaces": 3,
+          "knownWater": 0,
+          "thirst": 0.017,
+          "waterAllowed": true,
+          "worldHours": 14.994144439697266
+        },
+        "id": "episode/381",
+        "outcome": {
+          "actionId": "inspect",
+          "detail": "native-container-inspection",
+          "eventId": "native/8",
+          "predictions": {
+            "associative": {
+              "claim": "A performed inspection returns definite contents evidence, including an empty result.",
+              "probability": 0.7442545731835141,
+              "squaredError": 0.06540572333754656
+            },
+            "ordinary": {
+              "claim": "A performed inspection returns definite contents evidence, including an empty result.",
+              "probability": 0.7442545731835141,
+              "squaredError": 0.06540572333754656
+            }
+          },
+          "revisions": {
+            "associative": "revised:associative:4:observed-effect",
+            "ordinary": "revised:ordinary:4:observed-effect"
+          },
+          "status": "completed",
+          "success": true,
+          "worldHours": 15.003032684326172
+        },
+        "proposals": [
+          {
+            "actionId": "continue",
+            "confidence": 0.5,
+            "interpretation": "No admissible ordinary need threshold is reached.",
+            "modelId": "ordinary",
+            "predictions": {
+              "continue": {
+                "claim": "No new goal is initiated; its outcome remains unobserved without a matching action receipt.",
+                "probability": 0.5
+              },
+              "food": {
+                "claim": "The next qualified food acquisition succeeds or measured own consumption relieves hunger.",
+                "probability": 0.5
+              },
+              "inspect": {
+                "claim": "A performed inspection returns definite contents evidence, including an empty result.",
+                "probability": 0.7442545731835141
+              },
+              "water": {
+                "claim": "The next qualified water acquisition succeeds or measured own consumption relieves thirst.",
+                "probability": 0.6647859846336373
+              }
+            },
+            "version": "sao-ordinary/1"
+          },
+          {
+            "actionId": "inspect",
+            "confidence": 0.7442545731835141,
+            "interpretation": "Anticipated pressure, independently learned outcomes and information value favor inspect.",
+            "modelId": "associative",
+            "predictions": {
+              "continue": {
+                "claim": "No new goal is initiated; its outcome remains unobserved without a matching action receipt.",
+                "probability": 0.5
+              },
+              "food": {
+                "claim": "The next qualified food acquisition succeeds or measured own consumption relieves hunger.",
+                "probability": 0.3534472560898915
+              },
+              "inspect": {
+                "claim": "A performed inspection returns definite contents evidence, including an empty result.",
+                "probability": 0.7442545731835141
+              },
+              "water": {
+                "claim": "The next qualified water acquisition succeeds or measured own consumption relieves thirst.",
+                "probability": 0.6647859846336373
+              }
+            },
+            "version": "sao-associative/1"
+          }
+        ],
+        "reason": "approaching a visible container",
+        "selectedActionId": "inspect",
+        "selectedModelId": "associative",
+        "selectionPolicy": "deterministic-balanced",
+        "selectionWeight": 0.5,
+        "status": "observed",
+        "worldHours": 14.994144439697266
+      },
+      "firstFrameSha256": "65bf2dd8bc1eaf61c8ed081005c9a2e0cd1f495905a22b13b4c02b9cc9631bae",
+      "firstObservedStatus": "observed",
+      "lastFrameSha256": "62c556debad625715a8e1054ceabdb76ef9b69a3ca25c39576720e08b34421aa",
+      "save": "20069674445103748057",
+      "schema": "speakeasy-cognition-episode/1",
+      "selectedActionComparison": [
+        {
+          "actionId": "inspect",
+          "claim": "A performed inspection returns definite contents evidence, including an empty result.",
+          "modelId": "ordinary",
+          "probability": 0.7442545731835141,
+          "squaredError": 0.06540572333754656,
+          "target": true,
+          "targetStatus": "observed"
+        },
+        {
+          "actionId": "inspect",
+          "claim": "A performed inspection returns definite contents evidence, including an empty result.",
+          "modelId": "associative",
+          "probability": 0.7442545731835141,
+          "squaredError": 0.06540572333754656,
+          "target": true,
+          "targetStatus": "observed"
+        }
+      ],
+      "unobservedAlternatives": [
+        "continue"
+      ]
+    },
+    {
+      "actorId": "sao-2",
+      "datasetAdmission": "unreviewed",
+      "episode": {
+        "disagreement": true,
+        "executionStatus": "observed",
+        "frame": {
+          "actorId": "sao-2",
+          "capabilities": {
+            "cook": false,
+            "forage": false,
+            "treat": false
+          },
+          "drinkAt": 0.39074,
+          "eatAt": 0.475925,
+          "fatigue": 0.009,
+          "foodAllowed": true,
+          "hunger": 0.358,
+          "id": "frame/385",
+          "inspectionAllowed": true,
+          "knownFood": 0,
+          "knownPlaces": 4,
+          "knownWater": 0,
+          "thirst": 0.02,
+          "waterAllowed": true,
+          "worldHours": 15.094169616699219
+        },
+        "id": "episode/385",
+        "outcome": {
+          "actionId": "inspect",
+          "detail": "native-container-inspection",
+          "eventId": "native/9",
+          "predictions": {
+            "associative": {
+              "claim": "A performed inspection returns definite contents evidence, including an empty result.",
+              "probability": 0.7960016131083103,
+              "squaredError": 0.041615341854411514
+            },
+            "ordinary": {
+              "claim": "A performed inspection returns definite contents evidence, including an empty result.",
+              "probability": 0.7960016131083103,
+              "squaredError": 0.041615341854411514
+            }
+          },
+          "revisions": {
+            "associative": "revised:associative:5:observed-effect",
+            "ordinary": "revised:ordinary:5:observed-effect"
+          },
+          "status": "completed",
+          "success": true,
+          "worldHours": 15.110469818115234
+        },
+        "proposals": [
+          {
+            "actionId": "continue",
+            "confidence": 0.5,
+            "interpretation": "No admissible ordinary need threshold is reached.",
+            "modelId": "ordinary",
+            "predictions": {
+              "continue": {
+                "claim": "No new goal is initiated; its outcome remains unobserved without a matching action receipt.",
+                "probability": 0.5
+              },
+              "food": {
+                "claim": "The next qualified food acquisition succeeds or measured own consumption relieves hunger.",
+                "probability": 0.5
+              },
+              "inspect": {
+                "claim": "A performed inspection returns definite contents evidence, including an empty result.",
+                "probability": 0.7960016131083103
+              },
+              "water": {
+                "claim": "The next qualified water acquisition succeeds or measured own consumption relieves thirst.",
+                "probability": 0.6644669910749155
+              }
+            },
+            "version": "sao-ordinary/1"
+          },
+          {
+            "actionId": "inspect",
+            "confidence": 0.7960016131083103,
+            "interpretation": "Anticipated pressure, independently learned outcomes and information value favor inspect.",
+            "modelId": "associative",
+            "predictions": {
+              "continue": {
+                "claim": "No new goal is initiated; its outcome remains unobserved without a matching action receipt.",
+                "probability": 0.5
+              },
+              "food": {
+                "claim": "The next qualified food acquisition succeeds or measured own consumption relieves hunger.",
+                "probability": 0.32239903213501386
+              },
+              "inspect": {
+                "claim": "A performed inspection returns definite contents evidence, including an empty result.",
+                "probability": 0.7960016131083103
+              },
+              "water": {
+                "claim": "The next qualified water acquisition succeeds or measured own consumption relieves thirst.",
+                "probability": 0.6644669910749155
+              }
+            },
+            "version": "sao-associative/1"
+          }
+        ],
+        "reason": "approaching a visible container",
+        "selectedActionId": "inspect",
+        "selectedModelId": "associative",
+        "selectionPolicy": "deterministic-balanced",
+        "selectionWeight": 0.5,
+        "status": "observed",
+        "worldHours": 15.094169616699219
+      },
+      "firstFrameSha256": "65bf2dd8bc1eaf61c8ed081005c9a2e0cd1f495905a22b13b4c02b9cc9631bae",
+      "firstObservedStatus": "observed",
+      "lastFrameSha256": "0ceeef9d846bef1a7eb5d4b833fbb8632df3251b4f805e8c9e242d505b1b3188",
+      "save": "20069674445103748057",
+      "schema": "speakeasy-cognition-episode/1",
+      "selectedActionComparison": [
+        {
+          "actionId": "inspect",
+          "claim": "A performed inspection returns definite contents evidence, including an empty result.",
+          "modelId": "ordinary",
+          "probability": 0.7960016131083103,
+          "squaredError": 0.041615341854411514,
+          "target": true,
+          "targetStatus": "observed"
+        },
+        {
+          "actionId": "inspect",
+          "claim": "A performed inspection returns definite contents evidence, including an empty result.",
+          "modelId": "associative",
+          "probability": 0.7960016131083103,
+          "squaredError": 0.041615341854411514,
+          "target": true,
+          "targetStatus": "observed"
+        }
+      ],
+      "unobservedAlternatives": [
+        "continue"
+      ]
+    },
+    {
+      "actorId": "sao-2",
+      "datasetAdmission": "unreviewed",
+      "episode": {
+        "disagreement": true,
+        "executionStatus": "observed",
+        "frame": {
+          "actorId": "sao-2",
+          "capabilities": {
+            "cook": false,
+            "forage": false,
+            "treat": false
+          },
+          "drinkAt": 0.39074,
+          "eatAt": 0.475925,
+          "fatigue": 0.011,
+          "foodAllowed": true,
+          "hunger": 0.36,
+          "id": "frame/389",
+          "inspectionAllowed": true,
+          "knownFood": 0,
+          "knownPlaces": 5,
+          "knownWater": 0,
+          "thirst": 0.023,
+          "waterAllowed": true,
+          "worldHours": 15.187911987304688
+        },
+        "id": "episode/389",
+        "outcome": {
+          "actionId": "inspect",
+          "detail": "native-container-inspection",
+          "eventId": "native/10",
+          "predictions": {
+            "associative": {
+              "claim": "A performed inspection returns definite contents evidence, including an empty result.",
+              "probability": 0.8302760166350543,
+              "squaredError": 0.02880623052926435
+            },
+            "ordinary": {
+              "claim": "A performed inspection returns definite contents evidence, including an empty result.",
+              "probability": 0.8302760166350543,
+              "squaredError": 0.02880623052926435
+            }
+          },
+          "revisions": {
+            "associative": "revised:associative:6:observed-effect",
+            "ordinary": "revised:ordinary:6:observed-effect"
+          },
+          "status": "completed",
+          "success": true,
+          "worldHours": 15.193840026855469
+        },
+        "proposals": [
+          {
+            "actionId": "continue",
+            "confidence": 0.5,
+            "interpretation": "No admissible ordinary need threshold is reached.",
+            "modelId": "ordinary",
+            "predictions": {
+              "continue": {
+                "claim": "No new goal is initiated; its outcome remains unobserved without a matching action receipt.",
+                "probability": 0.5
+              },
+              "food": {
+                "claim": "The next qualified food acquisition succeeds or measured own consumption relieves hunger.",
+                "probability": 0.5
+              },
+              "inspect": {
+                "claim": "A performed inspection returns definite contents evidence, including an empty result.",
+                "probability": 0.8302760166350543
+              },
+              "water": {
+                "claim": "The next qualified water acquisition succeeds or measured own consumption relieves thirst.",
+                "probability": 0.6641683202599273
+              }
+            },
+            "version": "sao-ordinary/1"
+          },
+          {
+            "actionId": "inspect",
+            "confidence": 0.8302760166350543,
+            "interpretation": "Anticipated pressure, independently learned outcomes and information value favor inspect.",
+            "modelId": "associative",
+            "predictions": {
+              "continue": {
+                "claim": "No new goal is initiated; its outcome remains unobserved without a matching action receipt.",
+                "probability": 0.5
+              },
+              "food": {
+                "claim": "The next qualified food acquisition succeeds or measured own consumption relieves hunger.",
+                "probability": 0.3018343900189674
+              },
+              "inspect": {
+                "claim": "A performed inspection returns definite contents evidence, including an empty result.",
+                "probability": 0.8302760166350543
+              },
+              "water": {
+                "claim": "The next qualified water acquisition succeeds or measured own consumption relieves thirst.",
+                "probability": 0.6641683202599273
+              }
+            },
+            "version": "sao-associative/1"
+          }
+        ],
+        "reason": "approaching a visible container",
+        "selectedActionId": "inspect",
+        "selectedModelId": "associative",
+        "selectionPolicy": "deterministic-balanced",
+        "selectionWeight": 0.5,
+        "status": "observed",
+        "worldHours": 15.187911987304688
+      },
+      "firstFrameSha256": "64cf5e205da33171ec4493458031f3d5661d4ca639af956998da755b63be96db",
+      "firstObservedStatus": "observed",
+      "lastFrameSha256": "0ceeef9d846bef1a7eb5d4b833fbb8632df3251b4f805e8c9e242d505b1b3188",
+      "save": "20069674445103748057",
+      "schema": "speakeasy-cognition-episode/1",
+      "selectedActionComparison": [
+        {
+          "actionId": "inspect",
+          "claim": "A performed inspection returns definite contents evidence, including an empty result.",
+          "modelId": "ordinary",
+          "probability": 0.8302760166350543,
+          "squaredError": 0.02880623052926435,
+          "target": true,
+          "targetStatus": "observed"
+        },
+        {
+          "actionId": "inspect",
+          "claim": "A performed inspection returns definite contents evidence, including an empty result.",
+          "modelId": "associative",
+          "probability": 0.8302760166350543,
+          "squaredError": 0.02880623052926435,
+          "target": true,
+          "targetStatus": "observed"
+        }
+      ],
+      "unobservedAlternatives": [
+        "continue"
+      ]
+    },
+    {
+      "actorId": "sao-2",
+      "datasetAdmission": "unreviewed",
+      "episode": {
+        "disagreement": true,
+        "executionStatus": "observed",
+        "frame": {
+          "actorId": "sao-2",
+          "capabilities": {
+            "cook": false,
+            "forage": false,
+            "treat": false
+          },
+          "drinkAt": 0.39074,
+          "eatAt": 0.475925,
+          "fatigue": 0.014,
+          "foodAllowed": true,
+          "hunger": 0.362,
+          "id": "frame/393",
+          "inspectionAllowed": true,
+          "knownFood": 0,
+          "knownPlaces": 6,
+          "knownWater": 0,
+          "thirst": 0.025,
+          "waterAllowed": true,
+          "worldHours": 15.283025741577148
+        },
+        "id": "episode/393",
+        "outcome": {
+          "actionId": "inspect",
+          "detail": "native-container-inspection",
+          "eventId": "native/11",
+          "predictions": {
+            "associative": {
+              "claim": "A performed inspection returns definite contents evidence, including an empty result.",
+              "probability": 0.8546230667541936,
+              "squaredError": 0.021134452719955638
+            },
+            "ordinary": {
+              "claim": "A performed inspection returns definite contents evidence, including an empty result.",
+              "probability": 0.8546230667541936,
+              "squaredError": 0.021134452719955638
+            }
+          },
+          "revisions": {
+            "associative": "revised:associative:7:observed-effect",
+            "ordinary": "revised:ordinary:7:observed-effect"
+          },
+          "status": "completed",
+          "success": true,
+          "worldHours": 15.288951873779297
+        },
+        "proposals": [
+          {
+            "actionId": "continue",
+            "confidence": 0.5,
+            "interpretation": "No admissible ordinary need threshold is reached.",
+            "modelId": "ordinary",
+            "predictions": {
+              "continue": {
+                "claim": "No new goal is initiated; its outcome remains unobserved without a matching action receipt.",
+                "probability": 0.5
+              },
+              "food": {
+                "claim": "The next qualified food acquisition succeeds or measured own consumption relieves hunger.",
+                "probability": 0.5
+              },
+              "inspect": {
+                "claim": "A performed inspection returns definite contents evidence, including an empty result.",
+                "probability": 0.8546230667541936
+              },
+              "water": {
+                "claim": "The next qualified water acquisition succeeds or measured own consumption relieves thirst.",
+                "probability": 0.663865563718249
+              }
+            },
+            "version": "sao-ordinary/1"
+          },
+          {
+            "actionId": "inspect",
+            "confidence": 0.8546230667541936,
+            "interpretation": "Anticipated pressure, independently learned outcomes and information value favor inspect.",
+            "modelId": "associative",
+            "predictions": {
+              "continue": {
+                "claim": "No new goal is initiated; its outcome remains unobserved without a matching action receipt.",
+                "probability": 0.5
+              },
+              "food": {
+                "claim": "The next qualified food acquisition succeeds or measured own consumption relieves hunger.",
+                "probability": 0.2872261599474838
+              },
+              "inspect": {
+                "claim": "A performed inspection returns definite contents evidence, including an empty result.",
+                "probability": 0.8546230667541936
+              },
+              "water": {
+                "claim": "The next qualified water acquisition succeeds or measured own consumption relieves thirst.",
+                "probability": 0.663865563718249
+              }
+            },
+            "version": "sao-associative/1"
+          }
+        ],
+        "reason": "approaching a visible container",
+        "selectedActionId": "inspect",
+        "selectedModelId": "associative",
+        "selectionPolicy": "deterministic-balanced",
+        "selectionWeight": 0.5,
+        "status": "observed",
+        "worldHours": 15.283025741577148
+      },
+      "firstFrameSha256": "64cf5e205da33171ec4493458031f3d5661d4ca639af956998da755b63be96db",
+      "firstObservedStatus": "observed",
+      "lastFrameSha256": "0ceeef9d846bef1a7eb5d4b833fbb8632df3251b4f805e8c9e242d505b1b3188",
+      "save": "20069674445103748057",
+      "schema": "speakeasy-cognition-episode/1",
+      "selectedActionComparison": [
+        {
+          "actionId": "inspect",
+          "claim": "A performed inspection returns definite contents evidence, including an empty result.",
+          "modelId": "ordinary",
+          "probability": 0.8546230667541936,
+          "squaredError": 0.021134452719955638,
+          "target": true,
+          "targetStatus": "observed"
+        },
+        {
+          "actionId": "inspect",
+          "claim": "A performed inspection returns definite contents evidence, including an empty result.",
+          "modelId": "associative",
+          "probability": 0.8546230667541936,
+          "squaredError": 0.021134452719955638,
+          "target": true,
+          "targetStatus": "observed"
+        }
+      ],
+      "unobservedAlternatives": [
+        "continue"
+      ]
+    },
+    {
+      "actorId": "sao-2",
+      "datasetAdmission": "unreviewed",
+      "episode": {
+        "disagreement": true,
+        "executionStatus": "observed",
+        "frame": {
+          "actorId": "sao-2",
+          "capabilities": {
+            "cook": false,
+            "forage": false,
+            "treat": false
+          },
+          "drinkAt": 0.39074,
+          "eatAt": 0.475925,
+          "fatigue": 0.016,
+          "foodAllowed": true,
+          "hunger": 0.364,
+          "id": "frame/395",
+          "inspectionAllowed": true,
+          "knownFood": 1,
+          "knownPlaces": 7,
+          "knownWater": 0,
+          "thirst": 0.028,
+          "waterAllowed": true,
+          "worldHours": 15.369766235351562
+        },
+        "id": "episode/395",
+        "outcome": {
+          "actionId": "food",
+          "detail": "native-transfer-observed",
+          "eventId": "native/12",
+          "predictions": {
+            "associative": {
+              "claim": "The next qualified food acquisition succeeds or measured own consumption relieves hunger.",
+              "probability": 0.3524136614838014,
+              "squaredError": 0.4193680658328166
+            },
+            "ordinary": {
+              "claim": "The next qualified food acquisition succeeds or measured own consumption relieves hunger.",
+              "probability": 0.5,
+              "squaredError": 0.25
+            }
+          },
+          "revisions": {
+            "associative": "revised:associative:8:observed-effect",
+            "ordinary": "revised:ordinary:8:observed-effect"
+          },
+          "status": "completed",
+          "success": true,
+          "worldHours": 15.379518508911133
+        },
+        "proposals": [
+          {
+            "actionId": "continue",
+            "confidence": 0.5,
+            "interpretation": "No admissible ordinary need threshold is reached.",
+            "modelId": "ordinary",
+            "predictions": {
+              "continue": {
+                "claim": "No new goal is initiated; its outcome remains unobserved without a matching action receipt.",
+                "probability": 0.5
+              },
+              "food": {
+                "claim": "The next qualified food acquisition succeeds or measured own consumption relieves hunger.",
+                "probability": 0.5
+              },
+              "inspect": {
+                "claim": "A performed inspection returns definite contents evidence, including an empty result.",
+                "probability": 0.8728403925584186
+              },
+              "water": {
+                "claim": "The next qualified water acquisition succeeds or measured own consumption relieves thirst.",
+                "probability": 0.6635897097744853
+              }
+            },
+            "version": "sao-ordinary/1"
+          },
+          {
+            "actionId": "food",
+            "confidence": 0.3524136614838014,
+            "hypothesisId": "associative/hypothesis/1",
+            "interpretation": "Anticipated pressure, independently learned outcomes and information value favor food.",
+            "modelId": "associative",
+            "predictions": {
+              "continue": {
+                "claim": "No new goal is initiated; its outcome remains unobserved without a matching action receipt.",
+                "probability": 0.5
+              },
+              "food": {
+                "claim": "The next qualified food acquisition succeeds or measured own consumption relieves hunger.",
+                "probability": 0.3524136614838014
+              },
+              "inspect": {
+                "claim": "A performed inspection returns definite contents evidence, including an empty result.",
+                "probability": 0.8728403925584186
+              },
+              "water": {
+                "claim": "The next qualified water acquisition succeeds or measured own consumption relieves thirst.",
+                "probability": 0.6635897097744853
+              }
+            },
+            "version": "sao-associative/1"
+          }
+        ],
+        "reason": "native intent admitted",
+        "selectedActionId": "food",
+        "selectedModelId": "associative",
+        "selectionPolicy": "deterministic-balanced",
+        "selectionWeight": 0.5,
+        "status": "observed",
+        "worldHours": 15.369766235351562
+      },
+      "firstFrameSha256": "64cf5e205da33171ec4493458031f3d5661d4ca639af956998da755b63be96db",
+      "firstObservedStatus": "observed",
+      "lastFrameSha256": "1515ae1b0f76da01ebc2a0cad5a6f81eac2afece6b096a9ae0d3647beb36eec9",
+      "save": "20069674445103748057",
+      "schema": "speakeasy-cognition-episode/1",
+      "selectedActionComparison": [
+        {
+          "actionId": "food",
+          "claim": "The next qualified food acquisition succeeds or measured own consumption relieves hunger.",
+          "modelId": "ordinary",
+          "probability": 0.5,
+          "squaredError": 0.25,
+          "target": true,
+          "targetStatus": "observed"
+        },
+        {
+          "actionId": "food",
+          "claim": "The next qualified food acquisition succeeds or measured own consumption relieves hunger.",
+          "modelId": "associative",
+          "probability": 0.3524136614838014,
+          "squaredError": 0.4193680658328166,
+          "target": true,
+          "targetStatus": "observed"
+        }
+      ],
+      "unobservedAlternatives": [
+        "continue"
+      ]
+    },
+    {
+      "actorId": "sao-2",
+      "datasetAdmission": "unreviewed",
+      "episode": {
+        "disagreement": true,
+        "executionStatus": "observed",
+        "frame": {
+          "actorId": "sao-2",
+          "capabilities": {
+            "cook": false,
+            "forage": false,
+            "treat": false
+          },
+          "drinkAt": 0.39074,
+          "eatAt": 0.475925,
+          "fatigue": 0.018,
+          "foodAllowed": true,
+          "hunger": 0.366,
+          "id": "frame/397",
+          "inspectionAllowed": true,
+          "knownFood": 1,
+          "knownPlaces": 7,
+          "knownWater": 0,
+          "thirst": 0.03,
+          "waterAllowed": true,
+          "worldHours": 15.435237884521484
+        },
+        "id": "episode/397",
+        "outcome": {
+          "actionId": "food",
+          "detail": "native-complete",
+          "eventId": "native/13",
+          "predictions": {
+            "associative": {
+              "claim": "The next qualified food acquisition succeeds or measured own consumption relieves hunger.",
+              "probability": 0.6664879103520476,
+              "squaredError": 0.11123031394134386
+            },
+            "ordinary": {
+              "claim": "The next qualified food acquisition succeeds or measured own consumption relieves hunger.",
+              "probability": 0.6664879103520476,
+              "squaredError": 0.11123031394134386
+            }
+          },
+          "revisions": {
+            "associative": "revised:associative:9:observed-effect",
+            "ordinary": "revised:ordinary:9:observed-effect"
+          },
+          "status": "completed",
+          "success": true,
+          "worldHours": 15.455986022949219
+        },
+        "proposals": [
+          {
+            "actionId": "continue",
+            "confidence": 0.5,
+            "interpretation": "No admissible ordinary need threshold is reached.",
+            "modelId": "ordinary",
+            "predictions": {
+              "continue": {
+                "claim": "No new goal is initiated; its outcome remains unobserved without a matching action receipt.",
+                "probability": 0.5
+              },
+              "food": {
+                "claim": "The next qualified food acquisition succeeds or measured own consumption relieves hunger.",
+                "probability": 0.6664879103520476
+              },
+              "inspect": {
+                "claim": "A performed inspection returns definite contents evidence, including an empty result.",
+                "probability": 0.8726610136807422
+              },
+              "water": {
+                "claim": "The next qualified water acquisition succeeds or measured own consumption relieves thirst.",
+                "probability": 0.6633816535459299
+              }
+            },
+            "version": "sao-ordinary/1"
+          },
+          {
+            "actionId": "food",
+            "confidence": 0.6664879103520476,
+            "hypothesisId": "associative/hypothesis/1",
+            "interpretation": "Anticipated pressure, independently learned outcomes and information value favor food.",
+            "modelId": "associative",
+            "predictions": {
+              "continue": {
+                "claim": "No new goal is initiated; its outcome remains unobserved without a matching action receipt.",
+                "probability": 0.5
+              },
+              "food": {
+                "claim": "The next qualified food acquisition succeeds or measured own consumption relieves hunger.",
+                "probability": 0.6664879103520476
+              },
+              "inspect": {
+                "claim": "A performed inspection returns definite contents evidence, including an empty result.",
+                "probability": 0.8726610136807422
+              },
+              "water": {
+                "claim": "The next qualified water acquisition succeeds or measured own consumption relieves thirst.",
+                "probability": 0.6633816535459299
+              }
+            },
+            "version": "sao-associative/1"
+          }
+        ],
+        "reason": "native intent admitted",
+        "selectedActionId": "food",
+        "selectedModelId": "associative",
+        "selectionPolicy": "deterministic-balanced",
+        "selectionWeight": 0.5,
+        "status": "observed",
+        "worldHours": 15.435237884521484
+      },
+      "firstFrameSha256": "10aae8f6f2efba3bc7dcd8df5c8881e2179ae4c00216d82609988449f2cb0416",
+      "firstObservedStatus": "observed",
+      "lastFrameSha256": "1515ae1b0f76da01ebc2a0cad5a6f81eac2afece6b096a9ae0d3647beb36eec9",
+      "save": "20069674445103748057",
+      "schema": "speakeasy-cognition-episode/1",
+      "selectedActionComparison": [
+        {
+          "actionId": "food",
+          "claim": "The next qualified food acquisition succeeds or measured own consumption relieves hunger.",
+          "modelId": "ordinary",
+          "probability": 0.6664879103520476,
+          "squaredError": 0.11123031394134386,
+          "target": true,
+          "targetStatus": "observed"
+        },
+        {
+          "actionId": "food",
+          "claim": "The next qualified food acquisition succeeds or measured own consumption relieves hunger.",
+          "modelId": "associative",
+          "probability": 0.6664879103520476,
+          "squaredError": 0.11123031394134386,
+          "target": true,
+          "targetStatus": "observed"
+        }
+      ],
+      "unobservedAlternatives": [
+        "continue"
+      ]
+    },
+    {
+      "actorId": "sao-2",
+      "datasetAdmission": "unreviewed",
+      "episode": {
+        "disagreement": true,
+        "executionStatus": "observed",
+        "frame": {
+          "actorId": "sao-2",
+          "capabilities": {
+            "cook": false,
+            "forage": false,
+            "treat": false
+          },
+          "drinkAt": 0.39074,
+          "eatAt": 0.475925,
+          "fatigue": 0.011,
+          "foodAllowed": true,
+          "hunger": 0.343,
+          "id": "frame/409",
+          "inspectionAllowed": true,
+          "knownFood": 1,
+          "knownPlaces": 7,
+          "knownWater": 0,
+          "thirst": 0.028,
+          "waterAllowed": true,
+          "worldHours": 15.742586135864258
+        },
+        "id": "episode/409",
+        "outcome": {
+          "actionId": "food",
+          "detail": "native-transfer-observed",
+          "eventId": "native/14",
+          "predictions": {
+            "associative": {
+              "claim": "The next qualified food acquisition succeeds or measured own consumption relieves hunger.",
+              "probability": 0.7488273885519782,
+              "squaredError": 0.06308768074161895
+            },
+            "ordinary": {
+              "claim": "The next qualified food acquisition succeeds or measured own consumption relieves hunger.",
+              "probability": 0.7488273885519782,
+              "squaredError": 0.06308768074161895
+            }
+          },
+          "revisions": {
+            "associative": "revised:associative:10:observed-effect",
+            "ordinary": "revised:ordinary:10:observed-effect"
+          },
+          "status": "completed",
+          "success": true,
+          "worldHours": 15.757688522338867
+        },
+        "proposals": [
+          {
+            "actionId": "continue",
+            "confidence": 0.5,
+            "interpretation": "No admissible ordinary need threshold is reached.",
+            "modelId": "ordinary",
+            "predictions": {
+              "continue": {
+                "claim": "No new goal is initiated; its outcome remains unobserved without a matching action receipt.",
+                "probability": 0.5
+              },
+              "food": {
+                "claim": "The next qualified food acquisition succeeds or measured own consumption relieves hunger.",
+                "probability": 0.7488273885519782
+              },
+              "inspect": {
+                "claim": "A performed inspection returns definite contents evidence, including an empty result.",
+                "probability": 0.8718167186924971
+              },
+              "water": {
+                "claim": "The next qualified water acquisition succeeds or measured own consumption relieves thirst.",
+                "probability": 0.6624067854408812
+              }
+            },
+            "version": "sao-ordinary/1"
+          },
+          {
+            "actionId": "food",
+            "confidence": 0.7488273885519782,
+            "hypothesisId": "associative/hypothesis/1",
+            "interpretation": "Anticipated pressure, independently learned outcomes and information value favor food.",
+            "modelId": "associative",
+            "predictions": {
+              "continue": {
+                "claim": "No new goal is initiated; its outcome remains unobserved without a matching action receipt.",
+                "probability": 0.5
+              },
+              "food": {
+                "claim": "The next qualified food acquisition succeeds or measured own consumption relieves hunger.",
+                "probability": 0.7488273885519782
+              },
+              "inspect": {
+                "claim": "A performed inspection returns definite contents evidence, including an empty result.",
+                "probability": 0.8718167186924971
+              },
+              "water": {
+                "claim": "The next qualified water acquisition succeeds or measured own consumption relieves thirst.",
+                "probability": 0.6624067854408812
+              }
+            },
+            "version": "sao-associative/1"
+          }
+        ],
+        "reason": "native intent admitted",
+        "selectedActionId": "food",
+        "selectedModelId": "associative",
+        "selectionPolicy": "deterministic-balanced",
+        "selectionWeight": 0.5,
+        "status": "observed",
+        "worldHours": 15.742586135864258
+      },
+      "firstFrameSha256": "7dcd08074809ef0d983f30f52b92dd631854171a49a056d361d34f3c64e33c88",
+      "firstObservedStatus": "observed",
+      "lastFrameSha256": "868abf31f10f0b81a066a63bf3488248ae223ec5a10da540499cf3b221cd9c7d",
+      "save": "20069674445103748057",
+      "schema": "speakeasy-cognition-episode/1",
+      "selectedActionComparison": [
+        {
+          "actionId": "food",
+          "claim": "The next qualified food acquisition succeeds or measured own consumption relieves hunger.",
+          "modelId": "ordinary",
+          "probability": 0.7488273885519782,
+          "squaredError": 0.06308768074161895,
+          "target": true,
+          "targetStatus": "observed"
+        },
+        {
+          "actionId": "food",
+          "claim": "The next qualified food acquisition succeeds or measured own consumption relieves hunger.",
+          "modelId": "associative",
+          "probability": 0.7488273885519782,
+          "squaredError": 0.06308768074161895,
+          "target": true,
+          "targetStatus": "observed"
+        }
+      ],
+      "unobservedAlternatives": [
+        "continue"
+      ]
+    }
+  ],
+  "finalPeople": [
+    {
+      "actorId": "sao-1",
+      "models": [
+        {
+          "beliefs": [
+            {
+              "confidence": 0.6389622561571712,
+              "id": "ordinary/belief/1",
+              "label": "Qualified water outcomes",
+              "status": "supported"
+            },
+            {
+              "confidence": 0.6389622561571712,
+              "id": "ordinary/belief/2",
+              "label": "performed consume water at unlocated source",
+              "status": "supported"
+            },
+            {
+              "confidence": 0.8209460518526244,
+              "id": "ordinary/belief/3",
+              "label": "Qualified inspect outcomes",
+              "status": "supported"
+            },
+            {
+              "confidence": 0.6543085526668263,
+              "id": "ordinary/belief/4",
+              "label": "performed inspection container at C:00921fed-f2dc-45c5-90a2-9c902f7c5ea2:0",
+              "status": "supported"
+            },
+            {
+              "confidence": 0.6545688471588176,
+              "id": "ordinary/belief/5",
+              "label": "performed inspection container at C:3c13da57-107b-49f7-879c-a7cc7a7a4709:0",
+              "status": "supported"
+            },
+            {
+              "confidence": 0.6548570527459076,
+              "id": "ordinary/belief/6",
+              "label": "performed inspection container at C:43d20b87-806f-4aed-8cfc-0284afc406d6:0",
+              "status": "supported"
+            },
+            {
+              "confidence": 0.655157284723402,
+              "id": "ordinary/belief/7",
+              "label": "performed inspection container at C:b9d99908-a327-4727-b009-be951ae9113d:0",
+              "status": "supported"
+            },
+            {
+              "confidence": 0.7371370204236527,
+              "id": "ordinary/belief/8",
+              "label": "Qualified food outcomes",
+              "status": "supported"
+            },
+            {
+              "confidence": 0.6553404477516733,
+              "id": "ordinary/belief/9",
+              "label": "performed acquire food at C:b9d99908-a327-4727-b009-be951ae9113d:0",
+              "status": "supported"
+            },
+            {
+              "confidence": 0.6555109038137139,
+              "id": "ordinary/belief/10",
+              "label": "performed consume food at unlocated source",
+              "status": "supported"
+            }
+          ],
+          "hypotheses": {},
+          "id": "ordinary",
+          "omittedBeliefs": 0,
+          "omittedHypotheses": 0,
+          "version": "sao-ordinary/1"
+        },
+        {
+          "beliefs": [
+            {
+              "confidence": 0.6389622561571712,
+              "id": "associative/belief/1",
+              "label": "Qualified water outcomes",
+              "status": "supported"
+            },
+            {
+              "confidence": 0.6389622561571712,
+              "id": "associative/belief/2",
+              "label": "operate(water, thirst-relief) observed association",
+              "status": "supported"
+            },
+            {
+              "confidence": 0.8209460518526244,
+              "id": "associative/belief/3",
+              "label": "Qualified inspect outcomes",
+              "status": "supported"
+            },
+            {
+              "confidence": 0.3401797204651588,
+              "id": "associative/belief/4",
+              "label": "contain(container, food) observed association",
+              "status": "refined"
+            },
+            {
+              "confidence": 0.17905394814737569,
+              "id": "associative/belief/5",
+              "label": "contain(container, water) observed association",
+              "status": "falsified"
+            },
+            {
+              "confidence": 0.7371370204236527,
+              "id": "associative/belief/6",
+              "label": "Qualified food outcomes",
+              "status": "supported"
+            },
+            {
+              "confidence": 0.6553404477516733,
+              "id": "associative/belief/7",
+              "label": "convey(source, food) observed association",
+              "status": "supported"
+            },
+            {
+              "confidence": 0.6555109038137139,
+              "id": "associative/belief/8",
+              "label": "operate(food, hunger-relief) observed association",
+              "status": "supported"
+            }
+          ],
+          "hypotheses": [
+            {
+              "branch": "logistics-preservation",
+              "confidence": 0.6389622561571712,
+              "depth": 1,
+              "evidenceIds": [
+                "native/5"
+              ],
+              "id": "associative/hypothesis/1",
+              "label": "Observed association operate(water, thirst-relief)",
+              "missing": [
+                "Association does not establish an operating method or recipe."
+              ],
+              "parentIds": {},
+              "status": "supported"
+            },
+            {
+              "branch": "logistics-preservation",
+              "confidence": 0.3401797204651588,
+              "depth": 1,
+              "evidenceIds": [
+                "native/16",
+                "native/17",
+                "native/18",
+                "native/19"
+              ],
+              "id": "associative/hypothesis/2",
+              "label": "Observed association contain(container, food)",
+              "missing": [
+                "Association does not establish an operating method or recipe."
+              ],
+              "parentIds": {},
+              "status": "refined"
+            },
+            {
+              "branch": "logistics-preservation",
+              "confidence": 0.17905394814737569,
+              "depth": 1,
+              "evidenceIds": [
+                "native/16",
+                "native/17",
+                "native/18",
+                "native/19"
+              ],
+              "id": "associative/hypothesis/3",
+              "label": "Observed association contain(container, water)",
+              "missing": [
+                "Association does not establish an operating method or recipe."
+              ],
+              "parentIds": {},
+              "status": "falsified"
+            },
+            {
+              "branch": "logistics-preservation",
+              "confidence": 0.6553404477516733,
+              "depth": 1,
+              "evidenceIds": [
+                "native/20"
+              ],
+              "id": "associative/hypothesis/4",
+              "label": "Observed association convey(source, food)",
+              "missing": [
+                "Association does not establish an operating method or recipe."
+              ],
+              "parentIds": {},
+              "status": "supported"
+            },
+            {
+              "branch": "logistics-preservation",
+              "confidence": 0.6555109038137139,
+              "depth": 1,
+              "evidenceIds": [
+                "native/21"
+              ],
+              "id": "associative/hypothesis/5",
+              "label": "Observed association operate(food, hunger-relief)",
+              "missing": [
+                "Association does not establish an operating method or recipe."
+              ],
+              "parentIds": {},
+              "status": "supported"
+            },
+            {
+              "branch": "logistics-preservation",
+              "confidence": 0.3604372462634204,
+              "depth": 2,
+              "evidenceIds": [
+                "native/20",
+                "native/21"
+              ],
+              "id": "associative/hypothesis/6",
+              "label": "Analogy compose(source, hunger-relief)",
+              "missing": [
+                "The composed operation has not been performed.",
+                "Interfaces, timing and losses remain unmeasured."
+              ],
+              "parentIds": [
+                "associative/hypothesis/4",
+                "associative/hypothesis/5"
+              ],
+              "status": "hypothesis"
+            },
+            {
+              "branch": "logistics-preservation",
+              "confidence": 0.3604372462634204,
+              "depth": 2,
+              "evidenceIds": [
+                "native/20",
+                "native/21"
+              ],
+              "id": "associative/hypothesis/7",
+              "label": "Analogy transfer(source, food)",
+              "missing": [
+                "A usable transfer interface and its losses are unknown.",
+                "Connected containment, conveyance or use is an analogy basis, not the proposed mechanism.",
+                "No demonstrated recipe, apparatus or operating method."
+              ],
+              "parentIds": [
+                "associative/hypothesis/4"
+              ],
+              "status": "hypothesis"
+            },
+            {
+              "branch": "manufacturing",
+              "confidence": 0.3604372462634204,
+              "depth": 2,
+              "evidenceIds": [
+                "native/21",
+                "native/20"
+              ],
+              "id": "associative/hypothesis/8",
+              "label": "Analogy regulate(food, hunger-relief)",
+              "missing": [
+                "A controllable input and its effect have not been demonstrated.",
+                "Connected containment, conveyance or use is an analogy basis, not the proposed mechanism.",
+                "No demonstrated recipe, apparatus or operating method."
+              ],
+              "parentIds": [
+                "associative/hypothesis/5"
+              ],
+              "status": "hypothesis"
+            }
+          ],
+          "id": "associative",
+          "omittedBeliefs": 0,
+          "omittedHypotheses": 0,
+          "version": "sao-associative/1"
+        }
+      ],
+      "experiences": [
+        {
+          "actorId": "sao-1",
+          "capabilities": {
+            "cook": false,
+            "forage": false,
+            "treat": false
+          },
+          "category": "water",
+          "detail": "native-complete",
+          "id": "native/5",
+          "kind": "consume",
+          "observerId": "sao-1",
+          "perspective": "performed",
+          "status": "completed",
+          "thirstDelta": 0.444,
+          "worldHours": 13.355012893676758
+        },
+        {
+          "actorId": "sao-1",
+          "capabilities": {
+            "cook": false,
+            "forage": false,
+            "treat": false
+          },
+          "category": "container",
+          "detail": "native-container-inspection",
+          "episodeId": "episode/500",
+          "foodPresent": false,
+          "id": "native/16",
+          "kind": "inspection",
+          "observerId": "sao-1",
+          "perspective": "performed",
+          "sourceId": "C:00921fed-f2dc-45c5-90a2-9c902f7c5ea2:0",
+          "status": "completed",
+          "waterPresent": false,
+          "worldHours": 18.485965728759766
+        },
+        {
+          "actorId": "sao-1",
+          "capabilities": {
+            "cook": false,
+            "forage": false,
+            "treat": false
+          },
+          "category": "container",
+          "detail": "native-container-inspection",
+          "episodeId": "episode/504",
+          "foodPresent": false,
+          "id": "native/17",
+          "kind": "inspection",
+          "observerId": "sao-1",
+          "perspective": "performed",
+          "sourceId": "C:3c13da57-107b-49f7-879c-a7cc7a7a4709:0",
+          "status": "completed",
+          "waterPresent": false,
+          "worldHours": 18.570404052734375
+        },
+        {
+          "actorId": "sao-1",
+          "capabilities": {
+            "cook": false,
+            "forage": false,
+            "treat": false
+          },
+          "category": "container",
+          "detail": "native-container-inspection",
+          "episodeId": "episode/508",
+          "foodPresent": false,
+          "id": "native/18",
+          "kind": "inspection",
+          "observerId": "sao-1",
+          "perspective": "performed",
+          "sourceId": "C:43d20b87-806f-4aed-8cfc-0284afc406d6:0",
+          "status": "completed",
+          "waterPresent": false,
+          "worldHours": 18.66380500793457
+        },
+        {
+          "actorId": "sao-1",
+          "capabilities": {
+            "cook": false,
+            "forage": false,
+            "treat": false
+          },
+          "category": "container",
+          "detail": "native-container-inspection",
+          "episodeId": "episode/512",
+          "foodPresent": true,
+          "id": "native/19",
+          "kind": "inspection",
+          "observerId": "sao-1",
+          "perspective": "performed",
+          "sourceId": "C:b9d99908-a327-4727-b009-be951ae9113d:0",
+          "status": "completed",
+          "waterPresent": false,
+          "worldHours": 18.761001586914062
+        },
+        {
+          "actorId": "sao-1",
+          "capabilities": {
+            "cook": false,
+            "forage": false,
+            "treat": false
+          },
+          "category": "food",
+          "detail": "native-transfer-observed",
+          "episodeId": "episode/514",
+          "id": "native/20",
+          "itemType": "Base.MapleSyrup",
+          "kind": "acquire",
+          "observerId": "sao-1",
+          "perspective": "performed",
+          "sourceId": "C:b9d99908-a327-4727-b009-be951ae9113d:0",
+          "status": "completed",
+          "worldHours": 18.820247650146484
+        },
+        {
+          "actorId": "sao-1",
+          "capabilities": {
+            "cook": false,
+            "forage": false,
+            "treat": false
+          },
+          "category": "food",
+          "detail": "native-complete",
+          "hungerDelta": 0.388,
+          "id": "native/21",
+          "itemType": "Base.MapleSyrup",
+          "kind": "consume",
+          "observerId": "sao-1",
+          "perspective": "performed",
+          "status": "completed",
+          "worldHours": 18.875349044799805
+        }
+      ],
+      "rejectedExperiences": 0,
+      "omittedEpisodes": 604,
+      "omittedExperiences": 0
+    },
+    {
+      "actorId": "sao-2",
+      "models": [
+        {
+          "beliefs": [
+            {
+              "confidence": 0.8526081572920058,
+              "id": "ordinary/belief/1",
+              "label": "Qualified inspect outcomes",
+              "status": "supported"
+            },
+            {
+              "confidence": 0.6360222699976732,
+              "id": "ordinary/belief/2",
+              "label": "performed inspection container at C:e7992733-f249-43fb-9e38-1458c87885c2:0",
+              "status": "supported"
+            },
+            {
+              "confidence": 0.642029621521012,
+              "id": "ordinary/belief/3",
+              "label": "Qualified water outcomes",
+              "status": "supported"
+            },
+            {
+              "confidence": 0.642029621521012,
+              "id": "ordinary/belief/4",
+              "label": "performed consume water at unlocated source",
+              "status": "supported"
+            },
+            {
+              "confidence": 0.6421253529160322,
+              "id": "ordinary/belief/5",
+              "label": "performed inspection container at C:00921fed-f2dc-45c5-90a2-9c902f7c5ea2:0",
+              "status": "supported"
+            },
+            {
+              "confidence": 0.6437882659295552,
+              "id": "ordinary/belief/6",
+              "label": "performed inspection container at C:3c13da57-107b-49f7-879c-a7cc7a7a4709:0",
+              "status": "supported"
+            },
+            {
+              "confidence": 0.6441063312349029,
+              "id": "ordinary/belief/7",
+              "label": "performed inspection container at C:cc90ec61-fc08-468e-8b97-0f5f5eb0353e:0",
+              "status": "supported"
+            },
+            {
+              "confidence": 0.6443534352154783,
+              "id": "ordinary/belief/8",
+              "label": "performed inspection container at C:43d20b87-806f-4aed-8cfc-0284afc406d6:0",
+              "status": "supported"
+            },
+            {
+              "confidence": 0.6446356478415536,
+              "id": "ordinary/belief/9",
+              "label": "performed inspection container at C:b9d99908-a327-4727-b009-be951ae9113d:0",
+              "status": "supported"
+            },
+            {
+              "confidence": 0.8383499699458011,
+              "id": "ordinary/belief/10",
+              "label": "Qualified food outcomes",
+              "status": "supported"
+            },
+            {
+              "confidence": 0.7798580176390223,
+              "id": "ordinary/belief/11",
+              "label": "performed acquire food at C:b9d99908-a327-4727-b009-be951ae9113d:0",
+              "status": "supported"
+            },
+            {
+              "confidence": 0.6451320567511578,
+              "id": "ordinary/belief/12",
+              "label": "performed consume food at unlocated source",
+              "status": "supported"
+            },
+            {
+              "confidence": 0.6461092767262738,
+              "id": "ordinary/belief/13",
+              "label": "performed consume food at unlocated source",
+              "status": "supported"
+            }
+          ],
+          "hypotheses": {},
+          "id": "ordinary",
+          "omittedBeliefs": 0,
+          "omittedHypotheses": 0,
+          "version": "sao-ordinary/1"
+        },
+        {
+          "beliefs": [
+            {
+              "confidence": 0.8526081572920058,
+              "id": "associative/belief/1",
+              "label": "Qualified inspect outcomes",
+              "status": "supported"
+            },
+            {
+              "confidence": 0.26737075745927463,
+              "id": "associative/belief/2",
+              "label": "contain(container, food) observed association",
+              "status": "refined"
+            },
+            {
+              "confidence": 0.14739184270799427,
+              "id": "associative/belief/3",
+              "label": "contain(container, water) observed association",
+              "status": "falsified"
+            },
+            {
+              "confidence": 0.642029621521012,
+              "id": "associative/belief/4",
+              "label": "Qualified water outcomes",
+              "status": "supported"
+            },
+            {
+              "confidence": 0.642029621521012,
+              "id": "associative/belief/5",
+              "label": "operate(water, thirst-relief) observed association",
+              "status": "supported"
+            },
+            {
+              "confidence": 0.8383499699458011,
+              "id": "associative/belief/6",
+              "label": "Qualified food outcomes",
+              "status": "supported"
+            },
+            {
+              "confidence": 0.7798580176390223,
+              "id": "associative/belief/7",
+              "label": "convey(source, food) observed association",
+              "status": "supported"
+            },
+            {
+              "confidence": 0.725552241391903,
+              "id": "associative/belief/8",
+              "label": "operate(food, hunger-relief) observed association",
+              "status": "supported"
+            }
+          ],
+          "hypotheses": [
+            {
+              "branch": "logistics-preservation",
+              "confidence": 0.26737075745927463,
+              "depth": 1,
+              "evidenceIds": [
+                "native/2",
+                "native/7",
+                "native/8",
+                "native/9",
+                "native/10",
+                "native/11"
+              ],
+              "id": "associative/hypothesis/1",
+              "label": "Observed association contain(container, food)",
+              "missing": [
+                "Association does not establish an operating method or recipe."
+              ],
+              "parentIds": {},
+              "status": "refined"
+            },
+            {
+              "branch": "logistics-preservation",
+              "confidence": 0.14739184270799427,
+              "depth": 1,
+              "evidenceIds": [
+                "native/2",
+                "native/7",
+                "native/8",
+                "native/9",
+                "native/10",
+                "native/11"
+              ],
+              "id": "associative/hypothesis/2",
+              "label": "Observed association contain(container, water)",
+              "missing": [
+                "Association does not establish an operating method or recipe."
+              ],
+              "parentIds": {},
+              "status": "falsified"
+            },
+            {
+              "branch": "logistics-preservation",
+              "confidence": 0.642029621521012,
+              "depth": 1,
+              "evidenceIds": [
+                "native/6"
+              ],
+              "id": "associative/hypothesis/3",
+              "label": "Observed association operate(water, thirst-relief)",
+              "missing": [
+                "Association does not establish an operating method or recipe."
+              ],
+              "parentIds": {},
+              "status": "supported"
+            },
+            {
+              "branch": "logistics-preservation",
+              "confidence": 0.7798580176390223,
+              "depth": 1,
+              "evidenceIds": [
+                "native/12",
+                "native/14",
+                "world-transfer/R:3:sao-1"
+              ],
+              "id": "associative/hypothesis/4",
+              "label": "Observed association convey(source, food)",
+              "missing": [
+                "Association does not establish an operating method or recipe."
+              ],
+              "parentIds": {},
+              "status": "supported"
+            },
+            {
+              "branch": "logistics-preservation",
+              "confidence": 0.725552241391903,
+              "depth": 1,
+              "evidenceIds": [
+                "native/13",
+                "native/15"
+              ],
+              "id": "associative/hypothesis/5",
+              "label": "Observed association operate(food, hunger-relief)",
+              "missing": [
+                "Association does not establish an operating method or recipe."
+              ],
+              "parentIds": {},
+              "status": "supported"
+            },
+            {
+              "branch": "logistics-preservation",
+              "confidence": 0.3990537327655467,
+              "depth": 2,
+              "evidenceIds": [
+                "native/12",
+                "native/14",
+                "world-transfer/R:3:sao-1",
+                "native/13",
+                "native/15"
+              ],
+              "id": "associative/hypothesis/6",
+              "label": "Analogy compose(source, hunger-relief)",
+              "missing": [
+                "The composed operation has not been performed.",
+                "Interfaces, timing and losses remain unmeasured."
+              ],
+              "parentIds": [
+                "associative/hypothesis/4",
+                "associative/hypothesis/5"
+              ],
+              "status": "hypothesis"
+            },
+            {
+              "branch": "logistics-preservation",
+              "confidence": 0.3990537327655467,
+              "depth": 2,
+              "evidenceIds": [
+                "native/12",
+                "native/14",
+                "world-transfer/R:3:sao-1",
+                "native/13",
+                "native/15"
+              ],
+              "id": "associative/hypothesis/7",
+              "label": "Analogy transfer(source, food)",
+              "missing": [
+                "A usable transfer interface and its losses are unknown.",
+                "Connected containment, conveyance or use is an analogy basis, not the proposed mechanism.",
+                "No demonstrated recipe, apparatus or operating method."
+              ],
+              "parentIds": [
+                "associative/hypothesis/4"
+              ],
+              "status": "hypothesis"
+            },
+            {
+              "branch": "manufacturing",
+              "confidence": 0.3990537327655467,
+              "depth": 2,
+              "evidenceIds": [
+                "native/13",
+                "native/15",
+                "native/12",
+                "native/14",
+                "world-transfer/R:3:sao-1"
+              ],
+              "id": "associative/hypothesis/8",
+              "label": "Analogy regulate(food, hunger-relief)",
+              "missing": [
+                "A controllable input and its effect have not been demonstrated.",
+                "Connected containment, conveyance or use is an analogy basis, not the proposed mechanism.",
+                "No demonstrated recipe, apparatus or operating method."
+              ],
+              "parentIds": [
+                "associative/hypothesis/5"
+              ],
+              "status": "hypothesis"
+            }
+          ],
+          "id": "associative",
+          "omittedBeliefs": 0,
+          "omittedHypotheses": 0,
+          "version": "sao-associative/1"
+        }
+      ],
+      "experiences": [
+        {
+          "actorId": "sao-2",
+          "capabilities": {
+            "cook": false,
+            "forage": false,
+            "treat": false
+          },
+          "category": "container",
+          "detail": "native-container-inspection",
+          "episodeId": "episode/325",
+          "foodPresent": false,
+          "id": "native/2",
+          "kind": "inspection",
+          "observerId": "sao-2",
+          "perspective": "performed",
+          "sourceId": "C:e7992733-f249-43fb-9e38-1458c87885c2:0",
+          "status": "completed",
+          "waterPresent": false,
+          "worldHours": 12.333795547485352
+        },
+        {
+          "actorId": "sao-2",
+          "capabilities": {
+            "cook": false,
+            "forage": false,
+            "treat": false
+          },
+          "category": "water",
+          "detail": "native-complete",
+          "episodeId": "episode/377",
+          "id": "native/6",
+          "kind": "consume",
+          "observerId": "sao-2",
+          "perspective": "performed",
+          "status": "completed",
+          "thirstDelta": 0.391,
+          "worldHours": 14.406410217285156
+        },
+        {
+          "actorId": "sao-2",
+          "capabilities": {
+            "cook": false,
+            "forage": false,
+            "treat": false
+          },
+          "category": "container",
+          "detail": "native-container-inspection",
+          "episodeId": "episode/379",
+          "foodPresent": false,
+          "id": "native/7",
+          "kind": "inspection",
+          "observerId": "sao-2",
+          "perspective": "performed",
+          "sourceId": "C:00921fed-f2dc-45c5-90a2-9c902f7c5ea2:0",
+          "status": "completed",
+          "waterPresent": false,
+          "worldHours": 14.439001083374023
+        },
+        {
+          "actorId": "sao-2",
+          "capabilities": {
+            "cook": false,
+            "forage": false,
+            "treat": false
+          },
+          "category": "container",
+          "detail": "native-container-inspection",
+          "episodeId": "episode/381",
+          "foodPresent": false,
+          "id": "native/8",
+          "kind": "inspection",
+          "observerId": "sao-2",
+          "perspective": "performed",
+          "sourceId": "C:3c13da57-107b-49f7-879c-a7cc7a7a4709:0",
+          "status": "completed",
+          "waterPresent": false,
+          "worldHours": 15.003032684326172
+        },
+        {
+          "actorId": "sao-2",
+          "capabilities": {
+            "cook": false,
+            "forage": false,
+            "treat": false
+          },
+          "category": "container",
+          "detail": "native-container-inspection",
+          "episodeId": "episode/385",
+          "foodPresent": false,
+          "id": "native/9",
+          "kind": "inspection",
+          "observerId": "sao-2",
+          "perspective": "performed",
+          "sourceId": "C:cc90ec61-fc08-468e-8b97-0f5f5eb0353e:0",
+          "status": "completed",
+          "waterPresent": false,
+          "worldHours": 15.110469818115234
+        },
+        {
+          "actorId": "sao-2",
+          "capabilities": {
+            "cook": false,
+            "forage": false,
+            "treat": false
+          },
+          "category": "container",
+          "detail": "native-container-inspection",
+          "episodeId": "episode/389",
+          "foodPresent": false,
+          "id": "native/10",
+          "kind": "inspection",
+          "observerId": "sao-2",
+          "perspective": "performed",
+          "sourceId": "C:43d20b87-806f-4aed-8cfc-0284afc406d6:0",
+          "status": "completed",
+          "waterPresent": false,
+          "worldHours": 15.193840026855469
+        },
+        {
+          "actorId": "sao-2",
+          "capabilities": {
+            "cook": false,
+            "forage": false,
+            "treat": false
+          },
+          "category": "container",
+          "detail": "native-container-inspection",
+          "episodeId": "episode/393",
+          "foodPresent": true,
+          "id": "native/11",
+          "kind": "inspection",
+          "observerId": "sao-2",
+          "perspective": "performed",
+          "sourceId": "C:b9d99908-a327-4727-b009-be951ae9113d:0",
+          "status": "completed",
+          "waterPresent": false,
+          "worldHours": 15.288951873779297
+        },
+        {
+          "actorId": "sao-2",
+          "capabilities": {
+            "cook": false,
+            "forage": false,
+            "treat": false
+          },
+          "category": "food",
+          "detail": "native-transfer-observed",
+          "episodeId": "episode/395",
+          "id": "native/12",
+          "itemType": "Base.Cherry",
+          "kind": "acquire",
+          "observerId": "sao-2",
+          "perspective": "performed",
+          "sourceId": "C:b9d99908-a327-4727-b009-be951ae9113d:0",
+          "status": "completed",
+          "worldHours": 15.379518508911133
+        },
+        {
+          "actorId": "sao-2",
+          "capabilities": {
+            "cook": false,
+            "forage": false,
+            "treat": false
+          },
+          "category": "food",
+          "detail": "native-complete",
+          "episodeId": "episode/397",
+          "hungerDelta": 0.02999999999999997,
+          "id": "native/13",
+          "itemType": "Base.Cherry",
+          "kind": "consume",
+          "observerId": "sao-2",
+          "perspective": "performed",
+          "status": "completed",
+          "worldHours": 15.455986022949219
+        },
+        {
+          "actorId": "sao-2",
+          "capabilities": {
+            "cook": false,
+            "forage": false,
+            "treat": false
+          },
+          "category": "food",
+          "detail": "native-transfer-observed",
+          "episodeId": "episode/409",
+          "id": "native/14",
+          "itemType": "Base.BrusselSprouts",
+          "kind": "acquire",
+          "observerId": "sao-2",
+          "perspective": "performed",
+          "sourceId": "C:b9d99908-a327-4727-b009-be951ae9113d:0",
+          "status": "completed",
+          "worldHours": 15.757688522338867
+        },
+        {
+          "actorId": "sao-2",
+          "capabilities": {
+            "cook": false,
+            "forage": false,
+            "treat": false
+          },
+          "category": "food",
+          "detail": "native-complete",
+          "hungerDelta": 0.20000000000000004,
+          "id": "native/15",
+          "itemType": "Base.BrusselSprouts",
+          "kind": "consume",
+          "observerId": "sao-2",
+          "perspective": "performed",
+          "status": "completed",
+          "worldHours": 15.783823013305664
+        },
+        {
+          "actorId": "sao-1",
+          "capabilities": {
+            "cook": false,
+            "forage": false,
+            "treat": false
+          },
+          "category": "food",
+          "detail": "captured-native-transfer-witness",
+          "id": "world-transfer/R:3:sao-1",
+          "itemType": "Base.MapleSyrup",
+          "kind": "acquire",
+          "observerId": "sao-2",
+          "perspective": "observed",
+          "sourceId": "C:b9d99908-a327-4727-b009-be951ae9113d:0",
+          "status": "completed",
+          "worldHours": 18.814708709716797
+        }
+      ],
+      "rejectedExperiences": 0,
+      "omittedEpisodes": 631,
+      "omittedExperiences": 0
+    }
+  ],
+  "datasetAdmission": "unreviewed",
+  "trainingRows": 0,
+  "teachingTargets": 0,
+  "limits": [
+    "All 15 observed episodes selected the associative model; balanced deliberation allocation is not comparative policy success.",
+    "Only the selected action has an observed target; censored alternatives remain unknown.",
+    "This run reached association depths one and two. It did not realize a new technology.",
+    "Source coverage is loaded squares only. The native frame and full intake remain in the retained local run."
+  ]
+}

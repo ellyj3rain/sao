@@ -418,7 +418,7 @@ def bind_frame(frame, package):
 
 
 def validate_frame(frame):
-    fields(frame, {"schema", "definitionSha256", "packageEngineJarSha256", "observerSha256",
+    fields({key: value for key, value in frame.items() if key != "countyHours"}, {"schema", "definitionSha256", "packageEngineJarSha256", "observerSha256",
                    "engineVersion", "map", "save", "sequence", "hours", "session",
                    "datasetAdmission", "extent", "sandbox", "generation", "source", "mods", "windows",
                    "people", "processes", "population", "coverage"}, "observation")
@@ -433,6 +433,7 @@ def validate_frame(frame):
     require(frame["datasetAdmission"] == "unreviewed", "observation claims approval")
     integer(frame["sequence"], 1, 2**53 - 1, "observation sequence")
     number(frame["hours"], 0, 1e9, "observation time")
+    county_hours = number(frame.get("countyHours", frame["hours"]), 0, 1e9, "county observation time")
     require(isinstance(frame["mods"], list) and len(frame["mods"]) <= 10000
             and all(isinstance(m, str) and 0 < len(m) <= 512 for m in frame["mods"]),
             "invalid loaded mod identifiers")
@@ -521,7 +522,7 @@ def validate_frame(frame):
                 "invalid captured person")
         context = person["context"]
         require(isinstance(context, dict), "person context must be an object")
-        fields({key: value for key, value in context.items() if key != "inspection"},
+        fields({key: value for key, value in context.items() if key not in {"inspection", "cognition"}},
                {"controllerAvailable", "perceptionAvailable", "controller", "beliefs"}, "person context")
         if "inspection" in context:
             detail = context["inspection"]
@@ -531,7 +532,27 @@ def validate_frame(frame):
             if "capturedAtUnixMs" in detail:
                 integer(detail["capturedAtUnixMs"], 0, 2**53-1, "inspection capture time")
             if "worldHours" in detail:
-                number(detail["worldHours"], 0, frame["hours"] + 1e-6, "inspection world time")
+                number(detail["worldHours"], 0, county_hours + 1e-6, "inspection world time")
+        if "cognition" in context:
+            cognition = context["cognition"]
+            require(isinstance(cognition, dict) and cognition.get("schema") == "simulation.cognition/1"
+                    and cognition.get("actorId") == person["id"], "invalid cognitive projection identity")
+            episodes = cognition.get("episodes", [])
+            if episodes == {}: episodes = []
+            require(isinstance(episodes, list) and len(episodes) <= 64, "cognitive episode bound")
+            experiences = cognition.get("experiences", [])
+            if experiences == {}: experiences = []
+            require(isinstance(experiences, list) and len(experiences) <= 256, "cognitive experience bound")
+            for experience in experiences:
+                require(isinstance(experience, dict), "invalid cognitive experience")
+                number(experience.get("worldHours"), 0, county_hours + 1e-6, "cognitive experience clock")
+            for episode in episodes:
+                require(isinstance(episode, dict) and isinstance(episode.get("frame"), dict)
+                        and episode["frame"].get("actorId") == person["id"], "cognitive frame actor differs")
+                number(episode.get("worldHours"), 0, county_hours + 1e-6, "cognitive decision clock")
+                if episode.get("outcome"):
+                    number(episode["outcome"].get("worldHours"), episode["worldHours"], county_hours + 1e-6,
+                           "cognitive outcome clock")
         for flag, store in (("controllerAvailable", "controller"), ("perceptionAvailable", "beliefs")):
             require(type(context[flag]) is bool and isinstance(context[store], dict)
                     and (context[flag] or not context[store]), "invalid personal inspection coverage")

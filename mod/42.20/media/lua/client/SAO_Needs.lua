@@ -13,6 +13,7 @@
 SAO = SAO or {}
 SAO.Needs = SAO.Needs or {}
 local N = SAO.Needs
+local cognitionBefore, cognitionAfter
 
 -- The installed eat constructor asks the inventory UI for nearby heat even
 -- when a smokable already has carried ignition. Supply real reachable world
@@ -298,7 +299,10 @@ function N.eatCarried(id, body)
     -- project's life. The engine's own Eat call is the same semantics
     -- vanilla runs at complete(), minus the animation: a survivor who
     -- was asleep when hunger bit still eats.
+    if cognitionBefore then pcall(function() action.saoCognitionBefore = cognitionBefore(action, "food") end) end
     local okE, ate = pcall(function() return SAOJavaBridge:engineEat(body, item) end)
+    if cognitionAfter then pcall(cognitionAfter, action,
+        okE and ate == true and "completed" or "unavailable", "native-direct-eat") end
     if okE and ate then
         log(id .. " ate directly (queue path unavailable)")
         return true
@@ -1145,6 +1149,98 @@ local function wrapHabitUse(actionClass)
 end
 wrapHabitUse(ISEatFoodAction)
 wrapHabitUse(ISTakePillAction)
+
+-- Observe the native action's own before/after need; queueing grants no evidence.
+-- Runtime handles stay on the native Lua action. Only the scalar admission token
+-- and measured private result reach the durable cognition ledger.
+local function cognitionBodyId(body)
+    local ok, id = pcall(function() return body:getModData().SAOPersonId end)
+    if not ok or type(id) ~= "string" or not SAO.Body or SAO.Body.get(id) ~= body then return nil end
+    return id
+end
+local function cognitionNeed(body, category)
+    local ok, raw = pcall(function() return SAOJavaBridge:getNeeds(body) end)
+    if not ok or type(raw) ~= "string" then return nil end
+    local measured = tonumber(string.match(raw, (category == "food" and "h" or "t") .. "=([%d%.%-]+)"))
+    if type(measured) ~= "number" or measured ~= measured or measured < 0 or measured > 1 then return nil end
+    return measured
+end
+cognitionBefore = function(action, category)
+    if not SAO.Cognition or not action.saoCognitionAdmission then return nil end
+    local id = cognitionBodyId(action.character)
+    if not id or id ~= action.saoCognitionAdmission.actorId then return nil end
+    local measured = cognitionNeed(action.character, category)
+    if measured == nil then return nil end
+    local itemType
+    pcall(function() if action.item then itemType = action.item:getFullType() end end)
+    SAO.Cognition.attempted(id, action.saoCognitionAdmission)
+    return { id = id, body = action.character, item = action.item, waterObject = action.waterObject, itemType = itemType,
+        before = measured, category = category, token = action.saoCognitionAdmission }
+end
+cognitionAfter = function(action, status, detail)
+    if action.saoCognitionSettled or not action.saoCognitionAdmission or not SAO.Cognition then return end
+    local before = action.saoCognitionBefore
+    local token = action.saoCognitionAdmission
+    local values = { kind = "consume", category = action.saoCognitionCategory,
+        status = status, detail = detail }
+    if before and cognitionBodyId(action.character) == before.id
+        and action.character == before.body and action.item == before.item and action.waterObject == before.waterObject then
+        values.itemType = before.itemType
+        if status == "completed" then
+            local measured = cognitionNeed(action.character, before.category)
+            if type(measured) == "number" and measured == measured and measured >= 0 and measured <= 1 then
+                local delta = before.before - measured
+                values[before.category == "food" and "hungerDelta" or "thirstDelta"] = delta
+                if delta <= 0.0001 then values.status = "no-effect" end
+            else values.status, values.detail = "unavailable", "native-need-unreadable" end
+        end
+    else values.status, values.detail = "unavailable", "native-use-binding-or-baseline-unavailable" end
+    if SAO.Cognition.publish(token.actorId, token, values) then action.saoCognitionSettled = true end
+end
+local function wrapUseEvidence(actionClass, category, fixture)
+    if not actionClass or actionClass.SAOCognitionWrapped then return end
+    actionClass.SAOCognitionWrapped = true
+    local baseNew, baseStart, baseComplete, baseStop = actionClass.new,
+        actionClass.start, actionClass.complete, actionClass.stop
+    function actionClass:new(character, ...)
+        local action = baseNew(self, character, ...)
+        if action and SAO.Cognition and (not fixture or action.item == nil) then
+            local id = cognitionBodyId(character)
+            if id then
+                action.saoCognitionAdmission = SAO.Cognition.capture(id, "native-use")
+                action.saoCognitionCategory = category
+            end
+        end
+        return action
+    end
+    function actionClass:start(...)
+        if not self.saoCognitionBefore then
+            pcall(function() self.saoCognitionBefore = cognitionBefore(self, category) end)
+        end
+        local ok, result = pcall(baseStart, self, ...)
+        if not ok then
+            pcall(cognitionAfter, self, "unavailable", "native-start-error")
+            error(result)
+        end
+        return result
+    end
+    function actionClass:complete(...)
+        local ok, result = pcall(baseComplete, self, ...)
+        pcall(cognitionAfter, self, ok and result == true and "completed" or "unavailable",
+            ok and "native-complete" or "native-complete-error")
+        if not ok then error(result) end
+        return result
+    end
+    function actionClass:stop(...)
+        local ok, result = pcall(baseStop, self, ...)
+        pcall(cognitionAfter, self, "interrupted", "native-action-stopped")
+        if not ok then error(result) end
+        return result
+    end
+end
+wrapUseEvidence(ISEatFoodAction, "food", false)
+wrapUseEvidence(ISDrinkFluidAction, "water", false)
+wrapUseEvidence(ISTakeWaterAction, "water", true)
 
 log("needs module loaded")
 

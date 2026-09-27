@@ -1,6 +1,6 @@
 | Document | Survivor Awareness Overhaul Batch Log |
 |---|---|
-| Version | `2.11.1.0-pre-alpha` |
+| Version | `2.12.0.0-pre-alpha` |
 | Author | ellyj3rain |
 | Repository | `BATCH_LOG.md` |
 | Status | REGULATORY - chronological batch index. |
@@ -194,3 +194,4 @@ source mapping and hashes. Consolidation does not close implementation defects.
 | [C85](Batches/C85-20260925-2145Z-1445PST-private-situation-contact-and-enacted-work.md) | 2026-09-25 | Private situation contact and enacted work | [`T-002`](Batches/THREADS.md#t-002), [`T-003`](Batches/THREADS.md#t-003), [`T-004`](Batches/THREADS.md#t-004), [`T-005`](Batches/THREADS.md#t-005), [`T-006`](Batches/THREADS.md#t-006), [`T-007`](Batches/THREADS.md#t-007), [`T-008`](Batches/THREADS.md#t-008), [`T-009`](Batches/THREADS.md#t-009), [`T-030`](Batches/THREADS.md#t-030) |
 | [C86](Batches/C86-20260926-0526Z-2226PST-native-study-worlds.md) | 2026-09-26 | Native study worlds | [`T-002`](Batches/THREADS.md#t-002), [`T-006`](Batches/THREADS.md#t-006), [`T-008`](Batches/THREADS.md#t-008), [`T-009`](Batches/THREADS.md#t-009), [`T-030`](Batches/THREADS.md#t-030) |
 | [C87](Batches/C87-20260926-2218Z-1518PST-survival-observation-and-continuity.md) | 2026-09-26 | Survival observation and continuity | [`T-002`](Batches/THREADS.md#t-002), [`T-003`](Batches/THREADS.md#t-003), [`T-004`](Batches/THREADS.md#t-004), [`T-006`](Batches/THREADS.md#t-006), [`T-007`](Batches/THREADS.md#t-007), [`T-008`](Batches/THREADS.md#t-008), [`T-009`](Batches/THREADS.md#t-009), [`T-030`](Batches/THREADS.md#t-030) |
+| [C88](Batches/C88-20260927-0208Z-1908PST-competing-cognition.md) | 2026-09-27 | Competing cognition | [`T-002`](Batches/THREADS.md#t-002), [`T-003`](Batches/THREADS.md#t-003), [`T-004`](Batches/THREADS.md#t-004), [`T-008`](Batches/THREADS.md#t-008), [`T-030`](Batches/THREADS.md#t-030) |

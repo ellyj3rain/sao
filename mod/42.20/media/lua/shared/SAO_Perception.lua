@@ -521,6 +521,15 @@ function P.receiveTransferResult(receipt)
             return false, "invalid-appraisal"
         end
     end
+    local cognitionCapabilities = observation.cognitionCapabilities
+    if cognitionCapabilities ~= nil and type(cognitionCapabilities) ~= "table" then
+        return false, "invalid-cognition-capabilities"
+    end
+    for id, caps in pairs(cognitionCapabilities or {}) do
+        if recipients[id] ~= "observed" or type(caps) ~= "table"
+            or type(caps.cook) ~= "boolean" or type(caps.forage) ~= "boolean"
+            or type(caps.treat) ~= "boolean" then return false, "invalid-cognition-capabilities" end
+    end
     for id in pairs(recipients) do
         local b = P.beliefs[id]
         local existing = b and b.transfers and b.transfers[fact.eventId]
@@ -532,6 +541,16 @@ function P.receiveTransferResult(receipt)
         fact.source, fact.originSource, fact.originId = source, source, id
         fact.appraisal = source == "observed" and appraisals and appraisals[id] or nil
         rememberTransfer(id, fact)
+        if source == "observed" and SAO.Cognition then
+            pcall(SAO.Cognition.experience, id, {
+                id = "world-transfer/" .. receipt.reservationId,
+                actorId = receipt.actorId, observerId = id,
+                worldHours = observation.at, kind = receipt.operation,
+                category = receipt.category, sourceId = receipt.sourceId,
+                itemType = receipt.itemType, perspective = "observed", status = "completed",
+                capabilities = cognitionCapabilities and cognitionCapabilities[id],
+                detail = "captured-native-transfer-witness" })
+        end
     end
     return true, "recorded"
 end

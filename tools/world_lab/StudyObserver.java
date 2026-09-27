@@ -49,7 +49,7 @@ public final class StudyObserver {
     public static final String MARKER = "SAO_ObserverAnchor";
     private static final Set<String> CONTROL_KEYS = Set.of("sequence", "viewX", "viewY", "viewZ",
         "residencyX", "residencyY", "residencyZ", "paused", "speed", "stop",
-        "selectedPersonId", "panelId", "panelPersonId", "panelVisible", "zoomStep");
+        "selectedPersonId", "panelId", "panelPersonId", "panelVisible", "zoomStep", "opponentShare", "opportunitiesPerHour", "maxDepth");
     private static Anchor anchor;
     private static View camera;
     private static IsoCell cell;
@@ -461,6 +461,19 @@ public final class StudyObserver {
                 throw new IllegalStateException("native speed controls are not ready");
             boolean selection = values.containsKey("selectedPersonId");
             boolean panel = values.containsKey("panelId") || values.containsKey("panelPersonId") || values.containsKey("panelVisible");
+            boolean cognition = values.containsKey("opponentShare") || values.containsKey("opportunitiesPerHour") || values.containsKey("maxDepth");
+            double opponentShare = 0;
+            int opportunitiesPerHour = 0, maxDepth = 0;
+            if (cognition) {
+                if (!values.stringPropertyNames().equals(Set.of("sequence", "opponentShare", "opportunitiesPerHour", "maxDepth")))
+                    throw new IllegalArgumentException("cognition settings must be complete and independent");
+                opponentShare = Double.parseDouble(values.getProperty("opponentShare"));
+                opportunitiesPerHour = Integer.parseInt(values.getProperty("opportunitiesPerHour"));
+                maxDepth = Integer.parseInt(values.getProperty("maxDepth"));
+                if (!Double.isFinite(opponentShare) || opponentShare < 0 || opponentShare > 1
+                        || opportunitiesPerHour < 1 || opportunitiesPerHour > 60 || maxDepth < 1 || maxDepth > 4)
+                    throw new IllegalArgumentException("cognition settings outside bounded budget");
+            }
             boolean zoom = values.containsKey("zoomStep");
             int zoomStep = 0;
             float nextZoom = 0;
@@ -489,7 +502,10 @@ public final class StudyObserver {
                 panelVisible = panel && bool(values, "panelVisible", false);
             }
             // Validate the entire command before changing any host coordinates.
-            if (zoom) {
+            if (cognition) {
+                if (!Boolean.TRUE.equals(observationCall("cognition", opponentShare, (double) opportunitiesPerHour, (double) maxDepth)))
+                    throw new IllegalStateException("cognition settings were not applied");
+            } else if (zoom) {
                 Core core = Core.getInstance();
                 core.setAutoZoom(0, false);
                 core.doZoomScroll(0, zoomStep);

@@ -2163,6 +2163,17 @@ if ! "$PY" tools/sound_evidence_test.py; then
     fail=1
 fi
 
+# [C88] Border 201 - independent models preserve their own evidence and
+# counterexamples; exact native outcomes bind to the original selected episode.
+if ! "$PY" tools/cognitive_models_test.py; then
+    note "BORDER FINDING - independent cognitive models or association evidence failed"
+    fail=1
+fi
+if ! "$PY" tools/cognition_test.py; then
+    note "BORDER FINDING - cognitive execution binding or native experience failed"
+    fail=1
+fi
+
 # Border 103 - the operator's speech is not in the repository: no
 # profanity in the tracked tree and no operator-quote attributions;
 # rulings are paraphrased content, speech stays with the speaker.

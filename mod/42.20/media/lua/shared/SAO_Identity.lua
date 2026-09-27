@@ -256,6 +256,9 @@ function Identity.markDead(rec, tick, cause)
     end
     rec.deathSequence = deathSequence
     rec.dead = true
+    if SAO.Cognition and SAO.Cognition.interrupt then
+        SAO.Cognition.interrupt(rec.id, "death")
+    end
     -- A teardown already in progress retains its handle until cleanup
     -- succeeds. Ordinary deaths keep the engine's existing corpse path.
     if SAO.Body and SAO.Body.isTransitioning and SAO.Body.discard

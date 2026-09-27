@@ -1,0 +1,27 @@
+{
+  "result": "PASS study runtime: isolation, native coverage, lifecycle, cadence, reload, review boundary, bounded inspection",
+  "controls": [
+    "county archive clock",
+    "duplicate durable cognition",
+    "cognitive archive aggregate budget",
+    "cognitive archive person budget",
+    "UTF-8 budget",
+    "aggregate inspection budget",
+    "selected inspection priority",
+    "inspection source immutability",
+    "inspection source clock",
+    "native road selection",
+    "other-world isolation",
+    "unloaded coverage",
+    "dataset review",
+    "save identity",
+    "native writer extension",
+    "write acknowledgement",
+    "world creation"
+  ],
+  "sources": {
+    "tools\\world_lab\\StudyWorld.lua": "9b68f94ba2639045a1839612ab3dd20a772515c26b20444f68fa5d84ef9beb51",
+    "tools\\world_lab\\RuntimeChecks.lua": "5be688ed04e7a9cf09ed10a1e3a9f0decb5ac2b395e7ea18039960a21a7b68cd",
+    "tools\\world_lab_test.py": "c3a2b56aef3964aa6023c1a4721eb474806f1ab35f5ffc5c98c69b9d63bfd120"
+  }
+}

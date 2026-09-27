@@ -109,3 +109,19 @@ holds a claim. Existing ownership records remain intact.
 Capture time, observation time and camera acknowledgement remain
 separate evidence. All packages, observations and previews are **unreviewed**.
 Scenario evaluation and explicit operator ratification precede dataset admission.
+
+
+C88 studies enable independent ordinary and associative cognitive contestants.
+Mousecat's person inspector exposes their private-evidence beliefs, hypotheses,
+pre-outcome proposals and the actual selected-action result. Discovery pace
+controls configure the opposing allocation share, opportunities per county hour
+and association depth. Native owner checks still govern physical execution.
+
+Full observations use `context.cognition`; `countyHours` carries the cognitive
+clock separately from native engine world age. The optional cognitive archive
+has a 512KiB per-person ceiling and 4MiB aggregate ceiling within the frame's
+remaining byte budget. Omitted projections appear in the existing coverage
+paths/counts. The live display is smaller and cached. Raw durable model state
+is not duplicated in the person's record. Speakeasy's cognition trajectory
+export preserves source hashes, coverage gaps and both predictions for the
+performed action without admitting training examples.

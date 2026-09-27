@@ -1,0 +1,1323 @@
+{
+  "schema": "sao-cognition-native-data-review/1",
+  "completedAt": "2026-09-27T02:44:20.184779+00:00",
+  "sessionId": "6b4e4090-596e-4faa-a0a4-a57d9ad3cea2",
+  "save": "20069674445103748057",
+  "packageSha256": "b5428973b1adc50a9ac4654208de0dcbb1ba8caa70c140931f3576bca2c4663a",
+  "runSha256": "b808a4287815c4f6af18e4ccee80b62695320534be89192fabebe0ae3391fa32",
+  "manifestSha256": "3e04c4320385409a4e0876a204b301af5b27be90a7805a77946fa2826073e4d7",
+  "exportFiles": {
+    "episodes.jsonl": "c2ca84b70d15ed8730fe3ecebcc9127926d3b7b41b466c06184894405404f0da",
+    "snapshots.jsonl": "18a038206155ad3210a44f0ab0bdc91f783eabf4ee48c8328d73996228a25b08"
+  },
+  "copiedSources": {
+    "42.20/media/lua/client/SAO_Controller.lua": "6f164ae95699244793eb6cd64d82fac938f9172168a165f13fa290ee5ffb5f6c",
+    "42.20/media/lua/client/SAO_Needs.lua": "b5c061d0ff33a9cc104aa2c0c5718f6b5da39b1a71e280100e9197f95d4454a9",
+    "42.20/media/lua/client/SAO_SourceUse.lua": "177018859ad4587a5bb1b5559b1eaa3df2b60ccc28e2a0c4c6e9ccd9c8d1dfff",
+    "42.20/media/lua/shared/SAO_Cognition.lua": "36f2f3f8714546be8205fbaad2d1c8af6a8fa856f158a9b1b7c6bf1052ab0e03",
+    "42.20/media/lua/shared/SAO_CognitiveModels.lua": "791d4a2392d85645508a0debb5c50abc1636573d71194ec4a435dfbc7caef31b",
+    "42.20/media/lua/shared/SAO_Identity.lua": "a3f8878de7d3ea3d163a30f8e77a813cf3b86b6371351f3794da313050f0188b",
+    "42.20/media/lua/shared/SAO_Perception.lua": "a25834cc9e490d92fa19be8bad54d02bb8f54098e4b51ea0cc5c4f54fca54b66",
+    "42.20/media/lua/shared/SAO_WorldSources.lua": "d2bca1eb17b50d54935d45db08f6ae51ea61dbc04a25cfacdbf741b6cbcb723c"
+  },
+  "nativeFrames": 82,
+  "actorSnapshots": 162,
+  "uniqueEpisodes": 1363,
+  "contiguousEpisodeSequences": {
+    "sao-1": 668,
+    "sao-2": 695
+  },
+  "statuses": {
+    "censored": 1348,
+    "observed": 15
+  },
+  "selectedModels": {
+    "ordinary": 681,
+    "associative": 682
+  },
+  "selectedActions": {
+    "continue": 1239,
+    "inspect": 107,
+    "water": 13,
+    "food": 4
+  },
+  "disagreements": 230,
+  "verifiedSelectedActionPredictionComparisons": 30,
+  "observedOutcomes": [
+    {
+      "actorId": "sao-1",
+      "episodeId": "episode/500",
+      "selectedModel": "associative",
+      "action": "inspect",
+      "eventId": "native/16",
+      "kind": "inspection",
+      "worldHours": 18.485965728759766,
+      "revisions": {
+        "associative": "revised:associative:2:observed-effect",
+        "ordinary": "revised:ordinary:2:observed-effect"
+      },
+      "firstObservedStatus": "observed"
+    },
+    {
+      "actorId": "sao-1",
+      "episodeId": "episode/504",
+      "selectedModel": "associative",
+      "action": "inspect",
+      "eventId": "native/17",
+      "kind": "inspection",
+      "worldHours": 18.570404052734375,
+      "revisions": {
+        "associative": "revised:associative:3:observed-effect",
+        "ordinary": "revised:ordinary:3:observed-effect"
+      },
+      "firstObservedStatus": "observed"
+    },
+    {
+      "actorId": "sao-1",
+      "episodeId": "episode/508",
+      "selectedModel": "associative",
+      "action": "inspect",
+      "eventId": "native/18",
+      "kind": "inspection",
+      "worldHours": 18.66380500793457,
+      "revisions": {
+        "associative": "revised:associative:4:observed-effect",
+        "ordinary": "revised:ordinary:4:observed-effect"
+      },
+      "firstObservedStatus": "observed"
+    },
+    {
+      "actorId": "sao-1",
+      "episodeId": "episode/512",
+      "selectedModel": "associative",
+      "action": "inspect",
+      "eventId": "native/19",
+      "kind": "inspection",
+      "worldHours": 18.761001586914062,
+      "revisions": {
+        "associative": "revised:associative:5:observed-effect",
+        "ordinary": "revised:ordinary:5:observed-effect"
+      },
+      "firstObservedStatus": "observed"
+    },
+    {
+      "actorId": "sao-1",
+      "episodeId": "episode/514",
+      "selectedModel": "associative",
+      "action": "food",
+      "eventId": "native/20",
+      "kind": "acquire",
+      "worldHours": 18.820247650146484,
+      "revisions": {
+        "associative": "revised:associative:6:observed-effect",
+        "ordinary": "revised:ordinary:6:observed-effect"
+      },
+      "firstObservedStatus": "observed"
+    },
+    {
+      "actorId": "sao-2",
+      "episodeId": "episode/325",
+      "selectedModel": "associative",
+      "action": "inspect",
+      "eventId": "native/2",
+      "kind": "inspection",
+      "worldHours": 12.333795547485352,
+      "revisions": {
+        "associative": "revised:associative:1:observed-effect",
+        "ordinary": "revised:ordinary:1:observed-effect"
+      },
+      "firstObservedStatus": "observed"
+    },
+    {
+      "actorId": "sao-2",
+      "episodeId": "episode/377",
+      "selectedModel": "associative",
+      "action": "water",
+      "eventId": "native/6",
+      "kind": "consume",
+      "worldHours": 14.406410217285156,
+      "revisions": {
+        "associative": "revised:associative:2:observed-effect",
+        "ordinary": "revised:ordinary:2:observed-effect"
+      },
+      "firstObservedStatus": "attempted"
+    },
+    {
+      "actorId": "sao-2",
+      "episodeId": "episode/379",
+      "selectedModel": "associative",
+      "action": "inspect",
+      "eventId": "native/7",
+      "kind": "inspection",
+      "worldHours": 14.439001083374023,
+      "revisions": {
+        "associative": "revised:associative:3:observed-effect",
+        "ordinary": "revised:ordinary:3:observed-effect"
+      },
+      "firstObservedStatus": "observed"
+    },
+    {
+      "actorId": "sao-2",
+      "episodeId": "episode/381",
+      "selectedModel": "associative",
+      "action": "inspect",
+      "eventId": "native/8",
+      "kind": "inspection",
+      "worldHours": 15.003032684326172,
+      "revisions": {
+        "associative": "revised:associative:4:observed-effect",
+        "ordinary": "revised:ordinary:4:observed-effect"
+      },
+      "firstObservedStatus": "observed"
+    },
+    {
+      "actorId": "sao-2",
+      "episodeId": "episode/385",
+      "selectedModel": "associative",
+      "action": "inspect",
+      "eventId": "native/9",
+      "kind": "inspection",
+      "worldHours": 15.110469818115234,
+      "revisions": {
+        "associative": "revised:associative:5:observed-effect",
+        "ordinary": "revised:ordinary:5:observed-effect"
+      },
+      "firstObservedStatus": "observed"
+    },
+    {
+      "actorId": "sao-2",
+      "episodeId": "episode/389",
+      "selectedModel": "associative",
+      "action": "inspect",
+      "eventId": "native/10",
+      "kind": "inspection",
+      "worldHours": 15.193840026855469,
+      "revisions": {
+        "associative": "revised:associative:6:observed-effect",
+        "ordinary": "revised:ordinary:6:observed-effect"
+      },
+      "firstObservedStatus": "observed"
+    },
+    {
+      "actorId": "sao-2",
+      "episodeId": "episode/393",
+      "selectedModel": "associative",
+      "action": "inspect",
+      "eventId": "native/11",
+      "kind": "inspection",
+      "worldHours": 15.288951873779297,
+      "revisions": {
+        "associative": "revised:associative:7:observed-effect",
+        "ordinary": "revised:ordinary:7:observed-effect"
+      },
+      "firstObservedStatus": "observed"
+    },
+    {
+      "actorId": "sao-2",
+      "episodeId": "episode/395",
+      "selectedModel": "associative",
+      "action": "food",
+      "eventId": "native/12",
+      "kind": "acquire",
+      "worldHours": 15.379518508911133,
+      "revisions": {
+        "associative": "revised:associative:8:observed-effect",
+        "ordinary": "revised:ordinary:8:observed-effect"
+      },
+      "firstObservedStatus": "observed"
+    },
+    {
+      "actorId": "sao-2",
+      "episodeId": "episode/397",
+      "selectedModel": "associative",
+      "action": "food",
+      "eventId": "native/13",
+      "kind": "consume",
+      "worldHours": 15.455986022949219,
+      "revisions": {
+        "associative": "revised:associative:9:observed-effect",
+        "ordinary": "revised:ordinary:9:observed-effect"
+      },
+      "firstObservedStatus": "observed"
+    },
+    {
+      "actorId": "sao-2",
+      "episodeId": "episode/409",
+      "selectedModel": "associative",
+      "action": "food",
+      "eventId": "native/14",
+      "kind": "acquire",
+      "worldHours": 15.757688522338867,
+      "revisions": {
+        "associative": "revised:associative:10:observed-effect",
+        "ordinary": "revised:ordinary:10:observed-effect"
+      },
+      "firstObservedStatus": "observed"
+    }
+  ],
+  "uniqueExperiences": [
+    {
+      "actorId": "sao-2",
+      "capabilities": {
+        "cook": false,
+        "forage": false,
+        "treat": false
+      },
+      "category": "container",
+      "detail": "native-container-inspection",
+      "episodeId": "episode/325",
+      "foodPresent": false,
+      "id": "native/2",
+      "kind": "inspection",
+      "observerId": "sao-2",
+      "perspective": "performed",
+      "sourceId": "C:e7992733-f249-43fb-9e38-1458c87885c2:0",
+      "status": "completed",
+      "waterPresent": false,
+      "worldHours": 12.333795547485352
+    },
+    {
+      "actorId": "sao-1",
+      "capabilities": {
+        "cook": false,
+        "forage": false,
+        "treat": false
+      },
+      "category": "water",
+      "detail": "native-complete",
+      "id": "native/5",
+      "kind": "consume",
+      "observerId": "sao-1",
+      "perspective": "performed",
+      "status": "completed",
+      "thirstDelta": 0.444,
+      "worldHours": 13.355012893676758
+    },
+    {
+      "actorId": "sao-2",
+      "capabilities": {
+        "cook": false,
+        "forage": false,
+        "treat": false
+      },
+      "category": "water",
+      "detail": "native-complete",
+      "episodeId": "episode/377",
+      "id": "native/6",
+      "kind": "consume",
+      "observerId": "sao-2",
+      "perspective": "performed",
+      "status": "completed",
+      "thirstDelta": 0.391,
+      "worldHours": 14.406410217285156
+    },
+    {
+      "actorId": "sao-2",
+      "capabilities": {
+        "cook": false,
+        "forage": false,
+        "treat": false
+      },
+      "category": "container",
+      "detail": "native-container-inspection",
+      "episodeId": "episode/379",
+      "foodPresent": false,
+      "id": "native/7",
+      "kind": "inspection",
+      "observerId": "sao-2",
+      "perspective": "performed",
+      "sourceId": "C:00921fed-f2dc-45c5-90a2-9c902f7c5ea2:0",
+      "status": "completed",
+      "waterPresent": false,
+      "worldHours": 14.439001083374023
+    },
+    {
+      "actorId": "sao-2",
+      "capabilities": {
+        "cook": false,
+        "forage": false,
+        "treat": false
+      },
+      "category": "container",
+      "detail": "native-container-inspection",
+      "episodeId": "episode/381",
+      "foodPresent": false,
+      "id": "native/8",
+      "kind": "inspection",
+      "observerId": "sao-2",
+      "perspective": "performed",
+      "sourceId": "C:3c13da57-107b-49f7-879c-a7cc7a7a4709:0",
+      "status": "completed",
+      "waterPresent": false,
+      "worldHours": 15.003032684326172
+    },
+    {
+      "actorId": "sao-2",
+      "capabilities": {
+        "cook": false,
+        "forage": false,
+        "treat": false
+      },
+      "category": "container",
+      "detail": "native-container-inspection",
+      "episodeId": "episode/385",
+      "foodPresent": false,
+      "id": "native/9",
+      "kind": "inspection",
+      "observerId": "sao-2",
+      "perspective": "performed",
+      "sourceId": "C:cc90ec61-fc08-468e-8b97-0f5f5eb0353e:0",
+      "status": "completed",
+      "waterPresent": false,
+      "worldHours": 15.110469818115234
+    },
+    {
+      "actorId": "sao-2",
+      "capabilities": {
+        "cook": false,
+        "forage": false,
+        "treat": false
+      },
+      "category": "container",
+      "detail": "native-container-inspection",
+      "episodeId": "episode/389",
+      "foodPresent": false,
+      "id": "native/10",
+      "kind": "inspection",
+      "observerId": "sao-2",
+      "perspective": "performed",
+      "sourceId": "C:43d20b87-806f-4aed-8cfc-0284afc406d6:0",
+      "status": "completed",
+      "waterPresent": false,
+      "worldHours": 15.193840026855469
+    },
+    {
+      "actorId": "sao-2",
+      "capabilities": {
+        "cook": false,
+        "forage": false,
+        "treat": false
+      },
+      "category": "container",
+      "detail": "native-container-inspection",
+      "episodeId": "episode/393",
+      "foodPresent": true,
+      "id": "native/11",
+      "kind": "inspection",
+      "observerId": "sao-2",
+      "perspective": "performed",
+      "sourceId": "C:b9d99908-a327-4727-b009-be951ae9113d:0",
+      "status": "completed",
+      "waterPresent": false,
+      "worldHours": 15.288951873779297
+    },
+    {
+      "actorId": "sao-2",
+      "capabilities": {
+        "cook": false,
+        "forage": false,
+        "treat": false
+      },
+      "category": "food",
+      "detail": "native-transfer-observed",
+      "episodeId": "episode/395",
+      "id": "native/12",
+      "itemType": "Base.Cherry",
+      "kind": "acquire",
+      "observerId": "sao-2",
+      "perspective": "performed",
+      "sourceId": "C:b9d99908-a327-4727-b009-be951ae9113d:0",
+      "status": "completed",
+      "worldHours": 15.379518508911133
+    },
+    {
+      "actorId": "sao-2",
+      "capabilities": {
+        "cook": false,
+        "forage": false,
+        "treat": false
+      },
+      "category": "food",
+      "detail": "native-complete",
+      "episodeId": "episode/397",
+      "hungerDelta": 0.02999999999999997,
+      "id": "native/13",
+      "itemType": "Base.Cherry",
+      "kind": "consume",
+      "observerId": "sao-2",
+      "perspective": "performed",
+      "status": "completed",
+      "worldHours": 15.455986022949219
+    },
+    {
+      "actorId": "sao-2",
+      "capabilities": {
+        "cook": false,
+        "forage": false,
+        "treat": false
+      },
+      "category": "food",
+      "detail": "native-transfer-observed",
+      "episodeId": "episode/409",
+      "id": "native/14",
+      "itemType": "Base.BrusselSprouts",
+      "kind": "acquire",
+      "observerId": "sao-2",
+      "perspective": "performed",
+      "sourceId": "C:b9d99908-a327-4727-b009-be951ae9113d:0",
+      "status": "completed",
+      "worldHours": 15.757688522338867
+    },
+    {
+      "actorId": "sao-2",
+      "capabilities": {
+        "cook": false,
+        "forage": false,
+        "treat": false
+      },
+      "category": "food",
+      "detail": "native-complete",
+      "hungerDelta": 0.20000000000000004,
+      "id": "native/15",
+      "itemType": "Base.BrusselSprouts",
+      "kind": "consume",
+      "observerId": "sao-2",
+      "perspective": "performed",
+      "status": "completed",
+      "worldHours": 15.783823013305664
+    },
+    {
+      "actorId": "sao-1",
+      "capabilities": {
+        "cook": false,
+        "forage": false,
+        "treat": false
+      },
+      "category": "container",
+      "detail": "native-container-inspection",
+      "episodeId": "episode/500",
+      "foodPresent": false,
+      "id": "native/16",
+      "kind": "inspection",
+      "observerId": "sao-1",
+      "perspective": "performed",
+      "sourceId": "C:00921fed-f2dc-45c5-90a2-9c902f7c5ea2:0",
+      "status": "completed",
+      "waterPresent": false,
+      "worldHours": 18.485965728759766
+    },
+    {
+      "actorId": "sao-1",
+      "capabilities": {
+        "cook": false,
+        "forage": false,
+        "treat": false
+      },
+      "category": "container",
+      "detail": "native-container-inspection",
+      "episodeId": "episode/504",
+      "foodPresent": false,
+      "id": "native/17",
+      "kind": "inspection",
+      "observerId": "sao-1",
+      "perspective": "performed",
+      "sourceId": "C:3c13da57-107b-49f7-879c-a7cc7a7a4709:0",
+      "status": "completed",
+      "waterPresent": false,
+      "worldHours": 18.570404052734375
+    },
+    {
+      "actorId": "sao-1",
+      "capabilities": {
+        "cook": false,
+        "forage": false,
+        "treat": false
+      },
+      "category": "container",
+      "detail": "native-container-inspection",
+      "episodeId": "episode/508",
+      "foodPresent": false,
+      "id": "native/18",
+      "kind": "inspection",
+      "observerId": "sao-1",
+      "perspective": "performed",
+      "sourceId": "C:43d20b87-806f-4aed-8cfc-0284afc406d6:0",
+      "status": "completed",
+      "waterPresent": false,
+      "worldHours": 18.66380500793457
+    },
+    {
+      "actorId": "sao-1",
+      "capabilities": {
+        "cook": false,
+        "forage": false,
+        "treat": false
+      },
+      "category": "container",
+      "detail": "native-container-inspection",
+      "episodeId": "episode/512",
+      "foodPresent": true,
+      "id": "native/19",
+      "kind": "inspection",
+      "observerId": "sao-1",
+      "perspective": "performed",
+      "sourceId": "C:b9d99908-a327-4727-b009-be951ae9113d:0",
+      "status": "completed",
+      "waterPresent": false,
+      "worldHours": 18.761001586914062
+    },
+    {
+      "actorId": "sao-1",
+      "capabilities": {
+        "cook": false,
+        "forage": false,
+        "treat": false
+      },
+      "category": "food",
+      "detail": "native-transfer-observed",
+      "episodeId": "episode/514",
+      "id": "native/20",
+      "itemType": "Base.MapleSyrup",
+      "kind": "acquire",
+      "observerId": "sao-1",
+      "perspective": "performed",
+      "sourceId": "C:b9d99908-a327-4727-b009-be951ae9113d:0",
+      "status": "completed",
+      "worldHours": 18.820247650146484
+    },
+    {
+      "actorId": "sao-1",
+      "capabilities": {
+        "cook": false,
+        "forage": false,
+        "treat": false
+      },
+      "category": "food",
+      "detail": "native-complete",
+      "hungerDelta": 0.388,
+      "id": "native/21",
+      "itemType": "Base.MapleSyrup",
+      "kind": "consume",
+      "observerId": "sao-1",
+      "perspective": "performed",
+      "status": "completed",
+      "worldHours": 18.875349044799805
+    },
+    {
+      "actorId": "sao-1",
+      "capabilities": {
+        "cook": false,
+        "forage": false,
+        "treat": false
+      },
+      "category": "food",
+      "detail": "captured-native-transfer-witness",
+      "id": "world-transfer/R:3:sao-1",
+      "itemType": "Base.MapleSyrup",
+      "kind": "acquire",
+      "observerId": "sao-2",
+      "perspective": "observed",
+      "sourceId": "C:b9d99908-a327-4727-b009-be951ae9113d:0",
+      "status": "completed",
+      "worldHours": 18.814708709716797
+    }
+  ],
+  "models": {
+    "sao-1": [
+      {
+        "beliefs": [
+          {
+            "confidence": 0.6389622561571712,
+            "id": "ordinary/belief/1",
+            "label": "Qualified water outcomes",
+            "status": "supported"
+          },
+          {
+            "confidence": 0.6389622561571712,
+            "id": "ordinary/belief/2",
+            "label": "performed consume water at unlocated source",
+            "status": "supported"
+          },
+          {
+            "confidence": 0.8209460518526244,
+            "id": "ordinary/belief/3",
+            "label": "Qualified inspect outcomes",
+            "status": "supported"
+          },
+          {
+            "confidence": 0.6543085526668263,
+            "id": "ordinary/belief/4",
+            "label": "performed inspection container at C:00921fed-f2dc-45c5-90a2-9c902f7c5ea2:0",
+            "status": "supported"
+          },
+          {
+            "confidence": 0.6545688471588176,
+            "id": "ordinary/belief/5",
+            "label": "performed inspection container at C:3c13da57-107b-49f7-879c-a7cc7a7a4709:0",
+            "status": "supported"
+          },
+          {
+            "confidence": 0.6548570527459076,
+            "id": "ordinary/belief/6",
+            "label": "performed inspection container at C:43d20b87-806f-4aed-8cfc-0284afc406d6:0",
+            "status": "supported"
+          },
+          {
+            "confidence": 0.655157284723402,
+            "id": "ordinary/belief/7",
+            "label": "performed inspection container at C:b9d99908-a327-4727-b009-be951ae9113d:0",
+            "status": "supported"
+          },
+          {
+            "confidence": 0.7371370204236527,
+            "id": "ordinary/belief/8",
+            "label": "Qualified food outcomes",
+            "status": "supported"
+          },
+          {
+            "confidence": 0.6553404477516733,
+            "id": "ordinary/belief/9",
+            "label": "performed acquire food at C:b9d99908-a327-4727-b009-be951ae9113d:0",
+            "status": "supported"
+          },
+          {
+            "confidence": 0.6555109038137139,
+            "id": "ordinary/belief/10",
+            "label": "performed consume food at unlocated source",
+            "status": "supported"
+          }
+        ],
+        "hypotheses": [],
+        "id": "ordinary",
+        "omittedBeliefs": 0,
+        "omittedHypotheses": 0,
+        "version": "sao-ordinary/1"
+      },
+      {
+        "beliefs": [
+          {
+            "confidence": 0.6389622561571712,
+            "id": "associative/belief/1",
+            "label": "Qualified water outcomes",
+            "status": "supported"
+          },
+          {
+            "confidence": 0.6389622561571712,
+            "id": "associative/belief/2",
+            "label": "operate(water, thirst-relief) observed association",
+            "status": "supported"
+          },
+          {
+            "confidence": 0.8209460518526244,
+            "id": "associative/belief/3",
+            "label": "Qualified inspect outcomes",
+            "status": "supported"
+          },
+          {
+            "confidence": 0.3401797204651588,
+            "id": "associative/belief/4",
+            "label": "contain(container, food) observed association",
+            "status": "refined"
+          },
+          {
+            "confidence": 0.17905394814737569,
+            "id": "associative/belief/5",
+            "label": "contain(container, water) observed association",
+            "status": "falsified"
+          },
+          {
+            "confidence": 0.7371370204236527,
+            "id": "associative/belief/6",
+            "label": "Qualified food outcomes",
+            "status": "supported"
+          },
+          {
+            "confidence": 0.6553404477516733,
+            "id": "associative/belief/7",
+            "label": "convey(source, food) observed association",
+            "status": "supported"
+          },
+          {
+            "confidence": 0.6555109038137139,
+            "id": "associative/belief/8",
+            "label": "operate(food, hunger-relief) observed association",
+            "status": "supported"
+          }
+        ],
+        "hypotheses": [
+          {
+            "branch": "logistics-preservation",
+            "confidence": 0.6389622561571712,
+            "depth": 1,
+            "evidenceIds": [
+              "native/5"
+            ],
+            "id": "associative/hypothesis/1",
+            "label": "Observed association operate(water, thirst-relief)",
+            "missing": [
+              "Association does not establish an operating method or recipe."
+            ],
+            "parentIds": [],
+            "status": "supported"
+          },
+          {
+            "branch": "logistics-preservation",
+            "confidence": 0.3401797204651588,
+            "depth": 1,
+            "evidenceIds": [
+              "native/16",
+              "native/17",
+              "native/18",
+              "native/19"
+            ],
+            "id": "associative/hypothesis/2",
+            "label": "Observed association contain(container, food)",
+            "missing": [
+              "Association does not establish an operating method or recipe."
+            ],
+            "parentIds": [],
+            "status": "refined"
+          },
+          {
+            "branch": "logistics-preservation",
+            "confidence": 0.17905394814737569,
+            "depth": 1,
+            "evidenceIds": [
+              "native/16",
+              "native/17",
+              "native/18",
+              "native/19"
+            ],
+            "id": "associative/hypothesis/3",
+            "label": "Observed association contain(container, water)",
+            "missing": [
+              "Association does not establish an operating method or recipe."
+            ],
+            "parentIds": [],
+            "status": "falsified"
+          },
+          {
+            "branch": "logistics-preservation",
+            "confidence": 0.6553404477516733,
+            "depth": 1,
+            "evidenceIds": [
+              "native/20"
+            ],
+            "id": "associative/hypothesis/4",
+            "label": "Observed association convey(source, food)",
+            "missing": [
+              "Association does not establish an operating method or recipe."
+            ],
+            "parentIds": [],
+            "status": "supported"
+          },
+          {
+            "branch": "logistics-preservation",
+            "confidence": 0.6555109038137139,
+            "depth": 1,
+            "evidenceIds": [
+              "native/21"
+            ],
+            "id": "associative/hypothesis/5",
+            "label": "Observed association operate(food, hunger-relief)",
+            "missing": [
+              "Association does not establish an operating method or recipe."
+            ],
+            "parentIds": [],
+            "status": "supported"
+          },
+          {
+            "branch": "logistics-preservation",
+            "confidence": 0.3604372462634204,
+            "depth": 2,
+            "evidenceIds": [
+              "native/20",
+              "native/21"
+            ],
+            "id": "associative/hypothesis/6",
+            "label": "Analogy compose(source, hunger-relief)",
+            "missing": [
+              "The composed operation has not been performed.",
+              "Interfaces, timing and losses remain unmeasured."
+            ],
+            "parentIds": [
+              "associative/hypothesis/4",
+              "associative/hypothesis/5"
+            ],
+            "status": "hypothesis"
+          },
+          {
+            "branch": "logistics-preservation",
+            "confidence": 0.3604372462634204,
+            "depth": 2,
+            "evidenceIds": [
+              "native/20",
+              "native/21"
+            ],
+            "id": "associative/hypothesis/7",
+            "label": "Analogy transfer(source, food)",
+            "missing": [
+              "A usable transfer interface and its losses are unknown.",
+              "Connected containment, conveyance or use is an analogy basis, not the proposed mechanism.",
+              "No demonstrated recipe, apparatus or operating method."
+            ],
+            "parentIds": [
+              "associative/hypothesis/4"
+            ],
+            "status": "hypothesis"
+          },
+          {
+            "branch": "manufacturing",
+            "confidence": 0.3604372462634204,
+            "depth": 2,
+            "evidenceIds": [
+              "native/21",
+              "native/20"
+            ],
+            "id": "associative/hypothesis/8",
+            "label": "Analogy regulate(food, hunger-relief)",
+            "missing": [
+              "A controllable input and its effect have not been demonstrated.",
+              "Connected containment, conveyance or use is an analogy basis, not the proposed mechanism.",
+              "No demonstrated recipe, apparatus or operating method."
+            ],
+            "parentIds": [
+              "associative/hypothesis/5"
+            ],
+            "status": "hypothesis"
+          }
+        ],
+        "id": "associative",
+        "omittedBeliefs": 0,
+        "omittedHypotheses": 0,
+        "version": "sao-associative/1"
+      }
+    ],
+    "sao-2": [
+      {
+        "beliefs": [
+          {
+            "confidence": 0.8526081572920058,
+            "id": "ordinary/belief/1",
+            "label": "Qualified inspect outcomes",
+            "status": "supported"
+          },
+          {
+            "confidence": 0.6360222699976732,
+            "id": "ordinary/belief/2",
+            "label": "performed inspection container at C:e7992733-f249-43fb-9e38-1458c87885c2:0",
+            "status": "supported"
+          },
+          {
+            "confidence": 0.642029621521012,
+            "id": "ordinary/belief/3",
+            "label": "Qualified water outcomes",
+            "status": "supported"
+          },
+          {
+            "confidence": 0.642029621521012,
+            "id": "ordinary/belief/4",
+            "label": "performed consume water at unlocated source",
+            "status": "supported"
+          },
+          {
+            "confidence": 0.6421253529160322,
+            "id": "ordinary/belief/5",
+            "label": "performed inspection container at C:00921fed-f2dc-45c5-90a2-9c902f7c5ea2:0",
+            "status": "supported"
+          },
+          {
+            "confidence": 0.6437882659295552,
+            "id": "ordinary/belief/6",
+            "label": "performed inspection container at C:3c13da57-107b-49f7-879c-a7cc7a7a4709:0",
+            "status": "supported"
+          },
+          {
+            "confidence": 0.6441063312349029,
+            "id": "ordinary/belief/7",
+            "label": "performed inspection container at C:cc90ec61-fc08-468e-8b97-0f5f5eb0353e:0",
+            "status": "supported"
+          },
+          {
+            "confidence": 0.6443534352154783,
+            "id": "ordinary/belief/8",
+            "label": "performed inspection container at C:43d20b87-806f-4aed-8cfc-0284afc406d6:0",
+            "status": "supported"
+          },
+          {
+            "confidence": 0.6446356478415536,
+            "id": "ordinary/belief/9",
+            "label": "performed inspection container at C:b9d99908-a327-4727-b009-be951ae9113d:0",
+            "status": "supported"
+          },
+          {
+            "confidence": 0.8383499699458011,
+            "id": "ordinary/belief/10",
+            "label": "Qualified food outcomes",
+            "status": "supported"
+          },
+          {
+            "confidence": 0.7798580176390223,
+            "id": "ordinary/belief/11",
+            "label": "performed acquire food at C:b9d99908-a327-4727-b009-be951ae9113d:0",
+            "status": "supported"
+          },
+          {
+            "confidence": 0.6451320567511578,
+            "id": "ordinary/belief/12",
+            "label": "performed consume food at unlocated source",
+            "status": "supported"
+          },
+          {
+            "confidence": 0.6461092767262738,
+            "id": "ordinary/belief/13",
+            "label": "performed consume food at unlocated source",
+            "status": "supported"
+          }
+        ],
+        "hypotheses": [],
+        "id": "ordinary",
+        "omittedBeliefs": 0,
+        "omittedHypotheses": 0,
+        "version": "sao-ordinary/1"
+      },
+      {
+        "beliefs": [
+          {
+            "confidence": 0.8526081572920058,
+            "id": "associative/belief/1",
+            "label": "Qualified inspect outcomes",
+            "status": "supported"
+          },
+          {
+            "confidence": 0.26737075745927463,
+            "id": "associative/belief/2",
+            "label": "contain(container, food) observed association",
+            "status": "refined"
+          },
+          {
+            "confidence": 0.14739184270799427,
+            "id": "associative/belief/3",
+            "label": "contain(container, water) observed association",
+            "status": "falsified"
+          },
+          {
+            "confidence": 0.642029621521012,
+            "id": "associative/belief/4",
+            "label": "Qualified water outcomes",
+            "status": "supported"
+          },
+          {
+            "confidence": 0.642029621521012,
+            "id": "associative/belief/5",
+            "label": "operate(water, thirst-relief) observed association",
+            "status": "supported"
+          },
+          {
+            "confidence": 0.8383499699458011,
+            "id": "associative/belief/6",
+            "label": "Qualified food outcomes",
+            "status": "supported"
+          },
+          {
+            "confidence": 0.7798580176390223,
+            "id": "associative/belief/7",
+            "label": "convey(source, food) observed association",
+            "status": "supported"
+          },
+          {
+            "confidence": 0.725552241391903,
+            "id": "associative/belief/8",
+            "label": "operate(food, hunger-relief) observed association",
+            "status": "supported"
+          }
+        ],
+        "hypotheses": [
+          {
+            "branch": "logistics-preservation",
+            "confidence": 0.26737075745927463,
+            "depth": 1,
+            "evidenceIds": [
+              "native/2",
+              "native/7",
+              "native/8",
+              "native/9",
+              "native/10",
+              "native/11"
+            ],
+            "id": "associative/hypothesis/1",
+            "label": "Observed association contain(container, food)",
+            "missing": [
+              "Association does not establish an operating method or recipe."
+            ],
+            "parentIds": [],
+            "status": "refined"
+          },
+          {
+            "branch": "logistics-preservation",
+            "confidence": 0.14739184270799427,
+            "depth": 1,
+            "evidenceIds": [
+              "native/2",
+              "native/7",
+              "native/8",
+              "native/9",
+              "native/10",
+              "native/11"
+            ],
+            "id": "associative/hypothesis/2",
+            "label": "Observed association contain(container, water)",
+            "missing": [
+              "Association does not establish an operating method or recipe."
+            ],
+            "parentIds": [],
+            "status": "falsified"
+          },
+          {
+            "branch": "logistics-preservation",
+            "confidence": 0.642029621521012,
+            "depth": 1,
+            "evidenceIds": [
+              "native/6"
+            ],
+            "id": "associative/hypothesis/3",
+            "label": "Observed association operate(water, thirst-relief)",
+            "missing": [
+              "Association does not establish an operating method or recipe."
+            ],
+            "parentIds": [],
+            "status": "supported"
+          },
+          {
+            "branch": "logistics-preservation",
+            "confidence": 0.7798580176390223,
+            "depth": 1,
+            "evidenceIds": [
+              "native/12",
+              "native/14",
+              "world-transfer/R:3:sao-1"
+            ],
+            "id": "associative/hypothesis/4",
+            "label": "Observed association convey(source, food)",
+            "missing": [
+              "Association does not establish an operating method or recipe."
+            ],
+            "parentIds": [],
+            "status": "supported"
+          },
+          {
+            "branch": "logistics-preservation",
+            "confidence": 0.725552241391903,
+            "depth": 1,
+            "evidenceIds": [
+              "native/13",
+              "native/15"
+            ],
+            "id": "associative/hypothesis/5",
+            "label": "Observed association operate(food, hunger-relief)",
+            "missing": [
+              "Association does not establish an operating method or recipe."
+            ],
+            "parentIds": [],
+            "status": "supported"
+          },
+          {
+            "branch": "logistics-preservation",
+            "confidence": 0.3990537327655467,
+            "depth": 2,
+            "evidenceIds": [
+              "native/12",
+              "native/14",
+              "world-transfer/R:3:sao-1",
+              "native/13",
+              "native/15"
+            ],
+            "id": "associative/hypothesis/6",
+            "label": "Analogy compose(source, hunger-relief)",
+            "missing": [
+              "The composed operation has not been performed.",
+              "Interfaces, timing and losses remain unmeasured."
+            ],
+            "parentIds": [
+              "associative/hypothesis/4",
+              "associative/hypothesis/5"
+            ],
+            "status": "hypothesis"
+          },
+          {
+            "branch": "logistics-preservation",
+            "confidence": 0.3990537327655467,
+            "depth": 2,
+            "evidenceIds": [
+              "native/12",
+              "native/14",
+              "world-transfer/R:3:sao-1",
+              "native/13",
+              "native/15"
+            ],
+            "id": "associative/hypothesis/7",
+            "label": "Analogy transfer(source, food)",
+            "missing": [
+              "A usable transfer interface and its losses are unknown.",
+              "Connected containment, conveyance or use is an analogy basis, not the proposed mechanism.",
+              "No demonstrated recipe, apparatus or operating method."
+            ],
+            "parentIds": [
+              "associative/hypothesis/4"
+            ],
+            "status": "hypothesis"
+          },
+          {
+            "branch": "manufacturing",
+            "confidence": 0.3990537327655467,
+            "depth": 2,
+            "evidenceIds": [
+              "native/13",
+              "native/15",
+              "native/12",
+              "native/14",
+              "world-transfer/R:3:sao-1"
+            ],
+            "id": "associative/hypothesis/8",
+            "label": "Analogy regulate(food, hunger-relief)",
+            "missing": [
+              "A controllable input and its effect have not been demonstrated.",
+              "Connected containment, conveyance or use is an analogy basis, not the proposed mechanism.",
+              "No demonstrated recipe, apparatus or operating method."
+            ],
+            "parentIds": [
+              "associative/hypothesis/5"
+            ],
+            "status": "hypothesis"
+          }
+        ],
+        "id": "associative",
+        "omittedBeliefs": 0,
+        "omittedHypotheses": 0,
+        "version": "sao-associative/1"
+      }
+    ]
+  },
+  "retention": {
+    "sao-1": {
+      "omittedEpisodes": 604,
+      "omittedExperiences": 0,
+      "rejectedExperiences": 0
+    },
+    "sao-2": {
+      "omittedEpisodes": 631,
+      "omittedExperiences": 0,
+      "rejectedExperiences": 0
+    }
+  },
+  "witnessEvidence": [
+    {
+      "experience": {
+        "actorId": "sao-1",
+        "capabilities": {
+          "cook": false,
+          "forage": false,
+          "treat": false
+        },
+        "category": "food",
+        "detail": "captured-native-transfer-witness",
+        "id": "world-transfer/R:3:sao-1",
+        "itemType": "Base.MapleSyrup",
+        "kind": "acquire",
+        "observerId": "sao-2",
+        "perspective": "observed",
+        "sourceId": "C:b9d99908-a327-4727-b009-be951ae9113d:0",
+        "status": "completed",
+        "worldHours": 18.814708709716797
+      },
+      "nativeTransferBelief": {
+        "acquiredAt": 18.814708709716797,
+        "actorId": "sao-1",
+        "category": "food",
+        "eventAt": 18.814708709716797,
+        "eventId": "R:3:sao-1",
+        "itemType": "Base.MapleSyrup",
+        "operation": "acquire",
+        "originAcquiredAt": 18.814708709716797,
+        "originId": "sao-2",
+        "originSource": "observed",
+        "placeId": "source:C:b9d99908-a327-4727-b009-be951ae9113d:0",
+        "source": "observed",
+        "sourceId": "C:b9d99908-a327-4727-b009-be951ae9113d:0",
+        "x": 3424,
+        "y": 10911,
+        "z": 0
+      },
+      "nativeResult": {
+        "Source action": "No recorded reservation pointer",
+        "Latest result.reservationId": "R:3:sao-1",
+        "Latest result.status": "completed",
+        "Latest result.operation": "acquire",
+        "Latest result.category": "food",
+        "Latest result.itemType": "Base.MapleSyrup",
+        "Latest result.quantity": "1",
+        "Latest result.requestedQuantity": "1",
+        "Latest result.preRevision": "983080f05cc35098f2a21158423553b4da82864708ee619faa4f3ca5da7395ee",
+        "Latest result.postRevision": "56624dc2b118642186d97e7bb15e0987657bf73bd3ceb7f0f8067ea38864aa44",
+        "Latest result.at": "18.820247650146484",
+        "Latest result.detail": "native-transfer-observed"
+      }
+    }
+  ],
+  "physicalAtLastInspection": {
+    "sao-1": {
+      "Hunger": "0.0980",
+      "Thirst": "0.2020",
+      "Fatigue": "0.1030",
+      "Endurance": "1.0000",
+      "Nicotine withdrawal": "0.5100",
+      "Health (%)": "100.00"
+    },
+    "sao-2": {
+      "Hunger": "0.3180",
+      "Thirst": "0.1900",
+      "Fatigue": "0.0010",
+      "Endurance": "1.0000",
+      "Nicotine withdrawal": "0.0000",
+      "Health (%)": "100.00"
+    }
+  },
+  "terminal": {
+    "endHours": 22.413970947265625,
+    "nativeSaveReturned": true,
+    "startHours": 2.0,
+    "stopReason": "wall-time-limit"
+  },
+  "supervision": {
+    "exitCode": 0,
+    "failure": null,
+    "forced": false,
+    "limitSeconds": 600,
+    "progress": {
+      "native.json": 3770,
+      "observer-state.json": 12960
+    },
+    "stopReason": "wall-time-limit",
+    "wallSeconds": 603.381
+  },
+  "runtimeErrors": [],
+  "findings": [],
+  "checks": [
+    "Export and all82 native frame hashes match",
+    "Every exported projection equals native person cognition after explicit empty-array normalization",
+    "All1363 actor-scoped episodes unique and full sequence union contiguous",
+    "Repeated prior frames/proposals and terminal episodes unchanged",
+    "All30 scored comparisons match both frozen selected-action predictions and exact own receipt",
+    "Censored and alternative actions carry no outcome target",
+    "All hypothesis evidence IDs resolve to same actors existing private experiences",
+    "Captured witness matches native observed belief and completed exact SourceUse result; no private need or contents fields"
+  ],
+  "limits": [
+    "Fourteen of15 scored episodes first appear terminal in quarter-hour archives; one has an earlier attempted snapshot. No independent timestamp proof of prediction production before completion for those14 from archive sampling alone.",
+    "All15 scored episodes selected associative; deterministic allocations and this one short run do not identify causal policy advantage.",
+    "Empty-inspection facts refine/falsify associations, but all15 qualified execution targets are true; no native measured no-effect consumption or failed physical experiment was observed.",
+    "The two actors have false cook/forage/treat capabilities; depth2 analogies are recorded hypotheses, not executed craft/build discoveries or procedural unlocks.",
+    "82 frames retain complete people/process coverage; rolling per-person episode omissions are604/631 but sequential archival union recovers every allocated episode.",
+    "No save-reopen cognition continuity claim in this attempt; no dataset admission, teaching targets or training rows."
+  ]
+}

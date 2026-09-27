@@ -163,5 +163,38 @@ function CheckWaterRoutes()
     SAO.Controller.__waterMovement('person',a,b)
     check('arrival_with_native_queue_admission_becomes_drink',a.state=='DRINK'
         and #ISTimedActionQueue.queues[b].queue==1)
+    -- The production Controller admits a rival-selected intent before the
+    -- ordinary threshold. This controlled selector proves only the execution
+    -- join; independent model behavior is checked with the real model module.
+    a,b=fresh();__within=true
+    local frames, admissions, interruptions={}, {}, {}
+    local due=true
+    SAO.Cognition={isDue=function() return due end,
+        choose=function(id,frame) frames[#frames+1]=frame;return 'water','episode-rival' end,
+        started=function(id,ep,admitted,reason)
+            admissions[#admissions+1]={id=id,ep=ep,admitted=admitted,reason=reason}
+        end,
+        interrupt=function(id,reason) interruptions[#interruptions+1]={id=id,reason=reason} end}
+    check('rival_intent_executes_before_ordinary_threshold',decide(a,b,1,.1)
+        and a.state=='DRINK' and #frames==1 and #admissions==1
+        and admissions[1].ep=='episode-rival' and admissions[1].admitted==true
+        and #ISTimedActionQueue.queues[b].queue==1)
+    check('cognitive_frame_uses_private_actor_evidence',frames[1].actorId=='person'
+        and frames[1].worldHours==100.25 and frames[1].thirst==.1
+        and frames[1].knownPlaces==1 and frames[1].knownFood==0
+        and frames[1].people==nil and frames[1].camera==nil and frames[1].body==nil)
+    SAO.Controller.__waterState(a,'person','IDLE','route ended')
+    check('ending_intent_censors_pending_competition',#interruptions==1
+        and interruptions[1].id=='person')
+    a,b=fresh();due=false
+    check('off_cadence_does_not_build_competition_frame',
+        SAO.Controller.__cognitionChoice('person',a,b,1,{hunger=0,thirst=.1,fatigue=0})==nil and #frames==1)
+    due=true;a.coordinationCommitment={id='already-owned'}
+    check('accepted_work_retains_decision_ownership',
+        SAO.Controller.__cognitionChoice('person',a,b,1,{hunger=0,thirst=.1,fatigue=0})==nil and #frames==1)
+    a.coordinationCommitment=nil;ISTimedActionQueue.queues[b]={queue={{}},current={}}
+    check('queued_action_retains_decision_ownership',
+        SAO.Controller.__cognitionChoice('person',a,b,1,{hunger=0,thirst=.1,fatigue=0})==nil and #frames==1)
+    SAO.Cognition=nil
     return 'PASS water route and native queue checks='..#names
 end

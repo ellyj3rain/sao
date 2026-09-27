@@ -42,6 +42,7 @@ public final class NativeObserverInspectionProbe {
             + "validatePerson=function(id) return id=='sao-probe' end,"
             + "select=function(id) calls=calls+1; selected=id; return permit end,"
             + "panel=function(panel,id,visible) calls=calls+1; selected=id; shown=visible; return permit end,"
+            + "cognition=function(share,rate,depth) calls=calls+1; modelShare=share; modelRate=rate; modelDepth=depth; return permit end,"
             + "nativePanel=function() if shown then return probePanel end end}}", "inspection-probe.lua", LuaManager.env);
         LuaManager.thread.call(setup, null, null, null);
         command(control, "paused=true\nspeed=2\n", true);
@@ -73,6 +74,25 @@ public final class NativeObserverInspectionProbe {
             && IsoPlayer.players[0].getX() == px && IsoPlayer.players[0].getY() == py
             && IsoCamera.getCameraCharacter().getX() == vx && IsoCamera.getCameraCharacter().getY() == vy,
             "inspection command changed native camera or residency owners");
+        command(control, "opponentShare=0.75\nopportunitiesPerHour=30\nmaxDepth=4\n", true);
+        check(Double.valueOf(0.75).equals(LuaManager.env.rawget("modelShare"))
+            && Double.valueOf(30).equals(LuaManager.env.rawget("modelRate"))
+            && Double.valueOf(4).equals(LuaManager.env.rawget("modelDepth")), "cognition settings did not reach Lua receiver");
+        double cognitiveCalls = (Double) LuaManager.env.rawget("calls");
+        command(control, "opponentShare=0.5\nopportunitiesPerHour=61\nmaxDepth=4\n", false);
+        command(control, "opponentShare=NaN\nopportunitiesPerHour=30\nmaxDepth=4\n", false);
+        command(control, "opponentShare=0.5\nopportunitiesPerHour=30\nmaxDepth=5\n", false);
+        command(control, "opponentShare=0.5\nopportunitiesPerHour=30\n", false);
+        command(control, "opponentShare=0.5\nopportunitiesPerHour=30\nmaxDepth=4\nviewX=44\n", false);
+        check(((Double) LuaManager.env.rawget("calls")) == cognitiveCalls, "invalid cognition request reached Lua receiver");
+        LuaManager.env.rawset("permit", false);
+        command(control, "opponentShare=0.5\nopportunitiesPerHour=30\nmaxDepth=4\n", false);
+        LuaManager.env.rawset("permit", true);
+        check(speed.getCurrentGameSpeed() == 0 && GameTime.getInstance().getTrueMultiplier() == multiplier
+            && IsoPlayer.getInstance() == player && IsoCamera.getCameraCharacter() == camera
+            && IsoPlayer.players[0].getX() == px && IsoPlayer.players[0].getY() == py
+            && IsoCamera.getCameraCharacter().getX() == vx && IsoCamera.getCameraCharacter().getY() == vy,
+            "cognition settings changed camera, residency or time");
         UIManager.UI.remove(avatar);
         System.out.println("PASS native inspection: paused selection; complete validation before dispatch; failed Lua acknowledgement rejected; only explicit native UI element rendered; camera, residency and time preserved. No pixel or live inventory claim.");
     }

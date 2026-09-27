@@ -155,6 +155,7 @@ def water_lua_checks(root, work, classes, classpath, receipt, baseline_only):
     native = "\n".join(p.read_text(encoding="utf-8-sig") for p in native_paths)
     receipt["waterNativeLuaSha256"] = {str(p):sha(p) for p in native_paths}
     expose = """Ctl.__waterDecide=decideNeedsAndCompanion
+Ctl.__cognitionChoice=competeForResources
 Ctl.__waterMovement=updateMovement
 Ctl.__waterState=setState
 Ctl.__waterTick=function(t) tickCount=t end
@@ -162,6 +163,23 @@ return Ctl"""
     variants = [("water-lua-production", needs, controller, None)]
     if not baseline_only:
         variants += [
+            ("cognition-ordinary-veto", needs, change(controller,
+                '((selection == "water") or (selection == nil',
+                '((selection == "water" and needs.thirst >= SAO.Disposition.drinkAt(id)) or (selection == nil'),
+                "rival_intent_executes_before_ordinary_threshold"),
+            ("cognition-admission-omitted", needs, change(controller,
+                'if episodeId then SAO.Cognition.started(id, episodeId, admitted, reason); episodeId = nil end',
+                'if episodeId then episodeId = nil end'),
+                "rival_intent_executes_before_ordinary_threshold"),
+            ("cognition-budget-bypass", needs, change(controller,
+                'if cognition.isDue and not cognition.isDue(id) then return nil end', ''),
+                "off_cadence_does_not_build_competition_frame"),
+            ("cognition-owned-work-bypass", needs, change(controller,
+                'or agent.coordinationCommitment or agent.forageInspection', 'or agent.forageInspection'),
+                "accepted_work_retains_decision_ownership"),
+            ("cognition-terminal-uncensored", needs, change(controller,
+                'SAO.Cognition.interrupt(id, "intent ended: " .. tostring(why or "state changed"))', ''),
+                "ending_intent_censors_pending_competition"),
             ("water-queue-pcall-only", change(needs,
                 "return N.queueVerified(ISTakeWaterAction:new(body, nil, waterObject, nil))",
                 "ISTimedActionQueue.add(ISTakeWaterAction:new(body, nil, waterObject, nil)); return true"), controller,
@@ -186,7 +204,8 @@ return Ctl"""
             ("water-direct-reconciliation-ignored", needs, change(controller,
                 '                        if SAO.SourceUse and SAO.SourceUse.beforeStateChange\n'
                 '                            and SAO.SourceUse.beforeStateChange(id, body, agent.state,\n'
-                '                                "DRINK", "uses water within reach") == false then return true end\n', ''),
+                '                                "DRINK", "uses water within reach") == false then\n'
+                '                                cognitionStarted(false, "source reconciliation still owns the body"); return true end\n', ''),
                 "pending_source_reconciliation_preserves_route_and_queue"),
             ("food-transfer-refusal-loses-reason", change(needs,
                 '    return SAO.SourceUse.beginTransfer(id, body, "food",',

@@ -71,7 +71,8 @@ local people = { p1 = { id = "p1", x = 10, y = 20, z = 0, belief = "private", de
     p2 = { id = "p2", x = 30, y = 40, z = 0, dead = true } }
 local body = { getX = function() return 11 end, getY = function() return 21 end,
     getZ = function() return 0 end }
-SAO = { Identity = { all = function() return people end },
+SAO = { History = { countyHours = function() return hour + 24000 end },
+    Identity = { all = function() return people end },
     Controller = { agents = { p1 = { state = "ROAM", stateSince = 4 } } },
     Perception = { beliefs = { p1 = { people = { acquaintance = { src = "observed" } } } } },
     Body = { get = function(id) return id == "p1" and body or nil end,
@@ -133,6 +134,39 @@ function RunStudyChecks(Study)
     assert(not frame.people[2].context.perceptionAvailable and not SAO.Perception.beliefs.p2,
         "observer opened missing beliefs")
     assert(frame.datasetAdmission == "unreviewed", "observation ratified itself")
+    assert(frame.countyHours == frame.hours + 24000, "county and engine clocks conflated")
+    local cognitionReads = 0
+    local evidence = string.rep("x", 300000)
+    SAO.Cognition={snapshot=function(id,full)
+        cognitionReads=cognitionReads+1
+        assert(full==true, "archive requested display instead of full evidence")
+        return {actorId=id,evidence=evidence}
+    end}
+    people.p1.cognition={internal="durable model state"}
+    local cognitiveFrame=Study.observe()
+    assert(cognitiveFrame.people[1].record.cognition==nil
+        and cognitiveFrame.people[1].context.cognition.actorId=='p1', "model archive duplicated durable state")
+    SAO.Cognition.snapshot=function() error("optional receiver failure") end
+    cognitiveFrame=Study.observe()
+    assert(cognitiveFrame.coverage.omittedFieldCount==2 and cognitiveFrame.population.total==2,
+        "optional cognition failure stopped core capture")
+    SAO.Cognition.snapshot=function(id) return {actorId=id,evidence=string.rep("x",600000)} end
+    cognitiveFrame=Study.observe()
+    assert(cognitiveFrame.people[1].context.cognition==nil and cognitiveFrame.coverage.omittedFieldCount==2,
+        "oversized cognitive person escaped archive byte budget")
+    local priorMaximum=Config.observation.maxPeople
+    Config.observation.maxPeople=24
+    for i=3,24 do people['q'..i]={id='q'..i,x=0,y=0,z=0} end
+    SAO.Cognition.snapshot=function(id) return {actorId=id,evidence=evidence} end
+    cognitiveFrame=Study.observe()
+    local cognitiveBytes=0
+    for _,person in ipairs(cognitiveFrame.people) do
+        if person.context.cognition then cognitiveBytes=cognitiveBytes+#Study.encode(person.context.cognition) end
+    end
+    assert(cognitiveBytes<=4*1024*1024 and cognitiveFrame.coverage.omittedFieldCount>0,
+        "aggregate cognition archive byte budget ignored")
+    for i=3,24 do people['q'..i]=nil end
+    Config.observation.maxPeople=priorMaximum;people.p1.cognition=nil;SAO.Cognition=nil
     RESULT_FRAME = Study.encode(frame)
     Study.tick()
     Study.tick()

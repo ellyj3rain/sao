@@ -858,6 +858,14 @@ assert(SAO.Participants.player(0) == nil and SAO.Participants.residencyCenter() 
             raise AssertionError("duplicate frame keys accepted")
         print("PASS observation inspection: captured fixture, streaming session, 7 malformed controls")
         mutants = [
+            ("county archive clock", 'countyHours = SAO.History.countyHours()', 'countyHours = hours',
+             "county and engine clocks conflated"),
+            ("duplicate durable cognition", 'if key ~= "cognition" then recordView[key] = value end',
+             'if true then recordView[key] = value end', "model archive duplicated durable state"),
+            ("cognitive archive aggregate budget", 'math.min(4 * 1024 * 1024, encoded.left)', 'encoded.left',
+             "aggregate cognition archive byte budget ignored"),
+            ("cognitive archive person budget", 'math.min(512 * 1024, remaining) - 16', 'remaining - 16',
+             "oversized cognitive person escaped archive byte budget"),
             ("UTF-8 budget", "local length = utf8Bytes(s) + 2", "local length = #s + 2", "UTF-8 byte limit ignored"),
             ("aggregate inspection budget", "local function inspectionSnapshot(maxBytes)",
              "local function inspectionSnapshot(maxBytes)\n    if SAO.Observation then return SAO.Observation.snapshot() end",

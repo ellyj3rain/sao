@@ -1,0 +1,74 @@
+{
+  "schema": "sao-cognition-producer-checks/1",
+  "variants": [
+    {
+      "name": "inspection",
+      "exit": 0,
+      "expected": null,
+      "sha256": "c40db220357ff2921b7b618fdefa918a5f1d8f330f9d04e76b6ce8bd27f809a4"
+    },
+    {
+      "name": "transfer",
+      "exit": 0,
+      "expected": null,
+      "sha256": "c66779401d459f89938ddc087c466d2c8769f948f25cdb4deb61cf6730f3872c"
+    },
+    {
+      "name": "inspection-missing",
+      "exit": 1,
+      "expected": "exact_empty_inspection",
+      "sha256": "5ab40ed37bd742f62b3de8bce00a1dcb4456d8385a0baa6f673562cfb65a750f"
+    },
+    {
+      "name": "inspection-empty-true",
+      "exit": 1,
+      "expected": "empty_is_known_not_failure",
+      "sha256": "2d7ff00807fcb8abd7dcae75ed63f3ef5e27ca4b3a1928ffe6d0a6e53f06a5a1"
+    },
+    {
+      "name": "actor-missing",
+      "exit": 1,
+      "expected": "completed_transfer_one_actor_event",
+      "sha256": "d199a63b0ed310233e7ffcd57cf0a14390e9c136294398f7faa7d872dc5bef6e"
+    },
+    {
+      "name": "admission-binding-missing",
+      "exit": 1,
+      "expected": "source_admission_token",
+      "sha256": "67be24eda9fe200fb3d7516ff729c6187bbc56fee97b806bdac22eb81f8c2a3b"
+    },
+    {
+      "name": "witness-missing",
+      "exit": 1,
+      "expected": "captured_witness_only",
+      "sha256": "5c978a53037167eac5c0b6af369b32e75bde3dc141d551b15fcc1afe9632428f"
+    },
+    {
+      "name": "actor-double-count",
+      "exit": 1,
+      "expected": "captured_witness_only",
+      "sha256": "5c978a53037167eac5c0b6af369b32e75bde3dc141d551b15fcc1afe9632428f"
+    },
+    {
+      "name": "witness-capabilities-now",
+      "exit": 1,
+      "expected": "witness_own_frozen_capability",
+      "sha256": "d032681d6a9f595b1e703c0efd913f1e18180204faea1719aa51fc189a1197e7"
+    },
+    {
+      "name": "witness-proof-omitted",
+      "exit": 1,
+      "expected": "unproved_witness_refused",
+      "sha256": "7cf28104e365073f3482b7656e49b6bac7732bad0807d09af4896c99cfd7df99"
+    }
+  ],
+  "sources": {
+    "mod\\42.20\\media\\lua\\shared\\SAO_Cognition.lua": "36f2f3f8714546be8205fbaad2d1c8af6a8fa856f158a9b1b7c6bf1052ab0e03",
+    "mod\\42.20\\media\\lua\\shared\\SAO_CognitiveModels.lua": "791d4a2392d85645508a0debb5c50abc1636573d71194ec4a435dfbc7caef31b",
+    "mod\\42.20\\media\\lua\\shared\\SAO_WorldSources.lua": "d2bca1eb17b50d54935d45db08f6ae51ea61dbc04a25cfacdbf741b6cbcb723c",
+    "mod\\42.20\\media\\lua\\shared\\SAO_Perception.lua": "a25834cc9e490d92fa19be8bad54d02bb8f54098e4b51ea0cc5c4f54fca54b66",
+    "mod\\42.20\\media\\lua\\client\\SAO_SourceUse.lua": "177018859ad4587a5bb1b5559b1eaa3df2b60ccc28e2a0c4c6e9ccd9c8d1dfff",
+    "tools\\cognition_checks\\inspection.lua": "9984142a99f5d69aa5331e6d557f9e86894d63472178213f4828a1d115d18f1c",
+    "tools\\cognition_checks\\transfer.lua": "7ca58862f7e60e2e837bb8ecd743e841a2f801de8d953b4c6c611c5d5dae739e"
+  }
+}
