@@ -229,6 +229,7 @@ UNITS = [
     ('C88', 'minor', 'Introduce independent competing cognitive models with separate durable beliefs, pre-outcome predictions and balanced execution opportunities inside the native simulation. Bind authentic actor-private experience, semantic hypotheses, Mousecat acceleration and downstream aggregate trajectory evidence without model hierarchy or automatic knowledge grants. This is the first runtime cognitive-competition contract, so minor.'),
     ('C89', 'minor', 'Introduce owned native perceptual orientation, item physiology and appliance preparation with authenticated private result acquisition. These are new executable simulation contracts; existing lifecycle joins and failed-route repairs support them.'),
     ('C90', 'minor', 'Introduce durable cooperative procedure graphs with dependency-bound enacted truth and separate participant-private projections. Exact native acquisition, movement and handover receipts update only their actors and direct witnesses, while private reasoning and disagreement can revise an intended next step without rewriting material outcomes. This is a new long-form planning and authoring contract, so minor.'),
+    ('C91', 'minor', 'Introduce capability-bounded role claims, strategic movement and action steps, distinct-actor synchronization thresholds, exact Locomotion and Cooking joins, and failure-driven cooperative revision. This is a new multi-person planning and execution contract rather than a single added verb, so minor.'),
 ]
 
 TIER_MEANINGS = [

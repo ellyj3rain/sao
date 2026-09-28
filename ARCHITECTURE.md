@@ -1,6 +1,6 @@
 | Document | Survivor Awareness Overhaul Architecture |
 |---|---|
-| Version | `3.1.0.0-pre-alpha` |
+| Version | `3.2.0.0-pre-alpha` |
 | Author | ellyj3rain |
 | Repository | `ARCHITECTURE.md` |
 | Status | ACTIVE - ratified framework shape. |
@@ -1054,6 +1054,49 @@ Border 207 exercises dependency refusal, acquisition, actor-private progress,
 route progress, bilateral delivery, disagreement and save/rebind with five
 defect controls. This is installed-Kahlua mechanical evidence; a natural loaded
 run has not yet established long-form procedure frequency or quality.
+
+### Cooperative role allocation and strategic action (C91)
+
+C91 makes the C90 graph usable by several people without treating cooperation
+as a shared inventory or a single aggregate body. A cooperative step declares
+its domain, role, capability, bounded participant capacity, optional target and
+posture. A recipient can accept one compatible role without possessing every
+capability in the procedure. Delivered acceptance creates an actor-specific
+claim; capacity prevents another person from taking the same exclusive role.
+Qualification, counter-proposal, refusal and withdrawal remain ordinary
+Organization responses.
+
+Movement, material work and posture use the same procedure vocabulary but keep
+their native owners. Locomotion can complete an actor's claimed movement step
+from the exact arrived route. Cooking carries the accepted process and step
+identity through its native appliance lifecycle and publishes
+`cooking:prepared` only after heat, retrieval and shutdown succeed. Other action
+owners enter through `consumeProcedureResult` only after exact admission and a
+matching actor, commitment, step and receipt. The procedure never performs the
+world effect.
+
+Steps can require several distinct actor contributions. A first contribution
+is retained without satisfying the threshold; dependent work opens only after
+the enacted threshold completes and the participant separately acquires that
+fact. This supports assemble, cover, hold, escort, withdraw, regroup and similar
+strategic structures as parallel movement or action steps followed by explicit
+synchronization barriers. It does not collapse member locations, perception or
+dissent into group truth.
+
+Failure marks the exact claim, preserves the unfinished enacted step and records
+a revision need. It neither assigns a replacement nor edits another person's
+projection. `Coordination.reviseCooperation` authors a new proposal revision;
+participants must acquire and answer it again. Mousecat's existing person
+inspection now shows objective, role/domain, claimants, contribution threshold,
+the selected person's claim and revision reason. Border 208 executes twelve
+formation, role, movement, knowledge, synchronization and revision cases with
+four defect controls. The A-Life, Living Fellows and CAO source catalogue is in
+`artifacts/audits/c91-autonomous-cooperation/PRIOR_ART_CATALOGUE.md`.
+
+C91 establishes the general and executable role contract plus loaded
+Locomotion/Cooking call sites. It does not claim a natural loaded scene,
+posture owners for every strategic verb, autonomous tactical doctrine, or
+training admission. Observed scenarios remain operator-reviewed candidates.
 
 ### Reference-learning source (C81)
 

@@ -877,6 +877,28 @@ local function coordinationDestination(plan)
         z = tonumber(destination.z) or 0 }
 end
 
+local function coordinationProcedureStep(plan)
+    local id = plan and plan.intendedStepId
+    local beliefs = plan and plan.privateProcedure
+        and plan.privateProcedure.beliefs or nil
+    return id and beliefs and beliefs[id] or nil
+end
+
+local function procedureStepDestination(step)
+    local target = step and step.target or nil
+    if type(target) ~= "table" then return nil end
+    local x, y = tonumber(target.x), tonumber(target.y)
+    if x and y then return { x = x, y = y,
+        z = tonumber(target.z) or 0 } end
+    local minX, minY = tonumber(target.minX), tonumber(target.minY)
+    local maxX, maxY = tonumber(target.maxX), tonumber(target.maxY)
+    if not minX or not minY or not maxX or not maxY
+        or minX > maxX or minY > maxY then return nil end
+    return { minX = minX, minY = minY, maxX = maxX, maxY = maxY,
+        x = (minX + maxX) / 2, y = (minY + maxY) / 2,
+        z = tonumber(target.z) or 0 }
+end
+
 -- A received proposal supplies a complete address. Person memories currently
 -- have no floor, so their XY can replace that address only while the same
 -- privately identified person is actually visible on this body's floor.
@@ -1093,6 +1115,8 @@ local SUPPORTED_COORDINATION = {
     ["food-delivery"] = true,
     provisioning = true,
     ["rendezvous-holding"] = true,
+    ["cooperative-action"] = true,
+    ["strategic-cooperation"] = true,
 }
 
 local function activeCoordinationCommitment(id, preferredId)
@@ -1108,7 +1132,8 @@ local function activeCoordinationCommitment(id, preferredId)
         return first
     end
     for _, matter in ipairs({ "food-delivery", "provisioning",
-            "rendezvous-holding" }) do
+            "rendezvous-holding", "cooperative-action",
+            "strategic-cooperation" }) do
         local commitment = SAO.Organization.activeCommitment(id, matter)
         if commitment then return commitment end
     end
@@ -1225,6 +1250,11 @@ local function tickCoordinationRoute(id, body, runtime)
             "acquisition-source-revalidation-needed")
         return true, "acquisition-queue-refused"
     elseif result == "arrived" and route.phase == "travelling" then
+        if route.procedureMove then
+            local commitment = SAO.Organization.commitment(route.commitmentId)
+            return true, commitment and commitment.status == "completed"
+                and "completed:movement" or "step-completed:movement"
+        end
         local routeId = route.routeId or attempt and attempt.id
         local completed = SAO.Organization.completeArrival(
             route.commitmentId, routeId, route.arrivalActivity,
@@ -1286,8 +1316,14 @@ local function advanceCoordination(id, body, owner, activity, agent, selected)
     local proposal = plan.proposal or {}
     local scope = type(proposal.scope) == "table" and proposal.scope or {}
     local rendezvous = plan.kind == "rendezvous-holding"
+    local cooperative = proposal.cooperative == true
+    local procedureStep = cooperative and coordinationProcedureStep(plan) or nil
     local category = tostring(scope.category or proposal.category or "food")
-    if not rendezvous and category ~= "food" and category ~= "water" then
+    if cooperative and not procedureStep then
+        return false, "waiting-for-assigned-step-or-dependency"
+    end
+    if not rendezvous and not cooperative
+        and category ~= "food" and category ~= "water" then
         SAO.Organization.interruptWork(commitment.id,
             "unsupported-material-category", false)
         return false, "unsupported-material-category"
@@ -1348,8 +1384,65 @@ local function advanceCoordination(id, body, owner, activity, agent, selected)
                 and coordinationContext(plan, category) or nil,
             arrivalActivity = rendezvous and (scope.arrivalActivity
                 or proposal.arrivalActivity or "holding-place") or nil,
+            procedureMove = cooperative and procedureStep
+                and (procedureStep.domain == "movement"
+                    or procedureStep.verb == "move") or false,
         }
         return true, "route"
+    end
+
+    if cooperative and (procedureStep.capability == "prepare"
+        or procedureStep.verb == "prepare") then
+        if not (SAO.Cooking and SAO.Cooking.begin) then
+            return false, "preparation-owner-unavailable"
+        end
+        local started, work = SAO.Cooking.begin(id, body, {
+            processId = plan.processId,
+            processRevision = plan.processRevision,
+            commitmentId = commitment.id,
+            stepId = procedureStep.id,
+            completionToken = "cooking:prepared",
+        })
+        if not started or not work then return false, "preparation-unavailable" end
+        if not SAO.Organization.noteWorkAdmission(commitment.id, "Cooking",
+            work.id, { stepId = procedureStep.id }) then
+            SAO.Cooking.interrupt(id, body, "procedure-admission-refused")
+            return false, "procedure-admission-refused"
+        end
+        if agent then
+            agent.coordinationCommitment = commitment.id
+            setState(agent, id, "COOK",
+                "prepares food for accepted cooperative procedure",
+                "designation")
+        end
+        return true, "preparing"
+    end
+
+    if cooperative and (procedureStep.domain == "movement"
+        or procedureStep.verb == "move") then
+        local destination = procedureStepDestination(procedureStep)
+            or coordinationDestination(plan)
+        if not destination then
+            SAO.Organization.releaseProcedureStep(commitment.id,
+                procedureStep.id, "movement-target-unavailable", {
+                    owner = "Controller.coordination" })
+            return false, "movement-target-unavailable"
+        end
+        local attempt, routeReason = orderCoordinationRoute(id, body,
+            commitment, destination.x, destination.y, destination.z,
+            "travelling")
+        if attempt then
+            runtime.coordinationRoute = { commitmentId = commitment.id,
+                phase = "travelling", routeId = attempt.id,
+                procedureMove = true, stepId = procedureStep.id }
+            if agent then
+                agent.coordinationCommitment = commitment.id
+                setState(agent, id, "WORKWARD",
+                    "moves for accepted cooperative procedure", "errand")
+            end
+            return true, "route"
+        end
+        return false, routeReason
     end
 
     if rendezvous then

@@ -52,7 +52,10 @@ def evaluate(controller: str, command: str,
             and "Command.order already owns the delivered request" in wrapper,
         "external execution capability belongs to its registered owner":
             "executionUnavailable" in coordination
+            and "local capabilities = type(execution.capabilities) == \"table\"" in coordination
+            and "and execution.capabilities or {" in coordination
             and "execution.canAcquire ~= false" in coordination
+            and "capabilities = capabilities" in coordination
             and 'executor = execution.executor' in coordination,
         "external danger pauses the same commitment and route":
             'activity ~= "coordination"' in external
@@ -87,8 +90,9 @@ def main() -> int:
          'and true -- removed request'),
         ("leave", "controller", 'local heeds = onTheirWord(id,',
          'local heeds = true -- removed request'),
-        ("external capability", "coordination", "execution.canAcquire ~= false",
-         "true -- external capability ignored"),
+        ("external capability", "coordination",
+         'and execution.capabilities or {',
+         'and nil or { -- external capability map ignored'),
         ("external pause", "controller", "SAO.Organization.pauseWork(commitment.id,",
          "true -- external work was not paused\n            and (commitment.id,"),
     ]

@@ -93,10 +93,10 @@ NOT_ABOUT_LUA = {
     "doc_currency_test.py":
         "reads the markdown headers and VERSION - documents, not code",
     "state_counts_test.py":
-        "[B52] counts batch records, borders and gated mirrors, and "
-        "checks SESSION_STATE.md states those figures. Its subject is "
-        "how much of this tree there is; the mod's Lua is one of the "
-        "things counted and never one of the things read",
+        "counts governed batch/test paths and border labels, then checks "
+        "SESSION_STATE.md states those figures; it does not inspect Lua "
+        "contents, so replacing tracked Lua files with empty files cannot "
+        "change its subject",
     "session_state_test.py":
         "reads SESSION_STATE.md against BATCH_LOG.md; the Lua has no "
         "opinion about which batch is current",

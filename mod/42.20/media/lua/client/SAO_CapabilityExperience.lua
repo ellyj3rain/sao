@@ -19,6 +19,24 @@ SAO.Pharmacology.onNativeChange = function(id, receipt)
 end
 
 SAO.Cooking.onOutcome = function(id, receipt)
+    if receipt and receipt.commitmentId and SAO.Organization
+        and SAO.Organization.consumeProcedureResult then
+        pcall(SAO.Organization.consumeProcedureResult, {
+            id = receipt.id, actorId = id,
+            commitmentId = receipt.commitmentId,
+            stepId = receipt.stepId,
+            token = receipt.token or "cooking:prepared",
+            owner = "Cooking", status = receipt.status == "completed"
+                and "completed" or receipt.status == "interrupted"
+                and "interrupted" or "failed",
+            reason = receipt.detail, at = receipt.atHours,
+            evidence = { itemId = receipt.itemId,
+                itemType = receipt.itemType,
+                nativeCredit = receipt.nativeCredit,
+                retrieved = receipt.retrieved == true,
+                heatObserved = receipt.heatObserved == true },
+        })
+    end
     if SAO.Cognition and SAO.Cognition.preparationOutcome then
         return SAO.Cognition.preparationOutcome(id, receipt)
     end

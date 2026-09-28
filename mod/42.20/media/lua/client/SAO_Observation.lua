@@ -226,11 +226,50 @@ local function processes(id)
                 math.floor(tonumber(process.revision) or 1)))
             local enacted = process.procedures and process.procedures[revision]
             if enacted then
-                row(s, "Enacted procedure", tostring(enacted.status))
+                row(s, "Enacted procedure", tostring(enacted.status)
+                    .. (enacted.objective and " / " .. tostring(enacted.objective)
+                        or ""))
+                if enacted.revisionNeeded then
+                    row(s, "Revision needed",
+                        tostring(enacted.revisionNeeded.stepId) .. " / "
+                        .. tostring(enacted.revisionNeeded.reason))
+                end
                 for _, stepId in ipairs(enacted.order or {}) do
                     local step = enacted.steps and enacted.steps[stepId]
-                    if step then row(s, "Actual: " .. tostring(step.verb),
-                        tostring(step.status)) end
+                    if step then
+                        local contributors, claimants, ownClaim = 0, {}, nil
+                        for actorId in pairs(step.contributions or {}) do
+                            contributors = contributors + 1
+                        end
+                        for actorId, claim in pairs(step.claims or {}) do
+                            if claim.status == "claimed"
+                                or claim.status == "attempting"
+                                or claim.status == "completed" then
+                                claimants[#claimants + 1] = actorId
+                            end
+                            if actorId == id then ownClaim = claim end
+                        end
+                        table.sort(claimants)
+                        local detail = tostring(step.status)
+                        if enacted.cooperative then
+                            detail = detail .. " / "
+                                .. tostring(step.role or step.verb) .. " / "
+                                .. tostring(step.domain or "action")
+                            if (step.minActors or 1) > 1 or contributors > 0 then
+                                detail = detail .. " / " .. tostring(contributors)
+                                    .. "/" .. tostring(step.minActors or 1)
+                            end
+                            if #claimants > 0 then
+                                detail = detail .. " / "
+                                    .. table.concat(claimants, ", ")
+                            end
+                        end
+                        row(s, "Actual: " .. tostring(step.verb), detail)
+                        if ownClaim then
+                            row(s, "My role: " .. tostring(step.role or step.verb),
+                                tostring(ownClaim.status))
+                        end
+                    end
                 end
             end
             local plans = process.privatePlans and process.privatePlans[id]

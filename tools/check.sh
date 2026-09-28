@@ -2209,6 +2209,15 @@ if ! "$PY" tools/cooperative_procedure_test.py; then
     fail=1
 fi
 
+# [C91] Border 208 - cooperative procedures allocate bounded actor roles across
+# material work, strategic movement and posture; exact owned results contribute
+# to synchronization thresholds while failure requests revision rather than
+# silently assigning another person.
+if ! "$PY" tools/autonomous_cooperation_test.py; then
+    note "BORDER FINDING - autonomous role allocation or procedure revision failed"
+    fail=1
+fi
+
 # Border 103 - the operator's speech is not in the repository: no
 # profanity in the tracked tree and no operator-quote attributions;
 # rulings are paraphrased content, speech stays with the speaker.

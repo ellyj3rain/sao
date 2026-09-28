@@ -1,6 +1,6 @@
 | Document | Survivor Awareness Overhaul Batch Log |
 |---|---|
-| Version | `3.1.0.0-pre-alpha` |
+| Version | `3.2.0.0-pre-alpha` |
 | Author | ellyj3rain |
 | Repository | `BATCH_LOG.md` |
 | Status | REGULATORY - chronological batch index. |
@@ -197,3 +197,4 @@ source mapping and hashes. Consolidation does not close implementation defects.
 | [C88](Batches/C88-20260927-0208Z-1908PST-competing-cognition.md) | 2026-09-27 | Competing cognition | [`T-002`](Batches/THREADS.md#t-002), [`T-003`](Batches/THREADS.md#t-003), [`T-004`](Batches/THREADS.md#t-004), [`T-008`](Batches/THREADS.md#t-008), [`T-030`](Batches/THREADS.md#t-030) |
 | [C89](Batches/C89-20260927-0516Z-2216PST-native-perception-and-capabilities.md) | 2026-09-27 | Native perception and capabilities | [`T-002`](Batches/THREADS.md#t-002), [`T-003`](Batches/THREADS.md#t-003), [`T-004`](Batches/THREADS.md#t-004), [`T-005`](Batches/THREADS.md#t-005), [`T-006`](Batches/THREADS.md#t-006), [`T-008`](Batches/THREADS.md#t-008), [`T-030`](Batches/THREADS.md#t-030) |
 | [C90](Batches/C90-20260927-2033Z-1333PST-cooperative-procedures.md) | 2026-09-27 | Cooperative procedures and private projections | [`T-003`](Batches/THREADS.md#t-003), [`T-004`](Batches/THREADS.md#t-004), [`T-006`](Batches/THREADS.md#t-006), [`T-008`](Batches/THREADS.md#t-008), [`T-030`](Batches/THREADS.md#t-030) |
+| [C91](Batches/C91-20260928-0058Z-1758PST-autonomous-cooperative-action.md) | 2026-09-28 | Autonomous cooperative action | [`T-002`](Batches/THREADS.md#t-002), [`T-003`](Batches/THREADS.md#t-003), [`T-004`](Batches/THREADS.md#t-004), [`T-006`](Batches/THREADS.md#t-006), [`T-008`](Batches/THREADS.md#t-008), [`T-030`](Batches/THREADS.md#t-030) |
