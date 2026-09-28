@@ -627,6 +627,60 @@ function M.propose(modelId, state, frame)
     return proposal
 end
 
+-- The same private plan candidates are interpreted independently by each
+-- contestant. This ranks proposed routes through already represented work;
+-- it cannot add a verb, technique, material, spatial fact or native result.
+function M.interpretPlans(modelId, state, candidates, context)
+    if not validState(modelId, state) or type(candidates) ~= "table"
+        or #candidates < 1 or #candidates > 16 or type(context) ~= "table" then
+        return nil, "private-plan-frame"
+    end
+    local pressure = tonumber(context.pressure) or 0
+    if not finite(pressure) or pressure < 0 or pressure > 1 then
+        return nil, "private-plan-pressure"
+    end
+    local ranked = {}
+    for _, candidate in ipairs(candidates) do
+        if type(candidate) ~= "table" or not text(candidate.id, 128) then
+            return nil, "private-plan-candidate"
+        end
+        local evidence = tonumber(candidate.evidence)
+        local continuity = tonumber(candidate.continuity)
+        local novelty = tonumber(candidate.novelty)
+        local information = tonumber(candidate.informationGain)
+        local blockers = tonumber(candidate.blockers)
+        if not unit(evidence) or not unit(continuity) or not unit(novelty)
+            or not unit(information) or not finite(blockers)
+            or blockers < 0 or blockers > 16 or blockers ~= math.floor(blockers) then
+            return nil, "private-plan-candidate"
+        end
+        local score, interpretation
+        if modelId == "ordinary" then
+            score = evidence * 0.55 + continuity * 0.30 + pressure * 0.15
+                - math.min(1, blockers * 0.35)
+            interpretation = "Demonstrated feasibility, maintained purpose and current pressure favor this route."
+        else
+            local learned = 0.5
+            for _, belief in pairs(state.beliefs) do
+                learned = math.max(learned, posterior(belief, state.lastHours))
+            end
+            score = evidence * 0.25 + continuity * 0.15 + novelty * 0.20
+                + information * 0.30 + pressure * 0.10 + (learned - 0.5) * 0.1
+                - math.min(1, blockers * 0.25)
+            interpretation = "Association value, uncertainty reduction and possible adjacency favor testing this route."
+        end
+        ranked[#ranked + 1] = { id = candidate.id, score = score,
+            interpretation = interpretation }
+    end
+    table.sort(ranked, function(a, b)
+        if a.score == b.score then return a.id < b.id end
+        return a.score > b.score
+    end)
+    return { modelId = modelId, version = VERSION[modelId],
+        selected = ranked[1].id, score = ranked[1].score,
+        interpretation = ranked[1].interpretation, ranked = ranked }
+end
+
 function M.summary(modelId, state, hours)
     if not validState(modelId,state) or not finite(hours) then return nil,"model-state" end
     if state.lastHours and hours<state.lastHours then return nil,"future-evidence" end

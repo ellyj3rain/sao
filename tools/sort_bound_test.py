@@ -107,6 +107,12 @@ BOUNDED = {
         "compatibleProcedureSteps reads one enacted procedure; "
         "enactProcedure rejects the twenty-fifth step at "
         "MAX_PROCEDURE_STEPS (24), so the candidate list cannot exceed 24",
+    ("SAO_CognitiveModels.lua", "ranked"):
+        "interpretPlans rejects more than sixteen candidates before copying "
+        "or sorting them, keeping both model rankings within that bound",
+    ("SAO_ProceduralPlanning.lua", "candidates"):
+        "chooseFallback reads one person's spatialKnowledge list; "
+        "rememberSpatial evicts at MAX_FACTS (64), so filtering cannot widen it",
     ("SAO_Observation.lua", "claimants"):
         "one enacted procedure step admits at most MAX_STEP_ACTORS (16) "
         "active claims through boundedCount and claimStepForCommitment's "

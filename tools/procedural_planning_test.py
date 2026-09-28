@@ -1,0 +1,301 @@
+#!/usr/bin/env python3
+"""Border 211: durable private purposes compile to receipt-bound native work."""
+from __future__ import annotations
+
+import pathlib
+import re
+import shutil
+import subprocess
+import tempfile
+
+
+ROOT = pathlib.Path(__file__).resolve().parent.parent
+LUA = ROOT / "mod/42.20/media/lua"
+PLANNER = LUA / "shared/SAO_ProceduralPlanning.lua"
+MODELS = LUA / "shared/SAO_CognitiveModels.lua"
+COGNITION = LUA / "shared/SAO_Cognition.lua"
+COORDINATION = LUA / "shared/SAO_Coordination.lua"
+CONTROLLER = LUA / "client/SAO_Controller.lua"
+POPULATION = LUA / "client/SAO_Population.lua"
+OBSERVATION = LUA / "client/SAO_Observation.lua"
+GESTURE = LUA / "client/SAO_Gesture.lua"
+CHECK = ROOT / "tools/check.sh"
+RUNNER = ROOT / "tools/luacheck/LuaRun.java"
+OUT = ROOT / "java/out/luacheck"
+JDK = pathlib.Path(r"C:\Users\jleyv\Peanut Butter\JetBrains\Java\bin")
+PZ_DIR = pathlib.Path(r"C:\Program Files (x86)\Steam\steamapps\common\ProjectZomboid")
+PZ = PZ_DIR / "projectzomboid.jar"
+STDLIB = PZ_DIR / "stdlib.lua"
+
+PRELUDE = r'''
+_G.__hours = 100
+_G.__records = {
+  a={id='a',dead=false,occupation='carpenter',designation='cook'},
+  b={id='b',dead=false,occupation='student',designation='scout'},
+}
+SAO = {
+  History={countyHours=function() return __hours end,
+    literacyOf=function(id) return id=='b' and 'slow' or 'reads' end},
+  Identity={get=function(id) return __records[id] end,
+    all=function() return __records end},
+  Census={JOB_PERK={cook='Cooking',scout='Lightfooted'},
+    bookSkillFor=function(p) return p end,
+    skillOf=function(id,perk)
+      if id=='a' and perk=='Cooking' then return 4 end
+      if id=='a' and perk=='Woodwork' then return 6 end
+      if id=='b' and perk=='Lightfooted' then return 2 end
+      return 0
+    end},
+}
+Events=setmetatable({}, {__index=function(t,key)
+  local slot={Add=function() end,Remove=function() end}; rawset(t,key,slot)
+  return slot end})
+'''
+
+PROBE = r'''(function()
+  local checks={}
+  local function check(name,value)
+    checks[#checks+1]=name..'='..tostring(value==true)
+  end
+  local P=SAO.ProceduralPlanning
+  P.rememberSpatial('a',{key='home',kind='held-ground',x=5,y=5,
+    observedAtHours=0,confidence=1,familiarity=1,routeKnown=true,owned=true})
+  P.rememberSpatial('a',{key='alley',kind='cover',x=15,y=10,
+    observedAtHours=0,confidence=1,familiarity=0,cover=.8,
+    blocksThreatLOS=true,routeKnown=true})
+  P.rememberSpatial('b',{key='school',kind='familiar-place',x=30,y=30,
+    observedAtHours=90,confidence=1,familiarity=.8,routeKnown=true})
+  local ak=P.spatialKnowledge('a',100)
+  local bk=P.spatialKnowledge('b',100)
+  check('spatial_knowledge_is_person_private',#ak==2 and #bk==1
+    and bk[1].key=='school')
+  check('familiar_ground_decays_more_slowly',ak[1].confidence>ak[2].confidence)
+
+  local profile=P.techniqueProfile('a')
+  check('technique_profile_uses_numeric_game_skills',
+    profile.skills.Cooking==4 and profile.skills.Woodwork==6
+    and type(profile.skills.Aiming)=='number')
+
+  local views=SAO.Cognition.interpretPlans('a',{
+    {id='proven',evidence=1,continuity=1,novelty=0,informationGain=0,blockers=0},
+    {id='probe',evidence=.4,continuity=.1,novelty=1,informationGain=1,blockers=0},
+  },{domain='learning',pressure=0})
+  check('existing_models_independently_disagree_on_shared_candidates',
+    views.models[1].selected=='proven' and views.models[2].selected=='probe'
+    and views.disagreement==true)
+
+  local study,step=P.planStudy('a','cook',{literacy='reads',readingTime=1,
+    fatigue=.5,atHours=100})
+  check('study_is_a_maintained_multistep_purpose',study.status=='maintained'
+    and step.id=='locate-book' and study.steps[2].effort==1.5
+    and study.steps[3].verb=='practice')
+  P.noteAdmission('a',study.id,'SAONeeds','queued-1')
+  check('queue_admission_does_not_teach_or_advance',study.cursor==1
+    and study.steps[1].status=='available')
+  local wrong=P.recordResult('a',study.id,{owner='SAONeeds',
+    token='reading:progressed',status='completed',atHours=101})
+  check('mismatched_result_cannot_advance',wrong==false and study.cursor==1)
+  local wrongOwner=P.recordResult('a',study.id,{owner='OtherOwner',
+    token='reading:located',status='completed',atHours=101})
+  check('wrong_owner_cannot_advance',wrongOwner==false and study.cursor==1)
+  local located=P.recordResult('a',study.id,{owner='SAONeeds',
+    token='reading:located',status='completed',atHours=101})
+  study=P.planStudy('a','cook',{literacy='reads',readingTime=1,
+    fatigue=.2,bookOwned=true,atHours=101})
+  check('completed_prerequisite_survives_recompilation',located==true
+    and study.steps[1].id=='read-session' and study.cursor==1)
+  local read=P.recordResult('a',study.id,{owner='SAONeeds',
+    token='reading:progressed',status='completed',atHours=102})
+  check('exact_read_result_advances_progress',read==true and study.sessions==1
+    and study.cursor==2 and P.techniqueProfile('a').practice.Cooking.completed==1)
+
+  local blocked=P.planStudy('b','scout',{literacy='none',atHours=100})
+  check('literacy_blocks_reading_without_erasing_purpose',blocked.status=='blocked'
+    and blocked.blockers[1]=='cannot-yet-read')
+
+  local fort,fortStep=P.planFortification('a',{insideOwnedGround=true,
+    hasKit=true,knownGround=false,atHours=102})
+  check('fortification_begins_with_private_ground_inspection',
+    fortStep.id=='survey-entrances' and fort.steps[2].status=='blocked')
+  P.recordResult('a',fort.id,{owner='SAOBuild',token='ground:surveyed',
+    status='completed',atHours=103})
+  fort=P.planFortification('a',{insideOwnedGround=true,hasKit=true,
+    knownGround=true,entryKey='door:1',atHours=103})
+  check('known_owned_entry_opens_native_construction',
+    fort.steps[1].id=='board-known-entry' and fort.steps[1].status=='available')
+
+  local leisure,leisureStep=P.planLeisure('a',{activity='play guitar',
+    affordance='Base.Guitar',locationKey='porch',atLocation=true,
+    owner='SAO.Gesture',spontaneous=true,atHours=103})
+  check('leisure_requires_real_affordance_and_place',leisure.status=='maintained'
+    and leisureStep.id=='perform-activity' and leisure.locationKey=='porch')
+  local before=P.techniqueProfile('a').practice['play guitar']
+  P.noteAdmission('a',leisure.id,'SAO.Gesture','gesture-1')
+  local still=P.techniqueProfile('a').practice['play guitar']
+  P.recordResult('a',leisure.id,{owner='SAO.Gesture',
+    token='leisure:performed',status='completed',atHours=104})
+  local after=P.techniqueProfile('a').practice['play guitar']
+  check('leisure_reward_follows_performed_event',before==nil and still==nil
+    and after.completed==1)
+
+  local fallback=P.chooseFallback('a',{position={x=10,y=10,z=0},
+    threat={x=5,y=10,z=0,key='zeds'},atHours=10})
+  check('withdrawal_prefers_known_cover_and_route',fallback~=nil
+    and fallback.key=='alley' and fallback.blocksThreatLOS==true)
+
+  local saved=__records.a.proceduralPlanning
+  SAO.ProceduralPlanning=nil
+  check('planning_state_is_data_only_and_persistent',saved.schema==1
+    and type(saved.purposes)=='table' and type(saved.spatial)=='table')
+  return table.concat(checks,',')
+end)()'''
+
+EXPECTED = {
+    "spatial_knowledge_is_person_private",
+    "familiar_ground_decays_more_slowly",
+    "technique_profile_uses_numeric_game_skills",
+    "existing_models_independently_disagree_on_shared_candidates",
+    "study_is_a_maintained_multistep_purpose",
+    "queue_admission_does_not_teach_or_advance",
+    "mismatched_result_cannot_advance",
+    "wrong_owner_cannot_advance",
+    "completed_prerequisite_survives_recompilation",
+    "exact_read_result_advances_progress",
+    "literacy_blocks_reading_without_erasing_purpose",
+    "fortification_begins_with_private_ground_inspection",
+    "known_owned_entry_opens_native_construction",
+    "leisure_requires_real_affordance_and_place",
+    "leisure_reward_follows_performed_event",
+    "withdrawal_prefers_known_cover_and_route",
+    "planning_state_is_data_only_and_persistent",
+}
+
+
+def compile_runner() -> tuple[bool, str]:
+    OUT.mkdir(parents=True, exist_ok=True)
+    done = subprocess.run(
+        [str(JDK / "javac.exe"), "-cp", str(PZ), "-d", str(OUT), str(RUNNER)],
+        capture_output=True, text=True, timeout=300)
+    return done.returncode == 0, done.stderr or done.stdout
+
+
+def run_probe(planner_source: str) -> tuple[str | None, str]:
+    with tempfile.TemporaryDirectory(prefix="sao-procedural-planning-") as tmp:
+        work = pathlib.Path(tmp)
+        shutil.copy2(STDLIB, work / "stdlib.lua")
+        for cls in OUT.glob("LuaRun*.class"):
+            shutil.copy2(cls, work / cls.name)
+        files = {
+            "prelude.lua": PRELUDE,
+            "models.lua": MODELS.read_text(encoding="utf-8-sig"),
+            "cognition.lua": COGNITION.read_text(encoding="utf-8-sig"),
+            "planner.lua": planner_source,
+            "probe.lua": "__result = " + PROBE,
+        }
+        for name, source in files.items():
+            (work / name).write_text(source, encoding="utf-8")
+        done = subprocess.run(
+            [str(JDK / "java.exe"), "-cp", f"{PZ};.", "LuaRun",
+             *(str(work / name) for name in files), "--", "__result"],
+            cwd=work, capture_output=True, text=True, timeout=300)
+    output = (done.stdout or "") + (done.stderr or "")
+    lines = (done.stdout or "").strip().splitlines()
+    value = lines[-1][6:] if lines and lines[-1].startswith("VALUE ") else None
+    return value, output
+
+
+def verdicts(value: str | None) -> dict[str, str]:
+    return dict(re.findall(r"([a-z0-9_]+)=(true|false)", value or ""))
+
+
+def static_contract() -> tuple[bool, str]:
+    sources = {
+        "planner": PLANNER.read_text(encoding="utf-8"),
+        "models": MODELS.read_text(encoding="utf-8"),
+        "cognition": COGNITION.read_text(encoding="utf-8"),
+        "coordination": COORDINATION.read_text(encoding="utf-8"),
+        "controller": CONTROLLER.read_text(encoding="utf-8"),
+        "population": POPULATION.read_text(encoding="utf-8"),
+        "observation": OBSERVATION.read_text(encoding="utf-8"),
+        "gesture": GESTURE.read_text(encoding="utf-8"),
+        "check": CHECK.read_text(encoding="utf-8"),
+    }
+    required = (
+        ("function P.maintain", "planner"),
+        ("function P.rememberSpatial", "planner"),
+        ("function P.planStudy", "planner"),
+        ("function P.planFortification", "planner"),
+        ("function P.planLeisure", "planner"),
+        ("function P.chooseFallback", "planner"),
+        ("function P.recordResult", "planner"),
+        ("function M.interpretPlans", "models"),
+        ("function C.interpretPlans", "cognition"),
+        ("private-spatial-knowledge", "coordination"),
+        ("SAO.ProceduralPlanning.planStudy", "controller"),
+        ("SAO.ProceduralPlanning.planFortification", "controller"),
+        ("native-claim-survey", "population"),
+        ('section("planning"', "observation"),
+        ("function SAOGestureAction:perform()", "gesture"),
+        ('token = "leisure:performed"', "gesture"),
+        ("tools/procedural_planning_test.py", "check"),
+    )
+    missing = [anchor for anchor, key in required if anchor not in sources[key]]
+    return not missing, "all joins present" if not missing else repr(missing)
+
+
+def main() -> int:
+    print("=" * 74)
+    print("PRIVATE PURPOSES, SPATIAL PLANS AND RECEIPT-BOUND LEARNING")
+    print("=" * 74)
+    required = [PLANNER, MODELS, COGNITION, COORDINATION, CONTROLLER,
+                POPULATION, OBSERVATION, GESTURE, CHECK, RUNNER]
+    missing = [path for path in required if not path.is_file()]
+    if missing:
+        print("  FAULT: repository input absent: " + ", ".join(map(str, missing)))
+        return 1
+    if not all(path.is_file() for path in (PZ, STDLIB, JDK / "java.exe", JDK / "javac.exe")):
+        print("Border 211 SKIPPED: installed game VM or JDK absent")
+        return 0
+    static_ok, detail = static_contract()
+    print("  static contract: " + ("PASS" if static_ok else "FAIL") + f" ({detail})")
+    built, detail = compile_runner()
+    if not built:
+        print("  FAULT: runner compile failed " + detail[-1000:])
+        return 1
+    source = PLANNER.read_text(encoding="utf-8-sig")
+    value, detail = run_probe(source)
+    found = verdicts(value)
+    failed = sorted(name for name, result in found.items() if result != "true")
+    controls_ok = True
+    controls = (
+        ("receipt ownership", 'step.owner ~= result.owner', 'false'),
+        ("receipt token", 'step.token ~= result.token', 'false'),
+        ("private spatial store", 'function P.rememberSpatial(id, fact)\n    local s = state(id, true)',
+         'function P.rememberSpatial(id, fact)\n    local s = state("a", true)'),
+    )
+    for name, old, new in controls:
+        if old not in source:
+            print(f"  FAULT: {name} mutation seam changed")
+            controls_ok = False
+            continue
+        mutant_value, _ = run_probe(source.replace(old, new, 1))
+        mutant_found = verdicts(mutant_value)
+        if (set(mutant_found) == EXPECTED
+                and all(result == "true" for result in mutant_found.values())):
+            print(f"  FAULT: {name} mutation survived")
+            controls_ok = False
+    print("  mutation controls: " + ("PASS" if controls_ok else "FAIL")
+          + " (ownership, token and private-store controls)")
+    if not static_ok or not controls_ok or set(found) != EXPECTED or failed:
+        print("  FAULT: missing=" + repr(sorted(EXPECTED - set(found)))
+              + " failed=" + repr(failed) + " value=" + repr(value))
+        print("  " + detail[-3000:].replace("\n", " "))
+        return 1
+    print("  verdicts: PASS (17 planning, privacy, persistence and receipt cases)")
+    print("  211) purposes persist across recomputation; private spatial evidence")
+    print("       and independent model tension guide native receipt-bound work")
+    return 0
+
+
+if __name__ == "__main__":
+    raise SystemExit(main())

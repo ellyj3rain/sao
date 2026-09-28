@@ -16,9 +16,9 @@ the machine. Names, dates, and threads below come from
 | Form | `major.minor.kohai.patch-maturity` |
 | Hard caps | minor 12; kohai 16; patch 24 |
 | Replay start | `0.1.0.0-pre-alpha` |
-| Current version | `3.4.1.0-pre-alpha` |
-| Closed chronology | `A1-C94` |
-| Next batch | `C95` |
+| Current version | `3.5.0.0-pre-alpha` |
+| Closed chronology | `A1-C95` |
+| Next batch | `C96` |
 | Executable source | [`tools/version_replay.py`](tools/version_replay.py) |
 
 ## Tier meanings
@@ -210,6 +210,7 @@ the machine. Names, dates, and threads below come from
 | `C92` | 2026-09-28 | minor | `3.3.0.0-pre-alpha` | Natural cooperative formation and posture execution | Introduce natural private-pressure formation of collect-prepare-deliver and threat-response procedures plus an exact native body/head posture owner. These are new autonomous and player-visible execution contracts rather than authored scenario outcomes, so minor. |
 | `C93` | 2026-09-28 | minor | `3.4.0.0-pre-alpha` | Durable configurable study sessions | Introduce durable configurable native study sessions over verified save and resume attempts, with bounded lifecycle requests, Mousecat continuation controls and automatic successor feed handoff. This is a new simulation operation contract; observations remain unreviewed and cannot ratify dataset rules, so minor. |
 | `C94` | 2026-09-28 | kohai | `3.4.1.0-pre-alpha` | Study situation pressure and loaded cooperation diagnostic | Extend native study definitions with bounded deterministic one-time hunger, thirst and fatigue situations, preserve their application across ordinary action and reload, and retain them as unreviewed provenance. This matures the existing study-world evaluation contract without adding a new gameplay action or dataset authority, so kohai. |
+| `C95` | 2026-09-28 | minor | `3.5.0.0-pre-alpha` | Person-private procedural planning | Introduce a durable person-private procedural planner over maintained purposes, decaying spatial knowledge, numeric game skills, progressive study, fortification, tactical fallback and spatial social activity. Both existing cognitive models independently interpret the shared candidates, while only exact native-owner results advance practice. This is a new general planning runtime contract, so minor. |
 
 ## The former number
 
@@ -230,11 +231,11 @@ establish release maturity.
 
 ## Next movement
 
-`C95` is the next batch. Its content determines its tier after it
+`C96` is the next batch. Its content determines its tier after it
 exists:
 
-| If C95 is | Result |
+| If C96 is | Result |
 |---|---|
-| patch or hotfix | `3.4.1.1-pre-alpha` |
-| kohai | `3.4.2.0-pre-alpha` |
-| minor | `3.5.0.0-pre-alpha` |
+| patch or hotfix | `3.5.0.1-pre-alpha` |
+| kohai | `3.5.1.0-pre-alpha` |
+| minor | `3.6.0.0-pre-alpha` |

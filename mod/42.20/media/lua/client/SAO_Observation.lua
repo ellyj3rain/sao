@@ -365,12 +365,47 @@ local function preparation(id, rec)
     if latest then row(s, "Latest result", tostring(latest.status) .. ": " .. tostring(latest.detail)) end
     return s
 end
+local function planning(id)
+    local s = section("planning", "Purposes and next steps",
+        "ProceduralPlanning person-private store",
+        "Maintained intent, blockers and model interpretations")
+    local view = SAO.ProceduralPlanning and SAO.ProceduralPlanning.snapshot
+        and SAO.ProceduralPlanning.snapshot(id) or nil
+    if not view then
+        s.status, s.message = "unavailable", "No maintained planning state"
+        return s
+    end
+    row(s, "Remembered spatial facts", view.spatialFacts or 0)
+    row(s, "Practiced domains", view.practiceDomains or 0)
+    for _, purpose in ipairs(view.purposes or {}) do
+        row(s, "Purpose", tostring(purpose.objective) .. " / "
+            .. tostring(purpose.status))
+        if purpose.nextStep then
+            row(s, "Next step", tostring(purpose.nextStep) .. " / "
+                .. tostring(purpose.nextOwner or "unowned"))
+        end
+        if #(purpose.blockers or {}) > 0 then
+            row(s, "Blocked by", table.concat(purpose.blockers, ", "))
+        end
+        local interpretations = purpose.interpretations
+        for _, model in ipairs(interpretations and interpretations.models or {}) do
+            row(s, tostring(model.modelId) .. " model",
+                tostring(model.selected) .. " / "
+                .. tostring(model.interpretation))
+        end
+        if interpretations and interpretations.disagreement then
+            row(s, "Model disagreement", "The models prefer different next routes")
+        end
+    end
+    if #(view.purposes or {}) == 0 then s.message = "No maintained purpose yet" end
+    return s
+end
 local function samplePerson(id, rec, body)
     local agent = SAO.Controller and SAO.Controller.agents and SAO.Controller.agents[id]
     local pressure = section("pressure", "Pressure and recorded reason", "Controller", "Most recent decision receipt")
     if agent and agent.pressure then scalarRows(pressure, agent.pressure, "", 0)
     else pressure.status = "unavailable"; pressure.message = "No active pressure receipt" end
-    local out = { sections = { needs(body), attention(rec, body), medication(rec), preparation(id, rec),
+    local out = { sections = { needs(body), attention(rec, body), medication(rec), preparation(id, rec), planning(id),
         inventory(body), pressure, currentAction(id, body), sourceWork(id, rec), processes(id) }, events = {} }
     if SAO.Cognition and SAO.Cognition.snapshot then out.cognition = SAO.Cognition.snapshot(id) end
     for _, event in ipairs(histories[id] or {}) do

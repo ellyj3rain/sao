@@ -1,6 +1,6 @@
 | Document | Survivor Awareness Overhaul Architecture |
 |---|---|
-| Version | `3.4.1.0-pre-alpha` |
+| Version | `3.5.0.0-pre-alpha` |
 | Author | ellyj3rain |
 | Repository | `ARCHITECTURE.md` |
 | Status | ACTIVE - ratified framework shape. |
@@ -1097,6 +1097,48 @@ C91 establishes the general and executable role contract plus loaded
 Locomotion/Cooking call sites. It does not claim a natural loaded scene,
 posture owners for every strategic verb, autonomous tactical doctrine, or
 training admission. Observed scenarios remain operator-reviewed candidates.
+
+### Person-private procedural planning (C95)
+
+`SAO_ProceduralPlanning` owns maintained personal purposes between immediate
+decision and native execution. A purpose records its objective, origin,
+revision, ordered prerequisites, current blocker, interruption history, next
+native owner and the exact result token that can advance it. Recompilation
+preserves completed prerequisites. Admission to a queue records only that an
+owner accepted work; it never counts as reading, construction, practice or
+social participation.
+
+The planner holds person-private spatial facts with provenance, confidence,
+familiarity and decay. Familiar home ground lasts longer than a briefly seen
+route. A native claim survey records the holder's aggregate understanding of
+their own ground. A boardable-entry inspection records its exact aperture.
+Tactical withdrawal prefers remembered cover, broken threat sightlines and a
+known route when that person's evidence supports one; the earlier direct-away
+vector remains the emergency result when no usable private fact exists.
+
+Technique profiles read the engine's numeric perk levels, with occupation used
+only through Census's existing engine-profession read path. Occupation does not
+grant an action. Study compiles locating or acquiring the relevant book,
+native literature use and later tested practice. Literacy, reading-time traits
+and current fatigue alter the session. A queued `ReadLiterature` action remains
+pending because the current native adapter does not yet publish exact page
+completion; this prevents planned or admitted study from granting competence.
+
+Fortification compiles survey, construction and verification over held ground.
+The existing SAOBuild native bridge still owns material checks, aperture choice,
+engine barricading and consumption. Instrument recreation records its physical
+activity site and carried affordance. Reciprocal trust changes only for nearby
+people whose bodies actually danced or clapped during the performance; hearing
+or accepting a route toward the activity is not participation.
+
+The ordinary and associative models receive detached copies of the same bounded
+candidate set and their own model state. The ordinary model emphasizes evidence,
+continuity and pressure. The associative model emphasizes adjacency, novelty and
+information value. Mousecat exposes both selections and disagreement through
+the existing read-only person feed. Neither interpretation creates a verb,
+material, spatial fact, technique or outcome. Border 211 exercises private
+memory, decay, numeric skills, model disagreement, study, fortification,
+tactical ground, spatial leisure, persistence and exact receipt ownership.
 
 ### Natural cooperative formation and native posture (C92)
 

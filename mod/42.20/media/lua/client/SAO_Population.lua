@@ -468,6 +468,21 @@ local function lookAtSomeGround(day)
     rec.waysIntoHome = ways
     rec.boardedAtHome = boarded or 0
     rec.groundSeenOnDay = day
+    -- [C95] A survey becomes this holder's durable, decaying spatial
+    -- knowledge. It is an aggregate fact about their own place, not a public
+    -- map and not evidence that they know every individual aperture.
+    if SAO.ProceduralPlanning and SAO.ProceduralPlanning.rememberSpatial then
+        SAO.ProceduralPlanning.rememberSpatial(pick.id, {
+            key = "home-ground", kind = "held-ground",
+            x = (pick.claim.minX + pick.claim.maxX) / 2,
+            y = (pick.claim.minY + pick.claim.maxY) / 2,
+            z = pick.claim.z or 0, source = "native-claim-survey",
+            observedAtHours = hoursNow(), confidence = 1, familiarity = 1,
+            routeKnown = true, owned = true, usable = true,
+            tags = { "home", "entrances:" .. tostring(ways),
+                "boarded:" .. tostring(boarded or 0) },
+        })
+    end
 end
 
 -- [C65] The county line, once a day.
