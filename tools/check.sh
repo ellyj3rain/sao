@@ -2226,6 +2226,14 @@ if ! "$PY" tools/natural_cooperation_test.py; then
     fail=1
 fi
 
+# Border 210 - [C93] long observations remain bounded attempts over one native
+# save; only exact saved state can continue, and lifecycle requests remain
+# review-neutral, bounded and exact-once.
+if ! "$PY" tools/world_lab_session_test.py; then
+    note "BORDER FINDING - durable study session or bounded continuation failed"
+    fail=1
+fi
+
 # Border 103 - the operator's speech is not in the repository: no
 # profanity in the tracked tree and no operator-quote attributions;
 # rulings are paraphrased content, speech stays with the speaker.

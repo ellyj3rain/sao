@@ -68,7 +68,7 @@ then seals the copied inputs, native logs, observer state, complete image,
 observations and save files. Verification and continuation are explicit:
 
 Every launch has a wall-time limit, including `--watch`: `--timeout` defaults
-to 600 seconds. The native launcher requests a normal save and exit at that
+to 3,600 seconds and accepts 30 seconds through seven days. The native launcher requests a normal save and exit at that
 limit, including while paused. The supervisor watches native logic and image
 progress independently of the world clock, detects fatal memory/producer
 failures, and allows 30 seconds for shutdown before terminating its own child.
@@ -88,6 +88,28 @@ Continuation verifies the prior completed attempt and uses the saved mod order.
 Each attempt has separate control/state/image paths and a new view session.
 Reopen Mousecat on a fresh Speakeasy feed for that session. A failed attempt
 remains failed and cannot be admitted as a completed observation.
+
+For repeated observation, `world_lab_session.py` keeps one verified native save
+behind successive bounded attempts. The first launch prepares the isolated run;
+later launches use the runner's existing verified `--resume` path. The durable
+session state records attempt duration, current attempt, accumulated simulated
+hours and whether a normal save can continue. It remains `unreviewed` and has no
+behavioral verdict.
+
+```powershell
+python tools/world_lab_session.py <package-directory> `
+  --out <session-directory> --game <installed-game-directory> `
+  --jdk <jdk-bin-directory> --mod <SAO-directory> --mod <ZAO-directory> `
+  --watcher <Speakeasy-directory>/tools/world_watch.py `
+  --registry <Mousecat-native-view-registry>
+```
+
+Mousecat exposes **Save session** while an attempt is active and **Continue
+session** after its normal save returns. Attempt duration and automatic
+continuation are inside **Session settings**. Automatic continuation is off by
+default. It applies only after a clean wall-time checkpoint; an explicit save
+stays stopped. A successor replaces the ended feed only after Speakeasy has
+published its first complete frame.
 
 Full native physics applies within loaded regions. Durable people elsewhere
 retain their simulation representation; unavailable squares are explicitly

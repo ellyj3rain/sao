@@ -534,15 +534,15 @@ def main():
     parser.add_argument("--watch", action="store_true", help="observe until a native stop command or the wall-time limit")
     parser.add_argument("--window", choices=("visible", "hidden"), default="visible",
                         help="use the native game renderer visibly, or keep its window hidden for batch runs")
-    parser.add_argument("--timeout", type=int, default=600,
-                        help="wall-time limit in seconds for every run, including --watch (default: 600)")
+    parser.add_argument("--timeout", type=int, default=3600,
+                        help="wall-time limit in seconds for every run, including --watch (default: 3600)")
     args = parser.parse_args()
     if args.verify:
         print(json.dumps(verify_run(args.out, args.package), allow_nan=False))
         return 0
     Lab.require(args.game is not None and args.jdk is not None, "launch requires --game and --jdk")
     Lab.number(args.hours, 1 / 3600, 24 * 365, "run hours")
-    Lab.integer(args.timeout, 30, 86400, "wall-time limit")
+    Lab.integer(args.timeout, 30, 604800, "wall-time limit")
     return run(args)
 
 
