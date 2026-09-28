@@ -179,6 +179,24 @@ class DefinitionTests(unittest.TestCase):
         value["extent"] = {"minCellX": -2, "minCellY": -1, "cellsX": 4, "cellsY": 3}
         self.assertEqual(Lab.validate(value), value)
 
+    def test_initial_need_situation(self):
+        value = copy.deepcopy(BASE)
+        value["situation"] = {"initialNeeds": {
+            "hunger": {"min": 0.35, "max": 0.75},
+            "thirst": {"min": 0.30, "max": 0.70},
+            "fatigue": {"min": 0.0, "max": 0.10},
+        }}
+        self.assertEqual(Lab.validate(value), value)
+        for change in (
+                lambda d: d["situation"]["initialNeeds"]["hunger"].update(min=0.8, max=0.2),
+                lambda d: d["situation"]["initialNeeds"]["thirst"].update(max=1.01),
+                lambda d: d["situation"]["initialNeeds"].update(panic={"min": 0.1, "max": 0.2}),
+                lambda d: d["situation"].update(objective="cooperate")):
+            invalid = copy.deepcopy(value)
+            change(invalid)
+            with self.assertRaises(ValueError):
+                Lab.validate(invalid)
+
     def test_invalid_definitions(self):
         changes = [
             lambda d: d.update(id="../escape"),

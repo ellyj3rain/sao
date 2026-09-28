@@ -232,6 +232,7 @@ UNITS = [
     ('C91', 'minor', 'Introduce capability-bounded role claims, strategic movement and action steps, distinct-actor synchronization thresholds, exact Locomotion and Cooking joins, and failure-driven cooperative revision. This is a new multi-person planning and execution contract rather than a single added verb, so minor.'),
     ('C92', 'minor', 'Introduce natural private-pressure formation of collect-prepare-deliver and threat-response procedures plus an exact native body/head posture owner. These are new autonomous and player-visible execution contracts rather than authored scenario outcomes, so minor.'),
     ('C93', 'minor', 'Introduce durable configurable native study sessions over verified save and resume attempts, with bounded lifecycle requests, Mousecat continuation controls and automatic successor feed handoff. This is a new simulation operation contract; observations remain unreviewed and cannot ratify dataset rules, so minor.'),
+    ('C94', 'kohai', 'Extend native study definitions with bounded deterministic one-time hunger, thirst and fatigue situations, preserve their application across ordinary action and reload, and retain them as unreviewed provenance. This matures the existing study-world evaluation contract without adding a new gameplay action or dataset authority, so kohai.'),
 ]
 
 TIER_MEANINGS = [

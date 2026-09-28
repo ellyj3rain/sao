@@ -1,13 +1,24 @@
 | Document | Survivor Awareness Overhaul Session State |
 |---|---|
-| Version | `3.4.0.0-pre-alpha` |
+| Version | `3.4.1.0-pre-alpha` |
 | Author | ellyj3rain |
 | Repository | `SESSION_STATE.md` |
 | Status | CANONICAL - current implementation and continuation. |
 
 # Session state
 
-**As of** 2026-09-28, [C93] adds durable configurable native study sessions over
+**As of** 2026-09-28, [C94] adds deterministic one-time native need pressure to
+study definitions. The first six-person loaded pressure run formed a natural
+provisioning process: survivors accepted roles, a provisioner completed native
+acquisition through SourceUse, work advanced into carrying, and one participant
+entered Cooking. Other people remained in weak IDLE/ROAM policies and at least
+one source action failed. This is unreviewed diagnostic evidence that the
+pressure-to-cooperation path can execute and that maintained goals, planning and
+world-use competence remain the next causal gap. That gap belongs to the general
+person-private procedural cognition substrate used by both competing models;
+the existing two-model ontology remains intact.
+
+[C93] adds durable configurable native study sessions over
 the verified save and resume path. Each native process remains finite. A normal
 checkpoint can continue with the same save; failed and forced attempts cannot.
 The ordinary attempt budget is one hour, with bounded configuration and optional

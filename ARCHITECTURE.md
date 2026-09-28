@@ -1,6 +1,6 @@
 | Document | Survivor Awareness Overhaul Architecture |
 |---|---|
-| Version | `3.4.0.0-pre-alpha` |
+| Version | `3.4.1.0-pre-alpha` |
 | Author | ellyj3rain |
 | Repository | `ARCHITECTURE.md` |
 | Status | ACTIVE - ratified framework shape. |
@@ -1152,6 +1152,21 @@ one action valid now and places duration and automatic continuation inside an
 expandable settings section. The prior ended feed remains bound until a resumed
 attempt publishes a complete successor frame. All session state and observations
 remain unreviewed with no behavioral verdict or dataset-write surface.
+
+### Study situation pressure (C94)
+
+A study definition may carry one exact `situation` with bounded initial hunger,
+thirst and fatigue ranges. `StudyWorld` deterministically samples each range by
+person identity and writes the matching native `CharacterStat` only once after
+that person's body exists. The applied value and county time persist in the
+study save, so reload or another tick cannot reset physiology after ordinary
+native action changes it.
+
+The situation is copied into observation provenance and package identity. It
+does not select a response, manufacture knowledge, score behavior or admit a
+dataset row. Existing Needs, Cognition, Controller, Organization, SourceUse,
+Cooking and other native owners remain responsible for turning bodily pressure
+into decisions and world effects.
 
 ### Reference-learning source (C81)
 
