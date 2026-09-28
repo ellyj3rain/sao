@@ -1,22 +1,34 @@
 | Document | Survivor Awareness Overhaul Session State |
 |---|---|
-| Version | `3.4.1.0-pre-alpha` |
+| Version | `3.5.0.0-pre-alpha` |
 | Author | ellyj3rain |
 | Repository | `SESSION_STATE.md` |
 | Status | CANONICAL - current implementation and continuation. |
 
 # Session state
 
-**As of** 2026-09-28, [C94] adds deterministic one-time native need pressure to
-study definitions. The first six-person loaded pressure run formed a natural
+**As of** 2026-09-28, [C95] adds the first general person-private procedural
+planner. A person now retains purposes, blockers, interruption history, numeric
+game-skill evidence, progressive study, exact native result requirements and
+decaying spatial facts. Reading, home fortification, known-ground tactical
+fallback and instrument recreation use the shared contract. The ordinary and
+associative cognitive models independently rank the same candidates and retain
+visible disagreement without either model owning the plan substrate. Mousecat's
+person observation exposes purpose, next native owner, blockers, spatial memory
+count and both interpretations. Queue admission does not teach; only matching
+native-owner completion advances practice. Loaded behavioral quality remains
+unreviewed for dataset admission.
+
+[C94] adds deterministic one-time native need pressure to study definitions.
+The first six-person loaded pressure run formed a natural
 provisioning process: survivors accepted roles, a provisioner completed native
 acquisition through SourceUse, work advanced into carrying, and one participant
 entered Cooking. Other people remained in weak IDLE/ROAM policies and at least
 one source action failed. This is unreviewed diagnostic evidence that the
 pressure-to-cooperation path can execute and that maintained goals, planning and
-world-use competence remain the next causal gap. That gap belongs to the general
-person-private procedural cognition substrate used by both competing models;
-the existing two-model ontology remains intact.
+world-use competence as the next causal gap. C95 supplies that substrate; wider
+action sequences, richer structure classification and loaded long-horizon
+quality remain open. The existing two-model ontology remains intact.
 
 [C93] adds durable configurable native study sessions over
 the verified save and resume path. Each native process remains finite. A normal
@@ -987,10 +999,10 @@ border, C75's typed-claim border, C86's native study, escape-continuity and
 sound-evidence borders, C88's cognitive competition border, C89's native
 capability borders, C90-C92's cooperative procedure borders and C93's durable
 study-session border, the gate invokes
-212 `*_test.py` files and 13 other Python entry points, 225 distinct scripts.
-Border labels extend through 210; legacy labels
+213 `*_test.py` files and 13 other Python entry points, 226 distinct scripts.
+Border labels extend through 211; legacy labels
 163/169/174 share the native suite. These are distinct counting units. The mod
-ships 92 Lua source files.
+ships 93 Lua source files.
 ZAO A41 has fifteen borders. The
 published C51 baseline has 163 borders through 178 mirrors. These counts describe the
 apparatus, not acceptance. The audit reproduced defects while targeted checks

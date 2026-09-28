@@ -42,20 +42,38 @@ function SAOGestureAction:start()
 end
 
 function SAOGestureAction:stop()
+    if self.planReceipt and SAO.ProceduralPlanning then
+        SAO.ProceduralPlanning.recordResult(self.planReceipt.actorId,
+            self.planReceipt.purposeId, { owner = self.planReceipt.owner,
+                token = self.planReceipt.token, status = "interrupted",
+                reason = "gesture-interrupted" })
+    end
     ISBaseTimedAction.stop(self)
 end
 
 function SAOGestureAction:perform()
     ISBaseTimedAction.perform(self)
+    if self.planReceipt and SAO.ProceduralPlanning then
+        local accepted = SAO.ProceduralPlanning.recordResult(
+            self.planReceipt.actorId, self.planReceipt.purposeId,
+            { owner = self.planReceipt.owner, token = self.planReceipt.token,
+                status = "completed" })
+        local other = accepted and self.planReceipt.rewardWith or nil
+        if other and SAO.Standing then
+            SAO.Standing.adjustTrust(self.planReceipt.actorId, other, 0.01)
+            SAO.Standing.adjustTrust(other, self.planReceipt.actorId, 0.01)
+        end
+    end
 end
 
-function SAOGestureAction:new(character, gesture, ticks)
+function SAOGestureAction:new(character, gesture, ticks, planReceipt)
     local o = ISBaseTimedAction.new(self, character)
     o.gesture = gesture
     o.maxTime = ticks
     o.stopOnWalk = true
     o.stopOnRun = true
     o.stopOnAim = true
+    o.planReceipt = planReceipt
     return o
 end
 
@@ -177,10 +195,11 @@ local function free(body)
 end
 
 -- Queue one gesture. Returns true when it was queued.
-function G.play(id, body, name, ticks)
+function G.play(id, body, name, ticks, planReceipt)
     if not name or not free(body) then return false end
     local ok = pcall(function()
-        ISTimedActionQueue.add(SAOGestureAction:new(body, name, ticks or TICKS.gesture))
+        ISTimedActionQueue.add(SAOGestureAction:new(body, name,
+            ticks or TICKS.gesture, planReceipt))
     end)
     if ok then log(tostring(id) .. " " .. name) end
     return ok
@@ -298,17 +317,35 @@ end
 -- county now owns because the world actually holds the instrument.
 -- `what` still names the tune's sound and label (banjo, harmonica,
 -- the rest); only the SHAPE follows the carried thing.
+G.pendingPlanReceipt = nil
+
+function G.planReceipt(id, purposeId, rewardWith)
+    if type(id) ~= "string" or type(purposeId) ~= "string" then return false end
+    G.pendingPlanReceipt = { actorId = id, purposeId = purposeId,
+        owner = "SAO.Gesture", token = "leisure:performed",
+        rewardWith = rewardWith }
+    return true
+end
+
+local function takePlanReceipt(id)
+    local receipt = G.pendingPlanReceipt
+    G.pendingPlanReceipt = nil
+    return receipt and receipt.actorId == id and receipt or nil
+end
+
 function G.playInstrument(id, body, what, itemType)
     local list = (what == "harmonica") and G.HARMONICA or G.GUITAR
     if itemType and G.BARD[itemType] then
         list = { G.BARD[itemType] }
     end
-    return G.play(id, body, pick(list, id, "tune"), TICKS.tune)
+    local receipt = takePlanReceipt(id)
+    return G.play(id, body, pick(list, id, "tune"), TICKS.tune, receipt)
 end
 
 -- Those already close when the tune starts: half dance, the rest clap.
 function G.dance(id, body)
-    return G.play(id, body, pick(G.DANCES, id, "dance"), TICKS.dance)
+    local receipt = takePlanReceipt(id)
+    return G.play(id, body, pick(G.DANCES, id, "dance"), TICKS.dance, receipt)
 end
 
 -- [C119] The counter ([C113]): a person at their filed trade ground

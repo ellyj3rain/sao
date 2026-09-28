@@ -610,6 +610,24 @@ function C.snapshot(id, full)
     end
     return out
 end
+
+-- Plan interpretation is read-only. Both contestants receive detached copies
+-- of the same person's candidates and their own model state; neither sees the
+-- other's answer and selection here does not create an execution episode.
+function C.interpretPlans(id, candidates, context)
+    local s = state(id, true)
+    if not s or not SAO.CognitiveModels
+        or type(SAO.CognitiveModels.interpretPlans) ~= "function" then return nil end
+    local out = { models = {} }
+    for _, name in ipairs(MODEL_IDS) do
+        local ok, view = pcall(SAO.CognitiveModels.interpretPlans, name,
+            copy(s.models[name]), copy(candidates), copy(context or {}))
+        if not ok or type(view) ~= "table" then return nil end
+        out.models[#out.models + 1] = view
+    end
+    out.disagreement = out.models[1].selected ~= out.models[2].selected
+    return out
+end
 function C.rebindWorld()
     for id, rec in pairs(SAO.Identity and SAO.Identity.all() or {}) do
         if rec.cognition then C.interrupt(id, "world-reloaded") end

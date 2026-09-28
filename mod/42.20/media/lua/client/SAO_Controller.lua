@@ -24,6 +24,9 @@ local Ctl = SAO.Controller
 if not SAO.Posture and type(require) == "function" then
     pcall(require, "SAO_Posture")
 end
+if not SAO.ProceduralPlanning and type(require) == "function" then
+    pcall(require, "SAO_ProceduralPlanning")
+end
 
 -- id -> { rec, state, stateSince, nextDecisionAt, fleeTarget }
 Ctl.agents = Ctl.agents or {}
@@ -3867,6 +3870,13 @@ local function decideHomeAndEquipment(id, agent, body, tick, rec)
                 makings = SAOJavaBridge:carriesTheMakings(body)
             end)
             if makings then
+                local fortify95 = nil
+                if SAO.ProceduralPlanning then
+                    fortify95 = SAO.ProceduralPlanning.planFortification(id, {
+                        insideOwnedGround = true, hasKit = true,
+                        knownGround = rec and rec.groundSeenOnDay ~= nil,
+                    })
+                end
                 local spot = ""
                 pcall(function()
                     spot = tostring(SAOJavaBridge:findBoardable(body,
@@ -3875,12 +3885,38 @@ local function decideHomeAndEquipment(id, agent, body, tick, rec)
                 end)
                 local bx, by, bz = spot:match("^(-?%d+),(-?%d+),(-?%d+)$")
                 if bx then
+                    local entryKey95 = "entry:" .. tostring(bx) .. ":"
+                        .. tostring(by) .. ":" .. tostring(bz)
+                    if SAO.ProceduralPlanning and fortify95 then
+                        SAO.ProceduralPlanning.rememberSpatial(id, {
+                            key = entryKey95, kind = "boardable-entry",
+                            x = tonumber(bx), y = tonumber(by), z = tonumber(bz),
+                            source = "native-boardable-inspection", confidence = 1,
+                            familiarity = 0.75, routeKnown = true, owned = true,
+                            usable = true, tags = { "entrance", "fortification" },
+                        })
+                        local first95 = fortify95.steps[fortify95.cursor]
+                        if first95 and first95.id == "survey-entrances" then
+                            SAO.ProceduralPlanning.recordResult(id, fortify95.id, {
+                                owner = "SAOBuild", token = "ground:surveyed",
+                                status = "completed" })
+                        end
+                        fortify95 = SAO.ProceduralPlanning.planFortification(id, {
+                            insideOwnedGround = true, hasKit = true,
+                            knownGround = true, entryKey = entryKey95,
+                        })
+                    end
                     local planks = 0
                     pcall(function()
                         planks = SAOJavaBridge:boardWindow(body,
                             tonumber(bx), tonumber(by), tonumber(bz))
                     end)
                     if planks and planks > 0 then
+                        if SAO.ProceduralPlanning and fortify95 then
+                            SAO.ProceduralPlanning.recordResult(id, fortify95.id, {
+                                owner = "SAOBuild", token = "construction:boarded",
+                                status = "completed" })
+                        end
                         agent.boarded = (agent.boarded or 0) + 1
                         agent.taskDeadline = tick + BOARD_TICKS
                         setState(agent, id, "BOARDING",
@@ -4277,6 +4313,24 @@ local function decideRestActivity(id, agent, body, tick, idleRec)
             end
             detail = "picks the " .. what .. " on the porch, "
                 .. (agent.armed and "weapon" or "bat") .. " in reach"
+            local leisure95, site95 = nil, nil
+            if SAO.ProceduralPlanning then
+                site95 = "activity-site:" .. tostring(math.floor(body:getX()))
+                    .. ":" .. tostring(math.floor(body:getY()))
+                    .. ":" .. tostring(math.floor(body:getZ()))
+                SAO.ProceduralPlanning.rememberSpatial(id, {
+                    key = site95, kind = "shared-activity-place",
+                    x = body:getX(), y = body:getY(), z = body:getZ(),
+                    source = "current-physical-place", confidence = 1,
+                    familiarity = 0.6, routeKnown = true, usable = true,
+                    tags = { "leisure", "instrument" },
+                })
+                leisure95 = SAO.ProceduralPlanning.planLeisure(id, {
+                    activity = "play " .. what, affordance = carriedInstrument,
+                    locationKey = site95, atLocation = true,
+                    owner = "SAO.Gesture", spontaneous = true,
+                })
+            end
             -- [B21] And it CARRIES. This used to set a string and
             -- stop - a hobby with no audience is a flavour label.
             -- The sound is real and reaches the dead too, which is
@@ -4296,6 +4350,9 @@ local function decideRestActivity(id, agent, body, tick, idleRec)
                 -- animation - [C119] and the bard's own clip
                 -- when the carried type has one.
                 pcall(function()
+                    if leisure95 then
+                        SAO.Gesture.planReceipt(id, leisure95.id)
+                    end
                     SAO.Gesture.playInstrument(id, body, what,
                         carriedInstrument)
                 end)
@@ -4334,11 +4391,32 @@ local function decideRestActivity(id, agent, body, tick, idleRec)
                                 elseif od2 <= PORCH_REACH * PORCH_REACH then
                                     -- [C35] Already close: half dance, the
                                     -- rest clap - the porch, seen and heard.
+                                    local joinedPurpose95 = nil
+                                    if SAO.ProceduralPlanning and site95 then
+                                        joinedPurpose95 = SAO.ProceduralPlanning.planLeisure(
+                                            oid43, { activity = "join " .. what,
+                                                affordance = carriedInstrument,
+                                                locationKey = site95, atLocation = true,
+                                                owner = "SAO.Gesture", spontaneous = true })
+                                    end
                                     pcall(function()
                                         if (SAO.Hash.of(oid43, "dance:" .. tostring(tick)) % 100) < 50 then
+                                            if joinedPurpose95 then
+                                                SAO.Gesture.planReceipt(oid43,
+                                                    joinedPurpose95.id, id)
+                                            end
                                             SAO.Gesture.dance(oid43, ob43)
                                         else
-                                            SAO.Gesture.clap(ob43)
+                                            local clapped95 = SAO.Gesture.clap(ob43)
+                                            if clapped95 and joinedPurpose95
+                                                and SAO.ProceduralPlanning.recordResult(oid43,
+                                                    joinedPurpose95.id, {
+                                                        owner = "SAO.Gesture",
+                                                        token = "leisure:performed",
+                                                        status = "completed" }) then
+                                                SAO.Standing.adjustTrust(id, oid43, 0.01)
+                                                SAO.Standing.adjustTrust(oid43, id, 0.01)
+                                            end
                                         end
                                     end)
                                 end
@@ -4391,6 +4469,15 @@ local function decideRestActivity(id, agent, body, tick, idleRec)
             if literacy48 == "none" then
                 detail = "too young to read the work up - watches the grown-ups instead"
             else
+                local needs48 = SAO.Needs and SAO.Needs.read
+                    and SAO.Needs.read(body) or {}
+                local purpose48, step48 = nil, nil
+                if SAO.ProceduralPlanning then
+                    purpose48, step48 = SAO.ProceduralPlanning.planStudy(id,
+                        idleRec.designation, { literacy = literacy48,
+                            readingTime = readingTime48,
+                            fatigue = tonumber(needs48.fatigue) or 0 })
+                end
                 local studied = ""
                 pcall(function()
                     studied = SAOJavaBridge:readSkillBook(body, book48)
@@ -4402,12 +4489,34 @@ local function decideRestActivity(id, agent, body, tick, idleRec)
                             body, 10, book48)
                     end)
                     if got48 then
+                        if purpose48 and step48 and step48.id == "locate-book" then
+                            SAO.ProceduralPlanning.recordResult(id, purpose48.id, {
+                                owner = "SAONeeds", token = "reading:located",
+                                status = "completed" })
+                        end
                         log(id .. " finds something on " .. tostring(perk48))
                     else
                         detail = "turns the work over in their head -"
                             .. " nothing written to learn it from"
                     end
                 else
+                    if purpose48 and step48 and step48.id == "locate-book" then
+                        SAO.ProceduralPlanning.recordResult(id, purpose48.id, {
+                            owner = "SAONeeds", token = "reading:located",
+                            status = "completed" })
+                        purpose48 = SAO.ProceduralPlanning.planStudy(id,
+                            idleRec.designation, { literacy = literacy48,
+                                readingTime = readingTime48,
+                                fatigue = tonumber(needs48.fatigue) or 0,
+                                bookOwned = true })
+                    end
+                    if purpose48 then
+                        -- ReadLiterature has been admitted to the native queue.
+                        -- Page completion remains pending until a native result
+                        -- owner can prove it; queue admission does not teach.
+                        SAO.ProceduralPlanning.noteAdmission(id, purpose48.id,
+                            "SAONeeds", "literature:" .. tostring(tick))
+                    end
                     pcall(function()
                         SAO.Voice.onEvent(id, "studies", tick)
                     end)

@@ -372,12 +372,23 @@ local function originateNativeSituation(id, body, ownerLabel, contacts)
     return open, delivered > 0 and "delivered" or "open-unheard"
 end
 
-local function tacticalDestination(situation)
+local function tacticalDestination(id, situation)
     local position, threat = situation and situation.position,
         situation and situation.threat
     local px, py = position and tonumber(position.x), position and tonumber(position.y)
     local tx, ty = threat and tonumber(threat.x), threat and tonumber(threat.y)
     if not (px and py and tx and ty) then return nil end
+    -- [C95] Known cover, broken sight lines and familiar routes outrank a
+    -- geometric retreat. The planning store is person-private, so another
+    -- survivor's map cannot silently choose this person's ground.
+    if SAO.ProceduralPlanning and SAO.ProceduralPlanning.chooseFallback then
+        local known = SAO.ProceduralPlanning.chooseFallback(id, situation)
+        if known then
+            return { x = math.floor(known.x), y = math.floor(known.y),
+                z = math.floor(tonumber(known.z) or 0),
+                spatialFact = known.key, source = "private-spatial-knowledge" }
+        end
+    end
     local dx, dy = px - tx, py - ty
     local length = math.sqrt(dx * dx + dy * dy)
     if length < MIN_FALLBACK_VECTOR then dx, dy, length = 1, 0, 1 end
@@ -389,7 +400,7 @@ local function tacticalDestination(situation)
 end
 
 local function tacticalProcedure(id, situation, recipientCount)
-    local threat, fallback = situation.threat, tacticalDestination(situation)
+    local threat, fallback = situation.threat, tacticalDestination(id, situation)
     if not fallback then return nil end
     local threatTarget = { x = tonumber(threat.x), y = tonumber(threat.y),
         z = math.floor(tonumber(threat.z) or tonumber(situation.position.z) or 0) }
@@ -438,14 +449,17 @@ local function originateTacticalSituation(id, ownerLabel, contacts, situation)
         originatorStepIds = { "watch-threat" },
         procedure = procedure,
         scope = { action = "tactical-withdrawal",
-            threatCount = tonumber(situation.threatCount) or 1 },
+            threatCount = tonumber(situation.threatCount) or 1,
+            spatialFact = fallback.spatialFact,
+            fallbackSource = fallback.source or "geometric-emergency" },
     }
     local evidence = { source = "private-perceived-threat",
         owner = ownerLabel or "SAO.Coordination",
         threatSource = threat.source, threatAt = threat.at,
         threatDistance = threat.dist, threatCount = situation.threatCount,
         originatorCapabilities = { watch = SAO.Posture ~= nil },
-        observedAtHours = nowHours() }
+        fallbackSource = fallback.source or "geometric-emergency",
+        spatialFact = fallback.spatialFact, observedAtHours = nowHours() }
     local open = SAO.Organization.openMatter(id, "strategic-cooperation")
     if open then
         local prior = currentProposal(open, id) or {}

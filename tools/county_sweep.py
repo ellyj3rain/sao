@@ -171,6 +171,7 @@ MODULES = [
     # Personal model state survives loaded/dormant transitions. Native action
     # proposals still require the loaded Controller and its real executors.
     "shared/SAO_CognitiveModels.lua", "shared/SAO_Cognition.lua",
+    "shared/SAO_ProceduralPlanning.lua",
     "shared/SAO_Disposition.lua", "shared/SAO_Conditions.lua",
     "shared/SAO_Course.lua", "shared/SAO_Neuro.lua",
     "shared/SAO_Adaptation.lua", "shared/SAO_Isolation.lua",

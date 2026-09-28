@@ -2234,6 +2234,14 @@ if ! "$PY" tools/world_lab_session_test.py; then
     fail=1
 fi
 
+# Border 211 - [C95] maintained purposes compile person-private spatial and
+# knowledge prerequisites into native work; independent cognitive models may
+# disagree, and only an exact owned result advances learning or practice.
+if ! "$PY" tools/procedural_planning_test.py; then
+    note "BORDER FINDING - private procedural planning or exact result learning failed"
+    fail=1
+fi
+
 # Border 103 - the operator's speech is not in the repository: no
 # profanity in the tracked tree and no operator-quote attributions;
 # rulings are paraphrased content, speech stays with the speaker.
