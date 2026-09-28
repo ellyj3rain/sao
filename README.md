@@ -38,9 +38,17 @@ on the simulation.
 
 ## Status
 
-`3.3.0.0-pre-alpha` - the coordinate is computed by the version machine
+`3.4.0.0-pre-alpha` - the coordinate is computed by the version machine
 (`tools/version_replay.py`), never picked; `VERSION_MAP.md` shows the
 classification and the arithmetic.
+
+C93 makes native studies durable across bounded engine attempts. The ordinary
+attempt budget is one hour and remains configurable; Save session requests a
+normal native checkpoint, Continue session reopens only a verified completed
+save, and optional automatic continuation chains clean wall-time checkpoints.
+Mousecat keeps attempt settings behind progressive disclosure and replaces an
+ended feed only after the successor has a complete frame. Session operation and
+observation remain unreviewed and cannot ratify dataset rules.
 
 C89 adds native head/body orientation to sound, source-owned drug items and
 physiology, real appliance preparation, and private experience from these

@@ -231,6 +231,7 @@ UNITS = [
     ('C90', 'minor', 'Introduce durable cooperative procedure graphs with dependency-bound enacted truth and separate participant-private projections. Exact native acquisition, movement and handover receipts update only their actors and direct witnesses, while private reasoning and disagreement can revise an intended next step without rewriting material outcomes. This is a new long-form planning and authoring contract, so minor.'),
     ('C91', 'minor', 'Introduce capability-bounded role claims, strategic movement and action steps, distinct-actor synchronization thresholds, exact Locomotion and Cooking joins, and failure-driven cooperative revision. This is a new multi-person planning and execution contract rather than a single added verb, so minor.'),
     ('C92', 'minor', 'Introduce natural private-pressure formation of collect-prepare-deliver and threat-response procedures plus an exact native body/head posture owner. These are new autonomous and player-visible execution contracts rather than authored scenario outcomes, so minor.'),
+    ('C93', 'minor', 'Introduce durable configurable native study sessions over verified save and resume attempts, with bounded lifecycle requests, Mousecat continuation controls and automatic successor feed handoff. This is a new simulation operation contract; observations remain unreviewed and cannot ratify dataset rules, so minor.'),
 ]
 
 TIER_MEANINGS = [

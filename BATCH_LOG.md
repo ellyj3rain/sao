@@ -1,6 +1,6 @@
 | Document | Survivor Awareness Overhaul Batch Log |
 |---|---|
-| Version | `3.3.0.0-pre-alpha` |
+| Version | `3.4.0.0-pre-alpha` |
 | Author | ellyj3rain |
 | Repository | `BATCH_LOG.md` |
 | Status | REGULATORY - chronological batch index. |
@@ -199,3 +199,4 @@ source mapping and hashes. Consolidation does not close implementation defects.
 | [C90](Batches/C90-20260927-2033Z-1333PST-cooperative-procedures.md) | 2026-09-27 | Cooperative procedures and private projections | [`T-003`](Batches/THREADS.md#t-003), [`T-004`](Batches/THREADS.md#t-004), [`T-006`](Batches/THREADS.md#t-006), [`T-008`](Batches/THREADS.md#t-008), [`T-030`](Batches/THREADS.md#t-030) |
 | [C91](Batches/C91-20260928-0058Z-1758PST-autonomous-cooperative-action.md) | 2026-09-28 | Autonomous cooperative action | [`T-002`](Batches/THREADS.md#t-002), [`T-003`](Batches/THREADS.md#t-003), [`T-004`](Batches/THREADS.md#t-004), [`T-006`](Batches/THREADS.md#t-006), [`T-008`](Batches/THREADS.md#t-008), [`T-030`](Batches/THREADS.md#t-030) |
 | [C92](Batches/C92-20260928-0433Z-2133PST-natural-cooperative-formation.md) | 2026-09-28 | Natural cooperative formation and posture execution | [`T-002`](Batches/THREADS.md#t-002), [`T-003`](Batches/THREADS.md#t-003), [`T-004`](Batches/THREADS.md#t-004), [`T-006`](Batches/THREADS.md#t-006), [`T-008`](Batches/THREADS.md#t-008), [`T-030`](Batches/THREADS.md#t-030) |
+| [C93](Batches/C93-20260928-0657Z-2357PST-durable-study-sessions.md) | 2026-09-28 | Durable configurable study sessions | [`T-002`](Batches/THREADS.md#t-002), [`T-006`](Batches/THREADS.md#t-006), [`T-008`](Batches/THREADS.md#t-008), [`T-009`](Batches/THREADS.md#t-009), [`T-030`](Batches/THREADS.md#t-030) |

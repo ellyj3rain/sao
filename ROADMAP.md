@@ -1,6 +1,6 @@
 | Document | Survivor Awareness Overhaul Roadmap |
 |---|---|
-| Version | `3.3.0.0-pre-alpha` |
+| Version | `3.4.0.0-pre-alpha` |
 | Author | ellyj3rain |
 | Repository | `ROADMAP.md` |
 | Status | CANONICAL - readiness work and retained scope. |
@@ -81,6 +81,11 @@ collect-prepare-deliver and distant-threat watch/fallback formation across two
 to seven people, same-actor material continuity and exact native watch/cover
 posture. Wider tactical doctrine, remaining action owners and observed
 long-form frequency remain open.
+C93 supplies durable configurable study sessions over the verified native
+save/resume path. Finite attempts can checkpoint, continue and optionally chain
+after a clean wall-time limit while Mousecat follows the first complete successor
+frame. This makes longer observation practical; it does not supply the missing
+loaded-world evidence or approve any scenario.
 Broader actions, institutions, reviewed data and learned execution remain
 R9-R14 work. Existing R work moves with its owning contract.
 

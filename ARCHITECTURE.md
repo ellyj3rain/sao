@@ -1,6 +1,6 @@
 | Document | Survivor Awareness Overhaul Architecture |
 |---|---|
-| Version | `3.3.0.0-pre-alpha` |
+| Version | `3.4.0.0-pre-alpha` |
 | Author | ellyj3rain |
 | Repository | `ARCHITECTURE.md` |
 | Status | ACTIVE - ratified framework shape. |
@@ -1131,6 +1131,27 @@ causal mutations. Border 202 additionally exercises native posture admission,
 identity, maintained-facing completion, movement refusal and exact release in
 all three native loading orders. These establish the mechanisms, not their
 loaded-world frequency, tactical quality or dataset admission.
+
+### Durable study sessions (C93)
+
+One study session owns a sequence of finite native attempts over the same
+isolated save. `world_lab_run.py` continues to own preparation, native process
+supervision, normal save return, attempt verification and `--resume` continuity.
+`world_lab_session.py` owns only bounded attempt settings and transitions between
+verified attempts. It never edits the save or promotes an observation.
+
+The durable public state contains its session identity, attempt number, wall-time
+budget, simulated clock, accumulated simulated hours, last stop reason and
+whether the current state can checkpoint or continue. Lifecycle commands are
+exact immutable files. Save requests use the existing native stop route;
+configuration and continuation go to the supervisor through Speakeasy's
+allowlisted bridge. A failed or forced run has no continuation authority.
+
+Mousecat receives path-free session state with the native view. It exposes the
+one action valid now and places duration and automatic continuation inside an
+expandable settings section. The prior ended feed remains bound until a resumed
+attempt publishes a complete successor frame. All session state and observations
+remain unreviewed with no behavioral verdict or dataset-write surface.
 
 ### Reference-learning source (C81)
 

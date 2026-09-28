@@ -1,13 +1,21 @@
 | Document | Survivor Awareness Overhaul Session State |
 |---|---|
-| Version | `3.3.0.0-pre-alpha` |
+| Version | `3.4.0.0-pre-alpha` |
 | Author | ellyj3rain |
 | Repository | `SESSION_STATE.md` |
 | Status | CANONICAL - current implementation and continuation. |
 
 # Session state
 
-**As of** 2026-09-28, [C92] connects durable cooperative procedures to
+**As of** 2026-09-28, [C93] adds durable configurable native study sessions over
+the verified save and resume path. Each native process remains finite. A normal
+checkpoint can continue with the same save; failed and forced attempts cannot.
+The ordinary attempt budget is one hour, with bounded configuration and optional
+automatic continuation after clean wall-time saves. Mousecat exposes the valid
+current lifecycle action and hides longer-term settings until opened. Session
+operation remains unreviewed and cannot ratify a dataset rule.
+
+C92 connects durable cooperative procedures to
 ordinary private food and distant-threat pressures. Natural formation spans two
 through seven known people without assigning agreement or shared knowledge.
 One physical actor retains acquisition, preparation, carrying and delivery for
@@ -966,9 +974,10 @@ C57 consolidates three native entry points into one. With C64's immutable
 capture border, C73's radio-reception border, C74's personal-world-knowledge
 border, C75's typed-claim border, C86's native study, escape-continuity and
 sound-evidence borders, C88's cognitive competition border, C89's native
-capability borders and C90-C92's cooperative procedure borders, the gate invokes
-211 `*_test.py` files and 13 other Python entry points, 224 distinct scripts.
-Border labels extend through 209; legacy labels
+capability borders, C90-C92's cooperative procedure borders and C93's durable
+study-session border, the gate invokes
+212 `*_test.py` files and 13 other Python entry points, 225 distinct scripts.
+Border labels extend through 210; legacy labels
 163/169/174 share the native suite. These are distinct counting units. The mod
 ships 92 Lua source files.
 ZAO A41 has fifteen borders. The
