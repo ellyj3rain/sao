@@ -2201,6 +2201,14 @@ if ! "$PY" tools/home_route_test.py; then
     fail=1
 fi
 
+# [C90] Border 207 - enacted procedure dependencies remain separate from each
+# participant's private projection; only reception and exact native receipts
+# update the people who directly acquired or witnessed them.
+if ! "$PY" tools/cooperative_procedure_test.py; then
+    note "BORDER FINDING - cooperative procedure or private projection failed"
+    fail=1
+fi
+
 # Border 103 - the operator's speech is not in the repository: no
 # profanity in the tracked tree and no operator-quote attributions;
 # rulings are paraphrased content, speech stays with the speaker.

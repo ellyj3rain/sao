@@ -1781,6 +1781,19 @@ function S.callForBread(groupName, speakerId)
                 requiredCapabilities = {
                     acquire = true, carry = true, deliver = true,
                 },
+                procedure = {
+                    { id = "acquire-material", verb = "acquire",
+                        capability = "acquire", owner = "actor",
+                        completesOn = "source:acquire" },
+                    { id = "carry-material", verb = "carry",
+                        capability = "carry", owner = "actor", required = false,
+                        dependsOn = { "acquire-material" },
+                        completesOn = "route:carrying" },
+                    { id = "deliver-material", verb = "deliver",
+                        capability = "deliver", owner = "actor",
+                        dependsOn = { "acquire-material" },
+                        completesOn = { "source:store", "handover:completed" } },
+                },
                 destination = claim and {
                     minX = claim.minX, minY = claim.minY,
                     maxX = claim.maxX, maxY = claim.maxY,

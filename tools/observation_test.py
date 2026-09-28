@@ -81,7 +81,11 @@ SAO.Organization.processOrder={"p"}
 SAO.Organization.processes.p={id="p",kind="delivery",status="open",participants={a={
  receptions={['1']={at=1.1,channel="direct",fromId="b"}},
  responses={['1']={response="accept",formedAt=1.2,delivered=false}}}},
- commitments={c={actorId="a",status="executing",work={phase="route",sourceReceipts={}}}}}
+ commitments={c={actorId="a",status="executing",work={phase="route",sourceReceipts={}}}},
+ revision=1,procedures={['1']={status='active',order={'acquire','deliver'},steps={
+  acquire={verb='acquire',status='completed'},deliver={verb='deliver',status='available'}}}},
+ privatePlans={a={['1']={intendedStepId='deliver',beliefs={
+  acquire={verb='acquire',status='completed'},deliver={verb='deliver',status='planned'}}}}}}
 __tick();local first=O.snapshot()
 check("county-clock",first.worldHours==__hours+24)
 check("physical-needs",find(first.people.a.sections,"Hunger")=="0.3000")
@@ -92,8 +96,12 @@ check("read-only-source-join",__records.a.worldSourceReservation=="missing-sourc
  and find(first.people.a.sections,"Source action")=="Recorded pointer has no matching actor reservation")
 check("source-terminal-receipt",find(first.people.a.sections,"Latest result.status")=="failed")
 check("stage-distinction",find(first.people.a.sections,"Formed response 1")=="accept at hour 1.2"
- and find(first.people.a.sections,"Response delivery 1")=="Not recorded as delivered"
- and find(first.people.a.sections,"Commitment c")=="executing")
+  and find(first.people.a.sections,"Response delivery 1")=="Not recorded as delivered"
+  and find(first.people.a.sections,"Commitment c")=="executing")
+check("procedure-perspectives",find(first.people.a.sections,"Enacted procedure")=="active"
+ and find(first.people.a.sections,"Actual: deliver")=="available"
+ and find(first.people.a.sections,"Personal next step")=="deliver"
+ and find(first.people.a.sections,"Belief: deliver")=="planned")
 __ms=1999;__paused();check("shared-throttle",__reads==1 and O.snapshot().sequence==1)
 __ms=2000;__paused();check("paused-refresh",__reads==2 and O.snapshot().sequence==2)
 __needsFail=true;__ms=3000;__tick();check("failure-time",O.snapshot().status=="failed" and O.snapshot().capturedAtUnixMs==2000 and O.snapshot().sequence==2)
@@ -182,6 +190,7 @@ def main():
         ("arrival-survives-cleanup", "SAO_Locomotion.lua", 'if not job.done then observed(id, "cancelled", job, "Route owner cancelled") end', 'observed(id, "cancelled", job, "Route owner cancelled")'),
         ("speech-after-success", "SAO_Voice.lua", 'if SAO.Observation then\n            pcall(SAO.Observation.record, id, "Voice", "emitted", line)\n        end', ''),
         ("dormant-unavailable", "SAO_Observation.lua", 'if not body then s.status = "unavailable"; s.message = "No loaded body; native needs were not sampled"; return s end', 'if not body then return s end'),
+        ("procedure-perspectives", "SAO_Observation.lua", 'row(s, "Personal next step", plan.intendedStepId or "No next step")', 'row(s, "Personal next step", "No next step")'),
     ]
     with tempfile.TemporaryDirectory(prefix="sao-observation-") as folder:
         temp = Path(folder)

@@ -16,9 +16,9 @@ the machine. Names, dates, and threads below come from
 | Form | `major.minor.kohai.patch-maturity` |
 | Hard caps | minor 12; kohai 16; patch 24 |
 | Replay start | `0.1.0.0-pre-alpha` |
-| Current version | `3.0.0.0-pre-alpha` |
-| Closed chronology | `A1-C89` |
-| Next batch | `C90` |
+| Current version | `3.1.0.0-pre-alpha` |
+| Closed chronology | `A1-C90` |
+| Next batch | `C91` |
 | Executable source | [`tools/version_replay.py`](tools/version_replay.py) |
 
 ## Tier meanings
@@ -205,6 +205,7 @@ the machine. Names, dates, and threads below come from
 | `C87` | 2026-09-26 | kohai | `2.11.1.0-pre-alpha` | Survival observation and continuity | Mature native study observation with authored places, finite process ownership, bounded person inspection and engine zoom; join exact resource approaches, native crossing completion, lived-place knowledge, accepted-work reconsideration and home/rest continuation. These extend and repair existing simulation owners without introducing a new capability boundary. |
 | `C88` | 2026-09-27 | minor | `2.12.0.0-pre-alpha` | Competing cognition | Introduce independent competing cognitive models with separate durable beliefs, pre-outcome predictions and balanced execution opportunities inside the native simulation. Bind authentic actor-private experience, semantic hypotheses, Mousecat acceleration and downstream aggregate trajectory evidence without model hierarchy or automatic knowledge grants. This is the first runtime cognitive-competition contract, so minor. |
 | `C89` | 2026-09-27 | minor | `3.0.0.0-pre-alpha` | Native perception and capabilities | Introduce owned native perceptual orientation, item physiology and appliance preparation with authenticated private result acquisition. These are new executable simulation contracts; existing lifecycle joins and failed-route repairs support them. |
+| `C90` | 2026-09-27 | minor | `3.1.0.0-pre-alpha` | Cooperative procedures and private projections | Introduce durable cooperative procedure graphs with dependency-bound enacted truth and separate participant-private projections. Exact native acquisition, movement and handover receipts update only their actors and direct witnesses, while private reasoning and disagreement can revise an intended next step without rewriting material outcomes. This is a new long-form planning and authoring contract, so minor. |
 
 ## The former number
 
@@ -225,11 +226,11 @@ establish release maturity.
 
 ## Next movement
 
-`C90` is the next batch. Its content determines its tier after it
+`C91` is the next batch. Its content determines its tier after it
 exists:
 
-| If C90 is | Result |
+| If C91 is | Result |
 |---|---|
-| patch or hotfix | `3.0.0.1-pre-alpha` |
-| kohai | `3.0.1.0-pre-alpha` |
-| minor | `3.1.0.0-pre-alpha` |
+| patch or hotfix | `3.1.0.1-pre-alpha` |
+| kohai | `3.1.1.0-pre-alpha` |
+| minor | `3.2.0.0-pre-alpha` |

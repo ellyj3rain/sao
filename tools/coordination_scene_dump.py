@@ -29,7 +29,7 @@ import enacted_coordination_test as Border
 
 ROOT = Path(__file__).resolve().parent.parent
 LUA = ROOT / "mod/42.20/media/lua"
-ZAO_ROOT = ROOT.parent / "zombie-awareness"
+ZAO_ROOT = (ROOT.parent / "zombie-awareness").resolve()
 ZAO_LUA = ZAO_ROOT / "mod/42.20/media/lua"
 
 GRAPH = LUA / "shared/SAO_GraphPersistence.lua"

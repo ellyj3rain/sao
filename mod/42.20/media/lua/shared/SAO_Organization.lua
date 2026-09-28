@@ -22,6 +22,7 @@ Org.workReceipts = Org.workReceipts or {}
 
 local MAX_PROCESSES = 1024
 local MAX_EVENTS = 256
+local MAX_PROCEDURE_STEPS = 24
 local MAX_ORGANIZATIONS = 512
 local RESPONSE = {
     accept = true, qualify = true, ["counter-propose"] = true,
@@ -236,6 +237,237 @@ local function proposalAt(process, revision)
         and process.revisions[revisionKey(revision or process.revision)] or nil
 end
 
+local function procedureAt(process, revision)
+    return process.procedures
+        and process.procedures[revisionKey(revision or process.revision)] or nil
+end
+
+local function privatePlanAt(process, personId, revision)
+    local plans = process.privatePlans
+        and process.privatePlans[tostring(personId or "")] or nil
+    return plans and plans[revisionKey(revision or process.revision)] or nil
+end
+
+local function completionTokens(value)
+    local tokens = {}
+    if type(value) == "string" and value ~= "" then
+        tokens[value] = true
+    elseif type(value) == "table" then
+        for _, token in ipairs(value) do
+            if type(token) == "string" and token ~= "" then
+                tokens[token] = true
+            end
+        end
+    end
+    return tokens
+end
+
+local function refreshProcedure(procedure, at)
+    if type(procedure) ~= "table" then return end
+    local requiredComplete = true
+    for _, stepId in ipairs(procedure.order or {}) do
+        local step = procedure.steps and procedure.steps[stepId] or nil
+        if step and step.status ~= "completed" and step.status ~= "not-needed" then
+            local ready = true
+            for _, dependencyId in ipairs(step.dependsOn or {}) do
+                local dependency = procedure.steps[dependencyId]
+                if not dependency or dependency.status ~= "completed" then
+                    ready = false
+                    break
+                end
+            end
+            step.status = ready and "available" or "blocked"
+        end
+        if step and step.required ~= false and step.status ~= "completed" then
+            requiredComplete = false
+        end
+    end
+    if requiredComplete and #(procedure.order or {}) > 0 then
+        procedure.status = "completed"
+        procedure.completedAt = finite(at) and at or nowHours()
+        for _, stepId in ipairs(procedure.order) do
+            local step = procedure.steps[stepId]
+            if step and step.required == false and step.status ~= "completed" then
+                step.status = "not-needed"
+            end
+        end
+    else
+        procedure.status = "active"
+    end
+end
+
+local function procedureFromProposal(proposal, revision, at)
+    local spec = type(proposal) == "table" and proposal.procedure or nil
+    if spec == nil then return nil end
+    if type(spec) ~= "table" then return false, "invalid-procedure" end
+    local procedure = { revision = revision, status = "active",
+        createdAt = at, steps = {}, order = {}, events = {} }
+    for _, raw in ipairs(spec) do
+        if #procedure.order >= MAX_PROCEDURE_STEPS or type(raw) ~= "table" then
+            return false, "invalid-procedure"
+        end
+        local stepId = identity(raw.id)
+        local verb = identity(raw.verb)
+        local completion = completionTokens(raw.completesOn)
+        if not stepId or not verb or procedure.steps[stepId] or not hasAny(completion) then
+            return false, "invalid-procedure"
+        end
+        local dependencies = {}
+        local seenDependencies = {}
+        for _, dependencyId in ipairs(type(raw.dependsOn) == "table"
+                and raw.dependsOn or {}) do
+            dependencyId = identity(dependencyId)
+            if not dependencyId or dependencyId == stepId
+                or seenDependencies[dependencyId] then
+                return false, "invalid-procedure"
+            end
+            seenDependencies[dependencyId] = true
+            dependencies[#dependencies + 1] = dependencyId
+        end
+        local step = { id = stepId, verb = verb,
+            capability = identity(raw.capability) or verb,
+            owner = identity(raw.owner) or "actor",
+            required = raw.required ~= false,
+            dependsOn = dependencies, completesOn = completion,
+            status = "blocked" }
+        procedure.steps[stepId] = step
+        procedure.order[#procedure.order + 1] = stepId
+    end
+    if #procedure.order == 0 then return false, "invalid-procedure" end
+    for _, stepId in ipairs(procedure.order) do
+        for _, dependencyId in ipairs(procedure.steps[stepId].dependsOn) do
+            if not procedure.steps[dependencyId] then
+                return false, "invalid-procedure"
+            end
+        end
+    end
+    local visiting, visited = {}, {}
+    local function visit(stepId)
+        if visiting[stepId] then return false end
+        if visited[stepId] then return true end
+        visiting[stepId] = true
+        for _, dependencyId in ipairs(procedure.steps[stepId].dependsOn) do
+            if not visit(dependencyId) then return false end
+        end
+        visiting[stepId], visited[stepId] = nil, true
+        return true
+    end
+    for _, stepId in ipairs(procedure.order) do
+        if not visit(stepId) then return false, "cyclic-procedure" end
+    end
+    refreshProcedure(procedure, at)
+    return procedure
+end
+
+local function firstProjectedStep(procedure, beliefs)
+    for _, stepId in ipairs(procedure and procedure.order or {}) do
+        local step = procedure.steps[stepId]
+        local belief = beliefs and beliefs[stepId] or nil
+        if step and step.required ~= false
+            and (not belief or belief.status ~= "completed") then
+            local ready = true
+            for _, dependencyId in ipairs(step.dependsOn or {}) do
+                local dependency = beliefs and beliefs[dependencyId] or nil
+                if not dependency or dependency.status ~= "completed" then
+                    ready = false
+                    break
+                end
+            end
+            if ready then return stepId end
+        end
+    end
+    return nil
+end
+
+local function createPrivatePlan(process, personId, revision, source, at)
+    local procedure = procedureAt(process, revision)
+    if not procedure then return nil end
+    personId = identity(personId)
+    if not personId then return nil end
+    process.privatePlans = process.privatePlans or {}
+    process.privatePlans[personId] = process.privatePlans[personId] or {}
+    local key = revisionKey(revision)
+    local existing = process.privatePlans[personId][key]
+    if existing then return existing end
+    local beliefs = {}
+    for _, stepId in ipairs(procedure.order) do
+        local step = procedure.steps[stepId]
+        beliefs[stepId] = { id = step.id, verb = step.verb,
+            capability = step.capability, owner = step.owner,
+            required = step.required, dependsOn = dataCopy(step.dependsOn) or {},
+            status = "planned" }
+    end
+    local plan = { processId = process.id, revision = revision,
+        personId = personId, acquiredBy = tostring(source or "communication"),
+        acquiredAt = finite(at) and at or nowHours(),
+        updatedAt = finite(at) and at or nowHours(), beliefs = beliefs,
+        events = {} }
+    plan.intendedStepId = firstProjectedStep(procedure, beliefs)
+    process.privatePlans[personId][key] = plan
+    return plan
+end
+
+local function updatePrivatePlan(process, personId, revision, stepId, status,
+        basis, at)
+    local plan = privatePlanAt(process, personId, revision)
+    local belief = plan and plan.beliefs and plan.beliefs[stepId] or nil
+    if not plan or not belief then return false end
+    belief.status = tostring(status or belief.status)
+    belief.updatedAt = finite(at) and at or nowHours()
+    belief.basis = dataCopy(basis or {}) or {}
+    plan.updatedAt = belief.updatedAt
+    local procedure = procedureAt(process, revision)
+    plan.intendedStepId = firstProjectedStep(procedure, plan.beliefs)
+    appendBounded(plan.events, { stepId = stepId, status = belief.status,
+        at = belief.updatedAt, basis = dataCopy(basis or {}) }, 96)
+    return true
+end
+
+local function completeProcedureToken(commitment, token, receiptId, witnesses,
+        evidence, at)
+    local process = commitment and processOf(commitment.processId) or nil
+    local procedure = process and procedureAt(process, commitment.revision) or nil
+    if not procedure then return true, "no-procedure" end
+    at = finite(at) and at or nowHours()
+    local matched = 0
+    for _, stepId in ipairs(procedure.order) do
+        local step = procedure.steps[stepId]
+        if step.completesOn[token] then
+            local ready = true
+            for _, dependencyId in ipairs(step.dependsOn) do
+                if procedure.steps[dependencyId].status ~= "completed" then
+                    ready = false
+                    break
+                end
+            end
+            if ready or step.status == "completed" then
+                matched = matched + 1
+                local newlyCompleted = step.status ~= "completed"
+                if newlyCompleted then
+                step.status, step.completedAt = "completed", at
+                step.receiptId, step.completionToken = receiptId, token
+                step.evidence = dataCopy(evidence or {}) or {}
+                appendBounded(procedure.events, { kind = "step-completed",
+                    stepId = stepId, token = token, receiptId = receiptId,
+                    at = at }, 128)
+                end
+                local seen = {}
+                for _, personId in ipairs(witnesses or {}) do
+                    personId = identity(personId)
+                    if personId and not seen[personId] then
+                        seen[personId] = true
+                        updatePrivatePlan(process, personId, commitment.revision,
+                            stepId, "completed", { kind = "receipt",
+                                token = token, receiptId = receiptId }, at)
+                    end
+                end
+            end
+        end
+    end
+    refreshProcedure(procedure, at)
+    return matched > 0, matched > 0 and "completed" or "no-matching-step"
+end
+
 local function responseAt(process, personId, revision)
     local row = process.participants
         and process.participants[tostring(personId or "")] or nil
@@ -342,6 +574,12 @@ local function establishCommitment(process, response)
     }
     process.commitments = process.commitments or {}
     process.commitments[id] = commitment
+    local plan = createPrivatePlan(process, response.personId,
+        response.revision, "accepted-proposal", commitment.acceptedAt)
+    if plan then
+        plan.commitmentId = id
+        plan.updatedAt = commitment.acceptedAt
+    end
     event(process, "commitment-accepted", response.personId, {
         commitmentId = id, scope = commitment.scope,
     }, commitment.acceptedAt)
@@ -681,18 +919,26 @@ function Org.raiseMatter(originatorId, kind, organizationId, proposal,
     originatorId, kind = identity(originatorId), identity(kind)
     if not originatorId or not kind or type(proposal) ~= "table"
         or not trimProcesses() then return nil end
-    local id, at = nextProcessId(originatorId), nowHours()
+    local at = nowHours()
+    local procedure, procedureWhy = procedureFromProposal(proposal, 1, at)
+    if procedure == false then return nil, procedureWhy end
+    local id = nextProcessId(originatorId)
     local process = { id = id, kind = kind,
         organizationId = identity(organizationId),
         originatorId = originatorId, createdAt = at, revisedAt = at,
         revision = 1, status = "open", revisions = {}, participants = {},
         commitments = {}, commitmentSequence = 0, privateInputs = {},
+        procedures = {}, privatePlans = {},
         contactAttempts = {}, contactSequence = 0,
         events = {} }
     process.revisions["1"] = { revision = 1, proposedAt = at,
         proposedBy = originatorId, proposal = dataCopy(proposal) or {} }
     process.privateInputs[originatorId] = {
         ["1"] = dataCopy(privateEvidence or {}) or {} }
+    if procedure then
+        process.procedures["1"] = procedure
+        createPrivatePlan(process, originatorId, 1, "authored", at)
+    end
     local originator = participant(process, originatorId, true)
     originator.receptions["1"] = { at = at, channel = "authored",
         fromId = originatorId }
@@ -920,6 +1166,10 @@ function Org.reviseMatter(processId, originatorId, proposal, privateEvidence)
         return nil
     end
     local priorRevision = process.revision
+    local nextRevision = priorRevision + 1
+    local procedure, procedureWhy = procedureFromProposal(proposal,
+        nextRevision, nowHours())
+    if procedure == false then return nil, procedureWhy end
     endOpenContacts(process, "superseded", nil,
         { priorRevision = priorRevision }, nowHours())
     process.revision = priorRevision + 1
@@ -930,6 +1180,13 @@ function Org.reviseMatter(processId, originatorId, proposal, privateEvidence)
     process.privateInputs[originatorId] = process.privateInputs[originatorId] or {}
     process.privateInputs[originatorId][revisionKey(process.revision)] =
         dataCopy(privateEvidence or {}) or {}
+    process.procedures = process.procedures or {}
+    process.privatePlans = process.privatePlans or {}
+    if procedure then
+        process.procedures[revisionKey(process.revision)] = procedure
+        createPrivatePlan(process, originatorId, process.revision,
+            "authored-revision", process.revisedAt)
+    end
     for _, commitment in pairs(process.commitments or {}) do
         endCommitment(process, commitment, "superseded",
             "proposal-revised", process.revisedAt)
@@ -1011,6 +1268,8 @@ function Org.recordReception(processId, personId, revision, channel,
         fromId = identity(fromId), evidence = dataCopy(evidence or {}) }
     event(process, "proposal-received", personId,
         { channel = channel, fromId = fromId }, row.receptions[key].at)
+    createPrivatePlan(process, personId, revision, channel,
+        row.receptions[key].at)
     endOpenContacts(process, "received", personId, {
         channel = tostring(channel or "communication"),
         receptionRevision = revision,
@@ -1361,10 +1620,14 @@ function Org.activeCommitments(personId)
     return out
 end
 
-function Org.workPlan(commitmentId)
+function Org.workPlan(commitmentId, personId)
     local commitment, process = Org.commitment(commitmentId)
-    if not commitment or not process then return nil end
+    personId = identity(personId)
+    if not commitment or not process or personId ~= commitment.actorId then
+        return nil
+    end
     local proposal = proposalAt(process, commitment.revision)
+    local privatePlan = privatePlanAt(process, personId, commitment.revision)
     return {
         processId = process.id,
         processRevision = commitment.revision,
@@ -1374,9 +1637,69 @@ function Org.workPlan(commitmentId)
         organizationId = process.organizationId,
         kind = process.kind,
         proposal = dataCopy(proposal and proposal.proposal or {}),
+        privateProcedure = dataCopy(privatePlan),
+        intendedStepId = privatePlan and privatePlan.intendedStepId or nil,
         phase = commitment.work and commitment.work.phase,
         status = commitment.status,
     }
+end
+
+-- Person-owned procedure state. This is a cognitive projection, not the
+-- enacted process. A participant acquires it by authorship or proved proposal
+-- reception and can revise it without changing material truth for anyone else.
+function Org.privateProcedure(personId, processId, requestedRevision)
+    local process = processOf(processId)
+    personId = identity(personId)
+    if not process or not personId then return nil end
+    return dataCopy(privatePlanAt(process, personId,
+        requestedRevision or process.revision))
+end
+
+function Org.revisePrivateProcedure(processId, personId, requestedRevision,
+        update, basis)
+    local process = processOf(processId)
+    personId = identity(personId)
+    local revision = math.floor(tonumber(requestedRevision) or 0)
+    local plan = process and privatePlanAt(process, personId, revision) or nil
+    update = type(update) == "table" and update or {}
+    basis = type(basis) == "table" and basis or {}
+    local basisKind = tostring(basis.kind or "")
+    local admitted = { reasoning = true, disagreement = true,
+        perception = true, communication = true, receipt = true }
+    if not plan or not admitted[basisKind] then return false end
+    local intended = update.intendedStepId
+    if intended ~= nil then
+        intended = identity(intended)
+        if not intended or not plan.beliefs[intended] then return false end
+        plan.intendedStepId = intended
+    end
+    for stepId, status in pairs(type(update.beliefs) == "table"
+            and update.beliefs or {}) do
+        if not plan.beliefs[stepId] then return false end
+        status = tostring(status or "")
+        if status ~= "planned" and status ~= "possible"
+            and status ~= "attempting" and status ~= "blocked"
+            and status ~= "completed" and status ~= "falsified" then
+            return false
+        end
+        plan.beliefs[stepId].status = status
+        plan.beliefs[stepId].basis = dataCopy(basis)
+        plan.beliefs[stepId].updatedAt = nowHours()
+    end
+    plan.updatedAt = nowHours()
+    appendBounded(plan.events, { kind = "private-revision",
+        intendedStepId = plan.intendedStepId, update = dataCopy(update),
+        basis = dataCopy(basis), at = plan.updatedAt }, 96)
+    return true
+end
+
+-- God-mode/operator evidence for what materially happened. Participant code
+-- must use privateProcedure or workPlan and never receives this surface.
+function Org.enactedProcedure(processId, requestedRevision)
+    local process = processOf(processId)
+    if not process then return nil end
+    return dataCopy(procedureAt(process,
+        requestedRevision or process.revision))
 end
 
 function Org.authorityFor(personId, organizationId, matter)
@@ -1474,7 +1797,7 @@ function Org.resumeWork(commitmentId, owner, activity, evidence)
 end
 
 function Org.noteWorkAdmission(commitmentId, ownerKind, receiptId, detail)
-    local commitment = Org.commitment(commitmentId)
+    local commitment, process = Org.commitment(commitmentId)
     receiptId = identity(receiptId)
     if not commitment or TERMINAL_WORK[commitment.status] or not receiptId
         or (commitment.work.pendingReceiptId
@@ -1484,6 +1807,14 @@ function Org.noteWorkAdmission(commitmentId, ownerKind, receiptId, detail)
     commitment.work.pendingReceiptId = receiptId
     workEvent(commitment, "admitted", { owner = ownerKind,
         receiptId = receiptId, detail = detail })
+    local plan = process and privatePlanAt(process, commitment.actorId,
+        commitment.revision) or nil
+    if plan and plan.intendedStepId and plan.beliefs[plan.intendedStepId] then
+        updatePrivatePlan(process, commitment.actorId, commitment.revision,
+            plan.intendedStepId, "attempting", { kind = "receipt",
+                owner = tostring(ownerKind or "native"),
+                receiptId = receiptId, phase = "admitted" })
+    end
     return true
 end
 
@@ -1594,6 +1925,10 @@ function Org.routeOutcome(commitmentId, status, detail)
             or "delivery-ready"
         workEvent(commitment, arrivedPhase,
             { detail = detail, routeId = route.id })
+        completeProcedureToken(commitment, "route:" .. route.phase,
+            route.id, { commitment.actorId }, {
+                owner = route.owner, status = route.status,
+                x = route.x, y = route.y, z = route.z })
     else
         local failures = equivalentRouteFailures(commitment,
             route.x, route.y, route.z, route.phase, route.retryEvidence)
@@ -1663,6 +1998,8 @@ function Org.completeArrival(commitmentId, routeId, activity, evidence)
     workEvent(commitment, "completed", { routeId = routeId,
         activity = activity, evidence = dataCopy(evidence or {}) },
         commitment.work.completedAt)
+    completeProcedureToken(commitment, "arrival:" .. activity, routeId,
+        { commitment.actorId }, evidence, commitment.work.completedAt)
     return true, "completed"
 end
 
@@ -1723,12 +2060,20 @@ function Org.consumeSourceResult(receipt)
         commitment.work.acquiredAt = receipt.at or nowHours()
         commitment.work.acquisitionReceiptId = receiptId
         workEvent(commitment, "carrying", { receiptId = receiptId })
+        completeProcedureToken(commitment, "source:acquire", receiptId,
+            { commitment.actorId }, { owner = "SourceUse",
+                status = receipt.status, operation = receipt.operation },
+            commitment.work.acquiredAt)
     elseif receipt.status == "completed" and receipt.operation == "store" then
         commitment.status = "completed"
         commitment.work.deliveryReceiptId = receiptId
         commitment.work.completedAt = receipt.at or nowHours()
         commitment.work.endedAt = commitment.work.completedAt
         workEvent(commitment, "completed", { receiptId = receiptId })
+        completeProcedureToken(commitment, "source:store", receiptId,
+            { commitment.actorId }, { owner = "SourceUse",
+                status = receipt.status, operation = receipt.operation },
+            commitment.work.completedAt)
     else
         local partial = commitment.work.acquiredAt ~= nil
             or receipt.transferObservation ~= nil
@@ -1771,6 +2116,11 @@ function Org.consumeHandoverResult(receipt)
         commitment.work.completedAt = receipt.completedAt or nowHours()
         commitment.work.endedAt = commitment.work.completedAt
         workEvent(commitment, "completed", { receiptId = receiptId })
+        completeProcedureToken(commitment, "handover:completed", receiptId,
+            { commitment.actorId, commitment.beneficiaryId }, {
+                owner = "Handover", status = receipt.status,
+                recipientId = receipt.recipientId },
+            commitment.work.completedAt)
     else
         local partial = commitment.work.acquiredAt ~= nil
         commitment.status = partial and "interrupted" or "failed"
@@ -1811,6 +2161,8 @@ function Org.viewFor(personId, processId, includeOutcomes, requestedRevision)
             and row.responseHistory[selectedKey] or {}),
         privateInputs = dataCopy(process.privateInputs[personId]
             and process.privateInputs[personId][selectedKey]),
+        privateProcedure = dataCopy(privatePlanAt(process, personId,
+            selectedRevision)),
         responses = {}, commitments = {} }
     if personId == process.originatorId then
         for responderId, participantRow in pairs(process.participants or {}) do
@@ -1863,6 +2215,7 @@ function Org.decisionEvidence(processId, personId, requestedRevision)
     decision.currentRevision = revision
     decision.asOfHour = formedAt
     decision.commitments = {}
+    decision.privateProcedure = nil
     if outcome then
         outcome.asOfHour = nowHours()
         outcome.privateInputs = nil

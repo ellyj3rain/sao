@@ -1,6 +1,6 @@
 | Document | Survivor Awareness Overhaul Decision Registry |
 |---|---|
-| Version | `3.0.0.0-pre-alpha` |
+| Version | `3.1.0.0-pre-alpha` |
 | Author | ellyj3rain |
 | Repository | `DECISION_REGISTRY.md` |
 | Status | CANONICAL, APPEND-ONLY - ratified decisions. |
@@ -1799,3 +1799,26 @@ execution. Cognitive interpretations receive private observations with the
 person's acquired capability context. Internal effect profiles and attribution
 remain with the physical owner. The two models continue independently, and
 dataset admission retains operator evaluation.
+
+## DR-052 | 2026-09-27 20:33 UTC / 13:33 PST | Enacted procedure with private participant projections
+
+**Status.** RATIFIED by Mousecat Crucible return and implemented in C90.
+
+**Decision.** `SAO_Organization` owns one durable enacted procedure for the
+material dependencies and results of cooperative work. Each participant owns a
+separate private projection acquired through authorship or actual proposal
+reception. Perception, Communication and exact native receipts are the only
+cross-person synchronization paths. Private reasoning or disagreement may alter
+one person's intended next step without changing enacted truth or another
+person's projection.
+
+**Application.** Current provisioning proposals describe acquisition, optional
+carrying travel and delivery. SourceUse, Locomotion and Handover advance the
+matching steps from their existing exact receipts. The controller requests only
+the commitment actor's plan. GraphPersistence keeps enacted and private state
+through reload, and Observation exposes both as distinct operator evidence.
+Future preparation, construction, repair and divided labor add verbs and native
+completion tokens to this owner instead of creating another planner.
+
+**Origin.** Mousecat Crucible interaction `skill-ce0aa216821c7a39`, item
+`seam-1b020484ad5238a2`, selected `dual-process-private-projections`.

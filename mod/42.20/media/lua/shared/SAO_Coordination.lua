@@ -29,6 +29,22 @@ local function nowHours()
     return finite(value) and value or 0
 end
 
+local function materialDeliveryProcedure()
+    return {
+        { id = "acquire-material", verb = "acquire",
+            capability = "acquire", owner = "actor",
+            completesOn = "source:acquire" },
+        { id = "carry-material", verb = "carry",
+            capability = "carry", owner = "actor", required = false,
+            dependsOn = { "acquire-material" },
+            completesOn = "route:carrying" },
+        { id = "deliver-material", verb = "deliver",
+            capability = "deliver", owner = "actor",
+            dependsOn = { "acquire-material" },
+            completesOn = { "source:store", "handover:completed" } },
+    }
+end
+
 -- Detached contacts assembled only from this person's retained perception and
 -- standing.  They are possible addressees, not proof of current location,
 -- health, willingness or reachability.
@@ -166,6 +182,7 @@ local function originateNativeSituation(id, body, ownerLabel, contacts)
         requiredCapabilities = {
             acquire = true, carry = true, deliver = true,
         },
+        procedure = materialDeliveryProcedure(),
         scope = { action = "deliver-material",
             category = situation.category, quantity = 1 },
     }

@@ -1281,7 +1281,7 @@ local function advanceCoordination(id, body, owner, activity, agent, selected)
     end
     local commitment = selected
     if not commitment then return false end
-    local plan = SAO.Organization.workPlan(commitment.id)
+    local plan = SAO.Organization.workPlan(commitment.id, id)
     if not plan then return false end
     local proposal = plan.proposal or {}
     local scope = type(proposal.scope) == "table" and proposal.scope or {}

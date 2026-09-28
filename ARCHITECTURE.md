@@ -1,6 +1,6 @@
 | Document | Survivor Awareness Overhaul Architecture |
 |---|---|
-| Version | `3.0.0.0-pre-alpha` |
+| Version | `3.1.0.0-pre-alpha` |
 | Author | ellyj3rain |
 | Repository | `ARCHITECTURE.md` |
 | Status | ACTIVE - ratified framework shape. |
@@ -1022,6 +1022,38 @@ state's maintenance nor treats a generic message as hearing, assent or success.
 Border 197 executes the complete SourceUse-to-Handover chain and failure/partial
 branches in installed Kahlua. Loaded presentation and play acceptance remain
 separate evidence.
+
+### Cooperative procedure and private projections (C90)
+
+An accepted responsibility may carry a bounded dependency graph without making
+that graph a person's omniscient plan. `SAO_Organization` owns the enacted
+procedure: ordered steps, dependency availability and exact completion receipts.
+The proposal carries the procedure terms. Authorship or actual Communication
+reception creates a separate projection for that person. Addressing, proximity,
+another participant's receipt and operator observation do not copy progress into
+that projection.
+
+The controller requests `workPlan` as the commitment actor and receives that
+actor's projection. Private reasoning, perception and model disagreement may
+change a person's expected or intended next step without rewriting enacted
+material truth or another person's plan. SourceUse acquisition updates the
+actor who performed it. A carrying-route arrival updates its mover. SourceUse
+storage updates its actor, while a completed Handover updates its direct actor
+and recipient. The enacted procedure and all distinct projections persist inside
+the existing GraphPersistence process store; old processes acquire empty owners
+without inferred plans or progress.
+
+Current provisioning and food-delivery producers describe acquisition, optional
+carrying travel and delivery. Delivery depends on proved acquisition; direct
+Handover remains valid when the people were already within reach. The schema is
+generic enough for later preparation, construction, repair or multi-person work,
+but those verbs still require their own native completion tokens and producers.
+`SAO_Observation` exposes enacted status and the selected person's belief as two
+separate operator rows, allowing Mousecat to compare them without changing either.
+Border 207 exercises dependency refusal, acquisition, actor-private progress,
+route progress, bilateral delivery, disagreement and save/rebind with five
+defect controls. This is installed-Kahlua mechanical evidence; a natural loaded
+run has not yet established long-form procedure frequency or quality.
 
 ### Reference-learning source (C81)
 

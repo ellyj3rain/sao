@@ -1,6 +1,6 @@
 | Document | Survivor Awareness Overhaul Findings |
 |---|---|
-| Version | `3.0.0.0-pre-alpha` |
+| Version | `3.1.0.0-pre-alpha` |
 | Author | ellyj3rain |
 | Repository | `FINDINGS.md` |
 | Status | CANONICAL, APPEND-ONLY - verified engine findings. |
@@ -2801,3 +2801,22 @@ The same run separately completed one native cooking operation for Ralph Larose:
 heat advanced from 0 to 51.141, the exact item was retrieved and the appliance
 was off. That physical completion does not claim it was part of a provisioning
 commitment; collect, prepare and deliver are not yet one retained procedure.
+
+## F-124 | 2026-09-27 20:33 UTC / 13:33 PST | Work state could not represent different participant plans
+
+The retained commitment recorded one shared proposal and physical phase. It
+could resume acquisition, carrying and delivery, but it could not say that one
+participant believed acquisition complete while another still expected it, or
+preserve either person's intended next step through disagreement and reload.
+Reading the shared proposal from Controller therefore supplied execution terms
+without a durable person-owned procedure model.
+
+C90 stores a bounded dependency graph with enacted process truth and separate
+private projections for authors and actual recipients. Exact SourceUse,
+Locomotion and Handover receipts advance the enacted graph and only their direct
+actors or witnesses. Border 207 executes dependency availability, private model
+disagreement, acquisition, carrying, delivery and save/rebind in installed
+Kahlua; five restored defects fail. The observation border separately proves
+that operator output labels actual steps and personal beliefs independently.
+This establishes the substrate and current material joins, not natural loaded
+frequency, strategic quality or a collect-prepare-deliver producer.
