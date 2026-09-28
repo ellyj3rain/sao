@@ -588,8 +588,13 @@ def main() -> int:
         ('office matter scope',
          'or process.kind ~= "office:" .. tostring(officeId)',
          'or false'),
-        ('pause remains resumable', 'commitment.status = "paused"',
-         'commitment.status = "interrupted"'),
+        ('pause remains resumable',
+         'commitment.work.pausedFrom = commitment.work.phase\n'
+         '    commitment.work.pauseReason = tostring(reason or "competing-pressure")\n'
+         '    commitment.status = "paused"',
+         'commitment.work.pausedFrom = commitment.work.phase\n'
+         '    commitment.work.pauseReason = tostring(reason or "competing-pressure")\n'
+         '    commitment.status = "interrupted"'),
     ]
     controls_ok = True
     for name, old, new in controls:

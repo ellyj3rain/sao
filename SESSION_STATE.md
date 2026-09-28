@@ -1,19 +1,21 @@
 | Document | Survivor Awareness Overhaul Session State |
 |---|---|
-| Version | `3.1.0.0-pre-alpha` |
+| Version | `3.2.0.0-pre-alpha` |
 | Author | ellyj3rain |
 | Repository | `SESSION_STATE.md` |
 | Status | CANONICAL - current implementation and continuation. |
 
 # Session state
 
-**As of** 2026-09-27, [C90] adds durable cooperative procedures without giving
-participants shared omniscience. Organization owns enacted dependencies and
-native completion receipts. Each author or actual recipient owns a separate
-private projection and intended next step. SourceUse, Locomotion and Handover
-update only the actors and direct witnesses their receipts establish. The
-existing Mousecat observation payload now displays enacted steps beside the
-selected person's beliefs.
+**As of** 2026-09-28, [C91] extends durable cooperative procedures into
+capability-bounded role allocation, strategic movement/action steps,
+multi-person synchronization and explicit failure revision without giving
+participants shared omniscience. Organization owns enacted dependencies,
+claims and native completion contributions. Each author or actual recipient
+owns a separate private projection. SourceUse, Locomotion, Cooking, Handover and
+registered action owners update only the actors and direct witnesses their
+receipts establish. Mousecat displays enacted roles and thresholds beside the
+selected person's claim and beliefs.
 
 C89 remains the loaded-world baseline. It joins native auditory orientation,
 owned drug physiology, exact appliance preparation and private capability
@@ -34,17 +36,22 @@ and one acquisition; none reached a carrying route or completed handover.
 
 Organization retains accepted acquisition, carrying, handover and holding
 commitments through interruptions, route failures and save. C90 gives those
-actions a bounded dependency graph and distinct participant projections. Its
-current provisioning procedure is acquire, optional carrying travel and
-delivery. Preparation and wider work can extend the same graph only after their
-native owners publish exact completion tokens. The C89
+actions a bounded dependency graph and distinct participant projections. C91
+adds bounded role claims, actor-specific movement targets, multi-actor
+completion thresholds and revision needs. Native preparation can now join a
+claimed step through Cooking's exact heated, retrieved and shutdown result.
+Generic posture/action steps require an admitted exact receipt from their own
+native owner. The current natural provisioning producer remains acquire,
+optional carrying travel and delivery. The C89
 delivery correction requires private identity and an actual visible same-floor
 encounter before routing to a requester; otherwise it uses the received
 destination. The cognitive contestants still choose food, water, inspection
-and continuation. A committed collect-prepare-deliver producer remains open.
-The C89 natural run still stops after one acquisition; C90's installed-Kahlua
-border proves the complete procedure joins but is not a replacement for another
-loaded observation.
+and continuation. Natural collect-prepare-deliver formation, broader posture
+owners and autonomous tactical doctrine remain open. The C89 natural run still
+stops after one acquisition; C90-C91's installed-Kahlua borders prove the
+procedure and multi-person joins but do not replace another loaded observation.
+C91's final staged full repository gate passed all 223 distinct scripts through
+Border 208 and ended with all borders clean.
 
 Private failed-home evidence now delays the same route from the same approach
 with bounded reconsideration. Changed home, changed approach, actual arrival
@@ -651,7 +658,7 @@ producers, persistence, evidence and gaps.
 | Time and health | Current decision time, durable drug/abstinence clocks, current physical inputs, exact interval-integrated brain history, medical/inspect graph and memory/decision/affective/motor consumers; C68 completion-proves care-item gifts, C70 completion-proves loaded open-wound bandaging and C72 advances measured rest/sleep/wake through bodyless intervals | R5 is closed. Disinfection, stitching, dormant treatment and other performed care still depend on R7/R9 action producers. |
 | Afflicted and Crossed | ZAO pathogen state and one living driver with distinct policies; Afflicted fear/gathering/arrival and its separately owned maintenance remain state-specific; Crossed use ordinary human caloric passage, ordinary or eligible ordinary-human sustenance, actor-private targets and evidenced fear/pain/control, while Afflicted donor provenance is rejected; exact exposure, settlement, butchery and finite blood-weapon results persist | Broader food composition, group precedent, tools, strategy, social/material life and grounded long-horizon dormant opportunities remain R7-R10 work. Loaded-world behavior is unobserved. |
 | Knowledge and access | Private beliefs; animal-safe scanner output; fresh/current activity partners; demand-hydrated exact source identities; C62's revision-bound approach, current claim/vehicle permission, exact transfer, carried native use and durable result; C63-C64's exact partial-source material projection and durable ambient refresh; C71's recursive actor-private loaded holder view and exact v4 dormant carriage; C72's produced dormant awake/asleep state joined with C67 measured hearing; C73's direct-root powered radio endpoints, elapsed dormant battery state and recipient-private reception receipts; C74's explicit county presence, dated personal acquisition and detached retention observation; C75's deterministic snapshot-local claim catalogue and selected-claim fence | R6 is closed for the selected source interaction and its completed result reaches bounded partial material state. R7 remains open beyond this source-action family. C66 adds exact acquisition/storage; C67 adds private transfer testimony and witnessed recipient response; C68 completion-proves loaded personal handovers; C69 closes the bounded recipient appraisal after testimony. C71-C73 close inventory, adjacent speech and actual radio admission. C74 closes SAO's first bounded R12 acquisition producer. C75 makes the existing surface addressable but leaves protected-world coverage, target rows and runtime snapshot ownership open. Complete house stock and the other material action/result producers remain open. |
-| Social development | C79 adds acquired revisioned matters, individual responses, scoped concurrent commitments, contested/withdrawn responsibility, exact office/command jurisdiction and completion-backed food delivery across loaded/dormant execution. C90 adds enacted dependency graphs and separate person-private procedure projections, advanced by exact native receipts. Automatic election recognition and score-triggered schism callers are retired without disabling cleanup. | Collect-prepare-deliver, multi-person division of labor, election/deliberation/succession, physical separation, broader institutions, place development and the remaining R9 producers remain incomplete. |
+| Social development | C79 adds acquired revisioned matters, individual responses, scoped concurrent commitments, contested/withdrawn responsibility, exact office/command jurisdiction and completion-backed food delivery across loaded/dormant execution. C90 adds enacted dependency graphs and separate person-private procedure projections. C91 adds capability-bounded role claims, strategic movement/action steps, distinct-actor synchronization thresholds, Cooking/Locomotion joins and failure-driven revision needs. Automatic election recognition and score-triggered schism callers are retired without disabling cleanup. | Natural collect-prepare-deliver formation, autonomous tactical doctrine, remaining posture/action owners, election/deliberation/succession, physical separation, broader institutions, place development and the remaining R9 producers remain incomplete. |
 | Speakeasy data | Protected historical material remains intact. Record 63 requires the exact v3 namespace, actor/executor attribution, source-owned current work and competing priorities, feasible options and separate decision/outcome horizons. C81 emits 20 production-path rows; Record 66 independently reviews, admits and trains that exact synthetic family; Record 67 exports its sealed FP32 bundle and parity vectors. | Decline/withdraw examples, natural gameplay sampling, broader claim/action coverage and general understander/retriever/speaker datasets remain open. |
 | Models and late starts | C82 embeds Record 67's exact coordination bundle, runs the packaged pure-Java evaluator asynchronously and retains only revision/option/current-owner-validated shadow observations. | The candidate has no behavior authority and no loaded-game memory, latency or quality acceptance. The complete shared conversation bundle and validated accelerator remain open. |
 
@@ -671,12 +678,14 @@ filenames, seeds and hashes remain unchanged.
 
 ## Continuation
 
-C90 supplies the durable procedure/private-projection substrate, not the
-completion of governance or life simulation. Continue by connecting exact native
-preparation and broader work receipts into authored procedures, then exercise
-multi-person division, interruption, disagreement and changed knowledge in
-loaded worlds. Continue performed material development and richer institutional
-procedures. Capture complete enacted scenes for Speakeasy
+C90-C91 supply durable procedures, private projections, role allocation,
+strategic movement/action structure, exact preparation/movement joins and
+failure revision. They do not complete governance or life simulation. Continue
+by adding natural collect-prepare-deliver and tactical formation producers,
+then connect the remaining posture and work owners. Exercise multi-person
+division, interruption, disagreement and changed knowledge in loaded worlds.
+Continue performed material development and richer institutional procedures.
+Capture complete enacted scenes for Speakeasy
 only after their producers exist; preserve decision-time privacy and later
 outcomes as separate evidence. Loaded gameplay, route timing and dormant
 partition equivalence remain acceptance work rather than facts inferred from the
@@ -959,9 +968,9 @@ C57 consolidates three native entry points into one. With C64's immutable
 capture border, C73's radio-reception border, C74's personal-world-knowledge
 border, C75's typed-claim border, C86's native study, escape-continuity and
 sound-evidence borders, C88's cognitive competition border, C89's native
-capability borders and C90's cooperative procedure border, the gate invokes 209
-`*_test.py` files and 13 other Python entry points, 222 distinct scripts. Border
-labels extend through 207; legacy labels
+capability borders and C90-C91's cooperative procedure borders, the gate invokes
+210 `*_test.py` files and 13 other Python entry points, 223 distinct scripts.
+Border labels extend through 208; legacy labels
 163/169/174 share the native suite. These are distinct counting units. The mod
 ships 91 Lua source files.
 ZAO A41 has fifteen borders. The

@@ -401,8 +401,10 @@ def main() -> int:
          'if not matched or matched.status ~= "arrived"',
          "if not matched or false"),
         ("arrival exact once", "organization",
-         "local prior = Org.workReceipts[key]\n    if prior then",
-         "local prior = nil\n    if prior then"),
+         'local key = "arrival:" .. routeId\n'
+         "    local prior = Org.workReceipts[key]\n    if prior then",
+         'local key = "arrival:" .. routeId\n'
+         "    local prior = nil\n    if prior then"),
         ("pending route reconstruction", "controller",
          'and not runtime.coordinationRoute then',
          'and false then'),

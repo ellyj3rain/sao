@@ -45,6 +45,83 @@ local function materialDeliveryProcedure()
     }
 end
 
+local function recipientIds(values, originatorId)
+    local out, seen = {}, {}
+    for _, value in ipairs(type(values) == "table" and values or {}) do
+        local id = tostring(value or "")
+        if id ~= "" and id ~= originatorId and not seen[id] then
+            seen[id] = true
+            out[#out + 1] = id
+            if #out >= 12 then break end
+        end
+    end
+    return out
+end
+
+-- An actor-facing cognition owner may author material, movement, posture and
+-- action steps through one contract. This function records and transports the
+-- proposal; it does not choose roles for recipients or execute any step.
+function Coordination.proposeCooperation(originatorId, kind, proposal,
+        recipients, privateEvidence)
+    originatorId = tostring(originatorId or "")
+    kind = tostring(kind or "cooperative-action")
+    if originatorId == "" or type(proposal) ~= "table"
+        or type(proposal.procedure) ~= "table"
+        or not (SAO.Organization and SAO.Organization.raiseMatter) then
+        return nil, "invalid-cooperative-proposal"
+    end
+    local addressed = recipientIds(recipients, originatorId)
+    if #addressed == 0 then return nil, "no-addressed-participants" end
+    local terms = {}
+    for key, value in pairs(proposal) do terms[key] = value end
+    terms.cooperative = true
+    terms.responsePolicy = "procedure-completion"
+    local process, why = SAO.Organization.raiseMatter(originatorId, kind,
+        proposal.organizationId, terms, addressed, privateEvidence)
+    if not process then return nil, why or "proposal-refused" end
+    local delivered = 0
+    for _, recipientId in ipairs(addressed) do
+        local message = SAO.Communication
+            and SAO.Communication.deliverProcessProposal
+            and SAO.Communication.deliverProcessProposal(originatorId,
+                recipientId, process.id, nil, {
+                    source = "SAO.Coordination.proposeCooperation",
+                    proposedAtHours = nowHours() }) or nil
+        if message then delivered = delivered + 1 end
+    end
+    return process, delivered > 0 and "delivered" or "open-unheard"
+end
+
+function Coordination.reviseCooperation(originatorId, processId, proposal,
+        recipients, privateEvidence)
+    originatorId, processId = tostring(originatorId or ""),
+        tostring(processId or "")
+    if originatorId == "" or processId == "" or type(proposal) ~= "table"
+        or not (SAO.Organization and SAO.Organization.reviseMatter) then
+        return nil, "invalid-cooperative-revision"
+    end
+    local terms = {}
+    for key, value in pairs(proposal) do terms[key] = value end
+    terms.cooperative = true
+    terms.responsePolicy = "procedure-completion"
+    local process, why = SAO.Organization.reviseMatter(processId,
+        originatorId, terms, privateEvidence)
+    if not process then return nil, why or "revision-refused" end
+    local addressed = recipientIds(recipients, originatorId)
+    SAO.Organization.addressMatter(process.id, originatorId, addressed)
+    local delivered = 0
+    for _, recipientId in ipairs(addressed) do
+        local message = SAO.Communication
+            and SAO.Communication.deliverProcessProposal
+            and SAO.Communication.deliverProcessProposal(originatorId,
+                recipientId, process.id, nil, {
+                    source = "SAO.Coordination.reviseCooperation",
+                    proposedAtHours = nowHours() }) or nil
+        if message then delivered = delivered + 1 end
+    end
+    return process, delivered > 0 and "delivered" or "open-unheard"
+end
+
 -- Detached contacts assembled only from this person's retained perception and
 -- standing.  They are possible addressees, not proof of current location,
 -- health, willingness or reachability.
@@ -302,6 +379,31 @@ function Coordination.privateContext(id, agent, body, request, ownerLabel)
         or "dormant"
     local knowsDestination = destinationKnown(proposal)
     local designation = rec and rec.designation or nil
+    local aliveAndOwned = not executionUnavailable and not (rec and rec.dead)
+    local capabilities = type(execution.capabilities) == "table"
+        and execution.capabilities or {
+            acquire = execution.canAcquire ~= false and aliveAndOwned,
+            carry = execution.canCarry ~= false and aliveAndOwned,
+            deliver = execution.canDeliver ~= false and aliveAndOwned,
+            execute = execution.canExecute ~= false and aliveAndOwned,
+            move = execution.canMove ~= false and aliveAndOwned,
+            hold = execution.canHold ~= false and aliveAndOwned,
+            watch = execution.canWatch ~= false and aliveAndOwned,
+            escort = execution.canEscort ~= false and aliveAndOwned,
+            withdraw = execution.canMove ~= false and aliveAndOwned,
+            prepare = execution.canPrepare ~= false and aliveAndOwned
+                and SAO.Cooking ~= nil,
+        }
+    local preferredRoles = {}
+    if designation == "watch" then
+        preferredRoles.watch, preferredRoles.cover,
+            preferredRoles.patrol = true, true, true
+    elseif designation == "forager" then
+        preferredRoles.scout, preferredRoles.acquire,
+            preferredRoles.carry = true, true, true
+    elseif designation == "quartermaster" then
+        preferredRoles.deliver, preferredRoles.prepare = true, true
+    end
     local prior = processView.response
     local choice = nil
     if hostile then
@@ -342,6 +444,8 @@ function Coordination.privateContext(id, agent, body, request, ownerLabel)
             and execution.canDeliver ~= false and not (rec and rec.dead),
         canExecute = not executionUnavailable
             and execution.canExecute ~= false and not (rec and rec.dead),
+        capabilities = capabilities,
+        preferredRoles = preferredRoles,
         incapable = executionUnavailable or execution.incapable == true,
         dead = execution.dead == true or rec and rec.dead or false,
         contest = hostile,
@@ -383,7 +487,8 @@ function Coordination.privateContext(id, agent, body, request, ownerLabel)
             for _, key in ipairs({ "owner", "executor", "bodyOwner",
                     "currentActivity", "canAcquire", "canCarry",
                     "canDeliver", "canExecute", "incapable", "dead",
-                    "contest", "ownNeed", "relationship",
+                    "contest", "ownNeed", "relationship", "capabilities",
+                    "preferredRoles", "stepIds", "maxProcedureSteps",
                     "destinationKnown", "choice", "reconsider", "terms",
                     "interests", "constraints", "inputOwners" }) do
                 if supplied[key] ~= nil then context[key] = supplied[key] end

@@ -103,6 +103,14 @@ BOUNDED = {
         "the organizations one person belongs to; createOrganization "
         "refuses a new id at MAX_ORGANIZATIONS (512), while migrated houses "
         "were one-per-group under the same 500-person county cap",
+    ("SAO_Organization.lua", "ranked"):
+        "compatibleProcedureSteps reads one enacted procedure; "
+        "enactProcedure rejects the twenty-fifth step at "
+        "MAX_PROCEDURE_STEPS (24), so the candidate list cannot exceed 24",
+    ("SAO_Observation.lua", "claimants"):
+        "one enacted procedure step admits at most MAX_STEP_ACTORS (16) "
+        "active claims through boundedCount and claimStepForCommitment's "
+        "capacity check; failed and released claims are not copied",
     ("SAO_CoordinationInference.lua", "fields"):
         "canonical refuses any table above MAX_TABLE_ENTRIES (512) before "
         "copying its field names or reaching the sort",

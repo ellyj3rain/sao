@@ -68,6 +68,9 @@ local function finish(id, status, reason)
     releaseRuntime(id, rt, work.id)
     local receipt = { id = work.id, sequence = work.sequence, actorId = id, itemId = work.itemId, itemType = work.itemType,
         sourceId = work.sourceId, startedAt = work.startedAt, atHours = hours(),
+        processId = work.processId, processRevision = work.processRevision,
+        commitmentId = work.commitmentId, stepId = work.stepId,
+        token = work.completionToken,
         status = status, detail = reason, beforeCookingTime = work.beforeCookingTime,
         afterCookingTime = work.afterCookingTime, heatObserved = work.heatObserved == true,
         nativeCredit = work.nativeCredit, retrieved = work.retrieved == true,
@@ -199,7 +202,7 @@ local function transfer(id, body, rt, work, container, operation, stage, sourceI
         reservation.id, operation, sourceId
     return true
 end
-function C.begin(id, body)
+function C.begin(id, body, context)
     local rec = owner(id, body)
     if not rec or rec.cookingWork or rec.worldSourceReservation or SAO.Needs.busy(body)
         or body:isAsleep() or body:isDead() then return false end
@@ -213,13 +216,17 @@ function C.begin(id, body)
     for _, row in ipairs(offers.foods or {}) do if row.carried or allowed(id, row) then food = row break end end
     if not food then return false end
     rec.cookingSequence = (rec.cookingSequence or 0) + 1
+    context = type(context) == "table" and context or {}
     rec.cookingWork = { id = "cooking/" .. tostring(id) .. "/" .. tostring(rec.cookingSequence), sequence = rec.cookingSequence,
         itemId = food.itemId, itemType = food.itemType, sourceId = appliance.sourceId,
         stage = food.carried and "approach-appliance" or "acquire", startedAt = hours(),
-        ownerToken = rec.bodyOwnerToken, ownerName = rec.bodyOwner, heatObserved = false }
+        ownerToken = rec.bodyOwnerToken, ownerName = rec.bodyOwner, heatObserved = false,
+        processId = context.processId, processRevision = context.processRevision,
+        commitmentId = context.commitmentId, stepId = context.stepId,
+        completionToken = context.completionToken }
     runtime[id] = { body = body, food = food, appliance = appliance, workId = rec.cookingWork.id }
     record(id, "started", "Preparing food")
-    return true
+    return true, rec.cookingWork
 end
 local function tick(id, body)
     local rec, rt = SAO.Identity.get(id), runtime[id]
