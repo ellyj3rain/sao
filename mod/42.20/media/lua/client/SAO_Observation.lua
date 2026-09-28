@@ -255,6 +255,14 @@ local function processes(id)
                             detail = detail .. " / "
                                 .. tostring(step.role or step.verb) .. " / "
                                 .. tostring(step.domain or "action")
+                            if step.posture then
+                                detail = detail .. " / " .. tostring(step.posture)
+                            end
+                            local target = step.target or {}
+                            if tonumber(target.x) and tonumber(target.y) then
+                                detail = detail .. " / target "
+                                    .. tostring(target.x) .. "," .. tostring(target.y)
+                            end
                             if (step.minActors or 1) > 1 or contributors > 0 then
                                 detail = detail .. " / " .. tostring(contributors)
                                     .. "/" .. tostring(step.minActors or 1)
@@ -280,6 +288,24 @@ local function processes(id)
                     local belief = plan.beliefs and plan.beliefs[stepId]
                     if belief then row(s, "Belief: " .. tostring(belief.verb),
                         tostring(belief.status)) end
+                end
+            end
+            local events = process.events or {}
+            for eventIndex = math.max(1, #events - 5), #events do
+                if #s.rows >= 48 then break end
+                local event = events[eventIndex]
+                if event then
+                    local eventDetail = tostring(event.kind or "event")
+                        .. " / " .. tostring(event.actorId or "unknown")
+                    local data = event.detail or {}
+                    if data.stepId then
+                        eventDetail = eventDetail .. " / " .. tostring(data.stepId)
+                    elseif data.reason then
+                        eventDetail = eventDetail .. " / " .. tostring(data.reason)
+                    elseif data.response then
+                        eventDetail = eventDetail .. " / " .. tostring(data.response)
+                    end
+                    row(s, "Recent procedure event", eventDetail)
                 end
             end
             if examined >= 8 or #s.rows >= 48 then s.message = "Recent process detail is bounded"; break end

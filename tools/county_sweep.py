@@ -211,6 +211,7 @@ NOT_DORMANT = {
     "Locomotion": "queues a move onto a body",
     "Needs": "acts on a body's needs through the engine",
     "Orienting": "turns the head and body in response to loaded sound cues; dormant people have no native pose",
+    "Posture": "owns exact watch/cover orientation on a loaded body; dormant people have no native pose",
     "Cooking": "owns exact loaded transfers and appliance heat; dormant cooking has no native appliance executor",
     "Handover": "executes native item actions between materialised bodies; dormant exchange remains unimplemented",
     "Treatment": "executes patient-bound native bandaging on materialised bodies; dormant treatment remains unimplemented",

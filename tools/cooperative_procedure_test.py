@@ -231,7 +231,7 @@ def static_contract() -> tuple[bool, str]:
                 'completeProcedureToken(commitment, "handover:completed"')
     if any(anchor not in org for anchor in required):
         return False, 'procedure owner or native receipt join absent'
-    if ('procedure = materialDeliveryProcedure()' not in coordination
+    if ('procedure = materialDeliveryProcedure(situation.category)' not in coordination
             or 'completesOn = { "source:store", "handover:completed" }'
             not in standing):
         return False, 'native situation producers do not publish procedure terms'

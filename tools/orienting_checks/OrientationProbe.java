@@ -152,6 +152,29 @@ public final class OrientationProbe {
             if(mode.equals("animation"))check("inspection_does_not_allocate_native_animator",!person.hasAnimationPlayer());
         }
     }
+    static void postureChecks(IsoCell cell,SkinningData skin) throws Exception {
+        var body=body(cell,skin);
+        check("native_posture_admitted",SAOOrientation.requestPosture(body,"watch-fixture",20.5f,20.5f,1,1,.5f));
+        var admitted=SAOOrientation.state(body);
+        check("native_posture_identity_exposed","posture".equals(admitted.rawget("mode"))
+            && "watch-fixture".equals(admitted.rawget("actionId"))
+            && Math.abs(number(admitted,"requiredSeconds")-.5)<.001);
+        check("different_posture_cannot_replace_active",!SAOOrientation.requestPosture(body,"cover-fixture",20.5f,20.5f,1,1,.5f));
+        SAOOrientation.clearPosture(body,"cover-fixture");
+        check("different_clear_cannot_cancel_posture",active(body));
+        for(int i=0;i<40 && active(body);i++)SAOOrientation.beforePostUpdate(body);
+        var completed=SAOOrientation.state(body);
+        check("native_posture_completes_after_maintained_facing",!active(body)
+            && "completed".equals(completed.rawget("reason"))
+            && number(completed,"maintainedSeconds")>=.5);
+        var moving=body(cell,skin);moving.playerMoveDir.set(1,0);
+        check("moving_body_cannot_admit_posture",!SAOOrientation.requestPosture(moving,"moving-fixture",20.5f,20.5f,1,1,.5f));
+        var cancelled=body(cell,skin);
+        check("matching_clear_ends_posture",SAOOrientation.requestPosture(cancelled,"clear-fixture",20.5f,20.5f,1,1,.5f));
+        SAOOrientation.clearPosture(cancelled,"clear-fixture");
+        check("matching_clear_records_reason",!active(cancelled)
+            && "released".equals(SAOOrientation.state(cancelled).rawget("reason")));
+    }
     static void pulseChecks(IsoCell cell,SkinningData skin) throws Exception {
         var body=body(cell,skin);var other=body(cell,skin);
         var sound=zombie.WorldSoundManager.instance.getNew();sound.init(new Object(),10,26,0,30,30,0f,1f,(short)2);
@@ -286,6 +309,7 @@ public final class OrientationProbe {
         check("clear_does_not_replay",!SAOOrientation.request(body,first,10,26,1,1,true));
         poseChecks(cell,skin);
         lifecycleChecks(cell,skin);
+        postureChecks(cell,skin);
         pulseChecks(cell,skin);
         sensesChecks(cell,skin);
         pureReadChecks(cell,skin);

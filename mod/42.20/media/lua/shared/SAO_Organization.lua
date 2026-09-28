@@ -363,8 +363,11 @@ local function procedureFromProposal(proposal, revision, at)
             domain = identity(raw.domain) or "action",
             role = identity(raw.role) or verb,
             assignedTo = identity(raw.assignedTo),
+            sameActorAs = identity(raw.sameActorAs),
             target = dataCopy(raw.target or {}),
             posture = identity(raw.posture),
+            durationSeconds = math.max(0.5, math.min(30,
+                tonumber(raw.durationSeconds) or 3)),
             minActors = minActors, maxActors = maxActors,
             required = raw.required ~= false,
             dependsOn = dependencies, completesOn = completion,
@@ -378,6 +381,11 @@ local function procedureFromProposal(proposal, revision, at)
             if not procedure.steps[dependencyId] then
                 return false, "invalid-procedure"
             end
+        end
+        local sameActorAs = procedure.steps[stepId].sameActorAs
+        if sameActorAs and (sameActorAs == stepId
+            or not procedure.steps[sameActorAs]) then
+            return false, "invalid-procedure"
         end
     end
     local visiting, visited = {}, {}
@@ -435,7 +443,9 @@ local function createPrivatePlan(process, personId, revision, source, at)
             capability = step.capability, owner = step.owner,
             domain = step.domain, role = step.role,
             assignedTo = step.assignedTo, target = dataCopy(step.target),
+            sameActorAs = step.sameActorAs,
             posture = step.posture, minActors = step.minActors,
+            durationSeconds = step.durationSeconds,
             maxActors = step.maxActors,
             required = step.required, dependsOn = dataCopy(step.dependsOn) or {},
             status = "planned" }
@@ -660,8 +670,23 @@ local function compatibleProcedureSteps(process, personId, context)
         local capacity = step and activeClaimCount(step) < (step.maxActors or 1)
         local actorAllowed = step and (not step.assignedTo
             or step.assignedTo == personId)
+        local continuityAllowed = true
+        if step and step.sameActorAs then
+            local anchor = procedure.steps[step.sameActorAs]
+            local anchorOwner = nil
+            for actorId, anchorClaim in pairs(anchor and anchor.claims or {}) do
+                if anchorClaim.status == "claimed"
+                    or anchorClaim.status == "attempting"
+                    or anchorClaim.status == "completed" then
+                    anchorOwner = actorId
+                    break
+                end
+            end
+            continuityAllowed = anchorOwner == nil or anchorOwner == personId
+        end
         if step and step.status ~= "completed" and actorAllowed and capacity
-            and not claim and capabilities[step.capability] == true then
+            and continuityAllowed and not claim
+            and capabilities[step.capability] == true then
             local preferred = preferredRoles[step.role] == true
                 or preferredRoles[stepId] == true
             ranked[#ranked + 1] = { id = stepId, index = index,
@@ -688,6 +713,16 @@ local function claimStepForCommitment(process, commitment, stepId, evidence, at)
     local actorId = commitment.actorId
     if step.assignedTo and step.assignedTo ~= actorId then
         return false, "step-assigned-elsewhere"
+    end
+    if step.sameActorAs then
+        local anchor = procedure.steps[step.sameActorAs]
+        local anchorClaim = anchor and anchor.claims
+            and anchor.claims[actorId] or nil
+        if not anchorClaim or (anchorClaim.status ~= "claimed"
+            and anchorClaim.status ~= "attempting"
+            and anchorClaim.status ~= "completed") then
+            return false, "same-actor-anchor-unclaimed"
+        end
     end
     step.claims = step.claims or {}
     local existing = step.claims[actorId]
@@ -1785,6 +1820,66 @@ function Org.deliverResponse(processId, personId, toId, channel, evidence)
     }, response.deliveredAt)
     refreshProcessStatus(process)
     return true
+end
+
+-- An author may publicly bind themself to named steps while raising a
+-- cooperative proposal.  This is not a reply to their own message: it is the
+-- work they offered to perform, checked against the same private capability
+-- envelope and the same role capacity used for every recipient.  No other
+-- actor is assigned here.
+function Org.commitOriginator(processId, personId, context)
+    local process = processOf(processId)
+    personId = identity(personId)
+    context = type(context) == "table" and context or {}
+    if not process or process.status ~= "open" or not personId
+        or process.originatorId ~= personId then
+        return nil, "not-the-originator"
+    end
+    local procedure = procedureAt(process)
+    if not procedure or procedure.cooperative ~= true then
+        return nil, "cooperative-procedure-required"
+    end
+    local existing = activeCommitmentFor(process, personId)
+    if existing and existing.revision == process.revision then
+        return existing, "duplicate"
+    end
+    local compatible = compatibleProcedureSteps(process, personId, context)
+    local allowed = {}
+    for _, stepId in ipairs(compatible) do allowed[stepId] = true end
+    local requested = type(context.stepIds) == "table"
+        and context.stepIds or {}
+    local maximum = math.max(1, math.min(8,
+        math.floor(tonumber(context.maxProcedureSteps) or 1)))
+    local chosen = {}
+    for _, stepId in ipairs(requested) do
+        stepId = tostring(stepId or "")
+        if allowed[stepId] and #chosen < maximum then
+            chosen[#chosen + 1] = stepId
+            allowed[stepId] = nil
+        end
+    end
+    if #chosen == 0 then return nil, "no-compatible-authored-step" end
+    local at = nowHours()
+    local commitment = establishCommitment(process, {
+        personId = personId,
+        revision = process.revision,
+        response = "accept",
+        responseRevision = 1,
+        delivered = true,
+        deliveredAt = at,
+        terms = { stepIds = chosen, authored = true },
+    })
+    if not commitment then return nil, "commitment-refused" end
+    local key = revisionKey(process.revision)
+    process.privateInputs[personId] = process.privateInputs[personId] or {}
+    local input = process.privateInputs[personId][key] or {}
+    input.authoredCommitment = dataCopy(context.evidence or {}) or {}
+    input.authoredCapabilities = contextCapabilities(context)
+    process.privateInputs[personId][key] = input
+    event(process, "originator-committed", personId, {
+        commitmentId = commitment.id, stepIds = chosen,
+    }, at)
+    return commitment, "committed"
 end
 
 function Org.pendingResponses(fromId, toId)

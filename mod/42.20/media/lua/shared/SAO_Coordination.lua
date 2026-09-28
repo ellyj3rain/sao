@@ -8,6 +8,7 @@
 SAO = SAO or {}
 SAO.Coordination = SAO.Coordination or {}
 local Coordination = SAO.Coordination
+local MIN_FALLBACK_VECTOR = 0.1
 
 local function finite(value)
     return type(value) == "number" and value == value
@@ -29,20 +30,69 @@ local function nowHours()
     return finite(value) and value or 0
 end
 
-local function materialDeliveryProcedure()
-    return {
-        { id = "acquire-material", verb = "acquire",
-            capability = "acquire", owner = "actor",
-            completesOn = "source:acquire" },
-        { id = "carry-material", verb = "carry",
-            capability = "carry", owner = "actor", required = false,
-            dependsOn = { "acquire-material" },
-            completesOn = "route:carrying" },
-        { id = "deliver-material", verb = "deliver",
-            capability = "deliver", owner = "actor",
-            dependsOn = { "acquire-material" },
-            completesOn = { "source:store", "handover:completed" } },
+local function materialDeliveryProcedure(category)
+    local procedure = {
+        { id = "acquire-material", verb = "acquire", domain = "material",
+            role = "provisioner", capability = "acquire", owner = "actor",
+            maxActors = 1, completesOn = "source:acquire" },
     }
+    local prepared = "acquire-material"
+    if category == "food" then
+        procedure[#procedure + 1] = {
+            id = "prepare-material", verb = "prepare", domain = "material",
+            role = "provisioner", capability = "prepare", owner = "actor",
+            maxActors = 1, sameActorAs = "acquire-material",
+            dependsOn = { "acquire-material" },
+            completesOn = "cooking:prepared",
+        }
+        prepared = "prepare-material"
+    end
+    procedure[#procedure + 1] = {
+        id = "carry-material", verb = "carry", domain = "material",
+        role = "provisioner", capability = "carry", owner = "actor",
+        maxActors = 1, sameActorAs = "acquire-material", required = false,
+        dependsOn = { prepared }, completesOn = "route:carrying",
+    }
+    procedure[#procedure + 1] = {
+        id = "deliver-material", verb = "deliver", domain = "material",
+        role = "provisioner", capability = "deliver", owner = "actor",
+        maxActors = 1, sameActorAs = "acquire-material",
+        dependsOn = { prepared },
+        completesOn = { "source:store", "handover:completed" },
+    }
+    return procedure
+end
+
+local function authoredStepContext(originatorId, proposal, privateEvidence)
+    local requested = type(proposal.originatorStepIds) == "table"
+        and proposal.originatorStepIds or {}
+    if #requested == 0 then return nil end
+    local wanted, capabilities = {}, {}
+    local supplied = type(privateEvidence) == "table"
+        and type(privateEvidence.originatorCapabilities) == "table"
+        and privateEvidence.originatorCapabilities or {}
+    for _, stepId in ipairs(requested) do wanted[tostring(stepId)] = true end
+    for _, step in ipairs(type(proposal.procedure) == "table"
+            and proposal.procedure or {}) do
+        if wanted[tostring(step.id)]
+            and tostring(step.assignedTo or "") == originatorId then
+            local capability = tostring(step.capability or step.verb)
+            if supplied[capability] == true then capabilities[capability] = true end
+        end
+    end
+    return { stepIds = requested, maxProcedureSteps = #requested,
+        capabilities = capabilities,
+        evidence = { source = "authored-cooperative-role",
+            privateBasis = privateEvidence and privateEvidence.source or nil } }
+end
+
+local function commitAuthoredSteps(originatorId, process, proposal,
+        privateEvidence)
+    if not (process and SAO.Organization
+        and SAO.Organization.commitOriginator) then return nil end
+    local context = authoredStepContext(originatorId, proposal, privateEvidence)
+    if not context then return nil end
+    return SAO.Organization.commitOriginator(process.id, originatorId, context)
 end
 
 local function recipientIds(values, originatorId)
@@ -79,6 +129,15 @@ function Coordination.proposeCooperation(originatorId, kind, proposal,
     local process, why = SAO.Organization.raiseMatter(originatorId, kind,
         proposal.organizationId, terms, addressed, privateEvidence)
     if not process then return nil, why or "proposal-refused" end
+    local authored, authoredWhy = commitAuthoredSteps(originatorId, process,
+        terms, privateEvidence)
+    if type(terms.originatorStepIds) == "table" and not authored then
+        if SAO.Organization.withdrawMatter then
+            SAO.Organization.withdrawMatter(process.id, originatorId,
+                "originator-role-refused", { reason = authoredWhy })
+        end
+        return nil, authoredWhy or "originator-role-refused"
+    end
     local delivered = 0
     for _, recipientId in ipairs(addressed) do
         local message = SAO.Communication
@@ -107,6 +166,15 @@ function Coordination.reviseCooperation(originatorId, processId, proposal,
     local process, why = SAO.Organization.reviseMatter(processId,
         originatorId, terms, privateEvidence)
     if not process then return nil, why or "revision-refused" end
+    local authored, authoredWhy = commitAuthoredSteps(originatorId, process,
+        terms, privateEvidence)
+    if type(terms.originatorStepIds) == "table" and not authored then
+        if SAO.Organization.withdrawMatter then
+            SAO.Organization.withdrawMatter(process.id, originatorId,
+                "originator-role-refused", { reason = authoredWhy })
+        end
+        return nil, authoredWhy or "originator-role-refused"
+    end
     local addressed = recipientIds(recipients, originatorId)
     SAO.Organization.addressMatter(process.id, originatorId, addressed)
     local delivered = 0
@@ -209,7 +277,7 @@ local function nativeRecipients(id, contacts)
     for _, contact in ipairs(contacts or {}) do
         if contact.hostile ~= true then
             recipients[#recipients + 1] = contact.id
-            if #recipients >= 3 then break end
+            if #recipients >= 6 then break end
         end
     end
     return recipients
@@ -252,14 +320,16 @@ local function originateNativeSituation(id, body, ownerLabel, contacts)
         category = situation.category,
         quantity = 1,
         purpose = "provisioning under current personal need",
-        responsePolicy = "first-completion",
+        cooperative = true,
+        responsePolicy = "procedure-completion",
         expiresAtHours = nowHours() + 72,
         destinationRequired = true,
         destination = destination,
         requiredCapabilities = {
             acquire = true, carry = true, deliver = true,
         },
-        procedure = materialDeliveryProcedure(),
+        continuityOwner = true,
+        procedure = materialDeliveryProcedure(situation.category),
         scope = { action = "deliver-material",
             category = situation.category, quantity = 1 },
     }
@@ -302,11 +372,99 @@ local function originateNativeSituation(id, body, ownerLabel, contacts)
     return open, delivered > 0 and "delivered" or "open-unheard"
 end
 
+local function tacticalDestination(situation)
+    local position, threat = situation and situation.position,
+        situation and situation.threat
+    local px, py = position and tonumber(position.x), position and tonumber(position.y)
+    local tx, ty = threat and tonumber(threat.x), threat and tonumber(threat.y)
+    if not (px and py and tx and ty) then return nil end
+    local dx, dy = px - tx, py - ty
+    local length = math.sqrt(dx * dx + dy * dy)
+    if length < MIN_FALLBACK_VECTOR then dx, dy, length = 1, 0, 1 end
+    local distance = 6 + math.min(6,
+        math.max(1, math.floor(tonumber(situation.threatCount) or 1)))
+    return { x = math.floor(px + dx / length * distance),
+        y = math.floor(py + dy / length * distance),
+        z = math.floor(tonumber(position.z) or 0) }
+end
+
+local function tacticalProcedure(id, situation, recipientCount)
+    local threat, fallback = situation.threat, tacticalDestination(situation)
+    if not fallback then return nil end
+    local threatTarget = { x = tonumber(threat.x), y = tonumber(threat.y),
+        z = math.floor(tonumber(threat.z) or tonumber(situation.position.z) or 0) }
+    local movers = math.max(1, math.min(2, recipientCount))
+    return {
+        { id = "watch-threat", verb = "watch", domain = "posture",
+            role = "watch", capability = "watch", owner = "Posture",
+            assignedTo = id, target = threatTarget, posture = "watch",
+            durationSeconds = 3, completesOn = "posture:maintained" },
+        { id = "move-fallback", verb = "move", domain = "movement",
+            role = "withdraw", capability = "move", owner = "Locomotion",
+            target = fallback, minActors = movers, maxActors = movers,
+            completesOn = "route:travelling" },
+        { id = "cover-movement", verb = "cover", domain = "posture",
+            role = "cover", capability = "hold", owner = "Posture",
+            target = threatTarget, posture = "cover", required = false,
+            durationSeconds = 3, maxActors = 1,
+            completesOn = "posture:maintained" },
+    }, fallback
+end
+
+local function originateTacticalSituation(id, ownerLabel, contacts, situation)
+    if type(situation) ~= "table" or type(situation.threat) ~= "table"
+        or not (SAO.Organization and SAO.Organization.openMatter) then
+        return nil, "no-current-tactical-pressure"
+    end
+    local recipients = nativeRecipients(id, contacts)
+    if #recipients == 0 then return nil, "no-known-recipient" end
+    local procedure, fallback = tacticalProcedure(id, situation, #recipients)
+    if not procedure then return nil, "fallback-unavailable" end
+    local threat = situation.threat
+    local intentKey = table.concat({ "threat",
+        tostring(math.floor((tonumber(threat.x) or 0) / 4)),
+        tostring(math.floor((tonumber(threat.y) or 0) / 4)),
+        tostring(fallback.x), tostring(fallback.y), tostring(fallback.z),
+        tostring(math.min(4, math.max(1,
+            math.floor(tonumber(situation.threatCount) or 1)))) }, ":")
+    local proposal = {
+        intentKey = intentKey, cooperative = true,
+        responsePolicy = "procedure-completion",
+        objective = "watch a known threat while people move to fallback ground",
+        expiresAtHours = nowHours() + 12,
+        destinationRequired = true,
+        destination = { minX = fallback.x - 2, minY = fallback.y - 2,
+            maxX = fallback.x + 2, maxY = fallback.y + 2, z = fallback.z },
+        originatorStepIds = { "watch-threat" },
+        procedure = procedure,
+        scope = { action = "tactical-withdrawal",
+            threatCount = tonumber(situation.threatCount) or 1 },
+    }
+    local evidence = { source = "private-perceived-threat",
+        owner = ownerLabel or "SAO.Coordination",
+        threatSource = threat.source, threatAt = threat.at,
+        threatDistance = threat.dist, threatCount = situation.threatCount,
+        originatorCapabilities = { watch = SAO.Posture ~= nil },
+        observedAtHours = nowHours() }
+    local open = SAO.Organization.openMatter(id, "strategic-cooperation")
+    if open then
+        local prior = currentProposal(open, id) or {}
+        if tostring(prior.intentKey or "") == intentKey then
+            return open, "continuing"
+        end
+        return Coordination.reviseCooperation(id, open.id, proposal,
+            recipients, evidence)
+    end
+    return Coordination.proposeCooperation(id, "strategic-cooperation",
+        proposal, recipients, evidence)
+end
+
 -- Turn a person's own current situation into durable social intent.  Native
 -- survivor need is read by its existing owner; an external person is handed
 -- back to the registered behavioral owner with only private contacts and
 -- common process context.  Neither branch infers reception or completion.
-function Coordination.originatePrivateSituation(id, body, activity, ownerLabel)
+function Coordination.originatePrivateSituation(id, body, activity, ownerLabel,
+        situation)
     id = tostring(id or "")
     local rec = SAO.Identity and SAO.Identity.get and SAO.Identity.get(id)
     if id == "" or not rec or rec.dead then return nil, "actor-unavailable" end
@@ -322,6 +480,9 @@ function Coordination.originatePrivateSituation(id, body, activity, ownerLabel)
             atHours = nowHours(),
         })
     end
+    local tactical, tacticalWhy = originateTacticalSituation(id, ownerLabel,
+        contacts, situation)
+    if tactical then return tactical, tacticalWhy end
     return originateNativeSituation(id, body, ownerLabel, contacts)
 end
 
@@ -446,6 +607,7 @@ function Coordination.privateContext(id, agent, body, request, ownerLabel)
             and execution.canExecute ~= false and not (rec and rec.dead),
         capabilities = capabilities,
         preferredRoles = preferredRoles,
+        maxProcedureSteps = proposal.continuityOwner == true and 4 or 1,
         incapable = executionUnavailable or execution.incapable == true,
         dead = execution.dead == true or rec and rec.dead or false,
         contest = hostile,

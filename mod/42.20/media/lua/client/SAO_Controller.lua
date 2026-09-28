@@ -21,6 +21,9 @@
 SAO = SAO or {}
 SAO.Controller = SAO.Controller or {}
 local Ctl = SAO.Controller
+if not SAO.Posture and type(require) == "function" then
+    pcall(require, "SAO_Posture")
+end
 
 -- id -> { rec, state, stateSince, nextDecisionAt, fleeTarget }
 Ctl.agents = Ctl.agents or {}
@@ -369,6 +372,10 @@ function Ctl.drop(id)
     if Ctl.agents[id] then
         local body = SAO.Body and SAO.Body.get and SAO.Body.get(id) or nil
         local rec = Ctl.agents[id].rec
+        if SAO.Posture and SAO.Posture.jobs
+            and SAO.Posture.jobs[id] then
+            SAO.Posture.interrupt(id, body, "controller-drop")
+        end
         if rec and rec.cookingWork then
             local okCooking, closedCooking = pcall(function()
                 return SAO.Cooking and SAO.Cooking.interrupt(id, body, "controller-drop")
@@ -536,7 +543,7 @@ local CONTACT_STATES = { CONTACTWARD = true, CONTACTWAIT = true }
 -- `answer == "chosen rest"` it would silently miss four of the seven
 -- rests in the county. Border 78 holds the domain closed now.
 local PRESSURE_ANSWER = {
-    COOK = "designation", FLEE = "need", TREAT = "need", RIP = "need", EAT = "need",
+    COOK = "designation", POSTURE = "designation", FLEE = "need", TREAT = "need", RIP = "need", EAT = "need",
     TAKE = "need", DRINK = "need", WATERWARD = "need", FORAGE = "need",
     SOURCEWARD = "need", SOURCEUSE = "need",
     RELOAD = "need", AMMOWARD = "need", SMOKE = "need",
@@ -715,6 +722,12 @@ local function setState(agent, id, state, why, answer, repairingSourceProjection
         local sourceBody = SAO.Body.get(id)
         if state ~= "COOK" and agent.rec.cookingWork and SAO.Cooking
             and SAO.Cooking.interrupt(id, sourceBody, "state-change:" .. tostring(state)) ~= true then
+            return false
+        end
+        if state ~= "POSTURE" and SAO.Posture and SAO.Posture.jobs
+            and SAO.Posture.jobs[id]
+            and SAO.Posture.interrupt(id, sourceBody,
+                "state-change:" .. tostring(state)) ~= true then
             return false
         end
         if SAO.SourceUse and SAO.SourceUse.beforeStateChange
@@ -1273,6 +1286,10 @@ local function advanceCoordination(id, body, owner, activity, agent, selected)
     id = tostring(id or "")
     local runtime = agent or Ctl.coordinationRuntime[id] or {}
     if not agent then Ctl.coordinationRuntime[id] = runtime end
+    if SAO.Posture and SAO.Posture.jobs and SAO.Posture.jobs[id] then
+        local postureResult = SAO.Posture.tick(id, body)
+        return true, "posture:" .. tostring(postureResult)
+    end
     local routeOwned, routeStatus = tickCoordinationRoute(id, body, runtime)
     if routeOwned then return true, routeStatus end
     local rec = SAO.Identity.get(id)
@@ -1416,6 +1433,44 @@ local function advanceCoordination(id, body, owner, activity, agent, selected)
                 "designation")
         end
         return true, "preparing"
+    end
+
+    if cooperative and (procedureStep.domain == "posture"
+        or procedureStep.verb == "watch" or procedureStep.verb == "cover"
+        or procedureStep.verb == "hold") then
+        local target = procedureStepDestination(procedureStep)
+        if not target then
+            SAO.Organization.releaseProcedureStep(commitment.id,
+                procedureStep.id, "posture-target-unavailable", {
+                    owner = "Controller.coordination" })
+            return false, "posture-target-unavailable"
+        end
+        if not (SAO.Posture and SAO.Posture.begin) then
+            return false, "posture-owner-unavailable"
+        end
+        local started, work = SAO.Posture.begin(id, body, {
+            processId = plan.processId,
+            processRevision = plan.processRevision,
+            commitmentId = commitment.id,
+            stepId = procedureStep.id,
+            completionToken = "posture:maintained",
+            target = target, posture = procedureStep.posture,
+            durationSeconds = procedureStep.durationSeconds,
+        })
+        if not started or not work then return false, "posture-unavailable" end
+        if not SAO.Organization.noteWorkAdmission(commitment.id, "Posture",
+            work.id, { stepId = procedureStep.id }) then
+            SAO.Posture.interrupt(id, body, "procedure-admission-refused")
+            return false, "procedure-admission-refused"
+        end
+        if agent then
+            agent.coordinationCommitment = commitment.id
+            setState(agent, id, "POSTURE",
+                "maintains " .. tostring(procedureStep.posture
+                    or procedureStep.verb) .. " for accepted cooperation",
+                "designation")
+        end
+        return true, "posture"
     end
 
     if cooperative and (procedureStep.domain == "movement"
@@ -6411,7 +6466,11 @@ local function decide(id, agent, body)
     end
     if SAO.Coordination and SAO.Coordination.originatePrivateSituation then
         SAO.Coordination.originatePrivateSituation(id, body, agent.state,
-            "Controller.privateSituation")
+            "Controller.privateSituation", threat and {
+                threat = threat, threatCount = threatCount,
+                position = { x = bodyX, y = bodyY,
+                    z = math.floor(body:getZ()) },
+            } or nil)
     end
     Ctl.appraiseCoordination(id, body, agent.state)
 
@@ -7686,6 +7745,9 @@ local function updateAgent(id, agent)
     pendingSource = SAO.WorldSources and SAO.WorldSources.pendingActionFor
         and SAO.WorldSources.pendingActionFor(id) or nil
     if agent.rec.zaoTransferPending or agent.rec.crossedTransferPending then
+        if SAO.Posture and SAO.Posture.jobs and SAO.Posture.jobs[id] then
+            SAO.Posture.interrupt(id, body, "zao-person-ownership-transfer")
+        end
         if agent.rec.cookingWork and (not SAO.Cooking
             or SAO.Cooking.interrupt(id, body, "zao-person-ownership-transfer") ~= true) then
             return
@@ -7742,6 +7804,29 @@ local function updateAgent(id, agent)
         return
     elseif agent.state == "COOK" then
         setState(agent, id, "IDLE", "food preparation owner ended")
+        return
+    end
+
+    -- Cooperative watch and cover own a finite native body/head posture.
+    -- A newly close threat interrupts the accepted segment so the ordinary
+    -- threat decision can choose again on the next pass.
+    if SAO.Posture and SAO.Posture.jobs and SAO.Posture.jobs[id] then
+        local threat = selectedThreat(id, tickCount, body:getX(), body:getY())
+        if threat and threat.dist <= SAO.Disposition.fleeDistance(id) then
+            SAO.Posture.interrupt(id, body, "close-threat-interrupted")
+            agent.nextDecisionAt = 0
+            setState(agent, id, "IDLE", "cooperative posture interrupted")
+            return
+        end
+        local outcome = SAO.Posture.tick(id, body)
+        if not SAO.Posture.jobs[id] then
+            agent.nextDecisionAt = 0
+            setState(agent, id, "IDLE",
+                "cooperative posture: " .. tostring(outcome))
+        end
+        return
+    elseif agent.state == "POSTURE" then
+        setState(agent, id, "IDLE", "cooperative posture owner ended")
         return
     end
 

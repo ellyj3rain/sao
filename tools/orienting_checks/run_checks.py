@@ -36,9 +36,9 @@ def save_receipt(output, receipt):
 
 def verify_checks(text, label):
     checks = [line for line in text.splitlines() if line.startswith("CHECK ")]
-    assert len(checks) == 85, (label, "native check count changed", len(checks))
+    assert len(checks) == 93, (label, "native check count changed", len(checks))
     assert all(line.endswith("=true") for line in checks), (label, "native check failed")
-    assert len({line.partition("=")[0] for line in checks}) == 85, (label, "duplicate native check")
+    assert len({line.partition("=")[0] for line in checks}) == 93, (label, "duplicate native check")
     return len(checks)
 
 
@@ -140,7 +140,7 @@ def main(argv=None, *, default_root=None):
             assert "NATIVE_SOUND_LOADED_AFTER_INSTALL_SNAPSHOT=true" in race_text, "installation race was not exercised"
             verify_checks(race_text, "loaded-during-installation")
             receipt["nativeLoadingOrders"] = ["cold", "preloaded", "loaded-after-installer-snapshot"]
-            print("PASS 85 native checks under cold, preloaded and during-installation native loading", flush=True)
+            print("PASS 93 native checks under cold, preloaded and during-installation native loading", flush=True)
 
             diagnostics_manifest = work / "diagnostics.MF"
             diagnostics_manifest.write_text("Manifest-Version: 1.0\nPremain-Class: WeaveDiagnosticsAgent\nCan-Retransform-Classes: true\n\n", encoding="utf-8")
@@ -240,7 +240,7 @@ def main(argv=None, *, default_root=None):
         receipt["inputsUnchanged"] = all(sha(Path(p)) == h for p, h in receipt["inputs"].items())
         assert receipt["inputsUnchanged"], "orientation inputs changed during checks"
         receipt["status"] = "PASS"
-        print("PASS native orientation: 85 pose/sense checks in 3 loading orders, 36 weave checks, 16 late-bootstrap checks, 28 controls; receipt " + str(output / "receipt.json"), flush=True)
+        print("PASS native orientation: 93 pose/sense/posture checks in 3 loading orders, 36 weave checks, 16 late-bootstrap checks, 28 controls; receipt " + str(output / "receipt.json"), flush=True)
         return 0
     except Exception as error:
         receipt.update(status="FAIL", error=str(error))

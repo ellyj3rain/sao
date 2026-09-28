@@ -2218,6 +2218,14 @@ if ! "$PY" tools/autonomous_cooperation_test.py; then
     fail=1
 fi
 
+# [C92] Border 209 - privately perceived pressures originate cooperative work;
+# one actor retains physical item continuity while native posture and movement
+# owners supply exact results across bounded two-to-seven-person situations.
+if ! "$PY" tools/natural_cooperation_test.py; then
+    note "BORDER FINDING - natural cooperation or exact posture execution failed"
+    fail=1
+fi
+
 # Border 103 - the operator's speech is not in the repository: no
 # profanity in the tracked tree and no operator-quote attributions;
 # rulings are paraphrased content, speech stays with the speaker.
