@@ -2660,6 +2660,25 @@ public final class SAOBridge {
             if (object instanceof IsoGameCharacter body) com.sao.engine.SAOOrientation.clear(body);
         } catch (Throwable error) { SAOAgent.log("orientation release refused: " + error); }
     }
+    public boolean requestPosture(Object object, String actionId, double x, double y,
+            double readiness, double steadiness, double durationSeconds) {
+        try {
+            return object instanceof IsoGameCharacter body
+                && Double.isFinite(x) && Double.isFinite(y)
+                && Double.isFinite(readiness) && readiness >= 0 && readiness <= 1
+                && Double.isFinite(steadiness) && steadiness >= 0 && steadiness <= 1
+                && Double.isFinite(durationSeconds)
+                && com.sao.engine.SAOOrientation.requestPosture(body, actionId,
+                    (float)x, (float)y, (float)readiness, (float)steadiness,
+                    (float)durationSeconds);
+        } catch (Throwable error) { SAOAgent.log("posture refused: " + error); return false; }
+    }
+    public void clearPosture(Object object, String actionId) {
+        try {
+            if (object instanceof IsoGameCharacter body)
+                com.sao.engine.SAOOrientation.clearPosture(body, actionId);
+        } catch (Throwable error) { SAOAgent.log("posture release refused: " + error); }
+    }
     public se.krka.kahlua.vm.KahluaTable orientationState(Object object) {
         try { return com.sao.engine.SAOOrientation.state(object instanceof IsoGameCharacter body ? body : null); }
         catch (Throwable error) { SAOAgent.log("orientation inspection unavailable: " + error); return null; }

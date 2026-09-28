@@ -20,8 +20,8 @@ public final class SAOOrientation {
         final WeakReference<IsoCell> cell;
         long consumed;
         boolean active, bodyTurn, layerReady;
-        String cue = "", reason = "idle", phase = "idle";
-        float x, y, readiness, steadiness, elapsed, horizontal;
+        String mode = "none", cue = "", action = "", reason = "idle", phase = "idle";
+        float x, y, readiness, steadiness, elapsed, horizontal, required, maintained;
         State(IsoCell value) { cell = new WeakReference<>(value); }
     }
     private SAOOrientation() {}
@@ -44,9 +44,44 @@ public final class SAOOrientation {
             return false;
         }
         state.consumed = cue.sequence(); state.cue = cueId;
+        state.mode = "sound"; state.action = ""; state.required = 0; state.maintained = 0;
         state.x = x; state.y = y; state.readiness = readiness; state.steadiness = steadiness;
         state.bodyTurn = allowBodyTurn; state.layerReady = true; state.active = true;
         state.elapsed = 0; state.horizontal = 0; state.phase = "attend"; state.reason = "audible-cue";
+        shell.setVariable(SAOOrientationAnimation.ACTIVE, true);
+        shell.setVariable(SAOOrientationAnimation.HORIZONTAL, 0f);
+        shell.setVariable(SAOOrientationAnimation.VERTICAL, 0f);
+        return true;
+    }
+
+    /** A finite deliberate watch/cover posture. Admission starts native body
+     * and head orientation; completion means the body remained available and
+     * faced the stated target for the requested bounded interval. */
+    public static synchronized boolean requestPosture(IsoGameCharacter body, String actionId,
+            float x, float y, float readiness, float steadiness, float durationSeconds) {
+        if (!(body instanceof SAOIsoPlayerShell shell) || actionId == null
+                || actionId.isEmpty() || actionId.length() > 128
+                || !Float.isFinite(x) || !Float.isFinite(y) || !unit(readiness)
+                || !unit(steadiness) || readiness <= 0 || !Float.isFinite(durationSeconds)
+                || durationSeconds < .5f || durationSeconds > 30f
+                || unavailable(shell) != null || moving(shell)) return false;
+        State state = STATES.get(shell);
+        if (state != null && state.active) {
+            return "posture".equals(state.mode) && actionId.equals(state.action);
+        }
+        if (state == null || state.cell.get() != shell.getCell()) {
+            state = new State(shell.getCell()); STATES.put(shell, state);
+        }
+        if (!SAOOrientationAnimation.ensure(shell)) {
+            state.reason = SAOOrientationAnimation.readFailure() == null ? "animation-unavailable"
+                : SAOOrientationAnimation.readFailure();
+            return false;
+        }
+        state.mode = "posture"; state.action = actionId; state.cue = "";
+        state.x = x; state.y = y; state.readiness = readiness; state.steadiness = steadiness;
+        state.bodyTurn = true; state.layerReady = true; state.active = true;
+        state.elapsed = 0; state.horizontal = 0; state.required = durationSeconds;
+        state.maintained = 0; state.phase = "turn"; state.reason = "posture-admitted";
         shell.setVariable(SAOOrientationAnimation.ACTIVE, true);
         shell.setVariable(SAOOrientationAnimation.HORIZONTAL, 0f);
         shell.setVariable(SAOOrientationAnimation.VERTICAL, 0f);
@@ -68,7 +103,16 @@ public final class SAOOrientation {
         float dt = shell.getAnimationTimeDelta();
         if (!Float.isFinite(dt) || dt < 0) { stop(shell, state, "native-time-unavailable"); return; }
         state.elapsed += dt;
-        if (state.elapsed >= DURATION) { stop(shell, state, "expired"); return; }
+        if ("sound".equals(state.mode)) {
+            if (state.elapsed >= DURATION) { stop(shell, state, "expired"); return; }
+        }
+        if ("posture".equals(state.mode) && moving(shell)) {
+            stop(shell, state, "body-moving"); return;
+        }
+        if ("posture".equals(state.mode)
+                && state.elapsed >= state.required + 8f) {
+            stop(shell, state, "posture-timeout"); return;
+        }
         float delay = .10f + (1 - state.readiness) * .55f;
         if (state.elapsed < delay) return;
         float dx = state.x - shell.getX(), dy = state.y - shell.getY();
@@ -78,13 +122,21 @@ public final class SAOOrientation {
         if (pivot) shell.faceLocationF(state.x, state.y);
         float base = SAOSenses.nativeGazeAngle(shell); // native bHeadLookAround remains false
         float turn = wrap(desired - base);
-        float sweep = state.elapsed > .7f && state.elapsed < 1.8f
+        float sweep = "sound".equals(state.mode) && state.elapsed > .7f && state.elapsed < 1.8f
             ? .18f * (float) Math.sin((state.elapsed - .7f) / 1.1f * Math.PI * 2) : 0;
-        float target = state.elapsed > 1.9f ? 0 : Math.max(-MAX_HEAD, Math.min(MAX_HEAD, turn + sweep));
+        float target = "sound".equals(state.mode) && state.elapsed > 1.9f ? 0
+            : Math.max(-MAX_HEAD, Math.min(MAX_HEAD, turn + sweep));
         float maxStep = dt * (1.2f + 2.4f * state.steadiness);
         state.horizontal += Math.max(-maxStep, Math.min(maxStep, target - state.horizontal));
-        state.phase = state.elapsed > 1.9f ? "return" : state.elapsed > .7f ? "sweep" : "turn";
+        state.phase = "posture".equals(state.mode) ? "hold"
+            : state.elapsed > 1.9f ? "return" : state.elapsed > .7f ? "sweep" : "turn";
         shell.setVariable(SAOOrientationAnimation.HORIZONTAL, state.horizontal);
+        if ("posture".equals(state.mode)) {
+            float residual = Math.abs(wrap(desired - SAOSenses.nativeGazeAngle(shell)));
+            if (residual <= .35f) state.maintained += dt;
+            else state.maintained = Math.max(0, state.maintained - dt);
+            if (state.maintained >= state.required) stop(shell, state, "completed");
+        }
     }
 
     /** Preserve PZ state/action turn limits; only our admitted idle body turn is scaled. */
@@ -126,6 +178,15 @@ public final class SAOOrientation {
             if (state != null) stop(shell, state, "released");
         }
     }
+    public static synchronized void clearPosture(IsoGameCharacter body, String actionId) {
+        if (body instanceof SAOIsoPlayerShell shell) {
+            State state = STATES.get(shell);
+            if (state != null && "posture".equals(state.mode)
+                    && state.action.equals(actionId == null ? "" : actionId)) {
+                stop(shell, state, "released");
+            }
+        }
+    }
     public static synchronized void forget(IsoGameCharacter body) {
         clear(body); STATES.remove(body); SAOWorldSoundPulses.forget(body);
     }
@@ -137,7 +198,9 @@ public final class SAOOrientation {
     public static synchronized KahluaTable state(IsoGameCharacter body) {
         KahluaTable out = LuaManager.platform.newTable(); State state = STATES.get(body);
         out.rawset("active", state != null && state.active);
+        out.rawset("mode", state == null ? "none" : state.mode);
         out.rawset("cueId", state == null ? "" : state.cue);
+        out.rawset("actionId", state == null ? "" : state.action);
         out.rawset("phase", state == null ? "idle" : state.phase);
         out.rawset("reason", SAOOrientationAnimation.readFailure() != null
             ? SAOOrientationAnimation.readFailure() : state == null ? "idle" : state.reason);
@@ -147,6 +210,8 @@ public final class SAOOrientation {
         out.rawset("allowBodyTurn", state != null && state.bodyTurn);
         out.rawset("layerReady", state != null && state.layerReady);
         out.rawset("headHorizontal", state == null ? 0.0 : (double)state.horizontal);
+        out.rawset("requiredSeconds", state == null ? 0.0 : (double)state.required);
+        out.rawset("maintainedSeconds", state == null ? 0.0 : (double)state.maintained);
         Vector2 gaze = SAOSenses.gaze(body, new Vector2());
         out.rawset("gazeX", Float.isFinite(gaze.x) ? (double)gaze.x : 0.0);
         out.rawset("gazeY", Float.isFinite(gaze.y) ? (double)gaze.y : 0.0);

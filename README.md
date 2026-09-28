@@ -38,7 +38,7 @@ on the simulation.
 
 ## Status
 
-`3.2.0.0-pre-alpha` - the coordinate is computed by the version machine
+`3.3.0.0-pre-alpha` - the coordinate is computed by the version machine
 (`tools/version_replay.py`), never picked; `VERSION_MAP.md` shows the
 classification and the arithmetic.
 
@@ -147,17 +147,20 @@ same process survives loaded/dormant handoff, registered ZAO execution and
 save/reload. Borders 180, 190 and 194-197 execute this headlessly; loaded-world
 speech, movement, animation and save/reopen play remain unobserved.
 
-C90-C91 turn accepted work into durable cooperative procedures. People receive
+C90-C92 turn accepted work into durable cooperative procedures. People receive
 their own projections, claim only roles their current execution owner reports
 as possible, and may disagree or wait without rewriting enacted world truth.
 The same graph describes material work and strategic movement, position and
 action: several actor-owned arrivals or actions can form a synchronization
 barrier before later work opens. Locomotion and native Cooking publish exact
-results; failed claims request a communicated revision instead of silently
-assigning someone else. Mousecat inspection shows enacted steps, role claims,
-contribution thresholds and the selected person's separate next step. The
-current mechanical proof covers two-to-five-person allocations; natural loaded
-frequency and scenario quality remain observation work.
+results. Natural food pressure can form collect-prepare-deliver work while
+keeping the held item with one actor. Private distant danger can form watch,
+fallback movement and cover work for two to seven people. Watch and cover use a
+finite native body/head posture owner. Failed claims request a communicated
+revision instead of silently assigning someone else. Mousecat inspection shows
+enacted steps, targets, postures, role claims, contribution thresholds, recent
+procedure events and the selected person's separate next step. Loaded frequency
+and scenario quality remain observation work.
 
 Pre-alpha, and the evidence comes in two kinds.
 

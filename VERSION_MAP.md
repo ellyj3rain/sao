@@ -16,9 +16,9 @@ the machine. Names, dates, and threads below come from
 | Form | `major.minor.kohai.patch-maturity` |
 | Hard caps | minor 12; kohai 16; patch 24 |
 | Replay start | `0.1.0.0-pre-alpha` |
-| Current version | `3.2.0.0-pre-alpha` |
-| Closed chronology | `A1-C91` |
-| Next batch | `C92` |
+| Current version | `3.3.0.0-pre-alpha` |
+| Closed chronology | `A1-C92` |
+| Next batch | `C93` |
 | Executable source | [`tools/version_replay.py`](tools/version_replay.py) |
 
 ## Tier meanings
@@ -207,6 +207,7 @@ the machine. Names, dates, and threads below come from
 | `C89` | 2026-09-27 | minor | `3.0.0.0-pre-alpha` | Native perception and capabilities | Introduce owned native perceptual orientation, item physiology and appliance preparation with authenticated private result acquisition. These are new executable simulation contracts; existing lifecycle joins and failed-route repairs support them. |
 | `C90` | 2026-09-27 | minor | `3.1.0.0-pre-alpha` | Cooperative procedures and private projections | Introduce durable cooperative procedure graphs with dependency-bound enacted truth and separate participant-private projections. Exact native acquisition, movement and handover receipts update only their actors and direct witnesses, while private reasoning and disagreement can revise an intended next step without rewriting material outcomes. This is a new long-form planning and authoring contract, so minor. |
 | `C91` | 2026-09-28 | minor | `3.2.0.0-pre-alpha` | Autonomous cooperative action | Introduce capability-bounded role claims, strategic movement and action steps, distinct-actor synchronization thresholds, exact Locomotion and Cooking joins, and failure-driven cooperative revision. This is a new multi-person planning and execution contract rather than a single added verb, so minor. |
+| `C92` | 2026-09-28 | minor | `3.3.0.0-pre-alpha` | Natural cooperative formation and posture execution | Introduce natural private-pressure formation of collect-prepare-deliver and threat-response procedures plus an exact native body/head posture owner. These are new autonomous and player-visible execution contracts rather than authored scenario outcomes, so minor. |
 
 ## The former number
 
@@ -227,11 +228,11 @@ establish release maturity.
 
 ## Next movement
 
-`C92` is the next batch. Its content determines its tier after it
+`C93` is the next batch. Its content determines its tier after it
 exists:
 
-| If C92 is | Result |
+| If C93 is | Result |
 |---|---|
-| patch or hotfix | `3.2.0.1-pre-alpha` |
-| kohai | `3.2.1.0-pre-alpha` |
-| minor | `3.3.0.0-pre-alpha` |
+| patch or hotfix | `3.3.0.1-pre-alpha` |
+| kohai | `3.3.1.0-pre-alpha` |
+| minor | `3.4.0.0-pre-alpha` |

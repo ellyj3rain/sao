@@ -328,6 +328,9 @@ function Identity.markDead(rec, tick, cause)
     if SAO.Cooking and SAO.Cooking.detach then
         pcall(SAO.Cooking.detach, rec.id, nil, "death")
     end
+    if SAO.Posture and SAO.Posture.forget then
+        pcall(SAO.Posture.forget, rec.id)
+    end
     if SAO.Voice and SAO.Voice.forget then
         pcall(SAO.Voice.forget, rec.id)
     end

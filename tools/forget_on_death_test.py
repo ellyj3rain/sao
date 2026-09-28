@@ -68,6 +68,10 @@ MARK_DEAD = "markDead"
 #   "calls"  - the clearing function calls Identity.markDead itself,
 #              so the clear and the death are the same event
 CACHES = {
+    ("SAO_Posture.lua", "P.jobs"): (
+        "P.forget", "named",
+        "a native posture holds one living body and exact procedure claim; "
+        "death interrupts that result owner and releases the body handle"),
     ("SAO_Cooking.lua", "runtime"): (
         "C.detach", "named",
         "native cooking actions and appliance handles exist only while their "

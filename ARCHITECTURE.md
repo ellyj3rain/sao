@@ -1,6 +1,6 @@
 | Document | Survivor Awareness Overhaul Architecture |
 |---|---|
-| Version | `3.2.0.0-pre-alpha` |
+| Version | `3.3.0.0-pre-alpha` |
 | Author | ellyj3rain |
 | Repository | `ARCHITECTURE.md` |
 | Status | ACTIVE - ratified framework shape. |
@@ -1097,6 +1097,40 @@ C91 establishes the general and executable role contract plus loaded
 Locomotion/Cooking call sites. It does not claim a natural loaded scene,
 posture owners for every strategic verb, autonomous tactical doctrine, or
 training admission. Observed scenarios remain operator-reviewed candidates.
+
+### Natural cooperative formation and native posture (C92)
+
+C92 connects the C91 procedure contract to ordinary private pressures. A
+person who needs food may author a collect-prepare-deliver procedure for known
+contacts. Acquisition, preparation, carrying and delivery retain one physical
+item actor through `sameActorAs`; the graph cannot divide a held item among
+abstract roles. The author may claim their own compatible step directly, while
+each recipient still acquires and answers the proposal independently.
+
+A privately perceived distant threat may form a bounded tactical procedure.
+The author watches the perceived location while one or two known contacts move
+toward a fallback vector derived from that actor's position and threat evidence;
+covering posture can follow those arrivals. The population family spans two to
+seven people. It is a producer over actual private evidence, not a scripted
+scene or a shared tactical mind. A changed private intent can produce a new
+revision; silence, refusal and disagreement remain possible outcomes.
+
+`SAO_Posture` owns watch and cover execution. It admits an exact procedure
+claim through the bridge, uses the native body and head orientation layer, and
+completes only after the represented body maintains the requested facing for a
+bounded interval. Movement, combat, timed actions, crossings, death, body
+replacement, world reset and timeout interrupt the owner instead of minting completion.
+The Controller starts this owner before material or movement work and consumes
+only its matching native result.
+
+Mousecat's existing observation feed now includes compact step targets and
+postures plus a bounded recent procedure-event timeline. Border 209 executes
+food continuity, private threat formation, independent disagreement, exact
+posture/movement closure and the two-to-seven population family with three
+causal mutations. Border 202 additionally exercises native posture admission,
+identity, maintained-facing completion, movement refusal and exact release in
+all three native loading orders. These establish the mechanisms, not their
+loaded-world frequency, tactical quality or dataset admission.
 
 ### Reference-learning source (C81)
 
