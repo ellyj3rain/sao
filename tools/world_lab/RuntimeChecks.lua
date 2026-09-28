@@ -69,9 +69,14 @@ getCell = function() return { getGridSquare = function(self, x, y, z)
 end } end
 local people = { p1 = { id = "p1", x = 10, y = 20, z = 0, belief = "private", dead = false },
     p2 = { id = "p2", x = 30, y = 40, z = 0, dead = true } }
+CharacterStat = { HUNGER = "HUNGER", THIRST = "THIRST", FATIGUE = "FATIGUE" }
+local nativeStats = {}
+local stats = { set = function(self, name, value) nativeStats[name] = value end,
+    get = function(self, name) return nativeStats[name] end }
 local body = { getX = function() return 11 end, getY = function() return 21 end,
-    getZ = function() return 0 end }
+    getZ = function() return 0 end, getStats = function() return stats end }
 SAO = { History = { countyHours = function() return hour + 24000 end },
+    Hash = { unit = function() return .25 end },
     Identity = { all = function() return people end },
     Controller = { agents = { p1 = { state = "ROAM", stateSince = 4 } } },
     Perception = { beliefs = { p1 = { people = { acquaintance = { src = "observed" } } } } },
@@ -168,8 +173,16 @@ function RunStudyChecks(Study)
     for i=3,24 do people['q'..i]=nil end
     Config.observation.maxPeople=priorMaximum;people.p1.cognition=nil;SAO.Cognition=nil
     RESULT_FRAME = Study.encode(frame)
+    Config.situation = { initialNeeds = {
+        hunger = { min = .4, max = .8 }, thirst = { min = .2, max = .6 } } }
     Study.tick()
+    assert(math.abs(nativeStats.HUNGER - .5) < .000001 and math.abs(nativeStats.THIRST - .3) < .000001,
+        "study situation did not reach native needs")
+    nativeStats.HUNGER = .1
     Study.tick()
+    assert(nativeStats.HUNGER == .1 and persisted.initialNeedsApplied.p1,
+        "study situation reapplied after native behavior changed need")
+    Config.situation = nil
     assert(#writes == 1 and persisted.sequence == 1, "cadence duplicated frame")
     hour = hour + Config.observation.everyHours
     Study.tick()

@@ -84,7 +84,7 @@ def load(path):
 def validate(value):
     required = {"schema", "id", "seed", "extent", "origins", "sandbox", "generation", "observation"}
     require(isinstance(value, dict) and required <= value.keys()
-            and value.keys() <= required | {"sourceMap"}, "invalid world fields")
+            and value.keys() <= required | {"sourceMap", "situation"}, "invalid world fields")
     if "sourceMap" in value:
         Authored.source_name(value["sourceMap"])
     require(value["schema"] == SCHEMA, "unsupported world schema")
@@ -159,6 +159,18 @@ def validate(value):
             number(val, -1e9, 1e9, "sandbox value")
         if type(val) is str:
             require(len(val) <= 512, "sandbox string too long")
+    if "situation" in value:
+        situation = value["situation"]
+        fields(situation, {"initialNeeds"}, "situation")
+        needs = situation["initialNeeds"]
+        require(isinstance(needs, dict) and 1 <= len(needs) <= 3
+                and set(needs) <= {"hunger", "thirst", "fatigue"},
+                "initialNeeds must name hunger, thirst or fatigue")
+        for name, bounds in needs.items():
+            fields(bounds, {"min", "max"}, f"initialNeeds.{name}")
+            low = number(bounds["min"], 0, 1, f"initialNeeds.{name}.min")
+            high = number(bounds["max"], 0, 1, f"initialNeeds.{name}.max")
+            require(low <= high, f"initialNeeds.{name} range is reversed")
     obs = value["observation"]
     fields(obs, {"everyHours", "maxPeople", "maxProcesses", "windows"}, "observation")
     number(obs["everyHours"], 1 / 3600, 720, "observation period")
@@ -408,7 +420,9 @@ def bind_frame(frame, package):
             and frame["map"] == manifest["mapName"], "observation package identity differs")
     require(frame["extent"] == definition["extent"]
             and frame["generation"] == definition["generation"]
-            and frame["sandbox"] == definition["sandbox"], "observation configuration differs")
+            and frame["sandbox"] == definition["sandbox"]
+            and frame.get("situation", {}) == definition.get("situation", {}),
+            "observation configuration differs")
     obs = definition["observation"]
     windows = [{k: w[k] for k in ("id", "x", "y", "z", "width", "height")}
                for w in frame["windows"]]
@@ -418,7 +432,7 @@ def bind_frame(frame, package):
 
 
 def validate_frame(frame):
-    fields({key: value for key, value in frame.items() if key != "countyHours"}, {"schema", "definitionSha256", "packageEngineJarSha256", "observerSha256",
+    fields({key: value for key, value in frame.items() if key not in {"countyHours", "situation"}}, {"schema", "definitionSha256", "packageEngineJarSha256", "observerSha256",
                    "engineVersion", "map", "save", "sequence", "hours", "session",
                    "datasetAdmission", "extent", "sandbox", "generation", "source", "mods", "windows",
                    "people", "processes", "population", "coverage"}, "observation")
@@ -467,6 +481,8 @@ def validate_frame(frame):
                                "z": 0, "profession": "unemployed"}],
                   "observation": {"everyHours": 1, "maxPeople": 100000, "maxProcesses": 4096,
                                   "windows": []}}
+    if frame.get("situation"):
+        definition["situation"] = frame["situation"]
     requested = loaded = missing = 0
     for window in windows:
         fields(window, {"id", "x", "y", "z", "width", "height", "squares", "unavailable"},

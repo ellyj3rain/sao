@@ -204,6 +204,32 @@ function Study.start()
     print("[StudyWorld] observation active save=" .. getWorld():getWorld())
     return true
 end
+local NEED_STATS = { hunger = "HUNGER", thirst = "THIRST", fatigue = "FATIGUE" }
+local function applyInitialNeeds()
+    local needs = Config.situation and Config.situation.initialNeeds
+    if not needs then return end
+    assert(SAO.Hash and SAO.Hash.unit, "study situation requires deterministic hash owner")
+    assert(CharacterStat, "native character statistics unavailable")
+    state.initialNeedsApplied = state.initialNeedsApplied or {}
+    for _, id in ipairs(keys(SAO.Identity.all())) do
+        local rec = SAO.Identity.all()[id]
+        if not rec.dead and not state.initialNeedsApplied[id] then
+            local body = SAO.Body.get(id)
+            if body then
+                local stats = assert(body:getStats(), "native character statistics unavailable")
+                local applied = { appliedAtHours = getGameTime():getWorldAgeHours() }
+                for _, name in ipairs(keys(needs)) do
+                    local bounds = needs[name]
+                    local unit = SAO.Hash.unit(id, "study:" .. Config.definitionSha256 .. ":" .. name)
+                    local value = bounds.min + (bounds.max - bounds.min) * unit
+                    stats:set(CharacterStat[NEED_STATS[name]], value)
+                    applied[name] = value
+                end
+                state.initialNeedsApplied[id] = applied
+            end
+        end
+    end
+end
 local function copy(value, path, budget, seen, depth)
     local kind = type(value)
     if budget.left <= 0 or (kind == "string" and #value > 32768) then
@@ -358,7 +384,7 @@ function Study.observe()
         map = getWorld():getMap(), save = getWorld():getWorld(), sequence = state.sequence + 1,
         hours = hours, countyHours = SAO.History.countyHours(),
         session = session, datasetAdmission = "unreviewed", extent = Config.extent,
-        sandbox = Config.sandbox, generation = Config.generation,
+        sandbox = Config.sandbox, generation = Config.generation, situation = Config.situation or {},
         source = "loaded-native-world", mods = array(), windows = array(), people = array(),
         processes = array(), population = { total = 0, captured = 0, dead = 0,
             represented = 0, unrepresented = 0 },
@@ -534,6 +560,7 @@ local function liveInspection(hours)
 end
 function Study.tick()
     if not Study.active then return end
+    applyInitialNeeds()
     local hours = getGameTime():getWorldAgeHours()
     liveInspection(hours)
     if isGamePaused() then return end
