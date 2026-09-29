@@ -11,6 +11,14 @@ The builder verifies intersecting building coverage against installed headers;
 offline verification checks the copied package and cannot independently recover
 the installed headers outside that package.
 
+A definition may instead name one activated native map through `lots`. The
+runner resolves that name to exactly one copied provider, verifies every authored
+cell lies inside the declared extent, and binds the provider and `map.info` hash
+into the run receipt. The mobile-household acceptance definition uses this path
+to load Project RV's physical rooms. Its bounded situation spawns a real vehicle,
+enters the remote room, moves the exterior anchor, exits beside it, and records
+the ordered transition receipt. The result remains unreviewed study evidence.
+
 Optional `generation.staticModules` declares up to 128 ordered native terrain
 regions. Each supplies an inclusive `position` rectangle (`xmin`, `xmax`, `ymin`,
 `ymax`) inside the world extent and exactly one native `biome` or `prefab` name.

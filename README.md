@@ -38,7 +38,7 @@ on the simulation.
 
 ## Status
 
-`3.7.0.0-pre-alpha` - the coordinate is computed by the version machine
+`3.7.0.1-pre-alpha` - the coordinate is computed by the version machine
 (`tools/version_replay.py`), never picked; `VERSION_MAP.md` shows the
 classification and the arithmetic.
 
@@ -49,6 +49,14 @@ RV-room entry and exit. Survivors can use an accessible mobile shelter on held
 ground, remember and plan around it, and expose the live continuity state in
 Mousecat. The activated vehicle mods supply their physical assets; activation
 alone still gives no source-integration credit.
+
+C100 closes that implementation's current-engine acceptance boundary. Build
+42.21 loaded a real Rolling Refuge and Project RV interior, moved the exterior
+anchor while the resident occupied the physical room, and returned the resident
+beside the moved vehicle with two durable transitions. Remote-room coordinates
+now remain separate from the moving place's durable exterior anchor, and a
+recreated body reconstructs its native interior binding. The retained situation
+and its observations remain unreviewed for dataset admission.
 
 C93 makes native studies durable across bounded engine attempts. The ordinary
 attempt budget is one hour and remains configurable; Save session requests a

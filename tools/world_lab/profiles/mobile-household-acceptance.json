@@ -1,0 +1,35 @@
+{
+  "schema": "sao-study-mod-profile/3",
+  "id": "mobile-household-acceptance",
+  "label": "Mobile household physical acceptance",
+  "enabled": [
+    "PROJECTRVInterior42",
+    "RollingRefuge"
+  ],
+  "disabled": [
+    "damnlib",
+    "KI5campers",
+    "KI5trailers",
+    "LifestyleHobbies",
+    "B42Survival",
+    "B42Horticulture",
+    "Waterpipes",
+    "WaterPipesBasementWater",
+    "LGExtendedElectricity",
+    "LGRealisticPowerUsage",
+    "LGExtendedPlumbing",
+    "PIP",
+    "PSR",
+    "PWS",
+    "PUR",
+    "PSC",
+    "FoodDrying",
+    "Makedriedfruit",
+    "SKITTLE_LongTermPreservation4220",
+    "VanillaCraftableFoods",
+    "ServingPlates42",
+    "NeatUI_Framework",
+    "Project_Cook",
+    "N&CsNarcotics"
+  ]
+}

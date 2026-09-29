@@ -30,6 +30,44 @@ def digest(path):
     return hashlib.sha256(Path(path).read_bytes()).hexdigest()
 
 
+def native_lots_evidence(mods, definition):
+    """Bind a declared map dependency to one copied native map surface."""
+    name = definition.get("lots")
+    if not name:
+        return None
+    candidates = []
+    for mod_root in sorted(path for path in Path(mods).iterdir() if path.is_dir()):
+        roots = [mod_root / "media/maps" / name,
+                 mod_root / "common/media/maps" / name]
+        roots.extend(sorted(mod_root.glob("42*/media/maps/" + name)))
+        for root in roots:
+            if root.is_dir():
+                candidates.append((mod_root.name, root))
+    Lab.require(len(candidates) == 1,
+                "native lots dependency must resolve to one activated map: " + name)
+    mod_id, root = candidates[0]
+    info = root / "map.info"
+    Lab.require(info.is_file() and not info.is_symlink(),
+                "native lots dependency has no map metadata: " + name)
+    cells = set()
+    pattern = Lab.re.compile(r"^(?:world_|chunkdata_)?(-?\d+)_(-?\d+)\.(?:lotheader|lotpack|bin)$")
+    for path in root.iterdir():
+        match = pattern.fullmatch(path.name)
+        if match:
+            cells.add((int(match[1]), int(match[2])))
+    Lab.require(cells, "native lots dependency has no authored cells: " + name)
+    extent = definition["extent"]
+    min_x, min_y = extent["minCellX"], extent["minCellY"]
+    max_x = min_x + extent["cellsX"] - 1
+    max_y = min_y + extent["cellsY"] - 1
+    Lab.require(all(min_x <= x <= max_x and min_y <= y <= max_y for x, y in cells),
+                "native lots dependency leaves the declared world extent: " + name)
+    return {"name": name, "provider": mod_id, "mapInfoSha256": digest(info),
+            "cells": len(cells), "minCellX": min(x for x, _ in cells),
+            "maxCellX": max(x for x, _ in cells),
+            "minCellY": min(y for _, y in cells), "maxCellY": max(y for _, y in cells)}
+
+
 def publish(path, value):
     temporary = path.with_name(path.name + ".tmp")
     temporary.write_bytes(Lab.canonical(value))
@@ -98,6 +136,9 @@ def prepare(package, destination, game, jdk, mod_paths, simulation_profile=None)
                "loadingAgentSha256": digest(agent), "mods": inventory,
                "simulationProfile": simulation_profile,
                "datasetAdmission": "unreviewed", "status": "prepared"}
+    map_dependency = native_lots_evidence(mods, definition)
+    if map_dependency is not None:
+        receipt["mapDependency"] = map_dependency
     publish(destination / "run.json", receipt)
     return cache, user, agent, manifest, definition
 
@@ -296,6 +337,9 @@ def verify_run(destination, package):
                 and receipt["packageSha256"] == Lab.seal(manifest), "completed package-bound run required")
     cache = destination / "cache"
     verify_inputs(cache, destination / "StudyLoadingAgent.jar", receipt)
+    expected_map = native_lots_evidence(cache / "mods", definition)
+    Lab.require(expected_map == receipt.get("mapDependency"),
+                "native lots dependency evidence differs")
     verify_native_images(cache, receipt)
     if receipt.get("host") == "observer":
         Lab.require(observer_evidence(destination, receipt) == receipt.get("observerEvidence"),

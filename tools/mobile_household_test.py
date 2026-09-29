@@ -28,6 +28,14 @@ local function list(values)
   return {size=function() return #values end,
     get=function(_,i) return values[i+1] end}
 end
+local function set(values)
+  return {size=function() return #values end,
+    iterator=function()
+      local i=0
+      return {hasNext=function() return i < #values end,
+        next=function() i=i+1; return values[i] end}
+    end}
+end
 _G.__list=list
 _G.__hours=100
 _G.__hour=23
@@ -35,7 +43,9 @@ _G.__now=1000
 _G.__recovered=0
 _G.__stores={}
 _G.__records={
-  a={id='a',dead=false}, b={id='b',dead=false}, c={id='c',dead=false}}
+  a={id='a',dead=false,x=10,y=10,z=0},
+  b={id='b',dead=false,x=5,y=5,z=0},
+  c={id='c',dead=false,x=5,y=5,z=0}}
 ModData={
   getOrCreate=function(key) __stores[key]=__stores[key] or {}; return __stores[key] end,
   get=function(key) return __stores[key] end,
@@ -75,7 +85,8 @@ function __vehicle(name,x,y,parts)
   function v:getZ() return self.z end; function v:getCurrentSpeedKmHour() return self.speed end
   function v:getVehicleTowing() return self.towing end
   function v:getVehicleTowedBy() return self.towedBy end
-  function v:getParts() return list(self.parts) end
+  function v:getPartCount() return #self.parts end
+  function v:getPartByIndex(i) return self.parts[i+1] end
   function v:getMaxPassengers() return 3 end
   function v:getCharacter(i) return self.characters[i] end
   function v:getSeat(body) return body.vehicle==self and 1 or -1 end
@@ -99,7 +110,7 @@ function __body(id,x,y)
   return b
 end
 _G.__vehicles={}
-_G.__cell={getVehicles=function() return list(__vehicles) end}
+_G.__cell={getVehicles=function() return set(__vehicles) end}
 getCell=function() return __cell end
 SAOJavaBridge={
   seatInNearestVehicle=function(_,body,x,y)
@@ -158,7 +169,8 @@ PROBE = r'''(function()
   M.observeVehicle(rv,'native-motion')
   view=M.snapshot('a')
   check('moving_place_updates_without_changing_identity',view.id=='mobile/1'
-    and view.x==41 and view.y==42 and view.motion=='moving')
+    and view.x==41 and view.y==42 and view.motion=='moving'
+    and __records.a.x==41 and __records.a.y==42)
 
   a.vehicle=nil; rv.characters[1]=nil
   a.md.projectRV_playerId='pa'
@@ -180,6 +192,13 @@ PROBE = r'''(function()
   check('night_pressure_can_use_native_mobile_shelter',entered==true
     and b.vehicle==nil and __records.b.mobileHouseholdUse.reason=='night-rest'
     and __records.b.mobileHouseholdState=='interior' and b.x==22562 and b.y==12302)
+  __stores.modPROJECTRVInterior.Players={}
+  local replacement=__body('b',22562,12302); SAO.Body.active.b=replacement
+  local restored=M.restoreInterior('b',replacement)
+  check('interior_binding_survives_body_replacement',restored==true
+    and M.isInterior('b',replacement)==true
+    and replacement.md.projectRV_playerId=='sao-mobile:b')
+  b=replacement
   __hours=101
   local resting=M.tickOccupiedRest('b',b,{})
   check('stationary_mobile_shelter_carries_real_rest',resting==true and __recovered==1)
@@ -210,6 +229,7 @@ EXPECTED = {
     "completed_interior_transition_keeps_external_anchor",
     "physical_separation_closes_occupancy",
     "night_pressure_can_use_native_mobile_shelter",
+    "interior_binding_survives_body_replacement",
     "stationary_mobile_shelter_carries_real_rest",
     "morning_exit_uses_native_unseat",
     "native_entry_refusal_is_observed_not_overridden",

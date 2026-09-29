@@ -25,6 +25,7 @@ PZ = pathlib.Path(
     r"\projectzomboid.jar")
 MODES = ("normal", "debug")
 ARRAY_REFUSAL = "ArrayIndexOutOfBoundsException: Index 200 out of bounds for length 200"
+COMMAND_LIMIT = 16000
 
 
 def build(source, classes):
@@ -36,11 +37,28 @@ def build(source, classes):
         raise RuntimeError("could not build the checker: " + done.stderr.strip())
 
 
-def compile_files(classes, files):
-    return subprocess.run(
-        [str(JDK / "java.exe"), "-cp", f"{PZ};{classes}", "LuaSyntax"]
-        + [str(path) for path in files],
-        capture_output=True, text=True, timeout=600)
+def compile_files(classes, files, command_limit=COMMAND_LIMIT):
+    prefix = [str(JDK / "java.exe"), "-cp", f"{PZ};{classes}", "LuaSyntax"]
+    batches, current = [], []
+    used = sum(len(argument) + 3 for argument in prefix)
+    for path in files:
+        argument = str(path)
+        cost = len(argument) + 3
+        if current and used + cost > command_limit:
+            batches.append(current)
+            current = []
+            used = sum(len(value) + 3 for value in prefix)
+        current.append(argument)
+        used += cost
+    if current:
+        batches.append(current)
+    runs = [subprocess.run(prefix + batch, capture_output=True, text=True, timeout=600)
+            for batch in batches]
+    return subprocess.CompletedProcess(
+        prefix + [str(path) for path in files],
+        1 if any(run.returncode for run in runs) else 0,
+        "".join(run.stdout for run in runs),
+        "".join(run.stderr for run in runs))
 
 
 def verify_report(done, files, refusals=None):
@@ -94,6 +112,13 @@ def controls(work, classes):
     faults = verify_report(actual, files, refusals)
     if faults:
         return ["compiler control: " + fault for fault in faults]
+    one_file_limit = (sum(len(argument) + 3 for argument in
+                          [str(JDK / "java.exe"), "-cp", f"{PZ};{classes}", "LuaSyntax"])
+                      + max(len(str(path)) + 3 for path in files))
+    split = compile_files(classes, files, one_file_limit)
+    split_faults = verify_report(split, files, refusals)
+    if split_faults:
+        return ["batched compiler control: " + fault for fault in split_faults]
 
     # Remove the actual debug compile pass, then require the ordinary report
     # verifier to name its absent mode. This is a compiled driver mutation.
@@ -154,7 +179,8 @@ def main():
                 faults.extend(controls(work, classes))
                 if not faults:
                     print("  controls: malformed syntax; 200/201 locals in both modes; "
-                          "compiled mode omission; nonzero, empty, truncated and repeated reports")
+                          "bounded command batches; compiled mode omission; nonzero, empty, "
+                          "truncated and repeated reports")
                     done = compile_files(classes, files)
                     faults.extend(verify_report(done, files))
         except (OSError, subprocess.SubprocessError, RuntimeError) as error:

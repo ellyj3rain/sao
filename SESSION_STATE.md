@@ -1,11 +1,23 @@
 | Document | Survivor Awareness Overhaul Session State |
 |---|---|
-| Version | `3.7.0.0-pre-alpha` |
+| Version | `3.7.0.1-pre-alpha` |
 | Author | ellyj3rain |
 | Repository | `SESSION_STATE.md` |
 | Status | CANONICAL - current implementation and continuation. |
 
 # Session state
+
+**As of** 2026-09-29, [C100] closes the mobile-household loaded-acceptance
+obligation on Build 42.21. A real Rolling Refuge acquired one SAO moving-place
+identity, entered Project RV's loaded `3x6caravan` room, carried its exterior
+anchor from 3782,10943 to 3792,10943, then returned its resident beside that
+moved anchor with two durable transitions and no runtime errors. The runtime
+uses the engine's Set iterator and indexed vehicle-part API, keeps the exterior
+anchor separate from remote-room body coordinates, reconstructs Project RV
+bindings after body replacement, and limits morning auto-exit to overnight-rest
+use. Border 213 retains the package, definition, report, observation, log, map
+provider and transition evidence. The situation and observations remain
+unreviewed and carry no behavioral verdict or dataset authority.
 
 **As of** 2026-09-28, [C99] implements mobile households as native-backed
 moving places. Campers, cargo and utility trailers, livestock trailers and
@@ -19,8 +31,8 @@ leave in the morning. Person-private memory and procedural planning retain the
 place, while Mousecat exposes its occupants, motion, stores, towing, transition
 and failure counts. Border 212 executes identity, material revisions, towing,
 entry, room use, movement, rest, refusal, exit and save continuity in installed
-Kahlua with mutation controls. A Build 42.21 loaded physical-room receipt
-remains open. Physical vehicle and room art remains attributed to its mod
+Kahlua with mutation controls. C100 retains the completed Build 42.21 loaded
+physical-room receipt. Physical vehicle and room art remains attributed to its mod
 authors; source integration is the SAO causal owner around those native assets.
 The study behavior and any resulting observations remain unreviewed for dataset
 admission.
@@ -1031,10 +1043,10 @@ border, C75's typed-claim border, C86's native study, escape-continuity and
 sound-evidence borders, C88's cognitive competition border, C89's native
 capability borders, C90-C92's cooperative procedure borders and C93's durable
 study-session border, the gate invokes
-214 `*_test.py` files and 15 other Python entry points, 229 distinct scripts.
-Border labels extend through 212; legacy labels
+214 `*_test.py` files and 16 other Python entry points, 230 distinct scripts.
+Border labels extend through 213; legacy labels
 163/169/174 share the native suite. These are distinct counting units. The mod
-ships 183 Lua source files.
+ships 184 Lua source files.
 ZAO A41 has fifteen borders. The
 published C51 baseline has 163 borders through 178 mirrors. These counts describe the
 apparatus, not acceptance. The audit reproduced defects while targeted checks

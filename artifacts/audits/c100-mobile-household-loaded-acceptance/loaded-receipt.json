@@ -1,0 +1,119 @@
+{
+  "schema": "sao-mobile-household-loaded-receipt/1",
+  "capturedAt": "2026-09-29T02:01:45-07:00",
+  "sessionId": "0d6acb62-32ee-42b6-a2ae-f9f5ad5f62e2",
+  "engineVersion": "42.21.0 4a0e9546ec",
+  "engineJarSha256": "e1a69eb743ede60b213a0fe7f8b83d4fcab773036d256cc4543a336f3b058a33",
+  "packageSha256": "68b6beef24338b4f72dc02addc61303d758f303fd87d98b0971152c5aa78f0d0",
+  "definitionSha256": "03f0a17c34f3ac292013fc515afc76b7167340d2b2fd82ee32e235f3b29409a0",
+  "reportSha256": "89f7956243cb5d99deecabc528313379cafb9b084ae3a7d5ec200d68103592cb",
+  "observationSha256": "e38fc45c8c394116e2a60b7899cf565ac7d8d02a00e1e82d57762f05e93d226b",
+  "stdoutSha256": "8839917a6a74d2789dcae529bd614571182114e443e9dee2edda15933c917e51",
+  "status": "completed",
+  "exitCode": 0,
+  "runtimeErrors": [],
+  "datasetAdmission": "unreviewed",
+  "behavioralVerdict": null,
+  "nativeCohort": [
+    "PROJECTRVInterior42",
+    "RollingRefuge",
+    "Study-echo-creek-mobile-household-03f0a17c34f3",
+    "SurvivorAwareness",
+    "ZombieBuddy"
+  ],
+  "mapDependency": {
+    "name": "map_distanciado",
+    "provider": "PROJECTRVInterior42",
+    "mapInfoSha256": "a0d3d88b608badef50ea349c6676899af2c34cea51310497cb38e515c281a1e5",
+    "cells": 44,
+    "minCellX": 87,
+    "maxCellX": 97,
+    "minCellY": 46,
+    "maxCellY": 49
+  },
+  "events": [
+    {
+      "kind": "vehicle-spawned",
+      "stdoutLine": 900,
+      "message": "[StudyWorld] mobile household=mobile/1 spawned"
+    },
+    {
+      "kind": "interior-entered",
+      "stdoutLine": 923,
+      "message": "[StudyWorld] mobile household entered person=sao-1 room=3x6caravan"
+    },
+    {
+      "kind": "physical-room-loaded",
+      "stdoutLine": 931,
+      "message": "[StudyWorld] mobile household physical room loaded"
+    },
+    {
+      "kind": "exterior-returned",
+      "stdoutLine": 937,
+      "message": "[StudyWorld] mobile household exited person=sao-1 anchor=mobile/1"
+    }
+  ],
+  "situationReceipt": {
+    "schema": 1,
+    "kind": "mobile-household-loaded",
+    "script": "Base.RollingRefuge",
+    "vehicleId": "mobile/1",
+    "personId": "sao-1",
+    "phase": "completed",
+    "result": "completed",
+    "spawnedAtHours": 2,
+    "enteredAtHours": 2.0003700256347656,
+    "exitInitiatedAtHours": 2.001110076904297,
+    "exitedAtHours": 2.00216007232666,
+    "spawn": {
+      "x": 3782,
+      "y": 10943,
+      "z": 0
+    },
+    "moved": {
+      "x": 3792,
+      "y": 10943,
+      "z": 0
+    },
+    "interior": {
+      "x": 22560,
+      "y": 12300,
+      "z": 0,
+      "bodyX": 22562,
+      "bodyY": 12302,
+      "roomType": "3x6caravan",
+      "loaded": true,
+      "outside": false,
+      "floorSprite": "floors_interior_carpet_01_7"
+    },
+    "final": {
+      "x": 3794,
+      "y": 10943,
+      "z": 0
+    },
+    "transitionCount": 2,
+    "materialRevision": 1,
+    "waitTicks": 0,
+    "datasetAdmission": "unreviewed"
+  },
+  "observation": {
+    "frames": 6,
+    "firstHours": 2,
+    "lastHours": 2.100172996520996,
+    "population": {
+      "total": 2,
+      "captured": 2,
+      "dead": 0,
+      "represented": 2,
+      "unrepresented": 0
+    },
+    "coverage": {
+      "requestedSquares": 3328,
+      "loadedSquares": 2560,
+      "unavailableSquares": 768,
+      "peopleComplete": true,
+      "processesComplete": true,
+      "physicalCoverage": "loaded-squares-only"
+    }
+  }
+}
