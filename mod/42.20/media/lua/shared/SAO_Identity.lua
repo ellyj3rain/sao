@@ -398,6 +398,9 @@ function Identity.markDead(rec, tick, cause)
     if SAO.Driving and SAO.Driving.cancel then
         pcall(SAO.Driving.cancel, rec.id)
     end
+    if SAO.MobileHousehold and SAO.MobileHousehold.forgetPerson then
+        pcall(SAO.MobileHousehold.forgetPerson, rec.id, "person-died")
+    end
     -- [C105] And the stores: the corpse's items belong to the
     -- engine's body, and the provisioning model is about the living.
     if SAO.Material and SAO.Material.forget then

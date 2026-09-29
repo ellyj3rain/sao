@@ -1,11 +1,29 @@
 | Document | Survivor Awareness Overhaul Session State |
 |---|---|
-| Version | `3.6.0.0-pre-alpha` |
+| Version | `3.7.0.0-pre-alpha` |
 | Author | ellyj3rain |
 | Repository | `SESSION_STATE.md` |
 | Status | CANONICAL - current implementation and continuation. |
 
 # Session state
+
+**As of** 2026-09-28, [C99] implements mobile households as native-backed
+moving places. Campers, cargo and utility trailers, livestock trailers and
+motorhomes retain one durable identity across exterior motion, towing, native
+vehicle stores, seated occupants and Project RV physical-room transitions.
+Completed entry preserves the exterior vehicle as the person's spatial anchor;
+completed exit returns through a native seat when available and otherwise next
+to the towable rather than inside its collision. Survivors can choose an
+accessible mobile shelter on held ground for stationary overnight rest and
+leave in the morning. Person-private memory and procedural planning retain the
+place, while Mousecat exposes its occupants, motion, stores, towing, transition
+and failure counts. Border 212 executes identity, material revisions, towing,
+entry, room use, movement, rest, refusal, exit and save continuity in installed
+Kahlua with mutation controls. A Build 42.21 loaded physical-room receipt
+remains open. Physical vehicle and room art remains attributed to its mod
+authors; source integration is the SAO causal owner around those native assets.
+The study behavior and any resulting observations remain unreviewed for dataset
+admission.
 
 **As of** 2026-09-28, [C98] source-integrates the Horse team's complete physical horse surface: world assets, models, textures, sounds, tile data, gear, recipes, animations, mounting, riding collision, stamina, attachments, mounted combat and network state now ship inside SAO. SAO joins that execution to off-slot survivor identity, person-private horse and route knowledge, a maintained approach-mount-ride-dismount purpose, native engine route waypoints, autonomous mounted input, durable rider-animal records and Mousecat observation. Horse damage, body-part selection, mane, fall, grunt-timing and attachment-drop draws now advance SAO's persisted county stream. The external Horse mod is removed from the study loadout so one source owns execution. Build 42.21 loaded acceptance completes spawn, mount, native route arrival and dismount with an inactive final mount relation, zero process exit and an empty runtime-error scan. Its updated reading completion, square reach, outdoor study origin, semantic observation-section, pharmacology pain/moodle and cooking attachment-fixture contracts are held by the current-engine gate. The retained scenario and its behavioral quality remain unreviewed for dataset admission.
 
@@ -1013,8 +1031,8 @@ border, C75's typed-claim border, C86's native study, escape-continuity and
 sound-evidence borders, C88's cognitive competition border, C89's native
 capability borders, C90-C92's cooperative procedure borders and C93's durable
 study-session border, the gate invokes
-213 `*_test.py` files and 15 other Python entry points, 228 distinct scripts.
-Border labels extend through 211; legacy labels
+214 `*_test.py` files and 15 other Python entry points, 229 distinct scripts.
+Border labels extend through 212; legacy labels
 163/169/174 share the native suite. These are distinct counting units. The mod
 ships 183 Lua source files.
 ZAO A41 has fifteen borders. The

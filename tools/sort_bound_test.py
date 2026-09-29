@@ -116,6 +116,10 @@ BOUNDED = {
     ("SAO_CognitiveModels.lua", "ranked"):
         "interpretPlans rejects more than sixteen candidates before copying "
         "or sorting them, keeping both model rankings within that bound",
+    ("SAO_MobileHousehold.lua", "rows"):
+        "materialSnapshot retains at most MAX_MATERIAL_CONTAINERS (512) "
+        "native part-container rows before sorting; it still counts weight and "
+        "items across overflow containers and reports the overflow explicitly",
     ("SAO_ProceduralPlanning.lua", "candidates"):
         "chooseFallback reads one person's spatialKnowledge list; "
         "rememberSpatial evicts at MAX_FACTS (64), so filtering cannot widen it",

@@ -419,6 +419,41 @@ local function horseState(id, rec, body)
     end
     return s
 end
+local function mobileHousehold(id)
+    local s = section("mobile-household", "Moving place and household",
+        "SAO mobile household owner",
+        "Native vehicle, interior transition, occupants, stores and towing continuity")
+    local view = SAO.MobileHousehold and SAO.MobileHousehold.snapshot
+        and SAO.MobileHousehold.snapshot(id) or nil
+    if not view then
+        s.message = "Not currently inside a known mobile place"
+        return s
+    end
+    row(s, "Place", tostring(view.id) .. " / " .. tostring(view.kind))
+    row(s, "Physical state", tostring(view.state) .. " / " .. tostring(view.motion))
+    row(s, "External anchor", string.format("%.1f, %.1f, %d",
+        tonumber(view.x) or 0, tonumber(view.y) or 0, tonumber(view.z) or 0))
+    if finite(view.speedKmh) then
+        row(s, "Speed", string.format("%.1f km/h", view.speedKmh))
+    end
+    row(s, "Observed occupants", view.occupants or 0)
+    row(s, "Native stored items", view.itemCount or 0)
+    if finite(view.materialWeight) then
+        row(s, "Observed stored weight", string.format("%.2f", view.materialWeight))
+    end
+    row(s, "Material revision", view.materialRevision or 0)
+    if finite(view.lastObservedAtHours) then
+        row(s, "Place last observed", string.format("%.2f h", view.lastObservedAtHours))
+    end
+    if finite(view.materialObservedAtHours) then
+        row(s, "Stores last observed", string.format("%.2f h", view.materialObservedAtHours))
+    end
+    if view.towing then row(s, "Towing", view.towing) end
+    if view.towedBy then row(s, "Towed by", view.towedBy) end
+    row(s, "Recorded transitions", view.transitions or 0)
+    if (view.failures or 0) > 0 then row(s, "Recorded failures", view.failures) end
+    return s
+end
 local function planning(id)
     local s = section("planning", "Purposes and next steps",
         "ProceduralPlanning person-private store",
@@ -459,7 +494,7 @@ local function samplePerson(id, rec, body)
     local pressure = section("pressure", "Pressure and recorded reason", "Controller", "Most recent decision receipt")
     if agent and agent.pressure then scalarRows(pressure, agent.pressure, "", 0)
     else pressure.status = "unavailable"; pressure.message = "No active pressure receipt" end
-    local out = { sections = { needs(body), lifeProfile(id, rec), attention(rec, body), medication(rec), preparation(id, rec), horseState(id, rec, body), planning(id),
+    local out = { sections = { needs(body), lifeProfile(id, rec), attention(rec, body), medication(rec), preparation(id, rec), horseState(id, rec, body), mobileHousehold(id), planning(id),
         inventory(body), pressure, currentAction(id, body), sourceWork(id, rec), processes(id) }, events = {} }
     if SAO.Cognition and SAO.Cognition.snapshot then out.cognition = SAO.Cognition.snapshot(id) end
     for _, event in ipairs(histories[id] or {}) do
