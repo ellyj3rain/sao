@@ -237,6 +237,7 @@ UNITS = [
     ('C96', 'patch', 'Repair isolated native study activation against the replaced 42.21 engine jar: select and persist the sealed mod cohort before Lua boot, use the current focus-loss option, admit the current metadata ceiling and verify both installed far-streaming call shapes. This restores the existing study contract without adding a capability boundary, so patch.'),
     ('C97', 'patch', 'Reconcile the retained Claude source-integration execution and completion claim against canonical decisions, C40-era credits and later audits; separate the external study loadout from source ownership and retain exact open obligations. This repairs provenance and the evidence gate without adding a runtime capability, so patch.'),
     ('C98', 'minor', 'Source-integrate the complete Horse team physical implementation and assets, then join native route waypoints, autonomous mounted input, person-private planning, durable rider-animal identity and Mousecat observation. This creates owned horse life and mounted mobility as a new player-visible simulation capability, so minor.'),
+    ('C99', 'minor', 'Introduce native-backed mobile households: persistent moving-place identity, occupants and stores, towing and exterior-anchor continuity, physical RV-room entry and exit, private spatial planning, overnight use and Mousecat observation across camper, trailer and motorhome assets. This is a new player-visible life and mobility contract, so minor.'),
 ]
 
 TIER_MEANINGS = [

@@ -381,6 +381,59 @@ function P.planHorseTravel(id, context)
     return purpose, purpose.steps[purpose.cursor]
 end
 
+function P.planMobileHousehold(id, context)
+    context = type(context) == "table" and context or {}
+    local vehicleId = tostring(context.vehicleId or "unknown")
+    local purpose = P.maintain(id, { key = "mobile-household:" .. vehicleId,
+        objective = tostring(context.objective or
+            "use a known moving place without losing people or supplies"),
+        domain = "mobile-household", origin = tostring(context.origin
+            or "shelter-and-mobility"), atHours = context.atHours })
+    if not purpose then return nil, "person-unavailable" end
+    local blockers = {}
+    if context.known ~= true then blockers[#blockers + 1] = "vehicle-not-known" end
+    if context.loaded ~= true then blockers[#blockers + 1] = "vehicle-not-loaded" end
+    if context.accessible ~= true then blockers[#blockers + 1] = "entry-not-accessible" end
+    if context.separated == true then blockers[#blockers + 1] = "party-separated" end
+    local available = #blockers == 0 and "available" or "blocked"
+    local steps = {}
+    if context.occupied ~= true then
+        steps[#steps + 1] = { id = "inspect-mobile-place", verb = "inspect",
+            owner = "MobileHousehold", status = available,
+            token = "mobile:identified", target = vehicleId }
+        steps[#steps + 1] = { id = "approach-entry", verb = "move",
+            owner = "Locomotion", status = "dependent",
+            token = "route:arrived", target = vehicleId }
+        steps[#steps + 1] = { id = "enter-mobile-place", verb = "enter",
+            owner = "MobileHousehold", status = "dependent",
+            token = "mobile:entered", target = vehicleId }
+    end
+    steps[#steps + 1] = { id = "reconcile-occupants-and-stores", verb = "reconcile",
+        owner = "MobileHousehold", status = available,
+        token = "mobile:reconciled", target = vehicleId }
+    steps[#steps + 1] = { id = "depart-or-remain", verb = "decide",
+        owner = "Controller", status = "dependent",
+        token = "mobile:continuity-decided",
+        target = context.destinationKey or vehicleId }
+    local stay = { id = "use-moving-place",
+        evidence = context.known and context.accessible and 0.9 or 0.2,
+        continuity = context.occupied and 1 or 0.6, novelty = 0.2,
+        informationGain = context.materialKnown and 0.2 or 0.7,
+        blockers = #blockers }
+    local inspect = { id = "inspect-before-entry", evidence = context.loaded and 0.7 or 0.1,
+        continuity = 0.3, novelty = 0.8, informationGain = 0.9,
+        blockers = context.loaded and 0 or 1 }
+    setPlan(purpose, steps, blockers, interpretations(id, { stay, inspect },
+        { domain = "mobile-household",
+            pressure = clamp(tonumber(context.pressure) or 0, 0, 1) }),
+        finite(context.atHours) and context.atHours or nowHours())
+    purpose.vehicleId, purpose.vehicleKind = vehicleId, context.vehicleKind
+    purpose.destinationKey = context.destinationKey
+    purpose.materialRevision = context.materialRevision
+    purpose.occupantCount = tonumber(context.occupantCount) or 0
+    return purpose, purpose.steps[purpose.cursor]
+end
+
 function P.chooseFallback(id, situation)
     if type(situation) ~= "table" or type(situation.position) ~= "table"
         or type(situation.threat) ~= "table" then return nil end

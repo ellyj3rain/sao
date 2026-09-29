@@ -2247,6 +2247,14 @@ if ! "$PY" tools/procedural_planning_test.py; then
     fail=1
 fi
 
+# Border 212 - [C99] campers, trailers and motorhomes retain one native-backed
+# moving-place identity across occupants, stores, towing, rest and interior
+# transitions; private planning and Mousecat expose the same durable facts.
+if ! "$PY" tools/mobile_household_test.py; then
+    note "BORDER FINDING - mobile household continuity or observation failed"
+    fail=1
+fi
+
 # Source integration retains the selected Claude-built baseline and its exact
 # limits. External study activation cannot promote a candidate into ownership.
 if ! "$PY" tools/source_integration_gate.py; then

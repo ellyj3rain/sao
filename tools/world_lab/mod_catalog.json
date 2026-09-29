@@ -11,7 +11,7 @@
         "mobile household space"
       ],
       "dependencies": [],
-      "studyRole": "integration-directive"
+      "studyRole": "domain-evidence"
     },
     {
       "id": "damnlib",
@@ -36,7 +36,7 @@
       "dependencies": [
         "damnlib"
       ],
-      "studyRole": "integration-directive"
+      "studyRole": "domain-evidence"
     },
     {
       "id": "KI5trailers",
@@ -50,7 +50,7 @@
       "dependencies": [
         "damnlib"
       ],
-      "studyRole": "integration-directive"
+      "studyRole": "domain-evidence"
     },
     {
       "id": "RollingRefuge",
@@ -62,7 +62,7 @@
         "mobile shelter vehicle"
       ],
       "dependencies": [],
-      "studyRole": "integration-directive"
+      "studyRole": "domain-evidence"
     },
     {
       "id": "LifestyleHobbies",
@@ -390,6 +390,22 @@
         "mount and dismount",
         "riding collision and stamina",
         "autonomous mounted travel"
+      ],
+      "record": "proven-implementation"
+    },
+    {
+      "id": "mobile-household-continuity",
+      "label": "Mobile household and moving-place continuity",
+      "owner": "SurvivorAwareness",
+      "evidence": "C99; external vehicle art and room providers retain their own provenance",
+      "capabilities": [
+        "moving-place identity",
+        "occupant and household continuity",
+        "vehicle-store continuity",
+        "towing and motion transitions",
+        "physical interior entry and exit",
+        "person-private place knowledge and planning",
+        "mobile rest and observable failures"
       ],
       "record": "proven-implementation"
     }

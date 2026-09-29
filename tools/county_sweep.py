@@ -222,6 +222,7 @@ NOT_DORMANT = {
     "Population": "the module doing the loading names itself",
     "Telemetry": "same",
     "Driving": "drives materialised vehicles; dormant half has no vehicle drivers",
+    "MobileHousehold": "observes and acts on loaded vehicles and physical interiors; dormant people have no native vehicle object, while their durable place knowledge and procedures remain in the shared planning owners",
     "UI": "renders player UI widgets; dormant half has no screen",
     "MedicalWindow": "renders doctor UI window; dormant half has no screen",
     "Inspect": "renders inspection window; dormant half has no screen",

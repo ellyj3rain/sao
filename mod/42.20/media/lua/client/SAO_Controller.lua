@@ -4108,9 +4108,25 @@ local function decideNightAndDrift(id, agent, body, tick, rec)
     -- still reaches its own decision owner when there is no resting place;
     -- the generic leisure walk keeps its separate daylight restriction.
     local okH, hour = pcall(function() return GameTime.getInstance():getTimeOfDay() end)
+    local mobileInterior = SAO.MobileHousehold and SAO.MobileHousehold.isInterior
+        and SAO.MobileHousehold.isInterior(id, body) or false
+    if okH and hour >= 6.0 and hour < 22.0 and mobileInterior
+        and SAO.MobileHousehold.exitInterior then
+        SAO.MobileHousehold.exitInterior(id, body, "morning-departure")
+        mobileInterior = false
+    end
     if okH and (hour >= 22.0 or hour < 6.0) then
         local homeX, homeY, homeZ = resolvedHomeAddress(id, rec)
-        local insideHome = occupiesKnownHome(id, body, homeX, homeY, homeZ)
+        local insideHome = mobileInterior
+            or occupiesKnownHome(id, body, homeX, homeY, homeZ)
+        if not insideHome and SAO.MobileHousehold
+            and SAO.MobileHousehold.seekNightShelter
+            and SAO.MobileHousehold.seekNightShelter(id, body, 10) then
+            agent.riding = true
+            agent.pressure = { answer = "chosen rest",
+                detail = "uses a known mobile shelter on held ground", at = tick }
+            return true
+        end
         if not agent.resting
             and (insideHome or SAO.Standing.insideClaim(id, body:getX(), body:getY())) then
             agent.resting = true
@@ -6502,6 +6518,10 @@ local function decide(id, agent, body)
     if agent.riding then
         local okRV, rv = pcall(function() return body:getVehicle() end)
         if okRV and rv then
+            if SAO.MobileHousehold and SAO.MobileHousehold.tickOccupiedRest
+                and SAO.MobileHousehold.tickOccupiedRest(id, body, agent) then
+                return
+            end
             -- [C4] The door works both ways: a companion whose player
             -- has left this vehicle steps out after them - the paired
             -- exit puts the mesh on the ground with the flag.

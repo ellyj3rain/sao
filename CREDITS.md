@@ -60,6 +60,26 @@ The Indie Stone. Engine surfaces are used as the game exposes them and
 verified against the shipped `projectzomboid.jar` before use. No game
 assets are redistributed.
 
+## Project RV Interior, Campers!, Trailers and Rolling Refuge
+
+Project RV Interior by Mickey Knox (Workshop 3543229299), Campers! and
+Trailers by KI5 (Workshops 3670064951 and 3330403100), and Rolling Refuge
+(Workshop 3788543896) supply the physical vehicle, room and art surfaces used
+by the living-world study. KI5's packages use that DAMN Library (Workshop
+3171167894) as their own runtime support. **Interoperated with; no source or
+media copied.**
+
+C99 reads the vehicles through Project Zomboid's native vehicle, part,
+container, passenger and towing APIs. Its source-owned mobile-household owner
+assigns durable moving-place identity, observes exact native stores and
+occupants, preserves the exterior anchor through entry, and binds physical
+Project RV rooms to survivor memory, planning, rest, save continuity and
+Mousecat observation. Project RV's shared vehicle-type and room tables and its
+documented GlobalModData interchange remain the physical-room provider. KI5
+and Rolling Refuge retain authorship of their vehicles and media; SAO's named
+script recognition grants no ownership over those assets. Loading any of these
+mods without the C99 owner is still study activation rather than integration.
+
 ## Horse Mod
 
 Horse team. Workshop 3661336777, mod id `Horse`, version 1.1.2.

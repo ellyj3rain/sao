@@ -259,10 +259,15 @@ def main():
               "a border that passed")
         return 1
 
+    # Windows limits CreateProcess command lines to 32,767 characters.  Full
+    # absolute paths repeated the repository prefix once per Lua file and C99
+    # crossed that limit merely by adding one shipped module.  The instrument
+    # resolves paths from its working directory, so pass the same inventory as
+    # repository-relative paths instead of making tree size a hidden border.
     done = subprocess.run(
         [str(JDK / "java.exe"), "-cp", f"{PZ};{OUT}", "LuaGlobals"]
-        + [str(p) for p in files],
-        capture_output=True, text=True, timeout=600)
+        + [str(p.relative_to(ROOT)) for p in files],
+        cwd=ROOT, capture_output=True, text=True, timeout=600)
     root = str(ROOT) + "\\"
 
     touched, written, where = set(), set(), {}

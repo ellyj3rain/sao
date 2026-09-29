@@ -168,6 +168,40 @@
         }
       ],
       "knownGaps": []
+    },
+    {
+      "catalogRef": "mobile-household-continuity",
+      "status": "proven-implementation",
+      "capabilities": [
+        "moving-place identity",
+        "occupant and household continuity",
+        "vehicle-store continuity",
+        "towing and motion transitions",
+        "physical interior entry and exit",
+        "person-private place knowledge and planning",
+        "mobile rest and observable failures"
+      ],
+      "provenImplementation": "C99: SAO-owned moving-place identity, native occupant and vehicle-store reads, towing and exterior-anchor continuity, Project RV physical-room transitions, held-ground overnight use, person-private planning, persistence and Mousecat observation across the activated camper, trailer and motorhome assets.",
+      "evidence": [
+        {
+          "role": "producer",
+          "path": "mod/42.20/media/lua/client/SAO_MobileHousehold.lua",
+          "anchor": "function M.observeVehicle"
+        },
+        {
+          "role": "consumer",
+          "path": "mod/42.20/media/lua/shared/SAO_ProceduralPlanning.lua",
+          "anchor": "function P.planMobileHousehold"
+        },
+        {
+          "role": "verification",
+          "path": "tools/mobile_household_test.py",
+          "anchor": "Border 212"
+        }
+      ],
+      "knownGaps": [
+        "Build 42.21 loaded acceptance of the remote physical-room transition remains open; the current border executes the production Lua contract in the installed Kahlua runtime."
+      ]
     }
   ],
   "support": [
@@ -192,27 +226,6 @@
   ],
   "principle": "The canonical SAO world ontology defines relevance through causal participation. This record preserves provenance, proven implementation and known gaps; it cannot exclude an asset, verb, state, relationship or consequence from integration scope.",
   "recoveredIntegrationDirectives": [
-    {
-      "id": "mobile-household-continuity",
-      "catalogRefs": [
-        "PROJECTRVInterior42",
-        "KI5campers",
-        "KI5trailers",
-        "RollingRefuge"
-      ],
-      "state": "open",
-      "authority": "Operator direction that pertinent RV, camper and trailer life belongs in the source",
-      "rule": "This is a recovered implementation obligation and a non-exhaustive causal surface, not a boundary on what the world requires.",
-      "knownCausalSurface": [
-        "vehicle, camper and trailer world assets",
-        "enterable interior and transition verbs",
-        "household, occupant and inventory identity",
-        "motion and towing state transitions",
-        "survivor perception, place knowledge and planning",
-        "save and resume continuity",
-        "observable arrival, separation and failure outcomes"
-      ]
-    },
     {
       "id": "hobby-recreation-and-social-reward",
       "catalogRefs": [
@@ -340,23 +353,33 @@
       "studyRole": "domain-evidence",
       "status": "domain-evidence",
       "rule": "Evidence source inside the canonical life domain. Its catalogue role records study use and does not limit the ontology or implementation scope."
+    },
+    {
+      "catalogRef": "PROJECTRVInterior42",
+      "studyRole": "domain-evidence",
+      "status": "domain-evidence",
+      "rule": "Physical vehicle, room and art evidence inside the source-owned moving-place domain. Activation supplies native assets and never substitutes for SAO continuity ownership."
+    },
+    {
+      "catalogRef": "KI5campers",
+      "studyRole": "domain-evidence",
+      "status": "domain-evidence",
+      "rule": "Physical vehicle, room and art evidence inside the source-owned moving-place domain. Activation supplies native assets and never substitutes for SAO continuity ownership."
+    },
+    {
+      "catalogRef": "KI5trailers",
+      "studyRole": "domain-evidence",
+      "status": "domain-evidence",
+      "rule": "Physical vehicle, room and art evidence inside the source-owned moving-place domain. Activation supplies native assets and never substitutes for SAO continuity ownership."
+    },
+    {
+      "catalogRef": "RollingRefuge",
+      "studyRole": "domain-evidence",
+      "status": "domain-evidence",
+      "rule": "Physical vehicle, room and art evidence inside the source-owned moving-place domain. Activation supplies native assets and never substitutes for SAO continuity ownership."
     }
   ],
   "knownOpenObligations": [
-    {
-      "id": "mobile-household-continuity",
-      "state": "open",
-      "authority": "Recovered prior source-integration intent",
-      "missing": [
-        "vehicle, camper and trailer world assets",
-        "enterable interior and transition verbs",
-        "household, occupant and inventory identity",
-        "motion and towing state transitions",
-        "survivor perception, place knowledge and planning",
-        "save and resume continuity",
-        "observable arrival, separation and failure outcomes"
-      ]
-    },
     {
       "id": "hobby-recreation-social-reward",
       "state": "open",
@@ -387,6 +410,14 @@
         "completed care, craft, build and repair outcomes",
         "individual private observation of success or failure",
         "planner feedback from exact outcomes"
+      ]
+    },
+    {
+      "id": "mobile-household-loaded-acceptance",
+      "state": "verification-open",
+      "authority": "C99 source implementation",
+      "missing": [
+        "Build 42.21 loaded entry, room use, exterior-anchor movement and exit receipt"
       ]
     }
   ]

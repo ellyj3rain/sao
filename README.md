@@ -38,9 +38,17 @@ on the simulation.
 
 ## Status
 
-`3.6.0.0-pre-alpha` - the coordinate is computed by the version machine
+`3.7.0.0-pre-alpha` - the coordinate is computed by the version machine
 (`tools/version_replay.py`), never picked; `VERSION_MAP.md` shows the
 classification and the arithmetic.
+
+C99 makes campers, trailers and motorhomes legible to the same survivor model
+as buildings and ordinary vehicles. A moving place keeps one durable identity,
+its native stores, occupants, towing edges and exterior anchor across physical
+RV-room entry and exit. Survivors can use an accessible mobile shelter on held
+ground, remember and plan around it, and expose the live continuity state in
+Mousecat. The activated vehicle mods supply their physical assets; activation
+alone still gives no source-integration credit.
 
 C93 makes native studies durable across bounded engine attempts. The ordinary
 attempt budget is one hour and remains configurable; Save session requests a

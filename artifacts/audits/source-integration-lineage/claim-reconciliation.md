@@ -40,4 +40,14 @@ These are completion-claim failures, not evidence that the earlier source integr
 
 The current external-mod profile is a study loadout, not an ontology. Six loaded entries have recovered, unfulfilled implementation directives: horse life and mobility; mobile household continuity across RV Interior, campers, trailers and Rolling Refuge; and hobby, recreation and social reward from Lifestyle. Eighteen entries expose evidence in canonical SAO domains. N&C Narcotics compares an external implementation with SAO's owned pharmacology, and two libraries support the study runtime. These labels describe provenance and present use. They do not limit what the world requires, and activation gives none of the entries implementation credit.
 
+C98 subsequently closed horse life by carrying its complete physical owner into
+SAO. C99 closes the mobile-household implementation directive differently: the
+vehicle and room art remains with its authors, while SAO now owns the durable
+moving-place identity, native occupant/store/towing reads, physical-room
+transition, survivor planning, rest, persistence and observation around those
+assets. The four activated mobile packages therefore become domain evidence and
+physical providers. This reclassification follows implemented causal ownership;
+activation by itself still supplies none of that credit. Loaded physical-room
+acceptance remains a named C99 verification obligation.
+
 The machine-readable lineage is `tools/source_integration_contracts.json`. It records recovered directives, known causal surfaces and known gaps as non-exhaustive evidence. `tools/source_integration_gate.py` preserves the Claude-built implementation baseline with concrete producer, consumer and verification evidence and prevents a loaded external entry or isolated controller from being presented as integrated. It also refuses to let the ledger define an ontology boundary.
