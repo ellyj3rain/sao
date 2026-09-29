@@ -1,0 +1,110 @@
+{
+  "schema": "sao-horse-loaded-receipt/1",
+  "capturedAt": "2026-09-28T15:15:00-07:00",
+  "sessionId": "86e6dbda-1438-4446-9e50-6b58e89a1560",
+  "engineVersion": "42.21.0 4a0e9546ec",
+  "engineJarSha256": "e1a69eb743ede60b213a0fe7f8b83d4fcab773036d256cc4543a336f3b058a33",
+  "packageSha256": "a3a97dc14a55e6290c53946c0118712a5b0af8aaa3c2dab2614211e9f6b2097d",
+  "definitionSha256": "367fc2ecc7aa16135c258f8750c5c54c347f04eeec7b2b2489286bf674a96d8a",
+  "reportSha256": "d1f00ea346867525e9508536df1fc0960b3fe5de009ed722d84d834f72ea8ac3",
+  "observationSha256": "4650dda2e71699efb4689681a3c4b3e5db17afef2116c4fb6483f021f2cbf6a0",
+  "stdoutSha256": "8d99ffbc8f78af1fa25ec5039a5f9144b1ed70bd57ff3f26e8a3c2778d705029",
+  "status": "completed",
+  "exitCode": 0,
+  "runtimeErrors": [],
+  "datasetAdmission": "unreviewed",
+  "behavioralVerdict": null,
+  "explicitCohort": [
+    "SurvivorAwareness",
+    "ZombieAwareness",
+    "ZombieBuddy"
+  ],
+  "events": [
+    {
+      "kind": "horse-spawned",
+      "stdoutLine": 2751,
+      "message": "[StudyWorld] horse=189 spawned"
+    },
+    {
+      "kind": "travel-began",
+      "stdoutLine": 2776,
+      "message": "[SAO][ANIMAL] sao-1 begins horse travel with 189"
+    },
+    {
+      "kind": "mounted",
+      "stdoutLine": 2780,
+      "message": "[SAO][ANIMAL] sao-1 mounted horse 189"
+    },
+    {
+      "kind": "arrived",
+      "stdoutLine": 2849,
+      "message": "[StudyWorld] horse travel arrived rider=sao-1"
+    },
+    {
+      "kind": "dismounted",
+      "stdoutLine": 2850,
+      "message": "[SAO][ANIMAL] sao-1 dismounted horse 189"
+    }
+  ],
+  "purpose": {
+    "id": "purpose/1",
+    "key": "horse-travel:189",
+    "status": "completed",
+    "cursor": 5,
+    "destinationKey": "3802,10943,0",
+    "steps": [
+      {
+        "id": "approach-horse",
+        "owner": "HorseMount",
+        "verb": "move",
+        "token": "horse:reached",
+        "status": "completed",
+        "completedAt": 2.016942024230957
+      },
+      {
+        "id": "mount-horse",
+        "owner": "HorseMount",
+        "verb": "mount",
+        "token": "horse:mounted",
+        "status": "completed",
+        "completedAt": 2.016942024230957
+      },
+      {
+        "id": "ride-route",
+        "owner": "HorseTravel",
+        "verb": "ride",
+        "token": "route:arrived",
+        "status": "completed",
+        "completedAt": 2.0716772079467773
+      },
+      {
+        "id": "dismount-horse",
+        "owner": "HorseMount",
+        "verb": "dismount",
+        "token": "horse:dismounted",
+        "status": "completed",
+        "completedAt": 2.081146240234375
+      }
+    ]
+  },
+  "finalHorseMount": {
+    "active": false,
+    "animalId": 189,
+    "dismountedAtHours": 2.081146240234375,
+    "mountedAtHours": 2.0167903900146484,
+    "schema": 1,
+    "x": 3800.672119140625,
+    "y": 10944.111328125,
+    "z": 0
+  },
+  "finalPosition": {
+    "x": 3800.5,
+    "y": 10943.5,
+    "z": 0
+  },
+  "observation": {
+    "sequence": 5,
+    "countyHours": 2.2002506256103516,
+    "peopleComplete": true
+  }
+}

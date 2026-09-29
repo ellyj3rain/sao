@@ -1848,6 +1848,11 @@ if ! "$PY" tools/animal_care_ground_test.py > /dev/null; then
     note "BORDER FINDING - ranch care no longer has real engine ground"
     fail=1
 fi
+if ! "$PY" tools/horse_travel_acceptance.py > /dev/null; then
+    "$PY" tools/horse_travel_acceptance.py 2>&1 | grep -E "FAULT|CONTROL|SKIPPED" || true
+    note "BORDER FINDING - loaded autonomous horse travel receipt differs"
+    fail=1
+fi
 
 # [C124] Border 157 - Combat perception compatibility: acoustic attenuation,
 # floor targeting for crawlers/prone targets, prone/crawl stance perception,
@@ -2239,6 +2244,13 @@ fi
 # disagree, and only an exact owned result advances learning or practice.
 if ! "$PY" tools/procedural_planning_test.py; then
     note "BORDER FINDING - private procedural planning or exact result learning failed"
+    fail=1
+fi
+
+# Source integration retains the selected Claude-built baseline and its exact
+# limits. External study activation cannot promote a candidate into ownership.
+if ! "$PY" tools/source_integration_gate.py; then
+    note "BORDER FINDING - source integration lineage or ownership claim differs"
     fail=1
 fi
 

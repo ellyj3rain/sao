@@ -352,6 +352,27 @@ local function medication(rec)
     end
     return s
 end
+local function lifeProfile(id, rec)
+    local s = section("life-profile", "Life and practical background",
+        "SAO age, condition and habit owners",
+        "Durable facts that shape memory, learning and physical choices")
+    local age = SAO.History and SAO.History.ageOf and SAO.History.ageOf(id) or nil
+    if finite(age) then
+        row(s, "Age", math.floor(age))
+        local stage = SAO.History.stageOf and SAO.History.stageOf(age) or nil
+        if stage then row(s, "Life stage", tostring(stage)) end
+    end
+    if rec.occupation then row(s, "Prior occupation", tostring(rec.occupation)) end
+    if rec.designation then row(s, "Current designation", tostring(rec.designation)) end
+    local conditions = SAO.Conditions and SAO.Conditions.of and SAO.Conditions.of(id) or {}
+    local habits = SAO.Habits and SAO.Habits.of and SAO.Habits.of(id) or {}
+    row(s, "Conditions", #conditions > 0 and table.concat(conditions, ", ") or "None recorded")
+    row(s, "Habits", #habits > 0 and table.concat(habits, ", ") or "None recorded")
+    if SAO.History and SAO.History.literacyOf then
+        row(s, "Literacy", tostring(SAO.History.literacyOf(id)))
+    end
+    return s
+end
 local function preparation(id, rec)
     local s = section("cooking", "Food preparation", "Native appliance and food", "Current work and recorded outcome")
     local state = SAO.Cooking and SAO.Cooking.snapshot(id)
@@ -363,6 +384,39 @@ local function preparation(id, rec)
     local outcomes = rec.cookingOutcomes or {}
     local latest = outcomes[#outcomes]
     if latest then row(s, "Latest result", tostring(latest.status) .. ": " .. tostring(latest.detail)) end
+    return s
+end
+local function horseState(id, rec, body)
+    local s = section("horse", "Horse and mounted travel",
+        "SAO animal integration", "Native animal, durable relation and current route")
+    local mounted = SAO.Animals and SAO.Animals.mountedHorse
+        and SAO.Animals.mountedHorse(body) or nil
+    local job = SAO.Animals and SAO.Animals.travelJobs
+        and SAO.Animals.travelJobs[id] or nil
+    local durable = rec.horseMount
+    if mounted then
+        row(s, "Mounted horse", tostring(mounted.animalId))
+        local ok, stamina = pcall(function()
+            local Stamina = require("HorseMod/Stamina")
+            return Stamina.get(mounted.animal)
+        end)
+        if ok and finite(stamina) then row(s, "Horse stamina", string.format("%.1f", stamina)) end
+    elseif durable and durable.animalId then
+        row(s, "Remembered horse", tostring(durable.animalId))
+        row(s, "Relation state", durable.active and "Awaiting physical reconciliation" or "Dismounted")
+    end
+    if job then
+        row(s, "Travel phase", tostring(job.phase))
+        row(s, "Destination", string.format("%.1f, %.1f, %d",
+            job.goal.x, job.goal.y, job.goal.z))
+        if job.waypointX and job.waypointY then
+            row(s, "Native route waypoint", string.format("%.1f, %.1f",
+                job.waypointX, job.waypointY))
+        end
+    end
+    if not mounted and not job and not (durable and durable.animalId) then
+        s.message = "No known horse relation or current mounted travel"
+    end
     return s
 end
 local function planning(id)
@@ -405,7 +459,7 @@ local function samplePerson(id, rec, body)
     local pressure = section("pressure", "Pressure and recorded reason", "Controller", "Most recent decision receipt")
     if agent and agent.pressure then scalarRows(pressure, agent.pressure, "", 0)
     else pressure.status = "unavailable"; pressure.message = "No active pressure receipt" end
-    local out = { sections = { needs(body), attention(rec, body), medication(rec), preparation(id, rec), planning(id),
+    local out = { sections = { needs(body), lifeProfile(id, rec), attention(rec, body), medication(rec), preparation(id, rec), horseState(id, rec, body), planning(id),
         inventory(body), pressure, currentAction(id, body), sourceWork(id, rec), processes(id) }, events = {} }
     if SAO.Cognition and SAO.Cognition.snapshot then out.cognition = SAO.Cognition.snapshot(id) end
     for _, event in ipairs(histories[id] or {}) do

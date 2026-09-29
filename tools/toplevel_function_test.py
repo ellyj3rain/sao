@@ -33,7 +33,7 @@ STR1 = re.compile(r'"(?:\\.|[^"\\])*"')
 STR2 = re.compile(r"'(?:\\.|[^'\\])*'")
 LONGSTR = re.compile(r"\[\[.*?\]\]", re.S)
 COMMENT = re.compile(r"--.*$")
-TOK = re.compile(r"\b(?:function|then|do|end|until|elseif)\b")
+TOK = re.compile(r"\b(?:function|then|do|repeat|end|until|elseif)\b")
 
 
 def strip(src):
@@ -62,7 +62,7 @@ def main():
                     f"function at block depth {depth} - an unclosed "
                     "block above it has swallowed everything since")
             for tok in TOK.findall(line):
-                if tok in ("function", "then", "do"):
+                if tok in ("function", "then", "do", "repeat"):
                     depth += 1
                 elif tok in ("end", "until"):
                     depth -= 1

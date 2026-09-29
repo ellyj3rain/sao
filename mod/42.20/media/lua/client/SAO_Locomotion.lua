@@ -73,6 +73,23 @@ function Loco.order(id, body, x, y, z, running)
             end
         end)
     end
+    -- A known, nearby horse may own a long route. The same native path is
+    -- captured as waypoints, while the integrated horse system owns mounting,
+    -- collision, stamina, animation, position and dismount outcome.
+    if SAO.Animals and SAO.Animals.orderTravel then
+        local okHorse, accepted = pcall(SAO.Animals.orderTravel,
+            id, body, x, y, z, running)
+        if okHorse and accepted then
+            Loco.jobs[id] = {
+                body = body, goal = { x = x, y = y, z = z }, mode = "horse",
+                lastVerdict = "mounting", sameVerdictTicks = 0,
+                done = false, result = nil,
+            }
+            observed(id, "started", Loco.jobs[id], "Horse travel accepted")
+            log("horse order " .. tostring(id) .. " -> " .. x .. "," .. y .. "," .. z)
+            return true
+        end
+    end
     local ok, verdict = pcall(function()
         if running then return SAOJavaBridge:moveToPaced(body, x, y, z, true) end
         return SAOJavaBridge:moveTo(body, x, y, z)
@@ -96,6 +113,23 @@ end
 local function tickInner(id)
     local job = Loco.jobs[id]
     if not job or job.done then return end
+
+    if job.mode == "horse" then
+        local verdict = SAO.Animals and SAO.Animals.tickTravel
+            and SAO.Animals.tickTravel(id) or "failed:horse-owner-unavailable"
+        if verdict ~= job.lastVerdict then
+            log(tostring(id) .. " horse " .. tostring(verdict))
+            job.lastVerdict, job.sameVerdictTicks = verdict, 0
+        else job.sameVerdictTicks = job.sameVerdictTicks + 1 end
+        if verdict == "arrived" then
+            job.done, job.result = true, "arrived"
+            observed(id, "arrived", job, "Horse travel completed")
+        elseif tostring(verdict):find("failed:", 1, true) == 1 then
+            job.done, job.result = true, verdict
+            observed(id, "failed", job, verdict)
+        end
+        return
+    end
 
     local ok, verdict = pcall(function() return SAOJavaBridge:tickMove(job.body) end)
     if not ok then error(verdict) end
@@ -151,6 +185,9 @@ end
 function Loco.cancel(id)
     local job = Loco.jobs[id]
     if not job then return end
+    if job.mode == "horse" and SAO.Animals and SAO.Animals.cancelTravel then
+        pcall(SAO.Animals.cancelTravel, id)
+    end
     pcall(function() SAOJavaBridge:cancelMove(job.body) end)
     if not job.done then observed(id, "cancelled", job, "Route owner cancelled") end
     Loco.jobs[id] = nil

@@ -1,5 +1,6 @@
 -- Controlled receipt attribution, executed in the installed Kahlua VM.
 local messages, dead, hours, exited = {}, false, 2, false
+local focusLossPaused, debugForceLaunch, worldMode, copiedMods = nil, nil, nil, nil
 function print(message) messages[#messages + 1] = message end
 function require() end
 local function event()
@@ -24,9 +25,38 @@ local unrelated = {
 local slot = character
 function getSpecificPlayer(index) assert(index == 0); return slot end
 function getPlayer() return unrelated end
-function getWorld() return { getWorld = function() return "fixture" end } end
+local world = {
+    getWorld = function() return "fixture" end,
+    setGameMode = function(_, value) worldMode = value end,
+}
+function getWorld() return world end
 function getGameTime() return { getWorldAgeHours = function() return hours end } end
-function getCore() return { quitToDesktop = function() exited = true end } end
+local core = {
+    quitToDesktop = function() exited = true end,
+    setOptionPauseOnFocusloss = function(_, value) focusLossPaused = value end,
+}
+function getCore() return core end
+function getDebugOptions()
+    return { setBoolean = function(_, key, value)
+        if key == "DebugScenario.ForceLaunch" then debugForceLaunch = value end
+    end }
+end
+local mods = {
+    currentGame = { copyFrom = function(_, value) copiedMods = value end },
+    isolatedStudy = { id = "isolatedStudy" },
+}
+ActiveMods = { getById = function(id) return mods[id] end }
+function CheckLaunchConfiguration()
+    Events.OnGameBoot.fire()
+    assert(debugScenarios.NativeStudy and debugScenarios.NativeStudy.forceLaunch,
+        "native study scenario was not configured")
+    assert(debugForceLaunch == true and focusLossPaused == false,
+        "current engine launch options were not applied")
+    debugScenarios.NativeStudy.setSandbox()
+    assert(copiedMods == mods.isolatedStudy and worldMode == "Sandbox",
+        "sealed study cohort was not retained for the save")
+    return "PASS current engine study launch and sealed mod cohort"
+end
 function CheckLaunchReceipts()
     Events.OnNewGame.fire(character)
     Events.OnGameStart.fire()

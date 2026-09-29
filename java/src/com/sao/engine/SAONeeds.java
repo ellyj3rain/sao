@@ -1536,13 +1536,6 @@ public final class SAONeeds {
                 || !loadedSourceSquare(cell, square, square.getX(), square.getY(), square.getZ())
                 || !loadedSourceSquare(cell, here, here.getX(), here.getY(), here.getZ())
                 || square.getZ() != (int) shell.getZ()) return false;
-        // Preserve the installed getCorrectSquareForWall order and offsets.
-        if (square.has(zombie.iso.SpriteDetails.IsoFlagType.collideW) && shell.getX() < square.getX()) {
-            square = cell.getGridSquare(square.getX() + 1, square.getY(), square.getZ());
-        } else if (square.has(zombie.iso.SpriteDetails.IsoFlagType.collideN) && shell.getY() < square.getY()) {
-            square = cell.getGridSquare(square.getX(), square.getY() + 1, square.getZ());
-        }
-        if (square == null) return false;
         float dx = Math.abs(square.getX() + 0.5f - shell.getX());
         float dy = Math.abs(square.getY() + 0.5f - shell.getY());
         return dx <= 1.6f && dy <= 1.6f && here.canReachTo(square);

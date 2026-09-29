@@ -23,6 +23,7 @@ import zlib
 
 import world_lab as Lab
 import world_lab_supervision as Supervision
+import world_lab_profiles as Profiles
 
 
 def digest(path):
@@ -35,7 +36,7 @@ def publish(path, value):
     os.replace(temporary, path)
 
 
-def prepare(package, destination, game, jdk, mod_paths):
+def prepare(package, destination, game, jdk, mod_paths, simulation_profile=None):
     manifest, definition = Lab.verify_package(package)
     game, jdk = Path(game).resolve(), Path(jdk).resolve()
     destination = Path(destination).resolve()
@@ -56,15 +57,12 @@ def prepare(package, destination, game, jdk, mod_paths):
     (user / ".zombie_buddy").mkdir(parents=True)
     approvals, ids, inventory = [], [], {}
     for source in [*folders, Path(package).resolve() / "mod" / manifest["mapName"]]:
-        versioned = sorted(source.glob("42*/mod.info"))
-        Lab.require(versioned, "versioned native mod metadata unavailable: " + source.name)
-        metadata = dict(line.split("=", 1) for line in versioned[-1].read_text(encoding="utf-8-sig").splitlines()
-                        if "=" in line and not line.startswith("#"))
+        metadata_path, metadata = Profiles.mod_metadata(source)
         mod_id = metadata["id"]
         Lab.require(Lab.re.fullmatch(r"[A-Za-z0-9_.-]+", mod_id) and mod_id not in ids, "invalid or duplicate mod id")
         target = mods / mod_id
         shutil.copytree(source, target)
-        metadata_root = target / versioned[-1].parent.relative_to(source)
+        metadata_root = target / metadata_path.parent.relative_to(source)
         ids.append(mod_id)
         if "javaJarFile" in metadata:
             jar = (metadata_root / metadata["javaJarFile"]).resolve()
@@ -98,6 +96,7 @@ def prepare(package, destination, game, jdk, mod_paths):
                "definitionSha256": manifest["definitionSha256"], "mapName": manifest["mapName"],
                "engineJarSha256": digest(game / "projectzomboid.jar"),
                "loadingAgentSha256": digest(agent), "mods": inventory,
+               "simulationProfile": simulation_profile,
                "datasetAdmission": "unreviewed", "status": "prepared"}
     publish(destination / "run.json", receipt)
     return cache, user, agent, manifest, definition
@@ -342,7 +341,8 @@ def run(args):
     destination, game = Path(args.out).resolve(), Path(args.game).resolve()
     previous = None
     if args.resume:
-        Lab.require(not args.mod, "resume uses the original copied mods")
+        Lab.require(not args.mod and args.profile is None and not args.enable_mod and not args.disable_mod,
+                    "resume uses the original copied mods and simulation profile")
         manifest, definition = Lab.verify_package(args.package)
         previous = verify_run(destination, args.package)
         Lab.require(previous.get("host", "player") == args.host, "resume must retain the native host kind")
@@ -383,8 +383,13 @@ def run(args):
         receipt = previous.copy()
         receipt["launchNumber"] = previous.get("launchNumber", 1) + 1
     else:
+        mod_paths, simulation_profile = args.mod, None
+        if args.profile is not None:
+            mod_paths, simulation_profile = Profiles.resolve(
+                args.profile, args.catalog, args.workshop_root,
+                args.mod, args.enable_mod, args.disable_mod)
         cache, user, agent, manifest, definition = prepare(
-            args.package, args.out, args.game, args.jdk, args.mod)
+            args.package, args.out, args.game, args.jdk, mod_paths, simulation_profile)
         receipt = Lab.load(destination / "run.json")
         receipt["launchNumber"] = 1
     attempt = destination / "attempts" / f"{receipt['launchNumber']:04d}"
@@ -416,6 +421,7 @@ def run(args):
     Lab.require(len(sao_jars) == 1, "expected one copied SAO jar")
     command = [str(game / "jre64/bin/java.exe"),
                f"-Duser.home={user}", f"-Dstudy.attempt={receipt['launchNumber']}",
+               "-Dstudy.activeMods=" + ",".join(receipt["mods"]),
                "-Dstudy.showWindow=" + str(args.window == "visible").lower(), f"-javaagent:{agent}=isolated-study",
                f"-javaagent:{sao_jars[0]}=sao", "-agentlib:zbNative", "-Djava.awt.headless=true",
                "--enable-native-access=ALL-UNNAMED", "--add-exports=java.base/jdk.internal.misc=ALL-UNNAMED",
@@ -525,6 +531,15 @@ def main():
     parser.add_argument("--game", type=Path)
     parser.add_argument("--jdk", type=Path)
     parser.add_argument("--mod", action="append", default=[], type=Path)
+    parser.add_argument("--profile", type=Path,
+                        help="validated external capability study profile")
+    parser.add_argument("--catalog", type=Path, default=Profiles.DEFAULT_CATALOG,
+                        help="source-absorbed and external mod catalogue")
+    parser.add_argument("--workshop-root", type=Path, default=Profiles.DEFAULT_WORKSHOP)
+    parser.add_argument("--enable-mod", action="append", default=[],
+                        help="enable a catalogued external mod for this new run")
+    parser.add_argument("--disable-mod", action="append", default=[],
+                        help="disable a catalogued external mod for this new run")
     parser.add_argument("--resume", action="store_true", help="reopen this tool's completed isolated run")
     parser.add_argument("--trace-native", action="store_true", help="retain transformed native classes in this attempt for diagnosis")
     parser.add_argument("--replace-dead-player", action="store_true",

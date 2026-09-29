@@ -126,7 +126,7 @@ local function receiver(rec,body,s)
             end,
             head=function(delta)
                 local part=body:getBodyDamage():getBodyPart(BodyPartType.Head)
-                part:setAdditionalPain(clamp(part:getPain()+delta,0,125))
+                part:setAdditionalPain(clamp(part:getAdditionalPain()+delta,0,125))
             end,
             painOff=function()
                 stats:set(CharacterStat.PAIN,0)

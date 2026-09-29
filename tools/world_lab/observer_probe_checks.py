@@ -71,7 +71,9 @@ def run(tmp, GAME, JDK):
                         directory / "chunk-binding")
         body = re.split(r"\n  (?:public|private|protected) ", code.split(
             "public void ProcessChunkPos(zombie.characters.IsoGameCharacter);", 1)[1], maxsplit=1)[0]
-        if "StudyObserver.admitChunkActor:(Ljava/util/Set;Ljava/lang/Object;)Z" not in body or "java/util/Set.add:" in body:
+        explicit_guard = "StudyObserver.admitChunkActor:(Ljava/util/Set;Ljava/lang/Object;)Z" in body
+        cell_guard = "zombie/iso/IsoCell.addMovingObject:(Lzombie/iso/IsoMovingObject;)V" in body
+        if "java/util/Set.add:" in body or not (explicit_guard or cell_guard):
             raise AssertionError("native far-chunk insertion bypasses observer guard")
         dumped = [p for p in (directory / "dump").glob("zombie.iso.IsoCell.*.class") if "-original" not in p.name]
         if not dumped:
@@ -82,7 +84,8 @@ def run(tmp, GAME, JDK):
             "private void updateInternal();", 1)[1], maxsplit=1)[0]
         if "StudyObserver.deadForStreaming:(Lzombie/characters/IsoGameCharacter;)Z" not in body or "IsoPlayer.isDead:" in body:
             raise AssertionError("native chunk delivery bypasses observer eligibility")
-    binding(work / "baseline")
+        return "explicit" if explicit_guard else "cell"
+    streaming_binding = binding(work / "baseline")
     preload_output = probe(work / "preloaded", preloaded=True)
     if "[StudyProbe] IsoChunkMap loaded before observer premain" not in preload_output:
         raise AssertionError("native preload probe did not exercise the stated load order")
@@ -175,24 +178,27 @@ def run(tmp, GAME, JDK):
         _execute([javac, "-encoding", "UTF-8", "-cp", str(classes) + os.pathsep + native,
                   "-d", directory, mutant], directory / "compile")
         probe(directory, extra=directory, expected=why)
-    directory = work / "streaming_binding"
-    directory.mkdir()
-    source = (SOURCE / "StudyLoadingAgent.java").read_text(encoding="utf-8")
-    seam = '.replaceWith(admission).on(ElementMatchers.named("ProcessChunkPos")))'
-    if source.count(seam) != 1:
-        raise AssertionError("native streaming binding control seam differs")
-    mutant = directory / "StudyLoadingAgent.java"
-    mutant.write_text(source.replace(seam, '.replaceWith(admission).on(ElementMatchers.named("MissingChunkMethod")))'), encoding="utf-8")
-    _execute([javac, "-encoding", "UTF-8", "-cp", str(classes) + os.pathsep + native,
-              "-d", directory, mutant], directory / "compile")
-    probe(directory, extra=directory)
-    try:
-        binding(directory)
-    except AssertionError as error:
-        if str(error) != "native far-chunk insertion bypasses observer guard":
-            raise
-    else:
-        raise AssertionError("missing native streaming binding control survived")
+    extra_controls = 1
+    if streaming_binding == "explicit":
+        directory = work / "streaming_binding"
+        directory.mkdir()
+        source = (SOURCE / "StudyLoadingAgent.java").read_text(encoding="utf-8")
+        seam = '.replaceWith(admission).on(ElementMatchers.named("ProcessChunkPos")))'
+        if source.count(seam) != 1:
+            raise AssertionError("native streaming binding control seam differs")
+        mutant = directory / "StudyLoadingAgent.java"
+        mutant.write_text(source.replace(seam, '.replaceWith(admission).on(ElementMatchers.named("MissingChunkMethod")))'), encoding="utf-8")
+        _execute([javac, "-encoding", "UTF-8", "-cp", str(classes) + os.pathsep + native,
+                  "-d", directory, mutant], directory / "compile")
+        probe(directory, extra=directory)
+        try:
+            binding(directory)
+        except AssertionError as error:
+            if str(error) != "native far-chunk insertion bypasses observer guard":
+                raise
+        else:
+            raise AssertionError("missing native streaming binding control survived")
+        extra_controls += 1
     directory = work / "preloaded_binding"
     directory.mkdir()
     source = (SOURCE / "StudyLoadingAgent.java").read_text(encoding="utf-8")
@@ -211,7 +217,7 @@ def run(tmp, GAME, JDK):
             raise
     else:
         raise AssertionError("missing loaded-class observer hook control survived")
-    print(f"PASS native observer method checks; {len(controls) + 2} production-source defects rejected for their stated reasons")
+    print(f"PASS native observer method checks; {len(controls) + extra_controls} production-source defects rejected for their stated reasons")
     return {"controls": [control[0] for control in controls], "renderedWorld": False}
 
 

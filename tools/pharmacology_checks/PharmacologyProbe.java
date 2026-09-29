@@ -72,7 +72,12 @@ public final class PharmacologyProbe {
         var create = MovementCrossingProbe.class.getDeclaredMethod("person", IsoCell.class); create.setAccessible(true);
         var body = (SAOIsoPlayerShell) create.invoke(null, cell); body.playerIndex = 99;
         var otherBody=(SAOIsoPlayerShell)create.invoke(null,cell);otherBody.playerIndex=98;
-        System.out.println("NATIVE_HEAD_PAIN " + body.getBodyDamage().getBodyPart(zombie.characters.BodyDamage.BodyPartType.Head).getPain());
+        // Build 42.21's isolated shell constructor leaves aggregate health at
+        // zero. Live bodies have a calculated positive health value, which is
+        // also the native precondition for moodle projection.
+        body.getBodyDamage().setOverallBodyHealth(100.0f);
+        otherBody.getBodyDamage().setOverallBodyHealth(100.0f);
+        System.out.println("NATIVE_HEAD_PAIN " + body.getBodyDamage().getBodyPart(zombie.characters.BodyDamage.BodyPartType.Head).getAdditionalPain());
 
         var platform = new J2SEPlatform(); var env = platform.newEnvironment();
         var thread = new KahluaThread(platform, env); thread.debugOwnerThread = Thread.currentThread();
@@ -215,6 +220,17 @@ public final class PharmacologyProbe {
             var value = zombie.inventory.InventoryItemFactory.CreateItem((String)frame.get(0));
             value.setID(nativeItemSequence[0]++); body.getInventory().AddItem(value);
             frame.push(value); return 1;
+        });
+        // The game invokes each native moodle update from Java. Build 42.21 no
+        // longer exposes that call faithfully through Kahlua, while the full
+        // fixture update also enters unrelated weather-region infrastructure.
+        var moodlesField = zombie.characters.Moodles.Moodles.class.getDeclaredField("moodles");
+        moodlesField.setAccessible(true);
+        @SuppressWarnings("unchecked")
+        var moodleMap = (java.util.Map<zombie.scripting.objects.MoodleType, zombie.characters.Moodles.Moodle>)
+            moodlesField.get(body.getMoodles());
+        env.rawset("__nativeTiredMoodleUpdate", (JavaFunction) (frame, count) -> {
+            moodleMap.get(zombie.scripting.objects.MoodleType.TIRED).Update(); return 0;
         });
         for (int i = 2; i < args.length; i++) {
             thread.call(LuaCompiler.loadstring(Files.readString(Path.of(args[i])), args[i], env), null, null, null);

@@ -30,6 +30,7 @@ UI = ROOT / "mod" / "42.20" / "media" / "lua" / "client" / "SAO_UI.lua"
 
 NL = "\\" + "n"
 P = "Sandbox_SurvivorAwareness_"
+H = "Sandbox_HorseMod_"
 
 # The ratified copy, verbatim ([C13], DR-018).
 RATIFIED = {
@@ -299,6 +300,14 @@ RATIFIED = {
         "inflammatory load affecting cognitive clarity and memory." + NL
         + "Off: survivors do not experience inflammatory brain fog or "
         "memory degradation.",
+    # [C98] The operator made the complete Horse physical source mandatory.
+    # These retained prior-art option names are part of that canonical source
+    # integration and were admitted unchanged with the owned surface.
+    "Sandbox_HorseMod": "Horse Mod",
+    H + "WalkSpeed": "Horse Walk Speed",
+    H + "GallopSpeed": "Horse Gallop Speed",
+    H + "StaminaMultiplier": "Stamina multiplier",
+    H + "RidingPainGrunt": "Riding pain grunts",
 }
 
 # Struck register, held out of the named UI sources by literal match -

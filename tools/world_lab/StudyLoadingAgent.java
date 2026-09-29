@@ -32,6 +32,15 @@ public final class StudyLoadingAgent {
             .disableClassFormatChanges()
             .with(AgentBuilder.RedefinitionStrategy.RETRANSFORMATION)
             .with(AgentBuilder.Listener.StreamWriting.toSystemError().withErrorsOnly())
+            .type(ElementMatchers.named("zombie.ZomboidFileSystem"))
+            .transform((builder, type, loader, module, domain) -> builder.visit(
+                Advice.to(StudyMods.class).on(ElementMatchers.named("loadMods")
+                    .and(ElementMatchers.takesArguments(String.class)))))
+            .installOn(instrumentation);
+        new AgentBuilder.Default()
+            .disableClassFormatChanges()
+            .with(AgentBuilder.RedefinitionStrategy.RETRANSFORMATION)
+            .with(AgentBuilder.Listener.StreamWriting.toSystemError().withErrorsOnly())
             .type(ElementMatchers.named("zombie.gameStates.GameLoadingState"))
             .transform((builder, type, loader, module, domain) -> builder.visit(
                 Advice.to(ContinueLoading.class).on(ElementMatchers.named("update"))))
@@ -260,6 +269,24 @@ public final class StudyLoadingAgent {
         @Advice.OnMethodEnter
         public static void enter(@Advice.FieldValue(value = "forceDone", readOnly = false) boolean requested) {
             requested = true;
+        }
+    }
+
+    /** Cold study caches declare their sealed mod cohort explicitly. Route the
+     * engine's initial default-mod load through that cohort before Lua boots. */
+    public static final class StudyMods {
+        @Advice.OnMethodEnter
+        public static void enter(@Advice.Argument(value = 0, readOnly = false) String activeSet) {
+            String declared = System.getProperty("study.activeMods");
+            if (declared == null || declared.isBlank() || !"default".equalsIgnoreCase(activeSet)) return;
+            var study = zombie.modding.ActiveMods.getById("isolatedStudy");
+            study.clear();
+            for (String id : declared.split(",")) {
+                id = id.trim();
+                if (!id.isEmpty()) study.setModActive(id, true);
+            }
+            activeSet = "isolatedStudy";
+            System.out.println("[StudyLaunch] native mod cohort selected count=" + study.getMods().size());
         }
     }
 

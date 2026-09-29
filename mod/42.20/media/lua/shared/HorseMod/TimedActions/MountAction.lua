@@ -1,0 +1,243 @@
+require("TimedActions/ISBaseTimedAction")
+
+local AnimationVariable = require('HorseMod/definitions/AnimationVariable')
+local Mounts = require("HorseMod/Mounts")
+local MountingUtility = require("HorseMod/mounting/MountingUtility")
+local AnimationEvent = require("HorseMod/definitions/AnimationEvent")
+local mountcommands = require("HorseMod/networking/mountcommands")
+local commands = require("HorseMod/networking/commands")
+
+local IS_SERVER = isServer()
+
+---@namespace HorseMod
+
+
+---Freeze the rider during the mounting animation
+---Causes animation state issues in MP otherwise
+---@param character IsoPlayer
+local function freezeRiderForMount(character)
+    character:setIgnoreMovement(true)
+    character:setIgnoreInputsForDirection(true)
+    character:setIgnoreAimingInput(true)
+    character:setIgnoreAutoVault(true)
+    character:setAllowRun(false)
+    character:setAllowSprint(false)
+    character:setSneaking(false)
+
+    -- clear any movement on the rider from a held movement key
+    character:setForceRun(false)
+    character:setForceSprint(false)
+    character:setRunning(false)
+    character:setSprinting(false)
+    character:setMoving(false)
+    character:setJustMoved(false)
+end
+
+
+---Give movement back to the rider if mount action is cancelled
+---@param character IsoPlayer
+local function releaseRiderAfterCancel(character)
+    character:setIgnoreMovement(false)
+    character:setIgnoreInputsForDirection(false)
+    character:setIgnoreAimingInput(false)
+    character:setIgnoreAutoVault(false)
+    character:setAllowRun(true)
+    character:setAllowSprint(true)
+end
+
+
+---@class MountAction : ISBaseTimedAction, umbrella.NetworkedTimedAction
+---
+---@field character IsoPlayer
+---
+---@field animal IsoAnimal
+---
+---@field mountPosition MountPosition
+---
+---@field hasSaddle boolean
+---
+---@field lockDir number
+---
+---Used to indicate whenever the action can be cancelled at some point.
+---@field dynamicCancel boolean
+local MountAction = ISBaseTimedAction:derive("HorseMod_MountAction")
+
+
+
+---@return boolean
+function MountAction:isValid()
+    if not self.animal then
+        return false
+    end
+    if self.animal:isExistInTheWorld()
+        and self.character:getSquare() then
+
+        -- verify the player can still mount the horse
+        if MountingUtility.canMountHorse(self.character, self.animal) then
+            return true
+        end
+        return false
+    else
+        return false
+    end
+end
+
+function MountAction:waitToStart()
+    if not self.animal then
+        return false
+    end
+    -- self.character:faceThisObject(self.mount)
+    self.lockDir = self.animal:getDirectionAngle()
+    self.character:setDirectionAngle(self.lockDir)
+    return self.character:shouldBeTurning()
+end
+
+
+function MountAction:update()
+    -- fix the mount and rider to look in the same direction for animation alignment
+    self.character:setDirectionAngle(self.lockDir)
+
+    local animal = self.animal
+    if not animal then
+        return
+    end
+
+    animal:stopAllMovementNow()
+    animal:setDirectionAngle(self.lockDir)
+end
+
+
+function MountAction:animEvent(event, parameter)
+    if event == AnimationEvent.MOUNTING_COMPLETE then
+        if IS_SERVER then
+            ---@diagnostic disable-next-line: need-check-nil
+            self.netAction:forceComplete()
+        else
+            self:forceComplete()
+        end
+    end
+end
+
+
+function MountAction:start()
+    local character = self.character
+    character:setVariable(AnimationVariable.MOUNTING_HORSE, true)
+    character:setVariable(AnimationVariable.NO_CANCEL, false)
+
+    freezeRiderForMount(character)
+
+    -- start animation
+    local actionAnim = ""
+    if self.hasSaddle then
+        actionAnim = "Bob_Mount_Saddle_"
+    else
+        actionAnim = "Bob_Mount_Bareback_"
+    end
+
+    actionAnim = actionAnim .. self.mountPosition.name
+    self:setActionAnim(actionAnim)
+end
+
+
+---Returns the duration of the current animation in MS, as a workaround for animation events not working on the server.
+---@return integer
+function MountAction:getAnimationDurationMS()
+    if self.hasSaddle then
+        return 1366
+    end
+
+    return 2433
+end
+
+
+function MountAction:serverStart()
+    ---@cast self.netAction -nil
+    ---@diagnostic disable-next-line: param-type-mismatch
+    emulateAnimEventOnce(self.netAction, self:getAnimationDurationMS(), AnimationEvent.MOUNTING_COMPLETE, nil)
+
+    return true
+end
+
+
+function MountAction:stop()
+    self.character:setVariable(AnimationVariable.MOUNTING_HORSE, false)
+    releaseRiderAfterCancel(self.character)
+    ISBaseTimedAction.stop(self)
+end
+
+
+function MountAction:complete()
+    return true
+end
+
+
+function MountAction:perform()
+    -- if the horse died between start and perform, skip because urgent dismount
+    -- has already handled it
+    if not self.animal then
+        ISBaseTimedAction.perform(self)
+        return
+    end
+
+    if not IS_SERVER then
+        -- HACK: we can't require this at file load because it is in the client dir
+        local HorseSounds = require("HorseMod/HorseSounds")
+        HorseSounds.playSound(self.animal, HorseSounds.Sound.MOUNT)
+    end
+
+    if isClient() then
+        mountcommands.MountRequest:send(
+            self.character,
+            {
+                animal = commands.getAnimalId(self.animal),
+            }
+        )
+    elseif isServer() then
+        -- server waits for the client's MountRequest; Mounts.addMount runs in the handler
+    else
+        Mounts.addMount(self.character, self.animal)
+    end
+
+    ISBaseTimedAction.perform(self)
+end
+
+
+function MountAction:getDuration()
+    if self.character:isTimedActionInstant() then
+        return 1
+    end
+
+    return -1
+end
+
+
+---@param character IsoPlayer
+---@param animal IsoAnimal
+---@param mountPosition MountPosition
+---@param hasSaddle boolean
+---@return self
+---@nodiscard
+function MountAction:new(character, animal, mountPosition, hasSaddle)
+    ---@type MountAction
+    local o = ISBaseTimedAction.new(self, character)
+
+    o.character = character
+    o.animal = animal
+    o.mountPosition = mountPosition
+    o.hasSaddle = hasSaddle
+    o.stopOnWalk = false
+    o.stopOnRun  = true
+    o.stopOnAim = false
+
+    o.maxTime = o:getDuration()
+    o.useProgressBar = false
+    o.dynamicCancel = true
+
+    return o
+end
+
+
+_G[MountAction.Type] = MountAction
+
+
+return MountAction

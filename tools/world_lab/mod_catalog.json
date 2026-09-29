@@ -1,0 +1,397 @@
+{
+  "schema": "sao-study-mod-catalog/3",
+  "external": [
+    {
+      "id": "PROJECTRVInterior42",
+      "label": "Project RV Interior",
+      "workshopId": "3543229299",
+      "family": "mobile-shelter",
+      "capabilities": [
+        "enterable RV interiors",
+        "mobile household space"
+      ],
+      "dependencies": [],
+      "studyRole": "integration-directive"
+    },
+    {
+      "id": "damnlib",
+      "label": "that DAMN Library",
+      "workshopId": "3171167894",
+      "family": "support",
+      "capabilities": [
+        "KI5 vehicle support"
+      ],
+      "dependencies": [],
+      "studyRole": "support"
+    },
+    {
+      "id": "KI5campers",
+      "label": "Campers",
+      "workshopId": "3670064951",
+      "family": "mobile-shelter",
+      "capabilities": [
+        "camper vehicles",
+        "mobile shelter choices"
+      ],
+      "dependencies": [
+        "damnlib"
+      ],
+      "studyRole": "integration-directive"
+    },
+    {
+      "id": "KI5trailers",
+      "label": "Trailers",
+      "workshopId": "3330403100",
+      "family": "logistics",
+      "capabilities": [
+        "towable storage",
+        "mobile logistics"
+      ],
+      "dependencies": [
+        "damnlib"
+      ],
+      "studyRole": "integration-directive"
+    },
+    {
+      "id": "RollingRefuge",
+      "label": "Rolling Refuge",
+      "workshopId": "3788543896",
+      "family": "mobile-shelter",
+      "capabilities": [
+        "period RV",
+        "mobile shelter vehicle"
+      ],
+      "dependencies": [],
+      "studyRole": "integration-directive"
+    },
+    {
+      "id": "LifestyleHobbies",
+      "label": "Lifestyle: Hobbies",
+      "workshopId": "3403870858",
+      "family": "social-and-recreation",
+      "capabilities": [
+        "hobbies",
+        "recreation",
+        "social performance",
+        "full life interaction systems"
+      ],
+      "dependencies": [],
+      "studyRole": "integration-directive"
+    },
+    {
+      "id": "B42Survival",
+      "label": "B42 Survival",
+      "workshopId": "3402516345",
+      "family": "survival-practice",
+      "capabilities": [
+        "survival crafting",
+        "field practice"
+      ],
+      "dependencies": [],
+      "studyRole": "domain-evidence"
+    },
+    {
+      "id": "B42Horticulture",
+      "label": "B42 Horticulture",
+      "workshopId": "3650168851",
+      "family": "food-production",
+      "capabilities": [
+        "horticulture",
+        "expanded crop practice"
+      ],
+      "dependencies": [],
+      "studyRole": "domain-evidence"
+    },
+    {
+      "id": "Waterpipes",
+      "label": "Water Pipes",
+      "workshopId": "3546314080",
+      "family": "infrastructure",
+      "capabilities": [
+        "water distribution",
+        "plumbing construction"
+      ],
+      "dependencies": [],
+      "studyRole": "domain-evidence"
+    },
+    {
+      "id": "WaterPipesBasementWater",
+      "label": "Water Pipes Basement Water",
+      "workshopId": "3743352602",
+      "family": "infrastructure",
+      "capabilities": [
+        "basement water access"
+      ],
+      "dependencies": [
+        "Waterpipes"
+      ],
+      "studyRole": "domain-evidence"
+    },
+    {
+      "id": "LGExtendedElectricity",
+      "label": "LG Extended Electricity",
+      "workshopId": "3779562002",
+      "family": "infrastructure",
+      "capabilities": [
+        "electrical distribution",
+        "power infrastructure"
+      ],
+      "dependencies": [],
+      "studyRole": "domain-evidence"
+    },
+    {
+      "id": "LGRealisticPowerUsage",
+      "label": "LG Realistic Power Usage",
+      "workshopId": "3779562002",
+      "family": "infrastructure",
+      "capabilities": [
+        "power demand",
+        "resource budgeting"
+      ],
+      "dependencies": [
+        "LGExtendedElectricity"
+      ],
+      "studyRole": "domain-evidence"
+    },
+    {
+      "id": "LGExtendedPlumbing",
+      "label": "LG Extended Plumbing",
+      "workshopId": "3779561845",
+      "family": "infrastructure",
+      "capabilities": [
+        "extended plumbing",
+        "water infrastructure"
+      ],
+      "dependencies": [],
+      "studyRole": "domain-evidence"
+    },
+    {
+      "id": "PIP",
+      "label": "Plysken Irrigation Pipes",
+      "workshopId": "3739173520",
+      "family": "food-production",
+      "capabilities": [
+        "irrigation networks",
+        "crop water planning"
+      ],
+      "dependencies": [],
+      "studyRole": "domain-evidence"
+    },
+    {
+      "id": "PSR",
+      "label": "Plysken Solar Revolution",
+      "workshopId": "3725311427",
+      "family": "infrastructure",
+      "capabilities": [
+        "solar power",
+        "renewable power planning"
+      ],
+      "dependencies": [],
+      "studyRole": "domain-evidence"
+    },
+    {
+      "id": "PWS",
+      "label": "Plysken Weather Station",
+      "workshopId": "3781590169",
+      "family": "information-and-planning",
+      "capabilities": [
+        "weather observation",
+        "forecast-informed planning"
+      ],
+      "dependencies": [],
+      "studyRole": "domain-evidence"
+    },
+    {
+      "id": "PUR",
+      "label": "Plysken Underground Revolution",
+      "workshopId": "3776279483",
+      "family": "shelter-and-terrain",
+      "capabilities": [
+        "underground construction",
+        "protected space"
+      ],
+      "dependencies": [],
+      "studyRole": "domain-evidence"
+    },
+    {
+      "id": "PSC",
+      "label": "Plysken Survival Concept",
+      "workshopId": "3742599937",
+      "family": "survival-practice",
+      "capabilities": [
+        "survival structures",
+        "environmental adaptation"
+      ],
+      "dependencies": [],
+      "studyRole": "domain-evidence"
+    },
+    {
+      "id": "FoodDrying",
+      "label": "Food Drying",
+      "workshopId": "3747396551",
+      "family": "food-preservation",
+      "capabilities": [
+        "drying food",
+        "preservation planning"
+      ],
+      "dependencies": [],
+      "studyRole": "domain-evidence"
+    },
+    {
+      "id": "Makedriedfruit",
+      "label": "Make Dried Fruit",
+      "workshopId": "3417502641",
+      "family": "food-preservation",
+      "capabilities": [
+        "fruit drying",
+        "preservation practice"
+      ],
+      "dependencies": [],
+      "studyRole": "domain-evidence"
+    },
+    {
+      "id": "SKITTLE_LongTermPreservation4220",
+      "label": "Long Term Preservation",
+      "workshopId": "3774789651",
+      "family": "food-preservation",
+      "capabilities": [
+        "long-term food storage",
+        "seasonal provisioning"
+      ],
+      "dependencies": [],
+      "studyRole": "domain-evidence"
+    },
+    {
+      "id": "VanillaCraftableFoods",
+      "label": "Vanilla Craftable Foods",
+      "workshopId": "3742923053",
+      "family": "food-production",
+      "capabilities": [
+        "food processing",
+        "ingredient transformation"
+      ],
+      "dependencies": [],
+      "studyRole": "domain-evidence"
+    },
+    {
+      "id": "ServingPlates42",
+      "label": "Serving Plates",
+      "workshopId": "3399320470",
+      "family": "social-and-food",
+      "capabilities": [
+        "meal serving",
+        "shared dining"
+      ],
+      "dependencies": [],
+      "studyRole": "domain-evidence"
+    },
+    {
+      "id": "NeatUI_Framework",
+      "label": "Neat UI Framework",
+      "workshopId": "3508537032",
+      "family": "support",
+      "capabilities": [
+        "Project Cook support"
+      ],
+      "dependencies": [],
+      "studyRole": "support"
+    },
+    {
+      "id": "Project_Cook",
+      "label": "Project Cook",
+      "workshopId": "3490188370",
+      "family": "food-production",
+      "capabilities": [
+        "expanded cooking",
+        "recipe and appliance interactions"
+      ],
+      "dependencies": [
+        "NeatUI_Framework"
+      ],
+      "studyRole": "domain-evidence"
+    },
+    {
+      "id": "N&CsNarcotics",
+      "label": "N and C's Narcotics",
+      "workshopId": "3404956403",
+      "family": "substances",
+      "capabilities": [
+        "external drug content",
+        "player-facing substance systems"
+      ],
+      "dependencies": [],
+      "studyRole": "comparison-evidence"
+    }
+  ],
+  "sourceOwned": [
+    {
+      "id": "age-and-development",
+      "label": "Age, elder decline and child development",
+      "owner": "SurvivorAwareness",
+      "evidence": "CREDITS.md:283-325; DR-032",
+      "capabilities": [
+        "age stages",
+        "elder physiology",
+        "child growth",
+        "literacy progression",
+        "age-shaped fear and learning"
+      ],
+      "record": "proven-implementation"
+    },
+    {
+      "id": "cognitive-and-health-conditions",
+      "label": "Cognitive and health conditions",
+      "owner": "SurvivorAwareness",
+      "evidence": "CREDITS.md:71-131; DR-032",
+      "capabilities": [
+        "memory decay",
+        "neurodiverse conditions",
+        "mental-health effects",
+        "chronic infirmity representation"
+      ],
+      "record": "proven-implementation"
+    },
+    {
+      "id": "substances-and-dependence",
+      "label": "Substances, physical effects and dependence",
+      "owner": "SurvivorAwareness",
+      "evidence": "CREDITS.md:133-189; C89",
+      "capabilities": [
+        "native drug items",
+        "dose outcomes",
+        "withdrawal",
+        "dependence",
+        "private capability experience"
+      ],
+      "record": "proven-implementation"
+    },
+    {
+      "id": "social-and-life-animation",
+      "label": "Proven social and life animation implementation",
+      "owner": "SurvivorAwareness",
+      "evidence": "CREDITS.md:191-220; C35 and C45",
+      "capabilities": [
+        "conversation gestures",
+        "seated life",
+        "music and dance",
+        "serving and CPR animation bindings"
+      ],
+      "record": "proven-implementation"
+    },
+    {
+      "id": "horse-life-and-mobility",
+      "label": "Horse life, care and mounted mobility",
+      "owner": "SurvivorAwareness",
+      "evidence": "CREDITS.md Horse Mod; C98",
+      "capabilities": [
+        "mounted travel",
+        "horse ownership",
+        "horse care",
+        "mount and dismount",
+        "riding collision and stamina",
+        "autonomous mounted travel"
+      ],
+      "record": "proven-implementation"
+    }
+  ]
+}

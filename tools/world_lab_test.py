@@ -1,6 +1,5 @@
 #!/usr/bin/env python3
 """Border 198: study definitions, isolated packaging, truthful runtime coverage.
-
 RuntimeChecks is a controlled fixture in installed Kahlua; NativeStudyProbe
 separately exercises actual engine parameter persistence. Neither is gameplay.
 """
@@ -24,6 +23,7 @@ from unittest.mock import patch
 
 import world_lab as Lab
 import world_lab_run as Run
+import world_lab_profiles as Profiles
 
 GAME = Path(os.environ.get("PZ_DIR", r"C:\Program Files (x86)\Steam\steamapps\common\ProjectZomboid"))
 JDK = Path(os.environ.get("JDK_BIN", r"C:\Users\jleyv\Peanut Butter\JetBrains\Java\bin"))
@@ -31,6 +31,38 @@ BASE = Lab.load(Lab.ROOT / "tools/world_lab/definition.example.json")
 
 
 class DefinitionTests(unittest.TestCase):
+    def test_mod_profile_separates_external_study_content_from_source_owned_baseline(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            workshop = root / "workshop/123456/mods/HorseMod/42"
+            workshop.mkdir(parents=True)
+            (workshop / "mod.info").write_text(
+                "name=Horse Mod\nid=Horse\nversionMin=42.13.0\n", encoding="utf-8")
+            explicit = root / "SAO/42.20"
+            explicit.mkdir(parents=True)
+            (explicit / "mod.info").write_text(
+                "name=Survivor Awareness\nid=SurvivorAwareness\n", encoding="utf-8")
+            catalogue = root / "catalog.json"
+            catalogue.write_text(json.dumps({"schema": Profiles.CATALOG_SCHEMA,
+                "sourceOwned": [{"id": "age-system", "label": "Age", "owner": "SurvivorAwareness",
+                                  "evidence": "fixture", "capabilities": ["age"],
+                                  "record": "proven-implementation"}],
+                "external": [{"id": "Horse", "label": "Horse Mod", "workshopId": "123456",
+                              "family": "mobility", "capabilities": ["mounted travel"],
+                              "dependencies": [], "studyRole": "integration-directive"}]}), encoding="utf-8")
+            profile = root / "profile.json"
+            profile.write_text(json.dumps({"schema": Profiles.PROFILE_SCHEMA, "id": "living-world",
+                "label": "Living world", "enabled": ["Horse"], "disabled": []}), encoding="utf-8")
+            roots, receipt = Profiles.resolve(profile, catalogue, root / "workshop", [explicit.parent])
+            self.assertEqual([path.name for path in roots], ["SAO", "HorseMod"])
+            self.assertEqual(receipt["activatedExternal"][0]["id"], "Horse")
+            self.assertEqual(receipt["sourceOwnedBaseline"][0]["id"], "age-system")
+            changed = json.loads(profile.read_text())
+            changed["disabled"] = ["Horse"]
+            profile.write_text(json.dumps(changed), encoding="utf-8")
+            with self.assertRaisesRegex(ValueError, "conflicting"):
+                Profiles.resolve(profile, catalogue, root / "workshop", [explicit.parent])
+
     def test_observer_evidence_requires_detachment_advancement_and_native_image(self):
         with tempfile.TemporaryDirectory() as tmp:
             root = Path(tmp)
@@ -197,6 +229,26 @@ class DefinitionTests(unittest.TestCase):
             with self.assertRaises(ValueError):
                 Lab.validate(invalid)
 
+    def test_horse_travel_situation(self):
+        value = copy.deepcopy(BASE)
+        value["situation"] = {"horseTravel": {
+            "spawn": {"x": 128, "y": 128, "z": 0},
+            "destination": {"x": 148, "y": 128, "z": 0},
+            "animalType": "mare", "breed": "AmericanQuarterPalomino",
+            "ageDays": 720, "riderOccupation": "farmer", "running": False,
+        }}
+        self.assertEqual(Lab.validate(value), value)
+        for change in (
+                lambda d: d["situation"]["horseTravel"].update(animalType="filly"),
+                lambda d: d["situation"]["horseTravel"].update(ageDays=30),
+                lambda d: d["situation"]["horseTravel"].update(running=1),
+                lambda d: d["situation"]["horseTravel"]["destination"].update(x=130),
+                lambda d: d["situation"]["horseTravel"]["destination"].update(z=1)):
+            invalid = copy.deepcopy(value)
+            change(invalid)
+            with self.assertRaises(ValueError):
+                Lab.validate(invalid)
+
     def test_invalid_definitions(self):
         changes = [
             lambda d: d.update(id="../escape"),
@@ -357,7 +409,8 @@ class AuthoredMapTests(unittest.TestCase):
         expected = [[row[k] for k in ("x", "y", "rooms", "buildings")] for row in self.receipt["cells"]]
         self.assertEqual(native, expected)
         self.assertIn("332 rooms, 76 buildings, 423 basement/access assets", output)
-        self.assertEqual(sum(line.startswith("ORIGIN ") for line in output.splitlines()), 3)
+        self.assertEqual(sum(line.startswith("ORIGIN ") for line in output.splitlines()),
+                         sum(len(definition["origins"]) for definition in definitions))
         for line in output.splitlines():
             if line.startswith("ORIGIN "):
                 print(line)
@@ -379,7 +432,7 @@ class AuthoredMapTests(unittest.TestCase):
             blob = (GAME / relative).read_bytes()
             self.assertEqual(seal, {"sha256": Lab.Authored.digest(blob), "bytes": len(blob)})
         variants = [Lab.validate(Lab.load(path)) for path in (Lab.ROOT / "tools/world_lab/definitions").glob("echo-creek-*.json")]
-        self.assertEqual(sorted(v["sandbox"]["SurvivorAwareness.Population"] for v in variants), [2, 4, 7])
+        self.assertEqual(sorted(v["sandbox"]["SurvivorAwareness.Population"] for v in variants), [2, 2, 4, 7])
         for value in variants:
             self.assertEqual(value["sourceMap"], "Muldraugh, KY")
             self.assertEqual(value["extent"], self.definition["extent"])
@@ -760,6 +813,9 @@ assert(SAO.Participants.player(0) == nil and SAO.Participants.residencyCenter() 
         launch_path = tmp / "launch.lua"
         seam = 'playerReceipt("horizon", launchPlayer)'
         require(launch.count(seam) == 1, "launch receipt control seam differs")
+        launch_path.write_text('local RunConfig = { attempt=1, hours=0.3, mapName="Study", origin={x=1,y=2,z=0} }\n'
+            + launch_checks + '\n' + launch + '\nRESULT = CheckLaunchConfiguration()\n', encoding="utf-8")
+        print(command([*java, "LuaRun", launch_path, "--", "RESULT"], GAME).strip())
         for label, code in (("production", launch), ("mutable global", launch.replace(
                 seam, 'playerReceipt("horizon", getPlayer())'))):
             launch_path.write_text('local RunConfig = { attempt=1, hours=0.3 }\n' + launch_checks

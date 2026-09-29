@@ -28,6 +28,7 @@ function SAOPrintReadFixture.read(id, options)
     }
     local body = {
         getModData = function() return data end,
+        getOnlineID = function() return 1 end,
         getInventory = function() return { contains = function(_, target)
             return target == item and options.held ~= false end } end,
         ReadLiterature = function()

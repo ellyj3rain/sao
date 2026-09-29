@@ -170,6 +170,13 @@ def runner_command(args, resume, duration):
     else:
         for mod in args.mod:
             command.extend(("--mod", str(mod)))
+        if args.profile is not None:
+            command.extend(("--profile", str(args.profile), "--catalog", str(args.catalog),
+                            "--workshop-root", str(args.workshop_root)))
+            for mod_id in args.enable_mod:
+                command.extend(("--enable-mod", mod_id))
+            for mod_id in args.disable_mod:
+                command.extend(("--disable-mod", mod_id))
     return command
 
 
@@ -195,6 +202,9 @@ def supervise(args):
     args.package = args.package.resolve(); args.out = args.out.resolve()
     args.game = args.game.resolve(); args.jdk = args.jdk.resolve()
     args.watcher = args.watcher.resolve(); args.registry = args.registry.resolve()
+    if args.profile is not None:
+        args.profile = args.profile.resolve(); args.catalog = args.catalog.resolve()
+        args.workshop_root = args.workshop_root.resolve()
     state_path, commands = args.out / "study-session.json", args.out / "session-commands"
     if state_path.exists():
         state = public_state(Lab.load(state_path))
@@ -286,6 +296,13 @@ def main():
     parser.add_argument("--game", required=True, type=Path)
     parser.add_argument("--jdk", required=True, type=Path)
     parser.add_argument("--mod", action="append", default=[], type=Path)
+    parser.add_argument("--profile", type=Path,
+                        help="validated external capability study profile")
+    parser.add_argument("--catalog", type=Path, default=Path(__file__).with_name("world_lab") / "mod_catalog.json")
+    parser.add_argument("--workshop-root", type=Path,
+                        default=Path(r"C:\Program Files (x86)\Steam\steamapps\workshop\content\108600"))
+    parser.add_argument("--enable-mod", action="append", default=[])
+    parser.add_argument("--disable-mod", action="append", default=[])
     parser.add_argument("--watcher", required=True, type=Path,
                         help="Speakeasy tools/world_watch.py")
     parser.add_argument("--registry", required=True, type=Path,

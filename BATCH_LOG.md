@@ -1,6 +1,6 @@
 | Document | Survivor Awareness Overhaul Batch Log |
 |---|---|
-| Version | `3.5.0.0-pre-alpha` |
+| Version | `3.6.0.0-pre-alpha` |
 | Author | ellyj3rain |
 | Repository | `BATCH_LOG.md` |
 | Status | REGULATORY - chronological batch index. |
@@ -202,3 +202,6 @@ source mapping and hashes. Consolidation does not close implementation defects.
 | [C93](Batches/C93-20260928-0657Z-2357PST-durable-study-sessions.md) | 2026-09-28 | Durable configurable study sessions | [`T-002`](Batches/THREADS.md#t-002), [`T-006`](Batches/THREADS.md#t-006), [`T-008`](Batches/THREADS.md#t-008), [`T-009`](Batches/THREADS.md#t-009), [`T-030`](Batches/THREADS.md#t-030) |
 | [C94](Batches/C94-20260928-0910Z-0210PDT-study-situation-pressure.md) | 2026-09-28 | Study situation pressure and loaded cooperation diagnostic | [`T-002`](Batches/THREADS.md#t-002), [`T-004`](Batches/THREADS.md#t-004), [`T-006`](Batches/THREADS.md#t-006), [`T-008`](Batches/THREADS.md#t-008), [`T-009`](Batches/THREADS.md#t-009), [`T-030`](Batches/THREADS.md#t-030) |
 | [C95](Batches/C95-20260928-1021Z-0321PDT-person-private-procedural-planning.md) | 2026-09-28 | Person-private procedural planning | [`T-002`](Batches/THREADS.md#t-002), [`T-003`](Batches/THREADS.md#t-003), [`T-004`](Batches/THREADS.md#t-004), [`T-006`](Batches/THREADS.md#t-006), [`T-008`](Batches/THREADS.md#t-008), [`T-030`](Batches/THREADS.md#t-030) |
+| [C96](Batches/C96-20260928-2010Z-1310PDT-current-engine-study-activation.md) | 2026-09-28 | Current-engine study activation | [`T-002`](Batches/THREADS.md#t-002), [`T-006`](Batches/THREADS.md#t-006), [`T-008`](Batches/THREADS.md#t-008), [`T-009`](Batches/THREADS.md#t-009), [`T-030`](Batches/THREADS.md#t-030) |
+| [C97](Batches/C97-20260928-2053Z-1353PDT-source-integration-lineage.md) | 2026-09-28 | Source integration lineage | [`T-002`](Batches/THREADS.md#t-002), [`T-003`](Batches/THREADS.md#t-003), [`T-004`](Batches/THREADS.md#t-004), [`T-006`](Batches/THREADS.md#t-006), [`T-008`](Batches/THREADS.md#t-008), [`T-030`](Batches/THREADS.md#t-030) |
+| [C98](Batches/C98-20260928-2130Z-1430PDT-owned-horse-life-and-mobility.md) | 2026-09-28 | Owned horse life and mounted mobility | [`T-002`](Batches/THREADS.md#t-002), [`T-003`](Batches/THREADS.md#t-003), [`T-004`](Batches/THREADS.md#t-004), [`T-006`](Batches/THREADS.md#t-006), [`T-008`](Batches/THREADS.md#t-008), [`T-030`](Batches/THREADS.md#t-030) |

@@ -1,0 +1,1263 @@
+module HorseMod {
+/* American Paint Overo */
+    item HorseLeather_AmericanPaintOvero_Full
+    {
+        DisplayCategory = Material,
+        ItemType = base:normal,
+        Weight = 5.0,
+        Icon = leather/LeatherHide_Horse_AmericanPaintOvero,
+        WorldStaticModel = Leather_Horse_AmericanPaintOvero,
+        Tags = base:leatherfulllarge,
+        Tooltip = Tooltip_Leather_SofteningBeam,
+    }
+    item HorseLeather_AmericanPaintOvero_Fur
+    {
+        DisplayCategory = Material,
+        ItemType = base:normal,
+        Weight = 5.0,
+        Icon = leather/LeatherHide_Horse_AmericanPaintOvero,
+        WorldStaticModel = Leather_Horse_AmericanPaintOvero,
+        Tags = base:leatherfurlarge,
+        Tooltip = Tooltip_Leather_TanninBarrel,
+    }
+    item HorseLeather_AmericanPaintOvero_Fur_Tan_Wet
+    {
+        DisplayCategory = Material,
+        ItemType = base:normal,
+        Weight = 5.0,
+        Icon = leather/LeatherHide_Horse_AmericanPaintOvero,
+        WorldStaticModel = Leather_Horse_AmericanPaintOvero,
+        Tags = base:leatherfurwetlarge,
+        Tooltip = Tooltip_Leather_DryingRack,
+    }
+    item HorseLeather_AmericanPaintOvero_Fur_Tan
+    {
+        DisplayCategory = Material,
+        ItemType = base:moveable,
+        Weight = 5.0,
+        Icon = leather/LeatherHide_Horse_AmericanPaintOvero,
+        WorldObjectSprite = rugs_animals_horse_16,
+        WorldStaticModel = Leather_Horse_AmericanPaintOvero,
+        Tags = base:leatherfurtannedlarge,
+    }
+    item HorseLeather_AmericanPaintOvero_Fur_Tan_Medium
+    {
+        DisplayCategory = Material,
+        ItemType = base:normal,
+        Weight = 3.0,
+        Icon = leather/LeatherHide_Horse_AmericanPaintOvero,
+        WorldStaticModel = Leather_Horse_AmericanPaintOvero_Medium,
+        Tags = base:leatherfurtannedmedium,
+    }
+    item HorseLeather_AmericanPaintOvero_Fur_Tan_Small
+    {
+        DisplayCategory = Material,
+        ItemType = base:normal,
+        Weight = 1.0,
+        Icon = leather/LeatherHide_Horse_AmericanPaintOvero,
+        WorldStaticModel = Leather_Horse_AmericanPaintOvero_Small,
+        Tags = base:leatherfurtannedsmall,
+    }
+    model Leather_Horse_AmericanPaintOvero
+    {
+        mesh = WorldItems/Leather_Rolled,
+        texture = WorldItems/Leathers/LeatherRolled_Horse_AmericanPaintOvero,
+        scale = 0.1,
+    }
+    model Leather_Horse_AmericanPaintOvero_Medium
+    {
+        mesh = WorldItems/Leather_Rolled,
+        texture = WorldItems/Leathers/LeatherRolled_Horse_AmericanPaintOvero,
+        scale = 0.08,
+    }
+    model Leather_Horse_AmericanPaintOvero_Small
+    {
+        mesh = WorldItems/Leather_Rolled,
+        texture = WorldItems/Leathers/LeatherRolled_Horse_AmericanPaintOvero,
+        scale = 0.055,
+    }
+
+
+/* American Paint Tobiano */
+    item HorseLeather_AmericanPaintTobiano_Full
+    {
+        DisplayCategory = Material,
+        ItemType = base:normal,
+        Weight = 5.0,
+        Icon = leather/LeatherHide_Horse_AmericanPaintTobiano,
+        WorldStaticModel = Leather_Horse_AmericanPaintTobiano,
+        Tags = base:leatherfulllarge,
+        Tooltip = Tooltip_Leather_SofteningBeam,
+    }
+    item HorseLeather_AmericanPaintTobiano_Fur
+    {
+        DisplayCategory = Material,
+        ItemType = base:normal,
+        Weight = 5.0,
+        Icon = leather/LeatherHide_Horse_AmericanPaintTobiano,
+        WorldStaticModel = Leather_Horse_AmericanPaintTobiano,
+        Tags = base:leatherfurlarge,
+        Tooltip = Tooltip_Leather_TanninBarrel,
+    }
+    item HorseLeather_AmericanPaintTobiano_Fur_Tan_Wet
+    {
+        DisplayCategory = Material,
+        ItemType = base:normal,
+        Weight = 5.0,
+        Icon = leather/LeatherHide_Horse_AmericanPaintTobiano,
+        WorldStaticModel = Leather_Horse_AmericanPaintTobiano,
+        Tags = base:leatherfurwetlarge,
+        Tooltip = Tooltip_Leather_DryingRack,
+    }
+    item HorseLeather_AmericanPaintTobiano_Fur_Tan
+    {
+        DisplayCategory = Material,
+        ItemType = base:moveable,
+        Weight = 5.0,
+        Icon = leather/LeatherHide_Horse_AmericanPaintTobiano,
+        WorldObjectSprite = rugs_animals_horse_56,
+        WorldStaticModel = Leather_Horse_AmericanPaintTobiano,
+        Tags = base:leatherfurtannedlarge,
+    }
+    item HorseLeather_AmericanPaintTobiano_Fur_Tan_Medium
+    {
+        DisplayCategory = Material,
+        ItemType = base:normal,
+        Weight = 3.0,
+        Icon = leather/LeatherHide_Horse_AmericanPaintTobiano,
+        WorldStaticModel = Leather_Horse_AmericanPaintTobiano_Medium,
+        Tags = base:leatherfurtannedmedium,
+    }
+    item HorseLeather_AmericanPaintTobiano_Fur_Tan_Small
+    {
+        DisplayCategory = Material,
+        ItemType = base:normal,
+        Weight = 1.0,
+        Icon = leather/LeatherHide_Horse_AmericanPaintTobiano,
+        WorldStaticModel = Leather_Horse_AmericanPaintTobiano_Small,
+        Tags = base:leatherfurtannedsmall,
+    }
+    model Leather_Horse_AmericanPaintTobiano
+    {
+        mesh = WorldItems/Leather_Rolled,
+        texture = WorldItems/Leathers/LeatherRolled_Horse_AmericanPaintTobiano,
+        scale = 0.1,
+    }
+    model Leather_Horse_AmericanPaintTobiano_Medium
+    {
+        mesh = WorldItems/Leather_Rolled,
+        texture = WorldItems/Leathers/LeatherRolled_Horse_AmericanPaintTobiano,
+        scale = 0.08,
+    }
+    model Leather_Horse_AmericanPaintTobiano_Small
+    {
+        mesh = WorldItems/Leather_Rolled,
+        texture = WorldItems/Leathers/LeatherRolled_Horse_AmericanPaintTobiano,
+        scale = 0.055,
+    }
+
+
+/* American Quarter Blue Roan */
+    item HorseLeather_AmericanQuarterBlueRoan_Full
+    {
+        DisplayCategory = Material,
+        ItemType = base:normal,
+        Weight = 5.0,
+        Icon = leather/LeatherHide_Horse_AmericanQuarterBlueRoan,
+        WorldStaticModel = Leather_Horse_AmericanQuarterBlueRoan,
+        Tags = base:leatherfulllarge,
+        Tooltip = Tooltip_Leather_SofteningBeam,
+    }
+    item HorseLeather_AmericanQuarterBlueRoan_Fur
+    {
+        DisplayCategory = Material,
+        ItemType = base:normal,
+        Weight = 5.0,
+        Icon = leather/LeatherHide_Horse_AmericanQuarterBlueRoan,
+        WorldStaticModel = Leather_Horse_AmericanQuarterBlueRoan,
+        Tags = base:leatherfurlarge,
+        Tooltip = Tooltip_Leather_TanninBarrel,
+    }
+    item HorseLeather_AmericanQuarterBlueRoan_Fur_Tan_Wet
+    {
+        DisplayCategory = Material,
+        ItemType = base:normal,
+        Weight = 5.0,
+        Icon = leather/LeatherHide_Horse_AmericanQuarterBlueRoan,
+        WorldStaticModel = Leather_Horse_AmericanQuarterBlueRoan,
+        Tags = base:leatherfurwetlarge,
+        Tooltip = Tooltip_Leather_DryingRack,
+    }
+    item HorseLeather_AmericanQuarterBlueRoan_Fur_Tan
+    {
+        DisplayCategory = Material,
+        ItemType = base:moveable,
+        Weight = 5.0,
+        Icon = leather/LeatherHide_Horse_AmericanQuarterBlueRoan,
+        WorldObjectSprite = rugs_animals_horse_96,
+        WorldStaticModel = Leather_Horse_AmericanQuarterBlueRoan,
+        Tags = base:leatherfurtannedlarge,
+    }
+    item HorseLeather_AmericanQuarterBlueRoan_Fur_Tan_Medium
+    {
+        DisplayCategory = Material,
+        ItemType = base:normal,
+        Weight = 3.0,
+        Icon = leather/LeatherHide_Horse_AmericanQuarterBlueRoan,
+        WorldStaticModel = Leather_Horse_AmericanQuarterBlueRoan_Medium,
+        Tags = base:leatherfurtannedmedium,
+    }
+    item HorseLeather_AmericanQuarterBlueRoan_Fur_Tan_Small
+    {
+        DisplayCategory = Material,
+        ItemType = base:normal,
+        Weight = 1.0,
+        Icon = leather/LeatherHide_Horse_AmericanQuarterBlueRoan,
+        WorldStaticModel = Leather_Horse_AmericanQuarterBlueRoan_Small,
+        Tags = base:leatherfurtannedsmall,
+    }
+    model Leather_Horse_AmericanQuarterBlueRoan
+    {
+        mesh = WorldItems/Leather_Rolled,
+        texture = WorldItems/Leathers/LeatherRolled_Horse_AmericanQuarterBlueRoan,
+        scale = 0.1,
+    }
+    model Leather_Horse_AmericanQuarterBlueRoan_Medium
+    {
+        mesh = WorldItems/Leather_Rolled,
+        texture = WorldItems/Leathers/LeatherRolled_Horse_AmericanQuarterBlueRoan,
+        scale = 0.08,
+    }
+    model Leather_Horse_AmericanQuarterBlueRoan_Small
+    {
+        mesh = WorldItems/Leather_Rolled,
+        texture = WorldItems/Leathers/LeatherRolled_Horse_AmericanQuarterBlueRoan,
+        scale = 0.055,
+    }
+
+
+/* American Quarter Strawberry Roan */
+    item HorseLeather_AmericanQuarterStrawberryRoan_Full
+    {
+        DisplayCategory = Material,
+        ItemType = base:normal,
+        Weight = 5.0,
+        Icon = leather/LeatherHide_Horse_AmericanQuarterStrawberryRoan,
+        WorldStaticModel = Leather_Horse_AmericanQuarterStrawberryRoan,
+        Tags = base:leatherfulllarge,
+        Tooltip = Tooltip_Leather_SofteningBeam,
+    }
+    item HorseLeather_AmericanQuarterStrawberryRoan_Fur
+    {
+        DisplayCategory = Material,
+        ItemType = base:normal,
+        Weight = 5.0,
+        Icon = leather/LeatherHide_Horse_AmericanQuarterStrawberryRoan,
+        WorldStaticModel = Leather_Horse_AmericanQuarterStrawberryRoan,
+        Tags = base:leatherfurlarge,
+        Tooltip = Tooltip_Leather_TanninBarrel,
+    }
+    item HorseLeather_AmericanQuarterStrawberryRoan_Fur_Tan_Wet
+    {
+        DisplayCategory = Material,
+        ItemType = base:normal,
+        Weight = 5.0,
+        Icon = leather/LeatherHide_Horse_AmericanQuarterStrawberryRoan,
+        WorldStaticModel = Leather_Horse_AmericanQuarterStrawberryRoan,
+        Tags = base:leatherfurwetlarge,
+        Tooltip = Tooltip_Leather_DryingRack,
+    }
+    item HorseLeather_AmericanQuarterStrawberryRoan_Fur_Tan
+    {
+        DisplayCategory = Material,
+        ItemType = base:moveable,
+        Weight = 5.0,
+        Icon = leather/LeatherHide_Horse_AmericanQuarterStrawberryRoan,
+        WorldObjectSprite = rugs_animals_horse_02_56,
+        WorldStaticModel = Leather_Horse_AmericanQuarterStrawberryRoan,
+        Tags = base:leatherfurtannedlarge,
+    }
+    item HorseLeather_AmericanQuarterStrawberryRoan_Fur_Tan_Medium
+    {
+        DisplayCategory = Material,
+        ItemType = base:normal,
+        Weight = 3.0,
+        Icon = leather/LeatherHide_Horse_AmericanQuarterStrawberryRoan,
+        WorldStaticModel = Leather_Horse_AmericanQuarterStrawberryRoan_Medium,
+        Tags = base:leatherfurtannedmedium,
+    }
+    item HorseLeather_AmericanQuarterStrawberryRoan_Fur_Tan_Small
+    {
+        DisplayCategory = Material,
+        ItemType = base:normal,
+        Weight = 1.0,
+        Icon = leather/LeatherHide_Horse_AmericanQuarterStrawberryRoan,
+        WorldStaticModel = Leather_Horse_AmericanQuarterStrawberryRoan_Small,
+        Tags = base:leatherfurtannedsmall,
+    }
+    model Leather_Horse_AmericanQuarterStrawberryRoan
+    {
+        mesh = WorldItems/Leather_Rolled,
+        texture = WorldItems/Leathers/LeatherRolled_Horse_AmericanQuarterStrawberryRoan,
+        scale = 0.1,
+    }
+    model Leather_Horse_AmericanQuarterStrawberryRoan_Medium
+    {
+        mesh = WorldItems/Leather_Rolled,
+        texture = WorldItems/Leathers/LeatherRolled_Horse_AmericanQuarterStrawberryRoan,
+        scale = 0.08,
+    }
+    model Leather_Horse_AmericanQuarterStrawberryRoan_Small
+    {
+        mesh = WorldItems/Leather_Rolled,
+        texture = WorldItems/Leathers/LeatherRolled_Horse_AmericanQuarterStrawberryRoan,
+        scale = 0.055,
+    }
+
+
+/* American Quarter Palomino */
+    item HorseLeather_AmericanQuarterPalomino_Full
+    {
+        DisplayCategory = Material,
+        ItemType = base:normal,
+        Weight = 5.0,
+        Icon = leather/LeatherHide_Horse_AmericanQuarterPalomino,
+        WorldStaticModel = Leather_Horse_AmericanQuarterPalomino,
+        Tags = base:leatherfulllarge,
+        Tooltip = Tooltip_Leather_SofteningBeam,
+    }
+    item HorseLeather_AmericanQuarterPalomino_Fur
+    {
+        DisplayCategory = Material,
+        ItemType = base:normal,
+        Weight = 5.0,
+        Icon = leather/LeatherHide_Horse_AmericanQuarterPalomino,
+        WorldStaticModel = Leather_Horse_AmericanQuarterPalomino,
+        Tags = base:leatherfurlarge,
+        Tooltip = Tooltip_Leather_TanninBarrel,
+    }
+    item HorseLeather_AmericanQuarterPalomino_Fur_Tan_Wet
+    {
+        DisplayCategory = Material,
+        ItemType = base:normal,
+        Weight = 5.0,
+        Icon = leather/LeatherHide_Horse_AmericanQuarterPalomino,
+        WorldStaticModel = Leather_Horse_AmericanQuarterPalomino,
+        Tags = base:leatherfurwetlarge,
+        Tooltip = Tooltip_Leather_DryingRack,
+    }
+    item HorseLeather_AmericanQuarterPalomino_Fur_Tan
+    {
+        DisplayCategory = Material,
+        ItemType = base:moveable,
+        Weight = 5.0,
+        Icon = leather/LeatherHide_Horse_AmericanQuarterPalomino,
+        WorldObjectSprite = rugs_animals_horse_136,
+        WorldStaticModel = Leather_Horse_AmericanQuarterPalomino,
+        Tags = base:leatherfurtannedlarge,
+    }
+    item HorseLeather_AmericanQuarterPalomino_Fur_Tan_Medium
+    {
+        DisplayCategory = Material,
+        ItemType = base:normal,
+        Weight = 3.0,
+        Icon = leather/LeatherHide_Horse_AmericanQuarterPalomino,
+        WorldStaticModel = Leather_Horse_AmericanQuarterPalomino_Medium,
+        Tags = base:leatherfurtannedmedium,
+    }
+    item HorseLeather_AmericanQuarterPalomino_Fur_Tan_Small
+    {
+        DisplayCategory = Material,
+        ItemType = base:normal,
+        Weight = 1.0,
+        Icon = leather/LeatherHide_Horse_AmericanQuarterPalomino,
+        WorldStaticModel = Leather_Horse_AmericanQuarterPalomino_Small,
+        Tags = base:leatherfurtannedsmall,
+    }
+    model Leather_Horse_AmericanQuarterPalomino
+    {
+        mesh = WorldItems/Leather_Rolled,
+        texture = WorldItems/Leathers/LeatherRolled_Horse_AmericanQuarterPalomino,
+        scale = 0.1,
+    }
+    model Leather_Horse_AmericanQuarterPalomino_Medium
+    {
+        mesh = WorldItems/Leather_Rolled,
+        texture = WorldItems/Leathers/LeatherRolled_Horse_AmericanQuarterPalomino,
+        scale = 0.08,
+    }
+    model Leather_Horse_AmericanQuarterPalomino_Small
+    {
+        mesh = WorldItems/Leather_Rolled,
+        texture = WorldItems/Leathers/LeatherRolled_Horse_AmericanQuarterPalomino,
+        scale = 0.055,
+    }
+
+
+/* American Quarter Seal Bay */
+    item HorseLeather_AmericanQuarterSealBay_Full
+    {
+        DisplayCategory = Material,
+        ItemType = base:normal,
+        Weight = 5.0,
+        Icon = leather/LeatherHide_Horse_AmericanQuarterSealBay,
+        WorldStaticModel = Leather_Horse_AmericanQuarterSealBay,
+        Tags = base:leatherfulllarge,
+        Tooltip = Tooltip_Leather_SofteningBeam,
+    }
+    item HorseLeather_AmericanQuarterSealBay_Fur
+    {
+        DisplayCategory = Material,
+        ItemType = base:normal,
+        Weight = 5.0,
+        Icon = leather/LeatherHide_Horse_AmericanQuarterSealBay,
+        WorldStaticModel = Leather_Horse_AmericanQuarterSealBay,
+        Tags = base:leatherfurlarge,
+        Tooltip = Tooltip_Leather_TanninBarrel,
+    }
+    item HorseLeather_AmericanQuarterSealBay_Fur_Tan_Wet
+    {
+        DisplayCategory = Material,
+        ItemType = base:normal,
+        Weight = 5.0,
+        Icon = leather/LeatherHide_Horse_AmericanQuarterSealBay,
+        WorldStaticModel = Leather_Horse_AmericanQuarterSealBay,
+        Tags = base:leatherfurwetlarge,
+        Tooltip = Tooltip_Leather_DryingRack,
+    }
+    item HorseLeather_AmericanQuarterSealBay_Fur_Tan
+    {
+        DisplayCategory = Material,
+        ItemType = base:moveable,
+        Weight = 5.0,
+        Icon = leather/LeatherHide_Horse_AmericanQuarterSealBay,
+        WorldObjectSprite = rugs_animals_horse_02_96,
+        WorldStaticModel = Leather_Horse_AmericanQuarterSealBay,
+        Tags = base:leatherfurtannedlarge,
+    }
+    item HorseLeather_AmericanQuarterSealBay_Fur_Tan_Medium
+    {
+        DisplayCategory = Material,
+        ItemType = base:normal,
+        Weight = 3.0,
+        Icon = leather/LeatherHide_Horse_AmericanQuarterSealBay,
+        WorldStaticModel = Leather_Horse_AmericanQuarterSealBay_Medium,
+        Tags = base:leatherfurtannedmedium,
+    }
+    item HorseLeather_AmericanQuarterSealBay_Fur_Tan_Small
+    {
+        DisplayCategory = Material,
+        ItemType = base:normal,
+        Weight = 1.0,
+        Icon = leather/LeatherHide_Horse_AmericanQuarterSealBay,
+        WorldStaticModel = Leather_Horse_AmericanQuarterSealBay_Small,
+        Tags = base:leatherfurtannedsmall,
+    }
+    model Leather_Horse_AmericanQuarterSealBay
+    {
+        mesh = WorldItems/Leather_Rolled,
+        texture = WorldItems/Leathers/LeatherRolled_Horse_AmericanQuarterSealBay,
+        scale = 0.1,
+    }
+    model Leather_Horse_AmericanQuarterSealBay_Medium
+    {
+        mesh = WorldItems/Leather_Rolled,
+        texture = WorldItems/Leathers/LeatherRolled_Horse_AmericanQuarterSealBay,
+        scale = 0.08,
+    }
+    model Leather_Horse_AmericanQuarterSealBay_Small
+    {
+        mesh = WorldItems/Leather_Rolled,
+        texture = WorldItems/Leathers/LeatherRolled_Horse_AmericanQuarterSealBay,
+        scale = 0.055,
+    }
+
+
+/* Appaloosa Grulla Blanket */
+    item HorseLeather_AppaloosaGrullaBlanket_Full
+    {
+        DisplayCategory = Material,
+        ItemType = base:normal,
+        Weight = 5.0,
+        Icon = leather/LeatherHide_Horse_AppaloosaGrullaBlanket,
+        WorldStaticModel = Leather_Horse_AppaloosaGrullaBlanket,
+        Tags = base:leatherfulllarge,
+        Tooltip = Tooltip_Leather_SofteningBeam,
+    }
+    item HorseLeather_AppaloosaGrullaBlanket_Fur
+    {
+        DisplayCategory = Material,
+        ItemType = base:normal,
+        Weight = 5.0,
+        Icon = leather/LeatherHide_Horse_AppaloosaGrullaBlanket,
+        WorldStaticModel = Leather_Horse_AppaloosaGrullaBlanket,
+        Tags = base:leatherfurlarge,
+        Tooltip = Tooltip_Leather_TanninBarrel,
+    }
+    item HorseLeather_AppaloosaGrullaBlanket_Fur_Tan_Wet
+    {
+        DisplayCategory = Material,
+        ItemType = base:normal,
+        Weight = 5.0,
+        Icon = leather/LeatherHide_Horse_AppaloosaGrullaBlanket,
+        WorldStaticModel = Leather_Horse_AppaloosaGrullaBlanket,
+        Tags = base:leatherfurwetlarge,
+        Tooltip = Tooltip_Leather_DryingRack,
+    }
+    item HorseLeather_AppaloosaGrullaBlanket_Fur_Tan
+    {
+        DisplayCategory = Material,
+        ItemType = base:moveable,
+        Weight = 5.0,
+        Icon = leather/LeatherHide_Horse_AppaloosaGrullaBlanket,
+        WorldObjectSprite = rugs_animals_horse_176,
+        WorldStaticModel = Leather_Horse_AppaloosaGrullaBlanket,
+        Tags = base:leatherfurtannedlarge,
+    }
+    item HorseLeather_AppaloosaGrullaBlanket_Fur_Tan_Medium
+    {
+        DisplayCategory = Material,
+        ItemType = base:normal,
+        Weight = 3.0,
+        Icon = leather/LeatherHide_Horse_AppaloosaGrullaBlanket,
+        WorldStaticModel = Leather_Horse_AppaloosaGrullaBlanket_Medium,
+        Tags = base:leatherfurtannedmedium,
+    }
+    item HorseLeather_AppaloosaGrullaBlanket_Fur_Tan_Small
+    {
+        DisplayCategory = Material,
+        ItemType = base:normal,
+        Weight = 1.0,
+        Icon = leather/LeatherHide_Horse_AppaloosaGrullaBlanket,
+        WorldStaticModel = Leather_Horse_AppaloosaGrullaBlanket_Small,
+        Tags = base:leatherfurtannedsmall,
+    }
+    model Leather_Horse_AppaloosaGrullaBlanket
+    {
+        mesh = WorldItems/Leather_Rolled,
+        texture = WorldItems/Leathers/LeatherRolled_Horse_AppaloosaGrullaBlanket,
+        scale = 0.1,
+    }
+    model Leather_Horse_AppaloosaGrullaBlanket_Medium
+    {
+        mesh = WorldItems/Leather_Rolled,
+        texture = WorldItems/Leathers/LeatherRolled_Horse_AppaloosaGrullaBlanket,
+        scale = 0.08,
+    }
+    model Leather_Horse_AppaloosaGrullaBlanket_Small
+    {
+        mesh = WorldItems/Leather_Rolled,
+        texture = WorldItems/Leathers/LeatherRolled_Horse_AppaloosaGrullaBlanket,
+        scale = 0.055,
+    }
+
+
+/* Appaloosa Leopard */
+    item HorseLeather_AppaloosaLeopard_Full
+    {
+        DisplayCategory = Material,
+        ItemType = base:normal,
+        Weight = 5.0,
+        Icon = leather/LeatherHide_Horse_AppaloosaLeopard,
+        WorldStaticModel = Leather_Horse_AppaloosaLeopard,
+        Tags = base:leatherfulllarge,
+        Tooltip = Tooltip_Leather_SofteningBeam,
+    }
+    item HorseLeather_AppaloosaLeopard_Fur
+    {
+        DisplayCategory = Material,
+        ItemType = base:normal,
+        Weight = 5.0,
+        Icon = leather/LeatherHide_Horse_AppaloosaLeopard,
+        WorldStaticModel = Leather_Horse_AppaloosaLeopard,
+        Tags = base:leatherfurlarge,
+        Tooltip = Tooltip_Leather_TanninBarrel,
+    }
+    item HorseLeather_AppaloosaLeopard_Fur_Tan_Wet
+    {
+        DisplayCategory = Material,
+        ItemType = base:normal,
+        Weight = 5.0,
+        Icon = leather/LeatherHide_Horse_AppaloosaLeopard,
+        WorldStaticModel = Leather_Horse_AppaloosaLeopard,
+        Tags = base:leatherfurwetlarge,
+        Tooltip = Tooltip_Leather_DryingRack,
+    }
+    item HorseLeather_AppaloosaLeopard_Fur_Tan
+    {
+        DisplayCategory = Material,
+        ItemType = base:moveable,
+        Weight = 5.0,
+        Icon = leather/LeatherHide_Horse_AppaloosaLeopard,
+        WorldObjectSprite = rugs_animals_horse_216,
+        WorldStaticModel = Leather_Horse_AppaloosaLeopard,
+        Tags = base:leatherfurtannedlarge,
+    }
+    item HorseLeather_AppaloosaLeopard_Fur_Tan_Medium
+    {
+        DisplayCategory = Material,
+        ItemType = base:normal,
+        Weight = 3.0,
+        Icon = leather/LeatherHide_Horse_AppaloosaLeopard,
+        WorldStaticModel = Leather_Horse_AppaloosaLeopard_Medium,
+        Tags = base:leatherfurtannedmedium,
+    }
+    item HorseLeather_AppaloosaLeopard_Fur_Tan_Small
+    {
+        DisplayCategory = Material,
+        ItemType = base:normal,
+        Weight = 1.0,
+        Icon = leather/LeatherHide_Horse_AppaloosaLeopard,
+        WorldStaticModel = Leather_Horse_AppaloosaLeopard_Small,
+        Tags = base:leatherfurtannedsmall,
+    }
+    model Leather_Horse_AppaloosaLeopard
+    {
+        mesh = WorldItems/Leather_Rolled,
+        texture = WorldItems/Leathers/LeatherRolled_Horse_AppaloosaLeopard,
+        scale = 0.1,
+    }
+    model Leather_Horse_AppaloosaLeopard_Medium
+    {
+        mesh = WorldItems/Leather_Rolled,
+        texture = WorldItems/Leathers/LeatherRolled_Horse_AppaloosaLeopard,
+        scale = 0.08,
+    }
+    model Leather_Horse_AppaloosaLeopard_Small
+    {
+        mesh = WorldItems/Leather_Rolled,
+        texture = WorldItems/Leathers/LeatherRolled_Horse_AppaloosaLeopard,
+        scale = 0.055,
+    }
+
+
+/* Thoroughbred Bay */
+    item HorseLeather_ThoroughbredBay_Full
+    {
+        DisplayCategory = Material,
+        ItemType = base:normal,
+        Weight = 5.0,
+        Icon = leather/LeatherHide_Horse_ThoroughbredBay,
+        WorldStaticModel = Leather_Horse_ThoroughbredBay,
+        Tags = base:leatherfulllarge,
+        Tooltip = Tooltip_Leather_SofteningBeam,
+    }
+    item HorseLeather_ThoroughbredBay_Fur
+    {
+        DisplayCategory = Material,
+        ItemType = base:normal,
+        Weight = 5.0,
+        Icon = leather/LeatherHide_Horse_ThoroughbredBay,
+        WorldStaticModel = Leather_Horse_ThoroughbredBay,
+        Tags = base:leatherfurlarge,
+        Tooltip = Tooltip_Leather_TanninBarrel,
+    }
+    item HorseLeather_ThoroughbredBay_Fur_Tan_Wet
+    {
+        DisplayCategory = Material,
+        ItemType = base:normal,
+        Weight = 5.0,
+        Icon = leather/LeatherHide_Horse_ThoroughbredBay,
+        WorldStaticModel = Leather_Horse_ThoroughbredBay,
+        Tags = base:leatherfurwetlarge,
+        Tooltip = Tooltip_Leather_DryingRack,
+    }
+    item HorseLeather_ThoroughbredBay_Fur_Tan
+    {
+        DisplayCategory = Material,
+        ItemType = base:moveable,
+        Weight = 5.0,
+        Icon = leather/LeatherHide_Horse_ThoroughbredBay,
+        WorldObjectSprite = rugs_animals_horse_256,
+        WorldStaticModel = Leather_Horse_ThoroughbredBay,
+        Tags = base:leatherfurtannedlarge,
+    }
+    item HorseLeather_ThoroughbredBay_Fur_Tan_Medium
+    {
+        DisplayCategory = Material,
+        ItemType = base:normal,
+        Weight = 3.0,
+        Icon = leather/LeatherHide_Horse_ThoroughbredBay,
+        WorldStaticModel = Leather_Horse_ThoroughbredBay_Medium,
+        Tags = base:leatherfurtannedmedium,
+    }
+    item HorseLeather_ThoroughbredBay_Fur_Tan_Small
+    {
+        DisplayCategory = Material,
+        ItemType = base:normal,
+        Weight = 1.0,
+        Icon = leather/LeatherHide_Horse_ThoroughbredBay,
+        WorldStaticModel = Leather_Horse_ThoroughbredBay_Small,
+        Tags = base:leatherfurtannedsmall,
+    }
+    model Leather_Horse_ThoroughbredBay
+    {
+        mesh = WorldItems/Leather_Rolled,
+        texture = WorldItems/Leathers/LeatherRolled_Horse_ThoroughbredBay,
+        scale = 0.1,
+    }
+    model Leather_Horse_ThoroughbredBay_Medium
+    {
+        mesh = WorldItems/Leather_Rolled,
+        texture = WorldItems/Leathers/LeatherRolled_Horse_ThoroughbredBay,
+        scale = 0.08,
+    }
+    model Leather_Horse_ThoroughbredBay_Small
+    {
+        mesh = WorldItems/Leather_Rolled,
+        texture = WorldItems/Leathers/LeatherRolled_Horse_ThoroughbredBay,
+        scale = 0.055,
+    }
+
+
+/* Thoroughbred Flea-Bitten Grey */
+    item HorseLeather_ThoroughbredFleaBittenGrey_Full
+    {
+        DisplayCategory = Material,
+        ItemType = base:normal,
+        Weight = 5.0,
+        Icon = leather/LeatherHide_Horse_ThoroughbredFleaBittenGrey,
+        WorldStaticModel = Leather_Horse_ThoroughbredFleaBittenGrey,
+        Tags = base:leatherfulllarge,
+        Tooltip = Tooltip_Leather_SofteningBeam,
+    }
+    item HorseLeather_ThoroughbredFleaBittenGrey_Fur
+    {
+        DisplayCategory = Material,
+        ItemType = base:normal,
+        Weight = 5.0,
+        Icon = leather/LeatherHide_Horse_ThoroughbredFleaBittenGrey,
+        WorldStaticModel = Leather_Horse_ThoroughbredFleaBittenGrey,
+        Tags = base:leatherfurlarge,
+        Tooltip = Tooltip_Leather_TanninBarrel,
+    }
+    item HorseLeather_ThoroughbredFleaBittenGrey_Fur_Tan_Wet
+    {
+        DisplayCategory = Material,
+        ItemType = base:normal,
+        Weight = 5.0,
+        Icon = leather/LeatherHide_Horse_ThoroughbredFleaBittenGrey,
+        WorldStaticModel = Leather_Horse_ThoroughbredFleaBittenGrey,
+        Tags = base:leatherfurwetlarge,
+        Tooltip = Tooltip_Leather_DryingRack,
+    }
+    item HorseLeather_ThoroughbredFleaBittenGrey_Fur_Tan
+    {
+        DisplayCategory = Material,
+        ItemType = base:moveable,
+        Weight = 5.0,
+        Icon = leather/LeatherHide_Horse_ThoroughbredFleaBittenGrey,
+        WorldObjectSprite = rugs_animals_horse_296,
+        WorldStaticModel = Leather_Horse_ThoroughbredFleaBittenGrey,
+        Tags = base:leatherfurtannedlarge,
+    }
+    item HorseLeather_ThoroughbredFleaBittenGrey_Fur_Tan_Medium
+    {
+        DisplayCategory = Material,
+        ItemType = base:normal,
+        Weight = 3.0,
+        Icon = leather/LeatherHide_Horse_ThoroughbredFleaBittenGrey,
+        WorldStaticModel = Leather_Horse_ThoroughbredFleaBittenGrey_Medium,
+        Tags = base:leatherfurtannedmedium,
+    }
+    item HorseLeather_ThoroughbredFleaBittenGrey_Fur_Tan_Small
+    {
+        DisplayCategory = Material,
+        ItemType = base:normal,
+        Weight = 1.0,
+        Icon = leather/LeatherHide_Horse_ThoroughbredFleaBittenGrey,
+        WorldStaticModel = Leather_Horse_ThoroughbredFleaBittenGrey_Small,
+        Tags = base:leatherfurtannedsmall,
+    }
+    model Leather_Horse_ThoroughbredFleaBittenGrey
+    {
+        mesh = WorldItems/Leather_Rolled,
+        texture = WorldItems/Leathers/LeatherRolled_Horse_ThoroughbredFleaBittenGrey,
+        scale = 0.1,
+    }
+    model Leather_Horse_ThoroughbredFleaBittenGrey_Medium
+    {
+        mesh = WorldItems/Leather_Rolled,
+        texture = WorldItems/Leathers/LeatherRolled_Horse_ThoroughbredFleaBittenGrey,
+        scale = 0.08,
+    }
+    model Leather_Horse_ThoroughbredFleaBittenGrey_Small
+    {
+        mesh = WorldItems/Leather_Rolled,
+        texture = WorldItems/Leathers/LeatherRolled_Horse_ThoroughbredFleaBittenGrey,
+        scale = 0.055,
+    }
+
+/* Thoroughbred Cricket */
+    item HorseLeather_ThoroughbredCricket_Full
+    {
+        DisplayCategory = Material,
+        ItemType = base:normal,
+        Weight = 5.0,
+        Icon = leather/LeatherHide_Horse_ThoroughbredCricket,
+        WorldStaticModel = Leather_Horse_ThoroughbredCricket,
+        Tags = base:leatherfulllarge,
+        Tooltip = Tooltip_Leather_SofteningBeam,
+    }
+    item HorseLeather_ThoroughbredCricket_Fur
+    {
+        DisplayCategory = Material,
+        ItemType = base:normal,
+        Weight = 5.0,
+        Icon = leather/LeatherHide_Horse_ThoroughbredCricket,
+        WorldStaticModel = Leather_Horse_ThoroughbredCricket,
+        Tags = base:leatherfurlarge,
+        Tooltip = Tooltip_Leather_TanninBarrel,
+    }
+    item HorseLeather_ThoroughbredCricket_Fur_Tan_Wet
+    {
+        DisplayCategory = Material,
+        ItemType = base:normal,
+        Weight = 5.0,
+        Icon = leather/LeatherHide_Horse_ThoroughbredCricket,
+        WorldStaticModel = Leather_Horse_ThoroughbredCricket,
+        Tags = base:leatherfurwetlarge,
+        Tooltip = Tooltip_Leather_DryingRack,
+    }
+    item HorseLeather_ThoroughbredCricket_Fur_Tan
+    {
+        DisplayCategory = Material,
+        ItemType = base:moveable,
+        Weight = 5.0,
+        Icon = leather/LeatherHide_Horse_ThoroughbredCricket,
+        WorldObjectSprite = rugs_animals_horse_02_16,
+        WorldStaticModel = Leather_Horse_ThoroughbredCricket,
+        Tags = base:leatherfurtannedlarge,
+    }
+    item HorseLeather_ThoroughbredCricket_Fur_Tan_Medium
+    {
+        DisplayCategory = Material,
+        ItemType = base:normal,
+        Weight = 3.0,
+        Icon = leather/LeatherHide_Horse_ThoroughbredCricket,
+        WorldStaticModel = Leather_Horse_ThoroughbredCricket_Medium,
+        Tags = base:leatherfurtannedmedium,
+    }
+    item HorseLeather_ThoroughbredCricket_Fur_Tan_Small
+    {
+        DisplayCategory = Material,
+        ItemType = base:normal,
+        Weight = 1.0,
+        Icon = leather/LeatherHide_Horse_ThoroughbredCricket,
+        WorldStaticModel = Leather_Horse_ThoroughbredCricket_Small,
+        Tags = base:leatherfurtannedsmall,
+    }
+    model Leather_Horse_ThoroughbredCricket
+    {
+        mesh = WorldItems/Leather_Rolled,
+        texture = WorldItems/Leathers/LeatherRolled_Horse_ThoroughbredCricket,
+        scale = 0.1,
+    }
+    model Leather_Horse_ThoroughbredCricket_Medium
+    {
+        mesh = WorldItems/Leather_Rolled,
+        texture = WorldItems/Leathers/LeatherRolled_Horse_ThoroughbredCricket,
+        scale = 0.08,
+    }
+    model Leather_Horse_ThoroughbredCricket_Small
+    {
+        mesh = WorldItems/Leather_Rolled,
+        texture = WorldItems/Leathers/LeatherRolled_Horse_ThoroughbredCricket,
+        scale = 0.055,
+    }
+
+
+/* Thoroughbred Reverse Brindle */
+    item HorseLeather_ThoroughbredReverseBrindle_Full
+    {
+        DisplayCategory = Material,
+        ItemType = base:normal,
+        Weight = 5.0,
+        Icon = leather/LeatherHide_Horse_ThoroughbredReverseBrindle,
+        WorldStaticModel = Leather_Horse_ThoroughbredReverseBrindle,
+        Tags = base:leatherfulllarge,
+        Tooltip = Tooltip_Leather_SofteningBeam,
+    }
+    item HorseLeather_ThoroughbredReverseBrindle_Fur
+    {
+        DisplayCategory = Material,
+        ItemType = base:normal,
+        Weight = 5.0,
+        Icon = leather/LeatherHide_Horse_ThoroughbredReverseBrindle,
+        WorldStaticModel = Leather_Horse_ThoroughbredReverseBrindle,
+        Tags = base:leatherfurlarge,
+        Tooltip = Tooltip_Leather_TanninBarrel,
+    }
+    item HorseLeather_ThoroughbredReverseBrindle_Fur_Tan_Wet
+    {
+        DisplayCategory = Material,
+        ItemType = base:normal,
+        Weight = 5.0,
+        Icon = leather/LeatherHide_Horse_ThoroughbredReverseBrindle,
+        WorldStaticModel = Leather_Horse_ThoroughbredReverseBrindle,
+        Tags = base:leatherfurwetlarge,
+        Tooltip = Tooltip_Leather_DryingRack,
+    }
+    item HorseLeather_ThoroughbredReverseBrindle_Fur_Tan
+    {
+        DisplayCategory = Material,
+        ItemType = base:moveable,
+        Weight = 5.0,
+        Icon = leather/LeatherHide_Horse_ThoroughbredReverseBrindle,
+        WorldObjectSprite = rugs_animals_horse_02_136,
+        WorldStaticModel = Leather_Horse_ThoroughbredReverseBrindle,
+        Tags = base:leatherfurtannedlarge,
+    }
+    item HorseLeather_ThoroughbredReverseBrindle_Fur_Tan_Medium
+    {
+        DisplayCategory = Material,
+        ItemType = base:normal,
+        Weight = 3.0,
+        Icon = leather/LeatherHide_Horse_ThoroughbredReverseBrindle,
+        WorldStaticModel = Leather_Horse_ThoroughbredReverseBrindle_Medium,
+        Tags = base:leatherfurtannedmedium,
+    }
+    item HorseLeather_ThoroughbredReverseBrindle_Fur_Tan_Small
+    {
+        DisplayCategory = Material,
+        ItemType = base:normal,
+        Weight = 1.0,
+        Icon = leather/LeatherHide_Horse_ThoroughbredReverseBrindle,
+        WorldStaticModel = Leather_Horse_ThoroughbredReverseBrindle_Small,
+        Tags = base:leatherfurtannedsmall,
+    }
+    model Leather_Horse_ThoroughbredReverseBrindle
+    {
+        mesh = WorldItems/Leather_Rolled,
+        texture = WorldItems/Leathers/LeatherRolled_Horse_ThoroughbredReverseBrindle,
+        scale = 0.1,
+    }
+    model Leather_Horse_ThoroughbredReverseBrindle_Medium
+    {
+        mesh = WorldItems/Leather_Rolled,
+        texture = WorldItems/Leathers/LeatherRolled_Horse_ThoroughbredReverseBrindle,
+        scale = 0.08,
+    }
+    model Leather_Horse_ThoroughbredReverseBrindle_Small
+    {
+        mesh = WorldItems/Leather_Rolled,
+        texture = WorldItems/Leathers/LeatherRolled_Horse_ThoroughbredReverseBrindle,
+        scale = 0.055,
+    }
+
+
+/* Mustang Buckskin Dun */
+    item HorseLeather_MustangBuckskinDun_Full
+    {
+        DisplayCategory = Material,
+        ItemType = base:normal,
+        Weight = 5.0,
+        Icon = leather/LeatherHide_Horse_MustangBuckskinDun,
+        WorldStaticModel = Leather_Horse_MustangBuckskinDun,
+        Tags = base:leatherfulllarge,
+        Tooltip = Tooltip_Leather_SofteningBeam,
+    }
+    item HorseLeather_MustangBuckskinDun_Fur
+    {
+        DisplayCategory = Material,
+        ItemType = base:normal,
+        Weight = 5.0,
+        Icon = leather/LeatherHide_Horse_MustangBuckskinDun,
+        WorldStaticModel = Leather_Horse_MustangBuckskinDun,
+        Tags = base:leatherfurlarge,
+        Tooltip = Tooltip_Leather_TanninBarrel,
+    }
+    item HorseLeather_MustangBuckskinDun_Fur_Tan_Wet
+    {
+        DisplayCategory = Material,
+        ItemType = base:normal,
+        Weight = 5.0,
+        Icon = leather/LeatherHide_Horse_MustangBuckskinDun,
+        WorldStaticModel = Leather_Horse_MustangBuckskinDun,
+        Tags = base:leatherfurwetlarge,
+        Tooltip = Tooltip_Leather_DryingRack,
+    }
+    item HorseLeather_MustangBuckskinDun_Fur_Tan
+    {
+        DisplayCategory = Material,
+        ItemType = base:moveable,
+        Weight = 5.0,
+        Icon = leather/LeatherHide_Horse_MustangBuckskinDun,
+        WorldObjectSprite = rugs_animals_horse_02_176,
+        WorldStaticModel = Leather_Horse_MustangBuckskinDun,
+        Tags = base:leatherfurtannedlarge,
+    }
+    item HorseLeather_MustangBuckskinDun_Fur_Tan_Medium
+    {
+        DisplayCategory = Material,
+        ItemType = base:normal,
+        Weight = 3.0,
+        Icon = leather/LeatherHide_Horse_MustangBuckskinDun,
+        WorldStaticModel = Leather_Horse_MustangBuckskinDun_Medium,
+        Tags = base:leatherfurtannedmedium,
+    }
+    item HorseLeather_MustangBuckskinDun_Fur_Tan_Small
+    {
+        DisplayCategory = Material,
+        ItemType = base:normal,
+        Weight = 1.0,
+        Icon = leather/LeatherHide_Horse_MustangBuckskinDun,
+        WorldStaticModel = Leather_Horse_MustangBuckskinDun_Small,
+        Tags = base:leatherfurtannedsmall,
+    }
+    model Leather_Horse_MustangBuckskinDun
+    {
+        mesh = WorldItems/Leather_Rolled,
+        texture = WorldItems/Leathers/LeatherRolled_Horse_MustangBuckskinDun,
+        scale = 0.1,
+    }
+    model Leather_Horse_MustangBuckskinDun_Medium
+    {
+        mesh = WorldItems/Leather_Rolled,
+        texture = WorldItems/Leathers/LeatherRolled_Horse_MustangBuckskinDun,
+        scale = 0.08,
+    }
+    model Leather_Horse_MustangBuckskinDun_Small
+    {
+        mesh = WorldItems/Leather_Rolled,
+        texture = WorldItems/Leathers/LeatherRolled_Horse_MustangBuckskinDun,
+        scale = 0.055,
+    }
+
+
+/* Mustang Grulla Dun */
+    item HorseLeather_MustangGrullaDun_Full
+    {
+        DisplayCategory = Material,
+        ItemType = base:normal,
+        Weight = 5.0,
+        Icon = leather/LeatherHide_Horse_MustangGrullaDun,
+        WorldStaticModel = Leather_Horse_MustangGrullaDun,
+        Tags = base:leatherfulllarge,
+        Tooltip = Tooltip_Leather_SofteningBeam,
+    }
+    item HorseLeather_MustangGrullaDun_Fur
+    {
+        DisplayCategory = Material,
+        ItemType = base:normal,
+        Weight = 5.0,
+        Icon = leather/LeatherHide_Horse_MustangGrullaDun,
+        WorldStaticModel = Leather_Horse_MustangGrullaDun,
+        Tags = base:leatherfurlarge,
+        Tooltip = Tooltip_Leather_TanninBarrel,
+    }
+    item HorseLeather_MustangGrullaDun_Fur_Tan_Wet
+    {
+        DisplayCategory = Material,
+        ItemType = base:normal,
+        Weight = 5.0,
+        Icon = leather/LeatherHide_Horse_MustangGrullaDun,
+        WorldStaticModel = Leather_Horse_MustangGrullaDun,
+        Tags = base:leatherfurwetlarge,
+        Tooltip = Tooltip_Leather_DryingRack,
+    }
+    item HorseLeather_MustangGrullaDun_Fur_Tan
+    {
+        DisplayCategory = Material,
+        ItemType = base:moveable,
+        Weight = 5.0,
+        Icon = leather/LeatherHide_Horse_MustangGrullaDun,
+        WorldObjectSprite = rugs_animals_horse_02_216,
+        WorldStaticModel = Leather_Horse_MustangGrullaDun,
+        Tags = base:leatherfurtannedlarge,
+    }
+    item HorseLeather_MustangGrullaDun_Fur_Tan_Medium
+    {
+        DisplayCategory = Material,
+        ItemType = base:normal,
+        Weight = 3.0,
+        Icon = leather/LeatherHide_Horse_MustangGrullaDun,
+        WorldStaticModel = Leather_Horse_MustangGrullaDun_Medium,
+        Tags = base:leatherfurtannedmedium,
+    }
+    item HorseLeather_MustangGrullaDun_Fur_Tan_Small
+    {
+        DisplayCategory = Material,
+        ItemType = base:normal,
+        Weight = 1.0,
+        Icon = leather/LeatherHide_Horse_MustangGrullaDun,
+        WorldStaticModel = Leather_Horse_MustangGrullaDun_Small,
+        Tags = base:leatherfurtannedsmall,
+    }
+    model Leather_Horse_MustangGrullaDun
+    {
+        mesh = WorldItems/Leather_Rolled,
+        texture = WorldItems/Leathers/LeatherRolled_Horse_MustangGrullaDun,
+        scale = 0.1,
+    }
+    model Leather_Horse_MustangGrullaDun_Medium
+    {
+        mesh = WorldItems/Leather_Rolled,
+        texture = WorldItems/Leathers/LeatherRolled_Horse_MustangGrullaDun,
+        scale = 0.08,
+    }
+    model Leather_Horse_MustangGrullaDun_Small
+    {
+        mesh = WorldItems/Leather_Rolled,
+        texture = WorldItems/Leathers/LeatherRolled_Horse_MustangGrullaDun,
+        scale = 0.055,
+    }
+
+
+/* Camarillo White */
+    item HorseLeather_CamarilloWhite_Full
+    {
+        DisplayCategory = Material,
+        ItemType = base:normal,
+        Weight = 5.0,
+        Icon = leather/LeatherHide_Horse_CamarilloWhite,
+        WorldStaticModel = Leather_Horse_CamarilloWhite,
+        Tags = base:leatherfulllarge,
+        Tooltip = Tooltip_Leather_SofteningBeam,
+    }
+    item HorseLeather_CamarilloWhite_Fur
+    {
+        DisplayCategory = Material,
+        ItemType = base:normal,
+        Weight = 5.0,
+        Icon = leather/LeatherHide_Horse_CamarilloWhite,
+        WorldStaticModel = Leather_Horse_CamarilloWhite,
+        Tags = base:leatherfurlarge,
+        Tooltip = Tooltip_Leather_TanninBarrel,
+    }
+    item HorseLeather_CamarilloWhite_Fur_Tan_Wet
+    {
+        DisplayCategory = Material,
+        ItemType = base:normal,
+        Weight = 5.0,
+        Icon = leather/LeatherHide_Horse_CamarilloWhite,
+        WorldStaticModel = Leather_Horse_CamarilloWhite,
+        Tags = base:leatherfurwetlarge,
+        Tooltip = Tooltip_Leather_DryingRack,
+    }
+    item HorseLeather_CamarilloWhite_Fur_Tan
+    {
+        DisplayCategory = Material,
+        ItemType = base:moveable,
+        Weight = 5.0,
+        Icon = leather/LeatherHide_Horse_CamarilloWhite,
+        WorldObjectSprite = rugs_animals_horse_02_256,
+        WorldStaticModel = Leather_Horse_CamarilloWhite,
+        Tags = base:leatherfurtannedlarge,
+    }
+    item HorseLeather_CamarilloWhite_Fur_Tan_Medium
+    {
+        DisplayCategory = Material,
+        ItemType = base:normal,
+        Weight = 3.0,
+        Icon = leather/LeatherHide_Horse_CamarilloWhite,
+        WorldStaticModel = Leather_Horse_CamarilloWhite_Medium,
+        Tags = base:leatherfurtannedmedium,
+    }
+    item HorseLeather_CamarilloWhite_Fur_Tan_Small
+    {
+        DisplayCategory = Material,
+        ItemType = base:normal,
+        Weight = 1.0,
+        Icon = leather/LeatherHide_Horse_CamarilloWhite,
+        WorldStaticModel = Leather_Horse_CamarilloWhite_Small,
+        Tags = base:leatherfurtannedsmall,
+    }
+    model Leather_Horse_CamarilloWhite
+    {
+        mesh = WorldItems/Leather_Rolled,
+        texture = WorldItems/Leathers/LeatherRolled_Horse_CamarilloWhite,
+        scale = 0.1,
+    }
+    model Leather_Horse_CamarilloWhite_Medium
+    {
+        mesh = WorldItems/Leather_Rolled,
+        texture = WorldItems/Leathers/LeatherRolled_Horse_CamarilloWhite,
+        scale = 0.08,
+    }
+    model Leather_Horse_CamarilloWhite_Small
+    {
+        mesh = WorldItems/Leather_Rolled,
+        texture = WorldItems/Leathers/LeatherRolled_Horse_CamarilloWhite,
+        scale = 0.055,
+    }
+
+
+/* Rocky Mountain Liver Chestnut */
+    item HorseLeather_RockyMountainLiverChestnut_Full
+    {
+        DisplayCategory = Material,
+        ItemType = base:normal,
+        Weight = 5.0,
+        Icon = leather/LeatherHide_Horse_RockyMountainLiverChestnut,
+        WorldStaticModel = Leather_Horse_RockyMountainLiverChestnut,
+        Tags = base:leatherfulllarge,
+        Tooltip = Tooltip_Leather_SofteningBeam,
+    }
+    item HorseLeather_RockyMountainLiverChestnut_Fur
+    {
+        DisplayCategory = Material,
+        ItemType = base:normal,
+        Weight = 5.0,
+        Icon = leather/LeatherHide_Horse_RockyMountainLiverChestnut,
+        WorldStaticModel = Leather_Horse_RockyMountainLiverChestnut,
+        Tags = base:leatherfurlarge,
+        Tooltip = Tooltip_Leather_TanninBarrel,
+    }
+    item HorseLeather_RockyMountainLiverChestnut_Fur_Tan_Wet
+    {
+        DisplayCategory = Material,
+        ItemType = base:normal,
+        Weight = 5.0,
+        Icon = leather/LeatherHide_Horse_RockyMountainLiverChestnut,
+        WorldStaticModel = Leather_Horse_RockyMountainLiverChestnut,
+        Tags = base:leatherfurwetlarge,
+        Tooltip = Tooltip_Leather_DryingRack,
+    }
+    item HorseLeather_RockyMountainLiverChestnut_Fur_Tan
+    {
+        DisplayCategory = Material,
+        ItemType = base:moveable,
+        Weight = 5.0,
+        Icon = leather/LeatherHide_Horse_RockyMountainLiverChestnut,
+        WorldObjectSprite = rugs_animals_horse_02_296,
+        WorldStaticModel = Leather_Horse_RockyMountainLiverChestnut,
+        Tags = base:leatherfurtannedlarge,
+    }
+    item HorseLeather_RockyMountainLiverChestnut_Fur_Tan_Medium
+    {
+        DisplayCategory = Material,
+        ItemType = base:normal,
+        Weight = 3.0,
+        Icon = leather/LeatherHide_Horse_RockyMountainLiverChestnut,
+        WorldStaticModel = Leather_Horse_RockyMountainLiverChestnut_Medium,
+        Tags = base:leatherfurtannedmedium,
+    }
+    item HorseLeather_RockyMountainLiverChestnut_Fur_Tan_Small
+    {
+        DisplayCategory = Material,
+        ItemType = base:normal,
+        Weight = 1.0,
+        Icon = leather/LeatherHide_Horse_RockyMountainLiverChestnut,
+        WorldStaticModel = Leather_Horse_RockyMountainLiverChestnut_Small,
+        Tags = base:leatherfurtannedsmall,
+    }
+    model Leather_Horse_RockyMountainLiverChestnut
+    {
+        mesh = WorldItems/Leather_Rolled,
+        texture = WorldItems/Leathers/LeatherRolled_Horse_RockyMountainLiverChestnut,
+        scale = 0.1,
+    }
+    model Leather_Horse_RockyMountainLiverChestnut_Medium
+    {
+        mesh = WorldItems/Leather_Rolled,
+        texture = WorldItems/Leathers/LeatherRolled_Horse_RockyMountainLiverChestnut,
+        scale = 0.08,
+    }
+    model Leather_Horse_RockyMountainLiverChestnut_Small
+    {
+        mesh = WorldItems/Leather_Rolled,
+        texture = WorldItems/Leathers/LeatherRolled_Horse_RockyMountainLiverChestnut,
+        scale = 0.055,
+    }
+}

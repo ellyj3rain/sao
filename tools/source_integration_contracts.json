@@ -1,0 +1,393 @@
+{
+  "schema": "sao-source-integration-lineage/3",
+  "authority": {
+    "decisions": [
+      "DECISION_REGISTRY.md:1117 (DR-032)",
+      "DECISION_REGISTRY.md:335 (DR-035)",
+      "DECISION_REGISTRY.md:1781 (DR-051)"
+    ],
+    "claimAudit": "artifacts/audits/source-integration-lineage/claim-reconciliation.md",
+    "priorArt": "artifacts/audits/c89-native-capabilities/prior-art.json",
+    "claudeSession": "96f8350a-b694-418c-90bf-514ae17a52d4",
+    "claudeTranscriptSha256": "8c7c8d53a3b3bad558799da06efd03eac0b33840bd76f97fed2f2d069eb1ffab"
+  },
+  "ownedBaseline": [
+    {
+      "catalogRef": "age-and-development",
+      "status": "proven-implementation",
+      "capabilities": [
+        "age stages",
+        "elder physiology",
+        "child growth",
+        "literacy progression",
+        "age-shaped fear and learning"
+      ],
+      "evidence": [
+        {
+          "role": "producer",
+          "path": "mod/42.20/media/lua/shared/SAO_History.lua",
+          "anchor": "heightScaleOf"
+        },
+        {
+          "role": "consumer",
+          "path": "mod/42.20/media/lua/client/SAO_Age.lua",
+          "anchor": "SAO.Age"
+        },
+        {
+          "role": "verification",
+          "path": "tools/age_test.py",
+          "anchor": "AGE"
+        }
+      ],
+      "provenImplementation": "Claude C29-C31 and later owned extensions: selected age, body-scale, elder-physiology and child-development mechanisms.",
+      "knownGaps": [
+        "The listed implementation is proven; source-specific nightmares, staged grief, cooking penalties and driving milestones are not proven by the historical implementation."
+      ]
+    },
+    {
+      "catalogRef": "cognitive-and-health-conditions",
+      "status": "proven-implementation",
+      "capabilities": [
+        "memory decay",
+        "neurodiverse conditions",
+        "mental-health effects",
+        "chronic infirmity representation"
+      ],
+      "evidence": [
+        {
+          "role": "producer",
+          "path": "mod/42.20/media/lua/shared/SAO_Conditions.lua",
+          "anchor": "SAO.Conditions"
+        },
+        {
+          "role": "consumer",
+          "path": "mod/42.20/media/lua/shared/SAO_Perception.lua",
+          "anchor": "personal memory conditions scale it"
+        },
+        {
+          "role": "verification",
+          "path": "tools/conditions_test.py",
+          "anchor": "CONDITIONS"
+        }
+      ],
+      "provenImplementation": "Claude C32/C39 and later owned extensions: selected memory, cognition, mental-health and chronic-condition mechanisms.",
+      "knownGaps": [
+        "Reference-only or rejected whole-mod behavior is not proven by catalogue mention."
+      ]
+    },
+    {
+      "catalogRef": "substances-and-dependence",
+      "status": "proven-implementation",
+      "capabilities": [
+        "native drug items",
+        "dose outcomes",
+        "withdrawal",
+        "dependence",
+        "private capability experience"
+      ],
+      "evidence": [
+        {
+          "role": "producer",
+          "path": "mod/42.20/media/lua/shared/SAO_Pharmacology.lua",
+          "anchor": "SAO.Pharmacology"
+        },
+        {
+          "role": "consumer",
+          "path": "mod/42.20/media/lua/client/SAO_CapabilityExperience.lua",
+          "anchor": "onNativeOutcome"
+        },
+        {
+          "role": "verification",
+          "path": "tools/pharmacology_test.py",
+          "anchor": "Owned pharmacology"
+        }
+      ],
+      "provenImplementation": "Claude C33/C47 and C89: selected substance families, native dose effects, dependence, withdrawal and private experience.",
+      "knownGaps": [
+        "Native players without an SAO record are not yet owned for native players without an SAO record; autonomous selection and loaded prevalence remain separate evidence questions."
+      ]
+    },
+    {
+      "catalogRef": "social-and-life-animation",
+      "status": "proven-implementation",
+      "capabilities": [
+        "conversation gestures",
+        "seated life",
+        "music and dance",
+        "serving and CPR animation bindings"
+      ],
+      "evidence": [
+        {
+          "role": "producer",
+          "path": "mod/42.20/media/lua/client/SAO_Gesture.lua",
+          "anchor": "SAO.Gesture"
+        },
+        {
+          "role": "consumer",
+          "path": "mod/42.20/media/lua/shared/SAO_ProceduralPlanning.lua",
+          "anchor": "planLeisure"
+        },
+        {
+          "role": "verification",
+          "path": "tools/gestures_test.py",
+          "anchor": "GESTURE"
+        }
+      ],
+      "provenImplementation": "Claude C35 and later permitted extensions: selected animation and sound assets with SAO-owned bindings.",
+      "knownGaps": [
+        "The selected art and bindings do not claim ownership of the broader Lifestyle hobby, item or skill systems."
+      ]
+    },
+    {
+      "catalogRef": "horse-life-and-mobility",
+      "status": "proven-implementation",
+      "capabilities": [
+        "mounted travel",
+        "horse ownership",
+        "horse care",
+        "mount and dismount",
+        "riding collision and stamina",
+        "autonomous mounted travel"
+      ],
+      "provenImplementation": "Horse team physical assets and execution plus SAO route, cognition, persistence and observation integration.",
+      "evidence": [
+        {
+          "role": "producer",
+          "path": "mod/42.20/media/lua/shared/HorseMod/riding/RidingMovement.lua",
+          "anchor": "function RidingMovement:update"
+        },
+        {
+          "role": "consumer",
+          "path": "mod/42.20/media/lua/client/SAO_Animals.lua",
+          "anchor": "function A.orderTravel"
+        },
+        {
+          "role": "verification",
+          "path": "tools/animal_care_ground_test.py",
+          "anchor": "source-owned horse assets"
+        }
+      ],
+      "knownGaps": []
+    }
+  ],
+  "support": [
+    {
+      "catalogRef": "damnlib",
+      "studyRole": "support",
+      "status": "external-support-only"
+    },
+    {
+      "catalogRef": "NeatUI_Framework",
+      "studyRole": "support",
+      "status": "external-support-only"
+    }
+  ],
+  "comparisonToOwned": [
+    {
+      "catalogRef": "N&CsNarcotics",
+      "studyRole": "comparison-evidence",
+      "status": "comparison-evidence",
+      "rule": "Comparison evidence for an existing owned producer and any causal surface still missing around it; not a scope boundary."
+    }
+  ],
+  "principle": "The canonical SAO world ontology defines relevance through causal participation. This record preserves provenance, proven implementation and known gaps; it cannot exclude an asset, verb, state, relationship or consequence from integration scope.",
+  "recoveredIntegrationDirectives": [
+    {
+      "id": "mobile-household-continuity",
+      "catalogRefs": [
+        "PROJECTRVInterior42",
+        "KI5campers",
+        "KI5trailers",
+        "RollingRefuge"
+      ],
+      "state": "open",
+      "authority": "Operator direction that pertinent RV, camper and trailer life belongs in the source",
+      "rule": "This is a recovered implementation obligation and a non-exhaustive causal surface, not a boundary on what the world requires.",
+      "knownCausalSurface": [
+        "vehicle, camper and trailer world assets",
+        "enterable interior and transition verbs",
+        "household, occupant and inventory identity",
+        "motion and towing state transitions",
+        "survivor perception, place knowledge and planning",
+        "save and resume continuity",
+        "observable arrival, separation and failure outcomes"
+      ]
+    },
+    {
+      "id": "hobby-recreation-and-social-reward",
+      "catalogRefs": [
+        "LifestyleHobbies"
+      ],
+      "state": "open",
+      "authority": "Operator direction for planned and impromptu hobbies, recreation, social participation and rewards",
+      "rule": "This is a recovered implementation obligation and a non-exhaustive causal surface, not a boundary on what the world requires.",
+      "knownCausalSurface": [
+        "usable items, instruments and spatial affordances",
+        "participation verbs and animations",
+        "hobby knowledge and skill progression",
+        "planned and impromptu participation",
+        "co-participant perception and coordination",
+        "social, emotional and physical outcomes",
+        "persistence and private observation"
+      ]
+    }
+  ],
+  "domainEvidenceSources": [
+    {
+      "catalogRef": "B42Survival",
+      "studyRole": "domain-evidence",
+      "status": "domain-evidence",
+      "rule": "Evidence source inside the canonical life domain. Its catalogue role records study use and does not limit the ontology or implementation scope."
+    },
+    {
+      "catalogRef": "B42Horticulture",
+      "studyRole": "domain-evidence",
+      "status": "domain-evidence",
+      "rule": "Evidence source inside the canonical life domain. Its catalogue role records study use and does not limit the ontology or implementation scope."
+    },
+    {
+      "catalogRef": "Waterpipes",
+      "studyRole": "domain-evidence",
+      "status": "domain-evidence",
+      "rule": "Evidence source inside the canonical life domain. Its catalogue role records study use and does not limit the ontology or implementation scope."
+    },
+    {
+      "catalogRef": "WaterPipesBasementWater",
+      "studyRole": "domain-evidence",
+      "status": "domain-evidence",
+      "rule": "Evidence source inside the canonical life domain. Its catalogue role records study use and does not limit the ontology or implementation scope."
+    },
+    {
+      "catalogRef": "LGExtendedElectricity",
+      "studyRole": "domain-evidence",
+      "status": "domain-evidence",
+      "rule": "Evidence source inside the canonical life domain. Its catalogue role records study use and does not limit the ontology or implementation scope."
+    },
+    {
+      "catalogRef": "LGRealisticPowerUsage",
+      "studyRole": "domain-evidence",
+      "status": "domain-evidence",
+      "rule": "Evidence source inside the canonical life domain. Its catalogue role records study use and does not limit the ontology or implementation scope."
+    },
+    {
+      "catalogRef": "LGExtendedPlumbing",
+      "studyRole": "domain-evidence",
+      "status": "domain-evidence",
+      "rule": "Evidence source inside the canonical life domain. Its catalogue role records study use and does not limit the ontology or implementation scope."
+    },
+    {
+      "catalogRef": "PIP",
+      "studyRole": "domain-evidence",
+      "status": "domain-evidence",
+      "rule": "Evidence source inside the canonical life domain. Its catalogue role records study use and does not limit the ontology or implementation scope."
+    },
+    {
+      "catalogRef": "PSR",
+      "studyRole": "domain-evidence",
+      "status": "domain-evidence",
+      "rule": "Evidence source inside the canonical life domain. Its catalogue role records study use and does not limit the ontology or implementation scope."
+    },
+    {
+      "catalogRef": "PWS",
+      "studyRole": "domain-evidence",
+      "status": "domain-evidence",
+      "rule": "Evidence source inside the canonical life domain. Its catalogue role records study use and does not limit the ontology or implementation scope."
+    },
+    {
+      "catalogRef": "PUR",
+      "studyRole": "domain-evidence",
+      "status": "domain-evidence",
+      "rule": "Evidence source inside the canonical life domain. Its catalogue role records study use and does not limit the ontology or implementation scope."
+    },
+    {
+      "catalogRef": "PSC",
+      "studyRole": "domain-evidence",
+      "status": "domain-evidence",
+      "rule": "Evidence source inside the canonical life domain. Its catalogue role records study use and does not limit the ontology or implementation scope."
+    },
+    {
+      "catalogRef": "FoodDrying",
+      "studyRole": "domain-evidence",
+      "status": "domain-evidence",
+      "rule": "Evidence source inside the canonical life domain. Its catalogue role records study use and does not limit the ontology or implementation scope."
+    },
+    {
+      "catalogRef": "Makedriedfruit",
+      "studyRole": "domain-evidence",
+      "status": "domain-evidence",
+      "rule": "Evidence source inside the canonical life domain. Its catalogue role records study use and does not limit the ontology or implementation scope."
+    },
+    {
+      "catalogRef": "SKITTLE_LongTermPreservation4220",
+      "studyRole": "domain-evidence",
+      "status": "domain-evidence",
+      "rule": "Evidence source inside the canonical life domain. Its catalogue role records study use and does not limit the ontology or implementation scope."
+    },
+    {
+      "catalogRef": "VanillaCraftableFoods",
+      "studyRole": "domain-evidence",
+      "status": "domain-evidence",
+      "rule": "Evidence source inside the canonical life domain. Its catalogue role records study use and does not limit the ontology or implementation scope."
+    },
+    {
+      "catalogRef": "ServingPlates42",
+      "studyRole": "domain-evidence",
+      "status": "domain-evidence",
+      "rule": "Evidence source inside the canonical life domain. Its catalogue role records study use and does not limit the ontology or implementation scope."
+    },
+    {
+      "catalogRef": "Project_Cook",
+      "studyRole": "domain-evidence",
+      "status": "domain-evidence",
+      "rule": "Evidence source inside the canonical life domain. Its catalogue role records study use and does not limit the ontology or implementation scope."
+    }
+  ],
+  "knownOpenObligations": [
+    {
+      "id": "mobile-household-continuity",
+      "state": "open",
+      "authority": "Recovered prior source-integration intent",
+      "missing": [
+        "vehicle, camper and trailer world assets",
+        "enterable interior and transition verbs",
+        "household, occupant and inventory identity",
+        "motion and towing state transitions",
+        "survivor perception, place knowledge and planning",
+        "save and resume continuity",
+        "observable arrival, separation and failure outcomes"
+      ]
+    },
+    {
+      "id": "hobby-recreation-social-reward",
+      "state": "open",
+      "authority": "Recovered prior source-integration intent",
+      "missing": [
+        "usable items, instruments and spatial affordances",
+        "participation verbs and animations",
+        "hobby knowledge and skill progression",
+        "planned and impromptu participation",
+        "co-participant perception and coordination",
+        "social, emotional and physical outcomes",
+        "persistence and private observation"
+      ]
+    },
+    {
+      "id": "player-owned-pharmacology",
+      "state": "open",
+      "authority": "C89 prior-art remainingPriority 2",
+      "missing": [
+        "native human-player physiology owner outside an SAO record"
+      ]
+    },
+    {
+      "id": "native-action-outcome-receipts",
+      "state": "open",
+      "authority": "C89 prior-art remainingPriority 3",
+      "missing": [
+        "completed care, craft, build and repair outcomes",
+        "individual private observation of success or failure",
+        "planner feedback from exact outcomes"
+      ]
+    }
+  ]
+}

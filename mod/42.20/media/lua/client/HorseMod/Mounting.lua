@@ -1,0 +1,139 @@
+---@namespace HorseMod
+
+---REQUIREMENTS
+local MountAction = require("HorseMod/TimedActions/MountAction")
+local DismountAction = require("HorseMod/TimedActions/DismountAction")
+local UrgentDismountAction = require("HorseMod/TimedActions/UrgentDismountAction")
+local Attachments = require("HorseMod/attachments/Attachments")
+local MountingUtility = require("HorseMod/mounting/MountingUtility")
+local AnimationVariable = require('HorseMod/definitions/AnimationVariable')
+local HorseSounds = require("HorseMod/HorseSounds")
+
+
+
+local Mounting = {}
+-- local mountPosition = MountingUtility.getNearestMountPosition(player, horse)
+
+---@param player IsoPlayer
+---@param horse IsoAnimal
+---@param mountPosition MountPosition
+function Mounting.mountHorse(player, horse, mountPosition)
+    if not MountingUtility.canMountHorse(player, horse) then
+        return
+    end
+
+    --- start by detaching the player from the horse if they are already attached
+    if horse:getData():getAttachedPlayer() then
+        AnimalContextMenu.onDetachAnimal(horse, player)
+    end
+
+    --- pathfind to the mount position
+    local pathfindAction = MountingUtility.pathfindToHorse(player, horse, mountPosition)
+
+    -- unequip items from hands
+    local primaryItem = player:getPrimaryHandItem()
+    local secondaryItem = player:getSecondaryHandItem()
+    if primaryItem and primaryItem:getFullType() ~= "Base.Rope" then
+        ISTimedActionQueue.add(ISUnequipAction:new(player, primaryItem, 50));
+    end
+    if secondaryItem and secondaryItem ~= primaryItem and secondaryItem:getFullType() ~= "Base.Rope" then
+        ISTimedActionQueue.add(ISUnequipAction:new(player, secondaryItem, 50));
+    end
+
+    -- create mount action
+    local hasSaddle = Attachments.getSaddle(horse) ~= nil
+    local mountAction = MountAction:new(
+        player,
+        horse,
+        mountPosition,
+        hasSaddle
+    )
+
+    ---@FIXME replace this temporary action handoff with an explicit mount-position update
+    -- patch to update to last known mount position
+    function pathfindAction:perform()
+        mountAction.mountPosition = self.mountPosition
+        local PathfindToMountPoint = require("HorseMod/TimedAction/PathfindToMountPoint")
+        return PathfindToMountPoint.perform(self)
+    end
+
+    ISTimedActionQueue.add(mountAction)
+end
+
+---@param horse IsoAnimal
+---@param player IsoPlayer
+---@param mountPosition MountPosition
+function Mounting.dismountHorse(player, horse, mountPosition)
+    -- dismount
+    local hasSaddle = Attachments.getSaddle(horse) ~= nil
+    local action = DismountAction:new(
+        player,
+        horse,
+        mountPosition,
+        hasSaddle
+    )
+
+    ISTimedActionQueue.add(action)
+end
+
+---@param player IsoPlayer
+---@return boolean
+function Mounting.canDismountUrgent(player)
+    -- prevent multiple urgent dismount actions
+    local queue = ISTimedActionQueue.getTimedActionQueue(player)
+    local actionIndex = queue:indexOfType(UrgentDismountAction.Type)
+    if actionIndex >= 0 then
+        return false
+    end
+    return true
+end
+
+---@param player IsoPlayer
+---@param horse IsoAnimal
+function Mounting.dismountDeath(player, horse)
+    if not Mounting.canDismountUrgent(player) then return end
+
+    ISTimedActionQueue.clear(player)
+    ISTimedActionQueue.add(UrgentDismountAction:new(
+        player,
+        horse,
+        AnimationVariable.DYING,
+        nil,
+        "PainFromFallLow",
+        true
+    ))
+end
+
+---@param player IsoPlayer
+---@param horse IsoAnimal
+function Mounting.dismountFall(player, horse)
+    if not Mounting.canDismountUrgent(player) then return end
+
+    ISTimedActionQueue.clear(player)
+    ISTimedActionQueue.add(UrgentDismountAction:new(
+        player,
+        horse,
+        nil,
+        HorseSounds.Sound.STRESSED,
+        nil,
+        true
+    ))
+end
+
+---@param player IsoPlayer
+---@param horse IsoAnimal
+function Mounting.dismountFallBack(player, horse)
+    if not Mounting.canDismountUrgent(player) then return end
+
+    ISTimedActionQueue.clear(player)
+    ISTimedActionQueue.add(UrgentDismountAction:new(
+        player,
+        horse,
+        AnimationVariable.FALL_BACK,
+        HorseSounds.Sound.PAIN,
+        "PainFromFallHigh",
+        true
+    ))
+end
+
+return Mounting

@@ -346,6 +346,41 @@ function P.planLeisure(id, context)
     return purpose, purpose.steps[purpose.cursor]
 end
 
+function P.planHorseTravel(id, context)
+    context = type(context) == "table" and context or {}
+    local animalId = tostring(context.animalId or "unknown")
+    local purpose = P.maintain(id, { key = "horse-travel:" .. animalId,
+        objective = "reach the destination with horse " .. animalId,
+        domain = "mobility", origin = "route-demand", atHours = context.atHours })
+    if not purpose then return nil, "person-unavailable" end
+    local blockers = {}
+    if context.known ~= true then blockers[#blockers + 1] = "horse-not-known" end
+    if context.mountable ~= true then blockers[#blockers + 1] = "horse-not-mountable" end
+    local available = #blockers == 0 and "available" or "blocked"
+    local steps = {
+        { id = "approach-horse", verb = "move", owner = "HorseMount",
+            status = available, token = "horse:reached", target = animalId },
+        { id = "mount-horse", verb = "mount", owner = "HorseMount",
+            status = "dependent", token = "horse:mounted", target = animalId },
+        { id = "ride-route", verb = "ride", owner = "HorseTravel",
+            status = "dependent", token = "route:arrived",
+            target = context.destinationKey or "destination" },
+        { id = "dismount-horse", verb = "dismount", owner = "HorseMount",
+            status = "dependent", token = "horse:dismounted", target = animalId },
+    }
+    local direct = { id = "ride-known-horse", evidence = context.known and 0.9 or 0.1,
+        continuity = 0.9, novelty = 0.2, informationGain = 0.2,
+        blockers = #blockers }
+    local investigate = { id = "inspect-horse", evidence = context.known and 0.2 or 0.7,
+        continuity = 0.3, novelty = 0.8, informationGain = 0.9,
+        blockers = context.mountable and 0 or 1 }
+    setPlan(purpose, steps, blockers, interpretations(id, { direct, investigate },
+        { domain = "mobility", pressure = tonumber(context.pressure) or 0.4 }),
+        finite(context.atHours) and context.atHours or nowHours())
+    purpose.animalId, purpose.destinationKey = animalId, context.destinationKey
+    return purpose, purpose.steps[purpose.cursor]
+end
+
 function P.chooseFallback(id, situation)
     if type(situation) ~= "table" or type(situation.position) ~= "table"
         or type(situation.threat) ~= "table" then return nil end

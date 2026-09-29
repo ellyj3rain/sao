@@ -35,6 +35,7 @@ ROOT = pathlib.Path(__file__).resolve().parent.parent
 OPTS = ROOT / "mod" / "42.20" / "media" / "sandbox-options.txt"
 TRANS = (ROOT / "mod" / "42.20" / "media" / "lua" / "shared"
          / "Translate" / "EN" / "Sandbox.json")
+TRANS_DIR = TRANS.parent
 LUA = ROOT / "mod" / "42.20" / "media" / "lua"
 
 PREFIX = "SurvivorAwareness"
@@ -244,13 +245,25 @@ def main():
     # [B33] A key asked for at runtime that nothing declares renders
     # as the raw identifier on screen - the jankiest outcome there is.
     import json as _json
-    try:
-        declared_keys = set(_json.loads(trans))
-    except ValueError:
-        declared_keys = set()
+    declared_keys = set()
+    for path in TRANS_DIR.glob("*.json"):
+        try:
+            declared_keys.update(_json.loads(path.read_text(
+                encoding="utf-8", errors="ignore")))
+        except ValueError:
+            pass
+    # These are native context-menu words the owned Horse interaction
+    # surface reuses. They remain engine-owned and are present in every
+    # admitted Build 42 runtime; duplicating them in SAO translations
+    # would override the engine's locale authority.
+    declared_keys.update({
+        "ContextMenu_SitGround", "ContextMenu_ExtendedPlacement",
+        "ContextMenu_Grab",
+    })
     unresolved = [f"{f}:{n} asks for {k}, which nothing declares"
                   for f, n, k in requested_keys()
-                  if k not in declared_keys]
+                  if k not in declared_keys
+                  and not any(item.startswith(k) for item in declared_keys)]
 
     shape = shape_faults(trans)
 

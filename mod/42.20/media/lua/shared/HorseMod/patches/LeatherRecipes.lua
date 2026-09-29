@@ -1,0 +1,152 @@
+---REQUIREMENTS
+local HorseUtils = require("HorseMod/Utils")
+
+--[[
+Patches the leather cutting recipe to allow horse leathers as input materials.
+The item mappers of this recipe are handled in the `scripts/HorseMod/patches/leathers.txt` file.
+]]
+local LeatherRecipes = {
+    ---The list of horse and foal leathers full types to add to the recipe.
+    LEATHERS = {
+    -- Horse leathers
+        -- American Paint
+        "HorseMod.HorseLeather_AmericanPaintOvero_Fur_Tan",
+        "HorseMod.HorseLeather_AmericanPaintOvero_Fur_Tan_Medium",
+        "HorseMod.HorseLeather_AmericanPaintTobiano_Fur_Tan",
+        "HorseMod.HorseLeather_AmericanPaintTobiano_Fur_Tan_Medium",
+
+        -- American Quarter
+        "HorseMod.HorseLeather_AmericanQuarterBlueRoan_Fur_Tan",
+        "HorseMod.HorseLeather_AmericanQuarterBlueRoan_Fur_Tan_Medium",
+        "HorseMod.HorseLeather_AmericanQuarterPalomino_Fur_Tan",
+        "HorseMod.HorseLeather_AmericanQuarterPalomino_Fur_Tan_Medium",
+        "HorseMod.HorseLeather_AmericanQuarterStrawberryRoan_Fur_Tan",
+        "HorseMod.HorseLeather_AmericanQuarterStrawberryRoan_Fur_Tan_Medium",
+        "HorseMod.HorseLeather_AmericanQuarterSealBay_Fur_Tan",
+        "HorseMod.HorseLeather_AmericanQuarterSealBay_Fur_Tan_Medium",
+
+        -- Appaloosa
+        "HorseMod.HorseLeather_AppaloosaGrullaBlanket_Fur_Tan",
+        "HorseMod.HorseLeather_AppaloosaGrullaBlanket_Fur_Tan_Medium",
+        "HorseMod.HorseLeather_AppaloosaLeopard_Fur_Tan",
+        "HorseMod.HorseLeather_AppaloosaLeopard_Fur_Tan_Medium",
+
+        -- Thoroughbred
+        "HorseMod.HorseLeather_ThoroughbredBay_Fur_Tan",
+        "HorseMod.HorseLeather_ThoroughbredBay_Fur_Tan_Medium",
+        "HorseMod.HorseLeather_ThoroughbredFleaBittenGrey_Fur_Tan",
+        "HorseMod.HorseLeather_ThoroughbredFleaBittenGrey_Fur_Tan_Medium",
+        "HorseMod.HorseLeather_ThoroughbredCricket_Fur_Tan",
+        "HorseMod.HorseLeather_ThoroughbredCricket_Fur_Tan_Medium",
+        "HorseMod.HorseLeather_ThoroughbredReverseBrindle_Fur_Tan",
+        "HorseMod.HorseLeather_ThoroughbredReverseBrindle_Fur_Tan_Medium",
+
+        -- Mustang
+        "HorseMod.HorseLeather_MustangBuckskinDun_Fur_Tan",
+        "HorseMod.HorseLeather_MustangBuckskinDun_Fur_Tan_Medium",
+        "HorseMod.HorseLeather_MustangGrullaDun_Fur_Tan",
+        "HorseMod.HorseLeather_MustangGrullaDun_Fur_Tan_Medium",
+
+        -- Camarillo
+        "HorseMod.HorseLeather_CamarilloWhite_Fur_Tan",
+        "HorseMod.HorseLeather_CamarilloWhite_Fur_Tan_Medium",
+
+        -- Rocky Mountain
+        "HorseMod.HorseLeather_RockyMountainLiverChestnut_Fur_Tan",
+        "HorseMod.HorseLeather_RockyMountainLiverChestnut_Fur_Tan_Medium",
+
+
+    -- Foal leathers
+        -- American Paint
+        "HorseMod.FoalLeather_AmericanPaintOvero_Fur_Tan",
+        "HorseMod.FoalLeather_AmericanPaintOvero_Fur_Tan_Small",
+        "HorseMod.FoalLeather_AmericanPaintTobiano_Fur_Tan",
+        "HorseMod.FoalLeather_AmericanPaintTobiano_Fur_Tan_Small",
+
+        -- American Quarter
+        "HorseMod.FoalLeather_AmericanQuarterBlueRoan_Fur_Tan",
+        "HorseMod.FoalLeather_AmericanQuarterBlueRoan_Fur_Tan_Small",
+        "HorseMod.FoalLeather_AmericanQuarterPalomino_Fur_Tan",
+        "HorseMod.FoalLeather_AmericanQuarterPalomino_Fur_Tan_Small",
+        "HorseMod.FoalLeather_AmericanQuarterStrawberryRoan_Fur_Tan",
+        "HorseMod.FoalLeather_AmericanQuarterStrawberryRoan_Fur_Tan_Small",
+        "HorseMod.FoalLeather_AmericanQuarterSealBay_Fur_Tan",
+        "HorseMod.FoalLeather_AmericanQuarterSealBay_Fur_Tan_Small",
+
+        -- Appaloosa
+        "HorseMod.FoalLeather_AppaloosaGrullaBlanket_Fur_Tan",
+        "HorseMod.FoalLeather_AppaloosaGrullaBlanket_Fur_Tan_Small",
+        "HorseMod.FoalLeather_AppaloosaLeopard_Fur_Tan",
+        "HorseMod.FoalLeather_AppaloosaLeopard_Fur_Tan_Small",
+
+        -- Thoroughbred
+        "HorseMod.FoalLeather_ThoroughbredBay_Fur_Tan",
+        "HorseMod.FoalLeather_ThoroughbredBay_Fur_Tan_Small",
+        "HorseMod.FoalLeather_ThoroughbredFleaBittenGrey_Fur_Tan",
+        "HorseMod.FoalLeather_ThoroughbredFleaBittenGrey_Fur_Tan_Small",
+        "HorseMod.FoalLeather_ThoroughbredCricket_Fur_Tan",
+        "HorseMod.FoalLeather_ThoroughbredCricket_Fur_Tan_Small",
+        "HorseMod.FoalLeather_ThoroughbredReverseBrindle_Fur_Tan",
+        "HorseMod.FoalLeather_ThoroughbredReverseBrindle_Fur_Tan_Small",
+
+        -- Mustang
+        "HorseMod.FoalLeather_MustangBuckskinDun_Fur_Tan",
+        "HorseMod.FoalLeather_MustangBuckskinDun_Fur_Tan_Small",
+        "HorseMod.FoalLeather_MustangGrullaDun_Fur_Tan",
+        "HorseMod.FoalLeather_MustangGrullaDun_Fur_Tan_Small",
+
+        -- Camarillo
+        "HorseMod.FoalLeather_CamarilloWhite_Fur_Tan",
+        "HorseMod.FoalLeather_CamarilloWhite_Fur_Tan_Small",
+
+        -- Rocky Mountain
+        "HorseMod.FoalLeather_RockyMountainLiverChestnut_Fur_Tan",
+        "HorseMod.FoalLeather_RockyMountainLiverChestnut_Fur_Tan_Small",
+    },
+
+    ---The item full type used to identify the specific recipe input to patch.
+    IDENTIFIER_ITEM = "Base.Leather_Crude_Large",
+}
+
+---An example of input identification function. Checks if the input contains an item with a specific full type, which is usually enough to identify it.
+---@param input InputScript
+---@param loadedItems List<string>
+---@return boolean
+LeatherRecipes.identifyInput = function(input, loadedItems)
+    if loadedItems:contains(LeatherRecipes.IDENTIFIER_ITEM) then return true end
+    return false
+end
+
+---Function used to patch a recipe by adding new items to one of its inputs. Uses a `testInput` function to identify the correct input to add items to.
+---@param recipeID string
+---@param testInput fun(input: InputScript, loadedItems: List<string>): boolean
+---@param itemsToAdd string[]
+LeatherRecipes.patchRecipe = function(recipeID, testInput, itemsToAdd)
+    -- retrieve the recipe informations
+    local craftRecipe = getScriptManager():getCraftRecipe(recipeID)
+    local inputs = craftRecipe:getInputs()
+
+    for i = 0, inputs:size() - 1 do
+        -- retrieve the input and its script loaded items
+        local input = inputs:get(i)
+        local loadedItems = input:getItems()
+
+        -- check if the input passes the test function
+        if testInput(input, loadedItems) then
+            -- add the items to the input if not already present
+            for j = 1, #itemsToAdd do
+                local itemToAdd = itemsToAdd[j]
+                if not loadedItems:contains(itemToAdd) then
+                    loadedItems:add(itemToAdd)
+                end
+            end
+            return
+        end
+    end
+end
+
+Events.OnGameBoot.Add(function()
+    LeatherRecipes.patchRecipe("Base.CutLeatherInHalf", LeatherRecipes.identifyInput, LeatherRecipes.LEATHERS)
+end)
+
+return LeatherRecipes
