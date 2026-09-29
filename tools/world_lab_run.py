@@ -143,16 +143,20 @@ def prepare(package, destination, game, jdk, mod_paths, simulation_profile=None)
     return cache, user, agent, manifest, definition
 
 
-def terminal(log, attempt, save, hours, watch=False):
+def terminal(log, attempt, save, hours, watch=False, last_observed_hours=None):
     """Native start/horizon/return must occur once and in this order."""
     prefix = r"\[StudyLaunch\] "
     starts = list(Lab.re.finditer(prefix + r"started attempt=(\d+) save=(\S+) hours=([\d.eE+-]+)", log))
     ends = list(Lab.re.finditer(prefix + r"horizon attempt=(\d+) save=(\S+) start=([\d.eE+-]+) end=([\d.eE+-]+)", log))
     returned = list(Lab.re.finditer(prefix + r"native-save-returned attempt=(\d+)", log))
     budgets = list(Lab.re.finditer(prefix + r"wall-limit attempt=(\d+) save=(\S+) start=([\d.eE+-]+) end=([\d.eE+-]+)", log))
+    supervisors = list(Lab.re.finditer(prefix + r"supervisor-stop attempt=(\d+) save=(\S+) start=([\d.eE+-]+) end=([\d.eE+-]+) reason=([A-Za-z0-9][A-Za-z0-9._-]{0,79})", log))
+    legacy_supervisors = list(Lab.re.finditer(prefix + r"supervisor-stop attempt=(\d+) reason=([A-Za-z0-9][A-Za-z0-9._-]{0,79})", log))
     if watch:
         stops = list(Lab.re.finditer(r"\[StudyObserver\] stop hours=([\d.eE+-]+)", log))
-        Lab.require(len(starts) == len(stops) + len(budgets) == len(returned) == 1 and not ends,
+        Lab.require(len(starts) == len(returned) == 1
+                    and len(stops) + len(budgets) + len(supervisors) + len(legacy_supervisors) == 1
+                    and not ends,
                     "native observer stop receipt missing or duplicated")
         if budgets:
             start, end, saved = starts[0], budgets[0], returned[0]
@@ -164,6 +168,33 @@ def terminal(log, attempt, save, hours, watch=False):
             Lab.number(last, first, 1e9, "terminal hours")
             return {"startHours": first, "endHours": last, "nativeSaveReturned": True,
                     "stopReason": "wall-time-limit"}
+        if supervisors:
+            start, stop, saved = starts[0], supervisors[0], returned[0]
+            first, last = float(start[3]), float(stop[4])
+            Lab.require(int(start[1]) == int(stop[1]) == int(saved[1]) == attempt
+                        and start[2] == stop[2] == save and float(stop[3]) == first
+                        and start.start() < stop.start() < saved.start(),
+                        "native supervisor-stop identity or order differs")
+            Lab.number(first, 0, 1e9, "start hours")
+            Lab.number(last, first, 1e9, "terminal hours")
+            return {"startHours": first, "endHours": last, "nativeSaveReturned": True,
+                    "stopReason": stop[5], "receiptFormat": "supervisor-stop/2"}
+        if legacy_supervisors:
+            start, stop, saved = starts[0], legacy_supervisors[0], returned[0]
+            frames = [match for match in Lab.re.finditer(
+                r"\[StudyWorld\] frame=(\d+) hours=([\d.eE+-]+)", log)
+                if start.start() < match.start() < stop.start()]
+            Lab.require(last_observed_hours is not None and frames,
+                        "legacy supervisor-stop lacks a bound final observation")
+            first, last = float(start[3]), float(frames[-1][2])
+            Lab.require(int(start[1]) == int(stop[1]) == int(saved[1]) == attempt
+                        and start[2] == save and start.start() < frames[-1].start() < stop.start() < saved.start()
+                        and abs(last - float(last_observed_hours)) <= 1e-9,
+                        "legacy supervisor-stop identity, observation or order differs")
+            Lab.number(first, 0, 1e9, "start hours")
+            Lab.number(last, first, 1e9, "terminal hours")
+            return {"startHours": first, "endHours": last, "nativeSaveReturned": True,
+                    "stopReason": stop[2], "receiptFormat": "supervisor-stop/1-recovered"}
         start, stop, saved = starts[0], stops[0], returned[0]
         first, last = float(start[3]), float(stop[1])
         Lab.require(int(start[1]) == int(saved[1]) == attempt and start[2] == save
@@ -328,6 +359,80 @@ def observer_evidence(destination, receipt=None):
                       for p in (state_path, view_path, image_path)}, "state": state, "viewport": view}
 
 
+def repair_terminal_run(destination, package):
+    """Reclassify one narrowly known legacy stop receipt without rerunning it.
+
+    The legacy launcher omitted save and clock identity from supervisor-stop.
+    Recovery is allowed only when every retained input, output, log, save and
+    observation still verifies and the missing terminal receipt is the run's
+    sole error. No behavioral or dataset standing changes.
+    """
+    destination = Path(destination).resolve()
+    manifest, definition = Lab.verify_package(package)
+    receipt = Lab.load(destination / "run.json")
+    Lab.require(receipt.get("schema") == "sao-study-run/1"
+                and receipt.get("status") == "incomplete"
+                and receipt.get("datasetAdmission") == "unreviewed"
+                and receipt.get("exitCode") == 0 and receipt.get("watch") is True
+                and receipt.get("host") == "observer"
+                and receipt.get("packageSha256") == Lab.seal(manifest)
+                and receipt.get("runtimeErrors") == ["native observer stop receipt missing or duplicated"],
+                "run is not the recoverable legacy terminal case")
+    supervision = receipt.get("supervision", {})
+    Lab.require(supervision.get("forced") is False and supervision.get("failure") is None,
+                "failed or forced run cannot be recovered")
+    cache = destination / "cache"
+    verify_inputs(cache, destination / "StudyLoadingAgent.jar", receipt)
+    Lab.require(native_lots_evidence(cache / "mods", definition) == receipt.get("mapDependency"),
+                "native lots dependency evidence differs")
+    verify_native_images(cache, receipt)
+    Lab.require(observer_evidence(destination, receipt) == receipt.get("observerEvidence"),
+                "sealed observer evidence differs")
+    attempt = destination / "attempts" / f"{receipt['launchNumber']:04d}"
+    Lab.require(set(receipt.get("logs", {})) == {"stdout.log", "stderr.log"}, "log inventory differs")
+    for name, expected in receipt["logs"].items():
+        Lab.require(digest(attempt / name) == expected, "run log differs")
+    log = (attempt / "stdout.log").read_text(encoding="utf-8", errors="replace")
+    errors = (attempt / "stderr.log").read_text(encoding="utf-8", errors="replace")
+    Lab.require(not runtime_errors(log, errors), "runtime error in legacy run logs")
+    for section, boundary in (("saveFiles", cache / "Saves"), ("observations", cache / "Lua/StudyWorld")):
+        Lab.require(receipt.get(section), "empty run inventory")
+        for relative, expected in receipt[section].items():
+            path = (cache / relative).resolve()
+            Lab.require(path.is_relative_to(boundary) and path.is_file() and digest(path) == expected,
+                        "run artifact differs: " + relative)
+    Lab.require({p.relative_to(cache).as_posix() for p in (cache / "Saves").rglob("*") if p.is_file()}
+                == set(receipt["saveFiles"]), "save inventory differs")
+    observations = sorted(cache / relative for relative in receipt["observations"])
+    Lab.require(len({path.parent for path in observations}) == 1
+                and set(observations[0].parent.glob("*.json")) == set(observations),
+                "observation inventory differs")
+    inspection = Lab.inspect_frames(observations[0].parent, package)
+    Lab.require(inspection == receipt.get("inspection"), "run inspection differs")
+    last = Lab.load(observations[-1])
+    Lab.require(receipt.get("observationFiles") == len(observations)
+                and receipt.get("lastSequence") == last["sequence"]
+                and receipt.get("lastHours") == last["hours"]
+                and receipt.get("save") == last["save"], "observation report differs")
+    checked = terminal(log, receipt["launchNumber"], receipt["save"], receipt["hours"], True,
+                       receipt["lastHours"])
+    Lab.require(checked.get("receiptFormat") == "supervisor-stop/1-recovered",
+                "run does not contain a recoverable legacy supervisor receipt")
+    Lab.require(checked["endHours"] - last["hours"] <= definition["observation"]["everyHours"] + 1e-6,
+                "observation stopped before terminal")
+    for path in observations:
+        frame = Lab.load(path)
+        Lab.require(set(frame["mods"]) == set(receipt["mods"])
+                    and checked["startHours"] <= frame["hours"] <= checked["endHours"],
+                    "native observation differs from recovered run")
+    repaired = dict(receipt)
+    repaired.update(status="completed", terminal=checked, runtimeErrors=[])
+    repaired["player"] = saved_state(cache, repaired, definition)
+    publish(attempt / "report.json", repaired)
+    publish(destination / "run.json", repaired)
+    return verify_run(destination, package)
+
+
 def verify_run(destination, package):
     destination = Path(destination).resolve()
     manifest, definition = Lab.verify_package(package)
@@ -359,7 +464,8 @@ def verify_run(destination, package):
     for name, expected in receipt["logs"].items():
         Lab.require(name in ("stdout.log", "stderr.log") and digest(attempt / name) == expected, "run log differs")
     checked = terminal((attempt / "stdout.log").read_text(encoding="utf-8", errors="replace"),
-                       receipt["launchNumber"], receipt["save"], receipt["hours"], receipt.get("watch", False))
+                       receipt["launchNumber"], receipt["save"], receipt["hours"],
+                       receipt.get("watch", False), receipt["lastHours"])
     Lab.require(checked == receipt["terminal"], "terminal report differs")
     Lab.require(not runtime_errors(*( (attempt / name).read_text(encoding="utf-8", errors="replace")
                                      for name in ("stdout.log", "stderr.log"))), "runtime error in closed logs")
@@ -537,7 +643,8 @@ def run(args):
             receipt["inspection"] = Lab.inspect_frames(observations[0].parent, args.package)
             first, last = Lab.load(observations[0]), Lab.load(observations[-1])
             receipt.update(save=last["save"], lastSequence=last["sequence"], lastHours=last["hours"])
-            receipt["terminal"] = terminal(log, receipt["launchNumber"], last["save"], args.hours, args.watch)
+            receipt["terminal"] = terminal(log, receipt["launchNumber"], last["save"], args.hours,
+                                            args.watch, last["hours"])
             receipt["player"] = saved_state(cache, receipt, definition)
             Lab.require(receipt["terminal"]["endHours"] - last["hours"]
                         <= definition["observation"]["everyHours"] + 1e-6, "observation stopped before horizon")
@@ -572,6 +679,8 @@ def main():
     parser.add_argument("package", type=Path)
     parser.add_argument("--out", required=True, type=Path)
     parser.add_argument("--verify", action="store_true", help="verify a completed run without launching")
+    parser.add_argument("--repair-terminal", action="store_true",
+                        help="recover the one verified legacy supervisor-stop receipt shape")
     parser.add_argument("--game", type=Path)
     parser.add_argument("--jdk", type=Path)
     parser.add_argument("--mod", action="append", default=[], type=Path)
@@ -596,6 +705,10 @@ def main():
     parser.add_argument("--timeout", type=int, default=3600,
                         help="wall-time limit in seconds for every run, including --watch (default: 3600)")
     args = parser.parse_args()
+    Lab.require(not (args.verify and args.repair_terminal), "select one verification action")
+    if args.repair_terminal:
+        print(json.dumps(repair_terminal_run(args.out, args.package), allow_nan=False))
+        return 0
     if args.verify:
         print(json.dumps(verify_run(args.out, args.package), allow_nan=False))
         return 0

@@ -16,9 +16,9 @@ the machine. Names, dates, and threads below come from
 | Form | `major.minor.kohai.patch-maturity` |
 | Hard caps | minor 12; kohai 16; patch 24 |
 | Replay start | `0.1.0.0-pre-alpha` |
-| Current version | `3.7.0.1-pre-alpha` |
-| Closed chronology | `A1-C100` |
-| Next batch | `C101` |
+| Current version | `3.7.1.0-pre-alpha` |
+| Closed chronology | `A1-C101` |
+| Next batch | `C102` |
 | Executable source | [`tools/version_replay.py`](tools/version_replay.py) |
 
 ## Tier meanings
@@ -216,6 +216,7 @@ the machine. Names, dates, and threads below come from
 | `C98` | 2026-09-28 | minor | `3.6.0.0-pre-alpha` | Owned horse life and mounted mobility | Source-integrate the complete Horse team physical implementation and assets, then join native route waypoints, autonomous mounted input, person-private planning, durable rider-animal identity and Mousecat observation. This creates owned horse life and mounted mobility as a new player-visible simulation capability, so minor. |
 | `C99` | 2026-09-28 | minor | `3.7.0.0-pre-alpha` | Mobile household continuity | Introduce native-backed mobile households: persistent moving-place identity, occupants and stores, towing and exterior-anchor continuity, physical RV-room entry and exit, private spatial planning, overnight use and Mousecat observation across camper, trailer and motorhome assets. This is a new player-visible life and mobility contract, so minor. |
 | `C100` | 2026-09-29 | patch | `3.7.0.1-pre-alpha` | Mobile household loaded acceptance | Repair current-engine mobile-household execution against the actual vehicle Set and part APIs, preserve distinct exterior and remote-interior positions across representation changes, and close the existing physical-room obligation with a retained Build 42.21 receipt. This corrects and verifies the C99 capability without moving its boundary, so patch. |
+| `C101` | 2026-09-29 | kohai | `3.7.1.0-pre-alpha` | Study terminal and human review handoff | Mature the durable study contract with exact supervisor terminal identity, narrow revalidation of the legacy receipt, saved-state recovery, terminal Mousecat projection and immediate human disposition of verified competing-cognition outcomes. This connects existing study, evidence and review owners without adding gameplay or dataset authority, so kohai. |
 
 ## The former number
 
@@ -236,11 +237,11 @@ establish release maturity.
 
 ## Next movement
 
-`C101` is the next batch. Its content determines its tier after it
+`C102` is the next batch. Its content determines its tier after it
 exists:
 
-| If C101 is | Result |
+| If C102 is | Result |
 |---|---|
-| patch or hotfix | `3.7.0.2-pre-alpha` |
-| kohai | `3.7.1.0-pre-alpha` |
+| patch or hotfix | `3.7.1.1-pre-alpha` |
+| kohai | `3.7.2.0-pre-alpha` |
 | minor | `3.8.0.0-pre-alpha` |

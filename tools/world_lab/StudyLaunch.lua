@@ -97,7 +97,11 @@ local function wallLimit()
             reader:close()
             if reason then
                 finished = true
-                print("[StudyLaunch] supervisor-stop attempt=" .. RunConfig.attempt .. " reason=" .. tostring(reason))
+                print("[StudyLaunch] supervisor-stop attempt=" .. RunConfig.attempt
+                    .. " save=" .. getWorld():getWorld()
+                    .. " start=" .. tostring(started)
+                    .. " end=" .. tostring(getGameTime():getWorldAgeHours())
+                    .. " reason=" .. tostring(reason))
                 getCore():quitToDesktop()
             end
         end

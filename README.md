@@ -38,9 +38,18 @@ on the simulation.
 
 ## Status
 
-`3.7.0.1-pre-alpha` - the coordinate is computed by the version machine
+`3.7.1.0-pre-alpha` - the coordinate is computed by the version machine
 (`tools/version_replay.py`), never picked; `VERSION_MAP.md` shows the
 classification and the arithmetic.
+
+C101 closes the native study terminal-handoff defect. Exact supervisor receipts
+and bounded legacy revalidation restore the retained attempt as a saved session
+at world hour 2.2500314712524414, with a fixed terminal Mousecat frame and
+continuation available. Verified saved attempts now place completed competing-
+cognition disagreements into durable immediate human review. The first retained
+corpus exposes 15 completed outcomes in two actor trajectories while 1,348
+episodes without observed outcomes remain sequestered. The handoff creates no
+training rows, teaching targets or dataset admission.
 
 C99 makes campers, trailers and motorhomes legible to the same survivor model
 as buildings and ordinary vehicles. A moving place keeps one durable identity,

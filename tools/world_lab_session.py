@@ -160,6 +160,49 @@ def stop_process(process):
         process.kill(); process.wait(timeout=10)
 
 
+def recover_failed_save(state_path: Path, state, receipt):
+    """Restore control only after the native validator has closed the run."""
+    if state["status"] != "failed":
+        Lab.require(state["status"] == "saved", "reload requires a normally saved session")
+        return state
+    Lab.require(receipt.get("status") == "completed" and receipt.get("exitCode") == 0
+                and not receipt.get("runtimeErrors") and receipt.get("terminal"),
+                "failed session has no verified native save")
+    terminal = receipt["terminal"]
+    elapsed = max(0, terminal["endHours"] - terminal["startHours"])
+    return save_state(state_path, state, status="saved", canCheckpoint=False, canContinue=True,
+                      worldHours=receipt["lastHours"],
+                      accumulatedWorldHours=state["accumulatedWorldHours"] + elapsed,
+                      lastStopReason=terminal.get("stopReason", "saved"))
+
+
+def wait_for_terminal_projection(feed: Path, native_session: str, study_id: str,
+                                 expected_status: str, timeout=5):
+    """Let the bridge publish the terminal session state before it is reaped."""
+    deadline = time.monotonic() + timeout
+    while True:
+        try:
+            value = Lab.load(feed / "latest.json")
+            study = value.get("study", {})
+            if (value.get("schema") == "mousecat.native-view/1"
+                    and value.get("sessionId") == native_session
+                    and value.get("state") == "ended"
+                    and study.get("id") == study_id
+                    and study.get("status") == expected_status):
+                return True
+        except (OSError, ValueError, KeyError, TypeError):
+            pass
+        if time.monotonic() >= deadline:
+            return False
+        time.sleep(0.05)
+
+
+def attempt_review_outbox(root: Path, attempt: int) -> Path:
+    """Keep terminal evidence and its delivery receipt bound to one attempt."""
+    Lab.integer(attempt, 1, 2**31 - 1, "review attempt")
+    return root / "review" / f"{attempt:04d}"
+
+
 def runner_command(args, resume, duration):
     command = [sys.executable, str(Path(__file__).with_name("world_lab_run.py")), str(args.package),
                "--out", str(args.out / "native-run"), "--game", str(args.game), "--jdk", str(args.jdk),
@@ -180,12 +223,15 @@ def runner_command(args, resume, duration):
     return command
 
 
-def watcher_command(args, feed: Path, state_path: Path, commands: Path):
+def watcher_command(args, feed: Path, state_path: Path, commands: Path, attempt: int):
     command = [sys.executable, str(args.watcher), "--run", str(args.out / "native-run"),
                "--package", str(args.package), "--out", str(feed),
                "--registry", str(args.registry), "--view-id", args.view_id,
                "--label", args.label, "--session-state", str(state_path),
-               "--session-commands", str(commands)]
+               "--session-commands", str(commands),
+               "--sao-validator", str(Path(__file__).with_name("world_lab_run.py")),
+               "--review-outbox", str(attempt_review_outbox(args.out, attempt)),
+               "--review-endpoint", args.review_endpoint]
     if args.project_ref:
         command.extend(("--project-ref", args.project_ref))
     return command
@@ -195,7 +241,7 @@ def start_watcher(args, state_path, commands, state):
     state["feedGeneration"] += 1
     save_state(state_path, state)
     feed = args.out / "feeds" / f"{state['feedGeneration']:04d}"
-    return subprocess.Popen(watcher_command(args, feed, state_path, commands))
+    return subprocess.Popen(watcher_command(args, feed, state_path, commands, state["attempt"])), feed
 
 
 def supervise(args):
@@ -208,8 +254,9 @@ def supervise(args):
     state_path, commands = args.out / "study-session.json", args.out / "session-commands"
     if state_path.exists():
         state = public_state(Lab.load(state_path))
-        Lab.require((args.out / "native-run/run.json").exists(), "saved session has no native run")
-        Lab.require(state["status"] == "saved", "reload requires a normally saved session")
+        receipt_path = args.out / "native-run/run.json"
+        Lab.require(receipt_path.exists(), "saved session has no native run")
+        state = recover_failed_save(state_path, state, Lab.load(receipt_path))
         save_state(state_path, state,
                    attemptDurationSeconds=(args.duration if args.duration is not None
                                            else state["attemptDurationSeconds"]),
@@ -230,7 +277,7 @@ def supervise(args):
             native_session = (Lab.load(args.out / "native-run/run.json")["sessionId"]
                               if resume else None)
             if state["status"] == "saved":
-                watcher = start_watcher(args, state_path, commands, state)
+                watcher, feed = start_watcher(args, state_path, commands, state)
                 while True:
                     if apply_commands(commands, state_path, state, native_session):
                         save_state(state_path, state, status="continuing", canContinue=False)
@@ -248,7 +295,7 @@ def supervise(args):
             native_session = receipt["sessionId"]
             state["attempt"] = receipt["launchNumber"]
             save_state(state_path, state, status="running", canCheckpoint=True, canContinue=False)
-            watcher = start_watcher(args, state_path, commands, state)
+            watcher, feed = start_watcher(args, state_path, commands, state)
             while runner.poll() is None:
                 apply_commands(commands, state_path, state, native_session)
                 time.sleep(0.1)
@@ -257,6 +304,8 @@ def supervise(args):
             if code != 0 or receipt.get("status") != "completed":
                 save_state(state_path, state, status="failed", canCheckpoint=False, canContinue=False,
                            lastStopReason=receipt.get("status", "runner-failed"))
+                if not wait_for_terminal_projection(feed, native_session, state["id"], "failed"):
+                    print("world_lab_session: terminal projection was not acknowledged", file=sys.stderr)
                 return code or 1
             terminal = receipt["terminal"]
             elapsed = max(0, terminal["endHours"] - terminal["startHours"])
@@ -309,6 +358,8 @@ def main():
                         help="Mousecat native-view registry")
     parser.add_argument("--view-id", default="survival-observatory")
     parser.add_argument("--label", default="Survival simulation")
+    parser.add_argument("--review-endpoint", default="http://127.0.0.1:4317/mcp",
+                        help="Mousecat MCP endpoint for immediate terminal review handoff")
     parser.add_argument("--project-ref")
     parser.add_argument("--duration", type=int,
                         help="wall seconds per native attempt (default: 3600)")

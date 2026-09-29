@@ -1,6 +1,6 @@
 | Document | Survivor Awareness Overhaul Findings |
 |---|---|
-| Version | `3.7.0.1-pre-alpha` |
+| Version | `3.7.1.0-pre-alpha` |
 | Author | ellyj3rain |
 | Repository | `FINDINGS.md` |
 | Status | CANONICAL, APPEND-ONLY - verified engine findings. |
@@ -17,7 +17,7 @@ Verification source unless stated otherwise: `javap` against the installed
 
 ---
 
-## F-001 â€” The NPC flag's setter and getter live on different classes
+## F-001 Ã¢â‚¬â€ The NPC flag's setter and getter live on different classes
 
 **Claim.** `setNpc(boolean)` is declared on `zombie.characters.IsoPlayer`.
 `isNpc()` is not; it is declared on `zombie.characters.IsoGameCharacter` and
@@ -34,7 +34,7 @@ missing-method failure at runtime rather than at authoring time.
 
 ---
 
-## F-002 â€” `AIComponent` is an ECS component under `zombie.characters.component`
+## F-002 Ã¢â‚¬â€ `AIComponent` is an ECS component under `zombie.characters.component`
 
 **Claim.** The class is `zombie.characters.component.AIComponent`, and it extends
 `zombie.characters.ecs.ECSComponent`. It is not under `zombie.ai`.
@@ -51,7 +51,7 @@ which is the enumeration path.
 
 ---
 
-## F-003 â€” The NPC control seam is an input channel, not a goal channel
+## F-003 Ã¢â‚¬â€ The NPC control seam is an input channel, not a goal channel
 
 **Claim.** `AIComponent.getHumanControlVars()` returns
 `zombie.ai.AIBrainPlayerControlVars`, whose entire public surface is:
@@ -64,7 +64,7 @@ float   strafeX, strafeY
 There is no destination, path, or goal field. Movement is expressed as analog
 axis values applied per update.
 
-**Verification.** `javap zombie.ai.AIBrainPlayerControlVars` â€” the class is
+**Verification.** `javap zombie.ai.AIBrainPlayerControlVars` Ã¢â‚¬â€ the class is
 `final` and declares exactly the eight public fields above plus a default
 constructor. `AIComponent` additionally declares
 `doUpdatePlayerControls(IsoPlayer)`, `postUpdatePlayer(IsoPlayer)`, `update()`,
@@ -82,7 +82,7 @@ established. Treated as a hypothesis until tested.
 
 ---
 
-## F-004 â€” `IsoPlayer` exposes three usable constructors
+## F-004 Ã¢â‚¬â€ `IsoPlayer` exposes three usable constructors
 
 **Claim.**
 
@@ -100,7 +100,7 @@ survivor at its recorded square rather than at a default.
 
 ---
 
-## F-005 â€” Real spawn-region tables are reachable from shipped Lua
+## F-005 Ã¢â‚¬â€ Real spawn-region tables are reachable from shipped Lua
 
 **Claim.** `SpawnRegionMgr.getSpawnRegions()` is defined in shipped game Lua and
 returns the loaded region tables.
@@ -115,7 +115,7 @@ world property instead of a refill effect.
 
 ---
 
-## F-006 â€” `IsoPlayer` carries a static player table and an explicit local-player setter
+## F-006 Ã¢â‚¬â€ `IsoPlayer` carries a static player table and an explicit local-player setter
 
 **Claim.** `public static final IsoPlayer[] players`, `public static void
 setLocalPlayer(int, IsoPlayer)`, `public static int numPlayers`.
@@ -123,27 +123,27 @@ setLocalPlayer(int, IsoPlayer)`, `public static int numPlayers`.
 **Verification.** `javap zombie.characters.IsoPlayer`, static member listing.
 
 **Depends on this.** NPC bodies occupy player slots. Slot handling is therefore a
-correctness concern for the primary player, not an internal detail â€” construction
+correctness concern for the primary player, not an internal detail Ã¢â‚¬â€ construction
 must not disturb the local player's slot.
 
 ---
 
-## F-007 â€” Route production is separable from state-machine consumption, by design
+## F-007 Ã¢â‚¬â€ Route production is separable from state-machine consumption, by design
 
 **Claim.** `zombie.pathfind.PathFindBehavior2` is independently drivable and its
 output is readable without entering any engine walk state. The full contract:
 
-- **Request** â€” `pathToLocationF(float,float,float)` (plus `pathToCharacter`,
+- **Request** Ã¢â‚¬â€ `pathToLocationF(float,float,float)` (plus `pathToCharacter`,
   `pathToSound`, vehicle/furniture/corpse goal forms, and
-  `pathToNearestTable(KahluaTable)` â€” a Lua-table overload, so route requests are
+  `pathToNearestTable(KahluaTable)` Ã¢â‚¬â€ a Lua-table overload, so route requests are
   Lua-callable by the engine's own design).
-- **Poll** â€” `public BehaviorResult update()` returning `Working | Failed |
+- **Poll** Ã¢â‚¬â€ `public BehaviorResult update()` returning `Working | Failed |
   Succeeded` (the enum's only three values).
-- **Follow** â€” the live next waypoint is exposed as public fields:
+- **Follow** Ã¢â‚¬â€ the live next waypoint is exposed as public fields:
   `pathNextIsSet`, `pathNextX`, `pathNextY`. The computed route is also readable
-  node-by-node: `getPath2()` â†’ `zombie.pathfind.Path` with `size()`,
+  node-by-node: `getPath2()` Ã¢â€ â€™ `zombie.pathfind.Path` with `size()`,
   `getNode(int)`, `length()`.
-- **Teardown** â€” `cancel()`, `reset()`.
+- **Teardown** Ã¢â‚¬â€ `cancel()`, `reset()`.
 
 **Verification.** `javap` listings of `zombie.pathfind.PathFindBehavior2`,
 `zombie.pathfind.PathFindBehavior2$BehaviorResult`, and `zombie.pathfind.Path`
@@ -160,7 +160,7 @@ control channel and the pathfinder from fighting over the body.
 
 ---
 
-## F-008 â€” Desc creation and body removal are verified; Lua-side construction is the G1 test
+## F-008 Ã¢â‚¬â€ Desc creation and body removal are verified; Lua-side construction is the G1 test
 
 **Claim.** `SurvivorFactory.CreateSurvivor()` is static, returns `SurvivorDesc`,
 and is Lua-callable. `removeFromWorld()` / `removeFromSquare()` exist on the
@@ -178,15 +178,15 @@ tree finds no `IsoPlayer.new` call anywhere.
 is built so that its only untested line is the constructor call itself. Every
 other call it makes is a recorded finding. If the constructor is unreachable from
 Kahlua, the probe logs that verdict cleanly and the construction seam moves to
-the Java side â€” a bounded design change, not a debugging session.
+the Java side Ã¢â‚¬â€ a bounded design change, not a debugging session.
 
 ---
 
-## F-009 â€” B21's renderer refuses a bare non-local IsoPlayer; a subclass draws
+## F-009 Ã¢â‚¬â€ B21's renderer refuses a bare non-local IsoPlayer; a subclass draws
 
 **Claim.** An `IsoPlayer` constructed at runtime that is not a local player is
 excluded from rendering by an exact-class filter. A subclass of `IsoPlayer` is
-not excluded. Rendering NPC bodies therefore requires a Java-defined subclass â€”
+not excluded. Rendering NPC bodies therefore requires a Java-defined subclass Ã¢â‚¬â€
 unreachable from Kahlua, which cannot define Java classes.
 
 **Verification.** Two independent lines. (1) Live runs: a Lua-constructed body

@@ -1,6 +1,6 @@
 | Document | Survivor Awareness Overhaul Architecture |
 |---|---|
-| Version | `3.7.0.1-pre-alpha` |
+| Version | `3.7.1.0-pre-alpha` |
 | Author | ellyj3rain |
 | Repository | `ARCHITECTURE.md` |
 | Status | ACTIVE - ratified framework shape. |
@@ -17,22 +17,22 @@ memory; goals, planning and decisions; movement and interaction intent;
 relationships, orders and territory; and serialization of all of the above.
 
 Project Zomboid owns the active engine representation and every world mechanic
-that can be reused safely — pathfinding, animation, inventory, timed actions,
+that can be reused safely â€” pathfinding, animation, inventory, timed actions,
 combat resolution, `BodyDamage`.
 
 ## Runtime layers
 
-1. **Identity** — stable IDs and persistent human state, independent of any loaded
+1. **Identity** â€” stable IDs and persistent human state, independent of any loaded
    engine object.
-2. **World representation** — an engine body created only while its cell is active.
-3. **Perception** — what this survivor has observed, heard, been told, and still
+2. **World representation** â€” an engine body created only while its cell is active.
+3. **Perception** â€” what this survivor has observed, heard, been told, and still
    believes, with provenance and decay.
-4. **Controller** — converts goals into movement, combat and interaction intent.
+4. **Controller** â€” converts goals into movement, combat and interaction intent.
    One action owns the body at a time.
-5. **Actions** — executes player-valid operations through normal engine paths.
-6. **Simulation** — advances survivors outside loaded cells without keeping full
+5. **Actions** â€” executes player-valid operations through normal engine paths.
+6. **Simulation** â€” advances survivors outside loaded cells without keeping full
    engine objects alive.
-7. **Persistence** — saves owned state and reconstructs bodies safely.
+7. **Persistence** â€” saves owned state and reconstructs bodies safely.
 
 A mobile household has two simultaneous spatial facts. Its exterior vehicle is
 the durable place anchor used by memory, planning, dormant simulation and save
@@ -44,7 +44,7 @@ Entry and exit remain native transitions with recorded results.
 
 ## The four pillars
 
-### Perception — what is admitted
+### Perception â€” what is admitted
 
 A survivor decides on a private belief set, never on map truth. Every fact carries
 its origin (**observed**, **heard**, **told-by**, **inferred**) and a timestamp.
@@ -85,7 +85,7 @@ existing NPC mods: a decision function that reads the world directly, computes
 against geometry the agent could not know, and so is simultaneously omniscient
 about walls and oblivious about people.
 
-### Disposition — what is wanted
+### Disposition â€” what is wanted
 
 Nerve, discipline, aggression, initiative, trust, self-preservation. Disposition
 converts a belief set into a preference ordering under risk. It does not
@@ -96,7 +96,7 @@ precision and coordination. It does not license behavior outside the human
 envelope. A low-nerve survivor hesitates, withdraws early, and shoots badly. A
 low-nerve survivor does not walk into a doorway it believes is covered.
 
-### Standing — what is allowed
+### Standing â€” what is allowed
 
 Relationships, group membership, orders, territory claims, hostility state, and
 who may direct whom. Standing channels a preference into a permitted action. It
@@ -110,12 +110,12 @@ navigation reference. They confer no ownership. A move-in agreement can share
 ground the anchor actually holds; an unclaimed destination remains unclaimed.
 Deliberate claim actions and existing recorded claims retain their Standing owner.
 
-### Execution — what is done
+### Execution â€” what is done
 
 Movement, entry, combat, looting, work, treatment, withdrawal. Execution rides the
 engine: normal pathfinding, normal timed actions, normal combat resolution. It
 owns *how*, never *whether*. It does not consult global truth, personality, or
-relationships — those were already resolved upstream.
+relationships â€” those were already resolved upstream.
 
 Repeated threat decisions preserve an executing escape route while its current
 destination remains away from the privately believed threat, permitted and on
@@ -146,7 +146,7 @@ cold intervals do not earn sleep recovery.
 The behavior that motivated this project. A hostile survivor breaks an intact
 window to enter a house whose door stands open, climbs through, and stops.
 
-Under a single geometric cost function that outcome is not a bug — it is the
+Under a single geometric cost function that outcome is not a bug â€” it is the
 correct output of a model with no term for anything that matters. The composition
 produces a different decision because each pillar contributes what it owns:
 
@@ -159,7 +159,7 @@ produces a different decision because each pillar contributes what it owns:
 
 Both symmetric failures are excluded structurally. Widening the search until the
 door is always found is omniscience and is refused by Perception. Forbidding
-window-breaking outright is oblivion and is refused by Disposition — a survivor
+window-breaking outright is oblivion and is refused by Disposition â€” a survivor
 fleeing a horde *should* go through the glass.
 
 ## Verified engine surface
@@ -174,12 +174,12 @@ subset. Anything in neither place is a hypothesis.
   `IsoGameCharacter`, not declared on `IsoPlayer` (F-001).
 - `zombie.characters.component.AIComponent`, an ECS component reached through
   `IsoPlayer.visitAllPlayersWithComponent(...)` (F-002).
-- `AIComponent.getHumanControlVars()` → `AIBrainPlayerControlVars`: **an input
-  channel, not a goal channel** — `strafeX/strafeY` axes plus intent booleans
-  (`aiming`, `melee`, `initiateAttack`, `running`, …). The engine accepts no
+- `AIComponent.getHumanControlVars()` â†’ `AIBrainPlayerControlVars`: **an input
+  channel, not a goal channel** â€” `strafeX/strafeY` axes plus intent booleans
+  (`aiming`, `melee`, `initiateAttack`, `running`, â€¦). The engine accepts no
   destination through this seam; Execution owns the route and converts it to
   per-tick axis values (F-003). Route *production* is separable and engine-owned:
-  `PathFindBehavior2` is independently drivable (`pathToLocationF`, `update()` →
+  `PathFindBehavior2` is independently drivable (`pathToLocationF`, `update()` â†’
   `Working|Failed|Succeeded`), exposes its next waypoint as public fields, and
   even carries a Lua-table goal overload (F-007). Execution requests routes from
   the engine and follows them through the axis channel.

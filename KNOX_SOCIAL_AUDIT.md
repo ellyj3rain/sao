@@ -1,6 +1,6 @@
 | Document | Knox Survivors Social-System Audit |
 |---|---|
-| Version | `3.7.0.1-pre-alpha` |
+| Version | `3.7.1.0-pre-alpha` |
 | Author | ellyj3rain |
 | Repository | `KNOX_SOCIAL_AUDIT.md` |
 | Status | CANONICAL - reference-design audit; mechanics translatable, files never copied. |
@@ -16,7 +16,7 @@ so the expansion arc translates deliberately rather than rediscovering.
 
 Per-survivor `sociability` and `aggression` (0-100, stable hash), age in
 years (18-70, hash-derived, pushed onto the engine descriptor), and
-`createdAtHours` derived as `worldAge - character:getHoursSurvived()` —
+`createdAtHours` derived as `worldAge - character:getHoursSurvived()` â€”
 THE ENGINE ALREADY TRACKS HOURS SURVIVED PER CHARACTER, which is the
 foundation our apocalypse-clock gradient needs.
 

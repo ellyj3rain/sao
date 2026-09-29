@@ -1,11 +1,11 @@
 | Document | Survivor Awareness Overhaul Engine Contract |
 |---|---|
-| Version | `3.7.0.1-pre-alpha` |
+| Version | `3.7.1.0-pre-alpha` |
 | Author | ellyj3rain |
 | Repository | `ENGINE_CONTRACT.md` |
 | Status | CANONICAL - the verified engine mechanics an IsoPlayer NPC requires. |
 
-# Engine contract — what a working IsoPlayer NPC actually requires
+# Engine contract â€” what a working IsoPlayer NPC actually requires
 
 The complete set of load-bearing mechanisms for a drawn, safe, mobile NPC body
 on Build 42.20, in lifecycle order. Sources: our own live runs (sao-1..sao-6),
@@ -14,10 +14,10 @@ implementation at `../KnoxSurvivors` (cited as `KNF` = KnoxNpcFactory.java,
 `KSD` = KnoxIsoPlayerShellDefinition.java, `KN` = KnoxNpc.java). Our
 implementation lives in `java/src/com/sao/` and `mod/42.20/media/lua/`.
 
-Each mechanism records the failure you get without it — every one of these was
+Each mechanism records the failure you get without it â€” every one of these was
 either observed live in our runs or is compensated explicitly in the reference.
 
-## 1 · Class: a subclass, not IsoPlayer itself
+## 1 Â· Class: a subclass, not IsoPlayer itself
 
 A bare non-local `IsoPlayer` never draws (live: sao-1..sao-3, all flags green,
 invisible). The body must be a subclass (`KSD:8`, F-009) with four behavior
@@ -34,7 +34,7 @@ Plus an isolated `CharacterInputComponent` so the engine never reads slot-0
 input through the NPC. Ours: `SAOIsoPlayerShell.java`.
 
 The installed 42.20.4 `IsoMovingObject.postupdate()` writes both owners at
-bytecode offsets 38–64. Protecting `update()` alone leaves this later path
+bytecode offsets 38â€“64. Protecting `update()` alone leaves this later path
 exposed. `IsoPlayer.setInstance` restores the player directly. The camera
 setter accepts ordinary characters and null, but refuses
 `IsoDummyCameraCharacter`; that existing owner requires exact restoration of
@@ -45,7 +45,7 @@ exceptions, and rejects controls that omit either postupdate protection or
 camera restoration. This ownership check does not establish a player-free
 simulation host.
 
-## 2 · Construction and registration (spawn sequence)
+## 2 Â· Construction and registration (spawn sequence)
 
 `KNF.create` (`KNF:20-80`), ported in `SAOBridge.spawnShellNamed`:
 
@@ -64,20 +64,20 @@ setAlphaAndTarget(1.0)                        // between normal/debug launches (
 cell.addMovingObject(body)
 ModelManager.instance.Add(body)               // WITHOUT THIS NOTHING DRAWS
 verify players[] unchanged, else roll back    // slot-safety invariant
-clear all movement intent                     // see §4
+clear all movement intent                     // see Â§4
 ```
 
 Visuals: `dressInRandomOutfit()` + `resetModelNextFrame()` (shipped-Lua idiom)
-— construction alone yields a model-less body.
+â€” construction alone yields a model-less body.
 
-## 3 · Teardown
+## 3 Â· Teardown
 
 `KNF.safelyRemove` (`KNF:959-971`), ported in `SAOBridge.removeShellInternal`:
-clear intent → `ModelManager.instance.Remove` → `setMovingSquare(null)` →
+clear intent â†’ `ModelManager.instance.Remove` â†’ `setMovingSquare(null)` â†’
 `removeFromWorld()`. Skipping the ModelManager removal leaks render
 registrations across the body's lifetime.
 
-## 4 · Movement intent — why an NPC wanders or stands
+## 4 Â· Movement intent â€” why an NPC wanders or stands
 
 B21 skips normal input processing for `isNpc()` bodies; their update consumes
 **two** intent surfaces, and both must be managed (`KNF:763-921`):
@@ -85,18 +85,18 @@ B21 skips normal input processing for `isNpc()` bodies; their update consumes
 - **Body-level**: `playerMoveDir.x/y` (world direction), `setJustMoved(true)`,
   `setDirectionAngle(degrees)`, `setRunning/setSprinting/setSneaking`.
 - **Control vars** (`AIComponent.getHumanControlVars()`): `justMoved`,
-  `running`, and `strafeX/strafeY` in **animation control-space** — world
+  `running`, and `strafeX/strafeY` in **animation control-space** â€” world
   direction with Y flipped, rotated by `getAnimAngleRadians()`
   (`KNF:903-921`), not world space.
 
-Failures observed live: intent never zeroed after construction → the body
+Failures observed live: intent never zeroed after construction â†’ the body
 wanders on its own (sao-3). Control vars written in world space without
-body-level intent → walk animation, zero displacement (sao-5).
+body-level intent â†’ walk animation, zero displacement (sao-5).
 
 Zeroing both surfaces is the stop contract (`KNF:923-947`,
 `SAOBridge.clearMovementIntent`).
 
-## 5 · Routes — the engine computes, the framework follows
+## 5 Â· Routes â€” the engine computes, the framework follows
 
 `PathFindBehavior2` is a route **computer**, never left active as a follower:
 
@@ -108,139 +108,139 @@ Zeroing both surfaces is the stop contract (`KNF:923-947`,
    drive ticks trips its own walking-on-the-spot stall detector, which
    terminates the walk as `Failed` (live: sao-6, `terminal: Failed` at the
    spawn square; the detector is the public `walkingOnTheSpot` field).
-4. Drive node-to-node: advance within 0.35 tiles, per-tick §4 intent toward
+4. Drive node-to-node: advance within 0.35 tiles, per-tick Â§4 intent toward
    the current node (`KNF:398-448`), arrival = nodes exhausted.
 
-**Exception — live pursuit** (`KNF:148-166`): chasing an `IsoGameCharacter`
-uses `pathToCharacter` with the behavior left active — a moving goal defeats
+**Exception â€” live pursuit** (`KNF:148-166`): chasing an `IsoGameCharacter`
+uses `pathToCharacter` with the behavior left active â€” a moving goal defeats
 the stall detector, and two movement owners must never coexist ("do not leave
 a Knox waypoint route active beside it").
 
 Single-edge crossings synthesize a one-node route directly (`KNF:168-196`).
 
-## 6 · Traversal transitions (doors, windows, edges)
+## 6 Â· Traversal transitions (doors, windows, edges)
 
 Per-edge checks while driving (`KNF:449-560`, state model `KN:17-30`):
 
 - Z changes: unsupported (explicit FAILED state, not a silent stall).
 - Diagonals: `isBlockedTo` between squares.
-- **Doors**: `getDoorTo` → if closed: face it (`shouldBeTurning` gate), then
-  `ToggleDoor(body)` — the same world action a player uses. Locked/barricaded
+- **Doors**: `getDoorTo` â†’ if closed: face it (`shouldBeTurning` gate), then
+  `ToggleDoor(body)` â€” the same world action a player uses. Locked/barricaded
   are explicit failures.
-- **Windows**: `getWindowTo` → climbing gate → barricade check → monitor
+- **Windows**: `getWindowTo` â†’ climbing gate â†’ barricade check â†’ monitor
   `OpenWindowState`; B21 quirk: that state only toggles the world object for a
   local player, so the omitted world-state step is completed manually after
   the animation reports success (`KNF:552+`).
 - **Failed edges cool down** (`KN:58-100`): 5 s for locked/barricaded, 1.8 s
-  otherwise — the survivor tries another route instead of repeating the same
+  otherwise â€” the survivor tries another route instead of repeating the same
   edge forever.
 
-## 7 · ECS access
+## 7 Â· ECS access
 
 `body.getECSComponent(AIComponent.class)` is the direct accessor
 (`KNF:949-952`; `ECSEntity` default methods). Kahlua cannot iterate the
 component map (live: "iterator of non-table"), so any component access belongs
 Java-side. Our bridge's map loop should migrate to the typed accessor.
 
-## 8 · Load path
+## 8 Â· Load path
 
 ZombieBuddy loads Java mod jars in-process from `mod.info` keys
 (`javaJarFile=`, `javaPkgName=`, entry `<pkg>.Main.main()`), with an approval
-store. This is the shipping path — no agent, no launcher, no env vars.
+store. This is the shipping path â€” no agent, no launcher, no env vars.
 Dev-only alternative: `-javaagent` via `JAVA_TOOL_OPTIONS` requires
 `jre64\bin` on PATH for `instrument.dll` dependencies, and only the exe launch
 path boots reliably (the shipped `.bat` omits `-agentlib:zbNative` and other
 exe-config vmArgs; both `java.exe` launch attempts produced broken windows).
 
-## 9 · Movement supervision (KnoxNpcRuntime, read in full)
+## 9 Â· Movement supervision (KnoxNpcRuntime, read in full)
 
 One in-flight move request per body, supervised (`KnoxNpcRuntime.java`):
 `beginMove` records start/target; `tickMovement` measures real displacement
 and fails the request as `FailedStuck` after 45 ticks under 0.12 tiles of
-progress — but ONLY in locomotion states. Turning, climbing and door/window
+progress â€” but ONLY in locomotion states. Turning, climbing and door/window
 actions "legitimately hold the survivor in place" and are excluded from the
 stuck check (`KnoxNpcRuntime:131-140`). Arrival distance 0.65. Every state
 transition is logged. Terminal states reset pace to normal.
 
-## 10 · NPC melee (KnoxCombatController, read in full)
+## 10 Â· NPC melee (KnoxCombatController, read in full)
 
 Outgoing combat drives IsoPlayer's NORMAL attack entry, not a synthetic hit:
 
 - Preconditions: `SwipeStatePlayer` class loaded, the animation-callback patch
   live (`KnoxCombatGate.isPatchReady()`), a real `HandWeapon` equipped.
-- Phases IDLE→APPROACHING→AIMING(18 ticks)→ATTACKING with re-approach when the
+- Phases IDLEâ†’APPROACHINGâ†’AIMING(18 ticks)â†’ATTACKING with re-approach when the
   target moves outside `weaponMaxRange-0.40` (+0.20 buffer); pursuit refresh
   at most every 6 ticks.
 - The swing itself: face target (`setTargetAndCurrentDirection` +
   `setForwardDirection` + `setDirectionAngle`), stance
   (`setAuthorizeMeleeAction`, `setIsAiming`, `isCharging=true`), then
-  `useChargeDelta=36` and **`pressedAttack()`** — the same entry a real player
-  presses — plus `setAttackStarted/setInitiateAttack` and AI-vars
+  `useChargeDelta=36` and **`pressedAttack()`** â€” the same entry a real player
+  presses â€” plus `setAttackStarted/setInitiateAttack` and AI-vars
   aiming/initiateAttack. Retry every 30 ticks when the previous cycle ended
   and `AttackType` is clear.
 - Fallback: if no attack animation within 3 ticks and the action context is
   idle, `changeState(SwipeStatePlayer.instance())` directly, once.
 - Between swings in live combat: yield a 24-tick defense window, clear
   `AttackType` (a stale value makes a frontal zombie collision return before
-  damage is applied), and never override a hit-reaction action — reapplying
+  damage is applied), and never override a hit-reaction action â€” reapplying
   input during `hitreaction*` suppresses the visible reaction.
 - Floor targets: `setAimAtFloor` + `setAuthorizeShoveStomp` (stomp).
 - Verdicts are evidence-based: SUCCEEDED requires observed damage, not just a
   dead target ("TARGET_DIED_WITHOUT_NPC_DAMAGE" is a FAIL).
 
-## 11 · Incoming combat — making zombies fight an off-slot body
+## 11 Â· Incoming combat â€” making zombies fight an off-slot body
 (KnoxHealthController, read in full)
 
 An off-slot shell runs no local-player LOS updates, so vanilla zombie
 perception starves. The acquisition bridge compensates surgically:
 
 - `spotted(body, true)` + `setTarget` + `pathToCharacter` for pursuit.
-- `vectorToTarget` and `lastTargetSeenX/Y/Z` mirrored manually — vanilla
+- `vectorToTarget` and `lastTargetSeenX/Y/Z` mirrored manually â€” vanilla
   attack eligibility reads that live vector (`refreshZombieTargetVector`).
 - Inside 1.0 tiles: private `canSeeTarget=true` and `targetSeenTime >= 0.55`
   (Zombie_Bite_Start gates on `targetSeenTime > 0.5`; resetting it every
   refresh keeps the animator ineligible forever). The perception vector is
   clamped to 0.70 because bAttack's threshold is 0.72 while the collision
   event accepts DistTo 1.0.
-- Attack entry only from idle/lunge/walktoward/pathfind/turnalerted — never
+- Attack entry only from idle/lunge/walktoward/pathfind/turnalerted â€” never
   from hit reactions, falls, climbs or get-ups (forcing attack from
   hitreaction leaves the zombie in an invalid half-recovered loop).
 - Terminal flags `AttackDidDamage`/`ZombieBiteDone` cleared before entry, and
   **both combat layers entered**: legacy `changeState(AttackState.instance())`
   for the collision callback AND the action-context `attack` state for the
-  animation graph — setting only one leaves `ZombieIdleState/action=attack`
+  animation graph â€” setting only one leaves `ZombieIdleState/action=attack`
   that never reaches the damage event.
 - `getShouldAttack()` (private, reflected) remains the authority; every other
   vanilla guard stays live.
 - Health surface: `getBodyDamage()` health/parts/bleeding; controlled-injury
   and full-restore helpers for gated testing.
 
-## 12 · The animation-callback patch (KnoxSwipeStateTransformer)
+## 12 Â· The animation-callback patch (KnoxSwipeStateTransformer)
 
 Melee animation callbacks contain local-player checks; the transformer
 redirects exactly three of them to a predicate that also recognizes the shell
-— "the callback bodies remain the game's own code." Without it, an NPC swing
+â€” "the callback bodies remain the game's own code." Without it, an NPC swing
 animates but its hit callback never fires. This is the one place bytecode
 transformation is genuinely required; combat refuses to start unless the
 patch reports ready.
 
-## 13 · Registry, persistence, and the API shape (KnoxNpcRegistry / KnoxBridge)
+## 13 Â· Registry, persistence, and the API shape (KnoxNpcRegistry / KnoxBridge)
 
 - Registry: `LinkedHashMap<id, KnoxNpcRuntime>`, all entry points
-  synchronized, every operation answering a STRING verdict — the Lua side is
+  synchronized, every operation answering a STRING verdict â€” the Lua side is
   a consumer of legible one-line results, exactly the harness discipline.
-- Persistence: `captureRecord` → encoded string → `restorePersistentRecord`
+- Persistence: `captureRecord` â†’ encoded string â†’ `restorePersistentRecord`
   reconstructs at the recorded square (`restoreExactPosition`); recreate
-  verifies capture→restore round-trips (`RECREATED matches=`).
+  verifies captureâ†’restore round-trips (`RECREATED matches=`).
 - `abandonForEnvironmentChange()` drops runtimes when the Lua environment is
-  replaced (world change) — body handles die with their world.
+  replaced (world change) â€” body handles die with their world.
 - Bridge API (~60 verbs): spawn/remove/move/cross/tick/cancel per id,
   climbing + protected-area toggles, equipment (seed, equipBest, wear/dress),
   combat begin/tick/reset + zombie direction + diagnostics, health gates,
   record capture/restore, render diagnostics. Verb-per-action, id-addressed,
-  string-verdict — the contract SAO's bridge should converge on.
+  string-verdict â€” the contract SAO's bridge should converge on.
 
-## 14 · Their Lua brain (structural read)
+## 14 Â· Their Lua brain (structural read)
 
 `KS_SurvivorAutonomyController.lua` (116 KB): threat selection with
 per-target reservations (prevents dogpiling), flee heuristics, supply search,
@@ -248,8 +248,8 @@ directive-scoped exploration, formation following with pace matching, rest
 spots. It calls the Java runtime's verbs; the division is brain-in-Lua,
 body-in-Java. Two notes for SAO: (a) the reservation pattern is worth
 carrying; (b) their brain reads world state directly (`nearestThreat` scans
-the cell) — the omniscience SAO's Perception pillar exists to replace. The
-engine contract above is pillar-neutral; everything in §1-13 is Execution
+the cell) â€” the omniscience SAO's Perception pillar exists to replace. The
+engine contract above is pillar-neutral; everything in Â§1-13 is Execution
 plumbing either way.
 
 ---

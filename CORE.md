@@ -1,11 +1,11 @@
 | Document | Survivor Awareness Overhaul Core |
 |---|---|
-| Version | `3.7.0.1-pre-alpha` |
+| Version | `3.7.1.0-pre-alpha` |
 | Author | ellyj3rain |
 | Repository | `CORE.md` |
 | Status | ACTIVE - genesis identity for this project. |
 
-# Survivor Awareness Overhaul — core
+# Survivor Awareness Overhaul â€” core
 
 **Survivor Awareness Overhaul** is a Project Zomboid Build 42 NPC framework, not a
 survivor mod with better scripts. Survivors act on what they have actually
@@ -17,7 +17,7 @@ is looking at them.
 The design objective is survivor competence sufficient that the player relates to
 them as people with intentions, not as props that demonstrate the mod is running.
 Skill governs latency, precision, breadth and coordination. **Low skill never
-licenses behavior no human would produce** — a poor survivor is slow, wasteful and
+licenses behavior no human would produce** â€” a poor survivor is slow, wasteful and
 badly positioned; a poor survivor does not smash an intact window to enter a house
 occupied by someone aiming at the opening.
 
@@ -27,7 +27,7 @@ occupied by someone aiming at the opening.
 |---|---|
 | Display name | Survivor Awareness Overhaul |
 | Project key | `sao` |
-| Mod id | `SurvivorAwareness` — **stable**; changing it breaks existing saves |
+| Mod id | `SurvivorAwareness` â€” **stable**; changing it breaks existing saves |
 | Target | Project Zomboid Build 42.20 |
 | Author | ellyj3rain |
 | Sibling ground truth | the installed `projectzomboid.jar` and `media/` script + Lua tree |
@@ -39,7 +39,7 @@ the portable project history.
 
 Every behavior is the composition:
 
-`Perception admits → Disposition decides → Standing channels → Execution acts`
+`Perception admits â†’ Disposition decides â†’ Standing channels â†’ Execution acts`
 
 Four separate substrates, each with its own model, projecting into the game's
 native machinery. `ARCHITECTURE.md` holds the ratified shape.
@@ -56,7 +56,7 @@ what make this a framework rather than a behavior list.
 
 ## Governing constraints
 
-- **Verified APIs only.** Ground truth is the installed game — the decompiled
+- **Verified APIs only.** Ground truth is the installed game â€” the decompiled
   `projectzomboid.jar` and the shipped `media/lua` and `media/scripts` trees.
   Engine behavior is never asserted from memory. A claim without a file and line
   behind it is a hypothesis, and is labelled as one.
@@ -77,7 +77,7 @@ what make this a framework rather than a behavior list.
 
 ## Relationship to Colonist Awareness Overhaul
 
-This project shares its methodology with `../colonist-awareness` — the pillar
+This project shares its methodology with `../colonist-awareness` â€” the pillar
 composition with explicit *does not own* boundaries, the governed doc-pack, batch
 discipline, and the constraint that low skill must not license inhuman behavior.
 Both are the same author's work and the structures are common to both.

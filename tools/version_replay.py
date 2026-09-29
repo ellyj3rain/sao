@@ -239,6 +239,7 @@ UNITS = [
     ('C98', 'minor', 'Source-integrate the complete Horse team physical implementation and assets, then join native route waypoints, autonomous mounted input, person-private planning, durable rider-animal identity and Mousecat observation. This creates owned horse life and mounted mobility as a new player-visible simulation capability, so minor.'),
     ('C99', 'minor', 'Introduce native-backed mobile households: persistent moving-place identity, occupants and stores, towing and exterior-anchor continuity, physical RV-room entry and exit, private spatial planning, overnight use and Mousecat observation across camper, trailer and motorhome assets. This is a new player-visible life and mobility contract, so minor.'),
     ('C100', 'patch', 'Repair current-engine mobile-household execution against the actual vehicle Set and part APIs, preserve distinct exterior and remote-interior positions across representation changes, and close the existing physical-room obligation with a retained Build 42.21 receipt. This corrects and verifies the C99 capability without moving its boundary, so patch.'),
+    ('C101', 'kohai', 'Mature the durable study contract with exact supervisor terminal identity, narrow revalidation of the legacy receipt, saved-state recovery, terminal Mousecat projection and immediate human disposition of verified competing-cognition outcomes. This connects existing study, evidence and review owners without adding gameplay or dataset authority, so kohai.'),
 ]
 
 TIER_MEANINGS = [

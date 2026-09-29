@@ -1,6 +1,6 @@
 | Document | Survivor Awareness Overhaul Decision Registry |
 |---|---|
-| Version | `3.7.0.1-pre-alpha` |
+| Version | `3.7.1.0-pre-alpha` |
 | Author | ellyj3rain |
 | Repository | `DECISION_REGISTRY.md` |
 | Status | CANONICAL, APPEND-ONLY - ratified decisions. |
@@ -12,13 +12,13 @@ are never rewritten.
 
 ---
 
-## DR-001 — Four-pillar composition as the framework shape
+## DR-001 â€” Four-pillar composition as the framework shape
 
 **Date** 2026-08-26 02:05 UTC / 2026-08-25 19:05 PDT
 **Status** RATIFIED
 
 **Decision.** Survivor behavior is composed as
-`Perception admits → Disposition decides → Standing channels → Execution acts`,
+`Perception admits â†’ Disposition decides â†’ Standing channels â†’ Execution acts`,
 with each pillar carrying an explicit *does not own* boundary.
 
 **Rationale.** A single decision function that reads world state directly is
@@ -33,7 +33,7 @@ decision are treated as defects in the decision model.
 
 ---
 
-## DR-002 — Identity is a record; the engine object is a temporary body
+## DR-002 â€” Identity is a record; the engine object is a temporary body
 
 **Date** 2026-08-26 02:05 UTC / 2026-08-25 19:05 PDT
 **Status** RATIFIED
@@ -50,13 +50,13 @@ is a lifecycle detail, not a respawn.
 
 ---
 
-## DR-003 — Build the framework on engine NPC support, not on repurposed actors
+## DR-003 â€” Build the framework on engine NPC support, not on repurposed actors
 
 **Date** 2026-08-26 02:05 UTC / 2026-08-25 19:05 PDT
 **Status** RATIFIED
 
-**Decision.** Survivors are driven through Build 42's own NPC surface —
-`IsoPlayer.setNpc(boolean)` and `AIComponent.getHumanControlVars()` — rather than
+**Decision.** Survivors are driven through Build 42's own NPC surface â€”
+`IsoPlayer.setNpc(boolean)` and `AIComponent.getHumanControlVars()` â€” rather than
 by repurposing another actor type and suppressing its native behavior.
 
 **Rationale.** Repurposing an actor inherits that actor's state machine, so the
@@ -68,7 +68,7 @@ of continuously correcting it.
 
 ---
 
-## DR-004 — The framework carries a Java agent component
+## DR-004 â€” The framework carries a Java agent component
 
 **Date** 2026-08-26 03:40 UTC / 2026-08-25 20:40 PDT
 **Status** RATIFIED (operator-directed; the rebuild's architecture was the
