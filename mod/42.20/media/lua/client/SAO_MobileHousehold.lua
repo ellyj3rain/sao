@@ -149,9 +149,8 @@ end
 local function materialSnapshot(vehicle)
     local rows, itemCount, weight, overflow = {}, 0, 0, 0
     local ok = pcall(function()
-        local parts = vehicle:getParts()
-        for index = 0, parts:size() - 1 do
-            local part = parts:get(index)
+        for index = 0, vehicle:getPartCount() - 1 do
+            local part = vehicle:getPartByIndex(index)
             local container = part and part:getItemContainer() or nil
             if container then
                 local count, partWeight = countContainer(container)
@@ -258,6 +257,13 @@ function M.observeVehicle(vehicle, source)
         if occupant.state == "seated" and not present[personId] then
             transition(rec, personId, "seated", "outside", "seat-released", at)
             rec.occupants[personId] = nil
+        else
+            local person = SAO.Identity and SAO.Identity.get(personId)
+            if person then
+                person.mobileHouseholdAnchor = { x = rec.x, y = rec.y,
+                    z = rec.z, observedAtHours = at }
+                person.x, person.y, person.z = rec.x, rec.y, rec.z
+            end
         end
     end
     return rec
@@ -376,6 +382,13 @@ function M.enterInterior(personId, body, vehicle, reason)
         person.mobileHouseholdUse = { reason = reason or "interior-use",
             state = "interior", vehicleId = rec.id, roomType = typeKey,
             enteredAtHours = nowHours(), lastRestAtHours = nowHours() }
+        person.mobileHouseholdInterior = {
+            room = { x = room.x, y = room.y, z = room.z or 0 },
+            body = { x = room.x + (offset.x or 1),
+                y = room.y + (offset.y or 1), z = room.z or 0 },
+            externalId = externalId, playerId = playerId,
+            roomType = typeKey, seat = seat,
+        }
     end
     M.syncPerson(personId, body)
     return true, "entered-interior"
@@ -384,8 +397,9 @@ end
 local function loadedVehicle(id)
     local ok, vehicles = pcall(function() return getCell():getVehicles() end)
     if not ok or not vehicles then return nil end
-    for i = 0, vehicles:size() - 1 do
-        local vehicle = vehicles:get(i)
+    local iterator = vehicles:iterator()
+    while iterator:hasNext() do
+        local vehicle = iterator:next()
         if vehicleId(vehicle, false) == id then return vehicle end
     end
     return nil
@@ -433,7 +447,11 @@ function M.exitInterior(personId, body, reason)
         placeBody(body, rec.x + 2, rec.y, rec.z or 0)
     end
     local person = SAO.Identity and SAO.Identity.get(personId)
-    if person then person.mobileHouseholdUse = nil end
+    if person then
+        person.mobileHouseholdUse = nil
+        person.mobileHouseholdInterior = nil
+        person.x, person.y, person.z = rec.x, rec.y, rec.z or 0
+    end
     transition(rec, personId, "interior", "outside",
         reason or "completed-interior-exit", nowHours())
     if rec.occupants then rec.occupants[personId] = nil end
@@ -446,6 +464,68 @@ function M.isInterior(personId, body)
     if not alias then return false end
     local person = SAO.Identity and SAO.Identity.get(personId)
     return person ~= nil and person.mobileHouseholdId ~= nil
+end
+
+function M.representationPosition(personId, body)
+    local person = SAO.Identity and SAO.Identity.get(personId)
+    if not person then return nil end
+    if person.mobileHouseholdState == "interior" then
+        if body then
+            local ok, x, y, z = pcall(function()
+                return body:getX(), body:getY(), body:getZ()
+            end)
+            if ok and finite(x) and finite(y) and finite(z) then
+                return { x = x, y = y, z = z, physicalInterior = true }
+            end
+        end
+        local interior = person.mobileHouseholdInterior
+        local point = type(interior) == "table" and interior.body or nil
+        if type(point) == "table" and finite(point.x) and finite(point.y)
+            and finite(point.z) then
+            return { x = point.x, y = point.y, z = point.z,
+                physicalInterior = true }
+        end
+    end
+    if finite(person.x) and finite(person.y) and finite(person.z) then
+        return { x = person.x, y = person.y, z = person.z }
+    end
+    return nil
+end
+
+function M.restoreInterior(personId, body)
+    local person = SAO.Identity and SAO.Identity.get(personId)
+    local interior = person and person.mobileHouseholdInterior or nil
+    local room = type(interior) == "table" and interior.room or nil
+    local point = type(interior) == "table" and interior.body or nil
+    local s = store()
+    local rec = s and person and person.mobileHouseholdId
+        and s.vehicles[person.mobileHouseholdId] or nil
+    if not body or not rec or person.mobileHouseholdState ~= "interior"
+        or type(room) ~= "table" or type(point) ~= "table"
+        or not finite(room.x) or not finite(room.y) or not finite(room.z)
+        or not finite(point.x) or not finite(point.y) or not finite(point.z) then
+        return false
+    end
+    local externalId = tostring(interior.externalId or rec.externalInteriorId or "")
+    local playerId = tostring(interior.playerId or ("sao-mobile:" .. personId))
+    if externalId == "" then return false end
+    local external = ModData.getOrCreate("modPROJECTRVInterior")
+    external.Players = type(external.Players) == "table" and external.Players or {}
+    external.Vehicles = type(external.Vehicles) == "table" and external.Vehicles or {}
+    external.Players[playerId] = { ActualRoom = { x = room.x, y = room.y, z = room.z },
+        VehicleId = externalId, Seat = tonumber(interior.seat) or -1,
+        RoomType = tostring(interior.roomType or "unknown"), SAOOwner = true }
+    external.Vehicles[externalId] = { x = rec.x, y = rec.y, z = rec.z }
+    body:getModData().projectRV_playerId = playerId
+    placeBody(body, point.x, point.y, point.z)
+    rec.occupants[personId] = { state = "interior",
+        roomType = tostring(interior.roomType or "unknown"),
+        observedAtHours = nowHours() }
+    rec.members[personId] = rec.members[personId]
+        or { firstObservedAtHours = nowHours() }
+    rec.members[personId].lastObservedAtHours = nowHours()
+    s.aliases[externalId] = rec.id
+    return M.syncPerson(personId, body) ~= nil
 end
 
 function M.syncPerson(personId, body)
@@ -490,6 +570,7 @@ function M.syncPerson(personId, body)
         if current then
             person.mobileHouseholdAnchor = { x = current.x, y = current.y,
                 z = current.z, observedAtHours = at }
+            person.x, person.y, person.z = current.x, current.y, current.z
             if SAO.ProceduralPlanning and SAO.ProceduralPlanning.rememberSpatial then
                 SAO.ProceduralPlanning.rememberSpatial(personId, {
                     key = current.id, kind = "mobile-household",
@@ -574,8 +655,9 @@ local function nearbyVehicle(personId, body, radius)
     local cell = body and body:getCell() or nil
     if not cell then return nil end
     local best, bestDistance = nil, radius * radius
-    for i = 0, cell:getVehicles():size() - 1 do
-        local vehicle = cell:getVehicles():get(i)
+    local iterator = cell:getVehicles():iterator()
+    while iterator:hasNext() do
+        local vehicle = iterator:next()
         local kind = vehicle and M.classifyScript(scriptName(vehicle)) or nil
         if kind == "motorhome" or kind == "camper" then
             local dx, dy = vehicle:getX() - body:getX(), vehicle:getY() - body:getY()
@@ -720,8 +802,9 @@ local function sample()
     if not (SAO.Body and SAO.Body.active) then return end
     pcall(function()
         local vehicles = getCell():getVehicles()
-        for i = 0, vehicles:size() - 1 do
-            local vehicle = vehicles:get(i)
+        local iterator = vehicles:iterator()
+        while iterator:hasNext() do
+            local vehicle = iterator:next()
             if vehicle and M.classifyScript(scriptName(vehicle)) then
                 M.observeVehicle(vehicle, "native-world-refresh")
             end

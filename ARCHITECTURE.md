@@ -1,6 +1,6 @@
 | Document | Survivor Awareness Overhaul Architecture |
 |---|---|
-| Version | `3.7.0.0-pre-alpha` |
+| Version | `3.7.0.1-pre-alpha` |
 | Author | ellyj3rain |
 | Repository | `ARCHITECTURE.md` |
 | Status | ACTIVE - ratified framework shape. |
@@ -33,6 +33,14 @@ combat resolution, `BodyDamage`.
 6. **Simulation** — advances survivors outside loaded cells without keeping full
    engine objects alive.
 7. **Persistence** — saves owned state and reconstructs bodies safely.
+
+A mobile household has two simultaneous spatial facts. Its exterior vehicle is
+the durable place anchor used by memory, planning, dormant simulation and save
+state. An occupant's loaded body may be inside a provider-owned remote physical
+room. Representation distance follows that physical body while it exists and
+the durable interior binding reconstructs it after body replacement; body
+capture never overwrites the exterior anchor with the remote-room coordinate.
+Entry and exit remain native transitions with recorded results.
 
 ## The four pillars
 

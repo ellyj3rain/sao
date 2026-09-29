@@ -1,0 +1,60 @@
+{
+  "schema": "sao-study-world/1",
+  "id": "echo-creek-mobile-household",
+  "seed": "echo-creek-mobile-household-1",
+  "extent": {
+    "minCellX": 0,
+    "minCellY": 0,
+    "cellsX": 98,
+    "cellsY": 63
+  },
+  "generation": {
+    "roads": {}
+  },
+  "lots": "map_distanciado",
+  "origins": [
+    {
+      "x": 3782,
+      "y": 10943,
+      "z": 0,
+      "profession": "unemployed"
+    }
+  ],
+  "sandbox": {
+    "SurvivorAwareness.PopulationGoverned": true,
+    "SurvivorAwareness.Population": 2,
+    "SurvivorAwareness.NewcomersGoverned": true,
+    "SurvivorAwareness.Newcomers": 2
+  },
+  "situation": {
+    "mobileHousehold": {
+      "spawn": { "x": 3782, "y": 10943, "z": 0 },
+      "moved": { "x": 3792, "y": 10943, "z": 0 },
+      "script": "Base.RollingRefuge",
+      "residentOccupation": "mechanic"
+    }
+  },
+  "observation": {
+    "everyHours": 0.02,
+    "maxPeople": 128,
+    "maxProcesses": 256,
+    "windows": [
+      {
+        "id": "echo-creek-exterior",
+        "x": 3768,
+        "y": 10929,
+        "z": 0,
+        "width": 64,
+        "height": 40
+      },
+      {
+        "id": "project-rv-interior",
+        "x": 22552,
+        "y": 12292,
+        "z": 0,
+        "width": 32,
+        "height": 24
+      }
+    ]
+  }
+}

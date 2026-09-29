@@ -4110,7 +4110,9 @@ local function decideNightAndDrift(id, agent, body, tick, rec)
     local okH, hour = pcall(function() return GameTime.getInstance():getTimeOfDay() end)
     local mobileInterior = SAO.MobileHousehold and SAO.MobileHousehold.isInterior
         and SAO.MobileHousehold.isInterior(id, body) or false
+    local mobileUse = rec and rec.mobileHouseholdUse or nil
     if okH and hour >= 6.0 and hour < 22.0 and mobileInterior
+        and type(mobileUse) == "table" and mobileUse.reason == "night-rest"
         and SAO.MobileHousehold.exitInterior then
         SAO.MobileHousehold.exitInterior(id, body, "morning-departure")
         mobileInterior = false

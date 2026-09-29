@@ -2255,6 +2255,14 @@ if ! "$PY" tools/mobile_household_test.py; then
     fail=1
 fi
 
+# Border 213 - [C100] the current engine must load Project RV's physical room,
+# carry one durable moving-place anchor through vehicle motion, and return its
+# resident beside that moved exterior anchor without admitting the scenario.
+if ! "$PY" tools/mobile_household_loaded_acceptance.py; then
+    note "BORDER FINDING - loaded mobile-household transition receipt differs"
+    fail=1
+fi
+
 # Source integration retains the selected Claude-built baseline and its exact
 # limits. External study activation cannot promote a candidate into ownership.
 if ! "$PY" tools/source_integration_gate.py; then

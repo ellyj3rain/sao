@@ -16,9 +16,9 @@ the machine. Names, dates, and threads below come from
 | Form | `major.minor.kohai.patch-maturity` |
 | Hard caps | minor 12; kohai 16; patch 24 |
 | Replay start | `0.1.0.0-pre-alpha` |
-| Current version | `3.7.0.0-pre-alpha` |
-| Closed chronology | `A1-C99` |
-| Next batch | `C100` |
+| Current version | `3.7.0.1-pre-alpha` |
+| Closed chronology | `A1-C100` |
+| Next batch | `C101` |
 | Executable source | [`tools/version_replay.py`](tools/version_replay.py) |
 
 ## Tier meanings
@@ -215,6 +215,7 @@ the machine. Names, dates, and threads below come from
 | `C97` | 2026-09-28 | patch | `3.5.0.2-pre-alpha` | Source integration lineage | Reconcile the retained Claude source-integration execution and completion claim against canonical decisions, C40-era credits and later audits; separate the external study loadout from source ownership and retain exact open obligations. This repairs provenance and the evidence gate without adding a runtime capability, so patch. |
 | `C98` | 2026-09-28 | minor | `3.6.0.0-pre-alpha` | Owned horse life and mounted mobility | Source-integrate the complete Horse team physical implementation and assets, then join native route waypoints, autonomous mounted input, person-private planning, durable rider-animal identity and Mousecat observation. This creates owned horse life and mounted mobility as a new player-visible simulation capability, so minor. |
 | `C99` | 2026-09-28 | minor | `3.7.0.0-pre-alpha` | Mobile household continuity | Introduce native-backed mobile households: persistent moving-place identity, occupants and stores, towing and exterior-anchor continuity, physical RV-room entry and exit, private spatial planning, overnight use and Mousecat observation across camper, trailer and motorhome assets. This is a new player-visible life and mobility contract, so minor. |
+| `C100` | 2026-09-29 | patch | `3.7.0.1-pre-alpha` | Mobile household loaded acceptance | Repair current-engine mobile-household execution against the actual vehicle Set and part APIs, preserve distinct exterior and remote-interior positions across representation changes, and close the existing physical-room obligation with a retained Build 42.21 receipt. This corrects and verifies the C99 capability without moving its boundary, so patch. |
 
 ## The former number
 
@@ -235,11 +236,11 @@ establish release maturity.
 
 ## Next movement
 
-`C100` is the next batch. Its content determines its tier after it
+`C101` is the next batch. Its content determines its tier after it
 exists:
 
-| If C100 is | Result |
+| If C101 is | Result |
 |---|---|
-| patch or hotfix | `3.7.0.1-pre-alpha` |
+| patch or hotfix | `3.7.0.2-pre-alpha` |
 | kohai | `3.7.1.0-pre-alpha` |
 | minor | `3.8.0.0-pre-alpha` |

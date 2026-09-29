@@ -181,7 +181,7 @@
         "person-private place knowledge and planning",
         "mobile rest and observable failures"
       ],
-      "provenImplementation": "C99: SAO-owned moving-place identity, native occupant and vehicle-store reads, towing and exterior-anchor continuity, Project RV physical-room transitions, held-ground overnight use, person-private planning, persistence and Mousecat observation across the activated camper, trailer and motorhome assets.",
+      "provenImplementation": "C99-C100: SAO-owned moving-place identity, native occupant and vehicle-store reads, towing and exterior-anchor continuity, Project RV physical-room transitions, body-replacement reconstruction, held-ground overnight use, person-private planning, persistence and Mousecat observation across the activated camper, trailer and motorhome assets. Build 42.21 loaded acceptance retains a completed spawn, entry, room load, exterior-anchor movement and exit receipt.",
       "evidence": [
         {
           "role": "producer",
@@ -195,13 +195,11 @@
         },
         {
           "role": "verification",
-          "path": "tools/mobile_household_test.py",
-          "anchor": "Border 212"
+          "path": "tools/mobile_household_loaded_acceptance.py",
+          "anchor": "Build 42.21 mobile-household physical receipt"
         }
       ],
-      "knownGaps": [
-        "Build 42.21 loaded acceptance of the remote physical-room transition remains open; the current border executes the production Lua contract in the installed Kahlua runtime."
-      ]
+      "knownGaps": []
     }
   ],
   "support": [
@@ -410,14 +408,6 @@
         "completed care, craft, build and repair outcomes",
         "individual private observation of success or failure",
         "planner feedback from exact outcomes"
-      ]
-    },
-    {
-      "id": "mobile-household-loaded-acceptance",
-      "state": "verification-open",
-      "authority": "C99 source implementation",
-      "missing": [
-        "Build 42.21 loaded entry, room use, exterior-anchor movement and exit receipt"
       ]
     }
   ]

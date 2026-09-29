@@ -314,6 +314,152 @@ local function applyHorseTravel()
         end
     end
 end
+local function positionCharacter(body, point, attach)
+    body:setX(point.x); body:setY(point.y); body:setZ(point.z)
+    pcall(function() body:setLastX(point.x) end)
+    pcall(function() body:setLastY(point.y) end)
+    pcall(function() body:setLastZ(point.z) end)
+    if attach then pcall(function() body:ensureOnTile() end) end
+end
+local function loadedMobileHousehold(receipt)
+    local vehicles = getCell() and getCell():getVehicles()
+    if not vehicles then return nil end
+    local iterator = vehicles:iterator()
+    while iterator:hasNext() do
+        local vehicle = iterator:next()
+        local ok, id = pcall(function()
+            return vehicle:getModData().SAOMobileHouseholdId
+        end)
+        if ok and id ~= nil and tostring(id) == tostring(receipt.vehicleId) then
+            return vehicle
+        end
+    end
+    return nil
+end
+local function mobileInteriorRow(body)
+    local playerId = body:getModData().projectRV_playerId
+    local external = playerId and ModData.get("modPROJECTRVInterior") or nil
+    return playerId, type(external) == "table" and type(external.Players) == "table"
+        and external.Players[tostring(playerId)] or nil
+end
+local function applyMobileHousehold()
+    local spec = Config.situation and Config.situation.mobileHousehold
+    if not spec then return end
+    assert(SAO.MobileHousehold, "mobile household owner unavailable")
+    state.situationReceipt = state.situationReceipt or {
+        schema = 1, kind = "mobile-household-loaded", phase = "spawn",
+        script = spec.script, result = "running", datasetAdmission = "unreviewed"
+    }
+    local receipt = state.situationReceipt
+    if receipt.result == "completed" then return end
+    receipt.waitTicks = (tonumber(receipt.waitTicks) or 0) + 1
+    assert(receipt.waitTicks < 1800, "mobile household loaded transition timed out")
+    local vehicle = loadedMobileHousehold(receipt)
+    if receipt.phase == "spawn" then
+        local square = getCell():getGridSquare(spec.spawn.x, spec.spawn.y, spec.spawn.z)
+        if not square then return end
+        vehicle = assert(addVehicle(spec.script, spec.spawn.x, spec.spawn.y, spec.spawn.z),
+            "native mobile household creation failed")
+        vehicle:getModData().projectRV_uniqueId = "study-" .. Config.definitionSha256:sub(1, 16)
+        local record = assert(SAO.MobileHousehold.observeVehicle(vehicle, "loaded-study-spawn"),
+            "spawned vehicle was not admitted as a mobile household")
+        receipt.vehicleId, receipt.phase, receipt.waitTicks = record.id, "resident", 0
+        receipt.spawnedAtHours = getGameTime():getWorldAgeHours()
+        receipt.spawn = { x = vehicle:getX(), y = vehicle:getY(), z = vehicle:getZ() }
+        print("[StudyWorld] mobile household=" .. tostring(record.id) .. " spawned")
+        return
+    end
+    local personId = receipt.personId
+    local body = personId and SAO.Body.get(personId) or nil
+    if not body then
+        for _, id in ipairs(keys(SAO.Identity.all())) do
+            local person, candidate = SAO.Identity.all()[id], SAO.Body.get(id)
+            if not person.dead and candidate then
+                personId, body = id, candidate
+                person.occupation = spec.residentOccupation
+                receipt.personId = id
+                break
+            end
+        end
+    end
+    if not body then return end
+    if receipt.phase == "resident" then
+        if not vehicle then return end
+        positionCharacter(body, { x = vehicle:getX() + 2, y = vehicle:getY(), z = vehicle:getZ() }, true)
+        local entered, verdict = SAO.MobileHousehold.enterInterior(
+            personId, body, vehicle, "loaded-study-acceptance")
+        assert(entered, "mobile household entry refused: " .. tostring(verdict))
+        local playerId, row = mobileInteriorRow(body)
+        assert(playerId and type(row) == "table" and type(row.ActualRoom) == "table",
+            "Project RV interior receipt missing")
+        receipt.interior = { x = row.ActualRoom.x, y = row.ActualRoom.y,
+            z = row.ActualRoom.z or 0, bodyX = body:getX(), bodyY = body:getY(),
+            roomType = tostring(row.RoomType) }
+        vehicle:setX(spec.moved.x); vehicle:setY(spec.moved.y); vehicle:setZ(spec.moved.z)
+        pcall(function() vehicle:setSquare(getCell():getGridSquare(
+            spec.moved.x, spec.moved.y, spec.moved.z)) end)
+        local moved = assert(SAO.MobileHousehold.observeVehicle(vehicle, "loaded-study-movement"),
+            "moved mobile household became unavailable")
+        assert(math.abs(moved.x - spec.moved.x) < 0.01
+            and math.abs(moved.y - spec.moved.y) < 0.01,
+            "moving exterior anchor was not observed")
+        receipt.moved = { x = moved.x, y = moved.y, z = moved.z }
+        receipt.enteredAtHours = getGameTime():getWorldAgeHours()
+        receipt.phase, receipt.waitTicks = "load-interior", 0
+        positionCharacter(assert(getSpecificPlayer(0), "observer anchor unavailable"),
+            { x = receipt.interior.bodyX, y = receipt.interior.bodyY,
+              z = receipt.interior.z }, false)
+        print("[StudyWorld] mobile household entered person=" .. tostring(personId)
+            .. " room=" .. tostring(receipt.interior.roomType))
+        return
+    end
+    if receipt.phase == "load-interior" then
+        local square = getCell():getGridSquare(receipt.interior.bodyX,
+            receipt.interior.bodyY, receipt.interior.z)
+        if not square then return end
+        pcall(function() body:ensureOnTile() end)
+        assert(square:TreatAsSolidFloor() and not square:isOutside(),
+            "Project RV physical room did not load as an interior")
+        if not SAO.MobileHousehold.isInterior(personId, body) then
+            receipt.interior.identityWaitTicks =
+                (tonumber(receipt.interior.identityWaitTicks) or 0) + 1
+            return
+        end
+        receipt.interior.loaded = true
+        receipt.interior.outside = square:isOutside()
+        local floor = square:getFloor()
+        receipt.interior.floorSprite = floor and floor:getSprite()
+            and floor:getSprite():getName() or nil
+        local exited, verdict = SAO.MobileHousehold.exitInterior(
+            personId, body, "loaded-study-complete")
+        assert(exited, "mobile household exit refused: " .. tostring(verdict))
+        receipt.exitInitiatedAtHours = getGameTime():getWorldAgeHours()
+        receipt.phase, receipt.waitTicks = "load-exterior", 0
+        positionCharacter(assert(getSpecificPlayer(0), "observer anchor unavailable"),
+            spec.moved, false)
+        print("[StudyWorld] mobile household physical room loaded")
+        return
+    end
+    if receipt.phase == "load-exterior" then
+        local square = getCell():getGridSquare(spec.moved.x, spec.moved.y, spec.moved.z)
+        if not square or not vehicle then return end
+        pcall(function() body:ensureOnTile() end)
+        local dx, dy = body:getX() - spec.moved.x, body:getY() - spec.moved.y
+        assert(dx * dx + dy * dy <= 16 and not SAO.MobileHousehold.isInterior(personId, body),
+            "resident did not return beside the moved exterior anchor")
+        local households = ModData.getOrCreate("SurvivorAwareness_MobileHouseholds")
+        local record = households.vehicles and households.vehicles[receipt.vehicleId]
+        assert(record and #record.transitions >= 2,
+            "mobile household transition history missing")
+        receipt.transitionCount = #record.transitions
+        receipt.materialRevision = record.materialRevision
+        receipt.final = { x = body:getX(), y = body:getY(), z = body:getZ() }
+        receipt.exitedAtHours = getGameTime():getWorldAgeHours()
+        receipt.phase, receipt.result, receipt.waitTicks = "completed", "completed", 0
+        print("[StudyWorld] mobile household exited person=" .. tostring(personId)
+            .. " anchor=" .. tostring(receipt.vehicleId))
+    end
+end
 local function copy(value, path, budget, seen, depth)
     local kind = type(value)
     if budget.left <= 0 or (kind == "string" and #value > 32768) then
@@ -469,6 +615,8 @@ function Study.observe()
         hours = hours, countyHours = SAO.History.countyHours(),
         session = session, datasetAdmission = "unreviewed", extent = Config.extent,
         sandbox = Config.sandbox, generation = Config.generation, situation = Config.situation or {},
+        situationReceipt = copy(state.situationReceipt or {}, "situationReceipt",
+            { left = 4096, omitted = array(), omittedCount = 0 }, {}, 0) or {},
         source = "loaded-native-world", mods = array(), windows = array(), people = array(),
         processes = array(), population = { total = 0, captured = 0, dead = 0,
             represented = 0, unrepresented = 0 },
@@ -646,6 +794,7 @@ function Study.tick()
     if not Study.active then return end
     applyInitialNeeds()
     applyHorseTravel()
+    applyMobileHousehold()
     local hours = getGameTime():getWorldAgeHours()
     liveInspection(hours)
     if isGamePaused() then return end

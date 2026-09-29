@@ -84,9 +84,14 @@ def load(path):
 def validate(value):
     required = {"schema", "id", "seed", "extent", "origins", "sandbox", "generation", "observation"}
     require(isinstance(value, dict) and required <= value.keys()
-            and value.keys() <= required | {"sourceMap", "situation"}, "invalid world fields")
+            and value.keys() <= required | {"sourceMap", "situation", "lots"}, "invalid world fields")
     if "sourceMap" in value:
         Authored.source_name(value["sourceMap"])
+    if "lots" in value:
+        require("sourceMap" not in value, "authored worlds already own their native map source")
+        require(isinstance(value["lots"], str)
+                and re.fullmatch(r"[A-Za-z0-9][A-Za-z0-9 _,'.()_-]{0,95}", value["lots"])
+                and value["lots"] != "NONE", "invalid native lots dependency")
     require(value["schema"] == SCHEMA, "unsupported world schema")
     require(isinstance(value["id"], str)
             and re.fullmatch(r"[a-z][a-z0-9-]{0,47}", value["id"]), "invalid world id")
@@ -161,8 +166,8 @@ def validate(value):
             require(len(val) <= 512, "sandbox string too long")
     if "situation" in value:
         situation = value["situation"]
-        require(isinstance(situation, dict) and 1 <= len(situation) <= 2
-                and set(situation) <= {"initialNeeds", "horseTravel"},
+        require(isinstance(situation, dict) and 1 <= len(situation) <= 3
+                and set(situation) <= {"initialNeeds", "horseTravel", "mobileHousehold"},
                 "situation must define supported pressures")
         if "initialNeeds" in situation:
             needs = situation["initialNeeds"]
@@ -193,6 +198,25 @@ def validate(value):
                         f"invalid horseTravel {key}")
             integer(travel["ageDays"], 180, 36500, "horseTravel ageDays")
             require(type(travel["running"]) is bool, "horseTravel running must be boolean")
+        if "mobileHousehold" in situation:
+            mobile = situation["mobileHousehold"]
+            fields(mobile, {"spawn", "moved", "script", "residentOccupation"},
+                   "mobileHousehold")
+            point(mobile["spawn"], "mobileHousehold spawn")
+            point(mobile["moved"], "mobileHousehold moved")
+            require(mobile["spawn"]["z"] == mobile["moved"]["z"],
+                    "mobileHousehold movement must remain on one floor")
+            dx = mobile["moved"]["x"] - mobile["spawn"]["x"]
+            dy = mobile["moved"]["y"] - mobile["spawn"]["y"]
+            require(dx * dx + dy * dy >= 16,
+                    "mobileHousehold anchor movement is shorter than four tiles")
+            require(isinstance(mobile["script"], str)
+                    and re.fullmatch(r"[A-Za-z][A-Za-z0-9_.-]{1,95}", mobile["script"]),
+                    "invalid mobileHousehold vehicle script")
+            require(isinstance(mobile["residentOccupation"], str)
+                    and re.fullmatch(r"[A-Za-z][A-Za-z0-9_.-]{0,79}",
+                                     mobile["residentOccupation"]),
+                    "invalid mobileHousehold resident occupation")
     obs = value["observation"]
     fields(obs, {"everyHours", "maxPeople", "maxProcesses", "windows"}, "observation")
     number(obs["everyHours"], 1 / 3600, 720, "observation period")
@@ -346,7 +370,8 @@ def build(value, destination, game):
         (mod / "mod.info").write_text(metadata, encoding="utf-8")
         (version / "mod.info").write_text(metadata, encoding="utf-8")
         (maps / "map.info").write_text(
-            f"title={map_name}\nlots=NONE\nfixed2x=true\ndescription=Native study world\n",
+            f"title={map_name}\nlots={value.get('lots', 'NONE')}\nfixed2x=true\n"
+            "description=Native study world\n",
             encoding="utf-8")
         override = static_modules_source(value["generation"])
         if override is not None:
@@ -411,8 +436,9 @@ def verify_package(path):
                 and override.read_bytes() == expected_override), "native terrain override differs from definition")
     maps = override.parent
     require((maps / "map.info").read_text(encoding="utf-8") ==
-            f"title={map_name}\nlots=NONE\nfixed2x=true\ndescription=Native study world\n",
-            "native map metadata differs; map dependencies are not permitted")
+            f"title={map_name}\nlots={definition.get('lots', 'NONE')}\nfixed2x=true\n"
+            "description=Native study world\n",
+            "native map metadata differs or lots dependency differs")
     for name, source in spawn_sources(definition, map_name).items():
         require((maps / name).read_text(encoding="utf-8") == source,
                 "native spawn source differs from definition")
@@ -454,10 +480,14 @@ def bind_frame(frame, package):
 
 
 def validate_frame(frame):
-    fields({key: value for key, value in frame.items() if key not in {"countyHours", "situation"}}, {"schema", "definitionSha256", "packageEngineJarSha256", "observerSha256",
+    fields({key: value for key, value in frame.items()
+            if key not in {"countyHours", "situation", "situationReceipt"}}, {"schema", "definitionSha256", "packageEngineJarSha256", "observerSha256",
                    "engineVersion", "map", "save", "sequence", "hours", "session",
                    "datasetAdmission", "extent", "sandbox", "generation", "source", "mods", "windows",
                    "people", "processes", "population", "coverage"}, "observation")
+    require(isinstance(frame.get("situationReceipt", {}), dict)
+            and len(frame.get("situationReceipt", {})) <= 64,
+            "invalid situation receipt")
     require(frame["schema"] == FRAME, "unsupported observation schema")
     for key in ("definitionSha256", "packageEngineJarSha256", "observerSha256"):
         require(isinstance(frame[key], str) and re.fullmatch(r"[0-9a-f]{64}", frame[key]),

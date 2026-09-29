@@ -10,6 +10,20 @@ local function dist(ax, ay, bx, by)
     return math.sqrt(dx * dx + dy * dy)
 end
 
+local function representationPosition(id, rec, body)
+    if SAO.MobileHousehold and SAO.MobileHousehold.representationPosition then
+        local ok, point = pcall(SAO.MobileHousehold.representationPosition, id, body)
+        if ok and type(point) == "table" then return point end
+    end
+    if body then
+        local ok, x, y, z = pcall(function()
+            return body:getX(), body:getY(), body:getZ()
+        end)
+        if ok then return { x = x, y = y, z = z } end
+    end
+    return { x = rec.x, y = rec.y, z = rec.z }
+end
+
 local function backfillName(rec, body)
     if rec.forename ~= "Unnamed" or not SAOJavaBridge then return end
     local ok, name = pcall(function() return SAOJavaBridge:getShellName(body) end)
@@ -60,14 +74,26 @@ local function materializeBand(px, py, conf)
     for id, rec in pairs(SAO.Identity.all()) do
       if not rec.dead and SAO.Body.recover(rec) == true then
         local hasBody = SAO.Body.hasRepresentation(id)
-        local d = dist(rec.x, rec.y, px, py)
+        local represented = hasBody and SAO.Body.get(id) or nil
+        local point = representationPosition(id, rec, represented)
+        local d = dist(point.x, point.y, px, py)
         if SAO.Claims.isHeld(rec) then
             -- Inhabitants are never conjured ([A17]): a Knox person's
             -- body is the legacy mod's business; absence means they are
             -- elsewhere, not ours to spawn. Passive adoption handles
             -- presence; nothing here may replace them.
         elseif not hasBody and d <= conf.materialize then
-            local body = SAO.Body.materialize(rec)
+            local body = SAO.Body.materialize(rec, nil, nil,
+                point.physicalInterior and point or nil)
+            if body then
+                if point.physicalInterior and SAO.MobileHousehold
+                    and SAO.MobileHousehold.restoreInterior
+                    and SAO.MobileHousehold.restoreInterior(id, body) ~= true then
+                    SAO.Body.release(rec)
+                    body = nil
+                    log(rec.id .. " interior binding was unavailable")
+                end
+            end
             if body then
                 backfillName(rec, body)
                 -- [B38] Age reaches the head. Once per person, the
@@ -278,16 +304,12 @@ local function materializeBand(px, py, conf)
                 log(rec.id .. " is nearby (" .. string.format("%.0f", d) .. " tiles)")
             end
         elseif hasBody and d > conf.hibernate then
-            local body = SAO.Body.get(id)
-            local bd = body and dist(body:getX(), body:getY(), px, py) or d
-            if bd > conf.hibernate then
-                local released, reason = SAO.Body.release(rec)
-                if released then
-                    log(rec.id .. " continues without you (dormant at "
-                        .. rec.x .. "," .. rec.y .. ")")
-                else
-                    log(rec.id .. " release deferred: " .. tostring(reason))
-                end
+            local released, reason = SAO.Body.release(rec)
+            if released then
+                log(rec.id .. " continues without you (dormant at "
+                    .. rec.x .. "," .. rec.y .. ")")
+            else
+                log(rec.id .. " release deferred: " .. tostring(reason))
             end
         end
       end

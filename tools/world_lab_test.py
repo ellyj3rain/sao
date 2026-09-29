@@ -63,6 +63,29 @@ class DefinitionTests(unittest.TestCase):
             with self.assertRaisesRegex(ValueError, "conflicting"):
                 Profiles.resolve(profile, catalogue, root / "workshop", [explicit.parent])
 
+    def test_native_lots_dependency_is_unique_and_inside_world_extent(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            mods = Path(tmp) / "mods"
+            map_root = mods / "ProjectRV/common/media/maps/map_distanciado"
+            map_root.mkdir(parents=True)
+            (map_root / "map.info").write_text("title=map_distanciado\n", encoding="utf-8")
+            (map_root / "87_46.lotheader").write_bytes(b"native")
+            definition = {"lots": "map_distanciado",
+                          "extent": {"minCellX": 13, "minCellY": 42,
+                                     "cellsX": 85, "cellsY": 8}}
+            evidence = Run.native_lots_evidence(mods, definition)
+            self.assertEqual((evidence["provider"], evidence["cells"]), ("ProjectRV", 1))
+            (map_root / "98_46.lotheader").write_bytes(b"outside")
+            with self.assertRaisesRegex(ValueError, "leaves the declared world extent"):
+                Run.native_lots_evidence(mods, definition)
+            (map_root / "98_46.lotheader").unlink()
+            duplicate = mods / "Duplicate/42.20/media/maps/map_distanciado"
+            duplicate.mkdir(parents=True)
+            (duplicate / "map.info").write_text("title=duplicate\n", encoding="utf-8")
+            (duplicate / "87_46.lotheader").write_bytes(b"native")
+            with self.assertRaisesRegex(ValueError, "resolve to one"):
+                Run.native_lots_evidence(mods, definition)
+
     def test_observer_evidence_requires_detachment_advancement_and_native_image(self):
         with tempfile.TemporaryDirectory() as tmp:
             root = Path(tmp)
@@ -244,6 +267,26 @@ class DefinitionTests(unittest.TestCase):
                 lambda d: d["situation"]["horseTravel"].update(running=1),
                 lambda d: d["situation"]["horseTravel"]["destination"].update(x=130),
                 lambda d: d["situation"]["horseTravel"]["destination"].update(z=1)):
+            invalid = copy.deepcopy(value)
+            change(invalid)
+            with self.assertRaises(ValueError):
+                Lab.validate(invalid)
+
+    def test_mobile_household_situation_and_native_lots(self):
+        value = copy.deepcopy(BASE)
+        value["lots"] = "map_distanciado"
+        value["situation"] = {"mobileHousehold": {
+            "spawn": {"x": 128, "y": 128, "z": 0},
+            "moved": {"x": 138, "y": 128, "z": 0},
+            "script": "Base.RollingRefuge", "residentOccupation": "mechanic",
+        }}
+        self.assertEqual(Lab.validate(value), value)
+        for change in (
+                lambda d: d["situation"]["mobileHousehold"]["moved"].update(x=130),
+                lambda d: d["situation"]["mobileHousehold"]["moved"].update(z=1),
+                lambda d: d["situation"]["mobileHousehold"].update(script="../escape"),
+                lambda d: d.update(lots="../escape"),
+                lambda d: d.update(sourceMap="Muldraugh, KY")):
             invalid = copy.deepcopy(value)
             change(invalid)
             with self.assertRaises(ValueError):
@@ -432,10 +475,14 @@ class AuthoredMapTests(unittest.TestCase):
             blob = (GAME / relative).read_bytes()
             self.assertEqual(seal, {"sha256": Lab.Authored.digest(blob), "bytes": len(blob)})
         variants = [Lab.validate(Lab.load(path)) for path in (Lab.ROOT / "tools/world_lab/definitions").glob("echo-creek-*.json")]
-        self.assertEqual(sorted(v["sandbox"]["SurvivorAwareness.Population"] for v in variants), [2, 2, 4, 7])
-        for value in variants:
+        authored = [value for value in variants if "sourceMap" in value]
+        self.assertEqual(sorted(v["sandbox"]["SurvivorAwareness.Population"] for v in authored), [2, 2, 4, 7])
+        for value in authored:
             self.assertEqual(value["sourceMap"], "Muldraugh, KY")
             self.assertEqual(value["extent"], self.definition["extent"])
+        mobile = next(value for value in variants if value["id"] == "echo-creek-mobile-household")
+        self.assertEqual(mobile["lots"], "map_distanciado")
+        self.assertNotIn("sourceMap", mobile)
         self.assertEqual(self.manifest["datasetAdmission"], "unreviewed")
         self.assertEqual(self.receipt["headerCatalog"]["count"], 4065)
 
@@ -956,7 +1003,9 @@ assert(SAO.Participants.player(0) == nil and SAO.Participants.residencyCenter() 
              "originalRoads = worldgen.roads", "unrequested native roads retained"),
             ("other-world isolation", "getWorld():getMap() == Config.mapName", "true", "other-world isolation failed"),
             ("unloaded coverage", "frame.coverage.unavailableSquares + 1", "frame.coverage.unavailableSquares + 0", "unloaded geometry was claimed observed"),
-            ("dataset review", 'datasetAdmission = "unreviewed"', 'datasetAdmission = "approved"', "observation ratified itself"),
+            ("dataset review", 'session = session, datasetAdmission = "unreviewed", extent = Config.extent',
+             'session = session, datasetAdmission = "approved", extent = Config.extent',
+             "observation ratified itself"),
             ("save identity", 'state.definitionSha256 == Config.definitionSha256', 'true', "foreign save admitted"),
             ("native writer extension", '.. ".json"', '.. ".jsonl"', "native writer disallows extension"),
             ("write acknowledgement", 'assert(received == line and extra == nil,', 'assert(true,', "failed write acknowledged"),

@@ -95,7 +95,7 @@ local function wakeSquareFor(rec)
     return x, y, moved
 end
 
-function Body.materialize(rec, externalOwner, externalToken)
+function Body.materialize(rec, externalOwner, externalToken, physicalPosition)
     if not rec or not rec.id then
         log("materialize refused: no record")
         return nil
@@ -159,6 +159,13 @@ function Body.materialize(rec, externalOwner, externalToken)
         end
     end
     local wx, wy, movedBy = wakeSquareFor(rec)
+    local wz = math.floor(rec.z)
+    if type(physicalPosition) == "table" and finite(physicalPosition.x)
+        and finite(physicalPosition.y) and finite(physicalPosition.z) then
+        wx, wy, wz = math.floor(physicalPosition.x), math.floor(physicalPosition.y),
+            math.floor(physicalPosition.z)
+        movedBy = nil
+    end
     local slotBefore = localSlotUser()
 
     -- Construction. The Java agent owns shell creation when available: a bare
@@ -174,7 +181,7 @@ function Body.materialize(rec, externalOwner, externalToken)
             -- has (DR-039). The descriptor's own sex came from
             -- CreateSurvivor and had nothing to agree with.
             return SAOJavaBridge:spawnShellNamed(rec.forename, rec.surname,
-                wx, wy, math.floor(rec.z),
+                wx, wy, wz,
                 SAO.Identity.femaleOf(rec), false)
         end)
         if okJ and shell then
@@ -197,7 +204,7 @@ function Body.materialize(rec, externalOwner, externalToken)
             if rec.surname ~= "Survivor" then desc:setSurname(rec.surname) end
         end)
         local okBody, bare = pcall(function()
-            return IsoPlayer.new(getCell(), desc, wx, wy, math.floor(rec.z))
+            return IsoPlayer.new(getCell(), desc, wx, wy, wz)
         end)
         if not okBody or not bare then
             log("FAIL construct for " .. rec.id .. ": " .. tostring(bare))

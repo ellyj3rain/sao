@@ -62,6 +62,12 @@ function Snapshot.capture(rec, body)
     end
     local now = SAO.History.countyHours()
     local x, y, z = body:getX(), body:getY(), body:getZ()
+    local anchor = rec.mobileHouseholdState == "interior"
+        and rec.mobileHouseholdAnchor or nil
+    if type(anchor) == "table" and finite(anchor.x) and finite(anchor.y)
+        and finite(anchor.z) then
+        x, y, z = anchor.x, anchor.y, anchor.z
+    end
     if not finite(now) or not finite(x) or not finite(y) or not finite(z) then
         return nil, "invalid-position-time"
     end
