@@ -182,9 +182,16 @@ def gated():
 
 def blinded_tree(dest):
     """The tracked working tree, with every shipped Lua file removed."""
-    listed = subprocess.run(["git", "ls-files"], cwd=str(ROOT),
+    # A Windows Python launched from WSL otherwise resolves /usr/bin/git,
+    # which cannot follow this worktree's Windows-form .git pointer after
+    # check.sh intentionally scrubs inherited GIT_* overrides.
+    # WSL's Linux Python also sees git.exe on PATH and needs it for a
+    # Windows-form worktree pointer, so prefer it whenever it is available.
+    git = shutil.which("git.exe") or shutil.which("git")
+    listed = subprocess.run([git or "git", "ls-files"], cwd=str(ROOT),
                             capture_output=True, text=True, timeout=300)
     if listed.returncode != 0:
+        print("  git ls-files refused: " + (listed.stderr or "unknown error").strip())
         return False
     for rel in listed.stdout.split("\n"):
         rel = rel.strip()

@@ -1,0 +1,23 @@
+module HorseMod {
+
+    model HorseManeStart {
+        mesh = HorseMod/SimpleManeStart,
+        texture = F_Hair_White,
+        static = true,
+        scale = 1.00,
+    }
+
+    model HorseManeMid {
+        mesh = HorseMod/SimpleManeMid,
+        texture = F_Hair_White,
+        static = true,
+        scale = 1.00,
+    }
+
+    model HorseManeEnd {
+        mesh = HorseMod/SimpleManeEnd,
+        texture = F_Hair_White,
+        static = true,
+        scale = 1.00,
+    }
+}

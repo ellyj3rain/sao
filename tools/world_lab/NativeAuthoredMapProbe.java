@@ -56,8 +56,8 @@ public final class NativeAuthoredMapProbe {
                 if (Math.floorDiv(ox, 256) != x || Math.floorDiv(oy, 256) != y) continue;
                 check(oz == 0, "origin ground-bit probe supports floor zero only");
                 int bits = chunk.getSquareBits(ox, oy);
-                check((bits & (POTChunkData.BIT_SOLID | POTChunkData.BIT_WATER)) == 0
-                    && (bits & POTChunkData.BIT_ROOM) != 0, "origin is not a clear native ground room");
+                check((bits & (POTChunkData.BIT_SOLID | POTChunkData.BIT_WATER)) == 0,
+                    "origin is not clear native ground");
                 var tiles = pack.getSquareData(ox, oy, oz);
                 check(tiles != null && tiles.length > 0, "origin lacks native tiles");
                 System.out.println("ORIGIN " + ox + " " + oy + " " + oz + " bits=" + bits

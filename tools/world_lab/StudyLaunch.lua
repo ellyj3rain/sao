@@ -1,7 +1,7 @@
 -- RunConfig is supplied only by the isolated native runner.
 -- This uses the game's debug scenario entry, then ordinary game ticks and exit.
 require "DebugUIs/DebugScenarios"
-Events.OnGameBoot.Add(function()
+local function configureStudy()
 debugScenarios = debugScenarios or {}
 for _, scenario in pairs(debugScenarios) do scenario.forceLaunch = false end
 debugScenarios.NativeStudy = {
@@ -9,14 +9,27 @@ debugScenarios.NativeStudy = {
     forceLaunch = RunConfig.resumeSave == nil,
     startLoc = RunConfig.origin,
     setSandbox = function()
-        ActiveMods.getById("currentGame"):copyFrom(ActiveMods.getById("default"))
+        ActiveMods.getById("currentGame"):copyFrom(ActiveMods.getById("isolatedStudy"))
         getWorld():setGameMode("Sandbox")
     end,
     onStart = function() print("[StudyLaunch] native character created") end
 }
 getDebugOptions():setBoolean("DebugScenario.ForceLaunch", true)
-getCore():setOptionFocusloss(false)
-end)
+local core = getCore()
+if core.setOptionPauseOnFocusloss then
+    core:setOptionPauseOnFocusloss(false)
+elseif core.setOptionFocusloss then
+    core:setOptionFocusloss(false)
+end
+end
+-- An explicitly selected study cohort may load this client file after the
+-- one-shot boot event has already closed. Configure immediately in that case
+-- instead of calling a retired event's nil Add function.
+if Events.OnGameBoot and Events.OnGameBoot.Add then
+    Events.OnGameBoot.Add(configureStudy)
+else
+    configureStudy()
+end
 if RunConfig.resumeSave then
     Events.OnMainMenuEnter.Add(function()
         MainScreen.continueLatestSave("Sandbox", RunConfig.resumeSave)

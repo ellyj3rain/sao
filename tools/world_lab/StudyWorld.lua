@@ -230,6 +230,90 @@ local function applyInitialNeeds()
         end
     end
 end
+local function existingHorse(id)
+    if not id then return nil end
+    if SAO and SAO.Animals and SAO.Animals.horseById then
+        local horse = SAO.Animals.horseById(id)
+        if horse then return horse end
+    end
+    local ok, animal = pcall(function() return getAnimal(tonumber(id)) end)
+    return ok and animal or nil
+end
+local function applyHorseTravel()
+    local spec = Config.situation and Config.situation.horseTravel
+    if not spec then return end
+    state.horseTravel = state.horseTravel or { phase = "spawn" }
+    local receipt = state.horseTravel
+    if receipt.phase == "arrived" or receipt.phase == "failed" then return end
+    local horse = existingHorse(receipt.animalId)
+    if not horse then
+        if receipt.phase ~= "spawn" then
+            receipt.missingTicks = (tonumber(receipt.missingTicks) or 0) + 1
+            assert(receipt.missingTicks < 600, "study horse disappeared during travel")
+            return
+        end
+        local definition = assert(AnimalDefinitions.getDef(spec.animalType),
+            "study horse type unavailable")
+        local breed = assert(definition:getBreedByName(spec.breed),
+            "study horse breed unavailable")
+        horse = assert(addAnimal(getCell(), spec.spawn.x, spec.spawn.y, spec.spawn.z,
+            spec.animalType, breed, false), "native horse creation failed")
+        horse:setAgeDebug(spec.ageDays)
+        horse:addToWorld()
+        receipt.animalId = horse:getAnimalID()
+        receipt.phase = "rider"
+        receipt.spawnedAtHours = getGameTime():getWorldAgeHours()
+        print("[StudyWorld] horse=" .. tostring(receipt.animalId) .. " spawned")
+        return
+    end
+    receipt.missingTicks = 0
+    local riderId, body = receipt.riderId, receipt.riderId and SAO.Body.get(receipt.riderId) or nil
+    if not body then
+        for _, id in ipairs(keys(SAO.Identity.all())) do
+            local rec, candidate = SAO.Identity.all()[id], SAO.Body.get(id)
+            if not rec.dead and candidate then
+                riderId, body = id, candidate
+                rec.occupation = spec.riderOccupation
+                receipt.riderId = id
+                receipt.phase = "admit"
+                break
+            end
+        end
+    end
+    if not body then return end
+    if receipt.phase == "rider" or receipt.phase == "admit" then
+        local dx, dy = horse:getX() - body:getX(), horse:getY() - body:getY()
+        if dx * dx + dy * dy > 36 then
+            body:setX(horse:getX() + 2)
+            body:setY(horse:getY())
+            body:setZ(horse:getZ())
+        end
+        local accepted = SAO.Animals and SAO.Animals.orderTravel and SAO.Animals.orderTravel(
+            riderId, body, spec.destination.x, spec.destination.y, spec.destination.z,
+            spec.running)
+        if accepted then
+            receipt.phase = "travelling"
+            receipt.startedAtHours = getGameTime():getWorldAgeHours()
+            print("[StudyWorld] horse travel rider=" .. tostring(riderId) .. " accepted")
+        end
+        return
+    end
+    if receipt.phase == "travelling" then
+        local verdict = SAO.Animals.tickTravel(riderId)
+        receipt.lastVerdict = verdict
+        if verdict == "arrived" then
+            receipt.phase = "arrived"
+            receipt.completedAtHours = getGameTime():getWorldAgeHours()
+            print("[StudyWorld] horse travel arrived rider=" .. tostring(riderId))
+        elseif tostring(verdict):find("failed:", 1, true) == 1 then
+            receipt.phase = "failed"
+            receipt.failedAtHours = getGameTime():getWorldAgeHours()
+            receipt.reason = verdict
+            print("[StudyWorld] horse travel failed rider=" .. tostring(riderId)
+                .. " reason=" .. tostring(verdict))
+        end
+    end
+end
 local function copy(value, path, budget, seen, depth)
     local kind = type(value)
     if budget.left <= 0 or (kind == "string" and #value > 32768) then
@@ -561,6 +645,7 @@ end
 function Study.tick()
     if not Study.active then return end
     applyInitialNeeds()
+    applyHorseTravel()
     local hours = getGameTime():getWorldAgeHours()
     liveInspection(hours)
     if isGamePaused() then return end

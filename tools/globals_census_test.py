@@ -66,6 +66,7 @@ PZ = pathlib.Path(
 OURS = "ours"        # our namespace; the only outright write allowed
 LUA_STD = "lua"      # the standard library, as Border 48 reads it
 ENGINE = "engine"    # Project Zomboid's own globals
+ENGINE_PATCH = "engine-patch"  # exact, argued engine extension seams
 NEIGHBOUR = "neighbour"   # another mod's; every one needs an argument
 
 # Why we are inside somebody else's namespace. One entry per mod, and
@@ -108,13 +109,15 @@ NEIGHBOURS = {
 
 # [C89] Pharmacology is owned source. Legacy NnC save keys remain string
 # data in SAO_Pharmacology; no foreign drug registry or callback is a global.
-NEIGHBOURS["Mounts"] = (
-    "Horse Mod. [C123] SAO_Animals READS Mounts.hasMount and "
-    "Mounts.getMount on bodies - checked as functions, called, "
-    "never written - to associate a mounted horse's engine animal "
-    "id with the survivor. Without Horse Mod the global reads "
-    "nil and no mount is inferred."
-)
+
+# C98 source-owns Horse execution. These two writes extend exact engine Lua
+# seams and retain their originals; they are neither foreign mod namespaces nor
+# SAO-owned globals. Keeping each name and reason explicit makes the bytecode
+# census refuse any new engine overwrite.
+ENGINE_PATCHES = {
+    "ContextualActionHandlers": "Build 42 contextual animal interaction table; the Horse handler preserves and delegates to AnimalsInteraction.",
+    "isPlayerDoingActionThatCanBeCancelled": "Build 42 cancellation predicate; the Horse wrapper preserves the original and adds dynamic mount-action refusal.",
+}
 
 KNOWN = {n: OURS for n in (
     "SAO", "SAOCountyWindow", "SAOInspectWindow", "SAOWire", "SAOJavaBridge",
@@ -122,11 +125,15 @@ KNOWN = {n: OURS for n in (
     "SAOMedicalWindow",
     # [C35] the gesture's timed action, a vanilla-derived class of ours.
     "SAOGestureAction",
+    # [C98] Source-owned Horse globals required by engine recipe/registry and
+    # compatibility contracts. The rest of Horse execution is require-local.
+    "GetSpeeds", "HorseGlueToWoodglue", "HorseModNetMetrics",
 )}
 KNOWN.update({n: NEIGHBOUR for n in NEIGHBOURS})
+KNOWN.update({n: ENGINE_PATCH for n in ENGINE_PATCHES})
 KNOWN.update({n: LUA_STD for n in (
     "assert", "error", "ipairs", "math", "pairs", "pcall", "print", "require", "setmetatable",
-    "select", "string", "table", "tonumber", "tostring", "type",
+    "select", "string", "table", "tonumber", "tostring", "type", "unpack", "_G",
 )})
 KNOWN.update({n: ENGINE for n in (
     # [C87] Installed ISInventoryPaneContextMenu.getContainers/hasOpenFlame
@@ -179,14 +186,42 @@ KNOWN.update({n: ENGINE for n in (
     "ResourceLocation", "MoodleType",
     # Native shared/TimedActions/ISToggleStoveAction.lua:3; loaded cooking owner.
     "ISToggleStoveAction",
-    # [C123] Vanilla animal care timed actions and animation variable.
-    "AnimationVariable", "ISAddWaterToTrough", "ISFeedAnimalFromHand",
+    # [C123] Vanilla animal care timed actions.
+    "ISAddWaterToTrough", "ISFeedAnimalFromHand",
     "ISHutchGrabEgg", "ISMilkAnimal", "ISPetAnimal", "ISShearAnimal",
     "addVirtualZombie",
     "addSound", "farming_vegetableconf", "getCell", "getCellSizeInSquares", "getClimateManager",
     "getCore", "getFileWriter", "getGameTime",
     "getScriptManager", "getSpecificPlayer", "getText", "getTextManager",
     "getTimestampMs", "getWorld", "instanceof",
+    # [C98] Build 42 globals used by the complete source-owned Horse physical
+    # implementation. Definitions/classes/functions remain engine-owned; Horse
+    # contributes behavior through require-local modules and the two exact
+    # extension seams above.
+    "Actions", "AnimalAvatarDefinition", "AnimalContextMenu",
+    "AnimalDefinitions", "AnimalGenomeDefinitions", "AnimalPartsDefinitions",
+    "AttachedLocations", "BloodBodyPartType", "BodyPartSyncPacket",
+    "ClutterTables", "DebugLog", "GameVersion", "ISAddAnimalInTrailer",
+    "ISAnimalUI", "ISBuildIsoEntity", "ISButcherHookUI", "ISContextMenu",
+    "ISEquipWeaponAction", "ISHandcraftAction", "ISPickupAnimal",
+    "ISSearchManager", "ISTransferAction", "ISUnequipAction",
+    "ISVehicleAnimalUI", "ISVehicleMenu", "ISWalkToTimedActionF",
+    "ISWearClothing", "ISWorldObjectContextMenu", "IsoDirections",
+    "IsoFlagType", "IsoLightSource", "ItemType", "JoypadButton",
+    "JoypadState", "ModelAttachment", "PZAPI", "PZMath",
+    "RanchZoneDefinitions", "ScriptManager", "StoryClutter", "Vector2",
+    "VehicleDistributions", "copyTable",
+    "emulateAnimEventOnce", "forageSystem", "getActivatedMods", "getAnimal",
+    "getClassField", "getClassFieldVal", "getControllerPovX",
+    "getControllerPovY", "getDebug", "getItemNameFromFullType",
+    "getItemTextureName", "getJoypadMovementAxisX", "getJoypadMovementAxisY",
+    "getNumClassFields", "getOnlinePlayers", "getPlayer",
+    "getPlayerByOnlineID", "getPlayerData", "getPlayerRadialMenu",
+    "getSquare", "getTexture", "instanceItem", "isDebugEnabled",
+    "isJoypadLTPressed", "isJoypadRTPressed", "isKeyDown", "isServer",
+    "luautils", "sendClientCommand", "sendEquip",
+    "sendPlayerStat", "sendRemoveItemFromContainer", "sendServerCommand",
+    "syncBodyPart", "triggerEvent",
 )})
 
 
@@ -280,8 +315,15 @@ def main():
                 "touches it any more. Delete the entry: an argument that "
                 "outlived what it argued about describes no code")
 
+    for name in sorted(ENGINE_PATCHES):
+        if name not in written:
+            faults.append(
+                f"ENGINE_PATCHES argues the write to `{name}` and no write "
+                "exists. Delete the entry: an engine-patch argument must "
+                "describe current bytecode")
+
     for name in sorted(written):
-        if KNOWN.get(name) != OURS:
+        if KNOWN.get(name) not in (OURS, ENGINE_PATCH):
             faults.append(
                 f"we WRITE `{name}`, which is not ours. Writing outside our "
                 "own namespace is a change to somebody else's mod made from "
@@ -295,7 +337,8 @@ def main():
             print(f"  FAULT: {f}")
         return 1
     print(f"  51) globals census: all {len(touched)} globals we touch are "
-          f"classified, the {len(written)} we assign outright are ours, "
+          f"classified, the {len(written)} we assign outright are owned "
+          "or explicitly argued engine patches, "
           f"and each of the {len(NEIGHBOURS)} foreign namespace(s) we are "
           "inside is argued")
     return 0

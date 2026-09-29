@@ -63,6 +63,12 @@ SORT = re.compile(r"table\.sort\s*\(\s*([A-Za-z_]\w*)")
 
 # (file, the list being sorted) -> what bounds its length.
 BOUNDED = {
+    ("AttachmentsClient.lua", "toAddOptionsTo"):
+        "the source-owned Horse menu copies at most MAX_GEAR_MENU_ITEMS (256) "
+        "accessible inventory entries before sorting",
+    ("AttachmentsClient.lua", "attachedItems"):
+        "the source-owned Horse menu trims the current horse attachment list "
+        "to MAX_GEAR_MENU_ITEMS (256) before sorting",
     ("SAO_Controller.lua", "eligible"):
         "the watch pool of one company - members present and awake, so "
         "at most the company, and a company is at most the county",

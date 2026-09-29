@@ -192,6 +192,11 @@ ARITY = ("(function() _G.__world = 'SaveA' local out = {} "
          "if v < l2 then l2 = v end if v > h2 then h2 = v end end "
          "out[#out + 1] = 'oneLo=' .. l2 .. ' oneHi=' .. h2 "
          "out[#out + 1] = 'empty=' .. SAO.Rand.int(5, 5) "
+         "local fl, fh = 9999, -9999 "
+         "for i = 1, 400 do local v = SAO.Rand.float(-1, 1) "
+         "if v < fl then fl = v end if v > fh then fh = v end end "
+         "out[#out + 1] = 'floatLo=' .. fl .. ' floatHi=' .. fh "
+         "out[#out + 1] = 'floatEmpty=' .. SAO.Rand.float(5, 5) "
          "return table.concat(out, ' ') end)()")
 
 OFFLINE = ("(function() __freshSave('SaveA') _G.__noWorld = true "
@@ -335,6 +340,15 @@ def main():
     if got.get("empty") != "5":
         faults.append("an empty range answered %s, wanted its low bound 5"
                       % got.get("empty"))
+    float_lo = float(got.get("floatLo", "9999"))
+    float_hi = float(got.get("floatHi", "-9999"))
+    if not (-1 <= float_lo < -.9 and .9 < float_hi < 1):
+        faults.append("R.float(-1, 1) ranged %s..%s, wanted a nonconstant "
+                      "exclusive continuous range across both signs"
+                      % (got.get("floatLo"), got.get("floatHi")))
+    if got.get("floatEmpty") != "5":
+        faults.append("an empty float range answered %s, wanted its low bound 5"
+                      % got.get("floatEmpty"))
 
     got = numbers(value(probe(OFFLINE)))
     print("     with no world: " + " ".join("%s=%s" % kv for kv in got.items()))

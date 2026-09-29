@@ -220,3 +220,38 @@ option SurvivorAwareness.Neuroinflammation {
     type = boolean, default = true,
     page = SurvivorAwareness, translation = SurvivorAwareness_Neuroinflammation,
 }
+
+/* Horse team riding and stamina controls, source-integrated into SAO. */
+option HorseMod.WalkSpeed {
+    type        = double,
+    min         = 0.1,
+    max         = 10,
+    default     = 1,
+    page        = HorseMod,
+    translation = HorseMod_WalkSpeed,
+}
+
+option HorseMod.GallopSpeed {
+    type        = double,
+    min         = 0.1,
+    max         = 10,
+    default     = 1,
+    page        = HorseMod,
+    translation = HorseMod_GallopSpeed,
+}
+
+option HorseMod.StaminaMultiplier {
+    type        = double,
+    min         = 0.1,
+    max         = 2,
+    default     = 1,
+    page        = HorseMod,
+    translation = HorseMod_StaminaMultiplier,
+}
+
+option HorseMod.RidingPainGrunt {
+    type        = boolean,
+    default     = true,
+    page        = HorseMod,
+    translation = HorseMod_RidingPainGrunt,
+}

@@ -60,6 +60,19 @@ The Indie Stone. Engine surfaces are used as the game exposes them and
 verified against the shipped `projectzomboid.jar` before use. No game
 assets are redistributed.
 
+## Horse Mod
+
+Horse team. Workshop 3661336777, mod id `Horse`, version 1.1.2.
+**Source integrated and adapted.** Horse models, textures, sounds, tile data,
+gear and recipes, animal definitions, animation sets, mounting and dismounting,
+riding movement and collision, stamina, attachments, mounted combat and
+network synchronization are carried in SAO's source with their original
+`HorseMod` module and asset names. SAO adds off-slot survivor identity,
+person-private spatial knowledge and planning, native route waypoints, durable
+rider-animal records, autonomous mounted input and observation. The Horse team
+remains credited for the complete physical horse implementation and assets;
+SAO owns their integration into its survivor and persistence systems.
+
 ## Other NPC mods
 
 Recognised, never required. Since [C17] `require=` in `mod.info`

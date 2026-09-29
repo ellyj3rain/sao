@@ -68,6 +68,11 @@ MARK_DEAD = "markDead"
 #   "calls"  - the clearing function calls Identity.markDead itself,
 #              so the clear and the death are the same event
 CACHES = {
+    ("SAO_Animals.lua", "A.travelJobs"): (
+        "A.forget", "named",
+        "a mounted route retains the living rider, horse and native route "
+        "handles; death cancels that runtime job while the durable purpose "
+        "and mount history remain on the person record"),
     ("SAO_Posture.lua", "P.jobs"): (
         "P.forget", "named",
         "a native posture holds one living body and exact procedure claim; "
@@ -227,6 +232,36 @@ CACHES = {
 # because the rule that catches them is the same rule that catches the
 # real ones and loosening it would cost more than it saves.
 NOT_A_SURVIVOR_ID = {
+    ("MountedDirection.lua", "visualAngles"): (
+        "keyed by an IsoAnimal body, not a survivor id; dismount and animal "
+        "removal clear the physical interpolation entry"),
+    ("Mounts.lua", "mountPlayerMap"): (
+        "keyed by the engine animal id; removeMount clears both sides of the "
+        "physical rider-animal relation"),
+    ("Mounts.lua", "mountedAnimalLockTicks"): (
+        "keyed by the engine animal id; unlock/removal clears the movement "
+        "lock cadence"),
+    ("Mounts.lua", "onlinePlayerScratch"): (
+        "a reused numeric array indexed while scanning the engine online-player "
+        "list, not a durable survivor-id cache"),
+    ("PlayerDamage.lua", "allowedDamagePartIndices"): (
+        "keyed by native BodyPartType index, not a person id; it is the static "
+        "set of horse-fall damage locations"),
+    ("client.lua", "commandHandlers"): (
+        "keyed by source-owned network command name, not a survivor id"),
+    ("client.lua", "idCommandMap"): (
+        "keyed by source-owned numeric network command id, not a survivor id"),
+    ("server.lua", "commandHandlers"): (
+        "keyed by source-owned network command name, not a survivor id"),
+    ("server.lua", "idCommandMap"): (
+        "keyed by source-owned numeric network command id, not a survivor id"),
+    ("commands.lua", "commands.clientList"): (
+        "keyed by source-owned client command name, not a survivor id"),
+    ("commands.lua", "commands.serverList"): (
+        "keyed by source-owned server command name, not a survivor id"),
+    ("netmetrics.lua", "commandMetrics"): (
+        "keyed by source-owned network command name, not a survivor id; metrics "
+        "are bounded by the static command registry"),
     ("SAO_Integration.lua", "Integration.extensions"): (
         "keyed by a stable RUNTIME EXTENSION id, not a survivor id. "
         "The installer is code registered once per Lua environment and "

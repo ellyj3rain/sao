@@ -186,6 +186,14 @@ function R.unit()
     return R.int(1000) / 1000
 end
 
+-- A reproducible continuous range for physical effects and timers. The upper
+-- bound stays exclusive in the same way as R.int and the engine draw it owns.
+function R.float(a, b)
+    local low, high = tonumber(a) or 0, tonumber(b) or 0
+    if high <= low then return low end
+    return low + R.unit() * (high - low)
+end
+
 -- What the county would have to be told to run again. Read by the
 -- trajectory record ([C65]) so a run can be replayed exactly.
 function R.state()

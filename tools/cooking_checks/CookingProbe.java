@@ -33,7 +33,8 @@ public final class CookingProbe {
         var body = (SAOIsoPlayerShell) create.invoke(null, cell); body.playerIndex = 99;
         cell.getObjectList().add(body);
         body.setSquare(body.getCurrentSquare());
-        body.getCurrentSquare().getMovingObjects().add(body);
+        if (!body.getCurrentSquare().getMovingObjects().contains(body))
+            body.getCurrentSquare().getMovingObjects().add(body);
         body.getModData().rawset("SAOPersonId", "cook-1");
         for (int i = 0; i < IsoPlayer.players.length; i++) IsoPlayer.players[i] = null;
         LuaManager.platform = new J2SEPlatform(); LuaManager.env = LuaManager.platform.newEnvironment();

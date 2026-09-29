@@ -359,16 +359,16 @@ check("unregistered_native_action_unchanged",ordinaryAction:complete()==true
     and ordinary:getCurrentUses()==oldUses-1 and ordinaryAction.saoPharmacologyToken==nil)
 
 -- A native moodle update is the physical projection consumed by Neuro.
-rec=fresh();put("FATIGUE",.59);body:getMoodles():Update()
+rec=fresh();put("FATIGUE",.59);__nativeTiredMoodleUpdate()
 local beforeAttention,beforeMotor=SAO.Neuro.physicalReadiness(rec)
-take(rec,"Opioid");take(rec,"SedativeTablets");advance(rec,1);body:getMoodles():Update()
+take(rec,"Opioid");take(rec,"SedativeTablets");advance(rec,1);__nativeTiredMoodleUpdate()
 local attention,motor=SAO.Neuro.physicalReadiness(rec)
 print("NATIVE_READINESS "..beforeAttention..":"..attention..":"..beforeMotor..":"..motor)
 check("native_moodle_neuro_impairment",attention<beforeAttention and motor<beforeMotor
     and SAO.Neuro.clarityOf(rec)<=attention and SAO.Neuro.motorSteadiness(rec)<=motor)
-rec=fresh();put("FATIGUE",.61);body:getMoodles():Update()
+rec=fresh();put("FATIGUE",.61);__nativeTiredMoodleUpdate()
 beforeAttention=SAO.Neuro.physicalReadiness(rec)
-take(rec,"Cocaine");advance(rec,2);body:getMoodles():Update()
+take(rec,"Cocaine");advance(rec,2);__nativeTiredMoodleUpdate()
 attention=SAO.Neuro.physicalReadiness(rec)
 check("native_moodle_neuro_stimulant",attention>beforeAttention)
 

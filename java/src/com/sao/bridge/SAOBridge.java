@@ -2814,6 +2814,18 @@ public final class SAOBridge {
         }
     }
 
+    public String horseRoutePoint(Object object) {
+        try {
+            if (!(object instanceof SAOIsoPlayerShell shell)) {
+                return "NOT_A_SHELL";
+            }
+            return SAOMovement.waypoint(shell, routeState(shell));
+        } catch (Throwable throwable) {
+            SAOAgent.log("horseRoutePoint threw: " + throwable);
+            return "ROUTE_FAILED " + throwable;
+        }
+    }
+
     /** [C4] Follow recovery: work the one edge toward a close target
      * the pathfinder cannot route to - the window the player climbed,
      * the fence they hopped. Returns the transition verdict. */

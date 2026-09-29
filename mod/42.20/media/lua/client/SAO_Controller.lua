@@ -8047,20 +8047,28 @@ local function updateAgent(id, agent)
         return
     end
 
-    -- [C123] Horse riding belongs to the optional Horse Mod. Its own mount
-    -- pair, animation flag and engine animal id say when somebody is mounted;
-    -- while that pair holds, no foot route competes with it. Mortality and
-    -- durable ownership gates above must see the body before this early return.
+    -- Horse riding is source-owned. Its mount pair and engine animal id remain
+    -- the physical fact. An SAO horse journey continues into updateMovement,
+    -- which ticks the same locomotion job; an independently mounted body keeps
+    -- exclusive horse control and admits no competing foot decision.
     if SAO.Animals and SAO.Animals.mountedHorse then
         local mount = nil
         pcall(function() mount = SAO.Animals.mountedHorse(body) end)
         if mount then
             if not agent.horseRiding then
-                log(id .. " rides horse " .. tostring(mount.animalId)
-                    .. " through Horse Mod")
+                log(id .. " rides horse " .. tostring(mount.animalId))
             end
             agent.horseRiding = mount
-            return
+            local travelling = SAO.Animals.isTravelling and SAO.Animals.isTravelling(id)
+            if not travelling then
+                return
+            end
+            local loco = SAO.Locomotion and SAO.Locomotion.jobs
+                and SAO.Locomotion.jobs[id] or nil
+            -- A study can deliberately exercise the production horse owner
+            -- without manufacturing a controller goal. While it owns the
+            -- journey, ordinary decisions cannot replace its mount or route.
+            if not loco or loco.mode ~= "horse" then return end
         end
         if agent.horseRiding then
             agent.horseRiding = nil

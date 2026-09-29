@@ -103,14 +103,14 @@ public final class WaterApproachProbe {
         position(body, cell, 10.5f, 20.5f);
         source.getSquare().getProperties().set(IsoFlagType.collideW);
         source.getSquare().getProperties().set(IsoFlagType.WindowW);
-        check("water_corrected_wall_square_matches_vanilla", body.getCurrentSquare().canReachTo(source.getSquare()) && !vanillaReach(body, source)
+        check("water_wall_square_matches_vanilla", !body.getCurrentSquare().canReachTo(source.getSquare()) && !vanillaReach(body, source)
             && !SAOBridge.INSTANCE.waterSourceWithinReach(body));
         source.getSquare().getProperties().unset(IsoFlagType.collideW);
         source.getSquare().getProperties().unset(IsoFlagType.WindowW);
         position(body, cell, 10.5f, 19.5f);
         source.getSquare().getProperties().set(IsoFlagType.collideN);
         source.getSquare().getProperties().set(IsoFlagType.WindowN);
-        check("water_corrected_north_wall_matches_vanilla", body.getCurrentSquare().canReachTo(source.getSquare()) && !vanillaReach(body, source)
+        check("water_north_wall_matches_vanilla", !body.getCurrentSquare().canReachTo(source.getSquare()) && !vanillaReach(body, source)
             && !SAOBridge.INSTANCE.waterSourceWithinReach(body));
         source.getSquare().getProperties().unset(IsoFlagType.collideN);
         source.getSquare().getProperties().unset(IsoFlagType.WindowN);

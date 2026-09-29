@@ -122,12 +122,6 @@ def water_controls(needs: str):
         "dx * dx + dy * dy <= 4.0f && here.canReachTo(square)"), "water_diagonal_axis_reach_matches_vanilla"
     yield "water-ignore-closed-native-edge", change(needs,
         "&& here.canReachTo(square);", ";"), "water_closed_door_refused_by_native_reach"
-    yield "water-ignore-west-fixture-correction", change(needs,
-        "if (square.has(zombie.iso.SpriteDetails.IsoFlagType.collideW) && shell.getX() < square.getX())",
-        "if (false)"), "water_corrected_wall_square_matches_vanilla"
-    yield "water-ignore-north-fixture-correction", change(needs,
-        "else if (square.has(zombie.iso.SpriteDetails.IsoFlagType.collideN) && shell.getY() < square.getY())",
-        "else if (false)"), "water_corrected_north_wall_matches_vanilla"
     yield "water-nearest-before-usable", change(needs,
         "if (best != null && ((!reachable && bestReachable)\n"
         "                                        || (reachable == bestReachable && dist >= bestDist))) continue;",

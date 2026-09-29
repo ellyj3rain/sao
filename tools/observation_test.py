@@ -71,6 +71,9 @@ local function check(name, value) if not value then error("OBSERVATION_CHECK:"..
 local function find(rows, label)
  for _,s in ipairs(rows or {})do for _,r in ipairs(s.rows or {})do if r.label==label then return r.value end end end
 end
+local function section(rows, id)
+ for _,s in ipairs(rows or {})do if s.id==id then return s end end
+end
 local O=SAO.Observation
 __tick();__paused();check("disabled-inert",__reads==0)
 O.enable();check("unknown-selection",not O.select("missing") and __records.missing==nil)
@@ -124,7 +127,8 @@ check("native-panel-show",O.panel("person-inspection","a",true) and O.nativePane
 local rows=SAOInspectWindow.instance:build();check("cached-panel",#rows>4 and __reads==5)
 check("native-panel-hide",O.panel("person-inspection","a",false) and O.nativePanel()==nil)
 O.select("b");__ms=6000;__paused();local dormant=O.snapshot().people.b
-check("dormant-unavailable",dormant.sections[1].status=="unavailable" and dormant.sections[2].status=="unavailable")
+check("dormant-unavailable",section(dormant.sections,"needs").status=="unavailable"
+ and section(dormant.sections,"inventory").status=="unavailable")
 for n=1,90 do O.record("a","Voice","emitted","line "..n) end
 __ms=7000;__tick();check("bounded-history",#O.snapshot().people.a.events==24 and O.snapshot().omittedEvents>0)
 local same=O.snapshot();O.record("a","Voice","emitted","after sample")

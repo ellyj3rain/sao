@@ -32,6 +32,10 @@ import zombie.ai.states.ClimbThroughWindowState;
 public final class SAOMovement {
 
     private static final float NODE_ADVANCE_DISTANCE = 0.35f;
+    // A horse's collision footprint and rider anchor settle farther from a
+    // human-centered path node. Mounted routing owns a wider node radius so a
+    // horse that has physically reached the node continues along the route.
+    private static final float MOUNTED_NODE_ADVANCE_DISTANCE = 1.0f;
 
     private SAOMovement() {
     }
@@ -95,6 +99,38 @@ public final class SAOMovement {
         state.requested = false;
         clearIntent(shell);
         return "MOVE_CANCELLED";
+    }
+
+    /**
+     * Advance native path computation without applying human foot movement and
+     * expose the current route node to another owned locomotion body. Mounted
+     * travel uses this to steer the horse through the route the engine found;
+     * the horse system still owns collision, stamina, animation and position.
+     */
+    public static String waypoint(SAOIsoPlayerShell shell, SAORouteState state) {
+        if (!state.requested) return "IDLE";
+        if (!state.hasRoute()) {
+            PathFindBehavior2 behavior = shell.getPathFindBehavior2();
+            PathFindBehavior2.BehaviorResult result = behavior.update();
+            if (result == PathFindBehavior2.BehaviorResult.Working) {
+                if (!captureEngineRoute(shell, state, behavior)) return "ROUTE_WORKING";
+            } else {
+                state.requested = false;
+                return "ROUTE_" + result.name();
+            }
+        }
+        float x = shell.getX(), y = shell.getY();
+        float[] node = state.currentNode();
+        while (node != null && distance(x, y, node[0], node[1]) <= MOUNTED_NODE_ADVANCE_DISTANCE
+                && Math.abs(shell.getZ() - node[2]) < 0.8f) {
+            state.advance();
+            node = state.currentNode();
+        }
+        if (node == null) {
+            state.requested = false;
+            return "ROUTE_SUCCEEDED";
+        }
+        return "WAYPOINT@" + node[0] + "@" + node[1] + "@" + node[2];
     }
 
     // ------------------------------------------------------------------

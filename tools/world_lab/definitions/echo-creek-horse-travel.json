@@ -1,0 +1,55 @@
+{
+  "schema": "sao-study-world/1",
+  "id": "echo-creek-horse-travel",
+  "seed": "echo-creek-horse-travel-1",
+  "extent": {
+    "minCellX": 13,
+    "minCellY": 42,
+    "cellsX": 2,
+    "cellsY": 5
+  },
+  "generation": {
+    "roads": {}
+  },
+  "origins": [
+    {
+      "x": 3782,
+      "y": 10943,
+      "z": 0,
+      "profession": "unemployed"
+    }
+  ],
+  "sandbox": {
+    "SurvivorAwareness.PopulationGoverned": true,
+    "SurvivorAwareness.Population": 2,
+    "SurvivorAwareness.NewcomersGoverned": true,
+    "SurvivorAwareness.Newcomers": 2
+  },
+  "situation": {
+    "horseTravel": {
+      "spawn": { "x": 3782, "y": 10943, "z": 0 },
+      "destination": { "x": 3802, "y": 10943, "z": 0 },
+      "animalType": "mare",
+      "breed": "AmericanQuarterPalomino",
+      "ageDays": 720,
+      "riderOccupation": "farmer",
+      "running": false
+    }
+  },
+  "observation": {
+    "everyHours": 0.05,
+    "maxPeople": 128,
+    "maxProcesses": 256,
+    "windows": [
+      {
+        "id": "echo-creek-horse-travel",
+        "x": 3768,
+        "y": 10929,
+        "z": 0,
+        "width": 64,
+        "height": 40
+      }
+    ]
+  },
+  "sourceMap": "Muldraugh, KY"
+}

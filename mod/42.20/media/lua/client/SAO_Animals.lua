@@ -1,15 +1,34 @@
 -- SAO_Animals — the ranch's own bodies and actions ([C123]).
 -- ---------------------------------------------------------------------------
 -- Animal state belongs to Build 42. A designated ranch supplies its animals,
--- troughs and hutches; this module only chooses among the state the engine
--- reports and queues its own actions with opaque real objects. There is no
--- animal inventory, product table, or horse implementation here.
+-- troughs and hutches. Horse assets, gear, mounting, riding physics, stamina
+-- and networking are source-integrated under the Horse team's credited
+-- modules; this module joins that physical execution to SAO people, plans and
+-- durable records.
 
 SAO = SAO or {}
 SAO.Animals = SAO.Animals or {}
 local A = SAO.Animals
 
+local Mounts = require("HorseMod/Mounts")
+local Mounting = require("HorseMod/Mounting")
+local MountingUtility = require("HorseMod/mounting/MountingUtility")
+local HorseManager = require("HorseMod/HorseManager")
+local HorseRiding = require("HorseMod/Riding")
+local Stamina = require("HorseMod/Stamina")
+local AnimationVariable = require("HorseMod/definitions/AnimationVariable")
+
 local CARE_RADIUS = 3
+local TRAVEL_MOUNT_RADIUS = 8
+local TRAVEL_MIN_TILES = 12
+local TRAVEL_REACH = 1.75
+local TRAVEL_HEADING_MIN_LENGTH = 0.05
+local TRAVEL_STALL_TICKS = 480
+A.travelJobs = A.travelJobs or {}
+
+function A.forget(id)
+    A.travelJobs[id] = nil
+end
 
 local function log(msg) SAO.Log.line("ANIMAL", msg) end
 
@@ -195,12 +214,11 @@ function A.care(id, body, radius)
     return nil
 end
 
--- Horse riding is optional Horse Mod machinery, not a second vehicle system.
--- `HorseRiding` alone is not an association: the mod's mount map must still
--- name a loaded horse, whose engine animal id is the persisted fact.
+-- Horse riding uses the source-owned Horse machinery rather than a second
+-- vehicle system. `HorseRiding` alone is not an association: the mount map
+-- must still name a loaded horse whose engine animal id is the persisted fact.
 function A.mountedHorse(body)
-    if not body or not Mounts or type(Mounts.hasMount) ~= "function"
-        or type(Mounts.getMount) ~= "function" then return nil end
+    if not body then return nil end
     local variable = AnimationVariable and AnimationVariable.RIDING_HORSE
         or "HorseRiding"
     local okRiding, riding = pcall(function()
@@ -216,5 +234,260 @@ function A.mountedHorse(body)
     local okId, animalId = pcall(function() return horse:getAnimalID() end)
     return okId and { animal = horse, animalId = animalId } or nil
 end
+
+local function personRecord(body)
+    local id = nil
+    pcall(function() id = body:getModData().SAOPersonId end)
+    return id, id and SAO.Identity and SAO.Identity.get(id) or nil
+end
+
+local function horseId(horse)
+    local ok, value = pcall(function() return horse:getAnimalID() end)
+    return ok and value or nil
+end
+
+function A.horseById(animalId)
+    if animalId == nil then return nil end
+    local horse = HorseManager.findHorseByID(tonumber(animalId))
+    if horse then return horse end
+    local animals = getCell() and getCell():getAnimals() or nil
+    if not animals then return nil end
+    for index = 0, animals:size() - 1 do
+        local candidate = animals:get(index)
+        if horseId(candidate) == tonumber(animalId) then return candidate end
+    end
+    return nil
+end
+
+-- The durable record keeps the actual animal id and last physical state. The
+-- native animal remains the world entity; this record lets a rematerialized
+-- survivor know which relationship and unfinished journey existed.
+Mounts.onMount:add(function(body, horse)
+    local id, rec = personRecord(body)
+    local animalId = horseId(horse)
+    if not rec or not animalId then return end
+    rec.horseMount = rec.horseMount or { schema = 1 }
+    rec.horseMount.animalId = animalId
+    rec.horseMount.active = true
+    rec.horseMount.mountedAtHours = SAO.History.countyHours()
+    rec.horseMount.x, rec.horseMount.y, rec.horseMount.z =
+        horse:getX(), horse:getY(), horse:getZ()
+    log(id .. " mounted horse " .. tostring(animalId))
+end)
+
+Mounts.onDismount:add(function(body, horse)
+    local id, rec = personRecord(body)
+    if not rec then return end
+    rec.horseMount = rec.horseMount or { schema = 1 }
+    rec.horseMount.active = false
+    rec.horseMount.dismountedAtHours = SAO.History.countyHours()
+    if horse then
+        rec.horseMount.animalId = horseId(horse) or rec.horseMount.animalId
+        rec.horseMount.x, rec.horseMount.y, rec.horseMount.z =
+            horse:getX(), horse:getY(), horse:getZ()
+    end
+    log(id .. " dismounted horse " .. tostring(rec.horseMount.animalId))
+end)
+
+local function mayRide(id)
+    local rec = SAO.Identity and SAO.Identity.get(id)
+    if not rec or rec.dead then return false end
+    local age = SAO.History and SAO.History.ageOf and SAO.History.ageOf(id) or 18
+    if tonumber(age) and age < 10 then return false end
+    local husbandry = SAO.Census and SAO.Census.skillOf
+        and SAO.Census.skillOf(id, "Husbandry") or -1
+    return husbandry >= 1 or rec.occupation == "rancher"
+        or rec.occupation == "farmer"
+end
+
+local function candidateHorse(body)
+    local mounted = Mounts.getMount(body)
+    if mounted then return mounted end
+    return MountingUtility.getBestMountableHorse(body, TRAVEL_MOUNT_RADIUS)
+end
+
+function A.canTravel(id, body, gx, gy, gz)
+    if not body or not mayRide(id) or math.floor(body:getZ()) ~= math.floor(gz) then
+        return false
+    end
+    local dx, dy = gx - body:getX(), gy - body:getY()
+    return dx * dx + dy * dy >= TRAVEL_MIN_TILES * TRAVEL_MIN_TILES
+        and candidateHorse(body) ~= nil
+end
+
+local function rememberHorse(id, horse, source)
+    if not (SAO.ProceduralPlanning and horse) then return end
+    local animalId = horseId(horse)
+    if not animalId then return end
+    SAO.ProceduralPlanning.rememberSpatial(id, {
+        key = "horse:" .. tostring(animalId), kind = "horse",
+        x = horse:getX(), y = horse:getY(), z = horse:getZ(),
+        source = source or "observed", confidence = 1, familiarity = 0.35,
+        routeKnown = true, usable = true,
+        tags = { "animal", "mount", "transport", "care" },
+    })
+end
+
+local function planResult(id, job, owner, token, status, reason)
+    if not (job.purposeId and SAO.ProceduralPlanning) then return end
+    SAO.ProceduralPlanning.recordResult(id, job.purposeId, {
+        owner = owner, token = token, status = status, reason = reason,
+    })
+end
+
+function A.orderTravel(id, body, gx, gy, gz, running)
+    if not A.canTravel(id, body, gx, gy, gz) then return false end
+    local horse = candidateHorse(body)
+    local purpose = SAO.ProceduralPlanning and SAO.ProceduralPlanning.planHorseTravel(id, {
+        animalId = horseId(horse), known = true, mountable = true,
+        destinationKey = string.format("%.0f,%.0f,%d", gx, gy, gz),
+    }) or nil
+    local job = { body = body, horse = horse, animalId = horseId(horse),
+        goal = { x = gx, y = gy, z = gz }, running = running == true,
+        phase = Mounts.hasMount(body) and "routing" or "mounting",
+        purposeId = purpose and purpose.id or nil, unchanged = 0,
+        lastX = body:getX(), lastY = body:getY() }
+    A.travelJobs[id] = job
+    rememberHorse(id, horse, "observed")
+    if job.phase == "mounting" then
+        local position = MountingUtility.getNearestMountPosition(body, horse,
+            TRAVEL_MOUNT_RADIUS)
+        if not position then A.travelJobs[id] = nil; return false end
+        Mounting.mountHorse(body, horse, position)
+    else
+        planResult(id, job, "HorseMount", "horse:reached", "completed")
+        planResult(id, job, "HorseMount", "horse:mounted", "completed")
+        local verdict = tostring(SAOJavaBridge:moveTo(body, gx, gy, gz))
+        if not verdict:find("MOVE_STARTED", 1, true) then
+            A.travelJobs[id] = nil
+            return false
+        end
+    end
+    log(id .. " begins horse travel with " .. tostring(job.animalId))
+    return true
+end
+
+local function direction(job)
+    local tx, ty = job.waypointX or job.goal.x, job.waypointY or job.goal.y
+    local x, y = job.horse:getX(), job.horse:getY()
+    local dx, dy = tx - x, ty - y
+    local length = math.sqrt(dx * dx + dy * dy)
+    if length < TRAVEL_HEADING_MIN_LENGTH then return 0, 0 end
+    -- Horse interprets keyboard/joypad axes in screen space, then RotLefts the
+    -- resulting IsoDirection into world space. Convert the desired world
+    -- heading through the inverse transform so autonomous riders do not orbit
+    -- a waypoint ninety degrees off course.
+    local inputDirection = IsoDirections.fromAngle(dx / length, dy / length):RotRight()
+    return inputDirection:dx(), inputDirection:dy()
+end
+
+local function mountInput(id, job)
+    return function()
+        local x, y = direction(job)
+        local stamina = Stamina.get(job.horse)
+        local far = (job.goal.x - job.horse:getX()) ^ 2
+            + (job.goal.y - job.horse:getY()) ^ 2 > 20 * 20
+        return { movement = { x = x, y = y },
+            run = job.running and far and stamina >= 25,
+            trot = not job.running or stamina < 25, jump = false }
+    end
+end
+
+local function routePoint(body)
+    local answer = tostring(SAOJavaBridge:horseRoutePoint(body))
+    local x, y, z = answer:match("^WAYPOINT@([^@]+)@([^@]+)@([^@]+)$")
+    if x then return "waypoint", tonumber(x), tonumber(y), tonumber(z) end
+    if answer == "ROUTE_WORKING" then return "working" end
+    if answer == "ROUTE_SUCCEEDED" then return "arrived" end
+    return "failed", answer
+end
+
+function A.tickTravel(id)
+    local job = A.travelJobs[id]
+    if not job then return "failed:no-horse-job" end
+    local mounted = A.mountedHorse(job.body)
+    if job.phase == "mounting" then
+        if not mounted then
+            if not job.body:hasTimedActions() then
+                planResult(id, job, "HorseMount", "horse:reached", "failed",
+                    "mount-action-ended")
+                A.travelJobs[id] = nil
+                return "failed:mount-action-ended"
+            end
+            return "pending"
+        end
+        job.horse, job.phase = mounted.animal, "routing"
+        planResult(id, job, "HorseMount", "horse:reached", "completed")
+        planResult(id, job, "HorseMount", "horse:mounted", "completed")
+        local verdict = tostring(SAOJavaBridge:moveTo(job.body,
+            job.goal.x, job.goal.y, job.goal.z))
+        if not verdict:find("MOVE_STARTED", 1, true) then
+            planResult(id, job, "HorseTravel", "route:arrived", "failed", verdict)
+            A.travelJobs[id] = nil
+            return "failed:" .. verdict
+        end
+    elseif job.phase == "dismounting" then
+        if mounted then return "pending" end
+        planResult(id, job, "HorseMount", "horse:dismounted", "completed")
+        A.travelJobs[id] = nil
+        return "arrived"
+    elseif not mounted then
+        planResult(id, job, "HorseTravel", "route:arrived", "failed", "mount-lost")
+        A.travelJobs[id] = nil
+        return "failed:mount-lost"
+    end
+    local dx, dy = job.goal.x - job.horse:getX(), job.goal.y - job.horse:getY()
+    if dx * dx + dy * dy <= TRAVEL_REACH * TRAVEL_REACH then
+        local mount = HorseRiding.getMount(job.body)
+        if mount then mount:setAutonomousInput(nil) end
+        local position = MountingUtility.getNearestMountPosition(job.body, job.horse)
+        planResult(id, job, "HorseTravel", "route:arrived", "completed")
+        if position then
+            Mounting.dismountHorse(job.body, job.horse, position)
+            job.phase = "dismounting"
+        else
+            planResult(id, job, "HorseMount", "horse:dismounted", "failed",
+                "no-dismount-position")
+            A.travelJobs[id] = nil
+            return "failed:no-dismount-position"
+        end
+        SAOJavaBridge:cancelMove(job.body)
+        return "pending"
+    end
+    local state, x, y = routePoint(job.body)
+    if state == "failed" then
+        planResult(id, job, "HorseTravel", "route:arrived", "failed", x)
+        A.travelJobs[id] = nil
+        return "failed:" .. tostring(x)
+    end
+    if state == "arrived" then job.waypointX, job.waypointY = job.goal.x, job.goal.y
+    elseif state == "waypoint" then job.waypointX, job.waypointY = x, y end
+    local mount = HorseRiding.getMount(job.body)
+    if not mount then return "pending" end
+    mount:setAutonomousInput(mountInput(id, job))
+    local moved = (job.horse:getX() - job.lastX) ^ 2
+        + (job.horse:getY() - job.lastY) ^ 2 > 0.0025
+    job.unchanged = moved and 0 or job.unchanged + 1
+    job.lastX, job.lastY = job.horse:getX(), job.horse:getY()
+    if job.unchanged >= TRAVEL_STALL_TICKS then
+        mount:setAutonomousInput(nil)
+        planResult(id, job, "HorseTravel", "route:arrived", "failed",
+            "horse-route-stalled")
+        A.travelJobs[id] = nil
+        return "failed:horse-route-stalled"
+    end
+    return "pending"
+end
+
+function A.cancelTravel(id)
+    local job = A.travelJobs[id]
+    if not job then return end
+    local mount = HorseRiding.getMount(job.body)
+    if mount then mount:setAutonomousInput(nil) end
+    pcall(function() SAOJavaBridge:cancelMove(job.body) end)
+    A.travelJobs[id] = nil
+end
+
+function A.isTravelling(id) return A.travelJobs[id] ~= nil end
 
 return A

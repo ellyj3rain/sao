@@ -161,16 +161,38 @@ def validate(value):
             require(len(val) <= 512, "sandbox string too long")
     if "situation" in value:
         situation = value["situation"]
-        fields(situation, {"initialNeeds"}, "situation")
-        needs = situation["initialNeeds"]
-        require(isinstance(needs, dict) and 1 <= len(needs) <= 3
-                and set(needs) <= {"hunger", "thirst", "fatigue"},
-                "initialNeeds must name hunger, thirst or fatigue")
-        for name, bounds in needs.items():
-            fields(bounds, {"min", "max"}, f"initialNeeds.{name}")
-            low = number(bounds["min"], 0, 1, f"initialNeeds.{name}.min")
-            high = number(bounds["max"], 0, 1, f"initialNeeds.{name}.max")
-            require(low <= high, f"initialNeeds.{name} range is reversed")
+        require(isinstance(situation, dict) and 1 <= len(situation) <= 2
+                and set(situation) <= {"initialNeeds", "horseTravel"},
+                "situation must define supported pressures")
+        if "initialNeeds" in situation:
+            needs = situation["initialNeeds"]
+            require(isinstance(needs, dict) and 1 <= len(needs) <= 3
+                    and set(needs) <= {"hunger", "thirst", "fatigue"},
+                    "initialNeeds must name hunger, thirst or fatigue")
+            for name, bounds in needs.items():
+                fields(bounds, {"min", "max"}, f"initialNeeds.{name}")
+                low = number(bounds["min"], 0, 1, f"initialNeeds.{name}.min")
+                high = number(bounds["max"], 0, 1, f"initialNeeds.{name}.max")
+                require(low <= high, f"initialNeeds.{name} range is reversed")
+        if "horseTravel" in situation:
+            travel = situation["horseTravel"]
+            fields(travel, {"spawn", "destination", "animalType", "breed",
+                            "ageDays", "riderOccupation", "running"}, "horseTravel")
+            point(travel["spawn"], "horseTravel spawn")
+            point(travel["destination"], "horseTravel destination")
+            require(travel["spawn"]["z"] == travel["destination"]["z"],
+                    "horseTravel must remain on one floor")
+            dx = travel["destination"]["x"] - travel["spawn"]["x"]
+            dy = travel["destination"]["y"] - travel["spawn"]["y"]
+            require(dx * dx + dy * dy >= 144, "horseTravel route is shorter than twelve tiles")
+            require(travel["animalType"] in {"mare", "stallion"},
+                    "horseTravel requires an adult horse type")
+            for key in ("breed", "riderOccupation"):
+                require(isinstance(travel[key], str)
+                        and re.fullmatch(r"[A-Za-z][A-Za-z0-9_.-]{0,79}", travel[key]),
+                        f"invalid horseTravel {key}")
+            integer(travel["ageDays"], 180, 36500, "horseTravel ageDays")
+            require(type(travel["running"]) is bool, "horseTravel running must be boolean")
     obs = value["observation"]
     fields(obs, {"everyHours", "maxPeople", "maxProcesses", "windows"}, "observation")
     number(obs["everyHours"], 1 / 3600, 720, "observation period")
@@ -318,7 +340,7 @@ def build(value, destination, game):
         common_maps.mkdir(parents=True)
         (common_maps / ".keep").write_text("Native map discovery root.\n", encoding="utf-8")
         metadata = (f"name=Study world: {value['id']}\nid={map_name}\n"
-                    "author=ellyj3rain\nversionMin=42.20\nversionMax=42.20\n"
+                    "author=ellyj3rain\nversionMin=42.20\nversionMax=42.21\n"
                     "require=SurvivorAwareness\n"
                     "description=Native study world and explicit runtime observations.\n")
         (mod / "mod.info").write_text(metadata, encoding="utf-8")
