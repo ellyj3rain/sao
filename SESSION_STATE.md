@@ -1,11 +1,33 @@
 | Document | Survivor Awareness Overhaul Session State |
 |---|---|
-| Version | `3.7.1.0-pre-alpha` |
+| Version | `3.7.2.0-pre-alpha` |
 | Author | ellyj3rain |
 | Repository | `SESSION_STATE.md` |
 | Status | CANONICAL - current implementation and continuation. |
 
 # Session state
+
+**As of** 2026-09-29, [C102] repairs the skill-book execution join. The old
+Controller call to native `ReadLiterature` had no page-progress or skill-book
+multiplier effect on Build 42.21. Useful privately carried manuals now enter
+the installed `ISReadABook` timed action, including for undesignated people.
+The existing purpose persists across decision ticks, interruption and resumed
+native pages. Native eligibility, lighting, reading duration and XP remain the
+game's. Exact body, item, work and admission identity precede completed reading;
+reading sessions remain separate from practical skill completion.
+
+Urgent native work retires reading before admission, and body handoff interrupts
+it before the native snapshot. Mousecat shows pages, status and interruption
+without counting reading as practice. Completed subjects remain in private
+learning history when another subject is studied. Death clears the exact native
+reading owner while retaining the person record. A carried useful manual remains
+known when darkness or another action delays study. Border 214 executes 35 cases over the
+installed action source and production planner/Needs queue owner, with eight
+named mutation controls. These use controlled bodies and queues in installed
+Kahlua. No game or saved session was launched, no scenario was admitted, and
+loaded autonomous frequency and quality remain unobserved. Native book search
+and acquisition, later domain practice, richer affordance-driven purpose
+selection and the remaining integration obligations continue.
 
 **As of** 2026-09-29, [C101] closes the native study terminal-handoff defect.
 Supervisor stops now carry exact attempt, save and clock identity. The retained
@@ -54,7 +76,7 @@ admission.
 
 **As of** 2026-09-28, [C98] source-integrates the Horse team's complete physical horse surface: world assets, models, textures, sounds, tile data, gear, recipes, animations, mounting, riding collision, stamina, attachments, mounted combat and network state now ship inside SAO. SAO joins that execution to off-slot survivor identity, person-private horse and route knowledge, a maintained approach-mount-ride-dismount purpose, native engine route waypoints, autonomous mounted input, durable rider-animal records and Mousecat observation. Horse damage, body-part selection, mane, fall, grunt-timing and attachment-drop draws now advance SAO's persisted county stream. The external Horse mod is removed from the study loadout so one source owns execution. Build 42.21 loaded acceptance completes spawn, mount, native route arrival and dismount with an inactive final mount relation, zero process exit and an empty runtime-error scan. Its updated reading completion, square reach, outdoor study origin, semantic observation-section, pharmacology pain/moodle and cooking attachment-fixture contracts are held by the current-engine gate. The retained scenario and its behavioral quality remain unreviewed for dataset admission.
 
-**As of** 2026-09-28, [C97] restores the Claude-built source-integration baseline as execution evidence rather than reclassifying it as absent. Five implemented families retain concrete producer, consumer and verification links after C98 closes horse execution. The 27 external catalogue entries record recovered integration directives, eighteen domain evidence sources, one comparison against an owned system and two support libraries. Those labels preserve provenance and present use; the canonical world ontology defines relevance through causal participation and the ledger cannot narrow it. Loading any entry gives no implementation credit. The retained Claude completion claim is reconciled against C40-era credits, C48 and C89, and four known, non-exhaustive ownership gaps remain open without being hidden by older closed labels.
+**As of** 2026-09-28, [C97] restores the Claude-built source-integration baseline as execution evidence rather than reclassifying it as absent. Five implemented families retain concrete producer, consumer and verification links after C98 closes horse execution. The 27 external catalogue entries record recovered integration directives, eighteen domain evidence sources, one comparison against an owned system and two support libraries. Those labels preserve provenance and present use; the canonical world ontology defines relevance through causal participation and the ledger cannot narrow it. Loading any entry gives no implementation credit. The retained Claude completion claim is reconciled against C40-era credits, C48 and C89, and three known, non-exhaustive ownership gaps remain open without being hidden by older closed labels.
 
 **As of** 2026-09-28, [C96] restores isolated native study activation after
 Steam replaced the installed 42.21 engine jar. The runner selects its sealed
@@ -1058,10 +1080,10 @@ border, C75's typed-claim border, C86's native study, escape-continuity and
 sound-evidence borders, C88's cognitive competition border, C89's native
 capability borders, C90-C92's cooperative procedure borders and C93's durable
 study-session border, the gate invokes
-214 `*_test.py` files and 16 other Python entry points, 230 distinct scripts.
-Border labels extend through 213; legacy labels
+215 `*_test.py` files and 16 other Python entry points, 231 distinct scripts.
+Border labels extend through 214; legacy labels
 163/169/174 share the native suite. These are distinct counting units. The mod
-ships 184 Lua source files.
+ships 185 Lua source files.
 ZAO A41 has fifteen borders. The
 published C51 baseline has 163 borders through 178 mirrors. These counts describe the
 apparatus, not acceptance. The audit reproduced defects while targeted checks

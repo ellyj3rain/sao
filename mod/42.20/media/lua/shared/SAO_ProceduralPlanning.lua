@@ -163,6 +163,12 @@ function P.spatialKnowledge(id, at)
     return out
 end
 
+function P.readingSessions(id, bookSkill)
+    local s = state(id)
+    local evidence = s and s.practice[bookSkill]
+    return tonumber(evidence and evidence.readingSessions) or 0
+end
+
 function P.techniqueProfile(id)
     local out = { skills = {}, known = 0, practice = {} }
     local s = state(id, true)
@@ -178,6 +184,7 @@ function P.techniqueProfile(id)
     for key, value in pairs(s and s.practice or {}) do
         out.practice[key] = { completed = tonumber(value.completed) or 0,
             failed = tonumber(value.failed) or 0,
+            readingSessions = tonumber(value.readingSessions) or 0,
             lastAt = value.lastAt }
     end
     local rec = record(id)
@@ -227,11 +234,12 @@ end
 
 function P.planStudy(id, designation, context)
     context = type(context) == "table" and context or {}
-    local perk = SAO.Census and SAO.Census.JOB_PERK
-        and SAO.Census.JOB_PERK[designation]
+    local perk = context.perk or (SAO.Census and SAO.Census.JOB_PERK
+        and SAO.Census.JOB_PERK[designation])
     if not perk then return nil, "no-study-domain" end
-    local bookSkill = SAO.Census.bookSkillFor(perk)
-    local purpose = P.maintain(id, { key = "study:" .. tostring(perk),
+    local bookSkill = context.bookSkill or SAO.Census.bookSkillFor(perk)
+    local purpose = P.maintain(id, { key = "study:" .. tostring(perk)
+        .. (context.bookKey and ":" .. tostring(context.bookKey) or ""),
         objective = "improve " .. tostring(perk) .. " through reading and tested practice",
         domain = "learning", origin = "work-demand", atHours = context.atHours })
     if not purpose then return nil, "person-unavailable" end
@@ -504,14 +512,24 @@ function P.recordResult(id, purposeId, result)
             and result.status ~= "interrupted") then return false end
     local step = purpose.steps[purpose.cursor]
     if not step or step.owner ~= result.owner or step.token ~= result.token then return false end
+    if result.correlationId and (not purpose.admission
+        or purpose.admission.owner ~= result.owner
+        or purpose.admission.correlationId ~= result.correlationId) then return false end
     local at = finite(result.atHours) and result.atHours or nowHours()
     if result.status == "completed" then
         step.status, step.completedAt = "completed", at
         purpose.cursor = purpose.cursor + 1
         purpose.blockers = {}
         purpose.status = purpose.cursor > #purpose.steps and "completed" or "maintained"
-        if step.verb == "read" then purpose.sessions = (purpose.sessions or 0) + 1 end
-        if step.verb == "practice" or step.verb == "read"
+        if step.verb == "read" then
+            purpose.sessions = (purpose.sessions or 0) + 1
+            local key = tostring(step.target or purpose.domain)
+            local practice = s.practice[key] or { completed = 0, failed = 0 }
+            practice.readingSessions = (practice.readingSessions or 0) + 1
+            practice.lastReadAt = at
+            s.practice[key] = practice
+        end
+        if step.verb == "practice"
             or step.verb == "construct" or step.verb == "recreate"
             or step.verb == "socialize" then
             local key = tostring(step.target or purpose.domain)
@@ -537,8 +555,13 @@ function P.snapshot(id)
     local s = state(id)
     if not s then return nil end
     local out = { purposes = {}, spatialFacts = #s.spatialOrder,
+        study = SAO.Study and SAO.Study.snapshot and SAO.Study.snapshot(id) or nil,
         practiceDomains = 0 }
-    for _ in pairs(s.practice) do out.practiceDomains = out.practiceDomains + 1 end
+    for _, practice in pairs(s.practice) do
+        if (tonumber(practice.completed) or 0) > 0 then
+            out.practiceDomains = out.practiceDomains + 1
+        end
+    end
     for i = math.max(1, #s.order - 5), #s.order do
         local purpose = s.purposes[s.order[i]]
         if purpose then

@@ -652,6 +652,9 @@ function Body.materializeExternal(rec, owner, token)
 end
 
 local function quiesceCooking(rec, body, reason)
+    if rec and rec.studyWork and rec.studyWork.status == "reading" then
+        if not SAO.Study or SAO.Study.interrupt(rec.id, body, reason) ~= true then return false end
+    end
     if not rec or not rec.cookingWork then return true end
     if not SAO.Cooking then return false end
     local ok, closed = pcall(SAO.Cooking.interrupt, rec.id, body, reason)

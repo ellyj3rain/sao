@@ -27,6 +27,7 @@ end
 if not SAO.ProceduralPlanning and type(require) == "function" then
     pcall(require, "SAO_ProceduralPlanning")
 end
+if not SAO.Study and type(require) == "function" then pcall(require, "SAO_Study") end
 
 -- id -> { rec, state, stateSince, nextDecisionAt, fleeTarget }
 Ctl.agents = Ctl.agents or {}
@@ -4452,94 +4453,22 @@ local function decideRestActivity(id, agent, body, tick, idleRec)
             and SAO.Census.JOB_PERK
             and SAO.Census.JOB_PERK[idleRec.designation]
             and tick >= (agent.nextStudyAt or 0) then
-            -- [B22] The trade reads up. A survivor seeks and
-            -- studies the book their OWN work rides on - the perk
-            -- their designation was dealt against - so what they
-            -- pick up is decided by who the house made them and
-            -- by what the place actually holds.
-            --
-            -- This is the road back that [B21] did not have. A
-            -- struggling medic can read, the dressings start
-            -- holding, and the evidence against them stops
-            -- accumulating. When there is no book there is no
-            -- road, and the job goes to someone else - which is
-            -- the scarcity doing its work.
-            -- [C32] A book takes a quarter longer for the dyslexic
-            -- (SAO_Conditions.readingTime, Custom Traits' figure).
-            local readingTime48 = 1.0
-            pcall(function() readingTime48 = SAO.Conditions.readingTime(id) end)
-            if type(readingTime48) ~= "number" then readingTime48 = 1.0 end
-            agent.nextStudyAt = tick + math.floor(2400 * readingTime48)
+            agent.nextStudyAt = tick + 2400
             local perk48 = SAO.Census.JOB_PERK[idleRec.designation]
-            -- [B40] Books speak a different vocabulary than perks
-            -- do. The medic's perk is `Doctor` and every first-aid
-            -- book in the game says `FirstAid`, so this asked for a
-            -- book that does not exist and read the empty answer as
-            -- scarcity.
             local book48 = SAO.Census.bookSkillFor(perk48)
-            detail = "reads up on the work"
-            -- [C31] A child who cannot read yet has no road through
-            -- a book: none before eight (SAO_History.literacyOf -
-            -- the school years lived before the fall), and the study
-            -- passes them over and says why.
-            local literacy48 = "reads"
-            pcall(function() literacy48 = SAO.History.literacyOf(id) end)
-            if literacy48 == "none" then
-                detail = "too young to read the work up - watches the grown-ups instead"
-            else
-                local needs48 = SAO.Needs and SAO.Needs.read
-                    and SAO.Needs.read(body) or {}
-                local purpose48, step48 = nil, nil
-                if SAO.ProceduralPlanning then
-                    purpose48, step48 = SAO.ProceduralPlanning.planStudy(id,
-                        idleRec.designation, { literacy = literacy48,
-                            readingTime = readingTime48,
-                            fatigue = tonumber(needs48.fatigue) or 0 })
-                end
-                local studied = ""
-                pcall(function()
-                    studied = SAOJavaBridge:readSkillBook(body, book48)
-                end)
-                if studied == nil or studied == "" then
-                    local got48 = false
-                    pcall(function()
-                        got48 = SAOJavaBridge:takeSkillBookFor(
-                            body, 10, book48)
-                    end)
-                    if got48 then
-                        if purpose48 and step48 and step48.id == "locate-book" then
-                            SAO.ProceduralPlanning.recordResult(id, purpose48.id, {
-                                owner = "SAONeeds", token = "reading:located",
-                                status = "completed" })
-                        end
-                        log(id .. " finds something on " .. tostring(perk48))
-                    else
-                        detail = "turns the work over in their head -"
-                            .. " nothing written to learn it from"
-                    end
-                else
-                    if purpose48 and step48 and step48.id == "locate-book" then
-                        SAO.ProceduralPlanning.recordResult(id, purpose48.id, {
-                            owner = "SAONeeds", token = "reading:located",
-                            status = "completed" })
-                        purpose48 = SAO.ProceduralPlanning.planStudy(id,
-                            idleRec.designation, { literacy = literacy48,
-                                readingTime = readingTime48,
-                                fatigue = tonumber(needs48.fatigue) or 0,
-                                bookOwned = true })
-                    end
-                    if purpose48 then
-                        -- ReadLiterature has been admitted to the native queue.
-                        -- Page completion remains pending until a native result
-                        -- owner can prove it; queue admission does not teach.
-                        SAO.ProceduralPlanning.noteAdmission(id, purpose48.id,
-                            "SAONeeds", "literature:" .. tostring(tick))
-                    end
-                    pcall(function()
-                        SAO.Voice.onEvent(id, "studies", tick)
-                    end)
-                    log(id .. " reads up on " .. tostring(studied))
-                end
+            -- Carried manuals enter the native study owner before leisure.
+            -- Missing books remain a private prerequisite; no direct transfer
+            -- or instant literature effect can stand in for native study.
+            if SAO.ProceduralPlanning
+                and SAO.ProceduralPlanning.readingSessions(id, book48) > 0 then
+                detail = "has read " .. tostring(book48) .. "; needs practical work"
+            elseif SAO.Study and SAO.Study.offer(id, body) then
+                detail = "has a useful manual; cannot study it yet"
+            elseif SAO.ProceduralPlanning then
+                SAO.ProceduralPlanning.planStudy(id, idleRec.designation, {
+                    bookSkill = book48, literacy = SAO.History.literacyOf(id),
+                })
+                detail = "needs a suitable manual before studying " .. tostring(perk48)
             end
         -- [B32] Same lock as the porch above: on cooldown
         -- this still took the slot, so a reader never reached
@@ -6577,6 +6506,7 @@ local function decide(id, agent, body)
         selectedThreat(id, tick, bodyX, bodyY)
 
     if decideThreat(id, agent, body, tick, threat, threatCount, governingPerson, governingPersonKey) then
+        if SAO.Study then SAO.Study.interrupt(id, body, "threat response") end
         if SAO.Cognition and SAO.Cognition.interrupt then SAO.Cognition.interrupt(id, "threat response") end
         return
     end
@@ -6628,7 +6558,14 @@ local function decide(id, agent, body)
     -- consumes this snapshot.
     local needs = SAO.Needs.read(body)
 
-    if decideNeedsAndCompanion(id, agent, body, tick, needs) then return end
+    if decideNeedsAndCompanion(id, agent, body, tick, needs) then
+        if SAO.Study then SAO.Study.interrupt(id, body, "immediate need or companion") end
+        return
+    end
+    if SAO.Study and SAO.Study.active(id, body) then
+        agent.pressure = { answer = "chosen rest", detail = "studies a carried manual", at = tick }
+        return
+    end
     if decideCompany(id, agent, body, tick) then return end
     if agent.state == "IDLE" then
         local advanced = advanceCoordination(id, body, "SAO", "idle", agent)
@@ -6650,6 +6587,17 @@ local function decide(id, agent, body)
         -- greenhorn without a single hard claim may WAIT - legibly;
         -- the designated rest short with their kit in reach.
         local idleRec = SAO.Identity.get(id)
+        if SAO.Study and tick >= (agent.nextStudyAt or 0)
+            and not agent.resting and (not needs or needs.fatigue < 0.7) then
+            local manual = SAO.Study.offer(id, body)
+            if manual and SAO.Study.begin(id, body, manual) then
+                agent.nextStudyAt = tick + 2400
+                pcall(function() SAO.Voice.onEvent(id, "studies", tick) end)
+                agent.pressure = { answer = "chosen rest",
+                    detail = "studies " .. tostring(manual:getSkillTrained()), at = tick }
+                return
+            end
+        end
         if decideRestActivity(id, agent, body, tick, idleRec) then return end
         if decideLocalResources(id, agent, body, tick, idleRec) then return end
         if decidePromiseAndSearch(id, agent, body, tick, idleRec) then return end

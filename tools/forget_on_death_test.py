@@ -68,6 +68,11 @@ MARK_DEAD = "markDead"
 #   "calls"  - the clearing function calls Identity.markDead itself,
 #              so the clear and the death are the same event
 CACHES = {
+    ("SAO_Study.lua", "runtime"): (
+        "S.forget", "named",
+        "native reading retains a living body and exact book only while work "
+        "is active; death interrupts its queue owner and clears runtime "
+        "while durable purposes and native page history remain"),
     ("SAO_Animals.lua", "A.travelJobs"): (
         "A.forget", "named",
         "a mounted route retains the living rider, horse and native route "

@@ -145,8 +145,12 @@ def main():
             and "(tonumber(bored46) or 0) > 0.3" in ctrl,
         "the study path asks for a book keyword":
             "local book48 = SAO.Census.bookSkillFor(perk48)" in ctrl,
-        "and reads with it": "readSkillBook(body, book48)" in ctrl,
-        "and fetches with it": "body, 10, book48)" in ctrl,
+        "and carries the keyword into the maintained purpose":
+            "bookSkill = book48" in ctrl,
+        "and reads through the native study owner":
+            "SAO.Study.begin(id, body, manual)" in ctrl,
+        "and retains completed subjects after studying another manual":
+            "SAO.ProceduralPlanning.readingSessions(id, book48) > 0" in ctrl,
         "the perk id is still used for skill levels":
             "SAO.Census.JOB_PERK[idleRec.designation]" in ctrl,
     }

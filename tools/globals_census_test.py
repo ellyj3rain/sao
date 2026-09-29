@@ -125,6 +125,8 @@ KNOWN = {n: OURS for n in (
     "SAOMedicalWindow",
     # [C35] the gesture's timed action, a vanilla-derived class of ours.
     "SAOGestureAction",
+    # C102's native-derived skill-book action is source-owned.
+    "SAOStudyAction",
     # [C98] Source-owned Horse globals required by engine recipe/registry and
     # compatibility contracts. The rest of Horse execution is require-local.
     "GetSpeeds", "HorseGlueToWoodglue", "HorseModNetMetrics",
@@ -142,6 +144,8 @@ KNOWN.update({n: ENGINE for n in (
     "BodyPartType", "DynamicRadio", "Events", "GameTime", "Keyboard",
     "keyBinding",
     "HaloTextHelper", "ISApplyBandage", "ISReadABook", "ISBarricadeAction",
+    # Native server/XpSystem/XPSystem_SkillBook.lua supplies perk and multiplier definitions.
+    "SkillBook",
     # [C35] the timed-action base the gesture action derives from.
     "ISBaseTimedAction",
     "ISCollapsableWindow", "ISDrinkFluidAction", "ISEatFoodAction",

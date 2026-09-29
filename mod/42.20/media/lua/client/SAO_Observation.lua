@@ -466,6 +466,12 @@ local function planning(id)
     end
     row(s, "Remembered spatial facts", view.spatialFacts or 0)
     row(s, "Practiced domains", view.practiceDomains or 0)
+    if view.study then
+        row(s, "Study", tostring(view.study.subject) .. " / " .. tostring(view.study.status))
+        row(s, "Reading progress", tostring(view.study.pages) .. " of "
+            .. tostring(view.study.totalPages) .. " pages")
+        if view.study.reason then row(s, "Study interrupted by", view.study.reason) end
+    end
     for _, purpose in ipairs(view.purposes or {}) do
         row(s, "Purpose", tostring(purpose.objective) .. " / "
             .. tostring(purpose.status))

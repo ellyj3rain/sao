@@ -1,6 +1,6 @@
 | Document | Survivor Awareness Overhaul Architecture |
 |---|---|
-| Version | `3.7.1.0-pre-alpha` |
+| Version | `3.7.2.0-pre-alpha` |
 | Author | ellyj3rain |
 | Repository | `ARCHITECTURE.md` |
 | Status | ACTIVE - ratified framework shape. |
@@ -1128,9 +1128,21 @@ Technique profiles read the engine's numeric perk levels, with occupation used
 only through Census's existing engine-profession read path. Occupation does not
 grant an action. Study compiles locating or acquiring the relevant book,
 native literature use and later tested practice. Literacy, reading-time traits
-and current fatigue alter the session. A queued `ReadLiterature` action remains
-pending because the current native adapter does not yet publish exact page
-completion; this prevents planned or admitted study from granting competence.
+and current fatigue inform the session. C102's `SAO_Study` executes the installed
+`ISReadABook` action for a useful privately carried manual, including for a person
+without a designation. The native skill range, literacy, lighting, duration,
+page progress and XP multiplier remain authoritative. The legacy instant
+`ReadLiterature` call is retired from the Controller study path.
+
+The maintained purpose retains the exact book type, work identity and admission.
+Current body and item ownership are revalidated before native completion.
+Immediate needs and danger interrupt study; a different timed action retires the
+reading owner before queue admission. Body handoff closes live study before its
+native checkpoint. Interrupted pages persist through the existing native reading
+snapshot, while missing runtime is reported as interrupted without completion
+credit. A completed reading receipt advances the reading step once and keeps
+practical work separate. Book search and acquisition beyond privately carried
+manuals remain action-producer work.
 
 Fortification compiles survey, construction and verification over held ground.
 The existing SAOBuild native bridge still owns material checks, aperture choice,

@@ -2263,6 +2263,13 @@ if ! "$PY" tools/mobile_household_loaded_acceptance.py; then
     fail=1
 fi
 
+# Border 214 - [C102] useful carried manuals enter native timed reading;
+# exact pages, queue identity and completion precede maintained learning.
+if ! "$PY" tools/study_test.py; then
+    note "BORDER FINDING - native study progress or receipt ownership failed"
+    fail=1
+fi
+
 # Source integration retains the selected Claude-built baseline and its exact
 # limits. External study activation cannot promote a candidate into ownership.
 if ! "$PY" tools/source_integration_gate.py; then

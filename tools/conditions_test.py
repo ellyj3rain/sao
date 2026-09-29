@@ -318,7 +318,10 @@ def main():
             and "SAO.Perception.hallucinate" in read(AGE),
         "and refreshes the learning pace": "SAO.Conditions.learningScale" in read(AGE),
         "the body sets the learning pace for everyone": "SAO.Conditions.learningScale" in read(BODY),
-        "the controller prices the book": "SAO.Conditions.readingTime(id)" in read(CONTROLLER),
+        "the controller delegates reading time to the native study owner":
+            "SAO.Study.begin(id, body, manual)" in read(CONTROLLER)
+            and "SAO.Conditions.readingTime(id)"
+                in read(CONTROLLER.with_name("SAO_Study.lua")),
         "the knowledge surface carries the words": "SAO.Conditions.words(id)" in read(KNOW),
         "the panel says it plainly": 'row("carries: " .. carries)' in read(INSPECT),
         "Border 63 samples the conditions": "SAO_Conditions.lua" in read(RANGE_BORDER),
