@@ -131,6 +131,24 @@ def run():
             else:
                 raise AssertionError("wall-limit receipt passed as a horizon or admitted invalid identity/time")
 
+        supervised = ("[StudyLaunch] started attempt=1 save=fixture hours=2\n"
+                      "[StudyWorld] frame=2 hours=2.4 loaded=10 people=2\n"
+                      "[StudyLaunch] supervisor-stop attempt=1 save=fixture start=2 end=2.4 reason=checkpoint\n"
+                      "[StudyLaunch] native-save-returned attempt=1\n")
+        result = Run.terminal(supervised, 1, "fixture", 1, True, 2.4)
+        assert result["stopReason"] == "checkpoint" and result["endHours"] == 2.4
+        legacy = supervised.replace(" save=fixture start=2 end=2.4", "")
+        recovered = Run.terminal(legacy, 1, "fixture", 1, True, 2.4)
+        assert recovered["receiptFormat"] == "supervisor-stop/1-recovered"
+        for invalid in (supervised + supervised, legacy.replace("frame=2 hours=2.4", "frame=2 hours=2.3"),
+                        supervised.replace("save=fixture start=2", "save=other start=2")):
+            try:
+                Run.terminal(invalid, 1, "fixture", 1, True, 2.4)
+            except ValueError:
+                pass
+            else:
+                raise AssertionError("invalid supervisor-stop terminal receipt was admitted")
+
     if os.name == "nt":
         child = subprocess.Popen([sys.executable, "-c", "import time; time.sleep(30)"],
                                  creationflags=subprocess.CREATE_NO_WINDOW)

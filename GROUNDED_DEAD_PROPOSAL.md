@@ -1,6 +1,6 @@
 | Document | The Grounded Dead - a derivation for ratification |
 |---|---|
-| Version | `3.7.0.1-pre-alpha` |
+| Version | `3.7.1.0-pre-alpha` |
 | Author | ellyj3rain |
 | Repository | `GROUNDED_DEAD_PROPOSAL.md` |
 | Status | RATIFIED WITH AMENDMENTS (DR-021) - mechanism B plus the presence layer and the state-agreement constraint; this file is now the derivation appendix. Final numbers await the [C7] measurement. |
@@ -16,7 +16,7 @@ stops at the line the order drew: **numbers are the operator's; the
 derivation and its confidence are the work.** Nothing below changes
 behavior. Player-facing sandbox knobs stay knobs.
 
-## 1 · The demographic base (confidence: medium)
+## 1 Â· The demographic base (confidence: medium)
 
 The map states where people were. The operator's install carries
 twelve spawn regions - twelve settlements - and the real 1990 census
@@ -42,7 +42,7 @@ footprint against the real ones, which is a judgement, stated. The
 region count is read from the install by [B38]'s own counter, so a
 map mod moves this number the same way it moves the living.
 
-## 2 · The Event's course (confidence: the lore is explicit; the split is judgement)
+## 2 Â· The Event's course (confidence: the lore is explicit; the split is judgement)
 
 The Knox Event seals people IN: the exclusion zone closes on July 9
 with the residents inside it, there is no civilian evacuation, and by
@@ -56,13 +56,13 @@ are not "some zombies" - they are the trapped population, minus:
   unaffiliated - under 3% on any honest reading; survival in the
   lore's zone is the exception that the game is about.
 
-**Walking dead ≈ 82-92% of the base: ~8,000-13,500 across the full
+**Walking dead â‰ˆ 82-92% of the base: ~8,000-13,500 across the full
 map, with ~9,500 as the single defensible point estimate.**
 
 For scale: that is roughly 44 dead for every living person the county
 maintains - the lore's loneliness, in a ratio.
 
-## 3 · What the engine does today (confidence: high on the knobs, none on the total)
+## 3 Â· What the engine does today (confidence: high on the knobs, none on the total)
 
 Vanilla Apocalypse ships `ZombieConfig.PopulationMultiplier 0.65`
 (the "Normal" row of `defines.lua`'s table - 2.5/1.6/1.2/0.65/0.15/0),
@@ -74,7 +74,7 @@ state the engine's implied total. Anyone who claims the default map
 "has N zombies" without measuring is doing what the old bite formula
 did.
 
-## 4 · The mechanism fork (the operator picks)
+## 4 Â· The mechanism fork (the operator picks)
 
 **A - Guidance only.** SAO documents the derived total and the
 sandbox rows that approach it; the player sets vanilla's own knobs.
@@ -86,7 +86,7 @@ line - a dead census: real zombies in loaded cells, sampled per-cell
 density, extrapolated to the install's cell count, written to the
 one JSONL. An instrument in the [C3] discipline: reads everything,
 teaches nothing, changes nothing. With a measured
-zombies-per-multiplier curve on THIS install, the §2 target becomes
+zombies-per-multiplier curve on THIS install, the Â§2 target becomes
 a defensible multiplier recommendation instead of a guess, and the
 recommendation ships as documentation and a sandbox-preset note.
 
@@ -97,9 +97,9 @@ exists to interrogate, and one mod fighting the engine's own
 population manager is the two-systems-one-street shape DR-015 just
 removed from the menus.
 
-## 5 · What ratification looks like
+## 5 Â· What ratification looks like
 
-The operator states: the target (a number or a range from §2, or
+The operator states: the target (a number or a range from Â§2, or
 their own), the mechanism (A/B/C), and - if B - whether the measured
 recommendation may ship as a preset note. On ratification this
 document's numbers move to DECISION_REGISTRY as a DR and this file

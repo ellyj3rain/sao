@@ -1,11 +1,26 @@
 | Document | Survivor Awareness Overhaul Session State |
 |---|---|
-| Version | `3.7.0.1-pre-alpha` |
+| Version | `3.7.1.0-pre-alpha` |
 | Author | ellyj3rain |
 | Repository | `SESSION_STATE.md` |
 | Status | CANONICAL - current implementation and continuation. |
 
 # Session state
+
+**As of** 2026-09-29, [C101] closes the native study terminal-handoff defect.
+Supervisor stops now carry exact attempt, save and clock identity. The retained
+legacy attempt is recoverable only after complete native revalidation and now
+projects as saved at world hour 2.2500314712524414 with continuation available.
+Its Mousecat feed is terminal, its visible time no longer grows, and its
+verified cognition evidence reports no completed disagreement for review.
+
+Completed competing-cognition outcomes now move from a verified saved attempt
+into a durable Speakeasy review outbox and immediate Mousecat human disposition.
+Pending, queued, delayed, empty and ineligible handoffs remain visible beside
+the study state. The first retained corpus exposes 15 completed disagreements as
+two actor trajectories; 1,348 episodes without observed outcomes remain
+sequestered. No handoff creates training rows, teaching targets, a model winner
+or dataset admission.
 
 **As of** 2026-09-29, [C100] closes the mobile-household loaded-acceptance
 obligation on Build 42.21. A real Rolling Refuge acquired one SAO moving-place
