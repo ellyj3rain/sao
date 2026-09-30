@@ -1,6 +1,6 @@
 | Document | Survivor Awareness Overhaul Batch Log |
 |---|---|
-| Version | `3.7.3.0-pre-alpha` |
+| Version | `3.7.4.0-pre-alpha` |
 | Author | ellyj3rain |
 | Repository | `BATCH_LOG.md` |
 | Status | REGULATORY - chronological batch index. |
@@ -210,3 +210,4 @@ source mapping and hashes. Consolidation does not close implementation defects.
 | [C101](Batches/C101-20260929-1941Z-1241PDT-study-terminal-and-human-review-handoff.md) | 2026-09-29 | Study terminal and human review handoff | [`T-006`](Batches/THREADS.md#t-006), [`T-008`](Batches/THREADS.md#t-008), [`T-009`](Batches/THREADS.md#t-009), [`T-030`](Batches/THREADS.md#t-030) |
 | [C102](Batches/C102-20260929-2320Z-1620PST-native-skill-book-study.md) | 2026-09-29 | Native skill-book study | [`T-002`](Batches/THREADS.md#t-002), [`T-003`](Batches/THREADS.md#t-003), [`T-004`](Batches/THREADS.md#t-004), [`T-006`](Batches/THREADS.md#t-006), [`T-008`](Batches/THREADS.md#t-008), [`T-030`](Batches/THREADS.md#t-030) |
 | [C103](Batches/C103-20260930-0306Z-2006PST-retained-acquisition-and-productive-work.md) | 2026-09-30 | Retained acquisition and productive work | [`T-002`](Batches/THREADS.md#t-002), [`T-003`](Batches/THREADS.md#t-003), [`T-004`](Batches/THREADS.md#t-004), [`T-006`](Batches/THREADS.md#t-006), [`T-008`](Batches/THREADS.md#t-008), [`T-030`](Batches/THREADS.md#t-030) |
+| [C104](Batches/C104-20260930-0455Z-2155PST-sustained-resource-planning.md) | 2026-09-30 | Sustained resource planning | [`T-002`](Batches/THREADS.md#t-002), [`T-003`](Batches/THREADS.md#t-003), [`T-004`](Batches/THREADS.md#t-004), [`T-006`](Batches/THREADS.md#t-006), [`T-008`](Batches/THREADS.md#t-008), [`T-030`](Batches/THREADS.md#t-030) |

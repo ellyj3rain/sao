@@ -120,7 +120,7 @@ def main(argv=None, *, default_root=None):
                         chunks += [HERE / "legacy_archive.lua", HERE / "restore_legacy.lua"]
                     chunks += [model_file, cognition_file, HERE / "experience.lua" if mode == "extended" else root / "tools/cognition_checks/runtime.lua"]
                     expression = "RESULT"
-                    expected = "VALUE PASS extended cognition 985" if mode == "extended" else "VALUE PASS cognition runtime 49"
+                    expected = "VALUE PASS extended cognition 999" if mode == "extended" else "VALUE PASS cognition runtime 49"
                 started = time.monotonic()
                 result = subprocess.run([str(executables["java"]), "-cp", str(engine) + os.pathsep + str(work),
                     "LuaRun", *map(str, chunks), "--", expression], cwd=work, capture_output=True,

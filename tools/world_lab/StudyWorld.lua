@@ -39,12 +39,18 @@ local function keys(t)
     return result
 end
 local function charge(budget, bytes)
+    if budget.bounded and bytes > budget.left then
+        budget.exhausted = true
+        return false
+    end
     assert(bytes <= budget.left, "observation exceeds export byte budget")
     budget.left = budget.left - bytes
+    return true
 end
 -- Kahlua stores Java UTF-16 strings; #s is not the UTF-8 byte count written by
 -- the native file writer. Paired surrogates become one four-byte code point.
 local function utf8Bytes(s)
+    if not s:find('[^%z\1-\127]') then return #s end
     local bytes, i = 0, 1
     while i <= #s do
         local c = string.byte(s, i)
@@ -58,28 +64,34 @@ local function utf8Bytes(s)
     end
     return bytes
 end
-local function quote(s, budget)
+local function quotedBytes(s)
     s = tostring(s)
     local length = utf8Bytes(s) + 2
-    for c in s:gmatch('[%z\1-\31\\"]') do
-        length = length + ((c == '"' or c == '\\') and 1 or 5)
-    end
-    charge(budget, length)
-    return '"' .. tostring(s):gsub('[%z\1-\31\\"]', function(c)
-        if c == '"' then return '\\"' end
-        if c == '\\' then return '\\\\' end
-        return string.format('\\u%04x', string.byte(c))
-    end) .. '"'
+    -- Most observation strings need no JSON escaping. Keep native UTF-8
+    -- accounting while avoiding three allocating substitution scans for them.
+    if not s:find('[%z\1-\31\\"]') then return length, true end
+    local _, simple = s:gsub('[\\"]', '')
+    local _, controls = s:gsub('[%z\1-\31]', '')
+    length = length + simple + controls * 5
+    return length, false
+end
+local escapes = { ['"'] = '\\"', ['\\'] = '\\\\' }
+for i = 0, 31 do escapes[string.char(i)] = string.format('\\u%04x', i) end
+local function quote(s, budget)
+    s = tostring(s)
+    local length, plain = quotedBytes(s)
+    if not charge(budget, length) then return nil end
+    return '"' .. (plain and s or s:gsub('[%z\1-\31\\"]', escapes)) .. '"'
 end
 local function json(value, seen, budget)
     budget = budget or { left = 64 * 1024 * 1024 }
     local kind = type(value)
-    if kind == "nil" then charge(budget, 4); return "null" end
-    if kind == "boolean" then charge(budget, value and 4 or 5); return value and "true" or "false" end
+    if kind == "nil" then return charge(budget, 4) and "null" or nil end
+    if kind == "boolean" then return charge(budget, value and 4 or 5) and (value and "true" or "false") or nil end
     if kind == "number" then
         assert(finite(value), "non-finite observation")
         local encoded = tostring(value)
-        charge(budget, #encoded)
+        if not charge(budget, #encoded) then return nil end
         return encoded
     end
     if kind == "string" then return quote(value, budget) end
@@ -87,7 +99,7 @@ local function json(value, seen, budget)
     seen = seen or {}
     assert(not seen[value], "cyclic observation")
     seen[value] = true
-    charge(budget, 2)
+    if not charge(budget, 2) then seen[value] = nil; return nil end
     local parts = {}
     local isArray = getmetatable(value) == arrayMeta
     if not isArray then
@@ -101,18 +113,31 @@ local function json(value, seen, budget)
     end
     if isArray then
         for i = 1, #value do
-            if i > 1 then charge(budget, 1) end
-            parts[#parts + 1] = json(value[i], seen, budget)
+            if i > 1 and not charge(budget, 1) then seen[value] = nil; return nil end
+            local part = json(value[i], seen, budget)
+            if part == nil then seen[value] = nil; return nil end
+            parts[#parts + 1] = part
         end
     else
         for _, key in ipairs(keys(value)) do
-            charge(budget, #parts > 0 and 2 or 1)
-            parts[#parts + 1] = quote(key, budget) .. ":" .. json(value[key], seen, budget)
+            if not charge(budget, #parts > 0 and 2 or 1) then seen[value] = nil; return nil end
+            local name = quote(key, budget)
+            if name == nil then seen[value] = nil; return nil end
+            local part = json(value[key], seen, budget)
+            if part == nil then seen[value] = nil; return nil end
+            parts[#parts + 1] = name .. ":" .. part
         end
     end
     seen[value] = nil
     return (isArray and "[" or "{") .. table.concat(parts, ",")
         .. (isArray and "]" or "}")
+end
+local function boundedJson(value, budget)
+    -- Expected capacity exhaustion is a result. Native Kahlua requests its
+    -- debugger even when an assertion is later caught by Lua pcall.
+    budget.bounded, budget.exhausted = true, false
+    local encoded = json(value, nil, budget)
+    return not budget.exhausted, encoded
 end
 local function selected()
     return getWorld() and getWorld():getMap() == Config.mapName
@@ -130,6 +155,7 @@ local function boundsMatch()
 end
 function Study.prepare()
     Study.active, Study.error, state, lastHours, newGame = false, nil, nil, nil, false
+    Study.archiveCapture = nil
     Study.prepared, Study.configured = false, false
     if originalRoads and worldgen then worldgen.roads, originalRoads = originalRoads, nil end
     if not selected() then return false end
@@ -207,7 +233,8 @@ end
 local NEED_STATS = { hunger = "HUNGER", thirst = "THIRST", fatigue = "FATIGUE" }
 local function applyInitialNeeds()
     local needs = Config.situation and Config.situation.initialNeeds
-    if not needs then return end
+    local regional = Config.situation and Config.situation.initialNeedsBySite
+    if not needs and not regional then return end
     assert(SAO.Hash and SAO.Hash.unit, "study situation requires deterministic hash owner")
     assert(CharacterStat, "native character statistics unavailable")
     state.initialNeedsApplied = state.initialNeedsApplied or {}
@@ -216,16 +243,28 @@ local function applyInitialNeeds()
         if not rec.dead and not state.initialNeedsApplied[id] then
             local body = SAO.Body.get(id)
             if body then
+                local actorNeeds, siteId = needs, nil
+                if regional then
+                    local distance = math.huge
+                    for _, site in ipairs(Config.observation.sites or {}) do
+                        local dx, dy = body:getX() - site.x, body:getY() - site.y
+                        local candidate = dx * dx + dy * dy
+                        if candidate < distance then distance, siteId = candidate, site.id end
+                    end
+                    actorNeeds = regional[siteId] or needs
+                end
                 local stats = assert(body:getStats(), "native character statistics unavailable")
-                local applied = { appliedAtHours = getGameTime():getWorldAgeHours() }
-                for _, name in ipairs(keys(needs)) do
-                    local bounds = needs[name]
+                local applied = { appliedAtHours = getGameTime():getWorldAgeHours(), siteId = siteId }
+                for _, name in ipairs(keys(actorNeeds or {})) do
+                    local bounds = actorNeeds[name]
                     local unit = SAO.Hash.unit(id, "study:" .. Config.definitionSha256 .. ":" .. name)
                     local value = bounds.min + (bounds.max - bounds.min) * unit
                     stats:set(CharacterStat[NEED_STATS[name]], value)
                     applied[name] = value
                 end
                 state.initialNeedsApplied[id] = applied
+                state.situationReceipt = state.situationReceipt or {}
+                state.situationReceipt.initialNeedsApplied = state.initialNeedsApplied
             end
         end
     end
@@ -460,26 +499,74 @@ local function applyMobileHousehold()
             .. " anchor=" .. tostring(receipt.vehicleId))
     end
 end
+local function omit(budget, path)
+    if #budget.omitted < 256 then budget.omitted[#budget.omitted + 1] = path:sub(1, 512) end
+    budget.omittedCount = budget.omittedCount + 1
+end
 local function copy(value, path, budget, seen, depth)
     local kind = type(value)
-    if budget.left <= 0 or (kind == "string" and #value > 32768) then
-        if #budget.omitted < 256 then budget.omitted[#budget.omitted + 1] = path end
-        budget.omittedCount = budget.omittedCount + 1
+    budget.bytes = budget.bytes or 8 * 1024 * 1024
+    if budget.left <= 0 or budget.bytes <= 0 or (kind == "string"
+            and (#value > 32768 or #value + 2 > budget.bytes)) then
+        omit(budget, path)
+        return nil
+    end
+    local encoded = kind == "string" and quotedBytes(value)
+        or kind == "number" and #tostring(value)
+        or kind == "boolean" and (value and 4 or 5) or kind == "table" and 2 or 4
+    if encoded > budget.bytes then
+        omit(budget, path)
         return nil
     end
     budget.left = budget.left - 1
-    if kind == "nil" or kind == "string" or kind == "boolean" then return value end
-    if kind == "number" and finite(value) then return value end
+    if kind == "nil" or kind == "string" or kind == "boolean" or (kind == "number" and finite(value)) then
+        budget.bytes = budget.bytes - encoded
+        return value
+    end
     if kind ~= "table" or depth > 16 or budget.left <= 0 or seen[value] then
-        if #budget.omitted < 256 then budget.omitted[#budget.omitted + 1] = path end
-        budget.omittedCount = budget.omittedCount + 1
+        omit(budget, path)
         return nil
     end
     seen[value] = true
-    local result = {}
+    local initialBytes = budget.bytes
+    budget.bytes = budget.bytes - 2
+    local result, members = {}, 0
+    local isArray = getmetatable(value) == arrayMeta or #value > 0
+    if isArray then
+        local sourceMembers = 0
+        for key in pairs(value) do
+            sourceMembers = sourceMembers + 1
+            if type(key) ~= "number" or key % 1 ~= 0 or key < 1 or key > #value then isArray = false; break end
+        end
+        if sourceMembers ~= #value then isArray = false end
+    end
+    if isArray then setmetatable(result, arrayMeta) end
     for _, key in ipairs(keys(value)) do
         if type(key) == "string" or type(key) == "number" then
-            result[key] = copy(value[key], path .. "." .. tostring(key), budget, seen, depth + 1)
+            local excessiveKey = type(key) == "string" and #key > 32768
+            local overhead = excessiveKey and budget.bytes + 1
+                or (members > 0 and 1 or 0) + (isArray and 0 or quotedBytes(key) + 1)
+            if excessiveKey or overhead > budget.bytes then
+                omit(budget, path .. "." .. tostring(key))
+                if isArray then
+                    budget.bytes, seen[value] = initialBytes, nil
+                    omit(budget, path)
+                    return nil
+                end
+            else
+                budget.bytes = budget.bytes - overhead
+                local field = copy(value[key], path .. "." .. tostring(key), budget, seen, depth + 1)
+                if field ~= nil then result[key], members = field, members + 1
+                else
+                    budget.bytes = budget.bytes + overhead
+                    if isArray then
+                        -- A missing indexed element would change the array's meaning.
+                        budget.bytes, seen[value] = initialBytes, nil
+                        omit(budget, path)
+                        return nil
+                    end
+                end
+            end
         end
     end
     seen[value] = nil
@@ -500,14 +587,14 @@ local function inspectionSnapshot(maxBytes)
     for _, key in ipairs({ "sequence", "capturedAtUnixMs", "worldHours", "status", "message",
             "omittedPeople", "omittedEvents", "selectedPersonId" }) do result[key] = scalar(snapshot[key]) end
     local omittedPeople, omittedSections, omittedRows, omittedEvents = 0, 0, 0, 0
-    local projected = pcall(function()
+    local projected, fits = pcall(function()
         -- Reserve header growth for the explicit omission counts/message. Each
         -- inserted value is measured once with the production JSON encoder.
         local budget = { left = maxBytes - 1024 }
-        json(result, nil, budget)
+        if not boundedJson(result, budget) then return false end
         local function take(value)
             local trial = { left = budget.left - 1 } -- member/array comma
-            local ok = pcall(json, value, nil, trial)
+            local ok = boundedJson(value, trial)
             if ok then budget.left = trial.left end
             return ok
         end
@@ -566,9 +653,9 @@ local function inspectionSnapshot(maxBytes)
                 .. " people, " .. omittedSections .. " sections, " .. omittedRows .. " rows and "
                 .. omittedEvents .. " events omitted."
         end
-        json(result, nil, { left = maxBytes })
+        return boundedJson(result, { left = maxBytes })
     end)
-    if not projected then
+    if not projected or not fits then
         -- Optional detail must not stop either producer. Keep the source's last
         -- successful observation clock; do not stamp an export failure as new knowledge.
         result.people, result.status = {}, "failed"
@@ -602,12 +689,53 @@ local function squareView(square, x, y, z)
     for i = 0, objects:size() - 1 do out.objects[#out.objects + 1] = objectView(objects:get(i)) end
     return out
 end
+local function windowCoordinates(window)
+    local xmin, ymin = window.x, window.y
+    local xmax, ymax = xmin + window.width - 1, ymin + window.height - 1
+    local cx, cy = math.floor((xmin + xmax) / 2), math.floor((ymin + ymax) / 2)
+    -- A native site can be off-center in its authored observation rectangle.
+    -- Prefer its actual location, then a lived origin, then the rectangle center.
+    for _, candidates in ipairs({ Config.observation.sites or {}, Config.origins or {} }) do
+        local found = false
+        for _, point in ipairs(candidates) do
+            if point.z == window.z and point.x >= xmin and point.x <= xmax
+                    and point.y >= ymin and point.y <= ymax then
+                cx, cy, found = math.floor(point.x), math.floor(point.y), true
+                break
+            end
+        end
+        if found then break end
+    end
+    local radius, offset = 0, 0
+    local limit = math.max(cx - xmin, xmax - cx, cy - ymin, ymax - cy)
+    -- Lazy clipped Chebyshev rings visit each bounded rectangle coordinate once.
+    -- No full geometry list or sort is built before the shared copy ledger runs.
+    return function()
+        while radius <= limit do
+            local x, y
+            if radius == 0 then
+                x, y = cx, cy
+                radius = 1
+            else
+                local edge, along = math.floor(offset / (2 * radius)), offset % (2 * radius)
+                if edge == 0 then x, y = cx - radius + along, cy - radius
+                elseif edge == 1 then x, y = cx + radius, cy - radius + along
+                elseif edge == 2 then x, y = cx + radius - along, cy + radius
+                else x, y = cx - radius, cy + radius - along end
+                offset = offset + 1
+                if offset == 8 * radius then radius, offset = radius + 1, 0 end
+            end
+            if x >= xmin and x <= xmax and y >= ymin and y <= ymax then return x, y end
+        end
+    end
+end
 function Study.observe()
     assert(Study.active and state, "study is not active")
     assert(selected() and boundsMatch(), "native world changed after study startup")
     settingsMatch()
     local hours = getGameTime():getWorldAgeHours()
     assert(finite(hours), "world clock unavailable")
+    local budget = { left = 100000, bytes = 8 * 1024 * 1024, omitted = array(), omittedCount = 0 }
     local frame = { schema = "sao-study-observation/1", definitionSha256 = Config.definitionSha256,
         packageEngineJarSha256 = Config.engineJarSha256, engineVersion = getCore():getVersion(),
         observerSha256 = Config.observerSha256,
@@ -616,39 +744,68 @@ function Study.observe()
         session = session, datasetAdmission = "unreviewed", extent = Config.extent,
         sandbox = Config.sandbox, generation = Config.generation, situation = Config.situation or {},
         situationReceipt = copy(state.situationReceipt or {}, "situationReceipt",
-            { left = 4096, omitted = array(), omittedCount = 0 }, {}, 0) or {},
+            budget, {}, 0) or {},
         source = "loaded-native-world", mods = array(), windows = array(), people = array(),
         processes = array(), population = { total = 0, captured = 0, dead = 0,
             represented = 0, unrepresented = 0 },
-        coverage = { requestedSquares = 0, loadedSquares = 0, unavailableSquares = 0,
+        coverage = { requestedSquares = 0, loadedSquares = 0, unavailableSquares = 0, omittedSquares = 0,
             peopleComplete = true, processesComplete = true,
             physicalCoverage = "loaded-squares-only", observerMovesWorld = false } }
     local mods = getActivatedMods()
+    if Config.observation.sites then frame.observationSites = Config.observation.sites end
     for i = 0, mods:size() - 1 do frame.mods[#frame.mods + 1] = mods:get(i) end
     local cell = getCell()
     assert(cell, "native cell unavailable")
+    local function physicalWindows()
+    local walkers = {}
     for _, window in ipairs(Config.observation.windows) do
         local result = { id = window.id, x = window.x, y = window.y, z = window.z,
-            width = window.width, height = window.height, squares = array(), unavailable = 0 }
-        for y = window.y, window.y + window.height - 1 do
-            for x = window.x, window.x + window.width - 1 do
+            width = window.width, height = window.height, squares = array(), unavailable = 0, omitted = 0 }
+        frame.windows[#frame.windows + 1] = result
+        walkers[#walkers + 1] = { window = window, result = result, next = windowCoordinates(window) }
+    end
+    local pending = true
+    while pending do
+        pending = false
+        for _, walker in ipairs(walkers) do
+            local x, y = walker.next()
+            if x then
+                pending = true
+                local window, result = walker.window, walker.result
                 local square = cell:getGridSquare(x, y, window.z)
                 frame.coverage.requestedSquares = frame.coverage.requestedSquares + 1
                 if square then
-                    result.squares[#result.squares + 1] = squareView(square, x, y, window.z)
-                    frame.coverage.loadedSquares = frame.coverage.loadedSquares + 1
+                    local beforeBytes, beforeOmitted = budget.bytes, budget.omittedCount
+                    local path = "windows." .. window.id .. ".squares." .. tostring(x) .. "." .. tostring(y)
+                    local projected = copy(squareView(square, x, y, window.z), path, budget, {}, 0)
+                    if projected and beforeOmitted == budget.omittedCount then
+                        result.squares[#result.squares + 1] = projected
+                        frame.coverage.loadedSquares = frame.coverage.loadedSquares + 1
+                    else
+                        -- Keep complete native square shapes; budget omission is not unloaded geometry.
+                        budget.bytes = beforeBytes
+                        result.omitted = result.omitted + 1
+                        frame.coverage.omittedSquares = frame.coverage.omittedSquares + 1
+                        omit(budget, path)
+                    end
                 else
                     result.unavailable = result.unavailable + 1
                     frame.coverage.unavailableSquares = frame.coverage.unavailableSquares + 1
                 end
             end
         end
-        frame.windows[#frame.windows + 1] = result
     end
-    local budget = { left = 100000, omitted = array(), omittedCount = 0 }
+    end
     local inspection = inspectionSnapshot()
     local records = SAO.Identity.all()
-    for _, id in ipairs(keys(records)) do
+    local recordIds = keys(records)
+    if inspection.selectedPersonId and records[inspection.selectedPersonId] then
+        for i, id in ipairs(recordIds) do
+            if id == inspection.selectedPersonId then table.remove(recordIds, i); break end
+        end
+        table.insert(recordIds, 1, inspection.selectedPersonId)
+    end
+    for _, id in ipairs(recordIds) do
         local rec = records[id]
         local body = SAO.Body.get(id)
         local represented = SAO.Body.hasRepresentation(id) == true
@@ -680,10 +837,15 @@ function Study.observe()
             }
             local detail = inspection.people[tostring(id)]
             if detail then
-                person.context.inspection = { sequence = inspection.sequence,
+                local beforeBytes, beforeOmitted = budget.bytes, budget.omittedCount
+                local path = "people." .. tostring(id) .. ".inspection"
+                local projected = copy({ sequence = inspection.sequence,
                     capturedAtUnixMs = inspection.capturedAtUnixMs, worldHours = inspection.worldHours,
                     status = inspection.status, message = inspection.message,
-                    sections = detail.sections, events = detail.events }
+                    sections = detail.sections, events = detail.events },
+                    path, budget, {}, 0)
+                if projected and beforeOmitted == budget.omittedCount then person.context.inspection = projected
+                else budget.bytes = beforeBytes; omit(budget, path) end
             end
             frame.people[#frame.people + 1] = person
         end
@@ -700,24 +862,26 @@ function Study.observe()
             id = tostring(id), record = copy(processes[id], "processes." .. tostring(id), budget, {}, 0) or {} }
     end
     frame.coverage.processesComplete = #processIds == #frame.processes
+    physicalWindows()
     frame.coverage.omittedFields = budget.omitted
     frame.coverage.omittedFieldCount = budget.omittedCount
     if SAO.Cognition and SAO.Cognition.snapshot then
         -- Optional cognitive archives share the actual frame's remaining byte
         -- budget. Core capture survives unavailable or oversized model detail.
         local encoded = { left = 64 * 1024 * 1024 - 65536 }
-        local fits = pcall(json, frame, nil, encoded)
+        local fits = boundedJson(frame, encoded)
         local remaining = fits and math.min(4 * 1024 * 1024, encoded.left) or 0
         for _, person in ipairs(frame.people) do
             local accepted = false
             if remaining > 32 then
                 local ok, cognition = pcall(SAO.Cognition.snapshot, person.id, true)
                 if ok and type(cognition) == "table" then
-                    local trial = { left = math.min(512 * 1024, remaining) - 16 }
+                    local trial = { left = math.min(512 * 1024, remaining, budget.bytes) - 16 }
                     local start = trial.left
-                    if pcall(json, cognition, nil, trial) then
+                    if boundedJson(cognition, trial) then
                         person.context.cognition = cognition
                         remaining = remaining - (start - trial.left + 16)
+                        budget.bytes = budget.bytes - (start - trial.left + 16)
                         accepted = true
                     end
                 end
@@ -773,22 +937,40 @@ local function liveInspection(hours)
     -- Core people remain complete rows. Their captured/total counts already
     -- disclose truncation, and leave room for an explicit inspection status.
     local coreBudget = { left = LIVE_BYTES - 2048 }
-    local fits = pcall(json, frame, nil, coreBudget)
+    local fits = boundedJson(frame, coreBudget)
     while not fits and #frame.people > 0 do
         -- At most logarithmically many whole-frame trials, even at the 2048-person cap.
         local retain = math.floor(#frame.people / 2)
         while #frame.people > retain do table.remove(frame.people) end
         frame.population.captured = #frame.people
         coreBudget = { left = LIVE_BYTES - 2048 }
-        fits = pcall(json, frame, nil, coreBudget)
+        fits = boundedJson(frame, coreBudget)
     end
     assert(fits, "live observation core exceeds export byte budget")
     frame.inspection = inspectionSnapshot(math.min(INSPECTION_BYTES, coreBudget.left + 2048 - 32))
+    if Study.archiveCapture and Study.archiveCapture.status == "deferred" then
+        frame.archiveCapture = Study.archiveCapture
+        frame.inspection.message = (frame.inspection.message or ""):sub(1, 380)
+            .. " Archive capture deferred: encoded byte budget exceeded."
+    end
     local text = json(frame, nil, { left = LIVE_BYTES })
     local writer = assert(getFileWriter("StudyWorldLive.json", true, false), "live inspection writer unavailable")
     writer:write(text)
     writer:close()
-    lastLiveAt = now
+    -- Export is synchronous on the game thread. A slow export must still leave
+    -- a full cooldown after its completed write before either tick can repeat it.
+    lastLiveAt = getTimestampMs()
+end
+local function writeArchiveStatus()
+    local receiptText = json(Study.archiveCapture)
+    local receipt = assert(getFileWriter("StudyWorldArchiveStatus.json", true, false),
+        "archive status writer unavailable")
+    receipt:write(receiptText .. "\n"); receipt:close()
+    local receiptReader = assert(getFileReader("StudyWorldArchiveStatus.json", false),
+        "archive status read-back unavailable")
+    local received, extra = receiptReader:readLine(), receiptReader:readLine()
+    receiptReader:close()
+    assert(received == receiptText and extra == nil, "archive status read-back differs")
 end
 function Study.tick()
     if not Study.active then return end
@@ -800,7 +982,21 @@ function Study.tick()
     if isGamePaused() then return end
     if lastHours and hours - lastHours < Config.observation.everyHours then return end
     local frame = Study.observe()
-    local line = json(frame)
+    local encoded, line = boundedJson(frame, { left = 64 * 1024 * 1024 })
+    if not encoded then
+        -- Optional archive projection is independent from cognition and live frames.
+        -- Preserve an explicit receipt without advancing the archive acknowledgement.
+        Study.archiveCapture = { status = "deferred", reason = "encoded-byte-budget",
+            attemptedSequence = frame.sequence, worldHours = hours,
+            capturedAtUnixMs = getTimestampMs(), datasetAdmission = "unreviewed",
+            definitionSha256 = Config.definitionSha256, save = getWorld():getWorld(), session = session,
+            observerSha256 = Config.observerSha256, packageEngineJarSha256 = Config.engineJarSha256 }
+        writeArchiveStatus()
+        lastHours = hours
+        print("[StudyWorld] capture-deferred sequence=" .. tostring(frame.sequence)
+            .. " hours=" .. tostring(hours) .. " reason=encoded-byte-budget")
+        return
+    end
     assert(#line <= 64 * 1024 * 1024, "observation exceeds export byte budget")
     -- Encode each byte of the save name, preserving distinct names and paths.
     local saveKey = tostring(frame.save):gsub(".", function(c) return string.format("%02x", string.byte(c)) end)
@@ -819,6 +1015,11 @@ function Study.tick()
     reader:close()
     assert(received == line and extra == nil, "observation read-back differs")
     state.sequence = frame.sequence
+    Study.archiveCapture = { status = "captured", sequence = frame.sequence, worldHours = hours,
+        definitionSha256 = frame.definitionSha256, save = frame.save, session = frame.session,
+        observerSha256 = frame.observerSha256, packageEngineJarSha256 = frame.packageEngineJarSha256,
+        datasetAdmission = "unreviewed" }
+    writeArchiveStatus()
     lastHours = hours
     print("[StudyWorld] frame=" .. tostring(frame.sequence) .. " hours=" .. tostring(hours)
         .. " loaded=" .. tostring(frame.coverage.loadedSquares) .. " people=" .. tostring(frame.population.total))

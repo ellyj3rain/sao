@@ -223,6 +223,11 @@ public final class StudyLoadingAgent {
                 @Advice.Argument(value = 0, readOnly = false, typing = Assigner.Typing.DYNAMIC) Object actor) {
             actor = StudyObserver.residencyFor(actor);
         }
+        @Advice.OnMethodExit(onThrowable = Throwable.class)
+        public static void exit(@Advice.This Object map, @Advice.Argument(0) Object actor,
+                                @Advice.Thrown Throwable failure) {
+            StudyObserver.streamingFailure(map, actor, failure);
+        }
     }
 
     public static final class ObserverFrame {

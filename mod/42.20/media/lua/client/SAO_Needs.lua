@@ -779,6 +779,15 @@ end
 -- Acquire one exact filled vessel for a scoped delivery.  This deliberately
 -- uses the same inspected-container transfer owner as food; a tap that only
 -- permits direct drinking is not silently converted into portable cargo.
+function N.portableWaterItem(item)
+    local ok, usable = pcall(function()
+        local fluid = item:getFluidContainerFromSelfOrWorldItem()
+        return fluid and fluid:getAmount() > 0.01 and fluid:isWaterSource()
+            and not fluid:isPoisonous() and not fluid:isTainted()
+    end)
+    return ok and usable == true
+end
+
 function N.collectStoredWater(id, body, context)
     if not SAOJavaBridge then return false end
     local okC, container = pcall(function()
@@ -790,13 +799,7 @@ function N.collectStoredWater(id, body, context)
         local items = SAOJavaBridge:privateContainerItems(container)
         for i = 0, items:size() - 1 do
             local item = items:get(i)
-            local okF, fluid = pcall(function()
-                return item:getFluidContainerFromSelfOrWorldItem()
-            end)
-            local okA, amount = pcall(function()
-                return okF and fluid and fluid:getAmount() or nil
-            end)
-            if okA and tonumber(amount) and tonumber(amount) > 0.01 then
+            if N.portableWaterItem(item) then
                 found = item
                 break
             end
@@ -837,15 +840,9 @@ function N.takeStoredWater(id, body)
         local items = SAOJavaBridge:privateContainerItems(container)
         for i = 0, items:size() - 1 do
             local it = items:get(i)
-            local okF, fc = pcall(function()
-                return it:getFluidContainerFromSelfOrWorldItem()
-            end)
-            if okF and fc then
-                local okA, amt = pcall(function() return fc:getAmount() end)
-                if okA and amt and amt > 0.01 then
-                    found = it
-                    break
-                end
+            if N.portableWaterItem(it) then
+                found = it
+                break
             end
         end
     end)

@@ -2279,6 +2279,31 @@ if ! "$PY" tools/purpose_work_test.py; then
     fail=1
 fi
 
+# [C104] Borders 216-220 - private resource pressure, current capacities and
+# exact native means drive maintained plans and independently answered help.
+if ! "$PY" tools/labor_planning_test.py; then
+    note "BORDER FINDING - private labor assessment or retained resource planning failed"
+    fail=1
+fi
+if ! "$PY" tools/resource_execution_test.py; then
+    note "BORDER FINDING - native resource execution or accepted-work study preemption failed"
+    fail=1
+fi
+if ! "$PY" tools/resource_cooperation_test.py; then
+    note "BORDER FINDING - blocked resource goal or independent cooperation failed"
+    fail=1
+fi
+if ! "$PY" tools/resource_production_test.py; then
+    note "BORDER FINDING - native resource transformation, private fixture or production experience failed"
+    fail=1
+fi
+# Border 220 - shared native regions retain separate pixels, residency centers,
+# infrastructure exclusion and sealed lifecycle evidence under one world clock.
+if ! "$PY" tools/regional_observer_test.py; then
+    note "BORDER FINDING - native regional cameras, residency or sealed shared-world evidence failed"
+    fail=1
+fi
+
 if ! "$PY" tools/source_integration_gate.py; then
     note "BORDER FINDING - source integration lineage or ownership claim differs"
     fail=1

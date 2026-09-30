@@ -28,6 +28,7 @@ if not SAO.ProceduralPlanning and type(require) == "function" then
     pcall(require, "SAO_ProceduralPlanning")
 end
 if not SAO.Study and type(require) == "function" then pcall(require, "SAO_Study") end
+if not SAO.ResourceProduction and type(require) == "function" then pcall(require, "SAO_ResourceProduction") end
 
 -- id -> { rec, state, stateSince, nextDecisionAt, fleeTarget }
 Ctl.agents = Ctl.agents or {}
@@ -338,6 +339,7 @@ local function clearLoadedContact(agent)
     agent.contactSeenAt = nil
     agent.contactAttemptId = nil
     agent.contactWaitUntilAt = nil
+    agent.contactRoute = nil
 end
 
 local function finishLoadedContact(id, agent, outcome, evidence)
@@ -389,6 +391,10 @@ function Ctl.drop(id)
                 return false, "cooking-action-pending"
             end
         end
+        if rec and rec.resourceProductionWork and (not SAO.ResourceProduction
+            or SAO.ResourceProduction.interrupt(id, body, "controller-drop") ~= true) then
+            return false, "resource-production-action-pending"
+        end
         if SAO.SourceUse and SAO.SourceUse.closeForOwnershipTransfer then
             local okClose, closed = pcall(
                 SAO.SourceUse.closeForOwnershipTransfer,
@@ -401,6 +407,9 @@ function Ctl.drop(id)
         end
         if SAO.SourceUse and SAO.SourceUse.detach then
             pcall(SAO.SourceUse.detach, body)
+        end
+        if SAO.ResourceProduction and SAO.ResourceProduction.detach then
+            SAO.ResourceProduction.detach(id, body, "controller-drop")
         end
         if SAO.Treatment and SAO.Treatment.releasePerson then
             pcall(SAO.Treatment.releasePerson, id, "controller-drop")
@@ -549,7 +558,7 @@ local CONTACT_STATES = { CONTACTWARD = true, CONTACTWAIT = true }
 local PRESSURE_ANSWER = {
     COOK = "designation", POSTURE = "designation", FLEE = "need", TREAT = "need", RIP = "need", EAT = "need",
     TAKE = "need", DRINK = "need", WATERWARD = "need", FORAGE = "need",
-    SOURCEWARD = "need", SOURCEUSE = "need",
+    SOURCEWARD = "need", SOURCEUSE = "need", RESOURCE = "need",
     RELOAD = "need", AMMOWARD = "need", SMOKE = "need",
     MOURNWARD = "need", MOURNING = "need", MEDICWARD = "need",
     SEARCHWARD = "need", HEARTHWARD = "need", WARMING = "need",
@@ -724,6 +733,10 @@ end
 local function setState(agent, id, state, why, answer, repairingSourceProjection)
     if agent.state ~= state and not repairingSourceProjection then
         local sourceBody = SAO.Body.get(id)
+        if state ~= "RESOURCE" and agent.rec.resourceProductionWork and SAO.ResourceProduction
+            and SAO.ResourceProduction.interrupt(id, sourceBody, "state-change:" .. tostring(state)) ~= true then
+            return false
+        end
         if state ~= "COOK" and agent.rec.cookingWork and SAO.Cooking
             and SAO.Cooking.interrupt(id, sourceBody, "state-change:" .. tostring(state)) ~= true then
             return false
@@ -983,6 +996,44 @@ end
 -- Continue an originator's unheard proposal by walking to the recipient's
 -- last privately known address.  The route consumes no current target body
 -- or position. Exchange remains the only operation that can record reception.
+function Ctl.contactNeedPriority(id, body, needs)
+    return needs and (needs.thirst >= SAO.Disposition.drinkAt(id)
+        or needs.hunger >= SAO.Disposition.eatAt(id) or needs.fatigue >= 0.7)
+        or SAO.Needs.bleeding(body) > 0
+end
+
+-- Native cancellation is acknowledged before changing the social owner or
+-- admitting a bodily action. A refused cancellation retains the exact trip.
+function Ctl.preemptContactForNeeds(id, agent, body, needs)
+    if not (agent and CONTACT_STATES[agent.state]
+        and Ctl.contactNeedPriority(id, body, needs)) then return nil end
+    local rec = agent.rec
+    local job = SAO.Locomotion.jobs[id]
+    local data = body and body:getModData()
+    if not rec or rec.dead or rec.bodyOwner ~= nil or agent.passive
+        or SAO.Body.get(id) ~= body or SAO.Body.active[id] ~= body or SAO.Body.foreign[id]
+        or not data or tostring(data.SAOPersonId or "") ~= tostring(id)
+        or data.SAOExternalToken ~= rec.bodyOwnerToken or data.SAOExternalOwner ~= nil
+        or data.ZAOOwned == true or not SAOJavaBridge:isShell(body)
+        or rec.resourceProductionWork or rec.cookingWork or rec.worldSourceReservation
+        or agent.coordinationRoute or SAO.Posture and SAO.Posture.jobs and SAO.Posture.jobs[id]
+        or SAO.Study and SAO.Study.active(id, body)
+        or job and (job ~= agent.contactRoute or job.body ~= body or job.mode == "horse") then return "held" end
+    if job then
+        local ok, cancelled = pcall(function() return SAOJavaBridge:cancelMove(body) end)
+        if not ok or cancelled ~= "MOVE_CANCELLED" then return "held" end
+    else
+        local ok, idle = pcall(function() return SAOJavaBridge:movementIdle(body) end)
+        if not ok or idle ~= true then return "held" end
+    end
+    if not setState(agent, id, "IDLE", "bodily need interrupts the contact attempt", "need") then
+        return "held"
+    end
+    if job and SAO.Locomotion.jobs[id] == job then SAO.Locomotion.cancel(id) end
+    agent.nextDecisionAt = 0
+    return "released"
+end
+
 function Ctl.seekPendingContact(id, agent, body, tick)
     if not (agent and agent.state == "IDLE" and body
         and SAO.Coordination and SAO.Coordination.pendingContact) then
@@ -999,19 +1050,20 @@ function Ctl.seekPendingContact(id, agent, body, tick)
             })
         if exchanged then return true end
     end
+    local routeEvidence = { owner = "SAO.Controller", representation = "loaded",
+        beliefKey = candidate.beliefKey, observedAt = candidate.observedAt,
+        source = candidate.source, x = candidate.x, y = candidate.y,
+        z = math.floor(body:getZ()), fromX = body:getX(), fromY = body:getY(),
+        fromZ = math.floor(body:getZ()), tick = tick }
+    if not (SAO.Organization and SAO.Organization.contactRouteMayStart
+        and SAO.Organization.contactRouteMayStart(candidate.processId, id,
+            candidate.recipientId, routeEvidence)) then return false end
     local attempt = SAO.Organization and SAO.Organization.activeContact
         and SAO.Organization.activeContact(candidate.processId, id,
             candidate.recipientId) or nil
     if not attempt and SAO.Organization and SAO.Organization.beginContact then
         attempt = SAO.Organization.beginContact(candidate.processId, id,
-            candidate.recipientId, {
-                owner = "SAO.Controller",
-                representation = "loaded",
-                beliefKey = candidate.beliefKey,
-                observedAt = candidate.observedAt,
-                x = candidate.x, y = candidate.y,
-                tick = tick,
-            })
+            candidate.recipientId, routeEvidence)
     end
     if not attempt then return false end
     agent.contactProcessId = candidate.processId
@@ -1055,6 +1107,7 @@ function Ctl.seekPendingContact(id, agent, body, tick)
         clearLoadedContact(agent)
         return false
     end
+    agent.contactRoute = SAO.Locomotion.jobs and SAO.Locomotion.jobs[id]
     return true
 end
 
@@ -1970,13 +2023,13 @@ end
 
 -- A visible cupboard can be worth looking in without knowing what it holds.
 -- Inspection changes this actor's knowledge; ordinary source use owns taking.
-local function beginContainerInspection(id, agent, body, needValue, category, tick)
+local function beginContainerInspection(id, agent, body, needValue, category, tick, selectedContext)
     local sources = SAO.WorldSources
     if not (sources and sources.inspectionCandidate and sources.inspectContainer
         and sources.inspectionFailed) then return false end
     local admission = needValue >= policy().desperation
         + SAO.Lessons.desperationBump(id) and "desperate" or "standing"
-    local context = sources.inspectionCandidate(id, body, admission)
+    local context = selectedContext or sources.inspectionCandidate(id, body, admission)
     if not context then return false end
     if not setState(agent, id, "FORAGE", "looks in a container for " .. category) then
         sources.inspectionFailed(id, body, context, "state-refused")
@@ -1998,6 +2051,333 @@ local function beginContainerInspection(id, agent, body, needValue, category, ti
     return true
 end
 
+-- A delivered commitment can interrupt reading only while this exact survivor
+-- still owns the body and the listener's private next step is ready to act.
+function Ctl.preemptStudyForCoordination(id, agent, body)
+    if not (agent and agent.state == "IDLE" and not agent.passive and body
+        and SAO.Body.active[id] == body and SAO.Body.foreign[id] == nil
+        and SAO.Controller.agents[id] == agent and SAO.Identity.get(id) == agent.rec
+        and agent.rec.bodyOwner == nil and not agent.rec.dead
+        and tostring(body:getModData().SAOPersonId or "") == tostring(id)
+        and body:getModData().SAOExternalToken == agent.rec.bodyOwnerToken
+        and body:getModData().SAOExternalOwner == nil
+        and body:getModData().ZAOOwned ~= true
+        and SAOJavaBridge:isShell(body) == true and body:isExistInTheWorld()
+        and not body:isDead() and not body:isAsleep()) then return false end
+    local cancellationFinished = false
+    if agent.studyCancellationPending then
+        local pending = agent.studyCancellationPending
+        if pending.body ~= body then agent.studyCancellationPending = nil return false end
+        if pending.action and ISTimedActionQueue.hasAction(pending.action) then
+            local queue = ISTimedActionQueue.queues[body]
+            for _, member in ipairs(queue and queue.queue or {}) do
+                if member ~= pending.action then return true end
+            end
+            pcall(ISTimedActionQueue.clear, body)
+        end
+        if SAO.Needs.busy(body) or pending.action and ISTimedActionQueue.hasAction(pending.action) then return true end
+        agent.studyCancellationPending = nil
+        cancellationFinished = true
+    elseif not (SAO.Study and SAO.Study.active(id, body)) then return false end
+    local organization = SAO.Organization
+    if not (organization and organization.activeCommitments and organization.workPlan) then return false end
+    for index, commitment in ipairs(organization.activeCommitments(id)) do
+        if index > 8 then break end
+        local work = commitment.work or {}
+        local status = commitment.status
+        local eligible = commitment.actorId == tostring(id) and commitment.acceptedAt ~= nil
+            and (status == "accepted" or status == "in-progress" or status == "paused")
+            and not work.pendingReceiptId
+            and (not work.owner or work.owner == "SAO" or work.owner == "Locomotion")
+            and SUPPORTED_COORDINATION[tostring(commitment.matter or "")]
+        local plan = eligible and organization.workPlan(commitment.id, id) or nil
+        local proposal = plan and plan.proposal or {}
+        local step = plan and coordinationProcedureStep(plan)
+        local ready = plan and (proposal.cooperative ~= true or step ~= nil)
+        if ready then ready = Ctl.coordinationStudyReady(id, body, commitment, plan, step) end
+        if ready and organization.routeRetryReady then
+            ready = organization.routeRetryReady(commitment.id) == true
+        end
+        if ready then
+            local action = nil
+            local study = agent.rec.studyWork
+            local queue = ISTimedActionQueue and ISTimedActionQueue.queues[body]
+            for _, member in ipairs(queue and queue.queue or {}) do
+                if study and member.workId == study.id and member.personId == tostring(id) then
+                    action = member break
+                end
+            end
+            if not action and not cancellationFinished then return false end
+            for _, member in ipairs(queue and queue.queue or {}) do
+                if member ~= action then return false end
+            end
+            local cancelled, result = true, true
+            if action then cancelled, result = pcall(SAO.Study.interrupt, id, body, "accepted shared work") end
+            -- ISTimedActionQueue.clear stops native actions before clearing the
+            -- Lua queue. A refused or incomplete cancellation owns this turn.
+            if not cancelled or result ~= true or SAO.Needs.busy(body)
+                or SAO.Study.active(id, body) then
+                agent.studyCancellationPending = { body = body, action = action }
+                return true
+            end
+            local advanced = advanceCoordination(id, body, "SAO", "idle", agent, commitment)
+            if advanced then return true end
+            return false
+        end
+    end
+    return false
+end
+
+-- Native inventory and exact private source offers supply the resource plan.
+-- Physical rows stay in their owners; this context carries bounded scalars.
+function Ctl.resourceContext(id, agent, body, needs, category, pressure)
+    local context = { category = category, pressure = pressure, needs = needs,
+        atHours = SAO.History.countyHours(), carriedReady = 0, carriedRaw = 0,
+        carriedWater = 0, carriedItems = 0, carriedRawItems = {}, carriedReadyItems = {},
+        carriedWaterItems = {}, sources = {},
+        contacts = {}, commitments = {}, skills = {} }
+    local items = SAOJavaBridge:privateCarriedItems(body)
+    for index = 0, math.min(items:size(), 128) - 1 do
+        local item = items:get(index)
+        context.carriedItems = context.carriedItems + 1
+        if instanceof(item, "Food") and not item:isRotten() and item:getPoisonPower() <= 0
+            and item:getHungChange() < 0 then
+            if item:isCookable() and not item:isCooked() then
+                context.carriedRaw = context.carriedRaw + 1
+                context.carriedRawItems[#context.carriedRawItems + 1] = {
+                    itemId = item:getID(), itemType = item:getFullType(), cookable = true }
+            else
+                context.carriedReady = context.carriedReady + 1
+                context.carriedReadyItems[#context.carriedReadyItems + 1] = {
+                    itemId = item:getID(), itemType = item:getFullType() }
+            end
+        end
+        local fluid = item:getFluidContainerFromSelfOrWorldItem()
+        if fluid and fluid:getAmount() > 0 and fluid:isWaterSource()
+            and not fluid:isPoisonous() and not fluid:isTainted() then
+            context.carriedWater = context.carriedWater + 1
+            context.carriedWaterItems[#context.carriedWaterItems + 1] = {
+                itemId = item:getID(), itemType = item:getFullType() }
+        end
+    end
+    if SkillBook and SkillBook.Cooking then
+        context.skills.Cooking = body:getPerkLevel(SkillBook.Cooking.perk)
+    end
+    pcall(function() context.health = body:getBodyDamage():getOverallBodyHealth() / 100 end)
+    if SAO.Organization and SAO.Organization.activeCommitments then
+        for index, commitment in ipairs(SAO.Organization.activeCommitments(id)) do
+            if index > 8 then break end
+            context.commitments[#context.commitments + 1] = { id = commitment.id,
+                matter = commitment.matter, status = commitment.status,
+                acceptedAt = commitment.acceptedAt }
+        end
+    end
+    if SAO.Perception.knownPeople then
+        for index, contact in ipairs(SAO.Perception.knownPeople(id)) do
+            if index > 16 then break end
+            context.contacts[#context.contacts + 1] = contact.id
+        end
+    end
+    local checked, known = 0, SAO.Perception.knownPlaces(id, true)
+    local rawItems = {}
+    if category == "food" then
+        pcall(function()
+            local offers = SAOJavaBridge:cookingOffers(body, 12)
+            for index, food in ipairs(offers and offers.foods or {}) do
+                if index > 128 then break end
+                if food.carried ~= true and SAO.WorldSources.privatelyKnowsItem(id, food.sourceId, food.itemId) then
+                    rawItems[tostring(food.sourceId) .. ":" .. tostring(food.itemId)] = true
+                end
+            end
+        end)
+    end
+    for placeId, belief in pairs(known or {}) do
+        checked = checked + 1
+        if checked > 128 or #context.sources >= 128 then break end
+        if type(belief) == "table" and tonumber(belief.cx) and tonumber(belief.cy) then
+            local place = { id = placeId, sourceId = belief.sourceId, cx = belief.cx, cy = belief.cy,
+                z = belief.z, minX = belief.minX, minY = belief.minY, maxX = belief.maxX, maxY = belief.maxY }
+            local offers = SAO.WorldSources.actionOptions(place, category, id, body, 1, "standing", "acquire")
+            for _, option in ipairs(offers and offers.options or {}) do
+                if #context.sources >= 128 then break end
+                local p = option.parameters
+                if p and SAO.WorldSources.privatelyKnowsItem(id, p.sourceId, p.itemId) then
+                    local cookable = rawItems[tostring(p.sourceId) .. ":" .. tostring(p.itemId)] == true
+                    context.sources[#context.sources + 1] = { id = p.sourceId, sourceId = p.sourceId,
+                        revision = p.revision, place = place, category = category, quantity = 1,
+                        quantityUnit = "item", itemType = p.itemType, itemId = p.itemId,
+                        sourceX = p.sourceX, sourceY = p.sourceY, sourceZ = p.sourceZ,
+                        known = true, cookable = cookable,
+                        distance = math.sqrt((place.cx - body:getX()) ^ 2 + (place.cy - body:getY()) ^ 2) }
+                end
+            end
+        end
+    end
+    return context
+end
+
+-- This read-only preflight uses the same private means as the native work
+-- owners. It gives accepted responsibility priority without cancelling a book
+-- for a step whose material, destination or execution owner is unavailable.
+function Ctl.coordinationStudyReady(id, body, commitment, plan, step)
+    local proposal = plan.proposal or {}
+    if step and (step.verb == "prepare" or step.capability == "prepare") then
+        if not (SAO.Cooking and SAO.Cooking.begin) then return false end
+        local ok, offers = pcall(function() return SAOJavaBridge:cookingOffers(body, 12) end)
+        if not ok or type(offers) ~= "table" then return false end
+        local appliance = false
+        for _, row in ipairs(offers.appliances or {}) do
+            if SAO.Standing.mayTakeCurrent(id, row.sourceX, row.sourceY, "standing") then appliance = true break end
+        end
+        if not appliance then return false end
+        for _, row in ipairs(offers.foods or {}) do
+            if row.carried or SAO.WorldSources and SAO.WorldSources.privatelyKnowsItem(id, row.sourceId, row.itemId)
+                and SAO.Standing.mayTakeCurrent(id, row.sourceX, row.sourceY, "standing") then return true end
+        end
+        return false
+    end
+    if step and (step.verb == "move" or step.domain == "movement"
+        or step.domain == "posture" or step.verb == "watch" or step.verb == "cover" or step.verb == "hold") then
+        local target = procedureStepDestination(step)
+        if not target or not tonumber(target.x) or not tonumber(target.y) then return false end
+        local moving = step.verb == "move" or step.domain == "movement"
+        local owner = moving and SAO.Locomotion and SAO.Locomotion.order
+            or not moving and SAO.Posture and SAO.Posture.begin
+        return owner ~= nil and SAO.Standing.mayAttemptBelieved(id, target.x, target.y, "standing") == true
+    end
+    if plan.kind == "rendezvous-holding" then
+        local destination = coordinationDestination(plan)
+        return destination ~= nil and SAO.Locomotion and SAO.Locomotion.order ~= nil
+            and SAO.Standing.mayAttemptBelieved(id, destination.x, destination.y, "standing") == true
+    end
+    local scope = type(proposal.scope) == "table" and proposal.scope or {}
+    local category = tostring(scope.category or proposal.category or "food")
+    if category ~= "food" and category ~= "water" then return false end
+    if not (SAO.Needs and SAO.WorldSources and SAO.SourceUse) then return false end
+    if commitment.work and commitment.work.acquiredAt then
+        return carriedSupply(body, category) and (coordinationDestination(plan) ~= nil
+            or coordinationRequesterInSight(id, body, plan) ~= nil)
+    end
+    local context = Ctl.resourceContext(id, nil, body, nil, category, 0)
+    if category == "water" then
+        -- collectStoredWater uses this exact five-tile native holder selector.
+        local ok, container = pcall(function() return SAOJavaBridge:findNearbyContainer(body, 5) end)
+        if not ok or not container then return false end
+        local current, accessible = pcall(function() return SAOJavaBridge:containerAccessibleNow(body, container) end)
+        if not current or accessible ~= true then return false end
+        local ready = false
+        pcall(function()
+            local items = SAOJavaBridge:privateContainerItems(container)
+            for index = 0, math.min(items:size(), 128) - 1 do
+                local item = items:get(index)
+                if SAO.Needs.portableWaterItem(item) then
+                    for _, source in ipairs(context.sources) do
+                        if source.itemId == item:getID() and source.itemType == item:getFullType()
+                            and SAO.Standing.mayTakeCurrent(id, source.sourceX, source.sourceY, "standing") == true then
+                            ready = true break
+                        end
+                    end
+                end
+                if ready then break end
+            end
+        end)
+        return ready
+    end
+    -- collectNearby uses the actual native private-source selector at radius
+    -- twenty. A distant memory alone is not an executable accepted duty.
+    local x, y, z = SAO.Needs.findSource(id, body, 20)
+    if not x then return false end
+    local ok, item = pcall(function() return SAOJavaBridge:foodSourceItem(body) end)
+    if not ok or not item then return false end
+    local known = false
+    for _, source in ipairs(context.sources) do
+        if source.itemId == item:getID() and source.itemType == item:getFullType() then known = true break end
+    end
+    if not known or SAO.Standing.mayTakeCurrent(id, x, y, "standing") ~= true then return false end
+    local within, nearby = pcall(function() return SAOJavaBridge:foodSourceWithinReach(body) end)
+    if not within then return false end
+    if nearby then return true end
+    local ax, ay, az = SAO.Needs.approach(body, "food", x, y, z)
+    if not ax then return false end
+    return Ctl.coordinationRouteAllowed(id, body, commitment.id, ax, ay, az, "acquiring", x, y, z) == true
+end
+
+function Ctl.advanceResourcePurpose(id, agent, body, tick, needs)
+    local planning = SAO.ProceduralPlanning
+    if not (planning and planning.planResource and planning.resourceDemand and SAO.Labor
+        and SAO.WorldSources and SAO.SourceUse and agent.state == "IDLE" and not agent.resting
+        and not SAO.Needs.busy(body) and needs and needs.fatigue < 0.7
+        and SAO.Body.active[id] == body and SAO.Body.foreign[id] == nil
+        and SAO.Controller.agents[id] == agent and SAO.Identity.get(id) == agent.rec
+        and not agent.rec.dead and agent.rec.bodyOwner == nil
+        and tostring(body:getModData().SAOPersonId or "") == tostring(id)
+        and body:getModData().SAOExternalToken == agent.rec.bodyOwnerToken
+        and body:getModData().SAOExternalOwner == nil and body:getModData().ZAOOwned ~= true
+        and SAOJavaBridge:isShell(body) == true and body:isExistInTheWorld()
+        and not body:isDead() and not body:isAsleep())
+        or tick < (agent.nextResourceAt or 0) then return false end
+    agent.nextResourceAt = tick + 600
+    planning.reconcileCooking(id)
+    local food = math.min(1, math.max(0, needs.hunger) / math.max(0.1, SAO.Disposition.eatAt(id)) * 0.5)
+    local water = math.min(1, math.max(0, needs.thirst) / math.max(0.1, SAO.Disposition.drinkAt(id)) * 0.5)
+    local retained, retainedStep = planning.resourceDemand(id)
+    local category = retained and (retainedStep and retainedStep.acquiredItemId or retained.admission)
+        and retained.resourceCategory or (water > food and "water" or "food")
+    category = category == "water" and "water" or "food"
+    local pressure = category == "water" and water or food
+    local context = Ctl.resourceContext(id, agent, body, needs, category, pressure)
+    context.productionOptions = SAO.ResourceProduction and SAO.ResourceProduction.options(id, body, category) or {}
+    -- Nearby unknown contents justify inspection only on personally remembered
+    -- ground. The container owner still proves visibility and current access.
+    local inspect = SAO.WorldSources.inspectionCandidate(id, body, "standing", 12)
+    if inspect then
+        for placeId, belief in pairs(SAO.Perception.knownPlaces(id, true) or {}) do
+            if tonumber(belief.minX) and tonumber(belief.maxX) and tonumber(belief.minY)
+                and tonumber(belief.maxY) and inspect.x >= belief.minX and inspect.x <= belief.maxX
+                and inspect.y >= belief.minY and inspect.y <= belief.maxY then
+                context.inspectPlace = { id = placeId, cx = belief.cx, cy = belief.cy,
+                    minX = belief.minX, minY = belief.minY, maxX = belief.maxX, maxY = belief.maxY,
+                    z = belief.z, sourceId = inspect.sourceId }
+                break
+            end
+        end
+    end
+    local purpose, step = planning.planResource(id, context)
+    if not purpose or not step or step.status ~= "available" then return false end
+    local answer = pressure >= 0.5 and "need" or "errand"
+    agent.pressure = { answer = answer, detail = purpose.objective, at = tick }
+    if step.verb == "acquire" and step.owner == "SAO.SourceUse" then
+        local started = SAO.SourceUse.beginAcquisition(id, body, step.place, category, {
+            purposeId = purpose.id, purposeStepId = step.id, sourceId = step.sourceId,
+            sourceRevision = step.sourceRevision, itemId = step.itemId, itemType = step.itemType })
+        if started then
+            agent.taskDeadline = tick + 5400
+            setState(agent, id, "SOURCEWARD", "collects " .. category .. " for an anticipated shortage", answer)
+            return true
+        end
+        planning.deferResourceRoute(id, purpose.id, step.id, "the privately remembered item could not be acquired")
+    elseif step.verb == "produce" and step.owner == "SAO.ResourceProduction" and SAO.ResourceProduction then
+        if SAO.ResourceProduction.begin(id, body, step, { purposeId = purpose.id, purposeStepId = step.id }) then
+            setState(agent, id, "RESOURCE", "collects water in a carried vessel for an anticipated shortage", answer)
+            return true
+        end
+        planning.deferResourceRoute(id, purpose.id, step.id, "the privately remembered water fixture or carried vessel could not be used")
+    elseif step.verb == "produce" and step.owner == "Cooking" and SAO.Cooking then
+        local started = SAO.Cooking.begin(id, body, { privateFood = true,
+            purposeId = purpose.id, purposeStepId = step.id, acquiredItemId = step.acquiredItemId,
+            completionToken = "cooking:prepared" })
+        if started then
+            setState(agent, id, "COOK", "prepares held food for an anticipated shortage", answer)
+            return true
+        end
+        planning.deferResourceRoute(id, purpose.id, step.id, "held food or an accessible cooking appliance is unavailable")
+    elseif step.verb == "inspect" and inspect and context.inspectPlace then
+        if beginContainerInspection(id, agent, body, 0, category, tick, inspect) then return true end
+        planning.deferResourceRoute(id, purpose.id, step.id, "the remembered container could not be inspected")
+    end
+    return false
+end
+
 -- Retained private prerequisites get a real attempt before undirected rest.
 -- Immediate needs, danger and received shared commitments run before this.
 function Ctl.advancePersonalPurpose(id, agent, body, tick, needs)
@@ -2007,10 +2387,13 @@ function Ctl.advancePersonalPurpose(id, agent, body, tick, needs)
     planning.reconcileCooking(id)
     if tick < (agent.nextPurposeAt or 0) then return false end
     agent.nextPurposeAt = tick + 600
-    local practice = planning.pending(id, "practice", "Cooking")
-        or planning.pending(id, "produce", "Cooking")
-    if practice and SAO.Cooking then
-        local started = SAO.Cooking.begin(id, body, { privateFood = true })
+    local practice, practiceStep = planning.pending(id, "practice", "Cooking")
+    if not practice then practice, practiceStep = planning.pending(id, "produce", "Cooking") end
+    if practice and not practice.resourceCategory and SAO.Cooking then
+        local started = SAO.Cooking.begin(id, body, { privateFood = true,
+            purposeId = practiceStep.owner == "Cooking" and practice.id or nil,
+            purposeStepId = practiceStep.owner == "Cooking" and practiceStep.id or nil,
+            acquiredItemId = practiceStep.acquiredItemId })
         if started then
             setState(agent, id, "COOK", "continues preparing food", "designation")
             return true
@@ -6605,13 +6988,23 @@ local function decide(id, agent, body)
     end
     Ctl.appraiseCoordination(id, body, agent.state)
 
+    -- Needs are read before a contact can own travel or a county-day wait.
+    -- Deprivation without an executable relief route still leaves resource
+    -- planning available rather than repeatedly travelling to an unheard ask.
+    local needs = SAO.Needs.read(body)
+    if Ctl.preemptContactForNeeds(id, agent, body, needs) == "held" then return end
+    if not CONTACT_STATES[agent.state] and decideNeedsAndCompanion(id, agent, body, tick, needs) then
+        if SAO.Study then SAO.Study.interrupt(id, body, "immediate need or companion") end
+        return
+    end
+
     -- CONTACTWAIT is an explicit hold gate: only actual exchange, process
     -- closure/supersession or the durable wait deadline can return it to IDLE.
     if agent.state == "CONTACTWAIT" then
         if Ctl.waitPendingContact(id, agent, body, tick) then return end
     end
 
-    if agent.state == "IDLE"
+    if agent.state == "IDLE" and not Ctl.contactNeedPriority(id, body, needs)
         and Ctl.seekPendingContact(id, agent, body, tick) then return end
 
     -- The branching graph's work projection. When no threat owns the
@@ -6624,14 +7017,7 @@ local function decide(id, agent, body)
         }
     end
 
-    -- One needs read per decision ([A15]): every appetite block below
-    -- consumes this snapshot.
-    local needs = SAO.Needs.read(body)
-
-    if decideNeedsAndCompanion(id, agent, body, tick, needs) then
-        if SAO.Study then SAO.Study.interrupt(id, body, "immediate need or companion") end
-        return
-    end
+    if Ctl.preemptStudyForCoordination(id, agent, body) then return end
     if SAO.Study and SAO.Study.active(id, body) then
         agent.pressure = { answer = "chosen rest", detail = "studies a carried manual", at = tick }
         return
@@ -6656,6 +7042,7 @@ local function decide(id, agent, body)
         -- greenhorn without a single hard claim may WAIT - legibly;
         -- the designated rest short with their kit in reach.
         local idleRec = SAO.Identity.get(id)
+        if Ctl.advanceResourcePurpose(id, agent, body, tick, needs) then return end
         if SAO.Study and tick >= (agent.nextStudyAt or 0)
             and not agent.resting and (not needs or needs.fatigue < 0.7) then
             local manual = SAO.Study.offer(id, body)
@@ -6945,6 +7332,23 @@ local function witnessDeath(id, agent, body)
     return cause
 end
 
+local function retireDeadBodyWork(id, body, rec)
+    pcall(function() ISTimedActionQueue.clear(body) end)
+    if SAO.SourceUse then
+        pcall(SAO.SourceUse.closeForOwnershipTransfer, id, body, "death")
+        pcall(SAO.SourceUse.detach, body)
+    end
+    if SAO.Cooking and SAO.Cooking.detach then
+        pcall(SAO.Cooking.detach, id, body, "death")
+    end
+    if SAO.ResourceProduction and SAO.ResourceProduction.detach then
+        pcall(SAO.ResourceProduction.detach, id, body, "death")
+    end
+    if rec and SAO.CrossedTransfer and SAO.CrossedTransfer.cancelForDeath then
+        pcall(SAO.CrossedTransfer.cancelForDeath, rec)
+    end
+end
+
 -- A body may leave SAO's controller without leaving the county.  Its external
 -- owner reports the body's death here so the same witness, relationship,
 -- membership, and corpse machinery used by an SAO-driven person still runs.
@@ -6960,14 +7364,7 @@ function Ctl.observeExternalDeath(id, body, owner)
     local dead = false
     local okDead = pcall(function() dead = body:isDead() == true end)
     if not okDead or not dead then return false end
-    pcall(function() ISTimedActionQueue.clear(body) end)
-    if SAO.SourceUse then
-        pcall(SAO.SourceUse.closeForOwnershipTransfer, id, body, "death")
-        pcall(SAO.SourceUse.detach, body)
-    end
-    if SAO.Cooking and SAO.Cooking.detach then
-        pcall(SAO.Cooking.detach, id, body, "death")
-    end
+    retireDeadBodyWork(id, body)
     pcall(function()
         SAO.Identity.updatePosition(rec, body:getX(), body:getY(), body:getZ())
     end)
@@ -7790,18 +8187,7 @@ local function updateAgent(id, agent)
             -- witnessed, judged, and mourned by the one law all deaths
             -- share.
             local cause = witnessDeath(id, agent, body) or "unknown"
-            pcall(function() ISTimedActionQueue.clear(body) end)
-            if SAO.SourceUse then
-                pcall(SAO.SourceUse.closeForOwnershipTransfer,
-                    id, body, "death")
-                pcall(SAO.SourceUse.detach, body)
-            end
-            if SAO.Cooking and SAO.Cooking.detach then
-                pcall(SAO.Cooking.detach, id, body, "death")
-            end
-            if SAO.CrossedTransfer and SAO.CrossedTransfer.cancelForDeath then
-                pcall(SAO.CrossedTransfer.cancelForDeath, agent.rec)
-            end
+            retireDeadBodyWork(id, body, agent.rec)
             SAO.Identity.markDead(agent.rec, tickCount, cause)
             tellPlayerOfDeath(id, agent.rec, body)
             SAO.Body.foreign[id] = nil
@@ -7840,18 +8226,7 @@ local function updateAgent(id, agent)
                 end
             end
         end
-        pcall(function() ISTimedActionQueue.clear(body) end)
-        if SAO.SourceUse then
-            pcall(SAO.SourceUse.closeForOwnershipTransfer,
-                id, body, "death")
-            pcall(SAO.SourceUse.detach, body)
-        end
-        if SAO.Cooking and SAO.Cooking.detach then
-            pcall(SAO.Cooking.detach, id, body, "death")
-        end
-        if SAO.CrossedTransfer and SAO.CrossedTransfer.cancelForDeath then
-            pcall(SAO.CrossedTransfer.cancelForDeath, agent.rec)
-        end
+        retireDeadBodyWork(id, body, agent.rec)
         SAO.Identity.markDead(agent.rec, tickCount, cause)
         -- [C68] The house settles inside `markDead` now, for every
         -- death path rather than this one. What stood here re-elected
@@ -7902,6 +8277,8 @@ local function updateAgent(id, agent)
             or SAO.Cooking.interrupt(id, body, "zao-person-ownership-transfer") ~= true) then
             return
         end
+        if agent.rec.resourceProductionWork and (not SAO.ResourceProduction
+            or SAO.ResourceProduction.interrupt(id, body, "zao-person-ownership-transfer") ~= true) then return end
         if pendingSource then
             local closed = SAO.SourceUse
                 and SAO.SourceUse.closeForOwnershipTransfer
@@ -7919,6 +8296,56 @@ local function updateAgent(id, agent)
     -- state - except for the one state that has always contradicted
     -- it ([B19]). A sleeping person is not a sentry.
     SAO.Perception.observe(id, body, tickCount, agent.sleeping)
+
+    -- Native production owns its exact fixture/vessel action until it retires.
+    if agent.rec.resourceProductionWork and SAO.ResourceProduction then
+        local threat = selectedThreat(id, tickCount, body:getX(), body:getY())
+        local reason = agent.passive and "owner-interrupted" or threat
+            and threat.dist <= SAO.Disposition.fleeDistance(id) and "close-threat-interrupted" or nil
+        if not reason and tickCount >= (agent.nextProductionNeedsAt or 0) then
+            agent.nextProductionNeedsAt = tickCount + 60
+            local needs = SAO.Needs.read(body)
+            if SAO.ResourceProduction.needInterruption(id, body, needs, policy().desperation) then
+                reason = "bodily-need-interrupted"
+            end
+            local organization = SAO.Organization
+            local checked = 0
+            for _, commitment in ipairs(organization and organization.activeCommitments(id) or {}) do
+                checked = checked + 1
+                if checked > 8 then break end
+                if commitment.actorId == tostring(id) and commitment.acceptedAt
+                    and not (commitment.work and commitment.work.pendingReceiptId)
+                    and (not commitment.work or commitment.work.owner == nil or commitment.work.owner == "SAO"
+                        or commitment.work.owner == "Locomotion")
+                    and SUPPORTED_COORDINATION[tostring(commitment.matter or "")]
+                    and (commitment.status == "accepted" or commitment.status == "in-progress" or commitment.status == "paused") then
+                    local plan = organization.workPlan(commitment.id, id)
+                    local step = plan and coordinationProcedureStep(plan)
+                    local ready = plan and (not plan.proposal or plan.proposal.cooperative ~= true or step ~= nil)
+                    if ready and organization.routeRetryReady then ready = organization.routeRetryReady(commitment.id) == true end
+                    if ready and Ctl.coordinationStudyReady(id, body, commitment, plan, step) then
+                        reason = "accepted-work-interrupted" break
+                    end
+                end
+            end
+        end
+        if reason then
+            if SAO.ResourceProduction.interrupt(id, body, reason) then
+                agent.nextDecisionAt = 0
+                setState(agent, id, "IDLE", reason)
+            end
+            return
+        end
+        local result = SAO.ResourceProduction.tick(id, body)
+        if not agent.rec.resourceProductionWork then
+            agent.nextDecisionAt = 0
+            setState(agent, id, "IDLE", "water collection: " .. tostring(result))
+        end
+        return
+    elseif agent.state == "RESOURCE" then
+        setState(agent, id, "IDLE", "native resource owner ended")
+        return
+    end
 
     -- Food preparation owns its routes and exact transfers as one operation.
     -- Threats and bodily emergencies retire that operation before another owner acts.
@@ -8614,6 +9041,10 @@ local function updateAgent(id, agent)
         return
     end
 
+    if CONTACT_STATES[agent.state] and tickCount >= (agent.nextContactNeedsAt or 0) then
+        agent.nextContactNeedsAt = tickCount + 60
+        if Ctl.preemptContactForNeeds(id, agent, body, SAO.Needs.read(body)) == "held" then return end
+    end
     if updateMovement(id, agent, body) then return end
     -- The widow notices ([A15]): membership that dissolved under them
     -- (the company's last other member died) is felt once, aloud.

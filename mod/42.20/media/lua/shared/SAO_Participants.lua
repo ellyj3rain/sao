@@ -19,3 +19,16 @@ function P.residencyCenter()
     if not reference then return nil end
     return reference:getX(), reference:getY(), reference:getZ()
 end
+
+function P.residencyCenters()
+    local result = {}
+    -- The installed engine has four local infrastructure slots. Actor queries
+    -- exclude detached observers; physical residency reads their native centers.
+    for index = 0, 3 do
+        local reference = getSpecificPlayer(index)
+        if reference then
+            result[#result + 1] = { x = reference:getX(), y = reference:getY(), z = reference:getZ() }
+        end
+    end
+    return result
+end

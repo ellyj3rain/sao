@@ -246,14 +246,14 @@ local originalSkillOf=SAO.Census.skillOf
 local contextualSkills={}
 SAO.Census.skillOf=function(id,perk)
  local own=contextualSkills[id]
- if own then return own[perk] or 0 end
+ if own then return own[perk] or -1 end
  return originalSkillOf(id,perk)
 end
 for _,producer in ipairs({"medication","physical","preparation"}) do
  local id="context-"..producer
  records[id]={id=id}
  hours=40
- contextualSkills[id]={Cooking=2,Foraging=0,["First Aid"]=0}
+ contextualSkills[id]={Cooking=2,PlantScavenging=-1,Doctor=-1}
  local function receipt(position)
   local value
   if producer=="medication" then value=dose(id,position)
@@ -275,7 +275,7 @@ for _,producer in ipairs({"medication","physical","preparation"}) do
  check("context_first_model_"..producer,equal(state(id).models.associative.capabilities,initial))
  check("context_first_no_goal_credit_"..producer,noGoalCredit(id))
  hours=41
- contextualSkills[id]={Cooking=0,Foraging=3,["First Aid"]=1}
+ contextualSkills[id]={Cooking=-1,PlantScavenging=3,Doctor=1}
  local beforeReplay=copy(state(id))
  check("context_repeat_admitted_"..producer,admit(first))
  check("context_repeat_inert_"..producer,equal(beforeReplay,state(id)))
@@ -287,10 +287,17 @@ for _,producer in ipairs({"medication","physical","preparation"}) do
  check("context_prior_unchanged_"..producer,equal(state(id).experiences[1].capabilities,initial))
  records[id].cognition=copy(state(id))
  hours=42
- contextualSkills[id]={Cooking=0,Foraging=0,["First Aid"]=0}
+ contextualSkills[id]={Cooking=0,PlantScavenging=0,Doctor=0}
  beforeReplay=copy(state(id))
  check("context_restored_replay_admitted_"..producer,admit(first) and admit(second))
  check("context_restored_replay_inert_"..producer,equal(beforeReplay,state(id)))
+ local third=receipt(3)
+ check("context_zero_skill_admitted_"..producer,admit(third))
+ local basic={cook=true,forage=true,treat=true}
+ check("context_zero_skill_private_"..producer,equal(last(id).capabilities,basic))
+ check("context_zero_skill_model_"..producer,equal(state(id).models.associative.capabilities,basic))
+ check("context_zero_skill_prior_preserved_"..producer,equal(state(id).experiences[1].capabilities,initial)
+  and equal(state(id).experiences[2].capabilities,current))
 end
 SAO.Census.skillOf=originalSkillOf
 RESULT="PASS extended cognition "..n

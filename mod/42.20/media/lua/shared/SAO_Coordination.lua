@@ -283,6 +283,50 @@ local function nativeRecipients(id, contacts)
     return recipients
 end
 
+local function blockedResourceSituation(id, situation)
+    if not (situation and situation.resolved and SAO.ProceduralPlanning
+        and SAO.ProceduralPlanning.resourceDemand) then return situation end
+    local now = nowHours()
+    local selected
+    for _, category in ipairs({ "water", "food" }) do
+        local purpose = SAO.ProceduralPlanning.resourceDemand(id, category)
+        local demand = purpose and purpose.demand
+        local assessedAt = purpose and tonumber(purpose.assessedAt)
+        local pressure = demand and tonumber(demand.pressure)
+        local owned = demand and tonumber(category == "food"
+            and demand.ownedReady or demand.ownedWater)
+        local missingMeans = false
+        for _, blocker in ipairs(purpose and purpose.blockers or {}) do
+            if blocker == "no-known-executable-resource-route"
+                or blocker == "owned-raw-identity-unavailable" then missingMeans = true end
+        end
+        -- A current unmet private goal can prompt a request before immediate
+        -- deprivation. Old plans, held usable stock, admitted work and body
+        -- unavailability do not establish that someone else must provision it.
+        if purpose and purpose.status == "blocked" and missingMeans
+            and not purpose.admission and assessedAt and pressure and owned
+            and pressure >= 0.2 and pressure <= 1 and owned == 0
+            and now >= assessedAt and now - assessedAt <= 1 then
+            if not selected or pressure > selected.pressure then
+                selected = { purpose = purpose, category = category,
+                    pressure = pressure, assessedAt = assessedAt, demand = demand }
+            end
+        end
+    end
+    if selected then
+        local anticipated = {}
+        for key, value in pairs(situation) do anticipated[key] = value end
+        anticipated.resolved, anticipated.category = false, selected.category
+        anticipated.pressure, anticipated.resourcePurposeId = selected.pressure, selected.purpose.id
+        anticipated.observedAtHours = selected.assessedAt
+        anticipated.needOwner = "SAO.ProceduralPlanning+SAO.Labor"
+        anticipated.demandBasis = selected.demand.basis
+        anticipated.uncertainty = selected.demand.uncertainty
+        return anticipated
+    end
+    return situation
+end
+
 local function originateNativeSituation(id, body, ownerLabel, contacts)
     if not (SAO.DormantPopulation
         and SAO.DormantPopulation.privateProvisioningSituation
@@ -293,6 +337,7 @@ local function originateNativeSituation(id, body, ownerLabel, contacts)
         id, body)
     local open = SAO.Organization.openMatter(id, "provisioning")
     if not situation then return open, why or "situation-unavailable" end
+    situation = blockedResourceSituation(id, situation)
     if situation.resolved then
         if open and SAO.Organization.withdrawMatter then
             SAO.Organization.withdrawMatter(open.id, id, "personal-need-resolved", {
@@ -314,12 +359,17 @@ local function originateNativeSituation(id, body, ownerLabel, contacts)
     local intentKey = table.concat({ tostring(situation.category),
         tostring(destination.minX), tostring(destination.minY),
         tostring(destination.z), tostring(band) }, ":")
+    if situation.resourcePurposeId then
+        intentKey = intentKey .. ":purpose:" .. tostring(situation.resourcePurposeId)
+    end
     local proposal = {
         intentKey = intentKey,
         requesterId = id,
         category = situation.category,
         quantity = 1,
-        purpose = "provisioning under current personal need",
+        purpose = situation.resourcePurposeId and "help with an unmet private resource goal"
+            or "provisioning under current personal need",
+        resourcePurposeId = situation.resourcePurposeId,
         cooperative = true,
         responsePolicy = "procedure-completion",
         expiresAtHours = nowHours() + 72,
@@ -343,6 +393,9 @@ local function originateNativeSituation(id, body, ownerLabel, contacts)
         represented = situation.represented,
         destinationSource = situation.destinationSource,
         observedAtHours = situation.observedAtHours,
+        resourcePurposeId = situation.resourcePurposeId,
+        demandBasis = situation.demandBasis,
+        uncertainty = situation.uncertainty,
     }
     if open then
         local prior = currentProposal(open, id) or {}

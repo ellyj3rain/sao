@@ -2881,6 +2881,21 @@ public final class SAOBridge {
         }
     }
 
+    /** Read-only absence of both owned and independently started native paths. */
+    public boolean movementIdle(Object object) {
+        try {
+            if (!(object instanceof SAOIsoPlayerShell shell)) return false;
+            SAORouteState state = routes.get(shell);
+            var behavior = shell.getPathFindBehavior2();
+            return (state == null || !state.requested && !state.hasRoute())
+                && shell.getPath2() == null && behavior != null
+                && (behavior.isGoalNone() || behavior.getIsCancelled());
+        } catch (Throwable throwable) {
+            SAOAgent.log("movementIdle threw: " + throwable);
+            return false;
+        }
+    }
+
     /** [C118] One batter at the barrier between this survivor and the
      * goal it was walking to. The composition decides (Disposition's
      * wouldForceEntry, Standing's mayEnter already answered when the
@@ -3415,6 +3430,49 @@ public final class SAOBridge {
         } catch (Throwable throwable) {
             SAOAgent.log("worldSourceActionTarget threw: " + throwable);
             return "FAILED";
+        }
+    }
+
+    public String worldRefillTarget(Object object, String sourceId, String fingerprint,
+            String revision, double x, double y, double z) {
+        try {
+            return object instanceof com.sao.engine.SAOIsoPlayerShell shell
+                && Double.isFinite(x) && Double.isFinite(y) && Double.isFinite(z)
+                && x == Math.rint(x) && y == Math.rint(y) && z == Math.rint(z)
+                ? com.sao.engine.SAOWorldSources.refillTarget(shell, sourceId, fingerprint,
+                    revision, (int) x, (int) y, (int) z) : "BAD_REFILL_REQUEST";
+        } catch (Throwable throwable) {
+            SAOAgent.log("worldRefillTarget threw: " + throwable);
+            return "FAILED";
+        }
+    }
+
+    public Object worldRefillObject(Object object, String sourceId, String fingerprint,
+            String revision, double x, double y, double z) {
+        try {
+            return object instanceof com.sao.engine.SAOIsoPlayerShell shell
+                && Double.isFinite(x) && Double.isFinite(y) && Double.isFinite(z)
+                && x == Math.rint(x) && y == Math.rint(y) && z == Math.rint(z)
+                ? com.sao.engine.SAOWorldSources.refillObject(shell, sourceId, fingerprint,
+                    revision, (int) x, (int) y, (int) z) : null;
+        } catch (Throwable throwable) {
+            SAOAgent.log("worldRefillObject threw: " + throwable);
+            return null;
+        }
+    }
+
+    public boolean worldRefillValid(Object object, Object fixture, String sourceId,
+            String fingerprint, double x, double y, double z) {
+        try {
+            return object instanceof com.sao.engine.SAOIsoPlayerShell shell
+                && fixture instanceof zombie.iso.IsoObject source
+                && Double.isFinite(x) && Double.isFinite(y) && Double.isFinite(z)
+                && x == Math.rint(x) && y == Math.rint(y) && z == Math.rint(z)
+                && com.sao.engine.SAOWorldSources.refillValid(shell, source, sourceId,
+                    fingerprint, (int) x, (int) y, (int) z);
+        } catch (Throwable throwable) {
+            SAOAgent.log("worldRefillValid threw: " + throwable);
+            return false;
         }
     }
 

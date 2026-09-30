@@ -116,6 +116,10 @@ BOUNDED = {
     ("SAO_CognitiveModels.lua", "ranked"):
         "interpretPlans rejects more than sixteen candidates before copying "
         "or sorting them, keeping both model rankings within that bound",
+    ("SAO_Labor.lua", "sources"):
+        "resourceAssessment reads at most the first 64 context.sources rows "
+        "before filtering private matching items; each accepted row contributes "
+        "one source, so the sorted candidate list cannot exceed 64",
     ("SAO_MobileHousehold.lua", "rows"):
         "materialSnapshot retains at most MAX_MATERIAL_CONTAINERS (512) "
         "native part-container rows before sorting; it still counts weight and "

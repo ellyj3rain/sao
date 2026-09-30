@@ -312,6 +312,88 @@ public final class SAOWorldSources {
         }
     }
 
+    /** Refill a carried vessel from an exact privately remembered fluid fixture. */
+    public static synchronized String refillTarget(IsoPlayer shell, String sourceId,
+            String fingerprint, String revision, int x, int y, int z) {
+        try {
+            if (revision == null || revision.isBlank()) return "BAD_REFILL_REQUEST";
+            IsoObject object = refillFixture(shell, sourceId, fingerprint, revision, x, y, z);
+            IsoGridSquare target = interactionSquare(shell, object.getSquare());
+            if (target == null) return "NO_INTERACTION_POINT";
+            return "READY:" + target.getX() + ":" + target.getY() + ":" + target.getZ();
+        } catch (ActionRefusal refusal) { return refusal.code; }
+        catch (Throwable unavailable) {
+            SAOAgent.log("world refill target threw: " + unavailable);
+            return "FAILED";
+        }
+    }
+
+    public static synchronized Object refillObject(IsoPlayer shell, String sourceId,
+            String fingerprint, String revision, int x, int y, int z) {
+        try {
+            if (revision == null || revision.isBlank()) return null;
+            IsoObject object = refillFixture(shell, sourceId, fingerprint, revision, x, y, z);
+            return refillWithinReach(shell, object.getSquare()) ? object : null;
+        } catch (ActionRefusal refusal) { return null; }
+        catch (Throwable unavailable) {
+            SAOAgent.log("world refill object threw: " + unavailable);
+            return null;
+        }
+    }
+
+    /** Own transfer changes the fluid revision; physical identity and access remain exact. */
+    public static synchronized boolean refillValid(IsoPlayer shell, IsoObject object,
+            String sourceId, String fingerprint, int x, int y, int z) {
+        try {
+            return refillFixture(shell, sourceId, fingerprint, null, x, y, z) == object
+                && refillWithinReach(shell, object.getSquare());
+        } catch (ActionRefusal refusal) { return false; }
+        catch (Throwable unavailable) {
+            SAOAgent.log("world refill validation threw: " + unavailable);
+            return false;
+        }
+    }
+
+    private static IsoObject refillFixture(IsoPlayer shell, String sourceId,
+            String fingerprint, String revision, int x, int y, int z) throws ActionRefusal {
+        if (!inspectionActor(shell) || sourceId == null || !sourceId.startsWith("F:")
+                || sourceId.length() <= 2) throw new ActionRefusal("BAD_REFILL_REQUEST");
+        var remembered = rememberedContainerRevisions(shell, sourceId, fingerprint);
+        if (remembered.isEmpty() || (revision != null && !remembered.contains(revision))) {
+            throw new ActionRefusal("NOT_PRIVATELY_OBSERVED");
+        }
+        IsoGridSquare square = shell.getCell().getGridSquare(x, y, z);
+        if (square == null || square.getCell() != shell.getCell()) throw new ActionRefusal("NOT_LOADED");
+        String token = sourceId.substring(2);
+        for (int index = 0; index < square.getObjects().size(); index++) {
+            IsoObject object = square.getObjects().get(index);
+            if (object == null || !token.equals(object.getModData().rawget(SOURCE_TOKEN))) continue;
+            Source physical = objectFluidSource(new Snapshot(Math.floorDiv(x, CHUNK_SIZE),
+                Math.floorDiv(y, CHUNK_SIZE)), square, object);
+            if (!fingerprint.equals(physical.fingerprint)) throw new ActionRefusal("FINGERPRINT_CHANGED");
+            if (revision != null && !revision.equals(physical.revision)) throw new ActionRefusal("REVISION_CHANGED");
+            var fluid = object.getPrimaryFluid();
+            if (object.isTaintedWater() || fluid != null && fluid.isPoisonous()
+                    || object.getFluidAmount() > 0 && !object.hasWater()
+                    || revision != null && object.getFluidAmount() <= 0) throw new ActionRefusal("NO_CLEAN_WATER");
+            if (object instanceof IsoThumpable locked && locked.isLockedToCharacter(shell)
+                    || GameClient.client && !zombie.iso.areas.SafeHouse.isSafehouseAllowInteract(square, shell)) {
+                throw new ActionRefusal("ACCESS_REFUSED");
+            }
+            return object;
+        }
+        throw new ActionRefusal("SOURCE_MISSING");
+    }
+
+    private static boolean refillWithinReach(IsoPlayer shell, IsoGridSquare square) {
+        IsoGridSquare here = shell == null ? null : shell.getCurrentSquare();
+        return here != null && square != null && square.getCell() == shell.getCell()
+            && shell.getCell().getGridSquare(square.getX(), square.getY(), square.getZ()) == square
+            && square.getZ() == (int) Math.floor(shell.getZ())
+            && Math.abs(shell.getX() - (square.getX() + 0.5f)) <= 1.6f
+            && Math.abs(shell.getY() - (square.getY() + 0.5f)) <= 1.6f && here.canReachTo(square);
+    }
+
     /** Bind the exact source only after the actor has reached its interaction point. */
     public static synchronized String bindAction(IsoPlayer shell, String sourceId,
             String fingerprint, String revision, int itemId, String itemType,
@@ -945,8 +1027,8 @@ public final class SAOWorldSources {
             square.getY(), square.getZ(), building, true);
         float amount = object.getFluidAmount();
         Fluid fluid = object.getPrimaryFluid();
-        boolean cleanWater = amount > 0.0f && fluid != null
-            && object.hasWater() && !object.isTaintedWater() && !fluid.isPoisonous();
+        boolean cleanWater = amount > 0.0f && (fluid == null || !fluid.isPoisonous())
+            && object.hasWater() && !object.isTaintedWater();
         ItemRow row = ItemRow.fluid(object, amount, fluid, cleanWater);
         source.items.add(row);
         source.finish();

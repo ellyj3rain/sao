@@ -71,12 +71,17 @@ local function backfillName(rec, body)
 end
 
 local function materializeBand(px, py, conf)
+    local centers = SAO.Participants and SAO.Participants.residencyCenters
+        and SAO.Participants.residencyCenters() or { { x = px, y = py } }
     for id, rec in pairs(SAO.Identity.all()) do
       if not rec.dead and SAO.Body.recover(rec) == true then
         local hasBody = SAO.Body.hasRepresentation(id)
         local represented = hasBody and SAO.Body.get(id) or nil
         local point = representationPosition(id, rec, represented)
-        local d = dist(point.x, point.y, px, py)
+        local d = math.huge
+        for _, center in ipairs(centers) do
+            d = math.min(d, dist(point.x, point.y, center.x, center.y))
+        end
         if SAO.Claims.isHeld(rec) then
             -- Inhabitants are never conjured ([A17]): a Knox person's
             -- body is the legacy mod's business; absence means they are

@@ -16,9 +16,9 @@ the machine. Names, dates, and threads below come from
 | Form | `major.minor.kohai.patch-maturity` |
 | Hard caps | minor 12; kohai 16; patch 24 |
 | Replay start | `0.1.0.0-pre-alpha` |
-| Current version | `3.7.3.0-pre-alpha` |
-| Closed chronology | `A1-C103` |
-| Next batch | `C104` |
+| Current version | `3.7.4.0-pre-alpha` |
+| Closed chronology | `A1-C104` |
+| Next batch | `C105` |
 | Executable source | [`tools/version_replay.py`](tools/version_replay.py) |
 
 ## Tier meanings
@@ -219,6 +219,7 @@ the machine. Names, dates, and threads below come from
 | `C101` | 2026-09-29 | kohai | `3.7.1.0-pre-alpha` | Study terminal and human review handoff | Mature the durable study contract with exact supervisor terminal identity, narrow revalidation of the legacy receipt, saved-state recovery, terminal Mousecat projection and immediate human disposition of verified competing-cognition outcomes. This connects existing study, evidence and review owners without adding gameplay or dataset authority, so kohai. |
 | `C102` | 2026-09-29 | kohai | `3.7.2.0-pre-alpha` | Native skill-book study | Connect maintained private study to installed timed reading, exact native completion and resumed page state; admit useful privately carried manuals without a work designation and expose progress without practical credit. This matures the existing C95 planner and learning execution contract, so kohai. |
 | `C103` | 2026-09-30 | kohai | `3.7.3.0-pre-alpha` | Retained acquisition and productive work | Connect retained private prerequisites to exact native acquisition and productive Cooking work; preserve purpose identity through study, interruption and terminal receipt replay. This matures the existing C95 planner and SourceUse/Cooking authority contracts, so kohai. |
+| `C104` | 2026-09-30 | kohai | `3.7.4.0-pre-alpha` | Sustained resource planning | Extend existing private purposes into shortage-driven native resource chains, grounded labor assessment and independently answered help; close accepted-work reading preemption. Existing planning, action and social owners retain authority, so kohai. |
 
 ## The former number
 
@@ -239,11 +240,11 @@ establish release maturity.
 
 ## Next movement
 
-`C104` is the next batch. Its content determines its tier after it
+`C105` is the next batch. Its content determines its tier after it
 exists:
 
-| If C104 is | Result |
+| If C105 is | Result |
 |---|---|
-| patch or hotfix | `3.7.3.1-pre-alpha` |
-| kohai | `3.7.4.0-pre-alpha` |
+| patch or hotfix | `3.7.4.1-pre-alpha` |
+| kohai | `3.7.5.0-pre-alpha` |
 | minor | `3.8.0.0-pre-alpha` |

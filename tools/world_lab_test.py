@@ -780,6 +780,57 @@ def generation_checks(tmp, jar):
             print("PASS terrain control refused: " + label)
 
 
+def export_probe_checks(tmp, java, config, source, checks):
+    command([JDK / "javac.exe", "-cp", GAME / "projectzomboid.jar", "-d", tmp,
+             Lab.ROOT / "tools/world_lab/NativeStudyExportProbe.java"], GAME)
+
+    def execute(runtime):
+        script = tmp / "native-export-checks.lua"
+        script.write_text("local Config = " + Lab.lua(config) + "\n" + checks
+            + "\nlocal Study = (function()\n" + runtime + "\nend)()\nRunStudyChecks(Study)\n"
+            + "RESULT_CAPTURE = Study.encode({live=RESULT_LIVE_FRAME, "
+            + "fixtureBytes=RESULT_INSPECTION_FIXTURE, bounded=RESULT_BOUNDED_ARCHIVE})\n", encoding="utf-8")
+        return subprocess.run([str(value) for value in [java[0], "-Dstdout.encoding=UTF-8",
+            "-Dsun.stdout.encoding=UTF-8", *java[1:], "NativeStudyExportProbe", script, "RESULT_CAPTURE"]],
+            cwd=GAME, text=True, encoding="utf-8", capture_output=True, timeout=180)
+
+    result = execute(source)
+    Lab.require(result.returncode == 0, result.stdout + result.stderr)
+    Lab.require("PASS native caught assertion reaches debugException and DoLuaError" in result.stdout,
+                "native export debugger calibration was not exercised")
+    print("PASS native calibration: caught assertion reaches installed debugException and DoLuaError")
+    observed = Lab.decode(result.stdout.split("VALUE ", 1)[1].strip())
+    live_text = observed["live"]
+    live = Lab.decode(live_text)
+    Lab.require(observed["fixtureBytes"] > 1024 * 1024 and len(live_text.encode("utf-8")) < 1024 * 1024,
+                "native export probe did not exercise oversize detail and a bounded final live frame")
+    Lab.require(live["population"]["captured"] == 16 and live["inspection"]["omittedEvents"] > 0
+                and live["inspection"]["people"]["p16"]["sections"][0]["rows"],
+                "native export lost complete people or selected detail and truthful omissions")
+    Lab.validate_frame(observed["bounded"])
+    print("PASS native debugger export: cognition, live detail/core, archive defer, selected rows, input unchanged; genuine errors remain observable")
+    controls = [
+        ("old assertion inspection probe", "local ok = boundedJson(value, trial)",
+         "local ok = pcall(json, value, nil, trial)", "expected live byte probe raised native error"),
+        ("old assertion cognition probe", "if boundedJson(cognition, trial) then",
+         "if pcall(json, cognition, nil, trial) then", "expected cognitive byte probe raised native error"),
+        ("old assertion core probe", "local fits = boundedJson(frame, coreBudget)",
+         "local fits = pcall(json, frame, nil, coreBudget)", "expected live core byte probe raised native error"),
+        ("old assertion deferred archive", "local encoded, line = boundedJson(frame, { left = 64 * 1024 * 1024 })",
+         "local encoded, line = pcall(json, frame)", "expected archive byte probe raised native error"),
+        ("escaped string fast path", "return length, false", "return length, true",
+         "special-character string output differs"),
+        ("live completed-write cooldown", "lastLiveAt = getTimestampMs()", "lastLiveAt = now",
+         "slow live export bypassed post-close cooldown"),
+    ]
+    for label, before, after, expected in controls:
+        Lab.require(source.count(before) == 1, "native debugger mutation seam differs: " + label)
+        result = execute(source.replace(before, after, 1))
+        Lab.require(result.returncode != 0 and expected in result.stdout + result.stderr,
+                    "native debugger control did not refuse " + label + ": " + (result.stdout + result.stderr)[-2000:])
+        print("PASS control refused: " + label)
+
+
 def native_checks():
     supervision_spec = importlib.util.spec_from_file_location("supervision_checks", Lab.ROOT / "tools/world_lab/supervision_checks.py")
     supervision = importlib.util.module_from_spec(supervision_spec)
@@ -887,6 +938,7 @@ assert(SAO.Participants.player(0) == nil and SAO.Participants.residencyCenter() 
                   "observerSha256": manifest["observerSha256"]}
         source = Lab.TEMPLATE.read_text(encoding="utf-8")
         checks = (Lab.ROOT / "tools/world_lab/RuntimeChecks.lua").read_text(encoding="utf-8")
+        export_probe_checks(tmp, java, config, source, checks)
 
         def execute(runtime, expression="RESULT"):
             script = tmp / "checks.lua"
@@ -894,7 +946,8 @@ assert(SAO.Participants.player(0) == nil and SAO.Participants.residencyCenter() 
                               + "\nlocal Study = (function()\n" + runtime
                               + "\nend)()\nRESULT = RunStudyChecks(Study)\n"
                               + "RESULT_CAPTURE = Study.encode({result=RESULT, failureLog=RESULT_FAILURE_LOG, "
-                              + "frame=RESULT_FRAME, live=RESULT_LIVE_FRAME})\n", encoding="utf-8")
+                              + "frame=RESULT_FRAME, live=RESULT_LIVE_FRAME, nearArchive=RESULT_NEAR_ARCHIVE, "
+                              + "boundedArchive=RESULT_BOUNDED_ARCHIVE, fairArchive=RESULT_FAIR_ARCHIVE})\n", encoding="utf-8")
             # Windows JVM stdout otherwise uses the native console charset even
             # when Python decodes UTF-8, corrupting valid non-ASCII fixture data.
             result = subprocess.run([str(value) for value in
@@ -911,6 +964,9 @@ assert(SAO.Participants.player(0) == nil and SAO.Participants.residencyCenter() 
                 "observer stop is invisible to native runner")
         observed = Lab.decode(execution["frame"])
         Lab.validate_frame(observed)
+        Lab.validate_frame(execution["nearArchive"])
+        Lab.validate_frame(execution["boundedArchive"])
+        Lab.validate_frame(execution["fairArchive"])
         live_text = execution["live"]
         live = Lab.decode(live_text)
         start = live_text.index('"inspection":') + len('"inspection":')
@@ -985,7 +1041,7 @@ assert(SAO.Participants.player(0) == nil and SAO.Participants.residencyCenter() 
              'if true then recordView[key] = value end', "model archive duplicated durable state"),
             ("cognitive archive aggregate budget", 'math.min(4 * 1024 * 1024, encoded.left)', 'encoded.left',
              "aggregate cognition archive byte budget ignored"),
-            ("cognitive archive person budget", 'math.min(512 * 1024, remaining) - 16', 'remaining - 16',
+            ("cognitive archive person budget", 'math.min(512 * 1024, remaining, budget.bytes) - 16', 'remaining - 16',
              "oversized cognitive person escaped archive byte budget"),
             ("UTF-8 budget", "local length = utf8Bytes(s) + 2", "local length = #s + 2", "UTF-8 byte limit ignored"),
             ("aggregate inspection budget", "local function inspectionSnapshot(maxBytes)",
@@ -993,6 +1049,13 @@ assert(SAO.Participants.player(0) == nil and SAO.Participants.residencyCenter() 
              "oversized optional inspection stopped production"),
             ("selected inspection priority", "table.insert(ids, 1, snapshot.selectedPersonId)",
              "table.insert(ids, snapshot.selectedPersonId)", "selected inspection omitted before other people"),
+            ("archive byte budget", "encoded > budget.bytes", "false",
+             "node-only archive budget admitted oversized escaped scalar detail"),
+            ("whole archive inspection", "if projected and beforeOmitted == budget.omittedCount then person.context.inspection = projected",
+             "if projected then person.context.inspection = projected", "near-exhausted budget emitted partial inspection shape"),
+            ("first-window archive prefix", "while pending do\n        pending = false\n        for _, walker in ipairs(walkers) do",
+             "for pass = 1, #walkers do\n        for visit = 1, walkers[pass].window.width * walkers[pass].window.height do\n            local walker = walkers[pass]",
+             "first-window prefix omitted a regional near-center square"),
             ("inspection source immutability", "return result\nend\nlocal function objectView(object)",
              "snapshot.people[snapshot.selectedPersonId].events = {}\n    return result\nend\nlocal function objectView(object)",
              "inspection projection mutated source cache"),

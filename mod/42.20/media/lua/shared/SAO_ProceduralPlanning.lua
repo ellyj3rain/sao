@@ -9,6 +9,7 @@
 SAO = SAO or {}
 SAO.ProceduralPlanning = SAO.ProceduralPlanning or {}
 local P = SAO.ProceduralPlanning
+local RESOURCE_RESULT = {}
 
 local MAX_PURPOSES, MAX_FACTS, MAX_EVENTS = 12, 64, 32
 local MIN_TACTICAL_ROUTE_TILES, MAX_TACTICAL_ROUTE_TILES = 2, 40
@@ -67,6 +68,23 @@ local function copyList(source, maximum)
     for i, value in ipairs(source or {}) do
         if i > (maximum or 32) then break end
         out[#out + 1] = value
+    end
+    return out
+end
+local function dataCopy(value, depth)
+    depth = depth or 0
+    if depth > 6 then return nil end
+    if type(value) == "string" then return string.sub(value, 1, 512) end
+    if type(value) == "number" then return finite(value) and value or nil end
+    if type(value) == "boolean" then return value end
+    if type(value) ~= "table" then return nil end
+    local out, count = {}, 0
+    for key, item in pairs(value) do
+        if type(key) == "string" or type(key) == "number" then
+            count = count + 1
+            if count > 32 then break end
+            out[key] = dataCopy(item, depth + 1)
+        end
     end
     return out
 end
@@ -198,6 +216,17 @@ end
 local function setPlan(purpose, steps, blockers, interpretations, at)
     local prior = {}
     for _, step in ipairs(purpose.steps or {}) do prior[step.id] = step end
+    if purpose.resourceCategory then
+        local kept = {}
+        for _, step in ipairs(steps) do kept[step.id] = true end
+        for _, old in ipairs(purpose.steps or {}) do
+            if old.status == "completed" and not kept[old.id] then
+                purpose.completedSteps = purpose.completedSteps or {}
+                purpose.completedSteps[#purpose.completedSteps + 1] = dataCopy(old)
+                if #purpose.completedSteps > 16 then table.remove(purpose.completedSteps, 1) end
+            end
+        end
+    end
     for _, step in ipairs(steps) do
         local old = prior[step.id]
         if old and old.status == "completed" then
@@ -230,6 +259,258 @@ local function interpretations(id, candidates, context)
         if ok then return value end
     end
     return nil
+end
+
+function P.resourceDemand(id, category)
+    local s = state(id)
+    for _, key in ipairs(s and s.order or {}) do
+        local purpose = s.purposes[key]
+        if purpose and purpose.resourceCategory and (not category or purpose.resourceCategory == category)
+            and purpose.status ~= "completed" and purpose.status ~= "abandoned" then
+            return purpose, purpose.steps[purpose.cursor]
+        end
+    end
+end
+
+-- Reconsider the same unmet purpose from current private means. An admitted
+-- attempt or a completed acquisition keeps its exact physical chain while
+-- danger, fatigue or accepted shared work can interrupt its execution.
+local function resourceFailure(purpose, strategy, reason, at, stepId)
+    if type(strategy) ~= "string" then return end
+    purpose.routeFailures = purpose.routeFailures or {}
+    local failure
+    for _, prior in ipairs(purpose.routeFailures) do
+        if prior.strategy == strategy then failure = prior; break end
+    end
+    if not failure then
+        failure = { strategy = strategy, attempts = 0 }
+        purpose.routeFailures[#purpose.routeFailures + 1] = failure
+        if #purpose.routeFailures > 16 then table.remove(purpose.routeFailures, 1) end
+    end
+    failure.attempts = math.min(8, failure.attempts + 1)
+    failure.stepId = stepId
+    failure.failedAt, failure.reason = at, tostring(reason or "native-route-refused")
+    failure.retryAt = at + math.min(0.5, 0.05 * 2 ^ (failure.attempts - 1))
+end
+
+function P.deferResourceRoute(id, purposeId, stepId, reason, atHours)
+    local s = state(id)
+    local purpose = s and s.purposes[purposeId]
+    local step = purpose and purpose.steps[purpose.cursor]
+    if not purpose or not purpose.resourceCategory or purpose.admission
+        or purpose.status == "completed" or purpose.status == "abandoned"
+        or not step or step.id ~= stepId then return false end
+    local at = finite(atHours) and atHours or nowHours()
+    resourceFailure(purpose, purpose.selectedStrategy, reason, at, step.id)
+    step.status, purpose.status = "blocked", "blocked"
+    purpose.blockers, purpose.updatedAt = { "known-route-retry-delayed" }, at
+    addEvent(purpose, "resource-route-refused", tostring(reason or "native-route-refused"), at)
+    return true
+end
+
+function P.planResource(id, context)
+    context = type(context) == "table" and context or {}
+    if not SAO.Labor or not SAO.Labor.assess then return nil, "labor-unavailable" end
+    local assessment, why = SAO.Labor.assess(id, context)
+    if not assessment then return nil, why or "labor-unavailable" end
+    local at = finite(context.atHours) and context.atHours or nowHours()
+    local purpose, current = P.resourceDemand(id, assessment.category)
+    local supplied = assessment.category == "food" and assessment.demand.ownedReady > 0
+        or assessment.category == "water" and assessment.demand.ownedWater > 0
+    if not purpose and (assessment.demand.pressure < 0.2 or supplied) then return nil, "no-current-resource-demand" end
+    purpose = purpose or P.maintain(id, { key = "resource:" .. assessment.category,
+        objective = assessment.category == "food" and "retain usable food through anticipated need"
+            or "retain usable water through anticipated need",
+        domain = "provisioning", origin = "private-resource-pressure", atHours = at })
+    if not purpose then return nil, "person-unavailable" end
+    purpose.resourceCategory = assessment.category
+    purpose.demand, purpose.contacts, purpose.labor = dataCopy(assessment.demand),
+        copyList(assessment.contacts, 16), dataCopy(assessment.dimensions)
+    purpose.capacity, purpose.assessedAt = dataCopy(assessment.capacity), at
+    current = purpose.steps[purpose.cursor]
+    if current and purpose.admission and purpose.admission.stepId == current.id then
+        return purpose, current
+    end
+    local function suppliedGoal()
+        if not supplied or purpose.admission then return false end
+        if assessment.category == "food" and current and current.acquiredItemId then
+            -- Retained item identity cannot be confirmed by contradictory
+            -- type data. Other currently held usable food can satisfy demand
+            -- without crediting the unfinished preparation of this item.
+            local usable = false
+            for _, item in ipairs(type(context.carriedReadyItems) == "table" and context.carriedReadyItems or {}) do
+                if item.itemId ~= current.acquiredItemId or item.itemType == current.itemType then usable = true; break end
+            end
+            if not usable then return false end
+        end
+        for _, pending in ipairs(purpose.steps) do
+            if pending.status ~= "completed" then pending.status, pending.resolvedAt = "not-required", at end
+        end
+        purpose.status, purpose.cursor, purpose.blockers = "completed", #purpose.steps + 1, {}
+        purpose.updatedAt, purpose.resolvedAt, purpose.resolution = at, at, "native-owned-usable-stock"
+        addEvent(purpose, "resource-goal-satisfied", "currently held usable stock satisfies demand without new work credit", at)
+        return true
+    end
+    -- A completed acquisition is evidence for this exact held item, not for
+    -- arbitrary new raw inventory or another person's stock.
+    if current and current.owner == "Cooking" and current.acquiredItemId then
+        local acquired
+        for _, prior in ipairs(purpose.steps) do
+            if prior.owner == "SAO.SourceUse" and prior.status == "completed"
+                and prior.itemId == current.acquiredItemId and prior.itemType == current.itemType then
+                acquired = prior; break
+            end
+        end
+        if acquired then
+            for _, item in ipairs(type(context.carriedReadyItems) == "table" and context.carriedReadyItems or {}) do
+                if item.itemId == current.acquiredItemId and item.itemType == current.itemType then
+                    current.status, current.resolvedAt = "not-required", at
+                    purpose.status, purpose.cursor, purpose.blockers = "completed", #purpose.steps + 1, {}
+                    purpose.updatedAt = at
+                    addEvent(purpose, "conditional-step-not-required", "native held item is already usable", at)
+                    return purpose, nil
+                end
+            end
+        end
+        if suppliedGoal() then return purpose, nil end
+        local held = false
+        for _, item in ipairs(type(context.carriedRawItems) == "table" and context.carriedRawItems or {}) do
+            if item.itemId == current.acquiredItemId and item.itemType == current.itemType
+                and item.cookable == true then held = true; break end
+        end
+        local retryReady = true
+        for _, failure in ipairs(purpose.routeFailures or {}) do
+            if failure.stepId == current.id and finite(failure.retryAt) and at < failure.retryAt then retryReady = false end
+        end
+        if held and retryReady then
+            purpose.blockers = assessment.blocker and { assessment.blocker } or {}
+            purpose.status = #purpose.blockers > 0 and "blocked" or "maintained"
+            current.status = #purpose.blockers > 0 and "blocked" or "available"
+            purpose.updatedAt = at
+            return purpose, current
+        end
+        if acquired and #assessment.options == 0 then
+            purpose.blockers, purpose.status = { "acquired-item-not-currently-usable" }, "blocked"
+            current.status, purpose.updatedAt = "blocked", at
+            return purpose, current
+        end
+    end
+    if suppliedGoal() then return purpose, nil end
+    local candidates = {}
+    local delayed = false
+    for _, option in ipairs(assessment.options) do
+        local failure
+        for _, prior in ipairs(purpose.routeFailures or {}) do
+            if prior.strategy == option.id or (option.cooking
+                and prior.stepId == "prepare:" .. tostring(option.itemId)) then failure = prior; break end
+        end
+        if failure then
+            option.previousFailures, option.lastFailure, option.retryAt = failure.attempts,
+                failure.reason, failure.retryAt
+        end
+        local candidate = { id = option.id, evidence = option.evidence,
+            continuity = option.continuity, novelty = option.novelty,
+            informationGain = option.informationGain, blockers = option.blockers }
+        if failure then candidate.evidence = math.max(0, candidate.evidence - math.min(0.4, failure.attempts * 0.1)) end
+        if purpose.selectedStrategy == option.id and not failure then candidate.continuity = 1 end
+        if failure and finite(failure.retryAt) and at < failure.retryAt then
+            option.retryDelayed, delayed = true, true
+        else
+            candidates[#candidates + 1] = candidate
+        end
+    end
+    -- Both models share their existing sixteen-candidate contract. Preserve
+    -- a private inspection route alongside the strongest known work routes.
+    if #candidates > 16 then
+        local inspect
+        for _, candidate in ipairs(candidates) do
+            if string.sub(candidate.id, 1, 8) == "inspect:" then inspect = candidate; break end
+        end
+        table.sort(candidates, function(a, b)
+            local aScore = a.evidence * 0.55 + a.continuity * 0.3 - math.min(1, a.blockers * 0.35)
+            local bScore = b.evidence * 0.55 + b.continuity * 0.3 - math.min(1, b.blockers * 0.35)
+            if aScore == bScore then return a.id < b.id end
+            return aScore > bScore
+        end)
+        local bounded, limit = {}, inspect and 15 or 16
+        for _, candidate in ipairs(candidates) do
+            if candidate ~= inspect and #bounded < limit then bounded[#bounded + 1] = candidate end
+        end
+        if inspect then bounded[#bounded + 1] = inspect end
+        candidates = bounded
+    end
+    local views = #candidates > 0 and interpretations(id, candidates,
+        { domain = "provisioning", category = assessment.category,
+            pressure = assessment.demand.pressure, atHours = at }) or nil
+    local selected
+    for _, view in ipairs(views and views.models or {}) do
+        if view.modelId == "ordinary" then selected = view.selected; break end
+    end
+    local option
+    for _, candidate in ipairs(assessment.options) do
+        if candidate.id == selected and not candidate.retryDelayed then option = candidate; break end
+    end
+    if not option then
+        -- Cold model state cannot remove native feasibility. The ordinary
+        -- evidence/continuity ordering supplies the same bounded fallback.
+        local best
+        for i, candidate in ipairs(candidates) do
+            local score = candidate.evidence * 0.55 + candidate.continuity * 0.3
+                - math.min(1, candidate.blockers * 0.35)
+            if not best or score > best then
+                for _, offered in ipairs(assessment.options) do
+                    if offered.id == candidate.id then option = offered; break end
+                end
+                best = score
+            end
+        end
+    end
+    local steps, blockers = {}, {}
+    if assessment.blocker then blockers[#blockers + 1] = assessment.blocker end
+    if not option and delayed and not assessment.blocker then blockers[#blockers + 1] = "known-route-retry-delayed" end
+    if option then
+        if option.kind == "inspect" then
+            steps[#steps + 1] = { id = "inspect:" .. tostring(option.place.id), verb = "inspect",
+                owner = "SAONeeds", token = "resource:inspected", target = tostring(option.place.id),
+                status = "available", category = assessment.category, place = dataCopy(option.place) }
+        elseif option.kind == "refill-water" then
+            steps[#steps + 1] = { id = option.id, verb = "produce",
+                owner = "SAO.ResourceProduction", token = "resource:filled", target = "refill-water",
+                status = "available", category = assessment.category, productionKind = "refill-water",
+                sourceId = option.sourceId, sourceRevision = option.sourceRevision,
+                fingerprint = option.fingerprint, sourceX = option.sourceX,
+                sourceY = option.sourceY, sourceZ = option.sourceZ,
+                place = dataCopy(option.place), itemId = option.itemId, itemType = option.itemType,
+                beforeAmount = option.beforeAmount, capacity = option.capacity, quantityUnit = "fluid" }
+        elseif option.kind ~= "prepare-owned" then
+            steps[#steps + 1] = { id = "acquire:" .. tostring(option.sourceId) .. ":" .. tostring(option.sourceRevision)
+                    .. ":" .. tostring(option.itemId),
+                verb = "acquire", owner = "SAO.SourceUse", token = "resource:acquired",
+                target = tostring(option.sourceId) .. ":" .. tostring(option.itemId),
+                status = "available", category = assessment.category, sourceId = option.sourceId,
+                sourceRevision = option.sourceRevision, place = dataCopy(option.place),
+                itemId = option.itemId, itemType = option.itemType, quantity = 1, quantityUnit = "item" }
+        end
+        if option.cooking or (assessment.category == "food" and option.kind == "acquire-ready") then
+            steps[#steps + 1] = { id = "prepare:" .. tostring(option.itemId), verb = "produce",
+                owner = "Cooking", token = "cooking:prepared", target = "Cooking",
+                status = #steps == 0 and "available" or "dependent",
+                itemType = option.itemType, acquiredItemId = option.itemId,
+                conditional = option.kind ~= "prepare-owned" }
+        end
+    end
+    local previous = purpose.selectedStrategy
+    setPlan(purpose, steps, blockers, views, at)
+    purpose.selectedStrategy = option and option.id or nil
+    purpose.rationale = option and option.rationale or blockers[1]
+    purpose.uncertainty = option and option.uncertainty or assessment.demand.uncertainty
+    purpose.alternatives = dataCopy(assessment.options)
+    purpose.decisionAt = at
+    if previous ~= purpose.selectedStrategy then
+        purpose.admission = nil
+        addEvent(purpose, "resource-reconsidered", purpose.rationale, at)
+    end
+    return purpose, purpose.steps[purpose.cursor]
 end
 
 function P.planStudy(id, designation, context)
@@ -537,6 +818,7 @@ function P.noteAdmission(id, purposeId, owner, correlationId, stepId)
     local purpose = s and s.purposes[tostring(purposeId or "")]
     if not purpose or type(owner) ~= "string" or type(correlationId) ~= "string" then return false end
     local step = purpose.steps[purpose.cursor]
+    if purpose.resourceCategory and (not step or step.owner ~= owner) then return false end
     if stepId and (not step or step.id ~= stepId or step.owner ~= owner) then return false end
     purpose.admission = { owner = owner, correlationId = correlationId,
         stepId = step and step.id, target = step and step.target, token = step and step.token,
@@ -545,9 +827,10 @@ function P.noteAdmission(id, purposeId, owner, correlationId, stepId)
     return true
 end
 
-function P.recordResult(id, purposeId, result)
+function P.recordResult(id, purposeId, result, authority)
     local s = state(id)
     local purpose = s and s.purposes[tostring(purposeId or "")]
+    if purpose and purpose.resourceCategory and authority ~= RESOURCE_RESULT then return false end
     if not purpose or type(result) ~= "table" or type(result.owner) ~= "string"
         or type(result.token) ~= "string"
         or (result.status ~= "completed" and result.status ~= "failed"
@@ -583,6 +866,13 @@ function P.recordResult(id, purposeId, result)
             local key = tostring(step.target or purpose.domain)
             local practice = s.practice[key] or { completed = 0, failed = 0 }
             practice.completed, practice.lastAt = practice.completed + 1, at
+            local started = purpose.admission and purpose.admission.at
+            if purpose.resourceCategory and finite(started) and at >= started then
+                practice.durationHours = practice.durationHours or {}
+                practice.durationHours[#practice.durationHours + 1] = at - started
+                if #practice.durationHours > 8 then table.remove(practice.durationHours, 1) end
+                practice.timeBasis = "actor-native-admission-to-completed-result"
+            end
             s.practice[key] = practice
         end
     else
@@ -593,12 +883,19 @@ function P.recordResult(id, purposeId, result)
         local practice = s.practice[key] or { completed = 0, failed = 0 }
         practice.failed, practice.lastAt = practice.failed + 1, at
         s.practice[key] = practice
+        if purpose.resourceCategory and (result.status == "failed" or result.routeFailure == true) then
+            resourceFailure(purpose, purpose.selectedStrategy, result.reason, at, step.id)
+        end
     end
     purpose.updatedAt = at
     if receiptKey then
         purpose.resultReceipts = purpose.resultReceipts or {}
         purpose.resultReceipts[#purpose.resultReceipts + 1] = receiptKey
         if #purpose.resultReceipts > MAX_EVENTS then table.remove(purpose.resultReceipts, 1) end
+    end
+    if purpose.resourceCategory then
+        purpose.lastAdmission = dataCopy(purpose.admission)
+        purpose.admission = nil
     end
     addEvent(purpose, "result", result.status .. ":" .. result.token, at)
     return true
@@ -636,16 +933,83 @@ function P.consumeSourceResult(receipt)
     local completed = authoritative.status == "completed"
     if completed and (authoritative.measurement ~= "native-item-transfer"
         or (tonumber(authoritative.observedQuantity) or 0) <= 0) then return false end
+    if completed and purpose.resourceCategory and (step.sourceId ~= authoritative.sourceId
+        or step.itemId ~= authoritative.itemId) then return false end
     return P.recordResult(receipt.actorId, purpose.id, {
         owner = "SAO.SourceUse", token = admission.token,
         status = completed and "completed" or "interrupted",
         reason = authoritative.detail, correlationId = authoritative.reservationId,
+        routeFailure = authoritative.status == "conflict",
         atHours = authoritative.at,
-    })
+    }, RESOURCE_RESULT)
+end
+
+function P.admitProduction(id, work)
+    if type(work) ~= "table" or type(work.id) ~= "string" or work.actorId ~= id
+        or work.kind ~= "refill-water" then return false end
+    local s = state(id)
+    local purposeId = work.requestedPurposeId or work.purposeId
+    local stepId = work.requestedPurposeStepId or work.purposeStepId
+    local purpose = s and s.purposes[purposeId]
+    local step = purpose and purpose.steps[purpose.cursor]
+    if not purpose or purpose.status == "completed" or purpose.status == "abandoned"
+        or purpose.resourceCategory ~= "water" or not step
+        or step.id ~= stepId or step.owner ~= "SAO.ResourceProduction"
+        or step.productionKind ~= work.kind or step.token ~= "resource:filled"
+        or step.itemId ~= work.itemId or step.itemType ~= work.itemType
+        or step.sourceId ~= work.sourceId or step.sourceRevision ~= work.sourceRevision
+        or step.fingerprint ~= work.fingerprint then return false end
+    if purpose.admission and (purpose.admission.owner ~= step.owner
+        or purpose.admission.correlationId ~= work.id) then return false end
+    local admitted = P.noteAdmission(id, purpose.id, step.owner, work.id, step.id)
+    if admitted then work.purposeId, work.purposeStepId = purpose.id, step.id end
+    return admitted
+end
+
+function P.consumeProductionResult(id, receipt)
+    if type(receipt) ~= "table" or not receipt.purposeId then return false end
+    local owner = SAO.ResourceProduction
+    local canonical = owner and owner.outcome and owner.outcome(id, receipt.id)
+    if not canonical or canonical.actorId ~= id or canonical.id ~= receipt.id
+        or canonical.purposeId ~= receipt.purposeId or canonical.kind ~= "refill-water"
+        or canonical.token ~= "resource:filled"
+        or (canonical.status ~= "completed" and canonical.status ~= "interrupted"
+            and canonical.status ~= "failed") then return false end
+    local s = state(id)
+    local purpose = s and s.purposes[canonical.purposeId]
+    if not purpose or purpose.status == "abandoned" then return true, "purpose-retired" end
+    local step, admission = purpose.steps[purpose.cursor], purpose.admission
+    if not step or not admission or step.owner ~= "SAO.ResourceProduction"
+        or step.id ~= canonical.purposeStepId or admission.stepId ~= step.id
+        or admission.owner ~= step.owner or canonical.id ~= admission.correlationId
+        or admission.target ~= step.target then return true, "purpose-attempt-superseded" end
+    if canonical.sourceId ~= step.sourceId or canonical.sourceRevision ~= step.sourceRevision
+        or canonical.fingerprint ~= step.fingerprint or canonical.itemId ~= step.itemId
+        or canonical.itemType ~= step.itemType or canonical.kind ~= step.productionKind then return false end
+    local completed = canonical.status == "completed"
+    if completed and (not (canonical.nativeCredit == canonical.id) or canonical.held ~= true
+        or canonical.clean ~= true or not finite(canonical.nativeGain) or canonical.nativeGain <= 0
+        or not finite(canonical.beforeAmount) or not finite(canonical.afterAmount)
+        or canonical.afterAmount <= canonical.beforeAmount) then return false end
+    return P.recordResult(id, purpose.id, { owner = "SAO.ResourceProduction", token = step.token,
+        status = completed and "completed" or canonical.status == "interrupted" and "interrupted" or "failed",
+        correlationId = canonical.id, reason = canonical.detail, atHours = canonical.atHours }, RESOURCE_RESULT)
 end
 
 function P.admitCooking(id, work)
-    local purpose, step = P.pending(id, "practice", "Cooking")
+    if type(work) ~= "table" or type(work.id) ~= "string" then return false end
+    local purpose, step
+    if work.requestedPurposeId then
+        local s = state(id)
+        purpose = s and s.purposes[work.requestedPurposeId]
+        step = purpose and purpose.steps[purpose.cursor]
+        if not purpose or purpose.status == "completed" or purpose.status == "abandoned"
+            or not step or step.owner ~= "Cooking" or step.target ~= "Cooking"
+            or step.id ~= work.requestedPurposeStepId
+            or (step.acquiredItemId and step.acquiredItemId ~= work.itemId) then return false end
+    else
+        purpose, step = P.pending(id, "practice", "Cooking")
+    end
     if not purpose then
         purpose = P.maintain(id, { key = "prepare-food", domain = "provisioning",
             objective = "prepare known raw food safely for eating", origin = "food-preparation" })
@@ -689,7 +1053,7 @@ function P.consumeCookingResult(id, receipt)
             and "interrupted" or "failed",
         correlationId = canonical.id, reason = canonical.detail,
         atHours = canonical.atHours,
-    })
+    }, RESOURCE_RESULT)
 end
 
 function P.reconcileCooking(id)
@@ -722,7 +1086,14 @@ function P.snapshot(id)
                 nextOwner = nextStep and nextStep.owner or nil,
                 blockers = copyList(purpose.blockers, 6),
                 selectedSpatialFact = purpose.selectedSpatialFact,
-                interpretations = purpose.interpretations }
+                interpretations = dataCopy(purpose.interpretations),
+                resourceCategory = purpose.resourceCategory, demand = dataCopy(purpose.demand),
+                contacts = copyList(purpose.contacts, 16), capacity = dataCopy(purpose.capacity),
+                labor = dataCopy(purpose.labor), selectedStrategy = purpose.selectedStrategy,
+                rationale = purpose.rationale, uncertainty = purpose.uncertainty,
+                decisionAt = purpose.decisionAt, assessedAt = purpose.assessedAt,
+                sequence = dataCopy(purpose.steps), completedSteps = dataCopy(purpose.completedSteps),
+                alternatives = dataCopy(purpose.alternatives), routeFailures = dataCopy(purpose.routeFailures) }
         end
     end
     return out

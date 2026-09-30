@@ -106,6 +106,18 @@ check('uninspected_actor_has_no_acquisition',SAO.WorldSources.actionOptions(p,'r
 check('book_and_tool_never_enter_consume',SAO.WorldSources.actionOptions(p,'reading','a',body,1,'standing')==nil
     and SAO.WorldSources.actionOptions(p,'tools','a',body,1,'standing')==nil)
 check('tools_have_exact_acquisition_owner',SAO.WorldSources.actionOptions(p,'tools','a',body,1,'standing','acquire')~=nil)
+offer.context={sourceId='C:book:0',itemId=12,itemType='Base.BookCooking1',sourceRevision='r1'}
+check('retained_source_selects_exact_item',SAO.SourceUse.chooseOption(offer)==offer.options[2])
+offer.context.sourceId='another-source'
+check('retained_source_cannot_substitute_another_container',SAO.SourceUse.chooseOption(offer)==nil)
+offer.context.sourceId='C:book:0';offer.context.itemId=999
+check('retained_source_cannot_substitute_another_item',SAO.SourceUse.chooseOption(offer)==nil)
+offer.context.itemId=12;offer.context.itemType='Base.Book'
+check('retained_source_requires_matching_type',SAO.SourceUse.chooseOption(offer)==nil)
+offer.context.itemType='Base.BookCooking1';offer.context.sourceRevision='r0'
+check('retained_source_requires_matching_revision',SAO.SourceUse.chooseOption(offer)==nil)
+offer.context.sourceRevision='r1';offer.context.acceptItem=function() return false end
+check('retained_source_preserves_item_consent',SAO.SourceUse.chooseOption(offer)==nil)
 check('unknown_category_refused',SAO.WorldSources.actionOptions(p,'invented','a',body,1,'standing','acquire')==nil)
 check('native_skill_range_filters_books',SAO.Study.usefulType(body,'Base.BookCooking1','Cooking')
     and not SAO.Study.usefulType(body,'Base.BookCooking3','Cooking')
@@ -268,6 +280,14 @@ __purposeResults=table.concat(__cookingCases,'\n')
 '''
 
 CONTROLS = [
+    ('source', 'context.sourceId == nil or tostring(parameters.sourceId) == tostring(context.sourceId)',
+     'true', 'retained_source_cannot_substitute_another_container', 'acquisition'),
+    ('source', 'context.itemId == nil or tostring(parameters.itemId) == tostring(context.itemId)',
+     'true', 'retained_source_cannot_substitute_another_item', 'acquisition'),
+    ('source', 'context.itemType == nil or parameters.itemType == context.itemType',
+     'true', 'retained_source_requires_matching_type', 'acquisition'),
+    ('source', 'context.sourceRevision == nil or tostring(parameters.revision) == tostring(context.sourceRevision)',
+     'true', 'retained_source_requires_matching_revision', 'acquisition'),
     ('study', 'item:getLevelSkillTrained() + item:getNumLevelsTrained() - 1 >= level',
      'item:getLevelSkillTrained() + item:getNumLevelsTrained() >= level',
      'script_metadata_uses_native_inclusive_book_boundary', 'acquisition'),
@@ -307,7 +327,7 @@ def main():
                     paths=[ROOT/'tools/cooking_checks/prelude.lua', GAME/'media/lua/shared/ISBaseObject.lua',
                            GAME/'media/lua/shared/TimedActions/ISBaseTimedAction.lua',
                            GAME/'media/lua/shared/TimedActions/ISToggleStoveAction.lua']
-                    add('initial','SAO={} SAO.Controller={} SAO.Pharmacology={} require=function() end\n')
+                    add('initial','SAO={} SAO.Controller={} SAO.Pharmacology={} SAO.ResourceProduction={} require=function() end\n')
                     for name in ['planner','cooking','experience','controller']: add(name,code[name])
                     add('cases',PRACTICE)
                 done=subprocess.run([str(JDK/'java.exe'),'-Djava.awt.headless=true','-cp',str(work)+os.pathsep+str(GAME/'projectzomboid.jar'),

@@ -389,8 +389,13 @@ end
 -- Existing collection/storage decisions supply their currently inspected
 -- item and container. WorldSources freezes and revalidates that exact offer;
 -- the same reservation used for native consumption owns the transfer.
+local function productionActive(id)
+    local rec = SAO.Identity and SAO.Identity.get and SAO.Identity.get(id)
+    return rec and rec.resourceProductionWork ~= nil
+end
 function SU.beginTransfer(id, body, category, admission, item, container,
                           operation, decisionContext)
+    if productionActive(id) then return false, "native-resource-owner-busy" end
     local offered, why = SAO.WorldSources.transferOptions(id, body, category,
         admission, item, container, operation)
     if not offered then return false, why end
@@ -442,13 +447,23 @@ end
 
 -- Start only after the controller has applied its need/ration/desperation law.
 function SU.chooseOption(offered)
-    local accepts = offered.context and offered.context.acceptItem
+    local context = type(offered.context) == "table" and offered.context or {}
+    local accepts = context.acceptItem
     for _, option in ipairs(offered.options or {}) do
-        if not accepts or accepts(option.parameters.itemType) == true then return option end
+        local parameters = option.parameters or {}
+        -- A retained plan names one privately inspected item/revision. The
+        -- source owner still revalidates native access on arrival; selecting
+        -- another offer here would silently change the plan's physical chain.
+        if (context.sourceId == nil or tostring(parameters.sourceId) == tostring(context.sourceId))
+            and (context.itemId == nil or tostring(parameters.itemId) == tostring(context.itemId))
+            and (context.itemType == nil or parameters.itemType == context.itemType)
+            and (context.sourceRevision == nil or tostring(parameters.revision) == tostring(context.sourceRevision))
+            and (not accepts or accepts(parameters.itemType) == true) then return option end
     end
 end
 
 function SU.begin(id, body, place, category, admission, decisionContext)
+    if productionActive(id) then return false, "native-resource-owner-busy" end
     local context = type(decisionContext) == "table" and decisionContext or {}
     local operation = context.operation or "consume"
     local quantity = category == "water" and 0.01 or 1

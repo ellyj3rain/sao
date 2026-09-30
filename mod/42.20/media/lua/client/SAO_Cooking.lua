@@ -205,7 +205,7 @@ local function transfer(id, body, rt, work, container, operation, stage, sourceI
 end
 function C.begin(id, body, context)
     local rec = owner(id, body)
-    if not rec or rec.cookingWork or rec.worldSourceReservation or SAO.Needs.busy(body)
+    if not rec or rec.cookingWork or rec.resourceProductionWork or rec.worldSourceReservation or SAO.Needs.busy(body)
         or body:isAsleep() or body:isDead() then return false end
     local job = SAO.Locomotion.jobs[id]
     if job and not job.done then return false end
@@ -215,8 +215,10 @@ function C.begin(id, body, context)
     for _, row in ipairs(offers.appliances or {}) do if allowed(id, row) then appliance = row break end end
     if not appliance then return false end
     for _, row in ipairs(offers.foods or {}) do
-        if row.carried or allowed(id, row) and (not context or not context.privateFood
-            or SAO.WorldSources.privatelyKnowsItem(id, row.sourceId, row.itemId)) then food = row break end
+        local exact = not context or context.acquiredItemId == nil
+            or tostring(row.itemId) == tostring(context.acquiredItemId)
+        if exact and (row.carried or allowed(id, row) and (not context or not context.privateFood
+            or SAO.WorldSources.privatelyKnowsItem(id, row.sourceId, row.itemId))) then food = row break end
     end
     if not food then return false end
     rec.cookingSequence = (rec.cookingSequence or 0) + 1
@@ -227,6 +229,7 @@ function C.begin(id, body, context)
         ownerToken = rec.bodyOwnerToken, ownerName = rec.bodyOwner, heatObserved = false,
         processId = context.processId, processRevision = context.processRevision,
         commitmentId = context.commitmentId, stepId = context.stepId,
+        requestedPurposeId = context.purposeId, requestedPurposeStepId = context.purposeStepId,
         completionToken = context.completionToken }
     runtime[id] = { body = body, food = food, appliance = appliance, workId = rec.cookingWork.id }
     if SAO.ProceduralPlanning and not SAO.ProceduralPlanning.admitCooking(id, rec.cookingWork) then

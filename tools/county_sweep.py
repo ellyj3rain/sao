@@ -214,6 +214,7 @@ NOT_DORMANT = {
     "Orienting": "turns the head and body in response to loaded sound cues; dormant people have no native pose",
     "Posture": "owns exact watch/cover orientation on a loaded body; dormant people have no native pose",
     "Cooking": "owns exact loaded transfers and appliance heat; dormant cooking has no native appliance executor",
+    "ResourceProduction": "owns exact native fixture and carried-vessel transfers on materialised bodies; dormant counties have no native fixture or vessel executor",
     "Study": "owns native skill-book timed actions on a loaded body; bodyless county sweeps have no native page-progress executor",
     "Handover": "executes native item actions between materialised bodies; dormant exchange remains unimplemented",
     "Treatment": "executes patient-bound native bandaging on materialised bodies; dormant treatment remains unimplemented",
