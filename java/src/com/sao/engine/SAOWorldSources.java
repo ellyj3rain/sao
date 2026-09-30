@@ -655,7 +655,7 @@ public final class SAOWorldSources {
                 || "CandleLit".equals(item.getType())
                 || "Lantern_HurricaneLit".equals(item.getType())) return false;
         ItemRow row = ItemRow.of(item);
-        if (!(row.categories.contains("food") || row.categories.contains("water"))) {
+        if (row.categories.isEmpty()) {
             return false;
         }
         ItemContainer inventory = shell.getInventory();

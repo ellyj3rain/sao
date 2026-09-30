@@ -1,6 +1,6 @@
 | Document | Survivor Awareness Overhaul Findings |
 |---|---|
-| Version | `3.7.2.0-pre-alpha` |
+| Version | `3.7.3.0-pre-alpha` |
 | Author | ellyj3rain |
 | Repository | `FINDINGS.md` |
 | Status | CANONICAL, APPEND-ONLY - verified engine findings. |
@@ -2836,3 +2836,20 @@ executes the installed action and the production planner/queue seam; its native
 completion, item, body-token and admission-order controls detect the omitted
 links. These controlled callbacks establish mechanical execution, not loaded
 autonomous prevalence. Reading completion remains separate from practical use.
+
+
+## F-126 | 2026-09-30 03:06 UTC / 20:06 PST | Retained prerequisites had no native acquisition and productive result join
+
+WorldSources.actionOptions, transferOptions, SourceUse.begin and native
+SAOWorldSources.transferPermitted admitted food/water while their source ledger
+already classified books, tools and other material. Cooking's canonical outcome
+reached cooperation and cognition but not personal purposes. C103 connects
+explicit acquisition and productive results to those existing owners.
+
+Installed Item.getMaxLevelTrained returns first plus number of levels; live
+Literature.getMaxLevelTrained subtracts one. Comparing them as equivalent
+admits an unusable lower manual at the boundary. C103 derives the inclusive
+native range from script first/number fields; its named control detects the
+original mismatch. Border 215 also detects private-revision leakage, lost
+purpose binding, replay, missing native credit and food-only transfer admission.
+Controlled execution does not establish loaded-world prevalence.

@@ -1998,6 +1998,76 @@ local function beginContainerInspection(id, agent, body, needValue, category, ti
     return true
 end
 
+-- Retained private prerequisites get a real attempt before undirected rest.
+-- Immediate needs, danger and received shared commitments run before this.
+function Ctl.advancePersonalPurpose(id, agent, body, tick, needs)
+    local planning, sources = SAO.ProceduralPlanning, SAO.WorldSources
+    if not planning or not sources or agent.state ~= "IDLE" or agent.resting
+        or SAO.Needs.busy(body) or needs and needs.fatigue >= 0.7 then return false end
+    planning.reconcileCooking(id)
+    if tick < (agent.nextPurposeAt or 0) then return false end
+    agent.nextPurposeAt = tick + 600
+    local practice = planning.pending(id, "practice", "Cooking")
+        or planning.pending(id, "produce", "Cooking")
+    if practice and SAO.Cooking then
+        local started = SAO.Cooking.begin(id, body, { privateFood = true })
+        if started then
+            setState(agent, id, "COOK", "continues preparing food", "designation")
+            return true
+        end
+        planning.interrupt(id, practice.id, "no accessible food and cooking appliance")
+    end
+    local purpose = planning.studyDemand(id)
+    if not purpose or not SAO.Study then return false end
+    local heldManual = SAO.Study.offer(id, body, purpose.bookSkill)
+    if heldManual and heldManual:getSkillTrained() == purpose.bookSkill then
+        planning.planStudy(id, agent.rec.designation, {
+            purposeId = purpose.id, perk = purpose.subject, bookSkill = purpose.bookSkill,
+            bookOwned = true, literacy = purpose.literacy,
+        })
+        return false
+    end
+    local known = SAO.Perception.knownPlaces(id, true)
+    local best, bestDistance, checked = nil, nil, 0
+    for placeId, belief in pairs(known or {}) do
+        checked = checked + 1
+        if checked > 128 then break end
+        local place = { id = placeId, sourceId = belief.sourceId, cx = belief.cx, cy = belief.cy,
+            z = belief.z, minX = belief.minX, minY = belief.minY, maxX = belief.maxX, maxY = belief.maxY }
+        local offered = sources.actionOptions(place, "reading", id, body, 1, "standing", "acquire")
+        for _, option in ipairs(offered and offered.options or {}) do
+            if SAO.Study.usefulType(body, option.parameters.itemType, purpose.bookSkill) then
+                local distance = (place.cx - body:getX()) ^ 2 + (place.cy - body:getY()) ^ 2
+                if not best or distance < bestDistance or distance == bestDistance
+                    and tostring(place.id) < tostring(best.id) then best, bestDistance = place, distance end
+                break
+            end
+        end
+    end
+    if best then
+        local _, step = planning.planStudy(id, agent.rec.designation, {
+            purposeId = purpose.id, perk = purpose.subject, bookSkill = purpose.bookSkill,
+            bookNearby = true, literacy = purpose.literacy,
+        })
+        local started = SAO.SourceUse.beginAcquisition(id, body, best, "reading", {
+            purposeId = purpose.id, purposeStepId = step.id,
+            acceptItem = function(fullType) return SAO.Study.usefulType(body, fullType, purpose.bookSkill) end,
+        })
+        if started then
+            agent.taskDeadline = tick + 5400
+            setState(agent, id, "SOURCEWARD", "fetches a remembered " .. tostring(purpose.bookSkill) .. " manual")
+            return true
+        end
+    end
+    planning.planStudy(id, agent.rec.designation, {
+        purposeId = purpose.id, perk = purpose.subject, bookSkill = purpose.bookSkill,
+        literacy = purpose.literacy,
+    })
+    if beginContainerInspection(id, agent, body, 0, "a suitable manual", tick) then return true end
+    planning.interrupt(id, purpose.id, "no suitable remembered manual or reachable container to inspect")
+    return false
+end
+
 -- Each decision phase returns true only when it consumed the decision.
 -- Separate functions also keep cumulative locals within the engine debug compiler limit.
 local function continueFleeRoute(id, agent, body, bx, by, awayX, awayY, awayLength)
@@ -6580,7 +6650,6 @@ local function decide(id, agent, body)
     -- Idle life: initiative-gated roaming. Short walks on a long personal
     -- cadence; Standing gates the destination like any other goal.
     if agent.state == "IDLE" then
-        if decideNightAndDrift(id, agent, body, tick, rec) then return end
         -- The between-time is never nothing (DR-011, [A18]): a stale
         -- answer refreshes to what this body is honestly doing while
         -- the legs rest. The undesignated keep hands busy; the
@@ -6598,6 +6667,8 @@ local function decide(id, agent, body)
                 return
             end
         end
+        if Ctl.advancePersonalPurpose(id, agent, body, tick, needs) then return end
+        if decideNightAndDrift(id, agent, body, tick, rec) then return end
         if decideRestActivity(id, agent, body, tick, idleRec) then return end
         if decideLocalResources(id, agent, body, tick, idleRec) then return end
         if decidePromiseAndSearch(id, agent, body, tick, idleRec) then return end

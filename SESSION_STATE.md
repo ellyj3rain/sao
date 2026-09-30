@@ -1,11 +1,31 @@
 | Document | Survivor Awareness Overhaul Session State |
 |---|---|
-| Version | `3.7.2.0-pre-alpha` |
+| Version | `3.7.3.0-pre-alpha` |
 | Author | ellyj3rain |
 | Repository | `SESSION_STATE.md` |
 | Status | CANONICAL - current implementation and continuation. |
 
 # Session state
+
+**As of** 2026-09-30, [C103] connects retained purposes to native acquisition
+and productive Cooking work. Survivors search and acquire suitable manuals
+from their own inspected source revisions, continue native reading under the
+same purpose, and can initiate Cooking practice without a work designation.
+Other cooking admissions retain a food-preparation goal across interruption.
+Native heat, completion credit, retrieval and appliance shutdown precede
+completion; reading remains separate from tested practice and native XP.
+Purpose-bound refusals travel through Provisioning, replay is idempotent, and
+superseded receipts retire without advancing replacement steps or pinning the
+result ledger. Mousecat's existing purpose feed reflects this progress.
+
+Border 215 exercises 33 Kahlua cases, 13 installed native acquisition checks
+and seven named mutation controls. Immediate danger, needs and accepted
+cooperation precede starting personal work. Existing ongoing-reading
+coordination preemption remains open. Controlled bodies and native cells do
+not establish loaded frequency, long-term production or simulation quality.
+Other practical study domains, richer shortage-driven plans, integration
+obligations and ML work remain. No scenario or data admission occurred.
+
 
 **As of** 2026-09-29, [C102] repairs the skill-book execution join. The old
 Controller call to native `ReadLiterature` had no page-progress or skill-book
@@ -1080,8 +1100,8 @@ border, C75's typed-claim border, C86's native study, escape-continuity and
 sound-evidence borders, C88's cognitive competition border, C89's native
 capability borders, C90-C92's cooperative procedure borders and C93's durable
 study-session border, the gate invokes
-215 `*_test.py` files and 16 other Python entry points, 231 distinct scripts.
-Border labels extend through 214; legacy labels
+216 `*_test.py` files and 16 other Python entry points, 232 distinct scripts.
+Border labels extend through 215; legacy labels
 163/169/174 share the native suite. These are distinct counting units. The mod
 ships 185 Lua source files.
 ZAO A41 has fifteen borders. The

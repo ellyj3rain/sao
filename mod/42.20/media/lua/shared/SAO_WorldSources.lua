@@ -88,7 +88,8 @@ local function trimResults(value)
         local oldestId, oldest = nil, nil
         for id, receipt in pairs(value.results) do
             local acknowledgements = receipt.acknowledgements or {}
-            local protected = (receipt.status == "completed" or provedTransferObservation(receipt))
+            local protected = (receipt.status == "completed" or receipt.commitmentId
+                or receipt.purposeId or provedTransferObservation(receipt))
                 and not acknowledgements[RESULT_CONSUMER]
             if not protected and (not oldest
                 or (receipt.order or 0) < (oldest.order or 0)) then
@@ -1190,7 +1191,8 @@ local function reservationRoom(value)
     local durableInputs = reservationCount
     for _, receipt in pairs(value.results) do
         local acknowledgements = receipt.acknowledgements or {}
-        if (receipt.status == "completed" or provedTransferObservation(receipt))
+        if (receipt.status == "completed" or receipt.commitmentId or receipt.purposeId
+            or provedTransferObservation(receipt))
             and not acknowledgements[RESULT_CONSUMER] then
             durableInputs = durableInputs + 1
         end
@@ -1202,12 +1204,17 @@ end
 -- Options describe attempts over this person's own observations. The caller
 -- has already selected the place/category under its need and ration policy.
 -- Neither listing nor selecting an option proves current physical access.
-function WS.actionOptions(place, category, actorId, body, quantity, admission)
+function WS.actionOptions(place, category, actorId, body, quantity, admission, operation)
     local value = store()
     actorId = actorId and tostring(actorId) or nil
     category = tostring(category or "")
-    if category ~= "food" and category ~= "water" then
+    operation = operation or "consume"
+    if not SOURCE_CATEGORIES[category]
+        or (operation == "consume" and category ~= "food" and category ~= "water") then
         return nil, "unsupported-category"
+    end
+    if operation ~= "consume" and operation ~= "acquire" then
+        return nil, "unsupported-operation"
     end
     if not value or not place or place.id == nil or not actorId or not body then
         return nil, "bad-request"
@@ -1251,13 +1258,35 @@ function WS.actionOptions(place, category, actorId, body, quantity, admission)
         local observed = tonumber(source.quantities
             and source.quantities[category]) or 0
         if sourceBelongsToPlace(source, place) and source.state == "available"
-            and observed >= quantity and not pendingFor(value, id, nil)
+            and observed > 0 and (operation == "acquire" or observed >= quantity)
+            and not pendingFor(value, id, nil)
             and beliefHasRevision(belief, id, source.revision) then
-            local item, amount = categoryItem(source, category, quantity)
+            local items = {}
+            if operation == "acquire" then
+                -- An inspection admitted this complete revision to this mind.
+                -- A newer physical ledger must never fill in unseen stock.
+                local physical = value.sources[tostring(id)]
+                if physical and physical.revision == source.revision
+                    and physical.fingerprint == source.fingerprint then
+                    for _, key in ipairs(physical.itemOrder or {}) do
+                        local item = physical.items[key]
+                        if item and item.categories and item.categories[category] then
+                            items[#items + 1] = item
+                            if #items >= MAX_ACTION_OPTIONS then break end
+                        end
+                    end
+                end
+            else
+                local item = categoryItem(source, category, quantity)
+                if item then items[1] = item end
+            end
+            for _, item in ipairs(items) do
+            local amount = operation == "acquire" and 1 or quantity
             if item and item.id ~= 0 then
                 offered.candidateCount = offered.candidateCount + 1
                 local option = {
-                    id = tostring(id), owner = "SAO.SourceUse",
+                    id = tostring(id) .. (operation == "acquire"
+                        and (":item:" .. tostring(item.id)) or ""), owner = "SAO.SourceUse",
                     parameters = {
                         action = "attempt-source-use", actorId = actorId,
                         placeId = tostring(place.id), category = category,
@@ -1269,6 +1298,8 @@ function WS.actionOptions(place, category, actorId, body, quantity, admission)
                         itemId = item.id, itemType = item.type,
                         itemAmount = tonumber(item.amount) or 0,
                         itemUses = tonumber(item.uses) or 0,
+                        operation = operation == "acquire" and operation or nil,
+                        itemSignature = operation == "acquire" and itemSignature(item) or nil,
                     },
                     eligibility = { status = "eligible", evidence = {
                         { kind = "private-source-revision", actorId = actorId,
@@ -1292,11 +1323,26 @@ function WS.actionOptions(place, category, actorId, body, quantity, admission)
                     end
                 end
             end
+            end
         end
     end
     if #offered.options == 0 then return nil, "observed-revision-unavailable" end
     offered.truncated = offered.candidateCount > #offered.options
     return offered
+end
+
+function WS.privatelyKnowsItem(actorId, sourceId, itemId)
+    local value = store()
+    local physical = value and value.sources[tostring(sourceId)]
+    if not physical or not physical.items[tostring(itemId)] then return false end
+    local known = SAO.Perception.knownPlaces(actorId, true)
+    for _, place in pairs(known or {}) do
+        local observed = place.sourceFacts and place.sourceFacts[tostring(sourceId)]
+        if observed and observed.revision == physical.revision
+            and observed.fingerprint == physical.fingerprint
+            and beliefHasRevision(place, sourceId, physical.revision) then return true end
+    end
+    return false
 end
 
 local function transferItemRow(line)
@@ -1560,7 +1606,7 @@ function WS.transferOptions(actorId, body, category, admission, item,
     worldContainer, operation)
     local value = store()
     actorId, category = tostring(actorId or ""), tostring(category or "")
-    if category ~= "food" and category ~= "water" then
+    if not SOURCE_CATEGORIES[category] then
         return nil, "unsupported-category"
     end
     if operation ~= "acquire" and operation ~= "store" then
@@ -1691,9 +1737,9 @@ end
 -- Re-enumerate the actor's current eligible attempts before reserving. A
 -- changed or forged selected descriptor is refused; a different source is
 -- never silently substituted. The omitted selection retains the legacy API.
-function WS.beginAction(place, category, actorId, body, quantity, admission, selected)
+function WS.beginAction(place, category, actorId, body, quantity, admission, selected, operation)
     local offered, why = WS.actionOptions(place, category, actorId, body,
-        quantity, admission)
+        quantity, admission, operation)
     if not offered then return nil, why end
     local option = offered.options[1]
     if selected ~= nil then
@@ -1729,7 +1775,9 @@ function WS.beginAction(place, category, actorId, body, quantity, admission, sel
         itemType = parameters.itemType,
         itemAmount = parameters.itemAmount,
         itemUses = parameters.itemUses,
-        operation = "consume",
+        operation = operation or "consume",
+        quantityUnit = operation == "acquire" and "item" or nil,
+        itemSignature = parameters.itemSignature,
         useTargetQuantity = category == "water"
             and (parameters.itemAmount * 0.5) or 1,
         category = category, quantity = parameters.quantity,
@@ -2002,6 +2050,7 @@ local function result(value, reservation, status, detail)
         processId = reservation.processId,
         processRevision = reservation.processRevision,
         commitmentId = reservation.commitmentId,
+        purposeId = reservation.purposeId, purposeStepId = reservation.purposeStepId,
         transferObservation = transferObservationCopy(reservation.transferObservation),
         quantityUnit = reservation.quantityUnit,
         itemAmount = reservation.itemAmount,
@@ -2074,6 +2123,7 @@ local function receiptCopy(receipt)
         processId = receipt.processId,
         processRevision = receipt.processRevision,
         commitmentId = receipt.commitmentId,
+        purposeId = receipt.purposeId, purposeStepId = receipt.purposeStepId,
         transferObservation = transferObservationCopy(receipt.transferObservation),
         quantityUnit = receipt.quantityUnit,
         itemAmount = receipt.itemAmount,
@@ -2153,7 +2203,7 @@ function WS.completedResults(consumer, includeObservations)
         -- source attempts remain private to WorldSources.
         local coordinated = receipt.commitmentId ~= nil
             and tostring(receipt.commitmentId) ~= ""
-        if (receipt.status == "completed" or coordinated
+        if (receipt.status == "completed" or coordinated or receipt.purposeId
             or (includeObservations == true and provedTransferObservation(receipt)))
             and not acknowledgements[consumer] then
             local copy = receiptCopy(receipt)
@@ -2185,7 +2235,7 @@ function WS.acknowledgeResult(reservationId, consumer, reason)
     local receipt = value and value.results[tostring(reservationId or "")]
     local coordinated = receipt and receipt.commitmentId ~= nil
         and tostring(receipt.commitmentId) ~= ""
-    if not receipt or (receipt.status ~= "completed" and not coordinated
+    if not receipt or (receipt.status ~= "completed" and not coordinated and not receipt.purposeId
         and not provedTransferObservation(receipt))
         or consumer ~= RESULT_CONSUMER then
         return false

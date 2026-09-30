@@ -38,9 +38,17 @@ on the simulation.
 
 ## Status
 
-`3.7.2.0-pre-alpha` - the coordinate is computed by the version machine
+`3.7.3.0-pre-alpha` - the coordinate is computed by the version machine
 (`tools/version_replay.py`), never picked; `VERSION_MAP.md` shows the
 classification and the arithmetic.
+
+C103 connects retained purposes to acquiring suitable inspected manuals and
+native food preparation. A manual remains part of the same reading purpose;
+Cooking practice and interrupted preparation advance only from actual native
+results. Generic source transfers now admit the existing book, tool and
+material categories. Private observation and current permission remain required.
+The controlled checks pass; other practical domains and loaded behavior remain
+unverified.
 
 C102 connects maintained personal study to the game's actual timed reading.
 Survivors can select useful carried manuals without a work designation, resume

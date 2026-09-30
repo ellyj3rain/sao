@@ -442,28 +442,39 @@ end
 
 -- Start only after the controller has applied its need/ration/desperation law.
 function SU.chooseOption(offered)
-    return offered.options[1]
+    local accepts = offered.context and offered.context.acceptItem
+    for _, option in ipairs(offered.options or {}) do
+        if not accepts or accepts(option.parameters.itemType) == true then return option end
+    end
 end
 
 function SU.begin(id, body, place, category, admission, decisionContext)
-    if category ~= "food" and category ~= "water" then
-        return false, "unsupported-category"
-    end
+    local context = type(decisionContext) == "table" and decisionContext or {}
+    local operation = context.operation or "consume"
     local quantity = category == "water" and 0.01 or 1
     local offered, why = SAO.WorldSources.actionOptions(place, category,
-        id, body, quantity, admission)
+        id, body, quantity, admission, operation)
     if not offered then return false, why end
     offered.context = decisionContext
     local selected = SU.chooseOption(offered)
     if selected == nil then return false, "no-option-selected" end
     local reservation
     reservation, why = SAO.WorldSources.beginAction(place, category,
-        id, body, quantity, admission, selected)
+        id, body, quantity, admission, selected, operation)
     if not reservation then return false, why end
     -- Persist only the registered owner name and bounded scalar consent.  The
     -- selected item and all physical proof remain in WorldSources; no runtime
     -- body, offer table or private mind snapshot enters durable graph state.
-    local context = type(decisionContext) == "table" and decisionContext or {}
+    if context.purposeId then
+        local planning = SAO.ProceduralPlanning
+        reservation.purposeId, reservation.purposeStepId = context.purposeId, context.purposeStepId
+        if operation ~= "acquire" or not planning
+            or not planning.noteAdmission(tostring(id), context.purposeId,
+                "SAO.SourceUse", reservation.id, context.purposeStepId) then
+            SAO.WorldSources.release(reservation.id, "purpose-admission-refused")
+            return false, "purpose-admission-refused"
+        end
+    end
     if SAO.Cognition then
         reservation.cognitionToken = SAO.Cognition.capture(tostring(id), "source")
     end
@@ -486,7 +497,13 @@ function SU.begin(id, body, place, category, admission, decisionContext)
     end
     log(tostring(id) .. " approaches privately observed " .. category
         .. " at place " .. tostring(reservation.placeId))
-    return true
+    return true, reservation
+end
+
+function SU.beginAcquisition(id, body, place, category, context)
+    context = context or {}
+    context.operation = "acquire"
+    return SU.begin(id, body, place, category, "standing", context)
 end
 
 -- The controller calls this when Locomotion closes a SOURCEWARD leg.

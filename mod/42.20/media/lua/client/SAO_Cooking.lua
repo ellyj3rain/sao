@@ -70,6 +70,7 @@ local function finish(id, status, reason)
         sourceId = work.sourceId, startedAt = work.startedAt, atHours = hours(),
         processId = work.processId, processRevision = work.processRevision,
         commitmentId = work.commitmentId, stepId = work.stepId,
+        purposeId = work.purposeId, purposeStepId = work.purposeStepId,
         token = work.completionToken,
         status = status, detail = reason, beforeCookingTime = work.beforeCookingTime,
         afterCookingTime = work.afterCookingTime, heatObserved = work.heatObserved == true,
@@ -213,7 +214,10 @@ function C.begin(id, body, context)
     local appliance, food
     for _, row in ipairs(offers.appliances or {}) do if allowed(id, row) then appliance = row break end end
     if not appliance then return false end
-    for _, row in ipairs(offers.foods or {}) do if row.carried or allowed(id, row) then food = row break end end
+    for _, row in ipairs(offers.foods or {}) do
+        if row.carried or allowed(id, row) and (not context or not context.privateFood
+            or SAO.WorldSources.privatelyKnowsItem(id, row.sourceId, row.itemId)) then food = row break end
+    end
     if not food then return false end
     rec.cookingSequence = (rec.cookingSequence or 0) + 1
     context = type(context) == "table" and context or {}
@@ -225,6 +229,10 @@ function C.begin(id, body, context)
         commitmentId = context.commitmentId, stepId = context.stepId,
         completionToken = context.completionToken }
     runtime[id] = { body = body, food = food, appliance = appliance, workId = rec.cookingWork.id }
+    if SAO.ProceduralPlanning and not SAO.ProceduralPlanning.admitCooking(id, rec.cookingWork) then
+        finish(id, "interrupted", "purpose-admission-refused")
+        return false
+    end
     record(id, "started", "Preparing food")
     return true, rec.cookingWork
 end

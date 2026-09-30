@@ -223,7 +223,7 @@ function Provisioning.processReceipt(receipt)
         and tostring(receipt.commitmentId) ~= ""
     if type(receipt) ~= "table"
         or (receipt.status ~= "completed" and receipt.transferObservation == nil
-            and not coordinated)
+            and not coordinated and not receipt.purposeId)
         or type(receipt.reservationId) ~= "string" then
         return false, "invalid-result"
     end
@@ -256,6 +256,13 @@ function Provisioning.processReceipt(receipt)
         if consumed ~= true then
             return false, consumeWhy or "organization-result-refused"
         end
+    end
+    if receipt.purposeId then
+        if not (SAO.ProceduralPlanning and SAO.ProceduralPlanning.consumeSourceResult) then
+            return false, "planning-unavailable"
+        end
+        local consumed, why = SAO.ProceduralPlanning.consumeSourceResult(receipt)
+        if consumed ~= true then return false, why or "purpose-result-refused" end
     end
     -- A proved native move remains an experience when later conservation or
     -- holder checks conflict. Deliver that experience without crediting a
