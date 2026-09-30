@@ -81,6 +81,8 @@ public final class CognitionUseProbe {
         Class<?>[] types = {SAOBridge.class, SAOIsoPlayerShell.class, zombie.characters.IsoPlayer.class,
             zombie.characters.IsoGameCharacter.class, InventoryItem.class, Food.class, DrainableComboItem.class,
             ItemContainer.class, Item.class, ItemTag.class, ArrayList.class, zombie.iso.IsoCell.class,
+            zombie.inventory.ItemPickerJava.class,
+            zombie.scripting.objects.CharacterTrait.class,
             zombie.util.list.PZArrayList.class,
             zombie.characters.Stats.class, zombie.characters.CharacterStat.class,
             zombie.iso.IsoGridSquare.class, zombie.iso.IsoObject.class,
@@ -110,9 +112,17 @@ public final class CognitionUseProbe {
         env.rawset("__nativeModuleDotType", (JavaFunction) (frame, count) -> {
             frame.push(LuaManager.GlobalObject.moduleDotType((String) frame.get(0), (String) frame.get(1))); return 1;
         });
+        var itemRow = Class.forName("com.sao.engine.SAOWorldSources$ItemRow");
+        var observeItem = itemRow.getDeclaredMethod("of", InventoryItem.class); observeItem.setAccessible(true);
+        var encodeItem = com.sao.engine.SAOWorldSources.class.getDeclaredMethod("itemFields", itemRow); encodeItem.setAccessible(true);
+        env.rawset("__observeNativeItem", (JavaFunction) (frame, count) -> {
+            try { frame.push(encodeItem.invoke(null, observeItem.invoke(null, frame.get(0)))); return 1; }
+            catch (ReflectiveOperationException failure) { throw new IllegalStateException(failure); }
+        });
         env.rawset("__realBody", body); env.rawset("__realBridge", SAOBridge.INSTANCE);
         env.rawset("__nativeItemTag", env.rawget("ItemTag"));
         env.rawset("__nativeCharacterStat", env.rawget("CharacterStat"));
+        env.rawset("__nativeCharacterTrait", env.rawget("CharacterTrait"));
 
         var dictionary = new Dictionary();
         var data = WorldDictionary.class.getDeclaredField("data"); data.setAccessible(true); data.set(null, dictionary);
@@ -143,6 +153,26 @@ public final class CognitionUseProbe {
         var makeFluid = ResourceApproachProbe.class.getDeclaredMethod("fluid", zombie.iso.IsoObject.class); makeFluid.setAccessible(true); makeFluid.invoke(null, sink);
         sink.getSprite().name="fixtures_sinks_01_0";
         env.rawset("__sink", sink);
+        var cola = item(game, module, dictionary, "normal.txt", "Pop2", (short) 1707);
+        if (cola.getFluidContainer() == null
+                || cola.getFluidContainer().getPrimaryFluid() != zombie.entity.components.fluids.Fluid.Get("Cola")) {
+            throw new AssertionError("Installed Base.Pop2 does not contain Cola");
+        }
+        var holder = new zombie.iso.IsoObject(cell, body.getCurrentSquare(), "fixtures_counters_01_0");
+        var container = new ItemContainer("counter", body.getCurrentSquare(), holder);
+        holder.setContainer(container); container.setExplored(true);
+        body.getCurrentSquare().getObjects().add(holder); container.AddItem(cola);
+        env.rawset("__cola", cola); env.rawset("__colaContainer", container);
+        var dietCola = item(game, module, dictionary, "normal.txt", "Pop", (short) 1708);
+        if (dietCola.getFluidContainer() == null
+                || dietCola.getFluidContainer().getPrimaryFluid() != zombie.entity.components.fluids.Fluid.Get("ColaDiet")) {
+            throw new AssertionError("Installed Base.Pop does not contain ColaDiet");
+        }
+        env.rawset("__dietCola", dietCola);
+        var antibiotics = item(game, module, dictionary, "food.txt", "Antibiotics", (short) 1709);
+        if (!(antibiotics instanceof Food) || antibiotics.getReduceInfectionPower() <= 0)
+            throw new AssertionError("Installed native medicine property differs");
+        env.rawset("__antibiotics", antibiotics);
         for (int i = 1; i < args.length; i++) {
             thread.call(LuaCompiler.loadstring(Files.readString(Path.of(args[i])), args[i], env), null, null, null);
         }

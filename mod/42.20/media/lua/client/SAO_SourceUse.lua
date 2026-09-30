@@ -473,6 +473,15 @@ function SU.begin(id, body, place, category, admission, decisionContext)
     offered.context = decisionContext
     local selected = SU.chooseOption(offered)
     if selected == nil then return false, "no-option-selected" end
+    local hydration = context.hydrationIntent == true
+    if hydration then
+        local p = selected.parameters
+        if operation ~= "acquire" or category ~= "drink" or not p
+            or not SAO.WorldSources.knownHydrationAmount
+            or not SAO.WorldSources.knownHydrationAmount(id, p.sourceId, p.itemId, p.revision) then
+            return false, "hydration-intent-unqualified"
+        end
+    end
     local reservation
     reservation, why = SAO.WorldSources.beginAction(place, category,
         id, body, quantity, admission, selected, operation)
@@ -492,6 +501,11 @@ function SU.begin(id, body, place, category, admission, decisionContext)
     end
     if SAO.Cognition then
         reservation.cognitionToken = SAO.Cognition.capture(tostring(id), "source")
+        if hydration and reservation.cognitionToken then
+            reservation.cognitionToken.hydrationAdmission = { reservationId = reservation.id,
+                sourceId = reservation.sourceId, itemId = reservation.itemId,
+                revision = reservation.revision }
+        end
     end
     if context.nativeUseOwner ~= nil then
         local owner = tostring(context.nativeUseOwner or "")

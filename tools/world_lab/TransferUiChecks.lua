@@ -141,7 +141,6 @@ function CheckEatUi()
     function smoke:getCustomEatSound() return "" end
     function smoke:setJobType(value) self.jobType = value end
     function smoke:setJobDelta(value) self.delta = value end
-    function smoke:getScriptItem() return { getReduceInfectionPower = function() return 1 end } end
     local food = setmetatable({ smokable = false }, { __index = smoke })
     function food:getRequireInHandOrInventory() return nil end
     ISTimedActionQueue = {
@@ -150,6 +149,9 @@ function CheckEatUi()
     }
     SAOJavaBridge.findCarriedSmokable = function() return smoke end
     SAOJavaBridge.findCarriedFood = function() return food end
+    -- This lane tests the selected item's constructor boundary. The native
+    -- property selector and actual antibiotics are covered by native_use.lua.
+    SAOJavaBridge.findCarriedInfectionFood = function() return food end
     SAOJavaBridge.findCarriedDrug = function() return smoke end
     SAOJavaBridge.privateCarriedItems = function() return list({ smoke }) end
     SAOJavaBridge.engineEat = function() directEats = directEats + 1; return true end
@@ -222,7 +224,7 @@ function CheckEatUi()
 
     lighter.uses = .5; carried["Base.Lighter"] = lighter
     check(SAO.Needs.eatCarried("p1", person) and queued.item == food, "ordinary carried food constructor")
-    check(SAO.Needs.takePills("p1", person) and queued.item == smoke, "medicine constructor uses shell boundary")
+    check(SAO.Needs.takePills("p1", person) and queued.item == food, "medicine constructor uses shell boundary")
     check(SAO.Needs.useCarriedDrug("p1", person, "fixture") and queued.item == smoke,
         "drug constructor uses shell boundary")
     check(ISEatFoodAction:new(person, smoke, 1).item == smoke, "direct exact-source constructor boundary")

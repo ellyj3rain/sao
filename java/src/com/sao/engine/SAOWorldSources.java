@@ -1029,7 +1029,7 @@ public final class SAOWorldSources {
         Fluid fluid = object.getPrimaryFluid();
         boolean cleanWater = amount > 0.0f && (fluid == null || !fluid.isPoisonous())
             && object.hasWater() && !object.isTaintedWater();
-        ItemRow row = ItemRow.fluid(object, amount, fluid, cleanWater);
+        ItemRow row = ItemRow.fluid(object, amount, fluid, cleanWater, object.isTaintedWater());
         source.items.add(row);
         source.finish();
         return source;
@@ -1222,6 +1222,7 @@ public final class SAOWorldSources {
             + "|uses=" + item.uses + "|currentUses=" + number(item.currentUses)
             + "|condition=" + item.condition + "|amount=" + number(item.amount)
             + "|fluid=" + field(item.fluid) + "|poison=" + (item.poison ? 1 : 0)
+            + "|tainted=" + (item.tainted ? 1 : 0) + "|hydrationAmount=" + number(item.hydrationAmount)
             + "|rotten=" + (item.rotten ? 1 : 0)
             + "|cats=" + field(String.join(",", item.categories));
     }
@@ -1740,10 +1741,12 @@ public final class SAOWorldSources {
         final boolean poison;
         final boolean rotten;
         final boolean cleanWater;
+        final boolean tainted;
+        final float hydrationAmount;
         final ArrayList<String> categories;
         ItemRow(int itemId, String fullType, int uses, float currentUses,
                 int condition, float amount, String fluid,
-                boolean poison, boolean rotten, boolean cleanWater,
+                boolean poison, boolean rotten, boolean cleanWater, boolean tainted, float hydrationAmount,
                 ArrayList<String> categories) {
             this.itemId = itemId;
             this.fullType = fullType;
@@ -1755,6 +1758,8 @@ public final class SAOWorldSources {
             this.poison = poison;
             this.rotten = rotten;
             this.cleanWater = cleanWater;
+            this.tainted = tainted;
+            this.hydrationAmount = hydrationAmount;
             this.categories = categories;
         }
 
@@ -1771,11 +1776,12 @@ public final class SAOWorldSources {
             return new ItemRow(item.getID(), value(item.getFullType()), item.getUses(),
                 item.getCurrentUsesFloat(), item.getCondition(), amount,
                 primary == null ? "" : value(primary.getFluidTypeString()),
-                poison, rotten, cleanWater, categories);
+                poison, rotten, cleanWater, fluids != null && fluids.isTainted(),
+                Math.max(0.0f, SAONeeds.hydrationAmount(fluids)), categories);
         }
 
         static ItemRow fluid(IsoObject object, float amount, Fluid fluid,
-                boolean cleanWater) {
+                boolean cleanWater, boolean tainted) {
             ArrayList<String> categories = new ArrayList<>();
             if (amount > 0.0f && (fluid == null || !fluid.isPoisonous())) {
                 categories.add("drink");
@@ -1785,7 +1791,8 @@ public final class SAOWorldSources {
             }
             return new ItemRow(0, "", 0, 0.0f, 0, amount,
                 fluid == null ? "" : value(fluid.getFluidTypeString()),
-                fluid != null && fluid.isPoisonous(), false, cleanWater,
+                fluid != null && fluid.isPoisonous(), false, cleanWater, tainted,
+                cleanWater ? amount : 0.0f,
                 categories);
         }
 
@@ -1801,7 +1808,8 @@ public final class SAOWorldSources {
             return itemId + "|" + fullType + "|" + uses + "|"
                 + Float.toHexString(currentUses) + "|" + condition + "|"
                 + Float.toHexString(amount) + "|" + fluid + "|" + poison + "|"
-                + rotten + "|" + String.join(",", categories);
+                + rotten + "|" + tainted + "|" + Float.toHexString(hydrationAmount)
+                + "|" + String.join(",", categories);
         }
 
         private static ArrayList<String> categories(InventoryItem item,

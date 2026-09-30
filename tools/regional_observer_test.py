@@ -25,6 +25,72 @@ _jdk_candidates.append(Path.home() / "Peanut Butter" / "JetBrains" / "Java" / "b
 JDK = Path(os.environ["JDK_BIN"]) if os.environ.get("JDK_BIN") else next(
     (candidate for candidate in _jdk_candidates if (candidate / "javac.exe").is_file()), _jdk_candidates[-1])
 
+INITIAL_PLACEMENT_FIXTURE = '''
+local rec={id='initial-1',x=100,y=200,z=0,forename='Named',epistemicMonths=1,kitGranted=true,
+ initialStudyOrigin={definitionSha256=string.rep('a',64),saveName='NativeSave',siteId='farm'}}
+local records={['initial-1']=rec}
+local mode,body,calls='failure',nil,0
+SAO={Identity={all=function() return records end,knownName=function() return nil end},
+ Log={line=function() end,tally=function() end},Claims={isHeld=function() return false end},
+ History={countyHours=function() return 123 end},Controller={adopt=function() end}}
+SAO.Body={recover=function() return true end,hasRepresentation=function() return body~=nil end,
+ get=function() return body end,materialize=function()
+  calls=calls+1
+  if mode=='failure' then return nil,'native-square-unavailable' end
+  if mode=='unknown' then return nil end
+  body={getX=function() return 100 end,getY=function() return 200 end,getZ=function() return 0 end}
+  return body
+ end}
+function InitialPlacementChecks()
+ local conf={materialize=20,hibernate=50}
+ SAO.PopulationRepresentation.materializeBand(100,200,conf)
+ local receipt=rec.initialStudyPlacement
+ assert(receipt and receipt.status=='refused' and receipt.reason=='native-square-unavailable'
+  and receipt.causeAvailable and receipt.observedAtCountyHours==123,'native placement cause lost')
+ assert(receipt.definitionSha256==rec.initialStudyOrigin.definitionSha256 and receipt.saveName=='NativeSave'
+  and receipt.siteId=='farm','native placement source binding lost')
+ mode='unknown'
+ SAO.PopulationRepresentation.materializeBand(100,200,conf)
+ receipt=rec.initialStudyPlacement
+ assert(receipt.status=='refused' and receipt.reason=='native-placement-cause-unavailable'
+  and receipt.causeAvailable==false,'missing native placement cause was invented')
+ mode='success'
+ SAO.PopulationRepresentation.materializeBand(100,200,conf)
+ receipt=rec.initialStudyPlacement
+ assert(receipt.status=='represented' and receipt.reason==nil and calls==3,'native placement success differs')
+ SAO.PopulationRepresentation.materializeBand(100,200,conf)
+ assert(calls==3 and rec.initialStudyPlacement==receipt,'existing body received another placement attempt')
+ rec.initialStudyOrigin,rec.initialStudyPlacement,body=nil,nil,nil mode='failure'
+ SAO.PopulationRepresentation.materializeBand(100,200,conf)
+ assert(rec.initialStudyPlacement==nil and calls==4,'ordinary placement received study provenance')
+ return 'PASS five initial placement owner checks; controlled receivers in installed Kahlua'
+end
+'''
+
+
+def initial_placement_checks(root, command):
+    source = (Lab.ROOT / "mod/42.20/media/lua/client/SAO_PopulationRepresentation.lua").read_text()
+    variants = [("production", source, None)]
+    for label, before, after, expected in (
+        ("cause-omitted", "local body, placementReason = SAO.Body.materialize", "local body = SAO.Body.materialize",
+         "native placement cause lost"),
+        ("source-binding-invented", "local origin = rec.initialStudyOrigin",
+         'local origin = {definitionSha256="invented",saveName="invented",siteId="invented"}',
+         "native placement source binding lost"),
+        ("unknown-cause-invented", "causeAvailable = body ~= nil or placementReason ~= nil",
+         "causeAvailable = true", "missing native placement cause was invented"),
+    ):
+        assert source.count(before) == 1, "initial placement mutation seam differs"
+        changed = source.replace(before, after, 1)
+        assert changed != source
+        variants.append((label, changed, expected))
+    for label, runtime, expected in variants:
+        path = root / ("initial-placement-" + label + ".lua")
+        path.write_text(INITIAL_PLACEMENT_FIXTURE + '\n(function()\n' + runtime
+                        + '\nend)()\nRESULT=InitialPlacementChecks()\n')
+        output = execute([*command, path, "--", "RESULT"], root, expected)
+        print(output.splitlines()[-1] if expected is None else "PASS initial placement control refused: " + label)
+
 
 class RegionalDefinitions(unittest.TestCase):
     def setUp(self):
@@ -198,6 +264,8 @@ RESULT='PASS actual Lua secondary population retained in one nearest-center pass
     print(execute(command, GAME).splitlines()[-1])
     lua.write_text(lua.read_text().replace("math.min(d, dist(point.x, point.y, center.x, center.y))", "dist(point.x, point.y, px, py)"))
     execute(command, GAME, "secondary-area body hibernated"); print("PASS regional control rejected: slot-zero-only representation")
+    shutil.copyfile(GAME / "stdlib.lua", root / "stdlib.lua")
+    initial_placement_checks(root, [GAME / "jre64/bin/java.exe", "-cp", str(classes) + os.pathsep + native, "LuaRun"])
 
 
 if __name__ == "__main__":

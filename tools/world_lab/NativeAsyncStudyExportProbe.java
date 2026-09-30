@@ -159,6 +159,97 @@ public final class NativeAsyncStudyExportProbe {
     }
     private static void start() { export.begin(DEFINITION, SAVE, SESSION, OBSERVER, ENGINE); }
 
+    private static long metric(String stage, String field) {
+        String snapshot = StudyExport.diagnosticsJson();
+        var row = java.util.regex.Pattern.compile("\\\"" + stage + "\\\":\\{([^}]+)\\}").matcher(snapshot);
+        if (!row.find()) throw new AssertionError("timing stage missing: " + stage);
+        var value = java.util.regex.Pattern.compile("\\\"" + field + "\\\":([0-9]+)").matcher(row.group(1));
+        if (!value.find()) throw new AssertionError("timing field missing: " + field);
+        return Long.parseLong(value.group(1));
+    }
+    private static void timingChecks() throws Exception {
+        start();
+        check(metric("ownerMeasure", "calls") == 0 && metric("workerEncode", "calls") == 0,
+            "new source epoch starts with zero diagnostic counters");
+        check(export.measure("timing", marker, 100) == 8 && metric("ownerMeasure", "calls") == 1
+            && metric("ownerMeasure", "examined") == 1, "actual byte preflight records one owner sample and examined node");
+        check(export.measure("capacity", marker, 0) == -1 && metric("ownerMeasure", "deferred") == 1
+            && metric("ownerMeasure", "failures") == 0, "expected capacity has a diagnostic deferral without failure");
+        strict(() -> export.measure(new Object(), marker, 100), "unsupported", "unsupported preflight remains a failure");
+        check(metric("ownerMeasure", "failures") == 1, "malformed preflight diagnostic retains failure");
+        double ticket = export.reserve("live", KEY + "/live/timing");
+        try (Hold hold = new Hold()) {
+            export.submitLive(ticket, frame(false, 0), marker, 10000);
+            check(metric("ownerDetach", "calls") == 1 && metric("workerEncode", "calls") == 0,
+                "pending worker separates actual owner detachment from worker timing");
+        }
+        await(ticket, "published"); export.release(ticket);
+        for (String stage : new String[]{"workerEncode", "workerWrite", "workerReadback", "workerPromote"}) {
+            check(metric(stage, "calls") == 1 && metric(stage, "examined") > 0
+                && metric(stage, "maximumNs") <= metric(stage, "totalNs"), "actual worker stage timing " + stage);
+        }
+        String snapshot = StudyExport.diagnosticsJson();
+        check(snapshot.contains("\"definitionSha256\":\"" + DEFINITION + "\"")
+            && snapshot.contains("\"session\":\"" + SESSION + "\"")
+            && snapshot.contains("\"inclusive\":true"), "diagnostic snapshot retains source identity and inclusive scope");
+        AtomicReference<Throwable> rejected = new AtomicReference<>();
+        Thread other = new Thread(() -> { try { StudyExport.diagnosticsJson(); } catch (Throwable error) { rejected.set(error); } });
+        other.start(); other.join();
+        check(rejected.get() instanceof IllegalStateException, "foreign timing snapshot cannot read the owner");
+        Object timings = field(field(export, "epoch"), "timings");
+        Object counter = ((Object[]) field(timings, "counters"))[0];
+        for (String name : new String[]{"calls", "totalNs", "examined"}) {
+            Field value = counter.getClass().getDeclaredField(name); value.setAccessible(true); value.setLong(counter, 9007199254740991L);
+        }
+        check(export.measure("still-correct", marker, 100) == 15 && metric("ownerMeasure", "calls") == 9007199254740991L
+            && StudyExport.diagnosticsJson().contains("\"clipped\":true"), "diagnostic saturation preserves byte result and reports clipping");
+        System.out.println("TIMING_JSON " + StudyExport.diagnosticsJson());
+        start();
+        check(metric("ownerMeasure", "calls") == 0 && metric("workerWrite", "calls") == 0,
+            "retirement resets diagnostics without retained scalar aliases");
+    }
+    private static void callbackTimingChecks() throws Exception {
+        var option = zombie.debug.DebugOptions.instance.checks.slowLuaEvents;
+        boolean previousDebug = zombie.core.Core.debug;
+        // The actual study's God-view launch requires native debug mode.
+        zombie.core.Core.debug = true;
+        boolean previous = option.getValue(), previousReady = (boolean) fieldStatic("ready");
+        boolean previousLuaLog = zombie.debug.DebugLog.isEnabled(zombie.debug.DebugType.Lua);
+        Method begin = StudyObserver.class.getDeclaredMethod("beginCallbackTiming"); begin.setAccessible(true);
+        Method restore = StudyObserver.class.getDeclaredMethod("restoreCallbackTiming"); restore.setAccessible(true);
+        host("ready", true);
+        try {
+            zombie.debug.DebugLog.getInstance().setStdOut(System.out);
+            zombie.debug.DebugLog.getInstance().setStdErr(System.err);
+            zombie.debug.DebugLog.setLogEnabled(zombie.debug.DebugType.Lua, true);
+            option.setValue(false); begin.invoke(null);
+            check(option.getValue(), "native slow Lua callback timing is enabled for the study owner");
+            var clockCalls = new java.util.concurrent.atomic.AtomicInteger();
+            env.rawset("__clockNs", (JavaFunction) (frame, count) -> {
+                clockCalls.incrementAndGet(); frame.push((double) System.nanoTime()); return 1;
+            });
+            var event = new zombie.Lua.Event("StudyTimingProbe", 1);
+            var callback = LuaCompiler.loadstring(
+                "local deadline=__clockNs()+280000000; while __clockNs()<deadline do end",
+                "native-slow-callback-probe", env);
+            callback.prototype.file = "native-slow-callback-probe";
+            event.callbacks.add(callback);
+            event.trigger(env, LuaManager.caller, new Object[0]);
+            check(clockCalls.get() > 2, "installed event executes the actual timed Lua callback");
+            restore.invoke(null);
+            check(!option.getValue(), "study timing restores the previous disabled native setting");
+            option.setValue(true); begin.invoke(null); restore.invoke(null);
+            check(option.getValue(), "study timing preserves a previously enabled native setting");
+        } finally {
+            restore.invoke(null); option.setValue(previous); host("ready", previousReady);
+            zombie.debug.DebugLog.setLogEnabled(zombie.debug.DebugType.Lua, previousLuaLog);
+            zombie.core.Core.debug = previousDebug;
+        }
+    }
+    private static Object fieldStatic(String name) throws Exception {
+        Field field = StudyObserver.class.getDeclaredField(name); field.setAccessible(true); return field.get(null);
+    }
+
     public static void main(String[] args) throws Exception {
         GameWindow.gameThread = Thread.currentThread();
         zombie.core.random.RandStandard.INSTANCE.init();
@@ -320,6 +411,7 @@ public final class NativeAsyncStudyExportProbe {
             check(!completion.isAlive() && oldFailure.get() == null, "retired in-flight worker terminates without live table access");
             check(Arrays.equals(previous, Files.readAllBytes(root.resolve("StudyWorldLive.json"))),
                 "retired epoch cannot promote a completed worker snapshot");
+            check(metric("workerEncode", "calls") == 0, "retired worker cannot charge a new epoch's diagnostic counters");
 
             Path livePath = root.resolve("StudyWorldLive.json"); Files.delete(livePath); Files.createDirectory(livePath);
             Files.writeString(livePath.resolve("occupied"), "do not replace");
@@ -341,6 +433,7 @@ public final class NativeAsyncStudyExportProbe {
             start();
             double reserved = export.reserve("live", KEY + "/live/7"); export.release(reserved);
             check(!StudyExport.hasPending(), "unsubmitted reservation releases without acquisition");
+            timingChecks(); callbackTimingChecks();
             stopControls();
             StudyExport.shutdown();
             strict(() -> export.reserve("live", KEY + "/live/8"), "no active", "closed worker refuses new capture");

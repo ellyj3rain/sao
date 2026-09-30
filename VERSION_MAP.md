@@ -16,9 +16,9 @@ the machine. Names, dates, and threads below come from
 | Form | `major.minor.kohai.patch-maturity` |
 | Hard caps | minor 12; kohai 16; patch 24 |
 | Replay start | `0.1.0.0-pre-alpha` |
-| Current version | `3.8.0.0-pre-alpha` |
-| Closed chronology | `A1-C105` |
-| Next batch | `C106` |
+| Current version | `3.9.0.0-pre-alpha` |
+| Closed chronology | `A1-C106` |
+| Next batch | `C107` |
 | Executable source | [`tools/version_replay.py`](tools/version_replay.py) |
 
 ## Tier meanings
@@ -221,6 +221,7 @@ the machine. Names, dates, and threads below come from
 | `C103` | 2026-09-30 | kohai | `3.7.3.0-pre-alpha` | Retained acquisition and productive work | Connect retained private prerequisites to exact native acquisition and productive Cooking work; preserve purpose identity through study, interruption and terminal receipt replay. This matures the existing C95 planner and SourceUse/Cooking authority contracts, so kohai. |
 | `C104` | 2026-09-30 | kohai | `3.7.4.0-pre-alpha` | Sustained resource planning | Extend existing private purposes into shortage-driven native resource chains, grounded labor assessment and independently answered help; close accepted-work reading preemption. Existing planning, action and social owners retain authority, so kohai. |
 | `C105` | 2026-09-30 | minor | `3.8.0.0-pre-alpha` | Resource outcome trials and asynchronous observation | Introduce typed desired-stock study requests with exact actor and experimental authority, separate native work and goal satisfaction, and a bounded immutable observation export worker with exact publication acknowledgement and paused stop draining. These establish new study authoring and runtime contracts, so minor. |
+| `C106` | 2026-09-30 | minor | `3.9.0.0-pre-alpha` | Regional study conditions, hydration and timing | Add source-bound authored initial population coverage to the regional study contract, integrate privately inspected native hydration into existing thirst planning, and measure inclusive observation and callback costs. The new initial-cohort authoring contract is minor. |
 
 ## The former number
 
@@ -241,11 +242,11 @@ establish release maturity.
 
 ## Next movement
 
-`C106` is the next batch. Its content determines its tier after it
+`C107` is the next batch. Its content determines its tier after it
 exists:
 
-| If C106 is | Result |
+| If C107 is | Result |
 |---|---|
-| patch or hotfix | `3.8.0.1-pre-alpha` |
-| kohai | `3.8.1.0-pre-alpha` |
-| minor | `3.9.0.0-pre-alpha` |
+| patch or hotfix | `3.9.0.1-pre-alpha` |
+| kohai | `3.9.1.0-pre-alpha` |
+| minor | `3.10.0.0-pre-alpha` |

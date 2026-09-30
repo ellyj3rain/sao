@@ -424,11 +424,12 @@ local function interpretations(id, candidates, context)
     return nil
 end
 
-function P.resourceDemand(id, category)
+function P.resourceDemand(id, category, ordinaryOnly)
     local s = state(id)
     for _, key in ipairs(s and s.order or {}) do
         local purpose = s.purposes[key]
         if purpose and purpose.resourceCategory and (not category or purpose.resourceCategory == category)
+            and (not ordinaryOnly or not purpose.resourceOutcome)
             and purpose.status ~= "completed" and purpose.status ~= "abandoned" then
             return purpose, purpose.steps[purpose.cursor]
         end
@@ -486,13 +487,14 @@ function P.planResource(id, context)
         return nil, "outcome-purpose-unavailable"
     end
     local current
-    if not purpose then purpose, current = P.resourceDemand(id, assessment.category) end
+    if not purpose then purpose, current = P.resourceDemand(id, assessment.category, context.hydrationIntent == true) end
     local supplied = assessment.category == "food" and assessment.demand.ownedReady > 0
-        or assessment.category == "water" and assessment.demand.ownedWater > 0
+        or assessment.category == "water" and (assessment.demand.ownedWater > 0
+            or context.hydrationIntent == true and not context.purposeId and assessment.demand.ownedHydration > 0)
     if not purpose and (assessment.demand.pressure < 0.2 or supplied) then return nil, "no-current-resource-demand" end
     purpose = purpose or P.maintain(id, { key = "resource:" .. assessment.category,
         objective = assessment.category == "food" and "retain usable food through anticipated need"
-            or "retain usable water through anticipated need",
+            or "retain safe hydration through anticipated thirst",
         domain = "provisioning", origin = "private-resource-pressure", atHours = at })
     if not purpose then return nil, "person-unavailable" end
     purpose.resourceCategory = assessment.category
@@ -671,7 +673,8 @@ function P.planResource(id, context)
                     .. ":" .. tostring(option.itemId),
                 verb = "acquire", owner = "SAO.SourceUse", token = "resource:acquired",
                 target = tostring(option.sourceId) .. ":" .. tostring(option.itemId),
-                status = "available", category = assessment.category, sourceId = option.sourceId,
+                status = "available", category = option.materialCategory or assessment.category,
+                hydrationIntent = option.hydrationIntent, sourceId = option.sourceId,
                 sourceRevision = option.sourceRevision, place = dataCopy(option.place),
                 itemId = option.itemId, itemType = option.itemType, quantity = 1, quantityUnit = "item" }
         end
@@ -1119,7 +1122,7 @@ function P.consumeSourceResult(receipt)
     if completed and (authoritative.measurement ~= "native-item-transfer"
         or (tonumber(authoritative.observedQuantity) or 0) <= 0) then return false end
     if completed and purpose.resourceCategory and (step.sourceId ~= authoritative.sourceId
-        or step.itemId ~= authoritative.itemId) then return false end
+        or step.itemId ~= authoritative.itemId or step.category ~= authoritative.category) then return false end
     return P.recordResult(receipt.actorId, purpose.id, {
         owner = "SAO.SourceUse", token = admission.token,
         status = completed and "completed" or "interrupted",

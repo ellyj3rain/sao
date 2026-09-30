@@ -320,12 +320,15 @@ local function itemSignature(item, knownSignature)
     -- Old observations did not record these optional native fields. Compare
     -- every field the saved observation knew; a later reader cannot invent a
     -- missing historical condition or drainable baseline.
-    for _, key in ipairs({ "condition", "currentUses" }) do
+    for _, key in ipairs({ "condition", "currentUses", "hydrationAmount" }) do
         if (not knownSignature or string.find(knownSignature,
             "|" .. key .. "=", 1, true)) and item[key] ~= nil then
             signature = signature .. "|" .. key .. "="
                 .. string.format("%.6f", item[key])
         end
+    end
+    if (not knownSignature or string.find(knownSignature, "|tainted=", 1, true)) and item.tainted ~= nil then
+        signature = signature .. "|tainted=" .. (item.tainted and "1" or "0")
     end
     return signature
 end
@@ -411,7 +414,11 @@ function WS.parse(text)
                     rotten = tonumber(raw.rotten) == 1,
                     categories = itemCategories,
                 }
-                for _, key in ipairs({ "condition", "currentUses" }) do
+                if raw.tainted ~= nil then
+                    if raw.tainted ~= "0" and raw.tainted ~= "1" then return nil end
+                    item.tainted = raw.tainted == "1"
+                end
+                for _, key in ipairs({ "condition", "currentUses", "hydrationAmount" }) do
                     if raw[key] ~= nil then
                         item[key] = finiteNumber(raw[key], 0, 1000000, false)
                         if item[key] == nil then return nil end
@@ -1007,6 +1014,7 @@ local function beliefFact(source)
                         id = item.id, type = item.type, uses = item.uses,
                         amount = item.amount,
                         fluid = item.fluid, poison = item.poison,
+                        tainted = item.tainted, hydrationAmount = item.hydrationAmount,
                         rotten = item.rotten, condition = item.condition,
                         currentUses = item.currentUses,
                         categories = { [category] = true },
@@ -1297,6 +1305,7 @@ function WS.actionOptions(place, category, actorId, body, quantity, admission, o
                         fingerprint = source.fingerprint, revision = source.revision,
                         itemId = item.id, itemType = item.type,
                         itemAmount = tonumber(item.amount) or 0,
+                        itemHydrationAmount = item.hydrationAmount,
                         itemUses = tonumber(item.uses) or 0,
                         operation = operation == "acquire" and operation or nil,
                         itemSignature = operation == "acquire" and itemSignature(item) or nil,
@@ -1345,13 +1354,36 @@ function WS.privatelyKnowsItem(actorId, sourceId, itemId)
     return false
 end
 
+-- A complete private inspection knows the exact item at this revision. The
+-- native observation owns hydration; a generic drink category cannot infer it.
+function WS.knownHydrationAmount(actorId, sourceId, itemId, revision)
+    if not WS.privatelyKnowsItem(actorId, sourceId, itemId) then return nil end
+    local value = store()
+    local source = value and value.sources[tostring(sourceId)]
+    local item = source and source.items[tostring(itemId)]
+    if not source or source.revision ~= revision or not item or item.poison
+        or item.tainted ~= false or not item.categories.drink then return nil end
+    local amount = finiteNumber(item.hydrationAmount, 0, 1000000, false)
+    if amount and amount > 0 and amount <= item.amount then return amount end
+end
+
+function WS.knownHydrationAt(actorId, sourceId, revision)
+    local value = store()
+    local source = value and value.sources[tostring(sourceId)]
+    if not source or source.revision ~= revision then return false end
+    for _, itemId in ipairs(source.itemOrder or {}) do
+        if WS.knownHydrationAmount(actorId, sourceId, itemId, revision) then return true end
+    end
+    return false
+end
+
 local function transferItemRow(line)
     if type(line) ~= "string" or #line > 8192 or string.sub(line, 1, 2) ~= "T|"
         or string.find(line, "[\r\n]") or string.find(line, "||", 1, true)
         or string.sub(line, -1) == "|" then return nil end
     local allowed = { operation = true, source = true, id = true, type = true,
         uses = true, amount = true, fluid = true, poison = true, rotten = true,
-        cats = true, condition = true, currentUses = true }
+        cats = true, condition = true, currentUses = true, tainted = true, hydrationAmount = true }
     local raw = {}
     for part in string.gmatch(string.sub(line, 3), "[^|]+") do
         local key, encoded = string.match(part, "^([^=]+)=(.*)$")
@@ -1372,7 +1404,11 @@ local function transferItemRow(line)
         categories = categories(raw.cats) }
     if not item.id or item.id == 0 or not item.uses or not item.amount
         or not item.categories then return nil end
-    for _, key in ipairs({ "condition", "currentUses" }) do
+    if raw.tainted ~= nil then
+        if raw.tainted ~= "0" and raw.tainted ~= "1" then return nil end
+        item.tainted = raw.tainted == "1"
+    end
+    for _, key in ipairs({ "condition", "currentUses", "hydrationAmount" }) do
         if raw[key] ~= nil then
             item[key] = finiteNumber(raw[key], 0, 1000000, false)
             if item[key] == nil then return nil end
@@ -2456,6 +2492,7 @@ function WS.sourceProjection(id)
                 uses = item.uses,
                 amount = item.amount,
                 fluid = item.fluid,
+                tainted = item.tainted, hydrationAmount = item.hydrationAmount,
                 poison = item.poison and true or false,
                 rotten = item.rotten and true or false,
                 categories = categoriesCopy,

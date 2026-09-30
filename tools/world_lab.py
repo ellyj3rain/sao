@@ -17,7 +17,7 @@ import re
 import shutil
 import sys
 import tempfile
-from world_lab_definition import validate_resource_objectives
+from world_lab_definition import validate_resource_objectives, validate_initial_people
 
 ROOT = Path(__file__).resolve().parent.parent
 TEMPLATE = ROOT / "tools/world_lab/StudyWorld.lua"
@@ -167,8 +167,8 @@ def validate(value):
             require(len(val) <= 512, "sandbox string too long")
     if "situation" in value:
         situation = value["situation"]
-        require(isinstance(situation, dict) and 1 <= len(situation) <= 5
-                and set(situation) <= {"initialNeeds", "initialNeedsBySite", "horseTravel", "mobileHousehold", "resourceObjectives"},
+        require(isinstance(situation, dict) and 1 <= len(situation) <= 6
+                and set(situation) <= {"initialNeeds", "initialNeedsBySite", "horseTravel", "mobileHousehold", "resourceObjectives", "initialPeopleBySite"},
                 "situation must define supported pressures")
         if "resourceObjectives" in situation:
             validate_resource_objectives(situation["resourceObjectives"], value["observation"])
@@ -276,6 +276,8 @@ def validate(value):
                 "window extends outside world")
         count += width * height
     require(count <= 65536, "observation windows exceed 65536-square capture budget")
+    if "initialPeopleBySite" in value.get("situation", {}):
+        validate_initial_people(value["situation"]["initialPeopleBySite"], obs, options, origins)
     return value
 
 

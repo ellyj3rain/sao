@@ -829,6 +829,14 @@ public final class SAOBridge {
         return "";
     }
 
+    /** Carried native food with infection reduction; no clinical outcome is inferred. */
+    public Object findCarriedInfectionFood(Object object) {
+        if (object instanceof SAOIsoPlayerShell shell) {
+            return com.sao.engine.SAONeeds.carriedInfectionFood(shell);
+        }
+        return null;
+    }
+
     /** Best carried food as an opaque object for vanilla action constructors. */
     public Object findCarriedFood(Object object) {
         if (object instanceof SAOIsoPlayerShell shell) {

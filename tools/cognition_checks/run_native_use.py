@@ -6,20 +6,26 @@ def run():
     out=OUTPUT;out.mkdir(parents=True,exist_ok=True)
     jar=GAME/'projectzomboid.jar';sao=ROOT/'mod/42.20/media/java/SAO.jar'
     needs=BASE/'mod/42.20/media/lua/client/SAO_Needs.lua'
-    installed=[GAME/'media/lua/client/TimedActions/ISInventoryTransferAction.lua',
+    installed=[GAME/'media/lua/shared/ISBaseObject.lua', GAME/'media/lua/shared/TimedActions/ISTransferAction.lua',
+        GAME/'media/lua/client/TimedActions/ISInventoryTransferAction.lua',
         GAME/'media/lua/client/ISUI/ISInventoryPaneContextMenu.lua',
         *[GAME/('media/lua/shared/TimedActions/'+name+'.lua') for name in
-          ('ISEatFoodAction','ISTakePillAction','ISDrinkFluidAction','ISTakeWaterAction')]]
+          ('ISEatFoodAction','ISTakePillAction','ISDrinkFluidAction','ISTakeWaterAction')],
+        GAME/'media/lua/server/Items/ItemPicker.lua']
     inputs=[ROOT/'tools/world_lab/TransferUiChecks.lua',*installed,HERE/'prelude.lua',
             ROOT/'mod/42.20/media/lua/shared/SAO_Hash.lua',ROOT/'mod/42.20/media/lua/shared/SAO_Labor.lua',MODEL,COG]
+    compiled_sources=[ROOT/'tools/luacheck/MovementCrossingProbe.java',ROOT/'tools/luacheck/ResourceApproachProbe.java',
+            HERE/'CognitionUseProbe.java',BASE/'java/src/com/sao/engine/SAONeeds.java',
+            BASE/'java/src/com/sao/engine/SAOWorldSources.java']
+    native_definitions=[GAME/('media/scripts/generated/items/'+name) for name in ('drainable.txt','food.txt','normal.txt')]
+    native_definitions += [GAME/('media/scripts/generated/'+name) for name in ('fluids.txt','fluids_Beverages.txt','fluids_Alcoholic.txt')]
     receipt={'schema':'sao-cognition-native-use/1','inputs':{str(p):hashlib.sha256(p.read_bytes()).hexdigest()
-        for p in [*inputs,needs,HERE/'native_use.lua',HERE/'CognitionUseProbe.java',jar,sao]},'variants':[]}
+        for p in [*inputs,needs,HERE/'native_use.lua',*compiled_sources,*native_definitions,GAME/'stdlib.lua',jar,sao]},'variants':[]}
     with tempfile.TemporaryDirectory(prefix='sao-cognition-native-') as raw:
         work=Path(raw);shutil.copyfile(GAME/'stdlib.lua',work/'stdlib.lua')
         cp=os.pathsep.join(map(str,[jar,GAME/'ZombieBuddy.jar',sao]))
         compile=subprocess.run([str(JDK/'javac.exe'),'-encoding','UTF-8','-cp',cp,'-d',str(work),
-            str(ROOT/'tools/luacheck/MovementCrossingProbe.java'),str(ROOT/'tools/luacheck/ResourceApproachProbe.java'),
-            str(HERE/'CognitionUseProbe.java')],capture_output=True,text=True,timeout=120)
+            *map(str,compiled_sources)],capture_output=True,text=True,timeout=120)
         (out/'native-use-compile.log').write_text(compile.stdout+compile.stderr,encoding='utf-8')
         assert compile.returncode==0,compile.stdout+compile.stderr
         source=needs.read_text(encoding='utf-8')
@@ -31,6 +37,9 @@ def run():
             ('error-as-completed','ok and result == true and "completed" or "unavailable"','"completed"','native_callback_error_censored'),
             ('body-binding-omitted','cognitionBodyId(action.character) == before.id','true','replaced_body_binding_censored'),
             ('missing-need-as-zero','if measured == nil then return nil end','if measured == nil then measured = 0 end','absent_baseline_is_not_zero_need'),
+            ('script-property-owner','pill = SAOJavaBridge:findCarriedInfectionFood(body)',
+             'local item = body:getInventory():getFirstType("Antibiotics"); pill = item:getScriptItem():getReduceInfectionPower()',
+             'native_carried_medicine_uses_native_property_owner'),
         ]
         if os.environ.get('BASELINE_ONLY')=='1':controls=[]
         for label,before,after,marker in [('production',None,None,None)]+controls:

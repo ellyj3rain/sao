@@ -68,6 +68,7 @@ public final class StudyObserver {
     private static double startHours;
     private static int desiredSpeed = 1;
     private static boolean stopping, stopIssued, statePublicationFailed, contextFailed;
+    private static Boolean previousSlowLuaCallbacks;
     private static long exportDrainStarted;
     private static boolean exportDrainFailed;
     private static final int MAX_STATE_DEFERRALS = 30;
@@ -378,6 +379,7 @@ public final class StudyObserver {
         if (!ready || GameWindow.closeRequested) return;
         requireGameThread();
         StudyExport.bind();
+        beginCallbackTiming();
         if (!contextFailed) {
             String failure = contextFailure();
             if (failure != null) failContext(failure);
@@ -756,8 +758,26 @@ public final class StudyObserver {
         if (stopIssued) return;
         if (!drainExports()) return;
         stopIssued = true;
+        restoreCallbackTiming();
         System.out.println("[StudyObserver] stop hours=" + GameTime.getInstance().getWorldAgeHours());
         Core.getInstance().quitToDesktop();
+    }
+
+    /** Installed inclusive callback timing; confined to the isolated study owner. */
+    private static void beginCallbackTiming() {
+        requireGameThread();
+        if (previousSlowLuaCallbacks == null) {
+            var option = zombie.debug.DebugOptions.instance.checks.slowLuaEvents;
+            previousSlowLuaCallbacks = option.getValue();
+            option.setValue(true);
+        }
+    }
+    private static void restoreCallbackTiming() {
+        requireGameThread();
+        if (previousSlowLuaCallbacks != null) {
+            zombie.debug.DebugOptions.instance.checks.slowLuaEvents.setValue(previousSlowLuaCallbacks);
+            previousSlowLuaCallbacks = null;
+        }
     }
 
     /** The tool's wall/horizon supervisor uses the same drain as an explicit save. */
@@ -955,6 +975,10 @@ public final class StudyObserver {
             + ",\"blockedAdmissions\":" + blockedAdmissions.get()
             + ",\"streamingChecks\":" + streamingChecks
             + ",\"retainedResidencies\":" + retainedResidencies
+            + ",\"slowLuaCallbacks\":" + zombie.debug.DebugOptions.instance.checks.slowLuaEvents.getValue()
+            + ",\"slowLuaCallbackWarnings\":" + zombie.debug.DebugLog.isLogEnabled(zombie.debug.DebugType.Lua, zombie.debug.LogSeverity.Warning)
+            + ",\"observationTiming\":" + (!initializing && Thread.currentThread() == GameWindow.gameThread
+                ? StudyExport.diagnosticsJson() : "null")
             + ",\"anchorIdentity\":" + quote(Integer.toHexString(System.identityHashCode(anchor)))
             + ",\"viewIdentity\":" + quote(Integer.toHexString(System.identityHashCode(camera)))
             + ",\"sites\":" + siteSnapshot()

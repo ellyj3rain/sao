@@ -36,11 +36,15 @@ def run():
             str(Lab.ROOT / "tools/luacheck/LuaRun.java")], cwd=GAME, capture_output=True, text=True)
         Lab.require(result.returncode == 0, result.stdout + result.stderr)
 
-        def execute(runtime, treatment="normal"):
+        def execute(runtime, treatment="normal", capture_failure=False):
             script = work / "checks.lua"
+            invoke = "RunAsyncExportChecks(Study, " + Lab.lua(treatment) + ")"
+            outcome = ("local ok, value = pcall(function() return " + invoke + " end)\n"
+                       "RESULT = ok and value or ('FAIL ' .. tostring(value))\n") if capture_failure else (
+                       "RESULT = " + invoke + "\n")
             script.write_text("local Config = " + Lab.lua(config) + "\n" + checks
                 + "\nlocal Study = (function()\n" + runtime + "\nend)()\n"
-                + "RESULT = RunAsyncExportChecks(Study, " + Lab.lua(treatment) + ")\n", encoding="utf-8")
+                + outcome, encoding="utf-8")
             return subprocess.run([str(GAME / "jre64/bin/java.exe"), "-Djava.awt.headless=true",
                 "-cp", str(jar) + os.pathsep + str(work), "LuaRun", str(script), "--", "RESULT"],
                 cwd=GAME, capture_output=True, text=True, timeout=60)
@@ -74,6 +78,21 @@ def run():
                         "async control survived or failed for wrong reason: " + label
                         + "\n" + result.stdout + result.stderr)
             print("PASS control refused: " + label)
+        snapshot = ("    if Config.situation and Config.situation.initialPeopleBySite then\n"
+                    "        state.situationReceipt = state.situationReceipt or {}\n"
+                    "        state.situationReceipt.initialPeople = SAO.PopulationAdmissions.initialPeopleSnapshot()\n"
+                    "    end\n")
+        admission = "    if not Study.active or exportStopping then return end\n"
+        Lab.require(source.count(snapshot) == 1 and source.count(admission) == 1,
+                    "cohort capture control seam differs")
+        mutant = source.replace(snapshot, "").replace(admission, admission + snapshot)
+        result = execute(mutant, capture_failure=True)
+        Lab.require(result.returncode == 0 and "VALUE FAIL" in result.stdout
+                    and "cohort snapshot acquired without archive admission"
+                    in result.stdout + result.stderr,
+                    "unadmitted cohort snapshot survived or failed for wrong reason\n"
+                    + result.stdout + result.stderr)
+        print("PASS control refused: cohort capture before archive admission")
     print("LIMIT controlled completion seam; native worker and loaded rate are separate checks")
 
 

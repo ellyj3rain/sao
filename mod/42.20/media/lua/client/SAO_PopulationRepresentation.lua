@@ -88,7 +88,7 @@ local function materializeBand(px, py, conf)
             -- elsewhere, not ours to spawn. Passive adoption handles
             -- presence; nothing here may replace them.
         elseif not hasBody and d <= conf.materialize then
-            local body = SAO.Body.materialize(rec, nil, nil,
+            local body, placementReason = SAO.Body.materialize(rec, nil, nil,
                 point.physicalInterior and point or nil)
             if body then
                 if point.physicalInterior and SAO.MobileHousehold
@@ -96,8 +96,21 @@ local function materializeBand(px, py, conf)
                     and SAO.MobileHousehold.restoreInterior(id, body) ~= true then
                     SAO.Body.release(rec)
                     body = nil
+                    placementReason = "mobile-interior-binding-unavailable"
                     log(rec.id .. " interior binding was unavailable")
                 end
+            end
+            if rec.initialStudyOrigin then
+                local origin = rec.initialStudyOrigin
+                local receipt = { definitionSha256 = origin.definitionSha256, saveName = origin.saveName,
+                    siteId = origin.siteId, status = body and "represented" or "refused",
+                    reason = not body and (placementReason or "native-placement-cause-unavailable") or nil,
+                    causeAvailable = body ~= nil or placementReason ~= nil }
+                local ok, hours = pcall(function() return SAO.History.countyHours() end)
+                if ok and type(hours) == "number" and hours == hours and hours ~= math.huge and hours ~= -math.huge then
+                    receipt.observedAtCountyHours = hours
+                end
+                rec.initialStudyPlacement = receipt
             end
             if body then
                 backfillName(rec, body)

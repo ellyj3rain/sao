@@ -1,6 +1,6 @@
 | Document | Survivor Awareness Overhaul Architecture |
 |---|---|
-| Version | `3.8.0.0-pre-alpha` |
+| Version | `3.9.0.0-pre-alpha` |
 | Author | ellyj3rain |
 | Repository | `ARCHITECTURE.md` |
 | Status | ACTIVE - ratified framework shape. |
@@ -1311,6 +1311,41 @@ cyclic, nonfinite and foreign input, and I/O failure, retain failure authority.
 An epoch lock prevents retired world completions from replacing current output.
 Stop pauses native time and closes admission while exact receipts drain. Failed
 drain publication retries within the existing bounded observer-state protocol.
+
+### Regional study conditions, hydration and timing (C106)
+
+`StudyWorld.start` stages source-bound initial regional counts before native
+population admission. `SAO_PopulationAdmissions` consumes the authored conditions
+through its existing identity, history, lived-presence and unit owners. Persistent
+generated identities record actual coverage; configured counts are a premise.
+Save replay retains that initial binding. The adapter follows CAO's founding
+order and count authority within Project Zomboid's existing population owner.
+`PopulationRepresentation` retains each actual materialization result's source
+and returned failure cause for study people. Absent causes remain unknown.
+`initialPeopleSnapshot` counts current native bodies independently of those
+historical placement receipts.
+
+`SAONeeds` owns actual safe native hydration. `SAOWorldSources` records amount and
+taint under the observed item revision. `SAO_WorldSources` persists and projects
+only privately inspected evidence, with old incomplete observations requiring
+inspection. `Controller`, `Labor` and `ProceduralPlanning` distinguish physiological
+hydration from material clean-water stock. `SourceUse` retains exact admission;
+`Cognition` joins drink acquisition to thirst only when the native reservation,
+actor, source, item, revision and outcome agree. Transfer and later measured
+drinking remain separate events under their existing native owners.
+Native carried medicine selection reads `InventoryItem.getReduceInfectionPower`
+under `SAONeeds`, returning only finite positive native Food through the bridge.
+The existing eat action owns consumption. Script `Item` has no such getter;
+medicine selection does not imply knowledge of clinical benefit or cold relief.
+
+`StudyExport` attaches a bounded six-stage timing bank to each epoch. Immutable
+worker jobs retain that original bank. Owner-thread diagnostic snapshots carry
+source identities, their sample clock and coherent rows for calls, inclusive
+monotonic duration, examined quantities, failures, deferral and clipping.
+`StudyObserver` uses the engine's native slow Lua callback timer and restores its
+previous option after successful drain before owned quit. Callback warnings and
+export stages describe inclusive owners; they do not expose survivor knowledge,
+grant capabilities, label training data or claim exclusive cost attribution.
 
 ### Reference-learning source (C81)
 

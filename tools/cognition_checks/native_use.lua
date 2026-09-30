@@ -2,6 +2,7 @@ print=__nativePrint
 SAOJavaBridge=__realBridge
 instanceof=__nativeInstanceof; moduleDotType=__nativeModuleDotType
 ArrayList=__nativeArrays; ItemTag=__nativeItemTag; CharacterStat=__nativeCharacterStat
+CharacterTrait=__nativeCharacterTrait
 CharacterActionAnims={Eat="Eat",Drink="Drink",TakePills="TakePills"}
 function isServer() return false end
 function isDebugEnabled() return false end
@@ -101,4 +102,66 @@ SAOJavaBridge={getNeeds=function()return "f=0.1" end};action:start();SAOJavaBrid
 action:complete();fact=records.a.cognition.experiences[8]
 check("absent_baseline_is_not_zero_need",count()==8 and fact.status=="unavailable" and fact.thirstDelta==nil
     and episode.status=="censored" and records.a.cognition.models.ordinary.revision==revision)
+fluid:Empty();fluid=__cola:getFluidContainer()
+local row=__observeNativeItem(__cola)
+check("native_cola_observation_retains_drink_identity",__cola:getFullType()=='Base.Pop2'
+    and string.find(row,'|fluid=Cola',1,true) and string.find(row,'|cats=drink',1,true)
+    and not string.find(row,'drink,water',1,true) and string.find(row,'|hydrationAmount=0.300000',1,true)
+    and string.find(row,'|tainted=0',1,true))
+episode=choose("water");body:getStats():set(CharacterStat.THIRST,.5)
+local before=count();amount=fluid:getAmount();__queued=nil
+check("native_world_cola_is_not_carried_before_acquisition",not body:getInventory():contains(__cola)
+    and __colaContainer:contains(__cola) and SAOJavaBridge:findCarriedDrink(body)==nil)
+local transfer=SAO.Needs.worldSourceTransferAction(body,__cola,__colaContainer,body:getInventory(),__colaContainer)
+check("native_cola_transfer_uses_existing_owner",transfer and SAO.Needs.queueVerified(transfer))
+transfer:transferItem(__cola)
+check("native_cola_acquisition_is_not_thirst_relief",body:getInventory():contains(__cola) and not __colaContainer:contains(__cola)
+    and count()==before and body:getStats():get(CharacterStat.THIRST)==.5)
+check("native_safe_cola_uses_existing_carried_drink",SAO.Needs.drinkCarried("a",body)
+    and __queued and __queued.item==__cola and count()==before)
+action=__queued;action:start();action:perform();action:complete()
+fact=records.a.cognition.experiences[before+1]
+check("native_cola_measures_actual_thirst_relief",count()==before+1 and fluid:getAmount()<amount
+    and fact.kind=="consume" and fact.category=="water" and fact.thirstDelta>0
+    and body:getStats():get(CharacterStat.THIRST)<.5 and episode.status=="observed")
+fluid:Empty();fluid:addFluid(Fluid.Get('Cola'),.2);fluid:addFluid(Fluid.TaintedWater,.1);__queued=nil
+check("native_tainted_cola_is_not_queued_for_thirst",not SAO.Needs.drinkCarried("a",body) and __queued==nil)
+-- Installed beverage blend whitelists reject Bleach; use a native Water
+-- mixture that the engine actually admits, then prove the contamination.
+fluid:Empty();fluid:addFluid(Fluid.Water,.2);fluid:addFluid(Fluid.Bleach,.1);__queued=nil
+check("native_poison_fixture_contains_bleach",fluid:contains(Fluid.Bleach) and fluid:isPoisonous()
+    and fluid:getPrimaryFluid()==Fluid.Water)
+check("native_poison_water_primary_is_not_queued_for_thirst",not SAO.Needs.drinkCarried("a",body) and __queued==nil)
+
+fluid=__dietCola:getFluidContainer();row=__observeNativeItem(__dietCola)
+check("native_diet_cola_definition_is_hydration",__dietCola:getFullType()=='Base.Pop'
+    and fluid:getPrimaryFluid()==Fluid.Get('ColaDiet') and string.find(row,'|hydrationAmount=0.300000',1,true))
+body:getInventory():AddItem(__dietCola)
+episode=choose("water");body:getStats():set(CharacterStat.THIRST,.5)
+before=count();amount=fluid:getAmount();__queued=nil
+check("native_diet_cola_uses_existing_carried_drink",SAO.Needs.drinkCarried("a",body)
+    and __queued and __queued.item==__dietCola and count()==before)
+action=__queued;action:start();action:perform();action:complete()
+fact=records.a.cognition.experiences[before+1]
+check("native_diet_cola_measures_actual_thirst_relief",count()==before+1 and fluid:getAmount()<amount
+    and fact.thirstDelta>0 and body:getStats():get(CharacterStat.THIRST)<.5 and episode.status=="observed")
+__queued=nil
+check("native_no_medicine_does_not_queue",not SAO.Needs.takePills("a",body) and __queued==nil)
+__pills:setReduceInfectionPower(50)
+check("native_nonfood_infection_property_does_not_queue",not SAO.Needs.takePills("a",body) and __queued==nil)
+__pills:setReduceInfectionPower(0)
+body:getInventory():AddItem(__antibiotics)
+local infectionPower=__antibiotics:getReduceInfectionPower()
+__antibiotics:setReduceInfectionPower(math.huge)
+check("native_infinite_medicine_property_does_not_queue",not SAO.Needs.takePills("a",body) and __queued==nil)
+__antibiotics:setReduceInfectionPower(0/0)
+check("native_nonfinite_medicine_property_does_not_queue",not SAO.Needs.takePills("a",body) and __queued==nil)
+__antibiotics:setReduceInfectionPower(infectionPower)
+before=count()
+check("native_carried_medicine_uses_native_property_owner",SAO.Needs.takePills("a",body)
+    and __queued and __queued.item==__antibiotics and count()==before)
+action=__queued
+check("native_medicine_selection_is_not_consumption",body:getInventory():contains(__antibiotics))
+action:start();action:perform();action:complete()
+check("native_medicine_complete_consumes_actual_item",not body:getInventory():contains(__antibiotics))
 NATIVE_EAT_RESULT="PASS cognition native use "..n

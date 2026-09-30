@@ -96,6 +96,14 @@ for _,kind in ipairs({'tainted','poison','nonwater'}) do
 end
 body,agent,purpose=assigned('water',.1) F.amount=0 plan(purpose)
 check('empty_native_vessel_is_not_owned_water',purpose.status~='completed' and purpose.outcomeProgress.held==0)
+body,agent,purpose=assigned('water',1) F.amount=2 F.nonwater=true
+SAOJavaBridge.findCarriedDrink=function() return F.item end
+local hydration=Ctl.resourceContext('a',nil,body,{thirst=.6,hunger=0,fatigue=0},'water',.5,true)
+hydration.purposeId=purpose.id
+P.planResource('a',hydration)
+check('safe_hydration_cannot_satisfy_assigned_clean_water_outcome',purpose.status~='completed'
+    and purpose.outcomeProgress.held==0 and hydration.carriedHydration==1 and hydration.carriedWater==0)
+SAOJavaBridge.findCarriedDrink=nil
 
 body,agent,purpose=assigned('water',3)
 local started=Ctl.advanceResourcePurpose('a',agent,body,100,{hunger=0,thirst=0,fatigue=0})
@@ -367,7 +375,8 @@ def main():
                 if values[target]!="false":raise RuntimeError(target+": old defect survived")
             cp=os.pathsep.join(map(str,[GAME/"projectzomboid.jar",GAME/"ZombieBuddy.jar",ROOT/"mod/42.20/media/java/SAO.jar"]))
             sources=[ROOT/"tools/luacheck/MovementCrossingProbe.java",ROOT/"tools/luacheck/ResourceApproachProbe.java",
-                     ROOT/"tools/resource_outcome_checks/NativeStockProbe.java"]
+                     ROOT/"tools/resource_outcome_checks/NativeStockProbe.java",
+                     ROOT/"java/src/com/sao/engine/SAONeeds.java"]
             built=subprocess.run([str(JDK/"javac.exe"),"-encoding","UTF-8","-cp",cp,"-d",str(work),*map(str,sources)],
                 capture_output=True,text=True,timeout=60)
             if built.returncode:raise RuntimeError("native stock compile: "+built.stderr[-2500:])
@@ -376,7 +385,33 @@ def main():
                 cwd=work,capture_output=True,text=True,timeout=60)
             if done.returncode or "NATIVE_OUTCOME_STOCK_OK" not in done.stdout:
                 raise RuntimeError("native stock probe: "+done.stdout[-2500:]+done.stderr[-2000:])
-            print(f"Border 221 PASS: {total} installed Kahlua cases; {len(CONTROLS)} named controls; 6native stock checks; {definition_count} Python definition checks")
+            native_source=(ROOT/"java/src/com/sao/engine/SAONeeds.java").read_text(encoding="utf-8")
+            native_controls=[
+                ("unsafe-primary", "|| fluidContainer.isPoisonous() || fluidContainer.isTainted()", "|| false",
+                    "tainted_soda_primary_is_not_safe_hydration"),
+                ("water-only", "|| fluid == zombie.entity.components.fluids.Fluid.SodaPop", "|| false",
+                    "native_hydration_SodaPop"),
+                ("poison-ignored", "|| fluidContainer.isPoisonous()", "|| false",
+                    "poison_water_primary_is_not_safe_hydration"),
+                ("cola-omitted", '|| fluid == zombie.entity.components.fluids.Fluid.Get("Cola")', "|| false",
+                    "native_hydration_Cola"),
+                ("diet-cola-omitted", '|| fluid == zombie.entity.components.fluids.Fluid.Get("ColaDiet")', "|| false",
+                    "native_hydration_ColaDiet"),
+            ]
+            for name,before,after,marker in native_controls:
+                if native_source.count(before)!=1:raise RuntimeError(name+": native mutation anchor differs")
+                mutant=work/name; mutant.mkdir()
+                path=mutant/"SAONeeds.java";path.write_text(native_source.replace(before,after,1),encoding="utf-8")
+                built=subprocess.run([str(JDK/"javac.exe"),"-encoding","UTF-8","-cp",cp,"-d",str(mutant),str(path)],
+                    capture_output=True,text=True,timeout=60)
+                if built.returncode:raise RuntimeError(name+": native mutant compile: "+built.stderr[-2000:])
+                negative=subprocess.run([str(JDK/"java.exe"),"-Duser.home="+str(mutant),"-Djava.awt.headless=true",
+                    "--enable-native-access=ALL-UNNAMED","-cp",str(mutant)+os.pathsep+str(work)+os.pathsep+cp,"NativeStockProbe"],
+                    cwd=mutant,capture_output=True,text=True,timeout=60)
+                if negative.returncode==0 or "CHECK "+marker+"=false" not in negative.stdout:
+                    raise RuntimeError(name+": native causal control did not fail its named assertion: "+negative.stdout[-1800:])
+            native_count=len(re.findall(r'CHECK [^=]+=true',done.stdout))
+            print(f"Border 221 PASS: {total} installed Kahlua cases; {len(CONTROLS)} named controls; {native_count} native stock checks; {len(native_controls)} native controls; {definition_count} Python definition checks")
             return 0
     except Exception as error:
         print("FAULT Border221:",error)

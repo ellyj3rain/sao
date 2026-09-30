@@ -1,11 +1,59 @@
 | Document | Survivor Awareness Overhaul Session State |
 |---|---|
-| Version | `3.8.0.0-pre-alpha` |
+| Version | `3.9.0.0-pre-alpha` |
 | Author | ellyj3rain |
 | Repository | `SESSION_STATE.md` |
 | Status | CANONICAL - current implementation and continuation. |
 
 # Session state
+
+**As of** 2026-09-30, [C106] adds source-bound initial people by study site before
+native generation. PopulationAdmissions retains identity, history, lived presence
+and unit ownership; actual generated people determine coverage. Save replay
+retains the exact admission. Existing admissions pass fourteen cases and three
+controls; initial cohorts pass sixteen cases and eight controls. Typed definitions
+pass twenty-one tests, including eleven malformed inputs; runtime handoff and two
+controls pass. Initial placement provenance passes five cases and three controls,
+retaining exact native causes while current bodies determine representation.
+These are production owners in installed Kahlua with controlled dependencies;
+cohort disk round-trip and fresh loaded coverage remain separate acceptance.
+Starting-site conditions require enabled population generation. Cohort snapshots
+are acquired by admitted archive capture; paused, pending and draining ticks do
+not rebuild them. Four asynchronous treatments and seven defect controls pass,
+including restoration of the unadmitted per-tick snapshot defect.
+The same batch connects native hydration evidence to maintained
+private thirst purposes. Exact inspected item, native revision and current
+permission ground acquisition. Material drink receipts remain drink; only the
+exact admitted thirst intent joins the existing cognition channel. The native
+carried-drink callback owns measured relief. Pop2/Cola and Pop/ColaDiet now join
+the existing safe-fluid predicate. Tainted, poisonous or unknown evidence grants
+no route. Historical observations without hydration facts require inspection.
+Clean-water stock goals remain separately measured.
+
+The subsequent C105 failure enters medicine selection and calls an absent
+script-item getter. Selection now uses the native carried-inventory owner,
+finite positive inventory-item infection reduction and an actual Food passed to
+the existing eat action. Actual consumption owns any effect; cold relief is not
+promised. The engine contract's former guarded-read statement is corrected.
+
+Six fixed epoch-owned exporter stages report inclusive monotonic durations,
+quantities, failures, capacity deferral and clipping. Loading emits no detached
+owner snapshot; source identities and the diagnostic sample clock remain explicit.
+Retired workers cannot charge a successor. The actual engine slow Lua callback
+timer is enabled for this finite study and restores its previous setting before
+owned quit. Warning availability is reported without changing logging preferences.
+The final controlled native timing suite passes 107 cases, eleven causal controls
+and a corrupt-read-back treatment. Independent timing review is clear of material
+findings. Native use passes 39 cases and eight controls, including actual carried
+antibiotic selection/consumption, finite native properties and the missing
+script-getter defect control; resource outcomes pass
+49 Kahlua cases, eight controls, nineteen native checks, five native controls and
+eleven definition checks. Private hydration planning passes 98 Kahlua cases and
+22 controls. Final cross-file review and every border are enforced before close.
+The closing normal hook enforces every border; publication, exact-source install
+and fresh loaded C106 comparison remain separate. The failed C104 cohort stays
+incomplete, and running C105 sources remain sealed. Scenario/dataset admission and
+aggregate ML training have not occurred.
 
 **As of** 2026-09-30, [C105] implements study resource
 objectives with typed desired-stock targets and exact actor, source definition,
@@ -28,9 +76,9 @@ installed-Kahlua lifecycle treatments and six defect controls pass, including
 mobile receipt composition. The production codec preserves the retained
 1,958,052-byte archive. Eighty-seven installed-engine worker cases, seven causal
 controls and one corrupt-readback treatment pass, including native pause/drain
-and durable timeout failure. The complete gate is enforced by the closing
-commit. Publication, exact-source deployment and loaded-rate comparison remain
-separate continuation steps.
+and durable timeout failure. The complete normal closing gate passed. PR #122
+merged the exact candidate tree, followed by verified native installation and
+the source-sealed loaded comparison below.
 
 The exact merged C104 watch used a finite attempt, with three actual area images,
 twelve represented people and a thirty-minute native day. Normal measured
@@ -47,16 +95,38 @@ continuation receipt. The first failure is an off-slot NPC handover entering
 the installed vanilla inventory-transfer update, which calls its absent player
 loot panel. The repair retains native transfer and facing authority while
 separating the NPC action from player UI. Its installed-action production and
-four causal controls pass; the full transfer and consume regression remains
-inside the complete gate.
+four causal controls pass; the normal closing gate also passed the full transfer
+and consume regression.
 The first two gate attempts remain failed evidence. Explicit test verdicts and
 canonical script-count prose were repaired, then the legacy native debugger
 mutation targets were aligned with the measured preflight and synchronous writer
 branches. All six debugger controls and twenty downstream export controls reject
-their named defects against the installed VM. The final closing gate runs the
-frozen tree through the normal pre-commit hook.
-The C105 trial definition is privately prepared with three outcome recipients
-and autonomous peers; it has not launched or been admitted to a dataset.
+their named defects against the installed VM. The final normal closing gate
+passed the frozen tree without bypasses.
+C105 is merged through PR #122 at 9cb01585c402fa1aadb243ab9674afd8960f6d92,
+installed exactly and ran as sealed native session
+828b0bf4-6969-44ff-bc97-a544f1a24d3b. Twelve people occupy only residential and
+service areas; the farm feed is distinct but empty, so its objective stays unbound.
+The residential and service stock requests expire with held stock zero at their
+actual county deadlines. Native consumption successes do not imply stock success.
+Normal measures 6.584 successful native updates/second and 25.35 world hours/wall
+hour. Fast clock sampling measures 59.62 world hours/wall hour; its FPS diagnostic
+fails during atomic replacement after a 16.03-second partial interval at 3.243
+updates/second. That partial interval is not a full-minute FPS comparison.
+Two thread samples show game-thread Lua running while rendering waits for state;
+exclusive Lua hotspots remain unknown. No sole-export-worker attribution follows
+from the earlier comparison. Three actual Mousecat Focus windows independently
+move, resize and redock; eight waiting reviews remain intact. The live trial and
+all observations remain unreviewed for dataset admission.
+The attempt stops at world hour 27.3474617 on the medicine getter's native
+debugger latch. Native exit zero does not supply a clean observer-stop receipt:
+the run is incomplete, its session failed, validated continuation hours zero and Continue
+unavailable. The 1,167 save-file hash receipts remain intact. No actor is guessed
+from the unbound error stack. Actual loaded Handover remains unobserved. The
+installed engine is 42.21 (e1a69eb743ede60b213a0fe7f8b83d4fcab773036d256cc4543a336f3b058a33),
+while the mod folder variant remains 42.20. The next private FPS diagnostic
+uses a separately sealed bounded atomic-replace retry; the original diagnostic
+fault and partial interval remain retained.
 Known-procedure live admission, long-term strategic quality, additional life
 action owners, source-integration obligations and new ML training remain open.
 
@@ -1248,10 +1318,10 @@ C51's separate first gate found a verdict-prefix defect and missing transition
 registry surfaces/lifetimes. Its failed output is preserved with the corrections;
 the closing full gate passed with exit 0.
 
-The last verified SAO install is C104, deployed on 2026-09-30 UTC from
-merged public source `be8a13b530a06d286b838dfa4073a841b44f55ea`. Its local
+The last verified SAO install is C105, deployed on 2026-09-30 UTC from
+merged public source `9cb01585c402fa1aadb243ab9674afd8960f6d92`. Its local
 deployment receipt verifies all 1,266 installed files and unchanged metadata
-for 3,570 live-save files. The isolated C104 watch copied that exact public
+for 3,570 live-save files. The isolated C105 watch copied that exact public
 source into its own cache. Publication alone does not replace running copies. The earlier
 C76/ZAO A37 main-menu receipt remains scoped to that historical install.
 The [C61 evidence record](artifacts/audits/20260920-0844Z-0144PST-native-world-sources/README.md)

@@ -241,6 +241,13 @@ function Study.start()
     settingsMatch()
     state.definitionSha256 = Config.definitionSha256
     state.sequence = tonumber(state.sequence) or 0
+    local initialPeople = Config.situation and Config.situation.initialPeopleBySite
+    if initialPeople then
+        local owner = assert(SAO.PopulationAdmissions, "initial study population owner unavailable")
+        local ok, reason = owner.stageInitialPeople(Config.definitionSha256, getWorld():getWorld(),
+            initialPeople, Config.observation.sites, Config.sandbox["SurvivorAwareness.Population"])
+        assert(ok, reason)
+    end
     session = tostring(getTimestampMs())
     beginExport()
     -- A saved study resumes its model budget; first launch enables equal participation.
@@ -845,6 +852,10 @@ function Study.observe()
     settingsMatch()
     local hours = getGameTime():getWorldAgeHours()
     assert(finite(hours), "world clock unavailable")
+    if Config.situation and Config.situation.initialPeopleBySite then
+        state.situationReceipt = state.situationReceipt or {}
+        state.situationReceipt.initialPeople = SAO.PopulationAdmissions.initialPeopleSnapshot()
+    end
     local budget = { left = 100000, bytes = 8 * 1024 * 1024, omitted = array(), omittedCount = 0 }
     local frame = { schema = "sao-study-observation/1", definitionSha256 = Config.definitionSha256,
         packageEngineJarSha256 = Config.engineJarSha256, engineVersion = getCore():getVersion(),

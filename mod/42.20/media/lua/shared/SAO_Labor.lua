@@ -175,7 +175,8 @@ function Labor.assess(id, context)
         knownRisk = unit(context.knownRisk), options = {},
         demand = { pressure = unit(context.pressure) or 0,
             ownedReady = count(context.carriedReady), ownedRaw = count(context.carriedRaw),
-            ownedWater = count(context.carriedWater), ownedItems = count(context.carriedItems),
+            ownedWater = count(context.carriedWater), ownedHydration = count(context.carriedHydration),
+            ownedItems = count(context.carriedItems),
             basis = "native-own-inventory-and-private-observations", confidence = "observed-stock",
             uncertainty = "future-use, access, yield and helper assent remain unconfirmed" } }
     local function add(option)
@@ -203,7 +204,13 @@ function Labor.assess(id, context)
     local sources = {}
     for i, source in ipairs(type(context.sources) == "table" and context.sources or {}) do
         if i > 64 then break end
+        local hydration = type(source) == "table" and category == "water"
+            and context.hydrationIntent == true and context.purposeId == nil
+            and source.materialCategory == "drink" and SAO.WorldSources.knownHydrationAmount
+            and SAO.WorldSources.knownHydrationAmount(id, source.sourceId or source.id,
+                source.itemId, source.revision or source.sourceRevision)
         if type(source) == "table" and source.category == category
+            and (source.materialCategory == nil or source.materialCategory == category or hydration)
             and finite(source.itemId) and (tonumber(source.quantity) or 0) > 0 and privateSource(id, source)
             and short(source.revision or source.sourceRevision) and short(source.itemType) then
             local place = inspectedPlace(id, source.place)
@@ -215,7 +222,8 @@ function Labor.assess(id, context)
                     sourceId = short(source.sourceId or source.id),
                     sourceRevision = short(source.revision or source.sourceRevision),
                     place = place, itemId = source.itemId, itemType = short(source.itemType),
-                    category = category, quantity = 1, quantityUnit = "item",
+                    category = category, materialCategory = hydration and "drink" or category,
+                    hydrationIntent = hydration and true or nil, quantity = 1, quantityUnit = "item",
                     distance = count(source.distance), cooking = kind == "acquire-prepare",
                     evidence = kind == "acquire-prepare" and 0.85 or 0.9,
                     continuity = kind == "acquire-prepare" and 0.6 or 0.75,

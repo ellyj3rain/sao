@@ -319,6 +319,180 @@ ADMISSION_EXPECTED = {
     'refill_keeps_six_person_pace_after_wait', 'refill_all_admitted_people_learn_origin',
 }
 
+COHORT_CASES = r'''
+local A=SAO.PopulationAdmissions
+local hash=string.rep('a',64)
+local sites={{id='residential',x=100,y=200,z=0},{id='services',x=300,y=200,z=0},
+    {id='farm',x=500,y=200,z=0}}
+local wanted={residential=4,services=4,farm=4}
+local results={}
+local function reset()
+    A.rebindWorld()
+    __records={} __created={} __history={} __presence={} __learned={}
+    __bonds={} __trust={} __saw={} __claimCalls={} __groundCalls=0
+    __store={claims={},news={}} __hours=0
+    SpawnRegionMgr.getSpawnRegions=function() return {{name='Native regional origins',points={
+        unemployed={{posX=100,posY=200,posZ=0},{posX=300,posY=200,posZ=0},{posX=500,posY=200,posZ=0}},
+        nurse={{posX=300,posY=200,posZ=0}}
+    }}} end
+    SAO.Rand.int=function(limit) return limit==100 and 90 or 0 end
+    SAO.Places.at=function(x,y) return {key=tostring(x)..':'..tostring(y)} end
+    SAO.Body.get=function() return nil end
+    return {population=12,newcomers=12,refillDays=3}
+end
+local function stage()
+    return A.stageInitialPeople(hash,'NativeSave',wanted,sites,12)
+end
+local function run()
+    local conf=reset() assert(stage()) A.ensurePopulation(conf,5400) return conf
+end
+local function check(name,fn)
+    local ok,value=pcall(fn)
+    if not ok then results[#results+1]='detail:'..name..':'..tostring(value) end
+    results[#results+1]=name..'='..tostring(ok and value==true)
+end
+check('initial_three_native_origin_sites',function()
+    run()
+    local snap=A.initialPeopleSnapshot()
+    if #__created~=12 or snap.generated~=12 or snap.represented~=0 or snap.status~='generated'
+        or __store.countySettled~=true then return false end
+    for _,site in ipairs(sites) do
+        local row=snap.sites[site.id]
+        if row.generated~=4 or #row.actualIds~=4 then return false end
+        for _,id in ipairs(row.actualIds) do
+            local rec=__records[id]
+            if rec.x~=site.x or rec.y~=site.y or rec.z~=site.z or rec.homeX~=site.x
+                or rec.initialStudyOrigin.siteId~=site.id then return false end
+        end
+    end
+    return true
+end)
+check('initial_units_clamp_to_site_quota',function()
+    run()
+    local units={}
+    for _,rec in ipairs(__created) do
+        if rec.unitId then
+            units[rec.unitId]=units[rec.unitId] or {count=0,siteId=rec.initialStudyOrigin.siteId}
+            local u=units[rec.unitId]
+            if u.siteId~=rec.initialStudyOrigin.siteId then return false end
+            u.count=u.count+1
+        end
+    end
+    local n=0 for _,u in pairs(units) do if u.count~=3 then return false end n=n+1 end
+    return n==3 and #__bonds==9 and #__saw==18
+end)
+check('initial_keeps_history_presence_and_lived_witness',function()
+    run()
+    if #__history~=12 or #__presence~=12 or #__learned~=12 or #__claimCalls~=0 then return false end
+    for i,rec in ipairs(__created) do
+        if rec.occupation~='nurse' or __presence[i].genesis~=true or __learned[i].id~=rec.id
+            or __learned[i].building.key~=tostring(rec.x)..':'..tostring(rec.y) then return false end
+    end
+    return true
+end)
+check('initial_trade_anchor_stays_in_declared_site',function()
+    run()
+    for _,rec in ipairs(__created) do
+        if rec.initialStudyOrigin.siteId~='services' and (rec.x==300 or rec.originAnchored) then return false end
+    end
+    return __records['person-5'].originAnchored==true
+end)
+check('initial_rebind_replay_keeps_exact_people',function()
+    local conf=run()
+    __records['person-1'].x=900
+    __records['person-1'].dead=true __records['person-1'].diedAtHours=1
+    A.rebindWorld() assert(stage()) A.ensurePopulation(conf,5401)
+    return #__created==12 and __records['person-1'].x==900
+        and A.initialPeopleSnapshot().generated==12
+end)
+check('initial_representation_is_native_body_truth',function()
+    run()
+    SAO.Body.get=function(id) return id=='person-9' and {} or nil end
+    local snap=A.initialPeopleSnapshot()
+    return snap.generated==12 and snap.represented==1 and snap.sites.farm.represented==1
+        and snap.sites.residential.represented==0
+end)
+check('initial_placement_requires_exact_source_and_native_body_truth',function()
+    run()
+    local rec=__records['person-9']
+    rec.initialStudyPlacement={definitionSha256=string.rep('b',64),saveName='NativeSave',siteId='farm',
+        status='represented',causeAvailable=true}
+    local snap=A.initialPeopleSnapshot()
+    if snap.sites.farm.placement[rec.id].status~='unobserved' or snap.represented~=0 then return false end
+    rec.initialStudyPlacement={definitionSha256=hash,saveName='NativeSave',siteId='farm',
+        status='refused',reason='native-square-unavailable',causeAvailable=true,observedAtCountyHours=123}
+    snap=A.initialPeopleSnapshot()
+    return snap.sites.farm.placement[rec.id].reason=='native-square-unavailable'
+        and snap.sites.farm.placement[rec.id].observedAtCountyHours==123 and snap.represented==0
+end)
+check('initial_snapshot_does_not_publish_requested_as_generated',function()
+    reset() assert(stage())
+    local snap=A.initialPeopleSnapshot()
+    return snap.target==12 and snap.generated==0 and snap.represented==0
+        and #snap.sites.farm.actualIds==0 and snap.status=='staged'
+end)
+check('initial_foreign_binding_refused',function()
+    run() A.rebindWorld()
+    local ok,reason=A.stageInitialPeople(string.rep('b',64),'NativeSave',wanted,sites,12)
+    return ok==false and reason=='initial-cohort-binding-differs' and #__created==12
+end)
+check('initial_changed_quota_refused',function()
+    run() A.rebindWorld()
+    local ok,reason=A.stageInitialPeople(hash,'NativeSave',{residential=3,services=5,farm=4},sites,12)
+    return ok==false and reason=='initial-cohort-definition-differs'
+end)
+check('initial_too_late_staging_refused',function()
+    local conf=reset() A.ensurePopulation(conf,5400)
+    local ok,reason=stage()
+    return ok==false and reason=='initial-cohort-staged-after-genesis'
+end)
+check('initial_missing_identity_refused_without_replacement',function()
+    run() __records['person-9']=nil A.rebindWorld()
+    local ok,reason=stage()
+    return ok==false and reason=='initial-cohort-identity-provenance-differs' and #__created==12
+end)
+check('initial_wrong_site_provenance_refused',function()
+    run() __records['person-9'].initialStudyOrigin.x=100 A.rebindWorld()
+    local ok,reason=stage()
+    return ok==false and reason=='initial-cohort-identity-provenance-differs'
+end)
+check('initial_native_origin_missing_defers_its_site',function()
+    local conf=reset()
+    SpawnRegionMgr.getSpawnRegions=function() return {{name='Only residential',points={
+        unemployed={{posX=100,posY=200,posZ=0}}
+    }}} end
+    assert(stage()) A.ensurePopulation(conf,5400)
+    local snap=A.initialPeopleSnapshot()
+    return #__created==4 and snap.generated==4 and snap.sites.services.generated==0
+        and snap.status=='deferred' and snap.reason=='native-origin-unavailable:services'
+        and __store.countySettled~=true
+end)
+check('initial_creation_refusal_preserves_partial_exact_ids',function()
+    local conf=reset() assert(stage())
+    local original=SAO.Identity.create
+    SAO.Identity.create=function(a,b,x,y,z)
+        if #__created>=5 then return nil end
+        return original(a,b,x,y,z)
+    end
+    A.ensurePopulation(conf,5400)
+    local snap=A.initialPeopleSnapshot()
+    SAO.Identity.create=original
+    if snap.generated~=5 or snap.status~='deferred' or __store.countySettled then return false end
+    A.ensurePopulation(conf,5640)
+    snap=A.initialPeopleSnapshot()
+    return #__created==12 and snap.generated==12 and snap.sites.farm.generated==4
+        and snap.status=='generated' and #__history==12
+end)
+check('initial_invalid_native_population_refused',function()
+    reset()
+    local ok,reason=A.stageInitialPeople(hash,'NativeSave',{residential=501},sites,501)
+    return ok==false and reason=='invalid-initial-cohort-binding'
+end)
+__cohortResult=table.concat(results,';')
+'''
+
+COHORT_EXPECTED = set(re.findall(r"check\('([a-z0-9_]+)'", COHORT_CASES))
+
 # The exact removed producer block, reinstated inside the real admission loop.
 SPAWN_CLAIM_BLOCK = '''        -- A home is a claim from the first day: a modest box around the
         -- spawn house, the social fact other survivors will respect.
@@ -434,6 +608,55 @@ def producer_checks(receipt, faults):
                     return
                 print('  PASS borrowed leader trade fails independent profession anchoring')
         receipt['producer_status'] = 'PASS'
+        cohort_cases = work / 'cohort-cases.lua'
+        cohort_cases.write_text(COHORT_CASES, encoding='utf-8')
+        controls = (
+            ('initial-owner-omitted', 'store.initialStudyPeople, initialCohort = cohort, cohort',
+             'store.initialStudyPeople = cohort', 'initial_three_native_origin_sites'),
+            ('initial-unit-quota-omitted', 'if siteId then size = math.min(size, remaining) end',
+             '', 'initial_units_clamp_to_site_quota'),
+            ('initial-trade-reanchor-unbounded', 'pickOriginFor(row.enginePath, siteId)',
+             'pickOriginFor(row.enginePath)', 'initial_trade_anchor_stays_in_declared_site'),
+            ('initial-binding-check-omitted', 'prior.definitionSha256 ~= definitionSha256 or prior.saveName ~= saveName',
+             'prior.saveName ~= saveName', 'initial_foreign_binding_refused'),
+            ('initial-too-late-check-omitted', 'if store.countySettled or existingPeople then',
+             'if false then', 'initial_too_late_staging_refused'),
+            ('initial-replay-owner-omitted', 'if prior then', 'if false then',
+             'initial_rebind_replay_keeps_exact_people'),
+            ('initial-site-proof-omitted', 'or siteFor(origin, cohort.sites) ~= site.id then',
+             'then', 'initial_wrong_site_provenance_refused'),
+            ('initial-request-published-as-count', 'generated = 0, represented = 0, sites = {}',
+             'generated = initialCohort.target, represented = 0, sites = {}',
+             'initial_snapshot_does_not_publish_requested_as_generated'),
+        )
+        variants = [('initial-production', source, None)]
+        for label, before, after, defect in controls:
+            if source.count(before) != 1:
+                faults.append('initial population mutation anchor drifted: ' + label)
+                return
+            changed = source.replace(before, after, 1)
+            assert changed != source, 'initial mutation did not land: ' + label
+            variants.append((label, changed, defect))
+        for label, content, defect in variants:
+            path = work / (label + '.lua')
+            path.write_text(content, encoding='utf-8')
+            result = run([JDK / 'java.exe', '-cp', os.pathsep.join(map(str, (engine, work))),
+                          'LuaRun', host, path, cohort_cases, '--', '__cohortResult'], label)
+            checks = dict(re.findall(r'([a-z0-9_]+)=(true|false)', result.stdout))
+            receipt[label] = checks
+            if result.returncode or set(checks) != COHORT_EXPECTED:
+                faults.append(label + ' did not execute every initial population case\n'
+                              + result.stdout + result.stderr)
+                return
+            if defect is None and any(value != 'true' for value in checks.values()):
+                faults.append('initial population producer failed: ' + result.stdout + result.stderr)
+                return
+            if defect and checks[defect] != 'false':
+                faults.append('initial population control survived: ' + label)
+                return
+            print('  PASS ' + (str(len(checks)) + ' initial population cases in installed Kahlua'
+                  if defect is None else 'initial population control refused: ' + label))
+        receipt['initial_population_status'] = 'PASS'
 
 
 def read(path):

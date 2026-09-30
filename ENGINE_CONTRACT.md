@@ -1,6 +1,6 @@
 | Document | Survivor Awareness Overhaul Engine Contract |
 |---|---|
-| Version | `3.8.0.0-pre-alpha` |
+| Version | `3.9.0.0-pre-alpha` |
 | Author | ellyj3rain |
 | Repository | `ENGINE_CONTRACT.md` |
 | Status | CANONICAL - the verified engine mechanics an IsoPlayer NPC requires. |
@@ -392,7 +392,7 @@ own Lua use, or by compiling against it - never by assuming a name.
 | `Thermoregulator.getCoreTemperature()` | how cold someone is | javap; **this replaced `BodyDamage.getColdStrength()`, which is the cold ILLNESS** - the field's declaration neighbours (catchACold, sneeze timers) are what gave it away |
 | `BodyDamage.getGeneralWoundInfectionLevel`, `BodyPart.getWoundInfectionLevel/setWoundInfectionLevel/getAlcoholLevel/setAlcoholLevel/bandaged/isBandageDirty/SetBitten` | medicine and the dormant wound | javap |
 | `InventoryItem.getAlcoholPower()` | what cleans a wound | compile-verified |
-| `Item.getReduceInfectionPower()` (script item) | what treats sickness | pcall-guarded read |
+| `InventoryItem.getReduceInfectionPower()`, native `Food` | carried infection-reducing food | installed javap and native receiver; script `Item` has no such getter; selection promises no cold relief |
 | `CharacterStat.INTOXICATION/PAIN/PANIC/STRESS/ANGER/MORALE` | the meeting's temper | javap enum listing |
 | `SFarmingSystem.instance:getLuaObjectOnSquare`, plant `state`/`waterLvl`/`canHarvest()`, `ISPlowAction`/`ISSeedActionNew`/`ISWaterPlantAction`/`ISHarvestPlantAction`, `ISFarmingMenu.canDigHereSquare/getWaterUsesInteger`, `farming_vegetableconf.props`, `ItemTag.DIG_PLOW` | farming | read from KnoxSurvivors' working executors AND vanilla's own files; module presence guarded because these globals are indexed at argument-evaluation time |
 | `ISBarricadeAction`, `IsoObject.isBarricadeAllowed/getBarricadeForCharacter`, `Barricade.canAddPlank` | boarding windows | vanilla + KS reads |

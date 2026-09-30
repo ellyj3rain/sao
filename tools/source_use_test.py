@@ -58,10 +58,13 @@ def snapshot(cx, cy, revision, sources):
         for item in source.get("items", []):
             lines.append(
                 "I|source={source}|id={id}|type={type}|uses=1"
-                "|amount={amount:.6f}|fluid={fluid}|poison=0|rotten=0"
+                "|amount={amount:.6f}|fluid={fluid}|poison={poison}|rotten=0"
                 "|cats={cats}".format(source=source["id"], id=item["id"],
                     type=item["type"], amount=item["amount"],
-                    fluid=item.get("fluid", ""), cats=item["cats"]))
+                    fluid=item.get("fluid", ""), poison=int(item.get("poison", False)), cats=item["cats"]))
+            for key in ("hydrationAmount", "tainted"):
+                if key in item:
+                    lines[-1] += f"|{key}={item[key]}"
     return "\n".join(lines + ["E", ""])
 
 

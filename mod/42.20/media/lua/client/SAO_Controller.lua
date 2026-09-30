@@ -2130,11 +2130,11 @@ end
 
 -- Native inventory and exact private source offers supply the resource plan.
 -- Physical rows stay in their owners; this context carries bounded scalars.
-function Ctl.resourceContext(id, agent, body, needs, category, pressure)
+function Ctl.resourceContext(id, agent, body, needs, category, pressure, hydrationIntent)
     local context = { category = category, pressure = pressure, needs = needs,
         atHours = SAO.History.countyHours(), carriedReady = 0, carriedRaw = 0,
         carriedWater = 0, carriedItems = 0, carriedRawItems = {}, carriedReadyItems = {},
-        carriedWaterItems = {}, sources = {},
+        carriedWaterItems = {}, carriedHydration = 0, hydrationIntent = hydrationIntent == true, sources = {},
         contacts = {}, commitments = {}, skills = {} }
     local items = SAOJavaBridge:privateCarriedItems(body)
     context.stockCoverage = items:size() <= 128 and "all-native-private-carried-items"
@@ -2161,6 +2161,10 @@ function Ctl.resourceContext(id, agent, body, needs, category, pressure)
             context.carriedWaterItems[#context.carriedWaterItems + 1] = {
                 itemId = item:getID(), itemType = item:getFullType(), amount = fluid:getAmount() }
         end
+    end
+    if hydrationIntent == true then
+        local ok, drink = pcall(function() return SAOJavaBridge:findCarriedDrink(body) end)
+        if ok and drink ~= nil then context.carriedHydration = 1 end
     end
     if SkillBook and SkillBook.Cooking then
         context.skills.Cooking = body:getPerkLevel(SkillBook.Cooking.perk)
@@ -2199,14 +2203,18 @@ function Ctl.resourceContext(id, agent, body, needs, category, pressure)
         if type(belief) == "table" and tonumber(belief.cx) and tonumber(belief.cy) then
             local place = { id = placeId, sourceId = belief.sourceId, cx = belief.cx, cy = belief.cy,
                 z = belief.z, minX = belief.minX, minY = belief.minY, maxX = belief.maxX, maxY = belief.maxY }
-            local offers = SAO.WorldSources.actionOptions(place, category, id, body, 1, "standing", "acquire")
+            local material = hydrationIntent == true and category == "water" and "drink" or category
+            local offers = SAO.WorldSources.actionOptions(place, material, id, body, 1, "standing", "acquire")
             for _, option in ipairs(offers and offers.options or {}) do
                 if #context.sources >= 128 then break end
                 local p = option.parameters
-                if p and SAO.WorldSources.privatelyKnowsItem(id, p.sourceId, p.itemId) then
+                if p and SAO.WorldSources.privatelyKnowsItem(id, p.sourceId, p.itemId)
+                    and (material ~= "drink" or SAO.WorldSources.knownHydrationAmount
+                        and SAO.WorldSources.knownHydrationAmount(id, p.sourceId, p.itemId, p.revision)) then
                     local cookable = rawItems[tostring(p.sourceId) .. ":" .. tostring(p.itemId)] == true
                     context.sources[#context.sources + 1] = { id = p.sourceId, sourceId = p.sourceId,
-                        revision = p.revision, place = place, category = category, quantity = 1,
+                        revision = p.revision, place = place, category = category,
+                        materialCategory = material, quantity = 1,
                         quantityUnit = "item", itemType = p.itemType, itemId = p.itemId,
                         sourceX = p.sourceX, sourceY = p.sourceY, sourceZ = p.sourceZ,
                         known = true, cookable = cookable,
@@ -2304,6 +2312,25 @@ function Ctl.coordinationStudyReady(id, body, commitment, plan, step)
     return Ctl.coordinationRouteAllowed(id, body, commitment.id, ax, ay, az, "acquiring", x, y, z) == true
 end
 
+function Ctl.beginHydrationAcquisition(id, agent, body, tick, needs)
+    local planning = SAO.ProceduralPlanning
+    if not planning or not SAO.Labor or SAO.Needs.busy(body) then return false end
+    local context = Ctl.resourceContext(id, agent, body, needs, "water", 0.5, true)
+    local purpose, step = planning.planResource(id, context)
+    if not purpose or not step or step.status ~= "available" or step.verb ~= "acquire" then return false end
+    local started = SAO.SourceUse.beginAcquisition(id, body, step.place, step.category, {
+        purposeId = purpose.id, purposeStepId = step.id, sourceId = step.sourceId,
+        sourceRevision = step.sourceRevision, itemId = step.itemId, itemType = step.itemType,
+        hydrationIntent = step.hydrationIntent })
+    if not started then
+        planning.deferResourceRoute(id, purpose.id, step.id, "the privately remembered hydration item could not be acquired")
+        return false
+    end
+    agent.taskDeadline = tick + 5400
+    setState(agent, id, "SOURCEWARD", "thirst: acquires a privately observed drink", "need")
+    return true
+end
+
 function Ctl.advanceResourcePurpose(id, agent, body, tick, needs)
     local planning = SAO.ProceduralPlanning
     if not (planning and planning.planResource and planning.resourceDemand and SAO.Labor
@@ -2331,7 +2358,7 @@ function Ctl.advanceResourcePurpose(id, agent, body, tick, needs)
     if outcome then category = outcome.resourceCategory end
     category = category == "water" and "water" or "food"
     local pressure = category == "water" and water or food
-    local context = Ctl.resourceContext(id, agent, body, needs, category, pressure)
+    local context = Ctl.resourceContext(id, agent, body, needs, category, pressure, category == "water" and not outcome)
     if outcome then context.purposeId = outcome.id end
     context.productionOptions = SAO.ResourceProduction and SAO.ResourceProduction.options(id, body, category) or {}
     -- Nearby unknown contents justify inspection only on personally remembered
@@ -2354,12 +2381,14 @@ function Ctl.advanceResourcePurpose(id, agent, body, tick, needs)
     local answer = pressure >= 0.5 and "need" or "errand"
     agent.pressure = { answer = answer, detail = purpose.objective, at = tick }
     if step.verb == "acquire" and step.owner == "SAO.SourceUse" then
-        local started = SAO.SourceUse.beginAcquisition(id, body, step.place, category, {
+        local started = SAO.SourceUse.beginAcquisition(id, body, step.place, step.category, {
             purposeId = purpose.id, purposeStepId = step.id, sourceId = step.sourceId,
-            sourceRevision = step.sourceRevision, itemId = step.itemId, itemType = step.itemType })
+            sourceRevision = step.sourceRevision, itemId = step.itemId, itemType = step.itemType,
+            hydrationIntent = step.hydrationIntent })
         if started then
             agent.taskDeadline = tick + 5400
-            setState(agent, id, "SOURCEWARD", "collects " .. category .. " for an anticipated shortage", answer)
+            setState(agent, id, "SOURCEWARD", "collects " .. (step.hydrationIntent and "a drink" or category)
+                .. " for an anticipated shortage", answer)
             return true
         end
         planning.deferResourceRoute(id, purpose.id, step.id, "the privately remembered item could not be acquired")
@@ -2995,7 +3024,16 @@ local function competeForResources(id, agent, body, tick, needs)
     for _, place in pairs(known and known.known or {}) do
         places = places + 1
         if place.sources and place.sources.food then food = food + 1 end
-        if place.sources and place.sources.water then water = water + 1 end
+        local hydration = false
+        if not (place.sources and place.sources.water) and place.sourceFacts
+            and SAO.WorldSources and SAO.WorldSources.knownHydrationAt then
+            for sourceId, fact in pairs(place.sourceFacts) do
+                if SAO.WorldSources.knownHydrationAt(id, sourceId, fact.revision) then
+                    hydration = true; break
+                end
+            end
+        end
+        if place.sources and place.sources.water or hydration then water = water + 1 end
         if places >= 100000 then break end
     end
     local cap = SAO.Labor and SAO.Labor.capabilityOf(id) or {}
@@ -3030,10 +3068,9 @@ local function decideNeedsAndCompanion(id, agent, body, tick, needs)
         -- and someone carrying `noise-is-a-debt` knows exactly what a
         -- shout costs, so they deal with it alone.
         tryCry(id, agent, body, tick)
-        -- The sick take their medicine ([B7]): a caught cold is the
-        -- engine's own progression, and a survivor carrying pills
-        -- takes them. Nothing conjured - the pills are real items the
-        -- pockets machinery already spots for carers.
+        -- Existing illness pressure can prompt an attempt with carried
+        -- medicine. Native consumption owns its effect; selection grants
+        -- no clinical knowledge or promise of relief.
         if tick >= (agent.nextPillAt or 0) then
             local sick9 = 0
             pcall(function()
@@ -3146,6 +3183,9 @@ local function decideNeedsAndCompanion(id, agent, body, tick, needs)
                 -- attempt. It cannot enter the old direct-drink path until a
                 -- route, permission, exact transfer and native use succeed.
                 if not wx then
+                    if Ctl.beginHydrationAcquisition(id, agent, body, tick, needs) then
+                        return cognitionStarted(true, "native hydration acquisition admitted")
+                    end
                     local started, why = beginObservedUse(id, agent, body,
                         needs.thirst, "water")
                     if started then

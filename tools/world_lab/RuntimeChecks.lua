@@ -121,8 +121,26 @@ function RunStudyChecks(Study)
     Events.OnInitWorld.fire()
     Events.OnInitGlobalModData.fire(true)
     Events.OnNewGame.fire()
+    -- This fixture records the study-to-owner handoff. Border115 separately
+    -- executes that real owner, identities and native origin ingestion.
+    local startingSites, startingSituation = Config.observation.sites, Config.situation
+    local staged, bindingMatches, beforeActivation = 0, true, true
+    Config.observation.sites = {{id='fixture',x=128,y=128,z=0}}
+    Config.situation = {initialPeopleBySite={fixture=Config.sandbox['SurvivorAwareness.Population']}}
+    SAO.PopulationAdmissions = {stageInitialPeople=function(definition,save,requested,sites,target)
+        beforeActivation = not Study.active
+        bindingMatches = definition==Config.definitionSha256 and save==currentSave
+            and requested==Config.situation.initialPeopleBySite and sites==Config.observation.sites
+            and target==Config.sandbox['SurvivorAwareness.Population']
+        staged=staged+1 return true
+    end}
     Events.OnGameStart.fire()
     assert(Study.active, Study.error or "native lifecycle did not arm")
+    assert(staged==1, 'initial population owner was not staged before native ticks')
+    assert(bindingMatches, 'initial population binding changed')
+    assert(beforeActivation, 'initial population staged after observation began')
+    Config.observation.sites,Config.situation=startingSites,startingSituation
+    SAO.PopulationAdmissions=nil
     assert(values.maxX == Config.extent.minCellX + Config.extent.cellsX - 1,
         "inclusive extent changed")
     local largeArray, largeMap = {}, {}
